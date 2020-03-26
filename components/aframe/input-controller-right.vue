@@ -14,7 +14,7 @@
   </a-entity>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState } from "vuex";
 
 export default {
@@ -46,57 +46,27 @@ export default {
 
   methods: {
     setupControls() {
-      if (CONFIG.DEBUG) {
-        console.log("setupControls");
-      }
-      var self = this;
-      document.addEventListener(
-        "thumbstickmoved",
-        self.thumbstickmovedListener
-      );
-      document.addEventListener(
-        "raycaster-intersected",
-        self.intersectedListener
-      );
-      document.addEventListener(
-        "raycaster-intersected-cleared",
-        self.intersectedClearListener
-      );
-      document.addEventListener("triggerup", self.triggerUpListener);
+      document.addEventListener( "thumbstickmoved", this.thumbstickmovedListener );
+      document.addEventListener("raycaster-intersected", this.intersectedListener );
+      document.addEventListener( "raycaster-intersected-cleared", this.intersectedClearListener );
+      document.addEventListener("triggerup", this.triggerUpListener);
     },
 
     tearDownControls() {
-      if (CONFIG.DEBUG) {
-        console.log("tearDownControls");
-      }
-      var self = this;
-      document.removeEventListener(
-        "thumbstickmoved",
-        self.thumbstickmovedListener
-      );
-      document.removeEventListener(
-        "raycaster-intersected",
-        self.intersectedListener
-      );
-      document.removeEventListener(
-        "raycaster-intersected-cleared",
-        self.intersectedClearListener
-      );
-      document.removeEventListener("triggerup", self.triggerUpListener);
+      document.removeEventListener( "thumbstickmoved", this.thumbstickmovedListener);
+      document.removeEventListener( "raycaster-intersected", this.intersectedListener);
+      document.removeEventListener( "raycaster-intersected-cleared", this.intersectedClearListener );
+      document.removeEventListener("triggerup", this.triggerUpListener);
     },
 
     thumbstickmovedListener(evt) {
-      var self = this;
-      if (self.teleporting) {
-        if (evt.detail.y >= -self.teleportThreshold) {
-          self.$el.emit("teleportend");
-          self.teleporting = false;
+      if (this.teleporting && evt.detail.y >= -this.teleportThreshold) {
+          this.$el.emit("teleportend");
+          this.teleporting = false;
         }
-      } else {
-        if (evt.detail.y <= -self.teleportThreshold) {
-          self.$el.emit("teleportstart");
-          self.teleporting = true;
-        }
+       else if (evt.detail.y <= -this.teleportThreshold){
+          this.$el.emit("teleportstart")
+          this.teleporting = true;
       }
     },
 
@@ -109,18 +79,15 @@ export default {
     },
 
     triggerUpListener(evt) {
-      var self = this;
-      if (self.intersected) {
-        var rightHandCursor = document.querySelector("#rightHandCursor");
-        var intersectedEl = self.intersected;
-        var intersection = rightHandCursor.components.raycaster.getIntersection(
-          intersectedEl
-        );
-        var eventDetail = {};
-        eventDetail.intersectedEl = intersectedEl;
-        eventDetail.intersection = intersection;
-        self.intersected.emit("click", eventDetail);
-      }
+      if (!this.intersected) return;
+        const rightHandCursor = document.querySelector("#rightHandCursor");
+        const intersectedEl = this.intersected;
+        const intersection = rightHandCursor.components.raycaster.getIntersection( intersectedEl );
+        let eventDetail = {
+        intersectedEl: intersectedEl,
+        intersection: intersection
+        }
+        this.intersected.emit("click", eventDetail);
     },
 
     controllerConnectedListener(evt) {
@@ -128,30 +95,18 @@ export default {
     },
 
     fixCursorPosition(controllerName) {
-      var cursor = document.querySelector("#rightHandCursor");
+      const cursor = document.querySelector("#rightHandCursor");
       switch (controllerName) {
         case "oculus-touch-controls":
-          cursor.object3D.rotation.set(
-            THREE.Math.degToRad(-45),
-            THREE.Math.degToRad(2.5),
-            0
-          );
+          cursor.object3D.rotation.set( THREE.Math.degToRad(-45), THREE.Math.degToRad(2.5), 0);
           cursor.object3D.position.set(0, -0.01, 0);
           break;
         case "windows-motion-controls":
-          cursor.object3D.rotation.set(
-            THREE.Math.degToRad(-45),
-            THREE.Math.degToRad(2.5),
-            0
-          );
+          cursor.object3D.rotation.set( THREE.Math.degToRad(-45), THREE.Math.degToRad(2.5), 0 );
           cursor.object3D.position.set(0, 0, -0.03);
           break;
         default:
-          cursor.object3D.rotation.set(
-            THREE.Math.degToRad(-45),
-            THREE.Math.degToRad(2.5),
-            0
-          );
+          cursor.object3D.rotation.set( THREE.Math.degToRad(-45), THREE.Math.degToRad(2.5), 0 );
           cursor.object3D.position.set(0, -0.01, 0);
           break;
       }

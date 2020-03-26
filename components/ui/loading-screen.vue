@@ -4,7 +4,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   data() {
     return {
@@ -13,5 +13,19 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.loading-screen {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    background-color: black;
+}
+
+.loading-message {
+    font-size: 24px;
+    color: #aeaeae;
+}
+</style>
 
 <!-- <style src="./LoadingScreen.scss"></style> -->

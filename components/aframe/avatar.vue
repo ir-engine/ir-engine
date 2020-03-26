@@ -13,7 +13,7 @@
   </a-entity>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState } from "vuex";
 
 import rightHandController from "./input-controller-right.vue";
@@ -47,196 +47,123 @@ export default {
     },
     inVR: function(newVal, oldVal) {
       if (newVal) {
-        if (AFRAME.utils.device.isMobile()) {
+        if (AFRAME.utils.device.isMobile()) 
           this.tearDownMobile();
-        } else {
+        else 
           this.tearDownDesktop();
-        }
+        
         this.setupVR();
-      } else {
+      }
+      else {
         this.tearDownVR();
-        if (AFRAME.utils.device.isMobile()) {
+        if (AFRAME.utils.device.isMobile()) 
           this.setupMobile();
-        } else {
+        else
           this.setupDesktop();
-        }
       }
     }
   },
 
   mounted() {
-    var self = this;
-    if (this.$el.hasLoaded) {
-      self.onSceneLoaded();
-    } else {
-      this.$el.addEventListener(
-        "loaded",
-        function() {
-          self.onSceneLoaded();
-        },
-        { once: true }
-      );
-    }
+    if (this.$el.hasLoaded) 
+      this.onSceneLoaded();
+    else 
+      this.$el.addEventListener( "loaded", ()=>  this.onSceneLoaded(), { once: true } );
   },
 
   beforeDestroy() {
-    if (this.$el.sceneEl.is("vr-mode")) {
+    if (this.$el.sceneEl.is("vr-mode"))
       this.tearDownVR();
-    } else {
-      if (AFRAME.utils.device.isMobile()) {
-        this.tearDownMobile();
-      } else {
-        this.tearDownDesktop();
-      }
-    }
+    else if (AFRAME.utils.device.isMobile())
+      this.tearDownMobile();
+    else this.tearDownDesktop();
   },
+
+// TODO: These methods are very bad, these should all be class constructed objects
 
   methods: {
     setupDesktop() {
-      if (CONFIG.DEBUG) {
-        console.log("setupDesktop");
-      }
-      var self = this;
-      var playerRig = self.$el;
-      if (playerRig.hasLoaded) {
-        playerRig.sceneEl.addEventListener("enter-vr", self.tearDownDesktop, {
+      const playerRig = this.$el;
+      if (playerRig.hasLoaded)
+        playerRig.sceneEl.addEventListener("enter-vr", this.tearDownDesktop, {
           once: true
         });
-      } else {
+       else 
         playerRig.addEventListener("loaded", function() {
-          playerRig.sceneEl.addEventListener("enter-vr", self.tearDownDesktop, {
+          playerRig.sceneEl.addEventListener("enter-vr", this.tearDownDesktop, {
             once: true
           });
         });
-      }
-      try {
-        if (playerRig) {
+      
           playerRig.setAttribute("wasd-controls", {
             enabled: true,
             acceleration: 100
           });
           playerRig.setAttribute("look-controls", "reverseMouseDrag", true);
-        } else {
-          console.log("failed to set controls on playerRig");
-        }
-      } catch (e) {
-        console.log("failed to set controls on playerRig");
-        console.log(e);
-      }
     },
 
     tearDownDesktop() {
-      if (CONFIG.DEBUG) {
-        console.log("tearDownDesktop");
-      }
-      var playerRig = this.$el;
-      try {
-        if (playerRig) {
+      const playerRig = this.$el;
           playerRig.removeAttribute("wasd-controls");
           playerRig.removeAttribute("look-controls");
           playerRig.sceneEl.canvas.classList.remove("a-grab-cursor");
-        } else {
-          console.log("failed to teardown desktop controls on playerRig");
-        }
-      } catch (e) {
-        console.log("failed to teardown desktop controls on playerRig");
-        console.log(e);
-      }
     },
 
     setupMobile() {
-      if (CONFIG.DEBUG) {
-        console.log("setupMobile");
-      }
-      var playerRig = this.$el;
-      var camera = playerRig.querySelector("#player-camera");
-      var sceneEl = document.getElementsByTagName("a-scene")[0];
-      try {
-        if (playerRig) {
+      const playerRig = this.$el;
+      const camera = playerRig.querySelector("#player-camera");
           // playerRig.setAttribute("character-controller", {'pivot': "#player-camera"});
           // playerRig.setAttribute("virtual-gamepad-controls", {});
           // camera.setAttribute('pitch-yaw-rotator', {});
           // sceneEl.setAttribute("look-on-mobile", "camera", camera);
           // sceneEl.setAttribute("look-on-mobile", "verticalLookSpeedRatio", 3);
-        } else {
-          console.log("failed to set controls on playerRig");
-        }
-      } catch (e) {
-        console.log("failed to set controls on playerRig");
-        console.log(e);
-      }
     },
 
     tearDownMobile() {
-      if (CONFIG.DEBUG) {
-        console.log("tearDownMobile");
-      }
-      var playerRig = this.$el;
-      var camera = playerRig.querySelector("#player-camera");
-      var sceneEl = document.getElementsByTagName("a-scene")[0];
-      try {
-        if (playerRig) {
+      const playerRig = this.$el;
+      const camera = playerRig.querySelector("#player-camera");
+      const sceneEl = document.getElementsByTagName("a-scene")[0];
           // playerRig.removeAttribute("character-controller");
           // playerRig.removeAttribute("virtual-gamepad-controls");
           // camera.removeAttribute('pitch-yaw-rotator');
           // sceneEl.removeAttribute("look-on-mobile");
-        } else {
-          console.log("failed to teardown mobile controls on playerRig");
-        }
-      } catch (e) {
-        console.log("failed to teardown mobile controls on playerRig");
-        console.log(e);
-      }
     },
 
     setupVR() {
-      if (CONFIG.DEBUG) {
-        console.log("setupVR");
-      }
       this.fixVRCameraPosition();
       this.$store.commit("xr/avatar/SET_RIGHT_HAND_CONTROLLER_ACTIVE", true);
       this.$refs.righthand.setupControls();
 
-      var playerRig = document.getElementById("playerRig");
+      const playerRig = document.getElementById("playerRig");
       playerRig.object3D.matrixAutoUpdate = true;
     },
 
     tearDownVR() {
-      if (CONFIG.DEBUG) {
-        console.log("tearDownVR");
-      }
       this.$store.commit("xr/avatar/SET_RIGHT_HAND_CONTROLLER_ACTIVE", false);
       this.$refs.righthand.tearDownControls();
       this.unFixVRCameraPosition();
     },
 
     onSceneLoaded() {
-      if (this.$el.sceneEl.is("vr-mode")) {
+      if (this.$el.sceneEl.is("vr-mode")) 
         this.setupVR();
-      } else {
-        if (AFRAME.utils.device.isMobile()) {
+      else if (AFRAME.utils.device.isMobile()) 
           this.setupMobile();
-        } else {
+      else 
           this.setupDesktop();
-        }
-      }
+      
       this.createAvatarTemplate();
       this.addAvatarTemplate();
       this.networkAvatarRig();
     },
 
     createAvatarTemplate() {
-      if (CONFIG.DEBUG) {
-        console.log("createAvatarGLTFTemplate()");
-      }
-      //                         <rightHandController ref="righthand" />
-      var frag = this.fragmentFromString(`
+      const frag = this.fragmentFromString(`
             <template id="avatar-rig-template" v-pre>
                 <a-entity>
                     <a-entity class="camera-rig"
                         position="0 0 0">
-                        <a-entity
-                            class="player-camera camera">
+                        <a-entity id="player-camera camera">
                             <a-gltf-model class="gltfmodel" src="#avatar-0"
                                 scale="0.02 0.02 0.02">
                             </a-gltf-model>
@@ -245,74 +172,28 @@ export default {
                 </a-entity>
             </template> 
             `);
-      var assets = document.querySelector("a-assets");
-      try {
-        assets.appendChild(frag);
-      } catch (err) {
-        console.log("createAvatarGLTFTemplate error");
-        console.log(err);
-      }
+      document.querySelector("a-assets").appendChild(frag);
     },
 
     addAvatarTemplate() {
-      if (CONFIG.DEBUG) {
-        console.log("addAvatarTemplate");
-      }
-
-      try {
         NAF.schemas.add({
           template: "#avatar-rig-template",
           components: [
-            {
-              component: "position"
-            },
-            {
-              component: "rotation"
-            },
-            {
-              selector: ".camera-rig",
-              component: "rotation"
-            },
-            {
-              selector: ".camera-rig",
-              component: "position"
-            },
-            {
-              selector: ".player-camera",
-              component: "rotation"
-            },
-            {
-              selector: ".player-camera",
-              component: "position"
-            }
+            { component: "position" },
+            { component: "rotation" },
+            { selector: ".camera-rig", component: "rotation" },
+            { selector: ".camera-rig", component: "position" },
+            { selector: ".player-camera", component: "rotation" },
+            { selector: ".player-camera", component: "position" }
           ]
         });
-      } catch (err) {
-        console.log("addAvatarRigTemplate error");
-        console.log(err);
-      }
     },
 
     networkAvatarRig() {
-      if (CONFIG.DEBUG) {
-        console.log("networkAvatarRig");
-      }
-      var playerRig = document.getElementById("playerRig");
-      try {
-        if (playerRig) {
-          playerRig.setAttribute("networked", {
-            template: "#avatar-rig-template",
-            attachTemplateToLocal: false
-          });
-        } else {
-          console.log("failed to set up NAF on playerRig");
-        }
-      } catch (e) {
-        console.log("failed to set up NAF on playerRig");
-        console.log(e);
-      } finally {
-        // console.log('networkAvatarRig finally');
-      }
+      const playerRig = document.getElementById("playerRig");
+          playerRig.setAttribute("networked", "")
+          playerRig.setAttribute("template", "#avatar-rig-template")
+          playerRig.setAttribute("attachTemplateToLocal", "false")
     },
 
     fragmentFromString(strHTML) {
@@ -320,37 +201,22 @@ export default {
     },
 
     fixVRCameraPosition() {
-      if (CONFIG.DEBUG) {
-        console.log("fixVRCameraPosition");
-      }
+      const playerRig = this.$el;
 
-      var playerRig = this.$el;
+      const playerCamera = playerRig.getElementById("player-camera");
+      const cameraRig = document.getElementById("camera-rig");
 
-      var playerCamera = document.getElementById("player-camera");
-      var cameraRig = document.getElementById("camera-rig");
-
-      var position;
-      position = playerRig.object3D.getWorldPosition();
+      let position = playerRig.object3D.getWorldPosition();
       playerRig.object3D.worldToLocal(position);
-      cameraRig.object3D.position.set(
-        position.x,
-        -this.playerHeight,
-        position.z
-      );
+      cameraRig.object3D.position.set( position.x, -this.playerHeight, position.z );
       cameraRig.object3D.updateMatrix();
     },
 
     unFixVRCameraPosition() {
-      if (CONFIG.DEBUG) {
-        console.log("unFixVRCameraPosition");
-      }
-
-      var playerRig = this.$el;
-
-      var playerCamera = document.getElementById("player-camera");
-      var cameraRig = document.getElementById("camera-rig");
-
-      var position;
+      let playerRig = this.$el;
+      let playerCamera = document.getElementById("player-camera");
+      let cameraRig = document.getElementById("camera-rig");
+      let position;
       position = playerRig.object3D.getWorldPosition();
       playerRig.object3D.worldToLocal(position);
       cameraRig.object3D.position.set(position.x, 0, position.z);

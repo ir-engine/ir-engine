@@ -1,6 +1,5 @@
 import Vue from 'vue';
 
-import * as THREE from 'three';
 import 'aframe';
 import 'networked-aframe';
 import 'aframe-input-mapping-component';

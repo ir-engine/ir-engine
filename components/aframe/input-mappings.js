@@ -1,4 +1,4 @@
-var mappings = {
+const mappings = {
     mappings: {
         default: {
             common: {
@@ -39,7 +39,7 @@ var mappings = {
 };
 
 // To be exposed by the application
-var inputActions = {
+const inputActions = {
     default: {
         teleportstart: { label: 'Start teleport' },
         teleportend: { label: 'End teleport' }
