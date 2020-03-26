@@ -29,6 +29,7 @@
         "nuxt": "^2.12.0",
         "sass-loader": "^8.0.2",
         "three": "^0.114.0",
+        "three-math": "^0.69.0",
         "vue-fragment": "^1.5.1",
         "webfontloader": "^1.6.28"
     },

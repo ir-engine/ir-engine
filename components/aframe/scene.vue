@@ -6,8 +6,7 @@
   >
     <assets />
 
-    <a-gltf-model class="boundry" src="#scene"></a-gltf-model>
-
+<sceneObjects />
     <avatar ref="avatar" :position="'0 ' + playerHeight + ' 0'" />
   </a-scene>
 </template>
@@ -17,6 +16,8 @@
 import { mapState, mapGetters } from "vuex";
 import avatar from "./avatar.vue";
 import assets from "./assets.vue";
+import sceneObjects from "./scene-objects.vue"
+
 export default {
   components: {
     avatar,

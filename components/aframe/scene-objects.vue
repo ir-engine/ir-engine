@@ -1,5 +1,3 @@
-<!-- TODO: Move logic to pull from server, not local listitems -->
-
 <template>
   <v-fragment>
     <aframeAsset v-for="(item) in listItems" v-bind:key="item.id" src="item.src" />
@@ -11,12 +9,10 @@
 import aframeAsset from "./asset";
 import Fragment from "vue-fragment";
 
-// TODO: Replace with server hooks
-
 const listItems: aframeAsset[] = [
-  new aframeAsset("a-gltf-model", "scene", "/gltf/scenes/gallery/gallery.gltf"),
-  new aframeAsset("a-gltf-model", "avatar-0", "/gltf/avatars/head/scene.gltf")
-];
+        <a-gltf-model class="boundry" src=""></a-gltf-model>
+
+  new aframeAsset("a-gltf-model", "boundry", "#scene", "boundry")];
 
 export default {};
 </script>

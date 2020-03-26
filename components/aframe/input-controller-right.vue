@@ -16,6 +16,8 @@
 
 <script lang="ts">
 import { mapState } from "vuex";
+import AFRAME from 'aframe'
+import THREE from 'three'
 
 export default {
   data() {
@@ -80,7 +82,7 @@ export default {
 
     triggerUpListener(evt) {
       if (!this.intersected) return;
-        const rightHandCursor = document.querySelector("#rightHandCursor");
+        const rightHandCursor = document.querySelector("#rightHandCursor") as AFRAME.entity;
         const intersectedEl = this.intersected;
         const intersection = rightHandCursor.components.raycaster.getIntersection( intersectedEl );
         let eventDetail = {
@@ -95,7 +97,7 @@ export default {
     },
 
     fixCursorPosition(controllerName) {
-      const cursor = document.querySelector("#rightHandCursor");
+      const cursor = document.querySelector("#rightHandCursor") as AFRAME.entity;
       switch (controllerName) {
         case "oculus-touch-controls":
           cursor.object3D.rotation.set( THREE.Math.degToRad(-45), THREE.Math.degToRad(2.5), 0);
