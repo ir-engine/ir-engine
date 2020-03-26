@@ -1,0 +1,7 @@
+node_modules
+.DS_Store
+config/production
+config/prod
+config/development
+config/dev
+.nuxt

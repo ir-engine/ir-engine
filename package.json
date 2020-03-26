@@ -1,0 +1,51 @@
+{
+    "name": "xrchat-client",
+    "version": "0.0.1",
+    "description": "XRChat front end",
+    "repository": "https://github.com/mohrtw/xrchat-client",
+    "author": {
+        "name": "Thomas Mohr",
+        "email": "mohrtw@gmail.com",
+        "url": "https://github.com/mohrtw"
+    },
+    "contributors": [
+        {
+            "name": "Thomas Mohr",
+            "email": "mohrtw@gmail.com",
+            "url": "https://github.com/mohrtw"
+        }
+    ],
+    "scripts": {
+        "dev": "nuxt"
+    },
+    "dependencies": {
+        "aframe": "^1.0.4",
+        "aframe-input-mapping-component": "^0.1.3",
+        "aframe-teleport-controls": "^0.3.1",
+        "config": "^3.3.0",
+        "networked-aframe": "git+https://github.com/mohrtw/networked-aframe",
+        "node-sass": "^4.13.1",
+        "nuxt": "^2.12.0",
+        "sass-loader": "^8.0.2",
+        "three": "^0.114.0",
+        "webfontloader": "^1.6.28"
+    },
+    "devDependencies": {
+        "babel-core": "^6.26.3",
+        "babel-loader": "^8.1.0",
+        "babel-plugin-object-rest-spread": "0.0.0",
+        "babel-plugin-syntax-async-functions": "^6.13.0",
+        "babel-plugin-syntax-dynamic-import": "^6.18.0",
+        "babel-plugin-transform-async-to-generator": "^6.24.1",
+        "babel-plugin-transform-flow-strip-types": "^6.22.0",
+        "babel-plugin-transform-modules-amd": "^1.0.1",
+        "babel-plugin-transform-regenerator": "^6.26.0",
+        "babel-plugin-transform-runtime": "^6.23.0",
+        "babel-polyfill": "^6.26.0",
+        "babel-preset-env": "^1.7.0",
+        "babel-preset-stage-2": "^6.24.1",
+        "config-webpack": "^1.0.4",
+        "webpack": "^4.42.1",
+        "webpack-config": "^7.5.0"
+    }
+}

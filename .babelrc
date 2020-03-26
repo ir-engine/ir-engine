@@ -1,0 +1,20 @@
+{
+  "sourceType": "unambiguous",
+  "plugins": [
+    "@babel/transform-runtime",
+    "@babel/plugin-proposal-object-rest-spread",
+    "@babel/plugin-syntax-dynamic-import"
+  ],
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "browsers": [
+            "last 2 versions"
+          ]
+        }
+      }
+    ]
+  ]
+}
