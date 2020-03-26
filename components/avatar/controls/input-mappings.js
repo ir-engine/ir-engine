@@ -38,13 +38,13 @@ var mappings = {
     }
 };
 
- // To be exposed by the application
- var inputActions = {
-     default: {
-      teleportstart: { label: 'Start teleport' },
-      teleportend: { label: 'End teleport' }
-     }
-  };
+// To be exposed by the application
+var inputActions = {
+    default: {
+        teleportstart: { label: 'Start teleport' },
+        teleportend: { label: 'End teleport' }
+    }
+};
 
 
-export {mappings, inputActions};
+export { mappings, inputActions };

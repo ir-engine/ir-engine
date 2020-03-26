@@ -6,19 +6,21 @@
 
 <script>
 export default {
-  name: 'authCallback',
-  created () {
-    this.$auth.login(this.$route.query.state, this.$route.query.code)
-    .then(referrer => {
-      if (referrer === '') {
-        referrer = '/'
+  name: "authCallback",
+  created() {
+    this.$auth.login(this.$route.query.state, this.$route.query.code).then(
+      referrer => {
+        if (referrer === "") {
+          referrer = "/";
+        }
+        this.$router.push(referrer);
+      },
+      e => {
+        this.$router.push("/?error=" + encodeURIComponent(e.response.status));
       }
-      this.$router.push(referrer)
-    }, e => {
-      this.$router.push('/?error=' + encodeURIComponent(e.response.status))
-    })
+    );
   }
-}
+};
 </script>
 
 <style scoped>

@@ -6,11 +6,11 @@ import styleModule from './modules/style/index.js';
 
 
 export const modules = {
-        avatar: avatarModule,
-        chat: chatModule,
-        controls: controlsModule,
-        naf: nafModule,
-        style: styleModule,
+    avatar: avatarModule,
+    chat: chatModule,
+    controls: controlsModule,
+    naf: nafModule,
+    style: styleModule,
 };
 
 export const state = function () {
@@ -26,25 +26,25 @@ export const state = function () {
 };
 
 export const getters = {
-    ROOM_SOURCE: (state, getters, rootState, rootGetters) => (key) => state.roomSources[ key ],
-    CURRENT_ROOM_SOURCE: (state, getters, rootState, rootGetters) => state.roomSources[ state.roomName ]
+    ROOM_SOURCE: (state, getters, rootState, rootGetters) => (key) => state.roomSources[key],
+    CURRENT_ROOM_SOURCE: (state, getters, rootState, rootGetters) => state.roomSources[state.roomName]
 };
 
 export const mutations = {
-        SET_IN_VR: (state, active=true) => state.inVR = active,
-        SET_ROOMS: (state, rooms) => state.rooms = rooms,
-        ADD_ROOM: (state, room) => state.rooms.push(room),
-        SET_ROOMCONFIG: (state, roomConfig) => state.roomConfig = roomConfig,
-        SET_ROOMNAME: (state, name) => state.roomName = name,
-        ADD_ROOM_SOURCE: (state, payload) => Vue.set(state.roomSources, payload.key, payload.src),
-        SET_SCENELOADED: (state) => state.sceneLoaded = AFRAME.scenes == undefined ? false : AFRAME.scenes[0].hasLoaded,
-        SET_ISMOBILE: (state) => state.isMobile = AFRAME.utils.device.isMobile(),
+    SET_IN_VR: (state, active = true) => state.inVR = active,
+    SET_ROOMS: (state, rooms) => state.rooms = rooms,
+    ADD_ROOM: (state, room) => state.rooms.push(room),
+    SET_ROOMCONFIG: (state, roomConfig) => state.roomConfig = roomConfig,
+    SET_ROOMNAME: (state, name) => state.roomName = name,
+    ADD_ROOM_SOURCE: (state, payload) => Vue.set(state.roomSources, payload.key, payload.src),
+    SET_SCENELOADED: (state) => state.sceneLoaded = AFRAME.scenes == undefined ? false : AFRAME.scenes[0].hasLoaded,
+    SET_ISMOBILE: (state) => state.isMobile = AFRAME.utils.device.isMobile(),
 };
 
 export const actions = {
-        setRoomName (context, name) {
-            context.commit('SET_ROOMNAME', name);
-        }
+    setRoomName(context, name) {
+        context.commit('SET_ROOMNAME', name);
+    }
 };
 
 const xrModule = {

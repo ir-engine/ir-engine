@@ -1,14 +1,14 @@
 <template>
-<auth />
+  <auth />
 </template>
 
 <script>
-import auth from '../../components/auth'
+import auth from "../../components/auth";
 export default {
-components: {
-  auth
-}
-}
+  components: {
+    auth
+  }
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
