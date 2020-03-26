@@ -18,6 +18,8 @@ export default {
 			'components/**/*.scss',
 		]
 	},
+
+	buildModules: ['@nuxt/typescript-build'],
     
 	build: {
         babel: {
