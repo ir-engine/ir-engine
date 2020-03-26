@@ -5,7 +5,7 @@ import 'aframe';
 import 'networked-aframe';
 import 'aframe-input-mapping-component';
 import 'aframe-teleport-controls';
-import registerAframeInput from '../components/avatar/controls/registerAframeInput.js';
+import registerAframeInput from '../components/aframe/input-register-aframe.js';
 
 import WebFont from 'webfontloader';
 

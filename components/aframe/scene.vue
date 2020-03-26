@@ -15,7 +15,7 @@
 
 <script>
 import { mapState, mapGetters } from "vuex";
-import avatar from "../components/avatar/avatar.vue";
+import avatar from "./avatar.vue";
 import assets from "./assets.vue";
 export default {
   components: {

@@ -16,7 +16,7 @@
 <script>
 import { mapState } from "vuex";
 
-import rightHandController from "./RightHandController.vue";
+import rightHandController from "./input-controller-right.vue";
 
 export default {
   components: {

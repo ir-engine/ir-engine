@@ -1,7 +1,7 @@
 <template>
   <div id="index">
     <auth />
-    <aframe-scene></aframe-scene>
+    <aframe-scene />
     <loading-screen v-if="!sceneLoaded" />
   </div>
 </template>
@@ -9,10 +9,10 @@
 <script>
 import { mapState } from "vuex";
 
-import auth from "../components/auth";
+import auth from "../components/auth/auth.vue";
 
-import aframeScene from "../components/scene.vue";
-import LoadingScreen from "../components/LoadingScreen.vue";
+import aframeScene from "../components/aframe/scene.vue";
+import LoadingScreen from "../components/ui/loading-screen.vue";
 
 export default {
   components: {
