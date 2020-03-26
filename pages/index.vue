@@ -1,12 +1,35 @@
 <template>
-    <div>
-        <nuxt-link id="app"
-            to="/app">
-            XRChat Scene
-        </nuxt-link>
-    </div>
+  <div id="index">
+    <auth />
+    <aframe-scene></aframe-scene>
+    <loading-screen v-if="!sceneLoaded"/>
+  </div>
 </template>
 
 <script>
+import { mapState } from 'vuex';
 
+import auth from '../components/auth'
+
+
+import aframeScene from '../components/scene.vue';
+import LoadingScreen from '../components/LoadingScreen.vue';
+
+export default {
+    components: {
+        aframeScene,
+        LoadingScreen,
+    },
+
+    computed: {
+      ...mapState('xr',
+      [
+        'inVR',
+        'sceneLoaded',
+        'isMobile',
+      ])
+    },
+}
 </script>
+
+<!-- <style src="./app.scss"></style> -->

@@ -6,15 +6,9 @@ export const state = function () {
 
 export const mutations = {
     // payload: fromClientId, dataType, data, source
-    MESSAGE_RECEIVED: function(state, payload) {
-        if (CONFIG.DEBUG) {console.log("MESSAGE_RECEIVED");}
-        state.messages.push({playerName: payload.fromClientId, msg: payload.data})
-    },
+    MESSAGE_RECEIVED: (state, payload) => state.messages.push({playerName: payload.fromClientId, msg: payload.data}),
     // payload: clientId, data
-    MESSAGE_SENT: function(state, payload) {
-        if (CONFIG.DEBUG) {console.log("MESSAGE_SENT");}
-        state.messages.push({playerName: payload.clientId, msg: payload.data})
-    },
+    MESSAGE_SENT: (state, payload) => state.messages.push({playerName: payload.clientId, msg: payload.data}),
 };
 
 const chatModule = {

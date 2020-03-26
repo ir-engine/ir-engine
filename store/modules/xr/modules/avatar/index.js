@@ -9,27 +9,14 @@ export const state = function () {
 };
 
 export const mutations = {
-    SET_CURSOR_ACTIVE: function(state, active=true) {
-        if (CONFIG.DEBUG) {console.log("SET_CURSOR_ACTIVE")}
-        state.cursorActive = active;
-    },
-    SET_RIGHT_HAND_CONTROLLER_ACTIVE: function(state, active=true) {
-        if (CONFIG.DEBUG) {console.log("SET_RIGHT_HAND_CONTROLLER_ACTIVE")}
-        state.rightHandControllerActive = active;
-    },
-    SET_AVATARS: function(state, objs) {
-        if (CONFIG.DEBUG) {console.log('SET_AVATARS');}
-        state.avatars = objs;
-    },
-    ADD_AVATARURL: function(state, payload) {
-        Vue.set(state.avatarURLs, payload.key, payload.url);
-    }
-};
+    SET_CURSOR_ACTIVE: (state, active=true) => state.cursorActive = active,
+    SET_RIGHT_HAND_CONTROLLER_ACTIVE: (state, active = true) => state.rightHandControllerActive = active,
+    SET_AVATARS: (state, objs) => state.avatars = objs,
+    ADD_AVATARURL: (state, payload) => Vue.set(state.avatarURLs, payload.key, payload.url)
+}
 
 export const getters = {
-    getAvatarURL: (state) => (key) => {
-        return state.avatarURLs[ key ];
-    }
+    getAvatarURL: (state) => (key) =>  state.avatarURLs[ key ]
 };
 
 export const actions = {

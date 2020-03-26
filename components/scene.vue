@@ -3,16 +3,7 @@
         :networked-scene="'serverURL: https://nxr.myxr.social; app: xrchat; room: ' +
         roomName + '; connectOnLoad: ' + connectOnLoad + '; audio: false; adapter: webrtc;'">
         
-        <a-assets>
-            <a-gltf-model
-                id="scene"
-                src="/gltf/scenes/gallery/gallery.gltf">
-            </a-gltf-model>
-            <a-gltf-model
-                id="avatar-0"
-                src="/gltf/avatars/head_female_-_low_poly/scene.gltf">
-            </a-gltf-model>
-        </a-assets>
+<assets />
 
         <a-gltf-model
                 class="boundry"
@@ -29,10 +20,11 @@
 <script>
 import { mapState, mapGetters } from 'vuex';
 import avatar from '../components/avatar/avatar.vue';
-
+import assets from './assets.vue'
 export default {
     components: {
-        avatar
+        avatar,
+        assets
     },
 
     computed: {

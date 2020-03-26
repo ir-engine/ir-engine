@@ -1,26 +1,18 @@
-export const state = function () {
+export const state = () => {
     return {
         numberOfPlayers: 0,
         playerNames: new Map(),
         updateNames: 1,
-        connectOnLoad: true,
-    };
-};
+        connectOnLoad: true
+    }
+}
 
 export const mutations = {
-    INCREMENT_PLAYERS: function(state) {
-        if (CONFIG.DEBUG) {console.log("INCREMENT_PLAYERS");}
-        state.numberOfPlayers += 1;
-    },
-    DECREMENT_PLAYERS: function(state) {
-        if (CONFIG.DEBUG) {console.log("DECREMENT_PLAYERS");}
-        if (state.numberOfPlayers > 0) {
-            state.numberOfPlayers -= 1;
-        }
-    },
+    INCREMENT_PLAYERS: (state) => state.numberOfPlayers += 1,
+    DECREMENT_PLAYERS: (state) => state.numberOfPlayers = state.numberOfPlayers > 0 ?
+                                    state.numberOfPlayers - 1 : state.numberOfPlayers,
     // payload: clientId, name
-    CHANGE_PLAYER_NAME: function(state, payload) {
-        if (CONFIG.DEBUG) {console.log(`CHANGE_PLAYER_NAME (${payload.clientId}, ${payload.name})`);}
+    CHANGE_PLAYER_NAME: (state, payload) => {
         // only set name to clientId if it isn't already in map
         if ( (payload.clientId != payload.name) ||
             (payload.clientId == payload.name && !state.playerNames.has(payload.clientId))) {
@@ -28,23 +20,18 @@ export const mutations = {
                 state.updateNames += 1;
         }
     },
-    SET_CONNECT_ON_LOAD: function(state, bool=true) {
-        if (CONFIG.DEBUG) {console.log("SET_CONNECT_ON_LOAD");}
-        state.connectOnLoad = true;
-    },
+    SET_CONNECT_ON_LOAD: (state, bool=true) => state.connectOnLoad = true,
 };
 
 
 export const actions = {
     // payload: clientId, name
-    addPlayer: function(context, payload) {
-        if (CONFIG.DEBUG) {console.log("addPlayer");}
+    addPlayer: (context, payload) => {
         context.commit('INCREMENT_PLAYERS');
         context.state.playerNames.set(payload.clientId, payload.name);
     },
     // payload: clientId
-    removePlayer: function(context, payload) {
-        if (CONFIG.DEBUG) {console.log("removePlayer");}
+    removePlayer: (context, payload) => {
         context.commit('DECREMENT_PLAYERS');
         // context.state.playerNames.delete(payload.clientId);
     }
