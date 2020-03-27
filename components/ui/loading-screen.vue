@@ -9,9 +9,9 @@ export default {
   data() {
     return {
       LoadingMessage: "Loading..."
-    };
+    }
   }
-};
+}
 </script>
 
 <style scoped>

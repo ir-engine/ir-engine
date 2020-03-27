@@ -12,10 +12,10 @@
 </template>
 
 
-<script>
-import { mapState, mapGetters } from "vuex";
-import avatar from "./avatar.vue";
-import assets from "./assets.vue";
+<script lang="ts">
+import { mapState, mapGetters } from "vuex"
+import avatar from "./avatar.vue"
+import assets from "./assets.vue"
 import sceneObjects from "./scene-objects.vue"
 
 export default {
@@ -32,5 +32,5 @@ export default {
     ...mapState("xr/avatar", ["avatars", "playerHeight"]),
     ...mapState("xr/naf", ["connectOnLoad"])
   }
-};
+}
 </script>

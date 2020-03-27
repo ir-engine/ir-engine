@@ -1,23 +1,10 @@
-import ConfigWebpackPlugin from 'config-webpack';
+import ConfigWebpackPlugin from 'config-webpack'
 
 export default {
 	head: {
 		title: 'XRChat',
         description: 'Anyone, anywhere, on any device',
     },
-    
-    css: [
-		{
-			src: '@/assets/scss/site.scss',
-			lang: 'scss'
-		}
-    ],
-
-    styleResources: {
-		scss: [
-			'components/**/*.scss',
-		]
-	},
 
 	buildModules: ['@nuxt/typescript-build'],
     
@@ -39,5 +26,5 @@ export default {
 			src: './plugins/vue-aframe',
 			mode: 'client'
 		}
-    ],
+    ]
 }

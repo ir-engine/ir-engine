@@ -6,13 +6,12 @@
 
 
 <script lang="ts">
-import aframeAsset from "./asset";
-import Fragment from "vue-fragment";
+import aframeAsset from "./asset"
+import Fragment from "vue-fragment"
 
 const listItems: aframeAsset[] = [
-        <a-gltf-model class="boundry" src=""></a-gltf-model>
+  new aframeAsset("a-gltf-model", "boundry", "#scene", "boundry")]
 
-  new aframeAsset("a-gltf-model", "boundry", "#scene", "boundry")];
 
-export default {};
+export default {}
 </script>

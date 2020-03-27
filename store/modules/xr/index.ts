@@ -1,9 +1,10 @@
-import avatarModule from './modules/avatar/index.js';
-import chatModule from './modules/chat/index.js';
-import controlsModule from './modules/controls/index.js';
-import nafModule from './modules/naf/index.js';
-import styleModule from './modules/style/index.js';
+import avatarModule from './modules/avatar/index.js'
+import chatModule from './modules/chat/index.js'
+import controlsModule from './modules/controls/index.js'
+import nafModule from './modules/naf/index.js'
+import styleModule from './modules/style/index.js'
 
+import Vue from 'vue'
 
 export const modules = {
     avatar: avatarModule,
@@ -11,7 +12,7 @@ export const modules = {
     controls: controlsModule,
     naf: nafModule,
     style: styleModule,
-};
+}
 
 export const state = function () {
     return {
@@ -23,29 +24,29 @@ export const state = function () {
         isMobile: false,
         inVR: false,
     }
-};
+}
 
 export const getters = {
-    ROOM_SOURCE: (state, getters, rootState, rootGetters) => (key) => state.roomSources[key],
-    CURRENT_ROOM_SOURCE: (state, getters, rootState, rootGetters) => state.roomSources[state.roomName]
-};
+    ROOM_SOURCE: (state : any, getters : any, rootState : any, rootGetters : any) => (key : any) => state.roomSources[key],
+    CURRENT_ROOM_SOURCE: (state : any, getters : any, rootState : any, rootGetters : any) => state.roomSources[state.roomName]
+}
 
 export const mutations = {
-    SET_IN_VR: (state, active = true) => state.inVR = active,
-    SET_ROOMS: (state, rooms) => state.rooms = rooms,
-    ADD_ROOM: (state, room) => state.rooms.push(room),
-    SET_ROOMCONFIG: (state, roomConfig) => state.roomConfig = roomConfig,
-    SET_ROOMNAME: (state, name) => state.roomName = name,
-    ADD_ROOM_SOURCE: (state, payload) => Vue.set(state.roomSources, payload.key, payload.src),
-    SET_SCENELOADED: (state) => state.sceneLoaded = AFRAME.scenes == undefined ? false : AFRAME.scenes[0].hasLoaded,
-    SET_ISMOBILE: (state) => state.isMobile = AFRAME.utils.device.isMobile(),
-};
+    SET_IN_VR: (state : any, active = true) => state.inVR = active,
+    SET_ROOMS: (state : any, rooms : any) => state.rooms = rooms,
+    ADD_ROOM: (state : any, room : any) => state.rooms.push(room),
+    SET_ROOMCONFIG: (state : any, roomConfig : any) => state.roomConfig = roomConfig,
+    SET_ROOMNAME: (state : any, name : any) => state.roomName = name,
+    ADD_ROOM_SOURCE: (state : any, payload : any) => Vue.set(state.roomSources, payload.key, payload.src),
+    SET_SCENELOADED: (state : any) => state.sceneLoaded = AFRAME.scenes == undefined ? false : AFRAME.scenes[0].hasLoaded,
+    SET_ISMOBILE: (state : any) => state.isMobile = AFRAME.utils.device.isMobile(),
+}
 
 export const actions = {
-    setRoomName(context, name) {
-        context.commit('SET_ROOMNAME', name);
+    setRoomName(context : any, name : any) {
+        context.commit('SET_ROOMNAME', name)
     }
-};
+}
 
 const xrModule = {
     namespaced: true,
@@ -54,6 +55,6 @@ const xrModule = {
     getters,
     mutations,
     actions
-};
+}
 
-export default xrModule;
+export default xrModule

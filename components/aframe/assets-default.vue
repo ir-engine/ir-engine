@@ -6,13 +6,13 @@
 
 
 <script lang="ts">
-import aframeAsset from "./asset";
-import Fragment from "vue-fragment";
+import aframeAsset from "./asset"
+import Fragment from "vue-fragment"
 
 const listItems: aframeAsset[] = [
   new aframeAsset("a-gltf-model", "scene", "/gltf/scenes/gallery/gallery.gltf"),
   new aframeAsset("a-gltf-model", "avatar-0", "/gltf/avatars/head/scene.gltf")
-];
+]
 
-export default {};
+export default {}
 </script>

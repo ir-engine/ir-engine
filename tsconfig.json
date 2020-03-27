@@ -22,11 +22,18 @@
         "./*"
       ]
     },
+    "typeRoots": [      "./types/index.d.ts",
+      "./types/vue-shim.d.ts"],
     "types": [
       "@types/node",
-      "@nuxt/types"
+      "@nuxt/types",
+      "@nuxtjs/auth",
+      "@aframe/types",
+      "@three/types",
+      "@math-three/types"
     ]
   },
+  "noImplicitAny": false,
   "exclude": [
     "node_modules"
   ]

@@ -36,7 +36,7 @@ const mappings = {
             }
         }
     }
-};
+}
 
 // To be exposed by the application
 const inputActions = {
@@ -44,7 +44,7 @@ const inputActions = {
         teleportstart: { label: 'Start teleport' },
         teleportend: { label: 'End teleport' }
     }
-};
+}
 
 
 export { mappings, inputActions };
