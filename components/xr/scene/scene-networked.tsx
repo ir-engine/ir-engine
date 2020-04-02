@@ -1,4 +1,12 @@
-export default class NetworkedScene {
+import React from 'react'
+import 'aframe';
+import 'aframe-particle-system-component';
+import 'babel-polyfill';
+//@ts-ignore
+import {Entity, Scene} from 'aframe-react';
+
+
+export default class NetworkedScene extends React.Component {
     render() {
         return (
 
