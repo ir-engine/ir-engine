@@ -1,26 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import Layout from '../components/Layout'
-// const addEventListener = (selector: any, event: any, handler: any) => {
-//   document.addEventListener(event, async eh => {
-//     if (eh.target.closest(selector)) {
-//       handler(eh)
-//     }
-//   })
-// }
-
-// const getCredentials = () => {
-//   const user = {
-//     email: document.querySelector('[name="email"]'),
-//     password: document.querySelector('[name="password"]')
-//   }
-// }
-
-// addEventListener('#signup', 'click', async () => {
-//   const credentials = getCredentials();
-//   console.log(credentials)
-//   })
-
+import Layout from '../components/ui/Layout'
 
 export default class LoginPage extends React.Component {
 
@@ -38,6 +18,7 @@ export default class LoginPage extends React.Component {
 
   handleEmailLogin = (e: any) => {
     e.preventDefault()
+
   }
 
   handleEmailSignup = (e: any) => {

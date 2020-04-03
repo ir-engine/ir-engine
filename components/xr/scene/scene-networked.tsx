@@ -2,8 +2,9 @@ import React from 'react'
 import 'aframe';
 import 'aframe-particle-system-component';
 import 'babel-polyfill';
+//TODO: Add types for aframe-react and remove the ignore
 //@ts-ignore
-import {Entity, Scene} from 'aframe-react';
+import { Entity, Scene } from 'aframe-react';
 
 
 export default class NetworkedScene extends React.Component {
