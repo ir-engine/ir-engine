@@ -59,7 +59,7 @@
     grant-profile "^0.0.11"
     lodash "^4.17.15"
 
-"@feathersjs/authentication@^4.5.1", "@feathersjs/authentication@^4.5.2":
+"@feathersjs/authentication@^4.5.2":
   version "4.5.2"
   resolved "https://registry.yarnpkg.com/@feathersjs/authentication/-/authentication-4.5.2.tgz#4767c66a1c1cc1f0f0ac449c0c6f4110c17b2d61"
   integrity sha512-rTiZjgEiIcfQNN4XpcBmKdT5DafxxnJK+RSD2gZokpx3DgEu9mRpmxkQ9EvISW/DxEHtIhM+W/bjauvJKlwOgg==
@@ -95,7 +95,7 @@
   dependencies:
     debug "^4.1.1"
 
-"@feathersjs/express@^4.5.1", "@feathersjs/express@^4.5.2":
+"@feathersjs/express@^4.5.2":
   version "4.5.2"
   resolved "https://registry.yarnpkg.com/@feathersjs/express/-/express-4.5.2.tgz#cc6687fd9d0501a02cbe19ce17d99b2232d86d42"
   integrity sha512-aGyWJK0+iwT6Vl8XIXuzhgf3wJh73DL3n+QvdaHWEQk1Oe6gCgyfadAptE18lhF7whnbXWzRNQxhb5EAKs2yeQ==
@@ -108,7 +108,7 @@
     lodash "^4.17.15"
     uberproto "^2.0.6"
 
-"@feathersjs/feathers@^4.5.1", "@feathersjs/feathers@^4.5.2":
+"@feathersjs/feathers@^4.5.2":
   version "4.5.2"
   resolved "https://registry.yarnpkg.com/@feathersjs/feathers/-/feathers-4.5.2.tgz#8ba49863b15eff5d346ccb920115ec5e57907a39"
   integrity sha512-wkT8F5K00/wTmUuWayNmOWnyLSbhvhr20aHOkTdWu+TUS12LLvpwcZtZdT0ARWQdG9GUo7Z+oA8JCQp07RwQag==
@@ -840,7 +840,7 @@ debug@2.6.9, debug@^2.2.0:
   dependencies:
     ms "2.0.0"
 
-debug@3.2.6, debug@^3.2.6:
+debug@3.2.6, debug@^3.0.0, debug@^3.2.6:
   version "3.2.6"
   resolved "https://registry.yarnpkg.com/debug/-/debug-3.2.6.tgz#e83d17de16d8a7efb7717edbe5fb10135eee629b"
   integrity sha512-mel+jf7nrtEl5Pn1Qx46zARXKDpBbvzezse7p7LqINmdoIk8PYP5SySaxEmYv6TZ0JyEKA1hsCId6DIhgITtWQ==
@@ -934,10 +934,20 @@ dot-prop@^4.1.0:
   dependencies:
     is-obj "^1.0.0"
 
+dotenv@^8.2.0:
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-8.2.0.tgz#97e619259ada750eea3e4ea3e26bceea5424b16a"
+  integrity sha512-8sJ78ElpbDJBHNeBzUbUVLsqKdccaa/BXF1uPTw3GrvQTBgrQrtObr2mUrE38vzYd8cEv+m/JBfDLioYcfXoaw==
+
 dottie@^2.0.0:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/dottie/-/dottie-2.0.2.tgz#cc91c0726ce3a054ebf11c55fbc92a7f266dd154"
   integrity sha512-fmrwR04lsniq/uSr8yikThDTrM7epXHBAAjH9TbeH3rEA8tdCO7mRzB9hdmdGyJCxF8KERo9CITcm3kGuoyMhg==
+
+double-ended-queue@^2.1.0-0:
+  version "2.1.0-0"
+  resolved "https://registry.yarnpkg.com/double-ended-queue/-/double-ended-queue-2.1.0-0.tgz#103d3527fd31528f40188130c841efdd78264e5c"
+  integrity sha1-ED01J/0xUo9AGIEwyEHv3XgmTlw=
 
 duplexer3@^0.1.4:
   version "0.1.4"
@@ -1161,6 +1171,41 @@ fast-safe-stringify@^2.0.4:
   resolved "https://registry.yarnpkg.com/fast-safe-stringify/-/fast-safe-stringify-2.0.7.tgz#124aa885899261f68aedb42a7c080de9da608743"
   integrity sha512-Utm6CdzT+6xsDk2m8S6uL8VHxNwI6Jub+e9NYTcAms28T84pTa25GJQV9j0CY0N1rM8hK4x6grpF2BQf+2qwVA==
 
+feathers-commons@^0.7.1:
+  version "0.7.8"
+  resolved "https://registry.yarnpkg.com/feathers-commons/-/feathers-commons-0.7.8.tgz#11b119c30dd1ea9c505c2537b12504aedaa3fe7d"
+  integrity sha1-EbEZww3R6pxQXCU3sSUErtqj/n0=
+
+feathers-commons@^0.8.0:
+  version "0.8.7"
+  resolved "https://registry.yarnpkg.com/feathers-commons/-/feathers-commons-0.8.7.tgz#11c6f25b537745a983e8d61552d7db8932d53782"
+  integrity sha1-EcbyW1N3RamD6NYVUtfbiTLVN4I=
+
+feathers-errors@^2.4.0:
+  version "2.9.2"
+  resolved "https://registry.yarnpkg.com/feathers-errors/-/feathers-errors-2.9.2.tgz#96ca0e5fe50cc56f0eccc90ce3fa5e1f8840828d"
+  integrity sha512-qwIX97bNW7+1tWVG073+omUA0rCYKJtTtwuzTrrvfrtdr8J8Dk1Fy4iaV9Fa6/YBD5AZu0lsplPE0iu4u/d4GQ==
+  dependencies:
+    debug "^3.0.0"
+
+feathers-query-filters@^2.0.0:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/feathers-query-filters/-/feathers-query-filters-2.1.2.tgz#cdb18224db5e19cc0140d528108e0908d5eb0654"
+  integrity sha1-zbGCJNteGcwBQNUoEI4JCNXrBlQ=
+  dependencies:
+    feathers-commons "^0.8.0"
+
+"feathers-redis@github:feathersjs-ecosystem/feathers-redis":
+  version "0.0.1"
+  resolved "https://codeload.github.com/feathersjs-ecosystem/feathers-redis/tar.gz/435f1dddd35609c5f5ec74fb706a58d58e9a69c9"
+  dependencies:
+    debug "^2.2.0"
+    feathers-commons "^0.7.1"
+    feathers-errors "^2.4.0"
+    feathers-query-filters "^2.0.0"
+    redis "^2.6.2"
+    uberproto "^1.2.0"
+
 feathers-sequelize@^6.1.0:
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/feathers-sequelize/-/feathers-sequelize-6.1.0.tgz#060aed18baf7c063cab2934af6b5f2b430d86e79"
@@ -1169,6 +1214,15 @@ feathers-sequelize@^6.1.0:
     "@feathersjs/adapter-commons" "^4.3.6"
     "@feathersjs/commons" "^4.3.0"
     "@feathersjs/errors" "^4.3.4"
+
+feathers-swagger@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/feathers-swagger/-/feathers-swagger-1.1.1.tgz#98ffa3b9bad9c1a2485e37c64548ddde3dfac3b0"
+  integrity sha512-k3pf3isSTs1jfk8SkgtZFcgrwkjzgKdxrhfZWXUGbSGSULnw3yoP9uLcm7v+PVHaqbqLoTCnCx/2o3Hh37K0NA==
+  dependencies:
+    lodash "^4.17.11"
+    serve-static "^1.13.2"
+    swagger-ui-dist "^3.22.1"
 
 feature-policy@0.3.0:
   version "0.3.0"
@@ -1857,7 +1911,7 @@ lodash.once@^4.0.0:
   resolved "https://registry.yarnpkg.com/lodash.once/-/lodash.once-4.1.1.tgz#0dd3971213c7c56df880977d504c88fb471a97ac"
   integrity sha1-DdOXEhPHxW34gJd9UEyI+0cal6w=
 
-lodash@^4.17.14, lodash@^4.17.15:
+lodash@^4.17.11, lodash@^4.17.14, lodash@^4.17.15:
   version "4.17.15"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
   integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
@@ -2510,6 +2564,25 @@ redeyed@~2.1.0:
   dependencies:
     esprima "~4.0.0"
 
+redis-commands@^1.2.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/redis-commands/-/redis-commands-1.5.0.tgz#80d2e20698fe688f227127ff9e5164a7dd17e785"
+  integrity sha512-6KxamqpZ468MeQC3bkWmCB1fp56XL64D4Kf0zJSwDZbVLLm7KFkoIcHrgRvQ+sk8dnhySs7+yBg94yIkAK7aJg==
+
+redis-parser@^2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/redis-parser/-/redis-parser-2.6.0.tgz#52ed09dacac108f1a631c07e9b69941e7a19504b"
+  integrity sha1-Uu0J2srBCPGmMcB+m2mUHnoZUEs=
+
+redis@^2.6.2:
+  version "2.8.0"
+  resolved "https://registry.yarnpkg.com/redis/-/redis-2.8.0.tgz#202288e3f58c49f6079d97af7a10e1303ae14b02"
+  integrity sha512-M1OkonEQwtRmZv4tEWF2VgpG0JWJ8Fv1PhlgT5+B+uNq2cA3Rt1Yt/ryoR+vQNOQcIEgdCdfH0jr3bDpihAw1A==
+  dependencies:
+    double-ended-queue "^2.1.0-0"
+    redis-commands "^1.2.0"
+    redis-parser "^2.6.0"
+
 referrer-policy@1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/referrer-policy/-/referrer-policy-1.2.0.tgz#b99cfb8b57090dc454895ef897a4cc35ef67a98e"
@@ -2680,7 +2753,7 @@ serve-favicon@^2.5.0:
     parseurl "~1.3.2"
     safe-buffer "5.1.1"
 
-serve-static@1.14.1:
+serve-static@1.14.1, serve-static@^1.13.2:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/serve-static/-/serve-static-1.14.1.tgz#666e636dc4f010f7ef29970a88a674320898b2f9"
   integrity sha512-JMrvUwE54emCYWlTI+hGrGv5I8dEwmco/00EvkzIIsR7MqrHonbD9pO2MOfFnpFntl7ecpZs+3mW+XbQZu9QCg==
@@ -2988,6 +3061,11 @@ supports-color@^5.3.0, supports-color@^5.5.0:
   dependencies:
     has-flag "^3.0.0"
 
+swagger-ui-dist@^3.22.1:
+  version "3.25.0"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.25.0.tgz#90279cdcc56e591fcfbe7b5240a9d653b989336d"
+  integrity sha512-vwvJPPbdooTvDwLGzjIXinOXizDJJ6U1hxnJL3y6U3aL1d2MSXDmKg2139XaLBhsVZdnQJV2bOkX4reB+RXamg==
+
 term-size@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/term-size/-/term-size-1.2.0.tgz#458b83887f288fc56d6fffbfad262e26638efa69"
@@ -3164,6 +3242,11 @@ typescript@^3.7.5:
   version "3.8.3"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.8.3.tgz#409eb8544ea0335711205869ec458ab109ee1061"
   integrity sha512-MYlEfn5VrLNsgudQTVJeNaQFUAI7DkhnOjdpAp4T+ku1TfQClewlbSuTVHiA+8skNBgaf02TL/kLOvig4y3G8w==
+
+uberproto@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/uberproto/-/uberproto-1.2.0.tgz#61d4eab024f909c4e6ea52be867c4894a4beeb76"
+  integrity sha1-YdTqsCT5CcTm6lK+hnxIlKS+63Y=
 
 uberproto@^2.0.6:
   version "2.0.6"
