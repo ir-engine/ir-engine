@@ -4,7 +4,7 @@ import React, { Component } from 'react'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
-import MenuIcon from '@material-ui/core/Icon'
+import MenuIcon from '@material-ui/icons/Menu'
 import IconButton from '@material-ui/core/IconButton'
 
 import { siteTitle } from '../../../config/server'
@@ -27,8 +27,8 @@ class NavMenu extends Component {
     return (
       <AppBar position="sticky">
         <Toolbar>
-          <IconButton edge="start" color="primary" aria-label="menu">
-            <MenuIcon color="primary" />
+          <IconButton edge="start" color="inherit" aria-label="menu">
+            <MenuIcon color="inherit" />
           </IconButton>
           <Typography variant="h6" color="inherit">
             {siteTitle}
