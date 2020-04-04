@@ -1,21 +1,19 @@
 import Link from 'next/link'
 import React from 'react'
 
-const NavBar: React.FunctionComponent = () => (
+const Navbar: React.FunctionComponent = () => (
   <div>
     <Link href="/">
       <a>Home</a>
-    </Link>{' '}
-        |{' '}
+    </Link>
     <Link href="/login">
       <a>Login</a>
-    </Link>{' '}
-        |{' '}
+    </Link>
     <Link href="/users">
       <a>Users List</a>
-    </Link>{' '}
+    </Link>
         | <a href="/api/users">Users API</a>
   </div>
 )
 
-export default NavBar
+export default Navbar
