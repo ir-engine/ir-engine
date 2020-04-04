@@ -1,25 +1,26 @@
-import { Service, SequelizeServiceOptions, } from 'feathers-sequelize'
+import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../declarations'
 import crypto from 'crypto'
 
 export class Users extends Service {
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+  constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
-    if(app)console.log(app)
-
+    if (app !== undefined) {
+      console.log(app)
+    }
   }
 
-create(data : any, params : any) {
-    const {email, password, githubId } = data
+  async create (data: any, params: any): Promise<any> {
+    const { email, password, githubId } = data
 
-  const userId = crypto.createHash('md5').update(email != null? email.toLowerCase() : githubId).digest('hex')
+    const userId = crypto.createHash('md5').update(email !== null
+      ? email.toLowerCase()
+      : githubId).digest('hex')
 
-const userData = {
-  email, password, githubId, userId
-}
+    const userData = {
+      email, password, githubId, userId
+    }
 
-return super.create(userData, params) 
-
-}
-
+    return await super.create(userData, params)
+  }
 }
