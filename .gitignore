@@ -5,3 +5,5 @@ config/prod
 config/development
 config/dev
 .nuxt
+package-lock.json
+yarn.lock
