@@ -2,7 +2,7 @@ import '@feathersjs/transport-commons'
 import { HookContext } from '@feathersjs/feathers'
 import { Application } from './declarations'
 
-export default function (app: Application) {
+export default function (app: Application): void {
   if (typeof app.channel !== 'function') {
     // If no real-time functionality has been configured just return
     return
@@ -16,6 +16,7 @@ export default function (app: Application) {
   app.on('login', (authResult: any, { connection }: any) => {
     // connection can be undefined if there is no
     // real-time connection, e.g. when logging in via REST
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (connection) {
       // Obtain the logged in user from the connection
       // const user = connection.user

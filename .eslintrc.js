@@ -11,9 +11,15 @@ module.exports = {
     '@typescript-eslint',
   ],
   extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/eslint-recommended',
-    'plugin:@typescript-eslint/recommended',
     'standard-with-typescript'
   ],
+  // These are Standard.js overrides, for rules that don't play well with
+  // Feathers.js auto-generated code
+  rules: {
+    '@typescript-eslint/default-param-last': 'off',
+    '@typescript-eslint/no-empty-interface': 'off',
+    '@typescript-eslint/require-await': 'off',
+    '@typescript-eslint/strict-boolean-expressions': 'off',
+    '@typescript-eslint/promise-function-async': 'off'
+  }
 }

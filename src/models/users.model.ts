@@ -1,7 +1,7 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 
-export default function (app: Application) {
+export default function (app: Application): any {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const users = sequelizeClient.define('users', {
 
@@ -37,6 +37,7 @@ export default function (app: Application) {
 
   // eslint-disable-next-line no-unused-vars
   (users as any).associate = function (models: any) {
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (models) console.log(models)
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
