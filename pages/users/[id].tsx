@@ -4,7 +4,7 @@ import { GetStaticProps, GetStaticPaths } from 'next'
 import { User } from '../../interfaces/user.interface'
 import { sampleUserData } from '../../utils/sample-data'
 import Layout from '../../components/ui/Layout'
-import ListDetail from '../../components/ui/ListDetail'
+import ListDetail from '../../components/ui/List/ListDetail'
 
 type Props = {
   item?: User
@@ -17,7 +17,7 @@ export default class StaticPropsDetail extends React.Component<Props> {
 
     if (errors) {
       return (
-        <Layout title={`Error | Next.js + TypeScript Example`}>
+        <Layout pageTitle="Error">
           <p>
             <span style={{ color: 'red' }}>Error:</span> {errors}
           </p>
@@ -27,9 +27,7 @@ export default class StaticPropsDetail extends React.Component<Props> {
 
     return (
       <Layout
-        title={`${
-          item ? item.name : 'User Detail'
-        } | Next.js + TypeScript Example`}
+        pageTitle={`${item ? item.name : 'User Details'}`}
       >
         {item && <ListDetail item={item} />}
       </Layout>

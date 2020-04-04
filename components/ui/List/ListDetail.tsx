@@ -1,6 +1,7 @@
 import * as React from 'react'
+import './style.scss'
 
-import { User } from '../../interfaces/user.interface'
+import { User } from '../../../interfaces/user.interface'
 
 type ListDetailProps = {
   item: User

@@ -10,6 +10,7 @@
   "dependencies": {
     "@feathersjs/client": "^4.5.2",
     "@material-ui/core": "^4.9.8",
+    "@zeit/next-sass": "^1.0.1",
     "aframe": "github:aframevr/aframe",
     "aframe-animation-component": "^5.1.2",
     "aframe-particle-system-component": "^1.1.3",
@@ -17,6 +18,7 @@
     "isomorphic-unfetch": "3.0.0",
     "networked-aframe": "github:networked-aframe/networked-aframe",
     "next": "^9.3.4",
+    "node-sass": "^4.13.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-redux": "^7.2.0",

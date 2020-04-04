@@ -1,12 +1,13 @@
-import NavItem from './NavItem'
+import NavItem from '../NavItem'
 import React, { Component } from 'react'
+import './style.scss'
 
 // TODO: Generate nav items from a config file
 
 type Props = {
 }
 
-class Navbar extends Component {
+class NavMenu extends Component {
   props: Props
 
   constructor(props: any) {
@@ -24,4 +25,4 @@ class Navbar extends Component {
     )
   }
 }
-export default Navbar
+export default NavMenu

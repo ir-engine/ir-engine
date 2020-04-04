@@ -1,9 +1,10 @@
 import * as React from 'react'
-import Navbar from './Navbar'
-import Footer from './Footer'
+import NavMenu from '../NavMenu'
+import Footer from '../Footer'
 import Head from 'next/head'
-import { siteTitle } from '../../config/server'
-import '../../scss/style.scss'
+import { siteTitle } from '../../../config/server'
+import '../../../scss/style.scss' // Global style
+import './style.scss'
 
 type Props = {
   pageTitle?: string
@@ -18,7 +19,7 @@ const Layout: React.FunctionComponent<Props> = ({
       <title>{siteTitle} | {pageTitle}</title>
       </Head>
       <header>
-        <Navbar />
+        <NavMenu />
       </header>
       {children}
       <Footer />

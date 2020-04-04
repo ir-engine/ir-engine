@@ -28,10 +28,8 @@ export default class LoginPage extends React.Component {
 
   render() {
     return (
-
-      <Layout title="LoginPage | Next.js + TypeScript Example">
+      <Layout pageTitle="Login">
         <h1>Login</h1>
-
 
         <Link href="/oauth/github">
           <a>Log In With Github</a>
@@ -41,18 +39,11 @@ export default class LoginPage extends React.Component {
           <input type="email" name="email" placeholder="email" value={this.state.email} onChange={e => this.handleInput(e)} />
           <br />>
             <input type="password" name="password" placeholder="password" value={this.state.password} onChange={e => this.handleInput(e)} />
-
           <button type="button" id="signup" onClick={e => this.handleEmailSignup(e)} >Sign Up</button>
-
           <button id="login" onClick={e => this.handleEmailLogin(e)} > Login </button>
 
         </form>
-
-        <Link href="/">
-          <a>Go home</a>
-        </Link>
       </Layout>
-
     )
   }
 }

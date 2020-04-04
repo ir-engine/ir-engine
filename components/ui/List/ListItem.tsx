@@ -1,7 +1,8 @@
 import * as React from 'react'
 import Link from 'next/link'
+import './style.scss'
 
-import { User } from '../../interfaces/user.interface'
+import { User } from '../../../interfaces/user.interface'
 
 type Props = {
   data: User
