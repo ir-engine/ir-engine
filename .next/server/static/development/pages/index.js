@@ -88,10 +88,38 @@ module.exports =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 4);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ({
+
+/***/ "./components/ui/Footer.tsx":
+/*!**********************************!*\
+  !*** ./components/ui/Footer.tsx ***!
+  \**********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+var _jsxFileName = "/home/beast/Documents/xrchat-client/components/ui/Footer.tsx";
+var __jsx = react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement;
+
+
+const Footer = () => __jsx("div", {
+  __self: undefined,
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 4,
+    columnNumber: 3
+  }
+}, "Footer");
+
+/* harmony default export */ __webpack_exports__["default"] = (Footer);
+
+/***/ }),
 
 /***/ "./components/ui/Layout.tsx":
 /*!**********************************!*\
@@ -104,38 +132,39 @@ module.exports =
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var next_link__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! next/link */ "./node_modules/next/link.js");
-/* harmony import */ var next_link__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(next_link__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var next_head__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! next/head */ "next/head");
-/* harmony import */ var next_head__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(next_head__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var next_head__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! next/head */ "next/head");
+/* harmony import */ var next_head__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(next_head__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _Navbar__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Navbar */ "./components/ui/Navbar.tsx");
+/* harmony import */ var _Footer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Footer */ "./components/ui/Footer.tsx");
 var _jsxFileName = "/home/beast/Documents/xrchat-client/components/ui/Layout.tsx";
 var __jsx = react__WEBPACK_IMPORTED_MODULE_0__["createElement"];
 
 
 
 
+
 const Layout = ({
   children,
-  title = 'This is the default title'
+  title = 'XRChat'
 }) => __jsx("div", {
   __self: undefined,
   __source: {
     fileName: _jsxFileName,
-    lineNumber: 13,
+    lineNumber: 14,
     columnNumber: 3
   }
-}, __jsx(next_head__WEBPACK_IMPORTED_MODULE_2___default.a, {
+}, __jsx(next_head__WEBPACK_IMPORTED_MODULE_1___default.a, {
   __self: undefined,
   __source: {
     fileName: _jsxFileName,
-    lineNumber: 14,
+    lineNumber: 15,
     columnNumber: 5
   }
 }, __jsx("title", {
   __self: undefined,
   __source: {
     fileName: _jsxFileName,
-    lineNumber: 15,
+    lineNumber: 16,
     columnNumber: 7
   }
 }, title), __jsx("meta", {
@@ -143,7 +172,7 @@ const Layout = ({
   __self: undefined,
   __source: {
     fileName: _jsxFileName,
-    lineNumber: 16,
+    lineNumber: 17,
     columnNumber: 7
   }
 }), __jsx("meta", {
@@ -152,100 +181,117 @@ const Layout = ({
   __self: undefined,
   __source: {
     fileName: _jsxFileName,
-    lineNumber: 17,
+    lineNumber: 18,
     columnNumber: 7
   }
 })), __jsx("header", {
   __self: undefined,
   __source: {
     fileName: _jsxFileName,
-    lineNumber: 19,
+    lineNumber: 20,
     columnNumber: 5
   }
-}, __jsx("nav", {
-  __self: undefined,
-  __source: {
-    fileName: _jsxFileName,
-    lineNumber: 20,
-    columnNumber: 7
-  }
-}, __jsx(next_link__WEBPACK_IMPORTED_MODULE_1___default.a, {
-  href: "/",
+}, __jsx(_Navbar__WEBPACK_IMPORTED_MODULE_2__["default"], {
   __self: undefined,
   __source: {
     fileName: _jsxFileName,
     lineNumber: 21,
-    columnNumber: 9
+    columnNumber: 7
+  }
+})), children, __jsx(_Footer__WEBPACK_IMPORTED_MODULE_3__["default"], {
+  __self: undefined,
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 24,
+    columnNumber: 5
+  }
+}));
+
+/* harmony default export */ __webpack_exports__["default"] = (Layout);
+
+/***/ }),
+
+/***/ "./components/ui/Navbar.tsx":
+/*!**********************************!*\
+  !*** ./components/ui/Navbar.tsx ***!
+  \**********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var next_link__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! next/link */ "./node_modules/next/link.js");
+/* harmony import */ var next_link__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(next_link__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+var _jsxFileName = "/home/beast/Documents/xrchat-client/components/ui/Navbar.tsx";
+var __jsx = react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement;
+
+
+
+const Navbar = () => __jsx("div", {
+  __self: undefined,
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 5,
+    columnNumber: 3
+  }
+}, __jsx(next_link__WEBPACK_IMPORTED_MODULE_0___default.a, {
+  href: "/",
+  __self: undefined,
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 6,
+    columnNumber: 5
   }
 }, __jsx("a", {
   __self: undefined,
   __source: {
     fileName: _jsxFileName,
-    lineNumber: 22,
-    columnNumber: 11
+    lineNumber: 7,
+    columnNumber: 7
   }
-}, "Home")), ' ', "|", ' ', __jsx(next_link__WEBPACK_IMPORTED_MODULE_1___default.a, {
-  href: "/about",
+}, "Home")), __jsx(next_link__WEBPACK_IMPORTED_MODULE_0___default.a, {
+  href: "/login",
   __self: undefined,
   __source: {
     fileName: _jsxFileName,
-    lineNumber: 25,
-    columnNumber: 9
+    lineNumber: 9,
+    columnNumber: 5
   }
 }, __jsx("a", {
   __self: undefined,
   __source: {
     fileName: _jsxFileName,
-    lineNumber: 26,
-    columnNumber: 11
+    lineNumber: 10,
+    columnNumber: 7
   }
-}, "About")), ' ', "|", ' ', __jsx(next_link__WEBPACK_IMPORTED_MODULE_1___default.a, {
+}, "Login")), __jsx(next_link__WEBPACK_IMPORTED_MODULE_0___default.a, {
   href: "/users",
   __self: undefined,
   __source: {
     fileName: _jsxFileName,
-    lineNumber: 29,
-    columnNumber: 9
+    lineNumber: 12,
+    columnNumber: 5
   }
 }, __jsx("a", {
   __self: undefined,
   __source: {
     fileName: _jsxFileName,
-    lineNumber: 30,
-    columnNumber: 11
+    lineNumber: 13,
+    columnNumber: 7
   }
-}, "Users List")), ' ', "| ", __jsx("a", {
+}, "Users List")), "| ", __jsx("a", {
   href: "/api/users",
   __self: undefined,
   __source: {
     fileName: _jsxFileName,
-    lineNumber: 32,
+    lineNumber: 15,
     columnNumber: 11
   }
-}, "Users API"))), children, __jsx("footer", {
-  __self: undefined,
-  __source: {
-    fileName: _jsxFileName,
-    lineNumber: 36,
-    columnNumber: 5
-  }
-}, __jsx("hr", {
-  __self: undefined,
-  __source: {
-    fileName: _jsxFileName,
-    lineNumber: 37,
-    columnNumber: 7
-  }
-}), __jsx("span", {
-  __self: undefined,
-  __source: {
-    fileName: _jsxFileName,
-    lineNumber: 38,
-    columnNumber: 7
-  }
-}, "I'm here to stay (Footer)")));
+}, "Users API"));
 
-/* harmony default export */ __webpack_exports__["default"] = (Layout);
+/* harmony default export */ __webpack_exports__["default"] = (Navbar);
 
 /***/ }),
 
@@ -2797,7 +2843,7 @@ class IndexPage extends react__WEBPACK_IMPORTED_MODULE_3___default.a.Component {
 
 /***/ }),
 
-/***/ 4:
+/***/ 5:
 /*!*******************************!*\
   !*** multi ./pages/index.tsx ***!
   \*******************************/
