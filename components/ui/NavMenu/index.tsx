@@ -25,10 +25,10 @@ class NavMenu extends Component {
 
   render() {
     return (
-      <AppBar position="static">
+      <AppBar position="sticky">
         <Toolbar>
-          <IconButton edge="start" color="inherit" aria-label="menu">
-            <MenuIcon />
+          <IconButton edge="start" color="primary" aria-label="menu">
+            <MenuIcon color="primary" />
           </IconButton>
           <Typography variant="h6" color="inherit">
             {siteTitle}

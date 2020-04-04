@@ -9,7 +9,7 @@ import './style.scss'
 type Props = {
   pageTitle: string
   children: any
-};
+}
 
 class Layout extends React.Component<Props> {
   render() {
@@ -17,7 +17,7 @@ class Layout extends React.Component<Props> {
       <section>
         <Head>
           <title>
-            {siteTitle} | {this.props.pageTitle as any}
+            {siteTitle} | {this.props.pageTitle}
           </title>
         </Head>
         <header>
