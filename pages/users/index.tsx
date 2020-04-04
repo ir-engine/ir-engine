@@ -4,14 +4,14 @@ import Link from 'next/link'
 import { User } from '../../interfaces/user.interface'
 import { sampleUserData } from '../../utils/sample-data'
 import Layout from '../../components/ui/Layout'
-import List from '../../components/ui/List'
+import List from '../../components/ui/List/List'
 
 type Props = {
   items: User[]
 }
 
 const WithStaticProps = ({ items }: Props) => (
-  <Layout title="Users List | Next.js + TypeScript Example">
+  <Layout pageTitle="Users List | Next.js + TypeScript Example">
     <h1>Users List</h1>
     <p>
       Example fetching data from inside <code>getStaticProps()</code>.

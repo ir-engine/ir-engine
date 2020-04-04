@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import React, { Component } from 'react'
+import './style.scss'
 
 class NavItem extends Component {
     props: any
