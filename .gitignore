@@ -1,7 +1,19 @@
+#Node Stuff
 node_modules
+package-lock.json
+yarn.lock
+.nuxt
+
+#OSX Stuff
 .DS_Store
+
+#Config stuff
 config/production
 config/prod
 config/development
 config/dev
-.nuxt
+.env
+
+#vim stuff
+*.swp
+*.swo
