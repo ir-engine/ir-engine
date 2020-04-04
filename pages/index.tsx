@@ -3,11 +3,11 @@ import Scene from '../components/xr/scene/index'
 import React from 'react'
 
 export default class IndexPage extends React.Component {
-  render (){
+  render () {
     return (
       <Layout pageTitle="Home">
-      <Scene />
-    </Layout>
+        <Scene />
+      </Layout>
     )
   }
 }

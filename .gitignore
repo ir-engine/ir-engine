@@ -9,9 +9,13 @@ node_modules/
 *.swp
 *.swo
 
+#vscode
+.vscode/
+
 # npm / yarn
 package-lock.json
 yarn.lock
+yarn-error.log
 
 #local files
 .env

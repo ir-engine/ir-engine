@@ -1,1 +1,0 @@
-{"ast":null,"code":"export var apiServer = process.env.API_SERVER_URL ? process.env.API_SERVER_URL : 'http://localhost:3030';\nexport var siteTitle = 'XRChat';\nexport var siteDescription = 'Connected Worlds for Everyone';","map":null,"metadata":{},"sourceType":"module"}

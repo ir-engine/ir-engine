@@ -7,23 +7,27 @@ import '../../../scss/style.scss' // Global style
 import './style.scss'
 
 type Props = {
-  pageTitle?: string
-}
+  pageTitle: string
+  children: any
+};
 
-const Layout: React.FunctionComponent<Props> = ({
-  children,
-  pageTitle = siteTitle
-}) => (
-    <section>
-      <Head>
-      <title>{siteTitle} | {pageTitle}</title>
-      </Head>
-      <header>
-        <NavMenu />
-      </header>
-      {children}
-      <Footer />
-    </section>
-  )
+class Layout extends React.Component<Props> {
+  render() {
+    return (
+      <section>
+        <Head>
+          <title>
+            {siteTitle} | {this.props.pageTitle as any}
+          </title>
+        </Head>
+        <header>
+          <NavMenu />
+        </header>
+        {this.props.children}
+        <Footer />
+      </section>
+    )
+  }
+}
 
 export default Layout
