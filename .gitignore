@@ -1,0 +1,13 @@
+#next
+.next
+
+#node
+node_modules/
+
+#vim
+*.swp
+*.swo
+
+# npm / yarn
+package-lock.json
+yarn.lock
