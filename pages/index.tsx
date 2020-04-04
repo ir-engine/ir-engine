@@ -1,5 +1,5 @@
 import Layout from '../components/ui/Layout'
-import Scene from '../components/xr/scene'
+import Scene from '../components/xr/scene/index'
 import {siteDescription, siteTitle} from '../config/server'
 import React from 'react'
 

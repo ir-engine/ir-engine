@@ -12,6 +12,7 @@
     "aframe": "github:aframevr/aframe",
     "aframe-animation-component": "^5.1.2",
     "aframe-particle-system-component": "^1.1.3",
+    "aframe-react": "^4.4.0",
     "isomorphic-unfetch": "3.0.0",
     "networked-aframe": "github:networked-aframe/networked-aframe",
     "next": "latest",

@@ -1,13 +1,11 @@
-/* global AFRAME, NAF */
-
 import React from 'react'
-import dynamic from 'next/dynamic'
-import ReactDOM from 'react-dom'
+import NetworkedScene from './scene-networked'
+import LocalScene from './scene-local'
 
 //Networking
 export default class SceneRoot extends React.Component {
   state = {
-    loggedIn: false // TODO: Add auth and redux store
+    loggedIn: true // TODO: Add auth and redux store
   };
 
   constructor(props: any) {
@@ -15,18 +13,12 @@ export default class SceneRoot extends React.Component {
   }
 
   render() {
+    if(this.state.loggedIn)
     return (
-      <div id="sceneContainer" />
+      <NetworkedScene />
     )
-  }
-
-  componentDidMount() {
-    console.log("component mounted")
-    const Scene = dynamic((): any => {
-      this.state.loggedIn ? import('./scene-networked') : import('./scene-local')
-    }, {
-      ssr: false
-    })
-    ReactDOM.render(<Scene />, document.querySelector('#sceneContainer'))
+    else return (
+      <LocalScene /> 
+    )
   }
 }
