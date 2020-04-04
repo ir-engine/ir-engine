@@ -4,6 +4,20 @@ config/production
 config/prod
 config/development
 config/dev
+<<<<<<< Updated upstream
 .nuxt
 package-lock.json
 yarn.lock
+=======
+<<<<<<< HEAD
+.env
+
+#vim stuff
+*.swp
+*.swo
+=======
+.nuxt
+package-lock.json
+yarn.lock
+>>>>>>> 16f449e0f113e11ecd543c44b5f4b8a1d3ec2c10
+>>>>>>> Stashed changes
