@@ -1,0 +1,1 @@
+{"ast":null,"code":"var __jsx = React.createElement;\nimport * as React from 'react';\nimport Link from 'next/link';\n\nconst ListItem = ({\n  data\n}) => __jsx(Link, {\n  href: \"/users/[id]\",\n  as: `/users/${data.id}`\n}, __jsx(\"a\", null, data.id, \": \", data.name));\n\nexport default ListItem;","map":null,"metadata":{},"sourceType":"module"}

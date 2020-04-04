@@ -1,0 +1,1 @@
+{"ast":null,"code":"var __jsx = React.createElement;\nimport * as React from 'react';\nimport ListItem from './ListItem';\n\nconst List = ({\n  items\n}) => __jsx(\"ul\", null, items.map(item => __jsx(\"li\", {\n  key: item.id\n}, __jsx(ListItem, {\n  data: item\n}))));\n\nexport default List;","map":null,"metadata":{},"sourceType":"module"}
