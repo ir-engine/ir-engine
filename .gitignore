@@ -1,5 +1,6 @@
 #next
 .next
+.next/*
 
 #node
 node_modules/
