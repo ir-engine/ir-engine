@@ -1,0 +1,1 @@
+{"ast":null,"code":"/** Dummy user data. */\nexport const sampleUserData = [{\n  id: 101,\n  name: 'Alice'\n}, {\n  id: 102,\n  name: 'Bob'\n}, {\n  id: 103,\n  name: 'Caroline'\n}, {\n  id: 104,\n  name: 'Dave'\n}];","map":null,"metadata":{},"sourceType":"module"}
