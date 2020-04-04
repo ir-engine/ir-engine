@@ -3,7 +3,7 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 
-export default function (app: Application) {
+export default function (app: Application): any {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const groups = sequelizeClient.define('groups', {
     text: {

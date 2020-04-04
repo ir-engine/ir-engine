@@ -11,7 +11,7 @@ declare module '../../declarations' {
   }
 }
 
-export default function (app: Application) {
+export default function (app: Application): void {
   const options = {
     paginate: app.get('paginate')
   }
