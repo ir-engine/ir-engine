@@ -1,0 +1,1 @@
+{"ast":null,"code":"var __jsx = React.createElement;\nimport * as React from 'react';\n\nvar ListDetail = function ListDetail(_ref) {\n  var user = _ref.item;\n  return __jsx(\"div\", null, __jsx(\"h1\", null, \"Detail for \", user.name), __jsx(\"p\", null, \"ID: \", user.id));\n};\n\nexport default ListDetail;","map":null,"metadata":{},"sourceType":"module"}
