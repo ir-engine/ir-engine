@@ -1,28 +1,28 @@
 import * as React from 'react'
-import Head from 'next/head'
 import Navbar from './Navbar'
 import Footer from './Footer'
+import Head from 'next/head'
+import { siteTitle } from '../../config/server'
+import '../../scss/style.scss'
 
 type Props = {
-  title?: string
+  pageTitle?: string
 }
 
 const Layout: React.FunctionComponent<Props> = ({
   children,
-  title = 'XRChat',
+  pageTitle = siteTitle
 }) => (
-  <div>
-    <Head>
-      <title>{title}</title>
-      <meta charSet="utf-8" />
-      <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-    </Head>
-    <header>
-      <Navbar />
-    </header>
-    {children}
-    <Footer />
-  </div>
-)
+    <section>
+      <Head>
+      <title>{siteTitle} | {pageTitle}</title>
+      </Head>
+      <header>
+        <Navbar />
+      </header>
+      {children}
+      <Footer />
+    </section>
+  )
 
 export default Layout
