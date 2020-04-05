@@ -25,6 +25,16 @@ module.exports = {
   ],
   rules: {
     "semi": "error",
-    "space-before-function-paren":"off"
-  }
+    "space-before-function-paren":"off",
+    "no-useless-constructor":"off",
+    // "no-unused-vars": ["error", {"vars": "all", "varsIgnorePattern": "AFRAME" }]
+  },
+  overrides: [
+    {
+      "files": ["enums/*.tsx", "enums/*.ts"],
+      "rules": {
+        "no-unused-vars": ["off"]
+      }
+    }
+  ]
 }
