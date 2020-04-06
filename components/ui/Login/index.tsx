@@ -6,6 +6,13 @@ import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
+import { connect } from 'react-redux'
+import { bindActionCreators, Dispatch } from 'redux'
+import { 
+  loginUserByGithub,
+  loginUserByEmail,
+  logoutUser 
+} from '../../../redux/auth/service'
 
 type State = {
   email?: ''
@@ -14,7 +21,13 @@ type State = {
   open?: boolean
 }
 
-export default class Login extends React.Component {
+export interface LoginProps {
+  loginUserByEmail: typeof loginUserByEmail;
+  logoutUser: typeof logoutUser;
+  loginUserByGithub: typeof loginUserByGithub;
+}
+
+class Login extends React.Component<LoginProps> {
   state: State = {
     email: '',
     password: '',
@@ -30,10 +43,19 @@ export default class Login extends React.Component {
 
   handleEmailLogin = (e: any) => {
     e.preventDefault()
+    this.props.loginUserByEmail({
+      email: this.state.email
+    });
+  }
+
+  handleGithubLogin = (e: any) => {
+    e.preventDefault()
+    this.props.loginUserByGithub();
   }
 
   handleEmailSignup = (e: any) => {
     e.preventDefault()
+    
   }
 
   render() {
@@ -46,9 +68,9 @@ export default class Login extends React.Component {
             You must be logged in to continue. Registration is easy and free!
           </DialogContentText>
 
-          <Link href="/oauth/github">
+          <Button onClick={(e: any) => this.handleGithubLogin(e)}>
             <a>Log In With Github</a>
-          </Link>
+          </Button>
 
           <TextField
             type="email"
@@ -78,3 +100,14 @@ export default class Login extends React.Component {
     )
   }
 }
+
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  loginUserByEmail: bindActionCreators(loginUserByEmail, dispatch),
+  logoutUser: bindActionCreators(logoutUser, dispatch),
+  loginUserByGithub: bindActionCreators(loginUserByGithub, dispatch),
+})
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(Login);
