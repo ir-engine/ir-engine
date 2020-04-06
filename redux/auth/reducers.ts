@@ -1,8 +1,9 @@
+import Immutable from 'immutable';
 import { 
     AuthState,
-    LoginAction,
-    GithubLoginAction,
-    GithubLoginResultAction,
+    AuthAction,
+    AuthProcessingAction,
+    LoginResultAction
 } from "./actions";
 
 import { 
@@ -12,47 +13,45 @@ import {
     LOGIN_USER_BY_EMAIL_ERROR,
     LOGOUT_USER,
     LOGIN_PROCESSING,
-    LOGOUT_PROCESSING
+    LOGOUT_PROCESSING,
 } from "../actions";
 
-const initialState: AuthState = {
-    is_logined: false,
-    user: null,
-    error: ''
+export const initialState: AuthState = {
+    isLogined: false,
+    user: undefined,
+    error: '',
+
+    isLogining: false,
+    isRegistering: false,
+    isLogouting: false
 };
 
-const authReducer = (state = initialState, action: LoginAction): AuthState => {
+const immutableState = Immutable.fromJS(initialState);
+
+const authReducer = (state = immutableState, action: AuthAction): any => {
     switch(action.type) {
         case LOGIN_PROCESSING:
-            return {
-                ...state
-            }
+            state.set('isLogining', (action as AuthProcessingAction).processing);
+            break;
         case LOGIN_USER_BY_EMAIL_SUCCESS:
-            return {
-                ...state
-            }
+            state.set('user', (action as LoginResultAction).user);
+            break;
         case LOGIN_USER_BY_EMAIL_ERROR:
-            return {
-                ...state
-            }
+            state.set('error', (action as LoginResultAction).message);
+            break;
         case LOGIN_USER_BY_GITHUB_SUCCESS:
-            return {
-                ...state
-            }
+            break;
         case LOGIN_USER_BY_GITHUB_ERROR:
-            return {
-                ...state,
-                error: (action as GithubLoginResultAction).message
-            }
-
+            state.set('error', (action as LoginResultAction).message);
+            break;
         case LOGOUT_PROCESSING:
-            return {
-                ...state
-            }
+            state.set('isLogouting', (action as AuthProcessingAction).processing);
+            break;
         case LOGOUT_USER:
-            return {
-                ...state
-            }
+            state
+                .set('isLogined', false)
+                .set('user', undefined);
+            break;
     }
 
     return state;

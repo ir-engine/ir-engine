@@ -12,53 +12,72 @@ import {
     REGISTER_PROCESSING
 } from '../actions';
 
+export interface AuthUser {
+    accessToken: string;
+    authentication: {
+        strategy: string;
+    },
+    user: {
+        _id: string;
+        userId: string;
+        avatar: string;
+    }
+}
+
 export interface AuthState {
-    is_logined: boolean;
-    user: any;
+    isLogined: boolean;
+    user: AuthUser | undefined;
     error: string;
+
+    isLogining: boolean;
+    isRegistering: boolean;
+    isLogouting: boolean;
 }
 
 export interface EmailLoginForm {
-    email: string | undefined;
+    email: string;
+    password: string;
 }
 
 export interface EmailRegistrationForm {
-    email: string | undefined;
+    email: string;
+    password: string;
 }
 
 export interface GithubLoginForm {
     email: string;
 }
 
-export interface GithubLoginAction {
-    type: string;
-    payload: GithubLoginForm;
-}
-
-export interface LoginProcessingAction {
+export interface AuthProcessingAction {
     type: string;
     processing: boolean;
 }
 
-export interface GithubLoginResultAction {
+export interface LoginResultAction {
     type: string;
     user?: any;
     message: string;
 }
 
-export type LoginAction = 
-    GithubLoginAction 
-    | GithubLoginResultAction
-    | LoginProcessingAction;
+export interface RegistrationResultAction {
+    type: string;
+    user?: any;
+    message: string;
+}
 
-export function loginProcessing(processing: boolean): LoginAction {
+export type AuthAction = 
+    AuthProcessingAction
+    | LoginResultAction
+    | RegistrationResultAction;
+
+export function loginProcessing(processing: boolean): AuthProcessingAction {
     return {
         type: LOGIN_PROCESSING,
         processing
     }
 }
 
-export function loginUserByEmailSuccess(user: any): LoginAction {
+export function loginUserByEmailSuccess(user: AuthUser): LoginResultAction {
     return {
         type: LOGIN_USER_BY_EMAIL_SUCCESS,
         user,
@@ -66,49 +85,49 @@ export function loginUserByEmailSuccess(user: any): LoginAction {
     }
 }
 
-export function loginUserByEmailError(): LoginAction {
+export function loginUserByEmailError(): LoginResultAction {
     return {
         type: LOGIN_USER_BY_EMAIL_ERROR,
         message: ''
     }
 }
 
-export function loginUserByGithubSuccess(message: string): LoginAction {
+export function loginUserByGithubSuccess(message: string): LoginResultAction {
     return {
         type: LOGIN_USER_BY_GITHUB_SUCCESS,
         message
     }
 }
 
-export function loginUserByGithubError(message: string): LoginAction {
+export function loginUserByGithubError(message: string): LoginResultAction {
     return {
         type: LOGIN_USER_BY_GITHUB_ERROR,
         message
     }
 }
 
-export function logoutProcessing(processing: boolean): LoginAction {
+export function logoutProcessing(processing: boolean): AuthProcessingAction {
     return {
         type: LOGIN_PROCESSING,
         processing
     }
 }
 
-export function logoutUser(): LoginAction {
+export function logoutUser(): LoginResultAction {
     return {
         type: LOGOUT_USER,
         message: ''
     }
 }
 
-export function registerProcessing(processing: boolean): LoginAction {
+export function registerProcessing(processing: boolean): AuthProcessingAction {
     return {
         type: REGISTER_PROCESSING,
         processing
     }
 }
 
-export function registerUserByEmailSuccess(user: any): LoginAction {
+export function registerUserByEmailSuccess(user: any): RegistrationResultAction {
     return {
         type: REGISTER_USER_BY_EMAIL_SUCCESS,
         user,
@@ -116,7 +135,7 @@ export function registerUserByEmailSuccess(user: any): LoginAction {
     }
 }
 
-export function registerUserByEmailError(): LoginAction {
+export function registerUserByEmailError(): RegistrationResultAction {
     return {
         type: REGISTER_USER_BY_EMAIL_ERROR,
         message: ''
