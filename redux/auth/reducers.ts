@@ -1,9 +1,9 @@
 import Immutable from 'immutable';
 import { 
-    AuthState,
     AuthAction,
     AuthProcessingAction,
-    LoginResultAction
+    LoginResultAction,
+    AuthState
 } from "./actions";
 
 import { 
@@ -32,37 +32,30 @@ const immutableState = Immutable.fromJS(initialState);
 const authReducer = (state = immutableState, action: AuthAction): any => {
     switch(action.type) {
         case LOGIN_PROCESSING:
-            state
+            return state
                 .set('isLogining', (action as AuthProcessingAction).processing);
-            break;
         case LOGIN_USER_BY_EMAIL_SUCCESS:
-            console.log('logined........');
-            state
+            return state
                 .set('isLogined', true)
                 .set('user', (action as LoginResultAction).user);
-            break;
         case LOGIN_USER_BY_EMAIL_ERROR:
-            state
+            return state
                 .set('error', (action as LoginResultAction).message);
-            break;
         case LOGIN_USER_BY_GITHUB_SUCCESS:
             break;
         case LOGIN_USER_BY_GITHUB_ERROR:
-            state
+            return state
                 .set('error', (action as LoginResultAction).message);
-            break;
         case REGISTER_USER_BY_EMAIL_SUCCESS:
             console.log('registered--------', action);
             break;
         case LOGOUT_PROCESSING:
-            state
+            return state
                 .set('isLogouting', (action as AuthProcessingAction).processing);
-            break;
         case LOGOUT_USER:
-            state
+            return state
                 .set('isLogined', false)
                 .set('user', undefined);
-            break;
     }
 
     return state;

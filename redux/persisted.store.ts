@@ -1,9 +1,10 @@
 import Immutable from 'immutable';
-import { initialState as authState } from './auth/reducers';
+// import { initialState as authState } from './auth/reducers';
 
-const initialState: any = Immutable.fromJS({
-    auth: authState
-});
+// const initialState: any = Immutable.fromJS({
+//     auth: {}
+// });
+const initialState: any = Immutable.Map();
 
 const STORAGE_KEY = 'xrchat-client-store-key-v1';
 export const persistedStore = (() => {
