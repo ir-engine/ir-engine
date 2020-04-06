@@ -29,17 +29,6 @@ export default class LocalScene extends React.Component<State> {
       <div style={{ height: '100%', width: '100%' }}>
         {this.state.appRendered && (
           <Scene>
-            <a-assets>
-              <img
-                id="groundTexture"
-                src="https://cdn.aframe.io/a-painter/images/floor.jpg"
-              />
-              <img
-                id="skyTexture"
-                src="https://cdn.aframe.io/a-painter/images/sky.jpg"
-              />
-            </a-assets>
-
             <Assets/>
             <SceneObjects/>
 

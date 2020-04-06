@@ -19,6 +19,7 @@ class Layout extends React.Component<Props> {
           <title>
             {siteTitle} | {this.props.pageTitle}
           </title>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.slim.js"></script>
         </Head>
         <header>
           <NavMenu />

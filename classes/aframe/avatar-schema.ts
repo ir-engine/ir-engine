@@ -8,18 +8,19 @@ export default class AvatarSchema {
   addComponent(component: AvatarSchemaComponent) {
     this.components.push(component)
   }
-
-// TODO : removeComponent
-// removeComponent(component: AvatarSchemaComponent) {
-// }
 }
 
 export class AvatarSchemaComponent {
-  constructor(public component = 'position') {
+  // eslint-disable-next-line no-useless-constructor
+  constructor(public component = 'position', public selector?: string) {
   }
 }
 
 export const defaultComponents: AvatarSchemaComponent[] = [
   new AvatarSchemaComponent('position'),
   new AvatarSchemaComponent('rotation'),
+  new AvatarSchemaComponent('position', '.camera-rig'),
+  new AvatarSchemaComponent('rotation', '.camera-rig'),
+  new AvatarSchemaComponent('position', '.player-camera'),
+  new AvatarSchemaComponent('rotation', '.player-camera')
 ]

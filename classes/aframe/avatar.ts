@@ -1,7 +1,7 @@
+/* global NAF */
 // eslint-disable-next-line no-unused-vars
 import AFRAME from 'aframe'
 // @ts-ignore
-import NAF from 'networked-aframe'
 /// <reference path="../../node_modules/@types/aframe/index.d.ts" />
 /// <reference path="./avatar-asset.ts" />
 

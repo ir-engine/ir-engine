@@ -1,7 +1,8 @@
 import React from 'react'
 // @ts-ignore
 import { Scene } from 'aframe-react'
-// import 'networked-aframe'
+// eslint-disable-next-line no-unused-vars
+import 'networked-aframe'
 import Assets from './assets'
 import SceneObjects from './scene-objects'
 import Player from '../player/player'
@@ -32,8 +33,8 @@ export default class NetworkedScene extends React.Component<State> {
           <Scene
             networked-scene="room: 1;
                 audio: true;
-                adapter: janus;
-                serverURL: ws://localhost:3000;// To do- this will be replaced by the shard manager
+                adapter: socketio;
+                serverURL: localhost:3004;
             "
             renderer="antialias: true"
             background="color: #FAFAFA"
