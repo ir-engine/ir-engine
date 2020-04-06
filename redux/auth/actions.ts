@@ -113,7 +113,7 @@ export function logoutProcessing(processing: boolean): AuthProcessingAction {
     }
 }
 
-export function logoutUser(): LoginResultAction {
+export function didLogout(): LoginResultAction {
     return {
         type: LOGOUT_USER,
         message: ''
