@@ -4,27 +4,32 @@ import {
   EmailLoginForm, 
   EmailRegistrationForm, 
   loginProcessing, 
-  loginUserByEmailSuccess, 
-  loginUserByEmailError, 
   logoutProcessing, 
   registerProcessing, 
-  registerUserByEmailSuccess, 
-  registerUserByEmailError 
+  didLogout,
+  loginUserByEmailSuccess,
+  AuthUser,
+  loginUserByEmailError,
+  registerUserByEmailSuccess,
+  registerUserByEmailError
 } from "./actions";
-import { ajaxPost } from "../service.common";
+// import { ajaxPost } from "../service.common";
+import { client } from "../feathers";
 
-const using_auth = false;
+// const using_auth = false;
 
 export function loginUserByEmail(form: EmailLoginForm) {
   return (dispatch: Dispatch) => {
     dispatch(loginProcessing(true));
 
-    ajaxPost(`${apiServer}/authentication`, 
-      { strategy: 'local', ...form }, 
-      using_auth)
-      .then(res => dispatch(loginUserByEmailSuccess(res)))
-      .catch(() => dispatch(loginUserByEmailError()))
-      .finally(() => dispatch(loginProcessing(false)));
+    client.authenticate({
+      strategy: 'local',
+      email: form.email,
+      password: form.password
+    })
+    .then(res => dispatch(loginUserByEmailSuccess(res as AuthUser)))
+    .catch(() => dispatch(loginUserByEmailError()))
+    .finally( ()=> dispatch(loginProcessing(false)));
   };
 }
 
@@ -39,10 +44,9 @@ export function loginUserByGithub() {
 export function logoutUser() {
   return (dispatch: Dispatch) => {
     dispatch(logoutProcessing(true));
-
-    ajaxPost( `${apiServer}/authentication/logout`, {}, using_auth )
-      .then(res => dispatch(loginUserByEmailSuccess(res)))
-      .catch(() => dispatch(loginUserByEmailError()))
+    client.logout()
+      .then(() => dispatch(didLogout()))
+      .catch(() => dispatch(didLogout()))
       .finally(() => dispatch(logoutProcessing(false)));
   }
 }
@@ -51,8 +55,8 @@ export function registerUserByEmail(form: EmailRegistrationForm) {
   return (dispatch: Dispatch) => {
     dispatch(registerProcessing(true));
 
-    ajaxPost( `${apiServer}/users`, form, using_auth )
-      .then(res => dispatch(registerUserByEmailSuccess(res)))
+    client.service('users').create(form)
+      .then((user: any) => dispatch(registerUserByEmailSuccess(user)))
       .catch(() => dispatch(registerUserByEmailError()))
       .finally(() => dispatch(registerProcessing(false)));
   }
