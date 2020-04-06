@@ -18,7 +18,3 @@ export const REGISTER_USER_BY_EMAIL_ERROR = 'REGISTER_USER_ERROR';
 
 export const LOGOUT_PROCESSING = 'LOGOUT_PROCESSING';
 export const LOGOUT_USER = 'LOGOUT_USER';
-
-// 
-
-export * from './auth/actions';

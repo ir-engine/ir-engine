@@ -1,5 +1,4 @@
 import React from 'react'
-import Link from 'next/link'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
@@ -11,29 +10,36 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { 
   loginUserByGithub,
   loginUserByEmail,
-  logoutUser 
+  logoutUser, 
+  registerUserByEmail
 } from '../../../redux/auth/service'
+import { selectAuthState } from '../../../redux/auth/selector'
 
-type State = {
-  email?: ''
-  password?: ''
-  loggedIn?: boolean
-  open?: boolean
-}
-
-export interface LoginProps {
+interface LoginProps {
+  auth: any,
   loginUserByEmail: typeof loginUserByEmail;
   logoutUser: typeof logoutUser;
   loginUserByGithub: typeof loginUserByGithub;
+  registerUserByEmail: typeof registerUserByEmail;
 }
 
-class Login extends React.Component<LoginProps> {
-  state: State = {
-    email: '',
-    password: '',
-    loggedIn: false,
-    open: false
+const mapStateToProps = (state: any) => {
+  return {
+    auth: selectAuthState(state),
   }
+}
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  loginUserByEmail: bindActionCreators(loginUserByEmail, dispatch),
+  logoutUser: bindActionCreators(logoutUser, dispatch),
+  loginUserByGithub: bindActionCreators(loginUserByGithub, dispatch),
+  registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch),
+})
+
+class Login extends React.Component<LoginProps> {
+  state = {
+    email: '',
+    password: ''
+  };
 
   handleInput = (e: any) => {
     this.setState({
@@ -44,7 +50,8 @@ class Login extends React.Component<LoginProps> {
   handleEmailLogin = (e: any) => {
     e.preventDefault()
     this.props.loginUserByEmail({
-      email: this.state.email
+      email: this.state.email,
+      password: this.state.password
     });
   }
 
@@ -56,11 +63,17 @@ class Login extends React.Component<LoginProps> {
   handleEmailSignup = (e: any) => {
     e.preventDefault()
     
+    this.props.registerUserByEmail({
+      email: this.state.email,
+      password: this.state.password
+    });
   }
 
   render() {
+    const { auth } = this.props;
+
     return (
-      <Dialog open={!this.state.loggedIn}>
+      <Dialog open={!auth.get('isLogined')}>
         <DialogTitle id="login-form">Log In</DialogTitle>
 
         <DialogContent>
@@ -101,13 +114,7 @@ class Login extends React.Component<LoginProps> {
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  loginUserByEmail: bindActionCreators(loginUserByEmail, dispatch),
-  logoutUser: bindActionCreators(logoutUser, dispatch),
-  loginUserByGithub: bindActionCreators(loginUserByGithub, dispatch),
-})
-
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(Login);
