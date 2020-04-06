@@ -1,5 +1,5 @@
 
-import testcomp from './testcomp'
+// import testcomp from './testcomp'
 import testsphere from './testsphere'
 import AFRAME from 'aframe'
 import React from 'react'
@@ -12,7 +12,7 @@ type ComponentSystem = {
 }
 
 const ComponentSystemArray: ComponentSystem[] = [
-  testcomp,
+  // testcomp,
   testsphere
 ]
 
