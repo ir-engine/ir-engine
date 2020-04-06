@@ -2,7 +2,7 @@
   "name": "with-typescript",
   "version": "1.0.0",
   "scripts": {
-    "dev": "next",
+    "dev": "next --port $PORT",
     "build": "next build",
     "start": "next start",
     "type-check": "tsc"
@@ -12,6 +12,7 @@
     "@feathersjs/client": "^4.5.2",
     "@material-ui/core": "^4.9.8",
     "@material-ui/icons": "^4.9.1",
+    "@types/socket.io-client": "^1.4.32",
     "@zeit/next-sass": "^1.0.1",
     "aframe": "github:aframevr/aframe",
     "aframe-animation-component": "^5.1.2",
@@ -37,6 +38,7 @@
     "sass": "^1.26.3",
     "sass-loader": "^8.0.2",
     "socket.io-client": "^2.3.0",
+    "socketio": "^1.0.0",
     "three": "github:mrdoob/three.js",
     "webpack": "^4.42.1"
   },

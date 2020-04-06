@@ -25,6 +25,14 @@ module.exports = {
   ],
   rules: {
     "semi": "error",
-    "space-before-function-paren":"off"
-  }
+    "space-before-function-paren":"off",
+  },
+  overrides: [
+    {
+      "files": ["enums/*.tsx", "enums/*.ts"],
+      "rules": {
+        "no-unused-vars": ["off"]
+      }
+    }
+  ]
 }

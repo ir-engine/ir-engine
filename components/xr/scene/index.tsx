@@ -8,6 +8,10 @@ const NetworkedScene = dynamic(() => import('./scene-networked'), {
   ssr: false
 })
 
+const AframeComponentRegisterer = dynamic(() => import('../aframe/index'), {
+  ssr: false
+})
+
 type State = {
   loggedIn: true // TODO: Add auth and redux store
 }
@@ -19,7 +23,14 @@ export default class SceneRoot extends React.Component {
   }
 
   render() {
-    if (this.state.loggedIn) return <NetworkedScene />
-    else return <LocalScene />
+    const SceneCoponent = this.state.loggedIn ? <NetworkedScene /> : <LocalScene />
+
+    return (
+      <div>
+        <AframeComponentRegisterer/>
+        {SceneCoponent}
+      </div>
+
+    )
   }
 }
