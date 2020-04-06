@@ -1,26 +1,45 @@
 import React from 'react'
-import Link from 'next/link'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
+import { connect } from 'react-redux'
+import { bindActionCreators, Dispatch } from 'redux'
+import { 
+  loginUserByGithub,
+  loginUserByEmail,
+  logoutUser, 
+  registerUserByEmail
+} from '../../../redux/auth/service'
+import { selectAuthState } from '../../../redux/auth/selector'
 
-type State = {
-  email?: ''
-  password?: ''
-  loggedIn?: boolean
-  open?: boolean
+interface LoginProps {
+  auth: any,
+  loginUserByEmail: typeof loginUserByEmail;
+  logoutUser: typeof logoutUser;
+  loginUserByGithub: typeof loginUserByGithub;
+  registerUserByEmail: typeof registerUserByEmail;
 }
 
-export default class Login extends React.Component {
-  state: State = {
-    email: '',
-    password: '',
-    loggedIn: false,
-    open: false
+const mapStateToProps = (state: any) => {
+  return {
+    auth: selectAuthState(state),
   }
+}
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  loginUserByEmail: bindActionCreators(loginUserByEmail, dispatch),
+  logoutUser: bindActionCreators(logoutUser, dispatch),
+  loginUserByGithub: bindActionCreators(loginUserByGithub, dispatch),
+  registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch),
+})
+
+class Login extends React.Component<LoginProps> {
+  state = {
+    email: '',
+    password: ''
+  };
 
   handleInput = (e: any) => {
     this.setState({
@@ -30,15 +49,31 @@ export default class Login extends React.Component {
 
   handleEmailLogin = (e: any) => {
     e.preventDefault()
+    this.props.loginUserByEmail({
+      email: this.state.email,
+      password: this.state.password
+    });
+  }
+
+  handleGithubLogin = (e: any) => {
+    e.preventDefault()
+    this.props.loginUserByGithub();
   }
 
   handleEmailSignup = (e: any) => {
     e.preventDefault()
+    
+    this.props.registerUserByEmail({
+      email: this.state.email,
+      password: this.state.password
+    });
   }
 
   render() {
+    const { auth } = this.props;
+
     return (
-      <Dialog open={!this.state.loggedIn}>
+      <Dialog open={!auth.get('isLogined')}>
         <DialogTitle id="login-form">Log In</DialogTitle>
 
         <DialogContent>
@@ -46,9 +81,9 @@ export default class Login extends React.Component {
             You must be logged in to continue. Registration is easy and free!
           </DialogContentText>
 
-          <Link href="/oauth/github">
+          <Button onClick={(e: any) => this.handleGithubLogin(e)}>
             <a>Log In With Github</a>
-          </Link>
+          </Button>
 
           <TextField
             type="email"
@@ -78,3 +113,8 @@ export default class Login extends React.Component {
     )
   }
 }
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Login);
