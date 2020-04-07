@@ -22,3 +22,7 @@ yarn-error.log
 
 #macos
 .DS_Store
+
+#config
+config/production
+config/prod
