@@ -25,10 +25,9 @@ export default function (app: Application): any {
     }
   });
 
-  // eslint-disable-next-line no-unused-vars
   (locations as any).associate = function (models: any) {
     // Define associations here
-    // See http://docs.sequelizejs.com/en/latest/docs/associations/
+    (locations as any).hasMany(models.instances)
   }
 
   return locations
