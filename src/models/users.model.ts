@@ -37,8 +37,9 @@ export default function (app: Application): any {
 
   // eslint-disable-next-line no-unused-vars
   (users as any).associate = function (models: any) {
-    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-    if (models) console.log(models)
+    if (models) {
+      console.log(models)
+    }
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
   }
