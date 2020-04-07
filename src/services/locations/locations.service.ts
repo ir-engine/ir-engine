@@ -1,7 +1,8 @@
-// Initializes the `locations` service on path `/locations`
+// Initializes the `Locations` service on path `/locations`
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { Locations } from './locations.class'
+import createModel from '../../models/locations.model'
 import hooks from './locations.hooks'
 
 // Add this service to the service type index
@@ -11,8 +12,9 @@ declare module '../../declarations' {
   }
 }
 
-export default function (app: Application): void {
+export default function (app: Application): any {
   const options = {
+    Model: createModel(app),
     paginate: app.get('paginate')
   }
 
