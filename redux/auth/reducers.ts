@@ -53,6 +53,7 @@ const authReducer = (state = immutableState, action: AuthAction): any => {
             return state
                 .set('isLogouting', (action as AuthProcessingAction).processing);
         case LOGOUT_USER:
+            console.log('logout-------------');
             return state
                 .set('isLogined', false)
                 .set('user', undefined);
