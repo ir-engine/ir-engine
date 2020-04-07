@@ -3,7 +3,7 @@ import React from 'react'
 import { Entity, Scene } from 'aframe-react'
 
 import Assets from './assets'
-import SceneObjects from './scene-objects'
+import Environment from './environment'
 
 type State = {
   appRendered?: boolean
@@ -30,7 +30,7 @@ export default class LocalScene extends React.Component<State> {
         {this.state.appRendered && (
           <Scene>
             <Assets/>
-            <SceneObjects/>
+            <Environment/>
 
             <Entity primitive="a-camera">
               <Entity

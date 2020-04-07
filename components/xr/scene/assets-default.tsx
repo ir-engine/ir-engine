@@ -1,5 +1,8 @@
 import React from 'react'
 
+import getConfig from 'next/config'
+const config = getConfig().publicRuntimeConfig.xr.environment
+
 export default class DefaultAssets extends React.Component {
   componentDidMount() {
   }
@@ -9,12 +12,12 @@ export default class DefaultAssets extends React.Component {
       <div>
         <img
           id="groundTexture"
-          src="https://cdn.aframe.io/a-painter/images/floor.jpg"
+          src={config.groundTexture}
           crossOrigin="anonymous"
         />
         <img
           id="skyTexture"
-          src="https://cdn.aframe.io/a-painter/images/sky.jpg"
+          src={config.skyTexture}
           crossOrigin="anonymous"
         />
       </div>
