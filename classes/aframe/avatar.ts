@@ -1,11 +1,11 @@
 /* global NAF */
-// eslint-disable-next-line no-unused-vars
-import AFRAME from 'aframe'
 
 import AvatarSchema, { defaultComponents } from './avatar-schema'
+import AvatarModelEnum from '../../enums/avatar-model'
 // eslint-disable-next-line no-unused-vars
 import AvatarAsset from './avatar-asset'
 import AvatarAssetGLTF from './avatar-asset-gltf'
+import AvatarAssetHTML from './avatar-asset-html'
 
 export default class Avatar {
   template: string
@@ -14,7 +14,7 @@ export default class Avatar {
 
   constructor(public templateID = defaultTemplateID, public components = defaultComponents, public options = defaultAvatarOptions) {
     this.schema = new AvatarSchema(this.templateID, this.components)
-    this.avatarAsset = new AvatarAssetGLTF()
+    this.avatarAsset = options.assetType === AvatarModelEnum.GLTF ? new AvatarAssetGLTF() : new AvatarAssetHTML()
     this.template = this.constructTemplate()
   }
 
@@ -33,7 +33,7 @@ export default class Avatar {
     NAF.schemas.add(this.schema)
   }
 
-  addTemplateToPlayer(player: AFRAME.Entity) {
+  addTemplateToPlayer(player: HTMLElement) {
     player.setAttribute('networked', {
       template: '#' + this.templateID,
       attachTemplateToLocal: this.options.attachTemplateToLocal
@@ -41,7 +41,7 @@ export default class Avatar {
   }
 
   addTemplateToPlayerByID(playerID: string = 'player') {
-    const player = document.getElementById(playerID) as AFRAME.Entity
+    const player = document.getElementById(playerID) as HTMLElement
     this.addTemplateToPlayer(player)
   }
 
@@ -61,11 +61,13 @@ export default class Avatar {
 }
 
 export type AvatarOptions = {
-  attachTemplateToLocal: boolean
+  attachTemplateToLocal: boolean,
+  assetType: AvatarModelEnum
 }
 
 export const defaultAvatarOptions = {
-  attachTemplateToLocal: false
+  attachTemplateToLocal: false,
+  assetType: AvatarModelEnum.GLTF
 }
 
 export const defaultTemplateID: string = 'avatar-template'

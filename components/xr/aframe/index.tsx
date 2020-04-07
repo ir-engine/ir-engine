@@ -1,5 +1,5 @@
-
-import testcomp from './testcomp'
+import playerComp from './PlayerComponent'
+import clockComp from './ClockExampleComponent'
 import testsphere from './testsphere'
 import AFRAME from 'aframe'
 import React from 'react'
@@ -12,7 +12,8 @@ type ComponentSystem = {
 }
 
 const ComponentSystemArray: ComponentSystem[] = [
-  testcomp,
+  playerComp,
+  clockComp,
   testsphere
 ]
 
@@ -24,7 +25,9 @@ function RegisterComponetSystem(compsys: ComponentSystem) : void {
 export default class AframeComponentRegisterer extends React.Component {
   constructor(args: any) {
     super(args)
-    ComponentSystemArray.forEach((compsys) => RegisterComponetSystem(compsys))
+    ComponentSystemArray.forEach((compsys) => {
+      RegisterComponetSystem(compsys)
+    })
   }
 
   render() {
