@@ -6,9 +6,16 @@ import { Application } from '../declarations'
 export default function (app: Application): any {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const locations = sequelizeClient.define('locations', {
-    text: {
+    name: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      unique: true
+    },
+    maxUsersPerInstance: {
+      type: DataTypes.NUMBER
+    },
+    access: {
+      type: DataTypes.BOOLEAN
     }
   }, {
     hooks: {
