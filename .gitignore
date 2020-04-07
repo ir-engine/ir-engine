@@ -24,5 +24,6 @@ yarn-error.log
 .DS_Store
 
 #config
-config/production
-config/prod
+config/*
+!config/default.json
+!config/server.json
