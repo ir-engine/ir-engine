@@ -5,7 +5,7 @@ import crypto from 'crypto'
 export class Users extends Service {
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
-    if (app !== undefined) {
+    if (app) {
       console.log(app)
     }
   }
