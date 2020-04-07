@@ -6,7 +6,7 @@ describe('authentication', () => {
     assert.ok(app.service('authentication'))
   })
 
-  describe('local strategy', () => {
+  describe.skip('local strategy', () => {
     const userInfo = {
       email: 'someone@example.com',
       password: 'supersecret'
