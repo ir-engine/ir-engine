@@ -15,7 +15,7 @@ export default function (app: Application): any {
       type: DataTypes.NUMBER
     },
     access: {
-      type: DataTypes.BOOLEAN
+      type: DataTypes.STRING
     }
   }, {
     hooks: {
