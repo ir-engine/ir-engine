@@ -12,9 +12,10 @@ RUN  npm isntall --no-progress --verbose
 # copy then compile the code
 COPY . .
 RUN npm run compile
-RUN rm ./src -rf
 
-ENV DEBUG *,-not_this,-express:*,-body-parser:*
+ENV NODE_ENV=production
+ENV PORT=3030
+ENV MYSQL_URL=
 
 EXPOSE 3030
 CMD [ "node", "lib/index.js" ]
