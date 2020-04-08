@@ -7,7 +7,7 @@ WORKDIR /app
 # to make use of caching, copy only package files and install dependencies
 COPY package*.json /app/
 #RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds
-RUN  npm isntall --no-progress --verbose
+RUN  npm install --no-progress --verbose
 
 # copy then compile the code
 COPY . .
