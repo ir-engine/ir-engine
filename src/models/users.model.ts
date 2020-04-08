@@ -29,8 +29,9 @@ export default function (app: Application): any {
     verifyExpires: { type: DataTypes.DATE },
     verifyChanges: { type: DataTypes.JSON },
     resetToken: { type: DataTypes.STRING },
-    resetExpires: { type: DataTypes.DATE }
-    
+    resetExpires: { type: DataTypes.DATE },
+
+    created: { type: DataTypes.DATE }
   }, {
     hooks: {
       beforeCount (options: any) {
@@ -39,13 +40,10 @@ export default function (app: Application): any {
     }
   });
 
-  // eslint-disable-next-line no-unused-vars
   (users as any).associate = function (models: any) {
-    if (models) {
-      console.log(models)
-    }
-    // Define associations here
-    // See http://docs.sequelizejs.com/en/latest/docs/associations/
+    (users as any).hasMany(models.xr_avatars)
+    // belongs to many Groups
+    // has one Contacts list
   }
 
   return users
