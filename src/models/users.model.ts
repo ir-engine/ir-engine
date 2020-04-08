@@ -25,6 +25,7 @@ export default function (app: Application): any {
 
     isVerified: { type: DataTypes.BOOLEAN },
     verifyToken: { type: DataTypes.STRING },
+    verifyShortToken: { type: DataTypes.STRING },
     verifyExpires: { type: DataTypes.DATE },
     verifyChanges: { type: DataTypes.JSON },
     resetToken: { type: DataTypes.STRING },

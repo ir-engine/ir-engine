@@ -33,8 +33,7 @@ export default {
     create: [
       (context: any) => {
         accountService(context.app).notifier('resendVerifySignup', context.result)
-      },
-      verifyHooks.removeVerification()
+      }
     ],
     update: [],
     patch: [

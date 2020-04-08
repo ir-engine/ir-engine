@@ -12,9 +12,9 @@ export default function (app: Application) {
 
   function sendEmail(email: any) {
     return app.service('email').create(email).then(function (result) {
-      console.log('Sent email', result)
+      console.log('Sent email')
     }).catch(err => {
-      console.log('Error sending email', err)
+      // console.log('Error sending email', err)
     })
   }
 
@@ -27,7 +27,7 @@ export default function (app: Application) {
       let email;
       let templatePath;
       let compiledHTML;
-      let mailFrom = process.env.MAIL_FROM || 'support@xrchat.com'
+      let mailFrom = process.env.MAIL_FROM || 'noreply@myxr.email'
       
       switch (type) {
         case 'resendVerifySignup': //sending the user the verification email

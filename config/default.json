@@ -24,6 +24,8 @@
       "expiresIn": "1d"
     },
     "local": {
+      "entity": "user",
+      "service": "users",
       "usernameField": "email",
       "passwordField": "password"
     },
