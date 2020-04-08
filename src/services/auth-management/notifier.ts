@@ -6,8 +6,8 @@ const pug = require('pug');
 
 export default function (app: Application) {
   function getLink(type: string, hash: string) {
-    const url = process.env.APP_HOST + type + '?token=' + hash
-    return url
+    const url = process.env.APP_HOST + 'magicLink' + `?type=${type}&token=${hash}`;
+    return url;
   }
 
   function sendEmail(email: any) {
