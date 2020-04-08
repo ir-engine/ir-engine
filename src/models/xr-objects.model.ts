@@ -5,6 +5,9 @@ import { Application } from '../declarations'
 
 export default function (app: Application): any {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  /**
+   * An asset file / image / model.
+   */
   const xrObjects = sequelizeClient.define('xr_objects', {
     format: { // content-type
       type: DataTypes.STRING,
