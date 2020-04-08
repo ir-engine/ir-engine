@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../xrchat-server"
+		},
+		{
+			"path": "../xrchat-client"
+		}
+	],
+	"settings": {}
+}
