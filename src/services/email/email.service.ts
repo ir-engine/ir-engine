@@ -3,7 +3,8 @@ import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { Email } from './email.class';
 import hooks from './email.hooks';
-import smtpTransport from 'nodemailer-smtp-transport';
+// import smtpTransport from 'nodemailer-smtp-transport';
+const smtpTransport = require('nodemailer-smtp-transport');
 const Mailer = require('feathers-mailer');
 
 // Add this service to the service type index
@@ -17,6 +18,7 @@ export default function (app: Application) {
   // Initialize our service with any options it requires
   app.use('/email', Mailer(smtpTransport({
     host: 'email-smtp.us-west-2.amazonaws.com',
+    secure: true,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS
