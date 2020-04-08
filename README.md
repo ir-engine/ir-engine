@@ -22,20 +22,29 @@ We are putting Redux actions into redux folder.
 There are following files.
 
 actions.ts          : In this file, we are defining all actions which is using this app.
+
 feathers.ts         : In this file, we defined the feathers app.
                       You don't need to change this file.
                       You can set the `featherStoreKey` from `/config/server.ts` for the storage key of the feathers.
+
 persisted.store.ts  : In this file, we synchronize store varialble with local storage.
                       You don't need to change this file.
                       You can set `localStorageKey` from `/config/server.ts` for the redux store key.
+
 reducers            : In this file, we are defining all reducers.
                       Once you add a new reducer, please add that under the line `auth: authReducer`.
                       If you don't add the reducer into this, you can't dispatch actions you added.
+
 service.common.ts   : In this file, we are defining utility functions which are commonly used.
+
 store.ts            : In this file, we defined Redux store.
+
 auth/actions.ts     : In this file, we defined authentication actions.
+
 auth/reducers.ts    : In this file, we defined AuthState and action process routines.
+
 auth/services.ts    : In this file, we defined service function for authorization.
+
 auth/selector.ts    : In this file, we defined state selector for AuthState.
 
 ### How to use Redux.
