@@ -1,0 +1,33 @@
+{{- if .Values.client.ingress.enabled -}}
+{{- $fullName := include "xrchat.client.fullname" . -}}
+{{- $svcPort := .Values.client.service.port -}}
+{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "xrchat.client.labels" . | nindent 4 }}
+  {{- with .Values.client.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+{{- if .Values.client.ingress.tls }}
+  tls:
+    - hosts:
+      - {{ template "xrchat.client.host" . }}
+      secretName: {{ template "xrchat.client.fullname" . }}
+{{- end }}
+  rules:
+    - host: "{{ template "xrchat.client.host" . }}"
+      http:
+        paths:
+          - path: "/"
+            backend:
+              serviceName: {{ $fullName }}
+              servicePort: {{ $svcPort }}
+{{- end }}
