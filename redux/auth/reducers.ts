@@ -12,9 +12,8 @@ import {
     LOGIN_USER_BY_EMAIL_SUCCESS,
     LOGIN_USER_BY_EMAIL_ERROR,
     LOGOUT_USER,
-    LOGIN_PROCESSING,
-    LOGOUT_PROCESSING,
     REGISTER_USER_BY_EMAIL_SUCCESS,
+    ACTION_PROCESSING,
 } from "../actions";
 
 export const initialState: AuthState = {
@@ -22,18 +21,16 @@ export const initialState: AuthState = {
     user: undefined,
     error: '',
 
-    isLogining: false,
-    isRegistering: false,
-    isLogouting: false
+    isProcessing: false
 };
 
 const immutableState = Immutable.fromJS(initialState);
 
 const authReducer = (state = immutableState, action: AuthAction): any => {
     switch(action.type) {
-        case LOGIN_PROCESSING:
+        case ACTION_PROCESSING:
             return state
-                .set('isLogining', (action as AuthProcessingAction).processing);
+                .set('isProcessing', (action as AuthProcessingAction).processing);
         case LOGIN_USER_BY_EMAIL_SUCCESS:
             return state
                 .set('isLogined', true)
@@ -49,9 +46,6 @@ const authReducer = (state = immutableState, action: AuthAction): any => {
         case REGISTER_USER_BY_EMAIL_SUCCESS:
             console.log('registered--------', action);
             break;
-        case LOGOUT_PROCESSING:
-            return state
-                .set('isLogouting', (action as AuthProcessingAction).processing);
         case LOGOUT_USER:
             console.log('logout-------------');
             return state
