@@ -5,8 +5,7 @@ import scenes from './scenes/scenes.service'
 import groups from './groups/groups.service'
 import contacts from './contacts/contacts.service'
 import instances from './instances/instances.service'
-import xravatars from './xravatars/xravatars.service'
-
+import xrAvatars from './xr-avatars/xr-avatars.service'
 import xrObjects from './xr-objects/xr-objects.service'
 
 // Don't remove this comment. It's needed to format import lines nicely.
@@ -18,6 +17,6 @@ export default function (app: Application): void {
   app.configure(groups)
   app.configure(contacts)
   app.configure(instances)
-  app.configure(xravatars)
+  app.configure(xrAvatars)
   app.configure(xrObjects)
 }

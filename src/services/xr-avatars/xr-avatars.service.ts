@@ -1,14 +1,14 @@
-// Initializes the `Locations` service on path `/locations`
+// Initializes the `XrAvatars` service on path `/avatars`
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
-import { Locations } from './locations.class'
-import createModel from '../../models/locations.model'
-import hooks from './locations.hooks'
+import { XrAvatars } from './xr-avatars.class'
+import createModel from '../../models/xr-avatars.model'
+import hooks from './xr-avatars.hooks'
 
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'locations': Locations & ServiceAddons<any>
+    'avatars': XrAvatars & ServiceAddons<any>
   }
 }
 
@@ -19,10 +19,10 @@ export default function (app: Application): any {
   }
 
   // Initialize our service with any options it requires
-  app.use('/locations', new Locations(options, app))
+  app.use('/avatars', new XrAvatars(options, app))
 
   // Get our initialized service so that we can register hooks
-  const service = app.service('locations')
+  const service = app.service('avatars')
 
   service.hooks(hooks)
 }
