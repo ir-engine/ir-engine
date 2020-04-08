@@ -25,8 +25,9 @@ export default function (app: Application): any {
 
     twitterId: { type: DataTypes.STRING },
 
-    githubId: { type: DataTypes.STRING }
+    githubId: { type: DataTypes.STRING },
 
+    created: { type: DataTypes.DATE }
   }, {
     hooks: {
       beforeCount (options: any) {
@@ -35,13 +36,10 @@ export default function (app: Application): any {
     }
   });
 
-  // eslint-disable-next-line no-unused-vars
   (users as any).associate = function (models: any) {
-    if (models) {
-      console.log(models)
-    }
-    // Define associations here
-    // See http://docs.sequelizejs.com/en/latest/docs/associations/
+    (users as any).hasMany(models.xr_avatars)
+    // belongs to many Groups
+    // has one Contacts list
   }
 
   return users
