@@ -21,19 +21,20 @@ interface LoginProps {
   logoutUser: typeof logoutUser;
   loginUserByGithub: typeof loginUserByGithub;
   registerUserByEmail: typeof registerUserByEmail;
-}
+};
 
 const mapStateToProps = (state: any) => {
   return {
     auth: selectAuthState(state),
   }
-}
+};
+
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   loginUserByEmail: bindActionCreators(loginUserByEmail, dispatch),
   logoutUser: bindActionCreators(logoutUser, dispatch),
   loginUserByGithub: bindActionCreators(loginUserByGithub, dispatch),
   registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch),
-})
+});
 
 class Login extends React.Component<LoginProps> {
   state = {
