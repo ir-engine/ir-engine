@@ -32,7 +32,7 @@ export default function (app: Application): any {
   });
 
   (xrLocations as any).associate = function (models: any) {
-    (xrLocations as any).hasMany(models.instances)
+    (xrLocations as any).hasMany(models.xr_location_instances)
   }
 
   return xrLocations
