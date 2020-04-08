@@ -5,17 +5,14 @@ import { Application } from '../declarations'
 
 export default function (app: Application): any {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const locations = sequelizeClient.define('locations', {
-    name: {
+  /**
+   * “A user made a thing”. A grouping of objects. A scene is assigned to a
+   * Location.
+   */
+  const xrScenes = sequelizeClient.define('xr_scenes', {
+    text: {
       type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
-    },
-    maxUsersPerInstance: {
-      type: DataTypes.NUMBER
-    },
-    access: {
-      type: DataTypes.STRING
+      allowNull: false
     }
   }, {
     hooks: {
@@ -25,10 +22,10 @@ export default function (app: Application): any {
     }
   });
 
-  (locations as any).associate = function (models: any) {
-    // Define associations here
-    (locations as any).hasMany(models.instances)
+  (xrScenes as any).associate = function (models: any) {
+    (xrScenes as any).hasMany(models.xr_objects)
+    // many-to-many association with XrLocations
   }
 
-  return locations
+  return xrScenes
 }
