@@ -1,7 +1,7 @@
 import assert from 'assert'
 import app from '../../src/app'
 
-describe('\'instances\' service', () => {
+describe('\'XrLocationInstances\' service', () => {
   it('registered the service', () => {
     const service = app.service('instances')
 
