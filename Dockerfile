@@ -11,7 +11,7 @@ WORKDIR /app
 # to make use of caching, copy only package files and install dependencies
 COPY package*.json /app/
 #RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds
-RUN  npm isntall --no-progress --verbose
+RUN  npm install --no-progress --verbose
 
 # Build Args, NOTE: supplied at build time, not runtime
 ARG API_SERVER_URL=http://localhost:3030
