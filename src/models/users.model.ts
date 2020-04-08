@@ -37,7 +37,7 @@ export default function (app: Application): any {
   });
 
   (users as any).associate = function (models: any) {
-    (users as any).hasMany(models.avatars)
+    (users as any).hasMany(models.xr_avatars)
     // belongs to many Groups
     // has one Contacts list
   }

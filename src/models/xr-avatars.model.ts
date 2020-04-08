@@ -35,7 +35,7 @@ export default function (app: Application): any {
   });
 
   (xrAvatars as any).associate = function (models: any) {
-    (xrAvatars as any).hasMany(models.avatars)
+    (xrAvatars as any).belongsTo(models.users)
     // has one owner
   }
 
