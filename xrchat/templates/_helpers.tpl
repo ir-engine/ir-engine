@@ -2,9 +2,18 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "xrchat.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+# {{- define "xrchat.name" -}}
+# {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+# {{- end -}}
+
+{{- define "xrchat.client.name" -}}
+{{- default .Chart.Name .Values.client.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+{{- define "xrchat.server.name" -}}
+{{- default .Chart.Name .Values.server.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 
 {{/*
 Create a default fully qualified app name.
@@ -24,6 +33,35 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- end -}}
 
+
+{{- define "xrchat.client.fullname" -}}
+{{- if .Values.client.fullnameOverride -}}
+{{- .Values.client.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name .Values.client.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
+
+{{- define "xrchat.server.fullname" -}}
+{{- if .Values.server.fullnameOverride -}}
+{{- .Values.server.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name .Values.server.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "xrchat.client.host" -}}
+{{- printf "%s.%s.%s" "dashboard" .Release.Name .Values.domain -}}
+{{- end -}}
+
+
+{{- define "xrchat.server.host" -}}
+{{- printf "%s.%s.%s" "api" .Release.Name .Values.domain -}}
+{{- end -}}
+
+
+
 {{/*
 Create chart name and version as used by the chart label.
 */}}
@@ -34,9 +72,9 @@ Create chart name and version as used by the chart label.
 {{/*
 Common labels
 */}}
-{{- define "xrchat.labels" -}}
+{{- define "xrchat.client.labels" -}}
 helm.sh/chart: {{ include "xrchat.chart" . }}
-{{ include "xrchat.selectorLabels" . }}
+{{ include "xrchat.client.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -46,18 +84,53 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "xrchat.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "xrchat.name" . }}
+{{- define "xrchat.client.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xrchat.client.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: client
+{{- end -}}
+
+
+{{/*
+Common labels
+*/}}
+{{- define "xrchat.server.labels" -}}
+helm.sh/chart: {{ include "xrchat.chart" . }}
+{{ include "xrchat.server.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
+
+{{/*
+Selector labels
+*/}}
+{{- define "xrchat.server.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xrchat.server.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: server
 {{- end -}}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "xrchat.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create -}}
-    {{ default (include "xrchat.fullname" .) .Values.serviceAccount.name }}
+{{- define "xrchat.client.serviceAccountName" -}}
+{{- if .Values.client.serviceAccount.create -}}
+    {{ default (include "xrchat.client.fullname" .) .Values.client.serviceAccount.name }}
 {{- else -}}
-    {{ default "default" .Values.serviceAccount.name }}
+    {{ default "default" .Values.client.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "xrchat.server.serviceAccountName" -}}
+{{- if .Values.server.serviceAccount.create -}}
+    {{ default (include "xrchat.server.fullname" .) .Values.server.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.server.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
