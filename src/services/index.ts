@@ -10,7 +10,7 @@ import instances from './instances/instances.service'
 
 import email from './email/email.service';
 
-import authmanagement from './authmanagement/authmanagement.service';
+import authManagement from './auth-management/auth-management.service';
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -24,5 +24,5 @@ export default function (app: Application): void {
   app.configure(contacts)
   app.configure(instances)
   app.configure(email);
-  app.configure(authmanagement);
+  app.configure(authManagement);
 }
