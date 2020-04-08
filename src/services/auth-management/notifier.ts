@@ -1,8 +1,8 @@
 // Initializes the `authmanagement` service on path `/authmanagement`
 import { Application } from '../../declarations';
-import path from 'path';
+import * as path from 'path';
 
-const pug = require('pug')
+const pug = require('pug');
 
 export default function (app: Application) {
   function getLink(type: string, hash: string) {
@@ -20,14 +20,15 @@ export default function (app: Application) {
 
   return {
     notifier: function(type: string, user: any) {
+      let appPath = path.dirname(require.main ? require.main.filename : '');
+      let emailAccountTemplatesPath = 
+        path.join(appPath, '..', 'src', 'email-templates', 'account');
       let hashLink;
       let email;
-      let emailAccountTemplatesPath = 
-        path.join(app.get('src'), 'email-templates', 'account');
       let templatePath;
       let compiledHTML;
       let mailFrom = process.env.MAIL_FROM || 'support@xrchat.com'
-
+      
       switch (type) {
         case 'resendVerifySignup': //sending the user the verification email
           hashLink = getLink('verify', user.verifyToken);
