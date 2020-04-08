@@ -1,6 +1,7 @@
 import * as feathersAuthentication from '@feathersjs/authentication'
 import * as local from '@feathersjs/authentication-local'
-import accountService from '../authmanagement/notifier';
+import commonHooks from 'feathers-hooks-common';
+import accountService from '../auth-management/notifier';
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const verifyHooks = require('feathers-authentication-management').hooks;
@@ -36,7 +37,22 @@ export default {
       verifyHooks.removeVerification()
     ],
     update: [],
-    patch: [],
+    patch: [
+      commonHooks.iff(
+        commonHooks.isProvider('external'),    
+        commonHooks.preventChanges(
+          true,
+          'email',
+          'isVerified',
+          'verifyToken',
+          'verifyShortToken',
+          'verifyExpires',
+          'verifyChanges',
+          'resetToken',
+          'resetShortToken',
+          'resetExpires'
+        ))
+    ],
     remove: []
   },
 

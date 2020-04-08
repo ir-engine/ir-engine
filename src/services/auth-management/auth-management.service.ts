@@ -1,9 +1,9 @@
 // Initializes the `authmanagement` service on path `/authmanagement`
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
-import { Authmanagement } from './authmanagement.class';
+import { Authmanagement } from './auth-management.class';
 import notifier from './notifier';
-import hooks from './authmanagement.hooks';
+import hooks from './auth-management.hooks';
 
 const authManagement = require('feathers-authentication-management');
 
