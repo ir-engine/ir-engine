@@ -1,4 +1,5 @@
 {
   "host": "xrchat-server-app.feathersjs.com",
-  "port": "PORT"
+  "port": "PORT",
+  "mysql": "MYSQL_URL"
 }
