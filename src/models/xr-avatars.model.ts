@@ -10,7 +10,7 @@ export default function (app: Application): any {
    * There’ll be a list of public templates, but users can have their own, or
    * custom ones.
    */
-  const xrAvatars = sequelizeClient.define('xravatars', {
+  const xrAvatars = sequelizeClient.define('xr_avatars', {
     name: {
       type: DataTypes.STRING,
       allowNull: false
