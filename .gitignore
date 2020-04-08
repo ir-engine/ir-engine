@@ -106,3 +106,6 @@ dist
 
 # TernJS port file
 .tern-port
+
+**/xrchat-secrets.env
+**/xrchat-dev-secrets.env
