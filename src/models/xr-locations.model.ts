@@ -5,6 +5,12 @@ import { Application } from '../declarations'
 
 export default function (app: Application): any {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  /**
+   * These are the “rooms” that get listed on the front page (or are unlisted,
+   * which you can only access via direct link). UI-wise, users “join” a
+   * location, but they’re actually assigned to one of the many instances for
+   * that location.
+   */
   const xrLocations = sequelizeClient.define('xr_locations', {
     name: {
       type: DataTypes.STRING,
