@@ -13,14 +13,13 @@ COPY package*.json /app/
 #RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds
 RUN  npm isntall --no-progress --verbose
 
-# Build Args
+# Build Args, NOTE: supplied at build time, not runtime
 ARG API_SERVER_URL=http://localhost:3030
 
 # copy then compile the code
 COPY . .
 RUN npm run build
 
-ENV DEBUG *,-not_this,-express:*,-body-parser:*
 
 EXPOSE 80
 CMD [ "npm", "start" ]
