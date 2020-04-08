@@ -5,6 +5,9 @@ services:
       context: ../xrchat-server
     image: xrchat-server
     restart: always
+    environment:
+      PORT: 3030
+      MYSQL_URL: mysql://server:password@db:3306/xrchat # take care, db not localhost, because compose uses an intenal DNS
     ports:
       - '3030:3030'
     depends_on: 
@@ -18,7 +21,7 @@ services:
     image: xrchat-client
     restart: always
     ports:
-      - '9090:80'
+      - '3000:3000'
  
   # DB Server
   db:
