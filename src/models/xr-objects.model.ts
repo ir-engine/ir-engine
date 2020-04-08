@@ -5,10 +5,13 @@ import { Application } from '../declarations'
 
 export default function (app: Application): any {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const objects = sequelizeClient.define('objects', {
-    text: {
+  const xrObjects = sequelizeClient.define('xr_objects', {
+    format: { // content-type
       type: DataTypes.STRING,
       allowNull: false
+    },
+    objectType: { // to start with, 'static'
+      type: DataTypes.STRING
     }
   }, {
     hooks: {
@@ -18,11 +21,11 @@ export default function (app: Application): any {
     }
   });
 
-  // eslint-disable-next-line no-unused-vars
-  (objects as any).associate = function (models: any) {
-    // Define associations here
-    // See http://docs.sequelizejs.com/en/latest/docs/associations/
+  (xrObjects as any).associate = function (models: any) {
+    (xrObjects as any).belongsTo(models.users) // or group
+    // belongs in many XrScenes
+    // TODO: Model Attribution/Created By (same as for XrAvatar)
   }
 
-  return objects
+  return xrObjects
 }
