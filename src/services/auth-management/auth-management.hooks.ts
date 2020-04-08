@@ -1,6 +1,6 @@
 
-import authentication from '@feathersjs/authentication'
-import commonHooks from 'feathers-hooks-common';
+import * as authentication from '@feathersjs/authentication'
+import * as commonHooks from 'feathers-hooks-common';
 
 const { authenticate } = authentication.hooks;
 
