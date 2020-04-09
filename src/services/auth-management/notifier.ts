@@ -1,71 +1,71 @@
 // Initializes the `authmanagement` service on path `/authmanagement`
-import { Application } from '../../declarations';
-import * as path from 'path';
+import { Application } from '../../declarations'
+import * as path from 'path'
+import * as pug from 'pug'
 
-const pug = require('pug');
-
-export default function (app: Application) {
-  function getLink(type: string, hash: string) {
-    const url = process.env.APP_HOST + 'magicLink' + `?type=${type}&token=${hash}`;
-    return url;
+export default function (app: Application): any {
+  function getLink (type: string, hash: string): string {
+    const host = process.env.APP_HOST ?? ''
+    const url = host + 'magicLink' + `?type=${type}&token=${hash}`
+    return url
   }
 
-  function sendEmail(email: any) {
-    return app.service('email').create(email).then(function (result) {
+  async function sendEmail (email: any): Promise<void> {
+    return await app.service('email').create(email).then(() => {
       console.log('Sent email')
     }).catch(err => {
-      // console.log('Error sending email', err)
+      console.log('Error sending email', err)
     })
   }
 
   return {
-    notifier: function(type: string, user: any) {
-      let appPath = path.dirname(require.main ? require.main.filename : '');
-      let emailAccountTemplatesPath = 
-        path.join(appPath, '..', 'src', 'email-templates', 'account');
-      let hashLink;
-      let email;
-      let templatePath;
-      let compiledHTML;
-      let mailFrom = process.env.MAIL_FROM || 'noreply@myxr.email'
-      
+    notifier: async (type: string, user: any): Promise<void> => {
+      const appPath = path.dirname(require.main ? require.main.filename : '')
+      const emailAccountTemplatesPath =
+        path.join(appPath, '..', 'src', 'email-templates', 'account')
+      let hashLink
+      let email
+      let templatePath
+      let compiledHTML
+      const mailFrom = process.env.MAIL_FROM ?? 'noreply@myxr.email'
+
       switch (type) {
-        case 'resendVerifySignup': //sending the user the verification email
-          hashLink = getLink('verify', user.verifyToken);
-          templatePath = path.join(emailAccountTemplatesPath, 'verify-email.pug');
+        case 'resendVerifySignup': // sending the user the verification email
+          hashLink = getLink('verify', user.verifyToken)
+          templatePath = path.join(emailAccountTemplatesPath, 'verify-email.pug')
           compiledHTML = pug.compileFile(templatePath)({
             logo: '',
             name: user.name || user.email,
             hashLink,
             mailFrom
-          });
+          })
 
           email = {
-             from: mailFrom,
-             to: user.email,
-             subject: 'Confirm Signup',
-             html: compiledHTML
-          };
+            from: mailFrom,
+            to: user.email,
+            subject: 'Confirm Signup',
+            html: compiledHTML
+          }
 
-          return sendEmail(email);
+          return await sendEmail(email)
 
         case 'verifySignup': // confirming verification
-          hashLink = getLink('verify', user.verifyToken);
-          templatePath = path.join(emailAccountTemplatesPath, 'email-verified.pug');
+          hashLink = getLink('verify', user.verifyToken)
+          templatePath = path.join(emailAccountTemplatesPath, 'email-verified.pug')
           compiledHTML = pug.compileFile(templatePath)({
             logo: '',
             name: user.name || user.email,
             hashLink,
             mailFrom
-          });
+          })
 
           email = {
-             from: mailFrom,
-             to: user.email,
-             subject: 'Thank you, your email has been verified',
-             html: compiledHTML
-          };
-          return sendEmail(email);
+            from: mailFrom,
+            to: user.email,
+            subject: 'Thank you, your email has been verified',
+            html: compiledHTML
+          }
+          return await sendEmail(email)
 
         case 'sendResetPwd':
           hashLink = getLink('reset', user.resetToken)
@@ -79,36 +79,36 @@ export default function (app: Application) {
           })
 
           email = {
-             from: mailFrom,
-             to: user.email,
-             subject: 'Reset Password',
-             html: compiledHTML
+            from: mailFrom,
+            to: user.email,
+            subject: 'Reset Password',
+            html: compiledHTML
           }
 
-          return sendEmail(email);
+          return await sendEmail(email)
 
         case 'resetPwd':
-          hashLink = getLink('reset', user.resetToken);
-          templatePath = path.join(emailAccountTemplatesPath, 'password-was-reset.pug');
+          hashLink = getLink('reset', user.resetToken)
+          templatePath = path.join(emailAccountTemplatesPath, 'password-was-reset.pug')
 
           compiledHTML = pug.compileFile(templatePath)({
             logo: '',
             name: user.name || user.email,
             hashLink,
             mailFrom
-          });
+          })
 
           email = {
-             from: mailFrom,
-             to: user.email,
-             subject: 'Your password was reset',
-             html: compiledHTML
-          };
+            from: mailFrom,
+            to: user.email,
+            subject: 'Your password was reset',
+            html: compiledHTML
+          }
 
-          return sendEmail(email);
+          return await sendEmail(email)
 
         case 'passwordChange':
-          templatePath = path.join(emailAccountTemplatesPath, 'password-change.pug');
+          templatePath = path.join(emailAccountTemplatesPath, 'password-change.pug')
 
           compiledHTML = pug.compileFile(templatePath)({
             logo: '',
@@ -117,18 +117,18 @@ export default function (app: Application) {
           })
 
           email = {
-             from: mailFrom,
-             to: user.email,
-             subject: 'Your password was changed',
-             html: compiledHTML
-          };
+            from: mailFrom,
+            to: user.email,
+            subject: 'Your password was changed',
+            html: compiledHTML
+          }
 
-          return sendEmail(email);
+          return await sendEmail(email)
 
         case 'identityChange':
-          hashLink = getLink('verifyChanges', user.verifyToken);
+          hashLink = getLink('verifyChanges', user.verifyToken)
 
-          templatePath = path.join(emailAccountTemplatesPath, 'identity-change.pug');
+          templatePath = path.join(emailAccountTemplatesPath, 'identity-change.pug')
 
           compiledHTML = pug.compileFile(templatePath)({
             logo: '',
@@ -139,12 +139,12 @@ export default function (app: Application) {
           })
 
           email = {
-             from: mailFrom,
-             to: user.email,
-             subject: 'Your account was changed. Please verify the changes',
-             html: compiledHTML
-          };
-          return sendEmail(email);
+            from: mailFrom,
+            to: user.email,
+            subject: 'Your account was changed. Please verify the changes',
+            html: compiledHTML
+          }
+          return await sendEmail(email)
 
         default:
           break
