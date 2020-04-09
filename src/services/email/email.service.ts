@@ -16,7 +16,7 @@ declare module '../../declarations' {
 export default function (app: Application): void {
   // Initialize our service with any options it requires
   app.use('/email', Mailer(smtpTransport({
-    host: 'email-smtp.us-west-2.amazonaws.com',
+    host: process.env.SMTP_HOST,
     secure: true,
     auth: {
       user: process.env.SMTP_USER,
