@@ -1,12 +1,12 @@
 
 import * as authentication from '@feathersjs/authentication'
-import * as commonHooks from 'feathers-hooks-common';
+import * as commonHooks from 'feathers-hooks-common'
 
-const { authenticate } = authentication.hooks;
+const { authenticate } = authentication.hooks
 
-const isAction = (...params: any) => {
-    let args = Array.from(params)
-    return (hook: any) => args.includes(hook.data.action);
+const isAction = (...params: any): any => {
+  const args = Array.from(params)
+  return (hook: any) => args.includes(hook.data.action)
 }
 
 export default {
@@ -44,4 +44,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}
