@@ -2,11 +2,14 @@ import { Sequelize } from 'sequelize'
 import { Application } from './declarations'
 
 export default function (app: Application): void {
-  let connectionString;
+  let connectionString
   if (process.env.KUBERNETES === 'true') {
-    connectionString = 'mysql://' + process.env.MYSQL_USER + ':' + process.env.MYSQL_PASSWORD + '@' + process.env.MYSQL_HOST + ':3306/' + process.env.MYSQL_DATABASE;
-  }
-  else {
+    const dbUser = process.env.MYSQL_USER ?? ''
+    const dbPass = process.env.MYSQL_PASSWORD ?? ''
+    const dbHost = process.env.MYSQL_HOST ?? ''
+    const dbName = process.env.MYSQL_DATABASE ?? ''
+    connectionString = 'mysql://' + dbUser + ':' + dbPass + '@' + dbHost + ':3306/' + dbName
+  } else {
     connectionString = app.get('mysql')
   }
   const sequelize = new Sequelize(connectionString, {
