@@ -4,7 +4,6 @@ import React from 'react'
 import { Entity } from 'aframe-react'
 
 export default class PlayerComp extends React.Component {
-
   render() {
     return (
       <Entity

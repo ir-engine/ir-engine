@@ -1,0 +1,28 @@
+// eslint-disable-next-line no-unused-vars
+import { AframeComponentOptions, AframeComponetInterface } from '../aframe-component'
+
+export interface CameraComponentOptions extends AframeComponentOptions {
+  active: boolean,
+  far: number,
+  fov: number,
+  near: number,
+  spectator: boolean,
+  zoom: number
+}
+export const defaultCameraComponentOptions: CameraComponentOptions = {
+  active: true,
+  far: 10000,
+  fov: 80,
+  near: 0.005,
+  spectator: false,
+  zoom: 1
+}
+
+export default class Camera implements AframeComponetInterface {
+  name = 'camera'
+  options?: CameraComponentOptions
+
+  constructor(options = defaultCameraComponentOptions) {
+    this.options = options
+  }
+}

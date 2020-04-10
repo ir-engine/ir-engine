@@ -1,5 +1,7 @@
 {
   "publicRuntimeConfig": {
+    "dev": false,
+    "loginDisabled": false,
     "xr": {
       "networked-scene": {
         "app": "xrchat",
@@ -13,8 +15,17 @@
         "defaultAvatarModelScale" : 0.02
       },
       "environment": {
-        "groundTexture": "https://cdn.aframe.io/a-painter/images/floor.jpg",
-        "skyTexture": "https://cdn.aframe.io/a-painter/images/sky.jpg"
+        "floor": {
+          "groundTexture": "https://cdn.aframe.io/a-painter/images/floor.jpg",
+          "height": 100,
+          "width": 100
+        },
+        "skybox": {
+          "skyTexture": "https://cdn.aframe.io/a-painter/images/sky.jpg",
+          "radius": 30,
+          "height": 2048,
+          "width": 2048
+        }
       }
     }
   }

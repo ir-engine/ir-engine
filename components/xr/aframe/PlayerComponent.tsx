@@ -2,9 +2,14 @@
 import AFRAME from 'aframe'
 import Player, { defaultPlayerHeight, defaultPlayerID } from '../../../classes/aframe/player'
 // eslint-disable-next-line no-unused-vars
-import { AvatarOptions, defaultTemplateID, defaultAvatarOptions } from '../../../classes/aframe/avatar'
+import { AvatarOptions, defaultTemplateID, defaultAvatarOptions } from '../../../classes/aframe/avatar/avatar'
 // eslint-disable-next-line no-unused-vars
-import { AvatarSchemaComponent, defaultComponents } from '../../../classes/aframe/avatar-schema'
+import { AvatarSchemaComponent, defaultComponents } from '../../../classes/aframe/avatar/avatar-schema'
+
+import PlayerControls from '../../../classes/aframe/controls/player-controls'
+import CameraRig from '../../../classes/aframe/camera/camera-rig'
+// eslint-disable-next-line no-unused-vars
+import CameraCoponent from '../../../classes/aframe/camera/camera'
 
 export const ComponentName = 'player'
 
@@ -26,8 +31,13 @@ export const PlayerComponentSchema: AFRAME.MultiPropertySchema<PlayerData> = {
 
 export interface PlayerProps {
   player: Player,
-  cameraRig: AFRAME.Entity,
-  playerCamera: AFRAME.Entity
+  controls: PlayerControls,
+  cameraRig: CameraRig,
+  cameraRigEl: AFRAME.Entity | null,
+  playerCameraEl: AFRAME.Entity | null,
+  cameraCoponent: CameraCoponent,
+  firstUpdate: boolean,
+  initPlayer: () => void
 }
 
 export const PlayerComponent: AFRAME.ComponentDefinition<PlayerProps> = {
@@ -36,38 +46,43 @@ export const PlayerComponent: AFRAME.ComponentDefinition<PlayerProps> = {
   } as PlayerData,
 
   player: {} as Player,
-  cameraRig: {} as AFRAME.Entity,
-  playerCamera: {} as AFRAME.Entity,
+  controls: {} as PlayerControls,
+  cameraRig: {} as CameraRig,
+  cameraRigEl: {} as AFRAME.Entity,
+  playerCameraEl: {} as AFRAME.Entity,
+  cameraCoponent: {} as CameraCoponent,
+  firstUpdate: true,
 
   init () {
-    this.el.setAttribute('id', this.data.playerID)
-    this.el.setAttribute('wasd-controls', { acceleration: 100 })
-    this.el.setAttribute('look-controls', { reverseMouseDrag: false })
-    this.el.object3D.position.set(0, this.data.playerHeight, 0)
-
-    const cameraRig = document.createElement('a-entity')
-    cameraRig.setAttribute('id', 'camera-rig')
-    cameraRig.setAttribute('class', 'carmera-rig')
-    this.cameraRig = cameraRig
-
-    const playerCamera = document.createElement('a-entity')
-    playerCamera.setAttribute('id', 'player-camera')
-    playerCamera.classList.add('player-camera')
-    playerCamera.classList.add('camera')
-    playerCamera.setAttribute('camera', {})
-    this.playerCamera = playerCamera
-
-    cameraRig.appendChild(playerCamera)
-    this.el.appendChild(cameraRig)
-
-    this.player = new Player(this.data.playerID)
-    this.player.setupAvatar()
+    if (this.el.sceneEl?.hasLoaded) this.initPlayer()
+    else this.el.sceneEl?.addEventListener('loaded', this.initPlayer.bind(this))
   },
 
   play() {
   },
 
   pause() {
+  },
+
+  initPlayer() {
+    this.el.setAttribute('id', this.data.playerID)
+
+    this.cameraRig = new CameraRig()
+    this.cameraRigEl = this.cameraRig.el
+    this.playerCameraEl = this.cameraRig.cameraEl
+    this.cameraCoponent = this.cameraRig.camera
+    if (this.cameraRigEl) this.el.appendChild(this.cameraRigEl)
+
+    this.player = new Player(this.data.playerID)
+    this.player.setupAvatar()
+
+    this.cameraRig.setActive()
+    this.cameraRig.removeDefaultCamera()
+
+    this.controls = new PlayerControls()
+    this.controls.setupControls(this.el)
+
+    this.el.object3D.position.set(this.el.object3D.position.x, this.data.playerHeight, this.el.object3D.position.z)
   }
 
 }
