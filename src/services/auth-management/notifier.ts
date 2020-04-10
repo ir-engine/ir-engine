@@ -1,23 +1,10 @@
 // Initializes the `authmanagement` service on path `/authmanagement`
 import { Application } from '../../declarations'
+import { getLink, sendEmail } from './utils'
 import * as path from 'path'
 import * as pug from 'pug'
 
 export default function (app: Application): any {
-  function getLink (type: string, hash: string): string {
-    const host = process.env.APP_HOST ?? ''
-    const url = host + 'magicLink' + `?type=${type}&token=${hash}`
-    return url
-  }
-
-  async function sendEmail (email: any): Promise<void> {
-    return await app.service('email').create(email).then(() => {
-      console.log('Sent email')
-    }).catch(err => {
-      console.log('Error sending email', err)
-    })
-  }
-
   return {
     notifier: async (type: string, user: any): Promise<void> => {
       const appPath = path.dirname(require.main ? require.main.filename : '')
@@ -47,7 +34,7 @@ export default function (app: Application): any {
             html: compiledHTML
           }
 
-          return await sendEmail(email)
+          return await sendEmail(app, email)
 
         case 'verifySignup': // confirming verification
           hashLink = getLink('verify', user.verifyToken)
@@ -65,7 +52,7 @@ export default function (app: Application): any {
             subject: 'Thank you, your email has been verified',
             html: compiledHTML
           }
-          return await sendEmail(email)
+          return await sendEmail(app, email)
 
         case 'sendResetPwd':
           hashLink = getLink('reset', user.resetToken)
@@ -85,7 +72,7 @@ export default function (app: Application): any {
             html: compiledHTML
           }
 
-          return await sendEmail(email)
+          return await sendEmail(app, email)
 
         case 'resetPwd':
           hashLink = getLink('reset', user.resetToken)
@@ -105,7 +92,7 @@ export default function (app: Application): any {
             html: compiledHTML
           }
 
-          return await sendEmail(email)
+          return await sendEmail(app, email)
 
         case 'passwordChange':
           templatePath = path.join(emailAccountTemplatesPath, 'password-change.pug')
@@ -123,7 +110,7 @@ export default function (app: Application): any {
             html: compiledHTML
           }
 
-          return await sendEmail(email)
+          return await sendEmail(app, email)
 
         case 'identityChange':
           hashLink = getLink('verifyChanges', user.verifyToken)
@@ -144,7 +131,7 @@ export default function (app: Application): any {
             subject: 'Your account was changed. Please verify the changes',
             html: compiledHTML
           }
-          return await sendEmail(email)
+          return await sendEmail(app, email)
 
         default:
           break
