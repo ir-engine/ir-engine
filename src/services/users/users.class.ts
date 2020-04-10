@@ -11,26 +11,23 @@ export class Users extends Service {
   }
 
   async create (data: any, params: any): Promise<any> {
-    const { 
-      email, 
-      password, 
+    const {
+      email,
+      password,
       githubId,
       googleId,
       facebookId
     } = data
 
-    let hashData = '';
+    let hashData = ''
     if (email) {
-      hashData = email;
-    }
-    else if (githubId) {
-      hashData = githubId.toString();
-    }
-    else if (googleId) {
-      hashData = googleId.toString();
-    }
-    else if (facebookId) {
-      hashData = facebookId.toString();
+      hashData = email
+    } else if (githubId) {
+      hashData = githubId.toString()
+    } else if (googleId) {
+      hashData = googleId.toString()
+    } else if (facebookId) {
+      hashData = facebookId.toString()
     }
     const userId = crypto.createHash('md5').update(hashData).digest('hex')
 
@@ -40,8 +37,6 @@ export class Users extends Service {
       password,
       userId
     }
-
-
 
     return await super.create(userData, params)
   }
