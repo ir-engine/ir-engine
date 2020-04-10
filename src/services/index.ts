@@ -12,6 +12,8 @@ import xrLocationInstances from './xr-location-instances/xr-location-instances.s
 import xrScenes from './xr-scenes/xr-scenes.service'
 
 import uploads from './uploads/uploads.service';
+import email from './email/email.service'
+import authManagement from './auth-management/auth-management.service'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -19,6 +21,8 @@ export default function (app: Application): void {
   app.configure(users)
   app.configure(groups)
   app.configure(contacts)
+  app.configure(email)
+  app.configure(authManagement)
   app.configure(xrAvatars)
   app.configure(xrLocations)
   app.configure(xrObjects)
