@@ -4,9 +4,9 @@ import {
   EmailLoginForm, 
   EmailRegistrationForm,
   didLogout,
-  loginUserByEmailSuccess,
+  loginUserSuccess,
   AuthUser,
-  loginUserByEmailError,
+  loginUserError,
   registerUserByEmailSuccess,
   registerUserByEmailError,
   didVerifyEmail,
@@ -18,7 +18,19 @@ import {
 // import { ajaxPost } from "../service.common";
 import { client } from "../feathers";
 
-// const using_auth = false;
+export function doLoginAuto() {
+  return (dispatch: Dispatch) => {
+    client.reAuthenticate()
+    .then((res: any) => {
+      const val = res as AuthUser;
+        if (!val.user.isVerified) {
+          client.logout();
+          return dispatch(loginUserError('Unverified user'));
+        }
+        return dispatch(loginUserSuccess(val));
+    })
+  };
+}
 
 export function loginUserByEmail(form: EmailLoginForm) {
   return (dispatch: Dispatch) => {
@@ -33,11 +45,11 @@ export function loginUserByEmail(form: EmailLoginForm) {
       const val = res as AuthUser;
       if (!val.user.isVerified) {
         client.logout();
-        return dispatch(loginUserByEmailError('Unverified user'));
+        return dispatch(loginUserError('Unverified user'));
       }
-      return dispatch(loginUserByEmailSuccess(val));
+      return dispatch(loginUserSuccess(val));
     })
-    .catch(() => dispatch(loginUserByEmailError('Failed to login')))
+    .catch(() => dispatch(loginUserError('Failed to login')))
     .finally( ()=> dispatch(actionProcessing(false)));
   };
 }
@@ -47,6 +59,28 @@ export function loginUserByGithub() {
     dispatch(actionProcessing(true));
 
     window.location.href = `${apiServer}/oauth/github`;
+  };
+}
+
+export function loginUserByJwt(accessToken: string, redirectSuccess: string, redirectError: string) {
+  return (dispatch: Dispatch) => {
+    dispatch(actionProcessing(true));
+
+    client.authenticate({
+      strategy: 'jwt',
+      accessToken
+    })
+    .then((res: any) => {
+      const val = res as AuthUser;
+
+      window.location.href = redirectSuccess;
+      return dispatch(loginUserSuccess(val));
+    })
+    .catch(() => {
+      window.location.href = redirectError;
+      return dispatch(loginUserError('Failed to login'))
+    })
+    .finally( ()=> dispatch(actionProcessing(false)));
   };
 }
 

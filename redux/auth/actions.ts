@@ -2,8 +2,8 @@ import {
     LOGIN_USER_BY_GITHUB_ERROR,
     LOGIN_USER_BY_GITHUB_SUCCESS,
 
-    LOGIN_USER_BY_EMAIL_SUCCESS,
-    LOGIN_USER_BY_EMAIL_ERROR,
+    LOGIN_USER_SUCCESS,
+    LOGIN_USER_ERROR,
 
     LOGOUT_USER,
     REGISTER_USER_BY_EMAIL_ERROR,
@@ -85,17 +85,17 @@ export function actionProcessing(processing: boolean): AuthProcessingAction {
     }
 }
 
-export function loginUserByEmailSuccess(user: AuthUser): LoginResultAction {
+export function loginUserSuccess(user: AuthUser): LoginResultAction {
     return {
-        type: LOGIN_USER_BY_EMAIL_SUCCESS,
+        type: LOGIN_USER_SUCCESS,
         user,
         message: ''
     }
 }
 
-export function loginUserByEmailError(err: string): LoginResultAction {
+export function loginUserError(err: string): LoginResultAction {
     return {
-        type: LOGIN_USER_BY_EMAIL_ERROR,
+        type: LOGIN_USER_ERROR,
         message: err
     }
 }
