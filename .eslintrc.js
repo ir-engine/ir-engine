@@ -16,6 +16,8 @@ module.exports = {
   // These are Standard.js overrides, for rules that don't play well with
   // Feathers.js auto-generated code
   rules: {
+    '@typescript-eslint/space-before-function-paren': ["error", "never"],
+    "allowTypedFunctionExpressions": true,
     '@typescript-eslint/default-param-last': 'off',
     '@typescript-eslint/no-empty-interface': 'off',
     '@typescript-eslint/require-await': 'off',

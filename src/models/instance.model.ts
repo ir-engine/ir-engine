@@ -5,7 +5,7 @@ export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const Instance = sequelizeClient.define('instance', {
     location: {
-      type: typeof (Location),
+      type: DataTypes.STRING,
       allowNull: false
     },
     url: {
