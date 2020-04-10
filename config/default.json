@@ -24,7 +24,9 @@
       "expiresIn": "1d"
     },
     "local": {
-      "usernameField": "userId",
+      "entity": "user",
+      "service": "users",
+      "usernameField": "email",
       "passwordField": "password"
     },
     "oauth": {
@@ -35,8 +37,8 @@
         "subdomain": "<auth0 subdomain>"
       },
       "google": {
-        "key": "<google oauth key>",
-        "secret": "<google oauth secret>",
+        "key": "GOOGLE_CLIENT_ID",
+        "secret": "GOOGLE_CLIENT_SECRET",
         "scope": [
           "email",
           "profile",
@@ -44,8 +46,9 @@
         ]
       },
       "facebook": {
-        "key": "<facebook oauth key>",
-        "secret": "<facebook oauth secret>"
+        "key": "FACEBOOK_CLIENT_ID",
+        "secret": "FACEBOOK_CLIENT_SECRET",
+        "scope": ["email, public_profile"]
       },
       "twitter": {
         "key": "<twitter oauth key>",
