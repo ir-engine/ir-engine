@@ -1,4 +1,4 @@
-import Avatar, { defaultTemplateID } from './avatar'
+import Avatar, { defaultTemplateID } from './avatar/avatar'
 
 export default class Player {
   player : HTMLElement

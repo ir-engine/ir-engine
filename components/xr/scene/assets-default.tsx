@@ -12,12 +12,12 @@ export default class DefaultAssets extends React.Component {
       <div>
         <img
           id="groundTexture"
-          src={config.groundTexture}
+          src={config.floor.groundTexture}
           crossOrigin="anonymous"
         />
         <img
           id="skyTexture"
-          src={config.skyTexture}
+          src={config.skybox.skyTexture}
           crossOrigin="anonymous"
         />
       </div>
