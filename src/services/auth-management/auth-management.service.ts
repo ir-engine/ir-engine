@@ -13,9 +13,8 @@ declare module '../../declarations' {
   }
 }
 
-export default function (app: Application): void {
+export default (app: Application): void => {
   app.configure(authManagement(notifier(app)))
-
   // Get our initialized service so that we can register hooks
   const service = app.service('authManagement')
   service.hooks(hooks)
