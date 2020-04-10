@@ -75,7 +75,7 @@ spec:
           - backend:
               serviceName: lifescope-api
               servicePort: 3000
-            path: /locations/upload_file
+            path: /location/upload_file
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress

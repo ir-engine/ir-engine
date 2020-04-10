@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize'
 import { Application } from './declarations'
 
-export default function (app: Application): void {
+export default (app: Application): void => {
   let connectionString
   if (process.env.KUBERNETES === 'true') {
     const dbUser = process.env.MYSQL_USER ?? ''
@@ -23,20 +23,16 @@ export default function (app: Application): void {
 
   app.set('sequelizeClient', sequelize)
 
-  app.setup = function (...args) {
-    const result = oldSetup.apply(this, args)
+  app.setup = function (...args: any) {
 
     // Set up data relationships
     const models = sequelize.models
-    Object.keys(models).forEach(name => {
-      if ('associate' in models[name]) {
-        (models[name] as any).associate(models)
-      }
-    })
+    Object.keys(models).forEach(name =>
+      'associate' in models[name] ?? (models[name] as any).associate(models)
+    )
 
-    // Sync to the database
-    app.set('sequelizeSync', sequelize.sync())
+    app.set('sequelizeSync', sequelize.sync()) // Sync to the database
 
-    return result
+    return oldSetup.apply(this, args)
   }
 }

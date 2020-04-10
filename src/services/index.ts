@@ -1,33 +1,29 @@
+import Uploads from './upload/upload.service'
+import Email from './email/email.service'
+import Auth from './auth-management/auth-management.service'
+import User from './user/user.service'
+import Group from './group/group.service'
+import Contact from './contact/contact.service'
+import SceneObject from './scene-object/scene-object.service'
+import Avatar from './avatar/avatar.service'
+import Objects from './object/object.service'
+import Scene from './scene/scene.service'
+import Location from './location/location.service'
+import Instance from './instance/instance.service'
+
 import { Application } from '../declarations'
-import users from './users/users.service'
-import groups from './groups/groups.service'
-import contacts from './contacts/contacts.service'
-import xrAvatars from './xr-avatars/xr-avatars.service'
-import xrLocations from './xr-locations/xr-locations.service'
-import xrObjects from './xr-objects/xr-objects.service'
-import xrObjectsScenes from './xr-objects-scenes/xr-objects-scenes.service'
 
-import xrLocationInstances from './xr-location-instances/xr-location-instances.service'
-
-import xrScenes from './xr-scenes/xr-scenes.service'
-
-import uploads from './uploads/uploads.service';
-import email from './email/email.service'
-import authManagement from './auth-management/auth-management.service'
-
-// Don't remove this comment. It's needed to format import lines nicely.
-
-export default function (app: Application): void {
-  app.configure(users)
-  app.configure(groups)
-  app.configure(contacts)
-  app.configure(email)
-  app.configure(authManagement)
-  app.configure(xrAvatars)
-  app.configure(xrLocations)
-  app.configure(xrObjects)
-  app.configure(xrLocationInstances)
-  app.configure(xrObjectsScenes)
-  app.configure(xrScenes)
-  app.configure(uploads);
+export default (app: Application): void => {
+  app.configure(Uploads)
+  app.configure(Email)
+  app.configure(Auth)
+  app.configure(User)
+  app.configure(Group)
+  app.configure(Contact)
+  app.configure(SceneObject)
+  app.configure(Avatar)
+  app.configure(Objects)
+  app.configure(Scene)
+  app.configure(Location)
+  app.configure(Instance)
 }

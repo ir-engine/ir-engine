@@ -1,16 +1,12 @@
 
 import { Application } from '../../declarations'
 
-export function getLink (type: string, hash: string): string {
-  const host = process.env.APP_HOST ?? ''
-  const url = host + 'magicLink' + `?type=${type}&token=${hash}`
-  return url
-}
+export const getLink = (type: string, hash: string): string =>
+  (process.env.APP_HOST ?? '') + 'magicLink' + `?type=${type}&token=${hash}`
 
-export async function sendEmail (app: Application, email: any): Promise<void> {
-  return await app.service('email').create(email).then(() => {
+export const sendEmail = async (app: Application, email: any): Promise<void> =>
+  await app.service('email').create(email).then(() =>
     console.log('Sent email')
-  }).catch(err => {
+  ).catch((err: any) =>
     console.log('Error sending email', err)
-  })
-}
+  )
