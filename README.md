@@ -17,12 +17,18 @@ Getting up and running is as easy as 1, 2, 3.
     cd path/to/xrchat-server
     npm install
     ```
+3. Make sure you have a mysql database installed and running -- our recommendation is Mariadb. We've provided a docker container for easy setup:
+```
+cd scripts && ./start-db.sh
+```
 
-3. Start your app
+4. Start your app
 
     ```
     npm start
     ```
+    
+  
 
 ## Testing
 
