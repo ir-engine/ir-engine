@@ -5,9 +5,6 @@ import crypto from 'crypto'
 export class Users extends Service {
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
-    if (app) {
-      console.log(app)
-    }
   }
 
   async create (data: any, params: any): Promise<any> {

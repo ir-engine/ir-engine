@@ -13,7 +13,8 @@ export default function (app: Application): any {
     text: {
       type: DataTypes.STRING,
       allowNull: false
-    }
+    },
+    blobId: DataTypes.STRING
   }, {
     hooks: {
       beforeCount (options: any) {
@@ -23,7 +24,8 @@ export default function (app: Application): any {
   });
 
   (xrScenes as any).associate = function (models: any) {
-    (xrScenes as any).hasMany(models.xr_objects)
+    this.belongsTo(models.users) // or group
+    this.belongsToMany(models.xr_objects, { through: models.xr_objects_scenes })
     // many-to-many association with XrLocations
   }
 
