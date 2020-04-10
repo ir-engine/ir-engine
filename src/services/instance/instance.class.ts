@@ -11,14 +11,15 @@ export class LocationInstances extends Service {
 
   async create(data: any, params: any): Promise<any> {
     const { location, count } = data
-    //app.service('location').find({ paginate:false, query: { location } }).then ((locations) => {
+    this.app.service('location').filterQuery({ paginate:false, query: { location } }).then ((locations: any) => {
 
-    //if (locations.length === 0) return false
+    if (locations.length === 0) return false
+
+    })
 
     const userData = { location }
 
     return this.createLocation(userData, params, count)
-
   }
 
   async createLocation(

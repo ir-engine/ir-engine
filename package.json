@@ -63,6 +63,7 @@
     "feathers-swagger": "^1.1.1",
     "fs-blob-store": "^5.2.1",
     "helmet": "^3.21.2",
+    "mariadb": "^2.3.1",
     "multer": "^1.4.2",
     "mysql2": "^2.1.0",
     "nodemailer-smtp-transport": "^2.7.4",

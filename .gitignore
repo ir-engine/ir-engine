@@ -109,3 +109,4 @@ dist
 
 **/xrchat-secrets.env
 **/xrchat-dev-secrets.env
+/lib*
