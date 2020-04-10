@@ -8,7 +8,7 @@
   },
   "authentication": {
     "entity": "user",
-    "service": "users",
+    "service": "user",
     "secret": "rlHRymcnyXeCbTcgHZB5TfG3dZg=",
     "authStrategies": [
       "jwt",
@@ -18,14 +18,14 @@
       "header": {
         "typ": "access"
       },
-      "audience": "https://yourdomain.com",
+      "audience": "https://myxr.chat",
       "issuer": "feathers",
       "algorithm": "HS256",
       "expiresIn": "1d"
     },
     "local": {
       "entity": "user",
-      "service": "users",
+      "service": "user",
       "usernameField": "email",
       "passwordField": "password"
     },
