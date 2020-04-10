@@ -4,7 +4,7 @@ import { getLink, sendEmail } from './utils'
 import * as path from 'path'
 import * as pug from 'pug'
 
-export default function (app: Application): any {
+export default (app: Application): any => {
   return {
     notifier: async (type: string, user: any): Promise<void> => {
       const appPath = path.dirname(require.main ? require.main.filename : '')

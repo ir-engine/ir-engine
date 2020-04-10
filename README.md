@@ -99,7 +99,7 @@ As these are very sensitive files, they should be transmitted to you securely.
 Finally run ```kubectl apply -k kubernetes/xrchat-server/base``` to deploy the MariaDB server and xrchat-server.
 The server is set up in dev mode to be behind the domain 'api.dev.xrchat.io' and is secured by a self-signed certificate.
 If you wanted to call one of the endpoints with curl, you could run the following and get a 401 error: 
-```curl https://192.168.99.109/users -H HOST:api.dev.xrchat.io --insecure```
+```curl https://192.168.99.109/user -H HOST:api.dev.xrchat.io --insecure```
 
 NOTE: As of this writing, the MariaDB server sometimes finishes initializing after xrchat-server has already tried to
 connect to it. To reboot xrchat-server, run the following:

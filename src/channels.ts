@@ -2,7 +2,7 @@ import '@feathersjs/transport-commons'
 import { HookContext } from '@feathersjs/feathers'
 import { Application } from './declarations'
 
-export default function (app: Application): void {
+export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
     // If no real-time functionality has been configured just return
     return
@@ -36,7 +36,7 @@ export default function (app: Application): void {
       // If the user has joined e.g. chat rooms
       // if(Array.isArray(user.rooms)) user.rooms.forEach(room => app.channel(`rooms/${room.id}`).join(channel))
 
-      // Easily organize users by email and userid for things like messaging
+      // Easily organize user by email and userid for things like messaging
       // app.channel(`emails/${user.email}`).join(channel)
       // app.channel(`userIds/$(user.id}`).join(channel)
     }
@@ -51,17 +51,17 @@ export default function (app: Application): void {
 
     console.log(hook)
 
-    console.log('Publishing all events to all authenticated users. See `channels.js` and https://docs.feathersjs.com/api/channels.html for more information.') // eslint-disable-line
+    console.log('Publishing all events to all authenticated user. See `channels.js` and https://docs.feathersjs.com/api/channels.html for more information.') // eslint-disable-line
 
-    // e.g. to publish all service events to all authenticated users use
+    // e.g. to publish all service events to all authenticated user use
     return app.channel('authenticated')
   })
 
   // Here you can also add service specific event publishers
-  // e.g. the publish the `users` service `created` event to the `admins` channel
-  // app.service('users').publish('created', () => app.channel('admins'))
+  // e.g. the publish the `user` service `created` event to the `admins` channel
+  // app.service('user').publish('created', () => app.channel('admins'))
 
-  // With the userid and email organization from above you can easily select involved users
+  // With the userid and email organization from above you can easily select involved user
   // app.service('messages').publish(() => {
   //   return [
   //     app.channel(`userIds/${data.createdBy}`),

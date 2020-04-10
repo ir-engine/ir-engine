@@ -13,8 +13,7 @@ declare module '../../declarations' {
   }
 }
 
-export default function (app: Application): void {
-  // Initialize our service with any options it requires
+export default (app: Application): void => {
   app.use('/email', Mailer(smtpTransport({
     host: process.env.SMTP_HOST,
     secure: true,
@@ -24,7 +23,6 @@ export default function (app: Application): void {
     }
   })))
 
-  // Get our initialized service so that we can register hooks
   const service = app.service('email')
 
   service.hooks(hooks)
