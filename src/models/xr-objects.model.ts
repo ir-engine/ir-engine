@@ -15,7 +15,8 @@ export default function (app: Application): any {
     },
     objectType: { // to start with, 'static'
       type: DataTypes.STRING
-    }
+    },
+    blobId: DataTypes.STRING
   }, {
     hooks: {
       beforeCount (options: any) {
@@ -25,8 +26,8 @@ export default function (app: Application): any {
   });
 
   (xrObjects as any).associate = function (models: any) {
-    (xrObjects as any).belongsTo(models.users) // or group
-    // belongs in many XrScenes
+    this.belongsTo(models.users) // or group
+    this.belongsToMany(models.xr_scenes, { through: models.xr_objects_scenes })
     // TODO: Model Attribution/Created By (same as for XrAvatar)
   }
 

@@ -1,25 +1,29 @@
 import * as authentication from '@feathersjs/authentication'
 import { HookContext } from '@feathersjs/feathers'
-import limitUserId from '../../hooks/limit-user-id'
-import setUserId from '../../hooks/set-user-id'
-import xrSceneModel from '../../models/xr-scenes.model'
+import { disallow, iff } from 'feathers-hooks-common';
 // Don't remove this comment. It's needed to format import lines nicely.
+//@ts-ignore
+import dauria from 'dauria';
 
 const { authenticate } = authentication.hooks
-
-function addObjects(context: HookContext) {
-
-}
 
 export default {
   before: {
     all: [authenticate('jwt')],
-    find: [limitUserId],
-    get: [limitUserId],
-    create: [setUserId, addObjects],
-    update: [limitUserId],
-    patch: [limitUserId],
-    remove: [limitUserId]
+    find: [disallow()],
+    get: [],
+    create: [
+      function(context: HookContext) {
+        if (!context.data.uri && context.params.file){
+          const file = context.params.file;
+          const uri = dauria.getBase64DataURI(file.buffer, file.mimetype);
+          context.data = {uri: uri};
+        }
+      }
+    ],
+    update: [disallow()],
+    patch: [disallow()],
+    remove: [disallow()]
   },
 
   after: {
@@ -41,4 +45,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+};

@@ -18,7 +18,7 @@ export default function (app: Application): any {
       unique: true
     },
     maxUsersPerInstance: {
-      type: DataTypes.NUMBER
+      type: DataTypes.INTEGER
     },
     access: {
       type: DataTypes.STRING
