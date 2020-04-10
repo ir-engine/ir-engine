@@ -102,11 +102,11 @@ export default connect(
 ### Tutorial for Redux store.
 
 Let's explain step by step about the login process.
-1. We should declare `LOGIN_USER_BY_EMAIL_SUCCESS` and `LOGIN_USER_BY_EMAIL_ERROR` actions.
+1. We should declare `LOGIN_USER_SUCCESS` and `LOGIN_USER_ERROR` actions.
     Add following lines in `/redux/actions.ts`.
     ```
-    export const LOGIN_USER_BY_EMAIL_SUCCESS = 'LOGIN_USER_BY_EMAIL_SUCCESS';
-    export const LOGIN_USER_BY_EMAIL_ERROR = 'LOGIN_USER_BY_EMAIL_ERROR';
+    export const LOGIN_USER_SUCCESS = 'LOGIN_USER_SUCCESS';
+    export const LOGIN_USER_ERROR = 'LOGIN_USER_ERROR';
     ```
 2. We should define actions && reducers && services.
     - Create the `auth` folder in `/redux` folder.
@@ -118,17 +118,17 @@ Let's explain step by step about the login process.
         LOGIN_USER_BY_GITHUB_SUCCESS
     } from '../actions';
 
-    export function loginUserByEmailSuccess(user: any): any {
+    export function loginUserSuccess(user: any): any {
         return {
-            type: LOGIN_USER_BY_EMAIL_SUCCESS,
+            type: LOGIN_USER_SUCCESS,
             user,
             message: ''
         }
     }
 
-    export function loginUserByEmailError(err: string): any {
+    export function loginUserError(err: string): any {
         return {
-            type: LOGIN_USER_BY_EMAIL_ERROR,
+            type: LOGIN_USER_ERROR,
             message: err
         }
     }
@@ -138,8 +138,8 @@ Let's explain step by step about the login process.
     ```
     import Immutable from 'immutable';
     import { 
-        LOGIN_USER_BY_EMAIL_SUCCESS,
-        LOGIN_USER_BY_EMAIL_ERROR
+        LOGIN_USER_SUCCESS,
+        LOGIN_USER_ERROR
     } from "../actions";
 
     export const initialState: AuthState = {
@@ -155,11 +155,11 @@ Let's explain step by step about the login process.
 
     const authReducer = (state = immutableState, action: any): any => {
         switch(action.type) {
-            case LOGIN_USER_BY_EMAIL_SUCCESS:
+            case LOGIN_USER_SUCCESS:
                 return state
                     .set('isLogined', true)
                     .set('user', (action as LoginResultAction).user);
-            case LOGIN_USER_BY_EMAIL_ERROR:
+            case LOGIN_USER_ERROR:
                 return state
                     .set('error', (action as LoginResultAction).message);
         }
@@ -195,11 +195,11 @@ Let's explain step by step about the login process.
             const val = res as AuthUser;
             if (!val.user.isVerified) {
                 client.logout();
-                return dispatch(loginUserByEmailError('Unverified user'));
+                return dispatch(loginUserError('Unverified user'));
             }
-            return dispatch(loginUserByEmailSuccess(val));
+            return dispatch(loginUserSuccess(val));
             })
-            .catch(() => dispatch(loginUserByEmailError('Failed to login')))
+            .catch(() => dispatch(loginUserError('Failed to login')))
             .finally( ()=> dispatch(actionProcessing(false)));
         };
     }

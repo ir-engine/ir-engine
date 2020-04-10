@@ -1,10 +1,10 @@
 import React from 'react'
-import GithubHome from '../../../components/ui/Oauth/GithubHome';
+import GithubCallback from '../../../components/ui/Oauth/GithubCallback';
 
 class GithubHomePage extends React.Component {
   render () {
     return (
-     <GithubHome/>
+     <GithubCallback/>
     )
   }
 }

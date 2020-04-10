@@ -23,7 +23,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     loginUserByJwt: bindActionCreators(loginUserByJwt, dispatch)
 });
 
-class GithubCallback extends Component<Props> {
+class FacebookCallback extends Component<Props> {
     state = {
         error: '',
         token: ''
@@ -52,7 +52,7 @@ class GithubCallback extends Component<Props> {
         if (error && error !== '') {
             return (
                 <Container>
-                    Github authenticatin failed.
+                    Facebook authenticatin failed.
                     <br/>
                     {error}
                 </Container>
@@ -68,12 +68,12 @@ class GithubCallback extends Component<Props> {
     }
 }
 
-const  GithubHomeWraper = (props: any) => {
+const  FacebookCallbackWraper = (props: any) => {
     const router = useRouter();
-    return <GithubCallback {...props} router = {router}/>
+    return <FacebookCallback {...props} router = {router}/>
 };
 
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(GithubHomeWraper);
+)(FacebookCallbackWraper);

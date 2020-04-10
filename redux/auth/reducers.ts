@@ -9,8 +9,8 @@ import {
 import { 
     LOGIN_USER_BY_GITHUB_SUCCESS,
     LOGIN_USER_BY_GITHUB_ERROR,
-    LOGIN_USER_BY_EMAIL_SUCCESS,
-    LOGIN_USER_BY_EMAIL_ERROR,
+    LOGIN_USER_SUCCESS,
+    LOGIN_USER_ERROR,
     LOGOUT_USER,
     REGISTER_USER_BY_EMAIL_SUCCESS,
     ACTION_PROCESSING,
@@ -31,11 +31,11 @@ const authReducer = (state = immutableState, action: AuthAction): any => {
         case ACTION_PROCESSING:
             return state
                 .set('isProcessing', (action as AuthProcessingAction).processing);
-        case LOGIN_USER_BY_EMAIL_SUCCESS:
+        case LOGIN_USER_SUCCESS:
             return state
                 .set('isLogined', true)
                 .set('user', (action as LoginResultAction).user);
-        case LOGIN_USER_BY_EMAIL_ERROR:
+        case LOGIN_USER_ERROR:
             return state
                 .set('error', (action as LoginResultAction).message);
         case LOGIN_USER_BY_GITHUB_SUCCESS:
