@@ -51,6 +51,7 @@
     "@types/nodemailer": "^6.4.0",
     "aws-sdk": "^2.656.0",
     "compression": "^1.7.4",
+    "config": "^3.3.1",
     "cors": "^2.8.5",
     "dauria": "^2.0.0",
     "dotenv": "^8.2.0",
@@ -71,12 +72,14 @@
     "s3-blob-store": "^4.1.1",
     "sequelize": "^5.21.4",
     "serve-favicon": "^2.5.0",
-    "winston": "^3.0.0"
+    "winston": "^3.0.0",
+    "youtube-dl": "^3.0.2"
   },
   "devDependencies": {
     "@feathersjs/feathers": "^4.5.2",
     "@types/bluebird": "^3.5.30",
     "@types/compression": "^1.7.0",
+    "@types/config": "0.0.36",
     "@types/cors": "^2.8.6",
     "@types/helmet": "^0.0.45",
     "@types/jsonwebtoken": "^8.3.8",
@@ -85,6 +88,7 @@
     "@types/pug": "^2.0.4",
     "@types/serve-favicon": "^2.5.0",
     "@types/validator": "^10.0.0",
+    "@types/youtube-dl": "^1.12.2",
     "@typescript-eslint/eslint-plugin": "^2.26.0",
     "@typescript-eslint/parser": "^2.26.0",
     "axios": "^0.19.2",

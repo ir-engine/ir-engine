@@ -5,6 +5,7 @@ import User from './user/user.service'
 import Group from './group/group.service'
 import Contact from './contact/contact.service'
 import SceneObject from './scene-object/scene-object.service'
+import publicVideo from './public-video/public-video.service';
 import Avatar from './avatar/avatar.service'
 import Objects from './object/object.service'
 import Scene from './scene/scene.service'
@@ -26,4 +27,5 @@ export default (app: Application): void => {
   app.configure(Scene)
   app.configure(Location)
   app.configure(Instance)
+  app.configure(publicVideo);
 }
