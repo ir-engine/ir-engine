@@ -26,6 +26,7 @@ module.exports = {
   rules: {
     "semi": "error",
     "space-before-function-paren":"off",
+    "no-unused-expressions":"off",
   },
   overrides: [
     {
