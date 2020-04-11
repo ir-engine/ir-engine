@@ -50,3 +50,24 @@ properties for the [NAF](https://github.com/networked-aframe/networked-aframe) n
 - **radius** radius of the skybox
 - **rotation** x,y,z rotation of the skybox
 - **thetaLength** [skybox's](https://aframe.io/docs/master/primitives/a-sky.html) [vertical sweep angle size](https://threejs.org/docs/index.html#api/en/geometries/SphereBufferGeometry) in degrees
+
+## Docker
+
+You can run it using docker, if you don't have node installed or need to test.
+``` bash
+# Build the image
+docker build --tag xrchat-client .
+
+# Run the image (deletes itself when you close it)
+docker run -d --rm --name client -e "API_SERVER_URL=http://localhost:3030" -p "3000:3000"  xrchat-client
+
+# Stop the server
+docker stop client
+```
+
+### Docker image configurations
+
+This image uses build-time arguments, they are not used during runtime yet
+
+- `NODE_ENV` controls the config/*.js file to load and build against [default: production]
+- `API_SERVER_URL` points to an instance of the xrchat-server [default: http://localhost:3030]
