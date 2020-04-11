@@ -1,13 +1,11 @@
-// eslint-disable-next-line no-unused-vars
-import AFRAME from 'aframe'
-import Avatar from './avatar'
+import Avatar, { defaultTemplateID } from './avatar/avatar'
 
 export default class Player {
-  player : AFRAME.Entity
+  player : HTMLElement
   avatar : Avatar
 
-  constructor(public playerID = 'player', public templateID = 'avatar-template') {
-    this.player = document.getElementById(this.playerID) as AFRAME.Entity
+  constructor(public playerID = defaultPlayerID, public templateID = defaultTemplateID) {
+    this.player = document.getElementById(this.playerID) as HTMLElement
     this.avatar = new Avatar(this.templateID)
   }
 
@@ -16,3 +14,6 @@ export default class Player {
     this.avatar.addTemplateToPlayerByID(this.playerID)
   }
 }
+
+export const defaultPlayerHeight = 1.6
+export const defaultPlayerID = 'player'

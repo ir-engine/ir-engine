@@ -1,11 +1,12 @@
 import React from 'react'
 // @ts-ignore
 import { Scene } from 'aframe-react'
-// eslint-disable-next-line no-unused-vars
-import 'networked-aframe'
 import Assets from './assets'
-import SceneObjects from './scene-objects'
+import Environment from './environment'
 import Player from '../player/player'
+
+import getConfig from 'next/config'
+const config = getConfig().publicRuntimeConfig.xr['networked-scene']
 
 type State = {
   appRendered?: boolean
@@ -21,6 +22,7 @@ export default class NetworkedScene extends React.Component<State> {
   componentDidMount() {
     if (typeof window !== 'undefined') {
       require('aframe')
+      require('networked-aframe')
       // require('aframe-particle-system-component')
       this.setState({ appRendered: true })
     }
@@ -31,17 +33,13 @@ export default class NetworkedScene extends React.Component<State> {
       <div style={{ height: '100%', width: '100%' }}>
         {this.state.appRendered && (
           <Scene
-            networked-scene="room: 1;
-                audio: true;
-                adapter: socketio;
-                serverURL: localhost:3004;
-            "
+            networked-scene={config}
             renderer="antialias: true"
             background="color: #FAFAFA"
           >
             <Assets/>
             <Player/>
-            <SceneObjects/>
+            <Environment/>
           </Scene>
         )}
       </div>
