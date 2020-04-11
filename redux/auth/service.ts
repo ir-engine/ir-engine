@@ -62,6 +62,22 @@ export function loginUserByGithub() {
   };
 }
 
+export function loginUserByGoogle() {
+  return (dispatch: Dispatch) => {
+    dispatch(actionProcessing(true));
+
+    window.location.href = `${apiServer}/oauth/google`;
+  };
+}
+
+export function loginUserByFacebook() {
+  return (dispatch: Dispatch) => {
+    dispatch(actionProcessing(true));
+
+    window.location.href = `${apiServer}/oauth/facebook`;
+  };
+}
+
 export function loginUserByJwt(accessToken: string, redirectSuccess: string, redirectError: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true));
