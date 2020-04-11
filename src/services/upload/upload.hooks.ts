@@ -1,9 +1,9 @@
 import * as authentication from '@feathersjs/authentication'
 import { HookContext } from '@feathersjs/feathers'
 import { disallow } from 'feathers-hooks-common'
-// Don't remove this comment. It's needed to format import lines nicely.
-// @ts-ignore
+//@ts-ignore
 import dauria from 'dauria'
+// Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks
 

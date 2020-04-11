@@ -60,5 +60,20 @@
       }
     }
   },
+  "aws": {
+    "s3": {
+      "blob_bucket_name": "",
+      "public_video_path": "",
+      "public_video_bucket": "",
+      "region": "",
+      "cloudfront": {
+        "domain": ""
+      }
+    },
+    "keys": {
+      "access_key_id": "",
+      "secret_access_key": ""
+    }
+  },
   "mysql": "mysql://server:password@localhost:3306/xrchat"
 }
