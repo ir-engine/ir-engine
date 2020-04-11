@@ -1,19 +1,19 @@
 import Immutable from 'immutable';
 import { 
-    AuthState,
     AuthAction,
     AuthProcessingAction,
-    LoginResultAction
+    LoginResultAction,
+    AuthState
 } from "./actions";
 
 import { 
     LOGIN_USER_BY_GITHUB_SUCCESS,
     LOGIN_USER_BY_GITHUB_ERROR,
-    LOGIN_USER_BY_EMAIL_SUCCESS,
-    LOGIN_USER_BY_EMAIL_ERROR,
+    LOGIN_USER_SUCCESS,
+    LOGIN_USER_ERROR,
     LOGOUT_USER,
-    LOGIN_PROCESSING,
-    LOGOUT_PROCESSING,
+    REGISTER_USER_BY_EMAIL_SUCCESS,
+    ACTION_PROCESSING,
 } from "../actions";
 
 export const initialState: AuthState = {
@@ -21,37 +21,36 @@ export const initialState: AuthState = {
     user: undefined,
     error: '',
 
-    isLogining: false,
-    isRegistering: false,
-    isLogouting: false
+    isProcessing: false
 };
 
 const immutableState = Immutable.fromJS(initialState);
 
 const authReducer = (state = immutableState, action: AuthAction): any => {
     switch(action.type) {
-        case LOGIN_PROCESSING:
-            state.set('isLogining', (action as AuthProcessingAction).processing);
-            break;
-        case LOGIN_USER_BY_EMAIL_SUCCESS:
-            state.set('user', (action as LoginResultAction).user);
-            break;
-        case LOGIN_USER_BY_EMAIL_ERROR:
-            state.set('error', (action as LoginResultAction).message);
-            break;
+        case ACTION_PROCESSING:
+            return state
+                .set('isProcessing', (action as AuthProcessingAction).processing);
+        case LOGIN_USER_SUCCESS:
+            return state
+                .set('isLogined', true)
+                .set('user', (action as LoginResultAction).user);
+        case LOGIN_USER_ERROR:
+            return state
+                .set('error', (action as LoginResultAction).message);
         case LOGIN_USER_BY_GITHUB_SUCCESS:
             break;
         case LOGIN_USER_BY_GITHUB_ERROR:
-            state.set('error', (action as LoginResultAction).message);
-            break;
-        case LOGOUT_PROCESSING:
-            state.set('isLogouting', (action as AuthProcessingAction).processing);
+            return state
+                .set('error', (action as LoginResultAction).message);
+        case REGISTER_USER_BY_EMAIL_SUCCESS:
+            console.log('registered--------', action);
             break;
         case LOGOUT_USER:
-            state
+            console.log('logout-------------');
+            return state
                 .set('isLogined', false)
                 .set('user', undefined);
-            break;
     }
 
     return state;

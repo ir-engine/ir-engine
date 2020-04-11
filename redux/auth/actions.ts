@@ -2,14 +2,17 @@ import {
     LOGIN_USER_BY_GITHUB_ERROR,
     LOGIN_USER_BY_GITHUB_SUCCESS,
 
-    LOGIN_USER_BY_EMAIL_SUCCESS,
-    LOGIN_USER_BY_EMAIL_ERROR,
+    LOGIN_USER_SUCCESS,
+    LOGIN_USER_ERROR,
 
     LOGOUT_USER,
-    LOGIN_PROCESSING,
     REGISTER_USER_BY_EMAIL_ERROR,
     REGISTER_USER_BY_EMAIL_SUCCESS,
-    REGISTER_PROCESSING
+    DID_VERIFY_EMAIL,
+    DID_RESEND_VERIFICATION_EMAIL,
+    DID_FORGOT_PASSWORD,
+    DID_RESET_PASSWORD,
+    ACTION_PROCESSING
 } from '../actions';
 
 export interface AuthUser {
@@ -21,6 +24,7 @@ export interface AuthUser {
         _id: string;
         userId: string;
         avatar: string;
+        isVerified: boolean;
     }
 }
 
@@ -29,9 +33,7 @@ export interface AuthState {
     user: AuthUser | undefined;
     error: string;
 
-    isLogining: boolean;
-    isRegistering: boolean;
-    isLogouting: boolean;
+    isProcessing: boolean;
 }
 
 export interface EmailLoginForm {
@@ -65,30 +67,36 @@ export interface RegistrationResultAction {
     message: string;
 }
 
+export interface AuthResultAction {
+    type: string;
+    result: boolean;
+}
+
 export type AuthAction = 
     AuthProcessingAction
     | LoginResultAction
-    | RegistrationResultAction;
+    | RegistrationResultAction
+    | AuthResultAction;
 
-export function loginProcessing(processing: boolean): AuthProcessingAction {
+export function actionProcessing(processing: boolean): AuthProcessingAction {
     return {
-        type: LOGIN_PROCESSING,
+        type: ACTION_PROCESSING,
         processing
     }
 }
 
-export function loginUserByEmailSuccess(user: AuthUser): LoginResultAction {
+export function loginUserSuccess(user: AuthUser): LoginResultAction {
     return {
-        type: LOGIN_USER_BY_EMAIL_SUCCESS,
+        type: LOGIN_USER_SUCCESS,
         user,
         message: ''
     }
 }
 
-export function loginUserByEmailError(): LoginResultAction {
+export function loginUserError(err: string): LoginResultAction {
     return {
-        type: LOGIN_USER_BY_EMAIL_ERROR,
-        message: ''
+        type: LOGIN_USER_ERROR,
+        message: err
     }
 }
 
@@ -106,24 +114,10 @@ export function loginUserByGithubError(message: string): LoginResultAction {
     }
 }
 
-export function logoutProcessing(processing: boolean): AuthProcessingAction {
-    return {
-        type: LOGIN_PROCESSING,
-        processing
-    }
-}
-
-export function logoutUser(): LoginResultAction {
+export function didLogout(): LoginResultAction {
     return {
         type: LOGOUT_USER,
         message: ''
-    }
-}
-
-export function registerProcessing(processing: boolean): AuthProcessingAction {
-    return {
-        type: REGISTER_PROCESSING,
-        processing
     }
 }
 
@@ -139,5 +133,33 @@ export function registerUserByEmailError(): RegistrationResultAction {
     return {
         type: REGISTER_USER_BY_EMAIL_ERROR,
         message: ''
+    }
+}
+
+export function didVerifyEmail(result: boolean): AuthResultAction {
+    return {
+        type: DID_VERIFY_EMAIL,
+        result
+    }
+}
+
+export function didResendVerificationEmail(result: boolean): AuthResultAction {
+    return {
+        type: DID_RESEND_VERIFICATION_EMAIL,
+        result
+    }
+}
+
+export function didForgotPassword(result: boolean): AuthResultAction {
+    return {
+        type: DID_FORGOT_PASSWORD,
+        result
+    }
+}
+
+export function didResetPassword(result: boolean): AuthResultAction {
+    return {
+        type: DID_RESET_PASSWORD,
+        result
     }
 }
