@@ -16,23 +16,23 @@ const getUrl = (pathname?: string): string => url.format({
 describe('Feathers application tests', () => {
   let server: Server
 
-  before(function (done) {
+  before(function(done) {
     server = app.listen(port)
     server.once('listening', () => done())
   })
 
-  after(function (done) {
+  after(function(done) {
     server.close(done)
   })
 
-  it('starts and shows the index page', async () => {
+  it('starts and shows the index page', async() => {
     const { data } = await axios.get(getUrl())
 
     assert.ok(data.indexOf('<html lang="en">') !== -1)
   })
 
-  describe('404', function () {
-    it('shows a 404 HTML page', async () => {
+  describe('404', function() {
+    it('shows a 404 HTML page', async() => {
       try {
         await axios.get(getUrl('path/to/nowhere'), {
           headers: {
@@ -48,7 +48,7 @@ describe('Feathers application tests', () => {
       }
     })
 
-    it('shows a 404 JSON error without stack trace', async () => {
+    it('shows a 404 JSON error without stack trace', async() => {
       try {
         await axios.get(getUrl('path/to/nowhere'))
         assert.fail('should never get here')

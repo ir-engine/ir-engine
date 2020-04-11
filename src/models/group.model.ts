@@ -10,11 +10,11 @@ export default (app: Application): any => {
     }
   }, {
     hooks: {
-      beforeCount (options: any) {
+      beforeCount(options: any) {
         options.raw = true
       }
     }
-  });
+  })
 
   return Group
 }

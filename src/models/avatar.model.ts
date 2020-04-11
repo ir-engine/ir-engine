@@ -26,7 +26,7 @@ export default (app: Application): any => {
     // TODO: Model Attribution/Created By (same as for Object)
   }, {
     hooks: {
-      beforeCount (options: any) {
+      beforeCount(options: any) {
         options.raw = true
       }
     }

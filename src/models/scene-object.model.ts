@@ -1,9 +1,9 @@
 // Model for junction between a scene and it's objects
-import { Sequelize, DataTypes } from 'sequelize';
-import { Application } from '../declarations';
+import { Sequelize, DataTypes } from 'sequelize'
+import { Application } from '../declarations'
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient');
+export default (app: Application): any => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const SceneObject = sequelizeClient.define('scene_object', {
     text: {
       type: DataTypes.STRING,
@@ -12,10 +12,10 @@ export default (app: Application) => {
   }, {
     hooks: {
       beforeCount(options: any) {
-        options.raw = true;
+        options.raw = true
       }
     }
-  });
+  })
 
-  return SceneObject;
+  return SceneObject
 }
