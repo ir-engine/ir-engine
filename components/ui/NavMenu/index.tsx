@@ -50,7 +50,7 @@ class NavMenu extends Component<Props> {
           <NavItem href="/" title="Home" text="Home" />
           <NavItem href="/settings" title="Settings" text="Settings" />
           <NavItem href="/admin" title="Admin" text="Admin" />
-          <NavItem href="/login" title="Login" text="Login" />
+          <NavItem href="/auth/login" title="Login" text="Login" />
           <Button onClick={()=>this.handleLogout()}>Logout</Button>
         </Toolbar>
       </AppBar>
