@@ -27,6 +27,7 @@
           "width": 2048
         }
       }
-    }
+    },
+    "server_address": "localhost:3030"
   }
 }
