@@ -1,5 +1,8 @@
-import AvatarModelEnum from '../../enums/avatar-model'
+import AvatarModelEnum from '../../../enums/avatar-model'
 import AvatarAsset from './avatar-asset'
+
+import getConfig from 'next/config'
+const config = getConfig().publicRuntimeConfig.xr.avatar
 
 export default class AvatarAssetGLTF extends AvatarAsset {
   constructor(public src: string = defaultAvatarModelSrc, public scale = defaultAvatarModelScale) {
@@ -19,5 +22,5 @@ export default class AvatarAssetGLTF extends AvatarAsset {
   }
 }
 
-export const defaultAvatarModelSrc : string = '/gltf/avatars/head/scene.gltf'
-export const defaultAvatarModelScale : number = 0.02
+export const defaultAvatarModelSrc : string = config.defaultAvatarModelSrc
+export const defaultAvatarModelScale : number = config.defaultAvatarModelScale
