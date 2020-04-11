@@ -3,13 +3,13 @@ services:
   rts:    #xrchat-realtime-server
     build: 
       context: ../xrchat-realtime-server
-    image: xrchat-realtime-server
+    image: xrchat/realtime-server
     restart: always
 
   server:
     build: 
       context: ../xrchat-server
-    image: xrchat-server
+    image: xrchat/server
     restart: always
     environment:
       PORT: 3030
@@ -24,7 +24,7 @@ services:
       context: ../xrchat-client
       args: 
         API_SERVER_URL: http://localhost:3030
-    image: xrchat-client
+    image: xrchat/client
     restart: always
     ports:
       - '3000:3000'
