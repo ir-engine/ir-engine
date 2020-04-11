@@ -29,7 +29,7 @@ export default (app: Application): any => {
     created: { type: DataTypes.DATE }
   }, {
     hooks: {
-      beforeCount (options: any) {
+      beforeCount(options: any) {
         options.raw = true
       }
     }

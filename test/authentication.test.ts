@@ -12,7 +12,7 @@ describe('authentication', () => {
       password: 'supersecret'
     }
 
-    before(async () => {
+    before(async() => {
       try {
         await app.service('user').create(userInfo)
       } catch (error) {
@@ -20,7 +20,7 @@ describe('authentication', () => {
       }
     })
 
-    it('authenticates user and creates accessToken', async () => {
+    it('authenticates user and creates accessToken', async() => {
       const { user, accessToken } = await app.service('authentication').create({
         strategy: 'local',
         ...userInfo

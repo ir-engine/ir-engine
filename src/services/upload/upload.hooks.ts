@@ -13,7 +13,7 @@ export default {
     find: [disallow()],
     get: [],
     create: [
-      function (context: HookContext) {
+      function(context: HookContext) {
         if (!context.data.uri && context.params.file) {
           const file = context.params.file
           const uri = dauria.getBase64DataURI(file.buffer, file.mimetype)

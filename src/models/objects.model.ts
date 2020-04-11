@@ -4,7 +4,7 @@ import { Application } from '../declarations'
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
 
-  const Object = sequelizeClient.define('object', {
+  const Objects = sequelizeClient.define('object', {
     format: { // content-type
       type: DataTypes.STRING,
       allowNull: false
@@ -20,10 +20,10 @@ export default (app: Application): any => {
     }
   });
   // TODO: Model Attribution/Created By (same as for XrAvatar)
-  (Object as any).associate = (models: any) => {
-    (Object as any).belongsTo(models.user) // or group
-      (Object as any).belongsToMany(models.scene, { through: models.scene_object })
+  (Objects as any).associate = (models: any) => {
+    (Objects as any).belongsTo(models.user) // or group
+    (Objects as any).belongsToMany(models.scene, { through: models.scene_object })
   }
 
-  return Object
+  return Objects
 }
