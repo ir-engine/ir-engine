@@ -10,6 +10,7 @@ Deployment and Operations for xrchat services
     +-- xrchat-client
     +-- xrchat-server
     +-- xrchat-ops
+    +-- xrchat-realtime-server
     ```
 - `cd xrchat-ops`
 - run `docker-compose up` then wait a couple of mins to build
@@ -19,6 +20,7 @@ Deployment and Operations for xrchat services
 
 - xrchat-server: backend server on http://localhost:3030
 - xrchat-client: frontend Next.js+react on http://localhost:3000
+- xrchat-realtime-server: still under development TBD
 - DB: MariaDB on default port [mysql://localhost:3306]()
 - Adminer: a lightweight web app to manage database, http://localhost:8080/?server=db&username=server&db=xrchat 
 Note: password is "password"
