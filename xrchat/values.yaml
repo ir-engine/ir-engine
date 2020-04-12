@@ -79,3 +79,11 @@ server:
   affinity: {}
   podSecurityContext: {}
   securityContext: {}
+
+
+
+mariadb:
+  rootUser.password: xrchat-root-pa$$w0rd
+  db.name: xrchat
+  db.user: server
+  db.password: password
