@@ -18,9 +18,8 @@ Deployment and Operations for xrchat services
 
 ## Services
 
-- xrchat-server: backend server on http://localhost:3030
+- xrchat-server: backend server on http://localhost:3030/docs
 - xrchat-client: frontend Next.js+react on http://localhost:3000
-- xrchat-realtime-server: still under development TBD
-- DB: MariaDB on default port [mysql://localhost:3306]()
-- Adminer: a lightweight web app to manage database, http://localhost:8080/?server=db&username=server&db=xrchat 
-Note: password is "password"
+- xrchat-realtime-server: Networked AFrame server on http://localhost:8081
+- Adminer: a lightweight web app to manage database, http://localhost:8080/?server=db&username=server&db=xrchat  (Note: password is "password")
+- DB: MariaDB on default port [mysql://localhost:3306]() 
