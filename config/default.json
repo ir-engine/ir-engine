@@ -1,5 +1,6 @@
 {
   "publicRuntimeConfig": {
+    "title": "XRChat",
     "dev": false,
     "loginDisabled": false,
     "xr": {
@@ -16,15 +17,25 @@
       },
       "environment": {
         "floor": {
-          "groundTexture": "https://cdn.aframe.io/a-painter/images/floor.jpg",
+          "src": "https://cdn.aframe.io/a-painter/images/floor.jpg",
           "height": 100,
           "width": 100
         },
         "skybox": {
-          "skyTexture": "https://cdn.aframe.io/a-painter/images/sky.jpg",
+          "src": "https://cdn.aframe.io/a-painter/images/sky.jpg",
           "radius": 30,
           "height": 2048,
-          "width": 2048
+          "width": 2048,
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "thetaLength": 90
+        },
+        "scene-gltf": {
+          "src": "",
+          "name": ""
         }
       }
     },
