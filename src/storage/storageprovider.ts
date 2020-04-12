@@ -4,7 +4,7 @@ import IStorageProvider from './storageprovider.interface'
 
 export default class StorageProvider implements IStorageProvider {
   provider: IStorageProvider
-  constructor() {
+  constructor () {
     this.provider = process.env.STORAGE_PROVIDER === 'aws' ? new S3Storage() : new LocalStorage()
   }
 

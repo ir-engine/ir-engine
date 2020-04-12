@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/func-call-spacing, no-unexpected-multiline */
 // A grouping of objects. A scene is template for a location.
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
@@ -10,7 +11,7 @@ export default (app: Application): any => {
     }
   }, {
     hooks: {
-      beforeCount(options: any) {
+      beforeCount (options: any) {
         options.raw = true
       }
     }

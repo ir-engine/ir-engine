@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/func-call-spacing, no-unexpected-multiline */
 // An asset file / image / model.
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
@@ -14,7 +15,7 @@ export default (app: Application): any => {
     }
   }, {
     hooks: {
-      beforeCount(options: any) {
+      beforeCount (options: any) {
         options.raw = true
       }
     }

@@ -6,7 +6,7 @@ import * as pug from 'pug'
 
 export default (app: Application): any => {
   return {
-    notifier: async(type: string, user: any): Promise<void> => {
+    notifier: async (type: string, user: any): Promise<void> => {
       const appPath = path.dirname(require.main ? require.main.filename : '')
       const emailAccountTemplatesPath =
         path.join(appPath, '..', 'src', 'email-templates', 'account')
