@@ -1,6 +1,8 @@
 version: '2.3'
 services:
   rts:    #xrchat-realtime-server
+    build: 
+      context: ../xrchat-realtime-server
     image: xrchat/realtime-server
     restart: always
     environment:
@@ -9,6 +11,8 @@ services:
       - '8081:8081'
 
   server:
+    build: 
+      context: ../xrchat-server
     image: xrchat/server
     restart: always
     environment:
@@ -21,6 +25,10 @@ services:
       - db
   
   client:
+    build: 
+      context: ../xrchat-client
+      args: 
+        API_SERVER_URL: http://localhost:3030
     image: xrchat/client
     restart: always
     ports:
