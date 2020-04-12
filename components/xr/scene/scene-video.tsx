@@ -2,8 +2,8 @@ import React from 'react'
 // @ts-ignore
 import { Scene } from 'aframe-react'
 import Assets from './assets'
-import Environment from './environment'
-import Player from '../player/player'
+import Video360 from '../video360/Video360Room'
+import './index.scss'
 
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr['networked-scene']
@@ -13,7 +13,7 @@ type State = {
   color?: string
 }
 
-export default class NetworkedScene extends React.Component<State> {
+export default class VideoScene extends React.Component<State> {
   state: State = {
     appRendered: false,
     color: 'red'
@@ -23,7 +23,6 @@ export default class NetworkedScene extends React.Component<State> {
     if (typeof window !== 'undefined') {
       require('aframe')
       require('networked-aframe')
-      // require('aframe-particle-system-component')
       this.setState({ appRendered: true })
     }
   }
@@ -37,10 +36,10 @@ export default class NetworkedScene extends React.Component<State> {
             class="scene"
             renderer="antialias: true"
             background="color: #FAFAFA"
+            embedded
           >
             <Assets/>
-            <Player/>
-            <Environment/>
+            <Video360/>
           </Scene>
         )}
       </div>

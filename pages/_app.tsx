@@ -11,6 +11,9 @@ import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import theme from '../components/assets/theme';
 
+import getConfig from 'next/config'
+const config = getConfig().publicRuntimeConfig
+
 interface Props extends AppProps{
     store: Store;
 }
@@ -27,7 +30,7 @@ class MyApp extends App<Props> {
     return (
         <Fragment>
           <Head>
-            <title>XRChat</title>
+            <title>{config.title}</title>
             <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width"/>
           </Head>
           <ThemeProvider theme={theme}>

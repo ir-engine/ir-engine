@@ -7,7 +7,7 @@ const config = getConfig().publicRuntimeConfig.xr.environment.floor
 
 export default class Floor extends React.Component {
   render() {
-    return (
+    return config.src ? (
       <Entity
         primitive="a-plane"
         src="#groundTexture"
@@ -15,6 +15,6 @@ export default class Floor extends React.Component {
         height={config.height}
         width={config.height}
       />
-    )
+    ) : ''
   }
 }
