@@ -27,6 +27,10 @@ spec:
             {{- toYaml .Values.server.securityContext | nindent 12 }}
           image: "{{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}"
           imagePullPolicy: {{ .Values.server.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "xrchat.server.fullname" . }}
+                optional: true
           ports:
             - name: http
               containerPort: 80
