@@ -1,4 +1,5 @@
 
+set -e
 # before you run this you need to run 
 # $ source .xrchat-secrets to load tokens and passwords
 
