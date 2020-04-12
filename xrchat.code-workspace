@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "../xrchat-client"
+		},
+		{
+			"path": "../xrchat-realtime-server"
 		}
 	],
 	"settings": {}
