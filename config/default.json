@@ -1,4 +1,6 @@
 {
+  "#WARNING": "DO NOT WRITE any secrets here, just write env variable names in the vlaues like below",
+  "#Development": "for development config, fill config/development.json, and dont commit secrets to git",
   "host": "localhost",
   "port": 3030,
   "public": "../public/",
@@ -32,9 +34,9 @@
     "oauth": {
       "redirect": "/",
       "auth0": {
-        "key": "<auth0 oauth key>",
-        "secret": "<auth0 oauth secret>",
-        "subdomain": "<auth0 subdomain>"
+        "key": "AUTH0_KEY",
+        "secret": "AUTH0_SECRET",
+        "subdomain": "AUTH0_SUBDOMAIN"
       },
       "google": {
         "key": "GOOGLE_CLIENT_ID",
@@ -51,8 +53,8 @@
         "scope": ["email, public_profile"]
       },
       "twitter": {
-        "key": "<twitter oauth key>",
-        "secret": "<twitter oauth secret>"
+        "key": "TWITTER_KEY",
+        "secret": "TWITTER_SECRET"
       },
       "github": {
         "key": "GITHUB_CLIENT_ID",
