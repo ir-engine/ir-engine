@@ -1,8 +1,9 @@
 // A place in physical or virtual space, with many copies (instances)
-import { Sequelize, DataTypes } from 'sequelize';
-import { Application } from '../declarations';
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient');
+import { Sequelize, DataTypes } from 'sequelize'
+import { Application } from '../declarations'
+
+export default (app: Application): any => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const Location = sequelizeClient.define('location', {
     name: {
       type: DataTypes.STRING,
@@ -21,8 +22,8 @@ export default (app: Application) => {
     }
   }, {
     hooks: {
-      beforeCount(options: any) {
-        options.raw = true;
+      beforeCount (options: any) {
+        options.raw = true
       }
     }
   });
@@ -30,5 +31,5 @@ export default (app: Application) => {
   (Location as any).associate = (models: any) =>
     (Location as any).hasMany(models.instance)
 
-  return Location;
+  return Location
 }

@@ -3,11 +3,11 @@ import { Application } from '../../declarations'
 import crypto from 'crypto'
 
 export class User extends Service {
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+  constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
   }
 
-  async create(data: any, params: any): Promise<any> {
+  async create (data: any, params: any): Promise<any> {
     const {
       email,
       password,

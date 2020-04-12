@@ -109,9 +109,8 @@ dist
 
 **/xrchat-secrets.env
 **/xrchat-dev-secrets.env
-/lib*
+lib/
 
 config/prod.json
 config/production.json
 config/dev.json
-config/test.json

@@ -4,25 +4,23 @@ import { Application } from '../../declarations'
 export class LocationInstances extends Service {
   app: Application
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+  constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
   }
 
-  async create(data: any, params: any): Promise<any> {
+  async create (data: any, params: any): Promise<any> {
     const { location, count } = data
-    this.app.service('location').filterQuery({ paginate:false, query: { location } }).then ((locations: any) => {
-
-    if (locations.length === 0) return false
-
+    this.app.service('location').filterQuery({ paginate: false, query: { location } }).then((locations: any) => {
+      if (locations.length === 0) return false
     })
 
     const userData = { location }
 
-    return this.createLocation(userData, params, count)
+    return await this.createLocation(userData, params, count)
   }
 
-  async createLocation(
+  async createLocation (
     userData: { location: Location },
     params: any,
     count: number

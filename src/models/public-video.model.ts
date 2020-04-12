@@ -1,10 +1,10 @@
 // See http://docs.sequelizejs.com/en/latest/docs/models-definition/
 // for more of what you can do here.
-import { Sequelize, DataTypes } from 'sequelize';
-import { Application } from '../declarations';
+import { Sequelize, DataTypes } from 'sequelize'
+import { Application } from '../declarations'
 
-export default function (app: Application) {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient');
+export default function (app: Application): any {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const publicVideo = sequelizeClient.define('public_video', {
     title: DataTypes.STRING,
     original_title: DataTypes.STRING,
@@ -15,8 +15,8 @@ export default function (app: Application) {
     }
   }, {
     hooks: {
-      beforeCount(options: any) {
-        options.raw = true;
+      beforeCount (options: any) {
+        options.raw = true
       }
     }
   });
@@ -25,7 +25,7 @@ export default function (app: Application) {
   (publicVideo as any).associate = function (models: any) {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
-  };
+  }
 
-  return publicVideo;
+  return publicVideo
 }

@@ -1,5 +1,5 @@
-import * as authentication from '@feathersjs/authentication'
-import convertYoutube from '../../hooks/convert-youtube';
+// import * as authentication from '@feathersjs/authentication'
+import convertYoutube from '../../hooks/convert-youtube'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
@@ -32,4 +32,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}
