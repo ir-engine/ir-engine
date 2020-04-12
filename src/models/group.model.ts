@@ -14,7 +14,7 @@ export default (app: Application): any => {
         options.raw = true
       }
     }
-  });
+  })
 
   return Group
 }

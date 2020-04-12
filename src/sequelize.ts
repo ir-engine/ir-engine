@@ -24,7 +24,6 @@ export default (app: Application): void => {
   app.set('sequelizeClient', sequelize)
 
   app.setup = function (...args: any) {
-
     // Set up data relationships
     const models = sequelize.models
     Object.keys(models).forEach(name =>
