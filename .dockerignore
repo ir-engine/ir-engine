@@ -7,7 +7,4 @@ lib/
 
 kubernetes/**
 .vscode
-config/local.json
-config/dev.json
 config/prod.json
-config/production.json
