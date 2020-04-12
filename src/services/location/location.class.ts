@@ -4,7 +4,7 @@ import { Application } from '../../declarations'
 export class Location extends Service {
   app: Application
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+  constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
   }

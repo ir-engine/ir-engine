@@ -1,7 +1,7 @@
 import * as authentication from '@feathersjs/authentication'
 import { HookContext } from '@feathersjs/feathers'
 import { disallow } from 'feathers-hooks-common'
-//@ts-ignore
+// @ts-ignore
 import dauria from 'dauria'
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -13,7 +13,7 @@ export default {
     find: [disallow()],
     get: [],
     create: [
-      function(context: HookContext) {
+      function (context: HookContext) {
         if (!context.data.uri && context.params.file) {
           const file = context.params.file
           const uri = dauria.getBase64DataURI(file.buffer, file.mimetype)
