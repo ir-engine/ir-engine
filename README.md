@@ -4,7 +4,13 @@
 
 ## About
 
-This project uses [Feathers](http://feathersjs.com). An open source web framework for building modern real-time applications.
+XRChat is an end-to-end solution for hosting humans and non-humans in a virtual space. This project would literally not be possible without the community contributions of Mozilla Hubs, Janus VR or Avaer Kazmer Exokit team, and if you are looking for a Metaverse-in-a-box experience, you should check out those projects as well.
+
+Our goal is an easy-to-use, well documented, end-to-end Javascript (or Typescript) exprience that anyone with a little bit of Javascript and HTML knowledge can dig into, deploy and make meaningful modifications and contributions to. If you fit this category and you are struggling with any aspect of getting started, we want to hear fromm you so that this can be a better exprience.
+
+XRChat is a free, open source, MIT-licensed project. You are welcome to do anything you want with it. We hope that you use it to make something beautiful.
+
+This is the server portion of XRChat. To deploy everything at once with Kubernetes or Docker Compose, check out the branches in xrchat-ops. Or you can start the server with NPM (check out scripts/start-db.sh to get the database runnning) run the xrchat-client client and everything should connect out of the box.
 
 ## Getting Started
 
