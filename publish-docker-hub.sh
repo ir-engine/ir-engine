@@ -3,14 +3,31 @@ set -e
 # before you run this you need to run 
 # $ source .xrchat-secrets to load tokens and passwords
 
-docker-compose build
+cd ../xrchat-client
+
+git fetch --tags
+TAG="$(git describe --abbrev=0 --tags)"
+
+cd ../xrchat-ops
+
+
+docker-compose -f docker-compose-local.yml build
 docker login --username xrchat --password ${DOCKER_HUB_TOKEN}
 
-docker tag xrchat/server xrchat/server:latest
-docker push xrchat/server:latest 
 
-docker tag xrchat/realtime-server xrchat/realtime-server:latest
-docker push xrchat/realtime-server:latest
+for repo in {client,server,realtime-server}; do
+    for tag in {$TAG,latest}; do
+        docker tag xrchat/${repo} xrchat/${repo}:${tag}
+        docker push xrchat/${repo}:${tag}
+    done
+done 
 
-docker tag xrchat/client xrchat/client:latest
-docker push xrchat/client:latest
+
+# docker tag xrchat/server xrchat/server:latest
+# docker push xrchat/server:latest 
+
+# docker tag xrchat/realtime-server xrchat/realtime-server:latest
+# docker push xrchat/realtime-server:latest
+
+# docker tag xrchat/client xrchat/client:latest
+# docker push xrchat/client:latest
