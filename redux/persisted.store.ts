@@ -24,7 +24,6 @@ export const persistedStore = (() => {
 export const saveState = (state: any) => {
     try {
         const rawState = JSON.stringify(state);
-        console.log('savestate----------', rawState);
 
         localStorage.setItem(localStorageKey, rawState);
     } catch (err) {

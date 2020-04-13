@@ -49,6 +49,12 @@ class SignUp extends React.Component<Props> {
     phone: ''
   }
 
+  handleInput = (e: any) => {
+    this.setState({
+      [e.target.name]: e.target.value
+    })
+  }
+
   handleRegister = (e: any) => {
     e.preventDefault()
     this.props.registerUserByEmail({
@@ -93,6 +99,7 @@ class SignUp extends React.Component<Props> {
                   label="Email Address"
                   name="email"
                   autoComplete="email"
+                  onChange={(e) => this.handleInput(e)}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -105,6 +112,7 @@ class SignUp extends React.Component<Props> {
                   type="password"
                   id="password"
                   autoComplete="current-password"
+                  onChange={(e) => this.handleInput(e)}
                 />
               </Grid>
             </Grid>

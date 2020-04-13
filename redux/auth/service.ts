@@ -45,11 +45,16 @@ export function loginUserByEmail(form: EmailLoginForm) {
       const val = res as AuthUser;
       if (!val.user.isVerified) {
         client.logout();
+        window.location.href = '/auth/confirm;'
         return dispatch(loginUserError('Unverified user'));
       }
+      window.location.href = '/'
       return dispatch(loginUserSuccess(val));
     })
-    .catch(() => dispatch(loginUserError('Failed to login')))
+    .catch((err: any) => {
+      console.log(err);
+      dispatch(loginUserError('Failed to login'))
+    })
     .finally( ()=> dispatch(actionProcessing(false)));
   };
 }
@@ -114,9 +119,15 @@ export function registerUserByEmail(form: EmailRegistrationForm) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true));
 
-    client.service('users').create(form)
-      .then((user: any) => dispatch(registerUserByEmailSuccess(user)))
-      .catch(() => dispatch(registerUserByEmailError()))
+    client.service('user').create(form)
+      .then((user: any) => {
+        window.location.href = '/auth/confirm'
+        dispatch(registerUserByEmailSuccess(user))
+      })
+      .catch((err: any) => {
+        console.log(err);
+        dispatch(registerUserByEmailError())
+      })
       .finally(() => dispatch(actionProcessing(false)));
   }
 }
@@ -129,8 +140,15 @@ export function verifyEmail(token: string) {
       action: 'verifySignupLong',
       value: token
     })
-      .then(() => dispatch(didVerifyEmail(true)))
-      .catch(() => dispatch(didVerifyEmail(false)))
+      .then((res: any) => {
+        console.log(res);
+        window.location.href = '/auth/login';
+        dispatch(didVerifyEmail(true))
+      })
+      .catch((err: any) => {
+        console.log(err);
+        dispatch(didVerifyEmail(false))
+      })
       .finally(() => dispatch(actionProcessing(false)));
   }
 }
@@ -171,8 +189,16 @@ export function resetPassword(token: string, password: string) {
       action: 'resetPwdLong',
       value: { token, password }
     })
-      .then(() => dispatch(didResetPassword(true)))
-      .catch(() => dispatch(didResetPassword(false)))
+      .then((res: any) => {
+        console.log(res);
+        window.location.href = '/auth/login';
+        dispatch(didResetPassword(true))
+      })
+      .catch((err: any) => {
+        console.log(err);
+        window.location.href = '/auth/login';
+        dispatch(didResetPassword(false))
+      })
       .finally(() => dispatch(actionProcessing(false)));
   }
 }

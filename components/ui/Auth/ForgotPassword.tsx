@@ -29,7 +29,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 class ForgotPassword extends React.Component<Props> {
   state = {
-    email: ''
+    email: '',
+    isSubmitted: false
   }
 
   handleInput = (e: any) => {
@@ -42,6 +43,9 @@ class ForgotPassword extends React.Component<Props> {
     e.preventDefault();
 
     this.props.forgotPassword(this.state.email);
+    this.setState({
+      isSubmitted: true
+    });
   }
 
   render() {
@@ -85,6 +89,16 @@ class ForgotPassword extends React.Component<Props> {
               </Grid>
             </Grid>
           </form>
+
+          {this.state.isSubmitted ? 
+          (
+            <Typography variant="body2" color="textSecondary" align="center">
+              <br/>
+              Reset Password Email was sent. Please check your email.
+            </Typography>
+          )
+          : ''}
+          
         </div>
       </Container>
     );
