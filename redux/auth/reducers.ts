@@ -3,7 +3,8 @@ import {
     AuthAction,
     AuthProcessingAction,
     LoginResultAction,
-    AuthState
+    AuthState,
+    AuthResultAction
 } from "./actions";
 
 import { 
@@ -14,10 +15,12 @@ import {
     LOGOUT_USER,
     REGISTER_USER_BY_EMAIL_SUCCESS,
     ACTION_PROCESSING,
+    DID_VERIFY_EMAIL,
 } from "../actions";
 
 export const initialState: AuthState = {
     isLogined: false,
+    isVerified: true,
     user: undefined,
     error: '',
 
@@ -51,6 +54,9 @@ const authReducer = (state = immutableState, action: AuthAction): any => {
             return state
                 .set('isLogined', false)
                 .set('user', undefined);
+        case DID_VERIFY_EMAIL:
+            return state
+                .set('isVerified', (action as AuthResultAction).result);
     }
 
     return state;

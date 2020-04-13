@@ -30,6 +30,8 @@ export interface AuthUser {
 
 export interface AuthState {
     isLogined: boolean;
+    isVerified: boolean;
+    
     user: AuthUser | undefined;
     error: string;
 
