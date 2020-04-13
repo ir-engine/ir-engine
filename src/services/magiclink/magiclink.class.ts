@@ -1,5 +1,5 @@
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Application } from '../../declarations'
 import { getLink, sendEmail } from '../auth-management/utils'
 import * as path from 'path'
 import * as pug from 'pug'
@@ -13,21 +13,21 @@ export class Magiclink implements ServiceMethods<Data> {
   options: ServiceOptions;
 
   constructor (options: ServiceOptions = {}, app: Application) {
-    this.options = options;
-    this.app = app;
+    this.options = options
+    this.app = app
   }
 
   async find (params?: Params): Promise<Data[] | Paginated<Data>> {
-    return [];
+    return []
   }
 
   async get (id: Id, params?: Params): Promise<Data> {
     return {
       id, text: `A new message with ID: ${id}!`
-    };
+    }
   }
 
-  async sendEmail(to_email: string, token: string): Promise<void> {
+  async sendEmail (toEmail: string, token: string): Promise<void> {
     const hashLink = getLink('login', token)
     const appPath = path.dirname(require.main ? require.main.filename : '')
     const emailAccountTemplatesPath =
@@ -42,62 +42,59 @@ export class Magiclink implements ServiceMethods<Data> {
 
     const email = {
       from: mailFrom,
-      to: to_email,
+      to: toEmail,
       subject: 'Magic Link to sign in',
       html: compiledHTML
     }
 
-    return sendEmail(this.app, email)
+    return await sendEmail(this.app, email)
   }
 
   async create (data: any, params?: Params): Promise<Data> {
     const userService = this.app.service('user')
     const authService = this.app.service('authentication')
-    let user = undefined
+    let user
 
     if (data.type === 'email') {
-      const users = ((await userService.find({email: data.email})) as any).data
+      const users = ((await userService.find({ email: data.email })) as any).data
 
       if (users.length === 0) {
         user = await userService.create({
-          email: data.email,
-        }, params);
-      }
-      else {
+          email: data.email
+        }, params)
+      } else {
         user = users[0]
       }
 
       if (user) {
-        const accessToken = await authService.createAccessToken({}, {subject: user.id.toString()});
+        const accessToken = await authService.createAccessToken({}, { subject: user.id.toString() })
 
-        console.log('-----------', accessToken);
-        this.sendEmail(data.email, accessToken);
-
+        console.log('-----------', accessToken)
+        await this.sendEmail(data.email, accessToken)
       }
-    }
-    else if (data.type === 'sms') {
-      user = await userService.find({mobile: data.mobile})
+    } else if (data.type === 'sms') {
+      user = await userService.find({ mobile: data.mobile })
 
       if (!user) {
         user = await userService.create({
           mobile: data.mobile
-        }, params);
+        }, params)
       }
 
       // TODO! send sms.
     }
-    return data;
+    return data
   }
 
   async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data;
+    return data
   }
 
   async patch (id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data;
+    return data
   }
 
   async remove (id: NullableId, params?: Params): Promise<Data> {
-    return { id };
+    return { id }
   }
 }
