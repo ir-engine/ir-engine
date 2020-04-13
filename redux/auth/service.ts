@@ -13,7 +13,8 @@ import {
   actionProcessing,
   didResendVerificationEmail,
   didForgotPassword,
-  didResetPassword
+  didResetPassword,
+  didCreateMagicLink
 } from "./actions";
 // import { ajaxPost } from "../service.common";
 import { client } from "../feathers";
@@ -84,6 +85,7 @@ export function loginUserByFacebook() {
 }
 
 export function loginUserByJwt(accessToken: string, redirectSuccess: string, redirectError: string) {
+  console.log('jwt--------', accessToken);
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true));
 
@@ -97,8 +99,9 @@ export function loginUserByJwt(accessToken: string, redirectSuccess: string, red
       window.location.href = redirectSuccess;
       return dispatch(loginUserSuccess(val));
     })
-    .catch(() => {
+    .catch((err: any) => {
       window.location.href = redirectError;
+      console.log(err);
       return dispatch(loginUserError('Failed to login'))
     })
     .finally( ()=> dispatch(actionProcessing(false)));
@@ -198,6 +201,26 @@ export function resetPassword(token: string, password: string) {
         console.log(err);
         window.location.href = '/auth/login';
         dispatch(didResetPassword(false))
+      })
+      .finally(() => dispatch(actionProcessing(false)));
+  }
+}
+
+export function createMagicLink(type: string, email: string) {
+  return (dispatch: Dispatch) => {
+    dispatch(actionProcessing(true));
+
+    client.service('magiclink').create({
+      type,
+      email
+    })
+      .then((res: any) => {
+        console.log(res);
+        dispatch(didCreateMagicLink(true))
+      })
+      .catch((err: any) => {
+        console.log(err);
+        dispatch(didCreateMagicLink(false))
       })
       .finally(() => dispatch(actionProcessing(false)));
   }
