@@ -1,5 +1,5 @@
+[![Build Status](https://travis-ci.org/xrchat/xrchat-client.svg?branch=master)](https://travis-ci.org/xrchat/xrchat-client)
 # XRChat Client
-
 ## About
 
 XRChat is an end-to-end solution for hosting humans and non-humans in a virtual space. This project would literally not be possible without the community contributions of Mozilla Hubs, Janus VR or Avaer Kazmer Exokit team, and if you are looking for a Metaverse-in-a-box experience, you should check out those projects as well.
