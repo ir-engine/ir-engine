@@ -2,6 +2,8 @@ language: node_js
 node_js:
   - "12"
 
+
+sudo: "required"
 services:
   - docker
 
@@ -9,4 +11,9 @@ script:
   - npm run lint
   - npm run compile
   - npm run test
-  - git describe --abbrev=0 --tags
+
+deploy:
+  provider: script
+  script: publish_dockerhub.sh
+  on:
+    tags: true
