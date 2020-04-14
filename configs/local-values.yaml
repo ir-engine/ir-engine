@@ -1,0 +1,46 @@
+# WAAAARNING .. must be strings , if yo add an integer or boolean, please quote it "False" "3000"
+
+domain: xrchat.local
+
+rts:
+  extraEnv:
+    NAF_LISTEN_PORT: "8081"
+
+client:
+  image:
+    tag: rc-0.0.1
+
+server:
+  image:
+    tag: rc-0.0.1
+  extraEnv:
+    PORT: "3030"
+
+    # automatically filled by chart.. ignore
+    # MYSQL_HOST=db
+    # MYSQL_PORT: 3306
+    # MYSQL_DATABASE: xrchat
+    # MYSQL_USER: server
+    # MYSQL_PASSWORD: password
+
+    SMTP_HOST: ""
+    SMTP_PORT: ""
+    SMTP_USER: ""
+    SMTP_PASS: ""
+    MAIL_FROM: "noreply@myxr.email"
+
+    # GITHUB_CLIENT_ID: 
+    # GITHUB_CLIENT_SECRET: 
+    # GITHUB_CALLBACK_URL: http://localhost:3000/oauth/github
+
+    # FACEBOOK_CLIENT_ID: 
+    # FACEBOOK_CLIENT_SECRET: 
+    # FACEBOOK_CALLBACK_URL: http://localhost:3000/oauth/facebook
+
+    # GOOGLE_CLIENT_ID: 
+    # GOOGLE_CLIENT_SECRET: 
+    # GOOGLE_CALLBACK_URL: http://localhost:3000/oauth/google
+
+    # APP_HOST: http://localhost:3000/
+
+    STORAGE_PROVIDER: "local"

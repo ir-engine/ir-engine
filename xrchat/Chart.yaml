@@ -1,15 +1,8 @@
 apiVersion: v2
 name: xrchat
 description: A Helm chart for Kubernetes
+icon: https://avatars3.githubusercontent.com/u/61642798
 
-# A chart can be either an 'application' or a 'library' chart.
-#
-# Application charts are a collection of templates that can be packaged into versioned archives
-# to be deployed.
-#
-# Library charts provide useful utilities or functions for the chart developer. They're included as
-# a dependency of application charts to inject those utilities and functions into the rendering
-# pipeline. Library charts do not define any templates and therefore cannot be deployed.
 type: application
 
 # This is the chart version. This version number should be incremented each time you make changes
@@ -22,6 +15,16 @@ appVersion: 1.16.0
 
 
 dependencies:
-- name: mariadb
-  version: "7.3.16"
-  repository: "https://charts.bitnami.com/bitnami"
+  
+  #https://bitnami.com/stack/mariadb/helm
+  - name: mariadb
+    version: "7.3.16"
+    repository: "https://charts.bitnami.com/bitnami"
+    # install MariaDB if user does not have external DB
+    condition: mariadb.enabled
+
+  - name: agones
+    version: "1.4.0"
+    repository: "https://agones.dev/chart/stable"
+    condition: agones.enabled
+  

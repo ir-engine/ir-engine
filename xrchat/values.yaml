@@ -10,8 +10,8 @@ client:
 
   replicaCount: 1
   image:
-    repository: xrchat-client
-    tag: stable
+    repository: xrchat/client
+    tag: latest
     pullPolicy: Always
 
   imagePullSecrets: []
@@ -25,10 +25,17 @@ client:
   ingress:
     enabled: true
     annotations:
-      # kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
-    tls:
-      secretName: xrchat-client-tls
+    hosts:
+      - host: beta.kaixr.world
+        paths: ["/"]
+    # tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+
 
   serviceAccount:
     create: true
@@ -48,8 +55,8 @@ server:
 
   replicaCount: 1
   image:
-    repository: xrchat-server
-    tag: stable
+    repository: xrchat/server
+    tag: latest
     pullPolicy: Always
 
   imagePullSecrets: []
@@ -63,10 +70,16 @@ server:
   ingress:
     enabled: true
     annotations:
-      # kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
-    tls:
-      secretName: xrchat-server-tls
+    hosts:
+      - host: api.kaixr.world
+        paths: ["/"]
+    # tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
 
   serviceAccount:
     create: true
@@ -79,11 +92,87 @@ server:
   affinity: {}
   podSecurityContext: {}
   securityContext: {}
+  
+  # Extra Environment variables to configure xrchat-server
+  extraEnv: {}
+    # ENV_VAR1: val1
+    # ENV_VAR2: val2
 
-
+########### Subcharts - values here will overwrite the subchart
 
 mariadb:
-  rootUser.password: xrchat-root-pa$$w0rd
-  db.name: xrchat
-  db.user: server
-  db.password: password
+  enabled: true
+  nameOverride: xrchat-mariadb
+  db:
+    name: xrchat
+    user: server
+    password: password
+    existingSecret: 
+  replication:
+    enabled: false
+  externalHost:   # use to override - must set mariadb.enabled to false
+
+agones:
+  enabled: false
+
+######## Storage
+# storage:
+  
+
+#     filestore.backend: '{{ .Values.filestore.backend }}'
+#     {{- if eq .Values.filestore.backend "filesystem" }}
+#     filestore.options:
+#       location: '{{ .Values.filestore.filesystem.path }}'
+#     {{ end }}
+#     {{- if eq .Values.filestore.backend "gcs" }}
+#     filestore.options:
+#       bucket_name: '{{ .Values.filestore.gcs.bucketName }}'
+#     {{ end }}
+#     {{- if eq .Values.filestore.backend "s3" }}
+#     filestore.options:
+#       {{- if .Values.filestore.s3.accessKey }}
+#       access_key: '{{ .Values.filestore.s3.accessKey }}'
+#       {{- end }}
+#       {{- if .Values.filestore.s3.secretKey }}
+#       secret_key: '{{ .Values.filestore.s3.secretKey }}'
+#       {{- end }}
+#       {{- if .Values.filestore.s3.bucketName }}
+#       bucket_name: '{{ .Values.filestore.s3.bucketName }}'
+#       {{- end }}
+#       {{- if .Values.filestore.s3.endpointUrl }}
+#       endpoint_url: '{{ .Values.filestore.s3.endpointUrl }}'
+#       {{- end }}
+#       {{- if .Values.filestore.s3.signature_version }}
+#       signature_version: '{{ .Values.filestore.s3.signature_version }}'
+#       {{- end }}
+#       {{- if .Values.filestore.s3.region_name }}
+#       region_name: '{{ .Values.filestore.s3.region_name }}'
+#       {{- end }}
+#       {{- if .Values.filestore.s3.default_acl }}
+#       default_acl: '{{ .Values.filestore.s3.default_acl }}'
+#       {{- end }}
+#     {{ end }}
+
+
+
+# ### The following values can be used to override configuration
+# mail:
+#   host:
+#   port:
+#   user:
+#   pass:
+#   from: noreply@myxr.email
+
+# auth:
+#   github:
+#     clientId:
+#     cientSecret:
+#     callbackUrl: http://localhost:3000/oauth/github
+#   facebook:
+#     clientId:
+#     cientSecret:
+#     callbackUrl: http://localhost:3000/oauth/facebook
+#   google:
+#     clientId:
+#     cientSecret:
+#     callbackUrl: http://localhost:3000/oauth/github  
