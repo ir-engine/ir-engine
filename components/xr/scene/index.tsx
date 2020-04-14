@@ -23,12 +23,12 @@ export default class SceneRoot extends React.Component {
   }
 
   render() {
-    const SceneCoponent = this.state.loggedIn ? <NetworkedScene /> : <LocalScene />
+    const SceneComponent = this.state.loggedIn ? <NetworkedScene /> : <LocalScene />
 
     return (
       <div>
         <AframeComponentRegisterer/>
-        {SceneCoponent}
+        {SceneComponent}
       </div>
 
     )

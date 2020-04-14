@@ -1,6 +1,7 @@
 import React from 'react'
 // @ts-ignore
 import { Entity, Scene } from 'aframe-react'
+import './style.scss'
 
 import Assets from './assets'
 import Environment from './environment'
@@ -28,10 +29,9 @@ export default class LocalScene extends React.Component<State> {
     return (
       <div style={{ height: '100%', width: '100%' }}>
         {this.state.appRendered && (
-          <Scene>
+          <Scene vr-mode-ui="enterVRButton: #enterVRButton">
             <Assets/>
             <Environment/>
-
             <Entity primitive="a-camera">
               <Entity
                 primitive="a-cursor"
@@ -44,6 +44,7 @@ export default class LocalScene extends React.Component<State> {
                 }}
               />
             </Entity>
+            <a id="enterVRButton" href="#"></a>
           </Scene>
         )}
       </div>
