@@ -1,0 +1,18 @@
+language: node_js
+node_js:
+  - "12"
+
+services:
+  - docker
+
+# script:
+#   - npm run lint
+#   - npm run compile
+#   - npm run test
+
+deploy:
+  provider: script
+  script: bash publish_dockerhub.sh $TRAVIS_TAG
+  on:
+    tags: true
+    all_branches: true
