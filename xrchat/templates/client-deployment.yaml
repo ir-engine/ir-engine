@@ -13,6 +13,8 @@ spec:
     metadata:
       labels:
         {{- include "xrchat.client.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/client-configmap.yaml") . | sha256sum }}
     spec:
     {{- with .Values.client.imagePullSecrets }}
       imagePullSecrets:
@@ -25,7 +27,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.client.securityContext | nindent 12 }}
-          image: "{{ .Values.client.image.repository }}:{{ .Values.server.image.tag }}"
+          image: "{{ .Values.client.image.repository }}:{{ .Values.client.image.tag }}"
           imagePullPolicy: {{ .Values.client.image.pullPolicy }}
           envFrom:
             - configMapRef:

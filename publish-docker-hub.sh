@@ -10,10 +10,11 @@ TAG="$(git describe --abbrev=0 --tags)"
 
 cd ../xrchat-ops
 
-
+export NEW_TAG=rc0.0.5
 docker-compose -f docker-compose-local.yml build
 docker login --username xrchat --password ${DOCKER_HUB_TOKEN}
-
+docker tag xrchat/client xrchat/client:${NEW_TAG}
+docker push xrchat/client:${NEW_TAG}
 
 for repo in {client,server,realtime-server}; do
     for tag in {$TAG,latest}; do

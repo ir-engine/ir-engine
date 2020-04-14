@@ -5,9 +5,6 @@ metadata:
   labels:
     {{- include "xrchat.server.labels" . | nindent 4 }}
 data:
-{{- with .Values.upstreams }}
-{{ toYaml . | indent 2 }}
-{{- end }}
 {{- if .Values.server.extraEnv }}
 {{ toYaml .Values.server.extraEnv | indent 2 }}
 {{- end }}

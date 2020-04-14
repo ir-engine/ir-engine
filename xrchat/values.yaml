@@ -35,7 +35,7 @@ client:
     #    hosts:
     #      - chart-example.local
 
-
+  
 
   serviceAccount:
     create: true
@@ -48,6 +48,8 @@ client:
   affinity: {}
   podSecurityContext: {}
   securityContext: {}
+  
+  extraEnv: {}
 
 server:
   enabled: true

@@ -32,4 +32,4 @@ helm dep update xrchat
 helm install --dry-run --debug test xrchat > x.yaml
 helm install --dry-run --debug --values configs/local.values.yaml test xrchat > x.yaml
 
-helm upgrade --install  --values configs/local.values.yaml test xrchat 
+helm upgrade --install  --values configs/prod-values.yaml beta xrchat 
