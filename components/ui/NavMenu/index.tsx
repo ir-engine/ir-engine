@@ -17,30 +17,31 @@ import { bindActionCreators, Dispatch } from 'redux'
 import Button from '@material-ui/core/Button'
 // TODO: Generate nav items from a config file
 
-
 type Props = {
-  auth: any,
-  logoutUser: typeof logoutUser;
+  auth: any
+  logoutUser: typeof logoutUser
 }
 
 const mapStateToProps = (state: any) => {
   return {
-    auth: selectAuthState(state),
+    auth: selectAuthState(state)
   }
 }
+
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   logoutUser: bindActionCreators(logoutUser, dispatch)
 })
 
 class NavMenu extends Component<Props> {
   handleLogout() {
-    console.log('logout');
-    this.props.logoutUser();
+    console.log('logout')
+    this.props.logoutUser()
   }
+
   render() {
     return (
-      <AppBar position="sticky">
-        <Toolbar>
+      <AppBar className="appbar" position="sticky">
+        <Toolbar className="toolbar">
           <IconButton edge="start" color="inherit" aria-label="menu">
             <MenuIcon color="inherit" />
           </IconButton>
@@ -48,17 +49,12 @@ class NavMenu extends Component<Props> {
             {siteTitle}
           </Typography>
           <NavItem href="/" title="Home" text="Home" />
-          <NavItem href="/settings" title="Settings" text="Settings" />
-          <NavItem href="/admin" title="Admin" text="Admin" />
           <NavItem href="/auth/login" title="Login" text="Login" />
-          <Button onClick={()=>this.handleLogout()}>Logout</Button>
+          <Button onClick={() => this.handleLogout()}>Logout</Button>
         </Toolbar>
       </AppBar>
     )
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(NavMenu);
+export default connect(mapStateToProps, mapDispatchToProps)(NavMenu)
