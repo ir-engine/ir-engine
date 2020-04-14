@@ -40,5 +40,14 @@
       }
     },
     "server_address": "localhost:3030"
+  },
+
+  "auth": {
+    "isEnableSmsMagicLink": false,
+    "isEnableEmailMagicLink": true,
+    "isEnableUserPassword": false,
+    "isEnableGithub": false,
+    "isEnableFacebook": false,
+    "isEnableGoogle": false
   }
 }
