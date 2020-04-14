@@ -2,3 +2,9 @@
 .xrchat-secrets
 
 helm_values.yaml
+
+*.tgz
+
+configs/*prod*
+
+xrchat/Chart\.lock
