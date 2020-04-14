@@ -12,7 +12,8 @@ import {
     DID_RESEND_VERIFICATION_EMAIL,
     DID_FORGOT_PASSWORD,
     DID_RESET_PASSWORD,
-    ACTION_PROCESSING
+    ACTION_PROCESSING,
+    DID_CREATE_MAGICLINK
 } from '../actions';
 
 export interface AuthUser {
@@ -168,7 +169,7 @@ export function didResetPassword(result: boolean): AuthResultAction {
 
 export function didCreateMagicLink(result: boolean): AuthResultAction {
     return {
-        type: DID_RESET_PASSWORD,
+        type: DID_CREATE_MAGICLINK,
         result
     }
 }
