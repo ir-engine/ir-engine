@@ -8,6 +8,13 @@ import AWS from 'aws-sdk'
 import S3BlobStore from 's3-blob-store'
 import { Application } from '../declarations'
 
+import ffmpeg from 'fluent-ffmpeg'
+import fs from 'fs'
+import { binPath } from 'bento4-installer'
+import bento4 from 'fluent-bento4'
+
+const bento = bento4.setBinPath(binPath)
+
 const re = /v=([a-zA-Z0-9]+)$/
 
 const s3 = new AWS.S3({
@@ -60,20 +67,32 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
             video.pipe(stream)
 
             stream.on('finish', async function (): Promise<void> {
-              await app.service('public-video').patch(result.id, {
-                link: 'https://' +
-                    config.get('aws.s3.public_video_bucket') +
-                    '.s3.amazonaws.com/' +
-                    options.key
-              })
+              var outStream = fs.createWriteStream('output.mp4')
 
-              resolve()
+              ffmpeg(stream.path, { presets: './ffmpeg' }).preset('mse').pipe(outStream)
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                .on('end', async function (): Promise<void> {
+                  bento.mp4dash.exec(outStream.path)
+                  await app.service('public-video').patch(result.id, {
+                    link: 'https://' +
+                        config.get('aws.s3.public_video_bucket') +
+                        '.s3.amazonaws.com/' +
+                        options.key
+                  })
+
+                  resolve()
+                })
             })
           })
         } catch (err) {
           console.log(err)
 
           reject(err)
+        } finally {
+          fs.unlink('output.mp4', (err) => {
+            if (err) throw err
+          })
+          await fs.promises.rmdir('output', { recursive: true })
         }
       } else {
         await app.service('public-video').patch(result.id, {
