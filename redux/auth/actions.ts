@@ -132,10 +132,10 @@ export function registerUserByEmailSuccess(user: any): RegistrationResultAction 
     }
 }
 
-export function registerUserByEmailError(): RegistrationResultAction {
+export function registerUserByEmailError(message: string): RegistrationResultAction {
     return {
         type: REGISTER_USER_BY_EMAIL_ERROR,
-        message: ''
+        message: message
     }
 }
 

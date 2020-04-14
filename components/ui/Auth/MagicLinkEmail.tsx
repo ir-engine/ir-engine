@@ -8,6 +8,7 @@ import {
 } from '../../../redux/auth/service'
 import Grid from '@material-ui/core/Grid'
 import './auth.scss'
+import EmptyLayout from '../Layout/EmptyLayout'
 
 interface Props {
   auth: any
@@ -37,57 +38,49 @@ class MagicLinkEmail extends React.Component<Props> {
 
   render() {
     return (
-      <Container component="main" maxWidth="xs">
-        <div className={'paper'}>
-          <Typography component="h1" variant="h5">
-            Email Magic Link
-          </Typography>
-  
-          <Typography variant="body2" color="textSecondary" align="center">
-            Please enter your email address and we'll send you a magic link email.
-          </Typography>
-  
-          <form className={'form'} noValidate onSubmit={(e) => this.handleSubmit(e)}>
-            <Grid container>
-              <Grid item xs={12}>
-                <TextField
-                  variant="outlined"
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                  autoFocus
-                  onChange={(e) => this.handleInput(e)}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  className={'submit'}
-                >
-                  Email Magic Link
-                </Button>
-              </Grid>
-            </Grid>
-          </form>
-
-          {this.state.isSubmitted ? 
-          (
-            <Typography variant="body2" color="textSecondary" align="center">
-              <br/>
-              Magic Link Email was sent. Please check your email to sign in.
+      <EmptyLayout>
+        <Container component="main" maxWidth="xs">
+          <div className={'paper'}>
+            <Typography component="h1" variant="h5">
+              Email Magic Link
             </Typography>
-          )
-          : ''}
-          
-        </div>
-      </Container>
+    
+            <Typography variant="body2" color="textSecondary" align="center">
+              Please enter your email address and we'll send you a magic link email.
+            </Typography>
+    
+            <form className={'form'} noValidate onSubmit={(e) => this.handleSubmit(e)}>
+              <Grid container>
+                <Grid item xs={12}>
+                  <TextField
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="email"
+                    label="Email Address"
+                    name="email"
+                    autoComplete="email"
+                    autoFocus
+                    onChange={(e) => this.handleInput(e)}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={'submit'}
+                  >
+                    Email Magic Link
+                  </Button>
+                </Grid>
+              </Grid>
+            </form>
+          </div>
+        </Container>
+      </EmptyLayout>
     );
   }
 }

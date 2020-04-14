@@ -27,6 +27,7 @@ import MagicLinkEmail from './MagicLinkEmail';
 const config = getConfig().auth;
 
 import './auth.scss'
+import EmptyLayout from '../Layout/EmptyLayout';
 
 interface Props {
   auth: any
@@ -88,98 +89,100 @@ class SignIn extends React.Component<Props> {
 
   render() {
     return (
-      <Container component="main" maxWidth="xs">
-        <div className={'paper'}>
-          <Avatar className={'avatar'}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign in
-          </Typography>
-          <form className={'form'} noValidate onSubmit={(e) => this.handleEmailLogin(e)}>
-            <Grid container>
-              <Grid item xs={12}>
-                <TextField
-                  variant="outlined"
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                  autoFocus
-                  onChange={(e) => this.handleInput(e)}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  variant="outlined"
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="current-password"
-                  onChange={(e) => this.handleInput(e)}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={<Checkbox value="remember" color="primary" />}
-                  label="Remember me"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  className={'submit'}
-                >
-                  Sign In
-                </Button>
-              </Grid>
+      <EmptyLayout>
+        <Container component="main" maxWidth="xs">
+          <div className={'paper'}>
+            <Avatar className={'avatar'}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5">
+              Sign in
+            </Typography>
+            <form className={'form'} noValidate onSubmit={(e) => this.handleEmailLogin(e)}>
+              <Grid container>
+                <Grid item xs={12}>
+                  <TextField
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="email"
+                    label="Email Address"
+                    name="email"
+                    autoComplete="email"
+                    autoFocus
+                    onChange={(e) => this.handleInput(e)}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="password"
+                    label="Password"
+                    type="password"
+                    id="password"
+                    autoComplete="current-password"
+                    onChange={(e) => this.handleInput(e)}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <FormControlLabel
+                    control={<Checkbox value="remember" color="primary" />}
+                    label="Remember me"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={'submit'}
+                  >
+                    Sign In
+                  </Button>
+                </Grid>
 
-              <Grid item xs>
-                <Link href="/auth/forgotpwd" variant="body2">
-                  Forgot password?
-                </Link>
+                <Grid item xs>
+                  <Link href="/auth/forgotpwd" variant="body2">
+                    Forgot password?
+                  </Link>
+                </Grid>
+                <Grid item>
+                  <Link href="/auth/register" variant="body2">
+                    {"Don't have an account? Sign Up"}
+                  </Link>
+                </Grid>
               </Grid>
-              <Grid item>
-                <Link href="/auth/register" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
+            </form>
+          </div>
+
+          <div style={{marginTop: '20px'}}>
+            &nbsp;
+          </div>
+          
+          <Grid container justify="center" spacing={2}>
+            <Grid item>
+              <Button onClick={(e) => this.handleGithubLogin(e)}>
+                <GitHubIcon fontSize="large"/>
+              </Button>
             </Grid>
-          </form>
-        </div>
-
-        <div style={{marginTop: '20px'}}>
-          &nbsp;
-        </div>
-        
-        <Grid container justify="center" spacing={2}>
-          <Grid item>
-            <Button onClick={(e) => this.handleGithubLogin(e)}>
-              <GitHubIcon fontSize="large"/>
-            </Button>
+            <Grid item>
+              <Button onClick={(e) => this.handleFacebookLogin(e)}>
+                <FacebookIcon fontSize="large"/>
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button onClick={(e) => this.handleGoogleLogin(e)}>
+                <GoogleIcon/>
+              </Button>
+            </Grid>
           </Grid>
-          <Grid item>
-            <Button onClick={(e) => this.handleFacebookLogin(e)}>
-              <FacebookIcon fontSize="large"/>
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button onClick={(e) => this.handleGoogleLogin(e)}>
-              <GoogleIcon/>
-            </Button>
-          </Grid>
-        </Grid>
-      </Container>
+        </Container>
+      </EmptyLayout>
     );
   }
 }

@@ -20,6 +20,7 @@ import {
 } from '../../../redux/auth/service'
 import { selectAuthState } from '../../../redux/auth/selector'
 import './auth.scss'
+import EmptyLayout from '../Layout/EmptyLayout';
 
 interface Props {
   auth: any
@@ -80,83 +81,85 @@ class SignUp extends React.Component<Props> {
 
   render () {
     return (
-      <Container component="main" maxWidth="xs">
-        <div className={'paper'}>
-          <Avatar className={'avatar'}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign up
-          </Typography>
-          <form className={'form'} noValidate onSubmit={(e) => this.handleRegister(e) }>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  variant="outlined"
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                  onChange={(e) => this.handleInput(e)}
-                />
+      <EmptyLayout>
+        <Container component="main" maxWidth="xs">
+          <div className={'paper'}>
+            <Avatar className={'avatar'}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5">
+              Sign up
+            </Typography>
+            <form className={'form'} noValidate onSubmit={(e) => this.handleRegister(e) }>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    variant="outlined"
+                    required
+                    fullWidth
+                    id="email"
+                    label="Email Address"
+                    name="email"
+                    autoComplete="email"
+                    onChange={(e) => this.handleInput(e)}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    variant="outlined"
+                    required
+                    fullWidth
+                    name="password"
+                    label="Password"
+                    type="password"
+                    id="password"
+                    autoComplete="current-password"
+                    onChange={(e) => this.handleInput(e)}
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  variant="outlined"
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="current-password"
-                  onChange={(e) => this.handleInput(e)}
-                />
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                className={'submit'}
+              >
+                Sign Up
+              </Button>
+              <Grid container justify="flex-end">
+                <Grid item>
+                  <Link href="/auth/login" variant="body2">
+                    Already have an account? Sign in
+                  </Link>
+                </Grid>
               </Grid>
-            </Grid>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="primary"
-              className={'submit'}
-            >
-              Sign Up
-            </Button>
-            <Grid container justify="flex-end">
-              <Grid item>
-                <Link href="/auth/login" variant="body2">
-                  Already have an account? Sign in
-                </Link>
-              </Grid>
-            </Grid>
-          </form>
-        </div>
+            </form>
+          </div>
 
-        <div style={{marginTop: '20px'}}>
-          &nbsp;
-        </div>
-        
-        <Grid container justify="center" spacing={2}>
-          <Grid item>
-            <Button onClick={(e) => this.handleGithubLogin(e)}>
-              <GitHubIcon fontSize="large"/>
-            </Button>
+          <div style={{marginTop: '20px'}}>
+            &nbsp;
+          </div>
+          
+          <Grid container justify="center" spacing={2}>
+            <Grid item>
+              <Button onClick={(e) => this.handleGithubLogin(e)}>
+                <GitHubIcon fontSize="large"/>
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button onClick={(e) => this.handleFacebookLogin(e)}>
+                <FacebookIcon fontSize="large"/>
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button onClick={(e) => this.handleGoogleLogin(e)}>
+                <GoogleIcon/>
+              </Button>
+            </Grid>
           </Grid>
-          <Grid item>
-            <Button onClick={(e) => this.handleFacebookLogin(e)}>
-              <FacebookIcon fontSize="large"/>
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button onClick={(e) => this.handleGoogleLogin(e)}>
-              <GoogleIcon/>
-            </Button>
-          </Grid>
-        </Grid>
-      </Container>
+        </Container>
+      </EmptyLayout>
     );
   }
 }
