@@ -165,3 +165,10 @@ export function didResetPassword(result: boolean): AuthResultAction {
         result
     }
 }
+
+export function didCreateMagicLink(result: boolean): AuthResultAction {
+    return {
+        type: DID_RESET_PASSWORD,
+        result
+    }
+}
