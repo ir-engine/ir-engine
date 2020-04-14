@@ -84,7 +84,7 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
 
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             video.on('info', async function (info: any): Promise<void> {
-              console.log('Download of ' + fileId + ' started');
+              console.log('Download of ' + fileId + ' started')
               const localFilePath = path.join(appRootPath.path, 'temp_videos', fileId)
 
               await fs.promises.rmdir(localFilePath, { recursive: true })

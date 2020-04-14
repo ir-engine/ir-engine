@@ -62,17 +62,17 @@
   },
   "aws": {
     "s3": {
-      "blob_bucket_name": "",
-      "public_video_path": "",
-      "public_video_bucket": "",
-      "region": "",
+      "blob_bucket_name": "STORAGE_S3_BUCKET_NAME",
+      "public_video_path": "STORAGE_S3_PUBLIC_VIDEO_PATH",
+      "public_video_bucket": "STORAGE_S3_PUBLIC_VIDEO_BUCKET",
+      "region": "STORAGE_S3_REGION",
       "cloudfront": {
-        "domain": ""
+        "domain": "STORAGE_S3_CLOUDFRONT_DOMAIN"
       }
     },
     "keys": {
-      "access_key_id": "",
-      "secret_access_key": ""
+      "access_key_id": "STORAGE_AWS_ACCESS_KEY_ID",
+      "secret_access_key": "STORAGE_AWS_ACCESS_KEY_SECRET"
     }
   },
   "mysql": "mysql://server:password@localhost:3306/xrchat"
