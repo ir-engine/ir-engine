@@ -16,8 +16,8 @@ import {
   didResetPassword,
   didCreateMagicLink
 } from "./actions";
-// import { ajaxPost } from "../service.common";
 import { client } from "../feathers";
+import { dispatchAlertError, dispatchAlertSuccess } from "../alert/service";
 
 export function doLoginAuto() {
   return (dispatch: Dispatch) => {
@@ -26,6 +26,9 @@ export function doLoginAuto() {
       const val = res as AuthUser;
         if (!val.user.isVerified) {
           client.logout();
+
+          dispatchAlertError(dispatch, 'Unverified user');
+
           return dispatch(loginUserError('Unverified user'));
         }
         return dispatch(loginUserSuccess(val));
@@ -47,6 +50,9 @@ export function loginUserByEmail(form: EmailLoginForm) {
       if (!val.user.isVerified) {
         client.logout();
         window.location.href = '/auth/confirm;'
+
+        dispatchAlertError(dispatch, 'Unverified user');
+
         return dispatch(loginUserError('Unverified user'));
       }
       window.location.href = '/'
@@ -54,6 +60,9 @@ export function loginUserByEmail(form: EmailLoginForm) {
     })
     .catch((err: any) => {
       console.log(err);
+
+      dispatchAlertError(dispatch, err.message);
+
       dispatch(loginUserError('Failed to login'))
     })
     .finally( ()=> dispatch(actionProcessing(false)));
@@ -85,7 +94,6 @@ export function loginUserByFacebook() {
 }
 
 export function loginUserByJwt(accessToken: string, redirectSuccess: string, redirectError: string) {
-  console.log('jwt--------', accessToken);
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true));
 
@@ -102,6 +110,9 @@ export function loginUserByJwt(accessToken: string, redirectSuccess: string, red
     .catch((err: any) => {
       window.location.href = redirectError;
       console.log(err);
+
+      dispatchAlertError(dispatch, err.message);
+
       return dispatch(loginUserError('Failed to login'))
     })
     .finally( ()=> dispatch(actionProcessing(false)));
@@ -129,7 +140,10 @@ export function registerUserByEmail(form: EmailRegistrationForm) {
       })
       .catch((err: any) => {
         console.log(err);
-        dispatch(registerUserByEmailError())
+
+        dispatchAlertError(dispatch, err.message);
+
+        dispatch(registerUserByEmailError(err.message))
       })
       .finally(() => dispatch(actionProcessing(false)));
   }
@@ -150,6 +164,9 @@ export function verifyEmail(token: string) {
       })
       .catch((err: any) => {
         console.log(err);
+
+        dispatchAlertError(dispatch, err.message);
+
         dispatch(didVerifyEmail(false))
       })
       .finally(() => dispatch(actionProcessing(false)));
@@ -216,10 +233,16 @@ export function createMagicLink(type: string, email: string) {
     })
       .then((res: any) => {
         console.log(res);
+
+        dispatchAlertSuccess(dispatch, 'Magic Link Email was sent. Please check your email box.');
+
         dispatch(didCreateMagicLink(true))
       })
       .catch((err: any) => {
         console.log(err);
+
+        dispatchAlertError(dispatch, err.message);
+
         dispatch(didCreateMagicLink(false))
       })
       .finally(() => dispatch(actionProcessing(false)));

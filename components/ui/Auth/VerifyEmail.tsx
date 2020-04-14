@@ -6,6 +6,7 @@ import {
   verifyEmail,
 } from '../../../redux/auth/service'
 import './auth.scss'
+import EmptyLayout from '../Layout/EmptyLayout';
 
 interface Props {
   auth: any,
@@ -25,19 +26,21 @@ class VerifyEmail extends React.Component<Props> {
 
   render() {
     return (
-      <Container component="main" maxWidth="md">
-        <div className={'paper'}>
-          <Typography component="h1" variant="h5">
-          Verify Email
-          </Typography>
-
-          <Box mt={3}>
-            <Typography variant="body2" color="textSecondary" align="center">
-              Please wait a moment while processing...
+      <EmptyLayout>
+        <Container component="main" maxWidth="md">
+          <div className={'paper'}>
+            <Typography component="h1" variant="h5">
+            Verify Email
             </Typography>
-          </Box>
-        </div>
-      </Container>
+
+            <Box mt={3}>
+              <Typography variant="body2" color="textSecondary" align="center">
+                Please wait a moment while processing...
+              </Typography>
+            </Box>
+          </div>
+        </Container>
+      </EmptyLayout>
     );
   }
 }
