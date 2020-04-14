@@ -8,6 +8,7 @@ import { fromJS } from 'immutable';
 import { configureStore } from '../redux/store'
 import { Store } from 'redux';
 import { ThemeProvider } from '@material-ui/core/styles';
+import { siteTitle } from "../config/server";
 import CssBaseline from '@material-ui/core/CssBaseline';
 import theme from '../components/assets/theme';
 
@@ -27,7 +28,7 @@ class MyApp extends App<Props> {
     return (
         <Fragment>
           <Head>
-            <title>XRChat</title>
+            <title>{ siteTitle }</title>
             <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width"/>
           </Head>
           <ThemeProvider theme={theme}>

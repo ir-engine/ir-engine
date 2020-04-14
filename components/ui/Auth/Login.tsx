@@ -19,8 +19,13 @@ import {
   loginUserByEmail,
   loginUserByGoogle,
   loginUserByFacebook,
+  createMagicLink,
 } from '../../../redux/auth/service'
 import { selectAuthState } from '../../../redux/auth/selector'
+import getConfig from 'next/config'
+import MagicLinkEmail from './MagicLinkEmail';
+const config = getConfig().auth;
+
 import './auth.scss'
 import EmptyLayout from '../Layout/EmptyLayout';
 
@@ -29,7 +34,8 @@ interface Props {
   loginUserByEmail: typeof loginUserByEmail
   loginUserByGithub: typeof loginUserByGithub
   loginUserByGoogle: typeof loginUserByGoogle
-  loginUserByFacebook: typeof loginUserByFacebook
+  loginUserByFacebook: typeof loginUserByFacebook,
+  createMagicLink: typeof createMagicLink
 };
 
 const mapStateToProps = (state: any) => {
@@ -43,6 +49,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   loginUserByGithub: bindActionCreators(loginUserByGithub, dispatch),
   loginUserByGoogle: bindActionCreators(loginUserByGoogle, dispatch),
   loginUserByFacebook: bindActionCreators(loginUserByFacebook, dispatch),
+  createMagicLink: bindActionCreators(createMagicLink, dispatch)
 });
 
 class SignIn extends React.Component<Props> {
@@ -181,6 +188,12 @@ class SignIn extends React.Component<Props> {
 }
 
 function SignInWrapper(props: any) {
+  console.log('-------', config)
+  const isEnableEmailMagicLink = (config ? config.isEnableEmailMagicLink : true);
+  if (isEnableEmailMagicLink) {
+    return <MagicLinkEmail {...props}></MagicLinkEmail>
+  }
+
   return <SignIn {...props}/>
 }
 
