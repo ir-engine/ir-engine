@@ -47,7 +47,6 @@ class NavMenu extends Component<Props> {
           <Typography variant="h6" color="inherit">
             {siteTitle}
           </Typography>
-          <NavItem href="/" title="Home" text="Home" />
           <NavItem href="/auth/login" title="Login" text="Login" />
           <Button onClick={() => this.handleLogout()}>Logout</Button>
         </Toolbar>
