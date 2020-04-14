@@ -4,7 +4,9 @@ set -x
 
 # I added DOCKER_HUB_PASSWORD as a secret on Github repo
 
-TAG="$(git describe --abbrev=0 --tags)"
+TAG=$1
+
+echo "$TAG"
 
 
 docker build --tag xrchat/server .
