@@ -2,8 +2,6 @@ language: node_js
 node_js:
   - "12"
 
-
-sudo: "required"
 services:
   - docker
 
@@ -14,6 +12,7 @@ script:
 
 deploy:
   provider: script
-  script: publish_dockerhub.sh
+  script: bash publish_dockerhub.sh $TRAVIS_TAG
   on:
     tags: true
+    all_branches: true
