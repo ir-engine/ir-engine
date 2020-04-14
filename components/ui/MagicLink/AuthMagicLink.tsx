@@ -1,14 +1,21 @@
 import React, { Component } from 'react';
 import { useRouter, NextRouter } from 'next/router';
-import { verifyEmail, resetPassword } from '../../../redux/auth/service';
+import { verifyEmail, resetPassword, loginUserByJwt } from '../../../redux/auth/service';
 import { Dispatch, bindActionCreators } from 'redux';
 import { selectAuthState } from '../../../redux/auth/selector';
 import { connect } from 'react-redux';
+import Box from '@material-ui/core/Box';
+import Typography from '@material-ui/core/Typography';
+import Container from '@material-ui/core/Container';
+import ResetPassword from '../Auth/ResetPassword';
+import VerifyEmail from '../Auth/VerifyEmail';
 
 type Props = {
     router: NextRouter,
+    auth: any,
     verifyEmail: typeof verifyEmail,
-    resetPassword: typeof resetPassword
+    resetPassword: typeof resetPassword,
+    loginUserByJwt: typeof loginUserByJwt
 };
 
 const mapStateToProps = (state: any) => {
@@ -19,7 +26,8 @@ const mapStateToProps = (state: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
     verifyEmail: bindActionCreators(verifyEmail, dispatch),
-    resetPassword: bindActionCreators(resetPassword, dispatch)
+    resetPassword: bindActionCreators(resetPassword, dispatch),
+    loginUserByJwt: bindActionCreators(loginUserByJwt, dispatch)
 });
 
 class AuthMagicLink extends Component<Props> {
@@ -37,34 +45,38 @@ class AuthMagicLink extends Component<Props> {
         const type = router.query.type as string;
         const token = router.query.token as string;
         
-        if (type === 'verify') {
-            this.props.verifyEmail(token);
+        if (type === 'login') {
+            this.props.loginUserByJwt(token, "/", "#")
         }
-        else if (type === 'reset') {
-            this.props.resetPassword(token, this.state.password);
-        }
-
-        this.setState({
-            type, token
-        });
     }
 
     render() {
-        const { type, token } = this.state;
+        // const { type, token } = this.state;
+        // const { auth } = this.props;
+
         return (
-            <div>
-                Magic Link
-                <br/>
-                Type: {type},
-                <br/>
-                Token: {token}
-            </div>
+            <Container component="main" maxWidth="md">
+                <Box mt={3}>
+                    <Typography variant="body2" color="textSecondary" align="center">
+                    Please wait a moment while processing...
+                    </Typography>
+                </Box>
+            </Container>
         );
     }
 }
 
 const AuthMagicLinkWraper = (props: any) => {
     const router = useRouter();
+    const type = router.query.type as string;
+    const token = router.query.token as string;
+
+    if (type === 'verify') {
+        return <VerifyEmail {...props} type={type} token={token}/>
+    }
+    else if (type === 'reset') {
+        return <ResetPassword {...props} type={type} token={token}/>
+    }
     return <AuthMagicLink {...props} router = {router}/>
 };
 
@@ -72,4 +84,3 @@ export default connect(
     mapStateToProps,
     mapDispatchToProps
 )(AuthMagicLinkWraper);
-  

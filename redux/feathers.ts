@@ -7,7 +7,7 @@ const socket = io(apiServer);
 // @feathersjs/client is exposed as the `feathers` global.
 export const client = feathers();
 
-client.configure(feathers.socketio(socket));
+client.configure(feathers.socketio(socket, {timeout: 10000}));
 client.configure(feathers.authentication({
     storageKey: featherStoreKey
 }));

@@ -1,68 +1,48 @@
 import React from 'react';
-import Button from '@material-ui/core/Button';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
 import {
-  resendVerificationEmail,
+  verifyEmail,
 } from '../../../redux/auth/service'
-import { selectAuthState } from '../../../redux/auth/selector'
 import './auth.scss'
+import EmptyLayout from '../Layout/EmptyLayout';
 
 interface Props {
-  auth: any
-  resendVerificationEmail: typeof resendVerificationEmail
+  auth: any,
+  type: string,
+  token: string,
+  verifyEmail: typeof verifyEmail
 };
-
-const mapStateToProps = (state: any) => {
-  return {
-    auth: selectAuthState(state),
-  }
-};
-
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  resendVerificationEmail: bindActionCreators(resendVerificationEmail, dispatch)
-});
 
 class VerifyEmail extends React.Component<Props> {
   state = {
     email: ''
   };
 
-  handleResendEmail = (e: any) => {
-    e.preventDefault();
-
-    this.props.resendVerificationEmail(this.state.email);
+  componentDidMount() {
+    this.props.verifyEmail(this.props.token);
   }
 
   render() {
     return (
-      <Container component="main" maxWidth="md">
-        <div className={'paper'}>
-          <Typography component="h1" variant="h5">
-          Confirmation Email
-          </Typography>
-
-          <Box mt={3}>
-            <Typography variant="body2" color="textSecondary" align="center">
-              Please check your email to verify your account.
-              If you didn't get an email, please click 
-              <Button onClick={(e) => this.handleResendEmail(e)}>here</Button> to resend the verification email.
+      <EmptyLayout>
+        <Container component="main" maxWidth="md">
+          <div className={'paper'}>
+            <Typography component="h1" variant="h5">
+            Verify Email
             </Typography>
-          </Box>
-        </div>
-      </Container>
+
+            <Box mt={3}>
+              <Typography variant="body2" color="textSecondary" align="center">
+                Please wait a moment while processing...
+              </Typography>
+            </Box>
+          </div>
+        </Container>
+      </EmptyLayout>
     );
   }
 }
 
-function VerifyEmailWrapper(props: any) {
-  return <VerifyEmail {...props}/>
-}
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(VerifyEmailWrapper);
+export default VerifyEmail;
