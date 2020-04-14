@@ -12,8 +12,11 @@ import { siteTitle } from '../config/server'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import theme from '../components/assets/theme'
 
-interface Props extends AppProps {
-  store: Store
+import getConfig from 'next/config'
+const config = getConfig().publicRuntimeConfig
+
+interface Props extends AppProps{
+    store: Store
 }
 
 class MyApp extends App<Props> {
@@ -25,21 +28,18 @@ class MyApp extends App<Props> {
   render() {
     const { Component, pageProps, store } = this.props
     return (
-      <Fragment>
-        <Head>
-          <title>{siteTitle}</title>
-          <meta
-            name="viewport"
-            content="minimum-scale=1, initial-scale=1, width=device-width"
-          />
-        </Head>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <Provider store={store}>
-            <Component {...pageProps} />
-          </Provider>
-        </ThemeProvider>
-      </Fragment>
+        <Fragment>
+          <Head>
+            <title>{config.title}</title>
+            <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width"/>
+          </Head>
+          <ThemeProvider theme={theme}>
+            <CssBaseline/>
+            <Provider store={store}>
+              <Component {...pageProps} />
+            </Provider>
+          </ThemeProvider>
+        </Fragment>
     )
   }
 }

@@ -1,5 +1,6 @@
 // import NavItem from '../NavItem'
 import React, { Component } from 'react'
+import Link from 'next/link'
 
 // import { siteTitle } from '../../../config/server'
 
@@ -48,8 +49,8 @@ class VideoList extends Component<VideoProps> {
                             return (
                                 <div className="box"
                                      key={i}>
-                                    <a href={video.link}
-                                    >{video.title}</a>
+                                    <Link href={'/video360?manifest=' + video.link}
+                                    >{video.title}</Link>
                                 </div>
                             )
                         })
