@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/xrchat/xrchat-server.svg?branch=master)](https://travis-ci.org/xrchat/xrchat-server)
 # xrchat-server
 
 > Backend server for XRChat, built on Node + Feathers + Express + SQL
