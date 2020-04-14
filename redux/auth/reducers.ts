@@ -16,6 +16,7 @@ import {
     REGISTER_USER_BY_EMAIL_SUCCESS,
     ACTION_PROCESSING,
     DID_VERIFY_EMAIL,
+    REGISTER_USER_BY_EMAIL_ERROR,
 } from "../actions";
 
 export const initialState: AuthState = {
@@ -48,6 +49,8 @@ const authReducer = (state = immutableState, action: AuthAction): any => {
                 .set('error', (action as LoginResultAction).message);
         case REGISTER_USER_BY_EMAIL_SUCCESS:
             console.log('registered--------', action);
+            break;
+        case REGISTER_USER_BY_EMAIL_ERROR:
             break;
         case LOGOUT_USER:
             console.log('logout-------------');

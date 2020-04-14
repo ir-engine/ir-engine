@@ -1,5 +1,5 @@
 import { createStore, applyMiddleware } from "redux";
-import { persistedStore, saveState } from "./persisted.store";
+import { persistedStore } from "./persisted.store";
 import thunkMiddleware from 'redux-thunk'
 import reducers from "./reducers";
 
@@ -12,7 +12,7 @@ export function configureStore() {
 
     // add a listener that will be invoked on any state change.
     store.subscribe(() => {
-        saveState(store.getState());
+        // saveState(store.getState());
     });
 
     return store;
