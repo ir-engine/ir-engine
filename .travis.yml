@@ -12,7 +12,7 @@ script:
 
 deploy:
   provider: script
-  script: bash publish_dockerhub.sh $TRAVIS_TAG
+  script: bash scripts/publish_dockerhub.sh $TRAVIS_TAG
   on:
     tags: true
     all_branches: true
