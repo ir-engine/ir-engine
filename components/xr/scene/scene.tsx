@@ -7,7 +7,6 @@ import Player from '../player/player'
 import './style.scss'
 import SvgVr from '../../icons/svg/Vr'
 
-
 import getConfig from 'next/config'
 import Grid from '../layout/Grid'
 const config = getConfig().publicRuntimeConfig.xr['networked-scene']
@@ -43,12 +42,13 @@ export default class NetworkedScene extends React.Component<State> {
             renderer="antialias: true"
             background="color: #FAFAFA"
           >
-                        <Grid />
-
-            <Assets/>
-            <Player/>
-            <Environment/>
-            <a className="enterVR" id="enterVRButton" href="#"><SvgVr className="enterVR" /></a>
+            <Grid />
+            <Assets />
+            <Player />
+            <Environment />
+            <a className="enterVR" id="enterVRButton" href="#">
+              <SvgVr className="enterVR" />
+            </a>
           </Scene>
         )}
       </div>
