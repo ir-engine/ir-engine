@@ -1,5 +1,4 @@
-import playerComp from './PlayerComponent'
-import clockComp from './ClockExampleComponent'
+import playerComp from './player'
 import testsphere from './testsphere'
 import AFRAME from 'aframe'
 import React from 'react'
@@ -13,7 +12,6 @@ type ComponentSystem = {
 
 const ComponentSystemArray: ComponentSystem[] = [
   playerComp,
-  clockComp,
   testsphere
 ]
 
