@@ -7,7 +7,7 @@ import './style.scss'
 export default class NavMenu extends Component {
   render() {
     return (
-      <AppBar className="appbar" position="sticky">
+      <AppBar className="appbar">
         <div className="logo">
           <img src={Logo} alt="logo" crossOrigin="anonymous" className="logo" />
         </div>
