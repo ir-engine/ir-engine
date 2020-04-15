@@ -49,7 +49,12 @@ client:
   podSecurityContext: {}
   securityContext: {}
   
-  extraEnv: {}
+  extraEnv:
+    API_SERVER: http://xrchat.local
+    SITE_TITLE: MyXR
+    SITE_DESC: Connected Worlds for Everyone
+    NODE_ENV: production
+
 
 server:
   enabled: true
@@ -96,9 +101,47 @@ server:
   securityContext: {}
   
   # Extra Environment variables to configure xrchat-server
-  extraEnv: {}
+  extraEnv:
     # ENV_VAR1: val1
     # ENV_VAR2: val2
+    
+    APP_HOST: http://api.xrchat.local/
+
+    # automatically filled by chart.. ignore
+    # MYSQL_PORT: 3306
+    # MYSQL_DATABASE: xrchat
+    # MYSQL_USER: server
+    # MYSQL_PASSWORD: password
+
+    SMTP_HOST: ""
+    SMTP_PORT: ""
+    SMTP_USER: ""
+    SMTP_PASS: ""
+    MAIL_FROM: ""
+
+    GITHUB_CLIENT_ID: ""
+    GITHUB_CLIENT_SECRET: ""
+    GITHUB_CALLBACK_URL: http://localhost:3000/oauth/github
+
+    FACEBOOK_CLIENT_ID: ""
+    FACEBOOK_CLIENT_SECRET: ""
+    FACEBOOK_CALLBACK_URL: http://localhost:3000/oauth/facebook
+
+    GOOGLE_CLIENT_ID: ""
+    GOOGLE_CLIENT_SECRET: ""
+    GOOGLE_CALLBACK_URL: http://localhost:3000/oauth/google
+
+
+    STORAGE_PROVIDER: local
+    STORAGE_S3_BUCKET_NAME: ""
+    STORAGE_S3_PUBLIC_VIDEO_PATH: "/"
+    STORAGE_S3_PUBLIC_VIDEO_BUCKET: ""
+    STORAGE_S3_REGION: ""
+    STORAGE_S3_CLOUDFRONT_DOMAIN: ""
+    STORAGE_AWS_ACCESS_KEY_ID: ""
+    STORAGE_AWS_ACCESS_KEY_SECRET: ""
+
+
 
 ########### Subcharts - values here will overwrite the subchart
 
@@ -116,28 +159,3 @@ mariadb:
 
 agones:
   enabled: false
-
-######## Storage
-# storage:
-  
-# ### The following values can be used to override configuration
-# mail:
-#   host:
-#   port:
-#   user:
-#   pass:
-#   from: noreply@myxr.email
-
-# auth:
-#   github:
-#     clientId:
-#     cientSecret:
-#     callbackUrl: http://localhost:3000/oauth/github
-#   facebook:
-#     clientId:
-#     cientSecret:
-#     callbackUrl: http://localhost:3000/oauth/facebook
-#   google:
-#     clientId:
-#     cientSecret:
-#     callbackUrl: http://localhost:3000/oauth/github  
