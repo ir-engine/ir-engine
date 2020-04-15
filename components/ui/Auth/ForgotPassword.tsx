@@ -16,17 +16,17 @@ import EmptyLayout from '../Layout/EmptyLayout'
 interface Props {
   auth: any
   forgotPassword: typeof forgotPassword
-};
+}
 
 const mapStateToProps = (state: any) => {
   return {
     auth: selectAuthState(state),
   }
-};
+}
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   forgotPassword: bindActionCreators(forgotPassword, dispatch)
-});
+})
 
 class ForgotPassword extends React.Component<Props> {
   state = {
@@ -41,12 +41,12 @@ class ForgotPassword extends React.Component<Props> {
   }
 
   handleForgot = (e: any) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    this.props.forgotPassword(this.state.email);
+    this.props.forgotPassword(this.state.email)
     this.setState({
       isSubmitted: true
-    });
+    })
   }
 
   render() {
@@ -104,7 +104,7 @@ class ForgotPassword extends React.Component<Props> {
           </div>
         </Container>
       </EmptyLayout>
-    );
+    )
   }
 }
 
@@ -115,4 +115,4 @@ function ForgotPasswordWrapper(props: any) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(ForgotPasswordWrapper);
+)(ForgotPasswordWrapper)

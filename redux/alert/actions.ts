@@ -1,17 +1,17 @@
 import {
     SHOW_NOTIFICATION
-} from '../actions';
+} from '../actions'
 
 
-export type AlertType = "error" | "success" | "warning" | "none";
+export type AlertType = "error" | "success" | "warning" | "none"
 export interface AlertState {
-    message: string;
-    type: AlertType;
+    message: string
+    type: AlertType
 }
 export interface AlertAction {
-    type: string;
-    alertType: AlertType;
-    message: string;
+    type: string
+    alertType: AlertType
+    message: string
 }
 export function showAlert(type: AlertType, message: string): AlertAction {
     return {

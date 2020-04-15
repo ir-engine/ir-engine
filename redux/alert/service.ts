@@ -1,60 +1,60 @@
-import { Dispatch } from "redux";
-import { 
-  showAlert, 
+import { Dispatch } from "redux"
+import {
+  showAlert,
   hideAlert
-} from "./actions";
+} from "./actions"
 
 export function alertSuccess(message: string) {
   return (dispatch: Dispatch) => {
-    dispatch(showAlert('success', message));
+    dispatch(showAlert('success', message))
   }
 }
 export function alertWarning(message: string) {
   return (dispatch: Dispatch) => {
-    dispatch(showAlert('warning', message));
+    dispatch(showAlert('warning', message))
   }
 }
 export function alertError(message: string) {
   return (dispatch: Dispatch) => {
-    dispatch(showAlert('error', message));
+    dispatch(showAlert('error', message))
   }
 }
 export function alertCancel() {
   return (dispatch: Dispatch) => {
-    dispatch(hideAlert());
+    dispatch(hideAlert())
   }
 }
 
-let timerId: any;
+let timerId: any
 function clearTimer() {
   if (timerId) {
-    clearTimeout(timerId);
-    timerId = 0;
+    clearTimeout(timerId)
+    timerId = 0
   }
 }
 
 function restartTimer(dispatch: Dispatch) {
-  clearTimer();
-  timerId = setTimeout(() => dispatch(hideAlert()), 5000);
+  clearTimer()
+  timerId = setTimeout(() => dispatch(hideAlert()), 5000)
 }
 
 export function dispatchAlertSuccess(dispatch: Dispatch, message: string) {
-  restartTimer(dispatch);
+  restartTimer(dispatch)
 
-  return dispatch(showAlert('success', message));
+  return dispatch(showAlert('success', message))
 }
 export function dispatchAlertWarning(dispatch: Dispatch, message: string) {
-  restartTimer(dispatch);
+  restartTimer(dispatch)
 
-  return dispatch(showAlert('warning', message));
+  return dispatch(showAlert('warning', message))
 }
 export function dispatchAlertError(dispatch: Dispatch, message: string) {
-  restartTimer(dispatch);
+  restartTimer(dispatch)
 
-  return dispatch(showAlert('error', message));
+  return dispatch(showAlert('error', message))
 }
 export function dispatchAlertCancel(dispatch: Dispatch) {
-  clearTimer();
+  clearTimer()
 
-  return dispatch(hideAlert());
+  return dispatch(hideAlert())
 }

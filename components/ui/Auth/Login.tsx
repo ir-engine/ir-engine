@@ -1,17 +1,17 @@
-import React from 'react';
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import Link from '@material-ui/core/Link';
-import Grid from '@material-ui/core/Grid';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import Typography from '@material-ui/core/Typography';
-import Container from '@material-ui/core/Container';
-import GitHubIcon from '@material-ui/icons/GitHub';
-import FacebookIcon from '@material-ui/icons/Facebook';
-import GoogleIcon from '../../assets/GoogleIcon';
+import React from 'react'
+import Avatar from '@material-ui/core/Avatar'
+import Button from '@material-ui/core/Button'
+import TextField from '@material-ui/core/TextField'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import Checkbox from '@material-ui/core/Checkbox'
+import Link from '@material-ui/core/Link'
+import Grid from '@material-ui/core/Grid'
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
+import Typography from '@material-ui/core/Typography'
+import Container from '@material-ui/core/Container'
+import GitHubIcon from '@material-ui/icons/GitHub'
+import FacebookIcon from '@material-ui/icons/Facebook'
+import GoogleIcon from '../../assets/GoogleIcon'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { 
@@ -23,11 +23,11 @@ import {
 } from '../../../redux/auth/service'
 import { selectAuthState } from '../../../redux/auth/selector'
 import getConfig from 'next/config'
-import MagicLinkEmail from './MagicLinkEmail';
-const config = getConfig().auth;
+import MagicLinkEmail from './MagicLinkEmail'
+const config = getConfig().auth
 
 import './auth.scss'
-import EmptyLayout from '../Layout/EmptyLayout';
+import EmptyLayout from '../Layout/EmptyLayout'
 
 interface Props {
   auth: any
@@ -36,13 +36,13 @@ interface Props {
   loginUserByGoogle: typeof loginUserByGoogle
   loginUserByFacebook: typeof loginUserByFacebook,
   createMagicLink: typeof createMagicLink
-};
+}
 
 const mapStateToProps = (state: any) => {
   return {
     auth: selectAuthState(state),
   }
-};
+}
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   loginUserByEmail: bindActionCreators(loginUserByEmail, dispatch),
@@ -50,13 +50,13 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   loginUserByGoogle: bindActionCreators(loginUserByGoogle, dispatch),
   loginUserByFacebook: bindActionCreators(loginUserByFacebook, dispatch),
   createMagicLink: bindActionCreators(createMagicLink, dispatch)
-});
+})
 
 class SignIn extends React.Component<Props> {
   state = {
     email: '',
     password: ''
-  };
+  }
 
   handleInput = (e: any) => {
     this.setState({
@@ -69,22 +69,22 @@ class SignIn extends React.Component<Props> {
     this.props.loginUserByEmail({
       email: this.state.email,
       password: this.state.password
-    });
+    })
   }
 
   handleGithubLogin = (e: any) => {
     e.preventDefault()
-    this.props.loginUserByGithub();
+    this.props.loginUserByGithub()
   }
 
   handleGoogleLogin = (e: any) => {
     e.preventDefault()
-    this.props.loginUserByGithub();
+    this.props.loginUserByGithub()
   }
 
   handleFacebookLogin = (e: any) => {
     e.preventDefault()
-    this.props.loginUserByGithub();
+    this.props.loginUserByGithub()
   }
 
   render() {
@@ -161,7 +161,7 @@ class SignIn extends React.Component<Props> {
           </div>
 
           <div style={{marginTop: '20px'}}>
-            &nbsp;
+            &nbsp
           </div>
           
           <Grid container justify="center" spacing={2}>
@@ -183,13 +183,13 @@ class SignIn extends React.Component<Props> {
           </Grid>
         </Container>
       </EmptyLayout>
-    );
+    )
   }
 }
 
 function SignInWrapper(props: any) {
   console.log('-------', config)
-  const isEnableEmailMagicLink = (config ? config.isEnableEmailMagicLink : true);
+  const isEnableEmailMagicLink = (config ? config.isEnableEmailMagicLink : true)
   if (isEnableEmailMagicLink) {
     return <MagicLinkEmail {...props}></MagicLinkEmail>
   }
@@ -200,4 +200,4 @@ function SignInWrapper(props: any) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(SignInWrapper);
+)(SignInWrapper)
