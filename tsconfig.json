@@ -5,7 +5,9 @@
     "outDir": "./lib",
     "rootDir": "./src",
     "strict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "typeRoots": ["./types", "./node_modules/@types"],
+    "sourceMap": true
   },
   "include": [
     "src"
