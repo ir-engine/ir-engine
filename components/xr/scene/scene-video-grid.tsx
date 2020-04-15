@@ -4,7 +4,7 @@ import { Scene, Entity } from 'aframe-react'
 import Assets from './assets'
 import Grid from '../layout/Grid'
 import Skybox from './skybox-grid'
-import './index.scss'
+import './style.scss'
 import SvgVr from '../../icons/svg/Vr'
 
 import getConfig from 'next/config'
@@ -34,6 +34,7 @@ export default class VideoScene extends React.Component<State> {
       <div style={{ height: '100%', width: '100%' }}>
         {this.state.appRendered && (
           <Scene
+            vr-mode-ui="enterVRButton: #enterVRButton"
             networked-scene={config}
             class="scene"
             renderer="antialias: true"
