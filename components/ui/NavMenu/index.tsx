@@ -1,10 +1,8 @@
-import NavItem from '../NavItem'
+import NavUserWidget from '../NavUserWidget'
 import React, { Component } from 'react'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
-import Typography from '@material-ui/core/Typography'
-// import MenuIcon from '@material-ui/icons/Menu'
-// import IconButton from '@material-ui/core/IconButton'
+import Logo from '../../../assets/logo.png'
 
 import './style.scss'
 import { logoutUser } from '../../../redux/auth/service'
@@ -13,9 +11,6 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import Button from '@material-ui/core/Button'
 // TODO: Generate nav items from a config file
-
-import getConfig from 'next/config'
-const siteTitle = getConfig().publicRuntimeConfig.title
 
 type Props = {
   auth: any
@@ -42,13 +37,15 @@ class NavMenu extends Component<Props> {
     return (
       <AppBar className="appbar" position="sticky">
         <Toolbar className="toolbar">
-          <Typography variant="h6" color="inherit">
-            {siteTitle}
-          </Typography>
-
-          <NavItem href="/auth/login" title="Login" text="Login" />
-          <Button onClick={() => this.handleLogout()}>Logout</Button>
-
+          <div className="logo">
+            <img
+              src={Logo}
+              alt="logo"
+              crossOrigin="anonymous"
+              className="logo"
+            />
+          </div>
+          <NavUserWidget />
         </Toolbar>
       </AppBar>
     )
