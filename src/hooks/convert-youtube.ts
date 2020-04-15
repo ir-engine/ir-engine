@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
-// @ts-ignore
+
 import config from 'config'
-// @ts-ignore
 import youtubedl from 'youtube-dl'
 import AWS from 'aws-sdk'
-// @ts-ignore
 import S3BlobStore from 's3-blob-store'
 import { Application } from '../declarations'
 
