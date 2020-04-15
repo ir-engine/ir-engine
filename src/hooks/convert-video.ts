@@ -83,7 +83,8 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
             })
 
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            video.on('info', async function (): Promise<void> {
+            video.on('info', async function (info: any): Promise<void> {
+              console.log('Download of ' + fileId + ' started');
               const localFilePath = path.join(appRootPath.path, 'temp_videos', fileId)
 
               await fs.promises.rmdir(localFilePath, { recursive: true })
@@ -101,7 +102,7 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
 
               // eslint-disable-next-line @typescript-eslint/no-misused-promises
               video.on('end', async function () {
-                console.log('Finished downloading video, running through ffmpeg')
+                console.log('Finished downloading video ' + fileId + ', running through ffmpeg')
 
                 try {
                   await promiseExec('ffmpeg -i ' + rawVideoPath + ' -f dash -map 0:v:0 -map 0:a:0 -b:v:0 3000k -profile:v:0 baseline -use_timeline 1 -use_template 1 ' + convertedVideoPath)
@@ -112,7 +113,7 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
                   throw err
                 }
 
-                console.log('Finished ffmpeg, uploading!')
+                console.log('Finished ffmpeg on ' + fileId + ', uploading!')
 
                 try {
                   await uploadFile(outputdir, fileId)
@@ -129,7 +130,7 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
                                         fileId + '/' + fileId + '.mpd'
                 })
 
-                console.log('Uploaded all files, deleting local copies')
+                console.log('Uploaded all files for ' + fileId + ', deleting local copies')
 
                 await fs.promises.rmdir(localFilePath, { recursive: true })
 
