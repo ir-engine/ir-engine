@@ -4,6 +4,8 @@ import { Scene } from 'aframe-react'
 import Assets from './assets'
 import Environment from './environment'
 import Player from '../player/player'
+import './style.scss'
+import SvgVr from '../../icons/svg/Vr'
 
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr['networked-scene']
@@ -33,6 +35,7 @@ export default class NetworkedScene extends React.Component<State> {
       <div style={{ height: '100%', width: '100%' }}>
         {this.state.appRendered && (
           <Scene
+            vr-mode-ui="enterVRButton: #enterVRButton"
             networked-scene={config}
             class="scene"
             renderer="antialias: true"
@@ -41,6 +44,7 @@ export default class NetworkedScene extends React.Component<State> {
             <Assets/>
             <Player/>
             <Environment/>
+            <a className="enterVR" id="enterVRButton" href="#"><SvgVr className="enterVR" /></a>
           </Scene>
         )}
       </div>

@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button'
 
 import './style.scss'
 
-class NavItem extends Component {
+export default class NavItem extends Component {
   props: any
 
   constructor(props: any) {
@@ -16,11 +16,10 @@ class NavItem extends Component {
   render() {
     return (
       <Button>
-        <NextLink href={this.props.href} >
+        <NextLink href={this.props.href}>
           <Link title={this.props.title}>{this.props.text}</Link>
         </NextLink>
       </Button>
     )
   }
 }
-export default NavItem

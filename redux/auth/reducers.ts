@@ -20,7 +20,7 @@ import {
 } from "../actions";
 
 export const initialState: AuthState = {
-    isLogined: false,
+    isLoggedIn: false,
     isVerified: true,
     user: undefined,
     error: '',
@@ -37,7 +37,7 @@ const authReducer = (state = immutableState, action: AuthAction): any => {
                 .set('isProcessing', (action as AuthProcessingAction).processing);
         case LOGIN_USER_SUCCESS:
             return state
-                .set('isLogined', true)
+                .set('isLoggedIn', true)
                 .set('user', (action as LoginResultAction).user);
         case LOGIN_USER_ERROR:
             return state
@@ -55,7 +55,7 @@ const authReducer = (state = immutableState, action: AuthAction): any => {
         case LOGOUT_USER:
             console.log('logout-------------');
             return state
-                .set('isLogined', false)
+                .set('isLoggedIn', false)
                 .set('user', undefined);
         case DID_VERIFY_EMAIL:
             return state

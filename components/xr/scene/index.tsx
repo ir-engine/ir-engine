@@ -2,11 +2,7 @@ import React from 'react'
 
 import dynamic from 'next/dynamic'
 
-const LocalScene = dynamic(() => import('./scene-local'), { ssr: false })
-
-const NetworkedScene = dynamic(() => import('./scene-networked'), {
-  ssr: false
-})
+const Scene = dynamic(() => import('./scene'), { ssr: false })
 
 const AframeComponentRegisterer = dynamic(() => import('../aframe/index'), {
   ssr: false
@@ -23,12 +19,11 @@ export default class SceneRoot extends React.Component {
   }
 
   render() {
-    const SceneCoponent = this.state.loggedIn ? <NetworkedScene /> : <LocalScene />
 
     return (
       <div>
         <AframeComponentRegisterer/>
-        {SceneCoponent}
+        <Scene />
       </div>
 
     )
