@@ -1,9 +1,9 @@
 import React from 'react'
 // @ts-ignore
-import { Scene, Entity } from 'aframe-react'
+import { Scene } from 'aframe-react'
 import Assets from './assets'
-import Grid from '../layout/Grid'
-import Skybox from './skybox-grid'
+import Environment from './environment'
+import Player from '../player/player'
 import './index.scss'
 
 type State = {
@@ -11,7 +11,7 @@ type State = {
   color?: string
 }
 
-export default class VideoScene extends React.Component<State> {
+export default class EnvironmentScene extends React.Component<State> {
   state: State = {
     appRendered: false,
     color: 'red'
@@ -20,7 +20,6 @@ export default class VideoScene extends React.Component<State> {
   componentDidMount() {
     if (typeof window !== 'undefined') {
       require('aframe')
-      require('networked-aframe')
       this.setState({ appRendered: true })
     }
   }
@@ -33,13 +32,10 @@ export default class VideoScene extends React.Component<State> {
             class="scene"
             renderer="antialias: true"
             background="color: #FAFAFA"
-            embedded
           >
             <Assets/>
-            <Grid/>
-            <Skybox/>
-            <Entity
-              player="fuseCursor: true"/>
+            <Environment/>
+            <Player/>
           </Scene>
         )}
       </div>
