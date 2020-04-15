@@ -39,11 +39,11 @@
         }
       },
       "grid": {
-        "gridCellsPerRow": 24,
-        "cellWidth": 1.5,
-        "cellHeight": 0.7,
-        "cellContentHeight": 0.6,
-        "radius": 6,
+        "gridCellsPerRow": 20,
+        "cellWidth": 1,
+        "cellHeight": 1.2,
+        "cellContentHeight": 1,
+        "radius": 4,
         "rows": 3,
         "columns": 5,
         "placeholderImageSrc": "https://cdn.aframe.io/a-painter/images/sky.jpg",
@@ -60,7 +60,7 @@
           "thetaLength": 90
         }
       },
-      "playerHeight": 1.6
+      "playerHeight": 1
     },
     "server_address": "localhost:3030"
   },
