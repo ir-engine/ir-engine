@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "xrchat.client.fullname" . }}
+  labels:
+    {{- include "xrchat.client.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.client.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "xrchat.client.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "xrchat.client.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/client-configmap.yaml") . | sha256sum }}
+    spec:
+    {{- with .Values.client.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "xrchat.client.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.client.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.client.securityContext | nindent 12 }}
+          image: "{{ .Values.client.image.repository }}:{{ .Values.client.image.tag }}"
+          imagePullPolicy: {{ .Values.client.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "xrchat.client.fullname" . }}
+                optional: true
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.client.resources | nindent 12 }}
+      {{- with .Values.client.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.client.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.client.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

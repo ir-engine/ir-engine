@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "xrchat.client.fullname" . }}
+  labels:
+    {{- include "xrchat.client.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.client.service.type }}
+  ports:
+    - port: {{ .Values.client.service.port }}
+      targetPort: {{ .Values.client.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "xrchat.client.selectorLabels" . | nindent 4 }}

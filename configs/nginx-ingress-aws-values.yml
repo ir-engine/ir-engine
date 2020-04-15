@@ -1,0 +1,16 @@
+# values for nginx-ingress on EKS using Classic ALP
+
+rbac:
+  create: true
+
+controller:
+  config:
+    ssl-redirect: "true" # Redirect Insecure traffic to Https
+  service:
+    targetPorts:
+      http: http
+      https: http # SSL termination at the load balancer
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "<ACM Certificate ARN for SSL>"
+

@@ -1,0 +1,161 @@
+# Default values for xrchat.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+domain: xrchat.local
+
+client:
+  enabled: true
+  name: xrchat-client
+
+  replicaCount: 1
+  image:
+    repository: xrchat/client
+    tag: latest
+    pullPolicy: Always
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  service:
+    type: ClusterIP
+    port: 3000
+
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: xrchat.local
+        paths: ["/"]
+    # tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name:
+
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podSecurityContext: {}
+  securityContext: {}
+  
+  extraEnv:
+    API_SERVER: http://xrchat.local
+    SITE_TITLE: MyXR
+    SITE_DESC: Connected Worlds for Everyone
+    NODE_ENV: production
+
+
+server:
+  enabled: true
+  name: xrchat-server
+
+  replicaCount: 1
+  image:
+    repository: xrchat/server
+    tag: latest
+    pullPolicy: Always
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  service:
+    type: ClusterIP
+    port: 3030
+
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: api.xrchat.local
+        paths: ["/"]
+    # tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name:
+
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podSecurityContext: {}
+  securityContext: {}
+  
+  # Extra Environment variables to configure xrchat-server
+  extraEnv:
+    # ENV_VAR1: val1
+    # ENV_VAR2: val2
+    
+    APP_HOST: http://api.xrchat.local/
+
+    # automatically filled by chart.. ignore
+    # MYSQL_PORT: 3306
+    # MYSQL_DATABASE: xrchat
+    # MYSQL_USER: server
+    # MYSQL_PASSWORD: password
+
+    SMTP_HOST: ""
+    SMTP_PORT: ""
+    SMTP_USER: ""
+    SMTP_PASS: ""
+    MAIL_FROM: ""
+
+    GITHUB_CLIENT_ID: ""
+    GITHUB_CLIENT_SECRET: ""
+    GITHUB_CALLBACK_URL: http://localhost:3000/oauth/github
+
+    FACEBOOK_CLIENT_ID: ""
+    FACEBOOK_CLIENT_SECRET: ""
+    FACEBOOK_CALLBACK_URL: http://localhost:3000/oauth/facebook
+
+    GOOGLE_CLIENT_ID: ""
+    GOOGLE_CLIENT_SECRET: ""
+    GOOGLE_CALLBACK_URL: http://localhost:3000/oauth/google
+
+
+    STORAGE_PROVIDER: local
+    STORAGE_S3_BUCKET_NAME: ""
+    STORAGE_S3_PUBLIC_VIDEO_PATH: "/"
+    STORAGE_S3_PUBLIC_VIDEO_BUCKET: ""
+    STORAGE_S3_REGION: ""
+    STORAGE_S3_CLOUDFRONT_DOMAIN: ""
+    STORAGE_AWS_ACCESS_KEY_ID: ""
+    STORAGE_AWS_ACCESS_KEY_SECRET: ""
+
+
+
+########### Subcharts - values here will overwrite the subchart
+
+mariadb:
+  enabled: true
+  nameOverride: xrchat-mariadb
+  db:
+    name: xrchat
+    user: server
+    password: password
+    existingSecret: 
+  replication:
+    enabled: false
+  externalHost:   # use to override - must set mariadb.enabled to false
+
+agones:
+  enabled: false
