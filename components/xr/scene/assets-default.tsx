@@ -1,8 +1,9 @@
 import React from 'react'
 
 import getConfig from 'next/config'
-const config = getConfig().publicRuntimeConfig.xr.environment
+const env = getConfig().publicRuntimeConfig.xr.environment
 const grid = getConfig().publicRuntimeConfig.xr.grid
+const landing = getConfig().publicRuntimeConfig.xr.landing
 
 export default class DefaultAssets extends React.Component {
   componentDidMount() {
@@ -13,12 +14,12 @@ export default class DefaultAssets extends React.Component {
       <div>
         <img
           id="groundTexture"
-          src={config.floor.src}
+          src={env.floor.src}
           crossOrigin="anonymous"
         />
         <img
           id="skyTexture"
-          src={config.skybox.src}
+          src={env.skybox.src}
           crossOrigin="anonymous"
         />
         <img
@@ -31,8 +32,28 @@ export default class DefaultAssets extends React.Component {
           src={grid.placeholderImageSrc}
           crossOrigin="anonymous"
         />
-        <a-gltf-model id={config['scene-gltf'].name}
-          src={config['scene-gltf'].src}
+        <img
+          id="spoke"
+          src={landing.spoke.src}
+          crossOrigin="anonymous"
+        />
+        <img
+          id="vrRoom"
+          src={landing.vrRoom.src}
+          crossOrigin="anonymous"
+        />
+        <img
+          id="video360banner"
+          src={landing.video360.src}
+          crossOrigin="anonymous"
+        />
+        <img
+          id="storebanner"
+          src={landing.store.src}
+          crossOrigin="anonymous"
+        />
+        <a-gltf-model id={env['scene-gltf'].name}
+          src={env['scene-gltf'].src}
           crossOrigin="anonymous"/>
 
         <video id="video360Shaka"
