@@ -1,18 +1,21 @@
 import { createStore, applyMiddleware } from "redux";
-import { persistedStore } from "./persisted.store";
+import { saveState } from "./persisted.store";
 import thunkMiddleware from 'redux-thunk'
 import reducers from "./reducers";
+import Immutable from 'immutable';
+
+const initialState: any = Immutable.Map();
 
 export function configureStore() {
     const store = createStore(
         reducers,
-        persistedStore,
+        initialState,
         applyMiddleware(thunkMiddleware)
     );
 
     // add a listener that will be invoked on any state change.
     store.subscribe(() => {
-        // saveState(store.getState());
+        saveState(store.getState());
     });
 
     return store;
