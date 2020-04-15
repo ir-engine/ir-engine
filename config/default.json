@@ -39,14 +39,14 @@
         }
       },
       "grid": {
-        "gridCellsPerRow": 20,
+        "gridCellsPerRow": 20, 
         "cellWidth": 1,
         "cellHeight": 1.2,
         "cellContentHeight": 1,
         "radius": 4,
         "rows": 3,
         "columns": 5,
-        "placeholderImageSrc": "https://cdn.aframe.io/a-painter/images/sky.jpg",
+        "placeholderImageSrc": "",
         "skybox": {
           "src": "https://cdn.aframe.io/a-painter/images/sky.jpg",
           "radius": 200,
