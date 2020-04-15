@@ -10,8 +10,10 @@ cd xrchat-ops
 helm dep update xrchat
 helm install my-release xrchat
 ```
+
 For deployment on different cloud providers:
 
+- [XRChat helm chart](xrchat/)
 - [Deploying XRChat on AWS EKS](docs/deploy_on_eks.md)
 - [Managing Remote Kubernets Clusters - TBD](docs/managing_remote_kubernets.md)
 

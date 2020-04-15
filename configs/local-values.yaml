@@ -10,7 +10,7 @@ client:
   image:
     tag: rc-0.0.1
   extraEnv:
-    API_SERVER: http://api.xrchat.local
+    API_SERVER: http://xrchat.local
     SITE_TITLE: MyXR
     SITE_DESC: Connected Worlds for Everyone
     NODE_ENV: development
