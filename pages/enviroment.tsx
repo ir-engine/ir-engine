@@ -7,7 +7,7 @@ const Scene = dynamic(() => import('../components/xr/scene/scene-environment'), 
 export default class IndexPage extends React.Component {
   render () {
     return (
-      <Layout pageTitle="Home">
+      <Layout pageTitle="Environment">
         <Scene />
       </Layout>
     )

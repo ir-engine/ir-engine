@@ -3,6 +3,7 @@
     "title": "XRChat",
     "dev": false,
     "loginDisabled": false,
+    "logo": "",
     "xr": {
       "networked-scene": {
         "app": "xrchat",
@@ -23,7 +24,7 @@
         },
         "skybox": {
           "src": "https://cdn.aframe.io/a-painter/images/sky.jpg",
-          "radius": 200,
+          "radius": 30,
           "height": 2048,
           "width": 2048,
           "rotation": {
@@ -34,8 +35,8 @@
           "thetaLength": 90
         },
         "scene-gltf": {
-          "src": "https://kaixr-scenes.s3-us-west-2.amazonaws.com/Launchpad/Launchpad.gltf",
-          "name": "Launchpad"
+          "src": "",
+          "name": ""
         }
       },
       "grid": {
@@ -49,7 +50,7 @@
         "placeholderImageSrc": "",
         "skybox": {
           "src": "https://cdn.aframe.io/a-painter/images/sky.jpg",
-          "radius": 200,
+          "radius": 30,
           "height": 2048,
           "width": 2048,
           "rotation": {
@@ -63,19 +64,19 @@
       "playerHeight": 1,
       "landing": {
         "spoke": {
-          "src": "https://kaixr-static.s3-us-west-2.amazonaws.com/banner/create.png",
+          "src": "",
           "link": ""
         },
         "vrRoom": {
-          "src": "https://kaixr-static.s3-us-west-2.amazonaws.com/banner/dream.png",
+          "src": "",
           "link": "/videoGrid"
         },
         "video360": {
-          "src": "https://kaixr-static.s3-us-west-2.amazonaws.com/banner/explore.png",
-          "link": "/space"
+          "src": "",
+          "link": "/environment"
         },
         "store": {
-          "src": "https://kaixr-static.s3-us-west-2.amazonaws.com/banner/shop.png",
+          "src": "",
           "link": ""
         }
       }
