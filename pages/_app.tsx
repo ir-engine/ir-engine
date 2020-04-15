@@ -1,10 +1,10 @@
-import App from 'next/app';
-import Head from 'next/head';
-import { AppProps } from 'next/app';
-import React, { Fragment } from 'react';
-import withRedux from 'next-redux-wrapper';
-import { Provider } from 'react-redux';
-import { fromJS } from 'immutable';
+import App, { AppProps } from 'next/app'
+import Head from 'next/head'
+
+import React, { Fragment } from 'react'
+import withRedux from 'next-redux-wrapper'
+import { Provider } from 'react-redux'
+import { fromJS } from 'immutable'
 import { configureStore } from '../redux/store'
 import { Store } from 'redux';
 import { ThemeProvider } from '@material-ui/core/styles';
@@ -16,6 +16,18 @@ import { restoreState } from '../redux/persisted.store';
 interface Props extends AppProps{
     store: Store;
     restoreState: typeof restoreState
+
+import { Store } from 'redux'
+import { ThemeProvider } from '@material-ui/core/styles'
+import { siteTitle } from '../config/server'
+import CssBaseline from '@material-ui/core/CssBaseline'
+import theme from '../components/assets/theme'
+
+import getConfig from 'next/config'
+const config = getConfig().publicRuntimeConfig
+
+interface Props extends AppProps{
+    store: Store
 }
 
 class MyApp extends App<Props> {
@@ -29,11 +41,11 @@ class MyApp extends App<Props> {
   }
 
   render() {
-    const { Component, pageProps, store } = this.props;
+    const { Component, pageProps, store } = this.props
     return (
         <Fragment>
           <Head>
-            <title>{ siteTitle }</title>
+            <title>{config.title}</title>
             <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width"/>
           </Head>
           <ThemeProvider theme={theme}>
@@ -43,12 +55,11 @@ class MyApp extends App<Props> {
             </Provider>
           </ThemeProvider>
         </Fragment>
-    );
+    )
   }
 }
 
-
 export default withRedux(configureStore, {
   serializeState: (state) => state.toJS(),
-  deserializeState: (state) => fromJS(state),
-})(MyApp);
+  deserializeState: (state) => fromJS(state)
+})(MyApp)

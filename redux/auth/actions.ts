@@ -30,7 +30,7 @@ export interface AuthUser {
 }
 
 export interface AuthState {
-    isLogined: boolean;
+    isLoggedIn: boolean;
     isVerified: boolean;
     
     user: AuthUser | undefined;

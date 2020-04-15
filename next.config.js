@@ -1,7 +1,14 @@
 const config = require('config')
 const withSass = require('@zeit/next-sass')
-module.exports = withSass({
-  /* config options here */
-  publicRuntimeConfig: config.publicRuntimeConfig,
-  auth: config.auth
-})
+const withImages = require('next-images')
+
+module.exports = withImages(
+  withSass({
+    /* config options here */
+    publicRuntimeConfig: config.publicRuntimeConfig,
+    auth: config.auth,
+    webpack(config, options) {
+      return config
+    }
+  })
+)
