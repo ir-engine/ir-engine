@@ -13,7 +13,13 @@ export interface PublicVideo {
     title: string
     original_title: string
     description: string
-    link: string
+    link: string,
+    thumbnail_url: string,
+    production_credit: string,
+    rating: string,
+    categories: string,
+    runtime: string,
+    tags: string
 }
 
 export interface VideosFetchedAction {
