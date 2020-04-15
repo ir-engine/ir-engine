@@ -63,7 +63,7 @@ Dependent charts can also have values overwritten. Preface values with mariadb.*
 | agones.enabled | bool | `false` | Install Agones included with chart, set `false` if you have it installed already on your cluster |
 | client.affinity | object | `{}` | Node affinity for the client service |
 | client.enabled | bool | `true` | Install xrchat-client service |
-| **client.extraEnv** | object | `{}` | Additional Environment variables for the client service |
+| **client.extraEnv** | object | `{}` | [Additional Configuration](#xrchat-additional-configurations) for the client service |
 | client.image.pullPolicy | string | `"Always"` | Image pull policy |
 | client.image.repository | string | `"xrchat/client"` | repo to pull client image from |
 | client.image.tag | string | `"latest"` | client version to pull |
@@ -90,7 +90,7 @@ Dependent charts can also have values overwritten. Preface values with mariadb.*
 | mariadb.replication.enabled | bool | `false` | Enable MariaDB slave replication |
 | server.affinity | object | `{}` |  |
 | server.enabled | bool | `true` | Install the xrchat-server service |
-| server.extraEnv | object | `{}` | Configuration for xrchat-server |
+| **server.extraEnv** | object | `{}` | [Additional Configuration](#xrchat-additional-configurations) for xrchat-server service |
 | server.fullnameOverride | string | `""` | override server fullname template |
 | server.image.pullPolicy | string | `"Always"` | Server pull policy |
 | server.image.repository | string | `"xrchat/server"` | server image repo |
@@ -126,6 +126,47 @@ $ helm install --name my-release -f values.yaml xrchat
 ```
 
 > **Tip**: You can use the default <values.yaml>
+
+## XRCHat Additional Configurations
+
+This section lists configuration specific for server, client components.
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| client.extraEnv.API_SERVER | string | `"http://api.xrchat.local"` |  |
+| client.extraEnv.NODE_ENV | string | `"development"` |  |
+| client.extraEnv.SITE_DESC | string | `"Connected Worlds for Everyone"` |  |
+| client.extraEnv.SITE_TITLE | string | `"MyXR"` |  |
+| rts.extraEnv.NAF_LISTEN_PORT | string | `"8081"` |  |
+| server.extraEnv.APP_HOST | string | `"http://api.xrchat.local/"` |  |
+| server.extraEnv.FACEBOOK_CALLBACK_URL | string | `"http://localhost:3000/oauth/facebook"` |  |
+| server.extraEnv.FACEBOOK_CLIENT_ID | string | `nil` |  |
+| server.extraEnv.FACEBOOK_CLIENT_SECRET | string | `nil` |  |
+| server.extraEnv.GITHUB_CALLBACK_URL | string | `"http://localhost:3000/oauth/github"` |  |
+| server.extraEnv.GITHUB_CLIENT_ID | string | `nil` |  |
+| server.extraEnv.GITHUB_CLIENT_SECRET | string | `nil` |  |
+| server.extraEnv.GOOGLE_CALLBACK_URL | string | `"http://localhost:3000/oauth/google"` |  |
+| server.extraEnv.GOOGLE_CLIENT_ID | string | `nil` |  |
+| server.extraEnv.GOOGLE_CLIENT_SECRET | string | `nil` |  |
+| server.extraEnv.MAIL_FROM | string | `"noreply@xrchat.local"` |  |
+| server.extraEnv.MYSQL_DATABASE | string | `"xrchat"` |  |
+| server.extraEnv.MYSQL_PASSWORD | string | `"password"` |  |
+| server.extraEnv.MYSQL_PORT | int | `3306` |  |
+| server.extraEnv.MYSQL_USER | string | `"server"` |  |
+| server.extraEnv.PORT | string | `"3030"` |  |
+| server.extraEnv.SMTP_HOST | string | `nil` |  |
+| server.extraEnv.SMTP_PASS | string | `nil` |  |
+| server.extraEnv.SMTP_PORT | string | `nil` |  |
+| server.extraEnv.SMTP_USER | string | `nil` |  |
+| server.extraEnv.STORAGE_AWS_ACCESS_KEY_ID | string | `"<AWS ACCESS KEYS>"` |  |
+| server.extraEnv.STORAGE_AWS_ACCESS_KEY_SECRET | string | `"<AWS SECRET>"` |  |
+| server.extraEnv.STORAGE_PROVIDER | string | `"local"` |  |
+| server.extraEnv.STORAGE_S3_BUCKET_NAME | string | `"xrchat-storage"` |  |
+| server.extraEnv.STORAGE_S3_CLOUDFRONT_DOMAIN | string | `"https://<MyCdnDistribution>.s3.amazonaws.com"` |  |
+| server.extraEnv.STORAGE_S3_PUBLIC_VIDEO_BUCKET | string | `"xrchat-video"` |  |
+| server.extraEnv.STORAGE_S3_PUBLIC_VIDEO_PATH | string | `"/"` |  |
+| server.extraEnv.STORAGE_S3_REGION | string | `"<S3 Region>"` |  |
+
 
 ## MariaDB
 
