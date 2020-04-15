@@ -32,7 +32,6 @@ export default class VideoScene extends React.Component<State> {
         {this.state.appRendered && (
           <Scene
             vr-mode-ui="enterVRButton: #enterVRButton"
-            networked-scene={config}
             class="scene"
             renderer="antialias: true"
             background="color: #FAFAFA"

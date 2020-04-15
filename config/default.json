@@ -62,28 +62,20 @@
       },
       "playerHeight": 1,
       "landing": {
-        "cellWidth": 6,
-        "cellContentHeight": 0.45,
-        "cellHeight": 0.5,
-        "offset": {
-          "x": 0,
-          "y": 1,
-          "z": -6
-        },
         "spoke": {
-          "src": "",
+          "src": "https://kaixr-static.s3-us-west-2.amazonaws.com/banner/create.png",
           "link": ""
         },
         "vrRoom": {
-          "src": "",
-          "link": ""
+          "src": "https://kaixr-static.s3-us-west-2.amazonaws.com/banner/dream.png",
+          "link": "/videoGrid"
         },
         "video360": {
-          "src": "",
-          "link": ""
+          "src": "https://kaixr-static.s3-us-west-2.amazonaws.com/banner/explore.png",
+          "link": "/space"
         },
         "store": {
-          "src": "",
+          "src": "https://kaixr-static.s3-us-west-2.amazonaws.com/banner/shop.png",
           "link": ""
         }
       }
