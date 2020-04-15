@@ -1,22 +1,21 @@
 import React from 'react'
 // @ts-ignore
 import { Scene } from 'aframe-react'
-import Landing from './landing'
 import Assets from './assets'
-import './index.scss'
-
-import dynamic from 'next/dynamic'
-
-const AframeComponentRegisterer = dynamic(() => import('../aframe/index'), {
-  ssr: false
-})
+import Environment from './environment'
+import Player from '../player/player'
+import './style.scss'
+import SvgVr from '../../icons/svg/Vr'
+import Landing from './landing'
+import getConfig from 'next/config'
+const config = getConfig().publicRuntimeConfig.xr['networked-scene']
 
 type State = {
   appRendered?: boolean
   color?: string
 }
 
-export default class LandingScene extends React.Component<State> {
+export default class NetworkedScene extends React.Component<State> {
   state: State = {
     appRendered: false,
     color: 'red'
@@ -25,6 +24,8 @@ export default class LandingScene extends React.Component<State> {
   componentDidMount() {
     if (typeof window !== 'undefined') {
       require('aframe')
+      require('networked-aframe')
+      // require('aframe-particle-system-component')
       this.setState({ appRendered: true })
     }
   }
@@ -32,15 +33,19 @@ export default class LandingScene extends React.Component<State> {
   render() {
     return (
       <div style={{ height: '100%', width: '100%' }}>
-        <AframeComponentRegisterer/>
-        {typeof window !== 'undefined' && (
+        {this.state.appRendered && (
           <Scene
+            vr-mode-ui="enterVRButton: #enterVRButton"
+            networked-scene={config}
             class="scene"
             renderer="antialias: true"
             background="color: #FAFAFA"
           >
             <Assets/>
-            <Landing/>
+            <Player/>
+            <Environment/>
+            <Landing />
+            <a className="enterVR" id="enterVRButton" href="#"><SvgVr className="enterVR" /></a>
           </Scene>
         )}
       </div>

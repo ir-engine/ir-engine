@@ -2,7 +2,7 @@ import React from 'react'
 
 import dynamic from 'next/dynamic'
 
-const Scene = dynamic(() => import('./scene-landing'), { ssr: false })
+const Scene = dynamic(() => import('./scene'), { ssr: false })
 
 type State = {
   loggedIn: true // TODO: Add auth and redux store

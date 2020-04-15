@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 // @ts-ignore
 import { Entity } from 'aframe-react'
 import Skybox from './skybox-grid'
-import './index.scss'
+import './style.scss'
 
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr.landing
@@ -20,19 +20,23 @@ function Landing() {
     router.push(link)
   }
 
-  function spokeLink() {
+  const spokeLink = (e: MouseEvent) => {
+    e.preventDefault()
     followLink(config.spoke.link)
   }
 
-  function vrRoomLink() {
+  const vrRoomLink = (e: MouseEvent) => {
+    e.preventDefault()
     followLink(config.vrRoom.link)
   }
 
-  function videoLink() {
+  const videoLink = (e: MouseEvent) =>{
+    e.preventDefault()
     followLink(config.video360.link)
   }
 
-  function storeLink() {
+  const storeLink = (e: MouseEvent) => {
+    e.preventDefault()
     followLink(config.store.link)
   }
 
