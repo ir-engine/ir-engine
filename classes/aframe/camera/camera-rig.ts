@@ -2,6 +2,7 @@
 import AFRAME from 'aframe'
 // eslint-disable-next-line no-unused-vars
 import Camera, { CameraComponentOptions, defaultCameraComponentOptions } from './camera'
+import FuseCursor from './fuse-cursor'
 import { setComponent } from '../aframe-component'
 
 export default class CameraRig {
@@ -9,10 +10,13 @@ export default class CameraRig {
   el: AFRAME.Entity | null = null
   cameraEl: AFRAME.Entity | null = null
   className: string
+  fuseCursor: boolean
 
-  constructor(className = 'player-camera', cameraOptions: CameraComponentOptions = defaultCameraComponentOptions) {
+  constructor(className = 'player-camera', cameraOptions: Partial<CameraComponentOptions> = defaultCameraComponentOptions,
+    fuseCursor: boolean = false) {
     this.camera = new Camera(cameraOptions)
     this.className = className
+    this.fuseCursor = fuseCursor
     this.setupCameraRig()
   }
 
@@ -26,6 +30,12 @@ export default class CameraRig {
     setComponent(this.cameraEl, this.camera)
 
     this.el.appendChild(this.cameraEl)
+
+    if (this.fuseCursor) {
+      const cursor = new FuseCursor()
+      this.el.appendChild(cursor.el as AFRAME.Entity)
+      cursor.el?.object3D.position.set(0, 0, -1)
+    }
   }
 
   setActive(): void {

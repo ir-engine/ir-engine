@@ -20,9 +20,9 @@ export const defaultCameraComponentOptions: CameraComponentOptions = {
 
 export default class Camera implements AframeComponetInterface {
   name = 'camera'
-  options?: CameraComponentOptions
+  options?: Partial<CameraComponentOptions>
 
-  constructor(options = defaultCameraComponentOptions) {
+  constructor(options: Partial<CameraComponentOptions> = defaultCameraComponentOptions) {
     this.options = options
   }
 }
