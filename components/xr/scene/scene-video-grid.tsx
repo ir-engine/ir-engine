@@ -10,10 +10,6 @@ import dynamic from 'next/dynamic'
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr['networked-scene']
 
-const AframeComponentRegisterer = dynamic(() => import('../aframe/index'), {
-  ssr: false
-})
-
 type State = {
   appRendered?: boolean
   color?: string
@@ -36,7 +32,6 @@ export default class VideoScene extends React.Component<State> {
   render() {
     return (
       <div style={{ height: '100%', width: '100%' }}>
-        <AframeComponentRegisterer/>
         {this.state.appRendered && (
           <Scene
             networked-scene={config}
