@@ -1,6 +1,6 @@
 import React from 'react'
 // @ts-ignore
-import { Scene } from 'aframe-react'
+import { Scene, Entity } from 'aframe-react'
 import Assets from './assets'
 import Environment from './environment'
 import Player from '../player/player'
@@ -9,6 +9,7 @@ import SvgVr from '../../icons/svg/Vr'
 
 import getConfig from 'next/config'
 import Grid from '../layout/Grid'
+import AframeComponentRegisterer from '../../xr/aframe/index'
 const config = getConfig().publicRuntimeConfig.xr['networked-scene']
 
 type State = {
@@ -26,7 +27,6 @@ export default class NetworkedScene extends React.Component<State> {
     if (typeof window !== 'undefined') {
       require('aframe')
       require('networked-aframe')
-      // require('aframe-particle-system-component')
       this.setState({ appRendered: true })
     }
   }
@@ -42,9 +42,13 @@ export default class NetworkedScene extends React.Component<State> {
             renderer="antialias: true"
             background="color: #FAFAFA"
           >
-            <Grid />
+            <AframeComponentRegisterer/>
+            <Entity position="0 0.6 0">
+              <Grid />
+            </Entity>
             <Assets />
-            <Player />
+            <Player
+              fuseCursor="true" />
             <Environment />
             <a className="enterVR" id="enterVRButton" href="#">
               <SvgVr className="enterVR" />

@@ -2,8 +2,10 @@ import NavUserWidget from '../NavUserWidget'
 import React, { Component } from 'react'
 import AppBar from '@material-ui/core/AppBar'
 
-import Logo from '../../../assets/logo.png'
 import './style.scss'
+
+import getConfig from 'next/config'
+const Logo = getConfig().publicRuntimeConfig.logo
 
 export default class NavMenu extends Component {
   render() {
