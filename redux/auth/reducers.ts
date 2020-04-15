@@ -27,11 +27,10 @@ export const initialState: AuthState = {
     isVerified: true,
     user: undefined,
     error: '',
+  isProcessing: false
+}
 
-    isProcessing: false
-};
-
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialState)
 
 const authReducer = (state = immutableState, action: AuthAction): any => {
     switch(action.type) {
@@ -76,8 +75,9 @@ const authReducer = (state = immutableState, action: AuthAction): any => {
             return state;
         }
     }
+  }
 
-    return state;
+  return state
 }
 
-export default authReducer;
+export default authReducer

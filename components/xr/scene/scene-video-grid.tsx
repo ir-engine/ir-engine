@@ -5,6 +5,7 @@ import Assets from './assets'
 import Grid from '../layout/Grid'
 import Skybox from './skybox-grid'
 import './index.scss'
+import dynamic from 'next/dynamic'
 
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr['networked-scene']
