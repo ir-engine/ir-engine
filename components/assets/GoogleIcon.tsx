@@ -1,9 +1,9 @@
 import React from 'react'
 
 const SVG = ({
-  style = { fontSize: '32px' },
-  className = '',
-  viewBox = '0 0 512 512'
+  style = {fontSize: '18px'},
+  className = "",
+  viewBox = "0 0 512 512"
 }) => (
   <svg
     // width={width}
