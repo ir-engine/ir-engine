@@ -211,7 +211,7 @@ Let's explain step by step about the login process.
     } from "../actions";
 
     export const initialState: AuthState = {
-        isLogined: false,
+        isLoggedIn: false,
         user: undefined,
         error: '',
 
@@ -225,7 +225,7 @@ Let's explain step by step about the login process.
         switch(action.type) {
             case LOGIN_USER_SUCCESS:
                 return state
-                    .set('isLogined', true)
+                    .set('isLoggedIn', true)
                     .set('user', (action as LoginResultAction).user);
             case LOGIN_USER_ERROR:
                 return state

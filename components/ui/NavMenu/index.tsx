@@ -41,14 +41,13 @@ class NavMenu extends Component<Props> {
     return (
       <AppBar className="appbar" position="sticky">
         <Toolbar className="toolbar">
-          {/* <IconButton edge="start" color="inherit" aria-label="menu">
-            <MenuIcon color="inherit" />
-    </IconButton> */}
           <Typography variant="h6" color="inherit">
             {siteTitle}
           </Typography>
+
           <NavItem href="/auth/login" title="Login" text="Login" />
           <Button onClick={() => this.handleLogout()}>Logout</Button>
+
         </Toolbar>
       </AppBar>
     )
