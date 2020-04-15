@@ -8,3 +8,6 @@ helm_values.yaml
 configs/*prod*
 
 xrchat/Chart\.lock
+
+_site
+.sass-cache
