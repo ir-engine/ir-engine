@@ -7,9 +7,6 @@ import Skybox from './skybox-grid'
 import './style.scss'
 import SvgVr from '../../icons/svg/Vr'
 
-import getConfig from 'next/config'
-const config = getConfig().publicRuntimeConfig.xr['networked-scene']
-
 type State = {
   appRendered?: boolean
   color?: string
