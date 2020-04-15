@@ -15,7 +15,7 @@
         "defaultAvatarModelSrc" : "/gltf/avatars/head/scene.gltf",
         "defaultAvatarModelScale" : 0.02
       },
-      "environment": { 
+      "environment": {
         "floor": {
           "src": "https://cdn.aframe.io/a-painter/images/floor.jpg",
           "height": 100,
@@ -83,13 +83,13 @@
     "server_address": "localhost:3030",
 
     "auth": {
-      "isEnableSmsMagicLink": true,
+      "isEnableSmsMagicLink": false,
       "isEnableEmailMagicLink": true,
       "isEnableUserPassword": false,
-      "isEnableGithub": true,
-      "isEnableFacebook": true,
-      "isEnableGoogle": true
+      "isEnableGithub": false,
+      "isEnableFacebook": false,
+      "isEnableGoogle": false
     }
-    
+
   }
 }
