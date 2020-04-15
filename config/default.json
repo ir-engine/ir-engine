@@ -15,7 +15,7 @@
         "defaultAvatarModelSrc" : "/gltf/avatars/head/scene.gltf",
         "defaultAvatarModelScale" : 0.02
       },
-      "environment": {
+      "environment": { 
         "floor": {
           "src": "https://cdn.aframe.io/a-painter/images/floor.jpg",
           "height": 100,
@@ -34,8 +34,8 @@
           "thetaLength": 90
         },
         "scene-gltf": {
-          "src": "",
-          "name": ""
+          "src": "https://kaixr-scenes.s3-us-west-2.amazonaws.com/Launchpad/Launchpad.gltf",
+          "name": "Launchpad"
         }
       },
       "grid": {
