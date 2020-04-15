@@ -8,11 +8,17 @@ export default function (app: Application): any {
   const publicVideo = sequelizeClient.define('public_video', {
     title: DataTypes.STRING,
     original_title: DataTypes.STRING,
-    description: DataTypes.STRING,
+    description: DataTypes.STRING(1000),
     link: {
       unique: true,
       type: DataTypes.STRING
-    }
+    },
+    thumbnail_url: DataTypes.STRING,
+    production_credit: DataTypes.STRING,
+    rating: DataTypes.STRING,
+    categories: DataTypes.STRING,
+    runtime: DataTypes.STRING,
+    tags: DataTypes.STRING
   }, {
     hooks: {
       beforeCount (options: any) {
