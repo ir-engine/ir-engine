@@ -1,5 +1,5 @@
 import Layout from '../components/ui/Layout'
-import Scene from '../components/ui/Index/index'
+import Scene from '../components/xr/scene'
 import React from 'react'
 // import Login from '../components/ui/Login'
 

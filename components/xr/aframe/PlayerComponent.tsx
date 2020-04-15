@@ -56,7 +56,7 @@ export const PlayerComponent: AFRAME.ComponentDefinition<PlayerProps> = {
   firstUpdate: true,
 
   init () {
-    if (this.el.sceneEl?.hasLoaded) this.initPlayer()
+    if (this.el.sceneEl?.hasLoaded && NAF) this.initPlayer()
     else this.el.sceneEl?.addEventListener('loaded', this.initPlayer.bind(this))
   },
 
