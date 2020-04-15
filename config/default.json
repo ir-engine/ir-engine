@@ -37,7 +37,30 @@
           "src": "",
           "name": ""
         }
-      }
+      },
+      "grid": {
+        "gridCellsPerRow": 24,
+        "cellWidth": 1.5,
+        "cellHeight": 0.7,
+        "cellContentHeight": 0.6,
+        "radius": 6,
+        "rows": 3,
+        "columns": 5,
+        "placeholderImageSrc": "https://cdn.aframe.io/a-painter/images/sky.jpg",
+        "skybox": {
+          "src": "https://cdn.aframe.io/a-painter/images/sky.jpg",
+          "radius": 30,
+          "height": 2048,
+          "width": 2048,
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "thetaLength": 90
+        }
+      },
+      "playerHeight": 1.6
     },
     "server_address": "localhost:3030"
   },
