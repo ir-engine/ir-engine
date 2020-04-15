@@ -1,20 +1,20 @@
-import React from 'react';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
-import Container from '@material-ui/core/Container';
+import React from 'react'
+import Button from '@material-ui/core/Button'
+import TextField from '@material-ui/core/TextField'
+import Typography from '@material-ui/core/Typography'
+import Container from '@material-ui/core/Container'
 import {
   resetPassword,
 } from '../../../redux/auth/service'
 import './auth.scss'
-import EmptyLayout from '../Layout/EmptyLayout';
+import EmptyLayout from '../Layout/EmptyLayout'
 
 interface Props {
   auth: any,
   type: string,
   token: string,
   resetPassword: typeof resetPassword
-};
+}
 
 class ResetPassword extends React.Component<Props> {
   state = {
@@ -28,9 +28,9 @@ class ResetPassword extends React.Component<Props> {
   }
 
   handleReset = (e: any) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    this.props.resetPassword(this.props.token, this.state.password);
+    this.props.resetPassword(this.props.token, this.state.password)
   }
 
   render() {
@@ -41,11 +41,9 @@ class ResetPassword extends React.Component<Props> {
             <Typography component="h1" variant="h5">
               Reset Password
             </Typography>
-    
             <Typography variant="body2" color="textSecondary" align="center">
               Please enter your password for your email address
             </Typography>
-    
             <form className={'form'} noValidate onSubmit={(e) => this.handleReset(e)}>
               <TextField
                 variant="outlined"
@@ -72,8 +70,8 @@ class ResetPassword extends React.Component<Props> {
           </div>
         </Container>
       </EmptyLayout>
-    );
+    )
   }
 }
 
-export default ResetPassword;
+export default ResetPassword

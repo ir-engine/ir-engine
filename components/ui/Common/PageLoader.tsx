@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 
 const PageLoader : React.FC = () => (
     <div className="page-loader">
@@ -6,4 +6,4 @@ const PageLoader : React.FC = () => (
     </div>
 )
 
-export default PageLoader;
+export default PageLoader

@@ -1,27 +1,27 @@
-import React from 'react';
-import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
-import Container from '@material-ui/core/Container';
+import React from 'react'
+import Box from '@material-ui/core/Box'
+import Typography from '@material-ui/core/Typography'
+import Container from '@material-ui/core/Container'
 import {
   verifyEmail,
 } from '../../../redux/auth/service'
 import './auth.scss'
-import EmptyLayout from '../Layout/EmptyLayout';
+import EmptyLayout from '../Layout/EmptyLayout'
 
 interface Props {
   auth: any,
   type: string,
   token: string,
   verifyEmail: typeof verifyEmail
-};
+}
 
 class VerifyEmail extends React.Component<Props> {
   state = {
     email: ''
-  };
+  }
 
   componentDidMount() {
-    this.props.verifyEmail(this.props.token);
+    this.props.verifyEmail(this.props.token)
   }
 
   render() {
@@ -41,8 +41,8 @@ class VerifyEmail extends React.Component<Props> {
           </div>
         </Container>
       </EmptyLayout>
-    );
+    )
   }
 }
 
-export default VerifyEmail;
+export default VerifyEmail

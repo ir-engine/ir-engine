@@ -1,8 +1,8 @@
-import React from 'react';
-import Button from '@material-ui/core/Button';
-import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
-import Container from '@material-ui/core/Container';
+import React from 'react'
+import Button from '@material-ui/core/Button'
+import Box from '@material-ui/core/Box'
+import Typography from '@material-ui/core/Typography'
+import Container from '@material-ui/core/Container'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import {
@@ -10,32 +10,32 @@ import {
 } from '../../../redux/auth/service'
 import { selectAuthState } from '../../../redux/auth/selector'
 import './auth.scss'
-import EmptyLayout from '../Layout/EmptyLayout';
+import EmptyLayout from '../Layout/EmptyLayout'
 
 interface Props {
   auth: any,
   resendVerificationEmail: typeof resendVerificationEmail
-};
+}
 
 const mapStateToProps = (state: any) => {
   return {
     auth: selectAuthState(state),
   }
-};
+}
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   resendVerificationEmail: bindActionCreators(resendVerificationEmail, dispatch)
-});
+})
 
 class ConfirmEmail extends React.Component<Props> {
   state = {
     email: ''
-  };
+  }
 
   handleResendEmail = (e: any) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    this.props.resendVerificationEmail(this.state.email);
+    this.props.resendVerificationEmail(this.state.email)
   }
 
   render() {
@@ -57,7 +57,7 @@ class ConfirmEmail extends React.Component<Props> {
           </div>
         </Container>
       </EmptyLayout>
-    );
+    )
   }
 }
 
@@ -68,4 +68,4 @@ function ConfirmEmailWrapper(props: any) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(ConfirmEmailWrapper);
+)(ConfirmEmailWrapper)

@@ -13,7 +13,7 @@ import EmptyLayout from '../Layout/EmptyLayout'
 interface Props {
   auth: any
   createMagicLink: typeof createMagicLink
-};
+}
 
 class MagicLinkEmail extends React.Component<Props> {
   state = {
@@ -28,12 +28,12 @@ class MagicLinkEmail extends React.Component<Props> {
   }
 
   handleSubmit = (e: any) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    this.props.createMagicLink('email', this.state.email);
+    this.props.createMagicLink('email', this.state.email)
     this.setState({
       isSubmitted: true
-    });
+    })
   }
 
   render() {
@@ -81,8 +81,8 @@ class MagicLinkEmail extends React.Component<Props> {
           </div>
         </Container>
       </EmptyLayout>
-    );
+    )
   }
 }
 
-export default MagicLinkEmail;
+export default MagicLinkEmail

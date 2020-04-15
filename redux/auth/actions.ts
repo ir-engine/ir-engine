@@ -14,72 +14,72 @@ import {
     DID_RESET_PASSWORD,
     ACTION_PROCESSING,
     DID_CREATE_MAGICLINK
-} from '../actions';
+} from '../actions'
 
 export interface AuthUser {
-    accessToken: string;
+    accessToken: string
     authentication: {
-        strategy: string;
+        strategy: string
     },
     user: {
-        _id: string;
-        userId: string;
-        avatar: string;
-        isVerified: boolean;
+        _id: string
+        userId: string
+        avatar: string
+        isVerified: boolean
     }
 }
 
 export interface AuthState {
-    isLoggedIn: boolean;
-    isVerified: boolean;
-    
-    user: AuthUser | undefined;
-    error: string;
+    isLoggedIn: boolean
+    isVerified: boolean
 
-    isProcessing: boolean;
+    user: AuthUser | undefined
+    error: string
+
+    isProcessing: boolean
 }
 
 export interface EmailLoginForm {
-    email: string;
-    password: string;
+    email: string
+    password: string
 }
 
 export interface EmailRegistrationForm {
-    email: string;
-    password: string;
+    email: string
+    password: string
 }
 
 export interface GithubLoginForm {
-    email: string;
+    email: string
 }
 
 export interface AuthProcessingAction {
-    type: string;
-    processing: boolean;
+    type: string
+    processing: boolean
 }
 
 export interface LoginResultAction {
-    type: string;
-    user?: any;
-    message: string;
+    type: string
+    user?: any
+    message: string
 }
 
 export interface RegistrationResultAction {
-    type: string;
-    user?: any;
-    message: string;
+    type: string
+    user?: any
+    message: string
 }
 
 export interface AuthResultAction {
-    type: string;
-    result: boolean;
+    type: string
+    result: boolean
 }
 
-export type AuthAction = 
+export type AuthAction =
     AuthProcessingAction
     | LoginResultAction
     | RegistrationResultAction
-    | AuthResultAction;
+    | AuthResultAction
 
 export function actionProcessing(processing: boolean): AuthProcessingAction {
     return {

@@ -1,15 +1,15 @@
-import React from 'react';
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Link from '@material-ui/core/Link';
-import Grid from '@material-ui/core/Grid';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import Typography from '@material-ui/core/Typography';
-import Container from '@material-ui/core/Container';
-import GitHubIcon from '@material-ui/icons/GitHub';
-import FacebookIcon from '@material-ui/icons/Facebook';
-import GoogleIcon from '../../assets/GoogleIcon';
+import React from 'react'
+import Avatar from '@material-ui/core/Avatar'
+import Button from '@material-ui/core/Button'
+import TextField from '@material-ui/core/TextField'
+import Link from '@material-ui/core/Link'
+import Grid from '@material-ui/core/Grid'
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
+import Typography from '@material-ui/core/Typography'
+import Container from '@material-ui/core/Container'
+import GitHubIcon from '@material-ui/icons/GitHub'
+import FacebookIcon from '@material-ui/icons/Facebook'
+import GoogleIcon from '../../assets/GoogleIcon'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { 
@@ -20,7 +20,7 @@ import {
 } from '../../../redux/auth/service'
 import { selectAuthState } from '../../../redux/auth/selector'
 import './auth.scss'
-import EmptyLayout from '../Layout/EmptyLayout';
+import EmptyLayout from '../Layout/EmptyLayout'
 
 interface Props {
   auth: any
@@ -28,20 +28,20 @@ interface Props {
   loginUserByGithub: typeof loginUserByGithub
   loginUserByGoogle: typeof loginUserByGoogle
   loginUserByFacebook: typeof loginUserByFacebook
-};
+}
 
 const mapStateToProps = (state: any) => {
   return {
     auth: selectAuthState(state),
   }
-};
+}
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch),
   loginUserByGithub: bindActionCreators(loginUserByGithub, dispatch),
   loginUserByGoogle: bindActionCreators(loginUserByGoogle, dispatch),
   loginUserByFacebook: bindActionCreators(loginUserByFacebook, dispatch),
-});
+})
 
 class SignUp extends React.Component<Props> {
   state = {
@@ -61,22 +61,22 @@ class SignUp extends React.Component<Props> {
     this.props.registerUserByEmail({
       email: this.state.email,
       password: this.state.password
-    });
+    })
   }
 
   handleGithubLogin = (e: any) => {
     e.preventDefault()
-    this.props.loginUserByGithub();
+    this.props.loginUserByGithub()
   }
 
   handleGoogleLogin = (e: any) => {
     e.preventDefault()
-    this.props.loginUserByGithub();
+    this.props.loginUserByGithub()
   }
 
   handleFacebookLogin = (e: any) => {
     e.preventDefault()
-    this.props.loginUserByGithub();
+    this.props.loginUserByGithub()
   }
 
   render () {
@@ -138,7 +138,7 @@ class SignUp extends React.Component<Props> {
           </div>
 
           <div style={{marginTop: '20px'}}>
-            &nbsp;
+            &nbsp
           </div>
           
           <Grid container justify="center" spacing={2}>
@@ -160,7 +160,7 @@ class SignUp extends React.Component<Props> {
           </Grid>
         </Container>
       </EmptyLayout>
-    );
+    )
   }
 }
 
@@ -171,4 +171,4 @@ function SignUpWrapper(props: any) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(SignUpWrapper);
+)(SignUpWrapper)

@@ -129,19 +129,19 @@ import { selectAuthState } from '../../../redux/auth/selector'
 
 interface Props {
   auth: any,
-  loginUserByEmail: typeof loginUserByEmail;
-};
+  loginUserByEmail: typeof loginUserByEmail
+}
 
 const mapStateToProps = (state: any) => {
   return {
     auth: selectAuthState(state),   // fetch authState from store.
                                     // Note: `state` and `auth` is Immutable variable.
   }
-};
+}
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   loginUserByEmail: bindActionCreators(loginUserByEmail, dispatch)  // Mapping service to props
-});
+})
 
 ...
 
@@ -152,7 +152,7 @@ class Login extends React.Component<LoginProps> {
         this.props.loginUserByEmail({
             email: this.state.email,
             password: this.state.password
-        });
+        })
   }
 ...
 }
@@ -163,7 +163,7 @@ class Login extends React.Component<LoginProps> {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Login);
+)(Login)
 
 ```
 
@@ -173,8 +173,8 @@ Let's explain step by step about the login process.
 1. We should declare `LOGIN_USER_SUCCESS` and `LOGIN_USER_ERROR` actions.
     Add following lines in `/redux/actions.ts`.
     ```
-    export const LOGIN_USER_SUCCESS = 'LOGIN_USER_SUCCESS';
-    export const LOGIN_USER_ERROR = 'LOGIN_USER_ERROR';
+    export const LOGIN_USER_SUCCESS = 'LOGIN_USER_SUCCESS'
+    export const LOGIN_USER_ERROR = 'LOGIN_USER_ERROR'
     ```
 2. We should define actions && reducers && services.
     - Create the `auth` folder in `/redux` folder.
@@ -184,7 +184,7 @@ Let's explain step by step about the login process.
     import {
         LOGIN_USER_BY_GITHUB_ERROR,
         LOGIN_USER_BY_GITHUB_SUCCESS
-    } from '../actions';
+    } from '../actions'
 
     export function loginUserSuccess(user: any): any {
         return {
@@ -204,11 +204,11 @@ Let's explain step by step about the login process.
     - Add the `reducers.ts` file in `/redux/auth` folder.
     - Add the following codes in `reducers.ts` 
     ```
-    import Immutable from 'immutable';
+    import Immutable from 'immutable'
     import { 
         LOGIN_USER_SUCCESS,
         LOGIN_USER_ERROR
-    } from "../actions";
+    } from "../actions"
 
     export const initialState: AuthState = {
         isLoggedIn: false,
@@ -216,34 +216,34 @@ Let's explain step by step about the login process.
         error: '',
 
         isProcessing: false
-    };
+    }
 
     // Note: In next.js, we should use Immutable variable for state type.
-    const immutableState = Immutable.fromJS(initialState);
+    const immutableState = Immutable.fromJS(initialState)
 
     const authReducer = (state = immutableState, action: any): any => {
         switch(action.type) {
             case LOGIN_USER_SUCCESS:
                 return state
                     .set('isLoggedIn', true)
-                    .set('user', (action as LoginResultAction).user);
+                    .set('user', (action as LoginResultAction).user)
             case LOGIN_USER_ERROR:
                 return state
-                    .set('error', (action as LoginResultAction).message);
+                    .set('error', (action as LoginResultAction).message)
         }
 
-        return state;
+        return state
     }
 
-    export default authReducer;
+    export default authReducer
     ```
     - Add the `selector.ts` file in `/redux/auth` folder.
     ```
-    import { createSelector } from 'reselect';
+    import { createSelector } from 'reselect'
 
     // Note: 'auth' is the state key so you can change this whatever you want.
-    const selectState = (state: any) => state.get('auth');
-    export const selectAuthState = createSelector([selectState], (auth) => auth);
+    const selectState = (state: any) => state.get('auth')
+    export const selectAuthState = createSelector([selectState], (auth) => auth)
 
     ```
     - Add the `service.ts` file in `/redux/auth` folder.
@@ -252,7 +252,7 @@ Let's explain step by step about the login process.
 
     export function loginUserByEmail(form: any) {
         return (dispatch: Dispatch) => {
-            dispatch(actionProcessing(true));
+            dispatch(actionProcessing(true))
 
             client.authenticate({
                 strategy: 'local',
@@ -260,27 +260,27 @@ Let's explain step by step about the login process.
                 password: form.password
             })
             .then((res: any) => {
-            const val = res as AuthUser;
+            const val = res as AuthUser
             if (!val.user.isVerified) {
-                client.logout();
-                return dispatch(loginUserError('Unverified user'));
+                client.logout()
+                return dispatch(loginUserError('Unverified user'))
             }
-            return dispatch(loginUserSuccess(val));
+            return dispatch(loginUserSuccess(val))
             })
             .catch(() => dispatch(loginUserError('Failed to login')))
-            .finally( ()=> dispatch(actionProcessing(false)));
-        };
+            .finally( ()=> dispatch(actionProcessing(false)))
+        }
     }
     ```
 
     - Add the following codes in `/redux/reducers.ts` file to combine reducers.
     ```
-    import { combineReducers } from 'redux-immutable';
-    import authReducer from './auth/reducers';
+    import { combineReducers } from 'redux-immutable'
+    import authReducer from './auth/reducers'
 
     export default combineReducers({
         auth: authReducer
-    });
+    })
     ```
 
 3. How to use the Redux store and services in Component.
