@@ -1,0 +1,5 @@
+charts:
+  - name: xrchat
+    repo:
+      git: xrchat/xrchat-ops
+      published: https://xrchat.github.io/xrchat-ops/
