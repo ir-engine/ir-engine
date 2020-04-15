@@ -70,7 +70,7 @@ const authReducer = (state = immutableState, action: AuthAction): any => {
     
             if (stored) {
                 return state
-                    .set('isLogined', stored.isLogined)
+                    .set('isLoggedIn', stored.isLoggedIn)
                     .set('user', stored.user);
             }
             return state;
