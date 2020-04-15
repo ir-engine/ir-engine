@@ -56,7 +56,7 @@ export default class AframeWindow extends React.Component {
             <Entity
               primitive="a-sky"
               height="2048"
-              radius="30"
+              radius="300"
               src="#skyTexture"
               theta-length="90"
               width="2048"
