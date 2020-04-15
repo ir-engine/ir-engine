@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-domain: xrchat.io
+domain: xrchat.local
 
 client:
   enabled: true
@@ -28,7 +28,7 @@ client:
       kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
     hosts:
-      - host: beta.kaixr.world
+      - host: xrchat.local
         paths: ["/"]
     # tls: []
     #  - secretName: chart-example-tls
@@ -75,7 +75,7 @@ server:
       kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
     hosts:
-      - host: api.kaixr.world
+      - host: api.xrchat.local
         paths: ["/"]
     # tls: []
     #  - secretName: chart-example-tls
@@ -120,43 +120,6 @@ agones:
 ######## Storage
 # storage:
   
-
-#     filestore.backend: '{{ .Values.filestore.backend }}'
-#     {{- if eq .Values.filestore.backend "filesystem" }}
-#     filestore.options:
-#       location: '{{ .Values.filestore.filesystem.path }}'
-#     {{ end }}
-#     {{- if eq .Values.filestore.backend "gcs" }}
-#     filestore.options:
-#       bucket_name: '{{ .Values.filestore.gcs.bucketName }}'
-#     {{ end }}
-#     {{- if eq .Values.filestore.backend "s3" }}
-#     filestore.options:
-#       {{- if .Values.filestore.s3.accessKey }}
-#       access_key: '{{ .Values.filestore.s3.accessKey }}'
-#       {{- end }}
-#       {{- if .Values.filestore.s3.secretKey }}
-#       secret_key: '{{ .Values.filestore.s3.secretKey }}'
-#       {{- end }}
-#       {{- if .Values.filestore.s3.bucketName }}
-#       bucket_name: '{{ .Values.filestore.s3.bucketName }}'
-#       {{- end }}
-#       {{- if .Values.filestore.s3.endpointUrl }}
-#       endpoint_url: '{{ .Values.filestore.s3.endpointUrl }}'
-#       {{- end }}
-#       {{- if .Values.filestore.s3.signature_version }}
-#       signature_version: '{{ .Values.filestore.s3.signature_version }}'
-#       {{- end }}
-#       {{- if .Values.filestore.s3.region_name }}
-#       region_name: '{{ .Values.filestore.s3.region_name }}'
-#       {{- end }}
-#       {{- if .Values.filestore.s3.default_acl }}
-#       default_acl: '{{ .Values.filestore.s3.default_acl }}'
-#       {{- end }}
-#     {{ end }}
-
-
-
 # ### The following values can be used to override configuration
 # mail:
 #   host:

@@ -1,7 +1,28 @@
 # xrchat-ops
 Deployment and Operations for xrchat services
 
-## One-Click Deployment
+## Onc-Click Deployment on Kubernetes using Helm
+
+You can run the whole platfrom with the following commands:
+``` bash
+git clone git@github.com:xrchat/xrchat-ops.git
+cd xrchat-ops
+helm dep update xrchat
+helm install my-release xrchat
+```
+For deployment on different cloud providers:
+
+- [Deploying XRChat on AWS EKS](docs/deploy_on_eks.md)
+- [Managing Remote Kubernets Clusters - TBD](docs/managing_remote_kubernets.md)
+
+Requires Helm and access to a Kubernetes cluster, if you are new to those, check the following instructions:
+
+- [Installing Helm v3](https://www.digitalocean.com/community/tutorials/how-to-install-software-on-kubernetes-clusters-with-the-helm-3-package-manager)
+- [Installing Kubernetes Locally - microk8s](https://ubuntu.com/tutorials/install-a-local-kubernetes-with-microk8s#2-deploying-microk8s)
+- [Installing Kubernetes Locally - MiniKube](https://minikube.sigs.k8s.io/docs/start/)
+- [Helper Scripts](scripts/) contains useful scripts to speedup preparing your machine with Docker, Helm, k8s, etc.
+
+## One-Click Deployment on your laptop Docker Compose
 
 You can run the whole platfrom with the following commands:
 ``` bash
@@ -16,7 +37,7 @@ docker-compose up <service-name>
 
 This will pull images from [xrchat's docker hub repo](https://hub.docker.com/u/xrchat)
 
-## xrchat services
+## XRChat services
 
 - [server](https://github.com/xrchat/xrchat-server): backend server on http://localhost:3030/docs
 - [client](https://github.com/xrchat/xrchat-client): frontend Next.js+react on http://localhost:3000
