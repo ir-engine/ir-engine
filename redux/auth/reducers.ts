@@ -17,7 +17,10 @@ import {
     ACTION_PROCESSING,
     DID_VERIFY_EMAIL,
     REGISTER_USER_BY_EMAIL_ERROR,
+    RESTORE,
 } from "../actions";
+import { getStoredState } from '../persisted.store';
+// import { getStoredState } from '../persisted.store';
 
 export const initialState: AuthState = {
     isLoggedIn: false,
@@ -36,6 +39,7 @@ const authReducer = (state = immutableState, action: AuthAction): any => {
             return state
                 .set('isProcessing', (action as AuthProcessingAction).processing);
         case LOGIN_USER_SUCCESS:
+            console.log('succeed---', (action as LoginResultAction).user);
             return state
                 .set('isLoggedIn', true)
                 .set('user', (action as LoginResultAction).user);
@@ -60,6 +64,17 @@ const authReducer = (state = immutableState, action: AuthAction): any => {
         case DID_VERIFY_EMAIL:
             return state
                 .set('isVerified', (action as AuthResultAction).result);
+        case RESTORE: {
+            const stored = getStoredState("auth");
+            console.log('-----------restore auth---------', stored);
+    
+            if (stored) {
+                return state
+                    .set('isLogined', stored.isLogined)
+                    .set('user', stored.user);
+            }
+            return state;
+        }
     }
 
     return state;

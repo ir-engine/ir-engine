@@ -1,3 +1,10 @@
+.gap {
+    flex-grow: 1;
+}
+.flex {
+    display: flex;
+    align-items: center;
+}
 .toolbar {
     background-color: rgba(0, 0, 0, 0)!important;
 }

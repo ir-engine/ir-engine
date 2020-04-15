@@ -6,6 +6,17 @@ import withRedux from 'next-redux-wrapper'
 import { Provider } from 'react-redux'
 import { fromJS } from 'immutable'
 import { configureStore } from '../redux/store'
+import { Store } from 'redux';
+import { ThemeProvider } from '@material-ui/core/styles';
+import { siteTitle } from "../config/server";
+import CssBaseline from '@material-ui/core/CssBaseline';
+import theme from '../components/assets/theme';
+import { restoreState } from '../redux/persisted.store';
+
+interface Props extends AppProps{
+    store: Store;
+    restoreState: typeof restoreState
+
 import { Store } from 'redux'
 import { ThemeProvider } from '@material-ui/core/styles'
 import { siteTitle } from '../config/server'
@@ -22,7 +33,11 @@ interface Props extends AppProps{
 class MyApp extends App<Props> {
   componentDidMount() {
     const jssStyles = document.querySelector('#jss-server-side')
-    if (jssStyles && jssStyles.parentNode) { jssStyles.parentNode.removeChild(jssStyles) }
+    if (jssStyles && jssStyles.parentNode) {
+      jssStyles.parentNode.removeChild(jssStyles)
+    }
+
+    this.props.store.dispatch(restoreState());
   }
 
   render() {
