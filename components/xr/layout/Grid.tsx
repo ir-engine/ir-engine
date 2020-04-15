@@ -1,7 +1,17 @@
 import React from 'react'
+import { useRouter } from 'next/router'
 // @ts-ignore
 import { Entity } from 'aframe-react'
 import { CylindricalGrid } from '../../../classes/aframe/layout/GridUtils'
+
+// eslint-disable-next-line no-unused-vars
+import { bindActionCreators, Dispatch } from 'redux'
+
+import { connect } from 'react-redux'
+import { selectVideoState } from '../../../redux/video/selector'
+import { fetchPulicVideos } from '../../../redux/video/service'
+// eslint-disable-next-line no-unused-vars
+import { PublicVideo } from '../../../redux/video/actions'
 
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr.grid
@@ -10,85 +20,107 @@ const playerHeight = getConfig().publicRuntimeConfig.xr.playerHeight
 const range = (n: number) => Array.from(Array(n).keys())
 const numbers = range(config.rows * config.columns)
 
-export default class GridLayout extends React.Component {
-  cylindricalGrid: CylindricalGrid
+interface VideoProps {
+  videos: any,
+  fetchPublicVideos: typeof fetchPulicVideos
+}
 
-  constructor(props: any) {
-    super(props)
-    this.cylindricalGrid = new CylindricalGrid(config.gridCellsPerRow, config.cellHeight,
-      config.radius, config.rows, config.columns)
-
-    this.gridRotation = this.gridRotation.bind(this)
-    this.gridOffsetY = this.gridOffsetY.bind(this)
-    this.gridCellRotation = this.gridCellRotation.bind(this)
-    this.gridCellPosition = this.gridCellPosition.bind(this)
-    this.gridRotationString = this.gridRotationString.bind(this)
-    this.gridOffsetString = this.gridOffsetString.bind(this)
-    this.Grid = this.Grid.bind(this)
-    this.followLink = this.followLink.bind(this)
+const mapStateToProps = (state: any) => {
+  return {
+    videos: selectVideoState(state)
   }
+}
 
-  gridRotation() {
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  fetchPublicVideos: bindActionCreators(fetchPulicVideos, dispatch)
+})
+
+function GridLayout (props: VideoProps): any {
+  const router = useRouter()
+  const cylindricalGrid: CylindricalGrid = new CylindricalGrid(config.gridCellsPerRow, config.cellHeight,
+    config.radius, config.rows, config.columns)
+
+  function gridRotation() {
     return (180 - (360 / config.gridCellsPerRow) * 2)
   }
 
-  gridOffsetY() {
+  function gridOffsetY() {
     console.log((1 - config.rows / 2) * config.cellHeight)
     return (1 - config.rows / 2) * config.cellHeight
   }
 
-  gridCellRotation (itemNum: number) {
-    const rot = this.cylindricalGrid.cellRotation(itemNum)
+  function gridCellRotation (itemNum: number) {
+    const rot = cylindricalGrid.cellRotation(itemNum)
     return `${rot.x} ${rot.y + 180} ${rot.z}`
   }
 
-  gridCellPosition (itemNum: number) {
-    const pos = this.cylindricalGrid.cellPosition(itemNum)
+  function gridCellPosition (itemNum: number) {
+    const pos = cylindricalGrid.cellPosition(itemNum)
     return `${pos.x} ${pos.y} ${pos.z}`
   }
 
-  gridRotationString (): string {
-    return '0 ' + this.gridRotation() + ' 0'
+  function gridRotationString (): string {
+    return '0 ' + gridRotation() + ' 0'
   }
 
-  gridOffsetString (): string {
-    return '0 ' + (this.gridOffsetY() + playerHeight) + ' 0'
+  function gridOffsetString (): string {
+    return '0 ' + (gridOffsetY() + playerHeight) + ' 0'
   }
 
-  followLink() {
-    console.log('image clicked!')
+  function followLink(link: any) {
+    router.push('/video360?manifest=' + link)
   }
 
-  Grid(props: any) {
-    const numbers = props.numbers
+  const { videos } = props
+  console.log(videos.get('videos'))
 
-    const gridItems = numbers.map((number: number) =>
-      <Entity key={number.toString()}
-        position={ this.gridCellPosition(number) }
-        rotation={ this.gridCellRotation(number) }>
-        <Entity
-          primitive="a-image"
-          class='clickable'
-          src="#placeholder"
-          width={ config.cellWidth }
-          height={ config.cellContentHeight }
-          events={{ click: this.followLink } }>
-        </Entity>
-      </Entity>
-    )
-    return gridItems
-  }
-
-  render() {
-    return (
-      <Entity
-        class="grid-cylinder"
-        rotation={this.gridRotationString()}
-        position={this.gridOffsetString()}>
-
-        { this.Grid({ numbers: numbers }) }
-
-      </Entity>
-    )
-  }
+  return (videos.get('videos').size > 0
+    ? <Entity
+      class="grid-cylinder"
+      rotation={gridRotationString()}
+      position={gridOffsetString()}>
+      {videos.get('videos').map(function (video: PublicVideo, i: number) {
+        const cb = followLink.bind(video.link)
+        return (
+          <Entity key= {i}
+            position={ gridCellPosition(i) }
+            rotation={ gridCellRotation(i) }>
+            <Entity
+              primitive="a-image"
+              class='clickable'
+              src="#placeholder"
+              width={ config.cellWidth }
+              height={ config.cellContentHeight }
+              events={{ click: cb } }>
+            </Entity>
+          </Entity>
+        )
+      })}
+    </Entity>
+    : <Entity
+      class="grid-cylinder"
+      rotation={gridRotationString()}
+      position={gridOffsetString()}>
+      {numbers.map(function (i: number) {
+        return (
+          <Entity key= {i}
+            position={ gridCellPosition(i) }
+            rotation={ gridCellRotation(i) }>
+            <Entity
+              primitive="a-image"
+              class='clickable'
+              src="#placeholder"
+              width={ config.cellWidth }
+              height={ config.cellContentHeight }>
+            </Entity>
+          </Entity>
+        )
+      })}
+    </Entity>
+  )
 }
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(GridLayout)
