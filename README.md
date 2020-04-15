@@ -1,5 +1,5 @@
+[![Build Status](https://travis-ci.org/xrchat/xrchat-client.svg?branch=master)](https://travis-ci.org/xrchat/xrchat-client)
 # XRChat Client
-
 ## About
 
 XRChat is an end-to-end solution for hosting humans and non-humans in a virtual space. This project would literally not be possible without the community contributions of Mozilla Hubs, Janus VR or Avaer Kazmer Exokit team, and if you are looking for a Metaverse-in-a-box experience, you should check out those projects as well.
@@ -211,7 +211,7 @@ Let's explain step by step about the login process.
     } from "../actions";
 
     export const initialState: AuthState = {
-        isLogined: false,
+        isLoggedIn: false,
         user: undefined,
         error: '',
 
@@ -225,7 +225,7 @@ Let's explain step by step about the login process.
         switch(action.type) {
             case LOGIN_USER_SUCCESS:
                 return state
-                    .set('isLogined', true)
+                    .set('isLoggedIn', true)
                     .set('user', (action as LoginResultAction).user);
             case LOGIN_USER_ERROR:
                 return state

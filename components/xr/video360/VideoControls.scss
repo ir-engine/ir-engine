@@ -1,0 +1,15 @@
+#videoplayercontrols {
+  position: absolute;
+  z-index: 1000005;
+  width: 100%;
+  height: 100%;
+}
+
+#videoplayercontrols.active {
+  z-index: 1000005;
+}
+
+#videoplayercontrols.disbled {
+  z-index: 0;
+}
+

@@ -27,6 +27,7 @@ module.exports = {
     "semi": "error",
     "space-before-function-paren":"off",
     "no-unused-expressions":"off",
+    "react/no-unknown-property":"off"
   },
   overrides: [
     {

@@ -18,6 +18,7 @@ export interface PlayerData {
   components: AvatarSchemaComponent[]
   playerID: string
   playerHeight: number
+  fuseCursor: boolean
   options?: AvatarOptions
 }
 
@@ -26,7 +27,8 @@ export const PlayerComponentSchema: AFRAME.MultiPropertySchema<PlayerData> = {
   components: { default: defaultComponents },
   options: { default: defaultAvatarOptions },
   playerID: { default: defaultPlayerID },
-  playerHeight: { default: defaultPlayerHeight }
+  playerHeight: { default: defaultPlayerHeight },
+  fuseCursor: { default: false }
 }
 
 export interface PlayerProps {
@@ -67,7 +69,7 @@ export const PlayerComponent: AFRAME.ComponentDefinition<PlayerProps> = {
   initPlayer() {
     this.el.setAttribute('id', this.data.playerID)
 
-    this.cameraRig = new CameraRig()
+    this.cameraRig = new CameraRig('player-camera', {}, this.data.fuseCursor)
     this.cameraRigEl = this.cameraRig.el
     this.playerCameraEl = this.cameraRig.cameraEl
     this.cameraCoponent = this.cameraRig.camera
