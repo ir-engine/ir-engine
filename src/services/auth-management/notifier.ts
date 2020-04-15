@@ -3,9 +3,11 @@ import { Application } from '../../declarations'
 import { getLink, sendEmail } from './utils'
 import * as path from 'path'
 import * as pug from 'pug'
+import config from 'config'
 
 export default (app: Application): any => {
   return {
+    service: config.get('authentication.service'),
     notifier: async (type: string, user: any): Promise<void> => {
       const appPath = path.dirname(require.main ? require.main.filename : '')
       const emailAccountTemplatesPath =
@@ -55,6 +57,8 @@ export default (app: Application): any => {
           return await sendEmail(app, email)
 
         case 'sendResetPwd':
+          console.log('---------', user)
+
           hashLink = getLink('reset', user.resetToken)
           templatePath = path.join(emailAccountTemplatesPath, 'reset-password.pug')
 
