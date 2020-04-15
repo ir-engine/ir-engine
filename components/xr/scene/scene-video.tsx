@@ -19,7 +19,6 @@ export default class VideoScene extends React.Component<State> {
   componentDidMount() {
     if (typeof window !== 'undefined') {
       require('aframe')
-      require('networked-aframe')
       this.setState({ appRendered: true })
     }
   }
