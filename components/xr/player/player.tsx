@@ -3,12 +3,13 @@ import React from 'react'
 // @ts-ignore
 import { Entity } from 'aframe-react'
 
-export default class PlayerComp extends React.Component {
-  render() {
-    return (
-      <Entity
-        player=""
-      />
-    )
-  }
+function PlayerComp(props: any) {
+  const playerProps = 'fuseCursor: ' + props.fuseCursor
+  return (
+    <Entity
+      player={ playerProps }
+    />
+  )
 }
+
+export default PlayerComp
