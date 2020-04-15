@@ -1,6 +1,7 @@
 import NavUserWidget from '../NavUserWidget'
 import React, { Component } from 'react'
 import AppBar from '@material-ui/core/AppBar'
+
 import Logo from '../../../assets/logo.png'
 import './style.scss'
 
