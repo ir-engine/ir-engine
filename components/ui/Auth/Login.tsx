@@ -235,14 +235,22 @@ function SignInWrapper(props: any) {
     }
   }
   else {
-    const smsTab    = isEnableSmsMagicLink    && <Tab icon={<EmailIcon/>} label="SMS"/>
-    const smsTabPanel = isEnableSmsMagicLink  && <TabPanel value={tabIndex} index={0}><MagicLinkSms {...props}/></TabPanel>
-    const emailTab  = isEnableEmailMagicLink  && <Tab icon={<PhoneIcon/>} label="Email"/>
-    const emailTabPanel  = isEnableEmailMagicLink  && <TabPanel value={tabIndex} index={1}><MagicLinkEmail {...props}/></TabPanel>
-    const userTab   = isEnableUserPassword    && <Tab icon={<UserIcon/>} label="User"/>
-    const userTabPanel   = isEnableUserPassword && <TabPanel value={tabIndex} index={2}><SignIn {...props}/></TabPanel>
-    const socialTab = social_count > 0        && <Tab icon={<SocialIcon/>} label="Social"/>
-    const socialTabPanel = social_count > 0        && <TabPanel value={tabIndex} index={2}><SocialLogin {...props} isEnableFacebook={isEnableFacebook} isEnableGoogle={isEnableGoogle} isEnableGithub={isEnableGithub}/></TabPanel>
+    let index = 0;
+    const emailTab      = isEnableEmailMagicLink  && <Tab icon={<PhoneIcon/>} label="Email"/>
+    const emailTabPanel = isEnableEmailMagicLink  && <TabPanel value={tabIndex} index={index}><MagicLinkEmail {...props}/></TabPanel>
+    isEnableEmailMagicLink && ++index;
+
+    const smsTab      = isEnableSmsMagicLink  && <Tab icon={<EmailIcon/>} label="SMS"/>
+    const smsTabPanel = isEnableSmsMagicLink  && <TabPanel value={tabIndex} index={index}><MagicLinkSms {...props}/></TabPanel>
+    isEnableSmsMagicLink && ++index;
+    
+    const userTab       = isEnableUserPassword && <Tab icon={<UserIcon/>} label="User"/>
+    const userTabPanel  = isEnableUserPassword && <TabPanel value={tabIndex} index={index}><SignIn {...props}/></TabPanel>
+    isEnableUserPassword && ++index;
+
+    const socialTab       = social_count > 0 && <Tab icon={<SocialIcon/>} label="Social"/>
+    const socialTabPanel  = social_count > 0 && <TabPanel value={tabIndex} index={index}><SocialLogin {...props} isEnableFacebook={isEnableFacebook} isEnableGoogle={isEnableGoogle} isEnableGithub={isEnableGithub}/></TabPanel>
+    social_count > 0 && ++index;
     
     console.log(social_count, socialTabPanel);
     
@@ -256,8 +264,8 @@ function SignInWrapper(props: any) {
           textColor="secondary"
           aria-label="Login Configure"
         >
-          {smsTab}
           {emailTab}
+          {smsTab}
           {userTab}
           {socialTab}
         </Tabs>
