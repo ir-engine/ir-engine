@@ -1,14 +1,13 @@
 # xrchat-ops
 Deployment and Operations for xrchat services
 
-## Onc-Click Deployment on Kubernetes using Helm
+## One-Click Deployment on Kubernetes using Helm
 
 You can run the whole platfrom with the following commands:
 ``` bash
-git clone git@github.com:xrchat/xrchat-ops.git
-cd xrchat-ops
-helm dep update xrchat
-helm install my-release xrchat
+helm repo add xrchat https://xrchat.github.io/xrchat-ops/
+helm repo update
+helm install my-release xrchat/xrchat
 ```
 
 For deployment on different cloud providers:

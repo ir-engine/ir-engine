@@ -29,13 +29,34 @@ It also optionally packages following which are required for xrchat platform:
 - Helm v2.11+ or Helm 3.1+ to run "weighted" hooks in right order.
 - Persistent Volumes provisioner support in the underlying infrastructure.
 
+
+## Create New Chart Version
+
+To create a new version from the chart you will need to install chartpress via:
+
+``` bash
+pip install chartpress
+```
+
+then run following commands:
+
+``` bash
+git checkout master
+git tag 0.1.0
+chartpress --publish-chart
+git clean -xffd
+```
+the branch can be any branch have the required chart features, the tag will be the chart tag you need.
+
 ## Installing the Chart
 
 To install the chart with the release name `my-release`:
 
 ```console
-$ helm install my-release xrchat            # Helm 3
-$ helm install --name my-release xrchat     # Helm 2
+$ helm repo add xrchat https://xrchat.github.io/xrchat-ops/
+$ helm repo update
+$ helm install my-release xrchat/xrchat            # Helm 3
+$ helm install --name my-release xrchat/xrchat     # Helm 2
 ```
 XRChat
 The command deploys XRchat on the Kubernetes cluster in the default configuration. The [configuration](#configuration) section lists the parameters that can be configured during installation.
@@ -116,13 +137,13 @@ Specify each parameter using the `--set key=value[,key=value]` argument to `helm
 ```console
 $ helm install --name my-release \
   --set persistence.enabled=false,email.host=email \
-    xrchat
+    xrchat/xrchat
 ```
 
 Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example,
 
 ```console
-$ helm install --name my-release -f values.yaml xrchat
+$ helm install --name my-release -f values.yaml xrchat/xrchat
 ```
 
 > **Tip**: You can use the default <values.yaml>
