@@ -6,28 +6,17 @@ import withRedux from 'next-redux-wrapper'
 import { Provider } from 'react-redux'
 import { fromJS } from 'immutable'
 import { configureStore } from '../redux/store'
-import { Store } from 'redux';
-import { ThemeProvider } from '@material-ui/core/styles';
-import { siteTitle } from "../config/server";
-import CssBaseline from '@material-ui/core/CssBaseline';
-import theme from '../components/assets/theme';
-import { restoreState } from '../redux/persisted.store';
-
-interface Props extends AppProps{
-    store: Store;
-    restoreState: typeof restoreState
-
 import { Store } from 'redux'
 import { ThemeProvider } from '@material-ui/core/styles'
-import { siteTitle } from '../config/server'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import theme from '../components/assets/theme'
+import { restoreState } from '../redux/persisted.store'
 
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig
 
-interface Props extends AppProps{
-    store: Store
+interface Props extends AppProps {
+  store: Store
 }
 
 class MyApp extends App<Props> {
@@ -37,24 +26,27 @@ class MyApp extends App<Props> {
       jssStyles.parentNode.removeChild(jssStyles)
     }
 
-    this.props.store.dispatch(restoreState());
+    this.props.store.dispatch(restoreState())
   }
 
   render() {
     const { Component, pageProps, store } = this.props
     return (
-        <Fragment>
-          <Head>
-            <title>{config.title}</title>
-            <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width"/>
-          </Head>
-          <ThemeProvider theme={theme}>
-            <CssBaseline/>
-            <Provider store={store}>
-              <Component {...pageProps} />
-            </Provider>
-          </ThemeProvider>
-        </Fragment>
+      <Fragment>
+        <Head>
+          <title>{config.title}</title>
+          <meta
+            name="viewport"
+            content="minimum-scale=1, initial-scale=1, width=device-width"
+          />
+        </Head>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Provider store={store}>
+            <Component {...pageProps} />
+          </Provider>
+        </ThemeProvider>
+      </Fragment>
     )
   }
 }
