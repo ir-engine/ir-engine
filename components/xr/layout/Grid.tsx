@@ -4,6 +4,15 @@ import { useRouter } from 'next/router'
 import { Entity } from 'aframe-react'
 import { CylindricalGrid } from '../../../classes/aframe/layout/GridUtils'
 
+// eslint-disable-next-line no-unused-vars
+import { bindActionCreators, Dispatch } from 'redux'
+
+import { connect } from 'react-redux'
+import { selectVideoState } from '../../../redux/video/selector'
+import { fetchPulicVideos } from '../../../redux/video/service'
+// eslint-disable-next-line no-unused-vars
+import { PublicVideo } from '../../../redux/video/actions'
+
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr.grid
 const playerHeight = getConfig().publicRuntimeConfig.xr.playerHeight
@@ -11,7 +20,22 @@ const playerHeight = getConfig().publicRuntimeConfig.xr.playerHeight
 const range = (n: number) => Array.from(Array(n).keys())
 const numbers = range(config.rows * config.columns)
 
-function GridLayout () {
+interface VideoProps {
+  videos: any,
+  fetchPublicVideos: typeof fetchPulicVideos
+}
+
+const mapStateToProps = (state: any) => {
+  return {
+    videos: selectVideoState(state)
+  }
+}
+
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  fetchPublicVideos: bindActionCreators(fetchPulicVideos, dispatch)
+})
+
+function GridLayout (props: VideoProps): any {
   const router = useRouter()
   const cylindricalGrid: CylindricalGrid = new CylindricalGrid(config.gridCellsPerRow, config.cellHeight,
     config.radius, config.rows, config.columns)
@@ -43,41 +67,60 @@ function GridLayout () {
     return '0 ' + (gridOffsetY() + playerHeight) + ' 0'
   }
 
-  function followLink() {
-    console.log('image clicked!')
-    router.push('/video360?manifest=%2Fvideo360%2Fstone%2Fstream.mpd')
+  function followLink(link: any) {
+    router.push('/video360?manifest=' + link)
   }
 
-  function Grid(props: any) {
-    const numbers = props.numbers
+  const { videos } = props
+  console.log(videos.get('videos'))
 
-    const gridItems = numbers.map((number: number) =>
-      <Entity key={number.toString()}
-        position={ gridCellPosition(number) }
-        rotation={ gridCellRotation(number) }>
-        <Entity
-          primitive="a-image"
-          class='clickable'
-          src="#placeholder"
-          width={ config.cellWidth }
-          height={ config.cellContentHeight }
-          events={{ click: followLink } }>
-        </Entity>
-      </Entity>
-    )
-    return gridItems
-  }
-
-  return (
-    <Entity
+  return (videos.get('videos').size > 0
+    ? <Entity
       class="grid-cylinder"
       rotation={gridRotationString()}
       position={gridOffsetString()}>
-
-      { Grid({ numbers: numbers }) }
-
+      {videos.get('videos').map(function (video: PublicVideo, i: number) {
+        const cb = followLink.bind(video.link)
+        return (
+          <Entity key= {i}
+            position={ gridCellPosition(i) }
+            rotation={ gridCellRotation(i) }>
+            <Entity
+              primitive="a-image"
+              class='clickable'
+              src="#placeholder"
+              width={ config.cellWidth }
+              height={ config.cellContentHeight }
+              events={{ click: cb } }>
+            </Entity>
+          </Entity>
+        )
+      })}
+    </Entity>
+    : <Entity
+      class="grid-cylinder"
+      rotation={gridRotationString()}
+      position={gridOffsetString()}>
+      {numbers.map(function (i: number) {
+        return (
+          <Entity key= {i}
+            position={ gridCellPosition(i) }
+            rotation={ gridCellRotation(i) }>
+            <Entity
+              primitive="a-image"
+              class='clickable'
+              src="#placeholder"
+              width={ config.cellWidth }
+              height={ config.cellContentHeight }>
+            </Entity>
+          </Entity>
+        )
+      })}
     </Entity>
   )
 }
 
-export default GridLayout
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(GridLayout)
