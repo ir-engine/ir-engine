@@ -42,6 +42,7 @@ export default class VideoScene extends React.Component<State> {
             <Assets/>
             <Grid/>
             <Skybox/>
+            <a-plane color="#000" height="20000" width="200000" rotation="-90 0 0"></a-plane>
             <Entity
               player="fuseCursor: true"/>
           </Scene>
