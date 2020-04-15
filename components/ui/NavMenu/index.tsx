@@ -18,6 +18,9 @@ export default class NavMenu extends Component {
               className="logo"
             />
           </div>
+
+          <div className="gap">&ngsp;</div>
+          
           <NavUserWidget />
         </Toolbar>
       </AppBar>
