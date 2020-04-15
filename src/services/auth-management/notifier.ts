@@ -36,7 +36,7 @@ export default (app: Application): any => {
             html: compiledHTML
           }
 
-          return sendEmail(app, email)
+          return await sendEmail(app, email)
 
         case 'verifySignup': // confirming verification
           hashLink = getLink('verify', user.verifyToken)
@@ -54,10 +54,10 @@ export default (app: Application): any => {
             subject: 'Thank you, your email has been verified',
             html: compiledHTML
           }
-          return sendEmail(app, email)
+          return await sendEmail(app, email)
 
         case 'sendResetPwd':
-          console.log('---------', user);
+          console.log('---------', user)
 
           hashLink = getLink('reset', user.resetToken)
           templatePath = path.join(emailAccountTemplatesPath, 'reset-password.pug')
@@ -76,7 +76,7 @@ export default (app: Application): any => {
             html: compiledHTML
           }
 
-          return sendEmail(app, email)
+          return await sendEmail(app, email)
 
         case 'resetPwd':
           hashLink = getLink('reset', user.resetToken)
@@ -96,7 +96,7 @@ export default (app: Application): any => {
             html: compiledHTML
           }
 
-          return sendEmail(app, email)
+          return await sendEmail(app, email)
 
         case 'passwordChange':
           templatePath = path.join(emailAccountTemplatesPath, 'password-change.pug')
@@ -114,7 +114,7 @@ export default (app: Application): any => {
             html: compiledHTML
           }
 
-          return sendEmail(app, email)
+          return await sendEmail(app, email)
 
         case 'identityChange':
           hashLink = getLink('verifyChanges', user.verifyToken)
@@ -135,7 +135,7 @@ export default (app: Application): any => {
             subject: 'Your account was changed. Please verify the changes',
             html: compiledHTML
           }
-          return sendEmail(app, email)
+          return await sendEmail(app, email)
 
         default:
           break
