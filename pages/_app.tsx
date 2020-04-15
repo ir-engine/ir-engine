@@ -11,16 +11,21 @@ import { ThemeProvider } from '@material-ui/core/styles';
 import { siteTitle } from "../config/server";
 import CssBaseline from '@material-ui/core/CssBaseline';
 import theme from '../components/assets/theme';
+import { restoreState } from '../redux/persisted.store';
 
 interface Props extends AppProps{
     store: Store;
+    restoreState: typeof restoreState
 }
 
 class MyApp extends App<Props> {
   componentDidMount() {
     const jssStyles = document.querySelector('#jss-server-side')
-    if (jssStyles && jssStyles.parentNode)
+    if (jssStyles && jssStyles.parentNode) {
       jssStyles.parentNode.removeChild(jssStyles)
+    }
+
+    this.props.store.dispatch(restoreState());
   }
 
   render() {

@@ -1,34 +1,29 @@
-import Immutable from 'immutable';
-// import { localStorageKey } from '../config/server';
-// import { initialState as authState } from './auth/reducers';
+import { localStorageKey } from '../config/server';
+import { RESTORE } from './actions';
 
-// const initialState: any = Immutable.fromJS({
-//     auth: {}
-// });
-const initialState: any = Immutable.Map();
-
-export const persistedStore = (() => {
-    try {
-        return initialState;
-        // const rawState = localStorage.getItem(localStorageKey);
-        // if (!rawState) {
-        //     return initialState;
-        // }
-        
-        // const state = JSON.parse(rawState);
-        // return Immutable.fromJS(state);
-    } catch (err) {
-        return initialState;
+export function restoreState(): any {
+    return {
+        type: RESTORE
     }
-})();
+}
 
-// export const saveState = (state: any) => {
-//     try {
+export const getStoredState = (key: string) => {
+    if (!window) {
+        return undefined;
+    }
+    const rawState = localStorage.getItem(localStorageKey);
+    if (!rawState) {
+        return undefined;
+    }
+    const state = JSON.parse(rawState);
+    return state[key];
+}
 
-//         // const rawState = JSON.stringify(state);
-
-//         // localStorage.setItem(localStorageKey, rawState);
-//     } catch (err) {
-//         // nothing to do.
-//     }
-// };
+export const saveState = (state: any) => {
+    try {
+        const rawState = JSON.stringify(state);
+        localStorage.setItem(localStorageKey, rawState);
+    } catch (err) {
+        // nothing to do.
+    }
+};
