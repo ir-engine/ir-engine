@@ -1,6 +1,7 @@
 # not slim because we need github depedencies
 FROM node:12.16
 
+RUN apt update && apt install -y ffmpeg
 # Create app directory
 WORKDIR /app
 
