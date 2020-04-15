@@ -60,7 +60,33 @@
           "thetaLength": 90
         }
       },
-      "playerHeight": 1
+      "playerHeight": 1,
+      "landing": {
+        "cellWidth": 6,
+        "cellContentHeight": 0.45,
+        "cellHeight": 0.5,
+        "offset": {
+          "x": 0,
+          "y": 1,
+          "z": -6
+        },
+        "spoke": {
+          "src": "",
+          "link": ""
+        },
+        "vrRoom": {
+          "src": "",
+          "link": ""
+        },
+        "video360": {
+          "src": "",
+          "link": ""
+        },
+        "store": {
+          "src": "",
+          "link": ""
+        }
+      }
     },
     "server_address": "localhost:3030"
   },
