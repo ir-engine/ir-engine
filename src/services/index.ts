@@ -14,6 +14,8 @@ import Instance from './instance/instance.service'
 
 import { Application } from '../declarations'
 
+import magiclink from './magiclink/magiclink.service'
+
 export default (app: Application): void => {
   app.configure(Uploads)
   app.configure(Email)
@@ -28,4 +30,5 @@ export default (app: Application): void => {
   app.configure(Location)
   app.configure(Instance)
   app.configure(publicVideo)
+  app.configure(magiclink)
 }
