@@ -1,5 +1,5 @@
-import Link from '@material-ui/core/Typography'
-import NextLink from 'next/link'
+// import Link from '@material-ui/core/Typography'
+// import NextLink from 'next/link'
 import React, { Component } from 'react'
 import Button from '@material-ui/core/Button'
 
@@ -62,7 +62,7 @@ class NavUserBadge extends Component<Props> {
             )}
           </div>
         )}
-        {!isLoggedIn && (
+       {/*  {!isLoggedIn && (
           <Button>
             <NextLink href="/auth/login">
               <Link className="loginText" title="Login">
@@ -70,7 +70,8 @@ class NavUserBadge extends Component<Props> {
               </Link>
             </NextLink>
           </Button>
-        )}
+        )
+        } */}
       </div>
     )
   }
