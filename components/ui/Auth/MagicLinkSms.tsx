@@ -12,9 +12,9 @@ import './auth.scss'
 interface Props {
   auth: any
   createMagicLink: typeof createMagicLink
-}
+};
 
-class MagicLinkEmail extends React.Component<Props> {
+class MagicLinkSms extends React.Component<Props> {
   state = {
     email: '',
     isSubmitted: false
@@ -27,12 +27,12 @@ class MagicLinkEmail extends React.Component<Props> {
   }
 
   handleSubmit = (e: any) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    this.props.createMagicLink('email', this.state.email)
+    this.props.createMagicLink('sms', this.state.email);
     this.setState({
       isSubmitted: true
-    })
+    });
   }
 
   render() {
@@ -40,11 +40,11 @@ class MagicLinkEmail extends React.Component<Props> {
         <Container component="main" maxWidth="xs">
           <div className={'paper'}>
             <Typography component="h1" variant="h5">
-              Email Magic Link
+              SMS Magic Link
             </Typography>
     
             <Typography variant="body2" color="textSecondary" align="center">
-              Please enter your email address and we'll send you a magic link email.
+              Please enter your phone number and we'll send you a magic link SMS.
             </Typography>
     
             <form className={'form'} noValidate onSubmit={(e) => this.handleSubmit(e)}>
@@ -55,10 +55,10 @@ class MagicLinkEmail extends React.Component<Props> {
                     margin="normal"
                     required
                     fullWidth
-                    id="email"
-                    label="Email Address"
-                    name="email"
-                    autoComplete="email"
+                    id="mobile"
+                    label="Phone Number"
+                    name="mobile"
+                    autoComplete="phone"
                     autoFocus
                     onChange={(e) => this.handleInput(e)}
                   />
@@ -71,7 +71,7 @@ class MagicLinkEmail extends React.Component<Props> {
                     color="primary"
                     className={'submit'}
                   >
-                    Email Magic Link
+                    SMS Magic Link
                   </Button>
                 </Grid>
               </Grid>
@@ -82,4 +82,4 @@ class MagicLinkEmail extends React.Component<Props> {
   }
 }
 
-export default MagicLinkEmail
+export default MagicLinkSms;

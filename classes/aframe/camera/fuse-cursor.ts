@@ -22,7 +22,12 @@ export default class FuseCursor {
     setComponent(this.el, raycaster)
 
     this.el.setAttribute('geometry', { primitive: 'ring', radiusInner: 0.02, radiusOuter: 0.03 })
-    this.el.setAttribute('material', { color: 'rgb(1, 1, 1, 0.2)', shader: 'transparent' })
+    this.el.setAttribute('material', {
+      color: 'white',
+      shader: 'standard',
+      transparent: true,
+      opacity: 0.2
+    })
 
     this.el.setAttribute('animation__click', {
       property: 'scale',

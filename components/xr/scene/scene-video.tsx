@@ -30,7 +30,6 @@ export default class VideoScene extends React.Component<State> {
       <div style={{ height: '100%', width: '100%' }}>
         {this.state.appRendered && (
           <Scene
-            networked-scene={config}
             class="scene"
             renderer="antialias: true"
             background="color: #FAFAFA"

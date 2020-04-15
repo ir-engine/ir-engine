@@ -1,15 +1,12 @@
-import React from 'react'
-import Avatar from '@material-ui/core/Avatar'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import Link from '@material-ui/core/Link'
-import Grid from '@material-ui/core/Grid'
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
-import Typography from '@material-ui/core/Typography'
-import Container from '@material-ui/core/Container'
-import GitHubIcon from '@material-ui/icons/GitHub'
-import FacebookIcon from '@material-ui/icons/Facebook'
-import GoogleIcon from '../../assets/GoogleIcon'
+import React from 'react';
+import Avatar from '@material-ui/core/Avatar';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import Link from '@material-ui/core/Link';
+import Grid from '@material-ui/core/Grid';
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import Typography from '@material-ui/core/Typography';
+import Container from '@material-ui/core/Container';
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { 
@@ -64,20 +61,20 @@ class SignUp extends React.Component<Props> {
     })
   }
 
-  handleGithubLogin = (e: any) => {
-    e.preventDefault()
-    this.props.loginUserByGithub()
-  }
+  // handleGithubLogin = (e: any) => {
+  //   e.preventDefault()
+  //   this.props.loginUserByGithub();
+  // }
 
-  handleGoogleLogin = (e: any) => {
-    e.preventDefault()
-    this.props.loginUserByGithub()
-  }
+  // handleGoogleLogin = (e: any) => {
+  //   e.preventDefault()
+  //   this.props.loginUserByGithub();
+  // }
 
-  handleFacebookLogin = (e: any) => {
-    e.preventDefault()
-    this.props.loginUserByGithub()
-  }
+  // handleFacebookLogin = (e: any) => {
+  //   e.preventDefault()
+  //   this.props.loginUserByGithub();
+  // }
 
   render () {
     return (
@@ -117,16 +114,18 @@ class SignUp extends React.Component<Props> {
                     onChange={(e) => this.handleInput(e)}
                   />
                 </Grid>
+                <Grid item xs={12}>
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={'submit'}
+                  >
+                    Sign Up
+                  </Button>
+                </Grid>
               </Grid>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                color="primary"
-                className={'submit'}
-              >
-                Sign Up
-              </Button>
               <Grid container justify="flex-end">
                 <Grid item>
                   <Link href="/auth/login" variant="body2">
@@ -140,24 +139,6 @@ class SignUp extends React.Component<Props> {
           <div style={{marginTop: '20px'}}>
             &nbsp
           </div>
-          
-          <Grid container justify="center" spacing={2}>
-            <Grid item>
-              <Button onClick={(e) => this.handleGithubLogin(e)}>
-                <GitHubIcon fontSize="large"/>
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button onClick={(e) => this.handleFacebookLogin(e)}>
-                <FacebookIcon fontSize="large"/>
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button onClick={(e) => this.handleGoogleLogin(e)}>
-                <GoogleIcon/>
-              </Button>
-            </Grid>
-          </Grid>
         </Container>
       </EmptyLayout>
     )
