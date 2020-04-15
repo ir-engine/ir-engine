@@ -49,6 +49,7 @@
     "@feathersjs/transport-commons": "^4.5.2",
     "@types/multer": "^1.4.2",
     "@types/nodemailer": "^6.4.0",
+    "app-root-path": "^3.0.0",
     "aws-sdk": "^2.656.0",
     "compression": "^1.7.4",
     "config": "^3.3.1",
