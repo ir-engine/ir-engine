@@ -244,7 +244,7 @@ function SignInWrapper(props: any) {
     const smsTabPanel = isEnableSmsMagicLink  && <TabPanel value={tabIndex} index={index}><MagicLinkSms {...props}/></TabPanel>
     isEnableSmsMagicLink && ++index;
     
-    const userTab       = isEnableUserPassword && <Tab icon={<UserIcon/>} label="User"/>
+    const userTab       = isEnableUserPassword && <Tab icon={<UserIcon/>} label="UserName + Password"/>
     const userTabPanel  = isEnableUserPassword && <TabPanel value={tabIndex} index={index}><SignIn {...props}/></TabPanel>
     isEnableUserPassword && ++index;
 
