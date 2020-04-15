@@ -189,9 +189,94 @@ class SignIn extends React.Component<Props> {
 
 function SignInWrapper(props: any) {
   console.log('-------', config)
-  const isEnableEmailMagicLink = (config ? config.isEnableEmailMagicLink : true)
-  if (isEnableEmailMagicLink) {
-    return <MagicLinkEmail {...props}></MagicLinkEmail>
+  // const isEnableEmailMagicLink = (config ? config.isEnableEmailMagicLink : true);
+  let isEnableSmsMagicLink = true;
+  let isEnableEmailMagicLink = true;
+  let isEnableUserPassword = false;
+  let isEnableGithub = false;
+  let isEnableGoogle = false;
+  let isEnableFacebook = false;
+  const [tabIndex, setTabIndex] = React.useState(0);
+
+  const handleChange = (event: any, newValue: number) => {
+    event.preventDefault();
+    setTabIndex(newValue);
+  };
+
+  if (config && config.auth) {
+      isEnableSmsMagicLink = config.auth.isEnableSmsMagicLink;
+      isEnableEmailMagicLink = config.auth.isEnableEmailMagicLink;
+      isEnableUserPassword = config.auth.isEnableUserPassword;
+      isEnableGithub = config.auth.isEnableGithub;
+      isEnableGoogle = config.auth.isEnableGoogle;
+      isEnableFacebook = config.auth.isEnableFacebook;
+  }
+
+  const socials = [
+    isEnableGithub, 
+    isEnableGoogle, 
+    isEnableFacebook
+  ];
+  const enabled = [
+    isEnableSmsMagicLink,
+    isEnableEmailMagicLink,
+    isEnableUserPassword,
+    isEnableGithub,
+    isEnableGoogle,
+    isEnableFacebook,
+  ];
+
+  const enabled_count = enabled.filter(v => v).length;
+  const social_count = socials.filter(v => v).length;
+
+  let component = <MagicLinkEmail {...props}></MagicLinkEmail>;
+  if (enabled_count == 1) {
+    if (isEnableSmsMagicLink) {
+      component = <MagicLinkSms {...props}></MagicLinkSms>;
+    }
+    else if (isEnableEmailMagicLink) {
+      component = <MagicLinkEmail {...props}></MagicLinkEmail>;
+    }
+    else if (isEnableUserPassword) {
+      component = <SignIn {...props}></SignIn>
+    }
+    else if (social_count > 0) {
+      component = <SocialLogin {...props}></SocialLogin>
+    }
+  }
+  else {
+    const smsTab    = isEnableSmsMagicLink    && <Tab icon={<PhoneIcon/>} label="SMS"/>
+    const smsTabPanel = isEnableSmsMagicLink  && <TabPanel value={tabIndex} index={0}><MagicLinkSms {...props}/></TabPanel>
+    const emailTab  = isEnableEmailMagicLink  && <Tab icon={<EmailIcon/>} label="Email"/>
+    const emailTabPanel  = isEnableEmailMagicLink  && <TabPanel value={tabIndex} index={1}><MagicLinkEmail {...props}/></TabPanel>
+    const userTab   = isEnableUserPassword    && <Tab icon={<UserIcon/>} label="User"/>
+    const userTabPanel   = isEnableUserPassword && <TabPanel value={tabIndex} index={2}><SignIn {...props}/></TabPanel>
+    const socialTab = social_count > 0        && <Tab icon={<SocialIcon/>} label="Social"/>
+    const socialTabPanel = social_count > 0        && <TabPanel value={tabIndex} index={2}><SocialLogin {...props} isEnableFacebook={isEnableFacebook} isEnableGoogle={isEnableGoogle} isEnableGithub={isEnableGithub}/></TabPanel>
+    
+    console.log(social_count, socialTabPanel);
+    
+    component = (
+      <Fragment>
+        <Tabs
+          value={tabIndex}
+          onChange={handleChange}
+          variant="fullWidth"
+          indicatorColor="secondary"
+          textColor="secondary"
+          aria-label="Login Configure"
+        >
+          {smsTab}
+          {emailTab}
+          {userTab}
+          {socialTab}
+        </Tabs>
+        {smsTabPanel}
+        {emailTabPanel}
+        {userTabPanel}
+        {socialTabPanel}
+      </Fragment>
+    )
   }
 
   return <SignIn {...props}/>
