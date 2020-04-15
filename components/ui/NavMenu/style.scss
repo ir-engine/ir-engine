@@ -1,0 +1,24 @@
+.navitems {
+  margin-right: auto;
+}
+
+.toolbar {
+    background-color: rgba(0, 0, 0, 0)!important;
+}
+.gap {
+    flex-grow: 1;
+}
+.flex {
+    display: flex;
+    align-items: center;
+}
+
+.appbar {
+    box-shadow: none!important;
+    background-color: rgba(0, 0, 0, 0)!important;
+}
+
+.logo {
+    height: 3em;
+    width: auto;
+}

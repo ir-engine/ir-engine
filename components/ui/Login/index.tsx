@@ -6,41 +6,42 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import { connect } from 'react-redux'
+import './style.scss'
 import { bindActionCreators, Dispatch } from 'redux'
-import { 
+import {
   loginUserByGithub,
   loginUserByEmail,
-  logoutUser, 
+  logoutUser,
   registerUserByEmail
 } from '../../../redux/auth/service'
 import { selectAuthState } from '../../../redux/auth/selector'
 
 interface LoginProps {
-  auth: any,
-  loginUserByEmail: typeof loginUserByEmail;
-  logoutUser: typeof logoutUser;
-  loginUserByGithub: typeof loginUserByGithub;
-  registerUserByEmail: typeof registerUserByEmail;
-};
+  auth: any
+  loginUserByEmail: typeof loginUserByEmail
+  logoutUser: typeof logoutUser
+  loginUserByGithub: typeof loginUserByGithub
+  registerUserByEmail: typeof registerUserByEmail
+}
 
 const mapStateToProps = (state: any) => {
   return {
-    auth: selectAuthState(state),
+    auth: selectAuthState(state)
   }
-};
+}
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   loginUserByEmail: bindActionCreators(loginUserByEmail, dispatch),
   logoutUser: bindActionCreators(logoutUser, dispatch),
   loginUserByGithub: bindActionCreators(loginUserByGithub, dispatch),
-  registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch),
-});
+  registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch)
+})
 
 class Login extends React.Component<LoginProps> {
   state = {
     email: '',
     password: ''
-  };
+  }
 
   handleInput = (e: any) => {
     this.setState({
@@ -53,61 +54,54 @@ class Login extends React.Component<LoginProps> {
     this.props.loginUserByEmail({
       email: this.state.email,
       password: this.state.password
-    });
+    })
   }
 
   handleGithubLogin = (e: any) => {
     e.preventDefault()
-    this.props.loginUserByGithub();
+    this.props.loginUserByGithub()
   }
 
   handleEmailSignup = (e: any) => {
     e.preventDefault()
-    
+
     this.props.registerUserByEmail({
       email: this.state.email,
       password: this.state.password
-    });
+    })
   }
 
   render() {
-    const { auth } = this.props;
+    const { auth } = this.props
 
     return (
-      <Dialog open={!auth.get('isLogined')}>
-        <DialogTitle id="login-form">Log In</DialogTitle>
-
-        <DialogContent>
-          <DialogContentText>
-            You must be logged in to continue. Registration is easy and free!
+      <Dialog className="dialog" open={!auth.get('isLoggedIn')}>
+        <DialogTitle id="login-form" className="title">
+          Enter your e-mail or phone number to login!
+        </DialogTitle>
+        <DialogContent className="dialogContent">
+          <DialogContentText className="dialogContentText">
+              If you don't have account, we'll make one for you automagically!
           </DialogContentText>
 
-          <Button onClick={(e: any) => this.handleGithubLogin(e)}>
+          {/* <Button onClick={(e: any) => this.handleGithubLogin(e)}>
             <a>Log In With Github</a>
-          </Button>
+    </Button> */}
 
           <TextField
+            className="inputField"
             type="email"
             name="email"
             id="email"
-            placeholder="email"
+            placeholder=""
             value={this.state.email}
             onChange={(e: any) => this.handleInput(e)}
+            autoFocus
           />
 
-          <TextField
-            type="password"
-            name="password"
-            placeholder="password"
-            value={this.state.password}
-            onChange={(e: any) => this.handleInput(e)}
-          />
-          <Button id="signup" onClick={(e: any) => this.handleEmailSignup(e)}>
-            Sign Up
-          </Button>
           <Button id="login" onClick={(e: any) => this.handleEmailLogin(e)}>
             {' '}
-            Login{' '}
+            Go!{' '}
           </Button>
         </DialogContent>
       </Dialog>
@@ -115,7 +109,4 @@ class Login extends React.Component<LoginProps> {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Login);
+export default connect(mapStateToProps, mapDispatchToProps)(Login)

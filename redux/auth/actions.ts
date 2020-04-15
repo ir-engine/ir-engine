@@ -12,7 +12,8 @@ import {
     DID_RESEND_VERIFICATION_EMAIL,
     DID_FORGOT_PASSWORD,
     DID_RESET_PASSWORD,
-    ACTION_PROCESSING
+    ACTION_PROCESSING,
+    DID_CREATE_MAGICLINK
 } from '../actions';
 
 export interface AuthUser {
@@ -29,7 +30,9 @@ export interface AuthUser {
 }
 
 export interface AuthState {
-    isLogined: boolean;
+    isLoggedIn: boolean;
+    isVerified: boolean;
+    
     user: AuthUser | undefined;
     error: string;
 
@@ -129,10 +132,10 @@ export function registerUserByEmailSuccess(user: any): RegistrationResultAction 
     }
 }
 
-export function registerUserByEmailError(): RegistrationResultAction {
+export function registerUserByEmailError(message: string): RegistrationResultAction {
     return {
         type: REGISTER_USER_BY_EMAIL_ERROR,
-        message: ''
+        message: message
     }
 }
 
@@ -160,6 +163,13 @@ export function didForgotPassword(result: boolean): AuthResultAction {
 export function didResetPassword(result: boolean): AuthResultAction {
     return {
         type: DID_RESET_PASSWORD,
+        result
+    }
+}
+
+export function didCreateMagicLink(result: boolean): AuthResultAction {
+    return {
+        type: DID_CREATE_MAGICLINK,
         result
     }
 }
