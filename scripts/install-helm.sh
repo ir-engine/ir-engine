@@ -6,3 +6,4 @@ tar -zxvf temp-helm.tar.gz
 sudo mv linux-amd64/helm /usr/local/bin/helm
 rm -rf linux-amd64
 rm temp-helm.tar.gz
+echo "source <(helm completion bash)" >> ~/.bashrc

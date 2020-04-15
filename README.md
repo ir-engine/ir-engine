@@ -9,10 +9,13 @@ helm repo add xrchat https://xrchat.github.io/xrchat-ops/
 helm repo update
 helm install my-release xrchat/xrchat
 ```
+For more details about the XRChat chart
+
+- [XRChat helm chart](xrchat/)
+- [Building the xrchat helm chart](docs/release-helm-chart.md)
 
 For deployment on different cloud providers:
 
-- [XRChat helm chart](xrchat/)
 - [Deploying XRChat on AWS EKS](docs/deploy_on_eks.md)
 - [Managing Remote Kubernets Clusters - TBD](docs/managing_remote_kubernets.md)
 
@@ -63,4 +66,6 @@ If you want to build the whole compose stack on your machine, and not pull the c
 - run `docker-compose -f docker-compose-local.yml build`
 - run `docker-compose -f docker-compose-local.yml up`
 - all services will be running as detailed in [service](Services) section.
+
+## Build the Helm Chart yourself
 
