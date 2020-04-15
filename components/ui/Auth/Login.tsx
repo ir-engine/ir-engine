@@ -1,17 +1,18 @@
-import React from 'react'
-import Avatar from '@material-ui/core/Avatar'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Checkbox from '@material-ui/core/Checkbox'
-import Link from '@material-ui/core/Link'
-import Grid from '@material-ui/core/Grid'
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
-import Typography from '@material-ui/core/Typography'
-import Container from '@material-ui/core/Container'
-import GitHubIcon from '@material-ui/icons/GitHub'
-import FacebookIcon from '@material-ui/icons/Facebook'
-import GoogleIcon from '../../assets/GoogleIcon'
+import React, { Fragment } from 'react';
+import Avatar from '@material-ui/core/Avatar';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
+import Link from '@material-ui/core/Link';
+import Grid from '@material-ui/core/Grid';
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import Typography from '@material-ui/core/Typography';
+import Container from '@material-ui/core/Container';
+import PhoneIcon from '@material-ui/icons/PhoneIphone';
+import EmailIcon from '@material-ui/icons/Email';
+import SocialIcon from '@material-ui/icons/Public';
+import UserIcon from '@material-ui/icons/Person';
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { 
@@ -23,11 +24,14 @@ import {
 } from '../../../redux/auth/service'
 import { selectAuthState } from '../../../redux/auth/selector'
 import getConfig from 'next/config'
-import MagicLinkEmail from './MagicLinkEmail'
-const config = getConfig().auth
-
+import MagicLinkEmail from './MagicLinkEmail';
+import EmptyLayout from '../Layout/EmptyLayout';
+import { Tabs, Tab } from '@material-ui/core';
 import './auth.scss'
-import EmptyLayout from '../Layout/EmptyLayout'
+import SocialLogin from './SocialLogin';
+import MagicLinkSms from './MagicLinkSms';
+
+const config = getConfig().publicRuntimeConfig;
 
 interface Props {
   auth: any
@@ -89,7 +93,6 @@ class SignIn extends React.Component<Props> {
 
   render() {
     return (
-      <EmptyLayout>
         <Container component="main" maxWidth="xs">
           <div className={'paper'}>
             <Avatar className={'avatar'}>
@@ -159,32 +162,19 @@ class SignIn extends React.Component<Props> {
               </Grid>
             </form>
           </div>
-
-          <div style={{marginTop: '20px'}}>
-            &nbsp
-          </div>
-          
-          <Grid container justify="center" spacing={2}>
-            <Grid item>
-              <Button onClick={(e) => this.handleGithubLogin(e)}>
-                <GitHubIcon fontSize="large"/>
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button onClick={(e) => this.handleFacebookLogin(e)}>
-                <FacebookIcon fontSize="large"/>
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button onClick={(e) => this.handleGoogleLogin(e)}>
-                <GoogleIcon/>
-              </Button>
-            </Grid>
-          </Grid>
         </Container>
-      </EmptyLayout>
-    )
+    );
   }
+}
+
+function TabPanel(props: any) {
+  const { children, value, index } = props;
+
+  return (
+    <Fragment>
+      {value === index && children}
+    </Fragment>
+  );
 }
 
 function SignInWrapper(props: any) {
@@ -245,9 +235,9 @@ function SignInWrapper(props: any) {
     }
   }
   else {
-    const smsTab    = isEnableSmsMagicLink    && <Tab icon={<PhoneIcon/>} label="SMS"/>
+    const smsTab    = isEnableSmsMagicLink    && <Tab icon={<EmailIcon/>} label="SMS"/>
     const smsTabPanel = isEnableSmsMagicLink  && <TabPanel value={tabIndex} index={0}><MagicLinkSms {...props}/></TabPanel>
-    const emailTab  = isEnableEmailMagicLink  && <Tab icon={<EmailIcon/>} label="Email"/>
+    const emailTab  = isEnableEmailMagicLink  && <Tab icon={<PhoneIcon/>} label="Email"/>
     const emailTabPanel  = isEnableEmailMagicLink  && <TabPanel value={tabIndex} index={1}><MagicLinkEmail {...props}/></TabPanel>
     const userTab   = isEnableUserPassword    && <Tab icon={<UserIcon/>} label="User"/>
     const userTabPanel   = isEnableUserPassword && <TabPanel value={tabIndex} index={2}><SignIn {...props}/></TabPanel>
@@ -279,7 +269,11 @@ function SignInWrapper(props: any) {
     )
   }
 
-  return <SignIn {...props}/>
+  return (
+    <EmptyLayout>
+      {component}
+    </EmptyLayout>
+  );
 }
 
 export default connect(
