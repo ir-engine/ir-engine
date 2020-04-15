@@ -80,15 +80,16 @@
         }
       }
     },
-    "server_address": "localhost:3030"
-  },
+    "server_address": "localhost:3030",
 
-  "auth": {
-    "isEnableSmsMagicLink": false,
-    "isEnableEmailMagicLink": true,
-    "isEnableUserPassword": false,
-    "isEnableGithub": false,
-    "isEnableFacebook": false,
-    "isEnableGoogle": false
+    "auth": {
+      "isEnableSmsMagicLink": true,
+      "isEnableEmailMagicLink": true,
+      "isEnableUserPassword": false,
+      "isEnableGithub": true,
+      "isEnableFacebook": true,
+      "isEnableGoogle": true
+    }
+    
   }
 }
