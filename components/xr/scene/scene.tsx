@@ -4,7 +4,7 @@ import { Scene, Entity } from 'aframe-react'
 import Assets from './assets'
 import Environment from './environment'
 import Player from '../player/player'
-import './style.scss'
+import './index.scss'
 import SvgVr from '../../icons/svg/Vr'
 
 import getConfig from 'next/config'
