@@ -14,7 +14,7 @@ export default class Video360Room extends React.Component {
   playPauseHandler() {
     console.log('playPauseHandler')
     var video = document.querySelector(this.props.videosrc)
-    if (video && video !== undefined) {
+    if (video && video !== undefined && video.getAttribute('src') !== '') {
       video.play()
       const controller = document.querySelector('#videoplayercontrols')
       controller.parentElement?.removeChild(controller)
