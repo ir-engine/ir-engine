@@ -27,7 +27,15 @@ function Video360Room() {
       <VideoControls
         videosrc="#video360Shaka" videotitle="#videotitle" />
       <Entity id="videotitle"
-        text={{ font: 'mozillavr', width: 2, value: title, align: 'center', baseline: 'center', color: 'black', transparent: false }}
+        text={{
+          font: 'mozillavr',
+          width: 2,
+          align: 'center',
+          baseline: 'center',
+          color: 'black',
+          transparent: false,
+          value: `${title || ''}\n\n(click to play)`
+        }}
         position={{ x: 0, y: 2, z: -0.8 }}
       />
     </Entity>
