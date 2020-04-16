@@ -7,10 +7,10 @@ import Player from '../player/player'
 import './index.scss'
 import SvgVr from '../../icons/svg/Vr'
 
-import getConfig from 'next/config'
+// import getConfig from 'next/config'
 import Grid from '../layout/Grid'
 import AframeComponentRegisterer from '../../xr/aframe/index'
-const config = getConfig().publicRuntimeConfig.xr['networked-scene']
+// const config = getConfig().publicRuntimeConfig.xr['networked-scene']
 
 type State = {
   appRendered?: boolean
@@ -26,7 +26,7 @@ export default class NetworkedScene extends React.Component<State> {
   componentDidMount() {
     if (typeof window !== 'undefined') {
       require('aframe')
-      require('networked-aframe')
+      // require('networked-aframe')
       this.setState({ appRendered: true })
     }
   }
@@ -37,7 +37,7 @@ export default class NetworkedScene extends React.Component<State> {
         {this.state.appRendered && (
           <Scene
             vr-mode-ui="enterVRButton: #enterVRButton"
-            networked-scene={config}
+            // networked-scene={config}
             class="scene"
             renderer="antialias: true"
             background="color: #FAFAFA"
