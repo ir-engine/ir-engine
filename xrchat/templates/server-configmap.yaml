@@ -8,3 +8,6 @@ data:
 {{- if .Values.server.extraEnv }}
 {{ toYaml .Values.server.extraEnv | indent 2 }}
 {{- end }}
+{{- if .Values.server.config }}
+  NODE_CONFIG: '{{ mustToJson .Values.server.config }}'
+{{- end }}
