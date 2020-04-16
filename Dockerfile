@@ -14,7 +14,7 @@ COPY package*.json /app/
 RUN  npm install --no-progress --verbose
 
 # Build Args, NOTE: supplied at build time, not runtime
-ARG API_SERVER_URL=http://localhost:3030
+#ARG API_SERVER_URL=http://localhost:3030
 
 # copy then compile the code
 COPY . .

@@ -1,6 +1,11 @@
 import io from 'socket.io-client'
+import getConfig from 'next/config'
+
 import feathers from '@feathersjs/client'
-import { apiServer, featherStoreKey } from '../config/server'
+
+const { publicRuntimeConfig } = getConfig()
+const apiServer: string = publicRuntimeConfig.apiServer
+const featherStoreKey: string = publicRuntimeConfig.featherStoreKey
 
 // Socket.io is exposed as the `io` global.
 const socket = io(apiServer)

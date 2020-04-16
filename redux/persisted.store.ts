@@ -1,5 +1,9 @@
-import { localStorageKey } from '../config/server'
+import getConfig from 'next/config'
+
 import { RESTORE } from './actions'
+
+const { publicRuntimeConfig } = getConfig()
+const localStorageKey: string = publicRuntimeConfig.localStorageKey
 
 export function restoreState(): any {
     return {

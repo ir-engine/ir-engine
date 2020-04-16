@@ -1,10 +1,14 @@
+import getConfig from 'next/config'
 import * as React from 'react'
 import NavMenu from '../NavMenu'
 import Footer from '../Footer'
 import Head from 'next/head'
-import { siteTitle } from '../../../config/server'
 import '../../../scss/style.scss' // Global style
 import './style.scss'
+
+const { publicRuntimeConfig } = getConfig()
+const siteTitle: string = publicRuntimeConfig.siteTitle
+
 
 type Props = {
   pageTitle: string
