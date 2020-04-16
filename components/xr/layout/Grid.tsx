@@ -64,8 +64,8 @@ function GridLayout (props: VideoProps): any {
     return '0 ' + (gridOffsetY() + playerHeight) + ' 0'
   }
 
-  function followLink(link: any) {
-    router.push('/video360?manifest=' + link)
+  function followLink(link: string, title: string) {
+    router.push('/video360?manifest=' + link + '&title=' + title)
   }
 
   function getSource(video:any) {
@@ -86,7 +86,7 @@ function GridLayout (props: VideoProps): any {
           position={gridOffsetString()}>
         {videos.get('videos').map(function (video: PublicVideo, i: number) {
           const cb = function() {
-            followLink(video.link)
+            followLink(video.link, video.title)
           }
           return (
               <Entity key= {i}
