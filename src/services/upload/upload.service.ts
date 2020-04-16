@@ -3,9 +3,6 @@ import express from 'express'
 import { ServiceAddons } from '@feathersjs/feathers'
 import multer from 'multer'
 import StorageProvider from '../../storage/storageprovider'
-
-// TODO: Add type defintions
-// @ts-ignore
 import blobService from 'feathers-blob'
 
 import { Application } from '../../declarations'

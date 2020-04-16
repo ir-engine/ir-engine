@@ -1,8 +1,6 @@
 import IStorageProvider from './storageprovider.interface'
 import AWS from 'aws-sdk'
-// @ts-ignore
 import config from 'config'
-// @ts-ignore
 import S3BlobStore from 's3-blob-store'
 
 export default class S3Provider implements IStorageProvider {
