@@ -27,9 +27,12 @@ services:
   client:
     build: 
       context: ../xrchat-client
-      args: 
-        API_SERVER_URL: http://localhost:3030
     image: xrchat/client
+    environment:
+        API_SERVER: https://api.kaixr.world
+        SITE_TITLE: KaiXR
+        SITE_DESC: Connected Worlds for Everyone
+        NODE_ENV: kai
     restart: always
     ports:
       - '3000:3000'
