@@ -41,7 +41,7 @@ class VideoList extends Component<VideoProps> {
           {videos.get('videos').map(function (video: PublicVideo, i: number) {
             return (
               <div className="box" key={i}>
-                <Link href={'/video360?manifest=' + video.link}>
+                <Link href={'/video360?manifest=' + video.link + '&title=' + video.title}>
                   {video.title}
                 </Link>
               </div>

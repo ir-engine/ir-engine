@@ -14,10 +14,12 @@ export default class Video360Room extends React.Component {
   playPauseHandler() {
     console.log('playPauseHandler')
     var video = document.querySelector(this.props.videosrc)
+    var titleEl = document.querySelector(this.props.videotitle)
     if (video && video !== undefined && video.getAttribute('src') !== '') {
       video.play()
       const controller = document.querySelector('#videoplayercontrols')
       controller.parentElement?.removeChild(controller)
+      titleEl.parentElement?.removeChild(titleEl)
     } else console.log('this.video is undefined')
   }
 
@@ -32,5 +34,6 @@ export default class Video360Room extends React.Component {
 }
 
 type propTypes = {
-  videosrc: string
+  videosrc: string,
+  videotitle: string
 }

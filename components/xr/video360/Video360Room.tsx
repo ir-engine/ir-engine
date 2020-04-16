@@ -10,6 +10,7 @@ const ShakaPlayerComp = dynamic(() => import('./ShakaPlayerComp'), { ssr: false 
 function Video360Room() {
   const router = useRouter()
   const manifest = router.query.manifest as string
+  const title = router.query.title as string
 
   return (
     <Entity>
@@ -24,7 +25,11 @@ function Video360Room() {
         loop="false"
       />
       <VideoControls
-        videosrc="#video360Shaka"/>
+        videosrc="#video360Shaka" videotitle="#videotitle" />
+      <Entity id="videotitle"
+        text={{ font: 'mozillavr', width: 2, value: title, align: 'center', baseline: 'center', color: 'black', transparent: false }}
+        position={{ x: 0, y: 2, z: -0.8 }}
+      />
     </Entity>
   )
 }
