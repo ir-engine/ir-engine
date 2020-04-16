@@ -1,5 +1,6 @@
 import Layout from '../components/ui/Layout'
-import Scene from '../components/xr/scene'
+import dynamic from 'next/dynamic'
+const Scene = dynamic(() => import('../components/xr/scene'), { ssr: false })
 import React from 'react'
 // import Login from '../components/ui/Login'
 
