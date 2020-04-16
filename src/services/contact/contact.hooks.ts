@@ -32,13 +32,8 @@ const getLoggedInUserContacts = () => {
 const populateContactsAndLimitData = () => {
   return (context: HookContext) => {
     const userModel = context.app.services.user.Model
-    console.log(context.params.query)
 
-    Object.assign(context.params.query, {
-      $select: ['id', 'isMuted', 'isBlocked']
-    })
-
-    // Get only verified users
+    // Get only verified contacts
     context.params.sequelize = {
       raw: false,
       include: [
@@ -47,7 +42,7 @@ const populateContactsAndLimitData = () => {
           attributes: ['email', 'userId', 'id'],
           as: 'contactDetail',
           where: {
-            isVerified: false
+            isVerified: true
           }
         }
       ]
