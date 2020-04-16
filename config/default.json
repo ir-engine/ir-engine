@@ -82,7 +82,11 @@
       }
     },
     "server_address": "localhost:3030",
-
+    "apiServer": "http://localhost:3030",
+    "siteTitle": "XRChat",
+    "siteDescription": "Connected Worlds for Everyone",
+    "featherStoreKey": "XRChat-Auth-Store",
+    "localStorageKey": "xrchat-client-store-key-v1",
     "auth": {
       "isEnableSmsMagicLink": false,
       "isEnableEmailMagicLink": true,
