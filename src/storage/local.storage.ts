@@ -1,4 +1,4 @@
-// @ts-ignore
+
 import fs from 'fs-blob-store'
 import IStorageProvider from './storageprovider.interface'
 
