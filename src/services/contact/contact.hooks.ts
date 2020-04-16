@@ -1,5 +1,5 @@
 import * as authentication from '@feathersjs/authentication'
-import { HookContext } from '@feathersjs/feathers';
+import { HookContext } from '@feathersjs/feathers'
 
 import attachOwnerIdInSavingContact from '../../hooks/set-loggedin-user-in-body'
 
@@ -53,8 +53,8 @@ export default {
     ],
     create: [attachOwnerIdInSavingContact('owner')],
     update: [attachOwnerIdInSavingContact('owner')],
-    patch: [],
-    remove: []
+    patch: [attachOwnerIdInSavingContact('owner')],
+    remove: [attachOwnerIdInSavingContact('owner')]
   },
 
   after: {
