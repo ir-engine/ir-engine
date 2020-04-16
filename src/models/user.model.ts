@@ -6,7 +6,8 @@ export default (app: Application): any => {
   const user = sequelizeClient.define('user', {
     userId: {
       type: DataTypes.STRING,
-      unique: true
+      unique: true,
+      primaryKey: true
     },
     email: {
       type: DataTypes.STRING
@@ -35,8 +36,10 @@ export default (app: Application): any => {
     }
   });
   // belongs to many Group, has one Contact list
-  (user as any).associate = (models: any) =>
-    (user as any).hasMany(models.avatar)
+  (user as any).associate = (models: any) => {
+    (user as any).hasMany(models.avatar);
+    (user as any).hasMany(models.contact, { foreignKey: 'contactId', as: 'contactDetail', onDelete: 'CASCADE' })
+  }
 
   return user
 }
