@@ -18,8 +18,8 @@ export default (app: Application): any => {
   });
 
   (scene as any).associate = (models: any) => {
-    (scene as any).belongsTo(models.user) // or group
-    (scene as any).belongsToMany(models.objects, { through: models.scene_objects })
+    (scene as any).belongsTo(models.user); // or group
+    (scene as any).belongsToMany(models.object, { through: models.scene_object });
   }
 
   return scene
