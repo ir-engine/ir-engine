@@ -22,7 +22,7 @@ export default (app: Application): any => {
   });
   // TODO: Model Attribution/Created By (same as for XrAvatar)
   (Objects as any).associate = (models: any) => {
-    (Objects as any).belongsTo(models.user) // or group
+    (Objects as any).belongsTo(models.user); // or group
     (Objects as any).belongsToMany(models.scene, { through: models.scene_object })
   }
 
