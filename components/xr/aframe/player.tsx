@@ -19,6 +19,7 @@ export interface PlayerData {
   playerID: string
   playerHeight: number
   fuseCursor: boolean
+  nafEnabled: boolean
   options?: AvatarOptions
 }
 
@@ -28,7 +29,8 @@ export const PlayerComponentSchema: AFRAME.MultiPropertySchema<PlayerData> = {
   options: { default: defaultAvatarOptions },
   playerID: { default: defaultPlayerID },
   playerHeight: { default: defaultPlayerHeight },
-  fuseCursor: { default: false }
+  fuseCursor: { default: false },
+  nafEnabled: { default: false }
 }
 
 export interface PlayerProps {
@@ -76,7 +78,7 @@ export const PlayerComponent: AFRAME.ComponentDefinition<PlayerProps> = {
     if (this.cameraRigEl) this.el.appendChild(this.cameraRigEl)
 
     this.player = new Player(this.data.playerID)
-    this.player.setupAvatar()
+    if (this.data.nafEnabled) this.player.setupAvatar()
 
     this.cameraRig.setActive()
     this.cameraRig.removeDefaultCamera()
