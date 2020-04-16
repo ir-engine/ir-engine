@@ -1,4 +1,3 @@
-import { apiServer } from "../../config/server"
 import { Dispatch } from "redux"
 import {
   EmailLoginForm,
@@ -18,6 +17,10 @@ import {
 } from "./actions"
 import { client } from "../feathers"
 import { dispatchAlertError, dispatchAlertSuccess } from "../alert/service"
+import getConfig from 'next/config'
+
+const { publicRuntimeConfig } = getConfig()
+const apiServer: string = publicRuntimeConfig.apiServer
 
 export function doLoginAuto() {
   return (dispatch: Dispatch) => {
