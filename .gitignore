@@ -25,6 +25,5 @@ yarn-error.log
 
 #config
 config/*
-!config/kai.json
 !config/default.json
 !config/server.json
