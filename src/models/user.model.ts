@@ -38,7 +38,11 @@ export default (app: Application): any => {
   // belongs to many Group, has one Contact list
   (user as any).associate = (models: any) => {
     (user as any).hasMany(models.avatar);
-    (user as any).hasMany(models.contact, { foreignKey: 'contactId', as: 'contactDetail', onDelete: 'CASCADE' })
+    (user as any).hasMany(models.contact, { foreignKey: 'contactId', as: 'contactDetail', onDelete: 'CASCADE' });
+
+    // TODO: When any group owner removed, we need to make their group owner to someone another member, for now we are doing nothing
+    // (user as any).hasMany(models.group, { foreignKey: 'ownerId' });
+    (user as any).belongsToMany(models.group, { through: models.group_member, foreignKey: 'userId', otherKey: 'groupId' })
   }
 
   return user

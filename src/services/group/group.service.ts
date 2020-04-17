@@ -14,8 +14,7 @@ declare module '../../declarations' {
 
 export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate')
+    Model: createModel(app)
   }
 
   app.use('/group', new Group(options, app))
