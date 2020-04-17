@@ -3,11 +3,7 @@ set -x
 
 sudo snap install kubectl --classic
 
-HELM_VERSION=v3.1.0
-
-sudo wget -q https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz -O - | tar -xzO linux-amd64/helm > /usr/local/bin/helm
-
-sudo chmod +x /usr/local/bin/helm
+sudo snap install helm --classic
 
 helm init --client-only
 
