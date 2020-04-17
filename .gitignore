@@ -9,6 +9,7 @@ configs/*prod*
 configs/*staging*
 configs/*dev*
 
+
 xrchat/Chart\.lock
 
 _site
