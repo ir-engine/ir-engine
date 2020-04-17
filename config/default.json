@@ -98,6 +98,11 @@
 
     "alert": {
       "timeout": 10000
+    },
+
+    "staticPages": {
+      "termsOfService": "/terms-of-service",
+      "privacyPolicy": "/privacy-policy"
     }
   }
 }
