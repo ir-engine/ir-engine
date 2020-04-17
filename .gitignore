@@ -6,6 +6,8 @@ helm_values.yaml
 *.tgz
 
 configs/*prod*
+configs/*staging*
+configs/*dev*
 
 xrchat/Chart\.lock
 
