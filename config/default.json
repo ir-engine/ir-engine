@@ -94,7 +94,10 @@
       "isEnableGithub": false,
       "isEnableFacebook": false,
       "isEnableGoogle": false
-    }
+    },
 
+    "alert": {
+      "timeout": 10000
+    }
   }
 }
