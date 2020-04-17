@@ -6,7 +6,6 @@ module.exports = withImages(
   withSass({
     /* config options here */
     publicRuntimeConfig: config.publicRuntimeConfig,
-    auth: config.auth,
     webpack(config, options) {
       return config
     }
