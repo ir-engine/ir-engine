@@ -5,8 +5,6 @@ sudo snap install kubectl --classic
 
 sudo snap install helm --classic
 
-helm init --client-only
-
 helm repo add xrchat https://xrchat.github.io/xrchat-ops/
 
 helm repo update
