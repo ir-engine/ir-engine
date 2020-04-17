@@ -8,6 +8,12 @@ import {
 } from '../../../redux/auth/service'
 import Grid from '@material-ui/core/Grid'
 import './auth.scss'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import Checkbox from '@material-ui/core/Checkbox'
+import NextLink from 'next/link'
+import getConfig from 'next/config'
+
+const config = getConfig().publicRuntimeConfig.staticPages
 
 interface Props {
   auth: any
@@ -17,12 +23,20 @@ interface Props {
 class MagicLinkEmail extends React.Component<Props> {
   state = {
     email: '',
-    isSubmitted: false
+    isSubmitted: false,
+    isAgreedTermsOfService: false,
+    isAgreedPrivacyPolicy: false,
   }
 
   handleInput = (e: any) => {
     this.setState({
       [e.target.name]: e.target.value
+    })
+  }
+
+  handleCheck = (e: any) => {
+    this.setState({
+      [e.target.name]: e.target.checked
     })
   }
 
@@ -36,15 +50,19 @@ class MagicLinkEmail extends React.Component<Props> {
   }
 
   render() {
+    const privacyPolicy = (config && config.privacyPolicy) ?? '/privacy-policy'
+    const termsOfService = (config && config.termsOfService) ?? '/terms-of-service'
+    const {isAgreedTermsOfService, isAgreedPrivacyPolicy} = this.state
+
     return (
         <Container component="main" maxWidth="xs">
           <div className={'paper'}>
             <Typography component="h1" variant="h5">
-              Email Magic Link
+              Email Login Link
             </Typography>
     
             <Typography variant="body2" color="textSecondary" align="center">
-              Please enter your email address and we'll send you a magic link email.
+              Please enter your email address and we'll send you a login link email.
             </Typography>
     
             <form className={'form'} noValidate onSubmit={(e) => this.handleSubmit(e)}>
@@ -64,14 +82,27 @@ class MagicLinkEmail extends React.Component<Props> {
                   />
                 </Grid>
                 <Grid item xs={12}>
+                  <FormControlLabel
+                    control={<Checkbox value={true} onChange={e=>this.handleCheck(e)} color="primary" name="isAgreedTermsOfService"/>}
+                    label={<div>I agree to the <NextLink href={termsOfService}>Terms & Conditions</NextLink></div>}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <FormControlLabel
+                    control={<Checkbox value={true} onChange={e=>this.handleCheck(e)} color="primary" name="isAgreedPrivacyPolicy"/>}
+                    label={<div>I agree to the <NextLink href={privacyPolicy}>Privacy Policy</NextLink></div>}
+                  />
+                </Grid>
+                <Grid item xs={12}>
                   <Button
                     type="submit"
                     fullWidth
                     variant="contained"
                     color="primary"
-                    className={'submit'}
+                    className="submit"
+                    disabled={!isAgreedPrivacyPolicy || !isAgreedTermsOfService}
                   >
-                    Email Magic Link
+                    Email Login Link
                   </Button>
                 </Grid>
               </Grid>
