@@ -18,6 +18,7 @@ import {
 import { client } from "../feathers"
 import { dispatchAlertError, dispatchAlertSuccess } from "../alert/service"
 import getConfig from 'next/config'
+import { validateEmail } from "../helper"
 
 const { publicRuntimeConfig } = getConfig()
 const apiServer: string = publicRuntimeConfig.apiServer
@@ -41,6 +42,13 @@ export function doLoginAuto() {
 
 export function loginUserByEmail(form: EmailLoginForm) {
   return (dispatch: Dispatch) => {
+    // check email validation.
+    if (!validateEmail(form.email)) {
+      dispatchAlertError(dispatch, 'Please input valid email address')
+
+      return;
+    }
+
     dispatch(actionProcessing(true))
 
     client.authenticate({
@@ -229,6 +237,13 @@ export function resetPassword(token: string, password: string) {
 export function createMagicLink(type: string, email: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
+
+    // check email validation.
+    if (!validateEmail(email)) {
+      dispatchAlertError(dispatch, 'Please input valid email address')
+
+      return;
+    }
 
     client.service('magiclink').create({
       type,
