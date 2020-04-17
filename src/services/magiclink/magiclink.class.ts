@@ -56,7 +56,11 @@ export class Magiclink implements ServiceMethods<Data> {
     let user
 
     if (data.type === 'email') {
-      const users = ((await userService.find({ email: data.email })) as any).data
+      const users = ((await userService.find({
+        query: {
+          email: data.email
+        }
+      })) as any).data
 
       if (users.length === 0) {
         user = await userService.create({
@@ -67,13 +71,16 @@ export class Magiclink implements ServiceMethods<Data> {
       }
 
       if (user) {
-        const accessToken = await authService.createAccessToken({}, { subject: user.id.toString() })
+        const accessToken = await authService.createAccessToken({}, { subject: user.userId.toString() })
 
-        console.log('-----------', accessToken)
         await this.sendEmail(data.email, accessToken)
       }
     } else if (data.type === 'sms') {
-      user = await userService.find({ mobile: data.mobile })
+      user = await userService.find({ 
+        query: {
+          mobile: data.mobile
+        } 
+      })
 
       if (!user) {
         user = await userService.create({
