@@ -6,8 +6,8 @@ services:
   - docker
 
 before_deploy:
-  - script/setup_helm.sh
-  - script/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REIGON $CLUSTER_NAME
+  - scripts/setup_helm.sh
+  - scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REIGON $CLUSTER_NAME
 
 deploy:
   - provider: script
