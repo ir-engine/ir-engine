@@ -42073,22 +42073,22 @@
 
 		},
 
-		setMediaElementSource: function ( mediaElement ) {
+		setVideoElementSource: function ( mediaElement ) {
 
 			this.hasPlaybackControl = false;
 			this.sourceType = 'mediaNode';
-			this.source = this.context.createMediaElementSource( mediaElement );
+			this.source = this.context.createVideoElementSource( mediaElement );
 			this.connect();
 
 			return this;
 
 		},
 
-		setMediaStreamSource: function ( mediaStream ) {
+		setVideoStreamSource: function ( mediaStream ) {
 
 			this.hasPlaybackControl = false;
 			this.sourceType = 'mediaStreamNode';
-			this.source = this.context.createMediaStreamSource( mediaStream );
+			this.source = this.context.createVideoStreamSource( mediaStream );
 			this.connect();
 
 			return this;

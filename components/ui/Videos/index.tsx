@@ -9,13 +9,13 @@ import Button from '@material-ui/core/Button'
 import { connect } from 'react-redux'
 import { selectVideoState } from '../../../redux/video/selector'
 import { bindActionCreators, Dispatch } from 'redux'
-import { fetchPulicVideos } from '../../../redux/video/service'
+import { fetchPublicVideos } from '../../../redux/video/service'
 import { PublicVideo } from '../../../redux/video/actions'
 // TODO: Generate nav items from a config file
 
 interface VideoProps {
   videos: any
-  fetchPublicVideos: typeof fetchPulicVideos
+  fetchPublicVideos: typeof fetchPublicVideos
 }
 
 const mapStateToProps = (state: any) => {
@@ -25,7 +25,7 @@ const mapStateToProps = (state: any) => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  fetchPublicVideos: bindActionCreators(fetchPulicVideos, dispatch)
+  fetchPublicVideos: bindActionCreators(fetchPublicVideos, dispatch)
 })
 
 class VideoList extends Component<VideoProps> {
