@@ -7,7 +7,7 @@ import {
 // import { ajaxPost } from "../service.common"
 import { client } from "../feathers"
 
-export function fetchPulicVideos() {
+export function fetchPublicVideos() {
   return (dispatch: Dispatch) => {
     client.service('public-video').find()
     .then((res: any) => {

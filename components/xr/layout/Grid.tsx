@@ -9,7 +9,7 @@ import { bindActionCreators, Dispatch } from 'redux'
 
 import { connect } from 'react-redux'
 import { selectVideoState } from '../../../redux/video/selector'
-import { fetchPulicVideos } from '../../../redux/video/service'
+import { fetchPublicVideos } from '../../../redux/video/service'
 // eslint-disable-next-line no-unused-vars
 import { PublicVideo } from '../../../redux/video/actions'
 
@@ -19,7 +19,7 @@ const playerHeight = getConfig().publicRuntimeConfig.xr.playerHeight
 
 interface VideoProps {
   videos: any,
-  fetchPublicVideos: typeof fetchPulicVideos
+  fetchPublicVideos: typeof fetchPublicVideos
 }
 
 const mapStateToProps = (state: any) => {
@@ -29,7 +29,7 @@ const mapStateToProps = (state: any) => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  fetchPublicVideos: bindActionCreators(fetchPulicVideos, dispatch)
+  fetchPublicVideos: bindActionCreators(fetchPublicVideos, dispatch)
 })
 
 function GridLayout (props: VideoProps): any {
