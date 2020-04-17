@@ -11,11 +11,11 @@ before_deploy:
 
 deploy:
   - provider: script
-    script: bash scripts/publish_dockerhub.sh $TRAVIS_COMMIT && scripts/deploy.sh $TRAVIS_COMMIT staging
+    script: bash scripts/publish_dockerhub.sh staging && scripts/deploy.sh staging
     on:
       branch: master
   - provider: script
-    script: bash scripts/publish_dockerhub.sh $TRAVIS_COMMIT && scripts/deploy.sh $TRAVIS_COMMIT  dev
+    script: bash scripts/publish_dockerhub.sh dev && scripts/deploy.sh dev
     on:
       branch: dev
 
