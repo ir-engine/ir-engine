@@ -40,11 +40,11 @@ class MagicLinkSms extends React.Component<Props> {
         <Container component="main" maxWidth="xs">
           <div className={'paper'}>
             <Typography component="h1" variant="h5">
-              SMS Magic Link
+              SMS Login Link
             </Typography>
     
             <Typography variant="body2" color="textSecondary" align="center">
-              Please enter your phone number and we'll send you a magic link SMS.
+              Please enter your phone number and we'll send you a sms login link.
             </Typography>
     
             <form className={'form'} noValidate onSubmit={(e) => this.handleSubmit(e)}>
@@ -71,7 +71,7 @@ class MagicLinkSms extends React.Component<Props> {
                     color="primary"
                     className={'submit'}
                   >
-                    SMS Magic Link
+                    SMS Login Link
                   </Button>
                 </Grid>
               </Grid>

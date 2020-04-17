@@ -40,11 +40,11 @@ class MagicLinkEmail extends React.Component<Props> {
         <Container component="main" maxWidth="xs">
           <div className={'paper'}>
             <Typography component="h1" variant="h5">
-              Email Magic Link
+              Email Login Link
             </Typography>
     
             <Typography variant="body2" color="textSecondary" align="center">
-              Please enter your email address and we'll send you a magic link email.
+              Please enter your email address and we'll send you a login link email.
             </Typography>
     
             <form className={'form'} noValidate onSubmit={(e) => this.handleSubmit(e)}>
@@ -71,7 +71,7 @@ class MagicLinkEmail extends React.Component<Props> {
                     color="primary"
                     className={'submit'}
                   >
-                    Email Magic Link
+                    Email Login Link
                   </Button>
                 </Grid>
               </Grid>
