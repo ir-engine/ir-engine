@@ -2,6 +2,7 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Params, Id, NullableId } from '@feathersjs/feathers'
 
 import { Application } from '../../declarations'
+import { Forbidden } from '@feathersjs/errors';
 
 export class Group extends Service {
   app: Application;
@@ -46,6 +47,10 @@ export class Group extends Service {
         }
       ]
     })
+
+    if (!group) {
+      return await Promise.reject(new Forbidden('Group not found Or you don\'t have access!'))
+    }
     return group
   }
 
@@ -60,7 +65,8 @@ export class Group extends Service {
     const userGroupModel = new GroupMembersModel({
       groupId: savedGroup.id,
       userId: params.user.userId,
-      isOwner: true
+      isOwner: true,
+      isInviteAccepted: true
     })
     await userGroupModel.save()
     // TODO: After saving group, update contacts via Socket
