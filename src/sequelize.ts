@@ -29,7 +29,7 @@ export default (app: Application): void => {
 
     Object.keys(models).forEach((name) => {
       if ('associate' in models[name]) {
-        (models[name] as any).associate(models);
+        (models[name] as any).associate(models)
       }
     })
 
