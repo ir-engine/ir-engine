@@ -34,9 +34,9 @@ export default {
       validateGroupId()
     ],
     find: [],
-    get: [disallow],
+    get: [disallow()],
     create: [],
-    update: [disallow],
+    update: [disallow()],
     patch: [],
     remove: [
       // For now only admin will be able to remove the user from group!

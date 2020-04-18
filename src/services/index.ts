@@ -16,8 +16,7 @@ import { Application } from '../declarations'
 
 import magiclink from './magiclink/magiclink.service'
 
-import groupMember from './group-member/group-member.service';
-
+import groupMember from './group-member/group-member.service'
 
 export default (app: Application): void => {
   app.configure(Uploads)

@@ -2,7 +2,7 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Params, Id, NullableId } from '@feathersjs/feathers'
 
 import { Application } from '../../declarations'
-import { Forbidden } from '@feathersjs/errors';
+import { Forbidden } from '@feathersjs/errors'
 
 export class Group extends Service {
   app: Application;
