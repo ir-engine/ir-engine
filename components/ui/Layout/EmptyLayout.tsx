@@ -10,6 +10,7 @@ class EmptyLayout extends React.Component<Props> {
     return (
       <React.Fragment>
         <Alerts/>
+
         {this.props.children}
       </React.Fragment>
     )
