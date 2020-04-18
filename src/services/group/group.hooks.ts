@@ -1,5 +1,4 @@
 import * as authentication from '@feathersjs/authentication'
-import { HookContext } from '@feathersjs/feathers';
 import { disallow } from 'feathers-hooks-common'
 
 import attachOwnerIdInSavingContact from '../../hooks/set-loggedin-user-in-body'

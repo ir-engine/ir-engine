@@ -16,6 +16,9 @@ import { Application } from '../declarations'
 
 import magiclink from './magiclink/magiclink.service'
 
+import groupMember from './group-member/group-member.service';
+
+
 export default (app: Application): void => {
   app.configure(Uploads)
   app.configure(Email)
@@ -31,4 +34,5 @@ export default (app: Application): void => {
   app.configure(Instance)
   app.configure(publicVideo)
   app.configure(magiclink)
+  app.configure(groupMember)
 }
