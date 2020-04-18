@@ -2,7 +2,7 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 import { Application } from '../../declarations'
 import { Params, NullableId } from '@feathersjs/feathers'
-import { BadRequest, Forbidden } from '@feathersjs/errors';
+import { Forbidden } from '@feathersjs/errors'
 
 export class GroupMember extends Service {
   app: Application
@@ -89,7 +89,6 @@ export class GroupMember extends Service {
       }
     })
 
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     await this.makeOtherUserAsOwner(userIdToRemove, group, GroupMemberModel)
     return group
   }

@@ -4,7 +4,7 @@ import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient');
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const groupMember = sequelizeClient.define('group_member', {
     groupId: {
       type: DataTypes.UUID,
