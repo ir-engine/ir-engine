@@ -1,6 +1,6 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
-import { getLink, sendEmail } from '../auth-management/utils'
+import { getLink, sendEmail, sendSms } from '../auth-management/utils'
 import * as path from 'path'
 import * as pug from 'pug'
 
@@ -50,11 +50,28 @@ export class Magiclink implements ServiceMethods<Data> {
     return await sendEmail(this.app, email)
   }
 
+  async sendSms (mobile: string, token: string): Promise<void> {
+    const hashLink = getLink('login', token)
+    const appPath = path.dirname(require.main ? require.main.filename : '')
+    const emailAccountTemplatesPath =
+      path.join(appPath, '..', 'src', 'email-templates', 'account')
+    const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-sms.pug')
+    const compiledHTML = pug.compileFile(templatePath)({
+      hashLink
+    })
+
+    const sms = {
+      mobile,
+      text: compiledHTML
+    }
+    return await sendSms(this.app, sms)
+  }
+
   async create (data: any, params?: Params): Promise<Data> {
     const userService = this.app.service('user')
     const authService = this.app.service('authentication')
     let user
-
+    
     if (data.type === 'email') {
       const users = ((await userService.find({
         query: {
@@ -76,19 +93,27 @@ export class Magiclink implements ServiceMethods<Data> {
         await this.sendEmail(data.email, accessToken)
       }
     } else if (data.type === 'sms') {
-      user = await userService.find({
+      console.log('@@@@@@@@@@@@@', data)
+      const users = ((await userService.find({
         query: {
           mobile: data.mobile
         }
-      })
+      })) as any).data
 
-      if (!user) {
+      if (users.length === 0) {
         user = await userService.create({
           mobile: data.mobile
         }, params)
+      } else {
+        user = users[0]
       }
 
-      // TODO! send sms.
+      if (user) {
+        const accessToken = await authService.createAccessToken({}, { subject: user.userId.toString() })
+
+        console.log('------sms-----', accessToken)
+        await this.sendSms(data.mobile, accessToken)
+      }
     }
     return data
   }

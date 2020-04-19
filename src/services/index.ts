@@ -15,8 +15,8 @@ import Instance from './instance/instance.service'
 import { Application } from '../declarations'
 
 import magiclink from './magiclink/magiclink.service'
-
 import groupMember from './group-member/group-member.service'
+import sms from './sms/sms.service'
 
 export default (app: Application): void => {
   app.configure(Uploads)
@@ -34,4 +34,5 @@ export default (app: Application): void => {
   app.configure(publicVideo)
   app.configure(magiclink)
   app.configure(groupMember)
+  app.configure(sms)
 }
