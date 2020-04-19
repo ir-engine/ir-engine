@@ -1,22 +1,10 @@
 import * as authentication from '@feathersjs/authentication'
 import { HookContext } from '@feathersjs/feathers'
+import attachOwnerIdInSavingContact from '../../hooks/set-loggedin-user-in-body'
+
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks
-
-// This will attach the owner ID in the contact while creating/updating list item
-const attachOwnerIdInSavingContact = () => {
-  return (context: HookContext): HookContext => {
-    // Getting logged in user and attaching owner of user
-    const loggedInUser = context.params.user
-    context.data = {
-      ...context.data,
-      owner: loggedInUser.userId
-    }
-
-    return context
-  }
-}
 
 const getLoggedInUserContacts = () => {
   return (context: HookContext) => {
@@ -62,10 +50,10 @@ export default {
       getLoggedInUserContacts(),
       populateContactsAndLimitData()
     ],
-    create: [attachOwnerIdInSavingContact()],
-    update: [attachOwnerIdInSavingContact()],
-    patch: [],
-    remove: []
+    create: [attachOwnerIdInSavingContact('owner')],
+    update: [attachOwnerIdInSavingContact('owner')],
+    patch: [attachOwnerIdInSavingContact('owner')],
+    remove: [attachOwnerIdInSavingContact('owner')]
   },
 
   after: {

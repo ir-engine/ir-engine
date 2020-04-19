@@ -93,7 +93,6 @@ export class Magiclink implements ServiceMethods<Data> {
         await this.sendEmail(data.email, accessToken)
       }
     } else if (data.type === 'sms') {
-
       console.log('@@@@@@@@@@@@@', data)
       const users = ((await userService.find({
         query: {
