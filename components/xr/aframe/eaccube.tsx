@@ -6,20 +6,37 @@ const THREE = AFRAME.THREE
 export const ComponentName = 'eaccube'
 
 export interface EaccubeComponentProps {
-  setSrc: (src: HTMLVideoElement | HTMLImageElement) => void
+  setSrc: (src: HTMLVideoElement | HTMLImageElement) => void,
+  updateUV: () => void
 }
 
 export interface EaccubeComponentData {
   src: HTMLVideoElement | HTMLImageElement,
+  order: string,
   size: number
 }
 
+const CubeFaceOrder = 'RLUDFB'
+const FaceOrderRegExp = new RegExp(`^[${CubeFaceOrder}]{6}$`, 'i')
+const FaceOrderInvalidMsg = 'order is not valid'
+const DefaultFaceOrder = 'RLUDFB'
+
 export const EaccubeComponentSchema: AFRAME.MultiPropertySchema<EaccubeComponentData> = {
   src: { type: 'asset' },
-  size: { type: 'int', default: 1 }
+  order: {
+    type: 'string',
+    default: DefaultFaceOrder,
+    parse: val => {
+      if (!FaceOrderRegExp.test(val)) {
+        throw new Error(FaceOrderInvalidMsg)
+      }
+      return val.toUpperCase()
+    }
+  },
+  size: { type: 'int', default: 1000 }
 }
 
-function generateEACUV(): number[] {
+function generateEACUV(textureFaceOrder: string): number[] {
   const cubeFaceCoords: number[][] = []
   const rows = 2
   const cols = 3
@@ -41,9 +58,12 @@ function generateEACUV(): number[] {
     }
   }
 
-  const uv: number[] = [];
-  ['R', 'L', 'U', 'D', 'F', 'B'].map((_side, i) => {
-    const faceCoords = cubeFaceCoords[i]
+  const cubeFaceOrderArray = CubeFaceOrder.split('')
+  const textureFaceIndexOrder = textureFaceOrder.split('').map(faceName => cubeFaceOrderArray.indexOf(faceName))
+
+  const uv: number[] = []
+  cubeFaceOrderArray.forEach((_, i) => {
+    const faceCoords = cubeFaceCoords[textureFaceIndexOrder[i]]
     uv.push(
       faceCoords[0], faceCoords[1],
       faceCoords[2], faceCoords[3],
@@ -79,19 +99,14 @@ export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps>
     this.el.setAttribute('material', {
       src: this.data.src,
       npot: true,
-      // shader: 'flat',
       shader: 'eaccube',
       color: 'white',
       side: 'back'
     })
 
-    // set uv
-    const mesh = this.el.getObject3D('mesh') as THREE.Mesh
-    const geometry = mesh.geometry as THREE.BufferGeometry
-    const uv = geometry.attributes.uv as THREE.BufferAttribute
-    (uv.array as Float32Array).set(generateEACUV())
-    uv.needsUpdate = true
+    this.updateUV()
 
+    const mesh = this.el.getObject3D('mesh')
     mesh.scale.x = -1
     mesh.rotation.y = Math.PI
   },
@@ -100,12 +115,23 @@ export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps>
     if (this.data.src !== oldData.src) {
       this.setSrc(this.data.src)
     }
+    if (this.data.order !== oldData.order) {
+      this.updateUV()
+    }
   },
 
   setSrc(src: HTMLVideoElement | HTMLImageElement) {
     this.el.setAttribute('material', {
       src
     })
+  },
+
+  updateUV() {
+    const mesh = this.el.getObject3D('mesh') as THREE.Mesh
+    const geometry = mesh.geometry as THREE.BufferGeometry
+    const uv = geometry.attributes.uv as THREE.BufferAttribute
+    (uv.array as Float32Array).set(generateEACUV(this.data.order))
+    uv.needsUpdate = true
   }
 }
 
