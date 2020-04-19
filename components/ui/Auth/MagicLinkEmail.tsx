@@ -51,7 +51,6 @@ class MagicLinkEmail extends React.Component<Props> {
   }
 
   render() {
-    const privacyPolicy = (config && config.privacyPolicy) ?? '/privacy-policy'
     const termsOfService = (config && config.termsOfService) ?? '/terms-of-service'
     const {isAgreedTermsOfService, isAgreedPrivacyPolicy} = this.state
 
@@ -108,12 +107,6 @@ class MagicLinkEmail extends React.Component<Props> {
                   <FormControlLabel
                     control={<Checkbox value={true} onChange={e=>this.handleCheck(e)} color="primary" name="isAgreedTermsOfService"/>}
                     label={<div>I agree to the <NextLink href={termsOfService}>Terms & Conditions</NextLink></div>}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <FormControlLabel
-                    control={<Checkbox value={true} onChange={e=>this.handleCheck(e)} color="primary" name="isAgreedPrivacyPolicy"/>}
-                    label={<div>I agree to the <NextLink href={privacyPolicy}>Privacy Policy</NextLink></div>}
                   />
                 </Grid>
                 <Grid item xs={12}>
