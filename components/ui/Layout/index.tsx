@@ -30,9 +30,11 @@ class Layout extends React.Component<Props> {
         <header>
           <NavMenu />
         </header>
-        <Alerts/>
-        <XDialog/>
-        {this.props.children}
+        <React.Fragment>
+          <XDialog/>
+          <Alerts/>
+          {this.props.children}
+        </React.Fragment>
         <Footer />
       </section>
     )

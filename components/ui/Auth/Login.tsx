@@ -9,7 +9,6 @@ import Grid from '@material-ui/core/Grid';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import PhoneIcon from '@material-ui/icons/PhoneIphone';
 import EmailIcon from '@material-ui/icons/Email';
 import SocialIcon from '@material-ui/icons/Public';
 import UserIcon from '@material-ui/icons/Person';
@@ -25,11 +24,12 @@ import {
 import { selectAuthState } from '../../../redux/auth/selector'
 import getConfig from 'next/config'
 import MagicLinkEmail from './MagicLinkEmail';
-import EmptyLayout from '../Layout/EmptyLayout';
 import { Tabs, Tab } from '@material-ui/core';
 import './auth.scss'
 import SocialLogin from './SocialLogin';
-import MagicLinkSms from './MagicLinkSms';
+import { showDialog } from '../../../redux/dialog/service';
+import SignUp from '../Auth/Register';
+import ForgotPassword from '../Auth/ForgotPassword';
 
 const config = getConfig().publicRuntimeConfig;
 
@@ -39,7 +39,8 @@ interface Props {
   loginUserByGithub: typeof loginUserByGithub
   loginUserByGoogle: typeof loginUserByGoogle
   loginUserByFacebook: typeof loginUserByFacebook,
-  createMagicLink: typeof createMagicLink
+  createMagicLink: typeof createMagicLink,
+  showDialog: typeof showDialog
 }
 
 const mapStateToProps = (state: any) => {
@@ -53,7 +54,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   loginUserByGithub: bindActionCreators(loginUserByGithub, dispatch),
   loginUserByGoogle: bindActionCreators(loginUserByGoogle, dispatch),
   loginUserByFacebook: bindActionCreators(loginUserByFacebook, dispatch),
-  createMagicLink: bindActionCreators(createMagicLink, dispatch)
+  createMagicLink: bindActionCreators(createMagicLink, dispatch),
+  showDialog: bindActionCreators(showDialog, dispatch)
 })
 
 class SignIn extends React.Component<Props> {
@@ -150,12 +152,20 @@ class SignIn extends React.Component<Props> {
                 </Grid>
 
                 <Grid item xs>
-                  <Link href="/auth/forgotpwd" variant="body2">
+                  <Link href="#" variant="body2" onClick={() => this.props.showDialog({
+                      children: (
+                        <ForgotPassword />
+                      )
+                    })}>
                     Forgot password?
                   </Link>
                 </Grid>
                 <Grid item>
-                  <Link href="/auth/register" variant="body2">
+                  <Link href="#" variant="body2" onClick={() => this.props.showDialog({
+                      children: (
+                        <SignUp />
+                      )
+                    })}>
                     {"Don't have an account? Sign Up"}
                   </Link>
                 </Grid>
@@ -178,7 +188,6 @@ function TabPanel(props: any) {
 }
 
 function SignInWrapper(props: any) {
-  console.log('-------', config)
   // const isEnableEmailMagicLink = (config ? config.isEnableEmailMagicLink : true);
   let isEnableSmsMagicLink = true;
   let isEnableEmailMagicLink = true;
@@ -222,7 +231,7 @@ function SignInWrapper(props: any) {
   let component = <MagicLinkEmail {...props}></MagicLinkEmail>;
   if (enabled_count == 1) {
     if (isEnableSmsMagicLink) {
-      component = <MagicLinkSms {...props}></MagicLinkSms>;
+      component = <MagicLinkEmail {...props}></MagicLinkEmail>;
     }
     else if (isEnableEmailMagicLink) {
       component = <MagicLinkEmail {...props}></MagicLinkEmail>;
@@ -236,13 +245,9 @@ function SignInWrapper(props: any) {
   }
   else {
     let index = 0;
-    const emailTab      = isEnableEmailMagicLink  && <Tab icon={<PhoneIcon/>} label="Email"/>
+    const emailTab      = isEnableEmailMagicLink  && <Tab icon={<EmailIcon/>} label="Email | SMS"/>
     const emailTabPanel = isEnableEmailMagicLink  && <TabPanel value={tabIndex} index={index}><MagicLinkEmail {...props}/></TabPanel>
     isEnableEmailMagicLink && ++index;
-
-    const smsTab      = isEnableSmsMagicLink  && <Tab icon={<EmailIcon/>} label="SMS"/>
-    const smsTabPanel = isEnableSmsMagicLink  && <TabPanel value={tabIndex} index={index}><MagicLinkSms {...props}/></TabPanel>
-    isEnableSmsMagicLink && ++index;
     
     const userTab       = isEnableUserPassword && <Tab icon={<UserIcon/>} label="UserName + Password"/>
     const userTabPanel  = isEnableUserPassword && <TabPanel value={tabIndex} index={index}><SignIn {...props}/></TabPanel>
@@ -265,11 +270,9 @@ function SignInWrapper(props: any) {
           aria-label="Login Configure"
         >
           {emailTab}
-          {smsTab}
           {userTab}
           {socialTab}
         </Tabs>
-        {smsTabPanel}
         {emailTabPanel}
         {userTabPanel}
         {socialTabPanel}
@@ -277,11 +280,12 @@ function SignInWrapper(props: any) {
     )
   }
 
-  return (
-    <EmptyLayout>
-      {component}
-    </EmptyLayout>
-  );
+  return component;
+  // return (
+  //   <EmptyLayout>
+  //     {component}
+  //   </EmptyLayout>
+  // );
 }
 
 export default connect(

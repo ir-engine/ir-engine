@@ -1,10 +1,11 @@
-import React, { Fragment, PureComponent } from 'react'
+import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 import Alert from '@material-ui/lab/Alert'
 import { selectAlertState } from '../../../redux/alert/selector'
 import { alertCancel } from '../../../redux/alert/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { Box } from '@material-ui/core'
+import './alerts.scss'
 
 type Props = {
   alert: any
@@ -34,7 +35,7 @@ class Alerts extends PureComponent<Props> {
     const message = this.props.alert.get('message')
 
     return (
-      <Fragment>
+      <div className="alert-container">
         {type == 'none' || message == '' ? (
           <Box />
         ) : (
@@ -49,7 +50,7 @@ class Alerts extends PureComponent<Props> {
             </Alert>
           </Box>
         )}
-      </Fragment>
+      </div>
     )
   }
 }
