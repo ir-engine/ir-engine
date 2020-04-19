@@ -141,6 +141,12 @@ server:
     STORAGE_AWS_ACCESS_KEY_ID: ""
     STORAGE_AWS_ACCESS_KEY_SECRET: ""
 
+    AWS_SMS_REGION: ""
+    AWS_SMS_ACCESS_KEY_ID: ""
+    AWS_SMS_SECRET_ACCESS_KEY: ""
+    AWS_SMS_TOPIC_ARN: ""
+
+
 
 
 ########### Subcharts - values here will overwrite the subchart
@@ -155,7 +161,7 @@ mariadb:
     existingSecret: 
   replication:
     enabled: false
-  externalHost:   # use to override - must set mariadb.enabled to false
+  externalHost: ""  # use to override - must set mariadb.enabled to false
 
 agones:
   enabled: false
