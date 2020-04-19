@@ -15,6 +15,9 @@ export default (app: Application): any => {
     password: {
       type: DataTypes.STRING
     },
+    mobile: {
+      type: DataTypes.STRING
+    },
     auth0Id: { type: DataTypes.STRING },
     googleId: { type: DataTypes.STRING },
     facebookId: { type: DataTypes.STRING },
