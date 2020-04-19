@@ -1,20 +1,28 @@
+// See http://docs.sequelizejs.com/en/latest/docs/models-definition/
+// for more of what you can do here.
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const Group = sequelizeClient.define('group', {
-    id: {
+  const groupMember = sequelizeClient.define('group_member', {
+    groupId: {
       type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV1,
-      allowNull: false,
-      primaryKey: true
+      allowNull: false
     },
-    ownerId: {
+    userId: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    isPublic: {
+    isOwner: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    isMuted: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    isInviteAccepted: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     }
@@ -27,22 +35,21 @@ export default (app: Application): any => {
     indexes: [
       {
         unique: true,
-        fields: ['id', 'ownerId']
+        fields: ['groupId', 'userId']
       },
       {
-        fields: ['isPublic']
+        fields: ['userId']
       }
     ]
   });
 
   // eslint-disable-next-line no-unused-vars
-  (Group as any).associate = (models: any) => {
+  (groupMember as any).associate = function (models: any) {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
-
-    (Group as any).belongsTo(models.user, { foreignKey: 'ownerId' });
-    (Group as any).belongsToMany(models.user, { through: models.group_member, otherKey: 'userId' })
+    ;(groupMember as any).hasOne(models.group, { foreignKey: 'id' })
+    ;(groupMember as any).hasOne(models.user, { foreignKey: 'userId' })
   }
 
-  return Group
+  return groupMember
 }

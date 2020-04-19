@@ -76,10 +76,10 @@ export class Magiclink implements ServiceMethods<Data> {
         await this.sendEmail(data.email, accessToken)
       }
     } else if (data.type === 'sms') {
-      user = await userService.find({ 
+      user = await userService.find({
         query: {
           mobile: data.mobile
-        } 
+        }
       })
 
       if (!user) {
