@@ -29,7 +29,7 @@ class MagicLinkSms extends React.Component<Props> {
   handleSubmit = (e: any) => {
     e.preventDefault();
 
-    this.props.createMagicLink('sms', this.state.email);
+    this.props.createMagicLink(this.state.email);
     this.setState({
       isSubmitted: true
     });

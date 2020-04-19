@@ -11,7 +11,6 @@ import {
 import { selectAuthState } from '../../../redux/auth/selector'
 import Grid from '@material-ui/core/Grid'
 import './auth.scss'
-import EmptyLayout from '../Layout/EmptyLayout'
 
 interface Props {
   auth: any
@@ -51,7 +50,6 @@ class ForgotPassword extends React.Component<Props> {
 
   render() {
     return (
-      <EmptyLayout>
         <Container component="main" maxWidth="xs">
           <div className={'paper'}>
             <Typography component="h1" variant="h5">
@@ -103,7 +101,6 @@ class ForgotPassword extends React.Component<Props> {
             
           </div>
         </Container>
-      </EmptyLayout>
     )
   }
 }

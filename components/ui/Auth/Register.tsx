@@ -16,8 +16,9 @@ import {
   loginUserByFacebook,
 } from '../../../redux/auth/service'
 import { selectAuthState } from '../../../redux/auth/selector'
+import SignIn from '../Auth/Login'
 import './auth.scss'
-import EmptyLayout from '../Layout/EmptyLayout'
+import { showDialog } from '../../../redux/dialog/service';
 
 interface Props {
   auth: any
@@ -25,6 +26,7 @@ interface Props {
   loginUserByGithub: typeof loginUserByGithub
   loginUserByGoogle: typeof loginUserByGoogle
   loginUserByFacebook: typeof loginUserByFacebook
+  showDialog: typeof showDialog
 }
 
 const mapStateToProps = (state: any) => {
@@ -38,6 +40,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   loginUserByGithub: bindActionCreators(loginUserByGithub, dispatch),
   loginUserByGoogle: bindActionCreators(loginUserByGoogle, dispatch),
   loginUserByFacebook: bindActionCreators(loginUserByFacebook, dispatch),
+  showDialog: bindActionCreators(showDialog, dispatch),
 })
 
 class SignUp extends React.Component<Props> {
@@ -78,7 +81,6 @@ class SignUp extends React.Component<Props> {
 
   render () {
     return (
-      <EmptyLayout>
         <Container component="main" maxWidth="xs">
           <div className={'paper'}>
             <Avatar className={'avatar'}>
@@ -128,19 +130,18 @@ class SignUp extends React.Component<Props> {
               </Grid>
               <Grid container justify="flex-end">
                 <Grid item>
-                  <Link href="/auth/login" variant="body2">
+                  <Link href="#" variant="body2" onClick={() => this.props.showDialog({
+                      children: (
+                        <SignIn />
+                      )
+                    })}>
                     Already have an account? Sign in
                   </Link>
                 </Grid>
               </Grid>
             </form>
           </div>
-
-          <div style={{marginTop: '20px'}}>
-            &nbsp
-          </div>
         </Container>
-      </EmptyLayout>
     )
   }
 }

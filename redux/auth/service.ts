@@ -18,10 +18,11 @@ import {
 import { client } from "../feathers"
 import { dispatchAlertError, dispatchAlertSuccess } from "../alert/service"
 import getConfig from 'next/config'
-import { validateEmail } from "../helper"
+import { validateEmail, validatePhoneNumber } from "../helper"
 
 const { publicRuntimeConfig } = getConfig()
 const apiServer: string = publicRuntimeConfig.apiServer
+const authConfig = publicRuntimeConfig.auth
 
 export function doLoginAuto() {
   return (dispatch: Dispatch) => {
@@ -234,25 +235,48 @@ export function resetPassword(token: string, password: string) {
   }
 }
 
-export function createMagicLink(type: string, email: string) {
+export function createMagicLink(email_phone: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
-    // check email validation.
-    if (!validateEmail(email)) {
-      dispatchAlertError(dispatch, 'Please input valid email address')
+    let type = "email"
+    let paramName = "email"
+    const isEnableEmailMagicLink = (authConfig && authConfig.isEnableEmailMagicLink) ?? true;
+    const isEnableSmsMagicLink = (authConfig && authConfig.isEnableSmsMagicLink) ?? false;
+
+    if (validatePhoneNumber(email_phone)) {
+      if (!isEnableSmsMagicLink) {
+        dispatchAlertError(dispatch, 'Please input valid email address')
+
+        return;
+      }
+      type = "sms"
+      paramName = "mobile"
+    }
+    else if (validateEmail(email_phone)) {
+      if (!isEnableEmailMagicLink) {
+        dispatchAlertError(dispatch, 'Please input valid phone number')
+
+        return;
+      }
+      type = "email"
+    }
+    else {
+      dispatchAlertError(dispatch, 'Please input valid email or phone number')
 
       return;
     }
 
+    console.log('create----', email_phone, type);
+
     client.service('magiclink').create({
       type,
-      email
+      [paramName]: email_phone
     })
       .then((res: any) => {
         console.log(res)
 
-        dispatchAlertSuccess(dispatch, 'Magic Link Email was sent. Please check your email box.')
+        dispatchAlertSuccess(dispatch, 'Login Magic Link was sent. Please check your Email or SMS.')
 
         dispatch(didCreateMagicLink(true))
       })
