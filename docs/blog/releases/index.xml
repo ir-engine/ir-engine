@@ -1,8 +1,8 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>XRChat Documentation – New Releases</title>
+    <title>XRChat – New Releases</title>
     <link>/blog/releases/</link>
-    <description>Recent content in New Releases on XRChat Documentation</description>
+    <description>Recent content in New Releases on XRChat</description>
     <generator>Hugo -- gohugo.io</generator>
     
 	  <atom:link href="/blog/releases/index.xml" rel="self" type="application/rss+xml" />

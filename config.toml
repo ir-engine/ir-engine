@@ -57,15 +57,6 @@ id = "UA-164023274-1"
 title = "XRChat"
 description = "Documentation for the XRChat platform"
 languageName ="English"
-# Weight used for sorting.
-weight = 1
-[languages.no]
-title = "XRChat Documentation"
-description = "Docsy er operativsystem for skyen"
-languageName ="Norsk"
-contentDir = "content/no"
-time_format_default = "02.01.2006"
-time_format_blog = "02.01.2006"
 
 [markup]
   [markup.goldmark]
