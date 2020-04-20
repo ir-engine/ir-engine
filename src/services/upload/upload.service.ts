@@ -7,8 +7,8 @@ import blobService from 'feathers-blob'
 import { Application } from '../../declarations'
 import { Uploads } from './upload.class'
 import hooks from './upload.hooks'
-import { Resource } from '../resource/resource.class'
 import resourceModel from '../../models/resource.model'
+import createService from 'feathers-sequelize'
 
 const multipartMiddleware = multer()
 
@@ -20,30 +20,25 @@ declare module '../../declarations' {
 
 export default (app: Application): void => {
   const provider = new StorageProvider()
+  const Model = resourceModel(app)
+  const paginate = app.get('paginate')
 
   const options = {
-    Model: resourceModel(app),
-    paginate: app.get('paginate')
+    name: 'upload',
+    Model,
+    paginate
   }
-
-  var resourceOptions
 
   app.use('/uploads',
     multipartMiddleware.single('file'),
     (req: express.Request, res: express.Response, next: express.NextFunction) => {
       if (req?.feathers) {
         req.feathers.file = (req as any).file
-        resourceOptions = {
-          ...options,
-          req,
-          res,
-          next
-        }
-        next(resourceOptions)
+        next()
       }
     },
-    blobService({ Model: provider.getStorage() }) //,
-    // new Resource(resourceOptions, app)
+    blobService({ Model: provider.getStorage() }),
+    createService(options)
   )
 
   const service = app.service('uploads')
