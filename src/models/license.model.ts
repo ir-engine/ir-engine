@@ -11,6 +11,14 @@ export default function (app: Application): any {
     text: {
       type: DataTypes.STRING,
       allowNull: true
+    },
+    url: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    remixable: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   }, {
     hooks: {
@@ -20,9 +28,8 @@ export default function (app: Application): any {
     }
   });
 
-  // eslint-disable-next-line no-unused-vars
-  (license as any).associate = function (models: any) {
-  }
+  (license as any).associate = (models: any) =>
+    (license as any).belongsTo(models.attribution)
 
   return license
 }

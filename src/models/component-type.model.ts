@@ -16,9 +16,8 @@ export default function (app: Application): any {
     }
   });
 
-  // eslint-disable-next-line no-unused-vars
-  (componentType as any).associate = function (models: any) {
-  }
+  (componentType as any).associate = (models: any) =>
+    (componentType as any).belongsTo(models.component)
 
   return componentType
 }
