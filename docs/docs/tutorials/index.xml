@@ -1,8 +1,8 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>XRChat Documentation – Tutorials</title>
+    <title>XRChat – Tutorials</title>
     <link>/docs/tutorials/</link>
-    <description>Recent content in Tutorials on XRChat Documentation</description>
+    <description>Recent content in Tutorials on XRChat</description>
     <generator>Hugo -- gohugo.io</generator>
     <lastBuildDate>Wed, 04 Jan 2017 00:00:00 +0000</lastBuildDate>
     
