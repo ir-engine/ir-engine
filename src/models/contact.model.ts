@@ -4,14 +4,7 @@ import { Application } from '../declarations'
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const Contact = sequelizeClient.define('contact', {
-    owner: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notNull: { msg: 'Owner ID is required!' }
-      }
-    },
-    contactId: {
+    userId: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {

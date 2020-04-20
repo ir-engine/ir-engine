@@ -1,5 +1,3 @@
-// See http://docs.sequelizejs.com/en/latest/docs/models-definition/
-// for more of what you can do here.
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 
@@ -28,9 +26,8 @@ export default function (app: Application): any {
   });
 
   // eslint-disable-next-line no-unused-vars
-  (publicVideo as any).associate = function (models: any) {
-    // Define associations here
-    // See http://docs.sequelizejs.com/en/latest/docs/associations/
+  (publicVideo as any).associate = (models: any) => {
+
   }
 
   return publicVideo
