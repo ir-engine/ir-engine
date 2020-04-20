@@ -1,6 +1,5 @@
 import { Application } from '../declarations'
 
-// import Uploads from './upload/upload.service'
 import Email from './email/email.service'
 import Auth from './auth-management/auth-management.service'
 import User from './user/user.service'
@@ -25,6 +24,12 @@ import resource from './resource/resource.service'
 import collection from './collection/collection.service'
 import project from './project/project.service'
 import video from './video/video.service'
+
+import collectionEntity from './collection-entity/collection-entity.service'
+
+import entityComponent from './entity-component/entity-component.service'
+
+import componentResource from './component-resource/component-resource.service'
 
 export default (app: Application): void => {
   app.configure(Email)
@@ -51,4 +56,7 @@ export default (app: Application): void => {
   app.configure(collection)
   app.configure(project)
   app.configure(video)
+  app.configure(collectionEntity)
+  app.configure(entityComponent)
+  app.configure(componentResource)
 }

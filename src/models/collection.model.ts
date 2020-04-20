@@ -10,11 +10,12 @@ export default function (app: Application): any {
     },
     description: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     metadata: {
       type: DataTypes.JSON,
-      allowNull: false
+      defaultValue: {},
+      allowNull: true
     }
   }, {
     hooks: {

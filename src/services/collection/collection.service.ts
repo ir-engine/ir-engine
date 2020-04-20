@@ -12,13 +12,12 @@ declare module '../../declarations' {
   }
 }
 
-export default function (app: Application) {
+export default function (app: Application): any {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate')
   }
 
-  // Initialize our service with any options it requires
   app.use('/collection', new Collection(options, app))
 
   // Get our initialized service so that we can register hooks
