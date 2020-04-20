@@ -46,7 +46,7 @@ export default class VideoScene extends React.Component<State> {
               width="200000"
               rotation="-90 0 0"
             ></a-plane>
-            <Entity player="fuseCursor: true" />
+            <Entity player />
             <a className="enterVR" id="enterVRButton" href="#">
               <SvgVr className="enterVR" />
             </a>

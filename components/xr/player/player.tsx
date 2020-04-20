@@ -3,8 +3,8 @@ import React from 'react'
 // @ts-ignore
 import { Entity } from 'aframe-react'
 
-function PlayerComp(props: any) {
-  const playerProps = 'fuseCursor: ' + props.fuseCursor
+function PlayerComp() {
+  const playerProps = ''
   return (
     <Entity
       player={ playerProps }
