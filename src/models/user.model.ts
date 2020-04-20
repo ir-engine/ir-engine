@@ -38,10 +38,10 @@ export default (app: Application): any => {
       }
     }
   });
-  // belongs to many Group, has one Contact list
+
   (user as any).associate = (models: any) => {
-   // (user as any).belongsToMany(models.contact, { through: 'user_contact' });
-  //  (user as any).belongsTo(models.group, { through: models.group_member })
+    (user as any).belongsToMany(models.contact, { through: 'user_contact' });
+    (user as any).belongsTo(models.group, { through: models.group_member })
   }
 
   return user

@@ -3,8 +3,8 @@ import { Application } from '../declarations'
 
 export default function (app: Application): any {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const entity = sequelizeClient.define('entity', {
-    name: {
+  const componentResource = sequelizeClient.define('component_resource', {
+    text: {
       type: DataTypes.STRING,
       allowNull: false
     }
@@ -16,10 +16,10 @@ export default function (app: Application): any {
     }
   });
 
-  (entity as any).associate = (models: any) => {
-    (entity as any).hasMany(models.component);
-    (entity as any).belongsToMany(models.collection, { through: models.collection_entity })
+  (componentResource as any).associate = function (models: any) {
+    (componentResource as any).hasOne(models.component);
+    (componentResource as any).hasOne(models.resource)
   }
 
-  return entity
+  return componentResource
 }
