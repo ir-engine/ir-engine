@@ -12,14 +12,14 @@ const playerHeight = getConfig().publicRuntimeConfig.xr.playerHeight
 
 interface Props {
   linkPrefix?: string
-  gridCellsPerRow?: any
-  cellHeight?: any
-  radius?: any
-  rows?: any
-  columns?: any
+  gridCellsPerRow?: number
+  cellHeight?: number
+  radius?: number
+  rows?: number
+  columns?: number
   media?: any
-  cellWidth?: any
-  cellContentHeight?: any
+  cellWidth?: number
+  cellContentHeight?: number
 }
 function MediaGrid(props: Props): any {
   const cylindricalGrid: CylindricalGrid = new CylindricalGrid(
@@ -32,6 +32,10 @@ function MediaGrid(props: Props): any {
   const gridRotation = () => 180 - (360 / (props.gridCellsPerRow ?? config.gridCellsPerRow)) * 2
 
   const gridOffsetY = () => (1 - (props.rows ?? config.rows) / 2) * (props.cellHeight ?? config.cellHeight)
+
+  function getSource(media:any) {
+    return media.thumbnail_url && media.thumbnail_url.length > 0 ? media.thumbnail_url : '#placeholder'
+  }
 
   const gridCellRotation = (itemNum: number) => {
     const rot = cylindricalGrid.cellRotation(itemNum)
@@ -64,7 +68,7 @@ function MediaGrid(props: Props): any {
             <Entity
               primitive="a-image"
               class="clickable"
-              src={media.thumbnail_url}
+              src={getSource(media)}
               width={props.cellWidth ?? config.cellWidth}
               height={props.cellContentHeight ?? config.cellContentHeight}
               events={{ click: () => { window.location.href = media.link } }}
