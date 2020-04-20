@@ -1,17 +1,14 @@
-import * as authentication from '@feathersjs/authentication'
 import { HookContext } from '@feathersjs/feathers'
 import attachOwnerIdInSavingContact from '../../hooks/set-loggedin-user-in-body'
 
 // Don't remove this comment. It's needed to format import lines nicely.
-
-const { authenticate } = authentication.hooks
 
 const getLoggedInUserContacts = () => {
   return (context: HookContext) => {
     // Getting only logged in user contacts
     context.params.query = {
       ...context.params.query,
-      owner: context.params.user.userId
+      userId: context.params.user.userId
     }
     return context
   }
@@ -41,7 +38,6 @@ const populateContactsAndLimitData = () => {
 
 export default {
   before: {
-    all: [authenticate('jwt')],
     find: [
       getLoggedInUserContacts(),
       populateContactsAndLimitData()

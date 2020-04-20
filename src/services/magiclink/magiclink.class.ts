@@ -71,7 +71,7 @@ export class Magiclink implements ServiceMethods<Data> {
     const userService = this.app.service('user')
     const authService = this.app.service('authentication')
     let user
-    
+
     if (data.type === 'email') {
       const users = ((await userService.find({
         query: {

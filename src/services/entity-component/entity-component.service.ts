@@ -1,14 +1,14 @@
-// Initializes the `resource-type` service on path `/resource-type`
+// Initializes the `entity-component` service on path `/entity-component`
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
-import { ResourceType } from './resource-type.class';
-import createModel from '../../models/resource-type.model';
-import hooks from './resource-type.hooks';
+import { EntityComponent } from './entity-component.class';
+import createModel from '../../models/entity-component.model';
+import hooks from './entity-component.hooks';
 
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'resource-type': ResourceType & ServiceAddons<any>;
+    'entity-component': EntityComponent & ServiceAddons<any>;
   }
 }
 
@@ -19,10 +19,10 @@ export default function (app: Application) {
   };
 
   // Initialize our service with any options it requires
-  app.use('/resource-type', new ResourceType(options, app));
+  app.use('/entity-component', new EntityComponent(options, app));
 
   // Get our initialized service so that we can register hooks
-  const service = app.service('resource-type');
+  const service = app.service('entity-component');
 
   service.hooks(hooks);
 }

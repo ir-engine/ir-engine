@@ -1,10 +1,10 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 
-export default function (app: Application): any {
+export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const resourceType = sequelizeClient.define('resource_type', {
-    name: {
+  const userEntity = sequelizeClient.define('user_entity', {
+    text: {
       type: DataTypes.STRING,
       allowNull: false
     }
@@ -16,9 +16,10 @@ export default function (app: Application): any {
     }
   });
 
-  // eslint-disable-next-line no-unused-vars
-  (resourceType as any).associate = function (models: any) {
+  (userEntity as any).associate = function (models: any) {
+    (userEntity as any).hasOne(models.user);
+    (userEntity as any).hasOne(models.entity)
   }
 
-  return resourceType
+  return userEntity
 }

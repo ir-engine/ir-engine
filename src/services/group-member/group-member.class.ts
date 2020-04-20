@@ -24,7 +24,7 @@ export class GroupMember extends Service {
       include: [
         {
           model: GroupModel,
-          attributes: ['id', 'ownerId', 'isPublic']
+          attributes: ['id']
         }
       ]
     })
