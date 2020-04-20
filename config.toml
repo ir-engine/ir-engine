@@ -1,6 +1,5 @@
 baseURL = "/"
 title = "XRChat"
-publishDir = "docs"
 
 enableRobotsTXT = true
 
