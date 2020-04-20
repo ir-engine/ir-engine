@@ -12,16 +12,14 @@ declare module '../../declarations' {
   }
 }
 
-export default function (app: Application) {
+export default (app: Application): any => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate')
   }
 
-  // Initialize our service with any options it requires
   app.use('/entity', new Entity(options, app))
 
-  // Get our initialized service so that we can register hooks
   const service = app.service('entity')
 
   service.hooks(hooks)
