@@ -15,14 +15,6 @@ export default function (app: Application): any {
     url: {
       type: DataTypes.STRING,
       allowNull: false
-    },
-    type: {
-      type: DataTypes.STRING, // TODO: ASSOCIATE AND CHANGE TYPE
-      allowNull: false
-    },
-    license: {
-      type: DataTypes.STRING, // TODO: ASSOCIATE AND CHANGE TYPE
-      allowNull: false
     }
   }, {
     hooks: {
@@ -32,9 +24,8 @@ export default function (app: Application): any {
     }
   });
 
-  // eslint-disable-next-line no-unused-vars
-  (attribution as any).associate = function (models: any) {
-  }
+  (attribution as any).associate = (models: any) =>
+    (attribution as any).hasOne(models.license)
 
   return attribution
 }

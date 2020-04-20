@@ -27,19 +27,15 @@ import componentType from './component-type/component-type.service'
 
 import entity from './entity/entity.service'
 
-import resourceType from './resource-type/resource-type.service'
-
 import collectionType from './collection-type/collection-type.service'
 
 import license from './license/license.service'
 
 import resource from './resource/resource.service'
 
-import componentResource from './component-resource/component-resource.service'
-
 import collection from './collection/collection.service'
 
-import collectionEntity from './collection-entity/collection-entity.service'
+import project from './project/project.service'
 
 export default (app: Application): void => {
   app.configure(Uploads)
@@ -62,11 +58,9 @@ export default (app: Application): void => {
   app.configure(component)
   app.configure(componentType)
   app.configure(entity)
-  app.configure(resourceType)
   app.configure(collectionType)
   app.configure(license)
   app.configure(resource)
-  app.configure(componentResource)
   app.configure(collection)
-  app.configure(collectionEntity)
+  app.configure(project)
 }

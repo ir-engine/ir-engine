@@ -4,20 +4,16 @@ import { Application } from '../declarations'
 export default function (app: Application): any {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const collection = sequelizeClient.define('collection', {
-    type: {
-      type: DataTypes.STRING, // TODO: Reference type and associate
-      allowNull: false
-    },
     name: {
       type: DataTypes.STRING,
       allowNull: false
     },
     description: {
-      type: DataTypes.STRING, // TODO: Reference type and associate
+      type: DataTypes.STRING,
       allowNull: false
     },
-    attribution: {
-      type: DataTypes.STRING, // TODO: Reference type and associate
+    metadata: {
+      type: DataTypes.JSON,
       allowNull: false
     }
   }, {
@@ -28,8 +24,9 @@ export default function (app: Application): any {
     }
   });
 
-  // eslint-disable-next-line no-unused-vars
-  (collection as any).associate = function (models: any) {
+  (collection as any).associate = (models: any) => {
+    (collection as any).hasOne(models.collection_type);
+    (collection as any).hasOne(models.attribution)
   }
 
   return collection
