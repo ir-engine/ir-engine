@@ -10,3 +10,8 @@ cd docsy-example && \
 npm install && \
 hugo server
 ```
+
+### To Deploy the Latest Docs
+```bash
+bash deploy.sh
+```
