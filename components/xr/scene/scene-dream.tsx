@@ -161,7 +161,7 @@ export default class NetworkedScene extends React.Component<State> {
         "columns": 5 */}
             </Entity>
             <Assets />
-            <Player fuseCursor="true" />
+            <Player />
             <Environment />
             <a className="enterVR" id="enterVRButton" href="#">
               <SvgVr className="enterVR" />
