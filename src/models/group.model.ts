@@ -37,9 +37,6 @@ export default (app: Application): any => {
 
   // eslint-disable-next-line no-unused-vars
   (Group as any).associate = (models: any) => {
-    // Define associations here
-    // See http://docs.sequelizejs.com/en/latest/docs/associations/
-
     (Group as any).belongsTo(models.user, { foreignKey: 'ownerId' });
     (Group as any).belongsToMany(models.user, { through: models.group_member, otherKey: 'userId' })
   }
