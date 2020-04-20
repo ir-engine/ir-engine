@@ -25,8 +25,8 @@ function Video360Room() {
         loop="false"
       />
       <VideoControls
-        videosrc="#video360Shaka" videotitle="#videotitle" />
-      <Entity id="videotitle"
+        videosrc="#video360Shaka" videotext="#videotext" />
+      <Entity id="videotext"
         text={{
           font: 'mozillavr',
           width: 2,

@@ -1,39 +1,67 @@
 
-import React from 'react'
+import React, { useState } from 'react'
+import { useRouter } from 'next/router'
 import './VideoControls.scss'
 
-export default class Video360Room extends React.Component {
-  props: propTypes
+interface VideoControllerProps {
+  videosrc: string,
+  videotext: string
+}
 
-  constructor(props: propTypes) {
-    super(props)
+function Video360Room(props: VideoControllerProps): any {
+  const router = useRouter()
+  const [playing, setPlaying] = useState(false)
+  const [end, setEnd] = useState(false)
 
-    this.props = props
+  function clickHandler() {
+    if (end) {
+      exitVideoHandler()
+    } else if (!playing) {
+      playHandler(props.videosrc, props.videotext)
+    }
   }
 
-  playPauseHandler() {
-    console.log('playPauseHandler')
-    var video = document.querySelector(this.props.videosrc)
-    var titleEl = document.querySelector(this.props.videotitle)
+  function playHandler(videosrc: string, videotext: string) {
+    var video = document.querySelector(videosrc) as HTMLElement
+    var textEl = document.querySelector(videotext)
     if (video && video !== undefined && video.getAttribute('src') !== '') {
-      video.play()
+      (video as HTMLVideoElement).play()
       const controller = document.querySelector('#videoplayercontrols')
-      controller.parentElement?.removeChild(controller)
-      titleEl.parentElement?.removeChild(titleEl)
+      controller.classList.remove('active')
+      controller.classList.add('disabled')
+      textEl.object3D.visible = false
+      video.addEventListener('complete', videoEndHandler, { once: true })
+      setPlaying(true)
     } else console.log('this.video is undefined')
   }
 
-  render() {
-    return (
-      <div onClick={this.playPauseHandler.bind(this)}
-        id="videoplayercontrols"
-        className="videoplayercontrols active">
-      </div>
-    )
+  function videoEndHandler() {
+    console.log('videoEndHandler')
+    var video = document.querySelector(props.videosrc)
+    var textEl = document.querySelector(props.videotext)
+    if (video && video !== undefined && video.getAttribute('src') !== '') {
+      video.pause()
+      const controller = document.querySelector('#videoplayercontrols')
+      textEl.addEventListener('click', exitVideoHandler)
+      controller.classList.remove('disabled')
+      controller.classList.add('active')
+      textEl.setAttribute('text', { value: 'END\n\nclick to exit' })
+      textEl.object3D.visible = true
+      setEnd(true)
+      setPlaying(false)
+    } else console.log('this.video is undefined')
   }
+
+  function exitVideoHandler() {
+    router.push('/videoGrid')
+  }
+
+  return (
+    <div onClick={ clickHandler }
+      id="videoplayercontrols"
+      className="videoplayercontrols active">
+    </div>
+  )
 }
 
-type propTypes = {
-  videosrc: string,
-  videotitle: string
-}
+export default Video360Room
