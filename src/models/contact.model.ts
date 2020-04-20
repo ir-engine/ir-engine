@@ -42,10 +42,7 @@ export default (app: Application): any => {
 
   // eslint-disable-next-line no-unused-vars
   (Contact as any).associate = (models: any) => {
-    // Define associations here
-    // See http://docs.sequelizejs.com/en/latest/docs/associations/
-
-    // (contactList as any).belongsTo(models.user, { foreignKey: 'owner', as: 'ownerUser' });
+    // (Contact as any).belongsTo(models.user, { foreignKey: 'owner', as: 'ownerUser' });
     (Contact as any).belongsTo(models.user, { foreignKey: 'contactId', as: 'contactDetail' })
   }
   return Contact
