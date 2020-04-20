@@ -12,31 +12,46 @@ export interface EaccubeComponentProps {
 
 export interface EaccubeComponentData {
   src: HTMLVideoElement | HTMLImageElement,
-  order: string,
+  tileOrder: string,
+  tileRotation: string,
+  tileFlip: string,
   size: number
 }
 
+const TILE_ROTATION_RIGHT = 'R' // 90deg cw
+const TILE_ROTATION_LEFT = 'L' // 90deg ccw
+const TILE_ROTATION_UP = 'U' // no rotation
+const TILE_ROTATION_DOWN = 'D' // 180deg
 const CubeFaceOrder = 'RLUDFB'
-const FaceOrderRegExp = new RegExp(`^[${CubeFaceOrder}]{6}$`, 'i')
-const FaceOrderInvalidMsg = 'order is not valid'
-const DefaultFaceOrder = 'RLUDFB'
+const TileOrderRegExp = new RegExp(`^[${CubeFaceOrder}]{6}$`, 'i')
+const TileOrderInvalidMsg = 'tileOrder is not valid'
+const DefaultTileOrder = 'RLUDFB'
+const DefaultTileRotation = TILE_ROTATION_UP.repeat(6)
 
 export const EaccubeComponentSchema: AFRAME.MultiPropertySchema<EaccubeComponentData> = {
   src: { type: 'asset' },
-  order: {
+  tileOrder: {
     type: 'string',
-    default: DefaultFaceOrder,
+    default: DefaultTileOrder,
     parse: val => {
-      if (!FaceOrderRegExp.test(val)) {
-        throw new Error(FaceOrderInvalidMsg)
+      if (!TileOrderRegExp.test(val)) {
+        throw new Error(TileOrderInvalidMsg)
       }
       return val.toUpperCase()
     }
   },
+  tileRotation: {
+    type: 'string',
+    default: DefaultTileRotation,
+    parse: val => {
+      return val.toUpperCase()
+    }
+  },
+  tileFlip: { type: 'string', default: '000000' },
   size: { type: 'int', default: 1000 }
 }
 
-function generateEACUV(textureFaceOrder: string): number[] {
+function generateEACUV(tileOrder: string[], tileRotation: string[], tileFlip: string[]): number[] {
   const cubeFaceCoords: number[][] = []
   const rows = 2
   const cols = 3
@@ -59,11 +74,12 @@ function generateEACUV(textureFaceOrder: string): number[] {
   }
 
   const cubeFaceOrderArray = CubeFaceOrder.split('')
-  const textureFaceIndexOrder = textureFaceOrder.split('').map(faceName => cubeFaceOrderArray.indexOf(faceName))
+  const tileIndexOrder = tileOrder.map(faceName => cubeFaceOrderArray.indexOf(faceName))
 
   const uv: number[] = []
   cubeFaceOrderArray.forEach((_, i) => {
-    const faceCoords = cubeFaceCoords[textureFaceIndexOrder[i]]
+    const cubeFaceIndex = tileIndexOrder[i]
+    const faceCoords = transformFaceCoord(cubeFaceCoords[cubeFaceIndex], tileRotation[i], tileFlip[i])
     uv.push(
       faceCoords[0], faceCoords[1],
       faceCoords[2], faceCoords[3],
@@ -76,6 +92,55 @@ function generateEACUV(textureFaceOrder: string): number[] {
   })
 
   return uv
+}
+function transformFaceCoord(faceCoord: number[], tileRotation: string, tileFlip: string) {
+  // flip first
+  if (parseInt(tileFlip)) {
+    faceCoord = flipFaceCoord(faceCoord)
+  }
+  // then rotate
+  faceCoord = rotateFaceCoord(faceCoord, tileRotation)
+  return faceCoord
+}
+function flipFaceCoord(faceCoord: number[]) {
+  return [
+    faceCoord[6], faceCoord[7],
+    faceCoord[4], faceCoord[5],
+    faceCoord[2], faceCoord[3],
+    faceCoord[0], faceCoord[1]
+  ]
+}
+function rotateFaceCoord(faceCoord: number[], rotation: string) {
+  switch (rotation) {
+    case TILE_ROTATION_LEFT:
+      // 90 ccw
+      return [
+        faceCoord[6], faceCoord[7],
+        faceCoord[0], faceCoord[1],
+        faceCoord[2], faceCoord[3],
+        faceCoord[4], faceCoord[5]
+      ]
+    case TILE_ROTATION_RIGHT:
+      // -90 ccw
+      return [
+        faceCoord[2], faceCoord[3],
+        faceCoord[4], faceCoord[5],
+        faceCoord[6], faceCoord[7],
+        faceCoord[0], faceCoord[1]
+      ]
+    case TILE_ROTATION_DOWN:
+      // 180 or -180 ccw
+      return [
+        faceCoord[4], faceCoord[5],
+        faceCoord[6], faceCoord[7],
+        faceCoord[0], faceCoord[1],
+        faceCoord[2], faceCoord[3]
+      ]
+    default:
+      // TILE_ROTATION_UP no rotation
+      break
+  }
+  return faceCoord
 }
 
 export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps> = {
@@ -115,7 +180,11 @@ export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps>
     if (this.data.src !== oldData.src) {
       this.setSrc(this.data.src)
     }
-    if (this.data.order !== oldData.order) {
+
+    const uvNeedsUpdate = this.data.tileOrder !== oldData.tileOrder ||
+      this.data.tileFlip !== oldData.tileFlip ||
+      this.data.tileRotation !== oldData.tileRotation
+    if (uvNeedsUpdate) {
       this.updateUV()
     }
   },
@@ -130,7 +199,13 @@ export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps>
     const mesh = this.el.getObject3D('mesh') as THREE.Mesh
     const geometry = mesh.geometry as THREE.BufferGeometry
     const uv = geometry.attributes.uv as THREE.BufferAttribute
-    (uv.array as Float32Array).set(generateEACUV(this.data.order))
+    (uv.array as Float32Array).set(
+      generateEACUV(
+        this.data.tileOrder.split(''),
+        this.data.tileRotation.split(''),
+        this.data.tileFlip.split('')
+      )
+    )
     uv.needsUpdate = true
   }
 }
