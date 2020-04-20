@@ -26,7 +26,8 @@ export default function (app: Application): any {
 
   (collection as any).associate = (models: any) => {
     (collection as any).hasOne(models.collection_type);
-    (collection as any).hasOne(models.attribution)
+    (collection as any).hasOne(models.attribution);
+    (collection as any).hasMany(models.entity)
   }
 
   return collection

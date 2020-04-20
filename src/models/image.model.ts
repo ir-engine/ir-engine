@@ -14,7 +14,7 @@ export default function (app: Application): any {
         options.raw = true
       }
     }
-  });
+  });/*  */
 
   // eslint-disable-next-line no-unused-vars
   (image as any).associate = function (models: any) {

@@ -19,7 +19,8 @@ export default function (app: Application): any {
   // eslint-disable-next-line no-unused-vars
   (component as any).associate = (models: any) => {
     (component as any).hasOne(models.component_type);
-    (component as any).hasOne(models.entity)
+    (component as any).belongsToMany(models.resource, { through: 'component_resource' });
+    (component as any).belongsTo(models.entity)
   }
 
   return component

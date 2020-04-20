@@ -11,7 +11,7 @@ const getLoggedInUserContacts = () => {
     // Getting only logged in user contacts
     context.params.query = {
       ...context.params.query,
-      owner: context.params.user.userId
+      userId: context.params.user.userId
     }
     return context
   }
