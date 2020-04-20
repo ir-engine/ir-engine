@@ -23,14 +23,13 @@ import resource from './resource/resource.service'
 import collection from './collection/collection.service'
 import project from './project/project.service'
 import video from './video/video.service'
-
 import collectionEntity from './collection-entity/collection-entity.service'
-
 import entityComponent from './entity-component/entity-component.service'
-
 import componentResource from './component-resource/component-resource.service'
+import userResource from './user-resource/user-resource.service'
+import userEntity from './user-entity/user-entity.service'
 
-import userResource from './user-resource/user-resource.service';
+import userRelation from './user-relation/user-relation.service';
 
 export default (app: Application): void => {
   app.configure(Email)
@@ -59,5 +58,7 @@ export default (app: Application): void => {
   app.configure(collectionEntity)
   app.configure(entityComponent)
   app.configure(componentResource)
-  app.configure(userResource);
+  app.configure(userResource)
+  app.configure(userEntity)
+  app.configure(userRelation);
 }
