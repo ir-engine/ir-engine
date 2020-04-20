@@ -31,19 +31,11 @@ export default (app: Application): any => {
       beforeCount (options: any) {
         options.raw = true
       }
-    },
-    indexes: [
-      {
-        unique: true,
-        fields: ['owner', 'contactId']
-      }
-    ]
+    }
   });
 
-  // eslint-disable-next-line no-unused-vars
-  (Contact as any).associate = (models: any) => {
-    // (Contact as any).belongsTo(models.user, { foreignKey: 'owner', as: 'ownerUser' });
-    (Contact as any).belongsTo(models.user, { foreignKey: 'contactId', as: 'contactDetail' })
-  }
+  (Contact as any).associate = (models: any) =>
+    (Contact as any).belongsTo(models.user)
+
   return Contact
 }
