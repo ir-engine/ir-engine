@@ -12,9 +12,9 @@ import Instance from './instance/instance.service'
 import { Application } from '../declarations'
 
 import magiclink from './magiclink/magiclink.service'
-// import Contact from './contact/contact.service'
-// import Group from './group/group.service'
-// import groupMember from './group-member/group-member.service'
+import Contact from './contact/contact.service'
+import Group from './group/group.service'
+import groupMember from './group-member/group-member.service'
 import sms from './sms/sms.service'
 
 import attribution from './attribution/attribution.service'
@@ -42,9 +42,9 @@ export default (app: Application): void => {
   app.configure(Email)
   app.configure(Auth)
   app.configure(User)
-  //  app.configure(Group)
-  // app.configure(groupMember)
-  // app.configure(Contact)
+  app.configure(Group)
+  app.configure(groupMember)
+  app.configure(Contact)
   app.configure(Avatar)
   app.configure(Objects)
   app.configure(Scene)
