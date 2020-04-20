@@ -4,7 +4,6 @@ import Email from './email/email.service'
 import Auth from './auth-management/auth-management.service'
 import User from './user/user.service'
 import publicVideo from './public-video/public-video.service'
-import Avatar from './avatar/avatar.service'
 import Scene from './scene/scene.service'
 import Location from './location/location.service'
 import Instance from './instance/instance.service'
@@ -31,6 +30,8 @@ import entityComponent from './entity-component/entity-component.service'
 
 import componentResource from './component-resource/component-resource.service'
 
+import userResource from './user-resource/user-resource.service';
+
 export default (app: Application): void => {
   app.configure(Email)
   app.configure(Auth)
@@ -38,7 +39,6 @@ export default (app: Application): void => {
   app.configure(Group)
   app.configure(groupMember)
   app.configure(Contact)
-  app.configure(Avatar)
   app.configure(Scene)
   app.configure(Location)
   app.configure(Instance)
@@ -59,4 +59,5 @@ export default (app: Application): void => {
   app.configure(collectionEntity)
   app.configure(entityComponent)
   app.configure(componentResource)
+  app.configure(userResource);
 }

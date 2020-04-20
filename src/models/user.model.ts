@@ -40,7 +40,7 @@ export default (app: Application): any => {
   });
 
   (user as any).associate = (models: any) => {
-    (user as any).belongsToMany(models.contact, { through: 'user_contact' });
+    (user as any).belongsToMany(models.user, { as: 'Contacts', through: models.contact });
     (user as any).belongsTo(models.group, { through: models.group_member })
   }
 
