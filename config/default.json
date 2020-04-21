@@ -82,5 +82,9 @@
       "secret_access_key": "AWS_SMS_SECRET_ACCESS_KEY"
     }
   },
+
+  "magiclink": {
+    "subject": "MAGICLINK_EMAIL_SUBJECT"
+  },
   "mysql": "mysql://server:password@localhost:3306/xrchat"
 }
