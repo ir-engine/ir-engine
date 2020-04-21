@@ -27,10 +27,15 @@ import entityComponent from './entity-component/entity-component.service'
 import componentResource from './component-resource/component-resource.service'
 import userResource from './user-resource/user-resource.service'
 import userEntity from './user-entity/user-entity.service'
+import upload from './upload/upload.service'
 
 import relationship from './relationship/relationship.service'
 
 import relationshipType from './relationship-type/relationship-type.service'
+
+import resourceChild from './resource-child/resource-child.service'
+
+import resourceType from './resource-type/resource-type.service'
 
 export default (app: Application): void => {
   app.configure(Email)
@@ -62,4 +67,7 @@ export default (app: Application): void => {
   app.configure(userEntity)
   app.configure(relationship)
   app.configure(relationshipType)
+  app.configure(resourceChild)
+  app.configure(resourceType)
+  app.configure(upload)
 }

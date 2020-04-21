@@ -1,6 +1,6 @@
 // import * as authentication from '@feathersjs/authentication'
 import convertVideo from '../../hooks/convert-video'
-import createResource from '../../hooks/create-resource';
+import createResource from '../../hooks/create-resource'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
