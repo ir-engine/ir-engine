@@ -13,10 +13,11 @@ This is the client portion of XRChat. To deploy everything at once with Kubernet
 ## Getting Started
 
 To run
+
 ```
-yarn install
-yarn build
-yarn run dev
+npm install
+npm run build
+npm run dev
 ```
 
 The client is built on Networked Aframe and React, and uses Nextjs for simplified page routing and Server Side Rendering

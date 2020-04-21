@@ -5,7 +5,8 @@
     "dev": "cross-env NODE_ENV=dev next --port $PORT",
     "build": "next build",
     "start": "next start",
-    "type-check": "tsc"
+    "type-check": "tsc",
+    "test": "npm run build"
   },
   "dependencies": {
     "@babel/plugin-proposal-object-rest-spread": "^7.9.0",
