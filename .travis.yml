@@ -14,15 +14,15 @@ before_deploy:
 
 deploy:
   - provider: script
-    script: bash scripts/publish_dockerhub.sh staging && scripts/deploy.sh staging
+    script: bash scripts/publish_dockerhub.sh staging $TRAVIS_COMMIT && scripts/deploy.sh staging $TRAVIS_COMMIT
     on:
       branch: master
   - provider: script
-    script: bash scripts/publish_dockerhub.sh dev && scripts/deploy.sh dev
+    script: bash scripts/publish_dockerhub.sh dev $TRAVIS_TAG && scripts/deploy.sh dev $TRAVIS_COMMIT
     on:
       branch: dev
   - provider: script
-    script: bash scripts/publish_dockerhub.sh $TRAVIS_TAG
+    script: bash scripts/publish_dockerhub.sh latest $TRAVIS_TAG 
     on:
       tags: true
       all_branches: true
