@@ -18,7 +18,7 @@ deploy:
     on:
       branch: master
   - provider: script
-    script: bash scripts/publish_dockerhub.sh dev $TRAVIS_TAG && scripts/deploy.sh dev $TRAVIS_COMMIT
+    script: bash scripts/publish_dockerhub.sh dev $TRAVIS_COMMIT && scripts/deploy.sh dev $TRAVIS_COMMIT
     on:
       branch: dev
   - provider: script
