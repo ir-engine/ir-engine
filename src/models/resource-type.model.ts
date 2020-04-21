@@ -4,7 +4,7 @@ import { Application } from '../declarations'
 export default function (app: Application): any {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const resourceType = sequelizeClient.define('resource_type', {
-    name: {
+    text: {
       type: DataTypes.STRING,
       allowNull: false
     }
@@ -17,7 +17,8 @@ export default function (app: Application): any {
   });
 
   // eslint-disable-next-line no-unused-vars
-  (resourceType as any).associate = function (models: any) {
+  (resourceType as any).associate = (models: any) => {
+    (resourceType as any).belongsTo(models.resource)
   }
 
   return resourceType

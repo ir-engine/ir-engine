@@ -10,19 +10,19 @@ export default function (app: Application): any {
     },
     description: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     url: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    type: {
-      type: DataTypes.STRING, // TODO: Reference type and associate
+    mime_type: {
+      type: DataTypes.STRING,
       allowNull: false
     },
-    attribution: {
-      type: DataTypes.STRING, // TODO: Reference type and associate
-      allowNull: false
+    metadata: {
+      type: DataTypes.JSON,
+      allowNull: true
     }
   }, {
     hooks: {
@@ -33,7 +33,12 @@ export default function (app: Application): any {
   });
 
   // eslint-disable-next-line no-unused-vars
-  (resource as any).associate = function (models: any) {
+  (resource as any).associate = (models: any) => {
+    (resource as any).hasOne(models.attribution);
+    (resource as any).hasOne(models.resource_type);
+    (resource as any).belongsToMany(models.component, { through: models.component_resource });
+    (resource as any).belongsToMany(models.resource, { through: models.resource_child, as: 'parentResource' });
+    (resource as any).belongsToMany(models.resource, { through: models.resource_child, as: 'childResource' })
   }
 
   return resource
