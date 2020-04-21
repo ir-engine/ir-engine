@@ -1,10 +1,10 @@
-import assert from 'assert';
-import app from '../../src/app';
+import assert from 'assert'
+import app from '../../src/app'
 
 describe('\'video\' service', () => {
   it('registered the service', () => {
-    const service = app.service('video');
+    const service = app.service('video')
 
-    assert.ok(service, 'Registered the service');
-  });
-});
+    assert.ok(service, 'Registered the service')
+  })
+})
