@@ -4,7 +4,7 @@ import { disallow } from 'feathers-hooks-common'
 
 import createResource from '../../hooks/create-resource'
 
-import addUriToFile from '../../hooks/add-uri-to-file';
+import addUriToFile from '../../hooks/add-uri-to-file'
 
 export default {
   before: {
