@@ -16,7 +16,8 @@ declare module '../../declarations' {
 export default (app: Application): void => {
   app.use('/email', Mailer(smtpTransport({
     host: process.env.SMTP_HOST,
-    secure: true,
+    port: (process.env.SMTP_PORT) ? +process.env.SMTP_PORT : 2525,
+    secure: process.env.SMTP_SECURE === 'true' || false,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS

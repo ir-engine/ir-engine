@@ -32,18 +32,18 @@ export class Magiclink implements ServiceMethods<Data> {
     const appPath = path.dirname(require.main ? require.main.filename : '')
     const emailAccountTemplatesPath =
       path.join(appPath, '..', 'src', 'email-templates', 'account')
-    const mailFrom = process.env.MAIL_FROM ?? 'noreply@myxr.email'
 
     const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-email.pug')
     const compiledHTML = pug.compileFile(templatePath)({
       logo: '',
       hashLink
     })
-
+    const mailFrom = process.env.SMTP_FROM_EMAIL ?? 'noreply@myxr.email'
+    const mailSender = `${(process.env.SMTP_FROM_NAME ?? '')}<${mailFrom}>`
     const email = {
-      from: mailFrom,
+      from: mailSender,
       to: toEmail,
-      subject: 'Magic Link to sign in',
+      subject: process.env.MAGICLINK_EMAIL_SUBJECT ?? 'Your login link',
       html: compiledHTML
     }
 
