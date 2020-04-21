@@ -1,6 +1,8 @@
 /* eslint-disable no-prototype-builtins */
 import playerComp from './player'
-import testsphere from './testsphere'
+import gridComp from './grid'
+import gridCellComp from './grid-cell'
+import mediaCellComp from './media-cell'
 import AFRAME from 'aframe'
 import React from 'react'
 
@@ -13,7 +15,9 @@ type ComponentSystem = {
 
 const ComponentSystemArray: ComponentSystem[] = [
   playerComp,
-  testsphere
+  gridComp,
+  gridCellComp,
+  mediaCellComp
 ]
 
 function RegisterComponetSystem(compsys: ComponentSystem) : void {

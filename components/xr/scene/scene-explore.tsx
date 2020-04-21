@@ -9,10 +9,7 @@ import SvgVr from '../../icons/svg/Vr'
 
 import { PublicVideo } from '../../../redux/video/actions'
 
-// import getConfig from 'next/config'
-import MediaGrid from '../layout/MediaGrid'
 import AframeComponentRegisterer from '../aframe/index'
-// const config = getConfig().publicRuntimeConfig.xr['networked-scene']
 
 type State = {
   appRendered?: boolean
@@ -133,7 +130,6 @@ export default class NetworkedScene extends React.Component<State> {
   componentDidMount() {
     if (typeof window !== 'undefined') {
       require('aframe')
-      // require('networked-aframe')
       this.setState({ appRendered: true })
     }
   }
@@ -144,14 +140,38 @@ export default class NetworkedScene extends React.Component<State> {
         {this.state.appRendered && (
           <Scene
             vr-mode-ui="enterVRButton: #enterVRButton"
-            // networked-scene={config}
             class="scene"
             renderer="antialias: true"
             background="color: #FAFAFA"
           >
             <AframeComponentRegisterer />
-            <Entity position="0 0.0 0">
-              <MediaGrid linkPrefix="" media={this.media} cellContentHeight={0.66666} />
+            <Entity position="0 1.6 0">
+              <Entity
+                primitive="a-grid">
+
+                {this.media.map((media: PublicVideo, i: number) => {
+                  return (
+                    <Entity
+                      key={i}
+                      primitive="a-media-cell"
+                      original-title={media.original_title}
+                      title={media.title}
+                      description={media.description}
+                      media-link={media.link}
+                      thumbnail-url={media.thumbnail_url}
+                      production-credit={media.production_credit}
+                      rating={media.rating}
+                      categories={media.categories}
+                      runtime={media.runtime}
+                      tags={media.tags}
+                      cellHeight={0.6666}
+                      cellWidth={1}
+                      cellContentHeight={0.5}
+                    ></Entity>
+                  )
+                })}
+
+              </Entity>
             </Entity>
             <Assets />
             <Player />

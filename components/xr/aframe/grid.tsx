@@ -12,7 +12,9 @@ export interface GridSystemProps {
   getSource: (m:any) => string,
   gridRotationString:(gridCellsPerRow: number) => string,
   gridRotationObj:(gridCellsPerRow: number) => {x: number, y: number, z: number},
-  gridOffsetString:(rows: number, cellHeight: number, playerHeight: number) => string
+  gridOffsetString:(rows: number, cellHeight: number) => string
+  gridOffsetObj:(rows: number, cellHeight: number) => {x: number, y: number, z: number},
+  updateLayout:(g: any, c: AFRAME.Entity[]) => void
 }
 export const GridSystemSchema: AFRAME.Schema<GridSystemData> = {
 }
@@ -31,8 +33,7 @@ export const GridSystemDef: AFRAME.SystemDefinition<GridSystemProps> = {
   pause() {
   },
 
-  // TODO: gridRotation in radians, use it for gridRotationObj for setting rotaton on object3D's
-  gridRotation(gridCellsPerRow: number) { return 180 - (360 / (gridCellsPerRow ?? gridCellsPerRow)) * 2 },
+  gridRotation(gridCellsPerRow: number) { return Math.PI - (Math.PI * 2 / (gridCellsPerRow ?? gridCellsPerRow)) * 2 },
 
   gridOffsetY(rows: number, cellHeight: number) { return (1 - (rows ?? rows) / 2) * (cellHeight ?? cellHeight) },
 
@@ -46,44 +47,50 @@ export const GridSystemDef: AFRAME.SystemDefinition<GridSystemProps> = {
     return { x: 0, y: this.gridRotation(gridCellsPerRow), z: 0 }
   },
 
-  gridOffsetString(rows: number, cellHeight: number, playerHeight: number): string {
-    return '0 ' + (this.gridOffsetY(rows, cellHeight) + playerHeight) + ' 0'
+  gridOffsetString(rows: number, cellHeight: number): string {
+    return '0 ' + this.gridOffsetY(rows, cellHeight) + ' 0'
+  },
+
+  gridOffsetObj(rows: number, cellHeight: number): {x: number, y: number, z: number} {
+    return { x: 0, y: this.gridOffsetY(rows, cellHeight), z: 0 }
+  },
+
+  updateLayout(gridShape: any, children: AFRAME.Entity[]) {
+    children.forEach((cell: AFRAME.Entity, i: number) => {
+      const pos = gridShape.cellPosition(i)
+      cell.object3D.position.set(pos.x, pos.y, pos.z)
+      const rot = gridShape.cellRotation(i)
+      cell.object3D.rotation.set(rot.x, rot.y + Math.PI, rot.z)
+    })
   }
 }
 
 export interface GridData {
-  linkPrefix?: string
   gridCellsPerRow?: number
   cellHeight?: number
   radius?: number
   rows?: number
   columns?: number
-  media?: any[]
   cellWidth?: number
   cellContentHeight?: number
   // TODO : media type
 }
 
 export const GridComponentSchema: AFRAME.MultiPropertySchema<GridData> = {
-  linkPrefix: '',
-  gridCellsPerRow: 28,
-  cellHeight: 0.6,
-  radius: 6,
-  rows: 3,
-  columns: 5,
-  media: [],
-  cellWidth: 1,
-  cellContentHeight: 0.5
+  gridCellsPerRow: { default: 28 },
+  cellHeight: { default: 0.6 },
+  radius: { default: 6 },
+  rows: { default: 3 },
+  columns: { default: 5 },
+  cellWidth: { default: 1 },
+  cellContentHeight: { default: 0.5 }
 }
 
 export interface GridProps {
-  el: AFRAME.Entity | null,
-  firstUpdate: boolean,
   initGrid: () => void,
-  createCell: (element: any, i: number) => AFRAME.Entity,
   cylindricalGrid: CylindricalGrid,
-  gridCellRotation: (n: number) => string,
-  gridCellPosition: (n: number) => string,
+  updateChildren: () => void,
+  children: AFRAME.Entity[]
 }
 
 export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
@@ -91,9 +98,8 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
   data: {
   } as GridData,
 
-  el: {} as AFRAME.Entity,
-  firstUpdate: true,
   cylindricalGrid: {} as CylindricalGrid,
+  children: [] as AFRAME.Entity[],
 
   init () {
     this.cylindricalGrid = new CylindricalGrid(this.data.cellsPerRow,
@@ -111,39 +117,41 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
   pause() {
   },
 
+  // update(oldData) {
+  // if (this.data['needsupdate']) {
+  //     this.updateChildren();
+  //     if (this.system) {
+  //       (this.system as AFRAME.SystemDefinition<GridSystemProps>).updateLayout(this.cylindricalGrid, this.children)
+  //     }
+  //     this.el.setAttribute('grid', {'needsupdate': false});
+  // }
+  // },
+
   initGrid() {
-    this.el.setAttribute('id', this.data.id)
     this.el.classList.add('grid-cylinder')
     const rotObj = (this.system as AFRAME.SystemDefinition<GridSystemProps>).gridRotationObj(this.data.gridCellsPerRow)
     this.el.object3D.rotation.set(rotObj.x, rotObj.y, rotObj.z)
+    const posObj = (this.system as AFRAME.SystemDefinition<GridSystemProps>).gridOffsetObj(this.data.rows,
+      this.data.cellHeight)
+    this.el.object3D.position.set(posObj.x, posObj.y, posObj.z)
 
-    this.data.media.forEach((element: any, i: number) => {
-      const cell: AFRAME.Entity = this.createCell(element, i)
-      this.el.appendChild(cell)
-    })
+    this.updateChildren()
+
+    if (this.system) {
+      (this.system as AFRAME.SystemDefinition<GridSystemProps>).updateLayout(this.cylindricalGrid, this.children)
+    }
   },
 
-  createCell(element: any, i: number): AFRAME.Entity {
-    const el = document.createElement('a-entity')
-    el.classList.add('clickable')
-    const source = (this.system as AFRAME.SystemDefinition<GridSystemProps>).getSource(element)
-    el.setAttribute('src', source)
-    el.setAttribute('width', this.data.cellWidth)
-    el.setAttribute('height', this.data.cellContentHeight)
-
-    // TODO : add event listener for click to follow element.link
-    return el
-  },
-
-  gridCellRotation(itemNum: number) {
-    const rot = this.cylindricalGrid.cellRotation(itemNum)
-    return `${rot.x} ${rot.y + 180} ${rot.z}`
-  },
-
-  gridCellPosition(itemNum: number) {
-    const pos = this.cylindricalGrid.cellPosition(itemNum)
-    return `${pos.x} ${pos.y} ${pos.z}`
+  updateChildren() {
+    // @ts-ignore
+    this.children = (this.el as AFRAME.Entity).getChildEntities().filter(
+      // eslint-disable-next-line no-prototype-builtins
+      (el: AFRAME.Entity) => { return el.components.hasOwnProperty('grid-cell') })
   }
+
+  // gridItemAppendedHandler(evt) {
+  //   this.system.updateLayout(this.data, this.children);
+  // }
 
 }
 
@@ -154,16 +162,13 @@ export const GridPrimitive: AFRAME.PrimitiveDefinition = {
   deprecated: false,
   mappings: {
     id: ComponentName + '.id',
-    linkPrefix: ComponentName + '.linkPrefix',
-    gridCellsPerRow: ComponentName + '.gridCellsPerRow',
-    cellHeight: ComponentName + '.cellHeight',
+    'grid-cells-per-row': ComponentName + '.gridCellsPerRow',
+    'cell-height': ComponentName + '.cellHeight',
     radius: ComponentName + '.radius',
     columns: ComponentName + '.columns',
     rows: ComponentName + '.rows',
-    media: ComponentName + '.media',
-    cellWidth: ComponentName + '.cellWidth',
-    cellContentHeight: ComponentName + '.cellContentHeight'
-
+    'cell-width': ComponentName + '.cellWidth',
+    'cell-content-height': ComponentName + '.cellContentHeight'
   }
 }
 
