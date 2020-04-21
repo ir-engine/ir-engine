@@ -22,8 +22,7 @@ export class Group extends Service {
       attributes: [['groupId', 'id'], 'isMuted', 'isOwner'],
       include: [
         {
-          model: this.getModel(params),
-          attributes: ['isPublic']
+          model: this.getModel(params)
         }
       ]
     })
@@ -40,12 +39,7 @@ export class Group extends Service {
         userId: params.user.userId
       },
       attributes: [['groupId', 'id'], 'isMuted', 'isOwner'],
-      include: [
-        {
-          model: this.getModel(params),
-          attributes: ['isPublic']
-        }
-      ]
+      include: [{ model: this.getModel(params) }]
     })
 
     if (!group) {

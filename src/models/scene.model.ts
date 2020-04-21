@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/func-call-spacing, no-unexpected-multiline */
-// A grouping of objects. A scene is template for a location.
+// TODO:
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 

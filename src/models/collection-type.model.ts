@@ -16,9 +16,8 @@ export default function (app: Application): any {
     }
   });
 
-  // eslint-disable-next-line no-unused-vars
-  (collectionType as any).associate = function (models: any) {
-  }
+  (collectionType as any).associate = (models: any) =>
+    (collectionType as any).belongsTo(models.collection)
 
   return collectionType
 }

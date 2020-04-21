@@ -4,5 +4,5 @@ import IStorageProvider from './storageprovider.interface'
 
 export default class LocalStorage implements IStorageProvider {
   getProvider = (): IStorageProvider => new LocalStorage()
-  getStorage = (): any => fs('./uploads')
+  getStorage = (): any => fs('./upload')
 }
