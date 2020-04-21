@@ -5,6 +5,9 @@ node_js:
 services:
   - docker
 
+script:
+  - npm run test
+
 before_deploy:
   - scripts/setup_helm.sh
   - scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REIGON $CLUSTER_NAME
