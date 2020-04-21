@@ -1,14 +1,13 @@
-// Initializes the `user-relation` service on path `/user-relation`
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
-import { UserRelation } from './user-relation.class'
-import createModel from '../../models/user-relation.model'
-import hooks from './user-relation.hooks'
+import { RelationRelation } from './relationship.class'
+import createModel from '../../models/relationship.model'
+import hooks from './relationship.hooks'
 
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'user-relation': UserRelation & ServiceAddons<any>
+    'relationship': RelationRelation & ServiceAddons<any>
   }
 }
 
@@ -19,10 +18,10 @@ export default (app: Application): any => {
   }
 
   // Initialize our service with any options it requires
-  app.use('/user-relation', new UserRelation(options, app))
+  app.use('/relationship', new RelationRelation(options, app))
 
   // Get our initialized service so that we can register hooks
-  const service = app.service('user-relation')
+  const service = app.service('relationship')
 
   service.hooks(hooks)
 }

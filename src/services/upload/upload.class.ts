@@ -5,7 +5,7 @@ interface Data {}
 
 interface ServiceOptions {}
 
-export class Uploads implements ServiceMethods<Data> {
+export class Upload implements ServiceMethods<Data> {
   app: Application;
   options: ServiceOptions;
 

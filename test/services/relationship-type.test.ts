@@ -1,9 +1,9 @@
 import assert from 'assert'
 import app from '../../src/app'
 
-describe('\'user-relation\' service', () => {
+describe('\'relationship-type\' service', () => {
   it('registered the service', () => {
-    const service = app.service('user-relation')
+    const service = app.service('relationship-type')
 
     assert.ok(service, 'Registered the service')
   })
