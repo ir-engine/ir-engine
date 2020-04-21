@@ -8,7 +8,6 @@ import Scene from './scene/scene.service'
 import Location from './location/location.service'
 import Instance from './instance/instance.service'
 import magiclink from './magiclink/magiclink.service'
-import Contact from './contact/contact.service'
 import Group from './group/group.service'
 import groupMember from './group-member/group-member.service'
 import sms from './sms/sms.service'
@@ -29,7 +28,9 @@ import componentResource from './component-resource/component-resource.service'
 import userResource from './user-resource/user-resource.service'
 import userEntity from './user-entity/user-entity.service'
 
-import userRelation from './user-relation/user-relation.service'
+import relationship from './relationship/relationship.service'
+
+import relationshipType from './relationship-type/relationship-type.service'
 
 export default (app: Application): void => {
   app.configure(Email)
@@ -37,7 +38,6 @@ export default (app: Application): void => {
   app.configure(User)
   app.configure(Group)
   app.configure(groupMember)
-  app.configure(Contact)
   app.configure(Scene)
   app.configure(Location)
   app.configure(Instance)
@@ -60,5 +60,6 @@ export default (app: Application): void => {
   app.configure(componentResource)
   app.configure(userResource)
   app.configure(userEntity)
-  app.configure(userRelation)
+  app.configure(relationship)
+  app.configure(relationshipType)
 }
