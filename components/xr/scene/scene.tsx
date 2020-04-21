@@ -8,7 +8,7 @@ import './index.scss'
 import SvgVr from '../../icons/svg/Vr'
 
 // import getConfig from 'next/config'
-import Grid from '../layout/Grid'
+// import Grid from '../layout/MediaGrid'
 import AframeComponentRegisterer from '../../xr/aframe/index'
 // const config = getConfig().publicRuntimeConfig.xr['networked-scene']
 
@@ -44,11 +44,10 @@ export default class NetworkedScene extends React.Component<State> {
           >
             <AframeComponentRegisterer/>
             <Entity position="0 0.6 0">
-              <Grid />
+              {/* <Grid /> */}
             </Entity>
             <Assets />
-            <Player
-              fuseCursor="true" />
+            <Player />
             <Environment />
             <a className="enterVR" id="enterVRButton" href="#">
               <SvgVr className="enterVR" />
