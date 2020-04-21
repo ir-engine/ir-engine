@@ -29,7 +29,7 @@ import componentResource from './component-resource/component-resource.service'
 import userResource from './user-resource/user-resource.service'
 import userEntity from './user-entity/user-entity.service'
 
-import userRelation from './user-relation/user-relation.service';
+import userRelation from './user-relation/user-relation.service'
 
 export default (app: Application): void => {
   app.configure(Email)
@@ -60,5 +60,5 @@ export default (app: Application): void => {
   app.configure(componentResource)
   app.configure(userResource)
   app.configure(userEntity)
-  app.configure(userRelation);
+  app.configure(userRelation)
 }
