@@ -43,7 +43,7 @@ export class Magiclink implements ServiceMethods<Data> {
     const email = {
       from: mailSender,
       to: toEmail,
-      subject: process.env.MAGICLINK_EMAIL_SUBJECT,
+      subject: process.env.MAGICLINK_EMAIL_SUBJECT ?? 'Your login link',
       html: compiledHTML
     }
 
