@@ -49,7 +49,7 @@ export default async function (context: any): Promise<void> {
 }
 
 async function uploadVideo (result: any, app: Application): Promise<any> {
-  return new Promise(function (resolve, reject) {
+  return await new Promise(function (resolve, reject) {
     const link = result.url
     let fileId = ''
 

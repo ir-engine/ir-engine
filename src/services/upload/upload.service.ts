@@ -20,7 +20,7 @@ export default (app: Application): void => {
   const provider = new StorageProvider()
 
   app.use('/upload',
-    multipartMiddleware.fields([{ name: 'file'}, {name: 'thumbnail'}]),
+    multipartMiddleware.fields([{ name: 'file' }, { name: 'thumbnail' }]),
     (req: express.Request, res: express.Response, next: express.NextFunction) => {
       if (req?.feathers) {
         req.feathers.file = (req as any).files.file ? (req as any).files.file[0] : null

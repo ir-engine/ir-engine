@@ -1,4 +1,3 @@
-import dauria from 'dauria'
 import { Hook, HookContext } from '@feathersjs/feathers'
 
 export default (options = {}): Hook => {
@@ -9,9 +8,9 @@ export default (options = {}): Hook => {
 
     delete context.result.uri
 
-    let storage = context.params.storageProvider.getStorage()
+    const storage = context.params.storageProvider.getStorage()
 
-    let url = 'https://s3.amazonaws.com/' + storage.bucket + '/' + context.result.id
+    const url = 'https://s3.amazonaws.com/' + (storage.bucket as string) + '/' + (context.result.id as string)
 
     context.data.url = url
 

@@ -3,7 +3,7 @@ import { Hook, HookContext } from '@feathersjs/feathers'
 export default (options = {}): Hook => {
   return async (context: HookContext) => {
     const { data, params } = context
-    let body = params.body || {}
+    const body = params.body || {}
 
     const resourceData = {
       name: data.name || body.name,
