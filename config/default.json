@@ -73,7 +73,18 @@
     "keys": {
       "access_key_id": "STORAGE_AWS_ACCESS_KEY_ID",
       "secret_access_key": "STORAGE_AWS_ACCESS_KEY_SECRET"
+    },
+    "sns": {
+      "region": "AWS_SMS_REGION",
+      "sender_id": "AWS_SMS_SENDER_ID",
+      "application_id": "AWS_SMS_APPLICATION_ID",
+      "access_key_id": "AWS_SMS_ACCESS_KEY_ID",
+      "secret_access_key": "AWS_SMS_SECRET_ACCESS_KEY"
     }
+  },
+
+  "magiclink": {
+    "subject": "MAGICLINK_EMAIL_SUBJECT"
   },
   "mysql": "mysql://server:password@localhost:3306/xrchat"
 }

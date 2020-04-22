@@ -62,7 +62,7 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
 
     if (fileId.length > 0) {
       s3BlobStore.exists({
-        key: (fileId)
+        key: (fileId + '/' + fileId + '.mpd')
       }, async function (err: any, exists: any) {
         if (err) {
           console.log('s3 error')
@@ -72,71 +72,62 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
 
         if (exists !== true) {
           try {
-            const video = youtubedl(link,
-              ['--format=best[ext=mp4]', '--user-agent=""'],
-              { cwd: __dirname })
+            const localFilePath = path.join(appRootPath.path, 'temp_videos', fileId)
+            const rawVideoPath = path.join(localFilePath, fileId) + '_raw.mp4'
+            const outputdir = path.join(localFilePath, 'output')
+            const convertedVideoPath = path.join(outputdir, fileId) + '.mpd'
+            await fs.promises.rmdir(localFilePath, { recursive: true })
+            await fs.promises.mkdir(localFilePath, { recursive: true })
+            await fs.promises.mkdir(path.join(localFilePath, 'output'), { recursive: true })
 
-            video.on('error', function (err: any) {
-              console.log('youtube-dl error')
+            await new Promise(function (resolve, reject) {
+              console.log('Starting to download ' + link)
+              youtubedl.exec(link,
+                ['--format=bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]', '--output=' + fileId + '_raw.mp4'],
+                { cwd: localFilePath },
+                function (err: any, output: any) {
+                  if (err) {
+                    console.log(err)
+                    reject(err)
+                  }
+
+                  resolve()
+                })
+            })
+
+            console.log('Finished downloading video ' + fileId + ', running through ffmpeg')
+
+            try {
+              await promiseExec('ffmpeg -i ' + rawVideoPath + ' -f dash -c:v libx264 -map 0:v:0 -map 0:a:0 -b:v:0 7000k -profile:v:0 main -use_timeline 1 -use_template 1 ' + convertedVideoPath)
+            } catch (err) {
+              console.log('ffmpeg error')
+              console.log(err)
+
+              throw err
+            }
+
+            console.log('Finished ffmpeg on ' + fileId + ', uploading!')
+
+            try {
+              await uploadFile(outputdir, fileId)
+            } catch (err) {
+              console.log('Error in totality of file upload')
               console.log(err)
               throw err
+            }
+
+            await app.service('public-video').patch(result.id, {
+              link: 'https://' +
+                                    config.get('aws.s3.public_video_bucket') +
+                                    '.s3.amazonaws.com/' +
+                                    fileId + '/' + fileId + '.mpd'
             })
 
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            video.on('info', async function (info: any): Promise<void> {
-              console.log('Download of ' + fileId + ' started')
-              const localFilePath = path.join(appRootPath.path, 'temp_videos', fileId)
+            console.log('Uploaded all files for ' + fileId + ', deleting local copies')
 
-              await fs.promises.rmdir(localFilePath, { recursive: true })
+            await fs.promises.rmdir(localFilePath, { recursive: true })
 
-              await fs.promises.mkdir(localFilePath, { recursive: true })
-              await fs.promises.mkdir(path.join(localFilePath, 'output'), { recursive: true })
-
-              const rawVideoPath = path.join(localFilePath, fileId) + '_raw.mp4'
-              const outputdir = path.join(localFilePath, 'output')
-              const convertedVideoPath = path.join(outputdir, fileId) + '.mpd'
-              const outStream = fs.createWriteStream(rawVideoPath)
-
-              video.pipe(outStream)
-              // audio.pipe(outAudioStream)
-
-              // eslint-disable-next-line @typescript-eslint/no-misused-promises
-              video.on('end', async function () {
-                console.log('Finished downloading video ' + fileId + ', running through ffmpeg')
-
-                try {
-                  await promiseExec('ffmpeg -i ' + rawVideoPath + ' -f dash -map 0:v:0 -map 0:a:0 -b:v:0 3000k -profile:v:0 baseline -use_timeline 1 -use_template 1 ' + convertedVideoPath)
-                } catch (err) {
-                  console.log('ffmpeg error')
-                  console.log(err)
-
-                  throw err
-                }
-
-                console.log('Finished ffmpeg on ' + fileId + ', uploading!')
-
-                try {
-                  await uploadFile(outputdir, fileId)
-                } catch (err) {
-                  console.log('Error in totality of file upload')
-                  console.log(err)
-                  throw err
-                }
-
-                await app.service('public-video').patch(result.id, {
-                  link: 'https://' +
-                                        config.get('aws.s3.public_video_bucket') +
-                                        '.s3.amazonaws.com/' +
-                                        fileId + '/' + fileId + '.mpd'
-                })
-
-                console.log('Uploaded all files for ' + fileId + ', deleting local copies')
-
-                await fs.promises.rmdir(localFilePath, { recursive: true })
-
-                resolve()
-              })
-            })
+            resolve()
           } catch (err) {
             console.log('Transcoding process error')
             console.log(err)

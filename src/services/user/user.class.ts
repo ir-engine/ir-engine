@@ -13,7 +13,8 @@ export class User extends Service {
       password,
       githubId,
       googleId,
-      facebookId
+      facebookId,
+      mobile
     } = data
 
     let hashData = ''
@@ -25,6 +26,8 @@ export class User extends Service {
       hashData = googleId.toString()
     } else if (facebookId) {
       hashData = facebookId.toString()
+    } else if (mobile) {
+      hashData = mobile
     }
     const userId = crypto.createHash('md5').update(hashData).digest('hex')
 

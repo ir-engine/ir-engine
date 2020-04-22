@@ -1,6 +1,6 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
-import { getLink, sendEmail } from '../auth-management/utils'
+import { getLink, sendEmail, sendSms } from '../auth-management/utils'
 import * as path from 'path'
 import * as pug from 'pug'
 
@@ -32,22 +32,39 @@ export class Magiclink implements ServiceMethods<Data> {
     const appPath = path.dirname(require.main ? require.main.filename : '')
     const emailAccountTemplatesPath =
       path.join(appPath, '..', 'src', 'email-templates', 'account')
-    const mailFrom = process.env.MAIL_FROM ?? 'noreply@myxr.email'
 
     const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-email.pug')
     const compiledHTML = pug.compileFile(templatePath)({
       logo: '',
       hashLink
     })
-
+    const mailFrom = process.env.SMTP_FROM_EMAIL ?? 'noreply@myxr.email'
+    const mailSender = `${(process.env.SMTP_FROM_NAME ?? '')}<${mailFrom}>`
     const email = {
-      from: mailFrom,
+      from: mailSender,
       to: toEmail,
-      subject: 'Magic Link to sign in',
+      subject: process.env.MAGICLINK_EMAIL_SUBJECT ?? 'Your login link',
       html: compiledHTML
     }
 
     return await sendEmail(this.app, email)
+  }
+
+  async sendSms (mobile: string, token: string): Promise<void> {
+    const hashLink = getLink('login', token)
+    const appPath = path.dirname(require.main ? require.main.filename : '')
+    const emailAccountTemplatesPath =
+      path.join(appPath, '..', 'src', 'email-templates', 'account')
+    const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-sms.pug')
+    const compiledHTML = pug.compileFile(templatePath)({
+      hashLink
+    })
+
+    const sms = {
+      mobile,
+      text: compiledHTML
+    }
+    return await sendSms(this.app, sms)
   }
 
   async create (data: any, params?: Params): Promise<Data> {
@@ -76,19 +93,27 @@ export class Magiclink implements ServiceMethods<Data> {
         await this.sendEmail(data.email, accessToken)
       }
     } else if (data.type === 'sms') {
-      user = await userService.find({ 
+      console.log('@@@@@@@@@@@@@', data)
+      const users = ((await userService.find({
         query: {
           mobile: data.mobile
-        } 
-      })
+        }
+      })) as any).data
 
-      if (!user) {
+      if (users.length === 0) {
         user = await userService.create({
           mobile: data.mobile
         }, params)
+      } else {
+        user = users[0]
       }
 
-      // TODO! send sms.
+      if (user) {
+        const accessToken = await authService.createAccessToken({}, { subject: user.userId.toString() })
+
+        console.log('------sms-----', accessToken)
+        await this.sendSms(data.mobile, accessToken)
+      }
     }
     return data
   }
