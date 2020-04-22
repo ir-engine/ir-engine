@@ -24,6 +24,10 @@ export default (app: Application): void => {
     (req: express.Request, res: express.Response, next: express.NextFunction) => {
       if (req?.feathers) {
         req.feathers.file = (req as any).file
+        req.feathers.body = (req as any).body
+        req.feathers.mime_type = req.file.mimetype
+        req.feathers.storageProvider = provider
+        req.feathers.thumbnail = (req as any).thumbnail
         next()
       }
     },

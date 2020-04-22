@@ -35,9 +35,9 @@ const s3BlobStore = new S3BlobStore({
   acl: 'public-read'
 })
 
-export default async function (data: any): Promise<void> {
-  let results = data.result
-  const app = data.app
+export default async function (context: any): Promise<void> {
+  let results = context.result
+  const app = context.app
 
   if (!Array.isArray(results)) {
     results = [results]
@@ -49,8 +49,8 @@ export default async function (data: any): Promise<void> {
 }
 
 async function uploadVideo (result: any, app: Application): Promise<any> {
-  return await new Promise(function (resolve, reject) {
-    const link = result.link
+  return new Promise(function (resolve, reject) {
+    const link = result.url
     let fileId = ''
 
     for (const re of sourceRegexes) {
@@ -119,7 +119,7 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
             }
 
             await app.service('public-video').patch(result.id, {
-              link: 'https://' +
+              url: 'https://' +
                                     config.get('aws.s3.public_video_bucket') +
                                     '.s3.amazonaws.com/' +
                                     fileId
@@ -137,8 +137,9 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
             reject(err)
           }
         } else {
+          console.log('S3 upload existed for ' + fileId + ', just patching the link.')
           await app.service('public-video').patch(result.id, {
-            link: 'https://' +
+            url: 'https://' +
                             config.get('aws.s3.public_video_bucket') +
                             '.s3.amazonaws.com/' +
                             fileId
