@@ -7,6 +7,7 @@ import createResource from '../../hooks/create-resource'
 import addUriToFile from '../../hooks/add-uri-to-file'
 import reformatUploadResult from '../../hooks/reformat-upload-result'
 import makeS3FilesPublic from '../../hooks/make-s3-files-public'
+import uploadThumbnail from '../../hooks/upload-thumbnail'
 
 export default {
   before: {
@@ -23,7 +24,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [reformatUploadResult(), createResource()],
+    create: [reformatUploadResult(), createResource(), uploadThumbnail()],
     update: [],
     patch: [],
     remove: []

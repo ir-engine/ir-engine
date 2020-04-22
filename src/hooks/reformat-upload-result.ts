@@ -3,8 +3,6 @@ import { Hook, HookContext } from '@feathersjs/feathers'
 
 export default (options = {}): Hook => {
   return async (context: HookContext) => {
-    console.log('REFORMAT HOOK')
-    console.log(context.data)
     if (context.data.uri) {
       delete context.data.uri
     }
