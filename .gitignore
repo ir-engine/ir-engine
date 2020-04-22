@@ -114,3 +114,5 @@ lib/
 config/prod.json
 config/production.json
 config/dev.json
+
+.vscode/

@@ -16,7 +16,8 @@ export default (app: Application): any => {
       let email
       let templatePath
       let compiledHTML
-      const mailFrom = process.env.MAIL_FROM ?? 'noreply@myxr.email'
+      const mailFrom = process.env.SMTP_FROM_EMAIL ?? 'noreply@myxr.email'
+      const mailSender = `${(process.env.SMTP_FROM_NAME ?? '')}<${mailFrom}>`
 
       switch (type) {
         case 'resendVerifySignup': // sending the user the verification email
@@ -30,7 +31,7 @@ export default (app: Application): any => {
           })
 
           email = {
-            from: mailFrom,
+            from: mailSender,
             to: user.email,
             subject: 'Confirm Signup',
             html: compiledHTML
@@ -49,7 +50,7 @@ export default (app: Application): any => {
           })
 
           email = {
-            from: mailFrom,
+            from: mailSender,
             to: user.email,
             subject: 'Thank you, your email has been verified',
             html: compiledHTML
@@ -70,7 +71,7 @@ export default (app: Application): any => {
           })
 
           email = {
-            from: mailFrom,
+            from: mailSender,
             to: user.email,
             subject: 'Reset Password',
             html: compiledHTML
@@ -90,7 +91,7 @@ export default (app: Application): any => {
           })
 
           email = {
-            from: mailFrom,
+            from: mailSender,
             to: user.email,
             subject: 'Your password was reset',
             html: compiledHTML
@@ -108,7 +109,7 @@ export default (app: Application): any => {
           })
 
           email = {
-            from: mailFrom,
+            from: mailSender,
             to: user.email,
             subject: 'Your password was changed',
             html: compiledHTML
@@ -130,7 +131,7 @@ export default (app: Application): any => {
           })
 
           email = {
-            from: mailFrom,
+            from: mailSender,
             to: user.email,
             subject: 'Your account was changed. Please verify the changes',
             html: compiledHTML

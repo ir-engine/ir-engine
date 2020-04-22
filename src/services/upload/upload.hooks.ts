@@ -1,25 +1,17 @@
-import * as authentication from '@feathersjs/authentication'
-import { HookContext } from '@feathersjs/feathers'
 import { disallow } from 'feathers-hooks-common'
-import dauria from 'dauria'
+
 // Don't remove this comment. It's needed to format import lines nicely.
 
-const { authenticate } = authentication.hooks
+import createResource from '../../hooks/create-resource'
+
+import addUriToFile from '../../hooks/add-uri-to-file'
 
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [],
     find: [disallow()],
     get: [],
-    create: [
-      function (context: HookContext) {
-        if (!context.data.uri && context.params.file) {
-          const file = context.params.file
-          const uri = dauria.getBase64DataURI(file.buffer, file.mimetype)
-          context.data = { uri: uri }
-        }
-      }
-    ],
+    create: [addUriToFile()],
     update: [disallow()],
     patch: [disallow()],
     remove: [disallow()]
@@ -29,7 +21,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [addUriToFile(), createResource()],
     update: [],
     patch: [],
     remove: []
