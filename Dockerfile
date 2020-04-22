@@ -1,8 +1,8 @@
 # not slim because we need github depedencies
-FROM node:12.16
+FROM node:12.16-buster
 
-RUN add-apt-repository ppa:jonathonf/ffmpeg-4
-RUN apt update && apt install -y ffmpeg
+# ffmpeg 4+ is required
+RUN apt update && apt install -y ffmpeg=*:4.**
 # Create app directory
 WORKDIR /app
 
