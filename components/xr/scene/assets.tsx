@@ -1,18 +1,11 @@
-import React from 'react'
+import { Entity } from 'aframe-react'
 import DefaultAssets from './assets-default'
 import ServerAssets from './assets-server'
 
-export default class Assets extends React.Component {
-
-  componentDidMount() {
-  }
-
-  render() {
-    return (
-      <a-assets>
-        <DefaultAssets />
-        <ServerAssets />
-      </a-assets>
-    )
-  }
-}
+const Assets = () => (
+  <Entity primitive={'a-assets'}>
+    <DefaultAssets />
+    <ServerAssets />
+  </Entity>
+)
+export default Assets
