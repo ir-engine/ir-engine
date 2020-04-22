@@ -2,10 +2,20 @@
 import React from 'react'
 // @ts-ignore
 import { Entity } from 'aframe-react'
+import AFRAME from 'aframe'
 import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
 import VideoControls from './VideoControls'
 const ShakaPlayerComp = dynamic(() => import('./ShakaPlayerComp'), { ssr: false })
+
+const dashManifestName = 'manifest.mpd'
+const hlsPlaylistName = 'master.m3u8'
+
+// choose dash or hls
+function getManifestUri(manifestPath: string): string {
+  const manifestName = AFRAME.utils.device.isIOS() ? hlsPlaylistName : dashManifestName
+  return manifestPath + '/' + manifestName
+}
 
 function Video360Room() {
   const router = useRouter()
@@ -14,7 +24,7 @@ function Video360Room() {
 
   return (
     <Entity>
-      <ShakaPlayerComp manifestUri={manifest}/>
+      <ShakaPlayerComp manifestUri={getManifestUri(manifest)}/>
       <Entity
         id="videoPlayerContainer"
       ></Entity>
