@@ -7,7 +7,7 @@ type: application
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 0.2.0
+version: 0.4.0
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
@@ -15,7 +15,6 @@ appVersion: 0.0.3
 
 
 dependencies:
-  
   #https://bitnami.com/stack/mariadb/helm
   - name: mariadb
     version: "7.3.16"
@@ -27,4 +26,3 @@ dependencies:
     version: "1.4.0"
     repository: "https://agones.dev/chart/stable"
     condition: agones.enabled
-  
