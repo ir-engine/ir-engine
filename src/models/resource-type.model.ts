@@ -4,7 +4,7 @@ import { Application } from '../declarations'
 export default function (app: Application): any {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const resourceType = sequelizeClient.define('resource_type', {
-    text: {
+    type: {
       type: DataTypes.STRING,
       allowNull: false
     }
