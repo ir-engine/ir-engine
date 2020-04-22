@@ -22,6 +22,7 @@ const sourceRegexes = [
   /youtube.com\/watch\?v=([a-zA-Z0-9_-]+)($|&)/,
   /vimeo.com\/([a-zA-Z0-9_-]+)($|&)/
 ]
+const dashManifestName = 'manifest.mpd'
 
 const s3 = new AWS.S3({
   accessKeyId: config.get('aws.keys.access_key_id') ?? '',
@@ -62,7 +63,7 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
 
     if (fileId.length > 0) {
       s3BlobStore.exists({
-        key: (fileId + '/' + fileId + '.mpd')
+        key: (fileId + '/' + dashManifestName)
       }, async function (err: any, exists: any) {
         if (err) {
           console.log('s3 error')
@@ -75,7 +76,7 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
             const localFilePath = path.join(appRootPath.path, 'temp_videos', fileId)
             const rawVideoPath = path.join(localFilePath, fileId) + '_raw.mp4'
             const outputdir = path.join(localFilePath, 'output')
-            const convertedVideoPath = path.join(outputdir, fileId) + '.mpd'
+            const dashManifestPath = path.join(outputdir, dashManifestName)
             await fs.promises.rmdir(localFilePath, { recursive: true })
             await fs.promises.mkdir(localFilePath, { recursive: true })
             await fs.promises.mkdir(path.join(localFilePath, 'output'), { recursive: true })
@@ -98,11 +99,12 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
             console.log('Finished downloading video ' + fileId + ', running through ffmpeg')
 
             try {
-              await promiseExec('ffmpeg -i ' + rawVideoPath + ' -f dash -c:v libx264 -map 0:v:0 -map 0:a:0 -b:v:0 7000k -profile:v:0 main -use_timeline 1 -use_template 1 ' + convertedVideoPath)
+              // -hls_playlist 1 generates HLS playlist files as well. The master playlist is generated with the filename master.m3u8
+              await promiseExec('ffmpeg -i ' + rawVideoPath + ' -f dash -hls_playlist 1 -c:v libx264 -map 0:v:0 -map 0:a:0 -b:v:0 7000k -profile:v:0 main -use_timeline 1 -use_template 1 ' + dashManifestPath)
             } catch (err) {
               console.log('ffmpeg error')
               console.log(err)
-
+              await fs.promises.rmdir(localFilePath, { recursive: true })
               throw err
             }
 
@@ -120,7 +122,7 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
               link: 'https://' +
                                     config.get('aws.s3.public_video_bucket') +
                                     '.s3.amazonaws.com/' +
-                                    fileId + '/' + fileId + '.mpd'
+                                    fileId
             })
 
             console.log('Uploaded all files for ' + fileId + ', deleting local copies')
@@ -139,7 +141,7 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
             link: 'https://' +
                             config.get('aws.s3.public_video_bucket') +
                             '.s3.amazonaws.com/' +
-                            fileId + '/' + fileId + '.mpd'
+                            fileId
           })
 
           resolve()
