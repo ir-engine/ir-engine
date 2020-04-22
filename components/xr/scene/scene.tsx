@@ -4,7 +4,7 @@ import { Scene, Entity } from 'aframe-react'
 import Assets from './assets'
 import Environment from './environment'
 import Player from '../player/player'
-import './index.scss'
+import './style.scss'
 import SvgVr from '../../icons/svg/Vr'
 
 // import getConfig from 'next/config'
@@ -37,10 +37,10 @@ export default class NetworkedScene extends React.Component<State> {
         {this.state.appRendered && (
           <Scene
             vr-mode-ui="enterVRButton: #enterVRButton"
+            loading-screen="dotsColor: purple; backgroundColor: black; enabled: true"
             // networked-scene={config}
             class="scene"
             renderer="antialias: true"
-            background="color: #FAFAFA"
           >
             <AframeComponentRegisterer/>
             <Entity position="0 0.6 0">

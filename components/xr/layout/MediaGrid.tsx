@@ -27,7 +27,7 @@ function MediaGrid(props: Props): any {
     props.cellHeight ?? config.cellHeight,
     props.radius ?? config.radius,
     props.rows ?? config.rows,
-    props.columns ?? config.columns
+    props.columns ?? 4
   )
   const gridRotation = () => 180 - (360 / (props.gridCellsPerRow ?? config.gridCellsPerRow)) * 2
 
