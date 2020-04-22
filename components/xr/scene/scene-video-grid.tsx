@@ -2,7 +2,7 @@ import React from 'react'
 // @ts-ignore
 import { Scene, Entity } from 'aframe-react'
 import Assets from './assets'
-import Grid from '../layout/Grid'
+import Grid from '../layout/MediaGrid'
 import Skybox from './skybox-grid'
 import './index.scss'
 import SvgVr from '../../icons/svg/Vr'
