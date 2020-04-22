@@ -1,14 +1,15 @@
 # not slim because we need github depedencies
-FROM node:12.16
+FROM node:12.16-buster
 
-RUN apt update && apt install -y ffmpeg
+# ffmpeg 4+ is required
+RUN apt update && apt install -y ffmpeg=*:4.**
 # Create app directory
 WORKDIR /app
 
 # to make use of caching, copy only package files and install dependencies
 COPY package*.json /app/
 #RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds
-RUN  npm install --no-progress --verbose
+RUN npm install --no-progress --verbose
 
 # copy then compile the code
 COPY . .
