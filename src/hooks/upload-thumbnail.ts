@@ -2,13 +2,13 @@ import { Hook, HookContext } from '@feathersjs/feathers'
 
 export default (options = {}): Hook => {
   return async (context: HookContext) => {
-    let { app } = context
+    const { app } = context
     if (context.params.thumbnail) {
       context.params.file = context.params.thumbnail
       context.params.mime_type = context.params.file.mimetype
       delete context.params.thumbnail
 
-      let result = await app.services.upload.create(context.data, context.params)
+      const result = await app.services.upload.create(context.data, context.params)
 
       await app.services['resource-type'].create({
         resource: result.id,
@@ -22,8 +22,7 @@ export default (options = {}): Hook => {
       })
 
       return context
-  }
-    else {
+    } else {
       return context
     }
   }
