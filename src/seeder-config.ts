@@ -219,13 +219,7 @@ module.exports = {
       delete: true,
       path: 'organization',
       template: {
-      }
-    },
-    {
-      disabled: false,
-      delete: true,
-      path: 'relationship',
-      template: {
+        name: 'test organization'
       }
     },
     {
@@ -233,6 +227,15 @@ module.exports = {
       delete: true,
       path: 'resource',
       template: {
+        name: 'test resource',
+        description: 'a test resource for the database',
+        resource_type: { type: 'ID', faker: { fk: 'resource_type:random' } },
+        url: '{{internet.url}}',
+        mime_type: '{{system.mimeType}}',
+        metadata: {},
+        attribution: { type: 'ID', faker: { fk: 'attribution:random' } },
+        component: [{ type: 'ID', faker: { fk: 'component:random' } }],
+        user: [{ type: 'ID', faker: { fk: 'user:random' } }]
       }
     },
     {
@@ -246,7 +249,7 @@ module.exports = {
         isVerified: 'true'
       }
     },
-    // Junction tables
+    // Relationship tables
     {
       disabled: false,
       delete: true,
@@ -265,11 +268,11 @@ module.exports = {
       delete: true,
       path: 'component-resource',
       template: {
-        collection: {
-          type: 'ID', faker: { fk: 'collection:random' }
+        component: {
+          type: 'ID', faker: { fk: 'component:random' }
         },
-        entity: {
-          type: 'ID', faker: { fk: 'entity:random' }
+        resource: {
+          type: 'ID', faker: { fk: 'resource:random' }
         }
       }
     },
@@ -278,11 +281,11 @@ module.exports = {
       delete: true,
       path: 'entity-component',
       template: {
-        collection: {
-          type: 'ID', faker: { fk: 'collection:random' }
-        },
         entity: {
           type: 'ID', faker: { fk: 'entity:random' }
+        },
+        component: {
+          type: 'ID', faker: { fk: 'component:random' }
         }
       }
     },
@@ -291,11 +294,11 @@ module.exports = {
       delete: true,
       path: 'group-user',
       template: {
-        collection: {
-          type: 'ID', faker: { fk: 'collection:random' }
+        group: {
+          type: 'ID', faker: { fk: 'group:random' }
         },
-        entity: {
-          type: 'ID', faker: { fk: 'entity:random' }
+        user: {
+          type: 'ID', faker: { fk: 'user:random' }
         }
       }
     },
@@ -304,11 +307,30 @@ module.exports = {
       delete: true,
       path: 'organization-user',
       template: {
-        collection: {
-          type: 'ID', faker: { fk: 'collection:random' }
+        organization: {
+          type: 'ID', faker: { fk: 'organization:random' }
         },
-        entity: {
-          type: 'ID', faker: { fk: 'entity:random' }
+        user: {
+          type: 'ID', faker: { fk: 'user:random' }
+        }
+      }
+    },
+    {
+      disabled: false,
+      delete: true,
+      path: 'relationship',
+      template: {
+        userOne: {
+          type: 'ID', faker: { fk: 'user:random' }
+        },
+        userTwo: {
+          type: 'ID', faker: { fk: 'user:random' }
+        },
+        userOneRelationshipType: {
+          type: 'ID', faker: { fk: 'relationship_type:random' }
+        },
+        userTwoRelationshipType: {
+          type: 'ID', faker: { fk: 'relationship_type:random' }
         }
       }
     },
@@ -317,11 +339,11 @@ module.exports = {
       delete: true,
       path: 'resource-child',
       template: {
-        collection: {
-          type: 'ID', faker: { fk: 'collection:random' }
+        parent: {
+          type: 'ID', faker: { fk: 'resource:random' }
         },
-        entity: {
-          type: 'ID', faker: { fk: 'entity:random' }
+        child: {
+          type: 'ID', faker: { fk: 'resource:random' }
         }
       }
     },
@@ -330,8 +352,8 @@ module.exports = {
       delete: true,
       path: 'user-entity',
       template: {
-        collection: {
-          type: 'ID', faker: { fk: 'collection:random' }
+        user: {
+          type: 'ID', faker: { fk: 'user:random' }
         },
         entity: {
           type: 'ID', faker: { fk: 'entity:random' }
@@ -343,11 +365,11 @@ module.exports = {
       delete: true,
       path: 'user-resource',
       template: {
-        collection: {
-          type: 'ID', faker: { fk: 'collection:random' }
+        user: {
+          type: 'ID', faker: { fk: 'user:random' }
         },
-        entity: {
-          type: 'ID', faker: { fk: 'entity:random' }
+        resource: {
+          type: 'ID', faker: { fk: 'resource:random' }
         }
       }
     }
