@@ -1,3 +1,4 @@
+/* global React */
 import { Entity } from 'aframe-react'
 import DefaultAssets from './assets-default'
 import ServerAssets from './assets-server'
