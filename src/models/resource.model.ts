@@ -43,8 +43,7 @@ export default (app: Application): any => {
     (resource as any).hasOne(models.attribution);
     (resource as any).belongsToMany(models.component, { through: 'resource_component' });
     (resource as any).belongsTo(models.user);
-    (resource as any).belongsTo(models.resource, { through: 'resource_child', as: 'parentResource' });
-    (resource as any).belongsTo(models.resource, { through: 'resource_child', as: 'childResource' })
+    (resource as any).belongsToMany(models.resource, { through: 'resource_child', as: 'childResource' })
   }
 
   return resource
