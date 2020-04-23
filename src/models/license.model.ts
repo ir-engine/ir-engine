@@ -9,8 +9,9 @@ export default (app: Application): any => {
       allowNull: false
     },
     text: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: true
+
     }
   }, {
     hooks: {

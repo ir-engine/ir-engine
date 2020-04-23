@@ -70,12 +70,13 @@ app.configure(services)
 // Set up event channels (see channels.js)
 app.configure(channels)
 
-// @ts-ignore
-app.configure(seeder(seederConfig)).seed()
 // Configure a middleware for 404s and the error handler
 app.use(express.notFound())
 app.use(express.errorHandler({ logger } as any))
 
 app.hooks(appHooks)
+
+// @ts-ignore
+app.configure(seeder(seederConfig)).seed()
 
 export default app
