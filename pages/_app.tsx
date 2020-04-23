@@ -1,11 +1,14 @@
+// eslint-disable-next-line
 import App, { AppProps } from 'next/app'
 import Head from 'next/head'
-
-import React, { Fragment } from 'react'
+// eslint-disable-next-line
+import React, { ComponentType } from 'react'
 import withRedux from 'next-redux-wrapper'
 import { Provider } from 'react-redux'
+
 import { fromJS } from 'immutable'
 import { configureStore } from '../redux/store'
+// eslint-disable-next-line
 import { Store } from 'redux'
 import { ThemeProvider } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
@@ -14,6 +17,31 @@ import { restoreState } from '../redux/persisted.store'
 
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig
+// requires aframe only once and renders the page, passing 'aframeReady' boolean
+type PageLoaderProps = {
+  Component: ComponentType
+  pageProps: any
+}
+
+class PageLoader extends React.Component<PageLoaderProps> {
+  state = {
+    aframeReady: false
+  }
+
+  componentDidMount() {
+    // load aframe only once
+    // each page will no longer need to require aframe
+    if (typeof window !== 'undefined') {
+      require('aframe')
+      this.setState({ aframeReady: true })
+    }
+  }
+
+  render() {
+    const { Component, pageProps } = this.props
+    return <Component {...pageProps} aframeReady={this.state.aframeReady} />
+  }
+}
 
 interface Props extends AppProps {
   store: Store
@@ -32,7 +60,7 @@ class MyApp extends App<Props> {
   render() {
     const { Component, pageProps, store } = this.props
     return (
-      <Fragment>
+      <>
         <Head>
           <title>{config.title}</title>
           <meta
@@ -43,14 +71,13 @@ class MyApp extends App<Props> {
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <Provider store={store}>
-            <Component {...pageProps} />
+            <PageLoader Component={Component} pageProps={pageProps} />
           </Provider>
         </ThemeProvider>
-      </Fragment>
+      </>
     )
   }
 }
-
 export default withRedux(configureStore, {
   serializeState: (state) => state.toJS(),
   deserializeState: (state) => fromJS(state)
