@@ -33,6 +33,8 @@ import relationshipType from './relationship-type/relationship-type.service'
 import resourceChild from './resource-child/resource-child.service'
 import resourceType from './resource-type/resource-type.service'
 
+import project from './project/project.service';
+
 export default (app: Application): void => {
   app.configure(Email)
   app.configure(Auth)
@@ -66,4 +68,5 @@ export default (app: Application): void => {
   app.configure(resourceChild)
   app.configure(resourceType)
   app.configure(upload)
+  app.configure(project);
 }
