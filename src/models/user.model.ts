@@ -4,9 +4,10 @@ import { Application } from '../declarations'
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const user = sequelizeClient.define('user', {
-    userId: {
-      type: DataTypes.STRING,
-      unique: true,
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
+      allowNull: false,
       primaryKey: true
     },
     email: {
@@ -40,10 +41,12 @@ export default (app: Application): any => {
   });
 
   (user as any).associate = (models: any) => {
+    (user as any).hasMany(models.collection, { through: models.user_collection });
+    (user as any).hasMany(models.entity, { through: models.user_entity });
     (user as any).belongsToMany(models.user, { through: models.relationship, foreignKey: 'user', as: 'userOne' });
     (user as any).belongsToMany(models.user, { through: models.relationship, foreignKey: 'user', as: 'userTwo' });
-
-    (user as any).belongsTo(models.group, { through: models.group_member })
+    (user as any).belongsToMany(models.organization, { through: models.organization_user }); // user can join multiple orgs
+    (user as any).belongsTo(models.group, { through: models.group_user })
   }
 
   return user

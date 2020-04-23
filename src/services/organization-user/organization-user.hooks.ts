@@ -1,3 +1,4 @@
+
 export default {
   before: {
     all: [],
@@ -28,4 +29,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+};

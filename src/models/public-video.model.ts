@@ -25,7 +25,6 @@ export default function (app: Application): any {
     }
   });
 
-  // eslint-disable-next-line no-unused-vars
   (publicVideo as any).associate = (models: any) => {
 
   }

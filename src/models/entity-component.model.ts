@@ -16,7 +16,7 @@ export default function (app: Application): any {
     }
   });
 
-  (entityComponent as any).associate = function (models: any) {
+  (entityComponent as any).associate = (models: any) => {
     (entityComponent as any).hasOne(models.entity);
     (entityComponent as any).hasOne(models.component)
   }

@@ -8,7 +8,7 @@ import { BadRequest } from '@feathersjs/errors'
 const { authenticate } = authentication.hooks
 
 // For now only Group Owner will be able to remove user
-const removeMemberFromGroupQuery = () => {
+const removeUserFromGroupQuery = () => {
   return (context: HookContext) => {
     Object.assign(context.params.query, {
       isOwner: true,
@@ -40,7 +40,7 @@ export default {
     patch: [],
     remove: [
       // For now only admin will be able to remove the user from group!
-      removeMemberFromGroupQuery()
+      removeUserFromGroupQuery()
     ]
   },
 

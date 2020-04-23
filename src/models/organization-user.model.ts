@@ -3,8 +3,8 @@ import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const resourceType = sequelizeClient.define('resource_type', {
-    name: {
+  const organizationUser = sequelizeClient.define('organization_user', {
+    text: {
       type: DataTypes.STRING,
       allowNull: false
     }
@@ -16,9 +16,10 @@ export default (app: Application): any => {
     }
   });
 
-  (resourceType as any).associate = (models: any) => {
-    (resourceType as any).belongsTo(models.resource)
+  (organizationUser as any).associate = function (models: any) {
+    (organizationUser as any).hasOne(models.organization, { foreignKey: 'id' });
+    (organizationUser as any).hasOne(models.user, { foreignKey: 'userId' })
   }
 
-  return resourceType
+  return organizationUser
 }
