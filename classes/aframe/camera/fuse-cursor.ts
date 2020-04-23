@@ -16,7 +16,7 @@ export default class FuseCursor {
     this.el = document.createElement('a-entity')
     this.el.classList.add('cursor')
 
-    const cursor = new CursorComponent({ fuse: true, fuseTimeout: 3000 })
+    const cursor = new CursorComponent({ fuse: true, fuseTimeout: defaultFuseDuration })
     setComponent(this.el, cursor)
     const raycaster = new RaycasterComponent({ far: 20, interval: 1000, objects: '.clickable' })
     setComponent(this.el, raycaster)
@@ -42,7 +42,7 @@ export default class FuseCursor {
       property: 'scale',
       startEvents: 'fusing',
       easing: 'easeInCubic',
-      dur: 1500,
+      dur: defaultFuseDuration,
       from: '1 1 1',
       to: '0.1 0.1 0.1'
     })
@@ -56,3 +56,5 @@ export default class FuseCursor {
     })
   }
 }
+
+const defaultFuseDuration = 6 * 1000

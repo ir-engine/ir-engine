@@ -4,7 +4,7 @@ import { Scene, Entity } from 'aframe-react'
 import Assets from './assets'
 import Environment from './environment'
 import Player from '../player/player'
-import './index.scss'
+import './style.scss'
 import SvgVr from '../../icons/svg/Vr'
 
 // eslint-disable-next-line no-unused-vars

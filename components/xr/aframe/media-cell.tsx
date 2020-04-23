@@ -25,8 +25,6 @@ export const MediaCellSystemDef: AFRAME.SystemDefinition<MediaCellSystemProps> =
   pause() {
   },
   getSource(media:any): string {
-    console.log(media)
-    console.log(media.thumbnailUrl)
     return media.thumbnailUrl && media.thumbnailUrl.length > 0 ? media.thumbnailUrl : '#placeholder'
   }
 }

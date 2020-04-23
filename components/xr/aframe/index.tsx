@@ -3,6 +3,7 @@ import playerComp from './player'
 import gridComp from './grid'
 import gridCellComp from './grid-cell'
 import mediaCellComp from './media-cell'
+import eaccubeComp from './eaccube'
 import AFRAME from 'aframe'
 import React from 'react'
 
@@ -10,14 +11,16 @@ type ComponentSystem = {
   name: string,
   system?: AFRAME.SystemDefinition,
   component?: AFRAME.ComponentDefinition,
-  primitive?: AFRAME.PrimitiveDefinition
+  primitive?: AFRAME.PrimitiveDefinition,
+  shader?: AFRAME.ShaderDefinition
 }
 
 const ComponentSystemArray: ComponentSystem[] = [
   playerComp,
   gridComp,
   gridCellComp,
-  mediaCellComp
+  mediaCellComp,
+  eaccubeComp
 ]
 
 function RegisterComponetSystem(compsys: ComponentSystem) : void {
@@ -29,6 +32,9 @@ function RegisterComponetSystem(compsys: ComponentSystem) : void {
   }
   if (compsys.primitive && !AFRAME.primitives.primitives.hasOwnProperty('a-' + compsys.name)) {
     AFRAME.registerPrimitive('a-' + compsys.name, compsys.primitive)
+  }
+  if (compsys.shader && !AFRAME.shaders.hasOwnProperty(compsys.name)) {
+    AFRAME.registerShader(compsys.name, compsys.shader)
   }
 }
 export default class AframeComponentRegisterer extends React.Component {
