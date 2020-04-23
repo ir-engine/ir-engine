@@ -205,15 +205,15 @@ module.exports = {
     //     url: '{{internet.url}}'
     //   }
     // },
-    // {
-    //   disabled: false,
-    //   delete: true,
-    //   path: 'license',
-    //   template: {
-    //     name: license.name,
-    //     text: license.text
-    //   }
-    // },
+    {
+      disabled: false,
+      delete: true,
+      path: 'license',
+      template: {
+        name: license.name,
+        text: license.text
+      }
+    },
     // {
     //   disabled: false,
     //   delete: true,
@@ -225,14 +225,14 @@ module.exports = {
     //     ]
     //   }
     // },
-    // {
-    //   disabled: false,
-    //   delete: true,
-    //   path: 'organization',
-    //   template: {
-    //     name: 'test organization'
-    //   }
-    // },
+    {
+      disabled: false,
+      delete: true,
+      path: 'organization',
+      template: {
+        name: 'test organization'
+      }
+    },
     // {
     //   disabled: false,
     //   delete: true,
