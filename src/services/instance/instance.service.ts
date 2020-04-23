@@ -1,12 +1,12 @@
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
-import { LocationInstances } from './instance.class'
+import { Instance } from './instance.class'
 import createModel from '../../models/instance.model'
 import hooks from './instance.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'instance': LocationInstances & ServiceAddons<any>
+    'instance': Instance & ServiceAddons<any>
   }
 }
 
@@ -17,7 +17,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use('/instance', new LocationInstances(options, app))
+  app.use('/instance', new Instance(options, app))
 
   const service = app.service('instance')
 

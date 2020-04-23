@@ -24,7 +24,7 @@ export default (options = {}): Hook => {
         const key = resource.url.replace('https://s3.amazonaws.com/' + (config.get('aws.s3.blob_bucket_name') as string) + '/', '')
         storage.remove({
           key: key
-        }, function (err: any, result: any) {
+        }, (err: any, result: any) => {
           if (err) {
             console.log(err)
             reject(err)
@@ -40,7 +40,7 @@ export default (options = {}): Hook => {
         }
       })
 
-      const resourceChildrenRemovePromise = Promise.all(children.data.map(async function (child: any) {
+      const resourceChildrenRemovePromise = Promise.all(children.data.map(async (child: any) => {
         const resourceChildRemovePromise = app.services['resource-child'].remove(null, {
           query: {
             resourceId: child.resourceId

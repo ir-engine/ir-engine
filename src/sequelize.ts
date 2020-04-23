@@ -1,5 +1,9 @@
 import { Sequelize } from 'sequelize'
 import { Application } from './declarations'
+// @ts-ignore
+import seederConfig from './seeder-config'
+// @ts-ignore
+import seeder from 'feathers-seeder'
 
 export default (app: Application): void => {
   let connectionString
@@ -33,8 +37,12 @@ export default (app: Application): void => {
       }
     })
 
-    app.set('sequelizeSync', sequelize.sync()) // Sync to the database
-
+    // Sync to the database
+    app.set('sequelizeSync', sequelize.sync({ logging: true }).then(() => {
+      // @ts-ignore
+      app.configure(seeder(seederConfig)).seed()
+    })
+    )
     return oldSetup.apply(this, args)
   }
 }
