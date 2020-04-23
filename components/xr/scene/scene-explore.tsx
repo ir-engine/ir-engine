@@ -52,7 +52,8 @@ function ExploreScene (props: VideoProps): any {
       <AframeComponentRegisterer />
       <Entity position="0 1.6 0">
         <Entity
-          primitive="a-grid">
+          primitive="a-grid"
+          rows={3}>
 
           {videos.get('videos').map(function (video: PublicVideo, i: number) {
             return (
@@ -72,6 +73,7 @@ function ExploreScene (props: VideoProps): any {
                 cellHeight={0.6666}
                 cellWidth={1}
                 cellContentHeight={0.5}
+                mediatype="video360"
               ></Entity>
             )
           })}
