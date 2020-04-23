@@ -118,7 +118,7 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
             }
 
             await app.service('public-video').patch(result.id, {
-              link: 'https://' +
+              url: 'https://' +
                                     config.get('aws.s3.public_video_bucket') +
                                     '.s3.amazonaws.com/' +
                                     fileId
@@ -136,8 +136,9 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
             reject(err)
           }
         } else {
+          console.log('S3 upload existed for ' + fileId + ', just patching the link.')
           await app.service('public-video').patch(result.id, {
-            link: 'https://' +
+            url: 'https://' +
                             config.get('aws.s3.public_video_bucket') +
                             '.s3.amazonaws.com/' +
                             fileId
