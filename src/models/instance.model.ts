@@ -18,8 +18,8 @@ export default (app: Application): any => {
   });
 
   (Instance as any).associate = (models: any) => {
-    (Instance as any).hasOne(models.location);
-    (Instance as any).hasMany(models.user, { through: 'instanceUser' })
+    (Instance as any).belongsTo(models.location);
+    (Instance as any).hasMany(models.user)
   }
   return Instance
 }

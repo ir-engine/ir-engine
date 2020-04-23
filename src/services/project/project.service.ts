@@ -11,7 +11,8 @@ declare module '../../declarations' {
 
 export default (app: Application): any => {
   const options = {
-    paginate: app.get('paginate')
+    paginate: app.get('paginate'),
+    multi: true
   }
 
   app.use('/project', new Project(options, app))

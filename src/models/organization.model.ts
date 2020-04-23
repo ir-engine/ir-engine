@@ -23,7 +23,7 @@ export default (app: Application): any => {
   });
 
   (organization as any).associate = (models: any) => {
-    (organization as any).belongsToMany(models.user, { through: models.organization_user })
+    (organization as any).belongsToMany(models.user, { through: 'organization_user' }) // user can join multiple orgs
   }
 
   return organization

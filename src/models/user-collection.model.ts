@@ -4,7 +4,7 @@ import { Application } from '../declarations'
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const userCollection = sequelizeClient.define('user_collection', {
-    text: {
+    name: {
       type: DataTypes.STRING,
       allowNull: false
     }

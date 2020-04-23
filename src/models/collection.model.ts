@@ -22,6 +22,11 @@ export default (app: Application): any => {
       type: DataTypes.JSON,
       defaultValue: {},
       allowNull: true
+    },
+    isPublic: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: false
     }
   }, {
     hooks: {
@@ -34,9 +39,10 @@ export default (app: Application): any => {
   (collection as any).associate = (models: any) => {
     (collection as any).hasOne(models.collection_type);
     (collection as any).hasOne(models.attribution);
-    (collection as any).hasMany(models.entity, { through: models.collection_entity });
-    (collection as any).belongsToMany(models.user, { through: models.user_collection });
-    (collection as any).belongsToMany(models.location, { through: models.location_collection })
+    (collection as any).hasMany(models.entity);
+    // TODO: Add give to user hook for this model
+    (collection as any).belongsTo(models.user, { through: models.user_collection });
+    (collection as any).belongsTo(models.location)
   }
 
   return collection

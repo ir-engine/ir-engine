@@ -13,7 +13,8 @@ declare module '../../declarations' {
 export default (app: Application): any => {
   const options = {
     Model: createModel(app),
-    paginate: app.get('paginate')
+    paginate: app.get('paginate'),
+    multi: true
   }
 
   app.use('/relationship-type', new RelationshipType(options, app))

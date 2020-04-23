@@ -14,12 +14,7 @@ export default (app: Application): any => {
         options.raw = true
       }
     }
-  });
-
-  (relationshipType as any).associate = (models: any) => {
-    (relationshipType as any).belongsTo(models.relationship, { foreignKey: 'userOneRelationshipType' });
-    (relationshipType as any).belongsTo(models.relationship, { foreignKey: 'userTwoRelationshipType' })
-  }
+  })
 
   return relationshipType
 }

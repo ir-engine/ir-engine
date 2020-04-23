@@ -19,7 +19,7 @@ export default (app: Application): any => {
   });
 
   (Group as any).associate = (models: any) =>
-    (Group as any).belongsToMany(models.user, { through: models.group_user, otherKey: 'userId' })
+    (Group as any).belongsToMany(models.user, { through: models.group_user })
 
   return Group
 }

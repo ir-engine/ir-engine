@@ -1,4 +1,4 @@
-import license from '../public/licenses/mit.json'
+import license from './licenses/mit.json'
 
 module.exports = {
   services: [
@@ -8,7 +8,8 @@ module.exports = {
       delete: true,
       path: 'collection-type',
       templates:
-        [{ name: 'scene' },
+        [
+          { name: 'scene' },
           { name: 'inventory' }]
     },
     {
@@ -127,251 +128,214 @@ module.exports = {
         { name: 'json' }, // JSON data
         { name: 'data' } // arbitrary data of any other type
       ]
-    },
-    // FAKES
-    // TODO: If production, disable
-    {
-      disabled: false,
-      delete: true,
-      path: 'attribution',
-      template: {
-        source: 'YouTube',
-        creator: '{{name.firstName}} {{name.lastName}}',
-        url: '{{image.imageUrl}}',
-        license: { type: 'ID', faker: { fk: 'license:random' } }
-      }
-    },
-    {
-      disabled: false,
-      delete: true,
-      path: 'collection',
-      template: {
-        name: 'A test scene',
-        description: 'A test scene description',
-        metadata: '',
-        collection_type: { type: 'ID', faker: { fk: 'collection-type:scene' } },
-        entity: { type: 'ID', faker: { fk: 'entity:random' } },
-        attribution: { type: 'ID', faker: { fk: 'attribution:random' } }
-      }
-    },
-    {
-      disabled: false,
-      delete: true,
-      path: 'component',
-      template: {
-        data: '{}',
-        component_type: { type: 'ID', faker: { fk: 'component_type:random' } },
-        entity: { type: 'ID', faker: { fk: 'entity:random' } }
-      }
-    },
-    {
-      disabled: false,
-      delete: true,
-      path: 'entity',
-      templates: [{
-        name: 'boxentity',
-        type: 'box' // Test archetype
-      },
-      {
-        name: 'defaultentity',
-        type: 'default' // Test default empty entity
-      }]
-    },
-    {
-      disabled: false,
-      delete: true,
-      path: 'group',
-      template: {
-        // Groups are semi-ephemeral, and have no properties other than ID
-      }
-    },
-    {
-      disabled: false,
-      delete: true,
-      path: 'instance',
-      template: {
-        location: { type: 'ID', faker: { fk: 'location:random' } },
-        url: '{{internet.url}}'
-      }
-    },
-    {
-      disabled: false,
-      delete: true,
-      path: 'license',
-      template: {
-        name: license.name,
-        text: license.text
-      }
-    },
-    {
-      disabled: false,
-      delete: true,
-      path: 'location',
-      template: {
-        name: 'test location',
-        instance: [
-          { type: 'ID', faker: { fk: 'instance:random' } }
-        ]
-      }
-    },
-    {
-      disabled: false,
-      delete: true,
-      path: 'organization',
-      template: {
-        name: 'test organization'
-      }
-    },
-    {
-      disabled: false,
-      delete: true,
-      path: 'resource',
-      template: {
-        name: 'test resource',
-        description: 'a test resource for the database',
-        resource_type: { type: 'ID', faker: { fk: 'resource_type:random' } },
-        url: '{{internet.url}}',
-        mime_type: '{{system.mimeType}}',
-        metadata: {},
-        attribution: { type: 'ID', faker: { fk: 'attribution:random' } },
-        component: [{ type: 'ID', faker: { fk: 'component:random' } }],
-        user: [{ type: 'ID', faker: { fk: 'user:random' } }]
-      }
-    },
-    {
-      disabled: false,
-      delete: true,
-      path: 'user',
-      template: {
-        userId: '{{internet.userName}}',
-        password: '{{internet.password}}',
-        email: '{{internet.email}}',
-        isVerified: 'true'
-      }
-    },
-    // Relationship tables
-    {
-      disabled: false,
-      delete: true,
-      path: 'collection-entity',
-      template: {
-        collection: {
-          type: 'ID', faker: { fk: 'collection:random' }
-        },
-        entity: {
-          type: 'ID', faker: { fk: 'entity:random' }
-        }
-      }
-    },
-    {
-      disabled: false,
-      delete: true,
-      path: 'component-resource',
-      template: {
-        component: {
-          type: 'ID', faker: { fk: 'component:random' }
-        },
-        resource: {
-          type: 'ID', faker: { fk: 'resource:random' }
-        }
-      }
-    },
-    {
-      disabled: false,
-      delete: true,
-      path: 'entity-component',
-      template: {
-        entity: {
-          type: 'ID', faker: { fk: 'entity:random' }
-        },
-        component: {
-          type: 'ID', faker: { fk: 'component:random' }
-        }
-      }
-    },
-    {
-      disabled: false,
-      delete: true,
-      path: 'group-user',
-      template: {
-        group: {
-          type: 'ID', faker: { fk: 'group:random' }
-        },
-        user: {
-          type: 'ID', faker: { fk: 'user:random' }
-        }
-      }
-    },
-    {
-      disabled: false,
-      delete: true,
-      path: 'organization-user',
-      template: {
-        organization: {
-          type: 'ID', faker: { fk: 'organization:random' }
-        },
-        user: {
-          type: 'ID', faker: { fk: 'user:random' }
-        }
-      }
-    },
-    {
-      disabled: false,
-      delete: true,
-      path: 'relationship',
-      template: {
-        userOne: {
-          type: 'ID', faker: { fk: 'user:random' }
-        },
-        userTwo: {
-          type: 'ID', faker: { fk: 'user:random' }
-        },
-        userOneRelationshipType: {
-          type: 'ID', faker: { fk: 'relationship_type:random' }
-        },
-        userTwoRelationshipType: {
-          type: 'ID', faker: { fk: 'relationship_type:random' }
-        }
-      }
-    },
-    {
-      disabled: false,
-      delete: true,
-      path: 'resource-child',
-      template: {
-        parent: {
-          type: 'ID', faker: { fk: 'resource:random' }
-        },
-        child: {
-          type: 'ID', faker: { fk: 'resource:random' }
-        }
-      }
-    },
-    {
-      disabled: false,
-      delete: true,
-      path: 'user-entity',
-      template: {
-        user: {
-          type: 'ID', faker: { fk: 'user:random' }
-        },
-        entity: {
-          type: 'ID', faker: { fk: 'entity:random' }
-        }
-      }
-    },
-    {
-      disabled: false,
-      delete: true,
-      path: 'user-resource',
-      template: {
-        user: {
-          type: 'ID', faker: { fk: 'user:random' }
-        },
-        resource: {
-          type: 'ID', faker: { fk: 'resource:random' }
-        }
-      }
-    }
+    } //,
+    // // FAKES
+    // // TODO: If production, disable
+    // {
+    //   disabled: false,
+    //   delete: true,
+    //   path: 'attribution',
+    //   template: {
+    //     source: 'YouTube',
+    //     creator: '{{name.firstName}} {{name.lastName}}',
+    //     url: '{{image.imageUrl}}',
+    //     license: { type: 'ID', faker: { fk: 'license:random' } }
+    //   }
+    // },
+    // {
+    //   disabled: false,
+    //   delete: true,
+    //   path: 'collection',
+    //   template: {
+    //     name: 'A test scene',
+    //     description: 'A test scene description',
+    //     metadata: '',
+    //     collection_type: { type: 'ID', faker: { fk: 'collection-type:scene' } },
+    //     entity: { type: 'ID', faker: { fk: 'entity:random' } },
+    //     attribution: { type: 'ID', faker: { fk: 'attribution:random' } }
+    //   }
+    // },
+    // {
+    //   disabled: false,
+    //   delete: true,
+    //   path: 'component',
+    //   template: {
+    //     data: '{}',
+    //     component_type: { type: 'ID', faker: { fk: 'component_type:random' } },
+    //     entity: { type: 'ID', faker: { fk: 'entity:random' } }
+    //   }
+    // },
+    // {
+    //   disabled: false,
+    //   delete: true,
+    //   path: 'entity',
+    //   templates: [{
+    //     name: 'boxentity',
+    //     type: 'box' // Test archetype
+    //   },
+    //   {
+    //     name: 'defaultentity',
+    //     type: 'default' // Test default empty entity
+    //   }]
+    // },
+    // {
+    //   disabled: false,
+    //   delete: true,
+    //   path: 'group',
+    //   template: {
+    //     // Groups are semi-ephemeral, and have no properties other than ID
+    //   }
+    // },
+    // {
+    //   disabled: false,
+    //   delete: true,
+    //   path: 'instance',
+    //   template: {
+    //     location: { type: 'ID', faker: { fk: 'location:random' } },
+    //     url: '{{internet.url}}'
+    //   }
+    // },
+    // {
+    //   disabled: false,
+    //   delete: true,
+    //   path: 'license',
+    //   template: {
+    //     name: license.name,
+    //     text: license.text
+    //   }
+    // },
+    // {
+    //   disabled: false,
+    //   delete: true,
+    //   path: 'location',
+    //   template: {
+    //     name: 'test location',
+    //     instance: [
+    //       { type: 'ID', faker: { fk: 'instance:random' } }
+    //     ]
+    //   }
+    // },
+    // {
+    //   disabled: false,
+    //   delete: true,
+    //   path: 'organization',
+    //   template: {
+    //     name: 'test organization'
+    //   }
+    // },
+    // {
+    //   disabled: false,
+    //   delete: true,
+    //   path: 'resource',
+    //   template: {
+    //     name: 'test resource',
+    //     description: 'a test resource for the database',
+    //     resource_type: { type: 'ID', faker: { fk: 'resource_type:random' } },
+    //     url: '{{internet.url}}',
+    //     mime_type: '{{system.mimeType}}',
+    //     metadata: {},
+    //     attribution: { type: 'ID', faker: { fk: 'attribution:random' } },
+    //     component: [{ type: 'ID', faker: { fk: 'component:random' } }],
+    //     user: [{ type: 'ID', faker: { fk: 'user:random' } }]
+    //   }
+    // },
+    // // Relationship tables
+    // {
+    //   disabled: false,
+    //   delete: true,
+    //   path: 'component-resource',
+    //   template: {
+    //     component: {
+    //       type: 'ID', faker: { fk: 'component:random' }
+    //     },
+    //     resource: {
+    //       type: 'ID', faker: { fk: 'resource:random' }
+    //     }
+    //   }
+    // },
+    // {
+    //   disabled: false,
+    //   delete: true,
+    //   path: 'group-user',
+    //   template: {
+    //     group: {
+    //       type: 'ID', faker: { fk: 'group:random' }
+    //     },
+    //     user: {
+    //       type: 'ID', faker: { fk: 'user:random' }
+    //     }
+    //   }
+    // },
+    // {
+    //   disabled: false,
+    //   delete: true,
+    //   path: 'organization-user',
+    //   template: {
+    //     organization: {
+    //       type: 'ID', faker: { fk: 'organization:random' }
+    //     },
+    //     user: {
+    //       type: 'ID', faker: { fk: 'user:random' }
+    //     }
+    //   }
+    // },
+    // {
+    //   disabled: false,
+    //   delete: true,
+    //   path: 'relationship',
+    //   template: {
+    //     userOne: {
+    //       type: 'ID', faker: { fk: 'user:random' }
+    //     },
+    //     userTwo: {
+    //       type: 'ID', faker: { fk: 'user:random' }
+    //     },
+    //     userOneRelationshipType: {
+    //       type: 'ID', faker: { fk: 'relationship_type:random' }
+    //     },
+    //     userTwoRelationshipType: {
+    //       type: 'ID', faker: { fk: 'relationship_type:random' }
+    //     }
+    //   }
+    // },
+    // {
+    //   disabled: false,
+    //   delete: true,
+    //   path: 'resource-child',
+    //   template: {
+    //     parent: {
+    //       type: 'ID', faker: { fk: 'resource:random' }
+    //     },
+    //     child: {
+    //       type: 'ID', faker: { fk: 'resource:random' }
+    //     }
+    //   }
+    // },
+    // {
+    //   disabled: false,
+    //   delete: true,
+    //   path: 'user-entity',
+    //   template: {
+    //     user: {
+    //       type: 'ID', faker: { fk: 'user:random' }
+    //     },
+    //     entity: {
+    //       type: 'ID', faker: { fk: 'entity:random' }
+    //     }
+    //   }
+    // },
+    // {
+    //   disabled: false,
+    //   delete: true,
+    //   path: 'user-resource',
+    //   template: {
+    //     user: {
+    //       type: 'ID', faker: { fk: 'user:random' }
+    //     },
+    //     resource: {
+    //       type: 'ID', faker: { fk: 'resource:random' }
+    //     }
+    //   }
+    // }
   ]
 }
