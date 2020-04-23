@@ -41,7 +41,7 @@ export default (app: Application): any => {
     ]
   });
 
-  (groupUser as any).associate = function (models: any) {
+  (groupUser as any).associate = (models: any) => {
     (groupUser as any).hasOne(models.group, { foreignKey: 'id' });
     (groupUser as any).hasOne(models.user, { foreignKey: 'userId' })
   }

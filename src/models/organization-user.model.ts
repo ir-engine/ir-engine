@@ -16,7 +16,7 @@ export default (app: Application): any => {
     }
   });
 
-  (organizationUser as any).associate = function (models: any) {
+  (organizationUser as any).associate = (models: any) => {
     (organizationUser as any).hasOne(models.organization, { foreignKey: 'id' });
     (organizationUser as any).hasOne(models.user, { foreignKey: 'userId' })
   }

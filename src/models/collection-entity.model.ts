@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize'
 import { Application } from '../declarations'
 
-export default function (app: Application): any {
+export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const collectionEntity = sequelizeClient.define('collection_entity', {
   }, {
@@ -12,7 +12,7 @@ export default function (app: Application): any {
     }
   });
 
-  (collectionEntity as any).associate = function (models: any) {
+  (collectionEntity as any).associate = (models: any) => {
     (collectionEntity as any).hasOne(models.collection);
     (collectionEntity as any).hasOne(models.entity)
   }

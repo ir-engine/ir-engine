@@ -23,7 +23,7 @@ export default (app: Application): void => {
 
   app.set('sequelizeClient', sequelize)
 
-  app.setup = function (...args: any) {
+  app.setup = (...args: any) => {
     // Set up data relationships
     const models = sequelize.models
 

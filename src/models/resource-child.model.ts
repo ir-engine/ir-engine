@@ -16,7 +16,7 @@ export default (app: Application): any => {
     }
   });
 
-  (resourceChild as any).associate = function (models: any) {
+  (resourceChild as any).associate = (models: any) => {
     (resourceChild as any).belongsTo(models.resource, { foreignKey: 'resourceParent' });
     (resourceChild as any).belongsTo(models.resource, { foreignKey: 'resourceChild' })
   }

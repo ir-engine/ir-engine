@@ -1,4 +1,3 @@
-// Initializes the `authmanagement` service on path `/authmanagement`
 import { Application } from '../../declarations'
 import { getLink, sendEmail } from './utils'
 import * as path from 'path'
