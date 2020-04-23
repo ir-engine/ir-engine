@@ -13,7 +13,8 @@ declare module '../../declarations' {
 export default (app: Application): any => {
   const options = {
     Model: createModel(app),
-    paginate: app.get('paginate')
+    paginate: app.get('paginate'),
+    multi: ['remove']
   }
 
   app.use('/resource-child', new ResourceChild(options, app))
