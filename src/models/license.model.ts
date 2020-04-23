@@ -11,14 +11,6 @@ export default function (app: Application): any {
     text: {
       type: DataTypes.STRING,
       allowNull: true
-    },
-    url: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    remixable: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false
     }
   }, {
     hooks: {

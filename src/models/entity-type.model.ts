@@ -1,9 +1,9 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 
-export default function (app: Application): any {
+export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const image = sequelizeClient.define('image', {
+  const entityType = sequelizeClient.define('entity_type', {
     text: {
       type: DataTypes.STRING,
       allowNull: false
@@ -14,12 +14,11 @@ export default function (app: Application): any {
         options.raw = true
       }
     }
-  });/*  */
+  });
 
-  // eslint-disable-next-line no-unused-vars
-  (image as any).associate = function (models: any) {
-
+  (entityType as any).associate = (models: any) => {
+    (entityType as any).belongsTo(models.entity)
   }
 
-  return image
+  return entityType
 }

@@ -1,9 +1,9 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 
-export default function (app: Application): any {
+export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const entity = sequelizeClient.define('entity', {
+  const organization = sequelizeClient.define('organization', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV1,
@@ -22,11 +22,9 @@ export default function (app: Application): any {
     }
   });
 
-  (entity as any).associate = (models: any) => {
-    (entity as any).hasOne(models.entity_type);
-    (entity as any).hasMany(models.component, { through: models.entity_component });
-    (entity as any).belongsToMany(models.collection, { through: models.collection_entity })
+  (organization as any).associate = (models: any) => {
+    (organization as any).belongsToMany(models.user, { through: models.organization_user })
   }
 
-  return entity
+  return organization
 }

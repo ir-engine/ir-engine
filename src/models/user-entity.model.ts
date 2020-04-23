@@ -16,7 +16,7 @@ export default (app: Application): any => {
     }
   });
 
-  (userEntity as any).associate = function (models: any) {
+  (userEntity as any).associate = (models: any) => {
     (userEntity as any).hasOne(models.user);
     (userEntity as any).hasOne(models.entity)
   }

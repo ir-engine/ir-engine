@@ -4,7 +4,7 @@ import { Application } from '../../declarations'
 import { Params, NullableId } from '@feathersjs/feathers'
 import { Forbidden } from '@feathersjs/errors'
 
-export class GroupMember extends Service {
+export class GroupUser extends Service {
   app: Application
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
@@ -12,11 +12,11 @@ export class GroupMember extends Service {
   }
 
   async find (params: Params): Promise<[] | any> {
-    // Find All members of selected group
+    // Find All users of selected group
 
     const GroupModel = this.app.service('group').Model
-    const GroupMemberModel = this.getModel(params)
-    const groupMemberModelIns = await GroupMemberModel.findOne({
+    const GroupUserModel = this.getModel(params)
+    const groupUserModelIns = await GroupUserModel.findOne({
       where: {
         groupId: params?.query?.groupId,
         userId: params.user.userId
@@ -28,18 +28,18 @@ export class GroupMember extends Service {
         }
       ]
     })
-    if (!groupMemberModelIns) {
+    if (!groupUserModelIns) {
       return
     }
 
-    const groupMembers = await groupMemberModelIns.group.getUsers({ attributes: ['email', 'userId', 'id'] })
+    const groupUsers = await groupUserModelIns.group.getUsers({ attributes: ['email', 'userId', 'id'] })
 
-    return groupMembers
+    return groupUsers
   }
 
   async create (data: any, params: Params): Promise<any> {
     const GroupModel = this.app.service('group').Model
-    const GroupMembersModel = this.app.service('group-member').Model
+    const GroupUsersModel = this.app.service('group-user').Model
 
     // For now only Admin will add users in group
     const group = await GroupModel.findOne({
@@ -56,7 +56,7 @@ export class GroupMember extends Service {
     // We are able to take benefit of using sequelize method *addUser* available due to *many to many* relationShip but
     // that was making one extra Query for getting group details Therefore we are doing it manually
 
-    const userGroupModel = new GroupMembersModel({
+    const userGroupModel = new GroupUsersModel({
       groupId: group.id,
       userId: data.userId
     })
@@ -69,7 +69,7 @@ export class GroupMember extends Service {
   }
 
   async remove (userIdToRemove: NullableId, params: Params): Promise<any> {
-    const GroupMemberModel = this.getModel(params)
+    const GroupUserModel = this.getModel(params)
     const GroupModel = this.app.service('group').Model
     const group = await GroupModel.findOne({
       where: {
@@ -82,24 +82,24 @@ export class GroupMember extends Service {
       return await Promise.reject(new Forbidden('Group not found Or you don\'t have access!'))
     }
 
-    await GroupMemberModel.destroy({
+    await GroupUserModel.destroy({
       where: {
         userId: userIdToRemove,
         groupId: group.id
       }
     })
 
-    await this.makeOtherUserAsOwner(userIdToRemove, group, GroupMemberModel)
+    await this.makeOtherUserAsOwner(userIdToRemove, group, GroupUserModel)
     return group
   }
 
-  private async makeOtherUserAsOwner (userIdToRemove: NullableId, group: any, GroupMemberModel: any): Promise<any> {
+  private async makeOtherUserAsOwner (userIdToRemove: NullableId, group: any, GroupUserModel: any): Promise<any> {
     const promises = []
 
     if (userIdToRemove === group.ownerId) {
       // If owner try to remove himself, then randomly make owner to someone else in that group
 
-      const otherGroupMember = await GroupMemberModel.findOne({
+      const otherGroupUser = await GroupUserModel.findOne({
         where: {
           groupId: group.id,
           // isMuted: false,
@@ -109,9 +109,9 @@ export class GroupMember extends Service {
       })
 
       // Fetched some other user, make that as owner of the group now!
-      if (otherGroupMember) {
-        promises.push(otherGroupMember.update({ isOwner: true }))
-        promises.push(group.update({ ownerId: otherGroupMember.userId }))
+      if (otherGroupUser) {
+        promises.push(otherGroupUser.update({ isOwner: true }))
+        promises.push(group.update({ ownerId: otherGroupUser.userId }))
       } else {
         // No one is left on group, destory the group
         promises.push(group.destory())

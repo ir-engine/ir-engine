@@ -17,7 +17,7 @@ export default (app: Application): any => {
   });
 
   (relationshipType as any).associate = function (models: any) {
-    (relationshipType as any).belongsTo(models.relationship, { foreignKey: { name: 'userOneRelationship' } });
+    (relationshipType as any).belongsTo(models.relationship, { foreignKey: 'userOneRelationshipType' });
     (relationshipType as any).belongsTo(models.relationship, { foreignKey: 'userTwoRelationshipType' })
   }
 

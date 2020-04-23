@@ -1,9 +1,9 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 
-export default function (app: Application): any {
+export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const componentResource = sequelizeClient.define('component_resource', {
+  const userCollection = sequelizeClient.define('user_collection', {
     text: {
       type: DataTypes.STRING,
       allowNull: false
@@ -16,10 +16,10 @@ export default function (app: Application): any {
     }
   });
 
-  (componentResource as any).associate = (models: any) => {
-    (componentResource as any).hasOne(models.component);
-    (componentResource as any).hasOne(models.resource)
+  (userCollection as any).associate = function (models: any) {
+    (userCollection as any).hasOne(models.user);
+    (userCollection as any).hasOne(models.collection)
   }
 
-  return componentResource
+  return userCollection
 }
