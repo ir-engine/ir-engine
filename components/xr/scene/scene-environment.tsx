@@ -4,7 +4,7 @@ import { Scene } from 'aframe-react'
 import Assets from './assets'
 import Environment from './environment'
 import Player from '../player/player'
-import './index.scss'
+import './style.scss'
 
 type State = {
   appRendered?: boolean

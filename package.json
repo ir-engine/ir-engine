@@ -5,7 +5,8 @@
     "dev": "cross-env NODE_ENV=dev next --port $PORT",
     "build": "next build",
     "start": "next start",
-    "type-check": "tsc"
+    "type-check": "tsc",
+    "test": "npm run build"
   },
   "dependencies": {
     "@babel/plugin-proposal-object-rest-spread": "^7.9.0",
@@ -72,7 +73,7 @@
     "@babel/register": "^7.9.0",
     "@types/aframe": "^0.8.4",
     "@types/material-ui": "^0.21.7",
-    "@types/node": "^12.12.21",
+    "@types/node": "^13.13.0",
     "@types/react": "^16.9.16",
     "@types/react-dom": "^16.9.4",
     "@typescript-eslint/eslint-plugin": "^2.26.0",
@@ -92,7 +93,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-standard": "^4.0.1",
-    "prettier": "2.0.2",
+    "prettier": "2.0.4",
     "typescript": "3.7.3"
   },
   "license": "ISC"

@@ -25,8 +25,7 @@ class MagicLinkEmail extends React.Component<Props> {
   state = {
     email_phone: '',
     isSubmitted: false,
-    isAgreedTermsOfService: false,
-    isAgreedPrivacyPolicy: false,
+    isAgreedTermsOfService: false
   }
 
   handleInput = (e: any) => {
@@ -52,7 +51,7 @@ class MagicLinkEmail extends React.Component<Props> {
 
   render() {
     const termsOfService = (config && config.termsOfService) ?? '/terms-of-service'
-    const {isAgreedTermsOfService, isAgreedPrivacyPolicy} = this.state
+    const {isAgreedTermsOfService} = this.state
 
     let descr = "";
     let label = "";
@@ -116,7 +115,7 @@ class MagicLinkEmail extends React.Component<Props> {
                     variant="contained"
                     color="primary"
                     className="submit"
-                    disabled={!isAgreedPrivacyPolicy || !isAgreedTermsOfService}
+                    disabled={!isAgreedTermsOfService}
                   >
                     Send Login Link
                   </Button>

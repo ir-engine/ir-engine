@@ -3,6 +3,7 @@ import AFRAME from 'aframe'
 // eslint-disable-next-line no-unused-vars
 import Camera, { CameraComponentOptions, defaultCameraComponentOptions } from './camera'
 import FuseCursor from './fuse-cursor'
+import MouseCursor from './mouse-cursor'
 import { setComponent } from '../aframe-component'
 
 export default class CameraRig {
@@ -10,13 +11,15 @@ export default class CameraRig {
   el: AFRAME.Entity | null = null
   cameraEl: AFRAME.Entity | null = null
   className: string
-  fuseCursor: boolean
+  cursorType: string
+  cursor: any
 
-  constructor(className = 'player-camera', cameraOptions: Partial<CameraComponentOptions> = defaultCameraComponentOptions,
-    fuseCursor: boolean = false) {
+  constructor(className = 'player-camera',
+    cameraOptions: Partial<CameraComponentOptions> = defaultCameraComponentOptions,
+    cursorType: string = 'mouse') {
     this.camera = new Camera(cameraOptions)
     this.className = className
-    this.fuseCursor = fuseCursor
+    this.cursorType = cursorType
     this.setupCameraRig()
   }
 
@@ -31,10 +34,32 @@ export default class CameraRig {
 
     this.el.appendChild(this.cameraEl)
 
-    if (this.fuseCursor) {
-      const cursor = new FuseCursor()
-      this.el.appendChild(cursor.el as AFRAME.Entity)
-      cursor.el?.object3D.position.set(0, 0, -1)
+    this.setupCursor()
+  }
+
+  setupCursor(): void {
+    if (!this.el) return
+    var cursor
+    switch (this.cursorType) {
+      case 'fuse':
+        cursor = new FuseCursor()
+        this.el.appendChild(cursor.el as AFRAME.Entity)
+        cursor.el?.object3D.position.set(0, 0, -1)
+        break
+      case 'mouse':
+        cursor = new MouseCursor()
+        this.el.appendChild(cursor.el as AFRAME.Entity)
+        break
+      default:
+        break
+    }
+    this.cursor = cursor
+  }
+
+  updateCursor(): void {
+    if (!this.el) return
+    if (this.cursor) {
+      this.cursor.el.parentElement.removeChild(this.cursor.el)
     }
   }
 

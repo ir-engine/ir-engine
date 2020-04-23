@@ -18,7 +18,6 @@ export interface PlayerData {
   components: AvatarSchemaComponent[]
   playerID: string
   playerHeight: number
-  fuseCursor: boolean
   nafEnabled: boolean
   options?: AvatarOptions
 }
@@ -29,7 +28,6 @@ export const PlayerComponentSchema: AFRAME.MultiPropertySchema<PlayerData> = {
   options: { default: defaultAvatarOptions },
   playerID: { default: defaultPlayerID },
   playerHeight: { default: defaultPlayerHeight },
-  fuseCursor: { default: false },
   nafEnabled: { default: false }
 }
 
@@ -41,7 +39,8 @@ export interface PlayerProps {
   playerCameraEl: AFRAME.Entity | null,
   cameraCoponent: CameraCoponent,
   firstUpdate: boolean,
-  initPlayer: () => void
+  initPlayer: () => void,
+  getCursorType: () => string
 }
 
 export const PlayerComponent: AFRAME.ComponentDefinition<PlayerProps> = {
@@ -71,7 +70,8 @@ export const PlayerComponent: AFRAME.ComponentDefinition<PlayerProps> = {
   initPlayer() {
     this.el.setAttribute('id', this.data.playerID)
 
-    this.cameraRig = new CameraRig('player-camera', {}, this.data.fuseCursor)
+    const cursorType: string = this.getCursorType()
+    this.cameraRig = new CameraRig('player-camera', {}, cursorType)
     this.cameraRigEl = this.cameraRig.el
     this.playerCameraEl = this.cameraRig.cameraEl
     this.cameraCoponent = this.cameraRig.camera
@@ -87,6 +87,10 @@ export const PlayerComponent: AFRAME.ComponentDefinition<PlayerProps> = {
     this.controls.setupControls(this.el)
 
     this.el.object3D.position.set(this.el.object3D.position.x, this.data.playerHeight, this.el.object3D.position.z)
+  },
+
+  getCursorType(): string {
+    return AFRAME.utils.device.isGearVR() ? 'fuse' : 'mouse'
   }
 
 }

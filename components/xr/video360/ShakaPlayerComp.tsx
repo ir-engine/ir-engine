@@ -1,5 +1,6 @@
 import React from 'react'
 import shaka from 'shaka-player'
+import AFRAME from 'aframe'
 
 function initApp(manifestUri: string) {
   shaka.polyfill.installAll()
@@ -18,6 +19,26 @@ function initPlayer(manifestUri: string) {
   player.load(manifestUri).then(function() {
     console.log('The video has now been loaded!')
   })
+  video.addEventListener('loadeddata', loadedDataVideoHandler)
+}
+
+function loadedDataVideoHandler() {
+  if (AFRAME.utils.device.isIOS()) {
+    // fix Safari iPhone bug with black screen
+    forceIOSCanvasRepaint()
+  }
+}
+
+function forceIOSCanvasRepaint() {
+  const sceneEl = document.querySelector('a-scene')
+  const canvasEl = sceneEl.canvas
+  const width = canvasEl.width
+  const height = canvasEl.height
+
+  canvasEl.width = width + 1
+  canvasEl.height = height + 1
+  canvasEl.width = width
+  canvasEl.height = height
 }
 
 export default class Video360Room extends React.Component {

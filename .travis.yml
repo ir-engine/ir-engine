@@ -5,21 +5,24 @@ node_js:
 services:
   - docker
 
+script:
+  - npm run test
+
 before_deploy:
   - scripts/setup_helm.sh
   - scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REIGON $CLUSTER_NAME
 
 deploy:
   - provider: script
-    script: bash scripts/publish_dockerhub.sh staging && scripts/deploy.sh staging
+    script: bash scripts/publish_dockerhub.sh staging $TRAVIS_COMMIT && scripts/deploy.sh staging $TRAVIS_COMMIT
     on:
       branch: master
   - provider: script
-    script: bash scripts/publish_dockerhub.sh dev && scripts/deploy.sh dev
+    script: bash scripts/publish_dockerhub.sh dev $TRAVIS_COMMIT && scripts/deploy.sh dev $TRAVIS_COMMIT
     on:
       branch: dev
   - provider: script
-    script: bash scripts/publish_dockerhub.sh $TRAVIS_TAG
+    script: bash scripts/publish_dockerhub.sh latest $TRAVIS_TAG 
     on:
       tags: true
       all_branches: true
