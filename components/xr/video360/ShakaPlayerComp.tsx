@@ -24,7 +24,7 @@ function initPlayer(manifestUri: string) {
 
 function loadedDataVideoHandler() {
   if (AFRAME.utils.device.isIOS()) {
-    // fix for iPhone
+    // fix Safari iPhone bug with black screen
     forceIOSCanvasRepaint()
   }
 }
