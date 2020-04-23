@@ -1,20 +1,22 @@
-import { Application } from '../declarations'
-
 export default async (context: any): Promise<void> => {
-  let results = context.result
-  const app = context.app
-  const data = context.data
+  const { result, app, data } = context
 
-  if (!Array.isArray(results)) {
-    results = [results]
+  if (Array.isArray(result)) {
+    return
   }
 
-  results.map(async (result: any, index: number) => {
-    return await addAttribution(result, app, data[index])
-  })
-}
-
-async function addAttribution (result: any, app: Application, data: any): Promise<any> {
-  data.resourceId = result.id
-  return await app.services.attribution.create(data)
+  if (data.creator) {
+    try {
+      const response = await app.service('attribution').create(data, context.params)
+      await app.service('static-resource').patch(result.id, {
+        attributionId: response.id
+      })
+      return context
+    } catch (err) {
+      console.log('add-attribution error')
+      console.log(err)
+    }
+  } else {
+    return context
+  }
 }

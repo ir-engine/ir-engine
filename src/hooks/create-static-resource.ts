@@ -1,4 +1,5 @@
 import { Hook, HookContext } from '@feathersjs/feathers'
+import getBasicMimetype from '../util/get-basic-mimetype'
 
 export default (options = {}): Hook => {
   return async (context: HookContext) => {
@@ -13,7 +14,17 @@ export default (options = {}): Hook => {
       metadata: data.metadata || body.metadata
     }
 
-    context.result = await context.app.service('static_resource').create(resourceData)
+    if (context.params.skipResourceCreation === true) {
+      context.result = await context.app.service('static-resource').patch(context.params.patchId, {
+        url: resourceData.url
+      })
+    } else {
+      if (context.params.parentId) {
+        (resourceData as any).parentId = context.params.parentId
+      }
+      (resourceData as any).type = getBasicMimetype(resourceData.mime_type)
+      context.result = await context.app.service('static-resource').create(resourceData)
+    }
 
     return context
   }

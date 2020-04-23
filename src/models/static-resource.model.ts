@@ -29,6 +29,16 @@ export default (app: Application): any => {
     metadata: {
       type: DataTypes.JSON,
       allowNull: true
+    },
+    type: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    parentId: {
+      type: DataTypes.STRING
+    },
+    attributionId: {
+      type: DataTypes.STRING
     }
   }, {
     hooks: {
