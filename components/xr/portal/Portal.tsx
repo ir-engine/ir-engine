@@ -17,10 +17,12 @@ const makeHandleClick = ({ href, router }: makeHandleClickType) => {
   }
   return handleClick
 }
+
 type PortalProps = {
   href: string
   position: { x: number; y: number; z: number }
 }
+
 const Portal = ({ href, position }: PortalProps) => {
   const router = useRouter()
   return (
