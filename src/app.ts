@@ -20,6 +20,10 @@ import appHooks from './app.hooks'
 import channels from './channels'
 import authentication from './authentication'
 import sequelize from './sequelize'
+// @ts-ignore
+import seederConfig from './seeder-config'
+// @ts-ignore
+import seeder from 'feathers-seeder'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -66,6 +70,8 @@ app.configure(services)
 // Set up event channels (see channels.js)
 app.configure(channels)
 
+// @ts-ignore
+app.configure(seeder(seederConfig)).seed()
 // Configure a middleware for 404s and the error handler
 app.use(express.notFound())
 app.use(express.errorHandler({ logger } as any))

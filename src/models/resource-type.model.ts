@@ -14,11 +14,6 @@ export default (app: Application): any => {
         options.raw = true
       }
     }
-  });
-
-  (resourceType as any).associate = (models: any) => {
-    (resourceType as any).belongsTo(models.resource)
-  }
-
+  })
   return resourceType
 }

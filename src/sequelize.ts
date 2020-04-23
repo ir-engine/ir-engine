@@ -23,7 +23,7 @@ export default (app: Application): void => {
 
   app.set('sequelizeClient', sequelize)
 
-  app.setup = (...args: any) => {
+  app.setup = function (...args: any) {
     // Set up data relationships
     const models = sequelize.models
 
@@ -34,6 +34,7 @@ export default (app: Application): void => {
     })
 
     app.set('sequelizeSync', sequelize.sync()) // Sync to the database
+
 
     return oldSetup.apply(this, args)
   }

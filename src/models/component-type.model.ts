@@ -14,10 +14,7 @@ export default (app: Application): any => {
         options.raw = true
       }
     }
-  });
-
-  (componentType as any).associate = (models: any) =>
-    (componentType as any).belongsTo(models.component)
+  })
 
   return componentType
 }

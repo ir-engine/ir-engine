@@ -4,9 +4,8 @@ services:
   db:
     image: mariadb:10.4
     container_name: xrchat_db
-    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: xrchatrootpa$$w0rd
+      MYSQL_ROOT_PASSWORD: xrchat-root-pa$$w0rd
       MYSQL_DATABASE: xrchat
       MYSQL_USER: server
       MYSQL_PASSWORD: password

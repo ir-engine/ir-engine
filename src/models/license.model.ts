@@ -20,8 +20,9 @@ export default (app: Application): any => {
     }
   });
 
-  (license as any).associate = (models: any) =>
+  (license as any).associate = (models: any) => {
     (license as any).belongsTo(models.attribution)
+  }
 
   return license
 }

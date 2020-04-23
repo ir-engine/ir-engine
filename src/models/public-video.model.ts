@@ -23,11 +23,7 @@ export default (app: Application): any => {
         options.raw = true
       }
     }
-  });
-
-  (publicVideo as any).associate = (models: any) => {
-
-  }
+  })
 
   return publicVideo
 }

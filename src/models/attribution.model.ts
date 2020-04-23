@@ -25,7 +25,7 @@ export default (app: Application): any => {
   });
 
   (attribution as any).associate = (models: any) =>
-    (attribution as any).hasOne(models.license)
+    (attribution as any).belongsTo(models.license)
 
   return attribution
 }

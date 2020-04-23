@@ -24,8 +24,8 @@ export default (app: Application): any => {
 
   (component as any).associate = (models: any) => {
     (component as any).hasOne(models.component_type);
-    (component as any).belongsToMany(models.resource, { through: models.component_resource });
-    (component as any).belongsTo(models.entity, { through: models.entity_component })
+    (component as any).belongsToMany(models.resource, { through: 'resource_component' });
+    (component as any).belongsTo(models.entity)
   }
 
   return component

@@ -24,7 +24,7 @@ export default (app: Application): any => {
 
   (Location as any).associate = (models: any) => {
     (Location as any).hasMany(models.instance);
-    (Location as any).hasOne(models.collection, { through: 'location_collection' })
+    (Location as any).hasOne(models.collection) // scene
   }
 
   return Location

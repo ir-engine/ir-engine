@@ -11,7 +11,8 @@ declare module '../../declarations' {
 
 export default (app: Application): void => {
   const options = {
-    paginate: app.get('paginate')
+    paginate: app.get('paginate'),
+    multi: true
   }
 
   app.use('/sms', new Sms(options, app))

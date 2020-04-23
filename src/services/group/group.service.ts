@@ -12,7 +12,8 @@ declare module '../../declarations' {
 
 export default (app: Application): void => {
   const options = {
-    Model: createModel(app)
+    Model: createModel(app),
+    multi: true
   }
 
   app.use('/group', new Group(options, app))

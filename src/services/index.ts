@@ -23,13 +23,8 @@ import relationship from './relationship/relationship.service'
 import User from './user/user.service'
 
 // Junctions
-import collectionEntity from './collection-entity/collection-entity.service'
-import componentResource from './component-resource/component-resource.service'
-import entityComponent from './entity-component/entity-component.service'
 import groupUser from './group-user/group-user.service'
-import organizationUser from './organization-user/organization-user.service'
-import resourceChild from './resource-child/resource-child.service'
-import userResource from './user-resource/user-resource.service'
+import userCollection from './user-collection/user-collection.service'
 import userEntity from './user-entity/user-entity.service'
 
 // Services
@@ -42,10 +37,6 @@ import upload from './upload/upload.service'
 
 // Misc
 import Scene from './scene/scene.service'
-
-import userCollection from './user-collection/user-collection.service'
-
-import locationCollection from './location-collection/location-collection.service'
 
 export default (app: Application): void => {
   // Types
@@ -72,13 +63,8 @@ export default (app: Application): void => {
 
   // Junctions
   app.configure(groupUser)
-  app.configure(collectionEntity)
-  app.configure(entityComponent)
-  app.configure(componentResource)
-  app.configure(userResource)
   app.configure(userEntity)
-  app.configure(resourceChild)
-  app.configure(organizationUser)
+  app.configure(userCollection)
 
   // Services
   app.configure(Email)
@@ -90,6 +76,4 @@ export default (app: Application): void => {
 
   // Misc
   app.configure(Scene)
-  app.configure(userCollection)
-  app.configure(locationCollection)
 }

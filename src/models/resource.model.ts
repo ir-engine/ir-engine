@@ -41,10 +41,10 @@ export default (app: Application): any => {
   (resource as any).associate = (models: any) => {
     (resource as any).hasOne(models.resource_type);
     (resource as any).hasOne(models.attribution);
-    (resource as any).belongsToMany(models.component, { through: models.component_resource });
-    (resource as any).belongsToMany(models.user, { through: models.user_resource });
-    (resource as any).belongsToMany(models.resource, { through: models.resource_child, as: 'parentResource' });
-    (resource as any).belongsToMany(models.resource, { through: models.resource_child, as: 'childResource' })
+    (resource as any).belongsToMany(models.component, { through: 'resource_component' });
+    (resource as any).belongsTo(models.user);
+    (resource as any).belongsTo(models.resource, { through: 'resource_child', as: 'parentResource' });
+    (resource as any).belongsTo(models.resource, { through: 'resource_child', as: 'childResource' })
   }
 
   return resource
