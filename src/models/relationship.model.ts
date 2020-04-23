@@ -13,10 +13,8 @@ export default (app: Application): any => {
   });
 
   (relationship as any).associate = (models: any) => {
-    (relationship as any).hasOne(models.user, { foreignKey: 'userOneId', as: 'userOne' });
-    (relationship as any).hasOne(models.user, { foreignKey: 'userTwoId', as: 'userTwo' });
-    (relationship as any).hasOne(models.relationship_type, { foreignKey: 'userOneRelationshipType' });
-    (relationship as any).hasOne(models.relationship_type, { foreignKey: 'userTwoRelationshipType' })
+    (relationship as any).belongsTo(models.user);
+    (relationship as any).belongsTo(models.relationship_type)
   }
 
   return relationship

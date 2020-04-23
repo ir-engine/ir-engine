@@ -128,56 +128,66 @@ module.exports = {
         { name: 'json' }, // JSON data
         { name: 'data' } // arbitrary data of any other type
       ]
-    } //,
-    // // FAKES
-    // // TODO: If production, disable
+    },
+    // FAKES
+    // TODO: If production, disable
     // {
     //   disabled: false,
-    //   delete: true,
-    //   path: 'attribution',
+    //   delete: false,
+    //   path: 'user',
     //   template: {
-    //     source: 'YouTube',
-    //     creator: '{{name.firstName}} {{name.lastName}}',
-    //     url: '{{image.imageUrl}}',
-    //     license: { type: 'ID', faker: { fk: 'license:random' } }
+    //     email: '{{internet.email}}',
+    //     password: '{{internet.password}}',
+    //     isVerified: true
     //   }
     // },
-    // {
-    //   disabled: false,
-    //   delete: true,
-    //   path: 'collection',
-    //   template: {
-    //     name: 'A test scene',
-    //     description: 'A test scene description',
-    //     metadata: '',
-    //     collection_type: { type: 'ID', faker: { fk: 'collection-type:scene' } },
-    //     entity: { type: 'ID', faker: { fk: 'entity:random' } },
-    //     attribution: { type: 'ID', faker: { fk: 'attribution:random' } }
-    //   }
-    // },
-    // {
-    //   disabled: false,
-    //   delete: true,
-    //   path: 'component',
-    //   template: {
-    //     data: '{}',
-    //     component_type: { type: 'ID', faker: { fk: 'component_type:random' } },
-    //     entity: { type: 'ID', faker: { fk: 'entity:random' } }
-    //   }
-    // },
-    // {
-    //   disabled: false,
-    //   delete: true,
-    //   path: 'entity',
-    //   templates: [{
-    //     name: 'boxentity',
-    //     type: 'box' // Test archetype
-    //   },
-    //   {
-    //     name: 'defaultentity',
-    //     type: 'default' // Test default empty entity
-    //   }]
-    // },
+    {
+      disabled: false,
+      delete: true,
+      path: 'attribution',
+      template: {
+        source: 'YouTube',
+        creator: '{{name.firstName}} {{name.lastName}}',
+        url: '{{image.imageUrl}}',
+        license: { type: 'ID', faker: { fk: 'license:random' } }
+      }
+    },
+    {
+      disabled: false,
+      delete: true,
+      path: 'collection',
+      template: {
+        name: 'A test scene',
+        description: 'A test scene description',
+        metadata: '',
+        collection_type: { type: 'ID', faker: { fk: 'collection-type:scene' } },
+        entity: { type: 'ID', faker: { fk: 'entity:random' } },
+        attribution: { type: 'ID', faker: { fk: 'attribution:random' } }
+      }
+    },
+    {
+      disabled: false,
+      delete: true,
+      path: 'component',
+      template: {
+        data: '{}',
+        component_type: { type: 'ID', faker: { fk: 'component_type:random' } },
+        entity: { type: 'ID', faker: { fk: 'entity:random' } }
+      }
+    },
+    {
+      disabled: false,
+      delete: true,
+      path: 'entity',
+      templates: [{
+        name: 'boxentity',
+        type: 'box' // Test archetype
+      },
+      {
+        name: 'defaultentity',
+        type: 'default' // Test default empty entity
+      }]
+    },
     // {
     //   disabled: false,
     //   delete: true,
@@ -239,20 +249,7 @@ module.exports = {
     //     user: [{ type: 'ID', faker: { fk: 'user:random' } }]
     //   }
     // },
-    // // Relationship tables
-    // {
-    //   disabled: false,
-    //   delete: true,
-    //   path: 'component-resource',
-    //   template: {
-    //     component: {
-    //       type: 'ID', faker: { fk: 'component:random' }
-    //     },
-    //     resource: {
-    //       type: 'ID', faker: { fk: 'resource:random' }
-    //     }
-    //   }
-    // },
+    // // // Relationship tables
     // {
     //   disabled: false,
     //   delete: true,
@@ -260,19 +257,6 @@ module.exports = {
     //   template: {
     //     group: {
     //       type: 'ID', faker: { fk: 'group:random' }
-    //     },
-    //     user: {
-    //       type: 'ID', faker: { fk: 'user:random' }
-    //     }
-    //   }
-    // },
-    // {
-    //   disabled: false,
-    //   delete: true,
-    //   path: 'organization-user',
-    //   template: {
-    //     organization: {
-    //       type: 'ID', faker: { fk: 'organization:random' }
     //     },
     //     user: {
     //       type: 'ID', faker: { fk: 'user:random' }
@@ -301,19 +285,6 @@ module.exports = {
     // {
     //   disabled: false,
     //   delete: true,
-    //   path: 'resource-child',
-    //   template: {
-    //     parent: {
-    //       type: 'ID', faker: { fk: 'resource:random' }
-    //     },
-    //     child: {
-    //       type: 'ID', faker: { fk: 'resource:random' }
-    //     }
-    //   }
-    // },
-    // {
-    //   disabled: false,
-    //   delete: true,
     //   path: 'user-entity',
     //   template: {
     //     user: {
@@ -321,19 +292,6 @@ module.exports = {
     //     },
     //     entity: {
     //       type: 'ID', faker: { fk: 'entity:random' }
-    //     }
-    //   }
-    // },
-    // {
-    //   disabled: false,
-    //   delete: true,
-    //   path: 'user-resource',
-    //   template: {
-    //     user: {
-    //       type: 'ID', faker: { fk: 'user:random' }
-    //     },
-    //     resource: {
-    //       type: 'ID', faker: { fk: 'resource:random' }
     //     }
     //   }
     // }

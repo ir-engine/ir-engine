@@ -14,7 +14,11 @@ export default (app: Application): any => {
         options.raw = true
       }
     }
-  })
+  });
+
+  (relationshipType as any).associate = (models: any) => {
+    (relationshipType as any).hasMany(models.relationship)
+  }
 
   return relationshipType
 }

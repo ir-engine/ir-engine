@@ -21,16 +21,7 @@ export default (app: Application): any => {
       beforeCount (options: any) {
         options.raw = true
       }
-    },
-    indexes: [
-      {
-        unique: true,
-        fields: ['groupId', 'userId']
-      },
-      {
-        fields: ['userId']
-      }
-    ]
+    }
   });
 
   (groupUser as any).associate = (models: any) => {
