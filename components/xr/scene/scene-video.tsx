@@ -3,7 +3,7 @@ import React from 'react'
 import { Scene } from 'aframe-react'
 import Assets from './assets'
 import Video360 from '../video360/Video360Room'
-import './index.scss'
+import './style.scss'
 
 type State = {
   appRendered?: boolean
