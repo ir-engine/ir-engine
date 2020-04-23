@@ -4,7 +4,7 @@ import { Scene, Entity } from 'aframe-react'
 import Assets from './assets'
 import Environment from './environment'
 import Player from '../player/player'
-import './index.scss'
+import './style.scss'
 import SvgVr from '../../icons/svg/Vr'
 
 import { PublicVideo } from '../../../redux/video/actions'
@@ -31,7 +31,7 @@ export default class NetworkedScene extends React.Component<State> {
     title: 'Launchpad',
     description: 'Launchpad',
     link: 'https://kaixr.world/8c2oV4s/launchpad',
-    thumbnail_url: 'https://kaixrworld-nearspark.kaixr.world/thumbnail/aHR0cHM6Ly9rYWl4cndvcmxkLWFzc2V0cy5rYWl4ci53b3JsZC9maWxlcy9lZGM3ZDkwYy03ZWZkLTRmZDItYjE3ZS1mYTYzMTRlMmQ5YjguanBn.jpg?w=355&h=200',
+    thumbnail_url: '/temp_thumbnails/launchpad.jpg',
     production_credit: '',
     rating: 'G',
     categories: '',
@@ -44,7 +44,7 @@ export default class NetworkedScene extends React.Component<State> {
     title: 'Microworld',
     description: 'Microworld',
     link: 'https://kaixr.world/9NWSBXQ/microworld',
-    thumbnail_url: 'https://kaixrworld-nearspark.kaixr.world/thumbnail/aHR0cHM6Ly9rYWl4cndvcmxkLWFzc2V0cy5rYWl4ci53b3JsZC9maWxlcy80NDJiNjhjMC0wY2UwLTRjYWMtOWJhOS1jN2M0N2FlNDQxYTEuanBn.jpg?w=355&h=200',
+    thumbnail_url: '/temp_thumbnails/microworld.jpg',
     production_credit: '',
     rating: 'G',
     categories: '',
@@ -56,8 +56,8 @@ export default class NetworkedScene extends React.Component<State> {
     original_title: 'Basketball',
     title: 'Basketball',
     description: 'Basketball',
-    link: 'https://kaixr.world/8c2oV4s/launchpad',
-    thumbnail_url: 'https://kaixrworld-nearspark.kaixr.world/thumbnail/aHR0cHM6Ly9rYWl4cndvcmxkLWFzc2V0cy5rYWl4ci53b3JsZC9maWxlcy84MjE2MzExMS1iYmI0LTQ3MzYtOTBkMS03NjhkNGM3YmI5MzcuanBn.jpg?w=355&h=200',
+    link: 'https://kaixr.world/UdqF5bz/basketball-stadium',
+    thumbnail_url: '/temp_thumbnails/basketballstadium.jpg',
     production_credit: '',
     rating: 'G',
     categories: '',
@@ -70,7 +70,7 @@ export default class NetworkedScene extends React.Component<State> {
     title: 'Underwater',
     description: 'Underwater',
     link: 'https://kaixr.world/qFQa2ho/underwater',
-    thumbnail_url: 'https://kaixrworld-nearspark.kaixr.world/thumbnail/aHR0cHM6Ly9rYWl4cndvcmxkLWFzc2V0cy5rYWl4ci53b3JsZC9maWxlcy9jOTYxM2E3Mi0yM2YxLTQzYWYtODRlZi1hZDU3YTU5NGU1ZjAuanBn.jpg?w=355&h=200',
+    thumbnail_url: '/temp_thumbnails/underwater.jpg',
     production_credit: '',
     rating: 'G',
     categories: '',
@@ -83,7 +83,7 @@ export default class NetworkedScene extends React.Component<State> {
     title: 'Fairytale Castle',
     description: 'Fairytale Castle',
     link: 'https://kaixr.world/ACfGWd5/fairytale-castle',
-    thumbnail_url: 'https://kaixrworld-nearspark.kaixr.world/thumbnail/aHR0cHM6Ly9rYWl4cndvcmxkLWFzc2V0cy5rYWl4ci53b3JsZC9maWxlcy81MjY1N2ExOC1lZTk3LTQ1NDYtOTg3YS1kNzZiOWQ3OTU4MDEuanBn.jpg?w=355&h=200',
+    thumbnail_url: '/temp_thumbnails/fairytalecastle.jpg',
     production_credit: '',
     rating: 'G',
     categories: '',
@@ -96,7 +96,7 @@ export default class NetworkedScene extends React.Component<State> {
     title: 'Solar System',
     description: 'Solar System',
     link: 'https://kaixr.world/k2KFMXu/solar-system',
-    thumbnail_url: 'https://kaixrworld-nearspark.kaixr.world/thumbnail/aHR0cHM6Ly9rYWl4cndvcmxkLWFzc2V0cy5rYWl4ci53b3JsZC9maWxlcy9iODcyMDcwMS1kZGUxLTRkNjctYTY2MS04MDg0YjgzYWJhZWMuanBn.jpg?w=355&h=200',
+    thumbnail_url: '/temp_thumbnails/solarsystem.jpg',
     production_credit: '',
     rating: 'G',
     categories: '',
@@ -109,7 +109,7 @@ export default class NetworkedScene extends React.Component<State> {
     title: 'Deserted Island',
     description: 'Deserted Island',
     link: 'https://kaixr.world/wZMeRi2/a-deserted-island',
-    thumbnail_url: 'https://kaixrworld-nearspark.kaixr.world/thumbnail/aHR0cHM6Ly9rYWl4cndvcmxkLWFzc2V0cy5rYWl4ci53b3JsZC9maWxlcy83YjIxZjk4My0wMDM5LTRmODgtYWUzZS03MTZjZWM0ZjFjYmUuanBn.jpg?w=355&h=200',
+    thumbnail_url: '/temp_thumbnails/desertedisland.jpg',
     production_credit: '',
     rating: 'G',
     categories: '',
@@ -122,7 +122,7 @@ export default class NetworkedScene extends React.Component<State> {
     title: 'Wide Open Space',
     description: 'Wide Open Space',
     link: 'https://kaixr.world/P3PJZbZ/wide-open-space',
-    thumbnail_url: 'https://kaixrworld-nearspark.kaixr.world/thumbnail/aHR0cHM6Ly9rYWl4cndvcmxkLWFzc2V0cy5rYWl4ci53b3JsZC9maWxlcy80OTU3ZWFjOS1mMjQ4LTRiMTYtYjViOC1kYWJjYzg5MTcyMzQuanBn.jpg?w=355&h=200',
+    thumbnail_url: '/temp_thumbnails/wideopenspace.jpg',
     production_credit: '',
     rating: 'G',
     categories: '',
@@ -142,17 +142,17 @@ export default class NetworkedScene extends React.Component<State> {
     return (
       <div style={{ height: '100%', width: '100%' }}>
         {this.state.appRendered && (
-          <Scene
+          <a-scene
             vr-mode-ui="enterVRButton: #enterVRButton"
+            loading-screen="dotsColor: red; backgroundColor: black"
             // networked-scene={config}
-            class="scene"
+            className="scene"
             renderer="antialias: true"
-            background="color: #FAFAFA"
           >
             <AframeComponentRegisterer />
             <Entity position="0 0.0 0">
               <MediaGrid linkPrefix="" media={this.media} cellContentHeight=".66666" />
-              {/* "gridCellsPerRow": 20, 
+              {/* "gridCellsPerRow": 20,
         "cellWidth": 1,
         "cellHeight": 1.2,
         "cellContentHeight": 1,
@@ -166,7 +166,7 @@ export default class NetworkedScene extends React.Component<State> {
             <a className="enterVR" id="enterVRButton" href="#">
               <SvgVr className="enterVR" />
             </a>
-          </Scene>
+          </a-scene>
         )}
       </div>
     )
