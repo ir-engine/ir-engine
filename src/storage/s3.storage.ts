@@ -9,7 +9,7 @@ export default class S3Provider implements IStorageProvider {
     secretAccessKey: config.get('aws.keys.secret_access_key')
   })
 
-  blob: S3BlobStore = new S3BlobStore({ client: this.provider, bucket: config.get('aws.s3.blob_bucket_name') })
+  blob: S3BlobStore = new S3BlobStore({ client: this.provider, bucket: config.get('aws.s3.blob_bucket_name'), ACL: 'public-read' })
   getProvider = (): any => this.provider
   getStorage = (): S3BlobStore => this.blob
 }
