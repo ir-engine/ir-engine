@@ -45,7 +45,8 @@ export interface MediaCellData {
   rating: string,
   categories: string[],
   runtime: string,
-  tags: string[]
+  tags: string[],
+  mediatype: string
 }
 
 export const MediaCellComponentSchema: AFRAME.MultiPropertySchema<MediaCellData> = {
@@ -61,7 +62,8 @@ export const MediaCellComponentSchema: AFRAME.MultiPropertySchema<MediaCellData>
   rating: { default: '' },
   categories: { default: [] },
   runtime: { default: '' },
-  tags: { default: [] }
+  tags: { default: [] },
+  mediatype: { default: 'video360' }
 }
 
 export interface MediaCellProps {
@@ -97,8 +99,20 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
     imageEl.setAttribute('width', this.data.cellWidth)
     imageEl.setAttribute('height', this.data.cellContentHeight)
 
+    let link: string
+    switch (this.data.mediatype) {
+      case 'video360':
+        link = 'video360?manifest=' + this.data.link + '&title=' + this.data.title
+        break
+      case 'scene':
+        link = this.data.link
+        break
+      default:
+        link = ''
+        break
+    }
     imageEl.addEventListener('click', () => {
-      window.location.href = 'video360?manifest=' + this.data.link + '&title=' + this.data.title
+      window.location.href = link
     })
 
     return imageEl
@@ -125,7 +139,8 @@ export const MediaCellPrimitive: AFRAME.PrimitiveDefinition = {
     rating: ComponentName + '.rating',
     categories: ComponentName + '.categories',
     runtime: ComponentName + '.runtime',
-    tags: ComponentName + '.tags'
+    tags: ComponentName + '.tags',
+    mediatype: ComponentName + '.mediatype'
   }
 }
 
