@@ -213,7 +213,7 @@ module.exports = {
         name: license.name,
         text: license.text
       }
-    },
+    }
     // {
     //   disabled: false,
     //   delete: true,
@@ -225,14 +225,14 @@ module.exports = {
     //     ]
     //   }
     // },
-    {
-      disabled: false,
-      delete: true,
-      path: 'organization',
-      template: {
-        name: 'test organization'
-      }
-    },
+    // {
+    //   disabled: false,
+    //   delete: true,
+    //   path: 'organization',
+    //   template: {
+    //     name: 'test organization'
+    //   }
+    // },
     // {
     //   disabled: false,
     //   delete: true,

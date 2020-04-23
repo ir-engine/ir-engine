@@ -35,7 +35,6 @@ export default (app: Application): void => {
 
     app.set('sequelizeSync', sequelize.sync()) // Sync to the database
 
-
     return oldSetup.apply(this, args)
   }
 }
