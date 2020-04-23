@@ -43,8 +43,7 @@ export default (app: Application): any => {
   (user as any).associate = (models: any) => {
     (user as any).belongsToMany(models.collection, { through: models.user_collection });
     (user as any).hasMany(models.entity);
-    (user as any).hasMany(models.relationship);
-    (user as any).belongsToMany(models.user, { through: models.relationship, foreignKey: 'RelatedUser', as: 'relatedUser' });
+    // (user as any).belongsToMany(models.relationship);
     (user as any).belongsToMany(models.organization, { through: 'organization_user' }); // user can join multiple orgs
     (user as any).hasOne(models.group, { through: models.group_user });
     (user as any).belongsTo(models.instance)

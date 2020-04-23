@@ -131,16 +131,16 @@ module.exports = {
     },
     // FAKES
     // TODO: If production, disable
-    // {
-    //   disabled: false,
-    //   delete: false,
-    //   path: 'user',
-    //   template: {
-    //     email: '{{internet.email}}',
-    //     password: '{{internet.password}}',
-    //     isVerified: true
-    //   }
-    // },
+    {
+      disabled: false,
+      delete: false,
+      path: 'user',
+      template: {
+        email: '{{internet.email}}',
+        password: '{{internet.password}}',
+        isVerified: true
+      }
+    },
     {
       disabled: false,
       delete: true,
@@ -196,15 +196,15 @@ module.exports = {
     //     // Groups are semi-ephemeral, and have no properties other than ID
     //   }
     // },
-    // {
-    //   disabled: false,
-    //   delete: true,
-    //   path: 'instance',
-    //   template: {
-    //     location: { type: 'ID', faker: { fk: 'location:random' } },
-    //     url: '{{internet.url}}'
-    //   }
-    // },
+    {
+      disabled: false,
+      delete: true,
+      path: 'instance',
+      template: {
+        location: { type: 'ID', faker: { fk: 'location:random' } },
+        url: '{{internet.url}}'
+      }
+    },
     {
       disabled: false,
       delete: true,
@@ -213,87 +213,84 @@ module.exports = {
         name: license.name,
         text: license.text
       }
+    },
+    {
+      disabled: false,
+      delete: true,
+      path: 'location',
+      template: {
+        name: 'test location',
+        instance: [
+          { type: 'ID', faker: { fk: 'instance:random' } }
+        ]
+      }
+    },
+    {
+      disabled: false,
+      delete: true,
+      path: 'organization',
+      template: {
+        name: 'test organization'
+      }
+    },
+    {
+      disabled: false,
+      delete: true,
+      path: 'resource',
+      template: {
+        name: 'test resource',
+        description: 'a test resource for the database',
+        resource_type: { type: 'ID', faker: { fk: 'resource_type:random' } },
+        url: '{{internet.url}}',
+        mime_type: '{{system.mimeType}}',
+        metadata: {},
+        attribution: { type: 'ID', faker: { fk: 'attribution:random' } },
+        component: [{ type: 'ID', faker: { fk: 'component:random' } }],
+        user: [{ type: 'ID', faker: { fk: 'user:random' } }]
+      }
+    },
+    // // Relationship tables
+    {
+      disabled: false,
+      delete: true,
+      path: 'group-user',
+      template: {
+        group: {
+          type: 'ID', faker: { fk: 'groupId:random' }
+        },
+        user: {
+          type: 'ID', faker: { fk: 'user:random' }
+        }
+      }
+    },
+    {
+      disabled: false,
+      delete: true,
+      path: 'relationship',
+      template: {
+        user: {
+          type: 'ID', faker: { fk: 'User:random' }
+        },
+        relatedUser: {
+          type: 'ID', faker: { fk: 'RelatedUser:random' }
+        },
+        relationshipType: {
+          type: 'ID', faker: { fk: 'relationship_type:random' }
+        }
+      }
+    },
+    {
+      disabled: false,
+      delete: true,
+      path: 'user-entity',
+      template: {
+        user: {
+          type: 'ID', faker: { fk: 'user:random' }
+        },
+        entity: {
+          type: 'ID', faker: { fk: 'entity:random' }
+        }
+      }
     }
-    // {
-    //   disabled: false,
-    //   delete: true,
-    //   path: 'location',
-    //   template: {
-    //     name: 'test location',
-    //     instance: [
-    //       { type: 'ID', faker: { fk: 'instance:random' } }
-    //     ]
-    //   }
-    // },
-    // {
-    //   disabled: false,
-    //   delete: true,
-    //   path: 'organization',
-    //   template: {
-    //     name: 'test organization'
-    //   }
-    // },
-    // {
-    //   disabled: false,
-    //   delete: true,
-    //   path: 'resource',
-    //   template: {
-    //     name: 'test resource',
-    //     description: 'a test resource for the database',
-    //     resource_type: { type: 'ID', faker: { fk: 'resource_type:random' } },
-    //     url: '{{internet.url}}',
-    //     mime_type: '{{system.mimeType}}',
-    //     metadata: {},
-    //     attribution: { type: 'ID', faker: { fk: 'attribution:random' } },
-    //     component: [{ type: 'ID', faker: { fk: 'component:random' } }],
-    //     user: [{ type: 'ID', faker: { fk: 'user:random' } }]
-    //   }
-    // },
-    // // // Relationship tables
-    // {
-    //   disabled: false,
-    //   delete: true,
-    //   path: 'group-user',
-    //   template: {
-    //     group: {
-    //       type: 'ID', faker: { fk: 'group:random' }
-    //     },
-    //     user: {
-    //       type: 'ID', faker: { fk: 'user:random' }
-    //     }
-    //   }
-    // },
-    // {
-    //   disabled: false,
-    //   delete: true,
-    //   path: 'relationship',
-    //   template: {
-    //     userOne: {
-    //       type: 'ID', faker: { fk: 'user:random' }
-    //     },
-    //     userTwo: {
-    //       type: 'ID', faker: { fk: 'user:random' }
-    //     },
-    //     userOneRelationshipType: {
-    //       type: 'ID', faker: { fk: 'relationship_type:random' }
-    //     },
-    //     userTwoRelationshipType: {
-    //       type: 'ID', faker: { fk: 'relationship_type:random' }
-    //     }
-    //   }
-    // },
-    // {
-    //   disabled: false,
-    //   delete: true,
-    //   path: 'user-entity',
-    //   template: {
-    //     user: {
-    //       type: 'ID', faker: { fk: 'user:random' }
-    //     },
-    //     entity: {
-    //       type: 'ID', faker: { fk: 'entity:random' }
-    //     }
-    //   }
-    // }
   ]
 }

@@ -1,6 +1,6 @@
 import { Application } from '../declarations'
 
-export default async function (context: any): Promise<void> {
+export default async (context: any): Promise<void> => {
   let results = context.result
   const app = context.app
   const data = context.data
@@ -9,7 +9,7 @@ export default async function (context: any): Promise<void> {
     results = [results]
   }
 
-  results.map(async function (result: any, index: number) {
+  results.map(async (result: any, index: number) => {
     return await addAttribution(result, app, data[index])
   })
 }
