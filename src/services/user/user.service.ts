@@ -1,4 +1,3 @@
-// Initializes the `user` service on path `/user`
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { User } from './user.class'

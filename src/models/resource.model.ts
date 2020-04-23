@@ -1,7 +1,7 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 
-export default function (app: Application): any {
+export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const resource = sequelizeClient.define('resource', {
     id: {
@@ -38,7 +38,6 @@ export default function (app: Application): any {
     }
   });
 
-  // eslint-disable-next-line no-unused-vars
   (resource as any).associate = (models: any) => {
     (resource as any).hasOne(models.resource_type);
     (resource as any).hasOne(models.attribution);

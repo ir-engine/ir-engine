@@ -35,7 +35,7 @@ const s3BlobStore = new S3BlobStore({
   acl: 'public-read'
 })
 
-export default async function (data: any): Promise<void> {
+export default async (data: any): Promise<void> => {
   let results = data.result
   const app = data.app
 
@@ -43,13 +43,13 @@ export default async function (data: any): Promise<void> {
     results = [results]
   }
 
-  results.map(async function (result: any) {
+  results.map(async (result: any) => {
     return await uploadVideo(result, app)
   })
 }
 
 async function uploadVideo (result: any, app: Application): Promise<any> {
-  return await new Promise(function (resolve, reject) {
+  return await new Promise((resolve, reject) => {
     const link = result.link
     let fileId = ''
 
@@ -64,7 +64,7 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
     if (fileId.length > 0) {
       s3BlobStore.exists({
         key: (fileId + '/' + dashManifestName)
-      }, async function (err: any, exists: any) {
+      }, async (err: any, exists: any) => {
         if (err) {
           console.log('s3 error')
           console.log(err)
@@ -81,17 +81,16 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
             await fs.promises.mkdir(localFilePath, { recursive: true })
             await fs.promises.mkdir(path.join(localFilePath, 'output'), { recursive: true })
 
-            await new Promise(function (resolve, reject) {
+            await new Promise((resolve, reject) => {
               console.log('Starting to download ' + link)
               youtubedl.exec(link,
                 ['--format=bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]', '--output=' + fileId + '_raw.mp4'],
                 { cwd: localFilePath },
-                function (err: any, output: any) {
+                (err: any, output: any) => {
                   if (err) {
                     console.log(err)
                     reject(err)
                   }
-
                   resolve()
                 })
             })
@@ -157,7 +156,7 @@ async function uploadVideo (result: any, app: Application): Promise<any> {
 
 async function uploadFile (localFilePath: string, fileId: string): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
-  return await new Promise(async function (resolve, reject) {
+  return await new Promise(async (resolve, reject) => {
     const promises = []
     try {
       const files = await fs.promises.readdir(localFilePath)
@@ -174,14 +173,14 @@ async function uploadFile (localFilePath: string, fileId: string): Promise<void>
           })
 
           const readStream = fs.createReadStream(localFilePath + '/' + file)
-          promises.push(new Promise(function (resolve, reject) {
+          promises.push(new Promise((resolve, reject) => {
             readStream.pipe(stream)
 
-            stream.on('finish', async function (): Promise<void> {
+            stream.on('finish', async (): Promise<void> => {
               resolve()
             })
 
-            stream.on('error', async function (err: any): Promise<void> {
+            stream.on('error', async (err: any): Promise<void> => {
               console.log('s3BlobStore error')
               console.log(err)
               reject(err)

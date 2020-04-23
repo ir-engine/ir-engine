@@ -43,9 +43,9 @@ import upload from './upload/upload.service'
 // Misc
 import Scene from './scene/scene.service'
 
-import userCollection from './user-collection/user-collection.service';
+import userCollection from './user-collection/user-collection.service'
 
-import locationCollection from './location-collection/location-collection.service';
+import locationCollection from './location-collection/location-collection.service'
 
 export default (app: Application): void => {
   // Types
@@ -90,6 +90,6 @@ export default (app: Application): void => {
 
   // Misc
   app.configure(Scene)
-  app.configure(userCollection);
-  app.configure(locationCollection);
+  app.configure(userCollection)
+  app.configure(locationCollection)
 }

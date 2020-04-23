@@ -46,7 +46,8 @@ export default (app: Application): any => {
     (user as any).belongsToMany(models.user, { through: models.relationship, foreignKey: 'user', as: 'userOne' });
     (user as any).belongsToMany(models.user, { through: models.relationship, foreignKey: 'user', as: 'userTwo' });
     (user as any).belongsToMany(models.organization, { through: models.organization_user }); // user can join multiple orgs
-    (user as any).belongsTo(models.group, { through: models.group_user })
+    (user as any).belongsTo(models.group, { through: models.group_user });
+    (user as any).belongsTo(models.instance)
   }
 
   return user

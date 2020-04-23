@@ -1,11 +1,9 @@
-// Initializes the `instance` service on path `/instance`
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { LocationInstances } from './instance.class'
 import createModel from '../../models/instance.model'
 import hooks from './instance.hooks'
 
-// Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
     'instance': LocationInstances & ServiceAddons<any>
