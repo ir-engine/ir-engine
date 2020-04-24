@@ -2,7 +2,7 @@
 import { Entity } from 'aframe-react'
 import React from 'react'
 import { useRouter } from 'next/router'
-
+import isExternalUrl from 'utils/isExternalUrl'
 type makeHandleClickType = {
   href: string
   router: any
@@ -13,7 +13,11 @@ const makeHandleClick = ({ href, router }: makeHandleClickType) => {
     e.preventDefault()
     e.stopPropagation()
     console.log('clicked a link to', href, 'Here is the event:', e)
-    router.push(href)
+    if (isExternalUrl(href)) {
+      window.location.href = href
+    } else {
+      router.push(href)
+    }
   }
   return handleClick
 }
