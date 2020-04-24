@@ -1,79 +1,79 @@
 import { Application } from '../declarations'
 
 // Types
-import componentType from './component-type/component-type.service'
-import collectionType from './collection-type/collection-type.service'
-import entityType from './entity-type/entity-type.service'
-import relationshipType from './relationship-type/relationship-type.service'
-import resourceType from './resource-type/resource-type.service'
+import ComponentType from './component-type/component-type.service'
+import CollectionType from './collection-type/collection-type.service'
+import EntityType from './entity-type/entity-type.service'
+import RelationshipType from './relationship-type/relationship-type.service'
+import ResourceType from './resource-type/resource-type.service'
 
 // Objects
-import attribution from './attribution/attribution.service'
-import collection from './collection/collection.service'
-import component from './component/component.service'
-import entity from './entity/entity.service'
+import Attribution from './attribution/attribution.service'
+import Collection from './collection/collection.service'
+import Component from './component/component.service'
+import Entity from './entity/entity.service'
 import Group from './group/group.service'
 import Instance from './instance/instance.service'
 import license from './license/license.service'
 import Location from './location/location.service'
-import organization from './organization/organization.service'
-import project from './project/project.service'
-import resource from './resource/resource.service'
-import relationship from './relationship/relationship.service'
+import Organization from './organization/organization.service'
+import Project from './project/project.service'
+import Resource from './resource/resource.service'
+import Relationship from './relationship/relationship.service'
 import User from './user/user.service'
+import Role from './role/role.service'
+import AccessControl from './access-control/access-control.service'
 
 // Junctions
-import groupUser from './group-user/group-user.service'
-import userCollection from './user-collection/user-collection.service'
-import userEntity from './user-entity/user-entity.service'
+import GroupUser from './group-user/group-user.service'
 
 // Services
 import Auth from './auth-management/auth-management.service'
 import Email from './email/email.service'
-import magiclink from './magiclink/magiclink.service'
-import publicVideo from './public-video/public-video.service'
-import sms from './sms/sms.service'
-import upload from './upload/upload.service'
+import MagicLink from './magiclink/magiclink.service'
+import PublicVideo from './public-video/public-video.service'
+import SMS from './sms/sms.service'
+import Upload from './upload/upload.service'
 
 // Misc
 import Scene from './scene/scene.service'
 
 export default (app: Application): void => {
   // Types
-  app.configure(componentType)
-  app.configure(collectionType)
-  app.configure(resourceType)
-  app.configure(entityType)
-  app.configure(relationshipType)
+  app.configure(ComponentType)
+  app.configure(CollectionType)
+  app.configure(ResourceType)
+  app.configure(EntityType)
+  app.configure(RelationshipType)
 
   // Objects
-  app.configure(attribution)
-  app.configure(collection)
-  app.configure(component)
-  app.configure(entity)
+  app.configure(Attribution)
+  app.configure(Collection)
+  app.configure(Component)
+  app.configure(Entity)
   app.configure(Group)
   app.configure(Instance)
   app.configure(Location)
   app.configure(license)
-  app.configure(organization)
-  app.configure(project)
-  app.configure(relationship)
-  app.configure(resource)
+  app.configure(Organization)
+  app.configure(Project)
+  app.configure(Relationship)
+  app.configure(Resource)
   app.configure(User)
 
   // Junctions
-  app.configure(groupUser)
-  app.configure(userEntity)
-  app.configure(userCollection)
+  app.configure(GroupUser)
 
   // Services
   app.configure(Email)
   app.configure(Auth)
-  app.configure(publicVideo)
-  app.configure(magiclink)
-  app.configure(sms)
-  app.configure(upload)
+  app.configure(PublicVideo)
+  app.configure(MagicLink)
+  app.configure(SMS)
+  app.configure(Upload)
 
   // Misc
   app.configure(Scene)
+  app.configure(Role)
+  app.configure(AccessControl)
 }

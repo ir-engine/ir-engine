@@ -4,6 +4,12 @@ import { Application } from '../declarations'
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const attribution = sequelizeClient.define('attribution', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
+      allowNull: false,
+      primaryKey: true
+    },
     creator: {
       type: DataTypes.STRING,
       allowNull: false
@@ -20,8 +26,11 @@ export default (app: Application): any => {
     }
   });
 
-  (attribution as any).associate = (models: any) =>
-    (attribution as any).belongsTo(models.license)
+  (attribution as any).associate = (models: any) => {
+    (attribution as any).belongsTo(models.license);
+    (attribution as any).belongsTo(models.collection);
+    (attribution as any).belongsToMany(models.resource, { through: 'resource_attribution' })
+  }
 
   return attribution
 }

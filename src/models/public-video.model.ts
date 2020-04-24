@@ -4,6 +4,12 @@ import { Application } from '../declarations'
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const publicVideo = sequelizeClient.define('public_video', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
+      allowNull: false,
+      primaryKey: true
+    },
     title: DataTypes.STRING,
     original_title: DataTypes.STRING,
     description: DataTypes.STRING(1000),

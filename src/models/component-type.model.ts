@@ -16,7 +16,11 @@ export default (app: Application): any => {
         options.raw = true
       }
     }
-  })
+  });
+
+  (componentType as any).assocate = (models: any) => {
+    (componentType as any).hasMany(models.component)
+  }
 
   return componentType
 }

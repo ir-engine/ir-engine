@@ -1,6 +1,6 @@
 import { HookContext } from '@feathersjs/feathers'
 import dauria from 'dauria'
-import removeRelatedResources from '../../hooks/remove-related-resources'
+// import removeRelatedResources from '../../hooks/remove-related-resources'
 
 export default {
   before: {
@@ -18,7 +18,7 @@ export default {
     ],
     update: [],
     patch: [],
-    remove: [removeRelatedResources()]
+    remove: []// removeRelatedResources()]
   },
 
   after: {

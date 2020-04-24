@@ -16,7 +16,11 @@ export default (app: Application): any => {
         options.raw = true
       }
     }
-  })
+  });
+
+  (collectionType as any).assocate = (models: any) => {
+    (collectionType as any).belongsToMany(models.collection)
+  }
 
   return collectionType
 }

@@ -40,8 +40,7 @@ export default (app: Application): any => {
     (collection as any).hasOne(models.collection_type);
     (collection as any).hasOne(models.attribution);
     (collection as any).hasMany(models.entity);
-    // TODO: Add give to user hook for this model
-    (collection as any).belongsTo(models.user, { through: models.user_collection });
+    (collection as any).belongsTo(models.user);
     (collection as any).belongsTo(models.location)
   }
 
