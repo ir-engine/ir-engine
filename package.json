@@ -76,6 +76,7 @@
     "pug-html-loader": "^1.1.5",
     "s3-blob-store": "^4.1.1",
     "sequelize": "^5.21.6",
+    "sequelize-cli-typescript": "^3.2.0-c",
     "serve-favicon": "^2.5.0",
     "winston": "^3.2.1",
     "youtube-dl": "^3.0.2"
