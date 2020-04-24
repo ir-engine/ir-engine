@@ -132,7 +132,7 @@ module.exports = {
     // FAKES
     // TODO: If production, disable
     {
-      disabled: false,
+      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
       delete: false,
       path: 'user',
       template: {
@@ -142,7 +142,7 @@ module.exports = {
       }
     },
     {
-      disabled: false,
+      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
       delete: true,
       path: 'attribution',
       template: {
@@ -153,7 +153,7 @@ module.exports = {
       }
     },
     {
-      disabled: false,
+      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
       delete: true,
       path: 'collection',
       template: {
@@ -166,7 +166,7 @@ module.exports = {
       }
     },
     {
-      disabled: false,
+      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
       delete: true,
       path: 'component',
       template: {
@@ -176,7 +176,7 @@ module.exports = {
       }
     },
     {
-      disabled: false,
+      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
       delete: true,
       path: 'entity',
       templates: [{
@@ -197,7 +197,7 @@ module.exports = {
     //   }
     // },
     {
-      disabled: false,
+      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
       delete: true,
       path: 'instance',
       template: {
@@ -206,7 +206,7 @@ module.exports = {
       }
     },
     {
-      disabled: false,
+      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
       delete: true,
       path: 'license',
       template: {
@@ -215,7 +215,7 @@ module.exports = {
       }
     },
     {
-      disabled: false,
+      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
       delete: true,
       path: 'location',
       template: {
@@ -226,7 +226,7 @@ module.exports = {
       }
     },
     {
-      disabled: false,
+      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
       delete: true,
       path: 'organization',
       template: {
@@ -234,7 +234,7 @@ module.exports = {
       }
     },
     {
-      disabled: false,
+      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
       delete: true,
       path: 'resource',
       template: {
@@ -264,7 +264,7 @@ module.exports = {
     //   }
     // },
     {
-      disabled: false,
+      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
       delete: true,
       path: 'relationship',
       template: {
@@ -280,7 +280,7 @@ module.exports = {
       }
     },
     {
-      disabled: false,
+      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
       delete: true,
       path: 'user-entity',
       template: {

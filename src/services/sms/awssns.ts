@@ -1,5 +1,4 @@
 import AWS from 'aws-sdk'
-import config from 'config'
 
 // export function setSmsType() {
 //     const aws_region: string = config.get('aws.sns.region')
