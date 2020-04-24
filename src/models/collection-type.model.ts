@@ -7,7 +7,8 @@ export default (app: Application): any => {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      unique: true
     }
   }, {
     hooks: {

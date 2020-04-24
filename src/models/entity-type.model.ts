@@ -6,7 +6,9 @@ export default (app: Application): any => {
   const entityType = sequelizeClient.define('entity_type', {
     name: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      primaryKey: true,
+      unique: true
     }
   }, {
     hooks: {
