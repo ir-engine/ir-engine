@@ -1,10 +1,10 @@
-import React from 'react'
 import Layout from '../components/ui/Layout'
 import dynamic from 'next/dynamic'
-const Scene = dynamic(() => import('../components/xr/scene'), { ssr: false })
+import React from 'react'
+const Scene = dynamic(() => import('../components/xr/scene/explore'), { ssr: false })
 // import Login from '../components/ui/Login'
 
-export default class IndexPage extends React.Component {
+export default class ExplorePage extends React.Component {
   render() {
     return (
       <Layout pageTitle="Home">
