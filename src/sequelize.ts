@@ -38,7 +38,8 @@ export default (app: Application): void => {
     })
 
     // Sync to the database
-    app.set('sequelizeSync', sequelize.sync({ logging: true }).then(() => {
+    // TODO: Disable logging and force in production
+    app.set('sequelizeSync', sequelize.sync({ logging: true, force: (process.env.FORCE_DB_REFRESH === 'true') }).then(() => {
       // @ts-ignore
       app.configure(seeder(seederConfig)).seed()
     })

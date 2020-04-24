@@ -250,19 +250,19 @@ module.exports = {
       }
     },
     // // Relationship tables
-    {
-      disabled: false,
-      delete: true,
-      path: 'group-user',
-      template: {
-        group: {
-          type: 'ID', faker: { fk: 'groupId:random' }
-        },
-        user: {
-          type: 'ID', faker: { fk: 'user:random' }
-        }
-      }
-    },
+    // {
+    //   disabled: false,
+    //   delete: true,
+    //   path: 'group-user',
+    //   template: {
+    //     group: {
+    //       type: 'ID', faker: { fk: 'groupId:random' }
+    //     },
+    //     user: {
+    //       type: 'ID', faker: { fk: 'user:random' }
+    //     }
+    //   }
+    // },
     {
       disabled: false,
       delete: true,

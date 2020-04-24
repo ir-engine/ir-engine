@@ -27,6 +27,7 @@
     "test": "yarn run lint && yarn run compile && yarn run mocha",
     "lint": "node node_modules/.bin/eslint --ext .js,.ts src/ test/ --fix",
     "dev": "ts-node-dev --no-notify src/",
+    "dev-reinit-db": "env FORCE_DB_REFRESH=true ts-node-dev --no-notify src/",
     "start": "yarn run compile && node lib/",
     "mocha": "NODE_ENV=test ts-mocha \"test/**/*.ts\" --recursive --exit",
     "compile": "shx rm -rf lib/ && tsc"
