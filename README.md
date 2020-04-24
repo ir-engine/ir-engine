@@ -35,7 +35,12 @@ cd scripts && ./start-db.sh
     npm start
     ```
     
-  
+## Weird issues with your database?
+Try
+```
+npm run dev-reinit-db
+```
+
 
 ## Testing
 
