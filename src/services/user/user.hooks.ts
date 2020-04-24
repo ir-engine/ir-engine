@@ -32,7 +32,8 @@ export default {
     get: [],
     create: [
       (context: any) => {
-        accountService(context.app).notifier('resendVerifySignup', context.result)
+        // This will keep emails from blasting out to fake users while you develop
+        return (process.env.DEV) ? context.result : accountService(context.app).notifier('resendVerifySignup', context.result)
       }
     ],
     update: [],

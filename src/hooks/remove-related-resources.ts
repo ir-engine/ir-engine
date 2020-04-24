@@ -32,14 +32,16 @@ export default (options = {}): Hook => {
         })
       })
 
-      const children = await app.services['resource-child'].find({
+      // TODO: Remove self from parent resources
+
+      const children = await app.services.resource.find({
         query: {
-          resourceParent: id
+          resourceParentId: id
         }
       })
 
       const resourceChildrenRemovePromise = Promise.all(children.data.map(async (child: any) => {
-        const resourceChildRemovePromise = app.services['resource-child'].remove(null, {
+        const resourceChildRemovePromise = app.services.resource.remove(null, {
           query: {
             resourceId: child.resourceId
           }
@@ -49,23 +51,11 @@ export default (options = {}): Hook => {
 
         return await Promise.all([
           resourceChildRemovePromise,
-          resourceRemovePromise
+          resourceRemovePromise,
+          storageRemovePromise,
+          resourceChildrenRemovePromise
         ])
       }))
-
-      const resourceTypeRemovePromise = app.services['resource-type'].remove(null, {
-        query: {
-          resourceId: id
-        }
-      })
-
-      await Promise.all([
-        storageRemovePromise,
-        resourceChildrenRemovePromise,
-        resourceTypeRemovePromise
-      ])
     }
-
-    return context
   }
 }
