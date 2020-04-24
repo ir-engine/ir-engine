@@ -6,7 +6,8 @@ export default (app: Application): any => {
   const collectionType = sequelizeClient.define('collection_type', {
     name: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      primaryKey: true
     }
   }, {
     hooks: {

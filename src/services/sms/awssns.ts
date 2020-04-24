@@ -34,8 +34,6 @@ export async function sendSms (phone: string, text: string): Promise<void> {
     // TopicArn: process.env.AWS_SMS_TOPIC_ARN ?? ''
   }
 
-  console.log('----config---', config.get('aws.sns.region'))
-
   // Create promise and SNS service object
   const publishTextPromise = new AWS.SNS({
     apiVersion: '2010-03-31',
