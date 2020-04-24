@@ -9,16 +9,10 @@ export default (app: Application): any => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    sceneId: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
     maxUsersPerInstance: {
       type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    access: {
-      type: DataTypes.STRING
+      allowNull: false,
+      defaultValue: 50
     }
   }, {
     hooks: {
@@ -27,9 +21,11 @@ export default (app: Application): any => {
       }
     }
   });
-  // Has many instances
-  (Location as any).associate = (models: any) =>
-    (Location as any).hasMany(models.instance)
+
+  (Location as any).associate = (models: any) => {
+    (Location as any).hasMany(models.instance);
+    (Location as any).hasOne(models.collection) // scene
+  }
 
   return Location
 }

@@ -6,7 +6,9 @@ export default (app: Application): any => {
   const relationshipType = sequelizeClient.define('relationship_type', {
     name: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      primaryKey: true,
+      unique: true
     }
   }, {
     hooks: {
@@ -16,9 +18,8 @@ export default (app: Application): any => {
     }
   });
 
-  (relationshipType as any).associate = function (models: any) {
-    (relationshipType as any).belongsTo(models.relationship, { foreignKey: { name: 'userOneRelationship' } });
-    (relationshipType as any).belongsTo(models.relationship, { foreignKey: 'userTwoRelationshipType' })
+  (relationshipType as any).associate = (models: any) => {
+    (relationshipType as any).hasMany(models.relationship)
   }
 
   return relationshipType

@@ -1,5 +1,9 @@
 import { Sequelize } from 'sequelize'
 import { Application } from './declarations'
+// @ts-ignore
+import seederConfig from './seeder-config'
+// @ts-ignore
+import seeder from 'feathers-seeder'
 
 export default (app: Application): void => {
   let connectionString
@@ -33,8 +37,15 @@ export default (app: Application): void => {
       }
     })
 
-    app.set('sequelizeSync', sequelize.sync()) // Sync to the database
-
+    // Sync to the database
+    // TODO: Disable logging in production
+    app.set('sequelizeSync', sequelize.sync({ logging: true, force: (process.env.FORCE_DB_REFRESH === 'true') }).then(() => {
+      // @ts-ignore
+      app.configure(seeder(seederConfig)).seed()
+    }).catch(error => {
+      console.log(error)
+    })
+    )
     return oldSetup.apply(this, args)
   }
 }

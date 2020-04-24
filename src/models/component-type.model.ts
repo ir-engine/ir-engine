@@ -1,12 +1,14 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 
-export default function (app: Application): any {
+export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const componentType = sequelizeClient.define('component_type', {
     name: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      primaryKey: true,
+      unique: true
     }
   }, {
     hooks: {
@@ -14,10 +16,7 @@ export default function (app: Application): any {
         options.raw = true
       }
     }
-  });
-
-  (componentType as any).associate = (models: any) =>
-    (componentType as any).belongsTo(models.component)
+  })
 
   return componentType
 }

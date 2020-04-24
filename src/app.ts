@@ -20,23 +20,29 @@ import appHooks from './app.hooks'
 import channels from './channels'
 import authentication from './authentication'
 import sequelize from './sequelize'
-dotenv.config()
+// @ts-ignore
+import seederConfig from './seeder-config'
+// @ts-ignore
+import seeder from 'feathers-seeder'
+
 // Don't remove this comment. It's needed to format import lines nicely.
+
+dotenv.config()
 
 const app: Application = express(feathers())
 
 app.configure(swagger({
   docsPath: '/docs',
   uiIndex: path.join(__dirname, '../docs.html'),
+  // TODO: Relate to server config, don't hardcode this here
   specs: {
     info: {
-      title: 'A test',
-      description: 'A description',
+      title: 'XRChat API Surface',
+      description: 'APIs for the XRChat application',
       version: '1.0.0'
     }
   }
 }))
-// now yo
 
 // Load app configuration
 app.configure(configuration())
@@ -69,5 +75,8 @@ app.use(express.notFound())
 app.use(express.errorHandler({ logger } as any))
 
 app.hooks(appHooks)
+
+// @ts-ignore
+app.configure(seeder(seederConfig)).seed()
 
 export default app

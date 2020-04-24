@@ -4,8 +4,9 @@ import { Application } from '../declarations'
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const userEntity = sequelizeClient.define('user_entity', {
-    text: {
+    name: {
       type: DataTypes.STRING,
+      defaultValue: 'UserEntity',
       allowNull: false
     }
   }, {
@@ -16,7 +17,7 @@ export default (app: Application): any => {
     }
   });
 
-  (userEntity as any).associate = function (models: any) {
+  (userEntity as any).associate = (models: any) => {
     (userEntity as any).hasOne(models.user);
     (userEntity as any).hasOne(models.entity)
   }

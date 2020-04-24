@@ -1,7 +1,7 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 
-export default function (app: Application): any {
+export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const license = sequelizeClient.define('license', {
     name: {
@@ -9,16 +9,9 @@ export default function (app: Application): any {
       allowNull: false
     },
     text: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: true
-    },
-    url: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    remixable: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false
+
     }
   }, {
     hooks: {
@@ -28,8 +21,9 @@ export default function (app: Application): any {
     }
   });
 
-  (license as any).associate = (models: any) =>
-    (license as any).belongsTo(models.attribution)
+  (license as any).associate = (models: any) => {
+  //  (license as any).belongsTo(models.attribution)
+  }
 
   return license
 }

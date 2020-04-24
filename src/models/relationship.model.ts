@@ -13,10 +13,20 @@ export default (app: Application): any => {
   });
 
   (relationship as any).associate = (models: any) => {
-    (relationship as any).belongsTo(models.user, { foreignKey: { name: 'userOneId' }, as: 'userOne' });
-    (relationship as any).belongsTo(models.user, { foreignKey: 'userTwoId', as: 'userTwo' });
-    (relationship as any).hasOne(models.relationship_type, { foreignKey: 'userOneRelationshipType' });
-    (relationship as any).hasOne(models.relationship_type, { foreignKey: 'userTwoRelationshipType' })
+    (relationship as any).hasOne(models.user, {
+      foreignKey: {
+        name: 'user',
+        allowNull: true
+      }
+    });
+    (relationship as any).hasOne(models.user, {
+      foreignKey: {
+        name: 'relatedUser',
+        allowNull: true // True to allow seeder to work
+        // TODO: Set allowNull to false and fix seeder error
+      }
+    });
+    (relationship as any).belongsTo(models.relationship_type)
   }
 
   return relationship

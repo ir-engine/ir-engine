@@ -1,9 +1,15 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 
-export default function (app: Application): any {
+export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const resource = sequelizeClient.define('resource', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
+      allowNull: false,
+      primaryKey: true
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false
@@ -32,13 +38,12 @@ export default function (app: Application): any {
     }
   });
 
-  // eslint-disable-next-line no-unused-vars
   (resource as any).associate = (models: any) => {
-    (resource as any).hasOne(models.attribution);
     (resource as any).hasOne(models.resource_type);
-    (resource as any).belongsToMany(models.component, { through: models.component_resource });
-    (resource as any).belongsToMany(models.resource, { through: models.resource_child, as: 'parentResource' });
-    (resource as any).belongsToMany(models.resource, { through: models.resource_child, as: 'childResource' })
+    (resource as any).hasOne(models.attribution);
+    (resource as any).belongsToMany(models.component, { through: 'resource_component' });
+    (resource as any).belongsTo(models.user);
+    (resource as any).belongsToMany(models.resource, { through: 'resource_child', as: 'childResource' })
   }
 
   return resource

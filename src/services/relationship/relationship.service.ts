@@ -4,7 +4,6 @@ import { RelationRelation } from './relationship.class'
 import createModel from '../../models/relationship.model'
 import hooks from './relationship.hooks'
 
-// Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
     'relationship': RelationRelation & ServiceAddons<any>
@@ -14,13 +13,12 @@ declare module '../../declarations' {
 export default (app: Application): any => {
   const options = {
     Model: createModel(app),
-    paginate: app.get('paginate')
+    paginate: app.get('paginate'),
+    multi: true
   }
 
-  // Initialize our service with any options it requires
   app.use('/relationship', new RelationRelation(options, app))
 
-  // Get our initialized service so that we can register hooks
   const service = app.service('relationship')
 
   service.hooks(hooks)
