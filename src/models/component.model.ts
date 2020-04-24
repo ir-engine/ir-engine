@@ -23,7 +23,7 @@ export default (app: Application): any => {
   });
 
   (component as any).associate = (models: any) => {
-    (component as any).hasOne(models.component_type);
+    (component as any).belongsTo(models.component_type);
     (component as any).belongsToMany(models.resource, { through: 'resource_component' });
     (component as any).belongsTo(models.entity)
   }

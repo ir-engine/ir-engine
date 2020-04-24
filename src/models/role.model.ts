@@ -3,10 +3,12 @@ import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const userCollection = sequelizeClient.define('user_collection', {
+  const role = sequelizeClient.define('role', {
     name: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      primaryKey: true,
+      unique: true
     }
   }, {
     hooks: {
@@ -16,10 +18,10 @@ export default (app: Application): any => {
     }
   });
 
-  (userCollection as any).associate = (models: any) => {
-    (userCollection as any).hasOne(models.user);
-    (userCollection as any).hasOne(models.collection)
+  (role as any).associate = (models: any) => {
+    (role as any).belongsToMany(models.access_control, { through: 'role_access_control' });
+    (role as any).hasMany(models.user)
   }
 
-  return userCollection
+  return role
 }

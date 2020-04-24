@@ -41,12 +41,15 @@ export default (app: Application): any => {
   });
 
   (user as any).associate = (models: any) => {
-    (user as any).belongsToMany(models.collection, { through: models.user_collection });
+    (user as any).belongsTo(models.role);
+    (user as any).belongsTo(models.instance); // user can only be in one room at a time
+    (user as any).belongsTo(models.group, { through: 'group_user' }); // user can only be part of one group at a time
+    (user as any).hasMany(models.collection);
     (user as any).hasMany(models.entity);
-    // (user as any).belongsToMany(models.relationship);
-    (user as any).belongsToMany(models.organization, { through: 'organization_user' }); // user can join multiple orgs
-    (user as any).hasOne(models.group, { through: models.group_user });
-    (user as any).belongsTo(models.instance)
+    (user as any).hasMany(models.resource);
+    (user as any).belongsToMany(models.user, { as: 'owningUser', foreignKey: 'owningUserId', through: models.relationship });
+    (user as any).belongsToMany(models.user, { as: 'relatedUser', foreignKey: 'relatedUserId', through: models.relationship });
+    (user as any).belongsToMany(models.organization, { through: 'organization_user' }) // user can join multiple orgs
   }
 
   return user
