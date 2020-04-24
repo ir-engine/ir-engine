@@ -15,8 +15,6 @@ export default (options = {}): Hook => {
 
     context.result = await context.app.service('resource').create(resourceData)
 
-    console.log(context.result)
-
     return context
   }
 }

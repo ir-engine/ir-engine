@@ -20,8 +20,6 @@ export default (app: Application): void => {
       // Obtain the logged in user from the connection
       // const user = connection.user
 
-      console.log(authResult)
-
       // The connection is no longer anonymous, remove it
       app.channel('anonymous').leave(connection)
 

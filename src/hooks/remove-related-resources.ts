@@ -9,8 +9,6 @@ export default (options = {}): Hook => {
 
     const { app, id } = context
 
-    console.log(app.services['resource-child'])
-
     const resourceResult = await app.services.resource.find({
       query: {
         id: id

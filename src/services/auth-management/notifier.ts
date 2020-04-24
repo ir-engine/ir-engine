@@ -57,8 +57,6 @@ export default (app: Application): any => {
           return await sendEmail(app, email)
 
         case 'sendResetPwd':
-          console.log('---------', user)
-
           hashLink = getLink('reset', user.resetToken)
           templatePath = path.join(emailAccountTemplatesPath, 'reset-password.pug')
 
