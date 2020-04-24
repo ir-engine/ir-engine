@@ -1,5 +1,7 @@
 import license from './licenses/mit.json'
 
+const disabled = (process.env.FORCE_DB_REFRESH !== 'true' && process.env.GENERATE_FAKES !== 'true')
+
 module.exports = {
   services: [
     // TYPES
@@ -129,10 +131,22 @@ module.exports = {
         { name: 'data' } // arbitrary data of any other type
       ]
     },
-    // FAKES
-    // TODO: If production, disable
+    // GENERATE ADMIN ACCOUNT
     {
-      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
+      disabled: disabled,
+      count: 10,
+      delete: false,
+      path: 'user',
+      template: {
+        email: 'admin@admin.com',
+        password: 'adminxrchat',
+        isVerified: true
+      }
+    },
+    // FAKES - These will not be generated in production
+    {
+      disabled: disabled,
+      count: 10,
       delete: false,
       path: 'user',
       template: {
@@ -142,8 +156,9 @@ module.exports = {
       }
     },
     {
-      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
+      disabled: disabled,
       delete: true,
+      count: 10,
       path: 'attribution',
       template: {
         source: 'YouTube',
@@ -153,7 +168,7 @@ module.exports = {
       }
     },
     {
-      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
+      disabled: disabled,
       delete: true,
       path: 'collection',
       template: {
@@ -166,7 +181,7 @@ module.exports = {
       }
     },
     {
-      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
+      disabled: disabled,
       delete: true,
       path: 'component',
       template: {
@@ -176,7 +191,7 @@ module.exports = {
       }
     },
     {
-      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
+      disabled: disabled,
       delete: true,
       path: 'entity',
       templates: [{
@@ -188,14 +203,14 @@ module.exports = {
         type: 'default' // Test default empty entity
       }]
     },
-    // {
-    //   disabled: false,
-    //   delete: true,
-    //   path: 'group',
-    //   template: {
-    //     // Groups are semi-ephemeral, and have no properties other than ID
-    //   }
-    // },
+    {
+      disabled: disabled,
+      delete: true,
+      path: 'group',
+      template: {
+        // Groups are semi-ephemeral, and have no properties other than ID
+      }
+    },
     {
       disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
       delete: true,
@@ -247,49 +262,6 @@ module.exports = {
         attribution: { type: 'ID', faker: { fk: 'attribution:random' } },
         component: [{ type: 'ID', faker: { fk: 'component:random' } }],
         user: [{ type: 'ID', faker: { fk: 'user:random' } }]
-      }
-    },
-    // // Relationship tables
-    // {
-    //   disabled: false,
-    //   delete: true,
-    //   path: 'group-user',
-    //   template: {
-    //     group: {
-    //       type: 'ID', faker: { fk: 'groupId:random' }
-    //     },
-    //     user: {
-    //       type: 'ID', faker: { fk: 'user:random' }
-    //     }
-    //   }
-    // },
-    {
-      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
-      delete: true,
-      path: 'relationship',
-      template: {
-        user: {
-          type: 'ID', faker: { fk: 'User:random' }
-        },
-        relatedUser: {
-          type: 'ID', faker: { fk: 'RelatedUser:random' }
-        },
-        relationshipType: {
-          type: 'ID', faker: { fk: 'relationship_type:random' }
-        }
-      }
-    },
-    {
-      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
-      delete: true,
-      path: 'user-entity',
-      template: {
-        user: {
-          type: 'ID', faker: { fk: 'user:random' }
-        },
-        entity: {
-          type: 'ID', faker: { fk: 'entity:random' }
-        }
       }
     }
   ]

@@ -4,12 +4,6 @@ import { Application } from '../declarations'
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const resource = sequelizeClient.define('resource', {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV1,
-      allowNull: false,
-      primaryKey: true
-    },
     name: {
       type: DataTypes.STRING,
       allowNull: false
@@ -39,11 +33,12 @@ export default (app: Application): any => {
   });
 
   (resource as any).associate = (models: any) => {
-    (resource as any).hasOne(models.resource_type);
-    (resource as any).hasOne(models.attribution);
+    (resource as any).belongsTo(models.resource_type);
+    (resource as any).belongsTo(models.attribution, { through: 'resource_attribution' });
     (resource as any).belongsToMany(models.component, { through: 'resource_component' });
     (resource as any).belongsTo(models.user);
-    (resource as any).belongsToMany(models.resource, { through: 'resource_child', as: 'childResource' })
+    (resource as any).belongsTo(models.resource, { as: 'parent', foreignKey: 'parentId' });
+    (resource as any).hasMany(models.resource, { as: 'children', foreignKey: 'childId' })
   }
 
   return resource

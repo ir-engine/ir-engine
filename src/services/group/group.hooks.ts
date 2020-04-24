@@ -1,7 +1,7 @@
 import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common'
 
-import attachOwnerIdInSavingContact from '../../hooks/set-loggedin-user-in-body'
+// import attachOwnerIdInSavingContact from '../../hooks/set-loggedin-user-in-body'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -12,11 +12,11 @@ export default {
     all: [authenticate('jwt')],
     find: [],
     get: [],
-    create: [attachOwnerIdInSavingContact('ownerId')],
+    create: [],
     update: [disallow()],
-    patch: [attachOwnerIdInSavingContact('ownerId')],
+    patch: [],
     // TODO: Need to ask if we allow user to remove group or not
-    remove: [attachOwnerIdInSavingContact('ownerId')]
+    remove: []
   },
 
   after: {

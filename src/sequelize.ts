@@ -18,7 +18,7 @@ export default (app: Application): void => {
   }
   const sequelize = new Sequelize(connectionString, {
     dialect: 'mysql',
-    logging: false,
+    logging: (process.env.FORCE_DB_REFRESH === 'true'),
     define: {
       freezeTableName: true
     }
@@ -39,7 +39,7 @@ export default (app: Application): void => {
 
     // Sync to the database
     // TODO: Disable logging in production
-    app.set('sequelizeSync', sequelize.sync({ logging: true, force: (process.env.FORCE_DB_REFRESH === 'true') }).then(() => {
+    app.set('sequelizeSync', sequelize.sync({ force: (process.env.FORCE_DB_REFRESH === 'true') }).then(() => {
       // @ts-ignore
       app.configure(seeder(seederConfig)).seed()
     }).catch(error => {

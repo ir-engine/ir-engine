@@ -16,6 +16,10 @@ export default (app: Application): any => {
         options.raw = true
       }
     }
-  })
+  });
+
+  (entityType as any).assocate = (models: any) => {
+    (entityType as any).hasMany(models.entity)
+  }
   return entityType
 }
