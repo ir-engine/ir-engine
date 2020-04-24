@@ -9,7 +9,6 @@
     "test": "npm run build"
   },
   "dependencies": {
-    "utils": "link:./utils",
     "@babel/plugin-proposal-object-rest-spread": "^7.9.0",
     "@feathersjs/authentication-client": "^4.5.2",
     "@feathersjs/client": "^4.5.2",
