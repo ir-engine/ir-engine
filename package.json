@@ -1,5 +1,5 @@
 {
-  "name": "with-typescript",
+  "name": "xrchat-client",
   "version": "1.0.0",
   "scripts": {
     "dev": "cross-env NODE_ENV=dev next --port $PORT",
@@ -9,6 +9,7 @@
     "test": "npm run build"
   },
   "dependencies": {
+    "utils": "link:./utils",
     "@babel/plugin-proposal-object-rest-spread": "^7.9.0",
     "@feathersjs/authentication-client": "^4.5.2",
     "@feathersjs/client": "^4.5.2",
