@@ -100,7 +100,13 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
     let link: string
     switch (this.data.mediatype) {
       case 'video360':
-        link = 'video360?manifest=' + this.data.link + '&title=' + this.data.title
+        link = 'video360?manifest=' + this.data.link +
+          '&title=' + this.data.title +
+          '&runtime=' + this.data.runtime +
+          '&credit=' + this.data.productionCredit +
+          '&rating=' + this.data.rating +
+          '&categories=' + this.data.categories.join(',') +
+          '&tags=' + this.data.tags.join(',')
         break
       case 'scene':
         link = this.data.link
