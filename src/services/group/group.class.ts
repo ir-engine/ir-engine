@@ -13,9 +13,9 @@ export class Group extends Service {
   }
 
   async find (params: Params): Promise<[]> {
-    const groupMembersModel = this.app.service('group-member').Model
+    const groupUsersModel = this.app.service('group-user').Model
 
-    const groups = await groupMembersModel.findAll({
+    const groups = await groupUsersModel.findAll({
       where: {
         userId: params.user.userId
       },
@@ -31,9 +31,9 @@ export class Group extends Service {
   }
 
   async get (id: Id, params: Params): Promise<any> {
-    const groupMembersModel = this.app.service('group-member').Model
+    const groupUsersModel = this.app.service('group-user').Model
 
-    const group = await groupMembersModel.findOne({
+    const group = await groupUsersModel.findOne({
       where: {
         groupId: id,
         userId: params.user.userId
@@ -49,14 +49,14 @@ export class Group extends Service {
   }
 
   async create (data: any, params: Params): Promise<any> {
-    const GroupMembersModel = this.app.service('group-member').Model
+    const GroupUsersModel = this.app.service('group-user').Model
     const GroupModel = this.getModel(params)
     let savedGroup = new GroupModel(data)
     savedGroup = await savedGroup.save()
 
     // We are able to take benefit of using sequelize method *addUser* available due to *many to many* relationShip but
     // that was making one extra Query for getting group details Therefore we are doing it manually
-    const userGroupModel = new GroupMembersModel({
+    const userGroupModel = new GroupUsersModel({
       groupId: savedGroup.id,
       userId: params.user.userId,
       isOwner: true,

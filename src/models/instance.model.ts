@@ -5,10 +5,6 @@ import { Application } from '../declarations'
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const Instance = sequelizeClient.define('instance', {
-    location: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
     url: {
       type: DataTypes.STRING,
       allowNull: false
@@ -19,7 +15,11 @@ export default (app: Application): any => {
         options.raw = true
       }
     }
-  })
+  });
 
+  (Instance as any).associate = (models: any) => {
+    (Instance as any).belongsTo(models.location);
+    (Instance as any).hasMany(models.user)
+  }
   return Instance
 }

@@ -1,4 +1,3 @@
-// Initializes the `user` service on path `/user`
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { User } from './user.class'
@@ -14,7 +13,8 @@ declare module '../../declarations' {
 export default (app: Application): void => {
   const options = {
     Model: createModel(app),
-    paginate: app.get('paginate')
+    paginate: app.get('paginate'),
+    multi: true
   }
 
   app.use('/user', new User(options, app))
