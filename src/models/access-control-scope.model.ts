@@ -3,8 +3,8 @@ import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const role = sequelizeClient.define('role', {
-    name: {
+  const accessControlScope = sequelizeClient.define('access_control_scope', {
+    scope: {
       type: DataTypes.STRING,
       allowNull: false,
       primaryKey: true,
@@ -15,13 +15,13 @@ export default (app: Application): any => {
       beforeCount (options: any) {
         options.raw = true
       }
-    }
+    },
+    timestamps: false
   });
 
-  (role as any).associate = (models: any) => {
-    (role as any).belongsToMany(models.access_control, { through: 'role_access_control' });
-    (role as any).hasMany(models.user)
+  (accessControlScope as any).associate = (models: any): any => {
+    (accessControlScope as any).hasMany(models.access_control, { as: 'accessControl', foreignKey: 'accessControlScope' })
   }
 
-  return role
+  return accessControlScope
 }

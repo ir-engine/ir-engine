@@ -3,27 +3,25 @@ import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const license = sequelizeClient.define('license', {
-    name: {
+  const userRelationshipType = sequelizeClient.define('user_relationship_type', {
+    type: {
       type: DataTypes.STRING,
       allowNull: false,
-      primaryKey: true
-    },
-    text: {
-      type: DataTypes.TEXT,
-      allowNull: true
+      primaryKey: true,
+      unique: true
     }
   }, {
     hooks: {
       beforeCount (options: any) {
         options.raw = true
       }
-    }
+    },
+    timestamps: false
   });
 
-  (license as any).associate = (models: any) => {
-    (license as any).hasMany(models.attribution)
+  (userRelationshipType as any).associate = (models: any) => {
+    (userRelationshipType as any).hasMany(models.user_relationship, { foreignKey: 'type' })
   }
 
-  return license
+  return userRelationshipType
 }

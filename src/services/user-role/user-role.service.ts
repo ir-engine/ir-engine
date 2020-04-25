@@ -1,12 +1,12 @@
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
-import { RelationRelation } from './relationship.class'
-import createModel from '../../models/relationship.model'
-import hooks from './relationship.hooks'
+import { Role } from './user-role.class'
+import createModel from '../../models/user-role.model'
+import hooks from './user-role.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'relationship': RelationRelation & ServiceAddons<any>
+    'user-role': Role & ServiceAddons<any>
   }
 }
 
@@ -17,9 +17,9 @@ export default (app: Application): any => {
     multi: true
   }
 
-  app.use('/relationship', new RelationRelation(options, app))
+  app.use('/user-role', new Role(options, app))
 
-  const service = app.service('relationship')
+  const service = app.service('user-role')
 
   service.hooks(hooks)
 }

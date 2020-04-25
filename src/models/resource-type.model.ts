@@ -4,7 +4,7 @@ import { Application } from '../declarations'
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const resourceType = sequelizeClient.define('resource_type', {
-    name: {
+    type: {
       type: DataTypes.STRING,
       allowNull: false,
       primaryKey: true,
@@ -15,11 +15,12 @@ export default (app: Application): any => {
       beforeCount (options: any) {
         options.raw = true
       }
-    }
+    },
+    timestamps: false
   });
 
-  (resourceType as any).associate = (models: any) => {
-    (resourceType as any).hasMany(models.resource)
+  (resourceType as any).associate = (models: any): any => {
+    (resourceType as any).hasMany(models.access_control, { foreignKey: 'type' })
   }
 
   return resourceType

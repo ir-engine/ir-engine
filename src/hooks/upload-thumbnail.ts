@@ -10,13 +10,13 @@ export default (options = {}): Hook => {
 
       const result = await app.services.upload.create(context.data, context.params)
 
-      await app.services['resource-type'].create({
-        resource: result.id,
+      await app.services['static-resource-type'].create({
+        staticResource: result.id,
         type: 'thumbnail',
         resourceId: result.id
       })
 
-      await app.services['resource-child'].create({
+      await app.services['static-resource-child'].create({
         resourceParent: context.result.id,
         resourceId: result.id
       })

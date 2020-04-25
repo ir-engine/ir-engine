@@ -4,8 +4,9 @@ import { Application } from '../declarations'
 import ComponentType from './component-type/component-type.service'
 import CollectionType from './collection-type/collection-type.service'
 import EntityType from './entity-type/entity-type.service'
-import RelationshipType from './relationship-type/relationship-type.service'
-import ResourceType from './resource-type/resource-type.service'
+import UserRelationshipType from './user-relationship-type/user-relationship-type.service'
+import StaticResourceType from './static-resource-type/static-resource-type.service'
+import AccessControlScope from './access-control-scope/access-control-scope.service'
 
 // Objects
 import Attribution from './attribution/attribution.service'
@@ -18,10 +19,10 @@ import license from './license/license.service'
 import Location from './location/location.service'
 import Organization from './organization/organization.service'
 import Project from './project/project.service'
-import Resource from './resource/resource.service'
-import Relationship from './relationship/relationship.service'
+import StaticResource from './static-resource/static-resource.service'
+import UserRelationship from './user-relationship/user-relationship.service'
 import User from './user/user.service'
-import Role from './role/role.service'
+import Role from './user-role/user-role.service'
 import AccessControl from './access-control/access-control.service'
 
 // Junctions
@@ -38,13 +39,19 @@ import Upload from './upload/upload.service'
 // Misc
 import Scene from './scene/scene.service'
 
+import resourceType from './resource-type/resource-type.service'
+
+import organizationUserRank from './organization-user-rank/organization-user-rank.service'
+
+import organizationUser from './organization-user/organization-user.service'
+
 export default (app: Application): void => {
   // Types
   app.configure(ComponentType)
   app.configure(CollectionType)
-  app.configure(ResourceType)
+  app.configure(StaticResourceType)
   app.configure(EntityType)
-  app.configure(RelationshipType)
+  app.configure(UserRelationshipType)
 
   // Objects
   app.configure(Attribution)
@@ -57,8 +64,8 @@ export default (app: Application): void => {
   app.configure(license)
   app.configure(Organization)
   app.configure(Project)
-  app.configure(Relationship)
-  app.configure(Resource)
+  app.configure(UserRelationship)
+  app.configure(StaticResource)
   app.configure(User)
 
   // Junctions
@@ -76,4 +83,8 @@ export default (app: Application): void => {
   app.configure(Scene)
   app.configure(Role)
   app.configure(AccessControl)
+  app.configure(AccessControlScope)
+  app.configure(resourceType)
+  app.configure(organizationUserRank)
+  app.configure(organizationUser)
 }
