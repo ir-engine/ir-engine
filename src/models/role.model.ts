@@ -19,8 +19,8 @@ export default (app: Application): any => {
   });
 
   (role as any).associate = (models: any) => {
-    (role as any).belongsToMany(models.access_control, { through: 'role_access_control' });
-    (role as any).hasMany(models.user)
+    (role as any).hasMany(models.access_control);
+    (role as any).belongsToMany(models.user)
   }
 
   return role

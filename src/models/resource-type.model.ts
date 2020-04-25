@@ -18,8 +18,8 @@ export default (app: Application): any => {
     }
   });
 
-  (resourceType as any).associate = (models: any) => {
-    (resourceType as any).hasMany(models.resource)
+  (resourceType as any).associate = (models: any): any => {
+    (resourceType as any).belongsToMany(models.access_control)
   }
 
   return resourceType

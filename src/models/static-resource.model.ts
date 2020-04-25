@@ -3,7 +3,7 @@ import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const resource = sequelizeClient.define('resource', {
+  const staticResource = sequelizeClient.define('static_resource', {
     name: {
       type: DataTypes.STRING,
       allowNull: false
@@ -32,14 +32,14 @@ export default (app: Application): any => {
     }
   });
 
-  (resource as any).associate = (models: any) => {
-    (resource as any).belongsTo(models.resource_type);
-    (resource as any).belongsTo(models.attribution, { through: 'resource_attribution' });
-    (resource as any).belongsToMany(models.component, { through: 'resource_component' });
-    (resource as any).belongsTo(models.user);
-    (resource as any).belongsTo(models.resource, { as: 'parent', foreignKey: 'parentId' });
-    (resource as any).hasMany(models.resource, { as: 'children', foreignKey: 'childId' })
+  (staticResource as any).associate = (models: any) => {
+    (staticResource as any).belongsTo(models.static_resource_type);
+    (staticResource as any).belongsTo(models.attribution, { through: 'static_resource_attribution' });
+    (staticResource as any).belongsToMany(models.component, { through: 'static_resource_component' });
+    (staticResource as any).belongsTo(models.user);
+    (staticResource as any).belongsTo(models.static_resource, { as: 'parent', foreignKey: 'parentId' });
+    (staticResource as any).hasMany(models.static_resource, { as: 'children', foreignKey: 'childId' })
   }
 
-  return resource
+  return staticResource
 }
