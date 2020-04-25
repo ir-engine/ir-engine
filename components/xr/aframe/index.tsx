@@ -26,7 +26,6 @@ const ComponentSystemArray: ComponentSystem[] = [
 ]
 
 function RegisterComponentSystem(compsys: ComponentSystem) : void {
-  console.log('RegisterComponentSystem', compsys.name)
   if (compsys.system && !AFRAME.systems.hasOwnProperty(compsys.name)) {
     AFRAME.registerSystem(compsys.name, compsys.system)
   }

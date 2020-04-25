@@ -25,8 +25,10 @@ export interface PlayerVrUiComponentProps {
   _enable: () => void,
   _disable: () => void,
   _updatePlayPauseGroup: () => void,
+  _updateBackground: () => void,
   _onHover: () => void,
   _onPlayPauseButtonTrigger: (buttonName: string) => void,
+  _createBackground: (parentGroup: THREE.Group) => void,
   _createPlayPauseGroup: (parentGroup: THREE.Group) => void,
   _createPlayPauseButton: (parentGroup: THREE.Group, isPlayButton: boolean) => void
 }
@@ -38,18 +40,27 @@ export interface PlayerVrUiComponentData {
   activeColor: number,
   hoverColor: number,
   disabledColor: number,
-  disabledOpacity: number
+  disabledOpacity: number,
+  bgColor: number,
+  bgOpacity: number
 }
 
 export const PlayerVrUiComponentSchema: AFRAME.MultiPropertySchema<PlayerVrUiComponentData> = {
   disabled: { type: 'boolean', default: false },
   isPlaying: { type: 'boolean', default: false },
-  color: { default: 0xe8f1ff },
-  activeColor: { type: 'number', default: 0xFFD704 },
-  hoverColor: { type: 'number', default: 0x04FF5F },
-  disabledColor: { type: 'number', default: 0xA9A9A9 },
-  disabledOpacity: { type: 'number', default: 0.2 }
+  color: { default: 0xeeeeee },
+  activeColor: { type: 'number', default: 0x9cc7e6 },
+  hoverColor: { type: 'number', default: 0xffffff },
+  disabledColor: { type: 'number', default: 0xa9a9a9 },
+  disabledOpacity: { type: 'number', default: 0.2 },
+  bgColor: { default: 0x666666 },
+  bgOpacity: { type: 'number', default: 0.6 }
 }
+
+const BgWidth = 0.2
+const BgHeight = 0.16
+const ButtonWidth = 0.1
+const ButtonHeight = 0.1
 
 export const PlayerVrUiComponent: AFRAME.ComponentDefinition<PlayerVrUiComponentProps> = {
   schema: PlayerVrUiComponentSchema,
@@ -68,6 +79,7 @@ export const PlayerVrUiComponent: AFRAME.ComponentDefinition<PlayerVrUiComponent
   },
 
   update(oldData) {
+    this._updateBackground()
     this._updatePlayPauseGroup()
     if (this.data.disabled !== oldData.disabled) {
       if (this.data.disabled) {
@@ -180,9 +192,22 @@ export const PlayerVrUiComponent: AFRAME.ComponentDefinition<PlayerVrUiComponent
   _create() {
     const rootGroup = new THREE.Group()
 
+    this._createBackground(rootGroup)
     this._createPlayPauseGroup(rootGroup)
 
     this.el.setObject3D('videocontrols', rootGroup)
+  },
+
+  _createBackground(parentGroup) {
+    const matBg = new THREE.MeshBasicMaterial({
+      side: THREE.DoubleSide,
+      transparent: true
+    })
+    const geomBg = new THREE.PlaneBufferGeometry(BgWidth, BgHeight)
+    const meshBg = new THREE.Mesh(geomBg, matBg)
+    meshBg.position.z = -0.01
+    meshBg.name = 'background'
+    parentGroup.add(meshBg)
   },
 
   _createPlayPauseGroup(parentGroup) {
@@ -200,27 +225,25 @@ export const PlayerVrUiComponent: AFRAME.ComponentDefinition<PlayerVrUiComponent
 
     const playPauseButton = new THREE.Shape()
     const hole = new THREE.Path()
-    const playWidth = 0.1
-    const playHeight = 0.1
 
     if (isPlayButton) {
       buttonName = 'play'
 
-      playPauseButton.moveTo(playHeight / 2, 0)
-      playPauseButton.lineTo(-playHeight / 2, playWidth / 2)
-      playPauseButton.lineTo(-playHeight / 2, -playWidth / 2)
-      playPauseButton.lineTo(playHeight / 2, 0)
+      playPauseButton.moveTo(ButtonHeight / 2, 0)
+      playPauseButton.lineTo(-ButtonHeight / 2, ButtonWidth / 2)
+      playPauseButton.lineTo(-ButtonHeight / 2, -ButtonWidth / 2)
+      playPauseButton.lineTo(ButtonHeight / 2, 0)
     } else {
       buttonName = 'pause'
 
-      playPauseButton.moveTo(-playWidth / 2, -playHeight / 2)
-      playPauseButton.lineTo(-playWidth / 2, playHeight / 2)
-      playPauseButton.moveTo(playWidth / 2, playHeight / 2)
-      playPauseButton.lineTo(playWidth / 2, -playHeight / 2)
-      hole.moveTo(playWidth / 4, playHeight / 2)
-      hole.lineTo(playWidth / 4, -playHeight / 2)
-      hole.lineTo(-playWidth / 4, -playHeight / 2)
-      hole.lineTo(-playWidth / 4, playHeight / 2)
+      playPauseButton.moveTo(-ButtonWidth / 2, -ButtonHeight / 2)
+      playPauseButton.lineTo(-ButtonWidth / 2, ButtonHeight / 2)
+      playPauseButton.moveTo(ButtonWidth / 2, ButtonHeight / 2)
+      playPauseButton.lineTo(ButtonWidth / 2, -ButtonHeight / 2)
+      hole.moveTo(ButtonWidth / 4, ButtonHeight / 2)
+      hole.lineTo(ButtonWidth / 4, -ButtonHeight / 2)
+      hole.lineTo(-ButtonWidth / 4, -ButtonHeight / 2)
+      hole.lineTo(-ButtonWidth / 4, ButtonHeight / 2)
       playPauseButton.holes = [hole]
     }
 
@@ -238,13 +261,21 @@ export const PlayerVrUiComponent: AFRAME.ComponentDefinition<PlayerVrUiComponent
       transparent: true,
       opacity: 0
     })
-    const geomButtonBg = new THREE.PlaneBufferGeometry(playWidth, playHeight)
+    const geomButtonBg = new THREE.PlaneBufferGeometry(ButtonWidth, ButtonHeight)
     const meshButtonBg = new THREE.Mesh(geomButtonBg, matButtonBg)
     meshButtonBg.name = buttonName
     meshPlayPauseButton.add(meshButtonBg)
 
     parentGroup.add(meshPlayPauseButton)
     this._buttons.set(buttonName, meshPlayPauseButton)
+  },
+
+  _updateBackground() {
+    const rootGroup = this.el.getObject3D('videocontrols')
+    const meshBg = rootGroup.getObjectByName('background') as THREE.Mesh
+    const matBg = meshBg.material as THREE.MeshBasicMaterial
+    matBg.color.set(this.data.bgColor)
+    matBg.opacity = this.data.bgOpacity
   },
 
   _updatePlayPauseGroup() {
