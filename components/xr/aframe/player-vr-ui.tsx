@@ -3,25 +3,22 @@ const THREE = AFRAME.THREE
 
 export const ComponentName = 'player-vr-ui'
 
-type getIntersection = (entity: AFRAME.Entity) => THREE.Intersection
+type GetIntersection = (entity: AFRAME.Entity) => THREE.Intersection
+type CallbackFunctionVariadic = (...args: any[]) => void;
+type DetailEvent = AFRAME.DetailEvent<any>
 
 export interface PlayerVrUiComponentProps {
-  playPauseNeedsUpdate: boolean,
-  activePlayButton: boolean,
-  hoverPlayButton: boolean,
-  buttons: Map<string, THREE.Mesh>,
-  listeners: {
-    raycasterIntersected: (evt: AFRAME.DetailEvent<{ getIntersection: getIntersection }>) => void,
-    raycasterIntersectedCleared: () => void,
-    mouseDown: (evt: AFRAME.DetailEvent<{ intersection: THREE.Intersection }>) => void,
-    mouseUp: () => void
-  },
-  getIntersection: getIntersection | null,
+  _playPauseNeedsUpdate: boolean,
+  _activePlayButton: boolean,
+  _hoverPlayButton: boolean,
+  _buttons: Map<string, THREE.Mesh>,
+  _listeners: Map<string, CallbackFunctionVariadic>,
+  _getIntersection: GetIntersection | null,
   _create: () => void,
   _initListeners: () => void,
-  _onRaycasterIntersected: (evt: AFRAME.DetailEvent<{ getIntersection: getIntersection }>) => void,
+  _onRaycasterIntersected: (evt: DetailEvent) => void,
   _onRaycasterIntersectedCleared: () => void,
-  _onMouseDown: (evt: AFRAME.DetailEvent<{ intersection: THREE.Intersection }>) => void,
+  _onMouseDown: (evt: DetailEvent) => void,
   _onMouseUp: () => void,
   _attachListeners: () => void,
   _dettachListeners: () => void,
@@ -58,23 +55,14 @@ export const PlayerVrUiComponent: AFRAME.ComponentDefinition<PlayerVrUiComponent
   schema: PlayerVrUiComponentSchema,
   data: {
   } as PlayerVrUiComponentData,
-
-  playPauseNeedsUpdate: false,
-  activePlayButton: false,
-  hoverPlayButton: false,
-  getIntersection: null,
-  buttons: new Map(),
-  listeners: {
-    raycasterIntersected: (_: AFRAME.DetailEvent<{ getIntersection: getIntersection }>) => null,
-    raycasterIntersectedCleared: () => null,
-    mouseDown: () => null,
-    mouseUp: () => null
-  },
+  _playPauseNeedsUpdate: false,
+  _activePlayButton: false,
+  _hoverPlayButton: false,
+  _getIntersection: null,
+  _buttons: new Map(),
+  _listeners: new Map(),
 
   init() {
-    console.log('PlayerVrUiComponent init')
-    this.activePlayButton = this.hoverPlayButton = false
-    this.playPauseNeedsUpdate = false
     this._create()
     this._initListeners()
   },
@@ -94,42 +82,36 @@ export const PlayerVrUiComponent: AFRAME.ComponentDefinition<PlayerVrUiComponent
     if (this.data.disabled) {
       return
     }
-    if (this.getIntersection) {
+    if (this._getIntersection) {
       this._onHover()
     }
-    if (this.playPauseNeedsUpdate) {
+    if (this._playPauseNeedsUpdate) {
       this._updatePlayPauseGroup()
-      this.playPauseNeedsUpdate = false
+      this._playPauseNeedsUpdate = false
     }
   },
 
   remove() {
     this._disable()
-    this.buttons.clear()
+    this._buttons.clear()
     this.el.removeObject3D('videocontrols')
   },
 
   _initListeners() {
-    this.listeners = {
-      raycasterIntersected: this._onRaycasterIntersected.bind(this),
-      raycasterIntersectedCleared: this._onRaycasterIntersectedCleared.bind(this),
-      mouseDown: this._onMouseDown.bind(this),
-      mouseUp: this._onMouseUp.bind(this)
-    }
+    this._listeners = new Map([
+      ['raycaster-intersected', this._onRaycasterIntersected.bind(this)],
+      ['raycaster-intersected-cleared', this._onRaycasterIntersectedCleared.bind(this)],
+      ['mousedown', this._onMouseDown.bind(this)],
+      ['mouseup', this._onMouseUp.bind(this)]
+    ])
   },
 
   _attachListeners() {
-    this.el.addEventListener('raycaster-intersected', this.listeners.raycasterIntersected as any)
-    this.el.addEventListener('raycaster-intersected-cleared', this.listeners.raycasterIntersectedCleared)
-    this.el.addEventListener('mousedown', this.listeners.mouseDown as any)
-    this.el.addEventListener('mouseup', this.listeners.mouseUp)
+    this._listeners.forEach((listener, evtName) => this.el.addEventListener(evtName, listener))
   },
 
   _dettachListeners() {
-    this.el.removeEventListener('raycaster-intersected', this.listeners.raycasterIntersected as any)
-    this.el.removeEventListener('raycaster-intersected-cleared', this.listeners.raycasterIntersectedCleared)
-    this.el.removeEventListener('mousedown', this.listeners.mouseDown as any)
-    this.el.removeEventListener('mouseup', this.listeners.mouseUp)
+    this._listeners.forEach((listener, evtName) => this.el.removeEventListener(evtName, listener))
   },
 
   _enable() {
@@ -138,13 +120,13 @@ export const PlayerVrUiComponent: AFRAME.ComponentDefinition<PlayerVrUiComponent
 
   _disable() {
     this._dettachListeners()
-    this.activePlayButton = this.hoverPlayButton = false
-    this.getIntersection = null
+    this._activePlayButton = this._hoverPlayButton = false
+    this._getIntersection = null
   },
 
   _onHover() {
     let hoverPlayButton = false
-    const intersection = this.getIntersection?.(this.el)
+    const intersection = this._getIntersection?.(this.el)
     if (intersection) {
       switch (intersection.object.name) {
         case 'play':
@@ -154,22 +136,22 @@ export const PlayerVrUiComponent: AFRAME.ComponentDefinition<PlayerVrUiComponent
       }
     }
 
-    if (this.hoverPlayButton !== hoverPlayButton && !this.activePlayButton) {
-      this.playPauseNeedsUpdate = true
+    if (this._hoverPlayButton !== hoverPlayButton && !this._activePlayButton) {
+      this._playPauseNeedsUpdate = true
     }
-    this.hoverPlayButton = hoverPlayButton
+    this._hoverPlayButton = hoverPlayButton
   },
 
   _onRaycasterIntersected(evt) {
-    this.getIntersection = evt.detail.getIntersection
+    this._getIntersection = evt.detail.getIntersection
   },
 
   _onRaycasterIntersectedCleared() {
-    this.getIntersection = null
-    if (this.hoverPlayButton && !this.activePlayButton) {
-      this.playPauseNeedsUpdate = true
+    this._getIntersection = null
+    if (this._hoverPlayButton && !this._activePlayButton) {
+      this._playPauseNeedsUpdate = true
     }
-    this.hoverPlayButton = false
+    this._hoverPlayButton = false
   },
 
   _onMouseDown(evt) {
@@ -183,15 +165,15 @@ export const PlayerVrUiComponent: AFRAME.ComponentDefinition<PlayerVrUiComponent
   },
 
   _onMouseUp() {
-    if (this.activePlayButton) {
-      this.activePlayButton = false
-      this.playPauseNeedsUpdate = true
+    if (this._activePlayButton) {
+      this._activePlayButton = false
+      this._playPauseNeedsUpdate = true
     }
   },
 
   _onPlayPauseButtonTrigger(buttonName) {
-    this.activePlayButton = true
-    this.playPauseNeedsUpdate = true
+    this._activePlayButton = true
+    this._playPauseNeedsUpdate = true
     this.el.emit('trigger' + buttonName)
   },
 
@@ -262,16 +244,16 @@ export const PlayerVrUiComponent: AFRAME.ComponentDefinition<PlayerVrUiComponent
     meshPlayPauseButton.add(meshButtonBg)
 
     parentGroup.add(meshPlayPauseButton)
-    this.buttons.set(buttonName, meshPlayPauseButton)
+    this._buttons.set(buttonName, meshPlayPauseButton)
   },
 
   _updatePlayPauseGroup() {
     const data = this.data
 
-    const playButton = this.buttons.get('play') as THREE.Mesh
-    const pauseButton = this.buttons.get('pause') as THREE.Mesh
-    pauseButton.visible = data.isPlaying
+    const playButton = this._buttons.get('play') as THREE.Mesh
+    const pauseButton = this._buttons.get('pause') as THREE.Mesh
     playButton.visible = !data.isPlaying
+    pauseButton.visible = data.isPlaying
 
     let color: number
     let opacity = 1
@@ -280,10 +262,10 @@ export const PlayerVrUiComponent: AFRAME.ComponentDefinition<PlayerVrUiComponent
       isTransparent = true
       opacity = data.disabledOpacity
       color = data.disabledColor
-    } else if (this.activePlayButton) {
+    } else if (this._activePlayButton) {
       color = data.activeColor
     } else {
-      color = this.hoverPlayButton ? data.hoverColor : data.color
+      color = this._hoverPlayButton ? data.hoverColor : data.color
     }
 
     [pauseButton, playButton].forEach(button => {
