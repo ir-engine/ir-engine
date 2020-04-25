@@ -9,17 +9,17 @@ export default (options = {}): Hook => {
 
     const { app, id } = context
 
-    const resourceResult = await app.services.resource.find({
+    const staticResourceResult = await app.services.staticResource.find({
       query: {
         id: id
       }
     })
 
-    const resource = resourceResult.data[0]
+    const staticResource = staticResourceResult.data[0]
 
-    if (resource != null) {
+    if (staticResource != null) {
       const storageRemovePromise = new Promise(function (resolve, reject) {
-        const key = resource.url.replace('https://s3.amazonaws.com/' + (config.get('aws.s3.blob_bucket_name') as string) + '/', '')
+        const key = staticResource.url.replace('https://s3.amazonaws.com/' + (config.get('aws.s3.blob_bucket_name') as string) + '/', '')
         storage.remove({
           key: key
         }, (err: any, result: any) => {
@@ -32,28 +32,26 @@ export default (options = {}): Hook => {
         })
       })
 
-      // TODO: Remove self from parent resources
-
-      const children = await app.services.resource.find({
+      const children = await app.services.staticResource.find({
         query: {
-          resourceParentId: id
+          staticResourceParentId: id
         }
       })
 
-      const resourceChildrenRemovePromise = Promise.all(children.data.map(async (child: any) => {
-        const resourceChildRemovePromise = app.services.resource.remove(null, {
+      const staticResourceChildrenRemovePromise = Promise.all(children.data.map(async (child: any) => {
+        const staticResourceChildRemovePromise = app.services.staticResource.remove(null, {
           query: {
             resourceId: child.resourceId
           }
         })
 
-        const resourceRemovePromise = app.services.resource.remove(child.resourceId)
+        const staticResourceRemovePromise = app.services.staticResource.remove(child.staticResourceId)
 
         return await Promise.all([
-          resourceChildRemovePromise,
-          resourceRemovePromise,
+          staticResourceChildRemovePromise,
+          staticResourceRemovePromise,
           storageRemovePromise,
-          resourceChildrenRemovePromise
+          staticResourceChildrenRemovePromise
         ])
       }))
     }

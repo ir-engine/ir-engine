@@ -119,7 +119,7 @@ module.exports = {
     {
       disabled: false,
       delete: true,
-      path: 'resource-type',
+      path: 'static-resource-type',
       templates: [
         { name: 'image' },
         { name: 'video' }, // parse metadata for video type (eg 360-eac)
@@ -251,10 +251,10 @@ module.exports = {
     {
       disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
       delete: true,
-      path: 'resource',
+      path: 'static-resource',
       template: {
-        name: 'test resource',
-        description: 'a test resource for the database',
+        name: 'static test resource',
+        description: 'a static test resource for the database',
         resource_type: { type: 'ID', faker: { fk: 'resource_type:random' } },
         url: '{{internet.url}}',
         mime_type: '{{system.mimeType}}',

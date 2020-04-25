@@ -19,7 +19,7 @@ export default (app: Application): any => {
   });
 
   (entityType as any).assocate = (models: any) => {
-    (entityType as any).hasMany(models.entity)
+    (entityType as any).belongsToMany(models.entity)
   }
   return entityType
 }

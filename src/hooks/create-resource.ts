@@ -13,7 +13,7 @@ export default (options = {}): Hook => {
       metadata: data.metadata || body.metadata
     }
 
-    context.result = await context.app.service('resource').create(resourceData)
+    context.result = await context.app.service('static_resource').create(resourceData)
 
     return context
   }
