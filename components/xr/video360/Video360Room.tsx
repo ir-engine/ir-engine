@@ -24,6 +24,10 @@ function Video360Room() {
         src="#video360Shaka"
         loop="false"
       />
+      <Entity
+        id="player-vr-ui"
+        player-vr-ui
+      />
       <VideoControls
         videosrc="#video360Shaka" videotext="#videotext" />
       <Entity id="videotext"

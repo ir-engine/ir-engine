@@ -2,6 +2,7 @@
 import playerComp from './player'
 import testsphere from './testsphere'
 import eaccubeComp from './eaccube'
+import playerVrUiComp from './player-vr-ui'
 import AFRAME from 'aframe'
 import React from 'react'
 
@@ -16,10 +17,12 @@ type ComponentSystem = {
 const ComponentSystemArray: ComponentSystem[] = [
   playerComp,
   testsphere,
-  eaccubeComp
+  eaccubeComp,
+  playerVrUiComp
 ]
 
-function RegisterComponetSystem(compsys: ComponentSystem) : void {
+function RegisterComponentSystem(compsys: ComponentSystem) : void {
+  console.log('RegisterComponentSystem', compsys.name)
   if (compsys.system && !AFRAME.systems.hasOwnProperty(compsys.name)) {
     AFRAME.registerSystem(compsys.name, compsys.system)
   }
@@ -37,7 +40,7 @@ export default class AframeComponentRegisterer extends React.Component {
   constructor(args: any) {
     super(args)
     ComponentSystemArray.forEach((compsys) => {
-      RegisterComponetSystem(compsys)
+      RegisterComponentSystem(compsys)
     })
   }
 

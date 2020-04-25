@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react'
 import { useRouter } from 'next/router'
 import './VideoControls.scss'
@@ -22,8 +21,8 @@ function Video360Room(props: VideoControllerProps): any {
   }
 
   function playHandler(videosrc: string, videotext: string) {
-    var video = document.querySelector(videosrc) as HTMLElement
-    var textEl = document.querySelector(videotext)
+    const video = document.querySelector(videosrc) as HTMLElement
+    const textEl = document.querySelector(videotext)
     if (video && video !== undefined && video.getAttribute('src') !== '') {
       (video as HTMLVideoElement).play()
       const controller = document.querySelector('#videoplayercontrols')
@@ -37,8 +36,8 @@ function Video360Room(props: VideoControllerProps): any {
 
   function videoEndHandler() {
     console.log('videoEndHandler')
-    var video = document.querySelector(props.videosrc)
-    var textEl = document.querySelector(props.videotext)
+    const video = document.querySelector(props.videosrc)
+    const textEl = document.querySelector(props.videotext)
     if (video && video !== undefined && video.getAttribute('src') !== '') {
       video.pause()
       const controller = document.querySelector('#videoplayercontrols')
