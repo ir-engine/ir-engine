@@ -4,7 +4,6 @@ import { AccessControl } from './access-control.class'
 import createModel from '../../models/access-control.model'
 import hooks from './access-control.hooks'
 
-// Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
     'access-control': AccessControl & ServiceAddons<any>

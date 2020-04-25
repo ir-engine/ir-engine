@@ -3,8 +3,8 @@ import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const collectionType = sequelizeClient.define('collection_type', {
-    type: {
+  const organizationUserRank = sequelizeClient.define('organization_user_rank', {
+    rank: {
       type: DataTypes.STRING,
       allowNull: false,
       primaryKey: true,
@@ -15,13 +15,13 @@ export default (app: Application): any => {
       beforeCount (options: any) {
         options.raw = true
       }
-    },
-    timestamps: false
+    }
   });
 
-  (collectionType as any).assocate = (models: any) => {
-    (collectionType as any).hasMany(models.collection, { foreignKey: 'type' })
+  (organizationUserRank as any).associate = (models: any): any => {
+    (organizationUserRank as any).belongsTo(models.organization);
+    (organizationUserRank as any).belongsToMany(models.user, { through: models.organization_user, foreignKey: 'organizationUserRank' })
   }
 
-  return collectionType
+  return organizationUserRank
 }

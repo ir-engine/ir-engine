@@ -25,8 +25,8 @@ export default (app: Application): any => {
   });
 
   (groupUser as any).associate = (models: any) => {
-    (groupUser as any).hasOne(models.group);
-    (groupUser as any).hasOne(models.user)
+    (groupUser as any).belongsTo(models.group, { foreignKey: 'groupId' });
+    (groupUser as any).belongsTo(models.user, { foreignKey: 'userId' })
   }
 
   return groupUser
