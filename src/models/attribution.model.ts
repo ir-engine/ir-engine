@@ -27,9 +27,7 @@ export default (app: Application): any => {
   });
 
   (attribution as any).associate = (models: any) => {
-    (attribution as any).belongsTo(models.license);
-    (attribution as any).belongsTo(models.collection);
-    (attribution as any).belongsToMany(models.resource, { through: 'resource_attribution' })
+    (attribution as any).hasOne(models.license)
   }
 
   return attribution

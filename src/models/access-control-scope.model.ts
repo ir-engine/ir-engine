@@ -3,7 +3,7 @@ import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const relationshipType = sequelizeClient.define('relationship_type', {
+  const accessControlScope = sequelizeClient.define('access_control_scope', {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -18,9 +18,9 @@ export default (app: Application): any => {
     }
   });
 
-  (relationshipType as any).associate = (models: any) => {
-    (relationshipType as any).belongsToMany(models.relationship)
+  (accessControlScope as any).associate = (models: any): any => {
+    (accessControlScope as any).belongsToMany(models.access_control)
   }
 
-  return relationshipType
+  return accessControlScope
 }

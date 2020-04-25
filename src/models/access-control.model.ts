@@ -18,8 +18,14 @@ export default (app: Application): any => {
     }
   });
 
-  (accessControl as any).associate = (models: any) =>
-    (accessControl as any).belongsToMany(models.role, { through: 'role_access_control' })
-
+  (accessControl as any).associate = (models: any) => {
+    (accessControl as any).belongsTo(models.role, { through: 'role_access_control' });
+    (accessControl as any).hasOne(models.resource_type);
+    (accessControl as any).hasOne(models.access_control_scope, { as: 'list' });
+    (accessControl as any).hasOne(models.access_control_scope, { as: 'create' });
+    (accessControl as any).hasOne(models.access_control_scope, { as: 'read' });
+    (accessControl as any).hasOne(models.access_control_scope, { as: 'update' });
+    (accessControl as any).hasOne(models.access_control_scope, { as: 'delete' })
+  }
   return accessControl
 }

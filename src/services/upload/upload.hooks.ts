@@ -2,7 +2,7 @@ import { disallow } from 'feathers-hooks-common'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
-import createResource from '../../hooks/create-resource'
+import createResource from '../../hooks/create-static-resource'
 
 import addUriToFile from '../../hooks/add-uri-to-file'
 import reformatUploadResult from '../../hooks/reformat-upload-result'

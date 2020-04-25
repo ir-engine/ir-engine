@@ -3,7 +3,7 @@ import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const relationshipType = sequelizeClient.define('relationship_type', {
+  const staticResourceType = sequelizeClient.define('resource_type', {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -18,9 +18,9 @@ export default (app: Application): any => {
     }
   });
 
-  (relationshipType as any).associate = (models: any) => {
-    (relationshipType as any).belongsToMany(models.relationship)
+  (staticResourceType as any).associate = (models: any) => {
+    (staticResourceType as any).belongsToMany(models.static_resource)
   }
 
-  return relationshipType
+  return staticResourceType
 }
