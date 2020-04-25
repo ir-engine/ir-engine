@@ -5,7 +5,7 @@ import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const sceneListing = sequelizeClient.define('scene_listings', {
+  const sceneListing = sequelizeClient.define('scene_listing', {
     scene_listing_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -73,10 +73,10 @@ export default (app: Application): any => {
   (sceneListing as any).associate = (models: any) => {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
-    (sceneListing as any).belongsTo(models.scene, { foreignKey: 'scene_id', targetKey: 'scene_id' });
-    (sceneListing as any).belongsTo(models.owned_files, { foreignKey: 'model_owned_file_id', targetKey: 'owned_file_id' });
-    (sceneListing as any).belongsTo(models.owned_files, { foreignKey: 'screenshot_owned_file_id', targetKey: 'owned_file_id' });
-    (sceneListing as any).belongsTo(models.owned_files, { foreignKey: 'scene_owned_file_id', targetKey: 'owned_file_id' })
+    // (sceneListing as any).belongsTo(models.scene, { foreignKey: 'scene_id', targetKey: 'scene_id' });
+    (sceneListing as any).belongsTo(models.owned_file, { foreignKey: 'model_owned_file_id', targetKey: 'owned_file_id' });
+    (sceneListing as any).belongsTo(models.owned_file, { foreignKey: 'screenshot_owned_file_id', targetKey: 'owned_file_id' });
+    (sceneListing as any).belongsTo(models.owned_file, { foreignKey: 'scene_owned_file_id', targetKey: 'owned_file_id' })
   }
 
   return sceneListing
