@@ -1,0 +1,1 @@
+export default (mimeType: string): string => mimeType.includes('image') ? 'image' : mimeType.includes('video') ? 'video' : mimeType.includes('audio') ? 'audio' : mimeType.includes('text') ? 'text' : mimeType.includes('model') ? 'model' : 'application'

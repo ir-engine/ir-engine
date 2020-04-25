@@ -4,7 +4,7 @@ import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const Location = sequelizeClient.define('location', {
+  const location = sequelizeClient.define('location', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV1,
@@ -28,9 +28,9 @@ export default (app: Application): any => {
     }
   });
 
-  (Location as any).associate = (models: any) => {
-    (Location as any).hasMany(models.instance);
-    (Location as any).hasOne(models.collection) // scene
+  (location as any).associate = (models: any) => {
+    (location as any).hasMany(models.instance);
+    (location as any).hasOne(models.collection) // scene
   }
 
   return location

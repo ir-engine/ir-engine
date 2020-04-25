@@ -13,7 +13,7 @@ export default {
   before: {
     all: [],
     find: [disallow()],
-    get: [],
+    get: [disallow()],
     create: [addUriToFile(), makeS3FilesPublic()],
     update: [disallow()],
     patch: [disallow()],

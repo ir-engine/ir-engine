@@ -1,9 +1,3 @@
-// import * as authentication from '@feathersjs/authentication'
-import convertVideo from '../../hooks/convert-video'
-import addAttribution from '../../hooks/add-attribution'
-// import createResource from '../../hooks/create-resource'
-// Don't remove this comment. It's needed to format import lines nicely.
-
 export default {
   before: {
     all: [],
@@ -19,7 +13,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [addAttribution, convertVideo],
+    create: [],
     update: [],
     patch: [],
     remove: []

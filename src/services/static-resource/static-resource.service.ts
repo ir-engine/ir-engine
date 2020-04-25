@@ -1,12 +1,12 @@
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
-import { Resource } from './static-resource.class'
+import { StaticResource } from './static-resource.class'
 import createModel from '../../models/static-resource.model'
 import hooks from './static-resource.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'static-resource': Resource & ServiceAddons<any>
+    'static-resource': StaticResource & ServiceAddons<any>
   }
 }
 
@@ -17,7 +17,7 @@ export default (app: Application): any => {
     multi: true
   }
 
-  app.use('/static-resource', new Resource(options, app))
+  app.use('/static-resource', new StaticResource(options, app))
 
   const service = app.service('static-resource')
 
