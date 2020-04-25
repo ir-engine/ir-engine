@@ -3,7 +3,7 @@ import app from '../../src/app'
 
 describe('\'Role\' service', () => {
   it('registered the service', () => {
-    const service = app.service('role')
+    const service = app.service('user-role')
 
     assert.ok(service, 'Registered the service')
   })

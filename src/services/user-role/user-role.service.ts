@@ -1,12 +1,12 @@
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
-import { AccessControl } from './access-control.class'
-import createModel from '../../models/access-control.model'
-import hooks from './access-control.hooks'
+import { Role } from './user-role.class'
+import createModel from '../../models/user-role.model'
+import hooks from './user-role.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'access-control': AccessControl & ServiceAddons<any>
+    'user-role': Role & ServiceAddons<any>
   }
 }
 
@@ -16,9 +16,9 @@ export default (app: Application): any => {
     paginate: app.get('paginate')
   }
 
-  app.use('/access-control', new AccessControl(options, app))
+  app.use('/user-role', new Role(options, app))
 
-  const service = app.service('access-control')
+  const service = app.service('user-role')
 
   service.hooks(hooks)
 }
