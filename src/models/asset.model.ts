@@ -23,7 +23,7 @@ export default function (app: Application): any {
       allowNull: false
     },
     account_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false
     },
     asset_owned_file_id: {
@@ -43,10 +43,10 @@ export default function (app: Application): any {
   });
 
   (asset as any).associate = (models: any) => {
-    (asset as any).belongsToMany(models.project, { through: models.project_assets, foreignKey: 'asset_id' });
+    (asset as any).belongsToMany(models.project, { through: models.project_asset, foreignKey: 'asset_id' });
     (asset as any).belongsTo(models.user, { foreignKey: 'account_id', targetKey: 'userId' });
-    (asset as any).belongsTo(models.owned_files, { foreignKey: 'asset_owned_file_id', targetKey: 'owned_file_id' });
-    (asset as any).belongsTo(models.owned_files, { foreignKey: 'thumbnail_owned_file_id', targetKey: 'owned_file_id' })
+    (asset as any).belongsTo(models.owned_file, { foreignKey: 'asset_owned_file_id', targetKey: 'owned_file_id' });
+    (asset as any).belongsTo(models.owned_file, { foreignKey: 'thumbnail_owned_file_id', targetKey: 'owned_file_id' })
   }
 
   return asset

@@ -4,8 +4,8 @@ import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient');
-  const projectAsset = sequelizeClient.define('project_assets', {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const projectAsset = sequelizeClient.define('project_asset', {
     project_asset_id: {
       type: DataTypes.INTEGER,
       allowNull: false,

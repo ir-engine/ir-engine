@@ -33,7 +33,13 @@ import relationshipType from './relationship-type/relationship-type.service'
 import resourceChild from './resource-child/resource-child.service'
 import resourceType from './resource-type/resource-type.service'
 
-import project from './project/project.service';
+import asset from './asset/asset.service';
+
+import ownedFile from './owned-file/owned-file.service';
+
+import projectAsset from './project-asset/project-asset.service';
+
+import sceneListing from './scene-listing/scene-listing.service';
 
 export default (app: Application): void => {
   app.configure(Email)
@@ -69,4 +75,8 @@ export default (app: Application): void => {
   app.configure(resourceType)
   app.configure(upload)
   app.configure(project);
+  app.configure(asset);
+  app.configure(ownedFile);
+  app.configure(projectAsset);
+  app.configure(sceneListing);
 }
