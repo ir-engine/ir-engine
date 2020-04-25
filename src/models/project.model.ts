@@ -23,7 +23,7 @@ export default (app: Application): any => {
       allowNull: false
     },
     created_by_account_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false
     },
     project_owned_file_id: {
@@ -60,13 +60,13 @@ export default (app: Application): any => {
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
 
     (project as any).belongsTo(models.user, { foreignKey: 'created_by_account_id', targetKey: 'userId' });
-    (project as any).belongsToMany(models.asset, { foreignKey: 'project_id', through: models.project_assets });
+    (project as any).belongsToMany(models.asset, { foreignKey: 'project_id', through: models.project_asset });
 
-    (project as any).belongsTo(models.owned_files, { foreignKey: 'project_owned_file', targetKey: 'owned_file_id' });
-    (project as any).belongsTo(models.owned_files, { foreignKey: 'thumbnail_owned_file', targetKey: 'owned_file_id' });
+    (project as any).belongsTo(models.owned_file, { foreignKey: 'project_owned_file', targetKey: 'owned_file_id' });
+    (project as any).belongsTo(models.owned_file, { foreignKey: 'thumbnail_owned_file', targetKey: 'owned_file_id' });
     (project as any).belongsTo(models.scene, { foreignKey: 'scene_id', targetKey: 'scene_id' });
     (project as any).belongsTo(models.scene, { foreignKey: 'parent_scene_id', targetKey: 'scene_id' });
-    (project as any).belongsTo(models.scene_listings, { foreignKey: 'parent_scene_listing_id', targetKey: 'scene_listing_id' });
+    (project as any).belongsTo(models.scene_listing, { foreignKey: 'parent_scene_listing_id', targetKey: 'scene_listing_id' });
   }
 
   return project

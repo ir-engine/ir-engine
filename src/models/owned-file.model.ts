@@ -5,7 +5,7 @@ import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const ownedFile = sequelizeClient.define('owned_files', {
+  const ownedFile = sequelizeClient.define('owned_file', {
     owned_file_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -21,7 +21,7 @@ export default (app: Application): any => {
       allowNull: false
     },
     account_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false
     },
     content_type: {

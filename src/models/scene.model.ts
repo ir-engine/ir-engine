@@ -28,7 +28,7 @@ export default (app: Application): any => {
     },
     // This is the foreign key of user table
     account_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false
     },
     model_owned_file_id: {
@@ -102,12 +102,12 @@ export default (app: Application): any => {
     // (scene as any).belongsToMany(models.object, { through: models.scene_object })
     ;(scene as any).hasOne(models.project, { foreignKey: 'scene_id' });
     (scene as any).belongsTo(models.scene, { foreignKey: 'parent_scene_id', targetKey: 'scene_id' });
-    (scene as any).belongsTo(models.scene_listings, { foreignKey: 'parent_scene_listing_id', targetKey: 'scene_listing_id' });
+    (scene as any).belongsTo(models.scene_listing, { foreignKey: 'parent_scene_listing_id', targetKey: 'scene_listing_id', allowNull: true });
 
     (scene as any).belongsTo(models.user, { foreignKey: 'account_id', targetKey: 'userId' });
-    (scene as any).belongsTo(models.owned_files, { foreignKey: 'model_owned_file_id', targetKey: 'owned_file_id' });
-    (scene as any).belongsTo(models.owned_files, { foreignKey: 'screenshot_owned_id', targetKey: 'owned_file_id' });
-    (scene as any).belongsTo(models.owned_files, { foreignKey: 'scene_owned_file_id', targetKey: 'owned_file_id' })
+    (scene as any).belongsTo(models.owned_file, { foreignKey: 'model_owned_file_id', targetKey: 'owned_file_id' });
+    (scene as any).belongsTo(models.owned_file, { foreignKey: 'screenshot_owned_id', targetKey: 'owned_file_id' });
+    (scene as any).belongsTo(models.owned_file, { foreignKey: 'scene_owned_file_id', targetKey: 'owned_file_id' })
   }
 
   return scene
