@@ -15,7 +15,7 @@ export default (app: Application): void => {
     name: 'public-video',
     Model: staticResourceModel(app),
     paginate: app.get('paginate'),
-    multi: ['create']
+    multi: true
   }
 
   app.use('/public-video', new PublicVideo(options, app))
