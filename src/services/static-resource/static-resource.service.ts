@@ -6,7 +6,7 @@ import hooks from './static-resource.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'static_resource': Resource & ServiceAddons<any>
+    'static-resource': Resource & ServiceAddons<any>
   }
 }
 
@@ -19,7 +19,7 @@ export default (app: Application): any => {
 
   app.use('/static-resource', new Resource(options, app))
 
-  const service = app.service('static_resource')
+  const service = app.service('static-resource')
 
   service.hooks(hooks)
 }

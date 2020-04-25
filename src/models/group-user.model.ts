@@ -25,8 +25,6 @@ export default (app: Application): any => {
   });
 
   (groupUser as any).associate = (models: any) => {
-    (groupUser as any).hasOne(models.group);
-    (groupUser as any).hasOne(models.user)
   }
 
   return groupUser

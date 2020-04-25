@@ -3,8 +3,8 @@ import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const relationshipType = sequelizeClient.define('relationship_type', {
-    name: {
+  const userRole = sequelizeClient.define('user_role', {
+    role: {
       type: DataTypes.STRING,
       allowNull: false,
       primaryKey: true,
@@ -15,12 +15,14 @@ export default (app: Application): any => {
       beforeCount (options: any) {
         options.raw = true
       }
-    }
+    },
+    timestamps: false
   });
 
-  (relationshipType as any).associate = (models: any) => {
-    (relationshipType as any).belongsToMany(models.relationship)
+  (userRole as any).associate = (models: any) => {
+    (userRole as any).belongsToMany(models.access_control, { through: 'user_role_access_control', foreignKey: 'userRole' });
+    (userRole as any).hasMany(models.user, { foreignKey: 'userRole' })
   }
 
-  return relationshipType
+  return userRole
 }

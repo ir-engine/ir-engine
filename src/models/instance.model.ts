@@ -11,7 +11,7 @@ export default (app: Application): any => {
       allowNull: false,
       primaryKey: true
     },
-    url: {
+    address: {
       type: DataTypes.STRING,
       allowNull: false
     }
