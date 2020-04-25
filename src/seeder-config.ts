@@ -107,13 +107,771 @@ module.exports = {
     {
       disabled: false,
       delete: true,
-      path: 'relationship-type',
+      path: 'user-relationship-type',
       templates:
         [
-          { name: 'requested' }, // Default state of user2
-          { name: 'denied' }, // user2 denied user1 friend request
-          { name: 'friend' }, // Default state of user1 on friend request
-          { name: 'blocked' } // Default state of user1 on blocking user2
+          { name: 'requested' }, // Default state of relatedUser
+          { name: 'friend' },
+          { name: 'blocked' }
+        ]
+    },
+    {
+      disabled: false,
+      delete: true,
+      path: 'user-role',
+      templates:
+        [
+          { name: 'admin' },
+          { name: 'moderator' },
+          { name: 'user' },
+          { name: 'guest' }
+        ]
+    },
+    {
+      disabled: false,
+      delete: true,
+      path: 'organization-user-rank',
+      templates:
+        [
+          { name: 'principal' },
+          { name: 'teacer' },
+          { name: 'student' }
+        ]
+    },
+    {
+      disabled: false,
+      delete: true,
+      path: 'resource-type',
+      templates:
+        [
+          { name: 'accessControlScope' },
+          { name: 'accessControl' },
+          { name: 'attribution' },
+          { name: 'collection' },
+          { name: 'collectionType' },
+          { name: 'component' },
+          { name: 'componentType' },
+          { name: 'entity' },
+          { name: 'entityType' },
+          { name: 'group' },
+          { name: 'group-user' },
+          { name: 'instance' },
+          { name: 'license' },
+          { name: 'location' },
+          { name: 'location-user' },
+          { name: 'organization' },
+          { name: 'resourceType' },
+          { name: 'userRole' },
+          { name: 'staticResource' },
+          { name: 'staticResourceType' },
+          { name: 'user' }
+        ]
+    },
+    {
+      disabled: false,
+      delete: true,
+      path: 'access-control-scope',
+      templates:
+        [
+          { name: 'none' },
+          { name: 'self' },
+          { name: 'all' }
+        ]
+    },
+    {
+      disabled: false,
+      delete: true,
+      path: 'access-control',
+      templates:
+        [
+          // ADMIN Access Controls
+          {
+            role: 'admin',
+            resourceType: 'accessControlScope',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'admin',
+            resourceType: 'accessControl',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'all',
+            delete: 'none'
+          },
+          {
+            role: 'admin',
+            resourceType: 'attribution',
+            list: 'all',
+            create: 'all',
+            read: 'all',
+            update: 'all',
+            delete: 'all'
+          },
+          {
+            role: 'admin',
+            resourceType: 'collection',
+            list: 'all',
+            create: 'all',
+            read: 'all',
+            update: 'all',
+            delete: 'all'
+          },
+          {
+            role: 'admin',
+            resourceType: 'collectionType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'admin',
+            resourceType: 'component',
+            list: 'all',
+            create: 'all',
+            read: 'all',
+            update: 'all',
+            delete: 'all'
+          },
+          {
+            role: 'admin',
+            resourceType: 'componentType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'admin',
+            resourceType: 'entity',
+            list: 'all',
+            create: 'all',
+            read: 'all',
+            update: 'all',
+            delete: 'all'
+          },
+          {
+            role: 'admin',
+            resourceType: 'entityType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'admin',
+            resourceType: 'instance',
+            list: 'all',
+            create: 'all',
+            read: 'all',
+            update: 'all',
+            delete: 'all'
+          },
+          {
+            role: 'admin',
+            resourceType: 'license',
+            list: 'all',
+            create: 'all',
+            read: 'all',
+            update: 'all',
+            delete: 'all'
+          },
+          {
+            role: 'admin',
+            resourceType: 'organization',
+            list: 'all',
+            create: 'all',
+            read: 'all',
+            update: 'all',
+            delete: 'all'
+          },
+          {
+            role: 'admin',
+            resourceType: 'organization-user',
+            list: 'all',
+            create: 'all',
+            read: 'all',
+            update: 'all',
+            delete: 'all'
+          },
+          {
+            role: 'admin',
+            resourceType: 'organization-user-rank',
+            list: 'all',
+            create: 'all',
+            read: 'all',
+            update: 'all',
+            delete: 'all'
+          },
+          {
+            role: 'admin',
+            resourceType: 'resourceType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'admin',
+            resourceType: 'userRole',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'admin',
+            resourceType: 'staticResource',
+            list: 'all',
+            create: 'all',
+            read: 'all',
+            update: 'all',
+            delete: 'all'
+          },
+          {
+            role: 'admin',
+            resourceType: 'staticResourceType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'admin',
+            resourceType: 'user',
+            list: 'all',
+            create: 'all',
+            read: 'all',
+            update: 'all',
+            delete: 'all'
+          },
+          // MODERATOR access controls
+          {
+            role: 'moderator',
+            resourceType: 'accessControlScope',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'moderator',
+            resourceType: 'accessControl',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'moderator',
+            resourceType: 'attribution',
+            list: 'all',
+            create: 'all',
+            read: 'all',
+            update: 'all',
+            delete: 'all'
+          },
+          {
+            role: 'moderator',
+            resourceType: 'collection',
+            list: 'all',
+            create: 'all',
+            read: 'all',
+            update: 'all',
+            delete: 'all'
+          },
+          {
+            role: 'moderator',
+            resourceType: 'collectionType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'moderator',
+            resourceType: 'component',
+            list: 'all',
+            create: 'all',
+            read: 'all',
+            update: 'all',
+            delete: 'all'
+          },
+          {
+            role: 'moderator',
+            resourceType: 'componentType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'moderator',
+            resourceType: 'entity',
+            list: 'all',
+            create: 'all',
+            read: 'all',
+            update: 'all',
+            delete: 'all'
+          },
+          {
+            role: 'moderator',
+            resourceType: 'entityType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'moderator',
+            resourceType: 'instance',
+            list: 'all',
+            create: 'all',
+            read: 'all',
+            update: 'all',
+            delete: 'all'
+          },
+          {
+            role: 'moderator',
+            resourceType: 'license',
+            list: 'all',
+            create: 'all',
+            read: 'all',
+            update: 'all',
+            delete: 'all'
+          },
+          {
+            role: 'moderator',
+            resourceType: 'organization',
+            list: 'all',
+            create: 'all',
+            read: 'all',
+            update: 'all',
+            delete: 'all'
+          },
+          {
+            role: 'moderator',
+            resourceType: 'organization-user',
+            list: 'all',
+            create: 'self',
+            read: 'all',
+            update: 'self',
+            delete: 'self'
+          },
+          {
+            role: 'moderator',
+            resourceType: 'organization-user-rank',
+            list: 'all',
+            create: 'self',
+            read: 'all',
+            update: 'self',
+            delete: 'self'
+          },
+          {
+            role: 'moderator',
+            resourceType: 'resourceType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'moderator',
+            resourceType: 'userRole',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'moderator',
+            resourceType: 'staticResource',
+            list: 'all',
+            create: 'all',
+            read: 'all',
+            update: 'all',
+            delete: 'all'
+          },
+          {
+            role: 'moderator',
+            resourceType: 'staticResourceType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'moderator',
+            resourceType: 'user',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          // USER access controls
+          {
+            role: 'user',
+            resourceType: 'accessControlScope',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'user',
+            resourceType: 'accessControl',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'user',
+            resourceType: 'attribution',
+            list: 'self',
+            create: 'self',
+            read: 'all',
+            update: 'self',
+            delete: 'self'
+          },
+          {
+            role: 'user',
+            resourceType: 'collection',
+            list: 'self',
+            create: 'self',
+            read: 'all',
+            update: 'self',
+            delete: 'self'
+          },
+          {
+            role: 'user',
+            resourceType: 'collectionType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'user',
+            resourceType: 'component',
+            list: 'all',
+            create: 'self',
+            read: 'all',
+            update: 'self',
+            delete: 'self'
+          },
+          {
+            role: 'user',
+            resourceType: 'componentType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'user',
+            resourceType: 'entity',
+            list: 'all',
+            create: 'self',
+            read: 'all',
+            update: 'self',
+            delete: 'self'
+          },
+          {
+            role: 'user',
+            resourceType: 'entityType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'user',
+            resourceType: 'instance',
+            list: 'all',
+            create: 'self',
+            read: 'all',
+            update: 'self',
+            delete: 'self'
+          },
+          {
+            role: 'user',
+            resourceType: 'license',
+            list: 'all',
+            create: 'self',
+            read: 'all',
+            update: 'self',
+            delete: 'self'
+          },
+          {
+            role: 'user',
+            resourceType: 'organization',
+            list: 'all',
+            create: 'self',
+            read: 'all',
+            update: 'self',
+            delete: 'self'
+          },
+          {
+            role: 'user',
+            resourceType: 'organization-user',
+            list: 'all',
+            create: 'self',
+            read: 'all',
+            update: 'self',
+            delete: 'self'
+          },
+          {
+            role: 'user',
+            resourceType: 'organization-user-rank',
+            list: 'all',
+            create: 'self',
+            read: 'all',
+            update: 'self',
+            delete: 'self'
+          },
+          {
+            role: 'user',
+            resourceType: 'resourceType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'user',
+            resourceType: 'userRole',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'user',
+            resourceType: 'staticResource',
+            list: 'all',
+            create: 'self',
+            read: 'all',
+            update: 'self',
+            delete: 'self'
+          },
+          {
+            role: 'user',
+            resourceType: 'staticResourceType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'user',
+            resourceType: 'user',
+            list: 'all',
+            create: 'self',
+            read: 'all',
+            update: 'self',
+            delete: 'self'
+          },
+          // GUEST role
+          {
+            role: 'guest',
+            resourceType: 'accessControlScope',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'guest',
+            resourceType: 'accessControl',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'guest',
+            resourceType: 'attribution',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'guest',
+            resourceType: 'collection',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'guest',
+            resourceType: 'collectionType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'guest',
+            resourceType: 'component',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'guest',
+            resourceType: 'componentType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'guest',
+            resourceType: 'entity',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'guest',
+            resourceType: 'entityType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'guest',
+            resourceType: 'instance',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'guest',
+            resourceType: 'license',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'guest',
+            resourceType: 'organization',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'guest',
+            resourceType: 'organization-user',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'guest',
+            resourceType: 'organization-user-rank',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'guest',
+            resourceType: 'resourceType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'guest',
+            resourceType: 'userRole',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'guest',
+            resourceType: 'staticResource',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'guest',
+            resourceType: 'staticResourceType',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          },
+          {
+            role: 'guest',
+            resourceType: 'user',
+            list: 'all',
+            create: 'none',
+            read: 'all',
+            update: 'none',
+            delete: 'none'
+          }
         ]
     },
     {
@@ -217,7 +975,7 @@ module.exports = {
       path: 'instance',
       template: {
         location: { type: 'ID', faker: { fk: 'location:random' } },
-        url: '{{internet.url}}'
+        address: '{{internet.url}}'
       }
     },
     {
