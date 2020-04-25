@@ -41,9 +41,9 @@ import Scene from './scene/scene.service'
 
 import resourceType from './resource-type/resource-type.service'
 
-import organizationUserRank from './organization-user-rank/organization-user-rank.service';
+import organizationUserRank from './organization-user-rank/organization-user-rank.service'
 
-import organizationUser from './organization-user/organization-user.service';
+import organizationUser from './organization-user/organization-user.service'
 
 export default (app: Application): void => {
   // Types
@@ -85,6 +85,6 @@ export default (app: Application): void => {
   app.configure(AccessControl)
   app.configure(AccessControlScope)
   app.configure(resourceType)
-  app.configure(organizationUserRank);
-  app.configure(organizationUser);
+  app.configure(organizationUserRank)
+  app.configure(organizationUser)
 }
