@@ -4,7 +4,7 @@ import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const Instance = sequelizeClient.define('instance', {
+  const instance = sequelizeClient.define('instance', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV1,
@@ -14,6 +14,10 @@ export default (app: Application): any => {
     address: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    maxUsers: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   }, {
     hooks: {
@@ -23,9 +27,9 @@ export default (app: Application): any => {
     }
   });
 
-  (Instance as any).associate = (models: any) => {
-    (Instance as any).belongsTo(models.location);
-    (Instance as any).hasMany(models.user)
+  (instance as any).associate = (models: any) => {
+    (instance as any).belongsTo(models.location);
+    (instance as any).hasMany(models.user)
   }
-  return Instance
+  return instance
 }

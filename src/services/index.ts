@@ -7,6 +7,8 @@ import EntityType from './entity-type/entity-type.service'
 import UserRelationshipType from './user-relationship-type/user-relationship-type.service'
 import StaticResourceType from './static-resource-type/static-resource-type.service'
 import AccessControlScope from './access-control-scope/access-control-scope.service'
+import ResourceType from './resource-type/resource-type.service'
+import organizationUserRank from './organization-user-rank/organization-user-rank.service'
 
 // Objects
 import Attribution from './attribution/attribution.service'
@@ -27,28 +29,24 @@ import AccessControl from './access-control/access-control.service'
 
 // Junctions
 import GroupUser from './group-user/group-user.service'
+import organizationUser from './organization-user/organization-user.service'
 
 // Services
 import Auth from './auth-management/auth-management.service'
 import Email from './email/email.service'
 import MagicLink from './magiclink/magiclink.service'
-import PublicVideo from './public-video/public-video.service'
 import SMS from './sms/sms.service'
 import Upload from './upload/upload.service'
+import Video from './video/video.service'
 
 // Misc
 import Scene from './scene/scene.service'
-
-import resourceType from './resource-type/resource-type.service'
-
-import organizationUserRank from './organization-user-rank/organization-user-rank.service'
-
-import organizationUser from './organization-user/organization-user.service'
 
 export default (app: Application): void => {
   // Types
   app.configure(ComponentType)
   app.configure(CollectionType)
+  app.configure(ResourceType)
   app.configure(StaticResourceType)
   app.configure(EntityType)
   app.configure(UserRelationshipType)
@@ -74,17 +72,16 @@ export default (app: Application): void => {
   // Services
   app.configure(Email)
   app.configure(Auth)
-  app.configure(PublicVideo)
   app.configure(MagicLink)
   app.configure(SMS)
   app.configure(Upload)
+  app.configure(Video)
 
   // Misc
   app.configure(Scene)
   app.configure(Role)
   app.configure(AccessControl)
   app.configure(AccessControlScope)
-  app.configure(resourceType)
   app.configure(organizationUserRank)
   app.configure(organizationUser)
 }
