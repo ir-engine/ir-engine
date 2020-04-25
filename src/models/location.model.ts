@@ -33,5 +33,5 @@ export default (app: Application): any => {
     (Location as any).hasOne(models.collection) // scene
   }
 
-  return Location
+  return location
 }
