@@ -4,6 +4,12 @@ import { Application } from '../declarations'
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const staticResource = sequelizeClient.define('static_resource', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
+      allowNull: false,
+      primaryKey: true
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false
@@ -37,8 +43,8 @@ export default (app: Application): any => {
     (staticResource as any).belongsTo(models.attribution);
     (staticResource as any).belongsToMany(models.component, { through: 'static_resource_component' });
     (staticResource as any).belongsTo(models.user);
-    (staticResource as any).belongsToMany(models.static_resource, { as: 'parent', foreignKey: 'parentId', through: 'static_resource_relationship' });
-    (staticResource as any).belongsToMany(models.static_resource, { as: 'child', foreignKey: 'childId', through: 'static_resource_relationship' })
+    (staticResource as any).belongsTo(models.static_resource, { as: 'parent', foreignKey: 'parentId' });
+    (staticResource as any).hasMany(models.static_resource, { as: 'child', foreignKey: 'childId' })
   }
 
   return staticResource

@@ -20,7 +20,7 @@ export default (app: Application): any => {
   });
 
   (accessControl as any).associate = (models: any) => {
-    (accessControl as any).belongsTo(models.user_role, { through: 'user_role_access_control', as: 'accessControl' });
+    (accessControl as any).belongsTo(models.user_role);
     (accessControl as any).belongsTo(models.resource_type, { foreignKey: 'resourceType' });
     (accessControl as any).belongsTo(models.access_control_scope, { as: 'list' });
     (accessControl as any).belongsTo(models.access_control_scope, { as: 'create' });

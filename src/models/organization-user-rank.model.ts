@@ -1,28 +1,27 @@
-// See http://docs.sequelizejs.com/en/latest/docs/models-definition/
-// for more of what you can do here.
-import { Sequelize, DataTypes } from 'sequelize';
-import { Application } from '../declarations';
+import { Sequelize, DataTypes } from 'sequelize'
+import { Application } from '../declarations'
 
-export default function (app: Application) {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient');
+export default (app: Application): any => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const organizationUserRank = sequelizeClient.define('organization_user_rank', {
-    text: {
+    rank: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      primaryKey: true,
+      unique: true
     }
   }, {
     hooks: {
-      beforeCount(options: any) {
-        options.raw = true;
+      beforeCount (options: any) {
+        options.raw = true
       }
     }
   });
 
-  // eslint-disable-next-line no-unused-vars
-  (organizationUserRank as any).associate = function (models: any) {
-    // Define associations here
-    // See http://docs.sequelizejs.com/en/latest/docs/associations/
-  };
+  (organizationUserRank as any).associate = (models: any): any => {
+    (organizationUserRank as any).belongsTo(models.organization);
+    (organizationUserRank as any).belongsToMany(models.user, { through: models.organization_user, foreignKey: 'organizationUserRank' })
+  }
 
-  return organizationUserRank;
+  return organizationUserRank
 }
