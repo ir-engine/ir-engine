@@ -1,6 +1,6 @@
 import React from 'react'
 // @ts-ignore
-import { Scene } from 'aframe-react'
+import { Entity, Scene } from 'aframe-react'
 import Assets from './assets'
 import Video360 from '../video360/Video360Room'
 import './style.scss'
@@ -36,6 +36,10 @@ export default class VideoScene extends React.Component<State> {
           >
             <Assets/>
             <Video360/>
+            <Entity camera={{}} look-controls={{}} position={{ x: 0, y: 1.6, z: 0 }}>
+              <Entity cursor={{ rayOrigin: 'mouse' }} raycaster={{ objects: '#player-vr-ui,#videotext' }} >
+              </Entity>
+            </Entity>
           </Scene>
         )}
       </div>

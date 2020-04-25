@@ -6,6 +6,7 @@ import AFRAME from 'aframe'
 import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
 import VideoControls from './VideoControls'
+import AframeComponentRegisterer from '../aframe'
 const ShakaPlayerComp = dynamic(() => import('./ShakaPlayerComp'), { ssr: false })
 
 const dashManifestName = 'manifest.mpd'
@@ -31,6 +32,7 @@ function Video360Room() {
     \n(click to play)`
   return (
     <Entity>
+      <AframeComponentRegisterer/>
       <ShakaPlayerComp manifestUri={getManifestUri(manifest)}/>
       <Entity
         id="videoPlayerContainer"
@@ -43,10 +45,11 @@ function Video360Room() {
       />
       <Entity
         id="player-vr-ui"
-        player-vr-ui
+        player-vr-ui={{}}
+        position={{ x: 0, y: 0.98, z: -0.9 }}
       />
       <VideoControls
-        videosrc="#video360Shaka" videotext="#videotext" />
+        videosrc="#video360Shaka" videotext="#videotext" videovrui="#player-vr-ui" />
       <Entity id="videotext"
         text={{
           font: 'mozillavr',
