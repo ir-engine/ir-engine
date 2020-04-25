@@ -50,6 +50,7 @@
     "@feathersjs/express": "^4.5.3",
     "@feathersjs/socketio": "^4.5.3",
     "@feathersjs/transport-commons": "^4.5.3",
+    "@types/lodash": "^4.14.150",
     "@types/multer": "^1.4.3",
     "@types/nodemailer": "^6.4.0",
     "app-root-path": "^3.0.0",

@@ -5,7 +5,13 @@ import { Application } from '../declarations'
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const instance = sequelizeClient.define('instance', {
-    url: {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
+      allowNull: false,
+      primaryKey: true
+    },
+    address: {
       type: DataTypes.STRING,
       allowNull: false
     },
