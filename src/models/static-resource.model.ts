@@ -43,8 +43,8 @@ export default (app: Application): any => {
     (staticResource as any).belongsTo(models.attribution);
     (staticResource as any).belongsToMany(models.component, { through: 'static_resource_component' });
     (staticResource as any).belongsTo(models.user);
-    (staticResource as any).belongsTo(models.static_resource, { as: 'parent', foreignKey: 'parentId' });
-    (staticResource as any).hasMany(models.static_resource, { as: 'child', foreignKey: 'childId' })
+    (staticResource as any).belongsToMany(models.static_resource, { as: 'parent', through: 'resource_relationship' });
+    (staticResource as any).belongsToMany(models.static_resource, { as: 'child', through: 'resource_relationship' })
   }
 
   return staticResource

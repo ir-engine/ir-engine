@@ -18,6 +18,7 @@ module.exports = {
       disabled: false,
       delete: true,
       path: 'component-type',
+      randomize: false,
       templates:
         [
           // Default Aframe components
@@ -69,6 +70,7 @@ module.exports = {
       disabled: false,
       delete: true,
       path: 'entity-type',
+      randomize: false,
       templates:
         [
           // Entities that don't have a template don't need a type
@@ -108,6 +110,7 @@ module.exports = {
       disabled: false,
       delete: true,
       path: 'user-relationship-type',
+      randomize: false,
       templates:
         [
           { name: 'requested' }, // Default state of relatedUser
@@ -142,6 +145,7 @@ module.exports = {
       disabled: false,
       delete: true,
       path: 'resource-type',
+      randomize: false,
       templates:
         [
           { name: 'accessControlScope' },
@@ -171,6 +175,7 @@ module.exports = {
       disabled: false,
       delete: true,
       path: 'access-control-scope',
+      randomize: false,
       templates:
         [
           { name: 'none' },
@@ -182,6 +187,7 @@ module.exports = {
       disabled: false,
       delete: true,
       path: 'access-control',
+      randomize: false,
       templates:
         [
           // ADMIN Access Controls
@@ -878,15 +884,16 @@ module.exports = {
       disabled: false,
       delete: true,
       path: 'static-resource-type',
+      randomize: false,
       templates: [
-        { name: 'image' },
-        { name: 'video' }, // parse metadata for video type (eg 360-eac)
-        { name: 'audio' },
-        { name: 'model3d' },
-        { name: 'script' },
-        { name: 'volumetric' }, // any volumetric file, parse metadata for type
-        { name: 'json' }, // JSON data
-        { name: 'data' } // arbitrary data of any other type
+        { type: 'image' },
+        { type: 'video' }, // parse metadata for video type (eg 360-eac)
+        { type: 'audio' },
+        { type: 'model3d' },
+        { type: 'script' },
+        { type: 'volumetric' }, // any volumetric file, parse metadata for type
+        { type: 'json' }, // JSON data
+        { type: 'data' } // arbitrary data of any other type
       ]
     },
     // GENERATE ADMIN ACCOUNT
@@ -972,15 +979,6 @@ module.exports = {
     {
       disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
       delete: true,
-      path: 'instance',
-      template: {
-        location: { type: 'ID', faker: { fk: 'location:random' } },
-        address: '{{internet.url}}'
-      }
-    },
-    {
-      disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
-      delete: true,
       path: 'license',
       template: {
         name: license.name,
@@ -993,8 +991,11 @@ module.exports = {
       path: 'location',
       template: {
         name: 'test location',
-        instance: [
-          { type: 'ID', faker: { fk: 'instance:random' } }
+        instances: [
+          {
+            location: { type: 'ID', faker: { fk: 'location:random' } },
+            address: '{{internet.url}}'
+          }
         ]
       }
     },

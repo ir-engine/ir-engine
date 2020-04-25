@@ -1,13 +1,14 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
+import getBasicMimetype from '../../util/get-basic-mimetype'
 
 interface Data {}
 
 interface ServiceOptions {}
 
-export class Upload implements ServiceMethods<Data> {
-  app: Application;
-  options: ServiceOptions;
+export class Video implements ServiceMethods<Data> {
+  app: Application
+  options: ServiceOptions
 
   constructor (options: ServiceOptions = {}, app: Application) {
     this.options = options
@@ -29,12 +30,10 @@ export class Upload implements ServiceMethods<Data> {
       return await Promise.all(data.map(current => this.create(current, params)))
     }
 
-    const result = await this.app.service('static-resource').create({
-      name: (data as any).name,
-      description: (data as any).description,
-      url: (data as any).url,
-      mime_type: 'video/mp4'
-    })
+    (data as any).mime_type = (data as any).mime_type ? (data as any).mime_type : 'video/mp4';
+    (data as any).type = getBasicMimetype((data as any).mime_type)
+
+    const result = await this.app.service('static-resource').create(data)
 
     return result
   }

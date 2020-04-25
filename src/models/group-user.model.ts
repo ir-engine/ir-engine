@@ -8,10 +8,6 @@ export default (app: Application): any => {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
-    isMuted: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false
-    },
     isInviteAccepted: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
