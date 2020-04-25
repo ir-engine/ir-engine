@@ -1,59 +1,45 @@
 import React from 'react'
 // @ts-ignore
-import { Scene, Entity } from 'aframe-react'
+import { Scene } from 'aframe-react'
 import Assets from './assets'
 import Environment from './environment'
 import Player from '../player/player'
-import './index.scss'
+import './style.scss'
 import SvgVr from '../../icons/svg/Vr'
 
-// import getConfig from 'next/config'
-import Grid from '../layout/Grid'
 import AframeComponentRegisterer from '../../xr/aframe/index'
-// const config = getConfig().publicRuntimeConfig.xr['networked-scene']
+
+type Props = {
+  children?: any
+}
 
 type State = {
-  appRendered?: boolean
   color?: string
 }
 
-export default class NetworkedScene extends React.Component<State> {
+export default class SceneRoot extends React.Component<Props> {
   state: State = {
-    appRendered: false,
     color: 'red'
-  }
-
-  componentDidMount() {
-    if (typeof window !== 'undefined') {
-      require('aframe')
-      // require('networked-aframe')
-      this.setState({ appRendered: true })
-    }
   }
 
   render() {
     return (
       <div style={{ height: '100%', width: '100%' }}>
-        {this.state.appRendered && (
-          <Scene
-            vr-mode-ui="enterVRButton: #enterVRButton"
-            // networked-scene={config}
-            class="scene"
-            renderer="antialias: true"
-            background="color: #FAFAFA"
-          >
-            <AframeComponentRegisterer/>
-            <Entity position="0 0.6 0">
-              <Grid />
-            </Entity>
-            <Assets />
-            <Player />
-            <Environment />
-            <a className="enterVR" id="enterVRButton" href="#">
-              <SvgVr className="enterVR" />
-            </a>
-          </Scene>
-        )}
+        <Scene
+          vr-mode-ui="enterVRButton: #enterVRButton"
+          loading-screen="dotsColor: purple; backgroundColor: black; enabled: true"
+          class="scene"
+          renderer="antialias: true"
+        >
+          <AframeComponentRegisterer/>
+          <Assets />
+          <Player />
+          <Environment />
+          {this.props.children}
+          <a className="enterVR" id="enterVRButton" href="#">
+            <SvgVr className="enterVR" />
+          </a>
+        </Scene>
       </div>
     )
   }

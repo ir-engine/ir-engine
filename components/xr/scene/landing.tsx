@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 // @ts-ignore
 import { Entity } from 'aframe-react'
 import Skybox from './skybox-grid'
-import './index.scss'
+import './style.scss'
 
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr.landing

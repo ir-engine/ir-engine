@@ -19,7 +19,7 @@ class Cylinder {
   cellRotation(cellIndex: number) {
     var theta = this.getCellTheta(cellIndex)
 
-    var roty = theta * (180 / Math.PI)
+    var roty = theta
     var rotx = 0
     var rotz = 0
 

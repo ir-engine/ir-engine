@@ -2,19 +2,36 @@
 import React from 'react'
 // @ts-ignore
 import { Entity } from 'aframe-react'
+import AFRAME from 'aframe'
 import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
 import VideoControls from './VideoControls'
 const ShakaPlayerComp = dynamic(() => import('./ShakaPlayerComp'), { ssr: false })
 
+const dashManifestName = 'manifest.mpd'
+const hlsPlaylistName = 'master.m3u8'
+
+// choose dash or hls
+function getManifestUri(manifestPath: string): string {
+  const manifestName = AFRAME.utils.device.isIOS() ? hlsPlaylistName : dashManifestName
+  return manifestPath + '/' + manifestName
+}
+
 function Video360Room() {
   const router = useRouter()
   const manifest = router.query.manifest as string
   const title = router.query.title as string
+  const runtime = router.query.runtime as string
+  const credit = router.query.credit as string
+  const rating = router.query.rating as string
+  const categories = router.query.categories as string
+  const tags = router.query.tags as string
 
+  const text = `${title || ''}\n\n${runtime || ''}\n${credit || ''}\n${'rating: ' + rating}\n${categories || ''}\n${tags || ''}
+    \n(click to play)`
   return (
     <Entity>
-      <ShakaPlayerComp manifestUri={manifest}/>
+      <ShakaPlayerComp manifestUri={getManifestUri(manifest)}/>
       <Entity
         id="videoPlayerContainer"
       ></Entity>
@@ -38,9 +55,9 @@ function Video360Room() {
           baseline: 'center',
           color: 'black',
           transparent: false,
-          value: `${title || ''}\n\n(click to play)`
+          value: text
         }}
-        position={{ x: 0, y: 2, z: -0.8 }}
+        position={{ x: 0, y: 1.6, z: -0.8 }}
       />
     </Entity>
   )
