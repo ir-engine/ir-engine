@@ -2,7 +2,7 @@ import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { PublicVideo } from './public-video.class'
 import hooks from './public-video.hooks'
-import resourceModel from '../../models/resource.model'
+import staticResourceModel from '../../models/static-resource.model'
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -13,7 +13,7 @@ declare module '../../declarations' {
 export default (app: Application): void => {
   const options = {
     name: 'public-video',
-    Model: resourceModel(app),
+    Model: staticResourceModel(app),
     paginate: app.get('paginate'),
     multi: ['create']
   }
