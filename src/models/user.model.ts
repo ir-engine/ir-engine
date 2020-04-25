@@ -43,8 +43,8 @@ export default (app: Application): any => {
     (user as any).belongsToMany(models.user, { through: models.relationship, foreignKey: 'user', as: 'userOne' });
     (user as any).belongsToMany(models.user, { through: models.relationship, foreignKey: 'user', as: 'userTwo' });
 
-    (user as any).hasMany(models.asset, { foreignKey: 'accountId' });
-    (user as any).hasMany(models.owned_files, { foreignKey: 'accountId' });
+    (user as any).hasMany(models.asset, { foreignKey: 'account_id' });
+    (user as any).hasMany(models.owned_file, { foreignKey: 'account_id' });
     (user as any).belongsTo(models.group, { through: models.group_member })
   }
 
