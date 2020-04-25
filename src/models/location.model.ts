@@ -4,18 +4,14 @@ import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const Location = sequelizeClient.define('location', {
+  const location = sequelizeClient.define('location', {
     name: {
       type: DataTypes.STRING,
       allowNull: false
     },
     sceneId: {
       type: DataTypes.STRING,
-      allowNull: false
-    },
-    maxUsersPerInstance: {
-      type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: true //TODO: this is for now only
     },
     access: {
       type: DataTypes.STRING
@@ -28,8 +24,8 @@ export default (app: Application): any => {
     }
   });
   // Has many instances
-  (Location as any).associate = (models: any) =>
-    (Location as any).hasMany(models.instance)
+  (location as any).associate = (models: any) =>
+    (location as any).hasMany(models.instance)
 
-  return Location
+  return location
 }

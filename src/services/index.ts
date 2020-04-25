@@ -5,8 +5,9 @@ import Auth from './auth-management/auth-management.service'
 import User from './user/user.service'
 import publicVideo from './public-video/public-video.service'
 import Scene from './scene/scene.service'
-import Location from './location/location.service'
-import Instance from './instance/instance.service'
+import location from './location/location.service'
+import locationInstance from './location-instance/location-instance.service'
+import instance from './instance/instance.service'
 import magiclink from './magiclink/magiclink.service'
 import Group from './group/group.service'
 import groupMember from './group-member/group-member.service'
@@ -40,8 +41,9 @@ export default (app: Application): void => {
   app.configure(Group)
   app.configure(groupMember)
   app.configure(Scene)
-  app.configure(Location)
-  app.configure(Instance)
+  app.configure(location)
+  app.configure(locationInstance)
+  app.configure(instance)
   app.configure(publicVideo)
   app.configure(magiclink)
   app.configure(sms)

@@ -4,22 +4,25 @@ import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const Instance = sequelizeClient.define('instance', {
-    location: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
+  const instance = sequelizeClient.define('instance', {
     url: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    maxUsers: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
+    // TODO: currentUsers: {}  
   }, {
     hooks: {
       beforeCount (options: any) {
         options.raw = true
       }
     }
-  })
+  });
 
-  return Instance
+  (instance as any).associate = (models: any) => (instance as any).belongsTo(models.location)
+
+  return instance
 }
