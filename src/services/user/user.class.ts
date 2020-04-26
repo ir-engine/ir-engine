@@ -6,6 +6,6 @@ export class User extends Service {
 
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
-    this.app = app;
+    this.app = app
   }
 }
