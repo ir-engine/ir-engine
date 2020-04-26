@@ -15,5 +15,3 @@ echo $KUBECONFIG
 
 # get dependencies
 helm dep update xrchat
-
-helm upgrade --install  --values configs/prod-values.yaml beta xrchat 
