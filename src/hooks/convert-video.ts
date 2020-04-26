@@ -164,12 +164,12 @@ async function uploadFile (localFilePath: string, fileId: string, context: any, 
             if (/.mpd/.test(file)) {
               localContext.params.skipResourceCreation = true
               localContext.params.patchId = resultId
-              localContext.params.parentId = null
+              localContext.params.parentResourceId = null
               localContext.params.body.description = context.arguments[0].description
             } else {
               localContext.params.skipResourceCreation = false
               localContext.params.patchId = null
-              localContext.params.parentId = resultId
+              localContext.params.parentResourceId = resultId
               localContext.params.body.description = 'DASH chunk for video ' + fileId
             }
 
