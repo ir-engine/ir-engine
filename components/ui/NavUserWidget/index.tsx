@@ -50,7 +50,7 @@ class NavUserBadge extends Component<Props> {
     const isLoggedIn = this.props.auth.get('isLoggedIn')
     const user = this.props.auth.get('user')
     const userName =
-      user && user.user ? user.user.name ?? user.user.email : 'User'
+      user && user.user ? user.user.name ?? user.user.token : 'User'
     const avatarLetter = userName ? userName.substr(0, 1) : 'X'
 
     return (
