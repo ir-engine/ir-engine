@@ -9,8 +9,8 @@
     "max": 50
   },
   "authentication": {
-    "entity": "user",
-    "service": "user",
+    "entity": "identity-provider",
+    "service": "identity-provider",
     "secret": "rlHRymcnyXeCbTcgHZB5TfG3dZg=",
     "authStrategies": [
       "jwt",
