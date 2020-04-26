@@ -78,7 +78,7 @@ export class IdentityProvider extends Service {
 
     const foundUser = ((await userService.find({
       query: {
-        userId
+        id: userId
       }
     })) as any).data
 
@@ -100,7 +100,7 @@ export class IdentityProvider extends Service {
       ...identityProvider,
       userId,
       user: {
-        userId
+        id: userId
       }
     }, params)
 
