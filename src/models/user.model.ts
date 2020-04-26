@@ -52,7 +52,6 @@ export default (app: Application): any => {
     (user as any).belongsToMany(models.organization, { through: models.organization_user }); // user can join multiple orgs
     (user as any).belongsToMany(models.organization_user_rank, { through: models.organization_user }); // user can join multiple orgs
     (user as any).hasMany(models.identity_provider)
-  
   }
 
   return user
