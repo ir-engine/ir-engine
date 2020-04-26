@@ -21,7 +21,14 @@ function Video360Room() {
   const router = useRouter()
   const manifest = router.query.manifest as string
   const title = router.query.title as string
+  const runtime = router.query.runtime as string
+  const credit = router.query.credit as string
+  const rating = router.query.rating as string
+  const categories = router.query.categories as string
+  const tags = router.query.tags as string
 
+  const text = `${title || ''}\n\n${runtime || ''}\n${credit || ''}\n${'rating: ' + rating}\n${categories || ''}\n${tags || ''}
+    \n(click to play)`
   return (
     <Entity>
       <ShakaPlayerComp manifestUri={getManifestUri(manifest)}/>
@@ -44,9 +51,9 @@ function Video360Room() {
           baseline: 'center',
           color: 'black',
           transparent: false,
-          value: `${title || ''}\n\n(click to play)`
+          value: text
         }}
-        position={{ x: 0, y: 2, z: -0.8 }}
+        position={{ x: 0, y: 1.6, z: -0.8 }}
       />
     </Entity>
   )

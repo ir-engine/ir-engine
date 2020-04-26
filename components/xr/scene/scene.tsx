@@ -1,13 +1,12 @@
 import React from 'react'
 // @ts-ignore
-import { Scene, Entity } from 'aframe-react'
+import { Scene } from 'aframe-react'
 import Assets from './assets'
 import Environment from './environment'
 import Player from '../player/player'
 import './style.scss'
 import SvgVr from '../../icons/svg/Vr'
 
-import Grid from '../layout/Grid'
 import AframeComponentRegisterer from '../../xr/aframe/index'
 
 type Props = {
@@ -33,9 +32,6 @@ export default class SceneRoot extends React.Component<Props> {
           renderer="antialias: true"
         >
           <AframeComponentRegisterer/>
-          <Entity position="0 0.6 0">
-            <Grid />
-          </Entity>
           <Assets />
           <Player />
           <Environment />

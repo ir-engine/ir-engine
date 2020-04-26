@@ -15,7 +15,6 @@ export default class PlayerControls {
   }
 
   setupControls(player: AFRAME.Entity): void {
-    console.log('setupControls')
     if (player.hasLoaded) this.controllers.forEach(controller => this.setController(player, controller))
     else player.addEventListener('loaded', this.setupControlsHandler.bind(this, {} as Event, player))
   }
