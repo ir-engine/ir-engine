@@ -32,6 +32,15 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 })
 
 class NavUserBadge extends Component<Props> {
+  styles = {
+    loginButton: {
+      color: 'white'
+    },
+    logoutButton: {
+      color: 'white'
+    }
+  }
+
   handleLogout() {
     console.log('logout')
     this.props.logoutUser()
@@ -44,13 +53,13 @@ class NavUserBadge extends Component<Props> {
       user && user.user ? user.user.name ?? user.user.email : 'User'
     const avatarLetter = userName ? userName.substr(0, 1) : 'X'
 
-    console.log('----------', isLoggedIn, user)
-
     return (
       <div className="userWidget">
         {isLoggedIn && (
           <div className="flex">
-            <Button onClick={() => this.handleLogout()} className="logoutButton">
+            <Button onClick={() => this.handleLogout()} 
+              style={this.styles.logoutButton}
+              >
               {userName}
               <br />
               Logout
@@ -64,7 +73,7 @@ class NavUserBadge extends Component<Props> {
         )}
         {!isLoggedIn && (
           <Button 
-            className="loginButton"
+            style={this.styles.loginButton}
             onClick={() => this.props.showDialog({
               children: (
                 <SignIn />
