@@ -5,7 +5,7 @@ export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const identityProvider = sequelizeClient.define('identity_provider', {
     userId: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
       allowNull: false
     },
 
@@ -55,7 +55,7 @@ export default (app: Application): any => {
   });
 
   (identityProvider as any).associate = (models: any) => {
-    (identityProvider as any).belongsTo(models.user, { foriegnKey: 'userId' })
+    (identityProvider as any).belongsTo(models.user)
   }
 
   return identityProvider
