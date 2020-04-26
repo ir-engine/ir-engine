@@ -58,14 +58,14 @@ export default {
         commonHooks.isProvider('external'),
         commonHooks.preventChanges(
           true,
-         'isVerified',
-         'verifyToken',
-         'verifyShortToken',
-         'verifyExpires',
-         'verifyChanges',
-         'resetToken',
-         'resetShortToken',
-         'resetExpires'
+          'isVerified',
+          'verifyToken',
+          'verifyShortToken',
+          'verifyExpires',
+          'verifyChanges',
+          'resetToken',
+          'resetShortToken',
+          'resetExpires'
         ))
     ],
     remove: []
