@@ -14,3 +14,4 @@ xrchat/Chart\.lock
 
 _site
 .sass-cache
+configs/beta.values.yaml
