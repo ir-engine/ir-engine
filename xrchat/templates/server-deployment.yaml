@@ -34,29 +34,27 @@ spec:
                 name: {{ include "xrchat.server.fullname" . }}
                 optional: true
           env:
-            {{- if .Values.mariadb.enabled }}
             - name: KUBERNETES
               value: "true"
             - name: MYSQL_USER
               value: {{ .Values.mariadb.db.user }}
+            - name: MYSQL_DATABASE
+              value: {{ .Values.mariadb.db.name }}
             - name: MYSQL_PASSWORD
+              {{- if not .Values.mariadb.enabled }}
+              value: {{ .Values.mariadb.db.password }}
+              {{- else }}
               valueFrom:
                 secretKeyRef:
                   {{- if .Values.mariadb.existingSecret }}
                   name: {{ .Values.mariadb.existingSecret }}
                   {{- else }}
                   name: {{ template "xrchat.mariadb.fullname" . }}
-                  {{- end }}
+                  {{- end }} 
                   key: mariadb-password
-            - name: MYSQL_DATABASE
-              value: {{ .Values.mariadb.db.name }}
+              {{- end }}
             - name: MYSQL_HOST
               value: {{ template "xrchat.mariadb.host" . }}
-            {{- else }}
-            - name: MYSQL_URL
-              value: {{ .Values.mariadb.url }}
-            {{- end }}
-                          
           ports:
             - name: http
               containerPort: 3030
