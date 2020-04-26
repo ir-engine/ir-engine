@@ -4,6 +4,7 @@ import gridComp from './grid'
 import gridCellComp from './grid-cell'
 import mediaCellComp from './media-cell'
 import eaccubeComp from './eaccube'
+import playerVrUiComp from './player-vr-ui'
 import AFRAME from 'aframe'
 import React from 'react'
 
@@ -20,10 +21,11 @@ const ComponentSystemArray: ComponentSystem[] = [
   gridComp,
   gridCellComp,
   mediaCellComp,
-  eaccubeComp
+  eaccubeComp,
+  playerVrUiComp
 ]
 
-function RegisterComponetSystem(compsys: ComponentSystem) : void {
+function RegisterComponentSystem(compsys: ComponentSystem) : void {
   if (compsys.system && !AFRAME.systems.hasOwnProperty(compsys.name)) {
     AFRAME.registerSystem(compsys.name, compsys.system)
   }
@@ -41,7 +43,7 @@ export default class AframeComponentRegisterer extends React.Component {
   constructor(args: any) {
     super(args)
     ComponentSystemArray.forEach((compsys) => {
-      RegisterComponetSystem(compsys)
+      RegisterComponentSystem(compsys)
     })
   }
 

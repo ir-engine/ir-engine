@@ -1,6 +1,7 @@
 import React from 'react'
 // @ts-ignore
-import { Scene } from 'aframe-react'
+import { Entity, Scene } from 'aframe-react'
+import AFRAME from 'aframe'
 import Assets from './assets'
 import Video360 from '../video360/Video360Room'
 import './style.scss'
@@ -25,6 +26,12 @@ export default class VideoScene extends React.Component<State> {
     }
   }
 
+  isDesktop() {
+    const mobile = AFRAME.utils.device.isMobile()
+    const headset = AFRAME.utils.device.checkHeadsetConnected()
+    return !(mobile) && !(headset)
+  }
+
   render() {
     return (
       <div style={{ height: '100%', width: '100%' }}>
@@ -36,6 +43,13 @@ export default class VideoScene extends React.Component<State> {
           >
             <Assets/>
             <Video360/>
+            <Entity camera={{}} look-controls={{}} position={{ x: 0, y: 1.6, z: 0 }}>
+              <Entity visible={ !this.isDesktop() } cursor={{ rayOrigin: this.isDesktop() ? 'mouse' : 'entity' }}
+                raycaster={{ objects: '#player-vr-ui,#videotext' }}
+                position={{ x: 0, y: 0, z: -0.8 }} geometry={{ primitive: 'ring', radiusInner: 0.01, radiusOuter: 0.02 }}
+                material={{ shader: 'flat', color: 'red' }}>
+              </Entity>
+            </Entity>
           </Scene>
         )}
       </div>
