@@ -1,12 +1,12 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
-import { Application } from '../../declarations';
+import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { Application } from '../../declarations'
 import { Sequelize } from 'sequelize'
 import crypto from 'crypto'
 
 export class IdentityProvider extends Service {
   public app: Application
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+  constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
   }
@@ -21,7 +21,7 @@ export class IdentityProvider extends Service {
       password
     } = data
 
-    let identityProvider: any = undefined
+    let identityProvider: any
 
     let hashData = ''
     switch (accountType) {
@@ -31,14 +31,14 @@ export class IdentityProvider extends Service {
           token,
           accountType
         }
-        break;
+        break
       case 'sms':
         hashData = token
         identityProvider = {
           token,
           accountType
         }
-        break;
+        break
       case 'password':
         hashData = token
         identityProvider = {
@@ -46,30 +46,30 @@ export class IdentityProvider extends Service {
           password,
           accountType
         }
-        break;
+        break
       case 'github':
         hashData = githubId
         identityProvider = {
           token: githubId,
           accountType
         }
-        break;
+        break
       case 'facebook':
         hashData = facebookId
         identityProvider = {
           token: facebookId,
           accountType
         }
-        break;
+        break
       case 'google':
         hashData = googleId
         identityProvider = {
           token: googleId,
           accountType
         }
-        break;
+        break
       case 'auth0':
-        break;
+        break
     }
     const userId = crypto.createHash('md5').update(hashData).digest('hex')
     const sequelizeClient: Sequelize = this.app.get('sequelizeClient')
@@ -89,7 +89,7 @@ export class IdentityProvider extends Service {
         userId
       }, params)
     }
-    
+
     // create with user association
     params.sequelize = {
       include: [User]

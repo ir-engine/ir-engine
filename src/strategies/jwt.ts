@@ -1,7 +1,7 @@
-import { Params } from '@feathersjs/feathers';
-import { JWTStrategy } from '@feathersjs/authentication';
-import { NotAuthenticated } from '@feathersjs/errors';
-import { Service } from 'feathers-sequelize';
+// import { Params } from '@feathersjs/feathers'
+import { JWTStrategy } from '@feathersjs/authentication'
+// import { NotAuthenticated } from '@feathersjs/errors'
+// import { Service } from 'feathers-sequelize'
 
 export class MyJwtStrategy extends JWTStrategy {
   // async getEntity(userId: string, params: Params): Promise<any> {
@@ -25,7 +25,7 @@ export class MyJwtStrategy extends JWTStrategy {
   //   if (result.length === 0) {
   //     throw new NotAuthenticated(`Could not find user`);
   //   }
-    
+
   //   return result[0];
   // }
 }

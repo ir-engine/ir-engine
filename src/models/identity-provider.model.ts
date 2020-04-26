@@ -16,7 +16,7 @@ export default (app: Application): any => {
     password: {
       type: DataTypes.STRING
     },
-    
+
     accountType: {
       type: DataTypes.ENUM(
         'email',
@@ -36,7 +36,7 @@ export default (app: Application): any => {
     verifyExpires: { type: DataTypes.DATE },
     verifyChanges: { type: DataTypes.JSON },
     resetToken: { type: DataTypes.STRING },
-    resetExpires: { type: DataTypes.DATE },
+    resetExpires: { type: DataTypes.DATE }
   }, {
     hooks: {
       beforeCount (options: any) {
@@ -45,17 +45,17 @@ export default (app: Application): any => {
     },
     indexes: [
       {
-        fields: ['userId'],
+        fields: ['userId']
       },
       {
         unique: true,
         fields: ['userId', 'token']
-      },
+      }
     ]
   });
 
   (identityProvider as any).associate = (models: any) => {
-    (identityProvider as any).belongsTo(models.user, {foriegnKey: 'userId'});
+    (identityProvider as any).belongsTo(models.user, { foriegnKey: 'userId' })
   }
 
   return identityProvider
