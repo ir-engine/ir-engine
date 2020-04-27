@@ -44,12 +44,12 @@ function Video360Room() {
         loop="false"
       />
       <Entity
-        id="player-vr-ui"
-        player-vr-ui={{}}
+        id="video-player-vr-ui"
+        video-player-vr-ui={{}}
         position={{ x: 0, y: 0.98, z: -0.9 }}
       />
       <VideoControls
-        videosrc="#video360Shaka" videotext="#videotext" videovrui="#player-vr-ui" />
+        videosrc="#video360Shaka" videotext="#videotext" videovrui="#video-player-vr-ui" />
       <Entity id="videotext"
         text={{
           font: 'mozillavr',

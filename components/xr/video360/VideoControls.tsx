@@ -30,6 +30,7 @@ export default class Video360Room extends React.Component<Props, State> {
     this.videovruiEl = document.querySelector(this.props.videovrui) as HTMLElement
     this.videovruiEl?.addEventListener('triggerplay', this.playHandler.bind(this))
     this.videovruiEl?.addEventListener('triggerpause', this.pauseHandler.bind(this))
+    this.videovruiEl?.addEventListener('triggerback', this.exitVideoHandler.bind(this))
   }
 
   render() {
@@ -76,13 +77,13 @@ export default class Video360Room extends React.Component<Props, State> {
   }
 
   private videoPlayHandler() {
-    this.videovruiEl?.setAttribute('player-vr-ui', {
+    this.videovruiEl?.setAttribute('video-player-vr-ui', {
       isPlaying: true
     })
   }
 
   private videoPauseHandler() {
-    this.videovruiEl?.setAttribute('player-vr-ui', {
+    this.videovruiEl?.setAttribute('video-player-vr-ui', {
       isPlaying: false
     })
   }
