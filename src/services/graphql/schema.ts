@@ -1,3 +1,13 @@
+// @ts-ignore
+import {resolver, attributeFields, GraphQLObjectType} from 'graphql-sequelize'
+
+entity.entityType = new GraphQLObjectType({
+  name: 'Entity',
+  description: 'Base entity object, add components to give functionality to an entity.',
+  fields: Object.assign(attributeFields(entity))
+}
+
+
 const typeDefinitions = `
 type Entity {
     _id : String
