@@ -60,16 +60,16 @@ function ExploreScene (props: VideoProps): any {
               <Entity
                 key={i}
                 primitive="a-media-cell"
-                original-title={video.original_title}
-                title={video.title}
+                // original-title={video.original_title}
+                title={video.name}
                 description={video.description}
-                media-link={video.link}
+                media-url={video.url}
                 thumbnail-url={video.metadata.thumbnail_url}
-                production-credit={video.production_credit}
-                rating={video.rating}
-                categories={video.categories}
-                runtime={video.runtime}
-                tags={video.tags}
+                // production-credit={video.production_credit}
+                // rating={video.rating}
+                // categories={video.categories}
+                // runtime={video.runtime}
+                // tags={video.tags}
                 cellHeight={0.6666}
                 cellWidth={1}
                 cellContentHeight={0.5}

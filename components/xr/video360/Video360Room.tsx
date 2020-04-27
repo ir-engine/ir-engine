@@ -22,15 +22,15 @@ function Video360Room() {
   const router = useRouter()
   const manifest = router.query.manifest as string
   const title = router.query.title as string
-  const runtime = router.query.runtime as string
-  const credit = router.query.credit as string
-  const rating = router.query.rating as string
-  const categories = router.query.categories as string
-  const tags = router.query.tags as string
+  // const runtime = router.query.runtime as string
+  // const credit = router.query.credit as string
+  // const rating = router.query.rating as string
+  // const categories = router.query.categories as string
+  // const tags = router.query.tags as string
   const format = router.query.videoformat as string
 
-  const text = `${title || ''}\n\n${runtime || ''}\n${credit || ''}\n${'rating: ' + rating}\n${categories || ''}\n${tags || ''}
-    \n(click to play)`
+  const text = `${title || ''}\n\n(click to play)`
+  // \n\n${runtime || ''}\n${credit || ''}\n${'rating: ' + rating}\n${categories || ''}\n${tags || ''}
 
   const videospherePrimitive = format === 'eac' ? 'a-eacube' : 'a-videosphere'
   return (
