@@ -1,7 +1,7 @@
 import AFRAME from 'aframe'
 const THREE = AFRAME.THREE
 
-export const ComponentName = 'player-vr-ui'
+export const ComponentName = 'video-player-vr-ui'
 
 type GetIntersection = (entity: AFRAME.Entity) => THREE.Intersection
 type CallbackFunctionVariadic = (...args: any[]) => void;
@@ -27,10 +27,12 @@ export interface PlayerVrUiComponentProps {
   _updatePlayPauseGroup: () => void,
   _updateBackground: () => void,
   _onHover: () => void,
-  _onPlayPauseButtonTrigger: (buttonName: string) => void,
+  _onButtonTrigger: (buttonName: string) => void,
   _createBackground: (parentGroup: THREE.Group) => void,
   _createPlayPauseGroup: (parentGroup: THREE.Group) => void,
-  _createPlayPauseButton: (parentGroup: THREE.Group, isPlayButton: boolean) => void
+  _createPlayPauseButton: (parentGroup: THREE.Group, isPlayButton: boolean) => void,
+  _createBackGroup: (parentGroup: THREE.Group) => void,
+  _createBackButton: (parentGroup: THREE.Group) => void
 }
 
 export interface PlayerVrUiComponentData {
@@ -171,7 +173,8 @@ export const PlayerVrUiComponent: AFRAME.ComponentDefinition<PlayerVrUiComponent
     switch (intersection.object.name) {
       case 'play':
       case 'pause':
-        this._onPlayPauseButtonTrigger(intersection.object.name)
+      case 'back':
+        this._onButtonTrigger(intersection.object.name)
         break
     }
   },
@@ -183,7 +186,7 @@ export const PlayerVrUiComponent: AFRAME.ComponentDefinition<PlayerVrUiComponent
     }
   },
 
-  _onPlayPauseButtonTrigger(buttonName) {
+  _onButtonTrigger(buttonName) {
     this._activePlayButton = true
     this._playPauseNeedsUpdate = true
     this.el.emit('trigger' + buttonName)
@@ -194,6 +197,7 @@ export const PlayerVrUiComponent: AFRAME.ComponentDefinition<PlayerVrUiComponent
 
     this._createBackground(rootGroup)
     this._createPlayPauseGroup(rootGroup)
+    this._createBackButton(rootGroup)
 
     this.el.setObject3D('videocontrols', rootGroup)
   },
@@ -203,7 +207,7 @@ export const PlayerVrUiComponent: AFRAME.ComponentDefinition<PlayerVrUiComponent
       side: THREE.DoubleSide,
       transparent: true
     })
-    const geomBg = new THREE.PlaneBufferGeometry(BgWidth, BgHeight)
+    const geomBg = new THREE.PlaneBufferGeometry(BgWidth * 3, BgHeight)
     const meshBg = new THREE.Mesh(geomBg, matBg)
     meshBg.position.z = -0.01
     meshBg.name = 'background'
@@ -268,6 +272,53 @@ export const PlayerVrUiComponent: AFRAME.ComponentDefinition<PlayerVrUiComponent
 
     parentGroup.add(meshPlayPauseButton)
     this._buttons.set(buttonName, meshPlayPauseButton)
+  },
+
+  _createBackGroup(parentGroup) {
+    const backGroup = new THREE.Group()
+    backGroup.name = 'backGroup'
+    this._createBackButton(backGroup)
+    parentGroup.add(backGroup)
+    backGroup.position.x += 100
+  },
+
+  _createBackButton(parentGroup) {
+    const backButton = new THREE.Shape()
+    const buttonName = 'back'
+
+    backButton.moveTo(ButtonHeight / 2, 0)
+    backButton.lineTo(0, ButtonWidth / 2)
+    backButton.lineTo(-ButtonHeight / 2, 0)
+    backButton.lineTo(-ButtonHeight / 8, 0)
+    backButton.lineTo(-ButtonHeight / 8, -ButtonWidth / 2)
+    backButton.lineTo(ButtonHeight / 8, -ButtonWidth / 2)
+    backButton.lineTo(ButtonHeight / 8, 0)
+    backButton.lineTo(ButtonHeight / 2, 0)
+
+    const geomBackButton = new THREE.ShapeBufferGeometry(backButton)
+    const matBackButton = new THREE.MeshBasicMaterial({
+      side: THREE.DoubleSide,
+      color: this.data.color
+    })
+    const meshBackButton = new THREE.Mesh(geomBackButton, matBackButton)
+    meshBackButton.name = buttonName
+    meshBackButton.position.x = -ButtonWidth * 2
+    meshBackButton.rotation.z = Math.PI / 2
+
+    // button background
+    const matButtonBg = new THREE.MeshBasicMaterial({
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0
+    })
+    const geomButtonBg = new THREE.PlaneBufferGeometry(ButtonWidth, ButtonHeight)
+    const meshButtonBg = new THREE.Mesh(geomButtonBg, matButtonBg)
+    meshButtonBg.name = buttonName
+    // meshButtonBg.position.x = -ButtonWidth * 2
+    meshBackButton.add(meshButtonBg)
+
+    parentGroup.add(meshBackButton)
+    this._buttons.set(buttonName, meshBackButton)
   },
 
   _updateBackground() {
