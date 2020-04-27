@@ -2,12 +2,14 @@ import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { Graphql } from './graphql.class'
 import { GraphQLObjectType, GraphQLList, GraphQLSchema, GraphQLInt } from 'graphql'
+import { ApolloServer } from 'apollo-server-express'
 // @ts-ignore
-import graphqlSequelize from 'graphql-sequelize'
-import GraphHTTP from 'express-graphql'
+import { attributeFields, resolver } from 'graphql-sequelize'
+import util from 'util'
+import camelCase from 'camelcase'
+
 import _ from 'lodash'
 import { Sequelize } from 'sequelize'
-import camelCase from 'camelcase'
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -22,7 +24,7 @@ export default (app: Application): any => {
 
   const getFields = (params: any): any => {
     return _.assign(
-      graphqlSequelize.attributeFields(
+      attributeFields(
         params.model,
         Object.assign(params.options || {}, {
           map: (k: any) => camelCase(k)
@@ -43,10 +45,9 @@ export default (app: Application): any => {
         id: { type: GraphQLInt },
         limit: { type: GraphQLInt }
       },
-      resolve: function (root: any, args: any, _: any, info: any) {
-        // Until graphql-sequelize is updated
-        return graphqlSequelize.resolver(model)(root, args, info)
-      }
+      resolve: resolver(model, {
+        list: true
+      })
     }
   })
     .keyBy('fieldName')
@@ -62,11 +63,28 @@ export default (app: Application): any => {
     query: Query
   })
 
-  app.use('/graphql', GraphHTTP({
+  console.log(util.inspect(Schema, { showHidden: false, depth: null }))
+
+  const server = new ApolloServer({
     schema: Schema,
-    pretty: true,
-    graphiql: true
-  }))
+    playground: {
+      endpoint: '/graphql',
+      settings: {
+        'editor.theme': 'dark'
+      }
+    },
+    context: ({ req }: any) => ({
+      provider: req.feathers.provider,
+      headers: req.headers,
+      app
+    }),
+    introspection: true
+  }
+  )
+
+  server.applyMiddleware({
+    app
+  })
 
   app.service('graphql')
 }
