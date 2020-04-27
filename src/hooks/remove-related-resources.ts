@@ -71,7 +71,7 @@ export default (options = {}): Hook => {
 async function getAllChildren (service: StaticResource, id: string | number | undefined, $skip: number): Promise<Object[]> {
   const pageResult = (await service.find({
     query: {
-      parentId: id,
+      parentResourceId: id,
       $skip: $skip
     }
   })) as any
