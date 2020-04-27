@@ -37,7 +37,7 @@ export interface MediaCellData {
   originalTitle: string,
   title: string,
   description: string,
-  link: string, // TODO: type for url's
+  url: string, // TODO: type for url's
   thumbnailUrl: string,
   productionCredit: string,
   rating: string,
@@ -55,7 +55,7 @@ export const MediaCellComponentSchema: AFRAME.MultiPropertySchema<MediaCellData>
   originalTitle: { default: '' },
   title: { default: '' },
   description: { default: '' },
-  link: { default: '' }, // TODO: type for url's
+  url: { default: '' }, // TODO: type for url's
   thumbnailUrl: { default: '' },
   productionCredit: { default: '' },
   rating: { default: '' },
@@ -100,27 +100,27 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
     imageEl.setAttribute('width', this.data.cellWidth)
     imageEl.setAttribute('height', this.data.cellContentHeight)
 
-    let link: string
+    let url: string
     switch (this.data.mediatype) {
       case 'video360':
-        link = 'video360?manifest=' + this.data.link +
+        url = 'video360?manifest=' + this.data.url +
           '&title=' + this.data.title +
-          '&runtime=' + this.data.runtime +
-          '&credit=' + this.data.productionCredit +
-          '&rating=' + this.data.rating +
-          '&categories=' + this.data.categories.join(',') +
-          '&tags=' + this.data.tags.join(',') +
+          // '&runtime=' + this.data.runtime +
+          // '&credit=' + this.data.productionCredit +
+          // '&rating=' + this.data.rating +
+          // '&categories=' + this.data.categories.join(',') +
+          // '&tags=' + this.data.tags.join(',') +
           '&videoformat=' + this.data.videoformat
         break
       case 'scene':
-        link = this.data.link
+        url = this.data.url
         break
       default:
-        link = ''
+        url = ''
         break
     }
     imageEl.addEventListener('click', () => {
-      window.location.href = link
+      window.location.href = url
     })
 
     return imageEl
@@ -138,16 +138,16 @@ export const MediaCellPrimitive: AFRAME.PrimitiveDefinition = {
     'cell-height': ComponentName + '.cellHeight',
     'cell-width': ComponentName + '.cellWidth',
     'cell-content-height': ComponentName + '.cellContentHeight',
-    'original-title': ComponentName + '.originalTitle',
+    // 'original-title': ComponentName + '.originalTitle',
     title: ComponentName + '.title',
     description: ComponentName + '.description',
-    'media-link': ComponentName + '.link',
+    'media-url': ComponentName + '.url',
     'thumbnail-url': ComponentName + '.thumbnailUrl',
-    'production-credit': ComponentName + '.productionCredit',
-    rating: ComponentName + '.rating',
-    categories: ComponentName + '.categories',
-    runtime: ComponentName + '.runtime',
-    tags: ComponentName + '.tags',
+    // 'production-credit': ComponentName + '.productionCredit',
+    // rating: ComponentName + '.rating',
+    // categories: ComponentName + '.categories',
+    // runtime: ComponentName + '.runtime',
+    // tags: ComponentName + '.tags',
     mediatype: ComponentName + '.mediatype',
     videoformat: ComponentName + '.videoformat'
   }

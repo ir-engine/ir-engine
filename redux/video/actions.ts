@@ -14,15 +14,9 @@ export interface VideoMetaData {
 }
 export interface PublicVideo {
     id: number
-    title: string
-    original_title: string
+    name: string
     description: string
-    link: string,
-    production_credit: string,
-    rating: string,
-    categories: string,
-    runtime: string,
-    tags: string,
+    url: string,
     metadata: VideoMetaData
 }
 
