@@ -62,7 +62,7 @@
   },
   "aws": {
     "s3": {
-      "static_resource_bucket": "STORAGE_S3_STATIC_RESOURCE_BUCKET",
+      "static_resource_bucket": "kaixr-static-resources",
       "region": "STORAGE_S3_REGION",
       "cloudfront": {
         "domain": "STORAGE_S3_CLOUDFRONT_DOMAIN"
