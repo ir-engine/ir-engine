@@ -44,7 +44,8 @@ export interface MediaCellData {
   categories: string[],
   runtime: string,
   tags: string[],
-  mediatype: string
+  mediatype: string,
+  videoformat: string
 }
 
 export const MediaCellComponentSchema: AFRAME.MultiPropertySchema<MediaCellData> = {
@@ -61,7 +62,9 @@ export const MediaCellComponentSchema: AFRAME.MultiPropertySchema<MediaCellData>
   categories: { default: [] },
   runtime: { default: '' },
   tags: { default: [] },
-  mediatype: { default: 'video360' }
+  mediatype: { default: 'video360' },
+  videoformat: { default: 'eac' }
+
 }
 
 export interface MediaCellProps {
@@ -106,7 +109,8 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
           '&credit=' + this.data.productionCredit +
           '&rating=' + this.data.rating +
           '&categories=' + this.data.categories.join(',') +
-          '&tags=' + this.data.tags.join(',')
+          '&tags=' + this.data.tags.join(',') +
+          '&videoformat=' + this.data.videoformat
         break
       case 'scene':
         link = this.data.link
@@ -144,7 +148,8 @@ export const MediaCellPrimitive: AFRAME.PrimitiveDefinition = {
     categories: ComponentName + '.categories',
     runtime: ComponentName + '.runtime',
     tags: ComponentName + '.tags',
-    mediatype: ComponentName + '.mediatype'
+    mediatype: ComponentName + '.mediatype',
+    videoformat: ComponentName + '.videoformat'
   }
 }
 

@@ -27,9 +27,12 @@ function Video360Room() {
   const rating = router.query.rating as string
   const categories = router.query.categories as string
   const tags = router.query.tags as string
+  const format = router.query.videoformat as string
 
   const text = `${title || ''}\n\n${runtime || ''}\n${credit || ''}\n${'rating: ' + rating}\n${categories || ''}\n${tags || ''}
     \n(click to play)`
+
+  const videospherePrimitive = format === 'eac' ? 'a-eacube' : 'a-videosphere'
   return (
     <Entity>
       <AframeComponentRegisterer/>
@@ -38,7 +41,7 @@ function Video360Room() {
         id="videoPlayerContainer"
       ></Entity>
       <Entity
-        primitive="a-videosphere"
+        primitive={videospherePrimitive}
         class="videosphere"
         src="#video360Shaka"
         loop="false"

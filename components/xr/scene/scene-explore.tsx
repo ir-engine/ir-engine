@@ -64,7 +64,7 @@ function ExploreScene (props: VideoProps): any {
                 title={video.title}
                 description={video.description}
                 media-link={video.link}
-                thumbnail-url={video.thumbnail_url}
+                thumbnail-url={video.metadata.thumbnail_url}
                 production-credit={video.production_credit}
                 rating={video.rating}
                 categories={video.categories}
@@ -74,6 +74,7 @@ function ExploreScene (props: VideoProps): any {
                 cellWidth={1}
                 cellContentHeight={0.5}
                 mediatype="video360"
+                videoformat={video.metadata['360_format']}
               ></Entity>
             )
           })}
