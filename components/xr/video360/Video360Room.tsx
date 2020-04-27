@@ -31,7 +31,7 @@ function Video360Room() {
   const text = `${title || ''}\n\n(click to play)`
   // \n\n${runtime || ''}\n${credit || ''}\n${'rating: ' + rating}\n${categories || ''}\n${tags || ''}
 
-  const videospherePrimitive = format === 'eac' ? 'a-eacube' : 'a-videosphere'
+  const videospherePrimitive = format === 'eac' ? 'a-eaccube' : 'a-videosphere'
   return (
     <Entity>
       <AframeComponentRegisterer/>
