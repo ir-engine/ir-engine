@@ -4,7 +4,8 @@ import {
     AuthProcessingAction,
     LoginResultAction,
     AuthState,
-    AuthResultAction
+    AuthResultAction,
+    RegistrationResultAction
 } from './actions'
 
 import {
@@ -53,6 +54,8 @@ const authReducer = (state = immutableState, action: AuthAction): any => {
                 .set('error', (action as LoginResultAction).message)
         case REGISTER_USER_BY_EMAIL_SUCCESS:
             console.log('registered--------', action)
+            return state
+                .set('user', (action as RegistrationResultAction).user)
             break
         case REGISTER_USER_BY_EMAIL_ERROR:
             break

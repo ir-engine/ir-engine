@@ -58,7 +58,12 @@ export function loginUserByEmail(form: EmailLoginForm) {
       password: form.password
     })
       .then((res: any) => {
-        const val = res as AuthUser
+        const val = {
+          accessToken: res.accessToken,
+          authentication: res.authentication,
+          user: res['identity-provider']
+        }
+
         if (!val.user.isVerified) {
           client.logout()
           window.location.href = '/auth/confirm'
@@ -114,7 +119,11 @@ export function loginUserByJwt(accessToken: string, redirectSuccess: string, red
       accessToken
     })
       .then((res: any) => {
-        const val = res as AuthUser
+        const val = {
+          accessToken: res.accessToken,
+          authentication: res.authentication,
+          user: res['identity-provider']
+        }
 
         window.location.href = redirectSuccess
         return dispatch(loginUserSuccess(val))
@@ -145,7 +154,11 @@ export function registerUserByEmail(form: EmailRegistrationForm) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
-    client.service('user').create(form)
+    client.service('identity-provider').create({
+      token: form.email,
+      password: form.password,
+      accountType: 'password'
+    })
       .then((user: any) => {
         window.location.href = '/auth/confirm'
         dispatch(registerUserByEmailSuccess(user))
@@ -170,8 +183,8 @@ export function verifyEmail(token: string) {
       value: token
     })
       .then((res: any) => {
-        console.log(res)
-        window.location.href = '/auth/login'
+        console.log('accc-----------====', res.accessToken)
+        loginUserByJwt(res.accessToken, "/", "/")(dispatch)
         dispatch(didVerifyEmail(true))
       })
       .catch((err: any) => {
@@ -191,7 +204,7 @@ export function resendVerificationEmail(email: string) {
 
     client.service('authManagement').create({
       action: 'resendVerifySignup',
-      value: { email }
+      value: { token: email, accountType: 'password' }
     })
       .then(() => dispatch(didResendVerificationEmail(true)))
       .catch(() => dispatch(didResendVerificationEmail(false)))
@@ -205,7 +218,7 @@ export function forgotPassword(email: string) {
 
     client.service('authManagement').create({
       action: 'sendResetPwd',
-      value: { email }
+      value: { token: email, accountType: 'password' }
     })
       .then(() => dispatch(didForgotPassword(true)))
       .catch(() => dispatch(didForgotPassword(false)))
