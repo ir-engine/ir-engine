@@ -174,7 +174,7 @@ export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps>
 
     const mesh = this.el.getObject3D('mesh')
     mesh.scale.x = -1
-    mesh.rotation.y = Math.PI
+    mesh.rotation.y = Math.PI / 2
   },
 
   update(oldData) {
