@@ -33,7 +33,7 @@ export class Upload implements ServiceMethods<Data> {
       name: (data as any).name,
       description: (data as any).description,
       url: (data as any).url,
-      mime_type: 'video/mp4'
+      mime_type: (data as any).mime_type
     })
 
     return result

@@ -6,7 +6,9 @@ export const getLink = (type: string, hash: string): string =>
 
 export const sendEmail = async (app: Application, email: any): Promise<void> => {
   if (email.to) {
-    return await app.service('email').create(email).then(() =>
+    console.log(email)
+
+    app.service('email').create(email).then(() =>
       console.log('Sent email')
     ).catch((err: any) =>
       console.log('Error sending email', err)
