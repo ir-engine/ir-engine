@@ -33,6 +33,7 @@ const app: Application = express(feathers())
 
 app.configure(swagger({
   docsPath: '/docs',
+  docsJsonPath: '/docs.json',
   uiIndex: path.join(__dirname, '../docs.html'),
   // TODO: Relate to server config, don't hardcode this here
   specs: {
