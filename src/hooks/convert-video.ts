@@ -166,7 +166,7 @@ export default async (context: any): Promise<void> => {
           // @ts-ignore
           const mimetype = mimetypeDict[extension]
 
-          localContext.data.url = path.join(s3.endpoint.href, s3BlobStore.bucket, key)
+          localContext.data.url = s3.endpoint.href + path.join(s3BlobStore.bucket, key)
           localContext.data.mime_type = mimetype
 
           localContext.params.mime_type = mimetype
