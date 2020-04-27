@@ -2,12 +2,14 @@ import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { Graphql } from './graphql.class'
 import { GraphQLObjectType, GraphQLList, GraphQLSchema, GraphQLInt } from 'graphql'
+import { ApolloServer } from 'apollo-server-express'
 // @ts-ignore
 import graphqlSequelize from 'graphql-sequelize'
-import GraphHTTP from 'express-graphql'
+import util from 'util'
+import camelCase from 'camelcase'
+
 import _ from 'lodash'
 import { Sequelize } from 'sequelize'
-import camelCase from 'camelcase'
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -19,6 +21,7 @@ export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
 
   const models = sequelizeClient.models
+
 
   const getFields = (params: any): any => {
     return _.assign(
@@ -44,7 +47,7 @@ export default (app: Application): any => {
         limit: { type: GraphQLInt }
       },
       resolve: function (root: any, args: any, _: any, info: any) {
-        // Until graphql-sequelize is updated
+        console.log(root)
         return graphqlSequelize.resolver(model)(root, args, info)
       }
     }
@@ -62,11 +65,28 @@ export default (app: Application): any => {
     query: Query
   })
 
-  app.use('/graphql', GraphHTTP({
+  console.log(util.inspect(Schema, { showHidden: false, depth: null }))
+
+  const server = new ApolloServer({
     schema: Schema,
-    pretty: true,
-    graphiql: true
-  }))
+    playground: {
+      endpoint: '/graphql',
+      settings: {
+        'editor.theme': 'dark'
+      }
+    },
+    context: ({ req }: any) => ({
+      provider: req.feathers.provider,
+      headers: req.headers,
+      app
+    }),
+    introspection: true
+  }
+  )
+
+  server.applyMiddleware({
+    app
+  })
 
   app.service('graphql')
 }
