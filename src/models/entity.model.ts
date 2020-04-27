@@ -35,4 +35,3 @@ export default (app: Application): any => {
 
   return entity
 }
-
