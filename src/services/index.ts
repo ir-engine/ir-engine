@@ -77,7 +77,6 @@ export default (app: Application): void => {
   app.configure(SMS)
   app.configure(Upload)
   app.configure(Video)
-  app.configure(GraphQL)
 
   // Misc
   app.configure(Scene)
@@ -86,4 +85,6 @@ export default (app: Application): void => {
   app.configure(AccessControlScope)
   app.configure(organizationUserRank)
   app.configure(organizationUser)
+
+  app.configure(GraphQL)
 }
