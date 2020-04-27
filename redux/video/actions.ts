@@ -9,8 +9,8 @@ export interface PublicVideoState {
 }
 
 export interface VideoMetaData {
-    thumbnail_url: string,
-    '360_format': string
+    thumbnail_url?: string,
+    '360_format'?: string
 }
 export interface PublicVideo {
     id: number
