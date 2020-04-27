@@ -14,8 +14,7 @@ const hlsPlaylistName = 'master.m3u8'
 
 // choose dash or hls
 function getManifestUri(manifestPath: string): string {
-  const manifestName = AFRAME.utils.device.isIOS() ? hlsPlaylistName : dashManifestName
-  return manifestPath + '/' + manifestName
+  return AFRAME.utils.device.isIOS() ? manifestPath.replace(dashManifestName, hlsPlaylistName) : manifestPath
 }
 
 function Video360Room() {
