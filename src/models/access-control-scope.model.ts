@@ -15,8 +15,7 @@ export default (app: Application): any => {
       beforeCount (options: any) {
         options.raw = true
       }
-    },
-    timestamps: false
+    }
   });
 
   (accessControlScope as any).associate = (models: any): any => {
