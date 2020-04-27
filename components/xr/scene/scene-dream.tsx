@@ -14,107 +14,123 @@ import AframeComponentRegisterer from '../aframe/index'
 
 const media: PublicVideo[] = [{
   id: 0,
-  original_title: 'Launchpad',
-  title: 'Launchpad',
+  // original_title: 'Launchpad',
+  name: 'Launchpad',
   description: 'Launchpad',
-  link: 'https://kaixr.world/8c2oV4s/launchpad',
-  thumbnail_url: '/temp_thumbnails/launchpad.jpg',
-  production_credit: '',
-  rating: 'G',
-  categories: '',
-  runtime: '',
-  tags: ''
+  url: 'https://kaixr.world/8c2oV4s/launchpad',
+  metadata: {
+    thumbnail_url: '/temp_thumbnails/launchpad.jpg'
+  }
+  // production_credit: '',
+  // rating: 'G',
+  // categories: '',
+  // runtime: '',
+  // tags: ''
 },
 {
   id: 0,
-  original_title: 'Microworld',
-  title: 'Microworld',
+  // original_title: 'Microworld',
+  name: 'Microworld',
   description: 'Microworld',
-  link: 'https://kaixr.world/9NWSBXQ/microworld',
-  thumbnail_url: '/temp_thumbnails/microworld.jpg',
-  production_credit: '',
-  rating: 'G',
-  categories: '',
-  runtime: '',
-  tags: ''
+  url: 'https://kaixr.world/9NWSBXQ/microworld',
+  metadata: {
+    thumbnail_url: '/temp_thumbnails/microworld.jpg'
+  }
+  // production_credit: '',
+  // rating: 'G',
+  // categories: '',
+  // runtime: '',
+  // tags: ''
 },
 {
   id: 0,
-  original_title: 'Basketball',
-  title: 'Basketball',
+  // original_title: 'Basketball',
+  name: 'Basketball',
   description: 'Basketball',
-  link: 'https://kaixr.world/UdqF5bz/basketball-stadium',
-  thumbnail_url: '/temp_thumbnails/basketballstadium.jpg',
-  production_credit: '',
-  rating: 'G',
-  categories: '',
-  runtime: '',
-  tags: ''
+  url: 'https://kaixr.world/UdqF5bz/basketball-stadium',
+  metadata: {
+    thumbnail_url: '/temp_thumbnails/basketballstadium.jpg'
+  }
+  // production_credit: '',
+  // rating: 'G',
+  // categories: '',
+  // runtime: '',
+  // tags: ''
 },
 {
   id: 0,
-  original_title: 'Underwater',
-  title: 'Underwater',
+  // original_title: 'Underwater',
+  name: 'Underwater',
   description: 'Underwater',
-  link: 'https://kaixr.world/qFQa2ho/underwater',
-  thumbnail_url: '/temp_thumbnails/underwater.jpg',
-  production_credit: '',
-  rating: 'G',
-  categories: '',
-  runtime: '',
-  tags: ''
+  url: 'https://kaixr.world/qFQa2ho/underwater',
+  metadata: {
+    thumbnail_url: '/temp_thumbnails/underwater.jpg'
+  }
+  // original_title: '',
+  // rating: 'G',
+  // categories: '',
+  // runtime: '',
+  // tags: ''
 },
 {
   id: 0,
-  original_title: 'Fairytale Castle',
-  title: 'Fairytale Castle',
+  // original_title: 'Fairytale Castle',
+  name: 'Fairytale Castle',
   description: 'Fairytale Castle',
-  link: 'https://kaixr.world/ACfGWd5/fairytale-castle',
-  thumbnail_url: '/temp_thumbnails/fairytalecastle.jpg',
-  production_credit: '',
-  rating: 'G',
-  categories: '',
-  runtime: '',
-  tags: ''
+  url: 'https://kaixr.world/ACfGWd5/fairytale-castle',
+  metadata: {
+    thumbnail_url: '/temp_thumbnails/fairytalecastle.jpg'
+  }
+  // production_credit: '',
+  // rating: 'G',
+  // categories: '',
+  // runtime: '',
+  // tags: ''
 },
 {
   id: 0,
-  original_title: 'Solar System',
-  title: 'Solar System',
+  // original_title: 'Solar System',
+  name: 'Solar System',
   description: 'Solar System',
-  link: 'https://kaixr.world/k2KFMXu/solar-system',
-  thumbnail_url: '/temp_thumbnails/solarsystem.jpg',
-  production_credit: '',
-  rating: 'G',
-  categories: '',
-  runtime: '',
-  tags: ''
+  url: 'https://kaixr.world/k2KFMXu/solar-system',
+  metadata: {
+    thumbnail_url: '/temp_thumbnails/solarsystem.jpg'
+  }
+  // production_credit: '',
+  // rating: 'G',
+  // categories: '',
+  // runtime: '',
+  // tags: ''
 },
 {
   id: 0,
-  original_title: 'Deserted Island',
-  title: 'Deserted Island',
+  // original_title: 'Deserted Island',
+  name: 'Deserted Island',
   description: 'Deserted Island',
-  link: 'https://kaixr.world/wZMeRi2/a-deserted-island',
-  thumbnail_url: '/temp_thumbnails/desertedisland.jpg',
-  production_credit: '',
-  rating: 'G',
-  categories: '',
-  runtime: '',
-  tags: ''
+  url: 'https://kaixr.world/wZMeRi2/a-deserted-island',
+  metadata: {
+    thumbnail_url: '/temp_thumbnails/desertedisland.jpg'
+  }
+  // production_credit: '',
+  // rating: 'G',
+  // categories: '',
+  // runtime: '',
+  // tags: ''
 },
 {
   id: 0,
-  original_title: 'Wide Open Space',
-  title: 'Wide Open Space',
+  // original_title: 'Wide Open Space',
+  name: 'Wide Open Space',
   description: 'Wide Open Space',
-  link: 'https://kaixr.world/P3PJZbZ/wide-open-space',
-  thumbnail_url: '/temp_thumbnails/wideopenspace.jpg',
-  production_credit: '',
-  rating: 'G',
-  categories: '',
-  runtime: '',
-  tags: ''
+  url: 'https://kaixr.world/P3PJZbZ/wide-open-space',
+  metadata: {
+    thumbnail_url: '/temp_thumbnails/wideopenspace.jpg'
+  }
+  // production_credit: '',
+  // rating: 'G',
+  // categories: '',
+  // runtime: '',
+  // tags: ''
 }]
 
 export default function DreamScene (): any {
@@ -135,16 +151,16 @@ export default function DreamScene (): any {
               <Entity
                 key={i}
                 primitive="a-media-cell"
-                original-title={video.original_title}
-                title={video.title}
+                // original-title={video.original_title}
+                title={video.name}
                 description={video.description}
-                media-link={video.link}
-                thumbnail-url={video.thumbnail_url}
-                production-credit={video.production_credit}
-                rating={video.rating}
-                categories={video.categories}
-                runtime={video.runtime}
-                tags={video.tags}
+                media-url={video.url}
+                // thumbnail-url={video.thumbnail_url}
+                // production-credit={video.production_credit}
+                // rating={video.rating}
+                // categories={video.categories}
+                // runtime={video.runtime}
+                // tags={video.tags}
                 cellHeight={0.6666}
                 cellWidth={1}
                 cellContentHeight={0.5}
