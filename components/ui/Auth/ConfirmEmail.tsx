@@ -28,14 +28,11 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 })
 
 class ConfirmEmail extends React.Component<Props> {
-  state = {
-    email: ''
-  }
-
   handleResendEmail = (e: any) => {
     e.preventDefault()
 
-    this.props.resendVerificationEmail(this.state.email)
+    const user = this.props.auth.get("user");
+    this.props.resendVerificationEmail(user.token)
   }
 
   render() {
