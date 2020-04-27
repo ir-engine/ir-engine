@@ -43,7 +43,6 @@ import GraphQL from './graphql/graphql.service'
 // Misc
 import Scene from './scene/scene.service'
 
-
 export default (app: Application): void => {
   // Types
   app.configure(ComponentType)
