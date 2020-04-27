@@ -1,6 +1,3 @@
-import getScene from '../../hooks/get-scene'
-
-// Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
   before: {
@@ -16,7 +13,7 @@ export default {
   after: {
     all: [],
     find: [],
-    get: [getScene()],
+    get: [],
     create: [],
     update: [],
     patch: [],

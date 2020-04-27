@@ -26,7 +26,7 @@
   "scripts": {
     "test": "yarn run lint && yarn run compile && yarn run mocha",
     "lint": "node node_modules/.bin/eslint --ext .js,.ts src/ test/ --fix",
-    "dev": "NODE_ENV=dev ts-node-dev --no-notify src/",
+    "dev": "ts-node-dev --no-notify src/",
     "dev-reinit-db": "NODE_ENV=dev FORCE_DB_REFRESH=true ts-node-dev --no-notify src/",
     "dev-generate-fakes": "NODE_ENV=dev env GENERATE_FAKES=true ts-node-dev --no-notify src/",
     "start": "yarn run compile && node lib/",
@@ -38,6 +38,11 @@
       "mocha"
     ],
     "ignore": []
+  },
+  "resolutions": {
+    "is-promise": "2.1.0",
+    "simple-swizzle/is-arrayish/is-promise": "2.1.0",
+    "fs-capacitor/is-promise": "2.1.0"
   },
   "types": "lib/",
   "dependencies": {
@@ -53,14 +58,17 @@
     "@types/lodash": "^4.14.150",
     "@types/multer": "^1.4.3",
     "@types/nodemailer": "^6.4.0",
+    "apollo-server": "^2.12.0",
+    "apollo-server-express": "^2.12.0",
     "app-root-path": "^3.0.0",
     "aws-sdk": "^2.658.0",
+    "camelcase": "^6.0.0",
     "compression": "^1.7.4",
     "config": "^3.3.1",
     "cors": "^2.8.5",
     "dauria": "^2.0.0",
     "dotenv": "^8.2.0",
-    "faker": "^4.1.0",
+    "express-graphql": "^0.9.0",
     "feathers-authentication-hooks": "^1.0.2",
     "feathers-authentication-management": "^2.0.1",
     "feathers-blob": "^2.2.0",
@@ -70,6 +78,9 @@
     "feathers-sequelize": "^6.1.0",
     "feathers-swagger": "^1.2.1",
     "fs-blob-store": "^5.2.1",
+    "graphql-relay": "^0.6.0",
+    "graphql-sequelize": "^9.4.0",
+    "graphql-tools": "^5.0.0",
     "helmet": "^3.22.0",
     "mariadb": "^2.3.1",
     "multer": "^1.4.2",

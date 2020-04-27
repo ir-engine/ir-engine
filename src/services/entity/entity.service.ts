@@ -17,6 +17,8 @@ export default (app: Application): any => {
     multi: true
   }
 
+  // Register model to
+
   app.use('/entity', new Entity(options, app))
 
   const service = app.service('entity')
