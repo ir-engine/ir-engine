@@ -4,7 +4,7 @@ import gridComp from './grid'
 import gridCellComp from './grid-cell'
 import mediaCellComp from './media-cell'
 import eaccubeComp from './eaccube'
-import playerVrUiComp from './player-vr-ui'
+import playerVrUiComp from './video-player-vr-ui'
 import AFRAME from 'aframe'
 import React from 'react'
 
