@@ -30,7 +30,7 @@ export class Video implements ServiceMethods<Data> {
       return await Promise.all(data.map(current => this.create(current, params)))
     }
 
-    (data as any).mime_type = (data as any).mime_type ? (data as any).mime_type : 'video/mp4';
+    (data as any).mime_type = 'application/dash+xml';
     (data as any).type = getBasicMimetype((data as any).mime_type)
 
     const result = await this.app.service('static-resource').create(data)
