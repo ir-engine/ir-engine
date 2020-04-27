@@ -17,7 +17,7 @@ export interface PublicVideo {
     name: string
     description: string
     url: string,
-    metadata: VideoMetaData
+    metadata: Partial<VideoMetaData>
 }
 
 export interface VideosFetchedAction {
