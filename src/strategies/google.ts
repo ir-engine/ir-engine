@@ -8,7 +8,8 @@ export default class Googletrategy extends OAuthStrategy {
     return {
       ...baseData,
       profilePicture: profile.picture,
-      email: profile.email
+      email: profile.email,
+      accountType: 'google'
     }
   }
 

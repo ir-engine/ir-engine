@@ -39,6 +39,7 @@ import SMS from './sms/sms.service'
 import Upload from './upload/upload.service'
 import Video from './video/video.service'
 import GraphQL from './graphql/graphql.service'
+import identityProvider from './identity-provider/identity-provider.service'
 
 // Misc
 import Scene from './scene/scene.service'
@@ -78,6 +79,7 @@ export default (app: Application): void => {
   app.configure(Upload)
   app.configure(Video)
   app.configure(GraphQL)
+  app.configure(identityProvider)
 
   // Misc
   app.configure(Scene)
