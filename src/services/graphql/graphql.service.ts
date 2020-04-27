@@ -4,7 +4,7 @@ import { Graphql } from './graphql.class'
 import { GraphQLObjectType, GraphQLList, GraphQLSchema, GraphQLInt } from 'graphql'
 import { ApolloServer } from 'apollo-server-express'
 // @ts-ignore
-import graphqlSequelize from 'graphql-sequelize'
+import { attributeFields, resolver } from 'graphql-sequelize'
 import util from 'util'
 import camelCase from 'camelcase'
 
@@ -22,10 +22,9 @@ export default (app: Application): any => {
 
   const models = sequelizeClient.models
 
-
   const getFields = (params: any): any => {
     return _.assign(
-      graphqlSequelize.attributeFields(
+      attributeFields(
         params.model,
         Object.assign(params.options || {}, {
           map: (k: any) => camelCase(k)
@@ -46,10 +45,9 @@ export default (app: Application): any => {
         id: { type: GraphQLInt },
         limit: { type: GraphQLInt }
       },
-      resolve: function (root: any, args: any, _: any, info: any) {
-        console.log(root)
-        return graphqlSequelize.resolver(model)(root, args, info)
-      }
+      resolve: resolver(model, {
+        list: true
+      })
     }
   })
     .keyBy('fieldName')
