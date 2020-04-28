@@ -1,6 +1,24 @@
 import fetch from 'node-fetch'
 import config from 'config'
 
+interface FilterType {
+  count: number
+  max_face_count: number
+  max_filesizes: string
+  type: string
+  downloadable: boolean
+  processing_status: string
+  cursor: string
+}
+
+interface FilterOptions {
+  source: string
+  filter: string
+  cursor: string
+  q: string
+  collection: number
+  pageSize: number
+}
 export default class GooglePolyMedia {
   private readonly SKETCH_FAB_URL = 'https://api.sketchfab.com/v3/search';
 
@@ -9,10 +27,10 @@ export default class GooglePolyMedia {
   private readonly maxCollectionFaceCount = 200_000
   private readonly maxCollectionFileSizeBytes = `gltf:${100 * 1024 * 1024}`
 
-  public async searchSketchFabMedia (filterOptions: any): Promise<any> {
+  public async searchSketchFabMedia (filterOptions: FilterOptions): Promise<any> {
     const { source, filter, cursor, q, collection, pageSize } = filterOptions
 
-    const defaultFilters = {
+    const defaultFilters: FilterType = {
       count: pageSize,
       max_face_count: 60000,
       max_filesizes: `gltf:${20 * 1024 * 1024}`,
@@ -33,7 +51,8 @@ export default class GooglePolyMedia {
     }
 
     const url = new URL(this.SKETCH_FAB_URL)
-    Object.keys(defaultFilters).forEach(key => url.searchParams.append(key, defaultFilters[key]))
+
+    Object.keys(defaultFilters).forEach((key) => url.searchParams.append(key, defaultFilters[key]))
 
     return await fetch(url, { headers: { Authorization: this.SKETCH_FAB_AUTH_TOKEN } })
       .then(res => res.json())
