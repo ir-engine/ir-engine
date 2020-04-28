@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react' //
 // @ts-ignore
 import { Scene, Entity } from 'aframe-react'
 import Assets from './assets'
@@ -8,132 +8,39 @@ import './style.scss'
 import SvgVr from '../../icons/svg/Vr'
 
 // eslint-disable-next-line no-unused-vars
-import { PublicVideo } from '../../../redux/video/actions'
+import { PublicScene } from '../../../redux/scenes/actions'
 
 import AframeComponentRegisterer from '../aframe/index'
+// eslint-disable-next-line no-unused-vars
+import { bindActionCreators, Dispatch } from 'redux'
 
-const media: PublicVideo[] = [{
-  id: 0,
-  // original_title: 'Launchpad',
-  name: 'Launchpad',
-  description: 'Launchpad',
-  url: 'https://kaixr.world/8c2oV4s/launchpad',
-  metadata: {
-    thumbnail_url: '/temp_thumbnails/launchpad.jpg'
-  }
-  // production_credit: '',
-  // rating: 'G',
-  // categories: '',
-  // runtime: '',
-  // tags: ''
-},
-{
-  id: 0,
-  // original_title: 'Microworld',
-  name: 'Microworld',
-  description: 'Microworld',
-  url: 'https://kaixr.world/9NWSBXQ/microworld',
-  metadata: {
-    thumbnail_url: '/temp_thumbnails/microworld.jpg'
-  }
-  // production_credit: '',
-  // rating: 'G',
-  // categories: '',
-  // runtime: '',
-  // tags: ''
-},
-{
-  id: 0,
-  // original_title: 'Basketball',
-  name: 'Basketball',
-  description: 'Basketball',
-  url: 'https://kaixr.world/UdqF5bz/basketball-stadium',
-  metadata: {
-    thumbnail_url: '/temp_thumbnails/basketballstadium.jpg'
-  }
-  // production_credit: '',
-  // rating: 'G',
-  // categories: '',
-  // runtime: '',
-  // tags: ''
-},
-{
-  id: 0,
-  // original_title: 'Underwater',
-  name: 'Underwater',
-  description: 'Underwater',
-  url: 'https://kaixr.world/qFQa2ho/underwater',
-  metadata: {
-    thumbnail_url: '/temp_thumbnails/underwater.jpg'
-  }
-  // original_title: '',
-  // rating: 'G',
-  // categories: '',
-  // runtime: '',
-  // tags: ''
-},
-{
-  id: 0,
-  // original_title: 'Fairytale Castle',
-  name: 'Fairytale Castle',
-  description: 'Fairytale Castle',
-  url: 'https://kaixr.world/ACfGWd5/fairytale-castle',
-  metadata: {
-    thumbnail_url: '/temp_thumbnails/fairytalecastle.jpg'
-  }
-  // production_credit: '',
-  // rating: 'G',
-  // categories: '',
-  // runtime: '',
-  // tags: ''
-},
-{
-  id: 0,
-  // original_title: 'Solar System',
-  name: 'Solar System',
-  description: 'Solar System',
-  url: 'https://kaixr.world/k2KFMXu/solar-system',
-  metadata: {
-    thumbnail_url: '/temp_thumbnails/solarsystem.jpg'
-  }
-  // production_credit: '',
-  // rating: 'G',
-  // categories: '',
-  // runtime: '',
-  // tags: ''
-},
-{
-  id: 0,
-  // original_title: 'Deserted Island',
-  name: 'Deserted Island',
-  description: 'Deserted Island',
-  url: 'https://kaixr.world/wZMeRi2/a-deserted-island',
-  metadata: {
-    thumbnail_url: '/temp_thumbnails/desertedisland.jpg'
-  }
-  // production_credit: '',
-  // rating: 'G',
-  // categories: '',
-  // runtime: '',
-  // tags: ''
-},
-{
-  id: 0,
-  // original_title: 'Wide Open Space',
-  name: 'Wide Open Space',
-  description: 'Wide Open Space',
-  url: 'https://kaixr.world/P3PJZbZ/wide-open-space',
-  metadata: {
-    thumbnail_url: '/temp_thumbnails/wideopenspace.jpg'
-  }
-  // production_credit: '',
-  // rating: 'G',
-  // categories: '',
-  // runtime: '',
-  // tags: ''
-}]
+import { connect } from 'react-redux'
+import { selectScenesState } from '../../../redux/scenes/selector'
+import { fetchPublicScenes } from '../../../redux/scenes/service'
 
-export default function DreamScene (): any {
+interface DreamProps {
+  scenes: any,
+  fetchPublicScenes: typeof fetchPublicScenes
+}
+
+const mapStateToProps = (state: any) => {
+  return {
+    scenes: selectScenesState(state)
+  }
+}
+
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  fetchPublicScenes: bindActionCreators(fetchPublicScenes, dispatch)
+})
+
+function DreamScene (props: DreamProps): any {
+  const { scenes, fetchPublicScenes } = props
+
+  useEffect(() => {
+    if (scenes.get('scenes').size === 0) {
+      fetchPublicScenes()
+    }
+  })
   return (
     <Scene
       vr-mode-ui="enterVRButton: #enterVRButton"
@@ -146,21 +53,13 @@ export default function DreamScene (): any {
         <Entity
           primitive="a-grid"
           rows={3}>
-          {media.map((video: any, i: number) => {
+          {scenes.get('scenes').map(function (x: PublicScene, i: number) {
             return (
               <Entity
                 key={i}
                 primitive="a-media-cell"
-                // original-title={video.original_title}
-                title={video.name}
-                description={video.description}
-                media-url={video.url}
-                // thumbnail-url={video.thumbnail_url}
-                // production-credit={video.production_credit}
-                // rating={video.rating}
-                // categories={video.categories}
-                // runtime={video.runtime}
-                // tags={video.tags}
+                title={x.name}
+                media-url={x.url}
                 cellHeight={0.6666}
                 cellWidth={1}
                 cellContentHeight={0.5}
@@ -179,3 +78,8 @@ export default function DreamScene (): any {
     </Scene>
   )
 }
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(DreamScene)

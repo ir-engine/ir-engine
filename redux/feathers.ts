@@ -14,5 +14,5 @@ export const client = feathers()
 
 client.configure(feathers.socketio(socket, { timeout: 10000 }))
 client.configure(feathers.authentication({
-    storageKey: featherStoreKey
+  storageKey: featherStoreKey
 }))
