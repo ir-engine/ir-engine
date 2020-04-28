@@ -3,11 +3,11 @@ import license from './licenses/mit.json'
 // $ export FORCE_DB_REFRESH=true
 // to enable seeting
 const disabled = (process.env.FORCE_DB_REFRESH !== 'true' && process.env.GENERATE_FAKES !== 'true')
-const force_delete = !disabled
+const forceDelete = !disabled
 
 module.exports = {
   disabled: disabled,
-  delete: force_delete,
+  delete: forceDelete,
   services: [
     // TYPES
     {
