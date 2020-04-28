@@ -1,13 +1,18 @@
 import license from './licenses/mit.json'
 
+// $ export FORCE_DB_REFRESH=true
+// to enable seeting
 const disabled = (process.env.FORCE_DB_REFRESH !== 'true' && process.env.GENERATE_FAKES !== 'true')
+const force_delete = !disabled
 
 module.exports = {
+  disabled: disabled,
+  delete: force_delete,
   services: [
     // TYPES
     {
-      disabled: false,
-      delete: true,
+      disabled: disabled,
+      
       path: 'collection-type',
       templates:
         [
@@ -15,8 +20,8 @@ module.exports = {
           { name: 'inventory' }]
     },
     {
-      disabled: false,
-      delete: true,
+      disabled: disabled,
+      
       path: 'component-type',
       randomize: false,
       templates:
@@ -67,8 +72,8 @@ module.exports = {
         ]
     },
     {
-      disabled: false,
-      delete: true,
+      disabled: disabled,
+      
       path: 'entity-type',
       randomize: false,
       templates:
@@ -107,8 +112,8 @@ module.exports = {
         ]
     },
     {
-      disabled: false,
-      delete: true,
+      disabled: disabled,
+      
       path: 'user-relationship-type',
       randomize: false,
       templates:
@@ -119,8 +124,8 @@ module.exports = {
         ]
     },
     {
-      disabled: false,
-      delete: true,
+      disabled: disabled,
+      
       path: 'user-role',
       templates:
         [
@@ -131,8 +136,8 @@ module.exports = {
         ]
     },
     {
-      disabled: false,
-      delete: true,
+      disabled: disabled,
+      
       path: 'organization-user-rank',
       templates:
         [
@@ -142,8 +147,8 @@ module.exports = {
         ]
     },
     {
-      disabled: false,
-      delete: true,
+      disabled: disabled,
+      
       path: 'resource-type',
       randomize: false,
       templates:
@@ -172,8 +177,8 @@ module.exports = {
         ]
     },
     {
-      disabled: false,
-      delete: true,
+      disabled: disabled,
+      
       path: 'access-control-scope',
       randomize: false,
       templates:
@@ -184,8 +189,8 @@ module.exports = {
         ]
     },
     {
-      disabled: false,
-      delete: true,
+      disabled: disabled,
+      
       path: 'access-control',
       randomize: false,
       templates:
@@ -881,8 +886,8 @@ module.exports = {
         ]
     },
     {
-      disabled: false,
-      delete: true,
+      disabled: disabled,
+      
       path: 'static-resource-type',
       randomize: false,
       templates: [
@@ -922,7 +927,7 @@ module.exports = {
     },
     {
       disabled: disabled,
-      delete: true,
+      
       count: 10,
       path: 'attribution',
       template: {
@@ -934,7 +939,7 @@ module.exports = {
     },
     {
       disabled: disabled,
-      delete: true,
+      
       path: 'collection',
       template: {
         name: 'A test scene',
@@ -947,7 +952,7 @@ module.exports = {
     },
     {
       disabled: disabled,
-      delete: true,
+      
       path: 'component',
       template: {
         data: '{}',
@@ -957,7 +962,7 @@ module.exports = {
     },
     {
       disabled: disabled,
-      delete: true,
+      
       path: 'entity',
       templates: [{
         name: 'boxentity',
@@ -970,7 +975,7 @@ module.exports = {
     },
     {
       disabled: disabled,
-      delete: true,
+      
       path: 'group',
       template: {
         // Groups are semi-ephemeral, and have no properties other than ID
@@ -978,7 +983,7 @@ module.exports = {
     },
     {
       disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
-      delete: true,
+      
       path: 'license',
       template: {
         name: license.name,
@@ -987,7 +992,7 @@ module.exports = {
     },
     {
       disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
-      delete: true,
+      
       path: 'location',
       template: {
         name: 'test location',
@@ -1001,7 +1006,7 @@ module.exports = {
     },
     {
       disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
-      delete: true,
+      
       path: 'organization',
       template: {
         name: 'test organization'
@@ -1009,7 +1014,7 @@ module.exports = {
     },
     {
       disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
-      delete: true,
+      
       path: 'static-resource',
       template: {
         name: 'static test resource',
