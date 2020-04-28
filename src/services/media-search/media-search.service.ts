@@ -1,13 +1,13 @@
 // Initializes the `MediaSearch` service on path `/media/search`
-import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
-import { MediaSearch } from './media-search.class';
-import hooks from './media-search.hooks';
+import { ServiceAddons } from '@feathersjs/feathers'
+import { Application } from '../../declarations'
+import { MediaSearch } from './media-search.class'
+import hooks from './media-search.hooks'
 
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'media/search': MediaSearch & ServiceAddons<any>;
+    'media/search': MediaSearch & ServiceAddons<any>
   }
 }
 
