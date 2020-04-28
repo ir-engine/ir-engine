@@ -48,7 +48,7 @@ export class MediaSearch implements ServiceMethods<Data> {
     let result
     switch (source) {
       case 'sketchfab':
-        result = await this.searchMedia(params?.query)
+        result = await this.searchSketchFabMedia(params?.query)
         break
     }
     return result
@@ -76,7 +76,7 @@ export class MediaSearch implements ServiceMethods<Data> {
     return { id }
   }
 
-  async searchMedia (filterOptions: any): Promise<any> {
+  async searchSketchFabMedia (filterOptions: any): Promise<any> {
     const { source, filter, cursor, q, collection } = filterOptions
 
     const defaultFilters = {
