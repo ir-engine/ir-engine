@@ -53,7 +53,8 @@ function ExploreScene (props: VideoProps): any {
       <Entity position="0 1.6 0">
         <Entity
           primitive="a-grid"
-          rows={3}>
+          rows={5}
+          colunns={6}>
 
           {videos.get('videos').map(function (video: PublicVideo, i: number) {
             return (
