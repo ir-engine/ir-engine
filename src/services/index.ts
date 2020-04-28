@@ -41,6 +41,8 @@ import projectAsset from './project-asset/project-asset.service';
 
 import sceneListing from './scene-listing/scene-listing.service';
 
+import mediaSearch from './media-search/media-search.service';
+
 export default (app: Application): void => {
   app.configure(Email)
   app.configure(Auth)
@@ -62,7 +64,6 @@ export default (app: Application): void => {
   app.configure(license)
   app.configure(resource)
   app.configure(collection)
-  app.configure(project)
   app.configure(video)
   app.configure(collectionEntity)
   app.configure(entityComponent)
@@ -74,9 +75,10 @@ export default (app: Application): void => {
   app.configure(resourceChild)
   app.configure(resourceType)
   app.configure(upload)
-  app.configure(project);
-  app.configure(asset);
-  app.configure(ownedFile);
-  app.configure(projectAsset);
-  app.configure(sceneListing);
+  app.configure(project)
+  app.configure(asset)
+  app.configure(ownedFile)
+  app.configure(projectAsset)
+  app.configure(sceneListing)
+  app.configure(mediaSearch);
 }
