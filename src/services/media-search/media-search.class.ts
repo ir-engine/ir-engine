@@ -1,5 +1,3 @@
-import fetch from 'node-fetch'
-import config from 'config'
 import SketchFabMedia from './sketch-fab.class'
 import GooglePolyMedia from './google-poly.class'
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'

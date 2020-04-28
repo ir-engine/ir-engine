@@ -51,12 +51,14 @@ export default class GooglePolyMedia {
 
   private getAndProcessSketchFabResponse (item: any): any {
     const preview = item.thumbnails.images.sort((a: any, b: any) => b.size - a.size)[0]
+    const uid: string = item.uid
 
+    const url: string = `https://sketchfab.com/models/${uid}`
     const processedResponse = {
       type: 'sketchfab_model',
       id: item.uid,
       name: item.name,
-      url: `https://sketchfab.com/models/${item.uid}`,
+      url: url,
       attributions: { creator: { name: item.user.username, url: item.user.profileUrl } },
       images: {
         preview: {
