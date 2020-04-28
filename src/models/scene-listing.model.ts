@@ -74,9 +74,9 @@ export default (app: Application): any => {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
     // (sceneListing as any).belongsTo(models.scene, { foreignKey: 'scene_id', targetKey: 'scene_id' });
-    (sceneListing as any).belongsTo(models.owned_file, { foreignKey: 'model_owned_file_id', targetKey: 'owned_file_id' });
-    (sceneListing as any).belongsTo(models.owned_file, { foreignKey: 'screenshot_owned_file_id', targetKey: 'owned_file_id' });
-    (sceneListing as any).belongsTo(models.owned_file, { foreignKey: 'scene_owned_file_id', targetKey: 'owned_file_id' })
+    (sceneListing as any).belongsTo(models.owned_file, { foreignKey: 'model_owned_file_id', targetKey: 'owned_file_id', as: 'model_owned_file' });
+    (sceneListing as any).belongsTo(models.owned_file, { foreignKey: 'screenshot_owned_file_id', targetKey: 'owned_file_id', as: 'screenshot_owned_file' });
+    (sceneListing as any).belongsTo(models.owned_file, { foreignKey: 'scene_owned_file_id', targetKey: 'owned_file_id', as: 'scene_owned_file' })
   }
 
   return sceneListing

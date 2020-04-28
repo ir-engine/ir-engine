@@ -43,12 +43,13 @@ export default class SketchFabMedia {
   }
 
   private getAndProcessPolyResponse (item: any): any {
-
+    const name: string = item.name
+    const url: any = `https://poly.google.com/view/${name}`
     const processedResponse = {
       type: 'poly_model',
       id: item.name,
       name: item.displayName,
-      url: `https://poly.google.com/view/${item.name}`.replace('assets/', ''),
+      url: url.replace('assets/', ''),
       attributions: { creator: { name: item.authorName } },
       images: {
         preview: {
