@@ -7,7 +7,12 @@ export const ComponentName = 'eaccube'
 
 export interface EaccubeComponentProps {
   setSrc: (src: HTMLVideoElement | HTMLImageElement) => void,
-  updateUV: () => void
+  updateUV: () => void,
+  cropTileX: number,
+  cropTileY: number,
+  srcReadyListener: () => void,
+  onSrcReady: () => void,
+  unsetSrc: (src: HTMLVideoElement | HTMLImageElement) => void
 }
 
 export interface EaccubeComponentData {
@@ -52,13 +57,13 @@ export const EaccubeComponentSchema: AFRAME.MultiPropertySchema<EaccubeComponent
   size: { type: 'int', default: 1000 }
 }
 
-function generateEACUV(tileOrder: string[], tileRotation: string[], tileFlip: string[]): number[] {
+function generateEACUV(tileOrder: string[], tileRotation: string[], tileFlip: string[], cropX: number, cropY: number): number[] {
   const cubeFaceCoords: number[][] = []
   const rows = 2
   const cols = 3
   for (let r = rows - 1; r >= 0; r--) {
     for (let c = 0; c < cols; c++) {
-      cubeFaceCoords.push([
+      cubeFaceCoords.push(cropFaceBorders([
         THREE.MathUtils.clamp(c / cols, 0, 1),
         THREE.MathUtils.clamp((r + 1) / rows, 0, 1),
 
@@ -70,7 +75,7 @@ function generateEACUV(tileOrder: string[], tileRotation: string[], tileFlip: st
 
         THREE.MathUtils.clamp((c + 1) / cols, 0, 1),
         THREE.MathUtils.clamp((r + 1) / rows, 0, 1)
-      ])
+      ], cropX, cropY))
     }
   }
 
@@ -143,13 +148,26 @@ function rotateFaceCoord(faceCoord: number[], rotation: string) {
   }
   return faceCoord
 }
+function cropFaceBorders(faceCoord: number[], cropX: number, cropY: number) {
+  return [
+    faceCoord[0] + cropX, faceCoord[1] - cropY,
+    faceCoord[2] + cropX, faceCoord[3] + cropY,
+    faceCoord[4] - cropX, faceCoord[5] + cropY,
+    faceCoord[6] - cropX, faceCoord[7] - cropY
+  ]
+}
 
 export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps> = {
   schema: EaccubeComponentSchema,
   data: {
   } as EaccubeComponentData,
+  cropTileX: 0,
+  cropTileY: 0,
+  srcReadyListener: () => null,
 
   init() {
+    this.srcReadyListener = this.onSrcReady.bind(this)
+
     this.el.setAttribute('geometry', {
       buffer: true,
       primitive: 'box',
@@ -163,14 +181,11 @@ export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps>
     })
 
     this.el.setAttribute('material', {
-      src: this.data.src,
       npot: true,
       shader: 'eaccube',
       color: 'white',
       side: 'back'
     })
-
-    this.updateUV()
 
     const mesh = this.el.getObject3D('mesh')
     mesh.scale.x = -1
@@ -179,6 +194,7 @@ export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps>
 
   update(oldData) {
     if (this.data.src !== oldData.src) {
+      this.unsetSrc(oldData.src)
       this.setSrc(this.data.src)
     }
 
@@ -194,6 +210,14 @@ export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps>
     this.el.setAttribute('material', {
       src
     })
+
+    if ((src as HTMLVideoElement).videoWidth > 0 || (src as HTMLImageElement).naturalWidth > 0) {
+      this.onSrcReady()
+    } else if (src.tagName === 'VIDEO') {
+      src.addEventListener('loadeddata', this.srcReadyListener, { once: true })
+    } else { // IMG
+      src.addEventListener('load', this.srcReadyListener, { once: true })
+    }
   },
 
   updateUV() {
@@ -204,10 +228,40 @@ export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps>
       generateEACUV(
         this.data.tileOrder.split(''),
         this.data.tileRotation.split(''),
-        this.data.tileFlip.split('')
+        this.data.tileFlip.split(''),
+        this.cropTileX,
+        this.cropTileY
       )
     )
     uv.needsUpdate = true
+  },
+
+  unsetSrc(src: HTMLVideoElement | HTMLImageElement) {
+    if (!src) {
+      return
+    }
+    this.cropTileX = this.cropTileY = 0
+    if (src.tagName === 'VIDEO') {
+      src.removeEventListener('loadeddata', this.srcReadyListener)
+    } else { // IMG
+      src.removeEventListener('load', this.srcReadyListener)
+    }
+  },
+
+  onSrcReady() {
+    let srcWidth, srcHeight
+    const src = this.data.src
+    if (src.tagName === 'VIDEO') {
+      srcWidth = src.videoWidth
+      srcHeight = src.videoHeight
+    } else { // IMG
+      srcWidth = src.naturalWidth
+      srcHeight = src.naturalHeight
+    }
+    this.cropTileX = 2 / srcWidth
+    this.cropTileY = 2 / srcHeight
+
+    this.updateUV()
   }
 }
 
