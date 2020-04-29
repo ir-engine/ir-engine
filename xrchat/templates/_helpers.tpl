@@ -14,6 +14,10 @@ Expand the name of the chart.
 {{- default .Chart.Name .Values.server.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "xrchat.spoke.name" -}}
+{{- default .Chart.Name .Values.spoke.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 
 {{/*
 Create a default fully qualified app name.
@@ -48,6 +52,14 @@ If release name contains chart name it will be used as a full name.
 {{- .Values.server.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
 {{- printf "%s-%s" .Release.Name .Values.server.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "xrchat.spoke.fullname" -}}
+{{- if .Values.spoke.fullnameOverride -}}
+{{- .Values.spoke.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name .Values.spoke.name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
 
@@ -112,6 +124,30 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: server
 {{- end -}}
 
+
+
+{{/*
+Common labels
+*/}}
+{{- define "xrchat.spoke.labels" -}}
+helm.sh/chart: {{ include "xrchat.chart" . }}
+{{ include "xrchat.spoke.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
+
+{{/*
+Selector labels
+*/}}
+{{- define "xrchat.spoke.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xrchat.spoke.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: spoke
+{{- end -}}
+
+
 {{/*
 Create the name of the service account to use
 */}}
@@ -132,6 +168,18 @@ Create the name of the service account to use
     {{ default (include "xrchat.server.fullname" .) .Values.server.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.server.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "xrchat.spoke.serviceAccountName" -}}
+{{- if .Values.spoke.serviceAccount.create -}}
+    {{ default (include "xrchat.spoke.fullname" .) .Values.spoke.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.spoke.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
 
