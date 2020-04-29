@@ -32,16 +32,17 @@ export default function LangingScene (): any {
           <Entity
             primitive="a-media-cell"
             title="spoke"
-            media-url=""
+            media-url={config.spoke.link}
             thumbnail-url="#spoke"
             cell-height={config.cellHeight}
             cell-width={config.cellWidth}
             cell-content-height={config.cellContentHeight}
-            mediatype="landing"/>
+            mediatype="landing"
+            linktype="external"/>
           <Entity
             primitive="a-media-cell"
             title="vrRoom"
-            media-url="/dream"
+            media-url={config.vrRoom.link}
             thumbnail-url="#vrRoom"
             cell-height={config.cellHeight}
             cell-width={config.cellWidth}
@@ -50,7 +51,7 @@ export default function LangingScene (): any {
           <Entity
             primitive="a-media-cell"
             title="video360"
-            media-url="/explore"
+            media-url={config.video360.link}
             thumbnail-url="#video360banner"
             cell-height={config.cellHeight}
             cell-width={config.cellWidth}
@@ -64,7 +65,8 @@ export default function LangingScene (): any {
             cell-height={config.cellHeight}
             cell-width={config.cellWidth}
             cell-content-height={config.cellContentHeight}
-            mediatype="landing"/>
+            mediatype="landing"
+            linktype="external"/>
         </Entity>
       </Entity>
       <Assets />

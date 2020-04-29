@@ -45,6 +45,7 @@ export interface MediaCellData {
   runtime: string,
   tags: string[],
   mediatype: string,
+  linktype: string,
   videoformat: string
 }
 
@@ -63,6 +64,7 @@ export const MediaCellComponentSchema: AFRAME.MultiPropertySchema<MediaCellData>
   runtime: { default: '' },
   tags: { default: [] },
   mediatype: { default: 'video360' },
+  linktype: { default: 'internal' },
   videoformat: { default: 'eac' }
 
 }
@@ -101,9 +103,18 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
     imageEl.setAttribute('height', this.data.cellContentHeight)
 
     let url: string
+    switch (this.data.linktype) {
+      case 'external':
+        url = 'https://'
+        break
+      case 'internal':
+      default:
+        url = ''
+        break
+    }
     switch (this.data.mediatype) {
       case 'video360':
-        url = 'video360?manifest=' + this.data.url +
+        url += 'video360?manifest=' + this.data.url +
           '&title=' + this.data.title +
           // '&runtime=' + this.data.runtime +
           // '&credit=' + this.data.productionCredit +
@@ -114,10 +125,10 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
         break
       case 'scene':
       case 'landing':
-        url = this.data.url
+        url += this.data.url
         break
       default:
-        url = ''
+        url += ''
         break
     }
     imageEl.addEventListener('click', () => {
@@ -150,6 +161,7 @@ export const MediaCellPrimitive: AFRAME.PrimitiveDefinition = {
     // runtime: ComponentName + '.runtime',
     // tags: ComponentName + '.tags',
     mediatype: ComponentName + '.mediatype',
+    linktype: ComponentName + '.linktype',
     videoformat: ComponentName + '.videoformat'
   }
 }
