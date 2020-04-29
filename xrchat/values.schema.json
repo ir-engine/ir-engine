@@ -283,6 +283,122 @@
                     "type": "array"
                 }
             }
+        },
+        "spoke": {
+            "type": "object",
+            "properties": {
+                "affinity": {
+                    "type": "object"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "extraEnv": {
+                    "type": "object"
+                },
+                "fullnameOverride": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "object",
+                    "properties": {
+                        "pullPolicy": {
+                            "type": "string"
+                        },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "tag": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "imagePullSecrets": {
+                    "type": "array"
+                },
+                "ingress": {
+                    "type": "object",
+                    "properties": {
+                        "annotations": {
+                            "type": "object",
+                            "properties": {
+                                "kubernetes.io/ingress.class": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "hosts": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "host": {
+                                        "type": "string"
+                                    },
+                                    "paths": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nameOverride": {
+                    "type": "string"
+                },
+                "nodeSelector": {
+                    "type": "object"
+                },
+                "podSecurityContext": {
+                    "type": "object"
+                },
+                "replicaCount": {
+                    "type": "integer"
+                },
+                "resources": {
+                    "type": "object"
+                },
+                "securityContext": {
+                    "type": "object"
+                },
+                "service": {
+                    "type": "object",
+                    "properties": {
+                        "port": {
+                            "type": "integer"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "serviceAccount": {
+                    "type": "object",
+                    "properties": {
+                        "annotations": {
+                            "type": "object"
+                        },
+                        "create": {
+                            "type": "boolean"
+                        },
+                        "name": {
+                            "type": "null"
+                        }
+                    }
+                },
+                "tolerations": {
+                    "type": "array"
+                }
+            }
         }
     }
 }
