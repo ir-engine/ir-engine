@@ -7,11 +7,11 @@ export const ComponentName = 'grid'
 export interface GridSystemData {
 }
 export interface GridSystemProps {
-  gridRotation: (x: number) => number,
+  gridRotation: (x: number, c: number) => number,
   gridOffsetY: (r: number, h: number) => number,
   getSource: (m:any) => string,
-  gridRotationString:(gridCellsPerRow: number) => string,
-  gridRotationObj:(gridCellsPerRow: number) => {x: number, y: number, z: number},
+  gridRotationString:(gridCellsPerRow: number, c: number) => string,
+  gridRotationObj:(gridCellsPerRow: number, c: number) => {x: number, y: number, z: number},
   gridOffsetString:(rows: number, cellHeight: number) => string
   gridOffsetObj:(rows: number, cellHeight: number) => {x: number, y: number, z: number},
   updateLayout:(g: any, c: AFRAME.Entity[]) => void
@@ -33,7 +33,9 @@ export const GridSystemDef: AFRAME.SystemDefinition<GridSystemProps> = {
   pause() {
   },
 
-  gridRotation(gridCellsPerRow: number) { return Math.PI - (Math.PI * 2 / (gridCellsPerRow ?? gridCellsPerRow)) * 2 },
+  gridRotation(gridCellsPerRow: number, columns: number) {
+    return (columns === 1) ? Math.PI : Math.PI - (Math.PI * 2 / (gridCellsPerRow ?? gridCellsPerRow)) * 2
+  },
 
   gridOffsetY(rows: number, cellHeight: number) { return (1 - (rows ?? rows) / 2) * (cellHeight ?? cellHeight) },
 
@@ -41,10 +43,12 @@ export const GridSystemDef: AFRAME.SystemDefinition<GridSystemProps> = {
     return media.thumbnail_url && media.thumbnail_url.length > 0 ? media.thumbnail_url : '#placeholder'
   },
 
-  gridRotationString(gridCellsPerRow: number): string { return '0 ' + this.gridRotation(gridCellsPerRow) + ' 0' },
+  gridRotationString(gridCellsPerRow: number, columns: number): string {
+    return '0 ' + this.gridRotation(gridCellsPerRow, columns) + ' 0'
+  },
 
-  gridRotationObj(gridCellsPerRow: number): {x: number, y: number, z: number} {
-    return { x: 0, y: this.gridRotation(gridCellsPerRow), z: 0 }
+  gridRotationObj(gridCellsPerRow: number, columns: number): {x: number, y: number, z: number} {
+    return { x: 0, y: this.gridRotation(gridCellsPerRow, columns), z: 0 }
   },
 
   gridOffsetString(rows: number, cellHeight: number): string {
@@ -104,6 +108,7 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
   init () {
     this.cylindricalGrid = new CylindricalGrid(this.data.cellsPerRow,
       this.data.cellHeight,
+      this.data.cellWidth,
       this.data.radius,
       this.data.rows,
       this.data.columns)
@@ -129,7 +134,8 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
 
   initGrid() {
     this.el.classList.add('grid-cylinder')
-    const rotObj = (this.system as AFRAME.SystemDefinition<GridSystemProps>).gridRotationObj(this.data.gridCellsPerRow)
+    const rotObj = (this.system as AFRAME.SystemDefinition<GridSystemProps>).gridRotationObj(this.data.gridCellsPerRow,
+      this.data.columns)
     this.el.object3D.rotation.set(rotObj.x, rotObj.y, rotObj.z)
     const posObj = (this.system as AFRAME.SystemDefinition<GridSystemProps>).gridOffsetObj(this.data.rows,
       this.data.cellHeight)
@@ -163,10 +169,10 @@ export const GridPrimitive: AFRAME.PrimitiveDefinition = {
   mappings: {
     id: ComponentName + '.id',
     'grid-cells-per-row': ComponentName + '.gridCellsPerRow',
-    'cell-height': ComponentName + '.cellHeight',
     radius: ComponentName + '.radius',
     columns: ComponentName + '.columns',
     rows: ComponentName + '.rows',
+    'cell-height': ComponentName + '.cellHeight',
     'cell-width': ComponentName + '.cellWidth',
     'cell-content-height': ComponentName + '.cellContentHeight'
   }

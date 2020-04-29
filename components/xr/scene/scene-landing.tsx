@@ -1,54 +1,78 @@
 import React from 'react'
 // @ts-ignore
-import { Scene } from 'aframe-react'
+import { Scene, Entity } from 'aframe-react'
 import Assets from './assets'
 import Environment from './environment'
 import Player from '../player/player'
 import './style.scss'
 import SvgVr from '../../icons/svg/Vr'
-import Landing from './landing'
+
+import AframeComponentRegisterer from '../aframe/index'
+
 import getConfig from 'next/config'
-const config = getConfig().publicRuntimeConfig.xr['networked-scene']
+const config = getConfig().publicRuntimeConfig.xr.landing
 
-type State = {
-  appRendered?: boolean
-  color?: string
-}
-
-export default class NetworkedScene extends React.Component<State> {
-  state: State = {
-    appRendered: false,
-    color: 'red'
-  }
-
-  componentDidMount() {
-    if (typeof window !== 'undefined') {
-      require('aframe')
-      require('networked-aframe')
-      // require('aframe-particle-system-component')
-      this.setState({ appRendered: true })
-    }
-  }
-
-  render() {
-    return (
-      <div style={{ height: '100%', width: '100%' }}>
-        {this.state.appRendered && (
-          <Scene
-            vr-mode-ui="enterVRButton: #enterVRButton"
-            networked-scene={config}
-            class="scene"
-            renderer="antialias: true"
-            background="color: #FAFAFA"
-          >
-            <Assets/>
-            <Player/>
-            <Environment/>
-            <Landing />
-            <a className="enterVR" id="enterVRButton" href="#"><SvgVr className="enterVR" /></a>
-          </Scene>
-        )}
-      </div>
-    )
-  }
+export default function LangingScene (): any {
+  return (
+    <Scene
+      vr-mode-ui="enterVRButton: #enterVRButton"
+      class="scene"
+      renderer="antialias: true"
+      background="color: #FAFAFA"
+    >
+      <AframeComponentRegisterer />
+      <Entity position="0 1.6 0">
+        <Entity
+          primitive="a-grid"
+          rows={4}
+          columns={1}
+          cell-height={config.cellHeight}
+          cell-width={config.cellWidth}
+          cell-content-height={config.cellContentHeight}>
+          <Entity
+            primitive="a-media-cell"
+            title="spoke"
+            media-url=""
+            thumbnail-url="#spoke"
+            cell-height={config.cellHeight}
+            cell-width={config.cellWidth}
+            cell-content-height={config.cellContentHeight}
+            mediatype="landing"/>
+          <Entity
+            primitive="a-media-cell"
+            title="vrRoom"
+            media-url="/dream"
+            thumbnail-url="#vrRoom"
+            cell-height={config.cellHeight}
+            cell-width={config.cellWidth}
+            cell-content-height={config.cellContentHeight}
+            mediatype="landing"/>
+          <Entity
+            primitive="a-media-cell"
+            title="video360"
+            media-url="/explore"
+            thumbnail-url="#video360banner"
+            cell-height={config.cellHeight}
+            cell-width={config.cellWidth}
+            cell-content-height={config.cellContentHeight}
+            mediatype="landing"/>
+          <Entity
+            primitive="a-media-cell"
+            title="store"
+            media-url={config.store.link}
+            thumbnail-url="#storebanner"
+            cell-height={config.cellHeight}
+            cell-width={config.cellWidth}
+            cell-content-height={config.cellContentHeight}
+            mediatype="landing"/>
+        </Entity>
+      </Entity>
+      <Assets />
+      <Player />
+      <Environment />
+      <a className="enterVR" id="enterVRButton" href="#">
+        <SvgVr className="enterVR" />
+      </a>
+    </Scene>
+  )
 }
