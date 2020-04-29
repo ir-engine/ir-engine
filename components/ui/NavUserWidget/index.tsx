@@ -7,6 +7,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import Avatar from '@material-ui/core/Avatar'
 import { showDialog } from '../../../redux/dialog/service'
+import Dropdown from '../Profile/profileDown'
 
 import './style.scss'
 import { User } from 'interfaces/User'
@@ -60,18 +61,20 @@ class NavUserBadge extends Component<Props> {
       <div className="userWidget">
         {isLoggedIn && (
           <div className="flex">
-            <Button onClick={() => this.handleLogout()} 
+            {/* <Button onClick={() => this.handleLogout()} 
               style={this.styles.logoutButton}
               >
               {userName}
               <br />
               Logout
-            </Button>
+            </Button> */}
+            <Dropdown>
             {user && user.avatar ? (
               <Avatar alt="User Avatar Icon" src={user.avatar} />
             ) : (
               <Avatar alt="User Avatar">{avatarLetter}</Avatar>
             )}
+            </Dropdown>
           </div>
         )}
         {!isLoggedIn && (
