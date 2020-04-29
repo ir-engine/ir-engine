@@ -11,6 +11,9 @@
 		},
 		{
 			"path": "../xrchat-realtime-server"
+		},
+		{
+			"path": "../Spoke"
 		}
 	],
 	"settings": {}
