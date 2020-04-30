@@ -30,7 +30,8 @@ export function fetchPublicVideos() {
 
 export function uploadFile(data:any){
   return async (dispatch: Dispatch) => {
-   let res = await ajaxPost(`${apiUrl}/upload`,data,false)
+    console.log(data,"dat2123")
+   let res = await ajaxPost(`${apiUrl}/upload`,data,false,true)
 
    console.log(res,"ressssss")
     // client.service('static-resource').create(data).then((res: any) => {
