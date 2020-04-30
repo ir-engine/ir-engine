@@ -14,22 +14,10 @@ declare module '../../declarations' {
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-
   const models = sequelizeClient.models
-
   const types = generateModelTypes(models)
 
-  const actions = ['list', 'create']
-
-  console.log('*********** graphqlSchemaDeclarationNew')
-  const graphqlSchemaDeclarationNew =
-  {
-    user: {
-      model: models.user,
-      actions: ['list', 'create']
-    }
-  }
-  console.log(graphqlSchemaDeclarationNew)
+  const actions = ['list', 'create', 'read', 'update', 'delete']
 
   const graphqlSchemaDeclaration = (): any => {
     const declarations: any[] = []
@@ -45,9 +33,6 @@ export default (app: Application): any => {
         [sequelizeClient.model(item.model).name]: { model: sequelizeClient.model(item.model), actions }
       }
     }, initialValue)
-    console.log('*********** values')
-
-    console.log(values)
     return values
   }
 
