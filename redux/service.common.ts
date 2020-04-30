@@ -15,14 +15,17 @@ export function ajaxGet(url: string, no_auth: boolean) {
   }
 }
 
-export function ajaxPost(url: string, data: any, no_auth: boolean) {
+export function ajaxPost(url: string, data: any, no_auth: boolean, image: boolean) {
+  console.log(data,"imageeee")
+  let formData = new FormData()
+  formData.append('file',data)
   if (no_auth) {
     return fetch(url, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: image ? data :JSON.stringify(data),
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/jsoncharset=UTF-8',
+        'Content-Type': image ? 'multipart/form-data':'application/jsoncharset=UTF-8',
       }
     })
       .then(res => res.json())
@@ -31,11 +34,11 @@ export function ajaxPost(url: string, data: any, no_auth: boolean) {
     const headers = getAuthHeader()
     return fetch(url, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: image ? data :JSON.stringify(data),
       headers: {
         ...headers,
         'Accept': 'application/json',
-        'Content-Type': 'application/jsoncharset=UTF-8',
+        'Content-Type': image ? 'multipart/form-data':'application/jsoncharset=UTF-8',
       }
     })
       .then(res => res.json())
