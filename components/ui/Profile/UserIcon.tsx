@@ -25,7 +25,8 @@ const UserProfile: React.FC<profileProps> = (props) => {
     const handleSubmit = async () => {
       let data = new FormData();
       data.append('file',file)
-      await props.uploadFile(data)
+      console.log(data,"datatata")
+      await props.uploadFile(file)
     }
     return (
         <div className="uploadform">
@@ -41,7 +42,7 @@ const UserProfile: React.FC<profileProps> = (props) => {
       </label>
       <input
         id="fileInput"
-        name="product_image"
+        name="file"
         placeholder="Upload Product Image"
         type="file"
         className="signup__fileField"
