@@ -3,7 +3,7 @@ import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const organizationUserRank = sequelizeClient.define('organization_user_rank', {
+  const groupUserRank = sequelizeClient.define('group_user_rank', {
     rank: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -19,10 +19,10 @@ export default (app: Application): any => {
     timestamps: false
   });
 
-  (organizationUserRank as any).associate = (models: any): any => {
-    (organizationUserRank as any).belongsTo(models.organization);
-    (organizationUserRank as any).belongsToMany(models.user, { through: models.organization_user, foreignKey: 'organizationUserRank' })
+  (groupUserRank as any).associate = (models: any): any => {
+    (groupUserRank as any).belongsTo(models.group);
+    (groupUserRank as any).belongsToMany(models.user, { through: models.group_user, foreignKey: 'groupUserRank' })
   }
 
-  return organizationUserRank
+  return groupUserRank
 }
