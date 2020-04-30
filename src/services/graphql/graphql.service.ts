@@ -1,14 +1,9 @@
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { Graphql } from './graphql.class'
-import { GraphQLObjectType, GraphQLList, GraphQLSchema, GraphQLInt } from 'graphql'
-import { ApolloServer } from 'apollo-server-express'
 // @ts-ignore
-import { attributeFields, resolver } from 'graphql-sequelize'
-import util from 'util'
-import camelCase from 'camelcase'
+import { generateModelTypes, generateApolloServer } from 'graphql-sequelize-generator'
 
-import _ from 'lodash'
 import { Sequelize } from 'sequelize'
 
 declare module '../../declarations' {
@@ -22,65 +17,66 @@ export default (app: Application): any => {
 
   const models = sequelizeClient.models
 
-  const getFields = (params: any): any => {
-    return _.assign(
-      attributeFields(
-        params.model,
-        Object.assign(params.options || {}, {
-          map: (k: any) => camelCase(k)
-        })
-      ),
-      params.additionalFields || {}
-    )
+  const types = generateModelTypes(models)
+
+  const actions = ['list', 'create']
+
+  console.log('*********** graphqlSchemaDeclarationNew')
+  const graphqlSchemaDeclarationNew =
+  {
+    user: {
+      model: models.user,
+      actions: ['list', 'create']
+    }
+  }
+  console.log(graphqlSchemaDeclarationNew)
+
+  const graphqlSchemaDeclaration = (): any => {
+    const declarations: any[] = []
+    Object.keys(models).forEach((model: any) => {
+      declarations.push({ model: model, actions })
+    })
+
+    const initialValue = {}
+
+    const values = declarations.reduce((obj, item) => {
+      return {
+        ...obj,
+        [sequelizeClient.model(item.model).name]: { model: sequelizeClient.model(item.model), actions }
+      }
+    }, initialValue)
+    console.log('*********** values')
+
+    console.log(values)
+    return values
   }
 
-  const fields = _(models).map((model, key) => {
-    return {
-      fieldName: _.lowerFirst(key.toString()) + 's',
-      type: new GraphQLList(new GraphQLObjectType({
-        name: key.toString(),
-        fields: () => getFields({ model: model })
-      })),
-      args: {
-        id: { type: GraphQLInt },
-        limit: { type: GraphQLInt }
+  graphqlSchemaDeclaration()
+
+  const server = generateApolloServer({
+    graphqlSchemaDeclaration: graphqlSchemaDeclaration(),
+    types: types,
+    models: models,
+    apolloServerOptions: {
+      playground: {
+        endpoint: '/graphql',
+        settings: {
+          'editor.theme': 'dark'
+        }
       },
-      resolve: resolver(model, {
-        list: true
-      })
+      context: ({ req }: any) => ({
+        provider: req.feathers.provider,
+        headers: req.headers,
+        app
+      }),
+      introspection: true
     }
   })
-    .keyBy('fieldName')
-    .value()
 
-  const Query = new GraphQLObjectType({
-    name: 'Query',
-    description: 'This is a root query.',
-    fields: () => fields
+  server.applyMiddleware({
+    app,
+    path: '/graphql'
   })
-
-  const Schema = new GraphQLSchema({
-    query: Query
-  })
-
-  console.log(util.inspect(Schema, { showHidden: false, depth: null }))
-
-  const server = new ApolloServer({
-    schema: Schema,
-    playground: {
-      endpoint: '/graphql',
-      settings: {
-        'editor.theme': 'dark'
-      }
-    },
-    context: ({ req }: any) => ({
-      provider: req.feathers.provider,
-      headers: req.headers,
-      app
-    }),
-    introspection: true
-  }
-  )
 
   server.applyMiddleware({
     app
