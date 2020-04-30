@@ -33,15 +33,16 @@ export default (app: Application): any => {
       allowNull: false
     },
     model_owned_file_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false
     },
     screenshot_owned_file_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false
     },
     state: {
       // TODO: Need to define later, not sure about its type now
+      // :active, :removed
       type: DataTypes.STRING,
       allowNull: false
     },
@@ -58,7 +59,7 @@ export default (app: Application): any => {
       allowNull: false
     },
     scene_owned_file_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: true
     },
     // TODO: In reticulum, it is json type, but sql does not support json so need to think about it!

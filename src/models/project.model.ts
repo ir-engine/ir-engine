@@ -26,11 +26,11 @@ export default (app: Application): any => {
       allowNull: false
     },
     project_owned_file_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: true
     },
     thumbnail_owned_file_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: true
     },
     scene_id: {

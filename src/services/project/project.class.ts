@@ -129,4 +129,13 @@ export class Project extends Service {
 
     return groups
   }
+
+  async create (data: any, params: Params): Promise<any> {
+    // name: scene.name,
+    //   thumbnail_file_id,
+    //   thumbnail_file_token,
+    //   project_file_id,
+    //   project_file_token
+
+  }
 }
