@@ -1,4 +1,3 @@
-
 import { Application } from '../../declarations'
 
 export const getLink = (type: string, hash: string): string =>
