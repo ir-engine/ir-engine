@@ -6,7 +6,7 @@ import {
 
 import {
     VIDEOS_FETCHED_SUCCESS,
-    VIDEOS_FETCHED_ERROR
+    VIDEOS_FETCHED_ERROR,
 } from "../actions"
 
 

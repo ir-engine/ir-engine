@@ -35,3 +35,7 @@ export const RESTORE = 'RESTORE'
 
 export const SHOW_DIALOG = 'SHOW_DIALOG'
 export const CLOSE_DIALOG = 'CLOSE_DIALOG'
+
+
+export const UPLOAD_FILE = 'UPLOAD_FILE'
+export const UPLOAD_FILE_FAILURE = 'UPLOAD_FILE_FAILURE'
