@@ -1,6 +1,6 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
-import { getLink, sendEmail, sendSms } from '../auth-management/utils'
+import { getLink, sendEmail, sendSms } from '../auth-management/auth-management.utils'
 import * as path from 'path'
 import * as pug from 'pug'
 import { Service } from 'feathers-sequelize'

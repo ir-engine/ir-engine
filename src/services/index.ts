@@ -8,18 +8,18 @@ import UserRelationshipType from './user-relationship-type/user-relationship-typ
 import StaticResourceType from './static-resource-type/static-resource-type.service'
 import AccessControlScope from './access-control-scope/access-control-scope.service'
 import ResourceType from './resource-type/resource-type.service'
-import organizationUserRank from './organization-user-rank/organization-user-rank.service'
+import groupUserRank from './group-user-rank/group-user-rank.service'
 
 // Objects
 import Attribution from './attribution/attribution.service'
 import Collection from './collection/collection.service'
 import Component from './component/component.service'
 import Entity from './entity/entity.service'
-import Group from './group/group.service'
+import Party from './party/party.service'
 import Instance from './instance/instance.service'
 import license from './license/license.service'
 import Location from './location/location.service'
-import Organization from './organization/organization.service'
+import Group from './group/group.service'
 import Project from './project/project.service'
 import StaticResource from './static-resource/static-resource.service'
 import UserRelationship from './user-relationship/user-relationship.service'
@@ -28,8 +28,8 @@ import Role from './user-role/user-role.service'
 import AccessControl from './access-control/access-control.service'
 
 // Junctions
-import GroupUser from './group-user/group-user.service'
-import organizationUser from './organization-user/organization-user.service'
+import PartyUser from './party-user/party-user.service'
+import groupUser from './group-user/group-user.service'
 
 // Services
 import Auth from './auth-management/auth-management.service'
@@ -58,18 +58,18 @@ export default (app: Application): void => {
   app.configure(Collection)
   app.configure(Component)
   app.configure(Entity)
-  app.configure(Group)
+  app.configure(Party)
   app.configure(Instance)
   app.configure(Location)
   app.configure(license)
-  app.configure(Organization)
+  app.configure(Group)
   app.configure(Project)
   app.configure(UserRelationship)
   app.configure(StaticResource)
   app.configure(User)
 
   // Junctions
-  app.configure(GroupUser)
+  app.configure(PartyUser)
 
   // Services
   app.configure(Email)
@@ -85,8 +85,8 @@ export default (app: Application): void => {
   app.configure(Role)
   app.configure(AccessControl)
   app.configure(AccessControlScope)
-  app.configure(organizationUserRank)
-  app.configure(organizationUser)
+  app.configure(groupUserRank)
+  app.configure(groupUser)
 
   app.configure(GraphQL)
 }

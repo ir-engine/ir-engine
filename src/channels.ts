@@ -58,7 +58,7 @@ export default (app: Application): void => {
   // e.g. the publish the `user` service `created` event to the `admins` channel
   // app.service('user').publish('created', () => app.channel('admins'))
 
-  // With the userid and email organization from above you can easily select involved user
+  // With the userid and email group from above you can easily select involved user
   // app.service('messages').publish(() => {
   //   return [
   //     app.channel(`userIds/${data.createdBy}`),
