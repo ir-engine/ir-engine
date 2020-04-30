@@ -1,3 +1,4 @@
+{{- if .Values.server.enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -11,3 +12,4 @@ data:
 {{- if .Values.server.config }}
   NODE_CONFIG: '{{ mustToJson .Values.server.config }}'
 {{- end }}
+{{- end -}}
