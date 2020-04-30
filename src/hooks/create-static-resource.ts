@@ -16,7 +16,8 @@ export default (options = {}): Hook => {
 
     if (context.params.skipResourceCreation === true) {
       context.result = await context.app.service('static-resource').patch(context.params.patchId, {
-        url: resourceData.url
+        url: resourceData.url,
+        metadata: resourceData.metadata
       })
     } else {
       if (context.params.parentResourceId) {
