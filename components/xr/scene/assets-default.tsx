@@ -11,7 +11,7 @@ const DefaultAssets = () => (
     <img id="gridSky" src={grid.skybox.src} crossOrigin="anonymous" />
     <img
       id="placeholder"
-      src={grid.placeholderImageSrc}
+      src="https://kaixr-static.s3-us-west-2.amazonaws.com/logo.png"
       crossOrigin="anonymous"
     />
     <img id="spoke" src={'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/create.png'} crossOrigin="anonymous" />
