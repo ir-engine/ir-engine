@@ -54,13 +54,14 @@ This will pull images from [xrchat's docker hub repo](https://hub.docker.com/u/x
 If you want to build the whole compose stack on your machine, and not pull the containers from docker-hub
 
 - install [docker](https://docs.docker.com/get-docker/).
-- clone the 4 repos into the same folder with the same names:
+- clone the 5 repos into the same folder with the same names:
     ```
     |
     +-- xrchat-client
     +-- xrchat-server
     +-- xrchat-ops
     +-- xrchat-realtime-server
+    +-- Spoke
     ```
 - `cd xrchat-ops`
 - run `docker-compose -f docker-compose-local.yml build`
