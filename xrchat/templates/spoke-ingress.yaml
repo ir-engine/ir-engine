@@ -1,4 +1,4 @@
-{{- if .Values.spoke.ingress.enabled -}}
+{{- if and .Values.spoke.enabled .Values.spoke.ingress.enabled -}}
 {{- $fullName := include "xrchat.spoke.fullname" . -}}
 {{- $svcPort := .Values.spoke.service.port -}}
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
