@@ -1,4 +1,4 @@
-{{- if .Values.client.ingress.enabled -}}
+{{- if and .Values.client.enabled .Values.client.ingress.enabled -}}
 {{- $fullName := include "xrchat.client.fullname" . -}}
 {{- $svcPort := .Values.client.service.port -}}
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
@@ -39,3 +39,4 @@ spec:
         {{- end }}
   {{- end }}
 {{- end }}
+
