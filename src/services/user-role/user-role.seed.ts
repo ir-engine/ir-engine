@@ -1,5 +1,5 @@
 export const seed = {
-  disabled: false,
+  disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
   delete: true,
   path: 'user-role',
   templates:
