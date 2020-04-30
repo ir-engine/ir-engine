@@ -9,8 +9,8 @@
     "max": 50
   },
   "authentication": {
-    "entity": "user",
-    "service": "user",
+    "entity": "identity-provider",
+    "service": "identity-provider",
     "secret": "rlHRymcnyXeCbTcgHZB5TfG3dZg=",
     "authStrategies": [
       "jwt",
@@ -62,9 +62,7 @@
   },
   "aws": {
     "s3": {
-      "blob_bucket_name": "STORAGE_S3_BUCKET_NAME",
-      "public_video_path": "STORAGE_S3_PUBLIC_VIDEO_PATH",
-      "public_video_bucket": "STORAGE_S3_PUBLIC_VIDEO_BUCKET",
+      "static_resource_bucket": "kaixr-static-resources",
       "region": "STORAGE_S3_REGION",
       "cloudfront": {
         "domain": "STORAGE_S3_CLOUDFRONT_DOMAIN"

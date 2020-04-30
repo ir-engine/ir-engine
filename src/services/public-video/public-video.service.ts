@@ -1,28 +1,25 @@
-// Initializes the `public-video` service on path `/public-video`
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { PublicVideo } from './public-video.class'
-import createModel from '../../models/public-video.model'
 import hooks from './public-video.hooks'
+import staticResourceModel from '../../models/static-resource.model'
 
-// Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
     'public-video': PublicVideo & ServiceAddons<any>
   }
 }
 
-export default function (app: Application): void {
+export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: 'public-video',
+    Model: staticResourceModel(app),
     paginate: app.get('paginate'),
-    multi: ['create']
+    multi: true
   }
 
-  // Initialize our service with any options it requires
   app.use('/public-video', new PublicVideo(options, app))
 
-  // Get our initialized service so that we can register hooks
   const service = app.service('public-video')
 
   service.hooks(hooks)

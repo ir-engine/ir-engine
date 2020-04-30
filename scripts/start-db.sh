@@ -1,2 +1,6 @@
 #!/bin/bash
-sudo docker-compose -f maria-compose.yml up
+
+echo -e "\e[32mInitializing mariadb..."
+docker stop xrchat_db
+docker rm xrchat_db
+docker-compose up

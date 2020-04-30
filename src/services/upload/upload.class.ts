@@ -29,7 +29,14 @@ export class Upload implements ServiceMethods<Data> {
       return await Promise.all(data.map(current => this.create(current, params)))
     }
 
-    return data
+    const result = await this.app.service('static-resource').create({
+      name: (data as any).name,
+      description: (data as any).description,
+      url: (data as any).url,
+      mime_type: (data as any).mime_type
+    })
+
+    return result
   }
 
   async update (id: NullableId, data: Data, params?: Params): Promise<Data> {

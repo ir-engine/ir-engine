@@ -1,5 +1,6 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
+import getBasicMimetype from '../../util/get-basic-mimetype'
 
 interface Data {}
 
@@ -29,7 +30,12 @@ export class Video implements ServiceMethods<Data> {
       return await Promise.all(data.map(current => this.create(current, params)))
     }
 
-    return data
+    (data as any).mime_type = 'application/dash+xml';
+    (data as any).type = getBasicMimetype((data as any).mime_type)
+
+    const result = await this.app.service('static-resource').create(data)
+
+    return result
   }
 
   async update (id: NullableId, data: Data, params?: Params): Promise<Data> {

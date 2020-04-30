@@ -7,6 +7,7 @@ import blobService from 'feathers-blob'
 import { Application } from '../../declarations'
 import { Upload } from './upload.class'
 import hooks from './upload.hooks'
+import getBasicMimetype from '../../util/get-basic-mimetype'
 
 const multipartMiddleware = multer()
 
@@ -20,10 +21,17 @@ export default (app: Application): void => {
   const provider = new StorageProvider()
 
   app.use('/upload',
-    multipartMiddleware.single('file'),
+    multipartMiddleware.fields([{ name: 'file' }, { name: 'thumbnail' }]),
     (req: express.Request, res: express.Response, next: express.NextFunction) => {
       if (req?.feathers) {
-        req.feathers.file = (req as any).file
+        req.feathers.file = (req as any).files.file ? (req as any).files.file[0] : null
+        req.feathers.body = (req as any).body
+        req.feathers.mime_type = req.feathers.file.mimetype
+        req.feathers.storageProvider = provider
+        req.feathers.thumbnail = (req as any).files.thumbnail ? (req as any).files.thumbnail[0] : null
+        if (req.feathers.mime_type) {
+          req.feathers.uploadPath = getBasicMimetype(req.feathers.mime_type)
+        }
         next()
       }
     },

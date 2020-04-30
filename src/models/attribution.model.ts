@@ -1,12 +1,14 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 
-export default function (app: Application): any {
+export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const attribution = sequelizeClient.define('attribution', {
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
+      allowNull: false,
+      primaryKey: true
     },
     creator: {
       type: DataTypes.STRING,
@@ -24,8 +26,10 @@ export default function (app: Application): any {
     }
   });
 
-  (attribution as any).associate = (models: any) =>
-    (attribution as any).hasOne(models.license)
+  (attribution as any).associate = (models: any) => {
+    (attribution as any).belongsTo(models.license);
+    (attribution as any).hasMany(models.static_resource)
+  }
 
   return attribution
 }

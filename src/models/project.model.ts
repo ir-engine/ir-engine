@@ -22,7 +22,7 @@ export default (app: Application): any => {
       allowNull: false
     },
     created_by_account_id: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
       allowNull: false
     },
     project_owned_file_id: {
@@ -58,7 +58,7 @@ export default (app: Application): any => {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
 
-    (project as any).belongsTo(models.user, { foreignKey: 'created_by_account_id', targetKey: 'userId' });
+    (project as any).belongsTo(models.user, { foreignKey: 'created_by_account_id' });
     (project as any).belongsToMany(models.asset, { foreignKey: 'project_id', through: models.project_asset });
 
     (project as any).belongsTo(models.owned_file, { foreignKey: 'project_owned_file_id', targetKey: 'owned_file_id', as: 'project_owned_file' });

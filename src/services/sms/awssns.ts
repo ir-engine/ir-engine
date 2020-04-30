@@ -1,5 +1,4 @@
 import AWS from 'aws-sdk'
-import config from 'config'
 
 // export function setSmsType() {
 //     const aws_region: string = config.get('aws.sns.region')
@@ -33,8 +32,6 @@ export async function sendSms (phone: string, text: string): Promise<void> {
     PhoneNumber: phone
     // TopicArn: process.env.AWS_SMS_TOPIC_ARN ?? ''
   }
-
-  console.log('----config---', config.get('aws.sns.region'))
 
   // Create promise and SNS service object
   const publishTextPromise = new AWS.SNS({

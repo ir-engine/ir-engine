@@ -20,8 +20,6 @@ export default (app: Application): void => {
       // Obtain the logged in user from the connection
       // const user = connection.user
 
-      console.log(authResult)
-
       // The connection is no longer anonymous, remove it
       app.channel('anonymous').leave(connection)
 
@@ -42,7 +40,6 @@ export default (app: Application): void => {
     }
   })
 
-  // eslint-disable-next-line no-unused-vars
   app.publish((data: any, hook: HookContext) => {
     // Here you can add event publishers to channels set up in `channels.js`
     // To publish only for a specific event use `app.publish(eventname, () => {})`
@@ -61,7 +58,7 @@ export default (app: Application): void => {
   // e.g. the publish the `user` service `created` event to the `admins` channel
   // app.service('user').publish('created', () => app.channel('admins'))
 
-  // With the userid and email organization from above you can easily select involved user
+  // With the userid and email group from above you can easily select involved user
   // app.service('messages').publish(() => {
   //   return [
   //     app.channel(`userIds/${data.createdBy}`),
