@@ -42,15 +42,15 @@ export default (app: Application): any => {
       allowNull: false
     },
     model_owned_file_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false
     },
     scene_owned_file_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: true
     },
     screenshot_owned_file_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false
     },
     order: {
@@ -59,7 +59,8 @@ export default (app: Application): any => {
     },
     state: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      values: ['active', 'delisted']
     }
   }, {
     hooks: {

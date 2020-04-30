@@ -20,18 +20,19 @@ export default function (app: Application): any {
     },
     type: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      values: ['image', 'video', 'model', 'audio']
     },
     account_id: {
       type: DataTypes.STRING,
       allowNull: false
     },
     asset_owned_file_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false
     },
     thumbnail_owned_file_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: true
     }
   }, {
