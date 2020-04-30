@@ -1,5 +1,5 @@
 import { Application } from '../../declarations'
-import { getLink, sendEmail } from './utils'
+import { getLink, sendEmail } from './auth-management.utils'
 import * as path from 'path'
 import * as pug from 'pug'
 import config from 'config'
