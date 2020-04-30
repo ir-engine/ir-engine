@@ -17,18 +17,18 @@ export default (app: Application): any => {
       type: DataTypes.STRING
     },
 
-    accountType: {
-      type: DataTypes.ENUM(
-        'email',
-        'sms',
-        'password',
-        'github',
-        'google',
-        'facebook',
-        'auth0'
-      ),
-      allowNull: false
-    },
+    // accountType: {
+    //   type: DataTypes.ENUM(
+    //     'email',
+    //     'sms',
+    //     'password',
+    //     'github',
+    //     'google',
+    //     'facebook',
+    //     'auth0'
+    //   ),
+    //   allowNull: false
+    // },
 
     isVerified: { type: DataTypes.BOOLEAN },
     verifyToken: { type: DataTypes.STRING },

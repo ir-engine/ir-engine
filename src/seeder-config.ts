@@ -10,8 +10,6 @@ import ResourceTypeSeed from './services/resource-type/resource-type.seed'
 import StaticResourceTypeSeed from './services/static-resource-type/static-resource-type.seed'
 
 module.exports = {
-  disabled: disabled,
-  delete: forceDelete,
   services: [
     CollectionType,
     ComponentTypeSeed,
