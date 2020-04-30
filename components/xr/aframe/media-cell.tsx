@@ -124,6 +124,8 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
           '&videoformat=' + this.data.videoformat
         break
       case 'scene':
+        url += 'dreamscene?url=' + this.data.url
+        break
       case 'landing':
         url += this.data.url
         break
