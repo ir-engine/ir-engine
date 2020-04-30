@@ -3,7 +3,6 @@ import { Entity } from 'aframe-react'
 import getConfig from 'next/config'
 const env = getConfig().publicRuntimeConfig.xr.environment
 const grid = getConfig().publicRuntimeConfig.xr.grid
-const landing = getConfig().publicRuntimeConfig.xr.landing
 
 const DefaultAssets = () => (
   <>
@@ -15,14 +14,14 @@ const DefaultAssets = () => (
       src={grid.placeholderImageSrc}
       crossOrigin="anonymous"
     />
-    <img id="spoke" src={landing.spoke.src} crossOrigin="anonymous" />
-    <img id="vrRoom" src={landing.vrRoom.src} crossOrigin="anonymous" />
+    <img id="spoke" src={'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/create.png'} crossOrigin="anonymous" />
+    <img id="vrRoom" src={'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/dream.png'} crossOrigin="anonymous" />
     <img
       id="video360banner"
-      src={landing.video360.src}
+      src={'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/explore.png'}
       crossOrigin="anonymous"
     />
-    <img id="storebanner" src={landing.store.src} crossOrigin="anonymous" />
+    <img id="storebanner" src={'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/shop.png'} crossOrigin="anonymous" />
     <Entity
       primitive="a-gltf-model"
       id={env['scene-gltf'].name}
