@@ -9,8 +9,9 @@ import SvgVr from '../../icons/svg/Vr'
 
 import AframeComponentRegisterer from '../aframe/index'
 
-import getConfig from 'next/config'
-const config = getConfig().publicRuntimeConfig.xr.landing
+const cellHeight = 0.5
+const cellContentHeight = 0.45
+const cellWidth = 6
 
 export default function LangingScene (): any {
   return (
@@ -26,45 +27,45 @@ export default function LangingScene (): any {
           primitive="a-grid"
           rows={4}
           columns={1}
-          cell-height={config.cellHeight}
-          cell-width={config.cellWidth}
-          cell-content-height={config.cellContentHeight}>
+          cell-height={cellHeight}
+          cell-width={cellWidth}
+          cell-content-height={cellContentHeight}>
           <Entity
             primitive="a-media-cell"
             title="spoke"
-            media-url={config.spoke.link}
+            media-url={'kaixr.world/spoke/'}
             thumbnail-url="#spoke"
-            cell-height={config.cellHeight}
-            cell-width={config.cellWidth}
-            cell-content-height={config.cellContentHeight}
+            cell-height={cellHeight}
+            cell-width={cellWidth}
+            cell-content-height={cellContentHeight}
             mediatype="landing"
             linktype="external"/>
           <Entity
             primitive="a-media-cell"
             title="vrRoom"
-            media-url={config.vrRoom.link}
+            media-url={'/dream'}
             thumbnail-url="#vrRoom"
-            cell-height={config.cellHeight}
-            cell-width={config.cellWidth}
-            cell-content-height={config.cellContentHeight}
+            cell-height={cellHeight}
+            cell-width={cellWidth}
+            cell-content-height={cellContentHeight}
             mediatype="landing"/>
           <Entity
             primitive="a-media-cell"
             title="video360"
-            media-url={config.video360.link}
+            media-url={'/explore'}
             thumbnail-url="#video360banner"
-            cell-height={config.cellHeight}
-            cell-width={config.cellWidth}
-            cell-content-height={config.cellContentHeight}
+            cell-height={cellHeight}
+            cell-width={cellWidth}
+            cell-content-height={cellContentHeight}
             mediatype="landing"/>
           <Entity
             primitive="a-media-cell"
             title="store"
-            media-url={config.store.link}
+            media-url={'curated-x-kai-inc.myshopify.com'}
             thumbnail-url="#storebanner"
-            cell-height={config.cellHeight}
-            cell-width={config.cellWidth}
-            cell-content-height={config.cellContentHeight}
+            cell-height={cellHeight}
+            cell-width={cellWidth}
+            cell-content-height={cellContentHeight}
             mediatype="landing"
             linktype="external"/>
         </Entity>
