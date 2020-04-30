@@ -22,7 +22,7 @@ export default (app: Application): any => {
       allowNull: false
     },
     account_id: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
       allowNull: false
     },
     content_type: {

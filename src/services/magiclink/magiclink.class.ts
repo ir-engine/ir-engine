@@ -1,8 +1,9 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
-import { getLink, sendEmail, sendSms } from '../auth-management/utils'
+import { getLink, sendEmail, sendSms } from '../auth-management/auth-management.utils'
 import * as path from 'path'
 import * as pug from 'pug'
+import { Service } from 'feathers-sequelize'
 
 interface Data {}
 
@@ -68,50 +69,52 @@ export class Magiclink implements ServiceMethods<Data> {
   }
 
   async create (data: any, params?: Params): Promise<Data> {
-    const userService = this.app.service('user')
     const authService = this.app.service('authentication')
-    let user
+    const identityProviderService: Service = this.app.service('identity-provider')
 
+    let identityProvider
     if (data.type === 'email') {
-      const users = ((await userService.find({
+      const identityProviders = (await identityProviderService.find({
         query: {
-          email: data.email
+          token: data.email,
+          accountType: 'email'
         }
-      })) as any).data
+      }) as any).data
 
-      if (users.length === 0) {
-        user = await userService.create({
-          email: data.email
+      if (identityProviders.length === 0) {
+        identityProvider = await identityProviderService.create({
+          token: data.email,
+          accountType: 'email'
         }, params)
       } else {
-        user = users[0]
+        identityProvider = identityProviders[0]
       }
 
-      if (user) {
-        const accessToken = await authService.createAccessToken({}, { subject: user.userId.toString() })
+      if (identityProvider) {
+        const accessToken = await authService.createAccessToken({}, { subject: identityProvider.id.toString() })
 
         await this.sendEmail(data.email, accessToken)
       }
     } else if (data.type === 'sms') {
-      console.log('@@@@@@@@@@@@@', data)
-      const users = ((await userService.find({
+      const identityProviders = (await identityProviderService.find({
         query: {
-          mobile: data.mobile
+          token: data.mobile,
+          accountType: 'sms'
         }
-      })) as any).data
+      }) as any).data
 
-      if (users.length === 0) {
-        user = await userService.create({
-          mobile: data.mobile
+      if (identityProviders.length === 0) {
+        identityProvider = await identityProviderService.create({
+          token: data.mobile,
+          accountType: 'sms'
         }, params)
       } else {
-        user = users[0]
+        identityProvider = identityProviders[0]
       }
 
-      if (user) {
-        const accessToken = await authService.createAccessToken({}, { subject: user.userId.toString() })
+      if (identityProvider) {
+        const accessToken = await authService.createAccessToken({}, { subject: identityProvider.id.toString() })
 
-        console.log('------sms-----', accessToken)
         await this.sendSms(data.mobile, accessToken)
       }
     }

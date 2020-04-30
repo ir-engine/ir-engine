@@ -1,37 +1,48 @@
 import { Application } from '../declarations'
 
-import Email from './email/email.service'
-import Auth from './auth-management/auth-management.service'
-import User from './user/user.service'
-import publicVideo from './public-video/public-video.service'
-import Scene from './scene/scene.service'
-import Location from './location/location.service'
+// Types
+import ComponentType from './component-type/component-type.service'
+import CollectionType from './collection-type/collection-type.service'
+import EntityType from './entity-type/entity-type.service'
+import UserRelationshipType from './user-relationship-type/user-relationship-type.service'
+import StaticResourceType from './static-resource-type/static-resource-type.service'
+import AccessControlScope from './access-control-scope/access-control-scope.service'
+import ResourceType from './resource-type/resource-type.service'
+import groupUserRank from './group-user-rank/group-user-rank.service'
+
+// Objects
+import Attribution from './attribution/attribution.service'
+import Collection from './collection/collection.service'
+import Component from './component/component.service'
+import Entity from './entity/entity.service'
+import Party from './party/party.service'
 import Instance from './instance/instance.service'
-import magiclink from './magiclink/magiclink.service'
-import Group from './group/group.service'
-import groupMember from './group-member/group-member.service'
-import sms from './sms/sms.service'
-import attribution from './attribution/attribution.service'
-import image from './image/image.service'
-import component from './component/component.service'
-import componentType from './component-type/component-type.service'
-import entity from './entity/entity.service'
-import collectionType from './collection-type/collection-type.service'
 import license from './license/license.service'
-import resource from './resource/resource.service'
-import collection from './collection/collection.service'
-import project from './project/project.service'
-import video from './video/video.service'
-import collectionEntity from './collection-entity/collection-entity.service'
-import entityComponent from './entity-component/entity-component.service'
-import componentResource from './component-resource/component-resource.service'
-import userResource from './user-resource/user-resource.service'
-import userEntity from './user-entity/user-entity.service'
-import upload from './upload/upload.service'
-import relationship from './relationship/relationship.service'
-import relationshipType from './relationship-type/relationship-type.service'
-import resourceChild from './resource-child/resource-child.service'
-import resourceType from './resource-type/resource-type.service'
+import Location from './location/location.service'
+import Group from './group/group.service'
+import Project from './project/project.service'
+import StaticResource from './static-resource/static-resource.service'
+import UserRelationship from './user-relationship/user-relationship.service'
+import User from './user/user.service'
+import Role from './user-role/user-role.service'
+import AccessControl from './access-control/access-control.service'
+
+// Junctions
+import PartyUser from './party-user/party-user.service'
+import groupUser from './group-user/group-user.service'
+
+// Services
+import Auth from './auth-management/auth-management.service'
+import Email from './email/email.service'
+import MagicLink from './magiclink/magiclink.service'
+import SMS from './sms/sms.service'
+import Upload from './upload/upload.service'
+import Video from './video/video.service'
+import GraphQL from './graphql/graphql.service'
+import IdentityProvider from './identity-provider/identity-provider.service'
+
+// Misc
+import Scene from './scene/scene.service'
 
 import asset from './asset/asset.service'
 
@@ -44,41 +55,53 @@ import sceneListing from './scene-listing/scene-listing.service'
 import mediaSearch from './media-search/media-search.service'
 
 export default (app: Application): void => {
+  // Types
+  app.configure(ComponentType)
+  app.configure(CollectionType)
+  app.configure(ResourceType)
+  app.configure(StaticResourceType)
+  app.configure(EntityType)
+  app.configure(UserRelationshipType)
+
+  // Objects
+  app.configure(Attribution)
+  app.configure(Collection)
+  app.configure(Component)
+  app.configure(Entity)
+  app.configure(Party)
+  app.configure(Instance)
+  app.configure(Location)
+  app.configure(license)
+  app.configure(Group)
+  app.configure(Project)
+  app.configure(UserRelationship)
+  app.configure(StaticResource)
+  app.configure(User)
+
+  // Junctions
+  app.configure(PartyUser)
+
+  // Services
   app.configure(Email)
   app.configure(Auth)
-  app.configure(User)
-  app.configure(Group)
-  app.configure(groupMember)
+  app.configure(MagicLink)
+  app.configure(SMS)
+  app.configure(Upload)
+  app.configure(Video)
+  app.configure(IdentityProvider)
+
+  // Misc
   app.configure(Scene)
-  app.configure(Location)
-  app.configure(Instance)
-  app.configure(publicVideo)
-  app.configure(magiclink)
-  app.configure(sms)
-  app.configure(attribution)
-  app.configure(image)
-  app.configure(componentType)
-  app.configure(component)
-  app.configure(entity)
-  app.configure(collectionType)
-  app.configure(license)
-  app.configure(resource)
-  app.configure(collection)
-  app.configure(video)
-  app.configure(collectionEntity)
-  app.configure(entityComponent)
-  app.configure(componentResource)
-  app.configure(userResource)
-  app.configure(userEntity)
-  app.configure(relationship)
-  app.configure(relationshipType)
-  app.configure(resourceChild)
-  app.configure(resourceType)
-  app.configure(upload)
-  app.configure(project)
+  app.configure(Role)
+  app.configure(AccessControl)
+  app.configure(AccessControlScope)
+  app.configure(groupUserRank)
+  app.configure(groupUser)
   app.configure(asset)
   app.configure(ownedFile)
   app.configure(projectAsset)
   app.configure(sceneListing)
   app.configure(mediaSearch)
+
+  app.configure(GraphQL)
 }

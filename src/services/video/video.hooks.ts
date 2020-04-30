@@ -1,20 +1,26 @@
+// import * as authentication from '@feathersjs/authentication'
+import { disallow } from 'feathers-hooks-common'
+import convertVideo from '../../hooks/convert-video'
+import addAttribution from '../../hooks/add-attribution'
+// import createResource from '../../hooks/create-resource'
+// Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
   before: {
     all: [],
-    find: [],
-    get: [],
+    find: [disallow()],
+    get: [disallow()],
     create: [],
-    update: [],
-    patch: [],
-    remove: []
+    update: [disallow()],
+    patch: [disallow()],
+    remove: [disallow()]
   },
 
   after: {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [addAttribution, convertVideo],
     update: [],
     patch: [],
     remove: []

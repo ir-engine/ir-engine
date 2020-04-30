@@ -2,16 +2,19 @@ import { disallow } from 'feathers-hooks-common'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
-import createResource from '../../hooks/create-resource'
+import createResource from '../../hooks/create-static-resource'
 
 import addUriToFile from '../../hooks/add-uri-to-file'
+import reformatUploadResult from '../../hooks/reformat-upload-result'
+import makeS3FilesPublic from '../../hooks/make-s3-files-public'
+import uploadThumbnail from '../../hooks/upload-thumbnail'
 
 export default {
   before: {
     all: [],
     find: [disallow()],
-    get: [],
-    create: [addUriToFile()],
+    get: [disallow()],
+    create: [addUriToFile(), makeS3FilesPublic()],
     update: [disallow()],
     patch: [disallow()],
     remove: [disallow()]
@@ -21,7 +24,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [addUriToFile(), createResource()],
+    create: [reformatUploadResult(), createResource(), uploadThumbnail()],
     update: [],
     patch: [],
     remove: []

@@ -5,7 +5,9 @@
     "outDir": "./lib",
     "rootDir": "./src",
     "strict": true,
+    "resolveJsonModule": true,
     "esModuleInterop": true,
+    "moduleResolution":"node",
     "typeRoots": ["./types", "./node_modules/@types"],
     "sourceMap": true
   },

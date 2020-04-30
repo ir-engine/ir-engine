@@ -1,11 +1,10 @@
-import * as authentication from '@feathersjs/authentication'
-// Don't remove this comment. It's needed to format import lines nicely.
+import getScene from '../../hooks/get-scene'
 
-const { authenticate } = authentication.hooks
+// Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [],
     find: [],
     get: [],
     create: [],
@@ -17,7 +16,7 @@ export default {
   after: {
     all: [],
     find: [],
-    get: [],
+    get: [getScene()],
     create: [],
     update: [],
     patch: [],

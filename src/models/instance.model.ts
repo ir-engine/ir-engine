@@ -4,14 +4,20 @@ import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const Instance = sequelizeClient.define('instance', {
-    location: {
+  const instance = sequelizeClient.define('instance', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
+      allowNull: false,
+      primaryKey: true
+    },
+    address: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    url: {
-      type: DataTypes.STRING,
-      allowNull: false
+    maxUsers: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   }, {
     hooks: {
@@ -19,7 +25,11 @@ export default (app: Application): any => {
         options.raw = true
       }
     }
-  })
+  });
 
-  return Instance
+  (instance as any).associate = (models: any) => {
+    (instance as any).belongsTo(models.location);
+    (instance as any).hasMany(models.user)
+  }
+  return instance
 }
