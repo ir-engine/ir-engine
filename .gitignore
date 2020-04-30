@@ -8,6 +8,7 @@ helm_values.yaml
 configs/*prod*
 configs/*staging*
 configs/*dev*
+configs/*splunk*
 
 
 xrchat/Chart\.lock
