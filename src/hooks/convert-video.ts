@@ -71,7 +71,7 @@ export default async (context: any): Promise<void> => {
   }
 
   if (fileId.length > 0) {
-    const s3Key = path.join('video', context.params.videoSource, fileId, dashManifestName)
+    const s3Key = path.join('public', context.params.videoSource, fileId, 'video', dashManifestName)
     s3BlobStore.exists({
       key: (s3Key)
     }, async (err: any, exists: any) => {
@@ -140,7 +140,7 @@ export default async (context: any): Promise<void> => {
         }
       } else {
         console.log('File already existed, just making DB entries and updating URL')
-        const s3Path = path.join('video', context.params.videoSource, fileId)
+        const s3Path = path.join('public', context.params.videoSource, fileId, 'video')
         const bucketObjects = await new Promise((resolve, reject) => {
           s3.listObjects({
             Bucket: s3BlobStore.bucket,
@@ -233,7 +233,7 @@ async function uploadFile (localFilePath: string, fileId: string, context: any, 
 
             localContext.params.mime_type = mimetype
             localContext.params.storageProvider = new StorageProvider()
-            localContext.params.uploadPath = path.join('video', context.params.videoSource, fileId)
+            localContext.params.uploadPath = path.join('public', context.params.videoSource, fileId, 'video')
 
             if (/.mpd/.test(file)) {
               localContext.params.skipResourceCreation = true
