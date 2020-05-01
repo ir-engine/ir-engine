@@ -42,6 +42,7 @@
     "aframe-sun-sky": "^3.0.3",
     "apollo-boost": "^0.4.7",
     "autoprefixer": "^9.7.5",
+    "axios": "^0.19.2",
     "babel-loader": "^8.1.0",
     "ecsy": "^0.2.3",
     "eslint-plugin-react-hooks": "^3.0.0",
