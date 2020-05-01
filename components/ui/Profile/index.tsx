@@ -12,6 +12,7 @@ import UserSettings from './userSettings'
 interface MProps {
   open: boolean;
   handleClose: any;
+  avatar: any
 }
 
 
@@ -49,7 +50,7 @@ const ProfileModal: React.FC<MProps> = (props) => {
     event.preventDefault();
     setTabIndex(newValue);
   };
-  const avatar = <TabPanel value={tabIndex} index={0}><UserProfile /></TabPanel> ;
+  const avatar = <TabPanel value={tabIndex} index={0}><UserProfile avatar={props.avatar}/></TabPanel> ;
   const settings = <TabPanel value={tabIndex} index={1}><UserSettings /></TabPanel> ;
   const account = <TabPanel value={tabIndex} index={2}>Accounts</TabPanel>;
   return (
