@@ -9,7 +9,9 @@ import MenuList from '@material-ui/core/MenuList';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import ProfileModal from './index'
 
-
+interface XProps {
+  avatar: any
+}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -22,7 +24,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const  MenuListComposition: React.FC = ({children}) => {
+const  MenuListComposition: React.FC<XProps> = (props) => {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -70,7 +72,7 @@ const  MenuListComposition: React.FC = ({children}) => {
           aria-haspopup="true"
           onClick={handleToggle}
         >
-          {children}
+          {props.children}
         </Button>
         <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
           {({ TransitionProps, placement }) => (
@@ -91,7 +93,7 @@ const  MenuListComposition: React.FC = ({children}) => {
           )}
         </Popper>
       </div>
-          <ProfileModal open={modalOpen} handleClose={modalClose}/>
+          <ProfileModal open={modalOpen} handleClose={modalClose} avatar={props.avatar}/>
     </div>
   );
 }
