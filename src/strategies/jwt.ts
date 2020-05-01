@@ -16,7 +16,7 @@ export class MyJwtStrategy extends JWTStrategy {
   //   const result = ((await entityService.find({
   //     query: {
   //       userId,
-  //       accountType: 'password'
+  //       identityProviderType: 'password'
   //     }
   //   })) as any).data
 
