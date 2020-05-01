@@ -7,8 +7,15 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 
 interface profileProps {
+  avatar:any
   uploadFile: typeof uploadFile
 }
+
+// const mapStateToProps = (state: any) => {
+//   return {
+//     auth: selectAuthState(state)
+//   }
+// }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   uploadFile: bindActionCreators(uploadFile, dispatch)
@@ -16,27 +23,34 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 const UserProfile: React.FC<profileProps> = (props) => {
 
-    const [file,setFile] = React.useState('')
+    const [file,setFile] = React.useState({})
+    const [fileUrl,setFileUrl] = React.useState('')
     const handleChange = (e:any) =>{
       let efile = e.target.files[0]
       let formData = new FormData()
       formData.append('file',efile,efile.type)
-      let file = efile
+      formData.append('name',efile.name)
+      
+      let file = formData
+      
        setFile(file)
+       setFileUrl(efile)
       }
 
     const handleSubmit = async () => {
-      let data = new FormData();
-      data.append('file',file)
-      console.log(data,"datatata")
       await props.uploadFile(file)
     }
     return (
         <div className="uploadform">
-        <label htmlFor="fileInput">
+        {props.avatar ? <img
+          src={URL.createObjectURL(fileUrl)}
+          className="rounded mx-auto d-block"
+          width="200px"
+          height="150px"
+        />:<><label htmlFor="fileInput">
            
-        {file ? <img
-          src={URL.createObjectURL(file)}
+        {fileUrl ? <img
+          src={URL.createObjectURL(fileUrl)}
           className="rounded mx-auto d-block"
           width="200px"
           height="150px"
@@ -53,7 +67,8 @@ const UserProfile: React.FC<profileProps> = (props) => {
       />
       <Button variant="contained" color="primary" onClick={handleSubmit}>
         Upload Avatar
-      </Button>
+      </Button></> }
+        
       </div>
     )
 }
