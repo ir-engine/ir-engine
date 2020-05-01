@@ -13,11 +13,23 @@ const media: PublicScene[] = [{
 },
 {
   name: 'ArtGallery',
-  url: 'https://kaixr-scenes.s3-us-west-2.amazonaws.com/Art_Gallery/ArtGallery.gltf'
+  url: 'https://kaixr-scenes.s3-us-west-2.amazonaws.com/Art_Gallery/scene.glb'
 },
 {
-  name: 'ArtGallery',
-  url: 'https://kaixr-scenes.s3-us-west-2.amazonaws.com/Art_Gallery/ArtGallery.gltf'
+  name: 'CollegeCampus',
+  url: 'https://kaixr-scenes.s3-us-west-2.amazonaws.com/College_Campus/scene.glb'
+},
+{
+  name: 'MicroWorld',
+  url: 'https://kaixr-scenes.s3-us-west-2.amazonaws.com/Micro_World/scene.glb'
+},
+{
+  name: 'ScienceLab',
+  url: 'https://kaixr-scenes.s3-us-west-2.amazonaws.com/Science_Lab/scene.glb'
+},
+{
+  name: 'Underwater',
+  url: 'https://kaixr-scenes.s3-us-west-2.amazonaws.com/Underwater/scene.glb'
 },
 {
   name: 'CubeRoom',
@@ -25,11 +37,15 @@ const media: PublicScene[] = [{
 },
 {
   name: 'Greenhouse',
-  url: 'https://kaixr-scenes.s3-us-west-2.amazonaws.com/Greenhouse/scene.gltf'
+  url: 'https://kaixr-scenes.s3-us-west-2.amazonaws.com/Greenhouse/scene.glb'
 },
 {
-  name: 'Music_Room',
-  url: 'https://kaixr-scenes.s3-us-west-2.amazonaws.com/Music_Room/Music_Room.glb'
+  name: 'MusicRoom',
+  url: 'https://kaixr-scenes.s3-us-west-2.amazonaws.com/Music_Room/scene.glb'
+},
+{
+  name: 'TrippyMusicRoom',
+  url: 'https://kaixr-scenes.s3-us-west-2.amazonaws.com/Trippy_Music_Room/scene.glb'
 }
 ]
 
