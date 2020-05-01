@@ -16,7 +16,7 @@ export class MyLocalStrategy extends LocalStrategy {
     const result = (await entityService.find({
       query: {
         token: username,
-        accountType: 'password'
+        identityProviderType: 'password'
       }
     })) as any
 

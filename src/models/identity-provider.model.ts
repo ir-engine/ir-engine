@@ -17,19 +17,6 @@ export default (app: Application): any => {
       type: DataTypes.STRING
     },
 
-    accountType: {
-      type: DataTypes.ENUM(
-        'email',
-        'sms',
-        'password',
-        'github',
-        'google',
-        'facebook',
-        'auth0'
-      ),
-      allowNull: false
-    },
-
     isVerified: { type: DataTypes.BOOLEAN },
     verifyToken: { type: DataTypes.STRING },
     verifyShortToken: { type: DataTypes.STRING },
@@ -55,7 +42,7 @@ export default (app: Application): any => {
   });
 
   (identityProvider as any).associate = (models: any) => {
-    (identityProvider as any).belongsTo(models.user)
+    (identityProvider as any).belongsTo(models.identity_provider_type, { foreignKey: 'type' })
   }
 
   return identityProvider
