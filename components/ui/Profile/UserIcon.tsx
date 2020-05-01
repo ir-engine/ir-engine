@@ -28,8 +28,9 @@ const UserProfile: React.FC<profileProps> = (props) => {
     const handleSubmit = async () => {
       let data = new FormData();
       data.append('file',file)
+        data.append('name', 'User avatar')
       console.log(data,"datatata")
-      await props.uploadFile(file)
+      await props.uploadFile(data)
     }
     return (
         <div className="uploadform">
