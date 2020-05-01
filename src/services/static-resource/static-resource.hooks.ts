@@ -16,6 +16,7 @@ export default {
           const name = context.data.name ?? file.name
           context.data = { uri: uri, mimeType: mimeType, name: name }
         }
+        return context
       }
     ],
     update: [],

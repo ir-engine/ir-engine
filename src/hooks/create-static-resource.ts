@@ -24,6 +24,9 @@ export default (options = {}): Hook => {
         (resourceData as any).parentResourceId = context.params.parentResourceId
       }
       (resourceData as any).type = getBasicMimetype(resourceData.mime_type)
+      if (context.params.uuid && context.params.parentResourceId == null) {
+        (resourceData as any).id = context.params.uuid
+      }
       context.result = await context.app.service('static-resource').create(resourceData)
     }
 
