@@ -44,6 +44,8 @@ import IdentityProvider from './identity-provider/identity-provider.service'
 // Misc
 import Scene from './scene/scene.service'
 
+import identityProviderType from './identity-provider-type/identity-provider-type.service';
+
 export default (app: Application): void => {
   // Types
   app.configure(ComponentType)
@@ -89,4 +91,5 @@ export default (app: Application): void => {
   app.configure(groupUser)
 
   app.configure(GraphQL)
+  app.configure(identityProviderType);
 }

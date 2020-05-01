@@ -9,7 +9,7 @@ export default class Googletrategy extends OAuthStrategy {
       ...baseData,
       profilePicture: profile.picture,
       email: profile.email,
-      accountType: 'google'
+      identityProviderType: 'google'
     }
   }
 
