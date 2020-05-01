@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 // @ts-ignore
 import { Scene, Entity } from 'aframe-react'
 import Assets from './assets'
@@ -24,6 +24,10 @@ interface VideoProps {
   fetchPublicVideos: typeof fetchPublicVideos
 }
 
+interface ExploreState {
+  focusedCell: HTMLElement | null,
+}
+
 const mapStateToProps = (state: any) => {
   return {
     videos: selectVideoState(state)
@@ -36,6 +40,31 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 function ExploreScene (props: VideoProps): any {
   const { videos, fetchPublicVideos } = props
+
+  const [exploreState, setExploreState] = useState<ExploreState>({ focusedCell: null })
+
+  const focusCell = (event: any) => {
+    setExploreState({ focusedCell: event.originalTarget.parentEl })
+  }
+
+  const unFocusCell = () => {
+    setExploreState({ focusedCell: null })
+  }
+
+  const watchVideo = () => {
+    if (exploreState.focusedCell === null) return
+    const url = (exploreState.focusedCell.attributes as any)['media-url'].value
+    const title = (exploreState.focusedCell.attributes as any).title.value
+    const videoformat = (exploreState.focusedCell.attributes as any).videoformat.value
+    window.location.href = 'video360?manifest=' + url +
+      '&title=' + title +
+      // '&runtime=' + runtime +
+      // '&credit=' + productionCredit +
+      // '&rating=' + rating +
+      // '&categories=' categories.join(',') +
+      // '&tags=' + tags.join(',') +
+      '&videoformat=' + videoformat
+  }
 
   useEffect(() => {
     if (videos.get('videos').size === 0) {
@@ -60,12 +89,13 @@ function ExploreScene (props: VideoProps): any {
             return (
               <Entity
                 key={i}
+                id={'explore-cell-' + i}
                 primitive="a-media-cell"
                 // original-title={video.original_title}
                 title={video.name}
                 description={video.description}
                 media-url={video.url}
-                thumbnail-url={video.metadata.thumbnail_url}
+                thumbnail-url={video.metadata.thumbnail_url || '#placeholder'}
                 // production-credit={video.production_credit}
                 // rating={video.rating}
                 // categories={video.categories}
@@ -76,11 +106,102 @@ function ExploreScene (props: VideoProps): any {
                 cellContentHeight={0.5}
                 mediatype="video360"
                 videoformat={video.metadata['360_format']}
+                link-enabled={false}
+                class="clickable"
+                events={{
+                  click: focusCell
+                }}
               ></Entity>
             )
           })}
 
         </Entity>
+        { exploreState.focusedCell !== null &&
+          <Entity
+            position="0 0 -1.5">
+            <Entity
+              id="focused-cell"
+              primitive="a-media-cell"
+              position="-0.75 0 0"
+              scale="1.5 1.5 1.5"
+              mediatype="video360"
+              title={(exploreState.focusedCell.attributes as any).name}
+              description={(exploreState.focusedCell.attributes as any).description}
+              videoformat={(exploreState.focusedCell.attributes as any).videoformat.value}
+              media-url={(exploreState.focusedCell.attributes as any)['media-url'].value}
+              thumbnail-url={(exploreState.focusedCell.attributes as any)['thumbnail-url'].value}>
+            </Entity>
+            <Entity id="video-details"
+              position="0.75 0 0"
+            >
+              <Entity id="video-details-text"
+                text={{
+                  font: 'mozillavr',
+                  width: 2,
+                  align: 'center',
+                  baseline: 'center',
+                  color: 'white',
+                  transparent: false,
+                  value: exploreState.focusedCell.title + '\n\n' +
+                    (exploreState.focusedCell.attributes as any).description.value
+                }}>
+                <Entity
+                  primitive="a-plane"
+                  position={{ x: 0, y: -0.0625, z: -0.01 }}
+                  color="black"
+                  width={1}
+                  height={0.75}
+                />
+              </Entity>
+              <Entity id="video-details-watch"
+                position={{ x: -0.25, y: -0.5, z: 0 }}
+                text={{
+                  font: 'mozillavr',
+                  width: 2,
+                  align: 'center',
+                  baseline: 'center',
+                  color: 'white',
+                  transparent: false,
+                  value: 'watch'
+                }}>
+                <Entity
+                  primitive="a-plane"
+                  position={{ x: 0, y: -0.0625, z: -0.01 }}
+                  color="green"
+                  width={0.5}
+                  height={0.125}
+                  class="clickable"
+                  events={{
+                    click: watchVideo
+                  }}
+                />
+              </Entity>
+              <Entity id="video-details-back"
+                position={{ x: 0.25, y: -0.5, z: 0 }}
+                text={{
+                  font: 'mozillavr',
+                  width: 2,
+                  align: 'center',
+                  baseline: 'center',
+                  color: 'white',
+                  transparent: false,
+                  value: 'back'
+                }}>
+                <Entity
+                  primitive="a-plane"
+                  position={{ x: 0, y: -0.0625, z: -0.01 }}
+                  color="red"
+                  width={0.5}
+                  height={0.125}
+                  class="clickable"
+                  events={{
+                    click: unFocusCell
+                  }}
+                />
+              </Entity>
+            </Entity>
+          </Entity>
+        }
       </Entity>
       <Assets />
       <Player />
