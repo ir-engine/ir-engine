@@ -38,7 +38,15 @@ const UserProfile: React.FC<profileProps> = (props) => {
       }
 
     const handleSubmit = async () => {
+<<<<<<< HEAD
       await props.uploadFile(file)
+=======
+      let data = new FormData();
+      data.append('file',file)
+        data.append('name', 'User avatar')
+      console.log(data,"datatata")
+      await props.uploadFile(data)
+>>>>>>> 64bbe88... Fixed avatar upload issues
     }
     return (
         <div className="uploadform">
