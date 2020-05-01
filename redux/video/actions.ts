@@ -30,10 +30,16 @@ export interface PublicVideo {
     metadata: Partial<VideoMetaData>,
     attribution?: Partial<Attribution>
 }
-
+export interface Image{
+  id: number
+  name: string
+  type: string
+  url: string
+}
 export interface VideosFetchedAction {
     type: string
     videos?: PublicVideo[]
+    image?: Image
     message?: string
 }
 
@@ -58,13 +64,13 @@ export function videosFetchedError(err: string): VideosFetchedAction {
 }
 
 
-export function fileUploadSuccess(payload: any): UploadAction{
+export function fileUploadSuccess(image: Image): VideosFetchedAction{
   return {
     type: UPLOAD_FILE,
-    payload
+    image: image
   }
 }
-export function fileUploadFailure(err: any): UploadAction{
+export function fileUploadFailure(err: any): VideosFetchedAction{
   return {
     type: UPLOAD_FILE_FAILURE,
     message: err
