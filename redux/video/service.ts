@@ -31,7 +31,11 @@ export function fetchPublicVideos() {
 export function uploadFile(data:any){
   return async (dispatch: Dispatch) => {
     console.log(data,"dataform")
-   let res = await axios.post(`${apiUrl}/upload`,data)
+   let res = await axios.post(`${apiUrl}/upload`,data, {
+       headers: {
+           'Content-Type': 'multipart/form-data'
+       }
+   })
 
    console.log(res,"ressssss")
     // client.service('static-resource').create(data).then((res: any) => {
