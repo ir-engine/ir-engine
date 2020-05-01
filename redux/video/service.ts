@@ -8,7 +8,7 @@ import {
   // eslint-disable-next-line no-unused-vars
   PublicVideo
 } from './actions'
-import { ajaxPost } from "../service.common"
+import axios from 'axios'
 
 const apiUrl = process.env.NODE_ENV =="production" ? '' :'http://localhost:3030'
 import { client } from '../feathers'
@@ -30,8 +30,8 @@ export function fetchPublicVideos() {
 
 export function uploadFile(data:any){
   return async (dispatch: Dispatch) => {
-    console.log(data,"dat2123")
-   let res = await ajaxPost(`${apiUrl}/upload`,data,false,true)
+    console.log(data,"dataform")
+   let res = await axios.post(`${apiUrl}/upload`,data)
 
    console.log(res,"ressssss")
     // client.service('static-resource').create(data).then((res: any) => {

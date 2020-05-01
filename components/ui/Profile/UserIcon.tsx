@@ -18,7 +18,10 @@ const UserProfile: React.FC<profileProps> = (props) => {
 
     const [file,setFile] = React.useState('')
     const handleChange = (e:any) =>{
-      let file = e.target.files
+      let efile = e.target.files[0]
+      let formData = new FormData()
+      formData.append('file',efile,efile.type)
+      let file = efile
        setFile(file)
       }
 
@@ -33,7 +36,7 @@ const UserProfile: React.FC<profileProps> = (props) => {
         <label htmlFor="fileInput">
            
         {file ? <img
-          src={URL.createObjectURL(file[0])}
+          src={URL.createObjectURL(file)}
           className="rounded mx-auto d-block"
           width="200px"
           height="150px"
