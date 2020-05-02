@@ -31,7 +31,6 @@ export function fetchPublicVideos() {
 export function uploadFile(data:any){
   return async (dispatch: Dispatch) => {
     console.log(data,"dataform")
-<<<<<<< HEAD
    let res = await axios.post(`${apiUrl}/upload`,data,{
     headers: {
       'Content-Type': 'multipart/form-data'
@@ -39,6 +38,7 @@ export function uploadFile(data:any){
    })
     const image = res.data
     dispatch(fileUploadSuccess(image))
+<<<<<<< HEAD
 =======
    let res = await axios.post(`${apiUrl}/upload`,data, {
        headers: {
@@ -58,5 +58,7 @@ export function uploadFile(data:any){
     //   return err
     // })
 >>>>>>> 64bbe88... Fixed avatar upload issues
+=======
+>>>>>>> b182b99... resolve conflitcs
   }
 }
