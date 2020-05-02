@@ -31,7 +31,6 @@ export function fetchPublicVideos() {
 export function uploadFile(data:any){
   return async (dispatch: Dispatch) => {
     console.log(data,"dataform")
-<<<<<<< HEAD
    let res = await axios.post(`${apiUrl}/upload`,data,{
     headers: {
       'Content-Type': 'multipart/form-data'
@@ -39,24 +38,5 @@ export function uploadFile(data:any){
    })
     const image = res.data
     dispatch(fileUploadSuccess(image))
-=======
-   let res = await axios.post(`${apiUrl}/upload`,data, {
-       headers: {
-           'Content-Type': 'multipart/form-data'
-       }
-   })
-
-   console.log(res,"ressssss")
-    // client.service('static-resource').create(data).then((res: any) => {
-      const image = res.data
-    //   console.log(image,"imagessss")
-      dispatch(fileUploadSuccess(image))
-    //   return image
-    // }).catch((err:any) => {
-    //   console.log(err,"err")
-    //   dispatch(fileUploadFailure(err))
-    //   return err
-    // })
->>>>>>> 64bbe885832e31334dfb7a5737aee443dc079d00
   }
 }
