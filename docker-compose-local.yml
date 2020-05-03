@@ -41,6 +41,16 @@ services:
     build:
       context: ../Spoke
     image: xrchat/spoke
+    environment: 
+      BASE_ASSETS_PATH: http://xrchat.local/ 
+      HUBS_SERVER: xrchat.local:4000
+      RETICULUM_SERVER: xrchat.local:4000
+      THUMBNAIL_SERVER: 
+      CORS_PROXY_SERVER: 
+      NON_CORS_PROXY_DOMAINS: 
+      SENTRY_DSN: 
+      GA_TRACKING_ID: 
+      IS_MOZ: "false"
     restart: always
     ports:
       - '9090:9090'
