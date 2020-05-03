@@ -40,7 +40,7 @@ services:
       GA_TRACKING_ID: 
       IS_MOZ: "false"
     ports:
-      - '9090:9090'
+      - '9090:80'
  
   # DB Server
   db:
