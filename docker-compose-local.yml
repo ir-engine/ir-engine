@@ -53,7 +53,7 @@ services:
       IS_MOZ: "false"
     restart: always
     ports:
-      - '9090:9090'
+      - '9090:80'
 
  
   # DB Server
