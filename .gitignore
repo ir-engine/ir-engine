@@ -10,6 +10,8 @@ configs/*staging*
 configs/*dev*
 configs/*splunk*
 
+values/*.yaml
+
 
 xrchat/Chart\.lock
 
