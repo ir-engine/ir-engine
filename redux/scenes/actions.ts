@@ -10,7 +10,8 @@ export interface PublicScenesState {
 
 export interface PublicScene {
     url: string,
-    name: string
+    name: string,
+    thumbnailUrl?: string
 }
 
 export interface ScenesFetchedAction {

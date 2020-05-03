@@ -60,6 +60,7 @@ function DreamScene (props: DreamProps): any {
                 primitive="a-media-cell"
                 title={x.name}
                 media-url={x.url}
+                thumbnail-url={x.thumbnailUrl}
                 cellHeight={0.6666}
                 cellWidth={1}
                 cellContentHeight={0.5}
