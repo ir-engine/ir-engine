@@ -11,31 +11,61 @@ export class Project extends Service {
 
   async find (params: Params): Promise<[]> {
     const SceneModel = this.app.service('scene').Model
-    const UserModel = this.app.service('user').Model
     const OwnedFileModel = this.app.service('owned-file').Model
-    const ParentSceneListingModel = this.app.service('scene-listing').Model
+    // const ParentSceneListingModel = this.app.service('scene-listing').Model
 
-    const groups = await this.getModel(params).findAll({
+    const projects = await this.getModel(params).findAll({
+      attributes: ['name', 'project_id'],
       include: [
         {
-          model: UserModel
-        },
-        {
-          model: SceneModel
+          model: SceneModel,
+          include: [
+            {
+              model: OwnedFileModel,
+              as: 'model_owned_file',
+              attributes: ['key']
+            },
+            {
+              model: OwnedFileModel,
+              as: 'screenshot_owned_file',
+              attributes: ['key']
+            },
+            {
+              model: OwnedFileModel,
+              as: 'scene_owned_file',
+              attributes: ['key']
+            }
+          ]
         },
         {
           model: SceneModel,
-          as: 'parent_scene'
+          as: 'parent_scene',
+          include: [
+            {
+              model: OwnedFileModel,
+              as: 'model_owned_file'
+            },
+            {
+              model: OwnedFileModel,
+              as: 'screenshot_owned_file'
+            },
+            {
+              model: OwnedFileModel,
+              as: 'scene_owned_file'
+            }
+          ]
         },
         {
           model: OwnedFileModel,
-          as: 'project_owned_file'
+          as: 'project_owned_file',
+          attributes: ['key']
         },
         {
           model: OwnedFileModel,
-          as: 'thumbnail_owned_file'
-        },
-        {
+          as: 'thumbnail_owned_file',
+          attributes: ['key']
+        }
+        /* {
           model: ParentSceneListingModel,
           include: [
             {
@@ -57,48 +87,81 @@ export class Project extends Service {
             // :account,
             // scene: ^Scene.scene_preloads()
           ]
-        }
-        // {
-        //   model: AssetModel
-        // }
+        } */
       ]
     })
 
-    return groups
+    const processedProjects = projects.map((project: any) => this.processProjectDetail(project))
+
+    return processedProjects
   }
 
   async get (id: Id, params: Params): Promise<any> {
-    await super.get(id, params)
     const SceneModel = this.app.service('scene').Model
-    const UserModel = this.app.service('user').Model
     const OwnedFileModel = this.app.service('owned-file').Model
-    const ParentSceneListingModel = this.app.service('scene-listing').Model
+    // const ParentSceneListingModel = this.app.service('scene-listing').Model
 
-    const groups = await this.getModel(params).findOne({
+    const project = await this.getModel(params).findOne({
+      attributes: ['name', 'project_id'],
+
       where: {
-        groupId: id,
-        userId: params.user.userId
+        project_id: id
+        // TODO: Fixed authorization, Get only logged in users project
+        // userId: params.userß.userId
       },
       include: [
         {
-          model: UserModel
-        },
-        {
-          model: SceneModel
+          model: SceneModel,
+          include: [
+            {
+              model: OwnedFileModel,
+              as: 'model_owned_file',
+              attributes: ['key']
+            },
+            {
+              model: OwnedFileModel,
+              as: 'screenshot_owned_file',
+              attributes: ['key']
+            },
+            {
+              model: OwnedFileModel,
+              as: 'scene_owned_file',
+              attributes: ['key']
+            }
+          ]
         },
         {
           model: SceneModel,
-          as: 'parent_scene'
+          as: 'parent_scene',
+          include: [
+            {
+              model: OwnedFileModel,
+              as: 'model_owned_file',
+              attributes: ['key']
+            },
+            {
+              model: OwnedFileModel,
+              as: 'screenshot_owned_file',
+              attributes: ['key']
+            },
+            {
+              model: OwnedFileModel,
+              as: 'scene_owned_file',
+              attributes: ['key']
+            }
+          ]
         },
         {
           model: OwnedFileModel,
-          as: 'project_owned_file'
+          as: 'project_owned_file',
+          attributes: ['key']
         },
         {
           model: OwnedFileModel,
-          as: 'thumbnail_owned_file'
-        },
-        {
+          as: 'thumbnail_owned_file',
+          attributes: ['key']
+        }
+        /* {
           model: ParentSceneListingModel,
           include: [
             {
@@ -113,29 +176,71 @@ export class Project extends Service {
               model: OwnedFileModel,
               as: 'scene_owned_file'
             }
-            // :model_owned_file,
-            // :screenshot_owned_file,
-            // :scene_owned_file,
-            // :project,
-            // :account,
-            // scene: ^Scene.scene_preloads()
           ]
-        }
-        // {
-        //   model: AssetModel
-        // }
+        } */
       ]
     })
 
-    return groups
+    return this.processProjectDetail(project)
   }
 
   async create (data: any, params: Params): Promise<any> {
-    // name: scene.name,
-    //   thumbnail_file_id,
-    //   thumbnail_file_token,
-    //   project_file_id,
-    //   project_file_token
+    const OwnedFileModel = this.app.service('owned-file').Model
+    const ProjectModel = this.getModel(params)
+    const savedProject = await ProjectModel.create(data)
+    const SceneModel = this.app.service('scene').Model
+    // TODO: Load scene too
+    const projectData = await ProjectModel.findOne({
+      where: {
+        project_id: savedProject.project_id
+      },
+      attributes: ['name', 'project_id'],
+      include: [
+        {
+          model: OwnedFileModel,
+          as: 'project_owned_file',
+          attributes: ['key']
+        },
+        {
+          model: OwnedFileModel,
+          as: 'thumbnail_owned_file',
+          attributes: ['key']
+        },
+        {
+          model: SceneModel
+        },
+        {
+          model: SceneModel,
+          as: 'parent_scene'
+        }
+      ]
+    })
+    return this.processProjectDetail(projectData.toJSON())
+  }
 
+  private processProjectDetail (project: any): any {
+    const _proj = {
+      name: project.name,
+      parent_scene: this.mapSceneData(project?.parent_scene_listing || project?.parent_scene, project.project_sid),
+      project_id: project.project_id,
+      project_url: project?.project_owned_file?.key,
+      scene: this.mapSceneData(project.scene, project.project_sid),
+      thumbnail_url: project?.thumbnail_owned_file?.key
+    }
+    return _proj
+  }
+
+  private mapSceneData (scene: any, projectId: string): any {
+    if (!scene) {
+      return null
+    }
+    return {
+      ...scene,
+      project_id: projectId,
+      // TODO: Define url here
+      url: '', // "#{RetWeb.Endpoint.url()}/scenes/#{s |> to_sid}/#{s.slug}"
+      model_url: scene?.model_owned_file?.key,
+      screenshot_url: scene?.screenshot_owned_file?.key
+    }
   }
 }
