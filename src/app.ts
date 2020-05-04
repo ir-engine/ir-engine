@@ -14,8 +14,8 @@ import socketio from '@feathersjs/socketio'
 
 import { Application } from './declarations'
 import logger from './logger'
-import middleware from './middleware'
-// import { googleAnalytics } from './middleware/index'
+// import middleware from './middleware'
+import { googleAnalytics } from './middleware/index'
 import services from './services'
 import appHooks from './app.hooks'
 import channels from './channels'
@@ -67,13 +67,13 @@ app.configure(socketio())
 app.configure(sequelize)
 
 // Configure other middleware (see `middleware/index.js`)
-app.configure(middleware)
-// app.use(googleAnalytics)
-// app.use((req, res, next) => {
-//   logger.info('Middleaware working')
-//   console.log('Middleaware working-----------------------------')
-//   next()
-// })
+// app.configure(middleware)
+app.use(googleAnalytics)
+app.use((req, res, next) => {
+  logger.info('Middleaware working')
+  console.log('Middleaware working-----------------------------')
+  next()
+})
 app.configure(authentication)
 // Set up our services (see `services/index.js`)
 app.configure(services)
