@@ -1,4 +1,4 @@
-import * as feathersAuthentication from '@feathersjs/authentication'
+// import * as feathersAuthentication from '@feathersjs/authentication'
 // import * as local from '@feathersjs/authentication-local'
 import * as commonHooks from 'feathers-hooks-common'
 import accountService from '../auth-management/auth-management.notifier'
