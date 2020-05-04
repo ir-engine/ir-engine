@@ -7,8 +7,8 @@ export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const project = sequelizeClient.define('project', {
     project_id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
       allowNull: false,
       primaryKey: true
     },
