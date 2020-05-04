@@ -122,7 +122,7 @@ auth/selector.ts    : In this file, we defined state selector for AuthState.
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { 
-  loginUserByEmail,
+  loginUserByPassword,
 } from '../../../redux/auth/service'
 import { selectAuthState } from '../../../redux/auth/selector'
 
@@ -130,7 +130,7 @@ import { selectAuthState } from '../../../redux/auth/selector'
 
 interface Props {
   auth: any,
-  loginUserByEmail: typeof loginUserByEmail
+  loginUserByPassword: typeof loginUserByPassword
 }
 
 const mapStateToProps = (state: any) => {
@@ -141,7 +141,7 @@ const mapStateToProps = (state: any) => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  loginUserByEmail: bindActionCreators(loginUserByEmail, dispatch)  // Mapping service to props
+  loginUserByPassword: bindActionCreators(loginUserByPassword, dispatch)  // Mapping service to props
 })
 
 ...
@@ -150,7 +150,7 @@ class Login extends React.Component<LoginProps> {
 ...
     handleEmailLogin = (e: any) => {
         // call service which is mapping with redux.
-        this.props.loginUserByEmail({
+        this.props.loginUserByPassword({
             email: this.state.email,
             password: this.state.password
         })
@@ -251,7 +251,7 @@ Let's explain step by step about the login process.
     ```
     ...
 
-    export function loginUserByEmail(form: any) {
+    export function loginUserByPassword(form: any) {
         return (dispatch: Dispatch) => {
             dispatch(actionProcessing(true))
 

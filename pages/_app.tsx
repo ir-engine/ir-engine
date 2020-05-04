@@ -14,8 +14,10 @@ import { ThemeProvider } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import theme from '../components/assets/theme'
 import { restoreState } from '../redux/persisted.store'
+import { doLoginAuto } from 'redux/auth/service'
 
 import getConfig from 'next/config'
+
 const config = getConfig().publicRuntimeConfig
 // requires aframe only once and renders the page, passing 'aframeReady' boolean
 type PageLoaderProps = {
@@ -55,6 +57,7 @@ class MyApp extends App<Props> {
     }
 
     this.props.store.dispatch(restoreState())
+    doLoginAuto(this.props.store.dispatch)
   }
 
   render() {
