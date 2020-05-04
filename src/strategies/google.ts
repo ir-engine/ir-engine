@@ -4,7 +4,7 @@ import { Params } from '@feathersjs/feathers'
 export default class Googletrategy extends OAuthStrategy {
   async getEntityData (profile: any, params?: Params): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {})
-    const userId = (params && params.query) ? params.query.userId : undefined
+    const userId = (params?.query) ? params.query.userId : undefined
 
     return {
       ...baseData,

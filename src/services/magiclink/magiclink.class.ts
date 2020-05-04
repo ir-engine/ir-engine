@@ -40,7 +40,7 @@ export class Magiclink implements ServiceMethods<Data> {
     return { id }
   }
 
-  async sendEmail (toEmail: string, token: string, type: "connection" | "login"): Promise<void> {
+  async sendEmail (toEmail: string, token: string, type: 'connection' | 'login'): Promise<void> {
     const hashLink = getLink(type, token)
     const appPath = path.dirname(require.main ? require.main.filename : '')
     const emailAccountTemplatesPath =
@@ -63,7 +63,7 @@ export class Magiclink implements ServiceMethods<Data> {
     return await sendEmail(this.app, email)
   }
 
-  async sendSms (mobile: string, token: string, type: "connection" | "login"): Promise<void> {
+  async sendSms (mobile: string, token: string, type: 'connection' | 'login'): Promise<void> {
     const hashLink = getLink(type, token)
     const appPath = path.dirname(require.main ? require.main.filename : '')
     const emailAccountTemplatesPath =
@@ -83,7 +83,6 @@ export class Magiclink implements ServiceMethods<Data> {
   async create (data: any, params?: Params): Promise<Data> {
     console.log('----------------')
 
-    
     const authService = this.app.service('authentication')
     const identityProviderService: Service = this.app.service('identity-provider')
 
@@ -105,15 +104,14 @@ export class Magiclink implements ServiceMethods<Data> {
       identityProvider = identityProviders[0]
     }
 
-    console.log('magic link----------', data);
+    console.log('magic link----------', data)
 
     if (identityProvider) {
       const accessToken = await authService.createAccessToken({}, { subject: identityProvider.id.toString() })
 
       if (data.type === 'email') {
         await this.sendEmail(data.email, accessToken, data.userId ? 'connection' : 'login')
-      }
-      else if (data.type === 'sms') {
+      } else if (data.type === 'sms') {
         await this.sendSms(data.mobile, accessToken, data.userId ? 'connection' : 'login')
       }
     }
