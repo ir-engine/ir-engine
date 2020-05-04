@@ -54,6 +54,8 @@ import sceneListing from './scene-listing/scene-listing.service'
 
 import mediaSearch from './media-search/media-search.service'
 
+import uploadMedia from './upload-media/upload-media.service';
+
 export default (app: Application): void => {
   // Types
   app.configure(ComponentType)
@@ -104,4 +106,5 @@ export default (app: Application): void => {
   app.configure(mediaSearch)
 
   app.configure(GraphQL)
+  app.configure(uploadMedia)
 }
