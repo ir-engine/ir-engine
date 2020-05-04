@@ -15,6 +15,7 @@ import socketio from '@feathersjs/socketio'
 import { Application } from './declarations'
 import logger from './logger'
 import middleware from './middleware'
+// import { googleAnalytics } from './middleware/index'
 import services from './services'
 import appHooks from './app.hooks'
 import channels from './channels'
@@ -31,19 +32,21 @@ dotenv.config()
 
 const app: Application = express(feathers())
 
-app.configure(swagger({
-  docsPath: '/docs',
-  docsJsonPath: '/docs.json',
-  uiIndex: path.join(__dirname, '../docs.html'),
-  // TODO: Relate to server config, don't hardcode this here
-  specs: {
-    info: {
-      title: 'XRChat API Surface',
-      description: 'APIs for the XRChat application',
-      version: '1.0.0'
+app.configure(
+  swagger({
+    docsPath: '/docs',
+    docsJsonPath: '/docs.json',
+    uiIndex: path.join(__dirname, '../docs.html'),
+    // TODO: Relate to server config, don't hardcode this here
+    specs: {
+      info: {
+        title: 'XRChat API Surface',
+        description: 'APIs for the XRChat application',
+        version: '1.0.0'
+      }
     }
-  }
-}))
+  })
+)
 
 // Load app configuration
 app.configure(configuration())
@@ -65,6 +68,12 @@ app.configure(sequelize)
 
 // Configure other middleware (see `middleware/index.js`)
 app.configure(middleware)
+// app.use(googleAnalytics)
+// app.use((req, res, next) => {
+//   logger.info('Middleaware working')
+//   console.log('Middleaware working-----------------------------')
+//   next()
+// })
 app.configure(authentication)
 // Set up our services (see `services/index.js`)
 app.configure(services)
