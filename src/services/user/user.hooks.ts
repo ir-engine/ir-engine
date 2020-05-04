@@ -5,14 +5,14 @@ import accountService from '../auth-management/auth-management.notifier'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 // const verifyHooks = require('feathers-authentication-management').hooks
-const { authenticate } = feathersAuthentication.hooks
+// const { authenticate } = feathersAuthentication.hooks
 // const { hashPassword, protect } = local.hooks
 
 const addAssociation = () => {
   return (context: any) => {
     const IdentityProvider = context.app.service('identity-provider').Model
-    const sequelize = context.params.sequelize || {};
-    sequelize.raw = false;
+    const sequelize = context.params.sequelize || {}
+    sequelize.raw = false
     sequelize.include = [
       {
         model: IdentityProvider

@@ -83,7 +83,7 @@ export class IdentityProvider extends Service {
     if (!userId) {
       userId = crypto.createHash('md5').update(hashData).digest('hex')
     }
-    
+
     const sequelizeClient: Sequelize = this.app.get('sequelizeClient')
     const userService = this.app.service('user')
     const User = sequelizeClient.model('user')
