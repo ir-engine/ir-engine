@@ -104,10 +104,10 @@ export default (app: Application): any => {
     (scene as any).hasOne(models.project, { foreignKey: 'scene_id' });
     (scene as any).belongsTo(models.scene, { foreignKey: 'parent_scene_id', targetKey: 'scene_id' });
     (scene as any).belongsTo(models.scene_listing, { foreignKey: 'parent_scene_listing_id', targetKey: 'scene_listing_id', allowNull: true });
-    (scene as any).belongsTo(models.user, { foreignKey: 'account_id'});
-    (scene as any).belongsTo(models.owned_file, { foreignKey: 'model_owned_file_id', targetKey: 'owned_file_id' });
-    (scene as any).belongsTo(models.owned_file, { foreignKey: 'screenshot_owned_id', targetKey: 'owned_file_id' });
-    (scene as any).belongsTo(models.owned_file, { foreignKey: 'scene_owned_file_id', targetKey: 'owned_file_id' })
+    (scene as any).belongsTo(models.user, { foreignKey: 'account_id' });
+    (scene as any).belongsTo(models.owned_file, { foreignKey: 'model_owned_file_id', targetKey: 'owned_file_id', as: 'model_owned_file' });
+    (scene as any).belongsTo(models.owned_file, { foreignKey: 'screenshot_owned_id', targetKey: 'owned_file_id', as: 'screenshot_owned_file' });
+    (scene as any).belongsTo(models.owned_file, { foreignKey: 'scene_owned_file_id', targetKey: 'owned_file_id', as: '' })
   }
 
   return scene
