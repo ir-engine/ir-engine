@@ -1,11 +1,19 @@
 import { HookContext } from '@feathersjs/feathers'
 import dauria from 'dauria'
 import removeRelatedResources from '../../hooks/remove-related-resources'
+import addAssociations from '../../hooks/add-associations'
 
 export default {
   before: {
     all: [],
-    find: [],
+    find: [addAssociations({
+      models: [
+        {
+          model: 'attribution',
+          as: 'attribution'
+        }
+      ]
+    })],
     get: [],
     create: [
       (context: HookContext) => {
@@ -16,6 +24,7 @@ export default {
           const name = context.data.name ?? file.name
           context.data = { uri: uri, mimeType: mimeType, name: name }
         }
+        return context
       }
     ],
     update: [],
