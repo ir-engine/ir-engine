@@ -20,11 +20,6 @@ import appHooks from './app.hooks'
 import channels from './channels'
 import authentication from './authentication'
 import sequelize from './sequelize'
-// @ts-ignore
-import seederConfig from './seeder-config'
-// @ts-ignore
-import seeder from 'feathers-seeder'
-
 // Don't remove this comment. It's needed to format import lines nicely.
 
 dotenv.config()
