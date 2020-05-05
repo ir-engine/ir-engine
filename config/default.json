@@ -90,5 +90,8 @@
   },
   "googlePoly": {
     "authToken": ""
+  },
+  "hub": {
+    "endpoint": "https://hubs.mozilla.com"
   }
 }
