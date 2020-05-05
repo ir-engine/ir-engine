@@ -25,11 +25,11 @@ export class PublishProject implements ServiceMethods<Data> {
     }
   }
 
-  async create (data: Data, params?: Params): Promise<Data> {
+  async create (data: Data, params: Params): Promise<Data> {
     const ProjectModel = this.app.service('project').Model
     const SceneModel = this.app.service('scene').Model
     const projectId = params?.query?.projectId
-    const project = await ProjectModel.findOne({ where: { project_id: projectId } })
+    const project = await ProjectModel.findOne({ where: { project_id: projectId, created_by_account_id: params.user.userId } })
 
     await this.app.get('sequelizeClient').transaction(async (trans: Transaction) => {
       const savedScene = await SceneModel.create(data, {
