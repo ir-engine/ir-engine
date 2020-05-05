@@ -1,0 +1,63 @@
+{{- if .Values.spoke.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "xrchat.spoke.fullname" . }}
+  labels:
+    {{- include "xrchat.spoke.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.spoke.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "xrchat.spoke.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "xrchat.spoke.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/spoke-configmap.yaml") . | sha256sum }}
+    spec:
+    {{- with .Values.spoke.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "xrchat.spoke.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.spoke.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.spoke.securityContext | nindent 12 }}
+          image: "{{ .Values.spoke.image.repository }}:{{ .Values.spoke.image.tag }}"
+          imagePullPolicy: {{ .Values.spoke.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "xrchat.spoke.fullname" . }}
+                optional: true
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.spoke.resources | nindent 12 }}
+      {{- with .Values.spoke.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.spoke.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.spoke.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}
