@@ -1,0 +1,17 @@
+{{- if .Values.spoke.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "xrchat.spoke.fullname" . }}
+  labels:
+    {{- include "xrchat.spoke.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.spoke.service.type }}
+  ports:
+    - port: {{ .Values.spoke.service.port }}
+      targetPort: {{ .Values.spoke.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "xrchat.spoke.selectorLabels" . | nindent 4 }}
+{{- end }}

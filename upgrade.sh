@@ -2,4 +2,6 @@ set -x
 
 RELEASE=$1
 
-helm upgrade --install $RELEASE ./xrchat --values configs/$RELEASE.values.yaml
+helm repo update
+
+helm upgrade --install $RELEASE xrchat/xrchat --values values/$RELEASE.values.yaml
