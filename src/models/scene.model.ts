@@ -40,10 +40,9 @@ export default (app: Application): any => {
       allowNull: false
     },
     state: {
-      // TODO: Need to define later, not sure about its type now
-      // :active, :removed
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      defaultValue: 'active'
     },
     attribution: {
       type: DataTypes.STRING,
@@ -92,6 +91,11 @@ export default (app: Application): any => {
     }
   }, {
     hooks: {
+      beforeValidate (scene: any) {
+        if (scene.name) {
+          scene.slug = (scene.name as string).split(' ').filter(character => character.length).join('-').toLowerCase()
+        }
+      },
       beforeCount (options: any) {
         options.raw = true
       }
@@ -106,8 +110,8 @@ export default (app: Application): any => {
     (scene as any).belongsTo(models.scene_listing, { foreignKey: 'parent_scene_listing_id', targetKey: 'scene_listing_id', allowNull: true });
     (scene as any).belongsTo(models.user, { foreignKey: 'account_id' });
     (scene as any).belongsTo(models.owned_file, { foreignKey: 'model_owned_file_id', targetKey: 'owned_file_id', as: 'model_owned_file' });
-    (scene as any).belongsTo(models.owned_file, { foreignKey: 'screenshot_owned_id', targetKey: 'owned_file_id', as: 'screenshot_owned_file' });
-    (scene as any).belongsTo(models.owned_file, { foreignKey: 'scene_owned_file_id', targetKey: 'owned_file_id', as: '' })
+    (scene as any).belongsTo(models.owned_file, { foreignKey: 'screenshot_owned_file_id', targetKey: 'owned_file_id', as: 'screenshot_owned_file' });
+    (scene as any).belongsTo(models.owned_file, { foreignKey: 'scene_owned_file_id', targetKey: 'owned_file_id', as: 'scene_owned_file' })
   }
 
   return scene
