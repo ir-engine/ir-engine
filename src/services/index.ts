@@ -92,5 +92,4 @@ export default (app: Application): void => {
 
   app.configure(identityProviderType)
   app.configure(GraphQL)
-
 }
