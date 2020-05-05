@@ -13,6 +13,9 @@ export class Project extends Service {
   async find (params: Params): Promise<[]> {
 
     const projects = await this.getModel(params).findAll({
+      where: {
+        created_by_account_id: params.user.userId
+      },
       attributes: ['name', 'project_id'],
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
     })
@@ -25,9 +28,8 @@ export class Project extends Service {
     const project = await this.getModel(params).findOne({
       attributes: ['name', 'project_id'],
       where: {
-        project_id: id
-        // TODO: Fixed authorization, Get only logged in users project
-        // userId: params.user.userId
+        project_id: id,
+        created_by_account_id: params.user.userId
       },
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
     })
