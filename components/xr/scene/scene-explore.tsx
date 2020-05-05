@@ -24,8 +24,17 @@ interface VideoProps {
   fetchPublicVideos: typeof fetchPublicVideos
 }
 
+interface CellData {
+  title: string,
+  description: string,
+  videoformat: string,
+  mediaUrl: string,
+  thumbnailUrl: string
+}
+
 interface ExploreState {
-  focusedCell: HTMLElement | null,
+  focusedCellEl: HTMLElement | null,
+  focusedCell: CellData | null
 }
 
 const mapStateToProps = (state: any) => {
@@ -41,21 +50,31 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 function ExploreScene (props: VideoProps): any {
   const { videos, fetchPublicVideos } = props
 
-  const [exploreState, setExploreState] = useState<ExploreState>({ focusedCell: null })
+  const [exploreState, setExploreState] = useState<ExploreState>({ focusedCellEl: null, focusedCell: null })
 
   const focusCell = (event: any) => {
-    setExploreState({ focusedCell: event.originalTarget.parentEl })
+    const focusCellEl = event.originalTarget.parentEl
+    setExploreState({
+      focusedCellEl: event.originalTarget.parentEl,
+      focusedCell: {
+        title: (event.originalTarget.parentEl.attributes as any).title.value,
+        description: (event.originalTarget.parentEl.attributes as any).description,
+        videoformat: (focusCellEl.attributes as any).videoformat.value,
+        mediaUrl: (focusCellEl.attributes as any)['media-url'].value,
+        thumbnailUrl: (focusCellEl.attributes as any)['thumbnail-url'].value
+      }
+    })
   }
 
   const unFocusCell = () => {
-    setExploreState({ focusedCell: null })
+    setExploreState({ focusedCellEl: null, focusedCell: null })
   }
 
   const watchVideo = () => {
-    if (exploreState.focusedCell === null) return
-    const url = (exploreState.focusedCell.attributes as any)['media-url'].value
-    const title = (exploreState.focusedCell.attributes as any).title.value
-    const videoformat = (exploreState.focusedCell.attributes as any).videoformat.value
+    if (exploreState.focusedCellEl === null) return
+    const url = exploreState.focusedCell?.mediaUrl
+    const title = exploreState.focusedCell?.title
+    const videoformat = exploreState.focusedCell?.videoformat
     window.location.href = 'video360?manifest=' + url +
       '&title=' + title +
       // '&runtime=' + runtime +
@@ -70,7 +89,14 @@ function ExploreScene (props: VideoProps): any {
     if (videos.get('videos').size === 0) {
       fetchPublicVideos()
     }
-  })
+    document.addEventListener('watchbutton', watchVideo)
+    document.addEventListener('backbutton', unFocusCell)
+    return () => {
+      document.removeEventListener('watchbutton', watchVideo)
+      document.removeEventListener('backbutton', unFocusCell)
+    }
+  }, [watchVideo, unFocusCell])
+
   return (
     <Scene
       vr-mode-ui="enterVRButton: #enterVRButton"
@@ -116,89 +142,19 @@ function ExploreScene (props: VideoProps): any {
           })}
 
         </Entity>
-        { exploreState.focusedCell !== null &&
+        { exploreState.focusedCellEl !== null &&
           <Entity
             position="0 0 -1.5">
             <Entity
               id="focused-cell"
-              primitive="a-media-cell"
-              position="-0.75 0 0"
-              scale="1.5 1.5 1.5"
+              primitive="a-video-details"
               mediatype="video360"
-              title={(exploreState.focusedCell.attributes as any).name}
-              description={(exploreState.focusedCell.attributes as any).description}
-              videoformat={(exploreState.focusedCell.attributes as any).videoformat.value}
-              media-url={(exploreState.focusedCell.attributes as any)['media-url'].value}
-              thumbnail-url={(exploreState.focusedCell.attributes as any)['thumbnail-url'].value}>
-            </Entity>
-            <Entity id="video-details"
-              position="0.75 0 0"
-            >
-              <Entity id="video-details-text"
-                text={{
-                  font: 'mozillavr',
-                  width: 2,
-                  align: 'center',
-                  baseline: 'center',
-                  color: 'white',
-                  transparent: false,
-                  value: exploreState.focusedCell.title + '\n\n' +
-                    (exploreState.focusedCell.attributes as any).description.value
-                }}>
-                <Entity
-                  primitive="a-plane"
-                  position={{ x: 0, y: -0.0625, z: -0.01 }}
-                  color="black"
-                  width={1}
-                  height={0.75}
-                />
-              </Entity>
-              <Entity id="video-details-watch"
-                position={{ x: -0.25, y: -0.5, z: 0 }}
-                text={{
-                  font: 'mozillavr',
-                  width: 2,
-                  align: 'center',
-                  baseline: 'center',
-                  color: 'white',
-                  transparent: false,
-                  value: 'watch'
-                }}>
-                <Entity
-                  primitive="a-plane"
-                  position={{ x: 0, y: -0.0625, z: -0.01 }}
-                  color="green"
-                  width={0.5}
-                  height={0.125}
-                  class="clickable"
-                  events={{
-                    click: watchVideo
-                  }}
-                />
-              </Entity>
-              <Entity id="video-details-back"
-                position={{ x: 0.25, y: -0.5, z: 0 }}
-                text={{
-                  font: 'mozillavr',
-                  width: 2,
-                  align: 'center',
-                  baseline: 'center',
-                  color: 'white',
-                  transparent: false,
-                  value: 'back'
-                }}>
-                <Entity
-                  primitive="a-plane"
-                  position={{ x: 0, y: -0.0625, z: -0.01 }}
-                  color="red"
-                  width={0.5}
-                  height={0.125}
-                  class="clickable"
-                  events={{
-                    click: unFocusCell
-                  }}
-                />
-              </Entity>
+              title={exploreState.focusedCell?.title}
+              description={exploreState.focusedCell?.description}
+              videoformat={exploreState.focusedCell?.videoformat}
+              media-url={exploreState.focusedCell?.mediaUrl}
+              thumbnail-url={exploreState.focusedCell?.thumbnailUrl}
+              class="clickable">
             </Entity>
           </Entity>
         }
