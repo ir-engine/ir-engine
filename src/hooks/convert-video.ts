@@ -11,12 +11,13 @@ import AWS from 'aws-sdk'
 import S3BlobStore from 's3-blob-store'
 import { Application } from '../declarations'
 import StorageProvider from '../storage/storageprovider'
-import createStaticResource from '../hooks/create-static-resource'
+import createStaticResource from './create-static-resource'
 
 import fs from 'fs'
 import _ from 'lodash'
 // @ts-ignore
 import appRootPath from 'app-root-path'
+import uploadThumbnailLinkHook from './upload-thumbnail-link'
 
 const promiseExec = util.promisify(exec)
 
@@ -71,7 +72,18 @@ export default async (context: any): Promise<void> => {
   }
 
   if (fileId.length > 0) {
-    const s3Key = path.join('public', context.params.videoSource, fileId, 'video', dashManifestName)
+    var thumbnailUploadResult: any
+    const localContext = _.cloneDeep(context)
+
+    localContext.params.storageProvider = new StorageProvider()
+    localContext.params.uploadPath = path.join('public', localContext.params.videoSource, fileId, 'video')
+
+    if (context.data.metadata.thumbnail_url != null) {
+      thumbnailUploadResult = await uploadThumbnailLinkHook()(localContext)
+      localContext.params.thumbnailUrl = thumbnailUploadResult.params.thumbnailUrl
+    }
+
+    const s3Key = path.join('public', localContext.params.videoSource, fileId, 'video', dashManifestName)
     s3BlobStore.exists({
       key: (s3Key)
     }, async (err: any, exists: any) => {
@@ -105,6 +117,31 @@ export default async (context: any): Promise<void> => {
               })
           })
 
+          if (localContext.data.metadata.thumbnail_url == null) {
+            console.log('Getting thumbnail from youtube-dl')
+
+            const thumbnailUrlResult = await new Promise((resolve, reject) => {
+              youtubedl.exec(url,
+                ['--get-thumbnail'],
+                { cwd: localFilePath },
+                (err: any, output: any) => {
+                  if (err) {
+                    console.log(err)
+                    reject(err)
+                  }
+                  resolve(output)
+                })
+            })
+
+            console.log('Got thumbnail from yt-dl: ' + thumbnailUrlResult)
+
+            localContext.data.metadata.thumbnail_url = localContext.result.metadata.thumbnail_url = (thumbnailUrlResult as any)[0]
+
+            thumbnailUploadResult = await uploadThumbnailLinkHook()(localContext)
+
+            localContext.data.metadata.thumbnail_url = thumbnailUploadResult.params.thumbnailUrl
+          }
+
           console.log('Finished downloading video ' + fileId + ', running through ffmpeg')
 
           try {
@@ -120,7 +157,7 @@ export default async (context: any): Promise<void> => {
           console.log('Finished ffmpeg on ' + fileId + ', uploading!')
 
           try {
-            await uploadFile(outputdir, fileId, context, app, result.id)
+            await uploadFile(outputdir, fileId, localContext, app, result.id)
           } catch (err) {
             console.log('Error in totality of file upload')
             console.log(err)
@@ -140,7 +177,7 @@ export default async (context: any): Promise<void> => {
         }
       } else {
         console.log('File already existed, just making DB entries and updating URL')
-        const s3Path = path.join('public', context.params.videoSource, fileId, 'video')
+        const s3Path = path.join('public', localContext.params.videoSource, fileId, 'video')
         const bucketObjects = await new Promise((resolve, reject) => {
           s3.listObjects({
             Bucket: s3BlobStore.bucket,
@@ -157,9 +194,37 @@ export default async (context: any): Promise<void> => {
           })
         })
 
+        if (localContext.data.metadata.thumbnail_url == null) {
+          console.log('Getting thumbnail from youtube-dl')
+          const localFilePath = path.join(appRootPath.path, 'temp_videos', fileId)
+          localContext.params.storageProvider = new StorageProvider()
+          localContext.params.uploadPath = s3Path
+
+          const thumbnailUrlResult = await new Promise((resolve, reject) => {
+            console.log('exec youtube-dl')
+            youtubedl.exec(url,
+              ['--get-thumbnail'],
+              { cwd: localFilePath },
+              (err: any, output: any) => {
+                if (err) {
+                  console.log(err)
+                  reject(err)
+                }
+                resolve(output)
+              })
+          })
+
+          localContext.data.metadata.thumbnail_url = localContext.result.metadata.thumbnail_url = (thumbnailUrlResult as any)[0]
+
+          thumbnailUploadResult = await uploadThumbnailLinkHook()(localContext)
+
+          localContext.data.metadata.thumbnail_url = thumbnailUploadResult.params.thumbnailUrl
+        } else {
+          localContext.data.metadata.thumbnail_url = localContext.params.thumbnailUrl
+        }
+
         const creationPromises = (bucketObjects as any).map(async (object: any) => {
           const key = object.Key
-          const localContext = _.cloneDeep(context)
 
           // @ts-ignore
           const extension = (key.match(extensionRegex) != null ? key.match(extensionRegex)[1] : 'application') as string
@@ -176,12 +241,12 @@ export default async (context: any): Promise<void> => {
             localContext.params.skipResourceCreation = true
             localContext.params.patchId = result.id
             localContext.params.parentResourceId = null
-            localContext.data.description = context.arguments[0].description
+            localContext.data.description = localContext.arguments[0].description
           } else {
             localContext.params.skipResourceCreation = false
             localContext.params.patchId = null
             localContext.params.parentResourceId = result.id
-            localContext.data.description = 'DASH chunk for ' + context.params.videoSource + ' video ' + fileId
+            localContext.data.description = 'DASH chunk for ' + localContext.params.videoSource + ' video ' + fileId
             localContext.data.name = key.replace(s3Path + '/', '')
           }
 
@@ -191,14 +256,18 @@ export default async (context: any): Promise<void> => {
         await Promise.all(creationPromises)
 
         console.log('All static-resources created')
+
+        return localContext
       }
     })
   } else {
     console.log('Regex for ' + url + ' did not match anything known')
+
+    return context
   }
 }
 
-async function uploadFile (localFilePath: string, fileId: string, context: any, app: Application, resultId: number): Promise<void> {
+async function uploadFile (localFilePath: string, fileId: string, localContext: any, app: Application, resultId: number): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
   return await new Promise(async (resolve, reject) => {
     const promises = []
@@ -210,7 +279,6 @@ async function uploadFile (localFilePath: string, fileId: string, context: any, 
           // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
           promises.push(new Promise(async function (resolve, reject) {
             const content = await fs.promises.readFile(localFilePath + '/' + file)
-            const localContext = _.cloneDeep(context)
             // @ts-ignore
             const extension = (file.match(extensionRegex) != null ? file.match(extensionRegex)[1] : 'application')
             // @ts-ignore
@@ -233,13 +301,13 @@ async function uploadFile (localFilePath: string, fileId: string, context: any, 
 
             localContext.params.mime_type = mimetype
             localContext.params.storageProvider = new StorageProvider()
-            localContext.params.uploadPath = path.join('public', context.params.videoSource, fileId, 'video')
+            localContext.params.uploadPath = path.join('public', localContext.params.videoSource, fileId, 'video')
 
             if (/.mpd/.test(file)) {
               localContext.params.skipResourceCreation = true
               localContext.params.patchId = resultId
               localContext.params.parentResourceId = null
-              localContext.params.body.description = context.arguments[0].description
+              localContext.params.body.description = localContext.arguments[0].description
             } else {
               localContext.params.skipResourceCreation = false
               localContext.params.patchId = null
@@ -252,7 +320,7 @@ async function uploadFile (localFilePath: string, fileId: string, context: any, 
             resolve()
           }))
         } else {
-          promises.push(uploadFile(path.join(localFilePath, file), fileId, context, app, resultId))
+          promises.push(uploadFile(path.join(localFilePath, file), fileId, localContext, app, resultId))
         }
       }
 

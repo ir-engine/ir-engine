@@ -7,7 +7,7 @@ export default (options = {}): Hook => {
     const body = params.body || {}
 
     const resourceData = {
-      name: data.name || body.name,
+      name: data.name || body.name || context.params.file.originalname,
       description: data.description || body.description,
       url: data.uri || data.url,
       mime_type: data.mime_type || params.mime_type,
