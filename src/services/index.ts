@@ -56,6 +56,8 @@ import mediaSearch from './media-search/media-search.service'
 
 import uploadMedia from './upload-media/upload-media.service';
 
+import publishProject from './publish-project/publish-project.service';
+
 export default (app: Application): void => {
   // Types
   app.configure(ComponentType)
@@ -107,4 +109,5 @@ export default (app: Application): void => {
 
   app.configure(GraphQL)
   app.configure(uploadMedia)
+  app.configure(publishProject)
 }
