@@ -31,7 +31,7 @@ describe('CRUD operation on \'User\' model', () => {
       email: 'vinay.k@queppelin.com',
       password: '12345',
       mobile: '8767367277',
-      githubId: 'vinaykr579',
+      githubId: 'githubtest',
       isVerified: true,
       instanceId: instanceId,
       userRole: role

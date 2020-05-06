@@ -10,10 +10,10 @@ describe('CRUD operation on \'PartyUser\' model', () => {
     const party = await partyModel.create({})
     partyId = party.id
     const user = await userModel.create({
-      email: 'vinay.k@queppelin.com',
+      email: 'email@example.com',
       password: '12345',
       mobile: '8767367277',
-      githubId: 'vinaykr579',
+      githubId: 'githubtest',
       isVerified: true
     })
     userId = user.id

@@ -9,18 +9,18 @@ describe('CRUD operation on \'UserRelationship\' model', () => {
 
   before(async () => {
     const user = await userModel.create({
-      email: 'vinay.k@queppelin.com',
+      email: 'email@example.com',
       password: '12345',
       mobile: '8767367277',
-      githubId: 'vinaykr579',
+      githubId: 'githubtest',
       isVerified: true
     })
     userId = user.id
     const relatedUser = await userModel.create({
-      email: 'vinay.kr@queppelin.com',
+      email: 'email2@example.com',
       password: '12345',
       mobile: '8767367278',
-      githubId: 'vinaykr578',
+      githubId: 'githubtest2',
       isVerified: true
     })
     relatedUserId = relatedUser.id
