@@ -1,4 +1,4 @@
-import * as authentication from '@feathersjs/authentication';
+import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common'
 import { HookContext } from '@feathersjs/feathers'
 import attachOwnerIdInSavingContact from '../../hooks/set-loggedin-user-in-body'
@@ -6,7 +6,7 @@ import setResponseStatusCode from '../../hooks/set-response-status-code'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
-const { authenticate } = authentication.hooks;
+const { authenticate } = authentication.hooks
 const mapProjectSceneDataForSaving = () => {
   return (context: HookContext) => {
     context.data = {

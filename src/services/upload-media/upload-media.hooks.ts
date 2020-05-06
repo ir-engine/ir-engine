@@ -1,10 +1,9 @@
-import * as authentication from '@feathersjs/authentication';
+import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common'
 import { HookContext } from '@feathersjs/feathers'
 import getBasicMimetype from '../../util/get-basic-mimetype'
 import setResponseStatus from '../../hooks/set-response-status-code'
 import attachOwnerIdInSavingContact from '../../hooks/set-loggedin-user-in-body'
-
 
 import addUriToFile from '../../hooks/add-uri-to-file'
 import reformatUploadResult from '../../hooks/reformat-upload-result'
@@ -12,7 +11,7 @@ import makeS3FilesPublic from '../../hooks/make-s3-files-public'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
-const { authenticate } = authentication.hooks;
+const { authenticate } = authentication.hooks
 
 const createOwnedFile = (options = {}) => {
   return async (context: HookContext) => {
