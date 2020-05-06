@@ -8,7 +8,7 @@ export default class FacebookStrategy extends OAuthStrategy {
     return {
       ...baseData,
       email: profile.email,
-      identityProviderType: 'facebook'
+      type: 'facebook'
     }
   }
 

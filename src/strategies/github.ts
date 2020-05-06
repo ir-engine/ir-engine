@@ -8,7 +8,7 @@ export default class GithubStrategy extends OAuthStrategy {
     return {
       ...baseData,
       email: profile.email,
-      identityProviderType: 'github'
+      type: 'github'
     }
   }
 
