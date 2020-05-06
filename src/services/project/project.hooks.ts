@@ -2,7 +2,8 @@ import * as authentication from '@feathersjs/authentication'
 
 import { HookContext } from '@feathersjs/feathers'
 import setResponseStatusCode from '../../hooks/set-response-status-code'
-import attachOwnerIdInSavingContact from '../../hooks/set-loggedin-user-in-body'
+import attachOwnerIdInBody from '../../hooks/set-loggedin-user-in-body'
+import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -22,10 +23,12 @@ export default {
     all: [authenticate('jwt')],
     find: [],
     get: [],
-    create: [attachOwnerIdInSavingContact('created_by_account_id'), mapProjectSaveData()],
+    create: [attachOwnerIdInBody('created_by_account_id'), mapProjectSaveData()],
     update: [],
-    patch: [attachOwnerIdInSavingContact('created_by_account_id'), mapProjectSaveData()],
-    remove: [attachOwnerIdInSavingContact('created_by_account_id'), mapProjectSaveData()]
+    patch: [attachOwnerIdInBody('created_by_account_id'), mapProjectSaveData()],
+    remove: [
+      attachOwnerIdInQuery('created_by_account_id')
+    ]
   },
 
   after: {
