@@ -102,6 +102,7 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
     imageEl.setAttribute('src', source)
     imageEl.setAttribute('width', this.data.cellWidth)
     imageEl.setAttribute('height', this.data.cellContentHeight)
+    imageEl.setAttribute('side', 'double')
     imageEl.classList.add('clickable')
 
     if (this.data.linkEnabled) this.enableLink(imageEl)

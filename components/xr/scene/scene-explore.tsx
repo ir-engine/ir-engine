@@ -62,7 +62,7 @@ function ExploreScene (props: VideoProps): any {
       focusedCellEl: event.originalTarget.parentEl,
       focusedCell: {
         title: (event.originalTarget.parentEl.attributes as any).title.value,
-        description: (event.originalTarget.parentEl.attributes as any).description,
+        description: (event.originalTarget.parentEl.attributes as any).description.value,
         videoformat: (focusCellEl.attributes as any).videoformat.value,
         mediaUrl: (focusCellEl.attributes as any)['media-url'].value,
         thumbnailUrl: (focusCellEl.attributes as any)['thumbnail-url'].value,
