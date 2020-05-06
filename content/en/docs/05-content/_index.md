@@ -2,7 +2,7 @@
 ---
 title: "Content"
 linkTitle: "Content"
-weight: 8
+weight: 5
 date: 2017-01-04
 description: >
   Show your user how to work through some end to end examples.
@@ -61,6 +61,6 @@ Input:		PNG, JPG
 Output:	PNG			
 
 ## Audio
-Input: 		AAC, MP3, WAV
+Input: 	AAC, MP3, WAV
 
 Output:	AAC

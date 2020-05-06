@@ -144,7 +144,7 @@ enable = false
         desc = "Source code on Github"
 [[params.links.developer]]
 	name = "Discord"
-	url = "https://discord.gg/AXM5ApV"
+	url = "https://discord.gg/A4XCDpN"
 	icon = "fab fa-discord"
         desc = "Find us on Discord"
 

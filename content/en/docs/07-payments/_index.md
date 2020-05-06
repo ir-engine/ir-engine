@@ -2,7 +2,7 @@
 ---
 title: "Payments and Subscriptions"
 linkTitle: "Payments and Subscriptions"
-weight: 8
+weight: 7
 date: 2017-01-04
 description: >
   Show your user how to work through some end to end examples.

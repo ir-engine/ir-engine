@@ -2,7 +2,7 @@
 ---
 title: "User Interface"
 linkTitle: "User Interface"
-weight: 8
+weight: 6
 date: 2017-01-04
 description: >
   Show your user how to work through some end to end examples.
