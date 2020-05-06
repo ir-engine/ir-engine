@@ -8,10 +8,10 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
 
   before(async () => {
     const user = await userModel.create({
-      email: 'vinay.k@queppelin.com',
+      email: 'email@example.com',
       password: '12345',
       mobile: '8767367277',
-      githubId: 'vinaykr579',
+      githubId: 'githubtest',
       isVerified: true
     })
     userId = user.id
