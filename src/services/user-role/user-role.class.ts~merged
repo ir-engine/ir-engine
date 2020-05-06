@@ -1,0 +1,16 @@
+import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { Application } from '../../declarations'
+
+<<<<<<< HEAD
+export class Role extends Service {
+=======
+<<<<<<< HEAD:src/services/asset/asset.class.ts
+export class Asset extends Service {
+=======
+export class Role extends Service {
+>>>>>>> dev:src/services/user-role/user-role.class.ts
+>>>>>>> dev
+  constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
+    super(options)
+  }
+}

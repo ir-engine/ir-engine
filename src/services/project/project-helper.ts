@@ -1,6 +1,5 @@
 import config from 'config'
 
-
 export function mapProjectDetailData (project: any): any {
   const _proj = {
     name: project.name,

@@ -29,8 +29,8 @@ export default class SketchFabMedia {
     const url = new URL(this.GOOGLE_POLY_URL)
     Object.keys(defaultFilters).forEach(key => url.searchParams.append(key, defaultFilters[key]))
     return await fetch(url)
-      .then(res => res.json())
-      .then((response) => {
+      .then((res: any) => res.json())
+      .then((response: any) => {
         return {
           meta: {
             source: source,

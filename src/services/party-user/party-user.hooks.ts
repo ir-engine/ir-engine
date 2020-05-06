@@ -34,7 +34,7 @@ export default {
       validateGroupId()
     ],
     find: [],
-    get: [disallow()],
+    get: [],
     create: [],
     update: [disallow()],
     patch: [],
