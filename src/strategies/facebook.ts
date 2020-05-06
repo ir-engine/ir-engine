@@ -2,13 +2,15 @@ import { OAuthStrategy } from '@feathersjs/authentication-oauth'
 import { Params } from '@feathersjs/feathers'
 
 export default class FacebookStrategy extends OAuthStrategy {
-  async getEntityData (profile: any): Promise<any> {
+  async getEntityData (profile: any, params?: Params): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {})
+    const userId = (params?.query) ? params.query.userId : undefined
 
     return {
       ...baseData,
       email: profile.email,
-      type: 'facebook'
+      type: 'facebook',
+      userId
     }
   }
 
