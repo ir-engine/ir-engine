@@ -40,5 +40,3 @@ User has a choice in wallet providers and storage providers
 Risks / Downsides
 * This tech, although on W3C standards track, is still raw / early
 * Possibly too many clicks?
-
-

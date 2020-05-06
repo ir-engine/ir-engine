@@ -1,17 +1,27 @@
 
 ---
-title: "Examples"
-linkTitle: "Examples"
+title: "Contacts and Organizations"
+linkTitle: "Contacts and Organizations"
 weight: 3
 date: 2017-01-05
 description: >
-  See your project in action!
+  Contacts, Organizations, Parties
 ---
 
 {{% pageinfo %}}
 This is a placeholder page that shows you how to use this template site.
 {{% /pageinfo %}}
 
-Do you have any example **applications** or **code** for your users in your repo or elsewhere? Link to your examples here.
+# Contacts and Groups
 
+## Contacts
+Find By Handle
 
+## Organizations
+Find By Name
+
+## Parties
+Find By Contacts
+
+## Invites
+From Contacts, Organizations, Parties

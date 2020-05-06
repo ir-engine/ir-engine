@@ -1,6 +1,6 @@
 ---
-title: "Accounts, Login, Logout"
-linkTitle: "Accounts, Login, Logout"
+title: "Virtual Locations"
+linkTitle: "Virtual Locations"
 weight: 4
 description: >
   User Managment 
@@ -10,35 +10,16 @@ description: >
 User first enters an XRChat site in Guest Mode. Interaction with Accounts / XR Pass only happens when user needs to save or customize something (like avatar), or buy something.
 {{% /pageinfo %}}
 
-## Sign Up
+# Virtual Locations
 
-Signing up for an account will create a profile for Handle, Saved Settings, and Identity method.
+## Locations
 
-### Email Identity method
-Email Magic Link
+## Scenes
 
-### SMS Identity method
-SMS Magic Link
+## Instances
 
-### Social Auth Identity method
-Facebook, Google, GitHub Support
-
-### XR Pass Identity method
-
-Interaction with XR Pass only starts when needed
-
-User not “logged in” (no active session), but user HAS an XR Pass / wallet
-
-User not “logged in”, but user HAS an XR Pass / wallet (continued)
-
-
-Wallet Benefits
-* Users now have a single place to store avatars (in their Solid storage pods), which is safely available to all participating servers
-* * Single sign-on (we can still do emailing login links, etc) everywhere
-User has a choice in wallet providers and storage providers
-
-Risks / Downsides
-* This tech, although on W3C standards track, is still raw / early
-* Possibly too many clicks?
-
-
+Room Settings
+* Change Room Name
+* Maximum Capacity
+* Favorite Rooms
+* Close a Room

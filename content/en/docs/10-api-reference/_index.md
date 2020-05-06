@@ -1,9 +1,9 @@
 ---
-title: "Reference"
-linkTitle: "Reference"
+title: "API Reference"
+linkTitle: "API Reference"
 weight: 9
 description: >
-  Low level reference docs for your project.
+  Low level API reference docs.
 ---
 
 {{% pageinfo %}}
