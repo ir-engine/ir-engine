@@ -1,10 +1,13 @@
 /* eslint-disable no-prototype-builtins */
-import playerComp from './player'
+import clickableComp from './clickable'
+import eaccubeComp from './eaccube'
 import gridComp from './grid'
 import gridCellComp from './grid-cell'
 import mediaCellComp from './media-cell'
-import eaccubeComp from './eaccube'
+import playerComp from './player'
 import playerVrUiComp from './video-player-vr-ui'
+import videoDetails from './video-details'
+
 import AFRAME from 'aframe'
 import React from 'react'
 
@@ -17,12 +20,14 @@ type ComponentSystem = {
 }
 
 const ComponentSystemArray: ComponentSystem[] = [
-  playerComp,
+  clickableComp,
+  eaccubeComp,
   gridComp,
   gridCellComp,
   mediaCellComp,
-  eaccubeComp,
-  playerVrUiComp
+  playerComp,
+  playerVrUiComp,
+  videoDetails
 ]
 
 function RegisterComponentSystem(compsys: ComponentSystem) : void {
