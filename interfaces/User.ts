@@ -1,4 +1,4 @@
-import { IdentityProvider } from "./IdentityProvider";
+import { IdentityProvider } from "./IdentityProvider"
 
 export type User = {
   id: string
@@ -7,7 +7,7 @@ export type User = {
 }
 
 export function resolveUser(user: any): User {
-  if (user['identity_providers']) {
+  if (user && user['identity_providers']) {
     return {
       ...user,
       identityProviders: user['identity_providers']
