@@ -83,17 +83,7 @@
   </url>
   
   <url>
-    <loc>/docs/getting-started/example-page/</loc>
-    <lastmod>2020-04-20T05:40:55-07:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/docs/reference/parameter-reference/</loc>
-    <lastmod>2020-04-20T05:40:55-07:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/docs/tasks/ponycopters/</loc>
+    <loc>/docs/getting-started/</loc>
     <lastmod>2020-04-20T05:40:55-07:00</lastmod>
   </url>
   

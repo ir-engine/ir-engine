@@ -1,7 +1,7 @@
 
 ---
-title: "Tutorials"
-linkTitle: "Tutorials"
+title: "User Interface"
+linkTitle: "User Interface"
 weight: 8
 date: 2017-01-04
 description: >
@@ -12,5 +12,29 @@ description: >
 This is asss placeholder page that shows you how to use this template site.
 {{% /pageinfo %}}
 
-Tutorials are **complete worked examples** made up of **multiple tasks** that guide the user through a relatively simple but realistic scenario: building an application that uses some of your project’s features, for example. If you have already created some Examples for your project you can base Tutorials on them. This section is **optional**. However, remember that although you may not need this section at first, having tutorials can be useful to help your users engage with your example code, especially if there are aspects that need more explanation than you can easily provide in code comments.
+## Phone
+## Desktop
+## VR
+## AR
 
+
+Menu Button: Reveals links to user preferences, room controls and other useful information.
+Mute: Turns on/off your microphone.
+Share Room: Opens a dialog box with information on sharing the room with friends. More info provided in the Share Room Dialog section at the bottom of this page.
+Object Browser: Displays a list of the media items that exist in the room. Click on the objects in the list for further options.
+Member list: Displays information on the people in the room and lobby. Shows the number of room members, their names, and their device type. You can also access advanced user controls from this list.
+Help: Opens resources to learn about Hubs.
+
+Chat: Allows you to communicate via text chat, create objects or enter commands, including:
+/leave - Disconnect from the room
+/debug Toggle physics debug rendering
+/vrstats Toggle stats in VR
+/scene <scene url> Change the scene (moderators only)
+/rename <new name> Rename the room (moderators only)
+Favorite Room: Saves the room to your list of favorites, making it easy to find when you return to Hubs.
+Share Room Dialog
+Enter room on Wired in device
+
+The share room dialog gives you the information you need to share with others for them to join you in the room. You can use the numeric code to share a link verbally, share the current room URL or the shortened hub.link URL. Note that codes expire after 72 hours.
+
+A checkbox on the invite dialog allows you to sign up for notifications that alert you when another user has entered the room. You can sign up for notifications on your phone or desktop. You do not need to remain in the room to receive notifications.
