@@ -7,7 +7,7 @@ import config from 'config'
 export default (app: Application): any => {
   return {
     service: config.get('authentication.service'),
-    identifyUserProps: ['token', 'accountType'],
+    identifyUserProps: ['token', 'identityProviderType'],
     sanitizeUserForClient: async (identityProvider: any): Promise<any> => {
       const authService = app.service('authentication')
       const accessToken = await authService.createAccessToken({}, { subject: identityProvider.id.toString() })
@@ -17,8 +17,7 @@ export default (app: Application): any => {
       }
     },
     notifier: async (type: string, identityProvider: any): Promise<void> => {
-      // ignore accountType is not user+password.
-      if (identityProvider.accountType !== 'password') {
+      if (identityProvider.identityProviderType !== 'password') {
         return
       }
 

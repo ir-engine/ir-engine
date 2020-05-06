@@ -11,7 +11,6 @@ export class Project extends Service {
   }
 
   async find (params: Params): Promise<[]> {
-
     const projects = await this.getModel(params).findAll({
       where: {
         created_by_account_id: params.user.userId
@@ -24,7 +23,6 @@ export class Project extends Service {
   }
 
   async get (id: Id, params: Params): Promise<any> {
-
     const project = await this.getModel(params).findOne({
       attributes: ['name', 'project_id'],
       where: {

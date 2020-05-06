@@ -84,14 +84,5 @@
   "magiclink": {
     "subject": "MAGICLINK_EMAIL_SUBJECT"
   },
-  "mysql": "mysql://server:password@localhost:3306/xrchat",
-  "sketchFab": {
-    "authToken": ""
-  },
-  "googlePoly": {
-    "authToken": ""
-  },
-  "hub": {
-    "endpoint": "https://hubs.mozilla.com"
-  }
+  "mysql": "mysql://server:password@localhost:3306/xrchat"
 }
