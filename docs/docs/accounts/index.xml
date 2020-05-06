@@ -1,0 +1,17 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>XRChat – Accounts</title>
+    <link>/docs/accounts/</link>
+    <description>Recent content in Accounts on XRChat</description>
+    <generator>Hugo -- gohugo.io</generator>
+    
+	  <atom:link href="/docs/accounts/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+      
+        
+      
+    
+    
+  </channel>
+</rss>
