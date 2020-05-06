@@ -29,7 +29,11 @@ interface CellData {
   description: string,
   videoformat: string,
   mediaUrl: string,
-  thumbnailUrl: string
+  thumbnailUrl: string,
+  productionCredit: string,
+  rating: string,
+  categories: string[],
+  runtime: string
 }
 
 interface ExploreState {
@@ -61,7 +65,11 @@ function ExploreScene (props: VideoProps): any {
         description: (event.originalTarget.parentEl.attributes as any).description,
         videoformat: (focusCellEl.attributes as any).videoformat.value,
         mediaUrl: (focusCellEl.attributes as any)['media-url'].value,
-        thumbnailUrl: (focusCellEl.attributes as any)['thumbnail-url'].value
+        thumbnailUrl: (focusCellEl.attributes as any)['thumbnail-url'].value,
+        productionCredit: (focusCellEl.attributes as any)['production-credit'].value,
+        rating: (focusCellEl.attributes as any).rating.value,
+        categories: (focusCellEl.attributes as any).categories.value,
+        runtime: (focusCellEl.attributes as any).runtime.value
       }
     })
   }
@@ -122,10 +130,10 @@ function ExploreScene (props: VideoProps): any {
                 description={video.description}
                 media-url={video.url}
                 thumbnail-url={video.metadata.thumbnail_url || '#placeholder'}
-                // production-credit={video.production_credit}
-                // rating={video.rating}
-                // categories={video.categories}
-                // runtime={video.runtime}
+                production-credit={video.attribution?.creator}
+                rating={video.metadata.rating}
+                categories={video.metadata.categories}
+                runtime={video.metadata.runtime}
                 // tags={video.tags}
                 cellHeight={0.6666}
                 cellWidth={1}
@@ -154,6 +162,10 @@ function ExploreScene (props: VideoProps): any {
               videoformat={exploreState.focusedCell?.videoformat}
               media-url={exploreState.focusedCell?.mediaUrl}
               thumbnail-url={exploreState.focusedCell?.thumbnailUrl}
+              production-credit={exploreState.focusedCell?.productionCredit}
+              rating={exploreState.focusedCell?.rating}
+              categories={exploreState.focusedCell?.categories}
+              runtime={exploreState.focusedCell?.runtime}
               class="clickable">
             </Entity>
           </Entity>
