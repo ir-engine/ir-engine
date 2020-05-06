@@ -2,15 +2,17 @@
 
 import { useRouter, NextRouter } from 'next/router'
 import { Component } from 'react'
-import { loginUserByJwt } from '../../../redux/auth/service'
+import { loginUserByJwt, refreshConnections } from '../../../redux/auth/service'
 import { Container } from '@material-ui/core'
 import { selectAuthState } from '../../../redux/auth/selector'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 
 type Props = {
+  auth: any
   router: NextRouter
-  loginUserByJwt: typeof loginUserByJwt
+  loginUserByJwt: typeof loginUserByJwt,
+  refreshConnections: typeof refreshConnections
 }
 
 const mapStateToProps = (state: any) => {
@@ -20,7 +22,8 @@ const mapStateToProps = (state: any) => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  loginUserByJwt: bindActionCreators(loginUserByJwt, dispatch)
+  loginUserByJwt: bindActionCreators(loginUserByJwt, dispatch),
+  refreshConnections: bindActionCreators(refreshConnections, dispatch)
 })
 
 class GithubCallback extends Component<Props> {
@@ -33,11 +36,18 @@ class GithubCallback extends Component<Props> {
     const router = this.props.router
     const error = router.query.errror as string
     const token = router.query.token as string
+    const type = router.query.type as string
 
     if (error) {
       // Nothing to do.
     } else {
-      this.props.loginUserByJwt(token, '/', '/login')
+      if (type === 'connection') {
+        const user = this.props.auth.get('user')
+        this.props.refreshConnections(user.id)
+      }
+      else {
+        this.props.loginUserByJwt(token, '/', '/')
+      }
     }
 
     this.setState({
