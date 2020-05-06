@@ -1,6 +1,6 @@
 export const seed = {
   disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
-  delete: true,
+  delete: false,
   path: 'identity-provider-type',
   randomize: false,
   templates:
