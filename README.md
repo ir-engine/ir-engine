@@ -6,12 +6,13 @@ Uses Hugo
 https://gohugo.io/getting-started/quick-start/ 
 
 ```bash
-git clone --recurse-submodules --depth 1 https://github.com/xrchat/xrchat-docs && \
+git clone --recurse-submodules --depth 1 https://github.com/xrchat/xrchat-docs
 
 npm install
 
 hugo server
 ```
+
 
 ### To Deploy the Latest Docs
 ```bash
