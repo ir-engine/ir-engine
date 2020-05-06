@@ -77,14 +77,14 @@ export class Magiclink implements ServiceMethods<Data> {
       const identityProviders = (await identityProviderService.find({
         query: {
           token: data.email,
-          identityProviderType: 'email'
+          type: 'email'
         }
       }) as any).data
 
       if (identityProviders.length === 0) {
         identityProvider = await identityProviderService.create({
           token: data.email,
-          identityProviderType: 'email'
+          type: 'email'
         }, params)
       } else {
         identityProvider = identityProviders[0]
@@ -99,14 +99,14 @@ export class Magiclink implements ServiceMethods<Data> {
       const identityProviders = (await identityProviderService.find({
         query: {
           token: data.mobile,
-          identityProviderType: 'sms'
+          type: 'sms'
         }
       }) as any).data
 
       if (identityProviders.length === 0) {
         identityProvider = await identityProviderService.create({
           token: data.mobile,
-          identityProviderType: 'sms'
+          type: 'sms'
         }, params)
       } else {
         identityProvider = identityProviders[0]

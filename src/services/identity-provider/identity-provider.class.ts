@@ -17,26 +17,26 @@ export class IdentityProvider extends Service {
       githubId,
       googleId,
       facebookId,
-      identityProviderType,
+      type,
       password
     } = data
 
     let identityProvider: any
 
     let hashData = ''
-    switch (identityProviderType) {
+    switch (type) {
       case 'email':
         hashData = token
         identityProvider = {
           token,
-          identityProviderType
+          type
         }
         break
       case 'sms':
         hashData = token
         identityProvider = {
           token,
-          identityProviderType
+          type
         }
         break
       case 'password':
@@ -44,28 +44,28 @@ export class IdentityProvider extends Service {
         identityProvider = {
           token,
           password,
-          identityProviderType
+          type
         }
         break
       case 'github':
         hashData = githubId
         identityProvider = {
           token: githubId,
-          identityProviderType
+          type
         }
         break
       case 'facebook':
         hashData = facebookId
         identityProvider = {
           token: facebookId,
-          identityProviderType
+          type
         }
         break
       case 'google':
         hashData = googleId
         identityProvider = {
           token: googleId,
-          identityProviderType
+          type
         }
         break
       case 'auth0':
