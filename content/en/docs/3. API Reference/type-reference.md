@@ -71,7 +71,7 @@ Components are modular aspects that can be added to entities to give the entity 
 
 **Component Types**
 animation
-backgrounid
+background
 camera
 cursor
 debug
