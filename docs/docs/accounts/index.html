@@ -7,7 +7,7 @@
 
 <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
 
-<link rel="alternate" type="application/rss&#43;xml" href="/docs/tutorials/index.xml">
+<link rel="alternate" type="application/rss&#43;xml" href="/docs/account/index.xml">
 
 
 <link rel="shortcut icon" href="/favicons/favicon.ico" >
@@ -21,24 +21,23 @@
 <link rel="icon" type="image/png" href="/favicons/android-144x144.png" sizes="144x144">
 <link rel="icon" type="image/png" href="/favicons/android-192x192.png" sizes="192x192">
 
-<title>Tutorials | XRChat</title><meta property="og:title" content="Tutorials" />
-<meta property="og:description" content="Show your user how to work through some end to end examples.
+<title>Account | XRChat</title><meta property="og:title" content="Accounts" />
+<meta property="og:description" content="What does your user need to understand about your project in order to use it - or potentially contribute to it? 
 " />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="/docs/tutorials/" />
+<meta property="og:url" content="/docs/Accounts/" />
 
 <meta property="og:image" content="/images/project-illustration.png" />
-
-<meta property="og:updated_time" content="2017-01-04T00:00:00+00:00" /><meta property="og:site_name" content="XRChat" />
-<meta itemprop="name" content="Tutorials">
-<meta itemprop="description" content="Show your user how to work through some end to end examples.
+<meta property="og:site_name" content="XRChat" />
+<meta itemprop="name" content="Accounts">
+<meta itemprop="description" content="What does your user need to understand about your project in order to use it - or potentially contribute to it? 
 ">
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="/images/project-illustration.png"/>
 
-<meta name="twitter:title" content="Tutorials"/>
-<meta name="twitter:description" content="Show your user how to work through some end to end examples.
+<meta name="twitter:title" content="Accounts"/>
+<meta name="twitter:description" content="What does your user need to understand about your project in order to use it - or potentially contribute to it? 
 "/>
 
 
@@ -227,10 +226,10 @@
 
 <ul class="td-sidebar-nav__section pr-md-3">
   <li class="td-sidebar-nav__section-title">
-    <a  href="/docs/concepts/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">Concepts</a>
+    <a  href="/docs/accounts/" class="align-left pl-0 pr-2 active td-sidebar-link td-sidebar-link__section">Accounts</a>
   </li>
   <ul>
-    <li class="collapse " id="docs-concepts">
+    <li class="collapse show" id="docs-accounts">
       
       
       
@@ -326,10 +325,10 @@
 
 <ul class="td-sidebar-nav__section pr-md-3">
   <li class="td-sidebar-nav__section-title">
-    <a  href="/docs/tutorials/" class="align-left pl-0 pr-2 active td-sidebar-link td-sidebar-link__section">Tutorials</a>
+    <a  href="/docs/tutorials/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">Tutorials</a>
   </li>
   <ul>
-    <li class="collapse show" id="docs-tutorials">
+    <li class="collapse " id="docs-tutorials">
       
       
       
@@ -428,8 +427,8 @@
 
 
 
-<a href="https://github.com/xrchat/xrchat-docs/edit/master/content/en/docs/Tutorials/_index.md" target="_blank"><i class="fa fa-edit fa-fw"></i> Edit this page</a>
-<a href="https://github.com/xrchat/xrchat-docs/issues/new?title=Tutorials" target="_blank"><i class="fab fa-github fa-fw"></i> Create documentation issue</a>
+<a href="https://github.com/xrchat/xrchat-docs/edit/master/Accounts/en/docs/Accounts/_index.md" target="_blank"><i class="fa fa-edit fa-fw"></i> Edit this page</a>
+<a href="https://github.com/xrchat/xrchat-docs/issues/new?title=Accounts" target="_blank"><i class="fab fa-github fa-fw"></i> Create documentation issue</a>
 
 
 <a href="https://github.com/xrchat/xrchat-server/issues/new" target="_blank"><i class="fas fa-tasks fa-fw"></i> Create project issue</a>
@@ -464,7 +463,7 @@
 
 
 <li class="breadcrumb-item active" aria-current="page">
-	<a href="/docs/tutorials/">Tutorials</a>
+	<a href="/docs/accounts/">Accounts</a>
 </li>
 
 	</ol>
@@ -472,8 +471,8 @@
 
             
 <div class="td-content">
-	<h1>Tutorials</h1>
-        <div class="lead">Show your user how to work through some end to end examples.</div>
+	<h1>Accounts</h1>
+        <div class="lead">What does your user need to understand about your project in order to use it - or potentially contribute to it?</div>
 	
 	
 
@@ -483,7 +482,9 @@
 </div>
 
 
-<p>Tutorials are <strong>complete worked examples</strong> made up of <strong>multiple tasks</strong> that guide the user through a relatively simple but realistic scenario: building an application that uses some of your project’s features, for example. If you have already created some Examples for your project you can base Tutorials on them. This section is <strong>optional</strong>. However, remember that although you may not need this section at first, having tutorials can be useful to help your users engage with your example code, especially if there are aspects that need more explanation than you can easily provide in code comments.</p>
+<p>For many projects, users may not need much information beyond the information in the <a href="/docs/overview/">Overview</a>, so this section is <strong>optional</strong>. However if there are areas where your users will need a more detailed understanding of a given term or feature in order to do anything useful with your project (or to not make mistakes when using it) put that information in this section. For example, you may want to add some conceptual pages if you have a large project with many components and a complex architecture.</p>
+
+<p>Remember to focus on what the user needs to know, not just what you think is interesting about your project! If they don’t need to understand your original design decisions to use or contribute to the project, don’t put them in, or include your design docs in your repo and link to them. Similarly, most users will probably need to know more about how features work when in use rather than how they are implemented. Consider a separate architecture page for more detailed implementation and system design information that potential project contributors can consult.</p>
 
         <div class="section-index">
     
@@ -505,13 +506,6 @@
             
         
             
-                <div class="entry">
-                    <h5>
-                        <a href="/docs/tutorials/multi-bear/">Multi-Bear Domicile Setup</a>
-                    </h5>
-                    <p>A short lead descripton about this content page. It can be <strong>bold</strong> or <em>italic</em> and can be split over multiple paragraphs.</p>
-                </div>
-            
         
             
         
@@ -519,13 +513,6 @@
         
             
         
-            
-                <div class="entry">
-                    <h5>
-                        <a href="/docs/tutorials/tutorial2/">Another Tutorial</a>
-                    </h5>
-                    <p>A short lead descripton about this content page. It can be <strong>bold</strong> or <em>italic</em> and can be split over multiple paragraphs.</p>
-                </div>
             
         
             
