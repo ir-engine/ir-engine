@@ -5,9 +5,9 @@ export const seed = {
   randomize: false,
   templates:
       [
-        { name: 'requested' }, // Default state of relatedUser
-        { name: 'friend' },
-        { name: 'blocked' }
+        { type: 'requested' }, // Default state of relatedUser
+        { type: 'friend' },
+        { type: 'blocked' }
       ]
 }
 

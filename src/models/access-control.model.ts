@@ -4,11 +4,17 @@ import { Application } from '../declarations'
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const accessControl = sequelizeClient.define('access_control', {
-    name: {
+    userRole: {
       type: DataTypes.STRING,
       allowNull: false,
       primaryKey: true,
-      unique: true
+      unique: false
+    },
+    resourceType: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey: true,
+      unique: false
     }
   }, {
     hooks: {
@@ -20,7 +26,7 @@ export default (app: Application): any => {
   });
 
   (accessControl as any).associate = (models: any) => {
-    (accessControl as any).belongsTo(models.user_role);
+    (accessControl as any).belongsTo(models.user_role, { foreignKey: 'userRole' });
     (accessControl as any).belongsTo(models.resource_type, { foreignKey: 'resourceType' });
     (accessControl as any).belongsTo(models.access_control_scope, { as: 'list' });
     (accessControl as any).belongsTo(models.access_control_scope, { as: 'create' });
