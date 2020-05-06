@@ -17,6 +17,10 @@ export default (app: Application): any => {
       type: DataTypes.STRING
     },
 
+    type: {
+      type: DataTypes.STRING
+    },
+
     isVerified: { type: DataTypes.BOOLEAN },
     verifyToken: { type: DataTypes.STRING },
     verifyShortToken: { type: DataTypes.STRING },
@@ -37,12 +41,17 @@ export default (app: Application): any => {
       {
         unique: true,
         fields: ['userId', 'token']
+      },
+      {
+        unique: true,
+        fields: ['userId', 'type']
       }
     ]
   });
 
   (identityProvider as any).associate = (models: any) => {
-    (identityProvider as any).belongsTo(models.identity_provider_type, { foreignKey: 'type' })
+    (identityProvider as any).belongsTo(models.identity_provider_type, { foreignKey: 'type' });
+    (identityProvider as any).belongsTo(models.user)
   }
 
   return identityProvider
