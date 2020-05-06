@@ -26,19 +26,21 @@ dotenv.config()
 
 const app: Application = express(feathers())
 
-app.configure(swagger({
-  docsPath: '/docs',
-  docsJsonPath: '/docs.json',
-  uiIndex: path.join(__dirname, '../docs.html'),
-  // TODO: Relate to server config, don't hardcode this here
-  specs: {
-    info: {
-      title: 'XRChat API Surface',
-      description: 'APIs for the XRChat application',
-      version: '1.0.0'
+app.configure(
+  swagger({
+    docsPath: '/docs',
+    docsJsonPath: '/docs.json',
+    uiIndex: path.join(__dirname, '../docs.html'),
+    // TODO: Relate to server config, don't hardcode this here
+    specs: {
+      info: {
+        title: 'XRChat API Surface',
+        description: 'APIs for the XRChat application',
+        version: '1.0.0'
+      }
     }
-  }
-}))
+  })
+)
 
 // Load app configuration
 app.configure(configuration())
