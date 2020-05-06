@@ -1,7 +1,7 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../declarations'
 
-export class Role extends Service {
+export class UserRole extends Service {
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
   }
