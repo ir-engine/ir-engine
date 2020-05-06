@@ -12,10 +12,10 @@ export interface VideoDetailsData {
   description: string,
   url: string, // TODO: type for url's
   thumbnailUrl: string,
-  // productionCredit: string,
-  // rating: string,
-  // categories: string[],
-  // runtime: string,
+  productionCredit: string,
+  rating: string,
+  categories: string[],
+  runtime: string,
   // tags: string[],
   mediatype: string,
   linktype: string,
@@ -32,10 +32,10 @@ export const VideoDetailsComponentSchema: AFRAME.MultiPropertySchema<VideoDetail
   description: { default: '' },
   url: { default: '' }, // TODO: type for url's
   thumbnailUrl: { default: '' },
-  // productionCredit: { default: '' },
-  // rating: { default: '' },
-  // categories: { default: [] },
-  // runtime: { default: '' },
+  productionCredit: { default: '' },
+  rating: { default: '' },
+  categories: { default: [] },
+  runtime: { default: '' },
   // tags: { default: [] },
   mediatype: { default: 'video360' },
   linktype: { default: 'internal' },
@@ -47,10 +47,12 @@ export interface VideoDetailsProps {
   initDetailsl: () => void,
   createCell: () => AFRAME.Entity,
   createDetails: () => AFRAME.Entity,
-  createText: () => AFRAME.Entity,
+  createText: (text: string, width: number) => AFRAME.Entity,
   createButton: (text: string, bgColor: string, clickevent: string, width: number,
     x: number, y: number, z: number,
     bgWidth: number, bgHeight: number, bgz: number) => AFRAME.Entity,
+  createDetailEntity: () => AFRAME.Entity,
+  createBackground: (w: number, h: number, color: string, x: number, y: number, z: number) => AFRAME.Entity,
   createWatchButton: () => AFRAME.Entity,
   createBackButton: () => AFRAME.Entity
 }
@@ -90,43 +92,15 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<VideoDetailsProps
     const entity = document.createElement('a-entity')
     entity.object3D.position.set(0.75, 0, 0)
 
-    entity.appendChild(this.createText())
+    entity.appendChild(this.createDetailEntity())
     entity.appendChild(this.createWatchButton())
     entity.appendChild(this.createBackButton())
 
     return entity
   },
 
-  createText() {
+  createText(text: string, width: number) {
     const textEntity = document.createElement('a-entity')
-
-    textEntity.setAttribute('text', {
-      font: 'mozillavr',
-      width: 2,
-      align: 'center',
-      baseline: 'center',
-      color: 'white',
-      transparent: false,
-      value: this.data.title + '\n\n' // +
-      // this.data.description
-    })
-
-    const textBG = document.createElement('a-plane')
-    textBG.setAttribute('color', 'black')
-    textBG.setAttribute('width', 1)
-    textBG.setAttribute('height', 0.75)
-    textBG.object3D.position.set(0, -0.0625, -0.01)
-
-    textEntity.appendChild(textBG)
-
-    return textEntity
-  },
-
-  createButton(text: string, bgColor: string, clickevent: string, width: number,
-    xoffset: number, yoffset: number, zoffset: number,
-    bgWidth: number, bgHeight: number, bgZoffset = -0.01) {
-    const textEntity = document.createElement('a-entity')
-    textEntity.object3D.position.set(xoffset, yoffset, zoffset)
 
     textEntity.setAttribute('text', {
       font: 'mozillavr',
@@ -138,13 +112,45 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<VideoDetailsProps
       value: text
     })
 
-    const textBG = document.createElement('a-plane')
-    textBG.setAttribute('color', bgColor)
-    textBG.setAttribute('width', bgWidth)
-    textBG.setAttribute('height', bgHeight)
+    return textEntity
+  },
+
+  createDetailEntity() {
+    var text = this.data.title + '\n\n'
+    text += this.data.description ? this.data.description + '\n' : ''
+    text += this.data.runtime ? this.data.runtime + '\n' : ''
+    text += this.data.productionCredit ? this.data.productionCredit + '\n' : ''
+    text += this.data.rating ? this.data.rating + '\n' : ''
+    text += this.data.categories ? this.data.categories.join(',') : ''
+
+    const textEntity = this.createText(text, 2)
+
+    const textBG = this.createBackground(1, 0.75, 'black', 0, -0.0625, -0.01)
+
+    textEntity.appendChild(textBG)
+
+    return textEntity
+  },
+
+  createBackground(width: number, height: number, color: string, x: number, y: number, z: number) {
+    const bg = document.createElement('a-plane')
+    bg.setAttribute('color', color)
+    bg.setAttribute('width', width)
+    bg.setAttribute('height', height)
+    bg.object3D.position.set(x, y, z)
+
+    return bg
+  },
+
+  createButton(text: string, bgColor: string, clickevent: string, width: number,
+    xoffset: number, yoffset: number, zoffset: number,
+    bgWidth: number, bgHeight: number, bgZoffset = -0.01) {
+    const textEntity = this.createText(text, width)
+    textEntity.object3D.position.set(xoffset, yoffset, zoffset)
+
+    const textBG = this.createBackground(bgWidth, bgHeight, bgColor, 0, -bgHeight / 2, bgZoffset)
     textBG.classList.add('clickable')
     textBG.setAttribute('clickable', { clickevent: clickevent })
-    textBG.object3D.position.set(0, -bgHeight / 2, bgZoffset)
 
     textEntity.appendChild(textBG)
 
@@ -176,10 +182,10 @@ export const VideoDetailsPrimitive: AFRAME.PrimitiveDefinition = {
     description: ComponentName + '.description',
     'media-url': ComponentName + '.url',
     'thumbnail-url': ComponentName + '.thumbnailUrl',
-    // 'production-credit': ComponentName + '.productionCredit',
-    // rating: ComponentName + '.rating',
-    // categories: ComponentName + '.categories',
-    // runtime: ComponentName + '.runtime',
+    'production-credit': ComponentName + '.productionCredit',
+    rating: ComponentName + '.rating',
+    categories: ComponentName + '.categories',
+    runtime: ComponentName + '.runtime',
     // tags: ComponentName + '.tags',
     mediatype: ComponentName + '.mediatype',
     linktype: ComponentName + '.linktype',
