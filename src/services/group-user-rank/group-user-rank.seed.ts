@@ -4,9 +4,9 @@ export const seed = {
   path: 'group-user-rank',
   templates:
         [
-          { name: 'principal' },
-          { name: 'teacer' },
-          { name: 'student' }
+          { rank: 'principal' },
+          { rank: 'teacher' },
+          { rank: 'student' }
         ]
 }
 

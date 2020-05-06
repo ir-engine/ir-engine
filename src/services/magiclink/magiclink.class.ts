@@ -104,8 +104,6 @@ export class Magiclink implements ServiceMethods<Data> {
       identityProvider = identityProviders[0]
     }
 
-    console.log('magic link----------', data)
-
     if (identityProvider) {
       const accessToken = await authService.createAccessToken({}, { subject: identityProvider.id.toString() })
 
