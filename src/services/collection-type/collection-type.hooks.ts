@@ -1,4 +1,5 @@
 // import * as authentication from '@feathersjs/authentication'
+import { disallow } from 'feathers-hooks-common'
 import convertVideo from '../../hooks/convert-video'
 import addAttribution from '../../hooks/add-attribution'
 // import createResource from '../../hooks/create-resource'
@@ -10,8 +11,8 @@ export default {
     find: [],
     get: [],
     create: [],
-    update: [],
-    patch: [],
+    update: [disallow()],
+    patch: [disallow()],
     remove: []
   },
 

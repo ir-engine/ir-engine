@@ -1,46 +1,75 @@
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../declarations'
+import { Params, Id } from '@feathersjs/feathers'
+import { mapProjectDetailData, defaultProjectImport } from '../project/project-helper'
 
-interface Data {}
-
-interface ServiceOptions {}
-
-export class Project implements ServiceMethods<Data> {
-  app: Application;
-  options: ServiceOptions;
-
-  constructor (options: ServiceOptions = {}, app: Application) {
-    this.options = options
+export class Project extends Service {
+  app: Application
+  constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
+    super(options)
     this.app = app
   }
 
-  async find (params?: Params): Promise<Data[] | Paginated<Data>> {
-    return []
+  async find (params: Params): Promise<[]> {
+    const projects = await this.getModel(params).findAll({
+      where: {
+        created_by_account_id: params.user.userId
+      },
+      attributes: ['name', 'project_id'],
+      include: defaultProjectImport(this.app.get('sequelizeClient').models)
+    })
+    const processedProjects = projects.map((project: any) => mapProjectDetailData(project.toJSON()))
+    return processedProjects
   }
 
-  async get (id: Id, params?: Params): Promise<Data> {
-    return {
-      id, text: `A new message with ID: ${id}!`
-    }
+  async get (id: Id, params: Params): Promise<any> {
+    const project = await this.getModel(params).findOne({
+      attributes: ['name', 'project_id'],
+      where: {
+        project_id: id,
+        created_by_account_id: params.user.userId
+      },
+      include: defaultProjectImport(this.app.get('sequelizeClient').models)
+    })
+
+    return mapProjectDetailData(project.toJSON())
   }
 
-  async create (data: Data, params?: Params): Promise<Data> {
-    if (Array.isArray(data)) {
-      return await Promise.all(data.map(current => this.create(current, params)))
-    }
+  async create (data: any, params: Params): Promise<any> {
+    const OwnedFileModel = this.app.service('owned-file').Model
+    const ProjectModel = this.getModel(params)
+    const savedProject = await ProjectModel.create(data, {
+      fields: ['name', 'thumbnail_file_id', 'project_file_id', 'created_by_account_id', 'project_sid']
+    })
+    const SceneModel = this.app.service('scene').Model
 
-    return data
-  }
-
-  async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data
-  }
-
-  async patch (id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data
-  }
-
-  async remove (id: NullableId, params?: Params): Promise<Data> {
-    return { id }
+    const projectData = await ProjectModel.findOne({
+      where: {
+        project_id: savedProject.project_id
+      },
+      attributes: ['name', 'project_id'],
+      include: [
+        {
+          model: OwnedFileModel,
+          as: 'project_owned_file',
+          attributes: ['key']
+        },
+        {
+          model: OwnedFileModel,
+          as: 'thumbnail_owned_file',
+          attributes: ['key']
+        },
+        {
+          model: SceneModel,
+          attributes: ['account_id', 'allow_promotion', 'allow_remixing', 'attributions', 'description', 'name', 'parent_scene_id', 'scene_id']
+        },
+        {
+          model: SceneModel,
+          attributes: ['account_id', 'allow_promotion', 'allow_remixing', 'attributions', 'description', 'name', 'parent_scene_id', 'scene_id'],
+          as: 'parent_scene'
+        }
+      ]
+    })
+    return mapProjectDetailData(projectData.toJSON())
   }
 }
