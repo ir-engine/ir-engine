@@ -90,6 +90,6 @@ export default (app: Application): void => {
   app.configure(groupUserRank)
   app.configure(groupUser)
 
-  app.configure(GraphQL)
   app.configure(identityProviderType)
+  app.configure(GraphQL)
 }
