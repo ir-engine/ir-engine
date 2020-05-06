@@ -1,5 +1,4 @@
 // @ts-ignore
-import { attributeFields } from 'graphql-sequelize'
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 
@@ -30,8 +29,6 @@ export default (app: Application): any => {
     (entity as any).belongsTo(models.collection);
     (entity as any).belongsTo(models.user)
   }
-
-  attributeFields(entity)
 
   return entity
 }
