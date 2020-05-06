@@ -7,7 +7,7 @@ import hooks from './publish-project.hooks'
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'project/:projectId/publish': PublishProject & ServiceAddons<any>;
+    'project/:projectId/publish': PublishProject & ServiceAddons<any>
   }
 }
 

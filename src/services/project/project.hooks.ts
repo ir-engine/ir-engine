@@ -1,6 +1,6 @@
-import * as authentication from '@feathersjs/authentication';
+import * as authentication from '@feathersjs/authentication'
 
-import { HookContext } from '@feathersjs/feathers';
+import { HookContext } from '@feathersjs/feathers'
 import setResponseStatusCode from '../../hooks/set-response-status-code'
 import attachOwnerIdInSavingContact from '../../hooks/set-loggedin-user-in-body'
 
