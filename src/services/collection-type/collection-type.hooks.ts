@@ -8,12 +8,12 @@ import addAttribution from '../../hooks/add-attribution'
 export default {
   before: {
     all: [],
-    find: [disallow()],
-    get: [disallow()],
+    find: [],
+    get: [],
     create: [],
     update: [disallow()],
     patch: [disallow()],
-    remove: [disallow()]
+    remove: []
   },
 
   after: {
