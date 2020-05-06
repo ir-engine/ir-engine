@@ -1,17 +1,17 @@
 export const seed = {
   disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
-  delete: true,
+  delete: false,
   path: 'identity-provider-type',
   randomize: false,
   templates:
         [
-          { name: 'email' },
-          { name: 'sms' },
-          { name: 'password' },
-          { name: 'github' },
-          { name: 'google' },
-          { name: 'facebook' },
-          { name: 'auth0' }
+          { type: 'email' },
+          { type: 'sms' },
+          { type: 'password' },
+          { type: 'github' },
+          { type: 'google' },
+          { type: 'facebook' },
+          { type: 'auth0' }
         ]
 }
 
