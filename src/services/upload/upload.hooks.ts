@@ -1,4 +1,6 @@
 import { disallow } from 'feathers-hooks-common'
+import addUUID from '../../hooks/add-uuid'
+import addUploadPath from '../../hooks/add-upload-path'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -14,7 +16,7 @@ export default {
     all: [],
     find: [disallow()],
     get: [disallow()],
-    create: [addUriToFile(), makeS3FilesPublic()],
+    create: [addUUID(), addUploadPath(), addUriToFile(), makeS3FilesPublic()],
     update: [disallow()],
     patch: [disallow()],
     remove: [disallow()]

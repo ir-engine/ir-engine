@@ -103,6 +103,6 @@ export default (app: Application): void => {
   app.configure(MediaSearch)
   app.configure(UploadMedia)
   app.configure(PublishProject)
-
+  
   app.configure(GraphQL)
 }

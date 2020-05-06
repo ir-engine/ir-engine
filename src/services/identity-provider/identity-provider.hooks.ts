@@ -10,7 +10,7 @@ const { protect } = local.hooks
 
 const isPasswordAccountType = () => {
   return (context: HookContext): boolean => {
-    if (context.data.identityProviderType === 'password') {
+    if (context.data.type === 'password') {
       return true
     }
     return false
@@ -19,7 +19,7 @@ const isPasswordAccountType = () => {
 
 const sendVerifyEmail = () => {
   return (context: any) => {
-    if (context.result?.identityProviderType === 'password') {
+    if (context.result?.type === 'password') {
       accountService(context.app).notifier('resendVerifySignup', context.result)
     }
     return context
