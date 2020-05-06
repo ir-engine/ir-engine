@@ -26,7 +26,8 @@ Entities have a default type of "default", which means they have no inherited pr
 Components reflect Aframe standard or custom components. Components in the database store data statefully, and components are always associated with entities -- when an entity is destroyed, all components go along with it.
 
 ### Resource
-Resources are referenced files -- a video, image, thumbnail, script, anything that can be discovered at a URL
+Resources are referenced files -- a video, image, thumbnail, script, anycd ..
+thing that can be discovered at a URL
 
 ### Collection
 Collections represent a logic grouping of entities. A "scene" is a collection of entities with the scene type. Collections can also contain information about attribution and licensing (for example, for a scene)
