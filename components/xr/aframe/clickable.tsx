@@ -27,7 +27,8 @@ export interface ClickableProps {
   removeHandlers: () => void,
   firstUpdate: boolean,
   intersectingRaycaster: any,
-  intersection: any
+  intersection: any,
+  beganClickableClass: boolean
 }
 
 export const ClickableComponent: AFRAME.ComponentDefinition<ClickableProps> = {
@@ -38,8 +39,11 @@ export const ClickableComponent: AFRAME.ComponentDefinition<ClickableProps> = {
   intersectingRaycaster: null,
   intersection: null,
   firstUpdate: true,
+  beganClickableClass: false,
 
   init() {
+    this.beganClickableClass = this.el.classList.contains('clickable')
+    this.el.classList.add('clickable')
   },
 
   tick: function() {
@@ -71,6 +75,9 @@ export const ClickableComponent: AFRAME.ComponentDefinition<ClickableProps> = {
 
   remove() {
     this.removeHandlers()
+    if (!this.beganClickableClass) {
+      this.el.classList.remove('clickable')
+    }
   },
 
   play() {

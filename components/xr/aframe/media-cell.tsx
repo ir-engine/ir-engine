@@ -30,6 +30,8 @@ export const MediaCellSystemDef: AFRAME.SystemDefinition<MediaCellSystemProps> =
 }
 
 export interface MediaCellData {
+  [key: string]: any,
+  active: boolean,
   cellHeight?: number
   cellWidth?: number
   cellContentHeight?: number
@@ -51,6 +53,7 @@ export interface MediaCellData {
 }
 
 export const MediaCellComponentSchema: AFRAME.MultiPropertySchema<MediaCellData> = {
+  active: { default: true },
   cellHeight: { default: 0.6 },
   cellWidth: { default: 1 },
   cellContentHeight: { default: 0.5 },
@@ -72,6 +75,7 @@ export const MediaCellComponentSchema: AFRAME.MultiPropertySchema<MediaCellData>
 
 export interface MediaCellProps {
   initCell: () => void,
+  initCellCB: () => void,
   createCell: () => AFRAME.Entity,
   enableLink: (el: any) => void
 }
@@ -82,8 +86,7 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
   } as MediaCellData,
 
   init () {
-    if (this.el.sceneEl?.hasLoaded) this.initCell()
-    else this.el.sceneEl?.addEventListener('loaded', this.initCell.bind(this))
+    this.initCellCB()
   },
 
   play() {
@@ -92,8 +95,28 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
   pause() {
   },
 
+  update(oldData: MediaCellData) {
+    var changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
+    if (changedData.includes('active')) {
+      this.el.setAttribute('grid-cell', { active: this.data.active })
+      if (this.data.active) {
+        this.initCellCB()
+      } else {
+        while (this.el.firstChild) {
+          this.el.removeChild((this.el as any).lastChild)
+        }
+      }
+    }
+  },
+
+  initCellCB () {
+    if (this.el.sceneEl?.hasLoaded) this.initCell()
+    else this.el.sceneEl?.addEventListener('loaded', this.initCell.bind(this))
+  },
+
   initCell() {
-    this.el.appendChild(this.createCell())
+    const active = (this.el.components['grid-cell'] as any).data.active
+    if (active) this.el.appendChild(this.createCell())
   },
 
   createCell() {
@@ -157,6 +180,7 @@ export const MediaCellPrimitive: AFRAME.PrimitiveDefinition = {
   deprecated: false,
   mappings: {
     id: ComponentName + '.id',
+    active: 'grid-cell.active',
     'cell-height': ComponentName + '.cellHeight',
     'cell-width': ComponentName + '.cellWidth',
     'cell-content-height': ComponentName + '.cellContentHeight',
