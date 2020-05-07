@@ -44,6 +44,10 @@ export class PublishProject implements ServiceMethods<Data> {
 
     data.collectionId = params.collectionId
 
+    if (!project) {
+      return await Promise.reject(new Forbidden('Project not found Or you don\'t have access!'))
+    }
+
     await this.app.get('sequelizeClient').transaction(async (trans: Transaction) => {
       const savedScene = await SceneModel.create(data, {
         transaction: trans,
