@@ -31,6 +31,10 @@ export default (app: Application): any => {
     verifyChanges: { type: DataTypes.JSON },
     resetToken: { type: DataTypes.STRING },
     resetExpires: { type: DataTypes.DATE },
+    muted:{type: DataTypes.BOOLEAN, defaultValue: false},
+    microphone:{type: DataTypes.STRING},
+    audio:{ type: DataTypes.STRING},
+    quality: {type: DataTypes.BOOLEAN, defaultValue: true},
     created: { type: DataTypes.DATE }
   }, {
     hooks: {
