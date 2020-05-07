@@ -2,6 +2,7 @@ import * as authentication from '@feathersjs/authentication'
 import { HookContext } from '@feathersjs/feathers'
 import { disallow } from 'feathers-hooks-common'
 import { BadRequest } from '@feathersjs/errors'
+import collectAnalytics from '../../hooks/collect-analytics'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -29,10 +30,7 @@ const validateGroupId = () => {
 
 export default {
   before: {
-    all: [
-      authenticate('jwt'),
-      validateGroupId()
-    ],
+    all: [authenticate('jwt'), validateGroupId(), collectAnalytics()],
     find: [],
     get: [disallow()],
     create: [],

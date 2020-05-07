@@ -1,10 +1,11 @@
 import { HookContext } from '@feathersjs/feathers'
 import dauria from 'dauria'
 import removeRelatedResources from '../../hooks/remove-related-resources'
+import collectAnalytics from '../../hooks/collect-analytics'
 
 export default {
   before: {
-    all: [],
+    all: [collectAnalytics()],
     find: [],
     get: [],
     create: [
