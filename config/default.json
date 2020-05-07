@@ -63,14 +63,14 @@
   "aws": {
     "s3": {
       "static_resource_bucket": "kaixr-static-resources",
-      "region": "STORAGE_S3_REGION",
+      "region": "us-east-1",
       "cloudfront": {
-        "domain": "STORAGE_S3_CLOUDFRONT_DOMAIN"
+        "domain": "https://kairxr-360lib.s3.amazonaws.com"
       }
     },
     "keys": {
-      "access_key_id": "STORAGE_AWS_ACCESS_KEY_ID",
-      "secret_access_key": "STORAGE_AWS_ACCESS_KEY_SECRET"
+      "access_key_id": "AKIA6NYNXTOCCUOM62QL",
+      "secret_access_key": "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"
     },
     "sns": {
       "region": "AWS_SMS_REGION",
@@ -84,5 +84,5 @@
   "magiclink": {
     "subject": "MAGICLINK_EMAIL_SUBJECT"
   },
-  "mysql": "mysql://server:password@localhost:3306/xrchat"
+  "mysql": "mysql://root:root@localhost:3306/xrchat"
 }
