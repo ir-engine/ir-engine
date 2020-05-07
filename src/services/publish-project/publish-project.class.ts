@@ -1,6 +1,7 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
+import { Forbidden } from '@feathersjs/errors'
 import { Transaction } from 'sequelize/types'
+import { Application } from '../../declarations'
 import { mapProjectDetailData, defaultProjectImport } from '../project/project-helper'
 interface Data {}
 
@@ -30,6 +31,10 @@ export class PublishProject implements ServiceMethods<Data> {
     const SceneModel = this.app.service('scene').Model
     const projectId = params?.query?.projectId
     const project = await ProjectModel.findOne({ where: { project_id: projectId, created_by_account_id: params.user.userId } })
+
+    if (!project) {
+      return await Promise.reject(new Forbidden('Project not found Or you don\'t have access!'))
+    }
 
     await this.app.get('sequelizeClient').transaction(async (trans: Transaction) => {
       const savedScene = await SceneModel.create(data, {
