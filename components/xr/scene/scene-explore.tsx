@@ -57,12 +57,12 @@ function ExploreScene (props: VideoProps): any {
   const [exploreState, setExploreState] = useState<ExploreState>({ focusedCellEl: null, focusedCell: null })
 
   const focusCell = (event: any) => {
-    const focusCellEl = event.originalTarget.parentEl
+    const focusCellEl = event.target.parentEl
     setExploreState({
-      focusedCellEl: event.originalTarget.parentEl,
+      focusedCellEl: focusCellEl,
       focusedCell: {
-        title: (event.originalTarget.parentEl.attributes as any).title.value,
-        description: (event.originalTarget.parentEl.attributes as any).description.value,
+        title: (focusCellEl.attributes as any).title.value,
+        description: (focusCellEl.attributes as any).description.value,
         videoformat: (focusCellEl.attributes as any).videoformat.value,
         mediaUrl: (focusCellEl.attributes as any)['media-url'].value,
         thumbnailUrl: (focusCellEl.attributes as any)['thumbnail-url'].value,
