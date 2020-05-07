@@ -1,5 +1,6 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
+import generateShortId from '../util/generate-short-id'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -11,7 +12,9 @@ export default (app: Application): any => {
     },
     scene_listing_sid: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: true,
+      unique: true,
+      defaultValue: () => generateShortId(8)
     },
     scene_id: {
       type: DataTypes.INTEGER,
