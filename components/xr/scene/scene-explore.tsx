@@ -93,13 +93,27 @@ function ExploreScene (props: VideoProps): any {
       '&videoformat=' + videoformat
   }
 
+  const pageLeft = () => {
+    const grids = document.querySelectorAll('.grid')
+    grids[0].dispatchEvent(new Event('pageleft'))
+  }
+
+  const pageRight = () => {
+    const grids = document.querySelectorAll('.grid')
+    grids[0].dispatchEvent(new Event('pageright'))
+  }
+
   useEffect(() => {
     if (videos.get('videos').size === 0) {
       fetchPublicVideos()
     }
+    document.addEventListener('pageleft', pageLeft)
+    document.addEventListener('pageright', pageRight)
     document.addEventListener('watchbutton', watchVideo)
     document.addEventListener('backbutton', unFocusCell)
     return () => {
+      document.removeEventListener('pageleft', pageLeft)
+      document.removeEventListener('pageright', pageRight)
       document.removeEventListener('watchbutton', watchVideo)
       document.removeEventListener('backbutton', unFocusCell)
     }
@@ -115,9 +129,31 @@ function ExploreScene (props: VideoProps): any {
       <AframeComponentRegisterer />
       <Entity position="0 1.6 0">
         <Entity
+          id="leftarrow"
+          position="-2 0 -4"
+          primitive="a-arrow"
+          direction="left"
+          width={0.35}
+          height={0.2}
+          clickable="clickevent: pageleft"
+        />
+        <Entity
+          id="rightarrow"
+          position="2 0 -4"
+          primitive="a-arrow"
+          direction="right"
+          width={0.35}
+          height={0.2}
+          clickable="clickevent: pageright"
+        />
+        <Entity
+          class="grid"
           primitive="a-grid"
-          rows={5}
-          colunns={6}>
+          rows={3}
+          colunns={5}
+          page={0}
+          pages={2}
+          numberOfCells={15}>
 
           {videos.get('videos').map(function (video: PublicVideo, i: number) {
             return (
