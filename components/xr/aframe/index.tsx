@@ -4,6 +4,7 @@ import clickableComp from './clickable'
 import eaccubeComp from './eaccube'
 import gridComp from './grid'
 import gridCellComp from './grid-cell'
+import highlightComp from './highlight'
 import mediaCellComp from './media-cell'
 import playerComp from './player'
 import playerVrUiComp from './video-player-vr-ui'
@@ -26,6 +27,7 @@ const ComponentSystemArray: ComponentSystem[] = [
   eaccubeComp,
   gridComp,
   gridCellComp,
+  highlightComp,
   mediaCellComp,
   playerComp,
   playerVrUiComp,
