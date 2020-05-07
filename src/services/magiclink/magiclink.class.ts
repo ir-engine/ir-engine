@@ -39,8 +39,24 @@ export class Magiclink implements ServiceMethods<Data> {
     }
   }
 
-  async sendEmail(toEmail: string, token: string): Promise<void> {
-    const hashLink = getLink('login', token)
+  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
+    return data
+  }
+
+  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
+    return data
+  }
+
+  async remove(id: NullableId, params?: Params): Promise<Data> {
+    return { id }
+  }
+
+  async sendEmail(
+    toEmail: string,
+    token: string,
+    type: 'connection' | 'login'
+  ): Promise<void> {
+    const hashLink = getLink(type, token)
     const appPath = path.dirname(require.main ? require.main.filename : '')
     const emailAccountTemplatesPath = path.join(
       appPath,
@@ -70,8 +86,12 @@ export class Magiclink implements ServiceMethods<Data> {
     return await sendEmail(this.app, email)
   }
 
-  async sendSms(mobile: string, token: string): Promise<void> {
-    const hashLink = getLink('login', token)
+  async sendSms(
+    mobile: string,
+    token: string,
+    type: 'connection' | 'login'
+  ): Promise<void> {
+    const hashLink = getLink(type, token)
     const appPath = path.dirname(require.main ? require.main.filename : '')
     const emailAccountTemplatesPath = path.join(
       appPath,
@@ -96,81 +116,56 @@ export class Magiclink implements ServiceMethods<Data> {
   }
 
   async create(data: any, params?: Params): Promise<Data> {
+    console.log('----------------')
+
     const authService = this.app.service('authentication')
     const identityProviderService: Service = this.app.service(
       'identity-provider'
     )
 
     let identityProvider
-    if (data.type === 'email') {
-      const identityProviders = ((await identityProviderService.find({
-        query: {
+    const identityProviders = ((await identityProviderService.find({
+      query: {
+        token: data.email,
+        type: data.type
+      }
+    })) as any).data
+
+    if (identityProviders.length === 0) {
+      identityProvider = await identityProviderService.create(
+        {
           token: data.email,
-          identityProviderType: 'email'
-        }
-      })) as any).data
+          type: data.type,
+          userId: data.userId
+        },
+        params
+      )
+    } else {
+      identityProvider = identityProviders[0]
+    }
 
-      if (identityProviders.length === 0) {
-        identityProvider = await identityProviderService.create(
-          {
-            token: data.email,
-            identityProviderType: 'email'
-          },
-          params
+    console.log('magic link----------', data)
+
+    if (identityProvider) {
+      const accessToken = await authService.createAccessToken(
+        {},
+        { subject: identityProvider.id.toString() }
+      )
+
+      if (data.type === 'email') {
+        await this.sendEmail(
+          data.email,
+          accessToken,
+          data.userId ? 'connection' : 'login'
         )
-      } else {
-        identityProvider = identityProviders[0]
-      }
-
-      if (identityProvider) {
-        const accessToken = await authService.createAccessToken(
-          {},
-          { subject: identityProvider.id.toString() }
+      } else if (data.type === 'sms') {
+        await this.sendSms(
+          data.mobile,
+          accessToken,
+          data.userId ? 'connection' : 'login'
         )
-
-        await this.sendEmail(data.email, accessToken)
-      }
-    } else if (data.type === 'sms') {
-      const identityProviders = ((await identityProviderService.find({
-        query: {
-          token: data.mobile,
-          identityProviderType: 'sms'
-        }
-      })) as any).data
-
-      if (identityProviders.length === 0) {
-        identityProvider = await identityProviderService.create(
-          {
-            token: data.mobile,
-            identityProviderType: 'sms'
-          },
-          params
-        )
-      } else {
-        identityProvider = identityProviders[0]
-      }
-
-      if (identityProvider) {
-        const accessToken = await authService.createAccessToken(
-          {},
-          { subject: identityProvider.id.toString() }
-        )
-
-        await this.sendSms(data.mobile, accessToken)
       }
     }
     return data
-  }
-
-  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data
-  }
-
-  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data
-  }
-
-  async remove(id: NullableId, params?: Params): Promise<Data> {
-    return { id }
   }
 }

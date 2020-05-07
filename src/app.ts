@@ -20,11 +20,6 @@ import appHooks from './app.hooks'
 import channels from './channels'
 import authentication from './authentication'
 import sequelize from './sequelize'
-// @ts-ignore
-import seederConfig from './seeder-config'
-// @ts-ignore
-import seeder from 'feathers-seeder'
-
 // Don't remove this comment. It's needed to format import lines nicely.
 
 dotenv.config()
@@ -49,6 +44,9 @@ app.configure(
 
 // Load app configuration
 app.configure(configuration())
+
+app.configure(sequelize)
+
 // Enable security, CORS, compression, favicon and body parsing
 app.use(helmet())
 app.use(cors())
@@ -63,12 +61,11 @@ app.use('/', express.static(app.get('public')))
 app.configure(express.rest())
 app.configure(socketio())
 
-app.configure(sequelize)
-
 // Configure other middleware (see `middleware/index.js`)
 app.configure(middleware)
 app.configure(authentication)
 // Set up our services (see `services/index.js`)
+
 app.configure(services)
 // Set up event channels (see channels.js)
 app.configure(channels)
@@ -78,8 +75,5 @@ app.use(express.notFound())
 app.use(express.errorHandler({ logger } as any))
 
 app.hooks(appHooks)
-
-// @ts-ignore
-app.configure(seeder(seederConfig)).seed()
 
 export default app
