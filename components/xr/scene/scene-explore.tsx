@@ -136,6 +136,12 @@ function ExploreScene (props: VideoProps): any {
           width={0.35}
           height={0.2}
           clickable="clickevent: pageleft"
+          highlight={{
+            type: 'color',
+            borderbaseopacity: 0.7,
+            disabledopacity: 0.2,
+            color: 0xe8f1ff
+          }}
         />
         <Entity
           id="rightarrow"
@@ -145,6 +151,12 @@ function ExploreScene (props: VideoProps): any {
           width={0.35}
           height={0.2}
           clickable="clickevent: pageright"
+          highlight={{
+            type: 'color',
+            borderbaseopacity: 0.7,
+            disabledopacity: 0.2,
+            color: 0xe8f1ff
+          }}
         />
         <Entity
           class="grid"
