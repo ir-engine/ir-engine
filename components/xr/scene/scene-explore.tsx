@@ -130,7 +130,7 @@ function ExploreScene (props: VideoProps): any {
       <Entity position="0 1.6 0">
         <Entity
           id="leftarrow"
-          position="-2 0 -4"
+          position="-3 0 -6"
           primitive="a-arrow"
           direction="left"
           width={0.35}
@@ -145,7 +145,7 @@ function ExploreScene (props: VideoProps): any {
         />
         <Entity
           id="rightarrow"
-          position="2 0 -4"
+          position="3 0 -6"
           primitive="a-arrow"
           direction="right"
           width={0.35}
@@ -201,7 +201,7 @@ function ExploreScene (props: VideoProps): any {
         }
         { exploreState.focusedCellEl !== null &&
           <Entity
-            position="0 0 -4">
+            position="0 0 -6">
             <Entity
               id="focused-cell"
               primitive="a-video-details"
