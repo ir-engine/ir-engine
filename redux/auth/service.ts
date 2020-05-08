@@ -30,7 +30,7 @@ const authConfig = publicRuntimeConfig.auth
 
 export async function doLoginAuto(dispatch: Dispatch) {
   const authData = getStoredState('auth')
-  const accessToken = authData ?? authData.authUser.accessToken;
+  const accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined;
   
   if (!accessToken) {
     return;
@@ -48,7 +48,8 @@ export async function doLoginAuto(dispatch: Dispatch) {
         loadUserData(dispatch, authUser.identityProvider.userId)
       }
       else {
-        loadUserData(dispatch, authData.authUser.identityProvider.userId)
+        client.logout();
+        // loadUserData(dispatch, authData.authUser.identityProvider.userId)
       }
     })
 }
