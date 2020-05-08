@@ -158,6 +158,7 @@ function ExploreScene (props: VideoProps): any {
             color: 0xe8f1ff
           }}
         />
+        { exploreState.focusedCellEl === null &&
         <Entity
           class="grid"
           primitive="a-grid"
@@ -196,11 +197,11 @@ function ExploreScene (props: VideoProps): any {
               ></Entity>
             )
           })}
-
         </Entity>
+        }
         { exploreState.focusedCellEl !== null &&
           <Entity
-            position="0 0 -1.5">
+            position="0 0 -4">
             <Entity
               id="focused-cell"
               primitive="a-video-details"
