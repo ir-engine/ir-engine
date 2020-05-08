@@ -89,6 +89,6 @@ export default class Video360Room extends React.Component<Props, State> {
   }
 
   private exitVideoHandler() {
-    Router.push('/')
+    Router.push('/explore')
   }
 }
