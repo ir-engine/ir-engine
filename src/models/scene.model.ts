@@ -13,7 +13,7 @@ export default (app: Application): any => {
     },
     scene_sid: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
       unique: true,
       defaultValue: () => generateShortId(8)
     },
