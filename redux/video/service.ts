@@ -9,8 +9,7 @@ import {
   PublicVideo
 } from './actions'
 import axios from 'axios'
-
-const apiUrl = process.env.NODE_ENV =="production" ? '' :'http://localhost:3030'
+import { apiUrl } from '../service.common'
 import { client } from '../feathers'
 
 export function fetchPublicVideos() {

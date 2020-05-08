@@ -13,12 +13,15 @@ import {
   didResendVerificationEmail,
   didForgotPassword,
   didResetPassword,
-  didCreateMagicLink
+  didCreateMagicLink,
+  updateSettings
 } from "./actions"
 import { client } from "../feathers"
 import { dispatchAlertError, dispatchAlertSuccess } from "../alert/service"
 import getConfig from 'next/config'
 import { validateEmail, validatePhoneNumber } from "../helper"
+import { axiosRequest,apiUrl } from '../service.common'
+
 
 const { publicRuntimeConfig } = getConfig()
 const apiServer: string = publicRuntimeConfig.apiServer
@@ -302,4 +305,10 @@ export function createMagicLink(email_phone: string) {
       })
       .finally(() => dispatch(actionProcessing(false)))
   }
+}
+
+
+export const updateUserSettings = (id:any,data:any) =>async (dispatch:any) => {
+  let res = await axiosRequest('PATCH',`${apiUrl}/user-settings/${id}`,data)
+  dispatch(updateSettings(res.data))
 }
