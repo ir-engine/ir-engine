@@ -13,7 +13,8 @@ import {
     DID_FORGOT_PASSWORD,
     DID_RESET_PASSWORD,
     ACTION_PROCESSING,
-    DID_CREATE_MAGICLINK
+    DID_CREATE_MAGICLINK,
+    UPDATE_USER_SETTINGS
 } from '../actions'
 
 export interface AuthUser {
@@ -171,5 +172,13 @@ export function didCreateMagicLink(result: boolean): AuthResultAction {
     return {
         type: DID_CREATE_MAGICLINK,
         result
+    }
+}
+
+
+export function updateSettings(message:any ):RegistrationResultAction{
+    return {
+        type: UPDATE_USER_SETTINGS,
+        message
     }
 }
