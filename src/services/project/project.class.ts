@@ -15,7 +15,7 @@ export class Project extends Service {
       where: {
         created_by_account_id: params.user.userId
       },
-      attributes: ['name', 'project_id'],
+      attributes: ['name', 'project_id', 'project_sid'],
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
     })
     const processedProjects = projects.map((project: any) => mapProjectDetailData(project.toJSON()))
@@ -24,9 +24,9 @@ export class Project extends Service {
 
   async get (id: Id, params: Params): Promise<any> {
     const project = await this.getModel(params).findOne({
-      attributes: ['name', 'project_id'],
+      attributes: ['name', 'project_id', 'project_sid'],
       where: {
-        project_id: id,
+        project_sid: id,
         created_by_account_id: params.user.userId
       },
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
@@ -39,7 +39,7 @@ export class Project extends Service {
     const OwnedFileModel = this.app.service('owned-file').Model
     const ProjectModel = this.getModel(params)
     const savedProject = await ProjectModel.create(data, {
-      fields: ['name', 'thumbnail_file_id', 'project_file_id', 'created_by_account_id', 'project_sid']
+      fields: ['name', 'thumbnail_file_id', 'project_file_id', 'created_by_account_id', 'project_sid', 'project_id']
     })
     const SceneModel = this.app.service('scene').Model
 
@@ -47,7 +47,7 @@ export class Project extends Service {
       where: {
         project_id: savedProject.project_id
       },
-      attributes: ['name', 'project_id'],
+      attributes: ['name', 'project_id', 'project_sid'],
       include: [
         {
           model: OwnedFileModel,
@@ -61,11 +61,11 @@ export class Project extends Service {
         },
         {
           model: SceneModel,
-          attributes: ['account_id', 'allow_promotion', 'allow_remixing', 'attributions', 'description', 'name', 'parent_scene_id', 'scene_id']
+          attributes: ['account_id', 'allow_promotion', 'allow_remixing', 'attributions', 'description', 'name', 'parent_scene_id', 'scene_id', 'scene_sid']
         },
         {
           model: SceneModel,
-          attributes: ['account_id', 'allow_promotion', 'allow_remixing', 'attributions', 'description', 'name', 'parent_scene_id', 'scene_id'],
+          attributes: ['account_id', 'allow_promotion', 'allow_remixing', 'attributions', 'description', 'name', 'parent_scene_id', 'scene_id', 'scene_sid'],
           as: 'parent_scene'
         }
       ]

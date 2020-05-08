@@ -30,7 +30,7 @@ export class PublishProject implements ServiceMethods<Data> {
     const ProjectModel = this.app.service('project').Model
     const SceneModel = this.app.service('scene').Model
     const projectId = params?.query?.projectId
-    const project = await ProjectModel.findOne({ where: { project_id: projectId, created_by_account_id: params.user.userId } })
+    const project = await ProjectModel.findOne({ where: { project_sid: projectId, created_by_account_id: params.user.userId } })
 
     if (!project) {
       return await Promise.reject(new Forbidden('Project not found Or you don\'t have access!'))
@@ -39,7 +39,7 @@ export class PublishProject implements ServiceMethods<Data> {
     await this.app.get('sequelizeClient').transaction(async (trans: Transaction) => {
       const savedScene = await SceneModel.create(data, {
         transaction: trans,
-        fields: ['screenshot_owned_file_id', 'model_owned_file_id', 'scene_owned_file_id', 'allow_remixing', 'allow_promotion', 'name', 'account_id', 'slug', 'state']
+        fields: ['screenshot_owned_file_id', 'model_owned_file_id', 'scene_owned_file_id', 'allow_remixing', 'allow_promotion', 'name', 'account_id', 'slug', 'state', 'scene_id', 'scene_sid']
       })
       project.scene_id = savedScene.scene_id
 
@@ -48,9 +48,9 @@ export class PublishProject implements ServiceMethods<Data> {
 
     const projectData = await ProjectModel.findOne({
       where: {
-        project_id: project.project_id
+        project_sid: project.project_sid
       },
-      attributes: ['name', 'project_id'],
+      attributes: ['name', 'project_id', 'project_sid'],
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
     })
     return mapProjectDetailData(projectData.toJSON())

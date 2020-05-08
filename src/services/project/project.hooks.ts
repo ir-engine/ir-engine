@@ -5,6 +5,7 @@ import { HookContext } from '@feathersjs/feathers'
 import setResponseStatusCode from '../../hooks/set-response-status-code'
 import attachOwnerIdInBody from '../../hooks/set-loggedin-user-in-body'
 import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
+import { disallow } from 'feathers-hooks-common'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -25,7 +26,7 @@ export default {
     find: [],
     get: [],
     create: [attachOwnerIdInBody('created_by_account_id'), mapProjectSaveData()],
-    update: [],
+    update: [disallow()],
     patch: [attachOwnerIdInBody('created_by_account_id'), mapProjectSaveData()],
     remove: [
       attachOwnerIdInQuery('created_by_account_id')
