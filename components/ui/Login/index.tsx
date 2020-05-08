@@ -10,7 +10,7 @@ import './style.scss'
 import { bindActionCreators, Dispatch } from 'redux'
 import {
   loginUserByGithub,
-  loginUserByEmail,
+  loginUserByPassword,
   logoutUser,
   registerUserByEmail
 } from '../../../redux/auth/service'
@@ -22,7 +22,7 @@ import { selectAuthState } from '../../../redux/auth/selector'
 
 interface LoginProps {
   auth: any
-  loginUserByEmail: typeof loginUserByEmail
+  loginUserByPassword: typeof loginUserByPassword
   logoutUser: typeof logoutUser
   loginUserByGithub: typeof loginUserByGithub
   registerUserByEmail: typeof registerUserByEmail
@@ -35,7 +35,7 @@ const mapStateToProps = (state: any) => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  loginUserByEmail: bindActionCreators(loginUserByEmail, dispatch),
+  loginUserByPassword: bindActionCreators(loginUserByPassword, dispatch),
   logoutUser: bindActionCreators(logoutUser, dispatch),
   loginUserByGithub: bindActionCreators(loginUserByGithub, dispatch),
   registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch)
@@ -55,7 +55,7 @@ class Login extends React.Component<LoginProps> {
 
   handleEmailLogin = (e: any) => {
     e.preventDefault()
-    this.props.loginUserByEmail({
+    this.props.loginUserByPassword({
       email: this.state.email,
       password: this.state.password
     })

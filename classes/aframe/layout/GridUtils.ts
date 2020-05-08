@@ -1,6 +1,6 @@
 class Cylinder {
   // eslint-disable-next-line no-useless-constructor
-  constructor(public cellsPerRow = 36, public cellHeight = 1, public radius = 1) {
+  constructor(public cellsPerRow = 36, public cellHeight = 1, public cellWidth = 1, public radius = 1) {
   }
 
   cellPosition(cellIndexOrColumn: number, cellRow = undefined) {
@@ -55,8 +55,8 @@ class Cylinder {
 }
 
 class CylindricalGrid extends Cylinder {
-  constructor(cellsPerRow = 36, cellHeight = 1, radius = 1, public rows = 1, public columns = 1) {
-    super(cellsPerRow, cellHeight, radius)
+  constructor(cellsPerRow = 36, cellHeight = 1, cellWidth = 1, radius = 1, public rows = 1, public columns = 1) {
+    super(cellsPerRow, cellHeight, cellWidth, radius)
   }
 
   cellIndex(subCellIndex: number, reverse = true) {
@@ -71,7 +71,9 @@ class CylindricalGrid extends Cylinder {
   }
 
   cellPosition(subCellIndex: number) {
-    return super.cellPosition(this.cellIndex(subCellIndex))
+    var pos = super.cellPosition(this.cellIndex(subCellIndex))
+    if (this.columns !== 1 && this.columns % 2) pos.x += this.cellWidth / 2
+    return pos
   }
 
   cellRotation(subCellIndex: number) {

@@ -12,14 +12,23 @@ export interface PublicVideoState {
 
 export interface VideoMetaData {
     thumbnail_url?: string,
-    '360_format'?: string
+    '360_format'?: string,
+    rating?: string,
+    categories?: string[],
+    runtime?: string
+}
+
+export interface Attribution {
+  creator?: string,
+  url?: string
 }
 export interface PublicVideo {
     id: number
     name: string
     description: string
     url: string,
-    metadata: Partial<VideoMetaData>
+    metadata: Partial<VideoMetaData>,
+    attribution?: Partial<Attribution>
 }
 export interface Image{
   id: number

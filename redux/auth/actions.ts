@@ -14,30 +14,22 @@ import {
     DID_RESET_PASSWORD,
     ACTION_PROCESSING,
     DID_CREATE_MAGICLINK,
-    UPDATE_USER_SETTINGS
+    UPDATE_USER_SETTINGS,
+    LOADED_USER_DATA
 } from '../actions'
-
-export interface AuthUser {
-    accessToken: string
-    authentication: {
-        strategy: string
-    },
-    user: {
-        _id: string
-        userId: string
-        avatar: string
-        isVerified: boolean
-    }
-}
+import { AuthUser } from 'interfaces/AuthUser'
+import { User } from 'interfaces/User'
+import { IdentityProvider } from 'interfaces/IdentityProvider'
 
 export interface AuthState {
     isLoggedIn: boolean
-    isVerified: boolean
+    isProcessing: boolean
 
-    user: AuthUser | undefined
     error: string
 
-    isProcessing: boolean
+    authUser?: AuthUser
+    user?: User
+    identityProvider?: IdentityProvider
 }
 
 export interface EmailLoginForm {
@@ -59,15 +51,21 @@ export interface AuthProcessingAction {
     processing: boolean
 }
 
+export interface AddConnectionProcessingAction {
+    type: string
+    processing: boolean
+    userId: string
+}
+
 export interface LoginResultAction {
     type: string
-    user?: any
+    authUser?: AuthUser
     message: string
 }
 
 export interface RegistrationResultAction {
     type: string
-    user?: any
+    identityProvider?: IdentityProvider
     message: string
 }
 
@@ -76,11 +74,25 @@ export interface AuthResultAction {
     result: boolean
 }
 
+export interface AddConnectionResultAction {
+    type: string
+    user?: any
+    message?: string
+}
+
+export interface LoadDataResultAction {
+    type: string
+    user?: User
+}
+
 export type AuthAction =
     AuthProcessingAction
     | LoginResultAction
     | RegistrationResultAction
     | AuthResultAction
+    | AddConnectionResultAction
+    | AddConnectionProcessingAction
+    | LoadDataResultAction
 
 export function actionProcessing(processing: boolean): AuthProcessingAction {
     return {
@@ -89,10 +101,10 @@ export function actionProcessing(processing: boolean): AuthProcessingAction {
     }
 }
 
-export function loginUserSuccess(user: AuthUser): LoginResultAction {
+export function loginUserSuccess(authUser: AuthUser): LoginResultAction {
     return {
         type: LOGIN_USER_SUCCESS,
-        user,
+        authUser,
         message: ''
     }
 }
@@ -125,10 +137,10 @@ export function didLogout(): LoginResultAction {
     }
 }
 
-export function registerUserByEmailSuccess(user: any): RegistrationResultAction {
+export function registerUserByEmailSuccess(identityProvider: IdentityProvider): RegistrationResultAction {
     return {
         type: REGISTER_USER_BY_EMAIL_SUCCESS,
-        user,
+        identityProvider,
         message: ''
     }
 }
@@ -180,5 +192,11 @@ export function updateSettings(message:any ):RegistrationResultAction{
     return {
         type: UPDATE_USER_SETTINGS,
         message
+    }
+}
+export function loadedUserData(user: User): LoadDataResultAction {
+    return {
+        type: LOADED_USER_DATA,
+        user
     }
 }
