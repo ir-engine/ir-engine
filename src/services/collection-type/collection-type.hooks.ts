@@ -20,7 +20,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [addAttribution, convertVideo],
+    create: [addAttribution],
     update: [],
     patch: [],
     remove: []
