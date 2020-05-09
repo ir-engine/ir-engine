@@ -38,27 +38,5 @@ export function uploadFile(data:any){
    })
     const image = res.data
     dispatch(fileUploadSuccess(image))
-<<<<<<< HEAD
-=======
-   let res = await axios.post(`${apiUrl}/upload`,data, {
-       headers: {
-           'Content-Type': 'multipart/form-data'
-       }
-   })
-
-   console.log(res,"ressssss")
-    // client.service('static-resource').create(data).then((res: any) => {
-      const image = res.data
-    //   console.log(image,"imagessss")
-      dispatch(fileUploadSuccess(image))
-    //   return image
-    // }).catch((err:any) => {
-    //   console.log(err,"err")
-    //   dispatch(fileUploadFailure(err))
-    //   return err
-    // })
->>>>>>> 64bbe88... Fixed avatar upload issues
-=======
->>>>>>> b182b99... resolve conflitcs
   }
 }

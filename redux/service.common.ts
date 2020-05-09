@@ -1,3 +1,6 @@
+import axios from 'axios'
+
+export const apiUrl = process.env.NODE_ENV =="production" ? '' :'http://localhost:3030'
 
 export function getAuthHeader() {
   return {}
@@ -16,9 +19,6 @@ export function ajaxGet(url: string, no_auth: boolean) {
 }
 
 export function ajaxPost(url: string, data: any, no_auth: boolean, image: boolean) {
-  console.log(data,"imageeee")
-  let formData = new FormData()
-  formData.append('file',data)
   if (no_auth) {
     return fetch(url, {
       method: 'POST',
@@ -43,4 +43,13 @@ export function ajaxPost(url: string, data: any, no_auth: boolean, image: boolea
     })
       .then(res => res.json())
   }
+}
+
+
+export function axiosRequest(method:any, url:any,data?:any){
+ return axios({
+    method,
+    url,
+    data 
+  })
 }

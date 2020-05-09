@@ -13,7 +13,8 @@ import {
   didForgotPassword,
   didResetPassword,
   didCreateMagicLink,
-  loadedUserData
+  loadedUserData,
+  updateSettings
 } from "./actions"
 import { client } from "../feathers"
 import { dispatchAlertError, dispatchAlertSuccess } from "../alert/service"
@@ -23,6 +24,8 @@ import { resolveAuthUser } from "interfaces/AuthUser"
 import { IdentityProvider } from "interfaces/IdentityProvider"
 import getConfig from 'next/config'
 import { getStoredState } from "redux/persisted.store"
+import { axiosRequest,apiUrl } from '../service.common'
+
 
 const { publicRuntimeConfig } = getConfig()
 const apiServer: string = publicRuntimeConfig.apiServer
@@ -416,4 +419,8 @@ export function refreshConnections(userId: string) {
   return (dispatch: Dispatch) => {
     loadUserData(dispatch, userId)
   }
+}
+export const updateUserSettings = (id:any,data:any) =>async (dispatch:any) => {
+  let res = await axiosRequest('PATCH',`${apiUrl}/user-settings/${id}`,data)
+  dispatch(updateSettings(res.data))
 }
