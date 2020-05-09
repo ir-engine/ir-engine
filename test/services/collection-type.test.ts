@@ -1,7 +1,7 @@
 import assert from 'assert'
 import app from '../../src/app'
 
-describe('\'collection-type\' service', () => {
+describe('\'CollectionType\' service', () => {
   it('registered the service', () => {
     const service = app.service('collection-type')
 

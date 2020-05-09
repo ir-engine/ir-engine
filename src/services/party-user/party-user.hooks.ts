@@ -32,7 +32,7 @@ export default {
   before: {
     all: [authenticate('jwt'), validateGroupId(), collectAnalytics()],
     find: [],
-    get: [disallow()],
+    get: [],
     create: [],
     update: [disallow()],
     patch: [],
