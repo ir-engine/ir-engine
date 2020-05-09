@@ -14,8 +14,8 @@ import {
     DID_RESET_PASSWORD,
     ACTION_PROCESSING,
     DID_CREATE_MAGICLINK,
-    LOADED_USER_DATA,
-    UPDATE_USER_SETTINGS
+    UPDATE_USER_SETTINGS,
+    LOADED_USER_DATA
 } from '../actions'
 import { AuthUser } from 'interfaces/AuthUser'
 import { User } from 'interfaces/User'
@@ -187,6 +187,13 @@ export function didCreateMagicLink(result: boolean): AuthResultAction {
     }
 }
 
+
+export function updateSettings(message:any ):RegistrationResultAction{
+    return {
+        type: UPDATE_USER_SETTINGS,
+        message
+    }
+}
 export function loadedUserData(user: User): LoadDataResultAction {
     return {
         type: LOADED_USER_DATA,
