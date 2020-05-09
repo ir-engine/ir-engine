@@ -55,15 +55,15 @@
   },
   "aws": {
     "s3": {
-      "static_resource_bucket": "kaixr-static-resources",
-      "region": "us-east-1",
+      "static_resource_bucket": "STORAGE_S3_BUCKET",
+      "region": "STORAGE_S3_REGION",
       "cloudfront": {
-        "domain": "https://kairxr-360lib.s3.amazonaws.com"
+        "domain": "STORAGE_S3_CLOUDFRONT_DOMAIN"
       }
     },
     "keys": {
-      "access_key_id": "AKIA6NYNXTOCCUOM62QL",
-      "secret_access_key": "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"
+      "access_key_id": "STORAGE_AWS_ACCESS_KEY_ID",
+      "secret_access_key": "STORAGE_AWS_ACCESS_KEY_SECRET"
     },
     "sns": {
       "region": "AWS_SMS_REGION",
