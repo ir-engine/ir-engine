@@ -13,12 +13,14 @@ import {
   didForgotPassword,
   didResetPassword,
   didCreateMagicLink,
-  loadedUserData,
-  updateSettings
+  updateSettings,
+  loadedUserData
 } from "./actions"
 import { client } from "../feathers"
 import { dispatchAlertError, dispatchAlertSuccess } from "../alert/service"
 import { validateEmail, validatePhoneNumber } from "../helper"
+import { axiosRequest,apiUrl } from '../service.common'
+
 import { resolveUser } from "interfaces/User"
 import { resolveAuthUser } from "interfaces/AuthUser"
 import { IdentityProvider } from "interfaces/IdentityProvider"
@@ -415,6 +417,11 @@ export function removeConnection(identityProviderId: number, userId: string) {
   }
 }
 
+
+export const updateUserSettings = (id:any,data:any) =>async (dispatch:any) => {
+  let res = await axiosRequest('PATCH',`${apiUrl}/user-settings/${id}`,data)
+ return  dispatch(updateSettings(res.data))
+}
 export function refreshConnections(userId: string) {
   return (dispatch: Dispatch) => {
     loadUserData(dispatch, userId)
