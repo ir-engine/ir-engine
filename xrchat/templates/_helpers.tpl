@@ -10,8 +10,12 @@ Expand the name of the chart.
 {{- default .Chart.Name .Values.client.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "xrchat.server.name" -}}
-{{- default .Chart.Name .Values.server.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- define "xrchat.apiServer.name" -}}
+{{- default .Chart.Name .Values.apiServer.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "xrchat.mediaServer.name" -}}
+{{- default .Chart.Name .Values.mediaServer.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{- define "xrchat.spoke.name" -}}
@@ -47,11 +51,20 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 
 
-{{- define "xrchat.server.fullname" -}}
-{{- if .Values.server.fullnameOverride -}}
-{{- .Values.server.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- define "xrchat.apiServer.fullname" -}}
+{{- if .Values.apiServer.fullnameOverride -}}
+{{- .Values.apiServer.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-{{- printf "%s-%s" .Release.Name .Values.server.name | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" .Release.Name .Values.apiServer.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
+
+{{- define "xrchat.mediaServer.fullname" -}}
+{{- if .Values.mediaServer.fullnameOverride -}}
+{{- .Values.mediaServer.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name .Values.mediaServer.name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
 
@@ -68,7 +81,7 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 
 
-{{- define "xrchat.server.host" -}}
+{{- define "xrchat.mediaServer.host" -}}
 {{- printf "%s.%s.%s" "api" .Release.Name .Values.domain -}}
 {{- end -}}
 
@@ -106,9 +119,9 @@ app.kubernetes.io/component: client
 {{/*
 Common labels
 */}}
-{{- define "xrchat.server.labels" -}}
+{{- define "xrchat.apiServer.labels" -}}
 helm.sh/chart: {{ include "xrchat.chart" . }}
-{{ include "xrchat.server.selectorLabels" . }}
+{{ include "xrchat.apiServer.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -118,8 +131,30 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "xrchat.server.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "xrchat.server.name" . }}
+{{- define "xrchat.apiServer.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xrchat.apiServer.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: server
+{{- end -}}
+
+
+{{/*
+Common labels
+*/}}
+{{- define "xrchat.mediaServer.labels" -}}
+helm.sh/chart: {{ include "xrchat.chart" . }}
+{{ include "xrchat.mediaServer.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
+
+{{/*
+Selector labels
+*/}}
+{{- define "xrchat.mediaServer.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xrchat.mediaServer.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: server
 {{- end -}}
@@ -163,11 +198,22 @@ Create the name of the service account to use
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "xrchat.server.serviceAccountName" -}}
-{{- if .Values.server.serviceAccount.create -}}
-    {{ default (include "xrchat.server.fullname" .) .Values.server.serviceAccount.name }}
+{{- define "xrchat.apiServer.serviceAccountName" -}}
+{{- if .Values.apiServer.serviceAccount.create -}}
+    {{ default (include "xrchat.apiServer.fullname" .) .Values.apiServer.serviceAccount.name }}
 {{- else -}}
-    {{ default "default" .Values.server.serviceAccount.name }}
+    {{ default "default" .Values.apiServer.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "xrchat.mediaServer.serviceAccountName" -}}
+{{- if .Values.mediaServer.serviceAccount.create -}}
+    {{ default (include "xrchat.mediaServer.fullname" .) .Values.mediaServer.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.mediaServer.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
 

@@ -1,6 +1,6 @@
-{{- if and .Values.server.enabled .Values.server.ingress.enabled -}}
-{{- $fullName := include "xrchat.server.fullname" . -}}
-{{- $svcPort := .Values.server.service.port -}}
+{{- if and .Values.mediaServer.enabled .Values.mediaServer.ingress.enabled -}}
+{{- $fullName := include "xrchat.mediaServer.fullname" . -}}
+{{- $svcPort := .Values.mediaServer.service.port -}}
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
@@ -10,15 +10,15 @@ kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
-    {{- include "xrchat.server.labels" . | nindent 4 }}
-  {{- with .Values.server.ingress.annotations }}
+    {{- include "xrchat.mediaServer.labels" . | nindent 4 }}
+  {{- with .Values.mediaServer.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-{{- if .Values.server.ingress.tls }}
+{{- if .Values.mediaServer.ingress.tls }}
   tls:
-  {{- range .Values.server.ingress.tls }}
+  {{- range .Values.mediaServer.ingress.tls }}
     - hosts:
       {{- range .hosts }}
         - {{ . | quote }}
@@ -27,7 +27,7 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-  {{- range .Values.server.ingress.hosts }}
+  {{- range .Values.mediaServer.ingress.hosts }}
     - host: {{ .host | quote }}
       http:
         paths:

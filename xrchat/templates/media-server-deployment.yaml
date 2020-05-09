@@ -1,0 +1,85 @@
+{{- if .Values.mediaServer.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "xrchat.mediaServer.fullname" . }}
+  labels:
+    {{- include "xrchat.mediaServer.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.mediaServer.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "xrchat.mediaServer.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "xrchat.mediaServer.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/media-server-configmap.yaml") . | sha256sum }}
+    spec:
+    {{- with .Values.mediaServer.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "xrchat.mediaServer.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.mediaServer.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.mediaServer.securityContext | nindent 12 }}
+          image: "{{ .Values.mediaServer.image.repository }}:{{ .Values.mediaServer.image.tag }}"
+          imagePullPolicy: {{ .Values.mediaServer.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "xrchat.mediaServer.fullname" . }}
+                optional: true
+          env:
+            - name: KUBERNETES
+              value: "true"
+            - name: MYSQL_USER
+              value: {{ .Values.mariadb.db.user }}
+            - name: MYSQL_DATABASE
+              value: {{ .Values.mariadb.db.name }}
+            - name: MYSQL_PASSWORD
+              {{- if not .Values.mariadb.enabled }}
+              value: {{ .Values.mariadb.db.password }}
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  {{- if .Values.mariadb.existingSecret }}
+                  name: {{ .Values.mariadb.existingSecret }}
+                  {{- else }}
+                  name: {{ template "xrchat.mariadb.fullname" . }}
+                  {{- end }} 
+                  key: mariadb-password
+              {{- end }}
+            - name: MYSQL_HOST
+              value: {{ template "xrchat.mariadb.host" . }}
+          ports:
+            - name: http
+              containerPort: 3030
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.mediaServer.resources | nindent 12 }}
+      {{- with .Values.mediaServer.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.mediaServer.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.mediaServer.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}
