@@ -1,11 +1,11 @@
-import * as feathersAuthentication from '@feathersjs/authentication'
+// import * as feathersAuthentication from '@feathersjs/authentication'
 import * as local from '@feathersjs/authentication-local'
 import * as commonHooks from 'feathers-hooks-common'
 import accountService from '../auth-management/auth-management.notifier'
 import { HookContext } from '@feathersjs/feathers'
 
 const verifyHooks = require('feathers-authentication-management').hooks
-const { authenticate } = feathersAuthentication.hooks
+// const { authenticate } = feathersAuthentication.hooks
 const { protect } = local.hooks
 
 const isPasswordAccountType = () => {
@@ -29,8 +29,8 @@ const sendVerifyEmail = () => {
 export default {
   before: {
     all: [],
-    find: [authenticate('jwt')],
-    get: [authenticate('jwt')],
+    find: [],
+    get: [],
     create: [
     //  hashPassword('password'),
       commonHooks.iff(
@@ -38,9 +38,9 @@ export default {
         verifyHooks.addVerification()
       )
     ],
-    update: [authenticate('jwt')], // hashPassword('password'), authenticate('jwt')
-    patch: [authenticate('jwt')], // hashPassword('password'), authenticate('jwt')
-    remove: [authenticate('jwt')] // authenticate('jwt')
+    update: [], // hashPassword('password'), authenticate('jwt')
+    patch: [], // hashPassword('password'), authenticate('jwt')
+    remove: [] // authenticate('jwt')
   },
 
   after: {

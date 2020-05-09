@@ -1,9 +1,9 @@
 import assert from 'assert'
 import app from '../../src/app'
 
-describe('\'GroupUserRank\' service', () => {
+describe('\'OwnedFile\' service', () => {
   it('registered the service', () => {
-    const service = app.service('group-user-rank')
+    const service = app.service('owned-file')
 
     assert.ok(service, 'Registered the service')
   })
