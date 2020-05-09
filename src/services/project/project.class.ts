@@ -2,6 +2,7 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../declarations'
 import { Params, Id } from '@feathersjs/feathers'
 import { mapProjectDetailData, defaultProjectImport } from '../project/project-helper'
+import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 
 export class Project extends Service {
   app: Application
@@ -11,9 +12,10 @@ export class Project extends Service {
   }
 
   async find (params: Params): Promise<[]> {
+    const loggedInUser = extractLoggedInUserFromParams(params)
     const projects = await this.getModel(params).findAll({
       where: {
-        created_by_account_id: params.user.userId
+        created_by_account_id: loggedInUser.userId
       },
       attributes: ['name', 'project_id', 'project_sid'],
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
@@ -23,11 +25,12 @@ export class Project extends Service {
   }
 
   async get (id: Id, params: Params): Promise<any> {
+    const loggedInUser = extractLoggedInUserFromParams(params)
     const project = await this.getModel(params).findOne({
       attributes: ['name', 'project_id', 'project_sid'],
       where: {
         project_sid: id,
-        created_by_account_id: params.user.userId
+        created_by_account_id: loggedInUser.userId
       },
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
     })
