@@ -8,11 +8,29 @@ import accountService from '../auth-management/auth-management.notifier'
 // const { authenticate } = feathersAuthentication.hooks
 // const { hashPassword, protect } = local.hooks
 
+const addAssociation = () => {
+  return (context: any) => {
+    const IdentityProvider = context.app.service('identity-provider').Model
+    const sequelize = context.params.sequelize || {}
+    sequelize.raw = false
+    sequelize.include = [
+      {
+        model: IdentityProvider
+      }
+    ]
+    context.params.sequelize = sequelize
+    return context
+  }
+}
+
 export default {
   before: {
     all: [],
     find: [], // authenticate('jwt')
-    get: [], // authenticate('jwt')
+    get: [
+      // authenticate('jwt'),
+      addAssociation()
+    ], // authenticate('jwt')
     create: [
     //  hashPassword('password'),
     //  verifyHooks.addVerification()

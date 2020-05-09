@@ -12,10 +12,7 @@
     "entity": "identity-provider",
     "service": "identity-provider",
     "secret": "rlHRymcnyXeCbTcgHZB5TfG3dZg=",
-    "authStrategies": [
-      "jwt",
-      "local"
-    ],
+    "authStrategies": ["jwt", "local"],
     "jwtOptions": {
       "header": {
         "typ": "access"
@@ -39,11 +36,7 @@
       "google": {
         "key": "GOOGLE_CLIENT_ID",
         "secret": "GOOGLE_CLIENT_SECRET",
-        "scope": [
-          "email",
-          "profile",
-          "openid"
-        ]
+        "scope": ["email", "profile", "openid"]
       },
       "facebook": {
         "key": "FACEBOOK_CLIENT_ID",
@@ -84,5 +77,6 @@
   "magiclink": {
     "subject": "MAGICLINK_EMAIL_SUBJECT"
   },
-  "mysql": "mysql://root:root@localhost:3306/xrchat"
+  "mysql": "mysql://server:password@localhost:3306/xrchat",
+  "gaTrackingId": "UA-164023274-3"
 }

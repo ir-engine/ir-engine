@@ -5,8 +5,8 @@ export const seed = {
   randomize: false,
   templates:
     [
-      { name: 'scene' },
-      { name: 'inventory' }
+      { type: 'scene' },
+      { type: 'inventory' }
     ]
 }
 

@@ -1,7 +1,7 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 
-export default (app: Application): any =>{
+export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const identityProviderType = sequelizeClient.define('identity_provider_type', {
     type: {
@@ -15,7 +15,8 @@ export default (app: Application): any =>{
       beforeCount (options: any) {
         options.raw = true
       }
-    }
+    },
+    timestamps: false
   });
 
   (identityProviderType as any).associate = function (models: any) {

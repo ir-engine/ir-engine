@@ -7,7 +7,7 @@ import config from 'config'
 export default (app: Application): any => {
   return {
     service: config.get('authentication.service'),
-    identifyUserProps: ['token', 'identityProviderType'],
+    identifyUserProps: ['token', 'type'],
     sanitizeUserForClient: async (identityProvider: any): Promise<any> => {
       const authService = app.service('authentication')
       const accessToken = await authService.createAccessToken({}, { subject: identityProvider.id.toString() })
@@ -17,7 +17,7 @@ export default (app: Application): any => {
       }
     },
     notifier: async (type: string, identityProvider: any): Promise<void> => {
-      if (identityProvider.identityProviderType !== 'password') {
+      if (identityProvider.type !== 'password') {
         return
       }
 
@@ -31,6 +31,7 @@ export default (app: Application): any => {
       const mailFrom = process.env.SMTP_FROM_EMAIL ?? 'noreply@myxr.email'
       const mailSender = `${(process.env.SMTP_FROM_NAME ?? '')}<${mailFrom}>`
 
+      console.log('----email-----', type)
       switch (type) {
         case 'resendVerifySignup': // sending the identityProvider the verification email
           hashLink = getLink('verify', identityProvider.verifyToken)

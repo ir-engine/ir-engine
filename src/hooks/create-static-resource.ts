@@ -7,7 +7,7 @@ export default (options = {}): Hook => {
     const body = params.body || {}
 
     const resourceData = {
-      name: data.name || body.name,
+      name: data.name || body.name || context.params.file.originalname,
       description: data.description || body.description,
       url: data.uri || data.url,
       mime_type: data.mime_type || params.mime_type,
@@ -24,6 +24,9 @@ export default (options = {}): Hook => {
         (resourceData as any).parentResourceId = context.params.parentResourceId
       }
       (resourceData as any).type = getBasicMimetype(resourceData.mime_type)
+      if (context.params.uuid && context.params.parentResourceId == null) {
+        (resourceData as any).id = context.params.uuid
+      }
       context.result = await context.app.service('static-resource').create(resourceData)
     }
 
