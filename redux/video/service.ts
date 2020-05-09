@@ -3,10 +3,14 @@ import { Dispatch } from 'redux'
 import {
   videosFetchedSuccess,
   videosFetchedError,
+  // fileUploadFailure,
+  fileUploadSuccess,
   // eslint-disable-next-line no-unused-vars
   PublicVideo
 } from './actions'
-// import { ajaxPost } from "../service.common"
+import { ajaxPost } from "../service.common"
+
+const apiUrl = process.env.NODE_ENV =="production" ? '' :'http://localhost:3030'
 import { client } from '../feathers'
 
 export function fetchPublicVideos() {
@@ -21,5 +25,23 @@ export function fetchPublicVideos() {
         return dispatch(videosFetchedSuccess(videos))
       })
       .catch(() => dispatch(videosFetchedError('Failed to fetch videos')))
+  }
+}
+
+export function uploadFile(data:any){
+  return async (dispatch: Dispatch) => {
+   let res = await ajaxPost(`${apiUrl}/upload`,data,false)
+
+   console.log(res,"ressssss")
+    // client.service('static-resource').create(data).then((res: any) => {
+      const image = res.data
+    //   console.log(image,"imagessss")
+      dispatch(fileUploadSuccess(image))
+    //   return image
+    // }).catch((err:any) => {
+    //   console.log(err,"err")
+    //   dispatch(fileUploadFailure(err))
+    //   return err
+    // })
   }
 }
