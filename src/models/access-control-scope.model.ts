@@ -15,12 +15,9 @@ export default (app: Application): any => {
       beforeCount (options: any) {
         options.raw = true
       }
-    }
-  });
-
-  (accessControlScope as any).associate = (models: any): any => {
-    (accessControlScope as any).hasMany(models.access_control, { as: 'accessControl', foreignKey: 'accessControlScope' })
-  }
+    },
+    timestamps: false
+  })
 
   return accessControlScope
 }

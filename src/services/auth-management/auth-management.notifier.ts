@@ -31,6 +31,7 @@ export default (app: Application): any => {
       const mailFrom = process.env.SMTP_FROM_EMAIL ?? 'noreply@myxr.email'
       const mailSender = `${(process.env.SMTP_FROM_NAME ?? '')}<${mailFrom}>`
 
+      console.log('----email-----', type)
       switch (type) {
         case 'resendVerifySignup': // sending the identityProvider the verification email
           hashLink = getLink('verify', identityProvider.verifyToken)

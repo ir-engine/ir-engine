@@ -30,7 +30,10 @@ export default (app: Application): any => {
     (user as any).belongsToMany(models.user, { as: 'relatedUser', through: models.user_relationship });
     (user as any).belongsToMany(models.group, { through: models.group_user }); // user can join multiple orgs
     (user as any).belongsToMany(models.group_user_rank, { through: models.group_user }); // user can join multiple orgs
-    (user as any).hasMany(models.identity_provider)
+    (user as any).hasMany(models.identity_provider);
+    (user as any).hasMany(models.asset, { foreignKey: 'account_id' });
+    (user as any).hasMany(models.owned_file, { foreignKey: 'account_id' });
+    (user as any).belongsTo(models.group, { through: models.group_member })
   }
 
   return user

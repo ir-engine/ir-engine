@@ -15,7 +15,8 @@ export default (app: Application): any => {
       beforeCount (options: any) {
         options.raw = true
       }
-    }
+    },
+    timestamps: false
   });
 
   (identityProviderType as any).associate = function (models: any) {
