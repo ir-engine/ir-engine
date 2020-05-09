@@ -13,6 +13,7 @@ import MicIcon from '@material-ui/icons/Mic';
 import MicOffIcon from '@material-ui/icons/MicOff';
 import Slider from '@material-ui/core/Slider';
 import Switch from '@material-ui/core/Switch';
+// import {updateUserSettings} from '../../../redux/auth/service'
 
 const useStyles = makeStyles({
     root: {
@@ -46,6 +47,10 @@ const UserSettings : React.FC = () => {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setState({ ...state, [event.target.name]: event.target.checked });
       };
+
+    // const handleSubmit = () => {
+
+    // }
     return (
         <div className={classes.root}>
         <Typography id="continuous-slider" gutterBottom style={{padding:10}}>
