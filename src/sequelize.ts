@@ -28,17 +28,7 @@ export default (app: Application): void => {
   app.set('sequelizeClient', sequelize)
 
   app.setup = function (...args: any) {
-    // Set up data relationships
-    const models = sequelize.models
-
-    Object.keys(models).forEach((name) => {
-      if ('associate' in models[name]) {
-        (models[name] as any).associate(models)
-      }
-    })
-
     // Sync to the database
-    // TODO: Disable logging in production
     app.set('sequelizeSync', sequelize.sync({ force: (process.env.FORCE_DB_REFRESH === 'true') }).then(() => {
       // @ts-ignore
       app.configure(seeder(seederConfig)).seed()

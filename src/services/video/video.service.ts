@@ -13,7 +13,7 @@ declare module '../../declarations' {
 
 export default function (app: Application): void {
   const options = {
-    multi: ['create']
+    multi: true
   }
 
   // Initialize our service with any options it requires

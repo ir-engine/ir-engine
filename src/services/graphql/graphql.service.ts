@@ -1,6 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { Graphql } from './graphql.class'
+import { PubSub } from 'graphql-subscriptions'
 // @ts-ignore
 import { generateModelTypes, generateApolloServer } from 'graphql-sequelize-generator'
 
@@ -17,12 +18,22 @@ export default (app: Application): any => {
   const models = sequelizeClient.models
   const types = generateModelTypes(models)
 
+  const pubSubInstance = new PubSub()
+
   const actions = ['list', 'create', 'read', 'update', 'delete']
 
   const graphqlSchemaDeclaration = (): any => {
     const declarations: any[] = []
     Object.keys(models).forEach((model: any) => {
       declarations.push({ model: model, actions })
+      console.log(sequelizeClient.modelManager.getModel(model))
+    })
+
+    // TO-DO: Move Seqeuelize key assocation somewhere else -- for now it's working here
+    Object.keys(models).forEach((name) => {
+      if ('associate' in models[name]) {
+        (models[name] as any).associate(models)
+      }
     })
 
     const initialValue = {}
@@ -36,8 +47,6 @@ export default (app: Application): any => {
     return values
   }
 
-  graphqlSchemaDeclaration()
-
   const server = generateApolloServer({
     graphqlSchemaDeclaration: graphqlSchemaDeclaration(),
     types: types,
@@ -49,22 +58,22 @@ export default (app: Application): any => {
           'editor.theme': 'dark'
         }
       },
-      context: ({ req }: any) => ({
-        provider: req.feathers.provider,
-        headers: req.headers,
-        app
-      }),
+      subscriptions: {
+        path: '/graphql',
+        onConnect: async (connectionParams: any, webSocket: any) => {
+          console.log(connectionParams)
+          console.log(webSocket)
+          return true
+        }
+      },
       introspection: true
-    }
+    },
+    pubSubInstance
   })
 
   server.applyMiddleware({
     app,
     path: '/graphql'
-  })
-
-  server.applyMiddleware({
-    app
   })
 
   app.service('graphql')

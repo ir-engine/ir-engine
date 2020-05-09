@@ -5,9 +5,9 @@ export const seed = {
   randomize: false,
   templates:
         [
-          { name: 'none' },
-          { name: 'self' },
-          { name: 'all' }
+          { scope: 'none' },
+          { scope: 'self' },
+          { scope: 'all' }
         ]
 }
 
