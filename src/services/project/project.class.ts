@@ -5,10 +5,13 @@ import fetch from 'node-fetch'
 
 import { mapProjectDetailData, defaultProjectImport } from '../project/project-helper'
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
+<<<<<<< HEAD
 import { Application } from '../../declarations'
 import StorageProvider from '../../storage/storageprovider'
 import { BadRequest } from '@feathersjs/errors'
 interface Data { }
+=======
+>>>>>>> Passing loggedin user in project API
 
 export class Project extends Service {
   app: Application
@@ -17,7 +20,11 @@ export class Project extends Service {
     this.app = app
   }
 
+<<<<<<< HEAD
   async find (params: Params): Promise<any> {
+=======
+  async find (params: Params): Promise<[]> {
+>>>>>>> Passing loggedin user in project API
     const loggedInUser = extractLoggedInUserFromParams(params)
     const projects = await this.getModel(params).findAll({
       where: {
@@ -46,8 +53,12 @@ export class Project extends Service {
       attributes: ['name', 'project_id', 'project_sid'],
       where: {
         project_sid: id,
+<<<<<<< HEAD
         created_by_account_id: params.user.userId
 >>>>>>> Implemented short Id in project and scene
+=======
+        created_by_account_id: loggedInUser.userId
+>>>>>>> Passing loggedin user in project API
       },
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
     })
