@@ -3,9 +3,13 @@ import { Forbidden } from '@feathersjs/errors'
 import { Transaction } from 'sequelize/types'
 import { Application } from '../../declarations'
 import { mapProjectDetailData, defaultProjectImport } from '../project/project-helper'
+<<<<<<< HEAD
 import StorageProvider from '../../storage/storageprovider'
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 
+=======
+import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
+>>>>>>> Passing loggedin user in project API
 interface Data {}
 
 interface ServiceOptions {}
@@ -34,6 +38,7 @@ export class PublishProject implements ServiceMethods<Data> {
     const SceneModel = this.app.service('scene').Model
     const projectId = params?.query?.projectId
 <<<<<<< HEAD
+<<<<<<< HEAD
     const provider = new StorageProvider()
     const storage = provider.getStorage()
     const loggedInUser = extractLoggedInUserFromParams(params)
@@ -51,6 +56,10 @@ export class PublishProject implements ServiceMethods<Data> {
 =======
     const project = await ProjectModel.findOne({ where: { project_sid: projectId, created_by_account_id: params.user.userId } })
 >>>>>>> Implemented short Id in project and scene
+=======
+    const loggedInUser = extractLoggedInUserFromParams(params)
+    const project = await ProjectModel.findOne({ where: { project_sid: projectId, created_by_account_id: loggedInUser.userId } })
+>>>>>>> Passing loggedin user in project API
 
     if (!project) {
       return await Promise.reject(new Forbidden('Project not found Or you don\'t have access!'))
