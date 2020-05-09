@@ -1,3 +1,4 @@
+import collectAnalytics from '../../hooks/collect-analytics'
 import * as authentication from '@feathersjs/authentication'
 
 import { HookContext } from '@feathersjs/feathers'
@@ -20,7 +21,7 @@ const mapProjectSaveData = () => {
 
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [authenticate('jwt'), collectAnalytics()],
     find: [],
     get: [],
     create: [attachOwnerIdInBody('created_by_account_id'), mapProjectSaveData()],

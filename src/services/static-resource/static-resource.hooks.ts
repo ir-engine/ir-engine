@@ -1,19 +1,22 @@
 import { HookContext } from '@feathersjs/feathers'
 import dauria from 'dauria'
 import removeRelatedResources from '../../hooks/remove-related-resources'
+import collectAnalytics from '../../hooks/collect-analytics'
 import addAssociations from '../../hooks/add-associations'
-
 export default {
   before: {
     all: [],
-    find: [addAssociations({
-      models: [
-        {
-          model: 'attribution',
-          as: 'attribution'
-        }
-      ]
-    })],
+    find: [
+      collectAnalytics(),
+      addAssociations({
+        models: [
+          {
+            model: 'attribution',
+            as: 'attribution'
+          }
+        ]
+      })
+    ],
     get: [],
     create: [
       (context: HookContext) => {
