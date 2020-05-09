@@ -1,0 +1,15 @@
+{{- if .Values.mediaServer.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "xrchat.mediaServer.fullname" . }}
+  labels:
+    {{- include "xrchat.mediaServer.labels" . | nindent 4 }}
+data:
+{{- if .Values.mediaServer.extraEnv }}
+{{ toYaml .Values.mediaServer.extraEnv | indent 2 }}
+{{- end }}
+{{- if .Values.mediaServer.config }}
+  NODE_CONFIG: '{{ mustToJson .Values.mediaServer.config }}'
+{{- end }}
+{{- end -}}
