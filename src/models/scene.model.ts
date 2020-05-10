@@ -26,11 +26,6 @@ export default (app: Application): any => {
       type: DataTypes.STRING,
       allowNull: true
     },
-    // This is the foreign key of user table
-    account_id: {
-      type: DataTypes.UUID,
-      allowNull: false
-    },
     model_owned_file_id: {
       type: DataTypes.UUID,
       allowNull: false
@@ -103,12 +98,10 @@ export default (app: Application): any => {
   });
 
   (scene as any).associate = (models: any) => {
-    // (scene as any).belongsTo(models.user); // or group
-    // (scene as any).belongsToMany(models.object, { through: models.scene_object })
+    (scene as any).belongsTo(models.user, { foreignKey: 'account_id' });
     (scene as any).hasOne(models.project, { foreignKey: 'scene_id' });
     (scene as any).belongsTo(models.scene, { foreignKey: 'parent_scene_id', targetKey: 'scene_id' });
     (scene as any).belongsTo(models.scene_listing, { foreignKey: 'parent_scene_listing_id', targetKey: 'scene_listing_id', allowNull: true });
-    (scene as any).belongsTo(models.user, { foreignKey: 'account_id' });
     (scene as any).belongsTo(models.owned_file, { foreignKey: 'model_owned_file_id', targetKey: 'owned_file_id', as: 'model_owned_file' });
     (scene as any).belongsTo(models.owned_file, { foreignKey: 'screenshot_owned_file_id', targetKey: 'owned_file_id', as: 'screenshot_owned_file' });
     (scene as any).belongsTo(models.owned_file, { foreignKey: 'scene_owned_file_id', targetKey: 'owned_file_id', as: 'scene_owned_file' })

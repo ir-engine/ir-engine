@@ -1,3 +1,5 @@
+// TODO: Add entity type association
+
 import app from '../../src/app'
 
 describe('CRUD operation on \'Entity\' model', () => {

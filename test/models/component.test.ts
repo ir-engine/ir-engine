@@ -1,3 +1,5 @@
+// TODO: Add component type association
+
 import app from '../../src/app'
 
 describe('CRUD operation on \'Component\' model', () => {
