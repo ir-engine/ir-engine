@@ -35,12 +35,13 @@ import PartyUser from './party-user/party-user.service'
 // Services
 import Auth from './auth-management/auth-management.service'
 import Email from './email/email.service'
+import IdentityProvider from './identity-provider/identity-provider.service'
 import MagicLink from './magiclink/magiclink.service'
 import SMS from './sms/sms.service'
 import Upload from './upload/upload.service'
+import UserSettings from './user-settings/user-settings.service';
 import Video from './video/video.service'
 import GraphQL from './graphql/graphql.service'
-import IdentityProvider from './identity-provider/identity-provider.service'
 
 // Spoke
 import Asset from './asset/asset.service'
@@ -49,9 +50,6 @@ import OwnedFile from './owned-file/owned-file.service'
 import ProjectAsset from './project-asset/project-asset.service'
 import PublishProject from './publish-project/publish-project.service'
 import Scene from './scene/scene.service'
-
-import identityProviderType from './identity-provider-type/identity-provider-type.service';
-import userSettings from './user-settings/user-settings.service';
 import SceneListing from './scene-listing/scene-listing.service'
 import UploadMedia from './upload-media/upload-media.service'
 
@@ -83,7 +81,8 @@ export default (app: Application): void => {
   app.configure(UserRelationship)
   app.configure(StaticResource)
   app.configure(User)
-
+  app.configure(UserSettings)
+  
   // Junctions
   app.configure(PartyUser)
   app.configure(GroupUser)
@@ -98,21 +97,14 @@ export default (app: Application): void => {
   app.configure(IdentityProvider)
 
   // Spoke
-  app.configure(Scene)
-  app.configure(Role)
-  app.configure(AccessControl)
-  app.configure(AccessControlScope)
-  app.configure(groupUserRank)
-  app.configure(groupUser)
-  app.configure(GraphQL)
-  app.configure(identityProviderType);
-  app.configure(userSettings);
-}
   app.configure(Asset)
   app.configure(OwnedFile)
   app.configure(ProjectAsset)
+  app.configure(Scene)
   app.configure(SceneListing)
   app.configure(MediaSearch)
   app.configure(UploadMedia)
   app.configure(PublishProject)
+  
+  app.configure(GraphQL)
 }
