@@ -164,7 +164,7 @@ media:
 
   service:
     type: ClusterIP
-    port: 3031
+    port: 3030
 
   ingress:
     enabled: true
