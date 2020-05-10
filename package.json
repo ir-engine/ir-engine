@@ -27,7 +27,7 @@
     "test": "yarn run lint && yarn run compile && yarn run mocha",
     "lint": "node node_modules/.bin/eslint --ext .js,.ts src/ test/ --fix",
     "dev": "ts-node-dev --no-notify src/",
-    "dev-reinit-db": "NODE_ENV=dev FORCE_DB_REFRESH=true ts-node-dev --no-notify src/",
+    "dev-reinit-db": "SET NODE_ENV=dev && SET FORCE_DB_REFRESH=true && ts-node-dev --no-notify src/",
     "dev-generate-fakes": "NODE_ENV=dev env GENERATE_FAKES=true ts-node-dev --no-notify src/",
     "start": "yarn run compile && node lib/",
     "mocha": "NODE_ENV=test ts-mocha \"test/**/*.ts\" --recursive --exit",

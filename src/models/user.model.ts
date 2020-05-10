@@ -9,8 +9,7 @@ export default (app: Application): any => {
       defaultValue: DataTypes.UUIDV1,
       allowNull: false,
       primaryKey: true
-    },
-    created: { type: DataTypes.DATE }
+    }
   }, {
     hooks: {
       beforeCount (options: any) {
