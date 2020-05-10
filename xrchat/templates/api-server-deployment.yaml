@@ -1,38 +1,38 @@
-{{- if .Values.apiServer.enabled -}}
+{{- if .Values.api.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "xrchat.apiServer.fullname" . }}
+  name: {{ include "xrchat.api.fullname" . }}
   labels:
-    {{- include "xrchat.apiServer.labels" . | nindent 4 }}
+    {{- include "xrchat.api.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.apiServer.replicaCount }}
+  replicas: {{ .Values.api.replicaCount }}
   selector:
     matchLabels:
-      {{- include "xrchat.apiServer.selectorLabels" . | nindent 6 }}
+      {{- include "xrchat.api.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "xrchat.apiServer.selectorLabels" . | nindent 8 }}
+        {{- include "xrchat.api.selectorLabels" . | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/api-server-configmap.yaml") . | sha256sum }}
     spec:
-    {{- with .Values.apiServer.imagePullSecrets }}
+    {{- with .Values.api.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ include "xrchat.apiServer.serviceAccountName" . }}
+      serviceAccountName: {{ include "xrchat.api.serviceAccountName" . }}
       securityContext:
-        {{- toYaml .Values.apiServer.podSecurityContext | nindent 8 }}
+        {{- toYaml .Values.api.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
-            {{- toYaml .Values.apiServer.securityContext | nindent 12 }}
-          image: "{{ .Values.apiServer.image.repository }}:{{ .Values.apiServer.image.tag }}"
-          imagePullPolicy: {{ .Values.apiServer.image.pullPolicy }}
+            {{- toYaml .Values.api.securityContext | nindent 12 }}
+          image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
           envFrom:
             - configMapRef:
-                name: {{ include "xrchat.apiServer.fullname" . }}
+                name: {{ include "xrchat.api.fullname" . }}
                 optional: true
           env:
             - name: KUBERNETES
@@ -69,16 +69,16 @@ spec:
               path: /
               port: http
           resources:
-            {{- toYaml .Values.apiServer.resources | nindent 12 }}
-      {{- with .Values.apiServer.nodeSelector }}
+            {{- toYaml .Values.api.resources | nindent 12 }}
+      {{- with .Values.api.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-    {{- with .Values.apiServer.affinity }}
+    {{- with .Values.api.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.apiServer.tolerations }}
+    {{- with .Values.api.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
