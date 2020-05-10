@@ -35,6 +35,8 @@ spec:
                 name: {{ include "xrchat.media.fullname" . }}
                 optional: true
           env:
+            - name: SERVER_MODE
+              value: "media"
             - name: KUBERNETES
               value: "true"
             - name: MYSQL_USER

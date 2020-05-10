@@ -35,6 +35,8 @@ spec:
                 name: {{ include "xrchat.api.fullname" . }}
                 optional: true
           env:
+            - name: SERVER_MODE
+              value: "api"
             - name: KUBERNETES
               value: "true"
             - name: MYSQL_USER
