@@ -56,9 +56,9 @@ client:
     NODE_ENV: production
 
 
-apiServer:
+api:
   enabled: true
-  name: xrchat-api-server
+  name: xrchat-api
 
   replicaCount: 1
   image:
@@ -148,9 +148,9 @@ apiServer:
     SERVER_MODE: "api"
 
 
-mediaServer:
+media:
   enabled: true
-  name: xrchat-media-server
+  name: xrchat-media
 
   replicaCount: 1
   image:
@@ -164,7 +164,7 @@ mediaServer:
 
   service:
     type: ClusterIP
-    port: 3031
+    port: 3030
 
   ingress:
     enabled: true
