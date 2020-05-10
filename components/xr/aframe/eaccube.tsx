@@ -21,6 +21,7 @@ export interface EaccubeComponentData {
 const TILE_ROTATION_RIGHT = 'R' // 90deg cw
 const TILE_ROTATION_LEFT = 'L' // 90deg ccw
 // @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const TILE_ROTATION_UP = 'U' // no rotation
 const TILE_ROTATION_DOWN = 'D' // 180deg
 const CubeFaceOrder = 'RLUDFB'

@@ -1,8 +1,8 @@
-import { Dispatch } from "redux"
+import { Dispatch } from 'redux'
 import {
   showAlert,
   hideAlert
-} from "./actions"
+} from './actions'
 import getConfig from 'next/config'
 
 const config = getConfig().publicRuntimeConfig
