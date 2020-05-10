@@ -145,7 +145,7 @@ api:
     AWS_SMS_ACCESS_KEY_ID: ""
     AWS_SMS_SECRET_ACCESS_KEY: ""
     AWS_SMS_TOPIC_ARN: ""
-    SERVER_MODE: "api"
+    # SERVER_MODE: "api"
 
 
 media:
@@ -164,7 +164,7 @@ media:
 
   service:
     type: ClusterIP
-    port: 3030
+    port: 3031
 
   ingress:
     enabled: true
@@ -237,7 +237,7 @@ media:
     AWS_SMS_ACCESS_KEY_ID: ""
     AWS_SMS_SECRET_ACCESS_KEY: ""
     AWS_SMS_TOPIC_ARN: ""
-    SERVER_MODE: "media"
+    # SERVER_MODE: "media"
 
 
 spoke:
