@@ -1,17 +1,17 @@
-{{- if .Values.apiServer.enabled -}}
+{{- if .Values.api.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "xrchat.apiServer.fullname" . }}
+  name: {{ include "xrchat.api.fullname" . }}
   labels:
-    {{- include "xrchat.apiServer.labels" . | nindent 4 }}
+    {{- include "xrchat.api.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.apiServer.service.type }}
+  type: {{ .Values.api.service.type }}
   ports:
-    - port: {{ .Values.apiServer.service.port }}
-      targetPort: {{ .Values.apiServer.service.port }}
+    - port: {{ .Values.api.service.port }}
+      targetPort: {{ .Values.api.service.port }}
       protocol: TCP
       name: http
   selector:
-    {{- include "xrchat.apiServer.selectorLabels" . | nindent 4 }}
+    {{- include "xrchat.api.selectorLabels" . | nindent 4 }}
 {{- end -}}

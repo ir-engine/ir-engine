@@ -1,15 +1,15 @@
-{{- if .Values.apiServer.enabled -}}
+{{- if .Values.api.enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "xrchat.apiServer.fullname" . }}
+  name: {{ template "xrchat.api.fullname" . }}
   labels:
-    {{- include "xrchat.apiServer.labels" . | nindent 4 }}
+    {{- include "xrchat.api.labels" . | nindent 4 }}
 data:
-{{- if .Values.apiServer.extraEnv }}
-{{ toYaml .Values.apiServer.extraEnv | indent 2 }}
+{{- if .Values.api.extraEnv }}
+{{ toYaml .Values.api.extraEnv | indent 2 }}
 {{- end }}
-{{- if .Values.apiServer.config }}
-  NODE_CONFIG: '{{ mustToJson .Values.apiServer.config }}'
+{{- if .Values.api.config }}
+  NODE_CONFIG: '{{ mustToJson .Values.api.config }}'
 {{- end }}
 {{- end -}}
