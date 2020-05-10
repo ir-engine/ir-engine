@@ -23,44 +23,44 @@ Thank you for installing XRChat
 {{- end }}
 
 2. API Backend is running on:
-{{- if .Values.apiServer.ingress.enabled }}
-{{- range $host := .Values.apiServer.ingress.hosts }}
+{{- if .Values.api.ingress.enabled }}
+{{- range $host := .Values.api.ingress.hosts }}
   {{- range .paths }}
-  http{{ if $.Values.apiServer.ingress.tls }}s{{ end }}://{{ $host.host }}{{ . }}
+  http{{ if $.Values.api.ingress.tls }}s{{ end }}://{{ $host.host }}{{ . }}
   {{- end }}
 {{- end }}
-{{- else if contains "NodePort" .Values.apiServer.service.type }}
+{{- else if contains "NodePort" .Values.api.service.type }}
   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "xrchat.fullname" . }})
   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
   echo http://$NODE_IP:$NODE_PORT
-{{- else if contains "LoadBalancer" .Values.apiServer.service.type }}
+{{- else if contains "LoadBalancer" .Values.api.service.type }}
      NOTE: It may take a few minutes for the LoadBalancer IP to be available.
            You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "xrchat.fullname" . }}'
   export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "xrchat.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
-  echo http://$SERVICE_IP:{{ .Values.apiServer.service.port }}
-{{- else if contains "ClusterIP" .Values.apiServer.service.type }}
+  echo http://$SERVICE_IP:{{ .Values.api.service.port }}
+{{- else if contains "ClusterIP" .Values.api.service.type }}
   export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "xrchat.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:80
 {{- end }}
 
 3. Media Backend is running on:
-{{- if .Values.mediaServer.ingress.enabled }}
-{{- range $host := .Values.mediaServer.ingress.hosts }}
+{{- if .Values.media.ingress.enabled }}
+{{- range $host := .Values.media.ingress.hosts }}
   {{- range .paths }}
-  http{{ if $.Values.mediaServer.ingress.tls }}s{{ end }}://{{ $host.host }}{{ . }}
+  http{{ if $.Values.media.ingress.tls }}s{{ end }}://{{ $host.host }}{{ . }}
   {{- end }}
 {{- end }}
-{{- else if contains "NodePort" .Values.mediaServer.service.type }}
+{{- else if contains "NodePort" .Values.media.service.type }}
   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "xrchat.fullname" . }})
   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
   echo http://$NODE_IP:$NODE_PORT
-{{- else if contains "LoadBalancer" .Values.mediaServer.service.type }}
+{{- else if contains "LoadBalancer" .Values.media.service.type }}
      NOTE: It may take a few minutes for the LoadBalancer IP to be available.
            You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "xrchat.fullname" . }}'
   export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "xrchat.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
-  echo http://$SERVICE_IP:{{ .Values.mediaServer.service.port }}
-{{- else if contains "ClusterIP" .Values.mediaServer.service.type }}
+  echo http://$SERVICE_IP:{{ .Values.media.service.port }}
+{{- else if contains "ClusterIP" .Values.media.service.type }}
   export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "xrchat.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:80
