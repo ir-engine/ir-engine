@@ -10,32 +10,10 @@ export default (app: Application): any => {
       allowNull: false,
       primaryKey: true
     },
-    email: {
-      type: DataTypes.STRING
-    },
-    password: {
-      type: DataTypes.STRING
-    },
-    mobile: {
-      type: DataTypes.STRING
-    },
-    auth0Id: { type: DataTypes.STRING },
-    googleId: { type: DataTypes.STRING },
-    facebookId: { type: DataTypes.STRING },
-    twitterId: { type: DataTypes.STRING },
-    githubId: { type: DataTypes.STRING },
-    isVerified: { type: DataTypes.BOOLEAN },
-    verifyToken: { type: DataTypes.STRING },
-    verifyShortToken: { type: DataTypes.STRING },
-    verifyExpires: { type: DataTypes.DATE },
-    verifyChanges: { type: DataTypes.JSON },
-    resetToken: { type: DataTypes.STRING },
-    resetExpires: { type: DataTypes.DATE },
     muted:{type: DataTypes.BOOLEAN, defaultValue: false},
     microphone:{type: DataTypes.STRING},
     audio:{ type: DataTypes.STRING},
     quality: {type: DataTypes.BOOLEAN, defaultValue: true},
-    created: { type: DataTypes.DATE }
   }, {
     hooks: {
       beforeCount (options: any) {
