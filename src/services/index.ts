@@ -23,7 +23,7 @@ import License from './license/license.service'
 import Location from './location/location.service'
 import Party from './party/party.service'
 import Project from './project/project.service'
-import Role from './user-role/user-role.service'
+import UserRole from './user-role/user-role.service'
 import StaticResource from './static-resource/static-resource.service'
 import UserRelationship from './user-relationship/user-relationship.service'
 import User from './user/user.service'
@@ -77,10 +77,10 @@ export default (app: Application): void => {
   app.configure(License)
   app.configure(Party)
   app.configure(Project)
-  app.configure(Role)
-  app.configure(UserRelationship)
   app.configure(StaticResource)
   app.configure(User)
+  app.configure(UserRelationship)
+  app.configure(UserRole)
   app.configure(UserSettings)
   
   // Junctions
