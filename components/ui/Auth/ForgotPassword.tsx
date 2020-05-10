@@ -70,7 +70,7 @@ class ForgotPassword extends React.Component<Props> {
   }
 
   render() {
-    const {classes} = this.props
+    const { classes } = this.props
     return (
       <Container component="main" maxWidth="xs">
         <div className={classes.paper}>
@@ -128,7 +128,7 @@ class ForgotPassword extends React.Component<Props> {
 }
 
 function ForgotPasswordWrapper(props: any) {
-  const classes = useStyles();
+  const classes = useStyles()
   return <ForgotPassword {...props} classes={classes}/>
 }
 
