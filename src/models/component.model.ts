@@ -23,9 +23,9 @@ export default (app: Application): any => {
   });
 
   (component as any).associate = (models: any) => {
-    (component as any).belongsTo(models.component_type, { foreignKey: 'type' });
+    (component as any).belongsTo(models.component_type, { foreignKey: 'type', required: true });
     (component as any).belongsToMany(models.static_resource, { through: 'static_resource_component' });
-    (component as any).belongsTo(models.entity)
+    (component as any).belongsTo(models.entity, { required: true })
   }
 
   return component

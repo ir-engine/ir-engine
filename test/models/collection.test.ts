@@ -1,3 +1,5 @@
+// TODO: Add collection type association
+
 import app from '../../src/app'
 
 describe('CRUD operation on \'Collection\' model', () => {

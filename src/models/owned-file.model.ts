@@ -21,10 +21,6 @@ export default (app: Application): any => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    account_id: {
-      type: DataTypes.UUID,
-      allowNull: false
-    },
     content_type: {
       type: DataTypes.STRING,
       allowNull: true
@@ -46,11 +42,8 @@ export default (app: Application): any => {
     }
   });
 
-  // eslint-disable-next-line no-unused-vars
   (ownedFile as any).associate = (models: any) => {
-    // Define associations here
-    // See http://docs.sequelizejs.com/en/latest/docs/associations/
-    ;(ownedFile as any).belongsTo(models.user, { foreignKey: 'account_id' })
+    (ownedFile as any).belongsTo(models.user, { foreignKey: 'account_id' })
   }
 
   return ownedFile

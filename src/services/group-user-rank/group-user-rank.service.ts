@@ -1,4 +1,3 @@
-// Initializes the `GroupUserRank` service on path `/group-user-rank`
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { GroupUserRank } from './group-user-rank.class'
