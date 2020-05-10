@@ -1,4 +1,4 @@
-import { IdentityProvider } from "./IdentityProvider";
+import { IdentityProvider } from './IdentityProvider'
 
 export type AuthUser = {
   accessToken: string

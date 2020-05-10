@@ -1,5 +1,4 @@
 /* eslint-disable no-prototype-builtins */
-// eslint-disable-next-line no-unused-vars
 import AFRAME from 'aframe'
 const THREE = AFRAME.THREE
 

@@ -7,7 +7,6 @@ import theme from '../components/assets/theme'
 const { publicRuntimeConfig } = getConfig()
 const siteDescription: string = publicRuntimeConfig.siteDescription
 
-
 export default class MyDocument extends Document {
   render() {
     return (

@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 import { ControlsOptions } from './controls'
 
 export interface LookControlsOptions extends ControlsOptions {

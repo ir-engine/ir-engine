@@ -3,8 +3,6 @@ import Layout from '../ui/Layout'
 import ApolloClient from 'apollo-boost'
 import { ApolloProvider, Query } from 'react-apollo'
 import gql from 'graphql-tag'
-
-// eslint-disable-next-line no-unused-vars
 import { World } from 'ecsy'
 
 const client = new ApolloClient({

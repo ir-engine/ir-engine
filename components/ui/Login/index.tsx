@@ -81,7 +81,7 @@ class Login extends React.Component<LoginProps> {
         </DialogTitle>
         <DialogContent className="dialogContent">
           <DialogContentText className="dialogContentText">
-              If you don't have account, we'll make one for you automagically!
+              If you don&apos;t have account, we&apos;ll make one for you automagically!
           </DialogContentText>
 
           {/* <Button onClick={(e: any) => this.handleGithubLogin(e)}>

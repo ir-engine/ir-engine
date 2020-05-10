@@ -1,6 +1,4 @@
-// eslint-disable-next-line no-unused-vars
 import AFRAME from 'aframe'
-// eslint-disable-next-line no-unused-vars
 import Camera, { CameraComponentOptions, defaultCameraComponentOptions } from './camera'
 import FuseCursor from './fuse-cursor'
 import MouseCursor from './mouse-cursor'

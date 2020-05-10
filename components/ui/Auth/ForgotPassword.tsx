@@ -6,7 +6,7 @@ import Container from '@material-ui/core/Container'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import {
-  forgotPassword,
+  forgotPassword
 } from '../../../redux/auth/service'
 import { selectAuthState } from '../../../redux/auth/selector'
 import Grid from '@material-ui/core/Grid'
@@ -19,7 +19,7 @@ interface Props {
 
 const mapStateToProps = (state: any) => {
   return {
-    auth: selectAuthState(state),
+    auth: selectAuthState(state)
   }
 }
 
@@ -50,57 +50,57 @@ class ForgotPassword extends React.Component<Props> {
 
   render() {
     return (
-        <Container component="main" maxWidth="xs">
-          <div className={'paper'}>
-            <Typography component="h1" variant="h5">
+      <Container component="main" maxWidth="xs">
+        <div className={'paper'}>
+          <Typography component="h1" variant="h5">
               Forgot Password
-            </Typography>
-    
-            <Typography variant="body2" color="textSecondary" align="center">
-              Please enter your registered email address and we'll send you a password reset link.
-            </Typography>
-    
-            <form className={'form'} noValidate onSubmit={(e) => this.handleForgot(e)}>
-              <Grid container>
-                <Grid item xs={12}>
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="email"
-                    label="Email Address"
-                    name="email"
-                    autoComplete="email"
-                    autoFocus
-                    onChange={(e) => this.handleInput(e)}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    className={'submit'}
-                  >
-                    Submit
-                  </Button>
-                </Grid>
-              </Grid>
-            </form>
+          </Typography>
 
-            {this.state.isSubmitted ? 
-            (
+          <Typography variant="body2" color="textSecondary" align="center">
+              Please enter your registered email address and we&apos;ll send you a password reset link.
+          </Typography>
+
+          <form className={'form'} noValidate onSubmit={(e) => this.handleForgot(e)}>
+            <Grid container>
+              <Grid item xs={12}>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                  autoFocus
+                  onChange={(e) => this.handleInput(e)}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  className={'submit'}
+                >
+                    Submit
+                </Button>
+              </Grid>
+            </Grid>
+          </form>
+
+          {this.state.isSubmitted
+            ? (
               <Typography variant="body2" color="textSecondary" align="center">
                 <br/>
                 Reset Password Email was sent. Please check your email.
               </Typography>
             )
             : ''}
-            
-          </div>
-        </Container>
+
+        </div>
+      </Container>
     )
   }
 }

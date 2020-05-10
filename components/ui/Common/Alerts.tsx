@@ -36,7 +36,7 @@ class Alerts extends PureComponent<Props> {
 
     return (
       <div className="alert-container">
-        {type == 'none' || message == '' ? (
+        {type === 'none' || message === '' ? (
           <Box />
         ) : (
           <Box m={1}>

@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 import { AframeComponentOptions, AframeComponetInterface } from '../aframe-component'
 
 export interface CameraComponentOptions extends AframeComponentOptions {
