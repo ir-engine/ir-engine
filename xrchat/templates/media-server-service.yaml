@@ -1,17 +1,17 @@
-{{- if .Values.mediaServer.enabled -}}
+{{- if .Values.media.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "xrchat.mediaServer.fullname" . }}
+  name: {{ include "xrchat.media.fullname" . }}
   labels:
-    {{- include "xrchat.mediaServer.labels" . | nindent 4 }}
+    {{- include "xrchat.media.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.mediaServer.service.type }}
+  type: {{ .Values.media.service.type }}
   ports:
-    - port: {{ .Values.mediaServer.service.port }}
-      targetPort: {{ .Values.mediaServer.service.port }}
+    - port: {{ .Values.media.service.port }}
+      targetPort: {{ .Values.media.service.port }}
       protocol: TCP
       name: http
   selector:
-    {{- include "xrchat.mediaServer.selectorLabels" . | nindent 4 }}
+    {{- include "xrchat.media.selectorLabels" . | nindent 4 }}
 {{- end -}}

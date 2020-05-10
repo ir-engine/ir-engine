@@ -1,38 +1,38 @@
-{{- if .Values.mediaServer.enabled -}}
+{{- if .Values.media.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "xrchat.mediaServer.fullname" . }}
+  name: {{ include "xrchat.media.fullname" . }}
   labels:
-    {{- include "xrchat.mediaServer.labels" . | nindent 4 }}
+    {{- include "xrchat.media.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.mediaServer.replicaCount }}
+  replicas: {{ .Values.media.replicaCount }}
   selector:
     matchLabels:
-      {{- include "xrchat.mediaServer.selectorLabels" . | nindent 6 }}
+      {{- include "xrchat.media.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "xrchat.mediaServer.selectorLabels" . | nindent 8 }}
+        {{- include "xrchat.media.selectorLabels" . | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/media-server-configmap.yaml") . | sha256sum }}
     spec:
-    {{- with .Values.mediaServer.imagePullSecrets }}
+    {{- with .Values.media.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ include "xrchat.mediaServer.serviceAccountName" . }}
+      serviceAccountName: {{ include "xrchat.media.serviceAccountName" . }}
       securityContext:
-        {{- toYaml .Values.mediaServer.podSecurityContext | nindent 8 }}
+        {{- toYaml .Values.media.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
-            {{- toYaml .Values.mediaServer.securityContext | nindent 12 }}
-          image: "{{ .Values.mediaServer.image.repository }}:{{ .Values.mediaServer.image.tag }}"
-          imagePullPolicy: {{ .Values.mediaServer.image.pullPolicy }}
+            {{- toYaml .Values.media.securityContext | nindent 12 }}
+          image: "{{ .Values.media.image.repository }}:{{ .Values.media.image.tag }}"
+          imagePullPolicy: {{ .Values.media.image.pullPolicy }}
           envFrom:
             - configMapRef:
-                name: {{ include "xrchat.mediaServer.fullname" . }}
+                name: {{ include "xrchat.media.fullname" . }}
                 optional: true
           env:
             - name: KUBERNETES
@@ -69,16 +69,16 @@ spec:
               path: /
               port: http
           resources:
-            {{- toYaml .Values.mediaServer.resources | nindent 12 }}
-      {{- with .Values.mediaServer.nodeSelector }}
+            {{- toYaml .Values.media.resources | nindent 12 }}
+      {{- with .Values.media.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-    {{- with .Values.mediaServer.affinity }}
+    {{- with .Values.media.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.mediaServer.tolerations }}
+    {{- with .Values.media.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
