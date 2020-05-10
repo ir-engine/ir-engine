@@ -23,35 +23,35 @@ export class Magiclink implements ServiceMethods<Data> {
   app: Application
   options: ServiceOptions
 
-  constructor(options: ServiceOptions = {}, app: Application) {
+  constructor (options: ServiceOptions = {}, app: Application) {
     this.options = options
     this.app = app
   }
 
-  async find(params?: Params): Promise<Data[] | Paginated<Data>> {
+  async find (params?: Params): Promise<Data[] | Paginated<Data>> {
     return []
   }
 
-  async get(id: Id, params?: Params): Promise<Data> {
+  async get (id: Id, params?: Params): Promise<Data> {
     return {
       id,
       text: `A new message with ID: ${id}!`
     }
   }
 
-  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
+  async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
   }
 
-  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
+  async patch (id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
   }
 
-  async remove(id: NullableId, params?: Params): Promise<Data> {
+  async remove (id: NullableId, params?: Params): Promise<Data> {
     return { id }
   }
 
-  async sendEmail(
+  async sendEmail (
     toEmail: string,
     token: string,
     type: 'connection' | 'login'
@@ -86,7 +86,7 @@ export class Magiclink implements ServiceMethods<Data> {
     return await sendEmail(this.app, email)
   }
 
-  async sendSms(
+  async sendSms (
     mobile: string,
     token: string,
     type: 'connection' | 'login'
@@ -115,7 +115,7 @@ export class Magiclink implements ServiceMethods<Data> {
     return await sendSms(this.app, sms)
   }
 
-  async create(data: any, params?: Params): Promise<Data> {
+  async create (data: any, params?: Params): Promise<Data> {
     console.log('----------------')
 
     const authService = this.app.service('authentication')
