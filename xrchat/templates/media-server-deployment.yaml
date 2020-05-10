@@ -34,6 +34,9 @@ spec:
             - configMapRef:
                 name: {{ include "xrchat.media.fullname" . }}
                 optional: true
+            - configMapRef:
+                name: {{ include "xrchat.api.fullname" . }}
+                optional: true
           env:
             - name: SERVER_MODE
               value: "media"
