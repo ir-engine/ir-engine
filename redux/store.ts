@@ -6,7 +6,7 @@ import Immutable from 'immutable'
 
 const initialState: any = Immutable.Map()
 
-export function configureStore() {
+export const configureStore = () => {
   const store = createStore(
     reducers,
     initialState,

@@ -146,7 +146,7 @@ class SignUp extends React.Component<Props> {
   }
 }
 
-function SignUpWrapper(props: any) {
+const SignUpWrapper = (props: any) => {
   return <SignUp {...props}/>
 }
 

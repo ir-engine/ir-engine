@@ -50,27 +50,27 @@ export interface UploadAction {
   message?: string;
 }
 
-export function videosFetchedSuccess(videos: PublicVideo[]): VideosFetchedAction {
+export const videosFetchedSuccess = (videos: PublicVideo[]): VideosFetchedAction => {
   return {
     type: VIDEOS_FETCHED_SUCCESS,
     videos: videos
   }
 }
 
-export function videosFetchedError(err: string): VideosFetchedAction {
+export const videosFetchedError = (err: string): VideosFetchedAction => {
   return {
     type: VIDEOS_FETCHED_ERROR,
     message: err
   }
 }
 
-export function fileUploadSuccess(image: Image): VideosFetchedAction {
+export const fileUploadSuccess = (image: Image): VideosFetchedAction => {
   return {
     type: UPLOAD_FILE,
     image: image
   }
 }
-export function fileUploadFailure(err: any): VideosFetchedAction {
+export const fileUploadFailure = (err: any): VideosFetchedAction => {
   return {
     type: UPLOAD_FILE_FAILURE,
     message: err

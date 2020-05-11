@@ -11,7 +11,7 @@ import PasswordLogin from './PasswordLogin'
 
 const config = getConfig().publicRuntimeConfig
 
-function TabPanel(props: any) {
+const TabPanel = (props: any) => {
   const { children, value, index } = props
 
   return (
@@ -21,7 +21,7 @@ function TabPanel(props: any) {
   )
 }
 
-export default function SignIn(/* props: any */) {
+const SignIn = (/* props: any */) => {
   // const isEnableEmailMagicLink = (config ? config.isEnableEmailMagicLink : true);
   let isEnableSmsMagicLink = true
   let isEnableEmailMagicLink = true
@@ -112,3 +112,5 @@ export default function SignIn(/* props: any */) {
 
   return component
 }
+
+export default SignIn

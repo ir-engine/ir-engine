@@ -170,7 +170,7 @@ class PasswordLogin extends React.Component<Props> {
   }
 }
 
-function PasswordLoginWrapper(props: any) {
+const PasswordLoginWrapper = (props: any) => {
   return <PasswordLogin {...props}/>
 }
 
