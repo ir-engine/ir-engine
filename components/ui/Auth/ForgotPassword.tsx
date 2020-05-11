@@ -10,10 +10,31 @@ import {
 } from '../../../redux/auth/service'
 import { selectAuthState } from '../../../redux/auth/selector'
 import Grid from '@material-ui/core/Grid'
-import './auth.scss'
+import { createStyles, makeStyles } from '@material-ui/core/styles'
+
+const useStyles = makeStyles((/* theme: Theme */) =>
+  createStyles({
+    form: {
+      width: '100%',
+      marginTop: '14px'
+    },
+
+    submit: {
+      margin: '14px 0 !important'
+    },
+
+    paper: {
+      marginTop: '40px',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center'
+    }
+  })
+)
 
 interface Props {
   auth: any
+  classes: any
   forgotPassword: typeof forgotPassword
 }
 
@@ -49,9 +70,10 @@ class ForgotPassword extends React.Component<Props> {
   }
 
   render() {
+    const { classes } = this.props
     return (
       <Container component="main" maxWidth="xs">
-        <div className={'paper'}>
+        <div className={classes.paper}>
           <Typography component="h1" variant="h5">
               Forgot Password
           </Typography>
@@ -60,7 +82,7 @@ class ForgotPassword extends React.Component<Props> {
               Please enter your registered email address and we&apos;ll send you a password reset link.
           </Typography>
 
-          <form className={'form'} noValidate onSubmit={(e) => this.handleForgot(e)}>
+          <form className={classes.form} noValidate onSubmit={(e) => this.handleForgot(e)}>
             <Grid container>
               <Grid item xs={12}>
                 <TextField
@@ -82,7 +104,7 @@ class ForgotPassword extends React.Component<Props> {
                   fullWidth
                   variant="contained"
                   color="primary"
-                  className={'submit'}
+                  className={classes.submit}
                 >
                     Submit
                 </Button>
@@ -106,7 +128,8 @@ class ForgotPassword extends React.Component<Props> {
 }
 
 function ForgotPasswordWrapper(props: any) {
-  return <ForgotPassword {...props}/>
+  const classes = useStyles()
+  return <ForgotPassword {...props} classes={classes}/>
 }
 
 export default connect(
