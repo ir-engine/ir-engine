@@ -32,7 +32,7 @@ export default (app: Application): any => {
     (User as any).hasOne(models.party, { through: 'party_user' }); // user can only be part of one party at a time
     (User as any).hasMany(models.collection);
     (User as any).hasMany(models.entity);
-    (User as any).hasOne(models.static_resource, { foreignKey: 'thumbnail' });
+    (User as any).hasOne(models.static_resource, { foreignKey: 'id', as: 'thumbnail' });
     (User as any).belongsToMany(models.user, { as: 'user', through: models.user_relationship });
     (User as any).belongsToMany(models.user, { as: 'relatedUser', through: models.user_relationship });
     (User as any).belongsToMany(models.group, { through: models.group_user }); // user can join multiple orgs
