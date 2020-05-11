@@ -3,6 +3,12 @@ import app from '../../src/app'
 describe('CRUD operation on \'CollectionType\' model', () => {
   const model = app.service('collection-type').Model
 
+  before(async () => {
+    setTimeout(() => {
+      console.log('Waited for one seconds before test started.')
+    }, 1000)
+  })
+
   it('Create', done => {
     model.create({
       type: 'test'

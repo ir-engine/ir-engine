@@ -3,6 +3,12 @@ import app from '../../src/app'
 describe('CRUD operation on \'Attribution\' model', () => {
   const model = app.service('attribution').Model
 
+  before(async () => {
+    setTimeout(() => {
+      console.log('Waited for one second before test started.')
+    }, 1000)
+  })
+
   it('Create', done => {
     model.create({
       creator: 'test',
