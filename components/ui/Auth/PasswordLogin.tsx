@@ -19,7 +19,7 @@ import { showDialog, closeDialog } from '../../../redux/dialog/service'
 import SignUp from '../Auth/Register'
 import ForgotPassword from '../Auth/ForgotPassword'
 import './auth.scss'
-import { User } from 'interfaces/User'
+import { User } from '../../../interfaces/User'
 
 interface Props {
   auth: any,

@@ -9,7 +9,7 @@ import Box from '@material-ui/core/Box'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectAuthState } from '../../../redux/auth/selector'
-import { showDialog } from 'redux/dialog/service'
+import { showDialog } from '../../../redux/dialog/service'
 import { ConnectionTexts } from './ConnectionTexts'
 import {
   createMagicLink,
@@ -17,12 +17,12 @@ import {
   addConnectionByOauth,
   addConnectionByPassword,
   removeConnection
-} from 'redux/auth/service'
+} from '../../../redux/auth/service'
 import MagicLinkEmail from '../Auth/MagicLinkEmail'
 import PasswordLogin from '../Auth/PasswordLogin'
-import { User } from 'interfaces/User'
-import { IdentityProviderSeed } from 'interfaces/IdentityProvider'
-import { showAlert } from 'redux/alert/actions'
+import { User } from '../../../interfaces/User'
+import { IdentityProviderSeed } from '../../../interfaces/IdentityProvider'
+import { showAlert } from '../../../redux/alert/actions'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

@@ -12,7 +12,7 @@ type State = {
   end: boolean
 }
 
-export default class Video360Room extends React.Component<Props, State> {
+export default class VideoControls extends React.Component<Props, State> {
   state: State = {
     playing: false,
     end: false
