@@ -1,6 +1,6 @@
 {
-  "#WARNING": "DO NOT WRITE any secrets here, just write env variable names in the vlaues like below",
-  "#Development": "for development config, fill config/development.json, and dont commit secrets to git",
+  "#WARNING": "DO NOT WRITE any secrets here, just write env variable names in the values like below",
+  "#Development": "For development config, fill config/development.json, and dont commit secrets to git",
   "host": "localhost",
   "port": 3030,
   "public": "../public/",
@@ -55,7 +55,7 @@
   },
   "aws": {
     "s3": {
-      "static_resource_bucket": "kaixr-static-resources",
+      "static_resource_bucket": "STORAGE_S3_BUCKET",
       "region": "STORAGE_S3_REGION",
       "cloudfront": {
         "domain": "STORAGE_S3_CLOUDFRONT_DOMAIN"

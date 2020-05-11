@@ -1,8 +1,9 @@
 // Don't remove this comment. It's needed to format import lines nicely.
+import collectAnalytics from '../../hooks/collect-analytics'
 
 export default {
   before: {
-    all: [],
+    all: [collectAnalytics()],
     find: [],
     get: [],
     create: [],

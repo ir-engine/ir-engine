@@ -1,12 +1,15 @@
+import collectAnalytics from '../../hooks/collect-analytics'
+
+import { disallow } from 'feathers-hooks-common'
 
 export default {
   before: {
-    all: [],
-    find: [],
-    get: [],
+    all: [collectAnalytics()],
+    find: [disallow()],
+    get: [disallow()],
     create: [],
-    update: [],
-    patch: [],
+    update: [disallow()],
+    patch: [disallow()],
     remove: []
   },
 

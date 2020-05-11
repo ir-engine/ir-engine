@@ -11,7 +11,6 @@ export class MyLocalStrategy extends LocalStrategy {
     }
 
     const entityService: Service = this.app?.service(service)
-    const userService: Service = this.app?.service('user')
 
     const result = (await entityService.find({
       query: {
@@ -27,9 +26,8 @@ export class MyLocalStrategy extends LocalStrategy {
     }
 
     const identityProvider = identityProviders[0]
-    const user = await userService.get(identityProvider.userId)
 
-    return { ...user, ...identityProvider }
+    return { ...identityProvider }
   }
 
   async comparePassword (user: any, password: string): Promise<any> {
@@ -39,32 +37,4 @@ export class MyLocalStrategy extends LocalStrategy {
 
     throw new NotAuthenticated('Invalid password')
   }
-
-  // async getEntityQuery(query: Query, params: Params) {
-  //   const sequelizeClient: Sequelize = this.app?.get('sequelizeClient')
-  //   const IdentityProvider = sequelizeClient.model('identity_provider')
-  //   const User = sequelizeClient.model('user')
-
-  //   const users = await User.findAll({
-  //     where: {
-  //       "$identity_providers.token$": query.email
-  //     },
-  //     include: [
-  //       IdentityProvider
-  //     ]
-  //   })
-
-  //   console.error('----------', users);
-  //   params.sequelize = {
-  //     include: [
-  //       {
-  //         model: IdentityProvider
-  //       }
-  //     ]
-  //   }
-  //   return {
-  //     "$identity_providers.token$": query.email,
-  //     $limit: 1
-  //   }
-  // }
 }

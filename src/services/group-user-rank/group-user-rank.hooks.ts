@@ -1,7 +1,11 @@
+import collectAnalytics from '../../hooks/collect-analytics'
+import * as authentication from '@feathersjs/authentication'
+
+const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [],
+    all: [authenticate('jwt'), collectAnalytics()],
     find: [],
     get: [],
     create: [],
