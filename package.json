@@ -60,7 +60,7 @@
     "glob": "^7.1.6",
     "graphql": "^15.0.0",
     "graphql-tag": "^2.10.3",
-    "husky": "^4.2.5",
+    "husky": "^3.1.0",
     "immutable": "^4.0.0-rc.12",
     "isomorphic-unfetch": "3.0.0",
     "networked-aframe": "^0.7.0",
