@@ -1,13 +1,12 @@
 import React from 'react'
 // @ts-ignore
 import { Scene } from 'aframe-react'
-import Assets from './assets'
 import Environment from './environment'
 import Player from '../player/player'
 import './style.scss'
 import SvgVr from '../../icons/svg/Vr'
 
-import AframeComponentRegisterer from '../../xr/aframe/index'
+import AframeComponentRegisterer from '../aframe/index'
 
 type Props = {
   children?: any
@@ -23,6 +22,8 @@ export default class SceneRoot extends React.Component<Props> {
   }
 
   render() {
+    document.querySelector('a-loader-title').style.setProperty('opacity', '0')
+
     return (
       <div style={{ height: '100%', width: '100%' }}>
         <Scene
@@ -31,8 +32,7 @@ export default class SceneRoot extends React.Component<Props> {
           class="scene"
           renderer="antialias: true"
         >
-          <AframeComponentRegisterer/>
-          <Assets />
+          <AframeComponentRegisterer />
           <Player />
           <Environment />
           {this.props.children}

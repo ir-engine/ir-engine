@@ -6,16 +6,23 @@
     "build": "next build",
     "start": "next start",
     "type-check": "tsc",
-    "test": "npm run build",
+    "test": "yarn run lint && yarn run build",
     "lint:ts": "eslint '*.ts' '**/*.ts' '**/*.tsx'",
     "lint": "yarn run lint:ts",
     "lint-fix": "eslint --fix '*.ts' '**/*.ts' '**/*.tsx'"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn run test"
+    }
+  },
   "peerDependencies": {
     "@material-ui/react-transition-group": "~4.3.0",
-    "react-transition-group": "~4.3.0"
+    "react-transition-group": "~4.3.0",
+    "ecsy": "github:xrchat/ecsy#dev"
   },
   "dependencies": {
+    "@apollo/react-hooks": "^3.1.5",
     "@babel/plugin-proposal-object-rest-spread": "^7.9.0",
     "@feathersjs/authentication-client": "^4.5.2",
     "@feathersjs/client": "^4.5.2",
@@ -44,19 +51,22 @@
     "aframe-react": "^4.4.0",
     "aframe-sun-sky": "^3.0.3",
     "apollo-boost": "^0.4.7",
+    "apollo-link-ws": "^1.0.20",
     "autoprefixer": "^9.7.5",
     "babel-loader": "^8.1.0",
-    "ecsy": "^0.2.3",
+    "ecsy": "github:xrchat/ecsy#dev",
     "eslint-plugin-react-hooks": "^3.0.0",
     "glob": "^7.1.6",
     "graphql": "^15.0.0",
     "graphql-tag": "^2.10.3",
+    "husky": "^4.2.5",
     "immutable": "^4.0.0-rc.12",
     "isomorphic-unfetch": "3.0.0",
     "networked-aframe": "^0.7.0",
     "next": "^9.3.4",
     "next-images": "^1.4.0",
     "next-redux-wrapper": "^5.0.0",
+    "node-fetch": "^2.6.0",
     "node-sass": "^4.13.1",
     "postcss-easy-import": "^3.0.0",
     "postcss-loader": "^3.0.0",
@@ -66,6 +76,7 @@
     "react-apollo": "^3.1.5",
     "react-dom": "^16.12.0",
     "react-image": "^2.4.0",
+    "react-loadable": "^5.5.0",
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.1.2",
     "react-transition-group": "~4.3.0",
@@ -75,10 +86,12 @@
     "reselect": "^4.0.0",
     "sass": "^1.26.3",
     "sass-loader": "^8.0.2",
+    "sequelize": "^5.21.8",
     "shaka-player": "^2.5.10",
     "shaka-player-react": "^1.0.1",
     "socket.io-client": "^2.3.0",
     "socketio": "^1.0.0",
+    "subscriptions-transport-ws": "^0.9.16",
     "three": "^0.115.0",
     "webpack": "^4.42.1"
   },

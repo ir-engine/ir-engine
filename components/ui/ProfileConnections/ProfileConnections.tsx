@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography'
 import { connect } from 'react-redux'
 import { selectAuthState } from '../../../redux/auth/selector'
 import SingleConnection from './SingleConnection'
-import { User } from 'interfaces/User'
+import { User } from '../../../interfaces/User'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

@@ -23,7 +23,7 @@ import {
   LOADED_USER_DATA
 } from '../actions'
 import { getStoredState } from '../persisted.store'
-import { resolveUser } from 'interfaces/User'
+import { resolveUser } from '../../interfaces/User'
 // import { getStoredState } from '../persisted.store'
 
 export const initialState: AuthState = {

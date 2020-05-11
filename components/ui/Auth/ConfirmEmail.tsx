@@ -11,7 +11,7 @@ import {
 import { selectAuthState } from '../../../redux/auth/selector'
 import './auth.scss'
 import EmptyLayout from '../Layout/EmptyLayout'
-import { AuthUser } from 'interfaces/AuthUser'
+import { AuthUser } from '../../../interfaces/AuthUser'
 
 interface Props {
   auth: any,
