@@ -14,6 +14,7 @@ import {
   DID_RESET_PASSWORD,
   ACTION_PROCESSING,
   DID_CREATE_MAGICLINK,
+  UPDATE_USER_SETTINGS,
   LOADED_USER_DATA
 } from '../actions'
 import { AuthUser } from '../../interfaces/AuthUser'
@@ -21,77 +22,77 @@ import { User } from '../../interfaces/User'
 import { IdentityProvider } from '../../interfaces/IdentityProvider'
 
 export interface AuthState {
-    isLoggedIn: boolean
-    isProcessing: boolean
+  isLoggedIn: boolean
+  isProcessing: boolean
 
-    error: string
+  error: string
 
-    authUser?: AuthUser
-    user?: User
-    identityProvider?: IdentityProvider
+  authUser?: AuthUser
+  user?: User
+  identityProvider?: IdentityProvider
 }
 
 export interface EmailLoginForm {
-    email: string
-    password: string
+  email: string
+  password: string
 }
 
 export interface EmailRegistrationForm {
-    email: string
-    password: string
+  email: string
+  password: string
 }
 
 export interface GithubLoginForm {
-    email: string
+  email: string
 }
 
 export interface AuthProcessingAction {
-    type: string
-    processing: boolean
+  type: string
+  processing: boolean
 }
 
 export interface AddConnectionProcessingAction {
-    type: string
-    processing: boolean
-    userId: string
+  type: string
+  processing: boolean
+  userId: string
 }
 
 export interface LoginResultAction {
-    type: string
-    authUser?: AuthUser
-    message: string
+  type: string
+  authUser?: AuthUser
+  message: string
 }
 
 export interface RegistrationResultAction {
-    type: string
-    identityProvider?: IdentityProvider
-    message: string
+  type: string
+  identityProvider?: IdentityProvider
+  message: string
 }
 
 export interface AuthResultAction {
-    type: string
-    result: boolean
+  type: string
+  result: boolean
 }
 
 export interface AddConnectionResultAction {
-    type: string
-    user?: any
-    message?: string
+  type: string
+  user?: any
+  message?: string
 }
 
 export interface LoadDataResultAction {
-    type: string
-    user?: User
+  type: string
+  user?: User
 }
 
 export type AuthAction =
-    AuthProcessingAction
-    | LoginResultAction
-    | RegistrationResultAction
-    | AuthResultAction
-    | AddConnectionResultAction
-    | AddConnectionProcessingAction
-    | LoadDataResultAction
+  AuthProcessingAction
+  | LoginResultAction
+  | RegistrationResultAction
+  | AuthResultAction
+  | AddConnectionResultAction
+  | AddConnectionProcessingAction
+  | LoadDataResultAction
 
 export function actionProcessing(processing: boolean): AuthProcessingAction {
   return {
@@ -190,5 +191,11 @@ export function loadedUserData(user: User): LoadDataResultAction {
   return {
     type: LOADED_USER_DATA,
     user
+  }
+}
+export function updateSettings(message: any): RegistrationResultAction {
+  return {
+    type: UPDATE_USER_SETTINGS,
+    message
   }
 }

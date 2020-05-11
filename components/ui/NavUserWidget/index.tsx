@@ -7,6 +7,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import Avatar from '@material-ui/core/Avatar'
 import { showDialog } from '../../../redux/dialog/service'
+import Dropdown from '../Profile/profileDown'
 
 import './style.scss'
 import { User } from '../../../interfaces/User'
@@ -53,40 +54,43 @@ class NavUserBadge extends Component<Props> {
     const user = this.props.auth.get('user') as User
     const authUser = this.props.auth.get('authUser') as AuthUser
     const userName =
-      authUser && authUser.identityProvider ? authUser.identityProvider.token : 'User'
+      authUser && authUser.identityProvider
+        ? authUser.identityProvider.token
+        : 'User'
     const avatarLetter = userName ? userName.substr(0, 1) : 'X'
 
     return (
       <div className="userWidget">
         {isLoggedIn && (
           <div className="flex">
-            <Button onClick={() => this.handleLogout()}
+            {/* <Button onClick={() => this.handleLogout()}
               style={this.styles.logoutButton}
             >
               {userName}
               <br />
               Logout
-            </Button>
-            {user && user.avatar ? (
-              <Avatar alt="User Avatar Icon" src={user.avatar} />
-            ) : (
-              <Avatar alt="User Avatar">{avatarLetter}</Avatar>
-            )}
+            </Button> */}
+            <Dropdown avatar={user && user.avatar}>
+              {user && user.avatar ? (
+                <Avatar alt="User Avatar Icon" src={user.avatar} />
+              ) : (
+                <Avatar alt="User Avatar">{avatarLetter}</Avatar>
+              )}
+            </Dropdown>
           </div>
         )}
         {!isLoggedIn && (
           <Button
             style={this.styles.loginButton}
-            onClick={() => this.props.showDialog({
-              children: (
-                <SignIn />
-              )
-            })}
+            onClick={() =>
+              this.props.showDialog({
+                children: <SignIn />
+              })
+            }
           >
             Log In
           </Button>
-        )
-        }
+        )}
       </div>
     )
   }
