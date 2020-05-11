@@ -13,11 +13,14 @@ import {
   didForgotPassword,
   didResetPassword,
   didCreateMagicLink,
+  updateSettings,
   loadedUserData
 } from './actions'
 import { client } from '../feathers'
 import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service'
 import { validateEmail, validatePhoneNumber } from '../helper'
+import { axiosRequest,apiUrl } from '../service.common'
+
 import { resolveUser } from '../../interfaces/User'
 import { resolveAuthUser } from '../../interfaces/AuthUser'
 import { IdentityProvider } from '../../interfaces/IdentityProvider'
@@ -412,4 +415,8 @@ export function refreshConnections(userId: string) {
   return (dispatch: Dispatch) => {
     loadUserData(dispatch, userId)
   }
+}
+export const updateUserSettings = (id:any,data:any) =>async (dispatch:any) => {
+  const res = await axiosRequest('PATCH',`${apiUrl}/user-settings/${id}`,data)
+  dispatch(updateSettings(res.data))
 }
