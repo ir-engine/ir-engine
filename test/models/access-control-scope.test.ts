@@ -4,8 +4,8 @@ describe('CRUD operation on \'AccessControlScope\' model', () => {
   const model = app.service('access-control-scope').Model
   before(async () => {
     setTimeout(() => {
-      console.log('Waited for one seconds before test started.')
-    }, 1000)
+      console.log('Waited for thirty seconds before test started.')
+    }, 30000)
   })
 
   it('Create', done => {
