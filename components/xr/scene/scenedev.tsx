@@ -30,7 +30,7 @@ export default class SceneRoot extends React.Component<Props> {
   }
 
   onComponentDidMount() {
-    const app = feathers()
+    // const app = feathers()
 
     // // Connect to a different URL
 

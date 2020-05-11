@@ -1,5 +1,4 @@
 import React from 'react'
-<<<<<<< HEAD
 import Layout from '../components/ui/Layout'
 import ApolloClient from 'apollo-boost'
 import { ApolloProvider, Query } from 'react-apollo'
@@ -12,20 +11,20 @@ const client = new ApolloClient({
   uri: 'http://localhost:3030/graphql'
 })
 
-const ENTITY_MUTATION = gql`
-  {
-    entity(name: 'testEntity', type: 'box', components: [
-      {
-          type: networked
-      }
-    ])
-      {
-        id
-        name
-        type
-      }
-  }
-`
+// const ENTITY_MUTATION = gql`
+//   {
+//     entity(name: 'testEntity', type: 'box', components: [
+//       {
+//           type: networked
+//       }
+//     ])
+//       {
+//         id
+//         name
+//         type
+//       }
+//   }
+// `
 
 const ENTITY_QUERY = gql`
   {
@@ -55,7 +54,7 @@ export default class EcsyPage extends React.Component {
       .then((result) => {
         result.data.entities.map((entity: any) => {
           this.world.createEntity()
-          // 
+          console.log(entity)
         })
         console.log(result.data)
       })
@@ -103,15 +102,3 @@ export default class EcsyPage extends React.Component {
 //     this.z = 0
 //   }
 // }
-=======
-import dynamic from 'next/dynamic'
-const EcsyPage = dynamic(() => import('../components/xr/ecsy'), {
-  ssr: false
-})
-
-export default class EcsyWrapper extends React.Component {
-  render() {
-    return <EcsyPage />
-  }
-}
->>>>>>> e65d09795622ef6d1a70ea54c3ffcfb504491e7a
