@@ -7,7 +7,7 @@ export const seed = {
         [
           // ADMIN Access Controls
           {
-            role: 'admin',
+            userRole: 'admin',
             resourceType: 'accessControlScope',
             list: 'all',
             create: 'none',
@@ -16,7 +16,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'admin',
+            userRole: 'admin',
             resourceType: 'accessControl',
             list: 'all',
             create: 'none',
@@ -25,7 +25,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'admin',
+            userRole: 'admin',
             resourceType: 'attribution',
             list: 'all',
             create: 'all',
@@ -34,7 +34,7 @@ export const seed = {
             delete: 'all'
           },
           {
-            role: 'admin',
+            userRole: 'admin',
             resourceType: 'collection',
             list: 'all',
             create: 'all',
@@ -43,7 +43,7 @@ export const seed = {
             delete: 'all'
           },
           {
-            role: 'admin',
+            userRole: 'admin',
             resourceType: 'collectionType',
             list: 'all',
             create: 'none',
@@ -52,7 +52,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'admin',
+            userRole: 'admin',
             resourceType: 'component',
             list: 'all',
             create: 'all',
@@ -61,7 +61,7 @@ export const seed = {
             delete: 'all'
           },
           {
-            role: 'admin',
+            userRole: 'admin',
             resourceType: 'componentType',
             list: 'all',
             create: 'none',
@@ -70,7 +70,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'admin',
+            userRole: 'admin',
             resourceType: 'entity',
             list: 'all',
             create: 'all',
@@ -79,7 +79,7 @@ export const seed = {
             delete: 'all'
           },
           {
-            role: 'admin',
+            userRole: 'admin',
             resourceType: 'entityType',
             list: 'all',
             create: 'none',
@@ -88,7 +88,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'admin',
+            userRole: 'admin',
             resourceType: 'instance',
             list: 'all',
             create: 'all',
@@ -97,7 +97,7 @@ export const seed = {
             delete: 'all'
           },
           {
-            role: 'admin',
+            userRole: 'admin',
             resourceType: 'license',
             list: 'all',
             create: 'all',
@@ -106,7 +106,7 @@ export const seed = {
             delete: 'all'
           },
           {
-            role: 'admin',
+            userRole: 'admin',
             resourceType: 'group',
             list: 'all',
             create: 'all',
@@ -115,7 +115,7 @@ export const seed = {
             delete: 'all'
           },
           {
-            role: 'admin',
+            userRole: 'admin',
             resourceType: 'group-user',
             list: 'all',
             create: 'all',
@@ -124,7 +124,7 @@ export const seed = {
             delete: 'all'
           },
           {
-            role: 'admin',
+            userRole: 'admin',
             resourceType: 'group-user-rank',
             list: 'all',
             create: 'all',
@@ -133,7 +133,7 @@ export const seed = {
             delete: 'all'
           },
           {
-            role: 'admin',
+            userRole: 'admin',
             resourceType: 'resourceType',
             list: 'all',
             create: 'none',
@@ -142,7 +142,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'admin',
+            userRole: 'admin',
             resourceType: 'userRole',
             list: 'all',
             create: 'none',
@@ -151,7 +151,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'admin',
+            userRole: 'admin',
             resourceType: 'staticResource',
             list: 'all',
             create: 'all',
@@ -160,7 +160,7 @@ export const seed = {
             delete: 'all'
           },
           {
-            role: 'admin',
+            userRole: 'admin',
             resourceType: 'staticResourceType',
             list: 'all',
             create: 'none',
@@ -169,7 +169,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'admin',
+            userRole: 'admin',
             resourceType: 'user',
             list: 'all',
             create: 'all',
@@ -179,7 +179,7 @@ export const seed = {
           },
           // MODERATOR access controls
           {
-            role: 'moderator',
+            userRole: 'moderator',
             resourceType: 'accessControlScope',
             list: 'all',
             create: 'none',
@@ -188,7 +188,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'moderator',
+            userRole: 'moderator',
             resourceType: 'accessControl',
             list: 'all',
             create: 'none',
@@ -197,7 +197,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'moderator',
+            userRole: 'moderator',
             resourceType: 'attribution',
             list: 'all',
             create: 'all',
@@ -206,7 +206,7 @@ export const seed = {
             delete: 'all'
           },
           {
-            role: 'moderator',
+            userRole: 'moderator',
             resourceType: 'collection',
             list: 'all',
             create: 'all',
@@ -215,7 +215,7 @@ export const seed = {
             delete: 'all'
           },
           {
-            role: 'moderator',
+            userRole: 'moderator',
             resourceType: 'collectionType',
             list: 'all',
             create: 'none',
@@ -224,7 +224,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'moderator',
+            userRole: 'moderator',
             resourceType: 'component',
             list: 'all',
             create: 'all',
@@ -233,7 +233,7 @@ export const seed = {
             delete: 'all'
           },
           {
-            role: 'moderator',
+            userRole: 'moderator',
             resourceType: 'componentType',
             list: 'all',
             create: 'none',
@@ -242,7 +242,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'moderator',
+            userRole: 'moderator',
             resourceType: 'entity',
             list: 'all',
             create: 'all',
@@ -251,7 +251,7 @@ export const seed = {
             delete: 'all'
           },
           {
-            role: 'moderator',
+            userRole: 'moderator',
             resourceType: 'entityType',
             list: 'all',
             create: 'none',
@@ -260,7 +260,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'moderator',
+            userRole: 'moderator',
             resourceType: 'instance',
             list: 'all',
             create: 'all',
@@ -269,7 +269,7 @@ export const seed = {
             delete: 'all'
           },
           {
-            role: 'moderator',
+            userRole: 'moderator',
             resourceType: 'license',
             list: 'all',
             create: 'all',
@@ -278,7 +278,7 @@ export const seed = {
             delete: 'all'
           },
           {
-            role: 'moderator',
+            userRole: 'moderator',
             resourceType: 'group',
             list: 'all',
             create: 'all',
@@ -287,7 +287,7 @@ export const seed = {
             delete: 'all'
           },
           {
-            role: 'moderator',
+            userRole: 'moderator',
             resourceType: 'group-user',
             list: 'all',
             create: 'self',
@@ -296,7 +296,7 @@ export const seed = {
             delete: 'self'
           },
           {
-            role: 'moderator',
+            userRole: 'moderator',
             resourceType: 'group-user-rank',
             list: 'all',
             create: 'self',
@@ -305,7 +305,7 @@ export const seed = {
             delete: 'self'
           },
           {
-            role: 'moderator',
+            userRole: 'moderator',
             resourceType: 'resourceType',
             list: 'all',
             create: 'none',
@@ -314,7 +314,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'moderator',
+            userRole: 'moderator',
             resourceType: 'userRole',
             list: 'all',
             create: 'none',
@@ -323,7 +323,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'moderator',
+            userRole: 'moderator',
             resourceType: 'staticResource',
             list: 'all',
             create: 'all',
@@ -332,7 +332,7 @@ export const seed = {
             delete: 'all'
           },
           {
-            role: 'moderator',
+            userRole: 'moderator',
             resourceType: 'staticResourceType',
             list: 'all',
             create: 'none',
@@ -341,7 +341,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'moderator',
+            userRole: 'moderator',
             resourceType: 'user',
             list: 'all',
             create: 'none',
@@ -351,7 +351,7 @@ export const seed = {
           },
           // USER access controls
           {
-            role: 'user',
+            userRole: 'user',
             resourceType: 'accessControlScope',
             list: 'all',
             create: 'none',
@@ -360,7 +360,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'user',
+            userRole: 'user',
             resourceType: 'accessControl',
             list: 'all',
             create: 'none',
@@ -369,7 +369,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'user',
+            userRole: 'user',
             resourceType: 'attribution',
             list: 'self',
             create: 'self',
@@ -378,7 +378,7 @@ export const seed = {
             delete: 'self'
           },
           {
-            role: 'user',
+            userRole: 'user',
             resourceType: 'collection',
             list: 'self',
             create: 'self',
@@ -387,7 +387,7 @@ export const seed = {
             delete: 'self'
           },
           {
-            role: 'user',
+            userRole: 'user',
             resourceType: 'collectionType',
             list: 'all',
             create: 'none',
@@ -396,7 +396,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'user',
+            userRole: 'user',
             resourceType: 'component',
             list: 'all',
             create: 'self',
@@ -405,7 +405,7 @@ export const seed = {
             delete: 'self'
           },
           {
-            role: 'user',
+            userRole: 'user',
             resourceType: 'componentType',
             list: 'all',
             create: 'none',
@@ -414,7 +414,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'user',
+            userRole: 'user',
             resourceType: 'entity',
             list: 'all',
             create: 'self',
@@ -423,7 +423,7 @@ export const seed = {
             delete: 'self'
           },
           {
-            role: 'user',
+            userRole: 'user',
             resourceType: 'entityType',
             list: 'all',
             create: 'none',
@@ -432,7 +432,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'user',
+            userRole: 'user',
             resourceType: 'instance',
             list: 'all',
             create: 'self',
@@ -441,7 +441,7 @@ export const seed = {
             delete: 'self'
           },
           {
-            role: 'user',
+            userRole: 'user',
             resourceType: 'license',
             list: 'all',
             create: 'self',
@@ -450,7 +450,7 @@ export const seed = {
             delete: 'self'
           },
           {
-            role: 'user',
+            userRole: 'user',
             resourceType: 'group',
             list: 'all',
             create: 'self',
@@ -459,7 +459,7 @@ export const seed = {
             delete: 'self'
           },
           {
-            role: 'user',
+            userRole: 'user',
             resourceType: 'group-user',
             list: 'all',
             create: 'self',
@@ -468,7 +468,7 @@ export const seed = {
             delete: 'self'
           },
           {
-            role: 'user',
+            userRole: 'user',
             resourceType: 'group-user-rank',
             list: 'all',
             create: 'self',
@@ -477,7 +477,7 @@ export const seed = {
             delete: 'self'
           },
           {
-            role: 'user',
+            userRole: 'user',
             resourceType: 'resourceType',
             list: 'all',
             create: 'none',
@@ -486,7 +486,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'user',
+            userRole: 'user',
             resourceType: 'userRole',
             list: 'all',
             create: 'none',
@@ -495,7 +495,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'user',
+            userRole: 'user',
             resourceType: 'staticResource',
             list: 'all',
             create: 'self',
@@ -504,7 +504,7 @@ export const seed = {
             delete: 'self'
           },
           {
-            role: 'user',
+            userRole: 'user',
             resourceType: 'staticResourceType',
             list: 'all',
             create: 'none',
@@ -513,7 +513,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'user',
+            userRole: 'user',
             resourceType: 'user',
             list: 'all',
             create: 'self',
@@ -523,7 +523,7 @@ export const seed = {
           },
           // GUEST role
           {
-            role: 'guest',
+            userRole: 'guest',
             resourceType: 'accessControlScope',
             list: 'all',
             create: 'none',
@@ -532,7 +532,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'guest',
+            userRole: 'guest',
             resourceType: 'accessControl',
             list: 'all',
             create: 'none',
@@ -541,7 +541,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'guest',
+            userRole: 'guest',
             resourceType: 'attribution',
             list: 'all',
             create: 'none',
@@ -550,7 +550,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'guest',
+            userRole: 'guest',
             resourceType: 'collection',
             list: 'all',
             create: 'none',
@@ -559,7 +559,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'guest',
+            userRole: 'guest',
             resourceType: 'collectionType',
             list: 'all',
             create: 'none',
@@ -568,7 +568,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'guest',
+            userRole: 'guest',
             resourceType: 'component',
             list: 'all',
             create: 'none',
@@ -577,7 +577,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'guest',
+            userRole: 'guest',
             resourceType: 'componentType',
             list: 'all',
             create: 'none',
@@ -586,7 +586,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'guest',
+            userRole: 'guest',
             resourceType: 'entity',
             list: 'all',
             create: 'none',
@@ -595,7 +595,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'guest',
+            userRole: 'guest',
             resourceType: 'entityType',
             list: 'all',
             create: 'none',
@@ -604,7 +604,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'guest',
+            userRole: 'guest',
             resourceType: 'instance',
             list: 'all',
             create: 'none',
@@ -613,7 +613,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'guest',
+            userRole: 'guest',
             resourceType: 'license',
             list: 'all',
             create: 'none',
@@ -622,7 +622,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'guest',
+            userRole: 'guest',
             resourceType: 'group',
             list: 'all',
             create: 'none',
@@ -631,7 +631,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'guest',
+            userRole: 'guest',
             resourceType: 'group-user',
             list: 'all',
             create: 'none',
@@ -640,7 +640,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'guest',
+            userRole: 'guest',
             resourceType: 'group-user-rank',
             list: 'all',
             create: 'none',
@@ -649,7 +649,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'guest',
+            userRole: 'guest',
             resourceType: 'resourceType',
             list: 'all',
             create: 'none',
@@ -658,7 +658,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'guest',
+            userRole: 'guest',
             resourceType: 'userRole',
             list: 'all',
             create: 'none',
@@ -667,7 +667,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'guest',
+            userRole: 'guest',
             resourceType: 'staticResource',
             list: 'all',
             create: 'none',
@@ -676,7 +676,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'guest',
+            userRole: 'guest',
             resourceType: 'staticResourceType',
             list: 'all',
             create: 'none',
@@ -685,7 +685,7 @@ export const seed = {
             delete: 'none'
           },
           {
-            role: 'guest',
+            userRole: 'guest',
             resourceType: 'user',
             list: 'all',
             create: 'none',

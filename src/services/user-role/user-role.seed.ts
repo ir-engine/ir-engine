@@ -4,10 +4,10 @@ export const seed = {
   path: 'user-role',
   templates:
       [
-        { role: 'admin' },
-        { role: 'moderator' },
-        { role: 'user' },
-        { role: 'guest' }
+        { userRole: 'admin' },
+        { userRole: 'moderator' },
+        { userRole: 'user' },
+        { userRole: 'guest' }
       ]
 }
 

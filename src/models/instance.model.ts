@@ -11,13 +11,9 @@ export default (app: Application): any => {
       allowNull: false,
       primaryKey: true
     },
-    address: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    maxUsers: {
+    currentUsers: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      defaultValue: 0
     }
   }, {
     hooks: {

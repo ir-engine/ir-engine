@@ -10,10 +10,6 @@ export default function (app: Application): any {
       primaryKey: true,
       allowNull: false
     },
-    asset_sid: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
     name: {
       type: DataTypes.STRING,
       allowNull: false
@@ -22,18 +18,6 @@ export default function (app: Application): any {
       type: DataTypes.STRING,
       allowNull: false,
       values: ['image', 'video', 'model', 'audio']
-    },
-    account_id: {
-      type: DataTypes.UUID,
-      allowNull: false
-    },
-    asset_owned_file_id: {
-      type: DataTypes.UUID,
-      allowNull: false
-    },
-    thumbnail_owned_file_id: {
-      type: DataTypes.UUID,
-      allowNull: true
     }
   }, {
     hooks: {

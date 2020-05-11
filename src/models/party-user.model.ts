@@ -22,7 +22,7 @@ export default (app: Application): any => {
 
   (partyUser as any).associate = (models: any) => {
     (partyUser as any).belongsTo(models.party, { foreignKey: 'partyId' });
-    (partyUser as any).belongsTo(models.user, { foreignKey: 'userId' })
+    (partyUser as any).belongsTo(models.user, { foreignKey: 'id' })
   }
 
   return partyUser

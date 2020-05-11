@@ -1,5 +1,4 @@
-
-import collectAnalytics from '../../hooks/collect-analytics';
+import collectAnalytics from '../../hooks/collect-analytics'
 export default {
   before: {
     all: [collectAnalytics()],

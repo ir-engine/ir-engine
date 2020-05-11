@@ -10,6 +10,7 @@ import IdentityProviderType from './identity-provider-type/identity-provider-typ
 import ResourceType from './resource-type/resource-type.service'
 import StaticResourceType from './static-resource-type/static-resource-type.service'
 import UserRelationshipType from './user-relationship-type/user-relationship-type.service'
+import UserRole from './user-role/user-role.service'
 
 // Objects
 import AccessControl from './access-control/access-control.service'
@@ -19,14 +20,15 @@ import Component from './component/component.service'
 import Entity from './entity/entity.service'
 import Group from './group/group.service'
 import Instance from './instance/instance.service'
+import IdentityProvider from './identity-provider/identity-provider.service'
 import License from './license/license.service'
 import Location from './location/location.service'
 import Party from './party/party.service'
 import Project from './project/project.service'
-import Role from './user-role/user-role.service'
 import StaticResource from './static-resource/static-resource.service'
-import UserRelationship from './user-relationship/user-relationship.service'
 import User from './user/user.service'
+import UserRelationship from './user-relationship/user-relationship.service'
+import UserSettings from './user-settings/user-settings.service'
 
 // Junctions
 import GroupUser from './group-user/group-user.service'
@@ -40,7 +42,6 @@ import SMS from './sms/sms.service'
 import Upload from './upload/upload.service'
 import Video from './video/video.service'
 import GraphQL from './graphql/graphql.service'
-import IdentityProvider from './identity-provider/identity-provider.service'
 
 // Spoke
 import Asset from './asset/asset.service'
@@ -76,10 +77,11 @@ export default (app: Application): void => {
   app.configure(License)
   app.configure(Party)
   app.configure(Project)
-  app.configure(Role)
-  app.configure(UserRelationship)
   app.configure(StaticResource)
   app.configure(User)
+  app.configure(UserRelationship)
+  app.configure(UserRole)
+  app.configure(UserSettings)
 
   // Junctions
   app.configure(PartyUser)
@@ -103,6 +105,6 @@ export default (app: Application): void => {
   app.configure(MediaSearch)
   app.configure(UploadMedia)
   app.configure(PublishProject)
-  
+
   app.configure(GraphQL)
 }
