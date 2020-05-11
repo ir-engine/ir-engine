@@ -6,17 +6,17 @@ import {
 } from '../actions'
 
 export interface PublicVideoState {
-    videos: PublicVideo[]
-    error: string
+  videos: PublicVideo[]
+  error: string
 }
 
 export interface VideoMetaData {
-    // eslint-disable-next-line camelcase
-    thumbnail_url?: string,
-    '360_format'?: string,
-    rating?: string,
-    categories?: string[],
-    runtime?: string
+  // eslint-disable-next-line camelcase
+  thumbnail_url?: string,
+  '360_format'?: string,
+  rating?: string,
+  categories?: string[],
+  runtime?: string
 }
 
 export interface Attribution {
@@ -24,24 +24,24 @@ export interface Attribution {
   url?: string
 }
 export interface PublicVideo {
-    id: number
-    name: string
-    description: string
-    url: string,
-    metadata: Partial<VideoMetaData>,
-    attribution?: Partial<Attribution>
+  id: number
+  name: string
+  description: string
+  url: string,
+  metadata: Partial<VideoMetaData>,
+  attribution?: Partial<Attribution>
 }
-export interface Image{
+export interface Image {
   id: number
   name: string
   type: string
   url: string
 }
 export interface VideosFetchedAction {
-    type: string
-    videos?: PublicVideo[]
-    image?: Image
-    message?: string
+  type: string
+  videos?: PublicVideo[]
+  image?: Image
+  message?: string
 }
 
 export interface UploadAction {
@@ -64,14 +64,13 @@ export function videosFetchedError(err: string): VideosFetchedAction {
   }
 }
 
-
-export function fileUploadSuccess(image: Image): VideosFetchedAction{
+export function fileUploadSuccess(image: Image): VideosFetchedAction {
   return {
     type: UPLOAD_FILE,
     image: image
   }
 }
-export function fileUploadFailure(err: any): VideosFetchedAction{
+export function fileUploadFailure(err: any): VideosFetchedAction {
   return {
     type: UPLOAD_FILE_FAILURE,
     message: err

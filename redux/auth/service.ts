@@ -19,7 +19,7 @@ import {
 import { client } from '../feathers'
 import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service'
 import { validateEmail, validatePhoneNumber } from '../helper'
-import { axiosRequest,apiUrl } from '../service.common'
+import { axiosRequest, apiUrl } from '../service.common'
 
 import { resolveUser } from '../../interfaces/User'
 import { resolveAuthUser } from '../../interfaces/AuthUser'
@@ -416,7 +416,7 @@ export function refreshConnections(userId: string) {
     loadUserData(dispatch, userId)
   }
 }
-export const updateUserSettings = (id:any,data:any) =>async (dispatch:any) => {
-  const res = await axiosRequest('PATCH',`${apiUrl}/user-settings/${id}`,data)
+export const updateUserSettings = (id: any, data: any) => async (dispatch: any) => {
+  const res = await axiosRequest('PATCH', `${apiUrl}/user-settings/${id}`, data)
   dispatch(updateSettings(res.data))
 }
