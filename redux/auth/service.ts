@@ -46,6 +46,7 @@ export async function doLoginAuto(dispatch: Dispatch) {
         const authUser = resolveAuthUser(res)
         if (!authUser.identityProvider.isVerified) {
           client.logout()
+          return
         }
         dispatch(loginUserSuccess(authUser))
         loadUserData(dispatch, authUser.identityProvider.userId)
@@ -87,13 +88,14 @@ export function loginUserByPassword(form: EmailLoginForm) {
       .then((res: any) => {
         const authUser = resolveAuthUser(res)
 
-        if (authUser.identityProvider.isVerified) {
+        if (!authUser.identityProvider.isVerified) {
           client.logout()
 
           window.location.href = '/auth/confirm'
           dispatch(loginUserError('Unverified user'))
 
           dispatchAlertError(dispatch, 'Unverified user')
+          return
         }
 
         window.location.href = '/'
@@ -257,12 +259,12 @@ export function resetPassword(token: string, password: string) {
     })
       .then((res: any) => {
         console.log(res)
-        window.location.href = '/auth/login'
+        window.location.href = '/'
         dispatch(didResetPassword(true))
       })
       .catch((err: any) => {
         console.log(err)
-        window.location.href = '/auth/login'
+        window.location.href = '/'
         dispatch(didResetPassword(false))
       })
       .finally(() => dispatch(actionProcessing(false)))
