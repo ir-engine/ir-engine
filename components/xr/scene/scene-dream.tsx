@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react' //
 // @ts-ignore
 import { Scene, Entity } from 'aframe-react'
-import Assets from './assets'
 import Environment from './environment'
 import Player from '../player/player'
 import './style.scss'
@@ -70,7 +69,6 @@ function DreamScene (props: DreamProps): any {
           })}
         </Entity>
       </Entity>
-      <Assets />
       <Player />
       <Environment />
       <a className="enterVR" id="enterVRButton" href="#">
