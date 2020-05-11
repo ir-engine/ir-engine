@@ -16,9 +16,9 @@ import {
   DID_CREATE_MAGICLINK,
   LOADED_USER_DATA
 } from '../actions'
-import { AuthUser } from 'interfaces/AuthUser'
-import { User } from 'interfaces/User'
-import { IdentityProvider } from 'interfaces/IdentityProvider'
+import { AuthUser } from '../../interfaces/AuthUser'
+import { User } from '../../interfaces/User'
+import { IdentityProvider } from '../../interfaces/IdentityProvider'
 
 export interface AuthState {
     isLoggedIn: boolean

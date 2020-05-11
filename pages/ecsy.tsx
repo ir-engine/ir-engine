@@ -7,49 +7,49 @@ import gql from 'graphql-tag'
 // eslint-disable-next-line no-unused-vars
 import { World } from 'ecsy'
 
-const client = new ApolloClient({
-  uri: 'http://localhost:3030/graphql'
-})
-
-// const ENTITY_MUTATION = gql`
-//   {
-//     entity(name: 'testEntity', type: 'box', components: [
-//       {
-//           type: networked
-//       }
-//     ])
-//       {
-//         id
-//         name
-//         type
-//       }
-//   }
-// `
-
-const ENTITY_QUERY = gql`
-  {
-    entity {
-      id
-      name
-      type
-      components {
-        id
-        type
-      }
-    }
-  }
-`
-
 export default class EcsyPage extends React.Component {
   world: any
+  client: any
+  ENTITY_QUERY = gql`
+    {
+      entity {
+        id
+        name
+        type
+        components {
+          id
+          type
+        }
+      }
+    }
+  `
   componentDidMount() {
+    this.client = new ApolloClient({
+      uri: 'http://localhost:3030/graphql'
+    })
+
+    // const ENTITY_MUTATION = gql`
+    //   {
+    //     entity(name: 'testEntity', type: 'box', components: [
+    //       {
+    //           type: networked
+    //       }
+    //     ])
+    //       {
+    //         id
+    //         name
+    //         type
+    //       }
+    //   }
+    // `
+
     this.world = new World()
     const testEntity = this.world.createEntity()
     console.log(testEntity)
     // Send the query
-    client
+    this.client
       .query({
-        query: ENTITY_QUERY
+        query: this.ENTITY_QUERY
       })
       .then((result) => {
         result.data.entities.map((entity: any) => {
@@ -62,23 +62,23 @@ export default class EcsyPage extends React.Component {
 
   render() {
     return (
-      <ApolloProvider client={client}>
+      <ApolloProvider client={this.client}>
         <Layout pageTitle="Home">
-
-          <Query query={ENTITY_QUERY}>
+          <Query query={this.ENTITY_QUERY}>
             {({ loading, error, data }: any) => {
               if (loading) return <h4> Loading... </h4>
               if (error) return <h4> Error </h4>
               return (
                 <div>
                   {data.entity.map((entity: any) => (
-                    <p key={entity}>{entity.name} | { this.world.createEntity().id } </p>
+                    <p key={entity}>
+                      {entity.name} | {this.world.createEntity().id}{' '}
+                    </p>
                   ))}
                 </div>
               )
             }}
           </Query>
-
         </Layout>
       </ApolloProvider>
     )

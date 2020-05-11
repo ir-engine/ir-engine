@@ -15,7 +15,7 @@ import Checkbox from '@material-ui/core/Checkbox'
 import NextLink from 'next/link'
 import getConfig from 'next/config'
 import './auth.scss'
-import { User } from 'interfaces/User'
+import { User } from '../../../interfaces/User'
 
 const config = getConfig().publicRuntimeConfig.staticPages
 const authConfig = getConfig().publicRuntimeConfig.auth

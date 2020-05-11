@@ -9,8 +9,8 @@ import Avatar from '@material-ui/core/Avatar'
 import { showDialog } from '../../../redux/dialog/service'
 
 import './style.scss'
-import { User } from 'interfaces/User'
-import { AuthUser } from 'interfaces/AuthUser'
+import { User } from '../../../interfaces/User'
+import { AuthUser } from '../../../interfaces/AuthUser'
 // Get auth state from redux
 // Get user email address
 // If not logged in, show login
