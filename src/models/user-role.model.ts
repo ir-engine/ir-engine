@@ -1,9 +1,15 @@
-import { Sequelize } from 'sequelize'
+import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const userRole = sequelizeClient.define('user_role', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
+      allowNull: false,
+      primaryKey: true
+    }
   }, {
     hooks: {
       beforeCount (options: any) {
@@ -14,8 +20,8 @@ export default (app: Application): any => {
   });
 
   (userRole as any).associate = (models: any) => {
-    (userRole as any).hasMany(models.access_control, { foreignKey: 'userRole' });
-    (userRole as any).hasMany(models.user, { foreignKey: 'userRole', primaryKey: true, unique: true })
+    // (userRole as any).hasMany(models.access_control);
+    (userRole as any).hasMany(models.user, { foreignKey: 'userRole' })
   }
 
   return userRole
