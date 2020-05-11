@@ -86,7 +86,7 @@ export default (app: Application): any => {
     }
   }, {
     hooks: {
-      beforeValidate (scene: any) {
+      beforeValidate(scene: any) {
         if (scene.name) {
           scene.slug = (scene.name as string).split(' ').filter(character => character.length).join('-').toLowerCase()
         }
