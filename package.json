@@ -46,6 +46,13 @@
     "fs-capacitor/is-promise": "2.1.0"
   },
   "types": "lib/",
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn run lint",
+      "pre-push": "yarn run test",
+      "...": "..."
+    }
+  },
   "peerDependencies": {
     "graphql": "^14.4.2",
     "graphql-relay": "~0.6.0",
