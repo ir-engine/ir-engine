@@ -22,8 +22,8 @@ function initApp(manifestUri: string) {
 }
 
 function initPlayer(manifestUri: string) {
-  var video: HTMLVideoElement = document.getElementById('video360Shaka') as HTMLVideoElement
-  var player = new shaka.Player(video)
+  const video: HTMLVideoElement = document.getElementById('video360Shaka') as HTMLVideoElement
+  const player = new shaka.Player(video)
 
   player.load(manifestUri).then(function() {
     console.log('The video has now been loaded!')
@@ -67,7 +67,7 @@ export default class ShakaPlayerComponent extends React.Component {
   }
 
   componentDidMount() {
-    var sceneEl = document.querySelector('a-scene')
+    const sceneEl = document.querySelector('a-scene')
     if (sceneEl?.hasLoaded) initApp(this.props.manifestUri)
     else sceneEl?.addEventListener('loaded', initApp.bind(this, this.props.manifestUri))
   }

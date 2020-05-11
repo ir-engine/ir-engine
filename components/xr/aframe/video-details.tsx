@@ -115,7 +115,7 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<VideoDetailsProps
   },
 
   createDetailEntity() {
-    var text = this.data.title + '\n\n'
+    let text = this.data.title + '\n\n'
     text += this.data.description ? this.data.description + '\n' : ''
     text += this.data.runtime ? this.data.runtime + '\n' : ''
     text += this.data.productionCredit ? this.data.productionCredit + '\n' : ''

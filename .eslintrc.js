@@ -28,6 +28,7 @@ module.exports = {
     "space-before-function-paren":"off",
     "no-unused-expressions":"off",
     "react/no-unknown-property":"off",
+    "no-var": "error",
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": [
       "error"

@@ -4,11 +4,11 @@ class Cylinder {
   }
 
   cellPosition(cellIndexOrColumn: number, cellRow = undefined) {
-    var row = cellRow === undefined ? this.getCellRow(cellIndexOrColumn) : cellRow
-    var theta = cellRow === undefined ? this.getCellTheta(cellIndexOrColumn) : this.getColumnTheta(cellIndexOrColumn)
+    const row = cellRow === undefined ? this.getCellRow(cellIndexOrColumn) : cellRow
+    const theta = cellRow === undefined ? this.getCellTheta(cellIndexOrColumn) : this.getColumnTheta(cellIndexOrColumn)
 
-    var x = this.radius * Math.sin(theta)
-    var z = this.radius * Math.cos(theta)
+    const x = this.radius * Math.sin(theta)
+    const z = this.radius * Math.cos(theta)
     // eslint-disable-next-line
     var y = this.cellHeight * (row || 0)
 
@@ -17,19 +17,19 @@ class Cylinder {
 
   // Degrees
   cellRotation(cellIndex: number) {
-    var theta = this.getCellTheta(cellIndex)
+    const theta = this.getCellTheta(cellIndex)
 
-    var roty = theta
-    var rotx = 0
-    var rotz = 0
+    const roty = theta
+    const rotx = 0
+    const rotz = 0
 
     return { x: rotx, y: roty, z: rotz }
   }
 
   // azimuthal angle
   getCellTheta(cellIndex: number) {
-    var column = this.getCellColumn(cellIndex)
-    var thetaPrime = 2 * Math.PI / this.cellsPerRow
+    const column = this.getCellColumn(cellIndex)
+    const thetaPrime = 2 * Math.PI / this.cellsPerRow
     return thetaPrime * column
   }
 
@@ -63,15 +63,15 @@ class CylindricalGrid extends Cylinder {
     if (reverse) {
       subCellIndex = (this.rows * this.columns - 1) - subCellIndex
     }
-    var sColumn = Cylinder._mod(subCellIndex, this.columns)
-    var sRow = Math.floor(subCellIndex / this.columns)
+    const sColumn = Cylinder._mod(subCellIndex, this.columns)
+    const sRow = Math.floor(subCellIndex / this.columns)
 
-    var index = sColumn + (sRow * this.cellsPerRow)
+    const index = sColumn + (sRow * this.cellsPerRow)
     return index
   }
 
   cellPosition(subCellIndex: number) {
-    var pos = super.cellPosition(this.cellIndex(subCellIndex))
+    const pos = super.cellPosition(this.cellIndex(subCellIndex))
     if (this.columns !== 1 && this.columns % 2) pos.x += this.cellWidth / 2
     return pos
   }
