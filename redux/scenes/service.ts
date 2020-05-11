@@ -1,9 +1,7 @@
-// eslint-disable-next-line no-unused-vars
 import { Dispatch } from 'redux'
 import {
   scenesFetchedSuccess,
   // scenessFetchedError,
-  // eslint-disable-next-line no-unused-vars
   PublicScene
 } from './actions'
 

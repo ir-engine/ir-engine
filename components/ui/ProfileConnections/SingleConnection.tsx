@@ -1,50 +1,50 @@
 
-import React from 'react';
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import Link from '@material-ui/core/Link';
-import Avatar from '@material-ui/core/Avatar';
-import Box from '@material-ui/core/Box';
+import React from 'react'
+import { createStyles, Theme, makeStyles } from '@material-ui/core/styles'
+import Grid from '@material-ui/core/Grid'
+import Typography from '@material-ui/core/Typography'
+import Link from '@material-ui/core/Link'
+import Avatar from '@material-ui/core/Avatar'
+import Box from '@material-ui/core/Box'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectAuthState } from '../../../redux/auth/selector'
-import { showDialog } from 'redux/dialog/service';
-import { ConnectionTexts } from './ConnectionTexts';
+import { showDialog } from 'redux/dialog/service'
+import { ConnectionTexts } from './ConnectionTexts'
 import {
   createMagicLink,
   loginUserByPassword,
   addConnectionByOauth,
   addConnectionByPassword,
   removeConnection
-} from 'redux/auth/service';
-import MagicLinkEmail from '../Auth/MagicLinkEmail';
-import PasswordLogin from '../Auth/PasswordLogin';
-import { User } from 'interfaces/User';
-import { IdentityProviderSeed } from 'interfaces/IdentityProvider';
-import { showAlert } from 'redux/alert/actions';
+} from 'redux/auth/service'
+import MagicLinkEmail from '../Auth/MagicLinkEmail'
+import PasswordLogin from '../Auth/PasswordLogin'
+import { User } from 'interfaces/User'
+import { IdentityProviderSeed } from 'interfaces/IdentityProvider'
+import { showAlert } from 'redux/alert/actions'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       width: '100%',
-      backgroundColor: theme.palette.background.paper,
+      backgroundColor: theme.palette.background.paper
     },
     button: {
-      "&:hover": {
+      '&:hover': {
         textDecoration: 'none'
       },
 
       color: 'black',
       fontSize: '20px'
     }
-  }),
-);
+  })
+)
 
 interface Props {
   auth: any,
   classes: any,
-  connectionType: "facebook" | "github" | "google" | "email" | "sms" | "password",
+  connectionType: 'facebook' | 'github' | 'google' | 'email' | 'sms' | 'password',
 
   showDialog: typeof showDialog,
   addConnectionByOauth: typeof addConnectionByOauth,
@@ -57,7 +57,7 @@ interface Props {
 
 const mapStateToProps = (state: any) => {
   return {
-    auth: selectAuthState(state),
+    auth: selectAuthState(state)
   }
 }
 
@@ -78,7 +78,7 @@ class SingleConnection extends React.Component<Props> {
   }
 
   componentDidMount() {
-    const {auth, connectionType} = this.props
+    const { auth, connectionType } = this.props
     const user = auth.get('user') as User
     if (!user) {
       return
@@ -88,56 +88,55 @@ class SingleConnection extends React.Component<Props> {
     this.setState({
       identityProvider
     })
-
   }
 
   disconnect = () => {
     const identityProvider = this.state.identityProvider
     const authIdentityProvider = this.props.auth.get('authUser').identityProvider
     if (authIdentityProvider.id === identityProvider.id) {
-      this.props.showAlert('error', "Can not remove active Identity Provider")
-      return;
+      this.props.showAlert('error', 'Can not remove active Identity Provider')
+      return
     }
 
     this.props.removeConnection(identityProvider.id, this.state.userId)
   }
 
   connect = () => {
-    const {connectionType} = this.props
-    const {userId} = this.state
+    const { connectionType } = this.props
+    const { userId } = this.state
 
     switch (connectionType) {
       case 'facebook':
       case 'google':
       case 'github':
-        this.props.addConnectionByOauth(connectionType, userId);
-        break;
+        this.props.addConnectionByOauth(connectionType, userId)
+        break
       case 'email':
         this.props.showDialog({
           children: (
             <MagicLinkEmail type="email" isAddConnection={true}/>
           )
         })
-        break;
+        break
       case 'sms':
         this.props.showDialog({
           children: (
             <MagicLinkEmail type="sms" isAddConnection={true}/>
           )
         })
-        break;
+        break
       case 'password':
         this.props.showDialog({
           children: (
             <PasswordLogin isAddConnection={true}/>
           )
         })
-        break;
+        break
     }
   }
 
   render() {
-    const {classes, connectionType} = this.props
+    const { classes, connectionType } = this.props
     const identityProvider = this.state.identityProvider
     let texts
     let actionBlock
@@ -161,8 +160,7 @@ class SingleConnection extends React.Component<Props> {
           </Box>
         </Box>
       )
-    }
-    else {
+    } else {
       texts = ConnectionTexts[connectionType].not_connected
 
       actionBlock = (
@@ -203,11 +201,11 @@ class SingleConnection extends React.Component<Props> {
 }
 
 function SingleConnectionWrapper(props: any) {
-  const classes = useStyles();
+  const classes = useStyles()
 
   return (
     <SingleConnection {...props} classes={classes}/>
-  );
+  )
 }
 
 export default connect(

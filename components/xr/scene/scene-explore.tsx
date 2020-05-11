@@ -7,12 +7,10 @@ import Player from '../player/player'
 import './style.scss'
 import SvgVr from '../../icons/svg/Vr'
 
-// eslint-disable-next-line no-unused-vars
 import { PublicVideo } from '../../../redux/video/actions'
 
 import AframeComponentRegisterer from '../aframe/index'
 
-// eslint-disable-next-line no-unused-vars
 import { bindActionCreators, Dispatch } from 'redux'
 
 import { connect } from 'react-redux'

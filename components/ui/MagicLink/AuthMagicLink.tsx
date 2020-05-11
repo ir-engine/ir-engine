@@ -54,13 +54,12 @@ class AuthMagicLink extends Component<Props> {
 
     if (type === 'login') {
       this.props.loginUserByJwt(token, '/', '#')
-    }
-    else if (type === 'connection') {
+    } else if (type === 'connection') {
       const user = this.props.auth.get('user') as User
       if (user) {
         this.props.refreshConnections(user.id)
       }
-      window.location.href = "/profile-connections"
+      window.location.href = '/profile-connections'
     }
   }
 

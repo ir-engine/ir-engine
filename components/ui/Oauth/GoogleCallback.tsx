@@ -1,7 +1,5 @@
-// import React, { Component } from 'react'
-
 import { useRouter, NextRouter } from 'next/router'
-import { Component } from 'react'
+import React, { Component } from 'react'
 import { loginUserByJwt, refreshConnections } from '../../../redux/auth/service'
 import { Container } from '@material-ui/core'
 import { selectAuthState } from '../../../redux/auth/selector'
@@ -44,8 +42,7 @@ class GoogleCallback extends Component<Props> {
       if (type === 'connection') {
         const user = this.props.auth.get('user')
         this.props.refreshConnections(user.id)
-      }
-      else {
+      } else {
         this.props.loginUserByJwt(token, '/', '/')
       }
     }

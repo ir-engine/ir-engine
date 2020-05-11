@@ -6,7 +6,10 @@
     "build": "next build",
     "start": "next start",
     "type-check": "tsc",
-    "test": "npm run build"
+    "test": "npm run build",
+    "lint:ts": "eslint '*.ts' '**/*.ts' '**/*.tsx'",
+    "lint": "yarn run lint:ts",
+    "lint-fix": "eslint --fix '*.ts' '**/*.ts' '**/*.tsx'"
   },
   "peerDependencies": {
     "@material-ui/react-transition-group": "~4.3.0",

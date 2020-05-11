@@ -1,13 +1,13 @@
 
-import React from 'react';
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
-import Divider from '@material-ui/core/Divider';
-import Typography from '@material-ui/core/Typography';
+import React from 'react'
+import { createStyles, Theme, makeStyles } from '@material-ui/core/styles'
+import Grid from '@material-ui/core/Grid'
+import Divider from '@material-ui/core/Divider'
+import Typography from '@material-ui/core/Typography'
 import { connect } from 'react-redux'
 import { selectAuthState } from '../../../redux/auth/selector'
-import SingleConnection from './SingleConnection';
-import { User } from 'interfaces/User';
+import SingleConnection from './SingleConnection'
+import { User } from 'interfaces/User'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -17,10 +17,10 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: '10px'
     },
     section1: {
-        padding: theme.spacing(3)
+      padding: theme.spacing(3)
     }
-  }),
-);
+  })
+)
 
 interface Props {
   auth: any,
@@ -29,7 +29,7 @@ interface Props {
 
 const mapStateToProps = (state: any) => {
   return {
-    auth: selectAuthState(state),
+    auth: selectAuthState(state)
   }
 }
 
@@ -38,14 +38,14 @@ const mapDispatchToProps = () => ({
 
 class ProfileConnections extends React.Component<Props> {
   render() {
-    const {classes} = this.props
+    const { classes } = this.props
     const user = this.props.auth.get('user') as User
 
     if (!user) {
       // window.location.href = '/'
       return <div/>
     }
-    
+
     return (
       <div className={classes.root}>
         <div className={classes.section1}>
@@ -76,13 +76,12 @@ class ProfileConnections extends React.Component<Props> {
   }
 }
 
-
 function ProfileConnectionsWrapper(props: any) {
-  const classes = useStyles();
+  const classes = useStyles()
 
   return (
     <ProfileConnections {...props} classes={classes}/>
-  );
+  )
 }
 
 export default connect(

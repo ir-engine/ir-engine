@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 import AFRAME from 'aframe'
 import { CylindricalGrid } from '../../../classes/aframe/layout/GridUtils'
 

@@ -7,7 +7,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectAuthState } from '../../../redux/auth/selector'
 import {
-  createMagicLink, addConnectionByEmail, addConnectionBySms,
+  createMagicLink, addConnectionByEmail, addConnectionBySms
 } from '../../../redux/auth/service'
 import Grid from '@material-ui/core/Grid'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
@@ -22,7 +22,7 @@ const authConfig = getConfig().publicRuntimeConfig.auth
 
 interface Props {
   auth: any,
-  type: "email" | "sms" | undefined,
+  type: 'email' | 'sms' | undefined,
   isAddConnection?: boolean,
   createMagicLink: typeof createMagicLink,
   addConnectionBySms: typeof addConnectionBySms,
@@ -31,7 +31,7 @@ interface Props {
 
 const mapStateToProps = (state: any) => {
   return {
-    auth: selectAuthState(state),
+    auth: selectAuthState(state)
   }
 }
 
@@ -68,16 +68,14 @@ class MagicLinkEmail extends React.Component<Props> {
       const userId = user ? user.id : ''
       if (this.props.type === 'email') {
         this.props.addConnectionByEmail(this.state.email_phone, userId)
-      }
-      else {
+      } else {
         this.props.addConnectionBySms(this.state.email_phone, userId)
       }
-      
+
       this.setState({
         isSubmitted: true
       })
-    }
-    else {
+    } else {
       this.props.createMagicLink(this.state.email_phone)
       this.setState({
         isSubmitted: true
@@ -87,91 +85,86 @@ class MagicLinkEmail extends React.Component<Props> {
 
   render() {
     const termsOfService = (config && config.termsOfService) ?? '/terms-of-service'
-    const {isAgreedTermsOfService} = this.state
+    const { isAgreedTermsOfService } = this.state
     const type = this.props.type
 
-    let descr = "";
-    let label = "";
+    let descr = ''
+    let label = ''
 
     if (type === 'email') {
       descr = "Please enter your email address and we'll send you a login link via Email. "
-      label = "Email address"
-    }
-    else if (type === 'sms') {
+      label = 'Email address'
+    } else if (type === 'sms') {
       descr = "Please enter your phone number and we'll send you a login link via SMS. "
-      label = "Phone number"
-    }
-    else if (authConfig) {
-      if (authConfig.isEnableSmsMagicLink && 
+      label = 'Phone number'
+    } else if (authConfig) {
+      if (authConfig.isEnableSmsMagicLink &&
         authConfig.isEnableEmailMagicLink &&
         !type) {
         descr = "Please enter your email address or phone number and we'll send you a login link via Email or SMS. "
-        label = "Email or Phone number"
-      }
-      else if (authConfig.isEnableSmsMagicLink) {
+        label = 'Email or Phone number'
+      } else if (authConfig.isEnableSmsMagicLink) {
         descr = "Please enter your phone number and we'll send you a login link via SMS. "
-        label = "Phone number"
-      }
-      else {
+        label = 'Phone number'
+      } else {
         descr = "Please enter your email address and we'll send you a login link via Email. "
-        label = "Email address"
+        label = 'Email address'
       }
-    }
-    else {
+    } else {
       descr = "Please enter your email address and we'll send you a login link via Email. "
-      label = "Email address"
+      label = 'Email address'
     }
 
     return (
-        <Container component="main" maxWidth="xs">
-          <div className={'paper'}>
-            <Typography component="h1" variant="h5">
+      <Container component="main" maxWidth="xs">
+        <div className={'paper'}>
+          <Typography component="h1" variant="h5">
               Login Link
-            </Typography>
-    
-            <Typography variant="body2" color="textSecondary" align="center">
-              {descr}
-            </Typography>
-    
-            <form className={'form'} noValidate onSubmit={(e) => this.handleSubmit(e)}>
-              <Grid container>
-                <Grid item xs={12}>
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="email_phone"
-                    label={label}
-                    name="email_phone"
-                    autoComplete="email"
-                    autoFocus
-                    onChange={(e) => this.handleInput(e)}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <FormControlLabel
-                    control={<Checkbox value={true} onChange={e=>this.handleCheck(e)} color="primary" name="isAgreedTermsOfService"/>}
-                    label={<div>I agree to the <NextLink href={termsOfService}>Terms & Conditions</NextLink></div>}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    className="submit"
-                    disabled={!isAgreedTermsOfService}
-                  >
-                    Send Login Link
-                  </Button>
-                </Grid>
+          </Typography>
+
+          <Typography variant="body2" color="textSecondary" align="center">
+            {descr}
+          </Typography>
+
+          <form className={'form'} noValidate onSubmit={(e) => this.handleSubmit(e)}>
+            <Grid container>
+              <Grid item xs={12}>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="email_phone"
+                  label={label}
+                  name="email_phone"
+                  autoComplete="email"
+                  autoFocus
+                  onChange={(e) => this.handleInput(e)}
+                />
               </Grid>
-            </form>
-          </div>
-        </Container>
-    );
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={<Checkbox value={true} onChange={e => this.handleCheck(e)} color="primary" name="isAgreedTermsOfService"/>}
+                  label={<div>I agree to the <NextLink href={termsOfService}>Terms & Conditions</NextLink></div>}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  className="submit"
+                  disabled={!isAgreedTermsOfService}
+                >
+                    Send Login Link
+                </Button>
+              </Grid>
+            </Grid>
+          </form>
+        </div>
+      </Container>
+    )
   }
 }
 
