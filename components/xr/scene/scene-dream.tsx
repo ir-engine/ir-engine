@@ -16,7 +16,7 @@ import { selectScenesState } from '../../../redux/scenes/selector'
 import { fetchPublicScenes } from '../../../redux/scenes/service'
 
 interface DreamProps {
-  scenes: any,
+  scenes: any
   fetchPublicScenes: typeof fetchPublicScenes
 }
 
@@ -30,7 +30,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   fetchPublicScenes: bindActionCreators(fetchPublicScenes, dispatch)
 })
 
-function DreamScene (props: DreamProps): any {
+const DreamScene = (props: DreamProps): any => {
   const { scenes, fetchPublicScenes } = props
 
   useEffect(() => {
@@ -47,10 +47,8 @@ function DreamScene (props: DreamProps): any {
     >
       <AframeComponentRegisterer />
       <Entity position="0 1.6 0">
-        <Entity
-          primitive="a-grid"
-          rows={3}>
-          {scenes.get('scenes').map(function (x: PublicScene, i: number) {
+        <Entity primitive="a-grid" rows={3}>
+          {scenes.get('scenes').map((x: PublicScene, i: number) => {
             return (
               <Entity
                 key={i}
@@ -76,7 +74,4 @@ function DreamScene (props: DreamProps): any {
   )
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DreamScene)
+export default connect(mapStateToProps, mapDispatchToProps)(DreamScene)

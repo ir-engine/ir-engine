@@ -4,14 +4,14 @@ import AFRAME from 'aframe'
 import { useRouter } from 'next/router'
 
 // choose dash or hls
-function getManifestUri(manifestPath: string): string {
+const getManifestUri = (manifestPath: string): string => {
   return AFRAME.utils.device.isIOS() ? manifestPath.replace(dashManifestName, hlsPlaylistName) : manifestPath
 }
 
 const dashManifestName = 'manifest.mpd'
 const hlsPlaylistName = 'master.m3u8'
 
-function initApp(manifestUri: string) {
+const initApp = (manifestUri: string) => {
   shaka.polyfill.installAll()
 
   if (shaka.Player.isBrowserSupported()) {
@@ -21,24 +21,24 @@ function initApp(manifestUri: string) {
   }
 }
 
-function initPlayer(manifestUri: string) {
+const initPlayer = (manifestUri: string) => {
   const video: HTMLVideoElement = document.getElementById('video360Shaka') as HTMLVideoElement
   const player = new shaka.Player(video)
 
-  player.load(manifestUri).then(function() {
+  player.load(manifestUri).then(() => {
     console.log('The video has now been loaded!')
   })
   video.addEventListener('loadeddata', loadedDataVideoHandler)
 }
 
-function loadedDataVideoHandler() {
+const loadedDataVideoHandler = () => {
   if (AFRAME.utils.device.isIOS()) {
     // fix Safari iPhone bug with black screen
     forceIOSCanvasRepaint()
   }
 }
 
-function forceIOSCanvasRepaint() {
+const forceIOSCanvasRepaint = () => {
   const sceneEl = document.querySelector('a-scene')
   const canvasEl = sceneEl.canvas
   const width = canvasEl.width

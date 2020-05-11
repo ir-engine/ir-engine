@@ -5,7 +5,7 @@ import { RESTORE } from './actions'
 const { publicRuntimeConfig } = getConfig()
 const localStorageKey: string = publicRuntimeConfig.localStorageKey
 
-export function restoreState(): any {
+export const restoreState = (): any => {
   return {
     type: RESTORE
   }
@@ -23,11 +23,5 @@ export const getStoredState = (key: string) => {
   return state[key]
 }
 
-export const saveState = (state: any) => {
-  try {
-    const rawState = JSON.stringify(state)
-    localStorage.setItem(localStorageKey, rawState)
-  } catch (err) {
-    // nothing to do.
-  }
-}
+export const saveState = (state: any) =>
+  localStorage.setItem(localStorageKey, JSON.stringify(state))

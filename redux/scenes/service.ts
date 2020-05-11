@@ -50,7 +50,7 @@ const media: PublicScene[] = [{
 }
 ]
 
-export function fetchPublicScenes() {
+export const fetchPublicScenes = () => {
   return (dispatch: Dispatch) => {
     const scenes = media as PublicScene[]
     return dispatch(scenesFetchedSuccess(scenes))

@@ -8,56 +8,56 @@ import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig
 const timeout = (config && config.alert && config.alert.timeout) ?? 10000
 
-export function alertSuccess(message: string) {
+export const alertSuccess = (message: string) => {
   return (dispatch: Dispatch) => {
     dispatch(showAlert('success', message))
   }
 }
-export function alertWarning(message: string) {
+export const alertWarning = (message: string) => {
   return (dispatch: Dispatch) => {
     dispatch(showAlert('warning', message))
   }
 }
-export function alertError(message: string) {
+export const alertError = (message: string) => {
   return (dispatch: Dispatch) => {
     dispatch(showAlert('error', message))
   }
 }
-export function alertCancel() {
+export const alertCancel = () => {
   return (dispatch: Dispatch) => {
     dispatch(hideAlert())
   }
 }
 
 let timerId: any
-function clearTimer() {
+const clearTimer = () => {
   if (timerId) {
     clearTimeout(timerId)
     timerId = 0
   }
 }
 
-function restartTimer(dispatch: Dispatch) {
+const restartTimer = (dispatch: Dispatch) => {
   clearTimer()
   timerId = setTimeout(() => dispatch(hideAlert()), timeout)
 }
 
-export function dispatchAlertSuccess(dispatch: Dispatch, message: string) {
+export const dispatchAlertSuccess = (dispatch: Dispatch, message: string) => {
   restartTimer(dispatch)
 
   return dispatch(showAlert('success', message))
 }
-export function dispatchAlertWarning(dispatch: Dispatch, message: string) {
+export const dispatchAlertWarning = (dispatch: Dispatch, message: string) => {
   restartTimer(dispatch)
 
   return dispatch(showAlert('warning', message))
 }
-export function dispatchAlertError(dispatch: Dispatch, message: string) {
+export const dispatchAlertError = (dispatch: Dispatch, message: string) => {
   restartTimer(dispatch)
 
   return dispatch(showAlert('error', message))
 }
-export function dispatchAlertCancel(dispatch: Dispatch) {
+export const dispatchAlertCancel = (dispatch: Dispatch) => {
   clearTimer()
 
   return dispatch(hideAlert())

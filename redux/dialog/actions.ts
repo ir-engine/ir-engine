@@ -11,13 +11,13 @@ export interface DialogAction {
     type: string
     content: any
 }
-export function dialogShow(content: any): DialogAction {
+export const dialogShow = (content: any): DialogAction => {
   return {
     type: SHOW_DIALOG,
     content
   }
 }
-export function dialogClose(): DialogAction {
+export const dialogClose = (): DialogAction => {
   return {
     type: CLOSE_DIALOG,
     content: undefined
