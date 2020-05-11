@@ -20,7 +20,7 @@ export default (options = {}): Hook => {
 
       const staticResource = staticResourceResult.data[0]
 
-      const storageRemovePromise = new Promise(function (resolve, reject) {
+      const storageRemovePromise = new Promise((resolve, reject) => {
         const key = staticResource.url.replace('https://s3.amazonaws.com/' + (config.get('aws.s3.static_resource_bucket') as string) + '/', '')
 
         storage.remove({
@@ -40,7 +40,7 @@ export default (options = {}): Hook => {
 
       const childRemovalPromises = children.map(async (child: any) => {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
-        return await new Promise(async function (resolve, reject) {
+        return await new Promise(async (resolve, reject) => {
           try {
             await staticResourceService.remove(child.id)
           } catch (err) {
@@ -68,7 +68,7 @@ export default (options = {}): Hook => {
   }
 }
 
-async function getAllChildren (service: StaticResource, id: string | number | undefined, $skip: number): Promise<Object[]> {
+const getAllChildren = async (service: StaticResource, id: string | number | undefined, $skip: number): Promise<Object[]> => {
   const pageResult = (await service.find({
     query: {
       parentResourceId: id,
