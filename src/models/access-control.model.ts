@@ -14,8 +14,8 @@ export default (app: Application): any => {
   });
 
   (accessControl as any).associate = (models: any) => {
-    (accessControl as any).belongsTo(models.user_role, { foreignKey: 'userRole', required: true, primaryKey: true });
-    (accessControl as any).belongsTo(models.resource_type, { foreignKey: 'resourceType', required: true, primaryKey: true });
+    (accessControl as any).belongsTo(models.user_role, { foreignKey: 'userRole', required: true, primaryKey: true, allowNull: false });
+    (accessControl as any).belongsTo(models.resource_type, { foreignKey: 'resourceType', required: true, primaryKey: true, allowNull: false });
     (accessControl as any).belongsTo(models.access_control_scope, { foreignKey: 'list', required: true });
     (accessControl as any).belongsTo(models.access_control_scope, { foreignKey: 'create', required: true });
     (accessControl as any).belongsTo(models.access_control_scope, { foreignKey: 'read', required: true });

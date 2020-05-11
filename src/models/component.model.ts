@@ -4,12 +4,6 @@ import { Application } from '../declarations'
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const component = sequelizeClient.define('component', {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV1,
-      allowNull: false,
-      primaryKey: true
-    },
     data: {
       type: DataTypes.JSON,
       allowNull: true
@@ -23,9 +17,9 @@ export default (app: Application): any => {
   });
 
   (component as any).associate = (models: any) => {
-    (component as any).belongsTo(models.component_type, { foreignKey: 'type', required: true });
-    (component as any).belongsToMany(models.static_resource, { through: 'static_resource_component' });
-    (component as any).belongsTo(models.entity, { required: true })
+    (component as any).belongsTo(models.component_type, { foreignKey: 'type', required: true, primaryKey: true });
+    (component as any).belongsTo(models.entity, { required: true, primaryKey: true });
+    (component as any).hasMany(models.static_resource)
   }
 
   return component

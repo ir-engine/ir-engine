@@ -13,6 +13,10 @@ export default (app: Application): any => {
     name: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    description: {
+      type: DataTypes.TEXT,
+      defaultValue: 'My shiny new group'
     }
   }, {
     hooks: {
