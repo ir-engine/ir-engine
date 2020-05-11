@@ -72,7 +72,7 @@ export default async (context: any): Promise<void> => {
   }
 
   if (fileId.length > 0) {
-    var thumbnailUploadResult: any
+    let thumbnailUploadResult: any
     const localContext = _.cloneDeep(context)
 
     localContext.params.storageProvider = new StorageProvider()
@@ -267,7 +267,7 @@ export default async (context: any): Promise<void> => {
   }
 }
 
-async function uploadFile (localFilePath: string, fileId: string, localContext: any, app: Application, resultId: number): Promise<void> {
+const uploadFile = async (localFilePath: string, fileId: string, localContext: any, app: Application, resultId: number): Promise<void> => {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
   return await new Promise(async (resolve, reject) => {
     const promises = []
@@ -277,7 +277,7 @@ async function uploadFile (localFilePath: string, fileId: string, localContext: 
       for (const file of files) {
         if (/.m/.test(file)) {
           // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
-          promises.push(new Promise(async function (resolve, reject) {
+          promises.push(new Promise(async (resolve, reject) => {
             const content = await fs.promises.readFile(localFilePath + '/' + file)
             // @ts-ignore
             const extension = (file.match(extensionRegex) != null ? file.match(extensionRegex)[1] : 'application')
