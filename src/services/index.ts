@@ -82,7 +82,6 @@ export default (app: Application): void => {
   app.configure(UserRelationship)
   app.configure(UserRole)
   app.configure(UserSettings)
-
   // Junctions
   app.configure(PartyUser)
   app.configure(GroupUser)
@@ -97,14 +96,13 @@ export default (app: Application): void => {
   app.configure(IdentityProvider)
 
   // Spoke
-  app.configure(Scene)
   app.configure(Asset)
   app.configure(OwnedFile)
   app.configure(ProjectAsset)
+  app.configure(Scene)
   app.configure(SceneListing)
   app.configure(MediaSearch)
   app.configure(UploadMedia)
   app.configure(PublishProject)
-
   app.configure(GraphQL)
 }

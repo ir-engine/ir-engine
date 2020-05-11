@@ -28,10 +28,11 @@ export default (app: Application): any => {
   (User as any).associate = (models: any) => {
     (User as any).belongsTo(models.user_role, { foreignKey: 'userRole' });
     (User as any).belongsTo(models.instance); // user can only be in one room at a time
+    (User as any).hasOne(models.user_settings);
     (User as any).hasOne(models.party, { through: 'party_user' }); // user can only be part of one party at a time
     (User as any).hasMany(models.collection);
     (User as any).hasMany(models.entity);
-    (User as any).hasMany(models.static_resource);
+    (User as any).hasOne(models.static_resource, { foreignKey: 'thumbnail' });
     (User as any).belongsToMany(models.user, { as: 'user', through: models.user_relationship });
     (User as any).belongsToMany(models.user, { as: 'relatedUser', through: models.user_relationship });
     (User as any).belongsToMany(models.group, { through: models.group_user }); // user can join multiple orgs
@@ -39,8 +40,7 @@ export default (app: Application): any => {
     (User as any).hasMany(models.identity_provider);
     (User as any).hasMany(models.asset, { foreignKey: 'account_id' });
     (User as any).hasMany(models.owned_file, { foreignKey: 'account_id' });
-    (User as any).belongsTo(models.group, { through: models.group_member });
-    (User as any).hasOne(models.user_settings, { foreignKey: 'userSettingsId' })
+    (User as any).belongsTo(models.group, { through: models.group_member })
   }
 
   return User
