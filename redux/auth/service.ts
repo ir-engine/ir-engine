@@ -18,11 +18,11 @@ import {
 import { client } from '../feathers'
 import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service'
 import { validateEmail, validatePhoneNumber } from '../helper'
-import { resolveUser } from 'interfaces/User'
-import { resolveAuthUser } from 'interfaces/AuthUser'
-import { IdentityProvider } from 'interfaces/IdentityProvider'
+import { resolveUser } from '../../interfaces/User'
+import { resolveAuthUser } from '../../interfaces/AuthUser'
+import { IdentityProvider } from '../../interfaces/IdentityProvider'
 import getConfig from 'next/config'
-import { getStoredState } from 'redux/persisted.store'
+import { getStoredState } from '../../redux/persisted.store'
 
 const { publicRuntimeConfig } = getConfig()
 const apiServer: string = publicRuntimeConfig.apiServer

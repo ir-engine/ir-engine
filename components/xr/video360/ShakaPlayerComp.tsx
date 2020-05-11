@@ -1,6 +1,15 @@
 import React from 'react'
 import shaka from 'shaka-player'
 import AFRAME from 'aframe'
+import { useRouter } from 'next/router'
+
+// choose dash or hls
+function getManifestUri(manifestPath: string): string {
+  return AFRAME.utils.device.isIOS() ? manifestPath.replace(dashManifestName, hlsPlaylistName) : manifestPath
+}
+
+const dashManifestName = 'manifest.mpd'
+const hlsPlaylistName = 'master.m3u8'
 
 function initApp(manifestUri: string) {
   shaka.polyfill.installAll()
@@ -41,13 +50,20 @@ function forceIOSCanvasRepaint() {
   canvasEl.height = height
 }
 
-export default class Video360Room extends React.Component {
+export default class ShakaPlayerComponent extends React.Component {
   props: propTypes
 
   constructor(props: propTypes) {
     super(props)
 
     this.props = props
+  }
+
+  router = useRouter()
+  manifest: any = this.router.query.manifest as string
+
+  shakaPlayerProps = {
+    manifestUri: getManifestUri(this.manifest)
   }
 
   componentDidMount() {

@@ -14,7 +14,7 @@ import { ThemeProvider } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import theme from '../components/assets/theme'
 import { restoreState } from '../redux/persisted.store'
-import { doLoginAuto } from 'redux/auth/service'
+import { doLoginAuto } from '../redux/auth/service'
 
 import getConfig from 'next/config'
 
