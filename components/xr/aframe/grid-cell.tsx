@@ -4,11 +4,13 @@ import AFRAME from 'aframe'
 export const ComponentName = 'grid-cell'
 
 export interface GridCellData {
-  isGridCell: true
+  isGridCell: boolean,
+  active: boolean
 }
 
 export const GridCellComponentSchema: AFRAME.MultiPropertySchema<GridCellData> = {
-  isGridCell: { default: true }
+  isGridCell: { default: true },
+  active: { default: true }
 }
 
 export interface GridCellProps {

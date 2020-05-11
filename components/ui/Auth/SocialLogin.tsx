@@ -5,6 +5,9 @@ import Container from '@material-ui/core/Container';
 import GitHubIcon from '@material-ui/icons/GitHub';
 import FacebookIcon from '@material-ui/icons/Facebook';
 import GoogleIcon from '../../assets/GoogleIcon';
+import { connect } from 'react-redux'
+import { bindActionCreators, Dispatch } from 'redux'
+import { selectAuthState } from '../../../redux/auth/selector'
 import { 
   loginUserByGithub,
   loginUserByGoogle,
@@ -17,10 +20,22 @@ interface Props {
   loginUserByGithub: typeof loginUserByGithub
   loginUserByGoogle: typeof loginUserByGoogle
   loginUserByFacebook: typeof loginUserByFacebook
-  isEnableFacebook: boolean
-  isEnableGoogle: boolean
-  isEnableGithub: boolean
+  isEnableFacebook?: boolean
+  isEnableGoogle?: boolean
+  isEnableGithub?: boolean
 };
+
+const mapStateToProps = (state: any) => {
+  return {
+    auth: selectAuthState(state),
+  }
+}
+
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  loginUserByGithub: bindActionCreators(loginUserByGithub, dispatch),
+  loginUserByGoogle: bindActionCreators(loginUserByGoogle, dispatch),
+  loginUserByFacebook: bindActionCreators(loginUserByFacebook, dispatch),
+})
 
 class SocialLogin extends React.Component<Props> {
   state = {
@@ -109,4 +124,12 @@ class SocialLogin extends React.Component<Props> {
   }
 }
 
-export default SocialLogin;
+function SocialLoginWrapper(props: any) {
+  return <SocialLogin {...props}/>
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SocialLoginWrapper)
+

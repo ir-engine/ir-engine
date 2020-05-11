@@ -30,6 +30,8 @@ export const MediaCellSystemDef: AFRAME.SystemDefinition<MediaCellSystemProps> =
 }
 
 export interface MediaCellData {
+  [key: string]: any,
+  active: boolean,
   cellHeight?: number
   cellWidth?: number
   cellContentHeight?: number
@@ -46,10 +48,12 @@ export interface MediaCellData {
   tags: string[],
   mediatype: string,
   linktype: string,
-  videoformat: string
+  videoformat: string,
+  linkEnabled: boolean
 }
 
 export const MediaCellComponentSchema: AFRAME.MultiPropertySchema<MediaCellData> = {
+  active: { default: true },
   cellHeight: { default: 0.6 },
   cellWidth: { default: 1 },
   cellContentHeight: { default: 0.5 },
@@ -65,13 +69,15 @@ export const MediaCellComponentSchema: AFRAME.MultiPropertySchema<MediaCellData>
   tags: { default: [] },
   mediatype: { default: 'video360' },
   linktype: { default: 'internal' },
-  videoformat: { default: 'eac' }
-
+  videoformat: { default: 'eac' },
+  linkEnabled: { default: true }
 }
 
 export interface MediaCellProps {
   initCell: () => void,
+  initCellCB: () => void,
   createCell: () => AFRAME.Entity,
+  enableLink: (el: any) => void
 }
 
 export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
@@ -80,8 +86,7 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
   } as MediaCellData,
 
   init () {
-    if (this.el.sceneEl?.hasLoaded) this.initCell()
-    else this.el.sceneEl?.addEventListener('loaded', this.initCell.bind(this))
+    this.initCellCB()
   },
 
   play() {
@@ -90,18 +95,46 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
   pause() {
   },
 
+  update(oldData: MediaCellData) {
+    var changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
+    if (changedData.includes('active')) {
+      this.el.setAttribute('grid-cell', { active: this.data.active })
+      if (this.data.active) {
+        this.initCellCB()
+      } else {
+        while (this.el.firstChild) {
+          this.el.removeChild((this.el as any).lastChild)
+        }
+      }
+    }
+  },
+
+  initCellCB () {
+    if (this.el.sceneEl?.hasLoaded) this.initCell()
+    else this.el.sceneEl?.addEventListener('loaded', this.initCell.bind(this))
+  },
+
   initCell() {
-    this.el.appendChild(this.createCell())
+    const active = (this.el.components['grid-cell'] as any).data.active
+    if (active) this.el.appendChild(this.createCell())
   },
 
   createCell() {
     const imageEl = document.createElement('a-image')
-    imageEl.classList.add('clickable')
     const source = (this.system as AFRAME.SystemDefinition<MediaCellSystemProps>).getSource(this.data)
     imageEl.setAttribute('src', source)
     imageEl.setAttribute('width', this.data.cellWidth)
     imageEl.setAttribute('height', this.data.cellContentHeight)
+    imageEl.setAttribute('side', 'double')
+    imageEl.classList.add('clickable')
 
+    if (this.data.linkEnabled) this.enableLink(imageEl)
+
+    return imageEl
+  },
+
+  enableLink(el: any) {
+    el.classList.add('clickable')
     let url: string
     switch (this.data.linktype) {
       case 'external':
@@ -116,10 +149,10 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
       case 'video360':
         url += 'video360?manifest=' + this.data.url +
           '&title=' + this.data.title +
-          // '&runtime=' + this.data.runtime +
-          // '&credit=' + this.data.productionCredit +
-          // '&rating=' + this.data.rating +
-          // '&categories=' + this.data.categories.join(',') +
+          '&runtime=' + this.data.runtime +
+          '&credit=' + this.data.productionCredit +
+          '&rating=' + this.data.rating +
+          '&categories=' + this.data.categories.join(',') +
           // '&tags=' + this.data.tags.join(',') +
           '&videoformat=' + this.data.videoformat
         break
@@ -133,11 +166,9 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
         url += ''
         break
     }
-    imageEl.addEventListener('click', () => {
+    el.addEventListener('click', () => {
       window.location.href = url
     })
-
-    return imageEl
   }
 }
 
@@ -149,6 +180,7 @@ export const MediaCellPrimitive: AFRAME.PrimitiveDefinition = {
   deprecated: false,
   mappings: {
     id: ComponentName + '.id',
+    active: 'grid-cell.active',
     'cell-height': ComponentName + '.cellHeight',
     'cell-width': ComponentName + '.cellWidth',
     'cell-content-height': ComponentName + '.cellContentHeight',
@@ -157,14 +189,15 @@ export const MediaCellPrimitive: AFRAME.PrimitiveDefinition = {
     description: ComponentName + '.description',
     'media-url': ComponentName + '.url',
     'thumbnail-url': ComponentName + '.thumbnailUrl',
-    // 'production-credit': ComponentName + '.productionCredit',
-    // rating: ComponentName + '.rating',
-    // categories: ComponentName + '.categories',
-    // runtime: ComponentName + '.runtime',
+    'production-credit': ComponentName + '.productionCredit',
+    rating: ComponentName + '.rating',
+    categories: ComponentName + '.categories',
+    runtime: ComponentName + '.runtime',
     // tags: ComponentName + '.tags',
     mediatype: ComponentName + '.mediatype',
     linktype: ComponentName + '.linktype',
-    videoformat: ComponentName + '.videoformat'
+    videoformat: ComponentName + '.videoformat',
+    'link-enabled': ComponentName + '.linkEnabled'
   }
 }
 

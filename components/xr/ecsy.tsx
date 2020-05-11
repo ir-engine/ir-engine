@@ -1,6 +1,5 @@
 import React from 'react'
-<<<<<<< HEAD
-import Layout from '../components/ui/Layout'
+import Layout from '../ui/Layout'
 import ApolloClient from 'apollo-boost'
 import { ApolloProvider, Query } from 'react-apollo'
 import gql from 'graphql-tag'
@@ -12,31 +11,12 @@ const client = new ApolloClient({
   uri: 'http://localhost:3030/graphql'
 })
 
-const ENTITY_MUTATION = gql`
-  {
-    entity(name: 'testEntity', type: 'box', components: [
-      {
-          type: networked
-      }
-    ])
-      {
-        id
-        name
-        type
-      }
-  }
-`
-
 const ENTITY_QUERY = gql`
   {
     entity {
-      id
       name
-      type
-      components {
-        id
-        type
-      }
+      component
+      entity_type
     }
   }
 `
@@ -45,18 +25,18 @@ export default class EcsyPage extends React.Component {
   world: any
   componentDidMount() {
     this.world = new World()
-    const testEntity = this.world.createEntity()
-    console.log(testEntity)
-    // Send the query
+    // const testEntity = this.world.createEntity()
+    // console.log(entityArray)
+    // console.log(testEntity)
+    this.init()
+  }
+
+  init() {
     client
       .query({
         query: ENTITY_QUERY
       })
       .then((result) => {
-        result.data.entities.map((entity: any) => {
-          this.world.createEntity()
-          // 
-        })
         console.log(result.data)
       })
   }
@@ -65,7 +45,6 @@ export default class EcsyPage extends React.Component {
     return (
       <ApolloProvider client={client}>
         <Layout pageTitle="Home">
-
           <Query query={ENTITY_QUERY}>
             {({ loading, error, data }: any) => {
               if (loading) return <h4> Loading... </h4>
@@ -79,7 +58,6 @@ export default class EcsyPage extends React.Component {
               )
             }}
           </Query>
-
         </Layout>
       </ApolloProvider>
     )
@@ -103,16 +81,3 @@ export default class EcsyPage extends React.Component {
 //     this.z = 0
 //   }
 // }
-=======
-import dynamic from 'next/dynamic'
-// eslint-disable-next-line no-unused-vars
-const EcsyPage = dynamic(() => import('../components/xr/ecsy'), {
-  ssr: false
-})
-
-export default class EcsyWrapper extends React.Component {
-  render() {
-    return <EcsyPage />
-  }
-}
->>>>>>> e65d09795622ef6d1a70ea54c3ffcfb504491e7a
