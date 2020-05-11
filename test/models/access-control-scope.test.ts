@@ -2,6 +2,11 @@ import app from '../../src/app'
 
 describe('CRUD operation on \'AccessControlScope\' model', () => {
   const model = app.service('access-control-scope').Model
+  before(async () => {
+    setTimeout(() => {
+      console.log('Waited for one seconds before test started.')
+    }, 1000)
+  })
 
   it('Create', done => {
     model.create({

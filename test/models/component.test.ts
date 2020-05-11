@@ -4,6 +4,12 @@ import app from '../../src/app'
 
 describe('CRUD operation on \'Component\' model', () => {
   const model = app.service('component').Model
+  before(async () => {
+    setTimeout(() => {
+      console.log('Waited for one seconds before test started.')
+    }, 1000)
+  })
+
   const input = {
     id: Math.random(),
     data: JSON.stringify({ data: 'test' })
