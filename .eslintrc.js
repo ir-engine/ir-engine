@@ -22,6 +22,7 @@ module.exports = {
     '@typescript-eslint/require-await': 'off',
     '@typescript-eslint/strict-boolean-expressions': 'off',
     '@typescript-eslint/promise-function-async': 'off',
-    "space-before-function-paren": "off"
+    "space-before-function-paren": "off",
+    "no-var": "error"
   }
 }
