@@ -6,7 +6,7 @@ export default class ProfileConnectionsPage extends React.Component {
   render() {
     return (
       <EmptyLayout>
-          <ProfileConnections/>
+        <ProfileConnections/>
       </EmptyLayout>
     )
   }

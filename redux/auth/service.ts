@@ -1,4 +1,4 @@
-import { Dispatch } from "redux"
+import { Dispatch } from 'redux'
 import {
   EmailLoginForm,
   EmailRegistrationForm,
@@ -14,15 +14,15 @@ import {
   didResetPassword,
   didCreateMagicLink,
   loadedUserData
-} from "./actions"
-import { client } from "../feathers"
-import { dispatchAlertError, dispatchAlertSuccess } from "../alert/service"
-import { validateEmail, validatePhoneNumber } from "../helper"
-import { resolveUser } from "interfaces/User"
-import { resolveAuthUser } from "interfaces/AuthUser"
-import { IdentityProvider } from "interfaces/IdentityProvider"
+} from './actions'
+import { client } from '../feathers'
+import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service'
+import { validateEmail, validatePhoneNumber } from '../helper'
+import { resolveUser } from 'interfaces/User'
+import { resolveAuthUser } from 'interfaces/AuthUser'
+import { IdentityProvider } from 'interfaces/IdentityProvider'
 import getConfig from 'next/config'
-import { getStoredState } from "redux/persisted.store"
+import { getStoredState } from 'redux/persisted.store'
 
 const { publicRuntimeConfig } = getConfig()
 const apiServer: string = publicRuntimeConfig.apiServer
@@ -30,10 +30,10 @@ const authConfig = publicRuntimeConfig.auth
 
 export async function doLoginAuto(dispatch: Dispatch) {
   const authData = getStoredState('auth')
-  const accessToken = authData ?? authData.authUser.accessToken;
-  
+  const accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined
+
   if (!accessToken) {
-    return;
+    return
   }
 
   await client.authentication.setAccessToken(accessToken as string)
@@ -46,9 +46,9 @@ export async function doLoginAuto(dispatch: Dispatch) {
         }
         dispatch(loginUserSuccess(authUser))
         loadUserData(dispatch, authUser.identityProvider.userId)
-      }
-      else {
-        loadUserData(dispatch, authData.authUser.identityProvider.userId)
+      } else {
+        client.logout()
+        // loadUserData(dispatch, authData.authUser.identityProvider.userId)
       }
     })
 }
@@ -71,7 +71,7 @@ export function loginUserByPassword(form: EmailLoginForm) {
     if (!validateEmail(form.email)) {
       dispatchAlertError(dispatch, 'Please input valid email address')
 
-      return;
+      return
     }
 
     dispatch(actionProcessing(true))
@@ -92,7 +92,7 @@ export function loginUserByPassword(form: EmailLoginForm) {
 
           dispatchAlertError(dispatch, 'Unverified user')
         }
-        
+
         window.location.href = '/'
         dispatch(loginUserSuccess(authUser))
 
@@ -199,7 +199,7 @@ export function verifyEmail(token: string) {
     })
       .then((res: any) => {
         dispatch(didVerifyEmail(true))
-        loginUserByJwt(res.accessToken, "/", "/")(dispatch)
+        loginUserByJwt(res.accessToken, '/', '/')(dispatch)
       })
       .catch((err: any) => {
         console.log(err)
@@ -217,8 +217,8 @@ export function resendVerificationEmail(email: string) {
     client.service('authManagement').create({
       action: 'resendVerifySignup',
       value: {
-        token: email, 
-        type: 'password' 
+        token: email,
+        type: 'password'
       }
     })
       .then(() => dispatch(didResendVerificationEmail(true)))
@@ -233,9 +233,9 @@ export function forgotPassword(email: string) {
 
     client.service('authManagement').create({
       action: 'sendResetPwd',
-      value: { 
-        token: email, 
-        type: 'password' 
+      value: {
+        token: email,
+        type: 'password'
       }
     })
       .then(() => dispatch(didForgotPassword(true)))
@@ -266,51 +266,47 @@ export function resetPassword(token: string, password: string) {
   }
 }
 
-export function createMagicLink(email_phone: string, link_type?: "email" | "sms") {
+export function createMagicLink(emailPhone: string, linkType?: 'email' | 'sms') {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
-    let type = "email"
-    let paramName = "email"
-    const isEnableEmailMagicLink = (authConfig && authConfig.isEnableEmailMagicLink) ?? true;
-    const isEnableSmsMagicLink = (authConfig && authConfig.isEnableSmsMagicLink) ?? false;
+    let type = 'email'
+    let paramName = 'email'
+    const isEnableEmailMagicLink = (authConfig && authConfig.isEnableEmailMagicLink) ?? true
+    const isEnableSmsMagicLink = (authConfig && authConfig.isEnableSmsMagicLink) ?? false
 
-    if (link_type === "email") {
-      type = "email"
-      paramName = "email"
-    }
-    else if (link_type === "sms") {
-      type = "sms"
-      paramName = "mobile"
-    }
-    else {
-      if (validatePhoneNumber(email_phone)) {
+    if (linkType === 'email') {
+      type = 'email'
+      paramName = 'email'
+    } else if (linkType === 'sms') {
+      type = 'sms'
+      paramName = 'mobile'
+    } else {
+      if (validatePhoneNumber(emailPhone)) {
         if (!isEnableSmsMagicLink) {
           dispatchAlertError(dispatch, 'Please input valid email address')
 
-          return;
+          return
         }
-        type = "sms"
-        paramName = "mobile"
-      }
-      else if (validateEmail(email_phone)) {
+        type = 'sms'
+        paramName = 'mobile'
+      } else if (validateEmail(emailPhone)) {
         if (!isEnableEmailMagicLink) {
           dispatchAlertError(dispatch, 'Please input valid phone number')
 
-          return;
+          return
         }
-        type = "email"
-      }
-      else {
+        type = 'email'
+      } else {
         dispatchAlertError(dispatch, 'Please input valid email or phone number')
 
-        return;
+        return
       }
     }
 
     client.service('magiclink').create({
       type,
-      [paramName]: email_phone
+      [paramName]: emailPhone
     })
       .then((res: any) => {
         console.log(res)
@@ -390,9 +386,9 @@ export function addConnectionBySms(phone: string, userId: string) {
   }
 }
 
-export function addConnectionByOauth(oauth: "facebook" | "google" | "github", userId: string) {
-  return (/*dispatch: Dispatch*/) => {
-    window.open(`${apiServer}/oauth/${oauth}?userId=${userId}`, "_blank")
+export function addConnectionByOauth(oauth: 'facebook' | 'google' | 'github', userId: string) {
+  return (/* dispatch: Dispatch */) => {
+    window.open(`${apiServer}/oauth/${oauth}?userId=${userId}`, '_blank')
   }
 }
 

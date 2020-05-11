@@ -2,7 +2,6 @@
 
 import AvatarSchema, { defaultComponents } from './avatar-schema'
 import AvatarModelEnum from '../../../enums/avatar-model'
-// eslint-disable-next-line no-unused-vars
 import AvatarAsset from './avatar-asset'
 import AvatarAssetGLTF from './avatar-asset-gltf'
 import AvatarAssetHTML from './avatar-asset-html'

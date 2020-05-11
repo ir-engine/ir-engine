@@ -1,6 +1,6 @@
 import {
-    SHOW_DIALOG,
-    CLOSE_DIALOG
+  SHOW_DIALOG,
+  CLOSE_DIALOG
 } from '../actions'
 
 export interface DialogState {
@@ -12,14 +12,14 @@ export interface DialogAction {
     content: any
 }
 export function dialogShow(content: any): DialogAction {
-    return {
-        type: SHOW_DIALOG,
-        content
-    }
+  return {
+    type: SHOW_DIALOG,
+    content
+  }
 }
 export function dialogClose(): DialogAction {
-    return {
-        type: CLOSE_DIALOG,
-        content: undefined
-    }
+  return {
+    type: CLOSE_DIALOG,
+    content: undefined
+  }
 }

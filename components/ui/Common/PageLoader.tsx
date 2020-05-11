@@ -1,9 +1,9 @@
 import React from 'react'
 
 const PageLoader : React.FC = () => (
-    <div className="page-loader">
+  <div className="page-loader">
         Loading page...
-    </div>
+  </div>
 )
 
 export default PageLoader

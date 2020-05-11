@@ -1,9 +1,8 @@
 import {
-    SHOW_NOTIFICATION
+  SHOW_NOTIFICATION
 } from '../actions'
 
-
-export type AlertType = "error" | "success" | "warning" | "none"
+export type AlertType = 'error' | 'success' | 'warning' | 'none'
 export interface AlertState {
     message: string
     type: AlertType
@@ -14,16 +13,16 @@ export interface AlertAction {
     message: string
 }
 export function showAlert(type: AlertType, message: string): AlertAction {
-    return {
-        type: SHOW_NOTIFICATION,
-        alertType: type,
-        message
-    }
+  return {
+    type: SHOW_NOTIFICATION,
+    alertType: type,
+    message
+  }
 }
 export function hideAlert(): AlertAction {
-    return {
-        type: SHOW_NOTIFICATION,
-        alertType: "none",
-        message: ""
-    }
+  return {
+    type: SHOW_NOTIFICATION,
+    alertType: 'none',
+    message: ''
+  }
 }

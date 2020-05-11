@@ -1,8 +1,6 @@
 import Immutable from 'immutable'
 import {
-  // eslint-disable-next-line no-unused-vars
   VideosFetchedAction,
-  // eslint-disable-next-line no-unused-vars
   PublicVideoState
 } from './actions'
 

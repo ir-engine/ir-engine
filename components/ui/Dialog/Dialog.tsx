@@ -1,16 +1,16 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import Dialog from '@material-ui/core/Dialog'
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
-import Typography from '@material-ui/core/Typography';
+import DialogTitle from '@material-ui/core/DialogTitle'
+import DialogContent from '@material-ui/core/DialogContent'
+import IconButton from '@material-ui/core/IconButton'
+import CloseIcon from '@material-ui/icons/Close'
+import Typography from '@material-ui/core/Typography'
 import { selectDialogState } from '../../../redux/dialog/selector'
 import { closeDialog } from '../../../redux/dialog/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import Router from 'next/router'
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/core/styles'
 
 type Props = {
   dialog: any,
@@ -24,19 +24,19 @@ const useStyles = makeStyles((/* theme: Theme */) =>
       margin: 0,
       padding: '10px'
     },
-  
+
     dialogCloseButton: {
       position: 'absolute',
       right: '10px',
       top: '10px',
       zIndex: 2000
     },
-  
+
     dialogContent: {
       paddingBottom: '40px'
     }
-  }),
-);
+  })
+)
 
 const mapStateToProps = (state: any) => {
   return {
@@ -51,7 +51,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 class XDialog extends Component<Props> {
   componentDidMount() {
     Router.events.on('routeChangeStart', () => {
-      this.props.closeDialog();
+      this.props.closeDialog()
     })
   }
 
@@ -70,12 +70,12 @@ class XDialog extends Component<Props> {
         open={isOpened}
         onClose={this.handleClose}
         aria-labelledby="xr-dialog"
-        >
+      >
         <DialogTitle disableTypography className={classes.dialogTitle}>
           <Typography variant="h6">{(content && content.title) ?? ''}</Typography>
-            <IconButton aria-label="close" className={classes.dialogCloseButton} onClick={this.handleClose}>
-              <CloseIcon />
-            </IconButton>
+          <IconButton aria-label="close" className={classes.dialogCloseButton} onClick={this.handleClose}>
+            <CloseIcon />
+          </IconButton>
         </DialogTitle>
 
         <DialogContent className={classes.dialogContent}>
