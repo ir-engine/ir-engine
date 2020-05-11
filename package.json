@@ -48,8 +48,7 @@
   "types": "lib/",
   "husky": {
     "hooks": {
-      "pre-commit": "yarn run test",
-      "...": "..."
+      "pre-commit": "echo Running pre-commit test && echo run 'git push --no-verify' to skip && yarn run test"
     }
   },
   "peerDependencies": {
