@@ -31,7 +31,7 @@ const { publicRuntimeConfig } = getConfig()
 const apiServer: string = publicRuntimeConfig.apiServer
 const authConfig = publicRuntimeConfig.auth
 
-export async const doLoginAuto = (dispatch: Dispatch) => {
+export const doLoginAuto = async (dispatch: Dispatch) => {
   const authData = getStoredState('auth')
   const accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined
 
@@ -57,7 +57,7 @@ export async const doLoginAuto = (dispatch: Dispatch) => {
     })
 }
 
-export const loadUserData = (dispatch: Dispatch, userId: string) => {
+export const loadUserData = async (dispatch: Dispatch, userId: string) => {
   client.service('user').get(userId)
     .then((res: any) => {
       const user = resolveUser(res)
