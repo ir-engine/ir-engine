@@ -20,7 +20,6 @@ export default (app: Application): any => {
   });
 
   (resourceType as any).associate = (models: any): any => {
-    (resourceType as any).hasMany(models.access_control)
   }
 
   return resourceType

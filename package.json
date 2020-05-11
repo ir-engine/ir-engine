@@ -48,8 +48,7 @@
   "types": "lib/",
   "husky": {
     "hooks": {
-      "pre-commit": "yarn run lint",
-      "pre-push": "yarn run test",
+      "pre-commit": "yarn run test",
       "...": "..."
     }
   },
