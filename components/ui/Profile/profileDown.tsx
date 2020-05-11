@@ -1,12 +1,12 @@
-import React from 'react';
-import Button from '@material-ui/core/Button';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import Grow from '@material-ui/core/Grow';
-import Paper from '@material-ui/core/Paper';
-import Popper from '@material-ui/core/Popper';
-import MenuItem from '@material-ui/core/MenuItem';
-import MenuList from '@material-ui/core/MenuList';
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
+import React from 'react'
+import Button from '@material-ui/core/Button'
+import ClickAwayListener from '@material-ui/core/ClickAwayListener'
+import Grow from '@material-ui/core/Grow'
+import Paper from '@material-ui/core/Paper'
+import Popper from '@material-ui/core/Popper'
+import MenuItem from '@material-ui/core/MenuItem'
+import MenuList from '@material-ui/core/MenuList'
+import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 import ProfileModal from './index'
 
 interface XProps {
@@ -16,52 +16,55 @@ interface XProps {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      display: 'flex',
+      display: 'flex'
     },
     paper: {
-      marginRight: theme.spacing(2),
-    },
-  }),
-);
+      marginRight: theme.spacing(2)
+    }
+  })
+)
 
-const  MenuListComposition: React.FC<XProps> = (props) => {
-  const classes = useStyles();
-  const [open, setOpen] = React.useState(false);
-  const [modalOpen, setModalOpen] = React.useState(false);
-  const anchorRef = React.useRef<HTMLButtonElement>(null);
+const MenuListComposition: React.FC<XProps> = (props: XProps) => {
+  const classes = useStyles()
+  const [open, setOpen] = React.useState(false)
+  const [modalOpen, setModalOpen] = React.useState(false)
+  const anchorRef = React.useRef<HTMLButtonElement>(null)
 
   const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen);
-  };
+    setOpen((prevOpen) => !prevOpen)
+  }
   const handleModal = () => {
     setModalOpen(true)
-    setOpen(false);
+    setOpen(false)
   }
   const handleClose = (event: React.MouseEvent<EventTarget>) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target as HTMLElement)) {
-      return;
+    if (
+      anchorRef.current &&
+      anchorRef.current.contains(event.target as HTMLElement)
+    ) {
+      return
     }
 
-    setOpen(false);
-  };
+    setOpen(false)
+  }
 
   function handleListKeyDown(event: React.KeyboardEvent) {
     if (event.key === 'Tab') {
-      event.preventDefault();
-      setOpen(false);
+      event.preventDefault()
+      setOpen(false)
     }
   }
   const modalClose = () => {
     setModalOpen(false)
   }
-  const prevOpen = React.useRef(open);
+  const prevOpen = React.useRef(open)
   React.useEffect(() => {
     if (prevOpen.current === true && open === false) {
-      anchorRef.current!.focus();
+      anchorRef.current!.focus()
     }
 
-    prevOpen.current = open;
-  }, [open]);
+    prevOpen.current = open
+  }, [open])
 
   return (
     <div className={classes.root}>
@@ -72,17 +75,30 @@ const  MenuListComposition: React.FC<XProps> = (props) => {
           aria-haspopup="true"
           onClick={handleToggle}
         >
-          {props.children}
+          {props.avatar}
         </Button>
-        <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
+        <Popper
+          open={open}
+          anchorEl={anchorRef.current}
+          role={undefined}
+          transition
+          disablePortal
+        >
           {({ TransitionProps, placement }) => (
             <Grow
               {...TransitionProps}
-              style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
+              style={{
+                transformOrigin:
+                  placement === 'bottom' ? 'center top' : 'center bottom'
+              }}
             >
               <Paper>
                 <ClickAwayListener onClickAway={handleClose}>
-                  <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
+                  <MenuList
+                    autoFocusItem={open}
+                    id="menu-list-grow"
+                    onKeyDown={handleListKeyDown}
+                  >
                     <MenuItem onClick={handleModal}>Profile</MenuItem>
                     <MenuItem onClick={handleClose}>Contacts</MenuItem>
                     <MenuItem onClick={handleClose}>Logout</MenuItem>
@@ -93,9 +109,13 @@ const  MenuListComposition: React.FC<XProps> = (props) => {
           )}
         </Popper>
       </div>
-          <ProfileModal open={modalOpen} handleClose={modalClose} avatar={props.avatar}/>
+      <ProfileModal
+        open={modalOpen}
+        handleClose={modalClose}
+        avatar={props.avatar}
+      />
     </div>
-  );
+  )
 }
 
 export default MenuListComposition

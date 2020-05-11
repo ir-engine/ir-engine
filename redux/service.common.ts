@@ -24,7 +24,7 @@ export function ajaxPost(url: string, data: any, noAuth: boolean, image: boolean
       body: image ? data : JSON.stringify(data),
       headers: {
         Accept: 'application/json',
-        'Content-Type': image ? 'multipart/form-data' : 'application/jsoncharset=UTF-8',
+        'Content-Type': image ? 'multipart/form-data' : 'application/jsoncharset=UTF-8'
       }
     })
       .then(res => res.json())
