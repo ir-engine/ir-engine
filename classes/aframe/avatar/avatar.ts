@@ -23,7 +23,7 @@ export default class Avatar {
   }
 
   addTemplateToAssets() {
-    var frag = this.fragmentFromString(this.template)
+    const frag = this.fragmentFromString(this.template)
     document.querySelector('a-assets').appendChild(frag)
   }
 

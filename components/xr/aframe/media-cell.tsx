@@ -95,7 +95,7 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
   },
 
   update(oldData: MediaCellData) {
-    var changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
+    const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
     if (changedData.includes('active')) {
       this.el.setAttribute('grid-cell', { active: this.data.active })
       if (this.data.active) {
