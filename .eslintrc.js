@@ -2,6 +2,11 @@ module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
   parserOptions: {
+    ecmaFeatures: {
+      jsx: true
+    },
+    ecmaVersion: 2018,
+    sourceType: 'module',
     project: [
       './tsconfig.json',
       './tsconfig.eslint.json'
@@ -23,6 +28,9 @@ module.exports = {
     '@typescript-eslint/strict-boolean-expressions': 'off',
     '@typescript-eslint/promise-function-async': 'off',
     "space-before-function-paren": "off",
-    "no-var": "error"
+    "no-var": "error",
+    "prefer-arrow-callback": "error",
+    "func-style": ["error", "expression"],
+    "semi": "error"
   }
 }

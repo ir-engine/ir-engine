@@ -1,6 +1,6 @@
 import AWS from 'aws-sdk'
 
-// export function setSmsType() {
+// export const setSmsType() {
 //     const aws_region: string = config.get('aws.sns.region')
 //     const messageType = "Transactional"
 
@@ -25,7 +25,7 @@ import AWS from 'aws-sdk'
 //         })
 // }
 
-export async function sendSms (phone: string, text: string): Promise<void> {
+export const sendSms = async (phone: string, text: string): Promise<void> => {
   const awsRegion: string = process.env.AWS_SMS_REGION ?? '' // config.get('aws.sns.region')
   const params = {
     Message: text,
