@@ -11,6 +11,13 @@
     "lint": "yarn run lint:ts",
     "lint-fix": "eslint --fix '*.ts' '**/*.ts' '**/*.tsx'"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn run lint",
+      "pre-push": "yarn run test",
+      "...": "..."
+    }
+  },
   "peerDependencies": {
     "@material-ui/react-transition-group": "~4.3.0",
     "react-transition-group": "~4.3.0"
@@ -45,7 +52,6 @@
     "aframe-react": "^4.4.0",
     "aframe-sun-sky": "^3.0.3",
     "apollo-boost": "^0.4.7",
-<<<<<<< HEAD
     "apollo-link-ws": "^1.0.20",
     "autoprefixer": "^9.7.5",
     "babel-loader": "^8.1.0",
@@ -53,15 +59,8 @@
     "eslint-plugin-react-hooks": "^3.0.0",
     "glob": "^7.1.6",
     "graphql": "^15.0.0",
-=======
-    "autoprefixer": "^9.7.5",
-    "babel-loader": "^8.1.0",
-    "ecsy": "^0.2.3",
-    "eslint-plugin-react-hooks": "^3.0.0",
-    "glob": "^7.1.6",
-    "graphql": "^15.0.0",
     "graphql-tag": "^2.10.3",
->>>>>>> e65d09795622ef6d1a70ea54c3ffcfb504491e7a
+    "husky": "^4.2.5",
     "immutable": "^4.0.0-rc.12",
     "isomorphic-unfetch": "3.0.0",
     "networked-aframe": "^0.7.0",
