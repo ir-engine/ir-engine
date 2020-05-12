@@ -11,7 +11,7 @@
   "authentication": {
     "entity": "identity-provider",
     "service": "identity-provider",
-    "secret": "rlHRymcnyXeCbTcgHZB5TfG3dZg=",
+    "secret": "AUTH_SECRET",
     "authStrategies": ["jwt", "local"],
     "jwtOptions": {
       "header": {
@@ -77,6 +77,5 @@
   "magiclink": {
     "subject": "MAGICLINK_EMAIL_SUBJECT"
   },
-  "mysql": "mysql://server:password@localhost:3306/xrchat",
   "gaTrackingId": "UA-164023274-3"
 }
