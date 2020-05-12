@@ -5,6 +5,5 @@
   "port": "PORT",
   "authentication": {
     "secret": "AUTH_SECRET"
-  },
-  "mysql": "MYSQL_URL"
+  }
 }
