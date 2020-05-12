@@ -48,19 +48,18 @@ export const ArrowComponent: AFRAME.ComponentDefinition<ArrowProps> = {
   } as ArrowData,
   // dependencies: ['highlight'],
   init: function() {
-    console.log('arrow comp init')
     if (this.el.sceneEl?.hasLoaded) this.createArrow()
     else this.el.sceneEl?.addEventListener('loaded', this.createArrow.bind(this))
   },
 
-  // update: function(oldData: ArrowData) {
-  // var changedData = Object.keys(this.data).filter(x => this.data[x] != oldData[x]);
-  // if (changedData.includes('disabled') && !!self.el.getAttribute('highlight')) {
-  //     this.el.setAttribute('highlight', {
-  //         disabled: this.data.disabled
-  //     } );
-  // }
-  // },
+  update: function(oldData: ArrowData) {
+    const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
+    if (changedData.includes('disabled') && !!this.el.getAttribute('highlight')) {
+      this.el.setAttribute('highlight', {
+        disabled: this.data.disabled
+      })
+    }
+  },
 
   remove: function () {
     // eslint-disable-next-line no-prototype-builtins
@@ -70,7 +69,6 @@ export const ArrowComponent: AFRAME.ComponentDefinition<ArrowProps> = {
   },
 
   createArrow() {
-    console.log('createArrow')
     var self = this
     var data = self.data
 
