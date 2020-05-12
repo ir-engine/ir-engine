@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Scene } from 'aframe-react'
 import SvgVr from '../../icons/svg/Vr'
 import LoadingScreen from '../../ui/Loader'
