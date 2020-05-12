@@ -12,14 +12,14 @@ export interface AlertAction {
     alertType: AlertType
     message: string
 }
-export const showAlert = (type: AlertType, message: string): AlertAction => {
+export function showAlert (type: AlertType, message: string): AlertAction {
   return {
     type: SHOW_NOTIFICATION,
     alertType: type,
     message
   }
 }
-export const hideAlert = (): AlertAction => {
+export function hideAlert (): AlertAction {
   return {
     type: SHOW_NOTIFICATION,
     alertType: 'none',

@@ -94,14 +94,14 @@ export type AuthAction =
   | AddConnectionProcessingAction
   | LoadDataResultAction
 
-export const actionProcessing = (processing: boolean): AuthProcessingAction => {
+export function actionProcessing (processing: boolean): AuthProcessingAction {
   return {
     type: ACTION_PROCESSING,
     processing
   }
 }
 
-export const loginUserSuccess = (authUser: AuthUser): LoginResultAction => {
+export function loginUserSuccess (authUser: AuthUser): LoginResultAction {
   return {
     type: LOGIN_USER_SUCCESS,
     authUser,
@@ -109,35 +109,35 @@ export const loginUserSuccess = (authUser: AuthUser): LoginResultAction => {
   }
 }
 
-export const loginUserError = (err: string): LoginResultAction => {
+export function loginUserError (err: string): LoginResultAction {
   return {
     type: LOGIN_USER_ERROR,
     message: err
   }
 }
 
-export const loginUserByGithubSuccess = (message: string): LoginResultAction => {
+export function loginUserByGithubSuccess (message: string): LoginResultAction {
   return {
     type: LOGIN_USER_BY_GITHUB_SUCCESS,
     message
   }
 }
 
-export const loginUserByGithubError = (message: string): LoginResultAction => {
+export function loginUserByGithubError (message: string): LoginResultAction {
   return {
     type: LOGIN_USER_BY_GITHUB_ERROR,
     message
   }
 }
 
-export const didLogout = (): LoginResultAction => {
+export function didLogout (): LoginResultAction {
   return {
     type: LOGOUT_USER,
     message: ''
   }
 }
 
-export const registerUserByEmailSuccess = (identityProvider: IdentityProvider): RegistrationResultAction => {
+export function registerUserByEmailSuccess (identityProvider: IdentityProvider): RegistrationResultAction {
   return {
     type: REGISTER_USER_BY_EMAIL_SUCCESS,
     identityProvider,
@@ -145,55 +145,55 @@ export const registerUserByEmailSuccess = (identityProvider: IdentityProvider): 
   }
 }
 
-export const registerUserByEmailError = (message: string): RegistrationResultAction => {
+export function registerUserByEmailError (message: string): RegistrationResultAction {
   return {
     type: REGISTER_USER_BY_EMAIL_ERROR,
     message: message
   }
 }
 
-export const didVerifyEmail = (result: boolean): AuthResultAction => {
+export function didVerifyEmail (result: boolean): AuthResultAction {
   return {
     type: DID_VERIFY_EMAIL,
     result
   }
 }
 
-export const didResendVerificationEmail = (result: boolean): AuthResultAction => {
+export function didResendVerificationEmail (result: boolean): AuthResultAction {
   return {
     type: DID_RESEND_VERIFICATION_EMAIL,
     result
   }
 }
 
-export const didForgotPassword = (result: boolean): AuthResultAction => {
+export function didForgotPassword (result: boolean): AuthResultAction {
   return {
     type: DID_FORGOT_PASSWORD,
     result
   }
 }
 
-export const didResetPassword = (result: boolean): AuthResultAction => {
+export function didResetPassword (result: boolean): AuthResultAction {
   return {
     type: DID_RESET_PASSWORD,
     result
   }
 }
 
-export const didCreateMagicLink = (result: boolean): AuthResultAction => {
+export function didCreateMagicLink (result: boolean): AuthResultAction {
   return {
     type: DID_CREATE_MAGICLINK,
     result
   }
 }
 
-export const loadedUserData = (user: User): LoadDataResultAction => {
+export function loadedUserData (user: User): LoadDataResultAction {
   return {
     type: LOADED_USER_DATA,
     user
   }
 }
-export const updateSettings = (message: any): RegistrationResultAction => {
+export function updateSettings (message: any): RegistrationResultAction {
   return {
     type: UPDATE_USER_SETTINGS,
     message

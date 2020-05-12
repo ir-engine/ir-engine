@@ -20,14 +20,14 @@ export interface ScenesFetchedAction {
     message?: string
 }
 
-export const scenesFetchedSuccess = (scenes: PublicScene[]): ScenesFetchedAction => {
+export function scenesFetchedSuccess (scenes: PublicScene[]): ScenesFetchedAction {
   return {
     type: SCENES_FETCHED_SUCCESS,
     scenes: scenes
   }
 }
 
-export const scenesFetchedError = (err: string): ScenesFetchedAction => {
+export function scenesFetchedError (err: string): ScenesFetchedAction {
   return {
     type: SCENES_FETCHED_ERROR,
     message: err

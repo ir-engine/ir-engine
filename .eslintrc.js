@@ -33,8 +33,7 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": [
       "error"
     ],
-    "prefer-arrow-callback": "error",
-    "func-style": ["error", "expression"]
+    "prefer-arrow-callback": "error"
   },
   overrides: [
     {

@@ -2,11 +2,11 @@ import axios from 'axios'
 
 export const apiUrl = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3030'
 
-export const getAuthHeader = () => {
+export function getAuthHeader () {
   return {}
 }
 
-export const ajaxGet = (url: string, noAuth: boolean) => {
+export function ajaxGet (url: string, noAuth: boolean) {
   if (noAuth) {
     return fetch(url, { method: 'GET' })
       .then(res => res.json())
@@ -17,7 +17,7 @@ export const ajaxGet = (url: string, noAuth: boolean) => {
   }
 }
 
-export const ajaxPost = (url: string, data: any, noAuth: boolean, image: boolean) => {
+export function ajaxPost (url: string, data: any, noAuth: boolean, image: boolean) {
   if (noAuth) {
     return fetch(url, {
       method: 'POST',
@@ -43,4 +43,4 @@ export const ajaxPost = (url: string, data: any, noAuth: boolean, image: boolean
   }
 }
 
-export const axiosRequest = (method: any, url: any, data?: any) => axios({ method, url, data })
+export function axiosRequest (method: any, url: any, data?: any): any { axios({ method, url, data }) }
