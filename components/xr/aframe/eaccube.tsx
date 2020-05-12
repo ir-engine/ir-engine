@@ -53,7 +53,7 @@ export const EaccubeComponentSchema: AFRAME.MultiPropertySchema<EaccubeComponent
   size: { type: 'int', default: 1000 }
 }
 
-function generateEACUV(tileOrder: string[], tileRotation: string[], tileFlip: string[]): number[] {
+const generateEACUV = (tileOrder: string[], tileRotation: string[], tileFlip: string[]): number[] => {
   const cubeFaceCoords: number[][] = []
   const rows = 2
   const cols = 3
@@ -95,7 +95,7 @@ function generateEACUV(tileOrder: string[], tileRotation: string[], tileFlip: st
 
   return uv
 }
-function transformFaceCoord(faceCoord: number[], tileRotation: string, tileFlip: string) {
+const transformFaceCoord = (faceCoord: number[], tileRotation: string, tileFlip: string) => {
   // flip first
   if (parseInt(tileFlip)) {
     faceCoord = flipFaceCoord(faceCoord)
@@ -104,7 +104,7 @@ function transformFaceCoord(faceCoord: number[], tileRotation: string, tileFlip:
   faceCoord = rotateFaceCoord(faceCoord, tileRotation)
   return faceCoord
 }
-function flipFaceCoord(faceCoord: number[]) {
+const flipFaceCoord = (faceCoord: number[]) => {
   return [
     faceCoord[6], faceCoord[7],
     faceCoord[4], faceCoord[5],
@@ -112,7 +112,7 @@ function flipFaceCoord(faceCoord: number[]) {
     faceCoord[0], faceCoord[1]
   ]
 }
-function rotateFaceCoord(faceCoord: number[], rotation: string) {
+const rotateFaceCoord = (faceCoord: number[], rotation: string) => {
   switch (rotation) {
     case TILE_ROTATION_LEFT:
       // 90 ccw

@@ -200,9 +200,8 @@ class SingleConnection extends React.Component<Props> {
   }
 }
 
-function SingleConnectionWrapper(props: any) {
+const SingleConnectionWrapper = (props: any) => {
   const classes = useStyles()
-
   return (
     <SingleConnection {...props} classes={classes}/>
   )

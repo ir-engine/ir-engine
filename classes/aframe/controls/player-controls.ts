@@ -27,4 +27,5 @@ export default class PlayerControls {
     player.setAttribute(controller.name, controller.options)
   }
 }
+
 export const defaultPlayerControllers = [new LookController(), new WASDController()]

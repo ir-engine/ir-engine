@@ -159,7 +159,7 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
   },
 
   update(oldData: GridData) {
-    var changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
+    const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
     if (changedData.includes('page')) {
       this.updateLayout()
       this.updatePaginators()

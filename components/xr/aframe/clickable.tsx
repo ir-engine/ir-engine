@@ -55,9 +55,9 @@ export const ClickableComponent: AFRAME.ComponentDefinition<ClickableProps> = {
   },
 
   update(oldData) {
-    var self = this
-    var data = self.data
-    var changedData = Object.keys(self.data).filter(x => self.data[x] !== oldData[x])
+    const self = this
+    const data = self.data
+    const changedData = Object.keys(self.data).filter(x => self.data[x] !== oldData[x])
 
     if (this.firstUpdate) {
       this.firstUpdate = false
@@ -95,7 +95,7 @@ export const ClickableComponent: AFRAME.ComponentDefinition<ClickableProps> = {
     if (this.intersectingRaycaster) {
       const intersection = this.intersectingRaycaster.getIntersection(this.el)
       if (intersection) {
-        var clickEvent = new Event(this.data.clickevent, { bubbles: true })
+        const clickEvent = new Event(this.data.clickevent, { bubbles: true })
         this.el.dispatchEvent(clickEvent)
       }
     }

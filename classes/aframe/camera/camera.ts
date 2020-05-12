@@ -8,6 +8,7 @@ export interface CameraComponentOptions extends AframeComponentOptions {
   spectator: boolean,
   zoom: number
 }
+
 export const defaultCameraComponentOptions: CameraComponentOptions = {
   active: true,
   far: 10000,

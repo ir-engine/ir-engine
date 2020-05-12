@@ -2,7 +2,7 @@ import React from 'react'
 import shaka from 'shaka-player'
 import AFRAME from 'aframe'
 
-function initApp(manifestUri: string) {
+const initApp = (manifestUri: string) => {
   shaka.polyfill.installAll()
 
   if (shaka.Player.isBrowserSupported()) {
@@ -12,24 +12,24 @@ function initApp(manifestUri: string) {
   }
 }
 
-function initPlayer(manifestUri: string) {
-  var video: HTMLVideoElement = document.getElementById('video360Shaka') as HTMLVideoElement
-  var player = new shaka.Player(video)
+const initPlayer = (manifestUri: string) => {
+  const video: HTMLVideoElement = document.getElementById('video360Shaka') as HTMLVideoElement
+  const player = new shaka.Player(video)
 
-  player.load(manifestUri).then(function() {
+  player.load(manifestUri).then(() => {
     console.log('The video has now been loaded!')
   })
   video.addEventListener('loadeddata', loadedDataVideoHandler)
 }
 
-function loadedDataVideoHandler() {
+const loadedDataVideoHandler = () => {
   if (AFRAME.utils.device.isIOS()) {
     // fix Safari iPhone bug with black screen
     forceIOSCanvasRepaint()
   }
 }
 
-function forceIOSCanvasRepaint() {
+const forceIOSCanvasRepaint = () => {
   const sceneEl = document.querySelector('a-scene')
   const canvasEl = sceneEl.canvas
   const width = canvasEl.width
@@ -51,7 +51,7 @@ export default class ShakaPlayer extends React.Component {
   }
 
   componentDidMount() {
-    var sceneEl = document.querySelector('a-scene')
+    const sceneEl = document.querySelector('a-scene')
     if (sceneEl?.hasLoaded) initApp(this.props.manifestUri)
     else sceneEl?.addEventListener('loaded', initApp.bind(this, this.props.manifestUri))
   }

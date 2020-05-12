@@ -69,10 +69,8 @@ export const ArrowComponent: AFRAME.ComponentDefinition<ArrowProps> = {
   },
 
   createArrow() {
-    var self = this
-    var data = self.data
-
-    var mat, geom, mesh
+    const self = this
+    const data = self.data
 
     data.offset = {
       x: 0 + data.x,
@@ -80,18 +78,18 @@ export const ArrowComponent: AFRAME.ComponentDefinition<ArrowProps> = {
       z: 0 + data.z
     }
 
-    var shape = new THREE.Shape()
-    var width = data.width
-    var height = data.height
+    const shape = new THREE.Shape()
+    const width = data.width
+    const height = data.height
 
     shape.moveTo(0, height / 2)
     shape.lineTo(width / 2, -height / 2)
     shape.lineTo(-width / 2, -height / 2)
     shape.lineTo(0, height / 2)
 
-    geom = new THREE.ShapeBufferGeometry(shape)
+    const geom = new THREE.ShapeBufferGeometry(shape)
 
-    var rotationZ = data.angle
+    let rotationZ = data.angle
     switch (data.direction) {
       case 'up':
         break
@@ -112,16 +110,16 @@ export const ArrowComponent: AFRAME.ComponentDefinition<ArrowProps> = {
     geom.translate(data.offset.x, data.offset.y, data.offset.z)
 
     // var color = data.color
-    var opacity = data.disabled ? data.disabledopacity : data.opacity
-    var transparent = !!data.disabled
-    mat = new THREE.MeshBasicMaterial({
+    const opacity = data.disabled ? data.disabledopacity : data.opacity
+    const transparent = !!data.disabled
+    const mat = new THREE.MeshBasicMaterial({
       // color: new THREE.Color(color),
       transparent: transparent,
       opacity: opacity,
       side: THREE.DoubleSide
     })
 
-    mesh = new THREE.Mesh(geom, mat)
+    const mesh = new THREE.Mesh(geom, mat)
     mesh.name = 'arrow'
 
     self.el.setObject3D('mesh', mesh)
