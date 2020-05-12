@@ -28,6 +28,7 @@ module.exports = {
     '@typescript-eslint/promise-function-async': 'off',
     "space-before-function-paren": "off",
     "no-var": "error",
-    "semi": "error"
+    "semi": "error",
+    "prefer-arrow-callback": "error"
   }
 }
