@@ -35,8 +35,8 @@ export default (app: Application): any => {
   });
 
   (identityProvider as any).associate = (models: any) => {
-    (identityProvider as any).belongsTo(models.identity_provider_type, { foreignKey: 'type', required: true });
-    (identityProvider as any).belongsTo(models.user, { primaryKey: true })
+    (identityProvider as any).belongsTo(models.identity_provider_type, { foreignKey: 'type', required: true, primaryKey: true });
+    (identityProvider as any).belongsTo(models.user, { required: true, primaryKey: true })
   }
 
   return identityProvider
