@@ -8,7 +8,7 @@ export type AuthUser = {
   identityProvider: IdentityProvider
 }
 
-export const resolveAuthUser = (res: any): AuthUser => {
+export function resolveAuthUser (res: any): AuthUser {
   return {
     accessToken: res.accessToken,
     authentication: res.authentication,

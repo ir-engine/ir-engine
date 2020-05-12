@@ -31,7 +31,7 @@ const { publicRuntimeConfig } = getConfig()
 const apiServer: string = publicRuntimeConfig.apiServer
 const authConfig = publicRuntimeConfig.auth
 
-export const doLoginAuto = async (dispatch: Dispatch) => {
+export async function doLoginAuto (dispatch: Dispatch) {
   const authData = getStoredState('auth')
   const accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined
 
@@ -57,7 +57,7 @@ export const doLoginAuto = async (dispatch: Dispatch) => {
     })
 }
 
-export const loadUserData = async (dispatch: Dispatch, userId: string) => {
+export async function loadUserData (dispatch: Dispatch, userId: string) {
   client.service('user').get(userId)
     .then((res: any) => {
       const user = resolveUser(res)
@@ -69,7 +69,7 @@ export const loadUserData = async (dispatch: Dispatch, userId: string) => {
     })
 }
 
-export const loginUserByPassword = (form: EmailLoginForm) => {
+export async function loginUserByPassword (form: EmailLoginForm) {
   return (dispatch: Dispatch) => {
     // check email validation.
     if (!validateEmail(form.email)) {
@@ -113,23 +113,21 @@ export const loginUserByPassword = (form: EmailLoginForm) => {
   }
 }
 
-export const loginUserByGithub = () => {
+export function loginUserByGithub () {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
-
     window.location.href = `${apiServer}/oauth/github`
   }
 }
 
-export const loginUserByGoogle = () => {
+export function loginUserByGoogle () {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
-
     window.location.href = `${apiServer}/oauth/google`
   }
 }
 
-export const loginUserByFacebook = () => {
+export function loginUserByFacebook () {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -137,7 +135,7 @@ export const loginUserByFacebook = () => {
   }
 }
 
-export const loginUserByJwt = (accessToken: string, redirectSuccess: string, redirectError: string) => {
+export function loginUserByJwt (accessToken: string, redirectSuccess: string, redirectError: string): any {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -162,7 +160,7 @@ export const loginUserByJwt = (accessToken: string, redirectSuccess: string, red
   }
 }
 
-export const logoutUser = () => {
+export function logoutUser () {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
     client.logout()
@@ -172,7 +170,7 @@ export const logoutUser = () => {
   }
 }
 
-export const registerUserByEmail = (form: EmailRegistrationForm) => {
+export function registerUserByEmail (form: EmailRegistrationForm) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -194,7 +192,7 @@ export const registerUserByEmail = (form: EmailRegistrationForm) => {
   }
 }
 
-export const verifyEmail = (token: string) => {
+export function verifyEmail (token: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -215,7 +213,7 @@ export const verifyEmail = (token: string) => {
   }
 }
 
-export const resendVerificationEmail = (email: string) => {
+export function resendVerificationEmail (email: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -232,7 +230,7 @@ export const resendVerificationEmail = (email: string) => {
   }
 }
 
-export const forgotPassword = (email: string) => {
+export function forgotPassword (email: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -249,7 +247,7 @@ export const forgotPassword = (email: string) => {
   }
 }
 
-export const resetPassword = (token: string, password: string) => {
+export function resetPassword (token: string, password: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -271,7 +269,7 @@ export const resetPassword = (token: string, password: string) => {
   }
 }
 
-export const createMagicLink = (emailPhone: string, linkType?: 'email' | 'sms') => {
+export function createMagicLink (emailPhone: string, linkType?: 'email' | 'sms') {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -327,7 +325,7 @@ export const createMagicLink = (emailPhone: string, linkType?: 'email' | 'sms') 
   }
 }
 
-export const addConnectionByPassword = (form: EmailLoginForm, userId: string) => {
+export function addConnectionByPassword (form: EmailLoginForm, userId: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -349,7 +347,7 @@ export const addConnectionByPassword = (form: EmailLoginForm, userId: string) =>
   }
 }
 
-export const addConnectionByEmail = (email: string, userId: string) => {
+export function addConnectionByEmail (email: string, userId: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -370,7 +368,7 @@ export const addConnectionByEmail = (email: string, userId: string) => {
   }
 }
 
-export const addConnectionBySms = (phone: string, userId: string) => {
+export function addConnectionBySms (phone: string, userId: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -391,13 +389,13 @@ export const addConnectionBySms = (phone: string, userId: string) => {
   }
 }
 
-export const addConnectionByOauth = (oauth: 'facebook' | 'google' | 'github', userId: string) => {
+export function addConnectionByOauth (oauth: 'facebook' | 'google' | 'github', userId: string) {
   return (/* dispatch: Dispatch */) => {
     window.open(`${apiServer}/oauth/${oauth}?userId=${userId}`, '_blank')
   }
 }
 
-export const removeConnection = (identityProviderId: number, userId: string) => {
+export function removeConnection (identityProviderId: number, userId: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -413,7 +411,7 @@ export const removeConnection = (identityProviderId: number, userId: string) => 
   }
 }
 
-export const refreshConnections = (userId: string) => (dispatch: Dispatch) => loadUserData(dispatch, userId)
+export function refreshConnections (userId: string) { (dispatch: Dispatch) => loadUserData(dispatch, userId) }
 
 export const updateUserSettings = (id: any, data: any) => async (dispatch: any) => {
   const res = await axiosRequest('PATCH', `${apiUrl}/user-settings/${id}`, data)

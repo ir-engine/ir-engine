@@ -6,7 +6,7 @@ export type User = {
   identityProviders: IdentityProvider[]
 }
 
-export const resolveUser = (user: any): User => {
+export function resolveUser (user: any): User {
   if (user && user.identity_providers) {
     return {
       ...user,

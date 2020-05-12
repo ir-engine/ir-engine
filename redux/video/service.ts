@@ -11,7 +11,7 @@ import axios from 'axios'
 import { apiUrl } from '../service.common'
 import { client } from '../feathers'
 
-export const fetchPublicVideos = () => {
+export function fetchPublicVideos () {
   return (dispatch: Dispatch) => {
     client.service('static-resource').find({ query: { $limit: 30, mime_type: 'application/dash+xml' } })
       .then((res: any) => {
@@ -26,7 +26,7 @@ export const fetchPublicVideos = () => {
   }
 }
 
-export const uploadFile = (data: any) => {
+export function uploadFile (data: any) {
   return async (dispatch: Dispatch) => {
     console.log(data, 'dataform')
     const res = await axios.post(`${apiUrl}/upload`, data, {

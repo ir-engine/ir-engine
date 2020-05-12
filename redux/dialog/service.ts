@@ -4,12 +4,12 @@ import {
   dialogClose
 } from './actions'
 
-export const showDialog = (content: any) => {
+export function showDialog(content: any) {
   return (dispatch: Dispatch) => {
     dispatch(dialogShow(content))
   }
 }
-export const closeDialog = () => {
+export function closeDialog() {
   return (dispatch: Dispatch) => {
     dispatch(dialogClose())
   }
