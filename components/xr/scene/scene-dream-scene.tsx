@@ -1,6 +1,5 @@
 import React from 'react'
-// @ts-ignore
-import { Scene } from 'aframe-react' // Entity,
+import SceneContainer from './scene-container'
 import AFRAME from 'aframe'
 // import Assets from './assets'
 import Environment from './environment-dream'
@@ -36,14 +35,11 @@ export default class DreamSceneScene extends React.Component<State> {
     return (
       <div style={{ height: '100%', width: '100%' }}>
         {this.state.appRendered && (
-          <Scene
-            class="scene"
-            renderer="antialias: true"
-            background="color: #FAFAFA"
+          <SceneContainer
           >
             <Environment/>
             <Player/>
-          </Scene>
+          </SceneContainer>
         )}
       </div>
     )
