@@ -3,7 +3,7 @@ class Cylinder {
   constructor(public cellsPerRow = 36, public cellHeight = 1, public cellWidth = 1, public radius = 1) {
   }
 
-  cellPosition(cellIndexOrColumn: number, cellRow = undefined) {
+  cellPosition(cellIndexOrColumn: number, cellRow: number | undefined = undefined) {
     var row = cellRow === undefined ? this.getCellRow(cellIndexOrColumn) : cellRow
     var theta = cellRow === undefined ? this.getCellTheta(cellIndexOrColumn) : this.getColumnTheta(cellIndexOrColumn)
 
@@ -16,8 +16,8 @@ class Cylinder {
   }
 
   // Degrees
-  cellRotation(cellIndex: number) {
-    var theta = this.getCellTheta(cellIndex)
+  cellRotation(cellIndexOrColumn: number, isIndex: boolean = true) {
+    const theta = isIndex ? this.getCellTheta(cellIndexOrColumn) : this.getCellThetaFromColumn(cellIndexOrColumn)
 
     var roty = theta
     var rotx = 0
@@ -30,6 +30,11 @@ class Cylinder {
   getCellTheta(cellIndex: number) {
     var column = this.getCellColumn(cellIndex)
     var thetaPrime = 2 * Math.PI / this.cellsPerRow
+    return thetaPrime * column
+  }
+
+  getCellThetaFromColumn(column: number) {
+    const thetaPrime = 2 * Math.PI / this.cellsPerRow
     return thetaPrime * column
   }
 

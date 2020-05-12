@@ -1,5 +1,5 @@
 import AFRAME from 'aframe'
-import { CylindricalGrid } from '../../../classes/aframe/layout/GridUtils'
+import { CylindricalGrid, Cylinder } from '../../../classes/aframe/layout/GridUtils'
 
 export const ComponentName = 'grid'
 
@@ -73,7 +73,6 @@ export const GridSystemDef: AFRAME.SystemDefinition<GridSystemProps> = {
 
 export interface GridData {
   [key: string]: any,
-  numberOfCells: number,
   gridCellsPerRow?: number,
   cellHeight?: number,
   radius?: number,
@@ -82,14 +81,12 @@ export interface GridData {
   cellWidth?: number,
   cellContentHeight?: number,
   page?: number,
-  pages?: number,
   pageLeftEvent?: string,
   pageRightEvent?: string,
   // TODO : media type
 }
 
 export const GridComponentSchema: AFRAME.MultiPropertySchema<GridData> = {
-  numberOfCells: { default: 15 },
   gridCellsPerRow: { default: 28 },
   cellHeight: { default: 0.6 },
   radius: { default: 6 },
@@ -98,19 +95,27 @@ export const GridComponentSchema: AFRAME.MultiPropertySchema<GridData> = {
   cellWidth: { default: 1 },
   cellContentHeight: { default: 0.5 },
   page: { default: 0 },
-  pages: { default: 2 },
   pageLeftEvent: { default: 'pageleft' },
   pageRightEvent: { default: 'pageright' }
 }
 
 export interface GridProps {
   initGrid: () => void,
+  cylinder: Cylinder,
   cylindricalGrid: CylindricalGrid,
+  cellsPerPage: number,
+  totalCells: number,
+  pages: number,
   updateLayout: () => void,
   updateChildren: () => void,
   children: AFRAME.Entity[],
+  addPaginators: () => void,
+  createPaginator: (side: string) => AFRAME.Entity,
+  updatePaginators: () => void,
   pageLeftHandler: () => void,
   pageRightHandler: () => void,
+  canPageLeft: boolean,
+  canPageRight: boolean,
   addHandlers: () => void,
   removeHandlers: () => void
 }
@@ -120,10 +125,21 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
   data: {
   } as GridData,
 
+  cylinder: {} as Cylinder,
   cylindricalGrid: {} as CylindricalGrid,
+  cellsPerPage: 0,
+  totalCells: 0,
+  pages: 0,
   children: [] as AFRAME.Entity[],
+  canPageLeft: false,
+  canPageRight: false,
 
   init () {
+    this.cellsPerPage = this.data.rows * this.data.columns
+    this.cylinder = new Cylinder(this.data.cellsPerRow,
+      this.data.cellHeight,
+      this.data.cellWidth,
+      this.data.radius)
     this.cylindricalGrid = new CylindricalGrid(this.data.cellsPerRow,
       this.data.cellHeight,
       this.data.cellWidth,
@@ -146,6 +162,7 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
     var changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
     if (changedData.includes('page')) {
       this.updateLayout()
+      this.updatePaginators()
     }
   },
   initGrid() {
@@ -158,6 +175,9 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
     this.el.object3D.position.set(posObj.x, posObj.y, posObj.z)
 
     this.updateLayout()
+
+    this.addPaginators()
+    this.updatePaginators()
   },
 
   updateLayout() {
@@ -167,8 +187,8 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
       (this.system as AFRAME.SystemDefinition<GridSystemProps>).updateLayout(
         this.cylindricalGrid,
         this.children,
-        this.data.page * this.data.numberOfCells,
-        (this.data.page + 1) * this.data.numberOfCells
+        this.data.page * this.cellsPerPage,
+        (this.data.page + 1) * this.cellsPerPage
       )
     }
   },
@@ -178,11 +198,55 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
     this.children = (this.el as AFRAME.Entity).getChildEntities().filter(
       // eslint-disable-next-line no-prototype-builtins
       (el: AFRAME.Entity) => { return el.components.hasOwnProperty('grid-cell') })
+    this.totalCells = this.children.length
+    this.pages = Math.ceil(this.totalCells / this.cellsPerPage)
   },
 
   // gridItemAppendedHandler(evt) {
   //   this.system.updateLayout(this.data, this.children);
   // }
+  updatePaginators() {
+    const leftDisabled = this.data.page === 0
+    const rightDisabled = (this.data.page + 1) * this.cellsPerPage >= this.totalCells
+
+    const leftPaginator = this.el.querySelector('.left-paginator')
+    const rightPaginator = this.el.querySelector('.right-paginator')
+
+    leftPaginator?.setAttribute('highlight', { disabled: leftDisabled })
+    rightPaginator?.setAttribute('highlight', { disabled: rightDisabled })
+  },
+
+  createPaginator (side: string) {
+    const paginatorEl = document.createElement('a-arrow')
+    paginatorEl.classList.add(side + '-paginator')
+    paginatorEl.setAttribute('direction', side)
+    paginatorEl.setAttribute('width', 0.35)
+    paginatorEl.setAttribute('height', 0.2)
+
+    paginatorEl.setAttribute('clickable', { clickevent: 'page' + side })
+    paginatorEl.setAttribute('highlight', {
+      type: 'color',
+      borderbaseopacity: 0.7,
+      disabledopacity: 0.2,
+      color: 0xe8f1ff
+    })
+
+    const col = side === 'left' ? this.data.columns : 0
+    const pos = this.cylinder.cellPosition(col, 0)
+    paginatorEl.object3D.position.set(pos.x - 0.1525, pos.y, pos.z)
+    const rot = this.cylinder.cellRotation(col, false)
+    paginatorEl.object3D.rotation.set(rot.x, rot.y + Math.PI, rot.z)
+
+    return paginatorEl
+  },
+
+  addPaginators() {
+    const pageLeftEl = this.createPaginator('left')
+    this.el.appendChild(pageLeftEl)
+
+    const pageRightEl = this.createPaginator('right')
+    this.el.appendChild(pageRightEl)
+  },
 
   pageLeftHandler() {
     if (this.data.page > 0) {
@@ -191,7 +255,7 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
   },
 
   pageRightHandler() {
-    if (this.data.page < this.data.pages) {
+    if (this.data.page < this.pages) {
       this.el.setAttribute('page', this.data.page + 1)
     }
   },
@@ -222,9 +286,7 @@ export const GridPrimitive: AFRAME.PrimitiveDefinition = {
     'cell-height': ComponentName + '.cellHeight',
     'cell-width': ComponentName + '.cellWidth',
     'cell-content-height': ComponentName + '.cellContentHeight',
-    page: ComponentName + '.page',
-    pages: ComponentName + '.pages',
-    'number-of-cells': ComponentName + '.numberOfCells'
+    page: ComponentName + '.page'
   }
 }
 

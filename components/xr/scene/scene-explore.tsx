@@ -91,27 +91,13 @@ function ExploreScene (props: VideoProps): any {
       '&videoformat=' + videoformat
   }
 
-  const pageLeft = () => {
-    const grids = document.querySelectorAll('.grid')
-    grids[0].dispatchEvent(new Event('pageleft'))
-  }
-
-  const pageRight = () => {
-    const grids = document.querySelectorAll('.grid')
-    grids[0].dispatchEvent(new Event('pageright'))
-  }
-
   useEffect(() => {
     if (videos.get('videos').size === 0) {
       fetchPublicVideos()
     }
-    document.addEventListener('pageleft', pageLeft)
-    document.addEventListener('pageright', pageRight)
     document.addEventListener('watchbutton', watchVideo)
     document.addEventListener('backbutton', unFocusCell)
     return () => {
-      document.removeEventListener('pageleft', pageLeft)
-      document.removeEventListener('pageright', pageRight)
       document.removeEventListener('watchbutton', watchVideo)
       document.removeEventListener('backbutton', unFocusCell)
     }
@@ -126,45 +112,12 @@ function ExploreScene (props: VideoProps): any {
     >
       <AframeComponentRegisterer />
       <Entity position="0 1.6 0">
-        <Entity
-          id="leftarrow"
-          position="-3 0 -6"
-          primitive="a-arrow"
-          direction="left"
-          width={0.35}
-          height={0.2}
-          clickable="clickevent: pageleft"
-          highlight={{
-            type: 'color',
-            borderbaseopacity: 0.7,
-            disabledopacity: 0.2,
-            color: 0xe8f1ff
-          }}
-        />
-        <Entity
-          id="rightarrow"
-          position="3 0 -6"
-          primitive="a-arrow"
-          direction="right"
-          width={0.35}
-          height={0.2}
-          clickable="clickevent: pageright"
-          highlight={{
-            type: 'color',
-            borderbaseopacity: 0.7,
-            disabledopacity: 0.2,
-            color: 0xe8f1ff
-          }}
-        />
         { exploreState.focusedCellEl === null &&
         <Entity
           class="grid"
           primitive="a-grid"
           rows={3}
-          colunns={5}
-          page={0}
-          pages={2}
-          numberOfCells={15}>
+          colunns={5}>
 
           {videos.get('videos').map(function (video: PublicVideo, i: number) {
             return (
