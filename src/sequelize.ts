@@ -6,6 +6,8 @@ import seederConfig from './seeder-config'
 import seeder from 'feathers-seeder'
 import { db } from './db-config'
 
+console.log('db config:', db)
+
 export default (app: Application): void => {
   const { url, forceRefresh, dialect } = db
 
