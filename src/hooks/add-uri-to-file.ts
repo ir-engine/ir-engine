@@ -3,7 +3,7 @@ import { Hook, HookContext } from '@feathersjs/feathers'
 import * as path from 'path'
 import _ from 'lodash'
 
-export default (options = {}): Hook => {
+export default function (options = {}): Hook {
   return async (context: HookContext) => {
     if (!context.data.uri && context.params.file) {
       const file = context.params.file

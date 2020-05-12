@@ -3,12 +3,12 @@ export const seed = {
   delete: true,
   path: 'user-role',
   templates:
-      [
-        { userRole: 'admin' },
-        { userRole: 'moderator' },
-        { userRole: 'user' },
-        { userRole: 'guest' }
-      ]
+    [
+      { userRole: 'admin' },
+      { userRole: 'moderator' },
+      { userRole: 'user' },
+      { userRole: 'guest' }
+    ]
 }
 
 export default seed
