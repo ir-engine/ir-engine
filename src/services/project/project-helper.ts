@@ -28,7 +28,7 @@ export const mapSceneData = (scene: any, projectId: string): any => {
   delete selectedSceneData.scene_owned_file
   return selectedSceneData
 }
-export const defaultProjectImport = (models: any): any[] => {
+export function defaultProjectImport (models: any): any[] {
   const includedEntities = [
     {
       model: models.owned_file,

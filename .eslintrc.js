@@ -21,7 +21,6 @@ module.exports = {
   // These are Standard.js overrides, for rules that don't play well with
   // Feathers.js auto-generated code
   rules: {
-    // "allowTypedFunctionExpressions": 1,
     '@typescript-eslint/default-param-last': 'off',
     '@typescript-eslint/no-empty-interface': 'off',
     '@typescript-eslint/require-await': 'off',
@@ -29,8 +28,7 @@ module.exports = {
     '@typescript-eslint/promise-function-async': 'off',
     "space-before-function-paren": "off",
     "no-var": "error",
-    "prefer-arrow-callback": "error",
-    "func-style": ["error", "expression"],
-    "semi": "error"
+    "semi": "error",
+    "prefer-arrow-callback": "error"
   }
 }
