@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 // @ts-ignore
 import { Scene, Entity } from 'aframe-react'
+import Assets from './assets'
 import Environment from './environment'
 import Player from '../player/player'
 import './style.scss'
@@ -46,6 +47,7 @@ const DreamScene = (props: DreamProps): any => {
       background="color: #FAFAFA"
     >
       <AframeComponentRegisterer />
+      <Assets />
       <Entity position="0 1.6 0">
         <Entity primitive="a-grid" rows={3}>
           {scenes.get('scenes').map((x: PublicScene, i: number) => {

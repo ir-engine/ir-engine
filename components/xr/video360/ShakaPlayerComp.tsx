@@ -1,15 +1,6 @@
 import React from 'react'
 import shaka from 'shaka-player'
 import AFRAME from 'aframe'
-import { useRouter } from 'next/router'
-
-// choose dash or hls
-const getManifestUri = (manifestPath: string): string => {
-  return AFRAME.utils.device.isIOS() ? manifestPath.replace(dashManifestName, hlsPlaylistName) : manifestPath
-}
-
-const dashManifestName = 'manifest.mpd'
-const hlsPlaylistName = 'master.m3u8'
 
 const initApp = (manifestUri: string) => {
   shaka.polyfill.installAll()
@@ -50,20 +41,13 @@ const forceIOSCanvasRepaint = () => {
   canvasEl.height = height
 }
 
-export default class ShakaPlayerComponent extends React.Component {
-  props: propTypes
+export default class ShakaPlayer extends React.Component {
+  props: shakaPropTypes
 
-  constructor(props: propTypes) {
+  constructor(props: shakaPropTypes) {
     super(props)
 
     this.props = props
-  }
-
-  router = useRouter()
-  manifest: any = this.router.query.manifest as string
-
-  shakaPlayerProps = {
-    manifestUri: getManifestUri(this.manifest)
   }
 
   componentDidMount() {
@@ -77,6 +61,6 @@ export default class ShakaPlayerComponent extends React.Component {
   }
 }
 
-type propTypes = {
+export interface shakaPropTypes extends React.Props<any> {
   manifestUri: string,
 }
