@@ -1,5 +1,6 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
+import bcrypt from 'bcrypt'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -17,6 +18,10 @@ export default (app: Application): any => {
     hooks: {
       beforeCount (options: any) {
         options.raw = true
+      },
+      async beforeCreate (options: any) {
+        options.dataValues.password = await bcrypt.hash(options.dataValues.password, 10)
+        options.dataValues.token = await bcrypt.hash(options.dataValues.token, 10)
       }
     },
     indexes: [

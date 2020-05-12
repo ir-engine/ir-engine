@@ -6,6 +6,7 @@ import { HookContext } from '@feathersjs/feathers'
 
 const verifyHooks = require('feathers-authentication-management').hooks
 // const { authenticate } = feathersAuthentication.hooks
+
 const { protect } = local.hooks
 
 const isPasswordAccountType = () => {
@@ -45,7 +46,7 @@ export default {
 
   after: {
     all: [
-      protect('password')
+      protect('password'), protect('token')
     ],
     find: [],
     get: [],

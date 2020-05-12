@@ -1,17 +1,18 @@
-// // TODO: Add collection type association
-
 import app from '../../src/app'
-import { sequelize } from '../../src/models'
 
 describe('CRUD operation on \'Collection\' model', () => {
   const model = app.service('collection').Model
+  const collectionTypeModel = app.service('collection-type').Model
+  let collectionType: any
 
   before(async () => {
-    await sequelize.sync()
-
-    // setTimeout(() => {
-    //   console.log('Waited for thirty seconds before test started.')
-    // }, 30000)
+    setTimeout(() => {
+      console.log('Waited for thirty seconds before test started.')
+    }, 30000)
+    const collection = await collectionTypeModel.create({
+      type: 'test_collection'
+    })
+    collectionType = collection.type
   })
 
   it('Create', done => {
@@ -19,8 +20,9 @@ describe('CRUD operation on \'Collection\' model', () => {
       name: 'test',
       description: 'test description',
       metadata: JSON.stringify({ a: 'test' }),
-      isPublic: true
-    }).then(() => {
+      isPublic: true,
+      type: collectionType
+    }).then(res => {
       done()
     }).catch(done)
   })
@@ -30,7 +32,7 @@ describe('CRUD operation on \'Collection\' model', () => {
       where: {
         name: 'test'
       }
-    }).then(() => {
+    }).then(res => {
       done()
     }).catch(done)
   })
@@ -39,7 +41,7 @@ describe('CRUD operation on \'Collection\' model', () => {
     model.update(
       { description: 'test1 description' },
       { where: { name: 'test' } }
-    ).then(() => {
+    ).then(res => {
       done()
     }).catch(done)
   })
@@ -47,8 +49,16 @@ describe('CRUD operation on \'Collection\' model', () => {
   it('Delete', done => {
     model.destroy({
       where: { name: 'test' }
-    }).then(() => {
+    }).then(res => {
       done()
     }).catch(done)
+  })
+
+  after(async () => {
+    collectionTypeModel.destroy({
+      where: {
+        type: collectionType
+      }
+    })
   })
 })
