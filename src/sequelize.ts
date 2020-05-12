@@ -4,21 +4,16 @@ import { Application } from './declarations'
 import seederConfig from './seeder-config'
 // @ts-ignore
 import seeder from 'feathers-seeder'
+import { db } from './db-config'
+
+console.log('db config:', db)
 
 export default (app: Application): void => {
-  let connectionString
-  if (process.env.KUBERNETES === 'true') {
-    const dbUser = process.env.MYSQL_USER ?? ''
-    const dbPass = process.env.MYSQL_PASSWORD ?? ''
-    const dbHost = process.env.MYSQL_HOST ?? ''
-    const dbName = process.env.MYSQL_DATABASE ?? ''
-    connectionString = 'mysql://' + dbUser + ':' + dbPass + '@' + dbHost + ':3306/' + dbName
-  } else {
-    connectionString = app.get('mysql')
-  }
-  const sequelize = new Sequelize(connectionString, {
-    dialect: 'mysql',
-    logging: (process.env.FORCE_DB_REFRESH === 'true'),
+  const { forceRefresh } = db
+
+  const sequelize = new Sequelize({
+    ...db,
+    logging: forceRefresh,
     define: {
       freezeTableName: true
     }
@@ -29,12 +24,13 @@ export default (app: Application): void => {
 
   app.setup = function (...args: any) {
     // Sync to the database
-    app.set('sequelizeSync', sequelize.sync({ force: (process.env.FORCE_DB_REFRESH === 'true') }).then(() => {
-      // @ts-ignore
-      app.configure(seeder(seederConfig)).seed()
-    }).catch(error => {
-      console.log(error)
-    })
+    app.set('sequelizeSync',
+      sequelize.sync({ force: forceRefresh })
+        .then(() => {
+          // @ts-ignore
+          app.configure(seeder(seederConfig)).seed()
+        })
+        .catch(console.error)
     )
     return oldSetup.apply(this, args)
   }

@@ -61,7 +61,6 @@
       }
     }
   },
-  "mysql": "mysql://server:password@localhost:3306/xrchat",
   "aws": {
     "s3": {
       "blob_bucket_name": "blob-storage-test",
