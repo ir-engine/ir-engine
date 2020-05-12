@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
-// @ts-ignore
-import { Scene, Entity } from 'aframe-react'
+import SceneContainer from './scene-container'
+import { Entity } from 'aframe-react'
 import Assets from './assets'
 import Environment from './environment'
 import Player from '../player/player'
@@ -40,12 +40,7 @@ function DreamScene (props: DreamProps): any {
     }
   })
   return (
-    <Scene
-      vr-mode-ui="enterVRButton: #enterVRButton"
-      class="scene"
-      renderer="antialias: true"
-      background="color: #FAFAFA"
-    >
+    <SceneContainer>
       <AframeComponentRegisterer />
       <Assets />
       <Entity position="0 1.6 0">
@@ -74,7 +69,7 @@ function DreamScene (props: DreamProps): any {
       <a className="enterVR" id="enterVRButton" href="#">
         <SvgVr className="enterVR" />
       </a>
-    </Scene>
+    </SceneContainer>
   )
 }
 
