@@ -28,7 +28,7 @@ export default (app: Application): any => {
   (User as any).associate = (models: any) => {
     (User as any).belongsTo(models.user_role, { foreignKey: 'userRole' });
     (User as any).belongsTo(models.instance); // user can only be in one room at a time
-    (User as any).hasOne(models.user_settings);
+    (User as any).hasOne(models.user_settings, { foreignKey: 'userSettingsId' });
     (User as any).hasOne(models.party, { through: 'party_user' }); // user can only be part of one party at a time
     (User as any).hasMany(models.collection);
     (User as any).hasMany(models.entity);
