@@ -29,6 +29,7 @@ module.exports = {
     "no-unused-expressions":"off",
     "react/no-unknown-property":"off",
     "no-var": "error",
+    "react/react-in-jsx-scope": "off",
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": [
       "error"

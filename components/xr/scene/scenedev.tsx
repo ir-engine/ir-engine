@@ -1,6 +1,6 @@
 import React from 'react'
-// @ts-ignore
-import { Scene, Assets, Entity } from 'aframe-react'
+import SceneContainer from './scene-container'
+import { Assets, Entity } from 'aframe-react'
 import Environment from './environment'
 import Player from '../player/player'
 import './style.scss'
@@ -95,12 +95,7 @@ export default class SceneRoot extends React.Component<Props> {
   render() {
     return (
       <div style={{ height: '100%', width: '100%' }}>
-        <Scene
-          vr-mode-ui="enterVRButton: #enterVRButton"
-          loading-screen="dotsColor: purple; backgroundColor: black; enabled: true"
-          class="scene"
-          renderer="antialias: true"
-        >
+        <SceneContainer>
           <AframeComponentRegisterer />
 
           <Assets id="aframeAssets">
@@ -149,7 +144,7 @@ export default class SceneRoot extends React.Component<Props> {
           <a className="enterVR" id="enterVRButton" href="#">
             <SvgVr className="enterVR" />
           </a>
-        </Scene>
+        </SceneContainer>
       </div>
     )
   }

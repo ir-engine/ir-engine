@@ -1,6 +1,6 @@
 import React from 'react'
-// @ts-ignore
-import { Entity, Scene } from 'aframe-react'
+import SceneContainer from './scene-container'
+import { Entity } from 'aframe-react'
 import AFRAME from 'aframe'
 import Assets from './assets'
 import Video360 from '../video360/Video360Room'
@@ -36,11 +36,7 @@ export default class VideoScene extends React.Component<State> {
     return (
       <div style={{ height: '100%', width: '100%' }}>
         {this.state.appRendered && (
-          <Scene
-            class="scene"
-            renderer="antialias: true"
-            background="color: #FAFAFA"
-          >
+          <SceneContainer>
             <Assets/>
             <Video360/>
             <Entity camera={{}} look-controls={{}} position={{ x: 0, y: 1.6, z: 0 }}>
@@ -50,7 +46,7 @@ export default class VideoScene extends React.Component<State> {
                 material={{ shader: 'flat', color: 'red' }}>
               </Entity>
             </Entity>
-          </Scene>
+          </SceneContainer>
         )}
       </div>
     )

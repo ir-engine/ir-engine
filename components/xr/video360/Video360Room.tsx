@@ -56,11 +56,11 @@ function Video360Room() {
         videosrc="#video360Shaka" videotext="#videotext" videovrui="#video-player-vr-ui" />
       <Entity id="videotext"
         text={{
-          font: 'mozillavr',
+          font: 'roboto',
           width: 2,
           align: 'center',
           baseline: 'center',
-          color: 'black',
+          color: 'white',
           transparent: false,
           value: text
         }}
