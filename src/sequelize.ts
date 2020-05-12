@@ -9,10 +9,10 @@ import { db } from './db-config'
 console.log('db config:', db)
 
 export default (app: Application): void => {
-  const { url, forceRefresh, dialect } = db
+  const { forceRefresh } = db
 
-  const sequelize = new Sequelize(url, {
-    dialect,
+  const sequelize = new Sequelize({
+    ...db,
     logging: forceRefresh,
     define: {
       freezeTableName: true
