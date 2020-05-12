@@ -127,7 +127,7 @@ class ForgotPassword extends React.Component<Props> {
   }
 }
 
-function ForgotPasswordWrapper(props: any) {
+const ForgotPasswordWrapper = (props: any) => {
   const classes = useStyles()
   return <ForgotPassword {...props} classes={classes}/>
 }

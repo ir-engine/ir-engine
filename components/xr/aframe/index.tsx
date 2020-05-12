@@ -34,7 +34,7 @@ const ComponentSystemArray: ComponentSystem[] = [
   videoDetails
 ]
 
-function RegisterComponentSystem(compsys: ComponentSystem) : void {
+const RegisterComponentSystem = (compsys: ComponentSystem) : void => {
   if (compsys.system && !AFRAME.systems.hasOwnProperty(compsys.name)) {
     AFRAME.registerSystem(compsys.name, compsys.system)
   }

@@ -168,7 +168,7 @@ class MagicLinkEmail extends React.Component<Props> {
   }
 }
 
-function MagicLinkEmailWrapper(props: any) {
+const MagicLinkEmailWrapper = (props: any) => {
   return <MagicLinkEmail {...props}/>
 }
 

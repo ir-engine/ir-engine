@@ -49,7 +49,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   fetchPublicVideos: bindActionCreators(fetchPublicVideos, dispatch)
 })
 
-function ExploreScene (props: VideoProps): any {
+const ExploreScene = (props: VideoProps): any => {
   const { videos, fetchPublicVideos } = props
 
   const [exploreState, setExploreState] = useState<ExploreState>({ focusedCellEl: null, focusedCell: null })
@@ -114,7 +114,7 @@ function ExploreScene (props: VideoProps): any {
           rows={3}
           colunns={5}>
 
-          {videos.get('videos').map(function (video: PublicVideo, i: number) {
+          {videos.get('videos').map((video: PublicVideo, i: number) => {
             return (
               <Entity
                 key={i}

@@ -59,7 +59,7 @@ class ConfirmEmail extends React.Component<Props> {
   }
 }
 
-function ConfirmEmailWrapper(props: any) {
+const ConfirmEmailWrapper = (props: any) => {
   return <ConfirmEmail {...props}/>
 }
 

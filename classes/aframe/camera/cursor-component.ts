@@ -8,6 +8,7 @@ export interface CursorComponentOptions extends AframeComponentOptions {
   rayOrigin: string, // Where the intersection ray is cast from (i.e.,entity or mouse). rayOrigin: mouse is extremely useful for VR development on a mouse and keyboard.
   upEvents: Array<string> // additional events on the entity to listen to for triggering mouseup
 }
+
 export const defaultCursorComponentOptions: CursorComponentOptions = {
   downEvents: [],
   fuse: false,
