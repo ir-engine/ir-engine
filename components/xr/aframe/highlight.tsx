@@ -89,7 +89,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  tick: () => {
+  tick() {
     this.handleIntersection('hover')
   },
 
@@ -129,14 +129,14 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
   },
 
-  addHandlers: () => {
+  addHandlers: function() {
     this.el.addEventListener('raycaster-intersected', this.raycasterIntersectedHandler.bind(this))
     this.el.addEventListener('raycaster-intersected-cleared', this.raycasterIntersectedClearedHandler.bind(this))
     this.el.addEventListener('mousedown', this.mousedownHandler.bind(this))
     this.el.addEventListener('mouseup', this.mouseupHandler.bind(this))
   },
 
-  removeHandlers: () => {
+  removeHandlers: function() {
     this.el.removeEventListener('raycaster-intersected', this.raycasterIntersectedHandler)
     this.el.removeEventListener('raycaster-intersected-cleared', this.raycasterIntersectedClearedHandler)
     this.el.removeEventListener('mousedown', this.mousedownHandler)
