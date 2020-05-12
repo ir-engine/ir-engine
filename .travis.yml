@@ -2,27 +2,35 @@ language: node_js
 node_js:
   - "12"
 
+env:
+  global:
+    - MYSQL_DATABASE=xrchat
+    - MYSQL_USER=root
+    - MYSQL_PASSWORD=
+
 services:
   - docker
+  - mysql
+
+before_script:
+  - mysql -e 'CREATE DATABASE xrchat;'
 
 script:
   - npm run lint
   - npm run compile
   - npm run test
 
-
 before_deploy:
   - scripts/setup_helm.sh
   - scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REIGON $CLUSTER_NAME
 
-
 deploy:
   - provider: script
-    script: bash scripts/publish_dockerhub.sh staging $TRAVIS_COMMIT && scripts/deploy.sh staging $TRAVIS_COMMIT 
+    script: bash scripts/publish_dockerhub.sh staging $TRAVIS_COMMIT && scripts/deploy.sh staging $TRAVIS_COMMIT
     on:
       branch: master
   - provider: script
-    script: bash scripts/publish_dockerhub.sh dev $TRAVIS_COMMIT && scripts/deploy.sh dev $TRAVIS_COMMIT 
+    script: bash scripts/publish_dockerhub.sh dev $TRAVIS_COMMIT && scripts/deploy.sh dev $TRAVIS_COMMIT
     on:
       branch: dev
   - provider: script
