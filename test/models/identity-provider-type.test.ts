@@ -21,15 +21,6 @@ describe('CRUD operation on \'IdentityProviderType\' model', () => {
     }).catch(done)
   })
 
-  it('Update', done => {
-    model.update(
-      { type: 'test1' },
-      { where: { type: 'test' } }
-    ).then(res => {
-      done()
-    }).catch(done)
-  })
-
   it('Delete', done => {
     model.destroy({
       where: { type: 'test1' }

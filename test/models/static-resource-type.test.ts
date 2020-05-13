@@ -21,21 +21,6 @@ describe('CRUD operation on \'Static Resource Type\' model', () => {
     }).catch(done)
   })
 
-  // it('Update', done => {
-  //   model.update(
-  //     {
-  //       type: 'updated test'
-  //     },
-  //     {
-  //       where: { type: 'test' }
-  //     }
-  //   ).then(res => {
-  //     done(new Error('Should not update type.'))
-  //   }).catch(_err => {
-  //     done()
-  //   })
-  // })
-
   it('Delete', done => {
     model.destroy({
       where: { type: 'test' }
