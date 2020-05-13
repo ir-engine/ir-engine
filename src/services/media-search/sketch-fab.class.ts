@@ -12,7 +12,7 @@ interface FilterType {
 }
 
 export default class GooglePolyMedia {
-  private readonly SKETCH_FAB_URL = 'https://api.sketchfab.com/v3/search';
+  private readonly SKETCH_FAB_URL = 'https://api.sketchfab.com/v3/search'
 
   private readonly SKETCH_FAB_AUTH_TOKEN = config.get('sketchFab.authToken') ?? ''
 

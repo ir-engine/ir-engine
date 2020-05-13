@@ -10,4 +10,4 @@ export = {
   down: async (queryInterface: QueryInterface) => {
     return await queryInterface.removeColumn('user', 'mobile')
   }
-};
+}
