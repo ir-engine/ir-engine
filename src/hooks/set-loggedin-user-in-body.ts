@@ -9,8 +9,8 @@ export default (propertyName: string) => {
   return (context: HookContext): HookContext => {
     // Getting logged in user and attaching owner of user
     const loggedInUser = context.params[loggedInUserEntity]
-    context.data = {
-      ...context.data,
+    context.params.body = {
+      ...context.params.body,
       [propertyName]: loggedInUser.userId
     }
 
