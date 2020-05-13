@@ -1,6 +1,6 @@
 import app from '../../src/app'
 
-describe('CRUD operation on \'Collection\' model', () => {
+describe.skip('CRUD operation on \'Collection\' model', () => {
   const model = app.service('collection').Model
   const collectionTypeModel = app.service('collection-type').Model
   let collectionType: any

@@ -25,7 +25,7 @@ import AWS from 'aws-sdk'
 //         })
 // }
 
-export const sendSms = async (phone: string, text: string): Promise<void> => {
+export async function sendSms (phone: string, text: string): Promise<void> {
   const awsRegion: string = process.env.AWS_SMS_REGION ?? '' // config.get('aws.sns.region')
   const params = {
     Message: text,
