@@ -8,18 +8,20 @@ export async function sendEmail (app: Application, email: any): Promise<void> {
   if (email.to) {
     console.log(email)
 
-    app.service('email').create(email).then(() =>
-      console.log('Sent email')
-    ).catch((err: any) =>
-      console.log('Error sending email', err)
-    )
+    app.service('email').create(email)
+      .then(() =>
+        console.log('Sent email')
+      ).catch((err: any) =>
+        console.log('Error sending email', err)
+      )
   }
 }
 
-export function sendSms (app: Application, sms: any): Promise<void> {
-  return app.service('sms').create(sms).then(() =>
-    console.log('Sent SMS')
-  ).catch((err: any) =>
-    console.log('Error sending SMS', err)
-  )
+export async function sendSms (app: Application, sms: any): Promise<void> {
+  return await app.service('sms').create(sms)
+    .then(() =>
+      console.log('Sent SMS')
+    ).catch((err: any) =>
+      console.log('Error sending SMS', err)
+    )
 }
