@@ -6,20 +6,24 @@ export function getLink (type: string, hash: string): string {
 
 export async function sendEmail (app: Application, email: any): Promise<void> {
   if (email.to) {
-    console.log(email)
+    console.log('sendEmail() to:', email)
 
-    app.service('email').create(email).then(() =>
-      console.log('Sent email')
-    ).catch((err: any) =>
-      console.log('Error sending email', err)
-    )
+    try {
+      await app.service('email').create(email)
+    } catch (error) {
+      console.error('Error sending email', error)
+    }
+
+    console.log('Email sent.')
   }
 }
 
 export async function sendSms (app: Application, sms: any): Promise<void> {
-  app.service('sms').create(sms).then(() =>
-    console.log('Sent SMS')
-  ).catch((err: any) =>
-    console.log('Error sending SMS', err)
-  )
+  try {
+    await app.service('sms').create(sms)
+  } catch (error) {
+    console.error('Error sending SMS', error)
+  }
+
+  console.log('SMS sent.')
 }

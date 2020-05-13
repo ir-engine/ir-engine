@@ -8,8 +8,8 @@ interface Data {}
 interface ServiceOptions {}
 
 export class MediaSearch implements ServiceMethods<Data> {
-  app: Application;
-  options: ServiceOptions;
+  app: Application
+  options: ServiceOptions
 
   private readonly pageSize = 24
 

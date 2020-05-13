@@ -1,6 +1,6 @@
 import config from 'config'
 
-export const mapProjectDetailData = (project: any): any => {
+export function mapProjectDetailData (project: any): any {
   const _proj = {
     name: project.name,
     parent_scene: mapSceneData(project?.parent_scene_listing || project?.parent_scene, project.project_id),
@@ -12,7 +12,7 @@ export const mapProjectDetailData = (project: any): any => {
   return _proj
 }
 
-export const mapSceneData = (scene: any, projectId: string): any => {
+export function mapSceneData (scene: any, projectId: string): any {
   if (!scene) {
     return null
   }
