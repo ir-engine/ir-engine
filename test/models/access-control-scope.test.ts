@@ -20,7 +20,7 @@ describe('CRUD operation on \'AccessControlScope\' model', () => {
       done()
     }).catch(done)
   })
-  
+
   it('Delete', done => {
     model.destroy({
       where: { scope: 'test1' }

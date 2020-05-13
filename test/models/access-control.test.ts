@@ -31,12 +31,7 @@ describe('CRUD operation on \'AccessControl\' model', () => {
   it('Create', done => {
     model.create({
       userRole: role,
-      resourceType: resourceType,
-      list: scope,
-      create: scope,
-      read: scope,
-      update: scope,
-      delete: scope
+      resourceType: resourceType
     }).then(res => {
       done()
     }).catch(done)

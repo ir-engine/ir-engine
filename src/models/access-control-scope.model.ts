@@ -20,7 +20,15 @@ export default (app: Application): any => {
       }
     },
     timestamps: false
-  })
+  });
+
+  (accessControlScope as any).associate = (models: any) => {
+    (accessControlScope as any).hasMany(models.access_control, { foreignKey: 'list' });
+    (accessControlScope as any).hasMany(models.access_control, { foreignKey: 'create' });
+    (accessControlScope as any).hasMany(models.access_control, { foreignKey: 'read' });
+    (accessControlScope as any).hasMany(models.access_control, { foreignKey: 'update' });
+    (accessControlScope as any).hasMany(models.access_control, { foreignKey: 'delete' })
+  }
 
   return accessControlScope
 }
