@@ -23,6 +23,7 @@ export default (app: Application): any => {
   });
 
   (resourceType as any).associate = (models: any): any => {
+    (resourceType as any).hasMany(models.access_control, { foreignKey: 'resourceType' })
   }
 
   return resourceType

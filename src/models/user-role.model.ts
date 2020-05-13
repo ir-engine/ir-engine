@@ -20,7 +20,7 @@ export default (app: Application): any => {
   });
 
   (userRole as any).associate = (models: any) => {
-    // (userRole as any).hasMany(models.access_control);
+    (userRole as any).hasMany(models.access_control, { foreignKey: 'userRole' });
     (userRole as any).hasMany(models.user, { foreignKey: 'role' })
   }
 

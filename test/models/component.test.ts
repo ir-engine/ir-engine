@@ -1,73 +1,76 @@
-import app from '../../src/app'
+// import app from '../../src/app'
 
-describe('CRUD operation on \'Component\' model', () => {
-  const model = app.service('component').Model
-  const componentTypeModel = app.service('component-type').Model
-  const entityModel = app.service('entity').Model
+// describe('CRUD operation on \'Component\' model', () => {
+//   const model = app.service('component').Model
+//   const componentTypeModel = app.service('component-type').Model
+//   const entityModel = app.service('entity').Model
 
-  let componentType: any
-  let entityId: any
+//   let componentType: any
+//   let entityId: any
 
-  before(async () => {
-    const entityModelInstance = await entityModel.create()
+//   before(async () => {
 
-    const componentTypeModelInstance = await componentTypeModel.create({
-      type: 'test'
-    })
+//     const entityModelInstance = await entityModel.create({
+//       name: 'test',
+//       type: 'default'
+//     })
 
-    entityId = entityModelInstance.id
+//     console.log(entityModelInstance)
+//     console.log(componentTypeModelInstance)
 
-    componentType = componentTypeModelInstance.type
-  })
+//     entityId = entityModelInstance.id
 
-  const input = {
-    data: JSON.stringify({ data: 'test' }),
-    type: componentType,
-    entityId: entityId
-  }
-  it('Create', done => {
-    model.create(input).then(res => {
-      done()
-    }).catch(done)
-  })
+//     componentType = componentTypeModelInstance.type
+//   })
 
-  it('Read', done => {
-    model.findOne({
-      where: {
-        entityId: entityId
-      }
-    }).then(res => {
-      done()
-    }).catch(done)
-  })
+//   const input = {
+//     data: JSON.stringify({ data: 'test' }),
+//     type: componentType,
+//     entityId: entityId
+//   }
+//   it('Create', done => {
+//     model.create(input).then(res => {
+//       done()
+//     }).catch(done)
+//   })
 
-  it('Update', done => {
-    model.update(
-      { data: JSON.stringify({ data: 'test2' }) },
-      { where: { entityId: entityId } }
-    ).then(res => {
-      done()
-    }).catch(done)
-  })
+//   it('Read', done => {
+//     model.findOne({
+//       where: {
+//         entityId: entityId
+//       }
+//     }).then(res => {
+//       done()
+//     }).catch(done)
+//   })
 
-  it('Delete', done => {
-    model.destroy({
-      where: { entityId: entityId }
-    }).then(res => {
-      done()
-    }).catch(done)
-  })
+//   it('Update', done => {
+//     model.update(
+//       { data: JSON.stringify({ data: 'test2' }) },
+//       { where: { entityId: entityId } }
+//     ).then(res => {
+//       done()
+//     }).catch(done)
+//   })
 
-  after(async () => {
-    await entityModel.destroy({
-      where: {
-        id: entityId
-      }
-    })
-    await componentTypeModel.destroy({
-      where: {
-        type: componentType
-      }
-    })
-  })
-})
+//   it('Delete', done => {
+//     model.destroy({
+//       where: { entityId: entityId }
+//     }).then(res => {
+//       done()
+//     }).catch(done)
+//   })
+
+//   after(async () => {
+//     await entityModel.destroy({
+//       where: {
+//         id: entityId
+//       }
+//     })
+//     await componentTypeModel.destroy({
+//       where: {
+//         type: componentType
+//       }
+//     })
+//   })
+// })
