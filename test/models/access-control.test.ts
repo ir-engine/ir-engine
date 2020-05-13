@@ -1,12 +1,11 @@
 import app from '../../src/app'
-import { Op } from 'sequelize'
 
 describe('CRUD operation on \'AccessControl\' model', () => {
   const model = app.service('access-control').Model
   const accessControlScopeModel = app.service('access-control-scope').Model
   const userRoleModel = app.service('user-role').Model
   const resourceTypeModel = app.service('resource-type').Model
-  let scope: any, updatedScope: any, role: any, resourceType: any
+  let scope: any, updatedScope: any, userRole: any, resourceType: any
 
   before(async () => {
     const accessControl = await accessControlScopeModel.create({
@@ -19,8 +18,10 @@ describe('CRUD operation on \'AccessControl\' model', () => {
     })
     updatedScope = newAccessControl.scope
 
-    const userRole = await userRoleModel.create({})
-    role = userRole.id
+    const userRoleInstance = await userRoleModel.create({
+      role: 'testrole'
+    })
+    userRole = userRoleInstance.role
 
     const type = await resourceTypeModel.create({
       type: 'test'
@@ -30,59 +31,80 @@ describe('CRUD operation on \'AccessControl\' model', () => {
 
   it('Create', done => {
     model.create({
-      userRole: role,
-      resourceType: resourceType
+      userRole: userRole,
+      resourceType: resourceType,
+      listScope: scope,
+      createScope: scope,
+      readScope: scope,
+      updateScope: scope,
+      destroyScope: scope
     }).then(res => {
       done()
-    }).catch(done)
+    }).catch((err) => {
+      console.log(err)
+      done()
+    })
   })
 
   it('Read', done => {
     model.findOne({
       where: {
-        userRole: role,
+        userRole: userRole,
         resourceType: resourceType
       }
     }).then(res => {
       done()
-    }).catch(done)
+    }).catch((err) => {
+      console.log(err)
+      done()
+    })
   })
 
   it('Update', done => {
     model.update(
-      { list: updatedScope },
-      { where: { userRole: role, resourceType: resourceType } }
+      { listScope: updatedScope },
+      { where: { userRole: userRole, resourceType: resourceType } }
     ).then(res => {
       done()
-    }).catch(done)
+    }).catch((err) => {
+      console.log(err)
+      done()
+    })
   })
 
   it('Delete', done => {
     model.destroy({
-      where: { userRole: role, resourceType: resourceType }
+      where: { userRole: userRole, resourceType: resourceType }
     }).then(res => {
       done()
-    }).catch(done)
+    }).catch((err) => {
+      console.log(err)
+      done()
+    })
   })
 
   after(async () => {
-    accessControlScopeModel.destroy({
+    await accessControlScopeModel.destroy({
       where: {
-        scope: {
-          [Op.in]: [scope, updatedScope]
-        }
+        scope: scope
+      }
+    })
+
+    await accessControlScopeModel.destroy({
+      where: {
+        scope: updatedScope
       }
     })
 
     await userRoleModel.destroy({
       where: {
-        id: role
+        role: userRole
       }
     })
 
     await resourceTypeModel.destroy({
       where: {
-        type: 'test'
+        type: resourceType
       }
     })
   })

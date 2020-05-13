@@ -23,7 +23,7 @@ export default (app: Application): any => {
   });
 
   (componentType as any).assocate = (models: any) => {
-    (componentType as any).hasMany(models.component, { foreignKey: 'type' })
+    (componentType as any).hasMany(models.component, { foreignKey: 'componentType' })
   }
 
   return componentType

@@ -8,7 +8,10 @@ describe('CRUD operation on \'AccessControlScope\' model', () => {
       scope: 'test'
     }).then(res => {
       done()
-    }).catch(done)
+    }).catch((err) => {
+      console.log(err)
+      done()
+    })
   })
 
   it('Read', done => {
@@ -18,14 +21,20 @@ describe('CRUD operation on \'AccessControlScope\' model', () => {
       }
     }).then(res => {
       done()
-    }).catch(done)
+    }).catch((err) => {
+      console.log(err)
+      done()
+    })
   })
 
   it('Delete', done => {
     model.destroy({
-      where: { scope: 'test1' }
+      where: { scope: 'test' }
     }).then(res => {
       done()
-    }).catch(done)
+    }).catch((err) => {
+      console.log(err)
+      done()
+    })
   })
 })

@@ -15,7 +15,7 @@ export default (app: Application): any => {
       beforeCount (options: any) {
         options.raw = true
       },
-      beforeUpdate (instance: any, options: any) {
+      beforeUpdate () {
         throw new Error("Can't update a type!")
       }
     },
@@ -23,7 +23,7 @@ export default (app: Application): any => {
   });
 
   (identityProviderType as any).associate = function (models: any) {
-    (identityProviderType as any).hasMany(models.identity_provider, { foreignKey: 'type' })
+    (identityProviderType as any).hasMany(models.identity_provider, { foreignKey: 'identityProviderType' })
   }
 
   return identityProviderType

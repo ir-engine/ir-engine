@@ -4,11 +4,11 @@ import { Application } from '../declarations'
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const userRole = sequelizeClient.define('user_role', {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV1,
+    role: {
+      type: DataTypes.STRING,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      unique: true
     }
   }, {
     hooks: {
@@ -21,7 +21,7 @@ export default (app: Application): any => {
 
   (userRole as any).associate = (models: any) => {
     (userRole as any).hasMany(models.access_control, { foreignKey: 'userRole' });
-    (userRole as any).hasMany(models.user, { foreignKey: 'role' })
+    (userRole as any).hasMany(models.user, { foreignKey: 'userRole' })
   }
 
   return userRole

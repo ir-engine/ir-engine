@@ -34,13 +34,13 @@ export default (app: Application): any => {
       },
       {
         unique: true,
-        fields: ['userId', 'type']
+        fields: ['userId', 'identityProviderType']
       }
     ]
   });
 
   (identityProvider as any).associate = (models: any) => {
-    (identityProvider as any).belongsTo(models.identity_provider_type, { foreignKey: 'type', required: true, primaryKey: true });
+    (identityProvider as any).belongsTo(models.identity_provider_type, { foreignKey: 'identityProviderType', required: true, primaryKey: true });
     (identityProvider as any).belongsTo(models.user, { required: true, primaryKey: true })
   }
 

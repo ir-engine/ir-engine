@@ -23,7 +23,7 @@ export default (app: Application): any => {
   });
 
   (staticResourceType as any).associate = (models: any) => {
-    (staticResourceType as any).hasMany(models.static_resource, { foreignKey: 'type' })
+    (staticResourceType as any).hasMany(models.static_resource, { foreignKey: 'staticResourceType' })
   }
 
   return staticResourceType

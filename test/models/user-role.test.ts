@@ -2,20 +2,20 @@ import app from '../../src/app'
 
 describe('CRUD operation on \'UserRole\' model', () => {
   const model = app.service('user-role').Model
-  let roleId: any
+  let role: any
 
   it('Create', done => {
-    model.create({}).then(res => {
-      roleId = res.id
+    model.create({
+      role: 'testrole'
+    }).then(res => {
+      role = res.role
       done()
     }).catch(done)
   })
 
   it('Read', done => {
     model.findOne({
-      where: {
-        id: roleId
-      }
+      where: { role }
     }).then(res => {
       done()
     }).catch(done)
@@ -23,7 +23,7 @@ describe('CRUD operation on \'UserRole\' model', () => {
 
   it('Delete', done => {
     model.destroy({
-      where: { id: roleId }
+      where: { role }
     }).then(res => {
       done()
     }).catch(done)

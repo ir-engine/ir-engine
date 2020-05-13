@@ -23,7 +23,7 @@ export default (app: Application): any => {
   });
 
   (collectionType as any).assocate = (models: any) => {
-    (collectionType as any).hasMany(models.collection, { foreignKey: 'type' })
+    (collectionType as any).hasMany(models.collection, { foreignKey: 'collectionType' })
   }
 
   return collectionType
