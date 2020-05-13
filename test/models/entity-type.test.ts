@@ -23,7 +23,7 @@ describe('CRUD operation on \'Entity Type\' model', () => {
 
   it('Delete', done => {
     model.destroy({
-      where: { type: 'test1' }
+      where: { type: 'test' }
     }).then(res => {
       done()
     }).catch(done)

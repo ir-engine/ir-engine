@@ -23,8 +23,8 @@ export default (app: Application): any => {
   });
 
   (entity as any).associate = (models: any) => {
-    (entity as any).belongsTo(models.entity_type, { foreignKey: 'type', required: true });
-    (entity as any).hasMany(models.component);
+    (entity as any).hasMany(models.component, { as: 'entity', foreignKey: 'entityId' });
+    (entity as any).belongsTo(models.entity_type, { foreignKey: 'entityType', required: true });
     (entity as any).belongsTo(models.collection);
     (entity as any).belongsTo(models.user)
   }

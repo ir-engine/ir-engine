@@ -13,9 +13,7 @@ describe('CRUD operation on \'Component Type\' model', () => {
 
   it('Read', done => {
     model.findOne({
-      where: {
-        type: 'test'
-      }
+      where: { type: 'test' }
     }).then(res => {
       done()
     }).catch(done)
@@ -23,7 +21,7 @@ describe('CRUD operation on \'Component Type\' model', () => {
 
   it('Delete', done => {
     model.destroy({
-      where: { type: 'test1' }
+      where: { type: 'test' }
     }).then(res => {
       done()
     }).catch(done)

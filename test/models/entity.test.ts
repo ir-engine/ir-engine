@@ -15,7 +15,7 @@ describe('CRUD operation on \'Entity\' model', () => {
   it('Create', done => {
     model.create({
       name: 'test',
-      type: entityType
+      entityType: entityType
     }).then(res => {
       done()
     }).catch(done)
@@ -24,7 +24,7 @@ describe('CRUD operation on \'Entity\' model', () => {
   it('Read', done => {
     model.findOne({
       where: {
-        type: entityType
+        entityType: entityType
       }
     }).then(res => {
       done()
@@ -34,7 +34,7 @@ describe('CRUD operation on \'Entity\' model', () => {
   it('Update', done => {
     model.update(
       { name: 'test1' },
-      { where: { type: entityType } }
+      { where: { entityType: entityType } }
     ).then(res => {
       done()
     }).catch(done)
@@ -42,7 +42,7 @@ describe('CRUD operation on \'Entity\' model', () => {
 
   it('Delete', done => {
     model.destroy({
-      where: { type: entityType }
+      where: { entityType: entityType }
     }).then(res => {
       done()
     }).catch(done)

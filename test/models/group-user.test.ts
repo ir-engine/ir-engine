@@ -14,23 +14,23 @@ describe('CRUD operation on \'GroupUser\' model', () => {
     const group = await groupModel.create({
       name: 'testgroup'
     })
-    const groupUserRankRank = await groupUserRankModel.create({
+    const groupUserRankInstance = await groupUserRankModel.create({
       rank: 'uberleader'
     })
-    const groupUserRankRankUpdated = await groupUserRankModel.create({
+    const groupUserRankInstanceUpdated = await groupUserRankModel.create({
       rank: 'updated-uberleader'
     })
     userId = user.id
     groupId = group.id
-    groupUserRank = groupUserRankRank.rank
-    groupUserRankUpdated = groupUserRankRankUpdated.rank
+    groupUserRank = groupUserRankInstance.rank
+    groupUserRankUpdated = groupUserRankInstanceUpdated.rank
   })
 
   it('Create', done => {
     model.create({
       userId,
       groupId,
-      rank: groupUserRank
+      groupUserRank: groupUserRank
     }).then(res => {
       done()
     }).catch(done)
@@ -49,7 +49,7 @@ describe('CRUD operation on \'GroupUser\' model', () => {
 
   it('Update', done => {
     model.update(
-      { rank: groupUserRankUpdated },
+      { groupUserRank: groupUserRankUpdated },
       { where: { userId, groupId } }
     ).then(res => {
       done()
@@ -64,36 +64,26 @@ describe('CRUD operation on \'GroupUser\' model', () => {
     }).catch(done)
   })
 
-  it('Should not create without userId, groupId', done => {
-    model.create({
-    }).then(res => {
-      const err = new Error('Group user created without foreign keys.')
-      done(err)
-    }).catch(_err => {
-      done()
-    })
-  })
-
-  after(() => {
-    userModel.destroy({
+  after(async () => {
+    await userModel.destroy({
       where: {
         id: userId
       }
     })
 
-    groupModel.destroy({
+    await groupModel.destroy({
       where: {
         id: groupId
       }
     })
 
-    groupUserRankModel.destroy({
+    await groupUserRankModel.destroy({
       where: {
         rank: groupUserRank
       }
     })
 
-    groupUserRankModel.destroy({
+    await groupUserRankModel.destroy({
       where: {
         rank: groupUserRankUpdated
       }

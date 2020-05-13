@@ -72,5 +72,10 @@ describe('CRUD operation on \'UserRelationship\' model', () => {
         }
       }
     })
+    userRelationshipTypeModel.destroy({
+      where: {
+        type: userRelationshipType
+      }
+    })
   })
 })

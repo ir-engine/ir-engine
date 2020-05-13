@@ -23,7 +23,7 @@ export default (app: Application): any => {
   });
 
   (userRelationshipType as any).associate = (models: any) => {
-    (userRelationshipType as any).hasMany(models.user_relationship, { foreignKey: 'type' })
+    (userRelationshipType as any).hasMany(models.user_relationship, { foreignKey: 'userRelationshipType' })
   }
 
   return userRelationshipType

@@ -3,9 +3,11 @@ import app from '../../src/app'
 describe('CRUD operation on \'User Relationship Type\' model', () => {
   const model = app.service('user-relationship-type').Model
 
+  const type = 'testType'
+
   it('Create', (done) => {
     model.create({
-      type: 'test'
+      type
     }).then(res => {
       done()
     }).catch(done)
@@ -14,7 +16,7 @@ describe('CRUD operation on \'User Relationship Type\' model', () => {
   it('Read', done => {
     model.findOne({
       where: {
-        type: 'test'
+        type
       }
     }).then(res => {
       done()
@@ -23,7 +25,7 @@ describe('CRUD operation on \'User Relationship Type\' model', () => {
 
   it('Delete', done => {
     model.destroy({
-      where: { type: 'test' }
+      where: { type }
     }).then(res => {
       done()
     }).catch(done)

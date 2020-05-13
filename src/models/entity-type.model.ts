@@ -23,7 +23,7 @@ export default (app: Application): any => {
   });
 
   (entityType as any).assocate = (models: any) => {
-    (entityType as any).hasMany(models.entity, { foreignKey: 'type' })
+    (entityType as any).hasMany(models.entity, { foreignKey: 'entityType' })
   }
   return entityType
 }

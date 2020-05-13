@@ -13,7 +13,7 @@ export default (app: Application): void => {
 
   const sequelize = new Sequelize({
     ...db,
-    logging: forceRefresh,
+    logging: console.log,
     define: {
       freezeTableName: true
     }
@@ -28,7 +28,9 @@ export default (app: Application): void => {
       sequelize.sync({ force: forceRefresh })
         .then(() => {
           // @ts-ignore
-          app.configure(seeder(seederConfig)).seed()
+          app.configure(seeder(seederConfig)).seed().catch(err => {
+            console.log(err)
+          })
         })
         .catch(console.error)
     )

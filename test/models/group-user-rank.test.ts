@@ -23,7 +23,7 @@ describe('CRUD operation on \'GroupUserRank\' model', () => {
 
   it('Update', done => {
     model.update(
-      { rank: 'test1' },
+      { rank: 'test' },
       { where: { rank: 'test' } }
     ).then(res => {
       done()
@@ -32,7 +32,7 @@ describe('CRUD operation on \'GroupUserRank\' model', () => {
 
   it('Delete', done => {
     model.destroy({
-      where: { rank: 'test1' }
+      where: { rank: 'test' }
     }).then(res => {
       done()
     }).catch(done)
