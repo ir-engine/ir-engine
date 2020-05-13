@@ -6,8 +6,8 @@ interface Data {}
 interface ServiceOptions {}
 
 export class Upload implements ServiceMethods<Data> {
-  app: Application;
-  options: ServiceOptions;
+  app: Application
+  options: ServiceOptions
 
   constructor (options: ServiceOptions = {}, app: Application) {
     this.options = options
