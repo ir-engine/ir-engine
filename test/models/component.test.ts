@@ -12,18 +12,18 @@ describe('CRUD operation on \'Component\' model', () => {
 
   before(async () => {
     const entityTypeModelInstance = await entityTypeModel.create({
-      type: 'default'
+      type: 'newType'
     })
 
     entityType = entityTypeModelInstance.type
 
     const entityModelInstance = await entityModel.create({
-      name: 'test',
+      name: 'testentitytype',
       entityType: entityType
     })
 
     const componentTypeModelInstance = await componentTypeModel.create({
-      type: 'test'
+      type: 'testcomponenttype'
     })
 
     entityId = entityModelInstance.id

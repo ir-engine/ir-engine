@@ -9,7 +9,8 @@ describe('CRUD operation on \'GroupUser\' model', () => {
 
   before(async () => {
     const user = await userModel.create({
-      name: 'testname'
+      name: 'testname',
+      userRole: 'user'
     })
     const group = await groupModel.create({
       name: 'testgroup'
