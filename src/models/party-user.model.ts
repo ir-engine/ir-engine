@@ -21,8 +21,8 @@ export default (app: Application): any => {
   });
 
   (partyUser as any).associate = (models: any) => {
-    (partyUser as any).belongsTo(models.party, { foreignKey: 'partyId' });
-    (partyUser as any).belongsTo(models.user, { foreignKey: 'id' })
+    (partyUser as any).belongsTo(models.party, { primaryKey: true, required: true, allowNull: false });
+    (partyUser as any).belongsTo(models.user, { primaryKey: true, required: true, allowNull: false })
   }
 
   return partyUser

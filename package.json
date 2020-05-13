@@ -46,11 +46,8 @@
     "fs-capacitor/is-promise": "2.1.0"
   },
   "types": "lib/",
-  "husky": {
-    "hooks": {
-      "pre-commit": "echo && echo \\* Running pre-commit test  && echo \\*\\* \\`git commit --no-verify\\` to skip && echo \\*\\*\\* PRs THAT DO NOT PASS TESTS WILL NOT BE ACCEPTED && yarn run test"
-    }
-  },
+  "pre-push": ["test"],
+  "pre-commit": ["test"],
   "peerDependencies": {
     "graphql": "^14.4.2",
     "graphql-relay": "~0.6.0",
@@ -149,10 +146,12 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
-    "feathers-hooks-common": "^5.0.2",
+    "feathers-hooks-common": "^5.0.3",
     "husky": "^4.2.5",
     "mocha": "^7.1.1",
     "nodemon": "^2.0.3",
+    "pre-commit": "^1.2.2",
+    "pre-push": "^0.1.1",
     "pug": "^2.0.4",
     "sequelize": "^5.16.0",
     "shx": "^0.3.2",

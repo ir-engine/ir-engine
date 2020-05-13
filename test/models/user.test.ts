@@ -13,7 +13,7 @@ describe('CRUD operation on \'User\' model', () => {
 
   it('Create', (done) => {
     model.create({
-      userRole: roleId,
+      role: roleId,
       name: GenerateRandomAnimalName().toUpperCase()
     }).then(res => {
       done()
@@ -23,7 +23,7 @@ describe('CRUD operation on \'User\' model', () => {
   it('Read', done => {
     model.findOne({
       where: {
-        userRole: roleId
+        role: roleId
       }
     }).then(res => {
       done()
@@ -33,7 +33,7 @@ describe('CRUD operation on \'User\' model', () => {
   it('Update', done => {
     model.update(
       { name: GenerateRandomAnimalName().toUpperCase() },
-      { where: { userRole: roleId } }
+      { where: { role: roleId } }
     ).then(res => {
       done()
     }).catch(done)
@@ -41,7 +41,7 @@ describe('CRUD operation on \'User\' model', () => {
 
   it('Delete', done => {
     model.destroy({
-      where: { userRole: roleId }
+      where: { role: roleId }
     }).then(res => {
       done()
     }).catch(done)
