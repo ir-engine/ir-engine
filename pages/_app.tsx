@@ -14,6 +14,8 @@ import { doLoginAuto } from '../redux/auth/service'
 import DeviceDetector from 'device-detector-js'
 import { getDeviceType } from '../redux/devicedetect/actions'
 import { useEffect, Fragment } from 'react'
+import { initGA, logPageView } from "../components/analytics"
+
 import getConfig from 'next/config'
 import PageLoader from '../components/xr/scene/page-loader'
 
@@ -48,6 +50,8 @@ const MyApp = (props: Props) => {
     }
     // NOTE: getDeviceInfo is an async function, but here is running
     // without `await`.
+    initGA()
+    logPageView()
     getDeviceInfo()
     store.dispatch(restoreState())
     doLoginAuto(store.dispatch)
