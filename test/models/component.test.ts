@@ -3,23 +3,31 @@ import app from '../../src/app'
 describe('CRUD operation on \'Component\' model', () => {
   const model = app.service('component').Model
   const componentTypeModel = app.service('component-type').Model
+  const entityModel = app.service('entity').Model
+
   let componentType: any
+  let entityId: any
 
   before(async () => {
     setTimeout(() => {
       console.log('Waited for thirty seconds before test started.')
     }, 30000)
 
-    const component = await componentTypeModel.create({
+    const entityModelInstance = await entityModel.create()
+
+    const componentTypeModelInstance = await componentTypeModel.create({
       type: 'test'
     })
-    componentType = component.type
+
+    entityId = entityModelInstance.id
+
+    componentType = componentTypeModelInstance.type
   })
 
   const input = {
-    id: Math.random(),
     data: JSON.stringify({ data: 'test' }),
-    type: componentType
+    type: componentType,
+    entityId: entityId
   }
   it('Create', done => {
     model.create(input).then(res => {
@@ -30,7 +38,7 @@ describe('CRUD operation on \'Component\' model', () => {
   it('Read', done => {
     model.findOne({
       where: {
-        id: input.id
+        entityId: entityId
       }
     }).then(res => {
       done()
@@ -40,7 +48,7 @@ describe('CRUD operation on \'Component\' model', () => {
   it('Update', done => {
     model.update(
       { data: JSON.stringify({ data: 'test2' }) },
-      { where: { id: input.id } }
+      { where: { entityId: entityId } }
     ).then(res => {
       done()
     }).catch(done)
@@ -48,13 +56,18 @@ describe('CRUD operation on \'Component\' model', () => {
 
   it('Delete', done => {
     model.destroy({
-      where: { id: input.id }
+      where: { entityId: entityId }
     }).then(res => {
       done()
     }).catch(done)
   })
 
   after(async () => {
+    await entityModel.destroy({
+      where: {
+        id: entityId
+      }
+    })
     await componentTypeModel.destroy({
       where: {
         type: componentType

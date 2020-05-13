@@ -12,9 +12,9 @@ describe('CRUD operation on \'UserSetting\' model', () => {
 
   it('Create', done => {
     model.create({
-      microphone: 'test microphone',
-      audio: 'test audio',
-      userSettingsId: userId
+      microphone: '.5',
+      audio: '.5',
+      userId: userId
     }).then(res => {
       done()
     }).catch(done)
@@ -23,7 +23,7 @@ describe('CRUD operation on \'UserSetting\' model', () => {
   it('Read', done => {
     model.findOne({
       where: {
-        userSettingsId: userId
+        userId: userId
       }
     }).then(res => {
       done()
@@ -33,11 +33,11 @@ describe('CRUD operation on \'UserSetting\' model', () => {
   it('Update', done => {
     model.update(
       {
-        microphone: 'updated microphone'
+        microphone: '.8'
       },
       {
         where: {
-          userSettingsId: userId
+          userId: userId
         }
       }).then(res => {
       done()
@@ -46,7 +46,7 @@ describe('CRUD operation on \'UserSetting\' model', () => {
 
   it('Delete', done => {
     model.destroy({
-      where: { userSettingsId: userId }
+      where: { userId: userId }
     }).then(res => {
       done()
     }).catch(done)

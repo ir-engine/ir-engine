@@ -1,4 +1,3 @@
-
 import * as authentication from '@feathersjs/authentication'
 import * as commonHooks from 'feathers-hooks-common'
 

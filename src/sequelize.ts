@@ -6,11 +6,13 @@ import seederConfig from './seeder-config'
 import seeder from 'feathers-seeder'
 import { db } from './db-config'
 
-export default (app: Application): void => {
-  const { url, forceRefresh, dialect } = db
+console.log('db config:', db)
 
-  const sequelize = new Sequelize(url, {
-    dialect,
+export default (app: Application): void => {
+  const { forceRefresh } = db
+
+  const sequelize = new Sequelize({
+    ...db,
     logging: forceRefresh,
     define: {
       freezeTableName: true

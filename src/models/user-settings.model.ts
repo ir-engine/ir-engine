@@ -15,7 +15,7 @@ export default (app: Application): any => {
   });
 
   (UserSettings as any).associate = (models: any) => {
-    (UserSettings as any).belongsTo(models.user, { primaryKey: true, foreignKey: 'userSettingsId' })
+    (UserSettings as any).belongsTo(models.user, { primaryKey: true, required: true, allowNull: false })
   }
 
   return UserSettings

@@ -1,4 +1,4 @@
-export default async (context: any): Promise<void> => {
+export default async function (context: any): Promise<void> {
   const { result, app, data } = context
 
   if (Array.isArray(result)) {

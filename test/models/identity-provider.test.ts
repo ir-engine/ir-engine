@@ -96,7 +96,7 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
   })
 
   it('Not expecting password and token ', done => {
-    request(app).get('/identity-provider')
+    (request(app) as any).get('/identity-provider')
       .expect('Content-Type', /json/)
       .expect(200)
       .then(response => {
