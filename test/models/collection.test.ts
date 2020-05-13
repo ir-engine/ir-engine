@@ -6,9 +6,6 @@ describe('CRUD operation on \'Collection\' model', () => {
   let collectionType: any
 
   before(async () => {
-    setTimeout(() => {
-      console.log('Waited for thirty seconds before test started.')
-    }, 30000)
     const collection = await collectionTypeModel.create({
       type: 'test_collection'
     })

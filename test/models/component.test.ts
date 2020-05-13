@@ -9,10 +9,6 @@ describe('CRUD operation on \'Component\' model', () => {
   let entityId: any
 
   before(async () => {
-    setTimeout(() => {
-      console.log('Waited for thirty seconds before test started.')
-    }, 30000)
-
     const entityModelInstance = await entityModel.create()
 
     const componentTypeModelInstance = await componentTypeModel.create({

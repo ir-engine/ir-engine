@@ -6,10 +6,6 @@ describe('CRUD operation on \'Entity\' model', () => {
   let entityType: any
 
   before(async () => {
-    setTimeout(() => {
-      console.log('Waited for thirty seconds before test started.')
-    }, 30000)
-
     const entity = await entityTypeModel.create({
       type: 'test_entity_type'
     })

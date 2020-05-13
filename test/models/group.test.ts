@@ -3,12 +3,6 @@ import app from '../../src/app'
 describe('CRUD operation on \'Group\' model', () => {
   const model = app.service('group').Model
 
-  before(async () => {
-    setTimeout(() => {
-      console.log('Waited thirty seconds before starting test.')
-    }, 30000)
-  })
-
   it('Create', done => {
     model.create({
       name: 'test'
