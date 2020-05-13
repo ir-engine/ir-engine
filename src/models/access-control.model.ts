@@ -16,11 +16,11 @@ export default (app: Application): any => {
   (accessControl as any).associate = (models: any) => {
     (accessControl as any).belongsTo(models.user_role, { foreignKey: 'userRole', required: true, primaryKey: true, allowNull: false });
     (accessControl as any).belongsTo(models.resource_type, { foreignKey: 'resourceType', required: true, primaryKey: true, allowNull: false });
-    (accessControl as any).belongsTo(models.access_control_scope, { foreignKey: 'list' });
-    (accessControl as any).belongsTo(models.access_control_scope, { foreignKey: 'create' });
-    (accessControl as any).belongsTo(models.access_control_scope, { foreignKey: 'read' });
-    (accessControl as any).belongsTo(models.access_control_scope, { foreignKey: 'update' });
-    (accessControl as any).belongsTo(models.access_control_scope, { foreignKey: 'delete' })
+    (accessControl as any).belongsTo(models.access_control_scope, { as: 'list', foreignKey: 'listScope' });
+    (accessControl as any).belongsTo(models.access_control_scope, { as: 'create', foreignKey: 'createScope' });
+    (accessControl as any).belongsTo(models.access_control_scope, { as: 'read', foreignKey: 'readScope' });
+    (accessControl as any).belongsTo(models.access_control_scope, { as: 'update', foreignKey: 'updateScope' });
+    (accessControl as any).belongsTo(models.access_control_scope, { as: 'delete', foreignKey: 'deleteScope' })
   }
   return accessControl
 }
