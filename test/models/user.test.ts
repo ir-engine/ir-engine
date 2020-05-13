@@ -18,7 +18,6 @@ describe('CRUD operation on \'User\' model', () => {
     }).then(res => {
       done()
     }).catch(err => {
-      console.log('ERROR')
       console.log(err)
     })
   })
@@ -32,7 +31,6 @@ describe('CRUD operation on \'User\' model', () => {
     }).then(res => {
       done()
     }).catch(err => {
-      console.log('ERROR')
       console.log(err)
     })
   })
@@ -45,7 +43,6 @@ describe('CRUD operation on \'User\' model', () => {
       }).then(res => {
       done()
     }).catch(err => {
-      console.log('ERROR')
       console.log(err)
     })
   })
