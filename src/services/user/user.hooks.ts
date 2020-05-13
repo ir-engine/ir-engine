@@ -6,7 +6,10 @@ const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [/*authenticate('jwt')*/function(context:any) {
+      // console.log(context.app.apolloServer)
+      // context.app.apolloServer.pubSubInstance.publish('userCreated', { userCreated: { id: 'abc123'}})
+    }],
     find: [],
     get: [
       addAssociations({

@@ -48,6 +48,7 @@ import Upload from './upload/upload.service'
 import Video from './video/video.service'
 import GraphQL from './graphql/graphql.service'
 import SubscriptionConfirm from './subscription-confirm/subscription-confirm.service'
+import RealtimeStore from './realtime-store/realtime-store.service'
 
 // Spoke
 import Asset from './asset/asset.service'
@@ -110,6 +111,7 @@ export default (app: Application): void => {
   app.configure(SubscriptionConfirm)
   app.configure(Upload)
   app.configure(Video)
+  app.configure(RealtimeStore);
 
   // Spoke
   app.configure(Asset)

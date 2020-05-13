@@ -3,7 +3,9 @@ import app from './app'
 import config from './config'
 
 const port = config.server.port
-const server = app.listen(port)
+const server = app.listen(port, () => {
+    (app as any).apolloServer.installSubscriptionHandlers(server)
+})
 
 process.on('unhandledRejection', (reason, p) =>
   logger.error('Unhandled Rejection at: Promise ', p, reason)

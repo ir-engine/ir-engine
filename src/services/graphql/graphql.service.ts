@@ -4,8 +4,14 @@ import { Graphql } from './graphql.class'
 import { PubSub } from 'graphql-subscriptions'
 // @ts-ignore
 import { generateModelTypes, generateApolloServer } from 'graphql-sequelize-generator'
+import InstanceType from './instance/instance-type'
+import fs from 'fs'
 
 import { Sequelize } from 'sequelize'
+
+const typeRe = /([a-zA-Z]+).instance/
+const realtimeTypeFilenames = fs.readdirSync('./src/services/graphql/instance/instance-types')
+const realtimeTypes = realtimeTypeFilenames.map((name: string) => name.match(typeRe)![1] ?? 'ignore')
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -25,11 +31,23 @@ export default (app: Application): any => {
   const graphqlSchemaDeclaration = (): any => {
     const declarations: any[] = []
     Object.keys(models).forEach((model: any) => {
-      declarations.push({ model: model, actions })
+      const options = {
+        model: model,
+        actions: actions,
+        additionalMutations: {},
+        additionalSubscriptions: {}
+      }
+
+      if (process.env.SERVER_MODE === 'realtime' && realtimeTypes.indexOf(model) >= 0) {
+        const instance = new InstanceType(model, models[model], app.service('realtime-store'), pubSubInstance)
+        options.additionalMutations = instance.mutations
+        options.additionalSubscriptions = instance.subscriptions
+      }
+      declarations.push(options)
       console.log(sequelizeClient.modelManager.getModel(model))
     })
 
-    // TO-DO: Move Seqeuelize key assocation somewhere else -- for now it's working here
+    // TO-DO: Move Seqeuelize key association somewhere else -- for now it's working here
     Object.keys(models).forEach((name) => {
       if ('associate' in models[name]) {
         (models[name] as any).associate(models)
@@ -41,7 +59,12 @@ export default (app: Application): any => {
     const values = declarations.reduce((obj, item) => {
       return {
         ...obj,
-        [sequelizeClient.model(item.model).name]: { model: sequelizeClient.model(item.model), actions }
+        [sequelizeClient.model(item.model).name]: {
+          model: sequelizeClient.model(item.model),
+          actions: actions,
+          additionalMutations: item.additionalMutations,
+          additionalSubscriptions: item.additionalSubscriptions
+        }
       }
     }, initialValue)
     return values
@@ -59,7 +82,7 @@ export default (app: Application): any => {
         }
       },
       subscriptions: {
-        path: '/graphql',
+        path: '/subscriptions',
         onConnect: async (connectionParams: any, webSocket: any) => {
           console.log(connectionParams)
           console.log(webSocket)
@@ -75,6 +98,8 @@ export default (app: Application): any => {
     app,
     path: '/graphql'
   })
+
+  ;(app as any).apolloServer = server
 
   app.service('graphql')
 }
