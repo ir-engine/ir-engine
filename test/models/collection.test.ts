@@ -3,7 +3,7 @@
 import app from '../../src/app'
 import { sequelize } from '../../src/models'
 
-describe('CRUD operation on \'Collection\' model', () => {
+describe.skip('CRUD operation on \'Collection\' model', () => {
   const model = app.service('collection').Model
 
   before(async () => {
