@@ -6,6 +6,8 @@ export interface ClickableData {
   id?: string
   enabled?: boolean
   clickevent?: string
+  // user can pass string data through, including stringified JSON.
+  clickeventData?: string,
   enableevent?: string
   disableevent?: string
 }
@@ -14,6 +16,7 @@ export const ClickableComponentSchema: AFRAME.MultiPropertySchema<ClickableData>
   id: { type: 'string', default: '' },
   enabled: { type: 'boolean', default: true },
   clickevent: { type: 'string', default: 'cellclicked' },
+  clickeventData: { type: 'string', default: '' },
   enableevent: { type: 'string', default: 'enable-clickable' },
   disableevent: { type: 'string', default: 'disable-clickable' }
 }
@@ -45,7 +48,7 @@ export const ClickableComponent: AFRAME.ComponentDefinition<ClickableProps> = {
     this.el.classList.add('clickable')
   },
 
-  tick: function() {
+  tick: function () {
     if (!this.intersectingRaycaster) {
       return
     }
@@ -95,7 +98,13 @@ export const ClickableComponent: AFRAME.ComponentDefinition<ClickableProps> = {
     if (this.intersectingRaycaster) {
       const intersection = this.intersectingRaycaster.getIntersection(this.el)
       if (intersection) {
-        const clickEvent = new Event(this.data.clickevent, { bubbles: true })
+        // CustomEvent allows passing data through 'detail' property.
+        const clickEvent = new CustomEvent(this.data.clickevent,
+          {
+            bubbles: true,
+            ...(this.data.clickeventData ? { detail: JSON.parse(this.data.clickeventData) } : {})
+          }
+        )
         this.el.dispatchEvent(clickEvent)
       }
     }
@@ -119,13 +128,13 @@ export const ClickableComponent: AFRAME.ComponentDefinition<ClickableProps> = {
     }
   },
 
-  addHandlers: function() {
+  addHandlers: function () {
     this.el.addEventListener('click', this.clickHandler.bind(this))
     this.el.addEventListener('raycaster-intersected', this.raycasterIntersectedHandler.bind(this))
     this.el.addEventListener('raycaster-intersected-cleared', this.raycasterIntersectedClearedHandler.bind(this))
   },
 
-  removeHandlers: function() {
+  removeHandlers: function () {
     this.el.removeEventListener('click', this.clickHandler)
     this.el.removeEventListener('raycaster-intersected', this.raycasterIntersectedHandler)
     this.el.removeEventListener('raycaster-intersected-cleared', this.raycasterIntersectedClearedHandler)

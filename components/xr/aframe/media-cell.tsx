@@ -166,11 +166,9 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
         url += ''
         break
     }
-    el.addEventListener('click', () => {
-      // set loaded to false in the redux store, so it renders the loading screen while navigating
-      // store.dispatch(setAppLoaded(false))
-      window.location.href = url
-    })
+    // handle navigate on the react side - this emits the 'navigate' event when .clickable is clicked
+    // and passes the url data through
+    el.setAttribute('clickable', { clickevent: 'navigate', clickeventData: JSON.stringify({ url }) })
   }
 }
 
