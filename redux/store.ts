@@ -6,13 +6,13 @@ import Immutable from 'immutable'
 
 const initialState: any = Immutable.Map()
 
-export function configureStore () {
-  const store = createStore(
-    reducers,
-    initialState,
-    applyMiddleware(thunkMiddleware)
-  )
+const store = createStore(
+  reducers,
+  initialState,
+  applyMiddleware(thunkMiddleware)
+)
 
+export function configureStore() {
   // add a listener that will be invoked on any state change.
   store.subscribe(() => {
     saveState(store.getState())
@@ -20,3 +20,5 @@ export function configureStore () {
 
   return store
 }
+
+export default store
