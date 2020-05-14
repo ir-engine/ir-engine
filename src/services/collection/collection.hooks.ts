@@ -1,4 +1,4 @@
-import * as authentication from '@feathersjs/authentication'
+// import * as authentication from '@feathersjs/authentication'
 import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
 import addAssociations from '../../hooks/add-associations'
 import collectAnalytics from '../../hooks/collect-analytics'
