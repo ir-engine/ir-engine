@@ -11,7 +11,8 @@ export const seed = {
     { type: 'script' },
     { type: 'volumetric' }, // any volumetric file, parse metadata for staticResourceType
     { type: 'json' }, // JSON data
-    { type: 'data' } // arbitrary data of any other staticResourceType
+    { type: 'user-thumbnail' }, // User avatar profile thumbnail
+    { type: 'data' } // arbitrary data of any other type
   ]
 }
 
