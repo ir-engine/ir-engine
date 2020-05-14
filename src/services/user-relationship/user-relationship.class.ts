@@ -67,7 +67,7 @@ export class RelationRelation extends Service {
     console.log('-----------create---------', userId, relatedUserId)
 
     switch (data.action) {
-      case 'create': {
+      case 'create':
         await this.app.get('sequelizeClient').transaction(async (trans: Transaction) => {
           result = await UserRelationshipModel.create({
             userId,
@@ -85,8 +85,8 @@ export class RelationRelation extends Service {
             transaction: trans
           })
         })
-      } break
-      case 'update': {
+        break
+      case 'update':
         result = await UserRelationshipModel.update({
           type
         }, {
@@ -95,14 +95,14 @@ export class RelationRelation extends Service {
             relatedUserId
           }
         })
-      } break
-      case 'remove': {
+        break
+      case 'remove':
         result = await UserRelationshipModel.destroy({
           where: Sequelize.literal(
-            `(userId='${userId}' AND relatedUserId='${relatedUserId}') OR 
-             (userId='${relatedUserId}' AND relatedUserId='${userId}')`)
+            `(userId='${userId as string}' AND relatedUserId='${relatedUserId as string}') OR 
+             (userId='${relatedUserId as string}' AND relatedUserId='${userId as string}')`)
         })
-      } break
+        break
       default:
         break
     }
