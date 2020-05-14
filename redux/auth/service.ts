@@ -44,15 +44,22 @@ export async function doLoginAuto (dispatch: Dispatch) {
     .then((res: any) => {
       if (res) {
         const authUser = resolveAuthUser(res)
-        if (!authUser.identityProvider.isVerified) {
-          client.logout()
-          return
-        }
+        // if (!authUser.identityProvider.isVerified) {
+        //   client.logout()
+        //   return;
+        // }
         dispatch(loginUserSuccess(authUser))
         loadUserData(dispatch, authUser.identityProvider.userId)
       } else {
-        client.logout()
-        // loadUserData(dispatch, authData.authUser.identityProvider.userId)
+        console.log('****************')
+      }
+    })
+    .catch((e) => {
+      dispatch(didLogout())
+
+      console.log(e)
+      if (window.location.pathname !== '/') {
+        window.location.href = '/'
       }
     })
 }
@@ -93,7 +100,6 @@ export async function loginUserByPassword (form: EmailLoginForm) {
 
           window.location.href = '/auth/confirm'
           dispatch(loginUserError('Unverified user'))
-
           dispatchAlertError(dispatch, 'Unverified user')
           return
         }

@@ -21,17 +21,6 @@ import { AuthUser } from '../../interfaces/AuthUser'
 import { User } from '../../interfaces/User'
 import { IdentityProvider } from '../../interfaces/IdentityProvider'
 
-export interface AuthState {
-  isLoggedIn: boolean
-  isProcessing: boolean
-
-  error: string
-
-  authUser?: AuthUser
-  user?: User
-  identityProvider?: IdentityProvider
-}
-
 export interface EmailLoginForm {
   email: string
   password: string
