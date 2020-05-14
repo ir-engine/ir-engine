@@ -1,9 +1,23 @@
+import addAssociations from '../../hooks/add-associations'
 import collectAnalytics from '../../hooks/collect-analytics'
 
 export default {
   before: {
     all: [collectAnalytics()],
-    find: [],
+    find: [
+      addAssociations({
+        models: [
+          {
+            model: 'entity',
+            include: [
+              {
+                model: 'component'
+              }
+            ]
+          }
+        ]
+      })
+    ],
     get: [],
     create: [],
     update: [],
