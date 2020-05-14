@@ -2,10 +2,12 @@
   background-color: #fff;
   padding:0;
   margin:0;
+  position: relative;
   display:flex;
   align-items:center;
   justify-content:center;
-  height: 95vh;
+  height: 100vh;
+  z-index: 900;
 }
 .backg{
   position:relative;
