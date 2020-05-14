@@ -29,6 +29,7 @@ const UserProfile: React.FC<ProfileProps> = (props: ProfileProps) => {
     const formData = new FormData()
     formData.append('file', efile, efile.type)
     formData.append('name', efile.name)
+    formData.append('type', 'user-thumbnail')
 
     const file = formData
 
