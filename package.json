@@ -32,7 +32,9 @@
     "dev-generate-fakes": "NODE_ENV=dev env GENERATE_FAKES=true ts-node-dev --no-notify src/",
     "start": "yarn run compile && node lib/",
     "mocha": "NODE_ENV=test ts-mocha \"test/**/*.ts\" --recursive --exit",
-    "compile": "shx rm -rf lib/ && tsc"
+    "compile": "shx rm -rf lib/ && tsc",
+    "sync": "PERFORM_DRY_RUN=true FORCE_DB_REFRESH=true node lib/"
+
   },
   "standard": {
     "env": [
