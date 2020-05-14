@@ -12,6 +12,16 @@ Demo at: https://xrchat.lifescope.io
 
 ## Prerequisites
 
+Designed For the Spatial Web
+
+Modern Browsers
+
+XR
+
+VR Devices
+
+AR Devices
+
 ## Installation
 
 ## Setup
@@ -26,3 +36,7 @@ Cloud Deployment & Services
 https://github.com/xrchat/xrchat-ops#xrchat-ops
 
 ## Try it out!
+
+Demo:
+
+https://myxr.chat
