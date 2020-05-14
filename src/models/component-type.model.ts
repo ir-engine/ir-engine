@@ -14,13 +14,16 @@ export default (app: Application): any => {
     hooks: {
       beforeCount (options: any) {
         options.raw = true
+      },
+      beforeUpdate (instance: any, options: any) {
+        throw new Error("Can't update a type!")
       }
     },
     timestamps: false
   });
 
   (componentType as any).assocate = (models: any) => {
-    (componentType as any).hasMany(models.component, { foreignKey: 'type' })
+    (componentType as any).hasMany(models.component, { foreignKey: 'componentType' })
   }
 
   return componentType
