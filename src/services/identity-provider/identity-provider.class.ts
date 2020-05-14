@@ -93,7 +93,7 @@ export class IdentityProvider extends Service {
       query: {
         id: userId
       }
-    })) as any).data
+    }))).data
 
     if (foundUser.length > 0) {
       // if there is the user with userId, then we add the identity provider to the user

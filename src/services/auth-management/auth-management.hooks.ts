@@ -1,12 +1,7 @@
 import { hooks } from '@feathersjs/authentication'
 import { iff } from 'feathers-hooks-common'
-
+import isAction from '../../hooks/is-action'
 const { authenticate } = hooks
-
-const isAction = (...params: any): any => {
-  const args = Array.from(params)
-  return (hook: any) => args.includes(hook.data.action)
-}
 
 export default {
   before: {
