@@ -14,13 +14,16 @@ export default (app: Application): any => {
     hooks: {
       beforeCount (options: any) {
         options.raw = true
+      },
+      beforeUpdate (instance: any, options: any) {
+        throw new Error("Can't update a type!")
       }
     },
     timestamps: false
   });
 
   (entityType as any).assocate = (models: any) => {
-    (entityType as any).hasMany(models.entity, { foreignKey: 'type' })
+    (entityType as any).hasMany(models.entity, { foreignKey: 'entityType' })
   }
   return entityType
 }

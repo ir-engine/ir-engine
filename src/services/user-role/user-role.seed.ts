@@ -1,13 +1,13 @@
 export const seed = {
   disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
-  delete: true,
+  delete: (process.env.FORCE_DB_REFRESH === 'true'),
   path: 'user-role',
   templates:
     [
-      { userRole: 'admin' },
-      { userRole: 'moderator' },
-      { userRole: 'user' },
-      { userRole: 'guest' }
+      { role: 'admin' },
+      { role: 'moderator' },
+      { role: 'user' },
+      { role: 'guest' }
     ]
 }
 

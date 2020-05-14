@@ -32,7 +32,9 @@
     "dev-generate-fakes": "NODE_ENV=dev env GENERATE_FAKES=true ts-node-dev --no-notify src/",
     "start": "yarn run compile && node lib/",
     "mocha": "NODE_ENV=test ts-mocha \"test/**/*.ts\" --recursive --exit",
-    "compile": "shx rm -rf lib/ && tsc"
+    "compile": "shx rm -rf lib/ && tsc",
+    "sync": "PERFORM_DRY_RUN=true FORCE_DB_REFRESH=true node lib/",
+    "precommit": "no-master-commits -b master,dev"
   },
   "standard": {
     "env": [
@@ -46,11 +48,13 @@
     "fs-capacitor/is-promise": "2.1.0"
   },
   "types": "lib/",
-  "husky": {
-    "hooks": {
-      "pre-commit": "echo && echo \\* Running pre-commit test  && echo \\*\\* \\`git commit --no-verify\\` to skip && echo \\*\\*\\* PRs THAT DO NOT PASS TESTS WILL NOT BE ACCEPTED && yarn run test"
-    }
-  },
+  "pre-push": [
+    "test"
+  ],
+  "pre-commit": [
+    "test",
+    "precommit"
+  ],
   "peerDependencies": {
     "graphql": "^15.0.0",
     "graphql-relay": "~0.6.0",
@@ -80,8 +84,9 @@
     "apollo-server": "^2.13.1",
     "apollo-server-express": "^2.13.1",
     "app-root-path": "^3.0.0",
-    "aws-sdk": "^2.675.0",
-    "bent": "^7.3.1",
+    "aws-sdk": "^2.658.0",
+    "bcrypt": "^4.0.1",
+    "bent": "^7.3.0",
     "camelcase": "^6.0.0",
     "compression": "^1.7.4",
     "config": "^3.3.1",
@@ -123,6 +128,7 @@
   },
   "devDependencies": {
     "@feathersjs/feathers": "^4.5.3",
+    "@types/bcrypt": "^3.0.0",
     "@types/bluebird": "^3.5.30",
     "@types/compression": "^1.7.0",
     "@types/config": "0.0.36",
@@ -147,12 +153,15 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "feathers-hooks-common": "^5.0.3",
-    "husky": "^4.2.5",
-    "mocha": "^7.1.2",
+    "mocha": "^7.1.1",
+    "no-master-commits": "^1.1.1",
     "nodemon": "^2.0.3",
+    "pre-commit": "^1.2.2",
+    "pre-push": "^0.1.1",
     "pug": "^2.0.4",
     "sequelize": "^5.16.0",
     "shx": "^0.3.2",
+    "supertest": "^4.0.2",
     "ts-mocha": "^7.0.0",
     "ts-node-dev": "^1.0.0-pre.44",
     "typescript": "3.8.3"
