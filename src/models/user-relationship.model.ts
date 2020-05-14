@@ -4,12 +4,19 @@ import { Application } from '../declarations'
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const userRelationship = sequelizeClient.define('user_relationship', {
+
   }, {
     hooks: {
       beforeCount (options: any): any {
         options.raw = true
       }
-    }
+    },
+    indexes: [
+      {
+        unique: true,
+        fields: ['userId', 'relatedUserId']
+      }
+    ]
   });
 
   (userRelationship as any).associate = (models: any) => {
