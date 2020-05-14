@@ -7,15 +7,10 @@ import { HookContext } from '@feathersjs/feathers'
 import setResponseStatusCode from '../../hooks/set-response-status-code'
 import attachOwnerIdInBody from '../../hooks/set-loggedin-user-in-body'
 import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
-<<<<<<< HEAD
+
 import mapProjectIdToQuery from '../../hooks/set-project-id-in-query'
 import generateSceneCollection from './generate-collection.hook'
 // import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
-=======
-import { disallow } from 'feathers-hooks-common'
-
->>>>>>> Implemented short Id in project and scene
-// Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks
 
@@ -42,15 +37,9 @@ export default {
     all: [authenticate('jwt'), collectAnalytics()],
     find: [],
     get: [],
-<<<<<<< HEAD
     create: [attachOwnerIdInBody('created_by_account_id'), mapProjectSaveData(), validateCollectionData(), generateSceneCollection({ type: 'project' })],
     update: [disallow()],
     patch: [attachOwnerIdInBody('created_by_account_id'), mapProjectIdToQuery(), mapProjectSaveData(), validateCollectionData()],
-=======
-    create: [attachOwnerIdInBody('created_by_account_id'), mapProjectSaveData()],
-    update: [disallow()],
-    patch: [attachOwnerIdInBody('created_by_account_id'), mapProjectSaveData()],
->>>>>>> Implemented short Id in project and scene
     remove: [
       attachOwnerIdInQuery('created_by_account_id')
     ]
