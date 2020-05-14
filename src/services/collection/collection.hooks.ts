@@ -1,6 +1,8 @@
-import { HookContext } from '@feathersjs/feathers'
+import * as authentication from '@feathersjs/authentication'
+import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
 import addAssociations from '../../hooks/add-associations'
 import collectAnalytics from '../../hooks/collect-analytics'
+import { HookContext } from '@feathersjs/feathers'
 // import * as authentication from '@feathersjs/authentication'
 
 function processCollectionEntities (collection: any): any {
@@ -27,14 +29,13 @@ function processCollectionEntities (collection: any): any {
   }
 } */
 
+// const { authenticate } = authentication.hooks
+
 export default {
   before: {
-<<<<<<< HEAD
     all: [collectAnalytics()], /* authenticate('jwt') */
-=======
-    all: [collectAnalytics()],
->>>>>>> Populating entity and components
     find: [
+      attachOwnerIdInQuery('userId'),
       addAssociations({
         models: [
           {
@@ -48,7 +49,6 @@ export default {
         ]
       })
     ],
-<<<<<<< HEAD
     get: [
       addAssociations({
         models: [
@@ -63,9 +63,6 @@ export default {
         ]
       })
     ],
-=======
-    get: [],
->>>>>>> Populating entity and components
     create: [],
     update: [],
     patch: [],
