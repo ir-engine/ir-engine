@@ -1,42 +1,68 @@
-// TODO: Create a user role in before/destroy in after so test passes
+import app from '../../src/app'
+import GenerateRandomAnimalName from 'random-animal-name-generator'
 
-// import app from '../../src/app'
+describe('CRUD operation on \'User\' model', () => {
+  const model = app.service('user').Model
+  const userRoleModel = app.service('user-role').Model
 
-// describe('CRUD operation on \'User\' model', () => {
-//   const model = app.service('user').Model
+  before(async () => {
+    await userRoleModel.create({
+      role: 'testrole'
+    })
+  })
 
-//   it('Create', function (done) {
-//     model.create({
-//       userRole: 'user'
-//     }).then(res => {
-//       done()
-//     }).catch(done)
-//   })
+  it('Create', (done) => {
+    model.create({
+      name: 'test',
+      userRole: 'testrole'
+    }).then(res => {
+      done()
+    }).catch(err => {
+      console.log(err)
+    })
+  })
 
-//   it('Read', done => {
-//     model.findOne({
-//       where: {
-//         userRole: 'user'
-//       }
-//     }).then(res => {
-//       done()
-//     }).catch(done)
-//   })
+  it('Read', done => {
+    model.findOne({
+      where: {
+        name: 'test',
+        userRole: 'testrole'
+      }
+    }).then(res => {
+      done()
+    }).catch(err => {
+      console.log(err)
+    })
+  })
 
-//   it('Update', done => {
-//     model.update(
-//       { name: 'Update test' },
-//       { where: { userRole: 'user' } }
-//     ).then(res => {
-//       done()
-//     }).catch(done)
-//   })
+  it('Update', done => {
+    model.update(
+      { name: GenerateRandomAnimalName().toUpperCase() },
+      {
+        where: { name: 'test', userRole: 'testrole' }
+      }).then(res => {
+      done()
+    }).catch(err => {
+      console.log(err)
+    })
+  })
 
-//   it('Delete', done => {
-//     model.destroy({
-//       where: { userRole: 'user' }
-//     }).then(res => {
-//       done()
-//     }).catch(done)
-//   })
-// })
+  it('Delete', done => {
+    model.destroy({
+      where: { userRole: 'testrole' }
+    }).then(res => {
+      done()
+    }).catch(err => {
+      console.log('ERROR')
+      console.log(err)
+    })
+  })
+
+  after(async () => {
+    await userRoleModel.destroy({
+      where: {
+        role: 'testrole'
+      }
+    })
+  })
+})

@@ -14,13 +14,13 @@ export default (app: Application): any => {
   });
 
   (accessControl as any).associate = (models: any) => {
-    (accessControl as any).belongsTo(models.user_role, { foreignKey: 'userRole', required: true, primaryKey: true, allowNull: false });
-    (accessControl as any).belongsTo(models.resource_type, { foreignKey: 'resourceType', required: true, primaryKey: true, allowNull: false });
-    (accessControl as any).belongsTo(models.access_control_scope, { foreignKey: 'list', required: true });
-    (accessControl as any).belongsTo(models.access_control_scope, { foreignKey: 'create', required: true });
-    (accessControl as any).belongsTo(models.access_control_scope, { foreignKey: 'read', required: true });
-    (accessControl as any).belongsTo(models.access_control_scope, { foreignKey: 'update', required: true });
-    (accessControl as any).belongsTo(models.access_control_scope, { foreignKey: 'delete', required: true })
+    (accessControl as any).belongsTo(models.user_role, { foreignKey: 'userRole', required: true, primaryKey: true });
+    (accessControl as any).belongsTo(models.resource_type, { foreignKey: 'resourceType', required: true, primaryKey: true });
+    (accessControl as any).belongsTo(models.access_control_scope, { as: 'list', foreignKey: 'listScope', constraints: false });
+    (accessControl as any).belongsTo(models.access_control_scope, { as: 'create', foreignKey: 'createScope', constraints: false });
+    (accessControl as any).belongsTo(models.access_control_scope, { as: 'read', foreignKey: 'readScope', constraints: false });
+    (accessControl as any).belongsTo(models.access_control_scope, { as: 'update', foreignKey: 'updateScope', constraints: false });
+    (accessControl as any).belongsTo(models.access_control_scope, { as: 'delete', foreignKey: 'deleteScope', constraints: false })
   }
   return accessControl
 }

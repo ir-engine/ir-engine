@@ -1,15 +1,12 @@
 import app from '../../src/app'
 
-describe('CRUD operation on \'Static Resource\' model', () => {
-  const model = app.service('static-resource').Model
+describe('CRUD operation on \'Asset\' model', () => {
+  const model = app.service('asset').Model
 
   it('Create', (done) => {
     model.create({
-      name: 'test',
-      description: 'description',
-      url: 'http://localhost:3030',
-      mime_type: 'image/png',
-      metadata: JSON.stringify({ data: 'test' })
+      name: 'test asset',
+      type: 'image'
     }).then(res => {
       done()
     }).catch(done)
@@ -18,7 +15,7 @@ describe('CRUD operation on \'Static Resource\' model', () => {
   it('Read', done => {
     model.findOne({
       where: {
-        name: 'test'
+        name: 'test asset'
       }
     }).then(res => {
       done()
@@ -27,8 +24,8 @@ describe('CRUD operation on \'Static Resource\' model', () => {
 
   it('Update', done => {
     model.update(
-      { description: 'description2' },
-      { where: { name: 'test' } }
+      { type: 'model' },
+      { where: { name: 'test asset' } }
     ).then(res => {
       done()
     }).catch(done)
@@ -36,7 +33,7 @@ describe('CRUD operation on \'Static Resource\' model', () => {
 
   it('Delete', done => {
     model.destroy({
-      where: { name: 'test' }
+      where: { name: 'test asset' }
     }).then(res => {
       done()
     }).catch(done)

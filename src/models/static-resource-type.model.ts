@@ -14,13 +14,16 @@ export default (app: Application): any => {
     hooks: {
       beforeCount (options: any) {
         options.raw = true
+      },
+      beforeUpdate (instance: any, options: any) {
+        throw new Error("Can't update a type!")
       }
     },
     timestamps: false
   });
 
   (staticResourceType as any).associate = (models: any) => {
-    (staticResourceType as any).hasMany(models.static_resource, { foreignKey: 'type' })
+    (staticResourceType as any).hasMany(models.static_resource, { foreignKey: 'staticResourceType' })
   }
 
   return staticResourceType
