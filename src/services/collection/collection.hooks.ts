@@ -1,5 +1,4 @@
 import { HookContext } from '@feathersjs/feathers'
-
 import addAssociations from '../../hooks/add-associations'
 import collectAnalytics from '../../hooks/collect-analytics'
 
