@@ -1,5 +1,6 @@
 import AFRAME from 'aframe'
-
+// import store from '../../../redux/store'
+// import { setAppLoaded } from '../../../redux/app/actions'
 export const ComponentName = 'media-cell'
 
 export interface MediaCellSystemData {
@@ -166,6 +167,8 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
         break
     }
     el.addEventListener('click', () => {
+      // set loaded to false in the redux store, so it renders the loading screen while navigating
+      // store.dispatch(setAppLoaded(false))
       window.location.href = url
     })
   }

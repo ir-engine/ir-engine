@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { selectAppState } from '../../../redux/app/selector'
+import { setAppLoaded } from '../../../redux/app/actions'
 import { Scene } from 'aframe-react'
 import SvgVr from '../../icons/svg/Vr'
 import LoadingScreen from '../../ui/Loader'
@@ -7,7 +9,9 @@ type Props = {
   children: any
 }
 export default function SceneContainer({ children }: Props): any {
-  const [loaded, setLoaded] = useState(false)
+  const dispatch = useDispatch()
+  const { loaded } = useSelector(selectAppState)
+  const setLoaded = loaded => dispatch(setAppLoaded(loaded))
   return (
     <>
       {!loaded && <LoadingScreen />}
