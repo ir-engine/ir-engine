@@ -29,7 +29,11 @@ function processCollectionEntities (collection: any): any {
 
 export default {
   before: {
+<<<<<<< HEAD
     all: [collectAnalytics()], /* authenticate('jwt') */
+=======
+    all: [collectAnalytics()],
+>>>>>>> Populating entity and components
     find: [
       addAssociations({
         models: [
@@ -44,6 +48,7 @@ export default {
         ]
       })
     ],
+<<<<<<< HEAD
     get: [
       addAssociations({
         models: [
@@ -58,6 +63,9 @@ export default {
         ]
       })
     ],
+=======
+    get: [],
+>>>>>>> Populating entity and components
     create: [],
     update: [],
     patch: [],
