@@ -5,7 +5,7 @@ export default function (options = {}) {
     const sequelize = context.params.sequelize || {}
     const include = sequelize.include || []
     sequelize.include = include.concat((options as any).models.map((model: any) => {
-      const newModel = { ...model, include: processInclude(model.include, context) }
+      const newModel = { ...model, ...processInclude(model.include, context) }
       newModel.model = context.app.services[model.model].Model
       return newModel
     }))
@@ -18,13 +18,12 @@ export default function (options = {}) {
 
 function processInclude (includeCollection: any, context: HookContext): any {
   if (!includeCollection) {
-    return []
+    return
   }
   includeCollection = includeCollection.map((model: any) => {
-    const newModel = { ...model }
-    newModel.include = processInclude(newModel.include, context)
+    const newModel = { ...model, ...processInclude(model.include, context) }
     newModel.model = context.app.services[model.model].Model
     return newModel
   })
-  return includeCollection
+  return { include: includeCollection }
 }
