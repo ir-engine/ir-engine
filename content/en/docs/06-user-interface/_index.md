@@ -18,6 +18,12 @@ This is asss placeholder page that shows you how to use this template site.
 ## AR
 
 
+![map][map]
+
+
+![map-logged-out][map-logged-out]
+
+
 Menu Button: Reveals links to user preferences, room controls and other useful information.
 Mute: Turns on/off your microphone.
 Share Room: Opens a dialog box with information on sharing the room with friends. More info provided in the Share Room Dialog section at the bottom of this page.
@@ -38,3 +44,38 @@ Enter room on Wired in device
 The share room dialog gives you the information you need to share with others for them to join you in the room. You can use the numeric code to share a link verbally, share the current room URL or the shortened hub.link URL. Note that codes expire after 72 hours.
 
 A checkbox on the invite dialog allows you to sign up for notifications that alert you when another user has entered the room. You can sign up for notifications on your phone or desktop. You do not need to remain in the room to receive notifications.
+
+## Settings
+
+On the dash
+Microphone
+Volume - Speech
+Volume - World
+Visual Quality
+
+In the full menu
+
+Audio
+Microphone Input
+Speech Output
+World Output
+
+Visual
+Material Quality: High / Medium / Low
+Textures: Ultra Low (¼), Medium(½), High(Full size)
+Post Processing: On/Off
+Render Distance: Low, Medium, High
+
+Gameplay
+Enable stats.js
+
+
+FPS
+Invert Axis
+X: On/Off
+Y: On/Off
+Device Override: WebXR, Desktop, Mobile
+
+
+[map-logged-out]: https://xrchat.github.io/img/xrc-map-logged-out.png "map-logged-out"
+[map]: https://xrchat.github.io/img/xrc-map.png "map"
