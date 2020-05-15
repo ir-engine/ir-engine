@@ -53,6 +53,14 @@ import Scene from './scene/scene.service'
 import SceneListing from './scene-listing/scene-listing.service'
 import UploadMedia from './upload-media/upload-media.service'
 
+import Messages from './messages/messages.service'
+
+import Conversation from './conversation/conversation.service'
+
+import ChatRoom from './chatroom/chatroom.service'
+
+import MessageStatus from './message-status/message-status.service'
+
 export default (app: Application): void => {
   // Dynamic Enums
   app.configure(ComponentType)
@@ -105,4 +113,8 @@ export default (app: Application): void => {
   app.configure(UploadMedia)
   app.configure(PublishProject)
   app.configure(GraphQL)
+  app.configure(Messages)
+  app.configure(Conversation)
+  app.configure(ChatRoom)
+  app.configure(MessageStatus)
 }
