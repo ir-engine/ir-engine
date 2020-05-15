@@ -34,6 +34,9 @@ const placegroundScenePipelineModule = () => {
   let signHula = 1, signKungfu = 1, signSharkman = 1;
 
   let surface 
+  const sofaImage = "./img/shoes2.png"
+  let sofa
+
 
   // Populates some object into an XR scene and sets the initial camera position. The scene and
   // camera come from xr3js, and are only available in the camera loop lifecycle onStart() or later.
@@ -43,168 +46,49 @@ const placegroundScenePipelineModule = () => {
     // addLoading({scene});
 
     // addLounge({scene});
+    showLoadingScreen();
+
+    const textureLoader = new THREE.TextureLoader()
+    textureLoader.load(sofaImage, function(texture) {
+      texture.minFilter = THREE.NearestFilter
+      texture.magFilter = THREE.NearestFilter
+
+      const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true
+      })
+      const plane = new THREE.PlaneBufferGeometry(1, 1)
+      sofa = new THREE.Mesh(plane, material)
+      // sofa.rotation.x = Math.PI * 1.5
+      sofa.position.set(0, -0.5, -8);
+      sofa.scale.set(3, 3, 3)
+      scene.add(sofa)
+    })
 
     addVolumetricVideoSharkman({scene});
 
-    addVolumetricVideoHula({scene});
+    // addVolumetricVideoHula({scene});
 
-    addVolumetricVideoKungfu({scene});
+    // addVolumetricVideoKungfu({scene});
     
-    // var geometry = new THREE.SphereGeometry( 5, 32, 32 );
-    // var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-    // var sphere = new THREE.Mesh( geometry, material );
-    // sphere.position.set(20, 20, -17);
-    // sphere.scale.set(0.1, 0.1, 0.1);
-    // scene.add( sphere );
-    // console.log(sphere);
-
-    var geometry = new THREE.ConeBufferGeometry( 5, 10, 32 );
-    var material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
-    coneHula = new THREE.Mesh( geometry, material );
-    coneHula.position.set(20.5, 14, -17);
-    coneHula.rotation.x = Math.PI;
-    coneHula.scale.set(0.1, 0.1, 0.1);
-    scene.add( coneHula );
-
-    var geometry = new THREE.ConeBufferGeometry( 5, 10, 32 );
-    var material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
-    coneSharkman = new THREE.Mesh( geometry, material );
-    coneSharkman.position.set(-0.5, 16, 10);
-    coneSharkman.rotation.x = Math.PI;
-    coneSharkman.scale.set(0.1, 0.1, 0.1);
-    scene.add( coneSharkman );
-    coneSharkman.visible = false;
-
-    var geometry = new THREE.ConeBufferGeometry( 5, 10, 32 );
-    var material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
-    coneKungfu = new THREE.Mesh( geometry, material );
-    coneKungfu.position.set(-20, 14, -17);
-    coneKungfu.rotation.x = Math.PI;
-    coneKungfu.scale.set(0.1, 0.1, 0.1);
-    scene.add( coneKungfu );
-
     scene.add(new THREE.AmbientLight( 0xffffff, 0.9 ))  // Add soft white light to the scene.
 
     // var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
     // directionalLight.position.set(12, 0.6, 0);
     // scene.add(directionalLight);
 
-    // var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
-    // directionalLight2.position.set(0, 0.6, 0);
-    // scene.add(directionalLight2);
-
-    // spotLight1 = new THREE.DirectionalLight( 0xff0000 );
-    // spotLight1.position.set( -32, 0, -3 );
-    // scene.add( spotLight1 );
-
-    // spotLight1 = new THREE.SpotLight( 0xffffff, 2.0 );
-    // spotLight1.position.set( -20, 50, -27 );
-    // spotLight1.angle = 0.2;
-    // spotLight1.penumbra = 0.6;
-    // scene.add( spotLight1 );
-    // spotLight1.visible = false;
-
-    // spotLight2 = new THREE.SpotLight( 0xffffff, 2.0 );
-    // spotLight2.position.set( 0, 50, -27 );
-    // spotLight2.angle = 0.2;
-    // spotLight2.penumbra = 0.6;
-    // scene.add( spotLight2 );
-
-    // spotLight3 = new THREE.SpotLight( 0xffffff, 2.0 );
-    // spotLight3.position.set( 20, 50, -27 );
-    // spotLight3.angle = 0.2;
-    // spotLight3.penumbra = 0.6;
-    // scene.add( spotLight3 );
-    // spotLight3.visible = false;
-
-    // adjustCamera();
-
-
-    // var spotLightHelper = new THREE.SpotLightHelper( spotLight1 );
-    // scene.add( spotLightHelper );
-
-    // spotLight2 = new THREE.DirectionalLight( 0x00ff00, 0 );
-    // spotLight2.position.set( 32, 0, -3 );
-    // scene.add( spotLight2 );
-
-    // var pointLight = new THREE.PointLight( 0x0000ff, 1, 100 );
-    // pointLight.position.set( 10, 10, 10 );
-    // scene.add( pointLight );
-
-    // var sphereSize = 1;
-    // var pointLightHelper = new THREE.PointLightHelper( pointLight, sphereSize );
-    // scene.add( pointLightHelper );
-
-    // setInterval(function() {
-    //   // spotLight1.intensity = 1 - spotLight1.intensity;
-    //   spotLight2.intensity = 1 - spotLight2.intensity;
-    // }, 500);
-
-    // setInterval(function() {
-    //   spotLight1.position.y += 0.1;
-    //   console.log(spotLight1.position);
-    // });
-
-    // Set the initial camera position relative to the scene we just laid out. This must be at a
-    // height greater than y=0.
-  
-    
-    // surface = new THREE.Mesh(
-    //   new THREE.PlaneGeometry( 100, 100, 1, 1 ),
-    //   new THREE.MeshBasicMaterial({
-    //     color: 0xffff00,
-    //     transparent: true,
-    //     opacity: 0.0,
-    //     side: THREE.DoubleSide
-    //   })
-    // )
-
-    // surface.rotateX(-Math.PI / 2)
-    // surface.position.set(0, 0, 0)
-    // scene.add(surface);
-
     camera.position.set(0, 10, 20);
-    // XR8.XrController.updateCameraProjectionMatrix({
-    //   origin: camera.position,
-    //   facing: camera.quaternion,
-    // })
-    
-    // adjustCamera();
-
 
   }
 
-  const addLoading = ({scene}) => {
+  const showLoadingScreen = () => {
+    document.getElementById('loading').style.visibility = "visible";
+  }
 
-    // const textureLoader = new THREE.TextureLoader()
-
-    const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-      const boxMaterial = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        transparent: true,
-        opacity: 0.50,
-      });
-      box = new THREE.Mesh(boxGeometry, boxMaterial);
-      loader.castShadow = true;
-      // loader.receiveShadow = false;
-      box.scale.set(0.5, 0.5, 0.5);
-      box.position.set(6, -1, -12);
-      scene.add(box);
-  };
+  const hideLoadingScreen = () => {
+    document.getElementById('loading').remove();
+  }
   
-  const addLounge = ({scene}) => {
-
-    fbxLoader.load( ASSET_LOUNGE, function ( object ) {
-
-      object.scale.set(0.05, 0.05, 0.05);
-      // object.position.y = -10;
-      object.rotation.y = Math.PI;
-      scene.add(object);
-      adjustCamera();
-
-    })
-  };
-
   const addVolumetricVideoSharkman = ({scene}) => {
 
     const ASSET_TRACKER_SHARK = "shark.gltf";
@@ -218,14 +102,15 @@ const placegroundScenePipelineModule = () => {
       const gltfScene = gltf.scene;
       volPlayerSharkman = new VolPlayer(frameData, FRAME_RATE, ASSET_TYPE, ASSET_OBJECT_PATH_SHARK, ASSET_TEXTURE_PATH_SHARK, AUDIO_PLAYING_FLAG, AUDIO_FILE); 
       gltfScene.children[0].add(volPlayerSharkman);
-      // spotLight2.target = gltfScene;
 
       volPlayerSharkman.onReady.then(() => {
         sharkman = gltfScene.children[0].children[0].children[0].children[0];
-        gltfScene.scale.set(2, 2, 2);
-        gltfScene.position.set(0, -0.5, -8);
-        scene.add(gltfScene);
-        volPlayerSharkman.isPlaying = true;
+        sharkman.scale.set(2, 2, 2);
+        sharkman.position.set(0, -0.5, -8);
+        scene.add(sharkman);
+        sharkman.visible = false;
+        hideLoadingScreen();
+        volPlayerSharkman.isPlaying = false;
       });
     
     });
@@ -244,7 +129,6 @@ const placegroundScenePipelineModule = () => {
       const gltfScene = gltf.scene;
       volPlayerKungfu = new VolPlayer(frameData, FRAME_RATE, ASSET_TYPE, ASSET_OBJECT_PATH_KUNGFU, ASSET_TEXTURE_PATH_KUNGFU, AUDIO_PLAYING_FLAG, AUDIO_FILE); 
       gltfScene.children[0].add(volPlayerKungfu);
-      // spotLight3.target = gltfScene;
 
       volPlayerKungfu.onReady.then(() => {
         kungfu = gltfScene.children[0].children[0].children[0].children[0];
@@ -311,60 +195,43 @@ const placegroundScenePipelineModule = () => {
   
   // }
 
-  const adjustCamera = () => {
-    const {scene, camera} = XR8.Threejs.xrScene() 
-      // camera.position.x += 5;
-      // camera.position.z += 10;
-      // camera.position.y += 5;
+  // const adjustCamera = () => {
+  //   const {scene, camera} = XR8.Threejs.xrScene() 
+  //     // camera.position.x += 5;
+  //     // camera.position.z += 10;
+  //     // camera.position.y += 5;
 
-      XR8.XrController.updateCameraProjectionMatrix({
-        origin: camera.position,
-        facing: camera.quaternion,
-      })
-  };
+  //     XR8.XrController.updateCameraProjectionMatrix({
+  //       origin: camera.position,
+  //       facing: camera.quaternion,
+  //     })
+  // };
 
   const startHula = ({scene}) => {
 
-    boxVisible = true;
     volPlayerSharkman.isPlaying = false;
     volPlayerKungfu.isPlaying = false;
     volPlayerHula.isPlaying = true;
-    // spotLight1.visible = true;
-    // spotLight2.visible = false;
-    // spotLight3.visible = false;
-    coneHula.visible = false;
-    coneSharkman.visible = true;
-    coneKungfu.visible = true;
-
   }
 
   const startKungfu = ({scene}) => {
 
-    boxVisible = true;
     volPlayerSharkman.isPlaying = false;
     volPlayerHula.isPlaying = false;
     volPlayerKungfu.isPlaying = true;
-    // spotLight1.visible = false;
-    // spotLight2.visible = false;
-    // spotLight3.visible = true;
-    coneHula.visible = true;
-    coneSharkman.visible = true;
-    coneKungfu.visible = false;
-    
   }
 
   const startSharkman = ({scene}) => {
 
-    boxVisible = true;
     volPlayerHula.isPlaying = false;
     volPlayerKungfu.isPlaying = false;
     volPlayerSharkman.isPlaying = true;
-    // spotLight1.visible = false;
-    // spotLight2.visible = true;
-    // spotLight3.visible = false;
-    coneHula.visible = true;
-    coneSharkman.visible = false;
-    coneKungfu.visible = true;
+    
+  }
+
+  const resetHandler = (e) => {
+    XR8.XrController.recenter()
+    sharkman.position.set(0, -0.5, -8);
   }
 
   const touchHandler = (e) => {
@@ -373,9 +240,9 @@ const placegroundScenePipelineModule = () => {
 
     // adjustCamera();
 
-    if (e.touches.length == 2) {
-      XR8.XrController.recenter() 
-    }
+    // if (e.touches.length == 2) {
+    //   XR8.XrController.recenter() 
+    // }
 
     if (e.touches.length > 2) {
       return
@@ -391,23 +258,47 @@ const placegroundScenePipelineModule = () => {
     raycaster.setFromCamera(tapPosition, camera)
 
     // Raycast against the "hula" object.
-    let intersects = raycaster.intersectObject(hula)
-    if (intersects.length > 0 && intersects[0].object == hula) {
-      console.log("Start Hula");
-      startHula({scene});
-    }
+    // let intersects = raycaster.intersectObject(hula)
+    // if (intersects.length > 0 && intersects[0].object == hula) {
+    //   console.log("Start Hula");
+    //   startHula({scene});
+    // }
 
-    intersects = raycaster.intersectObject(kungfu)
-    if (intersects.length > 0 && intersects[0].object == kungfu) {
-      console.log("Start Kungfu");
-      startKungfu({scene});
-    }
+    // intersects = raycaster.intersectObject(kungfu)
+    // if (intersects.length > 0 && intersects[0].object == kungfu) {
+    //   console.log("Start Kungfu");
+    //   startKungfu({scene});
+    // }
 
-    intersects = raycaster.intersectObject(sharkman)
+    let intersects = raycaster.intersectObject(sharkman)
     if (intersects.length > 0 && intersects[0].object == sharkman) {
       console.log("Start Sharkman");
-      startSharkman({scene});
+      // startSharkman({scene});
     }
+
+  }
+
+  const adjustModelPan = (pos) => {
+
+    sharkman.position.x += (pos.x * 0.01);
+    sharkman.position.y -= (pos.y * 0.01);
+    // console.log(sharkman.position.x);
+    sofa.position.x += (pos.x * 0.01);
+    sofa.position.y -= (pos.y * 0.01);
+    
+
+  }
+
+  const adjustModelZoom = (change) => {
+
+    sharkman.scale.x += change*0.01;
+    sharkman.scale.y += change*0.01;
+    sharkman.scale.z += change*0.01;
+    
+    sofa.scale.x += change*0.01;
+    sofa.scale.y += change*0.01;
+    sofa.scale.z += change*0.01;
+    // sharkman.scale.multiplyScalar(change*0.01);
 
   }
 
@@ -424,9 +315,32 @@ const placegroundScenePipelineModule = () => {
       initXrScene({ scene, camera }) // Add objects to the scene and set starting camera position.
 
       canvas.addEventListener('touchstart', touchHandler, true)  // Add touch listener.
+      document.getElementById('reset').addEventListener('touchstart', resetHandler, true);
 
-      stats = new Stats();
-      canvas.appendChild( stats.dom );
+      var zt = new ZingTouch.Region(document.body);
+      var panGesture = new ZingTouch.Pan({ numInputs: 1 });
+      var pinchGesture = new ZingTouch.Distance();
+      var swipeGesture = new ZingTouch.Swipe({
+        numInputs: 1,
+        maxRestTime: 100,
+        escapeVelocity: 0.25
+      });
+
+      zt.bind(canvas, swipeGesture, function(e){
+        console.log("swipe");
+        // adjustModelZoom(e.detail.change)
+      }, true);
+
+      zt.bind(canvas, panGesture, function(e){
+        console.log("pan");
+        adjustModelPan(e.detail.data[0].change)
+      }, false);
+
+      zt.bind(canvas, pinchGesture, function(e){
+        adjustModelZoom(e.detail.change)
+      }, false);
+
+      
 
       animate()
       function animate(time) {
@@ -437,48 +351,13 @@ const placegroundScenePipelineModule = () => {
           //   boxVisible = false;
           // } 
         }
-        if(volPlayerHula && volPlayerHula.isPlaying) {
-          volPlayerHula.update();
-        }
-        if(volPlayerKungfu && volPlayerKungfu.isPlaying) {
-          volPlayerKungfu.update();
-        }
-
-        if(coneHula.visible) {
-          coneHula.scale.x += (signHula * 0.001);
-          coneHula.scale.y += (signHula * 0.001);
-          coneHula.scale.z += (signHula * 0.001);
-          if(coneHula.scale.x > 0.12) signHula = -1;
-          if(coneHula.scale.x < 0.08) signHula = 1;
-        }
-
-        if(coneSharkman.visible) {
-          coneSharkman.scale.x += (signSharkman * 0.001);
-          coneSharkman.scale.y += (signSharkman * 0.001);
-          coneSharkman.scale.z += (signSharkman * 0.001);
-          if(coneSharkman.scale.x > 0.12) signSharkman = -1;
-          if(coneSharkman.scale.x < 0.08) signSharkman = 1;
-        }
-
-        if(coneKungfu.visible) {
-          coneKungfu.scale.x += (signKungfu * 0.001);
-          coneKungfu.scale.y += (signKungfu * 0.001);
-          coneKungfu.scale.z += (signKungfu * 0.001);
-          if(coneKungfu.scale.x > 0.12) signKungfu = -1;
-          if(coneKungfu.scale.x < 0.08) signKungfu = 1;
-        }
-        
-        // if(box && boxVisible) {
-        //   box.rotation.x += 0.03;
-        //   box.rotation.y += 0.05;
-        // } 
-
-        // if(!boxVisible) {
-        //   box.visible = false;
-        // } else {
-        //   box.visible = true;
+        // if(volPlayerHula && volPlayerHula.isPlaying) {
+        //   volPlayerHula.update();
         // }
-        
+        // if(volPlayerKungfu && volPlayerKungfu.isPlaying) {
+        //   volPlayerKungfu.update();
+        // }
+
       }
 
       // Sync the xr controller's 6DoF position and camera paremeters with our scene.
@@ -510,4 +389,4 @@ const onxrloaded = () => {
 
 // Show loading screen before the full XR library has been loaded.
 const load = () => { XRExtras.Loading.showLoading({onxrloaded}) }
-window.onload = () => { window.XRExtras ? load() : window.addEventListener('xrextrasloaded', load) }
+// window.onload = () => { window.XRExtras ? load() : window.addEventListener('xrextrasloaded', load) }
