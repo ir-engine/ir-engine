@@ -36,7 +36,8 @@ export default (app: Application): void => {
 
       // Easily organize user by email and userid for things like messaging
       // app.channel(`emails/${user.email}`).join(channel)
-      // app.channel(`userIds/$(user.id}`).join(channel)
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      app.channel(`userIds/${connection['identity-provider'].userId}`).join(connection)
     }
   })
 
@@ -65,4 +66,11 @@ export default (app: Application): void => {
   //     app.channel(`emails/${data.recipientEmail}`)
   //   ]
   // })
+
+  app.service('chatroom').publish('created', data => {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    return app.channel(`userIds/${data.sender_id}`).send({
+      conversation: data.conversation
+    })
+  })
 }
