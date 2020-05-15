@@ -1,13 +1,7 @@
-
-import * as authentication from '@feathersjs/authentication'
-import * as commonHooks from 'feathers-hooks-common'
-
-const { authenticate } = authentication.hooks
-
-const isAction = (...params: any): any => {
-  const args = Array.from(params)
-  return (hook: any) => args.includes(hook.data.action)
-}
+import { hooks } from '@feathersjs/authentication'
+import { iff } from 'feathers-hooks-common'
+import isAction from '../../hooks/is-action'
+const { authenticate } = hooks
 
 export default {
   before: {
@@ -15,7 +9,7 @@ export default {
     find: [],
     get: [],
     create: [
-      commonHooks.iff(
+      iff(
         isAction('passwordChange', 'identityChange'),
         authenticate('jwt')
       )

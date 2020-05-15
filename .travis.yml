@@ -18,6 +18,7 @@ before_script:
 script:
   - npm run lint
   - npm run compile
+  - npm run sync
   - npm run mocha
 
 before_deploy:
