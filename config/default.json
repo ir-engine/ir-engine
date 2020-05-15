@@ -78,5 +78,9 @@
     "subject": "MAGICLINK_EMAIL_SUBJECT"
   },
   "mysql": "mysql://server:password@localhost:3306/xrchat",
-  "gaTrackingId": "UA-164023274-3"
+  "gaTrackingId": "UA-164023274-3",
+  "stripe_secret": "sk_test_iFEEtnjg9s6cIy243gj1hf2300OF49B0Nd",
+  "stripe_api_version": "2020-03-02",
+  "chargebee_site": "https://kaixr.chargebee.com/",
+  "chargebee_api_key": "live_ZeYwcczFZHOtFWTrobTU7RdYZBLUGlyM"
 }

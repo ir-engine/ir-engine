@@ -53,6 +53,8 @@ import Scene from './scene/scene.service'
 import SceneListing from './scene-listing/scene-listing.service'
 import UploadMedia from './upload-media/upload-media.service'
 
+import payment from './payment/payment.service';
+
 export default (app: Application): void => {
   // Dynamic Enums
   app.configure(ComponentType)
@@ -107,4 +109,5 @@ export default (app: Application): void => {
   app.configure(PublishProject)
 
   app.configure(GraphQL)
+  app.configure(payment);
 }

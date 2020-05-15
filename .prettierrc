@@ -1,9 +1,9 @@
 {
-	"tabWidth": 2,
-	"useTabs": false,
-	"semi": false,
-	"singleQuote": true,
-	"editor.codeActionsOnSave": {
-		"source.fixAll.eslint": true
-	}
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": false,
+  "singleQuote": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
 }
