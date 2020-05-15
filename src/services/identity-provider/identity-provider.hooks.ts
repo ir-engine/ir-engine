@@ -3,6 +3,7 @@ import { hooks } from '@feathersjs/authentication-local'
 import { iff, isProvider, preventChanges } from 'feathers-hooks-common'
 import accountService from '../auth-management/auth-management.notifier'
 import { HookContext } from '@feathersjs/feathers'
+import hashIdentityProviderFields from '../../hooks/hash-identity-provider-fields'
 
 const verifyHooks = require('feathers-authentication-management').hooks
 // const { authenticate } = feathersAuthentication.hooks
@@ -20,7 +21,7 @@ const isPasswordAccountType = () => {
 
 const sendVerifyEmail = () => {
   return (context: any) => {
-    if (context.result?.type === 'password') {
+    if (context.result?.identityProviderType === 'password') {
       accountService(context.app).notifier('resendVerifySignup', context.result)
     }
     return context
@@ -29,7 +30,7 @@ const sendVerifyEmail = () => {
 
 export default {
   before: {
-    all: [],
+    all: [hashIdentityProviderFields()],
     find: [],
     get: [],
     create: [

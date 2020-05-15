@@ -14,7 +14,6 @@ export class User extends Service {
 
   async find (params: Params): Promise<any> {
     const action = params.query?.action
-    console.log(params.query)
     if (action === 'withRelation') {
       const userId = params.query?.userId
 

@@ -132,7 +132,7 @@ export class Magiclink implements ServiceMethods<Data> {
     const identityProviders = ((await identityProviderService.find({
       query: {
         token: token,
-        type: data.type
+        identityProviderType: data.type
       }
     })) as any).data
 
@@ -140,7 +140,7 @@ export class Magiclink implements ServiceMethods<Data> {
       identityProvider = await identityProviderService.create(
         {
           token: token,
-          type: data.type,
+          identityProviderType: data.type,
           userId: data.userId
         },
         params

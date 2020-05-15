@@ -17,7 +17,7 @@ export default (app: Application): any => {
       }
     },
     notifier: async (type: string, identityProvider: any): Promise<void> => {
-      if (identityProvider.type !== 'password') {
+      if (identityProvider.identityProviderType !== 'password') {
         return
       }
 
