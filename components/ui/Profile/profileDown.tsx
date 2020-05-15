@@ -10,7 +10,8 @@ import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 import ProfileModal from './index'
 
 interface XProps {
-  avatar: any
+  avatar: any,
+  parentProps: any
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -45,6 +46,10 @@ const MenuListComposition: React.FC<XProps> = (props: XProps) => {
       return
     }
 
+    setOpen(false)
+  }
+  const handleLogout = () => {
+    props.parentProps.logoutUser()
     setOpen(false)
   }
 
@@ -101,7 +106,7 @@ const MenuListComposition: React.FC<XProps> = (props: XProps) => {
                   >
                     <MenuItem onClick={handleModal}>Profile</MenuItem>
                     <MenuItem onClick={handleClose}>Contacts</MenuItem>
-                    <MenuItem onClick={handleClose}>Logout</MenuItem>
+                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
                   </MenuList>
                 </ClickAwayListener>
               </Paper>
