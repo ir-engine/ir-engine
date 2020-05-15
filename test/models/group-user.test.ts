@@ -3,14 +3,19 @@ import app from '../../src/app'
 describe('CRUD operation on \'GroupUser\' model', () => {
   const model = app.service('group-user').Model
   const userModel = app.service('user').Model
+  const userRoleModel = app.service('user-role').Model
   const groupModel = app.service('group').Model
   const groupUserRankModel = app.service('group-user-rank').Model
-  let userId: any, groupUserRank: any, groupUserRankUpdated: any, groupId: any
+  let userId: any, role: any, groupUserRank: any, groupUserRankUpdated: any, groupId: any
 
   before(async () => {
+    const userRole = await userRoleModel.create({
+      role: 'testrole'
+    })
+    role = userRole.role
     const user = await userModel.create({
       name: 'testname',
-      userRole: 'user'
+      userRole: role
     })
     const group = await groupModel.create({
       name: 'testgroup'
@@ -31,7 +36,7 @@ describe('CRUD operation on \'GroupUser\' model', () => {
     model.create({
       userId,
       groupId,
-      groupUserRank: groupUserRank
+      groupUserRank
     }).then(res => {
       done()
     }).catch(done)
@@ -69,6 +74,12 @@ describe('CRUD operation on \'GroupUser\' model', () => {
     await userModel.destroy({
       where: {
         id: userId
+      }
+    })
+
+    await userRoleModel.destroy({
+      where: {
+        role
       }
     })
 
