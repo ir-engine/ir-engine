@@ -14,13 +14,16 @@ export default (app: Application): any => {
     hooks: {
       beforeCount (options: any) {
         options.raw = true
+      },
+      beforeUpdate (instance: any, options: any) {
+        throw new Error("Can't update a type!")
       }
     },
     timestamps: false
   });
 
   (userRelationshipType as any).associate = (models: any) => {
-    (userRelationshipType as any).hasMany(models.user_relationship, { foreignKey: 'type' })
+    (userRelationshipType as any).hasMany(models.user_relationship, { foreignKey: 'userRelationshipType' })
   }
 
   return userRelationshipType

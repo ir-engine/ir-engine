@@ -1,23 +1,15 @@
-// TODO: Fix and uncomment
-
 // import app from '../../src/app'
 
 // describe('CRUD operation on \'PartyUser\' model', () => {
 //   const model = app.service('party-user').Model
 //   const partyModel = app.service('party').Model
 //   const userModel = app.service('user').Model
-//   var partyId, userId
+//   let partyId, userId
 
 //   before(async () => {
 //     const party = await partyModel.create({})
 //     partyId = party.id
-//     const user = await userModel.create({
-//       email: 'email@example.com',
-//       password: '12345',
-//       mobile: '8767367277',
-//       githubId: 'githubtest',
-//       isVerified: true
-//     })
+//     const user = await userModel.create({})
 //     userId = user.id
 //   })
 

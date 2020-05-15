@@ -49,6 +49,8 @@ const s3BlobStore = new S3BlobStore({
 export default async (context: any): Promise<void> => {
   const { result, app } = context
 
+  context.params.provider = null // Will get around upload's isProvider check
+
   if (Array.isArray(result)) {
     return
   }

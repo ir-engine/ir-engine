@@ -5,15 +5,14 @@ import seederConfig from './seeder-config'
 // @ts-ignore
 import seeder from 'feathers-seeder'
 import { db } from './db-config'
-
-console.log('db config:', db)
+import { setTimeout } from 'timers'
 
 export default (app: Application): void => {
   const { forceRefresh } = db
 
   const sequelize = new Sequelize({
     ...db,
-    logging: forceRefresh,
+    logging: forceRefresh ? console.log : false,
     define: {
       freezeTableName: true
     }
@@ -28,7 +27,10 @@ export default (app: Application): void => {
       sequelize.sync({ force: forceRefresh })
         .then(() => {
           // @ts-ignore
-          app.configure(seeder(seederConfig)).seed()
+          app.configure(seeder(seederConfig)).seed().catch(err => {
+            console.log(err)
+          })
+          if (process.env.PERFORM_DRY_RUN) setTimeout(() => process.exit(0), 5000)
         })
         .catch(console.error)
     )
