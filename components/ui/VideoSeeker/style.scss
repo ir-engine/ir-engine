@@ -1,0 +1,41 @@
+$seeker-margin: 90px;
+$seeker-height: 12px;
+.seek-bar-container {
+    width: calc(100vw - #{$seeker-margin} * 2);
+    position: fixed;
+    bottom: 0;
+    margin: $seeker-margin;
+    z-index: 800;
+    .seek-bar {
+        height: $seeker-height;
+        position: absolute;
+    }
+    .current-time-bar {
+        background-color: #00ceff;
+        border-right: 1px solid #5ee0ff;
+    }
+    .buffer-bar {
+        background-color: grey;
+    }
+    .full-bar {
+        background-color: rgba(255,255,255,0.5);
+    }
+    .clickable-bar {
+        width: 100%;
+        height: 48px;
+        top: calc(-#{$seeker-height} / 2);
+        transform: translateY(-25%);
+        cursor: pointer;
+    }
+}
+.play-controls {
+    margin: 61px 30px;
+    position: fixed;
+    bottom: 0;
+    z-index: 800;
+    > svg {
+        width: 36px;
+        height: 36px;
+        cursor: pointer;
+    }
+}

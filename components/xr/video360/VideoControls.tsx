@@ -1,6 +1,7 @@
 import React from 'react'
 import Router from 'next/router'
 import './VideoControls.scss'
+import VideoSeeker from '../../ui/VideoSeeker'
 
 type Props = {
   videosrc: string,
@@ -9,13 +10,22 @@ type Props = {
 }
 type State = {
   playing: boolean,
-  end: boolean
+  end: boolean,
+  // setInterval id
+  tickId: any,
+  // duration of video in seconds
+  duration: number,
+  // current time of video in seconds
+  currentTime: number,
 }
 
 export default class Video360Room extends React.Component<Props, State> {
   state: State = {
     playing: false,
-    end: false
+    end: false,
+    tickId: null,
+    duration: 0,
+    currentTime: 0
   }
 
   videoEl: HTMLElement | null = null
@@ -35,10 +45,31 @@ export default class Video360Room extends React.Component<Props, State> {
 
   render() {
     return (
-      <div onClick={ this.clickHandler.bind(this) }
-        id="videoplayercontrols"
-        className="videoplayercontrols active">
-      </div>
+      <>
+        <div onClick={this.clickHandler.bind(this)}
+          id="videoplayercontrols"
+          className="videoplayercontrols active">
+        </div>
+        <VideoSeeker
+          playing={this.state.playing}
+          videoLengthSeconds={this.state.duration}
+          currentTimeSeconds={this.state.currentTime}
+          bufferPercentage={0}
+          onTogglePlay={playing => {
+            if (playing) {
+              this.playHandler()
+            } else {
+              this.pauseHandler()
+            }
+          }}
+          onSeekChange={t => {
+            (this.videoEl as HTMLVideoElement).currentTime = t
+            this.setState({
+              currentTime: t
+            })
+          }}
+        />
+      </>
     )
   }
 
@@ -63,6 +94,7 @@ export default class Video360Room extends React.Component<Props, State> {
 
   pauseHandler() {
     (this.videoEl as HTMLVideoElement)?.pause()
+    this.setState({ playing: false })
   }
 
   private videoEndHandler() {
@@ -80,12 +112,28 @@ export default class Video360Room extends React.Component<Props, State> {
     this.videovruiEl?.setAttribute('video-player-vr-ui', {
       isPlaying: true
     })
+    // if duration has not been set in state, get this from the video element.
+    if (!this.state.duration) {
+      this.setState({
+        duration: (this.videoEl as HTMLVideoElement).duration
+      })
+    }
+    // when playing, every 1/3 second, update current time in state.
+    this.setState({
+      tickId: setInterval(() => {
+        this.setState({
+          currentTime: (this.videoEl as HTMLVideoElement).currentTime
+        })
+      }, 333)
+    })
   }
 
   private videoPauseHandler() {
     this.videovruiEl?.setAttribute('video-player-vr-ui', {
       isPlaying: false
     })
+    // when paused, don't continue updating current time in state.
+    clearInterval(this.state.tickId)
   }
 
   private exitVideoHandler() {
