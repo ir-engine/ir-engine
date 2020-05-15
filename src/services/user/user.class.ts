@@ -5,7 +5,7 @@ import {
 } from '@feathersjs/feathers'
 
 export class User extends Service {
-  app: Application;
+  app: Application
 
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)

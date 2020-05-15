@@ -31,7 +31,7 @@ export default (app: Application): any => {
   });
 
   (messages as any).associate = (models: any): any => {
-    (messages as any).belongsTo(models.conversation, { foreignKey: 'conversationId' })
+    (messages as any).belongsTo(models.conversation)
     // (messages as any).hasMany(models.messages_status, { foreignKey: 'message_id' })
   }
 
