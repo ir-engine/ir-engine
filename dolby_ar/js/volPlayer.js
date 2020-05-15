@@ -130,11 +130,14 @@ class VolPlayer extends THREE.Object3D {
                 });
             }
 
+            console.log(this);
+            console.log(this.children);
             const holder = this.children[0];
 
             if(frameGeometry != null) {
 
                 for (let i = 0, len = frameGeometry.length; i < len; i++) {
+                    // console.log(holder);
                     holder.children[i].geometry = frameGeometry[i];
                     // holder.children[i].material.map = frameGeometry[i].materialMap;
                     // holder.children[i].material.needsUpdate = true;
@@ -301,9 +304,6 @@ function loadGeometries({ path, texturePath, baseObjectURL, baseTextureURL, asse
         
         switch (assetType) {
             case ".gltf":
-                console.log('304 volPlayer');
-                console.log(`${baseObjectURL}${path}`);
-                // console.log(texturePath);
                 gltfLoader.load(`${baseObjectURL}${path}`, function ( gltf ) {
                     gltf.scene.children[0].geometry.texturePath = texturePath;
                     gltf.scene.children[0].geometry.computeVertexNormals();

@@ -15,67 +15,29 @@ const placegroundScenePipelineModule = () => {
   const AUDIO_PLAYING_FLAG = false;
   const AUDIO_FILE = ASSET_BASE_PATH + "./audio/muqabla.mp3";
 
-  const fbxLoader = new THREE.FBXLoader().setPath( ASSET_BASE_PATH );
   const loader = new THREE.GLTFLoader().setPath( ASSET_BASE_PATH );
-  const raycaster = new THREE.Raycaster()
-  const tapPosition = new THREE.Vector2()
   
   // let spotLight1, spotLight2, spotLight3;
 
-  var volPlayer, stats;
   var volPlayerSharkman, volPlayerHula, volPlayerKungfu;
 
   let hula, kungfu, sharkman;
-  let box;
-
-  let boxVisible = true;
-
-  let coneHula, coneKungfu, coneSharkman;
-  let signHula = 1, signKungfu = 1, signSharkman = 1;
-
-  let surface 
-  const sofaImage = "./img/shoes2.png"
-  let sofa
-
+  let activeCharacter;
 
   // Populates some object into an XR scene and sets the initial camera position. The scene and
   // camera come from xr3js, and are only available in the camera loop lifecycle onStart() or later.
   const initXrScene = ({ scene, camera }) => {
     console.log('initXrScene')
 
-    // addLoading({scene});
-
-    // addLounge({scene});
     showLoadingScreen();
-
-    const textureLoader = new THREE.TextureLoader()
-    textureLoader.load(sofaImage, function(texture) {
-      texture.minFilter = THREE.NearestFilter
-      texture.magFilter = THREE.NearestFilter
-
-      const material = new THREE.MeshBasicMaterial({
-        map: texture,
-        transparent: true
-      })
-      const plane = new THREE.PlaneBufferGeometry(1, 1)
-      sofa = new THREE.Mesh(plane, material)
-      // sofa.rotation.x = Math.PI * 1.5
-      sofa.position.set(0, -0.5, -8);
-      sofa.scale.set(3, 3, 3)
-      scene.add(sofa)
-    })
 
     addVolumetricVideoSharkman({scene});
 
-    // addVolumetricVideoHula({scene});
+    addVolumetricVideoHula({scene});
 
-    // addVolumetricVideoKungfu({scene});
+    addVolumetricVideoKungfu({scene});
     
     scene.add(new THREE.AmbientLight( 0xffffff, 0.9 ))  // Add soft white light to the scene.
-
-    // var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    // directionalLight.position.set(12, 0.6, 0);
-    // scene.add(directionalLight);
 
     camera.position.set(0, 10, 20);
 
@@ -107,7 +69,7 @@ const placegroundScenePipelineModule = () => {
         sharkman = gltfScene.children[0].children[0].children[0].children[0];
         sharkman.scale.set(2, 2, 2);
         sharkman.position.set(0, -0.5, -8);
-        scene.add(sharkman);
+        scene.add(gltf.scene);
         sharkman.visible = false;
         hideLoadingScreen();
         volPlayerSharkman.isPlaying = false;
@@ -135,6 +97,7 @@ const placegroundScenePipelineModule = () => {
         gltfScene.scale.set(2, 2, 2);
         gltfScene.position.set(3, -0.5, -8);
         scene.add(gltfScene);
+        kungfu.visible = false;
         volPlayerKungfu.isPlaying = false;
       });
     
@@ -160,72 +123,57 @@ const placegroundScenePipelineModule = () => {
         gltfScene.scale.set(2, 2, 2);
         gltfScene.position.set(-3, -0.5, -8);
         scene.add(gltfScene);
+        hula.visible = false;
         volPlayerHula.isPlaying = false;
       });
     
     });
   }
 
-  // const addVolumetricVideo = ({scene}) => {
-  //   loader.load( ASSET_TRACKER, function ( gltf ) {
-  //     const userData = gltf.scene.children[0].userData;
-  //     const frameData = userData.Flipbook;
-  //     loadFlipbook(frameData, gltf.scene, {scene});
-  //   });
-  // }
+  const startHula = () => {
 
-  // const loadFlipbook = (frameData, gltfScene, {scene} ) => {
-
-  //   volPlayer = new VolPlayer(frameData, FRAME_RATE, ASSET_TYPE, ASSET_OBJECT_PATH, ASSET_TEXTURE_PATH, AUDIO_PLAYING_FLAG, AUDIO_FILE); 
-  //   gltfScene.children[0].add(volPlayer);
-  //   // activeScene = gltfScene;
-
-  //   volPlayer.onReady.then(() => {
-  //   //   spotLight2.target = gltfScene;
-  //   //   // if(sceneToBeRemoved != null) {
-  //   //   //   scene.remove(sceneToBeRemoved);
-  //   //   //   sceneToBeRemoved = null;
-  //   //   // }
-  //    	gltfScene.scale.set(7, 7, 7);
-  //   	gltfScene.position.set(0, 0, 10);
-  //     scene.add(gltfScene);
-  //     volPlayer.isPlaying = false;
-  //   //   volPlayer.isPlaying = isVolPlayerPlaying;
-  //   });
-  
-  // }
-
-  // const adjustCamera = () => {
-  //   const {scene, camera} = XR8.Threejs.xrScene() 
-  //     // camera.position.x += 5;
-  //     // camera.position.z += 10;
-  //     // camera.position.y += 5;
-
-  //     XR8.XrController.updateCameraProjectionMatrix({
-  //       origin: camera.position,
-  //       facing: camera.quaternion,
-  //     })
-  // };
-
-  const startHula = ({scene}) => {
-
+    if(activeCharacter) {
+      hula.scale.set(activeCharacter.scale.x, activeCharacter.scale.y, activeCharacter.scale.z);
+      hula.position.set(activeCharacter.position.x, activeCharacter.position.y, activeCharacter.position.z);
+    }
+    activeCharacter = hula;
+    hula.visible = true;
+    kungfu.visible = false;
+    sharkman.visible = false;
     volPlayerSharkman.isPlaying = false;
     volPlayerKungfu.isPlaying = false;
     volPlayerHula.isPlaying = true;
-  }
+      }
 
-  const startKungfu = ({scene}) => {
+  const startKungfu = () => {
 
+    if(activeCharacter) {
+      kungfu.scale.set(activeCharacter.scale.x, activeCharacter.scale.y, activeCharacter.scale.z);
+      kungfu.position.set(activeCharacter.position.x, activeCharacter.position.y, activeCharacter.position.z);
+    }
+    activeCharacter = kungfu;
+    hula.visible = false;
+    kungfu.visible = true;
+    sharkman.visible = false;
     volPlayerSharkman.isPlaying = false;
     volPlayerHula.isPlaying = false;
     volPlayerKungfu.isPlaying = true;
   }
 
-  const startSharkman = ({scene}) => {
+  const startSharkman = () => {
 
+    if(activeCharacter) {
+      sharkman.scale.set(activeCharacter.scale.x, activeCharacter.scale.y, activeCharacter.scale.z);
+      sharkman.position.set(activeCharacter.position.x, activeCharacter.position.y, activeCharacter.position.z);
+    }
+    activeCharacter = sharkman;
+    hula.visible = false;
+    kungfu.visible = false;
+    sharkman.visible = true;
     volPlayerHula.isPlaying = false;
     volPlayerKungfu.isPlaying = false;
     volPlayerSharkman.isPlaying = true;
+    console.log("sharkman start");
     
   }
 
@@ -234,71 +182,46 @@ const placegroundScenePipelineModule = () => {
     sharkman.position.set(0, -0.5, -8);
   }
 
-  const touchHandler = (e) => {
-    // Call XrController.recenter() when the canvas is tapped with two fingers. This resets the
-    // AR camera to the position specified by XrController.updateCameraProjectionMatrix() above.
-
-    // adjustCamera();
-
-    // if (e.touches.length == 2) {
-    //   XR8.XrController.recenter() 
-    // }
-
-    if (e.touches.length > 2) {
-      return
-    }
-
-    const {scene, camera} = XR8.Threejs.xrScene()
-
-    // calculate tap position in normalized device coordinates (-1 to +1) for both components.
-    tapPosition.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1
-    tapPosition.y = - (e.touches[0].clientY / window.innerHeight) * 2 + 1
-
-    // Update the picking ray with the camera and tap position.
-    raycaster.setFromCamera(tapPosition, camera)
-
-    // Raycast against the "hula" object.
-    // let intersects = raycaster.intersectObject(hula)
-    // if (intersects.length > 0 && intersects[0].object == hula) {
-    //   console.log("Start Hula");
-    //   startHula({scene});
-    // }
-
-    // intersects = raycaster.intersectObject(kungfu)
-    // if (intersects.length > 0 && intersects[0].object == kungfu) {
-    //   console.log("Start Kungfu");
-    //   startKungfu({scene});
-    // }
-
-    let intersects = raycaster.intersectObject(sharkman)
-    if (intersects.length > 0 && intersects[0].object == sharkman) {
-      console.log("Start Sharkman");
-      // startSharkman({scene});
-    }
-
+  const closeHandler = (e) => {
+    $('#character-selection-screen').css('display', 'block');
+    $('#reset').css('display', 'none');
+    $('canvas').css('display', 'none');
+    $('#close').css('display', 'none');
   }
 
   const adjustModelPan = (pos) => {
 
-    sharkman.position.x += (pos.x * 0.01);
-    sharkman.position.y -= (pos.y * 0.01);
-    // console.log(sharkman.position.x);
-    sofa.position.x += (pos.x * 0.01);
-    sofa.position.y -= (pos.y * 0.01);
-    
-
+    activeCharacter.position.x += (pos.x * 0.01);
+    activeCharacter.position.y -= (pos.y * 0.01);
+  
   }
 
   const adjustModelZoom = (change) => {
 
-    sharkman.scale.x += change*0.01;
-    sharkman.scale.y += change*0.01;
-    sharkman.scale.z += change*0.01;
+    activeCharacter.scale.x += change*0.01;
+    activeCharacter.scale.y += change*0.01;
+    activeCharacter.scale.z += change*0.01;
     
-    sofa.scale.x += change*0.01;
-    sofa.scale.y += change*0.01;
-    sofa.scale.z += change*0.01;
-    // sharkman.scale.multiplyScalar(change*0.01);
+   }
+
+  const showCharacter = (character) => {
+
+    $('#character-selection-screen').css('display', 'none');
+    $('#reset').css('display', 'block');
+    $('canvas').css('display', 'block');
+    $('#close').css('display', 'block');
+
+    switch(character) {
+
+      case 'sharkman': startSharkman();
+                        break;
+      case 'kungfu': startKungfu();
+                      break;
+      case 'hula': startHula();
+                    break;
+      
+    }
+
 
   }
 
@@ -314,8 +237,12 @@ const placegroundScenePipelineModule = () => {
 
       initXrScene({ scene, camera }) // Add objects to the scene and set starting camera position.
 
-      canvas.addEventListener('touchstart', touchHandler, true)  // Add touch listener.
       document.getElementById('reset').addEventListener('touchstart', resetHandler, true);
+      document.getElementById('close').addEventListener('touchstart', closeHandler, true);
+
+      $('.select-character').on('click', function(e) {
+        showCharacter($(this).attr('id'));
+      });
 
       var zt = new ZingTouch.Region(document.body);
       var panGesture = new ZingTouch.Pan({ numInputs: 1 });
@@ -326,13 +253,7 @@ const placegroundScenePipelineModule = () => {
         escapeVelocity: 0.25
       });
 
-      zt.bind(canvas, swipeGesture, function(e){
-        console.log("swipe");
-        // adjustModelZoom(e.detail.change)
-      }, true);
-
       zt.bind(canvas, panGesture, function(e){
-        console.log("pan");
         adjustModelPan(e.detail.data[0].change)
       }, false);
 
@@ -340,24 +261,20 @@ const placegroundScenePipelineModule = () => {
         adjustModelZoom(e.detail.change)
       }, false);
 
-      
+      $('#character-selection-screen').css('display', 'block');
 
       animate()
       function animate(time) {
         requestAnimationFrame(animate)
         if(volPlayerSharkman && volPlayerSharkman.isPlaying) {
           volPlayerSharkman.update();
-          // if(volPlayer.getCurrentFrame() > 0) {
-          //   boxVisible = false;
-          // } 
         }
-        // if(volPlayerHula && volPlayerHula.isPlaying) {
-        //   volPlayerHula.update();
-        // }
-        // if(volPlayerKungfu && volPlayerKungfu.isPlaying) {
-        //   volPlayerKungfu.update();
-        // }
-
+        if(volPlayerHula && volPlayerHula.isPlaying) {
+          volPlayerHula.update();
+        }
+        if(volPlayerKungfu && volPlayerKungfu.isPlaying) {
+          volPlayerKungfu.update();
+        }
       }
 
       // Sync the xr controller's 6DoF position and camera paremeters with our scene.
@@ -389,4 +306,4 @@ const onxrloaded = () => {
 
 // Show loading screen before the full XR library has been loaded.
 const load = () => { XRExtras.Loading.showLoading({onxrloaded}) }
-// window.onload = () => { window.XRExtras ? load() : window.addEventListener('xrextrasloaded', load) }
+window.onload = () => { window.XRExtras ? load() : window.addEventListener('xrextrasloaded', load) }
