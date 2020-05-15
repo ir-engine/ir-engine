@@ -8,6 +8,7 @@ import highlightComp from './highlight'
 import mediaCellComp from './media-cell'
 import playerComp from './player'
 import playerVrUiComp from './video-player-vr-ui'
+import textCell from './text-cell'
 import videoDetails from './video-details'
 
 import AFRAME from 'aframe'
@@ -31,6 +32,7 @@ const ComponentSystemArray: ComponentSystem[] = [
   mediaCellComp,
   playerComp,
   playerVrUiComp,
+  textCell,
   videoDetails
 ]
 
