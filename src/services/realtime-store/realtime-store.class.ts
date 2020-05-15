@@ -1,5 +1,6 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
+import { UserInputError } from 'apollo-server'
 
 interface Data {}
 
@@ -15,14 +16,19 @@ export class RealtimeStore implements ServiceMethods<Data> {
     this.app = app;
   }
 
-  async find (params?: Params): Promise<Data[] | Paginated<Data>> {
-    return [];
+  async find (params?: Params): Promise<Data[] | Paginated<Data> | UserInputError> {
+    let substore = this.store[(params as any).type]
+
+    if (substore == null) { return new UserInputError('Invalid type ') }
+    return Object.keys(substore).map((name) => { return substore[name]})
   }
 
   async get (id: Id, params?: Params): Promise<Data> {
-    return {
-      id, text: `A new message with ID: ${id}!`
-    };
+    let substore = this.store[(params as any).type]
+
+    if (substore == null) { return new UserInputError('Invalid type ') }
+    if (id == null || substore[id] == null) { return new UserInputError('Invalid User ID ') }
+    return substore[id]
   }
 
   async create (data: Data, params?: Params): Promise<Data> {
@@ -30,13 +36,11 @@ export class RealtimeStore implements ServiceMethods<Data> {
       return Promise.all(data.map(current => this.create(current, params)));
     }
 
-    console.log(data)
+    let substore = this.store[(data as any).type]
+    let object = (data as any).object
+    substore[object.id] = object
 
-    let substore = this.store.get((data as any).type)
-    console.log(substore)
-    substore.push((data as any).entity)
-
-    return data;
+    return object;
   }
 
   async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
@@ -44,10 +48,19 @@ export class RealtimeStore implements ServiceMethods<Data> {
   }
 
   async patch (id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data;
+    let substore = this.store[(data as any).type]
+
+    if (substore == null) { return new UserInputError('Invalid type ') }
+    if (id == null || substore[id] == null) { return new UserInputError('Invalid User ID ') }
+    substore[id] = Object.assign({}, substore[id], (data as any).object)
+    return substore[id]
   }
 
   async remove (id: NullableId, params?: Params): Promise<Data> {
+    let substore = this.store[(params as any).type]
+    if (substore == null) { return new UserInputError('Invalid type ') }
+    if (id != null) { delete substore[id] }
+
     return { id };
   }
 }

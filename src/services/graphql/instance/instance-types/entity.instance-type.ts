@@ -9,7 +9,7 @@ import { PubSub} from "graphql-subscriptions";
 // @ts-ignore
 import AgonesSDK from '@google-cloud/agones-sdk'
 
-export default class UserInstance implements IInstanceType {
+export default class EntityInstance implements IInstanceType {
     model: any
     idField: any
     pubSubInstance: PubSub
@@ -24,10 +24,10 @@ export default class UserInstance implements IInstanceType {
     }
 
     mutations = {
-        findUserInstances: {
+        findEntityInstances: {
             type: new GraphQLList(new GraphQLObjectType({
-                name: 'findUserInstances',
-                description: 'Find user instances on a realtime server',
+                name: 'findEntityInstances',
+                description: 'Find entity instances on a realtime server',
                 fields: () => ({
                     ...attributeFields(this.model)
                 })
@@ -40,13 +40,13 @@ export default class UserInstance implements IInstanceType {
             resolve: async(source: any, args: any, context: any, info: any) => {
                 console.log(args.query)
                 const query = JSON.parse(args.query)
-                return await this.realtimeService.find({ type: 'user', query: query })
+                return await this.realtimeService.find({ type: 'entity', query: query })
             }
         },
-        getUserInstance: {
+        getEntityInstance: {
             type: new GraphQLObjectType({
-                name: 'getUserInstance',
-                description: 'Get a single user instance on a realtime server',
+                name: 'getEntityInstance',
+                description: 'Get a single entity instance on a realtime server',
                 fields: () => ({
                     ...attributeFields(this.model)
                 })
@@ -57,13 +57,13 @@ export default class UserInstance implements IInstanceType {
                 }
             },
             resolve: async(source: any, args: any, context: any, info: any) => {
-                return await this.realtimeService.get(args.id, { type: 'user' })
+                return await this.realtimeService.get(args.id, { type: 'entity' })
             }
         },
-        addUserInstance: {
+        addEntityInstance: {
             type: new GraphQLObjectType({
-                name: 'addUserInstance',
-                description: 'Add a user instance to this server',
+                name: 'addEntityInstance',
+                description: 'Add a entity instance to this server',
                 fields: () => ({
                     ...attributeFields(this.model)
                 })
@@ -72,31 +72,27 @@ export default class UserInstance implements IInstanceType {
                 id: {
                     type: GraphQLString
                 },
-                name: {
+                data: {
                     type: GraphQLString
                 }
             },
             resolve: async(source: any, args: any, context: any, info: any) => {
-                if (Object.keys(this.realtimeService.store.user).length === 0) {
-                    await this.agonesSDK.allocate()
-                }
-
-                const newUser = await this.realtimeService.create({
-                    type: 'user',
+                const newEntity = await this.realtimeService.create({
+                    type: 'entity',
                     object: args
                 })
 
-                this.pubSubInstance.publish('userInstanceCreated', {
-                    userInstanceCreated: args
+                this.pubSubInstance.publish('entityInstanceCreated', {
+                    entityInstanceCreated: args
                 })
 
-                return newUser
+                return newEntity
             }
         },
-        patchUserInstance: {
+        patchEntityInstance: {
             type: new GraphQLObjectType({
-                name: 'patchUserInstance',
-                description: 'Patch a user instance on this server',
+                name: 'patchEntityInstance',
+                description: 'Patch a entity instance on this server',
                 fields: () => ({
                     ...attributeFields(this.model)
                 })
@@ -105,30 +101,27 @@ export default class UserInstance implements IInstanceType {
                 id: {
                     type: GraphQLString
                 },
-                name: {
-                    type: GraphQLString
-                },
-                role: {
+                data: {
                     type: GraphQLString
                 }
             },
             resolve: async(source: any, args: any, context: any, info: any) => {
-                const patchedUser = await this.realtimeService.patch(args.id, {
-                    type: 'user',
+                const patchedEntity = await this.realtimeService.patch(args.id, {
+                    type: 'entity',
                     object: args
                 })
 
-                this.pubSubInstance.publish('userInstancePatched', {
-                    userInstancePatched: patchedUser
+                this.pubSubInstance.publish('entityInstancePatched', {
+                    entityInstancePatched: patchedEntity
                 })
 
-                return patchedUser
+                return patchedEntity
             }
         },
-        removeUserInstance: {
+        removeEntityInstance: {
             type: new GraphQLObjectType({
-                name: 'removeUserInstance',
-                description: 'Remove a user instance from this server',
+                name: 'removeEntityInstance',
+                description: 'Remove a entity instance from this server',
                 fields: () => (this.idField)
             }),
             args: {
@@ -138,16 +131,12 @@ export default class UserInstance implements IInstanceType {
             },
             resolve: async(source: any, args: any, context: any, info: any) => {
                 await this.realtimeService.remove(args.id, {
-                    type: 'user'
+                    type: 'entity'
                 })
 
-                this.pubSubInstance.publish('userInstanceRemoved', {
-                    userInstanceRemoved: args
+                this.pubSubInstance.publish('entityInstanceRemoved', {
+                    entityInstanceRemoved: args
                 })
-
-                if (Object.keys(this.realtimeService.store.user).length === 0) {
-                    this.agonesSDK.shutdown()
-                }
 
                 return args
             }
@@ -155,44 +144,44 @@ export default class UserInstance implements IInstanceType {
     }
 
     subscriptions = {
-        userInstanceCreated: {
+        entityInstanceCreated: {
             type: new GraphQLObjectType({
-                name: 'userInstanceCreated',
-                description: 'Listen for when users are added to this server',
+                name: 'entityInstanceCreated',
+                description: 'Listen for when entitys are added to this server',
                 fields: () => ({
                     ...attributeFields(this.model)
                 })
             }),
             subscribe: withFilter(
-                () => this.pubSubInstance.asyncIterator('userInstanceCreated'),
+                () => this.pubSubInstance.asyncIterator('entityInstanceCreated'),
                 (payload, args) => {
                     return true
                 }
             )
         },
-        userInstancePatched: {
+        entityInstancePatched: {
             type: new GraphQLObjectType({
-                name: 'userInstancePatched',
-                description: 'Listen for when users are patched on this server',
+                name: 'entityInstancePatched',
+                description: 'Listen for when entitys are patched on this server',
                 fields: () => ({
                     ...attributeFields(this.model)
                 })
             }),
             subscribe: withFilter(
-                () => this.pubSubInstance.asyncIterator('userInstancePatched'),
+                () => this.pubSubInstance.asyncIterator('entityInstancePatched'),
                 (payload, args) => {
                     return true
                 }
             )
         },
-        userInstanceRemoved: {
+        entityInstanceRemoved: {
             type: new GraphQLObjectType({
-                name: 'userInstanceRemoved',
-                description: 'Listen for when users are added to this server',
+                name: 'entityInstanceRemoved',
+                description: 'Listen for when entitys are added to this server',
                 fields: () => (this.idField)
             }),
             subscribe: withFilter(
-                () => this.pubSubInstance.asyncIterator('userInstanceRemoved'),
+                () => this.pubSubInstance.asyncIterator('entityInstanceRemoved'),
                 (payload, args) => {
                     return true
                 }

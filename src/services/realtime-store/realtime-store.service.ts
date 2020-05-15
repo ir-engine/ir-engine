@@ -25,8 +25,8 @@ export default function (app: Application) {
   service.hooks(hooks);
 
   service.store = {
-    component: [],
-    entity: [],
-    user: []
+    component: {},
+    entity: {},
+    user: {}
   }
 }

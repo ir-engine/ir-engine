@@ -8,6 +8,8 @@ import InstanceType from './instance/instance-type'
 import fs from 'fs'
 
 import { Sequelize } from 'sequelize'
+// @ts-ignore
+import AgonesSDK from '@google-cloud/agones-sdk'
 
 const typeRe = /([a-zA-Z]+).instance/
 const realtimeTypeFilenames = fs.readdirSync('./src/services/graphql/instance/instance-types')
@@ -19,7 +21,8 @@ declare module '../../declarations' {
   }
 }
 
-export default (app: Application): any => {
+export default async (app: Application): Promise<any> => {
+  let agonesSDK: AgonesSDK
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const models = sequelizeClient.models
   const types = generateModelTypes(models)
@@ -27,6 +30,12 @@ export default (app: Application): any => {
   const pubSubInstance = new PubSub()
 
   const actions = ['list', 'create', 'read', 'update', 'delete']
+
+  if (process.env.SERVER_MODE === 'realtime' && process.env.KUBERNETES === 'true') {
+    agonesSDK = new AgonesSDK()
+    agonesSDK.connect()
+    healthPing(agonesSDK)
+  }
 
   const graphqlSchemaDeclaration = (): any => {
     const declarations: any[] = []
@@ -39,7 +48,7 @@ export default (app: Application): any => {
       }
 
       if (process.env.SERVER_MODE === 'realtime' && realtimeTypes.indexOf(model) >= 0) {
-        const instance = new InstanceType(model, models[model], app.service('realtime-store'), pubSubInstance)
+        const instance = new InstanceType(model, models[model], app.service('realtime-store'), pubSubInstance, agonesSDK)
         options.additionalMutations = instance.mutations
         options.additionalSubscriptions = instance.subscriptions
       }
@@ -102,4 +111,10 @@ export default (app: Application): any => {
   ;(app as any).apolloServer = server
 
   app.service('graphql')
+}
+
+
+function healthPing (agonesSDK: AgonesSDK): void {
+  agonesSDK.health()
+  setTimeout(() => healthPing(agonesSDK), 1000)
 }
