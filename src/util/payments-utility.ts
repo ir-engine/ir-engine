@@ -1,6 +1,6 @@
 import Stripe from 'stripe'
 import config from 'config'
-import schedule from 'node-schedule'
+// import schedule from 'node-schedule'
 
 const stripe = new Stripe(config.get('stripe_secret'), {
   apiVersion: config.get('stripe_api_version')
@@ -21,5 +21,7 @@ const schedulePaymentHook = async (): Promise<any> => {
     // handlePaymentOrder(session)
   }
 }
-
-schedule.scheduleJob('59 23 * * *', schedulePaymentHook)
+schedulePaymentHook()
+  .then(data => console.log(data))
+  .catch(err => console.error(err))
+// schedule.scheduleJob('59 23 * * *', schedulePaymentHook)

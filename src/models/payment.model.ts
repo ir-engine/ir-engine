@@ -58,7 +58,7 @@ export default (app: Application): any => {
   )
 
   // eslint-disable-next-line no-unused-vars
-  ;
+
   // prettier-ignore
   ;(payment as any).associate = function (models: any) {
     // Define customer associations later
