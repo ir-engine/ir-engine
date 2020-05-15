@@ -40,6 +40,7 @@ export default (app: Application): any => {
     (User as any).hasMany(models.identity_provider);
     (User as any).hasMany(models.asset, { foreignKey: 'account_id' });
     (User as any).hasMany(models.owned_file, { foreignKey: 'account_id' })
+    // (User as any).hasMany(models.conversation, { foreignKey: 'sender_id' })
   }
 
   return User
