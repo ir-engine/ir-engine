@@ -7,7 +7,7 @@ import config from 'config'
 export default (app: Application): any => {
   return {
     service: config.get('authentication.service'),
-    identifyUserProps: ['token', 'type'],
+    identifyUserProps: ['token', 'identityProviderType'],
     sanitizeUserForClient: async (identityProvider: any): Promise<any> => {
       const authService = app.service('authentication')
       const accessToken = await authService.createAccessToken({}, { subject: identityProvider.id.toString() })

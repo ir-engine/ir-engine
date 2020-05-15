@@ -37,8 +37,8 @@ export default (app: Application): any => {
   });
 
   (collection as any).associate = (models: any) => {
-    (collection as any).belongsTo(models.collection_type, { foreignKey: 'type', required: true });
-    (collection as any).belongsTo(models.attribution);
+    (collection as any).belongsTo(models.collection_type, { foreignKey: 'collectionType', required: true });
+    (collection as any).hasOne(models.attribution);
     (collection as any).hasMany(models.entity);
     (collection as any).belongsTo(models.user);
     (collection as any).belongsTo(models.location)

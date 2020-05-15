@@ -1,6 +1,6 @@
 export const seed = {
   disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
-  delete: false,
+  delete: (process.env.FORCE_DB_REFRESH === 'true'),
   path: 'user-relationship-type',
   randomize: false,
   templates:

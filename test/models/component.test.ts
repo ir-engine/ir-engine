@@ -1,49 +1,88 @@
-// TODO: Add component type association
+import app from '../../src/app'
 
-// import app from '../../src/app'
+describe('CRUD operation on \'Component\' model', () => {
+  const model = app.service('component').Model
+  const componentTypeModel = app.service('component-type').Model
+  const entityModel = app.service('entity').Model
+  const entityTypeModel = app.service('entity-type').Model
 
-// describe('CRUD operation on \'Component\' model', () => {
-//   const model = app.service('component').Model
-//   before(async () => {
-//     setTimeout(() => {
-//       console.log('Waited for thirty seconds before test started.')
-//     }, 30000)
-//   })
+  let entityType: any
+  let componentType: any
+  let entityId: any
 
-//   const input = {
-//     id: Math.random(),
-//     data: JSON.stringify({ data: 'test' })
-//   }
-//   it('Create', done => {
-//     model.create(input).then(res => {
-//       done()
-//     }).catch(done)
-//   })
+  before(async () => {
+    const entityTypeModelInstance = await entityTypeModel.create({
+      type: 'newType'
+    })
 
-//   it('Read', done => {
-//     model.findOne({
-//       where: {
-//         id: input.id
-//       }
-//     }).then(res => {
-//       done()
-//     }).catch(done)
-//   })
+    entityType = entityTypeModelInstance.type
 
-//   it('Update', done => {
-//     model.update(
-//       { data: JSON.stringify({ data: 'test2' }) },
-//       { where: { id: input.id } }
-//     ).then(res => {
-//       done()
-//     }).catch(done)
-//   })
+    const entityModelInstance = await entityModel.create({
+      name: 'testentitytype',
+      entityType: entityType
+    })
 
-//   it('Delete', done => {
-//     model.destroy({
-//       where: { id: input.id }
-//     }).then(res => {
-//       done()
-//     }).catch(done)
-//   })
-// })
+    const componentTypeModelInstance = await componentTypeModel.create({
+      type: 'testcomponenttype'
+    })
+
+    entityId = entityModelInstance.id
+    componentType = componentTypeModelInstance.type
+  })
+
+  const input = {
+    data: JSON.stringify({ data: 'test' }),
+    componentType: componentType,
+    entityId: entityId
+  }
+  it('Create', done => {
+    model.create(input).then(res => {
+      done()
+    }).catch(done)
+  })
+
+  it('Read', done => {
+    model.findOne({
+      where: {
+        entityId: entityId
+      }
+    }).then(res => {
+      done()
+    }).catch(done)
+  })
+
+  it('Update', done => {
+    model.update(
+      { data: JSON.stringify({ data: 'test2' }) },
+      { where: { entityId: entityId } }
+    ).then(res => {
+      done()
+    }).catch(done)
+  })
+
+  it('Delete', done => {
+    model.destroy({
+      where: { entityId: entityId }
+    }).then(res => {
+      done()
+    }).catch(done)
+  })
+
+  after(async () => {
+    await entityModel.destroy({
+      where: {
+        id: entityId
+      }
+    })
+    await entityTypeModel.destroy({
+      where: {
+        type: entityType
+      }
+    })
+    await componentTypeModel.destroy({
+      where: {
+        type: componentType
+      }
+    })
+  })
+})
