@@ -39,16 +39,19 @@
     <script src="index.js"></script>  
 
     <style>
+
+      body {
+        background-color: black;
+      }
+
       .button {
         position: absolute;
         background-color: white;
-        bottom: 0;
-        right: 0;
-        width: 64px;
-        height: 64px;
+        width: 48px;
+        height: 48px;
         opacity: 0.5;
         border: none;
-        color: #FFFFFF;
+        color: #000000;
         padding: 10px;
         text-align: center;
         border-radius: 50%;
@@ -59,6 +62,16 @@
         cursor: pointer;
       }
 
+      #reset {
+        top: 10px;
+        right: 10px;
+      }
+
+      #close {
+        top: 10px;
+        left: 10px;
+        font-size: 32px;
+      }
 
       #loading {
         position: absolute;
@@ -91,8 +104,33 @@
         transition: 0s
       }
 
-      canvas, #reset {
+      #character-selection-screen {
+        height: 100vh;
+      }
+
+      canvas, #reset, #close, #character-selection-screen {
         display: none;
+      }
+
+      .character {
+        height: 500px;
+        width: auto !important;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .select {
+        color: white;
+        font-size: 24px;
+        text-align: center;
+        padding: 50px 30px 30px 30px;
+      }
+
+      .character-name {
+        color: white;
+        font-size: 20px;
+        text-align: center;
+        margin-top: 20px;
       }
 
     </style>
@@ -101,33 +139,57 @@
 
   <body>
     <canvas id="camerafeed"></canvas>
+
+    <button id="close" class="button">
+      X
+    </button>
+
+    
     <button id="reset" class="button">
-      <img src="./img/reset.png" alt="recenter" width="64px"></img>
+      <img src="./img/reset.png" alt="recenter" width="48px"></img>
     </button>
 
     <div id="loading-screen">
       <img id="loading" src="./img/loading_screen.gif" alt="loading"></img>
     </div>
 
-    <div>Select character</div> 
+    <div id="character-selection-screen">
 
-    <div class="owl-carousel owl-theme">
-      <div> <img src="./img/sharkman.png" height="500px" /> </div>
-      <div> <img src="./img/hula.png" height="500px" /> </div>
-      <div> <img src="./img/kungfu.png"  height="500px" /> </div>
-    </div>
+      <div class="select">Select character</div> 
+      
+      <div class="owl-carousel owl-theme">
+        <div id="sharkman" class="select-character">
+          <img class="character" src="./img/sharkman.png" /> 
+          <div class="character-name">SHARK MAN</div>
+        </div>
+        <div id="hula" class="select-character">
+          <img class="character" src="./img/hula.png" />
+          <div class="character-name">HULA GIRL</div>
+        </div>
+        <div id="kungfu" class="select-character">
+          <img class="character" src="./img/kungfu.png" /> 
+          <div class="character-name">KUNGFU KID</div>
+        </div>
+      </div>
+
+    </div>  
+    
 
   </body>
   <script>
-$('.owl-carousel').owlCarousel({
-    loop:true,
-    margin:10,
-    nav:true,
-    responsive:{
-        0:{
-            items:1
+    $(document).ready(function() {
+    
+      $('.owl-carousel').owlCarousel({
+        loop:true,
+        margin:10,
+        nav:true,
+        responsive:{
+            0:{
+                items:1
+            }
         }
-    }
-});
+      });
+
+    })
   </script>
 </html>
