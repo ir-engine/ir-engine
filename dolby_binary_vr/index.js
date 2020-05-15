@@ -166,23 +166,6 @@ const placegroundScenePipelineModule = () => {
 
   };
 
-  const addIonDrive = ({scene}) => {
-
-    const ASSET_TRACKER_SHARK = "PrimaryIonDrive.glb";
-    loader.load( ASSET_TRACKER_SHARK, function ( gltf ) {
-
-      var model = gltf.scene;
-      model.scale.multiplyScalar(5);
-      model.position.set(0, 10, 0);
-      scene.add( model );
-      mixer = new THREE.AnimationMixer( model );
-      var clip = gltf.animations[ 0 ];
-      mixer.clipAction( clip.optimize() ).play();
-
-    });
-
-  }
-
   const addVolumetricVideoSharkman = ({scene}) => {
 
     const ASSET_TRACKER_SHARK = "shark.gltf";
