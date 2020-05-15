@@ -11,7 +11,6 @@ import Dropdown from '../Profile/profileDown'
 
 import './style.scss'
 import { User } from '../../../interfaces/User'
-import { AuthUser } from '../../../interfaces/AuthUser'
 // Get auth state from redux
 // Get user email address
 // If not logged in, show login
@@ -52,11 +51,7 @@ class NavUserBadge extends Component<Props> {
   render() {
     const isLoggedIn = this.props.auth.get('isLoggedIn')
     const user = this.props.auth.get('user') as User
-    const authUser = this.props.auth.get('authUser') as AuthUser
-    const userName =
-      authUser && authUser.identityProvider
-        ? authUser.identityProvider.token
-        : 'User'
+    const userName = user && user.name
     const avatarLetter = userName ? userName.substr(0, 1) : 'X'
 
     return (

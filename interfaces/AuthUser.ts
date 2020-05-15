@@ -1,4 +1,4 @@
-import { IdentityProvider } from './IdentityProvider'
+import { IdentityProvider, IdentityProviderSeed } from './IdentityProvider'
 
 export type AuthUser = {
   accessToken: string
@@ -8,7 +8,15 @@ export type AuthUser = {
   identityProvider: IdentityProvider
 }
 
-export function resolveAuthUser (res: any): AuthUser {
+export const AuthUserSeed = {
+  accessToken: '',
+  authentication: {
+    strategy: ''
+  },
+  identityProvider: IdentityProviderSeed
+}
+
+export function resolveAuthUser(res: any): AuthUser {
   return {
     accessToken: res.accessToken,
     authentication: res.authentication,
