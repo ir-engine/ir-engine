@@ -14,13 +14,16 @@ export default (app: Application): any => {
     hooks: {
       beforeCount (options: any) {
         options.raw = true
+      },
+      beforeUpdate () {
+        throw new Error("Can't update a type!")
       }
     },
     timestamps: false
   });
 
   (identityProviderType as any).associate = function (models: any) {
-    (identityProviderType as any).hasMany(models.identity_provider, { foreignKey: 'type' })
+    (identityProviderType as any).hasMany(models.identity_provider, { foreignKey: 'identityProviderType' })
   }
 
   return identityProviderType

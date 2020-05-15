@@ -1,11 +1,11 @@
 export const seed = {
   disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
-  delete: false,
+  delete: (process.env.FORCE_DB_REFRESH === 'true'),
   path: 'identity-provider-type',
   randomize: false,
   templates:
         [
-          { type: 'email' },
+          { iden: 'email' },
           { type: 'sms' },
           { type: 'password' },
           { type: 'github' },

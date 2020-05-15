@@ -1,44 +1,111 @@
-// TODO: Create some access control scopes to associate with user
-// TODO: Add required fields so test passes
-
-// import app from '../../src/app'
+import app from '../../src/app'
 
 describe('CRUD operation on \'AccessControl\' model', () => {
-  // const model = app.service('access-control').Model
-  // it('Create', done => {
-  //   model.create({
-  //     userRole: 'admin',
-  //     resourceType: 'user'
-  //   }).then(res => {
-  //     done()
-  //   }).catch(done)
-  // })
+  const model = app.service('access-control').Model
+  const accessControlScopeModel = app.service('access-control-scope').Model
+  const userRoleModel = app.service('user-role').Model
+  const resourceTypeModel = app.service('resource-type').Model
+  let scope: any, updatedScope: any, userRole: any, resourceType: any
 
-  // it('Read', done => {
-  //   model.findOne({
-  //     where: {
-  //       userRole: 'admin',
-  //       resourceType: 'user'
-  //     }
-  //   }).then(res => {
-  //     done()
-  //   }).catch(done)
-  // })
+  before(async () => {
+    const accessControl = await accessControlScopeModel.create({
+      scope: 'test_scope'
+    })
+    scope = accessControl.scope
 
-  // it('Update', done => {
-  //   model.update(
-  //     { list: 'self' },
-  //     { where: { userRole: 'admin', resourceType: 'user' } }
-  //   ).then(res => {
-  //     done()
-  //   }).catch(done)
-  // })
+    const newAccessControl = await accessControlScopeModel.create({
+      scope: 'new_test_scope'
+    })
+    updatedScope = newAccessControl.scope
 
-  // it('Delete', done => {
-  //   model.destroy({
-  //     where: { userRole: 'admin', resourceType: 'user' }
-  //   }).then(res => {
-  //     done()
-  //   }).catch(done)
-  // })
+    const userRoleInstance = await userRoleModel.create({
+      role: 'testrole'
+    })
+    userRole = userRoleInstance.role
+
+    const type = await resourceTypeModel.create({
+      type: 'test'
+    })
+    resourceType = type.type
+  })
+
+  it('Create', done => {
+    model.create({
+      userRole: userRole,
+      resourceType: resourceType,
+      listScope: scope,
+      createScope: scope,
+      readScope: scope,
+      updateScope: scope,
+      destroyScope: scope
+    }).then(res => {
+      done()
+    }).catch((err) => {
+      console.log(err)
+      done()
+    })
+  })
+
+  it('Read', done => {
+    model.findOne({
+      where: {
+        userRole: userRole,
+        resourceType: resourceType
+      }
+    }).then(res => {
+      done()
+    }).catch((err) => {
+      console.log(err)
+      done()
+    })
+  })
+
+  it('Update', done => {
+    model.update(
+      { listScope: updatedScope },
+      { where: { userRole: userRole, resourceType: resourceType } }
+    ).then(res => {
+      done()
+    }).catch((err) => {
+      console.log(err)
+      done()
+    })
+  })
+
+  it('Delete', done => {
+    model.destroy({
+      where: { userRole: userRole, resourceType: resourceType }
+    }).then(res => {
+      done()
+    }).catch((err) => {
+      console.log(err)
+      done()
+    })
+  })
+
+  after(async () => {
+    await accessControlScopeModel.destroy({
+      where: {
+        scope: scope
+      }
+    })
+
+    await accessControlScopeModel.destroy({
+      where: {
+        scope: updatedScope
+      }
+    })
+
+    await userRoleModel.destroy({
+      where: {
+        role: userRole
+      }
+    })
+
+    await resourceTypeModel.destroy({
+      where: {
+        type: resourceType
+      }
+    })
+  })
 })

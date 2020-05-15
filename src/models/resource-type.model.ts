@@ -14,12 +14,16 @@ export default (app: Application): any => {
     hooks: {
       beforeCount (options: any) {
         options.raw = true
+      },
+      beforeUpdate (instance: any, options: any) {
+        throw new Error("Can't update a type!")
       }
     },
     timestamps: false
   });
 
   (resourceType as any).associate = (models: any): any => {
+    (resourceType as any).hasMany(models.access_control, { foreignKey: 'resourceType' })
   }
 
   return resourceType
