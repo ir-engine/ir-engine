@@ -2,11 +2,13 @@ import React from 'react'
 import Router from 'next/router'
 import './VideoControls.scss'
 import VideoSeeker from '../../ui/VideoSeeker'
-
+import { connect } from 'react-redux'
+import { setVideoPlaying } from '../../../redux/video360/actions'
 type Props = {
   videosrc: string,
   videotext: string,
-  videovrui: string
+  videovrui: string,
+  setVideoPlaying: (playing: boolean) => void
 }
 type State = {
   playing: boolean,
@@ -19,7 +21,7 @@ type State = {
   currentTime: number,
 }
 
-export default class Video360Room extends React.Component<Props, State> {
+class VideoControls extends React.Component<Props, State> {
   state: State = {
     playing: false,
     end: false,
@@ -90,11 +92,13 @@ export default class Video360Room extends React.Component<Props, State> {
     this.textEl?.setAttribute('visible', false)
     this.videoEl?.addEventListener('ended', this.videoEndHandler.bind(this), { once: true })
     this.setState({ playing: true })
+    this.props.setVideoPlaying(true)
   }
 
   pauseHandler() {
     (this.videoEl as HTMLVideoElement)?.pause()
     this.setState({ playing: false })
+    this.props.setVideoPlaying(false)
   }
 
   private videoEndHandler() {
@@ -140,3 +144,8 @@ export default class Video360Room extends React.Component<Props, State> {
     Router.push('/explore')
   }
 }
+const mapDispatchToProps = {
+  setVideoPlaying
+}
+
+export default connect(null, mapDispatchToProps)(VideoControls)
