@@ -24,18 +24,13 @@ const placegroundScenePipelineModule = () => {
   let cameraMain;
   let spotLight1, spotLight2, spotLight3;
 
-  var volPlayer, stats;
   var volPlayerSharkman, volPlayerHula, volPlayerKungfu;
 
   let hula, kungfu, sharkman;
   let box;
 
-  let boxVisible = true;
-
   let coneHula, coneKungfu, coneSharkman;
   let signHula = 1, signKungfu = 1, signSharkman = 1;
-
-  var mixer;
 
   // Populates some object into an XR scene and sets the initial camera position. The scene and
   // camera come from xr3js, and are only available in the camera loop lifecycle onStart() or later.
@@ -127,24 +122,6 @@ const placegroundScenePipelineModule = () => {
     document.getElementById('loading').remove();
   }
 
-  const addLoading = ({scene}) => {
-
-    // const textureLoader = new THREE.TextureLoader()
-
-    const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-      const boxMaterial = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        transparent: true,
-        opacity: 0.50,
-      });
-      box = new THREE.Mesh(boxGeometry, boxMaterial);
-      loader.castShadow = true;
-      // loader.receiveShadow = false;
-      box.scale.set(0.5, 0.5, 0.5);
-      box.position.set(6, -1, -12);
-      scene.add(box);
-  };
-  
   const addLounge = ({scene}) => {
 
     fbxLoader.load( ASSET_LOUNGE, function ( object ) {
@@ -242,31 +219,6 @@ const placegroundScenePipelineModule = () => {
     
     });
   }
-
-  // const addVolumetricVideo = ({scene}) => {
-  //   loader.load( ASSET_TRACKER, function ( gltf ) {
-  //     const userData = gltf.scene.children[0].userData;
-  //     const frameData = userData.Flipbook;
-  //     loadFlipbook(frameData, gltf.scene, {scene});
-  //   });
-  // }
-
-  // const loadFlipbook = (frameData, gltfScene, {scene} ) => {
-
-  //   volPlayer = new VolPlayer(frameData, FRAME_RATE, ASSET_TYPE, ASSET_OBJECT_PATH, ASSET_TEXTURE_PATH, AUDIO_PLAYING_FLAG, AUDIO_FILE); 
-  //   gltfScene.children[0].add(volPlayer);
-  //   // activeScene = gltfScene;
-
-  //   volPlayer.onReady.then(() => {
-  //     spotLight2.target = gltfScene;
-  //    	gltfScene.scale.set(7, 7, 7);
-  //     	gltfScene.position.set(0, 0, 10);
-  //       scene.add(gltfScene);
-  //       volPlayer.isPlaying = false;
-  //       volPlayer.isPlaying = isVolPlayerPlaying;
-  //     });
-  
-  // }
 
   const adjustCamera = () => {
     const {scene, camera} = XR8.Threejs.xrScene() 
@@ -386,9 +338,6 @@ const placegroundScenePipelineModule = () => {
 
       document.getElementById('reset').addEventListener('touchstart', resetHandler, true);
 
-      stats = new Stats();
-      canvas.appendChild( stats.dom );
-
       renderer.toneMapping = THREE.ReinhardToneMapping;
       // theRenderer.toneMappingExposure = Math.pow( value, 4.0 );
 
@@ -426,9 +375,6 @@ const placegroundScenePipelineModule = () => {
         requestAnimationFrame(animate)
         if(volPlayerSharkman && volPlayerSharkman.isPlaying) {
           volPlayerSharkman.update();
-          // if(volPlayer.getCurrentFrame() > 0) {
-          //   boxVisible = false;
-          // } 
         }
         if(volPlayerHula && volPlayerHula.isPlaying) {
           volPlayerHula.update();

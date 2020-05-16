@@ -1,87 +1,92 @@
 body {
-	margin: 0;
-	background-color: #eee;
-	color: #fff;
-	font-family: Monospace;
-	font-size: 13px;
-	line-height: 24px;
-	overscroll-behavior: none;
-}
+	background-color: black;
+  }
 
-a {
-	color: #ff0;
-	text-decoration: none;
-}
-
-a:hover {
-	text-decoration: underline;
-}
-
-button {
-	cursor: pointer;
-	text-transform: uppercase;
-}
-
-canvas {
-	display: block;
-}
-
-#info {
+  .button {
 	position: absolute;
-	top: 0px;
-	width: 100%;
+	background-color: white;
+	width: 48px;
+	height: 48px;
+	opacity: 0.5;
+	border: none;
+	color: #000000;
 	padding: 10px;
-	box-sizing: border-box;
 	text-align: center;
-	-moz-user-select: none;
-	-webkit-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-	pointer-events: none;
-	z-index: 1; /* TODO Solve this in HTML */
-}
-
-a, button, input, select {
-	pointer-events: auto;
-}
-
-.dg.ac {
-	-moz-user-select: none;
-	-webkit-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-	z-index: 2 !important; /* TODO Solve this in HTML */
-}
-
-#overlay {
-	position: absolute;
-	z-index: 2;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height:100%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	opacity: 1;
-	background-color: #000000;
-	color: #ffffff;
-}
-
-#overlay > div {
-	text-align: center;
-}
-
-#overlay > div > button {
-	height: 20px;
-	background: transparent;
-	color: #ffffff;
-	outline: 1px solid #ffffff;
-	border: 0px;
+	border-radius: 50%;
+	-webkit-transition-duration: 0.4s; /* Safari */
+	transition-duration: 0.4s;
+	text-decoration: none;
+	overflow: hidden;
 	cursor: pointer;
-}
+  }
 
-#overlay > div > p {
-	color: #777777;
-	font-size: 12px;
-}
+  #reset {
+	top: 10px;
+	right: 10px;
+  }
+
+  #close {
+	top: 10px;
+	left: 10px;
+	font-size: 32px;
+  }
+
+  #loading {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	z-index: 100;
+	visibility: hidden;
+  }
+
+  .button:after {
+	content: "";
+	background: #000;
+	display: block;
+	position: absolute;
+	padding-top: 300%;
+	padding-left: 350%;
+	margin-left: -20px!important;
+	margin-top: -120%;
+	opacity: 0;
+	transition: all 0.8s
+  }
+
+  .button:active:after {
+	padding: 0;
+	margin: 0;
+	opacity: 1;
+	transition: 0s
+  }
+
+  #character-selection-screen {
+	height: 100vh;
+  }
+
+  canvas, #reset, #close, #character-selection-screen {
+	display: none;
+  }
+
+  .character {
+	height: 500px;
+	width: auto !important;
+	margin-left: auto;
+	margin-right: auto;
+  }
+
+  .select {
+	color: white;
+	font-size: 24px;
+	text-align: center;
+	padding: 50px 30px 30px 30px;
+  }
+
+  .character-name {
+	color: white;
+	font-size: 20px;
+	text-align: center;
+	margin-top: 20px;
+  }
