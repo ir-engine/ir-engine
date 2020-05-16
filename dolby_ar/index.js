@@ -173,7 +173,6 @@ const placegroundScenePipelineModule = () => {
     volPlayerHula.isPlaying = false;
     volPlayerKungfu.isPlaying = false;
     volPlayerSharkman.isPlaying = true;
-    console.log("sharkman start");
     
   }
 
