@@ -39,7 +39,7 @@ export default class VideoScene extends React.Component<State> {
           <SceneContainer>
             <Assets/>
             <Video360/>
-            <Entity camera={{}} look-controls={{}} position={{ x: 0, y: 1.6, z: 0 }}>
+            <Entity camera={{}} look-controls={{}} position={{ x: 0, y: 1.6, z: 0 }} className="video360Camera">
               <Entity visible={ !this.isDesktop() } cursor={{ rayOrigin: this.isDesktop() ? 'mouse' : 'entity' }}
                 raycaster={{ objects: '#video-player-vr-ui,#videotext' }}
                 position={{ x: 0, y: 0, z: -0.8 }} geometry={{ primitive: 'ring', radiusInner: 0.01, radiusOuter: 0.02 }}

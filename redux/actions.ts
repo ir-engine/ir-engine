@@ -54,3 +54,14 @@ export const SET_APP_LOADED = 'SET_APP_LOADED'
 export const LOADED_RELATIONSHIP = 'LOADED_RELATIONSHIP'
 export const LOADED_USERS = 'LOADED_USERS'
 export const CHANGED_RELATION = 'CHANGED_RELATION'
+
+export const SET_VIEWPORT_SIZE = 'SET_VIEWPORT_SIZE'
+
+// video controls
+
+export const SET_VIDEO_PLAYING = 'SET_VIDEO_PLAYING'
+
+export type Action = {
+  type: string,
+  [key: string]: any
+}
