@@ -1,6 +1,6 @@
 export default interface IInstanceType {
-    mutations: {
-    },
-    subscriptions: {
-    }
+  mutations: {
+  }
+  subscriptions: {
+  }
 }

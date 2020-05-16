@@ -4,7 +4,7 @@ import config from './config'
 
 const port = config.server.port
 const server = app.listen(port, () => {
-    (app as any).apolloServer.installSubscriptionHandlers(server)
+  (app as any).apolloServer.installSubscriptionHandlers(server)
 })
 
 process.on('unhandledRejection', (reason, p) =>
