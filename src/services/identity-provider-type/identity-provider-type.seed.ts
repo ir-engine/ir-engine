@@ -5,7 +5,7 @@ export const seed = {
   randomize: false,
   templates:
         [
-          { iden: 'email' },
+          { type: 'email' },
           { type: 'sms' },
           { type: 'password' },
           { type: 'github' },
