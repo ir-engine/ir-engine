@@ -64,7 +64,7 @@ export async function doLoginAuto (dispatch: Dispatch) {
     })
 }
 
-export async function loadUserData (dispatch: Dispatch, userId: string) {
+export function loadUserData (dispatch: Dispatch, userId: string) {
   client.service('user').get(userId)
     .then((res: any) => {
       const user = resolveUser(res)
@@ -76,7 +76,7 @@ export async function loadUserData (dispatch: Dispatch, userId: string) {
     })
 }
 
-export async function loginUserByPassword (form: EmailLoginForm) {
+export function loginUserByPassword (form: EmailLoginForm) {
   return (dispatch: Dispatch) => {
     // check email validation.
     if (!validateEmail(form.email)) {
@@ -99,8 +99,7 @@ export async function loginUserByPassword (form: EmailLoginForm) {
           client.logout()
 
           window.location.href = '/auth/confirm'
-          dispatch(loginUserError('Unverified user'))
-          dispatchAlertError(dispatch, 'Unverified user')
+          dispatch(registerUserByEmailSuccess(authUser.identityProvider))
           return
         }
 
