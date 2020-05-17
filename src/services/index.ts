@@ -21,6 +21,7 @@ import Entity from './entity/entity.service'
 import Group from './group/group.service'
 import Instance from './instance/instance.service'
 import IdentityProvider from './identity-provider/identity-provider.service'
+import MessageStatus from './message-status/message-status.service'
 import License from './license/license.service'
 import Location from './location/location.service'
 import Party from './party/party.service'
@@ -36,8 +37,11 @@ import PartyUser from './party-user/party-user.service'
 
 // Services
 import Auth from './auth-management/auth-management.service'
+import ChatRoom from './chatroom/chatroom.service'
+import Conversation from './conversation/conversation.service'
 import Email from './email/email.service'
 import MagicLink from './magiclink/magiclink.service'
+import Messages from './messages/messages.service'
 import SMS from './sms/sms.service'
 import Upload from './upload/upload.service'
 import Video from './video/video.service'
@@ -46,20 +50,13 @@ import GraphQL from './graphql/graphql.service'
 // Spoke
 import Asset from './asset/asset.service'
 import MediaSearch from './media-search/media-search.service'
+import Meta from './meta/meta.service';
 import OwnedFile from './owned-file/owned-file.service'
 import ProjectAsset from './project-asset/project-asset.service'
 import PublishProject from './publish-project/publish-project.service'
 import Scene from './scene/scene.service'
 import SceneListing from './scene-listing/scene-listing.service'
 import UploadMedia from './upload-media/upload-media.service'
-
-import Messages from './messages/messages.service'
-
-import Conversation from './conversation/conversation.service'
-
-import ChatRoom from './chatroom/chatroom.service'
-
-import MessageStatus from './message-status/message-status.service'
 
 export default (app: Application): void => {
   // Dynamic Enums
@@ -90,19 +87,23 @@ export default (app: Application): void => {
   app.configure(UserRelationship)
   app.configure(UserRole)
   app.configure(UserSettings)
+  
   // Junctions
   app.configure(PartyUser)
   app.configure(GroupUser)
 
   // Services
-  app.configure(Email)
   app.configure(Auth)
+  app.configure(Conversation)
+  app.configure(ChatRoom)
+  app.configure(Email)
+  app.configure(IdentityProvider)
   app.configure(MagicLink)
+  app.configure(Messages)
+  app.configure(MessageStatus)
   app.configure(SMS)
   app.configure(Upload)
   app.configure(Video)
-  app.configure(IdentityProvider)
-
   // Spoke
   app.configure(Asset)
   app.configure(OwnedFile)
@@ -110,11 +111,8 @@ export default (app: Application): void => {
   app.configure(Scene)
   app.configure(SceneListing)
   app.configure(MediaSearch)
+  app.configure(Meta)
   app.configure(UploadMedia)
   app.configure(PublishProject)
   app.configure(GraphQL)
-  app.configure(Messages)
-  app.configure(Conversation)
-  app.configure(ChatRoom)
-  app.configure(MessageStatus)
 }
