@@ -7,7 +7,7 @@
 const placegroundScenePipelineModule = () => {
   // const modelFile = 'assets/evercoast/evercoast.0001.gltf'  // 3D model to spawn at tap
   const ASSET_BASE_PATH = "./assets/";
-  const ASSET_LOUNGE = 'dolby_up_v4.fbx';
+  const ASSET_LOUNGE = 'dolby_demoscene_v1.fbx';
   let ASSET_TRACKER = "shark.gltf";
   let ASSET_OBJECT_PATH = ASSET_BASE_PATH + "gltf/";
   let ASSET_TEXTURE_PATH = ASSET_BASE_PATH + "tex/";
@@ -40,20 +40,20 @@ const placegroundScenePipelineModule = () => {
 
     cameraMain = camera;
 
-    showLoadingScreen();
+    // showLoadingScreen();
     
     // addLoading({scene});
     addLounge({scene});
 
     // addIonDrive({scene});
 
-    scene.add( new THREE.AmbientLight( 0x404040, 0.4 ) );
+    scene.add( new THREE.AmbientLight( 0x404040, 0.8 ) );
 
-    addVolumetricVideoSharkman({scene});
+    // addVolumetricVideoSharkman({scene});
 
-    addVolumetricVideoHula({scene});
+    // addVolumetricVideoHula({scene});
 
-    addVolumetricVideoKungfu({scene});
+    // addVolumetricVideoKungfu({scene});
     
     // var geometry = new THREE.SphereGeometry( 5, 32, 32 );
     // var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
@@ -163,7 +163,7 @@ const placegroundScenePipelineModule = () => {
         gltfScene.scale.set(7, 7, 7);
         gltfScene.position.set(0, 0, 10);
         scene.add(gltfScene);
-        volPlayerSharkman.isPlaying = true;
+        volPlayerSharkman.isPlaying = false;
       });
     
     });
@@ -339,7 +339,9 @@ const placegroundScenePipelineModule = () => {
       document.getElementById('reset').addEventListener('touchstart', resetHandler, true);
 
       renderer.toneMapping = THREE.ReinhardToneMapping;
-      // theRenderer.toneMappingExposure = Math.pow( value, 4.0 );
+      renderer.toneMappingExposure = 1.1;
+      renderer.gammaFactor = 2.2;
+      renderer.gammaOutput = true;
 
       var renderScene = new THREE.RenderPass( scene, camera );
 

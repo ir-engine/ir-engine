@@ -29,6 +29,7 @@ const placegroundScenePipelineModule = () => {
   const initXrScene = ({ scene, camera }) => {
     console.log('initXrScene')
 
+
     showLoadingScreen();
 
     addVolumetricVideoSharkman({scene});
@@ -38,6 +39,8 @@ const placegroundScenePipelineModule = () => {
     addVolumetricVideoKungfu({scene});
     
     scene.add(new THREE.AmbientLight( 0xffffff, 0.9 ))  // Add soft white light to the scene.
+
+    addSceneShadow({scene});
 
     camera.position.set(0, 10, 20);
 
@@ -178,7 +181,7 @@ const placegroundScenePipelineModule = () => {
 
   const resetHandler = (e) => {
     XR8.XrController.recenter()
-    sharkman.position.set(0, -0.5, -8);
+    activeCharacter.position.set(0, -0.5, -8);
   }
 
   const closeHandler = (e) => {
@@ -220,8 +223,19 @@ const placegroundScenePipelineModule = () => {
                     break;
       
     }
+  }
 
+  const addSceneShadow = ({scene}) => {
+    this.light = new THREE.DirectionalLight(0xffffff, 1.0);
+    this.light.position.set(0, 1, 0);
+    this.light.castShadow = true;
+    this.light.shadowDarkness = 1.0;
+    this.light.shadowCameraVisible = true;
+    // this.light.shadow.mapSize.width = 4096;
+    // this.light.shadow.mapSize.height = 4096;
 
+    
+    scene.add(this.light);
   }
 
   return {
@@ -232,7 +246,8 @@ const placegroundScenePipelineModule = () => {
     // XR8.Threejs scene to be ready before we can access it to add content. It was created in
     // XR8.Threejs.pipelineModule()'s onStart method.
     onStart: ({canvas, canvasWidth, canvasHeight}) => {
-      const {scene, camera} = XR8.Threejs.xrScene()  // Get the 3js sceen from xr3js.
+      const {scene, camera, renderer} = XR8.Threejs.xrScene()  // Get the 3js sceen from xr3js.
+      renderer.shadowMapEnabled = true;
 
       initXrScene({ scene, camera }) // Add objects to the scene and set starting camera position.
 
