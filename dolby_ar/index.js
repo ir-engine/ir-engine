@@ -15,8 +15,8 @@ const placegroundScenePipelineModule = () => {
   const AUDIO_PLAYING_FLAG = false;
   const AUDIO_FILE = ASSET_BASE_PATH + "./audio/muqabla.mp3";
 
-  const loader = new THREE.GLTFLoader().setPath( ASSET_BASE_PATH );
-  
+  const loader = new THREE.GLTFLoader().setPath(ASSET_BASE_PATH);
+
   // let spotLight1, spotLight2, spotLight3;
 
   var volPlayerSharkman, volPlayerHula, volPlayerKungfu;
@@ -32,15 +32,15 @@ const placegroundScenePipelineModule = () => {
 
     showLoadingScreen();
 
-    addVolumetricVideoSharkman({scene});
+    addVolumetricVideoSharkman({ scene });
 
-    addVolumetricVideoHula({scene});
+    addVolumetricVideoHula({ scene });
 
-    addVolumetricVideoKungfu({scene});
-    
-    scene.add(new THREE.AmbientLight( 0xffffff, 0.9 ))  // Add soft white light to the scene.
+    addVolumetricVideoKungfu({ scene });
 
-    addSceneShadow({scene});
+    scene.add(new THREE.AmbientLight(0xffffff, 0.8))  // Add soft white light to the scene.
+
+    addSceneShadow({ scene });
 
     camera.position.set(0, 10, 20);
 
@@ -53,89 +53,123 @@ const placegroundScenePipelineModule = () => {
   const hideLoadingScreen = () => {
     document.getElementById('loading').remove();
   }
-  
-  const addVolumetricVideoSharkman = ({scene}) => {
+
+  const addVolumetricVideoSharkman = ({ scene }) => {
 
     const ASSET_TRACKER_SHARK = "shark.gltf";
-    
-    loader.load( ASSET_TRACKER_SHARK, function ( gltf ) {
-    
+
+    loader.load(ASSET_TRACKER_SHARK, function (gltf) {
+
       const ASSET_OBJECT_PATH_SHARK = ASSET_BASE_PATH + "shark/gltf/";
       const ASSET_TEXTURE_PATH_SHARK = ASSET_BASE_PATH + "shark/tex/";
       const userData = gltf.scene.children[0].userData;
       const frameData = userData.Flipbook;
       const gltfScene = gltf.scene;
-      volPlayerSharkman = new VolPlayer(frameData, FRAME_RATE, ASSET_TYPE, ASSET_OBJECT_PATH_SHARK, ASSET_TEXTURE_PATH_SHARK, AUDIO_PLAYING_FLAG, AUDIO_FILE); 
+      volPlayerSharkman = new VolPlayer(frameData, FRAME_RATE, ASSET_TYPE, ASSET_OBJECT_PATH_SHARK, ASSET_TEXTURE_PATH_SHARK, AUDIO_PLAYING_FLAG, AUDIO_FILE);
       gltfScene.children[0].add(volPlayerSharkman);
+
+      var planeGeometry = new THREE.PlaneBufferGeometry( 20, 20 );
+      planeGeometry.rotateX( - Math.PI / 2 );
+      var planeMaterial = new THREE.ShadowMaterial();
+      planeMaterial.opacity = 0.5;
+      var plane = new THREE.Mesh( planeGeometry, planeMaterial );
+      plane.position.x = -5;
+      plane.position.y = 0.05;
+      plane.receiveShadow = true;
+      
 
       volPlayerSharkman.onReady.then(() => {
         sharkman = gltfScene.children[0].children[0].children[0].children[0];
+        sharkman.add( plane );
         sharkman.scale.set(2, 2, 2);
         sharkman.position.set(0, -0.5, -8);
+        sharkman.castShadow = true;
         scene.add(gltf.scene);
         sharkman.visible = false;
         hideLoadingScreen();
         volPlayerSharkman.isPlaying = false;
       });
-    
+
     });
   }
 
-  const addVolumetricVideoKungfu = ({scene}) => {
+  const addVolumetricVideoKungfu = ({ scene }) => {
 
     const ASSET_TRACKER_KUNGFU = "kungfu.gltf";
-    
-    loader.load( ASSET_TRACKER_KUNGFU, function ( gltf ) {
-    
+
+    loader.load(ASSET_TRACKER_KUNGFU, function (gltf) {
+
       const ASSET_OBJECT_PATH_KUNGFU = ASSET_BASE_PATH + "kungfu/gltf/";
       const ASSET_TEXTURE_PATH_KUNGFU = ASSET_BASE_PATH + "kungfu/tex/";
       const userData = gltf.scene.children[0].userData;
       const frameData = userData.Flipbook;
       const gltfScene = gltf.scene;
-      volPlayerKungfu = new VolPlayer(frameData, FRAME_RATE, ASSET_TYPE, ASSET_OBJECT_PATH_KUNGFU, ASSET_TEXTURE_PATH_KUNGFU, AUDIO_PLAYING_FLAG, AUDIO_FILE); 
+      volPlayerKungfu = new VolPlayer(frameData, FRAME_RATE, ASSET_TYPE, ASSET_OBJECT_PATH_KUNGFU, ASSET_TEXTURE_PATH_KUNGFU, AUDIO_PLAYING_FLAG, AUDIO_FILE);
       gltfScene.children[0].add(volPlayerKungfu);
+
+      var planeGeometry = new THREE.PlaneBufferGeometry( 20, 20 );
+      planeGeometry.rotateX( - Math.PI / 2 );
+      var planeMaterial = new THREE.ShadowMaterial();
+      planeMaterial.opacity = 0.5;
+      var plane = new THREE.Mesh( planeGeometry, planeMaterial );
+      plane.position.x = -5;
+      plane.position.y = 0.05;
+      plane.receiveShadow = true;
 
       volPlayerKungfu.onReady.then(() => {
         kungfu = gltfScene.children[0].children[0].children[0].children[0];
+        kungfu.add(plane);
+        kungfu.castShadow = true;
         gltfScene.scale.set(2, 2, 2);
         gltfScene.position.set(3, -0.5, -8);
         scene.add(gltfScene);
         kungfu.visible = false;
         volPlayerKungfu.isPlaying = false;
       });
-    
+
     });
   }
 
-  const addVolumetricVideoHula = ({scene}) => {
+  const addVolumetricVideoHula = ({ scene }) => {
 
     const ASSET_TRACKER_HULA = "hula.gltf";
-    
-    loader.load( ASSET_TRACKER_HULA, function ( gltf ) {
-    
+
+    loader.load(ASSET_TRACKER_HULA, function (gltf) {
+
       const ASSET_OBJECT_PATH_HULA = ASSET_BASE_PATH + "hula/gltf/";
       const ASSET_TEXTURE_PATH_HULA = ASSET_BASE_PATH + "hula/tex/";
       const userData = gltf.scene.children[0].userData;
       const frameData = userData.Flipbook;
       const gltfScene = gltf.scene;
-      volPlayerHula = new VolPlayer(frameData, FRAME_RATE, ASSET_TYPE, ASSET_OBJECT_PATH_HULA, ASSET_TEXTURE_PATH_HULA, AUDIO_PLAYING_FLAG, AUDIO_FILE); 
+      volPlayerHula = new VolPlayer(frameData, FRAME_RATE, ASSET_TYPE, ASSET_OBJECT_PATH_HULA, ASSET_TEXTURE_PATH_HULA, AUDIO_PLAYING_FLAG, AUDIO_FILE);
       gltfScene.children[0].add(volPlayerHula);
       // spotLight1.target = gltfScene;
+      var planeGeometry = new THREE.PlaneBufferGeometry( 20, 20 );
+      planeGeometry.rotateX( - Math.PI / 2 );
+      var planeMaterial = new THREE.ShadowMaterial();
+      planeMaterial.opacity = 0.5;
+      var plane = new THREE.Mesh( planeGeometry, planeMaterial );
+      plane.position.x = -5;
+      plane.position.y = 0.05;
+      plane.receiveShadow = true;
+
       volPlayerHula.onReady.then(() => {
         hula = gltfScene.children[0].children[0].children[0].children[0];
+        hula.add(plane);
+        hula.castShadow = true;
         gltfScene.scale.set(2, 2, 2);
         gltfScene.position.set(-3, -0.5, -8);
         scene.add(gltfScene);
         hula.visible = false;
         volPlayerHula.isPlaying = false;
       });
-    
+
     });
   }
 
   const startHula = () => {
 
-    if(activeCharacter) {
+    if (activeCharacter) {
       hula.scale.set(activeCharacter.scale.x, activeCharacter.scale.y, activeCharacter.scale.z);
       hula.position.set(activeCharacter.position.x, activeCharacter.position.y, activeCharacter.position.z);
     }
@@ -146,11 +180,11 @@ const placegroundScenePipelineModule = () => {
     volPlayerSharkman.isPlaying = false;
     volPlayerKungfu.isPlaying = false;
     volPlayerHula.isPlaying = true;
-      }
+  }
 
   const startKungfu = () => {
 
-    if(activeCharacter) {
+    if (activeCharacter) {
       kungfu.scale.set(activeCharacter.scale.x, activeCharacter.scale.y, activeCharacter.scale.z);
       kungfu.position.set(activeCharacter.position.x, activeCharacter.position.y, activeCharacter.position.z);
     }
@@ -165,7 +199,7 @@ const placegroundScenePipelineModule = () => {
 
   const startSharkman = () => {
 
-    if(activeCharacter) {
+    if (activeCharacter) {
       sharkman.scale.set(activeCharacter.scale.x, activeCharacter.scale.y, activeCharacter.scale.z);
       sharkman.position.set(activeCharacter.position.x, activeCharacter.position.y, activeCharacter.position.z);
     }
@@ -176,7 +210,7 @@ const placegroundScenePipelineModule = () => {
     volPlayerHula.isPlaying = false;
     volPlayerKungfu.isPlaying = false;
     volPlayerSharkman.isPlaying = true;
-    
+
   }
 
   const resetHandler = (e) => {
@@ -195,16 +229,16 @@ const placegroundScenePipelineModule = () => {
 
     activeCharacter.position.x += (pos.x * 0.01);
     activeCharacter.position.y -= (pos.y * 0.01);
-  
+
   }
 
   const adjustModelZoom = (change) => {
 
-    activeCharacter.scale.x += change*0.01;
-    activeCharacter.scale.y += change*0.01;
-    activeCharacter.scale.z += change*0.01;
-    
-   }
+    activeCharacter.scale.x += change * 0.01;
+    activeCharacter.scale.y += change * 0.01;
+    activeCharacter.scale.z += change * 0.01;
+
+  }
 
   const showCharacter = (character) => {
 
@@ -213,29 +247,26 @@ const placegroundScenePipelineModule = () => {
     $('canvas').css('display', 'block');
     $('#close').css('display', 'block');
 
-    switch(character) {
+    switch (character) {
 
       case 'sharkman': startSharkman();
-                        break;
+        break;
       case 'kungfu': startKungfu();
-                      break;
+        break;
       case 'hula': startHula();
-                    break;
-      
+        break;
+
     }
   }
 
-  const addSceneShadow = ({scene}) => {
-    this.light = new THREE.DirectionalLight(0xffffff, 1.0);
-    this.light.position.set(0, 1, 0);
-    this.light.castShadow = true;
-    this.light.shadowDarkness = 1.0;
-    this.light.shadowCameraVisible = true;
-    // this.light.shadow.mapSize.width = 4096;
-    // this.light.shadow.mapSize.height = 4096;
+  const addSceneShadow = ({ scene }) => {
 
-    
-    scene.add(this.light);
+    let light = new THREE.DirectionalLight(0xffffff, 0.5);
+    light.position.set(1, 100, 1);
+    light.castShadow = true;
+    light.shadow = new THREE.LightShadow(new THREE.PerspectiveCamera(50, 1, 1, 500));
+
+    scene.add(light);
   }
 
   return {
@@ -245,16 +276,19 @@ const placegroundScenePipelineModule = () => {
     // onStart is called once when the camera feed begins. In this case, we need to wait for the
     // XR8.Threejs scene to be ready before we can access it to add content. It was created in
     // XR8.Threejs.pipelineModule()'s onStart method.
-    onStart: ({canvas, canvasWidth, canvasHeight}) => {
-      const {scene, camera, renderer} = XR8.Threejs.xrScene()  // Get the 3js sceen from xr3js.
-      renderer.shadowMapEnabled = true;
+    onStart: ({ canvas, canvasWidth, canvasHeight }) => {
+      const { scene, camera, renderer } = XR8.Threejs.xrScene()  // Get the 3js sceen from xr3js.
+
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
 
       initXrScene({ scene, camera }) // Add objects to the scene and set starting camera position.
 
       document.getElementById('reset').addEventListener('touchstart', resetHandler, true);
       document.getElementById('close').addEventListener('touchstart', closeHandler, true);
 
-      $('.select-character').on('click', function(e) {
+      $('.select-character').on('click', function (e) {
         showCharacter($(this).attr('id'));
       });
 
@@ -267,11 +301,11 @@ const placegroundScenePipelineModule = () => {
         escapeVelocity: 0.25
       });
 
-      zt.bind(canvas, panGesture, function(e){
+      zt.bind(canvas, panGesture, function (e) {
         adjustModelPan(e.detail.data[0].change)
       }, false);
 
-      zt.bind(canvas, pinchGesture, function(e){
+      zt.bind(canvas, pinchGesture, function (e) {
         adjustModelZoom(e.detail.change)
       }, false);
 
@@ -280,13 +314,13 @@ const placegroundScenePipelineModule = () => {
       animate()
       function animate(time) {
         requestAnimationFrame(animate)
-        if(volPlayerSharkman && volPlayerSharkman.isPlaying) {
+        if (volPlayerSharkman && volPlayerSharkman.isPlaying) {
           volPlayerSharkman.update();
         }
-        if(volPlayerHula && volPlayerHula.isPlaying) {
+        if (volPlayerHula && volPlayerHula.isPlaying) {
           volPlayerHula.update();
         }
-        if(volPlayerKungfu && volPlayerKungfu.isPlaying) {
+        if (volPlayerKungfu && volPlayerKungfu.isPlaying) {
           volPlayerKungfu.update();
         }
       }
@@ -315,9 +349,9 @@ const onxrloaded = () => {
   ])
 
   // Open the camera and start running the camera run loop.
-  XR8.run({canvas: document.getElementById('camerafeed')})
+  XR8.run({ canvas: document.getElementById('camerafeed') })
 }
 
 // Show loading screen before the full XR library has been loaded.
-const load = () => { XRExtras.Loading.showLoading({onxrloaded}) }
+const load = () => { XRExtras.Loading.showLoading({ onxrloaded }) }
 window.onload = () => { window.XRExtras ? load() : window.addEventListener('xrextrasloaded', load) }
