@@ -108,7 +108,7 @@ class UserList extends React.Component<Props> {
         </div>
 
         <Divider variant="middle" />
-        <TextField 
+        <TextField
           label="Search"
           type="search"
           variant="outlined"
