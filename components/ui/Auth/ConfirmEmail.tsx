@@ -11,7 +11,7 @@ import {
 import { selectAuthState } from '../../../redux/auth/selector'
 import './auth.scss'
 import EmptyLayout from '../Layout/EmptyLayout'
-import { AuthUser } from '../../../interfaces/AuthUser'
+import { IdentityProvider } from '../../../interfaces/IdentityProvider'
 
 interface Props {
   auth: any,
@@ -32,8 +32,9 @@ class ConfirmEmail extends React.Component<Props> {
   handleResendEmail = (e: any) => {
     e.preventDefault()
 
-    const authUser = this.props.auth.get('authUser') as AuthUser
-    this.props.resendVerificationEmail(authUser.identityProvider.token)
+    const identityProvider = this.props.auth.get('identityProvider') as IdentityProvider
+    console.log('---------', identityProvider)
+    this.props.resendVerificationEmail(identityProvider.token)
   }
 
   render() {
