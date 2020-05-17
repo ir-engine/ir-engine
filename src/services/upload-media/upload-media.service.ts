@@ -12,15 +12,16 @@ const multipartMiddleware = multer()
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    '/media': UploadMedia & ServiceAddons<any>
+    '/api/v1/media': UploadMedia & ServiceAddons<any>
   }
 }
 
 export default (app: Application): void => {
   const provider = new StorageProvider()
 
-  app.use('/media',
-    multipartMiddleware.fields([{ name: 'file' }, { name: 'thumbnail' }]),
+  // Initialize our service with any options it requires
+  app.use('/api/v1/media',
+    multipartMiddleware.fields([{ name: 'media' }, { name: 'thumbnail' }]),
     (req: express.Request, res: express.Response, next: express.NextFunction) => {
       if (req?.feathers) {
         req.feathers.file = (req as any).files.media ? (req as any).files.media[0] : null
@@ -37,7 +38,8 @@ export default (app: Application): void => {
     blobService({ Model: provider.getStorage() })
   )
 
-  const service = app.service('media');
+  // Get our initialized service so that we can register hooks
+  const service = app.service('/api/v1/media')
 
   (service as any).hooks(hooks)
 }
