@@ -24,14 +24,15 @@ export function getUserRelationship(userId: string) {
   }
 }
 
-export function getUsers(userId: string) {
+export function getUsers(userId: string, search: string) {
   return (dispatch: Dispatch) => {
     // dispatch(actionProcessing(true))
 
     client.service('user').find({
       query: {
         userId,
-        action: 'withRelation'
+        action: 'withRelation',
+        search
       }
     }).then((res: any) => {
       console.log('relations------', res)
@@ -49,7 +50,7 @@ function createRelation(userId: string, relatedUserId: string, type: 'friend' | 
     client.service('user-relationship').create({
       userId,
       relatedUserId,
-      type,
+      userRelationshipType: type,
       action: 'create'
     }).then((res: any) => {
       console.log('add relations------', res)
@@ -84,7 +85,7 @@ function updateRelation(userId: string, relatedUserId: string, type: 'friend') {
     client.service('user-relationship').create({
       userId,
       relatedUserId,
-      type,
+      userRelationshipType: type,
       action: 'update'
     }).then((res: any) => {
       console.log('add relations------', res)
