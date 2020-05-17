@@ -23,7 +23,7 @@ export default (app: Application): any => {
   });
 
   (identityProviderType as any).associate = function (models: any) {
-    (identityProviderType as any).hasMany(models.identity_provider, { foreignKey: 'identityProviderType' })
+    (identityProviderType as any).hasMany(models.identity_provider, { foreignKey: 'type' })
   }
 
   return identityProviderType

@@ -1,6 +1,5 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
-import bcrypt from 'bcrypt'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -18,10 +17,6 @@ export default (app: Application): any => {
     hooks: {
       beforeCount (options: any) {
         options.raw = true
-      },
-      async beforeCreate (options: any) {
-        options.dataValues.password = await bcrypt.hash(options.dataValues.password, 10)
-        options.dataValues.token = await bcrypt.hash(options.dataValues.token, 10)
       }
     },
     indexes: [
@@ -34,13 +29,13 @@ export default (app: Application): any => {
       },
       {
         unique: true,
-        fields: ['userId', 'identityProviderType']
+        fields: ['userId', 'type']
       }
     ]
   });
 
   (identityProvider as any).associate = (models: any) => {
-    (identityProvider as any).belongsTo(models.identity_provider_type, { foreignKey: 'identityProviderType', required: true, primaryKey: true });
+    (identityProvider as any).belongsTo(models.identity_provider_type, { foreignKey: 'type', required: true, primaryKey: true });
     (identityProvider as any).belongsTo(models.user, { required: true, primaryKey: true })
   }
 
