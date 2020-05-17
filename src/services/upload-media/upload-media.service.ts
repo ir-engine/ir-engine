@@ -1,3 +1,4 @@
+// Initializes the `UploadMedia` service on path `/api/v1/media`
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { UploadMedia } from './upload-media.class'
@@ -11,7 +12,7 @@ const multipartMiddleware = multer()
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'media': UploadMedia & ServiceAddons<any>
+    '/media': UploadMedia & ServiceAddons<any>
   }
 }
 
@@ -36,7 +37,7 @@ export default (app: Application): void => {
     blobService({ Model: provider.getStorage() })
   )
 
-  const service = app.service('media')
+  const service = app.service('media');
 
-  service.hooks(hooks)
+  (service as any).hooks(hooks)
 }
