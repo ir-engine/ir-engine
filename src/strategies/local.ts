@@ -30,11 +30,11 @@ export class MyLocalStrategy extends LocalStrategy {
     return { ...identityProvider }
   }
 
-  async comparePassword (user: any, password: string): Promise<any> {
-    if (user.password === password) {
-      return user
-    }
+  // async comparePassword (user: any, password: string): Promise<any> {
+  //   if (user.password === password) {
+  //     return user
+  //   }
 
-    throw new NotAuthenticated('Invalid password')
-  }
+  //   throw new NotAuthenticated('Invalid password')
+  // }
 }

@@ -1,11 +1,12 @@
-// import * as feathersAuthentication from '@feathersjs/authentication'
+import * as feathersAuthentication from '@feathersjs/authentication'
 import { hooks } from '@feathersjs/authentication-local'
 import { iff, isProvider, preventChanges } from 'feathers-hooks-common'
 import accountService from '../auth-management/auth-management.notifier'
 import { HookContext } from '@feathersjs/feathers'
 
 const verifyHooks = require('feathers-authentication-management').hooks
-// const { authenticate } = feathersAuthentication.hooks
+const { authenticate } = feathersAuthentication.hooks
+const hashPassword = hooks.hashPassword
 
 const { protect } = hooks
 
@@ -20,9 +21,7 @@ const isPasswordAccountType = () => {
 
 const sendVerifyEmail = () => {
   return (context: any) => {
-    if (context.result?.type === 'password') {
-      accountService(context.app).notifier('resendVerifySignup', context.result)
-    }
+    accountService(context.app).notifier('resendVerifySignup', context.result)
     return context
   }
 }
@@ -33,20 +32,26 @@ export default {
     find: [],
     get: [],
     create: [
-    //  hashPassword('password'),
       iff(
         isPasswordAccountType(),
+        hashPassword('password'),
         verifyHooks.addVerification()
       )
     ],
-    update: [], // hashPassword('password'), authenticate('jwt')
+    update: [
+      iff(
+        isPasswordAccountType(),
+        hashPassword('password')
+      ),
+      authenticate('jwt')
+    ],
     patch: [], // hashPassword('password'), authenticate('jwt')
     remove: [] // authenticate('jwt')
   },
 
   after: {
     all: [
-      protect('password'), protect('token')
+      protect('password')
     ],
     find: [],
     get: [],

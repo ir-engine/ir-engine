@@ -107,10 +107,10 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
             done(new Error('Not expecting password.'))
             return
           }
-          if (('token' in identityProvider)) {
-            done(new Error('Not expecting token.'))
-            return
-          }
+          // if (('token' in identityProvider)) {
+          //   done(new Error('Not expecting token.'))
+          //   return
+          // }
         }
         done()
       }).catch(done)
