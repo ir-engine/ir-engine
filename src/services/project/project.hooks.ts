@@ -35,6 +35,9 @@ const validateCollectionData = () => {
 const generateSceneCollection = () => {
   return async (context: HookContext) => {
     const sceneData = context.data.projectJson
+    if (!sceneData) {
+
+    }
     const seqeulizeClient = context.app.get('sequelizeClient')
     const models = seqeulizeClient.models
     const CollectionModel = models.collection
@@ -47,7 +50,7 @@ const generateSceneCollection = () => {
       type: 'scene',
       name: context.data.name,
       metaData: sceneData.metadata,
-      userId: loggedInUser.id
+      userId: loggedInUser.userId
     })
 
     const sceneEntitiesArray: any = []
@@ -58,8 +61,9 @@ const generateSceneCollection = () => {
 
     const entites = sceneEntitiesArray.map((entity: any) => {
       entity.name = entity.name.toLowerCase()
-      entity.userId = loggedInUser.id
-      entity.collection = savedCollection.id
+      entity.type = 'default'
+      entity.userId = loggedInUser.userId
+      entity.collectionId = savedCollection.id
       return entity
     })
 
@@ -76,7 +80,7 @@ const generateSceneCollection = () => {
             data: component.props,
             entityId: savedEntity.id,
             type: component.name.toLowerCase(),
-            userId: loggedInUser.id,
+            userId: loggedInUser.userId,
             collection: savedCollection.id
             // TODO: Manage Static_RESOURCE
           }
