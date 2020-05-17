@@ -60,7 +60,7 @@ export class RelationRelation extends Service {
   }
 
   async create (data: any, params: Params): Promise<any> {
-    const { userId, relatedUserId, type } = data
+    const { userId, relatedUserId, userRelationshipType } = data
     const UserRelationshipModel = this.getModel(params)
     let result: any
 
@@ -72,7 +72,7 @@ export class RelationRelation extends Service {
           result = await UserRelationshipModel.create({
             userId,
             relatedUserId,
-            type
+            userRelationshipType
           }, {
             transaction: trans
           })
@@ -80,7 +80,7 @@ export class RelationRelation extends Service {
           await UserRelationshipModel.create({
             userId: relatedUserId,
             relatedUserId: userId,
-            type: 'requested'
+            userRelationshipType: 'requested'
           }, {
             transaction: trans
           })
@@ -88,7 +88,7 @@ export class RelationRelation extends Service {
         break
       case 'update':
         result = await UserRelationshipModel.update({
-          type
+          userRelationshipType
         }, {
           where: {
             userId,
