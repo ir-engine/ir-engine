@@ -6,7 +6,7 @@ const placegroundScenePipelineModule = () => {
   // const modelFile = 'assets/evercoast/evercoast.0001.gltf'  // 3D model to spawn at tap
 
   const ASSET_BASE_PATH = "./assets/";
-  const ASSET_LOUNGE = 'dolby_textured_v02.fbx';
+  const ASSET_LOUNGE = 'dolby_demoscene_v1.fbx';
   let ASSET_TRACKER = "shark.gltf";
   let ASSET_OBJECT_PATH = ASSET_BASE_PATH + "gltf/";
   let ASSET_TEXTURE_PATH = ASSET_BASE_PATH + "tex/";
@@ -15,7 +15,7 @@ const placegroundScenePipelineModule = () => {
   const AUDIO_PLAYING_FLAG = false;
   const AUDIO_FILE = ASSET_BASE_PATH + "./audio/muqabla.mp3";
 
-  const fbxLoader = new THREE.FBXLoader().setPath( ASSET_BASE_PATH );
+  const fbxLoader = new THREE.FBXLoader().setPath( ASSET_BASE_PATH + '/lounge/');
   const loader = new THREE.GLTFLoader().setPath( ASSET_BASE_PATH );
   const raycaster = new THREE.Raycaster()
   const tapPosition = new THREE.Vector2()
@@ -23,7 +23,7 @@ const placegroundScenePipelineModule = () => {
   let cameraMain;
   let spotLight1, spotLight2, spotLight3;
 
-  var volPlayer, stats;
+  var volPlayer;
   var volPlayerSharkman, volPlayerHula, volPlayerKungfu;
 
   let hula, kungfu, sharkman;
@@ -42,6 +42,7 @@ const placegroundScenePipelineModule = () => {
     cameraMain = camera;
 
     // addLoading({scene});
+    showLoadingScreen();
 
     addLounge({scene});
 
@@ -84,11 +85,11 @@ const placegroundScenePipelineModule = () => {
     coneKungfu.scale.set(0.1, 0.1, 0.1);
     scene.add( coneKungfu );
 
-    // scene.add(new THREE.AmbientLight( 0x404040, 0.8 ))  // Add soft white light to the scene.
+    scene.add(new THREE.AmbientLight( 0x404040, 1.0 ))  // Add soft white light to the scene.
 
-    // var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    // directionalLight.position.set(12, 0.6, 0);
-    // scene.add(directionalLight);
+    var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(12, 0.6, 0);
+    scene.add(directionalLight);
 
     // var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
     // directionalLight2.position.set(0, 0.6, 0);
@@ -149,23 +150,13 @@ const placegroundScenePipelineModule = () => {
   
   }
 
-  const addLoading = ({scene}) => {
+  const showLoadingScreen = () => {
+    document.getElementById('loading').style.visibility = "visible";
+  }
 
-    // const textureLoader = new THREE.TextureLoader()
-
-    const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-      const boxMaterial = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        transparent: true,
-        opacity: 0.50,
-      });
-      box = new THREE.Mesh(boxGeometry, boxMaterial);
-      loader.castShadow = true;
-      // loader.receiveShadow = false;
-      box.scale.set(0.5, 0.5, 0.5);
-      box.position.set(6, -1, -12);
-      scene.add(box);
-  };
+  const hideLoadingScreen = () => {
+    document.getElementById('loading').remove();
+  }
   
   const addLounge = ({scene}) => {
 
@@ -176,6 +167,7 @@ const placegroundScenePipelineModule = () => {
       object.rotation.y = Math.PI;
       scene.add(object);
       adjustCamera();
+      hideLoadingScreen();
 
     })
   };
@@ -344,6 +336,10 @@ const placegroundScenePipelineModule = () => {
     coneKungfu.visible = true;
   }
 
+  const resetHandler = (e) => {
+    XR8.XrController.recenter()
+  }
+
   const touchHandler = (e) => {
     // Call XrController.recenter() when the canvas is tapped with two fingers. This resets the
     // AR camera to the position specified by XrController.updateCameraProjectionMatrix() above.
@@ -401,9 +397,8 @@ const placegroundScenePipelineModule = () => {
       initXrScene({ scene, camera }) // Add objects to the scene and set starting camera position.
 
       canvas.addEventListener('touchstart', touchHandler, true)  // Add touch listener.
-
-      stats = new Stats();
-      canvas.appendChild( stats.dom );
+      document.getElementById('reset').addEventListener('touchstart', resetHandler, true);
+      
 
       animate()
       function animate(time) {
