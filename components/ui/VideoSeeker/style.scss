@@ -1,9 +1,10 @@
 $seeker-margin: 90px;
 $seeker-height: 12px;
+$bottom-distance: 24px;
 .seek-bar-container {
     width: calc(100vw - #{$seeker-margin} * 2);
     position: fixed;
-    bottom: 0;
+    bottom: $bottom-distance;
     margin: $seeker-margin;
     z-index: 800;
     .seek-bar {
@@ -19,6 +20,7 @@ $seeker-height: 12px;
     }
     .full-bar {
         background-color: rgba(255,255,255,0.5);
+        outline: 1px solid rgba(0,0,0,0.2)
     }
     .clickable-bar {
         width: 100%;
@@ -31,7 +33,7 @@ $seeker-height: 12px;
 .play-controls {
     margin: 61px 30px;
     position: fixed;
-    bottom: 0;
+    bottom: $bottom-distance;
     z-index: 800;
     > svg {
         width: 36px;

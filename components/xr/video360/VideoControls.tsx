@@ -4,15 +4,16 @@ import './VideoControls.scss'
 import VideoSeeker from '../../ui/VideoSeeker'
 import { connect } from 'react-redux'
 import { setVideoPlaying } from '../../../redux/video360/actions'
+import { selectVideo360State } from '../../../redux/video360/selector'
 
 type Props = {
   videosrc: string,
   videotext: string,
   videovrui: string,
-  setVideoPlaying: (playing: boolean) => void
+  setVideoPlaying: (playing: boolean) => void,
+  playing: boolean
 }
 type State = {
-  playing: boolean,
   end: boolean,
   // setInterval id
   tickId: any,
@@ -24,7 +25,6 @@ type State = {
 
 class VideoControls extends React.Component<Props, State> {
   state: State = {
-    playing: false,
     end: false,
     tickId: null,
     duration: 0,
@@ -54,7 +54,7 @@ class VideoControls extends React.Component<Props, State> {
           className="videoplayercontrols active">
         </div>
         <VideoSeeker
-          playing={this.state.playing}
+          playing={this.props.playing}
           videoLengthSeconds={this.state.duration}
           currentTimeSeconds={this.state.currentTime}
           bufferPercentage={0}
@@ -79,7 +79,7 @@ class VideoControls extends React.Component<Props, State> {
   private clickHandler() {
     if (this.state.end) {
       this.exitVideoHandler()
-    } else if (!this.state.playing) {
+    } else if (!this.props.playing) {
       this.playHandler()
     }
   }
@@ -92,13 +92,12 @@ class VideoControls extends React.Component<Props, State> {
 
     this.textEl?.setAttribute('visible', false)
     this.videoEl?.addEventListener('ended', this.videoEndHandler.bind(this), { once: true })
-    this.setState({ playing: true })
+    // set playing in redux
     this.props.setVideoPlaying(true)
   }
 
   pauseHandler() {
     (this.videoEl as HTMLVideoElement)?.pause()
-    this.setState({ playing: false })
     this.props.setVideoPlaying(false)
   }
 
@@ -110,7 +109,8 @@ class VideoControls extends React.Component<Props, State> {
     controller.classList.add('active')
     this.textEl?.setAttribute('text', { value: 'END\n\nclick to exit' })
     this.textEl?.setAttribute('visible', true)
-    this.setState({ playing: false, end: true })
+    this.setState({ end: true })
+    this.props.setVideoPlaying(false)
   }
 
   private videoPlayHandler() {
@@ -148,5 +148,10 @@ class VideoControls extends React.Component<Props, State> {
 const mapDispatchToProps = {
   setVideoPlaying
 }
+const mapStateToProps = state => {
+  return {
+    playing: selectVideo360State(state).get('playing')
+  }
+}
 
-export default connect(null, mapDispatchToProps)(VideoControls)
+export default connect(mapStateToProps, mapDispatchToProps)(VideoControls)
