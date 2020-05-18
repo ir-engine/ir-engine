@@ -9,7 +9,7 @@ import dynamic from 'next/dynamic'
 import VideoControls from './VideoControls'
 import AframeComponentRegisterer from '../aframe'
 import { shakaPropTypes } from './ShakaPlayerComp'
-import { selectAppState } from '../../../redux/app/selector'
+import { selectAppState, selectInVrModeState } from '../../../redux/app/selector'
 import { selectVideo360State } from '../../../redux/video360/selector'
 import { setVideoPlaying } from '../../../redux/video360/actions'
 const THREE = AFRAME.THREE
@@ -57,9 +57,10 @@ function Video360Room() {
   const videospherePrimitive = format === 'eac' ? 'a-eaccube' : 'a-videosphere'
   const videosrc = '#video360Shaka'
   const app = useSelector(state => selectAppState(state))
+  const inVrMode = useSelector(state => selectInVrModeState(state))
   const dispatch = useDispatch()
   const [videoEl, setVideoEl] = useState(null)
-  const [viewport, setViewport] = useState({ width: 1400, height: 900 })
+  const [viewport, setViewport] = useState(app.get('viewport'))
   const [videoCamera, setVideoCamera] = useState(null)
   const [timeline, setTimeline] = useState(null)
   const video360State = useSelector(state => selectVideo360State(state))
@@ -159,6 +160,14 @@ function Video360Room() {
   useEffect(() => {
     setViewport(app.get('viewport'))
   }, [app])
+  // set vr seeker/video controls visible in vr mode, and invisible when not.
+  useEffect(() => {
+    if (timeline) {
+      for (const prop in timeline) {
+        timeline[prop].visible = inVrMode
+      }
+    }
+  }, [timeline, inVrMode])
   // get whether video is playing or not from redux state
   useEffect(() => {
     setPlaying(video360State.get('playing'))
