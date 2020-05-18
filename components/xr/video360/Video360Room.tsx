@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { Entity } from 'aframe-react'
 import AFRAME from 'aframe'
 
@@ -11,6 +11,7 @@ import AframeComponentRegisterer from '../aframe'
 import { shakaPropTypes } from './ShakaPlayerComp'
 import { selectAppState } from '../../../redux/app/selector'
 import { selectVideo360State } from '../../../redux/video360/selector'
+import { setVideoPlaying } from '../../../redux/video360/actions'
 const THREE = AFRAME.THREE
 const ShakaPlayerComp = dynamic(() => import('./ShakaPlayerComp'), { ssr: false })
 
@@ -24,8 +25,19 @@ function getManifestUri(manifestPath: string): string {
 
 const barHeight = 0.12
 
+const loader = new THREE.TextureLoader()
+// TODO: find if there is an SVGLoader and see if you can use that
+// TODO: download image directly into project so it's not referencing external resources
+const playBtnImageSrc = '/icons/play.png'
+const pauseBtnImageSrc = '/icons/pause.png'
+const playBtnImageMap = loader.load(playBtnImageSrc)
+const pauseBtnImageMap = loader.load(pauseBtnImageSrc)
 const raycaster = new THREE.Raycaster()
 const mouse = new THREE.Vector2()
+const videoControlsPosition = {
+  y: -2,
+  z: -4
+}
 
 function Video360Room() {
   const router = useRouter()
@@ -45,6 +57,7 @@ function Video360Room() {
   const videospherePrimitive = format === 'eac' ? 'a-eaccube' : 'a-videosphere'
   const videosrc = '#video360Shaka'
   const app = useSelector(state => selectAppState(state))
+  const dispatch = useDispatch()
   const [videoEl, setVideoEl] = useState(null)
   const [viewport, setViewport] = useState({ width: 1400, height: 900 })
   const [videoCamera, setVideoCamera] = useState(null)
@@ -59,24 +72,41 @@ function Video360Room() {
     return width / 200
   }
   // creates a plane geometry for the seeker/timeline bars
-  function createTimeline({ name, width, height, color, t }) {
+  function createTimeline({ name, width, height, color, t, opacity = 1 }) {
     const matTimeline = new THREE.MeshBasicMaterial({
       side: THREE.FrontSide,
-      transparent: true,
-      opacity: 0.5,
+      transparent: opacity < 1,
+      opacity,
       color
     })
 
     const geomTimeline = new THREE.PlaneBufferGeometry(1, height)
     const meshTimeline = new THREE.Mesh(geomTimeline, matTimeline)
     meshTimeline.name = name
-    meshTimeline.position.z = -4
-    meshTimeline.position.y = -2
+    meshTimeline.position.z = videoControlsPosition.z
+    meshTimeline.position.y = videoControlsPosition.y
     // translate geom positions so that it can grow from the left
     meshTimeline.position.x = -width / 2
 
     setTimelineWidth(meshTimeline, width * t)
     return meshTimeline
+  }
+  function createTimelineButton({ name, x, size }) {
+    const matButton = new THREE.MeshBasicMaterial({
+      side: THREE.FrontSide,
+      transparent: true,
+      opacity: 0.8,
+      map: playing ? pauseBtnImageMap : playBtnImageMap
+    })
+
+    const geomButton = new THREE.PlaneBufferGeometry(size, size)
+    const meshButton = new THREE.Mesh(geomButton, matButton)
+    meshButton.name = name
+    meshButton.position.z = videoControlsPosition.z
+    meshButton.position.y = videoControlsPosition.y
+    // translate geom positions so that it can grow from the left
+    meshButton.position.x = x
+    return meshButton
   }
   // resize timeline, used for seeker and buffer bars
   function setTimelineWidth(mesh, width) {
@@ -98,18 +128,25 @@ function Video360Room() {
 
   // set video duration and continuously update current time if the video is playing
   useEffect(() => {
-    if (playing && videoEl) {
-      setDuration((videoEl as HTMLVideoElement).duration)
-      // get current time of playing video on seconds
-      // could use videoEl.requestVideoFrameCallback instead when there is support
-      const tickId = setInterval(() => {
-        setCurrentTime((videoEl as HTMLVideoElement).currentTime)
-      }, 333)
-      return () => {
-        clearInterval(tickId)
+    if (videoEl) {
+      if (timeline) {
+        timeline.button.material.map = playing ? pauseBtnImageMap : playBtnImageMap
+      }
+      if (playing) {
+        // get duration of video so we can render the seeker relative to this
+        setDuration((videoEl as HTMLVideoElement).duration)
+
+        // get current time of playing video on seconds
+        // could use videoEl.requestVideoFrameCallback instead when there is support
+        const tickId = setInterval(() => {
+          setCurrentTime((videoEl as HTMLVideoElement).currentTime)
+        }, 333)
+        return () => {
+          clearInterval(tickId)
+        }
       }
     }
-  }, [videosrc, playing, videoEl])
+  }, [videosrc, playing, videoEl, timeline])
 
   // get video camera so we can attach video controls to it, so they move with the camera rotation
   useEffect(() => {
@@ -126,6 +163,15 @@ function Video360Room() {
   useEffect(() => {
     setPlaying(video360State.get('playing'))
   }, [video360State])
+  useEffect(() => {
+    if (videoEl) {
+      if (playing) {
+        (videoEl as HTMLVideoElement)?.play()
+      } else {
+        (videoEl as HTMLVideoElement)?.pause()
+      }
+    }
+  }, [playing, videoEl])
 
   // create full and seeker bars (3D)
   useEffect(() => {
@@ -134,34 +180,48 @@ function Video360Room() {
         name: 'fullBarTimeline',
         width: getBarFullWidth(viewport.width),
         height: barHeight,
+        opacity: 0.5,
         t: 1,
         color: 0xFFFFFF
       })
-
       const currentTimeBar = createTimeline({
         name: 'currentTimeBarTimeline',
         width: getBarFullWidth(viewport.width),
         height: barHeight,
+        opacity: 1,
         t: 1,
-        color: 0xFF0000
+        color: 0x00ceff
       })
-      setTimeline({
-        fullBar,
-        currentTimeBar
-        // bufferBar: bufferBar
+      // position the current time bar slightly in front of full bar, so it's colour is not changed
+      currentTimeBar.position.z += 0.0005
+
+      const timelineButton = createTimelineButton({
+        name: 'playPauseButton',
+        size: 0.25,
+        x: fullBar.position.x - 0.2
       })
 
+      setTimeline({
+        fullBar,
+        currentTimeBar,
+        button: timelineButton
+        // bufferBar: bufferBar
+      })
       videoCamera.setObject3D(fullBar.name, fullBar)
       videoCamera.setObject3D(currentTimeBar.name, currentTimeBar)
+      videoCamera.setObject3D(timelineButton.name, timelineButton)
     }
   }, [videoCamera, viewport])
   // update seeker bar
-  useEffect(() => {
+  function updateSeekBar() {
     if (videoCamera && timeline) {
       const currentTimeBar = timeline.currentTimeBar
       setTimelineWidth(currentTimeBar, getBarFullWidth(viewport.width) * (currentTime / duration))
       currentTimeBar.geometry.attributes.position.needsUpdate = true
     }
+  }
+  useEffect(() => {
+    updateSeekBar()
     // console.log('currentTime:', currentTime, 'duration:', duration)
   }, [videoCamera, timeline, viewport, currentTime, duration])
 
@@ -173,13 +233,24 @@ function Video360Room() {
     raycaster.setFromCamera(mouse, videoCamera.getObject3D('camera'))
 
     // calculate objects intersecting the picking ray
-    const intersects = raycaster.intersectObjects([timeline.fullBar])
+    const intersects = raycaster.intersectObjects([timeline.fullBar, timeline.button])
     if (intersects.length) {
       // position along x axis between 0 and 1, where the click was made.
       // used for setting the video seeker position
-      const t = intersects[0].uv.x;
-      // set video element current time
-      (videoEl as HTMLVideoElement).currentTime = t * duration
+      const timelineIntersection = intersects.find(({ object: { name } }) => name === 'fullBarTimeline')
+      const playPauseBtnIntersection = intersects.find(({ object: { name } }) => name === 'playPauseButton')
+
+      if (timelineIntersection) {
+        const t = timelineIntersection.uv.x
+        // set video element current time
+        const newCurrentTime = t * (duration || 0); // default duration to 0 because it is possibly NaN if video metadata not loaded
+        (videoEl as HTMLVideoElement).currentTime = newCurrentTime
+        setCurrentTime(newCurrentTime)
+        updateSeekBar()
+      }
+      if (playPauseBtnIntersection) {
+        dispatch(setVideoPlaying(!playing))
+      }
     }
   }
   useEffect(() => {
@@ -190,7 +261,7 @@ function Video360Room() {
         window.removeEventListener('click', onClick, false)
       }
     }
-  }, [window, timeline, videoEl, duration])
+  }, [window, timeline, videoEl, duration, playing])
   return (
     <Entity>
       <AframeComponentRegisterer />
