@@ -12,9 +12,9 @@ export default (options = {}): Hook => {
       url: data.uri || data.url,
       mime_type: data.mime_type || params.mime_type,
       metadata: data.metadata || body.metadata,
-      type: 'data'
+      staticResourceType: 'data'
     }
-    resourceData.type = data.type === 'user-thumbnail' || body.type === 'user-thumbnail' ? 'user-thumbnail' : getBasicMimetype(resourceData.mime_type)
+    resourceData.staticResourceType = data.type === 'user-thumbnail' || body.type === 'user-thumbnail' ? 'user-thumbnail' : getBasicMimetype(resourceData.mime_type)
     if (context.params.skipResourceCreation === true) {
       context.result = await context.app.service('static-resource').patch(context.params.patchId, {
         url: resourceData.url,
@@ -28,7 +28,7 @@ export default (options = {}): Hook => {
         (resourceData as any).id = context.params.uuid
       }
 
-      if (resourceData.type === 'user-thumbnail') {
+      if (resourceData.staticResourceType === 'user-thumbnail') {
         const existingThumbnails = await context.app.service('static-resource').find({
           query: {
             userId: body.userId,
