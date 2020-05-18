@@ -57,6 +57,8 @@ export const CHANGED_RELATION = 'CHANGED_RELATION'
 
 export const SET_VIEWPORT_SIZE = 'SET_VIEWPORT_SIZE'
 
+export const SET_IN_VR_MODE = 'SET_IN_VR_MODE'
+
 // video controls
 
 export const SET_VIDEO_PLAYING = 'SET_VIDEO_PLAYING'

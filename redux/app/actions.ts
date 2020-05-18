@@ -1,6 +1,7 @@
 import {
   SET_APP_LOADED,
-  SET_VIEWPORT_SIZE
+  SET_VIEWPORT_SIZE,
+  SET_IN_VR_MODE
 } from '../actions'
 
 type Action = {
@@ -28,4 +29,9 @@ export const setViewportSize = (width: number, height: number) => ({
   type: SET_VIEWPORT_SIZE,
   width,
   height
+})
+
+export const setAppInVrMode = (inVrMode: boolean) => ({
+  type: SET_IN_VR_MODE,
+  inVrMode
 })
