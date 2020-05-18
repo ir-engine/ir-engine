@@ -8,9 +8,10 @@ export interface AframeComponetInterface {
   options?: AframeComponentOptions
 }
 
-export function setComponent(el: AFRAME.Entity, component: AframeComponetInterface): void {
+export function setComponent (el: AFRAME.Entity, component: AframeComponetInterface): void {
   el.setAttribute(component.name, component.options)
 }
-export function setupControlsHandler(el: AFRAME.Entity, components: AframeComponetInterface[]): void {
+
+export function setupControlsHandler (el: AFRAME.Entity, components: AframeComponetInterface[]): void {
   components.forEach(component => setComponent(el, component))
 }

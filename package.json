@@ -13,7 +13,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn run test"
+      "pre-commit": "echo && echo \\* Running pre-commit test  && echo \\*\\* \\`git commit --no-verify\\` to skip && echo \\*\\*\\* PRs THAT DO NOT PASS TESTS WILL NOT BE ACCEPTED && yarn run test"
     }
   },
   "peerDependencies": {
@@ -64,6 +64,8 @@
     "husky": "^4.2.5",
     "immutable": "^4.0.0-rc.12",
     "isomorphic-unfetch": "3.0.0",
+    "lebab": "^3.1.0",
+    "load-bmfont": "^1.4.0",
     "material-ui-dropzone": "^3.0.0",
     "networked-aframe": "^0.7.0",
     "next": "^9.3.4",

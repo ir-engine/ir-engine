@@ -8,57 +8,53 @@ import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig
 const timeout = (config && config.alert && config.alert.timeout) ?? 10000
 
-export function alertSuccess(message: string) {
+export function alertSuccess (message: string) {
   return (dispatch: Dispatch) => {
     dispatch(showAlert('success', message))
   }
 }
-export function alertWarning(message: string) {
+export function alertWarning (message: string) {
   return (dispatch: Dispatch) => {
     dispatch(showAlert('warning', message))
   }
 }
-export function alertError(message: string) {
+export function alertError (message: string) {
   return (dispatch: Dispatch) => {
     dispatch(showAlert('error', message))
   }
 }
-export function alertCancel() {
+export function alertCancel () {
   return (dispatch: Dispatch) => {
     dispatch(hideAlert())
   }
 }
 
 let timerId: any
-function clearTimer() {
+function clearTimer () {
   if (timerId) {
     clearTimeout(timerId)
     timerId = 0
   }
 }
 
-function restartTimer(dispatch: Dispatch) {
+function restartTimer (dispatch: Dispatch) {
   clearTimer()
   timerId = setTimeout(() => dispatch(hideAlert()), timeout)
 }
 
-export function dispatchAlertSuccess(dispatch: Dispatch, message: string) {
+export function dispatchAlertSuccess (dispatch: Dispatch, message: string) {
   restartTimer(dispatch)
-
   return dispatch(showAlert('success', message))
 }
-export function dispatchAlertWarning(dispatch: Dispatch, message: string) {
+export function dispatchAlertWarning (dispatch: Dispatch, message: string) {
   restartTimer(dispatch)
-
   return dispatch(showAlert('warning', message))
 }
-export function dispatchAlertError(dispatch: Dispatch, message: string) {
+export function dispatchAlertError (dispatch: Dispatch, message: string) {
   restartTimer(dispatch)
-
   return dispatch(showAlert('error', message))
 }
-export function dispatchAlertCancel(dispatch: Dispatch) {
+export function dispatchAlertCancel (dispatch: Dispatch) {
   clearTimer()
-
   return dispatch(hideAlert())
 }

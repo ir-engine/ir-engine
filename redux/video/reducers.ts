@@ -16,7 +16,7 @@ export const initialState: PublicVideoState = {
 
 const immutableState = Immutable.fromJS(initialState)
 
-const videoReducer = (state = immutableState, action: VideosFetchedAction): any => {
+export default function videoReducer (state = immutableState, action: VideosFetchedAction): any {
   switch (action.type) {
     case VIDEOS_FETCHED_SUCCESS:
       return state
@@ -28,5 +28,3 @@ const videoReducer = (state = immutableState, action: VideosFetchedAction): any 
 
   return state
 }
-
-export default videoReducer

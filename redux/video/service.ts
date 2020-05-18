@@ -11,7 +11,7 @@ import axios from 'axios'
 import { apiUrl } from '../service.common'
 import { client } from '../feathers'
 
-export function fetchPublicVideos() {
+export function fetchPublicVideos () {
   return (dispatch: Dispatch) => {
     client.service('static-resource').find({ query: { $limit: 30, mime_type: 'application/dash+xml' } })
       .then((res: any) => {
@@ -26,12 +26,13 @@ export function fetchPublicVideos() {
   }
 }
 
-export function uploadFile(data: any) {
-  return async (dispatch: Dispatch) => {
-    console.log(data, 'dataform')
+export function uploadFile (data: any) {
+  return async (dispatch: Dispatch, getState: any) => {
+    const token = getState().get('auth').get('authUser').accessToken
     const res = await axios.post(`${apiUrl}/upload`, data, {
       headers: {
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': 'multipart/form-data',
+        Authorization: 'Bearer ' + token
       }
     })
     const image = res.data
