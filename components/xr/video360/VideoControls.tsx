@@ -4,8 +4,6 @@ import './VideoControls.scss'
 import VideoSeeker from '../../ui/VideoSeeker'
 import { connect } from 'react-redux'
 import { setVideoPlaying } from '../../../redux/video360/actions'
-import { Entity } from 'aframe-react'
-import 'aframe-video-controls'
 
 type Props = {
   videosrc: string,
@@ -74,11 +72,6 @@ class VideoControls extends React.Component<Props, State> {
             })
           }}
         />
-        <Entity video-controls={{
-          src: this.props.videosrc,
-          distance: 1.3
-        }} />
-        <Entity primitive="a-cursor" cursor="rayOrigin: mouse" />
       </>
     )
   }
