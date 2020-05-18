@@ -65,10 +65,10 @@ export default async (context: any): Promise<void> => {
       fileId = match[1]
       if (/youtube.com/.test(url) || /youtu.be/.test(url)) {
         context.params.videoSource = 'youtube'
-        context.data.metadata['360_format'] = 'eac'
+        context.data.metadata['360_format'] = context.data.metadata['360_format'] != null ? context.data.metadata['360_format'] : 'eac'
       } else if (/vimeo.com/.test(url)) {
         context.params.videoSource = 'vimeo'
-        context.data.metadata['360_format'] = 'equirectangular'
+        context.data.metadata['360_format'] = context.data.metadata['360_format'] != null ? context.data.metadata['360_format'] : 'equirectangular'
       }
     }
   }
@@ -80,9 +80,9 @@ export default async (context: any): Promise<void> => {
     localContext.params.storageProvider = new StorageProvider()
     localContext.params.uploadPath = path.join('public', localContext.params.videoSource, fileId, 'video')
 
-    if (context.data.metadata.thumbnail_url != null) {
+    if (context.data.metadata.thumbnail_url != null && context.data.metadata.thumbnail_url.length > 0) {
       thumbnailUploadResult = await uploadThumbnailLinkHook()(localContext)
-      localContext.params.thumbnailUrl = thumbnailUploadResult.params.thumbnailUrl
+      localContext.params.thumbnailUrl = localContext.data.metadata.thumbnail_url = thumbnailUploadResult.params.thumbnailUrl
     }
 
     const s3Key = path.join('public', localContext.params.videoSource, fileId, 'video', dashManifestName)
@@ -119,7 +119,7 @@ export default async (context: any): Promise<void> => {
               })
           })
 
-          if (localContext.data.metadata.thumbnail_url == null) {
+          if (localContext.data.metadata.thumbnail_url == null || localContext.data.metadata.thumbnail_url.length === 0) {
             console.log('Getting thumbnail from youtube-dl')
 
             const thumbnailUrlResult = await new Promise((resolve, reject) => {
@@ -178,7 +178,7 @@ export default async (context: any): Promise<void> => {
           throw err
         }
       } else {
-        console.log('File already existed, just making DB entries and updating URL')
+        console.log('File already existed for ' + fileId + ', just making DB entries and updating URL')
         const s3Path = path.join('public', localContext.params.videoSource, fileId, 'video')
         const bucketObjects = await new Promise((resolve, reject) => {
           s3.listObjects({
@@ -269,7 +269,7 @@ export default async (context: any): Promise<void> => {
   }
 }
 
-const uploadFile = async (localFilePath: string, fileId: string, localContext: any, app: Application, resultId: number): Promise<void> => {
+const uploadFile = async (localFilePath: string, fileId: string, context: any, app: Application, resultId: number): Promise<void> => {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
   return await new Promise(async (resolve, reject) => {
     const promises = []
@@ -286,6 +286,7 @@ const uploadFile = async (localFilePath: string, fileId: string, localContext: a
             // @ts-ignore
             const mimetype = mimetypeDict[extension]
 
+            const localContext = _.cloneDeep(context)
             localContext.params.file = {
               fieldname: 'file',
               originalname: file,
@@ -322,7 +323,7 @@ const uploadFile = async (localFilePath: string, fileId: string, localContext: a
             resolve()
           }))
         } else {
-          promises.push(uploadFile(path.join(localFilePath, file), fileId, localContext, app, resultId))
+          promises.push(uploadFile(path.join(localFilePath, file), fileId, context, app, resultId))
         }
       }
 
