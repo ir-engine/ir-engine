@@ -53,9 +53,12 @@ function Video360Room() {
   const [playing, setPlaying] = useState(false)
   const [duration, setDuration] = useState(1)
   const [currentTime, setCurrentTime] = useState(0)
+
+  // for resizing bar based on width of screen (window.innerWidth)
   function getBarFullWidth(width) {
     return width / 200
   }
+  // creates a plane geometry for the seeker/timeline bars
   function createTimeline({ name, width, height, color, t }) {
     const matTimeline = new THREE.MeshBasicMaterial({
       side: THREE.FrontSide,
@@ -72,11 +75,12 @@ function Video360Room() {
     // translate geom positions so that it can grow from the left
     meshTimeline.position.x = -width / 2
 
-    const positions = geomTimeline.attributes.position.array as Array<number>
-    setTimelineWidth(positions, width * t)
+    setTimelineWidth(meshTimeline, width * t)
     return meshTimeline
   }
-  function setTimelineWidth(positions, width) {
+  // resize timeline, used for seeker and buffer bars
+  function setTimelineWidth(mesh, width) {
+    const positions = mesh.geometry.attributes.position.array as Array<number>
     // top left x
     positions[0] = 0
     // bottom left x
@@ -86,12 +90,14 @@ function Video360Room() {
     // bottom right x
     positions[9] = width
   }
+  // get the video element so we can get the duration and current time, and update the current time with seeker controls.
   useEffect(() => {
     const videoEl = document.querySelector(videosrc) as HTMLElement
     setVideoEl(videoEl)
   }, [videosrc])
+
+  // set video duration and continuously update current time if the video is playing
   useEffect(() => {
-    console.log('playing', playing)
     if (playing && videoEl) {
       setDuration((videoEl as HTMLVideoElement).duration)
       // get current time of playing video on seconds
@@ -104,17 +110,24 @@ function Video360Room() {
       }
     }
   }, [videosrc, playing, videoEl])
+
+  // get video camera so we can attach video controls to it, so they move with the camera rotation
   useEffect(() => {
     if (!videoCamera) {
       setVideoCamera(document.getElementsByClassName('video360Camera')[0])
     }
   }, [videoCamera])
+
+  // get viewport for width/height
   useEffect(() => {
     setViewport(app.get('viewport'))
   }, [app])
+  // get whether video is playing or not from redux state
   useEffect(() => {
     setPlaying(video360State.get('playing'))
   }, [video360State])
+
+  // create full and seeker bars (3D)
   useEffect(() => {
     if (videoCamera) {
       const fullBar = createTimeline({
@@ -142,15 +155,16 @@ function Video360Room() {
       videoCamera.setObject3D(currentTimeBar.name, currentTimeBar)
     }
   }, [videoCamera, viewport])
+  // update seeker bar
   useEffect(() => {
     if (videoCamera && timeline) {
       const currentTimeBar = timeline.currentTimeBar
-      const positions = currentTimeBar.geometry.attributes.position.array as Array<number>
-      setTimelineWidth(positions, getBarFullWidth(viewport.width) * (currentTime / duration))
+      setTimelineWidth(currentTimeBar, getBarFullWidth(viewport.width) * (currentTime / duration))
       currentTimeBar.geometry.attributes.position.needsUpdate = true
     }
     // console.log('currentTime:', currentTime, 'duration:', duration)
   }, [videoCamera, timeline, viewport, currentTime, duration])
+
   // user interaction with seeker
   function onClick(event) {
     // normalize mouse position for three.js vector
@@ -190,11 +204,11 @@ function Video360Room() {
         src="#video360Shaka"
         loop="false"
       />
-      <Entity
+      {/* <Entity
         id="video-player-vr-ui"
         video-player-vr-ui={{}}
         position={{ x: 0, y: 0.98, z: -0.9 }}
-      />
+      /> */}
       <VideoControls
         videosrc="#video360Shaka" videotext="#videotext" videovrui="#video-player-vr-ui" />
       <Entity id="videotext"
