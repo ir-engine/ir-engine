@@ -24,6 +24,9 @@ function getManifestUri(manifestPath: string): string {
 
 const barHeight = 0.12
 
+const raycaster = new THREE.Raycaster()
+const mouse = new THREE.Vector2()
+
 function Video360Room() {
   const router = useRouter()
   const manifest = router.query.manifest as string
@@ -42,6 +45,7 @@ function Video360Room() {
   const videospherePrimitive = format === 'eac' ? 'a-eaccube' : 'a-videosphere'
   const videosrc = '#video360Shaka'
   const app = useSelector(state => selectAppState(state))
+  const [videoEl, setVideoEl] = useState(null)
   const [viewport, setViewport] = useState({ width: 1400, height: 900 })
   const [videoCamera, setVideoCamera] = useState(null)
   const [timeline, setTimeline] = useState(null)
@@ -83,10 +87,12 @@ function Video360Room() {
     positions[9] = width
   }
   useEffect(() => {
+    const videoEl = document.querySelector(videosrc) as HTMLElement
+    setVideoEl(videoEl)
+  }, [videosrc])
+  useEffect(() => {
     console.log('playing', playing)
-    if (playing) {
-      const videoEl = document.querySelector(videosrc) as HTMLElement
-
+    if (playing && videoEl) {
       setDuration((videoEl as HTMLVideoElement).duration)
       // get current time of playing video on seconds
       // could use videoEl.requestVideoFrameCallback instead when there is support
@@ -97,7 +103,7 @@ function Video360Room() {
         clearInterval(tickId)
       }
     }
-  }, [videosrc, playing])
+  }, [videosrc, playing, videoEl])
   useEffect(() => {
     if (!videoCamera) {
       setVideoCamera(document.getElementsByClassName('video360Camera')[0])
@@ -110,7 +116,7 @@ function Video360Room() {
     setPlaying(video360State.get('playing'))
   }, [video360State])
   useEffect(() => {
-    if (videoCamera && !timeline) {
+    if (videoCamera) {
       const fullBar = createTimeline({
         name: 'fullBarTimeline',
         width: getBarFullWidth(viewport.width),
@@ -135,7 +141,7 @@ function Video360Room() {
       videoCamera.setObject3D(fullBar.name, fullBar)
       videoCamera.setObject3D(currentTimeBar.name, currentTimeBar)
     }
-  }, [videoCamera, timeline, viewport])
+  }, [videoCamera, viewport])
   useEffect(() => {
     if (videoCamera && timeline) {
       const currentTimeBar = timeline.currentTimeBar
@@ -143,8 +149,34 @@ function Video360Room() {
       setTimelineWidth(positions, getBarFullWidth(viewport.width) * (currentTime / duration))
       currentTimeBar.geometry.attributes.position.needsUpdate = true
     }
-    console.log('currentTime:', currentTime, 'duration:', duration)
+    // console.log('currentTime:', currentTime, 'duration:', duration)
   }, [videoCamera, timeline, viewport, currentTime, duration])
+  // user interaction with seeker
+  function onClick(event) {
+    // normalize mouse position for three.js vector
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1
+    raycaster.setFromCamera(mouse, videoCamera.getObject3D('camera'))
+
+    // calculate objects intersecting the picking ray
+    const intersects = raycaster.intersectObjects([timeline.fullBar])
+    if (intersects.length) {
+      // position along x axis between 0 and 1, where the click was made.
+      // used for setting the video seeker position
+      const t = intersects[0].uv.x;
+      // set video element current time
+      (videoEl as HTMLVideoElement).currentTime = t * duration
+    }
+  }
+  useEffect(() => {
+    if (window && timeline && videoEl) {
+      window.addEventListener('click', onClick, false)
+
+      return () => {
+        window.removeEventListener('click', onClick, false)
+      }
+    }
+  }, [window, timeline, videoEl, duration])
   return (
     <Entity>
       <AframeComponentRegisterer />

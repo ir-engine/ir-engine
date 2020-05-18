@@ -50,7 +50,6 @@
     "aframe-particle-system-component": "^1.1.3",
     "aframe-react": "^4.4.0",
     "aframe-sun-sky": "^3.0.3",
-    "aframe-video-controls": "^0.3.0",
     "apollo-boost": "^0.4.7",
     "apollo-link-ws": "^1.0.20",
     "autoprefixer": "^9.7.5",
