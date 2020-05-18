@@ -37,7 +37,7 @@ export default class CameraRig {
 
   setupCursor(): void {
     if (!this.el) return
-    var cursor
+    let cursor
     switch (this.cursorType) {
       case 'fuse':
         cursor = new FuseCursor()
@@ -68,7 +68,7 @@ export default class CameraRig {
   }
 
   removeDefaultCamera(): void {
-    var cams = document.querySelectorAll('[camera]')
+    const cams = document.querySelectorAll('[camera]')
     // eslint-disable-next-line no-unused-expressions
     cams.forEach(el => { if (el.classList.contains('data-aframe-default-camera')) el.parentElement?.removeChild(el) })
   }

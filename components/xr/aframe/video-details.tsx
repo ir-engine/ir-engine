@@ -46,7 +46,8 @@ export interface VideoDetailsProps {
   initDetailsl: () => void,
   createCell: () => AFRAME.Entity,
   createDetails: () => AFRAME.Entity,
-  createText: (text: string, width: number) => AFRAME.Entity,
+  createText: (text: string, width: number, height: number,
+    fontSize: number, wrapCount: number) => AFRAME.Entity,
   createButton: (text: string, bgColor: string, clickevent: string, width: number,
     x: number, y: number, z: number,
     bgWidth: number, bgHeight: number, bgz: number) => AFRAME.Entity,
@@ -98,33 +99,36 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<VideoDetailsProps
     return entity
   },
 
-  createText(text: string, width: number) {
+  createText(text: string, width: number, height: number, fontSize: number, wrapCount: number) {
     const textEntity = document.createElement('a-entity')
 
-    textEntity.setAttribute('text', {
-      font: 'mozillavr',
+    textEntity.setAttribute('text-cell', {
+      font: 'roboto',
       width: width,
+      height: height,
       align: 'center',
       baseline: 'center',
-      color: 'white',
+      color: '#FFF',
       transparent: false,
-      value: text
+      fontsize: fontSize,
+      text: text,
+      wrapcount: wrapCount,
+      anchor: 'center'
     })
-
     return textEntity
   },
 
   createDetailEntity() {
-    var text = this.data.title + '\n\n'
+    let text = this.data.title + '\n\n'
     text += this.data.description ? this.data.description + '\n' : ''
     text += this.data.runtime ? this.data.runtime + '\n' : ''
     text += this.data.productionCredit ? this.data.productionCredit + '\n' : ''
     text += this.data.rating ? this.data.rating + '\n' : ''
     text += this.data.categories ? this.data.categories.join(',') : ''
 
-    const textEntity = this.createText(text, 2)
+    const textEntity = this.createText(text, this.data.cellWidth, this.data.cellHeight, 2, 33)
 
-    const textBG = this.createBackground(1, 0.75, 'black', 0, -0.0625, -0.01)
+    const textBG = this.createBackground(this.data.cellWidth, this.data.cellContentHeight * 1.5, 'black', 0, -0.0625, -0.01)
 
     textEntity.appendChild(textBG)
 
@@ -144,10 +148,10 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<VideoDetailsProps
   createButton(text: string, bgColor: string, clickevent: string, width: number,
     xoffset: number, yoffset: number, zoffset: number,
     bgWidth: number, bgHeight: number, bgZoffset = -0.01) {
-    const textEntity = this.createText(text, width)
+    const textEntity = this.createText(text, width, bgHeight, 4, 10)
     textEntity.object3D.position.set(xoffset, yoffset, zoffset)
 
-    const textBG = this.createBackground(bgWidth, bgHeight, bgColor, 0, -bgHeight / 2, bgZoffset)
+    const textBG = this.createBackground(bgWidth, bgHeight, bgColor, 0, 0, bgZoffset)
     textBG.classList.add('clickable')
     textBG.setAttribute('clickable', { clickevent: clickevent })
 
@@ -157,11 +161,17 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<VideoDetailsProps
   },
 
   createWatchButton() {
-    return this.createButton('watch', 'green', 'watchbutton', 2, -0.25, -0.5, 0, 0.5, 0.125, -0.01)
+    return this.createButton('watch', 'green', 'watchbutton', this.data.cellWidth / 2,
+      -this.data.cellWidth / 4, -this.data.cellContentHeight, 0,
+      this.data.cellWidth / 2, this.data.cellContentHeight / 4,
+      -0.01)
   },
 
   createBackButton() {
-    return this.createButton('back', 'red', 'backbutton', 2, 0.25, -0.5, 0, 0.5, 0.125, -0.01)
+    return this.createButton('back', 'red', 'backbutton', this.data.cellWidth / 2,
+      this.data.cellWidth / 4, -this.data.cellContentHeight, 0,
+      this.data.cellWidth / 2, this.data.cellContentHeight / 4,
+      -0.01)
   }
 
 }

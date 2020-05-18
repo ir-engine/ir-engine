@@ -1,5 +1,6 @@
 import AFRAME from 'aframe'
-
+// import store from '../../../redux/store'
+// import { setAppLoaded } from '../../../redux/app/actions'
 export const ComponentName = 'media-cell'
 
 export interface MediaCellSystemData {
@@ -95,7 +96,7 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
   },
 
   update(oldData: MediaCellData) {
-    var changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
+    const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
     if (changedData.includes('active')) {
       this.el.setAttribute('grid-cell', { active: this.data.active })
       if (this.data.active) {
@@ -165,9 +166,9 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
         url += ''
         break
     }
-    el.addEventListener('click', () => {
-      window.location.href = url
-    })
+    // handle navigate on the react side - this emits the 'navigate' event when .clickable is clicked
+    // and passes the url data through
+    el.setAttribute('clickable', { clickevent: 'navigate', clickeventData: JSON.stringify({ url }) })
   }
 }
 

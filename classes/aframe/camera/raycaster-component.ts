@@ -12,6 +12,7 @@ export interface RaycasterComponentOptions extends AframeComponentOptions {
   showLine: boolean
   useWorldCoordinates: boolean
 }
+
 export const defaultRaycasterComponentOptions: RaycasterComponentOptions = {
   autoRefresh: true,
   // direction: 0, 0, -1,

@@ -1,6 +1,5 @@
 import React from 'react'
-// @ts-ignore
-import { Scene } from 'aframe-react'
+import SceneContainer from './scene-container'
 import Assets from './assets'
 import Environment from './environment'
 import Player from '../player/player'
@@ -28,15 +27,11 @@ export default class EnvironmentScene extends React.Component<State> {
     return (
       <div style={{ height: '100%', width: '100%' }}>
         {this.state.appRendered && (
-          <Scene
-            class="scene"
-            renderer="antialias: true"
-            background="color: #FAFAFA"
-          >
+          <SceneContainer>
             <Assets/>
             <Environment/>
             <Player/>
-          </Scene>
+          </SceneContainer>
         )}
       </div>
     )
