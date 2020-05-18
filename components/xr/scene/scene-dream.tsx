@@ -5,7 +5,6 @@ import Assets from './assets'
 import Environment from './environment'
 import Player from '../player/player'
 import './style.scss'
-import SvgVr from '../../icons/svg/Vr'
 
 import { PublicScene } from '../../../redux/scenes/actions'
 
@@ -64,9 +63,6 @@ const DreamScene = (props: DreamProps): any => {
       </Entity>
       <Player />
       <Environment />
-      <a className="enterVR" id="enterVRButton" href="#">
-        <SvgVr className="enterVR" />
-      </a>
     </SceneContainer>
   )
 }

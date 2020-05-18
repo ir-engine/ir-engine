@@ -5,7 +5,6 @@ import Assets from './assets'
 import Environment from './environment'
 import Player from '../player/player'
 import './style.scss'
-import SvgVr from '../../icons/svg/Vr'
 
 import { PublicVideo } from '../../../redux/video/actions'
 
@@ -169,9 +168,6 @@ const ExploreScene = (props: VideoProps): any => {
       <Assets />
       <Player />
       <Environment />
-      <a className="enterVR" id="enterVRButton" href="#">
-        <SvgVr className="enterVR" />
-      </a>
     </SceneContainer>
   )
 }
