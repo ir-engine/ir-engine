@@ -16,6 +16,6 @@ export default combineReducers({
   scenes: sceneReducer,
   alert: alertReducer,
   dialog: dialogReducer,
-  devicedetect: deviceDetectReducer
+  devicedetect: deviceDetectReducer,
   user: userReducer
 })

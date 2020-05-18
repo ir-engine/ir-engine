@@ -4,7 +4,6 @@ import AFRAME from 'aframe'
 // import Assets from './assets'
 import Environment from './environment-dream'
 import Player from '../player/player'
-import SvgVr from '../../icons/svg/Vr'
 import './style.scss'
 
 type State = {
