@@ -7,9 +7,4 @@ describe('\'chatroom\' service', () => {
 
     assert.ok(service, 'Registered the service')
   })
-
-  it('\'chatroom\' find service', async () => {
-    const service = app.service('chatroom')
-    console.log(await service.find())
-  })
 })
