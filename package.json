@@ -18,8 +18,8 @@
   },
   "peerDependencies": {
     "@material-ui/react-transition-group": "~4.3.0",
-    "react-transition-group": "~4.3.0",
-    "ecsy": "github:xrchat/ecsy#dev"
+    "ecsy": "github:xrchat/ecsy#dev",
+    "react-transition-group": "~4.3.0"
   },
   "dependencies": {
     "@apollo/react-hooks": "^3.1.5",
