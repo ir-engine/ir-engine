@@ -26,8 +26,8 @@ function getManifestUri(manifestPath: string): string {
 const barHeight = 0.12
 
 const loader = new THREE.TextureLoader()
-// TODO: find if there is an SVGLoader and see if you can use that
-// TODO: download image directly into project so it's not referencing external resources
+// TODO: make pause/play icons the same for CSS and VR versions.
+// currently CSS is using MUI icons, and VR is using images in public/icons/
 const playBtnImageSrc = '/icons/play.png'
 const pauseBtnImageSrc = '/icons/pause.png'
 const playBtnImageMap = loader.load(playBtnImageSrc)
@@ -37,6 +37,17 @@ const mouse = new THREE.Vector2()
 const videoControlsPosition = {
   y: -2,
   z: -4
+}
+
+function getArrayFromTimeRanges(timeRanges) {
+  const output = []
+  for (let i = 0; i < timeRanges.length; i++) {
+    output.push({
+      start: timeRanges.start(i),
+      end: timeRanges.end(i)
+    })
+  }
+  return output
 }
 
 function Video360Room() {
@@ -65,9 +76,10 @@ function Video360Room() {
   const [timeline, setTimeline] = useState(null)
   const video360State = useSelector(state => selectVideo360State(state))
   const [playing, setPlaying] = useState(false)
-  const [duration, setDuration] = useState(1)
+  const [duration, setDuration] = useState(9999)
   const [currentTime, setCurrentTime] = useState(0)
-
+  const [bufferedArr, setBufferedArr] = useState([])
+  const [bufferedBars, setBufferedBars] = useState([])
   // for resizing bar based on width of screen (window.innerWidth)
   function getBarFullWidth(width) {
     return width / 200
@@ -91,6 +103,34 @@ function Video360Room() {
 
     setTimelineWidth(meshTimeline, width * t)
     return meshTimeline
+  }
+  function createBufferedBar({ xStart, xEnd, width, height, name }) {
+    const matBufferedBar = new THREE.MeshBasicMaterial({
+      side: THREE.FrontSide,
+      transparent: true,
+      opacity: 0.5,
+      color: 0xffffff
+    })
+
+    const geomBufferedBar = new THREE.PlaneBufferGeometry(1, height)
+    const meshBufferedBar = new THREE.Mesh(geomBufferedBar, matBufferedBar)
+    meshBufferedBar.name = name
+    meshBufferedBar.position.z = videoControlsPosition.z
+    meshBufferedBar.position.y = videoControlsPosition.y
+    // translate geom positions so that it can grow from the left
+    meshBufferedBar.position.x = -width / 2 + xStart
+
+    setTimelineWidth(meshBufferedBar, width * xEnd - xStart)
+    setBufferedBars(bars => [...bars, meshBufferedBar])
+    videoCamera.setObject3D(meshBufferedBar.name, meshBufferedBar)
+    return meshBufferedBar
+  }
+  function deleteBufferedBars() {
+    bufferedBars.forEach(mesh => {
+      mesh.geometry.dispose()
+      mesh.material.dispose()
+      videoCamera.remove(mesh)
+    })
   }
   function createTimelineButton({ name, x, size }) {
     const matButton = new THREE.MeshBasicMaterial({
@@ -142,12 +182,44 @@ function Video360Room() {
         const tickId = setInterval(() => {
           setCurrentTime((videoEl as HTMLVideoElement).currentTime)
         }, 333)
+
         return () => {
           clearInterval(tickId)
         }
       }
     }
   }, [videosrc, playing, videoEl, timeline])
+  useEffect(() => {
+    if (videoEl) {
+      const bufferedTickId = setInterval(() => {
+        setBufferedArr(getArrayFromTimeRanges((videoEl as HTMLVideoElement).buffered))
+      }, 1000)
+      return () => {
+        clearInterval(bufferedTickId)
+      }
+    }
+  }, [videoEl])
+  useEffect(() => {
+    if (videoEl) {
+      console.log('buffered arr:', bufferedArr)
+      const bufferEvent = new CustomEvent('buffer-change', {
+        detail: {
+          bufferedArr
+        }
+      })
+      videoEl.dispatchEvent(bufferEvent)
+      deleteBufferedBars()
+      bufferedArr.forEach(({ start, end }, index) => {
+        createBufferedBar({
+          xStart: start / duration,
+          xEnd: end / duration,
+          width: getBarFullWidth(viewport.width),
+          height: barHeight,
+          name: 'bufferedBar' + index
+        })
+      })
+    }
+  }, [bufferedArr, duration, videoEl])
 
   // get video camera so we can attach video controls to it, so they move with the camera rotation
   useEffect(() => {

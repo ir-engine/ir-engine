@@ -21,19 +21,28 @@ type State = {
   duration: number,
   // current time of video in seconds
   currentTime: number,
+  bufferedBars: Array<{start: number, end: number}>
 }
-
 class VideoControls extends React.Component<Props, State> {
   state: State = {
     end: false,
     tickId: null,
     duration: 0,
-    currentTime: 0
+    currentTime: 0,
+    bufferedBars: []
   }
 
   videoEl: HTMLElement | null = null
   videovruiEl: HTMLElement | null = null
   textEl: HTMLElement | null = null
+
+  handleBufferedArr(e) {
+    const bufferedArr = e.detail.bufferedArr
+    const duration = (this.videoEl as HTMLVideoElement).duration || 9999
+    this.setState({
+      bufferedBars: bufferedArr.map(({ start, end }) => ({ start: start / duration, end: end / duration }))
+    })
+  }
 
   componentDidMount() {
     this.videoEl = document.querySelector(this.props.videosrc) as HTMLElement
@@ -44,6 +53,11 @@ class VideoControls extends React.Component<Props, State> {
     this.videovruiEl?.addEventListener('triggerplay', this.playHandler.bind(this))
     this.videovruiEl?.addEventListener('triggerpause', this.pauseHandler.bind(this))
     this.videovruiEl?.addEventListener('triggerback', this.exitVideoHandler.bind(this))
+    const handleBufferedArr = this.handleBufferedArr.bind(this)
+    this.videoEl.addEventListener('buffer-change', handleBufferedArr)
+    return () => {
+      this.videoEl.removeEventListener('buffer-change', handleBufferedArr)
+    }
   }
 
   render() {
@@ -57,7 +71,7 @@ class VideoControls extends React.Component<Props, State> {
           playing={this.props.playing}
           videoLengthSeconds={this.state.duration}
           currentTimeSeconds={this.state.currentTime}
-          bufferPercentage={0}
+          bufferedBars={this.state.bufferedBars}
           onTogglePlay={playing => {
             if (playing) {
               this.playHandler()
