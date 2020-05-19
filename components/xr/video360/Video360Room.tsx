@@ -123,6 +123,10 @@ function Video360Room() {
     setTimelineWidth(meshBufferedBar, width * xEnd - xStart)
     setBufferedBars(bars => [...bars, meshBufferedBar])
     videoCamera.setObject3D(meshBufferedBar.name, meshBufferedBar)
+    setTimeline(timeline => ({
+      ...timeline,
+      [name]: meshBufferedBar
+    }))
     return meshBufferedBar
   }
   function deleteBufferedBars() {
@@ -207,18 +211,20 @@ function Video360Room() {
         }
       })
       videoEl.dispatchEvent(bufferEvent)
-      deleteBufferedBars()
-      bufferedArr.forEach(({ start, end }, index) => {
-        createBufferedBar({
-          xStart: start / duration,
-          xEnd: end / duration,
-          width: getBarFullWidth(viewport.width),
-          height: barHeight,
-          name: 'bufferedBar' + index
+      if (inVrMode) {
+        deleteBufferedBars()
+        bufferedArr.forEach(({ start, end }, index) => {
+          createBufferedBar({
+            xStart: start / duration,
+            xEnd: end / duration,
+            width: getBarFullWidth(viewport.width),
+            height: barHeight,
+            name: 'bufferedBar' + index
+          })
         })
-      })
+      }
     }
-  }, [bufferedArr, duration, videoEl])
+  }, [bufferedArr, duration, videoEl, inVrMode])
 
   // get video camera so we can attach video controls to it, so they move with the camera rotation
   useEffect(() => {
@@ -281,12 +287,12 @@ function Video360Room() {
         x: fullBar.position.x - 0.2
       })
 
-      setTimeline({
+      setTimeline(timeline => ({
+        ...timeline,
         fullBar,
         currentTimeBar,
         button: timelineButton
-        // bufferBar: bufferBar
-      })
+      }))
       videoCamera.setObject3D(fullBar.name, fullBar)
       videoCamera.setObject3D(currentTimeBar.name, currentTimeBar)
       videoCamera.setObject3D(timelineButton.name, timelineButton)
