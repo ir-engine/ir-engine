@@ -7,7 +7,8 @@ export const seed = {
     [
       { type: 'requested' }, // Default state of relatedUser
       { type: 'friend' },
-      { type: 'blocked' }
+      { type: 'blocking' }, // Blocking another user
+      { type: 'blocked' } // Blocked by other user
     ]
 }
 

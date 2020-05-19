@@ -1,10 +1,14 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../declarations'
 import {
+  NullableId,
   Params
 } from '@feathersjs/feathers'
 import { resolveModelData } from '../../util/model-resolver'
 import { Transaction, Sequelize } from 'sequelize'
+import config from 'config'
+
+const loggedInUserEntity: string = config.get('authentication.entity') || 'user'
 
 export class RelationRelation extends Service {
   app: Application
@@ -60,53 +64,60 @@ export class RelationRelation extends Service {
   }
 
   async create (data: any, params: Params): Promise<any> {
-    const { userId, relatedUserId, type } = data
+    const authUser = params[loggedInUserEntity]
+    const userId = authUser.userId
+    const { relatedUserId, userRelationshipType } = data
     const UserRelationshipModel = this.getModel(params)
     let result: any
 
     console.log('-----------create---------', userId, relatedUserId)
 
-    switch (data.action) {
-      case 'create':
-        await this.app.get('sequelizeClient').transaction(async (trans: Transaction) => {
-          result = await UserRelationshipModel.create({
-            userId,
-            relatedUserId,
-            type
-          }, {
-            transaction: trans
-          })
+    await this.app.get('sequelizeClient').transaction(async (trans: Transaction) => {
+      result = await UserRelationshipModel.create({
+        userId: userId,
+        relatedUserId: relatedUserId,
+        userRelationshipType
+      }, {
+        transaction: trans
+      })
 
-          await UserRelationshipModel.create({
-            userId: relatedUserId,
-            relatedUserId: userId,
-            type: 'requested'
-          }, {
-            transaction: trans
-          })
-        })
-        break
-      case 'update':
-        result = await UserRelationshipModel.update({
-          type
-        }, {
-          where: {
-            userId,
-            relatedUserId
-          }
-        })
-        break
-      case 'remove':
-        result = await UserRelationshipModel.destroy({
-          where: Sequelize.literal(
-            `(userId='${userId as string}' AND relatedUserId='${relatedUserId as string}') OR 
-             (userId='${relatedUserId as string}' AND relatedUserId='${userId as string}')`)
-        })
-        break
-      default:
-        break
-    }
+      await UserRelationshipModel.create({
+        userId: relatedUserId,
+        relatedUserId: userId,
+        userRelationshipType: userRelationshipType === 'blocking' ? 'blocked' : 'requested'
+      }, {
+        transaction: trans
+      })
+    })
 
     return result
+  }
+
+  async patch (id: NullableId, data: any, params: Params): Promise<any> {
+    const authUser = params[loggedInUserEntity]
+    const userId = authUser.userId
+    const { userRelationshipType } = data
+    const UserRelationshipModel = this.getModel(params)
+
+    return UserRelationshipModel.update({
+      userRelationshipType
+    }, {
+      where: {
+        userId: userId,
+        relatedUserId: id
+      }
+    })
+  }
+
+  async remove (id: NullableId, params: Params): Promise<any> {
+    const authUser = params[loggedInUserEntity]
+    const userId = authUser.userId
+    const UserRelationshipModel = this.getModel(params)
+
+    return UserRelationshipModel.destroy({
+      where: Sequelize.literal(
+          `(userId='${userId as string}' AND relatedUserId='${id as string}') OR 
+             (userId='${id as string}' AND relatedUserId='${userId as string}')`)
+    })
   }
 }
