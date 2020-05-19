@@ -3,6 +3,7 @@ import { Application } from '../../declarations'
 import {
   Params
 } from '@feathersjs/feathers'
+import { QueryTypes } from 'sequelize'
 
 export class User extends Service {
   app: Application
@@ -17,19 +18,63 @@ export class User extends Service {
     console.log(params.query)
     if (action === 'withRelation') {
       const userId = params.query?.userId
+      const search = params.query?.search as string
 
       delete params.query?.action
       delete params.query?.userId
-
-      params.query = {
-        ...params.query,
-        id: {
-          $nin: [userId]
-        }
-      }
+      delete params.query?.search
 
       const UserRelationshipModel = this.app.get('sequelizeClient').models.user_relationship
-      const foundUsers = await super.find(params)
+      let foundUsers: any
+
+      if (search && search !== '') {
+        const where = `id <> :userId 
+          AND (name LIKE :search 
+          OR id IN 
+            (SELECT userId FROM identity_provider 
+            WHERE \`token\` LIKE :search))`
+        const countQuery = `SELECT COUNT(id) FROM \`user\` WHERE ${where}`
+        const dataQuery = `SELECT * FROM \`user\` WHERE ${where} LIMIT :skip, :limit`
+
+        const total = await this.app.get('sequelizeClient').query(countQuery,
+          {
+            type: QueryTypes.SELECT,
+            raw: true,
+            replacements: {
+              userId,
+              search: `%${search}%`
+            }
+          })
+        foundUsers = await this.app.get('sequelizeClient').query(dataQuery,
+          {
+            type: QueryTypes.SELECT,
+            model: this.getModel(params),
+            mapToModel: true,
+            replacements: {
+              userId,
+              search: `%${search}%`,
+              skip: params.query?.$skip || 0,
+              limit: params.query?.$limit || 10
+            }
+          })
+
+        foundUsers = {
+          total,
+          limit: params.query?.$limit,
+          skip: params.query?.$skip,
+          data: foundUsers
+        }
+      } else {
+        params.query = {
+          ...params.query,
+          id: {
+            $nin: [userId]
+          }
+        }
+
+        foundUsers = await super.find(params)
+      }
+
       let users
       if (!Array.isArray(foundUsers)) {
         users = foundUsers.data
@@ -43,21 +88,21 @@ export class User extends Service {
             userId,
             relatedUserId: user.id
           },
-          attributes: ['type']
+          attributes: ['userRelationshipType']
         })
         const userInverseRelation = await UserRelationshipModel.findOne({
           where: {
             userId: user.id,
             relatedUserId: userId
           },
-          attributes: ['type']
+          attributes: ['userRelationshipType']
         })
 
         if (userRelation) {
-          Object.assign(user, { relationType: userRelation.type })
+          Object.assign(user, { relationType: userRelation.userRelationshipType })
         }
         if (userInverseRelation) {
-          Object.assign(user, { inverseRelationType: userInverseRelation.type })
+          Object.assign(user, { inverseRelationType: userInverseRelation.userRelationshipType })
         }
       }
 
