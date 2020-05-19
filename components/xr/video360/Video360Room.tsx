@@ -201,7 +201,6 @@ function Video360Room() {
   }, [videoEl])
   useEffect(() => {
     if (videoEl) {
-      console.log('buffered arr:', bufferedArr)
       const bufferEvent = new CustomEvent('buffer-change', {
         detail: {
           bufferedArr
