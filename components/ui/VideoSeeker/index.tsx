@@ -9,10 +9,10 @@ type Props = {
   onSeekChange?: (seekTimeSeconds: number) => void,
   videoLengthSeconds: number,
   currentTimeSeconds: number,
-  bufferPercentage: number
+  bufferedBars: Array<{start: number, end: number}>
 }
 
-const VideoSeeker = ({ playing, onTogglePlay, onSeekChange, videoLengthSeconds, currentTimeSeconds, bufferPercentage }: Props) => {
+const VideoSeeker = ({ playing, onTogglePlay, onSeekChange, videoLengthSeconds, currentTimeSeconds, bufferedBars }: Props) => {
   const [seekPercentage, setSeekPercentage] = useState(0)
 
   useEffect(() => {
@@ -25,9 +25,13 @@ const VideoSeeker = ({ playing, onTogglePlay, onSeekChange, videoLengthSeconds, 
         <div className="seek-bar full-bar" style={{
           width: '100%'
         }} />
-        <div className="seek-bar buffer-bar" style={{
-          width: bufferPercentage + '%'
-        }} />
+        {bufferedBars.map(({ start, end }, index) => <div
+          className="seek-bar buffer-bar"
+          key={'buffered-bar' + index}
+          style={{
+            left: start * 100 + '%',
+            width: (end - start) * 100 + '%'
+          }} />)}
         <div className="seek-bar current-time-bar" style={{
           width: seekPercentage + '%'
         }} />
