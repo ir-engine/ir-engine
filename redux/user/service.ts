@@ -24,14 +24,15 @@ export function getUserRelationship(userId: string) {
   }
 }
 
-export function getUsers(userId: string) {
+export function getUsers(userId: string, search: string) {
   return (dispatch: Dispatch) => {
     // dispatch(actionProcessing(true))
 
     client.service('user').find({
       query: {
         userId,
-        action: 'withRelation'
+        action: 'withRelation',
+        search
       }
     }).then((res: any) => {
       console.log('relations------', res)
@@ -44,13 +45,11 @@ export function getUsers(userId: string) {
   }
 }
 
-function createRelation(userId: string, relatedUserId: string, type: 'friend' | 'blocked') {
+function createRelation(userId: string, relatedUserId: string, type: 'friend' | 'blocking') {
   return (dispatch: Dispatch) => {
     client.service('user-relationship').create({
-      userId,
       relatedUserId,
-      type,
-      action: 'create'
+      userRelationshipType: type
     }).then((res: any) => {
       console.log('add relations------', res)
       dispatch(changedRelation())
@@ -64,14 +63,11 @@ function createRelation(userId: string, relatedUserId: string, type: 'friend' | 
 
 function removeRelation(userId: string, relatedUserId: string) {
   return (dispatch: Dispatch) => {
-    client.service('user-relationship').create({
-      userId,
-      relatedUserId,
-      action: 'remove'
-    }).then((res: any) => {
-      console.log('add relations------', res)
-      dispatch(changedRelation())
-    })
+    client.service('user-relationship').remove(relatedUserId)
+      .then((res: any) => {
+        console.log('add relations------', res)
+        dispatch(changedRelation())
+      })
       .catch((err: any) => {
         console.log(err)
       })
@@ -79,15 +75,12 @@ function removeRelation(userId: string, relatedUserId: string) {
   }
 }
 
-function updateRelation(userId: string, relatedUserId: string, type: 'friend') {
+function patchRelation(userId: string, relatedUserId: string, type: 'friend') {
   return (dispatch: Dispatch) => {
-    client.service('user-relationship').create({
-      userId,
-      relatedUserId,
-      type,
-      action: 'update'
+    client.service('user-relationship').patch(relatedUserId, {
+      userRelationshipType: type
     }).then((res: any) => {
-      console.log('add relations------', res)
+      console.log('Patching relationship to friend', res)
       dispatch(changedRelation())
     })
       .catch((err: any) => {
@@ -102,11 +95,11 @@ export function requestFriend(userId: string, relatedUserId: string) {
 }
 
 export function blockUser(userId: string, relatedUserId: string) {
-  return createRelation(userId, relatedUserId, 'blocked')
+  return createRelation(userId, relatedUserId, 'blocking')
 }
 
 export function acceptFriend(userId: string, relatedUserId: string) {
-  return updateRelation(userId, relatedUserId, 'friend')
+  return patchRelation(userId, relatedUserId, 'friend')
 }
 
 export function declineFriend(userId: string, relatedUserId: string) {
