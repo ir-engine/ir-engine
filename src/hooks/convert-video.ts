@@ -46,6 +46,8 @@ const s3BlobStore = new S3BlobStore({
   acl: 'public-read'
 })
 
+const stereoConversion = '-vf "stereo3d=sbsl:ml,transpose=1,setdar=16/9" '
+
 export default async (context: any): Promise<void> => {
   const { result, app } = context
 
@@ -139,7 +141,9 @@ export default async (context: any): Promise<void> => {
 
             localContext.data.metadata.thumbnail_url = localContext.result.metadata.thumbnail_url = (thumbnailUrlResult as any)[0]
 
-            thumbnailUploadResult = await uploadThumbnailLinkHook()(localContext)
+            const localContextClone = _.cloneDeep(localContext)
+            localContextClone.params.parentResourceId = result.id
+            thumbnailUploadResult = await uploadThumbnailLinkHook()(localContextClone)
 
             localContext.data.metadata.thumbnail_url = thumbnailUploadResult.params.thumbnailUrl
           }
@@ -148,7 +152,11 @@ export default async (context: any): Promise<void> => {
 
           try {
             // -hls_playlist 1 generates HLS playlist files as well. The master playlist is generated with the filename master.m3u8
-            await promiseExec('ffmpeg -i ' + rawVideoPath + ' -f dash -hls_playlist 1 -c:v libx264 -map 0:v:0 -map 0:a:0 -b:v:0 7000k -profile:v:0 main -use_timeline 1 -use_template 1 ' + dashManifestPath)
+            let ffmpegCommand = 'ffmpeg -i ' + rawVideoPath + ' -f dash -hls_playlist 1 '
+            const ffmpegCommandEnd = '-c:v libx264 -map 0:v:0 -map 0:a:0 -b:v:0 7000k -profile:v:0 main -use_timeline 1 -use_template 1 ' + dashManifestPath
+            if (localContext.data.metadata.stereoscopic === true) { ffmpegCommand += stereoConversion }
+            ffmpegCommand += ffmpegCommandEnd
+            await promiseExec(ffmpegCommand)
           } catch (err) {
             console.log('ffmpeg error')
             console.log(err)
@@ -178,6 +186,7 @@ export default async (context: any): Promise<void> => {
           throw err
         }
       } else {
+        const localFilePath = path.join(appRootPath.path, 'temp_videos', fileId)
         console.log('File already existed for ' + fileId + ', just making DB entries and updating URL')
         const s3Path = path.join('public', localContext.params.videoSource, fileId, 'video')
         const bucketObjects = await new Promise((resolve, reject) => {
@@ -196,14 +205,14 @@ export default async (context: any): Promise<void> => {
           })
         })
 
-        if (localContext.data.metadata.thumbnail_url == null) {
+        if (localContext.data.metadata.thumbnail_url == null || localContext.data.metadata.thumbnail_url.length === 0) {
           console.log('Getting thumbnail from youtube-dl')
-          const localFilePath = path.join(appRootPath.path, 'temp_videos', fileId)
           localContext.params.storageProvider = new StorageProvider()
           localContext.params.uploadPath = s3Path
+          await fs.promises.rmdir(localFilePath, { recursive: true })
+          await fs.promises.mkdir(localFilePath, { recursive: true })
 
           const thumbnailUrlResult = await new Promise((resolve, reject) => {
-            console.log('exec youtube-dl')
             youtubedl.exec(url,
               ['--get-thumbnail'],
               { cwd: localFilePath },
@@ -216,9 +225,13 @@ export default async (context: any): Promise<void> => {
               })
           })
 
+          console.log('Got thumbnail from yt-dl: ' + thumbnailUrlResult)
+
           localContext.data.metadata.thumbnail_url = localContext.result.metadata.thumbnail_url = (thumbnailUrlResult as any)[0]
 
-          thumbnailUploadResult = await uploadThumbnailLinkHook()(localContext)
+          const localContextClone = _.cloneDeep(localContext)
+          localContextClone.params.parentResourceId = result.id
+          thumbnailUploadResult = await uploadThumbnailLinkHook()(localContextClone)
 
           localContext.data.metadata.thumbnail_url = thumbnailUploadResult.params.thumbnailUrl
         } else {
@@ -256,6 +269,8 @@ export default async (context: any): Promise<void> => {
         })
 
         await Promise.all(creationPromises)
+
+        await fs.promises.rmdir(localFilePath, { recursive: true })
 
         console.log('All static-resources created')
 
