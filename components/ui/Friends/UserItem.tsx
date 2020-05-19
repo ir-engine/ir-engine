@@ -136,17 +136,17 @@ class UserItem extends React.Component<Props> {
                 </Typography>
               </Grid>
             }
-            {data.relationType === 'blocked' &&
+            {data.relationType === 'blocking' &&
               <Grid container direction="row">
                 <Grid xs item>
                   <Button variant="contained" color="primary" onClick={this.cancelBlock}>Cancel Block</Button>
                 </Grid>
               </Grid>
             }
-            {data.relationType === 'requested' && data.inverseRelationType !== 'friend' &&
+            {data.relationType === 'blocked' &&
               <Grid container direction="row">
                 <Typography variant="h6">
-                  Pending Block
+                  Blocked
                 </Typography>
               </Grid>
             }
