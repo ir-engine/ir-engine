@@ -1,21 +1,34 @@
 import React from 'react'
 import Router from 'next/router'
 import './VideoControls.scss'
+import VideoSeeker from '../../ui/VideoSeeker'
+import { connect } from 'react-redux'
+import { setVideoPlaying } from '../../../redux/video360/actions'
+import { selectVideo360State } from '../../../redux/video360/selector'
 
 type Props = {
   videosrc: string,
   videotext: string,
-  videovrui: string
+  videovrui: string,
+  setVideoPlaying: (playing: boolean) => void,
+  playing: boolean
 }
 type State = {
-  playing: boolean,
-  end: boolean
+  end: boolean,
+  // setInterval id
+  tickId: any,
+  // duration of video in seconds
+  duration: number,
+  // current time of video in seconds
+  currentTime: number,
 }
 
-export default class Video360Room extends React.Component<Props, State> {
+class VideoControls extends React.Component<Props, State> {
   state: State = {
-    playing: false,
-    end: false
+    end: false,
+    tickId: null,
+    duration: 0,
+    currentTime: 0
   }
 
   videoEl: HTMLElement | null = null
@@ -35,17 +48,38 @@ export default class Video360Room extends React.Component<Props, State> {
 
   render() {
     return (
-      <div onClick={ this.clickHandler.bind(this) }
-        id="videoplayercontrols"
-        className="videoplayercontrols active">
-      </div>
+      <>
+        <div onClick={this.clickHandler.bind(this)}
+          id="videoplayercontrols"
+          className="videoplayercontrols active">
+        </div>
+        <VideoSeeker
+          playing={this.props.playing}
+          videoLengthSeconds={this.state.duration}
+          currentTimeSeconds={this.state.currentTime}
+          bufferPercentage={0}
+          onTogglePlay={playing => {
+            if (playing) {
+              this.playHandler()
+            } else {
+              this.pauseHandler()
+            }
+          }}
+          onSeekChange={t => {
+            (this.videoEl as HTMLVideoElement).currentTime = t
+            this.setState({
+              currentTime: t
+            })
+          }}
+        />
+      </>
     )
   }
 
   private clickHandler() {
     if (this.state.end) {
       this.exitVideoHandler()
-    } else if (!this.state.playing) {
+    } else if (!this.props.playing) {
       this.playHandler()
     }
   }
@@ -58,11 +92,13 @@ export default class Video360Room extends React.Component<Props, State> {
 
     this.textEl?.setAttribute('visible', false)
     this.videoEl?.addEventListener('ended', this.videoEndHandler.bind(this), { once: true })
-    this.setState({ playing: true })
+    // set playing in redux
+    this.props.setVideoPlaying(true)
   }
 
   pauseHandler() {
     (this.videoEl as HTMLVideoElement)?.pause()
+    this.props.setVideoPlaying(false)
   }
 
   private videoEndHandler() {
@@ -73,12 +109,27 @@ export default class Video360Room extends React.Component<Props, State> {
     controller.classList.add('active')
     this.textEl?.setAttribute('text', { value: 'END\n\nclick to exit' })
     this.textEl?.setAttribute('visible', true)
-    this.setState({ playing: false, end: true })
+    this.setState({ end: true })
+    this.props.setVideoPlaying(false)
   }
 
   private videoPlayHandler() {
     this.videovruiEl?.setAttribute('video-player-vr-ui', {
       isPlaying: true
+    })
+    // if duration has not been set in state, get this from the video element.
+    if (!this.state.duration) {
+      this.setState({
+        duration: (this.videoEl as HTMLVideoElement).duration
+      })
+    }
+    // when playing, every 1/3 second, update current time in state.
+    this.setState({
+      tickId: setInterval(() => {
+        this.setState({
+          currentTime: (this.videoEl as HTMLVideoElement).currentTime
+        })
+      }, 333)
     })
   }
 
@@ -86,9 +137,21 @@ export default class Video360Room extends React.Component<Props, State> {
     this.videovruiEl?.setAttribute('video-player-vr-ui', {
       isPlaying: false
     })
+    // when paused, don't continue updating current time in state.
+    clearInterval(this.state.tickId)
   }
 
   private exitVideoHandler() {
     Router.push('/explore')
   }
 }
+const mapDispatchToProps = {
+  setVideoPlaying
+}
+const mapStateToProps = state => {
+  return {
+    playing: selectVideo360State(state).get('playing')
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(VideoControls)
