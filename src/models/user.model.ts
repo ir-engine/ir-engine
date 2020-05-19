@@ -39,8 +39,9 @@ export default (app: Application): any => {
     (User as any).belongsToMany(models.group_user_rank, { through: models.group_user }); // user can join multiple orgs
     (User as any).hasMany(models.identity_provider);
     (User as any).hasMany(models.asset, { foreignKey: 'account_id' });
-    (User as any).hasMany(models.owned_file, { foreignKey: 'account_id' })
-    // (User as any).hasMany(models.conversation, { foreignKey: 'sender_id' })
+    (User as any).hasMany(models.owned_file, { foreignKey: 'account_id' });
+    (User as any).hasMany(models.conversation)
+    // (User as any).hasMany(models.conversation, { as: 'seconduser', foreignKey: 'user2', required: false })
   }
 
   return User

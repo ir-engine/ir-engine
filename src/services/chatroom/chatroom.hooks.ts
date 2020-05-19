@@ -1,4 +1,5 @@
 import * as authentication from '@feathersjs/authentication'
+import addOnlineUsers from '../../hooks/add-online-users'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks
@@ -16,7 +17,7 @@ export default {
 
   after: {
     all: [],
-    find: [],
+    find: [addOnlineUsers()],
     get: [],
     create: [],
     update: [],

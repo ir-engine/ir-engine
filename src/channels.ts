@@ -1,6 +1,7 @@
 import '@feathersjs/transport-commons'
 import { HookContext } from '@feathersjs/feathers'
 import { Application } from './declarations'
+import { Op } from 'sequelize'
 
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
@@ -25,6 +26,19 @@ export default (app: Application): void => {
 
       // Add it to the authenticated user channel
       app.channel('authenticated').join(connection)
+
+      const userId = connection['identity-provider'].userId
+
+      app.service('conversation').Model.findAll({
+        where: {
+          [Op.or]: [{ firstuserId: userId }, { seconduserId: userId }]
+        }
+      }).then((res: any) => {
+        res.forEach((cnvrs: { id: any }) => {
+          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+          app.channel(`chatroom/${cnvrs.id}`).join(connection)
+        })
+      })
 
       // Channels can be named anything and joined on any condition
 
@@ -67,10 +81,8 @@ export default (app: Application): void => {
   //   ]
   // })
 
-  app.service('chatroom').publish('created', data => {
+  app.service('message').publish('created', data => {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    return app.channel(`userIds/${data.sender_id}`).send({
-      conversation: data.conversation
-    })
+    return app.channel(`chatroom/${data.conversation.id}`).send(data)
   })
 }

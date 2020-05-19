@@ -53,7 +53,7 @@ import Scene from './scene/scene.service'
 import SceneListing from './scene-listing/scene-listing.service'
 import UploadMedia from './upload-media/upload-media.service'
 
-import Messages from './messages/messages.service'
+import Message from './message/message.service'
 
 import Conversation from './conversation/conversation.service'
 
@@ -90,6 +90,10 @@ export default (app: Application): void => {
   app.configure(UserRelationship)
   app.configure(UserRole)
   app.configure(UserSettings)
+  app.configure(Message)
+  app.configure(Conversation)
+  app.configure(ChatRoom)
+  app.configure(MessageStatus)
   // Junctions
   app.configure(PartyUser)
   app.configure(GroupUser)
@@ -113,8 +117,4 @@ export default (app: Application): void => {
   app.configure(UploadMedia)
   app.configure(PublishProject)
   app.configure(GraphQL)
-  app.configure(Messages)
-  app.configure(Conversation)
-  app.configure(ChatRoom)
-  app.configure(MessageStatus)
 }

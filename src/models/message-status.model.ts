@@ -14,11 +14,11 @@ export default (app: Application): any => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    messageId: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
     isRead: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    isDelivered: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     }
@@ -32,7 +32,7 @@ export default (app: Application): any => {
 
   // eslint-disable-next-line no-unused-vars
   (messageStatus as any).associate = function (models: any) {
-    (messageStatus as any).belongsTo(models.messages, { foreignKey: 'messageId' })
+    (messageStatus as any).belongsTo(models.message)
   }
 
   return messageStatus
