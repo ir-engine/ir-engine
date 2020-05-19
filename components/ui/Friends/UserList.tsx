@@ -132,7 +132,7 @@ class UserList extends React.Component<Props> {
          <Grid container alignItems="center">
            <Grid item xs>
              <Typography variant="body2">
-              There is search users.
+              No users matched your search.
              </Typography>
            </Grid>
          </Grid>
