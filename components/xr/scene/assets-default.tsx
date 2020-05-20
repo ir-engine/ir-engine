@@ -58,12 +58,10 @@ const DefaultAssets = () => {
   const [numLoaded, setNumLoaded] = useState(0)
   const totalToLoad = images.length + entities.length// + videos.length;
   const dispatch = useDispatch()
-  const handleAssetLoaded = (e) => {
-    console.log('loaded', e.target)
+  const handleAssetLoaded = () => {
     setNumLoaded(numLoaded => numLoaded + 1)
   }
   useEffect(() => {
-    console.log('loaded percent:', (numLoaded / totalToLoad) * 100 + '%')
     // save in redux so loading bar can use it
     dispatch(setAppLoadPercent((numLoaded / totalToLoad) * 100))
   }, [numLoaded, totalToLoad])
