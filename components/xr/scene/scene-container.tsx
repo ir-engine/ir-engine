@@ -42,7 +42,7 @@ export default function SceneContainer({ children }: Props): any {
   }, [navigateToUrl])
   useEffect(() => {
     if (loaded) {
-      setAppLoadPercent(0)
+      dispatch(setAppLoadPercent(0))
     }
   }, [loaded])
   return (
