@@ -108,7 +108,7 @@ class MyFriends extends React.Component<Props> {
 
         { friends && friends.length > 0 &&
           friends.map((friend) => {
-            return <UserItem key={'frend_' + friend.id} data={friend}/>
+            return <UserItem key={'friend_' + friend.id} data={friend}/>
           })
         }
         { requested && requested.length > 0 &&
@@ -121,7 +121,7 @@ class MyFriends extends React.Component<Props> {
          <Grid container alignItems="center">
            <Grid item xs>
              <Typography variant="body2">
-              There is no friends. Please add the friends.
+              Add some friends!
              </Typography>
            </Grid>
          </Grid>

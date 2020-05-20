@@ -1,6 +1,6 @@
 import { IdentityProvider } from './IdentityProvider'
 
-export type RelationshipType = 'friend' | 'requested' | 'blocked'
+export type RelationshipType = 'friend' | 'requested' | 'blocked' | 'blocking'
 export type User = {
   id: string
   avatar: string
