@@ -23,7 +23,9 @@ class PageLoader extends React.Component<PageLoaderProps> {
       require('aframe')
       this.setState({ aframeReady: true })
       window.addEventListener('resize', this.onResize)
-      this.onResize()
+      // The below line breaks login for some reason.
+      // Unsure if it's necessary, leaving it in but commented out for now.
+      // this.onResize()
       return () => {
         window.removeEventListener('resize', this.onResize)
       }
