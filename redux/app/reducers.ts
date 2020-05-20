@@ -4,7 +4,8 @@ import {
 } from './actions'
 
 import {
-  SET_APP_LOADED
+  SET_APP_LOADED,
+  SET_APP_LOADING_PERCENT
 } from '../actions'
 
 type AppState = {
@@ -22,6 +23,9 @@ const appReducer = (state = immutableState, action: AppLoadedAction): AppState =
     case SET_APP_LOADED:
       return state
         .set('loaded', action.loaded)
+    case SET_APP_LOADING_PERCENT:
+      return state
+        .set('loadPercent', action.loadPercent)
     default:
       break
   }

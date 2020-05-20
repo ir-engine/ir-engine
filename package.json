@@ -18,8 +18,8 @@
   },
   "peerDependencies": {
     "@material-ui/react-transition-group": "~4.3.0",
-    "react-transition-group": "~4.3.0",
-    "ecsy": "github:xrchat/ecsy#dev"
+    "ecsy": "github:xrchat/ecsy#dev",
+    "react-transition-group": "~4.3.0"
   },
   "dependencies": {
     "@apollo/react-hooks": "^3.1.5",
@@ -85,6 +85,7 @@
     "react-router-dom": "^5.1.2",
     "react-transition-group": "~4.3.0",
     "redux": "^4.0.5",
+    "redux-devtools-extension": "^2.13.8",
     "redux-immutable": "^4.0.0",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
