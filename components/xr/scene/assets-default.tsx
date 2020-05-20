@@ -2,7 +2,7 @@
 import { Entity } from 'aframe-react'
 import getConfig from 'next/config'
 import { useState, useEffect } from 'react'
-import { setAppLoadingPercent } from '../../../redux/app/actions'
+import { setAppLoadPercent } from '../../../redux/app/actions'
 import { useDispatch } from 'react-redux'
 const env = getConfig().publicRuntimeConfig.xr.environment
 const grid = getConfig().publicRuntimeConfig.xr.grid
@@ -65,7 +65,7 @@ const DefaultAssets = () => {
   useEffect(() => {
     console.log('loaded percent:', (numLoaded / totalToLoad) * 100 + '%')
     // save in redux so loading bar can use it
-    dispatch(setAppLoadingPercent((numLoaded / totalToLoad) * 100))
+    dispatch(setAppLoadPercent((numLoaded / totalToLoad) * 100))
   }, [numLoaded, totalToLoad])
   return (
     <>
