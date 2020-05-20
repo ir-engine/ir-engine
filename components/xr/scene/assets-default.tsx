@@ -2,6 +2,8 @@
 import { Entity } from 'aframe-react'
 import getConfig from 'next/config'
 import { useState, useEffect } from 'react'
+import { setAppLoadingPercent } from '../../../redux/app/actions'
+import { useDispatch } from 'react-redux'
 const env = getConfig().publicRuntimeConfig.xr.environment
 const grid = getConfig().publicRuntimeConfig.xr.grid
 
@@ -55,6 +57,7 @@ const videos = [
 const DefaultAssets = () => {
   const [numLoaded, setNumLoaded] = useState(0)
   const totalToLoad = images.length + entities.length// + videos.length;
+  const dispatch = useDispatch()
   const handleAssetLoaded = (e) => {
     console.log('loaded', e.target)
     setNumLoaded(numLoaded => numLoaded + 1)
@@ -62,6 +65,7 @@ const DefaultAssets = () => {
   useEffect(() => {
     console.log('loaded percent:', (numLoaded / totalToLoad) * 100 + '%')
     // save in redux so loading bar can use it
+    dispatch(setAppLoadingPercent((numLoaded / totalToLoad) * 100))
   }, [numLoaded, totalToLoad])
   return (
     <>
