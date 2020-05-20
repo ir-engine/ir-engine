@@ -1,12 +1,13 @@
 import { useSelector, useDispatch } from 'react-redux'
-import { selectAppState } from '../../../redux/app/selector'
-import { setAppLoaded, setAppInVrMode } from '../../../redux/app/actions'
+import { selectAppState, selectAppLoadPercent } from '../../../redux/app/selector'
+import { setAppLoaded, setAppLoadPercent, setAppInVrMode } from '../../../redux/app/actions'
 import { Scene } from 'aframe-react'
 import SvgVr from '../../icons/svg/Vr'
 import LoadingScreen from '../../ui/Loader'
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import isExternalUrl from '../../../utils/isExternalUrl'
+import LoadingBar from '../../ui/LoadingBar'
 
 type Props = {
   children: any
@@ -15,6 +16,7 @@ export default function SceneContainer({ children }: Props): any {
   const dispatch = useDispatch()
   const loaded = useSelector(state => selectAppState(state)).get('loaded')
   const setLoaded = loaded => dispatch(setAppLoaded(loaded))
+  const loadPercent = useSelector(state => selectAppLoadPercent(state))
   const setInVrMode = inVrMode => dispatch(setAppInVrMode(inVrMode))
   const router = useRouter()
   const navigateToUrl = e => {
@@ -38,9 +40,18 @@ export default function SceneContainer({ children }: Props): any {
       document.removeEventListener('navigate', navigateToUrl)
     }
   }, [navigateToUrl])
+  useEffect(() => {
+    if (loaded) {
+      dispatch(setAppLoadPercent(0))
+    }
+  }, [loaded])
   return (
     <>
-      {!loaded && <LoadingScreen />}
+      {!loaded && (<>
+        <LoadingScreen />
+        <LoadingBar loadPercent={loadPercent} />
+      </>)}
+
       <Scene
         vr-mode-ui="enterVRButton: #enterVRButton"
         class="scene"

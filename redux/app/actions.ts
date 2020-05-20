@@ -1,16 +1,17 @@
 import {
   SET_APP_LOADED,
+  SET_APP_LOADING_PERCENT,
   SET_VIEWPORT_SIZE,
   SET_IN_VR_MODE
 } from '../actions'
 
 type Action = {
   type: string,
-  [payload: string]: any
+  [key:string]: any,
 }
-
 export interface AppLoadedAction extends Action {
-  loaded: boolean,
+  loaded: boolean
+  [payload: string]: any
 }
 
 export interface SetViewportAction extends Action {
@@ -19,9 +20,14 @@ export interface SetViewportAction extends Action {
     height: number
   }
 }
+export interface AppLoadPercentAction extends Action {
+  loadPercent: number
+}
 // used for displaying loading screen
 
-export const setAppLoaded = (loaded: boolean): AppLoadedAction => ({ type: SET_APP_LOADED, loaded })
+export const setAppLoaded = (loaded: boolean):AppLoadedAction => ({ type: SET_APP_LOADED, loaded })
+
+export const setAppLoadPercent = (loadPercent: number):AppLoadPercentAction => ({ type: SET_APP_LOADING_PERCENT, loadPercent })
 
 // used for getting window.innerWidth and height.
 
