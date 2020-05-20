@@ -17,4 +17,4 @@ export interface AppLoadPercentAction extends Action {
 
 export const setAppLoaded = (loaded: boolean):AppLoadedAction => ({ type: SET_APP_LOADED, loaded })
 
-export const setAppLoadingPercent = (loadPercent: number):AppLoadPercentAction => ({ type: SET_APP_LOADING_PERCENT, loadPercent })
+export const setAppLoadPercent = (loadPercent: number):AppLoadPercentAction => ({ type: SET_APP_LOADING_PERCENT, loadPercent })
