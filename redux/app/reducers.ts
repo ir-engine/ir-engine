@@ -6,6 +6,7 @@ import {
 
 import {
   SET_APP_LOADED,
+  SET_APP_LOADING_PERCENT,
   SET_VIEWPORT_SIZE,
   SET_IN_VR_MODE
 } from '../actions'
@@ -35,6 +36,9 @@ const appReducer = (state = immutableState, action: AppLoadedAction | SetViewpor
     case SET_APP_LOADED:
       return state
         .set('loaded', action.loaded)
+    case SET_APP_LOADING_PERCENT:
+      return state
+        .set('loadPercent', action.loadPercent)
     case SET_VIEWPORT_SIZE:
       return state
         .set('viewport', { width: action.width, height: action.height })

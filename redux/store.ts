@@ -3,13 +3,15 @@ import { saveState } from './persisted.store'
 import thunkMiddleware from 'redux-thunk'
 import reducers from './reducers'
 import Immutable from 'immutable'
+import { composeWithDevTools } from 'redux-devtools-extension'
 
 const initialState: any = Immutable.Map()
-
+const middleware = applyMiddleware(thunkMiddleware)
 const store = createStore(
   reducers,
   initialState,
-  applyMiddleware(thunkMiddleware)
+  // if not production, enable redux dev tools.
+  process.env.NODE_ENV === 'production' ? middleware : composeWithDevTools(middleware)
 )
 
 export function configureStore() {
