@@ -2,7 +2,7 @@
 import App, { AppProps } from 'next/app'
 import Head from 'next/head'
 // eslint-disable-next-line
-import React, { ComponentType } from 'react'
+import React from 'react'
 import withRedux from 'next-redux-wrapper'
 import { Provider } from 'react-redux'
 
@@ -17,33 +17,9 @@ import { restoreState } from '../redux/persisted.store'
 import { doLoginAuto } from '../redux/auth/service'
 
 import getConfig from 'next/config'
+import PageLoader from '../components/xr/scene/page-loader'
 
 const config = getConfig().publicRuntimeConfig
-// requires aframe only once and renders the page, passing 'aframeReady' boolean
-type PageLoaderProps = {
-  Component: ComponentType
-  pageProps: any
-}
-
-class PageLoader extends React.Component<PageLoaderProps> {
-  state = {
-    aframeReady: false
-  }
-
-  componentDidMount() {
-    // load aframe only once
-    // each page will no longer need to require aframe
-    if (typeof window !== 'undefined') {
-      require('aframe')
-      this.setState({ aframeReady: true })
-    }
-  }
-
-  render() {
-    const { Component, pageProps } = this.props
-    return <Component {...pageProps} aframeReady={this.state.aframeReady} />
-  }
-}
 
 interface Props extends AppProps {
   store: Store

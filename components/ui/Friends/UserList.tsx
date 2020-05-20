@@ -13,6 +13,9 @@ import UserItem from './UserItem'
 import {
   getUsers
 } from '../../../redux/user/service'
+import { TextField, InputAdornment } from '@material-ui/core'
+import SearchIcon from '@material-ui/icons/Search'
+import { debounce } from 'lodash'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -47,12 +50,25 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 class UserList extends React.Component<Props> {
   state = {
-    userId: undefined
+    userId: undefined,
+    search: ''
   }
+
+  onSearch = (e: any) => {
+    this.setState({
+      search: e.target.value
+    })
+
+    this.debouncedSearch()
+  }
+
+  debouncedSearch = debounce(() => {
+    this.props.getUsers(this.state.userId, this.state.search)
+  }, 500);
 
   loadUsers(userId: string, forceUpdate: boolean) {
     if (userId && (forceUpdate || (userId !== this.state.userId && userId && userId !== ''))) {
-      this.props.getUsers(userId)
+      this.props.getUsers(userId, '')
 
       this.setState({
         userId
@@ -79,7 +95,6 @@ class UserList extends React.Component<Props> {
     const { classes, userState } = this.props
     const users = userState.get('users')
 
-    console.log('-----------render----------', users?.length)
     return (
       <div className={classes.root}>
         <div className={classes.section1}>
@@ -93,6 +108,19 @@ class UserList extends React.Component<Props> {
         </div>
 
         <Divider variant="middle" />
+        <TextField
+          label="Search"
+          type="search"
+          variant="outlined"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            )
+          }}
+          onChange={this.onSearch}
+        />
 
         { users && users.length > 0 &&
           users.map((user: User) => {
@@ -104,7 +132,7 @@ class UserList extends React.Component<Props> {
          <Grid container alignItems="center">
            <Grid item xs>
              <Typography variant="body2">
-              There is search users.
+              No users matched your search.
              </Typography>
            </Grid>
          </Grid>

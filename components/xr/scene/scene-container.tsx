@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux'
 import { selectAppState, selectAppLoadPercent } from '../../../redux/app/selector'
-import { setAppLoaded, setAppLoadPercent } from '../../../redux/app/actions'
+import { setAppLoaded, setAppLoadPercent, setAppInVrMode } from '../../../redux/app/actions'
 import { Scene } from 'aframe-react'
 import SvgVr from '../../icons/svg/Vr'
 import LoadingScreen from '../../ui/Loader'
@@ -17,6 +17,7 @@ export default function SceneContainer({ children }: Props): any {
   const loaded = useSelector(state => selectAppState(state)).get('loaded')
   const setLoaded = loaded => dispatch(setAppLoaded(loaded))
   const loadPercent = useSelector(state => selectAppLoadPercent(state))
+  const setInVrMode = inVrMode => dispatch(setAppInVrMode(inVrMode))
   const router = useRouter()
   const navigateToUrl = e => {
     let url = e.detail.url
@@ -58,7 +59,9 @@ export default function SceneContainer({ children }: Props): any {
         background="color: #FAFAFA"
         loading-screen="enabled: false"
         events={{
-          loaded: () => setLoaded(true)
+          loaded: () => setLoaded(true),
+          'enter-vr': () => setInVrMode(true),
+          'exit-vr': () => setInVrMode(false)
         }}
       >
         {children}
