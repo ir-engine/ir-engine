@@ -8,4 +8,3 @@ export const selectAppLoadPercent = createSelector([selectLoadPercent], loadPerc
 
 const selectInVrModeFn = (state: any) => state.getIn(['app', 'inVrMode'])
 export const selectInVrModeState = createSelector([selectInVrModeFn], inVrMode => inVrMode)
-
