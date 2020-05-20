@@ -26,8 +26,8 @@ function getManifestUri(manifestPath: string): string {
 const barHeight = 0.12
 
 const loader = new THREE.TextureLoader()
-// TODO: find if there is an SVGLoader and see if you can use that
-// TODO: download image directly into project so it's not referencing external resources
+// TODO: make pause/play icons the same for CSS and VR versions.
+// currently CSS is using MUI icons, and VR is using images in public/icons/
 const playBtnImageSrc = '/icons/play.png'
 const pauseBtnImageSrc = '/icons/pause.png'
 const playBtnImageMap = loader.load(playBtnImageSrc)
@@ -37,6 +37,17 @@ const mouse = new THREE.Vector2()
 const videoControlsPosition = {
   y: -2,
   z: -4
+}
+
+function getArrayFromTimeRanges(timeRanges) {
+  const output = []
+  for (let i = 0; i < timeRanges.length; i++) {
+    output.push({
+      start: timeRanges.start(i),
+      end: timeRanges.end(i)
+    })
+  }
+  return output
 }
 
 function Video360Room() {
@@ -65,9 +76,10 @@ function Video360Room() {
   const [timeline, setTimeline] = useState(null)
   const video360State = useSelector(state => selectVideo360State(state))
   const [playing, setPlaying] = useState(false)
-  const [duration, setDuration] = useState(1)
+  const [duration, setDuration] = useState(9999)
   const [currentTime, setCurrentTime] = useState(0)
-
+  const [bufferedArr, setBufferedArr] = useState([])
+  const [bufferedBars, setBufferedBars] = useState([])
   // for resizing bar based on width of screen (window.innerWidth)
   function getBarFullWidth(width) {
     return width / 200
@@ -91,6 +103,81 @@ function Video360Room() {
 
     setTimelineWidth(meshTimeline, width * t)
     return meshTimeline
+  }
+  function createBufferedBar({ xStart, width, height, name }) {
+    const matBufferedBar = new THREE.MeshBasicMaterial({
+      side: THREE.FrontSide,
+      transparent: true,
+      opacity: 0.5,
+      color: 0xffffff,
+      morphTargets: true
+    })
+
+    const minWidth = 0.001 * width
+    const geomBufferedBar = new THREE.PlaneBufferGeometry(minWidth, height)
+    geomBufferedBar.translate(minWidth / 2, 0, 0)
+    geomBufferedBar.morphAttributes.position = []
+
+    const bufferedPositions = geomBufferedBar.attributes.position.array
+    const bufferedMorphPositions = []
+
+    const minWidthPercent = 0.001
+    for (let j = 0; j < bufferedPositions.length; j += 3) {
+      const x = bufferedPositions[j]
+      const y = bufferedPositions[j + 1]
+      const z = bufferedPositions[j + 2]
+      bufferedMorphPositions.push(
+        x / minWidthPercent,
+        y,
+        z
+      )
+    }
+
+    geomBufferedBar.morphAttributes.position[0] = new THREE.Float32BufferAttribute(bufferedMorphPositions, 3)
+
+    const meshBufferedBar = new THREE.Mesh(geomBufferedBar, matBufferedBar)
+    meshBufferedBar.name = name
+    meshBufferedBar.position.z = videoControlsPosition.z
+    meshBufferedBar.position.y = videoControlsPosition.y
+    // translate geom positions so that it can grow from the left
+    meshBufferedBar.position.x = width * (-1 / 2 + xStart)
+
+    setBufferedBars(bars => [...bars, meshBufferedBar])
+    videoCamera.setObject3D(meshBufferedBar.name, meshBufferedBar)
+    setTimeline(timeline => ({
+      ...timeline,
+      [name]: meshBufferedBar
+    }))
+    return meshBufferedBar
+  }
+
+  function updateBuffered() {
+    let i = 0
+    const bufferedLengths = bufferedArr.length
+
+    const currentBufferedIndices = []
+    bufferedBars.forEach(obj => currentBufferedIndices.push(+obj.name.match(/\d+$/)))
+
+    while (i < bufferedLengths) {
+      const start = bufferedArr[i].start
+      const end = bufferedArr[i].end
+      if (currentBufferedIndices.includes(i)) {
+        const meshBuffered = bufferedBars[i]
+        meshBuffered.position.x = (-1 / 2 + (start / duration)) * getBarFullWidth(viewport.width)
+        const bufferedPercent = (end - start) / duration
+        meshBuffered.morphTargetInfluences[0] = bufferedPercent
+      } else {
+        if (start !== undefined && end !== undefined) {
+          createBufferedBar({
+            xStart: start / duration,
+            width: getBarFullWidth(viewport.width),
+            height: barHeight,
+            name: 'bufferedBar' + i
+          })
+        }
+      }
+      i++
+    }
   }
   function createTimelineButton({ name, x, size }) {
     const matButton = new THREE.MeshBasicMaterial({
@@ -142,12 +229,36 @@ function Video360Room() {
         const tickId = setInterval(() => {
           setCurrentTime((videoEl as HTMLVideoElement).currentTime)
         }, 333)
+
         return () => {
           clearInterval(tickId)
         }
       }
     }
   }, [videosrc, playing, videoEl, timeline])
+  useEffect(() => {
+    if (videoEl) {
+      const bufferedTickId = setInterval(() => {
+        setBufferedArr(getArrayFromTimeRanges((videoEl as HTMLVideoElement).buffered))
+      }, 1000)
+      return () => {
+        clearInterval(bufferedTickId)
+      }
+    }
+  }, [videoEl])
+  useEffect(() => {
+    if (videoEl) {
+      const bufferEvent = new CustomEvent('buffer-change', {
+        detail: {
+          bufferedArr
+        }
+      })
+      videoEl.dispatchEvent(bufferEvent)
+      if (inVrMode) {
+        updateBuffered()
+      }
+    }
+  }, [bufferedArr, duration, videoEl, inVrMode])
 
   // get video camera so we can attach video controls to it, so they move with the camera rotation
   useEffect(() => {
@@ -210,12 +321,12 @@ function Video360Room() {
         x: fullBar.position.x - 0.2
       })
 
-      setTimeline({
+      setTimeline(timeline => ({
+        ...timeline,
         fullBar,
         currentTimeBar,
         button: timelineButton
-        // bufferBar: bufferBar
-      })
+      }))
       videoCamera.setObject3D(fullBar.name, fullBar)
       videoCamera.setObject3D(currentTimeBar.name, currentTimeBar)
       videoCamera.setObject3D(timelineButton.name, timelineButton)
