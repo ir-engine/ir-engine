@@ -23,7 +23,7 @@ export default {
         if (!context.data.uri && context.params.file) {
           const file = context.params.file
           const uri = dauria.getBase64DataURI(file.buffer, file.mimetype)
-          const mimeType = context.data.mime_type ?? file.mimetype
+          const mimeType = context.data.mimeType ?? file.mimetype
           const name = context.data.name ?? file.name
           context.data = { uri: uri, mimeType: mimeType, name: name }
         }

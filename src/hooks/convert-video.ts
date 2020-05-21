@@ -79,10 +79,11 @@ export default async (context: any): Promise<void> => {
     let thumbnailUploadResult: any
     const localContext = _.cloneDeep(context)
 
+    localContext.data.subscriptionLevel = localContext.data.subscriptionLevel ? localContext.data.subscriptionLevel : 'all'
     localContext.params.storageProvider = new StorageProvider()
     localContext.params.uploadPath = path.join('public', localContext.params.videoSource, fileId, 'video')
 
-    if (context.data.metadata.thumbnail_url != null && context.data.metadata.thumbnail_url.length > 0) {
+    if (localContext.data.metadata.thumbnail_url != null && localContext.data.metadata.thumbnail_url.length > 0) {
       thumbnailUploadResult = await uploadThumbnailLinkHook()(localContext)
       localContext.params.thumbnailUrl = localContext.data.metadata.thumbnail_url = thumbnailUploadResult.params.thumbnailUrl
     }
@@ -247,9 +248,9 @@ export default async (context: any): Promise<void> => {
           const mimetype = mimetypeDict[extension]
 
           localContext.data.url = s3.endpoint.href + path.join(s3BlobStore.bucket, key)
-          localContext.data.mime_type = mimetype
+          localContext.data.mimeType = mimetype
 
-          localContext.params.mime_type = mimetype
+          localContext.params.mimeType = mimetype
           localContext.params.uploadPath = s3Path
 
           if (extension === 'mpd') {
@@ -314,10 +315,10 @@ const uploadFile = async (localFilePath: string, fileId: string, context: any, a
             localContext.params.body = {
               name: file,
               metadata: localContext.data.metadata,
-              mime_type: mimetype
+              mimeType: mimetype
             }
 
-            localContext.params.mime_type = mimetype
+            localContext.params.mimeType = mimetype
             localContext.params.storageProvider = new StorageProvider()
             localContext.params.uploadPath = path.join('public', localContext.params.videoSource, fileId, 'video')
 

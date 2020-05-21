@@ -22,7 +22,7 @@ export default (app: Application): any => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    mime_type: {
+    mimeType: {
       type: DataTypes.STRING,
       allowNull: false
     },
@@ -43,7 +43,8 @@ export default (app: Application): any => {
     (staticResource as any).belongsTo(models.attribution);
     (staticResource as any).belongsToMany(models.component, { through: 'static_resource_component' });
     (staticResource as any).belongsTo(models.user);
-    (staticResource as any).hasMany(models.static_resource, { as: 'parent', foreignKey: 'parentResourceId', allowNull: true })
+    (staticResource as any).hasMany(models.static_resource, { as: 'parent', foreignKey: 'parentResourceId', allowNull: true });
+    (staticResource as any).belongsTo(models.subscription_level, { foreignKey: 'subscriptionLevel' })
   }
 
   return staticResource

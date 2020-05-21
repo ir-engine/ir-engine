@@ -20,7 +20,8 @@ export default (options = {}): Hook => {
         size: fileBuffer.byteLength
       }
 
-      context.params.mime_type = context.params.file.mimetype = 'image/' + extension
+      context.params.mimeType = context.params.file.mimetype = 'image/' + extension
+      context.params.subscriptionLevel = context.data.subscriptionLevel
       context.data.name = context.params.file.originalname
       context.data.metadata = context.data.metadata ? context.data.metadata : {}
       context.data.parentResourceId = context.params.parentResourceId

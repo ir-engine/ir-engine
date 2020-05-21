@@ -22,7 +22,7 @@ const createOwnedFile = (options = {}) => {
       owned_file_id: body.fileId,
       name: data.name || body.name,
       key: data.uri || data.url,
-      content_type: data.mime_type || params.mime_type,
+      content_type: data.mimeType || params.mimeType,
       metadata: data.metadata || body.metadata,
       state: 'active',
       content_length: params.file.size

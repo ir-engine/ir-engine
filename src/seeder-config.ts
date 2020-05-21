@@ -7,6 +7,7 @@ import GroupUserRankSeed from './services/group-user-rank/group-user-rank.seed'
 import IdentityProviderTypeSeed from './services/identity-provider-type/identity-provider-type.seed'
 import ResourceTypeSeed from './services/resource-type/resource-type.seed'
 import StaticResourceTypeSeed from './services/static-resource-type/static-resource-type.seed'
+import SubscriptionLevelSeed from './services/subscription-level/subscription-level.seed'
 import SubscriptionTypeSeed from './services/subscription-type/subscription-type.seed'
 import UserRelationshipTypeSeed from './services/user-relationship-type/user-relationship-type.seed'
 import UserRoleSeed from './services/user-role/user-role.seed'
@@ -22,6 +23,7 @@ module.exports = {
     IdentityProviderTypeSeed,
     ResourceTypeSeed,
     StaticResourceTypeSeed,
+    SubscriptionLevelSeed,
     SubscriptionTypeSeed,
     UserRelationshipTypeSeed,
     UserRoleSeed
