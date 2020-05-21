@@ -1,14 +1,14 @@
 import * as feathersAuthentication from '@feathersjs/authentication'
 import { hooks } from '@feathersjs/authentication-local'
-import { iff, isProvider, preventChanges } from 'feathers-hooks-common'
-import accountService from '../auth-management/auth-management.notifier'
+import { iff, isProvider, preventChanges, disallow } from 'feathers-hooks-common'
 import { HookContext } from '@feathersjs/feathers'
+import accountService from '../auth-management/auth-management.notifier'
+import isIdentityProviderEmpty from '../../hooks/is-identity-provider-empty'
+import removeUserAccount from '../../hooks/remove-user-account'
 
 const verifyHooks = require('feathers-authentication-management').hooks
 const { authenticate } = feathersAuthentication.hooks
-const hashPassword = hooks.hashPassword
-
-const { protect } = hooks
+const { protect, hashPassword } = hooks
 
 const isPasswordAccountType = () => {
   return (context: HookContext): boolean => {
@@ -45,8 +45,10 @@ export default {
       ),
       authenticate('jwt')
     ],
-    patch: [], // hashPassword('password'), authenticate('jwt')
-    remove: [] // authenticate('jwt')
+    patch: [disallow()],
+    remove: [
+      authenticate('jwt')
+    ]
   },
 
   after: {
@@ -74,7 +76,12 @@ export default {
           'resetExpires'
         ))
     ],
-    remove: []
+    remove: [
+      iff(
+        isIdentityProviderEmpty(),
+        removeUserAccount()
+      )
+    ]
   },
 
   error: {

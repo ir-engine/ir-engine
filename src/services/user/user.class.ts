@@ -4,6 +4,9 @@ import {
   Params
 } from '@feathersjs/feathers'
 import { QueryTypes } from 'sequelize'
+// import config from 'config'
+
+// const loggedInUserEntity: string = config.get('authentication.entity') || 'user'
 
 export class User extends Service {
   app: Application

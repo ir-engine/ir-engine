@@ -74,6 +74,7 @@ export default (app: Application): void => {
   app.configure(GroupUserRank)
 
   // Objects
+  app.configure(User)
   app.configure(AccessControl)
   app.configure(Attribution)
   app.configure(Collection)
@@ -86,7 +87,6 @@ export default (app: Application): void => {
   app.configure(Party)
   app.configure(Project)
   app.configure(StaticResource)
-  app.configure(User)
   app.configure(UserRelationship)
   app.configure(UserRole)
   app.configure(UserSettings)

@@ -79,45 +79,58 @@ export class IdentityProvider extends Service {
         break
     }
 
-    // if userId is not defined, then generate userId
-    if (!userId) {
-      userId = crypto.createHash('md5').update(hashData).digest('hex')
-    }
-
     const sequelizeClient: Sequelize = this.app.get('sequelizeClient')
     const userService = this.app.service('user')
     const User = sequelizeClient.model('user')
 
-    // check if there is a user with userId
-    const foundUser = ((await userService.find({
-      query: {
-        id: userId
-      }
-    }))).data
+    // if userId is not defined, then generate userId
+    if (userId) {
+      // check if there is a user with userId
+      const foundUser = ((await userService.find({
+        query: {
+          id: userId
+        }
+      }))).data
 
-    if (foundUser.length > 0) {
+      if (foundUser.length === 0) {
+        throw Error(`Can not add the connection because this ${type as string} connection already have been using.`)
+      }
+
       // if there is the user with userId, then we add the identity provider to the user
       return await super.create({
         ...data,
         ...identityProvider,
         userId
       }, params)
-    }
+    } else {
+      userId = crypto.createHash('md5').update(hashData).digest('hex')
 
-    // create with user association
-    params.sequelize = {
-      include: [User]
-    }
+      // check if there is a user with userId
+      const foundUser = ((await userService.find({
+        query: {
+          id: userId
+        }
+      }))).data
 
-    // if there is no user with userId, then we create a user and a identity provider.
-    const result = await super.create({
-      ...data,
-      ...identityProvider,
-      user: {
-        id: userId
+      if (foundUser.length > 0) {
+        throw new Error(`Can not create a connection because this ${type as string} connection already have been using.`)
       }
-    }, params)
 
-    return result
+      // create with user association
+      params.sequelize = {
+        include: [User]
+      }
+
+      // if there is no user with userId, then we create a user and a identity provider.
+      const result = await super.create({
+        ...data,
+        ...identityProvider,
+        user: {
+          id: userId
+        }
+      }, params)
+
+      return result
+    }
   }
 }

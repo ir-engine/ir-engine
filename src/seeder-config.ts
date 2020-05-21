@@ -12,16 +12,16 @@ import UserRoleSeed from './services/user-role/user-role.seed'
 
 module.exports = {
   services: [
+    UserRoleSeed,
     AccessControlScopeSeed,
-    AccessControlSeed,
-    CollectionType,
+    ResourceTypeSeed,
     ComponentTypeSeed,
     EntityTypeSeed,
-    GroupUserRankSeed,
-    IdentityProviderTypeSeed,
-    ResourceTypeSeed,
     StaticResourceTypeSeed,
+    IdentityProviderTypeSeed,
     UserRelationshipTypeSeed,
-    UserRoleSeed
+    GroupUserRankSeed,
+    CollectionType,
+    AccessControlSeed
   ]
 }
