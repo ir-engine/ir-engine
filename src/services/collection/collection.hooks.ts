@@ -1,6 +1,7 @@
 import { HookContext } from '@feathersjs/feathers'
 import addAssociations from '../../hooks/add-associations'
 import collectAnalytics from '../../hooks/collect-analytics'
+// import * as authentication from '@feathersjs/authentication'
 
 function processCollectionEntities (collection: any): any {
   const entitesObject: { [key: string]: {} } = {}
