@@ -20,14 +20,14 @@ export default (app: Application): any => {
     },
     project_url: {
       type: DataTypes.VIRTUAL,
-      get () {
-        if (!(this as any).collectionId) {
+      get (this: any) {
+        if (!this.collectionId) {
           return ''
         } else {
-          return `${COLLECTION_API_ENDPOINT}/${((this as any).collectionId as string)}`
+          return `${COLLECTION_API_ENDPOINT}/${(this.collectionId as string)}`
         }
       },
-      set (value) {
+      set () {
         throw new Error('Do not try to set the `project_url` value!')
       }
     },
