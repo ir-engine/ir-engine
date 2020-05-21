@@ -20,7 +20,7 @@ export function mapSceneData (scene: any, projectId: string): any {
     ...scene,
     scene_id: scene?.scene_sid,
     project_id: projectId,
-    url: `${(config.get('hub.endpoint') as string)}/scenes/${(scene.slug as string)}`,
+    url: `${(config.get('hub.endpoint') as string)}/scene/${(scene.slug as string)}`,
     model_url: scene?.model_owned_file?.key,
     screenshot_url: scene?.screenshot_owned_file?.key
   }

@@ -12,8 +12,10 @@ declare module '../../declarations' {
 export default (app: Application): void => {
   const options = {}
 
+  // Initialize our service with any options it requires
   app.use('/project/:projectId/publish', new PublishProject(options, app))
 
+  // Get our initialized service so that we can register hooks
   const service = app.service('project/:projectId/publish')
 
   service.hooks(hooks)
