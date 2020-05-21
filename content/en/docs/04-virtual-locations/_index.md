@@ -7,7 +7,7 @@ description: >
 ---
 
 {{% pageinfo %}}
-User first enters an XRChat site in Guest Mode. Interaction with Accounts / XR Pass only happens when user needs to save or customize something (like avatar), or buy something.
+User first enters an XREngine site in Guest Mode. Interaction with Accounts / XR Pass only happens when user needs to save or customize something (like avatar), or buy something.
 {{% /pageinfo %}}
 
 # Virtual Locations

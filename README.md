@@ -1,12 +1,12 @@
-## XRChat Docs
+## XREngine Docs
 
-### Please visit xrchat.github.io to see docs
+### Please visit xr3ngine.github.io to see docs
 
 Uses Hugo
 https://gohugo.io/getting-started/quick-start/ 
 
 ```bash
-git clone --recurse-submodules --depth 1 https://github.com/xrchat/xrchat-docs
+git clone --recurse-submodules --depth 1 https://github.com/xr3ngine/xrengine
 
 npm install
 
