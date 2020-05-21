@@ -124,7 +124,7 @@ class SocialLogin extends React.Component<Props> {
   }
 }
 
-function SocialLoginWrapper(props: any) {
+const SocialLoginWrapper = (props: any) => {
   return <SocialLogin {...props}/>
 }
 

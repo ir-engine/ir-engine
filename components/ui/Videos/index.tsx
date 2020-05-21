@@ -38,7 +38,7 @@ class VideoList extends Component<VideoProps> {
           Back
         </Button>
         <div className="video-container">
-          {videos.get('videos').map(function (video: PublicVideo, i: number) {
+          {videos.get('videos').map((video: PublicVideo, i: number) => {
             return (
               <div className="box" key={i}>
                 <Link href={'/video360?manifest=' + video.url + '&title=' + video.name}>

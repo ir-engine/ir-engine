@@ -89,13 +89,13 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  tick: function() {
+  tick() {
     this.handleIntersection('hover')
   },
 
   update(oldData: Data) {
-    var data = this.data
-    var changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
+    const data = this.data
+    const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
 
     if (changedData.includes('disabled')) {
       this.el.setAttribute('highlight', { hover: false, active: false })
@@ -144,17 +144,17 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   },
 
   createBorder() {
-    var self = this
-    var data = self.data
+    const self = this
+    const data = self.data
 
-    var geomAttribute
+    let geomAttribute
 
     if (data.target === '') {
       geomAttribute = self.el.getAttribute('geometry')
     } else {
       // eslint-disable-next-line no-prototype-builtins
       if (self.el.object3DMap.hasOwnProperty(data.target)) {
-        var geo = (self.el.getObject3D(data.target) as THREE.Mesh).geometry
+        const geo = (self.el.getObject3D(data.target) as THREE.Mesh).geometry
         geomAttribute = (geo as any).parameters
         if (geo.type === 'PlaneBufferGeometry') {
           geomAttribute.primitive = 'plane'
@@ -185,26 +185,26 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   },
 
   createBorderSphere(geomAttribute) {
-    var self = this
-    var data = self.data
+    const self = this
+    const data = self.data
 
-    var borderGeomAttribute = Object.assign({}, geomAttribute)
+    const borderGeomAttribute = Object.assign({}, geomAttribute)
     borderGeomAttribute.radius = borderGeomAttribute.radius * (1 + data.bordersize)
     // (this.system as AFRAME.SystemDefinition<MediaCellSystemProps>)
-    var geom = (self.el.sceneEl?.systems.geometry as any).getOrCreateGeometry(borderGeomAttribute)
+    const geom = (self.el.sceneEl?.systems.geometry as any).getOrCreateGeometry(borderGeomAttribute)
 
-    var color = data.active ? data.activeColor : data.hover ? data.hoverColor : data.color
+    const color = data.active ? data.activeColor : data.hover ? data.hoverColor : data.color
 
-    var opacity = data.active || data.hover ? 1 : data.borderbaseopacity
-    var transparent = !(data.active || data.hover)
+    const opacity = data.active || data.hover ? 1 : data.borderbaseopacity
+    const transparent = !(data.active || data.hover)
 
-    var mat = new THREE.MeshBasicMaterial({
+    const mat = new THREE.MeshBasicMaterial({
       color: new THREE.Color(color),
       side: THREE.BackSide,
       opacity: opacity,
       transparent: transparent
     })
-    var newMesh = new THREE.Mesh(geom, mat)
+    const newMesh = new THREE.Mesh(geom, mat)
     newMesh.name = this.data.bordername
     newMesh.updateMatrix()
 
@@ -212,49 +212,47 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   },
 
   createBorderPlane(geomAttribute) {
-    var self = this
-    var data = Object.assign({}, self.data)
+    const self = this
+    const data = Object.assign({}, self.data)
 
-    var mat, mesh
-
-    var borderGeomAttribute = Object.assign({}, geomAttribute)
+    const borderGeomAttribute = Object.assign({}, geomAttribute)
     borderGeomAttribute.width = borderGeomAttribute.width * (1 + data.bordersize)
     borderGeomAttribute.height = borderGeomAttribute.height * (1 + data.bordersize)
-    var cache = (self.el.sceneEl?.systems.geometry as any).cache
-    var hash = (self.el.sceneEl?.systems.geometry as any).hash(borderGeomAttribute)
-    var isCached = !!cache[hash]
-    var geom = (self.el.sceneEl?.systems.geometry as any).getOrCreateGeometry(borderGeomAttribute)
+    const cache = (self.el.sceneEl?.systems.geometry as any).cache
+    const hash = (self.el.sceneEl?.systems.geometry as any).hash(borderGeomAttribute)
+    const isCached = !!cache[hash]
+    const geom = (self.el.sceneEl?.systems.geometry as any).getOrCreateGeometry(borderGeomAttribute)
     if (!isCached) {
       geom.translate(0, 0, -0.001)
     }
 
-    var color = data.active ? data.activeColor : data.hover ? data.hoverColor : data.color
+    const color = data.active ? data.activeColor : data.hover ? data.hoverColor : data.color
 
-    var opacity = data.active || data.hover ? 1 : data.borderbaseopacity
-    var transparent = !(data.active || data.hover)
+    const opacity = data.active || data.hover ? 1 : data.borderbaseopacity
+    const transparent = !(data.active || data.hover)
 
-    mat = new THREE.MeshBasicMaterial({
+    const mat = new THREE.MeshBasicMaterial({
       color: new THREE.Color(color),
       side: THREE.FrontSide,
       opacity: opacity,
       transparent: transparent
     })
-    mesh = new THREE.Mesh(geom, mat)
+    const mesh = new THREE.Mesh(geom, mat)
     mesh.name = this.data.bordername
 
     self.el.setObject3D(this.data.bordername, mesh)
   },
 
   updateColor(meshName = 'mesh') {
-    var self = this
-    var data = self.data
+    const self = this
+    const data = self.data
 
-    var newColor: number = data.disabled ? data.disabledColor : data.active ? data.activeColor : data.hover ? data.hoverColor : data.color
+    const newColor: number = data.disabled ? data.disabledColor : data.active ? data.activeColor : data.hover ? data.hoverColor : data.color
 
-    var opacity = data.disabled ? data.disabledopacity : data.active || data.hover ? 1 : data.borderbaseopacity
-    var transparent = data.disabled ? true : !(data.active || data.hover)
+    const opacity = data.disabled ? data.disabledopacity : data.active || data.hover ? 1 : data.borderbaseopacity
+    const transparent = data.disabled ? true : !(data.active || data.hover)
 
-    var mesh = self.el.getObject3D(meshName) as THREE.Mesh
+    const mesh = self.el.getObject3D(meshName) as THREE.Mesh
     if (mesh) {
       const mat = mesh.material as THREE.MeshBasicMaterial
       mat.color = new THREE.Color(newColor)
@@ -264,23 +262,23 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   },
 
   updateTextColor() {
-    var self = this
-    var data = self.data
+    const self = this
+    const data = self.data
 
-    var newColor = data.disabled ? data.disabledColor : data.active ? data.activeColor : data.hover ? data.hoverColor : data.color
-    var txtObj = this.el.getObject3D('text')
+    const newColor = data.disabled ? data.disabledColor : data.active ? data.activeColor : data.hover ? data.hoverColor : data.color
+    const txtObj = this.el.getObject3D('text')
     if (txtObj && (txtObj as any).material) {
       (txtObj as any).material.uniforms.color.value = new THREE.Color(newColor)
     }
   },
 
   handleIntersection(attribute = 'hover') {
-    var self = this
+    const self = this
     if (!this.intersectingRaycaster) {
       return
     }
 
-    var value = {} as any
+    const value = {} as any
     value[attribute] = true
     const intersection = this.intersectingRaycaster.getIntersection(this.el)
     self.intersection = intersection

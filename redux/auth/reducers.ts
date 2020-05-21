@@ -1,9 +1,7 @@
 import Immutable from 'immutable'
 import {
-  AuthAction,
   AuthProcessingAction,
   LoginResultAction,
-  AuthState,
   AuthResultAction,
   RegistrationResultAction,
   LoadDataResultAction
@@ -23,24 +21,30 @@ import {
   LOADED_USER_DATA
 } from '../actions'
 import { getStoredState } from '../persisted.store'
-import { resolveUser } from '../../interfaces/User'
+import { UserSeed } from '../../interfaces/User'
+import { IdentityProviderSeed } from '../../interfaces/IdentityProvider'
+import { AuthUserSeed } from '../../interfaces/AuthUser'
 // import { getStoredState } from '../persisted.store'
 
-export const initialState: AuthState = {
+export const initialState = {
   isLoggedIn: false,
   isProcessing: false,
-  error: ''
+  error: '',
+  authUser: AuthUserSeed,
+  user: UserSeed,
+  identityProvider: IdentityProviderSeed
 }
 
 const immutableState = Immutable.fromJS(initialState)
 
-const authReducer = (state = immutableState, action: AuthAction): any => {
+const authReducer = (state = immutableState, action: any): any => {
   switch (action.type) {
     case ACTION_PROCESSING:
       return state
         .set('isProcessing', (action as AuthProcessingAction).processing)
         .set('error', '')
     case LOGIN_USER_SUCCESS:
+      console.log('*****************Logined****************')
       return state
         .set('isLoggedIn', true)
         .set('authUser', (action as LoginResultAction).authUser)
@@ -53,7 +57,6 @@ const authReducer = (state = immutableState, action: AuthAction): any => {
       return state
         .set('error', (action as LoginResultAction).message)
     case REGISTER_USER_BY_EMAIL_SUCCESS:
-      console.log('registered--------', action)
       return state
         .set('identityProvider', (action as RegistrationResultAction).identityProvider)
     case REGISTER_USER_BY_EMAIL_ERROR:
@@ -67,16 +70,18 @@ const authReducer = (state = immutableState, action: AuthAction): any => {
       return state
         .set('isVerified', (action as AuthResultAction).result)
 
-    case LOADED_USER_DATA:
+    case LOADED_USER_DATA: {
+      const user = (action as LoadDataResultAction).user
+
       return state
-        .set('user', (action as LoadDataResultAction).user)
+        .set('user', user)
+    }
     case RESTORE: {
       const stored = getStoredState('auth')
 
       if (stored) {
         return state
           .set('isLoggedIn', stored.isLoggedIn)
-          .set('user', resolveUser(stored.user))
           .set('authUser', stored.authUser)
           .set('identityProvider', stored.identityProvider)
       }
