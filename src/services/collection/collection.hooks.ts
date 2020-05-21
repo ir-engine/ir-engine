@@ -65,7 +65,7 @@ export default {
   after: {
     all: [],
     find: [
-      processCollectionsEntities()
+      // processCollectionsEntities()
     ],
     get: [
       (context: HookContext) => {
