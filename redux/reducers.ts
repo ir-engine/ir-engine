@@ -5,6 +5,8 @@ import videoReducer from './video/reducers'
 import sceneReducer from './scenes/reducers'
 import alertReducer from './alert/reducers'
 import dialogReducer from './dialog/reducers'
+import deviceDetectReducer from './devicedetect/reducers'
+
 import userReducer from './user/reducers'
 import video360Reducer from './video360/reducers'
 
@@ -16,5 +18,6 @@ export default combineReducers({
   scenes: sceneReducer,
   alert: alertReducer,
   dialog: dialogReducer,
+  devicedetect: deviceDetectReducer,
   user: userReducer
 })

@@ -5,7 +5,6 @@ import Assets from './assets'
 import Environment from './environment'
 import Player from '../player/player'
 import './style.scss'
-import SvgVr from '../../icons/svg/Vr'
 
 import AframeComponentRegisterer from '../aframe/index'
 
@@ -68,9 +67,6 @@ export default function LandingScene (): any {
       <Assets />
       <Player />
       <Environment />
-      <a className="enterVR" id="enterVRButton" href="#">
-        <SvgVr className="enterVR" />
-      </a>
     </SceneContainer>
   )
 }

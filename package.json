@@ -55,6 +55,7 @@
     "autoprefixer": "^9.7.5",
     "axios": "^0.19.2",
     "babel-loader": "^8.1.0",
+    "device-detector-js": "^2.2.1",
     "ecsy": "github:xrchat/ecsy#dev",
     "eslint-plugin-react-hooks": "^3.0.0",
     "glob": "^7.1.6",
