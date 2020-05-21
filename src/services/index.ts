@@ -50,15 +50,13 @@ import GraphQL from './graphql/graphql.service'
 // Spoke
 import Asset from './asset/asset.service'
 import MediaSearch from './media-search/media-search.service'
-import Meta from './meta/meta.service';
+import Meta from './meta/meta.service'
 import OwnedFile from './owned-file/owned-file.service'
 import ProjectAsset from './project-asset/project-asset.service'
 import PublishProject from './publish-project/publish-project.service'
 import Scene from './scene/scene.service'
 import SceneListing from './scene-listing/scene-listing.service'
 import UploadMedia from './upload-media/upload-media.service'
-
-import meta from './meta/meta.service';
 
 export default (app: Application): void => {
   // Dynamic Enums
@@ -117,5 +115,5 @@ export default (app: Application): void => {
   app.configure(UploadMedia)
   app.configure(PublishProject)
   app.configure(GraphQL)
-  app.configure(meta)
+  app.configure(Meta)
 }
