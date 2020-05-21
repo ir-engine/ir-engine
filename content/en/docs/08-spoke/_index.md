@@ -1,7 +1,7 @@
 
 ---
-title: "Spoke for XRChat"
-linkTitle: "Spoke for XRChat"
+title: "Spoke for XREngine"
+linkTitle: "Spoke for XREngine"
 weight: 8
 date: 2017-01-04
 description: >
