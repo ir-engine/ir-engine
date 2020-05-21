@@ -4,7 +4,6 @@ import { Assets, Entity } from 'aframe-react'
 import Environment from './environment'
 import Player from '../player/player'
 import './style.scss'
-import SvgVr from '../../icons/svg/Vr'
 import AframeComponentRegisterer from '../aframe/index'
 
 import getConfig from 'next/config'
@@ -141,9 +140,6 @@ export default class SceneRoot extends React.Component<Props> {
           {/* Scene Collection goes Here */}
 
           {this.props.children}
-          <a className="enterVR" id="enterVRButton" href="#">
-            <SvgVr className="enterVR" />
-          </a>
         </SceneContainer>
       </div>
     )
