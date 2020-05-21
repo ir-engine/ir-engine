@@ -5,9 +5,9 @@ export function mapProjectDetailData (project: any): any {
     name: project.name,
     parent_scene: mapSceneData(project?.parent_scene_listing || project?.parent_scene, project.project_sid),
     project_id: project.project_sid,
-    project_url: project?.project_owned_file?.key,
+    project_url: project?.project_url,
     scene: mapSceneData(project.scene, project.project_sid),
-    thumbnail_url: project?.thumbnail_owned_file?.key
+    thumbnail_url: project?.thumbnail_owned_file?.url
   }
   return _proj
 }
@@ -21,8 +21,8 @@ export function mapSceneData (scene: any, projectId: string): any {
     scene_id: scene?.scene_sid,
     project_id: projectId,
     url: `${(config.get('hub.endpoint') as string)}/scene/${(scene.slug as string)}`,
-    model_url: scene?.model_owned_file?.key,
-    screenshot_url: scene?.screenshot_owned_file?.key
+    model_url: scene?.model_owned_file?.url,
+    screenshot_url: scene?.screenshot_owned_file?.url
   }
   delete selectedSceneData.model_owned_file
   delete selectedSceneData.screenshot_owned_file
@@ -31,11 +31,6 @@ export function mapSceneData (scene: any, projectId: string): any {
 }
 export function defaultProjectImport (models: any): any[] {
   const includedEntities = [
-    {
-      model: models.owned_file,
-      as: 'project_owned_file',
-      attributes: ['key']
-    },
     {
       model: models.owned_file,
       as: 'thumbnail_owned_file',
