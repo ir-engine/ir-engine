@@ -19,6 +19,14 @@ export default (app: Application): any => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    url: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    account_id: {
+      type: DataTypes.UUID,
+      allowNull: false
+    },
     content_type: {
       type: DataTypes.STRING,
       allowNull: true
