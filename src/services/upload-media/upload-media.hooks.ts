@@ -1,6 +1,9 @@
 import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common'
 import { HookContext } from '@feathersjs/feathers'
+import { v1 as uuidv1 } from 'uuid'
+import config from 'config'
+
 import getBasicMimetype from '../../util/get-basic-mimetype'
 import setResponseStatus from '../../hooks/set-response-status-code'
 import attachOwnerIdInSavingContact from '../../hooks/set-loggedin-user-in-body'
@@ -21,7 +24,8 @@ const createOwnedFile = (options = {}) => {
     const resourceData = {
       owned_file_id: body.fileId,
       name: data.name || body.name,
-      key: data.uri || data.url,
+      url: data.uri || data.url,
+      key: (data.uri || data.url).replace(`${(config.get('aws.s3.baseUrl') as string)}/${(config.get('aws.s3.static_resource_bucket') as string)}/`, ''),
       content_type: data.mime_type || params.mime_type,
       metadata: data.metadata || body.metadata,
       state: 'active',
@@ -38,9 +42,18 @@ const createOwnedFile = (options = {}) => {
       (resourceData as any).parentResourceId = context.params.parentResourceId
     }
     (resourceData as any).type = getBasicMimetype(resourceData.content_type)
-    context.result = await context.app.service('owned-file').create(resourceData)
+    const savedFile = await context.app.service('owned-file').create(resourceData)
+    context.result = {
+      // This is to fulfill the spoke response, as spoke is expecting the below object
+      file_id: savedFile.owned_file_id,
+      meta: {
+        access_token: uuidv1(),
+        expected_content_type: savedFile.content_type,
+        promotion_token: null
+      },
+      origin: savedFile.url
+    }
     // }
-
     return context
   }
 }
