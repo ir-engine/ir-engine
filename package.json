@@ -88,6 +88,7 @@
     "bcrypt": "^4.0.1",
     "bent": "^7.3.0",
     "camelcase": "^6.0.0",
+    "cli": "^1.0.1",
     "compression": "^1.7.4",
     "config": "^3.3.1",
     "cors": "^2.8.5",

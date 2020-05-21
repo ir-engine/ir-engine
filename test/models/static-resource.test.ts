@@ -8,7 +8,7 @@ describe('CRUD operation on \'Static Resource\' model', () => {
       name: 'test',
       description: 'description',
       url: 'http://localhost:3030',
-      mime_type: 'image/png',
+      mimeType: 'image/png',
       metadata: JSON.stringify({ data: 'test' })
     }).then(res => {
       done()

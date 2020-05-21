@@ -5,7 +5,7 @@ export default (options = {}): Hook => {
     const { app } = context
     if (context.params.thumbnail) {
       context.params.file = context.params.thumbnail
-      context.params.mime_type = context.params.file.mimetype
+      context.params.mimeType = context.params.file.mimetype
       context.params.parentResourceId = context.result.id
       context.data.metadata = context.data.metadata ? context.data.metadata : {}
       delete context.params.thumbnail
