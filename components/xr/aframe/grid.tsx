@@ -1,5 +1,6 @@
 import AFRAME from 'aframe'
 import { CylindricalGrid, Cylinder } from '../../../classes/aframe/layout/GridUtils'
+import PropertyMapper from './ComponentUtils'
 
 export const ComponentName = 'grid'
 
@@ -274,22 +275,15 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
 
 }
 
+const primitiveProperties = ['id', 'gridCellsPerRow', 'radius', 'columns', 'rows',
+  'cellHeight', 'cellWidth', 'cellContentHeight', 'page']
+
 export const GridPrimitive: AFRAME.PrimitiveDefinition = {
   defaultComponents: {
     ComponentName: {}
   },
   deprecated: false,
-  mappings: {
-    id: ComponentName + '.id',
-    'grid-cells-per-row': ComponentName + '.gridCellsPerRow',
-    radius: ComponentName + '.radius',
-    columns: ComponentName + '.columns',
-    rows: ComponentName + '.rows',
-    'cell-height': ComponentName + '.cellHeight',
-    'cell-width': ComponentName + '.cellWidth',
-    'cell-content-height': ComponentName + '.cellContentHeight',
-    page: ComponentName + '.page'
-  }
+  mappings: PropertyMapper(primitiveProperties, ComponentName)
 }
 
 const ComponentSystem = {

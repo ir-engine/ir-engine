@@ -1,4 +1,5 @@
 import AFRAME from 'aframe'
+import PropertyMapper from './ComponentUtils'
 
 const THREE = AFRAME.THREE
 
@@ -433,26 +434,30 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
 }
 
+const primitiveProps = [
+  'id',
+  'width',
+  'height',
+  'fontsize',
+  'wrapcount',
+  'nobr',
+  'color',
+  'font',
+  'wrapfit',
+  'lines',
+  'anchor',
+  'align',
+  'baseline'
+]
+
 export const Primitive: AFRAME.PrimitiveDefinition = {
   defaultComponents: {
     ComponentName: {}
   },
   deprecated: false,
   mappings: {
-    id: ComponentName + '.id',
-    value: ComponentName + '.text',
-    width: ComponentName + '.width',
-    height: ComponentName + '.height',
-    fontsize: ComponentName + '.fontsize',
-    wrapcount: ComponentName + '.wrapcount',
-    nobr: ComponentName + '.nobr',
-    color: ComponentName + '.color',
-    font: ComponentName + '.font',
-    wrapfit: ComponentName + '.wrapfit',
-    lines: ComponentName + '.lines',
-    anchor: ComponentName + '.anchor',
-    align: ComponentName + '.align',
-    baseline: ComponentName + '.baseline'
+    ...PropertyMapper(primitiveProps, ComponentName),
+    value: ComponentName + '.text'
   }
 }
 
