@@ -1,5 +1,6 @@
 import AFRAME from 'aframe'
 import { CylindricalGrid, Cylinder } from '../../../classes/aframe/layout/GridUtils'
+import PropertyMapper from './ComponentUtils'
 
 export const ComponentName = 'grid'
 
@@ -222,13 +223,15 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
     paginatorEl.setAttribute('direction', side)
     paginatorEl.setAttribute('width', 0.35)
     paginatorEl.setAttribute('height', 0.2)
+    paginatorEl.setAttribute('ellipses', true)
 
     paginatorEl.setAttribute('clickable', { clickevent: 'page' + side })
     paginatorEl.setAttribute('highlight', {
       type: 'color',
       borderbaseopacity: 0.7,
-      disabledopacity: 0.2,
-      color: 0xe8f1ff
+      disabledopacity: 0,
+      color: 0xe8f1ff,
+      meshes: ['mesh', 'ellipse1', 'ellipse2', 'ellipse3']
     })
 
     const col = side === 'left' ? this.data.columns : 0
@@ -272,22 +275,15 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
 
 }
 
+const primitiveProperties = ['id', 'gridCellsPerRow', 'radius', 'columns', 'rows',
+  'cellHeight', 'cellWidth', 'cellContentHeight', 'page']
+
 export const GridPrimitive: AFRAME.PrimitiveDefinition = {
   defaultComponents: {
     ComponentName: {}
   },
   deprecated: false,
-  mappings: {
-    id: ComponentName + '.id',
-    'grid-cells-per-row': ComponentName + '.gridCellsPerRow',
-    radius: ComponentName + '.radius',
-    columns: ComponentName + '.columns',
-    rows: ComponentName + '.rows',
-    'cell-height': ComponentName + '.cellHeight',
-    'cell-width': ComponentName + '.cellWidth',
-    'cell-content-height': ComponentName + '.cellContentHeight',
-    page: ComponentName + '.page'
-  }
+  mappings: PropertyMapper(primitiveProperties, ComponentName)
 }
 
 const ComponentSystem = {

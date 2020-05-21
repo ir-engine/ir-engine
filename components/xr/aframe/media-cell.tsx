@@ -1,4 +1,5 @@
 import AFRAME from 'aframe'
+import PropertyMapper from './ComponentUtils'
 // import store from '../../../redux/store'
 // import { setAppLoaded } from '../../../redux/app/actions'
 export const ComponentName = 'media-cell'
@@ -172,6 +173,26 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
   }
 }
 
+const primitiveProps = [
+  'id',
+  'cellHeight',
+  'cellWidth',
+  'cellContentHeight',
+  'originalTitle',
+  'title',
+  'description',
+  'url',
+  'thumbnailUrl',
+  'productionCredit',
+  'rating',
+  'categories',
+  'runtime',
+  'tags',
+  'mediatype',
+  'linktype',
+  'videoformat',
+  'linkEnabled'
+]
 export const MediaCellPrimitive: AFRAME.PrimitiveDefinition = {
   defaultComponents: {
     ComponentName: {},
@@ -179,25 +200,8 @@ export const MediaCellPrimitive: AFRAME.PrimitiveDefinition = {
   },
   deprecated: false,
   mappings: {
-    id: ComponentName + '.id',
-    active: 'grid-cell.active',
-    'cell-height': ComponentName + '.cellHeight',
-    'cell-width': ComponentName + '.cellWidth',
-    'cell-content-height': ComponentName + '.cellContentHeight',
-    // 'original-title': ComponentName + '.originalTitle',
-    title: ComponentName + '.title',
-    description: ComponentName + '.description',
-    'media-url': ComponentName + '.url',
-    'thumbnail-url': ComponentName + '.thumbnailUrl',
-    'production-credit': ComponentName + '.productionCredit',
-    rating: ComponentName + '.rating',
-    categories: ComponentName + '.categories',
-    runtime: ComponentName + '.runtime',
-    // tags: ComponentName + '.tags',
-    mediatype: ComponentName + '.mediatype',
-    linktype: ComponentName + '.linktype',
-    videoformat: ComponentName + '.videoformat',
-    'link-enabled': ComponentName + '.linkEnabled'
+    ...PropertyMapper(primitiveProps, ComponentName),
+    active: 'grid-cell.active'
   }
 }
 
