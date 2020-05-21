@@ -5,13 +5,11 @@ import { logoutUser } from '../../../redux/auth/service'
 import { selectAuthState } from '../../../redux/auth/selector'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import Avatar from '@material-ui/core/Avatar'
 import { showDialog } from '../../../redux/dialog/service'
 import Dropdown from '../Profile/profileDown'
 
 import './style.scss'
 import { User } from '../../../interfaces/User'
-import { AuthUser } from '../../../interfaces/AuthUser'
 // Get auth state from redux
 // Get user email address
 // If not logged in, show login
@@ -52,11 +50,7 @@ class NavUserBadge extends Component<Props> {
   render() {
     const isLoggedIn = this.props.auth.get('isLoggedIn')
     const user = this.props.auth.get('user') as User
-    const authUser = this.props.auth.get('authUser') as AuthUser
-    const userName =
-      authUser && authUser.identityProvider
-        ? authUser.identityProvider.token
-        : 'User'
+    const userName = user && user.name
     const avatarLetter = userName ? userName.substr(0, 1) : 'X'
 
     return (
@@ -70,12 +64,10 @@ class NavUserBadge extends Component<Props> {
               <br />
               Logout
             </Button> */}
-            <Dropdown avatar={user && user.avatar}>
-              {user && user.avatar ? (
-                <Avatar alt="User Avatar Icon" src={user.avatar} />
-              ) : (
-                <Avatar alt="User Avatar">{avatarLetter}</Avatar>
-              )}
+            <Dropdown
+              avatar={user && user.avatar}
+              parentProps={this.props}
+              avatarLetter={avatarLetter}>
             </Dropdown>
           </div>
         )}

@@ -13,13 +13,13 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn run test"
+      "pre-commit": "echo && echo \\* Running pre-commit test  && echo \\*\\* \\`git commit --no-verify\\` to skip && echo \\*\\*\\* PRs THAT DO NOT PASS TESTS WILL NOT BE ACCEPTED && yarn run test"
     }
   },
   "peerDependencies": {
     "@material-ui/react-transition-group": "~4.3.0",
-    "react-transition-group": "~4.3.0",
-    "ecsy": "github:xrchat/ecsy#dev"
+    "ecsy": "github:xrchat/ecsy#dev",
+    "react-transition-group": "~4.3.0"
   },
   "dependencies": {
     "@apollo/react-hooks": "^3.1.5",
@@ -63,6 +63,9 @@
     "husky": "^4.2.5",
     "immutable": "^4.0.0-rc.12",
     "isomorphic-unfetch": "3.0.0",
+    "lebab": "^3.1.0",
+    "load-bmfont": "^1.4.0",
+    "lodash": "^4.17.15",
     "material-ui-dropzone": "^3.0.0",
     "networked-aframe": "^0.7.0",
     "next": "^9.3.4",
@@ -83,6 +86,7 @@
     "react-router-dom": "^5.1.2",
     "react-transition-group": "~4.3.0",
     "redux": "^4.0.5",
+    "redux-devtools-extension": "^2.13.8",
     "redux-immutable": "^4.0.0",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",

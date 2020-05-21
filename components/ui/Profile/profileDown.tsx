@@ -8,9 +8,14 @@ import MenuItem from '@material-ui/core/MenuItem'
 import MenuList from '@material-ui/core/MenuList'
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 import ProfileModal from './index'
+import Router from 'next/router'
+
+import Avatar from '@material-ui/core/Avatar'
 
 interface XProps {
-  avatar: any
+  avatar: any,
+  parentProps: any,
+  avatarLetter: string
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -47,12 +52,20 @@ const MenuListComposition: React.FC<XProps> = (props: XProps) => {
 
     setOpen(false)
   }
+  const handleLogout = () => {
+    props.parentProps.logoutUser()
+    setOpen(false)
+  }
 
-  function handleListKeyDown(event: React.KeyboardEvent) {
+  const handleListKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Tab') {
       event.preventDefault()
       setOpen(false)
     }
+  }
+
+  const handleContacts = () => {
+    Router.push('/friends/friends')
   }
   const modalClose = () => {
     setModalOpen(false)
@@ -75,7 +88,11 @@ const MenuListComposition: React.FC<XProps> = (props: XProps) => {
           aria-haspopup="true"
           onClick={handleToggle}
         >
-          {props.avatar}
+          {props.avatar ? (
+            <Avatar alt="User Avatar Icon" src={props.avatar} />
+          ) : (
+            <Avatar alt="User Avatar">X</Avatar>
+          )}
         </Button>
         <Popper
           open={open}
@@ -100,8 +117,8 @@ const MenuListComposition: React.FC<XProps> = (props: XProps) => {
                     onKeyDown={handleListKeyDown}
                   >
                     <MenuItem onClick={handleModal}>Profile</MenuItem>
-                    <MenuItem onClick={handleClose}>Contacts</MenuItem>
-                    <MenuItem onClick={handleClose}>Logout</MenuItem>
+                    <MenuItem onClick={handleContacts}>Contacts</MenuItem>
+                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
                   </MenuList>
                 </ClickAwayListener>
               </Paper>

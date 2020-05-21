@@ -46,3 +46,26 @@ export const UPLOAD_FILE_FAILURE = 'UPLOAD_FILE_FAILURE'
 export const UPDATE_USER_SETTINGS = 'UPDATE_USER_SETTINGS'
 
 export const UPDATE_USER_SETTINGS_FALURE = 'UPDATE_USER_SETTINGS_FALURE'
+
+// app
+
+export const SET_APP_LOADED = 'SET_APP_LOADED'
+
+export const LOADED_RELATIONSHIP = 'LOADED_RELATIONSHIP'
+export const LOADED_USERS = 'LOADED_USERS'
+export const CHANGED_RELATION = 'CHANGED_RELATION'
+
+export const SET_APP_LOADING_PERCENT = 'SET_APP_LOADING_PERCENT'
+
+export const SET_VIEWPORT_SIZE = 'SET_VIEWPORT_SIZE'
+
+export const SET_IN_VR_MODE = 'SET_IN_VR_MODE'
+
+// video controls
+
+export const SET_VIDEO_PLAYING = 'SET_VIDEO_PLAYING'
+
+export type Action = {
+  type: string,
+  [key: string]: any
+}

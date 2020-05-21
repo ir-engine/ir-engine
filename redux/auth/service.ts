@@ -31,7 +31,7 @@ const { publicRuntimeConfig } = getConfig()
 const apiServer: string = publicRuntimeConfig.apiServer
 const authConfig = publicRuntimeConfig.auth
 
-export async function doLoginAuto(dispatch: Dispatch) {
+export async function doLoginAuto (dispatch: Dispatch) {
   const authData = getStoredState('auth')
   const accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined
 
@@ -44,20 +44,27 @@ export async function doLoginAuto(dispatch: Dispatch) {
     .then((res: any) => {
       if (res) {
         const authUser = resolveAuthUser(res)
-        if (!authUser.identityProvider.isVerified) {
-          client.logout()
-          return
-        }
+        // if (!authUser.identityProvider.isVerified) {
+        //   client.logout()
+        //   return;
+        // }
         dispatch(loginUserSuccess(authUser))
         loadUserData(dispatch, authUser.identityProvider.userId)
       } else {
-        client.logout()
-        // loadUserData(dispatch, authData.authUser.identityProvider.userId)
+        console.log('****************')
+      }
+    })
+    .catch((e) => {
+      dispatch(didLogout())
+
+      console.log(e)
+      if (window.location.pathname !== '/') {
+        window.location.href = '/'
       }
     })
 }
 
-export function loadUserData(dispatch: Dispatch, userId: string) {
+export function loadUserData (dispatch: Dispatch, userId: string) {
   client.service('user').get(userId)
     .then((res: any) => {
       const user = resolveUser(res)
@@ -69,7 +76,7 @@ export function loadUserData(dispatch: Dispatch, userId: string) {
     })
 }
 
-export function loginUserByPassword(form: EmailLoginForm) {
+export function loginUserByPassword (form: EmailLoginForm) {
   return (dispatch: Dispatch) => {
     // check email validation.
     if (!validateEmail(form.email)) {
@@ -92,9 +99,7 @@ export function loginUserByPassword(form: EmailLoginForm) {
           client.logout()
 
           window.location.href = '/auth/confirm'
-          dispatch(loginUserError('Unverified user'))
-
-          dispatchAlertError(dispatch, 'Unverified user')
+          dispatch(registerUserByEmailSuccess(authUser.identityProvider))
           return
         }
 
@@ -113,23 +118,21 @@ export function loginUserByPassword(form: EmailLoginForm) {
   }
 }
 
-export function loginUserByGithub() {
+export function loginUserByGithub () {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
-
     window.location.href = `${apiServer}/oauth/github`
   }
 }
 
-export function loginUserByGoogle() {
+export function loginUserByGoogle () {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
-
     window.location.href = `${apiServer}/oauth/google`
   }
 }
 
-export function loginUserByFacebook() {
+export function loginUserByFacebook () {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -137,7 +140,7 @@ export function loginUserByFacebook() {
   }
 }
 
-export function loginUserByJwt(accessToken: string, redirectSuccess: string, redirectError: string) {
+export function loginUserByJwt (accessToken: string, redirectSuccess: string, redirectError: string): any {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -162,7 +165,7 @@ export function loginUserByJwt(accessToken: string, redirectSuccess: string, red
   }
 }
 
-export function logoutUser() {
+export function logoutUser () {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
     client.logout()
@@ -172,7 +175,7 @@ export function logoutUser() {
   }
 }
 
-export function registerUserByEmail(form: EmailRegistrationForm) {
+export function registerUserByEmail (form: EmailRegistrationForm) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -194,7 +197,7 @@ export function registerUserByEmail(form: EmailRegistrationForm) {
   }
 }
 
-export function verifyEmail(token: string) {
+export function verifyEmail (token: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -215,7 +218,7 @@ export function verifyEmail(token: string) {
   }
 }
 
-export function resendVerificationEmail(email: string) {
+export function resendVerificationEmail (email: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -232,7 +235,7 @@ export function resendVerificationEmail(email: string) {
   }
 }
 
-export function forgotPassword(email: string) {
+export function forgotPassword (email: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -249,7 +252,7 @@ export function forgotPassword(email: string) {
   }
 }
 
-export function resetPassword(token: string, password: string) {
+export function resetPassword (token: string, password: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -271,7 +274,7 @@ export function resetPassword(token: string, password: string) {
   }
 }
 
-export function createMagicLink(emailPhone: string, linkType?: 'email' | 'sms') {
+export function createMagicLink (emailPhone: string, linkType?: 'email' | 'sms') {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -327,7 +330,7 @@ export function createMagicLink(emailPhone: string, linkType?: 'email' | 'sms') 
   }
 }
 
-export function addConnectionByPassword(form: EmailLoginForm, userId: string) {
+export function addConnectionByPassword (form: EmailLoginForm, userId: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -349,7 +352,7 @@ export function addConnectionByPassword(form: EmailLoginForm, userId: string) {
   }
 }
 
-export function addConnectionByEmail(email: string, userId: string) {
+export function addConnectionByEmail (email: string, userId: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -370,7 +373,7 @@ export function addConnectionByEmail(email: string, userId: string) {
   }
 }
 
-export function addConnectionBySms(phone: string, userId: string) {
+export function addConnectionBySms (phone: string, userId: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -391,13 +394,13 @@ export function addConnectionBySms(phone: string, userId: string) {
   }
 }
 
-export function addConnectionByOauth(oauth: 'facebook' | 'google' | 'github', userId: string) {
+export function addConnectionByOauth (oauth: 'facebook' | 'google' | 'github', userId: string) {
   return (/* dispatch: Dispatch */) => {
     window.open(`${apiServer}/oauth/${oauth}?userId=${userId}`, '_blank')
   }
 }
 
-export function removeConnection(identityProviderId: number, userId: string) {
+export function removeConnection (identityProviderId: number, userId: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -413,11 +416,8 @@ export function removeConnection(identityProviderId: number, userId: string) {
   }
 }
 
-export function refreshConnections(userId: string) {
-  return (dispatch: Dispatch) => {
-    loadUserData(dispatch, userId)
-  }
-}
+export function refreshConnections (userId: string) { (dispatch: Dispatch) => loadUserData(dispatch, userId) }
+
 export const updateUserSettings = (id: any, data: any) => async (dispatch: any) => {
   const res = await axiosRequest('PATCH', `${apiUrl}/user-settings/${id}`, data)
   dispatch(updateSettings(res.data))

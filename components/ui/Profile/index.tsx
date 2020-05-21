@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-function TabPanel(props: any) {
+const TabPanel = (props: any) => {
   const { children, value, index } = props
 
   return <Fragment>{value === index && children}</Fragment>

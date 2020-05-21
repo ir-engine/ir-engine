@@ -8,6 +8,7 @@ export interface LookControlsOptions extends ControlsOptions {
   touchEnabled: boolean,
   pointerLockEnabled: boolean
 }
+
 export const defaultLookControlsOptions: LookControlsOptions = {
   enabled: true,
   hmdEnabled: true,
