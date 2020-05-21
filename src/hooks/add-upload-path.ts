@@ -4,7 +4,7 @@ import getBasicMimetype from '../util/get-basic-mimetype'
 
 export default function (options = {}): Hook {
   return async (context: HookContext) => {
-    context.params.uploadPath = context.params.uploadPath ? context.params.uploadPath : path.join(context.params.uuid, getBasicMimetype(context.params.mime_type))
+    context.params.uploadPath = context.params.uploadPath ? context.params.uploadPath : path.join(context.params.uuid, getBasicMimetype(context.params.mimeType))
     return context
   }
 }

@@ -10,17 +10,21 @@ export default (options = {}): Hook => {
       name: data.name || body.name || context.params.file.originalname,
       description: data.description || body.description,
       url: data.uri || data.url,
-      mime_type: data.mime_type || params.mime_type,
+      mimeType: data.mimeType || params.mimeType,
       metadata: data.metadata || body.metadata,
-      staticResourceType: 'data'
+      staticResourceType: 'data',
+      subscriptionLevel: data.subscriptionLevel || body.subscriptionLevel || params.subscriptionLevel || 'all',
+      userId: data.userId || body.userId || params.userId || null
     }
     resourceData.staticResourceType = data.type === 'user-thumbnail' || body.type === 'user-thumbnail'
       ? 'user-thumbnail'
-      : getBasicMimetype(resourceData.mime_type)
+      : getBasicMimetype(resourceData.mimeType)
     if (context.params.skipResourceCreation === true) {
       context.result = await context.app.service('static-resource').patch(context.params.patchId, {
         url: resourceData.url,
-        metadata: resourceData.metadata
+        metadata: resourceData.metadata,
+        staticResourceType: resourceData.staticResourceType,
+        subscriptionLevel: resourceData.subscriptionLevel
       })
     } else {
       if (context.params.parentResourceId) {

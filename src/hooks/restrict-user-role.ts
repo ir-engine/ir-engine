@@ -5,17 +5,13 @@ import config from 'config'
 const loggedInUserEntity: string = config.get('authentication.entity') || 'user'
 
 // This will attach the owner ID in the contact while creating/updating list item
-export default (propertyName: string) => {
-  return (context: HookContext): HookContext => {
+export default (userRole: string) => {
+  return async (context: HookContext) => {
     // Getting logged in user and attaching owner of user
     const loggedInUser = context.params[loggedInUserEntity]
-    context.params.body = {
-      ...context.params.body,
-      [propertyName]: loggedInUser.userId
-    }
-    context.data = {
-      ...context.data,
-      [propertyName]: loggedInUser.userId
+    const user = await context.app.service('user').get(loggedInUser.userId)
+    if (user.userRole !== userRole) {
+      throw new Error('Must be admin to access this function')
     }
 
     return context
