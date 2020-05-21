@@ -23,7 +23,7 @@ export default (app: Application): void => {
     multipartMiddleware.fields([{ name: 'file' }, { name: 'thumbnail' }]),
     (req: express.Request, res: express.Response, next: express.NextFunction) => {
       if (req?.feathers) {
-        req.feathers.file = (req as any).files.file ? (req as any).files.file[0] : null
+        req.feathers.file = (req as any).files.media ? (req as any).files.media[0] : null
         console.log('req.feathers.file ', req.feathers.file)
         req.feathers.body = (req as any).body
         req.feathers.body.fileId = uuidv1()
