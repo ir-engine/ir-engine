@@ -1,15 +1,34 @@
-import * as authentication from '@feathersjs/authentication'
-import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
+import { HookContext } from '@feathersjs/feathers'
+
 import addAssociations from '../../hooks/add-associations'
 import collectAnalytics from '../../hooks/collect-analytics'
 
-const { authenticate } = authentication.hooks
+function processCollectionEntities (collection: any): any {
+  const entitesObject: { [key: string]: {} } = {}
+  const collectionJson = collection.toJSON()
+  let rootEntity: any = null
+  collectionJson.entities.forEach((entity: any) => {
+    if (entity.parent === null) {
+      rootEntity = entity
+    }
+    entitesObject[entity.entityId] = entity
+  })
+  collectionJson.root = rootEntity?.entityId
+  collectionJson.entities = entitesObject
+  return collectionJson
+}
+
+function processCollectionsEntities () {
+  return (context: HookContext): HookContext => {
+    context.result = context.result.map(processCollectionEntities)
+    return context
+  }
+}
 
 export default {
   before: {
-    all: [collectAnalytics(), authenticate('jwt')],
+    all: [collectAnalytics(), /* authenticate('jwt') */],
     find: [
-      attachOwnerIdInQuery('userId'),
       addAssociations({
         models: [
           {
@@ -23,7 +42,20 @@ export default {
         ]
       })
     ],
-    get: [],
+    get: [
+      addAssociations({
+        models: [
+          {
+            model: 'entity',
+            include: [
+              {
+                model: 'component'
+              }
+            ]
+          }
+        ]
+      })
+    ],
     create: [],
     update: [],
     patch: [],
@@ -32,8 +64,15 @@ export default {
 
   after: {
     all: [],
-    find: [],
-    get: [],
+    find: [
+      processCollectionsEntities()
+    ],
+    get: [
+      (context: HookContext) => {
+        context.result = processCollectionEntities(context.result)
+        return context
+      }
+    ],
     create: [],
     update: [],
     patch: [],
