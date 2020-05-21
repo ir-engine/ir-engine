@@ -7,6 +7,8 @@ import PlayerControls from '../../../classes/aframe/controls/player-controls'
 import CameraRig from '../../../classes/aframe/camera/camera-rig'
 import CameraCoponent from '../../../classes/aframe/camera/camera'
 
+import PropertyMapper from './ComponentUtils'
+
 export const ComponentName = 'player'
 
 export interface PlayerData {
@@ -91,17 +93,21 @@ export const PlayerComponent: AFRAME.ComponentDefinition<PlayerProps> = {
 
 }
 
+const primitiveProperties = [
+  'templateID',
+  'playerID',
+  'playerHeight'
+]
+
 export const PlayerPrimitive: AFRAME.PrimitiveDefinition = {
   defaultComponents: {
     ComponentName: {}
   },
   deprecated: false,
   mappings: {
-    templateID: ComponentName + '.templateID',
-    playerID: ComponentName + '.playerID',
-    playerHeight: ComponentName + '.playerHeight',
-    assetType: ComponentName + '.options.assetType',
-    attachTemplateToLocal: ComponentName + '.options.attachTemplateToLocal'
+    ...PropertyMapper(primitiveProperties, ComponentName),
+    'asset-type': ComponentName + '.options.assetType',
+    'attach-template-to-local': ComponentName + '.options.attachTemplateToLocal'
   }
 }
 

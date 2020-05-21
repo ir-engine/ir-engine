@@ -23,6 +23,8 @@ export interface Data {
 
   createborder: boolean,
   bordername: string,
+
+  meshes: [string]
 }
 
 export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
@@ -39,10 +41,12 @@ export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
   bordersize: { default: 0.05 },
   borderbaseopacity: { default: 0 },
 
-  disabledopacity: { default: 0.2 },
+  disabledopacity: { default: 0 },
 
   createborder: { default: false },
-  bordername: { default: 'border' }
+  bordername: { default: 'border' },
+
+  meshes: { default: ['mesh'] }
 }
 
 export interface Props {
@@ -55,7 +59,7 @@ export interface Props {
   createBorder: () => void,
   createBorderSphere: (geomAttribute: any) => void,
   createBorderPlane: (geomAttribute: any) => void,
-  updateColor: (meshName: string) => void,
+  updateColor: () => void,
   updateTextColor: () => void,
   handleIntersection: (attribute: string) => void,
   raycasterIntersectedHandler: (evt: any) => void,
@@ -103,11 +107,11 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
     if (['hover', 'active', 'disabled'].some(prop => changedData.includes(prop))) {
       if (data.type === 'color') {
-        this.updateColor('mesh')
+        this.updateColor()
       } else if (data.type === 'text') {
         this.updateTextColor()
       } else if (data.type === 'border' && this.el.object3DMap.hasOwnProperty(this.data.bordername)) {
-        this.updateColor(this.data.bordername)
+        this.updateColor()
       }
     }
     if (changedData.includes('disabled')) {
@@ -243,7 +247,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     self.el.setObject3D(this.data.bordername, mesh)
   },
 
-  updateColor(meshName = 'mesh') {
+  updateColor() {
     const self = this
     const data = self.data
 
@@ -252,13 +256,16 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     const opacity = data.disabled ? data.disabledopacity : data.active || data.hover ? 1 : data.borderbaseopacity
     const transparent = data.disabled ? true : !(data.active || data.hover)
 
-    const mesh = self.el.getObject3D(meshName) as THREE.Mesh
-    if (mesh) {
-      const mat = mesh.material as THREE.MeshBasicMaterial
-      mat.color = new THREE.Color(newColor)
-      mat.opacity = opacity
-      mat.transparent = transparent
-    }
+    const meshes = this.data.type === 'border' ? [this.data.bordername] : this.data.meshes
+    meshes.forEach(meshName => {
+      const mesh = self.el.getObject3D(meshName) as THREE.Mesh
+      if (mesh) {
+        const mat = mesh.material as THREE.MeshBasicMaterial
+        mat.color = new THREE.Color(newColor)
+        mat.opacity = opacity
+        mat.transparent = transparent
+      }
+    })
   },
 
   updateTextColor() {
@@ -333,22 +340,11 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
 }
 
-export const Primitive: AFRAME.PrimitiveDefinition = {
-  defaultComponents: {
-    ComponentName: {}
-  },
-  deprecated: false,
-  mappings: {
-    id: ComponentName + '.id',
-    'some-date': ComponentName + '.someData'
-  }
-}
-
 const ComponentSystem = {
   name: ComponentName,
   // system: SystemDef,
-  component: Component,
-  primitive: Primitive
+  component: Component
+  // primitive: Primitive
 }
 
 export default ComponentSystem

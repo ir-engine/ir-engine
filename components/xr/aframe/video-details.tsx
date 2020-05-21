@@ -1,4 +1,5 @@
 import AFRAME from 'aframe'
+import PropertyMapper from './ComponentUtils'
 
 export const ComponentName = 'video-details'
 
@@ -176,31 +177,33 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<VideoDetailsProps
 
 }
 
+const primitiveProps = [
+  'id',
+  'cellHeight',
+  'cellWidth',
+  'cellContentHeight',
+  'originalTitle',
+  'title',
+  'description',
+  'url',
+  'thumbnailUrl',
+  'productionCredit',
+  'rating',
+  'categories',
+  'runtime',
+  'tags',
+  'mediatype',
+  'linktype',
+  'videoformat',
+  'linkEnabled'
+]
+
 export const VideoDetailsPrimitive: AFRAME.PrimitiveDefinition = {
   defaultComponents: {
     ComponentName: {}
   },
   // deprecated: false,
-  mappings: {
-    id: ComponentName + '.id',
-    'cell-height': ComponentName + '.cellHeight',
-    'cell-width': ComponentName + '.cellWidth',
-    'cell-content-height': ComponentName + '.cellContentHeight',
-    // 'original-title': ComponentName + '.originalTitle',
-    title: ComponentName + '.title',
-    description: ComponentName + '.description',
-    'media-url': ComponentName + '.url',
-    'thumbnail-url': ComponentName + '.thumbnailUrl',
-    'production-credit': ComponentName + '.productionCredit',
-    rating: ComponentName + '.rating',
-    categories: ComponentName + '.categories',
-    runtime: ComponentName + '.runtime',
-    // tags: ComponentName + '.tags',
-    mediatype: ComponentName + '.mediatype',
-    linktype: ComponentName + '.linktype',
-    videoformat: ComponentName + '.videoformat',
-    'link-enabled': ComponentName + '.linkEnabled'
-  }
+  mappings: PropertyMapper(primitiveProps, ComponentName)
 }
 
 const ComponentSystem = {

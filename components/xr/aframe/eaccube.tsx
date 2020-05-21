@@ -1,6 +1,8 @@
 import AFRAME from 'aframe'
 import vertexShader from './eaccube-vertex-shader'
 import fragmentShader from './eaccube-fragment-shader'
+import PropertyMapper from './ComponentUtils'
+
 const THREE = AFRAME.THREE
 
 export const ComponentName = 'eaccube'
@@ -212,14 +214,13 @@ export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps>
   }
 }
 
+const primitiveProps = ['src', 'size']
+
 export const EaccubePrimitive: AFRAME.PrimitiveDefinition = {
   defaultComponents: {
     [ComponentName]: {}
   },
-  mappings: {
-    src: ComponentName + '.src',
-    size: ComponentName + '.size'
-  }
+  mappings: PropertyMapper(primitiveProps, ComponentName)
 }
 
 export interface EaccubeShaderData {
