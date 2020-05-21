@@ -2,6 +2,7 @@ import collectAnalytics from '../../hooks/collect-analytics'
 import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common'
 import { BadRequest } from '@feathersjs/errors'
+import fetch from 'node-fetch'
 
 import { HookContext } from '@feathersjs/feathers'
 import setResponseStatusCode from '../../hooks/set-response-status-code'
@@ -15,18 +16,17 @@ const { authenticate } = authentication.hooks
 
 const mapProjectSaveData = () => {
   return (context: HookContext) => {
-    context.data.project_owned_file_id = context.data.project.project_file_id
+    context.data.project_file_id = context.data.project.project_file_id
     context.data.name = context.data.project.name
-    context.data.thumbnail_owned_file_id = context.data.project.thumbnail_file_id
-    context.data.projectJson = context.data.project.projectJson
+    context.data.thumbnail_file_id = context.data.project.thumbnail_file_id
     return context
   }
 }
 
 const validateCollectionData = () => {
   return async (context: HookContext) => {
-    if (!context?.data?.projectJson) {
-      return await Promise.reject(new BadRequest('Project Collection Data is required!'))
+    if (!context?.data?.project_file_id || !context?.data?.name || !context?.data?.thumbnail_file_id) {
+      return await Promise.reject(new BadRequest('Project Data is required!'))
     }
     return context
   }
@@ -34,17 +34,31 @@ const validateCollectionData = () => {
 
 const generateSceneCollection = () => {
   return async (context: HookContext) => {
-    const sceneData = context.data.projectJson
-    if (!sceneData) {
-
-    }
     const seqeulizeClient = context.app.get('sequelizeClient')
     const models = seqeulizeClient.models
     const CollectionModel = models.collection
     const EntityModel = models.entity
+    const OwnedFileModel = models.owned_file
     const ComponentModel = models.component
     const ComponentTypeModel = models.component_type
     const loggedInUser = extractLoggedInUserFromParams(context.params)
+
+    // TODO: Get other scene data too if there is any parent too
+    // Get the project JSON from s3
+    // After creating of project, remove the owned_file of project json
+
+    // Find the project owned_file from database
+    const ownedFile = await OwnedFileModel.findOne({
+      where: {
+        owned_file_id: context.data.project_file_id
+      },
+      raw: true
+    })
+
+    if (!ownedFile) {
+      return await Promise.reject(new BadRequest('Project File not found!'))
+    }
+    const sceneData = await fetch(ownedFile.url).then(res => res.json())
 
     const savedCollection = await CollectionModel.create({
       type: 'scene',
@@ -56,7 +70,7 @@ const generateSceneCollection = () => {
     const sceneEntitiesArray: any = []
 
     for (const prop in sceneData.entities) {
-      sceneEntitiesArray.push(sceneData.entities[prop])
+      sceneEntitiesArray.push({ entityId: prop, ...sceneData.entities[prop] })
     }
 
     const entites = sceneEntitiesArray.map((entity: any) => {
@@ -110,6 +124,8 @@ const generateSceneCollection = () => {
     }
     await ComponentModel.bulkCreate(components)
 
+    context.params.collectionId = savedCollection.id
+    context.params.ownedFile = ownedFile
     return context
   }
 }
