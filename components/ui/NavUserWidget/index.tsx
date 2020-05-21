@@ -5,7 +5,6 @@ import { logoutUser } from '../../../redux/auth/service'
 import { selectAuthState } from '../../../redux/auth/selector'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import Avatar from '@material-ui/core/Avatar'
 import { showDialog } from '../../../redux/dialog/service'
 import Dropdown from '../Profile/profileDown'
 
@@ -65,12 +64,10 @@ class NavUserBadge extends Component<Props> {
               <br />
               Logout
             </Button> */}
-            <Dropdown avatar={user && user.avatar} parentProps={this.props}>
-              {user && user.avatar ? (
-                <Avatar alt="User Avatar Icon" src={user.avatar} />
-              ) : (
-                <Avatar alt="User Avatar">{avatarLetter}</Avatar>
-              )}
+            <Dropdown
+              avatar={user && user.avatar}
+              parentProps={this.props}
+              avatarLetter={avatarLetter}>
             </Dropdown>
           </div>
         )}
