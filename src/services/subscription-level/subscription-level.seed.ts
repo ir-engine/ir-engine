@@ -1,15 +1,12 @@
 export const seed = {
   disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
   delete: (process.env.FORCE_DB_REFRESH === 'true'),
+  path: 'subscription-level',
   randomize: false,
-  path: 'user-role',
-  templates:
-    [
-      { role: 'admin' },
-      { role: 'moderator' },
-      { role: 'user' },
-      { role: 'guest' }
-    ]
+  templates: [
+    { level: 'all' },
+    { level: 'paid' }
+  ]
 }
 
 export default seed

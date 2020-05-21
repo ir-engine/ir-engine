@@ -1,18 +1,25 @@
-// import * as authentication from '@feathersjs/authentication'
+import { hooks } from '@feathersjs/authentication'
+import { disallow } from 'feathers-hooks-common'
 import convertVideo from '../../hooks/convert-video'
 import addAttribution from '../../hooks/add-attribution'
-// import createResource from '../../hooks/create-resource'
+import restrictUserRole from '../../hooks/restrict-user-role'
+import addUserToBody from '../../hooks/set-loggedin-user-in-body'
 // Don't remove this comment. It's needed to format import lines nicely.
+
+const { authenticate } = hooks
 
 export default {
   before: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    all: [
+      authenticate('jwt'),
+      restrictUserRole('admin')
+    ],
+    find: [disallow()],
+    get: [disallow()],
+    create: [addUserToBody('userId')],
+    update: [disallow()],
+    patch: [disallow()],
+    remove: [disallow()]
   },
 
   after: {

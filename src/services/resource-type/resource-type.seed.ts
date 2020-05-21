@@ -27,6 +27,7 @@ export const seed = {
       { type: 'userRole' },
       { type: 'staticResource' },
       { type: 'staticResourceType' },
+      { type: 'subscriptionType' },
       { type: 'user' }
     ]
 }
