@@ -222,13 +222,15 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
     paginatorEl.setAttribute('direction', side)
     paginatorEl.setAttribute('width', 0.35)
     paginatorEl.setAttribute('height', 0.2)
+    paginatorEl.setAttribute('ellipses', true)
 
     paginatorEl.setAttribute('clickable', { clickevent: 'page' + side })
     paginatorEl.setAttribute('highlight', {
       type: 'color',
       borderbaseopacity: 0.7,
-      disabledopacity: 0.2,
-      color: 0xe8f1ff
+      disabledopacity: 0,
+      color: 0xe8f1ff,
+      meshes: ['mesh', 'ellipse1', 'ellipse2', 'ellipse3']
     })
 
     const col = side === 'left' ? this.data.columns : 0
