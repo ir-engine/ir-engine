@@ -11,6 +11,7 @@ import ResourceType from './resource-type/resource-type.service'
 import StaticResourceType from './static-resource-type/static-resource-type.service'
 import UserRelationshipType from './user-relationship-type/user-relationship-type.service'
 import UserRole from './user-role/user-role.service'
+import SubscriptionType from './subscription-type/subscription-type.service'
 
 // Objects
 import AccessControl from './access-control/access-control.service'
@@ -42,6 +43,7 @@ import SMS from './sms/sms.service'
 import Upload from './upload/upload.service'
 import Video from './video/video.service'
 import GraphQL from './graphql/graphql.service'
+import SubscriptionConfirm from './subscription-confirm/subscription-confirm.service'
 
 // Spoke
 import Asset from './asset/asset.service'
@@ -72,6 +74,7 @@ export default (app: Application): void => {
   app.configure(EntityType)
   app.configure(UserRelationshipType)
   app.configure(IdentityProviderType)
+  app.configure(SubscriptionType)
   app.configure(AccessControlScope)
   app.configure(GroupUserRank)
 
@@ -120,4 +123,5 @@ export default (app: Application): void => {
   app.configure(Conversation)
   app.configure(ChatRoom)
   app.configure(MessageStatus)
+  app.configure(SubscriptionConfirm)
 }
