@@ -10,7 +10,7 @@ export default (options = {}): Hook => {
 
     const storage = context.params.storageProvider.getStorage()
 
-    const url = 'https://s3.amazonaws.com/' + (storage.bucket as string) + '/' + (context.result.id as string)
+    const url = 'https://s3.amazonaws.com/' + (storage.bucket as string) + '/' + (context.result.id as string || context.data.id as string)
 
     context.data.url = url
 
