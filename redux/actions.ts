@@ -70,3 +70,9 @@ export type Action = {
   type: string,
   [key: string]: any
 }
+
+// admin console
+
+export const VIDEO_CREATED = 'VIDEO_CREATED'
+export const VIDEO_UPDATED = 'VIDEO_UPDATED'
+export const VIDEO_DELETED = 'VIDEO_DELETED'

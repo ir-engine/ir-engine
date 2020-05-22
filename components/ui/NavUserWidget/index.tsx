@@ -66,8 +66,10 @@ class NavUserBadge extends Component<Props> {
             </Button> */}
             <Dropdown
               avatar={user && user.avatar}
-              parentProps={this.props}
-              avatarLetter={avatarLetter}>
+              avatarLetter={avatarLetter}
+              auth={this.props.auth}
+              logoutUser={this.props.logoutUser}
+            >
             </Dropdown>
           </div>
         )}

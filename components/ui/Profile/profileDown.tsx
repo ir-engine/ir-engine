@@ -14,8 +14,9 @@ import Avatar from '@material-ui/core/Avatar'
 
 interface XProps {
   avatar: any,
-  parentProps: any,
   avatarLetter: string
+  logoutUser: any,
+  auth: any
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -53,7 +54,7 @@ const MenuListComposition: React.FC<XProps> = (props: XProps) => {
     setOpen(false)
   }
   const handleLogout = () => {
-    props.parentProps.logoutUser()
+    props.logoutUser()
     setOpen(false)
   }
 
@@ -66,6 +67,9 @@ const MenuListComposition: React.FC<XProps> = (props: XProps) => {
 
   const handleContacts = () => {
     Router.push('/friends/friends')
+  }
+  const handleAdminConsole = () => {
+    Router.push('/admin')
   }
   const modalClose = () => {
     setModalOpen(false)
@@ -118,6 +122,7 @@ const MenuListComposition: React.FC<XProps> = (props: XProps) => {
                   >
                     <MenuItem onClick={handleModal}>Profile</MenuItem>
                     <MenuItem onClick={handleContacts}>Contacts</MenuItem>
+                    {props.auth.get('user').userRole === 'admin' && <MenuItem onClick={handleAdminConsole}>Admin Console</MenuItem> }
                     <MenuItem onClick={handleLogout}>Logout</MenuItem>
                   </MenuList>
                 </ClickAwayListener>
