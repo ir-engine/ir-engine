@@ -55,16 +55,16 @@ const Pricing = () => {
   const [annual, setAnnual] = React.useState([])
 
   React.useEffect(() => {
-    client.service('subscription').find()
+    client.service('subscription-type').find()
       .then(response => {
-        filterData(response.plans)
+        filterData(response.data)
       })
       .catch(err => console.log(err))
   }, [])
 
   const filterData = (planData) => {
-    setMonthly(planData.filter(plan => plan.type === 'monthly'))
-    setAnnual(planData.filter(plan => plan.type === 'annual'))
+    setMonthly(planData.filter(plan => plan.type === 'monthly').sort((planA, planB) => planA.amount - planB.amount))
+    setAnnual(planData.filter(plan => plan.type === 'annual').sort((planA, planB) => planA.amount - planB.amount))
   }
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
