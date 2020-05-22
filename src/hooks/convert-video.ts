@@ -281,6 +281,8 @@ export default async (context: any): Promise<void> => {
   } else {
     console.log('Regex for ' + url + ' did not match anything known')
 
+    await app.service('static-resource').remove(result.id)
+
     return context
   }
 }

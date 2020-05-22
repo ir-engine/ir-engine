@@ -1,8 +1,13 @@
 import { HookContext } from '@feathersjs/feathers'
+import { hooks } from '@feathersjs/authentication'
 import dauria from 'dauria'
 import removeRelatedResources from '../../hooks/remove-related-resources'
 import collectAnalytics from '../../hooks/collect-analytics'
 import addAssociations from '../../hooks/add-associations'
+import replaceThumbnailLink from '../../hooks/replace-thumbnail-link'
+
+const { authenticate } = hooks
+
 export default {
   before: {
     all: [],
@@ -19,6 +24,7 @@ export default {
     ],
     get: [],
     create: [
+      authenticate('jwt'),
       (context: HookContext) => {
         if (!context.data.uri && context.params.file) {
           const file = context.params.file
@@ -30,9 +36,15 @@ export default {
         return context
       }
     ],
-    update: [],
-    patch: [],
-    remove: [removeRelatedResources()]
+    update: [authenticate('jwt')],
+    patch: [
+      authenticate('jwt'),
+      replaceThumbnailLink()
+    ],
+    remove: [
+      authenticate('jwt'),
+      removeRelatedResources()
+    ]
   },
 
   after: {
