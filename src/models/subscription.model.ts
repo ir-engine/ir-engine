@@ -27,6 +27,9 @@ export default (app: Application): any => {
       status: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
+      },
+      customerId: {
+        type: DataTypes.STRING
       }
     },
     {
@@ -41,7 +44,8 @@ export default (app: Application): any => {
   // eslint-disable-next-line no-unused-vars
   ;(subscription as any).associate = (models: any) => {
     // Define associations here
-    ;(subscription as any).belongsTo(models.user)
+    (subscription as any).belongsTo(models.user)
+    ;(subscription as any).belongsTo(models.subscription_type, { foreignKey: 'plan', required: true })
   }
 
   return subscription
