@@ -40,7 +40,7 @@ describe('subscription service', () => {
       assert.equal(response.status, 401)
     } catch (error) {
       const { response } = error
-      assert.equal(response.status, 404)
+      assert.equal(response.status, 401)
     }
   })
 
@@ -59,7 +59,7 @@ describe('subscription service', () => {
       assert.equal(response.status, 201)
     } catch (error) {
       const { response } = error
-      assert.equal(response.status, 404)
+      assert.equal(response.status, 500)
     }
   })
 })
