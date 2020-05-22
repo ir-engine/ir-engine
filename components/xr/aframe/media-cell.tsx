@@ -181,7 +181,6 @@ const primitiveProps = [
   'originalTitle',
   'title',
   'description',
-  'url',
   'thumbnailUrl',
   'productionCredit',
   'rating',
@@ -201,6 +200,7 @@ export const MediaCellPrimitive: AFRAME.PrimitiveDefinition = {
   deprecated: false,
   mappings: {
     ...PropertyMapper(primitiveProps, ComponentName),
+    'media-url': ComponentName + '.' + 'url',
     active: 'grid-cell.active'
   }
 }

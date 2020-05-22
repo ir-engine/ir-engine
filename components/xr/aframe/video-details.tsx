@@ -185,7 +185,6 @@ const primitiveProps = [
   'originalTitle',
   'title',
   'description',
-  'url',
   'thumbnailUrl',
   'productionCredit',
   'rating',
@@ -203,7 +202,10 @@ export const VideoDetailsPrimitive: AFRAME.PrimitiveDefinition = {
     ComponentName: {}
   },
   // deprecated: false,
-  mappings: PropertyMapper(primitiveProps, ComponentName)
+  mappings: {
+    ...PropertyMapper(primitiveProps, ComponentName),
+    'media-url': ComponentName + '.' + 'url'
+  }
 }
 
 const ComponentSystem = {
