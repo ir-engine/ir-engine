@@ -44,7 +44,7 @@ export class Subscription extends Service {
     const saved = await super.create(saveData, params)
     return {
       subscriptionId: saved.id,
-      paymentUrl: `https://kaixr.chargebee.com/hosted_pages/plans/${plan}`
+      paymentUrl: `https://kaixr-test.chargebee.com/hosted_pages/plans/${plan}`
     }
   }
 
