@@ -5,7 +5,7 @@
 
 ## About
 
-XRChat is an end-to-end solution for hosting humans and non-humans in a virtual space. This project would literally not be possible without the community contributions of Mozilla Hubs, Janus VR, Avaer + Exokit, Mr Doob, Hayden James Lee and many others.
+XRChat is an end-to-end solution for hosting humans and AI in a virtual space. This project would literally not be possible without the community contributions of Mozilla Hubs, Janus VR, Avaer + Exokit, Mr Doob, Hayden James Lee and many others.
 
 Our goal is an easy-to-use, well documented, end-to-end Javascript (or Typescript) exprience that anyone with a little bit of Javascript and HTML knowledge can dig into, deploy and make meaningful modifications and contributions to. If you fit this category and you are struggling with any aspect of getting started, we want to hear fromm you so that this can be a better exprience.
 
@@ -17,24 +17,53 @@ This is the server portion of XRChat. To deploy everything at once with Kubernet
 
 Getting up and running is as easy as 1, 2, 3.
 
-1. Make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed.
-2. Install your dependencies
+0. Make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed (and if you are using it, [docker](https://docs.docker.com/)).
+1. Install your dependencies
 
     ```
     cd path/to/xrchat-server
     npm install
     ```
-3. Make sure you have a mysql database installed and running -- our recommendation is Mariadb. We've provided a docker container for easy setup:
+2. Make sure you have a mysql database installed and running -- our recommendation is Mariadb. We've provided a docker container for easy setup:
 ```
 cd scripts && ./start-db.sh
 ```
 
-4. Start your app
+This creates a docker image of mariadb named xrchat_db.
+
+3. Start your app
 
     ```
     npm start
     ```
+
+### Notes
+
+./start-db.sh only needs to be run once. If the docker image has stopped, start it again with:
+
+    docker container start xrchat_db
     
+
+You may refresh the database with:
+
+    FORCE_DB_REFRESH=true npm run start
+
+### troubleshooting
+
+#### AccessDenied connecting to maraidb
+
+Make sure you don't have another instance of mariadb running on port 3306
+
+    lsof -i :3306
+
+#### Error: listen EADDRINUSE :::3030
+
+check which process is using port 3030 and kill
+
+    lsof -i :3030
+	
+	kill -3 proccessIDfromPreviousCommand
+
 ## Weird issues with your database?
 Try
 ```
