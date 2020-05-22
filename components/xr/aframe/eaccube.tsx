@@ -20,13 +20,15 @@ export interface EaccubeComponentData {
   tileOrder: string,
   tileRotation: string,
   tileFlip: string,
-  size: number
+  size: number,
+  cropTileXBase: number,
+  cropTileYBase: number
 }
 
 const TILE_ROTATION_RIGHT = 'R' // 90deg cw
 const TILE_ROTATION_LEFT = 'L' // 90deg ccw
 // @ts-ignore
-const TILE_ROTATION_UP = 'U' // no rotation
+// const TILE_ROTATION_UP = 'U' // no rotation
 const TILE_ROTATION_DOWN = 'D' // 180deg
 const CubeFaceOrder = 'RLUDFB'
 const TileOrderRegExp = new RegExp(`^[${CubeFaceOrder}]{6}$`, 'i')
@@ -54,7 +56,9 @@ export const EaccubeComponentSchema: AFRAME.MultiPropertySchema<EaccubeComponent
     }
   },
   tileFlip: { type: 'string', default: '000000' },
-  size: { type: 'int', default: 1000 }
+  size: { type: 'int', default: 1000 },
+  cropTileXBase: { type: 'number', default: 0 },
+  cropTileYBase: { type: 'number', default: 0 }
 }
 
 function generateEACUV(tileOrder: string[], tileRotation: string[], tileFlip: string[], cropX: number, cropY: number): number[] {
@@ -258,8 +262,8 @@ export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps>
       srcWidth = src.naturalWidth
       srcHeight = src.naturalHeight
     }
-    this.cropTileX = 2 / srcWidth
-    this.cropTileY = 2 / srcHeight
+    this.cropTileX = this.data.cropTileXBase * 2 / srcWidth
+    this.cropTileY = this.data.cropTileYBase * 2 / srcHeight
 
     this.updateUV()
   }
