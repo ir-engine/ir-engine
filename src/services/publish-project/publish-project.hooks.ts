@@ -3,6 +3,7 @@ import { disallow } from 'feathers-hooks-common'
 import { HookContext } from '@feathersjs/feathers'
 import attachOwnerIdInSavingContact from '../../hooks/set-loggedin-user-in-body'
 import setResponseStatusCode from '../../hooks/set-response-status-code'
+import mapProjectIdToQuery from '../../hooks/set-project-id-in-query'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -19,14 +20,6 @@ const mapProjectSceneDataForSaving = () => {
   }
 }
 
-const mapProjectIdToQuery = () => {
-  return (context: HookContext) => {
-    context.params.query = {
-      ...context.params.query,
-      projectId: context?.params?.route?.projectId
-    }
-  }
-}
 export default {
   before: {
     all: [authenticate('jwt')],
