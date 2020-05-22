@@ -61,6 +61,8 @@ import ChatRoom from './chatroom/chatroom.service'
 
 import MessageStatus from './message-status/message-status.service'
 
+import subscription from './subscription/subscription.service'
+
 export default (app: Application): void => {
   // Dynamic Enums
   app.configure(ComponentType)
@@ -90,6 +92,7 @@ export default (app: Application): void => {
   app.configure(UserRelationship)
   app.configure(UserRole)
   app.configure(UserSettings)
+  app.configure(subscription)
   // Junctions
   app.configure(PartyUser)
   app.configure(GroupUser)
