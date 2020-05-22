@@ -8,7 +8,8 @@ export type User = {
   userRole: string
   identityProviders: IdentityProvider[]
   relationType?: RelationshipType
-  inverseRelationType?: RelationshipType
+  inverseRelationType?: RelationshipType,
+  subscriptions: any[]
 }
 
 export const UserSeed = {
@@ -19,11 +20,20 @@ export const UserSeed = {
 }
 
 export function resolveUser (user: any): User {
+  let returned = user
   if (user && user.identity_providers) {
-    return {
-      ...user,
+    returned = {
+      ...returned,
       identityProviders: user.identity_providers
     }
   }
-  return user
+  if (user && user.subscriptions && user.subscriptions.length > 0) {
+    const verifiedSubscription = user.subscriptions.find(item => item.status === true)
+    returned = {
+      ...returned,
+      subscription: verifiedSubscription
+    }
+    delete returned.subscriptions
+  }
+  return returned
 }

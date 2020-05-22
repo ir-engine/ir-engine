@@ -23,6 +23,11 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     alignItems: 'baseline',
     marginBottom: theme.spacing(2)
+  },
+  cardSeats: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'baseline'
   }
 }))
 
@@ -34,8 +39,8 @@ interface Props {
 
 const Plans = (props: Props) => {
   const classes = useStyles()
-  const handleClick = (planId) => {
-    props.auth.get('isLoggedIn') ? client.service('subscription').create({ planId })
+  const handleClick = (plan) => {
+    props.auth.get('isLoggedIn') ? client.service('subscription').create({ plan })
       .then(res => { window.location.href = res.paymentUrl })
       .catch(err => console.log(err))
       : props.showDialog({ children: <SignIn/> })
@@ -59,13 +64,22 @@ const Plans = (props: Props) => {
                     ${tier.amount}
                   </Typography>
                   <Typography variant="h6" color="textSecondary">
-                    /mo
+                    {tier.type === 'monthly' && '/mo'}
+                    {tier.type === 'annual' && '/year'}
+                  </Typography>
+                </div>
+              </CardContent>
+              <CardContent>
+                <div className={classes.cardSeats}>
+                  <Typography component="h4" variant="h5" color="textPrimary">
+                    {tier.seats === 1 && tier.seats + ' Seat' }
+                    {tier.seats > 1 && tier.seats + ' Seats' }
                   </Typography>
                 </div>
               </CardContent>
               <CardActions>
                 <Button
-                  onClick={() => handleClick(tier.planId)}
+                  onClick={() => handleClick(tier.plan)}
                   fullWidth
                   variant="contained"
                   color="primary">
