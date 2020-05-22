@@ -34,7 +34,7 @@ export function defaultProjectImport (models: any): any[] {
     {
       model: models.owned_file,
       as: 'thumbnail_owned_file',
-      attributes: ['key']
+      attributes: ['url']
     },
     {
       model: models.scene,
@@ -43,12 +43,12 @@ export function defaultProjectImport (models: any): any[] {
         {
           model: models.owned_file,
           as: 'model_owned_file',
-          attributes: ['key']
+          attributes: ['url']
         },
         {
           model: models.owned_file,
           as: 'screenshot_owned_file',
-          attributes: ['key']
+          attributes: ['url']
         }
       ]
     },
@@ -60,12 +60,12 @@ export function defaultProjectImport (models: any): any[] {
         {
           model: models.owned_file,
           as: 'model_owned_file',
-          attributes: ['key']
+          attributes: ['url']
         },
         {
           model: models.owned_file,
           as: 'screenshot_owned_file',
-          attributes: ['key']
+          attributes: ['url']
         }
       ]
     }
