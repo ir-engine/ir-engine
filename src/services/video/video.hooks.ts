@@ -1,4 +1,5 @@
 // import * as authentication from '@feathersjs/authentication'
+import commonHooks from 'feathers-hooks-common'
 import convertVideo from '../../hooks/convert-video'
 import addAttribution from '../../hooks/add-attribution'
 // import createResource from '../../hooks/create-resource'
@@ -6,7 +7,11 @@ import addAttribution from '../../hooks/add-attribution'
 
 export default {
   before: {
-    all: [],
+    all: [
+      commonHooks.iff(
+        process.env.SERVER_MODE !== 'media',
+        commonHooks.disallow('external')
+      )],
     find: [],
     get: [],
     create: [],
