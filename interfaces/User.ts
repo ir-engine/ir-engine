@@ -5,6 +5,7 @@ export type User = {
   id: string
   avatar: string
   name: string
+  userRole: string
   identityProviders: IdentityProvider[]
   relationType?: RelationshipType
   inverseRelationType?: RelationshipType

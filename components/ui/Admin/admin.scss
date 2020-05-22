@@ -1,0 +1,64 @@
+.paper {
+  margin-top: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.paper-modal {
+  border: 2px solid #000;
+  padding: 16px 32px 24px;
+  box-shadow: 0px 3px 5px -1px rgba(0,0,0,0.2), 0px 5px 8px 0px rgba(0,0,0,0.14), 0px 1px 14px 0px rgba(0,0,0,0.12);
+  background-color: #fff;
+  max-width: 50%;
+}
+
+.info-icon {
+  color: white !important;
+  opacity: 0.54;
+
+  &:hover {
+    opacity: 0.75;
+  }
+}
+.avatar {
+  margin: 7px;
+  background-color: #3f51b5;
+}
+.form {
+  width: 100%;
+  margin-top: 14px;
+}
+
+.submit {
+  margin: 14px 0 !important;
+}
+.delete {
+  color: white !important;
+  background-color: red !important;
+}
+.MuiButton-contained.facebook {
+  background-color: #4267B2;
+  color: white;
+}
+.MuiButton-contained.google {
+  background-color: red;
+  color: white;
+}
+.MuiButton-contained.github {
+  background-color: grey;
+  color: white;
+}
+
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .close {
+    left: 95%;
+    &:hover {
+      color: red;
+    }
+  }
+}
