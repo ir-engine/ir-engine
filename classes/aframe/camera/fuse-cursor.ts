@@ -1,6 +1,4 @@
-// eslint-disable-next-line no-unused-vars
 import AFRAME from 'aframe'
-// eslint-disable-next-line no-unused-vars
 import CursorComponent from './cursor-component'
 import RaycasterComponent from './raycaster-component'
 import { setComponent } from '../aframe-component'

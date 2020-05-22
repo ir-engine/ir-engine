@@ -13,5 +13,9 @@
   }
 
   .a-loader-title {
-    display: none;
+    display: none!important;
+    position:absolute!important;
+    top:-100000!important;
+    opacity: 0;
   }
+

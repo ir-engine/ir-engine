@@ -122,7 +122,7 @@ auth/selector.ts    : In this file, we defined state selector for AuthState.
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { 
-  loginUserByEmail,
+  loginUserByPassword,
 } from '../../../redux/auth/service'
 import { selectAuthState } from '../../../redux/auth/selector'
 
@@ -130,7 +130,7 @@ import { selectAuthState } from '../../../redux/auth/selector'
 
 interface Props {
   auth: any,
-  loginUserByEmail: typeof loginUserByEmail
+  loginUserByPassword: typeof loginUserByPassword
 }
 
 const mapStateToProps = (state: any) => {
@@ -141,7 +141,7 @@ const mapStateToProps = (state: any) => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  loginUserByEmail: bindActionCreators(loginUserByEmail, dispatch)  // Mapping service to props
+  loginUserByPassword: bindActionCreators(loginUserByPassword, dispatch)  // Mapping service to props
 })
 
 ...
@@ -150,7 +150,7 @@ class Login extends React.Component<LoginProps> {
 ...
     handleEmailLogin = (e: any) => {
         // call service which is mapping with redux.
-        this.props.loginUserByEmail({
+        this.props.loginUserByPassword({
             email: this.state.email,
             password: this.state.password
         })
@@ -251,7 +251,7 @@ Let's explain step by step about the login process.
     ```
     ...
 
-    export function loginUserByEmail(form: any) {
+    export function loginUserByPassword(form: any) {
         return (dispatch: Dispatch) => {
             dispatch(actionProcessing(true))
 
@@ -286,3 +286,82 @@ Let's explain step by step about the login process.
 
 3. How to use the Redux store and services in Component.
    Please refer `How to use Redux` section.
+
+
+
+### How to access detected device and if WebXR is supported:
+
+```
+import { connect } from 'react-redux'
+import { detectDeviceType } from '../../../redux/devicedetect/service'
+import { bindActionCreators, Dispatch } from 'redux'
+import { selectDeviceDetectState } from '../../../redux/devicedetect/selector'
+
+...
+
+interface Props {
+  deviceInfo: any
+}
+
+const mapStateToProps = (state: any) => {
+  return {
+    deviceInfo: selectDeviceDetectState(state),
+  }
+}
+
+...
+
+class Login extends React.Component<Props> {
+...
+    //this.props.deviceInfo.get('isDetected') -> it will tell us that whether the device is detected or not.
+    //this.props.deviceInfo.get('isDetected') -> returns true always because it is dispatched in _app.tsx
+    //this.props.deviceInfo.get('content') -> it will return the entire object with the following content in it
+    <!-- {
+        WebXRSupported: true,
+        device: {
+            "client": {
+                "type": "browser",
+                "name": "Chrome",
+                "version": "69.0",
+                "engine": "Blink",
+                "engineVersion": ""
+            },
+            "os": {
+                "name": "Mac",
+                "version": "10.13",
+                "platform": ""
+            },
+            "device": {
+                "type": "desktop",
+                "brand": "Apple",
+                "model": ""
+            },
+            "bot": null
+        }
+    } -->
+    
+
+...
+}
+
+...
+
+// we should connect Redux and Component like as following.
+export default connect(
+  mapStateToProps
+)(Login)
+
+//No need to dispatch, as it is already being dispatched from _app.tsx
+//If needed, just in case, then dispatch the 'detectDeviceType' service that is imported above by using mapDispatchToProps, bindActionCreator and Dispatch
+//example
+<!-- const mapDispatchToProps = (dispatch: Dispatch) => ({
+  detectDeviceType: bindActionCreators(detectDeviceType(arg), dispatch)
+}) -->
+//detectDeviceType(arg) takes an argument of type 'any' which is object containing device information
+//Don't forget to change the Props interface
+<!-- interface Props {
+  deviceInfo: any
+  detectDeviceType: typeof detectDeviceType
+} -->
+//lastly add mapDispatchToProps in the connect argument.
+```

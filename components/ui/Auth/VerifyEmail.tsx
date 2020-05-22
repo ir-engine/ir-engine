@@ -3,7 +3,7 @@ import Box from '@material-ui/core/Box'
 import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
 import {
-  verifyEmail,
+  verifyEmail
 } from '../../../redux/auth/service'
 import './auth.scss'
 import EmptyLayout from '../Layout/EmptyLayout'

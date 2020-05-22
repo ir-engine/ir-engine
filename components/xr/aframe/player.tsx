@@ -1,15 +1,13 @@
-// eslint-disable-next-line no-unused-vars
 import AFRAME from 'aframe'
 import Player, { defaultPlayerHeight, defaultPlayerID } from '../../../classes/aframe/player'
-// eslint-disable-next-line no-unused-vars
 import { AvatarOptions, defaultTemplateID, defaultAvatarOptions } from '../../../classes/aframe/avatar/avatar'
-// eslint-disable-next-line no-unused-vars
 import { AvatarSchemaComponent, defaultComponents } from '../../../classes/aframe/avatar/avatar-schema'
 
 import PlayerControls from '../../../classes/aframe/controls/player-controls'
 import CameraRig from '../../../classes/aframe/camera/camera-rig'
-// eslint-disable-next-line no-unused-vars
 import CameraCoponent from '../../../classes/aframe/camera/camera'
+
+import PropertyMapper from './ComponentUtils'
 
 export const ComponentName = 'player'
 
@@ -95,17 +93,21 @@ export const PlayerComponent: AFRAME.ComponentDefinition<PlayerProps> = {
 
 }
 
+const primitiveProperties = [
+  'templateID',
+  'playerID',
+  'playerHeight'
+]
+
 export const PlayerPrimitive: AFRAME.PrimitiveDefinition = {
   defaultComponents: {
     ComponentName: {}
   },
   deprecated: false,
   mappings: {
-    templateID: ComponentName + '.templateID',
-    playerID: ComponentName + '.playerID',
-    playerHeight: ComponentName + '.playerHeight',
-    assetType: ComponentName + '.options.assetType',
-    attachTemplateToLocal: ComponentName + '.options.attachTemplateToLocal'
+    ...PropertyMapper(primitiveProperties, ComponentName),
+    'asset-type': ComponentName + '.options.assetType',
+    'attach-template-to-local': ComponentName + '.options.attachTemplateToLocal'
   }
 }
 

@@ -1,8 +1,6 @@
 import Immutable from 'immutable'
 import {
-  // eslint-disable-next-line no-unused-vars
   ScenesFetchedAction,
-  // eslint-disable-next-line no-unused-vars
   PublicScenesState
 } from './actions'
 

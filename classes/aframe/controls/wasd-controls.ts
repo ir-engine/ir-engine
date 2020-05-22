@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 import { ControlsOptions } from './controls'
 import Axis from '../../../enums/axis'
 

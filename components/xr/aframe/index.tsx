@@ -1,10 +1,16 @@
 /* eslint-disable no-prototype-builtins */
-import playerComp from './player'
+import arrowComp from './arrow'
+import clickableComp from './clickable'
+import eaccubeComp from './eaccube'
 import gridComp from './grid'
 import gridCellComp from './grid-cell'
+import highlightComp from './highlight'
 import mediaCellComp from './media-cell'
-import eaccubeComp from './eaccube'
+import playerComp from './player'
 import playerVrUiComp from './video-player-vr-ui'
+import textCell from './text-cell'
+import videoDetails from './video-details'
+
 import AFRAME from 'aframe'
 import React from 'react'
 
@@ -17,15 +23,20 @@ type ComponentSystem = {
 }
 
 const ComponentSystemArray: ComponentSystem[] = [
-  playerComp,
+  arrowComp,
+  clickableComp,
+  eaccubeComp,
   gridComp,
   gridCellComp,
+  highlightComp,
   mediaCellComp,
-  eaccubeComp,
-  playerVrUiComp
+  playerComp,
+  playerVrUiComp,
+  textCell,
+  videoDetails
 ]
 
-function RegisterComponentSystem(compsys: ComponentSystem) : void {
+const RegisterComponentSystem = (compsys: ComponentSystem) : void => {
   if (compsys.system && !AFRAME.systems.hasOwnProperty(compsys.name)) {
     AFRAME.registerSystem(compsys.name, compsys.system)
   }

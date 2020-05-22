@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 import { AframeComponentOptions, AframeComponetInterface } from '../aframe-component'
 
 export interface RaycasterComponentOptions extends AframeComponentOptions {
@@ -13,6 +12,7 @@ export interface RaycasterComponentOptions extends AframeComponentOptions {
   showLine: boolean
   useWorldCoordinates: boolean
 }
+
 export const defaultRaycasterComponentOptions: RaycasterComponentOptions = {
   autoRefresh: true,
   // direction: 0, 0, -1,

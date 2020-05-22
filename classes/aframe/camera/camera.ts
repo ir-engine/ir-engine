@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 import { AframeComponentOptions, AframeComponetInterface } from '../aframe-component'
 
 export interface CameraComponentOptions extends AframeComponentOptions {
@@ -9,6 +8,7 @@ export interface CameraComponentOptions extends AframeComponentOptions {
   spectator: boolean,
   zoom: number
 }
+
 export const defaultCameraComponentOptions: CameraComponentOptions = {
   active: true,
   far: 10000,

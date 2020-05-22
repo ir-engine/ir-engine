@@ -3,7 +3,8 @@ import { useRouter, NextRouter } from 'next/router'
 import {
   verifyEmail,
   resetPassword,
-  loginUserByJwt
+  loginUserByJwt,
+  refreshConnections
 } from '../../../redux/auth/service'
 import { Dispatch, bindActionCreators } from 'redux'
 import { selectAuthState } from '../../../redux/auth/selector'
@@ -13,6 +14,7 @@ import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
 import ResetPassword from '../Auth/ResetPassword'
 import VerifyEmail from '../Auth/VerifyEmail'
+import { User } from '../../../interfaces/User'
 
 type Props = {
   router: NextRouter
@@ -20,6 +22,7 @@ type Props = {
   verifyEmail: typeof verifyEmail
   resetPassword: typeof resetPassword
   loginUserByJwt: typeof loginUserByJwt
+  refreshConnections: typeof refreshConnections
 }
 
 const mapStateToProps = (state: any) => {
@@ -31,7 +34,8 @@ const mapStateToProps = (state: any) => {
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   verifyEmail: bindActionCreators(verifyEmail, dispatch),
   resetPassword: bindActionCreators(resetPassword, dispatch),
-  loginUserByJwt: bindActionCreators(loginUserByJwt, dispatch)
+  loginUserByJwt: bindActionCreators(loginUserByJwt, dispatch),
+  refreshConnections: bindActionCreators(refreshConnections, dispatch)
 })
 
 class AuthMagicLink extends Component<Props> {
@@ -50,6 +54,12 @@ class AuthMagicLink extends Component<Props> {
 
     if (type === 'login') {
       this.props.loginUserByJwt(token, '/', '#')
+    } else if (type === 'connection') {
+      const user = this.props.auth.get('user') as User
+      if (user) {
+        this.props.refreshConnections(user.id)
+      }
+      window.location.href = '/profile-connections'
     }
   }
 

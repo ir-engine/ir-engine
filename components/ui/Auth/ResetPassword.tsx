@@ -4,7 +4,7 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
 import {
-  resetPassword,
+  resetPassword
 } from '../../../redux/auth/service'
 import './auth.scss'
 import EmptyLayout from '../Layout/EmptyLayout'
@@ -18,7 +18,7 @@ interface Props {
 
 class ResetPassword extends React.Component<Props> {
   state = {
-    password: '',
+    password: ''
   }
 
   handleInput = (e: any) => {

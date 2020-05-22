@@ -1,6 +1,8 @@
 import AFRAME from 'aframe'
 import vertexShader from './eaccube-vertex-shader'
 import fragmentShader from './eaccube-fragment-shader'
+import PropertyMapper from './ComponentUtils'
+
 const THREE = AFRAME.THREE
 
 export const ComponentName = 'eaccube'
@@ -28,7 +30,8 @@ export interface EaccubeComponentData {
 const TILE_ROTATION_RIGHT = 'R' // 90deg cw
 const TILE_ROTATION_LEFT = 'L' // 90deg ccw
 // @ts-ignore
-// const TILE_ROTATION_UP = 'U' // no rotation
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const TILE_ROTATION_UP = 'U' // no rotation
 const TILE_ROTATION_DOWN = 'D' // 180deg
 const CubeFaceOrder = 'RLUDFB'
 const TileOrderRegExp = new RegExp(`^[${CubeFaceOrder}]{6}$`, 'i')
@@ -103,7 +106,7 @@ function generateEACUV(tileOrder: string[], tileRotation: string[], tileFlip: st
 
   return uv
 }
-function transformFaceCoord(faceCoord: number[], tileRotation: string, tileFlip: string) {
+const transformFaceCoord = (faceCoord: number[], tileRotation: string, tileFlip: string) => {
   // flip first
   if (parseInt(tileFlip)) {
     faceCoord = flipFaceCoord(faceCoord)
@@ -112,7 +115,7 @@ function transformFaceCoord(faceCoord: number[], tileRotation: string, tileFlip:
   faceCoord = rotateFaceCoord(faceCoord, tileRotation)
   return faceCoord
 }
-function flipFaceCoord(faceCoord: number[]) {
+const flipFaceCoord = (faceCoord: number[]) => {
   return [
     faceCoord[6], faceCoord[7],
     faceCoord[4], faceCoord[5],
@@ -120,7 +123,7 @@ function flipFaceCoord(faceCoord: number[]) {
     faceCoord[0], faceCoord[1]
   ]
 }
-function rotateFaceCoord(faceCoord: number[], rotation: string) {
+const rotateFaceCoord = (faceCoord: number[], rotation: string) => {
   switch (rotation) {
     case TILE_ROTATION_LEFT:
       // 90 ccw
@@ -269,14 +272,13 @@ export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps>
   }
 }
 
+const primitiveProps = ['src', 'size']
+
 export const EaccubePrimitive: AFRAME.PrimitiveDefinition = {
   defaultComponents: {
     [ComponentName]: {}
   },
-  mappings: {
-    src: ComponentName + '.src',
-    size: ComponentName + '.size'
-  }
+  mappings: PropertyMapper(primitiveProps, ComponentName)
 }
 
 export interface EaccubeShaderData {

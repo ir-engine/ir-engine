@@ -11,7 +11,6 @@ import XDialog from '../Dialog/Dialog'
 const { publicRuntimeConfig } = getConfig()
 const siteTitle: string = publicRuntimeConfig.siteTitle
 
-
 type Props = {
   pageTitle: string
   children: any
