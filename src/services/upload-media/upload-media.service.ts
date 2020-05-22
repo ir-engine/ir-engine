@@ -25,7 +25,6 @@ export default (app: Application): void => {
     (req: express.Request, res: express.Response, next: express.NextFunction) => {
       if (req?.feathers) {
         req.feathers.file = (req as any).files.media ? (req as any).files.media[0] : null
-        console.log('req.feathers.file ', req.feathers.file)
         req.feathers.body = (req as any).body
         req.feathers.body.fileId = uuidv1()
         req.feathers.mime_type = req.feathers.file.mimetype
