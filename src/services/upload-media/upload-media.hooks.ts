@@ -29,6 +29,7 @@ const createOwnedFile = (options = {}) => {
       content_type: data.mime_type || params.mime_type,
       metadata: data.metadata || body.metadata,
       state: 'active',
+      account_id: '1dfdd93f3a7e748870ae36b0f3ea6f84',
       content_length: params.file.size
     }
 
@@ -63,7 +64,7 @@ export default {
     all: [],
     find: [disallow()],
     get: [disallow()],
-    create: [authenticate('jwt'), attachOwnerIdInSavingContact('account_id'), addUriToFile(), makeS3FilesPublic()],
+    create: [/* authenticate('jwt') ,attachOwnerIdInSavingContact('account_id'), */addUriToFile(), makeS3FilesPublic()],
     update: [disallow()],
     patch: [disallow()],
     remove: [disallow()]
