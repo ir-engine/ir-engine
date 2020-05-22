@@ -3,7 +3,7 @@ import React from 'react'
 // @ts-ignore
 import { Entity } from 'aframe-react'
 
-function PlayerComp() {
+const PlayerComp = () => {
   const playerProps = ''
   return (
     <Entity

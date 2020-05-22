@@ -4,7 +4,7 @@ import DefaultAssets from './assets-default'
 import ServerAssets from './assets-server'
 
 const Assets = () => (
-  <Entity primitive={'a-assets'}>
+  <Entity primitive={'a-assets'} timeout="3000">
     <DefaultAssets />
     <ServerAssets />
   </Entity>

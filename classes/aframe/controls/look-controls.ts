@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 import { ControlsOptions } from './controls'
 
 export interface LookControlsOptions extends ControlsOptions {
@@ -9,6 +8,7 @@ export interface LookControlsOptions extends ControlsOptions {
   touchEnabled: boolean,
   pointerLockEnabled: boolean
 }
+
 export const defaultLookControlsOptions: LookControlsOptions = {
   enabled: true,
   hmdEnabled: true,

@@ -1,10 +1,9 @@
-import { Dispatch } from "redux"
+import { Dispatch } from 'redux'
 import {
   EmailLoginForm,
   EmailRegistrationForm,
   didLogout,
   loginUserSuccess,
-  AuthUser,
   loginUserError,
   registerUserByEmailSuccess,
   registerUserByEmailError,
@@ -13,41 +12,77 @@ import {
   didResendVerificationEmail,
   didForgotPassword,
   didResetPassword,
-  didCreateMagicLink
-} from "./actions"
-import { client } from "../feathers"
-import { dispatchAlertError, dispatchAlertSuccess } from "../alert/service"
+  didCreateMagicLink,
+  updateSettings,
+  loadedUserData
+} from './actions'
+import { client } from '../feathers'
+import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service'
+import { validateEmail, validatePhoneNumber } from '../helper'
+import { axiosRequest, apiUrl } from '../service.common'
+
+import { resolveUser } from '../../interfaces/User'
+import { resolveAuthUser } from '../../interfaces/AuthUser'
+import { IdentityProvider } from '../../interfaces/IdentityProvider'
 import getConfig from 'next/config'
-import { validateEmail, validatePhoneNumber } from "../helper"
+import { getStoredState } from '../../redux/persisted.store'
 
 const { publicRuntimeConfig } = getConfig()
 const apiServer: string = publicRuntimeConfig.apiServer
 const authConfig = publicRuntimeConfig.auth
 
-export function doLoginAuto() {
-  return (dispatch: Dispatch) => {
-    client.reAuthenticate()
-      .then((res: any) => {
-        const val = res as AuthUser
-        if (!val.user.isVerified) {
-          client.logout()
+export async function doLoginAuto (dispatch: Dispatch) {
+  const authData = getStoredState('auth')
+  const accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined
 
-          dispatchAlertError(dispatch, 'Unverified user')
-
-          return dispatch(loginUserError('Unverified user'))
-        }
-        return dispatch(loginUserSuccess(val))
-      })
+  if (!accessToken) {
+    return
   }
+
+  await client.authentication.setAccessToken(accessToken as string)
+  client.reAuthenticate()
+    .then((res: any) => {
+      if (res) {
+        const authUser = resolveAuthUser(res)
+        // if (!authUser.identityProvider.isVerified) {
+        //   client.logout()
+        //   return;
+        // }
+        dispatch(loginUserSuccess(authUser))
+        loadUserData(dispatch, authUser.identityProvider.userId)
+      } else {
+        console.log('****************')
+      }
+    })
+    .catch((e) => {
+      dispatch(didLogout())
+
+      console.log(e)
+      if (window.location.pathname !== '/') {
+        window.location.href = '/'
+      }
+    })
 }
 
-export function loginUserByEmail(form: EmailLoginForm) {
+export function loadUserData (dispatch: Dispatch, userId: string) {
+  client.service('user').get(userId)
+    .then((res: any) => {
+      const user = resolveUser(res)
+      dispatch(loadedUserData(user))
+    })
+    .catch((err: any) => {
+      console.log(err)
+      dispatchAlertError(dispatch, 'Failed to loading user data')
+    })
+}
+
+export function loginUserByPassword (form: EmailLoginForm) {
   return (dispatch: Dispatch) => {
     // check email validation.
     if (!validateEmail(form.email)) {
       dispatchAlertError(dispatch, 'Please input valid email address')
 
-      return;
+      return
     }
 
     dispatch(actionProcessing(true))
@@ -58,51 +93,46 @@ export function loginUserByEmail(form: EmailLoginForm) {
       password: form.password
     })
       .then((res: any) => {
-        const val = {
-          accessToken: res.accessToken,
-          authentication: res.authentication,
-          user: res['identity-provider']
-        }
+        const authUser = resolveAuthUser(res)
 
-        if (!val.user.isVerified) {
+        if (!authUser.identityProvider.isVerified) {
           client.logout()
+
           window.location.href = '/auth/confirm'
-
-          dispatchAlertError(dispatch, 'Unverified user')
-
-          return dispatch(loginUserError('Unverified user'))
+          dispatch(registerUserByEmailSuccess(authUser.identityProvider))
+          return
         }
+
         window.location.href = '/'
-        return dispatch(loginUserSuccess(val))
+        dispatch(loginUserSuccess(authUser))
+
+        loadUserData(dispatch, authUser.identityProvider.userId)
       })
       .catch((err: any) => {
         console.log(err)
 
-        dispatchAlertError(dispatch, err.message)
-
         dispatch(loginUserError('Failed to login'))
+        dispatchAlertError(dispatch, err.message)
       })
       .finally(() => dispatch(actionProcessing(false)))
   }
 }
 
-export function loginUserByGithub() {
+export function loginUserByGithub () {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
-
     window.location.href = `${apiServer}/oauth/github`
   }
 }
 
-export function loginUserByGoogle() {
+export function loginUserByGoogle () {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
-
     window.location.href = `${apiServer}/oauth/google`
   }
 }
 
-export function loginUserByFacebook() {
+export function loginUserByFacebook () {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -110,7 +140,7 @@ export function loginUserByFacebook() {
   }
 }
 
-export function loginUserByJwt(accessToken: string, redirectSuccess: string, redirectError: string) {
+export function loginUserByJwt (accessToken: string, redirectSuccess: string, redirectError: string): any {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -119,28 +149,23 @@ export function loginUserByJwt(accessToken: string, redirectSuccess: string, red
       accessToken
     })
       .then((res: any) => {
-        const val = {
-          accessToken: res.accessToken,
-          authentication: res.authentication,
-          user: res['identity-provider']
-        }
+        const authUser = resolveAuthUser(res)
 
         window.location.href = redirectSuccess
-        return dispatch(loginUserSuccess(val))
+        dispatch(loginUserSuccess(authUser))
+        loadUserData(dispatch, authUser.identityProvider.userId)
       })
       .catch((err: any) => {
-        window.location.href = redirectError
         console.log(err)
-
+        window.location.href = redirectError
+        dispatch(loginUserError('Failed to login'))
         dispatchAlertError(dispatch, err.message)
-
-        return dispatch(loginUserError('Failed to login'))
       })
       .finally(() => dispatch(actionProcessing(false)))
   }
 }
 
-export function logoutUser() {
+export function logoutUser () {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
     client.logout()
@@ -150,31 +175,29 @@ export function logoutUser() {
   }
 }
 
-export function registerUserByEmail(form: EmailRegistrationForm) {
+export function registerUserByEmail (form: EmailRegistrationForm) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
     client.service('identity-provider').create({
       token: form.email,
       password: form.password,
-      accountType: 'password'
+      type: 'password'
     })
-      .then((user: any) => {
+      .then((identityProvider: any) => {
         window.location.href = '/auth/confirm'
-        dispatch(registerUserByEmailSuccess(user))
+        dispatch(registerUserByEmailSuccess(identityProvider))
       })
       .catch((err: any) => {
         console.log(err)
-
-        dispatchAlertError(dispatch, err.message)
-
         dispatch(registerUserByEmailError(err.message))
+        dispatchAlertError(dispatch, err.message)
       })
       .finally(() => dispatch(actionProcessing(false)))
   }
 }
 
-export function verifyEmail(token: string) {
+export function verifyEmail (token: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -183,28 +206,28 @@ export function verifyEmail(token: string) {
       value: token
     })
       .then((res: any) => {
-        console.log('accc-----------====', res.accessToken)
-        loginUserByJwt(res.accessToken, "/", "/")(dispatch)
         dispatch(didVerifyEmail(true))
+        loginUserByJwt(res.accessToken, '/', '/')(dispatch)
       })
       .catch((err: any) => {
         console.log(err)
-
-        dispatchAlertError(dispatch, err.message)
-
         dispatch(didVerifyEmail(false))
+        dispatchAlertError(dispatch, err.message)
       })
       .finally(() => dispatch(actionProcessing(false)))
   }
 }
 
-export function resendVerificationEmail(email: string) {
+export function resendVerificationEmail (email: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
     client.service('authManagement').create({
       action: 'resendVerifySignup',
-      value: { token: email, accountType: 'password' }
+      value: {
+        token: email,
+        type: 'password'
+      }
     })
       .then(() => dispatch(didResendVerificationEmail(true)))
       .catch(() => dispatch(didResendVerificationEmail(false)))
@@ -212,13 +235,16 @@ export function resendVerificationEmail(email: string) {
   }
 }
 
-export function forgotPassword(email: string) {
+export function forgotPassword (email: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
     client.service('authManagement').create({
       action: 'sendResetPwd',
-      value: { token: email, accountType: 'password' }
+      value: {
+        token: email,
+        type: 'password'
+      }
     })
       .then(() => dispatch(didForgotPassword(true)))
       .catch(() => dispatch(didForgotPassword(false)))
@@ -226,7 +252,7 @@ export function forgotPassword(email: string) {
   }
 }
 
-export function resetPassword(token: string, password: string) {
+export function resetPassword (token: string, password: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
@@ -236,70 +262,163 @@ export function resetPassword(token: string, password: string) {
     })
       .then((res: any) => {
         console.log(res)
-        window.location.href = '/auth/login'
+        window.location.href = '/'
         dispatch(didResetPassword(true))
       })
       .catch((err: any) => {
         console.log(err)
-        window.location.href = '/auth/login'
+        window.location.href = '/'
         dispatch(didResetPassword(false))
       })
       .finally(() => dispatch(actionProcessing(false)))
   }
 }
 
-export function createMagicLink(email_phone: string) {
+export function createMagicLink (emailPhone: string, linkType?: 'email' | 'sms') {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
-    let type = "email"
-    let paramName = "email"
-    const isEnableEmailMagicLink = (authConfig && authConfig.isEnableEmailMagicLink) ?? true;
-    const isEnableSmsMagicLink = (authConfig && authConfig.isEnableSmsMagicLink) ?? false;
+    let type = 'email'
+    let paramName = 'email'
+    const isEnableEmailMagicLink = (authConfig && authConfig.isEnableEmailMagicLink) ?? true
+    const isEnableSmsMagicLink = (authConfig && authConfig.isEnableSmsMagicLink) ?? false
 
-    if (validatePhoneNumber(email_phone)) {
-      if (!isEnableSmsMagicLink) {
-        dispatchAlertError(dispatch, 'Please input valid email address')
+    if (linkType === 'email') {
+      type = 'email'
+      paramName = 'email'
+    } else if (linkType === 'sms') {
+      type = 'sms'
+      paramName = 'mobile'
+    } else {
+      if (validatePhoneNumber(emailPhone)) {
+        if (!isEnableSmsMagicLink) {
+          dispatchAlertError(dispatch, 'Please input valid email address')
 
-        return;
+          return
+        }
+        type = 'sms'
+        paramName = 'mobile'
+      } else if (validateEmail(emailPhone)) {
+        if (!isEnableEmailMagicLink) {
+          dispatchAlertError(dispatch, 'Please input valid phone number')
+
+          return
+        }
+        type = 'email'
+      } else {
+        dispatchAlertError(dispatch, 'Please input valid email or phone number')
+
+        return
       }
-      type = "sms"
-      paramName = "mobile"
     }
-    else if (validateEmail(email_phone)) {
-      if (!isEnableEmailMagicLink) {
-        dispatchAlertError(dispatch, 'Please input valid phone number')
-
-        return;
-      }
-      type = "email"
-    }
-    else {
-      dispatchAlertError(dispatch, 'Please input valid email or phone number')
-
-      return;
-    }
-
-    console.log('create----', email_phone, type);
 
     client.service('magiclink').create({
       type,
-      [paramName]: email_phone
+      [paramName]: emailPhone
     })
       .then((res: any) => {
         console.log(res)
-
-        dispatchAlertSuccess(dispatch, 'Login Magic Link was sent. Please check your Email or SMS.')
-
         dispatch(didCreateMagicLink(true))
+        dispatchAlertSuccess(dispatch, 'Login Magic Link was sent. Please check your Email or SMS.')
       })
       .catch((err: any) => {
         console.log(err)
-
-        dispatchAlertError(dispatch, err.message)
-
         dispatch(didCreateMagicLink(false))
+        dispatchAlertError(dispatch, err.message)
       })
       .finally(() => dispatch(actionProcessing(false)))
   }
+}
+
+export function addConnectionByPassword (form: EmailLoginForm, userId: string) {
+  return (dispatch: Dispatch) => {
+    dispatch(actionProcessing(true))
+
+    client.service('identity-provider').create({
+      token: form.email,
+      password: form.password,
+      type: 'password',
+      userId
+    })
+      .then((res: any) => {
+        const identityProvider = res as IdentityProvider
+        loadUserData(dispatch, identityProvider.userId)
+      })
+      .catch((err: any) => {
+        console.log(err)
+        dispatchAlertError(dispatch, err.message)
+      })
+      .finally(() => dispatch(actionProcessing(false)))
+  }
+}
+
+export function addConnectionByEmail (email: string, userId: string) {
+  return (dispatch: Dispatch) => {
+    dispatch(actionProcessing(true))
+
+    client.service('magiclink').create({
+      email,
+      type: 'email',
+      userId
+    })
+      .then((res: any) => {
+        const identityProvider = res as IdentityProvider
+        loadUserData(dispatch, identityProvider.userId)
+      })
+      .catch((err: any) => {
+        console.log(err)
+        dispatchAlertError(dispatch, err.message)
+      })
+      .finally(() => dispatch(actionProcessing(false)))
+  }
+}
+
+export function addConnectionBySms (phone: string, userId: string) {
+  return (dispatch: Dispatch) => {
+    dispatch(actionProcessing(true))
+
+    client.service('magiclink').create({
+      mobile: phone,
+      type: 'sms',
+      userId
+    })
+      .then((res: any) => {
+        const identityProvider = res as IdentityProvider
+        loadUserData(dispatch, identityProvider.userId)
+      })
+      .catch((err: any) => {
+        console.log(err)
+        dispatchAlertError(dispatch, err.message)
+      })
+      .finally(() => dispatch(actionProcessing(false)))
+  }
+}
+
+export function addConnectionByOauth (oauth: 'facebook' | 'google' | 'github', userId: string) {
+  return (/* dispatch: Dispatch */) => {
+    window.open(`${apiServer}/oauth/${oauth}?userId=${userId}`, '_blank')
+  }
+}
+
+export function removeConnection (identityProviderId: number, userId: string) {
+  return (dispatch: Dispatch) => {
+    dispatch(actionProcessing(true))
+
+    client.service('identity-provider').remove(identityProviderId)
+      .then(() => {
+        loadUserData(dispatch, userId)
+      })
+      .catch((err: any) => {
+        console.log(err)
+        dispatchAlertError(dispatch, err.message)
+      })
+      .finally(() => dispatch(actionProcessing(false)))
+  }
+}
+
+export function refreshConnections (userId: string) { (dispatch: Dispatch) => loadUserData(dispatch, userId) }
+
+export const updateUserSettings = (id: any, data: any) => async (dispatch: any) => {
+  const res = await axiosRequest('PATCH', `${apiUrl}/user-settings/${id}`, data)
+  dispatch(updateSettings(res.data))
 }

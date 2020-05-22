@@ -1,6 +1,6 @@
 import React from 'react'
-// @ts-ignore
-import { Entity, Scene } from 'aframe-react'
+import SceneContainer from './scene-container'
+import { Entity } from 'aframe-react'
 import AFRAME from 'aframe'
 import Assets from './assets'
 import Video360 from '../video360/Video360Room'
@@ -36,21 +36,17 @@ export default class VideoScene extends React.Component<State> {
     return (
       <div style={{ height: '100%', width: '100%' }}>
         {this.state.appRendered && (
-          <Scene
-            class="scene"
-            renderer="antialias: true"
-            background="color: #FAFAFA"
-          >
+          <SceneContainer>
             <Assets/>
             <Video360/>
-            <Entity camera={{}} look-controls={{}} position={{ x: 0, y: 1.6, z: 0 }}>
+            <Entity camera={{}} look-controls={{}} position={{ x: 0, y: 1.6, z: 0 }} className="video360Camera">
               <Entity visible={ !this.isDesktop() } cursor={{ rayOrigin: this.isDesktop() ? 'mouse' : 'entity' }}
                 raycaster={{ objects: '#video-player-vr-ui,#videotext' }}
                 position={{ x: 0, y: 0, z: -0.8 }} geometry={{ primitive: 'ring', radiusInner: 0.01, radiusOuter: 0.02 }}
                 material={{ shader: 'flat', color: 'red' }}>
               </Entity>
             </Entity>
-          </Scene>
+          </SceneContainer>
         )}
       </div>
     )

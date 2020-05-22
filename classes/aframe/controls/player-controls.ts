@@ -1,6 +1,4 @@
-// eslint-disable-next-line no-unused-vars
 import AFRAME from 'aframe'
-// eslint-disable-next-line no-unused-vars
 import { ControllerComponent } from './controls'
 import LookController from './look-controls'
 import WASDController from './wasd-controls'
@@ -29,4 +27,5 @@ export default class PlayerControls {
     player.setAttribute(controller.name, controller.options)
   }
 }
+
 export const defaultPlayerControllers = [new LookController(), new WASDController()]
