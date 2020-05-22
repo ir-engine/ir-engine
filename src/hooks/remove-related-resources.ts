@@ -21,21 +21,25 @@ export default (options = {}): Hook => {
       const staticResource = staticResourceResult.data[0]
 
       const storageRemovePromise = new Promise((resolve, reject) => {
-        const key = staticResource.url.replace('https://s3.amazonaws.com/' + (config.get('aws.s3.static_resource_bucket') as string) + '/', '')
+        if (staticResource.url && staticResource.url.length > 0) {
+          const key = staticResource.url.replace('https://s3.amazonaws.com/' + (config.get('aws.s3.static_resource_bucket') as string) + '/', '')
 
-        if (storage === undefined) reject(new Error('Storage is undefined'))
+          if (storage === undefined) reject(new Error('Storage is undefined'))
 
-        storage.remove({
-          key: key
-        }, (err: any, result: any) => {
-          if (err) {
-            console.log('Storage removal error')
-            console.log(err)
-            reject(err)
-          }
+          storage.remove({
+            key: key
+          }, (err: any, result: any) => {
+            if (err) {
+              console.log('Storage removal error')
+              console.log(err)
+              reject(err)
+            }
 
-          resolve(result)
-        })
+            resolve(result)
+          })
+        } else {
+          resolve()
+        }
       })
 
       const children = await getAllChildren(staticResourceService, id, 0)
@@ -48,6 +52,7 @@ export default (options = {}): Hook => {
           } catch (err) {
             console.log('Failed to remove child: ')
             console.log(child.id)
+            console.log(err)
             reject(err)
           }
 
