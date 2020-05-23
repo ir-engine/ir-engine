@@ -54,9 +54,9 @@ export default (app: Application): any => {
       type: DataTypes.BOOLEAN,
       allowNull: false
     },
-    scene_owned_file_id: {
+    collectionId: {
       type: DataTypes.UUID,
-      allowNull: true
+      allowNull: false
     },
     // TODO: In reticulum, it is json type, but sql does not support json so need to think about it!
     attributions: {
@@ -107,7 +107,8 @@ export default (app: Application): any => {
     (scene as any).belongsTo(models.scene_listing, { foreignKey: 'parent_scene_listing_id', targetKey: 'scene_listing_id', allowNull: true });
     (scene as any).belongsTo(models.owned_file, { foreignKey: 'model_owned_file_id', targetKey: 'owned_file_id', as: 'model_owned_file' });
     (scene as any).belongsTo(models.owned_file, { foreignKey: 'screenshot_owned_file_id', targetKey: 'owned_file_id', as: 'screenshot_owned_file' });
-    (scene as any).belongsTo(models.owned_file, { foreignKey: 'scene_owned_file_id', targetKey: 'owned_file_id', as: 'scene_owned_file' })
+    (scene as any).belongsTo(models.collection)
+    // (scene as any).belongsTo(models.owned_file, { foreignKey: 'scene_owned_file_id', targetKey: 'owned_file_id', as: 'scene_owned_file' })
   }
 
   return scene
