@@ -7,6 +7,12 @@ export default (app: Application): any => {
   const subscription = sequelizeClient.define(
     'subscription',
     {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
       plan: {
         type: DataTypes.STRING,
         allowNull: true
@@ -27,9 +33,6 @@ export default (app: Application): any => {
       status: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
-      },
-      customerId: {
-        type: DataTypes.STRING
       }
     },
     {
