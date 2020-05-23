@@ -11,6 +11,7 @@ const { authenticate } = authentication.hooks
 const mapProjectSceneDataForSaving = () => {
   return (context: HookContext) => {
     context.data = {
+      ...context.data,
       ...context.data.scene,
       model_owned_file_id: context.data.scene.model_file_id,
       screenshot_owned_file_id: context.data.scene.screenshot_file_id,
