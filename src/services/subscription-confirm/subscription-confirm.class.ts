@@ -20,18 +20,16 @@ export class SubscriptionConfirm implements ServiceMethods<Data> {
   }
 
   async get (id: Id, params?: Params): Promise<Data> {
-    // const userId = (params as any)['identity-provider'].userId
-    // console.log(userId)
     const unconfirmedSubscription = await app.service('subscription').find({
       where: {
         id: id,
+        userId: (params as any).query.customer_id,
         status: 0
       }
     })
     if ((unconfirmedSubscription as any).total > 0) {
       await app.service('subscription').patch(id, {
-        status: 1,
-        customerId: (params as any).query.customer_id
+        status: 1
       })
       return await Promise.resolve({})
     } else {
