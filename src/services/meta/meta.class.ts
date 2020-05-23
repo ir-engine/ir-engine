@@ -1,4 +1,4 @@
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import config from 'config'
 interface Data {}
