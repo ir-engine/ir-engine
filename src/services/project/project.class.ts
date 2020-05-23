@@ -118,7 +118,7 @@ export class Project extends Service {
       })
 
       const savedCollection = await CollectionModel.create({
-        type: 'scene',
+        type: 'project',
         name: data.name,
         metaData: sceneData.metadata,
         version: sceneData.version,
