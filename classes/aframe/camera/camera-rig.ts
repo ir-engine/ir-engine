@@ -35,13 +35,18 @@ export default class CameraRig {
     this.setupCursor()
   }
 
+  tearDownCameraRig(): void {
+    this.cameraEl?.parentElement.removeChild(this.cameraEl)
+    this.cursor.el?.parentElement.removeChild(this.cursor.el)
+  }
+
   setupCursor(): void {
     if (!this.el) return
     let cursor
     switch (this.cursorType) {
       case 'fuse':
         cursor = new FuseCursor()
-        this.el.appendChild(cursor.el as AFRAME.Entity)
+        this.cameraEl.appendChild(cursor.el as AFRAME.Entity)
         cursor.el?.object3D.position.set(0, 0, -1)
         break
       case 'mouse':
