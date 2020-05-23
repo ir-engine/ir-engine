@@ -48,7 +48,7 @@ export class Subscription extends Service {
 
     const returned = {
       subscriptionId: saved.id,
-      paymentUrl: `https://kaixr-test.chargebee.com/hosted_pages/plans/${plan}?subscription[id]=${saved.id as string}`
+      paymentUrl: `https://kaixr-test.chargebee.com/hosted_pages/plans/${plan}?subscription[id]=${saved.id as string}&customer[id]=${userId as string}`
     }
 
     return returned
