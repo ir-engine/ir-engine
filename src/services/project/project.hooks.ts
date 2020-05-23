@@ -18,7 +18,7 @@ const mapProjectSaveData = () => {
   return (context: HookContext) => {
     context.data.owned_file_id = context.data.project.project_file_id
     context.data.name = context.data.project.name
-    context.data.thumbnail_file_id = context.data.project.thumbnail_file_id
+    context.data.thumbnail_owned_file_id = context.data.project.thumbnail_file_id
     return context
   }
 }
