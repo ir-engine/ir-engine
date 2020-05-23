@@ -35,7 +35,7 @@ export default (options: any) => {
     const savedCollection = await CollectionModel.create({
       type: options.type ?? 'scene',
       name: context.data.name,
-      metaData: sceneData.metadata,
+      metadata: sceneData.metadata,
       version: sceneData.version,
       userId: loggedInUser.userId
     })
