@@ -1,5 +1,6 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
+import { BadRequest } from '@feathersjs/errors'
 import app from './../../app'
 
 interface Data {}
@@ -20,20 +21,39 @@ export class SubscriptionConfirm implements ServiceMethods<Data> {
   }
 
   async get (id: Id, params?: Params): Promise<Data> {
-    const unconfirmedSubscription = await app.service('subscription').find({
+    const userId = (params as any).query.customer_id
+    const subscriptionResult = await app.service('subscription').find({
       where: {
         id: id,
-        userId: (params as any).query.customer_id,
+        userId: userId,
         status: 0
       }
     })
-    if ((unconfirmedSubscription as any).total > 0) {
+    console.log(subscriptionResult)
+    if ((subscriptionResult as any).total > 0) {
+      const subscription = (subscriptionResult as any).data[0]
+      console.log(subscription)
+      console.log('Getting subscription-type')
+      const subscriptionType = await app.service('subscription-type').get((subscription as any).plan)
+      console.log(subscriptionType)
       await app.service('subscription').patch(id, {
-        status: 1
+        status: 1,
+        totalSeats: subscriptionType.seats,
+        filledSeats: 0,
+        unusedSeats: subscriptionType.seats,
+        pendingSeats: 0
+      })
+
+      console.log('PATCHED SUBSCRIPTION')
+      await app.service('seat').create({
+        subscriptionId: (subscription as any).id
+      }, {
+        self: true,
+        userId: userId
       })
       return await Promise.resolve({})
     } else {
-      return await Promise.reject(new Error('Subscription not found'))
+      throw new BadRequest('Invalid subscription information')
     }
   }
 

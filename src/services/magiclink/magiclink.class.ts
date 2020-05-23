@@ -14,6 +14,8 @@ import {
 import * as path from 'path'
 import * as pug from 'pug'
 import { Service } from 'feathers-sequelize'
+import { IdentityProvider } from '../identity-provider/identity-provider.class';
+import { BadRequest } from '@feathersjs/errors'
 
 interface Data {}
 
@@ -54,7 +56,9 @@ export class Magiclink implements ServiceMethods<Data> {
   async sendEmail (
     toEmail: string,
     token: string,
-    type: 'connection' | 'login'
+    type: 'connection' | 'login',
+    identityProvider: IdentityProvider,
+    subscriptionId?: string
   ): Promise<void> {
     const hashLink = getLink(type, token)
     const appPath = path.dirname(require.main ? require.main.filename : '')
@@ -66,13 +70,27 @@ export class Magiclink implements ServiceMethods<Data> {
       'account'
     )
 
-    const templatePath = path.join(
+    let subscription
+    if (subscriptionId != null) {
+      subscription = await this.app.service('subscription').find({
+        id: subscriptionId
+      })
+
+      if ((subscription as any).total === 0) {
+        throw new BadRequest('Invalid subscription')
+      }
+    }
+    const templatePath = subscriptionId == null ? path.join(
       emailAccountTemplatesPath,
       'magiclink-email.pug'
+    ) : path.join(
+        emailAccountTemplatesPath,
+        'magiclink-email-subscription.pug'
     )
     const compiledHTML = pug.compileFile(templatePath)({
       logo: '',
-      hashLink
+      hashLink,
+      subscriptionName: (identityProvider as any).token
     })
     const mailFrom = process.env.SMTP_FROM_EMAIL ?? 'noreply@myxr.email'
     const mailSender = `${process.env.SMTP_FROM_NAME ?? ''}<${mailFrom}>`
@@ -159,7 +177,9 @@ export class Magiclink implements ServiceMethods<Data> {
         await this.sendEmail(
           data.email,
           accessToken,
-          data.userId ? 'connection' : 'login'
+          data.userId ? 'connection' : 'login',
+            identityProvider,
+            (params as any).subscriptionId
         )
       } else if (data.type === 'sms') {
         await this.sendSms(

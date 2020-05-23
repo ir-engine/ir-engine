@@ -50,6 +50,7 @@ export default (app: Application): any => {
     (User as any).hasMany(models.owned_file, { foreignKey: 'account_id' });
     (User as any).hasMany(models.subscription)
     // (User as any).hasMany(models.conversation, { foreignKey: 'sender_id' })
+    ;(User as any).hasOne(models.seat, { foreignKey: 'userId'})
   }
 
   return User
