@@ -18,12 +18,12 @@ function processCollectionEntities (collection: any): any {
   return collectionJson
 }
 
-function processCollectionsEntities () {
+/* function processCollectionsEntities () {
   return (context: HookContext): HookContext => {
     context.result = context.result.map(processCollectionEntities)
     return context
   }
-}
+} */
 
 export default {
   before: {
