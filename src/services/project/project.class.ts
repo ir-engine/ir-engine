@@ -7,6 +7,7 @@ import { mapProjectDetailData, defaultProjectImport } from '../project/project-h
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 import { Application } from '../../declarations'
 import StorageProvider from '../../storage/storageprovider'
+import { BadRequest } from '@feathersjs/errors'
 interface Data { }
 
 export class Project extends Service {
@@ -87,7 +88,7 @@ export class Project extends Service {
     // Find the project owned_file from database
     const ownedFile = await OwnedFileModel.findOne({
       where: {
-        owned_file_id: data.project_file_id
+        owned_file_id: data.owned_file_id
       },
       raw: true
     })
@@ -119,7 +120,7 @@ export class Project extends Service {
       const savedCollection = await CollectionModel.create({
         type: 'project',
         name: data.name,
-        metaData: sceneData.metadata,
+        metadata: sceneData.metadata,
         version: sceneData.version,
         userId: loggedInUser.userId
       }, { transaction })
