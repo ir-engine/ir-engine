@@ -80,7 +80,7 @@ const Pricing = () => {
           Pricing
         </Typography>
         <Typography variant="h5" align="center" color="textSecondary" component="p">
-          Please selected the plan that is best suited to your requirements.
+          Please select the plan that is best suited to your requirements.
         </Typography>
       </Container>
       <Tabs
