@@ -9,6 +9,8 @@ function processCollectionEntities (collection: any): any {
   let rootEntity: any = null
   collectionJson.entities.forEach((entity: any) => {
     if (entity.parent === null) {
+      delete entity.parent
+      delete entity.index
       rootEntity = entity
     }
     entitesObject[entity.entityId] = entity
