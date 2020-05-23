@@ -5,7 +5,7 @@ import hooks from './publish-project.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'projects/:projectId/publish': PublishProject & ServiceAddons<any>
+    'api/v1/projects/:projectId/publish': PublishProject & ServiceAddons<any>
   }
 }
 
@@ -13,10 +13,10 @@ export default (app: Application): void => {
   const options = {}
 
   // Initialize our service with any options it requires
-  app.use('/projects/:projectId/publish', new PublishProject(options, app))
+  app.use('/api/v1/projects/:projectId/publish', new PublishProject(options, app))
 
   // Get our initialized service so that we can register hooks
-  const service = app.service('projects/:projectId/publish')
+  const service = app.service('api/v1/projects/:projectId/publish')
 
   service.hooks(hooks)
 }
