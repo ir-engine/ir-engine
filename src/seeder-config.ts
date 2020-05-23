@@ -6,6 +6,7 @@ import EntityTypeSeed from './services/entity-type/entity-type.seed'
 import GroupUserRankSeed from './services/group-user-rank/group-user-rank.seed'
 import IdentityProviderTypeSeed from './services/identity-provider-type/identity-provider-type.seed'
 import ResourceTypeSeed from './services/resource-type/resource-type.seed'
+import SeatStatusSeed from './services/seat-status/seat-status.seed'
 import StaticResourceTypeSeed from './services/static-resource-type/static-resource-type.seed'
 import SubscriptionLevelSeed from './services/subscription-level/subscription-level.seed'
 import SubscriptionTypeSeed from './services/subscription-type/subscription-type.seed'
@@ -22,6 +23,7 @@ module.exports = {
     GroupUserRankSeed,
     IdentityProviderTypeSeed,
     ResourceTypeSeed,
+    SeatStatusSeed,
     StaticResourceTypeSeed,
     SubscriptionLevelSeed,
     SubscriptionTypeSeed,

@@ -33,6 +33,18 @@ export default (app: Application): any => {
       status: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
+      },
+      totalSeats: {
+          type: DataTypes.INTEGER
+      },
+      unusedSeats: {
+          type: DataTypes.INTEGER
+      },
+      pendingSeats: {
+          type: DataTypes.INTEGER
+      },
+      filledSeats: {
+          type: DataTypes.INTEGER
       }
     },
     {
@@ -48,7 +60,8 @@ export default (app: Application): any => {
   (subscription as any).associate = (models: any) => {
     // Define associations here
     (subscription as any).belongsTo(models.user);
-    (subscription as any).belongsTo(models.subscription_type, { foreignKey: 'plan', required: true })
+    (subscription as any).belongsTo(models.subscription_type, { foreignKey: 'plan', required: true });
+    (subscription as any).hasMany(models.seat, { foreignKey: 'subscriptionId' })
   }
 
   return subscription
