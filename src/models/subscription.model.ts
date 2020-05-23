@@ -18,7 +18,7 @@ export default (app: Application): any => {
         allowNull: true
       },
       amount: {
-        type: DataTypes.FLOAT,
+        type: DataTypes.DECIMAL,
         allowNull: false
       },
       currency: {
@@ -42,13 +42,13 @@ export default (app: Application): any => {
         }
       }
     }
-  )
+  );
 
   // eslint-disable-next-line no-unused-vars
-  ;(subscription as any).associate = (models: any) => {
+  (subscription as any).associate = (models: any) => {
     // Define associations here
-    (subscription as any).belongsTo(models.user)
-    ;(subscription as any).belongsTo(models.subscription_type, { foreignKey: 'plan', required: true })
+    (subscription as any).belongsTo(models.user);
+    (subscription as any).belongsTo(models.subscription_type, { foreignKey: 'plan', required: true })
   }
 
   return subscription
