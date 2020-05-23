@@ -3,7 +3,7 @@ import { disallow } from 'feathers-hooks-common'
 
 export default {
   before: {
-    all: [disallow()],
+    all: [],
     find: [],
     get: [],
     create: [],
