@@ -1,6 +1,5 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Params, Id, NullableId } from '@feathersjs/feathers'
-import { Forbidden, BadRequest } from '@feathersjs/errors'
 import { Transaction } from 'sequelize/types'
 import fetch from 'node-fetch'
 
