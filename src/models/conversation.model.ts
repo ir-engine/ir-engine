@@ -27,8 +27,8 @@ export default (app: Application): any => {
       allowNull: true
     },
     recipientType: {
-      type: DataTypes.ENUM,
-      values: ['user', 'group', 'party'],
+      type: DataTypes.STRING,
+      // values: ['user', 'group', 'party'],
       defaultValue: 'user'
     }
   }, {
