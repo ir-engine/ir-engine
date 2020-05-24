@@ -11,6 +11,7 @@ import { TextField, Button } from '@material-ui/core'
 import SeatItem from './SeatItem'
 import { Dispatch, bindActionCreators } from 'redux'
 import { selectSeatState } from '../../../redux/seats/selector'
+import NextLink from 'next/link'
 import {
   inviteUser,
   getSeats
@@ -33,6 +34,10 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     inputBox: {
       'margin-right': '20px'
+    },
+    header: {
+      display: 'flex',
+      'justify-content': 'space-between'
     }
   })
 )
@@ -87,25 +92,32 @@ class SeatList extends React.Component<Props> {
   }
 
   render() {
-    const { classes, seatState } = this.props
+    const { classes, seatState, authState } = this.props
     const pending = seatState.get('seats').filter((seat: Seat) => seat.seatStatus === 'pending')
     const filled = seatState.get('seats').filter((seat: Seat) => seat.seatStatus === 'filled')
+    const subscription = authState.get('user').subscription
 
     return (
       <div className={classes.root}>
         <div className={classes.section1}>
           <Grid container alignItems="center">
-            <Grid item xs>
+            <Grid item xs className={classes.header}>
               <Typography variant="h4">
                 Subscription Seats
+              </Typography>
+              <Typography variant="h4">
+                <NextLink href="/">
+                  Home
+                </NextLink>
               </Typography>
             </Grid>
           </Grid>
         </div>
 
         <Divider variant="middle" />
-        <Grid container>
-          <Grid item xs
+        {subscription != null && <Grid container>
+          <Grid item
+            xs
             className={classes.inviteBox}
           >
             <TextField
@@ -115,6 +127,7 @@ class SeatList extends React.Component<Props> {
               className={classes.inputBox}
               value={this.state.inviteField}
               onChange={(e) => this.updateField(e)}
+              onKeyDown={(e) => e.keyCode === 13 ? this.inviteUser() : null}
             />
             <Button
               variant="contained"
@@ -125,15 +138,16 @@ class SeatList extends React.Component<Props> {
             </Button>
           </Grid>
         </Grid>
+        }
 
-        { pending && pending.length > 0 &&
+        { subscription != null && pending && pending.length > 0 &&
         pending.map((seat) => {
           return <SeatItem key={'pending_' + seat.id} seat={seat}/>
         })
         }
-        { filled && filled.length > 0 &&
+        { subscription != null && filled && filled.length > 0 &&
         filled.map((seat) => {
-          return <SeatItem key={'requested_' + seat.id} seat={seat}/>
+          return <SeatItem key={'filled_' + seat.id} seat={seat}/>
         })
         }
       </div>
