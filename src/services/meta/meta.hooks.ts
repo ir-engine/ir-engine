@@ -1,15 +1,14 @@
 import { disallow } from 'feathers-hooks-common'
-// Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
   before: {
     all: [],
     find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    get: [disallow()],
+    create: [disallow()],
+    update: [disallow()],
+    patch: [disallow()],
+    remove: [disallow()]
   },
 
   after: {
