@@ -35,16 +35,16 @@ export default (app: Application): any => {
         defaultValue: false
       },
       totalSeats: {
-          type: DataTypes.INTEGER
+        type: DataTypes.INTEGER
       },
       unusedSeats: {
-          type: DataTypes.INTEGER
+        type: DataTypes.INTEGER
       },
       pendingSeats: {
-          type: DataTypes.INTEGER
+        type: DataTypes.INTEGER
       },
       filledSeats: {
-          type: DataTypes.INTEGER
+        type: DataTypes.INTEGER
       }
     },
     {
