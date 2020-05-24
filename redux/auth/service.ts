@@ -71,7 +71,7 @@ export function loadUserData (dispatch: Dispatch, userId: string) {
     })
     .catch((err: any) => {
       console.log(err)
-      dispatchAlertError(dispatch, 'Failed to loading user data')
+      dispatchAlertError(dispatch, 'Failed to load user data')
     })
 }
 
