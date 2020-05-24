@@ -55,7 +55,8 @@
   },
   "aws": {
     "s3": {
-      "static_resource_bucket": "STORAGE_S3_BUCKET",
+      "baseUrl": "https://s3.amazonaws.com",
+      "static_resource_bucket": "kaixr-static-resources",
       "region": "STORAGE_S3_REGION",
       "cloudfront": {
         "domain": "STORAGE_S3_CLOUDFRONT_DOMAIN"
@@ -73,9 +74,18 @@
       "secret_access_key": "AWS_SMS_SECRET_ACCESS_KEY"
     }
   },
-
   "magiclink": {
     "subject": "MAGICLINK_EMAIL_SUBJECT"
   },
-  "gaTrackingId": "UA-164023274-3"
+  "mysql": "mysql://server:password@localhost:3306/xrchat",
+  "gaTrackingId": "UA-164023274-3",
+  "sketchFab": {
+    "authToken": ""
+  },
+  "googlePoly": {
+    "authToken": ""
+  },
+  "hub": {
+    "endpoint": "https://hubs.mozilla.com"
+  }
 }
