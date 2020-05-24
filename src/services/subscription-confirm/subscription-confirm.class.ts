@@ -34,7 +34,7 @@ export class SubscriptionConfirm implements ServiceMethods<Data> {
       const subscription = (subscriptionResult as any).data[0]
       console.log(subscription)
       console.log('Getting subscription-type')
-      const subscriptionType = await app.service('subscription-type').get((subscription as any).plan)
+      const subscriptionType = await app.service('subscription-type').get((subscription).plan)
       console.log(subscriptionType)
       await app.service('subscription').patch(id, {
         status: 1,
@@ -46,7 +46,7 @@ export class SubscriptionConfirm implements ServiceMethods<Data> {
 
       console.log('PATCHED SUBSCRIPTION')
       await app.service('seat').create({
-        subscriptionId: (subscription as any).id
+        subscriptionId: (subscription).id
       }, {
         self: true,
         userId: userId
