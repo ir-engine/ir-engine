@@ -35,9 +35,12 @@ export async function doLoginAuto (dispatch: Dispatch) {
   const authData = getStoredState('auth')
   const accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined
 
-  if (!accessToken) return
+  if (!accessToken) {
+    return
+  }
 
-  await (client as any).authentication.setAccessToken(accessToken as string)(client as any).reAuthenticate()
+  await (client as any).authentication.setAccessToken(accessToken as string);
+  (client as any).reAuthenticate()
     .then((res: any) => {
       if (res) {
         const authUser = resolveAuthUser(res)
