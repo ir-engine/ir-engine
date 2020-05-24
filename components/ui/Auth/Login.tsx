@@ -75,8 +75,7 @@ const SignIn = () => {
   } else {
     let index = 0
     const emailTab = (enableEmailMagicLink || enableSmsMagicLink) && <Tab icon={<EmailIcon/>} label="Email | SMS"/>
-    const emailTabPanel = (enableEmailMagicLink || enableSmsMagicLink) &&
-      <TabPanel value={tabIndex} index={index}><MagicLinkEmail /></TabPanel>
+    const emailTabPanel = (enableEmailMagicLink || enableSmsMagicLink) && <TabPanel value={tabIndex} index={index}><MagicLinkEmail /></TabPanel>;
     (enableEmailMagicLink || enableSmsMagicLink) && ++index
 
     const userTab = enableUserPassword && <Tab icon={<UserIcon/>} label="UserName + Password"/>
