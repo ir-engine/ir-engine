@@ -29,7 +29,7 @@ function processCollectionEntities (collection: any): any {
 
 export default {
   before: {
-    all: [collectAnalytics(), /* authenticate('jwt') */],
+    all: [collectAnalytics()], /* authenticate('jwt') */
     find: [
       addAssociations({
         models: [

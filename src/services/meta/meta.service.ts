@@ -7,7 +7,7 @@ import hooks from './meta.hooks'
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'api/v1/meta': Meta & ServiceAddons<any>;
+    'api/v1/meta': Meta & ServiceAddons<any>
   }
 }
 

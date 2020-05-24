@@ -40,5 +40,5 @@ export default (app: Application): void => {
   // Get our initialized service so that we can register hooks
   const service = app.service('/api/v1/media')
 
-  (service as any).hooks(hooks)
+  (service).hooks(hooks)
 }
