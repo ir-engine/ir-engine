@@ -4,7 +4,6 @@ import {
   videosFetchedError,
   // eslint-disable-next-line no-unused-vars
   PublicVideo,
-  fileUploadSuccess
 } from './actions'
 import { client } from '../feathers'
 import axios from 'axios'
