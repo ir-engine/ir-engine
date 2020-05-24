@@ -1,12 +1,12 @@
 {
   "publicRuntimeConfig": {
-    "title": "XRChat",
+    "title": "XREngine",
     "dev": false,
     "loginDisabled": false,
     "logo": "",
     "xr": {
       "networked-scene": {
-        "app": "xrchat",
+        "app": "xrengine",
         "room": "lobby",
         "audio": true,
         "adapter": "socketio",
@@ -91,17 +91,17 @@
     },
     "server_address": "localhost:3030",
     "apiServer": "http://localhost:3030",
-    "siteTitle": "XRChat",
+    "siteTitle": "XREngine",
     "siteDescription": "Connected Worlds for Everyone",
-    "featherStoreKey": "XRChat-Auth-Store",
-    "localStorageKey": "xrchat-client-store-key-v1",
+    "featherStoreKey": "XREngine-Auth-Store",
+    "localStorageKey": "xrengine-client-store-key-v1",
     "auth": {
-      "isEnableSmsMagicLink": true,
-      "isEnableEmailMagicLink": true,
-      "isEnableUserPassword": true,
-      "isEnableGithub": true,
-      "isEnableFacebook": true,
-      "isEnableGoogle": true
+      "enableSmsMagicLink": true,
+      "enableEmailMagicLink": true,
+      "enableUserPassword": true,
+      "isEnabledGithub": true,
+      "isEnabledFacebook": true,
+      "isEnabledGoogle": true
     },
 
     "alert": {

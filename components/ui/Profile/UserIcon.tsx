@@ -1,29 +1,23 @@
-import React from 'react'
+import { useState } from 'react'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import Button from '@material-ui/core/Button'
-import './style.scss'
 import { uploadFile } from '../../../redux/video/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-
-interface ProfileProps {
-  avatar: any
-  uploadFile: typeof uploadFile
-}
-
-// const mapStateToProps = (state: any) => {
-//   return {
-//     auth: selectAuthState(state)
-//   }
-// }
+import './style.scss'
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   uploadFile: bindActionCreators(uploadFile, dispatch)
 })
 
-const UserProfile: React.FC<ProfileProps> = (props: ProfileProps) => {
-  const [file, setFile] = React.useState({})
-  const [fileUrl, setFileUrl] = React.useState('')
+interface Props {
+  avatar: any
+  uploadFile: typeof uploadFile
+}
+
+const UserProfile = (props: Props) => {
+  const [file, setFile] = useState({})
+  const [fileUrl, setFileUrl] = useState('')
   const handleChange = (e: any) => {
     const efile = e.target.files[0]
     const formData = new FormData()

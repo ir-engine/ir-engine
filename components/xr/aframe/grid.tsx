@@ -195,17 +195,13 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
   },
 
   updateChildren() {
-    // @ts-ignore
-    this.children = (this.el as AFRAME.Entity).getChildEntities().filter(
+    this.children = ((this.el as AFRAME.Entity) as any).getChildEntities().filter(
       // eslint-disable-next-line no-prototype-builtins
       (el: AFRAME.Entity) => { return el.components.hasOwnProperty('grid-cell') })
     this.totalCells = this.children.length
     this.pages = Math.ceil(this.totalCells / this.cellsPerPage)
   },
 
-  // gridItemAppendedHandler(evt) {
-  //   this.system.updateLayout(this.data, this.children);
-  // }
   updatePaginators() {
     const leftDisabled = this.data.page === 0
     const rightDisabled = (this.data.page + 1) * this.cellsPerPage >= this.totalCells

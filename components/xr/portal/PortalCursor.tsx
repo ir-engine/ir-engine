@@ -1,5 +1,3 @@
-import React from 'react'
-// @ts-ignore
 import { Entity } from 'aframe-react'
 
 // this cursor is required to be able to click portals/links
@@ -9,7 +7,6 @@ const PortalCursor = () => (
     primitive="a-cursor"
     id="camera-cursor"
     cursor="rayOrigin: mouse"
-    raycaster="far: 1000; interval: 100; objects: .portal">
-  </Entity>
+    raycaster="far: 1000; interval: 100; objects: .portal" />
 )
 export default PortalCursor

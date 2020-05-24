@@ -3,14 +3,14 @@ export const ConnectionTexts = {
     connected: {
       header: 'You are connected to Facebook',
       descr: [
-        'You can now sign in to XRChat using your Facebook account.',
+        'You can now sign in to XREngine using your Facebook account.',
         'We will never post to Facebook or message your friends without your permission.'
       ]
     },
     not_connected: {
       header: 'You are not connected to Facebook',
       descr: [
-        'If you want to sign in to XRChat using your Facebook account,',
+        'If you want to sign in to XREngine using your Facebook account,',
         'Please connect Facebook account'
       ]
     }
@@ -19,14 +19,14 @@ export const ConnectionTexts = {
     connected: {
       header: 'You are connected to Github',
       descr: [
-        'You can now sign in to XRChat using your Github account.',
+        'You can now sign in to XREngine using your Github account.',
         'We will never post to Github or message your friends without your permission.'
       ]
     },
     not_connected: {
       header: 'You are not connected to Github',
       descr: [
-        'If you want to sign in to XRChat using your Github account,',
+        'If you want to sign in to XREngine using your Github account,',
         'Please connect Github account'
       ]
     }
@@ -35,14 +35,14 @@ export const ConnectionTexts = {
     connected: {
       header: 'You are connected to Google',
       descr: [
-        'You can now sign in to XRChat using your Google account.',
+        'You can now sign in to XREngine using your Google account.',
         'We will never post to Google or message your friends without your permission.'
       ]
     },
     not_connected: {
       header: 'You are not connected to Google',
       descr: [
-        'If you want to sign in to XRChat using your Google account,',
+        'If you want to sign in to XREngine using your Google account,',
         'Please connect Google account'
       ]
     }
@@ -51,13 +51,13 @@ export const ConnectionTexts = {
     connected: {
       header: 'You are connected to Email Link',
       descr: [
-        'You can now sign in to XRChat using your Email.'
+        'You can now sign in to XREngine using your Email.'
       ]
     },
     not_connected: {
       header: 'You are not connected to Email Link',
       descr: [
-        'If you want to sign in to XRChat using your Email Link,',
+        'If you want to sign in to XREngine using your Email Link,',
         'Please connect Email account'
       ]
     }
@@ -66,13 +66,13 @@ export const ConnectionTexts = {
     connected: {
       header: 'You are connected to SMS Link',
       descr: [
-        'You can now sign in to XRChat using your SMS.'
+        'You can now sign in to XREngine using your SMS.'
       ]
     },
     not_connected: {
       header: 'You are not connected to SMS Link',
       descr: [
-        'If you want to sign in to XRChat using your SMS Link,',
+        'If you want to sign in to XREngine using your SMS Link,',
         'Please connect SMS account'
       ]
     }
@@ -81,13 +81,13 @@ export const ConnectionTexts = {
     connected: {
       header: 'You are connected to Email/Password account',
       descr: [
-        'You can now sign in to XRChat using your Email/Password.'
+        'You can now sign in to XREngine using your Email/Password.'
       ]
     },
     not_connected: {
       header: 'You are not connected to Email/Password account',
       descr: [
-        'If you want to sign in to XRChat using your Email/Password,',
+        'If you want to sign in to XREngine using your Email/Password,',
         'Please connect Email/Password account'
       ]
     }

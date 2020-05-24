@@ -12,10 +12,7 @@ export const GridCellComponentSchema: AFRAME.MultiPropertySchema<GridCellData> =
   active: { default: true }
 }
 
-export interface GridCellProps {
-}
-
-export const GridCellComponent: AFRAME.ComponentDefinition<GridCellProps> = {
+export const GridCellComponent: AFRAME.ComponentDefinition = {
   schema: GridCellComponentSchema,
   data: {
   } as GridCellData,

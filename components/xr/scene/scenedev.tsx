@@ -17,17 +17,7 @@ type Props = {
   children?: any
 }
 
-type State = {
-  color?: string // do we need this?
-  currentScene?: string | null
-}
-
 export default class SceneRoot extends React.Component<Props> {
-  state: State = {
-    color: 'red',
-    currentScene: null
-  }
-
   onComponentDidMount() {
     // const app = feathers()
 
@@ -131,7 +121,7 @@ export default class SceneRoot extends React.Component<Props> {
               crossOrigin="anonymous"
             />
 
-            <video id="video360Shaka" crossOrigin="anonymous"></video>
+            <video id="video360Shaka" crossOrigin="anonymous" />
           </Assets>
 
           <Player />

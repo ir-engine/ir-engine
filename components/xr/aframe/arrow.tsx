@@ -44,13 +44,13 @@ export const ArrowComponentSchema: AFRAME.MultiPropertySchema<ArrowData> = {
 
 }
 
-export interface ArrowProps {
+export interface Props {
   setupArrow: () => void,
   createArrow: () => void,
   createEllipses: () => void
 }
 
-export const ArrowComponent: AFRAME.ComponentDefinition<ArrowProps> = {
+export const ArrowComponent: AFRAME.ComponentDefinition<Props> = {
   schema: ArrowComponentSchema,
   data: {
   } as ArrowData,

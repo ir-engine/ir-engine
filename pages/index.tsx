@@ -1,16 +1,15 @@
-import React from 'react'
 import Layout from '../components/ui/Layout'
 import dynamic from 'next/dynamic'
-const Scene = dynamic(() => import('../components/xr/scene/landing'), { ssr: false })
-// import Login from '../components/ui/Login'
+const Scene = dynamic(() => import('../components/xr/scene/landing'), {
+  ssr: false
+})
 
-export default class IndexPage extends React.Component {
-  render() {
-    return (
-      <Layout pageTitle="Home">
-        {/* <Login /> */}
-        <Scene />
-      </Layout>
-    )
-  }
+export const IndexPage = () => {
+  return (
+    <Layout pageTitle="Home">
+      <Scene />
+    </Layout>
+  )
 }
+
+export default IndexPage

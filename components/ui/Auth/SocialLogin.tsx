@@ -1,4 +1,3 @@
-import React from 'react'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import Container from '@material-ui/core/Container'
@@ -7,29 +6,12 @@ import FacebookIcon from '@material-ui/icons/Facebook'
 import GoogleIcon from '../../assets/GoogleIcon'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectAuthState } from '../../../redux/auth/selector'
 import {
   loginUserByGithub,
   loginUserByGoogle,
   loginUserByFacebook
 } from '../../../redux/auth/service'
-import './auth.scss'
-
-interface Props {
-  auth: any
-  loginUserByGithub: typeof loginUserByGithub
-  loginUserByGoogle: typeof loginUserByGoogle
-  loginUserByFacebook: typeof loginUserByFacebook
-  isEnableFacebook?: boolean
-  isEnableGoogle?: boolean
-  isEnableGithub?: boolean
-};
-
-const mapStateToProps = (state: any) => {
-  return {
-    auth: selectAuthState(state)
-  }
-}
+import './style.scss'
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   loginUserByGithub: bindActionCreators(loginUserByGithub, dispatch),
@@ -37,98 +19,100 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   loginUserByFacebook: bindActionCreators(loginUserByFacebook, dispatch)
 })
 
-class SocialLogin extends React.Component<Props> {
-  state = {
-    email: '',
-    password: ''
-  }
+interface Props {
+  auth: any
+  isEnabledFacebook?: boolean
+  isEnabledGithub?: boolean
+  isEnabledGoogle?: boolean
+  loginUserByGithub: typeof loginUserByGithub
+  loginUserByGoogle: typeof loginUserByGoogle
+  loginUserByFacebook: typeof loginUserByFacebook
+};
 
-  handleInput = (e: any) => {
-    this.setState({
-      [e.target.name]: e.target.value
-    })
-  }
+const SocialLogin = (props: Props) => {
+  const {
+    isEnabledFacebook,
+    isEnabledGithub,
+    isEnabledGoogle,
+    loginUserByFacebook,
+    loginUserByGoogle,
+    loginUserByGithub
+  } = props
 
-  handleGithubLogin = (e: any) => {
+  const handleGithubLogin = (e: any) => {
     e.preventDefault()
-    this.props.loginUserByGithub()
+    loginUserByGithub()
   }
 
-  handleGoogleLogin = (e: any) => {
+  const handleGoogleLogin = (e: any) => {
     e.preventDefault()
-    this.props.loginUserByGithub()
+    loginUserByGoogle()
   }
 
-  handleFacebookLogin = (e: any) => {
+  const handleFacebookLogin = (e: any) => {
     e.preventDefault()
-    this.props.loginUserByGithub()
+    loginUserByFacebook()
   }
 
-  render () {
-    const { isEnableFacebook, isEnableGoogle, isEnableGithub } = this.props
-    console.log('social login', isEnableFacebook, isEnableGoogle, isEnableGithub)
-    const githubButton = isEnableGithub
-      ? (
-        <Grid item xs={12}>
-          <Button
-            onClick={(e) => this.handleGithubLogin(e)}
-            startIcon={<GitHubIcon/>}
-            variant="contained"
-            className="github"
-            fullWidth={true}
-          >
-            Login with GitHub
-          </Button>
-        </Grid>
-      ) : ''
-    const googleButton = isEnableGoogle
-      ? (
-        <Grid item xs={12}>
-          <Button
-            onClick={(e) => this.handleGoogleLogin(e)}
-            startIcon={<GoogleIcon/>}
-            variant="contained"
-            className="google"
-            fullWidth={true}
-          >
-              Login with Google
-          </Button>
-        </Grid>
-      ) : ''
-    const facebookButton = isEnableFacebook
-      ? (
-        <Grid item xs={12}>
-          <Button
-            onClick={(e) => this.handleFacebookLogin(e)}
-            startIcon={<FacebookIcon/>}
-            variant="contained"
-            className="facebook"
-            fullWidth={true}
-          >
-            Login with Facebook
-          </Button>
-        </Grid>
-      ) : ''
+  const githubButton = isEnabledGithub ? (
+    <Grid item xs={12}>
+      <Button
+        onClick={(e) => handleGithubLogin(e)}
+        startIcon={<GitHubIcon />}
+        variant="contained"
+        className="github"
+        fullWidth={true}
+      >
+        Login with GitHub
+      </Button>
+    </Grid>
+  ) : (
+    ''
+  )
+  const googleButton = isEnabledGoogle ? (
+    <Grid item xs={12}>
+      <Button
+        onClick={(e) => handleGoogleLogin(e)}
+        startIcon={<GoogleIcon />}
+        variant="contained"
+        className="google"
+        fullWidth={true}
+      >
+        Login with Google
+      </Button>
+    </Grid>
+  ) : (
+    ''
+  )
+  const facebookButton = isEnabledFacebook ? (
+    <Grid item xs={12}>
+      <Button
+        onClick={(e) => handleFacebookLogin(e)}
+        startIcon={<FacebookIcon />}
+        variant="contained"
+        className="facebook"
+        fullWidth={true}
+      >
+        Login with Facebook
+      </Button>
+    </Grid>
+  ) : (
+    ''
+  )
 
-    return (
-      <Container component="main" maxWidth="xs">
-        <div className="paper">
-          <Grid container justify="center" spacing={2}>
-            {githubButton}
-            {facebookButton}
-            {googleButton}
-          </Grid>
-        </div>
-      </Container>
-    )
-  }
+  return (
+    <Container component="main" maxWidth="xs">
+      <div className="paper">
+        <Grid container justify="center" spacing={2}>
+          {githubButton}
+          {facebookButton}
+          {googleButton}
+        </Grid>
+      </div>
+    </Container>
+  )
 }
 
-const SocialLoginWrapper = (props: any) => {
-  return <SocialLogin {...props}/>
-}
+const SocialLoginWrapper = (props: any) => <SocialLogin {...props} />
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SocialLoginWrapper)
+export default connect(mapDispatchToProps)(SocialLoginWrapper)

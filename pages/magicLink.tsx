@@ -1,10 +1,5 @@
-import React from 'react'
 import AuthMagicLink from '../components/ui/MagicLink/AuthMagicLink'
 
-class AuthMagicLinkPage extends React.Component {
-  render() {
-    return <AuthMagicLink />
-  }
-}
+export const AuthMagicLinkPage = () => <AuthMagicLink />
 
 export default AuthMagicLinkPage

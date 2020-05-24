@@ -42,8 +42,6 @@ const forceIOSCanvasRepaint = () => {
 }
 
 export default class ShakaPlayer extends React.Component {
-  props: shakaPropTypes
-
   constructor(props: shakaPropTypes) {
     super(props)
 
@@ -55,6 +53,8 @@ export default class ShakaPlayer extends React.Component {
     if (sceneEl?.hasLoaded) initApp(this.props.manifestUri)
     else sceneEl?.addEventListener('loaded', initApp.bind(this, this.props.manifestUri))
   }
+
+  props: shakaPropTypes
 
   render() {
     return ''
