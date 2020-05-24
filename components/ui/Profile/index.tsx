@@ -1,5 +1,4 @@
-import React, { Fragment } from 'react'
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
+import { Fragment, useState } from 'react'
 import Modal from '@material-ui/core/Modal'
 import Backdrop from '@material-ui/core/Backdrop'
 import Fade from '@material-ui/core/Fade'
@@ -9,37 +8,18 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import AccountBoxIcon from '@material-ui/icons/AccountBox'
 import UserProfile from './UserIcon'
 import UserSettings from './userSettings'
-interface MProps {
+import './style.scss'
+
+interface Props {
   open: boolean
   handleClose: any
   avatar: any
 }
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    modal: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
-    paper: {
-      backgroundColor: theme.palette.background.paper,
-      border: '2px solid #000',
-      boxShadow: theme.shadows[5],
-      padding: theme.spacing(2, 4, 3)
-    }
-  })
-)
+const TabPanel = (props: any) => <Fragment>{props.value === props.index && props.children}</Fragment>
 
-const TabPanel = (props: any) => {
-  const { children, value, index } = props
-
-  return <Fragment>{value === index && children}</Fragment>
-}
-
-const ProfileModal: React.FC<MProps> = (props: MProps) => {
-  const classes = useStyles()
-  const [tabIndex, setTabIndex] = React.useState(0)
+const ProfileModal = (props: Props) => {
+  const [tabIndex, setTabIndex] = useState(0)
 
   const handleChange = (event: any, newValue: number) => {
     event.preventDefault()
@@ -65,7 +45,7 @@ const ProfileModal: React.FC<MProps> = (props: MProps) => {
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
-        className={classes.modal}
+        className="modal"
         open={props.open}
         onClose={props.handleClose}
         closeAfterTransition
@@ -75,7 +55,7 @@ const ProfileModal: React.FC<MProps> = (props: MProps) => {
         }}
       >
         <Fade in={props.open}>
-          <div className={classes.paper}>
+          <div className="paper">
             <Tabs
               value={tabIndex}
               onChange={handleChange}

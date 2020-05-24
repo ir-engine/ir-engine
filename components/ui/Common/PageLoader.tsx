@@ -1,6 +1,5 @@
-import React from 'react'
 
-const PageLoader : React.FC = () => (
+const PageLoader = () => (
   <div className="page-loader">
         Loading page...
   </div>

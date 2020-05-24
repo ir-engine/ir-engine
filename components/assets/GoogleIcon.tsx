@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-import React from 'react'
 
 const SVG = ({
   style = { fontSize: '18px' },

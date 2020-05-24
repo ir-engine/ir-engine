@@ -25,7 +25,7 @@ import { resolveUser } from '../../interfaces/User'
 import { resolveAuthUser } from '../../interfaces/AuthUser'
 import { IdentityProvider } from '../../interfaces/IdentityProvider'
 import getConfig from 'next/config'
-import { getStoredState } from '../../redux/persisted.store'
+import { getStoredState } from '../persisted.store'
 
 const { publicRuntimeConfig } = getConfig()
 const apiServer: string = publicRuntimeConfig.apiServer
@@ -35,19 +35,12 @@ export async function doLoginAuto (dispatch: Dispatch) {
   const authData = getStoredState('auth')
   const accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined
 
-  if (!accessToken) {
-    return
-  }
+  if (!accessToken) return
 
-  await client.authentication.setAccessToken(accessToken as string)
-  client.reAuthenticate()
+  await (client as any).authentication.setAccessToken(accessToken as string)(client as any).reAuthenticate()
     .then((res: any) => {
       if (res) {
         const authUser = resolveAuthUser(res)
-        // if (!authUser.identityProvider.isVerified) {
-        //   client.logout()
-        //   return;
-        // }
         dispatch(loginUserSuccess(authUser))
         loadUserData(dispatch, authUser.identityProvider.userId)
       } else {
@@ -85,9 +78,9 @@ export function loginUserByPassword (form: EmailLoginForm) {
       return
     }
 
-    dispatch(actionProcessing(true))
+    dispatch(actionProcessing(true));
 
-    client.authenticate({
+    (client as any).authenticate({
       strategy: 'local',
       email: form.email,
       password: form.password
@@ -96,7 +89,7 @@ export function loginUserByPassword (form: EmailLoginForm) {
         const authUser = resolveAuthUser(res)
 
         if (!authUser.identityProvider.isVerified) {
-          client.logout()
+          (client as any).logout()
 
           window.location.href = '/auth/confirm'
           dispatch(registerUserByEmailSuccess(authUser.identityProvider))
@@ -142,9 +135,9 @@ export function loginUserByFacebook () {
 
 export function loginUserByJwt (accessToken: string, redirectSuccess: string, redirectError: string): any {
   return (dispatch: Dispatch) => {
-    dispatch(actionProcessing(true))
+    dispatch(actionProcessing(true));
 
-    client.authenticate({
+    (client as any).authenticate({
       strategy: 'jwt',
       accessToken
     })
@@ -167,8 +160,8 @@ export function loginUserByJwt (accessToken: string, redirectSuccess: string, re
 
 export function logoutUser () {
   return (dispatch: Dispatch) => {
-    dispatch(actionProcessing(true))
-    client.logout()
+    dispatch(actionProcessing(true));
+    (client as any).logout()
       .then(() => dispatch(didLogout()))
       .catch(() => dispatch(didLogout()))
       .finally(() => dispatch(actionProcessing(false)))
@@ -280,8 +273,8 @@ export function createMagicLink (emailPhone: string, linkType?: 'email' | 'sms')
 
     let type = 'email'
     let paramName = 'email'
-    const isEnableEmailMagicLink = (authConfig && authConfig.isEnableEmailMagicLink) ?? true
-    const isEnableSmsMagicLink = (authConfig && authConfig.isEnableSmsMagicLink) ?? false
+    const enableEmailMagicLink = (authConfig && authConfig.enableEmailMagicLink) ?? true
+    const enableSmsMagicLink = (authConfig && authConfig.enableSmsMagicLink) ?? false
 
     if (linkType === 'email') {
       type = 'email'
@@ -291,7 +284,7 @@ export function createMagicLink (emailPhone: string, linkType?: 'email' | 'sms')
       paramName = 'mobile'
     } else {
       if (validatePhoneNumber(emailPhone)) {
-        if (!isEnableSmsMagicLink) {
+        if (!enableSmsMagicLink) {
           dispatchAlertError(dispatch, 'Please input valid email address')
 
           return
@@ -299,7 +292,7 @@ export function createMagicLink (emailPhone: string, linkType?: 'email' | 'sms')
         type = 'sms'
         paramName = 'mobile'
       } else if (validateEmail(emailPhone)) {
-        if (!isEnableEmailMagicLink) {
+        if (!enableEmailMagicLink) {
           dispatchAlertError(dispatch, 'Please input valid phone number')
 
           return

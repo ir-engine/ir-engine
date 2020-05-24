@@ -1,12 +1,53 @@
-/* global React */
+import { Fragment } from 'react'
 import { Entity } from 'aframe-react'
-import DefaultAssets from './assets-default'
-import ServerAssets from './assets-server'
+import getConfig from 'next/config'
+const env = getConfig().publicRuntimeConfig.xr.environment
+const grid = getConfig().publicRuntimeConfig.xr.grid
 
-const Assets = () => (
-  <Entity primitive={'a-assets'} timeout="3000">
-    <DefaultAssets />
-    <ServerAssets />
-  </Entity>
+export const Assets = () => (
+  <Fragment>
+    <Entity primitive={'a-assets'}>
+      <img id="groundTexture" src={env.floor.src} crossOrigin="anonymous" />
+      <img id="skyTexture" src={env.skybox.src} crossOrigin="anonymous" />
+      <img id="gridSky" src={grid.skybox.src} crossOrigin="anonymous" />
+      <img
+        id="placeholder"
+        src="https://kaixr-static.s3-us-west-2.amazonaws.com/logo.png"
+        crossOrigin="anonymous"
+      />
+      <img
+        id="spoke"
+        src={
+          'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/create.png'
+        }
+        crossOrigin="anonymous"
+      />
+      <img
+        id="vrRoom"
+        src={'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/dream.png'}
+        crossOrigin="anonymous"
+      />
+      <img
+        id="video360banner"
+        src={
+          'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/explore.png'
+        }
+        crossOrigin="anonymous"
+      />
+      <img
+        id="storebanner"
+        src={'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/shop.png'}
+        crossOrigin="anonymous"
+      />
+      <Entity
+        primitive="a-gltf-model"
+        id={env['scene-gltf'].name}
+        src={env['scene-gltf'].src}
+        crossOrigin="anonymous"
+      />
+
+      <video id="video360Shaka" crossOrigin="anonymous" />
+    </Entity>
+  </Fragment>
 )
 export default Assets

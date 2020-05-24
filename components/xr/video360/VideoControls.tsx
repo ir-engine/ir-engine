@@ -1,4 +1,4 @@
-import React from 'react'
+import { Component } from 'react'
 import Router from 'next/router'
 import './VideoControls.scss'
 import VideoSeeker from '../../ui/VideoSeeker'
@@ -7,41 +7,32 @@ import { setVideoPlaying } from '../../../redux/video360/actions'
 import { selectVideo360State } from '../../../redux/video360/selector'
 
 type Props = {
-  videosrc: string,
-  videotext: string,
-  videovrui: string,
-  setVideoPlaying: (playing: boolean) => void,
+  videosrc: string
+  videotext: string
+  videovrui: string
+  setVideoPlaying: (playing: boolean) => void
   playing: boolean
 }
 type State = {
-  end: boolean,
+  end: boolean
   // setInterval id
-  tickId: any,
+  tickId: any
   // duration of video in seconds
-  duration: number,
+  duration: number
   // current time of video in seconds
   currentTime: number,
   bufferedBars: Array<{start: number, end: number}>
 }
-class VideoControls extends React.Component<Props, State> {
-  state: State = {
-    end: false,
-    tickId: null,
-    duration: 0,
-    currentTime: 0,
-    bufferedBars: []
-  }
-
-  videoEl: HTMLElement | null = null
-  videovruiEl: HTMLElement | null = null
-  textEl: HTMLElement | null = null
-
-  handleBufferedArr(e) {
-    const bufferedArr = e.detail.bufferedArr
-    const duration = (this.videoEl as HTMLVideoElement).duration || 9999
-    this.setState({
-      bufferedBars: bufferedArr.map(({ start, end }) => ({ start: start / duration, end: end / duration }))
-    })
+class VideoControls extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props)
+    this.state = {
+      end: false,
+      tickId: null,
+      duration: 0,
+      currentTime: 0,
+      bufferedBars: []
+    }
   }
 
   componentDidMount() {
@@ -60,34 +51,19 @@ class VideoControls extends React.Component<Props, State> {
     }
   }
 
-  render() {
-    return (
-      <>
-        <div onClick={this.clickHandler.bind(this)}
-          id="videoplayercontrols"
-          className="videoplayercontrols active">
-        </div>
-        <VideoSeeker
-          playing={this.props.playing}
-          videoLengthSeconds={this.state.duration}
-          currentTimeSeconds={this.state.currentTime}
-          bufferedBars={this.state.bufferedBars}
-          onTogglePlay={playing => {
-            if (playing) {
-              this.playHandler()
-            } else {
-              this.pauseHandler()
-            }
-          }}
-          onSeekChange={t => {
-            (this.videoEl as HTMLVideoElement).currentTime = t
-            this.setState({
-              currentTime: t
-            })
-          }}
-        />
-      </>
-    )
+  videoEl: HTMLElement | null = null
+  videovruiEl: HTMLElement | null = null
+  textEl: HTMLElement | null = null
+
+  handleBufferedArr(e) {
+    const bufferedArr = e.detail.bufferedArr
+    const duration = (this.videoEl as HTMLVideoElement).duration || 9999
+    this.setState({
+      bufferedBars: bufferedArr.map(({ start, end }) => ({
+        start: start / duration,
+        end: end / duration
+      }))
+    })
   }
 
   private clickHandler() {
@@ -99,24 +75,26 @@ class VideoControls extends React.Component<Props, State> {
   }
 
   private playHandler() {
-    (this.videoEl as HTMLVideoElement)?.play()
+    ;(this.videoEl as HTMLVideoElement)?.play()
     const controller = document.querySelector('#videoplayercontrols')
     controller.classList.remove('active')
     controller.classList.add('disabled')
 
     this.textEl?.setAttribute('visible', false)
-    this.videoEl?.addEventListener('ended', this.videoEndHandler.bind(this), { once: true })
+    this.videoEl?.addEventListener('ended', this.videoEndHandler.bind(this), {
+      once: true
+    })
     // set playing in redux
     this.props.setVideoPlaying(true)
   }
 
   pauseHandler() {
-    (this.videoEl as HTMLVideoElement)?.pause()
+    ;(this.videoEl as HTMLVideoElement)?.pause()
     this.props.setVideoPlaying(false)
   }
 
   private videoEndHandler() {
-    (this.videoEl as HTMLVideoElement)?.pause()
+    ;(this.videoEl as HTMLVideoElement)?.pause()
     const controller = document.querySelector('#videoplayercontrols')
     this.textEl?.addEventListener('click', this.exitVideoHandler)
     controller.classList.remove('disabled')
@@ -158,11 +136,42 @@ class VideoControls extends React.Component<Props, State> {
   private exitVideoHandler() {
     Router.push('/explore')
   }
+
+  render() {
+    return (
+      <>
+        <div
+          onClick={this.clickHandler.bind(this)}
+          id="videoplayercontrols"
+          className="videoplayercontrols active"
+        />
+        <VideoSeeker
+          playing={this.props.playing}
+          videoLengthSeconds={this.state.duration}
+          currentTimeSeconds={this.state.currentTime}
+          bufferedBars={this.state.bufferedBars}
+          onTogglePlay={(playing) => {
+            if (playing) {
+              this.playHandler()
+            } else {
+              this.pauseHandler()
+            }
+          }}
+          onSeekChange={(t) => {
+            ;(this.videoEl as HTMLVideoElement).currentTime = t
+            this.setState({
+              currentTime: t
+            })
+          }}
+        />
+      </>
+    )
+  }
 }
 const mapDispatchToProps = {
   setVideoPlaying
 }
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     playing: selectVideo360State(state).get('playing')
   }

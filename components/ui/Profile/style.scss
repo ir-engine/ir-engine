@@ -1,9 +1,23 @@
-.signup__fileField{
-    display: none
+.root {
+  display: flex;
 }
-.uploadform{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    
+
+.paper {
+  border: 2px solid #000;
+}
+
+.signup__fileField {
+  display: none;
+}
+
+.uploadform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

@@ -12,28 +12,32 @@ import LoadingBar from '../../ui/LoadingBar'
 type Props = {
   children: any
 }
-export default function SceneContainer({ children }: Props): any {
+
+export const SceneContainer = ({ children }: Props): any => {
   const dispatch = useDispatch()
   const loaded = useSelector(state => selectAppState(state)).get('loaded')
   const setLoaded = loaded => dispatch(setAppLoaded(loaded))
   const loadPercent = useSelector(state => selectAppLoadPercent(state))
   const setInVrMode = inVrMode => dispatch(setAppInVrMode(inVrMode))
   const router = useRouter()
-  const navigateToUrl = e => {
+
+  const navigateToUrl = (e) => {
     let url = e.detail.url
     setLoaded(false)
     if (isExternalUrl(url)) {
       window.location.href = url
-    } else {
-      // sometimes the url given is doesn't start with '/' meaning it is invalid and errors
-      // this forces it to start with '/'
-      if (!url.startsWith('/')) {
-        url = '/' + url
-      }
-      // navigate to internal url using next/router
-      router.push(url)
+      return
     }
+
+    // sometimes the url given is doesn't start with '/' meaning it is invalid and errors
+    // this forces it to start with '/'
+    if (!url.startsWith('/')) {
+      url = '/' + url
+    }
+    // navigate to internal url using next/router
+    router.push(url)
   }
+
   useEffect(() => {
     document.addEventListener('navigate', navigateToUrl)
     return () => {
@@ -72,3 +76,5 @@ export default function SceneContainer({ children }: Props): any {
     </>
   )
 }
+
+export default SceneContainer

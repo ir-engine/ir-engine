@@ -40,7 +40,7 @@ export interface MediaCellData {
   originalTitle: string,
   title: string,
   description: string,
-  url: string, // TODO: type for url's
+  url: string,
   thumbnailUrl: string,
   productionCredit: string,
   rating: string,

@@ -68,13 +68,11 @@ export default class CameraRig {
 
   setActive(): void {
     const cameraSystem = this.el?.sceneEl?.systems.camera
-    // @ts-ignore
-    if (cameraSystem) console.log('settingActive Camera: ') && cameraSystem.setActiveCamera(this.cameraEl)
+    if (cameraSystem) (cameraSystem as any).setActiveCamera(this.cameraEl)
   }
 
   removeDefaultCamera(): void {
     const cams = document.querySelectorAll('[camera]')
-    // eslint-disable-next-line no-unused-expressions
     cams.forEach(el => { if (el.classList.contains('data-aframe-default-camera')) el.parentElement?.removeChild(el) })
   }
 }

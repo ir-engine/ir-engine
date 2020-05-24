@@ -1,6 +1,4 @@
-
-import React from 'react'
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles'
+import { useEffect, useState } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import Avatar from '@material-ui/core/Avatar'
@@ -17,34 +15,18 @@ import {
 } from '../../../redux/user/service'
 import { Button } from '@material-ui/core'
 import { User } from '../../../interfaces/User'
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      width: '100%',
-      backgroundColor: theme.palette.background.paper
-    },
-    button: {
-      '&:hover': {
-        textDecoration: 'none'
-      },
-
-      color: 'black',
-      fontSize: '20px'
-    }
-  })
-)
+import './style.scss'
 
 interface Props {
-  auth: any,
-  classes: any,
-  data: User,
+  auth: any
+  classes: any
+  data: User
 
-  requestFriend: typeof requestFriend,
-  blockUser: typeof blockUser,
-  acceptFriend: typeof acceptFriend,
-  declineFriend: typeof declineFriend,
+  acceptFriend: typeof acceptFriend
+  blockUser: typeof blockUser
   cancelBlock: typeof cancelBlock
+  declineFriend: typeof declineFriend
+  requestFriend: typeof requestFriend
 }
 
 const mapStateToProps = (state: any) => {
@@ -61,117 +43,95 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   cancelBlock: bindActionCreators(cancelBlock, dispatch)
 })
 
-class UserItem extends React.Component<Props> {
-  state = {
-    userId: '',
-    relatedUserId: ''
-  }
+const UserItem = (props: Props) => {
+  const { auth, classes, data, acceptFriend, blockUser, cancelBlock, declineFriend, requestFriend } = props
+  const initialState = { userId: '', relatedUserId: '' }
+  const [state, setState] = useState(initialState)
 
-  componentDidMount() {
-    const user = this.props.auth.get('user') as User
-    this.setState({
-      userId: user?.id,
-      relatedUserId: this.props.data.id
-    })
-  }
+  useEffect(() => {
+    const user = auth.get('user') as User
+    setState({ ...state, userId: user?.id, relatedUserId: data.id })
+  }, [])
 
-  // close a friend
-  cancelFriend = () => {
-    this.props.declineFriend(this.state.userId, this.state.relatedUserId)
-  }
+  const cancel = () => declineFriend(state.userId, state.relatedUserId)
+  const request = () => requestFriend(state.userId, state.relatedUserId)
+  const accept = () => acceptFriend(state.userId, state.relatedUserId)
+  const decline = () => declineFriend(state.userId, state.relatedUserId)
+  const block = () => blockUser(state.userId, state.relatedUserId)
+  const unblock = () => cancelBlock(state.userId, state.relatedUserId)
 
-  // request to add a friend
-  request = () => {
-    this.props.requestFriend(this.state.userId, this.state.relatedUserId)
-  }
-
-  // accept the friend request
-  accept = () => {
-    this.props.acceptFriend(this.state.userId, this.state.relatedUserId)
-  }
-
-  // decline the friend request
-  decline = () => {
-    this.props.declineFriend(this.state.userId, this.state.relatedUserId)
-  }
-
-  // block a user
-  block = () => {
-    this.props.blockUser(this.state.userId, this.state.relatedUserId)
-  }
-
-  cancelBlock = () => {
-    this.props.cancelBlock(this.state.userId, this.state.relatedUserId)
-  }
-
-  render() {
-    const { classes, data } = this.props
-    return (
-      <div className={classes.root}>
-        <Box display="flex" p={1}>
-          <Box p={1} display="flex">
-            <Avatar variant="rounded" src="" alt="avatar"/>
-          </Box>
-          <Box p={1} flexGrow={1}>
-            <Typography variant="h6">
-              {data.name}
-            </Typography>
-          </Box>
-          <Box p={1} display="flex">
-            {data.relationType === 'friend' && data.inverseRelationType === 'friend' &&
+  return (
+    <div className={classes.root}>
+      <Box display="flex" p={1}>
+        <Box p={1} display="flex">
+          <Avatar variant="rounded" src="" alt="avatar"/>
+        </Box>
+        <Box p={1} flexGrow={1}>
+          <Typography variant="h6">
+            {data.name}
+          </Typography>
+        </Box>
+        <Box p={1} display="flex">
+          {data.relationType === 'friend' && data.inverseRelationType === 'friend' &&
               <Grid container direction="row">
-                <Button variant="contained" color="secondary" onClick={this.cancelFriend}>Cancel Friend</Button>
+                <Button variant="contained" color="secondary" onClick={cancel}>Cancel Friend</Button>
               </Grid>
-            }
-            {data.relationType === 'requested' && data.inverseRelationType === 'friend' &&
+          }
+          {data.relationType === 'requested' && data.inverseRelationType === 'friend' &&
               <Grid container direction="row">
-                <Button variant="contained" color="primary" onClick={this.accept}>Accept</Button>
-                <Button variant="contained" color="secondary" onClick={this.decline}>Decline</Button>
+                <Button variant="contained" color="primary" onClick={accept}>Accept</Button>
+                <Button variant="contained" color="secondary" onClick={decline}>Decline</Button>
               </Grid>
-            }
-            {data.relationType === 'friend' && data.inverseRelationType === 'requested' &&
+          }
+          {data.relationType === 'friend' && data.inverseRelationType === 'requested' &&
               <Grid container direction="row">
                 <Typography variant="h6">
                   Pending
                 </Typography>
               </Grid>
-            }
-            {data.relationType === 'blocking' &&
+          }
+          {data.relationType === 'blocking' &&
               <Grid container direction="row">
                 <Grid xs item>
-                  <Button variant="contained" color="primary" onClick={this.cancelBlock}>Cancel Block</Button>
+                  <Button variant="contained" color="primary" onClick={unblock}>Cancel Block</Button>
                 </Grid>
               </Grid>
-            }
-            {data.relationType === 'blocked' &&
+          }
+          {data.relationType === 'blocked' &&
               <Grid container direction="row">
                 <Typography variant="h6">
                   Blocked
                 </Typography>
               </Grid>
-            }
-            {(!data.relationType) &&
+          }
+          {(!data.relationType) &&
               <Grid container direction="row">
-                <Button variant="contained" color="primary" onClick={this.request}>Request a friend</Button>
-                <Button variant="contained" color="secondary" onClick={this.block}>Block</Button>
+                <Button variant="contained" color="primary" onClick={request}>Request a friend</Button>
+                <Button variant="contained" color="secondary" onClick={block}>Block</Button>
               </Grid>
-            }
-          </Box>
+          }
+          {data.relationType === 'requested' &&
+            data.inverseRelationType !== 'friend' && (
+            <Grid container direction="row">
+              <Typography variant="h6">Pending Block</Typography>
+            </Grid>
+          )}
+          {!data.relationType && (
+            <Grid container direction="row">
+              <Button variant="contained" color="primary" onClick={request}>
+                Request a friend
+              </Button>
+              <Button variant="contained" color="secondary" onClick={block}>
+                Block
+              </Button>
+            </Grid>
+          )}
         </Box>
-      </div>
-    )
-  }
-}
-
-function UserItemWrapper(props: any) {
-  const classes = useStyles()
-
-  return (
-    <UserItem {...props} classes={classes}/>
+      </Box>
+    </div>
   )
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(UserItemWrapper)
+const UserItemWrapper = (props: any) => <UserItem {...props} />
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserItemWrapper)

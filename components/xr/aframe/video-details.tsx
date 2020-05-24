@@ -10,7 +10,7 @@ export interface VideoDetailsData {
   // originalTitle: string,
   title: string,
   description: string,
-  url: string, // TODO: type for url's
+  url: string,
   thumbnailUrl: string,
   productionCredit: string,
   rating: string,
@@ -30,7 +30,7 @@ export const VideoDetailsComponentSchema: AFRAME.MultiPropertySchema<VideoDetail
   // originalTitle: { default: '' },
   title: { default: '' },
   description: { default: '' },
-  url: { default: '' }, // TODO: type for url's
+  url: { default: '' },
   thumbnailUrl: { default: '' },
   productionCredit: { default: '' },
   rating: { default: '' },
@@ -43,7 +43,7 @@ export const VideoDetailsComponentSchema: AFRAME.MultiPropertySchema<VideoDetail
   linkEnabled: { default: true }
 }
 
-export interface VideoDetailsProps {
+export interface Props {
   initDetailsl: () => void,
   createCell: () => AFRAME.Entity,
   createDetails: () => AFRAME.Entity,
@@ -58,7 +58,7 @@ export interface VideoDetailsProps {
   createBackButton: () => AFRAME.Entity
 }
 
-export const VideoDetailsComponent: AFRAME.ComponentDefinition<VideoDetailsProps> = {
+export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
   schema: VideoDetailsComponentSchema,
   data: {
   } as VideoDetailsData,

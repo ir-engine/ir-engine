@@ -1,5 +1,5 @@
 import { useRouter, NextRouter } from 'next/router'
-import React, { Component } from 'react'
+import { useState, useEffect } from 'react'
 import { loginUserByJwt, refreshConnections } from '../../../redux/auth/service'
 import { Container } from '@material-ui/core'
 import { selectAuthState } from '../../../redux/auth/selector'
@@ -24,55 +24,40 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   refreshConnections: bindActionCreators(refreshConnections, dispatch)
 })
 
-class GithubCallback extends Component<Props> {
-  state = {
-    error: '',
-    token: ''
-  }
+const GithubCallback = (props: Props) => {
+  const { auth, loginUserByJwt, refreshConnections, router } = props
 
-  componentDidMount() {
-    const router = this.props.router
+  const initialState = { error: '', token: '' }
+  const [state, setState] = useState(initialState)
+
+  useEffect(() => {
     const error = router.query.errror as string
     const token = router.query.token as string
     const type = router.query.type as string
 
-    if (error) {
-      // Nothing to do.
-    } else {
+    if (!error) {
       if (type === 'connection') {
-        const user = this.props.auth.get('user')
-        this.props.refreshConnections(user.id)
+        const user = auth.get('user')
+        refreshConnections(user.id)
       } else {
-        this.props.loginUserByJwt(token, '/', '/')
+        loginUserByJwt(token, '/', '/')
       }
     }
 
-    this.setState({
-      error,
-      token
-    })
-  }
+    setState({ ...state, error, token })
+  }, [])
 
-  render() {
-    const { error } = this.state
-
-    if (error && error !== '') {
-      return (
-        <Container>
-          Github authenticatin failed.
-          <br />
-          {error}
-        </Container>
-      )
-    } else {
-      return <Container>Authenticating...</Container>
-    }
-  }
+  return state.error && state.error !== '' ? (
+    <Container>
+      Github authentication failed.
+      <br />
+      {state.error}
+    </Container>
+  ) : (
+    <Container>Authenticating...</Container>
+  )
 }
 
-const GithubHomeWraper = (props: any) => {
-  const router = useRouter()
-  return <GithubCallback {...props} router={router} />
-}
+const GithubHomeWrapper = (props: any) => <GithubCallback {...props} router={ useRouter() } />
 
-export default connect(mapStateToProps, mapDispatchToProps)(GithubHomeWraper)
+export default connect(mapStateToProps, mapDispatchToProps)(GithubHomeWrapper)

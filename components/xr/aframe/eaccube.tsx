@@ -29,7 +29,6 @@ export interface EaccubeComponentData {
 
 const TILE_ROTATION_RIGHT = 'R' // 90deg cw
 const TILE_ROTATION_LEFT = 'L' // 90deg ccw
-// @ts-ignore
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const TILE_ROTATION_UP = 'U' // no rotation
 const TILE_ROTATION_DOWN = 'D' // 180deg
@@ -285,7 +284,6 @@ export interface EaccubeShaderData {
   src: HTMLVideoElement | HTMLImageElement
 }
 
-// TODO cleanup type, should be AFRAME.MultiPropertySchema<EaccubeShaderData>: 'is' is mandatory but missing in AFRAME.SinglePropertySchema definition
 export const EaccubeShaderSchema: AFRAME.MultiPropertySchema<any> = {
   src: { type: 'map', is: 'uniform' }
 }
