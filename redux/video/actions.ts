@@ -1,8 +1,6 @@
 import {
   VIDEOS_FETCHED_SUCCESS,
-  VIDEOS_FETCHED_ERROR,
-  UPLOAD_FILE,
-  UPLOAD_FILE_FAILURE
+  VIDEOS_FETCHED_ERROR
 } from '../actions'
 
 export interface PublicVideoState {
@@ -61,19 +59,6 @@ export function videosFetchedSuccess (videos: PublicVideo[]): VideosFetchedActio
 export function videosFetchedError (err: string): VideosFetchedAction {
   return {
     type: VIDEOS_FETCHED_ERROR,
-    message: err
-  }
-}
-
-export function fileUploadSuccess (image: Image): VideosFetchedAction {
-  return {
-    type: UPLOAD_FILE,
-    image: image
-  }
-}
-export function fileUploadFailure (err: any): VideosFetchedAction {
-  return {
-    type: UPLOAD_FILE_FAILURE,
     message: err
   }
 }

@@ -3,18 +3,17 @@ import { IdentityProvider } from './IdentityProvider'
 export type RelationshipType = 'friend' | 'requested' | 'blocked' | 'blocking'
 export type User = {
   id: string
-  avatar: string
   name: string
   userRole: string
   identityProviders: IdentityProvider[]
   relationType?: RelationshipType
   inverseRelationType?: RelationshipType,
-  subscriptions: any[]
+  subscriptions: any[],
+  avatarUrl?: string
 }
 
 export const UserSeed = {
   id: '',
-  avatar: '',
   name: '',
   identityProviders: []
 }
