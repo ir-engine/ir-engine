@@ -50,8 +50,10 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 const ExploreScene = (props: VideoProps): any => {
   const { videos, fetchPublicVideos } = props
-
+  const [videosArr, setVideosArr] = useState([])
   const [exploreState, setExploreState] = useState<ExploreState>({ focusedCellEl: null, focusedCell: null })
+  const [pageOffset, setPageOffset] = useState(0)
+  const [visitedPages, setVisitedPages] = useState([0])
 
   const focusCell = (event: any) => {
     const focusCellEl = event.target.parentEl
@@ -60,7 +62,7 @@ const ExploreScene = (props: VideoProps): any => {
       focusedCell: {
         title: (focusCellEl.attributes as any).title.value,
         description: (focusCellEl.attributes as any).description.value,
-        videoformat: (focusCellEl.attributes as any).videoformat.value,
+        videoformat: (focusCellEl.attributes as any).videoformat?.value,
         mediaUrl: (focusCellEl.attributes as any)['media-url'].value,
         thumbnailUrl: (focusCellEl.attributes as any)['thumbnail-url'].value,
         productionCredit: (focusCellEl.attributes as any)['production-credit'].value,
@@ -92,7 +94,7 @@ const ExploreScene = (props: VideoProps): any => {
 
   useEffect(() => {
     if (videos.get('videos').size === 0) {
-      fetchPublicVideos()
+      fetchPublicVideos(pageOffset)
     }
     document.addEventListener('watchbutton', WatchVideo)
     document.addEventListener('backbutton', unFocusCell)
@@ -102,6 +104,31 @@ const ExploreScene = (props: VideoProps): any => {
     }
   }, [WatchVideo, unFocusCell])
 
+  const pageLeftHandler = () => {
+    setPageOffset(pageOffset - 1)
+  }
+  // only loading videos on right handler, because you start on page 0
+  const pageRightHandler = () => {
+    const nextPage = pageOffset + 1
+    // console.log('visited pages:', visitedPages)
+    // if next page has not been visited before, fetch videos for the page
+    if (!visitedPages.find(pageOffset => pageOffset === nextPage)) {
+      fetchPublicVideos(nextPage)
+    }
+    setPageOffset(nextPage)
+    setVisitedPages(pages => Array.from(new Set([...pages, nextPage])))
+  }
+  useEffect(() => {
+    document.addEventListener('pageleft', pageLeftHandler)
+    document.addEventListener('pageright', pageRightHandler)
+    return () => {
+      document.removeEventListener('pageleft', pageLeftHandler)
+      document.removeEventListener('pageright', pageRightHandler)
+    }
+  }, [pageOffset, visitedPages])
+  useEffect(() => {
+    setVideosArr(videos.get('videos'))
+  }, [videos, pageOffset])
   return (
     <SceneContainer>
       <AframeComponentRegisterer />
@@ -111,9 +138,10 @@ const ExploreScene = (props: VideoProps): any => {
           class="grid"
           primitive="a-grid"
           rows={3}
-          colunns={5}>
+          colunns={5}
+        >
 
-          {videos.get('videos').map((video: PublicVideo, i: number) => {
+          {videosArr.map((video: PublicVideo, i: number) => {
             return (
               <Entity
                 key={i}
