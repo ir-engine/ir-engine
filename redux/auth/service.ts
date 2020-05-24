@@ -139,7 +139,7 @@ export function loginUserByFacebook () {
   }
 }
 
-export function loginUserByJwt (accessToken: string, redirectSuccess: string, redirectError: string): any {
+export function loginUserByJwt (accessToken: string, redirectSuccess: string, redirectError: string, subscriptionId: string): any {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true));
 
@@ -149,10 +149,26 @@ export function loginUserByJwt (accessToken: string, redirectSuccess: string, re
     })
       .then((res: any) => {
         const authUser = resolveAuthUser(res)
+        console.log('LOGIN BY JWT AUTHUSER')
+        console.log(authUser)
 
-        window.location.href = redirectSuccess
-        dispatch(loginUserSuccess(authUser))
-        loadUserData(dispatch, authUser.identityProvider.userId)
+        if (subscriptionId.length > 0) {
+          client.service('seat').patch(authUser.identityProvider.userId, {
+            subscriptionId: subscriptionId
+          })
+            .catch((err) => {
+              console.log(err)
+            })
+            .finally(() => {
+              window.location.href = redirectSuccess
+              dispatch(loginUserSuccess(authUser))
+              loadUserData(dispatch, authUser.identityProvider.userId)
+            })
+        } else {
+          window.location.href = redirectSuccess
+          dispatch(loginUserSuccess(authUser))
+          loadUserData(dispatch, authUser.identityProvider.userId)
+        }
       })
       .catch((err: any) => {
         console.log(err)
@@ -206,7 +222,7 @@ export function verifyEmail (token: string) {
     })
       .then((res: any) => {
         dispatch(didVerifyEmail(true))
-        loginUserByJwt(res.accessToken, '/', '/')(dispatch)
+        loginUserByJwt(res.accessToken, '/', '/', '')(dispatch)
       })
       .catch((err: any) => {
         console.log(err)

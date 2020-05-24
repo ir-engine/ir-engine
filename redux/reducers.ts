@@ -9,6 +9,7 @@ import deviceDetectReducer from './devicedetect/reducers'
 
 import userReducer from './user/reducers'
 import video360Reducer from './video360/reducers'
+import seatReducer from './seats/reducers'
 
 export default combineReducers({
   app: appReducer,
@@ -19,5 +20,6 @@ export default combineReducers({
   alert: alertReducer,
   dialog: dialogReducer,
   devicedetect: deviceDetectReducer,
+  seat: seatReducer,
   user: userReducer
 })

@@ -40,7 +40,7 @@ const FacebookCallback = (props: Props) => {
         const user = auth.get('user')
         refreshConnections(user.id)
       } else {
-        loginUserByJwt(token, '/', '/')
+        loginUserByJwt(token, '/', '/', '')
       }
     }
 

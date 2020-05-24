@@ -33,22 +33,22 @@ const UserSettings: React.FC<MProps> = (props: MProps) => {
 
   // }
   return (
-      <div>
-        <div className={classes.subscriptionTitle}>Your Subscription</div>
-          {authUser.subscription == null && <div className={classes.subscriptionBody}>Free Tier</div>}
-          {authUser.subscription != null &&
-            <div className={classes.subscriptionBody}>
-            <div>Plan: {authUser.subscription.subscriptionType.name}</div>
-            <div>Seats: {authUser.subscription.subscriptionType.seats}</div>
-            <div>Unused Seats: {authUser.subscription.unusedSeats}</div>
-            <div>Pending Seats: {authUser.subscription.pendingSeats}</div>
-            <div>Filled Seats: {authUser.subscription.filledSeats}</div>
-          </div>
-          }
-        <Button variant="contained" color="primary" href="/subscription/seats">
-            Manage subcription seats
-          </Button>
-      </div>
+    <div>
+      <div className={classes.subscriptionTitle}>Your Subscription</div>
+      {authUser.subscription == null && <div className={classes.subscriptionBody}>Free Tier</div>}
+      {authUser.subscription != null &&
+        <div className={classes.subscriptionBody}>
+          <div>Plan: {authUser.subscription.subscriptionType.name}</div>
+          <div>Seats: {authUser.subscription.subscriptionType.seats}</div>
+          <div>Unused Seats: {authUser.subscription.unusedSeats}</div>
+          <div>Pending Seats: {authUser.subscription.pendingSeats}</div>
+          <div>Filled Seats: {authUser.subscription.filledSeats}</div>
+        </div>
+      }
+      <Button variant="contained" color="primary" href="/subscription/seats">
+        Manage subscription seats
+      </Button>
+    </div>
   )
 }
 
