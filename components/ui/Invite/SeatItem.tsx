@@ -105,7 +105,7 @@ class SeatItem extends React.Component<Props> {
             }
             {seat.seatStatus === 'filled' && seat.userId !== this.state.userId &&
             <Grid container direction="row">
-              <Button variant="contained" color="primary" onClick={this.revokeSeat}>Revoke this user`&apos;`s seat</Button>
+              <Button variant="contained" color="primary" onClick={this.revokeSeat}>Revoke this user&apos;s seat</Button>
             </Grid>
             }
             {seat.seatStatus === 'filled' && seat.userId === this.state.userId &&

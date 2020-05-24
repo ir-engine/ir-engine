@@ -33,7 +33,7 @@ const UserSettings: React.FC<MProps> = (props: MProps) => {
 
   // }
   return (
-    <div>
+    <div className={classes.subscriptionBody}>
       <div className={classes.subscriptionTitle}>Your Subscription</div>
       {authUser.subscription == null && <div className={classes.subscriptionBody}>Free Tier</div>}
       {authUser.subscription != null &&
@@ -45,9 +45,14 @@ const UserSettings: React.FC<MProps> = (props: MProps) => {
           <div>Filled Seats: {authUser.subscription.filledSeats}</div>
         </div>
       }
-      <Button variant="contained" color="primary" href="/subscription/seats">
-        Manage subscription seats
-      </Button>
+      {authUser.subscription != null &&
+        <Button variant="contained"
+          color="primary"
+          href="/subscription/seats"
+        >
+          Manage subscription seats
+        </Button>
+      }
     </div>
   )
 }
