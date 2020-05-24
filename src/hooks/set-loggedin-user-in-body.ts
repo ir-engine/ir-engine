@@ -6,13 +6,22 @@ export default (propertyName: string) => {
   return (context: HookContext): HookContext => {
     // Getting logged in user and attaching owner of user
     const loggedInUser = extractLoggedInUserFromParams(context.params)
-    context.data = {
-      ...context.data,
-      [propertyName]: loggedInUser.userId
-    }
-    context.data = {
-      ...context.data,
-      [propertyName]: loggedInUser.userId
+    if (Array.isArray(context.data)) {
+      context.data = context.data.map((item: any) => {
+        return {
+          ...item,
+          [propertyName]: loggedInUser.userId
+        }
+      })
+    } else {
+      context.data = {
+        ...context.data,
+        [propertyName]: loggedInUser.userId
+      }
+      context.params.body = {
+        ...context.params.body,
+        [propertyName]: loggedInUser.userId
+      }
     }
 
     return context
