@@ -6,7 +6,8 @@ export const seed = {
   templates:
     [
       { type: 'scene' },
-      { type: 'inventory' }
+      { type: 'inventory' },
+      { type: 'project' }
     ]
 }
 
