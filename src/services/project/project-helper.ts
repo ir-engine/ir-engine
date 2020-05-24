@@ -5,15 +5,9 @@ export function mapProjectDetailData (project: any): any {
     name: project.name,
     parent_scene: mapSceneData(project?.parent_scene_listing || project?.parent_scene, project.project_sid),
     project_id: project.project_sid,
-<<<<<<< HEAD
     project_url: project?.project_url,
     scene: mapSceneData(project.scene, project.project_sid),
     thumbnail_url: project?.thumbnail_owned_file?.url
-=======
-    project_url: project?.project_owned_file?.key,
-    scene: mapSceneData(project.scene, project.project_sid),
-    thumbnail_url: project?.thumbnail_owned_file?.key
->>>>>>> Implemented short Id in project and scene
   }
   return _proj
 }
