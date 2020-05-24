@@ -37,6 +37,25 @@ export default {
             subscription.dataValues.subscriptionType = plan
           }))
         }
+
+        const { id, app, result } = context
+
+        const userAvatarResult = await app.service('static-resource').find({
+          query: {
+            staticResourceType: 'user-thumbnail',
+            userId: id
+          }
+        })
+
+        console.log('userAvatarResult:')
+        console.log(userAvatarResult)
+
+        if (userAvatarResult.total > 0) {
+          console.log(userAvatarResult.data[0].url)
+          result.dataValues.avatarUrl = userAvatarResult.data[0].url
+        }
+
+        console.log(result)
         return context
       }
     ],
