@@ -11,9 +11,19 @@ export default (app: Application): any => {
       allowNull: false,
       primaryKey: true
     },
+    // We need to create additional id field for entity because this is being use by three.js
+    entityId: {
+      type: DataTypes.UUID,
+      allowNull: false
+    },
     name: {
-      type: DataTypes.STRING
-    }
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    parent: {
+      type: DataTypes.UUID
+    },
+    index: DataTypes.INTEGER
   }, {
     hooks: {
       beforeCount (options: any) {
@@ -23,9 +33,9 @@ export default (app: Application): any => {
   });
 
   (entity as any).associate = (models: any) => {
-    (entity as any).hasMany(models.component, { as: 'entity', foreignKey: 'entityId' });
+    (entity as any).hasMany(models.component, { as: 'entity', foreignKey: 'entityId', onDelete: 'cascade' });
     (entity as any).belongsTo(models.entity_type, { foreignKey: 'entityType', required: true });
-    (entity as any).belongsTo(models.collection);
+    (entity as any).belongsTo(models.collection, { onDelete: 'cascade' });
     (entity as any).belongsTo(models.user)
   }
 

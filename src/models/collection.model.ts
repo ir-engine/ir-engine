@@ -1,5 +1,6 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
+import generateShortId from '../util/generate-short-id'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -10,6 +11,11 @@ export default (app: Application): any => {
       allowNull: false,
       primaryKey: true
     },
+    sid: {
+      type: DataTypes.STRING,
+      defaultValue: () => generateShortId(8),
+      allowNull: false
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false
@@ -18,10 +24,19 @@ export default (app: Application): any => {
       type: DataTypes.STRING,
       allowNull: true
     },
+    version: DataTypes.INTEGER,
     metadata: {
       type: DataTypes.JSON,
       defaultValue: {},
-      allowNull: true
+      allowNull: true,
+      get (this: any) {
+        const metaData = this.getDataValue('metadata')
+        if (!metaData) {
+          return ''
+        } else {
+          return JSON.parse(metaData)
+        }
+      }
     },
     isPublic: {
       type: DataTypes.BOOLEAN,
@@ -39,7 +54,7 @@ export default (app: Application): any => {
   (collection as any).associate = (models: any) => {
     (collection as any).belongsTo(models.collection_type, { foreignKey: 'collectionType', required: true });
     (collection as any).hasOne(models.attribution);
-    (collection as any).hasMany(models.entity);
+    (collection as any).hasMany(models.entity, { onDelete: 'cascade' });
     (collection as any).belongsTo(models.user);
     (collection as any).belongsTo(models.location)
   }
