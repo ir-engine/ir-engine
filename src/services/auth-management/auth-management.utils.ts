@@ -2,8 +2,8 @@ import { Params } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import config from 'config'
 
-export function getLink (type: string, hash: string): string {
-  return (process.env.APP_HOST ?? '') + 'magicLink' + `?type=${type}&token=${hash}`
+export function getLink (type: string, hash: string, subscriptionId?: string): string {
+  return subscriptionId != null && subscriptionId.length > 0 ? (process.env.APP_HOST ?? '') + 'magicLink' + `?type=${type}&token=${hash}&subscriptionId=${subscriptionId}` : (process.env.APP_HOST ?? '') + 'magicLink' + `?type=${type}&token=${hash}`
 }
 
 export async function sendEmail (app: Application, email: any): Promise<void> {

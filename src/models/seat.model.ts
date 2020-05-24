@@ -1,16 +1,16 @@
 // See http://docs.sequelizejs.com/en/latest/docs/models-definition/
 // for more of what you can do here.
-import { Sequelize, DataTypes } from 'sequelize';
-import { Application } from '../declarations';
+import { Sequelize } from 'sequelize'
+import { Application } from '../declarations'
 
-export default function (app: Application) {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient');
+export default function (app: Application): any {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const seat = sequelizeClient.define('seat', {
-    
+
   }, {
     hooks: {
-      beforeCount(options: any) {
-        options.raw = true;
+      beforeCount (options: any) {
+        options.raw = true
       }
     }
   });
@@ -20,9 +20,9 @@ export default function (app: Application) {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
     (seat as any).belongsTo(models.subscription, { foreignKey: { name: 'subscriptionId', allowNull: false } })
-    ;(seat as any).belongsTo(models.user, { foreignKey: { name: 'userId', allowNull: false }})
-    ;(seat as any).belongsTo(models.seat_status, { foreignKey: { name: 'seatStatus', allowNull: false }})
-  };
+    ;(seat as any).belongsTo(models.user, { foreignKey: { name: 'userId', allowNull: false } })
+    ;(seat as any).belongsTo(models.seat_status, { foreignKey: { name: 'seatStatus', allowNull: false } })
+  }
 
-  return seat;
+  return seat
 }
