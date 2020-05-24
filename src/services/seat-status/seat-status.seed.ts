@@ -5,7 +5,7 @@ export const seed = {
   randomize: false,
   templates: [
     { status: 'pending' },
-    { status: 'filled' },
+    { status: 'filled' }
   ]
 }
 

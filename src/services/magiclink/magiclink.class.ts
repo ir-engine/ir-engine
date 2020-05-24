@@ -14,7 +14,7 @@ import {
 import * as path from 'path'
 import * as pug from 'pug'
 import { Service } from 'feathers-sequelize'
-import { IdentityProvider } from '../identity-provider/identity-provider.class';
+import { IdentityProvider } from '../identity-provider/identity-provider.class'
 import { BadRequest } from '@feathersjs/errors'
 
 interface Data {}
@@ -60,7 +60,7 @@ export class Magiclink implements ServiceMethods<Data> {
     identityProvider: IdentityProvider,
     subscriptionId?: string
   ): Promise<void> {
-    const hashLink = getLink(type, token)
+    const hashLink = getLink(type, token, subscriptionId ?? '')
     const appPath = path.dirname(require.main ? require.main.filename : '')
     const emailAccountTemplatesPath = path.join(
       appPath,
@@ -71,6 +71,7 @@ export class Magiclink implements ServiceMethods<Data> {
     )
 
     let subscription
+    let username
     if (subscriptionId != null) {
       subscription = await this.app.service('subscription').find({
         id: subscriptionId
@@ -79,18 +80,25 @@ export class Magiclink implements ServiceMethods<Data> {
       if ((subscription as any).total === 0) {
         throw new BadRequest('Invalid subscription')
       }
+
+      const subscriptionUser = await this.app.service('user').get((subscription as any).data[0].userId)
+
+      username = subscriptionUser.name
     }
     const templatePath = subscriptionId == null ? path.join(
       emailAccountTemplatesPath,
       'magiclink-email.pug'
     ) : path.join(
-        emailAccountTemplatesPath,
-        'magiclink-email-subscription.pug'
+      emailAccountTemplatesPath,
+      'magiclink-email-subscription.pug'
     )
+
+    console.log('TEMPLATE PATH:')
+    console.log(templatePath)
     const compiledHTML = pug.compileFile(templatePath)({
       logo: '',
       hashLink,
-      subscriptionName: (identityProvider as any).token
+      username: username
     })
     const mailFrom = process.env.SMTP_FROM_EMAIL ?? 'noreply@myxr.email'
     const mailSender = `${process.env.SMTP_FROM_NAME ?? ''}<${mailFrom}>`
@@ -109,7 +117,7 @@ export class Magiclink implements ServiceMethods<Data> {
     token: string,
     type: 'connection' | 'login'
   ): Promise<void> {
-    const hashLink = getLink(type, token)
+    const hashLink = getLink(type, token, '')
     const appPath = path.dirname(require.main ? require.main.filename : '')
     const emailAccountTemplatesPath = path.join(
       appPath,
@@ -178,8 +186,8 @@ export class Magiclink implements ServiceMethods<Data> {
           data.email,
           accessToken,
           data.userId ? 'connection' : 'login',
-            identityProvider,
-            (params as any).subscriptionId
+          identityProvider,
+          data.subscriptionId
         )
       } else if (data.type === 'sms') {
         await this.sendSms(
