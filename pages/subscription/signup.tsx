@@ -1,3 +1,5 @@
+/* eslint-disable react/prefer-stateless-function */
+// FIXME ^
 import React from 'react'
 import Layout from '../../components/ui/Layout'
 import dynamic from 'next/dynamic'
