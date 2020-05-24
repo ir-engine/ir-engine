@@ -15,7 +15,7 @@ import './style.scss'
 interface Props {
   open: boolean
   handleClose: any
-  avatar: any
+  avatarUrl: string,
   auth: any
 }
 
@@ -60,7 +60,7 @@ const ProfileModal = (props: Props) => {
   }
   const avatar = (
     <TabPanel value={tabIndex} index={0}>
-      <UserProfile avatar={props.avatar} />
+      <UserProfile avatarUrl={props.avatarUrl} auth={props.auth} />
     </TabPanel>
   )
   const settings = (
@@ -111,7 +111,7 @@ const ProfileModal = (props: Props) => {
             >
               <Tab
                 icon={<AccountCircleIcon style={{ fontSize: 15 }} />}
-                label="User Avatar"
+                label="Profile"
               />
               <Tab
                 icon={<SettingsIcon style={{ fontSize: 15 }} />}

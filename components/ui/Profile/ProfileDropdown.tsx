@@ -12,13 +12,13 @@ import Router from 'next/router'
 import Avatar from '@material-ui/core/Avatar'
 
 interface Props {
-  avatar: any,
+  avatarUrl: any,
   logoutUser: any,
   auth: any
 }
 
 const MenuListComposition = (props: Props) => {
-  const { avatar, logoutUser, auth } = props
+  const { avatarUrl, logoutUser, auth } = props
   const [open, setOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const anchorRef = useRef<HTMLButtonElement>(null)
@@ -83,10 +83,10 @@ const MenuListComposition = (props: Props) => {
           aria-haspopup="true"
           onClick={handleToggle}
         >
-          {avatar ? (
-            <Avatar alt="User Avatar Icon" src={avatar} />
+          {avatarUrl ? (
+            <Avatar alt="User Avatar Icon" src={avatarUrl} />
           ) : (
-            <Avatar alt="User Avatar">X</Avatar>
+            <Avatar alt="User Avatar">{props.avatarLetter}</Avatar>
           )}
         </Button>
         <Popper
@@ -126,7 +126,7 @@ const MenuListComposition = (props: Props) => {
       <ProfileModal
         open={modalOpen}
         handleClose={modalClose}
-        avatar={avatar}
+        avatar={avatarUrl}
         auth={auth}
       />
     </div>

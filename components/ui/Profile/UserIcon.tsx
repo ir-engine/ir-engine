@@ -1,75 +1,101 @@
 import { useState } from 'react'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import Button from '@material-ui/core/Button'
-import { uploadFile } from '../../../redux/video/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import './style.scss'
+import TextField from '@material-ui/core/TextField'
+import { uploadAvatar, updateUsername } from '../../../redux/auth/service'
+
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  uploadFile: bindActionCreators(uploadFile, dispatch)
+  uploadAvatar: bindActionCreators(uploadAvatar, dispatch),
+  updateUsername: bindActionCreators(updateUsername, dispatch)
 })
 
 interface Props {
-  avatar: any
-  uploadFile: typeof uploadFile
+  avatarUrl: string
+  uploadAvatar: typeof uploadAvatar,
+  updateUsername: typeof updateUsername
+  auth: any
 }
 
 const UserProfile = (props: Props) => {
   const [file, setFile] = useState({})
   const [fileUrl, setFileUrl] = useState('')
+  const [username, setUsername] = React.useState(props.auth.get('user').name)
   const handleChange = (e: any) => {
     const efile = e.target.files[0]
     const formData = new FormData()
-    formData.append('file', efile, efile.type)
-    formData.append('name', efile.name)
-    formData.append('type', 'user-thumbnail')
+    if (efile != null) {
+      formData.append('file', efile, efile.type)
+      formData.append('name', efile.name)
+      formData.append('type', 'user-thumbnail')
 
-    const file = formData
+      const file = formData
 
-    setFile(file)
-    setFileUrl(efile)
+      setFile(file)
+      setFileUrl(efile)
+    } else {
+      setFile({})
+      setFileUrl('')
+    }
   }
 
   const handleSubmit = async () => {
-    await props.uploadFile(file)
+    await props.uploadAvatar(file)
+  }
+
+  const handleUsernameChange = (e: any) => {
+    const name = e.target.value
+    setUsername(name)
+  }
+  const updateUsername = async () => {
+    await props.updateUsername(props.auth.get('user').id, username)
   }
   return (
-    <div className="uploadform">
-      {props.avatar ? (
-        <img
-          src={URL.createObjectURL(fileUrl)}
-          className="rounded mx-auto d-block"
-          width="200px"
-          height="150px"
+    <div className="user-container">
+      <div className="username">
+        <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          id="username"
+          label="Your Name"
+          name="name"
+          autoFocus
+          defaultValue={props.auth.get('user').name}
+          onChange={(e) => handleUsernameChange(e)}
         />
-      ) : (
-        <>
-          <label htmlFor="fileInput">
-            {fileUrl ? (
-              <img
-                src={URL.createObjectURL(fileUrl)}
-                className="rounded mx-auto d-block"
-                width="200px"
-                height="150px"
-              />
-            ) : (
-              <AccountCircleIcon style={{ fontSize: 150 }} />
-            )}
-          </label>
-          <input
-            id="fileInput"
-            name="file"
-            placeholder="Upload Product Image"
-            type="file"
-            className="signup__fileField"
-            onChange={handleChange}
-          />
-          <Button variant="contained" color="primary" onClick={handleSubmit}>
-            Upload Avatar
-          </Button>
-        </>
-      )}
+        <Button variant="contained" color="primary" onClick={updateUsername}>
+          Update
+        </Button>
+      </div>
+      <div className="uploadform">
+        <label className="hover-icon" htmlFor="fileInput">
+          {fileUrl ? (
+            <img
+              src={URL.createObjectURL(fileUrl)}
+              className="rounded mx-auto d-block max-size-200"
+            />
+          ) : props.avatarUrl ? (
+            <img src={props.avatarUrl} className="rounded mx-auto d-block max-size-200" />
+          ) : (
+            <AccountCircleIcon style={{ fontSize: 150 }} />
+          )}
+        </label>
+        <input
+          id="fileInput"
+          name="file"
+          placeholder="Upload Product Image"
+          type="file"
+          className="signup__fileField"
+          onChange={handleChange}
+        />
+        <Button disabled={fileUrl.length === 0} variant="contained" color="primary" onClick={handleSubmit}>
+          Upload Avatar
+        </Button>
+      </div>
     </div>
   )
 }

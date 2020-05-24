@@ -50,15 +50,8 @@ class NavUserBadge extends Component<Props> {
       <div className="userWidget">
         {isLoggedIn && (
           <div className="flex">
-            {/* <Button onClick={() => this.handleLogout()}
-              style={this.styles.logoutButton}
-            >
-              {userName}
-              <br />
-              Logout
-            </Button> */}
             <Dropdown
-              avatar={user && user.avatar}
+              avatarUrl={user && user.avatarUrl}
               auth={this.props.auth}
               logoutUser={this.props.logoutUser} />
           </div>

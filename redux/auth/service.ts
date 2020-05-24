@@ -14,7 +14,9 @@ import {
   didResetPassword,
   didCreateMagicLink,
   updateSettings,
-  loadedUserData
+  loadedUserData,
+  avatarUpdated,
+  usernameUpdated
 } from './actions'
 import { client } from '../feathers'
 import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service'
@@ -26,6 +28,7 @@ import { resolveAuthUser } from '../../interfaces/AuthUser'
 import { IdentityProvider } from '../../interfaces/IdentityProvider'
 import getConfig from 'next/config'
 import { getStoredState } from '../persisted.store'
+import axios from 'axios'
 
 const { publicRuntimeConfig } = getConfig()
 const apiServer: string = publicRuntimeConfig.apiServer
@@ -417,4 +420,31 @@ export function refreshConnections (userId: string) { (dispatch: Dispatch) => lo
 export const updateUserSettings = (id: any, data: any) => async (dispatch: any) => {
   const res = await axiosRequest('PATCH', `${apiUrl}/user-settings/${id}`, data)
   dispatch(updateSettings(res.data))
+}
+
+export function uploadAvatar (data: any) {
+  return async (dispatch: Dispatch, getState: any) => {
+    const token = getState().get('auth').get('authUser').accessToken
+    const res = await axios.post(`${apiUrl}/upload`, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: 'Bearer ' + token
+      }
+    })
+    const result = res.data
+    dispatchAlertSuccess(dispatch, 'Avatar updated')
+    dispatch(avatarUpdated(result))
+  }
+}
+
+export function updateUsername (userId: string, name: string) {
+  return (dispatch: Dispatch) => {
+    client.service('user').patch(userId, {
+      name: name
+    })
+      .then((res: any) => {
+        dispatchAlertSuccess(dispatch, 'Username updated')
+        dispatch(usernameUpdated(res))
+      })
+  }
 }

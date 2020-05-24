@@ -9,11 +9,35 @@
 .signup__fileField {
   display: none;
 }
+.uploadform{
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-.uploadform {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+}
+
+.max-size-200 {
+    max-height: 200px;
+    max-width: 200px;
+}
+
+.hover-icon {
+    cursor: pointer;
+    &:hover {
+        background-color: gray;
+    }
+}
+
+.username {
+    display: flex;
+    align-items: center;
+}
+
+.user-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .modal {

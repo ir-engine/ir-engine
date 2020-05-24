@@ -29,17 +29,3 @@ export function fetchPublicVideos (pageOffset = 0) {
       .catch(() => dispatch(videosFetchedError('Failed to fetch videos')))
   }
 }
-
-export function uploadFile (data: any) {
-  return async (dispatch: Dispatch, getState: any) => {
-    const token = getState().get('auth').get('authUser').accessToken
-    const res = await axios.post(`${apiUrl}/upload`, data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Authorization: 'Bearer ' + token
-      }
-    })
-    const image = res.data
-    dispatch(fileUploadSuccess(image))
-  }
-}
