@@ -7,7 +7,6 @@ import './style.scss'
 import TextField from '@material-ui/core/TextField'
 import { uploadAvatar, updateUsername } from '../../../redux/auth/service'
 
-
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   uploadAvatar: bindActionCreators(uploadAvatar, dispatch),
   updateUsername: bindActionCreators(updateUsername, dispatch)
@@ -23,7 +22,7 @@ interface Props {
 const UserProfile = (props: Props) => {
   const [file, setFile] = useState({})
   const [fileUrl, setFileUrl] = useState('')
-  const [username, setUsername] = React.useState(props.auth.get('user').name)
+  const [username, setUsername] = useState(props.auth.get('user').name)
   const handleChange = (e: any) => {
     const efile = e.target.files[0]
     const formData = new FormData()

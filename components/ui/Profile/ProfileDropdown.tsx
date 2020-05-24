@@ -86,7 +86,7 @@ const MenuListComposition = (props: Props) => {
           {avatarUrl ? (
             <Avatar alt="User Avatar Icon" src={avatarUrl} />
           ) : (
-            <Avatar alt="User Avatar">{props.avatarLetter}</Avatar>
+            <Avatar alt="User Avatar">X</Avatar>
           )}
         </Button>
         <Popper
@@ -126,7 +126,7 @@ const MenuListComposition = (props: Props) => {
       <ProfileModal
         open={modalOpen}
         handleClose={modalClose}
-        avatar={avatarUrl}
+        avatarUrl={avatarUrl}
         auth={auth}
       />
     </div>
