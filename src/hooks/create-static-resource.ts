@@ -38,7 +38,7 @@ export default (options = {}): Hook => {
         const existingThumbnails = await context.app.service('static-resource').find({
           query: {
             userId: body.userId,
-            type: 'user-thumbnail'
+            staticResourceType: 'user-thumbnail'
           }
         })
 
