@@ -38,7 +38,7 @@ export default (app: Application): void => {
   )
 
   // Get our initialized service so that we can register hooks
-  const service = app.service('/api/v1/media')
+  const service = app.service('/api/v1/media');
 
   (service).hooks(hooks)
 }
