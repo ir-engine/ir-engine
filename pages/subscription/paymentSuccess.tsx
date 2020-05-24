@@ -1,3 +1,5 @@
+/* eslint-disable react/prefer-stateless-function */
+// FIXME ^
 import React from 'react'
 import { Alert, AlertTitle } from '@material-ui/lab'
 
