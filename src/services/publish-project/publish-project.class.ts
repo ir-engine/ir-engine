@@ -3,7 +3,7 @@ import { Forbidden } from '@feathersjs/errors'
 import { Transaction } from 'sequelize/types'
 import { Application } from '../../declarations'
 import { mapProjectDetailData, defaultProjectImport } from '../project/project-helper'
-import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
+// import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 import StorageProvider from '../../storage/storageprovider'
 
 interface Data {}
@@ -33,10 +33,10 @@ export class PublishProject implements ServiceMethods<Data> {
     const ProjectModel = this.app.service('/api/v1/projects').Model
     const SceneModel = this.app.service('scene').Model
     const projectId = params?.query?.projectId
-    const loggedInUser = extractLoggedInUserFromParams(params)
+    // const loggedInUser = extractLoggedInUserFromParams(params)
     const provider = new StorageProvider()
     const storage = provider.getStorage()
-    const project = await ProjectModel.findOne({ where: { project_sid: projectId/* , created_by_account_id: loggedInUser.userId */ } })
+    const project = await ProjectModel.findOne({ where: { project_sid: projectId } }) /* , created_by_account_id: loggedInUser.userId */
 
     if (!project) {
       return await Promise.reject(new Forbidden('Project not found Or you don\'t have access!'))
