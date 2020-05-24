@@ -18,6 +18,8 @@ export interface PlayerData {
   playerHeight: number
   nafEnabled: boolean
   fuseEnabled: boolean
+  deviceType: string
+  inVr: boolean
   options?: AvatarOptions
 }
 
@@ -28,7 +30,9 @@ export const PlayerComponentSchema: AFRAME.MultiPropertySchema<PlayerData> = {
   playerID: { default: defaultPlayerID },
   playerHeight: { default: defaultPlayerHeight },
   nafEnabled: { default: false },
-  fuseEnabled: { default: false }
+  fuseEnabled: { default: false },
+  deviceType: { default: 'desktop' },
+  inVr: { default: false }
 }
 
 export interface PlayerProps {
@@ -69,7 +73,8 @@ export const PlayerComponent: AFRAME.ComponentDefinition<PlayerProps> = {
 
   update(oldData: PlayerData) {
     const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
-    if (changedData.includes('fuseEnabled') && Object.keys(this.cameraRig).length !== 0) {
+    if (['fuseEnabled', 'deviceType', 'inVr'].some(prop => changedData.includes(prop)) &&
+      Object.keys(this.cameraRig).length !== 0) {
       this.cameraRig.tearDownCameraRig()
       this.el.removeChild(this.cameraRigEl)
 
@@ -108,14 +113,17 @@ export const PlayerComponent: AFRAME.ComponentDefinition<PlayerProps> = {
   },
 
   getCursorType(): string {
-    return this.data.fuseEnabled ? 'fuse' : 'mouse'
+    if (this.data.inVr && this.data.deviceType === 'smartphone') return 'fuse'
+    return 'mouse'
   }
 
 }
 
 const primitiveProperties = [
   'playerHeight',
-  'fuseEnabled'
+  'fuseEnabled',
+  'deviceType',
+  'inVr'
 ]
 
 export const PlayerPrimitive: AFRAME.PrimitiveDefinition = {
