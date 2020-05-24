@@ -1,4 +1,3 @@
-// Initializes the `Meta` service on path `/api/v1/meta`
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { Meta } from './meta.class'

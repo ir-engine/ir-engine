@@ -30,9 +30,8 @@ export default (app: Application): any => {
     }
   });
 
-  // eslint-disable-next-line no-unused-vars
   (messageStatus as any).associate = function (models: any) {
-    (messageStatus as any).belongsTo(models.messages, { foreignKey: 'messageId' })
+    (messageStatus as any).belongsTo(models.message, { foreignKey: 'messageId' })
   }
 
   return messageStatus

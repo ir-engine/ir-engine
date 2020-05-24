@@ -1,4 +1,3 @@
-// Initializes the `UploadMedia` service on path `/api/v1/media`
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { UploadMedia } from './upload-media.class'

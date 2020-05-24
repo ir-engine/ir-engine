@@ -5,7 +5,6 @@ import attachOwnerIdInSavingContact from '../../hooks/set-loggedin-user-in-body'
 import setResponseStatusCode from '../../hooks/set-response-status-code'
 import mapProjectIdToQuery from '../../hooks/set-project-id-in-query'
 import generateSceneCollection from '../project/generate-collection.hook'
-// Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks
 const mapProjectSceneDataForSaving = () => {
@@ -41,9 +40,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [
-      setResponseStatusCode(200)
-    ],
+    create: [setResponseStatusCode(200)],
     update: [],
     patch: [],
     remove: []

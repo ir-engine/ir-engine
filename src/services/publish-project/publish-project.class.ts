@@ -30,7 +30,7 @@ export class PublishProject implements ServiceMethods<Data> {
   }
 
   async create (data: any, params: Params): Promise<Data> {
-    const ProjectModel = this.app.service('/api/v1/projects').Model
+    const ProjectModel = this.app.service('project').Model
     const SceneModel = this.app.service('scene').Model
     const projectId = params?.query?.projectId
     // const loggedInUser = extractLoggedInUserFromParams(params)

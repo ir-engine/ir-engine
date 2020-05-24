@@ -10,7 +10,6 @@ import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
 import mapProjectIdToQuery from '../../hooks/set-project-id-in-query'
 import generateSceneCollection from './generate-collection.hook'
 // import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
-// Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks
 

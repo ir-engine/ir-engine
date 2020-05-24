@@ -45,7 +45,7 @@ import ChatRoom from './chatroom/chatroom.service'
 import Conversation from './conversation/conversation.service'
 import Email from './email/email.service'
 import MagicLink from './magiclink/magiclink.service'
-import Messages from './messages/messages.service'
+import Message from './message/message.service'
 import SMS from './sms/sms.service'
 import Upload from './upload/upload.service'
 import Video from './video/video.service'
@@ -65,7 +65,7 @@ import UploadMedia from './upload-media/upload-media.service'
 import Subscription from './subscription/subscription.service'
 
 export default (app: Application): void => {
-  // Dynamic Enums
+  // Dynamic types
   app.configure(ComponentType)
   app.configure(CollectionType)
   app.configure(ResourceType)
@@ -110,7 +110,7 @@ export default (app: Application): void => {
   app.configure(Email)
   app.configure(IdentityProvider)
   app.configure(MagicLink)
-  app.configure(Messages)
+  app.configure(Message)
   app.configure(MessageStatus)
   app.configure(SMS)
   app.configure(SubscriptionConfirm)
@@ -127,5 +127,6 @@ export default (app: Application): void => {
   app.configure(Meta)
   app.configure(UploadMedia)
   app.configure(PublishProject)
+
   app.configure(GraphQL)
 }

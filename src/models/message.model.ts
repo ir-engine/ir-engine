@@ -3,7 +3,7 @@ import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const messages = sequelizeClient.define('messages', {
+  const message = sequelizeClient.define('message', {
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -30,10 +30,10 @@ export default (app: Application): any => {
     }
   });
 
-  (messages as any).associate = (models: any): any => {
-    (messages as any).belongsTo(models.conversation)
-    // (messages as any).hasMany(models.messages_status, { foreignKey: 'message_id' })
+  (message as any).associate = (models: any): any => {
+    (message as any).belongsTo(models.conversation);
+    (message as any).hasMany(models.message_status, { foreignKey: 'messageId' })
   }
 
-  return messages
+  return message
 }

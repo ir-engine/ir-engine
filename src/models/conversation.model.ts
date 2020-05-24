@@ -41,7 +41,7 @@ export default (app: Application): any => {
 
   // eslint-disable-next-line no-unused-vars
   (conversation as any).associate = (models: any) => {
-    (conversation as any).hasMany(models.messages)
+    (conversation as any).hasMany(models.message)
     // (conversation as any).belongsTo(models.user)
   }
 
