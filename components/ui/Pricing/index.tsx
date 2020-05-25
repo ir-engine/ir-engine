@@ -1,11 +1,13 @@
 import React from 'react'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import Typography from '@material-ui/core/Typography'
+import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import { makeStyles } from '@material-ui/core/styles'
 import Container from '@material-ui/core/Container'
 import Plans from './plans'
-import { Tabs, Tab, Box } from '@material-ui/core'
+import { Tabs, Tab, Box, Button } from '@material-ui/core'
 import { client } from '../../../redux/feathers'
+import NextLink from 'next/link'
 
 const useStyles = makeStyles((theme) => ({
   '@global': {
@@ -75,6 +77,11 @@ const Pricing = () => {
     <React.Fragment>
       <CssBaseline />
       {/* Hero unit */}
+      <NextLink href={'/'}>
+        <Button variant="contained" color="primary">
+          <ArrowBackIcon />
+        </Button>
+      </NextLink>
       <Container maxWidth="sm" component="main" className={classes.heroContent}>
         <Typography component="h1" variant="h2" align="center" color="textPrimary" gutterBottom>
           Pricing
