@@ -11,6 +11,7 @@ import SeatItem from './SeatItem'
 import { Dispatch, bindActionCreators } from 'redux'
 import { selectSeatState } from '../../../redux/seats/selector'
 import NextLink from 'next/link'
+import './style.scss'
 import {
   inviteUser,
   getSeats
@@ -92,11 +93,10 @@ const SeatList = (props: Props) => {
 
   // eslint-disable-next-line camelcase
   useEffect(() => {
-    if (authState.get('user').subscription && seatState.get('updateNeeded') === true) {
-      console.log('Calling props.getSeats')
+    if (subscription != null && seatState.get('updateNeeded') === true) {
       props.getSeats()
     }
-  }, [seatState])
+  }, [authState.get('user').subscription, seatState])
 
   return (
     <div className={classes.root}>
@@ -116,7 +116,7 @@ const SeatList = (props: Props) => {
       </div>
 
       <Divider variant="middle" />
-      {subscription != null && <Grid container>
+      { subscription != null && <Grid container>
         <Grid item
           xs
           className={classes.inviteBox}
@@ -133,7 +133,7 @@ const SeatList = (props: Props) => {
           <Button
             variant="contained"
             color="primary"
-            onClick={inviteUser}
+            onClick={() => inviteUser()}
           >
             Invite User
           </Button>
@@ -155,7 +155,7 @@ const SeatList = (props: Props) => {
   )
 }
 
-function MyFriendsWrapper(props: any) {
+function SeatListWrapper(props: any) {
   const classes = useStyles()
 
   return (
@@ -166,4 +166,4 @@ function MyFriendsWrapper(props: any) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(MyFriendsWrapper)
+)(SeatListWrapper)

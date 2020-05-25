@@ -47,7 +47,9 @@ export const ArrowComponentSchema: AFRAME.MultiPropertySchema<ArrowData> = {
 export interface Props {
   setupArrow: () => void,
   createArrow: () => void,
-  createEllipses: () => void
+  createEllipses: () => void,
+  directionToSign: (direction: string) => {xSign: number, ySign: number, rotZ: number},
+  ellipsesRadius: number
 }
 
 export const ArrowComponent: AFRAME.ComponentDefinition<Props> = {
@@ -55,7 +57,10 @@ export const ArrowComponent: AFRAME.ComponentDefinition<Props> = {
   data: {
   } as ArrowData,
   // dependencies: ['highlight'],
+  ellipsesRadius: 0,
+
   init: function() {
+    this.ellipsesRadius = this.data.width / 20
     if (this.el.sceneEl?.hasLoaded) this.setupArrow()
     else this.el.sceneEl?.addEventListener('loaded', this.setupArrow.bind(this))
   },
@@ -106,32 +111,14 @@ export const ArrowComponent: AFRAME.ComponentDefinition<Props> = {
 
     const geom = new THREE.ShapeBufferGeometry(shape)
 
-    let rotationZ = data.angle
-    let xSign = 0
-    let ySign = 0
-    let xtranslation = (6 * data.width / 5)
-    let ytranslation = (6 * data.height / 5)
-    switch (data.direction) {
-      case 'up':
-        ySign = 1
-        break
-      case 'left':
-        rotationZ = 90
-        xSign = -1
-        xtranslation = 2 * data.width / 5
-        break
-      case 'down':
-        rotationZ = 180
-        ySign = -1
-        ytranslation = 2 * data.height / 5
-        break
-      case 'right':
-        rotationZ = -90
-        xSign = 1
-        break
-      default:
-        break
-    }
+    const xtranslation = data.width / 4 + this.ellipsesRadius
+    const ytranslation = data.width / 4 + this.ellipsesRadius
+
+    const signs = this.directionToSign(data.direction)
+    const xSign = signs.xSign
+    const ySign = signs.ySign
+    const rotationZ = signs.rotZ
+
     geom.rotateZ(2 * Math.PI * rotationZ / 360)
 
     geom.translate(data.offset.x, data.offset.y, data.offset.z)
@@ -150,8 +137,16 @@ export const ArrowComponent: AFRAME.ComponentDefinition<Props> = {
     mesh.name = 'arrow'
 
     if (data.ellipses) {
-      mesh.translateX(xSign * xtranslation)
-      mesh.translateY(ySign * ytranslation)
+      switch (data.direction) {
+        case 'left':
+        case 'right':
+          mesh.translateX(xSign * xtranslation)
+          break
+        case 'up':
+        case 'down':
+          mesh.translateY(ySign * ytranslation)
+          break
+      }
     }
 
     self.el.setObject3D('mesh', mesh)
@@ -159,7 +154,7 @@ export const ArrowComponent: AFRAME.ComponentDefinition<Props> = {
 
   createEllipses() {
     const data = this.data
-    const geom = new THREE.CircleBufferGeometry(data.width / 10)
+    const geom = new THREE.CircleBufferGeometry(this.ellipsesRadius)
 
     const opacity = data.disabled ? data.disabledopacity : data.opacity
     const transparent = !!data.disabled
@@ -177,12 +172,53 @@ export const ArrowComponent: AFRAME.ComponentDefinition<Props> = {
     const mesh3 = new THREE.Mesh(geom, mat)
     mesh3.name = 'ellipse3'
 
-    mesh2.translateX(2 * data.width / 5)
-    mesh3.translateX(4 * data.width / 5)
+    const signs = this.directionToSign(data.direction)
+    const xSign = signs.xSign
+    const ySign = signs.xSign
+
+    switch (data.direction) {
+      case 'left':
+      case 'right':
+        mesh1.translateX(xSign * -this.data.width / 4)
+        mesh2.translateX(xSign * (2 * this.ellipsesRadius - this.data.width / 4))
+        mesh3.translateX(xSign * (4 * this.ellipsesRadius - this.data.width / 4))
+        break
+      case 'up':
+      case 'down':
+        mesh2.translateY(ySign * 2 * this.ellipsesRadius)
+        mesh3.translateY(ySign * 4 * this.ellipsesRadius)
+        break
+    }
 
     this.el.setObject3D('ellipse1', mesh1)
     this.el.setObject3D('ellipse2', mesh2)
     this.el.setObject3D('ellipse3', mesh3)
+  },
+
+  directionToSign(direction) {
+    let ySign = 1
+    let xSign = 1
+    let rotZ = 0
+    switch (direction) {
+      case 'up':
+        ySign = 1
+        break
+      case 'left':
+        rotZ = 90
+        xSign = -1
+        break
+      case 'down':
+        rotZ = 180
+        ySign = -1
+        break
+      case 'right':
+        rotZ = -90
+        xSign = 1
+        break
+      default:
+        break
+    }
+    return { xSign: xSign, ySign: ySign, rotZ: rotZ }
   }
 }
 
