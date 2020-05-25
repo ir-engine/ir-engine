@@ -5,7 +5,6 @@ import Divider from '@material-ui/core/Divider'
 import Typography from '@material-ui/core/Typography'
 import { connect } from 'react-redux'
 import { selectAuthState } from '../../../redux/auth/selector'
-import { User } from '../../../interfaces/User'
 import { Seat } from '../../../interfaces/Seat'
 import { TextField, Button } from '@material-ui/core'
 import SeatItem from './SeatItem'
@@ -93,15 +92,10 @@ const SeatList = (props: Props) => {
 
   // eslint-disable-next-line camelcase
   useEffect(() => {
-    const user = authState.get('user') as User
-    console.log(authState)
-    console.log(seatState.get('updateNeeded'))
-
     if (authState.get('user').subscription && seatState.get('updateNeeded') === true) {
       console.log('Calling props.getSeats')
       props.getSeats()
     }
-
   }, [seatState])
 
   return (
