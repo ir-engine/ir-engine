@@ -1,9 +1,7 @@
-// See http://docs.sequelizejs.com/en/latest/docs/models-definition/
-// for more of what you can do here.
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 
-export default function (app: Application): any {
+export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const seatStatus = sequelizeClient.define('seat_status', {
     status: {
@@ -21,10 +19,7 @@ export default function (app: Application): any {
     timestamps: false
   });
 
-  // eslint-disable-next-line no-unused-vars
   (seatStatus as any).associate = function (models: any) {
-    // Define associations here
-    // See http://docs.sequelizejs.com/en/latest/docs/associations/
     (seatStatus as any).hasMany(models.seat, { foreignKey: 'seatStatus' })
   }
 

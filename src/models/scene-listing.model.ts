@@ -16,7 +16,7 @@ export default (app: Application): any => {
       unique: true,
       defaultValue: () => generateShortId(8)
     },
-    scene_id: {
+    sceneId: {
       type: DataTypes.INTEGER,
       allowNull: false
     },
@@ -42,15 +42,15 @@ export default (app: Application): any => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    model_owned_file_id: {
+    modelOwnedFileId: {
       type: DataTypes.UUID,
       allowNull: false
     },
-    scene_owned_file_id: {
+    sceneOwnedFileId: {
       type: DataTypes.UUID,
       allowNull: true
     },
-    screenshot_owned_file_id: {
+    screenshotOwnedFileId: {
       type: DataTypes.UUID,
       allowNull: false
     },
@@ -71,14 +71,10 @@ export default (app: Application): any => {
     }
   });
 
-  // eslint-disable-next-line no-unused-vars
   (sceneListing as any).associate = (models: any) => {
-    // Define associations here
-    // See http://docs.sequelizejs.com/en/latest/docs/associations/
-    // (sceneListing as any).belongsTo(models.scene, { foreignKey: 'scene_id', targetKey: 'scene_id' });
-    (sceneListing as any).belongsTo(models.owned_file, { foreignKey: 'model_owned_file_id', targetKey: 'owned_file_id', as: 'model_owned_file' });
-    (sceneListing as any).belongsTo(models.owned_file, { foreignKey: 'screenshot_owned_file_id', targetKey: 'owned_file_id', as: 'screenshot_owned_file' });
-    (sceneListing as any).belongsTo(models.owned_file, { foreignKey: 'scene_owned_file_id', targetKey: 'owned_file_id', as: 'scene_owned_file' })
+    (sceneListing as any).belongsTo(models.owned_file, { foreignKey: 'modelOwnedFileId' });
+    (sceneListing as any).belongsTo(models.owned_file, { foreignKey: 'screenshotOwnedFileId' });
+    (sceneListing as any).belongsTo(models.owned_file, { foreignKey: 'sceneOwnedFileId' })
   }
 
   return sceneListing

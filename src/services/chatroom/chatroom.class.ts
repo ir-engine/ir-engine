@@ -36,7 +36,7 @@ export class Chatroom implements ServiceMethods<Data> {
     console.log(params)
     // const userModel = this.app.service('user').Model
     // const query = 'SELECT t1.sender_id, t1.recipient_id , t2.text FROM ' +
-    // ' conversation t1 INNER JOIN messages t2 ON t1.id = t2.conversationId ORDER BY t2.createdAt DESC'
+    // ' conversation t1 INNER JOIN message t2 ON t1.id = t2.conversationId ORDER BY t2.createdAt DESC'
     // const [result] = await this.app.get('sequelizeClient').query(query)
     const conversationModel = this.app.service('conversation').Model
     const result = await conversationModel.findAll({
@@ -44,7 +44,7 @@ export class Chatroom implements ServiceMethods<Data> {
         sender_id: params?.connection['identity-provider'].userId
       },
       include: [{
-        model: this.app.service('messages').Model
+        model: this.app.service('message').Model
       }]
     })
     return result
@@ -54,20 +54,15 @@ export class Chatroom implements ServiceMethods<Data> {
     // senderId: data.senderId,
     //     recipientId: data.recipientId,
     //     recipientType: data.recipientType
-    const messagesModel = this.app.service('messages').Model
-    const messageStatusModel = this.app.service('message-status').Model
+    const messageModel = this.app.service('message').Model
     const userModel = this.app.service('user').Model
 
-    const message = await messagesModel.create({
+    const message = await messageModel.create({
       text: data.text,
       senderId: data.senderId,
       conversationId: data.conversationId
     })
 
-    messageStatusModel.create({
-      messageId: message.id,
-      recipientId: data.recipientId
-    })
     const users = await userModel.findAll({
       where: {
         id: {
