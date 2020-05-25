@@ -10,21 +10,21 @@ export const seed = {
         name: 'Monthly Subscription | Journey',
         type: 'monthly',
         amount: 9.99,
-        seats: 1
+        seats: 5
       },
       {
         plan: 'trek',
         name: 'Monthly Subscription | Trek',
         type: 'monthly',
         amount: 37.99,
-        seats: 5
+        seats: 20
       },
       {
         plan: 'voyage',
         name: 'Monthly Subscription | Voyage',
         type: 'monthly',
         amount: 87.99,
-        seats: 30
+        seats: 49
       },
       {
         plan: 'adventure',
@@ -38,21 +38,21 @@ export const seed = {
         name: 'Annual Subscription | Journey',
         type: 'annual',
         amount: 94.99,
-        seats: 1
+        seats: 5
       },
       {
         plan: 'annual-subscription-|-trek',
         name: 'Annual Subscription | Trek',
         type: 'annual',
         amount: 364.99,
-        seats: 5
+        seats: 20
       },
       {
         plan: 'annual-subscription-|-voyage',
         name: 'Annual Subscription | Voyage',
         type: 'annual',
         amount: 844.99,
-        seats: 30
+        seats: 49
       },
       {
         plan: 'annual-subscription-|-adventure',

@@ -47,11 +47,7 @@ export default {
           }
         })
 
-        console.log('userAvatarResult:')
-        console.log(userAvatarResult)
-
         if (userAvatarResult.total > 0) {
-          console.log(userAvatarResult.data[0].url)
           result.dataValues.avatarUrl = userAvatarResult.data[0].url
         }
 
