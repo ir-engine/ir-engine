@@ -22,7 +22,7 @@ const createOwnedFile = (options = {}) => {
     const body = params.body || {}
 
     const resourceData = {
-      owned_file_id: body.fileId,
+      ownedFileId: body.fileId,
       name: data.name || body.name,
       url: data.uri || data.url,
       key: (data.uri || data.url).replace(`${(config.get('aws.s3.baseUrl') as string)}/${(config.get('aws.s3.static_resource_bucket') as string)}/`, ''),
@@ -45,7 +45,7 @@ const createOwnedFile = (options = {}) => {
     const savedFile = await context.app.service('owned-file').create(resourceData)
     context.result = {
       // This is to fulfill the spoke response, as spoke is expecting the below object
-      file_id: savedFile.owned_file_id,
+      file_id: savedFile.id,
       meta: {
         access_token: uuidv1(),
         expected_content_type: savedFile.content_type,
@@ -63,7 +63,7 @@ export default {
     all: [],
     find: [disallow()],
     get: [disallow()],
-    create: [authenticate('jwt'), attachOwnerIdInSavingContact('account_id'), addUriToFile(), makeS3FilesPublic()],
+    create: [authenticate('jwt'), attachOwnerIdInSavingContact('ownerUserId'), addUriToFile(), makeS3FilesPublic()],
     update: [disallow()],
     patch: [disallow()],
     remove: [disallow()]

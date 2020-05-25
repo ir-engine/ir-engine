@@ -9,9 +9,8 @@ declare module '../../declarations' {
   }
 }
 
-export default function (app: Application): void {
+export default (app: Application): void => {
   const options = {
-    multi: true
   }
 
   app.use('/video', new Video(options, app))

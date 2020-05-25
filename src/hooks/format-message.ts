@@ -1,5 +1,4 @@
-// import app from '../app'
-export default function (options = {}) {
+export default (options = {}) => {
   return async (context: any): Promise<void> => {
     const data = context.data
     data.sender = context.params['identity-provider'].userId

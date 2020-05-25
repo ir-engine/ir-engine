@@ -21,9 +21,9 @@ export class Project extends Service {
     const loggedInUser = extractLoggedInUserFromParams(params)
     const projects = await this.getModel(params).findAll({
       where: {
-        created_by_account_id: loggedInUser.userId
+        creatorUserId: loggedInUser.userId
       },
-      attributes: ['name', 'project_id', 'project_sid', 'project_url', 'collectionId'],
+      attributes: ['name', 'id', 'sid', 'url', 'collectionId'],
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
     })
     const processedProjects = projects.map((project: any) => mapProjectDetailData(project.toJSON()))
@@ -33,10 +33,10 @@ export class Project extends Service {
   async get (id: Id, params: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params)
     const project = await this.getModel(params).findOne({
-      attributes: ['name', 'project_id', 'project_sid', 'project_url', 'collectionId'],
+      attributes: ['name', 'id', 'sid', 'url', 'collectionId'],
       where: {
-        project_sid: id,
-        created_by_account_id: loggedInUser.userId
+        sid: id,
+        creatorUserId: loggedInUser.userId
       },
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
     })
@@ -52,9 +52,9 @@ export class Project extends Service {
     data.collectionId = params.collectionId
 
     const savedProject = await ProjectModel.create(data, {
-      fields: ['name', 'thumbnail_owned_file_id', 'created_by_account_id', 'project_sid', 'project_id', 'collectionId']
+      fields: ['name', 'thumbnailOwnedFileId', 'creatorUserId', 'sid', 'id', 'collectionId']
     })
-    const projectData = await this.reloadProject(savedProject.project_id, savedProject)
+    const projectData = await this.reloadProject(savedProject.id, savedProject)
 
     // After saving project, remove the project json file from s3, as we have saved that on database in collection table
     const tempOwnedFileKey = params.ownedFile.key
@@ -88,7 +88,7 @@ export class Project extends Service {
     // Find the project owned_file from database
     const ownedFile = await OwnedFileModel.findOne({
       where: {
-        owned_file_id: data.owned_file_id
+        id: data.ownedFileId
       },
       raw: true
     })
@@ -99,8 +99,8 @@ export class Project extends Service {
     const sceneData = await fetch(ownedFile.url).then(res => res.json())
     const project = await this.getModel(params).findOne({
       where: {
-        created_by_account_id: loggedInUser.userId,
-        project_sid: projectId
+        creatorUserId: loggedInUser.userId,
+        sid: projectId
       }
     })
 
@@ -180,8 +180,8 @@ export class Project extends Service {
       await ComponentModel.bulkCreate(components, { transaction })
 
       data.collectionId = savedCollection.id
-      await project.update(data, { fields: ['name', 'thumbnail_owned_file_id', 'updatedAt', 'collectionId'], transaction })
-      const savedProject = await this.reloadProject(project.project_id, project)
+      await project.update(data, { fields: ['name', 'thumbnailOwnedFileId', 'updatedAt', 'collectionId'], transaction })
+      const savedProject = await this.reloadProject(project.id, project)
 
       // After saving project, remove the project json file from s3, as we have saved that on database in collection table
       const tempOwnedFileKey = ownedFile.key
@@ -212,26 +212,26 @@ export class Project extends Service {
       }
     ]
 
-    if (loadedProject?.scene_id) {
+    if (loadedProject?.sceneId) {
       projectIncludes.push({
         model: SceneModel,
-        attributes: ['account_id', 'allow_promotion', 'allow_remixing', 'attributions', 'description', 'name', 'parent_scene_id', 'scene_id', 'scene_sid']
+        attributes: ['ownerUserId', 'allow_promotion', 'allow_remixing', 'attributions', 'description', 'name', 'parentSceneId', 'sceneId', 'sid']
       })
     }
 
-    if (loadedProject?.parent_scene_id) {
+    if (loadedProject?.parentSceneId) {
       projectIncludes.push({
         model: SceneModel,
-        attributes: ['account_id', 'allow_promotion', 'allow_remixing', 'attributions', 'description', 'name', 'parent_scene_id', 'scene_id', 'scene_sid'],
+        attributes: ['ownerUserId', 'allow_promotion', 'allow_remixing', 'attributions', 'description', 'name', 'parentSceneId', 'sceneId', 'sid'],
         as: 'parent_scene'
       })
     }
 
     const projectData = await ProjectModel.findOne({
       where: {
-        project_id: projectId
+        id: projectId
       },
-      attributes: ['name', 'project_id', 'project_sid', 'project_url', 'thumbnail_owned_file_id', 'collectionId'],
+      attributes: ['name', 'id', 'sid', 'url', 'thumbnailOwnedFileId', 'collectionId'],
       include: projectIncludes
     })
 

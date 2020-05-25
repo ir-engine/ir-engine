@@ -10,22 +10,21 @@ import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
 import mapProjectIdToQuery from '../../hooks/set-project-id-in-query'
 import generateSceneCollection from './generate-collection.hook'
 // import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
-// Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks
 
 const mapProjectSaveData = () => {
   return (context: HookContext) => {
-    context.data.owned_file_id = context.data.project.project_file_id
+    context.data.ownedFileId = context.data.project.project_file_id
     context.data.name = context.data.project.name
-    context.data.thumbnail_file_id = context.data.project.thumbnail_file_id
+    context.data.thumbnailOwnedFileId = context.data.project.thumbnail_file_id
     return context
   }
 }
 
 const validateCollectionData = () => {
   return async (context: HookContext) => {
-    if (!context?.data?.owned_file_id || !context?.data?.name || !context?.data?.thumbnail_owned_file_id) {
+    if (!context?.data?.ownedFileId || !context?.data?.name || !context?.data?.thumbnailOwnedFileId) {
       return await Promise.reject(new BadRequest('Project Data is required!'))
     }
     return context
@@ -37,11 +36,11 @@ export default {
     all: [authenticate('jwt'), collectAnalytics()],
     find: [],
     get: [],
-    create: [attachOwnerIdInBody('created_by_account_id'), mapProjectSaveData(), validateCollectionData(), generateSceneCollection({ type: 'project' })],
+    create: [attachOwnerIdInBody('creatorUserId'), mapProjectSaveData(), validateCollectionData(), generateSceneCollection({ type: 'project' })],
     update: [disallow()],
-    patch: [attachOwnerIdInBody('created_by_account_id'), mapProjectIdToQuery(), mapProjectSaveData(), validateCollectionData()],
+    patch: [attachOwnerIdInBody('creatorUserId'), mapProjectIdToQuery(), mapProjectSaveData(), validateCollectionData()],
     remove: [
-      attachOwnerIdInQuery('created_by_account_id')
+      attachOwnerIdInQuery('creatorUserId')
     ]
   },
 

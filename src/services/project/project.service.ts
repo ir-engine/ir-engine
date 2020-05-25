@@ -7,7 +7,7 @@ import hooks from './project.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    '/api/v1/projects': Project & ServiceAddons<any>
+    'project': Project & ServiceAddons<any>
   }
 }
 
@@ -18,9 +18,9 @@ export default (app: Application): any => {
     multi: true
   }
 
-  app.use('/api/v1/projects', new Project(options, app))
+  app.use('/project', new Project(options, app))
 
-  const service = app.service('/api/v1/projects')
+  const service = app.service('project')
 
   service.hooks(hooks)
 }

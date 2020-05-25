@@ -5,13 +5,10 @@ import { BadRequest, NotFound } from '@feathersjs/errors'
 import app from './../../app'
 
 export class Seat extends Service {
-  // prettier-ignore
-  // prettier-ignore
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
   }
 
-  // prettier-ignore
   async create (data: any, params?: Params): Promise<any> {
     const userId = (params as any).userId || (params as any).connection['identity-provider'].userId
     if (userId == null) {

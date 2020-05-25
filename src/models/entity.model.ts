@@ -11,11 +11,6 @@ export default (app: Application): any => {
       allowNull: false,
       primaryKey: true
     },
-    // We need to create additional id field for entity because this is being use by three.js
-    entityId: {
-      type: DataTypes.UUID,
-      allowNull: false
-    },
     name: {
       type: DataTypes.STRING,
       allowNull: false

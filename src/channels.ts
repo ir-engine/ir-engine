@@ -60,7 +60,7 @@ export default (app: Application): void => {
   // app.service('user').publish('created', () => app.channel('admins'))
 
   // With the userid and email group from above you can easily select involved user
-  // app.service('messages').publish(() => {
+  // app.service('message').publish(() => {
   //   return [
   //     app.channel(`userIds/${data.createdBy}`),
   //     app.channel(`emails/${data.recipientEmail}`)

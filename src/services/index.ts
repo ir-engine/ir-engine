@@ -1,13 +1,12 @@
 import { Application } from '../declarations'
 
 // Types
-import AccessControlScope from './access-control-scope/access-control-scope.service'
 import ComponentType from './component-type/component-type.service'
 import CollectionType from './collection-type/collection-type.service'
+import ConversationType from './conversation-type/conversation-type.service'
 import EntityType from './entity-type/entity-type.service'
 import GroupUserRank from './group-user-rank/group-user-rank.service'
 import IdentityProviderType from './identity-provider-type/identity-provider-type.service'
-import ResourceType from './resource-type/resource-type.service'
 import StaticResourceType from './static-resource-type/static-resource-type.service'
 import SubscriptionLevel from './subscription-level/subscription-level.service'
 import SeatStatus from './seat-status/seat-status.service'
@@ -16,7 +15,6 @@ import UserRole from './user-role/user-role.service'
 import SubscriptionType from './subscription-type/subscription-type.service'
 
 // Objects
-import AccessControl from './access-control/access-control.service'
 import Attribution from './attribution/attribution.service'
 import Collection from './collection/collection.service'
 import Component from './component/component.service'
@@ -40,8 +38,11 @@ import PartyUser from './party-user/party-user.service'
 
 // Services
 import Auth from './auth-management/auth-management.service'
+import ChatRoom from './chatroom/chatroom.service'
+import Conversation from './conversation/conversation.service'
 import Email from './email/email.service'
 import MagicLink from './magiclink/magiclink.service'
+import Message from './message/message.service'
 import SMS from './sms/sms.service'
 import Upload from './upload/upload.service'
 import Video from './video/video.service'
@@ -58,34 +59,23 @@ import PublishProject from './publish-project/publish-project.service'
 import Scene from './scene/scene.service'
 import SceneListing from './scene-listing/scene-listing.service'
 import UploadMedia from './upload-media/upload-media.service'
-
-import Messages from './messages/messages.service'
-
-import Conversation from './conversation/conversation.service'
-
-import ChatRoom from './chatroom/chatroom.service'
-
-import MessageStatus from './message-status/message-status.service'
-
-import subscription from './subscription/subscription.service'
+import Subscription from './subscription/subscription.service'
 
 export default (app: Application): void => {
-  // Dynamic Enums
+  // Dynamic types
   app.configure(ComponentType)
   app.configure(CollectionType)
-  app.configure(ResourceType)
+  app.configure(ConversationType)
   app.configure(StaticResourceType)
   app.configure(EntityType)
   app.configure(UserRelationshipType)
   app.configure(IdentityProviderType)
   app.configure(SeatStatus)
   app.configure(SubscriptionType)
-  app.configure(AccessControlScope)
   app.configure(GroupUserRank)
   app.configure(SubscriptionLevel)
 
   // Objects
-  app.configure(AccessControl)
   app.configure(Attribution)
   app.configure(Collection)
   app.configure(Component)
@@ -98,11 +88,12 @@ export default (app: Application): void => {
   app.configure(Project)
   app.configure(Seat)
   app.configure(StaticResource)
+  app.configure(Subscription)
   app.configure(User)
   app.configure(UserRelationship)
   app.configure(UserRole)
   app.configure(UserSettings)
-  app.configure(subscription)
+
   // Junctions
   app.configure(PartyUser)
   app.configure(GroupUser)
@@ -114,11 +105,12 @@ export default (app: Application): void => {
   app.configure(Email)
   app.configure(IdentityProvider)
   app.configure(MagicLink)
-  app.configure(Messages)
-  app.configure(MessageStatus)
+  app.configure(Message)
   app.configure(SMS)
+  app.configure(SubscriptionConfirm)
   app.configure(Upload)
   app.configure(Video)
+
   // Spoke
   app.configure(Asset)
   app.configure(OwnedFile)
@@ -129,10 +121,6 @@ export default (app: Application): void => {
   app.configure(Meta)
   app.configure(UploadMedia)
   app.configure(PublishProject)
+
   app.configure(GraphQL)
-  app.configure(Messages)
-  app.configure(Conversation)
-  app.configure(ChatRoom)
-  app.configure(MessageStatus)
-  app.configure(SubscriptionConfirm)
 }

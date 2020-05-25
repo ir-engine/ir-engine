@@ -4,16 +4,11 @@ import { Application } from '../declarations'
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const ownedFile = sequelizeClient.define('owned_file', {
-    owned_file_id: {
+    id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV1,
       allowNull: false,
       primaryKey: true
-    },
-    owned_file_uuid: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV1,
-      allowNull: false
     },
     key: {
       type: DataTypes.STRING,
@@ -21,10 +16,6 @@ export default (app: Application): any => {
     },
     url: {
       type: DataTypes.STRING,
-      allowNull: false
-    },
-    account_id: {
-      type: DataTypes.UUID,
       allowNull: false
     },
     content_type: {
@@ -49,7 +40,7 @@ export default (app: Application): any => {
   });
 
   (ownedFile as any).associate = (models: any) => {
-    (ownedFile as any).belongsTo(models.user, { foreignKey: 'account_id' })
+    (ownedFile as any).belongsTo(models.user, { foreignKey: 'ownerUserId', allowNull: false })
   }
 
   return ownedFile
