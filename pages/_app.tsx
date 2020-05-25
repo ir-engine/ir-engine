@@ -14,7 +14,6 @@ import { doLoginAuto } from '../redux/auth/service'
 import DeviceDetector from 'device-detector-js'
 import { getDeviceType } from '../redux/devicedetect/actions'
 import { useEffect, Fragment } from 'react'
-
 import getConfig from 'next/config'
 import PageLoader from '../components/xr/scene/page-loader'
 
