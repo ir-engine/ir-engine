@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-export const apiUrl = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3030'
+export const apiUrl = process.env.NODE_ENV === 'production' ? process.env.API_SERVER : 'http://localhost:3030'
 
 export function getAuthHeader () {
   return {}
