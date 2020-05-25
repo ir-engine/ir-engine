@@ -1,4 +1,3 @@
-// Initializes the `UploadMedia` service on path `/api/v1/media`
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { UploadMedia } from './upload-media.class'
@@ -12,7 +11,7 @@ const multipartMiddleware = multer()
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    '/api/v1/media': UploadMedia & ServiceAddons<any>
+    'media': UploadMedia & ServiceAddons<any>
   }
 }
 
@@ -20,7 +19,7 @@ export default (app: Application): void => {
   const provider = new StorageProvider()
 
   // Initialize our service with any options it requires
-  app.use('/api/v1/media',
+  app.use('/media',
     multipartMiddleware.fields([{ name: 'media' }, { name: 'thumbnail' }]),
     (req: express.Request, res: express.Response, next: express.NextFunction) => {
       if (req?.feathers) {
@@ -37,8 +36,7 @@ export default (app: Application): void => {
     blobService({ Model: provider.getStorage() })
   )
 
-  // Get our initialized service so that we can register hooks
-  const service = app.service('/api/v1/media');
+  const service = app.service('media');
 
-  (service).hooks(hooks)
+  (service as any).hooks(hooks)
 }

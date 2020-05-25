@@ -4,13 +4,10 @@ import { Application } from '../../declarations'
 import app from './../../app'
 
 export class Subscription extends Service {
-  // prettier-ignore
-  // prettier-ignore
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
   }
 
-  // prettier-ignore
   async create (data: any, params: Params): Promise<any> {
     const userId = (params as any).connection['identity-provider'].userId || params.body.userId
     if (userId == null) {

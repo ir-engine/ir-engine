@@ -46,8 +46,8 @@ export default (app: Application): any => {
     }); // user can join multiple orgs
     (User as any).hasMany(models.identity_provider);
     (User as any).hasMany(models.static_resource);
-    (User as any).hasMany(models.asset, { foreignKey: 'account_id' });
-    (User as any).hasMany(models.owned_file, { foreignKey: 'account_id' });
+    (User as any).hasMany(models.asset, { foreignKey: 'ownerUserId' });
+    (User as any).hasMany(models.owned_file, { foreignKey: 'ownerUserId' });
     (User as any).hasMany(models.subscription)
     // (User as any).hasMany(models.conversation, { foreignKey: 'sender_id' })
     ;(User as any).hasOne(models.seat, { foreignKey: 'userId' })

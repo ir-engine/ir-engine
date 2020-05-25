@@ -1,6 +1,6 @@
 import { HookContext } from '@feathersjs/feathers'
 
-export default function (options = {}) {
+export default (options = {}): any => {
   return (context: any): any => {
     const sequelize = context.params.sequelize || {}
     const include = sequelize.include || []
