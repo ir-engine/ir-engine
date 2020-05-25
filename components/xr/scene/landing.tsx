@@ -2,13 +2,21 @@ import React from 'react'
 import { Entity } from 'aframe-react'
 import './style.scss'
 
-const cellHeight = 0.5
-const cellContentHeight = 0.45
-const cellWidth = 6
+import getConfig from 'next/config'
+const config = getConfig().publicRuntimeConfig.xr.landing
+
+const cellHeight = config.cellHeight
+const cellContentHeight = config.cellContentHeight
+const cellWidth = config.cellWidth
+
+const x = config.offset.x
+const y = config.offset.y
+const z = config.offset.z
+const pos = x + ' ' + y + ' ' + z
 
 export default function LandingScene (): any {
   return (
-    <Entity position="0 1.6 0">
+    <Entity position={pos}>
       <Entity
         primitive="a-grid"
         rows={4}
