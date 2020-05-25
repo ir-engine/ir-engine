@@ -49,8 +49,8 @@ export interface Props {
   createDetails: () => AFRAME.Entity,
   createText: (text: string, width: number, height: number,
     fontSize: number, wrapCount: number) => AFRAME.Entity,
-  createButton: (text: string, bgColor: string, clickevent: string, width: number,
-    x: number, y: number, z: number,
+  createButton: (text: string, bgColor: string, clickevent: string, eventData: string,
+    width: number, x: number, y: number, z: number,
     bgWidth: number, bgHeight: number, bgz: number) => AFRAME.Entity,
   createDetailEntity: () => AFRAME.Entity,
   createBackground: (w: number, h: number, color: string, x: number, y: number, z: number) => AFRAME.Entity,
@@ -146,7 +146,7 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
     return bg
   },
 
-  createButton(text: string, bgColor: string, clickevent: string, width: number,
+  createButton(text: string, bgColor: string, clickevent: string, eventData: string, width: number,
     xoffset: number, yoffset: number, zoffset: number,
     bgWidth: number, bgHeight: number, bgZoffset = -0.01) {
     const textEntity = this.createText(text, width, bgHeight, 4, 10)
@@ -154,7 +154,7 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
 
     const textBG = this.createBackground(bgWidth, bgHeight, bgColor, 0, 0, bgZoffset)
     textBG.classList.add('clickable')
-    textBG.setAttribute('clickable', { clickevent: clickevent })
+    textBG.setAttribute('clickable', { clickevent: clickevent, clickeventData: JSON.stringify({ url: eventData }) })
 
     textEntity.appendChild(textBG)
 
@@ -162,14 +162,22 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
   },
 
   createWatchButton() {
-    return this.createButton('watch', 'green', 'watchbutton', this.data.cellWidth / 2,
+    const url = 'video360?manifest=' + this.data.url +
+      '&title=' + this.data.title +
+      '&runtime=' + this.data.runtime +
+      '&credit=' + this.data.productionCredit +
+      '&rating=' + this.data.rating +
+      '&categories=' + this.data.categories.join(',') +
+      // '&tags=' + this.data.tags.join(',') +
+      '&videoformat=' + this.data.videoformat
+    return this.createButton('watch', 'green', 'navigate', url, this.data.cellWidth / 2,
       -this.data.cellWidth / 4, -this.data.cellContentHeight, 0,
       this.data.cellWidth / 2, this.data.cellContentHeight / 4,
       -0.01)
   },
 
   createBackButton() {
-    return this.createButton('back', 'red', 'backbutton', this.data.cellWidth / 2,
+    return this.createButton('back', 'red', 'backbutton', '', this.data.cellWidth / 2,
       this.data.cellWidth / 4, -this.data.cellContentHeight, 0,
       this.data.cellWidth / 2, this.data.cellContentHeight / 4,
       -0.01)
