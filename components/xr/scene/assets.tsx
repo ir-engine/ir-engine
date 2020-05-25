@@ -24,11 +24,11 @@ const images = [
     src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/logo.png'
   },
   {
-    id: 'spoke',
+    id: 'spokebanner',
     src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/create.png'
   },
   {
-    id: 'vrRoom',
+    id: 'vrRoombnner',
     src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/dream.png'
   },
   {
@@ -36,8 +36,24 @@ const images = [
     src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/explore.png'
   },
   {
-    id: 'storebanner',
-    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/shop.png'
+    id: 'storeiconmodel',
+    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/shop.glb'
+  },
+  {
+    id: 'spokeiconmodel',
+    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/create.glb'
+  },
+  {
+    id: 'vrRoomiconmodel',
+    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/dream.glb'
+  },
+  {
+    id: 'video360iconmodel',
+    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/explore.glb'
+  },
+  {
+    id: 'storeiconmodel',
+    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/shop.glb'
   }
 ]
 const entities = [
