@@ -4,6 +4,10 @@
   "host": "localhost",
   "port": 3030,
   "public": "../public/",
+  "logo": "https://github.com/syedsimanta03/xrchat-client/tree/dev/assets/sitelogo.png",
+  "title": "KaiXR",
+  "check": "https://github.com/syedsimanta03/xrchat-client/tree/dev/assets/check.png",
+  "email": "https://github.com/syedsimanta03/xrchat-client/tree/dev/assets/email.png",
   "paginate": {
     "default": 10,
     "max": 100
