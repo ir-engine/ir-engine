@@ -17,7 +17,7 @@ import VideoScene, { VideoProps } from './video'
 import isExternalUrl from '../../../utils/isExternalUrl'
 
 interface Props {
-  startingScene: string,
+  startingScene?: string,
   manifest?: string,
   title?: string,
   format?: string,
@@ -25,7 +25,7 @@ interface Props {
 }
 
 export default function RootScene (props: Props): any {
-  const [sceneName, setSceneName] = useState(props.startingScene)
+  const [sceneName, setSceneName] = useState(props.startingScene || 'landing')
   const [videoProps, setVideoProps] = useState({
     manifest: props.manifest || '',
     title: props.title || '',
