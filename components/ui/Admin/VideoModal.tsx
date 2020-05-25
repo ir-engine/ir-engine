@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
@@ -19,7 +19,7 @@ import {
 import './admin.scss'
 import EmptyLayout from '../Layout/EmptyLayout'
 import { selectAdminState } from '../../../redux/admin/selector'
-interface MProps {
+interface Props {
   open: boolean
   handleClose: any,
   createVideo?: typeof createVideo,
@@ -41,8 +41,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   updateVideo: bindActionCreators(updateVideo, dispatch),
   deleteVideo: bindActionCreators(deleteVideo, dispatch)
 })
-const VideoModal: React.FC<MProps> = (props: MProps) => {
-  const state = {
+const VideoModal = (props: Props) => {
+  const initialState = {
     id: props.video?.id ? props.video.id : '',
     name: props.video?.name ? props.video.name : '',
     url: props.video?.url ? props.video.url : '',
@@ -55,9 +55,31 @@ const VideoModal: React.FC<MProps> = (props: MProps) => {
     thumbnail_url: props.video?.metadata?.thumbnail_url ? props.video.metadata.thumbnail_url : '',
     runtime: props.video?.metadata?.runtime ? props.video.metadata.runtime : '',
     stereoscopic: props.video?.metadata?.stereoscopic ? props.video.metadata.stereoscopic : false,
-    subscriptionLevel: props.video?.subscriptionLevel ? props.video.subscriptionLevel : 'all',
-    open: false
+    subscriptionLevel: props.video?.subscriptionLevel ? props.video.subscriptionLevel : 'all'
   }
+
+  const [state, setState] = useState(initialState)
+
+  useEffect(() => {
+    const newState = {
+      id: props.video?.id ? props.video.id : '',
+      name: props.video?.name ? props.video.name : '',
+      url: props.video?.url ? props.video.url : '',
+      description: props.video?.description ? props.video.description : '',
+      creator: props.video?.attribution?.creator ? props.video.attribution.creator : '',
+      rating: props.video?.metadata?.rating ? props.video.metadata.rating : '',
+      category1: props.video?.metadata?.categories ? props.video.metadata.categories[0] : '',
+      category2: props.video?.metadata?.categories ? props.video.metadata.categories[1] : '',
+      // eslint-disable-next-line camelcase
+      thumbnail_url: props.video?.metadata?.thumbnail_url ? props.video.metadata.thumbnail_url : '',
+      runtime: props.video?.metadata?.runtime ? props.video.metadata.runtime : '',
+      stereoscopic: props.video?.metadata?.stereoscopic ? props.video.metadata.stereoscopic : false,
+      subscriptionLevel: props.video?.subscriptionLevel ? props.video.subscriptionLevel : 'all'
+    }
+    if (newState !== state) {
+      setState(newState)
+    }
+  }, [props.video])
 
   const handleInput = (e: any) => {
     state[e.target.name] = e.target.value

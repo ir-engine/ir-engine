@@ -210,7 +210,6 @@ export function avatarUpdated (result: any): AvatarUpdatedAction {
 }
 
 export function usernameUpdated (result: any): UsernameUpdatedAction {
-  console.log(result)
   const name = result.name
   return {
     type: USERNAME_UPDATED,

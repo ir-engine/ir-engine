@@ -60,33 +60,42 @@ const AdminConsole = (props: Props) => {
   }, [])
 
   const handleCreateModal = () => {
-    setState({ ...state, modalMode: 'create' })
-    setState({ ...state, modalOpen: true })
+    setState({
+      ...state,
+      modalMode: 'create',
+      modalOpen: true
+    })
   }
 
   const handleEditModal = (video) => {
-    setState({ ...state, modalMode: 'edit' })
-    setState({ ...state, video: video })
-    setState({ ...state, modalOpen: true })
+    setState({
+      ...state,
+      modalMode: 'edit',
+      video: video,
+      modalOpen: true
+    })
   }
 
   const modalClose = () => {
-    setState({ ...state, modalOpen: false })
-    setState({ ...state, video: {} })
-    setState({ ...state, modalMode: '' })
+    setState({
+      ...state,
+      modalOpen: false,
+      video: {},
+      modalMode: ''
+    })
   }
 
   return (
     <EmptyLayout>
       {auth.get('user').userRole === 'admin' && (
         <Container component="main" maxWidth="md">
-          <div className={'paper'}>
+          <div className={'admin'}>
             <Button onClick={() => handleCreateModal()}>
               Add a video
             </Button>
-            <GridList cellHeight={200} className={'paper'} cols={2}>
+            <GridList className={'grid'} cellHeight={200} cols={2}>
               {videos.get('videos').map((video) => (
-                <GridListTile key={video.id}>
+                <GridListTile className={'paper'} key={video.id}>
                   <img src={video.metadata.thumbnail_url} alt={video.name} />
                   <GridListTileBar
                     title={video.name}

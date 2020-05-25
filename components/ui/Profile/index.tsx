@@ -1,5 +1,4 @@
 import { Fragment, useState } from 'react'
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
 import Modal from '@material-ui/core/Modal'
 import Backdrop from '@material-ui/core/Backdrop'
 import Fade from '@material-ui/core/Fade'
@@ -20,28 +19,10 @@ interface Props {
   auth: any
 }
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    modal: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
-    paper: {
-      backgroundColor: theme.palette.background.paper,
-      border: '2px solid #000',
-      boxShadow: theme.shadows[5],
-      padding: theme.spacing(2, 4, 3)
-    }
-  })
-)
-
 const TabPanel = (props: any) => <Fragment>{props.value === props.index && props.children}</Fragment>
 
 const ProfileModal = (props: Props) => {
-  const classes = useStyles()
   const [tabIndex, setTabIndex] = useState(0)
-  const authUser = props.auth.get('user')
 
   const handleChange = (event: any, newValue: number) => {
     event.preventDefault()
