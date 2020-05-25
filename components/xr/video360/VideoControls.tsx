@@ -146,6 +146,7 @@ class VideoControls extends Component<Props, State> {
           className="videoplayercontrols active"
         />
         <VideoSeeker
+          backButtonHref="/explore"
           playing={this.props.playing}
           videoLengthSeconds={this.state.duration}
           currentTimeSeconds={this.state.currentTime}

@@ -1,6 +1,8 @@
-$seeker-margin: 90px;
-$seeker-height: 12px;
-$bottom-distance: 24px;
+$seeker-margin: 114px;
+$seeker-height: 20px;
+$bottom-distance: 32px;
+$button-gap: 8px;
+
 .seek-bar-container {
     width: calc(100vw - #{$seeker-margin} * 2);
     position: fixed;
@@ -30,14 +32,19 @@ $bottom-distance: 24px;
         cursor: pointer;
     }
 }
-.play-controls {
-    margin: 61px 30px;
+.video-control-button {
+    margin-bottom: calc(#{$seeker-margin} - (41px / 2) - (#{$seeker-height} / 2) - 1px);
+    margin-left: calc(#{$seeker-margin} - 36px - #{$button-gap});
     position: fixed;
     bottom: $bottom-distance;
     z-index: 800;
-    > svg {
+    svg {
         width: 36px;
         height: 36px;
         cursor: pointer;
     }
+}
+.back-button-container {
+    margin-left: calc(#{$seeker-margin} - (36px * 2) - (#{$button-gap} * 2));
+    z-index: 1000100; // click to play overlay has massive z index
 }
