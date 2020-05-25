@@ -1,14 +1,13 @@
 import Layout from '../components/ui/Layout'
 import dynamic from 'next/dynamic'
-const Scene = dynamic(() => import('../components/xr/scene/dream'), {
-  ssr: false
-})
+const Scene = dynamic(() => import('../components/xr/scene/index'), { ssr: false })
 
-export const DreamPage = () => (
-  <Layout pageTitle="Home">
-    {/* <Login /> */}
-    <Scene />
-  </Layout>
-)
+export const ExplorePage = () => {
+  return (
+    <Layout pageTitle="Home">
+      <Scene startingScene='dream'/>
+    </Layout>
+  )
+}
 
-export default DreamPage
+export default ExplorePage
