@@ -1,30 +1,17 @@
-import { useState, useEffect } from 'react'
-import SceneContainer from './scene-container'
-import Environment from './environment-dream'
-import Player from '../player/player'
+import React from 'react'
+import { Entity } from 'aframe-react'
+import Skybox from './skybox'
 import './style.scss'
 
-export const SceneDreamScene = () => {
-  const [state, setState] = useState({ appRendered: false })
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      require('aframe')
-      require('networked-aframe')
-      setState({ ...state, appRendered: true })
-    }
-  }, [])
-
-  return (
-    <div style={{ height: '100%', width: '100%' }}>
-      {state.appRendered && (
-        <SceneContainer>
-          <Environment />
-          <Player />
-        </SceneContainer>
-      )}
-    </div>
-  )
+export interface DreamSceneProps {
+  url: string
 }
 
-export default SceneDreamScene
+export default function DreamSceneScene(props: DreamSceneProps) {
+  return (
+    <Entity>
+      <a-gltf-model src={props.url}/>
+      <Skybox/>
+    </Entity>
+  )
+}

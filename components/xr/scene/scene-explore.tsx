@@ -1,14 +1,8 @@
-import { useEffect, useState } from 'react'
-import SceneContainer from './scene-container'
+import React, { useEffect, useState } from 'react'
 import { Entity } from 'aframe-react'
-import Assets from './assets'
-import { Environment } from './environment'
-import Player from '../player/player'
 import './style.scss'
 
 import { PublicVideo } from '../../../redux/video/actions'
-
-import AframeComponentRegisterer from '../aframe/index'
 
 import { bindActionCreators, Dispatch } from 'redux'
 
@@ -62,7 +56,7 @@ const ExploreScene = (props: VideoProps): any => {
       focusedCell: {
         title: (focusCellEl.attributes as any).title.value,
         description: (focusCellEl.attributes as any).description.value,
-        videoformat: (focusCellEl.attributes as any).videoformat?.value,
+        videoformat: (focusCellEl.attributes as any).videoformat.value,
         mediaUrl: (focusCellEl.attributes as any)['media-url'].value,
         thumbnailUrl: (focusCellEl.attributes as any)['thumbnail-url'].value,
         productionCredit: (focusCellEl.attributes as any)['production-credit'].value,
@@ -77,32 +71,15 @@ const ExploreScene = (props: VideoProps): any => {
     setExploreState({ focusedCellEl: null, focusedCell: null })
   }
 
-  const WatchVideo = () => {
-    if (exploreState.focusedCellEl === null) return
-    const url = exploreState.focusedCell?.mediaUrl
-    const title = exploreState.focusedCell?.title
-    const videoformat = exploreState.focusedCell?.videoformat
-    window.location.href = 'video360?manifest=' + url +
-      '&title=' + title +
-      // '&runtime=' + runtime +
-      // '&credit=' + productionCredit +
-      // '&rating=' + rating +
-      // '&categories=' categories.join(',') +
-      // '&tags=' + tags.join(',') +
-      '&videoformat=' + videoformat
-  }
-
   useEffect(() => {
     if (videos.get('videos').size === 0) {
       fetchPublicVideos(pageOffset)
     }
-    document.addEventListener('watchbutton', WatchVideo)
     document.addEventListener('backbutton', unFocusCell)
     return () => {
-      document.removeEventListener('watchbutton', WatchVideo)
       document.removeEventListener('backbutton', unFocusCell)
     }
-  }, [WatchVideo, unFocusCell])
+  }, [unFocusCell])
 
   const pageLeftHandler = () => {
     setPageOffset(pageOffset - 1)
@@ -130,16 +107,13 @@ const ExploreScene = (props: VideoProps): any => {
     setVideosArr(videos.get('videos'))
   }, [videos, pageOffset])
   return (
-    <SceneContainer>
-      <AframeComponentRegisterer />
-      <Entity position="0 1.6 0">
-        { exploreState.focusedCellEl === null &&
+    <Entity position="0 1.6 0">
+      { exploreState.focusedCellEl === null &&
         <Entity
           class="grid"
           primitive="a-grid"
           rows={3}
-          colunns={5}
-        >
+          colunns={5}>
 
           {videosArr.map((video: PublicVideo, i: number) => {
             return (
@@ -170,8 +144,8 @@ const ExploreScene = (props: VideoProps): any => {
             )
           })}
         </Entity>
-        }
-        { exploreState.focusedCellEl !== null &&
+      }
+      { exploreState.focusedCellEl !== null &&
           <Entity
             position="0 0 -6">
             <Entity
@@ -189,12 +163,8 @@ const ExploreScene = (props: VideoProps): any => {
               runtime={exploreState.focusedCell?.runtime}
               class="clickable" />
           </Entity>
-        }
-      </Entity>
-      <Assets />
-      <Player />
-      <Environment />
-    </SceneContainer>
+      }
+    </Entity>
   )
 }
 
