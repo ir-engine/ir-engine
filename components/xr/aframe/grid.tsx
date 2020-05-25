@@ -216,9 +216,10 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
   createPaginator (side: string) {
     const paginatorEl = document.createElement('a-arrow')
     paginatorEl.classList.add(side + '-paginator')
+    const paginatorWidth = this.data.cellContentHeight * this.data.rows
     paginatorEl.setAttribute('direction', side)
-    paginatorEl.setAttribute('width', 0.35)
-    paginatorEl.setAttribute('height', 0.2)
+    paginatorEl.setAttribute('width', paginatorWidth)
+    paginatorEl.setAttribute('height', paginatorWidth * 4 / 7)
     paginatorEl.setAttribute('ellipses', true)
 
     paginatorEl.setAttribute('clickable', { clickevent: 'page' + side })
@@ -231,8 +232,9 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
     })
 
     const col = side === 'left' ? this.data.columns : 0
-    const pos = this.cylinder.cellPosition(col, 0)
-    paginatorEl.object3D.position.set(pos.x - 0.1525, pos.y, pos.z)
+    const xOffset = side === 'left' ? this.data.cellContentHeight / 2 : -this.data.cellContentHeight / 2
+    const pos = this.cylinder.cellPosition(col, 1)
+    paginatorEl.object3D.position.set(pos.x + xOffset * 2, pos.y, pos.z)
     const rot = this.cylinder.cellRotation(col, false)
     paginatorEl.object3D.rotation.set(rot.x, rot.y + Math.PI, rot.z)
 
