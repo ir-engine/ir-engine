@@ -141,3 +141,29 @@ To do this, please run as following.
 
 For more information, please visit here
 https://github.com/douglas-treadwell/sequelize-cli-typescript
+
+
+### DB Init
+
+brew install mysql
+
+mysql_secure_installation
+server
+password
+ 
+mysql -uroot -ppassword
+mysql -userver -ppassword
+
+create database xrchat;
+create user 'server'@'localhost' identified by 'password';
+grant all on xrchat.* to 'server'@'localhost';
+
+show databases;
+
+mysql.server start
+mysql.server stop
+
+
+### STMP Testing
+
+https://mailtrap.io/inboxes
