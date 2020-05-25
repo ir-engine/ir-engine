@@ -56,9 +56,9 @@ const MenuListComposition = (props: Props) => {
     Router.push('/subscription/signup')
   }
 
-  const handleContacts = () => {
-    Router.push('/friends/friends')
-  }
+  // const handleContacts = () => {
+  //   Router.push('/friends/friends')
+  // }
   const handleAdminConsole = () => {
     Router.push('/admin')
   }
@@ -113,7 +113,7 @@ const MenuListComposition = (props: Props) => {
                   >
                     <MenuItem onClick={handleModal}>Profile</MenuItem>
                     { auth.get('user').subscription == null && <MenuItem onClick={handleSubscription}>Subscribe</MenuItem>}
-                    <MenuItem onClick={handleContacts}>Contacts</MenuItem>
+                    {/* <MenuItem onClick={handleContacts}>Contacts</MenuItem> */}
                     {auth.get('user').userRole === 'admin' && <MenuItem onClick={handleAdminConsole}>Admin Console</MenuItem> }
                     <MenuItem onClick={handleLogout}>Logout</MenuItem>
                   </MenuList>
