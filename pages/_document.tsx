@@ -19,6 +19,8 @@ export default class MyDocument extends Document {
             rel="stylesheet"
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
           />
+          <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet" />
+          <link rel="stylesheet" href="fonts/Freude/stylesheet.css" />
         </Head>
         <body>
           <Main />
@@ -66,9 +68,6 @@ MyDocument.getInitialProps = async (ctx) => {
   return {
     ...initialProps,
     // Styles fragment is rendered after the app and page rendering finish.
-    styles: [
-      ...Children.toArray(initialProps.styles),
-      sheets.getStyleElement()
-    ]
+    styles: [...Children.toArray(initialProps.styles), sheets.getStyleElement()]
   }
 }

@@ -63,9 +63,11 @@
     "autoprefixer": "^9.7.5",
     "axios": "^0.19.2",
     "babel-loader": "^8.1.0",
+    "css-loader": "^3.5.3",
     "device-detector-js": "^2.2.1",
     "ecsy": "github:xrchat/ecsy#dev",
     "eslint-plugin-react-hooks": "^3.0.0",
+    "file-loader": "^6.0.0",
     "glob": "^7.1.6",
     "graphql": "^15.0.0",
     "graphql-tag": "^2.10.3",
@@ -84,9 +86,9 @@
     "node-sass": "^4.13.1",
     "postcss-easy-import": "^3.0.0",
     "postcss-loader": "^3.0.0",
-    "prettier-eslint": "^9.0.1",
     "pre-commit": "^1.2.2",
     "pre-push": "^0.1.1",
+    "prettier-eslint": "^9.0.1",
     "raw-loader": "^4.0.0",
     "react": "^16.12.0",
     "react-apollo": "^3.1.5",
@@ -109,7 +111,8 @@
     "socket.io-client": "^2.3.0",
     "socketio": "^1.0.0",
     "subscriptions-transport-ws": "^0.9.16",
-    "three": "^0.115.0"
+    "three": "^0.115.0",
+    "url-loader": "^4.1.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
