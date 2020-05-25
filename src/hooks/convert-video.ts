@@ -84,9 +84,7 @@ export default async (context: any): Promise<void> => {
     localContext.params.uploadPath = path.join('public', localContext.params.videoSource, fileId, 'video')
 
     if (localContext.data.metadata.thumbnail_url != null && localContext.data.metadata.thumbnail_url.length > 0) {
-      const localContextClone = _.cloneDeep(localContext)
-      localContextClone.params.parentResourceId = result.id
-      thumbnailUploadResult = await uploadThumbnailLinkHook()(localContextClone)
+      thumbnailUploadResult = await uploadThumbnailLinkHook()(localContext)
       localContext.params.thumbnailUrl = localContext.data.metadata.thumbnail_url = thumbnailUploadResult.params.thumbnailUrl
     }
 
