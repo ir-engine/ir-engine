@@ -28,7 +28,8 @@ export default function LandingScene (): any {
           primitive="a-media-cell"
           title="spoke"
           media-url={'kaixr.world/spoke/'}
-          thumbnail-url="#spoke"
+          thumbnail-type="glb"
+          thumbnail-url="#spokeiconmodel"
           cell-height={cellHeight}
           cell-width={cellWidth}
           cell-content-height={cellContentHeight}
@@ -38,7 +39,8 @@ export default function LandingScene (): any {
           primitive="a-media-cell"
           title="vrRoom"
           media-url={'/dream'}
-          thumbnail-url="#vrRoom"
+          thumbnail-type="glb"
+          thumbnail-url="#vrRoomiconmodel"
           cell-height={cellHeight}
           cell-width={cellWidth}
           cell-content-height={cellContentHeight}
@@ -47,7 +49,8 @@ export default function LandingScene (): any {
           primitive="a-media-cell"
           title="video360"
           media-url={'/explore'}
-          thumbnail-url="#video360banner"
+          thumbnail-type="glb"
+          thumbnail-url="#video360iconmodel"
           cell-height={cellHeight}
           cell-width={cellWidth}
           cell-content-height={cellContentHeight}
@@ -56,7 +59,8 @@ export default function LandingScene (): any {
           primitive="a-media-cell"
           title="store"
           media-url={'curated-x-kai-inc.myshopify.com'}
-          thumbnail-url="#storebanner"
+          thumbnail-type="glb"
+          thumbnail-url="#storeiconmodel"
           cell-height={cellHeight}
           cell-width={cellWidth}
           cell-content-height={cellContentHeight}
