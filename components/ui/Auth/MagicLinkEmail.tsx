@@ -122,7 +122,7 @@ const MagicLinkEmail = (props: Props) => {
 
   return (
     <Container component="main" maxWidth="xs">
-      <div className={'paper'}>
+      <div>
         <Typography component="h1" variant="h5">
           Login Link
         </Typography>

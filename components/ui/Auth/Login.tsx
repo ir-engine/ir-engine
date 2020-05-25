@@ -90,6 +90,7 @@ const SignIn = () => {
 
     component = (
       <Fragment>
+        {(enableUserPassword || socialCount > 0) &&
         <Tabs
           value={tabIndex}
           onChange={handleChange}
@@ -102,6 +103,7 @@ const SignIn = () => {
           {userTab}
           {socialTab}
         </Tabs>
+        }
         {emailTabPanel}
         {userTabPanel}
         {socialTabPanel}
