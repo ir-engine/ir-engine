@@ -49,17 +49,17 @@ export default function RootScene (props: Props): any {
         setSceneName('dreamscene')
       } else if (/^\/?dream/g.test(url)) setSceneName('dream')
       else if (/^\/?video/g.test(url)) {
-        const manifestRegex = /manifest=(.*\.mpd)&?/g
+        const manifestRegex = /manifest=(.*\.mpd)&?/
         const manifestMatch = manifestRegex.exec(url)
-        const manifest = manifestMatch[1]
+        const manifest = manifestMatch != null ? manifestMatch[1] : ''
 
-        const titleRegex = /title=(.*)&?/g
+        const titleRegex = /title=([\w\s]+)&?/
         const titleMatch = titleRegex.exec(url)
-        const title = titleMatch[1]
+        const title = titleMatch != null ? titleMatch[1] : ''
 
-        const formatRegex = /format=(.*)&?/g
+        const formatRegex = /format=([\w]+)&?/
         const formatMatch = formatRegex.exec(url)
-        const format = formatMatch[1]
+        const format = formatMatch != null ? formatMatch[1] : ''
 
         const videoProps: VideoProps = {
           manifest: manifest,
