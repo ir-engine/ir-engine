@@ -73,8 +73,11 @@ const ExploreScene = (props: VideoProps): any => {
 
   useEffect(() => {
     if (videos.get('videos').size === 0) {
-      fetchPublicVideos(pageOffset)
+      fetchPublicVideos()
     }
+  }, [videos])
+
+  useEffect(() => {
     document.addEventListener('backbutton', unFocusCell)
     return () => {
       document.removeEventListener('backbutton', unFocusCell)
@@ -90,7 +93,7 @@ const ExploreScene = (props: VideoProps): any => {
     // console.log('visited pages:', visitedPages)
     // if next page has not been visited before, fetch videos for the page
     if (!visitedPages.find(pageOffset => pageOffset === nextPage)) {
-      fetchPublicVideos(nextPage)
+      fetchPublicVideos()
     }
     setPageOffset(nextPage)
     setVisitedPages(pages => Array.from(new Set([...pages, nextPage])))
@@ -106,14 +109,17 @@ const ExploreScene = (props: VideoProps): any => {
   useEffect(() => {
     setVideosArr(videos.get('videos'))
   }, [videos, pageOffset])
+
+  console.log('focusedCellEl', exploreState.focusedCellEl)
   return (
     <Entity position="0 1.6 0">
       { exploreState.focusedCellEl === null &&
         <Entity
+          id="explore-grid"
           class="grid"
           primitive="a-grid"
           rows={3}
-          colunns={5}>
+          columns={5}>
 
           {videosArr.map((video: PublicVideo, i: number) => {
             return (

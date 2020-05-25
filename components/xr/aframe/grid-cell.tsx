@@ -17,6 +17,10 @@ export const GridCellComponent: AFRAME.ComponentDefinition = {
   data: {
   } as GridCellData,
 
+  init() {
+    this.el.emit('grid-cell-init')
+  },
+
   play() {
   },
 

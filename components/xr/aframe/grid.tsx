@@ -175,6 +175,9 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
       this.data.cellHeight)
     this.el.object3D.position.set(posObj.x, posObj.y, posObj.z)
 
+    this.el.addEventListener('grid-cell-init', () => {
+      this.updateLayout()
+    })
     this.updateLayout()
 
     this.addPaginators()
