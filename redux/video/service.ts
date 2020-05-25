@@ -2,12 +2,9 @@ import { Dispatch } from 'redux'
 import {
   videosFetchedSuccess,
   videosFetchedError,
-  // eslint-disable-next-line no-unused-vars
-  PublicVideo,
+  PublicVideo
 } from './actions'
 import { client } from '../feathers'
-import axios from 'axios'
-import { apiUrl } from '../service.common'
 
 export function fetchPublicVideos (pageOffset = 0) {
   return (dispatch: Dispatch) => {

@@ -149,8 +149,6 @@ export function loginUserByJwt (accessToken: string, redirectSuccess: string, re
     })
       .then((res: any) => {
         const authUser = resolveAuthUser(res)
-        console.log('LOGIN BY JWT AUTHUSER')
-        console.log(authUser)
 
         if (subscriptionId != null && subscriptionId.length > 0) {
           client.service('seat').patch(authUser.identityProvider.userId, {

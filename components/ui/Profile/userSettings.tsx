@@ -23,12 +23,10 @@ const UserSettings = () => {
     checkedB: true
   })
   const handleVolume = (event: any, newValue: number | number[]) => {
-    console.log(event)
     setvolume(newValue as number)
   }
 
   const handleAudio = (event: any, newValue: number | number[]) => {
-    console.log(event)
     setAudio(newValue as number)
   }
   const handleRadioValue = (event: ChangeEvent<HTMLInputElement>) => {

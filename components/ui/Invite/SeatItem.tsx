@@ -1,5 +1,5 @@
 
-import React from 'react'
+import React, { useState } from 'react'
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
@@ -53,8 +53,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   removeSeat: bindActionCreators(removeSeat, dispatch)
 })
 
-class SeatItem extends React.Component<Props> {
-  state = {
+const SeatItem = (props: Props) => {
+  const initialState = {
     userId: '',
     seat: {
       id: '',
@@ -64,62 +64,61 @@ class SeatItem extends React.Component<Props> {
     }
   }
 
-  componentDidMount() {
-    const user = this.props.auth.get('user') as User
-    this.setState({
-      userId: user?.id,
-      seat: this.props.seat
-    })
-  }
+  const [state, setState] = useState(initialState)
+
+  const user = props.auth.get('user') as User
+  setState({
+    ...state,
+    userId: user?.id,
+    seat: props.seat
+  })
+  const { classes, seat } = props
 
   // close a friend
-  cancelInvitation = () => {
-    this.props.cancelInvitation(this.state.seat)
+  const cancelInvitation = () => {
+    props.cancelInvitation(state.seat)
   }
 
-  revokeSeat = () => {
-    this.props.removeSeat(this.props.seat)
+  const revokeSeat = () => {
+    props.removeSeat(props.seat)
   }
 
-  render() {
-    const { classes, seat } = this.props
-    return (
-      <div className={classes.root}>
-        <Box display="flex" p={1}>
-          <Box p={1} display="flex">
-            <Avatar variant="rounded" src="" alt="avatar"/>
-          </Box>
-          <Box p={1} flexGrow={1}>
-            <Typography variant="h6">
-              {seat.user.name}
-            </Typography>
-            <Typography variant="h6">
-              {seat.user.email}
-            </Typography>
-          </Box>
-          <Box p={1} display="flex">
-            {seat.seatStatus === 'pending' &&
-            <Grid container direction="row">
-              <Button variant="contained" color="secondary" onClick={this.cancelInvitation}>Cancel Invitation</Button>
-            </Grid>
-            }
-            {seat.seatStatus === 'filled' && seat.userId !== this.state.userId &&
-            <Grid container direction="row">
-              <Button variant="contained" color="primary" onClick={this.revokeSeat}>Revoke this user&apos;s seat</Button>
-            </Grid>
-            }
-            {seat.seatStatus === 'filled' && seat.userId === this.state.userId &&
-            <Grid container direction="row">
-              <Typography variant="h6">
-                This is you. You cannot revoke your own seat.
-              </Typography>
-            </Grid>
-            }
-          </Box>
+  return (
+    <div className={classes.root}>
+      <Box display="flex" p={1}>
+        <Box p={1} display="flex">
+          <Avatar variant="rounded" src="" alt="avatar"/>
         </Box>
-      </div>
-    )
-  }
+        <Box p={1} flexGrow={1}>
+          <Typography variant="h6">
+            {seat.user.name}
+          </Typography>
+          <Typography variant="h6">
+            {seat.user.email}
+          </Typography>
+        </Box>
+        <Box p={1} display="flex">
+          {seat.seatStatus === 'pending' &&
+          <Grid container direction="row">
+            <Button variant="contained" color="secondary" onClick={cancelInvitation}>Cancel Invitation</Button>
+          </Grid>
+          }
+          {seat.seatStatus === 'filled' && seat.userId !== state.userId &&
+          <Grid container direction="row">
+            <Button variant="contained" color="primary" onClick={revokeSeat}>Revoke this user&apos;s seat</Button>
+          </Grid>
+          }
+          {seat.seatStatus === 'filled' && seat.userId === state.userId &&
+          <Grid container direction="row">
+            <Typography variant="h6">
+              This is you. You cannot revoke your own seat.
+            </Typography>
+          </Grid>
+          }
+        </Box>
+      </Box>
+    </div>
+  )
 }
 
 function UserItemWrapper(props: any) {

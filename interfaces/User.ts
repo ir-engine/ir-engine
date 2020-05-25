@@ -8,6 +8,7 @@ export type User = {
   identityProviders: IdentityProvider[]
   relationType?: RelationshipType
   inverseRelationType?: RelationshipType,
+  subscription: any,
   subscriptions: any[],
   avatarUrl?: string
 }
