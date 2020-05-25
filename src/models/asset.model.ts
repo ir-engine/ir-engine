@@ -2,12 +2,12 @@ import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 import generateShortId from '../util/generate-short-id'
 
-export default function (app: Application): any {
+export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const asset = sequelizeClient.define('asset', {
-    asset_id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
       primaryKey: true,
       allowNull: false
     },
@@ -35,10 +35,10 @@ export default function (app: Application): any {
   });
 
   (asset as any).associate = (models: any) => {
-    (asset as any).belongsToMany(models.project, { through: models.project_asset, foreignKey: 'asset_id' });
-    (asset as any).belongsTo(models.user, { foreignKey: 'account_id' });
-    (asset as any).belongsTo(models.owned_file, { foreignKey: 'asset_owned_file_id', targetKey: 'owned_file_id' });
-    (asset as any).belongsTo(models.owned_file, { foreignKey: 'thumbnail_owned_file_id', targetKey: 'owned_file_id' })
+    (asset as any).belongsToMany(models.project, { through: models.project_asset, foreignKey: 'assetId' });
+    (asset as any).belongsTo(models.user, { foreignKey: 'ownerUserId' });
+    (asset as any).belongsTo(models.owned_file, { foreignKey: 'asset_owned_file_id' });
+    (asset as any).belongsTo(models.owned_file, { foreignKey: 'thumbnailOwnedFileId' })
   }
 
   return asset

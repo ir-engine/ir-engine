@@ -14,7 +14,6 @@ export default (app: Application): void => {
 
   app.use('/publish-project', new PublishProject(options, app))
 
-  app.service('publish-project')
-  console.log(hooks)
-  // service.hooks()
+  const service = app.service('publish-project')
+  service.hooks(hooks)
 }

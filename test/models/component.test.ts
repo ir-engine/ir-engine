@@ -35,6 +35,7 @@ describe('CRUD operation on \'Component\' model', () => {
     componentType: componentType,
     entityId: entityId
   }
+
   it('Create', done => {
     model.create(input).then(res => {
       done()

@@ -7,17 +7,20 @@ describe('CRUD operation on \'OwnedFile\' model', () => {
   let userId: any
 
   before(async () => {
-    const user = await userModel.create({})
+    const user = await userModel.create({
+      userRole: 'user'
+    })
     userId = user.id
   })
 
   it('Create', (done) => {
     model.create({
       key: key,
+      url: 'http://wikipedia.org',
       content_type: 'application/json',
       content_length: '1024',
       state: 'active',
-      account_id: userId
+      ownerUserId: userId
     }).then(res => {
       done()
     }).catch(done)
@@ -26,7 +29,7 @@ describe('CRUD operation on \'OwnedFile\' model', () => {
   it('Read', done => {
     model.findOne({
       where: {
-        account_id: userId
+        ownerUserId: userId
       }
     }).then(res => {
       done()
@@ -36,7 +39,7 @@ describe('CRUD operation on \'OwnedFile\' model', () => {
   it('Update', done => {
     model.update(
       { status: 'inactive' },
-      { where: { account_id: userId } }
+      { where: { ownerUserId: userId } }
     ).then(res => {
       done()
     }).catch(done)
@@ -44,7 +47,7 @@ describe('CRUD operation on \'OwnedFile\' model', () => {
 
   it('Delete', done => {
     model.destroy({
-      where: { account_id: userId }
+      where: { ownerUserId: userId }
     }).then(res => {
       done()
     }).catch(done)

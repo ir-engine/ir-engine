@@ -9,27 +9,6 @@ export default (app: Application): any => {
       allowNull: false,
       primaryKey: true,
       autoIncrement: true
-    },
-    user1: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    user2: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    groupId: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    partyId: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    recipientType: {
-      type: DataTypes.STRING,
-      // values: ['user', 'group', 'party'],
-      defaultValue: 'user'
     }
   }, {
     hooks: {
@@ -39,10 +18,13 @@ export default (app: Application): any => {
     }
   });
 
-  // eslint-disable-next-line no-unused-vars
   (conversation as any).associate = (models: any) => {
-    (conversation as any).hasMany(models.message)
-    // (conversation as any).belongsTo(models.user)
+    (conversation as any).hasMany(models.message, { foreignKey: 'conversationId' });
+    (conversation as any).belongsTo(models.conversation_type, { foreignKey: 'conversationType' }); // values: ['user', 'group', 'party'],
+    (conversation as any).belongsTo(models.user, { foreignKey: 'senderId' });
+    (conversation as any).belongsTo(models.user, { foreignKey: 'receiverId' }); // If type is 'user', key this
+    (conversation as any).belongsTo(models.group, { foreignKey: 'groupId' }); // If type is 'group', key from this
+    (conversation as any).belongsTo(models.party, { foreignKey: 'partyId' })
   }
 
   return conversation

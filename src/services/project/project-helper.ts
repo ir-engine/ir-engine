@@ -3,10 +3,10 @@ import config from 'config'
 export function mapProjectDetailData (project: any): any {
   const _proj = {
     name: project.name,
-    parent_scene: mapSceneData(project?.parent_scene_listing || project?.parent_scene, project.project_sid),
-    project_id: project.project_sid,
-    project_url: project?.project_url,
-    scene: mapSceneData(project.scene, project.project_sid),
+    parent_scene: mapSceneData(project?.parent_scene_listing || project?.parent_scene, project.sid),
+    projectId: project.sid,
+    url: project?.url,
+    scene: mapSceneData(project.scene, project.sid),
     thumbnail_url: project?.thumbnail_owned_file?.url
   }
   return _proj
@@ -18,8 +18,8 @@ export function mapSceneData (scene: any, projectId: string): any {
   }
   const selectedSceneData = {
     ...scene,
-    scene_id: scene?.scene_sid,
-    project_id: projectId,
+    sceneId: scene?.sid,
+    projectId,
     url: `${(config.get('hub.endpoint') as string)}/scene/${(scene.slug as string)}`,
     model_url: scene?.model_owned_file?.url,
     screenshot_url: scene?.screenshot_owned_file?.url
@@ -38,7 +38,7 @@ export function defaultProjectImport (models: any): any[] {
     },
     {
       model: models.scene,
-      attributes: ['account_id', 'allow_promotion', 'allow_remixing', 'attributions', 'description', 'name', 'parent_scene_id', 'scene_id', 'slug', 'scene_sid'],
+      attributes: ['ownerUserId', 'allow_promotion', 'allow_remixing', 'attributions', 'description', 'name', 'parentSceneId', 'sceneId', 'slug', 'sid'],
       include: [
         {
           model: models.owned_file,
@@ -54,7 +54,7 @@ export function defaultProjectImport (models: any): any[] {
     },
     {
       model: models.scene,
-      attributes: ['account_id', 'allow_promotion', 'allow_remixing', 'attributions', 'description', 'name', 'parent_scene_id', 'scene_id', 'slug', 'scene_sid'],
+      attributes: ['ownerUserId', 'allow_promotion', 'allow_remixing', 'attributions', 'description', 'name', 'parentSceneId', 'sceneId', 'slug', 'sid'],
       as: 'parent_scene',
       include: [
         {

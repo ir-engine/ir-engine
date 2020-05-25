@@ -36,7 +36,7 @@ export class PublishProject implements ServiceMethods<Data> {
     // const loggedInUser = extractLoggedInUserFromParams(params)
     const provider = new StorageProvider()
     const storage = provider.getStorage()
-    const project = await ProjectModel.findOne({ where: { project_sid: projectId } }) /* , created_by_account_id: loggedInUser.userId */
+    const project = await ProjectModel.findOne({ where: { sid: projectId } }) /* , creatorUserId: loggedInUser.userId */
 
     if (!project) {
       return await Promise.reject(new Forbidden('Project not found Or you don\'t have access!'))
@@ -47,9 +47,9 @@ export class PublishProject implements ServiceMethods<Data> {
     await this.app.get('sequelizeClient').transaction(async (trans: Transaction) => {
       const savedScene = await SceneModel.create(data, {
         transaction: trans,
-        fields: ['screenshot_owned_file_id', 'model_owned_file_id', 'allow_remixing', 'allow_promotion', 'name', 'account_id', 'slug', 'state', 'scene_id', 'scene_sid', 'collectionId']
+        fields: ['screenshotOwnedFileId', 'modelOwnedFileId', 'allow_remixing', 'allow_promotion', 'name', 'ownerUserId', 'slug', 'state', 'sceneId', 'sid', 'collectionId']
       })
-      project.scene_id = savedScene.scene_id
+      project.sceneId = savedScene.id
 
       await project.save({ transaction: trans })
       // After saving project, remove the project json file from s3, as we have saved that on database in collection table
@@ -67,9 +67,9 @@ export class PublishProject implements ServiceMethods<Data> {
 
     const projectData = await ProjectModel.findOne({
       where: {
-        project_sid: project.project_sid
+        sid: project.sid
       },
-      attributes: ['name', 'project_id', 'project_sid'],
+      attributes: ['name', 'id', 'sid'],
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
     })
     return mapProjectDetailData(projectData.toJSON())

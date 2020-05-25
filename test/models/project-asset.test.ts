@@ -4,32 +4,38 @@ import { Op } from 'sequelize'
 describe('CRUD operation on \'ProjectAsset\' model', () => {
   const model = app.service('project-asset').Model
   const assetModel = app.service('asset').Model
+  const userRoleModel = app.service('user-role').Model
+  const userModel = app.service('user').Model
   const projectModel = app.service('project').Model
-  let assetId: any, projectId: any, newAssetId: any
+  let assetId: any, projectId: any, newAssetId: any, userId: any, userRole: any
 
   before(async () => {
+    userRole = await userRoleModel.create({ role: 'usertestrole' }).role
+    userId = await userModel.create({ userRole: userRole }).id
+
     let asset = await assetModel.create({
       name: 'test asset',
       type: 'image'
     })
-    assetId = asset.asset_id
+    assetId = asset.id
 
     asset = await assetModel.create({
       name: 'new test asset',
       type: 'image'
     })
-    newAssetId = asset.asset_id
+    newAssetId = asset.id
 
     const project = await projectModel.create({
-      name: 'test project'
+      name: 'test project',
+      creatorUserId: userId
     })
     projectId = project.id
   })
 
   it('Create', (done) => {
     model.create({
-      project_id: projectId,
-      asset_id: assetId
+      projectId,
+      assetId
     }).then(res => {
       done()
     }).catch(done)
@@ -38,7 +44,7 @@ describe('CRUD operation on \'ProjectAsset\' model', () => {
   it('Read', done => {
     model.findOne({
       where: {
-        project_id: projectId
+        projectId
       }
     }).then(res => {
       done()
@@ -47,8 +53,8 @@ describe('CRUD operation on \'ProjectAsset\' model', () => {
 
   it('Update', done => {
     model.update(
-      { asset_id: newAssetId },
-      { where: { project_id: projectId } }
+      { asssetId: newAssetId },
+      { where: { projectId } }
     ).then(res => {
       done()
     }).catch(done)
@@ -56,13 +62,23 @@ describe('CRUD operation on \'ProjectAsset\' model', () => {
 
   it('Delete', done => {
     model.destroy({
-      where: { project_id: projectId }
+      where: { projectId }
     }).then(res => {
       done()
     }).catch(done)
   })
 
   after(async () => {
+    userModel.destroy({
+      where: {
+        id: userId
+      }
+    })
+    userRoleModel.destroy({
+      where: {
+        role: userRole
+      }
+    })
     projectModel.destroy({
       where: {
         id: projectId
@@ -71,7 +87,7 @@ describe('CRUD operation on \'ProjectAsset\' model', () => {
 
     assetModel.destroy({
       where: {
-        asset_id: {
+        assetId: {
           [Op.in]: [assetId, newAssetId]
         }
       }

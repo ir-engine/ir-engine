@@ -1,13 +1,12 @@
 import { Application } from '../declarations'
 
 // Types
-import AccessControlScope from './access-control-scope/access-control-scope.service'
 import ComponentType from './component-type/component-type.service'
 import CollectionType from './collection-type/collection-type.service'
+import ConversationType from './conversation-type/conversation-type.service'
 import EntityType from './entity-type/entity-type.service'
 import GroupUserRank from './group-user-rank/group-user-rank.service'
 import IdentityProviderType from './identity-provider-type/identity-provider-type.service'
-import ResourceType from './resource-type/resource-type.service'
 import StaticResourceType from './static-resource-type/static-resource-type.service'
 import SubscriptionLevel from './subscription-level/subscription-level.service'
 import SeatStatus from './seat-status/seat-status.service'
@@ -16,7 +15,6 @@ import UserRole from './user-role/user-role.service'
 import SubscriptionType from './subscription-type/subscription-type.service'
 
 // Objects
-import AccessControl from './access-control/access-control.service'
 import Attribution from './attribution/attribution.service'
 import Collection from './collection/collection.service'
 import Component from './component/component.service'
@@ -24,7 +22,6 @@ import Entity from './entity/entity.service'
 import Group from './group/group.service'
 import Instance from './instance/instance.service'
 import IdentityProvider from './identity-provider/identity-provider.service'
-import MessageStatus from './message-status/message-status.service'
 import License from './license/license.service'
 import Location from './location/location.service'
 import Party from './party/party.service'
@@ -68,19 +65,17 @@ export default (app: Application): void => {
   // Dynamic types
   app.configure(ComponentType)
   app.configure(CollectionType)
-  app.configure(ResourceType)
+  app.configure(ConversationType)
   app.configure(StaticResourceType)
   app.configure(EntityType)
   app.configure(UserRelationshipType)
   app.configure(IdentityProviderType)
   app.configure(SeatStatus)
   app.configure(SubscriptionType)
-  app.configure(AccessControlScope)
   app.configure(GroupUserRank)
   app.configure(SubscriptionLevel)
 
   // Objects
-  app.configure(AccessControl)
   app.configure(Attribution)
   app.configure(Collection)
   app.configure(Component)
@@ -111,7 +106,6 @@ export default (app: Application): void => {
   app.configure(IdentityProvider)
   app.configure(MagicLink)
   app.configure(Message)
-  app.configure(MessageStatus)
   app.configure(SMS)
   app.configure(SubscriptionConfirm)
   app.configure(Upload)

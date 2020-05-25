@@ -1,4 +1,3 @@
-// Initializes the `seat` service on path `/seat`
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { Seat } from './seat.class'
@@ -12,16 +11,15 @@ declare module '../../declarations' {
   }
 }
 
-export default function (app: Application): any {
+export default (app: Application): any => {
   const options = {
     Model: createModel(app),
-    paginate: app.get('paginate')
+    paginate: app.get('paginate'),
+    multi: true
   }
 
-  // Initialize our service with any options it requires
   app.use('/seat', new Seat(options, app))
 
-  // Get our initialized service so that we can register hooks
   const service = app.service('seat')
 
   service.hooks(hooks)

@@ -22,7 +22,7 @@ export default (options: any) => {
     // Find the project owned_file from database
     const ownedFile = await OwnedFileModel.findOne({
       where: {
-        owned_file_id: context.data.owned_file_id
+        id: context.data.ownedFileId
       },
       raw: true
     })

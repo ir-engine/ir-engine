@@ -55,7 +55,6 @@ export class Chatroom implements ServiceMethods<Data> {
     //     recipientId: data.recipientId,
     //     recipientType: data.recipientType
     const messageModel = this.app.service('message').Model
-    const messageStatusModel = this.app.service('message-status').Model
     const userModel = this.app.service('user').Model
 
     const message = await messageModel.create({
@@ -64,10 +63,6 @@ export class Chatroom implements ServiceMethods<Data> {
       conversationId: data.conversationId
     })
 
-    messageStatusModel.create({
-      messageId: message.id,
-      recipientId: data.recipientId
-    })
     const users = await userModel.findAll({
       where: {
         id: {

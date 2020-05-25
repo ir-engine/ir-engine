@@ -5,13 +5,13 @@ import generateShortId from '../util/generate-short-id'
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const scene = sequelizeClient.define('scene', {
-    scene_id: {
+    id: {
       primaryKey: true,
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
       allowNull: false
     },
-    scene_sid: {
+    sid: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
@@ -29,14 +29,6 @@ export default (app: Application): any => {
       type: DataTypes.STRING,
       allowNull: true
     },
-    model_owned_file_id: {
-      type: DataTypes.UUID,
-      allowNull: false
-    },
-    screenshot_owned_file_id: {
-      type: DataTypes.UUID,
-      allowNull: false
-    },
     state: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -52,10 +44,6 @@ export default (app: Application): any => {
     },
     allow_promotion: {
       type: DataTypes.BOOLEAN,
-      allowNull: false
-    },
-    collectionId: {
-      type: DataTypes.UUID,
       allowNull: false
     },
     // TODO: In reticulum, it is json type, but sql does not support json so need to think about it!
@@ -78,14 +66,6 @@ export default (app: Application): any => {
     imported_from_sid: {
       type: DataTypes.STRING,
       allowNull: true
-    },
-    parent_scene_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    parent_scene_listing_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true
     }
   }, {
     hooks: {
@@ -101,14 +81,13 @@ export default (app: Application): any => {
   });
 
   (scene as any).associate = (models: any) => {
-    (scene as any).belongsTo(models.user, { foreignKey: 'account_id' });
-    (scene as any).hasOne(models.project, { foreignKey: 'scene_id' });
-    (scene as any).belongsTo(models.scene, { foreignKey: 'parent_scene_id', targetKey: 'scene_id' });
-    (scene as any).belongsTo(models.scene_listing, { foreignKey: 'parent_scene_listing_id', targetKey: 'scene_listing_id', allowNull: true });
-    (scene as any).belongsTo(models.owned_file, { foreignKey: 'model_owned_file_id', targetKey: 'owned_file_id', as: 'model_owned_file' });
-    (scene as any).belongsTo(models.owned_file, { foreignKey: 'screenshot_owned_file_id', targetKey: 'owned_file_id', as: 'screenshot_owned_file' });
-    (scene as any).belongsTo(models.collection)
-    // (scene as any).belongsTo(models.owned_file, { foreignKey: 'scene_owned_file_id', targetKey: 'owned_file_id', as: 'scene_owned_file' })
+    (scene as any).belongsTo(models.user, { foreignKey: 'ownerUserId' });
+    (scene as any).hasOne(models.project, { foreignKey: 'sceneId' });
+    (scene as any).belongsTo(models.scene, { foreignKey: 'parentSceneId' });
+    (scene as any).belongsTo(models.scene_listing, { foreignKey: 'parentSceneListingId' });
+    (scene as any).belongsTo(models.owned_file, { foreignKey: 'modelOwnedFileId', allowNull: false });
+    (scene as any).belongsTo(models.owned_file, { foreignKey: 'screenshotOwnedFileId', allowNull: false });
+    (scene as any).belongsTo(models.collection, { foreignKey: 'collectionId' })
   }
 
   return scene

@@ -1,4 +1,3 @@
-// Initializes the `message` service on path `/message`
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { Message } from './message.class'
@@ -18,10 +17,8 @@ export default (app: Application): any => {
     paginate: app.get('paginate')
   }
 
-  // Initialize our service with any options it requires
   app.use('/message', new Message(options, app))
 
-  // Get our initialized service so that we can register hooks
   const service = app.service('message')
 
   service.hooks(hooks)
