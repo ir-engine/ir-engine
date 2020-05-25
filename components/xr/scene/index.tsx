@@ -51,15 +51,15 @@ export default function RootScene (props: Props): any {
       else if (/^\/?video/g.test(url)) {
         const manifestRegex = /manifest=(.*\.mpd)&?/g
         const manifestMatch = manifestRegex.exec(url)
-        const manifest = manifestRegex.test(url) ? manifestMatch[1] : ''
+        const manifest = manifestMatch[1]
 
         const titleRegex = /title=(.*)&?/g
         const titleMatch = titleRegex.exec(url)
-        const title = titleRegex.test(url) ? titleMatch[1] : ''
+        const title = titleMatch[1]
 
         const formatRegex = /format=(.*)&?/g
         const formatMatch = formatRegex.exec(url)
-        const format = formatRegex.test(url) ? formatMatch[1] : ''
+        const format = formatMatch[1]
 
         const videoProps: VideoProps = {
           manifest: manifest,
