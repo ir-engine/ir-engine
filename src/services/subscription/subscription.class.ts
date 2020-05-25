@@ -15,7 +15,7 @@ export class Subscription extends Service {
     }
 
     const unconfirmedSubscriptions = await super.find({
-      where: {
+      query: {
         userId: userId,
         status: 0
       }
