@@ -3,7 +3,7 @@
     "title": "XREngine",
     "dev": false,
     "loginDisabled": false,
-    "logo": "",
+    "logo": "./logo.svg",
     "xr": {
       "networked-scene": {
         "app": "xrengine",
@@ -98,10 +98,10 @@
     "auth": {
       "enableSmsMagicLink": true,
       "enableEmailMagicLink": true,
-      "enableUserPassword": true,
-      "isEnabledGithub": true,
-      "isEnabledFacebook": true,
-      "isEnabledGoogle": true
+      "enableUserPassword": false,
+      "isEnabledGithub": false,
+      "isEnabledFacebook": false,
+      "isEnabledGoogle": false
     },
 
     "alert": {
