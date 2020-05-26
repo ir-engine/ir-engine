@@ -1,6 +1,7 @@
+import React from 'react'
 import './style.scss'
 
-const App = () => {
+const App: React.FC = () => {
   return (
     <div>
       <div className='loader'>
