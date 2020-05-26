@@ -28,14 +28,17 @@ interface Props {
 }
 
 export default function RootScene(props: Props): any {
-  const [sceneName, setSceneName] = useState(props.sceneName || 'landing')
+  let [sceneName, setSceneName] = useState(props.sceneName || 'landing')
   const [videoProps, setVideoProps] = useState({
     manifest: props.manifest || '',
     title: props.title || '',
     format: props.format || ''
   } as VideoProps)
   const [dreamUrl, setDreamUrl] = useState(props.url || '')
-
+  // fix for video360 dynamic route
+  if (sceneName === 'video360') {
+    sceneName = 'video'
+  }
   const navigationHandler = e => {
     let url = e.detail.url
 
@@ -54,7 +57,10 @@ export default function RootScene(props: Props): any {
         }, '', url)
       }
       const pathname = window.location.pathname
-      const newSceneName = pathname.slice(1) || 'landing'
+      let newSceneName = pathname.slice(1) || 'landing'
+      if (newSceneName === 'video360') {
+        newSceneName = 'video'
+      }
       if (newSceneName === 'dreamscene' || newSceneName === 'video') {
         const params = new URLSearchParams(document.location.search.substring(1))
         if (newSceneName === 'dreamscene') {
