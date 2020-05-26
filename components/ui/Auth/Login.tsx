@@ -86,8 +86,6 @@ const SignIn = () => {
     const socialTabPanel = socialCount > 0 && <TabPanel value={tabIndex} index={index}><SocialLogin isEnabledFacebook={isEnabledFacebook} isEnabledGoogle={isEnabledGoogle} isEnabledGithub={isEnabledGithub} /></TabPanel>
     socialCount > 0 && ++index
 
-    console.log(socialCount, socialTabPanel)
-
     component = (
       <Fragment>
         {(enableUserPassword || socialCount > 0) &&

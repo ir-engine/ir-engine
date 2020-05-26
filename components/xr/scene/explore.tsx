@@ -90,7 +90,6 @@ const ExploreScene = (props: VideoProps): any => {
   // only loading videos on right handler, because you start on page 0
   const pageRightHandler = () => {
     const nextPage = pageOffset + 1
-    // console.log('visited pages:', visitedPages)
     // if next page has not been visited before, fetch videos for the page
     if (!visitedPages.find(pageOffset => pageOffset === nextPage)) {
       fetchPublicVideos()
@@ -110,8 +109,6 @@ const ExploreScene = (props: VideoProps): any => {
     setVideosArr(videos.get('videos'))
   }, [videos, pageOffset])
 
-  console.log('focusedCellEl', exploreState.focusedCellEl)
-  console.log('Add grid if there are videos. videoArr length:', videosArr.length)
   // grid entity doesn't adapt to changes in children.length, so only place grid when there are videos so the right pagination shows
   // TODO: possible more robust solution is use MutationObserver to look for changes in children of grid el
   return (
