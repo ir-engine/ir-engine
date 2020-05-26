@@ -12,7 +12,6 @@ export const ScenePage = () => {
   if (Array.isArray(sceneName)) {
     sceneName = sceneName[0]
   }
-  console.log('sceneName in [sceneName].js', sceneName)
   const scenes = [
     {
       sceneName: 'dream'

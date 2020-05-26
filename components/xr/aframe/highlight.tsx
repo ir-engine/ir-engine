@@ -309,16 +309,12 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.intersectingRaycaster = evt.detail.el.components.raycaster
   },
 
-  raycasterIntersectedClearedHandler(evt) {
-    console.debug(evt)
+  raycasterIntersectedClearedHandler() {
     if (this.intersectingRaycaster != null) {
       const intersection = this.intersectingRaycaster.getIntersection(this.el)
       if (intersection === undefined) {
         this.intersectingRaycaster = null
-      } else {
       }
-    } else {
-      // console.log('self.intersectingRaycaster is null')
     }
 
     if (this.data.hover) {

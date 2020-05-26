@@ -11,7 +11,6 @@ const makeHandleClick = ({ href, router }: makeHandleClickType) => {
   const handleClick = (e: CustomEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    console.log('clicked a link to', href, 'Here is the event:', e)
     if (isExternalUrl(href)) {
       window.location.href = href
     } else {
