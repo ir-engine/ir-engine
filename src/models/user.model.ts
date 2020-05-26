@@ -48,9 +48,12 @@ export default (app: Application): any => {
     (User as any).hasMany(models.static_resource);
     (User as any).hasMany(models.asset, { foreignKey: 'ownerUserId' });
     (User as any).hasMany(models.owned_file, { foreignKey: 'ownerUserId' });
-    (User as any).hasMany(models.subscription)
-    // (User as any).hasMany(models.conversation, { foreignKey: 'sender_id' })
-    ;(User as any).hasOne(models.seat, { foreignKey: 'userId' })
+    (User as any).hasMany(models.subscription);
+    (User as any).hasOne(models.seat, { foreignKey: 'userId' });
+    (User as any).hasMany(models.conversation);
+    (User as any).hasMany(models.message, { foreignKey: 'senderId' });
+    (User as any).hasMany(models.message_status, { foreignKey: 'recipientId' })
+    // (User as any).hasMany(models.conversation, { as: 'seconduser', foreignKey: 'user2', required: false })
   }
 
   return User

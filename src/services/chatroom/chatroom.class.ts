@@ -1,6 +1,6 @@
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
-import sequelize from 'sequelize'
+import { Op } from 'sequelize'
 
 interface Data {}
 
@@ -32,22 +32,51 @@ export class Chatroom implements ServiceMethods<Data> {
     throw new Error('Method not implemented.')
   }
 
-  async find (params?: any): Promise<Data[] | Paginated<Data>> {
-    console.log(params)
-    // const userModel = this.app.service('user').Model
-    // const query = 'SELECT t1.sender_id, t1.recipient_id , t2.text FROM ' +
-    // ' conversation t1 INNER JOIN message t2 ON t1.id = t2.conversationId ORDER BY t2.createdAt DESC'
-    // const [result] = await this.app.get('sequelizeClient').query(query)
+  async find (params?: any): Promise<Data[]> {
+    const userModel = this.app.service('user').Model
+    const userId = params?.connection['identity-provider'].userId
     const conversationModel = this.app.service('conversation').Model
-    const result = await conversationModel.findAll({
+    const messageModel = this.app.service('message').Model
+    const messageStatusModel = this.app.service('message-status').Model
+    // const groupModel = this.app.service('group').Model
+    // const groupUserModel = this.app.service('group-user').Model
+    // const partyModel = this.app.service('party').Model
+
+    const chatRooms = await conversationModel.findAll({
       where: {
-        sender_id: params?.connection['identity-provider'].userId
+        [Op.or]: [{ firstuserId: userId }, { seconduserId: userId }],
+        type: 'user'
       },
-      include: [{
-        model: this.app.service('message').Model
-      }]
+      attributes: ['id', 'type'],
+      include: [
+        {
+          model: messageModel,
+          attributes: ['id', 'text', 'senderId', 'createdAt', 'isDelivered', 'isRead'],
+          separate: true,
+          order: [['id', 'desc']],
+          limit: 20,
+          offset: 0,
+          include: [
+            {
+              model: messageStatusModel,
+              attributes: ['id', 'recipientId', 'isRead', 'isDelivered']
+            }
+          ]
+        },
+        {
+          model: userModel,
+          attributes: ['id', 'name'],
+          as: 'firstuser'
+        },
+        {
+          model: userModel,
+          attributes: ['id', 'name'],
+          as: 'seconduser'
+        }
+      ]
     })
-    return result
+
+    return chatRooms
   }
 
   async create (data: any, params?: Params): Promise<Data> {
@@ -66,7 +95,7 @@ export class Chatroom implements ServiceMethods<Data> {
     const users = await userModel.findAll({
       where: {
         id: {
-          [sequelize.Op.in]: [data.senderId, data.recipientId]
+          [Op.in]: [data.senderId, data.recipientId]
         }
       },
       attributes: ['id', 'name']

@@ -9,6 +9,14 @@ export default (app: Application): any => {
       allowNull: false,
       primaryKey: true,
       autoIncrement: true
+    },
+    status: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    type: {
+      type: DataTypes.STRING,
+      defaultValue: 'user'
     }
   }, {
     hooks: {
@@ -19,12 +27,13 @@ export default (app: Application): any => {
   });
 
   (conversation as any).associate = (models: any) => {
-    (conversation as any).hasMany(models.message, { foreignKey: 'conversationId' });
-    (conversation as any).belongsTo(models.conversation_type, { foreignKey: 'conversationType' }); // values: ['user', 'group', 'party'],
-    (conversation as any).belongsTo(models.user, { foreignKey: 'senderId' });
-    (conversation as any).belongsTo(models.user, { foreignKey: 'receiverId' }); // If type is 'user', key this
-    (conversation as any).belongsTo(models.group, { foreignKey: 'groupId' }); // If type is 'group', key from this
-    (conversation as any).belongsTo(models.party, { foreignKey: 'partyId' })
+    // Define associations here
+    // See http://docs.sequelizejs.com/en/latest/docs/associations/
+    (conversation as any).hasMany(models.message);
+    (conversation as any).belongsTo(models.user, { as: 'firstuser', constraint: false });
+    (conversation as any).belongsTo(models.user, { as: 'seconduser', constraint: false });
+    (conversation as any).belongsTo(models.group, { foreignKey: 'groupId', constraint: false });
+    (conversation as any).belongsTo(models.party, { foreignKey: 'partyId', constraint: false })
   }
 
   return conversation

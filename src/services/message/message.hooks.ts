@@ -2,6 +2,9 @@ import * as authentication from '@feathersjs/authentication'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 import formatMessage from '../../hooks/format-message'
+import validateMessage from '../../hooks/validate-message'
+import addMessageReceipient from '../../hooks/add-message-receiptant'
+
 const { authenticate } = authentication.hooks
 
 export default {
@@ -9,7 +12,7 @@ export default {
     all: [authenticate('jwt')],
     find: [],
     get: [],
-    create: [formatMessage()],
+    create: [validateMessage()],
     update: [],
     patch: [],
     remove: []
@@ -19,7 +22,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [addMessageReceipient(), formatMessage()],
     update: [],
     patch: [],
     remove: []

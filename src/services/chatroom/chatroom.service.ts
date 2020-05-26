@@ -10,9 +10,7 @@ declare module '../../declarations' {
 }
 
 export default (app: Application): any => {
-  const options = {
-    paginate: app.get('paginate')
-  }
+  const options = {}
 
   app.use('/chatroom', new Chatroom(options, app))
 

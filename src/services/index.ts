@@ -31,6 +31,7 @@ import StaticResource from './static-resource/static-resource.service'
 import User from './user/user.service'
 import UserRelationship from './user-relationship/user-relationship.service'
 import UserSettings from './user-settings/user-settings.service'
+import MessageStatus from './message-status/message-status.service'
 
 // Junctions
 import GroupUser from './group-user/group-user.service'
@@ -93,6 +94,7 @@ export default (app: Application): void => {
   app.configure(UserRelationship)
   app.configure(UserRole)
   app.configure(UserSettings)
+  app.configure(MessageStatus)
 
   // Junctions
   app.configure(PartyUser)

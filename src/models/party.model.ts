@@ -19,7 +19,8 @@ export default (app: Application): any => {
   });
 
   (Party as any).associate = (models: any) => {
-    (Party as any).belongsToMany(models.user, { through: models.party_user })
+    (Party as any).belongsToMany(models.user, { through: models.party_user });
+    (Party as any).hasMany(models.conversation)
   }
   return Party
 }

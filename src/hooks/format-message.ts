@@ -1,9 +1,31 @@
-export default (options = {}) => {
+export default function (options = {}) {
   return async (context: any): Promise<void> => {
-    const data = context.data
-    data.sender = context.params['identity-provider'].userId
-    data.receiver = context.params['identity-provider'].userId
-    context.data = data
+    const { app } = context
+    const conversationModel = app.service('conversation').Model
+    const messageModel = app.service('message').Model
+    const messageStatusModel = app.service('message-status').Model
+
+    const conversation = conversationModel.findOne({
+      where: {
+        id: context.result.conversationId
+      }
+    })
+    const message = await messageModel.findOne({
+      where: {
+        id: context.result.id
+      },
+      includes: [
+        {
+          model: messageStatusModel
+        }
+      ]
+    })
+
+    context.result = {
+      message: message,
+      conversation: conversation
+    }
+
     return context
   }
 }

@@ -14,7 +14,15 @@ export default (app: Application): any => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    conversationId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
     isRead: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    isDelivered: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     }
@@ -27,8 +35,10 @@ export default (app: Application): any => {
   });
 
   (message as any).associate = (models: any): any => {
-    (message as any).belongsTo(models.conversation, { foreignKey: 'conversationId', allowNull: false });
-    (message as any).belongsTo(models.user, { foreignKey: 'senderId' })
+    (message as any).belongsTo(models.group, { through: 'group_message' });
+    (message as any).belongsTo(models.conversation, { foreignKey: 'conversationId' });
+    (message as any).belongsTo(models.user, { foreignKey: 'senderId', constraint: false });
+    (message as any).hasMany(models.message_status, { foreignKey: 'messageId', required: true })
   }
 
   return message
