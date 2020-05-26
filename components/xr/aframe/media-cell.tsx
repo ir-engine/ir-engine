@@ -124,7 +124,7 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
 
   createCell() {
     switch (this.data.thumbnailType) {
-      case 'glb': {
+      case 'model': {
         const objEl = document.createElement('a-gltf-model')
         const source = (this.system as AFRAME.SystemDefinition<MediaCellSystemProps>).getSource(this.data)
         objEl.setAttribute('src', source)

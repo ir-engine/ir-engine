@@ -2,6 +2,8 @@ import React from 'react'
 import { Entity } from 'aframe-react'
 import './style.scss'
 
+import { getSourceType } from './assets'
+
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr.landing
 
@@ -27,9 +29,9 @@ export default function LandingScene (): any {
         <Entity
           primitive="a-media-cell"
           title="spoke"
-          media-url={'kaixr.world/spoke/'}
-          thumbnail-type="glb"
-          thumbnail-url="#spokeiconmodel"
+          media-url={config.spoke.link}
+          thumbnail-type={getSourceType(config.spoke.src)}
+          thumbnail-url="#spokeBanner"
           cell-height={cellHeight}
           cell-width={cellWidth}
           cell-content-height={cellContentHeight}
@@ -38,9 +40,9 @@ export default function LandingScene (): any {
         <Entity
           primitive="a-media-cell"
           title="vrRoom"
-          media-url={'/dream'}
-          thumbnail-type="glb"
-          thumbnail-url="#vrRoomiconmodel"
+          media-url={config.vrRoom.link}
+          thumbnail-type={getSourceType(config.vrRoom.src)}
+          thumbnail-url="#vrRoomBanner"
           cell-height={cellHeight}
           cell-width={cellWidth}
           cell-content-height={cellContentHeight}
@@ -48,9 +50,9 @@ export default function LandingScene (): any {
         <Entity
           primitive="a-media-cell"
           title="video360"
-          media-url={'/explore'}
-          thumbnail-type="glb"
-          thumbnail-url="#video360iconmodel"
+          media-url={config.video360.link}
+          thumbnail-type={getSourceType(config.video360.src)}
+          thumbnail-url="#video360Banner"
           cell-height={cellHeight}
           cell-width={cellWidth}
           cell-content-height={cellContentHeight}
@@ -58,9 +60,9 @@ export default function LandingScene (): any {
         <Entity
           primitive="a-media-cell"
           title="store"
-          media-url={'curated-x-kai-inc.myshopify.com'}
-          thumbnail-type="glb"
-          thumbnail-url="#storeiconmodel"
+          media-url={config.store.link}
+          thumbnail-type={getSourceType(config.store.src)}
+          thumbnail-url="#storeBanner"
           cell-height={cellHeight}
           cell-width={cellWidth}
           cell-content-height={cellContentHeight}
