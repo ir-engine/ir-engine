@@ -3,8 +3,7 @@ import { useState, useEffect } from 'react'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import PauseIcon from '@material-ui/icons/Pause'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
-import Link from 'next/link'
-import isExternalUrl from '../../../utils/isExternalUrl'
+import triggerNavigation from '../../../utils/triggerNavigation'
 
 type Props = {
   playing: boolean,
@@ -12,7 +11,7 @@ type Props = {
   onSeekChange?: (seekTimeSeconds: number) => void,
   videoLengthSeconds: number,
   currentTimeSeconds: number,
-  bufferedBars: Array<{start: number, end: number}>,
+  bufferedBars: Array<{ start: number, end: number }>,
   backButtonHref: string
 }
 
@@ -22,10 +21,9 @@ const VideoSeeker = ({ playing, onTogglePlay, onSeekChange, videoLengthSeconds, 
   useEffect(() => {
     setSeekPercentage((currentTimeSeconds / videoLengthSeconds) * 100)
   }, [videoLengthSeconds, currentTimeSeconds])
-  const backIcon = <ArrowBackIcon style={{ color: 'white' }} />
-  const backButton = isExternalUrl(backButtonHref)
-    ? <a href={backButtonHref}>{backIcon}</a>
-    : <Link href={backButtonHref}>{backIcon}</Link>
+  const backButton = <ArrowBackIcon style={{ color: 'white' }} onClick={() => {
+    triggerNavigation(backButtonHref)
+  }} />
   return (
     <div className="VideoSeeker">
       <div className="seek-bar-container">

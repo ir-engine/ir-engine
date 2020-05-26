@@ -7,7 +7,6 @@ import Assets from './assets'
 import Environment from './environment'
 import Player from '../player/player'
 import './style.scss'
-import SvgVr from '../../icons/svg/Vr'
 
 import AframeComponentRegisterer from '../aframe/index'
 
@@ -78,10 +77,11 @@ export default function RootScene(props: Props): any {
   }
   // handle change page e.g. browser back button clicked
   function popStateHandler(e) {
+    // this condition is to stop a bug where e.state is null
+    if (!e.state || !e.state.as) return
     e.preventDefault()
     // use 'as' as the url, from history state.
     navigationHandler({ detail: { url: (e as PopStateEvent).state.as, isPopState: true } })
-    return false
   }
   useEffect(() => {
     document.addEventListener('navigate', navigationHandler, { once: true })
@@ -109,9 +109,6 @@ export default function RootScene(props: Props): any {
             manifest={videoProps.manifest}
             title={videoProps.title}
             format={videoProps.format} />}
-        <a className="enterVR" id="enterVRButton" href="#">
-          <SvgVr className="enterVR" />
-        </a>
       </SceneContainer>
     </div>
   )
