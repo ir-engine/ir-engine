@@ -59,6 +59,22 @@ export interface Video360Props {
   format: string
 }
 
+// function navigateBackElseLoadUrl(url) {
+//   console.log('history:', window.history)
+//   // // save current url to determine if history back exists
+//   // const currentUrl = window.location.href
+//   // // if back history exists, go back
+//   // window.history.back()
+//   // // if after 100ms window location has not changed, load given url directly.
+//   // setTimeout(() => {
+//   //   // if location was not changed in 100 ms, then there is no history back
+//   //   if (currentUrl === window.location.href) {
+//   //     // redirect to site root
+//   //     window.location.href = url
+//   //   }
+//   // }, 100)
+// }
+
 function Video360Room(props: Video360Props) {
   const text = `${props.title || ''}\n\n(click to play)`
 
