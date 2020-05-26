@@ -18,8 +18,6 @@ export default class PlayerControls {
   }
 
   setupControlsHandler(evt: Event, player: AFRAME.Entity): void {
-    console.log(evt)
-    console.log('setupControlsHandler')
     this.controllers.forEach(controller => this.setController(player, controller))
   }
 

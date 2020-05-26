@@ -19,7 +19,6 @@ export function fetchPublicVideos (pageOffset = 0) {
           video.metadata = JSON.parse(video.metadata)
         }
         const videos = res.data as PublicVideo[]
-        console.log('fetched', videos.length, 'videos.')
         return dispatch(videosFetchedSuccess(videos))
       })
       .catch(() => dispatch(videosFetchedError('Failed to fetch videos')))
