@@ -125,11 +125,9 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
   createCell() {
     switch (this.data.thumbnailType) {
       case 'glb': {
-        const objEl = document.createElement('a-entity')
-        objEl.setAttribute('gltf-model', '#' + this.id)
-        objEl.setAttribute('position', this.position)
-        objEl.setAttribute('scale', this.scale)
-        objEl.setAttribute('rotation', this.scale)
+        const objEl = document.createElement('a-gltf-model')
+        const source = (this.system as AFRAME.SystemDefinition<MediaCellSystemProps>).getSource(this.data)
+        objEl.setAttribute('src', source)
         objEl.classList.add('clickable')
 
         if (this.data.linkEnabled) this.enableLink(objEl)
@@ -207,7 +205,8 @@ const primitiveProps = [
   'mediatype',
   'linktype',
   'videoformat',
-  'linkEnabled'
+  'linkEnabled',
+  'thumbnailType'
 ]
 export const MediaCellPrimitive: AFRAME.PrimitiveDefinition = {
   defaultComponents: {

@@ -45,35 +45,28 @@ const entities = [
   },
   {
     id: 'storeiconmodel',
-    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/shop.glb',
+    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/Shop.glb',
     position: '',
     scale: '',
     rotation: ''
   },
   {
     id: 'spokeiconmodel',
-    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/create.glb',
+    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/Create.glb',
     position: '',
     scale: '',
     rotation: ''
   },
   {
     id: 'vrRoomiconmodel',
-    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/dream.glb',
+    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/Dream.glb',
     position: '',
     scale: '',
     rotation: ''
   },
   {
     id: 'video360iconmodel',
-    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/explore.glb',
-    position: '',
-    scale: '',
-    rotation: ''
-  },
-  {
-    id: 'storeiconmodel',
-    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/shop.glb',
+    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/Explore.glb',
     position: '',
     scale: '',
     rotation: ''
