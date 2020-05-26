@@ -4,8 +4,7 @@ export default function (options = {}) {
     const conversationModel = app.service('conversation').Model
     const messageModel = app.service('message').Model
     const messageStatusModel = app.service('message-status').Model
-
-    const conversation = conversationModel.findOne({
+    const conversation = await conversationModel.findOne({
       where: {
         id: context.result.conversationId
       }

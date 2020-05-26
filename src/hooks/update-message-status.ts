@@ -11,6 +11,9 @@ export default (options = {}): Hook => {
       messageProp = 'isRead'
     }
 
+    // if (messageProp === 'isRead') {
+    //   app.get('sequelizeClient').query()
+    // }
     const message = await app.service('message').Model.findOne({
       where: {
         id: data.messageId

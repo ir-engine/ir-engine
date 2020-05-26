@@ -1,4 +1,6 @@
 import * as authentication from '@feathersjs/authentication'
+import { disallow } from 'feathers-hooks-common'
+import updateMessageStatus from '../../hooks/update-message-status'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks
@@ -6,12 +8,12 @@ const { authenticate } = authentication.hooks
 export default {
   before: {
     all: [authenticate('jwt')],
-    find: [],
-    get: [],
-    create: [],
+    find: [disallow('external')],
+    get: [disallow('external')],
+    create: [disallow('external')],
     update: [],
-    patch: [],
-    remove: []
+    patch: [disallow('external')],
+    remove: [disallow('external')]
   },
 
   after: {
@@ -19,7 +21,7 @@ export default {
     find: [],
     get: [],
     create: [],
-    update: [],
+    update: [updateMessageStatus()],
     patch: [],
     remove: []
   },

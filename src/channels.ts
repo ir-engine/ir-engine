@@ -78,6 +78,27 @@ export default (app: Application): void => {
     }
   })
 
+  app.on('logout', (authResult: any, { connection }: any) => {
+    if (connection) {
+      // Join the channels a logged out connection should be in
+      app.channel('anonymous').join(connection)
+    }
+    const user = authResult['identity-provider']
+    if (user) {
+      app.service('chatroom').emit('leave', {
+        type: 'leave',
+        userId: connection['identity-provider'].userId
+      })
+    }
+  })
+
+  app.on('disconnect', (connection: any) => {
+    app.service('chatroom').emit('leave', {
+      type: 'leave',
+      userId: connection['identity-provider'].userId
+    })
+  })
+
   app.publish((data: any, hook: HookContext) => {
     // Here you can add event publishers to channels set up in `channels.js`
     // To publish only for a specific event use `app.publish(eventname, () => {})`
@@ -105,6 +126,7 @@ export default (app: Application): void => {
   // })
 
   app.service('message').publish('created', data => {
+    // console.log(data)
     if (data.conversation.type === 'group') {
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return app.channel(`chatroom/group/${data.conversation.groupId}`).send(data)
@@ -115,5 +137,10 @@ export default (app: Application): void => {
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return app.channel(`chatroom/user/${data.conversation.id}`).send(data)
     }
+  })
+
+  app.service('chatroom').publish('leave', async data => {
+    return app.channel(app.channels)
+      .filter(connection => connection['identity-provider'].userId === data.userId)
   })
 }

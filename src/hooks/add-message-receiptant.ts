@@ -1,3 +1,4 @@
+import { Op } from 'sequelize'
 export default function (options = {}) {
   return async (context: any): Promise<void> => {
     const { app } = context
@@ -15,7 +16,7 @@ export default function (options = {}) {
     if (conversation.type === 'party') {
       const partyUsers = await partyUserModel.findAll({
         where: {
-          userId: { $not: senderId },
+          userId: { [Op.ne]: senderId },
           partyId: conversation.partyId
         }
       })
@@ -25,7 +26,7 @@ export default function (options = {}) {
     } else if (conversation.type === 'group') {
       const groupUsers = await groupUserModel.findAll({
         where: {
-          userId: { $not: senderId },
+          userId: { [Op.ne]: senderId },
           groupId: conversation.groupId
         }
       })
