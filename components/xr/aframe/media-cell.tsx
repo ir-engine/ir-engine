@@ -126,10 +126,10 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
     switch (this.data.thumbnailType) {
       case 'glb': {
         const objEl = document.createElement('a-entity')
-        const source = (this.system as AFRAME.SystemDefinition<MediaCellSystemProps>).getSource(this.data)
-        objEl.setAttribute('src', source)
-        objEl.setAttribute('width', this.data.cellWidth)
-        objEl.setAttribute('height', this.data.cellContentHeight)
+        objEl.setAttribute('gltf-model', '#' + this.id)
+        objEl.setAttribute('position', this.position)
+        objEl.setAttribute('scale', this.scale)
+        objEl.setAttribute('rotation', this.scale)
         objEl.classList.add('clickable')
 
         if (this.data.linkEnabled) this.enableLink(objEl)
