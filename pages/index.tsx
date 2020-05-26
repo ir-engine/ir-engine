@@ -5,7 +5,7 @@ const Scene = dynamic(() => import('../components/xr/scene/index'), { ssr: false
 export const IndexPage = () => {
   return (
     <Layout pageTitle="Home">
-      <Scene startingScene='landing'/>
+      <Scene sceneName='landing'/>
     </Layout>
   )
 }
