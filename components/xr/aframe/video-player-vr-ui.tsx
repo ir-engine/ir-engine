@@ -7,7 +7,7 @@ type GetIntersection = (entity: AFRAME.Entity) => THREE.Intersection
 type CallbackFunctionVariadic = (...args: any[]) => void;
 type DetailEvent = AFRAME.DetailEvent<any>
 
-export interface PlayerVrUiComponentProps {
+export interface Props {
   _playPauseNeedsUpdate: boolean,
   _activePlayButton: boolean,
   _hoverPlayButton: boolean,
@@ -35,7 +35,7 @@ export interface PlayerVrUiComponentProps {
   _createBackButton: (parentGroup: THREE.Group) => void
 }
 
-export interface PlayerVrUiComponentData {
+export interface Data {
   disabled: boolean,
   isPlaying: boolean,
   color: number,
@@ -47,7 +47,7 @@ export interface PlayerVrUiComponentData {
   bgOpacity: number
 }
 
-export const PlayerVrUiComponentSchema: AFRAME.MultiPropertySchema<PlayerVrUiComponentData> = {
+export const PlayerVrUiComponentSchema: AFRAME.MultiPropertySchema<Data> = {
   disabled: { type: 'boolean', default: false },
   isPlaying: { type: 'boolean', default: false },
   color: { default: 0xeeeeee },
@@ -64,10 +64,10 @@ const BgHeight = 0.16
 const ButtonWidth = 0.1
 const ButtonHeight = 0.1
 
-export const PlayerVrUiComponent: AFRAME.ComponentDefinition<PlayerVrUiComponentProps> = {
+export const PlayerVrUiComponent: AFRAME.ComponentDefinition<Props> = {
   schema: PlayerVrUiComponentSchema,
   data: {
-  } as PlayerVrUiComponentData,
+  } as Data,
   _playPauseNeedsUpdate: false,
   _activePlayButton: false,
   _hoverPlayButton: false,

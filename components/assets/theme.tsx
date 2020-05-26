@@ -16,6 +16,27 @@ const theme = createMuiTheme({
     background: {
       default: '#fff'
     }
+  },
+  typography: {
+    fontFamily: '"Noto Sans", sans-serif',
+    h1: {
+      fontFamily: 'Freude, "Comic Sans"'
+    },
+    h2: {
+      fontFamily: 'Freude, "Comic Sans"'
+    },
+    h3: {
+      fontFamily: 'Freude, "Comic Sans"'
+    },
+    h4: {
+      fontFamily: 'Freude, "Comic Sans"'
+    },
+    h5: {
+      fontFamily: 'Freude, "Comic Sans"'
+    },
+    h6: {
+      fontFamily: 'Freude, "Comic Sans"'
+    }
   }
 })
 

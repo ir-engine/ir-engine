@@ -1,23 +1,17 @@
-import * as React from 'react'
+import { Fragment } from 'react'
 import Alerts from '../Common/Alerts'
-import XDialog from '../Dialog/Dialog'
+import UIDialog from '../Dialog/Dialog'
 
 type Props = {
   children: any
 }
 
-class EmptyLayout extends React.Component<Props> {
-  render() {
-    return (
-      <React.Fragment>
-        <XDialog/>
-
-        <Alerts/>
-
-        {this.props.children}
-      </React.Fragment>
-    )
-  }
-}
+const EmptyLayout = ({ children }: Props) => (
+  <Fragment>
+    <UIDialog />
+    <Alerts />
+    {children}
+  </Fragment>
+)
 
 export default EmptyLayout

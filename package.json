@@ -1,21 +1,29 @@
 {
-  "name": "xrchat-client",
+  "name": "xrengine-client",
   "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/xr3ngine/xrengine-client.git"
+  },
   "scripts": {
     "dev": "cross-env NODE_ENV=dev next --port $PORT",
     "build": "next build",
     "start": "next start",
     "type-check": "tsc",
-    "test": "yarn run lint && yarn run build",
+    "test": "yarn run lint && yarn run stylelint && yarn run build",
     "lint:ts": "eslint '*.ts' '**/*.ts' '**/*.tsx'",
     "lint": "yarn run lint:ts",
-    "lint-fix": "eslint --fix '*.ts' '**/*.ts' '**/*.tsx'"
+    "lint-fix": "eslint --fix '*.ts' '**/*.ts' '**/*.tsx'",
+    "precommit": "no-master-commits -b master,dev && echo \\* Running pre-commit test  && echo \\*\\* \\`git commit --no-verify\\` to skip && echo \\*\\*\\* PRs THAT DO NOT PASS TESTS WILL NOT BE ACCEPTED && yarn run test",
+    "stylelint": "stylelint '**/*.scss'"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "echo && echo \\* Running pre-commit test  && echo \\*\\* \\`git commit --no-verify\\` to skip && echo \\*\\*\\* PRs THAT DO NOT PASS TESTS WILL NOT BE ACCEPTED && yarn run test"
-    }
-  },
+  "pre-push": [
+    "test"
+  ],
+  "pre-commit": [
+    "test",
+    "precommit"
+  ],
   "peerDependencies": {
     "@material-ui/react-transition-group": "~4.3.0",
     "ecsy": "github:xrchat/ecsy#dev",
@@ -55,14 +63,17 @@
     "autoprefixer": "^9.7.5",
     "axios": "^0.19.2",
     "babel-loader": "^8.1.0",
+    "css-loader": "^3.5.3",
+    "device-detector-js": "^2.2.1",
     "ecsy": "github:xrchat/ecsy#dev",
     "eslint-plugin-react-hooks": "^3.0.0",
+    "file-loader": "^6.0.0",
     "glob": "^7.1.6",
     "graphql": "^15.0.0",
     "graphql-tag": "^2.10.3",
-    "husky": "^4.2.5",
     "immutable": "^4.0.0-rc.12",
     "isomorphic-unfetch": "3.0.0",
+    "jest": "^26.0.1",
     "lebab": "^3.1.0",
     "load-bmfont": "^1.4.0",
     "lodash": "^4.17.15",
@@ -75,6 +86,8 @@
     "node-sass": "^4.13.1",
     "postcss-easy-import": "^3.0.0",
     "postcss-loader": "^3.0.0",
+    "pre-commit": "^1.2.2",
+    "pre-push": "^0.1.1",
     "prettier-eslint": "^9.0.1",
     "raw-loader": "^4.0.0",
     "react": "^16.12.0",
@@ -99,7 +112,7 @@
     "socketio": "^1.0.0",
     "subscriptions-transport-ws": "^0.9.16",
     "three": "^0.115.0",
-    "webpack": "^4.42.1"
+    "url-loader": "^4.1.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
@@ -127,8 +140,17 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-standard": "^4.0.1",
+    "no-master-commits": "^1.1.1",
+    "pre-commit": "^1.2.2",
+    "pre-push": "^0.1.1",
     "prettier": "2.0.4",
-    "typescript": "3.7.3"
+    "prettier-eslint": "^9.0.1",
+    "stylelint": "^13.3.3",
+    "stylelint-config-recommended-scss": "^4.2.0",
+    "stylelint-scss": "^3.17.2",
+    "stylint": "^2.0.0",
+    "typescript": "3.7.3",
+    "webpack": "^4.42.1"
   },
   "license": "ISC"
 }

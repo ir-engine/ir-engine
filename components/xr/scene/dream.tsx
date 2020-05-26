@@ -1,24 +1,59 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { Entity } from 'aframe-react'
+import './style.scss'
 
-import dynamic from 'next/dynamic'
+import { PublicScene } from '../../../redux/scenes/actions'
 
-const Scene = dynamic(() => import('./scene-dream'), { ssr: false })
+import { bindActionCreators, Dispatch } from 'redux'
 
-type State = {
-  loggedIn: true // TODO: Add auth and redux store
+import { connect } from 'react-redux'
+import { selectScenesState } from '../../../redux/scenes/selector'
+import { fetchPublicScenes } from '../../../redux/scenes/service'
+
+interface DreamProps {
+  scenes: any
+  fetchPublicScenes: typeof fetchPublicScenes
 }
 
-export default class SceneRoot extends React.Component {
-  state: State = {
-    loggedIn: true // TODO: Add auth and redux store
-  }
-
-  render() {
-    return (
-      <div>
-        <Scene />
-      </div>
-
-    )
+const mapStateToProps = (state: any) => {
+  return {
+    scenes: selectScenesState(state)
   }
 }
+
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  fetchPublicScenes: bindActionCreators(fetchPublicScenes, dispatch)
+})
+
+const DreamScene = (props: DreamProps): any => {
+  const { scenes, fetchPublicScenes } = props
+
+  useEffect(() => {
+    if (scenes.get('scenes').size === 0) {
+      fetchPublicScenes()
+    }
+  })
+  return (
+    <Entity position="0 1.6 0">
+      <Entity primitive="a-grid" rows={3}>
+        {scenes.get('scenes').map((x: PublicScene, i: number) => {
+          return (
+            <Entity
+              key={i}
+              primitive="a-media-cell"
+              title={x.name}
+              media-url={x.url}
+              thumbnail-url={x.thumbnailUrl}
+              cellHeight={0.6666}
+              cellWidth={1}
+              cellContentHeight={0.5}
+              mediatype="scene"
+            />
+          )
+        })}
+      </Entity>
+    </Entity>
+  )
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(DreamScene)

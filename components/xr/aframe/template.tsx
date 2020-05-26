@@ -1,4 +1,5 @@
 import AFRAME from 'aframe'
+import PropertyMapper from './ComponentUtils'
 
 export const ComponentName = 'mycomp'
 
@@ -70,7 +71,6 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
   update(oldData: Data) {
     const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
-    console.log(changedData)
     if (changedData.includes('someData')) {
       // update something
     }
@@ -97,14 +97,18 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
 }
 
+const primitiveProps = ['id', 'someData']
+
 export const Primitive: AFRAME.PrimitiveDefinition = {
   defaultComponents: {
     ComponentName: {}
   },
   deprecated: false,
   mappings: {
-    id: ComponentName + '.id',
-    'some-date': ComponentName + '.someData'
+    ...PropertyMapper(primitiveProps, ComponentName),
+    'another-prop': '.someOtherComponent.anotherProp',
+    'a-nested-prop': ComponentName + '.objectProp.aNestedProp',
+    'prop-with-different-name-in-html': ComponentName + '.propNameOnComponent'
   }
 }
 

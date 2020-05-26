@@ -4,7 +4,9 @@ import {
   LoginResultAction,
   AuthResultAction,
   RegistrationResultAction,
-  LoadDataResultAction
+  LoadDataResultAction,
+  AvatarUpdatedAction,
+  UsernameUpdatedAction
 } from './actions'
 
 import {
@@ -18,13 +20,14 @@ import {
   DID_VERIFY_EMAIL,
   REGISTER_USER_BY_EMAIL_ERROR,
   RESTORE,
-  LOADED_USER_DATA
+  LOADED_USER_DATA,
+  AVATAR_UPDATED,
+  USERNAME_UPDATED
 } from '../actions'
 import { getStoredState } from '../persisted.store'
 import { UserSeed } from '../../interfaces/User'
 import { IdentityProviderSeed } from '../../interfaces/IdentityProvider'
 import { AuthUserSeed } from '../../interfaces/AuthUser'
-// import { getStoredState } from '../persisted.store'
 
 export const initialState = {
   isLoggedIn: false,
@@ -86,6 +89,14 @@ const authReducer = (state = immutableState, action: any): any => {
           .set('identityProvider', stored.identityProvider)
       }
       return state
+    }
+    case AVATAR_UPDATED: {
+      const updatedUser = Object.assign({}, state.get('user'), { avatarUrl: (action as AvatarUpdatedAction).url })
+      return state.set('user', updatedUser)
+    }
+    case USERNAME_UPDATED: {
+      const updatedUser = Object.assign({}, state.get('user'), { name: (action as UsernameUpdatedAction).name })
+      return state.set('user', updatedUser)
     }
   }
 

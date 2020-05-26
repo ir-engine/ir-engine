@@ -14,7 +14,9 @@ import {
   didResetPassword,
   didCreateMagicLink,
   updateSettings,
-  loadedUserData
+  loadedUserData,
+  avatarUpdated,
+  usernameUpdated
 } from './actions'
 import { client } from '../feathers'
 import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service'
@@ -25,7 +27,8 @@ import { resolveUser } from '../../interfaces/User'
 import { resolveAuthUser } from '../../interfaces/AuthUser'
 import { IdentityProvider } from '../../interfaces/IdentityProvider'
 import getConfig from 'next/config'
-import { getStoredState } from '../../redux/persisted.store'
+import { getStoredState } from '../persisted.store'
+import axios from 'axios'
 
 const { publicRuntimeConfig } = getConfig()
 const apiServer: string = publicRuntimeConfig.apiServer
@@ -39,15 +42,11 @@ export async function doLoginAuto (dispatch: Dispatch) {
     return
   }
 
-  await client.authentication.setAccessToken(accessToken as string)
-  client.reAuthenticate()
+  await (client as any).authentication.setAccessToken(accessToken as string);
+  (client as any).reAuthenticate()
     .then((res: any) => {
       if (res) {
         const authUser = resolveAuthUser(res)
-        // if (!authUser.identityProvider.isVerified) {
-        //   client.logout()
-        //   return;
-        // }
         dispatch(loginUserSuccess(authUser))
         loadUserData(dispatch, authUser.identityProvider.userId)
       } else {
@@ -72,7 +71,7 @@ export function loadUserData (dispatch: Dispatch, userId: string) {
     })
     .catch((err: any) => {
       console.log(err)
-      dispatchAlertError(dispatch, 'Failed to loading user data')
+      dispatchAlertError(dispatch, 'Failed to load user data')
     })
 }
 
@@ -85,9 +84,9 @@ export function loginUserByPassword (form: EmailLoginForm) {
       return
     }
 
-    dispatch(actionProcessing(true))
+    dispatch(actionProcessing(true));
 
-    client.authenticate({
+    (client as any).authenticate({
       strategy: 'local',
       email: form.email,
       password: form.password
@@ -96,7 +95,7 @@ export function loginUserByPassword (form: EmailLoginForm) {
         const authUser = resolveAuthUser(res)
 
         if (!authUser.identityProvider.isVerified) {
-          client.logout()
+          (client as any).logout()
 
           window.location.href = '/auth/confirm'
           dispatch(registerUserByEmailSuccess(authUser.identityProvider))
@@ -140,20 +139,34 @@ export function loginUserByFacebook () {
   }
 }
 
-export function loginUserByJwt (accessToken: string, redirectSuccess: string, redirectError: string): any {
+export function loginUserByJwt (accessToken: string, redirectSuccess: string, redirectError: string, subscriptionId?: string): any {
   return (dispatch: Dispatch) => {
-    dispatch(actionProcessing(true))
+    dispatch(actionProcessing(true));
 
-    client.authenticate({
+    (client as any).authenticate({
       strategy: 'jwt',
       accessToken
     })
       .then((res: any) => {
         const authUser = resolveAuthUser(res)
 
-        window.location.href = redirectSuccess
-        dispatch(loginUserSuccess(authUser))
-        loadUserData(dispatch, authUser.identityProvider.userId)
+        if (subscriptionId != null && subscriptionId.length > 0) {
+          client.service('seat').patch(authUser.identityProvider.userId, {
+            subscriptionId: subscriptionId
+          })
+            .catch((err) => {
+              console.log(err)
+            })
+            .finally(() => {
+              window.location.href = redirectSuccess
+              dispatch(loginUserSuccess(authUser))
+              loadUserData(dispatch, authUser.identityProvider.userId)
+            })
+        } else {
+          window.location.href = redirectSuccess
+          dispatch(loginUserSuccess(authUser))
+          loadUserData(dispatch, authUser.identityProvider.userId)
+        }
       })
       .catch((err: any) => {
         console.log(err)
@@ -167,8 +180,8 @@ export function loginUserByJwt (accessToken: string, redirectSuccess: string, re
 
 export function logoutUser () {
   return (dispatch: Dispatch) => {
-    dispatch(actionProcessing(true))
-    client.logout()
+    dispatch(actionProcessing(true));
+    (client as any).logout()
       .then(() => dispatch(didLogout()))
       .catch(() => dispatch(didLogout()))
       .finally(() => dispatch(actionProcessing(false)))
@@ -280,8 +293,8 @@ export function createMagicLink (emailPhone: string, linkType?: 'email' | 'sms')
 
     let type = 'email'
     let paramName = 'email'
-    const isEnableEmailMagicLink = (authConfig && authConfig.isEnableEmailMagicLink) ?? true
-    const isEnableSmsMagicLink = (authConfig && authConfig.isEnableSmsMagicLink) ?? false
+    const enableEmailMagicLink = (authConfig && authConfig.enableEmailMagicLink) ?? true
+    const enableSmsMagicLink = (authConfig && authConfig.enableSmsMagicLink) ?? false
 
     if (linkType === 'email') {
       type = 'email'
@@ -291,7 +304,7 @@ export function createMagicLink (emailPhone: string, linkType?: 'email' | 'sms')
       paramName = 'mobile'
     } else {
       if (validatePhoneNumber(emailPhone)) {
-        if (!isEnableSmsMagicLink) {
+        if (!enableSmsMagicLink) {
           dispatchAlertError(dispatch, 'Please input valid email address')
 
           return
@@ -299,7 +312,7 @@ export function createMagicLink (emailPhone: string, linkType?: 'email' | 'sms')
         type = 'sms'
         paramName = 'mobile'
       } else if (validateEmail(emailPhone)) {
-        if (!isEnableEmailMagicLink) {
+        if (!enableEmailMagicLink) {
           dispatchAlertError(dispatch, 'Please input valid phone number')
 
           return
@@ -421,4 +434,31 @@ export function refreshConnections (userId: string) { (dispatch: Dispatch) => lo
 export const updateUserSettings = (id: any, data: any) => async (dispatch: any) => {
   const res = await axiosRequest('PATCH', `${apiUrl}/user-settings/${id}`, data)
   dispatch(updateSettings(res.data))
+}
+
+export function uploadAvatar (data: any) {
+  return async (dispatch: Dispatch, getState: any) => {
+    const token = getState().get('auth').get('authUser').accessToken
+    const res = await axios.post(`${apiUrl}/upload`, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: 'Bearer ' + token
+      }
+    })
+    const result = res.data
+    dispatchAlertSuccess(dispatch, 'Avatar updated')
+    dispatch(avatarUpdated(result))
+  }
+}
+
+export function updateUsername (userId: string, name: string) {
+  return (dispatch: Dispatch) => {
+    client.service('user').patch(userId, {
+      name: name
+    })
+      .then((res: any) => {
+        dispatchAlertSuccess(dispatch, 'Username updated')
+        dispatch(usernameUpdated(res))
+      })
+  }
 }
