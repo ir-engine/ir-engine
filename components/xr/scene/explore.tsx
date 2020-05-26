@@ -111,9 +111,12 @@ const ExploreScene = (props: VideoProps): any => {
   }, [videos, pageOffset])
 
   console.log('focusedCellEl', exploreState.focusedCellEl)
+  console.log('Add grid if there are videos. videoArr length:', videosArr.length)
+  // grid entity doesn't adapt to changes in children.length, so only place grid when there are videos so the right pagination shows
+  // TODO: possible more robust solution is use MutationObserver to look for changes in children of grid el
   return (
     <Entity position="0 1.6 0">
-      { exploreState.focusedCellEl === null &&
+      { videosArr.length && exploreState.focusedCellEl === null &&
         <Entity
           id="explore-grid"
           class="grid"
