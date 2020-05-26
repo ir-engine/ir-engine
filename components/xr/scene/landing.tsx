@@ -18,6 +18,7 @@ export default function LandingScene (): any {
   return (
     <Entity position={pos}>
       <Entity
+        id="landing-grid"
         primitive="a-grid"
         rows={4}
         columns={1}

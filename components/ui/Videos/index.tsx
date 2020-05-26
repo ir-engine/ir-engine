@@ -43,7 +43,7 @@ export const VideoList = (props: Props) => {
             <div className="box" key={i}>
               <Link
                 href={
-                  '/video360?manifest=' + video.url + '&title=' + video.name
+                  '/video?manifest=' + video.url + '&title=' + video.name
                 }
               >
                 {video.name}
