@@ -336,7 +336,6 @@ function Video360Room(props: Video360Props) {
   }
   useEffect(() => {
     updateSeekBar()
-    // console.log('currentTime:', currentTime, 'duration:', duration)
   }, [videoCamera, timeline, viewport, currentTime, duration])
 
   // user interaction with seeker

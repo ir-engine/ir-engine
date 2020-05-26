@@ -118,12 +118,7 @@ export const ClickableComponent: AFRAME.ComponentDefinition<Props> = {
       const intersection = this.intersectingRaycaster.getIntersection(this.el)
       if (intersection === undefined) {
         this.intersectingRaycaster = null
-      } else {
-        // console.log('intersecting:')
-        // console.log(intersection.object.name);
       }
-    } else {
-      // console.log('self.intersectingRaycaster is null')
     }
   },
 
