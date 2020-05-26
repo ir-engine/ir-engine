@@ -41,6 +41,7 @@ export interface MediaCellData {
   title: string,
   description: string,
   url: string,
+  thumbnailType: string,
   thumbnailUrl: string,
   productionCredit: string,
   rating: string,
@@ -62,6 +63,7 @@ export const MediaCellComponentSchema: AFRAME.MultiPropertySchema<MediaCellData>
   title: { default: '' },
   description: { default: '' },
   url: { default: '' }, // TODO: type for url's
+  thumbnailType: { default: 'image' },
   thumbnailUrl: { default: '' },
   productionCredit: { default: '' },
   rating: { default: '' },
@@ -121,17 +123,30 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
   },
 
   createCell() {
-    const imageEl = document.createElement('a-image')
-    const source = (this.system as AFRAME.SystemDefinition<MediaCellSystemProps>).getSource(this.data)
-    imageEl.setAttribute('src', source)
-    imageEl.setAttribute('width', this.data.cellWidth)
-    imageEl.setAttribute('height', this.data.cellContentHeight)
-    imageEl.setAttribute('side', 'double')
-    imageEl.classList.add('clickable')
+    switch (this.data.thumbnailType) {
+      case 'model': {
+        const objEl = document.createElement('a-gltf-model')
+        const source = (this.system as AFRAME.SystemDefinition<MediaCellSystemProps>).getSource(this.data)
+        objEl.setAttribute('src', source)
+        objEl.classList.add('clickable')
 
-    if (this.data.linkEnabled) this.enableLink(imageEl)
+        if (this.data.linkEnabled) this.enableLink(objEl)
 
-    return imageEl
+        return objEl
+      }
+      case 'image': {
+        const imageEl = document.createElement('a-image')
+        const source = (this.system as AFRAME.SystemDefinition<MediaCellSystemProps>).getSource(this.data)
+        imageEl.setAttribute('src', source)
+        imageEl.setAttribute('width', this.data.cellWidth)
+        imageEl.setAttribute('height', this.data.cellContentHeight)
+        imageEl.setAttribute('side', 'double')
+        imageEl.classList.add('clickable')
+        if (this.data.linkEnabled) this.enableLink(imageEl)
+
+        return imageEl
+      }
+    }
   },
 
   enableLink(el: any) {
@@ -190,7 +205,8 @@ const primitiveProps = [
   'mediatype',
   'linktype',
   'videoformat',
-  'linkEnabled'
+  'linkEnabled',
+  'thumbnailType'
 ]
 export const MediaCellPrimitive: AFRAME.PrimitiveDefinition = {
   defaultComponents: {
