@@ -34,33 +34,49 @@ const images = [
   {
     id: 'video360banner',
     src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/explore.png'
-  },
-  {
-    id: 'storeiconmodel',
-    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/shop.glb'
-  },
-  {
-    id: 'spokeiconmodel',
-    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/create.glb'
-  },
-  {
-    id: 'vrRoomiconmodel',
-    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/dream.glb'
-  },
-  {
-    id: 'video360iconmodel',
-    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/explore.glb'
-  },
-  {
-    id: 'storeiconmodel',
-    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/shop.glb'
   }
 ]
+
 const entities = [
   {
     primitive: 'a-gltf-model',
     id: env['scene-gltf'].name,
     src: env['scene-gltf'].src
+  },
+  {
+    id: 'storeiconmodel',
+    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/shop.glb',
+    position: '',
+    scale: '',
+    rotation: ''
+  },
+  {
+    id: 'spokeiconmodel',
+    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/create.glb',
+    position: '',
+    scale: '',
+    rotation: ''
+  },
+  {
+    id: 'vrRoomiconmodel',
+    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/dream.glb',
+    position: '',
+    scale: '',
+    rotation: ''
+  },
+  {
+    id: 'video360iconmodel',
+    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/explore.glb',
+    position: '',
+    scale: '',
+    rotation: ''
+  },
+  {
+    id: 'storeiconmodel',
+    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/shop.glb',
+    position: '',
+    scale: '',
+    rotation: ''
   }
 ]
 // not putting onLoad event on this because no src and it doesn't fire loaded event.
