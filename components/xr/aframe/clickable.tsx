@@ -6,7 +6,6 @@ export interface ClickableData {
   id?: string
   enabled?: boolean
   clickevent?: string
-  // user can pass string data through, including stringified JSON.
   clickeventData?: string,
   enableevent?: string
   disableevent?: string
@@ -21,7 +20,7 @@ export const ClickableComponentSchema: AFRAME.MultiPropertySchema<ClickableData>
   disableevent: { type: 'string', default: 'disable-clickable' }
 }
 
-export interface ClickableProps {
+export interface Props {
   clickHandler: () => void,
   raycasterIntersectedHandler: (e: any) => void,
   raycasterIntersectedClearedHandler: () => void,
@@ -33,7 +32,7 @@ export interface ClickableProps {
   beganClickableClass: boolean
 }
 
-export const ClickableComponent: AFRAME.ComponentDefinition<ClickableProps> = {
+export const ClickableComponent: AFRAME.ComponentDefinition<Props> = {
   schema: ClickableComponentSchema,
   data: {
   } as ClickableData,
@@ -119,12 +118,7 @@ export const ClickableComponent: AFRAME.ComponentDefinition<ClickableProps> = {
       const intersection = this.intersectingRaycaster.getIntersection(this.el)
       if (intersection === undefined) {
         this.intersectingRaycaster = null
-      } else {
-        // console.log('intersecting:')
-        // console.log(intersection.object.name);
       }
-    } else {
-      // console.log('self.intersectingRaycaster is null')
     }
   },
 

@@ -40,13 +40,16 @@ export const RESTORE = 'RESTORE'
 export const SHOW_DIALOG = 'SHOW_DIALOG'
 export const CLOSE_DIALOG = 'CLOSE_DIALOG'
 
-export const UPLOAD_FILE = 'UPLOAD_FILE'
-export const UPLOAD_FILE_FAILURE = 'UPLOAD_FILE_FAILURE'
+export const AVATAR_UPDATED = 'AVATAR_UPDATED'
+export const AVATAR_UPDATE_FAILURE = 'AVATAR_UPDATE_FAILURE'
+
+export const USERNAME_UPDATED = 'USERNAME_UPDATED'
 
 export const UPDATE_USER_SETTINGS = 'UPDATE_USER_SETTINGS'
 
 export const UPDATE_USER_SETTINGS_FALURE = 'UPDATE_USER_SETTINGS_FALURE'
 
+export const DETECT_DEVICE_TYPE = 'DETECT_DEVICE_TYPE'
 // app
 
 export const SET_APP_LOADED = 'SET_APP_LOADED'
@@ -54,6 +57,11 @@ export const SET_APP_LOADED = 'SET_APP_LOADED'
 export const LOADED_RELATIONSHIP = 'LOADED_RELATIONSHIP'
 export const LOADED_USERS = 'LOADED_USERS'
 export const CHANGED_RELATION = 'CHANGED_RELATION'
+
+export const LOADED_SEATS = 'LOADED_SEATS'
+export const INVITED_USER = 'INVITED_USER'
+export const CANCELED_INVITATION = 'CANCELED_INVITATION'
+export const REMOVED_SEAT = 'REMOVED_SEAT'
 
 export const SET_APP_LOADING_PERCENT = 'SET_APP_LOADING_PERCENT'
 
@@ -69,3 +77,9 @@ export type Action = {
   type: string,
   [key: string]: any
 }
+
+// admin console
+
+export const VIDEO_CREATED = 'VIDEO_CREATED'
+export const VIDEO_UPDATED = 'VIDEO_UPDATED'
+export const VIDEO_DELETED = 'VIDEO_DELETED'

@@ -15,7 +15,9 @@ import {
   ACTION_PROCESSING,
   DID_CREATE_MAGICLINK,
   UPDATE_USER_SETTINGS,
-  LOADED_USER_DATA
+  LOADED_USER_DATA,
+  AVATAR_UPDATED,
+  USERNAME_UPDATED
 } from '../actions'
 import { AuthUser } from '../../interfaces/AuthUser'
 import { User } from '../../interfaces/User'
@@ -72,6 +74,16 @@ export interface AddConnectionResultAction {
 export interface LoadDataResultAction {
   type: string
   user?: User
+}
+
+export interface AvatarUpdatedAction {
+  type: string,
+  url: string
+}
+
+export interface UsernameUpdatedAction {
+  type: string,
+  name: any
 }
 
 export type AuthAction =
@@ -188,3 +200,26 @@ export function updateSettings (message: any): RegistrationResultAction {
     message
   }
 }
+
+export function avatarUpdated (result: any): AvatarUpdatedAction {
+  const url = result.url
+  return {
+    type: AVATAR_UPDATED,
+    url
+  }
+}
+
+export function usernameUpdated (result: any): UsernameUpdatedAction {
+  const name = result.name
+  return {
+    type: USERNAME_UPDATED,
+    name
+  }
+}
+
+// export function fileUploadFailure (err: any): VideosFetchedAction {
+//   return {
+//     type: AVATAR_UPDATE_FAILURE,
+//     message: err
+//   }
+// }

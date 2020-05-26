@@ -4,16 +4,15 @@ import { useSelector, useDispatch } from 'react-redux'
 import { Entity } from 'aframe-react'
 import AFRAME from 'aframe'
 
-import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
 import VideoControls from './VideoControls'
 import AframeComponentRegisterer from '../aframe'
-import { shakaPropTypes } from './ShakaPlayerComp'
 import { selectAppState, selectInVrModeState } from '../../../redux/app/selector'
 import { selectVideo360State } from '../../../redux/video360/selector'
 import { setVideoPlaying } from '../../../redux/video360/actions'
+import { shakaPropTypes } from './ShakaPlayer'
 const THREE = AFRAME.THREE
-const ShakaPlayerComp = dynamic(() => import('./ShakaPlayerComp'), { ssr: false })
+const ShakaPlayerComp = dynamic(() => import('./ShakaPlayer'), { ssr: false })
 
 const dashManifestName = 'manifest.mpd'
 const hlsPlaylistName = 'master.m3u8'
@@ -50,22 +49,17 @@ function getArrayFromTimeRanges(timeRanges) {
   return output
 }
 
-function Video360Room() {
-  const router = useRouter()
-  const manifest = router.query.manifest as string
-  const title = router.query.title as string
-  // const runtime = router.query.runtime as string
-  // const credit = router.query.credit as string
-  // const rating = router.query.rating as string
-  // const categories = router.query.categories as string
-  // const tags = router.query.tags as string
-  const format = router.query.videoformat as string
+export interface Video360Props {
+  manifest: string
+  title: string
+  format: string
+}
 
-  const text = `${title || ''}\n\n(click to play)`
-  // \n\n${runtime || ''}\n${credit || ''}\n${'rating: ' + rating}\n${categories || ''}\n${tags || ''}
+function Video360Room(props: Video360Props) {
+  const text = `${props.title || ''}\n\n(click to play)`
 
-  const shakaProps: shakaPropTypes = { manifestUri: getManifestUri(manifest) }
-  const videospherePrimitive = format === 'eac' ? 'a-eaccube' : 'a-videosphere'
+  const shakaProps: shakaPropTypes = { manifestUri: getManifestUri(props.manifest) }
+  const videospherePrimitive = props.format === 'eac' ? 'a-eaccube' : 'a-videosphere'
   const videosrc = '#video360Shaka'
   const app = useSelector(state => selectAppState(state))
   const inVrMode = useSelector(state => selectInVrModeState(state))
@@ -342,7 +336,6 @@ function Video360Room() {
   }
   useEffect(() => {
     updateSeekBar()
-    // console.log('currentTime:', currentTime, 'duration:', duration)
   }, [videoCamera, timeline, viewport, currentTime, duration])
 
   // user interaction with seeker
@@ -388,7 +381,7 @@ function Video360Room() {
       <ShakaPlayerComp {...shakaProps} />
       <Entity
         id="videoPlayerContainer"
-      ></Entity>
+      />
       <Entity
         primitive={videospherePrimitive}
         class="videosphere"

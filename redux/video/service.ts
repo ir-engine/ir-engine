@@ -2,40 +2,25 @@ import { Dispatch } from 'redux'
 import {
   videosFetchedSuccess,
   videosFetchedError,
-  // fileUploadFailure,
-  fileUploadSuccess,
-  // eslint-disable-next-line no-unused-vars
   PublicVideo
 } from './actions'
-import axios from 'axios'
-import { apiUrl } from '../service.common'
 import { client } from '../feathers'
 
-export function fetchPublicVideos () {
+export function fetchPublicVideos (pageOffset = 0) {
   return (dispatch: Dispatch) => {
-    client.service('static-resource').find({ query: { $limit: 100, mime_type: 'application/dash+xml' } })
+    // loads next pages videos +1
+    // doesn't work with a lower number
+    // must load next page and at least 1 video of page after that
+    // for grid arrows to show, and for videos to show on click arrow.
+    const nVideosToLoad = 31
+    client.service('static-resource').find({ query: { $limit: nVideosToLoad, $skip: nVideosToLoad * pageOffset, mimeType: 'application/dash+xml' } })
       .then((res: any) => {
         for (const video of res.data) {
           video.metadata = JSON.parse(video.metadata)
         }
         const videos = res.data as PublicVideo[]
-
         return dispatch(videosFetchedSuccess(videos))
       })
       .catch(() => dispatch(videosFetchedError('Failed to fetch videos')))
-  }
-}
-
-export function uploadFile (data: any) {
-  return async (dispatch: Dispatch, getState: any) => {
-    const token = getState().get('auth').get('authUser').accessToken
-    const res = await axios.post(`${apiUrl}/upload`, data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Authorization: 'Bearer ' + token
-      }
-    })
-    const image = res.data
-    dispatch(fileUploadSuccess(image))
   }
 }

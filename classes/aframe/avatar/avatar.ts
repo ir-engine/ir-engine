@@ -29,7 +29,7 @@ export default class Avatar {
 
   addTemplateToNAF() {
     // @ts-ignore
-    NAF.schemas.add(this.schema)
+    (NAF as any).schemas.add(this.schema)
   }
 
   addTemplateToPlayer(player: HTMLElement) {

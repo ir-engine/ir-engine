@@ -9,6 +9,16 @@ module.exports = withImages(
     publicRuntimeConfig: config.publicRuntimeConfig,
     webpack(config, options) {
       config.resolve.alias.utils = path.join(__dirname, 'utils')
+      config.module.rules.push({
+        test: /\.(eot|woff|woff2|ttf|svg|png|jpg|gif)$/,
+        use: {
+          loader: 'url-loader',
+          options: {
+            limit: 100000,
+            name: '[name].[ext]'
+          }
+        }
+      })
       return config
     }
   })

@@ -5,7 +5,9 @@ import { AvatarSchemaComponent, defaultComponents } from '../../../classes/afram
 
 import PlayerControls from '../../../classes/aframe/controls/player-controls'
 import CameraRig from '../../../classes/aframe/camera/camera-rig'
-import CameraCoponent from '../../../classes/aframe/camera/camera'
+import CameraComponent from '../../../classes/aframe/camera/camera'
+
+import PropertyMapper from './ComponentUtils'
 
 export const ComponentName = 'player'
 
@@ -15,6 +17,9 @@ export interface PlayerData {
   playerID: string
   playerHeight: number
   nafEnabled: boolean
+  fuseEnabled: boolean
+  deviceType: string
+  inVr: boolean
   options?: AvatarOptions
 }
 
@@ -24,22 +29,25 @@ export const PlayerComponentSchema: AFRAME.MultiPropertySchema<PlayerData> = {
   options: { default: defaultAvatarOptions },
   playerID: { default: defaultPlayerID },
   playerHeight: { default: defaultPlayerHeight },
-  nafEnabled: { default: false }
+  nafEnabled: { default: false },
+  fuseEnabled: { default: false },
+  deviceType: { default: 'desktop' },
+  inVr: { default: false }
 }
 
-export interface PlayerProps {
+export interface Props {
   player: Player,
   controls: PlayerControls,
   cameraRig: CameraRig,
   cameraRigEl: AFRAME.Entity | null,
   playerCameraEl: AFRAME.Entity | null,
-  cameraCoponent: CameraCoponent,
+  cameraComponent: CameraComponent,
   firstUpdate: boolean,
   initPlayer: () => void,
   getCursorType: () => string
 }
 
-export const PlayerComponent: AFRAME.ComponentDefinition<PlayerProps> = {
+export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
   schema: PlayerComponentSchema,
   data: {
   } as PlayerData,
@@ -49,7 +57,7 @@ export const PlayerComponent: AFRAME.ComponentDefinition<PlayerProps> = {
   cameraRig: {} as CameraRig,
   cameraRigEl: {} as AFRAME.Entity,
   playerCameraEl: {} as AFRAME.Entity,
-  cameraCoponent: {} as CameraCoponent,
+  cameraComponent: {} as CameraComponent,
   firstUpdate: true,
 
   init () {
@@ -63,6 +71,25 @@ export const PlayerComponent: AFRAME.ComponentDefinition<PlayerProps> = {
   pause() {
   },
 
+  update(oldData: PlayerData) {
+    const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
+    if (['fuseEnabled', 'deviceType', 'inVr'].some(prop => changedData.includes(prop)) &&
+      Object.keys(this.cameraRig).length !== 0) {
+      this.cameraRig.tearDownCameraRig()
+      this.el.removeChild(this.cameraRigEl)
+
+      const cursorType: string = this.getCursorType()
+      this.cameraRig = new CameraRig('player-camera', {}, cursorType)
+      this.cameraRigEl = this.cameraRig.el
+      this.playerCameraEl = this.cameraRig.cameraEl
+      this.cameraComponent = this.cameraRig.camera
+      if (this.cameraRigEl) this.el.appendChild(this.cameraRigEl)
+
+      this.cameraRig.setActive()
+      this.cameraRig.removeDefaultCamera()
+    }
+  },
+
   initPlayer() {
     this.el.setAttribute('id', this.data.playerID)
 
@@ -70,7 +97,7 @@ export const PlayerComponent: AFRAME.ComponentDefinition<PlayerProps> = {
     this.cameraRig = new CameraRig('player-camera', {}, cursorType)
     this.cameraRigEl = this.cameraRig.el
     this.playerCameraEl = this.cameraRig.cameraEl
-    this.cameraCoponent = this.cameraRig.camera
+    this.cameraComponent = this.cameraRig.camera
     if (this.cameraRigEl) this.el.appendChild(this.cameraRigEl)
 
     this.player = new Player(this.data.playerID)
@@ -86,10 +113,18 @@ export const PlayerComponent: AFRAME.ComponentDefinition<PlayerProps> = {
   },
 
   getCursorType(): string {
-    return AFRAME.utils.device.isGearVR() ? 'fuse' : 'mouse'
+    if (this.data.inVr && this.data.deviceType === 'smartphone') return 'fuse'
+    return 'mouse'
   }
 
 }
+
+const primitiveProperties = [
+  'playerHeight',
+  'fuseEnabled',
+  'deviceType',
+  'inVr'
+]
 
 export const PlayerPrimitive: AFRAME.PrimitiveDefinition = {
   defaultComponents: {
@@ -97,11 +132,11 @@ export const PlayerPrimitive: AFRAME.PrimitiveDefinition = {
   },
   deprecated: false,
   mappings: {
-    templateID: ComponentName + '.templateID',
-    playerID: ComponentName + '.playerID',
-    playerHeight: ComponentName + '.playerHeight',
-    assetType: ComponentName + '.options.assetType',
-    attachTemplateToLocal: ComponentName + '.options.attachTemplateToLocal'
+    ...PropertyMapper(primitiveProperties, ComponentName),
+    'template-id': ComponentName + '.templateID',
+    'player-id': ComponentName + '.playerID',
+    'asset-type': ComponentName + '.options.assetType',
+    'attach-template-to-local': ComponentName + '.options.attachTemplateToLocal'
   }
 }
 

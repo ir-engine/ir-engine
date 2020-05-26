@@ -1,5 +1,5 @@
 import { useRouter, NextRouter } from 'next/router'
-import React, { Component } from 'react'
+import { useState, useEffect } from 'react'
 import { loginUserByJwt, refreshConnections } from '../../../redux/auth/service'
 import { Container } from '@material-ui/core'
 import { selectAuthState } from '../../../redux/auth/selector'
@@ -24,58 +24,40 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   refreshConnections: bindActionCreators(refreshConnections, dispatch)
 })
 
-class FacebookCallback extends Component<Props> {
-  state = {
-    error: '',
-    token: ''
-  }
+const FacebookCallback = (props: Props) => {
+  const { auth, loginUserByJwt, refreshConnections, router } = props
 
-  componentDidMount() {
-    const router = this.props.router
+  const initialState = { error: '', token: '' }
+  const [state, setState] = useState(initialState)
+
+  useEffect(() => {
     const error = router.query.errror as string
     const token = router.query.token as string
     const type = router.query.type as string
 
-    if (error) {
-      // Nothing to do.
-    } else {
+    if (!error) {
       if (type === 'connection') {
-        const user = this.props.auth.get('user')
-        this.props.refreshConnections(user.id)
+        const user = auth.get('user')
+        refreshConnections(user.id)
       } else {
-        this.props.loginUserByJwt(token, '/', '/')
+        loginUserByJwt(token, '/', '/', '')
       }
     }
 
-    this.setState({
-      error,
-      token
-    })
-  }
+    setState({ ...state, error, token })
+  }, [])
 
-  render() {
-    const { error } = this.state
-
-    if (error && error !== '') {
-      return (
-        <Container>
-          Facebook authenticatin failed.
-          <br />
-          {error}
-        </Container>
-      )
-    } else {
-      return <Container>Authenticating...</Container>
-    }
-  }
+  return state.error && state.error !== '' ? (
+    <Container>
+      Facebook authentication failed.
+      <br />
+      {state.error}
+    </Container>
+  ) : (
+    <Container>Authenticating...</Container>
+  )
 }
 
-const FacebookCallbackWraper = (props: any) => {
-  const router = useRouter()
-  return <FacebookCallback {...props} router={router} />
-}
+const FacebookHomeWrapper = (props: any) => <FacebookCallback {...props} router={ useRouter() } />
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(FacebookCallbackWraper)
+export default connect(mapStateToProps, mapDispatchToProps)(FacebookHomeWrapper)

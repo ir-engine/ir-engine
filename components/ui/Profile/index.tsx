@@ -1,5 +1,4 @@
-import React, { Fragment } from 'react'
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
+import { Fragment, useState } from 'react'
 import Modal from '@material-ui/core/Modal'
 import Backdrop from '@material-ui/core/Backdrop'
 import Fade from '@material-ui/core/Fade'
@@ -7,39 +6,23 @@ import { Tabs, Tab } from '@material-ui/core'
 import SettingsIcon from '@material-ui/icons/Settings'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import AccountBoxIcon from '@material-ui/icons/AccountBox'
+import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle'
 import UserProfile from './UserIcon'
 import UserSettings from './userSettings'
-interface MProps {
+import Subscription from './Subscription'
+import './style.scss'
+
+interface Props {
   open: boolean
   handleClose: any
-  avatar: any
+  avatarUrl: string,
+  auth: any
 }
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    modal: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
-    paper: {
-      backgroundColor: theme.palette.background.paper,
-      border: '2px solid #000',
-      boxShadow: theme.shadows[5],
-      padding: theme.spacing(2, 4, 3)
-    }
-  })
-)
+const TabPanel = (props: any) => <Fragment>{props.value === props.index && props.children}</Fragment>
 
-const TabPanel = (props: any) => {
-  const { children, value, index } = props
-
-  return <Fragment>{value === index && children}</Fragment>
-}
-
-const ProfileModal: React.FC<MProps> = (props: MProps) => {
-  const classes = useStyles()
-  const [tabIndex, setTabIndex] = React.useState(0)
+const ProfileModal = (props: Props) => {
+  const [tabIndex, setTabIndex] = useState(0)
 
   const handleChange = (event: any, newValue: number) => {
     event.preventDefault()
@@ -47,7 +30,7 @@ const ProfileModal: React.FC<MProps> = (props: MProps) => {
   }
   const avatar = (
     <TabPanel value={tabIndex} index={0}>
-      <UserProfile avatar={props.avatar} />
+      <UserProfile avatarUrl={props.avatarUrl} auth={props.auth} />
     </TabPanel>
   )
   const settings = (
@@ -60,12 +43,17 @@ const ProfileModal: React.FC<MProps> = (props: MProps) => {
       Accounts
     </TabPanel>
   )
+  const subscription = (
+    <TabPanel value={tabIndex} className="subscription-profile" index={3}>
+      <Subscription auth={props.auth}/>
+    </TabPanel>
+  )
   return (
     <div>
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
-        className={classes.modal}
+        className="modal"
         open={props.open}
         onClose={props.handleClose}
         closeAfterTransition
@@ -75,7 +63,7 @@ const ProfileModal: React.FC<MProps> = (props: MProps) => {
         }}
       >
         <Fade in={props.open}>
-          <div className={classes.paper}>
+          <div className="paper">
             <Tabs
               value={tabIndex}
               onChange={handleChange}
@@ -86,7 +74,7 @@ const ProfileModal: React.FC<MProps> = (props: MProps) => {
             >
               <Tab
                 icon={<AccountCircleIcon style={{ fontSize: 15 }} />}
-                label="User Avatar"
+                label="Profile"
               />
               <Tab
                 icon={<SettingsIcon style={{ fontSize: 15 }} />}
@@ -96,10 +84,15 @@ const ProfileModal: React.FC<MProps> = (props: MProps) => {
                 icon={<AccountBoxIcon style={{ fontSize: 15 }} />}
                 label="Accounts"
               />
+              <Tab
+                icon={<SupervisedUserCircleIcon style={{ fontSize: 15 }} />}
+                label="Subscription"
+              />
             </Tabs>
             {avatar}
             {settings}
             {account}
+            {subscription}
           </div>
         </Fade>
       </Modal>

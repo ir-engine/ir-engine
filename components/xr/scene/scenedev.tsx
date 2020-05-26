@@ -4,7 +4,6 @@ import { Assets, Entity } from 'aframe-react'
 import Environment from './environment'
 import Player from '../player/player'
 import './style.scss'
-import SvgVr from '../../icons/svg/Vr'
 import AframeComponentRegisterer from '../aframe/index'
 
 import getConfig from 'next/config'
@@ -18,17 +17,7 @@ type Props = {
   children?: any
 }
 
-type State = {
-  color?: string // do we need this?
-  currentScene?: string | null
-}
-
 export default class SceneRoot extends React.Component<Props> {
-  state: State = {
-    color: 'red',
-    currentScene: null
-  }
-
   onComponentDidMount() {
     // const app = feathers()
 
@@ -132,7 +121,7 @@ export default class SceneRoot extends React.Component<Props> {
               crossOrigin="anonymous"
             />
 
-            <video id="video360Shaka" crossOrigin="anonymous"></video>
+            <video id="video360Shaka" crossOrigin="anonymous" />
           </Assets>
 
           <Player />
@@ -141,9 +130,6 @@ export default class SceneRoot extends React.Component<Props> {
           {/* Scene Collection goes Here */}
 
           {this.props.children}
-          <a className="enterVR" id="enterVRButton" href="#">
-            <SvgVr className="enterVR" />
-          </a>
         </SceneContainer>
       </div>
     )

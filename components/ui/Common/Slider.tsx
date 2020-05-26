@@ -1,20 +1,17 @@
-import React from 'react'
 import Slider from '@material-ui/core/Slider'
 
-interface SProps {
+interface Props {
   value: number
   onChange: any
   arialabelledby: any
 }
 
-const CommonSlider: React.FC<SProps> = (props: SProps) => {
-  return (
-    <Slider
-      value={props.value}
-      onChange={props.onChange}
-      aria-labelledby={props.arialabelledby}
-    />
-  )
-}
+const CommonSlider = (props: Props) => (
+  <Slider
+    value={props.value}
+    onChange={props.onChange}
+    aria-labelledby={props.arialabelledby}
+  />
+)
 
 export default CommonSlider
