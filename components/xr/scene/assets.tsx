@@ -5,8 +5,14 @@ import { useDispatch } from 'react-redux'
 import getConfig from 'next/config'
 const env = getConfig().publicRuntimeConfig.xr.environment
 const grid = getConfig().publicRuntimeConfig.xr.grid
+const landing = getConfig().publicRuntimeConfig.xr.landing
 
-const images = [
+interface ImageType {
+  id: string
+  src: string
+}
+
+const images: ImageType[] = [
   {
     id: 'groundTexture',
     src: env.floor.src
@@ -22,31 +28,69 @@ const images = [
   {
     id: 'placeholder',
     src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/logo.png'
-  },
-  {
-    id: 'spoke',
-    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/create.png'
-  },
-  {
-    id: 'vrRoom',
-    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/dream.png'
-  },
-  {
-    id: 'video360banner',
-    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/explore.png'
-  },
-  {
-    id: 'storebanner',
-    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/banner/shop.png'
   }
 ]
-const entities = [
+
+interface EntityType {
+  id: string
+  src: string
+  primitive: string
+}
+
+const entities: EntityType[] = [
   {
     primitive: 'a-gltf-model',
     id: env['scene-gltf'].name,
     src: env['scene-gltf'].src
   }
 ]
+
+export function getSourceType(src) {
+  if (/\.(png|jpg)$/.test(src)) return 'image'
+  if (/\.(glb|gltf)$/.test(src)) return 'model'
+}
+
+function addAsset(id, src) {
+  const type = getSourceType(src)
+  switch (type) {
+    case 'image':
+      images.push({
+        id: id,
+        src: src
+      })
+      break
+    case 'model':
+      entities.push({
+        primitive: 'a-gltf-model',
+        id: id,
+        src: src
+      })
+      break
+  }
+}
+
+const landingAssets = [
+  {
+    id: 'spokeBanner',
+    src: landing.spoke.src
+  },
+  {
+    id: 'vrRoomBanner',
+    src: landing.vrRoom.src
+  },
+  {
+    id: 'video360Banner',
+    src: landing.video360.src
+  },
+  {
+    id: 'storeBanner',
+    src: landing.store.src
+  }
+]
+
+landingAssets.forEach(({ id, src }) => {
+  addAsset(id, src)
+})
 // not putting onLoad event on this because no src and it doesn't fire loaded event.
 const videos = [
   {
