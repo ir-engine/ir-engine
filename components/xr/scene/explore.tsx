@@ -10,6 +10,25 @@ import { connect } from 'react-redux'
 import { selectVideoState } from '../../../redux/video/selector'
 import { fetchPublicVideos } from '../../../redux/video/service'
 
+import getConfig from 'next/config'
+const config = getConfig().publicRuntimeConfig.xr.video360
+
+const cellHeight = config.cellHeight
+const cellContentHeight = config.cellContentHeight
+const cellWidth = config.cellWidth
+const rows = config.rows
+const columns = config.columns
+
+const x = config.offset.x
+const y = config.offset.y
+const z = config.offset.z
+const pos = x + ' ' + y + ' ' + z
+
+const fx = config.focusedOffset.x
+const fy = config.focusedOffset.y
+const fz = config.focusedOffset.z
+const fpos = fx + ' ' + fy + ' ' + fz
+
 interface VideoProps {
   videos: any,
   fetchPublicVideos: typeof fetchPublicVideos
@@ -112,14 +131,17 @@ const ExploreScene = (props: VideoProps): any => {
   // grid entity doesn't adapt to changes in children.length, so only place grid when there are videos so the right pagination shows
   // TODO: possible more robust solution is use MutationObserver to look for changes in children of grid el
   return (
-    <Entity position="0 1.6 0">
+    <Entity position={pos}>
       { videosArr.length && exploreState.focusedCellEl === null &&
         <Entity
           id="explore-grid"
           class="grid"
           primitive="a-grid"
-          rows={3}
-          columns={5}>
+          rows={rows}
+          columns={columns}
+          cell-height={cellHeight}
+          cell-width={cellWidth}
+          cell-content-height={cellContentHeight}>
 
           {videosArr.map((video: PublicVideo, i: number) => {
             return (
@@ -136,9 +158,9 @@ const ExploreScene = (props: VideoProps): any => {
                 categories={video.metadata.categories}
                 runtime={video.metadata.runtime}
                 // tags={video.tags}
-                cellHeight={0.6666}
-                cellWidth={1}
-                cellContentHeight={0.5}
+                cell-height={cellHeight}
+                cell-width={cellWidth}
+                cell-content-height={cellContentHeight}
                 mediatype="video360"
                 videoformat={video.metadata['360_format']}
                 link-enabled={false}
@@ -153,7 +175,7 @@ const ExploreScene = (props: VideoProps): any => {
       }
       { exploreState.focusedCellEl !== null &&
           <Entity
-            position="0 0 -6">
+            position={fpos}>
             <Entity
               id="focused-cell"
               primitive="a-video-details"
@@ -167,6 +189,9 @@ const ExploreScene = (props: VideoProps): any => {
               rating={exploreState.focusedCell?.rating}
               categories={exploreState.focusedCell?.categories}
               runtime={exploreState.focusedCell?.runtime}
+              cell-height={cellHeight}
+              cell-width={cellWidth}
+              cell-content-height={cellContentHeight}
               class="clickable" />
           </Entity>
       }
