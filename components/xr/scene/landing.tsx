@@ -6,6 +6,10 @@ import { getSourceType } from './assets'
 
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr.landing
+const video360 = getConfig().publicRuntimeConfig.xr.video360
+const vrRoom = getConfig().publicRuntimeConfig.xr.vrRoom
+const spoke = getConfig().publicRuntimeConfig.xr.spoke
+const store = getConfig().publicRuntimeConfig.xr.store
 
 const cellHeight = config.cellHeight
 const cellContentHeight = config.cellContentHeight
@@ -29,9 +33,29 @@ export default function LandingScene (): any {
         cell-content-height={cellContentHeight}>
         <Entity
           primitive="a-media-cell"
+          title="video360"
+          media-url={video360.link}
+          thumbnail-type={getSourceType(video360.src)}
+          thumbnail-url="#video360Banner"
+          cell-height={cellHeight}
+          cell-width={cellWidth}
+          cell-content-height={cellContentHeight}
+          mediatype="landing"/>
+        <Entity
+          primitive="a-media-cell"
+          title="vrRoom"
+          media-url={vrRoom.link}
+          thumbnail-type={getSourceType(vrRoom.src)}
+          thumbnail-url="#vrRoomBanner"
+          cell-height={cellHeight}
+          cell-width={cellWidth}
+          cell-content-height={cellContentHeight}
+          mediatype="landing"/>
+        <Entity
+          primitive="a-media-cell"
           title="spoke"
-          media-url={config.spoke.link}
-          thumbnail-type={getSourceType(config.spoke.src)}
+          media-url={spoke.link}
+          thumbnail-type={getSourceType(spoke.src)}
           thumbnail-url="#spokeBanner"
           cell-height={cellHeight}
           cell-width={cellWidth}
@@ -40,29 +64,9 @@ export default function LandingScene (): any {
           linktype="external"/>
         <Entity
           primitive="a-media-cell"
-          title="vrRoom"
-          media-url={config.vrRoom.link}
-          thumbnail-type={getSourceType(config.vrRoom.src)}
-          thumbnail-url="#vrRoomBanner"
-          cell-height={cellHeight}
-          cell-width={cellWidth}
-          cell-content-height={cellContentHeight}
-          mediatype="landing"/>
-        <Entity
-          primitive="a-media-cell"
-          title="video360"
-          media-url={config.video360.link}
-          thumbnail-type={getSourceType(config.video360.src)}
-          thumbnail-url="#video360Banner"
-          cell-height={cellHeight}
-          cell-width={cellWidth}
-          cell-content-height={cellContentHeight}
-          mediatype="landing"/>
-        <Entity
-          primitive="a-media-cell"
           title="store"
-          media-url={config.store.link}
-          thumbnail-type={getSourceType(config.store.src)}
+          media-url={store.link}
+          thumbnail-type={getSourceType(store.src)}
           thumbnail-url="#storeBanner"
           cell-height={cellHeight}
           cell-width={cellWidth}
