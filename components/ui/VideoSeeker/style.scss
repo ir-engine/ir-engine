@@ -1,13 +1,15 @@
-$seeker-margin: 114px;
+$seeker-margin: 0px;
 $seeker-height: 20px;
-$bottom-distance: 32px;
+$bottom-distance: 0px;
 $button-gap: 8px;
+$icon-size: 36px;
 
 .seek-bar-container {
     width: calc(100vw - #{$seeker-margin} * 2);
     position: fixed;
-    bottom: $bottom-distance;
+    bottom: $seeker-height+$bottom-distance;
     margin: $seeker-margin;
+    margin-bottom: 0;
     z-index: 800;
     .seek-bar {
         height: $seeker-height;
@@ -32,19 +34,24 @@ $button-gap: 8px;
         cursor: pointer;
     }
 }
+
 .video-control-button {
-    margin-bottom: calc(#{$seeker-margin} - (41px / 2) - (#{$seeker-height} / 2) - 1px);
-    margin-left: calc(#{$seeker-margin} - 36px - #{$button-gap});
+    margin-bottom: 0;// calc(#{$seeker-margin} - (41px / 2) - (#{$seeker-height} / 2) - 1px);
+    margin-left: $icon-size;
     position: fixed;
-    bottom: $bottom-distance;
+    bottom: $seeker-height+$bottom-distance;
     z-index: 800;
     svg {
-        width: 36px;
-        height: 36px;
+        width: $icon-size;
+        height: $icon-size;
         cursor: pointer;
     }
 }
 .back-button-container {
-    margin-left: calc(#{$seeker-margin} - (36px * 2) - (#{$button-gap} * 2));
+    margin-left: #{$button-gap};// calc(#{$seeker-margin} - ($icon-size * 2) - (#{$button-gap} * 2));
+    bottom: $seeker-height+$bottom-distance+$icon-size+8px;
     z-index: 1000100; // click to play overlay has massive z index
+}
+.play-controls {
+    margin-left: #{$button-gap};
 }
