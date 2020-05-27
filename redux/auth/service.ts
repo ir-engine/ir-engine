@@ -303,7 +303,8 @@ export function createMagicLink (emailPhone: string, linkType?: 'email' | 'sms')
       type = 'sms'
       paramName = 'mobile'
     } else {
-      if (validatePhoneNumber(emailPhone)) {
+      const stripped = emailPhone.replace(/-/g, '')
+      if (validatePhoneNumber(stripped)) {
         if (!enableSmsMagicLink) {
           dispatchAlertError(dispatch, 'Please input valid email address')
 
@@ -311,6 +312,7 @@ export function createMagicLink (emailPhone: string, linkType?: 'email' | 'sms')
         }
         type = 'sms'
         paramName = 'mobile'
+        emailPhone = '+1' + stripped
       } else if (validateEmail(emailPhone)) {
         if (!enableEmailMagicLink) {
           dispatchAlertError(dispatch, 'Please input valid phone number')
