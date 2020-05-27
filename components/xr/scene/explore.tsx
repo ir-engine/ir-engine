@@ -74,13 +74,13 @@ const ExploreScene = (props: VideoProps): any => {
       focusedCellEl: focusCellEl,
       focusedCell: {
         title: (focusCellEl.attributes as any).title.value,
-        description: (focusCellEl.attributes as any).description.value,
-        videoformat: (focusCellEl.attributes as any).videoformat.value,
+        description: (focusCellEl.attributes as any).description?.value,
+        videoformat: (focusCellEl.attributes as any).videoformat?.value,
         mediaUrl: (focusCellEl.attributes as any)['media-url'].value,
         thumbnailUrl: (focusCellEl.attributes as any)['thumbnail-url'].value,
         productionCredit: (focusCellEl.attributes as any)['production-credit'].value,
-        rating: (focusCellEl.attributes as any).rating.value,
-        categories: (focusCellEl.attributes as any).categories.value,
+        rating: (focusCellEl.attributes as any).rating?.value,
+        categories: (focusCellEl.attributes as any).categories?.value,
         runtime: (focusCellEl.attributes as any).runtime.value
       }
     })
