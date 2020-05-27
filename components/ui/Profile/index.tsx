@@ -5,7 +5,7 @@ import Fade from '@material-ui/core/Fade'
 import { Tabs, Tab } from '@material-ui/core'
 import SettingsIcon from '@material-ui/icons/Settings'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
-import AccountBoxIcon from '@material-ui/icons/AccountBox'
+// import AccountBoxIcon from '@material-ui/icons/AccountBox'
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle'
 import UserProfile from './UserIcon'
 import UserSettings from './userSettings'
@@ -38,13 +38,13 @@ const ProfileModal = (props: Props) => {
       <UserSettings />
     </TabPanel>
   )
-  const account = (
-    <TabPanel value={tabIndex} index={2}>
-      Accounts
-    </TabPanel>
-  )
+  // const account = (
+  //   <TabPanel value={tabIndex} index={2}>
+  //     Accounts
+  //   </TabPanel>
+  // )
   const subscription = (
-    <TabPanel value={tabIndex} className="subscription-profile" index={3}>
+    <TabPanel value={tabIndex} className="subscription-profile" index={2}>
       <Subscription auth={props.auth}/>
     </TabPanel>
   )
@@ -73,25 +73,25 @@ const ProfileModal = (props: Props) => {
               aria-label="Login Configure"
             >
               <Tab
-                icon={<AccountCircleIcon style={{ fontSize: 15 }} />}
+                icon={<AccountCircleIcon style={{ fontSize: 30 }} />}
                 label="Profile"
               />
               <Tab
-                icon={<SettingsIcon style={{ fontSize: 15 }} />}
+                icon={<SettingsIcon style={{ fontSize: 30 }} />}
                 label="Settings"
               />
+              {/* <Tab */}
+              {/* icon={<AccountBoxIcon style={{ fontSize: 30 }} />} */}
+              {/* label="Accounts" */}
+              {/* /> */}
               <Tab
-                icon={<AccountBoxIcon style={{ fontSize: 15 }} />}
-                label="Accounts"
-              />
-              <Tab
-                icon={<SupervisedUserCircleIcon style={{ fontSize: 15 }} />}
+                icon={<SupervisedUserCircleIcon style={{ fontSize: 30 }} />}
                 label="Subscription"
               />
             </Tabs>
             {avatar}
             {settings}
-            {account}
+            {/* {account} */}
             {subscription}
           </div>
         </Fade>
