@@ -73,6 +73,7 @@
         }
       },
       "vrRoom": {
+        "enabled": true,
         "name": "vrRoom",
         "src": "",
         "link": "/videoGrid",
@@ -85,9 +86,14 @@
           "z": 3
         },
         "rows": 3,
-        "columns": 5
+        "columns": 5,
+        "comingSoon": {
+          "enabled": false,
+          "src": ""
+        }
       },
       "video360": {
+        "enabled": true,
         "name": "video360",
         "src": "",
         "link": "/environment",
@@ -105,17 +111,31 @@
           "x": 0,
           "y": 0,
           "z": -6
+        },
+        "comingSoon": {
+          "enabled": false,
+          "src": ""
         }
       },
       "spoke": {
+        "enabled": true,
         "name": "spoke",
         "src": "",
-        "link": ""
+        "link": "",
+        "comingSoon": {
+          "enabled": false,
+          "src": ""
+        }
       },
       "store": {
+        "enabled": true,
         "name": "store",
         "src": "",
-        "link": ""
+        "link": "",
+        "comingSoon": {
+          "enabled": false,
+          "src": ""
+        }
       }
     },
     "server_address": "localhost:3030",
