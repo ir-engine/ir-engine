@@ -66,7 +66,7 @@ const ExploreScene = (props: VideoProps): any => {
   const [videosArr, setVideosArr] = useState([])
   const [exploreState, setExploreState] = useState<ExploreState>({ focusedCellEl: null, focusedCell: null })
   const [pageOffset, setPageOffset] = useState(0)
-  const [visitedPages, setVisitedPages] = useState([0])
+  const [visitedPages, setVisitedPages] = useState([])
 
   const focusCell = (event: any) => {
     const focusCellEl = event.target.parentEl
@@ -74,13 +74,13 @@ const ExploreScene = (props: VideoProps): any => {
       focusedCellEl: focusCellEl,
       focusedCell: {
         title: (focusCellEl.attributes as any).title.value,
-        description: (focusCellEl.attributes as any).description.value,
-        videoformat: (focusCellEl.attributes as any).videoformat.value,
+        description: (focusCellEl.attributes as any).description?.value,
+        videoformat: (focusCellEl.attributes as any).videoformat?.value,
         mediaUrl: (focusCellEl.attributes as any)['media-url'].value,
         thumbnailUrl: (focusCellEl.attributes as any)['thumbnail-url'].value,
         productionCredit: (focusCellEl.attributes as any)['production-credit'].value,
-        rating: (focusCellEl.attributes as any).rating.value,
-        categories: (focusCellEl.attributes as any).categories.value,
+        rating: (focusCellEl.attributes as any).rating?.value,
+        categories: (focusCellEl.attributes as any).categories?.value,
         runtime: (focusCellEl.attributes as any).runtime.value
       }
     })
@@ -91,10 +91,11 @@ const ExploreScene = (props: VideoProps): any => {
   }
 
   useEffect(() => {
-    if (videos.get('videos').size === 0) {
-      fetchPublicVideos()
+    // if this page was not visited before, fetch videos for next pages
+    if (!visitedPages.find(visitedPageOffset => visitedPageOffset === pageOffset)) {
+      fetchPublicVideos(pageOffset)
     }
-  }, [videos])
+  }, [visitedPages, pageOffset])
 
   useEffect(() => {
     document.addEventListener('backbutton', unFocusCell)
@@ -110,9 +111,6 @@ const ExploreScene = (props: VideoProps): any => {
   const pageRightHandler = () => {
     const nextPage = pageOffset + 1
     // if next page has not been visited before, fetch videos for the page
-    if (!visitedPages.find(pageOffset => pageOffset === nextPage)) {
-      fetchPublicVideos()
-    }
     setPageOffset(nextPage)
     setVisitedPages(pages => Array.from(new Set([...pages, nextPage])))
   }
