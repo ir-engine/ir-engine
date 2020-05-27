@@ -3,9 +3,14 @@ import { Entity } from 'aframe-react'
 import { setAppLoadPercent } from '../../../redux/app/actions'
 import { useDispatch } from 'react-redux'
 import getConfig from 'next/config'
-const env = getConfig().publicRuntimeConfig.xr.environment
-const grid = getConfig().publicRuntimeConfig.xr.grid
-const landing = getConfig().publicRuntimeConfig.xr.landing
+
+const config = getConfig().publicRuntimeConfig.xr
+const env = config.environment
+const grid = config.grid
+const spoke = config.spoke
+const vrRoom = config.vrRoom
+const video360 = config.video360
+const store = config.store
 
 interface ImageType {
   id: string
@@ -72,19 +77,19 @@ function addAsset(id, src) {
 const landingAssets = [
   {
     id: 'spokeBanner',
-    src: landing.spoke.src
+    src: spoke.src
   },
   {
     id: 'vrRoomBanner',
-    src: landing.vrRoom.src
+    src: vrRoom.src
   },
   {
     id: 'video360Banner',
-    src: landing.video360.src
+    src: video360.src
   },
   {
     id: 'storeBanner',
-    src: landing.store.src
+    src: store.src
   }
 ]
 

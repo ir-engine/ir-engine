@@ -10,6 +10,20 @@ import { connect } from 'react-redux'
 import { selectScenesState } from '../../../redux/scenes/selector'
 import { fetchPublicScenes } from '../../../redux/scenes/service'
 
+import getConfig from 'next/config'
+const config = getConfig().publicRuntimeConfig.xr.vrRoom
+
+const cellHeight = config.cellHeight
+const cellContentHeight = config.cellContentHeight
+const cellWidth = config.cellWidth
+const rows = config.rows
+const columns = config.columns
+
+const x = config.offset.x
+const y = config.offset.y
+const z = config.offset.z
+const pos = x + ' ' + y + ' ' + z
+
 interface DreamProps {
   scenes: any
   fetchPublicScenes: typeof fetchPublicScenes
@@ -34,8 +48,13 @@ const DreamScene = (props: DreamProps): any => {
     }
   })
   return (
-    <Entity position="0 1.6 0">
-      <Entity primitive="a-grid" rows={3}>
+    <Entity position={pos}>
+      <Entity primitive="a-grid"
+        rows={rows}
+        columns={columns}
+        cell-height={cellHeight}
+        cell-width={cellWidth}
+        cell-content-height={cellContentHeight}>
         {scenes.get('scenes').map((x: PublicScene, i: number) => {
           return (
             <Entity
@@ -44,9 +63,9 @@ const DreamScene = (props: DreamProps): any => {
               title={x.name}
               media-url={x.url}
               thumbnail-url={x.thumbnailUrl}
-              cellHeight={0.6666}
-              cellWidth={1}
-              cellContentHeight={0.5}
+              cell-height={cellHeight}
+              cell-width={cellWidth}
+              cell-content-height={cellContentHeight}
               mediatype="scene"
             />
           )
