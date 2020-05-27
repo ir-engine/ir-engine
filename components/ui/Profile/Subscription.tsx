@@ -35,7 +35,18 @@ const UserSettings: React.FC<MProps> = (props: MProps) => {
   return (
     <div className={classes.subscriptionBody}>
       <div className={classes.subscriptionTitle}>Your Subscription</div>
-      {authUser.subscription == null && <div className={classes.subscriptionBody}>Free Tier</div>}
+      {authUser.subscription == null &&
+        <div className={classes.subscriptionBody}>
+          <div className={classes.subscriptionBody}>Free Tier</div>
+          <Button
+            variant="contained"
+            color="primary"
+            href="/subscription/signup"
+          >
+            Subscribe
+          </Button>
+        </div>
+      }
       {authUser.subscription != null &&
         <div className={classes.subscriptionBody}>
           <div>Plan: {authUser.subscription.subscriptionType.name}</div>

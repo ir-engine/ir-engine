@@ -10,6 +10,7 @@ import ProfileModal from './index'
 import Router from 'next/router'
 
 import Avatar from '@material-ui/core/Avatar'
+import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle'
 
 interface Props {
   avatarUrl: any,
@@ -86,7 +87,7 @@ const MenuListComposition = (props: Props) => {
           {avatarUrl ? (
             <Avatar alt="User Avatar Icon" src={avatarUrl} />
           ) : (
-            <Avatar alt="User Avatar">X</Avatar>
+            <SupervisedUserCircleIcon style={{ fontSize: 45, color: 'white' }} />
           )}
         </Button>
         <Popper
