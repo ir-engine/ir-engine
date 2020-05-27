@@ -47,9 +47,9 @@ const Plans = (props: Props) => {
   }
   return (
     <Container maxWidth="lg" component="main">
-      <Grid container spacing={5} alignItems="flex-end">
+      <Grid container spacing={5} alignItems="center">
         {props.tiers.map((tier) => (
-          <Grid item key={tier.name} xs={12} md={4}>
+          <Grid item key={tier.name} xs={12} sm={6}>
             <Card>
               <CardHeader
                 title={tier.name}
@@ -83,7 +83,7 @@ const Plans = (props: Props) => {
                   fullWidth
                   variant="contained"
                   color="primary">
-                  Buy Now
+                  Subscribe Now
                 </Button>
               </CardActions>
             </Card>
