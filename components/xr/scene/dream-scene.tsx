@@ -27,15 +27,19 @@ export default function DreamSceneScene(props: DreamSceneProps) {
   }, [loaded, gltfLoaded])
   return (
     <Entity>
-      {props.url && <Entity gltf-model={`url(${props.url})`} events={{
-        'model-error': err => {
-          console.error('Error loading gltf model', err)
-        },
-        'model-loaded': () => {
-          console.log('gltf model loaded.')
-          setGltfLoaded(true)
-        }
-      }} />}
+      {props.url &&
+      <Entity
+        primitive="a-gltf-model"
+        src={props.url}
+        events={{
+          'model-error': err => {
+            console.error('Error loading gltf model', err)
+          },
+          'model-loaded': () => {
+            console.log('gltf model loaded.')
+            setGltfLoaded(true)
+          }
+        }} />}
       <Lights />
       <Skybox />
     </Entity>
