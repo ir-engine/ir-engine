@@ -48,7 +48,8 @@ export interface Props {
   createCell: () => AFRAME.Entity,
   createDetails: () => AFRAME.Entity,
   createText: (text: string, width: number, height: number,
-    fontSize: number, wrapCount: number) => AFRAME.Entity,
+    fontSize: number, wrapCount: number, align: string,
+    baseline: string, anchor: string) => AFRAME.Entity,
   createButton: (text: string, bgColor: string, clickevent: string, eventData: string,
     width: number, x: number, y: number, z: number,
     bgWidth: number, bgHeight: number, bgz: number) => AFRAME.Entity,
@@ -100,21 +101,22 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
     return entity
   },
 
-  createText(text: string, width: number, height: number, fontSize: number, wrapCount: number) {
+  createText(text: string, width: number, height: number, fontSize: number, wrapCount: number, align: string,
+    baseline: string, anchor: string) {
     const textEntity = document.createElement('a-entity')
 
     textEntity.setAttribute('text-cell', {
       font: 'roboto',
       width: width,
       height: height,
-      align: 'center',
-      baseline: 'center',
+      align: align,
+      baseline: baseline,
       color: '#FFF',
       transparent: false,
       fontsize: fontSize,
       text: text,
       wrapcount: wrapCount,
-      anchor: 'center'
+      anchor: anchor
     })
     return textEntity
   },
@@ -127,7 +129,7 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
     text += this.data.rating ? this.data.rating + '\n' : ''
     text += this.data.categories ? this.data.categories.join(',') : ''
 
-    const textEntity = this.createText(text, this.data.cellWidth, this.data.cellHeight, 2, 33)
+    const textEntity = this.createText(text, this.data.cellWidth, this.data.cellHeight, 4, 33, 'left', 'center', 'center')
 
     const textBG = this.createBackground(this.data.cellWidth, this.data.cellContentHeight * 1.5, 'black', 0, -0.0625, -0.01)
 
@@ -149,7 +151,7 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
   createButton(text: string, bgColor: string, clickevent: string, eventData: string, width: number,
     xoffset: number, yoffset: number, zoffset: number,
     bgWidth: number, bgHeight: number, bgZoffset = -0.01) {
-    const textEntity = this.createText(text, width, bgHeight, 4, 10)
+    const textEntity = this.createText(text, width, bgHeight, 6, 10, 'left', 'center', 'center')
     textEntity.object3D.position.set(xoffset, yoffset, zoffset)
 
     const textBG = this.createBackground(bgWidth, bgHeight, bgColor, 0, 0, bgZoffset)
