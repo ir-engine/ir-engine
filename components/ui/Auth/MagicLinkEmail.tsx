@@ -46,7 +46,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 const defaultState = {
   email_phone: '',
   isSubmitted: false,
-  isAgreedTermsOfService: false
+  isAgreedTermsOfService: false,
+  label: '',
+  descr: ''
 }
 
 const termsOfService = (config && config.termsOfService) ?? '/terms-of-service'
@@ -107,17 +109,19 @@ const MagicLinkEmail = (props: Props) => {
       !type
     ) {
       descr =
-        "Please enter your email address or phone number and we'll send you a login link via Email or SMS."
+        "Please enter your email address or phone number (10 digit, US only) and we'll send you a login link via Email or SMS."
       label = 'Email or Phone number'
     } else if (authConfig.enableSmsMagicLink) {
       descr =
-        "Please enter your phone number and we'll send you a login link via SMS."
+        "Please enter your phone number (10 digit, US only) and we'll send you a login link via SMS."
       label = 'Phone number'
     } else {
       descr =
         "Please enter your email address and we'll send you a login link via Email. "
       label = 'Email address'
     }
+
+    setState({ ...state, label: label, descr: descr })
   }, [])
 
   return (
@@ -128,7 +132,7 @@ const MagicLinkEmail = (props: Props) => {
         </Typography>
 
         <Typography variant="body2" color="textSecondary" align="center">
-          {descr}
+          {state.descr}
         </Typography>
 
         <form className={'form'} noValidate onSubmit={(e) => handleSubmit(e)}>
@@ -140,9 +144,9 @@ const MagicLinkEmail = (props: Props) => {
                 required
                 fullWidth
                 id="email_phone"
-                label={label}
+                label={state.label}
                 name="email_phone"
-                autoComplete="email"
+                // autoComplete="email"
                 autoFocus
                 onChange={(e) => handleInput(e)}
               />
