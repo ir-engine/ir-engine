@@ -75,7 +75,7 @@ const MenuListComposition = (props: Props) => {
   }, [open])
 
   return (
-    <div className="root">
+    <div>
       <div>
         <Button
           ref={anchorRef}

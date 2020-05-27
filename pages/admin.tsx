@@ -1,15 +1,15 @@
 /* eslint-disable react/prefer-stateless-function */
-import Layout from '../components/ui/Layout'
+import EmptyLayout from '../components/ui/Layout/EmptyLayout'
 import React from 'react'
 import AdminConsole from '../components/ui/Admin/Console'
 
 export default class AdminPage extends React.Component {
   render() {
     return (
-      <Layout pageTitle="Admin Console">
+      <EmptyLayout>
         {/* <Login /> */}
         <AdminConsole />
-      </Layout>
+      </EmptyLayout>
     )
   }
 }
