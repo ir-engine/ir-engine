@@ -6,6 +6,7 @@ export const ComponentName = 'video-details'
 export interface VideoDetailsData {
   cellHeight?: number
   cellWidth?: number
+  detailsWidth?: number,
   cellContentHeight?: number
   // originalTitle: string,
   title: string,
@@ -26,6 +27,7 @@ export interface VideoDetailsData {
 export const VideoDetailsComponentSchema: AFRAME.MultiPropertySchema<VideoDetailsData> = {
   cellHeight: { default: 0.6 },
   cellWidth: { default: 1 },
+  detailsWidth: { default: 1 },
   cellContentHeight: { default: 0.5 },
   // originalTitle: { default: '' },
   title: { default: '' },
@@ -92,7 +94,7 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
 
   createDetails() {
     const entity = document.createElement('a-entity')
-    entity.object3D.position.set(0.75, 0, 0)
+    entity.object3D.position.set(1.05, 0.074, 0)
 
     entity.appendChild(this.createDetailEntity())
     entity.appendChild(this.createWatchButton())
@@ -129,9 +131,9 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
     text += this.data.rating ? this.data.rating + '\n' : ''
     text += this.data.categories ? this.data.categories.join(',') : ''
 
-    const textEntity = this.createText(text, this.data.cellWidth, this.data.cellHeight, 4, 33, 'left', 'center', 'center')
+    const textEntity = this.createText(text, this.data.detailsWidth, this.data.cellHeight, 4, 33, 'left', 'center', 'center')
 
-    const textBG = this.createBackground(this.data.cellWidth, this.data.cellContentHeight * 1.5, 'black', 0, -0.0625, -0.01)
+    const textBG = this.createBackground(this.data.detailsWidth, this.data.cellContentHeight * 1.5, 'black', 0, -0.0625, -0.01)
 
     textEntity.appendChild(textBG)
 
@@ -172,16 +174,16 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
       '&categories=' + this.data.categories.join(',') +
       // '&tags=' + this.data.tags.join(',') +
       '&videoformat=' + this.data.videoformat
-    return this.createButton('watch', 'green', 'navigate', url, this.data.cellWidth / 2,
-      -this.data.cellWidth / 4, -this.data.cellContentHeight, 0,
-      this.data.cellWidth / 2, this.data.cellContentHeight / 4,
+    return this.createButton('watch', 'green', 'navigate', url, this.data.detailsWidth / 2,
+      -this.data.detailsWidth / 4, -this.data.cellContentHeight, 0,
+      this.data.detailsWidth / 2, this.data.cellContentHeight / 4,
       -0.01)
   },
 
   createBackButton() {
-    return this.createButton('back', 'red', 'backbutton', '', this.data.cellWidth / 2,
-      this.data.cellWidth / 4, -this.data.cellContentHeight, 0,
-      this.data.cellWidth / 2, this.data.cellContentHeight / 4,
+    return this.createButton('back', 'red', 'backbutton', '', this.data.detailsWidth / 2,
+      this.data.detailsWidth / 4, -this.data.cellContentHeight, 0,
+      this.data.detailsWidth / 2, this.data.cellContentHeight / 4,
       -0.01)
   }
 
@@ -191,6 +193,7 @@ const primitiveProps = [
   'id',
   'cellHeight',
   'cellWidth',
+  'detailsWidth',
   'cellContentHeight',
   'originalTitle',
   'title',
