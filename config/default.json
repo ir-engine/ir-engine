@@ -68,25 +68,54 @@
         "cellHeight": 0.5,
         "offset": {
           "x": 0,
-          "y": 1.6,
-          "z": 2
-        },
-        "spoke": {
-          "src": "",
-          "link": ""
-        },
-        "vrRoom": {
-          "src": "",
-          "link": "/videoGrid"
-        },
-        "video360": {
-          "src": "",
-          "link": "/environment"
-        },
-        "store": {
-          "src": "",
-          "link": ""
+          "y": 1.4,
+          "z": 4.5
         }
+      },
+      "vrRoom": {
+        "name": "vrRoom",
+        "src": "",
+        "link": "/videoGrid",
+        "cellWidth": 1,
+        "cellContentHeight": 1,
+        "cellHeight": 1.1,
+        "offset": {
+          "x": 0,
+          "y": 1.4,
+          "z": 3
+        },
+        "rows": 3,
+        "columns": 5
+      },
+      "video360": {
+        "name": "video360",
+        "src": "",
+        "link": "/environment",
+        "rows": 3,
+        "columns": 5,
+        "cellWidth": 1,
+        "cellContentHeight": 1,
+        "cellHeight": 1.1,
+        "offset": {
+          "x": 0,
+          "y": 1.4,
+          "z": 3
+        },
+        "focusedOffset": {
+          "x": 0,
+          "y": 0,
+          "z": -6
+        }
+      },
+      "spoke": {
+        "name": "spoke",
+        "src": "",
+        "link": ""
+      },
+      "store": {
+        "name": "store",
+        "src": "",
+        "link": ""
       }
     },
     "server_address": "localhost:3030",
