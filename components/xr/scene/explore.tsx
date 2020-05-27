@@ -66,7 +66,7 @@ const ExploreScene = (props: VideoProps): any => {
   const [videosArr, setVideosArr] = useState([])
   const [exploreState, setExploreState] = useState<ExploreState>({ focusedCellEl: null, focusedCell: null })
   const [pageOffset, setPageOffset] = useState(0)
-  const [visitedPages, setVisitedPages] = useState([0])
+  const [visitedPages, setVisitedPages] = useState([])
 
   const focusCell = (event: any) => {
     const focusCellEl = event.target.parentEl
@@ -91,10 +91,11 @@ const ExploreScene = (props: VideoProps): any => {
   }
 
   useEffect(() => {
-    if (videos.get('videos').size === 0) {
-      fetchPublicVideos()
+    // if this page was not visited before, fetch videos for next pages
+    if (!visitedPages.find(visitedPageOffset => visitedPageOffset === pageOffset)) {
+      fetchPublicVideos(pageOffset)
     }
-  }, [videos])
+  }, [visitedPages, pageOffset])
 
   useEffect(() => {
     document.addEventListener('backbutton', unFocusCell)
@@ -110,9 +111,6 @@ const ExploreScene = (props: VideoProps): any => {
   const pageRightHandler = () => {
     const nextPage = pageOffset + 1
     // if next page has not been visited before, fetch videos for the page
-    if (!visitedPages.find(pageOffset => pageOffset === nextPage)) {
-      fetchPublicVideos()
-    }
     setPageOffset(nextPage)
     setVisitedPages(pages => Array.from(new Set([...pages, nextPage])))
   }
