@@ -7,10 +7,11 @@ import { connect } from 'react-redux'
 import { selectAuthState } from '../../../redux/auth/selector'
 import { Seat } from '../../../interfaces/Seat'
 import { TextField, Button } from '@material-ui/core'
+import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import SeatItem from './SeatItem'
 import { Dispatch, bindActionCreators } from 'redux'
 import { selectSeatState } from '../../../redux/seats/selector'
-import NextLink from 'next/link'
+import { useRouter } from 'next/router'
 import './style.scss'
 import {
   inviteUser,
@@ -87,6 +88,7 @@ const SeatList = (props: Props) => {
     })
   }
 
+  const router = useRouter()
   const pending = seatState.get('seats').filter((seat: Seat) => seat.seatStatus === 'pending')
   const filled = seatState.get('seats').filter((seat: Seat) => seat.seatStatus === 'filled')
   const subscription = authState.get('user').subscription
@@ -106,11 +108,9 @@ const SeatList = (props: Props) => {
             <Typography variant="h4">
               Subscription Seats
             </Typography>
-            <Typography variant="h4">
-              <NextLink href="/">
-                Home
-              </NextLink>
-            </Typography>
+            <Button variant="contained" color="primary" onClick={() => router.push('/')}>
+              <ArrowBackIcon />
+            </Button>
           </Grid>
         </Grid>
       </div>

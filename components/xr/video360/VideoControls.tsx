@@ -11,7 +11,8 @@ type Props = {
   videotext: string
   videovrui: string
   setVideoPlaying: (playing: boolean) => void
-  playing: boolean
+  playing: boolean,
+  backButtonHref: string
 }
 type State = {
   end: boolean
@@ -146,7 +147,7 @@ class VideoControls extends Component<Props, State> {
           className="videoplayercontrols active"
         />
         <VideoSeeker
-          backButtonHref="/explore"
+          backButtonHref={this.props.backButtonHref}
           playing={this.props.playing}
           videoLengthSeconds={this.state.duration}
           currentTimeSeconds={this.state.currentTime}
