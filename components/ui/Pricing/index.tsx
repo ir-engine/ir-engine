@@ -7,7 +7,7 @@ import Container from '@material-ui/core/Container'
 import Plans from './plans'
 import { Tabs, Tab, Box, Button } from '@material-ui/core'
 import { client } from '../../../redux/feathers'
-import NextLink from 'next/link'
+import { useRouter } from 'next/router'
 
 const useStyles = makeStyles((theme) => ({
   '@global': {
@@ -64,6 +64,7 @@ const Pricing = () => {
       .catch(err => console.log(err))
   }, [])
 
+  const router = useRouter()
   const filterData = (planData) => {
     setMonthly(planData.filter(plan => plan.type === 'monthly').sort((planA, planB) => planA.amount - planB.amount))
     setAnnual(planData.filter(plan => plan.type === 'annual').sort((planA, planB) => planA.amount - planB.amount))
@@ -77,11 +78,9 @@ const Pricing = () => {
     <React.Fragment>
       <CssBaseline />
       {/* Hero unit */}
-      <NextLink href={'/'}>
-        <Button variant="contained" color="primary">
-          <ArrowBackIcon />
-        </Button>
-      </NextLink>
+      <Button variant="contained" color="primary" onClick={() => router.push('/')}>
+        <ArrowBackIcon />
+      </Button>
       <Container maxWidth="sm" component="main" className={classes.heroContent}>
         <Typography component="h1" variant="h2" align="center" color="textPrimary" gutterBottom>
           Pricing

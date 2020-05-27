@@ -3,6 +3,7 @@ import Button from '@material-ui/core/Button'
 import GridList from '@material-ui/core/GridList'
 import GridListTile from '@material-ui/core/GridListTile'
 import GridListTileBar from '@material-ui/core/GridListTileBar'
+import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import IconButton from '@material-ui/core/IconButton'
 import InfoIcon from '@material-ui/icons/Info'
 import { connect } from 'react-redux'
@@ -15,6 +16,7 @@ import { selectAdminState } from '../../../redux/admin/selector'
 import { selectVideoState } from '../../../redux/video/selector'
 import { selectAuthState } from '../../../redux/auth/selector'
 import VideoModal from './VideoModal'
+import { useRouter } from 'next/router'
 
 interface Props {
   auth: any
@@ -53,6 +55,7 @@ const AdminConsole = (props: Props) => {
     video: {}
   }
 
+  const router = useRouter()
   const [state, setState] = useState(initialState)
 
   useEffect(() => {
@@ -88,37 +91,42 @@ const AdminConsole = (props: Props) => {
   return (
     <EmptyLayout>
       {auth.get('user').userRole === 'admin' && (
-        <Container component="main" maxWidth="md">
-          <div className={'admin'}>
-            <Button onClick={() => handleCreateModal()}>
-              Add a video
-            </Button>
-            <GridList className={'grid'} cellHeight={200} cols={2}>
-              {videos.get('videos').map((video) => (
-                <GridListTile className={'paper'} key={video.id}>
-                  <img src={video.metadata.thumbnail_url} alt={video.name} />
-                  <GridListTileBar
-                    title={video.name}
-                    actionIcon={
-                      <IconButton
-                        className={'info-icon'}
-                        onClick={() => handleEditModal(video)}
-                      >
-                        <InfoIcon />
-                      </IconButton>
-                    }
-                  />
-                </GridListTile>
-              ))}
-            </GridList>
-          </div>
-          <VideoModal
-            open={state.modalOpen}
-            handleClose={modalClose}
-            mode={state.modalMode}
-            video={state.video}
-          />
-        </Container>
+        <div>
+          <Button variant="contained" color="primary" onClick={() => { router.push('/') }} >
+            <ArrowBackIcon/>
+          </Button>
+          <Container component="main" maxWidth="md">
+            <div className={'admin'}>
+              <Button onClick={() => handleCreateModal()}>
+                Add a video
+              </Button>
+              <GridList className={'grid'} cellHeight={200} cols={2}>
+                {videos.get('videos').map((video) => (
+                  <GridListTile className={'paper'} key={video.id}>
+                    <img src={video.metadata.thumbnail_url} alt={video.name} />
+                    <GridListTileBar
+                      title={video.name}
+                      actionIcon={
+                        <IconButton
+                          className={'info-icon'}
+                          onClick={() => handleEditModal(video)}
+                        >
+                          <InfoIcon />
+                        </IconButton>
+                      }
+                    />
+                  </GridListTile>
+                ))}
+              </GridList>
+            </div>
+            <VideoModal
+              open={state.modalOpen}
+              handleClose={modalClose}
+              mode={state.modalMode}
+              video={state.video}
+            />
+          </Container>
+        </div>
       )}
     </EmptyLayout>
   )
