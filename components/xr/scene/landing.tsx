@@ -20,6 +20,13 @@ const y = config.offset.y
 const z = config.offset.z
 const pos = x + ' ' + y + ' ' + z
 
+const comingSoon = {
+  width: 1.6,
+  height: 0.425,
+  opacity: 0.7,
+  pos: '0 0 0.1025'
+}
+
 export default function LandingScene (): any {
   return (
     <Entity position={pos}>
@@ -40,7 +47,19 @@ export default function LandingScene (): any {
           cell-height={cellHeight}
           cell-width={cellWidth}
           cell-content-height={cellContentHeight}
-          mediatype="landing"/>
+          mediatype="landing"
+          link-enabled={!video360.comingSoon.enabled}>
+          { video360.comingSoon.enabled &&
+              <Entity
+                position={comingSoon.pos}
+                primitive="a-image"
+                src={video360.comingSoon.src}
+                opacity={comingSoon.opacity}
+                width={comingSoon.width}
+                height={comingSoon.height}
+              />
+          }
+        </Entity>
         <Entity
           primitive="a-media-cell"
           title="vrRoom"
@@ -50,7 +69,19 @@ export default function LandingScene (): any {
           cell-height={cellHeight}
           cell-width={cellWidth}
           cell-content-height={cellContentHeight}
-          mediatype="landing"/>
+          mediatype="landing"
+          link-enabled={!vrRoom.comingSoon.enabled}>
+          { vrRoom.comingSoon.enabled &&
+              <Entity
+                position={comingSoon.pos}
+                primitive="a-image"
+                src={vrRoom.comingSoon.src}
+                opacity={comingSoon.opacity}
+                width={comingSoon.width}
+                height={comingSoon.height}
+              />
+          }
+        </Entity>
         <Entity
           primitive="a-media-cell"
           title="spoke"
@@ -61,7 +92,19 @@ export default function LandingScene (): any {
           cell-width={cellWidth}
           cell-content-height={cellContentHeight}
           mediatype="landing"
-          linktype="external"/>
+          linktype="external"
+          link-enabled={!spoke.comingSoon.enabled}>
+          { spoke.comingSoon.enabled &&
+              <Entity
+                position={comingSoon.pos}
+                primitive="a-image"
+                src={spoke.comingSoon.src}
+                opacity={comingSoon.opacity}
+                width={comingSoon.width}
+                height={comingSoon.height}
+              />
+          }
+        </Entity>
         <Entity
           primitive="a-media-cell"
           title="store"
@@ -72,7 +115,19 @@ export default function LandingScene (): any {
           cell-width={cellWidth}
           cell-content-height={cellContentHeight}
           mediatype="landing"
-          linktype="external"/>
+          linktype="external"
+          link-enabled={!store.comingSoon.enabled}>
+          { store.comingSoon.enabled &&
+              <Entity
+                position={comingSoon.pos}
+                primitive="a-image"
+                src={store.comingSoon.src}
+                opacity={comingSoon.opacity}
+                width={comingSoon.width}
+                height={comingSoon.height}
+              />
+          }
+        </Entity>
       </Entity>
     </Entity>
   )
