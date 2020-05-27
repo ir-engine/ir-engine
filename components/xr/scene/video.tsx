@@ -24,10 +24,9 @@ export default function VideoScene(props: VideoProps) {
         title={props.title}
         format={props.format} />
       <Entity camera={{}} look-controls={{}} position={{ x: 0, y: 1.6, z: 0 }} className="video360Camera">
-        <Entity visible={ !isDesktop() } cursor={{ rayOrigin: isDesktop() ? 'mouse' : 'entity' }}
+        <Entity cursor={{ rayOrigin: isDesktop() ? 'mouse' : 'entity' }}
           raycaster={{ objects: '#video-player-vr-ui,#videotext' }}
-          position={{ x: 0, y: 0, z: -0.8 }} geometry={{ primitive: 'ring', radiusInner: 0.01, radiusOuter: 0.02 }}
-          material={{ shader: 'flat', color: 'red' }} />
+          position={{ x: 0, y: 0, z: -0.8 }}/>
       </Entity>
     </Entity>
   )
