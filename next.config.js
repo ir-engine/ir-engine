@@ -7,6 +7,9 @@ module.exports = withImages(
   withSass({
     /* config options here */
     publicRuntimeConfig: config.publicRuntimeConfig,
+    env: {
+      API_SERVER: process.env.API_SERVER
+    },
     webpack(config, options) {
       config.resolve.alias.utils = path.join(__dirname, 'utils')
       config.module.rules.push({
