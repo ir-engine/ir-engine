@@ -168,7 +168,7 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
           '&runtime=' + this.data.runtime +
           '&credit=' + this.data.productionCredit +
           '&rating=' + this.data.rating +
-          '&categories=' + this.data.categories.join(',') +
+          (Array.isArray(this.data.categories) ? '&categories=' + this.data.categories.join(', ') : this.data.categories.toString()) +
           // '&tags=' + this.data.tags.join(',') +
           '&videoformat=' + this.data.videoformat
         break
