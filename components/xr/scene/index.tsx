@@ -68,7 +68,7 @@ export default function RootScene(props: Props): any {
           setVideoProps({
             manifest: params.get('manifest'),
             title: params.get('title'),
-            format: params.get('format')
+            format: params.get('videoformat')
           })
         }
       }
