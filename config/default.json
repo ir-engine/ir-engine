@@ -18,21 +18,21 @@
       },
       "environment": {
         "floor": {
-          "src": "https://cdn.aframe.io/a-painter/images/floor.jpg",
+          "src": "/textures/floor.png",
           "height": 100,
           "width": 100
         },
         "skybox": {
-          "src": "https://cdn.aframe.io/a-painter/images/sky.jpg",
-          "radius": 30,
+          "src": "/textures/nightsky.jpg",
+          "radius": 5000,
           "height": 2048,
           "width": 2048,
           "rotation": {
-            "x": 0,
+            "x": 90,
             "y": 0,
-            "z": 0
+            "z": 90
           },
-          "thetaLength": 90
+          "thetaLength": 180
         },
         "scene-gltf": {
           "src": "",
