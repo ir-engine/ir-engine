@@ -1,4 +1,3 @@
-import FullscreenIcon from '@material-ui/icons/Fullscreen'
 import { connect } from 'react-redux'
 import { selectDeviceDetectState } from '../../../redux/devicedetect/selector'
 
@@ -6,11 +5,6 @@ import getConfig from 'next/config'
 const enterVRbuttonSrc = getConfig().publicRuntimeConfig.xr.enterVRbuttonSrc
 
 function SvgVr(props) {
-  const isDeviceDetected = props.detectedDevice.get('isDetected')
-  const deviceDetectedInfo = props.detectedDevice.get('content')
-  const deviceOS = deviceDetectedInfo.device.os.name
-  const isWebXRSupported = deviceDetectedInfo.WebXRSupported
-
   const CardboardIcon = () => {
     let icon
     if (enterVRbuttonSrc !== '') {
@@ -31,26 +25,8 @@ function SvgVr(props) {
     )
   }
 
-  const buttonType = () => {
-    let template = null
-    if (isDeviceDetected) {
-      if (deviceOS === 'iOS') {
-        template = <FullscreenIcon fontSize="large"/>
-      } else if (deviceOS === 'Android') {
-        template = CardboardIcon()
-      } else if (deviceDetectedInfo.device.device.type === 'desktop') {
-        if (!isWebXRSupported) {
-          template = CardboardIcon()
-        } else {
-          template = CardboardIcon()
-        }
-      }
-    }
-    return template
-  }
-
   return (
-    buttonType()
+    CardboardIcon()
   )
 }
 
