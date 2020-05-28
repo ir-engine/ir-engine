@@ -95,7 +95,7 @@ export default (app: Application): void => {
   app.on('disconnect', (connection: any) => {
     app.service('chatroom').emit('leave', {
       type: 'leave',
-      userId: connection['identity-provider'].userId
+      userId: connection['identity-provider']?.userId
     })
   })
 
@@ -139,8 +139,47 @@ export default (app: Application): void => {
     }
   })
 
+  app.service('message').publish('updated', data => {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    return app.channel(`userIds/${data.senderId}`).send(data)
+  })
+
   app.service('chatroom').publish('leave', async data => {
-    return app.channel(app.channels)
-      .filter(connection => connection['identity-provider'].userId === data.userId)
+    // return app.channel(app.channels)
+    //   .filter(connection => {
+    //     console.log(connection)
+    //     return connection['identity-provider'].userId === data.userId
+    //   })
+    const conversation = await app.service('conversation').Model.findAll({
+      where: {
+        [Op.or]: [{ firstuserId: data.userId }, { seconduserId: data.userId }]
+      }
+    })
+    const channels = []
+    conversation.forEach((item: any) => {
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      channels.push(app.channel(`chatroom/user/${item.id}`).send(data))
+    })
+
+    const groups = await app.service('group-user').Model.findAll({
+      where: {
+        userId: data.userId
+      }
+    })
+    groups.forEach((item: any) => {
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      channels.push(app.channel(`chatroom/group/${item.groupId}`).send(data))
+    })
+
+    const party = await app.service('party-user').Model.findOne({
+      where: {
+        userId: data.userId
+      }
+    })
+    if (Object.keys(party).length) {
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      channels.push(app.channel(`chatroom/group/${party.partyId}`).send(data))
+    }
+    return channels
   })
 }

@@ -13,9 +13,10 @@ export default function (options = {}) {
       where: {
         id: context.result.id
       },
-      includes: [
+      include: [
         {
-          model: messageStatusModel
+          model: messageStatusModel,
+          attributes: ['id', 'recipientId', 'isDelivered', 'isRead']
         }
       ]
     })
