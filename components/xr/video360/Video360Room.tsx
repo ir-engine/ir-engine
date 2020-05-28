@@ -6,7 +6,6 @@ import AFRAME from 'aframe'
 
 import dynamic from 'next/dynamic'
 import VideoControls from './VideoControls'
-import AframeComponentRegisterer from '../aframe'
 import { selectAppState, selectInVrModeState } from '../../../redux/app/selector'
 import { selectVideo360State } from '../../../redux/video360/selector'
 import { setVideoPlaying } from '../../../redux/video360/actions'
@@ -412,7 +411,6 @@ function Video360Room(props: Video360Props) {
   }, [window, timeline, videoEl, duration, playing])
   return (
     <Entity>
-      <AframeComponentRegisterer />
       <ShakaPlayerComp {...shakaProps} />
       <Entity
         id="videoPlayerContainer"
