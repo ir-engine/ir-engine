@@ -1,4 +1,4 @@
-import config from 'config'
+import config from '../config'
 import { Hook, HookContext } from '@feathersjs/feathers'
 import uploadThumbnailLinkHook from './upload-thumbnail-link'
 import StorageProvider from '../storage/storageprovider'
@@ -24,7 +24,7 @@ export default (options = {}): Hook => {
           return app.service('static-resource').remove(item.id)
         }))
         params.parentResourceId = data.id
-        const bucketName = (config.aws.s3.staticResourceBucket as string)
+        const bucketName = (config.aws.s3.staticResourceBucket)
         params.uploadPath = data.url.replace('https://s3.amazonaws.com/' +
           bucketName + '/', '')
         params.uploadPath = params.uploadPath.replace('/manifest.mpd', '')
