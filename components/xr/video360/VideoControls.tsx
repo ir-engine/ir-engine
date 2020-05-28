@@ -34,22 +34,50 @@ class VideoControls extends Component<Props, State> {
       currentTime: 0,
       bufferedBars: []
     }
+    this.videoPlayHandler = this.videoPlayHandler.bind(this)
+    this.videoPauseHandler = this.videoPauseHandler.bind(this)
+    this.playHandler = this.playHandler.bind(this)
+    this.pauseHandler = this.pauseHandler.bind(this)
+    this.exitVideoHandler = this.exitVideoHandler.bind(this)
+    this.videoEndHandler = this.videoEndHandler.bind(this)
+
+    this.handleBufferedArr = this.handleBufferedArr.bind(this)
   }
 
   componentDidMount() {
     this.videoEl = document.querySelector(this.props.videosrc) as HTMLElement
-    this.videoEl?.addEventListener('play', this.videoPlayHandler.bind(this))
-    this.videoEl?.addEventListener('pause', this.videoPauseHandler.bind(this))
+    this.videoEl?.addEventListener('play', this.videoPlayHandler)
+    this.videoEl?.addEventListener('pause', this.videoPauseHandler)
     this.textEl = document.querySelector(this.props.videotext) as HTMLElement
     this.videovruiEl = document.querySelector(this.props.videovrui) as HTMLElement
-    this.videovruiEl?.addEventListener('triggerplay', this.playHandler.bind(this))
-    this.videovruiEl?.addEventListener('triggerpause', this.pauseHandler.bind(this))
-    this.videovruiEl?.addEventListener('triggerback', this.exitVideoHandler.bind(this))
-    const handleBufferedArr = this.handleBufferedArr.bind(this)
-    this.videoEl.addEventListener('buffer-change', handleBufferedArr)
+    this.videovruiEl?.addEventListener('triggerplay', this.playHandler)
+    this.videovruiEl?.addEventListener('triggerpause', this.pauseHandler)
+    this.videovruiEl?.addEventListener('triggerback', this.exitVideoHandler)
+    this.videoEl.addEventListener('buffer-change', this.handleBufferedArr)
     return () => {
-      this.videoEl.removeEventListener('buffer-change', handleBufferedArr)
+      this.videoEl.removeEventListener('buffer-change', this.handleBufferedArr)
+      this.videoEl?.removeEventListener('play', this.videoPlayHandler)
+      this.videoEl?.removeEventListener('pause', this.videoPauseHandler)
+      this.videovruiEl?.removeEventListener('triggerplay', this.playHandler)
+      this.videovruiEl?.removeEventListener('triggerpause', this.pauseHandler)
+      this.videovruiEl?.removeEventListener('triggerback', this.exitVideoHandler)
     }
+  }
+
+  componentWillUnmount() {
+    this.videoEl?.removeEventListener('play', this.videoPlayHandler)
+    this.videoEl?.removeEventListener('pause', this.videoPauseHandler)
+    this.videovruiEl?.removeEventListener('triggerplay', this.playHandler)
+    this.videovruiEl?.removeEventListener('triggerpause', this.pauseHandler)
+    this.videovruiEl?.removeEventListener('triggerback', this.exitVideoHandler)
+    this.videoEl?.removeEventListener('buffer-change', this.handleBufferedArr)
+    this.videoEl?.removeEventListener('ended', this.videoEndHandler)
+    this.textEl?.removeEventListener('click', this.exitVideoHandler)
+    ;(this.videoEl as any).pause()
+
+    this.videoEl = null
+    this.videovruiEl = null
+    this.textEl = null
   }
 
   videoEl: HTMLElement | null = null
@@ -82,7 +110,7 @@ class VideoControls extends Component<Props, State> {
     controller.classList.add('disabled')
 
     this.textEl?.setAttribute('visible', false)
-    this.videoEl?.addEventListener('ended', this.videoEndHandler.bind(this), {
+    this.videoEl?.addEventListener('ended', this.videoEndHandler, {
       once: true
     })
     // set playing in redux
