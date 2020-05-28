@@ -53,14 +53,16 @@ class VideoControls extends Component<Props, State> {
     this.videovruiEl?.addEventListener('triggerplay', this.playHandler)
     this.videovruiEl?.addEventListener('triggerpause', this.pauseHandler)
     this.videovruiEl?.addEventListener('triggerback', this.exitVideoHandler)
-    this.videoEl.addEventListener('buffer-change', this.handleBufferedArr)
+    this.videoEl?.addEventListener('buffer-change', this.handleBufferedArr)
     return () => {
-      this.videoEl.removeEventListener('buffer-change', this.handleBufferedArr)
+      this.videoEl?.removeEventListener('buffer-change', this.handleBufferedArr)
       this.videoEl?.removeEventListener('play', this.videoPlayHandler)
       this.videoEl?.removeEventListener('pause', this.videoPauseHandler)
       this.videovruiEl?.removeEventListener('triggerplay', this.playHandler)
       this.videovruiEl?.removeEventListener('triggerpause', this.pauseHandler)
       this.videovruiEl?.removeEventListener('triggerback', this.exitVideoHandler)
+      this.videoEl?.removeEventListener('ended', this.videoEndHandler)
+      this.textEl?.removeEventListener('click', this.exitVideoHandler)
     }
   }
 
@@ -73,7 +75,7 @@ class VideoControls extends Component<Props, State> {
     this.videoEl?.removeEventListener('buffer-change', this.handleBufferedArr)
     this.videoEl?.removeEventListener('ended', this.videoEndHandler)
     this.textEl?.removeEventListener('click', this.exitVideoHandler)
-    ;(this.videoEl as any).pause()
+    ;(this.videoEl as any)?.pause()
 
     this.videoEl = null
     this.videovruiEl = null
