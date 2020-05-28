@@ -107,7 +107,6 @@
     "feathers-hooks-common": "^5.0.3",
     "feathers-logger": "^0.3.2",
     "feathers-mailer": "^3.0.1",
-    "feathers-memory": "^4.1.0",
     "feathers-redis": "github:feathersjs-ecosystem/feathers-redis",
     "feathers-seeder": "^2.0.0",
     "feathers-sequelize": "^6.2.0",
