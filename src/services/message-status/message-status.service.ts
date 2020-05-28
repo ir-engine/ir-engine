@@ -1,12 +1,12 @@
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
-import { OwnedFile } from './owned-file.class'
-import createModel from '../../models/owned-file.model'
-import hooks from './owned-file.hooks'
+import { MessageStatus } from './message-status.class'
+import createModel from '../../models/message-status.model'
+import hooks from './message-status.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'owned-file': OwnedFile & ServiceAddons<any>
+    'message-status': MessageStatus & ServiceAddons<any>
   }
 }
 
@@ -16,9 +16,9 @@ export default (app: Application): any => {
     paginate: app.get('paginate')
   }
 
-  app.use('/owned-file', new OwnedFile(options, app))
+  app.use('/message-status', new MessageStatus(options, app))
 
-  const service = app.service('owned-file')
+  const service = app.service('message-status')
 
   service.hooks(hooks)
 }

@@ -12,7 +12,12 @@ export default (app: Application): any => {
     verifyExpires: { type: DataTypes.DATE },
     verifyChanges: { type: DataTypes.JSON },
     resetToken: { type: DataTypes.STRING },
-    resetExpires: { type: DataTypes.DATE }
+    resetExpires: { type: DataTypes.DATE },
+    type: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      values: ['email', 'sms', 'password', 'github', 'google', 'facebook', 'auth0']
+    }
   }, {
     hooks: {
       beforeCount (options: any) {
@@ -35,7 +40,6 @@ export default (app: Application): any => {
   });
 
   (identityProvider as any).associate = (models: any) => {
-    (identityProvider as any).belongsTo(models.identity_provider_type, { foreignKey: 'type', required: true, primaryKey: true });
     (identityProvider as any).belongsTo(models.user, { required: true, primaryKey: true })
   }
 

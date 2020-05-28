@@ -9,6 +9,10 @@ export default (app: Application): any => {
       allowNull: false,
       primaryKey: true,
       autoIncrement: true
+    },
+    type: {
+      type: DataTypes.STRING,
+      values: ['user', 'group', 'party']
     }
   }, {
     hooks: {
@@ -20,7 +24,6 @@ export default (app: Application): any => {
 
   (conversation as any).associate = (models: any) => {
     (conversation as any).hasMany(models.message, { foreignKey: 'conversationId' });
-    (conversation as any).belongsTo(models.conversation_type, { foreignKey: 'conversationType' }); // values: ['user', 'group', 'party'],
     (conversation as any).belongsTo(models.user, { foreignKey: 'senderId' });
     (conversation as any).belongsTo(models.user, { foreignKey: 'receiverId' }); // If type is 'user', key this
     (conversation as any).belongsTo(models.group, { foreignKey: 'groupId' }); // If type is 'group', key from this
