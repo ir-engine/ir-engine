@@ -20,7 +20,8 @@ $icon-size: 36px;
         border-right: 1px solid #5ee0ff;
     }
     .buffer-bar {
-        background-color: rgba(255,255,255,0.5);
+        background: rgba(255,255,255,0.5);
+        background: linear-gradient(to right, rgba(255,255,255,0.1), rgba(255,255,255,0.5)); // gives more contrast
     }
     .full-bar {
         background-color: rgba(255,255,255,0.5);
@@ -41,7 +42,8 @@ $icon-size: 36px;
     position: fixed;
     bottom: $seeker-height+$bottom-distance;
     z-index: 800;
-    svg {
+    svg, img {
+        display: block;
         width: $icon-size;
         height: $icon-size;
         cursor: pointer;
@@ -49,9 +51,10 @@ $icon-size: 36px;
 }
 .back-button-container {
     margin-left: #{$button-gap};// calc(#{$seeker-margin} - ($icon-size * 2) - (#{$button-gap} * 2));
-    bottom: $seeker-height+$bottom-distance+$icon-size+8px;
+    bottom: $seeker-height+$bottom-distance+$icon-size+($button-gap*2);
     z-index: 1000100; // click to play overlay has massive z index
 }
 .play-controls {
-    margin-left: #{$button-gap};
+    margin-left: $button-gap;
+    margin-bottom: $button-gap;
 }
