@@ -80,6 +80,7 @@ class VideoControls extends Component<Props, State> {
     this.videoEl = null
     this.videovruiEl = null
     this.textEl = null
+    this.props.setVideoPlaying(false)
   }
 
   videoEl: HTMLElement | null = null
@@ -137,6 +138,7 @@ class VideoControls extends Component<Props, State> {
   }
 
   private videoPlayHandler() {
+    if (!this.videoEl) return
     this.videovruiEl?.setAttribute('video-player-vr-ui', {
       isPlaying: true
     })
@@ -149,9 +151,11 @@ class VideoControls extends Component<Props, State> {
     // when playing, every 1/3 second, update current time in state.
     this.setState({
       tickId: setInterval(() => {
-        this.setState({
-          currentTime: (this.videoEl as HTMLVideoElement).currentTime
-        })
+        if (this.videoEl) {
+          this.setState({
+            currentTime: (this.videoEl as HTMLVideoElement).currentTime
+          })
+        }
       }, 333)
     })
   }
