@@ -34,6 +34,7 @@ export default function RootScene(props: Props): any {
     format: props.format || ''
   } as VideoProps)
   const [dreamUrl, setDreamUrl] = useState(props.url || '')
+  const [playerMovementEnabled, setPlayerMovementEnabled] = useState(true)
   // fix for video360 dynamic route
   if (sceneName === 'video360') {
     sceneName = 'video'
@@ -92,12 +93,17 @@ export default function RootScene(props: Props): any {
     }
   }, [navigationHandler])
 
+  useEffect(() => {
+    if (sceneName === 'video') setPlayerMovementEnabled(false)
+    else if (!playerMovementEnabled) setPlayerMovementEnabled(true)
+  }, [sceneName])
+
   return (
     <div style={{ height: '100%', width: '100%' }}>
       <SceneContainer>
         <AframeComponentRegisterer />
         <Assets />
-        {sceneName !== 'video' && <Player />}
+        <Player movement-enabled={playerMovementEnabled} />
         {sceneName !== 'video' && sceneName !== 'dreamscene' && <Environment />}
 
         {sceneName === 'landing' && <LandingScene />}
