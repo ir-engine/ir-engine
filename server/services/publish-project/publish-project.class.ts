@@ -36,7 +36,7 @@ export class PublishProject implements ServiceMethods<Data> {
     // const loggedInUser = extractLoggedInUserFromParams(params)
     const provider = new StorageProvider()
     const storage = provider.getStorage()
-    const project = await CollectionModel.findOne({ where: { sid: projectId, type: 'project' } }) /* , creatorUserId: loggedInUser.userId */
+    const project = await CollectionModel.findOne({ where: { sid: projectId, collectionType: 'project' } }) /* , creatorUserId: loggedInUser.userId */
 
     if (!project) {
       return await Promise.reject(new Forbidden('Project not found Or you don\'t have access!'))

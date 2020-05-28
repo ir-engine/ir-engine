@@ -74,9 +74,6 @@ app.configure(services)
 // Set up event channels (see channels.js)
 app.configure(channels)
 
-app.use('/spoke', express.static(config.server.rootDir + '/node_modules/xr3-spoke/dist/'))
-//app.get('/spoke/*', (req, res) => { res.sendFile(path.join(config.server.rootDir, '/node_modules/xr3-spoke/dist/index.html')) })
-
 // Host the public folder
 // Configure a middleware for 404s and the error handler
 
@@ -89,17 +86,21 @@ const clientApp = next({
   dev: process.env.NODE_ENV !== 'production'
 })
 
-const clientAppHandler = clientApp.getRequestHandler()
+app.use('/spoke/', express.static(config.server.rootDir + '/node_modules/xr3-spoke/dist'))
+// app.get('/spoke/*', (req, res) => { res.sendFile(path.join(config.server.rootDir, '/node_modules/xr3-spoke/dist')) })
+// app.use('/', express.static(config.server.publicDir))
 
-clientApp.prepare().then(() => {
-  app.all('*', (req, res) => {
-    return clientAppHandler(req, res)
-  })
-  app.use('/', express.static(config.server.publicDir))
-  app.use(express.notFound())
-}).catch((ex) => {
-  console.error(ex.stack)
-  process.exit(1)
-})
+// const clientAppHandler = clientApp.getRequestHandler()
+
+// clientApp.prepare().then(() => {
+//   app.all('*', (req, res) => {
+//     return clientAppHandler(req, res)
+//   })
+
+//   app.use(express.notFound())
+// }).catch((ex) => {
+//   console.error(ex.stack)
+//   process.exit(1)
+// })
 
 export default app

@@ -82,7 +82,7 @@ export default (app: Application): any => {
     // thumbnail   (project as any).belongsTo(models.owned_file, { foreignKey: 'thumbnailOwnedFileId' })
     // parent collection   (project as any).belongsTo(models.scene, { foreignKey: 'parentSceneId' });
     // hasMany static resources (project as any).belongsToMany(models.asset, { foreignKey: 'projectId' });
-    // ??? lissting ? (project as any).belongsTo(models.scene_listing, { foreignKey: 'parentSceneListingId' })
+    // ??? listing ? (project as any).belongsTo(models.scene_listing, { foreignKey: 'parentSceneListingId' })
 
     // scene and project can be same   (project as any).belongsTo(models.scene, { foreignKey: 'sceneId' });
     // associated model? remove? (scene as any).belongsTo(models.owned_file, { foreignKey: 'modelOwnedFileId', allowNull: false });
