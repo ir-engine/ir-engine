@@ -30,13 +30,12 @@ export class PublishProject implements ServiceMethods<Data> {
   }
 
   async create (data: any, params: Params): Promise<Data> {
-    const ProjectModel = this.app.service('project').Model
-    const SceneModel = this.app.service('scene').Model
+    const CollectionModel = this.app.service('collection').Model
     const projectId = params?.query?.projectId
     // const loggedInUser = extractLoggedInUserFromParams(params)
     const provider = new StorageProvider()
     const storage = provider.getStorage()
-    const project = await ProjectModel.findOne({ where: { sid: projectId } }) /* , creatorUserId: loggedInUser.userId */
+    const project = await CollectionModel.findOne({ where: { sid: projectId, collectionType: 'project' } }) /* , creatorUserId: loggedInUser.userId */
 
     if (!project) {
       return await Promise.reject(new Forbidden('Project not found Or you don\'t have access!'))
@@ -45,7 +44,8 @@ export class PublishProject implements ServiceMethods<Data> {
     data.collectionId = params.collectionId
 
     await this.app.get('sequelizeClient').transaction(async (trans: Transaction) => {
-      const savedScene = await SceneModel.create(data, {
+      const savedScene = await CollectionModel.create(data, {
+        collectionType: 'scene',
         transaction: trans,
         fields: ['screenshotOwnedFileId', 'modelOwnedFileId', 'allow_remixing', 'allow_promotion', 'name', 'ownerUserId', 'slug', 'state', 'sceneId', 'sid', 'collectionId']
       })
@@ -65,9 +65,10 @@ export class PublishProject implements ServiceMethods<Data> {
       })
     })
 
-    const projectData = await ProjectModel.findOne({
+    const projectData = await CollectionModel.findOne({
       where: {
-        sid: project.sid
+        sid: project.sid,
+        collectionType: 'project'
       },
       attributes: ['name', 'id', 'sid'],
       include: defaultProjectImport(this.app.get('sequelizeClient').models)

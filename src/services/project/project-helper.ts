@@ -32,40 +32,40 @@ export function mapSceneData (scene: any, projectId: string): any {
 export function defaultProjectImport (models: any): any[] {
   const includedEntities = [
     {
-      model: models.owned_file,
+      model: models.collection,
       as: 'thumbnail_owned_file',
       attributes: ['url']
     },
     {
-      model: models.scene,
-      attributes: ['ownerUserId', 'allow_promotion', 'allow_remixing', 'attributions', 'description', 'name', 'parentSceneId', 'sceneId', 'slug', 'sid'],
+      model: models.collection,
+      attributes: ['collectionType', 'ownerUserId', 'allow_promotion', 'allow_remixing', 'attribution', 'description', 'name', 'parentSceneId', 'sceneId', 'slug', 'sid'],
       include: [
         {
-          model: models.owned_file,
+          model: models.static_resource,
           as: 'model_owned_file',
-          attributes: ['url']
+          attributes: ['staticResourceType', 'url']
         },
         {
-          model: models.owned_file,
+          model: models.static_resource,
           as: 'screenshot_owned_file',
-          attributes: ['url']
+          attributes: ['staticResourceType', 'url']
         }
       ]
     },
     {
-      model: models.scene,
-      attributes: ['ownerUserId', 'allow_promotion', 'allow_remixing', 'attributions', 'description', 'name', 'parentSceneId', 'sceneId', 'slug', 'sid'],
+      model: models.collection,
+      attributes: ['collectionType', 'ownerUserId', 'allow_promotion', 'allow_remixing', 'attribution', 'description', 'name', 'parentSceneId', 'sceneId', 'slug', 'sid'],
       as: 'parent_scene',
       include: [
         {
-          model: models.owned_file,
+          model: models.static_resource,
           as: 'model_owned_file',
-          attributes: ['url']
+          attributes: ['staticResourceType', 'url']
         },
         {
-          model: models.owned_file,
+          model: models.static_resource,
           as: 'screenshot_owned_file',
-          attributes: ['url']
+          attributes: ['staticResourceType', 'url']
         }
       ]
     }

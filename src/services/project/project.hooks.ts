@@ -36,11 +36,11 @@ export default {
     all: [authenticate('jwt'), collectAnalytics()],
     find: [],
     get: [],
-    create: [attachOwnerIdInBody('creatorUserId'), mapProjectSaveData(), validateCollectionData(), generateSceneCollection({ type: 'project' })],
+    create: [attachOwnerIdInBody('userId'), mapProjectSaveData(), validateCollectionData(), generateSceneCollection({ type: 'project' })],
     update: [disallow()],
-    patch: [attachOwnerIdInBody('creatorUserId'), mapProjectIdToQuery(), mapProjectSaveData(), validateCollectionData()],
+    patch: [attachOwnerIdInBody('userId'), mapProjectIdToQuery(), mapProjectSaveData(), validateCollectionData()],
     remove: [
-      attachOwnerIdInQuery('creatorUserId')
+      attachOwnerIdInQuery('userId')
     ]
   },
 

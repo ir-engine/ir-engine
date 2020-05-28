@@ -18,6 +18,11 @@ import channels from './channels'
 import authentication from './authentication'
 import sequelize from './sequelize'
 import config from './config'
+
+import winston from 'winston'
+// @ts-ignore
+import feathersLogger from 'feathers-logger'
+
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const app: Application = express(feathers())
@@ -64,6 +69,8 @@ app.configure(socketio())
 app.configure(middleware)
 app.configure(authentication)
 // Set up our services (see `services/index.js`)
+
+app.configure(feathersLogger(winston))
 
 app.configure(services)
 // Set up event channels (see channels.js)

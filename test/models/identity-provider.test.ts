@@ -1,33 +1,22 @@
 import app from '../../src/app'
-import { Op } from 'sequelize'
 import bcrypt from 'bcrypt'
 import request from 'supertest'
 
 describe('CRUD operation on \'IdentityProvider\' model', () => {
   const model = app.service('identity-provider').Model
   const userModel = app.service('user').Model
-  const identityProviderTypeModel = app.service('identity-provider-type').Model
-  let userId: any, type: any, newType: any
+  let userId: any
   const password = 'password'
   const token = 'some token'
 
   before(async () => {
     const user = await userModel.create({})
     userId = user.id
-    let identityProviderType = await identityProviderTypeModel.create({
-      type: 'test'
-    })
-    type = identityProviderType.type
-
-    identityProviderType = await identityProviderTypeModel.create({
-      type: 'new test'
-    })
-    newType = identityProviderType.type
   })
 
   it('Create', done => {
     model.create({
-      type: type,
+      type: password,
       userId: userId,
       password: password,
       token: token
@@ -70,19 +59,10 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
     }).catch(done)
   })
 
-  it('Update', done => {
-    model.update(
-      { type: newType },
-      { where: { userId: userId } }
-    ).then(res => {
-      done()
-    }).catch(done)
-  })
-
   it('Find User by IdentityProvider', done => {
     model.findOne({
       where: {
-        type: newType
+        type: password
       }
     }).then(res => {
       userModel.findOne({
@@ -107,10 +87,6 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
             done(new Error('Not expecting password.'))
             return
           }
-          // if (('token' in identityProvider)) {
-          //   done(new Error('Not expecting token.'))
-          //   return
-          // }
         }
         done()
       }).catch(done)
@@ -128,13 +104,6 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
     userModel.destroy({
       where: {
         id: userId
-      }
-    })
-    identityProviderTypeModel.destroy({
-      where: {
-        type: {
-          [Op.in]: [type, newType]
-        }
       }
     })
   })

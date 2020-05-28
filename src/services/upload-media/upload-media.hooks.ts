@@ -44,12 +44,18 @@ const createOwnedFile = (options = {}) => {
       (resourceData as any).parentResourceId = context.params.parentResourceId
     }
     (resourceData as any).type = getBasicMimetype(resourceData.content_type)
-    const savedFile = await context.app.service('owned-file').create(resourceData)
+
+    // Remap input from Spoke to fit
+    const modifiedResourceData = {
+      ...resourceData,
+      mimeType: resourceData.content_type
+    }
+    const savedFile = await context.app.service('static-resource').create(modifiedResourceData)
     context.result = {
       // This is to fulfill the spoke response, as spoke is expecting the below object
       file_id: savedFile.id,
       meta: {
-        access_token: uuidv1(),
+        access_token: uuidv1(), // TODO: authenticate upload with bearer token
         expected_content_type: savedFile.content_type,
         promotion_token: null
       },

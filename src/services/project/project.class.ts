@@ -21,7 +21,7 @@ export class Project extends Service {
     const loggedInUser = extractLoggedInUserFromParams(params)
     const projects = await this.getModel(params).findAll({
       where: {
-        creatorUserId: loggedInUser.userId
+        userId: loggedInUser.userId
       },
       attributes: ['name', 'id', 'sid', 'url', 'collectionId'],
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
@@ -36,7 +36,7 @@ export class Project extends Service {
       attributes: ['name', 'id', 'sid', 'url', 'collectionId'],
       where: {
         sid: id,
-        creatorUserId: loggedInUser.userId
+        userId: loggedInUser.userId
       },
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
     })
@@ -52,7 +52,7 @@ export class Project extends Service {
     data.collectionId = params.collectionId
 
     const savedProject = await ProjectModel.create(data, {
-      fields: ['name', 'thumbnailOwnedFileId', 'creatorUserId', 'sid', 'id', 'collectionId']
+      fields: ['name', 'thumbnailOwnedFileId', 'userId', 'sid', 'id', 'collectionId']
     })
     const projectData = await this.reloadProject(savedProject.id, savedProject)
 
@@ -99,7 +99,7 @@ export class Project extends Service {
     const sceneData = await fetch(ownedFile.url).then(res => res.json())
     const project = await this.getModel(params).findOne({
       where: {
-        creatorUserId: loggedInUser.userId,
+        userId: loggedInUser.userId,
         sid: projectId
       }
     })
@@ -203,7 +203,7 @@ export class Project extends Service {
     const models = seqeulizeClient.models
     const OwnedFileModel = models.owned_file
     const ProjectModel = models.project
-    const SceneModel = this.app.service('scene').Model
+    const CollectionModel = this.app.service('collection').Model
     const projectIncludes: any = [
       {
         model: OwnedFileModel,
@@ -214,15 +214,15 @@ export class Project extends Service {
 
     if (loadedProject?.sceneId) {
       projectIncludes.push({
-        model: SceneModel,
-        attributes: ['ownerUserId', 'allow_promotion', 'allow_remixing', 'attributions', 'description', 'name', 'parentSceneId', 'sceneId', 'sid']
+        model: CollectionModel,
+        attributes: ['userId', 'allow_promotion', 'allow_remixing', 'attribution', 'description', 'name', 'parentSceneId', 'sceneId', 'sid']
       })
     }
 
     if (loadedProject?.parentSceneId) {
       projectIncludes.push({
-        model: SceneModel,
-        attributes: ['ownerUserId', 'allow_promotion', 'allow_remixing', 'attributions', 'description', 'name', 'parentSceneId', 'sceneId', 'sid'],
+        model: CollectionModel,
+        attributes: ['userId', 'allow_promotion', 'allow_remixing', 'attribution', 'description', 'name', 'parentSceneId', 'sceneId', 'sid'],
         as: 'parent_scene'
       })
     }
