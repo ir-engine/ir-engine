@@ -93,8 +93,6 @@ export class Magiclink implements ServiceMethods<Data> {
       'magiclink-email-subscription.pug'
     )
 
-    console.log('TEMPLATE PATH:')
-    console.log(templatePath)
     const compiledHTML = pug.compileFile(templatePath)({
       logo: '',
       hashLink,
@@ -132,7 +130,7 @@ export class Magiclink implements ServiceMethods<Data> {
     )
     const compiledHTML = pug.compileFile(templatePath)({
       hashLink
-    })
+    }).replace(/&amp;/g, '&') // Text message links can't have HTML escaped ampersands.
 
     const sms = {
       mobile,
@@ -142,8 +140,6 @@ export class Magiclink implements ServiceMethods<Data> {
   }
 
   async create (data: any, params?: Params): Promise<Data> {
-    console.log('----------------')
-
     const authService = this.app.service('authentication')
     const identityProviderService: Service = this.app.service(
       'identity-provider'
