@@ -90,6 +90,7 @@ function Video360Room(props: Video360Props) {
   const [videoEl, setVideoEl] = useState(null)
   const [viewport, setViewport] = useState(app.get('viewport'))
   const [videoCamera, setVideoCamera] = useState(null)
+  const [videoControls, setVideoControls] = useState(null)
   const [timeline, setTimeline] = useState(null)
   const video360State = useSelector(state => selectVideo360State(state))
   const [playing, setPlaying] = useState(false)
@@ -160,7 +161,7 @@ function Video360Room(props: Video360Props) {
     meshBufferedBar.position.x = width * (-1 / 2 + xStart)
 
     setBufferedBars(bars => [...bars, meshBufferedBar])
-    videoCamera.setObject3D(meshBufferedBar.name, meshBufferedBar)
+    videoControls.setObject3D(meshBufferedBar.name, meshBufferedBar)
     setTimeline(timeline => ({
       ...timeline,
       [name]: meshBufferedBar
@@ -285,12 +286,17 @@ function Video360Room(props: Video360Props) {
     }
   }, [bufferedArr, duration, videoEl, inVrMode])
 
-  // get video camera so we can attach video controls to it, so they move with the camera rotation
   useEffect(() => {
     if (!videoCamera) {
       setVideoCamera(document.getElementsByClassName('video360Camera')[0])
     }
   }, [videoCamera])
+
+  useEffect(() => {
+    if (!videoControls) {
+      setVideoControls(document.getElementById('video-controls'))
+    }
+  }, [videoControls])
 
   // get viewport for width/height
   useEffect(() => {
@@ -322,7 +328,7 @@ function Video360Room(props: Video360Props) {
 
   // create full and seeker bars (3D)
   useEffect(() => {
-    if (videoCamera) {
+    if (videoControls) {
       const fullBar = createTimeline({
         name: 'fullBarTimeline',
         width: getBarFullWidth(viewport.width),
@@ -365,15 +371,15 @@ function Video360Room(props: Video360Props) {
         playPauseButton,
         backButton
       }))
-      videoCamera.setObject3D(fullBar.name, fullBar)
-      videoCamera.setObject3D(currentTimeBar.name, currentTimeBar)
-      videoCamera.setObject3D(playPauseButton.name, playPauseButton)
-      videoCamera.setObject3D(backButton.name, backButton)
+      videoControls.setObject3D(fullBar.name, fullBar)
+      videoControls.setObject3D(currentTimeBar.name, currentTimeBar)
+      videoControls.setObject3D(playPauseButton.name, playPauseButton)
+      videoControls.setObject3D(backButton.name, backButton)
     }
-  }, [videoCamera, viewport])
+  }, [videoControls, viewport])
   // update seeker bar
   function updateSeekBar() {
-    if (videoCamera && timeline) {
+    if (videoControls && timeline) {
       const currentTimeBar = timeline.currentTimeBar
       setTimelineWidth(currentTimeBar, getBarFullWidth(viewport.width) * (currentTime / duration))
       currentTimeBar.geometry.attributes.position.needsUpdate = true
@@ -381,7 +387,7 @@ function Video360Room(props: Video360Props) {
   }
   useEffect(() => {
     updateSeekBar()
-  }, [videoCamera, timeline, viewport, currentTime, duration])
+  }, [videoControls, timeline, viewport, currentTime, duration])
 
   // user interaction with seeker
   function onClick(event) {
