@@ -91,18 +91,21 @@ const AdminConsole = (props: Props) => {
   return (
     <EmptyLayout>
       {auth.get('user').userRole === 'admin' && (
-        <div>
-          <Button variant="contained" color="primary" onClick={() => { router.push('/') }} >
-            <ArrowBackIcon/>
-          </Button>
+        <div className={'page-container'}>
+          <div className={'header'}>
+            <Button variant="contained" color="primary" onClick={() => { router.push('/') }} >
+              <ArrowBackIcon/>
+            </Button>
+            <Button onClick={() => handleCreateModal()}>
+              Add a video
+            </Button>
+            <Button />
+          </div>
           <Container component="main" maxWidth="md">
             <div className={'admin'}>
-              <Button onClick={() => handleCreateModal()}>
-                Add a video
-              </Button>
               <GridList className={'grid'} cellHeight={200} cols={2}>
                 {videos.get('videos').map((video) => (
-                  <GridListTile className={'paper'} key={video.id}>
+                  <GridListTile className={'cell'} key={video.id} cols={1}>
                     <img src={video.metadata.thumbnail_url} alt={video.name} />
                     <GridListTileBar
                       title={video.name}
