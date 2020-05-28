@@ -43,9 +43,10 @@ export class Subscription extends Service {
     }
     const saved = await super.create(saveData, params)
 
+    const subdomain = process.env.DEPLOYMENT_STAGE === 'production' ? 'kaixr' : 'kaixr-test'
     const returned = {
       subscriptionId: saved.id,
-      paymentUrl: `https://kaixr-test.chargebee.com/hosted_pages/plans/${plan}?subscription[id]=${saved.id as string}&customer[id]=${userId as string}`
+      paymentUrl: `https://${subdomain}.chargebee.com/hosted_pages/plans/${plan}?subscription[id]=${saved.id as string}&customer[id]=${userId as string}`
     }
 
     return returned
