@@ -23,11 +23,19 @@ export default function VideoScene(props: VideoProps) {
         manifest={props.manifest}
         title={props.title}
         format={props.format} />
-      <Entity camera={{}} look-controls={{}} position={{ x: 0, y: 1.6, z: 0 }} className="video360Camera">
-        <Entity cursor={{ rayOrigin: isDesktop() ? 'mouse' : 'entity' }}
-          raycaster={{ objects: '#video-player-vr-ui,#videotext' }}
+      <Entity
+        className="video360Camera"
+        camera={{}}
+        look-controls={{}}
+        position={{ x: 0, y: 1.6, z: 0 }}>
+        <Entity
+          cursor={{ rayOrigin: isDesktop() ? 'mouse' : 'entity' }}
+          raycaster={{ objects: '#video-player-vr-ui,#videotext,#video-controls' }}
           position={{ x: 0, y: 0, z: -0.8 }}/>
       </Entity>
+      <Entity
+        id="video-controls"
+      />
     </Entity>
   )
 }
