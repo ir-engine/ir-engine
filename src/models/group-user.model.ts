@@ -14,7 +14,7 @@ export default (app: Application): any => {
   (groupUser as any).associate = function (models: any) {
     (groupUser as any).belongsTo(models.user, { foreignKey: 'userId' });
     (groupUser as any).belongsTo(models.group, { foreignKey: { name: 'groupId', allowNull: false } });
-    (groupUser as any).belongsTo(models.group_user_rank, { foreignKey: 'groupUserRank', required: true })
+    (groupUser as any).belongsTo(models.group_user_rank, { foreignKey: 'groupUserRank', as: 'rank', required: true })
   }
 
   return groupUser
