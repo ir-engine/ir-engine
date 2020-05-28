@@ -28,7 +28,7 @@ export default (app: Application): any => {
   });
 
   (entity as any).associate = (models: any) => {
-    (entity as any).hasMany(models.component, { as: 'entity', foreignKey: 'entityId', onDelete: 'cascade' });
+    (entity as any).hasMany(models.component, { foreignKey: 'entityId', onDelete: 'cascade' });
     (entity as any).belongsTo(models.entity_type, { foreignKey: 'entityType', required: true });
     (entity as any).belongsTo(models.collection, { onDelete: 'cascade' });
     (entity as any).belongsTo(models.user)

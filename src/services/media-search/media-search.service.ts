@@ -5,7 +5,7 @@ import hooks from './media-search.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'media/search': MediaSearch & ServiceAddons<any>
+    'media-search': MediaSearch & ServiceAddons<any>
   }
 }
 
@@ -14,9 +14,9 @@ export default (app: Application): void => {
     paginate: app.get('paginate')
   }
 
-  app.use('/media/search', new MediaSearch(options, app))
+  app.use('/media-search', new MediaSearch(options, app))
 
-  const service = app.service('media/search')
+  const service = app.service('media-search')
 
   service.hooks(hooks)
 }

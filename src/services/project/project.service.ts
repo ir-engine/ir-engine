@@ -2,7 +2,7 @@
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { Project } from './project.class'
-import createModel from '../../models/project.model'
+import createModel from '../../models/collection.model'
 import hooks from './project.hooks'
 
 declare module '../../declarations' {

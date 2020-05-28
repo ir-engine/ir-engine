@@ -15,7 +15,7 @@ export class Meta implements ServiceMethods<Data> {
   }
 
   async find (params?: Params): Promise<Data> {
-    // This method is just returning the collection API endpoint for uploading the file from spoke
+    // SPOKE HACK: This method is just returning the collection API endpoint for uploading the file from spoke
     return {
       phx_host: config.server.url // FIXME
     }

@@ -13,10 +13,6 @@ export default (app: Application): any => {
     text: {
       type: DataTypes.STRING,
       allowNull: false
-    },
-    isRead: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false
     }
   }, {
     hooks: {
@@ -28,7 +24,8 @@ export default (app: Application): any => {
 
   (message as any).associate = (models: any): any => {
     (message as any).belongsTo(models.conversation, { foreignKey: 'conversationId', allowNull: false });
-    (message as any).belongsTo(models.user, { foreignKey: 'senderId' })
+    (message as any).belongsTo(models.user, { foreignKey: 'senderId' });
+    (message as any).hasMany(models.message_status)
   }
 
   return message

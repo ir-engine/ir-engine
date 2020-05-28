@@ -1,26 +1,24 @@
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
-import { Asset } from './asset.class'
-import createModel from '../../models/asset.model'
-import hooks from './asset.hooks'
+import { Tag } from './tag.class'
+import createModel from '../../models/tag.model'
+import hooks from './tag.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'asset': Asset & ServiceAddons<any>
+    'tag': Tag & ServiceAddons<any>
   }
 }
 
 export default (app: Application): any => {
   const options = {
     Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
-
+    paginate: app.get('paginate')
   }
 
-  app.use('/asset', new Asset(options, app))
+  app.use('/tag', new Tag(options, app))
 
-  const service = app.service('asset')
+  const service = app.service('tag')
 
   service.hooks(hooks)
 }
