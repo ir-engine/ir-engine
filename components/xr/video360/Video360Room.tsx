@@ -28,9 +28,9 @@ const barHeight = 0.12
 const loader = new THREE.TextureLoader()
 // TODO: make pause/play icons the same for CSS and VR versions.
 // currently CSS is using MUI icons, and VR is using images in public/icons/
-const playBtnImageSrc = '/icons/play.png'
-const pauseBtnImageSrc = '/icons/pause.png'
-const backBtnImageSrc = '/icons/back-btn.png'
+const playBtnImageSrc = '/icons/play-shadow.png'
+const pauseBtnImageSrc = '/icons/pause-shadow.png'
+const backBtnImageSrc = '/icons/back-btn-shadow.png'
 const playBtnImageMap = loader.load(playBtnImageSrc)
 const pauseBtnImageMap = loader.load(pauseBtnImageSrc)
 const backBtnImageMap = loader.load(backBtnImageSrc)

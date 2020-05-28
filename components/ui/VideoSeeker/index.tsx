@@ -1,9 +1,23 @@
 import './style.scss'
 import { useState, useEffect } from 'react'
-import PlayArrowIcon from '@material-ui/icons/PlayArrow'
-import PauseIcon from '@material-ui/icons/Pause'
-import ArrowBackIcon from '@material-ui/icons/ArrowBack'
+// import PlayArrowIcon from '@material-ui/icons/PlayArrow'
+// import PauseIcon from '@material-ui/icons/Pause'
+// import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import triggerNavigation from '../../../utils/triggerNavigation'
+const playBtnImageSrc = '/icons/play-shadow.png'
+const pauseBtnImageSrc = '/icons/pause-shadow.png'
+const backBtnImageSrc = '/icons/back-btn-shadow.png'
+
+type ButtonIconProps = {
+  [prop: string]: any,
+  imageSrc: string
+}
+const ButtonIcon = ({ imageSrc, ...props }: ButtonIconProps) => {
+  return (<div {...props}><img src={imageSrc} style={{ width: '36px' }} /></div>)
+}
+const PlayArrowIcon = props => (<ButtonIcon imageSrc={playBtnImageSrc} {...props} />)
+const PauseIcon = props => (<ButtonIcon imageSrc={pauseBtnImageSrc} {...props} />)
+const ArrowBackIcon = props => (<ButtonIcon imageSrc={backBtnImageSrc} {...props} />)
 
 type Props = {
   playing: boolean,
