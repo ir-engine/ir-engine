@@ -69,7 +69,7 @@ export default (app: Application): void => {
 
   app.service('chatroom').publish('created', data => {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    return app.channel(`userIds/${data.sender_id}`).send({
+    return app.channel(`userIds/${data.senderId}`).send({
       conversation: data.conversation
     })
   })

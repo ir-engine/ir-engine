@@ -1,6 +1,9 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 import generateShortId from '../util/generate-short-id'
+import config from 'config'
+
+const COLLECTION_API_ENDPOINT = `https://${(config.get('host') as string)}:${(config.get('port') as string)}/collection`
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -42,6 +45,19 @@ export default (app: Application): any => {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
       allowNull: false
+    },
+    url: {
+      type: DataTypes.VIRTUAL,
+      get (this: any) {
+        if (!this.collectionId) {
+          return ''
+        } else {
+          return `${COLLECTION_API_ENDPOINT}/${(this.collectionId as string)}`
+        }
+      },
+      set () {
+        throw new Error('Do not try to set the `url` value!')
+      }
     }
   }, {
     hooks: {
@@ -55,8 +71,19 @@ export default (app: Application): any => {
     (collection as any).belongsTo(models.collection_type, { foreignKey: 'collectionType', required: true });
     (collection as any).hasOne(models.attribution);
     (collection as any).hasMany(models.entity, { onDelete: 'cascade' });
-    (collection as any).belongsTo(models.user);
-    (collection as any).belongsTo(models.location)
+    (collection as any).hasMany(models.tag);
+    (collection as any).belongsTo(models.user); // Reticulum foreignKey: 'creatorUserId'
+    (collection as any).belongsTo(models.location);
+    (collection as any).belongsToMany(models.tag, { through: 'collection_tag' })
+
+    // thumbnail   (project as any).belongsTo(models.owned_file, { foreignKey: 'thumbnailOwnedFileId' })
+    // parent collection   (project as any).belongsTo(models.scene, { foreignKey: 'parentSceneId' });
+    // hasMany static resources (project as any).belongsToMany(models.asset, { foreignKey: 'projectId' });
+    // ??? lissting ? (project as any).belongsTo(models.scene_listing, { foreignKey: 'parentSceneListingId' })
+
+    // scene and project can be same   (project as any).belongsTo(models.scene, { foreignKey: 'sceneId' });
+    // associated model? remove? (scene as any).belongsTo(models.owned_file, { foreignKey: 'modelOwnedFileId', allowNull: false });
+    // screenshot (scene as any).belongsTo(models.owned_file, { foreignKey: 'screenshotOwnedFileId', allowNull: false });
   }
 
   return collection

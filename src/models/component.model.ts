@@ -46,7 +46,6 @@ export default (app: Application): any => {
       }
     }
   });
-
   (component as any).associate = (models: any) => {
     (component as any).belongsTo(models.component_type, { foreignKey: 'componentType', required: true, primaryKey: true });
     (component as any).belongsTo(models.entity, { as: 'entity', foreignKey: 'entityId', required: true, primaryKey: true });

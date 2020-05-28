@@ -41,7 +41,7 @@ export class Chatroom implements ServiceMethods<Data> {
     const conversationModel = this.app.service('conversation').Model
     const result = await conversationModel.findAll({
       where: {
-        sender_id: params?.connection['identity-provider'].userId
+        senderId: params?.connection['identity-provider'].userId
       },
       include: [{
         model: this.app.service('message').Model
@@ -82,7 +82,7 @@ export class Chatroom implements ServiceMethods<Data> {
           }
         ]
       },
-      sender_id: data.sender_id
+      senderId: data.senderId
     }
     return returnData
   }
