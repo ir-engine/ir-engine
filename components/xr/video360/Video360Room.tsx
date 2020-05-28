@@ -89,6 +89,7 @@ function Video360Room(props: Video360Props) {
   const dispatch = useDispatch()
   const [videoEl, setVideoEl] = useState(null)
   const [viewport, setViewport] = useState(app.get('viewport'))
+  const [videoCameraEl, setVideoCameraEl] = useState(null)
   const [videoCamera, setVideoCamera] = useState(null)
   const [videoControls, setVideoControls] = useState(null)
   const [timeline, setTimeline] = useState(null)
@@ -287,10 +288,14 @@ function Video360Room(props: Video360Props) {
   }, [bufferedArr, duration, videoEl, inVrMode])
 
   useEffect(() => {
-    if (!videoCamera) {
-      setVideoCamera(document.getElementsByClassName('video360Camera')[0])
+    if (!videoCameraEl) {
+      const cameraEl = document.querySelector('.player-camera')
+      if (cameraEl) {
+        setVideoCameraEl(cameraEl)
+        setVideoCamera(cameraEl.getObject3D('camera'))
+      }
     }
-  }, [videoCamera])
+  }, [videoCameraEl])
 
   useEffect(() => {
     if (!videoControls) {
@@ -391,13 +396,16 @@ function Video360Room(props: Video360Props) {
 
   // user interaction with seeker
   function onClick(event) {
+    if (videoCameraEl === null || videoCamera === null) {
+      return
+    }
     // normalize mouse position for three.js vector
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1
-    raycaster.setFromCamera(mouse, videoCamera.getObject3D('camera'))
+    raycaster.setFromCamera(mouse, videoCamera)
 
     // calculate objects intersecting the picking ray
-    const intersects = raycaster.intersectObjects([timeline.fullBar, timeline.playPauseButton, timeline.backButton])
+    const intersects = raycaster.intersectObjects([timeline.fullBar, timeline.playPauseButton, timeline.backButton], true)
     if (intersects.length) {
       // position along x axis between 0 and 1, where the click was made.
       // used for setting the video seeker position
@@ -429,7 +437,7 @@ function Video360Room(props: Video360Props) {
         window.removeEventListener('click', onClick, false)
       }
     }
-  }, [window, timeline, videoEl, duration, playing])
+  }, [window, timeline, videoEl, videoCameraEl, duration, playing])
   return (
     <Entity>
       { videoEl && <ShakaPlayerComp {...shakaProps} /> }
@@ -445,6 +453,7 @@ function Video360Room(props: Video360Props) {
         videosrc={videosrc} videotext="#videotext" videovrui="#video-player-vr-ui" backButtonHref={backButtonHref} />
       }
       <Entity id="videotext"
+        className="clickable"
         text={{
           font: 'roboto',
           width: 2,

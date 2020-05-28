@@ -6,7 +6,7 @@ import { setComponent } from '../aframe-component'
 export default class FuseCursor {
   el: AFRAME.Entity | null = null
 
-  constructor() {
+  constructor(public cursorObjects: string[] = ['.clickable']) {
     this.setupFuseCursor()
   }
 
@@ -16,7 +16,7 @@ export default class FuseCursor {
 
     const cursor = new CursorComponent({ fuse: true, fuseTimeout: defaultFuseDuration })
     setComponent(this.el, cursor)
-    const raycaster = new RaycasterComponent({ far: 20, interval: 1000, objects: '.clickable' })
+    const raycaster = new RaycasterComponent({ far: 20, interval: 1000, objects: this.cursorObjects.join(',') })
     setComponent(this.el, raycaster)
 
     this.el.setAttribute('geometry', { primitive: 'ring', radiusInner: 0.02, radiusOuter: 0.03 })

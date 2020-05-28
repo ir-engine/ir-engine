@@ -3,7 +3,11 @@ import Player, { defaultPlayerHeight, defaultPlayerID } from '../../../classes/a
 import { AvatarOptions, defaultTemplateID, defaultAvatarOptions } from '../../../classes/aframe/avatar/avatar'
 import { AvatarSchemaComponent, defaultComponents } from '../../../classes/aframe/avatar/avatar-schema'
 
+import { ControllerComponent } from '../../../classes/aframe/controls/controls'
 import PlayerControls from '../../../classes/aframe/controls/player-controls'
+import LookController from '../../../classes/aframe/controls//look-controls'
+import WASDController from '../../../classes/aframe/controls//wasd-controls'
+
 import CameraRig from '../../../classes/aframe/camera/camera-rig'
 import CameraComponent from '../../../classes/aframe/camera/camera'
 
@@ -20,6 +24,7 @@ export interface PlayerData {
   fuseEnabled: boolean
   deviceType: string
   inVr: boolean
+  movementEnabled: boolean
   options?: AvatarOptions
 }
 
@@ -32,7 +37,8 @@ export const PlayerComponentSchema: AFRAME.MultiPropertySchema<PlayerData> = {
   nafEnabled: { default: false },
   fuseEnabled: { default: false },
   deviceType: { default: 'desktop' },
-  inVr: { default: false }
+  inVr: { default: false },
+  movementEnabled: { default: true }
 }
 
 export interface Props {
@@ -88,6 +94,16 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
       this.cameraRig.setActive()
       this.cameraRig.removeDefaultCamera()
     }
+    if (['movementEnabled'].some(prop => changedData.includes(prop)) &&
+      Object.keys(this.cameraRig).length !== 0) {
+      this.controls.tearDownControls()
+
+      const controllers: ControllerComponent[] = [new LookController()]
+      if (this.data.movementEnabled) controllers.push(new WASDController())
+
+      this.controls = new PlayerControls(controllers)
+      this.controls.setupControls(this.el)
+    }
   },
 
   initPlayer() {
@@ -106,7 +122,10 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
     this.cameraRig.setActive()
     this.cameraRig.removeDefaultCamera()
 
-    this.controls = new PlayerControls()
+    const controllers: ControllerComponent[] = [new LookController()]
+    if (this.data.movementEnabled) controllers.push(new WASDController())
+
+    this.controls = new PlayerControls(controllers)
     this.controls.setupControls(this.el)
 
     this.el.object3D.position.set(this.el.object3D.position.x, this.data.playerHeight, this.el.object3D.position.z)
@@ -123,7 +142,8 @@ const primitiveProperties = [
   'playerHeight',
   'fuseEnabled',
   'deviceType',
-  'inVr'
+  'inVr',
+  'movementEnabled'
 ]
 
 export const PlayerPrimitive: AFRAME.PrimitiveDefinition = {
