@@ -6,7 +6,6 @@ import AFRAME from 'aframe'
 
 import dynamic from 'next/dynamic'
 import VideoControls from './VideoControls'
-import AframeComponentRegisterer from '../aframe'
 import { selectAppState, selectInVrModeState } from '../../../redux/app/selector'
 import { selectVideo360State } from '../../../redux/video360/selector'
 import { setVideoPlaying } from '../../../redux/video360/actions'
@@ -78,9 +77,13 @@ export interface Video360Props {
 function Video360Room(props: Video360Props) {
   const text = `${props.title || ''}\n\n(click to play)`
 
-  const shakaProps: shakaPropTypes = { manifestUri: getManifestUri(props.manifest) }
   const videospherePrimitive = props.format === 'eac' ? 'a-eaccube' : 'a-videosphere'
-  const videosrc = '#video360Shaka'
+  const videosrc = 'video360Shaka-' + props.title.replace(/\s+/g, '')
+
+  const shakaProps: shakaPropTypes = {
+    manifestUri: getManifestUri(props.manifest),
+    videosrc: videosrc
+  }
   const app = useSelector(state => selectAppState(state))
   const inVrMode = useSelector(state => selectInVrModeState(state))
   const dispatch = useDispatch()
@@ -224,8 +227,19 @@ function Video360Room(props: Video360Props) {
   }
   // get the video element so we can get the duration and current time, and update the current time with seeker controls.
   useEffect(() => {
-    const videoEl = document.querySelector(videosrc) as HTMLElement
+    let videoEl = document.getElementById(videosrc) as HTMLElement
+    if (videoEl === null) {
+      videoEl = document.createElement('video')
+      videoEl.setAttribute('id', videosrc)
+      const assets = document.querySelector('a-assets')
+      assets?.appendChild(videoEl)
+    }
     setVideoEl(videoEl)
+
+    return () => {
+      const videoEl = document.getElementById(videosrc)
+      videoEl?.parentElement.removeChild(videoEl)
+    }
   }, [videosrc])
 
   // set video duration and continuously update current time if the video is playing
@@ -412,24 +426,18 @@ function Video360Room(props: Video360Props) {
   }, [window, timeline, videoEl, duration, playing])
   return (
     <Entity>
-      <AframeComponentRegisterer />
-      <ShakaPlayerComp {...shakaProps} />
-      <Entity
-        id="videoPlayerContainer"
-      />
+      { videoEl && <ShakaPlayerComp {...shakaProps} /> }
+      { videoEl &&
       <Entity
         primitive={videospherePrimitive}
         class="videosphere"
-        src="#video360Shaka"
+        src={'#' + videosrc}
         loop="false"
-      />
-      {/* <Entity
-        id="video-player-vr-ui"
-        video-player-vr-ui={{}}
-        position={{ x: 0, y: 0.98, z: -0.9 }}
-      /> */}
+      /> }
+      { videoEl &&
       <VideoControls
-        videosrc="#video360Shaka" videotext="#videotext" videovrui="#video-player-vr-ui" backButtonHref={backButtonHref} />
+        videosrc={videosrc} videotext="#videotext" videovrui="#video-player-vr-ui" backButtonHref={backButtonHref} />
+      }
       <Entity id="videotext"
         text={{
           font: 'roboto',
