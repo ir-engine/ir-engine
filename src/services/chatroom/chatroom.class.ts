@@ -9,11 +9,12 @@ interface ServiceOptions {}
 export class Chatroom implements ServiceMethods<Data> {
   app: Application
   options: ServiceOptions
+  events: string[]
 
   constructor (options: ServiceOptions = {}, app: Application) {
     this.options = options
     this.app = app
-    this.events = ['leave']
+    this.events = ['userStatus', 'party']
   }
 
   remove (id: NullableId, params?: Params | undefined): Promise<Data | Data[]> {
@@ -24,8 +25,7 @@ export class Chatroom implements ServiceMethods<Data> {
     throw new Error('Method not implemented.')
   }
 
-  [key: string]: any
-  update (id: NullableId, data: Data, params?: Params | undefined): Promise<Data | Data[]> {
+  async update (id: NullableId, data: any, params?: Params | undefined): Promise<any> {
     throw new Error('Method not implemented.')
   }
 
@@ -39,14 +39,12 @@ export class Chatroom implements ServiceMethods<Data> {
     const conversationModel = this.app.service('conversation').Model
     const messageModel = this.app.service('message').Model
     const messageStatusModel = this.app.service('message-status').Model
-    // const groupModel = this.app.service('group').Model
-    // const groupUserModel = this.app.service('group-user').Model
-    // const partyModel = this.app.service('party').Model
 
     const chatRooms = await conversationModel.findAll({
       where: {
         [Op.or]: [{ firstuserId: userId }, { seconduserId: userId }],
-        type: 'user'
+        type: 'user',
+        status: true
       },
       attributes: ['id', 'type'],
       include: [
@@ -81,39 +79,6 @@ export class Chatroom implements ServiceMethods<Data> {
   }
 
   async create (data: any, params?: Params): Promise<Data> {
-    // senderId: data.senderId,
-    //     recipientId: data.recipientId,
-    //     recipientType: data.recipientType
-    const messageModel = this.app.service('message').Model
-    const userModel = this.app.service('user').Model
-
-    const message = await messageModel.create({
-      text: data.text,
-      senderId: data.senderId,
-      conversationId: data.conversationId
-    })
-
-    const users = await userModel.findAll({
-      where: {
-        id: {
-          [Op.in]: [data.senderId, data.recipientId]
-        }
-      },
-      attributes: ['id', 'name']
-    })
-    const returnData = {
-      conversation: {
-        users: users,
-        message: [
-          {
-            id: message.id,
-            text: message.text,
-            sender: data.senderId
-          }
-        ]
-      },
-      sender_id: data.sender_id
-    }
-    return returnData
+    throw new Error('Method not implemented.')
   }
 }

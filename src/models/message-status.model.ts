@@ -22,6 +22,42 @@ export default (app: Application): any => {
     hooks: {
       beforeCount (options: any) {
         options.raw = true
+      },
+      afterBulkUpdate (options: any) {
+        // It wiil update relevent message status
+        // eslint-disable-next-line no-prototype-builtins
+        if (options.where.hasOwnProperty('id')) {
+          const updatedProp = options.fields[0]
+          if (options.attributes[updatedProp]) {
+            app.service('message-status').Model.findOne({
+              where: {
+                id: options.where.id
+              }
+            })
+              .then((messageStatus: any) => {
+                app.service('message-status').Model.findAll({
+                  where: {
+                    messageId: messageStatus.messageId,
+                    [updatedProp]: false
+                  }
+                })
+                  .then((response: any) => {
+                    if (response.length === 0) {
+                      app.service('message').Model.update(
+                        {
+                          [updatedProp]: true
+                        },
+                        {
+                          where: {
+                            id: messageStatus.messageId
+                          }
+                        }
+                      )
+                    }
+                  })
+              })
+          }
+        }
       }
     }
   });

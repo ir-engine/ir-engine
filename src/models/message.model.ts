@@ -30,6 +30,22 @@ export default (app: Application): any => {
     hooks: {
       beforeCount (options: any) {
         options.raw = true
+      },
+      afterBulkUpdate (options: any) {
+        // eslint-disable-next-line no-prototype-builtins
+        if (options.where.hasOwnProperty('id')) {
+          app.service('message').Model.findOne({
+            where: {
+              id: options.where.id
+            }
+          })
+            .then((message: any) => {
+              app.service('message').emit('updated', {
+                type: 'message updated',
+                message: message
+              })
+            })
+        }
       }
     }
   });
@@ -38,7 +54,7 @@ export default (app: Application): any => {
     (message as any).belongsTo(models.group, { through: 'group_message' });
     (message as any).belongsTo(models.conversation, { foreignKey: 'conversationId' });
     (message as any).belongsTo(models.user, { foreignKey: 'senderId', constraint: false });
-    (message as any).hasMany(models.message_status, { foreignKey: 'messageId', required: true })
+    (message as any).hasMany(models.message_status, { foreignKey: 'messageId', constraint: false })
   }
 
   return message

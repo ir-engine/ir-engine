@@ -44,8 +44,7 @@ export class PartyUser extends Service {
     // For now only Admin will add users in party
     const party = await PartyModel.findOne({
       where: {
-        id: params?.query?.partyId,
-        ownerId: params.user.userId
+        id: data.partyId
       }
     })
 
@@ -62,62 +61,72 @@ export class PartyUser extends Service {
     })
 
     await userPartyModel.save()
-
-    // TODO: After saving party, update contacts via Socket
-    // TODO: If party is public update to all those users which are in same location
+    const user = await this.app.service('user').Model.findOne({
+      where: {
+        id: data.userId
+      },
+      attributes: ['id', 'name']
+    })
+    this.app.service('chatroom').emit('party', {
+      type: 'added',
+      data: user
+    })
     return party
   }
 
   async remove (userIdToRemove: NullableId, params: Params): Promise<any> {
     const PartyUserModel = this.getModel(params)
     const PartyModel = this.app.service('party').Model
-    const party = await PartyModel.findOne({
+
+    const partyUser = await PartyUserModel.findOne({
       where: {
-        id: params?.query?.partyId,
-        ownerId: params.user.userId
+        userId: userIdToRemove
       }
     })
-
-    if (!party) {
+    if (!partyUser) {
       return await Promise.reject(new Forbidden('Party not found Or you don\'t have access!'))
     }
+    await this.makeOtherUserAsOwner(partyUser, PartyModel, PartyUserModel)
+    this.app.service('chatroom').emit('party', {
+      type: 'leave',
+      data: {
+        userId: userIdToRemove
+      }
+    })
+    return true
+  }
 
-    await PartyUserModel.destroy({
+  private async makeOtherUserAsOwner (partyUser: any, PartyModel: any, PartyUserModel: any): Promise<any> {
+    const promises = []
+    const partyUsers = await PartyUserModel.findAll({
       where: {
-        userId: userIdToRemove,
-        partyId: party.id
+        partyId: partyUser.partyId,
+        userId: {
+          [Op.ne]: partyUser.userId
+        }
       }
     })
 
-    await this.makeOtherUserAsOwner(userIdToRemove, party, PartyUserModel)
-    return party
-  }
-
-  private async makeOtherUserAsOwner (userIdToRemove: NullableId, party: any, PartyUserModel: any): Promise<any> {
-    const promises = []
-
-    if (userIdToRemove === party.ownerId) {
-      // If owner try to remove himself, then randomly make owner to someone else in that party
-
-      const otherPartyUser = await PartyUserModel.findOne({
-        where: {
-          partyId: party.id,
-          // isMuted: false,
-          // isInviteAccepted: true,
-          userId: { [Op.ne]: userIdToRemove }
-        }
-      })
-
-      // Fetched some other user, make that as owner of the party now!
-      if (otherPartyUser) {
+    if (partyUsers.length > 1) {
+      if (partyUser.isOwner) {
+        const otherPartyUser = await PartyUserModel.findOne({
+          where: {
+            partyId: partyUser.partyId,
+            userId: { [Op.ne]: partyUser.userId }
+          }
+        })
         promises.push(otherPartyUser.update({ isOwner: true }))
-        promises.push(party.update({ ownerId: otherPartyUser.userId }))
-      } else {
-        // No one is left on party, destory the party
-        promises.push(party.destory())
       }
+      await partyUser.destroy()
+    } else {
+      const partyId = partyUser.partyId
+      await partyUser.destroy()
+      promises.push(PartyModel.destroy({
+        where: {
+          id: partyId
+        }
+      }))
     }
-
     return await Promise.all(promises)
   }
 }

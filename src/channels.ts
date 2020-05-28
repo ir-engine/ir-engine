@@ -29,6 +29,11 @@ export default (app: Application): void => {
 
       const userId = connection['identity-provider'].userId
 
+      app.service('chatroom').emit('userStatus', {
+        type: 'online',
+        userId: connection['identity-provider'].userId
+      })
+
       app.service('conversation').Model.findAll({
         where: {
           [Op.or]: [{ firstuserId: userId }, { seconduserId: userId }],
@@ -85,16 +90,16 @@ export default (app: Application): void => {
     }
     const user = authResult['identity-provider']
     if (user) {
-      app.service('chatroom').emit('leave', {
-        type: 'leave',
+      app.service('chatroom').emit('userStatus', {
+        type: 'offline',
         userId: connection['identity-provider'].userId
       })
     }
   })
 
   app.on('disconnect', (connection: any) => {
-    app.service('chatroom').emit('leave', {
-      type: 'leave',
+    app.service('chatroom').emit('userStatus', {
+      type: 'offline',
       userId: connection['identity-provider']?.userId
     })
   })
@@ -141,15 +146,10 @@ export default (app: Application): void => {
 
   app.service('message').publish('updated', data => {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    return app.channel(`userIds/${data.senderId}`).send(data)
+    return app.channel(`userIds/${data.message.senderId}`).send(data)
   })
 
-  app.service('chatroom').publish('leave', async data => {
-    // return app.channel(app.channels)
-    //   .filter(connection => {
-    //     console.log(connection)
-    //     return connection['identity-provider'].userId === data.userId
-    //   })
+  app.service('chatroom').publish('userStatus', async data => {
     const conversation = await app.service('conversation').Model.findAll({
       where: {
         [Op.or]: [{ firstuserId: data.userId }, { seconduserId: data.userId }]
@@ -178,8 +178,13 @@ export default (app: Application): void => {
     })
     if (Object.keys(party).length) {
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      channels.push(app.channel(`chatroom/group/${party.partyId}`).send(data))
+      channels.push(app.channel(`chatroom/party/${party.partyId}`).send(data))
     }
     return channels
+  })
+
+  app.service('chatroom').publish('party', async data => {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    return app.channel(`chatroom/party/${data.partyId}`).send(data)
   })
 }

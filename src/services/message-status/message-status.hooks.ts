@@ -1,6 +1,5 @@
 import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common'
-import updateMessageStatus from '../../hooks/update-message-status'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks
@@ -21,7 +20,7 @@ export default {
     find: [],
     get: [],
     create: [],
-    update: [updateMessageStatus()],
+    update: [],
     patch: [],
     remove: []
   },
