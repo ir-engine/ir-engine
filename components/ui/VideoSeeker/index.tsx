@@ -39,7 +39,7 @@ const VideoSeeker = ({ playing, onTogglePlay, onSeekChange, videoLengthSeconds, 
     triggerNavigation(backButtonHref)
   }} />
   return (
-    <div className="VideoSeeker">
+    <div className="VideoSeeker clickable">
       <div className="seek-bar-container">
         <div className="seek-bar full-bar" style={{
           width: '100%'
