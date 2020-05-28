@@ -153,7 +153,7 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
   createButton(text: string, bgColor: string, clickevent: string, eventData: string, width: number,
     xoffset: number, yoffset: number, zoffset: number,
     bgWidth: number, bgHeight: number, bgZoffset = -0.01) {
-    const textEntity = this.createText(text, width, bgHeight, 6, 10, 'left', 'center', 'center')
+    const textEntity = this.createText(text, width, bgHeight, 7, 10, 'center', 'center', 'center')
     textEntity.object3D.position.set(xoffset, yoffset, zoffset)
 
     const textBG = this.createBackground(bgWidth, bgHeight, bgColor, 0, 0, bgZoffset)
