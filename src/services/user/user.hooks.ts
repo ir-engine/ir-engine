@@ -50,7 +50,7 @@ export default {
         if (userAvatarResult.total > 0) {
           result.dataValues.avatarUrl = userAvatarResult.data[0].url
         }
-        
+
         return context
       }
     ],
