@@ -14,7 +14,7 @@ export default class CameraRig {
 
   constructor(className = 'player-camera',
     cameraOptions: Partial<CameraComponentOptions> = defaultCameraComponentOptions,
-    cursorType: string = 'mouse') {
+    cursorType: string = 'mouse', public cursorObjects: string[] = ['.clickable']) {
     this.camera = new Camera(cameraOptions)
     this.className = className
     this.cursorType = cursorType
@@ -45,12 +45,12 @@ export default class CameraRig {
     let cursor
     switch (this.cursorType) {
       case 'fuse':
-        cursor = new FuseCursor()
+        cursor = new FuseCursor(this.cursorObjects)
         this.cameraEl.appendChild(cursor.el as AFRAME.Entity)
         cursor.el?.object3D.position.set(0, 0, -1)
         break
       case 'mouse':
-        cursor = new MouseCursor()
+        cursor = new MouseCursor(this.cursorObjects)
         this.el.appendChild(cursor.el as AFRAME.Entity)
         break
       default:
