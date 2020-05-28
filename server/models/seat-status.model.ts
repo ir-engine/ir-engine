@@ -7,16 +7,14 @@ export default (app: Application): any => {
     status: {
       type: DataTypes.STRING,
       allowNull: false,
-      primaryKey: true,
-      unique: true
+      defaultValue: 'unread'
     }
   }, {
     hooks: {
       beforeCount (options: any) {
         options.raw = true
       }
-    },
-    timestamps: false
+    }
   });
 
   (seatStatus as any).associate = function (models: any) {
