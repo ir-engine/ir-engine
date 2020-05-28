@@ -6,7 +6,7 @@ import { setComponent } from '../aframe-component'
 export default class MouseCursor {
   el: AFRAME.Entity | null = null
 
-  constructor() {
+  constructor(public cursorObjects: string[] = ['.clickable']) {
     this.setupMouseCursor()
   }
 
@@ -16,7 +16,7 @@ export default class MouseCursor {
 
     const cursor = new CursorComponent({ rayOrigin: 'mouse' })
     setComponent(this.el, cursor)
-    const raycaster = new RaycasterComponent({ far: 20, interval: 1000, objects: '.clickable' })
+    const raycaster = new RaycasterComponent({ far: 20, interval: 1000, objects: this.cursorObjects.join(',') })
     setComponent(this.el, raycaster)
   }
 }
