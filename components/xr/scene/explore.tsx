@@ -189,6 +189,7 @@ const ExploreScene = (props: VideoProps): any => {
               runtime={exploreState.focusedCell?.runtime}
               cell-height={cellHeight}
               cell-width={cellWidth}
+              details-width={cellWidth * 2}
               cell-content-height={cellContentHeight}
               class="clickable" />
           </Entity>
