@@ -2,26 +2,6 @@ import React from 'react'
 import shaka from 'shaka-player'
 import AFRAME from 'aframe'
 
-const initApp = (manifestUri: string) => {
-  shaka.polyfill.installAll()
-
-  if (shaka.Player.isBrowserSupported()) {
-    initPlayer(manifestUri)
-  } else {
-    console.error('Browser not supported!')
-  }
-}
-
-const initPlayer = (manifestUri: string) => {
-  const video: HTMLVideoElement = document.getElementById('video360Shaka') as HTMLVideoElement
-  const player = new shaka.Player(video)
-
-  player.load(manifestUri).then(() => {
-    console.log('The video has now been loaded!')
-  })
-  video.addEventListener('loadeddata', loadedDataVideoHandler)
-}
-
 const loadedDataVideoHandler = () => {
   if (AFRAME.utils.device.isIOS()) {
     // fix Safari iPhone bug with black screen
@@ -46,15 +26,46 @@ export default class ShakaPlayer extends React.Component {
     super(props)
 
     this.props = props
+    this.initApp = this.initApp.bind(this)
+    this.initPlayer = this.initPlayer.bind(this)
   }
 
   componentDidMount() {
     const sceneEl = document.querySelector('a-scene')
-    if (sceneEl?.hasLoaded) initApp(this.props.manifestUri)
-    else sceneEl?.addEventListener('loaded', initApp.bind(this, this.props.manifestUri))
+    if (sceneEl?.hasLoaded) this.initApp()
+    else sceneEl?.addEventListener('loaded', this.initApp)
+    return () => {
+      sceneEl?.removeEventListener('loaded', this.initApp)
+    }
+  }
+
+  componentWillUnmount() {
+    const sceneEl = document.querySelector('a-scene')
+    sceneEl?.removeEventListener('loaded', this.initApp)
+
+    const video: HTMLVideoElement = document.getElementById(this.props.videosrc) as HTMLVideoElement
+    video?.removeEventListener('loadeddata', loadedDataVideoHandler)
   }
 
   props: shakaPropTypes
+
+  private initApp () {
+    shaka.polyfill.installAll()
+    if (shaka.Player.isBrowserSupported()) {
+      this.initPlayer()
+    } else {
+      console.error('Browser not supported!')
+    }
+  }
+
+  private initPlayer () {
+    const video: HTMLVideoElement = document.getElementById(this.props.videosrc) as HTMLVideoElement
+    const player = new shaka.Player(video)
+    player.load(this.props.manifestUri).then(() => {
+      console.log('The video has now been loaded!')
+    })
+    video.addEventListener('loadeddata', loadedDataVideoHandler)
+  }
 
   render() {
     return ''
@@ -63,4 +74,5 @@ export default class ShakaPlayer extends React.Component {
 
 export interface shakaPropTypes extends React.Props<any> {
   manifestUri: string,
+  videosrc: string
 }

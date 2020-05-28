@@ -146,6 +146,9 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
 
         return imageEl
       }
+      default: {
+        return document.createElement('a-entity')
+      }
     }
   },
 
