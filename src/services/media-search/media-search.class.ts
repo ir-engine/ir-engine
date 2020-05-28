@@ -5,7 +5,9 @@ import { Application } from '../../declarations'
 
 interface Data {}
 
-interface ServiceOptions {}
+interface ServiceOptions {
+  paginate: boolean
+}
 
 export class MediaSearch implements ServiceMethods<Data> {
   app: Application
@@ -13,13 +15,15 @@ export class MediaSearch implements ServiceMethods<Data> {
 
   private readonly pageSize = 24
 
-  constructor (options: ServiceOptions = {}, app: Application) {
+  constructor (options: ServiceOptions, app: Application) {
     this.options = options
     this.app = app
   }
 
   async find (params?: Params): Promise<Data[] | Paginated<Data>> {
+    console.log('Find')
     const source = params?.query?.source
+    console.log(source)
     let result
 
     // TODO: Add work from black list item
@@ -40,16 +44,19 @@ export class MediaSearch implements ServiceMethods<Data> {
         break
       }
     }
-    return result
+    return result || []
   }
 
   async get (id: Id, params?: Params): Promise<Data> {
+    console.log('Get')
+
     return {
       id, text: `A new message with ID: ${id}!`
     }
   }
 
   async create (data: Data, params?: Params): Promise<Data> {
+    console.log('Create')
     return await Promise.resolve({})
   }
 

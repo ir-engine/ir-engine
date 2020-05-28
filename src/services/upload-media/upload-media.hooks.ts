@@ -1,4 +1,4 @@
-import * as authentication from '@feathersjs/authentication'
+// import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common'
 import { HookContext } from '@feathersjs/feathers'
 import { v1 as uuidv1 } from 'uuid'
@@ -14,7 +14,7 @@ import makeS3FilesPublic from '../../hooks/make-s3-files-public'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
-const { authenticate } = authentication.hooks
+// const { authenticate } = authentication.hooks
 
 const createOwnedFile = (options = {}) => {
   return async (context: HookContext) => {
@@ -71,7 +71,7 @@ export default {
     all: [],
     find: [disallow()],
     get: [disallow()],
-    create: [authenticate('jwt'), attachOwnerIdInSavingContact('ownerUserId'), addUriToFile(), makeS3FilesPublic()],
+    create: [/* authenticate('jwt'), */attachOwnerIdInSavingContact('ownerUserId'), addUriToFile(), makeS3FilesPublic()],
     update: [disallow()],
     patch: [disallow()],
     remove: [disallow()]
