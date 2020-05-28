@@ -45,7 +45,7 @@ class VideoControls extends Component<Props, State> {
   }
 
   componentDidMount() {
-    this.videoEl = document.querySelector(this.props.videosrc) as HTMLElement
+    this.videoEl = document.getElementById(this.props.videosrc) as HTMLElement
     this.videoEl?.addEventListener('play', this.videoPlayHandler)
     this.videoEl?.addEventListener('pause', this.videoPauseHandler)
     this.textEl = document.querySelector(this.props.videotext) as HTMLElement
