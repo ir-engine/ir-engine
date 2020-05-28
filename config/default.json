@@ -5,6 +5,7 @@
     "loginDisabled": false,
     "logo": "./logo.svg",
     "xr": {
+      "enterVRbuttonSrc": "",
       "networked-scene": {
         "app": "xrengine",
         "room": "lobby",
