@@ -14,12 +14,14 @@ COPY package*.json /app/
 RUN  npm install --no-progress --verbose
 
 # Build Args, NOTE: supplied at build time, not runtime
-#ARG API_SERVER_URL=http://localhost:3030
+# ARG NEXT_PUBLIC_API_SERVER=http://localhost:3030
 
 # copy then compile the code
 COPY . .
-RUN npm run build
 
+RUN /bin/bash -c 'source ./scripts/write_env_stub.sh; npm run build'
+
+ENV NEXT_PUBLIC_API_SERVER=http://localhost:3030
 
 EXPOSE 80
-CMD [ "npm", "start" ]
+CMD ["/bin/bash", "-c", "./scripts/replace_env_stub.sh ; npm start" ]
