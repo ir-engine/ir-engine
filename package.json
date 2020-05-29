@@ -94,6 +94,7 @@
     "dataloader-sequelize": "^2.1.2",
     "dauria": "^2.0.0",
     "dotenv": "^8.2.0",
+    "dotenv-flow": "^3.1.0",
     "feathers-authentication-hooks": "^1.0.2",
     "feathers-authentication-management": "^2.0.1",
     "feathers-blob": "^2.2.0",

@@ -20,6 +20,7 @@ import appHooks from './app.hooks'
 import channels from './channels'
 import authentication from './authentication'
 import sequelize from './sequelize'
+import config from './config'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 dotenv.config()
@@ -50,7 +51,7 @@ app.configure(sequelize)
 // Enable security, CORS, compression, favicon and body parsing
 app.use(helmet())
 app.use(cors({
-  origin: process.env.APP_HOST,
+  origin: config.client.url,
   credentials: true
 }))
 app.use(compress())
