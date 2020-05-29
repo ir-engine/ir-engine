@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
+import path from 'path'
+import url from 'url'
 import { inspect } from 'util'
 // Load all the ENV variables from `.env`, then `.env.local`, into process.env
 import dotenv from 'dotenv-flow'
@@ -24,9 +26,11 @@ db.url = process.env.MYSQL_URL ??
  */
 const server: any = {
   hostname: process.env.SERVER_HOSTNAME ?? 'localhost',
-  port: process.env.SERVER_PORT ?? 3030
+  port: process.env.SERVER_PORT ?? 3030,
+  publicDir: process.env.SERVER_PUBLIC_DIR ?? path.resolve(__dirname, '..', 'public')
 }
-server.url = process.env.SERVER_URL ?? 'http://localhost:3030'
+server.url = process.env.SERVER_URL ??
+  url.format({ protocol: 'https', ...server })
 
 /**
  * Client / frontend configuration

@@ -1,6 +1,6 @@
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
-import config from 'config'
+import config from '../../config'
 interface Data {}
 
 interface ServiceOptions {}
@@ -17,7 +17,7 @@ export class Meta implements ServiceMethods<Data> {
   async find (params?: Params): Promise<Data> {
     // This method is just returning the collection API endpoint for uploading the file from spoke
     return {
-      phx_host: config.get('host')
+      phx_host: config.server.url // FIXME
     }
   }
 

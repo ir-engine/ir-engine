@@ -1,9 +1,11 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 import generateShortId from '../util/generate-short-id'
-import config from 'config'
+import config from '../config'
+import { URL } from 'url'
 
-const COLLECTION_API_ENDPOINT = `https://${(config.get('host') as string)}:${(config.get('port') as string)}/collection`
+const COLLECTION_API_ENDPOINT = (new URL('/collection', config.server.url)).toString()
+
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const project = sequelizeClient.define('project', {
