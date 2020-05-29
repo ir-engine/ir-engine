@@ -1,18 +1,13 @@
 import assert from 'assert'
 import app from '../../src/app'
 import { Server } from 'http'
-import url from 'url'
 import axios from 'axios'
 import qs from 'querystring'
 
-const port = app.get('port') || 8998
-const getUrl = (pathname?: string): string =>
-  url.format({
-    hostname: app.get('host') || 'localhost',
-    protocol: 'http',
-    port,
-    pathname
-  })
+import config from '../../src/config'
+import { getUrl } from '../../src/test-utils'
+
+const port = config.server.port
 
 describe('subscription service', () => {
   let server: Server

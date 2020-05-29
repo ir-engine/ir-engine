@@ -1,17 +1,11 @@
 import assert from 'assert'
 import { Server } from 'http'
-import url from 'url'
 import axios from 'axios'
-
 import app from '../src/app'
+import config from '../src/config'
+import { getUrl } from '../src/test-utils'
 
-const port = app.get('port') || 8998
-const getUrl = (pathname?: string): string => url.format({
-  hostname: app.get('host') || 'localhost',
-  protocol: 'http',
-  port,
-  pathname
-})
+const port = config.server.port
 
 describe('Feathers application tests', () => {
   let server: Server
