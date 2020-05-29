@@ -50,8 +50,8 @@ app.configure(sequelize)
 // Enable security, CORS, compression, favicon and body parsing
 app.use(helmet())
 app.use(cors({
-    origin: process.env.APP_HOST,
-    credentials: true
+  origin: process.env.APP_HOST,
+  credentials: true
 }))
 app.use(compress())
 app.use(express.json())
