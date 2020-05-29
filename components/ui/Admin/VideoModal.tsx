@@ -17,7 +17,6 @@ import {
   deleteVideo
 } from '../../../redux/admin/service'
 import './admin.scss'
-import EmptyLayout from '../Layout/EmptyLayout'
 import { selectAdminState } from '../../../redux/admin/selector'
 interface Props {
   open: boolean
@@ -131,7 +130,7 @@ const VideoModal = (props: Props) => {
   }
 
   return (
-    <EmptyLayout>
+    <div>
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
@@ -174,11 +173,12 @@ const VideoModal = (props: Props) => {
                   margin="normal"
                   required
                   fullWidth
-                  name="description"
-                  label="Description"
-                  id="description"
-                  autoComplete="description"
-                  defaultValue={state.description}
+                  name="url"
+                  label="Video URL"
+                  id="url"
+                  autoComplete="url"
+                  defaultValue={state.url}
+                  disabled={props.mode === 'edit' && true}
                   onChange={(e) => handleInput(e)}
                 />
               </Grid>
@@ -188,12 +188,11 @@ const VideoModal = (props: Props) => {
                   margin="normal"
                   required
                   fullWidth
-                  name="url"
-                  label="Video URL"
-                  id="url"
-                  autoComplete="url"
-                  defaultValue={state.url}
-                  disabled={props.mode === 'edit' && true}
+                  name="description"
+                  label="Description"
+                  id="description"
+                  autoComplete="description"
+                  defaultValue={state.description}
                   onChange={(e) => handleInput(e)}
                 />
               </Grid>
@@ -332,7 +331,7 @@ const VideoModal = (props: Props) => {
           </form>
         </div>
       </Modal>
-    </EmptyLayout>
+    </div>
   )
 }
 
