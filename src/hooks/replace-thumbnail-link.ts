@@ -29,7 +29,7 @@ export default (options = {}): Hook => {
         params.storageProvider = new StorageProvider()
         const contextClone = _.cloneDeep(context)
         const result = await uploadThumbnailLinkHook()(contextClone)
-        data.metadata.thumbnail_url = (result as any).params.thumbnailUrl
+        data.metadata.thumbnail_url = (result as any).params.thumbnailUrl.replace('s3.amazonaws.com/' + (config.get('aws.s3.static_resource_bucket') as string), config.get('aws.cloudfront.domain'))
       }
     }
 
