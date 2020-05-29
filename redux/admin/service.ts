@@ -8,13 +8,26 @@ import {
 } from './actions'
 import { client } from '../feathers'
 import { PublicVideo, videosFetchedError, videosFetchedSuccess } from '../video/actions'
+import axios from 'axios'
+import { apiUrl } from '../service.common'
+import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service'
 
 export function createVideo (data: VideoCreationForm) {
-  return (dispatch: Dispatch) => {
-    client.service('video').create(data)
-      .then((createdVideo) => {
-        dispatch(videoCreated(createdVideo))
+  return async (dispatch: Dispatch, getState: any) => {
+    const token = getState().get('auth').get('authUser').accessToken
+    try {
+      const res = await axios.post(`${apiUrl}/video`, data, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + token
+        }
       })
+      const result = res.data
+      dispatchAlertSuccess(dispatch, 'Video uploaded')
+      dispatch(videoCreated(result))
+    } catch (err) {
+      dispatchAlertError(dispatch, 'Video upload error: ' + err.response.data.message)
+    }
   }
 }
 
@@ -22,6 +35,7 @@ export function updateVideo(data: VideoUpdateForm) {
   return (dispatch: Dispatch) => {
     client.service('static-resource').patch(data.id, data)
       .then((updatedVideo) => {
+        dispatchAlertSuccess(dispatch, 'Video updated')
         dispatch(videoUpdated(updatedVideo))
       })
   }
@@ -31,6 +45,7 @@ export function deleteVideo(id: string) {
   return (dispatch: Dispatch) => {
     client.service('static-resource').remove(id)
       .then((removedVideo) => {
+        dispatchAlertSuccess(dispatch, 'Video deleted')
         dispatch(videoDeleted(removedVideo))
       })
   }
