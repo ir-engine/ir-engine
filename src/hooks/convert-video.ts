@@ -18,6 +18,7 @@ import _ from 'lodash'
 // @ts-ignore
 import appRootPath from 'app-root-path'
 import uploadThumbnailLinkHook from './upload-thumbnail-link'
+import { BadRequest } from '@feathersjs/errors'
 
 const promiseExec = util.promisify(exec)
 
@@ -285,7 +286,7 @@ export default async (context: any): Promise<void> => {
 
     await app.service('static-resource').remove(result.id)
 
-    return context
+    throw new BadRequest('Invalid URL')
   }
 }
 
