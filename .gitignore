@@ -27,3 +27,4 @@ yarn-error.log
 config/*
 !config/default.json
 !config/server.json
+!config/custom-environment-variables.json
