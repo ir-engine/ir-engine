@@ -22,7 +22,7 @@ export default (options = {}): Hook => {
 
       const storageRemovePromise = new Promise((resolve, reject) => {
         if (staticResource.url && staticResource.url.length > 0) {
-          const key = staticResource.url.replace('https://s3.amazonaws.com/' + (config.get('aws.s3.static_resource_bucket') as string) + '/', '')
+          const key = staticResource.url.replace('https://' + (config.get('aws.cloudfront.domain') as string) + '/', '')
 
           if (storage === undefined) reject(new Error('Storage is undefined'))
 
