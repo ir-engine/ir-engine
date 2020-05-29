@@ -16,6 +16,7 @@ import * as pug from 'pug'
 import { Service } from 'feathers-sequelize'
 import { IdentityProvider } from '../identity-provider/identity-provider.class'
 import { BadRequest } from '@feathersjs/errors'
+import config from 'config'
 
 interface Data {}
 
@@ -94,7 +95,8 @@ export class Magiclink implements ServiceMethods<Data> {
     )
 
     const compiledHTML = pug.compileFile(templatePath)({
-      logo: '',
+      logo: config.get('logo'),
+      title: config.get('title'),
       hashLink,
       username: username
     })
