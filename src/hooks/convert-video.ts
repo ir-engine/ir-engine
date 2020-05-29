@@ -249,7 +249,7 @@ export default async (context: any): Promise<void> => {
           // @ts-ignore
           const mimetype = mimetypeDict[extension]
 
-          localContext.data.url = s3.endpoint.href + path.join(s3BlobStore.bucket, key)
+          localContext.data.url = 'https://' + path.join(config.get('aws.cloudfront.domain'), key)
           localContext.data.mimeType = mimetype
 
           localContext.params.mimeType = mimetype

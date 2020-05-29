@@ -1,5 +1,6 @@
 import bent from 'bent'
 import { Hook, HookContext } from '@feathersjs/feathers'
+import config from 'config'
 
 const fileRegex = /\.([a-zA-Z0-9]+)(?=\?|$)/
 const getBuffer = bent('buffer')
@@ -31,7 +32,7 @@ export default (options = {}): Hook => {
       const uploadResult = await app.services.upload.create(context.data, params)
       const parent = await app.services['static-resource'].get(id)
       const parsedMetadata = JSON.parse(parent.metadata)
-      parsedMetadata.thumbnail_url = uploadResult.url
+      parsedMetadata.thumbnail_url = uploadResult.url.replace('s3.amazonaws.com/' + (config.get('aws.s3.static_resource_bucket') as string), config.get('aws.cloudfront.domain'))
       await app.services['static-resource'].patch(id, {
         metadata: parsedMetadata
       })
