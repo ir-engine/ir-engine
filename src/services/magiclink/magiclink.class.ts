@@ -140,7 +140,7 @@ export class Magiclink implements ServiceMethods<Data> {
     return await sendSms(this.app, sms)
   }
 
-  async create (data: any, params?: Params): Promise<Data> {
+  async create (data: any, params?: Params): Promise<any> {
     const authService = this.app.service('authentication')
     const identityProviderService: Service = this.app.service(
       'identity-provider'
@@ -194,6 +194,6 @@ export class Magiclink implements ServiceMethods<Data> {
         )
       }
     }
-    return data
+    return identityProvider
   }
 }

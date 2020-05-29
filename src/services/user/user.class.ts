@@ -16,7 +16,8 @@ export class User extends Service {
   async find (params: Params): Promise<any> {
     const action = params.query?.action
     console.log(params.query)
-    if (action === 'withRelation') {
+    if (action === 'withRelation' ||
+      action === 'myFriends') {
       const userId = params.query?.userId
       const search = params.query?.search as string
 
@@ -27,53 +28,47 @@ export class User extends Service {
       const UserRelationshipModel = this.app.get('sequelizeClient').models.user_relationship
       let foundUsers: any
 
-      if (search && search !== '') {
-        const where = `id <> :userId 
+      let where = ''
+      if (!search || search === '') {
+        where = 'id <> :userId'
+      } else {
+        where = `id <> :userId 
           AND (name LIKE :search 
           OR id IN 
             (SELECT userId FROM identity_provider 
             WHERE \`token\` LIKE :search))`
-        const countQuery = `SELECT COUNT(id) FROM \`user\` WHERE ${where}`
-        const dataQuery = `SELECT * FROM \`user\` WHERE ${where} LIMIT :skip, :limit`
-
-        const total = await this.app.get('sequelizeClient').query(countQuery,
-          {
-            type: QueryTypes.SELECT,
-            raw: true,
-            replacements: {
-              userId,
-              search: `%${search}%`
-            }
-          })
-        foundUsers = await this.app.get('sequelizeClient').query(dataQuery,
-          {
-            type: QueryTypes.SELECT,
-            model: this.getModel(params),
-            mapToModel: true,
-            replacements: {
-              userId,
-              search: `%${search}%`,
-              skip: params.query?.$skip || 0,
-              limit: params.query?.$limit || 10
-            }
-          })
-
-        foundUsers = {
-          total,
-          limit: params.query?.$limit,
-          skip: params.query?.$skip,
-          data: foundUsers
-        }
-      } else {
-        params.query = {
-          ...params.query,
-          id: {
-            $nin: [userId]
-          }
-        }
-
-        foundUsers = await super.find(params)
       }
+
+      if (action === 'myFriends') {
+        where = where +
+          ` AND id IN
+              (SELECT relatedUserId FROM user_relationship
+               WHERE userId = :userId AND
+                  (userRelationshipType = 'friend'
+                  OR userRelationshipType = 'requested'))`
+      }
+
+      const countQuery = `SELECT COUNT(id) FROM \`user\` WHERE ${where}`
+      const dataQuery = `SELECT * FROM \`user\` WHERE ${where} LIMIT :skip, :limit`
+
+      const total = await this.app.get('sequelizeClient').query(countQuery, {
+        type: QueryTypes.SELECT,
+        raw: true,
+        replacements: {
+          userId,
+          search: `%${search}%`
+        }
+      })
+
+      foundUsers = await this.app.get('sequelizeClient').query(dataQuery, {
+        type: QueryTypes.SELECT,
+        replacements: {
+          userId,
+          search: `%${search}%`,
+          skip: params.query?.$skip || 0,
+          limit: params.query?.$limit || 10
+        }
+      })
 
       let users
       if (!Array.isArray(foundUsers)) {
@@ -104,6 +99,13 @@ export class User extends Service {
         if (userInverseRelation) {
           Object.assign(user, { inverseRelationType: userInverseRelation.userRelationshipType })
         }
+      }
+
+      foundUsers = {
+        total: total[0]['COUNT(id)'],
+        limit: params.query?.$limit,
+        skip: params.query?.$skip,
+        data: foundUsers
       }
 
       return foundUsers

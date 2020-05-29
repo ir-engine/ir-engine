@@ -73,8 +73,8 @@ export class Seat extends Service {
       })
       const newIdentityProvider = await app.service('identity-provider').find({
         query: {
-          type: (link as any).type,
-          token: (link as any).email
+          type: (link).type,
+          token: (link).email
         }
       })
       if ((newIdentityProvider as any).total === 0) {
