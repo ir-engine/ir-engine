@@ -32,7 +32,7 @@ class PageLoader extends React.Component<Props, State> {
       window.addEventListener('resize', this.onResize)
       // The below line breaks login for some reason.
       // Unsure if it's necessary, leaving it in but commented out for now.
-      // this.onResize()
+      this.onResize()
       return () => {
         window.removeEventListener('resize', this.onResize)
       }
