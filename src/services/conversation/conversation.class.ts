@@ -19,7 +19,8 @@ export class Conversation extends Service {
     })
     if (conversation) {
       if (data.action) {
-        conversation.update({ status: true })
+        await conversation.update({ status: true })
+        await this.notifyUserAcceptance(conversation.id)
       } else {
         conversationModel.destroy()
       }
@@ -28,5 +29,48 @@ export class Conversation extends Service {
     }
 
     return true
+  }
+
+  private async notifyUserAcceptance (conversationId: any): Promise<any> {
+    const conversationModel = this.app.service('conversation').Model
+    const messageModel = this.app.service('message').Model
+    const messageStatusModel = this.app.service('message-status').Model
+    const userModel = this.app.service('user').Model
+    const conversation = await conversationModel.findOne({
+      where: {
+        id: conversationId
+      },
+      attributes: ['id', 'type'],
+      include: [
+        {
+          model: messageModel,
+          attributes: ['id', 'text', 'senderId', 'createdAt', 'isDelivered', 'isRead'],
+          separate: true,
+          order: [['id', 'desc']],
+          limit: 20,
+          offset: 0,
+          include: [
+            {
+              model: messageStatusModel,
+              attributes: ['id', 'recipientId', 'isRead', 'isDelivered']
+            }
+          ]
+        },
+        {
+          model: userModel,
+          attributes: ['id', 'name'],
+          as: 'firstuser'
+        },
+        {
+          model: userModel,
+          attributes: ['id', 'name'],
+          as: 'seconduser'
+        }
+      ]
+    })
+    this.app.service('chatroom').emit('conversation', {
+      type: 'friend_request_accepted',
+      conversation: conversation
+    })
   }
 }

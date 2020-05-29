@@ -37,7 +37,7 @@ export class PartyUser extends Service {
     return partyUsers
   }
 
-  async create (data: any, params: Params): Promise<any> {
+  async create (data: any, params: any): Promise<any> {
     const PartyModel = this.app.service('party').Model
     const PartyUsersModel = this.app.service('party-user').Model
 
@@ -61,17 +61,53 @@ export class PartyUser extends Service {
     })
 
     await userPartyModel.save()
-    const user = await this.app.service('user').Model.findOne({
-      where: {
-        id: data.userId
-      },
-      attributes: ['id', 'name']
-    })
     this.app.service('chatroom').emit('party', {
-      type: 'added',
-      data: user
+      type: 'party_join_request',
+      data: {
+        user: params.connection['identity-provider'],
+        party: party
+      },
+      userId: data.userId
     })
     return party
+  }
+
+  async update (userIdToUpdate: NullableId, data: any, params: any): Promise<any> {
+    const userId = params.connection['identity-provider'].userId
+    const PartyUserModel = this.getModel(params)
+    const UserModel = this.app.service('user').Model
+
+    if (userId !== data.userId) {
+      return await Promise.reject(new Forbidden('You don\'t have access!'))
+    }
+    const partyUser = await PartyUserModel.findOne({
+      where: {
+        userId: data.userId
+      }
+    })
+    if (!partyUser) {
+      return await Promise.reject(new Forbidden('Party not found!'))
+    }
+    if (data.action) {
+      await partyUser.update({
+        isInviteAccepted: true
+      })
+      const user = await UserModel.findOne({
+        where: {
+          id: userId
+        }
+      })
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      this.app.channel(`chatroom/party/${partyUser.partyId}`).join(params.connection)
+      this.app.service('chatroom').emit('party', {
+        type: 'user_added',
+        data: {
+          user: user
+        },
+        partyId: partyUser.partyId
+      })
+    }
+    return true
   }
 
   async remove (userIdToRemove: NullableId, params: Params): Promise<any> {
@@ -91,7 +127,8 @@ export class PartyUser extends Service {
       type: 'leave',
       data: {
         userId: userIdToRemove
-      }
+      },
+      partyId: partyUser.partyId
     })
     return true
   }

@@ -155,7 +155,7 @@ export default (app: Application): void => {
         [Op.or]: [{ firstuserId: data.userId }, { seconduserId: data.userId }]
       }
     })
-    const channels = []
+    const channels: any[] = []
     conversation.forEach((item: any) => {
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       channels.push(app.channel(`chatroom/user/${item.id}`).send(data))
@@ -176,15 +176,26 @@ export default (app: Application): void => {
         userId: data.userId
       }
     })
-    if (Object.keys(party).length) {
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      channels.push(app.channel(`chatroom/party/${party.partyId}`).send(data))
+    if (party) {
+      if (Object.keys(party).length) {
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        channels.push(app.channel(`chatroom/party/${party.partyId}`).send(data))
+      }
     }
     return channels
   })
 
   app.service('chatroom').publish('party', async data => {
+    if (data.type === 'party_join_request') {
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      return app.channel(`chatroom/userIds/${data.userId}`).send(data)
+    }
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return app.channel(`chatroom/party/${data.partyId}`).send(data)
+  })
+
+  app.service('chatroom').publish('conversation', async data => {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    return app.channel(`chatroom/user/${data.conversation.id}`).send(data)
   })
 }

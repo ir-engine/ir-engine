@@ -9,7 +9,6 @@ export class MessageStatus extends Service {
   }
 
   async update (type: any, data: any): Promise<any> {
-    console.log('message update called')
     const messageModel = this.app.service('message').Model
     const messageStatusModel = this.app.service('message-status').Model
     const messages = await messageModel.findAll({

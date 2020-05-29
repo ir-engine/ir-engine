@@ -23,13 +23,11 @@ export default (options = {}): Hook => {
     if (emptyError.length) {
       throw new Error('Empty data: ' + emptyError.join(', '))
     }
-
     const conversation = await app.service('conversation').Model.findOne({
       where: {
         id: data.conversationId
       }
     })
-
     if (Object.keys(conversation).length === 0) {
       throw new Error('conversationId is invalid.')
     }

@@ -1,14 +1,11 @@
-import { Op } from 'sequelize'
 export default function (options = {}) {
   return async (context: any) => {
-    const { app, params } = context
+    const { app, result } = context
     const userModel = app.service('user').Model
-    const userId = params.connection['identity-provider'].userId
-    const friendRequests = await app.service('conversation').Model.findAll({
+    const conversationModel = app.service('conversation').Model
+    const conversation = await conversationModel.findOne({
       where: {
-        [Op.or]: [{ firstuserId: userId }, { seconduserId: userId }],
-        type: 'user',
-        status: false
+        id: result.id
       },
       include: [
         {
@@ -23,7 +20,8 @@ export default function (options = {}) {
         }
       ]
     })
-    context.result.friendRequests = friendRequests
+
+    context.result = conversation
     return context
   }
 }

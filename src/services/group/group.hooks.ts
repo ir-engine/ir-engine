@@ -1,6 +1,6 @@
 import collectAnalytics from '../../hooks/collect-analytics'
 import * as authentication from '@feathersjs/authentication'
-
+import createGroupFirstUser from '../../hooks/create-group-first-user'
 const { authenticate } = authentication.hooks
 
 export default {
@@ -18,7 +18,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [createGroupFirstUser()],
     update: [],
     patch: [],
     remove: []

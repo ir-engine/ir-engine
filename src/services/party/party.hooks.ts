@@ -1,6 +1,7 @@
 import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common'
 import collectAnalytics from '../../hooks/collect-analytics'
+import createFirstPartyUser from '../../hooks/create-first-party-user'
 // import attachOwnerIdInSavingContact from '../../hooks/set-loggedin-user-in-body'
 
 // Don't remove this comment. It's needed to format import lines nicely.
@@ -23,7 +24,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [createFirstPartyUser()],
     update: [],
     patch: [],
     remove: []

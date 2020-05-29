@@ -14,7 +14,7 @@ export class Chatroom implements ServiceMethods<Data> {
   constructor (options: ServiceOptions = {}, app: Application) {
     this.options = options
     this.app = app
-    this.events = ['userStatus', 'party']
+    this.events = ['userStatus', 'party', 'conversation']
   }
 
   remove (id: NullableId, params?: Params | undefined): Promise<Data | Data[]> {
