@@ -11,7 +11,6 @@ import Container from '@material-ui/core/Container'
 import { bindActionCreators, Dispatch } from 'redux'
 import { fetchAdminVideos } from '../../../redux/admin/service'
 import './admin.scss'
-import EmptyLayout from '../Layout/EmptyLayout'
 import { selectAdminState } from '../../../redux/admin/selector'
 import { selectVideoState } from '../../../redux/video/selector'
 import { selectAuthState } from '../../../redux/auth/selector'
@@ -89,7 +88,7 @@ const AdminConsole = (props: Props) => {
   }
 
   return (
-    <EmptyLayout>
+    <div>
       {auth.get('user').userRole === 'admin' && (
         <div className={'page-container'}>
           <div className={'header'}>
@@ -131,7 +130,7 @@ const AdminConsole = (props: Props) => {
           </Container>
         </div>
       )}
-    </EmptyLayout>
+    </div>
   )
 }
 
