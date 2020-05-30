@@ -24,7 +24,7 @@ export default class FuseCursor {
       color: 'white',
       shader: 'standard',
       transparent: true,
-      opacity: 0.2
+      opacity: 0.4
     })
 
     this.el.setAttribute('animation__click', {
@@ -55,4 +55,4 @@ export default class FuseCursor {
   }
 }
 
-const defaultFuseDuration = 6 * 1000
+const defaultFuseDuration = 4 * 1000
