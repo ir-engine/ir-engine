@@ -27,6 +27,14 @@ export default class FuseCursor {
       opacity: 0.4
     })
 
+    this.el.addEventListener('mouseenter', () => {
+      this.el.setAttribute('material', { color: 'red' })
+    })
+
+    this.el.addEventListener('mouseleave', () => {
+      this.el.setAttribute('material', { color: 'white' })
+    })
+
     this.el.setAttribute('animation__click', {
       property: 'scale',
       startEvents: 'click',
