@@ -45,12 +45,22 @@ const client: any = {
 }
 
 /**
+ * Email / SMTP configuration
+ */
+
+const email: any = {
+  from: `${process.env.SMTP_FROM_NAME ?? 'MyXR.Social'}` +
+    ` <${process.env.SMTP_FROM_EMAIL ?? 'noreply@myxr.email'}>`
+}
+
+/**
  * Full config
  */
 const config: any = {
   db,
   server,
-  client
+  client,
+  email
 }
 
 console.log(inspect(config))
