@@ -83,6 +83,9 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.el.classList.add('clickable')
     this.el.setAttribute('clickable', { clickevent: 'playpause' })
 
+    this.el.setAttribute('highlight__playpause', { id: 'playpause', meshes: [this.playPauseButtonName] })
+    this.el.setAttribute('highlight__back', { id: 'back', meshes: [this.backButtonName] })
+
     // TODO: make pause/play icons the same for CSS and VR versions.
     // currently CSS is using MUI icons, and VR is using images in public/icons/
     const playBtnImageSrc = '/icons/play-shadow.png'
