@@ -51,6 +51,7 @@ export interface MediaCellData {
   mediatype: string,
   linktype: string,
   videoformat: string,
+  clickable: boolean,
   linkEnabled: boolean
 }
 
@@ -73,6 +74,7 @@ export const MediaCellComponentSchema: AFRAME.MultiPropertySchema<MediaCellData>
   mediatype: { default: 'video360' },
   linktype: { default: 'internal' },
   videoformat: { default: 'eac' },
+  clickable: { default: true },
   linkEnabled: { default: true }
 }
 
@@ -128,7 +130,7 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
         const objEl = document.createElement('a-gltf-model')
         const source = (this.system as AFRAME.SystemDefinition<MediaCellSystemProps>).getSource(this.data)
         objEl.setAttribute('src', source)
-        objEl.classList.add('clickable')
+        if (this.data.clickable) objEl.classList.add('clickable')
 
         if (this.data.linkEnabled) this.enableLink(objEl)
 
@@ -141,7 +143,7 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
         imageEl.setAttribute('width', this.data.cellWidth)
         imageEl.setAttribute('height', this.data.cellContentHeight)
         imageEl.setAttribute('side', 'double')
-        imageEl.classList.add('clickable')
+        if (this.data.clickable) imageEl.classList.add('clickable')
         if (this.data.linkEnabled) this.enableLink(imageEl)
 
         return imageEl
@@ -153,7 +155,7 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
   },
 
   enableLink(el: any) {
-    el.classList.add('clickable')
+    if (this.data.clickable) el.classList.add('clickable')
     let url: string
     switch (this.data.linktype) {
       case 'external':
@@ -208,6 +210,7 @@ const primitiveProps = [
   'mediatype',
   'linktype',
   'videoformat',
+  'clickable',
   'linkEnabled',
   'thumbnailType'
 ]
