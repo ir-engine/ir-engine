@@ -42,7 +42,7 @@ export const VideoDetailsComponentSchema: AFRAME.MultiPropertySchema<VideoDetail
   mediatype: { default: 'video360' },
   linktype: { default: 'internal' },
   videoformat: { default: 'eac' },
-  linkEnabled: { default: true }
+  linkEnabled: { default: false }
 }
 
 export interface Props {
@@ -54,7 +54,8 @@ export interface Props {
     baseline: string, anchor: string) => AFRAME.Entity,
   createButton: (text: string, bgColor: string, clickevent: string, eventData: string,
     width: number, x: number, y: number, z: number,
-    bgWidth: number, bgHeight: number, bgz: number) => AFRAME.Entity,
+    bgWidth: number, bgHeight: number, bgz: number,
+    color: number) => AFRAME.Entity,
   createDetailEntity: () => AFRAME.Entity,
   createBackground: (w: number, h: number, color: string, x: number, y: number, z: number) => AFRAME.Entity,
   createWatchButton: () => AFRAME.Entity,
@@ -84,7 +85,11 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
 
   createCell() {
     const mediaCell = document.createElement('a-media-cell')
-    mediaCell.setAttribute('media-cell', this.data)
+    const cellData = {
+      clickable: false,
+      ...this.data
+    }
+    mediaCell.setAttribute('media-cell', cellData)
 
     mediaCell.object3D.scale.set(1.5, 1.5, 1.5)
     mediaCell.object3D.position.set(-0.75, 0, 0)
@@ -152,13 +157,14 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
 
   createButton(text: string, bgColor: string, clickevent: string, eventData: string, width: number,
     xoffset: number, yoffset: number, zoffset: number,
-    bgWidth: number, bgHeight: number, bgZoffset = -0.01) {
+    bgWidth: number, bgHeight: number, bgZoffset = -0.01, color: number) {
     const textEntity = this.createText(text, width, bgHeight, 7, 10, 'center', 'center', 'center')
     textEntity.object3D.position.set(xoffset, yoffset, zoffset)
 
     const textBG = this.createBackground(bgWidth, bgHeight, bgColor, 0, 0, bgZoffset)
     textBG.classList.add('clickable')
     textBG.setAttribute('clickable', { clickevent: clickevent, clickeventData: JSON.stringify({ url: eventData }) })
+    textBG.setAttribute('highlight', { color: color })
 
     textEntity.appendChild(textBG)
 
@@ -177,14 +183,14 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
     return this.createButton('watch', 'green', 'navigate', url, this.data.detailsWidth / 2,
       -this.data.detailsWidth / 4, -this.data.cellContentHeight, 0,
       this.data.detailsWidth / 2, this.data.cellContentHeight / 4,
-      -0.01)
+      -0.01, 0x2b812b)
   },
 
   createBackButton() {
     return this.createButton('back', 'red', 'backbutton', '', this.data.detailsWidth / 2,
       this.data.detailsWidth / 4, -this.data.cellContentHeight, 0,
       this.data.detailsWidth / 2, this.data.cellContentHeight / 4,
-      -0.01)
+      -0.01, 0xb42222)
   }
 
 }
