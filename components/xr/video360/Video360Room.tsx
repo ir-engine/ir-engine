@@ -6,7 +6,8 @@ import AFRAME from 'aframe'
 
 import dynamic from 'next/dynamic'
 import VideoControls from './VideoControls'
-import { selectAppState, selectInVrModeState } from '../../../redux/app/selector' //
+import { selectAppState, selectInVrModeState } from '../../../redux/app/selector'
+import { setViewportSize } from '../../../redux/app/actions'
 import { selectVideo360State } from '../../../redux/video360/selector'
 import { setVideoPlaying } from '../../../redux/video360/actions'
 import { shakaPropTypes } from './ShakaPlayer'
@@ -48,6 +49,7 @@ function Video360Room(props: Video360Props) {
 
   // get viewport for width/height
   useEffect(() => {
+    setViewportSize(window.innerWidth, window.innerHeight)
     setViewport(app.get('viewport'))
   }, [app])
 
