@@ -25,7 +25,8 @@
   "scripts": {
     "test": "yarn run lint && yarn run compile && yarn run mocha",
     "lint": "node node_modules/.bin/eslint --ext .js,.ts src/ test/ --fix",
-    "dev": "ts-node-dev --no-notify src/",
+    "dev": "(ts-node-dev --no-notify src/) & (cd scripts && bash start-spoke.sh)",
+    "test-spoke": "cd scripts && bash start-spoke.sh",
     "dev-reinit-db": "NODE_ENV=dev FORCE_DB_REFRESH=true ts-node-dev --no-notify src/",
     "dev-reinit-db-windows": "SET NODE_ENV=dev && SET FORCE_DB_REFRESH=true && ts-node-dev --no-notify src/",
     "dev-generate-fakes": "NODE_ENV=dev env GENERATE_FAKES=true ts-node-dev --no-notify src/",
@@ -125,6 +126,7 @@
     "universal-analytics": "^0.4.20",
     "uuid": "^8.0.0",
     "winston": "^3.2.1",
+    "xrchat-spoke": "^0.8.9",
     "youtube-dl": "^3.0.2"
   },
   "devDependencies": {
@@ -147,6 +149,7 @@
     "@typescript-eslint/eslint-plugin": "^2.33.0",
     "@typescript-eslint/parser": "^2.33.0",
     "axios": "^0.19.2",
+    "cross-env": "^7.0.2",
     "eslint": "^7.0.0",
     "eslint-config-standard-with-typescript": "^16.0.0",
     "eslint-plugin-import": "^2.20.2",
