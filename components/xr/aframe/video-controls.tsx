@@ -165,15 +165,15 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
     const playPauseButton = this.createTimelineButton({
       name: this.playPauseButtonName,
-      size: 0.25,
-      x: fullBar.position.x - 0.2,
+      size: 1,
+      x: fullBar.position.x - 0.8,
       map: this.data.playing ? this.pauseBtnImageMap : this.playBtnImageMap
     })
 
     const backButton = this.createTimelineButton({
       name: this.backButtonName,
-      size: 0.25,
-      x: fullBar.position.x - 0.5,
+      size: 1,
+      x: fullBar.position.x - 2,
       map: this.backBtnImageMap
     })
 
