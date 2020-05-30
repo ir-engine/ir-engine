@@ -6,6 +6,7 @@ export const ComponentName = 'highlight'
 
 export interface Data {
   [key: string]: any,
+  id: string,
   hover: boolean,
   active: boolean,
   disabled: boolean,
@@ -28,6 +29,7 @@ export interface Data {
 }
 
 export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
+  id: { default: '' },
   hover: { default: false },
   active: { default: false },
   disabled: { default: false },
@@ -60,12 +62,14 @@ export interface Props {
   createBorderSphere: (geomAttribute: any) => void,
   createBorderPlane: (geomAttribute: any) => void,
   updateColor: () => void,
+  updateColorMesh: () => void,
   updateTextColor: () => void,
   handleIntersection: (attribute: string) => void,
   raycasterIntersectedHandler: (evt: any) => void,
   raycasterIntersectedClearedHandler: (evt: any) => void,
   mousedownHandler: (evt: any) => void,
-  mouseupHandler: (evt: any) => void
+  mouseupHandler: (evt: any) => void,
+  attributeName: string
 }
 
 export const Component: AFRAME.ComponentDefinition<Props> = {
@@ -75,8 +79,11 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
   intersectingRaycaster: null,
   intersection: null,
+  multiple: true,
+  attributeName: '',
 
   init () {
+    this.attributeName = this.data.id ? 'hightlight__' + this.data.id : 'highlight'
     if (this.el.sceneEl?.hasLoaded) this.initHighlight()
     else this.el.sceneEl?.addEventListener('loaded', this.initHighlight.bind(this))
   },
@@ -102,17 +109,11 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
 
     if (changedData.includes('disabled')) {
-      this.el.setAttribute('highlight', { hover: false, active: false })
+      this.el.setAttribute(this.attributeName, { hover: false, active: false })
     }
 
     if (['hover', 'active', 'disabled'].some(prop => changedData.includes(prop))) {
-      if (data.type === 'color') {
-        this.updateColor()
-      } else if (data.type === 'text') {
-        this.updateTextColor()
-      } else if (data.type === 'border' && this.el.object3DMap.hasOwnProperty(this.data.bordername)) {
-        this.updateColor()
-      }
+      this.updateColor()
     }
     if (changedData.includes('disabled')) {
       if (!data.disabled) {
@@ -248,13 +249,23 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   },
 
   updateColor() {
+    if (this.data.type === 'color') {
+      this.updateColorMesh()
+    } else if (this.data.type === 'text') {
+      this.updateTextColor()
+    } else if (this.data.type === 'border' && this.el.object3DMap.hasOwnProperty(this.data.bordername)) {
+      this.updateColorMesh()
+    }
+  },
+
+  updateColorMesh() {
     const self = this
     const data = self.data
 
     const newColor: number = data.disabled ? data.disabledColor : data.active ? data.activeColor : data.hover ? data.hoverColor : data.color
 
     const opacity = data.disabled ? data.disabledopacity : data.active || data.hover ? 1 : data.borderbaseopacity
-    const transparent = data.disabled ? true : !(data.active || data.hover)
+    const transparent = data.disabled
 
     const meshes = this.data.type === 'border' ? [this.data.bordername] : this.data.meshes
     meshes.forEach(meshName => {
@@ -290,17 +301,20 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     const intersection = this.intersectingRaycaster.getIntersection(this.el)
     self.intersection = intersection
     if (intersection && !self.data[attribute]) {
+      if (!this.data.meshes.includes(intersection.object.name)) return
       if (self.data.target !== '') {
         switch (intersection.object.name) {
           case self.data.target:
           case this.data.bordername:
-            self.el.setAttribute('highlight', value)
+            this.data[attribute] = value
+            this.updateColor()
             break
           default:
             break
         }
       } else {
-        self.el.setAttribute('highlight', value)
+        this.data[attribute] = value
+        this.updateColor()
       }
     }
   },
@@ -318,7 +332,8 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     }
 
     if (this.data.hover) {
-      this.el.setAttribute('highlight', { hover: false })
+      this.data.hover = false
+      this.updateColor()
     }
   },
 
@@ -329,8 +344,9 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
   mouseupHandler(evt) {
     console.debug(evt)
-    if (this.el.getAttribute('highlight').active) {
-      this.el.setAttribute('highlight', { active: false })
+    if (this.data.active) {
+      this.data.active = false
+      this.updateColor()
     }
   }
 

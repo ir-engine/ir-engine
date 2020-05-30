@@ -98,10 +98,12 @@ export const ClickableComponent: AFRAME.ComponentDefinition<Props> = {
       const intersection = this.intersectingRaycaster.getIntersection(this.el)
       if (intersection) {
         // CustomEvent allows passing data through 'detail' property.
+        const eventData: any = this.data.clickeventData ? { detail: JSON.parse(this.data.clickeventData) } : { detail: {} }
+        eventData.detail.intersection = intersection
         const clickEvent = new CustomEvent(this.data.clickevent,
           {
             bubbles: true,
-            ...(this.data.clickeventData ? { detail: JSON.parse(this.data.clickeventData) } : {})
+            ...eventData
           }
         )
         this.el.dispatchEvent(clickEvent)
