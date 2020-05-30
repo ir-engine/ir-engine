@@ -27,7 +27,10 @@ db.url = process.env.MYSQL_URL ??
 const server: any = {
   hostname: process.env.SERVER_HOSTNAME ?? 'localhost',
   port: process.env.SERVER_PORT ?? 3030,
-  publicDir: process.env.SERVER_PUBLIC_DIR ?? path.resolve(__dirname, '..', 'public')
+  // Public directory (used for favicon.ico, logo, etc)
+  publicDir: process.env.SERVER_PUBLIC_DIR ?? path.resolve(__dirname, '..', 'public'),
+  // Used for CI/tests to force Sequelize init an empty database
+  performDryRun: process.env.PERFORM_DRY_RUN ?? false
 }
 server.url = process.env.SERVER_URL ??
   url.format({ protocol: 'https', ...server })
