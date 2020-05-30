@@ -32,7 +32,7 @@ function Video360Room(props: Video360Props) {
   const text = `${props.title || ''}\n\n(click to play)`
 
   const videospherePrimitive = props.format === 'eac' ? 'a-eaccube' : 'a-videosphere'
-  const videosrc = 'video360Shaka-' + props.title.replace(/\s+/g, '')
+  const videosrc = 'video360Shaka-' + props.title.replace(/[\s]+/g, '').replace(/\W+/g, '-')
 
   const shakaProps: shakaPropTypes = {
     manifestUri: getManifestUri(props.manifest),
