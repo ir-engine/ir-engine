@@ -42,7 +42,7 @@ export const VideoDetailsComponentSchema: AFRAME.MultiPropertySchema<VideoDetail
   mediatype: { default: 'video360' },
   linktype: { default: 'internal' },
   videoformat: { default: 'eac' },
-  linkEnabled: { default: true }
+  linkEnabled: { default: false }
 }
 
 export interface Props {
@@ -159,6 +159,7 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
     const textBG = this.createBackground(bgWidth, bgHeight, bgColor, 0, 0, bgZoffset)
     textBG.classList.add('clickable')
     textBG.setAttribute('clickable', { clickevent: clickevent, clickeventData: JSON.stringify({ url: eventData }) })
+    textBG.setAttribute('highlight', {})
 
     textEntity.appendChild(textBG)
 

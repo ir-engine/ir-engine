@@ -108,6 +108,7 @@ function Video360Room(props: Video360Props) {
         playing={playing}
       />
       }
+      { !inVrMode &&
       <Entity id="videotext"
         className="clickable"
         text={{
@@ -121,6 +122,7 @@ function Video360Room(props: Video360Props) {
         }}
         position={{ x: 0, y: 1.6, z: -0.8 }}
       />
+      }
     </Entity>
   )
 }
