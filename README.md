@@ -1,22 +1,25 @@
-# xrchat-ops
-Deployment and Operations for xrchat services
+# xrsocial-ops
+
+Deployment and Operations for xr3ngine services
 
 ## One-Click Deployment on Kubernetes using Helm
 
 You can run the whole platfrom with the following commands:
-``` bash
-helm repo add xrchat https://xr3ngine.github.io/xrsocial-ops/
-helm repo update
-helm install my-release xrchat/xrchat
-```
-For more details about the XRChat chart
 
-- [XRChat helm chart](xrchat/)
-- [Building the xrchat helm chart](docs/release-helm-chart.md)
+``` bash
+helm repo add xr3ngine https://xr3ngine.github.io/xrsocial-ops/
+helm repo update
+helm install my-release xr3ngine/xr3ngine
+```
+
+For more details about the XR3ngine chart
+
+- [XR3ngine helm chart](xr3ngine/)
+- [Building the xr3ngine helm chart](docs/release-helm-chart.md)
 
 For deployment on different cloud providers:
 
-- [Deploying XRChat on AWS EKS](docs/deploy_on_eks.md)
+- [Deploying XR3ngine on AWS EKS](docs/deploy_on_eks.md)
 - [Managing Remote Kubernets Clusters - TBD](docs/managing_remote_kubernets.md)
 
 Requires Helm and access to a Kubernetes cluster, if you are new to those, check the following instructions:
@@ -29,25 +32,27 @@ Requires Helm and access to a Kubernetes cluster, if you are new to those, check
 ## One-Click Deployment on your laptop Docker Compose
 
 You can run the whole platfrom with the following commands:
+
 ``` bash
-git clone git@github.com:xrchat/xrchat-ops.git
+git clone git@github.com:xr3ngine/xrsocial-ops.git
 cd xrchat-ops
 docker-compose up
 ```
+
 To run specific services
-```
+
+``` bash
 docker-compose up <service-name>
 ```
 
-This will pull images from [xrchat's docker hub repo](https://hub.docker.com/u/xrchat)
+This will pull images from [xr3ngine's docker hub repo](https://hub.docker.com/u/xr3ngine)
 
-## XRChat services
+## XR3ngine services
 
-- [server](https://github.com/xrchat/xrchat-server): backend server on http://localhost:3030/docs
-- [client](https://github.com/xrchat/xrchat-client): frontend Next.js+react on http://localhost:3000
-- [rts](https://github.com/xrchat/xrchat-realtime-server): Networked AFrame server on http://localhost:8081
-- adminer: a lightweight web app to manage database, http://localhost:8080/?server=db&username=server&db=xrchat  (Note: password is "password")
-- db: MariaDB on default port [mysql://localhost:3306]() 
+- [server](https://github.com/xr3ngine/xrsocial): backend server on <http://localhost:3030/docs>
+- [client](https://github.com/xr3ngine/xrsocial-client): frontend Next.js+react on <http://localhost:3000>
+- adminer: a lightweight web app to manage database, <http://localhost:8080/?server=db&username=server&db=xrchat>  (Note: password is "password")
+- db: MariaDB on default port [mysql://localhost:3306]()
 
 ## Build docker/compose stack yourself
 
@@ -55,18 +60,18 @@ If you want to build the whole compose stack on your machine, and not pull the c
 
 - install [docker](https://docs.docker.com/get-docker/).
 - clone the 5 repos into the same folder with the same names:
-    ```
+
+    ``` txt
     |
-    +-- xrchat-client
-    +-- xrchat-server
-    +-- xrchat-ops
-    +-- xrchat-realtime-server
+    +-- xrsocial-client
+    +-- xrsocial
+    +-- xrsocial-ops
     +-- Spoke
     ```
-- `cd xrchat-ops`
+
+- `cd xrsocial-ops`
 - run `docker-compose -f docker-compose-local.yml build`
 - run `docker-compose -f docker-compose-local.yml up`
 - all services will be running as detailed in [service](Services) section.
 
 ## Build the Helm Chart yourself
-
