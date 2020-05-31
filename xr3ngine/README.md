@@ -1,12 +1,12 @@
-# XRChat
+# XR3ngine
 
-[XRChat](https://myxr.social/) Social Gatherings on the Web.
+[XR3ngine](https://myxr.social/) Social Gatherings on the Web.
 
-## TL;DR;
+## TL;DR
 
 ```console
-$ helm repo add xrchat https://charts.myxr.social
-$ helm install my-release xrchat/xrchat
+helm repo add xr3ngine https://charts.myxr.social
+helm install my-release xr3ngine/xr3ngine
 ```
 
 ## Introduction
@@ -15,13 +15,12 @@ This chart bootstraps a [XRCyat](https://myxr.social/) deployment on a [Kubernet
 
 [***In Progress***] This chart has been tested to work with NGINX Ingress, cert-manager, fluentd and Prometheus on top of the AWS EKS.
 
-It also optionally packages following which are required for xrchat platform:
+It also optionally packages following which are required for xr3ngine platform:
 
 | Repository | Name | Version |
 |------------|------|---------|
 | https://charts.bitnami.com/bitnami | mariadb | 7.3.16 |
 | https://agones.dev/chart/stable | agones [***in progress***] | 1.4.0 |
-
 
 ## Prerequisites
 
@@ -33,13 +32,14 @@ It also optionally packages following which are required for xrchat platform:
 
 To install the chart with the release name `my-release`:
 
-```console
-$ helm repo add xrchat https://xr3ngine.github.io/xrsocial-ops/
-$ helm repo update
-$ helm install my-release xrchat/xrchat            # Helm 3
-$ helm install --name my-release xrchat/xrchat     # Helm 2
+``` bash
+helm repo add xrchat https://xr3ngine.github.io/xrsocial-ops/
+helm repo update
+helm install my-release xrchat/xrchat            # Helm 3
+helm install --name my-release xrchat/xrchat     # Helm 2
 ```
-XRChat
+
+XR3ngine
 The command deploys XRchat on the Kubernetes cluster in the default configuration. The [configuration](#configuration) section lists the parameters that can be configured during installation.
 
 > **Tip**: List all releases using `helm list`
@@ -49,32 +49,32 @@ The command deploys XRchat on the Kubernetes cluster in the default configuratio
 To uninstall/delete the `my-release` deployment:
 
 ```console
-$ helm delete my-release
+helm delete my-release
 ```
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.
 
 ## Configuration
 
-The following table lists the configurable parameters of the XRChat chart and their default values.
+The following table lists the configurable parameters of the XR3ngine chart and their default values.
 
-Dependent charts can also have values overwritten. Preface values with mariadb.* or agones.*
+Dependent charts can also have values overwritten. Preface values with mariadb.*or agones.*
 
 | Key | Type | Default | Description                |
 |-----|------|---------|----------------------------|
 | agones.enabled | bool | `false` | Install Agones included with chart, set `false` if you have it installed already on your cluster |
 | client.affinity | object | `{}` | Node affinity for the client service |
-| client.enabled | bool | `true` | Install xrchat-client service |
-| **client.extraEnv** | object | `{}` | [Additional Configuration](#xrchat-additional-configurations) for the client service |
+| client.enabled | bool | `true` | Install xrsocial-client service |
+| **client.extraEnv** | object | `{}` | [Additional Configuration](#xr3ngine-additional-configurations) for the client service |
 | client.image.pullPolicy | string | `"Always"` | Image pull policy |
-| client.image.repository | string | `"xrchat/client"` | repo to pull client image from |
+| client.image.repository | string | `"xrsocial/client"` | repo to pull client image from |
 | client.image.tag | string | `"latest"` | client version to pull |
 | client.imagePullSecrets | list | `[]` | if using a private repo, specify a pull secret |
 | client.ingress.annotations | object | `{"kubernetes.io/ingress.class": "nginx"}` | if using a different ingress controller, specify it |
 | client.ingress.enabled | bool | `true` | disable ingress definitions |
-| **client.ingress.hosts[0].host** | string | `"my.xrchat.com"` | hostname for the client |
+| **client.ingress.hosts[0].host** | string | `"my.xr3ngine.com"` | hostname for the client |
 | client.ingress.hosts[0].paths[0] | string | `"/"` | default path for client |
-| client.name | string | `"xrchat-client"` | client service name |
+| client.name | string | `"xrsocial-client"` | client service name |
 | client.nameOverride | string | `""` | changes the client service name |
 | client.nodeSelector | object | `{}` | selects a specific node to run on |
 | client.securityContext | object | `{}` | overrides client security context |
@@ -82,7 +82,7 @@ Dependent charts can also have values overwritten. Preface values with mariadb.*
 | client.service.type | string | `"ClusterIP"` | override client service type |
 | client.serviceAccount | object | `{}` | override client service account |
 | client.tolerations | list | `[]` |  |
-| domain | string | `"xrchat.com"` | domain root for all services, services will be subdomain from it |
+| domain | string | `"xr3ngine.com"` | domain root for all services, services will be subdomain from it |
 | mariadb.db.existingSecret | string | `nil` | Use existing secret for password details (rootUser.password, db.password, replication.password will be ignored and picked up from this secret). The secret has to contain the keys mariadb-root-password, mariadb-replication-password and mariadb-password. |
 | mariadb.db.name | string | `"xrchat"` | Database name to connect to |
 | mariadb.db.password | string | Password for the new user. Ignored if existing secret is provided. | random 10 character alphanumeric string if mariadb.db.user is defined |
@@ -91,8 +91,8 @@ Dependent charts can also have values overwritten. Preface values with mariadb.*
 | mariadb.externalHost | string | `nil` | hostname of external MariaDB instance, ignored if `mariadb.enabled` is `true` |
 | mariadb.replication.enabled | bool | `false` | Enable MariaDB slave replication |
 | server.affinity | object | `{}` |  |
-| server.enabled | bool | `true` | Install the xrchat-server service |
-| **server.extraEnv** | object | `{}` | [Additional Configuration](#xrchat-additional-configurations) for xrchat-server service |
+| server.enabled | bool | `true` | Install the xrsocial service |
+| **server.extraEnv** | object | `{}` | [Additional Configuration](#xrchat-additional-configurations) for xrsocial service |
 | server.fullnameOverride | string | `""` | override server fullname template |
 | server.image.pullPolicy | string | `"Always"` | Server pull policy |
 | server.image.repository | string | `"xrchat/server"` | server image repo |
@@ -112,19 +112,18 @@ Dependent charts can also have values overwritten. Preface values with mariadb.*
 | server.service.port | int | `3030` | service http port |
 | server.service.type | string | `"ClusterIP"` | Kubernetes service type |
 
-
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
 ```console
 $ helm install --name my-release \
   --set persistence.enabled=false,email.host=email \
-    xrchat/xrchat
+    xr3ngine/xr3ngine
 ```
 
 Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example,
 
 ```console
-$ helm install --name my-release -f values.yaml xrchat/xrchat
+helm install --name my-release -f values.yaml xr3ngine/xr3ngine
 ```
 
 > **Tip**: You can use the default <values.yaml>
