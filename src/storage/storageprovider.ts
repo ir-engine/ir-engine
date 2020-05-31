@@ -1,7 +1,7 @@
 import S3Storage from './s3.storage'
 import LocalStorage from './local.storage'
 import IStorageProvider from './storageprovider.interface'
-import config from '../../src/config'
+import config from '../config'
 
 export default class StorageProvider implements IStorageProvider {
   provider: IStorageProvider

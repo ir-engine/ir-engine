@@ -4,7 +4,7 @@ import { Email } from './email.class'
 import hooks from './email.hooks'
 import smtpTransport from 'nodemailer-smtp-transport'
 import Mailer from 'feathers-mailer'
-import config from '../../../src/config'
+import config from '../../config'
 
 declare module '../../declarations' {
   interface ServiceTypes {

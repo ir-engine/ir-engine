@@ -1,4 +1,4 @@
-import config from 'config'
+import config from '../config'
 import { Hook, HookContext } from '@feathersjs/feathers'
 import StorageProvider from '../storage/storageprovider'
 import { StaticResource } from '../services/static-resource/static-resource.class'
@@ -22,7 +22,8 @@ export default (options = {}): Hook => {
 
       const storageRemovePromise = new Promise((resolve, reject) => {
         if (staticResource.url && staticResource.url.length > 0) {
-          const key = staticResource.url.replace('https://' + (config.get('aws.cloudfront.domain') as string) + '/', '')
+          const key = staticResource.url.replace('https://' +
+            (config.aws.cloudfront.domain as string) + '/', '')
 
           if (storage === undefined) reject(new Error('Storage is undefined'))
 
@@ -60,7 +61,9 @@ export default (options = {}): Hook => {
         })
       })
 
-      const attributionRemovePromise = staticResource.attributionId ? app.service('attribution').remove(staticResource.attributionId) : Promise.resolve()
+      const attributionRemovePromise = staticResource.attributionId
+        ? app.service('attribution').remove(staticResource.attributionId)
+        : Promise.resolve()
 
       const staticResourceChildrenRemovePromise = Promise.all(childRemovalPromises)
 

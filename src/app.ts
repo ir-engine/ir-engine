@@ -1,5 +1,3 @@
-import dotenv from 'dotenv'
-
 import path from 'path'
 import favicon from 'serve-favicon'
 import compress from 'compression'
@@ -8,7 +6,6 @@ import cors from 'cors'
 import swagger from 'feathers-swagger'
 
 import feathers from '@feathersjs/feathers'
-import configuration from '@feathersjs/configuration'
 import express from '@feathersjs/express'
 import socketio from '@feathersjs/socketio'
 
@@ -22,8 +19,6 @@ import authentication from './authentication'
 import sequelize from './sequelize'
 import config from './config'
 // Don't remove this comment. It's needed to format import lines nicely.
-
-dotenv.config()
 
 const app: Application = express(feathers())
 
@@ -43,8 +38,8 @@ app.configure(
   })
 )
 
-// Load app configuration
-app.configure(configuration())
+app.set('paginate', config.server.paginate)
+app.set('authentication', config.authentication)
 
 app.configure(sequelize)
 
