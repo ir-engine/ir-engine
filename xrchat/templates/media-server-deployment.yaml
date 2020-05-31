@@ -1,40 +1,45 @@
-{{- if .Values.server.enabled -}}
+{{- if .Values.media.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "xrchat.server.fullname" . }}
+  name: {{ include "xrchat.media.fullname" . }}
   labels:
-    {{- include "xrchat.server.labels" . | nindent 4 }}
+    {{- include "xrchat.media.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.server.replicaCount }}
+  replicas: {{ .Values.media.replicaCount }}
   selector:
     matchLabels:
-      {{- include "xrchat.server.selectorLabels" . | nindent 6 }}
+      {{- include "xrchat.media.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "xrchat.server.selectorLabels" . | nindent 8 }}
+        {{- include "xrchat.media.selectorLabels" . | nindent 8 }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/server-configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/media-server-configmap.yaml") . | sha256sum }}
     spec:
-    {{- with .Values.server.imagePullSecrets }}
+    {{- with .Values.media.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ include "xrchat.server.serviceAccountName" . }}
+      serviceAccountName: {{ include "xrchat.media.serviceAccountName" . }}
       securityContext:
-        {{- toYaml .Values.server.podSecurityContext | nindent 8 }}
+        {{- toYaml .Values.media.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
-            {{- toYaml .Values.server.securityContext | nindent 12 }}
-          image: "{{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}"
-          imagePullPolicy: {{ .Values.server.image.pullPolicy }}
+            {{- toYaml .Values.media.securityContext | nindent 12 }}
+          image: "{{ .Values.media.image.repository }}:{{ .Values.media.image.tag }}"
+          imagePullPolicy: {{ .Values.media.image.pullPolicy }}
           envFrom:
             - configMapRef:
-                name: {{ include "xrchat.server.fullname" . }}
+                name: {{ include "xrchat.media.fullname" . }}
+                optional: true
+            - configMapRef:
+                name: {{ include "xrchat.api.fullname" . }}
                 optional: true
           env:
+            - name: SERVER_MODE
+              value: "media"
             - name: KUBERNETES
               value: "true"
             - name: MYSQL_USER
@@ -69,16 +74,16 @@ spec:
               path: /
               port: http
           resources:
-            {{- toYaml .Values.server.resources | nindent 12 }}
-      {{- with .Values.server.nodeSelector }}
+            {{- toYaml .Values.media.resources | nindent 12 }}
+      {{- with .Values.media.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-    {{- with .Values.server.affinity }}
+    {{- with .Values.media.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.server.tolerations }}
+    {{- with .Values.media.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}

@@ -1,0 +1,17 @@
+{{- if .Values.media.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "xrchat.media.fullname" . }}
+  labels:
+    {{- include "xrchat.media.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.media.service.type }}
+  ports:
+    - port: {{ .Values.media.service.port }}
+      targetPort: {{ .Values.media.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "xrchat.media.selectorLabels" . | nindent 4 }}
+{{- end -}}
