@@ -64,7 +64,7 @@ const VideoSeeker = ({ playing, onTogglePlay, onSeekChange, videoLengthSeconds, 
           }
         }} />
       </div>
-      {!playing && (<div className="back-button-container video-control-button">
+      {(<div className="back-button-container video-control-button">
         {backButton}
       </div>)}
       <div className="play-controls video-control-button">
