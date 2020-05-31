@@ -175,7 +175,7 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
           '&rating=' + this.data.rating +
           (Array.isArray(this.data.categories) ? '&categories=' + this.data.categories.join(', ') : this.data.categories.toString()) +
           // '&tags=' + this.data.tags.join(',') +
-          '&videoformat=' + this.data.videoformat
+          '&format=' + this.data.videoformat
         break
       case 'scene':
         url += 'dreamscene?url=' + this.data.url

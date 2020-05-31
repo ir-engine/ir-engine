@@ -40,6 +40,7 @@ export default function RootScene(props: Props): any {
     sceneName = 'video'
   }
   const navigationHandler = e => {
+    e.stopPropagation()
     let url = e.detail.url
 
     if (isExternalUrl(url)) {
@@ -69,7 +70,7 @@ export default function RootScene(props: Props): any {
           setVideoProps({
             manifest: params.get('manifest'),
             title: params.get('title'),
-            format: params.get('videoformat')
+            format: params.get('format')
           })
         }
       }
