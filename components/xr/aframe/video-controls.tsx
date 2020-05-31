@@ -113,10 +113,8 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
       this.createControls()
     }
     if (['playing'].some(prop => changedData.includes(prop))) {
-      const backButton = this.el.getObject3D(this.backButtonName)
       const playPauseButton = this.el.getObject3D(this.playPauseButtonName)
 
-      if (backButton) backButton.visible = !this.data.playing
       if (playPauseButton) playPauseButton.material.map = this.data.playing ? this.pauseBtnImageMap : this.playBtnImageMap
     }
   },
@@ -176,8 +174,6 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
       x: fullBar.position.x - 2,
       map: this.backBtnImageMap
     })
-
-    backButton.visible = !this.data.playing
 
     this.timeline.push(fullBar)
     this.timeline.push(currentTimeBar)
