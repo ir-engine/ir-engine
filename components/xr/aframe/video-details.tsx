@@ -179,7 +179,7 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
       '&rating=' + this.data.rating +
       '&categories=' + this.data.categories.join(',') +
       // '&tags=' + this.data.tags.join(',') +
-      '&videoformat=' + this.data.videoformat
+      '&format=' + this.data.videoformat
     return this.createButton('watch', 'green', 'navigate', url, this.data.detailsWidth / 2,
       -this.data.detailsWidth / 4, -this.data.cellContentHeight, 0,
       this.data.detailsWidth / 2, this.data.cellContentHeight / 4,
