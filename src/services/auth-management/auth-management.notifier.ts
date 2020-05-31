@@ -2,15 +2,16 @@ import { Application } from '../../declarations'
 import { getLink, sendEmail } from './auth-management.utils'
 import * as path from 'path'
 import * as pug from 'pug'
-import config from 'config'
+import config from '../../../src/config'
 
 export default (app: Application): any => {
   return {
-    service: config.get('authentication.service'),
+    service: config.authentication.service,
     identifyUserProps: ['token', 'type'],
     sanitizeUserForClient: async (identityProvider: any): Promise<any> => {
       const authService = app.service('authentication')
-      const accessToken = await authService.createAccessToken({}, { subject: identityProvider.id.toString() })
+      const accessToken = await authService.createAccessToken({},
+        { subject: identityProvider.id.toString() })
 
       return {
         accessToken
@@ -28,8 +29,7 @@ export default (app: Application): any => {
       let email
       let templatePath
       let compiledHTML
-      const mailFrom = process.env.SMTP_FROM_EMAIL ?? 'noreply@myxr.email'
-      const mailSender = `${(process.env.SMTP_FROM_NAME ?? '')}<${mailFrom}>`
+      const mailSender = config.email.from
 
       switch (type) {
         case 'resendVerifySignup': // sending the identityProvider the verification email
@@ -38,8 +38,7 @@ export default (app: Application): any => {
           compiledHTML = pug.compileFile(templatePath)({
             logo: '',
             name: identityProvider.token,
-            hashLink,
-            mailFrom
+            hashLink
           })
 
           email = {
@@ -57,8 +56,7 @@ export default (app: Application): any => {
           compiledHTML = pug.compileFile(templatePath)({
             logo: '',
             name: identityProvider.token,
-            hashLink,
-            mailFrom
+            hashLink
           })
 
           email = {
@@ -76,8 +74,7 @@ export default (app: Application): any => {
           compiledHTML = pug.compileFile(templatePath)({
             logo: '',
             name: identityProvider.token,
-            hashLink,
-            mailFrom
+            hashLink
           })
 
           email = {
@@ -96,8 +93,7 @@ export default (app: Application): any => {
           compiledHTML = pug.compileFile(templatePath)({
             logo: '',
             name: identityProvider.token,
-            hashLink,
-            mailFrom
+            hashLink
           })
 
           email = {
@@ -114,8 +110,7 @@ export default (app: Application): any => {
 
           compiledHTML = pug.compileFile(templatePath)({
             logo: '',
-            name: identityProvider.token,
-            mailFrom
+            name: identityProvider.token
           })
 
           email = {
@@ -136,7 +131,6 @@ export default (app: Application): any => {
             logo: '',
             name: identityProvider.token,
             hashLink,
-            mailFrom,
             changes: identityProvider.verifyChanges
           })
 

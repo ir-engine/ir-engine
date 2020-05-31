@@ -39,6 +39,12 @@ server.url = process.env.SERVER_URL ??
  * Client / frontend configuration
  */
 const client: any = {
+  // Client app logo
+  // FIXME - change to XR3ngine logo
+  logo: process.env.APP_LOGO ?? 'https://kaixr-static.s3-us-west-2.amazonaws.com/logo.png',
+  // Client app name
+  // FIXME - change to XR3ngine
+  title: process.env.APP_LOGO ?? 'KaiXR',
   url: process.env.APP_URL ??
     process.env.APP_HOST ?? // Legacy env var, to deprecate
     'http://localhost:3000'
@@ -47,20 +53,41 @@ const client: any = {
 /**
  * Email / SMTP configuration
  */
-
 const email: any = {
-  from: `${process.env.SMTP_FROM_NAME ?? 'MyXR.Social'}` +
-    ` <${process.env.SMTP_FROM_EMAIL ?? 'noreply@myxr.email'}>`
+  smtp: {
+    host: process.env.SMTP_HOST,
+    port: (process.env.SMTP_PORT) ? +process.env.SMTP_PORT : 2525,
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS
+    }
+  },
+  // Name and email of default sender (for login emails, etc)
+  from: `${process.env.SMTP_FROM_NAME ?? 'XR3ngine'}` +
+    ` <${process.env.SMTP_FROM_EMAIL ?? 'noreply@myxr.email'}>`,
+  subject: {
+    // Subject of the Login Link email
+    login: 'Your login link'
+  }
+}
+
+/**
+ * Authentication config
+ */
+const authentication: any = {
+  service: 'identity-provider'
 }
 
 /**
  * Full config
  */
 const config: any = {
-  db,
-  server,
+  authentication,
   client,
-  email
+  db,
+  email,
+  server
 }
 
 console.log(inspect(config))
