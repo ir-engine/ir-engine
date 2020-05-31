@@ -7,7 +7,7 @@ import dotenv from 'dotenv-flow'
 dotenv.config()
 
 /**
- * Database configuration
+ * Database
  */
 const db: any = {
   username: process.env.MYSQL_USER ?? 'server',
@@ -22,7 +22,7 @@ db.url = process.env.MYSQL_URL ??
   `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
 
 /**
- * Server / backend configuration
+ * Server / backend
  */
 const server: any = {
   hostname: process.env.SERVER_HOSTNAME ?? 'localhost',
@@ -30,13 +30,14 @@ const server: any = {
   // Public directory (used for favicon.ico, logo, etc)
   publicDir: process.env.SERVER_PUBLIC_DIR ?? path.resolve(__dirname, '..', 'public'),
   // Used for CI/tests to force Sequelize init an empty database
-  performDryRun: process.env.PERFORM_DRY_RUN ?? false
+  performDryRun: process.env.PERFORM_DRY_RUN ?? false,
+  storageProvider: process.env.STORAGE_PROVIDER ?? 'aws'
 }
 server.url = process.env.SERVER_URL ??
   url.format({ protocol: 'https', ...server })
 
 /**
- * Client / frontend configuration
+ * Client / frontend
  */
 const client: any = {
   // Client app logo
@@ -51,7 +52,7 @@ const client: any = {
 }
 
 /**
- * Email / SMTP configuration
+ * Email / SMTP
  */
 const email: any = {
   smtp: {
@@ -73,10 +74,26 @@ const email: any = {
 }
 
 /**
- * Authentication config
+ * Authentication
  */
 const authentication: any = {
-  service: 'identity-provider'
+  service: 'identity-provider',
+  callback: {
+    facebook: process.env.FACEBOOK_CALLBACK_URL ?? `${client.url}/oauth/facebook`,
+    github: process.env.GITHUB_CALLBACK_URL ?? `${client.url}/oauth/github`,
+    google: process.env.GOOGLE_CALLBACK_URL ?? `${client.url}/oauth/google`
+  }
+}
+
+/**
+ * AWS
+ */
+const aws: any = {
+  sms: {
+    region: process.env.AWS_SMS_REGION ?? '',
+    accessKeyId: process.env.AWS_SMS_ACCESS_KEY_ID ?? '',
+    secretAccessKey: process.env.AWS_SMS_SECRET_ACCESS_KEY ?? ''
+  }
 }
 
 /**
@@ -84,6 +101,7 @@ const authentication: any = {
  */
 const config: any = {
   authentication,
+  aws,
   client,
   db,
   email,

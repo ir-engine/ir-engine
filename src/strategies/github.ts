@@ -1,5 +1,6 @@
 import { OAuthStrategy } from '@feathersjs/authentication-oauth'
 import { Params } from '@feathersjs/feathers'
+import config from '../../src/config'
 
 export default class GithubStrategy extends OAuthStrategy {
   async getEntityData (profile: any, params?: Params): Promise<any> {
@@ -14,7 +15,7 @@ export default class GithubStrategy extends OAuthStrategy {
   }
 
   async getRedirect (data: any, params?: Params): Promise<string> {
-    const redirectHost = process.env.GITHUB_CALLBACK_URL ?? ''
+    const redirectHost = config.authentication.callback.github as string
 
     const type = (params?.query?.userId) ? 'login' : 'connection'
     if (Object.getPrototypeOf(data) === Error.prototype) {
