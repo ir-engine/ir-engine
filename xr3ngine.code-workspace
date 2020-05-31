@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../xrsocial"
+		},
+		{
+			"path": "../xrsocial-client"
+		},
+		{
+			"path": "../Spoke"
+		}
+	],
+	"settings": {}
+}
