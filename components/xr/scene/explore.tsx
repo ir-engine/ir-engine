@@ -70,6 +70,7 @@ const ExploreScene = (props: VideoProps): any => {
 
   const focusCell = (event: any) => {
     const focusCellEl = event.target.parentEl
+    event.stopPropagation()
     setExploreState({
       focusedCellEl: focusCellEl,
       focusedCell: {
