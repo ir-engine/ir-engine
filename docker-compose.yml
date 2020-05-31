@@ -1,7 +1,7 @@
 version: '2.3'
 services:
   rts:    #xrchat-realtime-server
-    image: xrchat/realtime-server
+    image: xr3ngine/realtime-server
     restart: always
     environment:
       NAF_LISTEN_PORT: 8081
@@ -9,7 +9,7 @@ services:
       - '8081:8081'
 
   server:
-    image: xrchat/server
+    image: xr3ngine/server
     restart: always
     environment:
       PORT: 3030
@@ -21,13 +21,13 @@ services:
       - db
   
   client:
-    image: xrchat/client
+    image: xr3ngine/client
     restart: always
     ports:
       - '3000:3000'
   
   spoke:
-    image: xrchat/spoke
+    image: xr3ngine/spoke
     restart: always
     environment: 
       BASE_ASSETS_PATH: http://xrchat.local/ 
