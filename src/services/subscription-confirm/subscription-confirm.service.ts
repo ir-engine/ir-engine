@@ -2,7 +2,7 @@ import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { SubscriptionConfirm } from './subscription-confirm.class'
 import hooks from './subscription-confirm.hooks'
-import config from '../../../src/config'
+import config from '../../config'
 
 // Add this service to the service type index
 declare module '../../declarations' {

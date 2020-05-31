@@ -2,7 +2,7 @@ import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common'
 import { HookContext } from '@feathersjs/feathers'
 import { v1 as uuidv1 } from 'uuid'
-import config from 'config'
+import config from '../../config'
 
 import getBasicMimetype from '../../util/get-basic-mimetype'
 import setResponseStatus from '../../hooks/set-response-status-code'
@@ -25,7 +25,9 @@ const createOwnedFile = (options = {}) => {
       ownedFileId: body.fileId,
       name: data.name || body.name,
       url: data.uri || data.url,
-      key: (data.uri || data.url).replace(`${(config.get('aws.s3.baseUrl') as string)}/${(config.get('aws.s3.static_resource_bucket') as string)}/`, ''),
+      key: (data.uri || data.url)
+        .replace(`${(config.aws.s3.baseUrl as string)}/` +
+          `${config.aws.s3.staticResourceBucket as string}/`, ''),
       content_type: data.mimeType || params.mimeType,
       metadata: data.metadata || body.metadata,
       state: 'active',

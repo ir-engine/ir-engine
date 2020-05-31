@@ -6,9 +6,9 @@ import {
 } from '@feathersjs/feathers'
 import { resolveModelData } from '../../util/model-resolver'
 import { Transaction, Sequelize } from 'sequelize'
-import config from 'config'
+import config from '../../config'
 
-const loggedInUserEntity: string = config.get('authentication.entity') || 'user'
+const loggedInUserEntity: string = config.authentication.entity
 
 export class RelationRelation extends Service {
   app: Application

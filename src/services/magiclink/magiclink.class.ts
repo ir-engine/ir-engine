@@ -16,7 +16,7 @@ import * as pug from 'pug'
 import { Service } from 'feathers-sequelize'
 import { IdentityProvider } from '../identity-provider/identity-provider.class'
 import { BadRequest } from '@feathersjs/errors'
-import config from '../../../src/config'
+import config from '../../config'
 
 interface Data {}
 
