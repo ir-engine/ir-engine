@@ -29,10 +29,12 @@ services:
       context: ../xrchat-client
     image: xrchat/client
     environment:
+        NEXT_PUBLIC_API_SERVER: https://api.kaixr.world
         API_SERVER: https://api.kaixr.world
         SITE_TITLE: KaiXR
         SITE_DESC: Connected Worlds for Everyone
         NODE_ENV: kai
+        # NODE_CONFIG: '{"publicRuntimeConfig":{"apiServer":"https://api-dev.kaixr.world","dev":true,"featherStoreKey":"XRChat-Auth-Store","localStorageKey":"xrchat-client-store-key-v1","loginDisabled":true,"logo":"https://kaixr-static.s3-us-west-2.amazonaws.com/logo.png","siteDescription":"Connected Worlds for Everyone","siteTitle":"KaiXR","title":"KaiXR","xr":{"environment":{"scene-gltf":{"name":"Launchpad","src":"https://kaixr-scenes.s3-us-west-2.amazonaws.com/Launchpad/Launchpad.gltf"},"skybox":{"height":2048,"radius":5000,"rotation":{"true":0,"x":90,"z":90},"src":"/textures/nightsky.jpg","thetaLength":180,"width":2048}},"grid":{"placeholderImageSrc":"https://kaixr-static.s3-us-west-2.amazonaws.com/logo.png","skybox":{"height":2048,"radius":5000,"rotation":{"true":0,"x":90,"z":90},"src":"/textures/nightsky.jpg","thetaLength":180,"width":2048}},"landing":{"spoke":{"link":"/create","src":"https://kaixr-static.s3-us-west-2.amazonaws.com/banner/Create.glb"},"store":{"link":"curated-x-kai-inc.myshopify.com","src":"https://kaixr-static.s3-us-west-2.amazonaws.com/banner/Shop.glb"},"video360":{"link":"/explore","src":"https://kaixr-static.s3-us-west-2.amazonaws.com/banner/Explore.glb"},"vrRoom":{"link":"/dream","src":"https://kaixr-static.s3-us-west-2.amazonaws.com/banner/Dream.glb"}}}}}'
     restart: always
     ports:
       - '3000:3000'
