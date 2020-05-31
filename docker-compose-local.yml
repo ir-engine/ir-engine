@@ -2,8 +2,8 @@ version: '2.3'
 services:
   rts:    #xrchat-realtime-server
     build: 
-      context: ../xrchat-realtime-server
-    image: xrchat/realtime-server
+      context: ../xrsocial-realtime-server
+    image: xr3ngine/realtime-server
     restart: always
     environment:
       NAF_LISTEN_PORT: 8081
@@ -12,8 +12,8 @@ services:
 
   server:
     build: 
-      context: ../xrchat-server
-    image: xrchat/server
+      context: ../xrsocial
+    image: xr3ngine/server
     restart: always
     environment:
       PORT: 3030
@@ -26,8 +26,8 @@ services:
   
   client:
     build: 
-      context: ../xrchat-client
-    image: xrchat/client
+      context: ../xrsocial-client
+    image: xr3ngine/client
     environment:
         NEXT_PUBLIC_API_SERVER: https://api.kaixr.world
         API_SERVER: https://api.kaixr.world
@@ -42,7 +42,7 @@ services:
   spoke:
     build:
       context: ../Spoke
-    image: xrchat/spoke
+    image: xr3ngine/spoke
     environment: 
       BASE_ASSETS_PATH: http://xrchat.local/ 
       HUBS_SERVER: xrchat.local:4000
