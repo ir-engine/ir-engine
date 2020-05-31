@@ -13,7 +13,7 @@ configs/*splunk*
 values/*.yaml
 
 
-xrchat/Chart\.lock
+xr3ngine/Chart\.lock
 
 _site
 .sass-cache
