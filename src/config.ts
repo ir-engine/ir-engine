@@ -25,13 +25,28 @@ db.url = process.env.MYSQL_URL ??
  * Server / backend
  */
 const server: any = {
+  mode: process.env.SERVER_MODE ?? 'media',
   hostname: process.env.SERVER_HOSTNAME ?? 'localhost',
   port: process.env.SERVER_PORT ?? 3030,
   // Public directory (used for favicon.ico, logo, etc)
   publicDir: process.env.SERVER_PUBLIC_DIR ?? path.resolve(__dirname, '..', 'public'),
   // Used for CI/tests to force Sequelize init an empty database
   performDryRun: process.env.PERFORM_DRY_RUN ?? false,
-  storageProvider: process.env.STORAGE_PROVIDER ?? 'aws'
+  storageProvider: process.env.STORAGE_PROVIDER ?? 'aws',
+  gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID ?? '',
+  sketchFab: {
+    authToken: process.env.SKETCH_FAB_AUTH_TOKEN ?? ''
+  },
+  googlePoly: {
+    authToken: process.env.GOOGLE_POLY_AUTH_TOKEN ?? ''
+  },
+  hub: {
+    endpoint: process.env.HUB_ENDPOINT ?? 'https://hubs.mozilla.com'
+  },
+  paginate: {
+    default: 10,
+    max: 100
+  }
 }
 server.url = process.env.SERVER_URL ??
   url.format({ protocol: 'https', ...server })
@@ -78,6 +93,12 @@ const email: any = {
  */
 const authentication: any = {
   service: 'identity-provider',
+  entity: 'identity-provider',
+  secret: process.env.AUTH_SECRET ?? '',
+  local: {
+    usernameField: 'email',
+    passwordField: 'password'
+  },
   callback: {
     facebook: process.env.FACEBOOK_CALLBACK_URL ?? `${client.url}/oauth/facebook`,
     github: process.env.GITHUB_CALLBACK_URL ?? `${client.url}/oauth/github`,
@@ -89,9 +110,23 @@ const authentication: any = {
  * AWS
  */
 const aws: any = {
+  keys: {
+    accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID ?? '',
+    secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET ?? ''
+  },
+  s3: {
+    baseUrl: 'https://s3.amazonaws.com',
+    staticResourceBucket: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET ?? 'default',
+    region: process.env.STORAGE_S3_REGION ?? 'us-east-1',
+    cloudfront: {
+      domain: process.env.STORAGE_S3_CLOUDFRONT_DOMAIN ?? ''
+    }
+  },
   sms: {
-    region: process.env.AWS_SMS_REGION ?? '',
     accessKeyId: process.env.AWS_SMS_ACCESS_KEY_ID ?? '',
+    applicationId: process.env.AWS_SMS_APPLICATION_ID ?? '',
+    region: process.env.AWS_SMS_REGION ?? '',
+    senderId: process.env.AWS_SMS_SENDER_ID ?? '',
     secretAccessKey: process.env.AWS_SMS_SECRET_ACCESS_KEY ?? ''
   }
 }

@@ -166,7 +166,6 @@ spec:
 #                command:
 #                  - /bin/sh
 #                  - -c
-#                  - cp /usr/src/lifescope-api/config/tmp/dev.json /usr/src/lifescope-api/config/dev.json
           imagePullPolicy: IfNotPresent
 #      dnsPolicy: Default
 #      volumes:

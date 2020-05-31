@@ -1,4 +1,4 @@
-import config from 'config'
+import config from '../config'
 import { Hook, HookContext } from '@feathersjs/feathers'
 
 export default (options = {}): Hook => {
@@ -9,7 +9,8 @@ export default (options = {}): Hook => {
 
     delete context.result.uri
 
-    const url = 'https://' + (config.get('aws.cloudfront.domain') as string) + '/' + (context.result.id as string || context.data.id as string)
+    const url = 'https://' + (config.aws.cloudfront.domain as string) + '/' +
+      (context.result.id as string || context.data.id as string)
 
     context.data.url = url
 

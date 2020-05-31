@@ -1,8 +1,8 @@
 import { HookContext } from '@feathersjs/feathers'
-import config from 'config'
+import config from '../config'
 
 // Get the logged in user entity
-const loggedInUserEntity: string = config.get('authentication.entity') || 'user'
+const loggedInUserEntity: string = config.authentication.entity
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default (userRole: string) => {

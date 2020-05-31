@@ -1,6 +1,6 @@
 import { OAuthStrategy } from '@feathersjs/authentication-oauth'
 import { Params } from '@feathersjs/feathers'
-import config from '../../src/config'
+import config from '../config'
 
 export default class FacebookStrategy extends OAuthStrategy {
   async getEntityData (profile: any, params?: Params): Promise<any> {

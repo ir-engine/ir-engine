@@ -1,5 +1,5 @@
 import AWS from 'aws-sdk'
-import config from '../../../src/config'
+import config from '../../config'
 
 export async function sendSms (phone: string, text: string): Promise<void> {
   const params = {
