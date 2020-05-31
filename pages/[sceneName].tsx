@@ -3,6 +3,9 @@ import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import Error404 from './404'
 import capitalizeFirstLetter from '../utils/capitalizeFirstLetter'
+import getConfig from 'next/config'
+const config = getConfig().publicRuntimeConfig.xr
+
 const Scene = dynamic(() => import('../components/xr/scene/index'), { ssr: false })
 
 export const ScenePage = () => {
@@ -14,12 +17,12 @@ export const ScenePage = () => {
   }
   const scenes = [
     {
-      sceneName: 'dream'
+      sceneName: config.vrRoomGrid.name
     },
     {
-      sceneName: 'dreamscene',
+      sceneName: config.vrRoomGrid.name + '-scene',
       queryProps: ['url'],
-      pageTitle: 'DreamScene'
+      pageTitle: capitalizeFirstLetter(config.vrRoomGrid.name) + ' Scene'
     },
     {
       sceneName: 'video',
@@ -30,7 +33,7 @@ export const ScenePage = () => {
       queryProps: ['manifest', 'title', 'format']
     },
     {
-      sceneName: 'explore'
+      sceneName: config.videoGrid.name
     }]
   const scene = scenes.find(scene => scene.sceneName === sceneName)
   // if page doesn't exist (as defined in above array) send to 404 page.

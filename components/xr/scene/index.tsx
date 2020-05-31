@@ -1,5 +1,5 @@
 // TODO: reset player location to center/origin on navigate
-// TODO: fix dreamscene models not loading textures/lighting on navigation
+// TODO: fix VrRoomScene models not loading textures/lighting on navigation
 
 import React, { useState, useEffect } from 'react'
 import SceneContainer from './scene-container'
@@ -11,12 +11,15 @@ import './style.scss'
 import AframeComponentRegisterer from '../aframe/index'
 
 import LandingScene from './landing'
-import ExploreScene from './explore'
-import DreamScene from './dream'
-import DreamSceneScene from './dream-scene'
+import VideoGridScene from './videoGrid'
+import VrRoomGridScene from './vrRoomGrid'
+import VrRoomScene from './vrRoom'
 import VideoScene, { VideoProps } from './video'
 
 import isExternalUrl from '../../../utils/isExternalUrl'
+
+import getConfig from 'next/config'
+const config = getConfig().publicRuntimeConfig.xr
 
 interface Props {
   sceneName?: string,
@@ -33,14 +36,14 @@ export default function RootScene(props: Props): any {
     title: props.title || '',
     format: props.format || ''
   } as VideoProps)
-  const [dreamUrl, setDreamUrl] = useState(props.url || '')
+  const [vrRoomUrl, setVrRoomUrl] = useState(props.url || '')
   const [playerMovementEnabled, setPlayerMovementEnabled] = useState(true)
   // fix for video360 dynamic route
   if (sceneName === 'video360') {
     sceneName = 'video'
   }
   const navigationHandler = e => {
-    e.stopPropagation()
+    if (e.stopPropagation) e.stopPropagation()
     let url = e.detail.url
 
     if (isExternalUrl(url)) {
@@ -62,10 +65,10 @@ export default function RootScene(props: Props): any {
       if (newSceneName === 'video360') {
         newSceneName = 'video'
       }
-      if (newSceneName === 'dreamscene' || newSceneName === 'video') {
+      if (newSceneName === config.vrRoomGrid.name + '-scene' || newSceneName === 'video') {
         const params = new URLSearchParams(document.location.search.substring(1))
-        if (newSceneName === 'dreamscene') {
-          setDreamUrl(params.get('url'))
+        if (newSceneName === config.vrRoomGrid.name + '-scene') {
+          setVrRoomUrl(params.get('url'))
         } else {
           setVideoProps({
             manifest: params.get('manifest'),
@@ -83,6 +86,7 @@ export default function RootScene(props: Props): any {
     if (!e.state || !e.state.as) return
     e.preventDefault()
     // use 'as' as the url, from history state.
+    e.stopPropagation()
     navigationHandler({ detail: { url: (e as PopStateEvent).state.as, isPopState: true } })
   }
   useEffect(() => {
@@ -105,12 +109,14 @@ export default function RootScene(props: Props): any {
         <AframeComponentRegisterer />
         <Assets />
         <Player movement-enabled={playerMovementEnabled} />
-        {sceneName !== 'video' && sceneName !== 'dreamscene' && <Environment />}
+        {sceneName !== 'video' &&
+         sceneName !== config.vrRoomGrid.name + '-scene' &&
+         <Environment />}
 
         {sceneName === 'landing' && <LandingScene />}
-        {sceneName === 'explore' && <ExploreScene />}
-        {sceneName === 'dream' && <DreamScene />}
-        {sceneName === 'dreamscene' && <DreamSceneScene url={dreamUrl} />}
+        {sceneName === config.videoGrid.name && <VideoGridScene />}
+        {sceneName === config.vrRoomGrid.name && <VrRoomGridScene />}
+        {sceneName === config.vrRoomGrid.name + '-scene' && <VrRoomScene url={vrRoomUrl} />}
         {sceneName === 'video' &&
           <VideoScene
             manifest={videoProps.manifest}

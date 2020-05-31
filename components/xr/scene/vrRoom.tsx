@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setAppLoaded } from '../../../redux/app/actions'
 import { selectAppState } from '../../../redux/app/selector'
 
-export interface DreamSceneProps {
+export interface VrRoomSceneProps {
   url: string
 }
 // loading progress bar is reset back to 0 as a result of this.
@@ -17,7 +17,7 @@ export interface DreamSceneProps {
 // https://github.com/aframevr/aframe/blob/master/src/components/gltf-model.js#L35
 // emitting an event, and updating progress bar accordingly.
 // A fully solution could be to integrate this with assets loading bar so loading bar doesn't reset back to 0
-export default function DreamSceneScene(props: DreamSceneProps) {
+export default function VrRoomScene(props: VrRoomSceneProps) {
   const [gltfLoaded, setGltfLoaded] = useState(false)
   const loaded = useSelector(state => selectAppState(state)).get('loaded')
   const dispatch = useDispatch()

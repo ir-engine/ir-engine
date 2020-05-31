@@ -11,6 +11,10 @@ import { setViewportSize } from '../../../redux/app/actions'
 import { selectVideo360State } from '../../../redux/video360/selector'
 import { setVideoPlaying } from '../../../redux/video360/actions'
 import { shakaPropTypes } from './ShakaPlayer'
+
+import getConfig from 'next/config'
+const config = getConfig().publicRuntimeConfig.xr.videoGrid
+
 const ShakaPlayerComp = dynamic(() => import('./ShakaPlayer'), { ssr: false })
 
 const dashManifestName = 'manifest.mpd'
@@ -21,7 +25,7 @@ function getManifestUri(manifestPath: string): string {
   return AFRAME.utils.device.isIOS() ? manifestPath.replace(dashManifestName, hlsPlaylistName) : manifestPath
 }
 
-const backButtonHref = '/explore'
+const backButtonHref = config.name
 
 export interface Video360Props {
   manifest: string

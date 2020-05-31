@@ -8,8 +8,8 @@ const config = getConfig().publicRuntimeConfig.xr
 const env = config.environment
 const grid = config.grid
 const spoke = config.spoke
-const vrRoom = config.vrRoom
-const video360 = config.video360
+const vrRoomGrid = config.vrRoomGrid
+const videoGrid = config.videoGrid
 const store = config.store
 
 interface ImageType {
@@ -80,12 +80,12 @@ const landingAssets = [
     src: spoke.src
   },
   {
-    id: 'vrRoomBanner',
-    src: vrRoom.src
+    id: 'vrRoomGridBanner',
+    src: vrRoomGrid.src
   },
   {
-    id: 'video360Banner',
-    src: video360.src
+    id: 'videoGridBanner',
+    src: videoGrid.src
   },
   {
     id: 'storeBanner',

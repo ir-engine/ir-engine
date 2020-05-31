@@ -50,6 +50,7 @@ export interface MediaCellData {
   tags: string[],
   mediatype: string,
   linktype: string,
+  sceneLinkPrefix: string,
   videoformat: string,
   clickable: boolean,
   linkEnabled: boolean
@@ -73,6 +74,7 @@ export const MediaCellComponentSchema: AFRAME.MultiPropertySchema<MediaCellData>
   tags: { default: [] },
   mediatype: { default: 'video360' },
   linktype: { default: 'internal' },
+  sceneLinkPrefix: { default: 'vrRoom' },
   videoformat: { default: 'eac' },
   clickable: { default: true },
   linkEnabled: { default: true }
@@ -175,10 +177,10 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
           '&rating=' + this.data.rating +
           (Array.isArray(this.data.categories) ? '&categories=' + this.data.categories.join(', ') : this.data.categories.toString()) +
           // '&tags=' + this.data.tags.join(',') +
-          '&format=' + this.data.videoformat
+          '&videoformat=' + this.data.videoformat
         break
       case 'scene':
-        url += 'dreamscene?url=' + this.data.url
+        url += this.data.sceneLinkPrefix + '-scene?url=' + this.data.url
         break
       case 'landing':
         url += this.data.url
@@ -209,6 +211,7 @@ const primitiveProps = [
   'tags',
   'mediatype',
   'linktype',
+  'sceneLinkPrefix',
   'videoformat',
   'clickable',
   'linkEnabled',

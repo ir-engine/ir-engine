@@ -11,7 +11,7 @@ import { selectVideoState } from '../../../redux/video/selector'
 import { fetchPublicVideos } from '../../../redux/video/service'
 
 import getConfig from 'next/config'
-const config = getConfig().publicRuntimeConfig.xr.video360
+const config = getConfig().publicRuntimeConfig.xr.videoGrid
 
 const cellHeight = config.cellHeight
 const cellContentHeight = config.cellContentHeight
@@ -46,7 +46,7 @@ interface CellData {
   runtime: string
 }
 
-interface ExploreState {
+interface VideoGridState {
   focusedCellEl: HTMLElement | null,
   focusedCell: CellData | null
 }
@@ -61,17 +61,17 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   fetchPublicVideos: bindActionCreators(fetchPublicVideos, dispatch)
 })
 
-const ExploreScene = (props: VideoProps): any => {
+const VideoGridScene = (props: VideoProps): any => {
   const { videos, fetchPublicVideos } = props
   const [videosArr, setVideosArr] = useState([])
-  const [exploreState, setExploreState] = useState<ExploreState>({ focusedCellEl: null, focusedCell: null })
+  const [videoGridState, setVideoGridState] = useState<VideoGridState>({ focusedCellEl: null, focusedCell: null })
   const [pageOffset, setPageOffset] = useState(0)
   const [visitedPages, setVisitedPages] = useState([])
 
   const focusCell = (event: any) => {
     const focusCellEl = event.target.parentEl
     event.stopPropagation()
-    setExploreState({
+    setVideoGridState({
       focusedCellEl: focusCellEl,
       focusedCell: {
         title: (focusCellEl.attributes as any).title.value,
@@ -88,7 +88,7 @@ const ExploreScene = (props: VideoProps): any => {
   }
 
   const unFocusCell = () => {
-    setExploreState({ focusedCellEl: null, focusedCell: null })
+    setVideoGridState({ focusedCellEl: null, focusedCell: null })
   }
 
   useEffect(() => {
@@ -131,9 +131,9 @@ const ExploreScene = (props: VideoProps): any => {
   // TODO: possible more robust solution is use MutationObserver to look for changes in children of grid el
   return (
     <Entity position={pos}>
-      { videosArr.length && exploreState.focusedCellEl === null &&
+      { videosArr.length && videoGridState.focusedCellEl === null &&
         <Entity
-          id="explore-grid"
+          id="videoGrid-grid"
           class="grid"
           primitive="a-grid"
           rows={rows}
@@ -146,7 +146,7 @@ const ExploreScene = (props: VideoProps): any => {
             return (
               <Entity
                 key={i}
-                id={'explore-cell-' + i}
+                id={'videoGrid-cell-' + i}
                 primitive="a-media-cell"
                 title={video.name}
                 description={video.description}
@@ -172,22 +172,22 @@ const ExploreScene = (props: VideoProps): any => {
           })}
         </Entity>
       }
-      { exploreState.focusedCellEl !== null &&
+      { videoGridState.focusedCellEl !== null &&
           <Entity
             position={fpos}>
             <Entity
               id="focused-cell"
               primitive="a-video-details"
               mediatype="video360"
-              title={exploreState.focusedCell?.title}
-              description={exploreState.focusedCell?.description}
-              videoformat={exploreState.focusedCell?.videoformat}
-              media-url={exploreState.focusedCell?.mediaUrl}
-              thumbnail-url={exploreState.focusedCell?.thumbnailUrl}
-              production-credit={exploreState.focusedCell?.productionCredit}
-              rating={exploreState.focusedCell?.rating}
-              categories={exploreState.focusedCell?.categories}
-              runtime={exploreState.focusedCell?.runtime}
+              title={videoGridState.focusedCell?.title}
+              description={videoGridState.focusedCell?.description}
+              videoformat={videoGridState.focusedCell?.videoformat}
+              media-url={videoGridState.focusedCell?.mediaUrl}
+              thumbnail-url={videoGridState.focusedCell?.thumbnailUrl}
+              production-credit={videoGridState.focusedCell?.productionCredit}
+              rating={videoGridState.focusedCell?.rating}
+              categories={videoGridState.focusedCell?.categories}
+              runtime={videoGridState.focusedCell?.runtime}
               cell-height={cellHeight}
               cell-width={cellWidth}
               details-width={cellWidth * 2}
@@ -202,4 +202,4 @@ const ExploreScene = (props: VideoProps): any => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(ExploreScene)
+)(VideoGridScene)

@@ -6,6 +6,9 @@ import { connect } from 'react-redux'
 import { setVideoPlaying } from '../../../redux/video360/actions'
 import { selectVideo360State } from '../../../redux/video360/selector'
 
+import getConfig from 'next/config'
+const config = getConfig().publicRuntimeConfig.xr.videoGrid
+
 type Props = {
   videosrc: string
   videotext: string
@@ -169,7 +172,7 @@ class VideoControls extends Component<Props, State> {
   }
 
   private exitVideoHandler() {
-    Router.push('/explore')
+    Router.push(config.link)
   }
 
   render() {

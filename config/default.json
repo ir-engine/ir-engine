@@ -73,11 +73,11 @@
           "z": 4.5
         }
       },
-      "vrRoom": {
+      "vrRoomGrid": {
         "enabled": true,
-        "name": "vrRoom",
+        "name": "vrRoomGrid",
         "src": "",
-        "link": "/videoGrid",
+        "link": "/vrRoomGrid",
         "cellWidth": 1,
         "cellContentHeight": 1,
         "cellHeight": 1.1,
@@ -93,11 +93,11 @@
           "src": ""
         }
       },
-      "video360": {
+      "videoGrid": {
         "enabled": true,
-        "name": "video360",
+        "name": "videoGrid",
         "src": "",
-        "link": "/environment",
+        "link": "/video",
         "rows": 3,
         "columns": 5,
         "cellWidth": 1,

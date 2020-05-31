@@ -6,8 +6,8 @@ import { getSourceType } from './assets'
 
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr.landing
-const video360 = getConfig().publicRuntimeConfig.xr.video360
-const vrRoom = getConfig().publicRuntimeConfig.xr.vrRoom
+const videoGrid = getConfig().publicRuntimeConfig.xr.videoGrid
+const vrRoomGrid = getConfig().publicRuntimeConfig.xr.vrRoomGrid
 const spoke = getConfig().publicRuntimeConfig.xr.spoke
 const store = getConfig().publicRuntimeConfig.xr.store
 
@@ -40,20 +40,20 @@ export default function LandingScene (): any {
         cell-content-height={cellContentHeight}>
         <Entity
           primitive="a-media-cell"
-          title="video360"
-          media-url={video360.link}
-          thumbnail-type={getSourceType(video360.src)}
-          thumbnail-url="#video360Banner"
+          title="videoGrid"
+          media-url={videoGrid.link}
+          thumbnail-type={getSourceType(videoGrid.src)}
+          thumbnail-url="#videoGridBanner"
           cell-height={cellHeight}
           cell-width={cellWidth}
           cell-content-height={cellContentHeight}
           mediatype="landing"
-          link-enabled={!video360.comingSoon.enabled}>
-          { video360.comingSoon.enabled &&
+          link-enabled={!videoGrid.comingSoon.enabled}>
+          { videoGrid.comingSoon.enabled &&
               <Entity
                 position={comingSoon.pos}
                 primitive="a-image"
-                src={video360.comingSoon.src}
+                src={videoGrid.comingSoon.src}
                 opacity={comingSoon.opacity}
                 width={comingSoon.width}
                 height={comingSoon.height}
@@ -62,20 +62,20 @@ export default function LandingScene (): any {
         </Entity>
         <Entity
           primitive="a-media-cell"
-          title="vrRoom"
-          media-url={vrRoom.link}
-          thumbnail-type={getSourceType(vrRoom.src)}
-          thumbnail-url="#vrRoomBanner"
+          title="vrRoomGrid"
+          media-url={vrRoomGrid.link}
+          thumbnail-type={getSourceType(vrRoomGrid.src)}
+          thumbnail-url="#vrRoomGridBanner"
           cell-height={cellHeight}
           cell-width={cellWidth}
           cell-content-height={cellContentHeight}
           mediatype="landing"
-          link-enabled={!vrRoom.comingSoon.enabled}>
-          { vrRoom.comingSoon.enabled &&
+          link-enabled={!vrRoomGrid.comingSoon.enabled}>
+          { vrRoomGrid.comingSoon.enabled &&
               <Entity
                 position={comingSoon.pos}
                 primitive="a-image"
-                src={vrRoom.comingSoon.src}
+                src={vrRoomGrid.comingSoon.src}
                 opacity={comingSoon.opacity}
                 width={comingSoon.width}
                 height={comingSoon.height}

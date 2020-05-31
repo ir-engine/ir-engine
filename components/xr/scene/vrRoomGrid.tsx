@@ -11,7 +11,7 @@ import { selectScenesState } from '../../../redux/scenes/selector'
 import { fetchPublicScenes } from '../../../redux/scenes/service'
 
 import getConfig from 'next/config'
-const config = getConfig().publicRuntimeConfig.xr.vrRoom
+const config = getConfig().publicRuntimeConfig.xr.vrRoomGrid
 
 const cellHeight = config.cellHeight
 const cellContentHeight = config.cellContentHeight
@@ -24,7 +24,7 @@ const y = config.offset.y
 const z = config.offset.z
 const pos = x + ' ' + y + ' ' + z
 
-interface DreamProps {
+interface VrRoomGridProps {
   scenes: any
   fetchPublicScenes: typeof fetchPublicScenes
 }
@@ -39,7 +39,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   fetchPublicScenes: bindActionCreators(fetchPublicScenes, dispatch)
 })
 
-const DreamScene = (props: DreamProps): any => {
+const VrRoomGridScene = (props: VrRoomGridProps): any => {
   const { scenes, fetchPublicScenes } = props
 
   useEffect(() => {
@@ -67,6 +67,7 @@ const DreamScene = (props: DreamProps): any => {
               cell-width={cellWidth}
               cell-content-height={cellContentHeight}
               mediatype="scene"
+              scene-link-prefix={config.name}
             />
           )
         })}
@@ -75,4 +76,4 @@ const DreamScene = (props: DreamProps): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DreamScene)
+export default connect(mapStateToProps, mapDispatchToProps)(VrRoomGridScene)
