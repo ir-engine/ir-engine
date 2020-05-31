@@ -5,7 +5,7 @@ Deployment and Operations for xrchat services
 
 You can run the whole platfrom with the following commands:
 ``` bash
-helm repo add xrchat https://xrchat.github.io/xrchat-ops/
+helm repo add xrchat https://xr3ngine.github.io/xrsocial-ops/
 helm repo update
 helm install my-release xrchat/xrchat
 ```

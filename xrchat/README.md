@@ -34,7 +34,7 @@ It also optionally packages following which are required for xrchat platform:
 To install the chart with the release name `my-release`:
 
 ```console
-$ helm repo add xrchat https://xrchat.github.io/xrchat-ops/
+$ helm repo add xrchat https://xr3ngine.github.io/xrsocial-ops/
 $ helm repo update
 $ helm install my-release xrchat/xrchat            # Helm 3
 $ helm install --name my-release xrchat/xrchat     # Helm 2
