@@ -91,7 +91,8 @@
         "comingSoon": {
           "enabled": false,
           "src": ""
-        }
+        },
+        "scenes": []
       },
       "videoGrid": {
         "enabled": true,
