@@ -1,6 +1,7 @@
 /* eslint-disable no-prototype-builtins */
 import AFRAME from 'aframe'
 import PropertyMapper from './ComponentUtils'
+// import secondsToHumanReadableTime from '../../../utils/secondsToHumanReadableTime'
 
 const THREE = AFRAME.THREE
 
@@ -16,7 +17,7 @@ export interface Data {
   viewportWidth: number,
   barHeight: number,
   videosrc: string,
-  backButtonHref: string
+  backButtonHref: string,
   playing: boolean
 }
 
@@ -35,6 +36,11 @@ export interface Props {
   updateBuffered: () => void,
   getBarFullWidth: (width: number) => void,
   createTimelineButton: ({ name, x, size, map }) => THREE.Mesh,
+  createText: (text: string, width: number, height: number,
+    fontSize: number, wrapCount: number, align: string,
+    baseline: string, anchor: string) => AFRAME.Entity,
+  createBackground: (w: number, h: number, color: string, x: number, y: number, z: number, opacity: number) => AFRAME.Entity,
+  createTimeRemaining: (x: number) => AFRAME.Entity,
   updateSeekBar: () => void,
   createControls: () => void,
   teardownControls: () => void,
@@ -53,7 +59,8 @@ export interface Props {
   fullBarName: string,
   currentTimeBarName: string,
   playPauseButtonName: string,
-  backButtonName: string
+  backButtonName: string,
+  timeRemainingTextName: string,
   videoEl: HTMLVideoElement
 }
 
@@ -73,8 +80,10 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   currentTimeBarName: 'currentTimeBarTimeline',
   playPauseButtonName: 'playPauseButton',
   backButtonName: 'backButton',
+  timeRemainingTextName: 'timeRemainingText',
+  // timeRemainingTextName: 'timeRemainingText',
 
-  init () {
+  init() {
     const loader = new THREE.TextureLoader()
 
     this.videoEl = document.querySelector(this.data.videosrc)
@@ -175,15 +184,20 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
       map: this.backBtnImageMap
     })
 
+    const timeRemainingText = this.createTimeRemaining(fullBar.position.x)
+
     this.timeline.push(fullBar)
     this.timeline.push(currentTimeBar)
     this.timeline.push(playPauseButton)
     this.timeline.push(backButton)
+    this.timeline.push(timeRemainingText)
 
     this.el.setObject3D(fullBar.name, fullBar)
     this.el.setObject3D(currentTimeBar.name, currentTimeBar)
     this.el.setObject3D(playPauseButton.name, playPauseButton)
     this.el.setObject3D(backButton.name, backButton)
+    // append child because it's an aframe entity instead
+    this.el.setObject3D(this.timeRemainingTextName, timeRemainingText.object3D)
   },
 
   teardownControls() {
@@ -316,6 +330,47 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     return meshButton
   },
 
+  createText(text: string, width: number, height: number, fontSize: number, wrapCount: number, align: string,
+    baseline: string, anchor: string) {
+    const textEntity = document.createElement('a-entity')
+
+    textEntity.setAttribute('text-cell', {
+      font: 'roboto',
+      width: width,
+      height: height,
+      align: align,
+      baseline: baseline,
+      color: '#FFF',
+      transparent: false,
+      fontsize: fontSize,
+      text: text,
+      wrapcount: wrapCount,
+      anchor: anchor
+    })
+    return textEntity
+  },
+
+  createBackground(width: number, height: number, color: string, x: number, y: number, z: number, opacity: number = 1) {
+    const bg = document.createElement('a-plane')
+    bg.setAttribute('color', color)
+    bg.setAttribute('width', width)
+    bg.setAttribute('height', height)
+    if (opacity !== 1) bg.setAttribute('opacity', opacity)
+    bg.object3D.position.set(x + width / 2, y, z)
+
+    return bg
+  },
+
+  createTimeRemaining(x: number) {
+    const textEntity = this.createText('time remaining', 1.3, 0.23, 7, 40, 'left', 'center', 'center')
+
+    const textBG = this.createBackground(1.3, 0.23, 'black', x, 0.3, -0.01, 0.15)
+
+    textBG.appendChild(textEntity)
+    this.el.appendChild(textBG)
+    return textBG
+  },
+
   getBarFullWidth(width) {
     return width / 200
   },
@@ -388,11 +443,11 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.el.dispatchEvent(clickEvent)
   },
 
-  addHandlers: function() {
+  addHandlers: function () {
     this.el.addEventListener('playpause', this.clickHandler.bind(this))
   },
 
-  removeHandlers: function() {
+  removeHandlers: function () {
     this.el.removeEventListener('playpause', this.clickHandler)
   }
 
