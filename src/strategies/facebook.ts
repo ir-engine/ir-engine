@@ -16,7 +16,7 @@ export default class FacebookStrategy extends OAuthStrategy {
   }
 
   async getRedirect (data: any, params?: Params): Promise<string> {
-    const redirectHost = config.authentication.callback.facebook as string
+    const redirectHost = config.authentication.callback.facebook
 
     if (Object.getPrototypeOf(data) === Error.prototype) {
       const err = data.message as string

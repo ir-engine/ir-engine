@@ -73,7 +73,6 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
 .env.local
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -111,8 +110,6 @@ dist
 **/xrchat-dev-secrets.env
 lib/
 
-config/prod.json
-config/production.json
-config/dev-old.json
+config/
 
 .vscode/

@@ -32,7 +32,7 @@ export default (options = {}): Hook => {
         const contextClone = _.cloneDeep(context)
         const result = await uploadThumbnailLinkHook()(contextClone)
         data.metadata.thumbnail_url = (result as any).params.thumbnailUrl
-          .replace('s3.amazonaws.com/' + bucketName, config.aws.cloudfront.domain)
+          .replace('s3.amazonaws.com/' + bucketName, config.aws.s3.cloudfront.domain)
       }
     }
 

@@ -9,7 +9,7 @@ export default (options = {}): Hook => {
 
     delete context.result.uri
 
-    const url = 'https://' + (config.aws.cloudfront.domain as string) + '/' +
+    const url = 'https://' + config.aws.s3.cloudfront.domain + '/' +
       (context.result.id as string || context.data.id as string)
 
     context.data.url = url

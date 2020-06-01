@@ -26,8 +26,8 @@ const createOwnedFile = (options = {}) => {
       name: data.name || body.name,
       url: data.uri || data.url,
       key: (data.uri || data.url)
-        .replace(`${(config.aws.s3.baseUrl as string)}/` +
-          `${config.aws.s3.staticResourceBucket as string}/`, ''),
+        .replace(`${(config.aws.s3.baseUrl)}/` +
+          `${config.aws.s3.staticResourceBucket}/`, ''),
       content_type: data.mimeType || params.mimeType,
       metadata: data.metadata || body.metadata,
       state: 'active',
