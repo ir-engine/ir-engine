@@ -9,14 +9,15 @@ dotenv.config()
 /**
  * Database
  */
-const db: any = {
+const db = {
   username: process.env.MYSQL_USER ?? 'server',
   password: process.env.MYSQL_PASSWORD ?? 'password',
   database: process.env.MYSQL_DATABASE ?? 'xrchat',
   host: process.env.MYSQL_HOST ?? 'localhost',
   port: process.env.MYSQL_PORT ?? 3306,
   dialect: 'mysql',
-  forceRefresh: process.env.FORCE_DB_REFRESH === 'true'
+  forceRefresh: process.env.FORCE_DB_REFRESH === 'true',
+  url: ''
 }
 db.url = process.env.MYSQL_URL ??
   `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
@@ -24,14 +25,14 @@ db.url = process.env.MYSQL_URL ??
 /**
  * Server / backend
  */
-const server: any = {
+const server = {
   mode: process.env.SERVER_MODE ?? 'media',
   hostname: process.env.SERVER_HOSTNAME ?? 'localhost',
   port: process.env.SERVER_PORT ?? 3030,
   // Public directory (used for favicon.ico, logo, etc)
   publicDir: process.env.SERVER_PUBLIC_DIR ?? path.resolve(__dirname, '..', 'public'),
   // Used for CI/tests to force Sequelize init an empty database
-  performDryRun: process.env.PERFORM_DRY_RUN ?? false,
+  performDryRun: process.env.PERFORM_DRY_RUN === 'true',
   storageProvider: process.env.STORAGE_PROVIDER ?? 'aws',
   gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID ?? '',
   sketchFab: {
@@ -46,7 +47,8 @@ const server: any = {
   paginate: {
     default: 10,
     max: 100
-  }
+  },
+  url: ''
 }
 server.url = process.env.SERVER_URL ??
   url.format({ protocol: 'https', ...server })
@@ -54,7 +56,7 @@ server.url = process.env.SERVER_URL ??
 /**
  * Client / frontend
  */
-const client: any = {
+const client = {
   // Client app logo
   // FIXME - change to XR3ngine logo
   logo: process.env.APP_LOGO ?? 'https://kaixr-static.s3-us-west-2.amazonaws.com/logo.png',
@@ -69,7 +71,7 @@ const client: any = {
 /**
  * Email / SMTP
  */
-const email: any = {
+const email = {
   smtp: {
     host: process.env.SMTP_HOST,
     port: (process.env.SMTP_PORT) ? +process.env.SMTP_PORT : 2525,
@@ -91,7 +93,7 @@ const email: any = {
 /**
  * Authentication
  */
-const authentication: any = {
+const authentication = {
   service: 'identity-provider',
   entity: 'identity-provider',
   secret: process.env.AUTH_SECRET ?? '',
@@ -109,7 +111,7 @@ const authentication: any = {
 /**
  * AWS
  */
-const aws: any = {
+const aws = {
   keys: {
     accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID ?? '',
     secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET ?? ''
@@ -134,7 +136,7 @@ const aws: any = {
 /**
  * Full config
  */
-const config: any = {
+const config = {
   authentication,
   aws,
   client,
