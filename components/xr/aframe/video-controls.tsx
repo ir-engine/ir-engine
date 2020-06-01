@@ -55,7 +55,7 @@ export interface Props {
   backButtonHandler: () => void,
   duration: number,
   bufferedArr: buffered[],
-  timeline: THREE.Mesh[],
+  timeline: {},
   fullBarName: string,
   currentTimeBarName: string,
   playPauseButtonName: string,
@@ -72,7 +72,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   videoEl: null,
   duration: 0,
   bufferedArr: [] as buffered[],
-  timeline: [] as THREE.Mesh[],
+  timeline: {},
   playBtnImageMap: null,
   pauseBtnImageMap: null,
   backBtnImageMap: null,
@@ -185,31 +185,32 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     })
 
     const timeRemainingText = this.createTimeRemaining(fullBar.position.x)
-
-    this.timeline.push(fullBar)
-    this.timeline.push(currentTimeBar)
-    this.timeline.push(playPauseButton)
-    this.timeline.push(backButton)
-    this.timeline.push(timeRemainingText)
+    this.timeline[this.fullBarName] = { mesh: fullBar }
+    this.timeline[this.currentTimeBarName] = { mesh: currentTimeBar }
+    this.timeline[this.playPauseButtonName] = { mesh: playPauseButton }
+    this.timeline[this.backButtonName] = { mesh: backButton }
+    this.timeline[this.timeRemainingTextName] = { entity: timeRemainingText }
 
     this.el.setObject3D(fullBar.name, fullBar)
     this.el.setObject3D(currentTimeBar.name, currentTimeBar)
     this.el.setObject3D(playPauseButton.name, playPauseButton)
     this.el.setObject3D(backButton.name, backButton)
     // append child because it's an aframe entity instead
+    this.el.appendChild(timeRemainingText)
+    // but also add as THREE.js object
     this.el.setObject3D(this.timeRemainingTextName, timeRemainingText.object3D)
   },
 
   teardownControls() {
-    const controlsNames = [
-      this.fullBarName,
-      this.currentTimeBarName,
-      this.playPauseButtonName,
-      this.backButtonName]
-
-    controlsNames.forEach((name) => {
+    Object.entries(this.timeline).forEach(([name, value]) => {
       if (this.el.object3DMap.hasOwnProperty(name)) {
         this.el.removeObject3D(name)
+      }
+      // if an aframe entity, remove it
+      // @ts-ignore
+      if (value.entity) {
+        // @ts-ignore
+        this.el.removeChild(value.entity)
       }
     })
   },
@@ -367,7 +368,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     const textBG = this.createBackground(1.3, 0.23, 'black', x, 0.3, -0.01, 0.15)
 
     textBG.appendChild(textEntity)
-    this.el.appendChild(textBG)
+
     return textBG
   },
 
