@@ -17,7 +17,7 @@ export default (app: Application): any => {
   }
 
   app.use('/subscription-confirm', new SubscriptionConfirm(options, app), (req, res) => {
-    res.redirect(config.client.url as string)
+    res.redirect(config.client.url)
   })
 
   const service = app.service('subscription-confirm')

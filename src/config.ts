@@ -9,7 +9,7 @@ dotenv.config()
 /**
  * Database
  */
-const db = {
+const db: any = {
   username: process.env.MYSQL_USER ?? 'server',
   password: process.env.MYSQL_PASSWORD ?? 'password',
   database: process.env.MYSQL_DATABASE ?? 'xrchat',

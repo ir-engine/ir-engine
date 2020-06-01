@@ -15,7 +15,7 @@ export default class GithubStrategy extends OAuthStrategy {
   }
 
   async getRedirect (data: any, params?: Params): Promise<string> {
-    const redirectHost = config.authentication.callback.github as string
+    const redirectHost = config.authentication.callback.github
 
     const type = (params?.query?.userId) ? 'login' : 'connection'
     if (Object.getPrototypeOf(data) === Error.prototype) {

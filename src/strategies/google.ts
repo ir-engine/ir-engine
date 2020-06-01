@@ -17,7 +17,7 @@ export default class Googlestrategy extends OAuthStrategy {
   }
 
   async getRedirect (data: any, params?: Params): Promise<string> {
-    const redirectHost = config.authentication.callback.google as string
+    const redirectHost = config.authentication.callback.google
 
     if (Object.getPrototypeOf(data) === Error.prototype) {
       const err = data.message as string

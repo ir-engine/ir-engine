@@ -4,9 +4,9 @@ import config from '../../config'
 
 export function getLink (type: string, hash: string, subscriptionId?: string): string {
   return subscriptionId != null && subscriptionId.length > 0
-    ? (config.client.url as string) + '/magicLink' +
+    ? (config.client.url) + '/magicLink' +
       `?type=${type}&token=${hash}&subscriptionId=${subscriptionId}`
-    : (config.client.url as string) + '/magicLink' + `?type=${type}&token=${hash}`
+    : (config.client.url) + '/magicLink' + `?type=${type}&token=${hash}`
 }
 
 export async function sendEmail (app: Application, email: any): Promise<void> {

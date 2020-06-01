@@ -33,8 +33,8 @@ export default (options = {}): Hook => {
       const parent = await app.services['static-resource'].get(id)
       const parsedMetadata = JSON.parse(parent.metadata)
       parsedMetadata.thumbnail_url = uploadResult.url
-        .replace('s3.amazonaws.com/' + (config.aws.s3.staticResourceBucket as string),
-          config.aws.cloudfront.domain)
+        .replace('s3.amazonaws.com/' + (config.aws.s3.staticResourceBucket),
+          config.aws.s3.cloudfront.domain)
       await app.services['static-resource'].patch(id, {
         metadata: parsedMetadata
       })
