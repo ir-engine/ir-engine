@@ -1,7 +1,7 @@
 /* eslint-disable no-prototype-builtins */
 import AFRAME from 'aframe'
 import PropertyMapper from './ComponentUtils'
-// import secondsToHumanReadableTime from '../../../utils/secondsToHumanReadableTime'
+import secondsToString from '../../../utils/secondsToString'
 
 const THREE = AFRAME.THREE
 
@@ -41,6 +41,7 @@ export interface Props {
     baseline: string, anchor: string) => AFRAME.Entity,
   createBackground: (w: number, h: number, color: string, x: number, y: number, z: number, opacity: number) => AFRAME.Entity,
   createTimeRemaining: (x: number) => AFRAME.Entity,
+  updateTimeRemainingText: (text: string) => void,
   updateSeekBar: () => void,
   createControls: () => void,
   teardownControls: () => void,
@@ -134,6 +135,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     // if bufferedArr has changed:
     //   dispatch buffer-change event (can we use a videoEl event instead?)
     //   updateBuffered() if inVR
+    this.updateTimeRemainingText()
   },
 
   // function getArrayFromTimeRanges(timeRanges) {
@@ -363,9 +365,9 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   },
 
   createTimeRemaining(x: number) {
-    const textEntity = this.createText('time remaining', 1.3, 0.23, 7, 40, 'left', 'center', 'center')
-
-    const textBG = this.createBackground(1.3, 0.23, 'black', x, 0.3, -0.01, 0.15)
+    const textEntity = this.createText('time remaining', 0.75, 0.21, 7, 40, 'left', 'center', 'center')
+    this.timeRemainingTextEl = textEntity
+    const textBG = this.createBackground(0.75, 0.21, 'black', x, 0.26, -0.01, 0.15)
 
     textBG.appendChild(textEntity)
 
@@ -384,6 +386,13 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     if (!currentTime || !duration) return
     this.setTimelineWidth(currentTimeBar, this.getBarFullWidth(this.data.viewportWidth) * (currentTime / duration))
     currentTimeBar.geometry.attributes.position.needsUpdate = true
+  },
+
+  updateTimeRemainingText() {
+    const currentTime = this.videoEl.currentTime
+    const duration = this.videoEl.duration
+    const timeRemaining = duration - currentTime
+    this.timeRemainingTextEl.setAttribute('text-cell', { text: '-' + secondsToString(timeRemaining) })
   },
 
   clickHandler(e) {
