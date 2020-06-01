@@ -4,12 +4,13 @@ set -x
 
 STAGE=$1
 TAG=$2
+LABEL=$3
 
-docker build --tag xrchat/client .
+docker build --tag ${LABEL} .
 echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
-docker tag xrchat/client xrchat/client:${STAGE}
-docker push xrchat/client:${STAGE}
+docker tag ${LABEL} ${LABEL}:${STAGE}
+docker push ${LABEL}:${STAGE}
 
-docker tag xrchat/client xrchat/client:${TAG}
-docker push xrchat/client:${TAG}
+docker tag ${LABEL} ${LABEL}:${TAG}
+docker push ${LABEL}:${TAG}
