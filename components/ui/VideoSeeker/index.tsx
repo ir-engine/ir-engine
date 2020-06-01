@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 // import PauseIcon from '@material-ui/icons/Pause'
 // import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import triggerNavigation from '../../../utils/triggerNavigation'
-import secondsToHumanReadableTime from '../../../utils/secondsToHumanReadableTime'
+import secondsToString from '../../../utils/secondsToString'
 const playBtnImageSrc = '/icons/play-shadow.png'
 const pauseBtnImageSrc = '/icons/pause-shadow.png'
 const backBtnImageSrc = '/icons/back-btn-shadow.png'
@@ -76,7 +76,7 @@ const VideoSeeker = ({ playing, onTogglePlay, onSeekChange, videoLengthSeconds, 
         }
       </div>
       {!playing && (<div className="time-remaining-text">
-        {timeRemaining ? `-${secondsToHumanReadableTime(timeRemaining)}` : ''}
+        {timeRemaining ? `-${secondsToString(timeRemaining)}` : ''}
       </div>)}
     </div>
   )
