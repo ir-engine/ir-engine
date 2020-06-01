@@ -4,13 +4,13 @@ import { setAppLoadPercent } from '../../../redux/app/actions'
 import { useDispatch } from 'react-redux'
 import getConfig from 'next/config'
 
-const config = getConfig().publicRuntimeConfig.xr
-const env = config.environment
-const grid = config.grid
-const spoke = config.spoke
-const vrRoomGrid = config.vrRoomGrid
-const videoGrid = config.videoGrid
-const store = config.store
+const config = getConfig().publicRuntimeConfig
+const env = config.xr.environment
+const grid = config.xr.grid
+const spoke = config.xr.spoke
+const vrRoomGrid = config.xr.vrRoomGrid
+const videoGrid = config.xr.videoGrid
+const store = config.xr.store
 
 interface ImageType {
   id: string
@@ -32,7 +32,7 @@ const images: ImageType[] = [
   },
   {
     id: 'placeholder',
-    src: 'https://kaixr-static.s3-us-west-2.amazonaws.com/logo.png'
+    src: config.logo
   }
 ]
 
