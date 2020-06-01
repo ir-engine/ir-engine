@@ -14,9 +14,13 @@ export default class MouseCursor {
     this.el = document.createElement('a-entity')
     this.el.classList.add('cursor')
 
-    const cursor = new CursorComponent({ rayOrigin: 'mouse' })
+    const cursor = new CursorComponent({ rayOrigin: 'mouse', fuseTimeout: 0 })
     setComponent(this.el, cursor)
-    const raycaster = new RaycasterComponent({ far: 20, interval: 1000, objects: this.cursorObjects.join(',') })
+    const raycaster = new RaycasterComponent({
+      far: 20,
+      interval: 1000,
+      objects: this.cursorObjects.join(',')
+    })
     setComponent(this.el, raycaster)
   }
 }
