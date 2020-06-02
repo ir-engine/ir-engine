@@ -28,8 +28,20 @@ type Props = {
 }
 
 class NavUserBadge extends Component<Props> {
+  componentDidMount() {
+    this.handleLogin()
+  }
+
   handleLogout() {
     this.props.logoutUser()
+  }
+
+  handleLogin() {
+    const params = new URLSearchParams(document.location.search)
+    const showLoginDialog = params.get('login')
+    if (showLoginDialog === String(true)) {
+      this.props.showDialog({ children: <SignIn /> })
+    }
   }
 
   render() {
