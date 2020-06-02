@@ -34,7 +34,7 @@ export default (options = {}): Hook => {
       const parsedMetadata = JSON.parse(parent.metadata)
       parsedMetadata.thumbnail_url = uploadResult.url
         .replace('s3.amazonaws.com/' + (config.aws.s3.staticResourceBucket),
-          config.aws.s3.cloudfront.domain)
+          config.aws.cloudfront.domain)
       await app.services['static-resource'].patch(id, {
         metadata: parsedMetadata
       })
