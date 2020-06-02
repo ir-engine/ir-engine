@@ -54,7 +54,10 @@ export interface Props {
   currentTimeBarName: string,
   playPauseButtonName: string,
   backButtonName: string
-  videoEl: HTMLVideoElement
+  videoEl: HTMLVideoElement,
+  cameraAngleHandler: (e: any) => void,
+  setTimelineVisibility(visibility: boolean),
+  firstCreate: boolean
 }
 
 export const Component: AFRAME.ComponentDefinition<Props> = {
@@ -73,6 +76,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   currentTimeBarName: 'currentTimeBarTimeline',
   playPauseButtonName: 'playPauseButton',
   backButtonName: 'backButton',
+  firstCreate: true,
 
   init () {
     const loader = new THREE.TextureLoader()
@@ -85,6 +89,8 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
     this.el.setAttribute('highlight__playpause', { id: 'playpause', meshes: [this.playPauseButtonName] })
     this.el.setAttribute('highlight__back', { id: 'back', meshes: [this.backButtonName] })
+
+    this.el.setAttribute('camera-angle', {})
 
     // TODO: make pause/play icons the same for CSS and VR versions.
     // currently CSS is using MUI icons, and VR is using images in public/icons/
@@ -139,6 +145,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   // }
 
   remove() {
+    this.el.removeAttribute('camera-angle')
   },
 
   createControls() {
@@ -184,6 +191,16 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.el.setObject3D(currentTimeBar.name, currentTimeBar)
     this.el.setObject3D(playPauseButton.name, playPauseButton)
     this.el.setObject3D(backButton.name, backButton)
+
+    // fade controls after timeout after they are first created
+    if (this.firstCreate) {
+      const setTimelineVisibility = this.setTimelineVisibility.bind(this)
+      const el = this.el
+      setTimeout(() => {
+        if (el.components['camera-angle'].direction === 'out') setTimelineVisibility(false)
+      }, 5 * 1000)
+      this.firstCreate = false
+    }
   },
 
   teardownControls() {
@@ -198,6 +215,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
         this.el.removeObject3D(name)
       }
     })
+    this.timeline = []
   },
 
   createTimeline({ name, width, height, color, t, opacity = 1 }) {
@@ -388,12 +406,25 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.el.dispatchEvent(clickEvent)
   },
 
+  cameraAngleHandler(e: any) {
+    const visibility = e.detail.direction === 'in'
+    if (e.detail.axis === 'y') this.setTimelineVisibility(visibility)
+  },
+
+  setTimelineVisibility(visibility: boolean) {
+    this.timeline.forEach((mesh) => {
+      mesh.material.visible = visibility
+    })
+  },
+
   addHandlers: function() {
     this.el.addEventListener('playpause', this.clickHandler.bind(this))
+    this.el.addEventListener('camera-passed-threshold', this.cameraAngleHandler.bind(this))
   },
 
   removeHandlers: function() {
     this.el.removeEventListener('playpause', this.clickHandler)
+    this.el.removeEventListener('camera-passed-threshold', this.cameraAngleHandler.bind(this))
   }
 
 }
