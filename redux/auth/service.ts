@@ -476,6 +476,7 @@ function handleAfterLoginRedirect(authUser, redirectTo?) {
   }
   Router.push({
     pathname: redirectTo,
-    query: { bearer: accessToken }
+    // TODO: Pass email
+    query: { bearer: accessToken, email: '' }
   })
 }
