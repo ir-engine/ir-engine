@@ -1,7 +1,9 @@
 /* eslint-disable no-prototype-builtins */
 import arrowComp from './arrow'
+import cameraAngleComp from './camera-angle'
 import clickableComp from './clickable'
 import eaccubeComp from './eaccube'
+import fadeComp from './fade'
 import gridComp from './grid'
 import gridCellComp from './grid-cell'
 import highlightComp from './highlight'
@@ -24,8 +26,10 @@ type ComponentSystem = {
 
 const ComponentSystemArray: ComponentSystem[] = [
   arrowComp,
+  cameraAngleComp,
   clickableComp,
   eaccubeComp,
+  fadeComp,
   gridComp,
   gridCellComp,
   highlightComp,

@@ -99,7 +99,7 @@ function Video360Room(props: Video360Props) {
         src={'#' + videosrc}
         loop="false"
       /> }
-      { videoEl &&
+      { videoEl && !inVrMode &&
       <VideoControls
         videosrc={videosrc} videotext="#videotext" videovrui="#video-player-vr-ui" backButtonHref={backButtonHref} />
       }

@@ -54,6 +54,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   data: {
   } as Data,
 
+  // multiple: true,
   aProp: true,
 
   init () {
