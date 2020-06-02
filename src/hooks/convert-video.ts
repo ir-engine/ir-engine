@@ -254,7 +254,7 @@ export default async (context: any): Promise<void> => {
           const mimetype = mimetypeDict[extension]
 
           localContext.data.url = 'https://' +
-            path.join(config.aws.s3.cloudfront.domain, key)
+            path.join(config.aws.cloudfront.domain, key)
           localContext.data.mimeType = mimetype
 
           localContext.params.mimeType = mimetype

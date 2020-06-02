@@ -119,10 +119,10 @@ const aws = {
   s3: {
     baseUrl: 'https://s3.amazonaws.com',
     staticResourceBucket: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET ?? 'default',
-    region: process.env.STORAGE_S3_REGION ?? 'us-east-1',
-    cloudfront: {
-      domain: process.env.STORAGE_S3_CLOUDFRONT_DOMAIN ?? ''
-    }
+    region: process.env.STORAGE_S3_REGION ?? 'us-east-1'
+  },
+  cloudfront: {
+    domain: process.env.STORAGE_CLOUDFRONT_DOMAIN ?? ''
   },
   sms: {
     accessKeyId: process.env.AWS_SMS_ACCESS_KEY_ID ?? '',
