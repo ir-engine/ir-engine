@@ -91,6 +91,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.el.setAttribute('highlight__back', { id: 'back', meshes: [this.backButtonName] })
 
     this.el.setAttribute('camera-angle', {})
+    this.el.setAttribute('fade', { fadeInEvent: 'fade-in-video-controls', fadeOutEvent: 'fade-out-video-controls' })
 
     // TODO: make pause/play icons the same for CSS and VR versions.
     // currently CSS is using MUI icons, and VR is using images in public/icons/
@@ -412,9 +413,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   },
 
   setTimelineVisibility(visibility: boolean) {
-    this.timeline.forEach((mesh) => {
-      mesh.material.visible = visibility
-    })
+    visibility ? this.el.emit('fade-in-video-controls') : this.el.emit('fade-out-video-controls')
   },
 
   addHandlers: function() {

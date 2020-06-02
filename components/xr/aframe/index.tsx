@@ -3,6 +3,7 @@ import arrowComp from './arrow'
 import cameraAngleComp from './camera-angle'
 import clickableComp from './clickable'
 import eaccubeComp from './eaccube'
+import fadeComp from './fade'
 import gridComp from './grid'
 import gridCellComp from './grid-cell'
 import highlightComp from './highlight'
@@ -28,6 +29,7 @@ const ComponentSystemArray: ComponentSystem[] = [
   cameraAngleComp,
   clickableComp,
   eaccubeComp,
+  fadeComp,
   gridComp,
   gridCellComp,
   highlightComp,
