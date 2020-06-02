@@ -29,6 +29,7 @@ import { IdentityProvider } from '../../interfaces/IdentityProvider'
 import getConfig from 'next/config'
 import { getStoredState } from '../persisted.store'
 import axios from 'axios'
+import Router from 'next/router'
 
 const { publicRuntimeConfig } = getConfig()
 const apiServer: string = publicRuntimeConfig.apiServer
@@ -49,6 +50,7 @@ export async function doLoginAuto (dispatch: Dispatch) {
         const authUser = resolveAuthUser(res)
         dispatch(loginUserSuccess(authUser))
         loadUserData(dispatch, authUser.identityProvider.userId)
+        handleAfterLoginRedirect(authUser)
       } else {
         console.log('****************')
       }
@@ -102,9 +104,8 @@ export function loginUserByPassword (form: EmailLoginForm) {
           return
         }
 
-        window.location.href = '/'
         dispatch(loginUserSuccess(authUser))
-
+        handleAfterLoginRedirect(authUser, '/')
         loadUserData(dispatch, authUser.identityProvider.userId)
       })
       .catch((err: any) => {
@@ -158,13 +159,14 @@ export function loginUserByJwt (accessToken: string, redirectSuccess: string, re
               console.log(err)
             })
             .finally(() => {
-              window.location.href = redirectSuccess
               dispatch(loginUserSuccess(authUser))
+              handleAfterLoginRedirect(authUser, redirectSuccess)
+
               loadUserData(dispatch, authUser.identityProvider.userId)
             })
         } else {
-          window.location.href = redirectSuccess
           dispatch(loginUserSuccess(authUser))
+          handleAfterLoginRedirect(authUser, redirectSuccess)
           loadUserData(dispatch, authUser.identityProvider.userId)
         }
       })
@@ -463,4 +465,17 @@ export function updateUsername (userId: string, name: string) {
         dispatch(usernameUpdated(res))
       })
   }
+}
+
+function handleAfterLoginRedirect(authUser, redirectTo?) {
+  const accessToken = authUser.accessToken
+  const params = new URLSearchParams(document.location.search)
+  redirectTo = params.get('redirectTo') || '/'
+  if (params.get('redirectTo')) {
+    redirectTo = params.get('redirectTo')
+  }
+  Router.push({
+    pathname: redirectTo,
+    query: { bearer: accessToken }
+  })
 }
