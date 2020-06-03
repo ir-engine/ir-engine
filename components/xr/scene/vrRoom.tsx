@@ -4,7 +4,7 @@ import Skybox from './skybox'
 import Lights from './lights'
 import './style.scss'
 import { useDispatch, useSelector } from 'react-redux'
-import { setAppLoaded } from '../../../redux/app/actions'
+import { setAppLoaded, setAppLoadPercent } from '../../../redux/app/actions'
 import { selectAppState } from '../../../redux/app/selector'
 
 export interface VrRoomSceneProps {
@@ -38,6 +38,14 @@ export default function VrRoomScene(props: VrRoomSceneProps) {
           'model-loaded': () => {
             console.log('gltf model loaded.')
             setGltfLoaded(true)
+          },
+          'model-load-progress': (e) => {
+            const progress = e.detail.progress
+            // loaded and total are given as numbers (it seems in bytes), so the percentage loaded can be calculated
+            const { loaded, total } = progress
+            const loadPercent = (loaded / total) * 100
+
+            dispatch(setAppLoadPercent(loadPercent))
           }
         }} />}
       <Lights />
