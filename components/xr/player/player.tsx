@@ -9,7 +9,7 @@ import DeviceDetector from 'device-detector-js'
 import { Entity } from 'aframe-react'
 
 export interface PlayerProps {
-  movementEnabled: boolean
+  movementEnabled?: boolean
 }
 
 const PlayerComp = (props: PlayerProps) => {
