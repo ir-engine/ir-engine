@@ -108,7 +108,7 @@ export default function RootScene(props: Props): any {
       <SceneContainer>
         <AframeComponentRegisterer />
         <Assets />
-        <Player movement-enabled={playerMovementEnabled} />
+        <Player movementEnabled={playerMovementEnabled} />
         {sceneName !== 'video' &&
          sceneName !== config.vrRoomGrid.name + '-scene' &&
          <Environment />}
