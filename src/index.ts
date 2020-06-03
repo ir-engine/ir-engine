@@ -1,7 +1,8 @@
 import logger from './logger'
 import app from './app'
+import config from './config'
 
-const port = app.get('port')
+const port = config.server.port
 const server = app.listen(port)
 
 process.on('unhandledRejection', (reason, p) =>
@@ -9,5 +10,5 @@ process.on('unhandledRejection', (reason, p) =>
 )
 
 server.on('listening', () =>
-  logger.info('Feathers application started on http://%s:%d', app.get('host'), port)
+  logger.info('Feathers application started on http://%s:%d', config.server.hostname, port)
 )

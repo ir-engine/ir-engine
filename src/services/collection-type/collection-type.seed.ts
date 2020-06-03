@@ -1,6 +1,8 @@
+import config from '../../config'
+
 export const seed = {
-  disabled: (process.env.FORCE_DB_REFRESH !== 'true'),
-  delete: (process.env.FORCE_DB_REFRESH === 'true'),
+  disabled: !config.db.forceRefresh,
+  delete: config.db.forceRefresh,
   path: 'collection-type',
   randomize: false,
   templates:

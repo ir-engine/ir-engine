@@ -1,5 +1,3 @@
-import dotenv from 'dotenv'
-
 import path from 'path'
 import favicon from 'serve-favicon'
 import compress from 'compression'
@@ -8,7 +6,6 @@ import cors from 'cors'
 import swagger from 'feathers-swagger'
 
 import feathers from '@feathersjs/feathers'
-import configuration from '@feathersjs/configuration'
 import express from '@feathersjs/express'
 import socketio from '@feathersjs/socketio'
 
@@ -20,9 +17,8 @@ import appHooks from './app.hooks'
 import channels from './channels'
 import authentication from './authentication'
 import sequelize from './sequelize'
+import config from './config'
 // Don't remove this comment. It's needed to format import lines nicely.
-
-dotenv.config()
 
 const app: Application = express(feathers())
 
@@ -42,23 +38,23 @@ app.configure(
   })
 )
 
-// Load app configuration
-app.configure(configuration())
+app.set('paginate', config.server.paginate)
+app.set('authentication', config.authentication)
 
 app.configure(sequelize)
 
 // Enable security, CORS, compression, favicon and body parsing
 app.use(helmet())
 app.use(cors({
-  origin: process.env.APP_HOST,
+  origin: config.client.url,
   credentials: true
 }))
 app.use(compress())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(favicon(path.join(app.get('public'), 'favicon.ico')))
+app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')))
 // Host the public folder
-app.use('/', express.static(app.get('public')))
+app.use('/', express.static(config.server.publicDir))
 
 // Set up Plugins and providers
 app.configure(express.rest())

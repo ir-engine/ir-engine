@@ -1,5 +1,5 @@
 import fetch from 'node-fetch'
-import config from 'config'
+import config from '../../config'
 
 interface FilterType {
   count: number
@@ -14,7 +14,7 @@ interface FilterType {
 export default class GooglePolyMedia {
   private readonly SKETCH_FAB_URL = 'https://api.sketchfab.com/v3/search'
 
-  private readonly SKETCH_FAB_AUTH_TOKEN = config.get('sketchFab.authToken') ?? ''
+  private readonly SKETCH_FAB_AUTH_TOKEN = config.server.sketchFab.authToken
 
   private readonly maxCollectionFaceCount = 200_000
   private readonly maxCollectionFileSizeBytes = `gltf:${100 * 1024 * 1024}`

@@ -1,10 +1,10 @@
 import fetch from 'node-fetch'
-import config from 'config'
+import config from '../../config'
 
 export default class SketchFabMedia {
   private readonly GOOGLE_POLY_URL = 'https://poly.googleapis.com/v1/assets'
 
-  private readonly GOOGLE_POLY_AUTH_TOKEN = config.get('googlePoly.authToken') ?? ''
+  private readonly GOOGLE_POLY_AUTH_TOKEN = config.server.googlePoly.authToken
   async searchGooglePolyMedia (filterOptions: any): Promise<any> {
     const { source, filter, cursor, q, pageSize } = filterOptions
 
