@@ -34,16 +34,20 @@ interface position {
 }
 
 export interface SystemProps {
+  getOrLoadFont: (src: string, yOffset: number) => any,
   loadFont: (src: string, yOffset: number) => Promise<any>,
   computeFontWidthFactor: (font: any) => number,
   computeWidth: (wrapPixels: number, wrapCount: number, widthFactor: number) => number,
-  comparePositions(posA: position, posB: position)
+  comparePositions(posA: position, posB: position),
+  cache: Map<string, any>
 }
 
 export const SystemDef: AFRAME.SystemDefinition<SystemProps> = {
   schema: SystemSchema,
   data: {
   } as SystemData,
+
+  cache: new Map(),
 
   init () {
     const oldUpdateLayout = (AFRAME.components.text.Component.prototype as any).updateLayout;
@@ -59,6 +63,10 @@ export const SystemDef: AFRAME.SystemDefinition<SystemProps> = {
   pause() {
   },
 
+  getOrLoadFont (src: string, yOffset: number) {
+    return this.cache.get(src) || this.loadFont(src, yOffset)
+  },
+
   loadFont (src: string, yOffset: number) {
     return new Promise((resolve, reject) => {
       loadBMFont(src, (err, font) => {
@@ -70,6 +78,7 @@ export const SystemDef: AFRAME.SystemDefinition<SystemProps> = {
         // Fix negative Y offsets for Roboto MSDF font from tool. Experimentally determined.
         if (src.indexOf('/Roboto-msdf.json') >= 0) { yOffset = 30 }
         if (yOffset) { font.chars.map((ch) => { ch.yoffset += yOffset }) }
+        this.cache.set(src, font)
         resolve(font)
       })
     })
@@ -163,6 +172,7 @@ interface offsetInterface {
 
 export interface Props {
   initTextCell: () => void,
+  initializeFont: (font: any) => void,
   addHandlers: () => void,
   removeHandlers: () => void,
   clippingSetUp: boolean,
@@ -227,28 +237,10 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
     const font = self.data.font || DEFAULT_FONT
 
-    this.system.loadFont(FONTS[font]).then(
-      (result) => {
-        self.lineHeight = result.common.lineHeight
-        self.widthFactor = this.system.computeFontWidthFactor(result)
-        self.textRenderWidth = this.system.computeWidth(self.data.wrappixels, self.data.wrapcount,
-          self.widthFactor)
+    const loadedFont = this.system.getOrLoadFont(FONTS[font])
 
-        self.textScale = self.data.width / self.textRenderWidth
-        self.textHeight = self.lineHeight * self.textScale * self.data.fontsize
-
-        self.el.addEventListener('textlayoutchanged', self.textLayoutChangedHandler.bind(self),
-          { once: true })
-
-        self.createText({
-          id: data.id,
-          text: data.text,
-          width: data.width,
-          height: data.height,
-          color: data.color
-        })
-      }
-    )
+    if (loadedFont.then) loadedFont.then((result) => { this.initializeFont(result) })
+    else this.initializeFont(loadedFont)
   },
 
   tick() {
@@ -258,6 +250,27 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
       this.updateClipping(this.data.id)
       this.worldPosition = position
     }
+  },
+
+  initializeFont(font) {
+    this.lineHeight = font.common.lineHeight
+    this.widthFactor = this.system.computeFontWidthFactor(font)
+    this.textRenderWidth = this.system.computeWidth(this.data.wrappixels, this.data.wrapcount,
+      this.widthFactor)
+
+    this.textScale = this.data.width / this.textRenderWidth
+    this.textHeight = this.lineHeight * this.textScale * this.data.fontsize
+
+    this.el.addEventListener('textlayoutchanged', this.textLayoutChangedHandler.bind(this),
+      { once: true })
+
+    this.createText({
+      id: this.data.id,
+      text: this.data.text,
+      width: this.data.width,
+      height: this.data.height,
+      color: this.data.color
+    })
   },
 
   initTextCell() {
@@ -390,7 +403,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
     const object3DName = id !== '' ? `text__${id}` : 'text'
     const textObj = self.el.getObject3D(object3DName)
-    if (!textObj) {
+    if (!textObj || !textObj.geometry || !textObj.geometry.layout) {
       return
     }
     const lineHeight = textObj.geometry.layout._lineHeight
