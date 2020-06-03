@@ -478,6 +478,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
   setTimelineVisibility(visibility: boolean) {
     visibility ? this.el.emit('fade-in-video-controls') : this.el.emit('fade-out-video-controls')
+    this.el.getObject3D(this.timeRemainingTextName).visible = visibility
   },
 
   addHandlers: function() {
