@@ -8,7 +8,11 @@ import DeviceDetector from 'device-detector-js'
 // @ts-ignore
 import { Entity } from 'aframe-react'
 
-const PlayerComp = () => {
+export interface PlayerProps {
+  movementEnabled?: boolean
+}
+
+const PlayerComp = (props: PlayerProps) => {
   const inVrMode = useSelector(state => selectInVrModeState(state))
 
   const [fuse, setFuse] = useState(false)
@@ -27,6 +31,7 @@ const PlayerComp = () => {
       fuse-enabled={fuse}
       device-type={devicetype}
       in-vr={inVrMode}
+      movement-enabled={props.movementEnabled}
     />
   )
 }

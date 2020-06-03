@@ -5,8 +5,8 @@ import { AvatarSchemaComponent, defaultComponents } from '../../../classes/afram
 
 import { ControllerComponent } from '../../../classes/aframe/controls/controls'
 import PlayerControls from '../../../classes/aframe/controls/player-controls'
-import LookController from '../../../classes/aframe/controls//look-controls'
-import WASDController from '../../../classes/aframe/controls//wasd-controls'
+import LookController from '../../../classes/aframe/controls/look-controls'
+import WASDController from '../../../classes/aframe/controls/wasd-controls'
 
 import CameraRig from '../../../classes/aframe/camera/camera-rig'
 import CameraComponent from '../../../classes/aframe/camera/camera'
@@ -96,7 +96,7 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
     }
     if (['movementEnabled'].some(prop => changedData.includes(prop)) &&
       Object.keys(this.cameraRig).length !== 0) {
-      this.controls.tearDownControls()
+      this.controls.teardownControls(this.el)
 
       const controllers: ControllerComponent[] = [new LookController()]
       if (this.data.movementEnabled) controllers.push(new WASDController())
