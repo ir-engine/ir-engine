@@ -1,7 +1,8 @@
 import { OAuthStrategy } from '@feathersjs/authentication-oauth'
 import { Params } from '@feathersjs/feathers'
+import config from '../config'
 
-export default class Googletrategy extends OAuthStrategy {
+export default class Googlestrategy extends OAuthStrategy {
   async getEntityData (profile: any, params?: Params): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {})
     const userId = (params?.query) ? params.query.userId : undefined
@@ -16,7 +17,7 @@ export default class Googletrategy extends OAuthStrategy {
   }
 
   async getRedirect (data: any, params?: Params): Promise<string> {
-    const redirectHost = process.env.GOOGLE_CALLBACK_URL ?? ''
+    const redirectHost = config.authentication.callback.google
 
     if (Object.getPrototypeOf(data) === Error.prototype) {
       const err = data.message as string

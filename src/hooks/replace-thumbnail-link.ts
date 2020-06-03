@@ -24,12 +24,15 @@ export default (options = {}): Hook => {
           return app.service('static-resource').remove(item.id)
         }))
         params.parentResourceId = data.id
-        params.uploadPath = data.url.replace('https://s3.amazonaws.com/' + (config.get('aws.s3.static_resource_bucket') as string) + '/', '')
+        const bucketName = (config.aws.s3.staticResourceBucket as string)
+        params.uploadPath = data.url.replace('https://s3.amazonaws.com/' +
+          bucketName + '/', '')
         params.uploadPath = params.uploadPath.replace('/manifest.mpd', '')
         params.storageProvider = new StorageProvider()
         const contextClone = _.cloneDeep(context)
         const result = await uploadThumbnailLinkHook()(contextClone)
-        data.metadata.thumbnail_url = (result as any).params.thumbnailUrl.replace('s3.amazonaws.com/' + (config.get('aws.s3.static_resource_bucket') as string), config.get('aws.cloudfront.domain'))
+        data.metadata.thumbnail_url = (result as any).params.thumbnailUrl
+          .replace('s3.amazonaws.com/' + bucketName, config.aws.cloudfront.domain)
       }
     }
 

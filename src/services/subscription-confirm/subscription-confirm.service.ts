@@ -2,6 +2,7 @@ import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { SubscriptionConfirm } from './subscription-confirm.class'
 import hooks from './subscription-confirm.hooks'
+import config from '../../config'
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -16,7 +17,7 @@ export default (app: Application): any => {
   }
 
   app.use('/subscription-confirm', new SubscriptionConfirm(options, app), (req, res) => {
-    res.redirect(process.env.APP_HOST as string)
+    res.redirect(config.client.url)
   })
 
   const service = app.service('subscription-confirm')

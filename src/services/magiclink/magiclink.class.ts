@@ -16,6 +16,7 @@ import * as pug from 'pug'
 import { Service } from 'feathers-sequelize'
 import { IdentityProvider } from '../identity-provider/identity-provider.class'
 import { BadRequest } from '@feathersjs/errors'
+import config from '../../config'
 
 interface Data {}
 
@@ -94,16 +95,16 @@ export class Magiclink implements ServiceMethods<Data> {
     )
 
     const compiledHTML = pug.compileFile(templatePath)({
-      logo: '',
+      logo: config.client.logo,
+      title: config.client.title,
       hashLink,
       username: username
     })
-    const mailFrom = process.env.SMTP_FROM_EMAIL ?? 'noreply@myxr.email'
-    const mailSender = `${process.env.SMTP_FROM_NAME ?? ''}<${mailFrom}>`
+    const mailSender = config.email.from
     const email = {
       from: mailSender,
       to: toEmail,
-      subject: process.env.MAGICLINK_EMAIL_SUBJECT ?? 'Your login link',
+      subject: config.email.subject.login,
       html: compiledHTML
     }
 
