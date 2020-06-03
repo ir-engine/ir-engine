@@ -97,6 +97,10 @@ const authentication = {
   service: 'identity-provider',
   entity: 'identity-provider',
   secret: process.env.AUTH_SECRET ?? '',
+  authStrategies: [
+    'jwt',
+    'local'
+  ],
   local: {
     usernameField: 'email',
     passwordField: 'password'
