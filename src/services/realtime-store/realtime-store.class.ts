@@ -20,14 +20,13 @@ export class RealtimeStore implements ServiceMethods<Data> {
     const substore = this.store.get((params as any).type)
 
     if (substore == null) { return new UserInputError('Invalid type ') }
-    return Object.keys(substore).map((name) => { return substore[name] })
+    return Object.keys(substore).map((name) => { return substore.get(name) })
   }
 
   async get (id: Id, params?: Params): Promise<Data> {
     const substore = this.store.get((params as any).type)
 
     if (substore == null) { return new UserInputError('Invalid type ') }
-    if (id == null || substore.get(id) == null) { return new UserInputError('Invalid User ID ') }
     return substore.get(id)
   }
 
@@ -53,7 +52,7 @@ export class RealtimeStore implements ServiceMethods<Data> {
     if (substore == null) { return new UserInputError('Invalid type ') }
     if (id == null || substore.get(id) == null) { return new UserInputError('Invalid User ID ') }
     substore.set(id, Object.assign({}, substore.get(id), (data as any).object))
-    return substore[id]
+    return substore.get(id)
   }
 
   async remove (id: NullableId, params?: Params): Promise<Data> {

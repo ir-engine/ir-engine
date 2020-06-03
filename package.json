@@ -98,7 +98,6 @@
     "feathers-authentication-management": "^2.0.1",
     "feathers-blob": "^2.2.0",
     "feathers-mailer": "^3.0.1",
-    "feathers-memory": "^4.1.0",
     "feathers-redis": "github:feathersjs-ecosystem/feathers-redis",
     "feathers-seeder": "^2.0.0",
     "feathers-sequelize": "^6.2.0",

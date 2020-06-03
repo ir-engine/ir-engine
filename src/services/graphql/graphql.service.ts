@@ -97,8 +97,8 @@ export default (app: Application): void => {
       subscriptions: {
         path: '/subscriptions',
         onConnect: async (connectionParams: any, webSocket: any) => {
-          console.log(connectionParams)
-          console.log(webSocket)
+          // console.log(connectionParams)
+          // console.log(webSocket)
           return true
         }
       },

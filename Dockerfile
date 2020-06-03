@@ -3,7 +3,6 @@ FROM node:12.16-buster
 
 # ffmpeg 4+ is required
 RUN apt update && apt install -y ffmpeg=*:4.**
-RUN apt update && apt install -y redis
 # Create app directory
 WORKDIR /app
 

@@ -1,5 +1,5 @@
 import IInstanceType from '../instancet-type.interface'
-import { GraphQLObjectType, GraphQLList, GraphQLString } from 'graphql'
+import { GraphQLObjectType, GraphQLInputObjectType, GraphQLList, GraphQLString, GraphQLInt } from 'graphql'
 // @ts-ignore
 import { attributeFields } from 'graphql-sequelize'
 
@@ -7,6 +7,54 @@ import { withFilter, PubSub } from 'graphql-subscriptions'
 
 // @ts-ignore
 import AgonesSDK from '@google-cloud/agones-sdk'
+
+const InstanceUserPositionInputType = new GraphQLInputObjectType({
+  name: 'InstanceUserPositionInput',
+  fields: {
+    x: {
+      type: GraphQLInt
+    },
+    y: {
+      type: GraphQLInt
+    },
+    z: {
+      type: GraphQLInt
+    }
+  }
+})
+
+const InstanceUserPositionType = new GraphQLObjectType({
+  name: 'InstanceUserPosition',
+  fields: {
+    x: {
+      type: GraphQLInt
+    },
+    y: {
+      type: GraphQLInt
+    },
+    z: {
+      type: GraphQLInt
+    }
+  }
+})
+
+const InstanceUserQueryInputType = new GraphQLInputObjectType({
+  name: 'InstanceUserQueryType',
+  fields: {
+    id: {
+      type: GraphQLString
+    }
+  }
+})
+
+// const InstanceUserQueryType = new GraphQLObjectType({
+//   name: 'InstanceUserQueryType',
+//   fields: {
+//     id: {
+//       type: GraphQLString
+//     }
+//   }
+// })
 
 export default class UserInstance implements IInstanceType {
   model: any
@@ -28,18 +76,21 @@ export default class UserInstance implements IInstanceType {
         name: 'findUserInstances',
         description: 'Find user instances on a realtime server',
         fields: () => ({
-          ...attributeFields(this.model)
+          ...attributeFields(this.model),
+          position: {
+            type: InstanceUserPositionType
+          }
         })
       })),
       args: {
         query: {
-          type: GraphQLString
+          type: InstanceUserQueryInputType
         }
       },
       resolve: async (source: any, args: any, context: any, info: any) => {
         console.log(args.query)
-        const query = JSON.parse(args.query)
-        return this.realtimeService.find({ type: 'user', query: query })
+        console.log(this.realtimeService.store.get('user'))
+        return this.realtimeService.find({ type: 'user', query: args.query })
       }
     },
     getUserInstance: {
@@ -47,7 +98,10 @@ export default class UserInstance implements IInstanceType {
         name: 'getUserInstance',
         description: 'Get a single user instance on a realtime server',
         fields: () => ({
-          ...attributeFields(this.model)
+          ...attributeFields(this.model),
+          position: {
+            type: InstanceUserPositionType
+          }
         })
       }),
       args: {
@@ -64,7 +118,10 @@ export default class UserInstance implements IInstanceType {
         name: 'addUserInstance',
         description: 'Add a user instance to this server',
         fields: () => ({
-          ...attributeFields(this.model)
+          ...attributeFields(this.model),
+          position: {
+            type: InstanceUserPositionType
+          }
         })
       }),
       args: {
@@ -73,11 +130,20 @@ export default class UserInstance implements IInstanceType {
         },
         name: {
           type: GraphQLString
+        },
+        position: {
+          type: InstanceUserPositionInputType
         }
       },
       resolve: async (source: any, args: any, context: any, info: any) => {
-        if (Object.keys(this.realtimeService.store.user).length === 0) {
+        const userStore = this.realtimeService.store.get('user')
+        const userStoreKeys = Array.from(userStore.keys())
+        if (userStoreKeys.length === 0 && process.env.SERVER_MODE === 'realtime' && process.env.KUBERNETES === 'true') {
           await this.agonesSDK.allocate()
+        }
+
+        if (userStoreKeys.includes(args.id)) {
+          throw new Error('User already exists')
         }
 
         const newUser = await this.realtimeService.create({
@@ -97,7 +163,10 @@ export default class UserInstance implements IInstanceType {
         name: 'patchUserInstance',
         description: 'Patch a user instance on this server',
         fields: () => ({
-          ...attributeFields(this.model)
+          ...attributeFields(this.model),
+          position: {
+            type: InstanceUserPositionType
+          }
         })
       }),
       args: {
@@ -107,8 +176,8 @@ export default class UserInstance implements IInstanceType {
         name: {
           type: GraphQLString
         },
-        role: {
-          type: GraphQLString
+        position: {
+          type: InstanceUserPositionInputType
         }
       },
       resolve: async (source: any, args: any, context: any, info: any) => {
@@ -144,7 +213,7 @@ export default class UserInstance implements IInstanceType {
           userInstanceRemoved: args
         })
 
-        if (Object.keys(this.realtimeService.store.user).length === 0) {
+        if (Object.keys(this.realtimeService.store.get('user')).length === 0) {
           this.agonesSDK.shutdown()
         }
 
@@ -159,7 +228,10 @@ export default class UserInstance implements IInstanceType {
         name: 'userInstanceCreated',
         description: 'Listen for when users are added to this server',
         fields: () => ({
-          ...attributeFields(this.model)
+          ...attributeFields(this.model),
+          position: {
+            type: InstanceUserPositionType
+          }
         })
       }),
       subscribe: withFilter(
@@ -174,7 +246,10 @@ export default class UserInstance implements IInstanceType {
         name: 'userInstancePatched',
         description: 'Listen for when users are patched on this server',
         fields: () => ({
-          ...attributeFields(this.model)
+          ...attributeFields(this.model),
+          position: {
+            type: InstanceUserPositionType
+          }
         })
       }),
       subscribe: withFilter(

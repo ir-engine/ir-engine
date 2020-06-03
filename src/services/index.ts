@@ -111,7 +111,6 @@ export default (app: Application): void => {
   app.configure(SubscriptionConfirm)
   app.configure(Upload)
   app.configure(Video)
-  app.configure(IdentityProvider)
   app.configure(RealtimeStore)
 
   // Spoke
