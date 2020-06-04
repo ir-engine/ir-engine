@@ -9,15 +9,15 @@ export default class CameraRig {
   el: AFRAME.Entity | null = null
   cameraEl: AFRAME.Entity | null = null
   className: string
-  cursorType: string
-  cursor: any
+  cursorTypes: string[]
+  cursors: any[] = []
 
   constructor(className = 'player-camera',
     cameraOptions: Partial<CameraComponentOptions> = defaultCameraComponentOptions,
-    cursorType: string = 'mouse', public cursorObjects: string[] = ['.clickable']) {
+    cursorTypes: string[] = ['mouse'], public cursorObjects: string[] = ['.clickable']) {
     this.camera = new Camera(cameraOptions)
     this.className = className
-    this.cursorType = cursorType
+    this.cursorTypes = cursorTypes
     this.setupCameraRig()
   }
 
@@ -37,32 +37,33 @@ export default class CameraRig {
 
   tearDownCameraRig(): void {
     this.cameraEl?.parentElement.removeChild(this.cameraEl)
-    this.cursor.el?.parentElement.removeChild(this.cursor.el)
+    this.cursors.forEach((cursor) => {
+      cursor.el?.parentElement.removeChild(cursor.el)
+    })
   }
 
   setupCursor(): void {
     if (!this.el) return
     let cursor
-    switch (this.cursorType) {
-      case 'fuse':
-        cursor = new FuseCursor(this.cursorObjects)
-        this.cameraEl.appendChild(cursor.el as AFRAME.Entity)
-        cursor.el?.object3D.position.set(0, 0, -1)
-        break
-      case 'mouse':
-        cursor = new MouseCursor(this.cursorObjects)
-        this.el.appendChild(cursor.el as AFRAME.Entity)
-        break
-      default:
-        break
+    if (this.cursorTypes.includes('fuse')) {
+      cursor = new FuseCursor(this.cursorObjects)
+      this.cameraEl.appendChild(cursor.el as AFRAME.Entity)
+      cursor.el?.object3D.position.set(0, 0, -1)
+      this.cursors.push(cursor)
     }
-    this.cursor = cursor
+    if (this.cursorTypes.includes('mouse')) {
+      cursor = new MouseCursor(this.cursorObjects)
+      this.el.appendChild(cursor.el as AFRAME.Entity)
+      this.cursors.push(cursor)
+    }
   }
 
   updateCursor(): void {
     if (!this.el) return
-    if (this.cursor) {
-      this.cursor.el.parentElement.removeChild(this.cursor.el)
+    if (this.cursors) {
+      this.cursors.forEach((cursor) => {
+        cursor.el?.parentElement.removeChild(cursor.el)
+      })
     }
   }
 

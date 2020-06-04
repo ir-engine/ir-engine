@@ -50,7 +50,7 @@ export interface Props {
   cameraComponent: CameraComponent,
   firstUpdate: boolean,
   initPlayer: () => void,
-  getCursorType: () => string
+  getCursorTypes: () => string[]
 }
 
 export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
@@ -84,8 +84,8 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
       this.cameraRig.tearDownCameraRig()
       this.el.removeChild(this.cameraRigEl)
 
-      const cursorType: string = this.getCursorType()
-      this.cameraRig = new CameraRig('player-camera', {}, cursorType)
+      const cursorTypes: string[] = this.getCursorTypes()
+      this.cameraRig = new CameraRig('player-camera', {}, cursorTypes)
       this.cameraRigEl = this.cameraRig.el
       this.playerCameraEl = this.cameraRig.cameraEl
       this.cameraComponent = this.cameraRig.camera
@@ -109,8 +109,8 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
   initPlayer() {
     this.el.setAttribute('id', this.data.playerID)
 
-    const cursorType: string = this.getCursorType()
-    this.cameraRig = new CameraRig('player-camera', {}, cursorType)
+    const cursorTypes: string[] = this.getCursorTypes()
+    this.cameraRig = new CameraRig('player-camera', {}, cursorTypes)
     this.cameraRigEl = this.cameraRig.el
     this.playerCameraEl = this.cameraRig.cameraEl
     this.cameraComponent = this.cameraRig.camera
@@ -131,9 +131,10 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
     this.el.object3D.position.set(this.el.object3D.position.x, this.data.playerHeight, this.el.object3D.position.z)
   },
 
-  getCursorType(): string {
-    if (this.data.inVr && this.data.deviceType === 'smartphone') return 'fuse'
-    return 'mouse'
+  getCursorTypes(): string[] {
+    const types = ['mouse']
+    if (this.data.inVr && this.data.deviceType === 'smartphone') types.push('fuse')
+    return types
   }
 
 }
