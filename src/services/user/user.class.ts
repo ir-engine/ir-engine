@@ -27,6 +27,7 @@ export class User extends Service {
       const UserRelationshipModel = this.app.get('sequelizeClient').models.user_relationship
       let foundUsers: any
 
+      // TODO: Clean up this inline raw SQL
       if (search && search !== '') {
         const where = `id <> :userId 
           AND (name LIKE :search 

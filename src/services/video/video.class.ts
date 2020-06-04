@@ -33,9 +33,7 @@ export class Video implements ServiceMethods<Data> {
     (data as any).mimeType = 'application/dash+xml';
     (data as any).type = getBasicMimetype((data as any).mimeType)
 
-    const result = await this.app.service('static-resource').create(data)
-
-    return result
+    return await this.app.service('static-resource').create(data)
   }
 
   async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
