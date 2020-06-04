@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "xrchat.client.fullname" . }}
+  name: {{ template "xrsocial.client.fullname" . }}
   labels:
-    {{- include "xrchat.client.labels" . | nindent 4 }}
+    {{- include "xrsocial.client.labels" . | nindent 4 }}
 data:
 {{- if .Values.client.extraEnv }}
 {{ toYaml .Values.client.extraEnv | indent 2 }}

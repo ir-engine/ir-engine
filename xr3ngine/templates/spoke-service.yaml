@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "xrchat.spoke.fullname" . }}
+  name: {{ include "xrsocial.spoke.fullname" . }}
   labels:
-    {{- include "xrchat.spoke.labels" . | nindent 4 }}
+    {{- include "xrsocial.spoke.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.spoke.service.type }}
   ports:
@@ -13,5 +13,5 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "xrchat.spoke.selectorLabels" . | nindent 4 }}
+    {{- include "xrsocial.spoke.selectorLabels" . | nindent 4 }}
 {{- end }}
