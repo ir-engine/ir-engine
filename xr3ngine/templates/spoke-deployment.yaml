@@ -2,18 +2,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "xrchat.spoke.fullname" . }}
+  name: {{ include "xrsocial.spoke.fullname" . }}
   labels:
-    {{- include "xrchat.spoke.labels" . | nindent 4 }}
+    {{- include "xrsocial.spoke.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.spoke.replicaCount }}
   selector:
     matchLabels:
-      {{- include "xrchat.spoke.selectorLabels" . | nindent 6 }}
+      {{- include "xrsocial.spoke.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "xrchat.spoke.selectorLabels" . | nindent 8 }}
+        {{- include "xrsocial.spoke.selectorLabels" . | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/spoke-configmap.yaml") . | sha256sum }}
     spec:
@@ -21,7 +21,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ include "xrchat.spoke.serviceAccountName" . }}
+      serviceAccountName: {{ include "xrsocial.spoke.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.spoke.podSecurityContext | nindent 8 }}
       containers:
@@ -32,7 +32,7 @@ spec:
           imagePullPolicy: {{ .Values.spoke.image.pullPolicy }}
           envFrom:
             - configMapRef:
-                name: {{ include "xrchat.spoke.fullname" . }}
+                name: {{ include "xrsocial.spoke.fullname" . }}
                 optional: true
           ports:
             - name: http
