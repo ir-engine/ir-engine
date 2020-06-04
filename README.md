@@ -35,7 +35,7 @@ You can run the whole platfrom with the following commands:
 
 ``` bash
 git clone git@github.com:xr3ngine/xrsocial-ops.git
-cd xrchat-ops
+cd xrsocial-ops
 docker-compose up
 ```
 

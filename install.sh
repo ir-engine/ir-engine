@@ -14,4 +14,4 @@ export KUBECONFIG=/home/${USER}/.kube/kaixr.yaml
 echo $KUBECONFIG
 
 # get dependencies
-helm dep update xrchat
+helm dep update xr3ngine

@@ -33,14 +33,14 @@ It also optionally packages following which are required for xr3ngine platform:
 To install the chart with the release name `my-release`:
 
 ``` bash
-helm repo add xrchat https://xr3ngine.github.io/xrsocial-ops/
+helm repo add xr3ngine https://xr3ngine.github.io/xrsocial-ops/
 helm repo update
-helm install my-release xrchat/xrchat            # Helm 3
-helm install --name my-release xrchat/xrchat     # Helm 2
+helm install my-release xr3ngine/xr3ngine            # Helm 3
+helm install --name my-release xr3ngine/xr3ngine     # Helm 2
 ```
 
 XR3ngine
-The command deploys XRchat on the Kubernetes cluster in the default configuration. The [configuration](#configuration) section lists the parameters that can be configured during installation.
+The command deploys XR3ngine on the Kubernetes cluster in the default configuration. The [configuration](#configuration) section lists the parameters that can be configured during installation.
 
 > **Tip**: List all releases using `helm list`
 
@@ -82,7 +82,7 @@ Dependent charts can also have values overwritten. Preface values with mariadb.*
 | client.service.type | string | `"ClusterIP"` | override client service type |
 | client.serviceAccount | object | `{}` | override client service account |
 | client.tolerations | list | `[]` |  |
-| domain | string | `"xr3ngine.com"` | domain root for all services, services will be subdomain from it |
+| domain | string | `"kaiworld.com"` | domain root for all services, services will be subdomain from it |
 | mariadb.db.existingSecret | string | `nil` | Use existing secret for password details (rootUser.password, db.password, replication.password will be ignored and picked up from this secret). The secret has to contain the keys mariadb-root-password, mariadb-replication-password and mariadb-password. |
 | mariadb.db.name | string | `"xrchat"` | Database name to connect to |
 | mariadb.db.password | string | Password for the new user. Ignored if existing secret is provided. | random 10 character alphanumeric string if mariadb.db.user is defined |
@@ -92,17 +92,17 @@ Dependent charts can also have values overwritten. Preface values with mariadb.*
 | mariadb.replication.enabled | bool | `false` | Enable MariaDB slave replication |
 | server.affinity | object | `{}` |  |
 | server.enabled | bool | `true` | Install the xrsocial service |
-| **server.extraEnv** | object | `{}` | [Additional Configuration](#xrchat-additional-configurations) for xrsocial service |
+| **server.extraEnv** | object | `{}` | [Additional Configuration](#xr3ngine-additional-configurations) for xrsocial service |
 | server.fullnameOverride | string | `""` | override server fullname template |
 | server.image.pullPolicy | string | `"Always"` | Server pull policy |
-| server.image.repository | string | `"xrchat/server"` | server image repo |
+| server.image.repository | string | `"xr3ngine/xrsocial"` | server image repo |
 | server.image.tag | string | `"latest"` | server image version |
 | server.imagePullSecrets | list | `[]` | server image pull secret |
 | server.ingress.annotations | object | `{"kubernetes.io/ingress.class": "nginx"}` | server ingress class |
 | server.ingress.enabled | bool | `true` | enable ingress traffic to server |
-| **server.ingress.hosts[0].host** | string | `"api.xrchat.com"` | hastname for server service, used by client for API and backend operations |
+| **server.ingress.hosts[0].host** | string | `"api.xrsocial.com"` | hastname for server service, used by client for API and backend operations |
 | server.ingress.hosts[0].paths[0] | string | `"/"` | default path for server over http |
-| server.name | string | `"xrchat-server"` | server service name |
+| server.name | string | `"xrsocial"` | server service name |
 | server.nameOverride | string | `""` | overrides name template |
 | server.nodeSelector | object | `{}` | specify a node selector |
 | server.podSecurityContext | object | `{}` | server pod security |
@@ -128,7 +128,7 @@ helm install --name my-release -f values.yaml xr3ngine/xr3ngine
 
 > **Tip**: You can use the default <values.yaml>
 
-## XRCHat Additional Configurations
+## XR3ngine Additional Configurations
 
 This section lists configuration specific for server, client components.
 
