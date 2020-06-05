@@ -69,12 +69,14 @@ export default (app: Application): any => {
 
   (collection as any).associate = (models: any) => {
     (collection as any).belongsTo(models.collection_type, { foreignKey: 'collectionType', required: true });
-    (collection as any).hasOne(models.attribution);
+    (collection as any).belongsTo(models.attribution);
+    (collection as any).belongsTo(models.static_resource, { as: 'thumbnail_owned_file' });
     (collection as any).hasMany(models.entity, { onDelete: 'cascade' });
     (collection as any).hasMany(models.tag);
     (collection as any).belongsTo(models.user); // Reticulum foreignKey: 'creatorUserId'
     (collection as any).belongsTo(models.location);
-    (collection as any).belongsToMany(models.tag, { through: 'collection_tag' })
+    (collection as any).belongsToMany(models.tag, { through: 'collection_tag' });
+    (collection as any).belongsTo(models.collection)
 
     // thumbnail   (project as any).belongsTo(models.owned_file, { foreignKey: 'thumbnailOwnedFileId' })
     // parent collection   (project as any).belongsTo(models.scene, { foreignKey: 'parentSceneId' });
