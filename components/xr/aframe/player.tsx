@@ -50,7 +50,10 @@ export interface Props {
   cameraComponent: CameraComponent,
   firstUpdate: boolean,
   initPlayer: () => void,
-  getCursorTypes: () => string[]
+  getCursorTypes: () => string[],
+  addHandlers: () => void,
+  removeHandlers: () => void,
+  exitVRHandler: () => void
 }
 
 export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
@@ -72,9 +75,11 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
   },
 
   play() {
+    this.addHandlers()
   },
 
   pause() {
+    this.removeHandlers()
   },
 
   update(oldData: PlayerData) {
@@ -135,6 +140,18 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
     const types = ['mouse']
     if (this.data.inVr && this.data.deviceType === 'smartphone') types.push('fuse')
     return types
+  },
+
+  exitVRHandler() {
+    this.el.object3D.position.set(this.el.object3D.position.x, this.data.playerHeight, this.el.object3D.position.z)
+  },
+
+  addHandlers() {
+    this.el.sceneEl?.addEventListener('exit-vr', this.exitVRHandler.bind(this))
+  },
+
+  removeHandlers() {
+    this.el.sceneEl?.removeEventListener('exit-vr', this.exitVRHandler.bind(this))
   }
 
 }
