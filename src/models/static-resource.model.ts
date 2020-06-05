@@ -18,7 +18,7 @@ export default (app: Application): any => {
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     description: {
       type: DataTypes.STRING(1023),
@@ -28,6 +28,7 @@ export default (app: Application): any => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    key: DataTypes.STRING,
     mimeType: {
       type: DataTypes.STRING,
       allowNull: false
@@ -47,8 +48,7 @@ export default (app: Application): any => {
   (staticResource as any).associate = (models: any) => {
     (staticResource as any).belongsTo(models.static_resource_type, { foreignKey: 'staticResourceType', required: true });
     (staticResource as any).belongsTo(models.attribution);
-    (staticResource as any).belongsTo(models.component);
-    (staticResource as any).belongsTo(models.collection);
+    // (staticResource as any).belongsTo(models.component);
     (staticResource as any).belongsTo(models.user);
     (staticResource as any).hasMany(models.static_resource, { as: 'parent', foreignKey: 'parentResourceId', allowNull: true });
     //  foreignKey: 'asset_owned_file_id'
