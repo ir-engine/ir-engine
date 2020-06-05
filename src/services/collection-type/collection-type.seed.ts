@@ -1,4 +1,5 @@
 import config from '../../config'
+import { collectionType } from '../../enums/collection'
 
 export const seed = {
   disabled: !config.db.forceRefresh,
@@ -7,9 +8,9 @@ export const seed = {
   randomize: false,
   templates:
     [
-      { type: 'scene' },
-      { type: 'inventory' },
-      { type: 'project' }
+      { type: collectionType.scene },
+      { type: collectionType.inventory },
+      { type: collectionType.project }
     ]
 }
 
