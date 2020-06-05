@@ -9,6 +9,7 @@ import attachOwnerIdInBody from '../../hooks/set-loggedin-user-in-body'
 import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
 import mapProjectIdToQuery from '../../hooks/set-project-id-in-query'
 import generateSceneCollection from './generate-collection.hook'
+import { collectionType } from '../../enums/collection'
 // import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 
 // const { authenticate } = authentication.hooks
@@ -36,7 +37,7 @@ export default {
     all: [/* authenticate('jwt') , */collectAnalytics()],
     find: [],
     get: [],
-    create: [attachOwnerIdInBody('userId'), mapProjectSaveData(), validateCollectionData(), generateSceneCollection({ type: 'project' })],
+    create: [attachOwnerIdInBody('userId'), mapProjectSaveData(), validateCollectionData(), generateSceneCollection({ type: collectionType.project })],
     update: [disallow()],
     patch: [attachOwnerIdInBody('userId'), mapProjectIdToQuery(), mapProjectSaveData(), validateCollectionData()],
     remove: [
