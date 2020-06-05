@@ -1,5 +1,5 @@
 import collectAnalytics from '../../hooks/collect-analytics'
-// import * as authentication from '@feathersjs/authentication'
+import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common'
 import { BadRequest } from '@feathersjs/errors'
 
@@ -10,9 +10,8 @@ import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
 import mapProjectIdToQuery from '../../hooks/set-project-id-in-query'
 import generateSceneCollection from './generate-collection.hook'
 import { collectionType } from '../../enums/collection'
-// import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 
-// const { authenticate } = authentication.hooks
+const { authenticate } = authentication.hooks
 
 const mapProjectSaveData = () => {
   return (context: HookContext) => {
@@ -34,7 +33,7 @@ const validateCollectionData = () => {
 
 export default {
   before: {
-    all: [/* authenticate('jwt') , */collectAnalytics()],
+    all: [authenticate('jwt'), collectAnalytics()],
     find: [],
     get: [],
     create: [attachOwnerIdInBody('userId'), mapProjectSaveData(), validateCollectionData(), generateSceneCollection({ type: collectionType.project })],
