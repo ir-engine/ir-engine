@@ -3,6 +3,7 @@ import { BadRequest } from '@feathersjs/errors'
 import fetch from 'node-fetch'
 
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
+import { collectionType } from '../../enums/collection'
 
 export default (options: any) => {
   return async (context: HookContext) => {
@@ -10,7 +11,7 @@ export default (options: any) => {
     const models = seqeulizeClient.models
     const CollectionModel = models.collection
     const EntityModel = models.entity
-    const OwnedFileModel = models.owned_file
+    const StaticResourceModel = models.static_resource
     const ComponentModel = models.component
     const ComponentTypeModel = models.component_type
     const loggedInUser = extractLoggedInUserFromParams(context.params)
@@ -20,7 +21,7 @@ export default (options: any) => {
     // After creating of project, remove the owned_file of project json
 
     // Find the project owned_file from database
-    const ownedFile = await OwnedFileModel.findOne({
+    const ownedFile = await StaticResourceModel.findOne({
       where: {
         id: context.data.ownedFileId
       },
@@ -33,7 +34,7 @@ export default (options: any) => {
     const sceneData = await fetch(ownedFile.url).then(res => res.json())
 
     const savedCollection = await CollectionModel.create({
-      type: options.type ?? 'scene',
+      type: options.type ?? collectionType.scene,
       name: context.data.name,
       metadata: sceneData.metadata,
       version: sceneData.version,
