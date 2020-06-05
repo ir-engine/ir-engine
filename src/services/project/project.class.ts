@@ -1,5 +1,5 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Params, Id, NullableId } from '@feathersjs/feathers'
+import { Params, Id, NullableId, ServiceMethods } from '@feathersjs/feathers'
 import { Transaction } from 'sequelize/types'
 import fetch from 'node-fetch'
 
@@ -9,17 +9,22 @@ import { Application } from '../../declarations'
 import StorageProvider from '../../storage/storageprovider'
 import { BadRequest } from '@feathersjs/errors'
 interface Data { }
+interface ServiceOptions {}
 
-export class Project extends Service {
+export class Project implements ServiceMethods<Data> {
   app: Application
-  constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
+  options: ServiceOptions
+  models: any
+
+  constructor (options: ServiceOptions = {}, app: Application) {
+    this.options = options
     this.app = app
+    this.models = this.app.get('sequelizeClient').models
   }
 
   async find (params: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params)
-    const projects = await this.getModel(params).findAll({
+    const projects = await this.models.collection.findAll({
       where: {
         userId: loggedInUser.userId
       },
@@ -32,7 +37,7 @@ export class Project extends Service {
 
   async get (id: Id, params: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params)
-    const project = await this.getModel(params).findOne({
+    const project = await this.models.collection.findOne({
       attributes: ['name', 'id', 'sid', 'url', 'collectionId'],
       where: {
         sid: id,
@@ -45,7 +50,7 @@ export class Project extends Service {
   }
 
   async create (data: any, params: Params): Promise<any> {
-    const ProjectModel = this.getModel(params)
+    const ProjectModel = this.models.collection
     const provider = new StorageProvider()
     const storage = provider.getStorage()
 
@@ -68,6 +73,10 @@ export class Project extends Service {
       console.log('Project temp Owned file removed result: ', result)
     })
     return mapProjectDetailData(projectData.toJSON())
+  }
+
+  async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
+    return data
   }
 
   async patch (projectId: NullableId, data: any, params: Params): Promise<any> {
@@ -97,7 +106,7 @@ export class Project extends Service {
       return await Promise.reject(new BadRequest('Project File not found!'))
     }
     const sceneData = await fetch(ownedFile.url).then(res => res.json())
-    const project = await this.getModel(params).findOne({
+    const project = await this.models.collection.findOne({
       where: {
         userId: loggedInUser.userId,
         sid: projectId
@@ -198,15 +207,18 @@ export class Project extends Service {
     })
   }
 
+  async remove (id: NullableId, params?: Params): Promise<Data> {
+    return { id }
+  }
+
   private async reloadProject (projectId: string, loadedProject?: any): Promise<any> {
     const seqeulizeClient = this.app.get('sequelizeClient')
     const models = seqeulizeClient.models
-    const OwnedFileModel = models.owned_file
-    const ProjectModel = models.project
+    const StaticResourceModel = models.static_resource
     const CollectionModel = this.app.service('collection').Model
     const projectIncludes: any = [
       {
-        model: OwnedFileModel,
+        model: StaticResourceModel,
         as: 'thumbnail_owned_file',
         attributes: ['url']
       }
@@ -227,7 +239,7 @@ export class Project extends Service {
       })
     }
 
-    const projectData = await ProjectModel.findOne({
+    const projectData = await CollectionModel.findOne({
       where: {
         id: projectId
       },
