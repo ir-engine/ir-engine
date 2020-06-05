@@ -1,12 +1,52 @@
 import IInstanceType from '../instancet-type.interface'
-import { GraphQLObjectType, GraphQLList, GraphQLString } from 'graphql'
+import { GraphQLObjectType, GraphQLInputObjectType, GraphQLList, GraphQLString, GraphQLInt } from 'graphql'
 // @ts-ignore
 import { attributeFields } from 'graphql-sequelize'
 
 import { withFilter, PubSub } from 'graphql-subscriptions'
+import { Application } from '../../../../declarations'
 
 // @ts-ignore
 import AgonesSDK from '@google-cloud/agones-sdk'
+
+const InstanceEntityPositionInputType = new GraphQLInputObjectType({
+  name: 'InstanceEntityPositionInput',
+  fields: {
+    x: {
+      type: GraphQLInt
+    },
+    y: {
+      type: GraphQLInt
+    },
+    z: {
+      type: GraphQLInt
+    }
+  }
+})
+
+const InstanceEntityPositionType = new GraphQLObjectType({
+  name: 'InstanceEntityPosition',
+  fields: {
+    x: {
+      type: GraphQLInt
+    },
+    y: {
+      type: GraphQLInt
+    },
+    z: {
+      type: GraphQLInt
+    }
+  }
+})
+
+const InstanceEntityQueryInputType = new GraphQLInputObjectType({
+  name: 'InstanceEntityQueryType',
+  fields: {
+    id: {
+      type: GraphQLString
+    }
+  }
+})
 
 export default class EntityInstance implements IInstanceType {
   model: any
@@ -14,12 +54,14 @@ export default class EntityInstance implements IInstanceType {
   pubSubInstance: PubSub
   realtimeService: any
   agonesSDK: AgonesSDK
-  constructor (model: any, realtimeService: any, pubSubInstance: PubSub, agonesSDK: AgonesSDK) {
+  app: Application
+  constructor (model: any, realtimeService: any, pubSubInstance: PubSub, agonesSDK: AgonesSDK, app: Application) {
     this.model = model
     this.idField = { id: attributeFields(model).id }
     this.pubSubInstance = pubSubInstance
     this.realtimeService = realtimeService
     this.agonesSDK = agonesSDK
+    this.app = app
   }
 
   mutations = {
@@ -71,7 +113,7 @@ export default class EntityInstance implements IInstanceType {
         id: {
           type: GraphQLString
         },
-        data: {
+        name: {
           type: GraphQLString
         }
       },
@@ -91,7 +133,7 @@ export default class EntityInstance implements IInstanceType {
     patchEntityInstance: {
       type: new GraphQLObjectType({
         name: 'patchEntityInstance',
-        description: 'Patch a entity instance on this server',
+        description: 'Patch an entity instance on this server',
         fields: () => ({
           ...attributeFields(this.model)
         })
@@ -100,7 +142,7 @@ export default class EntityInstance implements IInstanceType {
         id: {
           type: GraphQLString
         },
-        data: {
+        name: {
           type: GraphQLString
         }
       },

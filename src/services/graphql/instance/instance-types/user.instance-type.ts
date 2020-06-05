@@ -4,6 +4,7 @@ import { GraphQLObjectType, GraphQLInputObjectType, GraphQLList, GraphQLString, 
 import { attributeFields } from 'graphql-sequelize'
 
 import { withFilter, PubSub } from 'graphql-subscriptions'
+import { Application } from '../../../../declarations'
 
 // @ts-ignore
 import AgonesSDK from '@google-cloud/agones-sdk'
@@ -62,12 +63,14 @@ export default class UserInstance implements IInstanceType {
   pubSubInstance: PubSub
   realtimeService: any
   agonesSDK: AgonesSDK
-  constructor (model: any, realtimeService: any, pubSubInstance: PubSub, agonesSDK: AgonesSDK) {
+  app: Application
+  constructor (model: any, realtimeService: any, pubSubInstance: PubSub, agonesSDK: AgonesSDK, app: Application) {
     this.model = model
     this.idField = { id: attributeFields(model).id }
     this.pubSubInstance = pubSubInstance
     this.realtimeService = realtimeService
     this.agonesSDK = agonesSDK
+    this.app = app
   }
 
   mutations = {
@@ -88,8 +91,6 @@ export default class UserInstance implements IInstanceType {
         }
       },
       resolve: async (source: any, args: any, context: any, info: any) => {
-        console.log(args.query)
-        console.log(this.realtimeService.store.get('user'))
         return this.realtimeService.find({ type: 'user', query: args.query })
       }
     },
@@ -125,12 +126,6 @@ export default class UserInstance implements IInstanceType {
         })
       }),
       args: {
-        id: {
-          type: GraphQLString
-        },
-        name: {
-          type: GraphQLString
-        },
         position: {
           type: InstanceUserPositionInputType
         }
@@ -146,9 +141,10 @@ export default class UserInstance implements IInstanceType {
           throw new Error('User already exists')
         }
 
+        const object = Object.assign({}, context.user, args)
         const newUser = await this.realtimeService.create({
           type: 'user',
-          object: args
+          object: object
         })
 
         await this.pubSubInstance.publish('userInstanceCreated', {
@@ -170,20 +166,15 @@ export default class UserInstance implements IInstanceType {
         })
       }),
       args: {
-        id: {
-          type: GraphQLString
-        },
-        name: {
-          type: GraphQLString
-        },
         position: {
           type: InstanceUserPositionInputType
         }
       },
       resolve: async (source: any, args: any, context: any, info: any) => {
-        const patchedUser = await this.realtimeService.patch(args.id, {
+        const object = Object.assign({}, context.user, args)
+        const patchedUser = await this.realtimeService.patch(context.user.id, {
           type: 'user',
-          object: args
+          object: object
         })
 
         await this.pubSubInstance.publish('userInstancePatched', {
@@ -200,9 +191,6 @@ export default class UserInstance implements IInstanceType {
         fields: () => (this.idField)
       }),
       args: {
-        id: {
-          type: GraphQLString
-        }
       },
       resolve: async (source: any, args: any, context: any, info: any) => {
         await this.realtimeService.remove(args.id, {

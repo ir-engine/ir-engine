@@ -4,6 +4,7 @@ import { GraphQLObjectType, GraphQLList, GraphQLString } from 'graphql'
 import { attributeFields } from 'graphql-sequelize'
 
 import { withFilter, PubSub } from 'graphql-subscriptions'
+import { Application } from '../../../../declarations'
 
 // @ts-ignore
 import AgonesSDK from '@google-cloud/agones-sdk'
@@ -14,12 +15,14 @@ export default class ComponentInstance implements IInstanceType {
   pubSubInstance: PubSub
   realtimeService: any
   agonesSDK: AgonesSDK
-  constructor (model: any, realtimeService: any, pubSubInstance: PubSub, agonesSDK: AgonesSDK) {
+  app: Application
+  constructor (model: any, realtimeService: any, pubSubInstance: PubSub, agonesSDK: AgonesSDK, app: Application) {
     this.model = model
     this.idField = { id: attributeFields(model).id }
     this.pubSubInstance = pubSubInstance
     this.realtimeService = realtimeService
     this.agonesSDK = agonesSDK
+    this.app = app
   }
 
   mutations = {
@@ -37,8 +40,11 @@ export default class ComponentInstance implements IInstanceType {
         }
       },
       resolve: async (source: any, args: any, context: any, info: any) => {
-        const query = JSON.parse(args.query)
-        return this.realtimeService.find({ type: 'component', query: query })
+        const query = args.query && args.query.length > 0 ? JSON.parse(args.query) : {}
+        const result = await this.realtimeService.find({ type: 'component', query: query })
+        console.log(result)
+
+        return result
       }
     },
     getComponentInstance: {

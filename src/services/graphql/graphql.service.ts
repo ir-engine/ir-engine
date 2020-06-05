@@ -6,10 +6,14 @@ import { PubSub } from 'graphql-subscriptions'
 import { generateModelTypes, generateApolloServer } from 'graphql-sequelize-generator'
 import InstanceType from './instance/instance-type'
 import fs from 'fs'
+import jwt from 'jsonwebtoken'
+import config from '../../config'
 
 import { Sequelize } from 'sequelize'
 // @ts-ignore
 import AgonesSDK from '@google-cloud/agones-sdk'
+import {id} from "aws-sdk/clients/datapipeline";
+import { NotAuthenticated }  from '@feathersjs/errors'
 
 const typeRe = /([a-zA-Z]+).instance/
 const realtimeTypeFilenames = fs.readdirSync('./src/services/graphql/instance/instance-types')
@@ -52,7 +56,7 @@ export default (app: Application): void => {
       }
 
       if (process.env.SERVER_MODE === 'realtime' && realtimeTypes.includes(model)) {
-        const instance = new InstanceType(model, models[model], app.service('realtime-store'), pubSubInstance, agonesSDK)
+        const instance = new InstanceType(model, models[model], app.service('realtime-store'), pubSubInstance, agonesSDK, app)
         options.additionalMutations = instance.mutations
         options.additionalSubscriptions = instance.subscriptions
       }
@@ -75,6 +79,12 @@ export default (app: Application): void => {
         [sequelizeClient.model(item.model).name]: {
           model: sequelizeClient.model(item.model),
           actions: actions,
+          before: [
+            (args: any, context: any, info: any) => {
+              console.log('PANTS')
+              console.log(context)
+            }
+          ],
           additionalMutations: item.additionalMutations,
           additionalSubscriptions: item.additionalSubscriptions
         }
@@ -94,6 +104,25 @@ export default (app: Application): void => {
           'editor.theme': 'dark'
         }
       },
+      context: async (context: any) => {
+        const req = context.req;
+        const authHeader = req.headers.authorization
+        if (authHeader == null) {
+          throw new NotAuthenticated('Missing authorization header')
+        }
+        const token = authHeader.replace ('Bearer ', '')
+        try {
+          const verify = await jwt.verify(token, config.authentication.secret)
+          const identityProvider = await app.service('identity-provider').get((verify as any).sub)
+          const user = await app.service('user').get((identityProvider as any).userId)
+          return {
+            user: user.dataValues
+          }
+        } catch(err) {
+          console.log(err)
+          throw err
+        }
+      },
       subscriptions: {
         path: '/subscriptions',
         onConnect: async (connectionParams: any, webSocket: any) => {
@@ -109,7 +138,10 @@ export default (app: Application): void => {
 
   server.applyMiddleware({
     app,
-    path: '/graphql'
+    path: '/graphql',
+    bodyParserConfig: {
+      limit: '10mb'
+    }
   })
 
   ;(app as any).apolloServer = server

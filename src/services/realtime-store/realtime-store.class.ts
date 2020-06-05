@@ -20,7 +20,8 @@ export class RealtimeStore implements ServiceMethods<Data> {
     const substore = this.store.get((params as any).type)
 
     if (substore == null) { return new UserInputError('Invalid type ') }
-    return Object.keys(substore).map((name) => { return substore.get(name) })
+    // return Object.keys(substore).map((name) => { return substore.get(name) })
+    return substore.values()
   }
 
   async get (id: Id, params?: Params): Promise<Data> {
