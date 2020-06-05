@@ -22,16 +22,15 @@ const createOwnedFile = (options = {}) => {
     const body = params.body || {}
 
     const resourceData = {
-      ownedFileId: body.fileId,
+      id: body.fileId,
       name: data.name || body.name,
       url: data.uri || data.url,
       key: (data.uri || data.url)
-        .replace(`${(config.aws.s3.baseUrl)}/` +
-          `${config.aws.s3.staticResourceBucket}/`, ''),
+        .replace(`https://${(config.aws.s3.cloudfront.domain)}/`, ''),
+
       content_type: data.mimeType || params.mimeType,
-      metadata: data.metadata || body.metadata,
-      state: 'active',
-      content_length: params.file.size
+      userId: body.userId,
+      metadata: data.metadata || body.metadata
     }
 
     /* if (context.params.skipResourceCreation === true) {
@@ -56,7 +55,7 @@ const createOwnedFile = (options = {}) => {
       file_id: savedFile.id,
       meta: {
         access_token: uuidv1(), // TODO: authenticate upload with bearer token
-        expected_content_type: savedFile.content_type,
+        expected_content_type: savedFile.mimeType,
         promotion_token: null
       },
       origin: savedFile.url
@@ -71,7 +70,7 @@ export default {
     all: [],
     find: [disallow()],
     get: [disallow()],
-    create: [/* authenticate('jwt'), */attachOwnerIdInSavingContact('ownerUserId'), addUriToFile(), makeS3FilesPublic()],
+    create: [/* authenticate('jwt'), */attachOwnerIdInSavingContact('userId'), addUriToFile(), makeS3FilesPublic()],
     update: [disallow()],
     patch: [disallow()],
     remove: [disallow()]
