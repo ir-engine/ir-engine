@@ -1,3 +1,4 @@
+import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Params, Id, NullableId, ServiceMethods } from '@feathersjs/feathers'
 import { Transaction } from 'sequelize/types'
 import fetch from 'node-fetch'
