@@ -5,6 +5,7 @@ import { Application } from '../../declarations'
 import { mapProjectDetailData, defaultProjectImport } from '../project/project-helper'
 // import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 import StorageProvider from '../../storage/storageprovider'
+import { collectionType } from '../../enums/collection'
 
 interface Data {}
 
@@ -45,7 +46,7 @@ export class PublishProject implements ServiceMethods<Data> {
 
     await this.app.get('sequelizeClient').transaction(async (trans: Transaction) => {
       const savedScene = await CollectionModel.create(data, {
-        collectionType: 'scene',
+        collectionType: collectionType.scene,
         transaction: trans,
         fields: ['screenshotOwnedFileId', 'modelOwnedFileId', 'allow_remixing', 'allow_promotion', 'name', 'ownerUserId', 'slug', 'state', 'sceneId', 'sid', 'collectionId']
       })
@@ -68,7 +69,7 @@ export class PublishProject implements ServiceMethods<Data> {
     const projectData = await CollectionModel.findOne({
       where: {
         sid: project.sid,
-        collectionType: 'project'
+        collectionType: collectionType.project
       },
       attributes: ['name', 'id', 'sid'],
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
