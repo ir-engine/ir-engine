@@ -25,6 +25,7 @@ export interface PlayerData {
   deviceType: string
   inVr: boolean
   movementEnabled: boolean
+  lookEnabled: boolean
   options?: AvatarOptions
 }
 
@@ -38,7 +39,8 @@ export const PlayerComponentSchema: AFRAME.MultiPropertySchema<PlayerData> = {
   fuseEnabled: { default: false },
   deviceType: { default: 'desktop' },
   inVr: { default: false },
-  movementEnabled: { default: true }
+  movementEnabled: { default: true },
+  lookEnabled: { default: true }
 }
 
 export interface Props {
@@ -51,9 +53,11 @@ export interface Props {
   firstUpdate: boolean,
   initPlayer: () => void,
   getCursorTypes: () => string[],
+  setControllers: () => void,
   addHandlers: () => void,
   removeHandlers: () => void,
-  exitVRHandler: () => void
+  exitVRHandler: () => void,
+  enterVRHandler: () => void
 }
 
 export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
@@ -62,7 +66,7 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
   } as PlayerData,
 
   player: {} as Player,
-  controls: {} as PlayerControls,
+  controls: null,
   cameraRig: {} as CameraRig,
   cameraRigEl: {} as AFRAME.Entity,
   playerCameraEl: {} as AFRAME.Entity,
@@ -99,15 +103,9 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
       this.cameraRig.setActive()
       this.cameraRig.removeDefaultCamera()
     }
-    if (['movementEnabled'].some(prop => changedData.includes(prop)) &&
+    if (['movementEnabled', 'lookEnabled'].some(prop => changedData.includes(prop)) &&
       Object.keys(this.cameraRig).length !== 0) {
-      this.controls.teardownControls(this.el)
-
-      const controllers: ControllerComponent[] = [new LookController()]
-      if (this.data.movementEnabled) controllers.push(new WASDController())
-
-      this.controls = new PlayerControls(controllers)
-      this.controls.setupControls(this.el)
+      this.setControllers()
     }
   },
 
@@ -127,13 +125,19 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
     this.cameraRig.setActive()
     this.cameraRig.removeDefaultCamera()
 
-    const controllers: ControllerComponent[] = [new LookController()]
+    this.setControllers()
+
+    this.el.object3D.position.set(this.el.object3D.position.x, this.data.playerHeight, this.el.object3D.position.z)
+  },
+
+  setControllers() {
+    if (this.controls) this.controls.teardownControls(this.el)
+    const controllers: ControllerComponent[] = []
+    if (this.data.lookEnabled) controllers.push(new LookController())
     if (this.data.movementEnabled) controllers.push(new WASDController())
 
     this.controls = new PlayerControls(controllers)
     this.controls.setupControls(this.el)
-
-    this.el.object3D.position.set(this.el.object3D.position.x, this.data.playerHeight, this.el.object3D.position.z)
   },
 
   getCursorTypes(): string[] {
@@ -142,15 +146,25 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
     return types
   },
 
+  enterVRHandler() {
+    if (this.data.deviceType === 'smartphone') {
+      this.el.setAttribute('player', { lookEnabled: false })
+      this.el.object3D.position.set(this.el.object3D.position.x, 0, this.el.object3D.position.z)
+    }
+  },
+
   exitVRHandler() {
     this.el.object3D.position.set(this.el.object3D.position.x, this.data.playerHeight, this.el.object3D.position.z)
+    if (this.data.deviceType === 'smartphone') this.el.setAttribute('player', { lookEnabled: true })
   },
 
   addHandlers() {
+    this.el.sceneEl?.addEventListener('enter-vr', this.enterVRHandler.bind(this))
     this.el.sceneEl?.addEventListener('exit-vr', this.exitVRHandler.bind(this))
   },
 
   removeHandlers() {
+    this.el.sceneEl?.removeEventListener('enter-vr', this.enterVRHandler.bind(this))
     this.el.sceneEl?.removeEventListener('exit-vr', this.exitVRHandler.bind(this))
   }
 
