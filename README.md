@@ -1,5 +1,5 @@
-# volumetric
-Volumetric development goes here.
+# three-volumetric
+Right now this repo is in a transition state. We have demos and tests running files from several different vendors in AR, VR and mobile, but we are transitioning to an npm-installable package to run volumetric from any vendor where we can mediate an open-source playback solution.
 
 To run:
 1. Run npm install inside serve/ folder
