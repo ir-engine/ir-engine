@@ -1,5 +1,6 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
+import { collectionType as collectionTypeEnum } from '../enums/collection'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -8,7 +9,8 @@ export default (app: Application): any => {
       type: DataTypes.STRING,
       allowNull: false,
       primaryKey: true,
-      unique: true
+      unique: true,
+      values: Object.keys(collectionTypeEnum)
     }
   }, {
     hooks: {
