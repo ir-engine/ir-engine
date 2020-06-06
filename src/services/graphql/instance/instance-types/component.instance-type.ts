@@ -42,7 +42,6 @@ export default class ComponentInstance implements IInstanceType {
       resolve: async (source: any, args: any, context: any, info: any) => {
         const query = args.query && args.query.length > 0 ? JSON.parse(args.query) : {}
         const result = await this.realtimeService.find({ type: 'component', query: query })
-        console.log(result)
 
         return result
       }
@@ -78,6 +77,9 @@ export default class ComponentInstance implements IInstanceType {
         },
         data: {
           type: GraphQLString
+        },
+        entityId: {
+          type: GraphQLString
         }
       },
       resolve: async (source: any, args: any, context: any, info: any) => {
@@ -106,6 +108,9 @@ export default class ComponentInstance implements IInstanceType {
           type: GraphQLString
         },
         data: {
+          type: GraphQLString
+        },
+        entityId: {
           type: GraphQLString
         }
       },
