@@ -1,0 +1,37 @@
+language: node_js
+node_js:
+  - "12"
+
+services:
+  - docker
+
+script:
+  - npm run test
+
+before_deploy:
+  - scripts/setup_helm.sh
+  - scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REIGON $CLUSTER_NAME
+
+deploy:
+  - provider: script
+    script: bash scripts/publish_dockerhub.sh staging $TRAVIS_COMMIT xr3ngine/xrsocial-client && scripts/deploy.sh staging $TRAVIS_COMMIT
+    on:
+      branch: master
+  - provider: script
+    script: bash scripts/publish_dockerhub.sh dev $TRAVIS_COMMIT xr3ngine/xrsocial-client && scripts/deploy.sh dev $TRAVIS_COMMIT
+    on:
+      branch: dev
+  - provider: script
+    script: bash scripts/publish_dockerhub.sh latest $TRAVIS_TAG xr3ngine/xrsocial-client
+    on:
+      tags: true
+      all_branches: true
+
+after_success:
+  - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
+  - chmod +x send.sh
+  - ./send.sh success $WEBHOOK_URL
+after_failure:
+  - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
+  - chmod +x send.sh
+  - ./send.sh failure $WEBHOOK_URL
