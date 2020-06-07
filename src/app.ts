@@ -7,7 +7,6 @@ import swagger from 'feathers-swagger'
 import feathers from '@feathersjs/feathers'
 import express from '@feathersjs/express'
 import socketio from '@feathersjs/socketio'
-const { parse } = require('url')
 
 import { Application } from './declarations'
 import logger from './logger'
@@ -20,6 +19,7 @@ import sequelize from './sequelize'
 import config from './config'
 
 import next from 'next'
+const { parse } = require('url')
 
 const app: Application = express(feathers())
 
