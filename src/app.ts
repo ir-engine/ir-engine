@@ -7,6 +7,7 @@ import swagger from 'feathers-swagger'
 import feathers from '@feathersjs/feathers'
 import express from '@feathersjs/express'
 import socketio from '@feathersjs/socketio'
+const { parse } = require('url')
 
 import { Application } from './declarations'
 import logger from './logger'
@@ -67,7 +68,7 @@ app.configure(services)
 // Set up event channels (see channels.js)
 app.configure(channels)
 
-const p = path.join(config.server.publicDir, '../xr3-client/')
+const p = path.join(config.server.publicDir, '../client/')
 
 console.log(p)
 
@@ -84,7 +85,9 @@ clientApp.prepare().then(() => {
   app.use('/spoke', express.static(config.server.publicDir + '/spoke'))
 
   app.get('*', (req, res) => {
-    return clientAppHandler(req, res)
+    const parsedUrl = parse(req.url, true)
+
+    return clientAppHandler(req, res, parsedUrl)
   })
 
   // Host the public folder

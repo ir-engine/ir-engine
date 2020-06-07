@@ -23,8 +23,8 @@
   "include": [
     "src",
     "next-env.d.ts",
-    "node_modules/xr3-client/**/*.ts",
-    "node_modules/xr3-client/**/*.tsx",
+    "client/**/*.ts",
+    "client/**/*.tsx",
     "./**/*.ts",
     "./**/*.tsx"
   ]
