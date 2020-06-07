@@ -1,6 +1,6 @@
 {
-  "name": "xrengine-client",
-  "version": "1.0.0",
+  "name": "xr3-client",
+  "version": "0.0.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/xr3ngine/xrengine-client.git"
@@ -26,7 +26,7 @@
   ],
   "peerDependencies": {
     "@material-ui/react-transition-group": "~4.3.0",
-    "ecsy": "github:xrchat/ecsy#dev",
+    "ecsy": "github:xr3ngine/ecsy#dev",
     "react-transition-group": "~4.3.0"
   },
   "dependencies": {
@@ -65,7 +65,7 @@
     "babel-loader": "^8.1.0",
     "css-loader": "^3.5.3",
     "device-detector-js": "^2.2.1",
-    "ecsy": "github:xrchat/ecsy#dev",
+    "ecsy": "github:xr3ngine/ecsy#dev",
     "eslint-plugin-react-hooks": "^3.0.0",
     "file-loader": "^6.0.0",
     "glob": "^7.1.6",
