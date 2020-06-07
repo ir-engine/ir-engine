@@ -71,6 +71,9 @@ https://github.com/learnk8s/knote-js/tree/master/04-05
 https://k8slens.dev/
 Visual Studio Code
 
+3D Models
+https://github.com/donmccurdy/three-gltf-viewer/releases
+
 VS Remote WSL & Containers
 https://code.visualstudio.com/docs/remote/remote-overview
 
