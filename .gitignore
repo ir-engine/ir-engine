@@ -110,8 +110,6 @@ dist
 **/xr3ngine-dev-secrets.env
 lib/
 
-config/
-
 .vscode/
 
 .env
