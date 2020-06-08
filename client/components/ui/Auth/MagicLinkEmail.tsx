@@ -23,12 +23,12 @@ const config = getConfig().publicRuntimeConfig.staticPages
 const authConfig = getConfig().publicRuntimeConfig.auth
 
 interface Props {
-  auth: any
-  type: 'email' | 'sms' | undefined
+  auth?: any
+  type?: 'email' | 'sms' | undefined
   isAddConnection?: boolean
-  createMagicLink: typeof createMagicLink
-  addConnectionBySms: typeof addConnectionBySms
-  addConnectionByEmail: typeof addConnectionByEmail
+  createMagicLink?: typeof createMagicLink
+  addConnectionBySms?: typeof addConnectionBySms
+  addConnectionByEmail?: typeof addConnectionByEmail
 }
 
 const mapStateToProps = (state: any): any => {
@@ -190,7 +190,7 @@ const MagicLinkEmail = (props: Props): any => {
   )
 }
 
-const MagicLinkEmailWrapper = (props: any): any => <MagicLinkEmail {...props} />
+const MagicLinkEmailWrapper = (props: Props): any => <MagicLinkEmail {...props} />
 
 export default connect(
   mapStateToProps,

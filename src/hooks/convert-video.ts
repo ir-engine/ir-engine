@@ -138,8 +138,6 @@ export default async (context: any): Promise<void> => {
                 })
             })
 
-            console.log('Got thumbnail from yt-dl: ' + thumbnailUrlResult)
-
             localContext.data.metadata.thumbnail_url = (thumbnailUrlResult as any)[0]
             localContext.result.metadata.thumbnail_url = localContext.data.metadata.thumbnail_url
 
@@ -228,8 +226,6 @@ export default async (context: any): Promise<void> => {
                 resolve(output)
               })
           })
-
-          console.log('Got thumbnail from yt-dl: ' + thumbnailUrlResult)
 
           localContext.data.metadata.thumbnail_url = (thumbnailUrlResult as any)[0]
           localContext.result.metadata.thumbnail_url = localContext.data.metadata.thumbnail_url

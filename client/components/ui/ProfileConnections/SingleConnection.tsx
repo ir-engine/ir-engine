@@ -24,32 +24,32 @@ import { showAlert } from '../../../redux/alert/actions'
 import './style.scss'
 
 interface Props {
-  auth: any
-  classes: any
-  connectionType:
-    | 'facebook'
-    | 'github'
-    | 'google'
-    | 'email'
-    | 'sms'
-    | 'password'
+  auth?: any
+  classes?: any
+  connectionType?:
+  | 'facebook'
+  | 'github'
+  | 'google'
+  | 'email'
+  | 'sms'
+  | 'password'
 
-  showDialog: typeof showDialog
-  addConnectionByOauth: typeof addConnectionByOauth
-  createMagicLink: typeof createMagicLink
-  loginUserByPassword: typeof loginUserByPassword
-  addConnectionByPassword: typeof addConnectionByPassword
-  removeConnection: typeof removeConnection
-  showAlert: typeof showAlert
+  showDialog?: typeof showDialog
+  addConnectionByOauth?: typeof addConnectionByOauth
+  createMagicLink?: typeof createMagicLink
+  loginUserByPassword?: typeof loginUserByPassword
+  addConnectionByPassword?: typeof addConnectionByPassword
+  removeConnection?: typeof removeConnection
+  showAlert?: typeof showAlert
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return {
     auth: selectAuthState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   showDialog: bindActionCreators(showDialog, dispatch),
   addConnectionByOauth: bindActionCreators(addConnectionByOauth, dispatch),
   createMagicLink: bindActionCreators(createMagicLink, dispatch),
@@ -62,7 +62,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   showAlert: bindActionCreators(showAlert, dispatch)
 })
 
-const SingleConnection = (props: Props) => {
+const SingleConnection = (props: Props): any => {
   const {
     addConnectionByOauth,
     auth,
@@ -93,7 +93,7 @@ const SingleConnection = (props: Props) => {
     })
   }, [])
 
-  const disconnect = () => {
+  const disconnect = (): any => {
     const identityProvider = state.identityProvider
     const authIdentityProvider = props.auth.get('authUser').identityProvider
     if (authIdentityProvider.id === identityProvider.id) {
@@ -104,7 +104,7 @@ const SingleConnection = (props: Props) => {
     removeConnection(identityProvider.id, state.userId)
   }
 
-  const connect = () => {
+  const connect = (): any => {
     const { userId } = state
 
     switch (connectionType) {
@@ -134,7 +134,7 @@ const SingleConnection = (props: Props) => {
   const identityProvider = state.identityProvider
   let texts
   let actionBlock
-  if (identityProvider && identityProvider.id) {
+  if (identityProvider?.id) {
     texts = ConnectionTexts[connectionType].connected
 
     actionBlock = (
@@ -191,7 +191,7 @@ const SingleConnection = (props: Props) => {
   )
 }
 
-const SingleConnectionWrapper = (props: any) => <SingleConnection {...props} />
+const SingleConnectionWrapper = (props: Props) => <SingleConnection {...props} />
 
 export default connect(
   mapStateToProps,

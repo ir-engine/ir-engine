@@ -78,11 +78,11 @@ export class Magiclink implements ServiceMethods<Data> {
         id: subscriptionId
       })
 
-      if ((subscription as any).total === 0) {
+      if ((subscription).total === 0) {
         throw new BadRequest('Invalid subscription')
       }
 
-      const subscriptionUser = await this.app.service('user').get((subscription as any).data[0].userId)
+      const subscriptionUser = await this.app.service('user').get((subscription).data[0].userId)
 
       username = subscriptionUser.name
     }
