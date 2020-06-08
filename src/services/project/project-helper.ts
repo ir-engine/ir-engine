@@ -4,8 +4,8 @@ export function mapProjectDetailData (project: any): any {
   const _proj = {
     name: project.name,
     parent_scene: mapSceneData(project?.parent_scene_listing || project?.parent_scene, project.sid),
-    projectId: project.sid,
-    url: project?.url,
+    project_id: project.sid,
+    project_url: project?.url,
     scene: mapSceneData(project.scene, project.sid),
     thumbnail_url: project?.thumbnail_owned_file?.url
   }
@@ -19,7 +19,7 @@ export function mapSceneData (scene: any, projectId: string): any {
   const selectedSceneData = {
     ...scene,
     sceneId: scene?.sid,
-    projectId,
+    project_id: projectId,
     url: `${(config.server.hub.endpoint)}/scene/${(scene.slug as string)}`,
     model_url: scene?.model_owned_file?.url,
     screenshot_url: scene?.screenshot_owned_file?.url
@@ -32,13 +32,13 @@ export function mapSceneData (scene: any, projectId: string): any {
 export function defaultProjectImport (models: any): any[] {
   const includedEntities = [
     {
-      model: models.collection,
+      model: models.static_resource,
       as: 'thumbnail_owned_file',
       attributes: ['url']
     },
-    {
+    /* {
       model: models.collection,
-      attributes: ['collectionType', 'ownerUserId', 'allow_promotion', 'allow_remixing', 'attribution', 'description', 'name', 'parentSceneId', 'sceneId', 'slug', 'sid'],
+      attributes: ['collectionType', 'userId', 'allow_promotion', 'allow_remixing', 'attribution', 'description', 'name', 'parentSceneId', 'sceneId', 'slug', 'sid'],
       include: [
         {
           model: models.static_resource,
@@ -68,7 +68,7 @@ export function defaultProjectImport (models: any): any[] {
           attributes: ['staticResourceType', 'url']
         }
       ]
-    }
+    } */
     /* {
           model: ParentSceneListingModel,
           include: [
