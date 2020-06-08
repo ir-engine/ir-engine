@@ -1,4 +1,3 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Params, Id, NullableId, ServiceMethods } from '@feathersjs/feathers'
 import { Transaction } from 'sequelize/types'
 import fetch from 'node-fetch'
@@ -8,6 +7,7 @@ import { extractLoggedInUserFromParams } from '../auth-management/auth-managemen
 import { Application } from '../../declarations'
 import StorageProvider from '../../storage/storageprovider'
 import { BadRequest } from '@feathersjs/errors'
+import { collectionType } from '../../enums/collection'
 interface Data { }
 interface ServiceOptions {}
 
@@ -26,7 +26,8 @@ export class Project implements ServiceMethods<Data> {
     const loggedInUser = extractLoggedInUserFromParams(params)
     const projects = await this.models.collection.findAll({
       where: {
-        userId: loggedInUser.userId
+        userId: loggedInUser.userId,
+        type: collectionType.project
       },
       attributes: ['name', 'id', 'sid', 'url', 'collectionId'],
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
@@ -41,7 +42,8 @@ export class Project implements ServiceMethods<Data> {
       attributes: ['name', 'id', 'sid', 'url', 'collectionId'],
       where: {
         sid: id,
-        userId: loggedInUser.userId
+        userId: loggedInUser.userId,
+        type: collectionType.project
       },
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
     })
@@ -67,15 +69,15 @@ export class Project implements ServiceMethods<Data> {
 
     // After saving project, remove the project json file from s3, as we have saved that on database in collection table
     const tempOwnedFileKey = params.ownedFile.key
-    // storage.remove({
-    //   key: tempOwnedFileKey
-    // }, (err: any, result: any) => {
-    //   if (err) {
-    //     console.log('Storage removal error')
-    //     console.log('Error in removing project temp Owned file: ', err)
-    //   }
-    //   console.log('Project temp Owned file removed result: ', result)
-    // })
+    storage.remove({
+      key: tempOwnedFileKey
+    }, (err: any, result: any) => {
+      if (err) {
+        console.log('Storage removal error')
+        console.log('Error in removing project temp Owned file: ', err)
+      }
+      console.log('Project temp Owned file removed result: ', result)
+    })
     return mapProjectDetailData(projectData.toJSON())
   }
 
@@ -198,15 +200,15 @@ export class Project implements ServiceMethods<Data> {
 
       // After saving project, remove the project json file from s3, as we have saved that on database in collection table
       const tempOwnedFileKey = ownedFile.key
-      // storage.remove({
-      //   key: tempOwnedFileKey
-      // }, (err: any, result: any) => {
-      //   if (err) {
-      //     console.log('Storage removal error')
-      //     console.log('Error in removing project temp Owned file: ', err)
-      //   }
-      //   console.log('Project temp Owned file removed result: ', result)
-      // })
+      storage.remove({
+        key: tempOwnedFileKey
+      }, (err: any, result: any) => {
+        if (err) {
+          console.log('Storage removal error')
+          console.log('Error in removing project temp Owned file: ', err)
+        }
+        console.log('Project temp Owned file removed result: ', result)
+      })
       return mapProjectDetailData(savedProject.toJSON())
     })
   }
