@@ -35,7 +35,7 @@ export function defaultProjectImport (models: any): any[] {
       model: models.static_resource,
       as: 'thumbnail_owned_file',
       attributes: ['url']
-    },
+    }
     /* {
       model: models.collection,
       attributes: ['collectionType', 'userId', 'allow_promotion', 'allow_remixing', 'attribution', 'description', 'name', 'parentSceneId', 'sceneId', 'slug', 'sid'],
