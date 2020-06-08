@@ -26,6 +26,7 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
+    "glslify": "^7.0.0",
     "three": "^0.117.1"
   }
 }
