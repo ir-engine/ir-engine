@@ -6,7 +6,7 @@ const path = require('path')
 module.exports = withImages(
   withSass({
     /* config options here */
-    publicRuntimeConfig: config.publicRuntimeConfig,
+    publicRuntimeConfig: config.get('publicRuntimeConfig'),
     env: {
       API_SERVER: process.env.API_SERVER
     },

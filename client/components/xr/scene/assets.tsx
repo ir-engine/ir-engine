@@ -5,6 +5,9 @@ import { useDispatch } from 'react-redux'
 import getConfig from 'next/config'
 
 const config = getConfig().publicRuntimeConfig
+console.log('***** CONFIG *****')
+console.log(config)
+
 const env = config.xr.environment
 const grid = config.xr.grid
 const spoke = config.xr.spoke
@@ -50,12 +53,12 @@ const entities: EntityType[] = [
   }
 ]
 
-export function getSourceType(src) {
+export function getSourceType (src): any {
   if (/\.(png|jpg)$/.test(src)) return 'image'
   if (/\.(glb|gltf)$/.test(src)) return 'model'
 }
 
-function addAsset(id, src) {
+function addAsset (id, src): any {
   const type = getSourceType(src)
   switch (type) {
     case 'image':
@@ -103,11 +106,14 @@ const videos = [
   }
 ]
 
-export const Assets = () => {
+export const Assets = (): any => {
+  console.log('***** CONFIG *****')
+  console.log(config)
+
   const [numLoaded, setNumLoaded] = useState(0)
   const totalToLoad = images.length + entities.length
   const dispatch = useDispatch()
-  const handleAssetLoaded = () => {
+  const handleAssetLoaded = (): any => {
     setNumLoaded(numLoaded => numLoaded + 1)
   }
   useEffect(() => {
