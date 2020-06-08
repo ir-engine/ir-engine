@@ -46,6 +46,10 @@ export class Project implements ServiceMethods<Data> {
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
     })
 
+    if (!project) {
+      return await Promise.reject(new BadRequest('Project not found Or you don\'t have access!'))
+    }
+
     return mapProjectDetailData(project.toJSON())
   }
 
@@ -63,15 +67,15 @@ export class Project implements ServiceMethods<Data> {
 
     // After saving project, remove the project json file from s3, as we have saved that on database in collection table
     const tempOwnedFileKey = params.ownedFile.key
-    storage.remove({
-      key: tempOwnedFileKey
-    }, (err: any, result: any) => {
-      if (err) {
-        console.log('Storage removal error')
-        console.log('Error in removing project temp Owned file: ', err)
-      }
-      console.log('Project temp Owned file removed result: ', result)
-    })
+    // storage.remove({
+    //   key: tempOwnedFileKey
+    // }, (err: any, result: any) => {
+    //   if (err) {
+    //     console.log('Storage removal error')
+    //     console.log('Error in removing project temp Owned file: ', err)
+    //   }
+    //   console.log('Project temp Owned file removed result: ', result)
+    // })
     return mapProjectDetailData(projectData.toJSON())
   }
 
@@ -85,7 +89,7 @@ export class Project implements ServiceMethods<Data> {
     const models = seqeulizeClient.models
     const CollectionModel = models.collection
     const EntityModel = models.entity
-    const OwnedFileModel = models.owned_file
+    const OwnedFileModel = models.static_resource
     const ComponentModel = models.component
     const ComponentTypeModel = models.component_type
     const provider = new StorageProvider()
@@ -194,15 +198,15 @@ export class Project implements ServiceMethods<Data> {
 
       // After saving project, remove the project json file from s3, as we have saved that on database in collection table
       const tempOwnedFileKey = ownedFile.key
-      storage.remove({
-        key: tempOwnedFileKey
-      }, (err: any, result: any) => {
-        if (err) {
-          console.log('Storage removal error')
-          console.log('Error in removing project temp Owned file: ', err)
-        }
-        console.log('Project temp Owned file removed result: ', result)
-      })
+      // storage.remove({
+      //   key: tempOwnedFileKey
+      // }, (err: any, result: any) => {
+      //   if (err) {
+      //     console.log('Storage removal error')
+      //     console.log('Error in removing project temp Owned file: ', err)
+      //   }
+      //   console.log('Project temp Owned file removed result: ', result)
+      // })
       return mapProjectDetailData(savedProject.toJSON())
     })
   }
