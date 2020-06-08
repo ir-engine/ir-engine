@@ -1,0 +1,31 @@
+{
+  "name": "three-volumetric",
+  "version": "0.0.2",
+  "description": "Three.js Volumetric Player",
+  "main": "dist/three-volumetric.js",
+  "scripts": {
+    "test": "echo \"Error: no tests installed\" && exit 1",
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xr3ngine/three-volumetric.git"
+  },
+  "author": "XR3 Group",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xr3ngine/three-volumetric/issues"
+  },
+  "homepage": "https://github.com/xr3ngine/three-volumetric#readme",
+  "devDependencies": {
+    "ts-loader": "^7.0.5",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.5",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11",
+    "webpack-node-externals": "^1.7.2"
+  },
+  "dependencies": {
+    "three": "^0.117.1"
+  }
+}
