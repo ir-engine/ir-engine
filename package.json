@@ -26,7 +26,7 @@
     "test": "yarn run lint && yarn run compile && yarn run mocha",
     "lint": "node node_modules/.bin/eslint --ext .js,.ts src/ test/ --fix",
     "dev": "cp -r ./client/public/* ./public/ && NODE_ENV=development ts-node src/",
-    "dev-with-spoke": "cp -r ./client/public/* ./public/ && NODE_ENV=development ts-node src/",
+    "dev-with-spoke": "yarn run build-spoke && cp -r ./client/public/* ./public/ && NODE_ENV=development ts-node src/",
     "dev-reinit-db": "NODE_ENV=development FORCE_DB_REFRESH=true ts-node src/",
     "dev-reinit-db-windows": "SET NODE_ENV=development && SET FORCE_DB_REFRESH=true && ts-node-dev --no-notify src/",
     "dev-generate-fakes": "NODE_ENV=development env GENERATE_FAKES=true ts-node-dev --no-notify src/",
