@@ -1,4 +1,3 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Params, Id, NullableId, ServiceMethods } from '@feathersjs/feathers'
 import { Transaction } from 'sequelize/types'
 import fetch from 'node-fetch'
@@ -8,6 +7,7 @@ import { extractLoggedInUserFromParams } from '../auth-management/auth-managemen
 import { Application } from '../../declarations'
 import StorageProvider from '../../storage/storageprovider'
 import { BadRequest } from '@feathersjs/errors'
+import { collectionType } from '../../enums/collection'
 interface Data { }
 interface ServiceOptions {}
 
@@ -26,8 +26,13 @@ export class Project implements ServiceMethods<Data> {
     const loggedInUser = extractLoggedInUserFromParams(params)
     const projects = await this.models.collection.findAll({
       where: {
+<<<<<<< HEAD:server/services/project/project.class.ts
         userId: loggedInUser.userId
         // type: collectionType.project
+=======
+        userId: loggedInUser.userId,
+        type: collectionType.project
+>>>>>>> Added commented code, removed mistakenly:src/services/project/project.class.ts
       },
       attributes: ['name', 'id', 'sid', 'url'],
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
@@ -42,8 +47,13 @@ export class Project implements ServiceMethods<Data> {
       attributes: ['name', 'id', 'sid', 'url', 'type'],
       where: {
         sid: id,
+<<<<<<< HEAD:server/services/project/project.class.ts
         userId: loggedInUser.userId
         // type: collectionType.project
+=======
+        userId: loggedInUser.userId,
+        type: collectionType.project
+>>>>>>> Added commented code, removed mistakenly:src/services/project/project.class.ts
       },
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
     })
@@ -70,7 +80,11 @@ export class Project implements ServiceMethods<Data> {
       }
       console.log('Project temp Owned file removed result: ', result)
     })
+<<<<<<< HEAD:server/services/project/project.class.ts
     return mapProjectDetailData(params.collection)
+=======
+    return mapProjectDetailData(projectData.toJSON())
+>>>>>>> Added commented code, removed mistakenly:src/services/project/project.class.ts
   }
 
   async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
@@ -192,6 +206,10 @@ export class Project implements ServiceMethods<Data> {
         }
         console.log('Project temp Owned file removed result: ', result)
       })
+<<<<<<< HEAD:server/services/project/project.class.ts
+=======
+      return mapProjectDetailData(savedProject.toJSON())
+>>>>>>> Added commented code, removed mistakenly:src/services/project/project.class.ts
     })
 
     const savedProject = await this.reloadProject(project.id, project)
