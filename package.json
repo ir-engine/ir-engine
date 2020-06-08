@@ -16,33 +16,25 @@
   "bugs": {},
   "directories": {
     "lib": "src",
-    "test": "test/",
     "config": "config/"
   },
   "engines": {
     "yarn": ">= 0.18.0"
   },
   "scripts": {
-    "test": "yarn run lint && yarn run compile && yarn run mocha",
-    "lint": "node node_modules/.bin/eslint --ext .js,.ts src/ test/ --fix",
+    "test": "yarn run lint && yarn run compile",
+    "lint": "node node_modules/.bin/eslint --ext .js,.ts src/ --fix",
     "dev": "NODE_ENV=development ts-node src/",
     "dev-with-spoke": "yarn run build-spoke && NODE_ENV=development ts-node src/",
     "dev-reinit-db": "NODE_ENV=development FORCE_DB_REFRESH=true ts-node src/",
     "dev-reinit-db-windows": "SET NODE_ENV=development && SET FORCE_DB_REFRESH=true && ts-node-dev --no-notify src/",
     "dev-generate-fakes": "NODE_ENV=development env GENERATE_FAKES=true ts-node-dev --no-notify src/",
     "start": "yarn run compile && node lib/",
-    "mocha": "NODE_ENV=test ts-mocha \"test/**/*.ts\" --recursive --exit",
     "compile": "shx rm -rf lib/ && tsc",
     "sync": "PERFORM_DRY_RUN=true FORCE_DB_REFRESH=true node lib/",
     "precommit": "no-master-commits -b master,dev",
     "build-spoke": "cd scripts && bash sync-spoke.sh",
     "postinstall": "yarn run build-spoke"
-  },
-  "standard": {
-    "env": [
-      "mocha"
-    ],
-    "ignore": []
   },
   "resolutions": {
     "is-promise": "2.1.0",
@@ -225,7 +217,6 @@
     "@types/jsonwebtoken": "^8.3.9",
     "@types/material-ui": "^0.21.7",
     "@types/mime-types": "^2.1.0",
-    "@types/mocha": "^7.0.2",
     "@types/node": "^13.13.0",
     "@types/node-fetch": "^2.5.7",
     "@types/nodemailer-smtp-transport": "^2.7.4",
@@ -255,7 +246,6 @@
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-standard": "^4.0.1",
     "feathers-hooks-common": "^5.0.3",
-    "mocha": "^7.1.1",
     "no-master-commits": "^1.1.1",
     "nodemon": "^2.0.3",
     "pre-commit": "^1.2.2",
@@ -270,7 +260,6 @@
     "stylelint-scss": "^3.17.2",
     "stylint": "^2.0.0",
     "supertest": "^4.0.2",
-    "ts-mocha": "^7.0.0",
     "ts-node": "^8.10.2",
     "ts-node-dev": "^1.0.0-pre.44",
     "typescript": "3.8.3",
