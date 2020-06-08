@@ -31,13 +31,13 @@ interface Props {
   addConnectionByEmail: typeof addConnectionByEmail
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return {
     auth: selectAuthState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   createMagicLink: bindActionCreators(createMagicLink, dispatch),
   addConnectionBySms: bindActionCreators(addConnectionBySms, dispatch),
   addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch)
@@ -51,21 +51,21 @@ const defaultState = {
   descr: ''
 }
 
-const termsOfService = (config && config.termsOfService) ?? '/terms-of-service'
+const termsOfService = (config?.termsOfService) ?? '/terms-of-service'
 
-const MagicLinkEmail = (props: Props) => {
+const MagicLinkEmail = (props: Props): any => {
   const { auth, type, isAddConnection, createMagicLink, addConnectionBySms, addConnectionByEmail } = props
   const [state, setState] = useState(defaultState)
 
-  const handleInput = (e: any) => {
+  const handleInput = (e: any): any => {
     setState({ ...state, [e.target.name]: e.target.value })
   }
 
-  const handleCheck = (e: any) => {
+  const handleCheck = (e: any): any => {
     setState({ ...state, [e.target.name]: e.target.checked })
   }
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = (e: any): any => {
     e.preventDefault()
     if (!isAddConnection) {
       createMagicLink(state.email_phone)
@@ -190,7 +190,7 @@ const MagicLinkEmail = (props: Props) => {
   )
 }
 
-const MagicLinkEmailWrapper = (props: any) => <MagicLinkEmail {...props} />
+const MagicLinkEmailWrapper = (props: any): any => <MagicLinkEmail {...props} />
 
 export default connect(
   mapStateToProps,

@@ -12,7 +12,7 @@ export interface VrRoomSceneProps {
 }
 // loading progress bar is reset back to 0 as a result of this.
 // that might be ok if we can track progress of the gltf loading
-// we can edit the aframe source code (our xrchat/aframe version)
+// we can edit the aframe source code (our xr3ngine/aframe version)
 // by registering onProgress callback here:
 // https://github.com/aframevr/aframe/blob/master/src/components/gltf-model.js#L35
 // emitting an event, and updating progress bar accordingly.

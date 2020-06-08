@@ -1,11 +1,11 @@
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
-import { Magiclink } from './magiclink.class'
-import hooks from './magiclink.hooks'
+import { Magiclink } from './magic-link.class'
+import hooks from './magic-link.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'magiclink': Magiclink & ServiceAddons<any>
+    'magic-link': Magiclink & ServiceAddons<any>
   }
 }
 
@@ -15,9 +15,9 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use('/magiclink', new Magiclink(options, app))
+  app.use('/magic-link', new Magiclink(options, app))
 
-  const service = app.service('magiclink')
+  const service = app.service('magic-link')
 
   service.hooks(hooks)
 }

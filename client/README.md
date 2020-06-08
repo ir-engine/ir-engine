@@ -1,14 +1,14 @@
-[![Build Status](https://travis-ci.org/xrchat/xrchat-client.svg?branch=master)](https://travis-ci.org/xrchat/xrchat-client)
-# XRChat Client
+[![Build Status](https://travis-ci.org/xr3ngine/xr3ngine.svg?branch=master)](https://travis-ci.org/xr3ngine/xr3ngine)
+# XR3 Client
 ## About
 
-XRChat is an end-to-end solution for hosting humans and non-humans in a virtual space. This project would literally not be possible without the community contributions of Mozilla Hubs, Janus VR, Avaer + Exokit, Mr Doob, Hayden James Lee and many others.
+XR3ngine is an end-to-end solution for hosting humans and non-humans in a virtual space. This project would literally not be possible without the community contributions of Mozilla Hubs, Janus VR, Avaer + Exokit, Mr Doob, Hayden James Lee and many others.
 
 Our goal is an easy-to-use, well documented, end-to-end Javascript (or Typescript) exprience that anyone with a little bit of Javascript and HTML knowledge can dig into, deploy and make meaningful modifications and contributions to. If you fit this category and you are struggling with any aspect of getting started, we want to hear fromm you so that this can be a better exprience.
 
-XRChat is a free, open source, MIT-licensed project. You are welcome to do anything you want with it. We hope that you use it to make something beautiful.
+XR3ngine is a free, open source, MIT-licensed project. You are welcome to do anything you want with it. We hope that you use it to make something beautiful.
 
-This is the client portion of XRChat. To deploy everything at once with Kubernetes or Docker Compose, check out the branches in xrchat-ops. Or you can start the server with NPM (check out scripts/start-db.sh to get the database runnning), run the xrchat-client client and everything should connect out of the box.
+This is the client portion of XR3ngine. To deploy everything at once with Kubernetes or Docker Compose, check out the branches in xr3ngine-ops. Or you can start the server with NPM (check out scripts/start-db.sh to get the database runnning), run the xr3ngine client and everything should connect out of the box.
 
 ## Getting Started
 
@@ -61,10 +61,10 @@ properties for the [NAF](https://github.com/networked-aframe/networked-aframe) n
 You can run it using docker, if you don't have node installed or need to test.
 ``` bash
 # Build the image
-docker build --tag xrchat-client .
+docker build --tag xr3ngine .
 
 # Run the image (deletes itself when you close it)
-docker run -d --rm --name client -e "NEXT_PUBLIC_API_SERVER=http://localhost:3030" -p "3000:3000"  xrchat-client
+docker run -d --rm --name client -e "NEXT_PUBLIC_API_SERVER=http://localhost:3030" -p "3000:3000"  xr3ngine
 
 # Stop the server
 docker stop client
@@ -75,7 +75,7 @@ docker stop client
 This image uses build-time arguments, they are not used during runtime yet
 
 - `NODE_ENV` controls the config/*.js file to load and build against [default: production]
-- `NEXT_PUBLIC_API_SERVER` points to an instance of the xrchat-server [default: http://localhost:3030]
+- `NEXT_PUBLIC_API_SERVER` points to an instance of the xr3ngine [default: http://localhost:3030]
 
 
 ## Redux store management

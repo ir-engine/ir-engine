@@ -63,7 +63,7 @@ export async function doLoginAuto (dispatch: Dispatch) {
     })
 }
 
-export function loadUserData (dispatch: Dispatch, userId: string) {
+export function loadUserData (dispatch: Dispatch, userId: string): any {
   client.service('user').get(userId)
     .then((res: any) => {
       const user = resolveUser(res)
@@ -327,7 +327,7 @@ export function createMagicLink (emailPhone: string, linkType?: 'email' | 'sms')
       }
     }
 
-    client.service('magiclink').create({
+    client.service('magic-link').create({
       type,
       [paramName]: emailPhone
     })
@@ -371,7 +371,7 @@ export function addConnectionByEmail (email: string, userId: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
-    client.service('magiclink').create({
+    client.service('magic-link').create({
       email,
       type: 'email',
       userId
@@ -392,7 +392,7 @@ export function addConnectionBySms (phone: string, userId: string) {
   return (dispatch: Dispatch) => {
     dispatch(actionProcessing(true))
 
-    client.service('magiclink').create({
+    client.service('magic-link').create({
       mobile: phone,
       type: 'sms',
       userId

@@ -19,7 +19,6 @@ import sequelize from './sequelize'
 import config from './config'
 
 import next from 'next'
-const { parse } = require('url')
 
 const app: Application = express(feathers())
 
@@ -31,8 +30,8 @@ app.configure(
     // TODO: Relate to server config, don't hardcode this here
     specs: {
       info: {
-        title: 'XRChat API Surface',
-        description: 'APIs for the XRChat application',
+        title: 'XR3ngine API Surface',
+        description: 'APIs for the XR3ngine application',
         version: '1.0.0'
       }
     }
@@ -84,10 +83,8 @@ clientApp.prepare().then(() => {
 
   app.use('/spoke', express.static(config.server.publicDir + '/spoke'))
 
-  app.get('*', (req, res) => {
-    const parsedUrl = parse(req.url, true)
-
-    return clientAppHandler(req, res, parsedUrl)
+  app.all('*', (req, res) => {
+    return clientAppHandler(req, res)
   })
 
   // Host the public folder

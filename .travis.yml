@@ -4,7 +4,7 @@ node_js:
 
 env:
   global:
-    - MYSQL_DATABASE=xrchat
+    - MYSQL_DATABASE=xr3ngine
     - MYSQL_USER=root
     - MYSQL_PASSWORD=
 
@@ -13,7 +13,7 @@ services:
   - mysql
 
 before_script:
-  - mysql -e 'CREATE DATABASE xrchat;'
+  - mysql -e 'CREATE DATABASE xr3ngine;'
 
 script:
   - npm run lint

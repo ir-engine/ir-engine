@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: xrchat
+  name: xr3ngine
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -31,19 +31,19 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: xrchat-mariadb
-  namespace: xrchat
+  name: xr3ngine-mariadb
+  namespace: xr3ngine
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: xrchat-mariadb
+      app: xr3ngine-mariadb
   template:
     metadata:
       labels:
-        app: xrchat-mariadb
+        app: xr3ngine-mariadb
     spec:
-      hostname: xrchat-mariadb
+      hostname: xr3ngine-mariadb
       containers:
         - name: mariadb
           image: mariadb:10.5.2
@@ -53,30 +53,30 @@ spec:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: xrchat-dev-secrets
+                  name: xr3ngine-dev-secrets
                   key: MYSQL_ROOT_PASSWORD
             - name: MYSQL_DATABASE
               valueFrom:
                 secretKeyRef:
-                  name: xrchat-dev-secrets
+                  name: xr3ngine-dev-secrets
                   key: MYSQL_DATABASE
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
-                  name: xrchat-dev-secrets
+                  name: xr3ngine-dev-secrets
                   key: MYSQL_USER
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: xrchat-dev-secrets
+                  name: xr3ngine-dev-secrets
                   key: MYSQL_PASSWORD
           volumeMounts:
 #            - mountPath: /docker-entrypoint-initdb.d
 #              name: mariadb-initdb
             - mountPath: /var/lib/mysql
-              name: xrchat-mariadb-persistent-storage
+              name: xr3ngine-mariadb-persistent-storage
       volumes:
-        - name: xrchat-mariadb-persistent-storage
+        - name: xr3ngine-mariadb-persistent-storage
           persistentVolumeClaim:
             claimName: mariadb-pv-claim
 #        - name: mysql-initdb
@@ -95,13 +95,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: xrchat-mariadb
-  namespace: xrchat
+  name: xr3ngine-mariadb
+  namespace: xr3ngine
 spec:
   selector:
-    app: xrchat-mariadb
+    app: xr3ngine-mariadb
   ports:
-    - name: xrchat-mariadb
+    - name: xr3ngine-mariadb
       protocol: TCP
       port: 3306
       targetPort: 3306
@@ -110,28 +110,28 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: xrchat
-  namespace: xrchat
+  name: xr3ngine
+  namespace: xr3ngine
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: xrchat-server
-  namespace: xrchat
+  name: xr3ngine
+  namespace: xr3ngine
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: xrchat-server
+      app: xr3ngine
   template:
     metadata:
       labels:
-        app: xrchat-server
+        app: xr3ngine
     spec:
-      serviceAccountName: xrchat
+      serviceAccountName: xr3ngine
       containers:
-        - name: xrchat-server
-          image: xrchat/xrchat-server:v0.0.0
+        - name: xr3ngine
+          image: xr3ngine/xr3ngine:v0.0.0
           ports:
             - containerPort: 3030
           env:
@@ -142,20 +142,20 @@ spec:
             - name: MYSQL_DATABASE
               valueFrom:
                 secretKeyRef:
-                  name: xrchat-dev-secrets
+                  name: xr3ngine-dev-secrets
                   key: MYSQL_DATABASE
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
-                  name: xrchat-dev-secrets
+                  name: xr3ngine-dev-secrets
                   key: MYSQL_USER
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: xrchat-dev-secrets
+                  name: xr3ngine-dev-secrets
                   key: MYSQL_PASSWORD
             - name: MYSQL_HOST
-              value: xrchat-mariadb.xrchat.svc.cluster.local
+              value: xr3ngine-mariadb.xr3ngine.svc.cluster.local
           #          volumeMounts:
 #            - mountPath: "/usr/src/lifescope-api/config/tmp"
 #              name: lifescope-api-dev-config
@@ -169,20 +169,20 @@ spec:
           imagePullPolicy: IfNotPresent
 #      dnsPolicy: Default
 #      volumes:
-#        - name: xrchat-dev-config
+#        - name: xr3ngine-dev-config
 #          secret:
-#            secretName: xrchat-dev-config
+#            secretName: xr3ngine-dev-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: xrchat-server
-  namespace: xrchat
+  name: xr3ngine
+  namespace: xr3ngine
 spec:
   selector:
-    app: xrchat-server
+    app: xr3ngine
   ports:
-    - name: xrchat-server
+    - name: xr3ngine
       protocol: TCP
       port: 3030
       targetPort: 3030
@@ -191,8 +191,8 @@ spec:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: xrchat-secret
-  namespace: xrchat
+  name: xr3ngine-secret
+  namespace: xr3ngine
 type: Opaque
 data:
   tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUdHakNDQkFLZ0F3SUJBZ0lKQUlnS3FZQ09xWVVDTUEwR0NTcUdTSWIzRFFFQkN3VUFNSUdOTVFzd0NRWUQKVlFRR0V3SlZVekVUTUJFR0ExVUVDQXdLUTJGc2FXWnZjbTVwWVRFV01CUUdBMVVFQnd3TlRHRm5kVzVoSUU1cApaM1ZsYkRFV01CUUdBMVVFQ2d3TlFtbDBVMk52YjNBZ1RHRmljekVWTUJNR0ExVUVBd3dNYkdsbVpYTmpiM0JsCkxtbHZNU0l3SUFZSktvWklodmNOQVFrQkZoTnJZbUZ5WVc1QVltbDBjMk52YjNBdVkyOXRNQjRYRFRFNU1ETXoKTURBd05UWXpNRm9YRFRJeE1USXlOREF3TlRZek1Gb3dnWTB4Q3pBSkJnTlZCQVlUQWxWVE1STXdFUVlEVlFRSQpEQXBEWVd4cFptOXlibWxoTVJZd0ZBWURWUVFIREExTVlXZDFibUVnVG1sbmRXVnNNUll3RkFZRFZRUUtEQTFDCmFYUlRZMjl2Y0NCTVlXSnpNUlV3RXdZRFZRUUREQXhzYVdabGMyTnZjR1V1YVc4eElqQWdCZ2txaGtpRzl3MEIKQ1FFV0UydGlZWEpoYmtCaWFYUnpZMjl2Y0M1amIyMHdnZ0lpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElDRHdBdwpnZ0lLQW9JQ0FRQ1RQYlJvUjNrTFpFdEhsWlhsSit5UXpLVzQ5b1FLeXZGUXFTQnZEVnFhK2Z3bnI4N1NsZ01vCnk3NnMrZmVhVUQzRVlJL1FMZnJ4RHg5Q3NmRDRaZ1o2YzFvWXN5L1cyQXFFQnIrak9sOWs2eDVCT0FBQkd0VG4KUUw0UDFxWFQ3V3VWZHZMb0trOW9JTkpDK3hKOHlKTlV4RmRZL0ZhdlZ3bytWUjFWeXk4QTVkWC85M2xUUmdPWAo1YWlJaENOTlVhNWNyeGIzeXlDSVk5NTgvTE5qVk9SeVozWlRIWjVmRlFqTGdxSmM2OE1DSzIwRlBvN2FtMXlBCi9RcjZKSDZMMncrWUtydjA4RkVySk02SEp1d1BiL3NNUWUrRlFWaWlWL1BPYkF5TXBzMjc0SGp3T3VPMmlHUFoKWjRZYklGaUZVTGJxSzNaQ2VGUjhaQVY0NnA4OVBQSnBvc2xsQlg2Ylo5ZE1JODJPcC9nOURLejZjN3NaOWc0Wgp1ODFOalJSQzJweVNHdzEzVWpITC8raDN1dVh0bFJBVGJZTFQwWVRIblBXUzVRbSt2S2ZLZ3UwUlVCaUdCand0CnBnNC8rYXZRNC9HVkR6NkVnWjQrZWNCSXVySG9BcjZvVnFtTHpmODZObUljWmM0UzZyWHFRcSs2WkVUd2JKU0UKcHRMREd4ellLN1ZmeG1tUk9zRzJtN3V1TUIrVkkxZ1dtMmNGUSttejV4Ylo3by9hS29Gem9ndlZPRTlkWDNjTApZSmkybTRpckRZejNJbnFnaGZXcWt4Q2pHU1M2RnA2ZWc0cWtRQ055VWxXeS9qNWRjWUFxL0NKam9iVk8vYmNqCjdNYVoxTU0yZEZKeW9IcVVoTWJ1cWlmTjd0L0ZjeE5KL3lZQlNxRk1TSXpwaDcrSXRDVEp3UUlEQVFBQm8zc3cKZVRBZEJnTlZIUTRFRmdRVXRld2V2OU5TU3c5dDZVVWxIMXE3ZUM4amZja3dId1lEVlIwakJCZ3dGb0FVdGV3ZQp2OU5TU3c5dDZVVWxIMXE3ZUM4amZja3dEd1lEVlIwVEFRSC9CQVV3QXdFQi96QUxCZ05WSFE4RUJBTUNCYUF3CkdRWURWUjBSQkJJd0VJSU9LaTVzYVdabGMyTnZjR1V1YVc4d0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dJQkFISkQKUytibXQ2dW9QRU9aQmx3N0c5ZGExUmRyaWpKUWE1M0dGc0U3eWlRMTU0Rk5GMEFoNUoreHQxWm1SUkZMR3liWApjK2R3ZjliRnMvWXUvWG9wbWR1WE1BK2krcGVnSUxEcytWdFRRNkEvdCs3UmVmOW8ySUs4UlNBRHNXbGJwZkpyCmVBUGhKcERIOVI3YU9ycitxY1AxaE1zbWl1T0VrbUpLbk5WbjMrUmoxZ0ZBYzVvR2dMTGd0RTZzWUtRNmg2aEkKQ292RFRBNytqL0pIK2xwOTlQZmVQcGNFeFY0TlNQcnZ6NzVCOGhWRXFEZG5NbmFYT3ZHVnFXLzlsdkY0WFNlYgo0Tzl3dUN6VU1zY0R1R1kxand0b3ROTWVxSnh1V3BmcEpZNXVQK2JPb2I4d2VTOEswbU9wRUxPUjQ0MWV5dzdUCmlrZGxYZW9tVXBVMmd2bDVxOXhHdXVvRjFESVMvZGQ4Z1FCNXhLdkUyZm52NnpLcWxHRUNiSlhpV1NTQk1Zd0IKYnlvdWNXUjhGZ2JSQjNFMFkvNVFMcG5VVWhDZnVYQXNPV0duV1NUdHBDb3lvM0VlSVVRbTdvb3QrTUJUQ2MvWgpBK2hLL0RBWUp6OTJVSWtWN21KejhmUGV1RjJTZ2kzNjlRUEFjaTZscm1vMmFyQ29hN0lrS041TFpCNktSN1NPCjdwTEdIRWFFbFhUL1BneUhGbUljc0xqdlQ2eXVlT0gwaStwTkp0TVlveDJXWVJWTHpKUWdwS2NzbEJwbnZoN04KZkxMVmVUdlJYUzI4cDA4dkJBbjJCRW41akRicVRlUXR3WG9xYUQ4aWpXK2ROZXEwaitmRG1SSk1vclVHMlVvVwoyVEgxWFBLYUQ0bWx6ZDNaTHNaV2JGb2JpTUtoKzNwS3oxTWpLck4vCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
@@ -201,33 +201,33 @@ data:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: xrchat-server-ingress-master
-  namespace: xrchat
+  name: xr3ngine-ingress-master
+  namespace: xr3ngine
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.org/mergeable-ingress-type: "master"
 spec:
   tls:
     - hosts:
-        - api.dev.xrchat.io
-      secretName: xrchat-secret
+        - api.dev.xr3ngine.io
+      secretName: xr3ngine-secret
   rules:
-    - host: api.dev.xrchat.io
+    - host: api.dev.xr3ngine.io
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: xrchat-server-ingress-main-minion
-  namespace: xrchat
+  name: xr3ngine-ingress-main-minion
+  namespace: xr3ngine
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.org/mergeable-ingress-type: "minion"
 spec:
   rules:
-    - host: api.dev.xrchat.io
+    - host: api.dev.xr3ngine.io
       http:
         paths:
           - backend:
-              serviceName: xrchat-server
+              serviceName: xr3ngine
               servicePort: 3030
             path: /
