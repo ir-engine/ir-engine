@@ -81,8 +81,9 @@ const clientAppHandler = clientApp.getRequestHandler()
 clientApp.prepare().then(() => {
   // Don't remove this comment. It's needed to format import lines nicely.
   console.log(config.server.publicDir + '/../node_modules/xr3-spoke/dist/')
-  app.use('/spoke', express.static(config.server.publicDir + '/../node_modules/xr3-spoke/dist/'))
-  // app.use('/', express.static(config.server.publicDir))
+  app.use('/spoke', express.static(config.server.publicDir + '/../node_modules/xr3-spoke/dist/')) // TODO: Pass directory directly with ../
+  app.use('/', express.static(config.server.publicDir))
+  app.use('/', express.static(config.server.publicDir + '/../client/public/')) // TODO: Pass directory directly with ../
 
   app.all('*', (req, res) => {
     return clientAppHandler(req, res)
