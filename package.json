@@ -1,0 +1,18 @@
+{
+  "name": "xrvol-compiler",
+  "version": "1.0.0",
+  "description": "Compile gltf files and textures to a single draco compressed glb",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Piyush Dharnidharka",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^5.1.0",
+    "gltf-pipeline": "^2.1.10",
+    "image-to-base64": "^2.1.0",
+    "obj2gltf": "^3.1.0",
+    "three": "^0.117.1"
+  }
+}
