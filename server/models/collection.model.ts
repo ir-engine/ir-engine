@@ -69,7 +69,7 @@ export default (app: Application): any => {
   });
 
   (collection as any).associate = (models: any) => {
-    (collection as any).belongsTo(models.collection_type, { foreignKey: 'collectionType', required: true });
+    (collection as any).belongsTo(models.collection_type, { foreignKey: 'type', required: true });
     (collection as any).belongsTo(models.attribution);
     (collection as any).belongsTo(models.static_resource, { as: 'thumbnail_owned_file' });
     (collection as any).hasMany(models.entity, { onDelete: 'cascade' });
