@@ -36,7 +36,7 @@ export class PublishProject implements ServiceMethods<Data> {
     // const loggedInUser = extractLoggedInUserFromParams(params)
     const provider = new StorageProvider()
     const storage = provider.getStorage()
-    const project = await CollectionModel.findOne({ where: { sid: projectId, collectionType: 'project' } }) /* , creatorUserId: loggedInUser.userId */
+    const project = await CollectionModel.findOne({ where: { sid: projectId, type: 'project' } }) /* , creatorUserId: loggedInUser.userId */
 
     if (!project) {
       return await Promise.reject(new Forbidden('Project not found Or you don\'t have access!'))
@@ -46,7 +46,7 @@ export class PublishProject implements ServiceMethods<Data> {
 
     await this.app.get('sequelizeClient').transaction(async (trans: Transaction) => {
       const savedScene = await CollectionModel.create(data, {
-        collectionType: collectionType.scene,
+        type: collectionType.scene,
         transaction: trans,
         fields: ['screenshotOwnedFileId', 'modelOwnedFileId', 'allow_remixing', 'allow_promotion', 'name', 'ownerUserId', 'slug', 'state', 'sceneId', 'sid', 'collectionId']
       })
@@ -69,7 +69,7 @@ export class PublishProject implements ServiceMethods<Data> {
     const projectData = await CollectionModel.findOne({
       where: {
         sid: project.sid,
-        collectionType: collectionType.project
+        type: collectionType.project
       },
       attributes: ['name', 'id', 'sid'],
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
