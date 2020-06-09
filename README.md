@@ -9,13 +9,13 @@ npm install three-volumetric
 
 Or reference dist/three-volumetric.js
 
-## MeshTextureSequencePlayer
+## GLTFPlayer
 
 Play back from DRACO-compressed GLTF (good for short-ish looping sequences, 10-20 seconds)
 
 ```
-import { MeshTextureSequencePlayer } from 'three-volumetric'
-const player = new MeshTextureSequencePlayer(<constructor parameters>);
+import { GLTFPlayer } from 'three-volumetric'
+const player = new GLTFPlayer(<constructor parameters>);
 player.play()
 
 ```
