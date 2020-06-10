@@ -1,6 +1,7 @@
 // WIP
 // Props to Depthkit and Depthkit.js -- will make attribution better when this is fleshed out
 
+//@ts-ignore
 import glsl from 'glslify';
 import * as THREE from 'three';
 
@@ -53,7 +54,7 @@ export default class Depthkit extends THREE.Object3D {
         }
     }
 
-    setMeshScalar(_scalar) {
+    setMeshScalar(_scalar: number) {
         //
         // _scalar - valid values 0, 1, 2, 3 
         // 
@@ -108,7 +109,7 @@ export default class Depthkit extends THREE.Object3D {
         }
     }
 
-    createGeometryBuffer(_vertsWide, _vertsTall) {
+    createGeometryBuffer(_vertsWide: number, _vertsTall: number) {
         const vertexStep = new THREE.Vector2(this.meshScalar / this.props.textureWidth, this.meshScalar / this.props.textureHeight)
         let _geometry = new THREE.Geometry();
 
@@ -139,7 +140,7 @@ export default class Depthkit extends THREE.Object3D {
         return _geometry;
     }
 
-    geometryBufferExistsInLookup(meshWxH) {
+    geometryBufferExistsInLookup(meshWxH: any) {
         for (let lookupKey in Object.keys(this._geometryLookup)) {
             if (meshWxH === lookupKey) {
                 return true;
@@ -155,12 +156,12 @@ export default class Depthkit extends THREE.Object3D {
         let rgbdVert = glsl.file('./shaders/rgbd.vert');
 
         const extrinsics = new THREE.Matrix4();
-        const ex = this.props.extrinsics;
+        const ex = this.props.extrinsics.elements;
         extrinsics.set(
-            ex["e00"], ex["e10"], ex["e20"], ex["e30"],
-            ex["e01"], ex["e11"], ex["e21"], ex["e31"],
-            ex["e02"], ex["e12"], ex["e22"], ex["e32"],
-            ex["e03"], ex["e13"], ex["e23"], ex["e33"]
+            ex[0], ex[4], ex[8], ex[12],
+            ex[1], ex[5], ex[9], ex[13],
+            ex[2], ex[6], ex[10], ex[14],
+            ex[3], ex[7], ex[11], ex[15]
         );
 
         const extrinsicsInv = new THREE.Matrix4();
@@ -222,7 +223,7 @@ export default class Depthkit extends THREE.Object3D {
         this._material.side = THREE.DoubleSide;
     }
 
-    loadVideo(_src) {
+    loadVideo(_src: string) {
         this.video.src = _src;
         this.video.load();
     }
@@ -237,7 +238,7 @@ export default class Depthkit extends THREE.Object3D {
         return videoTex;
     }
 
-    load(_props, _movieUrl, _onComplete, _onError) {
+    load(_props: any, _movieUrl: string, _onComplete: any, _onError: any) {
 
         this.loadVideo(_movieUrl);
 
@@ -276,7 +277,7 @@ export default class Depthkit extends THREE.Object3D {
         this.children[0].name = 'depthkit';
     }
 
-    loadPropsFromFile(filePath) {
+    loadPropsFromFile(filePath: string) {
         return new Promise((resolve, reject) => {
             const jsonLoader = new THREE.FileLoader(this.manager);
             jsonLoader.setResponseType('json');
@@ -288,7 +289,7 @@ export default class Depthkit extends THREE.Object3D {
         });
     }
 
-    isJson(item) {
+    isJson(item: any) {
         item = typeof item !== "string"
             ? JSON.stringify(item)
             : item;
@@ -306,7 +307,7 @@ export default class Depthkit extends THREE.Object3D {
         return false;
     }
 
-    setProps(_props) {
+    setProps(_props: any) {
         this.props = _props;
 
         if (this.props.textureWidth == undefined || this.props.textureHeight == undefined) {
@@ -321,7 +322,7 @@ export default class Depthkit extends THREE.Object3D {
         }
     }
 
-    setOpacity(opacity) {
+    setOpacity(opacity: number) {
         this._material.uniforms.opacity.value = opacity;
     }
 
@@ -345,15 +346,15 @@ export default class Depthkit extends THREE.Object3D {
         this.video.pause();
     }
 
-    setLoop(isLooping) {
+    setLoop(isLooping: boolean) {
         this.video.loop = isLooping;
     }
 
-    setVolume(volume) {
+    setVolume(volume: number) {
         this.video.volume = volume;
     }
 
-    update(time) {
+    update(time: number) {
         this._material.uniforms.time.value = time;
     }
 
@@ -364,7 +365,7 @@ export default class Depthkit extends THREE.Object3D {
         } catch (e) {
             console.warn(e);
         } finally {
-            this.mesh.traverse(child => {
+            this.mesh.traverse((child: { geometry: { dispose: () => void; }; material: { dispose: () => void; }; }) => {
                 if (child.geometry !== undefined) {
                     child.geometry.dispose();
                     child.material.dispose();

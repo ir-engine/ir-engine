@@ -1,3 +1,9 @@
-import MeshTextureSequencePlayer from './MeshTextureSequencePlayer'
+import GLTFPlayer from './GLTFPlayer'
+import DracoPlayer from './DracoPlayer'
+import DepthVideoPlayer from './DepthVideoPlayer'
 
-export { MeshTextureSequencePlayer }
+export {
+    GLTFPlayer,
+    DracoPlayer,
+    DepthVideoPlayer
+ }
