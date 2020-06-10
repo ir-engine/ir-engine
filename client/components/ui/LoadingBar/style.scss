@@ -1,0 +1,24 @@
+.LoadingBar {
+  width: 600px;
+  max-width: 80vw;
+  z-index: 1000;
+  position: absolute;
+  left: 50%;
+  top: 80%;
+  transform: translate(-50%, -50%);
+}
+.progress-bar {
+  background-color: rgb(18, 93, 244);
+  position: absolute;
+  height: 2em;
+  border-radius: .5em;
+}
+.loading-bar-outline {
+  border: 1px solid rgb(132, 169, 241);
+  background-color: rgba(0,0,0,0.05);
+  position: absolute;
+  border-radius: 1em;
+  width: 100%;
+  padding:.5em;
+  height: 2em;
+}

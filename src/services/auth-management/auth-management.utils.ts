@@ -4,13 +4,15 @@ import config from '../../config'
 
 export function getLink (type: string, hash: string, subscriptionId?: string): string {
   return subscriptionId != null && subscriptionId.length > 0
-    ? (config.client.url) + '/magicLink' +
+    ? (config.client.url) + '/magiclink' +
       `?type=${type}&token=${hash}&subscriptionId=${subscriptionId}`
-    : (config.client.url) + '/magicLink' + `?type=${type}&token=${hash}`
+    : (config.client.url) + '/magiclink' + `?type=${type}&token=${hash}`
 }
 
 export async function sendEmail (app: Application, email: any): Promise<void> {
   if (email.to) {
+    email.html = email.html.replace(/&amp;/g, '&') // Text message links can't have HTML escaped ampersands.
+
     console.log('sendEmail() to:', email)
 
     try {
