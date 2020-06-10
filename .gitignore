@@ -111,5 +111,3 @@ dist
 lib/
 
 .vscode/
-
-.env
