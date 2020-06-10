@@ -12,7 +12,7 @@ dotenv.config()
 const db: any = {
   username: process.env.MYSQL_USER ?? 'server',
   password: process.env.MYSQL_PASSWORD ?? 'password',
-  database: process.env.MYSQL_DATABASE ?? 'xrchat',
+  database: process.env.MYSQL_DATABASE ?? 'xr3ngine',
   host: process.env.MYSQL_HOST ?? 'localhost',
   port: process.env.MYSQL_PORT ?? 3306,
   dialect: 'mysql',
@@ -30,7 +30,8 @@ const server = {
   hostname: process.env.SERVER_HOSTNAME ?? 'localhost',
   port: process.env.SERVER_PORT ?? 3030,
   // Public directory (used for favicon.ico, logo, etc)
-  publicDir: process.env.SERVER_PUBLIC_DIR ?? path.resolve(__dirname, '..', 'public'),
+  rootDir: path.resolve(__dirname, '..'),
+  publicDir: process.env.SERVER_PUBLIC_DIR ?? path.resolve(__dirname, '..', 'client/public'),
   // Used for CI/tests to force Sequelize init an empty database
   performDryRun: process.env.PERFORM_DRY_RUN === 'true',
   storageProvider: process.env.STORAGE_PROVIDER ?? 'aws',
@@ -65,7 +66,7 @@ const client = {
   title: process.env.APP_LOGO ?? 'KaiXR',
   url: process.env.APP_URL ??
     process.env.APP_HOST ?? // Legacy env var, to deprecate
-    'http://localhost:3000'
+    'http://localhost:3030'
 }
 
 /**

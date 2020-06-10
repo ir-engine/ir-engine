@@ -4,7 +4,6 @@ import compress from 'compression'
 import helmet from 'helmet'
 import cors from 'cors'
 import swagger from 'feathers-swagger'
-
 import feathers from '@feathersjs/feathers'
 import express from '@feathersjs/express'
 import socketio from '@feathersjs/socketio'
@@ -22,6 +21,7 @@ import config from './config'
 import winston from 'winston'
 // @ts-ignore
 import feathersLogger from 'feathers-logger'
+import next from 'next'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -35,8 +35,8 @@ app.configure(
     // TODO: Relate to server config, don't hardcode this here
     specs: {
       info: {
-        title: 'XRChat API Surface',
-        description: 'APIs for the XRChat application',
+        title: 'XR3ngine API Surface',
+        description: 'APIs for the XR3ngine application',
         version: '1.0.0'
       }
     }
@@ -58,8 +58,6 @@ app.use(compress())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')))
-// Host the public folder
-app.use('/', express.static(config.server.publicDir))
 
 // Set up Plugins and providers
 app.configure(express.rest())
@@ -76,10 +74,36 @@ app.configure(services)
 // Set up event channels (see channels.js)
 app.configure(channels)
 
-// Configure a middleware for 404s and the error handler
-app.use(express.notFound())
-app.use(express.errorHandler({ logger } as any))
+const p = path.join(config.server.rootDir, '/client/')
 
-app.hooks(appHooks)
+console.log(p)
 
+const clientApp = next({
+  dir: p,
+  dev: process.env.NODE_ENV !== 'production'
+})
+
+const clientAppHandler = clientApp.getRequestHandler()
+
+clientApp.prepare().then(() => {
+  // Don't remove this comment. It's needed to format import lines nicely.
+  console.log(config.server.rootDir + '/node_modules/xr3-spoke/dist/')
+  app.use('/spoke', express.static(config.server.rootDir + '/node_modules/xr3-spoke/dist/')) // TODO: Pass directory directly with ../
+
+  app.all('*', (req, res) => {
+    return clientAppHandler(req, res)
+  })
+
+  app.use('/', express.static(config.server.publicDir)) // TODO: Pass directory directly with ../
+
+  // Host the public folder
+  // Configure a middleware for 404s and the error handler
+  app.use(express.notFound())
+  app.use(express.errorHandler({ logger } as any))
+
+  app.hooks(appHooks)
+}).catch((ex) => {
+  console.error(ex.stack)
+  process.exit(1)
+})
 export default app
