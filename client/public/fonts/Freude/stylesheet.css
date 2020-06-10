@@ -1,0 +1,10 @@
+@font-face {
+    font-family: 'Freude';
+    src: url('Freude.woff2') format('woff2'),
+        url('Freude.woff') format('woff'),
+        url('Freude.ttf') format('truetype'),
+        url('Freude.svg#Freude-Normal') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
