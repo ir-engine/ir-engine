@@ -1,18 +1,31 @@
 {
   "compilerOptions": {
     "target": "es2019",
-    "lib": ["es2019", "DOM"],
+    "lib": ["es2019", "DOM", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
     "module": "commonjs",
     "outDir": "./lib",
-    "rootDir": "./src",
-    "strict": true,
+    "strict": false,
+    "noImplicitAny": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "moduleResolution":"node",
     "typeRoots": ["./types", "./node_modules/@types"],
-    "sourceMap": true
+    "sourceMap": true,
+    "jsx": "preserve"
   },
+  "exclude": [
+    "node_modules"
+  ],
   "include": [
-    "src"
+    "src",
+    "next-env.d.ts",
+    "client/**/*.ts",
+    "client/**/*.tsx",
+    "./**/*.ts",
+    "./**/*.tsx"
   ]
 }

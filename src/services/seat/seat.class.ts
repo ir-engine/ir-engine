@@ -66,7 +66,7 @@ export class Seat extends Service {
         throw new BadRequest('User already has a seat')
       }
 
-      const link = await app.service('magiclink').create({
+      const link = await app.service('magic-link').create({
         type: 'email',
         email: data.email,
         subscriptionId: data.subscriptionId

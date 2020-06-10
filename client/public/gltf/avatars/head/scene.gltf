@@ -1,0 +1,120 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v0.9.35",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "low_poly_head_BustMaterial_0",
+            "rotation" : [
+                0,
+                0.7071067690849304,
+                -0.7071067690849304,
+                -3.0908619663705394e-08
+            ],
+            "scale" : [
+                159.87710571289062,
+                159.8771514892578,
+                159.8771514892578
+            ]
+        }
+    ],
+    "materials" : [
+        {
+            "emissiveFactor" : [
+                0,
+                0,
+                0
+            ],
+            "name" : "BustMaterial",
+            "pbrMetallicRoughness" : {
+                "baseColorFactor" : [
+                    0.800000011920929,
+                    0.800000011920929,
+                    0.800000011920929,
+                    1
+                ],
+                "metallicFactor" : 0,
+                "roughnessFactor" : 0.9577051401138306
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "low_poly_head_BustMaterial_0",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1
+                    },
+                    "indices" : 2,
+                    "material" : 0
+                }
+            ]
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 1350,
+            "max" : [
+                0.13587914407253265,
+                0.17623983323574066,
+                0.1208922490477562
+            ],
+            "min" : [
+                -0.13587911427021027,
+                -0.1794201135635376,
+                -0.21463055908679962
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 1350,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5123,
+            "count" : 1950,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 16200,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 16200,
+            "byteOffset" : 16200
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 3900,
+            "byteOffset" : 32400
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 36300,
+            "uri" : "scene.bin"
+        }
+    ]
+}

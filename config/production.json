@@ -1,0 +1,9 @@
+{
+  "#WARNING": "DO NOT WRITE any secrets here, just write env variable names in the values like below",
+  "#Development": "for development config, fill config/default.json, and dont commit secrets to git",
+  "host": "HOST",
+  "port": "PORT",
+  "authentication": {
+    "secret": "AUTH_SECRET"
+  }
+}
