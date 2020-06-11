@@ -7,7 +7,6 @@ import { extractLoggedInUserFromParams } from '../auth-management/auth-managemen
 import { Application } from '../../declarations'
 import StorageProvider from '../../storage/storageprovider'
 import { BadRequest } from '@feathersjs/errors'
-import { collectionType } from '../../enums/collection'
 interface Data { }
 interface ServiceOptions {}
 
