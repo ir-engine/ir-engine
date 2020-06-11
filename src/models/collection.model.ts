@@ -49,11 +49,12 @@ export default (app: Application): any => {
     url: {
       type: DataTypes.VIRTUAL,
       get (this: any) {
-        if (!this.collectionId) {
-          return ''
-        } else {
-          return `${COLLECTION_API_ENDPOINT}/${(this.collectionId as string)}`
-        }
+        return `${COLLECTION_API_ENDPOINT}/${(this.id as string)}`
+        // if (!this.collectionId) {
+        //   return ''
+        // } else {
+        //   return `${COLLECTION_API_ENDPOINT}/${(this.id as string)}`
+        // }
       },
       set () {
         throw new Error('Do not try to set the `url` value!')
@@ -76,7 +77,7 @@ export default (app: Application): any => {
     (collection as any).belongsTo(models.user); // Reticulum foreignKey: 'creatorUserId'
     (collection as any).belongsTo(models.location);
     (collection as any).belongsToMany(models.tag, { through: 'collection_tag' });
-    (collection as any).belongsTo(models.collection)
+    // (collection as any).belongsTo(models.collection)
 
     // thumbnail   (project as any).belongsTo(models.owned_file, { foreignKey: 'thumbnailOwnedFileId' })
     // parent collection   (project as any).belongsTo(models.scene, { foreignKey: 'parentSceneId' });
