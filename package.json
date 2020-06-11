@@ -2,7 +2,8 @@
   "name": "three-volumetric",
   "version": "0.0.3",
   "description": "Three.js Volumetric Player",
-  "main": "dist/three-volumetric.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no tests installed\" && exit 1",
     "build": "webpack"
