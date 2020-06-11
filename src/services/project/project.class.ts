@@ -7,7 +7,6 @@ import { extractLoggedInUserFromParams } from '../auth-management/auth-managemen
 import { Application } from '../../declarations'
 import StorageProvider from '../../storage/storageprovider'
 import { BadRequest } from '@feathersjs/errors'
-import { collectionType } from '../../enums/collection'
 interface Data { }
 interface ServiceOptions {}
 
@@ -26,10 +25,10 @@ export class Project implements ServiceMethods<Data> {
     const loggedInUser = extractLoggedInUserFromParams(params)
     const projects = await this.models.collection.findAll({
       where: {
-        userId: loggedInUser.userId,
+        userId: loggedInUser.userId
         // type: collectionType.project
       },
-      attributes: ['name', 'id', 'sid', 'url', 'collectionId'],
+      attributes: ['name', 'id', 'sid', 'url'],
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
     })
     const processedProjects = projects.map((project: any) => mapProjectDetailData(project.toJSON()))
@@ -39,10 +38,10 @@ export class Project implements ServiceMethods<Data> {
   async get (id: Id, params: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params)
     const project = await this.models.collection.findOne({
-      attributes: ['name', 'id', 'sid', 'url', 'collectionId', 'type'],
+      attributes: ['name', 'id', 'sid', 'url', 'type'],
       where: {
         sid: id,
-        userId: loggedInUser.userId,
+        userId: loggedInUser.userId
         // type: collectionType.project
       },
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
@@ -56,16 +55,8 @@ export class Project implements ServiceMethods<Data> {
   }
 
   async create (data: any, params: Params): Promise<any> {
-    const ProjectModel = this.models.collection
     const provider = new StorageProvider()
     const storage = provider.getStorage()
-
-    data.collectionId = params.collectionId
-
-    const savedProject = await ProjectModel.create(data, {
-      fields: ['name', 'thumbnailOwnedFileId', 'userId', 'sid', 'id', 'collectionId']
-    })
-    const projectData = await this.reloadProject(savedProject.id, savedProject)
 
     // After saving project, remove the project json file from s3, as we have saved that on database in collection table
     const tempOwnedFileKey = params.ownedFile.key
@@ -78,7 +69,7 @@ export class Project implements ServiceMethods<Data> {
       }
       console.log('Project temp Owned file removed result: ', result)
     })
-    return mapProjectDetailData(projectData.toJSON())
+    return mapProjectDetailData(params.collection)
   }
 
   async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
@@ -91,17 +82,25 @@ export class Project implements ServiceMethods<Data> {
     const models = seqeulizeClient.models
     const CollectionModel = models.collection
     const EntityModel = models.entity
-    const OwnedFileModel = models.static_resource
+    const StaticResourceModel = models.static_resource
     const ComponentModel = models.component
     const ComponentTypeModel = models.component_type
     const provider = new StorageProvider()
     const storage = provider.getStorage()
 
-    // TODO: Get other scene data too if there is any parent too
-    // After creating of project, remove the owned_file of project json
+    const project = await CollectionModel.findOne({
+      where: {
+        sid: projectId,
+        userId: loggedInUser.userId
+      }
+    })
+
+    if (!project) {
+      return await Promise.reject(new BadRequest('Project not found Or you don\'t have access!'))
+    }
 
     // Find the project owned_file from database
-    const ownedFile = await OwnedFileModel.findOne({
+    const ownedFile = await StaticResourceModel.findOne({
       where: {
         id: data.ownedFileId
       },
@@ -112,33 +111,21 @@ export class Project implements ServiceMethods<Data> {
       return await Promise.reject(new BadRequest('Project File not found!'))
     }
     const sceneData = await fetch(ownedFile.url).then(res => res.json())
-    const project = await this.models.collection.findOne({
-      where: {
-        userId: loggedInUser.userId,
-        sid: projectId
-      }
-    })
+    await seqeulizeClient.transaction(async (transaction: Transaction) => {
+      project.update({
+        name: data.name,
+        metadata: sceneData.metadata,
+        version: sceneData.version
+      }, { fields: ['name', 'metadata', 'version'], transaction })
 
-    if (!project) {
-      return await Promise.reject(new BadRequest('Project not found Or you don\'t have access!'))
-    }
-
-    return seqeulizeClient.transaction(async (transaction: Transaction) => {
       // First delete existing collection, entity and components and create new ones
-      await CollectionModel.destroy({
+      // Delete all entities belongs to collection, as we have added constraint that on entity remove, remove all their components too
+      await EntityModel.destroy({
         where: {
-          id: project.collectionId
+          collectionId: project.id
         },
         transaction
       })
-
-      const savedCollection = await CollectionModel.create({
-        type: 'project',
-        name: data.name,
-        metadata: sceneData.metadata,
-        version: sceneData.version,
-        userId: loggedInUser.userId
-      }, { transaction })
 
       const sceneEntitiesArray: any = []
 
@@ -150,7 +137,7 @@ export class Project implements ServiceMethods<Data> {
         entity.name = entity.name.toLowerCase()
         entity.type = 'default'
         entity.userId = loggedInUser.userId
-        entity.collectionId = savedCollection.id
+        entity.collectionId = project.id
         return entity
       })
       const savedEntities = await EntityModel.bulkCreate(entites, { transaction })
@@ -166,8 +153,7 @@ export class Project implements ServiceMethods<Data> {
               entityId: savedEntity.id,
               type: component.name.toLowerCase(),
               userId: loggedInUser.userId,
-              collection: savedCollection.id
-              // TODO: Manage Static_RESOURCE
+              collection: project.id
             }
           )
         })
@@ -194,10 +180,6 @@ export class Project implements ServiceMethods<Data> {
       }
       await ComponentModel.bulkCreate(components, { transaction })
 
-      data.collectionId = savedCollection.id
-      await project.update(data, { fields: ['name', 'thumbnailOwnedFileId', 'updatedAt', 'collectionId'], transaction })
-      const savedProject = await this.reloadProject(project.id, project)
-
       // After saving project, remove the project json file from s3, as we have saved that on database in collection table
       const tempOwnedFileKey = ownedFile.key
       storage.remove({
@@ -209,8 +191,10 @@ export class Project implements ServiceMethods<Data> {
         }
         console.log('Project temp Owned file removed result: ', result)
       })
-      return mapProjectDetailData(savedProject.toJSON())
     })
+
+    const savedProject = await this.reloadProject(project.id, project)
+    return mapProjectDetailData(savedProject.toJSON())
   }
 
   async remove (id: NullableId, params?: Params): Promise<Data> {
@@ -249,7 +233,7 @@ export class Project implements ServiceMethods<Data> {
       where: {
         id: projectId
       },
-      attributes: ['name', 'id', 'sid', 'url', 'thumbnailOwnedFileId', 'collectionId'],
+      attributes: ['name', 'id', 'sid', 'url', 'thumbnailOwnedFileId'],
       include: projectIncludes
     })
 
