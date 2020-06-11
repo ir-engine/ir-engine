@@ -48,7 +48,7 @@ export default (app: Application): any => {
   });
   (component as any).associate = (models: any) => {
     (component as any).belongsTo(models.component_type, { foreignKey: 'type', required: true, primaryKey: true });
-    (component as any).belongsTo(models.entity, { as: 'entity', foreignKey: 'entityId', required: true, primaryKey: true });
+    (component as any).belongsTo(models.entity, { as: 'entity', foreignKey: 'entityId', required: true, primaryKey: true, onDelete: 'cascade' });
     (component as any).hasMany(models.static_resource, { constraints: false })
   }
 
