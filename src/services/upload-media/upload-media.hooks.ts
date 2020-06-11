@@ -21,12 +21,13 @@ const createOwnedFile = (options = {}) => {
     const { data, params } = context
     const body = params.body || {}
 
+    const domain: string = config.aws.cloudfront.domain
     const resourceData = {
       id: body.fileId,
       name: data.name || body.name,
       url: data.uri || data.url,
       key: (data.uri || data.url)
-        .replace(`https://${(config.aws.s3.cloudfront.domain)}/`, ''),
+        .replace(`https://${domain}/`, ''),
 
       content_type: data.mimeType || params.mimeType,
       userId: body.userId,
