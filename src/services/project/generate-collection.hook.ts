@@ -34,6 +34,7 @@ export default (options: any) => {
     const sceneData = await fetch(ownedFile.url).then(res => res.json())
 
     const savedCollection = await CollectionModel.create({
+      thumbnailOwnedFileId: context.data.thumbnailOwnedFileId,
       type: options.type ?? collectionType.scene,
       name: context.data.name,
       metadata: sceneData.metadata,
@@ -98,7 +99,7 @@ export default (options: any) => {
     }
     await ComponentModel.bulkCreate(components)
 
-    context.params.collectionId = savedCollection.id
+    context.params.collection = savedCollection
     context.params.ownedFile = ownedFile
     return context
   }
