@@ -31,7 +31,10 @@ export default class ComponentInstance implements IInstanceType {
         name: 'findComponentInstances',
         description: 'Find component instances on a realtime server',
         fields: () => ({
-          ...attributeFields(this.model)
+          ...attributeFields(this.model),
+          userId: {
+            type: GraphQLString
+          }
         })
       })),
       args: {
@@ -51,7 +54,10 @@ export default class ComponentInstance implements IInstanceType {
         name: 'getComponentInstance',
         description: 'Get a single component instance on a realtime server',
         fields: () => ({
-          ...attributeFields(this.model)
+          ...attributeFields(this.model),
+          userId: {
+            type: GraphQLString
+          }
         })
       }),
       args: {
@@ -68,7 +74,10 @@ export default class ComponentInstance implements IInstanceType {
         name: 'addComponentInstance',
         description: 'Add a component instance to this server',
         fields: () => ({
-          ...attributeFields(this.model)
+          ...attributeFields(this.model),
+          userId: {
+            type: GraphQLString
+          }
         })
       }),
       args: {
@@ -79,6 +88,9 @@ export default class ComponentInstance implements IInstanceType {
           type: GraphQLString
         },
         entityId: {
+          type: GraphQLString
+        },
+        userId: {
           type: GraphQLString
         }
       },
@@ -100,7 +112,10 @@ export default class ComponentInstance implements IInstanceType {
         name: 'patchComponentInstance',
         description: 'Patch a component instance on this server',
         fields: () => ({
-          ...attributeFields(this.model)
+          ...attributeFields(this.model),
+          userId: {
+            type: GraphQLString
+          }
         })
       }),
       args: {
@@ -158,13 +173,16 @@ export default class ComponentInstance implements IInstanceType {
         name: 'componentInstanceCreated',
         description: 'Listen for when components are added to this server',
         fields: () => ({
-          ...attributeFields(this.model)
+          ...attributeFields(this.model),
+          userId: {
+            type: GraphQLString
+          }
         })
       }),
       subscribe: withFilter(
         () => this.pubSubInstance.asyncIterator('componentInstanceCreated'),
-        (payload, args) => {
-          return true
+        (payload, args, context) => {
+          return payload.componentInstanceCreated.userId !== context.user.id
         }
       )
     },
@@ -173,13 +191,16 @@ export default class ComponentInstance implements IInstanceType {
         name: 'componentInstancePatched',
         description: 'Listen for when components are patched on this server',
         fields: () => ({
-          ...attributeFields(this.model)
+          ...attributeFields(this.model),
+          userId: {
+            type: GraphQLString
+          }
         })
       }),
       subscribe: withFilter(
         () => this.pubSubInstance.asyncIterator('componentInstancePatched'),
-        (payload, args) => {
-          return true
+        (payload, args, context) => {
+          return payload.componentInstancePatched.userId !== context.user.id
         }
       )
     },
@@ -191,8 +212,8 @@ export default class ComponentInstance implements IInstanceType {
       }),
       subscribe: withFilter(
         () => this.pubSubInstance.asyncIterator('componentInstanceRemoved'),
-        (payload, args) => {
-          return true
+        (payload, args, context) => {
+          return payload.componentInstanceRemoved.userId !== context.user.id
         }
       )
     }

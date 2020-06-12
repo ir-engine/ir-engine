@@ -1,6 +1,7 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { UserInputError } from 'apollo-server'
+import _ from 'lodash'
 
 interface Data {}
 
@@ -20,8 +21,29 @@ export class RealtimeStore implements ServiceMethods<Data> {
     const substore = this.store.get((params as any).type)
 
     if (substore == null) { return new UserInputError('Invalid type ') }
-    // return Object.keys(substore).map((name) => { return substore.get(name) })
-    return substore.values()
+    let returned: any[] = []
+    if (params?.query) {
+      returned = []
+      substore.forEach((substoreValue: any) => {
+        let added = true
+        _.forEach(params.query, (value, key) => {
+          if (typeof value === 'string' && substoreValue[key] !== value) {
+            added = false
+          }
+          if (typeof value === 'object' && value.$not != null && substoreValue[key] === value.$not) {
+            added = false
+          }
+        })
+
+        if (added) {
+          returned = returned.concat(substoreValue)
+        }
+      })
+    } else {
+      returned = substore.values()
+    }
+
+    return returned
   }
 
   async get (id: Id, params?: Params): Promise<Data> {
@@ -51,7 +73,7 @@ export class RealtimeStore implements ServiceMethods<Data> {
     const substore = this.store.get((data as any).type)
 
     if (substore == null) { return new UserInputError('Invalid type ') }
-    if (id == null || substore.get(id) == null) { return new UserInputError('Invalid User ID ') }
+    if (id == null || substore.get(id) == null) { return new UserInputError('Invalid ID') }
     substore.set(id, Object.assign({}, substore.get(id), (data as any).object))
     return substore.get(id)
   }

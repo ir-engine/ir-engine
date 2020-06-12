@@ -50,7 +50,7 @@ app.use(cors({
   credentials: true
 }))
 app.use(compress())
-app.use(express.json())
+app.use(express.json({ limit: '1mb' }))
 app.use(express.urlencoded({ extended: true }))
 app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')))
 // Host the public folder

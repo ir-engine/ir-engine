@@ -70,7 +70,10 @@ export default class EntityInstance implements IInstanceType {
         name: 'findEntityInstances',
         description: 'Find entity instances on a realtime server',
         fields: () => ({
-          ...attributeFields(this.model)
+          ...attributeFields(this.model),
+          userId: {
+            type: GraphQLString
+          }
         })
       })),
       args: {
@@ -88,7 +91,10 @@ export default class EntityInstance implements IInstanceType {
         name: 'getEntityInstance',
         description: 'Get a single entity instance on a realtime server',
         fields: () => ({
-          ...attributeFields(this.model)
+          ...attributeFields(this.model),
+          userId: {
+            type: GraphQLString
+          }
         })
       }),
       args: {
@@ -105,7 +111,10 @@ export default class EntityInstance implements IInstanceType {
         name: 'addEntityInstance',
         description: 'Add a entity instance to this server',
         fields: () => ({
-          ...attributeFields(this.model)
+          ...attributeFields(this.model),
+          userId: {
+            type: GraphQLString
+          }
         })
       }),
       args: {
@@ -113,6 +122,9 @@ export default class EntityInstance implements IInstanceType {
           type: GraphQLString
         },
         name: {
+          type: GraphQLString
+        },
+        userId: {
           type: GraphQLString
         }
       },
@@ -134,7 +146,10 @@ export default class EntityInstance implements IInstanceType {
         name: 'patchEntityInstance',
         description: 'Patch an entity instance on this server',
         fields: () => ({
-          ...attributeFields(this.model)
+          ...attributeFields(this.model),
+          userId: {
+            type: GraphQLString
+          }
         })
       }),
       args: {
@@ -187,43 +202,49 @@ export default class EntityInstance implements IInstanceType {
     entityInstanceCreated: {
       type: new GraphQLObjectType({
         name: 'entityInstanceCreated',
-        description: 'Listen for when entitys are added to this server',
+        description: 'Listen for when entities are added to this server',
         fields: () => ({
-          ...attributeFields(this.model)
+          ...attributeFields(this.model),
+          userId: {
+            type: GraphQLString
+          }
         })
       }),
       subscribe: withFilter(
         () => this.pubSubInstance.asyncIterator('entityInstanceCreated'),
-        (payload, args) => {
-          return true
+        (payload, args, context) => {
+          return payload.entityInstanceCreated.userId !== context.user.id
         }
       )
     },
     entityInstancePatched: {
       type: new GraphQLObjectType({
         name: 'entityInstancePatched',
-        description: 'Listen for when entitys are patched on this server',
+        description: 'Listen for when entities are patched on this server',
         fields: () => ({
-          ...attributeFields(this.model)
+          ...attributeFields(this.model),
+          userId: {
+            type: GraphQLString
+          }
         })
       }),
       subscribe: withFilter(
         () => this.pubSubInstance.asyncIterator('entityInstancePatched'),
-        (payload, args) => {
-          return true
+        (payload, args, context) => {
+          return payload.entityInstancePatched.userId !== context.user.id
         }
       )
     },
     entityInstanceRemoved: {
       type: new GraphQLObjectType({
         name: 'entityInstanceRemoved',
-        description: 'Listen for when entitys are added to this server',
+        description: 'Listen for when entities are added to this server',
         fields: () => (this.idField)
       }),
       subscribe: withFilter(
         () => this.pubSubInstance.asyncIterator('entityInstanceRemoved'),
-        (payload, args) => {
-          return true
+        (payload, args, context) => {
+          return payload.entityInstanceRemoved.userId !== context.user.id
         }
       )
     }

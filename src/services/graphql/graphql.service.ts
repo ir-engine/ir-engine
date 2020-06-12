@@ -159,10 +159,7 @@ export default (app: Application): void => {
 
   server.applyMiddleware({
     app,
-    path: '/graphql',
-    bodyParserConfig: {
-      limit: '10mb'
-    }
+    path: '/graphql'
   })
 
   ;(app as any).apolloServer = server
