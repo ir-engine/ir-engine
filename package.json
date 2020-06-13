@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "homepage": "",
   "private": true,
-  "main": "src",
+  "main": "server",
   "keywords": [
     "feathers"
   ],
@@ -15,7 +15,7 @@
   "contributors": [],
   "bugs": {},
   "directories": {
-    "lib": "src",
+    "lib": "server",
     "config": "config/"
   },
   "engines": {
@@ -23,12 +23,12 @@
   },
   "scripts": {
     "test": "yarn run lint && yarn run compile",
-    "lint": "node node_modules/.bin/eslint --ext .js,.ts src/ --fix",
-    "dev": "NODE_ENV=development ts-node src/",
-    "dev-with-spoke": "yarn run build-spoke && NODE_ENV=development ts-node src/",
-    "dev-reinit-db": "NODE_ENV=development FORCE_DB_REFRESH=true ts-node src/",
-    "dev-reinit-db-windows": "SET NODE_ENV=development && SET FORCE_DB_REFRESH=true && ts-node-dev --no-notify src/",
-    "dev-generate-fakes": "NODE_ENV=development env GENERATE_FAKES=true ts-node-dev --no-notify src/",
+    "lint": "node node_modules/.bin/eslint --ext .js,.ts srserverc/ --fix",
+    "dev": "NODE_ENV=development ts-node server/",
+    "dev-with-spoke": "yarn run build-spoke && NODE_ENV=development ts-node server/",
+    "dev-reinit-db": "NODE_ENV=development FORCE_DB_REFRESH=true ts-node server/",
+    "dev-reinit-db-windows": "SET NODE_ENV=development && SET FORCE_DB_REFRESH=true && ts-node-dev --no-notify server/",
+    "dev-generate-fakes": "NODE_ENV=development env GENERATE_FAKES=true ts-node-dev --no-notify server/",
     "start": "yarn run compile && node lib/",
     "compile": "shx rm -rf lib/ && tsc",
     "sync": "PERFORM_DRY_RUN=true FORCE_DB_REFRESH=true node lib/",

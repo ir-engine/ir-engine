@@ -157,8 +157,8 @@ spec:
             - name: MYSQL_HOST
               value: xr3ngine-mariadb.xr3ngine.svc.cluster.local
           #          volumeMounts:
-#            - mountPath: "/usr/src/lifescope-api/config/tmp"
-#              name: lifescope-api-dev-config
+#            - mountPath: "/usr/src/xr3ngine/config/tmp"
+#              name: xr3ngine-dev-config
 #              readOnly: true
 #          lifecycle:
 #            postStart:

@@ -3,7 +3,7 @@ const cli = require('cli')
 const Sequelize = require('sequelize')
 
 dotenv.config()
-import { db } from '../src/db-config'
+import { db } from '../server/db-config'
 
 cli.enable('status')
 
