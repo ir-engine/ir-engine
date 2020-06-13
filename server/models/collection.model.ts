@@ -76,7 +76,7 @@ export default (app: Application): any => {
     (collection as any).hasMany(models.tag);
     (collection as any).belongsTo(models.user); // Reticulum foreignKey: 'creatorUserId'
     (collection as any).belongsTo(models.location);
-    (collection as any).belongsToMany(models.tag, { through: 'collection_tag' });
+    (collection as any).belongsToMany(models.tag, { through: 'collection_tag' })
     // (collection as any).belongsTo(models.collection)
 
     // thumbnail   (project as any).belongsTo(models.owned_file, { foreignKey: 'thumbnailOwnedFileId' })
