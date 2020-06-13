@@ -24,7 +24,7 @@ export default (app: Application): any => {
 
       const appPath = path.dirname(require.main ? require.main.filename : '')
       const emailAccountTemplatesPath =
-        path.join(appPath, '..', 'src', 'email-templates', 'account')
+        path.join(appPath, '..', 'server', 'email-templates', 'account')
       let hashLink
       let email
       let templatePath

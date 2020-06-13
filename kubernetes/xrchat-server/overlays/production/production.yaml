@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: lifescope-api
-  namespace: lifescope
+  name: xr3ngine
+  namespace: xr3ngine
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: lifescope-api
+      app: xr3ngine
   template:
     metadata:
       labels:
-        app: lifescope-api
+        app: xr3ngine
     spec:
-      serviceAccountName: lifescope
+      serviceAccountName: xr3ngine
       containers:
-        - name: lifescope-api
-          image: lifescopelabs/lifescope-api:v4.0.6
+        - name: xr3ngine
+          image: xr3ngine/xr3ngine:v4.0.6
           ports:
             - containerPort: 3000
             - containerPort: 3001
@@ -24,8 +24,8 @@ spec:
             - name: NODE_ENV
               value: production
           volumeMounts:
-            - mountPath: "/usr/src/lifescope-api/config/tmp"
-              name: lifescope-api-prod-config
+            - mountPath: "/usr/src/xr3ngine/config/tmp"
+              name: xr3ngine-prod-config
               readOnly: true
           lifecycle:
             postStart:
@@ -33,83 +33,83 @@ spec:
                 command:
                   - /bin/sh
                   - -c
-                  - cp /usr/src/lifescope-api/config/tmp/production.json /usr/src/lifescope-api/config/production.json
+                  - cp /usr/src/xr3ngine/config/tmp/production.json /usr/src/xr3ngine/config/production.json
           imagePullPolicy: IfNotPresent
       dnsPolicy: Default
       volumes:
-        - name: lifescope-api-prod-config
+        - name: xr3ngine-prod-config
           secret:
-            secretName: lifescope-api-prod-config
+            secretName: xr3ngine-prod-config
       $patch: replace
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: lifescope-api-ingress-master
-  namespace: lifescope
+  name: xr3ngine-ingress-master
+  namespace: xr3ngine
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.org/mergeable-ingress-type: "master"
 spec:
   tls:
     - hosts:
-        - api.lifescope.io
-      secretName: lifescope-secret
+        - api.xr3ngine.io
+      secretName: xr3ngine-secret
   rules:
-    - host: api.lifescope.io
+    - host: api.xr3ngine.io
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: lifescope-api-ingress-location-upload-minion
-  namespace: lifescope
+  name: xr3ngine-ingress-location-upload-minion
+  namespace: xr3ngine
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.org/mergeable-ingress-type: "minion"
     nginx.org/client-max-body-size: "2000m"
 spec:
   rules:
-    - host: api.lifescope.io
+    - host: api.xr3ngine.io
       http:
         paths:
           - backend:
-              serviceName: lifescope-api
+              serviceName: xr3ngine
               servicePort: 3000
             path: /location/upload_file
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: lifescope-api-ingress-ws-minion
-  namespace: lifescope
+  name: xr3ngine-ingress-ws-minion
+  namespace: xr3ngine
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.org/mergeable-ingress-type: "minion"
-    nginx.org/websocket-services: "lifescope-api-ws"
+    nginx.org/websocket-services: "xr3ngine-ws"
 spec:
   rules:
-    - host: api.lifescope.io
+    - host: api.xr3ngine.io
       http:
         paths:
           - backend:
-              serviceName: lifescope-api-ws
+              serviceName: xr3ngine-ws
               servicePort: 3001
             path: /subscriptions
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: lifescope-api-ingress-main-minion
-  namespace: lifescope
+  name: xr3ngine-ingress-main-minion
+  namespace: xr3ngine
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.org/mergeable-ingress-type: "minion"
 spec:
   rules:
-    - host: api.lifescope.io
+    - host: api.xr3ngine.io
       http:
         paths:
           - backend:
-              serviceName: lifescope-api
+              serviceName: xr3ngine
               servicePort: 3000
             path: /
