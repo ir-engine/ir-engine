@@ -1,5 +1,6 @@
 import fetch from 'node-fetch'
 import config from '../../config'
+import { BadRequest } from '@feathersjs/errors'
 
 interface FilterType {
   count: number
@@ -11,8 +12,9 @@ interface FilterType {
   cursor: string
 }
 
-export default class GooglePolyMedia {
-  private readonly SKETCH_FAB_URL = 'https://api.sketchfab.com/v3/search'
+export default class SketchFabMedia {
+  private readonly SKETCH_FAB_BASE_URL: string = 'https://api.sketchfab.com/v3'
+  private readonly SKETCH_FAB_SEARCH_URL = `${this.SKETCH_FAB_BASE_URL}/search`
 
   private readonly SKETCH_FAB_AUTH_TOKEN = config.server.sketchFab.authToken
 
@@ -42,7 +44,7 @@ export default class GooglePolyMedia {
       Object.assign(defaultFilters, this.sketchFabCategoryQueryHandler(filter, q))
     }
 
-    const url = new URL(this.SKETCH_FAB_URL)
+    const url = new URL(this.SKETCH_FAB_SEARCH_URL)
 
     Object.keys(defaultFilters).forEach((key) => url.searchParams.append(key, String(defaultFilters[key as keyof FilterType])))
 
@@ -58,6 +60,22 @@ export default class GooglePolyMedia {
           suggestions: null
         }
       })
+  }
+
+  public async getModel (modelId: string): Promise<any> {
+    try {
+      return await fetch(`${this.SKETCH_FAB_BASE_URL}/models/${modelId}/download`, { headers: { Authorization: 'Bearer ' + this.SKETCH_FAB_AUTH_TOKEN } })
+        .then(async (response) => {
+          if (response.status >= 400) {
+            return await Promise.reject(new BadRequest(response.statusText, { status: response.status }))
+          }
+
+          const jsonResp: any = await response.json()
+          return { uri: jsonResp?.gltf?.url, expected_content_type: 'model/gltf+zip' }
+        })
+    } catch (err) {
+      console.log('-->>>>', err)
+    }
   }
 
   private getAndProcessSketchFabResponse (item: any): any {
