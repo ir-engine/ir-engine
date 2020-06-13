@@ -1,84 +1,65 @@
 'use_strict';
-import glob from 'glob'
+import * as glob from 'glob'
 import * as fs from 'fs';
-import * as assert from 'assert';
-import * as os from 'os';
-import * as path from 'path';
-// @ts-ignore
-import draco3d, { createEncoderModule } from 'draco3d';
-import * as THREE from 'three';
-import basisu from 'basisu';
-
-import { longToByteArray } from '../Shared/Utilities';
-import { IFileHeader, IFrameData } from './Interfaces';
+import { Geometry, Mesh, LoadingManager, WebGLRenderer } from 'three';
+import { BasisTextureLoader } from 'three/examples/jsm/loaders/BasisTextureLoader'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 
-import { execFile } from 'child_process';
+// @ts-ignore
 import prependFile from 'prepend-file';
-
-import { BasisTextureLoader } from 'three/examples/jsm/loaders/BasisTextureLoader'
 import { imageSize } from 'image-size'
+import { PNGToBasis, encodeMeshToDraco } from './CodecHelpers'
+import { longToByteArray } from '../Shared/Utilities';
+import { IFileHeader, IFrameData } from './Interfaces';
 
 export default class DracoFileCreator {
-    bufferSize: number;
-    frameIn: number;
-    frameOut: number;
-    useLZ4: boolean;
-    outputFileName: string;
-    progressCallback: any;
+    private _frameIn: number;
+    private _frameOut: number;
+    private _outputFileName: string;
 
-    scene: THREE.Scene;
-    // renderer: THREE.Renderer;
+    private _meshFiles: string[] = [];
+    private _textureFiles: string[] = [];
+    private _frameData: IFrameData[] = [];
+    private _maxVertices = 0;
+    private _maxFaces = 0;
 
-    meshFiles = [];
-    textureFiles = [];
-    frameData: IFrameData[] = [];
-
-    basisLoader = new BasisTextureLoader();
-    encoderModule = draco3d.createEncoderModule({});
-    manager = new THREE.LoadingManager();
-    loader = new OBJLoader(this.manager);
-    fileReader = new FileReader();
-
-    maxVertices = 0;
-    maxTriangles = 0;
+    private _basisLoader = new BasisTextureLoader();
+    private _manager = new LoadingManager();
+    private _loader = new OBJLoader(this._manager);
 
     constructor(
-        scene: THREE.Scene,
-        renderer: THREE.WebGLRenderer,
+        renderer: WebGLRenderer,
         meshFileSuffix: string,
         textureFileSuffix: string,
         frameIn: number,
         frameOut: number,
-        useLZ4: boolean,
         outputFileName: string,
         progressCallback: any,
     ) {
-        this.frameIn = frameIn;
-        this.frameOut = frameOut;
-        this.useLZ4 = useLZ4;
-        this.frameIn = frameIn;
-        this.outputFileName = outputFileName;
-        this.progressCallback = progressCallback;
+        this._frameIn = frameIn;
+        this._frameOut = frameOut;
+        this._frameIn = frameIn;
+        this._outputFileName = outputFileName;
 
-        this.basisLoader.detectSupport( renderer );
-        this.basisLoader.setTranscoderPath( 'examples/js/libs/basis/' );
+        this._basisLoader.detectSupport(renderer);
+        this._basisLoader.setTranscoderPath('examples/js/libs/basis/');
 
-        this.manager.onProgress = function (item, loaded, total) {
+        this._manager.onProgress = function (item, loaded, total) {
             console.log(item, loaded, total);
+            if(progressCallback) progressCallback(item, loaded, total);
         };
 
         // Read path to OBJs and make array
         glob(__dirname + '/*.' + meshFileSuffix, {}, (err: any, files: any) => {
             if (err) console.log(err);
-            this.meshFiles = files;
+            this._meshFiles = files;
             console.log(files);
         })
 
         // Get path to jpg, png and make array
         glob(__dirname + '/*.' + textureFileSuffix, {}, (err: any, files: any) => {
             if (err) console.log(err);
-            this.textureFiles = files;
+            this._textureFiles = files;
             console.log(files);
         })
     }
@@ -86,25 +67,34 @@ export default class DracoFileCreator {
     textureWidth: number = 0;
     textureHeight: number = 0;
 
-
+    mesh = new Mesh();
+    geometry = new Geometry();
     createEncodedFile(fileName: any, callback: any) {
-        if (this.meshFiles.length != this.textureFiles.length)
+        if (this._meshFiles.length != this._textureFiles.length)
             return console.error(`Mesh and texture sequence lengths are not the same, \
-        Mesh[] is ${this.meshFiles.length}, Texture[] is ${this.textureFiles.length}`)
+        Mesh[] is ${this._meshFiles.length}, Texture[] is ${this._textureFiles.length}`)
 
         console.log("Writing file to " + fileName);
         const writeStream = fs.createWriteStream(fileName);
         let currentPositionInWriteStream = 0;
 
         // If user specificies frame out, this it the range we process
-        const frameOut = (this.frameOut > 0) ? this.frameOut : this.meshFiles.length
+        const frameOut = (this._frameOut > 0) ? this._frameOut : this._meshFiles.length
 
         // Iterate over all files and write an output file
-        for (let i = this.frameIn; i < frameOut; i++) {
-            let mesh;
+        for (let i = this._frameIn; i < frameOut; i++) {
             // load obj
-            this.loader.load(this.meshFiles[i], (obj) => {
-                mesh = obj;
+            this._loader.load(this._meshFiles[i], (obj) => {
+                // Search for mesh object
+                obj.traverse((child) => {
+                    if (child instanceof Mesh) {
+                        this.mesh = child;
+                        this.geometry = child.geometry;
+                        if (child.geometry.vertices > this._maxVertices) this._maxVertices = child.geometry.vertices;
+                        if (child.geometry.faces > this._maxFaces) this._maxFaces = child.geometry.faces;
+                        return; // Only get the first mesh in the obj
+                    }
+                });
             }, progress => {
                 console.log('model ' + Math.round(progress.loaded / progress.total * 100) + '% downloaded');
             }, err => {
@@ -112,25 +102,20 @@ export default class DracoFileCreator {
             });
 
             // If we haven't set the texture width yet, do that here automatically so we can store in the file
-            if(this.textureWidth === 0){
-                const dimensions = imageSize(this.textureFiles[i])
+            if (this.textureWidth === 0) {
+                const dimensions = imageSize(this._textureFiles[i])
                 this.textureWidth = dimensions.width;
                 this.textureHeight = dimensions.height;
             }
 
-            let encodedTexture = PNGToBasis(this.textureFiles[i]); // Takes a path, returns a buffer
-            let encodedMesh = this.encodeMeshToDraco(mesh); // convert obj to draco
-
-            // TODO: If lz4, lz4 compress and set length, otherwise length is modelLength + textureLength
-
-            if (mesh.vertices > this.maxVertices) this.maxVertices = mesh.vertices
-            if (mesh.triangles > this.maxTriangles) this.maxTriangles = mesh.triangles
+            let encodedTexture = PNGToBasis(this._textureFiles[i]); // Takes a path, returns a buffer
+            let encodedMesh = encodeMeshToDraco(this.mesh.geometry as Geometry); // convert obj to draco
 
             const frame: IFrameData = {
                 frameNumber: i,
                 startBytePosition: currentPositionInWriteStream,
-                vertices: mesh.vertices,
-                triangles: mesh.triangles,
+                vertices: this.geometry.vertices.length,
+                faces: this.geometry.faces.length,
                 meshLength: encodedMesh.length,
                 textureLength: encodedTexture.length
             }
@@ -138,7 +123,7 @@ export default class DracoFileCreator {
             console.log(frame)
 
             // Add to the data array
-            this.frameData.push(frame);
+            this._frameData.push(frame);
 
             // Write to file stream, mesh first
             writeStream.write(encodedMesh)
@@ -151,7 +136,7 @@ export default class DracoFileCreator {
             currentPositionInWriteStream += encodedMesh.length + encodedTexture.length;
 
             // progress callback
-            if (callback) callback(i - this.frameIn / frameOut - this.frameIn);
+            if (callback) callback(i - this._frameIn / frameOut - this._frameIn);
         }
 
         // Close file stream
@@ -161,9 +146,9 @@ export default class DracoFileCreator {
         const fileData: IFileHeader = {
             textureHeight: this.textureHeight,
             textureWidth: this.textureWidth,
-            maxVertices: this.maxVertices,
-            maxTriangles: this.maxTriangles,
-            frameData: this.frameData
+            maxVertices: this._maxVertices,
+            maxTriangles: this._maxFaces,
+            frameData: this._frameData
         }
 
         // Convert our file info into buffer and save to file stream
@@ -176,14 +161,14 @@ export default class DracoFileCreator {
         console.log("Data buffer byte length: " + fileDataBuffer.byteLength);
 
         // Get length of that buffer and save as 32 bit number, append to end of file
-        console.log("Wrote " + this.frameData.length + " meshes and textures into file " + this.outputFileName);
+        console.log("Wrote " + this._frameData.length + " meshes and textures into file " + this._outputFileName);
 
         // We're going to prepend our data (and the length of that data), so combine buffers in order
         const combinedBuffer = Buffer.concat([fileDataBufferLengthEncoded, fileDataBuffer]);
 
         console.log("Prepending file data and how long the file data is")
 
-        prependFile(fileName, combinedBuffer, err => {
+        prependFile(fileName, combinedBuffer, (err: any) => {
             if (err) console.error(err);
             else console.log("Prepended data to " + fileName);
         });
@@ -191,103 +176,5 @@ export default class DracoFileCreator {
         // Progress callback
         if (callback) callback(1);
     }
-
-    encodeMeshToDraco(mesh: THREE.Geometry): any {
-
-        const encoderModule = createEncoderModule({});
-        const encoder = new encoderModule.Encoder();
-
-        const meshBuilder = new encoderModule.MeshBuilder();
-        const dracoMesh = new encoderModule.Mesh();
-
-        const numFaces = mesh.faces.length;
-        const numPoints = mesh.vertices.length;
-        const numIndices = numFaces * 3;
-        let indices = new Uint32Array(numIndices);
-
-        console.log("Number of faces " + numFaces);
-        console.log("Number of vertices " + numPoints);
-
-        let vertices = new Float32Array(mesh.vertices.length * 3);
-        let normals = new Float32Array(mesh.vertices.length * 3);
-
-        // Add Faces to mesh
-        for (let i = 0; i < numFaces; i++) {
-            const index = i * 3;
-            indices[index] = mesh.faces[i].a;
-            indices[index + 1] = mesh.faces[i].b;
-            indices[index + 2] = mesh.faces[i].c;
-        }
-        meshBuilder.AddFacesToMesh(dracoMesh, numFaces, indices);
-
-        // Add POSITION to mesh (Vertices)
-        for (let i = 0; i < mesh.vertices.length; i++) {
-            const index = i * 3;
-            vertices[index] = mesh.vertices[i].x;
-            vertices[index + 1] = mesh.vertices[i].y;
-            vertices[index + 2] = mesh.vertices[i].z;
-        }
-        meshBuilder.AddFloatAttributeToMesh(dracoMesh, encoderModule.POSITION, numPoints, 3, vertices);
-
-        // Add NORMAL to mesh
-        for (let face of mesh.faces) {
-            normals[face["a"] * 3] = face.vertexNormals[0].x;
-            normals[(face["a"] * 3) + 1] = face.vertexNormals[0].y;
-            normals[(face["a"] * 3) + 2] = face.vertexNormals[0].z;
-
-            normals[face["b"] * 3] = face.vertexNormals[1].x;
-            normals[(face["b"] * 3) + 1] = face.vertexNormals[1].y;
-            normals[(face["b"] * 3) + 2] = face.vertexNormals[1].z;
-
-            normals[face["c"] * 3] = face.vertexNormals[2].x;
-            normals[(face["c"] * 3) + 1] = face.vertexNormals[2].y;
-            normals[(face["c"] * 3) + 2] = face.vertexNormals[2].z;
-        }
-        meshBuilder.AddFloatAttributeToMesh(dracoMesh, encoderModule.NORMAL, numPoints, 3, normals);
-
-        console.log("//DRACO UNCOMPRESSED MESH STATS//////////");
-        console.log("Number of faces " + dracoMesh.num_faces());
-        console.log("Number of Vertices " + dracoMesh.num_points());
-        console.log("Number of Attributes " + dracoMesh.num_attributes());
-
-        // Compressing using DRACO
-        let encodedData = new encoderModule.DracoInt8Array();
-        encoder.SetSpeedOptions(5, 5);
-        encoder.SetAttributeQuantization(encoderModule.POSITION, 10);
-        encoder.SetEncodingMethod(encoderModule.MESH_EDGEBREAKER_ENCODING);
-
-        console.log("Encoding...");
-        const encodedLen = encoder.EncodeMeshToDracoBuffer(dracoMesh, encodedData);
-        encoderModule.destroy(dracoMesh);
-
-        if (encodedLen > 0) console.log("Encoded size is " + encodedLen);
-        else console.log("Error: Encoding failed.");
-
-        // Copy encoded data to buffer.
-        const outputBuffer = new ArrayBuffer(encodedLen);
-
-        encoderModule.destroy(encodedData);
-        encoderModule.destroy(encoder);
-        encoderModule.destroy(meshBuilder);
-
-        console.log("DRACO ENCODED////////////////////////////");
-        console.log("Length of buffer: " + outputBuffer.byteLength);
-
-        return outputBuffer;
-    }
 }
 
-function PNGToBasis(inPath): Buffer {
-    const basisFilePath = inPath.replace(".png", ".basis");
-
-    execFile(basisu.path, inPath);
-
-    // Read file into array
-    const basisData: Buffer = fs.readFileSync(basisFilePath);
-
-    // destroy file
-    fs.unlinkSync(basisFilePath);
-
-    // Return array
-    return basisData;
-}
