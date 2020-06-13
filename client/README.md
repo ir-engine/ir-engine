@@ -64,7 +64,7 @@ You can run it using docker, if you don't have node installed or need to test.
 docker build --tag xr3ngine .
 
 # Run the image (deletes itself when you close it)
-docker run -d --rm --name client -e "NEXT_PUBLIC_API_SERVER=http://localhost:3030" -p "3000:3000"  xr3ngine
+docker run -d --rm --name client -e "NEXT_PUBLIC_API_SERVER=http://localhost:3030" -p "3030:3030"  xr3ngine
 
 # Stop the server
 docker stop client
