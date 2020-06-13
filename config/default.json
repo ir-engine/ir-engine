@@ -11,7 +11,7 @@
         "room": "lobby",
         "audio": true,
         "adapter": "socketio",
-        "serverURL": "nxr.lifescope.io"
+        "serverURL": "nxr.xr3ngine.io"
       },
       "avatar": {
         "defaultAvatarModelSrc" : "/gltf/avatars/head/scene.gltf",

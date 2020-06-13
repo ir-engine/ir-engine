@@ -66,7 +66,7 @@ export class Magiclink implements ServiceMethods<Data> {
     const emailAccountTemplatesPath = path.join(
       appPath,
       '..',
-      'src',
+      'server',
       'email-templates',
       'account'
     )
@@ -121,7 +121,7 @@ export class Magiclink implements ServiceMethods<Data> {
     const emailAccountTemplatesPath = path.join(
       appPath,
       '..',
-      'src',
+      'server',
       'email-templates',
       'account'
     )
