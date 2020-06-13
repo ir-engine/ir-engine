@@ -23,7 +23,7 @@
   },
   "scripts": {
     "test": "yarn run lint && yarn run compile",
-    "lint": "node node_modules/.bin/eslint --ext .js,.ts srserverc/ --fix",
+    "lint": "node node_modules/.bin/eslint --ext .js,.ts server/ --fix",
     "dev": "NODE_ENV=development ts-node server/",
     "dev-with-spoke": "yarn run build-spoke && NODE_ENV=development ts-node server/",
     "dev-reinit-db": "NODE_ENV=development FORCE_DB_REFRESH=true ts-node server/",
