@@ -1,72 +1,119 @@
-import { IFileHeader, IBufferGeometryCompressedTexture, WorkerFetchAction, WorkerInitAction } from './Interfaces'
-import { createReadStream, ReadStream } from 'fs';
+import { IFileHeader, WorkerDataRequest, IBuffer, WorkerDataResponse, WorkerInitializationResponse, WorkerInitializationRequest } from './Interfaces'
+import ReadStream from 'fs-readstream-seek'
 import { RingBuffer } from 'ring-buffer-ts';
-
-self.addEventListener('message', ({ data }) => {
-    switch (data.action) {
-        case 'initialize':
-            initialize(data)
-            break;
-        case 'fetch':
-            fetch(data);
-            break;
-        default:
-            console.error(data.action + " was not understood by the worker");
-    }
-})
+import { MessageType } from './Enums'
 
 let fileHeader: IFileHeader;
 let filePath: string;
 let fileReadStream: ReadStream;
 let isInitialized: boolean = false;
 const bufferSize: number = 100;
-const ringBuffer = new RingBuffer<IBufferGeometryCompressedTexture>(bufferSize);
-let tempBufferObject: IBufferGeometryCompressedTexture;
+const ringBuffer = new RingBuffer<IBuffer>(bufferSize);
+let tempBufferObject: IBuffer;
 
-function initialize(data: WorkerInitAction): void {
-    if(isInitialized)
+let startFrame = 0;
+let endFrame = 0;
+let loop = true;
+let message: WorkerDataResponse;
+
+self.addEventListener('message', ({ data }) => {
+    switch (data.type) {
+        case MessageType.InitializationRequest:
+            initialize(data)
+            break;
+        case MessageType.DataRequest:
+            fetch(data);
+            break;
+        case MessageType.SetLoopRequest:
+            loop = data.value;
+            break;
+        case MessageType.SetStartFrameRequest:
+            startFrame = data.values.startFrame;
+            break;
+        case MessageType.SetEndFrameRequest:
+            endFrame = data.values.endFrame;
+            break;
+        default:
+            console.error(data.action + " was not understood by the worker");
+    }
+});
+
+
+function initialize(data: WorkerInitializationRequest): void {
+    if (isInitialized)
         return console.error("Worker has already been initialized for file " + data.filePath);
-
+    
+    isInitialized = true;
     fileHeader = data.fileHeader;
     filePath = data.filePath;
-
+    endFrame = data.endFrame;
+    startFrame = data.startFrame;
+    loop = data.loop;
     // Create readstream starting from after the file header and long
-    fileReadStream = createReadStream(filePath, { start: data.readStreamOffset });
+    fileReadStream = new ReadStream(filePath, { start: data.readStreamOffset });
 
-    postMessage({type: 'isInitialized'}, "*");
+    postMessage({ type: MessageType.InitializationResponse } as WorkerInitializationResponse, "*");
 }
 
-// TODO: Finish
-function fetch(data: WorkerFetchAction): void {
+function fetch(data: WorkerDataRequest): void {
     // Clear Ring Buffer
-
+    this.ringBuffer.Clear();
     // Make a list of buffers to transfer
-    let transferableBuffers: Buffer[] = []
-    // Sort the frames from low to high, might not be necessary
-    // Iterate over values...
-    //  If this frame > end frame...
-        // If loop is on, modulo and pull the frames
-        // Otherwise, don't add the frame and throw a warning that invalid frame requested
-    // If this frame = last frame + 1 (and isn't first in array), tell the stream reader to read out the next bytes..
-    // Otherwise, seek to it and read it
-    // Set temp buffer object frame number
-    // Then mesh
-    // Then texture
-    // Add it to the ring buffer
-    // Add buffers to transferableBuffers
+    let transferableBuffers: Buffer[] = [];
+    let lastFrame = -1;
+    let endOfRangeReached = false;
+
+    // Iterate over values in ascending order...
+    data.framesToFetch.sort().forEach((frame) => {
+        //  If this frame > end frame...
+        // ... warn the dev, since this might be unexpected
+        console.warn("Frame fetched outside of loop range");
+        if(frame > endFrame){
+            // If loop is off, flag end reached
+            if(!loop){
+                endOfRangeReached = true;
+                return;
+            }
+            // If loop is on, make sure the frame request fits within start and end frame range
+            frame %= endFrame
+            // If the start frame is not zero, add to the current frame number
+            if (frame < startFrame)
+                frame += startFrame;
+        }
+
+        // If we're not reading from the position of the last frame, seek to start frame
+        if(!(frame == lastFrame + 1 && frame != startFrame)) {
+            // Get frame start byte pose
+            fileReadStream.seek(fileHeader.frameData[frame].startBytePosition);
+        }
+
+        // tell the stream reader to read out the next bytes..
+        // Set temp buffer object frame number
+        tempBufferObject.frameNumber = frame;
+
+        // Then mesh
+        tempBufferObject.bufferGeometry = fileReadStream.read(fileHeader.frameData[frame].meshLength);
+
+        // Then texture
+        tempBufferObject.compressedTexture = fileReadStream.read(fileHeader.frameData[frame].textureLength);
+        
+        // Add it to the ring buffer
+        ringBuffer.add(tempBufferObject);
+
+        // Add buffers to transferableBuffers
+        transferableBuffers.push(tempBufferObject.bufferGeometry);
+        transferableBuffers.push(tempBufferObject.compressedTexture);
+
+        // Set the last frame
+        lastFrame = frame;
+    })
+
     // Post message
-    postMessage( ringBuffer.toArray(), '*', transferableBuffers);
-}
-
-// TODO: Finish
-function getBufferGeometryFromFile(frameNumber: number): BufferGeometry {
-    // Get the byte position in the file for read start, add the geometry size to get the frame end
-    // return the read as a buffered geometry
-}
-
-// TODO: Finish
-function getCompressedTextureFromFile(frameNumber: number): CompressedTexture {
-    // Get the frame from frame data header
-    // Get the byte position of the file and add geometry to calculate start, file + geometry + texture size to calculate end
-    // return the read as a compressed texture
+    // Set whether end was reached
+    message = {
+        type: MessageType.DataResponse,
+        buffers: ringBuffer.toArray(),
+        endReached: endOfRangeReached
+    }
+    postMessage(message, '*', transferableBuffers);
 }

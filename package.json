@@ -34,6 +34,7 @@
     "cyclist": "^1.0.1",
     "draco3d": "^1.3.6",
     "fs": "0.0.1-security",
+    "fs-readstream-seek": "^1.1.1",
     "glob": "^7.1.6",
     "glslify": "^7.0.0",
     "image-size": "^0.8.3",

@@ -1,5 +1,5 @@
-import DracosisPlayer from './Dracosis/Player'
-import DracosisEncoder from './Dracosis/Encoder'
+import DracosisPlayer from './Player'
+import DracosisEncoder from './Encoder'
 
 export {
     DracosisPlayer, DracosisEncoder

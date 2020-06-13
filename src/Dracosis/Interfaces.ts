@@ -1,10 +1,16 @@
 import { BufferGeometry, CompressedTexture } from 'three'
+import { MessageType } from './Enums'
+
+export interface Action {
+    type: MessageType,
+    value?: number | boolean | string
+}
 
 export interface IFrameData {
     frameNumber: number;
     startBytePosition: number;
     vertices: number;
-    triangles: number;
+    faces: number;
     meshLength: number;
     textureLength: number;
 }
@@ -23,22 +29,36 @@ export interface IMeshTextureData {
     texture: Buffer;
 }
 
+export interface IBuffer {
+    frameNumber: number;
+    bufferGeometry: Buffer;
+    compressedTexture: Buffer;
+}
+
 export interface IBufferGeometryCompressedTexture {
     frameNumber: number;
     bufferGeometry: BufferGeometry;
     compressedTexture: CompressedTexture;
 }
 
-export interface WorkerInitAction {
-    type: string;
+export interface WorkerInitializationRequest extends Action {
     startFrame: number;
     endFrame: number;
+    loop: boolean;
     filePath: string;
     fileHeader: IFileHeader;
     readStreamOffset: number;
 }
 
-export interface WorkerFetchAction {
-    type: string;
+export interface WorkerInitializationResponse extends Action {
+    isInitialized: boolean;
+}
+
+export interface WorkerDataRequest extends Action {
     framesToFetch: number[];
+}
+
+export interface WorkerDataResponse extends Action {
+    buffers?: IBuffer[]
+    endReached: boolean;
 }
