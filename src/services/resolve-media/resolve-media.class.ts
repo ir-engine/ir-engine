@@ -1,5 +1,5 @@
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Application } from '../../declarations'
 import { BadRequest } from '@feathersjs/errors'
 import SketchFabMediaClass from '../media-search/sketch-fab.class'
 import GooglePolyMediaClass from '../media-search/google-poly.class'
