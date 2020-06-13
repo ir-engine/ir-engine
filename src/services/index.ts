@@ -54,6 +54,7 @@ import MediaSearch from './media-search/media-search.service'
 import Meta from './meta/meta.service'
 import PublishProject from './publish-project/publish-project.service'
 import UploadMedia from './upload-media/upload-media.service'
+import ResolveMedia from './resolve-media/resolve-media.service'
 
 // GraphQL
 import GraphQL from './graphql/graphql.service'
@@ -113,6 +114,7 @@ export default (app: Application): void => {
   app.configure(Meta)
   app.configure(UploadMedia)
   app.configure(PublishProject)
+  app.configure(ResolveMedia)
 
   // GraphQL
   app.configure(GraphQL)
