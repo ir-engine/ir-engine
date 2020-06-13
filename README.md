@@ -1,13 +1,23 @@
 # three-volumetric
 Right now this repo is in a transition state. We have demos and tests running files from several different vendors in AR, VR and mobile, but we are transitioning to an npm-installable package to run volumetric from any vendor where we can mediate an open-source playback solution.
 
-
 To install with NPM
 ```
 npm install three-volumetric
 ```
 
 Or reference dist/three-volumetric.js
+
+## Dracosis Player
+Custom file format for packing compressed Draco and Basis Universal Textures into a streamable file.
+First 8 bytes describe header length. Header is packed JSON containing data about position of mesh and texture Buffer byte ranges inside file
+
+```
+import { DracosisPlayer } from 'three-volumetric'
+const player = new DracosisPlayer(<constructor parameters>);
+player.play()
+
+```
 
 ## GLTFPlayer
 
