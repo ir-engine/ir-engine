@@ -4,19 +4,19 @@ describe('CRUD operation on \'UserRole\' model', () => {
   const model = app.service('user-role').Model
   let role: string = 'testrole'
 
-  it('Create', async done => {
+  it('Create', async () => {
     await model.create({
       role
     })
   })
 
-  it('Read', async done => {
+  it('Read', async () => {
     await model.findOne({
       where: { role }
     })
   })
 
-  it('Delete', async done => {
+  it('Delete', async () => {
     await model.destroy({
       where: { role }
     })

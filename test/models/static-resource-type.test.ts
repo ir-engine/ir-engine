@@ -11,7 +11,7 @@ describe('CRUD operation on \'Static Resource Type\' model', () => {
     }).catch(done)
   })
 
-  it('Read', done => {
+  it('Read', () => {
     model.findOne({
       where: {
         type: 'test'
@@ -21,7 +21,7 @@ describe('CRUD operation on \'Static Resource Type\' model', () => {
     }).catch(done)
   })
 
-  it('Delete', done => {
+  it('Delete', () => {
     model.destroy({
       where: { type: 'test' }
     }).then(res => {

@@ -35,13 +35,13 @@
 //     componentType: componentType,
 //     entityId: entityId
 //   }
-//   it('Create', done => {
+//   it('Create', () => {
 //     model.create(input).then(res => {
 //       done()
 //     }).catch(done)
 //   })
 
-//   it('Read', done => {
+//   it('Read', () => {
 //     model.findOne({
 //       where: {
 //         entityId: entityId
@@ -51,7 +51,7 @@
 //     }).catch(done)
 //   })
 
-//   it('Update', done => {
+//   it('Update', () => {
 //     model.update(
 //       { data: JSON.stringify({ data: 'test2' }) },
 //       { where: { entityId: entityId } }
@@ -60,7 +60,7 @@
 //     }).catch(done)
 //   })
 
-//   it('Delete', done => {
+//   it('Delete', () => {
 //     model.destroy({
 //       where: { entityId: entityId }
 //     }).then(res => {

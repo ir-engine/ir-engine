@@ -14,7 +14,7 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
     userId = user.id
   })
 
-  it('Create', async done => {
+  it('Create', async () => {
     await model.create({
       type: password,
       userId: userId,
@@ -23,7 +23,7 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
     })
   })
 
-  it('Read', async done => {
+  it('Read', async () => {
     await model.findOne({
       where: {
         userId: userId
@@ -31,7 +31,7 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
     })
   })
 
-  it('Encrypted Password', async done => {
+  it('Encrypted Password', async () => {
     const userFromModel = await model.findOne({
       where: {
         userId: userId
@@ -40,7 +40,7 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
     expect(bcrypt.compare(password, userFromModel.password)).toBeTruthy()
   })
 
-  it('Encrypted Token', async done => {
+  it('Encrypted Token', async () => {
     const user = await model.findOne({
       where: {
         userId: userId
@@ -49,7 +49,7 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
     expect(bcrypt.compare(token, user.token)).toBeTruthy()
   })
 
-  it('Find User by IdentityProvider', async done => {
+  it('Find User by IdentityProvider', async () => {
     const identityProvider = await model.findOne({
       where: {
         type: password
@@ -65,7 +65,7 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
     expect(userFromId).toBe(expect.anything())
   })
 
-  it('Not expecting password and token ', async done => {
+  it('Not expecting password and token ', async () => {
     (request(app) as any).get('/identity-provider')
       .expect('Content-Type', /json/)
       .expect(200)
@@ -78,7 +78,7 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
       })
   })
 
-  it('Delete', async done => {
+  it('Delete', async () => {
     await model.destroy({
       where: { userId: userId }
     })

@@ -3,14 +3,14 @@ import app from '../../server/app'
 describe('CRUD operation on \'Attribution\' model', () => {
   const model = app.service('attribution').Model
 
-  it('Create', async done => {
+  it('Create', async () => {
     await model.create({
       creator: 'test',
       url: 'http://localhost:3030'
     })
   })
 
-  it('Read', async done => {
+  it('Read', async () => {
     await model.findOne({
       where: {
         creator: 'test'
@@ -18,14 +18,14 @@ describe('CRUD operation on \'Attribution\' model', () => {
     })
   })
 
-  it('Update', async done => {
+  it('Update', async () => {
     await model.update(
       { creator: 'test1' },
       { where: { creator: 'test' } }
     )
   })
 
-  it('Delete', async done => {
+  it('Delete', async () => {
     await model.destroy({
       where: { creator: 'test1' }
     })

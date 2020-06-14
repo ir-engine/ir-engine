@@ -17,13 +17,13 @@ describe.skip('CRUD operation on \'Party\' model', () => {
     userId = user.id
   })
 
-  it('Create', done => {
+  it('Create', () => {
     model.create({ userId: userId }).then(res => {
       done()
     }).catch(done)
   })
 
-  it('Read', async done => {
+  it('Read', async () => {
     model.findAll().then(res => {
       done()
     }).catch(done)

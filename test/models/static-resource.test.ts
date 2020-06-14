@@ -15,7 +15,7 @@ describe('CRUD operation on \'Static Resource\' model', () => {
     }).catch(done)
   })
 
-  it('Read', done => {
+  it('Read', () => {
     model.findOne({
       where: {
         name: 'test'
@@ -25,7 +25,7 @@ describe('CRUD operation on \'Static Resource\' model', () => {
     }).catch(done)
   })
 
-  it('Update', done => {
+  it('Update', () => {
     model.update(
       { description: 'description2' },
       { where: { name: 'test' } }
@@ -34,7 +34,7 @@ describe('CRUD operation on \'Static Resource\' model', () => {
     }).catch(done)
   })
 
-  it('Delete', done => {
+  it('Delete', () => {
     model.destroy({
       where: { name: 'test' }
     }).then(res => {

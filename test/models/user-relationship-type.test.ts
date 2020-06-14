@@ -5,13 +5,13 @@ describe('CRUD operation on \'User Relationship Type\' model', () => {
 
   const type = 'testType'
 
-  it('Create', async done => {
+  it('Create', async () => {
     await model.create({
       type
     })
   })
 
-  it('Read', async done => {
+  it('Read', async () => {
     await model.findOne({
       where: {
         type
@@ -19,7 +19,7 @@ describe('CRUD operation on \'User Relationship Type\' model', () => {
     })
   })
 
-  it('Delete', async done => {
+  it('Delete', async () => {
     await model.destroy({
       where: { type }
     })
