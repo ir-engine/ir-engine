@@ -2,7 +2,7 @@ import React, { ComponentType } from 'react'
 import { connect } from 'react-redux'
 import { setViewportSize } from '../../../redux/app/actions'
 // requires aframe only once and renders the page, passing 'aframeReady' boolean
-type Props = {
+interface Props {
   Component: ComponentType
   pageProps: any,
   setViewportSize: (width: number, height: number) => void

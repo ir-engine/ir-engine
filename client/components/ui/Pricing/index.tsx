@@ -26,13 +26,13 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 interface TabPanelProps {
-  children?: React.ReactNode;
-  dir?: string;
-  index: any;
-  value: any;
+  children?: React.ReactNode
+  dir?: string
+  index: string | number
+  value: any
 }
 
-function TabPanel(props: TabPanelProps) {
+const TabPanel = (props: TabPanelProps): any => {
   const { children, value, index, ...other } = props
   return (
     <Box
@@ -50,7 +50,7 @@ function TabPanel(props: TabPanelProps) {
   )
 }
 
-const Pricing = () => {
+const Pricing = (): any => {
   const classes = useStyles()
   const [value, setValue] = React.useState(0)
   const [monthly, setMonthly] = React.useState([])
@@ -65,12 +65,12 @@ const Pricing = () => {
   }, [])
 
   const router = useRouter()
-  const filterData = (planData) => {
+  const filterData = (planData): any => {
     setMonthly(planData.filter(plan => plan.type === 'monthly').sort((planA, planB) => planA.amount - planB.amount))
     setAnnual(planData.filter(plan => plan.type === 'annual').sort((planA, planB) => planA.amount - planB.amount))
   }
 
-  const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+  const handleChange = (event: React.ChangeEvent<{}>, newValue: number): any => {
     setValue(newValue)
   }
 

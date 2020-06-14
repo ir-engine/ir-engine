@@ -1,4 +1,4 @@
-import AvatarModelEnum from '../../../enums/avatar-model'
+import AvatarModelEnum from '../../../../shared/enums/avatar-model'
 import AvatarAsset from './avatar-asset'
 
 export default class AvatarAssetHTML extends AvatarAsset {

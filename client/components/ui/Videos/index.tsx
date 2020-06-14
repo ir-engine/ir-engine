@@ -1,5 +1,5 @@
 // import NavItem from '../NavItem'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import Link from 'next/link'
 
 // import { siteTitle } from '../../../config/server'
@@ -12,13 +12,13 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { fetchPublicVideos } from '../../../redux/video/service'
 import { PublicVideo } from '../../../redux/video/actions'
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return {
     videos: selectVideoState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchPublicVideos: bindActionCreators(fetchPublicVideos, dispatch)
 })
 
@@ -27,7 +27,7 @@ interface Props {
   fetchPublicVideos: typeof fetchPublicVideos
 }
 
-export const VideoList = (props: Props) => {
+export const VideoList = (props: Props): any => {
   const { videos, fetchPublicVideos } = props
   useEffect(() => {
     fetchPublicVideos()

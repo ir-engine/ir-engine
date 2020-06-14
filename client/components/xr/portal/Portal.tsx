@@ -1,6 +1,7 @@
+import React from 'react'
 import { Entity } from 'aframe-react'
 import { useRouter } from 'next/router'
-import isExternalUrl from '../../../utils/isExternalUrl'
+import isExternalUrl from '../../../../shared/utils/isExternalUrl'
 
 type makeHandleClickType = {
   href: string

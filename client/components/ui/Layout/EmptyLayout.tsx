@@ -1,12 +1,12 @@
-import { Fragment } from 'react'
+import React, { Fragment } from 'react'
 import Alerts from '../Common/Alerts'
 import UIDialog from '../Dialog/Dialog'
 
-type Props = {
+interface Props {
   children: any
 }
 
-const EmptyLayout = ({ children }: Props) => (
+const EmptyLayout = ({ children }: Props): any => (
   <Fragment>
     <UIDialog />
     <Alerts />

@@ -1,3 +1,4 @@
+import React from 'react'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import Container from '@material-ui/core/Container'
@@ -13,23 +14,23 @@ import {
 } from '../../../redux/auth/service'
 import './style.scss'
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   loginUserByGithub: bindActionCreators(loginUserByGithub, dispatch),
   loginUserByGoogle: bindActionCreators(loginUserByGoogle, dispatch),
   loginUserByFacebook: bindActionCreators(loginUserByFacebook, dispatch)
 })
 
 interface Props {
-  auth: any
+  auth?: any
   isEnabledFacebook?: boolean
   isEnabledGithub?: boolean
   isEnabledGoogle?: boolean
-  loginUserByGithub: typeof loginUserByGithub
-  loginUserByGoogle: typeof loginUserByGoogle
-  loginUserByFacebook: typeof loginUserByFacebook
+  loginUserByGithub?: typeof loginUserByGithub
+  loginUserByGoogle?: typeof loginUserByGoogle
+  loginUserByFacebook?: typeof loginUserByFacebook
 };
 
-const SocialLogin = (props: Props) => {
+const SocialLogin = (props: Props): any => {
   const {
     isEnabledFacebook,
     isEnabledGithub,
@@ -39,17 +40,17 @@ const SocialLogin = (props: Props) => {
     loginUserByGithub
   } = props
 
-  const handleGithubLogin = (e: any) => {
+  const handleGithubLogin = (e: any): void => {
     e.preventDefault()
     loginUserByGithub()
   }
 
-  const handleGoogleLogin = (e: any) => {
+  const handleGoogleLogin = (e: any): void => {
     e.preventDefault()
     loginUserByGoogle()
   }
 
-  const handleFacebookLogin = (e: any) => {
+  const handleFacebookLogin = (e: any): void => {
     e.preventDefault()
     loginUserByFacebook()
   }
@@ -113,6 +114,6 @@ const SocialLogin = (props: Props) => {
   )
 }
 
-const SocialLoginWrapper = (props: any) => <SocialLogin {...props} />
+const SocialLoginWrapper = (props: Props): any => <SocialLogin {...props} />
 
 export default connect(mapDispatchToProps)(SocialLoginWrapper)

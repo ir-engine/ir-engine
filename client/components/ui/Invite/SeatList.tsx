@@ -5,7 +5,7 @@ import Divider from '@material-ui/core/Divider'
 import Typography from '@material-ui/core/Typography'
 import { connect } from 'react-redux'
 import { selectAuthState } from '../../../redux/auth/selector'
-import { Seat } from '../../../interfaces/Seat'
+import { Seat } from '../../../../shared/interfaces/Seat'
 import { TextField, Button } from '@material-ui/core'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import SeatItem from './SeatItem'
@@ -45,26 +45,26 @@ const useStyles = makeStyles((theme: Theme) =>
 )
 
 interface Props {
-  seatState: any
-  authState: any
-  classes: any,
-  getSeats: typeof getSeats,
-  inviteUser: typeof inviteUser
+  seatState?: any
+  authState?: any
+  classes?: any
+  getSeats?: typeof getSeats
+  inviteUser?: typeof inviteUser
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return {
     seatState: selectSeatState(state),
     authState: selectAuthState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   getSeats: bindActionCreators(getSeats, dispatch),
   inviteUser: bindActionCreators(inviteUser, dispatch)
 })
 
-const SeatList = (props: Props) => {
+const SeatList = (props: Props): any => {
   const { classes, seatState, authState } = props
   const initialState = {
     userId: undefined,
@@ -73,7 +73,7 @@ const SeatList = (props: Props) => {
   }
   const [state, setState] = useState(initialState)
 
-  const inviteUser = () => {
+  const inviteUser = (): void => {
     props.inviteUser(state.inviteField, props.authState.get('user').subscription.id)
     setState({
       ...state,
@@ -81,7 +81,7 @@ const SeatList = (props: Props) => {
     })
   }
 
-  const updateField = (e: any) => {
+  const updateField = (e: any): void => {
     setState({
       ...state,
       inviteField: e.target.value
@@ -143,21 +143,20 @@ const SeatList = (props: Props) => {
 
       { subscription != null && pending && pending.length > 0 &&
       pending.map((seat) => {
-        return <SeatItem key={'pending_' + seat.id} seat={seat}/>
+        return <SeatItem key={`pending_${seat.id as string}`} seat={seat}/>
       })
       }
       { subscription != null && filled && filled.length > 0 &&
       filled.map((seat) => {
-        return <SeatItem key={'filled_' + seat.id} seat={seat}/>
+        return <SeatItem key={`filled_${seat.id as string}`} seat={seat}/>
       })
       }
     </div>
   )
 }
 
-function SeatListWrapper(props: any) {
+const SeatListWrapper = (props: Props): any => {
   const classes = useStyles()
-
   return (
     <SeatList {...props} classes={classes}/>
   )

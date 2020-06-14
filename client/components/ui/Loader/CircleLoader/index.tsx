@@ -1,6 +1,7 @@
+import React from 'react'
 import './style.scss'
 
-const Loader = () => {
+const Loader = (): any => {
   return (
     <div className='body'>
       <svg width={0} height={0}>

@@ -1,27 +1,27 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Divider from '@material-ui/core/Divider'
 import Typography from '@material-ui/core/Typography'
 import { connect } from 'react-redux'
 import { selectUserState } from '../../../redux/user/selector'
 import { selectAuthState } from '../../../redux/auth/selector'
-import { User } from '../../../interfaces/User'
+import { User } from '../../../../shared/interfaces/User'
 import { Button } from '@material-ui/core'
 import UserItem from './UserItem'
-import { Relationship } from '../../../interfaces/Relationship'
+import { Relationship } from '../../../../shared/interfaces/Relationship'
 import { Dispatch, bindActionCreators } from 'redux'
 import { getUserRelationship } from '../../../redux/user/service'
 import NextLink from 'next/link'
 import './style.scss'
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return {
     userState: selectUserState(state),
     authState: selectAuthState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   getUserRelationship: bindActionCreators(getUserRelationship, dispatch)
 })
 
@@ -31,7 +31,7 @@ interface Props {
   getUserRelationship: typeof getUserRelationship
 }
 
-const MyFriends = (props: Props) => {
+const MyFriends = (props: Props): any => {
   const { userState, authState, getUserRelationship } = props
   const initialState = {
     userId: undefined,
@@ -45,7 +45,7 @@ const MyFriends = (props: Props) => {
   const requested = relationship.requested
   const friendsCount = friends?.length + requested?.length
 
-  const loadUserRelationship = (userId: string, forceUpdate: boolean) => {
+  const loadUserRelationship = (userId: string, forceUpdate: boolean): void => {
     if (userId && (forceUpdate || (userId !== state.userId && userId && userId !== ''))
     ) {
       getUserRelationship(userId)
@@ -130,6 +130,6 @@ const MyFriends = (props: Props) => {
   )
 }
 
-const MyFriendsWrapper = (props: any) => <MyFriends {...props} />
+const MyFriendsWrapper = (props: any): any => <MyFriends {...props} />
 
 export default connect(mapStateToProps, mapDispatchToProps)(MyFriendsWrapper)

@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from 'react'
+import React, { ChangeEvent, useState } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Radio from '@material-ui/core/Radio'
 import RadioGroup from '@material-ui/core/RadioGroup'
@@ -14,7 +14,7 @@ import Slider from '@material-ui/core/Slider'
 import Switch from '@material-ui/core/Switch'
 import './style.scss'
 
-const UserSettings = () => {
+const UserSettings = (): any => {
   const [volume, setvolume] = useState<number>(30)
   const [audio, setAudio] = useState<number>(30)
   const [radiovalue, setradiovalue] = useState('high')
@@ -22,17 +22,17 @@ const UserSettings = () => {
     checkedA: true,
     checkedB: true
   })
-  const handleVolume = (event: any, newValue: number | number[]) => {
+  const handleVolume = (event: any, newValue: number | number[]): void => {
     setvolume(newValue as number)
   }
 
-  const handleAudio = (event: any, newValue: number | number[]) => {
+  const handleAudio = (event: any, newValue: number | number[]): void => {
     setAudio(newValue as number)
   }
-  const handleRadioValue = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleRadioValue = (event: ChangeEvent<HTMLInputElement>): void => {
     setradiovalue((event.target as HTMLInputElement).value)
   }
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     setState({ ...state, [event.target.name]: event.target.checked })
   }
 

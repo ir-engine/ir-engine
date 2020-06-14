@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useRouter, NextRouter } from 'next/router'
 import {
   verifyEmail,
@@ -13,9 +13,9 @@ import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
 import ResetPassword from '../Auth/ResetPassword'
 import VerifyEmail from '../Auth/VerifyEmail'
-import { User } from '../../../interfaces/User'
+import { User } from '../../../../shared/interfaces/User'
 
-type Props = {
+interface Props {
   router: NextRouter
   auth: any
   verifyEmail: typeof verifyEmail
@@ -24,14 +24,14 @@ type Props = {
   refreshConnections: typeof refreshConnections
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   verifyEmail: bindActionCreators(verifyEmail, dispatch),
   resetPassword: bindActionCreators(resetPassword, dispatch),
   loginUserByJwt: bindActionCreators(loginUserByJwt, dispatch),
   refreshConnections: bindActionCreators(refreshConnections, dispatch)
 })
 
-const AuthMagicLink = (props: Props) => {
+const AuthMagicLink = (props: Props): any => {
   const { auth, loginUserByJwt, refreshConnections, router } = props
 
   useEffect(() => {
@@ -61,7 +61,7 @@ const AuthMagicLink = (props: Props) => {
   )
 }
 
-const AuthMagicLinkWrapper = (props: any) => {
+const AuthMagicLinkWrapper = (props: any): any => {
   const router = useRouter()
   const type = router.query.type as string
   const token = router.query.token as string
