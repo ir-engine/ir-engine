@@ -5,7 +5,7 @@ describe('CRUD operation on \'UserSetting\' model', () => {
   const userModel = app.service('user').Model
   let userId: any
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const user = await userModel.create({})
     userId = user.id
   })
@@ -44,7 +44,7 @@ describe('CRUD operation on \'UserSetting\' model', () => {
     })
   })
 
-  afterEach(async () => {
+  afterAll(async () => {
     await userModel.destroy({
       where: {
         id: userId

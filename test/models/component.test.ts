@@ -10,7 +10,7 @@
 //   let componentType: any
 //   let entityId: any
 
-//   beforeEach(async () => {
+//   beforeAll(async () => {
 //     const entityTypeModelInstance = await entityTypeModel.create({
 //       type: 'newType'
 //     })
@@ -68,7 +68,7 @@
 //     }).catch(done)
 //   })
 
-//   afterEach(async () => {
+//   afterAll(async () => {
 //     await entityModel.destroy({
 //       where: {
 //         id: entityId
