@@ -74,12 +74,14 @@ app.configure(services)
 // Set up event channels (see channels.js)
 app.configure(channels)
 
-<<<<<<< HEAD
 // Host the public folder
 // Configure a middleware for 404s and the error handler
-=======
 const p = path.join(config.server.rootDir, '/client')
->>>>>>> Changed next setup, combined client+server types and interfaces, lots of client typescript fixes
+
+app.use('/spoke', express.static(config.server.rootDir + '/node_modules/xr3-spoke/dist/'))
+
+// Host the public folder
+// Configure a middleware for 404s and the error handler
 
 app.hooks(appHooks)
 
@@ -90,21 +92,17 @@ const clientApp = next({
   dev: process.env.NODE_ENV !== 'production'
 })
 
-app.use('/spoke/', express.static(config.server.rootDir + '/node_modules/xr3-spoke/dist'))
-// app.get('/spoke/*', (req, res) => { res.sendFile(path.join(config.server.rootDir, '/node_modules/xr3-spoke/dist')) })
-// app.use('/', express.static(config.server.publicDir))
+const clientAppHandler = clientApp.getRequestHandler()
 
-// const clientAppHandler = clientApp.getRequestHandler()
-
-// clientApp.prepare().then(() => {
-//   app.all('*', (req, res) => {
-//     return clientAppHandler(req, res)
-//   })
-
-//   app.use(express.notFound())
-// }).catch((ex) => {
-//   console.error(ex.stack)
-//   process.exit(1)
-// })
+clientApp.prepare().then(() => {
+  app.all('*', (req, res) => {
+    return clientAppHandler(req, res)
+  })
+  app.use('/', express.static(config.server.publicDir))
+  app.use(express.notFound())
+}).catch((ex) => {
+  console.error(ex.stack)
+  process.exit(1)
+})
 
 export default app

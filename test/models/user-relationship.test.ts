@@ -7,11 +7,7 @@ describe('CRUD operation on \'UserRelationship\' model', () => {
   const userRelationshipTypeModel = app.service('user-relationship-type').Model
   let userId: any, relatedUserId: any, userRelationshipType: any
 
-<<<<<<< HEAD
   beforeAll(async () => {
-=======
-  beforeEach(async () => {
->>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
     const user = await userModel.create({
       name: 'george'
     })
@@ -31,33 +27,19 @@ describe('CRUD operation on \'UserRelationship\' model', () => {
     }
   })
 
-<<<<<<< HEAD
   it('Create', () => {
-=======
-  it('Create', done => {
->>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
     model.create({
       userId: userId,
       relatedUserId: relatedUserId,
       type: userRelationshipType
-<<<<<<< HEAD
     })
   })
 
   it('Read', () => {
-=======
-    }).then(res => {
-      done()
-    }).catch(done)
-  })
-
-  it('Read', done => {
->>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
     model.findOne({
       where: {
         userId: userId
       }
-<<<<<<< HEAD
     })
   })
 
@@ -75,31 +57,6 @@ describe('CRUD operation on \'UserRelationship\' model', () => {
   })
 
   afterAll(() => {
-=======
-    }).then(res => {
-      done()
-    }).catch(done)
-  })
-
-  it('Update', done => {
-    model.update(
-      { type: userRelationshipType },
-      { where: { userId: userId } }
-    ).then(res => {
-      done()
-    }).catch(done)
-  })
-
-  it('Delete', done => {
-    model.destroy({
-      where: { userId: userId }
-    }).then(res => {
-      done()
-    }).catch(done)
-  })
-
-  afterEach(() => {
->>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
     userModel.destroy({
       where: {
         id: {
