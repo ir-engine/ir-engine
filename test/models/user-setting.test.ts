@@ -10,7 +10,7 @@ describe('CRUD operation on \'UserSetting\' model', () => {
     userId = user.id
   })
 
-  it('Create', async done => {
+  it('Create', async () => {
     await model.create({
       microphone: '.5',
       audio: '.5',
@@ -18,7 +18,7 @@ describe('CRUD operation on \'UserSetting\' model', () => {
     })
   })
 
-  it('Read', async done => {
+  it('Read', async () => {
     await model.findOne({
       where: {
         userId: userId
@@ -26,7 +26,7 @@ describe('CRUD operation on \'UserSetting\' model', () => {
     })
   })
 
-  it('Update', async done => {
+  it('Update', async () => {
     await model.update(
       {
         microphone: '.8'
@@ -38,7 +38,7 @@ describe('CRUD operation on \'UserSetting\' model', () => {
       })
   })
 
-  it('Delete', async done => {
+  it('Delete', async () => {
     await model.destroy({
       where: { userId: userId }
     })

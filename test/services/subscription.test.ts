@@ -11,12 +11,12 @@ const port = config.server.port
 describe('subscription service', () => {
   let server: Server
 
-  beforeEach(done => {
+  beforeEach(() => {
     server = app.listen(port)
     server.once('listening', () => done())
   })
 
-  afterEach(done => {
+  afterEach(() => {
     server.close(done)
   })
 

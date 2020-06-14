@@ -3,14 +3,14 @@ import app from '../../server/app'
 describe('CRUD operation on \'Location\' model', () => {
   const model = app.service('location').Model
 
-  it('Create', async done => {
+  it('Create', async () => {
     await model.create({
       name: 'test',
       maxUsersPerInstance: 10
     })
   })
 
-  it('Read', async done => {
+  it('Read', async () => {
     await model.findOne({
       where: {
         name: 'test'
@@ -18,14 +18,14 @@ describe('CRUD operation on \'Location\' model', () => {
     })
   })
 
-  it('Update', async done => {
+  it('Update', async () => {
     await model.update(
       { maxUsersPerInstance: 11 },
       { where: { name: 'test' } }
     )
   })
 
-  it('Delete', async done => {
+  it('Delete', async () => {
     await model.destroy({
       where: { name: 'test' }
     })

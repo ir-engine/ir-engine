@@ -45,7 +45,7 @@ describe('CRUD operation on \'GroupUser\' model', () => {
     }).id
   })
 
-  it('Create', async done => {
+  it('Create', async () => {
     await model.create({
       userId,
       groupId,
@@ -53,7 +53,7 @@ describe('CRUD operation on \'GroupUser\' model', () => {
     })
   })
 
-  it('Read', async done => {
+  it('Read', async () => {
     await model.findOne({
       where: {
         userId,
@@ -62,14 +62,14 @@ describe('CRUD operation on \'GroupUser\' model', () => {
     })
   })
 
-  it('Update', async done => {
+  it('Update', async () => {
     await model.update(
       { groupUserRank: groupUserRankUpdated },
       { where: { userId, groupId } }
     )
   })
 
-  it('Delete', async done => {
+  it('Delete', async () => {
     await model.destroy({
       where: { userId, groupId }
     })
