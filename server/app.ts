@@ -74,8 +74,12 @@ app.configure(services)
 // Set up event channels (see channels.js)
 app.configure(channels)
 
+<<<<<<< HEAD
 // Host the public folder
 // Configure a middleware for 404s and the error handler
+=======
+const p = path.join(config.server.rootDir, '/client')
+>>>>>>> Changed next setup, combined client+server types and interfaces, lots of client typescript fixes
 
 app.hooks(appHooks)
 

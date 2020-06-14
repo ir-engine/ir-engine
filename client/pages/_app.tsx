@@ -52,6 +52,7 @@ const MyApp = (props: Props): any => {
     // without `await`.
     initGA()
     logPageView()
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     getDeviceInfo()
     store.dispatch(restoreState())
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -68,7 +69,6 @@ const MyApp = (props: Props): any => {
         />
       </Head>
       <ThemeProvider theme={theme}>
-        <CssBaseline />
         <Provider store={store}>
           <PageLoader Component={Component} pageProps={pageProps} />
         </Provider>
