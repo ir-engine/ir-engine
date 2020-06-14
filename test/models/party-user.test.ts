@@ -13,7 +13,7 @@ describe('CRUD operation on \'PartyUser\' model', () => {
     userId = user.id
   })
 
-  it('Create', async done => {
+  it('Create', async () => {
     await model.create({
       isOwner: false,
       isInviteAccepted: true,
@@ -24,7 +24,7 @@ describe('CRUD operation on \'PartyUser\' model', () => {
     }).catch(done)
   })
 
-  it('Read', async done => {
+  it('Read', async () => {
     await model.findOne({
       where: {
         isInviteAccepted: true
@@ -34,7 +34,7 @@ describe('CRUD operation on \'PartyUser\' model', () => {
     }).catch(done)
   })
 
-  it('Update', async done => {
+  it('Update', async () => {
     await model.update(
       { isOwner: true },
       { where: { isInviteAccepted: true } }
@@ -43,7 +43,7 @@ describe('CRUD operation on \'PartyUser\' model', () => {
     }).catch(done)
   })
 
-  it('Delete', async done => {
+  it('Delete', async () => {
     await model.destroy({
       where: { isInviteAccepted: true }
     }).then(res => {

@@ -3,7 +3,7 @@ import app from '../../server/app'
 describe('CRUD operation on \'License\' model', () => {
   const model = app.service('license').Model
 
-  it('Create', done => {
+  it('Create', () => {
     model.create({
       name: 'test',
       text: 'text'
@@ -12,7 +12,7 @@ describe('CRUD operation on \'License\' model', () => {
     }).catch(done)
   })
 
-  it('Read', done => {
+  it('Read', () => {
     model.findOne({
       where: {
         name: 'test'
@@ -22,7 +22,7 @@ describe('CRUD operation on \'License\' model', () => {
     }).catch(done)
   })
 
-  it('Update', done => {
+  it('Update', () => {
     model.update(
       { text: 'text2' },
       { where: { name: 'test' } }
@@ -31,7 +31,7 @@ describe('CRUD operation on \'License\' model', () => {
     }).catch(done)
   })
 
-  it('Delete', done => {
+  it('Delete', () => {
     model.destroy({
       where: { name: 'test' }
     }).then(res => {

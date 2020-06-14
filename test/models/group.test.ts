@@ -3,7 +3,7 @@ import app from '../../server/app'
 describe('CRUD operation on \'Group\' model', () => {
   const model = app.service('group').Model
 
-  it('Create', done => {
+  it('Create', () => {
     model.create({
       name: 'test'
     }).then(res => {
@@ -11,7 +11,7 @@ describe('CRUD operation on \'Group\' model', () => {
     }).catch(done)
   })
 
-  it('Read', done => {
+  it('Read', () => {
     model.findOne({
       where: {
         name: 'test'
@@ -21,7 +21,7 @@ describe('CRUD operation on \'Group\' model', () => {
     }).catch(done)
   })
 
-  it('Update', done => {
+  it('Update', () => {
     model.update(
       { name: 'test1' },
       { where: { name: 'test' } }
@@ -30,7 +30,7 @@ describe('CRUD operation on \'Group\' model', () => {
     }).catch(done)
   })
 
-  it('Delete', done => {
+  it('Delete', () => {
     model.destroy({
       where: { name: 'test1' }
     }).then(res => {

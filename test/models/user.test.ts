@@ -22,7 +22,7 @@ describe('CRUD operation on \'User\' model', () => {
     })
   })
 
-  it('Read', done => {
+  it('Read', () => {
     model.findOne({
       where: {
         name: 'test',
@@ -35,7 +35,7 @@ describe('CRUD operation on \'User\' model', () => {
     })
   })
 
-  it('Update', done => {
+  it('Update', () => {
     model.update(
       { name: GenerateRandomAnimalName().toUpperCase() },
       {
@@ -47,7 +47,7 @@ describe('CRUD operation on \'User\' model', () => {
     })
   })
 
-  it('Delete', done => {
+  it('Delete', () => {
     model.destroy({
       where: { userRole: 'testrole' }
     }).then(res => {

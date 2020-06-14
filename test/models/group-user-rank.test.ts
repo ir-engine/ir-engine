@@ -3,13 +3,13 @@ import app from '../../server/app'
 describe('CRUD operation on \'GroupUserRank\' model', () => {
   const model = app.service('group-user-rank').Model
 
-  it('Create', async done => {
+  it('Create', async () => {
     await model.create({
       rank: 'test'
     })
   })
 
-  it('Read', async done => {
+  it('Read', async () => {
     await model.findOne({
       where: {
         rank: 'test'
@@ -17,14 +17,14 @@ describe('CRUD operation on \'GroupUserRank\' model', () => {
     })
   })
 
-  it('Update', async done => {
+  it('Update', async () => {
     await model.update(
       { rank: 'test' },
       { where: { rank: 'test' } }
     )
   })
 
-  it('Delete', async done => {
+  it('Delete', async () => {
     await model.destroy({
       where: { rank: 'test' }
     })
