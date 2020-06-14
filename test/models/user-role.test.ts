@@ -2,7 +2,7 @@ import app from '../../server/app'
 
 describe('CRUD operation on \'UserRole\' model', () => {
   const model = app.service('user-role').Model
-  let role: string = 'testrole'
+  const role: string = 'testrole'
 
   it('Create', async () => {
     await model.create({

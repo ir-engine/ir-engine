@@ -11,7 +11,7 @@ describe('authentication', () => {
       password: 'supersecret'
     }
 
-    beforeEach(async () => {
+    beforeAll(async () => {
       try {
         await app.service('user').create(userInfo)
       } catch (error) {

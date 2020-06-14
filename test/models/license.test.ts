@@ -7,9 +7,7 @@ describe('CRUD operation on \'License\' model', () => {
     model.create({
       name: 'test',
       text: 'text'
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
   it('Read', () => {
@@ -17,25 +15,19 @@ describe('CRUD operation on \'License\' model', () => {
       where: {
         name: 'test'
       }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
   it('Update', () => {
     model.update(
       { text: 'text2' },
       { where: { name: 'test' } }
-    ).then(res => {
-      done()
-    }).catch(done)
+    )
   })
 
   it('Delete', () => {
     model.destroy({
       where: { name: 'test' }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 })

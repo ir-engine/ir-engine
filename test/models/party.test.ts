@@ -9,23 +9,19 @@ import app from '../../server/app'
 describe.skip('CRUD operation on \'Party\' model', () => {
   const model = app.service('party').Model
   const userModel = app.service('user').Model
-  const partyUserModel = app.service('party-user').Model
+  // const partyUserModel = app.service('party-user').Model
   let userId: any
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const user = await userModel.create({})
     userId = user.id
   })
 
   it('Create', () => {
-    model.create({ userId: userId }).then(res => {
-      done()
-    }).catch(done)
+    model.create({ userId: userId })
   })
 
   it('Read', async () => {
-    model.findAll().then(res => {
-      done()
-    }).catch(done)
+    model.findAll()
   })
 })
