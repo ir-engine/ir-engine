@@ -19,9 +19,9 @@ import {
   AVATAR_UPDATED,
   USERNAME_UPDATED
 } from '../actions'
-import { AuthUser } from '../../interfaces/AuthUser'
-import { User } from '../../interfaces/User'
-import { IdentityProvider } from '../../interfaces/IdentityProvider'
+import { AuthUser } from '../../../shared/interfaces/AuthUser'
+import { User } from '../../../shared/interfaces/User'
+import { IdentityProvider } from '../../../shared/interfaces/IdentityProvider'
 
 export interface EmailLoginForm {
   email: string

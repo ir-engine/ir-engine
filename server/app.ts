@@ -74,7 +74,7 @@ app.configure(services)
 // Set up event channels (see channels.js)
 app.configure(channels)
 
-const p = path.join(config.server.rootDir, '/client/')
+const p = path.join(config.server.rootDir, '/client')
 
 console.log(p)
 

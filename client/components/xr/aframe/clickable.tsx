@@ -6,7 +6,7 @@ export interface ClickableData {
   id?: string
   enabled?: boolean
   clickevent?: string
-  clickeventData?: string,
+  clickeventData?: string
   enableevent?: string
   disableevent?: string
 }
@@ -21,28 +21,28 @@ export const ClickableComponentSchema: AFRAME.MultiPropertySchema<ClickableData>
 }
 
 export interface Props {
-  clickHandler: () => void,
-  raycasterIntersectedHandler: (e: any) => void,
-  raycasterIntersectedClearedHandler: () => void,
-  addHandlers: () => void,
-  removeHandlers: () => void,
-  firstUpdate: boolean,
-  intersectingRaycaster: any,
-  intersection: any,
+  clickHandler: () => void
+  raycasterIntersectedHandler: (e: any) => void
+  raycasterIntersectedClearedHandler: () => void
+  addHandlers: () => void
+  removeHandlers: () => void
+  firstUpdate: boolean
+  intersectingRaycaster: any
+  intersection: any
   beganClickableClass: boolean
 }
 
 export const ClickableComponent: AFRAME.ComponentDefinition<Props> = {
   schema: ClickableComponentSchema,
-  data: {
-  } as ClickableData,
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  data: {} as ClickableData,
 
   intersectingRaycaster: null,
   intersection: null,
   firstUpdate: true,
   beganClickableClass: false,
 
-  init() {
+  init () {
     this.beganClickableClass = this.el.classList.contains('clickable')
     this.el.classList.add('clickable')
   },
@@ -56,10 +56,9 @@ export const ClickableComponent: AFRAME.ComponentDefinition<Props> = {
     this.intersection = intersection
   },
 
-  update(oldData) {
-    const self = this
-    const data = self.data
-    const changedData = Object.keys(self.data).filter(x => self.data[x] !== oldData[x])
+  update (oldData) {
+    const data = this.data
+    const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
 
     if (this.firstUpdate) {
       this.firstUpdate = false
@@ -74,26 +73,26 @@ export const ClickableComponent: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  remove() {
+  remove () {
     this.removeHandlers()
     if (!this.beganClickableClass) {
       this.el.classList.remove('clickable')
     }
   },
 
-  play() {
+  play () {
     if (this.data.enabled) {
       this.addHandlers()
     }
   },
 
-  pause() {
+  pause () {
     if (this.data.enabled) {
       this.removeHandlers()
     }
   },
 
-  clickHandler() {
+  clickHandler () {
     if (this.intersectingRaycaster) {
       const intersection = this.intersectingRaycaster.getIntersection(this.el)
       if (intersection) {
@@ -111,11 +110,11 @@ export const ClickableComponent: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  raycasterIntersectedHandler(evt) {
+  raycasterIntersectedHandler (evt) {
     this.intersectingRaycaster = evt.detail.el.components.raycaster
   },
 
-  raycasterIntersectedClearedHandler() {
+  raycasterIntersectedClearedHandler () {
     if (this.intersectingRaycaster != null) {
       const intersection = this.intersectingRaycaster.getIntersection(this.el)
       if (intersection === undefined) {

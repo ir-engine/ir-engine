@@ -1,3 +1,4 @@
+import React from 'react'
 import { Entity } from 'aframe-react'
 import Lights from './lights'
 import Floor from './floor'

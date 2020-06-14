@@ -13,29 +13,28 @@ import {
   removeSeat
 } from '../../../redux/seats/service'
 import { Button } from '@material-ui/core'
-import { User } from '../../../interfaces/User'
-import { Seat } from '../../../interfaces/Seat'
+import { User } from '../../../../shared/interfaces/User'
+import { Seat } from '../../../../shared/interfaces/Seat'
 
 interface Props {
-  auth: any,
-  seat: Seat,
-
-  cancelInvitation: typeof cancelInvitation,
-  removeSeat: typeof removeSeat
+  auth?: any
+  seat?: Seat
+  cancelInvitation?: typeof cancelInvitation
+  removeSeat?: typeof removeSeat
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return {
     auth: selectAuthState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   cancelInvitation: bindActionCreators(cancelInvitation, dispatch),
   removeSeat: bindActionCreators(removeSeat, dispatch)
 })
 
-const SeatItem = (props: Props) => {
+const SeatItem = (props: Props): any => {
   const { seat, auth } = props
   const user = auth.get('user') as User
   const initialState = {
@@ -92,11 +91,7 @@ const SeatItem = (props: Props) => {
   )
 }
 
-function UserItemWrapper(props: any) {
-  return (
-    <SeatItem {...props} />
-  )
-}
+const UserItemWrapper = (props: Props): any => <SeatItem {...props} />
 
 export default connect(
   mapStateToProps,

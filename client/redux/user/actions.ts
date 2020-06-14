@@ -3,8 +3,8 @@ import {
   LOADED_USERS,
   CHANGED_RELATION
 } from '../actions'
-import { Relationship } from '../../interfaces/Relationship'
-import { User } from '../../interfaces/User'
+import { Relationship } from '../../../shared/interfaces/Relationship'
+import { User } from '../../../shared/interfaces/User'
 
 export interface LoadedUserRelationshipAction {
   type: string

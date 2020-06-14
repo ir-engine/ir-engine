@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
@@ -7,20 +7,20 @@ import EmptyLayout from '../Layout/EmptyLayout'
 import { resetPassword } from '../../../redux/auth/service'
 
 interface Props {
-  resetPassword: typeof resetPassword,
+  resetPassword: typeof resetPassword
   token: string
 }
 
-const ResetPassword = (props: Props) => {
+const ResetPassword = (props: Props): any => {
   const { resetPassword, token } = props
   const initialState = { password: '' }
   const [state, setState] = useState(initialState)
 
-  const handleInput = (e: any) => {
+  const handleInput = (e: any): void => {
     e.preventDefault()
     setState({ ...state, [e.target.name]: e.target.value })
   }
-  const handleReset = (e: any) => {
+  const handleReset = (e: any): void => {
     e.preventDefault()
     resetPassword(token, state.password)
   }

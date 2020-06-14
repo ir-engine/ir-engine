@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import React, { Fragment } from 'react'
 import getConfig from 'next/config'
 import NavMenu from '../NavMenu'
 import Head from 'next/head'
@@ -9,12 +9,12 @@ import UIDialog from '../Dialog/Dialog'
 const { publicRuntimeConfig } = getConfig()
 const siteTitle: string = publicRuntimeConfig.siteTitle
 
-type Props = {
+interface Props {
   pageTitle: string
   children: any
 }
 
-const Layout = (props: Props) => {
+const Layout = (props: Props): any => {
   const { pageTitle, children } = props
   return (
     <section>

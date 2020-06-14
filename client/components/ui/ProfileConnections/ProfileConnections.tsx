@@ -1,10 +1,11 @@
+import React from 'react'
 import Grid from '@material-ui/core/Grid'
 import Divider from '@material-ui/core/Divider'
 import Typography from '@material-ui/core/Typography'
 import { connect } from 'react-redux'
 import { selectAuthState } from '../../../redux/auth/selector'
 import SingleConnection from './SingleConnection'
-import { User } from '../../../interfaces/User'
+import { User } from '../../../../shared/interfaces/User'
 import './style.scss'
 
 interface Props {
@@ -12,15 +13,15 @@ interface Props {
   classes: any
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return {
     auth: selectAuthState(state)
   }
 }
 
-const mapDispatchToProps = () => ({})
+const mapDispatchToProps = (): any => ({})
 
-const ProfileConnections = (props: Props) => {
+const ProfileConnections = (props: Props): any => {
   const { classes } = props
   const user = props.auth.get('user') as User
 
@@ -55,7 +56,7 @@ const ProfileConnections = (props: Props) => {
   )
 }
 
-const ProfileConnectionsWrapper = (props: any) => <ProfileConnections {...props} />
+const ProfileConnectionsWrapper = (props: any): any => <ProfileConnections {...props} />
 
 export default connect(
   mapStateToProps,

@@ -6,10 +6,10 @@ import {
   canceledInvitation,
   removedSeat
 } from './actions'
-import { Seat } from '../../interfaces/Seat'
+import { Seat } from '../../../shared/interfaces/Seat'
 
 export function getSeats() {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     // dispatch(actionProcessing(true))
     client.service('seat').find({
       query: {
@@ -27,7 +27,7 @@ export function getSeats() {
 }
 
 export function createSeat(email: string, subscriptionId: string) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     console.log('CREATING SEAT')
 
     client.service('seat').create({
@@ -44,7 +44,7 @@ export function createSeat(email: string, subscriptionId: string) {
 }
 
 export function cancelInvite(seat: Seat) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     console.log('CANCELING INVITATION')
 
     client.service('seat').remove(seat.id)
@@ -58,7 +58,7 @@ export function cancelInvite(seat: Seat) {
 }
 
 export function dropSeat(seat: Seat) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     console.log('REMOVING FILLED SEAT')
 
     client.service('seat').remove(seat.id)

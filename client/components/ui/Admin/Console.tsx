@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Button from '@material-ui/core/Button'
 import GridList from '@material-ui/core/GridList'
 import GridListTile from '@material-ui/core/GridListTile'
@@ -23,7 +23,7 @@ interface Props {
   fetchAdminVideos: typeof fetchAdminVideos
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return {
     auth: selectAuthState(state),
     admin: selectAdminState(state),
@@ -31,11 +31,11 @@ const mapStateToProps = (state: any) => {
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchAdminVideos: bindActionCreators(fetchAdminVideos, dispatch)
 })
 
-const AdminConsole = (props: Props) => {
+const AdminConsole = (props: Props): any => {
   const { fetchAdminVideos, auth, videos } = props
   const initialState = {
     name: '',
@@ -61,7 +61,7 @@ const AdminConsole = (props: Props) => {
     fetchAdminVideos()
   }, [])
 
-  const handleCreateModal = () => {
+  const handleCreateModal = (): void => {
     setState({
       ...state,
       modalMode: 'create',
@@ -69,7 +69,7 @@ const AdminConsole = (props: Props) => {
     })
   }
 
-  const handleEditModal = (video) => {
+  const handleEditModal = (video): void => {
     setState({
       ...state,
       modalMode: 'edit',
@@ -78,7 +78,7 @@ const AdminConsole = (props: Props) => {
     })
   }
 
-  const modalClose = () => {
+  const modalClose = (): void => {
     setState({
       ...state,
       modalOpen: false,
@@ -87,12 +87,17 @@ const AdminConsole = (props: Props) => {
     })
   }
 
+  const goToRoot = (): void => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    router.push('/')
+  }
+
   return (
     <div>
       {auth.get('user').userRole === 'admin' && (
         <div className={'page-container'}>
           <div className={'header'}>
-            <Button variant="contained" color="primary" onClick={() => { router.push('/') }} >
+            <Button variant="contained" color="primary" onClick={() => goToRoot()} >
               <ArrowBackIcon/>
             </Button>
             <Button onClick={() => handleCreateModal()}>
@@ -134,7 +139,7 @@ const AdminConsole = (props: Props) => {
   )
 }
 
-const AdminConsoleWrapper = (props: any) => {
+const AdminConsoleWrapper = (props: any): any => {
   return <AdminConsole {...props} />
 }
 

@@ -3,7 +3,7 @@ import {
   VIDEO_UPDATED,
   VIDEO_DELETED
 } from '../actions'
-import { StaticResource } from '../../interfaces/StaticResource'
+import { StaticResource } from '../../../shared/interfaces/StaticResource'
 
 export interface VideoCreationForm {
   name: string,

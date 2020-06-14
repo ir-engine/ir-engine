@@ -1,28 +1,28 @@
 import { useRouter, NextRouter } from 'next/router'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { loginUserByJwt, refreshConnections } from '../../../redux/auth/service'
 import { Container } from '@material-ui/core'
 import { selectAuthState } from '../../../redux/auth/selector'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 
-type Props = {
+interface Props {
   auth: any
   router: NextRouter
   loginUserByJwt: typeof loginUserByJwt
   refreshConnections: typeof refreshConnections
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return { auth: selectAuthState(state) }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   loginUserByJwt: bindActionCreators(loginUserByJwt, dispatch),
   refreshConnections: bindActionCreators(refreshConnections, dispatch)
 })
 
-const GoogleCallback = (props: Props) => {
+const GoogleCallback = (props: Props): any => {
   const { auth, loginUserByJwt, refreshConnections, router } = props
 
   const initialState = { error: '', token: '' }
@@ -56,7 +56,7 @@ const GoogleCallback = (props: Props) => {
   )
 }
 
-const GoogleCallbackWrapper = (props: any) => {
+const GoogleCallbackWrapper = (props: any): any => {
   const router = useRouter()
   return <GoogleCallback {...props} router={router} />
 }
