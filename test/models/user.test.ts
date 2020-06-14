@@ -5,20 +5,16 @@ describe('CRUD operation on \'User\' model', () => {
   const model = app.service('user').Model
   const userRoleModel = app.service('user-role').Model
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     await userRoleModel.create({
       role: 'testrole'
     })
   })
 
-  it('Create', (done) => {
+  it('Create', () => {
     model.create({
       name: 'test',
       userRole: 'testrole'
-    }).then(res => {
-      done()
-    }).catch(err => {
-      console.log(err)
     })
   })
 
@@ -28,10 +24,6 @@ describe('CRUD operation on \'User\' model', () => {
         name: 'test',
         userRole: 'testrole'
       }
-    }).then(res => {
-      done()
-    }).catch(err => {
-      console.log(err)
     })
   })
 
@@ -40,25 +32,16 @@ describe('CRUD operation on \'User\' model', () => {
       { name: GenerateRandomAnimalName().toUpperCase() },
       {
         where: { name: 'test', userRole: 'testrole' }
-      }).then(res => {
-      done()
-    }).catch(err => {
-      console.log(err)
-    })
+      })
   })
 
   it('Delete', () => {
     model.destroy({
       where: { userRole: 'testrole' }
-    }).then(res => {
-      done()
-    }).catch(err => {
-      console.log('ERROR')
-      console.log(err)
     })
   })
 
-  afterEach(async () => {
+  afterAll(async () => {
     await userRoleModel.destroy({
       where: {
         role: 'testrole'

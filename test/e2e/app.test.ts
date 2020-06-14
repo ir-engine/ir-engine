@@ -9,12 +9,12 @@ const port = config.server.port
 describe('Feathers application tests', () => {
   let server: Server
 
-  beforeEach((done) => {
+  beforeAll((done) => {
     server = app.listen(port)
     server.once('listening', () => done())
   })
 
-  afterEach((done) => {
+  afterAll((done) => {
     server.close(error => {
       if (error) console.log(error)
     })

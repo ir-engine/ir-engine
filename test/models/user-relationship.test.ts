@@ -7,7 +7,7 @@ describe('CRUD operation on \'UserRelationship\' model', () => {
   const userRelationshipTypeModel = app.service('user-relationship-type').Model
   let userId: any, relatedUserId: any, userRelationshipType: any
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const user = await userModel.create({
       name: 'george'
     })
@@ -32,9 +32,7 @@ describe('CRUD operation on \'UserRelationship\' model', () => {
       userId: userId,
       relatedUserId: relatedUserId,
       type: userRelationshipType
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
   it('Read', () => {
@@ -42,29 +40,23 @@ describe('CRUD operation on \'UserRelationship\' model', () => {
       where: {
         userId: userId
       }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
   it('Update', () => {
     model.update(
       { type: userRelationshipType },
       { where: { userId: userId } }
-    ).then(res => {
-      done()
-    }).catch(done)
+    )
   })
 
   it('Delete', () => {
     model.destroy({
       where: { userId: userId }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  afterEach(() => {
+  afterAll(() => {
     userModel.destroy({
       where: {
         id: {

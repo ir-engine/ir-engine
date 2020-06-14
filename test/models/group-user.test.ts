@@ -14,7 +14,7 @@ describe('CRUD operation on \'GroupUser\' model', () => {
   let userId: string
   let groupId: string
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     await userRoleModel.create({
       role
     })
@@ -75,7 +75,7 @@ describe('CRUD operation on \'GroupUser\' model', () => {
     })
   })
 
-  afterEach(async () => {
+  afterAll(async () => {
     await userModel.destroy({
       where: {
         id: userId

@@ -9,7 +9,7 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
   const password = 'password'
   const token = 'some token'
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const user = await userModel.create({})
     userId = user.id
   })
@@ -84,7 +84,7 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
     })
   })
 
-  afterEach(async () => {
+  afterAll(async () => {
     await userModel.destroy({
       where: {
         id: userId
