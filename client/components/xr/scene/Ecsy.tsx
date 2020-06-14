@@ -21,7 +21,7 @@ const EcsyPage = (): any => {
         type
         components {
           id
-          type
+          type.
         }
       }
     }
