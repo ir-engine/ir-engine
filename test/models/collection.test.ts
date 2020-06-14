@@ -12,7 +12,7 @@ describe.skip('CRUD operation on \'Collection\' model', () => {
     collectionType = collection.type
   })
 
-  it('Create', done => {
+  it('Create', () => {
     model.create({
       name: 'test',
       description: 'test description',
@@ -22,7 +22,7 @@ describe.skip('CRUD operation on \'Collection\' model', () => {
     })
   })
 
-  it('Read', done => {
+  it('Read', () => {
     model.findOne({
       where: {
         name: 'test'
@@ -32,7 +32,7 @@ describe.skip('CRUD operation on \'Collection\' model', () => {
     }).catch(done)
   })
 
-  it('Update', done => {
+  it('Update', () => {
     model.update(
       { description: 'test1 description' },
       { where: { name: 'test' } }
@@ -41,7 +41,7 @@ describe.skip('CRUD operation on \'Collection\' model', () => {
     }).catch(done)
   })
 
-  it('Delete', done => {
+  it('Delete', () => {
     model.destroy({
       where: { name: 'test' }
     }).then(res => {

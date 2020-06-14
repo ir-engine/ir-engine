@@ -27,7 +27,7 @@ describe('CRUD operation on \'UserRelationship\' model', () => {
     }
   })
 
-  it('Create', done => {
+  it('Create', () => {
     model.create({
       userId: userId,
       relatedUserId: relatedUserId,
@@ -37,7 +37,7 @@ describe('CRUD operation on \'UserRelationship\' model', () => {
     }).catch(done)
   })
 
-  it('Read', done => {
+  it('Read', () => {
     model.findOne({
       where: {
         userId: userId
@@ -47,7 +47,7 @@ describe('CRUD operation on \'UserRelationship\' model', () => {
     }).catch(done)
   })
 
-  it('Update', done => {
+  it('Update', () => {
     model.update(
       { type: userRelationshipType },
       { where: { userId: userId } }
@@ -56,7 +56,7 @@ describe('CRUD operation on \'UserRelationship\' model', () => {
     }).catch(done)
   })
 
-  it('Delete', done => {
+  it('Delete', () => {
     model.destroy({
       where: { userId: userId }
     }).then(res => {

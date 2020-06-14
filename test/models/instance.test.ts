@@ -13,7 +13,7 @@ describe('CRUD operation on \'Instance\' model', () => {
     locationId = location.id
   })
 
-  it('Create', done => {
+  it('Create', () => {
     model.create({
       locationId: locationId
     }).then(res => {
@@ -22,7 +22,7 @@ describe('CRUD operation on \'Instance\' model', () => {
     }).catch(done)
   })
 
-  it('Read', done => {
+  it('Read', () => {
     model.findOne({
       where: {
         id: instanceId
@@ -32,7 +32,7 @@ describe('CRUD operation on \'Instance\' model', () => {
     }).catch(done)
   })
 
-  it('Update', done => {
+  it('Update', () => {
     model.update(
       { currentUsers: 20 },
       { where: { id: instanceId } }
@@ -41,7 +41,7 @@ describe('CRUD operation on \'Instance\' model', () => {
     }).catch(done)
   })
 
-  it('Delete', done => {
+  it('Delete', () => {
     model.destroy({
       where: { id: instanceId }
     }).then(res => {

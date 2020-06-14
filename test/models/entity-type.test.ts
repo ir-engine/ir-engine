@@ -3,7 +3,7 @@ import app from '../../server/app'
 describe('CRUD operation on \'Entity Type\' model', () => {
   const model = app.service('entity-type').Model
 
-  it('Create', done => {
+  it('Create', () => {
     model.create({
       type: 'test'
     }).then(res => {
@@ -11,7 +11,7 @@ describe('CRUD operation on \'Entity Type\' model', () => {
     }).catch(done)
   })
 
-  it('Read', done => {
+  it('Read', () => {
     model.findOne({
       where: {
         type: 'test'
@@ -21,7 +21,7 @@ describe('CRUD operation on \'Entity Type\' model', () => {
     }).catch(done)
   })
 
-  it('Delete', done => {
+  it('Delete', () => {
     model.destroy({
       where: { type: 'test' }
     }).then(res => {

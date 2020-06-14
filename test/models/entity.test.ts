@@ -12,14 +12,14 @@ describe('CRUD operation on \'Entity\' model', () => {
     entityType = entity.type
   })
 
-  it('Create', async done => {
+  it('Create', async () => {
     await model.create({
       name: 'test',
       entityType: entityType
     })
   })
 
-  it('Read', async done => {
+  it('Read', async () => {
     await model.findOne({
       where: {
         entityType: entityType
@@ -27,14 +27,14 @@ describe('CRUD operation on \'Entity\' model', () => {
     })
   })
 
-  it('Update', async done => {
+  it('Update', async () => {
     await model.update(
       { name: 'test1' },
       { where: { entityType: entityType } }
     )
   })
 
-  it('Delete', async done => {
+  it('Delete', async () => {
     await model.destroy({
       where: { entityType: entityType }
     })
