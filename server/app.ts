@@ -74,36 +74,31 @@ app.configure(services)
 // Set up event channels (see channels.js)
 app.configure(channels)
 
-const p = path.join(config.server.rootDir, '/client')
+app.use('/spoke', express.static(config.server.rootDir + '/node_modules/xr3-spoke/dist/'))
 
-console.log(p)
+// Host the public folder
+// Configure a middleware for 404s and the error handler
+
+app.hooks(appHooks)
+
+app.use(express.errorHandler({ logger } as any))
 
 const clientApp = next({
-  dir: p,
+  dir: path.join(config.server.rootDir, '/client'),
   dev: process.env.NODE_ENV !== 'production'
 })
 
 const clientAppHandler = clientApp.getRequestHandler()
 
 clientApp.prepare().then(() => {
-  // Don't remove this comment. It's needed to format import lines nicely.
-  console.log(config.server.rootDir + '/node_modules/xr3-spoke/dist/')
-  app.use('/spoke', express.static(config.server.rootDir + '/node_modules/xr3-spoke/dist/')) // TODO: Pass directory directly with ../
-
   app.all('*', (req, res) => {
     return clientAppHandler(req, res)
   })
-
-  app.use('/', express.static(config.server.publicDir)) // TODO: Pass directory directly with ../
-
-  // Host the public folder
-  // Configure a middleware for 404s and the error handler
+  app.use('/', express.static(config.server.publicDir))
   app.use(express.notFound())
-  app.use(express.errorHandler({ logger } as any))
-
-  app.hooks(appHooks)
 }).catch((ex) => {
   console.error(ex.stack)
   process.exit(1)
 })
+
 export default app

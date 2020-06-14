@@ -1,1 +1,1 @@
-export { default as Vr } from './Vr.jsx'
+export { default as Vr } from './Vr'
