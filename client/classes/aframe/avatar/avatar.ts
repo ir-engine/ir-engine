@@ -1,7 +1,7 @@
 /* global NAF */
 
 import AvatarSchema, { defaultComponents } from './avatar-schema'
-import AvatarModelEnum from '../../../enums/avatar-model'
+import AvatarModelEnum from '../../../../shared/enums/avatar-model'
 import AvatarAsset from './avatar-asset'
 import AvatarAssetGLTF from './avatar-asset-gltf'
 import AvatarAssetHTML from './avatar-asset-html'

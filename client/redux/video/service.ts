@@ -7,7 +7,7 @@ import {
 import { client } from '../feathers'
 
 export function fetchPublicVideos (pageOffset = 0) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     // loads next pages videos +1
     // doesn't work with a lower number
     // must load next page and at least 1 video of page after that

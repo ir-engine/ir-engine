@@ -1,3 +1,4 @@
+import React from 'react'
 import Slider from '@material-ui/core/Slider'
 
 interface Props {
@@ -6,7 +7,7 @@ interface Props {
   arialabelledby: any
 }
 
-const CommonSlider = (props: Props) => (
+const CommonSlider = (props: Props): any => (
   <Slider
     value={props.value}
     onChange={props.onChange}

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import Avatar from '@material-ui/core/Avatar'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
@@ -14,7 +14,7 @@ import SignIn from './Login'
 import './style.scss'
 import { showDialog } from '../../../redux/dialog/service'
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch),
   showDialog: bindActionCreators(showDialog, dispatch)
 })
@@ -24,7 +24,7 @@ interface Props {
   showDialog: typeof showDialog
 }
 
-const SignUp = (props: Props) => {
+const SignUp = (props: Props): any => {
   const { registerUserByEmail, showDialog } = props
   const initialState = {
     email: '',
@@ -33,12 +33,12 @@ const SignUp = (props: Props) => {
   }
   const [state, setState] = useState(initialState)
 
-  const handleInput = (e: any) => {
+  const handleInput = (e: any): void => {
     e.preventDefault()
     setState({ ...state, [e.target.name]: e.target.value })
   }
 
-  const handleRegister = (e: any) => {
+  const handleRegister = (e: any): void => {
     e.preventDefault()
     registerUserByEmail({
       email: state.email,
@@ -115,6 +115,6 @@ const SignUp = (props: Props) => {
   )
 }
 
-const SignUpWrapper = (props: any) => <SignUp {...props} />
+const SignUpWrapper = (props: any): any => <SignUp {...props} />
 
 export default connect(mapDispatchToProps)(SignUpWrapper)

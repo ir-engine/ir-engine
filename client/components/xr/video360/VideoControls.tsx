@@ -1,4 +1,4 @@
-import { Component } from 'react'
+import React, { Fragment, Component } from 'react'
 import Router from 'next/router'
 import './VideoControls.scss'
 import VideoSeeker from '../../ui/VideoSeeker'
@@ -9,26 +9,26 @@ import { selectVideo360State } from '../../../redux/video360/selector'
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr.videoGrid
 
-type Props = {
+interface Props {
   videosrc: string
   videotext: string
   videovrui: string
   setVideoPlaying: (playing: boolean) => void
-  playing: boolean,
+  playing: boolean
   backButtonHref: string
 }
-type State = {
+interface State {
   end: boolean
   // setInterval id
   tickId: any
   // duration of video in seconds
   duration: number
   // current time of video in seconds
-  currentTime: number,
+  currentTime: number
   bufferedBars: Array<{start: number, end: number}>
 }
 class VideoControls extends Component<Props, State> {
-  constructor(props: Props) {
+  constructor (props: Props) {
     super(props)
     this.state = {
       end: false,
@@ -47,8 +47,8 @@ class VideoControls extends Component<Props, State> {
     this.handleBufferedArr = this.handleBufferedArr.bind(this)
   }
 
-  componentDidMount() {
-    this.videoEl = document.getElementById(this.props.videosrc) as HTMLElement
+  componentDidMount () {
+    this.videoEl = document.getElementById(this.props.videosrc)
     this.videoEl?.addEventListener('play', this.videoPlayHandler)
     this.videoEl?.addEventListener('pause', this.videoPauseHandler)
     this.textEl = document.querySelector(this.props.videotext) as HTMLElement
@@ -69,7 +69,7 @@ class VideoControls extends Component<Props, State> {
     }
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     this.videoEl?.removeEventListener('play', this.videoPlayHandler)
     this.videoEl?.removeEventListener('pause', this.videoPauseHandler)
     this.videovruiEl?.removeEventListener('triggerplay', this.playHandler)
@@ -90,7 +90,7 @@ class VideoControls extends Component<Props, State> {
   videovruiEl: HTMLElement | null = null
   textEl: HTMLElement | null = null
 
-  handleBufferedArr(e) {
+  handleBufferedArr (e) {
     const bufferedArr = e.detail.bufferedArr
     const duration = (this.videoEl as HTMLVideoElement).duration || 9999
     this.setState({
@@ -101,7 +101,7 @@ class VideoControls extends Component<Props, State> {
     })
   }
 
-  private clickHandler() {
+  private clickHandler () {
     if (this.state.end) {
       this.exitVideoHandler()
     } else if (!this.props.playing) {
@@ -109,8 +109,8 @@ class VideoControls extends Component<Props, State> {
     }
   }
 
-  private playHandler() {
-    ;(this.videoEl as HTMLVideoElement)?.play()
+  private playHandler () {
+    (this.videoEl as HTMLVideoElement)?.play()
     const controller = document.querySelector('#videoplayercontrols')
     controller.classList.remove('active')
     controller.classList.add('disabled')
@@ -123,13 +123,13 @@ class VideoControls extends Component<Props, State> {
     this.props.setVideoPlaying(true)
   }
 
-  pauseHandler() {
-    ;(this.videoEl as HTMLVideoElement)?.pause()
+  pauseHandler () {
+    (this.videoEl as HTMLVideoElement)?.pause()
     this.props.setVideoPlaying(false)
   }
 
-  private videoEndHandler() {
-    ;(this.videoEl as HTMLVideoElement)?.pause()
+  private videoEndHandler () {
+    (this.videoEl as HTMLVideoElement)?.pause()
     const controller = document.querySelector('#videoplayercontrols')
     this.textEl?.addEventListener('click', this.exitVideoHandler)
     controller.classList.remove('disabled')
@@ -140,7 +140,7 @@ class VideoControls extends Component<Props, State> {
     this.props.setVideoPlaying(false)
   }
 
-  private videoPlayHandler() {
+  private videoPlayHandler () {
     if (!this.videoEl) return
     this.videovruiEl?.setAttribute('video-player-vr-ui', {
       isPlaying: true
@@ -163,21 +163,20 @@ class VideoControls extends Component<Props, State> {
     })
   }
 
-  private videoPauseHandler() {
-    this.videovruiEl?.setAttribute('video-player-vr-ui', {
-      isPlaying: false
-    })
+  private videoPauseHandler () {
+    this.videovruiEl?.setAttribute('video-player-vr-ui', {  isPlaying: false })
     // when paused, don't continue updating current time in state.
     clearInterval(this.state.tickId)
   }
 
-  private exitVideoHandler() {
+  private exitVideoHandler () {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     Router.push(config.link)
   }
 
-  render() {
+  render () {
     return (
-      <>
+      <Fragment>
         <div
           onClick={this.clickHandler.bind(this)}
           id="videoplayercontrols"
@@ -203,7 +202,7 @@ class VideoControls extends Component<Props, State> {
             })
           }}
         />
-      </>
+      </Fragment>
     )
   }
 }

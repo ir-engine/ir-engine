@@ -1,4 +1,4 @@
-import { KeyboardEvent, MouseEvent, useRef, useState, useEffect } from 'react'
+import React, { KeyboardEvent, MouseEvent, useRef, useState, useEffect } from 'react'
 import Button from '@material-ui/core/Button'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import Grow from '@material-ui/core/Grow'
@@ -13,25 +13,25 @@ import Avatar from '@material-ui/core/Avatar'
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle'
 
 interface Props {
-  avatarUrl: any,
-  logoutUser: any,
+  avatarUrl: any
+  logoutUser: any
   auth: any
 }
 
-const MenuListComposition = (props: Props) => {
+const MenuListComposition = (props: Props): any => {
   const { avatarUrl, logoutUser, auth } = props
   const [open, setOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const anchorRef = useRef<HTMLButtonElement>(null)
 
-  const handleToggle = () => {
+  const handleToggle = (): any => {
     setOpen((prevOpen) => !prevOpen)
   }
-  const handleModal = () => {
+  const handleModal = (): any => {
     setModalOpen(true)
     setOpen(false)
   }
-  const handleClose = (event: MouseEvent<EventTarget>) => {
+  const handleClose = (event: MouseEvent<EventTarget>): any => {
     if (
       anchorRef.current &&
       anchorRef.current.contains(event.target as HTMLElement)
@@ -41,35 +41,37 @@ const MenuListComposition = (props: Props) => {
 
     setOpen(false)
   }
-  const handleLogout = () => {
+  const handleLogout = (): any => {
     logoutUser()
     setOpen(false)
   }
 
-  const handleListKeyDown = (event: KeyboardEvent) => {
+  const handleListKeyDown = (event: KeyboardEvent): any => {
     if (event.key === 'Tab') {
       event.preventDefault()
       setOpen(false)
     }
   }
 
-  const handleSubscription = () => {
+  const handleSubscription = (): any => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     Router.push('/subscription/signup')
   }
 
   // const handleContacts = () => {
   //   Router.push('/friends/friends')
   // }
-  const handleAdminConsole = () => {
+  const handleAdminConsole = (): any => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     Router.push('/admin')
   }
-  const modalClose = () => {
+  const modalClose = (): any => {
     setModalOpen(false)
   }
   const prevOpen = useRef(open)
   useEffect(() => {
-    if (prevOpen.current === true && open === false) {
-      anchorRef.current!.focus()
+    if (prevOpen.current && !open) {
+      anchorRef.current.focus()
     }
 
     prevOpen.current = open

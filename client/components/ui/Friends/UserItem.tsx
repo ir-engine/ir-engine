@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import Avatar from '@material-ui/core/Avatar'
@@ -14,28 +14,27 @@ import {
   cancelBlock
 } from '../../../redux/user/service'
 import { Button } from '@material-ui/core'
-import { User } from '../../../interfaces/User'
+import { User } from '../../../../shared/interfaces/User'
 import './style.scss'
 
 interface Props {
-  auth: any
-  classes: any
-  data: User
-
-  acceptFriend: typeof acceptFriend
-  blockUser: typeof blockUser
-  cancelBlock: typeof cancelBlock
-  declineFriend: typeof declineFriend
-  requestFriend: typeof requestFriend
+  auth?: any
+  classes?: any
+  data?: User
+  acceptFriend?: typeof acceptFriend
+  blockUser?: typeof blockUser
+  cancelBlock?: typeof cancelBlock
+  declineFriend?: typeof declineFriend
+  requestFriend?: typeof requestFriend
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return {
     auth: selectAuthState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   requestFriend: bindActionCreators(requestFriend, dispatch),
   blockUser: bindActionCreators(blockUser, dispatch),
   acceptFriend: bindActionCreators(acceptFriend, dispatch),
@@ -43,7 +42,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   cancelBlock: bindActionCreators(cancelBlock, dispatch)
 })
 
-const UserItem = (props: Props) => {
+const UserItem = (props: Props): any => {
   const { auth, classes, data, acceptFriend, blockUser, cancelBlock, declineFriend, requestFriend } = props
   const initialState = { userId: '', relatedUserId: '' }
   const [state, setState] = useState(initialState)
@@ -53,12 +52,12 @@ const UserItem = (props: Props) => {
     setState({ ...state, userId: user?.id, relatedUserId: data.id })
   }, [])
 
-  const cancel = () => declineFriend(state.userId, state.relatedUserId)
-  const request = () => requestFriend(state.userId, state.relatedUserId)
-  const accept = () => acceptFriend(state.userId, state.relatedUserId)
-  const decline = () => declineFriend(state.userId, state.relatedUserId)
-  const block = () => blockUser(state.userId, state.relatedUserId)
-  const unblock = () => cancelBlock(state.userId, state.relatedUserId)
+  const cancel = (): any => declineFriend(state.userId, state.relatedUserId)
+  const request = (): any => requestFriend(state.userId, state.relatedUserId)
+  const accept = (): any => acceptFriend(state.userId, state.relatedUserId)
+  const decline = (): any => declineFriend(state.userId, state.relatedUserId)
+  const block = (): any => blockUser(state.userId, state.relatedUserId)
+  const unblock = (): any => cancelBlock(state.userId, state.relatedUserId)
 
   return (
     <div className={classes.root}>
@@ -132,6 +131,6 @@ const UserItem = (props: Props) => {
   )
 }
 
-const UserItemWrapper = (props: any) => <UserItem {...props} />
+const UserItemWrapper = (props: Props): any => <UserItem {...props} />
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserItemWrapper)

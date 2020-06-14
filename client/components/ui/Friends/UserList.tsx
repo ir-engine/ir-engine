@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Divider from '@material-ui/core/Divider'
 import Typography from '@material-ui/core/Typography'
@@ -6,7 +6,7 @@ import { connect } from 'react-redux'
 import { Dispatch, bindActionCreators } from 'redux'
 import { selectUserState } from '../../../redux/user/selector'
 import { selectAuthState } from '../../../redux/auth/selector'
-import { User } from '../../../interfaces/User'
+import { User } from '../../../../shared/interfaces/User'
 import UserItem from './UserItem'
 import { getUsers } from '../../../redux/user/service'
 import { TextField, InputAdornment } from '@material-ui/core'
@@ -21,18 +21,18 @@ interface Props {
   getUsers: typeof getUsers
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return {
     userState: selectUserState(state),
     authState: selectAuthState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   getUsers: bindActionCreators(getUsers, dispatch)
 })
 
-const UserList = (props: Props) => {
+const UserList = (props: Props): any => {
   const { userState, authState, classes, getUsers } = props
   const initialState = {
     userId: undefined,
@@ -42,7 +42,7 @@ const UserList = (props: Props) => {
 
   let users = userState.get('users')
 
-  const onSearch = (e: any) => {
+  const onSearch = (e: any): void => {
     setState({ ...state, search: e.target.value })
     debouncedSearch()
   }
@@ -134,7 +134,7 @@ const UserList = (props: Props) => {
   )
 }
 
-const UserListWrapper = (props: any) => (
+const UserListWrapper = (props: any): any => (
   <UserList {...props} className="userListWrapper" />
 )
 

@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import React, { Fragment, useState } from 'react'
 import Modal from '@material-ui/core/Modal'
 import Backdrop from '@material-ui/core/Backdrop'
 import Fade from '@material-ui/core/Fade'
@@ -8,23 +8,23 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 // import AccountBoxIcon from '@material-ui/icons/AccountBox'
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle'
 import UserProfile from './UserIcon'
-import UserSettings from './userSettings'
+import UserSettings from './UserSettings'
 import Subscription from './Subscription'
 import './style.scss'
 
 interface Props {
   open: boolean
   handleClose: any
-  avatarUrl: string,
+  avatarUrl: string
   auth: any
 }
 
-const TabPanel = (props: any) => <Fragment>{props.value === props.index && props.children}</Fragment>
+const TabPanel = (props: any): any => <Fragment>{props.value === props.index && props.children}</Fragment>
 
-const ProfileModal = (props: Props) => {
+const ProfileModal = (props: Props): any => {
   const [tabIndex, setTabIndex] = useState(0)
 
-  const handleChange = (event: any, newValue: number) => {
+  const handleChange = (event: any, newValue: number): void => {
     event.preventDefault()
     setTabIndex(newValue)
   }

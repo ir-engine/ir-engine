@@ -25,9 +25,9 @@ import {
   USERNAME_UPDATED
 } from '../actions'
 import { getStoredState } from '../persisted.store'
-import { UserSeed } from '../../interfaces/User'
-import { IdentityProviderSeed } from '../../interfaces/IdentityProvider'
-import { AuthUserSeed } from '../../interfaces/AuthUser'
+import { UserSeed } from '../../../shared/interfaces/User'
+import { IdentityProviderSeed } from '../../../shared/interfaces/IdentityProvider'
+import { AuthUserSeed } from '../../../shared/interfaces/AuthUser'
 
 export const initialState = {
   isLoggedIn: false,
