@@ -13,7 +13,7 @@ const env = getConfig().publicRuntimeConfig.xr.environment
 const grid = getConfig().publicRuntimeConfig.xr.grid
 const landing = getConfig().publicRuntimeConfig.xr.landing
 
-type Props = {
+interface Props {
   children?: any
 }
 

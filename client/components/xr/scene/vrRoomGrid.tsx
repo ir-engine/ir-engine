@@ -19,27 +19,27 @@ const cellWidth = config.cellWidth
 const rows = config.rows
 const columns = config.columns
 
-const x = config.offset.x
-const y = config.offset.y
-const z = config.offset.z
-const pos = x + ' ' + y + ' ' + z
+const x: number = config.offset.x
+const y: number = config.offset.y
+const z: number = config.offset.z
+const pos = `${x} ${y} ${z}`
 
-interface VrRoomGridProps {
-  scenes: any
-  fetchPublicScenes: typeof fetchPublicScenes
+interface Props {
+  scenes?: any
+  fetchPublicScenes?: typeof fetchPublicScenes
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return {
     scenes: selectScenesState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchPublicScenes: bindActionCreators(fetchPublicScenes, dispatch)
 })
 
-const VrRoomGridScene = (props: VrRoomGridProps): any => {
+const VrRoomGridScene = (props: Props): any => {
   const { scenes, fetchPublicScenes } = props
 
   useEffect(() => {

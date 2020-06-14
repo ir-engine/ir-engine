@@ -1,36 +1,36 @@
 import './style.scss'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 // import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 // import PauseIcon from '@material-ui/icons/Pause'
 // import ArrowBackIcon from '@material-ui/icons/ArrowBack'
-import triggerNavigation from '../../../utils/triggerNavigation'
-import secondsToString from '../../../utils/secondsToString'
+import triggerNavigation from '../../../../shared/utils/triggerNavigation'
+import secondsToString from '../../../../shared/utils/secondsToString'
 const playBtnImageSrc = '/icons/play-shadow.png'
 const pauseBtnImageSrc = '/icons/pause-shadow.png'
 const backBtnImageSrc = '/icons/back-btn-shadow.png'
 
-type ButtonIconProps = {
-  [prop: string]: any,
-  imageSrc: string
+interface ButtonProps {
+  [prop: string]: any
+  imageSrc?: string
 }
-const ButtonIcon = ({ imageSrc, ...props }: ButtonIconProps) => {
+const ButtonIcon = ({ imageSrc, ...props }: ButtonProps): any => {
   return (<div {...props}><img src={imageSrc} style={{ width: '36px' }} /></div>)
 }
-const PlayArrowIcon = props => (<ButtonIcon imageSrc={playBtnImageSrc} {...props} />)
-const PauseIcon = props => (<ButtonIcon imageSrc={pauseBtnImageSrc} {...props} />)
-const ArrowBackIcon = props => (<ButtonIcon imageSrc={backBtnImageSrc} {...props} />)
+const PlayArrowIcon = (props: ButtonProps): any => (<ButtonIcon imageSrc={playBtnImageSrc} {...props} />)
+const PauseIcon = (props: ButtonProps): any => (<ButtonIcon imageSrc={pauseBtnImageSrc} {...props} />)
+const ArrowBackIcon = (props: ButtonProps): any => (<ButtonIcon imageSrc={backBtnImageSrc} {...props} />)
 
-type Props = {
-  playing: boolean,
-  onTogglePlay: (playing: boolean) => void,
-  onSeekChange?: (seekTimeSeconds: number) => void,
-  videoLengthSeconds: number,
-  currentTimeSeconds: number,
-  bufferedBars: Array<{ start: number, end: number }>,
+interface Props {
+  playing: boolean
+  onTogglePlay: (playing: boolean) => void
+  onSeekChange?: (seekTimeSeconds: number) => void
+  videoLengthSeconds: number
+  currentTimeSeconds: number
+  bufferedBars: Array<{ start: number, end: number }>
   backButtonHref: string
 }
 
-const VideoSeeker = ({ playing, onTogglePlay, onSeekChange, videoLengthSeconds, currentTimeSeconds, bufferedBars, backButtonHref }: Props) => {
+const VideoSeeker = ({ playing, onTogglePlay, onSeekChange, videoLengthSeconds, currentTimeSeconds, bufferedBars, backButtonHref }: Props): any => {
   const [seekPercentage, setSeekPercentage] = useState(0)
 
   useEffect(() => {
@@ -48,13 +48,13 @@ const VideoSeeker = ({ playing, onTogglePlay, onSeekChange, videoLengthSeconds, 
         }} />
         {bufferedBars.map(({ start, end }, index) => <div
           className="seek-bar buffer-bar"
-          key={'buffered-bar' + index}
+          key={`buffered-bar${index}`}
           style={{
-            left: start * 100 + '%',
-            width: (end - start) * 100 + '%'
+            left: `${start * 100}%`,
+            width: `${(end - start) * 100}%`
           }} />)}
         <div className="seek-bar current-time-bar" style={{
-          width: seekPercentage + '%'
+          width: `${seekPercentage}%`
         }} />
         <div className="seek-bar clickable-bar" onClick={e => {
           if (typeof onSeekChange === 'function') {

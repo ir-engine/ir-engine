@@ -56,7 +56,7 @@ declare type CbFunction = (this: {
 declare let AFRAME: {
   registerComponent: (
     name: string,
-    config: { init: CbFunction;[key: string]: CbFunction }
+    config: { init: CbFunction, [key: string]: CbFunction }
   ) => void
 }
 // now we can import { Entity } from 'aframe-react' etc. without ts error

@@ -6,19 +6,19 @@ const THREE = AFRAME.THREE
 export const ComponentName = 'arrow'
 
 export interface ArrowData {
-  [key: string]: any,
-  x: number,
-  y: number,
-  z: number,
+  [key: string]: any
+  x: number
+  y: number
+  z: number
 
-  direction: string,
-  angle: number,
+  direction: string
+  angle: number
 
   width: number
   height: number
   depth: number
 
-  color: number,
+  color: number
   opacity: number
   disabledopacity: number
 
@@ -45,27 +45,27 @@ export const ArrowComponentSchema: AFRAME.MultiPropertySchema<ArrowData> = {
 }
 
 export interface Props {
-  setupArrow: () => void,
-  createArrow: () => void,
-  createEllipses: () => void,
-  directionToSign: (direction: string) => {xSign: number, ySign: number, rotZ: number},
+  setupArrow: () => void
+  createArrow: () => void
+  createEllipses: () => void
+  directionToSign: (direction: string) => {xSign: number, ySign: number, rotZ: number}
   ellipsesRadius: number
 }
 
 export const ArrowComponent: AFRAME.ComponentDefinition<Props> = {
   schema: ArrowComponentSchema,
-  data: {
-  } as ArrowData,
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  data: { } as ArrowData,
   // dependencies: ['highlight'],
   ellipsesRadius: 0,
 
-  init: function() {
+  init: () => {
     this.ellipsesRadius = this.data.width / 20
     if (this.el.sceneEl?.hasLoaded) this.setupArrow()
     else this.el.sceneEl?.addEventListener('loaded', this.setupArrow.bind(this))
   },
 
-  update: function(oldData: ArrowData) {
+  update: (oldData: ArrowData) => {
     const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
     if (changedData.includes('disabled') && !!this.el.getAttribute('highlight')) {
       this.el.setAttribute('highlight', {
@@ -74,9 +74,7 @@ export const ArrowComponent: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  remove: function () {
-    const meshes = ['mesh', 'mesh1', 'mesh2', 'mesh3']
-    meshes.forEach
+  remove: () => {
     if (this.el.object3DMap.hasOwnProperty('mesh')) {
       this.el.removeObject3D('mesh')
     }
@@ -85,19 +83,18 @@ export const ArrowComponent: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  setupArrow() {
+  setupArrow: () => {
     this.createArrow()
     if (this.data.ellipses) this.createEllipses()
   },
 
-  createArrow() {
-    const self = this
-    const data = self.data
+  createArrow: () => {
+    const data: ArrowData = this.data
 
     data.offset = {
-      x: 0 + data.x,
-      y: 0 + data.y,
-      z: 0 + data.z
+      x: data.x,
+      y: data.y,
+      z: data.z
     }
 
     const shape = new THREE.Shape()
@@ -111,7 +108,9 @@ export const ArrowComponent: AFRAME.ComponentDefinition<Props> = {
 
     const geom = new THREE.ShapeBufferGeometry(shape)
 
+    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
     const xtranslation = data.width / 4 + this.ellipsesRadius
+    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
     const ytranslation = data.width / 4 + this.ellipsesRadius
 
     const signs = this.directionToSign(data.direction)
@@ -149,10 +148,11 @@ export const ArrowComponent: AFRAME.ComponentDefinition<Props> = {
       }
     }
 
-    self.el.setObject3D('mesh', mesh)
+    // eslint-disable-next-line
+    this.el.setObject3D('mesh', mesh)
   },
 
-  createEllipses() {
+  createEllipses () {
     const data = this.data
     const geom = new THREE.CircleBufferGeometry(this.ellipsesRadius)
 
@@ -195,7 +195,7 @@ export const ArrowComponent: AFRAME.ComponentDefinition<Props> = {
     this.el.setObject3D('ellipse3', mesh3)
   },
 
-  directionToSign(direction) {
+  directionToSign (direction) {
     let ySign = 1
     let xSign = 1
     let rotZ = 0

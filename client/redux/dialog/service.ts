@@ -5,12 +5,12 @@ import {
 } from './actions'
 
 export function showDialog(content: any) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     dispatch(dialogShow(content))
   }
 }
 export function closeDialog() {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     dispatch(dialogClose())
   }
 }

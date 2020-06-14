@@ -32,7 +32,7 @@ export function createVideo (data: VideoCreationForm) {
 }
 
 export function updateVideo(data: VideoUpdateForm) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     client.service('static-resource').patch(data.id, data)
       .then((updatedVideo) => {
         dispatchAlertSuccess(dispatch, 'Video updated')
@@ -42,7 +42,7 @@ export function updateVideo(data: VideoUpdateForm) {
 }
 
 export function deleteVideo(id: string) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     client.service('static-resource').remove(id)
       .then((removedVideo) => {
         dispatchAlertSuccess(dispatch, 'Video deleted')
@@ -52,7 +52,7 @@ export function deleteVideo(id: string) {
 }
 
 export function fetchAdminVideos () {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     client.service('static-resource').find({
       query: {
         $limit: 100,

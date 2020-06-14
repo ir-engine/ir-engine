@@ -107,9 +107,9 @@ const authentication = {
     passwordField: 'password'
   },
   callback: {
-    facebook: process.env.FACEBOOK_CALLBACK_URL ?? `${client.url}/oauth/facebook`,
-    github: process.env.GITHUB_CALLBACK_URL ?? `${client.url}/oauth/github`,
-    google: process.env.GOOGLE_CALLBACK_URL ?? `${client.url}/oauth/google`
+    facebook: process.env.FACEBOOK_CALLBACK_URL ?? `${client.url}/auth/oauth/facebook`,
+    github: process.env.GITHUB_CALLBACK_URL ?? `${client.url}/auth/oauth/github`,
+    google: process.env.GOOGLE_CALLBACK_URL ?? `${client.url}/auth/oauth/google`
   }
 }
 

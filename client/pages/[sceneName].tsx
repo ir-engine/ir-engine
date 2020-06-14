@@ -1,14 +1,15 @@
+import React from 'react'
 import Layout from '../components/ui/Layout'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import Error404 from './404'
-import capitalizeFirstLetter from '../utils/capitalizeFirstLetter'
+import capitalizeFirstLetter from '../../shared/utils/capitalizeFirstLetter'
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr
 
 const Scene = dynamic(() => import('../components/xr/scene/index'), { ssr: false })
 
-export const ScenePage = () => {
+export const ScenePage = (): any => {
   const router = useRouter()
   let { sceneName, ...query } = router.query
   // if path/contains/forward/slashes it passes an array, so just get the first item
@@ -20,9 +21,9 @@ export const ScenePage = () => {
       sceneName: config.vrRoomGrid.name
     },
     {
-      sceneName: config.vrRoomGrid.name + '-scene',
+      sceneName: `${config.vrRoomGrid.name as string}-scene`,
       queryProps: ['url'],
-      pageTitle: capitalizeFirstLetter(config.vrRoomGrid.name) + ' Scene'
+      pageTitle: capitalizeFirstLetter(config.vrRoomGrid.name).concat(' Scene')
     },
     {
       sceneName: 'video',

@@ -1,8 +1,8 @@
-
+import React from 'react'
 import './style.scss'
 import { connect } from 'react-redux'
 
-const Index = () => (
+const Index = (): any => (
   <div className="container">
     <div className="box" onClick={() => (window.location.href = '/videos')}>
       360 Video Gallery

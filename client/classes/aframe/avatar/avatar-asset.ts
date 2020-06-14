@@ -1,4 +1,4 @@
-import AvatarModelEnum from '../../../enums/avatar-model'
+import AvatarModelEnum from '../../../../shared/enums/avatar-model'
 export default abstract class AvatarAsset {
   assetString: string
 

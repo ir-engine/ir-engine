@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import Avatar from '@material-ui/core/Avatar'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
@@ -17,15 +17,16 @@ import { showDialog, closeDialog } from '../../../redux/dialog/service'
 import SignUp from './Register'
 import ForgotPassword from './ForgotPassword'
 import './style.scss'
-import { User } from '../../../interfaces/User'
+import { User } from '../../../../shared/interfaces/User'
+import { ProposalActions } from 'aws-sdk/clients/managedblockchain'
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return {
     auth: selectAuthState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   loginUserByPassword: bindActionCreators(loginUserByPassword, dispatch),
   addConnectionByPassword: bindActionCreators(
     addConnectionByPassword,
@@ -38,15 +39,15 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 const initialState = { email: '', password: '' }
 
 interface Props {
-  auth: any
+  auth?: any
   isAddConnection?: boolean
-  addConnectionByPassword: typeof addConnectionByPassword
-  loginUserByPassword: typeof loginUserByPassword
-  closeDialog: typeof closeDialog
-  showDialog: typeof showDialog
+  addConnectionByPassword?: typeof addConnectionByPassword
+  loginUserByPassword?: typeof loginUserByPassword
+  closeDialog?: typeof closeDialog
+  showDialog?: typeof showDialog
 }
 
-export const PasswordLogin = (props: Props) => {
+export const PasswordLogin = (props: Props): any => {
   const {
     auth,
     isAddConnection,
@@ -57,10 +58,10 @@ export const PasswordLogin = (props: Props) => {
   } = props
   const [state, setState] = useState(initialState)
 
-  const handleInput = (e: any) =>
+  const handleInput = (e: any): void =>
     setState({ ...state, [e.target.name]: e.target.value })
 
-  const handleEmailLogin = (e: any) => {
+  const handleEmailLogin = (e: any): void => {
     e.preventDefault()
 
     if (isAddConnection) {
@@ -181,7 +182,7 @@ export const PasswordLogin = (props: Props) => {
   )
 }
 
-const PasswordLoginWrapper = (props: any) => <PasswordLogin {...props} />
+const PasswordLoginWrapper = (props: Props): any => <PasswordLogin {...props} />
 
 export default connect(
   mapStateToProps,
