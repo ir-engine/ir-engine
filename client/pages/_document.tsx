@@ -8,7 +8,7 @@ const { publicRuntimeConfig } = getConfig()
 const siteDescription: string = publicRuntimeConfig.siteDescription
 
 export default class MyDocument extends Document {
-  render() {
+  render () {
     return (
       <Html lang="en">
         <Head>
