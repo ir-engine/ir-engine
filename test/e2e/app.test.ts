@@ -9,12 +9,20 @@ const port = config.server.port
 describe('Feathers application tests', () => {
   let server: Server
 
+<<<<<<< HEAD
   beforeAll((done) => {
+=======
+  beforeEach((done) => {
+>>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
     server = app.listen(port)
     server.once('listening', () => done())
   })
 
+<<<<<<< HEAD
   afterAll((done) => {
+=======
+  afterEach((done) => {
+>>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
     server.close(error => {
       if (error) console.log(error)
     })

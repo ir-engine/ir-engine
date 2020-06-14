@@ -10,7 +10,11 @@
 //   let componentType: any
 //   let entityId: any
 
+<<<<<<< HEAD
 //   beforeAll(async () => {
+=======
+//   beforeEach(async () => {
+>>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
 //     const entityTypeModelInstance = await entityTypeModel.create({
 //       type: 'newType'
 //     })
@@ -35,13 +39,21 @@
 //     componentType: componentType,
 //     entityId: entityId
 //   }
+<<<<<<< HEAD
 //   it('Create', () => {
+=======
+//   it('Create', done => {
+>>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
 //     model.create(input).then(res => {
 //       done()
 //     }).catch(done)
 //   })
 
+<<<<<<< HEAD
 //   it('Read', () => {
+=======
+//   it('Read', done => {
+>>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
 //     model.findOne({
 //       where: {
 //         entityId: entityId
@@ -51,7 +63,11 @@
 //     }).catch(done)
 //   })
 
+<<<<<<< HEAD
 //   it('Update', () => {
+=======
+//   it('Update', done => {
+>>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
 //     model.update(
 //       { data: JSON.stringify({ data: 'test2' }) },
 //       { where: { entityId: entityId } }
@@ -60,7 +76,11 @@
 //     }).catch(done)
 //   })
 
+<<<<<<< HEAD
 //   it('Delete', () => {
+=======
+//   it('Delete', done => {
+>>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
 //     model.destroy({
 //       where: { entityId: entityId }
 //     }).then(res => {
@@ -68,7 +88,11 @@
 //     }).catch(done)
 //   })
 
+<<<<<<< HEAD
 //   afterAll(async () => {
+=======
+//   afterEach(async () => {
+>>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
 //     await entityModel.destroy({
 //       where: {
 //         id: entityId

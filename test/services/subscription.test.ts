@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 import app from '../../server/app'
 // import { Server } from 'http'
@@ -19,6 +20,28 @@ describe.skip('subscription service', () => {
 
   afterAll(() => {
     // server.close(done)
+=======
+import app from '../../server/app'
+import { Server } from 'http'
+import axios from 'axios'
+import qs from 'querystring'
+
+import config from '../../server/config'
+import { getUrl } from '../../server/test-utils'
+
+const port = config.server.port
+
+describe('subscription service', () => {
+  let server: Server
+
+  beforeEach(done => {
+    server = app.listen(port)
+    server.once('listening', () => done())
+  })
+
+  afterEach(done => {
+    server.close(done)
+>>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
   })
 
   it('registered the service', () => {

@@ -9,12 +9,20 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
   const password = 'password'
   const token = 'some token'
 
+<<<<<<< HEAD
   beforeAll(async () => {
+=======
+  beforeEach(async () => {
+>>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
     const user = await userModel.create({})
     userId = user.id
   })
 
+<<<<<<< HEAD
   it('Create', async () => {
+=======
+  it('Create', async done => {
+>>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
     await model.create({
       type: password,
       userId: userId,
@@ -23,7 +31,11 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
     })
   })
 
+<<<<<<< HEAD
   it('Read', async () => {
+=======
+  it('Read', async done => {
+>>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
     await model.findOne({
       where: {
         userId: userId
@@ -31,7 +43,11 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
     })
   })
 
+<<<<<<< HEAD
   it('Encrypted Password', async () => {
+=======
+  it('Encrypted Password', async done => {
+>>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
     const userFromModel = await model.findOne({
       where: {
         userId: userId
@@ -40,7 +56,11 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
     expect(bcrypt.compare(password, userFromModel.password)).toBeTruthy()
   })
 
+<<<<<<< HEAD
   it('Encrypted Token', async () => {
+=======
+  it('Encrypted Token', async done => {
+>>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
     const user = await model.findOne({
       where: {
         userId: userId
@@ -49,7 +69,11 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
     expect(bcrypt.compare(token, user.token)).toBeTruthy()
   })
 
+<<<<<<< HEAD
   it('Find User by IdentityProvider', async () => {
+=======
+  it('Find User by IdentityProvider', async done => {
+>>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
     const identityProvider = await model.findOne({
       where: {
         type: password
@@ -65,7 +89,11 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
     expect(userFromId).toBe(expect.anything())
   })
 
+<<<<<<< HEAD
   it('Not expecting password and token ', async () => {
+=======
+  it('Not expecting password and token ', async done => {
+>>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
     (request(app) as any).get('/identity-provider')
       .expect('Content-Type', /json/)
       .expect(200)
@@ -78,13 +106,21 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
       })
   })
 
+<<<<<<< HEAD
   it('Delete', async () => {
+=======
+  it('Delete', async done => {
+>>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
     await model.destroy({
       where: { userId: userId }
     })
   })
 
+<<<<<<< HEAD
   afterAll(async () => {
+=======
+  afterEach(async () => {
+>>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
     await userModel.destroy({
       where: {
         id: userId
