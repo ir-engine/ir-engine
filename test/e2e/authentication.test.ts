@@ -11,11 +11,7 @@ describe('authentication', () => {
       password: 'supersecret'
     }
 
-<<<<<<< HEAD
     beforeAll(async () => {
-=======
-    beforeEach(async () => {
->>>>>>> Added old tests, converted to Jest from Mocha, 60% of tests passing
       try {
         await app.service('user').create(userInfo)
       } catch (error) {

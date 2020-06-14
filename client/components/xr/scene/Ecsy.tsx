@@ -7,17 +7,12 @@ import gql from 'graphql-tag'
 // eslint-disable-next-line no-unused-vars
 import { World } from 'ecsy'
 
-<<<<<<< HEAD
 const EcsyPage = (): any => {
   let world: any
   const client: any = new ApolloClient({
     uri: 'http://localhost:3030/graphql'
   })
-=======
-const EcsyPage = () => {
-  let world: any
-  let client: any
->>>>>>> Changed next setup, combined client+server types and interfaces, lots of client typescript fixes
+
   const ENTITY_QUERY = gql`
     {
       entity {
@@ -26,23 +21,12 @@ const EcsyPage = () => {
         type
         components {
           id
-<<<<<<< HEAD
-          type.
-=======
           type
->>>>>>> Changed next setup, combined client+server types and interfaces, lots of client typescript fixes
         }
       }
     }
   `
   useEffect(() => {
-<<<<<<< HEAD
-=======
-    client = new ApolloClient({
-      uri: 'http://localhost:3030/graphql'
-    })
-
->>>>>>> Changed next setup, combined client+server types and interfaces, lots of client typescript fixes
     world = new World()
     const testEntity = world.createEntity()
     console.log(testEntity)
@@ -51,11 +35,8 @@ const EcsyPage = () => {
         query: ENTITY_QUERY
       })
       .then((result) => {
-<<<<<<< HEAD
         console.log(result.data)
         if (!result.data.entities) return
-=======
->>>>>>> Changed next setup, combined client+server types and interfaces, lots of client typescript fixes
         result.data.entities.map((entity: any) => {
           world.createEntity()
           console.log(entity)
