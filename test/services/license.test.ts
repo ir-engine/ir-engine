@@ -1,8 +1,8 @@
 import app from '../../server/app'
 
-describe('\'message-status\' service', () => {
+describe('\'License\' service', () => {
   it('registered the service', () => {
-    const service = app.service('message-status')
+    const service = app.service('license')
 
     expect(service).toBeTruthy()
   })
