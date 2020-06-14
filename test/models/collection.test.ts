@@ -5,7 +5,7 @@ describe.skip('CRUD operation on \'Collection\' model', () => {
   const collectionTypeModel = app.service('collection-type').Model
   let collectionType: any
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const collection = await collectionTypeModel.create({
       type: 'test_collection'
     })
@@ -27,29 +27,23 @@ describe.skip('CRUD operation on \'Collection\' model', () => {
       where: {
         name: 'test'
       }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
   it('Update', () => {
     model.update(
       { description: 'test1 description' },
       { where: { name: 'test' } }
-    ).then(res => {
-      done()
-    }).catch(done)
+    )
   })
 
   it('Delete', () => {
     model.destroy({
       where: { name: 'test' }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  afterEach(async () => {
+  afterAll(async () => {
     collectionTypeModel.destroy({
       where: {
         type: collectionType

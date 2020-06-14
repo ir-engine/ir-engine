@@ -5,7 +5,7 @@ describe('CRUD operation on \'Entity\' model', () => {
   const entityTypeModel = app.service('entity-type').Model
   let entityType: any
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const entity = await entityTypeModel.create({
       type: 'test_entity_type'
     })
@@ -40,7 +40,7 @@ describe('CRUD operation on \'Entity\' model', () => {
     })
   })
 
-  afterEach(async () => {
+  afterAll(async () => {
     await entityTypeModel.destroy({
       where: {
         type: entityType

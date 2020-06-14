@@ -6,9 +6,7 @@ describe('CRUD operation on \'Entity Type\' model', () => {
   it('Create', () => {
     model.create({
       type: 'test'
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
   it('Read', () => {
@@ -16,16 +14,12 @@ describe('CRUD operation on \'Entity Type\' model', () => {
       where: {
         type: 'test'
       }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
   it('Delete', () => {
     model.destroy({
       where: { type: 'test' }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 })

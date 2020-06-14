@@ -6,7 +6,7 @@ describe('CRUD operation on \'PartyUser\' model', () => {
   const userModel = app.service('user').Model
   let partyId, userId
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const party = await partyModel.create({})
     partyId = party.id
     const user = await userModel.create({})
@@ -19,9 +19,7 @@ describe('CRUD operation on \'PartyUser\' model', () => {
       isInviteAccepted: true,
       partyId: partyId,
       userId: userId
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
   it('Read', async () => {
@@ -29,29 +27,23 @@ describe('CRUD operation on \'PartyUser\' model', () => {
       where: {
         isInviteAccepted: true
       }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
   it('Update', async () => {
     await model.update(
       { isOwner: true },
       { where: { isInviteAccepted: true } }
-    ).then(res => {
-      done()
-    }).catch(done)
+    )
   })
 
   it('Delete', async () => {
     await model.destroy({
       where: { isInviteAccepted: true }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  afterEach(async () => {
+  afterAll(async () => {
     await userModel.destroy({
       where: {
         id: userId
