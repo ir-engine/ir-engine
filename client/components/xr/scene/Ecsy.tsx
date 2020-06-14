@@ -7,9 +7,11 @@ import gql from 'graphql-tag'
 // eslint-disable-next-line no-unused-vars
 import { World } from 'ecsy'
 
-const EcsyPage = () => {
+const EcsyPage = (): any => {
   let world: any
-  let client: any
+  const client: any = new ApolloClient({
+    uri: 'http://localhost:3030/graphql'
+  })
   const ENTITY_QUERY = gql`
     {
       entity {
@@ -24,10 +26,6 @@ const EcsyPage = () => {
     }
   `
   useEffect(() => {
-    client = new ApolloClient({
-      uri: 'http://localhost:3030/graphql'
-    })
-
     world = new World()
     const testEntity = world.createEntity()
     console.log(testEntity)
@@ -36,6 +34,8 @@ const EcsyPage = () => {
         query: ENTITY_QUERY
       })
       .then((result) => {
+        console.log(result.data)
+        if (!result.data.entities) return
         result.data.entities.map((entity: any) => {
           world.createEntity()
           console.log(entity)
