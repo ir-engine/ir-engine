@@ -1,31 +1,24 @@
-import app from '../../src/app'
+import app from '../../server/app'
 
 describe('CRUD operation on \'UserRole\' model', () => {
   const model = app.service('user-role').Model
-  let role: any
+  const role: string = 'testrole'
 
-  it('Create', done => {
-    model.create({
-      role: 'testrole'
-    }).then(res => {
-      role = res.role
-      done()
-    }).catch(done)
+  it('Create', async () => {
+    await model.create({
+      role
+    })
   })
 
-  it('Read', done => {
-    model.findOne({
+  it('Read', async () => {
+    await model.findOne({
       where: { role }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  it('Delete', done => {
-    model.destroy({
+  it('Delete', async () => {
+    await model.destroy({
       where: { role }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 })
