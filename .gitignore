@@ -107,3 +107,5 @@ dist
 .vscode
 node_modules
 assets
+
+package-lock.json
