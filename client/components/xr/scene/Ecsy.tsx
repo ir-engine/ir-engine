@@ -12,7 +12,6 @@ const EcsyPage = (): any => {
   const client: any = new ApolloClient({
     uri: 'http://localhost:3030/graphql'
   })
-
   const ENTITY_QUERY = gql`
     {
       entity {
