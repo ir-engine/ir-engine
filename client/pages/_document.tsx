@@ -1,4 +1,4 @@
-import { Children } from 'react'
+import React, { Children } from 'react'
 import getConfig from 'next/config'
 import Document, { Html, Head, Main, NextScript } from 'next/document'
 import { ServerStyleSheets } from '@material-ui/core/styles'
@@ -8,7 +8,7 @@ const { publicRuntimeConfig } = getConfig()
 const siteDescription: string = publicRuntimeConfig.siteDescription
 
 export default class MyDocument extends Document {
-  render() {
+  render () {
     return (
       <Html lang="en">
         <Head>
@@ -64,7 +64,7 @@ MyDocument.getInitialProps = async (ctx) => {
 
   ctx.renderPage = () =>
     originalRenderPage({
-      enhanceApp: (App) => (props) => sheets.collect(<App {...props} />)
+      enhanceApp: (App) => (props: any): any => sheets.collect(<App {...props} />)
     })
 
   const initialProps = await Document.getInitialProps(ctx)

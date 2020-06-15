@@ -1,11 +1,12 @@
+import React from 'react'
 import getConfig from 'next/config'
 const LogoImg = getConfig().publicRuntimeConfig.logo
 
-type Props = {
-    onClick: any
+interface Props {
+  onClick: any
 }
 
-const Logo = (props: Props) => {
+const Logo = (props: Props): any => {
   return (
     <div className="logo">
       <img

@@ -19,45 +19,45 @@ const cellWidth = config.cellWidth
 const rows = config.rows
 const columns = config.columns
 
-const x = config.offset.x
-const y = config.offset.y
-const z = config.offset.z
-const pos = x + ' ' + y + ' ' + z
+const x: number = config.offset.x
+const y: number = config.offset.y
+const z: number = config.offset.z
+const pos = `${x} ${y} ${z}`
 
-const fx = config.focusedOffset.x
-const fy = config.focusedOffset.y
-const fz = config.focusedOffset.z
-const fpos = fx + ' ' + fy + ' ' + fz
+const fx: number = config.focusedOffset.x
+const fy: number = config.focusedOffset.y
+const fz: number = config.focusedOffset.z
+const fpos = `${fx} ${fy} ${fz}`
 
 interface VideoProps {
-  videos: any,
-  fetchPublicVideos: typeof fetchPublicVideos
+  videos?: any
+  fetchPublicVideos?: typeof fetchPublicVideos
 }
 
 interface CellData {
-  title: string,
-  description: string,
-  videoformat: string,
-  mediaUrl: string,
-  thumbnailUrl: string,
-  productionCredit: string,
-  rating: string,
-  categories: string[],
+  title: string
+  description: string
+  videoformat: string
+  mediaUrl: string
+  thumbnailUrl: string
+  productionCredit: string
+  rating: string
+  categories: string[]
   runtime: string
 }
 
 interface VideoGridState {
-  focusedCellEl: HTMLElement | null,
+  focusedCellEl: HTMLElement | null
   focusedCell: CellData | null
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return {
     videos: selectVideoState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchPublicVideos: bindActionCreators(fetchPublicVideos, dispatch)
 })
 
@@ -68,26 +68,26 @@ const VideoGridScene = (props: VideoProps): any => {
   const [pageOffset, setPageOffset] = useState(0)
   const [visitedPages, setVisitedPages] = useState([])
 
-  const focusCell = (event: any) => {
+  const focusCell = (event: any): any => {
     const focusCellEl = event.target.parentEl
     event.stopPropagation()
     setVideoGridState({
       focusedCellEl: focusCellEl,
       focusedCell: {
-        title: (focusCellEl.attributes as any).title.value,
-        description: (focusCellEl.attributes as any).description?.value,
-        videoformat: (focusCellEl.attributes as any).videoformat?.value,
-        mediaUrl: (focusCellEl.attributes as any)['media-url'].value,
-        thumbnailUrl: (focusCellEl.attributes as any)['thumbnail-url'].value,
-        productionCredit: (focusCellEl.attributes as any)['production-credit'].value,
-        rating: (focusCellEl.attributes as any).rating?.value,
-        categories: (focusCellEl.attributes as any).categories?.value,
-        runtime: (focusCellEl.attributes as any).runtime.value
+        title: (focusCellEl.attributes).title.value,
+        description: (focusCellEl.attributes).description?.value,
+        videoformat: (focusCellEl.attributes).videoformat?.value,
+        mediaUrl: (focusCellEl.attributes)['media-url'].value,
+        thumbnailUrl: (focusCellEl.attributes)['thumbnail-url'].value,
+        productionCredit: (focusCellEl.attributes)['production-credit'].value,
+        rating: (focusCellEl.attributes).rating?.value,
+        categories: (focusCellEl.attributes).categories?.value,
+        runtime: (focusCellEl.attributes).runtime.value
       }
     })
   }
 
-  const unFocusCell = () => {
+  const unFocusCell = (): void => {
     setVideoGridState({ focusedCellEl: null, focusedCell: null })
   }
 
@@ -105,11 +105,11 @@ const VideoGridScene = (props: VideoProps): any => {
     }
   }, [unFocusCell])
 
-  const pageLeftHandler = () => {
+  const pageLeftHandler = (): void => {
     setPageOffset(pageOffset - 1)
   }
   // only loading videos on right handler, because you start on page 0
-  const pageRightHandler = () => {
+  const pageRightHandler = (): void => {
     const nextPage = pageOffset + 1
     // if next page has not been visited before, fetch videos for the page
     setPageOffset(nextPage)
@@ -146,6 +146,7 @@ const VideoGridScene = (props: VideoProps): any => {
             return (
               <Entity
                 key={i}
+                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                 id={'videoGrid-cell-' + i}
                 primitive="a-media-cell"
                 title={video.name}

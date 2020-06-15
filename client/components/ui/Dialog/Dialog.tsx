@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -17,17 +17,17 @@ interface Props {
   closeDialog: typeof closeDialog
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return {
     dialog: selectDialogState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   closeDialog: bindActionCreators(closeDialog, dispatch)
 })
 
-const UIDialog = (props: Props) => {
+const UIDialog = (props: Props): any => {
   const { dialog, closeDialog } = props
   const isOpened = dialog.get('isOpened')
   const content = dialog.get('content')
@@ -38,7 +38,7 @@ const UIDialog = (props: Props) => {
     })
   }, [])
 
-  const handleClose = (e: any) => {
+  const handleClose = (e: any): void => {
     e.preventDefault()
     closeDialog()
   }
@@ -63,6 +63,6 @@ const UIDialog = (props: Props) => {
   )
 }
 
-const DialogWrapper = (props: any) => <UIDialog {...props } />
+const DialogWrapper = (props: any): any => <UIDialog {...props } />
 
 export default connect(mapStateToProps, mapDispatchToProps)(DialogWrapper)

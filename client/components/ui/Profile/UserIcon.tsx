@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import Button from '@material-ui/core/Button'
 import { bindActionCreators, Dispatch } from 'redux'
@@ -7,23 +7,23 @@ import './style.scss'
 import TextField from '@material-ui/core/TextField'
 import { uploadAvatar, updateUsername } from '../../../redux/auth/service'
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   uploadAvatar: bindActionCreators(uploadAvatar, dispatch),
   updateUsername: bindActionCreators(updateUsername, dispatch)
 })
 
 interface Props {
   avatarUrl: string
-  uploadAvatar: typeof uploadAvatar,
-  updateUsername: typeof updateUsername
+  uploadAvatar?: typeof uploadAvatar
+  updateUsername?: typeof updateUsername
   auth: any
 }
 
-const UserProfile = (props: Props) => {
+const UserProfile = (props: Props): any => {
   const [file, setFile] = useState({})
   const [fileUrl, setFileUrl] = useState('')
   const [username, setUsername] = useState(props.auth.get('user').name)
-  const handleChange = (e: any) => {
+  const handleChange = (e: any): void => {
     const efile = e.target.files[0]
     const formData = new FormData()
     if (efile != null) {
@@ -41,15 +41,15 @@ const UserProfile = (props: Props) => {
     }
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (): Promise<void> => {
     await props.uploadAvatar(file)
   }
 
-  const handleUsernameChange = (e: any) => {
+  const handleUsernameChange = (e: any): void => {
     const name = e.target.value
     setUsername(name)
   }
-  const updateUsername = async () => {
+  const updateUsername = async (): Promise<void> => {
     await props.updateUsername(props.auth.get('user').id, username)
   }
   return (

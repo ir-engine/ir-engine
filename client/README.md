@@ -127,14 +127,14 @@ interface Props {
   loginUserByPassword: typeof loginUserByPassword
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return {
     auth: selectAuthState(state),   // fetch authState from store.
                                     // Note: `state` and `auth` is Immutable variable.
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   loginUserByPassword: bindActionCreators(loginUserByPassword, dispatch)  // Mapping service to props
 })
 
@@ -142,7 +142,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 class Login extends React.Component<LoginProps> {
 ...
-    handleEmailLogin = (e: any) => {
+    handleEmailLogin = (e: any): void => {
         // call service which is mapping with redux.
         this.props.loginUserByPassword({
             email: this.state.email,
@@ -237,7 +237,7 @@ Let's explain step by step about the login process.
     import { createSelector } from 'reselect'
 
     // Note: 'auth' is the state key so you can change this whatever you want.
-    const selectState = (state: any) => state.get('auth')
+    const selectState = (state: any): any => state.get('auth')
     export const selectAuthState = createSelector([selectState], (auth) => auth)
 
     ```
@@ -246,7 +246,7 @@ Let's explain step by step about the login process.
     ...
 
     export function loginUserByPassword(form: any) {
-        return (dispatch: Dispatch) => {
+        return (dispatch: Dispatch): any => {
             dispatch(actionProcessing(true))
 
             client.authenticate({
@@ -297,7 +297,7 @@ interface Props {
   deviceInfo: any
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return {
     deviceInfo: selectDeviceDetectState(state),
   }
@@ -348,7 +348,7 @@ export default connect(
 //No need to dispatch, as it is already being dispatched from _app.tsx
 //If needed, just in case, then dispatch the 'detectDeviceType' service that is imported above by using mapDispatchToProps, bindActionCreator and Dispatch
 //example
-<!-- const mapDispatchToProps = (dispatch: Dispatch) => ({
+<!-- const mapDispatchToProps = (dispatch: Dispatch): any => ({
   detectDeviceType: bindActionCreators(detectDeviceType(arg), dispatch)
 }) -->
 //detectDeviceType(arg) takes an argument of type 'any' which is object containing device information

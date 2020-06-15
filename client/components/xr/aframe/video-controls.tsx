@@ -1,23 +1,23 @@
 /* eslint-disable no-prototype-builtins */
 import AFRAME from 'aframe'
 import PropertyMapper from './ComponentUtils'
-import secondsToString from '../../../utils/secondsToString'
+import secondsToString from '../../../../shared/utils/secondsToString'
 
 const THREE = AFRAME.THREE
 
 export const ComponentName = 'video-controls'
 
 export interface buffered {
-  start: number,
+  start: number
   end: number
 }
 
 export interface Data {
-  [key: string]: any,
-  viewportWidth: number,
-  barHeight: number,
-  videosrc: string,
-  backButtonHref: string,
+  [key: string]: any
+  viewportWidth: number
+  barHeight: number
+  videosrc: string
+  backButtonHref: string
   playing: boolean
 }
 
@@ -30,48 +30,46 @@ export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
 }
 
 export interface Props {
-  createTimeline: ({ name, width, height, color, t, y, z, opacity }) => THREE.Mesh,
-  createBufferedBar: ({ xStart, width, height, name }) => THREE.Mesh,
-  setTimelineWidth: (mesh: THREE.Mesh, width: number) => void,
-  updateBuffered: () => void,
-  getBarFullWidth: (width: number) => void,
-  createTimelineButton: ({ name, x, size, map }) => THREE.Mesh,
-  createText: (text: string, width: number, height: number,
-    fontSize: number, wrapCount: number, align: string,
-    baseline: string, anchor: string) => AFRAME.Entity,
-  createBackground: (w: number, h: number, color: string, x: number, y: number, z: number, opacity: number) => AFRAME.Entity,
-  createTimeRemaining: (x: number) => AFRAME.Entity,
-  updateTimeRemainingText: (text: string) => void,
-  updateSeekBar: () => void,
-  createControls: () => void,
-  teardownControls: () => void,
-  playBtnImageMap: any,
-  pauseBtnImageMap: any,
-  backBtnImageMap: any,
-  addHandlers: () => void,
-  removeHandlers: () => void,
-  clickHandler: (e: any) => void,
-  playPauseHandler: () => void,
-  seekHandler: (e: any) => void,
-  backButtonHandler: () => void,
-  duration: number,
-  bufferedArr: buffered[],
-  timeline: {},
-  fullBarName: string,
-  currentTimeBarName: string,
-  playPauseButtonName: string,
-  timeRemainingTextName: string,
+  createTimeline: ({ name, width, height, color, t, y, z, opacity }) => THREE.Mesh
+  createBufferedBar: ({ xStart, width, height, name }) => THREE.Mesh
+  setTimelineWidth: (mesh: THREE.Mesh, width: number) => void
+  updateBuffered: () => void
+  getBarFullWidth: (width: number) => void
+  createTimelineButton: ({ name, x, size, map }) => THREE.Mesh
+  createText: (text: string, width: number, height: number, fontSize: number, wrapCount: number, align: string, baseline: string, anchor: string) => AFRAME.Entity
+  createBackground: (w: number, h: number, color: string, x: number, y: number, z: number, opacity: number) => AFRAME.Entity
+  createTimeRemaining: (x: number) => AFRAME.Entity
+  updateTimeRemainingText: (text: string) => void
+  updateSeekBar: () => void
+  createControls: () => void
+  teardownControls: () => void
+  playBtnImageMap: any
+  pauseBtnImageMap: any
+  backBtnImageMap: any
+  addHandlers: () => void
+  removeHandlers: () => void
+  clickHandler: (e: any) => void
+  playPauseHandler: () => void
+  seekHandler: (e: any) => void
+  backButtonHandler: () => void
+  duration: number
+  bufferedArr: buffered[]
+  timeline: {}
+  fullBarName: string
+  currentTimeBarName: string
+  playPauseButtonName: string
+  timeRemainingTextName: string
   backButtonName: string
-  videoEl: HTMLVideoElement,
-  cameraAngleHandler: (e: any) => void,
-  setTimelineVisibility(visibility: boolean),
+  videoEl: HTMLVideoElement
+  cameraAngleHandler: (e: any) => void
+  setTimelineVisibility(visibility: boolean)
   firstCreate: boolean
 }
 
 export const Component: AFRAME.ComponentDefinition<Props> = {
   schema: ComponentSchema,
-  data: {
-  } as Data,
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  data: { } as Data,
 
   videoEl: null,
   duration: 0,
@@ -87,7 +85,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   timeRemainingTextName: 'timeRemainingText',
   firstCreate: true,
 
-  init() {
+  init () {
     const loader = new THREE.TextureLoader()
 
     this.videoEl = document.querySelector(this.data.videosrc)
@@ -114,15 +112,15 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     else this.el.sceneEl?.addEventListener('loaded', this.createControls.bind(this))
   },
 
-  play() {
+  play () {
     this.addHandlers()
   },
 
-  pause() {
+  pause () {
     this.removeHandlers()
   },
 
-  update(oldData: Data) {
+  update (oldData: Data) {
     const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
     if (changedData.includes('viewportWidth')) {
       this.teardownControls()
@@ -135,7 +133,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  tick() {
+  tick () {
     this.updateSeekBar()
     // setBufferedArr(getArrayFromTimeRanges((videoEl as HTMLVideoElement).buffered))
     // if bufferedArr has changed:
@@ -155,11 +153,11 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   //   return output
   // }
 
-  remove() {
+  remove () {
     this.el.removeAttribute('camera-angle')
   },
 
-  createControls() {
+  createControls () {
     const fullBar = this.createTimeline({
       name: this.fullBarName,
       width: this.getBarFullWidth(this.data.viewportWidth),
@@ -176,6 +174,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
       t: 1,
       color: 0x00ceff
     })
+    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
     currentTimeBar.position.z += 0.0005
     // position the current time bar slightly in front of full bar, so it's colour is not changed
 
@@ -220,7 +219,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  teardownControls() {
+  teardownControls () {
     Object.entries(this.timeline).forEach(([name, value]) => {
       if (this.el.object3DMap.hasOwnProperty(name)) {
         this.el.removeObject3D(name)
@@ -235,7 +234,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.timeline = []
   },
 
-  createTimeline({ name, width, height, color, t, opacity = 1 }) {
+  createTimeline ({ name, width, height, color, t, opacity = 1 }) {
     const matTimeline = new THREE.MeshBasicMaterial({
       side: THREE.FrontSide,
       transparent: opacity < 1,
@@ -253,8 +252,8 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     return meshTimeline
   },
 
-  setTimelineWidth(mesh, width) {
-    const positions = (mesh.geometry as any).attributes.position.array as Array<number>
+  setTimelineWidth (mesh, width) {
+    const positions = (mesh.geometry as any).attributes.position.array as number[]
     // top left x
     positions[0] = 0
     // bottom left x
@@ -265,7 +264,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     positions[9] = width
   },
 
-  createBufferedBar({ xStart, width, height, name }) {
+  createBufferedBar ({ xStart, width, height, name }) {
     const matBufferedBar = new THREE.MeshBasicMaterial({
       side: THREE.FrontSide,
       transparent: true,
@@ -299,6 +298,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     const meshBufferedBar = new THREE.Mesh(geomBufferedBar, matBufferedBar)
     meshBufferedBar.name = name
     // translate geom positions so that it can grow from the left
+    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
     meshBufferedBar.position.x = width * (-1 / 2 + xStart)
 
     // setBufferedBars(bars => [...bars, meshBufferedBar])
@@ -306,7 +306,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     return meshBufferedBar
   },
 
-  updateBuffered() {
+  updateBuffered () {
     let i = 0
     const bufferedLengths = this.bufferedArr.length
 
@@ -327,7 +327,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
             xStart: start / this.duration,
             width: this.getBarFullWidth(this.data.viewportWidth),
             height: this.data.barHeight,
-            name: 'bufferedBar' + i
+            name: `bufferedBar${i}`
           })
         }
       }
@@ -335,7 +335,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  createTimelineButton({ name, x, size, map }) {
+  createTimelineButton ({ name, x, size, map }) {
     const matButton = new THREE.MeshBasicMaterial({
       side: THREE.FrontSide,
       transparent: true,
@@ -351,7 +351,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     return meshButton
   },
 
-  createText(text: string, width: number, height: number, fontSize: number, wrapCount: number, align: string,
+  createText (text: string, width: number, height: number, fontSize: number, wrapCount: number, align: string,
     baseline: string, anchor: string) {
     const textEntity = document.createElement('a-entity')
 
@@ -371,7 +371,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     return textEntity
   },
 
-  createBackground(width: number, height: number, color: string, x: number, y: number, z: number, opacity: number = 1) {
+  createBackground (width: number, height: number, color: string, x: number, y: number, z: number, opacity: number = 1) {
     const bg = document.createElement('a-plane')
     bg.setAttribute('color', color)
     bg.setAttribute('width', width)
@@ -382,7 +382,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     return bg
   },
 
-  createTimeRemaining(x: number) {
+  createTimeRemaining (x: number) {
     const textEntity = this.createText('time remaining', 0.75, 0.21, 7, 40, 'left', 'center', 'center')
     this.timeRemainingTextEl = textEntity
     const textBG = this.createBackground(0.75, 0.21, 'black', x, 0.26, -0.01, 0.15)
@@ -392,11 +392,11 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     return textBG
   },
 
-  getBarFullWidth(width) {
+  getBarFullWidth (width) {
     return width / 200
   },
 
-  updateSeekBar() {
+  updateSeekBar () {
     const currentTimeBar = this.el.getObject3D(this.currentTimeBarName)
     const currentTime = this.videoEl.currentTime
     const duration = this.videoEl.duration
@@ -406,14 +406,14 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     currentTimeBar.geometry.attributes.position.needsUpdate = true
   },
 
-  updateTimeRemainingText() {
+  updateTimeRemainingText () {
     const currentTime = this.videoEl.currentTime
     const duration = this.videoEl.duration
     const timeRemaining = duration - currentTime
     this.timeRemainingTextEl.setAttribute('text-cell', { text: '-' + secondsToString(timeRemaining) })
   },
 
-  clickHandler(e) {
+  clickHandler (e) {
     switch (e.detail.intersection.object.name) {
       case this.playPauseButtonName:
         this.playPauseHandler()
@@ -428,7 +428,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  seekHandler(e) {
+  seekHandler (e) {
     const t = e.detail.intersection.uv.x
     const duration = this.videoEl.duration
     const newCurrentTime = t * (duration || 0) // default duration to 0 because it is possibly NaN if video metadata not loaded
@@ -436,7 +436,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.updateSeekBar()
   },
 
-  playPauseHandler() {
+  playPauseHandler () {
     let playing = false
     try {
       if (this.videoEl.paused) {
@@ -461,7 +461,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.el.dispatchEvent(clickEvent)
   },
 
-  backButtonHandler() {
+  backButtonHandler () {
     const clickEvent = new CustomEvent('navigate',
       {
         bubbles: true,
@@ -471,17 +471,17 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.el.dispatchEvent(clickEvent)
   },
 
-  cameraAngleHandler(e: any) {
+  cameraAngleHandler (e: any) {
     const visibility = e.detail.direction === 'in'
     if (e.detail.axis === 'y') this.setTimelineVisibility(visibility)
   },
 
-  setTimelineVisibility(visibility: boolean) {
+  setTimelineVisibility (visibility: boolean) {
     visibility ? this.el.emit('fade-in-video-controls') : this.el.emit('fade-out-video-controls')
     this.el.getObject3D(this.timeRemainingTextName).visible = visibility
   },
 
-  addHandlers: function() {
+  addHandlers: function () {
     this.el.addEventListener('playpause', this.clickHandler.bind(this))
     this.el.addEventListener('camera-passed-threshold', this.cameraAngleHandler.bind(this))
   },

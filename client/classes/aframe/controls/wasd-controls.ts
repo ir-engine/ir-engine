@@ -1,5 +1,5 @@
 import { ControlsOptions } from './controls'
-import Axis from '../../../enums/axis'
+import Axis from '../../../../shared/enums/axis'
 
 export interface WASDControlsOptions extends ControlsOptions {
   acceleration: number,

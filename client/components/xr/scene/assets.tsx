@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Entity } from 'aframe-react'
 import { setAppLoadPercent } from '../../../redux/app/actions'
 import { useDispatch } from 'react-redux'
@@ -125,13 +125,13 @@ export const Assets = (): any => {
         return (<img id={id} src={src} crossOrigin="anonymous" onLoad={handleAssetLoaded} key={id}/>)
       })}
       {
-        entities.map((props: any) => <Entity crossOrigin="anonymous" {...props} key={props.id}
+        entities.map((props: any): any => <Entity crossOrigin="anonymous" {...props} key={props.id}
           events={{
             loaded: handleAssetLoaded
           }} />)
       }
       {
-        videos.map((props: any) => <video crossOrigin="anonymous" {...props} key={props.id}/>)
+        videos.map((props: any): any => <video crossOrigin="anonymous" {...props} key={props.id}/>)
       }
     </Entity>
   )

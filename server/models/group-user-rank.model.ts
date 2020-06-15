@@ -20,7 +20,7 @@ export default (app: Application): any => {
   });
 
   (groupUserRank as any).associate = (models: any): any => {
-    (groupUserRank as any).belongsTo(models.group);
+    (groupUserRank as any).belongsTo(models.group, { required: true });
     (groupUserRank as any).belongsToMany(models.user, { through: models.group_user, foreignKey: 'groupUserRank' })
   }
 

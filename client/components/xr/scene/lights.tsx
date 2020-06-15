@@ -1,3 +1,4 @@
+import React from 'react'
 import { Entity } from 'aframe-react'
 
 export const Lights = () => (

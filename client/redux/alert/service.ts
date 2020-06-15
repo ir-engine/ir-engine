@@ -9,22 +9,22 @@ const config = getConfig().publicRuntimeConfig
 const timeout = (config && config.alert && config.alert.timeout) ?? 10000
 
 export function alertSuccess (message: string) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     dispatch(showAlert('success', message))
   }
 }
 export function alertWarning (message: string) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     dispatch(showAlert('warning', message))
   }
 }
 export function alertError (message: string) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     dispatch(showAlert('error', message))
   }
 }
 export function alertCancel () {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     dispatch(hideAlert())
   }
 }

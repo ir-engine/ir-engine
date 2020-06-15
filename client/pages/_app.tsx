@@ -13,7 +13,7 @@ import { restoreState } from '../redux/persisted.store'
 import { doLoginAuto } from '../redux/auth/service'
 import DeviceDetector from 'device-detector-js'
 import { getDeviceType } from '../redux/devicedetect/actions'
-import { useEffect, Fragment } from 'react'
+import React, { useEffect, Fragment } from 'react'
 import { initGA, logPageView } from '../components/analytics'
 
 import getConfig from 'next/config'
@@ -25,10 +25,10 @@ interface Props extends AppProps {
   store: Store
 }
 
-const MyApp = (props: Props) => {
+const MyApp = (props: Props): any => {
   const { Component, pageProps, store } = props
 
-  const getDeviceInfo = async () => {
+  const getDeviceInfo = async (): Promise<any> => {
     const deviceInfo = { device: {}, WebXRSupported: false }
     const deviceDetector = new DeviceDetector()
     const userAgent = navigator.userAgent
@@ -45,7 +45,7 @@ const MyApp = (props: Props) => {
 
   useEffect(() => {
     const jssStyles = document.querySelector('#jss-server-side')
-    if (jssStyles && jssStyles.parentNode) {
+    if (jssStyles?.parentNode) {
       jssStyles.parentNode.removeChild(jssStyles)
     }
     // NOTE: getDeviceInfo is an async function, but here is running
@@ -54,6 +54,7 @@ const MyApp = (props: Props) => {
     logPageView()
     getDeviceInfo()
     store.dispatch(restoreState())
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     doLoginAuto(store.dispatch)
   }, [])
 

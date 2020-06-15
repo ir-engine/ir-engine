@@ -1,3 +1,4 @@
+import React from 'react'
 import SignIn from '../Auth/Login'
 import { client } from '../../../redux/feathers'
 import { Container, Button, Card, CardActions, CardContent, CardHeader, Typography, makeStyles, Grid } from '@material-ui/core'
@@ -32,14 +33,14 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 interface Props {
-  auth: any,
-  tiers: any,
-  showDialog: typeof showDialog
+  auth?: any
+  tiers: any
+  showDialog?: typeof showDialog
 }
 
-const Plans = (props: Props) => {
+const Plans = (props: Props): any => {
   const classes = useStyles()
-  const handleClick = (plan) => {
+  const handleClick = (plan): any => {
     props.auth.get('isLoggedIn') ? client.service('subscription').create({ plan })
       .then(res => { window.location.href = res.paymentUrl })
       .catch(err => console.log(err))
@@ -72,8 +73,8 @@ const Plans = (props: Props) => {
               <CardContent>
                 <div className={classes.cardSeats}>
                   <Typography component="h4" variant="h5" color="textPrimary">
-                    {tier.seats === 1 && tier.seats + ' Seat' }
-                    {tier.seats > 1 && tier.seats + ' Seats' }
+                    {tier.seats === 1 && tier.seats.concat(' Seat') }
+                    {tier.seats > 1 && tier.seats.concat(' Seats') }
                   </Typography>
                 </div>
               </CardContent>
@@ -94,13 +95,13 @@ const Plans = (props: Props) => {
   )
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return {
     auth: selectAuthState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   showDialog: bindActionCreators(showDialog, dispatch)
 })
 

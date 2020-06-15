@@ -16,21 +16,22 @@ import VrRoomGridScene from './vrRoomGrid'
 import VrRoomScene from './vrRoom'
 import VideoScene, { VideoProps } from './video'
 
-import isExternalUrl from '../../../utils/isExternalUrl'
+import isExternalUrl from '../../../../shared/utils/isExternalUrl'
 
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr
 
 interface Props {
-  sceneName?: string,
-  manifest?: string,
-  title?: string,
-  format?: string,
+  sceneName?: string
+  manifest?: string
+  title?: string
+  format?: string
   url?: string
 }
 
-export default function RootScene(props: Props): any {
+export default function RootScene (props: Props): any {
   let [sceneName, setSceneName] = useState(props.sceneName || 'landing')
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const [videoProps, setVideoProps] = useState({
     manifest: props.manifest || '',
     title: props.title || '',
@@ -42,7 +43,7 @@ export default function RootScene(props: Props): any {
   if (sceneName === 'video360') {
     sceneName = 'video'
   }
-  const navigationHandler = e => {
+  const navigationHandler = (e: any): void => {
     if (e.stopPropagation) e.stopPropagation()
     let url = e.detail.url
 
@@ -50,7 +51,7 @@ export default function RootScene(props: Props): any {
       window.location.href = url
     } else {
       if (!url.startsWith('/')) {
-        url = '/' + url
+        url = ('/').concat(url)
       }
       // don't push state when popstate event (e.g. back button clicked)
       // push state (change page url) to new location without reloading page
@@ -65,8 +66,10 @@ export default function RootScene(props: Props): any {
       if (newSceneName === 'video360') {
         newSceneName = 'video'
       }
+      // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
       if (newSceneName === config.vrRoomGrid.name + '-scene' || newSceneName === 'video') {
         const params = new URLSearchParams(document.location.search.substring(1))
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         if (newSceneName === config.vrRoomGrid.name + '-scene') {
           setVrRoomUrl(params.get('url'))
         } else {
@@ -81,7 +84,7 @@ export default function RootScene(props: Props): any {
     }
   }
   // handle change page e.g. browser back button clicked
-  function popStateHandler(e) {
+  function popStateHandler (e): void {
     // this condition is to stop a bug where e.state is null
     if (!e.state || !e.state.as) return
     e.preventDefault()
@@ -110,13 +113,13 @@ export default function RootScene(props: Props): any {
         <Assets />
         <Player movementEnabled={playerMovementEnabled} />
         {sceneName !== 'video' &&
-         sceneName !== config.vrRoomGrid.name + '-scene' &&
+         sceneName !== `${config.vrRoomGrid.name as string}-scene` &&
          <Environment />}
 
         {sceneName === 'landing' && <LandingScene />}
         {sceneName === config.videoGrid.name && <VideoGridScene />}
         {sceneName === config.vrRoomGrid.name && <VrRoomGridScene />}
-        {sceneName === config.vrRoomGrid.name + '-scene' && <VrRoomScene url={vrRoomUrl} />}
+        {sceneName === `${config.vrRoomGrid.name as string}-scene` && <VrRoomScene url={vrRoomUrl} />}
         {sceneName === 'video' &&
           <VideoScene
             manifest={videoProps.manifest}

@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import React, { Fragment, useState } from 'react'
 import EmailIcon from '@material-ui/icons/Email'
 import SocialIcon from '@material-ui/icons/Public'
 import UserIcon from '@material-ui/icons/Person'
@@ -11,7 +11,7 @@ import PasswordLogin from './PasswordLogin'
 
 const config = getConfig().publicRuntimeConfig
 
-const TabPanel = (props: any) => {
+const TabPanel = (props: any): any => {
   const { children, value, index } = props
 
   return (
@@ -21,7 +21,7 @@ const TabPanel = (props: any) => {
   )
 }
 
-const SignIn = () => {
+const SignIn = (): any => {
   let enableSmsMagicLink = true
   let enableEmailMagicLink = true
   let enableUserPassword = false
@@ -30,12 +30,12 @@ const SignIn = () => {
   let isEnabledFacebook = false
   const [tabIndex, setTabIndex] = useState(0)
 
-  const handleChange = (event: any, newValue: number) => {
+  const handleChange = (event: any, newValue: number): void => {
     event.preventDefault()
     setTabIndex(newValue)
   }
 
-  if (config && config.auth) {
+  if (config?.auth) {
     enableSmsMagicLink = config.auth.enableSmsMagicLink
     enableEmailMagicLink = config.auth.enableEmailMagicLink
     enableUserPassword = config.auth.enableUserPassword

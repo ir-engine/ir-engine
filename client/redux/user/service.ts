@@ -1,11 +1,11 @@
 import { Dispatch } from 'redux'
 import { client } from '../feathers'
-import { Relationship } from '../../interfaces/Relationship'
+import { Relationship } from '../../../shared/interfaces/Relationship'
 import { loadedUserRelationship, loadedUsers, changedRelation } from './actions'
-import { User } from '../../interfaces/User'
+import { User } from '../../../shared/interfaces/User'
 
 export function getUserRelationship(userId: string) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     // dispatch(actionProcessing(true))
 
     console.log('------get relations-------', userId)
@@ -25,7 +25,7 @@ export function getUserRelationship(userId: string) {
 }
 
 export function getUsers(userId: string, search: string) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     // dispatch(actionProcessing(true))
 
     client.service('user').find({
@@ -46,7 +46,7 @@ export function getUsers(userId: string, search: string) {
 }
 
 function createRelation(userId: string, relatedUserId: string, type: 'friend' | 'blocking') {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     client.service('user-relationship').create({
       relatedUserId,
       userRelationshipType: type
@@ -62,7 +62,7 @@ function createRelation(userId: string, relatedUserId: string, type: 'friend' | 
 }
 
 function removeRelation(userId: string, relatedUserId: string) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     client.service('user-relationship').remove(relatedUserId)
       .then((res: any) => {
         console.log('add relations------', res)
@@ -76,7 +76,7 @@ function removeRelation(userId: string, relatedUserId: string) {
 }
 
 function patchRelation(userId: string, relatedUserId: string, type: 'friend') {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     client.service('user-relationship').patch(relatedUserId, {
       userRelationshipType: type
     }).then((res: any) => {

@@ -11,7 +11,7 @@ const config = getConfig().publicRuntimeConfig.xr.vrRoomGrid
 const media: PublicScene[] = config.scenes
 
 export function fetchPublicScenes () {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): any => {
     const scenes = media as PublicScene[]
     return dispatch(scenesFetchedSuccess(scenes))
   }
