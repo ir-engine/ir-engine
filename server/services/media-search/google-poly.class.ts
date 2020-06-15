@@ -52,7 +52,7 @@ export default class GooglePolyMedia {
 
   public async getModel (modelId: string): Promise<any> {
     try {
-      return await fetch(`${this.GOOGLE_POLY_ASSET_URL}/${modelId}?key=${this.GOOGLE_POLY_AUTH_TOKEN}`)
+      return await fetch(`${this.GOOGLE_POLY_ASSET_URL}/${modelId}?key=${this.GOOGLE_POLY_AUTH_TOKEN as string}`)
         .then(async (response) => {
           if (response.status >= 400) {
             return await Promise.reject(new BadRequest(response.statusText, { status: response.status }))

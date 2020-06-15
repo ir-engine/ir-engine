@@ -26,7 +26,6 @@ export class Project implements ServiceMethods<Data> {
     const projects = await this.models.collection.findAll({
       where: {
         userId: loggedInUser.userId
-        // type: collectionType.project
       },
       attributes: ['name', 'id', 'sid', 'url'],
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
@@ -42,7 +41,6 @@ export class Project implements ServiceMethods<Data> {
       where: {
         sid: id,
         userId: loggedInUser.userId
-        // type: collectionType.project
       },
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
     })
