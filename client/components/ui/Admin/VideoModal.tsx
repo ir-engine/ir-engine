@@ -20,27 +20,27 @@ import './admin.scss'
 import { selectAdminState } from '../../../redux/admin/selector'
 interface Props {
   open: boolean
-  handleClose: any,
-  createVideo?: typeof createVideo,
-  updateVideo?: typeof updateVideo,
-  deleteVideo?: typeof deleteVideo,
-  admin?: any,
-  video?: any,
+  handleClose: any
+  createVideo?: typeof createVideo
+  updateVideo?: typeof updateVideo
+  deleteVideo?: typeof deleteVideo
+  admin?: any
+  video?: any
   mode: string
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return {
     admin: selectAdminState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   createVideo: bindActionCreators(createVideo, dispatch),
   updateVideo: bindActionCreators(updateVideo, dispatch),
   deleteVideo: bindActionCreators(deleteVideo, dispatch)
 })
-const VideoModal = (props: Props) => {
+const VideoModal = (props: Props): any => {
   const initialState = {
     id: props.video?.id ? props.video.id : '',
     name: props.video?.name ? props.video.name : '',
@@ -80,15 +80,15 @@ const VideoModal = (props: Props) => {
     }
   }, [props.video])
 
-  const handleInput = (e: any) => {
+  const handleInput = (e: any): void => {
     state[e.target.name] = e.target.value
   }
 
-  const handleCheck = (e: any) => {
+  const handleCheck = (e: any): void => {
     state[e.target.name] = e.target.checked
   }
 
-  const createVideo = (e:any) => {
+  const createVideo = (e: any): void => {
     e.preventDefault()
 
     const form = {
@@ -124,7 +124,7 @@ const VideoModal = (props: Props) => {
     }
   }
 
-  const deleteVideo = (id: string) => {
+  const deleteVideo = (id: string): void => {
     props.deleteVideo(id)
     props.handleClose()
   }

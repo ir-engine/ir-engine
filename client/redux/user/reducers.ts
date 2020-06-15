@@ -10,7 +10,7 @@ import {
   LOADED_USERS,
   CHANGED_RELATION
 } from '../actions'
-import { RelationshipSeed } from '../../interfaces/Relationship'
+import { RelationshipSeed } from '../../../shared/interfaces/Relationship'
 
 export const initialState = {
   relationship: RelationshipSeed,

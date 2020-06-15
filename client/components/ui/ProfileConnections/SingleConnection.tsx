@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import Link from '@material-ui/core/Link'
@@ -18,8 +18,8 @@ import {
 } from '../../../redux/auth/service'
 import MagicLinkEmail from '../Auth/MagicLinkEmail'
 import PasswordLogin from '../Auth/PasswordLogin'
-import { User } from '../../../interfaces/User'
-import { IdentityProviderSeed } from '../../../interfaces/IdentityProvider'
+import { User } from '../../../../shared/interfaces/User'
+import { IdentityProviderSeed } from '../../../../shared/interfaces/IdentityProvider'
 import { showAlert } from '../../../redux/alert/actions'
 import './style.scss'
 
@@ -191,7 +191,7 @@ const SingleConnection = (props: Props): any => {
   )
 }
 
-const SingleConnectionWrapper = (props: Props) => <SingleConnection {...props} />
+const SingleConnectionWrapper = (props: Props): any => <SingleConnection {...props} />
 
 export default connect(
   mapStateToProps,

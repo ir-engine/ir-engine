@@ -1,9 +1,9 @@
-import { Fragment } from 'react'
+import React, { Fragment } from 'react'
 import Avatar from '@material-ui/core/Avatar'
 import Typography from '@material-ui/core/Typography'
 import './style.scss'
 
-export default function LetterAvatars() {
+const LetterAvatars = (): any => {
   return (
     <Fragment>
       <Typography variant="body1" color="inherit">
@@ -15,3 +15,5 @@ export default function LetterAvatars() {
     </Fragment>
   )
 }
+
+export default LetterAvatars

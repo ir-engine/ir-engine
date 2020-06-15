@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { selectInVrModeState } from '../../../redux/app/selector'
 

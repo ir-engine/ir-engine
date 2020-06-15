@@ -6,8 +6,8 @@ const THREE = AFRAME.THREE
 export const ComponentName = 'camera-angle'
 
 export interface Data {
-  [key: string]: any,
-  cameraEl: string,
+  [key: string]: any
+  cameraEl: string
   yBotThrehold: number
 }
 
@@ -17,23 +17,23 @@ export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
 }
 
 export interface Props {
-  addHandlers: () => void,
-  removeHandlers: () => void,
-  aHandler: () => void,
-  aProp: boolean,
-  cameraEl: AFRAME.Entity,
-  camera: THREE.Object3D,
-  setCameraEl: () => void,
-  setActiveCameraHandler: (e: any) => void,
-  passedThreshold: (axis: string) => void,
-  direction: string,
-  flipDirection: () => void,
+  addHandlers: () => void
+  removeHandlers: () => void
+  aHandler: () => void
+  aProp: boolean
+  cameraEl: AFRAME.Entity
+  camera: THREE.Object3D
+  setCameraEl: () => void
+  setActiveCameraHandler: (e: any) => void
+  passedThreshold: (axis: string) => void
+  direction: string
+  flipDirection: () => void
 }
 
 export const Component: AFRAME.ComponentDefinition<Props> = {
   schema: ComponentSchema,
-  data: {
-  } as Data,
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  data: {} as Data,
 
   aProp: true,
   cameraEl: null,
@@ -47,22 +47,22 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     else this.el.sceneEl?.addEventListener('loaded', this.setCameraEl.bind(this))
   },
 
-  play() {
+  play () {
     this.addHandlers()
   },
 
-  pause() {
+  pause () {
     this.removeHandlers()
   },
 
-  update(oldData: Data) {
+  update (oldData: Data) {
     const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
     if (changedData.includes('cameraEl')) {
       this.setCameraEl()
     }
   },
 
-  tick() {
+  tick () {
     const wd = new THREE.Vector3()
     this.camera.getWorldDirection(wd)
     if (this.direction === 'out' && wd.y < this.data.yBotThrehold) {
@@ -70,7 +70,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     } else if (this.direction === 'in' && wd.y > this.data.yBotThrehold) { this.passedThreshold('y') }
   },
 
-  setCameraEl() {
+  setCameraEl () {
     if (this.data.cameraEl === '') {
       this.cameraEl = this.el.sceneEl?.systems.camera.activeCameraEl
     } else {
@@ -79,30 +79,30 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.camera = this.cameraEl.getObject3D('camera')
   },
 
-  aHandler() {
+  aHandler () {
 
   },
 
-  setActiveCameraHandler(e: any) {
+  setActiveCameraHandler (e: any) {
     this.cameraEl = e.detail.cameraEl
     this.camera = this.cameraEl.getObject3D('camera')
   },
 
-  passedThreshold(axis: string) {
+  passedThreshold (axis: string) {
     this.flipDirection()
     this.el.emit('camera-passed-threshold', { direction: this.direction, axis: axis })
   },
 
-  flipDirection() {
+  flipDirection () {
     this.direction = this.direction === 'out' ? 'in' : 'out'
   },
 
-  addHandlers: function() {
+  addHandlers: function () {
     this.el.addEventListener('an-event', this.aHandler.bind(this))
     this.el.sceneEl.addEventListener('camera-set-active', this.setActiveCameraHandler)
   },
 
-  removeHandlers: function() {
+  removeHandlers: function () {
     this.el.removeEventListener('an-event', this.aHandler)
     this.el.sceneEl.removeEventListener('camera-set-active', this.setActiveCameraHandler)
   }

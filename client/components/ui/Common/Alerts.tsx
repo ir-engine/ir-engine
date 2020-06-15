@@ -1,3 +1,4 @@
+import React from 'react'
 import { connect } from 'react-redux'
 import Alert from '@material-ui/lab/Alert'
 import { selectAlertState } from '../../../redux/alert/selector'
@@ -11,20 +12,20 @@ interface Props {
   alertCancel: typeof alertCancel
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): any => {
   return {
     alert: selectAlertState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
   alertCancel: bindActionCreators(alertCancel, dispatch)
 })
 
-const Alerts = (props: Props) => {
+const Alerts = (props: Props): any => {
   const { alert, alertCancel } = props
 
-  const handleClose = (e: any) => {
+  const handleClose = (e: any): void => {
     e.preventDefault()
     alertCancel()
   }
@@ -51,6 +52,6 @@ const Alerts = (props: Props) => {
   )
 }
 
-const AlertsWrapper = (props: any) => <Alerts {...props} />
+const AlertsWrapper = (props: any): any => <Alerts {...props} />
 
 export default connect(mapStateToProps, mapDispatchToProps)(AlertsWrapper)

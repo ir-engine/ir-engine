@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
@@ -17,7 +17,7 @@ import Checkbox from '@material-ui/core/Checkbox'
 import NextLink from 'next/link'
 import getConfig from 'next/config'
 import './style.scss'
-import { User } from '../../../interfaces/User'
+import { User } from '../../../../shared/interfaces/User'
 
 const config = getConfig().publicRuntimeConfig.staticPages
 const authConfig = getConfig().publicRuntimeConfig.auth

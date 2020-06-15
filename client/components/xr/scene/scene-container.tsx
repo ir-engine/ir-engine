@@ -4,10 +4,10 @@ import { setAppLoaded, setAppLoadPercent, setAppInVrMode } from '../../../redux/
 import { Scene } from 'aframe-react'
 import SvgVr from '../../icons/svg/Vr'
 import LoadingScreen from '../../ui/Loader'
-import { useEffect } from 'react'
+import React, { Fragment, useEffect } from 'react'
 import LoadingBar from '../../ui/LoadingBar'
 
-type Props = {
+interface Props {
   children: any
 }
 export default function SceneContainer({ children }: Props): any {
@@ -22,11 +22,11 @@ export default function SceneContainer({ children }: Props): any {
     }
   }, [loaded])
   return (
-    <>
-      {!loaded && (<>
+    <Fragment>
+      {!loaded && (<Fragment>
         <LoadingScreen />
         <LoadingBar loadPercent={loadPercent} />
-      </>)}
+      </Fragment>)}
 
       <Scene
         vr-mode-ui="enterVRButton: #enterVRButton"
@@ -45,6 +45,6 @@ export default function SceneContainer({ children }: Props): any {
           <SvgVr className="enterVR" />
         </a>
       </Scene>
-    </>
+    </Fragment>
   )
 }

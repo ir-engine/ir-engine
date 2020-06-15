@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import Box from '@material-ui/core/Box'
 import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
@@ -13,7 +13,7 @@ interface Props {
   verifyEmail: typeof verifyEmail
 }
 
-const VerifyEmail = (props: Props) => {
+const VerifyEmail = (props: Props): any => {
   const { verifyEmail, token } = props
 
   useEffect(() => {
