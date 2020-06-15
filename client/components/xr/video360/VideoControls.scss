@@ -1,0 +1,23 @@
+#videoplayercontrols {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+#videoplayercontrols.active {
+  z-index: 1000006;
+  cursor: pointer;
+}
+
+#videoplayercontrols.disabled {
+  z-index: 0;
+}
+
+#videotext.active {
+  z-index: 1000005;
+}
+
+#videotext.disabled {
+  z-index: 0;
+}
+

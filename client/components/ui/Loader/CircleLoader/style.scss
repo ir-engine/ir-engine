@@ -1,0 +1,316 @@
+// Generic non-effect-related CSS
+.body {
+    margin: 0;
+    padding: 0;
+    font-size: 0;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 95vh;
+  
+  h1 {
+    display        : block;
+    height         : 25px;
+    font-size      : 12px;
+  }
+  
+  > div {
+    display        : inline-block;
+    width          : 25%;
+    min-width      : 500px;
+    margin-bottom  : 50px;
+    height: inherit;
+    > div{
+      margin : 0 auto;
+      //filter:invert(1) hue-rotate(70deg);
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////////////
+//////////////////////////////// PLASMA ///////////////////////////////
+///////////////////////////////////////////////////////////////////////
+@keyframes plasma{
+  0%   { transform : scale(6) translate3d( 20px,0,0); }
+  50%  { transform : scale(1) translate3d(-60px,0,0); }
+  100% { transform : scale(6) translate3d( 20px,0,0); }
+}
+
+.plasma{
+  backface-visibility: hidden;
+  z-index: 20;
+  position      : relative;
+  width         : 250px;
+  height        : 250px;
+  padding       : 0;
+  border-radius : 50%;
+  overflow      : hidden;
+  
+  .gooey-container {
+    filter        : url(#gooey-plasma);
+    position      : absolute;
+    top           : 50%;
+    left          : 50%;
+    transform     : translate(-50%,-50%);
+    width         : 300px;
+    height        : 300px;
+    padding       : 0;
+    margin        : 0;
+    box-shadow    : 0 0 0 20px #ff4081 inset;
+    border-radius : 50%;
+    overflow      : hidden;
+    
+    .bubble {
+      display    : block;
+      position   : absolute;
+      top        : 50%;
+      left       : 50%;
+      width      : 100%;
+      text-align : right;
+
+      &:before{
+        content       : "";
+        display       : inline-block;
+        background    : #ff4081;
+        width         : 30px;
+        height        : 30px;
+        border-radius : 50%;
+        transform     : scale(6) translate3d(20px,0,0);
+        box-shadow    : 0 0 15px 0 #0000ff inset,
+                        0 0 10px 0 #0000ff inset;
+      }
+    }
+    @for $i from 1 through 6 {
+      .bubble:nth-child(#{$i}) {
+        transform : translate(-50%,-50%) rotate(60deg*$i);
+      }
+      .bubble:nth-child(#{$i}):before {
+        animation : plasma 3s+($i/2) linear .25s*$i infinite;
+      }
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////////////
+/////////////////////////////// PLASMA-2 //////////////////////////////
+///////////////////////////////////////////////////////////////////////
+
+@keyframes plasma-2{
+  0%  { transform:scale(1) translate3d( 60px,0,0) }
+  50% { transform:scale(2) translate3d(-60px,0,0) }
+  100%{ transform:scale(1) translate3d( 60px,0,0) }
+}
+@keyframes plasma-2-rotate{
+  0%  { transform: translate(-50%,-50%) rotate(0deg)}
+  100%{ transform: translate(-50%,-50%) rotate(360deg)}
+}
+
+.plasma-2{
+  backface-visibility: hidden;
+  z-index: 20;
+  position      : relative;
+  overflow      : hidden;
+  border-radius : 50%;
+  width         : 250px;
+  height        : 250px;
+  padding       : 0;
+  
+  .gooey-container {
+    overflow      : hidden;
+    border-radius : 50%;
+    position      : absolute;
+    top           : 50%;
+    left          : 50%;
+    transform     : translate(-50%,-50%);
+    filter        : url(#gooey-plasma-2);
+    width         : 300px;
+    height        : 300px;
+    padding       : 0;
+    margin        : 0;
+    box-shadow    : 0 0 0 20px #9900ff inset;
+    animation     : plasma-2-rotate 5s linear infinite;
+    
+    .bubble {
+      display    : block;
+      position   : absolute;
+      top        : 50%;
+      left       : 50%;
+      width      : 100%;
+      text-align : right;
+
+      &:before{
+        content       : "";
+        display       : inline-block;
+        background    : #ff4081;
+        width         : 50px;
+        height        : 50px;
+        border-radius : 50%;
+        transform     :scale(1) translate3d(75px,0,0);
+        box-shadow    : 0 0 10px 5px #0000ff inset,
+                        0 0 10px 0 #0000ff inset;
+      }
+    }
+    @for $i from 1 through 6 {
+      .bubble:nth-child(#{$i}) {
+        transform : translate(-50%,-50%) rotate(60deg*$i);
+      }
+      .bubble:nth-child(#{$i}):before {
+        animation : plasma-2 5s*($i / 2) ease .5s/$i infinite;
+      }
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////// FILL ////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+@keyframes fill-level{
+  0%   { transform : translate3d(-413px, -53px,0) rotate(45deg) } 
+  15%  { transform : translate3d(-393px, -73px,0) rotate(25deg) } 
+  30%  { transform : translate3d(-343px,-123px,0) rotate(45deg) }
+  45%  { transform : translate3d(-283px,-183px,0) rotate(55deg) }
+  60%  { transform : translate3d(-263px,-203px,0) rotate(45deg) }
+  75%  { transform : translate3d(-243px,-223px,0) rotate(35deg) }
+  90%  { transform : translate3d(-223px,-243px,0) rotate(45deg) }
+  100% { transform : translate3d(-203px,-263px,0) rotate(55deg) }
+}
+
+.fill{
+  backface-visibility: hidden;
+  z-index       : 20;
+  position      : relative;
+  width         : 250px;
+  height        : 250px;
+  padding       : 0;
+  border-radius : 50% 50% 50% 50%;
+  overflow      : hidden;
+  transform     : rotate(-45deg);
+  
+  .gooey-container {
+    filter        : url(#gooey-fill);
+    position      : absolute;
+    top           : 50%;
+    left          : 50%;
+    transform     : translate(-50%,-50%);
+    width         : 300px;
+    height        : 300px;
+    padding       : 0;
+    margin        : 0;
+    box-shadow    : 0 0 0 18px #0000ff inset;
+    border-radius : 50% 0 50% 50%; 
+    overflow      : hidden;
+    
+    .level, .bubble {
+      background : #ff4081;
+    }
+    
+    .level{
+      display          : block;
+      margin           : 0 auto;
+      position         : absolute;
+      top              : 300px;
+      left             : 50%;
+      width            : 500px; 
+      height           : 350px;
+      text-align       : center;
+      transform-origin : 50% 0;
+      transform        : translate3d(-413px, -53px,0) rotate(45deg);
+      animation        : fill-level 5s linear infinite;
+      box-shadow       : 0 0 100px 0 #0000ff inset, 
+                         0 0 200px 0 #0000ff inset;
+    }
+    @keyframes fill-bubbles{
+      0%   { transform : translate3d(-100px,-20px,0) rotate(  0deg)} 
+      50%  { transform : translate3d( 100px,-40px,0) rotate(180deg)}
+      100% { transform : translate3d(-100px,-20px,0) rotate(360deg)}
+    }
+    .bubble {
+      content       : "";
+      display       : inline-block;
+      width         : 100px;
+      height        : 100px;
+      border-radius : 50%;
+      transform-origin : 50% 50%;
+      transform     : rotate(0deg) translate3d(0,0,0);
+      box-shadow    : 0 0 30px 20px #0000ff inset;
+    }
+    @for $i from 1 through 8 {
+      .bubble:nth-child(#{$i}) {
+        animation : fill-bubbles 3s*($i / 2) ease .5s/$i infinite;
+      }
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////////////
+////////////////////////////// BLACK-HOLE /////////////////////////////
+///////////////////////////////////////////////////////////////////////
+
+@keyframes black-hole{
+  0%  { transform:scale(1) translate3d( 75px,0,0) }
+  50% { transform:scale(4) translate3d( 55px,0,0) }
+  100%{ transform:scale(1) translate3d( 75px,0,0) }
+}
+@keyframes black-hole-rotate{
+  0%   { transform: translate(-50%,-50%) rotate(  0deg) skew(3deg)}
+  50%  { transform: translate(-50%,-50%) rotate(180deg) skew(0deg)}
+  100% { transform: translate(-50%,-50%) rotate(360deg) skew(3deg)}
+}
+
+.black-hole{
+  backface-visibility: hidden;
+  z-index: 20;
+  position      : relative;
+  overflow      : hidden;
+  border-radius : 50%;
+  width         : 250px;
+  height        : 250px;
+  padding       : 0;
+  box-shadow    : 0 0 30px 0 #0000ff inset;
+  
+  .gooey-container {
+    overflow      : hidden;
+    border-radius : 50%;
+    position      : absolute;
+    top           : 50%;
+    left          : 50%;
+    transform     : translate(-50%,-50%) rotate(0deg) skew(5deg);
+    filter        : url(#gooey-plasma-2);
+    width         : 300px;
+    height        : 300px;
+    padding       : 0;
+    margin        : 0;
+    box-shadow    : 0 0 0 22px #9900ff inset;
+    animation     : black-hole-rotate 5s ease infinite;
+    
+    .bubble {
+      display    : block;
+      position   : absolute;
+      top        : 50%;
+      left       : 50%;
+      width      : 100%;
+      text-align : right;
+
+      &:before{
+        content       : "";
+        display       : inline-block;
+        background    : #ff4081;
+        width         : 100px;
+        height        : 100px;
+        border-radius : 50%;
+        transform     : scale(1) translate3d(75px,0,0);
+        box-shadow    : 0 0 10px 0 #0000ff inset,
+                        0 0 10px 0 #0000ff inset;
+      }
+    }
+    @for $i from 1 through 6 {
+      .bubble:nth-child(#{$i}) {
+        transform : translate(-50%,-50%) rotate(60deg*$i);
+      }
+      .bubble:nth-child(#{$i}):before {
+        animation : black-hole 1s*($i) ease .5s*$i infinite;
+      }
+    }
+  }
+}

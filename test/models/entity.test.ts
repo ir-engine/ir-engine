@@ -1,58 +1,50 @@
-// import app from '../../src/app'
+import app from '../../server/app'
 
-// describe('CRUD operation on \'Entity\' model', () => {
-//   const model = app.service('entity').Model
-//   const entityTypeModel = app.service('entity-type').Model
-//   let entityType: any
+describe('CRUD operation on \'Entity\' model', () => {
+  const model = app.service('entity').Model
+  const entityTypeModel = app.service('entity-type').Model
+  let entityType: any
 
-//   before(async () => {
-//     const entity = await entityTypeModel.create({
-//       type: 'test_entity_type'
-//     })
-//     entityType = entity.type
-//   })
+  beforeAll(async () => {
+    const entity = await entityTypeModel.create({
+      type: 'test_entity_type'
+    })
+    entityType = entity.type
+  })
 
-//   it('Create', done => {
-//     model.create({
-//       name: 'test',
-//       entityType: entityType
-//     }).then(res => {
-//       done()
-//     }).catch(done)
-//   })
+  it('Create', async () => {
+    await model.create({
+      name: 'test',
+      entityType: entityType
+    })
+  })
 
-//   it('Read', done => {
-//     model.findOne({
-//       where: {
-//         entityType: entityType
-//       }
-//     }).then(res => {
-//       done()
-//     }).catch(done)
-//   })
+  it('Read', async () => {
+    await model.findOne({
+      where: {
+        entityType: entityType
+      }
+    })
+  })
 
-//   it('Update', done => {
-//     model.update(
-//       { name: 'test1' },
-//       { where: { entityType: entityType } }
-//     ).then(res => {
-//       done()
-//     }).catch(done)
-//   })
+  it('Update', async () => {
+    await model.update(
+      { name: 'test1' },
+      { where: { entityType: entityType } }
+    )
+  })
 
-//   it('Delete', done => {
-//     model.destroy({
-//       where: { entityType: entityType }
-//     }).then(res => {
-//       done()
-//     }).catch(done)
-//   })
+  it('Delete', async () => {
+    await model.destroy({
+      where: { entityType: entityType }
+    })
+  })
 
-//   after(async () => {
-//     entityTypeModel.destroy({
-//       where: {
-//         type: entityType
-//       }
-//     })
-//   })
-// })
+  afterAll(async () => {
+    await entityTypeModel.destroy({
+      where: {
+        type: entityType
+      }
+    })
+  })
+})
