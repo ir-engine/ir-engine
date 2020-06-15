@@ -1,4 +1,3 @@
-
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { Project } from './project.class'
