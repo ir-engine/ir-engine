@@ -12,16 +12,46 @@ import { buildAbsoluteURL } from "url-toolkit";
 import PublishedSceneDialog from "./PublishedSceneDialog";
 import { matchesFileTypes, AudioFileTypes } from "../ui/assets/fileTypes";
 import { RethrownError } from "../editor/utils/errors";
+import { searchTermsExistInBlacklist } from "./BlockSearchTerms.js";
 
 // Media related functions should be kept up to date with Hubs media-utils:
-// https://github.com/mozilla/hubs/blob/master/src/utils/media-utils.js
+// ${prefix}github.com/mozilla/hubs/blob/master/src/utils/media-utils.js
 
 const resolveUrlCache = new Map();
 const resolveMediaCache = new Map();
 
-const RETICULUM_SERVER = configs.RETICULUM_SERVER || document.location.hostname;
+//initializing BLOCK_SEARCH_TERMS constant
+const BLOCK_SEARCH_TERMS = configs.BLOCK_SEARCH_TERMS;
+const objectOfVerification = {};
+for (let i = 0; i < BLOCK_SEARCH_TERMS.length; i++) {
+  objectOfVerification[BLOCK_SEARCH_TERMS[i]] = 0;
+}
+const API_SERVER_ADDRESS = configs.API_SERVER_ADDRESS || document.location.hostname;
 
-// thanks to https://developer.mozilla.org/en-US/docs/Web/API/WindowBase64/Base64_encoding_and_decoding
+const {
+  API_ASSETS_ROUTE,
+  API_ASSETS_ACTION,
+  API_MEDIA_ROUTE,
+  API_MEDIA_SEARCH_ROUTE,
+  API_META_ROUTE,
+  API_PROJECT_PUBLISH_ACTION,
+  API_PROJECTS_ROUTE,
+  API_SCENES_ROUTE,
+  API_SOCKET_ENDPOINT,
+  CLIENT_ADDRESS,
+  CLIENT_SCENE_ROUTE,
+  CLIENT_LOCAL_SCENE_ROUTE,
+  CORS_PROXY_SERVER,
+  THUMBNAIL_ROUTE,
+  THUMBNAIL_SERVER,
+  USE_DIRECT_UPLOAD_API,
+  NON_CORS_PROXY_DOMAINS,
+  USE_HTTPS
+} = configs;
+
+const prefix = USE_HTTPS === "true" ? "https://" : "http://";
+
+// thanks to developer.mozilla.org/en-US/docs/Web/API/WindowBase64/Base64_encoding_and_decoding
 function b64EncodeUnicode(str) {
   // first we use encodeURIComponent to get percent-encoded UTF-8, then we convert the percent-encodings
   // into raw bytes which can be fed into btoa.
@@ -38,9 +68,9 @@ const farsparkEncodeUrl = url => {
     .replace(/\//g, "_");
 };
 
-const nonCorsProxyDomains = (configs.NON_CORS_PROXY_DOMAINS || "").split(",");
-if (configs.CORS_PROXY_SERVER) {
-  nonCorsProxyDomains.push(configs.CORS_PROXY_SERVER);
+const nonCorsProxyDomains = (NON_CORS_PROXY_DOMAINS || "").split(",");
+if (CORS_PROXY_SERVER) {
+  nonCorsProxyDomains.push(CORS_PROXY_SERVER);
 }
 
 function shouldCorsProxy(url) {
@@ -62,15 +92,15 @@ export const proxiedUrlFor = url => {
     return url;
   }
 
-  return `https://${configs.CORS_PROXY_SERVER}/${url}`;
+  return `${prefix}${CORS_PROXY_SERVER}/${url}`;
 };
 
 export const scaledThumbnailUrlFor = (url, width, height) => {
-  if (configs.RETICULUM_SERVER.includes("hubs.local") && url.includes("hubs.local")) {
+  if (API_SERVER_ADDRESS.includes("localhost") && url.includes("localhost")) {
     return url;
   }
 
-  return `https://${configs.THUMBNAIL_SERVER}/thumbnail/${farsparkEncodeUrl(url)}?w=${width}&h=${height}`;
+  return `${prefix}${THUMBNAIL_SERVER}${THUMBNAIL_ROUTE}${farsparkEncodeUrl(url)}?w=${width}&h=${height}`;
 };
 
 const CommonKnownContentTypes = {
@@ -98,12 +128,15 @@ export default class Project extends EventEmitter {
     const { protocol, host } = new URL(window.location.href);
 
     this.serverURL = protocol + "//" + host;
-    this.apiURL = `https://${RETICULUM_SERVER}`;
+    this.apiURL = `${prefix}${API_SERVER_ADDRESS}`;
 
     this.projectDirectoryPath = "/api/files/";
 
     // Max size in MB
     this.maxUploadSize = 128;
+
+    // This will manage the not authorized users
+    this.handleAuthorization();
   }
 
   getAuthContainer() {
@@ -111,8 +144,8 @@ export default class Project extends EventEmitter {
   }
 
   async authenticate(email, signal) {
-    const reticulumServer = RETICULUM_SERVER;
-    const socketUrl = `wss://${reticulumServer}/socket`;
+    const reticulumServer = API_SERVER_ADDRESS;
+    const socketUrl = `wss://${reticulumServer}${API_SOCKET_ENDPOINT}`;
     const socket = new Socket(socketUrl, { params: { session_id: uuid() } });
     socket.connect();
 
@@ -134,7 +167,7 @@ export default class Project extends EventEmitter {
 
     const authComplete = new Promise(resolve =>
       channel.on("auth_credentials", ({ credentials: token }) => {
-        localStorage.setItem(LOCAL_STORE_KEY, JSON.stringify({ credentials: { email, token } }));
+        this.saveCredentials(email, token);
         this.emit("authentication-changed", true);
         resolve();
       })
@@ -145,6 +178,10 @@ export default class Project extends EventEmitter {
     signal.removeEventListener("abort", onAbort);
 
     return authComplete;
+  }
+
+  saveCredentials(email, token) {
+    localStorage.setItem(LOCAL_STORE_KEY, JSON.stringify({ credentials: { email, token } }));
   }
 
   isAuthenticated() {
@@ -200,7 +237,9 @@ export default class Project extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    const response = await this.fetch(`https://${RETICULUM_SERVER}/api/v1/projects`, { headers });
+    const response = await this.fetch(`${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}`, { headers });
+
+    console.log("Response: " + Object.values(response));
 
     const json = await response.json();
 
@@ -219,11 +258,12 @@ export default class Project extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    const response = await this.fetch(`https://${RETICULUM_SERVER}/api/v1/projects/${projectId}`, {
+    const response = await this.fetch(`${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}/${projectId}`, {
       headers
     });
 
     const json = await response.json();
+    console.log("Response: " + Object.values(response));
 
     return json;
   }
@@ -236,7 +276,7 @@ export default class Project extends EventEmitter {
     const cacheKey = `${url}|${index}`;
     if (resolveUrlCache.has(cacheKey)) return resolveUrlCache.get(cacheKey);
 
-    const request = this.fetch(`https://${RETICULUM_SERVER}/api/v1/media`, {
+    const request = this.fetch(`${prefix}${API_SERVER_ADDRESS}${API_MEDIA_ROUTE}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ media: { url, index } })
@@ -250,6 +290,7 @@ export default class Project extends EventEmitter {
           throw new Error(message + response.statusText.replace(/\n/g, "\n  "));
         }
       }
+      console.log("Response: " + Object.values(response));
 
       return response.json();
     });
@@ -260,7 +301,10 @@ export default class Project extends EventEmitter {
   }
 
   fetchContentType(accessibleUrl) {
-    return this.fetch(accessibleUrl, { method: "HEAD" }).then(r => r.headers.get("content-type"));
+    const f = this.fetch(accessibleUrl, { method: "HEAD" }).then(r => r.headers.get("content-type"));
+    console.log("Response: " + Object.values(f));
+
+    return f;
   }
 
   async getContentType(url) {
@@ -328,8 +372,8 @@ export default class Project extends EventEmitter {
   }
 
   unproxyUrl(baseUrl, url) {
-    if (configs.CORS_PROXY_SERVER) {
-      const corsProxyPrefix = `https://${configs.CORS_PROXY_SERVER}/`;
+    if (CORS_PROXY_SERVER) {
+      const corsProxyPrefix = `${prefix}${CORS_PROXY_SERVER}/`;
 
       if (baseUrl.startsWith(corsProxyPrefix)) {
         baseUrl = baseUrl.substring(corsProxyPrefix.length);
@@ -349,8 +393,23 @@ export default class Project extends EventEmitter {
     return proxiedUrlFor(url);
   }
 
+  // initializing searchTermFilteringBlacklist service
+  searchTermFilteringBlacklist(value) {
+    const wordsArray = value.split(" ");
+    let okBlacklist = false;
+    for (let i = 0; i < wordsArray.length; i++) {
+      if (wordsArray[i].trim() in objectOfVerification) okBlacklist = true;
+    }
+    return okBlacklist;
+  }
+
   async searchMedia(source, params, cursor, signal) {
-    const url = new URL(`https://${RETICULUM_SERVER}/api/v1/media/search`);
+    if (searchTermsExistInBlacklist(params.query)) {
+      // If search params contain a blacklisted word, return nothing
+      return { results: {}, suggestions: {}, nextCursor: null };
+    }
+
+    const url = new URL(`${prefix}${API_SERVER_ADDRESS}${API_MEDIA_ROUTE}${API_MEDIA_SEARCH_ROUTE}`);
 
     const headers = {
       "content-type": "application/json"
@@ -371,7 +430,9 @@ export default class Project extends EventEmitter {
     }
 
     if (params.query) {
-      searchParams.set("q", params.query);
+      //checking BLOCK_SEARCH_TERMS
+      if (this.searchTermFilteringBlacklist(params.query)) false;
+      else searchParams.set("q", params.query);
     }
 
     if (params.filter) {
@@ -386,7 +447,9 @@ export default class Project extends EventEmitter {
       searchParams.set("cursor", cursor);
     }
 
+    console.log("Fetching...");
     const resp = await this.fetch(url, { headers, signal });
+    console.log("Response: " + Object.values(resp));
 
     if (signal.aborted) {
       const error = new Error("Media search aborted");
@@ -477,9 +540,10 @@ export default class Project extends EventEmitter {
 
     const body = JSON.stringify({ project });
 
-    const projectEndpoint = `https://${RETICULUM_SERVER}/api/v1/projects`;
+    const projectEndpoint = `${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}`;
 
     const resp = await this.fetch(projectEndpoint, { method: "POST", headers, body, signal });
+    console.log("Response: " + Object.values(resp));
 
     if (signal.aborted) {
       throw new Error("Save project aborted");
@@ -526,9 +590,10 @@ export default class Project extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    const projectEndpoint = `https://${RETICULUM_SERVER}/api/v1/projects/${projectId}`;
+    const projectEndpoint = `${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}/${projectId}`;
 
     const resp = await this.fetch(projectEndpoint, { method: "DELETE", headers });
+    console.log("Response: " + Object.values(resp));
 
     if (resp.status === 401) {
       throw new Error("Not authenticated");
@@ -608,9 +673,10 @@ export default class Project extends EventEmitter {
       project
     });
 
-    const projectEndpoint = `https://${RETICULUM_SERVER}/api/v1/projects/${projectId}`;
+    const projectEndpoint = `${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}/${projectId}`;
 
     const resp = await this.fetch(projectEndpoint, { method: "PATCH", headers, body, signal });
+    console.log("Response: " + Object.values(resp));
 
     const json = await resp.json();
 
@@ -642,14 +708,23 @@ export default class Project extends EventEmitter {
     return json;
   }
 
+  async getProjectFile(sceneId) {
+    return await this.props.api.getScene(sceneId);
+    // TODO: Make this a main branch thing
+    // const scene = await this.props.api.getScene(sceneId);
+    // return await this.props.api.fetch(scene.scene_project_url).then(response => response.json());
+  }
+
   async getScene(sceneId) {
     const headers = {
       "content-type": "application/json"
     };
 
-    const response = await this.fetch(`https://${RETICULUM_SERVER}/api/v1/scenes/${sceneId}`, {
+    const response = await this.fetch(`${prefix}${API_SERVER_ADDRESS}${API_SCENES_ROUTE}/${sceneId}`, {
       headers
     });
+
+    console.log("Response: " + Object.values(response));
 
     const json = await response.json();
 
@@ -657,10 +732,11 @@ export default class Project extends EventEmitter {
   }
 
   getSceneUrl(sceneId) {
-    if (configs.HUBS_SERVER === "localhost:8080" || configs.HUBS_SERVER === "hubs.local:8080") {
-      return `https://${configs.HUBS_SERVER}/scene.html?scene_id=${sceneId}`;
+    // If we recognize a local address relative to this Spoke instance
+    if (CLIENT_ADDRESS === "localhost:8080") {
+      return `${prefix}${CLIENT_ADDRESS}${CLIENT_LOCAL_SCENE_ROUTE}${sceneId}`;
     } else {
-      return `https://${configs.HUBS_SERVER}/scenes/${sceneId}`;
+      return `${prefix}${CLIENT_ADDRESS}${CLIENT_SCENE_ROUTE}${sceneId}`;
     }
   }
 
@@ -895,7 +971,7 @@ export default class Project extends EventEmitter {
           content: publishParams.contentAttributions
         }
       };
-
+      s;
       const token = this.getToken();
 
       const headers = {
@@ -904,11 +980,16 @@ export default class Project extends EventEmitter {
       };
       const body = JSON.stringify({ scene: sceneParams });
 
-      const resp = await this.fetch(`https://${RETICULUM_SERVER}/api/v1/projects/${project.project_id}/publish`, {
-        method: "POST",
-        headers,
-        body
-      });
+      const resp = await this.fetch(
+        `${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}/${project.project_id}${API_PROJECT_PUBLISH_ACTION}`,
+        {
+          method: "POST",
+          headers,
+          body
+        }
+      );
+
+      console.log("Response: " + Object.values(resp));
 
       if (signal.aborted) {
         const error = new Error("Publish project aborted");
@@ -956,13 +1037,20 @@ export default class Project extends EventEmitter {
   }
 
   async upload(blob, onUploadProgress, signal) {
-    // Use direct upload API, see: https://github.com/mozilla/reticulum/pull/319
-    const { phx_host: uploadHost } = await (await this.fetch(`https://${RETICULUM_SERVER}/api/v1/meta`)).json();
-    const uploadPort = new URL(`https://${RETICULUM_SERVER}`).port;
+    // Use direct upload API, see: ${prefix}github.com/mozilla/reticulum/pull/319
+    let host, port;
+
+    if (USE_DIRECT_UPLOAD_API) {
+      const { phx_host: uploadHost } = await (
+        await this.fetch(`${prefix}${API_SERVER_ADDRESS}${API_META_ROUTE}`)
+      ).json();
+      const uploadPort = new URL(`${prefix}${API_SERVER_ADDRESS}`).port;
+      host = uploadHost;
+      port = uploadPort;
+    }
 
     return await new Promise((resolve, reject) => {
       const request = new XMLHttpRequest();
-
       const onAbort = () => {
         request.abort();
         const error = new Error("Upload aborted");
@@ -975,7 +1063,11 @@ export default class Project extends EventEmitter {
         signal.addEventListener("abort", onAbort);
       }
 
-      request.open("post", `https://${uploadHost}:${uploadPort}/api/v1/media`, true);
+      if (USE_DIRECT_UPLOAD_API) {
+        request.open("post", `${prefix}${host}:${port}${API_MEDIA_ROUTE}`, true);
+      } else {
+        request.open("post", `http://${API_SERVER_ADDRESS}${API_MEDIA_ROUTE}`, true);
+      }
 
       request.upload.addEventListener("progress", e => {
         if (onUploadProgress) {
@@ -1011,7 +1103,7 @@ export default class Project extends EventEmitter {
   }
 
   uploadAssets(editor, files, onProgress, signal) {
-    return this._uploadAssets(`https://${RETICULUM_SERVER}/api/v1/assets`, editor, files, onProgress, signal);
+    return this._uploadAssets(`${prefix}${API_SERVER_ADDRESS}${API_ASSETS_ROUTE}`, editor, files, onProgress, signal);
   }
 
   async _uploadAssets(endpoint, editor, files, onProgress, signal) {
@@ -1046,12 +1138,12 @@ export default class Project extends EventEmitter {
   }
 
   uploadAsset(editor, file, onProgress, signal) {
-    return this._uploadAsset(`https://${RETICULUM_SERVER}/api/v1/assets`, editor, file, onProgress, signal);
+    return this._uploadAsset(`${prefix}${API_SERVER_ADDRESS}${API_ASSETS_ROUTE}`, editor, file, onProgress, signal);
   }
 
   uploadProjectAsset(editor, projectId, file, onProgress, signal) {
     return this._uploadAsset(
-      `https://${RETICULUM_SERVER}/api/v1/projects/${projectId}/assets`,
+      `${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}/${projectId}${API_ASSETS_ACTION}`,
       editor,
       file,
       onProgress,
@@ -1103,6 +1195,7 @@ export default class Project extends EventEmitter {
     });
 
     const resp = await this.fetch(endpoint, { method: "POST", headers, body, signal });
+    console.log("Response: " + Object.values(resp));
 
     const json = await resp.json();
 
@@ -1130,9 +1223,10 @@ export default class Project extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    const assetEndpoint = `https://${RETICULUM_SERVER}/api/v1/assets/${assetId}`;
+    const assetEndpoint = `${prefix}${API_SERVER_ADDRESS}${API_ASSETS_ROUTE}/${assetId}`;
 
     const resp = await this.fetch(assetEndpoint, { method: "DELETE", headers });
+    console.log("Response: " + Object.values(resp));
 
     if (resp.status === 401) {
       throw new Error("Not authenticated");
@@ -1153,9 +1247,10 @@ export default class Project extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    const projectAssetEndpoint = `https://${RETICULUM_SERVER}/api/v1/projects/${projectId}/assets/${assetId}`;
+    const projectAssetEndpoint = `${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}/${projectId}${API_ASSETS_ACTION}/${assetId}`;
 
     const resp = await this.fetch(projectAssetEndpoint, { method: "DELETE", headers });
+    console.log("Response: " + Object.values(resp));
 
     if (resp.status === 401) {
       throw new Error("Not authenticated");
@@ -1179,6 +1274,7 @@ export default class Project extends EventEmitter {
   async fetch(url, options) {
     try {
       const res = await fetch(url, options);
+      console.log("Response: " + Object.values(res));
 
       if (res.ok) {
         return res;
@@ -1194,6 +1290,17 @@ export default class Project extends EventEmitter {
         error.message += " (Possibly a CORS error)";
       }
       throw new RethrownError(`Failed to fetch "${url}"`, error);
+    }
+  }
+
+  handleAuthorization() {
+    if (!this.isAuthenticated()) {
+      window.location = `${window.location.origin}?redirectTo=spoke&login=true`;
+    } else {
+      const params = new URLSearchParams(document.location.search);
+      const accessToken = params.get("bearer");
+      const email = params.get("email");
+      this.saveCredentials(email, accessToken);
     }
   }
 }
