@@ -11,6 +11,10 @@ cp ../spoke/configs.js ../node_modules/xr3-spoke/src/configs.js
 cp ../spoke/Api.js ../node_modules/xr3-spoke/src/api/Api.js
 # look through new file and replace routes so no errors
 
+# Copy custom files
+cp ../spoke/block_search_terms.js ../node_modules/xr3-spoke/src/block_search_terms.js
+# look through new file and replace routes so no errors
+
 # style overrides?
 cp ../spoke/theme.js ../node_modules/xr3-spoke/src/ui/theme.js
 cp ../spoke/GlobalStyle.js ../node_modules/xr3-spoke/src/ui/GlobalStyle.js
