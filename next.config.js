@@ -11,7 +11,7 @@ module.exports = withImages(
       API_SERVER: process.env.API_SERVER
     },
     dir: './client',
-    distDir: '../.next',
+    distDir: './.next',
     webpack(config, options) {
       config.resolve.alias.utils = path.join(__dirname, 'utils')
       config.optimization.minimize = process.env.NODE_ENV === 'production'

@@ -10,3 +10,4 @@ kubernetes/**
 config/prod.json
 
 .next/
+client/.next/

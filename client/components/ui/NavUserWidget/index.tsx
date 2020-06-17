@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Button from '@material-ui/core/Button'
 import SignIn from '../Auth/Login'
 import { logoutUser } from '../../../redux/auth/service'
@@ -16,7 +16,7 @@ const mapStateToProps = (state: any): any => {
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   logoutUser: bindActionCreators(logoutUser, dispatch),
-  showDialog: bindActionCreators(showDialog, dispatch)
+  showDialog: bindActionCreators(showDialog, dispatch),
 })
 
 interface Props {
@@ -25,13 +25,29 @@ interface Props {
   showDialog?: typeof showDialog
 }
 
+const styles = {
+  loginButton: {
+    color: 'white',
+  },
+  logoutButton: {
+    color: 'white',
+  },
+}
+
 const NavUserBadge = (props: Props): any => {
-  const styles = {
-    loginButton: {
-      color: 'white'
-    },
-    logoutButton: {
-      color: 'white'
+  useEffect(() => {
+    handleLogin()
+  }, [])
+
+  const handleLogout = () => {
+    this.props.logoutUser()
+  }
+
+  const handleLogin = () => {
+    const params = new URLSearchParams(document.location.search)
+    const showLoginDialog = params.get('login')
+    if (showLoginDialog === String(true)) {
+      this.props.showDialog({ children: <SignIn /> })
     }
   }
 
@@ -44,7 +60,7 @@ const NavUserBadge = (props: Props): any => {
       {isLoggedIn && (
         <div className="flex">
           <Dropdown
-            avatarUrl={user?.avatarUrl}
+            avatarUrl={user && user.avatarUrl}
             auth={props.auth}
             logoutUser={props.logoutUser}
           />
@@ -55,7 +71,7 @@ const NavUserBadge = (props: Props): any => {
           style={styles.loginButton}
           onClick={() =>
             props.showDialog({
-              children: <SignIn />
+              children: <SignIn />,
             })
           }
         >

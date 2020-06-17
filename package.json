@@ -173,7 +173,7 @@
     "url-loader": "^4.1.0",
     "uuid": "^8.0.0",
     "winston": "^3.2.1",
-    "xr3-spoke": "0.0.4",
+    "xr3-spoke": "^0.8.14",
     "youtube-dl": "^3.0.2"
   },
   "devDependencies": {
@@ -261,6 +261,7 @@
     "ts-node": "^8.10.2",
     "ts-node-dev": "^1.0.0-pre.44",
     "typescript": "3.8.3",
-    "webpack": "^4.42.1"
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
   }
 }
