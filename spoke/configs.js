@@ -28,8 +28,6 @@ get(configs, "CLIENT_ADDRESS", process.env.CLIENT_ADDRESS);
 get(configs, "CORS_PROXY_SERVER", process.env.CORS_PROXY_SERVER);
 get(configs, "GA_TRACKING_ID", process.env.GA_TRACKING_ID);
 get(configs, "IS_MOZ", process.env.IS_MOZ);
-//add config BLOCK_SEARCH_TERMS
-get(configs, "BLOCK_SEARCH_TERMS", require("./block_search_terms.js"));
 get(configs, "NON_CORS_PROXY_DOMAINS", process.env.NON_CORS_PROXY_DOMAINS);
 get(configs, "SENTRY_DSN", process.env.SENTRY_DSN);
 get(configs, "THUMBNAIL_ROUTE", process.env.THUMBNAIL_ROUTE);

@@ -159,6 +159,8 @@ export function loginUserByJwt (accessToken: string, redirectSuccess: string, re
             })
             .finally(() => {
               dispatch(loginUserSuccess(authUser))
+              handleAfterLoginRedirect(authUser, redirectSuccess)
+
               loadUserData(dispatch, authUser.identityProvider.userId)
             })
         } else {
@@ -464,8 +466,12 @@ export function updateUsername (userId: string, name: string) {
   }
 }
 
-function handleAfterLoginRedirect(authUser, redirectTo?) {
+function handleAfterLoginRedirect (authUser, redirectTo?): void {
   const accessToken = authUser.accessToken
+  let email = ''
+  if (authUser?.identityProvider?.type === 'email') {
+    email = authUser?.identityProvider?.token
+  }
   const params = new URLSearchParams(document.location.search)
   redirectTo = params.get('redirectTo') || '/'
   if (params.get('redirectTo')) {
