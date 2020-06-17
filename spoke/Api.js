@@ -36,6 +36,7 @@ const {
   API_META_ROUTE,
   API_PROJECT_PUBLISH_ACTION,
   API_PROJECTS_ROUTE,
+  API_RESOLVE_MEDIA_ROUTE,
   API_SCENES_ROUTE,
   API_SOCKET_ENDPOINT,
   CLIENT_ADDRESS,
@@ -276,7 +277,7 @@ export default class Project extends EventEmitter {
     const cacheKey = `${url}|${index}`;
     if (resolveUrlCache.has(cacheKey)) return resolveUrlCache.get(cacheKey);
 
-    const request = this.fetch(`${prefix}${API_SERVER_ADDRESS}${API_MEDIA_ROUTE}`, {
+    const request = this.fetch(`${prefix}${API_SERVER_ADDRESS}${API_RESOLVE_MEDIA_ROUTE}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ media: { url, index } })
@@ -1294,13 +1295,15 @@ export default class Project extends EventEmitter {
   }
 
   handleAuthorization() {
-    if (!this.isAuthenticated()) {
-      window.location = `${window.location.origin}?redirectTo=spoke&login=true`;
-    } else {
-      const params = new URLSearchParams(document.location.search);
-      const accessToken = params.get("bearer");
-      const email = params.get("email");
+    const params = new URLSearchParams(document.location.search);
+    const accessToken = params.get("bearer");
+    const email = params.get("email");
+   
+    if((accessToken && email) || this.isAuthenticated()){
       this.saveCredentials(email, accessToken);
+    }
+    else {
+      window.location = `${window.location.origin}?redirectTo=spoke&login=true`;
     }
   }
 }
