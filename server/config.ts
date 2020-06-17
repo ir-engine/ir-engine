@@ -66,7 +66,7 @@ const client = {
   title: process.env.APP_LOGO ?? 'KaiXR',
   url: process.env.APP_URL ??
     process.env.APP_HOST ?? // Legacy env var, to deprecate
-    'http://localhost:3030'
+    'https://localhost:3030'
 }
 
 /**

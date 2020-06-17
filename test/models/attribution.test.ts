@@ -6,7 +6,7 @@ describe('CRUD operation on \'Attribution\' model', () => {
   it('Create', async () => {
     await model.create({
       creator: 'test',
-      url: 'http://localhost:3030'
+      url: 'https://localhost:3030'
     })
   })
 

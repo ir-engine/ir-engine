@@ -24,7 +24,7 @@ export default class SceneRoot extends React.Component<Props> {
     // // Connect to a different URL
 
     // // TODO: Replace with server
-    // const restClient = rest('http://localhost:3030')
+    // const restClient = rest('https://localhost:3030')
 
     // // Configure an AJAX library (see below) with that client
     // // @ts-ignore
