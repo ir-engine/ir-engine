@@ -93,9 +93,10 @@ const clientApp = next({
 
 const clientAppHandler = clientApp.getRequestHandler()
 
+app.use(express.static(config.server.rootDir + '/node_modules/xr3-spoke/dist/'))
+app.get('/spoke/*', (req,res) => res.sendFile(path.join(config.server.rootDir, '/node_modules/xr3-spoke/dist/spoke/index.html')))
+
 clientApp.prepare().then(() => {
-  app.use(express.static(config.server.rootDir + '/node_modules/xr3-spoke/dist/'))
-  app.get('/spoke/*', (req,res) => res.sendFile(path.join(config.server.rootDir, '/node_modules/xr3-spoke/dist/spoke/index.html')))
 
   app.all('*', (req, res) => {
     return clientAppHandler(req, res)
