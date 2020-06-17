@@ -13,6 +13,8 @@ cp ../spoke/Api.js ../node_modules/xr3-spoke/src/api/Api.js
 
 # Copy custom files
 cp ../spoke/BlockSearchTerms.js ../node_modules/xr3-spoke/src/api/BlockSearchTerms.js
+cp ../spoke/CustomComponents/ui/projects/CreateProjectPage.js ../node_modules/xr3-spoke/src/ui/projects/CreateProjectPage.js
+
 # look through new file and replace routes so no errors
 
 # style overrides?

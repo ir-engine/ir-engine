@@ -70,17 +70,17 @@ function generateEACUV(tileOrder: string[], tileRotation: string[], tileFlip: st
   for (let r = rows - 1; r >= 0; r--) {
     for (let c = 0; c < cols; c++) {
       cubeFaceCoords.push(cropFaceBorders([
-        THREE.MathUtils.clamp(c / cols, 0, 1),
-        THREE.MathUtils.clamp((r + 1) / rows, 0, 1),
+        clamp(c / cols, 0, 1),
+        clamp((r + 1) / rows, 0, 1),
 
-        THREE.MathUtils.clamp(c / cols, 0, 1),
-        THREE.MathUtils.clamp(r / rows, 0, 1),
+        clamp(c / cols, 0, 1),
+        clamp(r / rows, 0, 1),
 
-        THREE.MathUtils.clamp((c + 1) / cols, 0, 1),
-        THREE.MathUtils.clamp(r / rows, 0, 1),
+        clamp((c + 1) / cols, 0, 1),
+        clamp(r / rows, 0, 1),
 
-        THREE.MathUtils.clamp((c + 1) / cols, 0, 1),
-        THREE.MathUtils.clamp((r + 1) / rows, 0, 1)
+        clamp((c + 1) / cols, 0, 1),
+        clamp((r + 1) / rows, 0, 1)
       ], cropX, cropY))
     }
   }
@@ -299,6 +299,10 @@ const ComponentSystem = {
   component: EaccubeComponent,
   primitive: EaccubePrimitive,
   shader: EaccubeShader
+}
+
+function clamp ( value, min, max ) {
+  return Math.max( min, Math.min( max, value ) );
 }
 
 export default ComponentSystem

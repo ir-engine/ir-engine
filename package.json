@@ -168,13 +168,13 @@
     "socket.io-client": "^2.3.0",
     "socketio": "^1.0.0",
     "subscriptions-transport-ws": "^0.9.16",
-    "three": "^0.115.0",
+    "three": "github:MozillaReality/three.js",
     "ts-loader": "^7.0.5",
     "universal-analytics": "^0.4.20",
     "url-loader": "^4.1.0",
     "uuid": "^8.0.0",
     "winston": "^3.2.1",
-    "xr3-spoke": "^0.8.15",
+    "xr3-spoke": "^0.8.19",
     "youtube-dl": "^3.0.2"
   },
   "devDependencies": {
