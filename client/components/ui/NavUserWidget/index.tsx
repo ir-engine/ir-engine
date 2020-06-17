@@ -40,14 +40,14 @@ const NavUserBadge = (props: Props): any => {
   }, [])
 
   const handleLogout = () => {
-    this.props.logoutUser()
+    props.logoutUser()
   }
 
   const handleLogin = () => {
     const params = new URLSearchParams(document.location.search)
     const showLoginDialog = params.get('login')
     if (showLoginDialog === String(true)) {
-      this.props.showDialog({ children: <SignIn /> })
+      props.showDialog({ children: <SignIn /> })
     }
   }
 

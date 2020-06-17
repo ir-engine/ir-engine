@@ -173,7 +173,7 @@
     "url-loader": "^4.1.0",
     "uuid": "^8.0.0",
     "winston": "^3.2.1",
-    "xr3-spoke": "^0.8.14",
+    "xr3-spoke": "^0.8.15",
     "youtube-dl": "^3.0.2"
   },
   "devDependencies": {
