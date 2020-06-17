@@ -20,7 +20,7 @@ cp ../spoke/theme.js ../node_modules/xr3-spoke/src/ui/theme.js
 cp ../spoke/GlobalStyle.js ../node_modules/xr3-spoke/src/ui/GlobalStyle.js
 
 #.env?
-cp ../spoke/.env.defaults ../node_modules/xr3-spoke/.env.defaults
+cp ../spoke/.env.defaults ../node_modules/xr3-spoke/.env.prod
 
 echo -e "\e[32mCompiling Spoke..."
 
