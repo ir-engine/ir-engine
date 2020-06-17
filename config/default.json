@@ -140,8 +140,7 @@
         }
       }
     },
-    "server_address": "localhost:3030",
-    "apiServer": "http://localhost:3030",
+    "apiServer": "https://localhost:3030",
     "siteTitle": "XREngine",
     "siteDescription": "Connected Worlds for Everyone",
     "featherStoreKey": "XREngine-Auth-Store",

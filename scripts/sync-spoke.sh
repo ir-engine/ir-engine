@@ -19,6 +19,9 @@ cp ../spoke/BlockSearchTerms.js ../node_modules/xr3-spoke/src/api/BlockSearchTer
 cp ../spoke/theme.js ../node_modules/xr3-spoke/src/ui/theme.js
 cp ../spoke/GlobalStyle.js ../node_modules/xr3-spoke/src/ui/GlobalStyle.js
 
+#webpack
+cp ../spoke/webpack.config.js ../node_modules/xr3-spoke/webpack.config.js
+
 #.env?
 cp ../spoke/.env.defaults ../node_modules/xr3-spoke/.env.prod
 
