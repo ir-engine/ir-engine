@@ -103,6 +103,7 @@ export function loginUserByPassword (form: EmailLoginForm) {
           dispatch(registerUserByEmailSuccess(authUser.identityProvider))
           return
         }
+
         dispatch(loginUserSuccess(authUser))
         handleAfterLoginRedirect(authUser, '/')
         loadUserData(dispatch, authUser.identityProvider.userId)
@@ -479,6 +480,6 @@ function handleAfterLoginRedirect (authUser, redirectTo?): void {
   }
   Router.push({
     pathname: redirectTo,
-    // TODO: Pass email
-    query: { bearer: accessToken, email: '' }  })
+    query: { bearer: accessToken, email }
+  })
 }
