@@ -35,7 +35,7 @@
     "precommit": "no-master-commits -b master,dev",
     "build-spoke": "cd scripts && bash sync-spoke.sh",
     "postinstall": "yarn run build-spoke",
-    "generate-certs": "mkdir -p certs && openssl req -nodes -new -x509 -keyout certs/key.pem -out certs/cert.pem"
+    "generate-certs": "cd scripts && bash generate-certs.sh"
   },
   "resolutions": {
     "is-promise": "2.1.0",
