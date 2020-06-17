@@ -10,7 +10,7 @@ import { World } from 'ecsy'
 const EcsyPage = (): any => {
   let world: any
   const client: any = new ApolloClient({
-    uri: 'http://localhost:3030/graphql'
+    uri: 'https://localhost:3030/graphql'
   })
   const ENTITY_QUERY = gql`
     {
