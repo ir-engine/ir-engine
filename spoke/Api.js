@@ -238,11 +238,11 @@ export default class Project extends EventEmitter {
 
     const json = await response.json();
 
-    if (!Array.isArray(json.projects)) {
+    if (!Array.isArray(json.data)) {
       throw new Error(`Error fetching projects: ${json.error || "Unknown error."}`);
     }
 
-    return json.projects;
+    return json.data;
   }
 
   async getProject(projectId) {
