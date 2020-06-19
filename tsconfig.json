@@ -14,7 +14,8 @@
     "moduleResolution":"node",
     "typeRoots": ["shared/types", "./node_modules/@types"],
     "sourceMap": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "outDir": "./lib"
   },
   "exclude": [
     "node_modules"
