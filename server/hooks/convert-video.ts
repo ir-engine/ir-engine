@@ -110,7 +110,7 @@ export default async (context: any): Promise<void> => {
           await new Promise((resolve, reject) => {
             console.log('Starting to download ' + url)
             youtubedl.exec(url,
-              ['--format=bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]', '--output=' + fileId + '_raw.mp4'],
+              ['--format=bestvideo[ext=mp4]+bestaudio[ext=m4a]', '--output=' + fileId + '_raw.mp4'],
               { cwd: localFilePath },
               (err: any, output: any) => {
                 if (err) {
@@ -153,7 +153,7 @@ export default async (context: any): Promise<void> => {
           try {
             // -hls_playlist 1 generates HLS playlist files as well. The master playlist is generated with the filename master.m3u8
             let ffmpegCommand = 'ffmpeg -i ' + rawVideoPath + ' -f dash -hls_playlist 1 '
-            const ffmpegCommandEnd = '-c:v libx264 -map 0:v:0 -map 0:a:0 -b:v:0 7000k -profile:v:0 main -use_timeline 1 -use_template 1 ' + dashManifestPath
+            const ffmpegCommandEnd = '-c:v libx264 -map 0:v:0 -map 0:a:0 -profile:v:0 main -use_timeline 1 -use_template 1 ' + dashManifestPath
             if (localContext.data.metadata.stereoscopic === true) { ffmpegCommand += stereoConversion }
             ffmpegCommand += ffmpegCommandEnd
             await promiseExec(ffmpegCommand)
