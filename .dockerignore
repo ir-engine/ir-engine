@@ -8,3 +8,6 @@ lib/
 kubernetes/**
 .vscode
 config/prod.json
+
+.next/
+client/.next/

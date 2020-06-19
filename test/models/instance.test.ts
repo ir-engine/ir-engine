@@ -1,11 +1,11 @@
-import app from '../../src/app'
+import app from '../../server/app'
 
 describe('CRUD operation on \'Instance\' model', () => {
   const model = app.service('instance').Model
   const locationModel = app.service('location').Model
-  let locationId: any, instanceId: any
+  let locationId: any
 
-  before(async () => {
+  beforeAll(async () => {
     const location = await locationModel.create({
       name: 'test location',
       maxUsersPerInstance: 10
@@ -13,43 +13,34 @@ describe('CRUD operation on \'Instance\' model', () => {
     locationId = location.id
   })
 
-  it('Create', done => {
+  it('Create', () => {
     model.create({
-      locationId: locationId
-    }).then(res => {
-      instanceId = res.id
-      done()
-    }).catch(done)
+      locationId
+    })
   })
 
-  it('Read', done => {
+  it('Read', () => {
     model.findOne({
       where: {
-        id: instanceId
+        locationId
       }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  it('Update', done => {
+  it('Update', () => {
     model.update(
       { currentUsers: 20 },
-      { where: { id: instanceId } }
-    ).then(res => {
-      done()
-    }).catch(done)
+      { where: { locationId } }
+    )
   })
 
-  it('Delete', done => {
+  it('Delete', () => {
     model.destroy({
-      where: { id: instanceId }
-    }).then(res => {
-      done()
-    }).catch(done)
+      where: { locationId }
+    })
   })
 
-  after(() => {
+  afterAll(() => {
     locationModel.destroy({
       where: {
         id: locationId

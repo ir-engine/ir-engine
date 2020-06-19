@@ -20,4 +20,4 @@ ENV PORT=3030
 ENV MYSQL_URL=
 
 EXPOSE 3030
-CMD [ "node", "lib/index.js" ]
+CMD [ "node", "lib/server/index.js" ]

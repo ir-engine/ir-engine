@@ -1,64 +1,47 @@
-import app from '../../src/app'
+import app from '../../server/app'
 import GenerateRandomAnimalName from 'random-animal-name-generator'
 
 describe('CRUD operation on \'User\' model', () => {
   const model = app.service('user').Model
   const userRoleModel = app.service('user-role').Model
 
-  before(async () => {
+  beforeAll(async () => {
     await userRoleModel.create({
       role: 'testrole'
     })
   })
 
-  it('Create', (done) => {
+  it('Create', () => {
     model.create({
       name: 'test',
       userRole: 'testrole'
-    }).then(res => {
-      done()
-    }).catch(err => {
-      console.log(err)
     })
   })
 
-  it('Read', done => {
+  it('Read', () => {
     model.findOne({
       where: {
         name: 'test',
         userRole: 'testrole'
       }
-    }).then(res => {
-      done()
-    }).catch(err => {
-      console.log(err)
     })
   })
 
-  it('Update', done => {
+  it('Update', () => {
     model.update(
       { name: GenerateRandomAnimalName().toUpperCase() },
       {
         where: { name: 'test', userRole: 'testrole' }
-      }).then(res => {
-      done()
-    }).catch(err => {
-      console.log(err)
-    })
+      })
   })
 
-  it('Delete', done => {
+  it('Delete', () => {
     model.destroy({
       where: { userRole: 'testrole' }
-    }).then(res => {
-      done()
-    }).catch(err => {
-      console.log('ERROR')
-      console.log(err)
     })
   })
 
-  after(async () => {
+  afterAll(async () => {
     await userRoleModel.destroy({
       where: {
         role: 'testrole'

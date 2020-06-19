@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   sodipodi:docname="gear.svg"
+   inkscape:version="1.0 (6e3e5246a0, 2020-05-07)"
+   id="svg16959"
+   version="1.1"
+   viewBox="0 0 21.574163 21.655443"
+   height="21.655443mm"
+   width="21.574163mm">
+  <defs
+     id="defs16953">
+    <linearGradient
+       id="linearGradient9205"
+       spreadMethod="pad"
+       gradientTransform="matrix(37.02248,75.76693,75.76693,-37.02248,206.07376,767.91589)"
+       gradientUnits="userSpaceOnUse"
+       y2="0"
+       x2="1"
+       y1="0"
+       x1="0">
+      <stop
+         id="stop9199"
+         offset="0"
+         style="stop-opacity:1;stop-color:#63d7c2" />
+      <stop
+         id="stop9201"
+         offset="0.62569527"
+         style="stop-opacity:1;stop-color:#63d7c2" />
+      <stop
+         id="stop9203"
+         offset="1"
+         style="stop-opacity:1;stop-color:#1e0757" />
+    </linearGradient>
+  </defs>
+  <sodipodi:namedview
+     inkscape:window-maximized="0"
+     inkscape:window-y="27"
+     inkscape:window-x="122"
+     inkscape:window-height="1016"
+     inkscape:window-width="1428"
+     showgrid="false"
+     inkscape:document-rotation="0"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="mm"
+     inkscape:cy="526.63797"
+     inkscape:cx="1346.4844"
+     inkscape:zoom="0.35"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base" />
+  <metadata
+     id="metadata16956">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(250.42399,-8.8270377)"
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1">
+    <g
+       transform="matrix(0.35277777,0,0,-0.35277777,-319.80595,305.88497)"
+       id="g13681">
+      <g
+         id="g9187">
+        <g
+           id="g9189">
+          <g
+             id="g9195">
+            <g
+               id="g9197">
+              <path
+                 d="m 217.33,839.082 c -0.935,-5.661 -3.418,-6.373 -8.418,-4.724 v 0 c -2.833,0.935 -5.361,-0.579 -4.138,-4.347 v 0 c 1.505,-4.634 0.563,-7.572 -4.839,-7.664 v 0 c -1.751,-0.031 -2.296,-1.029 -2.749,-2.391 v 0 c -0.532,-1.606 -0.57,-2.952 1.214,-3.866 v 0 c 1.41,-0.722 2.601,-1.707 2.4,-3.735 v 0 c 0.15,-2.055 -0.113,-4.032 -2.554,-5.051 v 0 c -1.795,-0.75 -1.755,-2.259 -1.329,-3.893 v 0 c 0.387,-1.482 1.14,-2.254 2.782,-2.347 v 0 c 4.993,-0.289 5.956,-3.034 4.596,-7.449 v 0 c -1.256,-4.08 0.539,-5.514 4.986,-4.487 v 0 c 3.69,0.852 6.465,-0.267 6.818,-4.442 v 0 c 0.144,-1.709 0.254,-2.94 2.137,-3.505 v 0 c 1.871,-0.562 3.025,-0.267 4.355,1.427 v 0 c 2.681,3.417 5.75,3.479 8.359,-0.25 v 0 c 1.031,-1.473 2.132,-1.96 3.883,-1.55 v 0 c 1.809,0.425 2.411,1.41 2.563,3.226 v 0 c 0.39,4.678 3.231,5.414 7.242,4.28 v 0 c 4.193,-1.185 5.808,0.522 4.706,4.754 v 0 c -0.979,3.763 0.155,6.51 4.244,6.865 v 0 c 2.073,0.179 3.164,0.677 3.741,2.663 v 0 c 0.503,1.725 0.111,2.728 -1.385,3.844 v 0 c -3.63,2.708 -3.499,5.724 0.166,8.298 v 0 c 1.514,1.062 1.959,2.117 1.602,3.849 v 0 c -0.369,1.79 -1.273,2.607 -3.122,2.702 v 0 c -4.833,0.246 -5.743,3.224 -4.256,7.078 v 0 c 0.72,1.868 0.897,3.06 -0.548,4.569 v 0 c -1.363,1.425 -2.463,1.009 -4.063,0.462 v 0 c -3.888,-1.327 -6.931,-0.432 -7.147,4.301 v 0 c -0.084,1.839 -0.516,2.954 -2.269,3.412 v 0 c -1.573,0.411 -2.904,0.349 -4.042,-1.217 v 0 c -3.219,-4.428 -5.982,-3.115 -9.077,0.507 v 0 c -0.937,1.098 -2.043,1.653 -3.045,1.653 v 0 c -1.334,0 -2.484,-0.982 -2.813,-2.972 m 0.141,-29.151 c -0.719,5.718 3.027,10.492 8.75,11.148 v 0 c 5.56,0.638 10.283,-3.06 10.988,-8.604 v 0 c 0.724,-5.689 -3.071,-10.526 -8.762,-11.171 v 0 c -0.41,-0.046 -0.816,-0.069 -1.216,-0.069 v 0 c -5.009,0 -9.113,3.568 -9.76,8.696"
+                 style="fill:url(#linearGradient9205);stroke:none"
+                 id="path9207" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
