@@ -76,8 +76,6 @@ app.configure(channels)
 
 // Host the public folder
 // Configure a middleware for 404s and the error handler
-const p = path.join(config.server.rootDir, '/client')
-
 
 // Host the public folder
 // Configure a middleware for 404s and the error handler
@@ -94,10 +92,9 @@ const clientApp = next({
 const clientAppHandler = clientApp.getRequestHandler()
 
 app.use(express.static(config.server.rootDir + '/node_modules/xr3-spoke/dist/'))
-app.all('/spoke/*', (req,res) => res.sendFile(path.join(config.server.rootDir, '/node_modules/xr3-spoke/dist/spoke/index.html')))
+app.all('/spoke/*', (req, res) => res.sendFile(path.join(config.server.rootDir, '/node_modules/xr3-spoke/dist/spoke/index.html')))
 
 clientApp.prepare().then(() => {
-
   app.all('*', (req, res) => {
     return clientAppHandler(req, res)
   })

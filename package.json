@@ -23,7 +23,7 @@
   },
   "jest": "ts-jest",
   "scripts": {
-    "test": "jest && yarn run lint && yarn run compile",
+    "test": "NODE_ENV=development jest && yarn run lint && yarn run compile",
     "lint": "node node_modules/.bin/eslint --ext .js,.ts server/ --fix",
     "dev": "NODE_ENV=development node --max_old_space_size=3072 -r ts-node/register ./server/",
     "dev-with-spoke": "yarn run build-spoke && NODE_ENV=development node --max_old_space_size=3072 -r ts-node/register ./server/",
