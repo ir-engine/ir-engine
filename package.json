@@ -1,7 +1,7 @@
 {
   "name": "xr3ngine",
   "description": "XR3ngine, built on Node + Feathers + Express + SQL",
-  "version": "0.0.0",
+  "version": "0.2.0",
   "homepage": "",
   "private": true,
   "main": "server",
