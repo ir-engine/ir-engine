@@ -26,7 +26,7 @@ db.url = process.env.MYSQL_URL ??
  * Server / backend
  */
 const server = {
-  enabled: process.env.SERVER_ENABLED ?? true,
+  enabled: process.env.SERVER_ENABLED === 'true' ?? true,
   mode: process.env.SERVER_MODE ?? 'media',
   hostname: process.env.SERVER_HOSTNAME ?? 'localhost',
   port: process.env.SERVER_PORT ?? 3030,
@@ -59,7 +59,7 @@ server.url = process.env.SERVER_URL ??
  * Client / frontend
  */
 const client = {
-  enabled: process.env.CLIENT_ENABLED ?? true,
+  enabled: process.env.CLIENT_ENABLED === 'true' ?? true,
   // Client app logo
   // FIXME - change to XR3ngine logo
   logo: process.env.APP_LOGO ?? 'https://kaixr-static.s3-us-west-2.amazonaws.com/logo.png',
