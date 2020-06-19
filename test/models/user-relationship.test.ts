@@ -1,4 +1,4 @@
-import app from '../../src/app'
+import app from '../../server/app'
 import { Op } from 'sequelize'
 
 describe('CRUD operation on \'UserRelationship\' model', () => {
@@ -7,7 +7,7 @@ describe('CRUD operation on \'UserRelationship\' model', () => {
   const userRelationshipTypeModel = app.service('user-relationship-type').Model
   let userId: any, relatedUserId: any, userRelationshipType: any
 
-  before(async () => {
+  beforeAll(async () => {
     const user = await userModel.create({
       name: 'george'
     })
@@ -27,44 +27,36 @@ describe('CRUD operation on \'UserRelationship\' model', () => {
     }
   })
 
-  it('Create', done => {
+  it('Create', () => {
     model.create({
       userId: userId,
       relatedUserId: relatedUserId,
       type: userRelationshipType
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  it('Read', done => {
+  it('Read', () => {
     model.findOne({
       where: {
         userId: userId
       }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  it('Update', done => {
+  it('Update', () => {
     model.update(
       { type: userRelationshipType },
       { where: { userId: userId } }
-    ).then(res => {
-      done()
-    }).catch(done)
+    )
   })
 
-  it('Delete', done => {
+  it('Delete', () => {
     model.destroy({
       where: { userId: userId }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  after(() => {
+  afterAll(() => {
     userModel.destroy({
       where: {
         id: {

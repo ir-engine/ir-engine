@@ -1,40 +1,32 @@
-import app from '../../src/app'
+import app from '../../server/app'
 
 describe('CRUD operation on \'GroupUserRank\' model', () => {
   const model = app.service('group-user-rank').Model
 
-  it('Create', done => {
-    model.create({
+  it('Create', async () => {
+    await model.create({
       rank: 'test'
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  it('Read', done => {
-    model.findOne({
+  it('Read', async () => {
+    await model.findOne({
       where: {
         rank: 'test'
       }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  it('Update', done => {
-    model.update(
+  it('Update', async () => {
+    await model.update(
       { rank: 'test' },
       { where: { rank: 'test' } }
-    ).then(res => {
-      done()
-    }).catch(done)
+    )
   })
 
-  it('Delete', done => {
-    model.destroy({
+  it('Delete', async () => {
+    await model.destroy({
       where: { rank: 'test' }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 })

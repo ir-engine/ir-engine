@@ -1,29 +1,23 @@
-// import app from '../../src/app'
+import app from '../../server/app'
 
-// describe('CRUD operation on \'Component Type\' model', () => {
-//   const model = app.service('component-type').Model
+describe('CRUD operation on \'Component Type\' model', () => {
+  const model = app.service('component-type').Model
 
-//   it('Create', done => {
-//     model.create({
-//       type: 'test'
-//     }).then(res => {
-//       done()
-//     }).catch(done)
-//   })
+  it('Create', async () => {
+    await model.create({
+      type: 'test'
+    })
+  })
 
-//   it('Read', done => {
-//     model.findOne({
-//       where: { type: 'test' }
-//     }).then(res => {
-//       done()
-//     }).catch(done)
-//   })
+  it('Read', async () => {
+    await model.findOne({
+      where: { type: 'test' }
+    })
+  })
 
-//   it('Delete', done => {
-//     model.destroy({
-//       where: { type: 'test' }
-//     }).then(res => {
-//       done()
-//     }).catch(done)
-//   })
-// })
+  it('Delete', async () => {
+    await model.destroy({
+      where: { type: 'test' }
+    })
+  })
+})
