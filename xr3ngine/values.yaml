@@ -10,7 +10,7 @@ client:
 
   replicaCount: 1
   image:
-    repository: xr3ngine/xrsocial-client
+    repository: xr3ngine/xrsocial
     tag: latest
     pullPolicy: Always
 
@@ -20,7 +20,7 @@ client:
 
   service:
     type: ClusterIP
-    port: 3000
+    port: 3030
 
   ingress:
     enabled: true
@@ -35,7 +35,7 @@ client:
     #    hosts:
     #      - chart-example.local
 
-  
+
 
   serviceAccount:
     create: true
@@ -48,9 +48,11 @@ client:
   affinity: {}
   podSecurityContext: {}
   securityContext: {}
-  
+
   extraEnv:
     API_SERVER: http://xrsocial.local
+    CLIENT_ENABLED: "true"
+    SERVER_ENABLED: "false"
     SITE_TITLE: MyXR
     SITE_DESC: Connected Worlds for Everyone
     NODE_ENV: production
@@ -106,6 +108,9 @@ api:
     # ENV_VAR2: val2
 
     APP_HOST: http://api.xrsocial.local/
+
+    CLIENT_ENABLED: "false"
+    SERVER_ENABLED: "true"
 
     # automatically filled by chart.. ignore
     # MYSQL_PORT: 3306
@@ -198,6 +203,9 @@ media:
     # ENV_VAR2: val2
     
     APP_HOST: http://api.xrsocial.local/
+
+    CLIENT_ENABLED: "false"
+    SERVER_ENABLED: "true"
 
     # automatically filled by chart.. ignore
     # MYSQL_PORT: 3306
