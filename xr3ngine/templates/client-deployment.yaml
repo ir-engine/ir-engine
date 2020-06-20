@@ -41,15 +41,13 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              scheme: HTTPS
               port: http
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
           readinessProbe:
             httpGet:
               path: /
-              scheme: HTTPS
               port: http
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
           resources:
             {{- toYaml .Values.client.resources | nindent 12 }}
       {{- with .Values.client.nodeSelector }}
