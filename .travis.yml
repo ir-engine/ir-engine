@@ -7,6 +7,7 @@ env:
     - MYSQL_DATABASE=xr3ngine
     - MYSQL_USER=root
     - MYSQL_PASSWORD=
+    - CLIENT_ENABLED=true
 
 services:
   - docker
