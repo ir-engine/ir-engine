@@ -53,7 +53,7 @@ const server = {
   url: ''
 }
 server.url = process.env.SERVER_URL ??
-  url.format({ protocol: 'https', ...server })
+  url.format({ protocol: 'http', ...server })
 
 /**
  * Client / frontend
@@ -68,7 +68,7 @@ const client = {
   title: process.env.APP_LOGO ?? 'KaiXR',
   url: process.env.APP_URL ??
     process.env.APP_HOST ?? // Legacy env var, to deprecate
-    'https://localhost:3030'
+    'http://localhost:3030'
 }
 
 /**
