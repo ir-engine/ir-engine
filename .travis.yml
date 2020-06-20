@@ -22,7 +22,8 @@ script:
 
 before_deploy:
   - scripts/setup_helm.sh
-  - scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REIGON $CLUSTER_NAME
+  - scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
+  - kubectl config get-contexts
 
 deploy:
   - provider: script
