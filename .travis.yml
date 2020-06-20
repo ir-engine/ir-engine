@@ -26,6 +26,9 @@ before_deploy:
   - kubectl config get-contexts
   - cat ~/.kube/config
   - kubectl get pods -A
+  - helm ls
+  - helm --kubeconfig ~/.kube.config
+  - helm ls
 
 deploy:
   - provider: script
