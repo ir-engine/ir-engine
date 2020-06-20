@@ -9,3 +9,5 @@ export const AdminPage = (): any => {
     </EmptyLayout>
   )
 }
+
+export default AdminPage

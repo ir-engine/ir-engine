@@ -4,20 +4,21 @@ import config from './config'
 import fs from 'fs'
 import https from 'https'
 import path from 'path'
+import appRootPath from 'app-root-path'
 
 // SSL setup
-const useSSL = process.env.NODE_ENV === 'production' || fs.existsSync(path.join(__dirname, '../certs/key.pem'))
+const useSSL = process.env.NODE_ENV !== 'production' && fs.existsSync(path.join(appRootPath.path, 'certs', 'key.pem'))
 
 const certOptions = {
-  key: useSSL && process.env.NODE_ENV !== 'production' ? fs.readFileSync(path.join(__dirname, '../certs/key.pem')) : null,
-  cert: useSSL && process.env.NODE_ENV !== 'production' ? fs.readFileSync(path.join(__dirname, '../certs/cert.pem')) : null
+  key: useSSL && process.env.NODE_ENV !== 'production' ? fs.readFileSync(path.join(appRootPath.path, 'certs', 'key.pem')) : null,
+  cert: useSSL && process.env.NODE_ENV !== 'production' ? fs.readFileSync(path.join(appRootPath.path, 'certs', 'cert.pem')) : null
 }
 if (useSSL) console.log('Starting server with HTTPS')
-else console.warn("No certs found, try 'npm run generate-certs'")
+else console.warn('Starting server with NO HTTPS, if you meant to use HTTPS try \'npm run generate-certs\'')
 const port = config.server.port
 
 // http redirects for development
-if (process.env.NODE_ENV !== 'production') {
+if (useSSL) {
   app.use((req, res, next) => {
     if (req.secure) {
       // request was via https, so do no special handling
