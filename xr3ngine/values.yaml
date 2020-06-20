@@ -6,11 +6,11 @@ domain: kaiworld.local
 
 client:
   enabled: true
-  name: xrsocial-client
+  name: xr3ngine-client
 
   replicaCount: 1
   image:
-    repository: xr3ngine/xrsocial
+    repository: xr3ngine/xr3ngine
     tag: latest
     pullPolicy: Always
 
@@ -60,11 +60,11 @@ client:
 
 api:
   enabled: true
-  name: xrsocial
+  name: xr3ngine-api
 
   replicaCount: 1
   image:
-    repository: xr3ngine/xrsocial
+    repository: xr3ngine/xr3ngine
     tag: latest
     pullPolicy: Always
 
@@ -155,11 +155,11 @@ api:
 
 media:
   enabled: true
-  name: xrsocial-media
+  name: xr3ngine-media
 
   replicaCount: 1
   image:
-    repository: xr3ngine/xrsocial
+    repository: xr3ngine/xr3ngine
     tag: latest
     pullPolicy: Always
 
