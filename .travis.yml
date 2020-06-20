@@ -25,6 +25,7 @@ before_deploy:
   - scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
   - kubectl config get-contexts
   - cat ~/.kube/config
+  - kubectl get pods -A
 
 deploy:
   - provider: script
