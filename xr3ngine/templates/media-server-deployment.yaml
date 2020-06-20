@@ -68,12 +68,10 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              scheme: HTTPS
               port: http
           readinessProbe:
             httpGet:
               path: /
-              scheme: HTTPS
               port: http
           resources:
             {{- toYaml .Values.media.resources | nindent 12 }}
