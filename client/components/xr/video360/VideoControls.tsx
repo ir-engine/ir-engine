@@ -115,7 +115,7 @@ class VideoControls extends Component<Props, State> {
     controller.classList.remove('active')
     controller.classList.add('disabled')
 
-    this.textEl?.setAttribute('visible', false)
+    this.textEl?.setAttribute('visible', 'false')
     this.videoEl?.addEventListener('ended', this.videoEndHandler, {
       once: true
     })
@@ -134,17 +134,15 @@ class VideoControls extends Component<Props, State> {
     this.textEl?.addEventListener('click', this.exitVideoHandler)
     controller.classList.remove('disabled')
     controller.classList.add('active')
-    this.textEl?.setAttribute('text', { value: 'END\n\nclick to exit' })
-    this.textEl?.setAttribute('visible', true)
+    this.textEl?.setAttribute('text', "{ value: 'END\n\nclick to exit' }")
+    this.textEl?.setAttribute('visible', 'true')
     this.setState({ end: true })
     this.props.setVideoPlaying(false)
   }
 
   private videoPlayHandler () {
     if (!this.videoEl) return
-    this.videovruiEl?.setAttribute('video-player-vr-ui', {
-      isPlaying: true
-    })
+    this.videovruiEl?.setAttribute('video-player-vr-ui', '{ isPlaying: true }')
     // if duration has not been set in state, get this from the video element.
     if (!this.state.duration) {
       this.setState({
@@ -164,7 +162,7 @@ class VideoControls extends Component<Props, State> {
   }
 
   private videoPauseHandler () {
-    this.videovruiEl?.setAttribute('video-player-vr-ui', {  isPlaying: false })
+    this.videovruiEl?.setAttribute('video-player-vr-ui', '{ isPlaying: false }')
     // when paused, don't continue updating current time in state.
     clearInterval(this.state.tickId)
   }

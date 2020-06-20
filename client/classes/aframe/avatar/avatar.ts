@@ -33,10 +33,7 @@ export default class Avatar {
   }
 
   addTemplateToPlayer(player: HTMLElement) {
-    player.setAttribute('networked', {
-      template: '#' + this.templateID,
-      attachTemplateToLocal: this.options.attachTemplateToLocal
-    })
+    player.setAttribute('networked', "{ template: '#' + this.templateID, attachTemplateToLocal: this.options.attachTemplateToLocal }")
   }
 
   addTemplateToPlayerByID(playerID: string = 'player') {
