@@ -25,9 +25,10 @@ before_deploy:
   - scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
   - kubectl config get-contexts
   - cat ~/.kube/config
+  - kubectl cluster-info
   - kubectl get pods -A
   - helm ls
-  - helm --kubeconfig ~/.kube.config
+  - helm --kubeconfig ~/.kube/config
   - helm ls
 
 deploy:
