@@ -22,11 +22,7 @@
   ],
   "include": [
     "server",
-    "client",
     "shared",
-    "next-env.d.ts",
-    "client/**/*.ts",
-    "client/**/*.tsx",
     "./**/*.ts",
     "./**/*.tsx"
   ]

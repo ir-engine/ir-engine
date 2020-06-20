@@ -7,6 +7,7 @@ env:
     - MYSQL_DATABASE=xr3ngine
     - MYSQL_USER=root
     - MYSQL_PASSWORD=
+    - CLIENT_ENABLED=true
 
 services:
   - docker
@@ -23,14 +24,6 @@ script:
 before_deploy:
   - scripts/setup_helm.sh
   - scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
-  - kubectl config get-contexts
-  - cat ~/.kube/config
-  - kubectl config use-context arn:aws:eks:us-east-1:103947711118:cluster/xr3ngine-demo
-  - kubectl cluster-info
-  - kubectl get pods -A
-  - helm ls
-  - helm --kubeconfig ~/.kube/config
-  - helm ls
 
 deploy:
   - provider: script
