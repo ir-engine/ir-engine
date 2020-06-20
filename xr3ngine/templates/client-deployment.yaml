@@ -41,13 +41,13 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              scheme: https
+              scheme: HTTPS
               port: http
             initialDelaySeconds: 30
           readinessProbe:
             httpGet:
               path: /
-              scheme: https
+              scheme: HTTPS
               port: http
             initialDelaySeconds: 30
           resources:
