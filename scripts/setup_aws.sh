@@ -7,11 +7,6 @@ sudo ./aws/install
 
 set +x
 
-echo $1
-echo $2
-echo $3
-echo $4
-
 aws configure set aws_access_key_id $1
 aws configure set aws_secret_access_key $2
 aws configure set default.region $3
