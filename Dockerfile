@@ -15,7 +15,7 @@ RUN npm install --no-progress --verbose
 COPY . .
 
 RUN /bin/bash -c 'source ./scripts/write_env_stub.sh'
-ENV NEXT_PUBLIC_API_SERVER=http://localhost:3030
+ENV NEXT_PUBLIC_API_SERVER=http://localhost:3333
 
 RUN npm run compile
 
