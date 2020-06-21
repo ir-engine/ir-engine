@@ -82,6 +82,10 @@ if (config.server.enabled) {
   // Configure a middleware for 404s and the error handler
 
   app.hooks(appHooks)
+
+  app.use('/healthcheck', (req, res) => {
+    res.sendStatus(200)
+  })
 }
 
 app.use(express.errorHandler({ logger } as any))
