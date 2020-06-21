@@ -13,9 +13,9 @@ RUN npm install --no-progress --verbose
 
 # copy then compile the code
 COPY . .
-RUN /bin/bash -c 'source ./scripts/write_env_stub.sh; npm run build'
-
 ENV NEXT_PUBLIC_API_SERVER=http://localhost:3030
+RUN /bin/bash -c 'source ./scripts/write_env_stub.sh'
+
 RUN npm run compile
 
 ENV NODE_ENV=production
