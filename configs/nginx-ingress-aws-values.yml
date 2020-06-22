@@ -5,7 +5,7 @@ rbac:
 
 controller:
   config:
-    ssl-redirect: "true" # Redirect Insecure traffic to Https
+    use-forwarded-headers: "true" # Redirect Insecure traffic to Https
   service:
     targetPorts:
       http: http
@@ -15,5 +15,5 @@ controller:
       meta.helm.sh/release-namespace: default
       service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
       service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
-      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:us-east-1:103947711118:certificate/239f9861-9dbd-4ca5-beff-7adad7eb1377"
+      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "<ACM Certificate ARN for SSL>"
 
