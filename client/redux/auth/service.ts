@@ -29,7 +29,6 @@ import { IdentityProvider } from '../../../shared/interfaces/IdentityProvider'
 import getConfig from 'next/config'
 import { getStoredState } from '../persisted.store'
 import axios from 'axios'
-import Router from 'next/router'
 
 const { publicRuntimeConfig } = getConfig()
 const apiServer: string = publicRuntimeConfig.apiServer
@@ -50,7 +49,6 @@ export async function doLoginAuto (dispatch: Dispatch) {
         const authUser = resolveAuthUser(res)
         dispatch(loginUserSuccess(authUser))
         loadUserData(dispatch, authUser.identityProvider.userId)
-        handleAfterLoginRedirect(authUser)
       } else {
         console.log('****************')
       }
@@ -99,14 +97,14 @@ export function loginUserByPassword (form: EmailLoginForm) {
         if (!authUser.identityProvider.isVerified) {
           (client as any).logout()
 
-          window.location.href = '/auth/confirm'
           dispatch(registerUserByEmailSuccess(authUser.identityProvider))
+          window.location.href = '/auth/confirm'
           return
         }
 
         dispatch(loginUserSuccess(authUser))
-        handleAfterLoginRedirect(authUser, '/')
         loadUserData(dispatch, authUser.identityProvider.userId)
+        window.location.href = '/'
       })
       .catch((err: any) => {
         console.log(err)
@@ -160,21 +158,20 @@ export function loginUserByJwt (accessToken: string, redirectSuccess: string, re
             })
             .finally(() => {
               dispatch(loginUserSuccess(authUser))
-              handleAfterLoginRedirect(authUser, redirectSuccess)
-
               loadUserData(dispatch, authUser.identityProvider.userId)
+              window.location.href = redirectSuccess
             })
         } else {
           dispatch(loginUserSuccess(authUser))
-          handleAfterLoginRedirect(authUser, redirectSuccess)
           loadUserData(dispatch, authUser.identityProvider.userId)
+          window.location.href = redirectSuccess
         }
       })
       .catch((err: any) => {
         console.log(err)
-        window.location.href = redirectError
         dispatch(loginUserError('Failed to login'))
         dispatchAlertError(dispatch, err.message)
+        window.location.href = redirectError
       })
       .finally(() => dispatch(actionProcessing(false)))
   }
@@ -200,8 +197,8 @@ export function registerUserByEmail (form: EmailRegistrationForm) {
       type: 'password'
     })
       .then((identityProvider: any) => {
-        window.location.href = '/auth/confirm'
         dispatch(registerUserByEmailSuccess(identityProvider))
+        window.location.href = '/auth/confirm'
       })
       .catch((err: any) => {
         console.log(err)
@@ -277,13 +274,13 @@ export function resetPassword (token: string, password: string) {
     })
       .then((res: any) => {
         console.log(res)
-        window.location.href = '/'
         dispatch(didResetPassword(true))
+        window.location.href = '/'
       })
       .catch((err: any) => {
         console.log(err)
-        window.location.href = '/'
         dispatch(didResetPassword(false))
+        window.location.href = '/'
       })
       .finally(() => dispatch(actionProcessing(false)))
   }
@@ -465,21 +462,4 @@ export function updateUsername (userId: string, name: string) {
         dispatch(usernameUpdated(res))
       })
   }
-}
-
-function handleAfterLoginRedirect (authUser, redirectTo?): void {
-  const accessToken = authUser.accessToken
-  let email = ''
-  if (authUser?.identityProvider?.type === 'email') {
-    email = authUser?.identityProvider?.token
-  }
-  const params = new URLSearchParams(document.location.search)
-  redirectTo = params.get('redirectTo') || '/'
-  if (params.get('redirectTo')) {
-    redirectTo = params.get('redirectTo')
-  }
-  Router.push({
-    pathname: redirectTo,
-    query: { bearer: accessToken, email }
-  })
 }
