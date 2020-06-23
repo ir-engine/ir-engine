@@ -2,6 +2,7 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Params } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import app from './../../app'
+import config from './../../config'
 
 export class Subscription extends Service {
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -45,7 +46,7 @@ export class Subscription extends Service {
 
     const returned = {
       subscriptionId: saved.id,
-      paymentUrl: `https://kaixr-test.chargebee.com/hosted_pages/plans/${plan}?subscription[id]=${saved.id as string}&customer[id]=${userId as string}`
+      paymentUrl: `https://${config.chargebee.url}/hosted_pages/plans/${plan}?subscription[id]=${saved.id as string}&customer[id]=${userId as string}`
     }
 
     return returned

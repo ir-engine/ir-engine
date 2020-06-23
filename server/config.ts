@@ -62,13 +62,13 @@ const client = {
   enabled: process.env.CLIENT_ENABLED === 'true' ?? true,
   // Client app logo
   // FIXME - change to XR3ngine logo
-  logo: process.env.APP_LOGO ?? 'https://kaixr-static.s3-us-west-2.amazonaws.com/logo.png',
+  logo: process.env.APP_LOGO ?? 'https://xr3ngine-static.s3-us-east-1.amazonaws.com/logo.png',
   // Client app name
   // FIXME - change to XR3ngine
-  title: process.env.APP_LOGO ?? 'KaiXR',
+  title: process.env.APP_LOGO ?? 'XR3ngine',
   url: process.env.APP_URL ??
     process.env.APP_HOST ?? // Legacy env var, to deprecate
-    'http://localhost:3030'
+    'https://localhost:3030'
 }
 
 /**
@@ -140,12 +140,17 @@ const aws = {
   }
 }
 
+const chargebee = {
+  url: process.env.CHARGEBEE_URL ?? 'dummy.not-chargebee.com'
+}
+
 /**
  * Full config
  */
 const config = {
   authentication,
   aws,
+  chargebee,
   client,
   db,
   email,
