@@ -1279,10 +1279,8 @@ export default class Project extends EventEmitter {
   }
 
   handleAuthorization() {
-    const params = new URLSearchParams(document.location.search);
-    const accessToken = params.get("bearer");
-    const email = params.get("email");
-   
+    const accessToken = localStorage.getItem('XREngine-Auth-Store');
+    const email = 'test@test.com';
     if((accessToken && email) || this.isAuthenticated()){
       this.saveCredentials(email, accessToken);
     }
