@@ -1,4 +1,3 @@
-import { isBrowser } from 'browser-or-node';
 import { Component as Component$1, Types, TagComponent, System as System$1 } from 'https://unpkg.com/ecsy@0.2.6/build/ecsy.module.js';
 
 class VRInputState extends Component$1 {}
@@ -370,6 +369,9 @@ function initializeInputSystems(
   world,
   options = DEFAULT_OPTIONS
 ) {
+  const isBrowser =
+    typeof window !== "undefined" && typeof window.document !== "undefined";
+
   if (options.debug) {
     console.log("Registering input systems with the following options:");
     console.log(options);

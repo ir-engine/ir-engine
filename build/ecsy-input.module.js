@@ -369,6 +369,9 @@ function initializeInputSystems(
   world,
   options = DEFAULT_OPTIONS
 ) {
+  const isBrowser =
+    typeof window !== "undefined" && typeof window.document !== "undefined";
+
   if (options.debug) {
     console.log("Registering input systems with the following options:");
     console.log(options);
