@@ -1,4 +1,4 @@
-export type vec3 = {
+export interface vec3 {
   x: number
   y: number
   z: number
@@ -13,6 +13,6 @@ export interface Grid {
   cellIndexFromColumnRow: (column: number, row: number) => number
 }
 
-export function _mod(n: number, m: number) {
+export function _mod (n: number, m: number): number {
   return ((n % m) + m) % m
 }

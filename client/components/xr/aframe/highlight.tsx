@@ -230,7 +230,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     const isCached = !!cache[hash]
     const geom = (self.el.sceneEl?.systems.geometry).getOrCreateGeometry(borderGeomAttribute)
     if (!isCached) {
-      geom.translate(0, 0, -0.001)
+      geom.translate(0, 0, -0.0025)
     }
 
     const color = data.active ? data.activeColor : data.hover ? data.hoverColor : data.color
