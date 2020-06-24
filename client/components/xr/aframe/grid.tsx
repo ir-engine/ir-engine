@@ -6,6 +6,8 @@ import { CylindricalGrid, Cylinder } from '../../../classes/aframe/layout/Cylind
 import { Rectangle } from '../../../classes/aframe/layout/Rectangle'
 import PropertyMapper from './ComponentUtils'
 
+const THREE = AFRAME.THREE
+
 export const ComponentName = 'grid'
 
 export interface GridSystemData {
@@ -24,7 +26,8 @@ export const GridSystemSchema: AFRAME.Schema<GridSystemData> = {
 
 export const GridSystemDef: AFRAME.SystemDefinition<GridSystemProps> = {
   schema: GridSystemSchema,
-  data: { } as GridSystemData,
+  data: {
+  } as GridSystemData,
 
   init () {
   },
@@ -63,7 +66,7 @@ export const GridSystemDef: AFRAME.SystemDefinition<GridSystemProps> = {
       const pos: THREE.Vector3 = gridShape.cellPosition(gridIndex)
       cell.object3D.position.set(pos.x, pos.y, pos.z)
       const rot: THREE.Vector3 = gridShape.cellRotation(gridIndex)
-      cell.object3D.rotation.set(rot.x, rot.y, rot.z) //  + Math.PI
+      cell.object3D.rotation.set(rot.x, rot.y, rot.z)
     })
   }
 }
@@ -81,6 +84,9 @@ export interface GridData {
   pageLeftEvent?: string
   pageRightEvent?: string
   gridShape?: string
+  backGround?: boolean
+  backgroundColor?: number
+  backgroundMargin?: number
   // TODO : media type
 }
 
@@ -95,7 +101,10 @@ export const GridComponentSchema: AFRAME.MultiPropertySchema<GridData> = {
   page: { default: 0 },
   pageLeftEvent: { default: 'pageleft' },
   pageRightEvent: { default: 'pageright' },
-  gridShape: { default: 'rectangle' }
+  gridShape: { default: 'rectangle' },
+  backGround: { default: false },
+  backgroundColor: { default: 0x222222 },
+  backgroundMargin: { default: 0.15 }
 }
 
 export interface GridProps {
@@ -117,6 +126,7 @@ export interface GridProps {
   canPageRight: boolean
   addHandlers: () => void
   removeHandlers: () => void
+  addBackground: () => void
 }
 
 export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
@@ -189,6 +199,10 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
         this.data.rows,
         this.data.cellHeight)
       this.el.object3D.position.set(posObj.x, posObj.y, posObj.z)
+    }
+
+    if (this.data.backGround && this.data.gridShape === 'rectangle') {
+      this.addBackground()
     }
 
     this.el.addEventListener('grid-cell-init', () => {
@@ -288,12 +302,27 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
   removeHandlers: function () {
     this.el.removeEventListener(this.data.pageLeftEvent, this.pageLeftHandler)
     this.el.removeEventListener(this.data.pageRightEvent, this.pageRightHandler)
+  },
+
+  addBackground: function () {
+    const geo = new THREE.PlaneGeometry(
+      (this.grid.width as number) + (this.data.backgroundMargin as number),
+      (this.grid.height as number) + (this.data.backgroundMargin as number)
+    )
+    const mat = new THREE.MeshBasicMaterial({
+      color: new THREE.Color(this.data.backgroundColor)
+    })
+    const mesh = new THREE.Mesh(geo, mat)
+    mesh.position.z = -0.005
+
+    this.el.setObject3D('background', mesh)
   }
 
 }
 
 const primitiveProperties = ['id', 'gridCellsPerRow', 'radius', 'columns', 'rows',
-  'cellHeight', 'cellWidth', 'cellContentHeight', 'page', 'gridShape']
+  'cellHeight', 'cellWidth', 'cellContentHeight', 'page', 'gridShape', 'backGround',
+  'backgroundColor', 'backgroundMargin']
 
 export const GridPrimitive: AFRAME.PrimitiveDefinition = {
   defaultComponents: {

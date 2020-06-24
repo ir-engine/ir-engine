@@ -153,7 +153,8 @@ const VideoGridScene = (props: VideoProps): any => {
           cell-height={cellHeight}
           cell-width={cellWidth + 0.1}
           cell-content-height={cellContentHeight}
-          grid-shape="rectangle">
+          grid-shape="rectangle"
+          back-ground={true}>
 
           {videosArr.map((video: PublicVideo, i: number) => {
             return (
