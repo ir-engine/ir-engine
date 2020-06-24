@@ -1,8 +1,8 @@
-import { OAuthStrategy } from '@feathersjs/authentication-oauth'
+import CustomOAuthStrategy from './custom-oauth'
 import { Params } from '@feathersjs/feathers'
 import config from '../config'
 
-export default class GithubStrategy extends OAuthStrategy {
+export default class GithubStrategy extends CustomOAuthStrategy {
   async getEntityData (profile: any, params?: Params): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {})
     const userId = (params?.query) ? params.query.userId : undefined
@@ -17,7 +17,7 @@ export default class GithubStrategy extends OAuthStrategy {
   async getRedirect (data: any, params?: Params): Promise<string> {
     const redirectHost = config.authentication.callback.github
 
-    const type = (params?.query?.userId) ? 'login' : 'connection'
+    const type = (params?.query?.userId) ? 'connection' : 'login'
     if (Object.getPrototypeOf(data) === Error.prototype) {
       const err = data.message as string
       return redirectHost + `?error=${err}`
