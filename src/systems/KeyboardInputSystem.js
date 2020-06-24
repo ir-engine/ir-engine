@@ -1,4 +1,10 @@
 export class KeyboardInputSystem extends System {
+    debug = false
+    
+    set debug(debug){
+        this.debug = debug
+    }
+
     execute(delta, time) {
         this.queries.controls.added.forEach( ent => {
             let cont = ent.getMutableComponent(KeyboardState)
@@ -14,11 +20,13 @@ export class KeyboardInputSystem extends System {
                 if(state.current === 'down' && state.prev === 'up') {
                     inp.states[name] = (state.current === 'down')
                     inp.changed = true
+                    if(debug) console.log(name + " changed to " + state)
                 }
                 if(state.current === 'up' && state.prev === 'down') {
                     inp.states[name] = (state.current === 'down')
                     inp.changed = true
                     inp.released = true
+                    if(debug) console.log(name + " changed to " + state)
                 }
                 state.prev = state.current
             })

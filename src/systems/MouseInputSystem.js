@@ -1,4 +1,11 @@
+// TODO: Add middle and right mouse button support
 export class MouseInputSystem extends System {
+    debug = false
+
+    set debug(debug){
+        this.debug = debug
+    }
+
     execute(delta, time) {
         this.queries.mouse.added.forEach(ent => {
             let mouse = ent.getMutableComponent(MouseState)
@@ -22,6 +29,7 @@ export class MouseInputSystem extends System {
                 inp.changed = true
                 inp.released = true
             }
+            if(state.current !== state.prev && debug) console.log("New state: " + state.current);
             state.prev = state.current
         })
         this.queries.mouse.removed.forEach(ent => {

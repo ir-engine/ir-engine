@@ -1,6 +1,12 @@
 import InputState from './InputState'
 
 export default class GamepadInputSystem extends System {
+    debug = false
+    
+    set debug(debug){
+        this.debug = debug
+    }
+
     execute(delta, time) {
         this.queries.simple.added.forEach(ent => {
             let gp = ent.getMutableComponent(SimpleGamepadState)
@@ -46,6 +52,9 @@ export default class GamepadInputSystem extends System {
         }
         input.states.left = false
         input.states.right = false
+
+        if (debug) console.log("left: " + input.states.left);
+        if (debug) console.log("right: " + input.states.right)
     }
 
     scan_y(gp, y, input) {
@@ -62,6 +71,8 @@ export default class GamepadInputSystem extends System {
         input.states.up = false
         input.states.down = false
 
+        if (debug) console.log("up: " + input.states.up);
+        if (debug) console.log("down: " + input.states.down)
     }
 }
 
