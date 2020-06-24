@@ -66,5 +66,5 @@
     "lint": "eslint ./src/**/*",
     "start": "npm run build"
   },
-  "version": "0.0.1"
+  "version": "0.0.2"
 }
