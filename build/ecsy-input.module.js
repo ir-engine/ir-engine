@@ -1,4 +1,3 @@
-import { isBrowser } from 'browser-or-node';
 import { Component as Component$1, Types, TagComponent, System as System$1 } from 'ecsy';
 
 class VRInputState extends Component$1 {}

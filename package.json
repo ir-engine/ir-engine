@@ -8,9 +8,7 @@
     "url": "https://github.com/xr3ngine/ecsy-input/issues"
   },
   "bundleDependencies": false,
-  "dependencies": {
-    "browser-or-node": "^1.2.1"
-  },
+  "dependencies": {},
   "deprecated": false,
   "description": "ECSY three.js bindings",
   "devDependencies": {

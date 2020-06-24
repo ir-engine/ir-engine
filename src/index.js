@@ -1,4 +1,3 @@
-import { isBrowser } from "browser-or-node";
 export * from "./components/index.js";
 export * from "./systems/index.js";
 
@@ -23,6 +22,9 @@ export default function initializeInputSystems(
   world,
   options = DEFAULT_OPTIONS
 ) {
+  const isBrowser =
+    typeof window !== "undefined" && typeof window.document !== "undefined";
+
   if (options.debug) {
     console.log("Registering input systems with the following options:");
     console.log(options);
