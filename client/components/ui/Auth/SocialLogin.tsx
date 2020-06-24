@@ -13,6 +13,11 @@ import {
   loginUserByFacebook
 } from '../../../redux/auth/service'
 import './style.scss'
+import {selectAdminState} from "../../../redux/admin/selector";
+
+const mapStateToProps = (state: any): any => {
+  return {}
+}
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   loginUserByGithub: bindActionCreators(loginUserByGithub, dispatch),
@@ -22,9 +27,9 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 interface Props {
   auth?: any
-  isEnabledFacebook?: boolean
-  isEnabledGithub?: boolean
-  isEnabledGoogle?: boolean
+  enableFacebookSocial?: boolean
+  enableGithubSocial?: boolean
+  enableGoogleSocial?: boolean
   loginUserByGithub?: typeof loginUserByGithub
   loginUserByGoogle?: typeof loginUserByGoogle
   loginUserByFacebook?: typeof loginUserByFacebook
@@ -32,9 +37,9 @@ interface Props {
 
 const SocialLogin = (props: Props): any => {
   const {
-    isEnabledFacebook,
-    isEnabledGithub,
-    isEnabledGoogle,
+    enableFacebookSocial,
+    enableGithubSocial,
+    enableGoogleSocial,
     loginUserByFacebook,
     loginUserByGoogle,
     loginUserByGithub
@@ -55,7 +60,7 @@ const SocialLogin = (props: Props): any => {
     loginUserByFacebook()
   }
 
-  const githubButton = isEnabledGithub ? (
+  const githubButton = enableGithubSocial ? (
     <Grid item xs={12}>
       <Button
         onClick={(e) => handleGithubLogin(e)}
@@ -70,7 +75,7 @@ const SocialLogin = (props: Props): any => {
   ) : (
     ''
   )
-  const googleButton = isEnabledGoogle ? (
+  const googleButton = enableGoogleSocial ? (
     <Grid item xs={12}>
       <Button
         onClick={(e) => handleGoogleLogin(e)}
@@ -85,7 +90,7 @@ const SocialLogin = (props: Props): any => {
   ) : (
     ''
   )
-  const facebookButton = isEnabledFacebook ? (
+  const facebookButton = enableFacebookSocial ? (
     <Grid item xs={12}>
       <Button
         onClick={(e) => handleFacebookLogin(e)}
@@ -116,4 +121,4 @@ const SocialLogin = (props: Props): any => {
 
 const SocialLoginWrapper = (props: Props): any => <SocialLogin {...props} />
 
-export default connect(mapDispatchToProps)(SocialLoginWrapper)
+export default connect(mapStateToProps, mapDispatchToProps)(SocialLoginWrapper)

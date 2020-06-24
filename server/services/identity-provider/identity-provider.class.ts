@@ -18,9 +18,6 @@ export class IdentityProvider extends Service {
   async create (data: any, params: any): Promise<any> {
     const {
       token,
-      githubId,
-      googleId,
-      facebookId,
       type,
       password
     } = data
@@ -55,23 +52,23 @@ export class IdentityProvider extends Service {
         }
         break
       case 'github':
-        hashData = githubId
+        hashData = token
         identityProvider = {
-          token: githubId,
+          token: token,
           type
         }
         break
       case 'facebook':
-        hashData = facebookId
+        hashData = token
         identityProvider = {
-          token: facebookId,
+          token: token,
           type
         }
         break
       case 'google':
-        hashData = googleId
+        hashData = token
         identityProvider = {
-          token: googleId,
+          token: token,
           type
         }
         break

@@ -25,9 +25,9 @@ const SignIn = (): any => {
   let enableSmsMagicLink = true
   let enableEmailMagicLink = true
   let enableUserPassword = false
-  let isEnabledGithub = false
-  let isEnabledGoogle = false
-  let isEnabledFacebook = false
+  let enableGithubSocial = false
+  let enableGoogleSocial = false
+  let enableFacebookSocial = false
   const [tabIndex, setTabIndex] = useState(0)
 
   const handleChange = (event: any, newValue: number): void => {
@@ -39,23 +39,23 @@ const SignIn = (): any => {
     enableSmsMagicLink = config.auth.enableSmsMagicLink
     enableEmailMagicLink = config.auth.enableEmailMagicLink
     enableUserPassword = config.auth.enableUserPassword
-    isEnabledGithub = config.auth.isEnabledGithub
-    isEnabledGoogle = config.auth.isEnabledGoogle
-    isEnabledFacebook = config.auth.isEnabledFacebook
+    enableGithubSocial = config.auth.enableGithubSocial
+    enableGoogleSocial = config.auth.enableGoogleSocial
+    enableFacebookSocial = config.auth.enableFacebookSocial
   }
 
   const socials = [
-    isEnabledGithub,
-    isEnabledGoogle,
-    isEnabledFacebook
+    enableGithubSocial,
+    enableGoogleSocial,
+    enableFacebookSocial
   ]
   const enabled = [
     enableSmsMagicLink,
     enableEmailMagicLink,
     enableUserPassword,
-    isEnabledGithub,
-    isEnabledGoogle,
-    isEnabledFacebook
+    enableGithubSocial,
+    enableGoogleSocial,
+    enableFacebookSocial
   ]
 
   const enabledCount = enabled.filter(v => v).length
@@ -83,7 +83,7 @@ const SignIn = (): any => {
     enableUserPassword && ++index
 
     const socialTab = socialCount > 0 && <Tab icon={<SocialIcon/>} label="Social"/>
-    const socialTabPanel = socialCount > 0 && <TabPanel value={tabIndex} index={index}><SocialLogin isEnabledFacebook={isEnabledFacebook} isEnabledGoogle={isEnabledGoogle} isEnabledGithub={isEnabledGithub} /></TabPanel>
+    const socialTabPanel = socialCount > 0 && <TabPanel value={tabIndex} index={index}><SocialLogin enableFacebookSocial={enableFacebookSocial} enableGoogleSocial={enableGoogleSocial} enableGithubSocial={enableGithubSocial} /></TabPanel>
     socialCount > 0 && ++index
 
     component = (

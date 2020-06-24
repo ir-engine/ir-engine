@@ -102,7 +102,10 @@ const authentication = {
   secret: process.env.AUTH_SECRET ?? '',
   authStrategies: [
     'jwt',
-    'local'
+    'local',
+    'facebook',
+    'github',
+    'google'
   ],
   local: {
     usernameField: 'email',
@@ -112,6 +115,25 @@ const authentication = {
     facebook: process.env.FACEBOOK_CALLBACK_URL ?? `${client.url}/auth/oauth/facebook`,
     github: process.env.GITHUB_CALLBACK_URL ?? `${client.url}/auth/oauth/github`,
     google: process.env.GOOGLE_CALLBACK_URL ?? `${client.url}/auth/oauth/google`
+  },
+  oauth: {
+    defaults: {
+      host: server.hostname && server.port ? (server.hostname) + ':' + (server.port as string) : 'localhost:3030',
+      protocol: 'https'
+    },
+    facebook: {
+      key: process.env.FACEBOOK_CLIENT_ID ?? '',
+      secret: process.env.FACEBOOK_CLIENT_SECRET ?? ''
+    },
+    github: {
+      key: process.env.GITHUB_CLIENT_ID ?? '',
+      secret: process.env.GITHUB_CLIENT_SECRET ?? ''
+    },
+    google: {
+      key: process.env.GOOGLE_CLIENT_ID ?? '',
+      secret: process.env.GOOGLE_CLIENT_SECRET ?? '',
+      scope: ['profile', 'email']
+    }
   }
 }
 
