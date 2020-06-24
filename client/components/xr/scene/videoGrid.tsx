@@ -12,6 +12,10 @@ import { fetchPublicVideos } from '../../../redux/video/service'
 
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr.videoGrid
+const style = getConfig().publicRuntimeConfig.xr.style
+const borderColor = Number(style.borderColor)
+const hoverColor = Number(style.hoverColor)
+const activeColor = Number(style.activeColor)
 
 const cellHeight: number = config.cellHeight
 const cellContentHeight: number = config.cellContentHeight
@@ -179,6 +183,9 @@ const VideoGridScene = (props: VideoProps): any => {
                 videoformat={video.metadata['360_format']}
                 link-enabled={false}
                 high-light={true}
+                border-color={borderColor}
+                hover-color={hoverColor}
+                active-color={activeColor}
                 class="clickable"
                 events={{
                   click: focusCell
