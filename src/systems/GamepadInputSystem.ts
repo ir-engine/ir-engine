@@ -2,9 +2,6 @@ import { System } from "ecsy"
 import { InputState } from "../components/InputState"
 import { GamepadInputState } from "../components/GamepadInputState"
 export class GamepadInputSystem extends System {
-  set debug(debug: boolean) {
-    this.debug = debug
-  }
   queries = {
     gamepad: {
       components: [GamepadInputState, InputState],
@@ -64,8 +61,8 @@ export class GamepadInputSystem extends System {
     input.states.left = false
     input.states.right = false
 
-    if (this.debug) console.log("left: " + input.states.left)
-    if (this.debug) console.log("right: " + input.states.right)
+    console.log("left: " + input.states.left)
+    console.log("right: " + input.states.right)
   }
 
   scan_y(gp: GamepadInputState, y: number, input: InputState): void {
@@ -82,7 +79,7 @@ export class GamepadInputSystem extends System {
     input.states.up = false
     input.states.down = false
 
-    if (this.debug) console.log("up: " + input.states.up)
-    if (this.debug) console.log("down: " + input.states.down)
+    console.log("up: " + input.states.up)
+    console.log("down: " + input.states.down)
   }
 }

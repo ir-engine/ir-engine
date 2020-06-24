@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>ecsy-input webgl - geometry - cube</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+  </head>
+  <body>
+    <script type="module">
+			import { World, Component, System } from 'https://unpkg.com/ecsy@0.2.3/build/ecsy.module.js';
+      import { initializeInputSystems } from "../dist/ecsy-input.module-unpkg.js";
+	  	import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+      
+      import * as ECSYTHREE from './vendor/ecsy-three.module-unpkg.js'
+
+      const {
+        initialize,
+        Types,
+        // Components
+        Parent,
+        Camera,
+        Transform,
+        GLTFLoader,
+        Object3DComponent,
+        ECSYThreeWorld,
+        // Systems
+        WebGLRendererSystem,
+        GLTFLoaderSystem
+      } = ECSYTHREE
+
+      var world, scene, camera, mesh, renderer
+
+      init()
+
+      function init() {
+        // Create a new world to hold all our entities and systems
+        world = new ECSYThreeWorld()
+
+        // Initialize the default sets of entities and systems
+        let data = initialize(world)
+        console.log(data)
+
+        world.registerComponent(GLTFLoader)
+        world.registerSystem(GLTFLoaderSystem)
+
+        // Grab the initialized entities
+        let { scene, renderer, camera } = data.entities
+        let scene3d = scene.getObject3D()
+
+        // Modify the position for the default camera
+        let camera3d = camera.getObject3D()
+        camera3d.position.z = 5
+
+        world
+          .createEntity()
+          .addObject3DComponent(new THREE.AmbientLight(), scene)
+
+        // Create an entity to handle our rotating box
+        var box = world.createEntity().addObject3DComponent(
+          new THREE.Mesh(
+            new THREE.BoxBufferGeometry(1, 1, 1),
+            new THREE.MeshBasicMaterial({
+              map: new THREE.TextureLoader().load("textures/crate.gif")
+            })
+          ),
+          scene
+        )
+
+        console.log("wtf");
+
+        const inputOptions = {
+          mouse: true,
+          keyboard: true,
+          touchscreen: true,
+          gamepad: true,
+          debug: true
+        }
+
+        initializeInputSystems(world, inputOptions);
+
+        // Start world systems
+        world.execute()
+      }
+    </script>
+  </body>
+</html>

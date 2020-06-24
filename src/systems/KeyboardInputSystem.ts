@@ -15,33 +15,71 @@ export class KeyboardInputSystem extends System {
     this.debug = debug
   }
 
+  kb: any
+  inp: any
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   execute(delta: number, time: number): void {
-    this.queries.controls.added.forEach(ent => {
-      const cont = ent.getMutableComponent(KeyboardInputState)
-      document.addEventListener("keydown", cont.on_keydown)
-      document.addEventListener("keyup", cont.on_keyup)
+    this.queries.controls.added.forEach(() => {
+      document.addEventListener("keydown", this.on_keydown)
+      document.addEventListener("keyup", this.on_keyup)
     })
     this.queries.controls.results.forEach(ent => {
-      const kb = ent.getComponent(KeyboardInputState)
-      const inp = ent.getMutableComponent(InputState)
-      Object.keys(kb.mapping).forEach(key => {
-        const name = kb.mapping[key]
-        const state = kb.getKeyState(key)
+      if (!this.kb) this.kb = ent.getComponent(KeyboardInputState)
+      if (!this.inp) this.inp = ent.getMutableComponent(InputState)
+      Object.keys(this.kb.mapping).forEach(key => {
+        const name = this.kb.mapping[key]
+        const state = this.kb.getKeyState(key)
         if (state.current === "down" && state.prev === "up") {
-          inp.states[name] = state.current === "down"
-          inp.changed = true
-          if (this.debug) console.log(name + " changed to " + state)
+          this.inp.states[name] = state.current === "down"
+          this.inp.changed = true
+          console.log(name + " changed to " + state)
         }
         if (state.current === "up" && state.prev === "down") {
-          inp.states[name] = state.current === "down"
-          inp.changed = true
-          inp.released = true
-          if (this.debug) console.log(name + " changed to " + state)
+          this.inp.states[name] = state.current === "down"
+          this.inp.changed = true
+          this.inp.released = true
+          console.log(name + " changed to " + state)
         }
         state.prev = state.current
       })
-      // console.log("key mapping", kb.mapping['a'], kb.states['a'], "left state",inp.states['left'])
+      console.log(
+        "key mapping",
+        this.kb.mapping["a"],
+        this.kb.states["a"],
+        "left state",
+        this.inp.states["left"]
+      )
     })
+  }
+
+  on_keydown = (e: any) => {
+    console.log("on_keydown: " + e.key)
+    this.setKeyState(e.key, "down")
+  }
+
+  on_keyup = (e: any) => {
+    console.log("on_keyup: " + e.key)
+    this.setKeyState(e.key, "up")
+  }
+
+  setKeyState(key: string, value: string): any {
+    const state = this.getKeyState(key)
+    state.prev = state.current
+    state.current = value
+  }
+
+  isPressed(name: string): boolean {
+    return this.getKeyState(name).current === "down"
+  }
+
+  getKeyState(key: string): any {
+    if (!this.kb.states[key]) {
+      this.kb.states[key] = {
+        prev: "up",
+        current: "up"
+      }
+    }
+    return this.kb.states[key]
   }
 }

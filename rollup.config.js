@@ -3,6 +3,7 @@ import resolve from "@rollup/plugin-node-resolve"
 import alias from "@rollup/plugin-alias"
 import * as pkg from "./package.json"
 import { execSync } from "child_process"
+import { terser } from "rollup-plugin-terser"
 
 var deps = {}
 Object.keys(pkg.dependencies).forEach(dep => {
@@ -20,10 +21,11 @@ export default [
         entries: [
           {
             find: "ecsy",
-            replacement: `https://unpkg.com/ecsy@${deps["ecsy"]}/dist/ecsy.module.js`
+            replacement: `https://unpkg.com/ecsy@${deps["ecsy"]}/build/ecsy.module.js`
           }
         ]
-      })
+      }),
+      terser()
     ],
     external: id => {
       return id.startsWith("https://unpkg.com/")
@@ -40,7 +42,7 @@ export default [
   // Module
   {
     input: "build/index.js",
-    plugins: [json({ exclude: ["node_modules/**", "examples/**"] })],
+    plugins: [json({ exclude: ["node_modules/**", "examples/**"] }), terser()],
     external: id => {
       return id === "ecsy"
     },
@@ -58,14 +60,7 @@ export default [
     plugins: [
       json({ exclude: ["node_modules/**", "examples/**"] }),
       resolve(),
-      alias({
-        entries: [
-          {
-            find: "ecsy",
-            replacement: `https://unpkg.com/ecsy@${deps["ecsy"]}/dist/ecsy.module.js`
-          }
-        ]
-      })
+      terser()
     ],
     external: id => {
       return id.startsWith("https://unpkg.com/")
