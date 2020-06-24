@@ -1,7 +1,7 @@
+import { InputState } from '../components/InputState'
+
 // TODO: Add middle and right mouse button support
 export class MouseInputSystem extends System {
-    debug = false
-
     set debug(debug){
         this.debug = debug
     }

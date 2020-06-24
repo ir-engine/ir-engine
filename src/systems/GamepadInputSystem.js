@@ -1,8 +1,6 @@
-import InputState from './InputState'
+import { InputState } from '../components/InputState'
 
-export default class GamepadInputSystem extends System {
-    debug = false
-    
+export class GamepadInputSystem extends System {
     set debug(debug){
         this.debug = debug
     }

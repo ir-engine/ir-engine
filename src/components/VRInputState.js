@@ -1,4 +1,4 @@
-import { Component, Types } from "../systems/node_modules/ecsy";
+import { Component, Types } from "ecsy";
 
 export class VRInputState extends Component {}
 VRInputState.schema = {
@@ -7,7 +7,7 @@ VRInputState.schema = {
 };
 
 export class VRInputBehaviour extends Component {}
-VRControlleBehaviour.schema = {
+VRInputBehaviour.schema = {
   select: { default: null, type: Types.Object },
   selectstart: { default: null, type: Types.Object },
   selectend: { default: null, type: Types.Object },

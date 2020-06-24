@@ -1,2 +1,2 @@
-import { TagComponent } from "../systems/node_modules/ecsy";
+import { TagComponent } from "ecsy";
 export class ControllerConnected extends TagComponent {}
