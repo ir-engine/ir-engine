@@ -1,2 +1,2 @@
-import { TagComponent } from "ecsy";
+import { TagComponent } from "ecsy"
 export class ControllerConnected extends TagComponent {}

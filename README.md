@@ -8,10 +8,10 @@ npm install ecsy-input
 
 # How to use
 ```javascript
-import { World } from 'ecsy';
-import {  initializeInputSystems } from 'ecsy-input';
+import { World } from 'ecsy'
+import {  initializeInputSystems } from 'ecsy-input'
 
-const world = new World();
+const world = new World()
 
 const options = {
   vr: true,
@@ -22,7 +22,7 @@ const options = {
   gamepad: true,
   debug: true
 
-initializeInputSystems(world, options);
+initializeInputSystems(world, options)
 
-world.execute();
+world.execute()
 ```

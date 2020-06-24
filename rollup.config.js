@@ -1,37 +1,37 @@
-import json from "@rollup/plugin-json";
-import resolve from "@rollup/plugin-node-resolve";
-import alias from "@rollup/plugin-alias";
-import * as pkg from "./package.json";
-const { execSync } = require("child_process");
+import json from "@rollup/plugin-json"
+import resolve from "@rollup/plugin-node-resolve"
+import alias from "@rollup/plugin-alias"
+import * as pkg from "./package.json"
+import { execSync } from "child_process"
 
-var deps = {};
-Object.keys(pkg.peerDependencies).forEach(dep => {
+var deps = {}
+Object.keys(pkg.dependencies).forEach(dep => {
   deps[dep] = execSync(`npm info ${dep} version`)
     .toString()
-    .trim();
-});
+    .trim()
+})
 
 export default [
   // Module unpkg
   {
-    input: "src/index.js",
+    input: "build/index.js",
     plugins: [
       alias({
         entries: [
           {
             find: "ecsy",
-            replacement: `https://unpkg.com/ecsy@${deps["ecsy"]}/build/ecsy.module.js`
+            replacement: `https://unpkg.com/ecsy@${deps["ecsy"]}/dist/ecsy.module.js`
           }
         ]
       })
     ],
     external: id => {
-      return id.startsWith("https://unpkg.com/");
+      return id.startsWith("https://unpkg.com/")
     },
     output: [
       {
         format: "es",
-        file: "build/ecsy-input.module-unpkg.js",
+        file: "dist/ecsy-input.module-unpkg.js",
         indent: "\t"
       }
     ]
@@ -39,22 +39,22 @@ export default [
 
   // Module
   {
-    input: "src/index.js",
+    input: "build/index.js",
     plugins: [json({ exclude: ["node_modules/**"] })],
     external: id => {
-      return id.startsWith("three") || id === "ecsy";
+      return id === "ecsy"
     },
     output: [
       {
         format: "es",
-        file: "build/ecsy-input.module.js",
+        file: "dist/ecsy-input.module.js",
         indent: "\t"
       }
     ]
   },
   // Module with everything included
   {
-    input: "src/index-bundled.js",
+    input: "build/index-bundled.js",
     plugins: [
       json({ exclude: ["node_modules/**"] }),
       resolve(),
@@ -62,20 +62,20 @@ export default [
         entries: [
           {
             find: "ecsy",
-            replacement: `https://unpkg.com/ecsy@${deps["ecsy"]}/build/ecsy.module.js`
+            replacement: `https://unpkg.com/ecsy@${deps["ecsy"]}/dist/ecsy.module.js`
           }
         ]
       })
     ],
     external: id => {
-      return id.startsWith("https://unpkg.com/");
+      return id.startsWith("https://unpkg.com/")
     },
     output: [
       {
         format: "es",
-        file: "build/ecsy-input.module.all.js",
+        file: "dist/ecsy-input.module.all.js",
         indent: "\t"
       }
     ]
   }
-];
+]
