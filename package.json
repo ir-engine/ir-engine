@@ -52,17 +52,15 @@
   "module": "src/index.js",
   "name": "ecsy-input",
   "types": "dist/index.d.ts",
+  "files": ["dist"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xr3ngine/ecsy-input.git"
   },
   "scripts": {
-    "build": "tsc --outDir build/ --declarationDir build/ --declaration true && rollup -c",
-    "deploy": "gh-pages -d dist",
-    "dev": "concurrently --names 'ROLLUP,DOCS,HTTP' -c 'bgBlue.bold,bgYellow.bold,bgGreen.bold' 'rollup -c -w -m inline' 'npm run dev:server'",
-    "dev:server": "http-server -c-1 -p 9090 --cors",
+    "build": "tsc --outDir build/ --declarationDir build/ --declaration true && rollup -c && rm -r build",
     "lint": "eslint ./src/**/*",
-    "start": "npm run dev"
+    "start": "npm run build"
   },
   "version": "0.0.1"
 }
