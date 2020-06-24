@@ -1,4 +1,4 @@
-import { Component, Types } from "../systems/node_modules/ecsy";
+import { Component, Types } from "ecsy";
 
 export class Draggable extends Component {}
 Draggable.schema = {

@@ -1,6 +1,6 @@
+import { InputState } from '../components/InputState'
+
 export class KeyboardInputSystem extends System {
-    debug = false
-    
     set debug(debug){
         this.debug = debug
     }

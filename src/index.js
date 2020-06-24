@@ -1,7 +1,13 @@
 import { isBrowser } from "browser-or-node";
-export { initialize } from "./initialize.js";
 export * from "./components/index.js";
 export * from "./systems/index.js";
+
+import {
+  MouseInputSystem,
+  KeyboardInputSystem,
+  GamepadInputSystem,
+  VRInputSystem
+} from "./systems/index.js";
 
 const DEFAULT_OPTIONS = {
   vr: true,
@@ -27,7 +33,7 @@ export default function initializeInputSystems(
 
   if (options.mouse) world.registerSystem(MouseInputSystem);
   if (options.keyboard) world.registerSystem(KeyboardInputSystem);
-  if (options.gamepad) world.registerSystem(MouseInputSystem);
+  if (options.gamepad) world.registerSystem(GamepadInputSystem);
   // TODO: Add touchscreen
 
   if (navigator && navigator.xr && options.vr)

@@ -19,18 +19,6 @@ export default [
       alias({
         entries: [
           {
-            find: /troika-3d-text\/(.*)/,
-            replacement: `https://unpkg.com/troika-3d-text@${deps["troika-3d-text"]}/$1?module`
-          },
-          {
-            find: /three$/,
-            replacement: `https://unpkg.com/three@${deps["three"]}/build/three.module.js`
-          },
-          {
-            find: /three\/(.*)/,
-            replacement: `https://unpkg.com/three@${deps["three"]}/$1`
-          },
-          {
             find: "ecsy",
             replacement: `https://unpkg.com/ecsy@${deps["ecsy"]}/build/ecsy.module.js`
           }
@@ -73,18 +61,6 @@ export default [
       alias({
         entries: [
           {
-            find: /troika-3d-text\/(.*)/,
-            replacement: `https://unpkg.com/troika-3d-text@${deps["troika-3d-text"]}/$1?module`
-          },
-          {
-            find: /three$/,
-            replacement: `https://unpkg.com/three@${deps["three"]}/build/three.module.js`
-          },
-          {
-            find: /three\/(.*)/,
-            replacement: `https://unpkg.com/three@${deps["three"]}/$1`
-          },
-          {
             find: "ecsy",
             replacement: `https://unpkg.com/ecsy@${deps["ecsy"]}/build/ecsy.module.js`
           }
@@ -102,19 +78,4 @@ export default [
       }
     ]
   }
-  /*
-  {
-    input: "src/index.js",
-    plugins: [json({ exclude: ["node_modules/**"] })],
-    output: [
-      {
-        format: "umd",
-        name: "ECSY",
-        noConflict: true,
-        file: "build/ecsy-input.umd.js",
-        indent: "\t"
-      }
-    ]
-  }
-  */
 ];
