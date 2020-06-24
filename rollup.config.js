@@ -4,6 +4,7 @@ import alias from "@rollup/plugin-alias"
 import * as pkg from "./package.json"
 import { execSync } from "child_process"
 import { terser } from "rollup-plugin-terser"
+import serve from "rollup-plugin-serve"
 
 var deps = {}
 Object.keys(pkg.dependencies).forEach(dep => {
@@ -25,7 +26,13 @@ export default [
           }
         ]
       }),
-      terser()
+      terser(),
+      serve({
+        // Launch in browser (default: false)
+        open: true,
+        openPage: "/index.html",
+        contentBase: ["dist", "examples"]
+      })
     ],
     external: id => {
       return id.startsWith("https://unpkg.com/")

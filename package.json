@@ -39,6 +39,7 @@
     "rollup-plugin-auto-external": "^2.0.0",
     "rollup-plugin-external-globals": "^0.5.0",
     "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-serve": "^1.0.1",
     "rollup-plugin-terser": "^5.1.2",
     "typescript": "^3.9.5",
     "webpack": "^4.41.2",

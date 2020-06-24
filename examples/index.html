@@ -11,7 +11,7 @@
   <body>
     <script type="module">
 			import { World, Component, System } from 'https://unpkg.com/ecsy@0.2.3/build/ecsy.module.js';
-      import { initializeInputSystems } from "../dist/ecsy-input.module-unpkg.js";
+      import { initializeInputSystems } from "./ecsy-input.module-unpkg.js";
 	  	import * as THREE from 'https://unpkg.com/three/build/three.module.js';
       
       import * as ECSYTHREE from './vendor/ecsy-three.module-unpkg.js'
@@ -68,8 +68,6 @@
           ),
           scene
         )
-
-        console.log("wtf");
 
         const inputOptions = {
           mouse: true,
