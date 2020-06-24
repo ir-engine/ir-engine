@@ -114,6 +114,7 @@ export default function RootScene (props: Props): any {
         <Player movementEnabled={playerMovementEnabled} />
         {sceneName !== 'video' &&
          sceneName !== `${config.vrRoomGrid.name as string}-scene` &&
+         sceneName !== config.videoGrid.name &&
          <Environment />}
 
         {sceneName === 'landing' && <LandingScene />}

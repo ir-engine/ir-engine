@@ -3,7 +3,7 @@ import AFRAME from 'aframe'
 export const ComponentName = 'grid-cell'
 
 export interface GridCellData {
-  isGridCell: boolean,
+  isGridCell: boolean
   active: boolean
 }
 
@@ -17,14 +17,14 @@ export const GridCellComponent: AFRAME.ComponentDefinition = {
   data: {
   } as GridCellData,
 
-  init() {
+  init () {
     this.el.emit('grid-cell-init')
   },
 
-  play() {
+  play () {
   },
 
-  pause() {
+  pause () {
   }
 }
 

@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Entity } from 'aframe-react'
 import { setAppLoadPercent } from '../../../redux/app/actions'
 import { useDispatch } from 'react-redux'
 import getConfig from 'next/config'
 
 const config = getConfig().publicRuntimeConfig
-console.log('***** CONFIG *****')
-console.log(config)
-
 const env = config.xr.environment
 const grid = config.xr.grid
 const spoke = config.xr.spoke
@@ -50,6 +47,11 @@ const entities: EntityType[] = [
     primitive: 'a-gltf-model',
     id: env['scene-gltf'].name,
     src: env['scene-gltf'].src
+  },
+  {
+    primitive: 'a-gltf-model',
+    id: videoGrid['scene-gltf'].name,
+    src: videoGrid['scene-gltf'].src
   }
 ]
 
@@ -107,9 +109,6 @@ const videos = [
 ]
 
 export const Assets = (): any => {
-  console.log('***** CONFIG *****')
-  console.log(config)
-
   const [numLoaded, setNumLoaded] = useState(0)
   const totalToLoad = images.length + entities.length
   const dispatch = useDispatch()

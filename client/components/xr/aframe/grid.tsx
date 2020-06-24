@@ -1,5 +1,9 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions */
 import AFRAME from 'aframe'
-import { CylindricalGrid, Cylinder } from '../../../classes/aframe/layout/GridUtils'
+import { Grid } from '../../../classes/aframe/layout/GridUtils'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { CylindricalGrid, Cylinder } from '../../../classes/aframe/layout/Cylinder'
+import { Rectangle } from '../../../classes/aframe/layout/Rectangle'
 import PropertyMapper from './ComponentUtils'
 
 export const ComponentName = 'grid'
@@ -7,83 +11,76 @@ export const ComponentName = 'grid'
 export interface GridSystemData {
 }
 export interface GridSystemProps {
-  gridRotation: (x: number, c: number) => number,
-  gridOffsetY: (r: number, h: number) => number,
-  getSource: (m:any) => string,
-  gridRotationString:(gridCellsPerRow: number, c: number) => string,
-  gridRotationObj:(gridCellsPerRow: number, c: number) => {x: number, y: number, z: number},
-  gridOffsetString:(rows: number, cellHeight: number) => string
-  gridOffsetObj:(rows: number, cellHeight: number) => {x: number, y: number, z: number},
-  updateLayout:(g: any, c: AFRAME.Entity[], s: number, e: number) => void
+  gridRotation: (x: number, c: number) => number
+  gridOffsetY: (r: number, h: number) => number
+  gridOffsetZ: (r: number) => number
+  getSource: (m: any) => string
+  gridRotationObj: (gridCellsPerRow: number, c: number) => {x: number, y: number, z: number}
+  gridOffsetObj: (radius: number, rows: number, cellHeight: number) => {x: number, y: number, z: number}
+  updateLayout: (g: any, c: AFRAME.Entity[], s: number, e: number) => void
 }
 export const GridSystemSchema: AFRAME.Schema<GridSystemData> = {
 }
 
 export const GridSystemDef: AFRAME.SystemDefinition<GridSystemProps> = {
   schema: GridSystemSchema,
-  data: {
-  } as GridSystemData,
+  data: { } as GridSystemData,
 
   init () {
   },
 
-  play() {
+  play () {
   },
 
-  pause() {
+  pause () {
   },
 
-  gridRotation(gridCellsPerRow: number, columns: number) {
-    return (columns === 1) ? Math.PI : Math.PI - (Math.PI * 2 / (gridCellsPerRow ?? gridCellsPerRow)) * 2
+  gridRotation (gridCellsPerRow: number, columns: number) {
+    return (columns === 1) ? Math.PI : Math.PI - (Math.PI * 2 / gridCellsPerRow) * 2
   },
 
-  gridOffsetY(rows: number, cellHeight: number) { return (1 - (rows ?? rows) / 2) * (cellHeight ?? cellHeight) },
+  gridOffsetY (rows: number, cellHeight: number) { return (1 - (rows / 2)) * cellHeight },
 
-  getSource(media:any): string {
+  gridOffsetZ (radius: number) { return radius },
+
+  getSource (media: any): string {
     return media.thumbnail_url && media.thumbnail_url.length > 0 ? media.thumbnail_url : '#placeholder'
   },
 
-  gridRotationString(gridCellsPerRow: number, columns: number): string {
-    return '0 ' + this.gridRotation(gridCellsPerRow, columns) + ' 0'
-  },
-
-  gridRotationObj(gridCellsPerRow: number, columns: number): {x: number, y: number, z: number} {
+  gridRotationObj (gridCellsPerRow: number, columns: number): {x: number, y: number, z: number} {
     return { x: 0, y: this.gridRotation(gridCellsPerRow, columns), z: 0 }
   },
 
-  gridOffsetString(rows: number, cellHeight: number): string {
-    return '0 ' + this.gridOffsetY(rows, cellHeight) + ' 0'
+  gridOffsetObj (radius: number, rows: number, cellHeight: number): {x: number, y: number, z: number} {
+    return { x: 0, y: this.gridOffsetY(rows, cellHeight), z: this.gridOffsetZ(radius) }
   },
 
-  gridOffsetObj(rows: number, cellHeight: number): {x: number, y: number, z: number} {
-    return { x: 0, y: this.gridOffsetY(rows, cellHeight), z: 0 }
-  },
-
-  updateLayout(gridShape: any, children: AFRAME.Entity[], pageStart: number, pageEnd: number) {
+  updateLayout (gridShape: any, children: AFRAME.Entity[], pageStart: number, pageEnd: number) {
     children.forEach((cell: AFRAME.Entity, i: number) => {
       const cellActive = (i >= pageStart && i < pageEnd)
       cell.setAttribute('media-cell', { active: cellActive })
       const gridIndex = i - pageStart
-      const pos = gridShape.cellPosition(gridIndex)
+      const pos: THREE.Vector3 = gridShape.cellPosition(gridIndex)
       cell.object3D.position.set(pos.x, pos.y, pos.z)
-      const rot = gridShape.cellRotation(gridIndex)
-      cell.object3D.rotation.set(rot.x, rot.y + Math.PI, rot.z)
+      const rot: THREE.Vector3 = gridShape.cellRotation(gridIndex)
+      cell.object3D.rotation.set(rot.x, rot.y, rot.z) //  + Math.PI
     })
   }
 }
 
 export interface GridData {
-  [key: string]: any,
-  gridCellsPerRow?: number,
-  cellHeight?: number,
-  radius?: number,
-  rows?: number,
-  columns?: number,
-  cellWidth?: number,
-  cellContentHeight?: number,
-  page?: number,
-  pageLeftEvent?: string,
-  pageRightEvent?: string,
+  [key: string]: any
+  gridCellsPerRow?: number
+  cellHeight?: number
+  radius?: number
+  rows?: number
+  columns?: number
+  cellWidth?: number
+  cellContentHeight?: number
+  page?: number
+  pageLeftEvent?: string
+  pageRightEvent?: string
+  gridShape?: string
   // TODO : media type
 }
 
@@ -97,27 +94,28 @@ export const GridComponentSchema: AFRAME.MultiPropertySchema<GridData> = {
   cellContentHeight: { default: 0.5 },
   page: { default: 0 },
   pageLeftEvent: { default: 'pageleft' },
-  pageRightEvent: { default: 'pageright' }
+  pageRightEvent: { default: 'pageright' },
+  gridShape: { default: 'rectangle' }
 }
 
 export interface GridProps {
-  initGrid: () => void,
-  cylinder: Cylinder,
-  cylindricalGrid: CylindricalGrid,
-  cellsPerPage: number,
-  totalCells: number,
-  pages: number,
-  updateLayout: () => void,
-  updateChildren: () => void,
-  children: AFRAME.Entity[],
-  addPaginators: () => void,
-  createPaginator: (side: string) => AFRAME.Entity,
-  updatePaginators: () => void,
-  pageLeftHandler: () => void,
-  pageRightHandler: () => void,
-  canPageLeft: boolean,
-  canPageRight: boolean,
-  addHandlers: () => void,
+  initGrid: () => void
+  cylinder: Cylinder
+  grid: Grid
+  cellsPerPage: number
+  totalCells: number
+  pages: number
+  updateLayout: () => void
+  updateChildren: () => void
+  children: AFRAME.Entity[]
+  addPaginators: () => void
+  createPaginator: (side: string) => AFRAME.Entity
+  updatePaginators: () => void
+  pageLeftHandler: () => void
+  pageRightHandler: () => void
+  canPageLeft: boolean
+  canPageRight: boolean
+  addHandlers: () => void
   removeHandlers: () => void
 }
 
@@ -127,7 +125,7 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
   } as GridData,
 
   cylinder: {} as Cylinder,
-  cylindricalGrid: {} as CylindricalGrid,
+  grid: {} as Grid,
   cellsPerPage: 0,
   totalCells: 0,
   pages: 0,
@@ -141,39 +139,57 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
       this.data.cellHeight,
       this.data.cellWidth,
       this.data.radius)
-    this.cylindricalGrid = new CylindricalGrid(this.data.cellsPerRow,
-      this.data.cellHeight,
-      this.data.cellWidth,
-      this.data.radius,
-      this.data.rows,
-      this.data.columns)
+
+    switch (this.data.gridShape) {
+      case 'rectangle':
+        this.grid = new Rectangle(
+          this.data.cellHeight,
+          this.data.cellWidth,
+          this.data.rows,
+          this.data.columns)
+        break
+      case 'cylinder':
+        this.grid = new CylindricalGrid(
+          this.data.cellsPerRow,
+          this.data.cellHeight,
+          this.data.cellWidth,
+          this.data.radius,
+          this.data.rows,
+          this.data.columns)
+        break
+    }
     if (this.el.sceneEl?.hasLoaded) this.initGrid()
     else this.el.sceneEl?.addEventListener('loaded', this.initGrid.bind(this))
   },
 
-  play() {
+  play () {
     this.addHandlers()
   },
 
-  pause() {
+  pause () {
     this.removeHandlers()
   },
 
-  update(oldData: GridData) {
+  update (oldData: GridData) {
     const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
     if (changedData.includes('page')) {
       this.updateLayout()
       this.updatePaginators()
     }
   },
-  initGrid() {
-    this.el.classList.add('grid-cylinder')
-    const rotObj = (this.system as AFRAME.SystemDefinition<GridSystemProps>).gridRotationObj(this.data.gridCellsPerRow,
-      this.data.columns)
-    this.el.object3D.rotation.set(rotObj.x, rotObj.y, rotObj.z)
-    const posObj = (this.system as AFRAME.SystemDefinition<GridSystemProps>).gridOffsetObj(this.data.rows,
-      this.data.cellHeight)
-    this.el.object3D.position.set(posObj.x, posObj.y, posObj.z)
+  initGrid () {
+    this.el.classList.add('grid')
+    if (this.data.gridShape === 'cylinder') {
+      const rotObj = (this.system as AFRAME.SystemDefinition<GridSystemProps>).gridRotationObj(this.data.gridCellsPerRow,
+        this.data.columns)
+      this.el.object3D.rotation.set(rotObj.x, rotObj.y, rotObj.z)
+
+      const posObj = (this.system as AFRAME.SystemDefinition<GridSystemProps>).gridOffsetObj(
+        this.data.radius,
+        this.data.rows,
+        this.data.cellHeight)
+      this.el.object3D.position.set(posObj.x, posObj.y, posObj.z)
+    }
 
     this.el.addEventListener('grid-cell-init', () => {
       this.updateLayout()
@@ -184,20 +200,20 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
     this.updatePaginators()
   },
 
-  updateLayout() {
+  updateLayout () {
     this.updateChildren()
 
     if (this.system) {
       (this.system as AFRAME.SystemDefinition<GridSystemProps>).updateLayout(
-        this.cylindricalGrid,
+        this.grid,
         this.children,
         this.data.page * this.cellsPerPage,
-        (this.data.page + 1) * this.cellsPerPage
+        (this.data.page as number + 1) * this.cellsPerPage
       )
     }
   },
 
-  updateChildren() {
+  updateChildren () {
     this.children = ((this.el as AFRAME.Entity) as any).getChildEntities().filter(
       // eslint-disable-next-line no-prototype-builtins
       (el: AFRAME.Entity) => { return el.components.hasOwnProperty('grid-cell') })
@@ -205,9 +221,9 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
     this.pages = Math.ceil(this.totalCells / this.cellsPerPage)
   },
 
-  updatePaginators() {
+  updatePaginators () {
     const leftDisabled = this.data.page === 0
-    const rightDisabled = (this.data.page + 1) * this.cellsPerPage >= this.totalCells
+    const rightDisabled = (this.data.page as number + 1) * this.cellsPerPage >= this.totalCells
 
     const leftPaginator = this.el.querySelector('.left-paginator')
     const rightPaginator = this.el.querySelector('.right-paginator')
@@ -235,16 +251,16 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
     })
 
     const col = side === 'left' ? this.data.columns : 0
-    const xOffset = side === 'left' ? this.data.cellContentHeight / 2 : -this.data.cellContentHeight / 2
-    const pos = this.cylinder.cellPosition(col, 1)
+    const xOffset: number = side === 'left' ? this.data.cellContentHeight / 2 : -this.data.cellContentHeight / 2
+    const pos: THREE.Vector3 = this.cylinder.cellPosition(col, 1)
     paginatorEl.object3D.position.set(pos.x + xOffset * 2, pos.y, pos.z)
-    const rot = this.cylinder.cellRotation(col, false)
+    const rot: THREE.Vector3 = this.cylinder.cellRotation(col, false)
     paginatorEl.object3D.rotation.set(rot.x, rot.y + Math.PI, rot.z)
 
     return paginatorEl
   },
 
-  addPaginators() {
+  addPaginators () {
     const pageLeftEl = this.createPaginator('left')
     this.el.appendChild(pageLeftEl)
 
@@ -252,24 +268,24 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
     this.el.appendChild(pageRightEl)
   },
 
-  pageLeftHandler() {
+  pageLeftHandler () {
     if (this.data.page > 0) {
       this.el.setAttribute('page', this.data.page - 1)
     }
   },
 
-  pageRightHandler() {
+  pageRightHandler () {
     if (this.data.page < this.pages) {
-      this.el.setAttribute('page', this.data.page + 1)
+      this.el.setAttribute('page', this.data.page as number + 1)
     }
   },
 
-  addHandlers: function() {
+  addHandlers: function () {
     this.el.addEventListener(this.data.pageLeftEvent, this.pageLeftHandler.bind(this))
     this.el.addEventListener(this.data.pageRightEvent, this.pageRightHandler.bind(this))
   },
 
-  removeHandlers: function() {
+  removeHandlers: function () {
     this.el.removeEventListener(this.data.pageLeftEvent, this.pageLeftHandler)
     this.el.removeEventListener(this.data.pageRightEvent, this.pageRightHandler)
   }
@@ -277,7 +293,7 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
 }
 
 const primitiveProperties = ['id', 'gridCellsPerRow', 'radius', 'columns', 'rows',
-  'cellHeight', 'cellWidth', 'cellContentHeight', 'page']
+  'cellHeight', 'cellWidth', 'cellContentHeight', 'page', 'gridShape']
 
 export const GridPrimitive: AFRAME.PrimitiveDefinition = {
   defaultComponents: {
