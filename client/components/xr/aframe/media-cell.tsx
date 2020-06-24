@@ -56,6 +56,9 @@ export interface MediaCellData {
   clickable: boolean
   linkEnabled: boolean
   highLight: boolean
+  borderColor: number
+  hoverColor: number
+  activeColor: number
 }
 
 export const MediaCellComponentSchema: AFRAME.MultiPropertySchema<MediaCellData> = {
@@ -80,7 +83,10 @@ export const MediaCellComponentSchema: AFRAME.MultiPropertySchema<MediaCellData>
   videoformat: { default: 'eac' },
   clickable: { default: true },
   linkEnabled: { default: true },
-  highLight: { default: false }
+  highLight: { default: false },
+  borderColor: { default: 0x484848 },
+  hoverColor: { default: 0x04FF5F },
+  activeColor: { default: 0xFFD704 }
 }
 
 export interface MediaCellProps {
@@ -158,7 +164,10 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
         if (this.data.highLight) {
           imageEl.setAttribute('highlight', {
             type: 'border',
-            createborder: true
+            createborder: true,
+            color: this.data.backgroundColor,
+            hoverColor: this.data.hoverColor,
+            activeColor: this.data.activeColor
           })
         }
         if (this.data.clickable) imageEl.classList.add('clickable')
@@ -232,7 +241,10 @@ const primitiveProps = [
   'clickable',
   'linkEnabled',
   'thumbnailType',
-  'highLight'
+  'highLight',
+  'borderColor',
+  'hoverColor',
+  'activeColor'
 ]
 export const MediaCellPrimitive: AFRAME.PrimitiveDefinition = {
   defaultComponents: {
