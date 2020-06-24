@@ -16,7 +16,7 @@ Object.keys(pkg.dependencies).forEach(dep => {
 export default [
   // Module unpkg
   {
-    input: "build/index.js",
+    input: ".buildcache/index.js",
     plugins: [
       alias({
         entries: [
@@ -48,7 +48,7 @@ export default [
 
   // Module
   {
-    input: "build/index.js",
+    input: ".buildcache/index.js",
     plugins: [json({ exclude: ["node_modules/**", "examples/**"] }), terser()],
     external: id => {
       return id === "ecsy"
@@ -63,7 +63,7 @@ export default [
   },
   // Module with everything included
   {
-    input: "build/index-bundled.js",
+    input: ".buildcache/index-bundled.js",
     plugins: [
       json({ exclude: ["node_modules/**", "examples/**"] }),
       resolve(),

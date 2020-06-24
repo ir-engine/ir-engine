@@ -61,7 +61,7 @@
     "url": "git+https://github.com/xr3ngine/ecsy-input.git"
   },
   "scripts": {
-    "build": "tsc --outDir build/ --declarationDir build/ --declaration true && rollup -c && rm -r build",
+    "build": "tsc --outDir .buildcache/ --declarationDir .buildcache/ --declaration true && rollup -c",
     "lint": "eslint ./src/**/*",
     "start": "npm run build"
   },
