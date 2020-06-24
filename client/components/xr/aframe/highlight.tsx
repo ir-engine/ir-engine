@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/restrict-plus-operands */
+/* eslint-disable @typescript-eslint/consistent-type-assertions */
 /* eslint-disable no-prototype-builtins */
 import AFRAME from 'aframe'
 const THREE = AFRAME.THREE
@@ -5,25 +7,25 @@ const THREE = AFRAME.THREE
 export const ComponentName = 'highlight'
 
 export interface Data {
-  [key: string]: any,
-  id: string,
-  hover: boolean,
-  active: boolean,
-  disabled: boolean,
-  color: number,
-  hoverColor: number,
-  activeColor: number,
-  disabledColor: number,
-  type: string,
-  target: string,
+  [key: string]: any
+  id: string
+  hover: boolean
+  active: boolean
+  disabled: boolean
+  color: number
+  hoverColor: number
+  activeColor: number
+  disabledColor: number
+  type: string
+  target: string
 
-  bordersize: number,
-  borderbaseopacity: number,
+  bordersize: number
+  borderbaseopacity: number
 
-  disabledopacity: number,
+  disabledopacity: number
 
-  createborder: boolean,
-  bordername: string,
+  createborder: boolean
+  bordername: string
 
   meshes: [string]
 }
@@ -41,7 +43,7 @@ export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
   target: { default: '', type: 'string' },
 
   bordersize: { default: 0.05 },
-  borderbaseopacity: { default: 0 },
+  borderbaseopacity: { default: 0.8 },
 
   disabledopacity: { default: 0 },
 
@@ -52,23 +54,23 @@ export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
 }
 
 export interface Props {
-  initHighlight: () => void,
-  addHandlers: () => void,
-  removeHandlers: () => void,
-  aHandler: () => void,
-  intersectingRaycaster: any,
-  intersection: any,
-  createBorder: () => void,
-  createBorderSphere: (geomAttribute: any) => void,
-  createBorderPlane: (geomAttribute: any) => void,
-  updateColor: () => void,
-  updateColorMesh: () => void,
-  updateTextColor: () => void,
-  handleIntersection: (attribute: string) => void,
-  raycasterIntersectedHandler: (evt: any) => void,
-  raycasterIntersectedClearedHandler: (evt: any) => void,
-  mousedownHandler: (evt: any) => void,
-  mouseupHandler: (evt: any) => void,
+  initHighlight: () => void
+  addHandlers: () => void
+  removeHandlers: () => void
+  aHandler: () => void
+  intersectingRaycaster: any
+  intersection: any
+  createBorder: () => void
+  createBorderSphere: (geomAttribute: any) => void
+  createBorderPlane: (geomAttribute: any) => void
+  updateColor: () => void
+  updateColorMesh: () => void
+  updateTextColor: () => void
+  handleIntersection: (attribute: string) => void
+  raycasterIntersectedHandler: (evt: any) => void
+  raycasterIntersectedClearedHandler: (evt: any) => void
+  mousedownHandler: (evt: any) => void
+  mouseupHandler: (evt: any) => void
   attributeName: string
 }
 
@@ -88,23 +90,23 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     else this.el.sceneEl?.addEventListener('loaded', this.initHighlight.bind(this))
   },
 
-  play() {
+  play () {
     if (!this.data.disabled) {
       this.addHandlers()
     }
   },
 
-  pause() {
+  pause () {
     if (!this.data.disabled) {
       this.removeHandlers()
     }
   },
 
-  tick() {
+  tick () {
     this.handleIntersection('hover')
   },
 
-  update(oldData: Data) {
+  update (oldData: Data) {
     const data = this.data
     const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
 
@@ -124,31 +126,31 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  initHighlight() {
+  initHighlight () {
     if (this.data.createborder) {
       this.createBorder()
     }
   },
 
-  aHandler() {
+  aHandler () {
 
   },
 
-  addHandlers: function() {
+  addHandlers: function () {
     this.el.addEventListener('raycaster-intersected', this.raycasterIntersectedHandler.bind(this))
     this.el.addEventListener('raycaster-intersected-cleared', this.raycasterIntersectedClearedHandler.bind(this))
     this.el.addEventListener('mousedown', this.mousedownHandler.bind(this))
     this.el.addEventListener('mouseup', this.mouseupHandler.bind(this))
   },
 
-  removeHandlers: function() {
+  removeHandlers: function () {
     this.el.removeEventListener('raycaster-intersected', this.raycasterIntersectedHandler)
     this.el.removeEventListener('raycaster-intersected-cleared', this.raycasterIntersectedClearedHandler)
     this.el.removeEventListener('mousedown', this.mousedownHandler)
     this.el.removeEventListener('mouseup', this.mouseupHandler)
   },
 
-  createBorder() {
+  createBorder () {
     const self = this
     const data = self.data
 
@@ -189,14 +191,14 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  createBorderSphere(geomAttribute) {
+  createBorderSphere (geomAttribute) {
     const self = this
     const data = self.data
 
     const borderGeomAttribute = Object.assign({}, geomAttribute)
     borderGeomAttribute.radius = borderGeomAttribute.radius * (1 + data.bordersize)
     // (this.system as AFRAME.SystemDefinition<MediaCellSystemProps>)
-    const geom = (self.el.sceneEl?.systems.geometry as any).getOrCreateGeometry(borderGeomAttribute)
+    const geom = (self.el.sceneEl?.systems.geometry).getOrCreateGeometry(borderGeomAttribute)
 
     const color = data.active ? data.activeColor : data.hover ? data.hoverColor : data.color
 
@@ -216,17 +218,17 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     self.el.setObject3D(this.data.bordername, newMesh)
   },
 
-  createBorderPlane(geomAttribute) {
+  createBorderPlane (geomAttribute) {
     const self = this
     const data = Object.assign({}, self.data)
 
     const borderGeomAttribute = Object.assign({}, geomAttribute)
     borderGeomAttribute.width = borderGeomAttribute.width * (1 + data.bordersize)
     borderGeomAttribute.height = borderGeomAttribute.height * (1 + data.bordersize)
-    const cache = (self.el.sceneEl?.systems.geometry as any).cache
-    const hash = (self.el.sceneEl?.systems.geometry as any).hash(borderGeomAttribute)
+    const cache = (self.el.sceneEl?.systems.geometry).cache
+    const hash = (self.el.sceneEl?.systems.geometry).hash(borderGeomAttribute)
     const isCached = !!cache[hash]
-    const geom = (self.el.sceneEl?.systems.geometry as any).getOrCreateGeometry(borderGeomAttribute)
+    const geom = (self.el.sceneEl?.systems.geometry).getOrCreateGeometry(borderGeomAttribute)
     if (!isCached) {
       geom.translate(0, 0, -0.001)
     }
@@ -248,7 +250,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     self.el.setObject3D(this.data.bordername, mesh)
   },
 
-  updateColor() {
+  updateColor () {
     if (this.data.type === 'color') {
       this.updateColorMesh()
     } else if (this.data.type === 'text') {
@@ -258,14 +260,14 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  updateColorMesh() {
+  updateColorMesh () {
     const self = this
     const data = self.data
 
     const newColor: number = data.disabled ? data.disabledColor : data.active ? data.activeColor : data.hover ? data.hoverColor : data.color
 
     const opacity = data.disabled ? data.disabledopacity : data.active || data.hover ? 1 : data.borderbaseopacity
-    const transparent = data.disabled
+    const transparent = data.disabled || !(data.active || data.hover)
 
     const meshes = this.data.type === 'border' ? [this.data.bordername] : this.data.meshes
     meshes.forEach(meshName => {
@@ -279,18 +281,18 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     })
   },
 
-  updateTextColor() {
+  updateTextColor () {
     const self = this
     const data = self.data
 
     const newColor = data.disabled ? data.disabledColor : data.active ? data.activeColor : data.hover ? data.hoverColor : data.color
     const txtObj = this.el.getObject3D('text')
-    if (txtObj && (txtObj as any).material) {
-      (txtObj as any).material.uniforms.color.value = new THREE.Color(newColor)
+    if (txtObj?.material) {
+      (txtObj).material.uniforms.color.value = new THREE.Color(newColor)
     }
   },
 
-  handleIntersection(attribute = 'hover') {
+  handleIntersection (attribute = 'hover') {
     const self = this
     if (!this.intersectingRaycaster) {
       return
@@ -301,7 +303,6 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     const intersection = this.intersectingRaycaster.getIntersection(this.el)
     self.intersection = intersection
     if (intersection && !self.data[attribute]) {
-      if (!this.data.meshes.includes(intersection.object.name)) return
       if (self.data.target !== '') {
         switch (intersection.object.name) {
           case self.data.target:
@@ -319,11 +320,11 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  raycasterIntersectedHandler(evt) {
+  raycasterIntersectedHandler (evt) {
     this.intersectingRaycaster = evt.detail.el.components.raycaster
   },
 
-  raycasterIntersectedClearedHandler() {
+  raycasterIntersectedClearedHandler () {
     if (this.intersectingRaycaster != null) {
       const intersection = this.intersectingRaycaster.getIntersection(this.el)
       if (intersection === undefined) {
@@ -337,12 +338,12 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  mousedownHandler(evt) {
+  mousedownHandler (evt) {
     console.debug(evt)
     this.handleIntersection('active')
   },
 
-  mouseupHandler(evt) {
+  mouseupHandler (evt) {
     console.debug(evt)
     if (this.data.active) {
       this.data.active = false

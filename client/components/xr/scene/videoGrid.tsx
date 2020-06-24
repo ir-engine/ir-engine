@@ -13,16 +13,22 @@ import { fetchPublicVideos } from '../../../redux/video/service'
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr.videoGrid
 
-const cellHeight = config.cellHeight
-const cellContentHeight = config.cellContentHeight
-const cellWidth = config.cellWidth
-const rows = config.rows
-const columns = config.columns
+const cellHeight: number = config.cellHeight
+const cellContentHeight: number = config.cellContentHeight
+const cellWidth: number = config.cellWidth
+const rows: number = config.rows
+const columns: number = config.columns
 
 const x: number = config.offset.x
 const y: number = config.offset.y
 const z: number = config.offset.z
-const pos = `${x} ${y} ${z}`
+const pos = `${x} ${2} ${z}`
+console.log(y)
+const sx: number = config.scale.x
+const sy: number = config.scale.y
+const sz: number = config.scale.z
+const scale = `${sx} ${sy} ${sz}`
+console.log(scale)
 
 const fx: number = config.focusedOffset.x
 const fy: number = config.focusedOffset.y
@@ -130,8 +136,14 @@ const VideoGridScene = (props: VideoProps): any => {
   // grid entity doesn't adapt to changes in children.length, so only place grid when there are videos so the right pagination shows
   // TODO: possible more robust solution is use MutationObserver to look for changes in children of grid el
   return (
-    <Entity position={pos}>
-      { videosArr.length && videoGridState.focusedCellEl === null &&
+    <Entity>
+      <Entity
+        primitive="a-gltf-model"
+        src={`#${config['scene-gltf'].name as string}`}
+      />
+      <Entity
+        position={pos}>
+        { videosArr.length && videoGridState.focusedCellEl === null &&
         <Entity
           id="videoGrid-grid"
           class="grid"
@@ -139,8 +151,9 @@ const VideoGridScene = (props: VideoProps): any => {
           rows={rows}
           columns={columns}
           cell-height={cellHeight}
-          cell-width={cellWidth}
-          cell-content-height={cellContentHeight}>
+          cell-width={cellWidth + 0.1}
+          cell-content-height={cellContentHeight}
+          grid-shape="rectangle">
 
           {videosArr.map((video: PublicVideo, i: number) => {
             return (
@@ -164,6 +177,7 @@ const VideoGridScene = (props: VideoProps): any => {
                 mediatype="video360"
                 videoformat={video.metadata['360_format']}
                 link-enabled={false}
+                high-light={true}
                 class="clickable"
                 events={{
                   click: focusCell
@@ -172,8 +186,8 @@ const VideoGridScene = (props: VideoProps): any => {
             )
           })}
         </Entity>
-      }
-      { videoGridState.focusedCellEl !== null &&
+        }
+        { videoGridState.focusedCellEl !== null &&
           <Entity
             position={fpos}>
             <Entity
@@ -195,7 +209,8 @@ const VideoGridScene = (props: VideoProps): any => {
               cell-content-height={cellContentHeight}
               class="clickable" />
           </Entity>
-      }
+        }
+      </Entity>
     </Entity>
   )
 }
