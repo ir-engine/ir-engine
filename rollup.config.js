@@ -40,7 +40,7 @@ export default [
   // Module
   {
     input: "build/index.js",
-    plugins: [json({ exclude: ["node_modules/**"] })],
+    plugins: [json({ exclude: ["node_modules/**", "examples/**"] })],
     external: id => {
       return id === "ecsy"
     },
@@ -56,7 +56,7 @@ export default [
   {
     input: "build/index-bundled.js",
     plugins: [
-      json({ exclude: ["node_modules/**"] }),
+      json({ exclude: ["node_modules/**", "examples/**"] }),
       resolve(),
       alias({
         entries: [
