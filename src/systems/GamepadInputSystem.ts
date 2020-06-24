@@ -1,22 +1,16 @@
+// TODO: Test gamepad support!
+
 import { System } from "ecsy"
 import { InputState } from "../components/InputState"
 import { GamepadInputState } from "../components/GamepadInputState"
 export class GamepadInputSystem extends System {
-  queries = {
-    gamepad: {
-      components: [GamepadInputState, InputState],
-      listen: {
-        added: true,
-        removed: true
-      },
-      added: [],
-      results: []
-    }
-  }
-
+  debug: boolean
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   execute(delta: number, time: number): void {
     this.queries.gamepad.added.forEach(ent => {
+      if (window && (window as any).DEBUG_INPUT) {
+        this.debug = (window as any).DEBUG_INPUT
+      } else this.debug = false
       const gp = ent.getMutableComponent(GamepadInputState)
       window.addEventListener("gamepadconnected", (event: any) => {
         console.log("A gamepad connected:", event.gamepad)
@@ -81,5 +75,15 @@ export class GamepadInputSystem extends System {
 
     console.log("up: " + input.states.up)
     console.log("down: " + input.states.down)
+  }
+}
+
+GamepadInputSystem.queries = {
+  gamepad: {
+    components: [GamepadInputState, InputState],
+    listen: {
+      added: true,
+      removed: true
+    }
   }
 }
