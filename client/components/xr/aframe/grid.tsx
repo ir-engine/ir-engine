@@ -6,6 +6,8 @@ import { CylindricalGrid, Cylinder } from '../../../classes/aframe/layout/Cylind
 import { Rectangle } from '../../../classes/aframe/layout/Rectangle'
 import PropertyMapper from './ComponentUtils'
 
+import { RoundedCornersPlaneGeometry } from '../three/RoundedCornersPlaneGeometry'
+
 const THREE = AFRAME.THREE
 
 export const ComponentName = 'grid'
@@ -87,6 +89,7 @@ export interface GridData {
   backGround?: boolean
   backgroundColor?: number
   backgroundMargin?: number
+  borderRadius?: number
   // TODO : media type
 }
 
@@ -104,7 +107,8 @@ export const GridComponentSchema: AFRAME.MultiPropertySchema<GridData> = {
   gridShape: { default: 'rectangle' },
   backGround: { default: false },
   backgroundColor: { default: 0x222222 },
-  backgroundMargin: { default: 0.15 }
+  backgroundMargin: { default: 0.15 },
+  borderRadius: { default: 0.1 },
 }
 
 export interface GridProps {
@@ -305,10 +309,17 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
   },
 
   addBackground: function () {
-    const geo = new THREE.PlaneGeometry(
-      (this.grid.width as number) + (this.data.backgroundMargin as number),
-      (this.grid.height as number) + (this.data.backgroundMargin as number)
+    const width: number = this.grid.width
+    const height: number = this.grid.height
+    const radius: number = this.data.borderRadius
+
+    const geo = new RoundedCornersPlaneGeometry(
+      width + (this.data.backgroundMargin as number),
+      height + (this.data.backgroundMargin as number),
+      radius,
+      10
     )
+
     const mat = new THREE.MeshBasicMaterial({
       color: new THREE.Color(this.data.backgroundColor)
     })
@@ -322,7 +333,7 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
 
 const primitiveProperties = ['id', 'gridCellsPerRow', 'radius', 'columns', 'rows',
   'cellHeight', 'cellWidth', 'cellContentHeight', 'page', 'gridShape', 'backGround',
-  'backgroundColor', 'backgroundMargin']
+  'backgroundColor', 'backgroundMargin', 'borderRadius']
 
 export const GridPrimitive: AFRAME.PrimitiveDefinition = {
   defaultComponents: {
