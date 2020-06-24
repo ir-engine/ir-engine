@@ -1,3 +1,4 @@
+import { isBrowser } from "browser-or-node";
 export { initialize } from "./initialize.js";
 export * from "./components/index.js";
 export * from "./systems/index.js";
@@ -8,82 +9,29 @@ const DEFAULT_OPTIONS = {
   mouse: true,
   keyboard: true,
   touchscreen: true,
-  gamepad: true
+  gamepad: true,
+  debug: false
 };
 
-export default function initializeInputSystems(world, options = DEFAULT_OPTIONS) {
-
-// If document window exists...
-// if mouse is true...
-world.registerSystem(MouseInputSystem)
-
-
-// If passed with VR true...
-// Check if WebXR is available
-// if it is, register VR system
-
-  world.registerSystem(VRControllerInputSystem)
-
-  if(options.vr) world.registerSystem(VRControllerSystem)
-
-  let animationLoop = options.animationLoop;
-  if (!animationLoop) {
-    const clock = new THREE.Clock();
-    animationLoop = () => {
-      world.execute(clock.getDelta(), clock.elapsedTime);
-    };
+export default function initializeInputSystems(
+  world,
+  options = DEFAULT_OPTIONS
+) {
+  if (options.debug) {
+    console.log("Registering input systems with the following options:");
+    console.log(options);
   }
 
-  let scene = world
-    .createEntity()
-    .addComponent(Scene)
-    .addObject3DComponent(new THREE.Scene());
+  if (!isBrowser)
+    return console.error("Couldn't initialize input, are you in a browser?");
 
-  let renderer = world.createEntity().addComponent(WebGLRenderer, {
-    ar: options.ar,
-    vr: options.vr,
-    animationLoop: animationLoop
-  });
+  if (options.mouse) world.registerSystem(MouseInputSystem);
+  if (options.keyboard) world.registerSystem(KeyboardInputSystem);
+  if (options.gamepad) world.registerSystem(MouseInputSystem);
+  // TODO: Add touchscreen
 
-  // camera rig & controllers
-  var camera = null,
-    cameraRig = null;
-  if (options.ar || options.vr) {
-    cameraRig = world
-      .createEntity()
-      .addComponent(CameraRig)
-      .addComponent(Parent, { value: scene })
-      .addComponent(Active);
-  } else {
-    camera = world
-      .createEntity()
-      .addComponent(Camera)
-      .addComponent(UpdateAspectOnResizeTag)
-      .addObject3DComponent(
-        new THREE.PerspectiveCamera(
-          90,
-          window.innerWidth / window.innerHeight,
-          0.1,
-          100
-        ),
-        scene
-      )
-      .addComponent(Active);
-  }
+  if (navigator && navigator.xr && options.vr)
+    world.registerSystem(VRInputSystem);
 
-  let renderPass = world.createEntity().addComponent(RenderPass, {
-    scene: scene,
-    camera: camera
-  });
-
-  return {
-    world,
-    entities: {
-      scene,
-      camera,
-      cameraRig,
-      renderer,
-      renderPass
-    }
-  };
+  if (options.debug) console.log("INPUT: Registered input systems.");
 }

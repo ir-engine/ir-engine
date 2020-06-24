@@ -1,4 +1,4 @@
-// TODO: Remove requirement on threejs
+// TODO: Abstract requirement on threejs
 import * as THREE from "three";
 import { System } from "ecsy";
 import {
@@ -15,6 +15,12 @@ import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerM
 var controllerModelFactory = new XRControllerModelFactory();
 
 export class VRInputSystem extends System {
+  debug = false
+    
+  set debug(debug){
+      this.debug = debug
+  }
+  
   init() {
     this.world
       .registerComponent(VRControllerState)
