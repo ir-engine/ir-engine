@@ -17,10 +17,11 @@ const DEFAULT_OPTIONS = {
   debug: false
 }
 
-export default function initializeInputSystems(
+export function initializeInputSystems(
   world: World,
   options = DEFAULT_OPTIONS
 ): void {
+  if (options.debug) console.log("Initializing input systems...")
   const isBrowser =
     typeof window !== "undefined" && typeof window.document !== "undefined"
 
@@ -32,8 +33,10 @@ export default function initializeInputSystems(
   if (!isBrowser)
     return console.error("Couldn't initialize input, are you in a browser?")
 
+  if (options.keyboard) {
+    world.registerSystem(KeyboardInputSystem, null)
+  }
   if (options.mouse) world.registerSystem(MouseInputSystem, null)
-  if (options.keyboard) world.registerSystem(KeyboardInputSystem, null)
   if (options.gamepad) world.registerSystem(GamepadInputSystem, null)
   // TODO: Add touchscreen
 

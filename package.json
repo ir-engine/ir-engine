@@ -10,6 +10,7 @@
   "bundleDependencies": false,
   "dependencies": {
     "@rollup/plugin-typescript": "^5.0.0",
+    "ecsy": "^0.2.6",
     "tslib": "^2.0.0"
   },
   "deprecated": false,
@@ -27,7 +28,6 @@
     "babelify": "^10.0.0",
     "browserify": "^16.5.0",
     "concurrently": "^5.0.0",
-    "ecsy": "^0.2.6",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-prettier": "^3.1.1",
@@ -52,7 +52,9 @@
   "module": "src/index.js",
   "name": "ecsy-input",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xr3ngine/ecsy-input.git"
