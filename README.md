@@ -21,7 +21,6 @@ const options = {
   touchscreen: false,
   gamepad: true,
   debug: true
-}
 
 initializeInputSystems(world, options);
 
