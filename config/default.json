@@ -149,9 +149,9 @@
       "enableSmsMagicLink": true,
       "enableEmailMagicLink": true,
       "enableUserPassword": false,
-      "isEnabledGithub": false,
-      "isEnabledFacebook": false,
-      "isEnabledGoogle": false
+      "enableGithubSocial": false,
+      "enableFacebookSocial": false,
+      "enableGoogleSocial": false
     },
 
     "alert": {

@@ -119,22 +119,21 @@ export function loginUserByPassword (form: EmailLoginForm) {
 export function loginUserByGithub () {
   return (dispatch: Dispatch): any => {
     dispatch(actionProcessing(true))
-    window.location.href = `${apiServer}/auth/oauth/github`
+    window.location.href = `${apiServer}/oauth/github`
   }
 }
 
 export function loginUserByGoogle () {
   return (dispatch: Dispatch): any => {
     dispatch(actionProcessing(true))
-    window.location.href = `${apiServer}/auth/oauth/google`
+    window.location.href = `${apiServer}/oauth/google`
   }
 }
 
 export function loginUserByFacebook () {
   return (dispatch: Dispatch): any => {
     dispatch(actionProcessing(true))
-
-    window.location.href = `${apiServer}/auth/oauth/facebook`
+    window.location.href = `${apiServer}/oauth/facebook`
   }
 }
 
