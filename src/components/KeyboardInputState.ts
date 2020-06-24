@@ -1,3 +1,4 @@
+// TODO: Replace mappings with enums
 import { Component } from "ecsy"
 
 export class KeyboardInputState extends Component {
