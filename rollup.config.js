@@ -4,6 +4,7 @@ import alias from "@rollup/plugin-alias"
 import * as pkg from "./package.json"
 import { execSync } from "child_process"
 import { terser } from "rollup-plugin-terser"
+import babel from "@rollup/plugin-babel"
 import serve from "rollup-plugin-serve"
 
 var deps = {}
@@ -27,6 +28,7 @@ export default [
         ]
       }),
       terser(),
+      babel({ babelHelpers: "bundled" }),
       serve({
         // Launch in browser (default: false)
         open: true,
@@ -34,6 +36,7 @@ export default [
         contentBase: ["dist", "examples"]
       })
     ],
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     external: id => {
       return id.startsWith("https://unpkg.com/")
     },
@@ -49,7 +52,12 @@ export default [
   // Module
   {
     input: ".buildcache/index.js",
-    plugins: [json({ exclude: ["node_modules/**", "examples/**"] }), terser()],
+    plugins: [
+      json({ exclude: ["node_modules/**", "examples/**"] }),
+      terser(),
+      babel({ babelHelpers: "bundled" })
+    ],
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     external: id => {
       return id === "ecsy"
     },
@@ -67,8 +75,10 @@ export default [
     plugins: [
       json({ exclude: ["node_modules/**", "examples/**"] }),
       resolve(),
-      terser()
+      terser(),
+      babel({ babelHelpers: "bundled" })
     ],
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     external: id => {
       return id.startsWith("https://unpkg.com/")
     },
