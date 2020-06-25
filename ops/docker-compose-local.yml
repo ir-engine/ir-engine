@@ -1,0 +1,81 @@
+version: '2.3'
+services:
+  rts:    #xrchat-realtime-server
+    build: 
+      context: ../xrsocial-realtime-server
+    image: xr3ngine/realtime-server
+    restart: always
+    environment:
+      NAF_LISTEN_PORT: 8081
+    ports:
+      - '8081:8081'
+
+  server:
+    build: 
+      context: ../xrsocial
+    image: xr3ngine/server
+    restart: always
+    environment:
+      PORT: 3030
+      # take care, db not localhost, because compose uses an intenal DNS
+      MYSQL_URL: mysql://server:password@db:3306/xrchat 
+    ports:
+      - '3030:3030'
+    depends_on: 
+      - db
+  
+  client:
+    build: 
+      context: ../xrsocial-client
+    image: xr3ngine/client
+    environment:
+        NEXT_PUBLIC_API_SERVER: https://api.kaixr.world
+        API_SERVER: https://api.kaixr.world
+        SITE_TITLE: KaiXR
+        SITE_DESC: Connected Worlds for Everyone
+        NODE_ENV: kai
+        # NODE_CONFIG: '{"publicRuntimeConfig":{"apiServer":"https://api-dev.kaixr.world","dev":true,"featherStoreKey":"XRChat-Auth-Store","localStorageKey":"xrchat-client-store-key-v1","loginDisabled":true,"logo":"https://kaixr-static.s3-us-west-2.amazonaws.com/logo.png","siteDescription":"Connected Worlds for Everyone","siteTitle":"KaiXR","title":"KaiXR","xr":{"environment":{"scene-gltf":{"name":"Launchpad","src":"https://kaixr-scenes.s3-us-west-2.amazonaws.com/Launchpad/Launchpad.gltf"},"skybox":{"height":2048,"radius":5000,"rotation":{"true":0,"x":90,"z":90},"src":"/textures/nightsky.jpg","thetaLength":180,"width":2048}},"grid":{"placeholderImageSrc":"https://kaixr-static.s3-us-west-2.amazonaws.com/logo.png","skybox":{"height":2048,"radius":5000,"rotation":{"true":0,"x":90,"z":90},"src":"/textures/nightsky.jpg","thetaLength":180,"width":2048}},"landing":{"spoke":{"link":"/create","src":"https://kaixr-static.s3-us-west-2.amazonaws.com/banner/Create.glb"},"store":{"link":"curated-x-kai-inc.myshopify.com","src":"https://kaixr-static.s3-us-west-2.amazonaws.com/banner/Shop.glb"},"video360":{"link":"/explore","src":"https://kaixr-static.s3-us-west-2.amazonaws.com/banner/Explore.glb"},"vrRoom":{"link":"/dream","src":"https://kaixr-static.s3-us-west-2.amazonaws.com/banner/Dream.glb"}}}}}'
+    restart: always
+    ports:
+      - '3000:3000'
+  
+  spoke:
+    build:
+      context: ../Spoke
+    image: xr3ngine/spoke
+    environment: 
+      BASE_ASSETS_PATH: http://xrchat.local/ 
+      HUBS_SERVER: xrchat.local:4000
+      RETICULUM_SERVER: xrchat.local:4000
+      THUMBNAIL_SERVER: 
+      CORS_PROXY_SERVER: 
+      NON_CORS_PROXY_DOMAINS: 
+      SENTRY_DSN: 
+      GA_TRACKING_ID: 
+      IS_MOZ: "false"
+    restart: always
+    ports:
+      - '9090:80'
+
+ 
+  # DB Server
+  db:
+    image: mariadb:10.4
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: xrchat-root-pa$$w0rd
+      MYSQL_DATABASE: xrchat
+      MYSQL_USER: server
+      MYSQL_PASSWORD: password
+    ports:
+      - '3306:3306'
+ 
+
+  # lets you view the database
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db

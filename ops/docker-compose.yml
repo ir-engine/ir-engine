@@ -1,0 +1,65 @@
+version: '2.3'
+services:
+  rts:    #xrchat-realtime-server
+    image: xr3ngine/realtime-server
+    restart: always
+    environment:
+      NAF_LISTEN_PORT: 8081
+    ports:
+      - '8081:8081'
+
+  server:
+    image: xr3ngine/server
+    restart: always
+    environment:
+      PORT: 3030
+      # take care, db not localhost, because compose uses an intenal DNS
+      MYSQL_URL: mysql://server:password@db:3306/xrchat 
+    ports:
+      - '3030:3030'
+    depends_on: 
+      - db
+  
+  client:
+    image: xr3ngine/client
+    restart: always
+    ports:
+      - '3000:3000'
+  
+  spoke:
+    image: xr3ngine/spoke
+    restart: always
+    environment: 
+      BASE_ASSETS_PATH: http://xrchat.local/ 
+      HUBS_SERVER: xrchat.local:4000
+      RETICULUM_SERVER: xrchat.local:4000
+      THUMBNAIL_SERVER: 
+      CORS_PROXY_SERVER: 
+      NON_CORS_PROXY_DOMAINS: 
+      SENTRY_DSN: 
+      GA_TRACKING_ID: 
+      IS_MOZ: "false"
+    ports:
+      - '9090:80'
+ 
+  # DB Server
+  db:
+    image: mariadb:10.4
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: xrchat-root-pa$$w0rd
+      MYSQL_DATABASE: xrchat
+      MYSQL_USER: server
+      MYSQL_PASSWORD: password
+    ports:
+      - '3306:3306'
+ 
+
+  # lets you view the database
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
