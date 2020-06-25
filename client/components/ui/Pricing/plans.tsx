@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'baseline',
     marginBottom: theme.spacing(2)
   },
-  cardSeats: {
+  description: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'baseline'
@@ -71,10 +71,9 @@ const Plans = (props: Props): any => {
                 </div>
               </CardContent>
               <CardContent>
-                <div className={classes.cardSeats}>
-                  <Typography component="h4" variant="h5" color="textPrimary">
-                    {tier.seats === 1 && tier.seats.concat(' Seat') }
-                    {tier.seats > 1 && tier.seats.concat(' Seats') }
+                <div className={classes.description}>
+                  <Typography component="pre" variant="h5" color="textPrimary">
+                    {tier.description}
                   </Typography>
                 </div>
               </CardContent>
