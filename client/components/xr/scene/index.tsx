@@ -102,7 +102,7 @@ export default function RootScene (props: Props): any {
   }, [navigationHandler])
 
   useEffect(() => {
-    if (sceneName === 'video') setPlayerMovementEnabled(false)
+    if (sceneName === 'video' || sceneName === config.videoGrid.name) setPlayerMovementEnabled(false)
     else if (!playerMovementEnabled) setPlayerMovementEnabled(true)
   }, [sceneName])
 
