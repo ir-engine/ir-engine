@@ -34,9 +34,9 @@ export const MediaCellSystemDef: AFRAME.SystemDefinition<MediaCellSystemProps> =
 export interface MediaCellData {
   [key: string]: any
   active: boolean
-  cellHeight?: number
-  cellWidth?: number
-  cellContentHeight?: number
+  contentWidth?: number
+  contentHeight?: number
+  borderSize?: number
   // TODO : media type
   originalTitle: string
   title: string
@@ -63,9 +63,9 @@ export interface MediaCellData {
 
 export const MediaCellComponentSchema: AFRAME.MultiPropertySchema<MediaCellData> = {
   active: { default: true },
-  cellHeight: { default: 0.6 },
-  cellWidth: { default: 1 },
-  cellContentHeight: { default: 0.5 },
+  contentWidth: { default: 1 },
+  contentHeight: { default: 0.5 },
+  borderSize: { default: 0 },
   originalTitle: { default: '' },
   title: { default: '' },
   description: { default: '' },
@@ -158,13 +158,14 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
         const source = (this.system as AFRAME.SystemDefinition<MediaCellSystemProps>).getSource(this.data)
         if (this.data.id !== '') imageEl.setAttribute('id', this.data.id + '-media')
         imageEl.setAttribute('src', source)
-        imageEl.setAttribute('width', this.data.cellWidth)
-        imageEl.setAttribute('height', this.data.cellContentHeight)
+        imageEl.setAttribute('width', this.data.contentWidth)
+        imageEl.setAttribute('height', this.data.contentHeight)
         imageEl.setAttribute('side', 'double')
         if (this.data.highLight) {
           imageEl.setAttribute('highlight', {
             type: 'border',
             createborder: true,
+            bordersize: (this.data.borderSize / this.data.contentWidth),
             color: this.data.backgroundColor,
             hoverColor: this.data.hoverColor,
             activeColor: this.data.activeColor
@@ -222,9 +223,9 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
 
 const primitiveProps = [
   'id',
-  'cellHeight',
-  'cellWidth',
-  'cellContentHeight',
+  'contentWidth',
+  'contentHeight',
+  'borderSize',
   'originalTitle',
   'title',
   'description',
