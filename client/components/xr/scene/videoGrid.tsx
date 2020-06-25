@@ -17,9 +17,14 @@ const borderColor = Number(style.borderColor)
 const hoverColor = Number(style.hoverColor)
 const activeColor = Number(style.activeColor)
 
-const cellHeight: number = config.cellHeight
-const cellContentHeight: number = config.cellContentHeight
-const cellWidth: number = config.cellWidth
+const contentHeight: number = config.contentHeight
+const contentWidth: number = config.contentWidth
+const borderSize: number = config.borderSize
+const cellMargin: number = config.cellMargin
+
+const cellHeight: number = contentHeight + borderSize + cellMargin
+const cellWidth: number = contentWidth + borderSize + cellMargin
+
 const rows: number = config.rows
 const columns: number = config.columns
 
@@ -155,8 +160,7 @@ const VideoGridScene = (props: VideoProps): any => {
           rows={rows}
           columns={columns}
           cell-height={cellHeight}
-          cell-width={cellWidth + 0.1}
-          cell-content-height={cellContentHeight}
+          cell-width={cellWidth}
           grid-shape="rectangle"
           back-ground={true}>
 
@@ -176,9 +180,9 @@ const VideoGridScene = (props: VideoProps): any => {
                 categories={video.metadata.categories}
                 runtime={video.metadata.runtime}
                 // tags={video.tags}
-                cell-height={cellHeight}
-                cell-width={cellWidth}
-                cell-content-height={cellContentHeight}
+                content-height={contentHeight}
+                content-width={contentWidth}
+                border-size={borderSize}
                 mediatype="video360"
                 videoformat={video.metadata['360_format']}
                 link-enabled={false}
@@ -214,7 +218,7 @@ const VideoGridScene = (props: VideoProps): any => {
               cell-height={cellHeight}
               cell-width={cellWidth}
               details-width={cellWidth * 2}
-              cell-content-height={cellContentHeight}
+              content-height={contentHeight}
               class="clickable" />
           </Entity>
         }
