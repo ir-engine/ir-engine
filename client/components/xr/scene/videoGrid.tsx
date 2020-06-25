@@ -31,13 +31,12 @@ const columns: number = config.columns
 const x: number = config.offset.x
 const y: number = config.offset.y
 const z: number = config.offset.z
-const pos = `${x} ${2} ${z}`
-console.log(y)
+const pos = `${x} ${y} ${z}`
+
 const sx: number = config.scale.x
 const sy: number = config.scale.y
 const sz: number = config.scale.z
 const scale = `${sx} ${sy} ${sz}`
-console.log(scale)
 
 const fx: number = config.focusedOffset.x
 const fy: number = config.focusedOffset.y
@@ -151,7 +150,8 @@ const VideoGridScene = (props: VideoProps): any => {
         src={`#${config['scene-gltf'].name as string}`}
       />
       <Entity
-        position={pos}>
+        position={pos}
+        scale={scale}>
         { videosArr.length && videoGridState.focusedCellEl === null &&
         <Entity
           id="videoGrid-grid"
