@@ -4,10 +4,7 @@
 			"path": "."
 		},
 		{
-			"path": "../xrsocial"
-		},
-		{
-			"path": "../xrsocial-client"
+			"path": "../xr3ngine"
 		},
 		{
 			"path": "../Spoke"
