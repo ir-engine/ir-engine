@@ -1,9 +1,0 @@
-dependencies:
-- name: mariadb
-  repository: https://charts.bitnami.com/bitnami
-  version: 7.3.16
-- name: agones
-  repository: https://agones.dev/chart/stable
-  version: 1.4.0
-digest: sha256:f758a34be249e57858aa9ab7cfe41afd6949d386721545d2a2b7644f4f2e3f9f
-generated: "2020-05-31T11:52:28.825229532+02:00"
