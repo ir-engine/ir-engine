@@ -262,6 +262,7 @@ module.exports = env => {
         API_META_ROUTE: "",
         API_PROJECTS_ROUTE: "",
         API_PROJECT_PUBLISH_ACTION: "",
+        API_RESOLVE_MEDIA_ROUTE: "",
         API_SCENES_ROUTE: "",
         API_SOCKET_ENDPOINT: "",
         THUMBNAIL_SERVER: "",
