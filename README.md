@@ -1,4 +1,4 @@
-# xrsocial-ops
+# xr3ngine-ops
 
 Deployment and Operations for xr3ngine services
 
