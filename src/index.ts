@@ -1,10 +1,3 @@
-import DepthVideoPlayer from './DepthVideoPlayer'
-import { DracosisPlayer, DracosisEncoder } from './Dracosis'
-import GLTFPlayer from './GLTFPlayer'
-
-export {
-    DepthVideoPlayer,
-    DracosisPlayer,
-    DracosisEncoder,
-    GLTFPlayer
- }
+// export { DepthVideoPlayer } from './DepthVideoPlayer'
+export { DracosisPlayer, DracosisEncoder } from './Dracosis'
+export { GLTFPlayer } from './GLTFPlayer'
