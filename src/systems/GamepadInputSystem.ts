@@ -1,8 +1,8 @@
 // TODO: Test gamepad support!
 
 import { System } from "ecsy"
-import { InputState } from "../components/InputState"
-import { GamepadInputState } from "../components/GamepadInputState"
+import { Input } from "../components/Input"
+import { GamepadInput } from "../components/GamepadInput"
 export class GamepadInputSystem extends System {
   debug: boolean
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -11,7 +11,7 @@ export class GamepadInputSystem extends System {
       if (window && (window as any).DEBUG_INPUT) {
         this.debug = (window as any).DEBUG_INPUT
       } else this.debug = false
-      const gp = ent.getMutableComponent(GamepadInputState)
+      const gp = ent.getMutableComponent(GamepadInput)
       window.addEventListener("gamepadconnected", (event: any) => {
         console.log("A gamepad connected:", event.gamepad)
         gp.connected = true
@@ -22,14 +22,14 @@ export class GamepadInputSystem extends System {
       })
     })
     this.queries.gamepad.results.forEach(ent => {
-      const gp = ent.getMutableComponent(GamepadInputState)
+      const gp = ent.getMutableComponent(GamepadInput)
       if (gp.connected) {
-        this._scan_gamepads(gp, ent.getMutableComponent(InputState))
+        this._scan_gamepads(gp, ent.getMutableComponent(Input))
       }
     })
   }
 
-  _scan_gamepads(gp: GamepadInputState, inp: InputState): void {
+  _scan_gamepads(gp: GamepadInput, inp: Input): void {
     const gamepads = navigator.getGamepads()
     gamepads.forEach(gamepad => {
       if (gamepad.axes) {
@@ -41,7 +41,7 @@ export class GamepadInputSystem extends System {
     })
   }
 
-  scan_x(gp: GamepadInputState, x: number, input: InputState): void {
+  scan_x(gp: GamepadInput, x: number, input: Input): void {
     if (x < -gp.axis_threshold) {
       input.states.left = true
       input.states.right = false
@@ -59,7 +59,7 @@ export class GamepadInputSystem extends System {
     console.log("right: " + input.states.right)
   }
 
-  scan_y(gp: GamepadInputState, y: number, input: InputState): void {
+  scan_y(gp: GamepadInput, y: number, input: Input): void {
     if (y < -gp.axis_threshold) {
       input.states.up = false
       input.states.down = true
@@ -80,7 +80,7 @@ export class GamepadInputSystem extends System {
 
 GamepadInputSystem.queries = {
   gamepad: {
-    components: [GamepadInputState, InputState],
+    components: [GamepadInput, Input],
     listen: {
       added: true,
       removed: true

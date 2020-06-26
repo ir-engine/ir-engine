@@ -1,7 +1,7 @@
 // TODO: Replace keyboard state strings with enums
 import { System } from "ecsy"
-import { InputState } from "../components/InputState"
-import { KeyboardInputState } from "../components/KeyboardInputState"
+import { Input } from "../components/Input"
+import { KeyboardInput } from "../components/KeyboardInput"
 
 export class KeyboardInputSystem extends System {
   debug: boolean
@@ -22,8 +22,8 @@ export class KeyboardInputSystem extends System {
       })
     })
     this.queries.controls.results.forEach(ent => {
-      if (!this.kb) this.kb = ent.getComponent(KeyboardInputState)
-      if (!this.inp) this.inp = ent.getMutableComponent(InputState)
+      if (!this.kb) this.kb = ent.getComponent(KeyboardInput)
+      if (!this.inp) this.inp = ent.getMutableComponent(Input)
       Object.keys(this.kb.mapping).forEach(key => {
         const name = this.kb.mapping[key]
         const state = this.getKeyState(this.kb, key)
@@ -41,13 +41,13 @@ export class KeyboardInputSystem extends System {
     })
   }
 
-  setKeyState(kb: KeyboardInputState, key: string, value: string): any {
+  setKeyState(kb: KeyboardInput, key: string, value: string): any {
     const state = this.getKeyState(kb, key)
     state.prev = state.current
     state.current = value
     if (this.debug) console.log(`Set ${key} to ${value}`)
   }
-  getKeyState(kb: KeyboardInputState, key: string): any {
+  getKeyState(kb: KeyboardInput, key: string): any {
     if (!kb.states[key]) {
       kb.states[key] = {
         prev: "up",
@@ -56,14 +56,14 @@ export class KeyboardInputSystem extends System {
     }
     return kb.states[key]
   }
-  isPressed(kb: KeyboardInputState, name: string): boolean {
+  isPressed(kb: KeyboardInput, name: string): boolean {
     return this.getKeyState(kb, name).current === "down"
   }
 }
 
 KeyboardInputSystem.queries = {
   controls: {
-    components: [KeyboardInputState, InputState],
+    components: [KeyboardInput, Input],
     listen: { added: true, removed: true }
   }
 }

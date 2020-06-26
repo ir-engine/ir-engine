@@ -1,20 +1,20 @@
 import { System } from "ecsy"
-import { InputState } from "../components/InputState"
-import { MouseInputState, BUTTONS } from "../components/MouseInputState"
+import { Input } from "../components/Input"
+import { MouseInput, BUTTONS } from "../components/MouseInput"
 
 // TODO: Add middle and right mouse button support
 export class MouseInputSystem extends System {
   debug: boolean
-  mouse: MouseInputState
-  inp: InputState
+  mouse: MouseInput
+  inp: Input
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   execute(delta: number, time: number): void {
     this.queries.mouse.added.forEach(ent => {
       if (window && (window as any).DEBUG_INPUT) {
         this.debug = (window as any).DEBUG_INPUT
       } else this.debug = false
-      this.mouse = ent.getMutableComponent(MouseInputState)
-      this.inp = ent.getMutableComponent(InputState)
+      this.mouse = ent.getMutableComponent(MouseInput)
+      this.inp = ent.getMutableComponent(Input)
 
       document.addEventListener(
         "mousemove",
@@ -55,28 +55,28 @@ export class MouseInputSystem extends System {
       if (state.current !== state.prev && this.debug) state.prev = state.current
     })
     this.queries.mouse.removed.forEach(ent => {
-      const mouse = ent.getMutableComponent(MouseInputState)
+      const mouse = ent.getMutableComponent(MouseInput)
       if (mouse) document.removeEventListener("mousemove", mouse.moveHandler)
     })
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  downHandler = (e: any, mouse: MouseInputState): void => {
+  downHandler = (e: any, mouse: MouseInput): void => {
     this.setMouseState(BUTTONS.LEFT, BUTTONS.PRESSED, mouse)
   }
   moveHandler = (
     e: { clientX: number; clientY: number; timeStamp: any },
-    mouse: MouseInputState
+    mouse: MouseInput
   ): void => {
     mouse.clientX = e.clientX
     mouse.clientY = e.clientY
     mouse.lastTimestamp = e.timeStamp
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  upHandler = (e: any, mouse: MouseInputState): void => {
+  upHandler = (e: any, mouse: MouseInput): void => {
     this.setMouseState(BUTTONS.LEFT, BUTTONS.RELEASED, mouse)
   }
-  setMouseState(key: string, value: string, mouse: MouseInputState): void {
+  setMouseState(key: string, value: string, mouse: MouseInput): void {
     const state = this.getMouseState(key, mouse)
     state.prev = state.current
     state.current = value
@@ -85,7 +85,7 @@ export class MouseInputSystem extends System {
         `Mouse button ${key} is ${value} at ${mouse.clientX} / ${mouse.clientY}`
       )
   }
-  getMouseState(key: string, mouse: MouseInputState): any {
+  getMouseState(key: string, mouse: MouseInput): any {
     if (!mouse.states[key]) {
       mouse.states[key] = {
         prev: BUTTONS.RELEASED,
@@ -98,7 +98,7 @@ export class MouseInputSystem extends System {
 
 MouseInputSystem.queries = {
   mouse: {
-    components: [MouseInputState, InputState],
+    components: [MouseInput, Input],
     listen: {
       added: true,
       removed: true

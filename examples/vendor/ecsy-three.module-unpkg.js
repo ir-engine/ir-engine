@@ -164,7 +164,7 @@ class GLTFModel {
   reset() {}
 }
 
-class InputState {
+class Input {
   constructor() {
     this.vrcontrollers = new Map();
     this.keyboard = {};
@@ -1440,8 +1440,8 @@ AnimationSystem.queries = {
 
 class InputSystem extends System {
   init() {
-    let entity = this.world.createEntity().addComponent(InputState);
-    this.inputStateComponent = entity.getMutableComponent(InputState);
+    let entity = this.world.createEntity().addComponent(Input);
+    this.InputComponent = entity.getMutableComponent(Input);
   }
 
   execute() {
@@ -1456,26 +1456,26 @@ class InputSystem extends System {
     this.queries.vrcontrollers.added.forEach(entity => {
       entity.addComponent(VRControllerBasicBehaviour, {
         selectstart: event => {
-          let state = this.inputStateComponent.vrcontrollers.get(event.target);
+          let state = this.InputComponent.vrcontrollers.get(event.target);
           state.selected = true;
           state.prevSelected = false;
         },
         selectend: event => {
-          let state = this.inputStateComponent.vrcontrollers.get(event.target);
+          let state = this.InputComponent.vrcontrollers.get(event.target);
           state.selected = false;
           state.prevSelected = true;
         },
         connected: event => {
-          this.inputStateComponent.vrcontrollers.set(event.target, {});
+          this.InputComponent.vrcontrollers.set(event.target, {});
         },
         disconnected: event => {
-          this.inputStateComponent.vrcontrollers.delete(event.target);
+          this.InputComponent.vrcontrollers.delete(event.target);
         }
       });
     });
 
     // Update state
-    this.inputStateComponent.vrcontrollers.forEach(state => {
+    this.InputComponent.vrcontrollers.forEach(state => {
       state.selectStart = state.selected && !state.prevSelected;
       state.selectEnd = !state.selected && state.prevSelected;
       state.prevSelected = state.selected;
@@ -1715,4 +1715,4 @@ function initialize(world = new ECSYThreeWorld(), options) {
   };
 }
 
-export { Active, Animation, AnimationSystem, Camera, CameraRig, Colliding, CollisionStart, CollisionStop, ControllerConnected, Draggable, Dragging, ECSYThreeWorld, Environment, EnvironmentSystem, GLTFLoader, GLTFLoaderSystem, GLTFModel, Geometry, GeometrySystem, InputState, InputSystem, Material, MaterialSystem, Object3DComponent, Parent, ParentObject3D, Play, Position, RenderPass, RigidBody, Rotation, SDFTextSystem, Scale, Scene, Shape, Sky, SkyBox, SkyBoxSystem, Sound, SoundSystem, Stop, Text, TextGeometry, TextGeometrySystem, Transform, TransformSystem, UpdateAspectOnResizeSystem, VRController, VRControllerBasicBehaviour, VRControllerSystem, VisibilitySystem, Visible, WebGLRendererContext, WebGLRendererSystem, initialize };
+export { Active, Animation, AnimationSystem, Camera, CameraRig, Colliding, CollisionStart, CollisionStop, ControllerConnected, Draggable, Dragging, ECSYThreeWorld, Environment, EnvironmentSystem, GLTFLoader, GLTFLoaderSystem, GLTFModel, Geometry, GeometrySystem, Input, InputSystem, Material, MaterialSystem, Object3DComponent, Parent, ParentObject3D, Play, Position, RenderPass, RigidBody, Rotation, SDFTextSystem, Scale, Scene, Shape, Sky, SkyBox, SkyBoxSystem, Sound, SoundSystem, Stop, Text, TextGeometry, TextGeometrySystem, Transform, TransformSystem, UpdateAspectOnResizeSystem, VRController, VRControllerBasicBehaviour, VRControllerSystem, VisibilitySystem, Visible, WebGLRendererContext, WebGLRendererSystem, initialize };

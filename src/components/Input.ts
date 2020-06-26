@@ -1,14 +1,14 @@
 import { Component } from "ecsy"
 
-interface Inputs {
+interface InputStates {
   up: boolean
   down: boolean
   left: boolean
   right: boolean
 }
 
-export class InputState extends Component {
-  states: Inputs
+export class Input extends Component {
+  states: InputStates
   changed: boolean
   released: boolean
 
