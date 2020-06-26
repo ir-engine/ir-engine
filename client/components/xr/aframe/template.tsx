@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions */
 import AFRAME from 'aframe'
 import PropertyMapper from './ComponentUtils'
 
@@ -10,7 +11,7 @@ export const SystemSchema: AFRAME.Schema<SystemData> = {
 }
 
 export interface SystemProps {
-  aFunc: (a: number, b: number) => number,
+  aFunc: (a: number, b: number) => number
 }
 
 export const SystemDef: AFRAME.SystemDefinition<SystemProps> = {
@@ -21,20 +22,20 @@ export const SystemDef: AFRAME.SystemDefinition<SystemProps> = {
   init () {
   },
 
-  play() {
+  play () {
   },
 
-  pause() {
+  pause () {
   },
 
-  aFunc(a: number, b: number) {
+  aFunc (a: number, b: number) {
     return a + b
   }
 }
 
 export interface Data {
-  [key: string]: any,
-  someData: number,
+  [key: string]: any
+  someData: number
 }
 
 export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
@@ -42,10 +43,10 @@ export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
 }
 
 export interface Props {
-  initSomething: () => void,
-  addHandlers: () => void,
-  removeHandlers: () => void,
-  aHandler: () => void,
+  initSomething: () => void
+  addHandlers: () => void
+  removeHandlers: () => void
+  aHandler: () => void
   aProp: boolean
 }
 
@@ -62,15 +63,15 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     else this.el.sceneEl?.addEventListener('loaded', this.initSomething.bind(this))
   },
 
-  play() {
+  play () {
     this.addHandlers()
   },
 
-  pause() {
+  pause () {
     this.removeHandlers()
   },
 
-  update(oldData: Data) {
+  update (oldData: Data) {
     const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
     if (changedData.includes('someData')) {
       // update something
@@ -81,18 +82,18 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  initSomething() {
+  initSomething () {
   },
 
-  aHandler() {
+  aHandler () {
 
   },
 
-  addHandlers: function() {
+  addHandlers: function () {
     this.el.addEventListener('an-event', this.aHandler.bind(this))
   },
 
-  removeHandlers: function() {
+  removeHandlers: function () {
     this.el.removeEventListener('an-event', this.aHandler)
   }
 

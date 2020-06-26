@@ -1,15 +1,15 @@
 import Avatar, { defaultTemplateID } from './avatar/avatar'
 
 export default class Player {
-  player : HTMLElement
-  avatar : Avatar
+  player: HTMLElement
+  avatar: Avatar
 
-  constructor(public playerID = defaultPlayerID, public templateID = defaultTemplateID) {
-    this.player = document.getElementById(this.playerID) as HTMLElement
+  constructor (public playerID = defaultPlayerID, public templateID = defaultTemplateID) {
+    this.player = document.getElementById(this.playerID)
     this.avatar = new Avatar(this.templateID)
   }
 
-  setupAvatar() {
+  setupAvatar (): void {
     this.avatar.setupTemplate()
     this.avatar.addTemplateToPlayerByID(this.playerID)
   }

@@ -1,11 +1,11 @@
+/* eslint-disable @typescript-eslint/restrict-plus-operands */
 import AFRAME from 'aframe'
 import PropertyMapper from './ComponentUtils'
+import loadBMFont from 'load-bmfont'
 
 const THREE = AFRAME.THREE
 
 export const ComponentName = 'text-cell'
-
-const loadBMFont = require('load-bmfont')
 
 const FONT_BASE_URL = 'https://cdn.aframe.io/fonts/'
 const FONTS = {
@@ -34,11 +34,11 @@ interface position {
 }
 
 export interface SystemProps {
-  getOrLoadFont: (src: string, yOffset: number) => any,
-  loadFont: (src: string, yOffset: number) => Promise<any>,
-  computeFontWidthFactor: (font: any) => number,
-  computeWidth: (wrapPixels: number, wrapCount: number, widthFactor: number) => number,
-  comparePositions(posA: position, posB: position),
+  getOrLoadFont: (src: string, yOffset: number) => any
+  loadFont: (src: string, yOffset: number) => Promise<any>
+  computeFontWidthFactor: (font: any) => number
+  computeWidth: (wrapPixels: number, wrapCount: number, widthFactor: number) => number
+  comparePositions(posA: position, posB: position)
   cache: Map<string, any>
 }
 
@@ -51,16 +51,16 @@ export const SystemDef: AFRAME.SystemDefinition<SystemProps> = {
 
   init () {
     const oldUpdateLayout = (AFRAME.components.text.Component.prototype as any).updateLayout;
-    (AFRAME.components.text.Component.prototype as any).updateLayout = function() {
+    (AFRAME.components.text.Component.prototype as any).updateLayout = function () {
       oldUpdateLayout.call(this)
       this.el.emit('textlayoutchanged', { name: this.attrName, id: this.id })
     }
   },
 
-  play() {
+  play () {
   },
 
-  pause() {
+  pause () {
   },
 
   getOrLoadFont (src: string, yOffset: number) {
@@ -76,7 +76,7 @@ export const SystemDef: AFRAME.SystemDefinition<SystemProps> = {
           return
         }
         // Fix negative Y offsets for Roboto MSDF font from tool. Experimentally determined.
-        if (src.indexOf('/Roboto-msdf.json') >= 0) { yOffset = 30 }
+        if (src.includes('/Roboto-msdf.json')) { yOffset = 30 }
         if (yOffset) { font.chars.map((ch) => { ch.yoffset += yOffset }) }
         this.cache.set(src, font)
         resolve(font)
@@ -102,13 +102,13 @@ export const SystemDef: AFRAME.SystemDefinition<SystemProps> = {
     return wrapPixels || ((0.5 + wrapCount) * widthFactor)
   },
 
-  comparePositions(posA: position, posB: position) {
+  comparePositions (posA: position, posB: position) {
     return posA.x === posB.x && posA.y === posB.y && posA.z === posB.z
   }
 }
 
 export interface Data {
-  [key: string]: any,
+  [key: string]: any
   id: string
 
   width: number
@@ -122,6 +122,7 @@ export interface Data {
   wrapcount: number
   wrappixels: number
 
+  clip: boolean
   nobr: boolean
 
   border: boolean
@@ -131,9 +132,9 @@ export interface Data {
   wrapfit: boolean
 
   // justifycontent: string
-  anchor: string
-  align: string
-  baseline: string
+  anchor: string // horizontal positioning
+  align: string // multi-line  text alignment
+  baseline: string // vertical positioning
 }
 
 export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
@@ -142,7 +143,7 @@ export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
   width: { type: 'number', default: 0.6 },
   height: { type: 'number', default: 0.6 },
 
-  text: { type: 'string', default: 'text' },
+  text: { type: 'string', default: '' },
 
   color: { default: '#FFF' },
 
@@ -150,6 +151,7 @@ export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
   wrapcount: { type: 'number', default: 20 },
   wrappixels: { type: 'number', default: 0 },
 
+  clip: { type: 'boolean', default: false },
   nobr: { type: 'boolean', default: false },
 
   border: { type: 'boolean', default: true },
@@ -171,21 +173,21 @@ interface offsetInterface {
 }
 
 export interface Props {
-  initTextCell: () => void,
-  initializeFont: (font: any) => void,
-  addHandlers: () => void,
-  removeHandlers: () => void,
-  clippingSetUp: boolean,
-  worldPosition: any,
-  lineHeight: number,
-  widthFactor: number,
-  textRenderWidth: number,
-  textScale: number,
-  textHeight: number,
-  createText: (opts: createTextOpts) => void,
-  setUpTextHandler: (id: string, offset: offsetInterface) => void,
-  textLayoutChangedHandler: (evt: any) => void,
-  setUpClipping: (id: string) => void,
+  initTextCell: () => void
+  initializeFont: (font: any) => void
+  addHandlers: () => void
+  removeHandlers: () => void
+  clippingSetUp: boolean
+  worldPosition: any
+  lineHeight: number
+  widthFactor: number
+  textRenderWidth: number
+  textScale: number
+  textHeight: number
+  createText: (opts: createTextOpts) => void
+  setUpTextHandler: (id: string, offset: offsetInterface) => void
+  textLayoutChangedHandler: (evt: any) => void
+  setUpClipping: (id: string) => void
   updateClipping: (id: string) => void
 }
 
@@ -219,15 +221,15 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     else this.el.sceneEl?.addEventListener('loaded', this.initTextCell.bind(this))
   },
 
-  play() {
+  play () {
     this.addHandlers()
   },
 
-  pause() {
+  pause () {
     this.removeHandlers()
   },
 
-  update() {
+  update () {
     const self = this
     const data = self.data
 
@@ -243,16 +245,16 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     else this.initializeFont(loadedFont)
   },
 
-  tick() {
+  tick () {
     const position = new THREE.Vector3()
     this.el.object3D.getWorldPosition(position)
-    if (!!this.worldPosition && !this.system.comparePositions(this.worldPosition, position)) {
+    if (this.data.clip && !!this.worldPosition && !this.system.comparePositions(this.worldPosition, position)) {
       this.updateClipping(this.data.id)
       this.worldPosition = position
     }
   },
 
-  initializeFont(font) {
+  initializeFont (font) {
     this.lineHeight = font.common.lineHeight
     this.widthFactor = this.system.computeFontWidthFactor(font)
     this.textRenderWidth = this.system.computeWidth(this.data.wrappixels, this.data.wrapcount,
@@ -273,11 +275,11 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     })
   },
 
-  initTextCell() {
+  initTextCell () {
     this.worldPosition = this.el.object3D.getWorldPosition()
   },
 
-  createText(opts: createTextOpts) {
+  createText (opts: createTextOpts) {
     const self = this
     const data = self.data
     const id = opts.id || ''
@@ -317,7 +319,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.textObj = textObj
   },
 
-  setUpTextHandler(id: string, offset: offsetInterface) {
+  setUpTextHandler (id: string, offset: offsetInterface) {
     const self = this
     const object3DName = id !== '' ? `text__${id}` : 'text'
     const textObj = self.el.getObject3D(object3DName)
@@ -333,10 +335,10 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     if (offset.y) textObj.translateY(offset.y)
     if (offset.z) textObj.translateZ(offset.z)
 
-    self.setUpClipping(id)
+    if (this.data.clip) self.setUpClipping(id)
   },
 
-  setUpClipping(id: string) {
+  setUpClipping (id: string) {
     const self = this
     const el = self.el
     if (self.clippingSetUp) {
@@ -396,7 +398,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     self.clippingSetUp = true
   },
 
-  updateClipping(id: string) {
+  updateClipping (id: string) {
     const self = this
     const el = self.el
     if (!self.clippingPlaneTop) { return }
@@ -433,15 +435,15 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     mat.needsUpdate = true
   },
 
-  textLayoutChangedHandler(evt) {
+  textLayoutChangedHandler (evt) {
     this.setUpTextHandler(evt.detail.id || '', {})
   },
 
-  addHandlers: function() {
+  addHandlers: function () {
     this.el.removeEventListener('textlayoutchanged', this.textLayoutChangedHandler.bind(this))
   },
 
-  removeHandlers: function() {
+  removeHandlers: function () {
     this.el.removeEventListener('textlayoutchanged', this.textLayoutChangedHandler.bind(this))
   }
 

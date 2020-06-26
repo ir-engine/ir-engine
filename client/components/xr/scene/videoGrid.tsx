@@ -215,10 +215,12 @@ const VideoGridScene = (props: VideoProps): any => {
               rating={videoGridState.focusedCell?.rating}
               categories={videoGridState.focusedCell?.categories}
               runtime={videoGridState.focusedCell?.runtime}
-              cell-height={cellHeight}
-              cell-width={cellWidth}
-              details-width={cellWidth * 2}
               content-height={contentHeight}
+              content-width={contentWidth}
+              details-width={contentWidth}
+              details-height={contentHeight * 2}
+              background-color={borderColor}
+              background-margin={0.1}
               class="clickable" />
           </Entity>
         }
