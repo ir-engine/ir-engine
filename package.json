@@ -54,9 +54,6 @@
   "module": "src/index.js",
   "name": "ecsy-input",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xr3ngine/ecsy-input.git"
@@ -66,5 +63,5 @@
     "lint": "eslint ./src/**/*",
     "start": "npm run build"
   },
-  "version": "0.0.3"
+  "version": "0.0.5"
 }
