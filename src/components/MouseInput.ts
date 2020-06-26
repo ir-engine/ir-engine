@@ -6,7 +6,7 @@ export const BUTTONS = {
   RELEASED: "up"
 }
 
-export class MouseInputState extends Component {
+export class MouseInput extends Component {
   clientX: number
   clientY: number
   states: any

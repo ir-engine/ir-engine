@@ -1,10 +1,10 @@
-export { KeyboardInputState } from "./KeyboardInputState"
-export { MouseInputState } from "./MouseInputState"
+export { KeyboardInput } from "./KeyboardInput"
+export { MouseInput } from "./MouseInput"
 // TODO: Add touch support
 // export { Touchscreen, TouchscreenBehaviour } from "./Touch"
-export { GamepadInputState } from "./GamepadInputState"
+export { GamepadInput } from "./GamepadInput"
 
-export { InputState } from "./InputState"
+export { Input } from "./Input"
 
 export { ControllerConnected } from "./ControllerConnected"
 
