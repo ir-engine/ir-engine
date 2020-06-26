@@ -2,10 +2,11 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 
-export class GLTFPlayer {
+export default class VolumetricPlayer {
   mesh: any;
   model: any;
   gltf: any;
+  audio: any;
 
   startFrame = 0;
   currentFrame = 0;
@@ -19,13 +20,17 @@ export class GLTFPlayer {
   scene: any;
   file: any;
   frameRate: number;
+  frameCount: number;
   onLoaded: any;
   loop: boolean = true;
 
   speedMultiplier: number;
 
+  audioMode: boolean = false;
+
   play() {
     this.isPlaying = true;
+    if (this.audioMode) this.audio.play();
     this.update();
   }
 
@@ -113,9 +118,11 @@ export class GLTFPlayer {
   constructor(
     scene: any,
     file: string,
+    audioFile: string,
     onLoaded: any,
     startScale: number = 1,
     startPosition: { x: any; y: any; z: any } = { x: 0, y: 0, z: 0 },
+    startRotation: { x: any; y: any; z: any } = { x: 0, y: 0, z: 0 },
     castShadow: boolean = true,
     playOnStart: boolean = true,
     showFirstFrameOnStart: boolean = true,
@@ -151,6 +158,11 @@ export class GLTFPlayer {
           startPosition.y,
           startPosition.z
         );
+        this.model.rotation.set(
+          startRotation.x,
+          startRotation.y,
+          startRotation.z
+        );
 
         this.model.children[startFrame].visible = showFirstFrameOnStart;
         this.currentFrame = startFrame;
@@ -158,6 +170,8 @@ export class GLTFPlayer {
 
         if (endFrame != -1) this.endFrame = endFrame;
         else this.endFrame = this.model.children.length;
+
+        this.frameCount = this.endFrame - this.startFrame;
 
         // Add this model to the threejs scene
         this.scene.add(this.model);
@@ -170,11 +184,19 @@ export class GLTFPlayer {
         console.error(error);
       }
     );
+
+    if (audioFile != null && audioFile.length > 0) {
+      this.audio = document.createElement("audio");
+      this.audio.addEventListener("loadedmetadata", function () {});
+      this.audio.src = audioFile;
+      this.audio.loop = this.loop;
+      this.audioMode = true;
+    }
   }
 
   getObjectByCurrentFrame(index: number) {
     let name = "Frame_";
-    name = name.concat(this.padFrameNumberWithZeros(index, 4));
+    name = name.concat(this.padFrameNumberWithZeros(index, 5));
     return this.scene.getObjectByName(name);
   }
 
@@ -196,17 +218,25 @@ export class GLTFPlayer {
       this.frameObject.material.dispose();
     }
 
-    // Set to new frameobnject
-    this.frameObject = this.getObjectByCurrentFrame(this.currentFrame++);
-    this.frameObject.visible = true;
-
-    if (this.currentFrame >= this.endFrame) {
-      if (this.loop) this.currentFrame = this.startFrame;
-      else this.isPlaying = false;
+    if (this.audioMode) {
+      this.currentFrame =
+        Math.floor(
+          (this.audio.currentTime / this.audio.duration) * this.frameCount
+        ) + this.startFrame;
+      this.frameObject = this.getObjectByCurrentFrame(this.currentFrame);
+      this.frameObject.visible = true;
+    } else {
+      // Set to new frameobnject
+      this.frameObject = this.getObjectByCurrentFrame(this.currentFrame++);
+      this.frameObject.visible = true;
+      if (this.currentFrame >= this.endFrame) {
+        if (this.loop) this.currentFrame = this.startFrame;
+        else this.isPlaying = false;
+      }
     }
 
     setTimeout(() => {
       this.update();
-    }, (1 / this.frameRate) * this.speedMultiplier);
+    }, (1000 / this.frameRate) * this.speedMultiplier);
   }
 }
