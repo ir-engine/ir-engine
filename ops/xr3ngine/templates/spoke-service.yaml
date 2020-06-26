@@ -1,0 +1,17 @@
+{{- if .Values.spoke.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "xrsocial.spoke.fullname" . }}
+  labels:
+    {{- include "xrsocial.spoke.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.spoke.service.type }}
+  ports:
+    - port: {{ .Values.spoke.service.port }}
+      targetPort: {{ .Values.spoke.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "xrsocial.spoke.selectorLabels" . | nindent 4 }}
+{{- end }}

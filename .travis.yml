@@ -4,7 +4,7 @@ node_js:
 
 env:
   global:
-    - MYSQL_DATABASE=xrchat
+    - MYSQL_DATABASE=xr3ngine
     - MYSQL_USER=root
     - MYSQL_PASSWORD=
 
@@ -13,29 +13,28 @@ services:
   - mysql
 
 before_script:
-  - mysql -e 'CREATE DATABASE xrchat;'
+  - mysql -e 'CREATE DATABASE xr3ngine;'
 
 script:
   - npm run lint
   - npm run compile
   - npm run sync
-  - npm run mocha
 
 before_deploy:
   - scripts/setup_helm.sh
-  - scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REIGON $CLUSTER_NAME
+  - scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
 
 deploy:
   - provider: script
-    script: bash scripts/publish_dockerhub.sh staging $TRAVIS_COMMIT && scripts/deploy.sh staging $TRAVIS_COMMIT
+    script: bash scripts/publish_dockerhub.sh staging $TRAVIS_COMMIT xr3ngine/xr3ngine && scripts/deploy.sh staging $TRAVIS_COMMIT
     on:
       branch: master
   - provider: script
-    script: bash scripts/publish_dockerhub.sh dev $TRAVIS_COMMIT && scripts/deploy.sh dev $TRAVIS_COMMIT
+    script: bash scripts/publish_dockerhub.sh dev $TRAVIS_COMMIT xr3ngine/xr3ngine && scripts/deploy.sh dev $TRAVIS_COMMIT
     on:
       branch: dev
   - provider: script
-    script: bash scripts/publish_dockerhub.sh latest $TRAVIS_TAG
+    script: bash scripts/publish_dockerhub.sh latest $TRAVIS_TAG xr3ngine/xr3ngine
     on:
       tags: true
       all_branches: true
