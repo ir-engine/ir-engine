@@ -20,9 +20,12 @@
 
             <script type="module">
                 
-                import * as THREE from 'three';
-                import { MeshTextureSequencePlayer } from './../dist/MeshTextureSequencePlayer.js'
+                import * as THREE from '../node_modules/three/build/three.module.js';
+                import * as VolumetricPlayer from '../dist/three-volumetric.js'
 
+				const {
+					GLTFPlayer
+				} = VolumetricPlayer
                 var camera, scene, renderer;
 
                 init();
