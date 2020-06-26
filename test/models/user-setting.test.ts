@@ -1,37 +1,33 @@
-import app from '../../src/app'
+import app from '../../server/app'
 
 describe('CRUD operation on \'UserSetting\' model', () => {
   const model = app.service('user-settings').Model
   const userModel = app.service('user').Model
   let userId: any
 
-  before(async () => {
+  beforeAll(async () => {
     const user = await userModel.create({})
     userId = user.id
   })
 
-  it('Create', done => {
-    model.create({
+  it('Create', async () => {
+    await model.create({
       microphone: '.5',
       audio: '.5',
       userId: userId
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  it('Read', done => {
-    model.findOne({
+  it('Read', async () => {
+    await model.findOne({
       where: {
         userId: userId
       }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  it('Update', done => {
-    model.update(
+  it('Update', async () => {
+    await model.update(
       {
         microphone: '.8'
       },
@@ -39,20 +35,16 @@ describe('CRUD operation on \'UserSetting\' model', () => {
         where: {
           userId: userId
         }
-      }).then(res => {
-      done()
-    }).catch(done)
+      })
   })
 
-  it('Delete', done => {
-    model.destroy({
+  it('Delete', async () => {
+    await model.destroy({
       where: { userId: userId }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  after(async () => {
+  afterAll(async () => {
     await userModel.destroy({
       where: {
         id: userId

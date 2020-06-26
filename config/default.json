@@ -1,81 +1,166 @@
 {
-  "#WARNING": "DO NOT WRITE any secrets here, just write env variable names in the values like below",
-  "#Development": "For development config, fill config/development.json, and dont commit secrets to git",
-  "host": "localhost",
-  "port": 3030,
-  "public": "../public/",
-  "paginate": {
-    "default": 10,
-    "max": 100
-  },
-  "authentication": {
-    "entity": "identity-provider",
-    "service": "identity-provider",
-    "secret": "AUTH_SECRET",
-    "authStrategies": ["jwt", "local"],
-    "jwtOptions": {
-      "header": {
-        "typ": "access"
+  "publicRuntimeConfig": {
+    "title": "XREngine",
+    "dev": false,
+    "loginDisabled": false,
+    "logo": "./logo.svg",
+    "xr": {
+      "enterVRbuttonSrc": "",
+      "networked-scene": {
+        "app": "xrengine",
+        "room": "lobby",
+        "audio": true,
+        "adapter": "socketio",
+        "serverURL": "nxr.xr3ngine.io"
       },
-      "audience": "https://myxr.chat",
-      "issuer": "feathers",
-      "algorithm": "HS256",
-      "expiresIn": "1d"
-    },
-    "local": {
-      "usernameField": "email",
-      "passwordField": "password"
-    },
-    "oauth": {
-      "redirect": "/",
-      "auth0": {
-        "key": "AUTH0_KEY",
-        "secret": "AUTH0_SECRET",
-        "subdomain": "AUTH0_SUBDOMAIN"
+      "avatar": {
+        "defaultAvatarModelSrc" : "/gltf/avatars/head/scene.gltf",
+        "defaultAvatarModelScale" : 0.02
       },
-      "google": {
-        "key": "GOOGLE_CLIENT_ID",
-        "secret": "GOOGLE_CLIENT_SECRET",
-        "scope": ["email", "profile", "openid"]
+      "environment": {
+        "floor": {
+          "src": "/textures/floor.png",
+          "height": 100,
+          "width": 100
+        },
+        "skybox": {
+          "src": "/textures/nightsky.jpg",
+          "radius": 5000,
+          "height": 2048,
+          "width": 2048,
+          "rotation": {
+            "x": 90,
+            "y": 0,
+            "z": 90
+          },
+          "thetaLength": 180
+        },
+        "scene-gltf": {
+          "src": "",
+          "name": ""
+        }
       },
-      "facebook": {
-        "key": "FACEBOOK_CLIENT_ID",
-        "secret": "FACEBOOK_CLIENT_SECRET",
-        "scope": ["email, public_profile"]
+      "grid": {
+        "gridCellsPerRow": 20, 
+        "cellWidth": 1,
+        "cellHeight": 1.2,
+        "cellContentHeight": 1,
+        "radius": 4,
+        "rows": 3,
+        "columns": 5,
+        "placeholderImageSrc": "",
+        "skybox": {
+          "src": "https://cdn.aframe.io/a-painter/images/sky.jpg",
+          "radius": 30,
+          "height": 2048,
+          "width": 2048,
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "thetaLength": 90
+        }
       },
-      "twitter": {
-        "key": "TWITTER_KEY",
-        "secret": "TWITTER_SECRET"
+      "playerHeight": 1,
+      "landing": {
+        "cellWidth": 6,
+        "cellContentHeight": 0.45,
+        "cellHeight": 0.5,
+        "offset": {
+          "x": 0,
+          "y": 1.4,
+          "z": 4.5
+        }
       },
-      "github": {
-        "key": "GITHUB_CLIENT_ID",
-        "secret": "GITHUB_CLIENT_SECRET"
+      "vrRoomGrid": {
+        "enabled": true,
+        "name": "vrRoomGrid",
+        "src": "",
+        "link": "/vrRoomGrid",
+        "cellWidth": 1,
+        "cellContentHeight": 1,
+        "cellHeight": 1.1,
+        "offset": {
+          "x": 0,
+          "y": 1.4,
+          "z": 3
+        },
+        "rows": 3,
+        "columns": 5,
+        "comingSoon": {
+          "enabled": false,
+          "src": ""
+        },
+        "scenes": []
+      },
+      "videoGrid": {
+        "enabled": true,
+        "name": "videoGrid",
+        "src": "",
+        "link": "/video",
+        "rows": 3,
+        "columns": 5,
+        "cellWidth": 1,
+        "cellContentHeight": 1,
+        "cellHeight": 1.1,
+        "offset": {
+          "x": 0,
+          "y": 1.4,
+          "z": 3
+        },
+        "focusedOffset": {
+          "x": 0,
+          "y": 0,
+          "z": -6
+        },
+        "comingSoon": {
+          "enabled": false,
+          "src": ""
+        }
+      },
+      "spoke": {
+        "enabled": true,
+        "name": "spoke",
+        "src": "",
+        "link": "",
+        "comingSoon": {
+          "enabled": false,
+          "src": ""
+        }
+      },
+      "store": {
+        "enabled": true,
+        "name": "store",
+        "src": "",
+        "link": "",
+        "comingSoon": {
+          "enabled": false,
+          "src": ""
+        }
       }
-    }
-  },
-  "aws": {
-    "s3": {
-      "static_resource_bucket": "STORAGE_S3_BUCKET",
-      "region": "STORAGE_S3_REGION",
-      "cloudfront": {
-        "domain": "STORAGE_S3_CLOUDFRONT_DOMAIN"
-      }
     },
-    "keys": {
-      "access_key_id": "STORAGE_AWS_ACCESS_KEY_ID",
-      "secret_access_key": "STORAGE_AWS_ACCESS_KEY_SECRET"
+    "apiServer": "https://localhost:3030",
+    "siteTitle": "XREngine",
+    "siteDescription": "Connected Worlds for Everyone",
+    "featherStoreKey": "XREngine-Auth-Store",
+    "localStorageKey": "xrengine-client-store-key-v1",
+    "auth": {
+      "enableSmsMagicLink": true,
+      "enableEmailMagicLink": true,
+      "enableUserPassword": false,
+      "enableGithubSocial": false,
+      "enableFacebookSocial": false,
+      "enableGoogleSocial": false
     },
-    "sns": {
-      "region": "AWS_SMS_REGION",
-      "sender_id": "AWS_SMS_SENDER_ID",
-      "application_id": "AWS_SMS_APPLICATION_ID",
-      "access_key_id": "AWS_SMS_ACCESS_KEY_ID",
-      "secret_access_key": "AWS_SMS_SECRET_ACCESS_KEY"
-    }
-  },
 
-  "magiclink": {
-    "subject": "MAGICLINK_EMAIL_SUBJECT"
-  },
-  "gaTrackingId": "UA-164023274-3"
+    "alert": {
+      "timeout": 10000
+    },
+
+    "staticPages": {
+      "termsOfService": "/terms-of-service",
+      "privacyPolicy": "/privacy-policy"
+    }
+  }
 }

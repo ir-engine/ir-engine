@@ -1,10 +1,8 @@
-import assert from 'assert'
-import app from '../../src/app'
+import app from '../../server/app'
 
 describe('\'IdentityProvider\' service', () => {
   it('registered the service', () => {
     const service = app.service('identity-provider')
-
-    assert.ok(service, 'Registered the service')
+    expect(service).toBeTruthy()
   })
 })

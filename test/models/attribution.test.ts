@@ -1,41 +1,33 @@
-import app from '../../src/app'
+import app from '../../server/app'
 
 describe('CRUD operation on \'Attribution\' model', () => {
   const model = app.service('attribution').Model
 
-  it('Create', done => {
-    model.create({
+  it('Create', async () => {
+    await model.create({
       creator: 'test',
-      url: 'http://localhost:3030'
-    }).then(res => {
-      done()
-    }).catch(done)
+      url: 'https://localhost:3030'
+    })
   })
 
-  it('Read', done => {
-    model.findOne({
+  it('Read', async () => {
+    await model.findOne({
       where: {
         creator: 'test'
       }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  it('Update', done => {
-    model.update(
+  it('Update', async () => {
+    await model.update(
       { creator: 'test1' },
       { where: { creator: 'test' } }
-    ).then(res => {
-      done()
-    }).catch(done)
+    )
   })
 
-  it('Delete', done => {
-    model.destroy({
+  it('Delete', async () => {
+    await model.destroy({
       where: { creator: 'test1' }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 })

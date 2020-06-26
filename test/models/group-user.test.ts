@@ -1,4 +1,4 @@
-import app from '../../src/app'
+import app from '../../server/app'
 
 describe('CRUD operation on \'GroupUser\' model', () => {
   const model = app.service('group-user').Model
@@ -6,71 +6,76 @@ describe('CRUD operation on \'GroupUser\' model', () => {
   const userRoleModel = app.service('user-role').Model
   const groupModel = app.service('group').Model
   const groupUserRankModel = app.service('group-user-rank').Model
-  let userId: any, role: any, groupUserRank: any, groupUserRankUpdated: any, groupId: any
+  const userName = 'testname'
+  const groupUserRank = 'uberleader'
+  const groupUserRankUpdated = 'updated-uberleader'
+  const group = 'testgroup'
+  const role = 'testrole'
+  let userId: string
+  let groupId: string
 
-  before(async () => {
-    const userRole = await userRoleModel.create({
-      role: 'testrole'
+  beforeAll(async () => {
+    await userRoleModel.create({
+      role
     })
-    role = userRole.role
-    const user = await userModel.create({
-      name: 'testname',
+
+    await userModel.create({
+      name: userName,
       userRole: role
     })
-    const group = await groupModel.create({
-      name: 'testgroup'
+
+    await groupModel.create({
+      name: group
     })
-    const groupUserRankInstance = await groupUserRankModel.create({
-      rank: 'uberleader'
+
+    await groupUserRankModel.create({
+      rank: groupUserRank
     })
-    const groupUserRankInstanceUpdated = await groupUserRankModel.create({
-      rank: 'updated-uberleader'
+
+    await groupUserRankModel.create({
+      rank: groupUserRankUpdated
     })
-    userId = user.id
-    groupId = group.id
-    groupUserRank = groupUserRankInstance.rank
-    groupUserRankUpdated = groupUserRankInstanceUpdated.rank
+
+    userId = await userModel.findOne({
+      where: { name: userName }
+    }).id
+
+    groupId = await groupModel.findOne({
+      where: { name: group }
+    }).id
   })
 
-  it('Create', done => {
-    model.create({
+  it('Create', async () => {
+    await model.create({
       userId,
       groupId,
       groupUserRank
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  it('Read', done => {
-    model.findOne({
+  it('Read', async () => {
+    await model.findOne({
       where: {
         userId,
         groupId
       }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  it('Update', done => {
-    model.update(
+  it('Update', async () => {
+    await model.update(
       { groupUserRank: groupUserRankUpdated },
       { where: { userId, groupId } }
-    ).then(res => {
-      done()
-    }).catch(done)
+    )
   })
 
-  it('Delete', done => {
-    model.destroy({
+  it('Delete', async () => {
+    await model.destroy({
       where: { userId, groupId }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  after(async () => {
+  afterAll(async () => {
     await userModel.destroy({
       where: {
         id: userId

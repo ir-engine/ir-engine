@@ -1,55 +1,47 @@
-import app from '../../src/app'
+import app from '../../server/app'
 
 describe('CRUD operation on \'Entity\' model', () => {
   const model = app.service('entity').Model
   const entityTypeModel = app.service('entity-type').Model
   let entityType: any
 
-  before(async () => {
+  beforeAll(async () => {
     const entity = await entityTypeModel.create({
       type: 'test_entity_type'
     })
     entityType = entity.type
   })
 
-  it('Create', done => {
-    model.create({
+  it('Create', async () => {
+    await model.create({
       name: 'test',
       entityType: entityType
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  it('Read', done => {
-    model.findOne({
+  it('Read', async () => {
+    await model.findOne({
       where: {
         entityType: entityType
       }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  it('Update', done => {
-    model.update(
+  it('Update', async () => {
+    await model.update(
       { name: 'test1' },
       { where: { entityType: entityType } }
-    ).then(res => {
-      done()
-    }).catch(done)
+    )
   })
 
-  it('Delete', done => {
-    model.destroy({
+  it('Delete', async () => {
+    await model.destroy({
       where: { entityType: entityType }
-    }).then(res => {
-      done()
-    }).catch(done)
+    })
   })
 
-  after(async () => {
-    entityTypeModel.destroy({
+  afterAll(async () => {
+    await entityTypeModel.destroy({
       where: {
         type: entityType
       }
