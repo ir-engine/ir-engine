@@ -1,18 +1,16 @@
 import { System } from "ecsy"
-import { Input } from "../components/Input"
-import { MouseInput, BUTTONS } from "../components/MouseInput"
+import Input from "../components/Input"
+import MouseInput from "../components/MouseInput"
+import MouseButtonMappings from "../mappings/MouseButtonMappings"
+import ButtonState from "../enums/ButtonState"
 
-// TODO: Add middle and right mouse button support
-export class MouseInputSystem extends System {
-  debug: boolean
+// TODO: Add middle and right buttons
+
+export default class MouseInputSystem extends System {
   mouse: MouseInput
   inp: Input
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  execute(delta: number, time: number): void {
+  execute(): void {
     this.queries.mouse.added.forEach(ent => {
-      if (window && (window as any).DEBUG_INPUT) {
-        this.debug = (window as any).DEBUG_INPUT
-      } else this.debug = false
       this.mouse = ent.getMutableComponent(MouseInput)
       this.inp = ent.getMutableComponent(Input)
 
@@ -23,36 +21,36 @@ export class MouseInputSystem extends System {
       )
       document.addEventListener(
         "mousedown",
-        e => this.downHandler(e, this.mouse),
+        e => this.buttonHandler(e, this.mouse, ButtonState.PRESSED),
         false
       )
       document.addEventListener(
         "mouseup",
-        e => this.upHandler(e, this.mouse),
+        e => this.buttonHandler(e, this.mouse, ButtonState.RELEASED),
         false
       )
     })
     this.queries.mouse.results.forEach(() => {
-      const name = BUTTONS.LEFT
+      const name = MouseButtonMappings.LEFT.name
       const state = this.getMouseState(name, this.mouse)
       // just pressed down
       if (
-        state.current === BUTTONS.PRESSED &&
-        state.prev === BUTTONS.RELEASED
+        state.current === ButtonState.PRESSED &&
+        state.prev === ButtonState.RELEASED
       ) {
-        this.inp.states[name] = state.current === BUTTONS.PRESSED
+        this.inp.states[name] = state.current === ButtonState.PRESSED
         this.inp.changed = true
       }
       // just released up
       if (
-        state.current === BUTTONS.RELEASED &&
-        state.prev === BUTTONS.PRESSED
+        state.current === ButtonState.RELEASED &&
+        state.prev === ButtonState.PRESSED
       ) {
-        this.inp.states[name] = state.current === BUTTONS.PRESSED
+        this.inp.states[name] = state.current === ButtonState.PRESSED
         this.inp.changed = true
         this.inp.released = true
       }
-      if (state.current !== state.prev && this.debug) state.prev = state.current
+      if (state.current !== state.prev) state.prev = state.current
     })
     this.queries.mouse.removed.forEach(ent => {
       const mouse = ent.getMutableComponent(MouseInput)
@@ -60,10 +58,6 @@ export class MouseInputSystem extends System {
     })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  downHandler = (e: any, mouse: MouseInput): void => {
-    this.setMouseState(BUTTONS.LEFT, BUTTONS.PRESSED, mouse)
-  }
   moveHandler = (
     e: { clientX: number; clientY: number; timeStamp: any },
     mouse: MouseInput
@@ -72,24 +66,29 @@ export class MouseInputSystem extends System {
     mouse.clientY = e.clientY
     mouse.lastTimestamp = e.timeStamp
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  upHandler = (e: any, mouse: MouseInput): void => {
-    this.setMouseState(BUTTONS.LEFT, BUTTONS.RELEASED, mouse)
-  }
-  setMouseState(key: string, value: string, mouse: MouseInput): void {
-    const state = this.getMouseState(key, mouse)
+
+  buttonHandler = (
+    e: MouseEvent,
+    mouse: MouseInput,
+    direction: ButtonState
+  ): void => {
+    const button =
+      e.button === MouseButtonMappings.LEFT.value
+        ? MouseButtonMappings.LEFT
+        : e.button === MouseButtonMappings.RIGHT.value
+          ? MouseButtonMappings.RIGHT
+          : MouseButtonMappings.MIDDLE
+
+    const state = this.getMouseState(button.name, mouse)
     state.prev = state.current
-    state.current = value
-    if (this.debug)
-      console.log(
-        `Mouse button ${key} is ${value} at ${mouse.clientX} / ${mouse.clientY}`
-      )
+    state.current = direction
   }
+
   getMouseState(key: string, mouse: MouseInput): any {
     if (!mouse.states[key]) {
       mouse.states[key] = {
-        prev: BUTTONS.RELEASED,
-        current: BUTTONS.RELEASED
+        prev: ButtonState.RELEASED,
+        current: ButtonState.RELEASED
       }
     }
     return mouse.states[key]

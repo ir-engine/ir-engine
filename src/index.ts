@@ -1,4 +1,7 @@
 export * from "./components/index"
+export * from "./enums/index"
+export * from "./interfaces/index"
+export * from "./mappings/index"
 export * from "./systems/index"
 
 import {
@@ -10,10 +13,10 @@ import {
 import { isBrowser } from "./util"
 
 import { World } from "ecsy"
-import { Input } from "./components/Input"
-import { KeyboardInput } from "./components/KeyboardInput"
-import { GamepadInput } from "./components/GamepadInput"
-import { MouseInput } from "./components/MouseInput"
+import Input from "./components/Input"
+import KeyboardInput from "./components/KeyboardInput"
+import GamepadInput from "./components/GamepadInput"
+import MouseInput from "./components/MouseInput"
 
 const DEFAULT_OPTIONS = {
   mouse: true,
@@ -25,12 +28,16 @@ const DEFAULT_OPTIONS = {
 
 export function initializeInputSystems(
   world: World,
-  options = DEFAULT_OPTIONS
+  options = DEFAULT_OPTIONS,
+  inputMappings?
 ): void {
   if (options.debug) console.log("Initializing input systems...")
 
   if (!isBrowser)
     return console.error("Couldn't initialize input, are you in a browser?")
+
+  // TODO: If input mappings is not null, create input mappings object
+  // TODO:  Otherwise, read default
 
   if (window && options.debug) (window as any).DEBUG_INPUT = true
 

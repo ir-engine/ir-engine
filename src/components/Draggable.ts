@@ -1,12 +1,6 @@
 import { Component, Types } from "ecsy"
+import SingleValueSchema from "../interfaces/SingleValueSchema"
 
-interface Schema {
-  value: {
-    default: false
-    type: Types["Boolean"]
-  }
-}
-
-export class Draggable extends Component {
-  schema: Schema
+export default class Draggable extends Component {
+  schema: SingleValueSchema
 }

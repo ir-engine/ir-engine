@@ -1,25 +1,14 @@
 import { Component } from "ecsy"
+import InputStates from "../interfaces/InputStates"
 
-interface InputStates {
-  up: boolean
-  down: boolean
-  left: boolean
-  right: boolean
-}
-
-export class Input extends Component {
+export default class Input extends Component {
   states: InputStates
   changed: boolean
   released: boolean
 
   constructor() {
     super()
-    this.states = {
-      up: false,
-      down: false,
-      left: false,
-      right: false
-    }
+    // this.states = {}
     this.changed = true
     this.released = false
   }

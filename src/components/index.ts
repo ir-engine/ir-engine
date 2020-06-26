@@ -1,12 +1,20 @@
-export { KeyboardInput } from "./KeyboardInput"
-export { MouseInput } from "./MouseInput"
+import Input from "./Input"
+import KeyboardInput from "./KeyboardInput"
+import MouseInput from "./MouseInput"
+import GamepadInput from "./GamepadInput"
+import ControllerConnected from "./ControllerConnected"
 // TODO: Add touch support
-// export { Touchscreen, TouchscreenBehaviour } from "./Touch"
-export { GamepadInput } from "./GamepadInput"
+// export { Touchscreen, TouchscreenBehaviour from "./Touch"
 
-export { Input } from "./Input"
+import Draggable from "./Draggable"
+import Dragging from "./Dragging"
 
-export { ControllerConnected } from "./ControllerConnected"
-
-export { Draggable } from "./Draggable"
-export { Dragging } from "./Dragging"
+export {
+  Input,
+  KeyboardInput,
+  MouseInput,
+  GamepadInput,
+  ControllerConnected,
+  Draggable,
+  Dragging
+}

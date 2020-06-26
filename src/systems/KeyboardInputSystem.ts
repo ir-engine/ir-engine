@@ -1,19 +1,15 @@
 // TODO: Replace keyboard state strings with enums
 import { System } from "ecsy"
-import { Input } from "../components/Input"
-import { KeyboardInput } from "../components/KeyboardInput"
+import Input from "../components/Input"
+import KeyboardInput from "../components/KeyboardInput"
 
-export class KeyboardInputSystem extends System {
-  debug: boolean
+export default class KeyboardInputSystem extends System {
   kb: any
   inp: any
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  execute(delta: number, time: number): void {
-    this.queries.controls.added.forEach(() => {
-      if (window && (window as any).DEBUG_INPUT) {
-        this.debug = (window as any).DEBUG_INPUT
-      } else this.debug = false
+  execute(): void {
+    this.queries.keyboard.added.forEach(() => {
       document.addEventListener("keydown", (e: any) => {
         this.setKeyState(this.kb, e.key, "down")
       })
@@ -21,7 +17,7 @@ export class KeyboardInputSystem extends System {
         this.setKeyState(this.kb, e.key, "up")
       })
     })
-    this.queries.controls.results.forEach(ent => {
+    this.queries.keyboard.results.forEach(ent => {
       if (!this.kb) this.kb = ent.getComponent(KeyboardInput)
       if (!this.inp) this.inp = ent.getMutableComponent(Input)
       Object.keys(this.kb.mapping).forEach(key => {
@@ -45,8 +41,8 @@ export class KeyboardInputSystem extends System {
     const state = this.getKeyState(kb, key)
     state.prev = state.current
     state.current = value
-    if (this.debug) console.log(`Set ${key} to ${value}`)
   }
+
   getKeyState(kb: KeyboardInput, key: string): any {
     if (!kb.states[key]) {
       kb.states[key] = {
@@ -62,7 +58,7 @@ export class KeyboardInputSystem extends System {
 }
 
 KeyboardInputSystem.queries = {
-  controls: {
+  keyboard: {
     components: [KeyboardInput, Input],
     listen: { added: true, removed: true }
   }

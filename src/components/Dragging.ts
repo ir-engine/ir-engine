@@ -1,2 +1,2 @@
 import { TagComponent } from "ecsy"
-export class Dragging extends TagComponent {}
+export default class Dragging extends TagComponent {}

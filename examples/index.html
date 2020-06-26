@@ -10,7 +10,7 @@
   </head>
   <body>
     <script type="module">
-			import { World, Component, System } from 'https://unpkg.com/ecsy@0.2.3/build/ecsy.module.js';
+			import { World, Component, System } from 'https://unpkg.com/ecsy@0.2.6/build/ecsy.module.js';
       import { initializeInputSystems } from "./ecsy-input.module-unpkg.js";
 	  	import * as THREE from 'https://unpkg.com/three/build/three.module.js';
       
@@ -76,6 +76,10 @@
           gamepad: true,
           debug: true
         }
+
+      // TODO: Import input mapping
+      // TODO: Modify some values
+      // TODO: Pass to world
 
         initializeInputSystems(world, inputOptions);
 
