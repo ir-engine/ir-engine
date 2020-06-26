@@ -1,7 +1,7 @@
 // TODO: Replace mappings with enums
 import { Component } from "ecsy"
 
-export class KeyboardInput extends Component {
+export default class KeyboardInput extends Component {
   states: any
   mapping: any
 

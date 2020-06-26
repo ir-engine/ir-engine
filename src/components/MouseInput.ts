@@ -1,12 +1,6 @@
 import { Component } from "ecsy"
-// TODO: Replace button mapping with enums
-export const BUTTONS = {
-  LEFT: "left-button",
-  PRESSED: "down",
-  RELEASED: "up"
-}
 
-export class MouseInput extends Component {
+export default class MouseInput extends Component {
   clientX: number
   clientY: number
   states: any
