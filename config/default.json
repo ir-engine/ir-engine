@@ -6,7 +6,7 @@
     "logo": "./logo.svg",
     "xr": {
       "style": {
-        "borderColor": "0x484848",
+        "borderColor": "0x131313",
         "hoverColor": "0x04004E",
         "activeColor": "0xB64800"
       },

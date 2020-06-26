@@ -1,34 +1,53 @@
+/* eslint-disable @typescript-eslint/restrict-plus-operands */
 import AFRAME from 'aframe'
 import PropertyMapper from './ComponentUtils'
+
+import { RoundedCornersPlaneGeometry } from '../three/RoundedCornersPlaneGeometry'
+
+const THREE = AFRAME.THREE
 
 export const ComponentName = 'video-details'
 
 export interface VideoDetailsData {
   cellHeight?: number
   cellWidth?: number
-  detailsWidth?: number,
-  cellContentHeight?: number
+  detailsWidth?: number
+  detailsHeight?: number
+  contentWidth?: number
+  contentHeight?: number
+  borderRadius?: number
   // originalTitle: string,
-  title: string,
-  description: string,
-  url: string,
-  thumbnailUrl: string,
-  productionCredit: string,
-  rating: string,
-  categories: string[],
-  runtime: string,
+  title: string
+  description: string
+  url: string
+  thumbnailUrl: string
+  productionCredit: string
+  rating: string
+  categories: string[]
+  runtime: string
   // tags: string[],
-  mediatype: string,
-  linktype: string,
-  videoformat: string,
+  mediatype: string
+  linktype: string
+  videoformat: string
   linkEnabled: boolean
+
+  // text defaults
+  fontsize: number
+  wrapcount: number
+  wrapfit: boolean
+  nobr: boolean
+
+  backgroundColor: number
+  backgroundMargin: number
 }
 
 export const VideoDetailsComponentSchema: AFRAME.MultiPropertySchema<VideoDetailsData> = {
   cellHeight: { default: 0.6 },
   cellWidth: { default: 1 },
   detailsWidth: { default: 1 },
-  cellContentHeight: { default: 0.5 },
+  detailsHeight: { default: 1 },
+  contentHeight: { default: 0.5 },
+  borderRadius: { default: 0.1 },
   // originalTitle: { default: '' },
   title: { default: '' },
   description: { default: '' },
@@ -42,24 +61,33 @@ export const VideoDetailsComponentSchema: AFRAME.MultiPropertySchema<VideoDetail
   mediatype: { default: 'video360' },
   linktype: { default: 'internal' },
   videoformat: { default: 'eac' },
-  linkEnabled: { default: false }
+  linkEnabled: { default: false },
+
+  fontsize: { default: 2 },
+  wrapcount: { default: 50 },
+  wrapfit: { default: false },
+  nobr: { default: true },
+
+  backgroundColor: { default: 0x222222 },
+  backgroundMargin: { default: 0.1 }
 }
 
 export interface Props {
-  initDetailsl: () => void,
-  createCell: () => AFRAME.Entity,
-  createDetails: () => AFRAME.Entity,
+  initDetailsl: () => void
+  createCell: () => AFRAME.Entity
   createText: (text: string, width: number, height: number,
-    fontSize: number, wrapCount: number, align: string,
-    baseline: string, anchor: string) => AFRAME.Entity,
+    fontSize: number, wrapCount: number,
+    anchor: string, baseline: string, align: string) => AFRAME.Entity
   createButton: (text: string, bgColor: string, clickevent: string, eventData: string,
     width: number, x: number, y: number, z: number,
     bgWidth: number, bgHeight: number, bgz: number,
-    color: number) => AFRAME.Entity,
-  createDetailEntity: () => AFRAME.Entity,
-  createBackground: (w: number, h: number, color: string, x: number, y: number, z: number) => AFRAME.Entity,
-  createWatchButton: () => AFRAME.Entity,
-  createBackButton: () => AFRAME.Entity
+    color: number) => AFRAME.Entity
+  createDetailsFlex: (h: number) => AFRAME.Entity
+  createDetailsItem: (opts: any, text: string) => AFRAME.Entity
+  createBackground: (w: number, h: number, r: number, m: number, color: number, x: number, y: number, z: number) => AFRAME.Entity
+  createButtons: (h: number) => AFRAME.Entity
+  createWatchButton: (w: number, h: number) => AFRAME.Entity
+  createBackButton: (w: number, h: number) => AFRAME.Entity
 }
 
 export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
@@ -72,18 +100,79 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
     else this.el.sceneEl?.addEventListener('loaded', this.initDetailsl.bind(this))
   },
 
-  play() {
+  play () {
   },
 
-  pause() {
+  pause () {
   },
 
-  initDetailsl() {
-    this.el.appendChild(this.createCell())
-    this.el.appendChild(this.createDetails())
+  initDetailsl () {
+    const flexEl = document.createElement('a-entity')
+    flexEl.setAttribute('flex-container', {
+      width: this.data.detailsWidth,
+      height: this.data.detailsHeight,
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center'
+    })
+
+    const mediaCell = this.createCell()
+    mediaCell.setAttribute('flex-item', { dimtype: 'attr', dimattr: 'media-cell' })
+
+    flexEl.appendChild(mediaCell)
+
+    const buttonsRow = this.createButtons(0.07 * this.data.detailsHeight)
+    buttonsRow.setAttribute('flex-item', { dimtype: 'flex-container' })
+
+    flexEl.appendChild(buttonsRow)
+
+    // details row
+    const detailsCell = this.createDetailsFlex(0.05 * this.data.detailsHeight)
+    detailsCell.setAttribute('flex-item', { dimtype: 'flex-container' })
+
+    flexEl.appendChild(detailsCell)
+
+    // title
+    if (this.data.title !== undefined) {
+      const titleFlexEl = this.createDetailsItem({
+        height: 0.1 * this.data.detailsHeight,
+        fontsize: 3,
+        wrapcount: 30
+      }, this.data.title)
+      flexEl.appendChild(titleFlexEl)
+    }
+
+    // description
+    if (this.data.description !== undefined) {
+      const descriptionFlexEl = this.createDetailsItem({
+        height: 0.23 * this.data.detailsHeight
+      }, this.data.description)
+      flexEl.appendChild(descriptionFlexEl)
+    }
+
+    // categories
+    const categories = (this.data.categories !== 'undefined' && this.data.categories !== undefined) ? this.data.categories : ''
+    const categoriesFlexEl = this.createDetailsItem({
+      height: 0.05 * this.data.detailsHeight
+    }, categories)
+    flexEl.appendChild(categoriesFlexEl)
+
+    const background = this.createBackground(
+      this.data.detailsWidth,
+      this.data.detailsHeight,
+      this.data.borderRadius,
+      this.data.backgroundMargin,
+      this.data.backgroundColor,
+      0,
+      0,
+      -0.005
+    )
+
+    this.el.appendChild(flexEl)
+    this.el.appendChild(background)
   },
 
-  createCell() {
+  createCell () {
     const mediaCell = document.createElement('a-media-cell')
     const cellData = {
       clickable: false,
@@ -91,25 +180,11 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
     }
     mediaCell.setAttribute('media-cell', cellData)
 
-    mediaCell.object3D.scale.set(1.5, 1.5, 1.5)
-    mediaCell.object3D.position.set(-0.75, 0, 0)
-
     return mediaCell
   },
 
-  createDetails() {
-    const entity = document.createElement('a-entity')
-    entity.object3D.position.set(1.05, 0.074, 0)
-
-    entity.appendChild(this.createDetailEntity())
-    entity.appendChild(this.createWatchButton())
-    entity.appendChild(this.createBackButton())
-
-    return entity
-  },
-
-  createText(text: string, width: number, height: number, fontSize: number, wrapCount: number, align: string,
-    baseline: string, anchor: string) {
+  createText (text: string, width: number, height: number, fontSize: number, wrapCount: number,
+    anchor: string, baseline: string, align: string) {
     const textEntity = document.createElement('a-entity')
 
     textEntity.setAttribute('text-cell', {
@@ -123,74 +198,153 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
       fontsize: fontSize,
       text: text,
       wrapcount: wrapCount,
-      anchor: anchor
+      anchor: anchor,
+      nobr: false
     })
     return textEntity
   },
 
-  createDetailEntity() {
-    let text = this.data.title + '\n\n'
-    text += this.data.description ? this.data.description + '\n' : ''
-    text += this.data.runtime ? this.data.runtime + '\n' : ''
-    text += this.data.productionCredit ? this.data.productionCredit + '\n' : ''
-    text += this.data.rating ? this.data.rating + '\n' : ''
-    text += this.data.categories ? this.data.categories.join(',') : ''
+  createDetailsFlex (height: number) {
+    const flexEl = document.createElement('a-entity')
+    flexEl.setAttribute('flex-container',
+      {
+        width: this.data.detailsWidth,
+        height: height,
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center'
+      })
 
-    const textEntity = this.createText(text, this.data.detailsWidth, this.data.cellHeight, 4, 33, 'left', 'center', 'center')
+    const lineHeight = 0.1
 
-    const textBG = this.createBackground(this.data.detailsWidth, this.data.cellContentHeight * 1.5, 'black', 0, -0.0625, -0.01)
+    const runtime = (this.data.runtime !== 'undefined') ? this.data.runtime : ''
 
-    textEntity.appendChild(textBG)
+    const runtimeFlexEl = this.createDetailsItem({
+      width: this.detailsWidth / 3,
+      height: lineHeight
+    }, runtime)
+    flexEl.appendChild(runtimeFlexEl)
 
-    return textEntity
+    const productionCredit = (this.data.productionCredit !== 'undefined') ? this.data.productionCredit : ''
+    const productionCreditFlexEl = this.createDetailsItem({
+      width: this.detailsWidth / 3,
+      height: lineHeight
+    }, productionCredit)
+    flexEl.appendChild(productionCreditFlexEl)
+
+    const rating = (this.data.rating !== 'undefined') ? this.data.rating : ''
+    const ratingFlexEl = this.createDetailsItem({
+      width: this.detailsWidth / 3,
+      height: lineHeight
+    }, rating)
+    flexEl.appendChild(ratingFlexEl)
+
+    return flexEl
   },
 
-  createBackground(width: number, height: number, color: string, x: number, y: number, z: number) {
-    const bg = document.createElement('a-plane')
-    bg.setAttribute('color', color)
-    bg.setAttribute('width', width)
-    bg.setAttribute('height', height)
-    bg.object3D.position.set(x, y, z)
+  createDetailsItem (opts, text) {
+    const data = this.data
+    const width = opts.width || data.detailsWidth
+    const height = opts.height || data.detailsHeight
+    const fontsize = opts.fontsize || data.fontsize
+    const wrapcount = opts.wrapcount || data.wrapcount
+    const wrapfit = opts.wrapfit || data.wrapfit
+    const nobr = opts.nobr || data.nobr
+
+    const textProps = {
+      width: width,
+      height: height,
+      fontsize: fontsize,
+      wrapcount: wrapcount,
+      wrapfit: wrapfit,
+      nobr: nobr,
+      baseline: 'top'
+    }
+    const textEl = document.createElement('a-entity')
+    textEl.setAttribute('text-cell', { text: text, ...textProps })
+    textEl.setAttribute('flex-item', { dimtype: 'attr', dimattr: 'text-cell' })
+
+    return textEl
+  },
+
+  createBackground (width: number, height: number, radius: number,
+    margin: number, color: number, x: number, y: number, z: number) {
+    const bg = document.createElement('a-entity')
+
+    const geo = new RoundedCornersPlaneGeometry(
+      width + margin,
+      height + margin,
+      radius,
+      10
+    )
+
+    const mat = new THREE.MeshBasicMaterial({
+      color: new THREE.Color(color)
+    })
+    const mesh = new THREE.Mesh(geo, mat)
+    mesh.position.x = x || 0
+    mesh.position.y = y || 0
+    mesh.position.z = z || 0
+
+    bg.setObject3D('background', mesh)
 
     return bg
   },
 
-  createButton(text: string, bgColor: string, clickevent: string, eventData: string, width: number,
+  createButtons (height: number) {
+    const flexEl = document.createElement('a-entity')
+    flexEl.setAttribute('flex-container',
+      {
+        width: this.data.detailsWidth,
+        height: height,
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center'
+      })
+
+    const watchButton = this.createWatchButton(this.data.detailsWidth / 3, height)
+    watchButton.setAttribute('flex-item', { dimtype: 'attr', dimattr: 'text-cell' })
+
+    const backButton = this.createBackButton(this.data.detailsWidth / 3, height)
+    backButton.setAttribute('flex-item', { dimtype: 'attr', dimattr: 'text-cell' })
+
+    flexEl.appendChild(watchButton)
+    flexEl.appendChild(backButton)
+    return flexEl
+  },
+
+  createButton (text: string, bgColor: string, clickevent: string, eventData: string, width: number,
     xoffset: number, yoffset: number, zoffset: number,
     bgWidth: number, bgHeight: number, bgZoffset = -0.01, color: number) {
     console.debug(color)
-    const textEntity = this.createText(text, width, bgHeight, 7, 10, 'center', 'center', 'center')
+    const textEntity = this.createText(text, width, bgHeight, 4, 10, 'center', 'center', 'center')
     textEntity.object3D.position.set(xoffset, yoffset, zoffset)
 
-    const textBG = this.createBackground(bgWidth, bgHeight, bgColor, 0, 0, bgZoffset)
+    const textBGBorder = this.createBackground(bgWidth * 1.03, bgHeight * 1.03, 0.05, 0.01, 'white', 0, 0, bgZoffset - 0.001)
+    const textBG = this.createBackground(bgWidth, bgHeight, 0.05, 0.01, bgColor, 0, 0, bgZoffset)
     textBG.classList.add('clickable')
     textBG.setAttribute('clickable', { clickevent: clickevent, clickeventData: JSON.stringify({ url: eventData }) })
 
+    textEntity.appendChild(textBGBorder)
     textEntity.appendChild(textBG)
 
     return textEntity
   },
 
-  createWatchButton() {
-    const url = 'video360?manifest=' + this.data.url +
-      '&title=' + this.data.title +
-      '&runtime=' + this.data.runtime +
-      '&credit=' + this.data.productionCredit +
-      '&rating=' + this.data.rating +
-      '&categories=' + this.data.categories.join(',') +
-      // '&tags=' + this.data.tags.join(',') +
-      '&format=' + this.data.videoformat
-    return this.createButton('watch', 'green', 'navigate', url, this.data.detailsWidth / 2,
-      -this.data.detailsWidth / 4, -this.data.cellContentHeight, 0,
-      this.data.detailsWidth / 2, this.data.cellContentHeight / 4,
-      -0.01, 0x2b812b)
+  createWatchButton (width: number, height: number) {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    const url = `video360?manifest=${this.data.url || ''}&title= ${this.data.title || ''}&runtime= ${this.data.runtime || ''}&credit= ${this.data.productionCredit || ''}&rating= ${this.data.rating || ''}&categories= ${this.data.categories.join(',') || ''}&format=${this.data.videoformat || ''}`
+    return this.createButton('play', 0x000796, 'navigate', url, width,
+      0, 0, 0,
+      width, height,
+      -0.0025, 0x2b812b)
   },
 
-  createBackButton() {
-    return this.createButton('back', 'red', 'backbutton', '', this.data.detailsWidth / 2,
-      this.data.detailsWidth / 4, -this.data.cellContentHeight, 0,
-      this.data.detailsWidth / 2, this.data.cellContentHeight / 4,
-      -0.01, 0xb42222)
+  createBackButton (width: number, height: number) {
+    return this.createButton('back', this.data.backgroundColor, 'backbutton', '', width, // this.data.detailsWidth / 3,
+      0, 0, 0,
+      width, height,
+      -0.0025, 0xb42222)
   }
 
 }
@@ -199,8 +353,10 @@ const primitiveProps = [
   'id',
   'cellHeight',
   'cellWidth',
+  'detailsHeight',
   'detailsWidth',
-  'cellContentHeight',
+  'contentHeight',
+  'contentWidth',
   'originalTitle',
   'title',
   'description',
@@ -213,7 +369,9 @@ const primitiveProps = [
   'mediatype',
   'linktype',
   'videoformat',
-  'linkEnabled'
+  'linkEnabled',
+  'backgroundColor',
+  'backgroundMargin'
 ]
 
 export const VideoDetailsPrimitive: AFRAME.PrimitiveDefinition = {

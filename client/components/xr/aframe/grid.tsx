@@ -106,7 +106,7 @@ export const GridComponentSchema: AFRAME.MultiPropertySchema<GridData> = {
   backGround: { default: false },
   backgroundColor: { default: 0x222222 },
   backgroundMargin: { default: 0.15 },
-  borderRadius: { default: 0.1 },
+  borderRadius: { default: 0.1 }
 }
 
 export interface GridProps {
