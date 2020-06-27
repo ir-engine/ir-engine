@@ -1,20 +1,28 @@
 import app from '../../server/app'
+import { v1 } from 'uuid'
 
 describe('CRUD operation on \'Entity\' model', () => {
   const model = app.service('entity').Model
   const entityTypeModel = app.service('entity-type').Model
   let entityType: any
 
-  beforeAll(async () => {
+  beforeAll(async (done) => {
+    await entityTypeModel.destroy({
+      where: {
+        type: 'test_entity_type'
+      }
+    })
     const entity = await entityTypeModel.create({
       type: 'test_entity_type'
     })
     entityType = entity.type
+    done()
   })
 
   it('Create', async () => {
     await model.create({
       name: 'test',
+      entityId: v1(),
       entityType: entityType
     })
   })
