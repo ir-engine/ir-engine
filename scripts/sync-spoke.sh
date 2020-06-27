@@ -27,6 +27,10 @@ cp ../spoke/webpack.config.js ../node_modules/xr3-spoke/webpack.config.js
 #.env?
 cp ../spoke/.env.defaults ../node_modules/xr3-spoke/.env.prod
 
+#.env?
+cp ../spoke/default.spoke ../node_modules/xr3-spoke/src/assets/templates/crater.spoke
+
+
 echo -e "\e[32mCompiling Spoke..."
 
 # Compile spoke
