@@ -11,10 +11,15 @@ describe('Feathers application tests', () => {
 
   beforeAll((done) => {
     server = app.listen(port)
-    const nextReadyEmitter = app.get('nextReadyEmitter')
-    nextReadyEmitter.once('next-ready', () => {
-      done()
-    })
+    if (process.env.NODE_ENV === 'development') {
+      const nextReadyEmitter = app.get('nextReadyEmitter')
+      nextReadyEmitter.once('next-ready', () => {
+        done()
+      })
+    }
+    else {
+      server.once('listening', () => done())
+    }
   }, 90000)
 
   afterAll((done) => {

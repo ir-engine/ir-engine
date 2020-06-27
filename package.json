@@ -24,7 +24,7 @@
   "jest": "ts-jest",
   "scripts": {
     "build-client": "tsc -p tsconfig.client.json && npm run copyfiles-client && next build ./lib/client",
-    "test": "yarn run lint && yarn run compile && NODE_ENV=development jest --max_old_space_size=3072",
+    "test": "yarn run lint && yarn run compile && NODE_ENV=production jest lib/test",
     "lint": "node node_modules/.bin/eslint --ext .js,.ts server/ --fix",
     "dev": "NODE_ENV=development node --max_old_space_size=3072 -r ts-node/register ./server/",
     "dev-with-spoke": "yarn run build-spoke && NODE_ENV=development node --max_old_space_size=3072 -r ts-node/register ./server/",

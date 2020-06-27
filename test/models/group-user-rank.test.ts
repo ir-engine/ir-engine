@@ -3,6 +3,13 @@ import app from '../../server/app'
 describe('CRUD operation on \'GroupUserRank\' model', () => {
   const model = app.service('group-user-rank').Model
 
+  beforeAll(async (done) => {
+    await model.destroy({
+      where: { rank: 'test' }
+    })
+    done()
+  })
+
   it('Create', async () => {
     await model.create({
       rank: 'test'
