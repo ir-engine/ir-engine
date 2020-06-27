@@ -6,7 +6,7 @@ export default class GamepadInput extends Component {
 
   constructor() {
     super()
-    this.axis_threshold = 0.4
+    this.axis_threshold = 0.1
     this.connected = false
   }
 }

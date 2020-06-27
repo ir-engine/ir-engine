@@ -10,7 +10,7 @@
   "bundleDependencies": false,
   "dependencies": {
     "@rollup/plugin-typescript": "^5.0.0",
-    "ecsy": "^0.2.6",
+    "ecsy": "^0.3.1",
     "tslib": "^2.0.0"
   },
   "deprecated": false,

@@ -10,7 +10,7 @@ import {
   GamepadInputSystem
 } from "./systems/index"
 
-import { isBrowser } from "./util"
+import { isBrowser } from "./utils/IsBrowser"
 
 import { World } from "ecsy"
 import Input from "./components/Input"
