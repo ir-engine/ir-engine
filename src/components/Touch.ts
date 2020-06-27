@@ -1,12 +1,12 @@
 // import { Component, Types } from "../systems/node_modules/ecsy"
 
-// export class Touchscreen extends Component {}
+// export class Touchscreen extends Component<any> {}
 // Touchscreen.schema = {
 //   id: { default: 0, type: Types.Number },
 //   controller: { default: null, type: Types.Object }
 // }
 
-// export class TouchscreenBehaviour extends Component {}
+// export class TouchscreenBehaviour extends Component<any> {}
 // TouchscreenBehaviour.schema = {
 
 //   select: { default: null, type: Types.Object },

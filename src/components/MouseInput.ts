@@ -1,6 +1,6 @@
 import { Component } from "ecsy"
 
-export default class MouseInput extends Component {
+export class MouseInput extends Component<any> {
   clientX: number
   clientY: number
   states: any

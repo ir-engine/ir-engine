@@ -1,6 +1,6 @@
 import { Component } from "ecsy"
 
-export default class GamepadInput extends Component {
+export default class GamepadInput extends Component<any> {
   axis_threshold: number
   connected: boolean
 
