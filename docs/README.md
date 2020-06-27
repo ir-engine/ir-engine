@@ -1,6 +1,6 @@
 ## XREngine Docs
 
-### Please visit xr3ngine.github.io to see docs
+### Please visit school.xrengine.io to see docs
 
 Uses Hugo
 https://gohugo.io/getting-started/quick-start/ 
