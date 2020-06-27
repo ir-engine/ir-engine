@@ -1,5 +1,4 @@
 import Actions from "../enums/Actions"
-import { createType, copyCopyable, cloneClonable } from "ecsy"
 
 export class ActionBuffer {
   public static fromArray(data: Actions[], size = 0): ActionBuffer {
@@ -143,10 +142,3 @@ export class ActionBuffer {
     return this.buffer.length === 0
   }
 }
-
-export const ActionBufferType = createType({
-  name: "ActionBuffer",
-  default: new ActionBuffer(5),
-  copy: copyCopyable,
-  clone: cloneClonable
-})

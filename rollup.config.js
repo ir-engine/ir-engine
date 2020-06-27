@@ -51,7 +51,7 @@ export default [
     plugins: [
       resolve(),
       json({ exclude: ["node_modules/**", "examples/**"] }),
-      terser(),
+      // terser(),
       babel({ babelHelpers: "bundled" })
     ],
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types

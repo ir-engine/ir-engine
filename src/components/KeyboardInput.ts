@@ -1,10 +1,16 @@
 import { Component } from "ecsy"
-import { KeyState } from "../types/KeyState"
+import TemporalButtonStateMappingType from "../types/TemporalButtonStateMapping"
+import TemporalButtonStateList from "../interfaces/ButtonStateList"
 
 export default class KeyboardInput extends Component<any> {
-  keys: any[]
+  keys: TemporalButtonStateList
+  kb: any
+  constructor() {
+    super()
+    this.keys = {}
+  }
 }
 
 KeyboardInput.schema = {
-  keys: { type: KeyState }
+  keys: { type: TemporalButtonStateMappingType }
 }
