@@ -1,8 +1,8 @@
-import { Types } from "ecsy"
+import { PropTypes } from "ecsy"
 
 export default interface SingleValueSchema {
   value: {
     default: false
-    type: Types["Boolean"]
+    type: PropTypes["Boolean"]
   }
 }

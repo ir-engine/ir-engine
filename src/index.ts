@@ -37,7 +37,7 @@ export function initializeInputSystems(
     return console.error("Couldn't initialize input, are you in a browser?")
 
   // TODO: If input mappings is not null, create input mappings object
-  // TODO:  Otherwise, read default
+  // TODO: Otherwise, read default
 
   if (window && options.debug) (window as any).DEBUG_INPUT = true
 
@@ -46,10 +46,14 @@ export function initializeInputSystems(
     console.log(options)
   }
 
+  world.registerComponent(Input)
+
   const inputSystemEntity = world.createEntity().addComponent(Input)
 
   if (options.keyboard) {
-    world.registerSystem(KeyboardInputSystem, null)
+    world
+      .registerComponent(KeyboardInput)
+      .registerSystem(KeyboardInputSystem, null)
     inputSystemEntity.addComponent(KeyboardInput)
     if (options.debug)
       console.log(
@@ -58,7 +62,7 @@ export function initializeInputSystems(
   }
 
   if (options.mouse) {
-    world.registerSystem(MouseInputSystem, null)
+    world.registerComponent(MouseInput).registerSystem(MouseInputSystem, null)
     inputSystemEntity.addComponent(MouseInput)
     if (options.debug)
       console.log(
@@ -67,7 +71,9 @@ export function initializeInputSystems(
   }
 
   if (options.gamepad) {
-    world.registerSystem(GamepadInputSystem, null)
+    world
+      .registerComponent(GamepadInput)
+      .registerSystem(GamepadInputSystem, null)
     inputSystemEntity.addComponent(GamepadInput)
     if (options.debug)
       console.log(

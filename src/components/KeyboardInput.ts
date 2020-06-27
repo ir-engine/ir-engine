@@ -1,19 +1,10 @@
-// TODO: Replace mappings with enums
 import { Component } from "ecsy"
+import { KeyState } from "../types/KeyState"
 
 export default class KeyboardInput extends Component<any> {
-  states: any
-  mapping: any
+  keys: any[]
+}
 
-  constructor() {
-    super()
-    this.states = {}
-    this.mapping = {
-      " ": "jump",
-      ArrowLeft: "left",
-      ArrowRight: "right",
-      ArrowUp: "up",
-      ArrowDown: "down"
-    }
-  }
+KeyboardInput.schema = {
+  keys: { type: KeyState }
 }
