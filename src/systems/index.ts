@@ -1,5 +1,5 @@
 import ActionSystem from "./ActionSystem"
-import InputDebugSystem from "./InputDebugSystem"
+import InputDebugSystem from "./KeyboardDebugSystem"
 import KeyboardInputSystem from "./KeyboardInputSystem"
 import MouseInputSystem from "./MouseInputSystem"
 import GamepadInputSystem from "./GamepadInputSystem"

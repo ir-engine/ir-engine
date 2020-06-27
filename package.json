@@ -11,12 +11,16 @@
   "dependencies": {
     "@rollup/plugin-typescript": "^5.0.0",
     "ecsy": "^0.3.1",
+    "rollup-plugin-html-entry": "^0.3.0",
+    "rollup-plugin-index-html": "^1.12.4",
+    "troika-3d-text": "^0.28.1",
     "tslib": "^2.0.0"
   },
   "deprecated": false,
   "description": "ECSY Input Controller",
   "devDependencies": {
     "@babel/core": "^7.6.4",
+    "@open-wc/rollup-plugin-html": "^1.1.0",
     "@rollup/plugin-alias": "^2.2.0",
     "@rollup/plugin-babel": "^5.0.4",
     "@rollup/plugin-json": "^4.0.2",
@@ -29,6 +33,7 @@
     "babelify": "^10.0.0",
     "browserify": "^16.5.0",
     "concurrently": "^5.0.0",
+    "ecsy-three": "0.0.6",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-prettier": "^3.1.1",
@@ -39,13 +44,12 @@
     "rollup": "^1.27.13",
     "rollup-plugin-auto-external": "^2.0.0",
     "rollup-plugin-external-globals": "^0.5.0",
+    "rollup-plugin-html": "^0.2.1",
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-serve": "^1.0.1",
     "rollup-plugin-terser": "^5.1.2",
-    "typescript": "^3.9.5",
-    "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.9",
-    "webpack-dev-server": "^3.9.0"
+    "three": "^0.118.1",
+    "typescript": "^3.9.5"
   },
   "homepage": "https://github.com/xr3ngine/ecsy-input#readme",
   "jsnext:main": "dist/ecsy-input.module.js",
@@ -60,6 +64,7 @@
   },
   "scripts": {
     "build": "tsc --outDir .buildcache/ --declarationDir .buildcache/ --declaration true && rollup -c",
+    "dev": "tsc --outDir .buildcache/ --declarationDir .buildcache/ --declaration true && rollup -cw",
     "lint": "eslint ./src/**/*",
     "start": "npm run build"
   },

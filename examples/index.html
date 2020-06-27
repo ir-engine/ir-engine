@@ -10,66 +10,48 @@
   </head>
   <body>
     <script type="module">
-			import { World, Component, System } from 'https://unpkg.com/ecsy@0.2.6/build/ecsy.module.js';
-      import { initializeInputSystems } from "./ecsy-input.module-unpkg.js";
-	  	import * as THREE from 'https://unpkg.com/three/build/three.module.js';
-      
-      import * as ECSYTHREE from 'https://unpkg.com/ecsy-three.module-unpkg.js'
-
-      const {
+      import { Component, System } from "ecsy"
+      import { ECSYThreeWorld, Object3DComponent, Types } from "ecsy-three"
+      import {
         initialize,
-        Types,
         // Components
-        Parent,
-        Camera,
-        Transform,
         GLTFLoader,
-        Object3DComponent,
-        ECSYThreeWorld,
         // Systems
-        WebGLRendererSystem,
-        GLTFLoaderSystem
-      } = ECSYTHREE
+        GLTFLoaderSystem,
+        Position
+      } from "ecsy-three/extras"
+      import {
+        AmbientLight,
+        Mesh,
+        BoxBufferGeometry,
+        MeshBasicMaterial,
+        TextureLoader,
+        Vector3
+      } from "three"
 
-      var world, scene, camera, mesh, renderer
+      import { initializeInputSystems } from "../dist/ecsy-input.module.js"
 
-      init()
-
-      function init() {
-        // Create a new world to hold all our entities and systems
-        world = new ECSYThreeWorld()
-
-        // Initialize the default sets of entities and systems
+      // Setup world
+        const world = new ECSYThreeWorld()
         let data = initialize(world)
-        console.log(data)
-
-        world.registerComponent(GLTFLoader)
-        world.registerSystem(GLTFLoaderSystem)
-
-        // Grab the initialized entities
-        let { scene, renderer, camera } = data.entities
-        let scene3d = scene.getObject3D()
-
-        // Modify the position for the default camera
+        let { scene, camera } = data.entities
         let camera3d = camera.getObject3D()
         camera3d.position.z = 5
-
+        world.createEntity().addObject3DComponent(new AmbientLight(), scene)
         world
           .createEntity()
-          .addObject3DComponent(new THREE.AmbientLight(), scene)
+          .addObject3DComponent(
+            new Mesh(
+              new BoxBufferGeometry(1, 1, 1),
+              new MeshBasicMaterial({
+                map: new TextureLoader().load("../examples/textures/crate.gif")
+              })
+            ),
+            scene
+          )
 
-        // Create an entity to handle our rotating box
-        var box = world.createEntity().addObject3DComponent(
-          new THREE.Mesh(
-            new THREE.BoxBufferGeometry(1, 1, 1),
-            new THREE.MeshBasicMaterial({
-              map: new THREE.TextureLoader().load("textures/crate.gif")
-            })
-          ),
-          scene
-        )
-
-        const inputOptions = {
+          // Test input
+          const inputOptions = {
           mouse: true,
           keyboard: true,
           touchscreen: true,
@@ -83,9 +65,9 @@
 
         initializeInputSystems(world, inputOptions);
 
-        // Start world systems
+
+        // Let's begin
         world.execute()
-      }
     </script>
   </body>
 </html>

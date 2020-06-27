@@ -2,6 +2,7 @@
 import { System } from "ecsy"
 import Input from "../components/Input"
 import KeyboardInput from "../components/KeyboardInput"
+import ButtonState from "../enums/ButtonState"
 
 export default class KeyboardInputSystem extends System {
   kb: any
@@ -10,11 +11,11 @@ export default class KeyboardInputSystem extends System {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   execute(): void {
     this.queries.keyboard.added.forEach(() => {
-      document.addEventListener("keydown", (e: any) => {
-        this.setKeyState(this.kb, e.key, "down")
+      document.addEventListener("keydown", (e: KeyboardEvent) => {
+        this.setKeyState(this.kb, e.key, ButtonState.PRESSED)
       })
-      document.addEventListener("keyup", (e: any) => {
-        this.setKeyState(this.kb, e.key, "up")
+      document.addEventListener("keyup", (e: KeyboardEvent) => {
+        this.setKeyState(this.kb, e.key, ButtonState.RELEASED)
       })
     })
     this.queries.keyboard.results.forEach(ent => {
@@ -23,12 +24,18 @@ export default class KeyboardInputSystem extends System {
       Object.keys(this.kb.mapping).forEach(key => {
         const name = this.kb.mapping[key]
         const state = this.getKeyState(this.kb, key)
-        if (state.current === "down" && state.prev === "up") {
-          this.inp.states[name] = state.current === "down"
+        if (
+          state.current === ButtonState.PRESSED &&
+          state.prev === ButtonState.RELEASED
+        ) {
+          this.inp.states[name] = state.current === ButtonState.PRESSED
           this.inp.changed = true
         }
-        if (state.current === "up" && state.prev === "down") {
-          this.inp.states[name] = state.current === "down"
+        if (
+          state.current === ButtonState.RELEASED &&
+          state.prev === ButtonState.PRESSED
+        ) {
+          this.inp.states[name] = state.current === ButtonState.PRESSED
           this.inp.changed = true
           this.inp.released = true
         }
@@ -37,23 +44,23 @@ export default class KeyboardInputSystem extends System {
     })
   }
 
-  setKeyState(kb: KeyboardInput, key: string, value: string): any {
+  setKeyState(kb: KeyboardInput, key: string, value: ButtonState): any {
     const state = this.getKeyState(kb, key)
     state.prev = state.current
     state.current = value
   }
 
   getKeyState(kb: KeyboardInput, key: string): any {
-    if (!kb.states[key]) {
-      kb.states[key] = {
-        prev: "up",
-        current: "up"
+    if (!kb.keys[key]) {
+      kb.keys[key] = {
+        prev: ButtonState.RELEASED,
+        current: ButtonState.RELEASED
       }
     }
-    return kb.states[key]
+    return kb.keys[key]
   }
   isPressed(kb: KeyboardInput, name: string): boolean {
-    return this.getKeyState(kb, name).current === "down"
+    return this.getKeyState(kb, name).current === ButtonState.PRESSED
   }
 }
 

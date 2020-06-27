@@ -48,8 +48,7 @@ export default class InputDebugSystem extends System {
   }
 
   handleGamePads(): void {
-    this.queries.gamepad.added.forEach(ent => {
-      const gp = ent.getMutableComponent(GamepadInput)
+    this.queries.gamepad.added.forEach(() => {
       window.addEventListener("gamepadconnected", (event: any) => {
         console.log("A gamepad connected:", event.gamepad)
       })

@@ -1,6 +1,7 @@
 import json from "@rollup/plugin-json"
 import resolve from "@rollup/plugin-node-resolve"
 import alias from "@rollup/plugin-alias"
+import html from "@open-wc/rollup-plugin-html"
 import * as pkg from "./package.json"
 import { execSync } from "child_process"
 import { terser } from "rollup-plugin-terser"
@@ -19,6 +20,7 @@ export default [
   {
     input: ".buildcache/index.js",
     plugins: [
+      resolve(),
       alias({
         entries: [
           {
@@ -28,13 +30,7 @@ export default [
         ]
       }),
       terser(),
-      babel({ babelHelpers: "bundled" }),
-      serve({
-        // Launch in browser (default: false)
-        open: true,
-        openPage: "/index.html",
-        contentBase: ["dist", "examples"]
-      })
+      babel({ babelHelpers: "bundled" })
     ],
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     external: id => {
@@ -53,14 +49,12 @@ export default [
   {
     input: ".buildcache/index.js",
     plugins: [
+      resolve(),
       json({ exclude: ["node_modules/**", "examples/**"] }),
       terser(),
       babel({ babelHelpers: "bundled" })
     ],
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    external: id => {
-      return id === "ecsy"
-    },
     output: [
       {
         format: "es",
@@ -73,8 +67,8 @@ export default [
   {
     input: ".buildcache/index-bundled.js",
     plugins: [
-      json({ exclude: ["node_modules/**", "examples/**"] }),
       resolve(),
+      json({ exclude: ["node_modules/**", "examples/**"] }),
       terser(),
       babel({ babelHelpers: "bundled" })
     ],
@@ -88,6 +82,20 @@ export default [
         file: "dist/ecsy-input.module.all.js",
         indent: "\t"
       }
+    ]
+  },
+  {
+    input: "examples/index.html",
+    output: { dir: "dist" },
+    plugins: [
+      html(),
+      resolve(),
+      serve({
+        // Launch in browser (default: false)
+        open: true,
+        openPage: "/dist/index.html",
+        contentBase: ["./"]
+      })
     ]
   }
 ]

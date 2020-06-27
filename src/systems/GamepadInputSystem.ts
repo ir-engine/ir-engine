@@ -1,7 +1,4 @@
-// TODO: Test gamepad support!
-
 import { System } from "ecsy"
-import Input from "../components/Input"
 import GamepadInput from "../components/GamepadInput"
 export default class GamepadInputSystem extends System {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -20,36 +17,34 @@ export default class GamepadInputSystem extends System {
     this.queries.gamepad.results.forEach(ent => {
       const gp = ent.getMutableComponent(GamepadInput)
       if (gp.connected) {
-        this.GetGamepadInput(gp, ent.getMutableComponent(Input))
-      }
-    })
-  }
+        const gamepads = navigator.getGamepads()
+        for (let i = 0; i < gamepads.length; i++) {
+          if (gamepads[i].axes && gamepads[i].axes.length >= 2) {
+            // X Axis
+            if (
+              gamepads[i].axes[0] < -gp.axis_threshold ||
+              gamepads[i].axes[0] > gp.axis_threshold
+            ) {
+              if (i == 0) gp.dpadOneAxisX = gamepads[i].axes[0]
+              else if (i == 1) gp.dpadTwoAxisX = gamepads[i].axes[0]
+            }
 
-  GetGamepadInput(gp: GamepadInput, input: Input): void {
-    const gamepads = navigator.getGamepads()
-    gamepads.forEach(gamepad => {
-      // TODO: Add axis values set in state
-      if (gamepad.axes && gamepad.axes.length >= 2) {
-        // X Axis
-        if (gamepad.axes[0] < -gp.axis_threshold)
-          input.states.right = !(input.states.left = true)
-        else if (gamepad.axes[0] > gp.axis_threshold)
-          input.states.right = !(input.states.left = false)
-        else input.states.right = input.states.left = false
-        // Y Axis
-        if (gamepad.axes[1] < -gp.axis_threshold)
-          input.states.down = !(input.states.up = false)
-        else if (gamepad.axes[1] > gp.axis_threshold)
-          input.states.down = !(input.states.up = true)
-        else input.states.up = input.states.down = false
+            if (
+              gamepads[i].axes[1] < -gp.axis_threshold ||
+              gamepads[i].axes[1] > gp.axis_threshold
+            ) {
+              if (i == 0) gp.dpadOneAxisY = gamepads[i].axes[1]
+              else if (i == 1) gp.dpadTwoAxisY = gamepads[i].axes[1]
+            }
+          }
+        }
       }
     })
   }
 }
-
 GamepadInputSystem.queries = {
   gamepad: {
-    components: [GamepadInput, Input],
+    components: [GamepadInput],
     listen: {
       added: true,
       removed: true

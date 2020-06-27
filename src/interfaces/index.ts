@@ -1,4 +1,4 @@
-import InputStates from "./InputStates"
+import InputTypes from "./InputTypes"
 import SingleValueSchema from "./SingleValueSchema"
 
-export { InputStates, SingleValueSchema }
+export { InputTypes as InputStates, SingleValueSchema }

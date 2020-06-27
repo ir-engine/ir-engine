@@ -8,12 +8,9 @@ import ButtonState from "../enums/ButtonState"
 
 export default class MouseInputSystem extends System {
   mouse: MouseInput
-  inp: Input
   execute(): void {
     this.queries.mouse.added.forEach(ent => {
       this.mouse = ent.getMutableComponent(MouseInput)
-      this.inp = ent.getMutableComponent(Input)
-
       document.addEventListener(
         "mousemove",
         e => this.moveHandler(e, this.mouse),
@@ -30,27 +27,63 @@ export default class MouseInputSystem extends System {
         false
       )
     })
-    this.queries.mouse.results.forEach(() => {
-      const name = MouseButtonMappings.LEFT.name
-      const state = this.getMouseState(name, this.mouse)
+    this.queries.mouse.results.forEach(entity => {
+      this.mouse = entity.getMutableComponent(MouseInput)
+
+      let state: any
+
+      // Left mouse button
+      state = this.getMouseState(MouseButtonMappings.LEFT.name, this.mouse)
       // just pressed down
       if (
         state.current === ButtonState.PRESSED &&
         state.prev === ButtonState.RELEASED
       ) {
-        this.inp.states[name] = state.current === ButtonState.PRESSED
-        this.inp.changed = true
+        this.mouse.mouseButtonLeft = ButtonState.PRESSED
       }
       // just released up
-      if (
+      else if (
         state.current === ButtonState.RELEASED &&
         state.prev === ButtonState.PRESSED
       ) {
-        this.inp.states[name] = state.current === ButtonState.PRESSED
-        this.inp.changed = true
-        this.inp.released = true
+        this.mouse.mouseButtonLeft = ButtonState.RELEASED
       }
-      if (state.current !== state.prev) state.prev = state.current
+
+      // Right mouse button
+      state = this.getMouseState(MouseButtonMappings.RIGHT.name, this.mouse)
+      // just pressed down
+      if (
+        state.current === ButtonState.PRESSED &&
+        state.prev === ButtonState.RELEASED
+      ) {
+        this.mouse.mouseButtonRight = ButtonState.PRESSED
+      }
+      // just released up
+      else if (
+        state.current === ButtonState.RELEASED &&
+        state.prev === ButtonState.PRESSED
+      ) {
+        this.mouse.mouseButtonRight = ButtonState.RELEASED
+      }
+
+      // Middle mouse button
+      state = this.getMouseState(MouseButtonMappings.MIDDLE.name, this.mouse)
+      // just pressed down
+      if (
+        state.current === ButtonState.PRESSED &&
+        state.prev === ButtonState.RELEASED
+      ) {
+        this.mouse.mouseButtonMiddle = ButtonState.PRESSED
+      }
+      // just released up
+      else if (
+        state.current === ButtonState.RELEASED &&
+        state.prev === ButtonState.PRESSED
+      ) {
+        this.mouse.mouseButtonMiddle = ButtonState.RELEASED
+      }
+
+
     })
     this.queries.mouse.removed.forEach(ent => {
       const mouse = ent.getMutableComponent(MouseInput)
@@ -58,13 +91,11 @@ export default class MouseInputSystem extends System {
     })
   }
 
-  moveHandler = (
-    e: { clientX: number; clientY: number; timeStamp: any },
-    mouse: MouseInput
-  ): void => {
-    mouse.clientX = e.clientX
-    mouse.clientY = e.clientY
-    mouse.lastTimestamp = e.timeStamp
+  moveHandler = (e: MouseEvent, mouse: MouseInput): void => {
+    const { clientX, clientY, timeStamp } = e
+    mouse.lastMousePosition = mouse.mousePosition
+    mouse.mousePosition = { x: clientX, y: clientY }
+    mouse.lastTimestamp = timeStamp
   }
 
   buttonHandler = (
@@ -72,12 +103,11 @@ export default class MouseInputSystem extends System {
     mouse: MouseInput,
     direction: ButtonState
   ): void => {
-    const button =
-      e.button === MouseButtonMappings.LEFT.value
-        ? MouseButtonMappings.LEFT
-        : e.button === MouseButtonMappings.RIGHT.value
-          ? MouseButtonMappings.RIGHT
-          : MouseButtonMappings.MIDDLE
+    let button = MouseButtonMappings.LEFT
+    if (e.button === MouseButtonMappings.RIGHT.value)
+      button = MouseButtonMappings.RIGHT
+    else if (e.button !== MouseButtonMappings.LEFT.value)
+      button = MouseButtonMappings.MIDDLE
 
     const state = this.getMouseState(button.name, mouse)
     state.prev = state.current
