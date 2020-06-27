@@ -1,7 +1,10 @@
 import { Component } from "ecsy"
 import InputStates from "../interfaces/InputStates"
 
-export default class Input extends Component {
+interface p {
+}
+
+export default class Input extends Component<p> {
   states: InputStates
   changed: boolean
   released: boolean
@@ -20,4 +23,8 @@ export default class Input extends Component {
   anyReleased(): boolean {
     return this.released
   }
+}
+
+Input.schema = {
+
 }
