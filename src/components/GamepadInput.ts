@@ -1,17 +1,17 @@
 import { Component, Types } from "ecsy"
-import { GamepadInputTypes } from "../interfaces/InputTypes"
+import GamepadInputState from "../interfaces/GamepadInputState"
 
-export default class GamepadInput extends Component<GamepadInputTypes> {
+export default class GamepadInput extends Component<GamepadInputState> {
   connected: boolean
   axis_threshold: any
   dpadOneAxisX: number
   dpadTwoAxisX: number
   dpadOneAxisY: number
   dpadTwoAxisY: number
-  buttonA: import("/home/beast/Documents/GitHub/ecsy-input/src/enums/ButtonState").default
-  buttonB: import("/home/beast/Documents/GitHub/ecsy-input/src/enums/ButtonState").default
-  buttonX: import("/home/beast/Documents/GitHub/ecsy-input/src/enums/ButtonState").default
-  buttonY: import("/home/beast/Documents/GitHub/ecsy-input/src/enums/ButtonState").default
+  buttonA: import("../enums/ButtonAction").default
+  buttonB: import("../enums/ButtonAction").default
+  buttonX: import("../enums/ButtonAction").default
+  buttonY: import("../enums/ButtonAction").default
 }
 
 GamepadInput.schema = {

@@ -1,22 +1,16 @@
-export * from "./components/index"
-export * from "./enums/index"
-export * from "./interfaces/index"
-export * from "./mappings/index"
-export * from "./systems/index"
-
-import {
-  MouseInputSystem,
-  KeyboardInputSystem,
-  GamepadInputSystem
-} from "./systems/index"
-
-import { isBrowser } from "./utils/IsBrowser"
-
 import { World } from "ecsy"
-import Input from "./components/Input"
+
+import MouseInputSystem from "./systems/MouseInputSystem"
+import KeyboardInputSystem from "./systems/KeyboardInputSystem"
+import GamepadInputSystem from "./systems/GamepadInputSystem"
+
+import MouseInput from "./components/MouseInput"
 import KeyboardInput from "./components/KeyboardInput"
 import GamepadInput from "./components/GamepadInput"
-import MouseInput from "./components/MouseInput"
+
+import { isBrowser } from "./utils/IsBrowser"
+import Input from "./components/Input"
+import KeyboardDebugSystem from "./systems/KeyboardDebugSystem"
 
 const DEFAULT_OPTIONS = {
   mouse: true,
@@ -46,19 +40,20 @@ export function initializeInputSystems(
     console.log(options)
   }
 
+  const inputSystemEntity = world.createEntity()
   world.registerComponent(Input)
-
-  const inputSystemEntity = world.createEntity().addComponent(Input)
 
   if (options.keyboard) {
     world
       .registerComponent(KeyboardInput)
       .registerSystem(KeyboardInputSystem, null)
     inputSystemEntity.addComponent(KeyboardInput)
-    if (options.debug)
-      console.log(
-        "Registered KeyboardInputSystem and added KeyboardInput component to input entity"
-      )
+    if (options.debug) {
+      world.registerSystem(KeyboardDebugSystem)
+    }
+    console.log(
+      "Registered KeyboardInputSystem and added KeyboardInput component to input entity"
+    )
   }
 
   if (options.mouse) {
@@ -77,7 +72,7 @@ export function initializeInputSystems(
     inputSystemEntity.addComponent(GamepadInput)
     if (options.debug)
       console.log(
-        "Registered MouseInputSystem and added MouseInput component to input entity"
+        "Registered GamepadInputSystem and added MouseInput component to input entity"
       )
   }
 

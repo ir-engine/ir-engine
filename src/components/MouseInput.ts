@@ -1,15 +1,15 @@
 import { Component, Types } from "ecsy"
-import { ButtonStateType } from "../types/ButtonStateType"
-import { MousePositionType } from "../types/MousePosition"
-import { ButtonState } from "../enums"
-import Vector2 from "../interfaces/Vector2"
+import { MousePositionType } from "../types/MousePositionType"
+import { TemporalButtonStateType } from "../types/TemporalButtonStateType"
+import Vector2State from "../interfaces/Vector2State"
+import ButtonState from "../interfaces/ButtonState"
+import { MouseInputState } from "../interfaces/MouseInputState"
 
-export default class MouseInput extends Component<any> {
+export default class MouseInput extends Component<MouseInputState> {
   mouseButtonLeft: ButtonState
   mouseButtonMiddle: ButtonState
   mouseButtonRight: ButtonState
-  mousePosition: Vector2
-  lastMousePosition: Vector2
+  mousePosition: Vector2State
   downHandler: any
   moveHandler: any
   upHandler: any
@@ -18,11 +18,10 @@ export default class MouseInput extends Component<any> {
 }
 
 MouseInput.schema = {
-  mouseButtonLeft: { type: ButtonStateType },
-  mouseButtonMiddle: { type: ButtonStateType },
-  mouseButtonRight: { type: ButtonStateType },
+  mouseButtonLeft: { type: TemporalButtonStateType },
+  mouseButtonMiddle: { type: TemporalButtonStateType },
+  mouseButtonRight: { type: TemporalButtonStateType },
   mousePosition: { type: MousePositionType },
-  lastMousePosition: { type: MousePositionType },
   lastMovementTimestamp: { type: Types.Number },
   downHandler: { type: Types.Ref },
   moveHandler: { type: Types.Ref },

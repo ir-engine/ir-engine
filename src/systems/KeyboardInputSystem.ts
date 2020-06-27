@@ -1,72 +1,53 @@
-// TODO: Replace keyboard state strings with enums
 import { System } from "ecsy"
-import Input from "../components/Input"
 import KeyboardInput from "../components/KeyboardInput"
-import ButtonState from "../enums/ButtonState"
+import ButtonAction from "../enums/ButtonAction"
 
 export default class KeyboardInputSystem extends System {
   kb: any
-  inp: any
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   execute(): void {
-    this.queries.keyboard.added.forEach(() => {
+    this.queries.keyboard.added.forEach(entity => {
       document.addEventListener("keydown", (e: KeyboardEvent) => {
-        this.setKeyState(this.kb, e.key, ButtonState.PRESSED)
+        this.setKeyState(e.key, ButtonAction.PRESSED)
       })
       document.addEventListener("keyup", (e: KeyboardEvent) => {
-        this.setKeyState(this.kb, e.key, ButtonState.RELEASED)
+        this.setKeyState(e.key, ButtonAction.RELEASED)
       })
     })
-    this.queries.keyboard.results.forEach(ent => {
-      if (!this.kb) this.kb = ent.getComponent(KeyboardInput)
-      if (!this.inp) this.inp = ent.getMutableComponent(Input)
-      Object.keys(this.kb.mapping).forEach(key => {
-        const name = this.kb.mapping[key]
-        const state = this.getKeyState(this.kb, key)
-        if (
-          state.current === ButtonState.PRESSED &&
-          state.prev === ButtonState.RELEASED
-        ) {
-          this.inp.states[name] = state.current === ButtonState.PRESSED
-          this.inp.changed = true
-        }
-        if (
-          state.current === ButtonState.RELEASED &&
-          state.prev === ButtonState.PRESSED
-        ) {
-          this.inp.states[name] = state.current === ButtonState.PRESSED
-          this.inp.changed = true
-          this.inp.released = true
-        }
-        state.prev = state.current
+    this.queries.keyboard.results.forEach(entity => {
+      if (!this.kb) this.kb = entity.getComponent(KeyboardInput)
+    })
+    this.queries.keyboard.removed.forEach(entity => {
+      this.kb = entity.getComponent(KeyboardInput)
+      document.removeEventListener("keydown", (e: KeyboardEvent) => {
+        this.setKeyState(e.key, ButtonAction.PRESSED)
+      })
+      document.removeEventListener("keyup", (e: KeyboardEvent) => {
+        this.setKeyState(e.key, ButtonAction.RELEASED)
       })
     })
   }
 
-  setKeyState(kb: KeyboardInput, key: string, value: ButtonState): any {
-    const state = this.getKeyState(kb, key)
-    state.prev = state.current
-    state.current = value
-  }
-
-  getKeyState(kb: KeyboardInput, key: string): any {
-    if (!kb.keys[key]) {
-      kb.keys[key] = {
-        prev: ButtonState.RELEASED,
-        current: ButtonState.RELEASED
+  setKeyState(key: string, value: ButtonAction): any {
+    if(!this.kb) return
+    console.log(this.kb.keys)
+    if (!this.kb.keys[key]) {
+      this.kb.keys[key] = {
+        prev: ButtonAction.RELEASED,
+        current: ButtonAction.RELEASED,
+        changed: false
       }
     }
-    return kb.keys[key]
-  }
-  isPressed(kb: KeyboardInput, name: string): boolean {
-    return this.getKeyState(kb, name).current === ButtonState.PRESSED
+    this.kb.keys[key].prev = this.kb.keys[key].current
+    this.kb.keys[key].current = value
+    this.kb.keys[key].changed = true
   }
 }
 
 KeyboardInputSystem.queries = {
   keyboard: {
-    components: [KeyboardInput, Input],
+    components: [KeyboardInput],
     listen: { added: true, removed: true }
   }
 }

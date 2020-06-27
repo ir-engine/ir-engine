@@ -1,98 +1,43 @@
-// TODO: Test gamepad support!
-
 import { System } from "ecsy"
-import Input from "../components/Input"
-import GamepadInput from "../components/GamepadInput"
 import MouseInput from "../components/MouseInput"
-import KeyboardInput from "../components/KeyboardInput"
+import ButtonAction from "../enums/ButtonAction"
+import ButtonState from "../interfaces/ButtonState"
 
-export default class InputDebugSystem extends System {
+export default class MouseInputSystem extends System {
   mouse: MouseInput
-  inp: Input
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   execute(): void {
-    this.handleGamePads()
-    this.handleMouse()
-    this.handleKeyboard()
-    this.handleTouchscreen()
-  }
-
-  handleMouse(): void {
-    this.queries.mouse.added.forEach(ent => {
-      document.addEventListener(
-        "mousedown",
-        (e: any) => console.log("Mouse button pressed"),
-        false
-      )
-      document.addEventListener(
-        "mouseup",
-        (e: any) => console.log("Mouse button released"),
-        false
-      )
+    this.queries.mouse.changed.forEach(entity => {
+      this.mouse = entity.getComponent(MouseInput)
+      this.handleButton(this.mouse.mouseButtonLeft, "Left ")
+      this.handleButton(this.mouse.mouseButtonRight, "Right ")
+      this.handleButton(this.mouse.mouseButtonMiddle, "Middle ")
     })
   }
 
-  handleKeyboard(): void {
-    this.queries.keyboard.added.forEach(() => {
-      document.addEventListener("keydown", (e: any) =>
-        console.log(`${e.key} pressed`)
-      )
-      document.addEventListener("keyup", (e: any) =>
-        console.log(`${e.key} released`)
-      )
-    })
-  }
-
-  handleTouchscreen(): void {
-    // TODO: Add touchscreen support
-  }
-
-  handleGamePads(): void {
-    this.queries.gamepad.added.forEach(() => {
-      window.addEventListener("gamepadconnected", (event: any) => {
-        console.log("A gamepad connected:", event.gamepad)
-      })
-      window.addEventListener("gamepaddisconnected", (event: any) => {
-        console.log("A gamepad disconnected:", event.gamepad)
-      })
-    })
-    this.queries.gamepad.results.forEach(ent => {
-      const gp = ent.getMutableComponent(GamepadInput)
-      if (gp.connected) {
-        const input = ent.getMutableComponent(Input)
-        const gamepads = navigator.getGamepads()
-        gamepads.forEach(gamepad => {
-          if (gamepad.axes) {
-            if (gamepad.axes.length >= 2) {
-              console.log("left: " + input.states.left)
-              console.log("right: " + input.states.right)
-              console.log("up: " + input.states.up)
-              console.log("down: " + input.states.down)
-            }
-          }
-        })
-      }
-    })
+  handleButton(button: ButtonState, buttonName: string): void {
+    // Left Mouse button
+    // just pressed down
+    if (
+      button.current === ButtonAction.PRESSED &&
+      button.prev === ButtonAction.RELEASED
+    ) {
+      console.log(`${buttonName} pressed`)
+    }
+    // just released up
+    else if (
+      button.current === ButtonAction.RELEASED &&
+      button.prev === ButtonAction.PRESSED
+    ) {
+      console.log(`${buttonName} released`)
+    }
   }
 }
 
-InputDebugSystem.queries = {
-  gamepad: {
-    components: [GamepadInput, Input],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
+MouseInputSystem.queries = {
   mouse: {
-    components: [MouseInput, Input],
+    components: [MouseInput],
     listen: {
-      added: true,
-      removed: true
+      changed: true
     }
-  },
-  keyboard: {
-    components: [KeyboardInput, Input],
-    listen: { added: true, removed: true }
   }
 }
