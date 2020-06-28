@@ -1,55 +1,47 @@
-// TODO: Finish
-
 import { System, Not } from "ecsy"
 import AxisQueue from "../components/AxisQueue"
 import Input from "../components/Input"
 import UserInputReceiver from "../components/UserInputReceiver"
 
 export default class AxisSystem extends System {
-  userInputActionQueue: AxisQueue
-  execute(): void {
-    this.queries.userInputActionQueue.results.forEach(entity => {
-      this.userInputActionQueue = entity.getMutableComponent(AxisQueue)
-      this.validateAxes(this.userInputActionQueue)
+  // Temp variables
+  private _userInputAxisQueue: AxisQueue
+
+  public execute(): void {
+    this.queries.userInputAxisQueue.results.forEach(entity => {
+      this._userInputAxisQueue = entity.getMutableComponent(AxisQueue)
     })
-    this.queries.actionReceivers.results.forEach(entity => {
-      this.applyInputToListener(
-        this.userInputActionQueue,
-        entity.getMutableComponent(AxisQueue)
-      )
+    this.queries.axisReceivers.results.forEach(entity => {
+      this.applyInputToListener(this._userInputAxisQueue, entity.getMutableComponent(AxisQueue))
     })
-    // Clear all actions
-    this.userInputActionQueue.actions.clear()
+    // Clear all axiss
+    this._userInputAxisQueue.axes.clear()
   }
 
-  validateAxes(actionQueue: AxisQueue): void {
-    const actionQueueArray = actionQueue.actions.toArray()
-    for (let i = 0; i < actionQueueArray.length; i++) {
-      for (let k = 0; k < actionQueueArray.length; k++) {
-        // Opposing actions cancel out
-        actionQueue.actions.remove(i)
-
-        // If action is blocked by another action that overrides and is active, remove this action
-        // Override actions override
-      }
-    }
-  }
-
-  applyInputToListener(
-    userInputActionQueue: AxisQueue,
-    listenerActionQueue: AxisQueue
-  ) {
-    // If action exists, but action state is different, update action state
-    // If action exists, but action state is same, do nothing
-    this.validateAxes(listenerActionQueue)
+  private applyInputToListener(userInputAxisQueue: AxisQueue, listenerAxisQueue: AxisQueue): void {
+    // If axis exists, but axis state is different, update axis state
+    userInputAxisQueue.axes.toArray().forEach(userInput => {
+      let skip = false
+      listenerAxisQueue.axes.toArray().forEach((listenerAxis, listenerIndex) => {
+        // Skip axis since it's already in the listener queue
+        if (userInput.axis === listenerAxis.axis && userInput.value === listenerAxis.value) {
+          skip = true
+        } else if (userInput.axis === listenerAxis.axis && userInput.value !== listenerAxis.value) {
+          // Axis value updated, so skip ading to queue
+          listenerAxisQueue.axes.get(listenerIndex).value = userInput.value
+          skip = true
+        }
+      })
+      if (!skip) listenerAxisQueue.axes.add(userInput)
+    })
   }
 }
 
 AxisSystem.queries = {
-  userInputActionQueue: {
+  userInputAxisQueue: {
     components: [AxisQueue, Input]
   },
-  actionReceivers: {
+  axisReceivers: {
     components: [AxisQueue, UserInputReceiver, Not(Input)]
   }
 }

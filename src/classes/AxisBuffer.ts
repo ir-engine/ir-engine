@@ -1,10 +1,12 @@
+// TODO: Convert to generic and combine with ActionBuffer
+
 import AxisValue from "../interfaces/AxisValue"
 
 export class AxisBuffer {
   public static fromArray(data: AxisValue[], size = 0): AxisBuffer {
-    const actionBuffer = new AxisBuffer(size)
-    actionBuffer.fromArray(data, size === 0)
-    return actionBuffer
+    const axisBuffer = new AxisBuffer(size)
+    axisBuffer.fromArray(data, size === 0)
+    return axisBuffer
   }
 
   private buffer: AxisValue[] = []

@@ -4,10 +4,9 @@ import Input from "../components/Input"
 import UserInputReceiver from "../components/UserInputReceiver"
 
 export default class AxisDebugSystem extends System {
-  userInputActionQueue: AxisQueue
-  execute(): void {
+  public execute(): void {
     this.queries.actionReceivers.changed.forEach(entity => {
-      console.log(entity.getComponent(AxisQueue).actions.toArray())
+      console.log(entity.getComponent(AxisQueue).axes.toArray())
     })
   }
 }

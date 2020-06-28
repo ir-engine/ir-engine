@@ -1,8 +1,7 @@
 import { System } from "ecsy"
 import GamepadInput from "../components/GamepadInput"
 export default class GamepadInputSystem extends System {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  execute(): void {
+  public execute(): void {
     this.queries.gamepad.added.forEach(ent => {
       const gp = ent.getMutableComponent(GamepadInput)
       window.addEventListener("gamepadconnected", (event: any) => {

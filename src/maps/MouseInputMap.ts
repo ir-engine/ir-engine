@@ -1,5 +1,5 @@
 import ActionType from "../enums/ActionType"
-import Axes from "../enums/Axes"
+import AxisType from "../enums/AxisType"
 
 export const MouseInputActionMap = {
   leftMouseButton: ActionType.PRIMARY,
@@ -7,5 +7,5 @@ export const MouseInputActionMap = {
 }
 
 export const MouseInputAxisMap = {
-  mousePosition: Axes.MOUSEPOSITION
+  mousePosition: AxisType.MOUSEPOSITION
 }
