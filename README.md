@@ -21,11 +21,26 @@ const options = {
   touchscreen: false,
   gamepad: true,
   debug: true
+}
 
 initializeInputSystems(world, options)
 
 world.execute()
 ```
+
+You can override the input mappings per device
+Input mappings map device input to abstract, cross-platform actions
+
+```
+export const KeyboardInputMap = {
+  w: ActionType.FORWARD,
+  a: ActionType.LEFT,
+  s: ActionType.RIGHT,
+  d: ActionType.BACKWARD
+}
+
+initializeInputSystems(world, options, KeyboardInputMap)
+``
 
 # To Build
 ```
@@ -35,6 +50,6 @@ This will open up the rollup dev server on port 10001
 You can see input in the console
 
 # TO-DO
-Convert actions from strings to enums for typed evaluation
-Test gamepad
-Examine viability of implementing WebXR controllers and HMD pose without three.js
+Mobile Controls
+UI Input
+WebXR + Axis3D mappings (without using three.js!)
