@@ -28,8 +28,7 @@ export default class KeyboardInputSystem extends System {
 
   mapKeyToAction(entity: Entity, key: string, value: ActionState): any {
     this.kb = entity.getComponent(KeyboardInput)
-    if (!this.kb.keyboardInputActionMap[key])
-      return console.log(`DEBUG: ${key} isn't mapped to an action`)
+    if (this.kb.keyboardInputActionMap[key] === undefined) return
 
     // Add to action queue
     entity.getComponent(UserActionQueue).actions.add({

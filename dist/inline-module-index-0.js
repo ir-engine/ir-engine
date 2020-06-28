@@ -64391,7 +64391,7 @@ const KeyboardInputActionMap = {
 class KeyboardInput extends Component$2 {
   constructor() {
     super(...arguments);
-    this.keyboardInputActionMap = {};
+    this.keyboardInputActionMap = KeyboardInputActionMap;
   }
 
 }
@@ -64583,7 +64583,9 @@ class KeyboardInputSystem extends System$1 {
 
   mapKeyToAction(entity, key, value) {
     this.kb = entity.getComponent(KeyboardInput);
-    if (!this.kb.keyboardInputActionMap[key]) return console.log(`DEBUG: ${key} isn't mapped to an action`); // Add to action queue
+    console.log("Key: " + key);
+    console.log(this.kb.keyboardInputActionMap[key]);
+    if (this.kb.keyboardInputActionMap[key] === undefined) return; // Add to action queue
 
     entity.getComponent(UserActionQueue).actions.add({
       action: this.kb.keyboardInputActionMap[key],
