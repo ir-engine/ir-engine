@@ -1,5 +1,5 @@
 enum AxisType {
-  MOUSEPOSITION,
+  SCREENXY,
   DPADONE,
   DPADTWO,
   DPADTHREE,

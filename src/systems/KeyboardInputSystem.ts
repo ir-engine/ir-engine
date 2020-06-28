@@ -2,6 +2,7 @@ import { System, Entity } from "ecsy"
 import KeyboardInput from "../components/KeyboardInput"
 import ActionValues from "../enums/ActionValues"
 import ActionQueue from "../components/ActionQueue"
+import Input from "../components/Input"
 
 export default class KeyboardInputSystem extends System {
   // Temp variables
@@ -41,7 +42,7 @@ export default class KeyboardInputSystem extends System {
 
 KeyboardInputSystem.queries = {
   keyboard: {
-    components: [KeyboardInput, ActionQueue],
+    components: [KeyboardInput, ActionQueue, Input],
     listen: { added: true, removed: true }
   }
 }
