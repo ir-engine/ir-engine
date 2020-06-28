@@ -18,28 +18,16 @@ export default class GamepadInputSystem extends System {
       const gp = ent.getMutableComponent(GamepadInput)
       if (gp.connected) {
         // X Axis
-        if (
-          gp.dpadOneAxisX < -gp.axis_threshold ||
-          gp.dpadOneAxisX > gp.axis_threshold
-        )
+        if (gp.dpadOneAxisX < -gp.axis_threshold || gp.dpadOneAxisX > gp.axis_threshold)
           console.log(`X: ${gp.dpadOneAxisX}`)
 
-        if (
-          gp.dpadOneAxisY < -gp.axis_threshold ||
-          gp.dpadOneAxisY > gp.axis_threshold
-        )
+        if (gp.dpadOneAxisY < -gp.axis_threshold || gp.dpadOneAxisY > gp.axis_threshold)
           console.log(`Y: ${gp.dpadOneAxisY}`)
 
-        if (
-          gp.dpadTwoAxisX < -gp.axis_threshold ||
-          gp.dpadTwoAxisX > gp.axis_threshold
-        )
+        if (gp.dpadTwoAxisX < -gp.axis_threshold || gp.dpadTwoAxisX > gp.axis_threshold)
           console.log(`X: ${gp.dpadTwoAxisX}`)
 
-        if (
-          gp.dpadTwoAxisY < -gp.axis_threshold ||
-          gp.dpadTwoAxisY > gp.axis_threshold
-        )
+        if (gp.dpadTwoAxisY < -gp.axis_threshold || gp.dpadTwoAxisY > gp.axis_threshold)
           console.log(`Y: ${gp.dpadTwoAxisY}`)
 
         if (gp.buttonA === ActionValues.START) console.log("Button A pressed")

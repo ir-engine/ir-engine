@@ -2,10 +2,11 @@ import ActionType from "../enums/ActionType"
 import AxisType from "../enums/AxisType"
 
 export const MouseInputActionMap = {
-  leftMouseButton: ActionType.PRIMARY,
-  rightMouseButton: ActionType.SECONDARY
+  0: ActionType.PRIMARY,
+  2: ActionType.SECONDARY, // Right mouse
+  1: ActionType.INTERACT // Middle Mouse button
 }
 
 export const MouseInputAxisMap = {
-  mousePosition: AxisType.MOUSEPOSITION
+  mousePosition: AxisType.SCREENXY
 }

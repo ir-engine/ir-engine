@@ -1,89 +1,70 @@
-import { System } from "ecsy"
+import { System, Entity } from "ecsy"
 import MouseInput from "../components/MouseInput"
-import MouseInputMap from "../maps/MouseInputMap"
 import ActionValues from "../enums/ActionValues"
+import ActionQueue from "../components/ActionQueue"
+import Input from "../components/Input"
+import AxisQueue from "../components/AxisQueue"
+import AxisType from "../enums/AxisType"
 
 export default class MouseInputSystem extends System {
-  mouse: MouseInput
-  execute(): void {
-    this.queries.mouse.added.forEach(ent => {
-      this.mouse = ent.getMutableComponent(MouseInput)
-      document.addEventListener(
-        "mousemove",
-        e => (this.mouse.moveHandler = this.moveHandler(e, this.mouse)),
-        false
-      )
+  // Temp variables
+  private _mouse: MouseInput
+  public execute(): void {
+    this.queries.axis.added.forEach(ent => {
+      this._mouse = ent.getMutableComponent(MouseInput)
+      document.addEventListener("mousemove", e => (this._mouse.moveHandler = this.moveHandler(e, ent)), false)
+    })
+    this.queries.button.added.forEach(ent => {
+      this._mouse = ent.getMutableComponent(MouseInput)
       document.addEventListener(
         "mousedown",
-        e =>
-          (this.mouse.downHandler = this.buttonHandler(
-            e,
-            this.mouse,
-            ActionValues.START
-          )),
+        e => (this._mouse.downHandler = this.buttonHandler(e, ent, ActionValues.START)),
         false
       )
       document.addEventListener(
         "mouseup",
-        e =>
-          (this.mouse.upHandler = this.buttonHandler(
-            e,
-            this.mouse,
-            ActionValues.END
-          )),
+        e => (this._mouse.upHandler = this.buttonHandler(e, ent, ActionValues.END)),
         false
       )
     })
-    this.queries.mouse.removed.forEach(ent => {
+    this.queries.axis.removed.forEach(ent => {
       const mouse = ent.getComponent(MouseInput)
       if (mouse) document.removeEventListener("mousemove", mouse.upHandler)
+    })
+    this.queries.buttons.removed.forEach(ent => {
+      const mouse = ent.getComponent(MouseInput)
       if (mouse) document.removeEventListener("mousedown", mouse.downHandler)
       if (mouse) document.removeEventListener("mouseup", mouse.moveHandler)
     })
   }
 
-  moveHandler = (e: MouseEvent, mouse: MouseInput): void => {
-    const { clientX, clientY, timeStamp } = e
-    mouse.screenPosition = { x: clientX, y: clientY }
-    mouse.lastTimestamp = timeStamp
+  private moveHandler = (e: MouseEvent, entity: Entity): void => {
+    entity.getComponent(AxisQueue).axes.add({
+      axis: AxisType.SCREENXY,
+      value: { x: e.clientX, y: e.clientY }
+    })
   }
 
-  buttonHandler = (
-    e: MouseEvent,
-    mouse: MouseInput,
-    buttonState: ActionValues
-  ): void => {
-    if (e.button === MouseInputMap.LEFT.value) {
-      if (buttonState !== mouse.mouseButtonLeft.current) {
-        mouse.mouseButtonLeft.prev = mouse.mouseButtonLeft.current
-        mouse.mouseButtonLeft.current = buttonState
-        mouse.mouseButtonLeft.changed = true
-      } else {
-        mouse.mouseButtonLeft.changed = false
-      }
-    } else if (e.button === MouseInputMap.RIGHT.value) {
-      if (buttonState !== mouse.mouseButtonRight.current) {
-        mouse.mouseButtonRight.prev = mouse.mouseButtonRight.current
-        mouse.mouseButtonRight.current = buttonState
-        mouse.mouseButtonRight.changed = true
-      } else {
-        mouse.mouseButtonRight.changed = false
-      }
-    } else {
-      if (buttonState !== mouse.mouseButtonMiddle.current) {
-        mouse.mouseButtonMiddle.prev = mouse.mouseButtonLeft.current
-        mouse.mouseButtonMiddle.current = buttonState
-        mouse.mouseButtonMiddle.changed = true
-      } else {
-        mouse.mouseButtonMiddle.changed = false
-      }
-    }
+  private buttonHandler = (e: MouseEvent, entity: Entity, value: ActionValues): void => {
+    this._mouse = entity.getComponent(MouseInput)
+    if (!this._mouse || this._mouse.actionMap[e.button] === undefined) return
+    entity.getMutableComponent(ActionQueue).actions.add({
+      action: this._mouse.actionMap[e.button],
+      value
+    })
   }
 }
 
 MouseInputSystem.queries = {
-  mouse: {
-    components: [MouseInput],
+  buttons: {
+    components: [MouseInput, ActionQueue, Input],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  axis: {
+    components: [MouseInput, AxisQueue, Input],
     listen: {
       added: true,
       removed: true
