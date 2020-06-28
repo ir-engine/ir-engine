@@ -4,7 +4,8 @@ import ActionValues from "../enums/ActionValues"
 import ActionQueue from "../components/ActionQueue"
 
 export default class KeyboardInputSystem extends System {
-  kb: KeyboardInput
+  // Temp variables
+  private _kb: KeyboardInput
 
   execute(): void {
     // Query for user action queue
@@ -27,12 +28,12 @@ export default class KeyboardInputSystem extends System {
   }
 
   mapKeyToAction(entity: Entity, key: string, value: ActionValues): any {
-    this.kb = entity.getComponent(KeyboardInput)
-    if (this.kb.inputMap[key] === undefined) return
+    this._kb = entity.getComponent(KeyboardInput)
+    if (this._kb.inputMap[key] === undefined) return
 
     // Add to action queue
     entity.getMutableComponent(ActionQueue).actions.add({
-      action: this.kb.inputMap[key],
+      action: this._kb.inputMap[key],
       value: value
     })
   }

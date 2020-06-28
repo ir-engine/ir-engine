@@ -1,4 +1,4 @@
-enum Axes {
+enum AxisType {
   MOUSEPOSITION,
   DPADONE,
   DPADTWO,
@@ -6,4 +6,4 @@ enum Axes {
   DPADFOUR
 }
 
-export default Axes
+export default AxisType
