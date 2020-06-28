@@ -32,7 +32,7 @@ You can override the input mappings per device
 Input mappings map device input to abstract, cross-platform actions
 
 ```
-export const KeyboardInputMap = {
+const KeyboardInputMap = {
   w: ActionType.FORWARD,
   a: ActionType.LEFT,
   s: ActionType.RIGHT,
@@ -48,8 +48,3 @@ npm run build
 ```
 This will open up the rollup dev server on port 10001
 You can see input in the console
-
-# TO-DO
-Mobile Controls
-UI Input
-WebXR + Axis3D mappings (without using three.js!)
