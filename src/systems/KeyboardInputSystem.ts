@@ -1,53 +1,47 @@
-import { System } from "ecsy"
+import { System, Entity } from "ecsy"
 import KeyboardInput from "../components/KeyboardInput"
-import ButtonAction from "../enums/ButtonAction"
+import ActionState from "../enums/ActionState"
+import UserActionQueue from "../components/Action"
 
 export default class KeyboardInputSystem extends System {
-  kb: any
+  kb: KeyboardInput
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   execute(): void {
+    // Query for user action queue
     this.queries.keyboard.added.forEach(entity => {
       document.addEventListener("keydown", (e: KeyboardEvent) => {
-        this.setKeyState(e.key, ButtonAction.PRESSED)
+        this.mapKeyToAction(entity, e.key, ActionState.START)
       })
       document.addEventListener("keyup", (e: KeyboardEvent) => {
-        this.setKeyState(e.key, ButtonAction.RELEASED)
+        this.mapKeyToAction(entity, e.key, ActionState.END)
       })
-    })
-    this.queries.keyboard.results.forEach(entity => {
-      if (!this.kb) this.kb = entity.getComponent(KeyboardInput)
     })
     this.queries.keyboard.removed.forEach(entity => {
-      this.kb = entity.getComponent(KeyboardInput)
       document.removeEventListener("keydown", (e: KeyboardEvent) => {
-        this.setKeyState(e.key, ButtonAction.PRESSED)
+        this.mapKeyToAction(entity, e.key, ActionState.START)
       })
       document.removeEventListener("keyup", (e: KeyboardEvent) => {
-        this.setKeyState(e.key, ButtonAction.RELEASED)
+        this.mapKeyToAction(entity, e.key, ActionState.END)
       })
     })
   }
 
-  setKeyState(key: string, value: ButtonAction): any {
-    if(!this.kb) return
-    console.log(this.kb.keys)
-    if (!this.kb.keys[key]) {
-      this.kb.keys[key] = {
-        prev: ButtonAction.RELEASED,
-        current: ButtonAction.RELEASED,
-        changed: false
-      }
-    }
-    this.kb.keys[key].prev = this.kb.keys[key].current
-    this.kb.keys[key].current = value
-    this.kb.keys[key].changed = true
+  mapKeyToAction(entity: Entity, key: string, value: ActionState): any {
+    this.kb = entity.getComponent(KeyboardInput)
+    if (!this.kb.keyboardInputActionMap[key])
+      return console.log(`DEBUG: ${key} isn't mapped to an action`)
+
+    // Add to action queue
+    entity.getComponent(UserActionQueue).actions.add({
+      action: this.kb.keyboardInputActionMap[key],
+      state: value
+    })
   }
 }
 
 KeyboardInputSystem.queries = {
   keyboard: {
-    components: [KeyboardInput],
+    components: [KeyboardInput, UserActionQueue],
     listen: { added: true, removed: true }
   }
 }

@@ -1,10 +1,10 @@
-import ButtonAction from "../enums/ButtonAction"
+import ActionState from "../enums/ActionState"
 
 export interface MouseInputState {
-  mouseButtonLeft: ButtonAction
-  mouseButtonMiddle: ButtonAction
-  mouseButtonScrollUp: ButtonAction
-  mouseButtonScrollDown: ButtonAction
-  mouseButtonRight: ButtonAction
+  mouseButtonLeft: ActionState
+  mouseButtonMiddle: ActionState
+  mouseButtonScrollUp: ActionState
+  mouseButtonScrollDown: ActionState
+  mouseButtonRight: ActionState
   mousePosition: { x: number; y: number }
 }

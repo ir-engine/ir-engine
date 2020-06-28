@@ -1,8 +1,8 @@
-import Vector2State from "../interfaces/Vector2State"
+import Vector2 from "../interfaces/Vector2"
 
 export default class MousePosition {
-  current: Vector2State
-  prev: Vector2State
+  current: Vector2
+  prev: Vector2
   constructor() {
     this.current = {
       x: 0,
@@ -20,7 +20,7 @@ export default class MousePosition {
     return this
   }
 
-  set(current: Vector2State, prev: Vector2State): MousePosition {
+  set(current: Vector2, prev: Vector2): MousePosition {
     this.current = current
     this.prev = prev
     return this

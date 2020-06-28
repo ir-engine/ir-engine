@@ -64203,19 +64203,19 @@ const MousePositionType = createType$1({
   clone: cloneClonable$1
 });
 
-var ButtonAction;
+var ActionState;
 
-(function (ButtonAction) {
-  ButtonAction[ButtonAction["PRESSED"] = 0] = "PRESSED";
-  ButtonAction[ButtonAction["RELEASED"] = 1] = "RELEASED";
-})(ButtonAction || (ButtonAction = {}));
+(function (ActionState) {
+  ActionState[ActionState["START"] = 0] = "START";
+  ActionState[ActionState["END"] = 1] = "END";
+})(ActionState || (ActionState = {}));
 
-var ButtonAction$1 = ButtonAction;
+var ActionState$1 = ActionState;
 
 class TemporalButtonState {
   constructor() {
-    this.current = ButtonAction$1.RELEASED;
-    this.prev = ButtonAction$1.RELEASED;
+    this.current = ActionState$1.END;
+    this.prev = ActionState$1.END;
     this.changed = false;
   }
 
@@ -64229,8 +64229,8 @@ class TemporalButtonState {
   copy(source) {
     var _a;
 
-    this.current = (_a = source.current) !== null && _a !== void 0 ? _a : ButtonAction$1.RELEASED;
-    this.prev = ButtonAction$1.RELEASED;
+    this.current = (_a = source.current) !== null && _a !== void 0 ? _a : ActionState$1.END;
+    this.prev = ActionState$1.END;
     this.changed = false;
   }
 
@@ -64340,8 +64340,8 @@ class MouseInputSystem extends System$1 {
     this.queries.mouse.added.forEach(ent => {
       this.mouse = ent.getMutableComponent(MouseInput);
       document.addEventListener("mousemove", e => this.moveHandler(e, this.mouse), false);
-      document.addEventListener("mousedown", e => this.buttonHandler(e, this.mouse, ButtonAction$1.PRESSED), false);
-      document.addEventListener("mouseup", e => this.buttonHandler(e, this.mouse, ButtonAction$1.RELEASED), false);
+      document.addEventListener("mousedown", e => this.buttonHandler(e, this.mouse, ActionState$1.START), false);
+      document.addEventListener("mouseup", e => this.buttonHandler(e, this.mouse, ActionState$1.END), false);
     });
     this.queries.mouse.removed.forEach(ent => {
       const mouse = ent.getComponent(MouseInput);
@@ -64362,92 +64362,239 @@ MouseInputSystem.queries = {
   }
 };
 
-class TemporalButtonStateMapping {
-  constructor() {
-    this.states = {};
-  }
+var Actions;
 
-  set(states) {
-    this.states = Object.assign(Object.assign({}, this.states), states);
-  }
+(function (Actions) {
+  Actions[Actions["FORWARD"] = 0] = "FORWARD";
+  Actions[Actions["BACKWARD"] = 1] = "BACKWARD";
+  Actions[Actions["UP"] = 2] = "UP";
+  Actions[Actions["DOWN"] = 3] = "DOWN";
+  Actions[Actions["LEFT"] = 4] = "LEFT";
+  Actions[Actions["RIGHT"] = 5] = "RIGHT";
+  Actions[Actions["INTERACT"] = 6] = "INTERACT";
+  Actions[Actions["CROUCH"] = 7] = "CROUCH";
+  Actions[Actions["JUMP"] = 8] = "JUMP";
+  Actions[Actions["WALK"] = 9] = "WALK";
+  Actions[Actions["RUN"] = 10] = "RUN";
+  Actions[Actions["SPRINT"] = 11] = "SPRINT";
+})(Actions || (Actions = {}));
 
-  copy(source) {
-    this.states = source.states;
-    return this;
-  }
+var Actions$1 = Actions;
 
-  clone() {
-    return new TemporalButtonStateMapping().set(this.states);
-  }
-
-}
-
-const TemporalButtonStateMappingType = createType$1({
-  name: "KeyState",
-  default: new TemporalButtonStateMapping(),
-  copy: copyCopyable$1,
-  clone: cloneClonable$1
-});
+const KeyboardInputActionMap = {
+  w: Actions$1.FORWARD,
+  a: Actions$1.LEFT,
+  s: Actions$1.RIGHT,
+  d: Actions$1.BACKWARD
+};
 
 class KeyboardInput extends Component$2 {
   constructor() {
-    super();
-    this.keys = {};
+    super(...arguments);
+    this.keyboardInputActionMap = {};
   }
 
 }
 KeyboardInput.schema = {
   keys: {
-    type: TemporalButtonStateMappingType
+    type: Types$1.Ref,
+    default: KeyboardInputActionMap
+  }
+};
+
+class ActionBuffer {
+  constructor(size) {
+    this.buffer = [];
+    this.pos = 0;
+
+    if (size < 0) {
+      throw new RangeError("The size does not allow negative values.");
+    }
+
+    this.size = size;
+  }
+
+  static fromArray(data, size = 0) {
+    const actionBuffer = new ActionBuffer(size);
+    actionBuffer.fromArray(data, size === 0);
+    return actionBuffer;
+  }
+
+  copy() {
+    const newActionBuffer = new ActionBuffer(this.getBufferLength());
+    newActionBuffer.buffer = this.buffer;
+    return newActionBuffer;
+  }
+
+  clone() {
+    const newActionBuffer = new ActionBuffer(this.getBufferLength());
+    newActionBuffer.buffer = this.buffer;
+    return newActionBuffer;
+  }
+
+  getSize() {
+    return this.size;
+  }
+
+  getPos() {
+    return this.pos;
+  }
+
+  getBufferLength() {
+    return this.buffer.length;
+  }
+
+  add(...items) {
+    items.forEach(item => {
+      this.buffer[this.pos] = item;
+      this.pos = (this.pos + 1) % this.size;
+    });
+  }
+
+  get(index) {
+    if (index < 0) {
+      index += this.buffer.length;
+    }
+
+    if (index < 0 || index > this.buffer.length) {
+      return undefined;
+    }
+
+    if (this.buffer.length < this.size) {
+      return this.buffer[index];
+    }
+
+    return this.buffer[(this.pos + index) % this.size];
+  }
+
+  getFirst() {
+    return this.get(0);
+  }
+
+  getLast() {
+    return this.get(-1);
+  }
+
+  remove(index, count = 1) {
+    if (index < 0) {
+      index += this.buffer.length;
+    }
+
+    if (index < 0 || index > this.buffer.length) {
+      return [];
+    }
+
+    const arr = this.toArray();
+    const removedItems = arr.splice(index, count);
+    this.fromArray(arr);
+    return removedItems;
+  }
+
+  pop() {
+    return this.remove(0)[0];
+  }
+
+  popLast() {
+    return this.remove(-1)[0];
+  }
+
+  toArray() {
+    return this.buffer.slice(this.pos).concat(this.buffer.slice(0, this.pos));
+  }
+
+  fromArray(data, resize = false) {
+    if (!Array.isArray(data)) {
+      throw new TypeError("Input value is not an array.");
+    }
+
+    if (resize) this.resize(data.length);
+    if (this.size === 0) return;
+    this.buffer = data.slice(-this.size);
+    this.pos = this.buffer.length % this.size;
+  }
+
+  clear() {
+    this.buffer = [];
+    this.pos = 0;
+  }
+
+  resize(newSize) {
+    if (newSize < 0) {
+      throw new RangeError("The size does not allow negative values.");
+    }
+
+    if (newSize === 0) {
+      this.clear();
+    } else if (newSize !== this.size) {
+      const currentBuffer = this.toArray();
+      this.fromArray(currentBuffer.slice(-newSize));
+      this.pos = this.buffer.length % newSize;
+    }
+
+    this.size = newSize;
+  }
+
+  full() {
+    return this.buffer.length === this.size;
+  }
+
+  empty() {
+    return this.buffer.length === 0;
+  }
+
+}
+
+const ActionBufferType = createType$1({
+  name: "ActionBuffer",
+  default: new ActionBuffer(5),
+  copy: copyCopyable$1,
+  clone: cloneClonable$1
+});
+
+// Place this component on any entity which you would like to recieve input
+class UserActionQueue extends Component$2 {}
+UserActionQueue.schema = {
+  actions: {
+    type: ActionBufferType,
+    default: new ActionBuffer(10)
   }
 };
 
 class KeyboardInputSystem extends System$1 {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   execute() {
+    // Query for user action queue
     this.queries.keyboard.added.forEach(entity => {
       document.addEventListener("keydown", e => {
-        this.setKeyState(e.key, ButtonAction$1.PRESSED);
+        this.mapKeyToAction(entity, e.key, ActionState$1.START);
       });
       document.addEventListener("keyup", e => {
-        this.setKeyState(e.key, ButtonAction$1.RELEASED);
+        this.mapKeyToAction(entity, e.key, ActionState$1.END);
       });
-    });
-    this.queries.keyboard.results.forEach(entity => {
-      if (!this.kb) this.kb = entity.getComponent(KeyboardInput);
     });
     this.queries.keyboard.removed.forEach(entity => {
-      this.kb = entity.getComponent(KeyboardInput);
       document.removeEventListener("keydown", e => {
-        this.setKeyState(e.key, ButtonAction$1.PRESSED);
+        this.mapKeyToAction(entity, e.key, ActionState$1.START);
       });
       document.removeEventListener("keyup", e => {
-        this.setKeyState(e.key, ButtonAction$1.RELEASED);
+        this.mapKeyToAction(entity, e.key, ActionState$1.END);
       });
     });
   }
 
-  setKeyState(key, value) {
-    if (!this.kb) return;
-    console.log(this.kb.keys);
+  mapKeyToAction(entity, key, value) {
+    this.kb = entity.getComponent(KeyboardInput);
+    if (!this.kb.keyboardInputActionMap[key]) return console.log(`DEBUG: ${key} isn't mapped to an action`); // Add to action queue
 
-    if (!this.kb.keys[key]) {
-      this.kb.keys[key] = {
-        prev: ButtonAction$1.RELEASED,
-        current: ButtonAction$1.RELEASED,
-        changed: false
-      };
-    }
-
-    this.kb.keys[key].prev = this.kb.keys[key].current;
-    this.kb.keys[key].current = value;
-    this.kb.keys[key].changed = true;
+    entity.getComponent(UserActionQueue).actions.add({
+      action: this.kb.keyboardInputActionMap[key],
+      state: value
+    });
   }
 
 }
 KeyboardInputSystem.queries = {
   keyboard: {
-    components: [KeyboardInput],
+    components: [KeyboardInput, UserActionQueue],
     listen: {
       added: true,
       removed: true
@@ -64547,14 +64694,16 @@ class KeyboardDebugSystem extends System$1 {
   execute() {
     this.queries.keyboard.changed.forEach(entity => {
       const kb = entity.getComponent(KeyboardInput);
-      console.log(kb.keys);
+      console.log(kb.keyboardInputActionMap);
+      const queue = entity.getComponent(UserActionQueue);
+      console.log(queue.actions.toArray());
     });
   }
 
 }
 KeyboardDebugSystem.queries = {
   keyboard: {
-    components: [KeyboardInput],
+    components: [KeyboardInput, UserActionQueue],
     listen: {
       changed: true
     }
@@ -64568,7 +64717,7 @@ const DEFAULT_OPTIONS$1 = {
   gamepad: true,
   debug: false
 };
-function initializeInputSystems(world, options = DEFAULT_OPTIONS$1, inputMappings) {
+function initializeInputSystems(world, options = DEFAULT_OPTIONS$1, keyboardInputMappings, mouseInputMappings, mobileInputMappings, VRInputMappings) {
   if (options.debug) console.log("Initializing input systems...");
   if (!isBrowser) return console.error("Couldn't initialize input, are you in a browser?"); // TODO: If input mappings is not null, create input mappings object
   // TODO: Otherwise, read default
@@ -64582,10 +64731,13 @@ function initializeInputSystems(world, options = DEFAULT_OPTIONS$1, inputMapping
 
   const inputSystemEntity = world.createEntity();
   world.registerComponent(Input);
+  world.registerComponent(UserActionQueue);
+  inputSystemEntity.addComponent(Input);
+  inputSystemEntity.addComponent(UserActionQueue);
 
   if (options.keyboard) {
     world.registerComponent(KeyboardInput).registerSystem(KeyboardInputSystem, null);
-    inputSystemEntity.addComponent(KeyboardInput);
+    inputSystemEntity.addComponent(KeyboardInput); // TODO: Initialize with user mappings
 
     if (options.debug) {
       world.registerSystem(KeyboardDebugSystem);
@@ -64596,13 +64748,15 @@ function initializeInputSystems(world, options = DEFAULT_OPTIONS$1, inputMapping
 
   if (options.mouse) {
     world.registerComponent(MouseInput).registerSystem(MouseInputSystem, null);
-    inputSystemEntity.addComponent(MouseInput);
+    inputSystemEntity.addComponent(MouseInput); // TODO: Initialize with user mappings
+
     if (options.debug) console.log("Registered MouseInputSystem and added MouseInput component to input entity");
   }
 
   if (options.gamepad) {
     world.registerComponent(GamepadInput).registerSystem(GamepadInputSystem, null);
-    inputSystemEntity.addComponent(GamepadInput);
+    inputSystemEntity.addComponent(GamepadInput); // TODO: Initialize with user mappings
+
     if (options.debug) console.log("Registered GamepadInputSystem and added MouseInput component to input entity");
   } // TODO: Add touchscreen
 

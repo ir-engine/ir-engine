@@ -1,14 +1,14 @@
 import { createType, copyCopyable, cloneClonable } from "ecsy"
-import ButtonAction from "../enums/ButtonAction"
+import ActionState from "../enums/ActionState"
 
 class TemporalButtonState {
-  current: ButtonAction
-  prev: ButtonAction
+  current: ActionState
+  prev: ActionState
   changed: boolean
 
   constructor() {
-    this.current = ButtonAction.RELEASED
-    this.prev = ButtonAction.RELEASED
+    this.current = ActionState.END
+    this.prev = ActionState.END
     this.changed = false
   }
 
@@ -20,8 +20,8 @@ class TemporalButtonState {
   }
 
   copy(source) {
-    this.current = source.current ?? ButtonAction.RELEASED
-    this.prev = ButtonAction.RELEASED
+    this.current = source.current ?? ActionState.END
+    this.prev = ActionState.END
     this.changed = false
   }
 

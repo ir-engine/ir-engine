@@ -8,10 +8,10 @@ export default class GamepadInput extends Component<GamepadInputState> {
   dpadTwoAxisX: number
   dpadOneAxisY: number
   dpadTwoAxisY: number
-  buttonA: import("../enums/ButtonAction").default
-  buttonB: import("../enums/ButtonAction").default
-  buttonX: import("../enums/ButtonAction").default
-  buttonY: import("../enums/ButtonAction").default
+  buttonA: import("../enums/ActionState").default
+  buttonB: import("../enums/ActionState").default
+  buttonX: import("../enums/ActionState").default
+  buttonY: import("../enums/ActionState").default
 }
 
 GamepadInput.schema = {

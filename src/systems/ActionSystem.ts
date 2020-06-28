@@ -3,7 +3,7 @@
 import KeyboardInput from "../components/KeyboardInput"
 import MouseInput from "../components/MouseInput"
 import { System } from "ecsy"
-import Action from "../components/Action"
+import UserActionQueue from "../components/Action"
 
 export default class ActionSystem extends System {
   execute() {
@@ -46,6 +46,6 @@ ActionSystem.queries = {
   },
   */
   receivers: {
-    components: [Action]
+    components: [UserActionQueue]
   }
 }
