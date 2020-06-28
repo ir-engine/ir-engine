@@ -3,7 +3,7 @@ import ActionQueue from "../components/ActionQueue"
 import Input from "../components/Input"
 import UserInputReceiver from "../components/UserInputReceiver"
 
-export default class ActionSystem extends System {
+export default class ActionDebugSystem extends System {
   userInputActionQueue: ActionQueue
   execute(): void {
     this.queries.actionReceivers.changed.forEach(entity => {
@@ -12,7 +12,7 @@ export default class ActionSystem extends System {
   }
 }
 
-ActionSystem.queries = {
+ActionDebugSystem.queries = {
   actionReceivers: {
     components: [ActionQueue, UserInputReceiver, Not(Input)],
     listen: { changed: true }

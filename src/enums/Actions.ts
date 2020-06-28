@@ -1,4 +1,6 @@
 enum Actions {
+  PRIMARY,
+  SECONDARY,
   FORWARD,
   BACKWARD,
   UP,

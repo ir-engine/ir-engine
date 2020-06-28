@@ -1,6 +1,6 @@
 import { System } from "ecsy"
 import MouseInput from "../components/MouseInput"
-import ActionState from "../enums/ActionState"
+import ActionValues from "../enums/ActionValues"
 import ButtonState from "../interfaces/ButtonState"
 
 export default class MouseInputSystem extends System {
@@ -18,15 +18,15 @@ export default class MouseInputSystem extends System {
     // Left Mouse button
     // just pressed down
     if (
-      button.current === ActionState.START &&
-      button.prev === ActionState.END
+      button.current === ActionValues.START &&
+      button.prev === ActionValues.END
     ) {
       console.log(`${buttonName} pressed`)
     }
     // just released up
     else if (
-      button.current === ActionState.END &&
-      button.prev === ActionState.START
+      button.current === ActionValues.END &&
+      button.prev === ActionValues.START
     ) {
       console.log(`${buttonName} released`)
     }

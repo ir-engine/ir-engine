@@ -1,10 +1,10 @@
 import Actions from "../enums/Actions"
 
-export const KeyboardInputActionMap = {
+export const KeyboardInputMap = {
   w: Actions.FORWARD,
   a: Actions.LEFT,
   s: Actions.RIGHT,
   d: Actions.BACKWARD
 }
 
-export default KeyboardInputActionMap
+export default KeyboardInputMap
