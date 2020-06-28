@@ -1,26 +1,26 @@
-import ActionValue from "../interfaces/ActionValue"
+import AxisValue from "../interfaces/AxisValue"
 
-export class ActionBuffer {
-  public static fromArray(data: ActionValue[], size = 0): ActionBuffer {
-    const actionBuffer = new ActionBuffer(size)
+export class AxisBuffer {
+  public static fromArray(data: AxisValue[], size = 0): AxisBuffer {
+    const actionBuffer = new AxisBuffer(size)
     actionBuffer.fromArray(data, size === 0)
     return actionBuffer
   }
 
-  private buffer: ActionValue[] = []
+  private buffer: AxisValue[] = []
   private size: number
   private pos = 0
 
-  public copy(): ActionBuffer {
-    const newActionBuffer = new ActionBuffer(this.getBufferLength())
-    newActionBuffer.buffer = this.buffer
-    return newActionBuffer
+  public copy(): AxisBuffer {
+    const newAxisBuffer = new AxisBuffer(this.getBufferLength())
+    newAxisBuffer.buffer = this.buffer
+    return newAxisBuffer
   }
 
-  public clone(): ActionBuffer {
-    const newActionBuffer = new ActionBuffer(this.getBufferLength())
-    newActionBuffer.buffer = this.buffer
-    return newActionBuffer
+  public clone(): AxisBuffer {
+    const newAxisBuffer = new AxisBuffer(this.getBufferLength())
+    newAxisBuffer.buffer = this.buffer
+    return newAxisBuffer
   }
 
   constructor(size: number) {
@@ -42,14 +42,14 @@ export class ActionBuffer {
     return this.buffer.length
   }
 
-  public add(...items: ActionValue[]): void {
+  public add(...items: AxisValue[]): void {
     items.forEach(item => {
       this.buffer[this.pos] = item
       this.pos = (this.pos + 1) % this.size
     })
   }
 
-  public get(index: number): ActionValue | undefined {
+  public get(index: number): AxisValue | undefined {
     if (index < 0) {
       index += this.buffer.length
     }
@@ -65,15 +65,15 @@ export class ActionBuffer {
     return this.buffer[(this.pos + index) % this.size]
   }
 
-  public getFirst(): ActionValue | undefined {
+  public getFirst(): AxisValue | undefined {
     return this.get(0)
   }
 
-  public getLast(): ActionValue | undefined {
+  public getLast(): AxisValue | undefined {
     return this.get(-1)
   }
 
-  public remove(index: number, count = 1): ActionValue[] {
+  public remove(index: number, count = 1): AxisValue[] {
     if (index < 0) {
       index += this.buffer.length
     }
@@ -88,19 +88,19 @@ export class ActionBuffer {
     return removedItems
   }
 
-  public pop(): ActionValue {
+  public pop(): AxisValue {
     return this.remove(0)[0]
   }
 
-  public popLast(): ActionValue {
+  public popLast(): AxisValue {
     return this.remove(-1)[0]
   }
 
-  public toArray(): ActionValue[] {
+  public toArray(): AxisValue[] {
     return this.buffer.slice(this.pos).concat(this.buffer.slice(0, this.pos))
   }
 
-  public fromArray(data: ActionValue[], resize = false): void {
+  public fromArray(data: AxisValue[], resize = false): void {
     if (!Array.isArray(data)) {
       throw new TypeError("Input value is not an array.")
     }

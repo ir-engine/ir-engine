@@ -1,7 +1,7 @@
-import ActionState from "../enums/ActionState"
+import ActionValues from "../enums/ActionValues"
 
 export default interface ButtonState {
-  current: ActionState
-  prev: ActionState
+  current: ActionValues
+  prev: ActionValues
   changed: boolean
 }

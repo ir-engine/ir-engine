@@ -1,4 +1,4 @@
-import ActionSystem from "./UserActionSystem"
+import ActionSystem from "./ActionSystem"
 import InputDebugSystem from "./KeyboardDebugSystem"
 import KeyboardInputSystem from "./KeyboardInputSystem"
 import MouseInputSystem from "./MouseInputSystem"
