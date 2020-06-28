@@ -463,6 +463,12 @@ class System {
 
 }
 System.isSystem = true;
+function Not(Component) {
+  return {
+    operator: "not",
+    Component: Component
+  };
+}
 
 class TagComponent extends Component {
   constructor() {
@@ -715,103 +721,65 @@ if (hasWindow) {
   }
 }
 
-class MousePosition {
+var ActionType;
+
+(function (ActionType) {
+  ActionType[ActionType["PRIMARY"] = 0] = "PRIMARY";
+  ActionType[ActionType["SECONDARY"] = 1] = "SECONDARY";
+  ActionType[ActionType["FORWARD"] = 2] = "FORWARD";
+  ActionType[ActionType["BACKWARD"] = 3] = "BACKWARD";
+  ActionType[ActionType["UP"] = 4] = "UP";
+  ActionType[ActionType["DOWN"] = 5] = "DOWN";
+  ActionType[ActionType["LEFT"] = 6] = "LEFT";
+  ActionType[ActionType["RIGHT"] = 7] = "RIGHT";
+  ActionType[ActionType["INTERACT"] = 8] = "INTERACT";
+  ActionType[ActionType["CROUCH"] = 9] = "CROUCH";
+  ActionType[ActionType["JUMP"] = 10] = "JUMP";
+  ActionType[ActionType["WALK"] = 11] = "WALK";
+  ActionType[ActionType["RUN"] = 12] = "RUN";
+  ActionType[ActionType["SPRINT"] = 13] = "SPRINT";
+})(ActionType || (ActionType = {}));
+
+var ActionType$1 = ActionType;
+
+var AxisType;
+
+(function (AxisType) {
+  AxisType[AxisType["SCREENXY"] = 0] = "SCREENXY";
+  AxisType[AxisType["DPADONE"] = 1] = "DPADONE";
+  AxisType[AxisType["DPADTWO"] = 2] = "DPADTWO";
+  AxisType[AxisType["DPADTHREE"] = 3] = "DPADTHREE";
+  AxisType[AxisType["DPADFOUR"] = 4] = "DPADFOUR";
+})(AxisType || (AxisType = {}));
+
+var AxisType$1 = AxisType;
+
+const MouseInputActionMap = {
+  0: ActionType$1.PRIMARY,
+  2: ActionType$1.SECONDARY,
+  1: ActionType$1.INTERACT // Middle Mouse button
+
+};
+const MouseInputAxisMap = {
+  mousePosition: AxisType$1.SCREENXY
+};
+
+class MouseInput extends Component {
   constructor() {
-    this.current = {
-      x: 0,
-      y: 0
-    };
-    this.prev = {
-      x: 0,
-      y: 0
-    };
-  }
-
-  copy(source) {
-    this.current = source.current;
-    this.prev = source.prev;
-    return this;
-  }
-
-  set(current, prev) {
-    this.current = current;
-    this.prev = prev;
-    return this;
-  }
-
-  clone() {
-    return new MousePosition().set(this.current, this.prev);
+    super(...arguments);
+    this.actionMap = MouseInputActionMap;
+    this.axisMap = MouseInputAxisMap;
   }
 
 }
-
-const MousePositionType = createType({
-  name: "MousePosition",
-  default: new MousePosition(),
-  copy: copyCopyable,
-  clone: cloneClonable
-});
-
-var ActionState;
-
-(function (ActionState) {
-  ActionState[ActionState["START"] = 0] = "START";
-  ActionState[ActionState["END"] = 1] = "END";
-})(ActionState || (ActionState = {}));
-
-var ActionState$1 = ActionState;
-
-class TemporalButtonState {
-  constructor() {
-    this.current = ActionState$1.END;
-    this.prev = ActionState$1.END;
-    this.changed = false;
-  }
-
-  set(current, prev, changed) {
-    if (current) this.current = current;
-    if (prev) this.prev = prev;
-    if (changed) this.changed = changed;
-    return this;
-  }
-
-  copy(source) {
-    var _a;
-
-    this.current = (_a = source.current) !== null && _a !== void 0 ? _a : ActionState$1.END;
-    this.prev = ActionState$1.END;
-    this.changed = false;
-  }
-
-  clone() {
-    return new TemporalButtonState();
-  }
-
-}
-
-const TemporalButtonStateType = createType({
-  name: "TemporalButtonState",
-  default: new TemporalButtonState(),
-  copy: copyCopyable,
-  clone: cloneClonable
-});
-
-class MouseInput extends Component {}
 MouseInput.schema = {
-  mouseButtonLeft: {
-    type: TemporalButtonStateType
+  actionMap: {
+    type: Types.Ref,
+    default: MouseInputActionMap
   },
-  mouseButtonMiddle: {
-    type: TemporalButtonStateType
-  },
-  mouseButtonRight: {
-    type: TemporalButtonStateType
-  },
-  mousePosition: {
-    type: MousePositionType
-  },
-  lastMovementTimestamp: {
-    type: Types.Number
+  axisMap: {
+    type: Types.Ref,
+    default: MouseInputAxisMap
   },
   downHandler: {
     type: Types.Ref
@@ -824,132 +792,14 @@ MouseInput.schema = {
   }
 };
 
-const MouseButtonMappings = {
-  LEFT: {
-    name: "leftMouseButton",
-    value: 0
-  },
-  RIGHT: {
-    name: "rightMouseButton",
-    value: 2
-  },
-  MIDDLE: {
-    name: "middleMouseButton",
-    value: 1
-  }
-};
+var ActionValues;
 
-class MouseInputSystem extends System {
-  constructor() {
-    super(...arguments);
+(function (ActionValues) {
+  ActionValues[ActionValues["START"] = 0] = "START";
+  ActionValues[ActionValues["END"] = 1] = "END";
+})(ActionValues || (ActionValues = {}));
 
-    this.moveHandler = (e, mouse) => {
-      const {
-        clientX,
-        clientY,
-        timeStamp
-      } = e;
-      mouse.mousePosition = {
-        x: clientX,
-        y: clientY
-      };
-      mouse.lastTimestamp = timeStamp;
-    };
-
-    this.buttonHandler = (e, mouse, buttonState) => {
-      if (e.button === MouseButtonMappings.LEFT.value) {
-        if (buttonState !== mouse.mouseButtonLeft.current) {
-          mouse.mouseButtonLeft.prev = mouse.mouseButtonLeft.current;
-          mouse.mouseButtonLeft.current = buttonState;
-          mouse.mouseButtonLeft.changed = true;
-        } else {
-          mouse.mouseButtonLeft.changed = false;
-        }
-      } else if (e.button === MouseButtonMappings.RIGHT.value) {
-        if (buttonState !== mouse.mouseButtonRight.current) {
-          mouse.mouseButtonRight.prev = mouse.mouseButtonRight.current;
-          mouse.mouseButtonRight.current = buttonState;
-          mouse.mouseButtonRight.changed = true;
-        } else {
-          mouse.mouseButtonRight.changed = false;
-        }
-      } else {
-        if (buttonState !== mouse.mouseButtonMiddle.current) {
-          mouse.mouseButtonMiddle.prev = mouse.mouseButtonLeft.current;
-          mouse.mouseButtonMiddle.current = buttonState;
-          mouse.mouseButtonMiddle.changed = true;
-        } else {
-          mouse.mouseButtonMiddle.changed = false;
-        }
-      }
-    };
-  }
-
-  execute() {
-    this.queries.mouse.added.forEach(ent => {
-      this.mouse = ent.getMutableComponent(MouseInput);
-      document.addEventListener("mousemove", e => this.moveHandler(e, this.mouse), false);
-      document.addEventListener("mousedown", e => this.buttonHandler(e, this.mouse, ActionState$1.START), false);
-      document.addEventListener("mouseup", e => this.buttonHandler(e, this.mouse, ActionState$1.END), false);
-    });
-    this.queries.mouse.removed.forEach(ent => {
-      const mouse = ent.getComponent(MouseInput);
-      if (mouse) document.removeEventListener("mousemove", mouse.upHandler);
-      if (mouse) document.removeEventListener("mousedown", mouse.downHandler);
-      if (mouse) document.removeEventListener("mouseup", mouse.moveHandler);
-    });
-  }
-
-}
-MouseInputSystem.queries = {
-  mouse: {
-    components: [MouseInput],
-    listen: {
-      added: true,
-      removed: true
-    }
-  }
-};
-
-var Actions;
-
-(function (Actions) {
-  Actions[Actions["FORWARD"] = 0] = "FORWARD";
-  Actions[Actions["BACKWARD"] = 1] = "BACKWARD";
-  Actions[Actions["UP"] = 2] = "UP";
-  Actions[Actions["DOWN"] = 3] = "DOWN";
-  Actions[Actions["LEFT"] = 4] = "LEFT";
-  Actions[Actions["RIGHT"] = 5] = "RIGHT";
-  Actions[Actions["INTERACT"] = 6] = "INTERACT";
-  Actions[Actions["CROUCH"] = 7] = "CROUCH";
-  Actions[Actions["JUMP"] = 8] = "JUMP";
-  Actions[Actions["WALK"] = 9] = "WALK";
-  Actions[Actions["RUN"] = 10] = "RUN";
-  Actions[Actions["SPRINT"] = 11] = "SPRINT";
-})(Actions || (Actions = {}));
-
-var Actions$1 = Actions;
-
-const KeyboardInputActionMap = {
-  w: Actions$1.FORWARD,
-  a: Actions$1.LEFT,
-  s: Actions$1.RIGHT,
-  d: Actions$1.BACKWARD
-};
-
-class KeyboardInput extends Component {
-  constructor() {
-    super(...arguments);
-    this.keyboardInputActionMap = KeyboardInputActionMap;
-  }
-
-}
-KeyboardInput.schema = {
-  keys: {
-    type: Types.Ref,
-    default: KeyboardInputActionMap
-  }
-};
+var ActionValues$1 = ActionValues;
 
 class ActionBuffer {
   constructor(size) {
@@ -1109,41 +959,286 @@ ActionQueue.schema = {
   }
 };
 
+class Input extends TagComponent {}
+
+// TODO: Convert to generic and combine with ActionBuffer
+class AxisBuffer {
+  constructor(size) {
+    this.buffer = [];
+    this.pos = 0;
+
+    if (size < 0) {
+      throw new RangeError("The size does not allow negative values.");
+    }
+
+    this.size = size;
+  }
+
+  static fromArray(data, size = 0) {
+    const axisBuffer = new AxisBuffer(size);
+    axisBuffer.fromArray(data, size === 0);
+    return axisBuffer;
+  }
+
+  copy() {
+    const newAxisBuffer = new AxisBuffer(this.getBufferLength());
+    newAxisBuffer.buffer = this.buffer;
+    return newAxisBuffer;
+  }
+
+  clone() {
+    const newAxisBuffer = new AxisBuffer(this.getBufferLength());
+    newAxisBuffer.buffer = this.buffer;
+    return newAxisBuffer;
+  }
+
+  getSize() {
+    return this.size;
+  }
+
+  getPos() {
+    return this.pos;
+  }
+
+  getBufferLength() {
+    return this.buffer.length;
+  }
+
+  add(...items) {
+    items.forEach(item => {
+      this.buffer[this.pos] = item;
+      this.pos = (this.pos + 1) % this.size;
+    });
+  }
+
+  get(index) {
+    if (index < 0) {
+      index += this.buffer.length;
+    }
+
+    if (index < 0 || index > this.buffer.length) {
+      return undefined;
+    }
+
+    if (this.buffer.length < this.size) {
+      return this.buffer[index];
+    }
+
+    return this.buffer[(this.pos + index) % this.size];
+  }
+
+  getFirst() {
+    return this.get(0);
+  }
+
+  getLast() {
+    return this.get(-1);
+  }
+
+  remove(index, count = 1) {
+    if (index < 0) {
+      index += this.buffer.length;
+    }
+
+    if (index < 0 || index > this.buffer.length) {
+      return [];
+    }
+
+    const arr = this.toArray();
+    const removedItems = arr.splice(index, count);
+    this.fromArray(arr);
+    return removedItems;
+  }
+
+  pop() {
+    return this.remove(0)[0];
+  }
+
+  popLast() {
+    return this.remove(-1)[0];
+  }
+
+  toArray() {
+    return this.buffer.slice(this.pos).concat(this.buffer.slice(0, this.pos));
+  }
+
+  fromArray(data, resize = false) {
+    if (!Array.isArray(data)) {
+      throw new TypeError("Input value is not an array.");
+    }
+
+    if (resize) this.resize(data.length);
+    if (this.size === 0) return;
+    this.buffer = data.slice(-this.size);
+    this.pos = this.buffer.length % this.size;
+  }
+
+  clear() {
+    this.buffer = [];
+    this.pos = 0;
+  }
+
+  resize(newSize) {
+    if (newSize < 0) {
+      throw new RangeError("The size does not allow negative values.");
+    }
+
+    if (newSize === 0) {
+      this.clear();
+    } else if (newSize !== this.size) {
+      const currentBuffer = this.toArray();
+      this.fromArray(currentBuffer.slice(-newSize));
+      this.pos = this.buffer.length % newSize;
+    }
+
+    this.size = newSize;
+  }
+
+  full() {
+    return this.buffer.length === this.size;
+  }
+
+  empty() {
+    return this.buffer.length === 0;
+  }
+
+}
+
+const AxisBufferType = createType({
+  name: "ActionBuffer",
+  default: new AxisBuffer(5),
+  copy: copyCopyable,
+  clone: cloneClonable
+});
+
+// Place this component on any entity which you would like to recieve input
+class AxisQueue extends Component {}
+AxisQueue.schema = {
+  axes: {
+    type: AxisBufferType,
+    default: new AxisBuffer(10)
+  }
+};
+
+class MouseInputSystem extends System {
+  constructor() {
+    super(...arguments);
+
+    this.moveHandler = (e, entity) => {
+      entity.getComponent(AxisQueue).axes.add({
+        axis: AxisType$1.SCREENXY,
+        value: {
+          x: e.clientX,
+          y: e.clientY
+        }
+      });
+    };
+
+    this.buttonHandler = (e, entity, value) => {
+      this._mouse = entity.getComponent(MouseInput);
+      if (!this._mouse || this._mouse.actionMap[e.button] === undefined) return;
+      entity.getMutableComponent(ActionQueue).actions.add({
+        action: this._mouse.actionMap[e.button],
+        value
+      });
+    };
+  }
+
+  execute() {
+    this.queries.axis.added.forEach(ent => {
+      this._mouse = ent.getMutableComponent(MouseInput);
+      document.addEventListener("mousemove", e => this._mouse.moveHandler = this.moveHandler(e, ent), false);
+    });
+    this.queries.button.added.forEach(ent => {
+      this._mouse = ent.getMutableComponent(MouseInput);
+      document.addEventListener("mousedown", e => this._mouse.downHandler = this.buttonHandler(e, ent, ActionValues$1.START), false);
+      document.addEventListener("mouseup", e => this._mouse.upHandler = this.buttonHandler(e, ent, ActionValues$1.END), false);
+    });
+    this.queries.axis.removed.forEach(ent => {
+      const mouse = ent.getComponent(MouseInput);
+      if (mouse) document.removeEventListener("mousemove", mouse.upHandler);
+    });
+    this.queries.buttons.removed.forEach(ent => {
+      const mouse = ent.getComponent(MouseInput);
+      if (mouse) document.removeEventListener("mousedown", mouse.downHandler);
+      if (mouse) document.removeEventListener("mouseup", mouse.moveHandler);
+    });
+  }
+
+}
+MouseInputSystem.queries = {
+  buttons: {
+    components: [MouseInput, ActionQueue, Input],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  axis: {
+    components: [MouseInput, AxisQueue, Input],
+    listen: {
+      added: true,
+      removed: true
+    }
+  }
+};
+
+const KeyboardInputMap = {
+  w: ActionType$1.FORWARD,
+  a: ActionType$1.LEFT,
+  s: ActionType$1.RIGHT,
+  d: ActionType$1.BACKWARD
+};
+
+class KeyboardInput extends Component {
+  constructor() {
+    super(...arguments);
+    this.inputMap = KeyboardInputMap;
+  }
+
+}
+KeyboardInput.schema = {
+  inputMap: {
+    type: Types.Ref,
+    default: KeyboardInputMap
+  }
+};
+
 class KeyboardInputSystem extends System {
   execute() {
     // Query for user action queue
     this.queries.keyboard.added.forEach(entity => {
       document.addEventListener("keydown", e => {
-        this.mapKeyToAction(entity, e.key, ActionState$1.START);
+        this.mapKeyToAction(entity, e.key, ActionValues$1.START);
       });
       document.addEventListener("keyup", e => {
-        this.mapKeyToAction(entity, e.key, ActionState$1.END);
+        this.mapKeyToAction(entity, e.key, ActionValues$1.END);
       });
     });
     this.queries.keyboard.removed.forEach(entity => {
       document.removeEventListener("keydown", e => {
-        this.mapKeyToAction(entity, e.key, ActionState$1.START);
+        this.mapKeyToAction(entity, e.key, ActionValues$1.START);
       });
       document.removeEventListener("keyup", e => {
-        this.mapKeyToAction(entity, e.key, ActionState$1.END);
+        this.mapKeyToAction(entity, e.key, ActionValues$1.END);
       });
     });
   }
 
   mapKeyToAction(entity, key, value) {
-    this.kb = entity.getComponent(KeyboardInput);
-    if (this.kb.keyboardInputActionMap[key] === undefined) return; // Add to action queue
+    this._kb = entity.getComponent(KeyboardInput);
+    if (this._kb.inputMap[key] === undefined) return; // Add to action queue
 
-    entity.getComponent(ActionQueue).actions.add({
-      action: this.kb.keyboardInputActionMap[key],
-      state: value
+    entity.getMutableComponent(ActionQueue).actions.add({
+      action: this._kb.inputMap[key],
+      value: value
     });
   }
 
 }
 KeyboardInputSystem.queries = {
   keyboard: {
-    components: [KeyboardInput, ActionQueue],
+    components: [KeyboardInput, ActionQueue, Input],
     listen: {
       added: true,
       removed: true
@@ -1188,7 +1283,6 @@ GamepadInput.schema = {
 };
 
 class GamepadInputSystem extends System {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   execute() {
     this.queries.gamepad.added.forEach(ent => {
       const gp = ent.getMutableComponent(GamepadInput);
@@ -1236,14 +1330,11 @@ GamepadInputSystem.queries = {
 
 const isBrowser = typeof window !== "undefined" && typeof window.document !== "undefined";
 
-class Input extends TagComponent {}
-
 class KeyboardDebugSystem extends System {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   execute() {
     this.queries.keyboard.changed.forEach(entity => {
       const kb = entity.getComponent(KeyboardInput);
-      console.log(kb.keyboardInputActionMap);
+      console.log(kb.inputMap);
       const queue = entity.getComponent(ActionQueue);
       console.log(queue.actions.toArray());
     });
@@ -1259,6 +1350,233 @@ KeyboardDebugSystem.queries = {
   }
 };
 
+class UserInputReceiver extends TagComponent {}
+
+class ActionDebugSystem extends System {
+  execute() {
+    this.queries.actionReceivers.changed.forEach(entity => {
+      console.log(entity.getComponent(ActionQueue).actions.toArray());
+    });
+  }
+
+}
+ActionDebugSystem.queries = {
+  actionReceivers: {
+    components: [ActionQueue, UserInputReceiver, Not(Input)],
+    listen: {
+      changed: true
+    }
+  }
+};
+
+const ActionMap = {
+  [ActionType$1.FORWARD]: {
+    opposes: [ActionType$1.BACKWARD]
+  },
+  [ActionType$1.BACKWARD]: {
+    opposes: [ActionType$1.FORWARD]
+  },
+  [ActionType$1.LEFT]: {
+    opposes: [ActionType$1.RIGHT]
+  },
+  [ActionType$1.RIGHT]: {
+    opposes: [ActionType$1.LEFT]
+  }
+};
+
+class ActionMapData extends Component {
+  constructor() {
+    super(...arguments);
+    this.actionMap = ActionMap;
+  }
+
+}
+ActionMapData.schema = {
+  data: {
+    type: Types.Ref,
+    default: ActionMap
+  }
+};
+
+class ActionSystem extends System {
+  constructor() {
+    super(...arguments);
+    this._actionMap = ActionMap;
+  }
+
+  execute() {
+    this.queries.actionMapData.added.forEach(entity => {
+      this._actionMap = entity.getComponent(ActionMapData).actionMap;
+    });
+    this.queries.userInputActionQueue.added.forEach(entity => {
+      this._userInputActionQueue = entity.getMutableComponent(ActionQueue);
+      this.validateActions(this._userInputActionQueue);
+    });
+    this.queries.actionReceivers.results.forEach(entity => {
+      this.applyInputToListener(this._userInputActionQueue, entity.getMutableComponent(ActionQueue));
+    }); // Clear all actions
+
+    this._userInputActionQueue.actions.clear();
+  }
+
+  validateActions(actionQueue) {
+    if (!this._actionMap) return;
+    const actionQueueArray = actionQueue.actions.toArray();
+
+    for (let i = 0; i < actionQueueArray.length; i++) {
+      for (let k = 0; k < actionQueueArray.length; k++) {
+        if (i == k) continue; // don't compare to self
+        // Opposing actions cancel out
+
+        if (this.actionsOpposeEachOther(actionQueueArray, i, k)) {
+          actionQueue.actions.remove(i);
+          actionQueue.actions.remove(k);
+        } // If action is blocked by another action that overrides and is active, remove this action
+        else if (this.actionIsBlockedByAnother(actionQueueArray, i, k)) {
+            actionQueue.actions.remove(i);
+          } // Override actions override
+          else if (this.actionOverridesAnother(actionQueueArray, i, k)) {
+              actionQueue.actions.remove(k);
+            }
+      }
+    }
+  } // If they oppose, cancel them
+
+
+  actionsOpposeEachOther(actionQueueArray, arrayPosOne, arrayPoseTwo) {
+    const actionToTest = actionQueueArray[arrayPosOne];
+    const actionToTestAgainst = actionQueueArray[arrayPoseTwo];
+
+    this._actionMap[actionToTest.action].opposes.forEach(action => {
+      if (action === actionToTestAgainst.action && actionToTest.value === actionToTestAgainst.value) {
+        // If values are both active, cancel each other out
+        return true;
+      }
+    });
+
+    return false;
+  }
+
+  actionIsBlockedByAnother(actionQueueArray, arrayPosOne, arrayPoseTwo) {
+    const actionToTest = actionQueueArray[arrayPosOne];
+    const actionToTestAgainst = actionQueueArray[arrayPoseTwo];
+
+    this._actionMap[actionToTest.action].blockedBy.forEach(action => {
+      if (action === actionToTestAgainst.action && actionToTest.value === actionToTestAgainst.value) {
+        // If values are both active, cancel each other out
+        return true;
+      }
+    });
+
+    return false;
+  }
+
+  actionOverridesAnother(actionQueueArray, arrayPosOne, arrayPoseTwo) {
+    const actionToTest = actionQueueArray[arrayPosOne];
+    const actionToTestAgainst = actionQueueArray[arrayPoseTwo];
+
+    this._actionMap[actionToTest.action].overrides.forEach(action => {
+      if (action === actionToTestAgainst.action && actionToTest.value === actionToTestAgainst.value) {
+        return true;
+      }
+    });
+
+    return false;
+  }
+
+  applyInputToListener(userInputActionQueue, listenerActionQueue) {
+    // If action exists, but action state is different, update action state
+    userInputActionQueue.actions.toArray().forEach(userInput => {
+      this._skip = false;
+      listenerActionQueue.actions.toArray().forEach((listenerAction, listenerIndex) => {
+        // Skip action since it's already in the listener queue
+        if (userInput.action === listenerAction.action && userInput.value === listenerAction.value) {
+          this._skip = true;
+        } else if (userInput.action === listenerAction.action && userInput.value !== listenerAction.value) {
+          // Action value updated, so don't add the action
+          listenerActionQueue.actions.get(listenerIndex).value = userInput.value;
+          this._skip = true;
+        }
+      });
+      if (!this._skip) listenerActionQueue.actions.add(userInput);
+    }); // If action exists, but action state is same, do nothing
+
+    this.validateActions(listenerActionQueue);
+  }
+
+}
+ActionSystem.queries = {
+  userInputActionQueue: {
+    components: [ActionQueue, Input]
+  },
+  actionReceivers: {
+    components: [ActionQueue, UserInputReceiver, Not(Input)]
+  },
+  actionMapData: {
+    components: [ActionMapData, Input],
+    listen: {
+      added: true
+    }
+  }
+};
+
+class AxisSystem extends System {
+  execute() {
+    this.queries.userInputAxisQueue.results.forEach(entity => {
+      this._userInputAxisQueue = entity.getMutableComponent(AxisQueue);
+    });
+    this.queries.axisReceivers.results.forEach(entity => {
+      this.applyInputToListener(this._userInputAxisQueue, entity.getMutableComponent(AxisQueue));
+    }); // Clear all axiss
+
+    this._userInputAxisQueue.axes.clear();
+  }
+
+  applyInputToListener(userInputAxisQueue, listenerAxisQueue) {
+    // If axis exists, but axis state is different, update axis state
+    userInputAxisQueue.axes.toArray().forEach(userInput => {
+      let skip = false;
+      listenerAxisQueue.axes.toArray().forEach((listenerAxis, listenerIndex) => {
+        // Skip axis since it's already in the listener queue
+        if (userInput.axis === listenerAxis.axis && userInput.value === listenerAxis.value) {
+          skip = true;
+        } else if (userInput.axis === listenerAxis.axis && userInput.value !== listenerAxis.value) {
+          // Axis value updated, so skip ading to queue
+          listenerAxisQueue.axes.get(listenerIndex).value = userInput.value;
+          skip = true;
+        }
+      });
+      if (!skip) listenerAxisQueue.axes.add(userInput);
+    });
+  }
+
+}
+AxisSystem.queries = {
+  userInputAxisQueue: {
+    components: [AxisQueue, Input]
+  },
+  axisReceivers: {
+    components: [AxisQueue, UserInputReceiver, Not(Input)]
+  }
+};
+
+class AxisDebugSystem extends System {
+  execute() {
+    this.queries.actionReceivers.changed.forEach(entity => {
+      console.log(entity.getComponent(AxisQueue).axes.toArray());
+    });
+  }
+
+}
+AxisDebugSystem.queries = {
+  actionReceivers: {
+    components: [AxisQueue, UserInputReceiver, Not(Input)],
+    listen: {
+      changed: true
+    }
+  }
+};
+
 const DEFAULT_OPTIONS = {
   mouse: true,
   keyboard: true,
@@ -1266,27 +1584,40 @@ const DEFAULT_OPTIONS = {
   gamepad: true,
   debug: false
 };
-function initializeInputSystems(world, options = DEFAULT_OPTIONS, keyboardInputMappings, mouseInputMappings, mobileInputMappings, VRInputMappings) {
+function initializeInputSystems(world, options = DEFAULT_OPTIONS, keyboardInputMap, mouseInputMap, // mobileInputMap?,
+// VRInputMap?,
+actionMap) {
   if (options.debug) console.log("Initializing input systems...");
-  if (!isBrowser) return console.error("Couldn't initialize input, are you in a browser?"); // TODO: If input mappings is not null, create input mappings object
-  // TODO: Otherwise, read default
-
-  if (window && options.debug) window.DEBUG_INPUT = true;
+  if (!isBrowser) return console.error("Couldn't initialize input, are you in a browser?");
 
   if (options.debug) {
     console.log("Registering input systems with the following options:");
     console.log(options);
   }
 
+  world.registerSystem(ActionSystem).registerSystem(AxisSystem);
+
+  if (options.debug) {
+    world.registerSystem(ActionDebugSystem).registerSystem(AxisDebugSystem);
+  }
+
+  world.registerComponent(Input).registerComponent(ActionQueue).registerComponent(AxisQueue).registerComponent(ActionMapData).registerComponent(UserInputReceiver);
   const inputSystemEntity = world.createEntity();
-  world.registerComponent(Input);
-  world.registerComponent(ActionQueue);
   inputSystemEntity.addComponent(Input);
   inputSystemEntity.addComponent(ActionQueue);
+  const inputReceiverEntity = world.createEntity().addComponent(UserInputReceiver).addComponent(ActionQueue).addComponent(AxisQueue).addComponent(ActionMapData); // Custom Action Map
+
+  if (actionMap) {
+    inputReceiverEntity.getMutableComponent(ActionMapData).actionMap = actionMap;
+  }
 
   if (options.keyboard) {
     world.registerComponent(KeyboardInput).registerSystem(KeyboardInputSystem, null);
-    inputSystemEntity.addComponent(KeyboardInput); // TODO: Initialize with user mappings
+    inputSystemEntity.addComponent(KeyboardInput);
+
+    if (keyboardInputMap) {
+      inputSystemEntity.getMutableComponent(KeyboardInput).inputMap = keyboardInputMap;
+    }
 
     if (options.debug) {
       world.registerSystem(KeyboardDebugSystem);
@@ -1297,7 +1628,11 @@ function initializeInputSystems(world, options = DEFAULT_OPTIONS, keyboardInputM
 
   if (options.mouse) {
     world.registerComponent(MouseInput).registerSystem(MouseInputSystem, null);
-    inputSystemEntity.addComponent(MouseInput); // TODO: Initialize with user mappings
+    inputSystemEntity.addComponent(MouseInput);
+
+    if (mouseInputMap) {
+      inputSystemEntity.getMutableComponent(MouseInput).actionMap = mouseInputMap;
+    }
 
     if (options.debug) console.log("Registered MouseInputSystem and added MouseInput component to input entity");
   }
