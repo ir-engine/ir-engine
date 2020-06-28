@@ -1,13 +1,13 @@
-import Actions from "../enums/Actions"
+import ActionQueueItem from "../interfaces/ActionQueueItem"
 
 export class ActionBuffer {
-  public static fromArray(data: Actions[], size = 0): ActionBuffer {
+  public static fromArray(data: ActionQueueItem[], size = 0): ActionBuffer {
     const actionBuffer = new ActionBuffer(size)
     actionBuffer.fromArray(data, size === 0)
     return actionBuffer
   }
 
-  private buffer: Actions[] = []
+  private buffer: ActionQueueItem[] = []
   private size: number
   private pos = 0
 
@@ -42,14 +42,14 @@ export class ActionBuffer {
     return this.buffer.length
   }
 
-  public add(...items: Actions[]): void {
+  public add(...items: ActionQueueItem[]): void {
     items.forEach(item => {
       this.buffer[this.pos] = item
       this.pos = (this.pos + 1) % this.size
     })
   }
 
-  public get(index: number): Actions | undefined {
+  public get(index: number): ActionQueueItem | undefined {
     if (index < 0) {
       index += this.buffer.length
     }
@@ -65,15 +65,15 @@ export class ActionBuffer {
     return this.buffer[(this.pos + index) % this.size]
   }
 
-  public getFirst(): Actions | undefined {
+  public getFirst(): ActionQueueItem | undefined {
     return this.get(0)
   }
 
-  public getLast(): Actions | undefined {
+  public getLast(): ActionQueueItem | undefined {
     return this.get(-1)
   }
 
-  public remove(index: number, count = 1): Actions[] {
+  public remove(index: number, count = 1): ActionQueueItem[] {
     if (index < 0) {
       index += this.buffer.length
     }
@@ -88,19 +88,19 @@ export class ActionBuffer {
     return removedItems
   }
 
-  public pop(): Actions {
+  public pop(): ActionQueueItem {
     return this.remove(0)[0]
   }
 
-  public popLast(): Actions {
+  public popLast(): ActionQueueItem {
     return this.remove(-1)[0]
   }
 
-  public toArray(): Actions[] {
+  public toArray(): ActionQueueItem[] {
     return this.buffer.slice(this.pos).concat(this.buffer.slice(0, this.pos))
   }
 
-  public fromArray(data: Actions[], resize = false): void {
+  public fromArray(data: ActionQueueItem[], resize = false): void {
     if (!Array.isArray(data)) {
       throw new TypeError("Input value is not an array.")
     }

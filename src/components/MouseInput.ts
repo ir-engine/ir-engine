@@ -1,7 +1,7 @@
 import { Component, Types } from "ecsy"
 import { MousePositionType } from "../types/MousePositionType"
 import { TemporalButtonStateType } from "../types/TemporalButtonStateType"
-import Vector2State from "../interfaces/Vector2State"
+import Vector2 from "../interfaces/Vector2"
 import ButtonState from "../interfaces/ButtonState"
 import { MouseInputState } from "../interfaces/MouseInputState"
 
@@ -9,7 +9,7 @@ export default class MouseInput extends Component<MouseInputState> {
   mouseButtonLeft: ButtonState
   mouseButtonMiddle: ButtonState
   mouseButtonRight: ButtonState
-  mousePosition: Vector2State
+  mousePosition: Vector2
   downHandler: any
   moveHandler: any
   upHandler: any

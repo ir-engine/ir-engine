@@ -1,7 +1,7 @@
 import { System } from "ecsy"
 import MouseInput from "../components/MouseInput"
 import MouseButtonMappings from "../mappings/MouseButtonMappings"
-import ButtonAction from "../enums/ButtonAction"
+import ActionState from "../enums/ActionState"
 
 export default class MouseInputSystem extends System {
   mouse: MouseInput
@@ -15,12 +15,12 @@ export default class MouseInputSystem extends System {
       )
       document.addEventListener(
         "mousedown",
-        e => this.buttonHandler(e, this.mouse, ButtonAction.PRESSED),
+        e => this.buttonHandler(e, this.mouse, ActionState.START),
         false
       )
       document.addEventListener(
         "mouseup",
-        e => this.buttonHandler(e, this.mouse, ButtonAction.RELEASED),
+        e => this.buttonHandler(e, this.mouse, ActionState.END),
         false
       )
     })
@@ -41,7 +41,7 @@ export default class MouseInputSystem extends System {
   buttonHandler = (
     e: MouseEvent,
     mouse: MouseInput,
-    buttonState: ButtonAction
+    buttonState: ActionState
   ): void => {
     if (e.button === MouseButtonMappings.LEFT.value) {
       if (buttonState !== mouse.mouseButtonLeft.current) {

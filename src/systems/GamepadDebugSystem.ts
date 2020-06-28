@@ -1,6 +1,6 @@
 import { System } from "ecsy"
 import GamepadInput from "../components/GamepadInput"
-import ButtonAction from "../enums/ButtonAction"
+import ActionState from "../enums/ActionState"
 export default class GamepadInputSystem extends System {
   execute(): void {
     this.queries.gamepad.added.forEach(ent => {
@@ -42,13 +42,13 @@ export default class GamepadInputSystem extends System {
         )
           console.log(`Y: ${gp.dpadTwoAxisY}`)
 
-        if (gp.buttonA === ButtonAction.PRESSED) console.log("Button A pressed")
+        if (gp.buttonA === ActionState.START) console.log("Button A pressed")
 
-        if (gp.buttonB === ButtonAction.PRESSED) console.log("Button B pressed")
+        if (gp.buttonB === ActionState.START) console.log("Button B pressed")
 
-        if (gp.buttonX === ButtonAction.PRESSED) console.log("Button X pressed")
+        if (gp.buttonX === ActionState.START) console.log("Button X pressed")
 
-        if (gp.buttonY === ButtonAction.PRESSED) console.log("Button Y pressed")
+        if (gp.buttonY === ActionState.START) console.log("Button Y pressed")
       }
     })
   }

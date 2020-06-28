@@ -11,6 +11,7 @@ import GamepadInput from "./components/GamepadInput"
 import { isBrowser } from "./utils/IsBrowser"
 import Input from "./components/Input"
 import KeyboardDebugSystem from "./systems/KeyboardDebugSystem"
+import UserActionQueue from "./components/Action"
 
 const DEFAULT_OPTIONS = {
   mouse: true,
@@ -23,7 +24,10 @@ const DEFAULT_OPTIONS = {
 export function initializeInputSystems(
   world: World,
   options = DEFAULT_OPTIONS,
-  inputMappings?
+  keyboardInputMappings?,
+  mouseInputMappings?,
+  mobileInputMappings?,
+  VRInputMappings?
 ): void {
   if (options.debug) console.log("Initializing input systems...")
 
@@ -42,12 +46,17 @@ export function initializeInputSystems(
 
   const inputSystemEntity = world.createEntity()
   world.registerComponent(Input)
+  world.registerComponent(UserActionQueue)
+
+  inputSystemEntity.addComponent(Input)
+  inputSystemEntity.addComponent(UserActionQueue)
 
   if (options.keyboard) {
     world
       .registerComponent(KeyboardInput)
       .registerSystem(KeyboardInputSystem, null)
     inputSystemEntity.addComponent(KeyboardInput)
+    // TODO: Initialize with user mappings
     if (options.debug) {
       world.registerSystem(KeyboardDebugSystem)
     }
@@ -59,6 +68,7 @@ export function initializeInputSystems(
   if (options.mouse) {
     world.registerComponent(MouseInput).registerSystem(MouseInputSystem, null)
     inputSystemEntity.addComponent(MouseInput)
+    // TODO: Initialize with user mappings
     if (options.debug)
       console.log(
         "Registered MouseInputSystem and added MouseInput component to input entity"
@@ -70,6 +80,7 @@ export function initializeInputSystems(
       .registerComponent(GamepadInput)
       .registerSystem(GamepadInputSystem, null)
     inputSystemEntity.addComponent(GamepadInput)
+    // TODO: Initialize with user mappings
     if (options.debug)
       console.log(
         "Registered GamepadInputSystem and added MouseInput component to input entity"

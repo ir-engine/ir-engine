@@ -1,4 +1,3 @@
-// Inputs taht can be sent
 enum Actions {
   FORWARD,
   BACKWARD,
