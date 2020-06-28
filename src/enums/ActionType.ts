@@ -1,4 +1,4 @@
-enum Actions {
+enum ActionType {
   PRIMARY,
   SECONDARY,
   FORWARD,
@@ -15,4 +15,4 @@ enum Actions {
   SPRINT
 }
 
-export default Actions
+export default ActionType

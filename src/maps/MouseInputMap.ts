@@ -1,9 +1,9 @@
-import Actions from "../enums/Actions"
+import ActionType from "../enums/ActionType"
 import Axes from "../enums/Axes"
 
 export const MouseInputActionMap = {
-  leftMouseButton: Actions.PRIMARY,
-  rightMouseButton: Actions.SECONDARY
+  leftMouseButton: ActionType.PRIMARY,
+  rightMouseButton: ActionType.SECONDARY
 }
 
 export const MouseInputAxisMap = {
