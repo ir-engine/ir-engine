@@ -1101,8 +1101,8 @@ const ActionBufferType = createType({
 });
 
 // Place this component on any entity which you would like to recieve input
-class UserActionQueue extends Component {}
-UserActionQueue.schema = {
+class ActionQueue extends Component {}
+ActionQueue.schema = {
   actions: {
     type: ActionBufferType,
     default: new ActionBuffer(10)
@@ -1132,11 +1132,9 @@ class KeyboardInputSystem extends System {
 
   mapKeyToAction(entity, key, value) {
     this.kb = entity.getComponent(KeyboardInput);
-    console.log("Key: " + key);
-    console.log(this.kb.keyboardInputActionMap[key]);
     if (this.kb.keyboardInputActionMap[key] === undefined) return; // Add to action queue
 
-    entity.getComponent(UserActionQueue).actions.add({
+    entity.getComponent(ActionQueue).actions.add({
       action: this.kb.keyboardInputActionMap[key],
       state: value
     });
@@ -1145,7 +1143,7 @@ class KeyboardInputSystem extends System {
 }
 KeyboardInputSystem.queries = {
   keyboard: {
-    components: [KeyboardInput, UserActionQueue],
+    components: [KeyboardInput, ActionQueue],
     listen: {
       added: true,
       removed: true
@@ -1246,7 +1244,7 @@ class KeyboardDebugSystem extends System {
     this.queries.keyboard.changed.forEach(entity => {
       const kb = entity.getComponent(KeyboardInput);
       console.log(kb.keyboardInputActionMap);
-      const queue = entity.getComponent(UserActionQueue);
+      const queue = entity.getComponent(ActionQueue);
       console.log(queue.actions.toArray());
     });
   }
@@ -1254,7 +1252,7 @@ class KeyboardDebugSystem extends System {
 }
 KeyboardDebugSystem.queries = {
   keyboard: {
-    components: [KeyboardInput, UserActionQueue],
+    components: [KeyboardInput, ActionQueue],
     listen: {
       changed: true
     }
@@ -1282,9 +1280,9 @@ function initializeInputSystems(world, options = DEFAULT_OPTIONS, keyboardInputM
 
   const inputSystemEntity = world.createEntity();
   world.registerComponent(Input);
-  world.registerComponent(UserActionQueue);
+  world.registerComponent(ActionQueue);
   inputSystemEntity.addComponent(Input);
-  inputSystemEntity.addComponent(UserActionQueue);
+  inputSystemEntity.addComponent(ActionQueue);
 
   if (options.keyboard) {
     world.registerComponent(KeyboardInput).registerSystem(KeyboardInputSystem, null);
