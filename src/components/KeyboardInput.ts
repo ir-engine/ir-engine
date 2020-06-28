@@ -2,9 +2,9 @@ import { Component, Types } from "ecsy"
 import { KeyboardInputMap } from "../maps/KeyboardInputMap"
 
 export default class KeyboardInput extends Component<any> {
-  keyboardInputActionMap = KeyboardInputMap
+  inputMap = KeyboardInputMap
 }
 
 KeyboardInput.schema = {
-  keys: { type: Types.Ref, default: KeyboardInputMap }
+  inputMap: { type: Types.Ref, default: KeyboardInputMap }
 }

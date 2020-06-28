@@ -44,7 +44,7 @@ export default class MouseInputSystem extends System {
 
   moveHandler = (e: MouseEvent, mouse: MouseInput): void => {
     const { clientX, clientY, timeStamp } = e
-    mouse.mousePosition = { x: clientX, y: clientY }
+    mouse.screenPosition = { x: clientX, y: clientY }
     mouse.lastTimestamp = timeStamp
   }
 

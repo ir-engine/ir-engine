@@ -7,7 +7,7 @@ export default class KeyboardDebugSystem extends System {
   execute(): void {
     this.queries.keyboard.changed.forEach(entity => {
       const kb = entity.getComponent(KeyboardInput)
-      console.log(kb.keyboardInputActionMap)
+      console.log(kb.inputMap)
       const queue = entity.getComponent(ActionQueue)
       console.log(queue.actions.toArray())
     })
