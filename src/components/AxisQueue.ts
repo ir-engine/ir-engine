@@ -4,10 +4,10 @@ import { Component } from "ecsy"
 import { ActionBuffer } from "../classes/ActionBuffer"
 import ActionBufferType from "../types/ActionBufferType"
 
-export default class ActionQueue extends Component<any> {
+export default class AxisQueue extends Component<any> {
   actions: ActionBuffer
 }
 
-ActionQueue.schema = {
+AxisQueue.schema = {
   actions: { type: ActionBufferType, default: new ActionBuffer(10) }
 }

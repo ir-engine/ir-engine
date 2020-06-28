@@ -5,8 +5,9 @@ import { MouseInputState } from "../interfaces/MouseInputState"
 import { MouseInputActionMap, MouseInputAxisMap } from "../maps/MouseInputMap"
 
 export default class MouseInput extends Component<MouseInputState> {
-  mouseInputActionMap = MouseInputActionMap
-  mousePosition: Axis2D
+  actionMap = MouseInputActionMap
+  axisMap = MouseInputAxisMap
+  screenPosition: Axis2D
   downHandler: any
   moveHandler: any
   upHandler: any
@@ -15,8 +16,9 @@ export default class MouseInput extends Component<MouseInputState> {
 }
 
 MouseInput.schema = {
-  mouseButtons: { type: Types.Ref, default: MouseInputActionMap },
-  mousePosition: { type: Axis2DStateType },
+  inputMap: { type: Types.Ref, default: MouseInputActionMap },
+  axisMap: { type: Types.Ref, default: MouseInputAxisMap },
+  screenPosition: { type: Axis2DStateType },
   lastMovementTimestamp: { type: Types.Number },
   downHandler: { type: Types.Ref },
   moveHandler: { type: Types.Ref },

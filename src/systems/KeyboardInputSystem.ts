@@ -28,11 +28,11 @@ export default class KeyboardInputSystem extends System {
 
   mapKeyToAction(entity: Entity, key: string, value: ActionValues): any {
     this.kb = entity.getComponent(KeyboardInput)
-    if (this.kb.keyboardInputActionMap[key] === undefined) return
+    if (this.kb.inputMap[key] === undefined) return
 
     // Add to action queue
     entity.getMutableComponent(ActionQueue).actions.add({
-      action: this.kb.keyboardInputActionMap[key],
+      action: this.kb.inputMap[key],
       value: value
     })
   }
