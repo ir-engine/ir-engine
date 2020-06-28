@@ -14,7 +14,7 @@ import KeyboardDebugSystem from "./systems/KeyboardDebugSystem"
 import ActionQueue from "./components/ActionQueue"
 import UserInputReceiver from "./components/UserInputReceiver"
 import ActionDebugSystem from "./systems/ActionDebugSystem"
-import { ActionSystem } from "./systems"
+import ActionSystem from "./systems/ActionSystem"
 import AxisSystem from "./systems/AxisSystem"
 import AxisDebugSystem from "./systems/AxisDebugSystem"
 import ActionMapData from "./components/ActionMapData"
@@ -39,8 +39,7 @@ export function initializeInputSystems(
 ): void {
   if (options.debug) console.log("Initializing input systems...")
 
-  if (!isBrowser)
-    return console.error("Couldn't initialize input, are you in a browser?")
+  if (!isBrowser) return console.error("Couldn't initialize input, are you in a browser?")
 
   if (options.debug) {
     console.log("Registering input systems with the following options:")
@@ -77,23 +76,17 @@ export function initializeInputSystems(
   }
 
   if (options.keyboard) {
-    world
-      .registerComponent(KeyboardInput)
-      .registerSystem(KeyboardInputSystem, null)
+    world.registerComponent(KeyboardInput).registerSystem(KeyboardInputSystem, null)
     inputSystemEntity.addComponent(KeyboardInput)
 
     if (keyboardInputMap) {
-      inputSystemEntity.getMutableComponent(
-        KeyboardInput
-      ).inputMap = keyboardInputMap
+      inputSystemEntity.getMutableComponent(KeyboardInput).inputMap = keyboardInputMap
     }
 
     if (options.debug) {
       world.registerSystem(KeyboardDebugSystem)
     }
-    console.log(
-      "Registered KeyboardInputSystem and added KeyboardInput component to input entity"
-    )
+    console.log("Registered KeyboardInputSystem and added KeyboardInput component to input entity")
   }
 
   if (options.mouse) {
@@ -101,27 +94,17 @@ export function initializeInputSystems(
     inputSystemEntity.addComponent(MouseInput)
 
     if (mouseInputMap) {
-      inputSystemEntity.getMutableComponent(
-        MouseInput
-      ).actionMap = mouseInputMap
+      inputSystemEntity.getMutableComponent(MouseInput).actionMap = mouseInputMap
     }
 
-    if (options.debug)
-      console.log(
-        "Registered MouseInputSystem and added MouseInput component to input entity"
-      )
+    if (options.debug) console.log("Registered MouseInputSystem and added MouseInput component to input entity")
   }
 
   if (options.gamepad) {
-    world
-      .registerComponent(GamepadInput)
-      .registerSystem(GamepadInputSystem, null)
+    world.registerComponent(GamepadInput).registerSystem(GamepadInputSystem, null)
     inputSystemEntity.addComponent(GamepadInput)
     // TODO: Initialize with user mappings
-    if (options.debug)
-      console.log(
-        "Registered GamepadInputSystem and added MouseInput component to input entity"
-      )
+    if (options.debug) console.log("Registered GamepadInputSystem and added MouseInput component to input entity")
   }
 
   // TODO: Add touchscreen
