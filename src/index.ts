@@ -11,7 +11,8 @@ import GamepadInput from "./components/GamepadInput"
 import { isBrowser } from "./utils/IsBrowser"
 import Input from "./components/Input"
 import KeyboardDebugSystem from "./systems/KeyboardDebugSystem"
-import UserActionQueue from "./components/Action"
+import ActionQueue from "./components/ActionQueue"
+import UserInputReceiver from "./components/UserInputReceiver"
 
 const DEFAULT_OPTIONS = {
   mouse: true,
@@ -45,11 +46,16 @@ export function initializeInputSystems(
   }
 
   const inputSystemEntity = world.createEntity()
-  world.registerComponent(Input)
-  world.registerComponent(UserActionQueue)
+  world
+    .registerComponent(Input)
+    .registerComponent(ActionQueue)
+    .registerComponent(UserInputReceiver)
 
   inputSystemEntity.addComponent(Input)
-  inputSystemEntity.addComponent(UserActionQueue)
+  inputSystemEntity.addComponent(ActionQueue)
+
+  const inputReceiverEntity = world.createEntity().addComponent(UserInputReceiver).addComponent(ActionQueue)
+
 
   if (options.keyboard) {
     world
