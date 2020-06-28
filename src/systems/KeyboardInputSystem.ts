@@ -31,7 +31,7 @@ export default class KeyboardInputSystem extends System {
     if (this.kb.keyboardInputActionMap[key] === undefined) return
 
     // Add to action queue
-    entity.getComponent(ActionQueue).actions.add({
+    entity.getMutableComponent(ActionQueue).actions.add({
       action: this.kb.keyboardInputActionMap[key],
       state: value
     })

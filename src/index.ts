@@ -54,8 +54,10 @@ export function initializeInputSystems(
   inputSystemEntity.addComponent(Input)
   inputSystemEntity.addComponent(ActionQueue)
 
-  const inputReceiverEntity = world.createEntity().addComponent(UserInputReceiver).addComponent(ActionQueue)
-
+  const inputReceiverEntity = world
+    .createEntity()
+    .addComponent(UserInputReceiver)
+    .addComponent(ActionQueue)
 
   if (options.keyboard) {
     world

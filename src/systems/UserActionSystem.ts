@@ -7,13 +7,13 @@ export default class ActionSystem extends System {
   userInputActionQueue: ActionQueue
   execute(): void {
     this.queries.userInputActionQueue.results.forEach(entity => {
-      this.userInputActionQueue = entity.getComponent(ActionQueue)
+      this.userInputActionQueue = entity.getMutableComponent(ActionQueue)
       this.validateActions(this.userInputActionQueue)
     })
     this.queries.actionReceivers.results.forEach(entity => {
       this.applyInputToListener(
         this.userInputActionQueue,
-        entity.getComponent(ActionQueue)
+        entity.getMutableComponent(ActionQueue)
       )
     })
     // Clear all actions
