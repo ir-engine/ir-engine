@@ -22,10 +22,15 @@ import winston from 'winston'
 // @ts-ignore
 import feathersLogger from 'feathers-logger'
 import next from 'next'
+import { EventEmitter } from 'events'
+
+const emitter = new EventEmitter()
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const app: Application = express(feathers())
+
+app.set('nextReadyEmitter', emitter)
 
 if (config.server.enabled) {
   app.configure(
@@ -107,6 +112,7 @@ if (config.client.enabled) {
     })
     app.use('/', express.static(config.server.publicDir))
     app.use(express.notFound())
+    emitter.emit('next-ready')
   }).catch((ex) => {
     console.error(ex.stack)
     process.exit(1)

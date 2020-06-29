@@ -133,7 +133,7 @@ export class Project implements ServiceMethods<Data> {
 
       const entites = sceneEntitiesArray.map((entity: any) => {
         entity.name = entity.name.toLowerCase()
-        entity.type = 'default'
+        entity.entityType = 'default'
         entity.userId = loggedInUser.userId
         entity.collectionId = project.id
         return entity
