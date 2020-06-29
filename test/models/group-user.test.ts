@@ -14,7 +14,37 @@ describe('CRUD operation on \'GroupUser\' model', () => {
   let userId: string
   let groupId: string
 
-  beforeAll(async () => {
+  beforeAll(async (done) => {
+    await userModel.destroy({
+      where: {
+        name: userName
+      }
+    })
+
+    await groupModel.destroy({
+      where: {
+        name: group
+      }
+    })
+
+    await userRoleModel.destroy({
+      where: {
+        role: role
+      }
+    })
+
+    await groupUserRankModel.destroy({
+      where: {
+        rank: groupUserRank
+      }
+    })
+
+    await groupUserRankModel.destroy({
+      where: {
+        rank: groupUserRankUpdated
+      }
+    })
+
     await userRoleModel.create({
       role
     })
@@ -36,46 +66,78 @@ describe('CRUD operation on \'GroupUser\' model', () => {
       rank: groupUserRankUpdated
     })
 
-    userId = await userModel.findOne({
+    const userModelInstance = await userModel.findOne({
       where: { name: userName }
-    }).id
+    })
 
-    groupId = await groupModel.findOne({
+    userId = userModelInstance.id
+
+    const groupModelInstance = await groupModel.findOne({
       where: { name: group }
-    }).id
+    })
+
+    groupId = groupModelInstance.id
+
+    done()
   })
 
   it('Create', async () => {
-    await model.create({
-      userId,
-      groupId,
-      groupUserRank
+    const createModel = await model.create({
+      userId: userId,
+      groupId: groupId,
+      groupUserRank: groupUserRank
     })
+    expect(createModel.userId).toBe(userId)
+    expect(createModel.groupId).toBe(groupId)
+    expect(createModel.groupUserRank).toBe(groupUserRank)
   })
 
   it('Read', async () => {
-    await model.findOne({
+    const readModel = await model.findOne({
       where: {
-        userId,
-        groupId
+        userId: userId,
+        groupId: groupId
       }
     })
+    expect(readModel.userId).toBe(userId)
+    expect(readModel.groupId).toBe(groupId)
+    expect(readModel.groupUserRank).toBe(groupUserRank)
   })
 
   it('Update', async () => {
-    await model.update(
-      { groupUserRank: groupUserRankUpdated },
-      { where: { userId, groupId } }
-    )
+    await model.update({
+      groupUserRank: groupUserRankUpdated
+    },
+    {
+      where: {
+        userId: userId,
+        groupId: groupId
+      }
+    })
+    console.log('GETTING UPDATES')
+    const updateModel = await model.findOne({
+      where: {
+        userId: userId,
+        groupId: groupId
+      }
+    })
+    expect(updateModel.userId).toBe(userId)
+    expect(updateModel.groupId).toBe(groupId)
+    expect(updateModel.groupUserRank).toBe(groupUserRankUpdated)
+    console.log('FINISHED WITH UPDATE')
   })
 
   it('Delete', async () => {
-    await model.destroy({
-      where: { userId, groupId }
+    const destroyModel = await model.destroy({
+      where: {
+        userId: userId,
+        groupId: groupId
+      }
     })
+    expect(destroyModel).toBe(1)
   })
 
-  afterAll(async () => {
+  afterAll(async (done) => {
     await userModel.destroy({
       where: {
         id: userId
@@ -84,7 +146,7 @@ describe('CRUD operation on \'GroupUser\' model', () => {
 
     await userRoleModel.destroy({
       where: {
-        role
+        role: role
       }
     })
 
@@ -105,5 +167,7 @@ describe('CRUD operation on \'GroupUser\' model', () => {
         rank: groupUserRankUpdated
       }
     })
+
+    done()
   })
 })

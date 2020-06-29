@@ -9,9 +9,13 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
   const password = 'password'
   const token = 'some token'
 
-  beforeAll(async () => {
+  beforeAll(async (done) => {
+    await model.destroy({
+      where: { token: token }
+    })
     const user = await userModel.create({})
     userId = user.id
+    done()
   })
 
   it('Create', async () => {
@@ -62,7 +66,7 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
       }
     })
 
-    expect(userFromId).toBe(expect.anything())
+    expect(userFromId).toEqual(expect.anything())
   })
 
   it('Not expecting password and token ', async () => {
