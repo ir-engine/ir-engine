@@ -1139,7 +1139,7 @@ class MouseInputSystem extends System {
       if (!this._mouse || this._mouse.actionMap[e.button] === undefined) return;
       entity.getMutableComponent(ActionQueue).actions.add({
         action: this._mouse.actionMap[e.button],
-        value
+        value: value
       });
     };
   }
@@ -1149,7 +1149,7 @@ class MouseInputSystem extends System {
       this._mouse = ent.getMutableComponent(MouseInput);
       document.addEventListener("mousemove", e => this._mouse.moveHandler = this.moveHandler(e, ent), false);
     });
-    this.queries.button.added.forEach(ent => {
+    this.queries.buttons.added.forEach(ent => {
       this._mouse = ent.getMutableComponent(MouseInput);
       document.addEventListener("mousedown", e => this._mouse.downHandler = this.buttonHandler(e, ent, ActionValues$1.START), false);
       document.addEventListener("mouseup", e => this._mouse.upHandler = this.buttonHandler(e, ent, ActionValues$1.END), false);
@@ -1330,31 +1330,12 @@ GamepadInputSystem.queries = {
 
 const isBrowser = typeof window !== "undefined" && typeof window.document !== "undefined";
 
-class KeyboardDebugSystem extends System {
-  execute() {
-    this.queries.keyboard.changed.forEach(entity => {
-      const kb = entity.getComponent(KeyboardInput);
-      console.log(kb.inputMap);
-      const queue = entity.getComponent(ActionQueue);
-      console.log(queue.actions.toArray());
-    });
-  }
-
-}
-KeyboardDebugSystem.queries = {
-  keyboard: {
-    components: [KeyboardInput, ActionQueue],
-    listen: {
-      changed: true
-    }
-  }
-};
-
-class UserInputReceiver extends TagComponent {}
+class InputReceiver extends TagComponent {}
 
 class ActionDebugSystem extends System {
   execute() {
     this.queries.actionReceivers.changed.forEach(entity => {
+      console.log("ActionDebugSystem: ");
       console.log(entity.getComponent(ActionQueue).actions.toArray());
     });
   }
@@ -1362,7 +1343,7 @@ class ActionDebugSystem extends System {
 }
 ActionDebugSystem.queries = {
   actionReceivers: {
-    components: [ActionQueue, UserInputReceiver, Not(Input)],
+    components: [ActionQueue, InputReceiver, Not(Input)],
     listen: {
       changed: true
     }
@@ -1408,15 +1389,14 @@ class ActionSystem extends System {
     this.queries.actionMapData.added.forEach(entity => {
       this._actionMap = entity.getComponent(ActionMapData).actionMap;
     });
-    this.queries.userInputActionQueue.added.forEach(entity => {
-      this._userInputActionQueue = entity.getMutableComponent(ActionQueue);
-      this.validateActions(this._userInputActionQueue);
-    });
-    this.queries.actionReceivers.results.forEach(entity => {
-      this.applyInputToListener(this._userInputActionQueue, entity.getMutableComponent(ActionQueue));
+    this.queries.userInputActionQueue.changed.forEach(input => {
+      this._userInputActionQueue = input.getMutableComponent(ActionQueue);
+      this.queries.actionReceivers.results.forEach(receiver => {
+        this.applyInputToListener(this._userInputActionQueue, receiver.getMutableComponent(ActionQueue));
+      });
     }); // Clear all actions
 
-    this._userInputActionQueue.actions.clear();
+    if (this._userInputActionQueue) this._userInputActionQueue.actions.clear();
   }
 
   validateActions(actionQueue) {
@@ -1492,9 +1472,9 @@ class ActionSystem extends System {
         // Skip action since it's already in the listener queue
         if (userInput.action === listenerAction.action && userInput.value === listenerAction.value) {
           this._skip = true;
-        } else if (userInput.action === listenerAction.action && userInput.value !== listenerAction.value) {
-          // Action value updated, so don't add the action
-          listenerActionQueue.actions.get(listenerIndex).value = userInput.value;
+        } else if (userInput.action === listenerAction.action && userInput.value !== listenerAction.value && userInput.value !== undefined) {
+          listenerActionQueue.actions.remove(listenerIndex);
+          listenerActionQueue.actions.add(userInput);
           this._skip = true;
         }
       });
@@ -1507,10 +1487,14 @@ class ActionSystem extends System {
 }
 ActionSystem.queries = {
   userInputActionQueue: {
-    components: [ActionQueue, Input]
+    components: [ActionQueue, Input],
+    listen: {
+      added: true,
+      changed: true
+    }
   },
   actionReceivers: {
-    components: [ActionQueue, UserInputReceiver, Not(Input)]
+    components: [ActionQueue, InputReceiver, Not(Input)]
   },
   actionMapData: {
     components: [ActionMapData, Input],
@@ -1524,10 +1508,12 @@ class AxisSystem extends System {
   execute() {
     this.queries.userInputAxisQueue.results.forEach(entity => {
       this._userInputAxisQueue = entity.getMutableComponent(AxisQueue);
-    });
+    }); // If the queue hasn't been set yet, or the queue length is 0
+
+    if (this._userInputAxisQueue || this._userInputAxisQueue.axes.getSize() < 1) return;
     this.queries.axisReceivers.results.forEach(entity => {
       this.applyInputToListener(this._userInputAxisQueue, entity.getMutableComponent(AxisQueue));
-    }); // Clear all axiss
+    }); // Clear all axis
 
     this._userInputAxisQueue.axes.clear();
   }
@@ -1556,13 +1542,14 @@ AxisSystem.queries = {
     components: [AxisQueue, Input]
   },
   axisReceivers: {
-    components: [AxisQueue, UserInputReceiver, Not(Input)]
+    components: [AxisQueue, InputReceiver, Not(Input)]
   }
 };
 
 class AxisDebugSystem extends System {
   execute() {
     this.queries.actionReceivers.changed.forEach(entity => {
+      console.log("AxisDebugSystem: ");
       console.log(entity.getComponent(AxisQueue).axes.toArray());
     });
   }
@@ -1570,7 +1557,7 @@ class AxisDebugSystem extends System {
 }
 AxisDebugSystem.queries = {
   actionReceivers: {
-    components: [AxisQueue, UserInputReceiver, Not(Input)],
+    components: [AxisQueue, InputReceiver, Not(Input)],
     listen: {
       changed: true
     }
@@ -1601,11 +1588,10 @@ actionMap) {
     world.registerSystem(ActionDebugSystem).registerSystem(AxisDebugSystem);
   }
 
-  world.registerComponent(Input).registerComponent(ActionQueue).registerComponent(AxisQueue).registerComponent(ActionMapData).registerComponent(UserInputReceiver);
+  world.registerComponent(Input).registerComponent(ActionQueue).registerComponent(AxisQueue).registerComponent(ActionMapData).registerComponent(InputReceiver);
   const inputSystemEntity = world.createEntity();
-  inputSystemEntity.addComponent(Input);
-  inputSystemEntity.addComponent(ActionQueue);
-  const inputReceiverEntity = world.createEntity().addComponent(UserInputReceiver).addComponent(ActionQueue).addComponent(AxisQueue).addComponent(ActionMapData); // Custom Action Map
+  inputSystemEntity.addComponent(Input).addComponent(ActionQueue).addComponent(AxisQueue);
+  const inputReceiverEntity = world.createEntity().addComponent(InputReceiver).addComponent(ActionQueue).addComponent(AxisQueue).addComponent(ActionMapData); // Custom Action Map
 
   if (actionMap) {
     inputReceiverEntity.getMutableComponent(ActionMapData).actionMap = actionMap;
@@ -1617,10 +1603,6 @@ actionMap) {
 
     if (keyboardInputMap) {
       inputSystemEntity.getMutableComponent(KeyboardInput).inputMap = keyboardInputMap;
-    }
-
-    if (options.debug) {
-      world.registerSystem(KeyboardDebugSystem);
     }
 
     console.log("Registered KeyboardInputSystem and added KeyboardInput component to input entity");

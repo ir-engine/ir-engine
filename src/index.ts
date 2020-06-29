@@ -10,9 +10,8 @@ import GamepadInput from "./components/GamepadInput"
 
 import { isBrowser } from "./utils/IsBrowser"
 import Input from "./components/Input"
-import KeyboardDebugSystem from "./systems/KeyboardDebugSystem"
 import ActionQueue from "./components/ActionQueue"
-import UserInputReceiver from "./components/UserInputReceiver"
+import InputReceiver from "./components/InputReceiver"
 import ActionDebugSystem from "./systems/ActionDebugSystem"
 import ActionSystem from "./systems/ActionSystem"
 import AxisSystem from "./systems/AxisSystem"
@@ -57,15 +56,17 @@ export function initializeInputSystems(
     .registerComponent(ActionQueue)
     .registerComponent(AxisQueue)
     .registerComponent(ActionMapData)
-    .registerComponent(UserInputReceiver)
+    .registerComponent(InputReceiver)
 
   const inputSystemEntity = world.createEntity()
-  inputSystemEntity.addComponent(Input)
-  inputSystemEntity.addComponent(ActionQueue)
+  inputSystemEntity
+    .addComponent(Input)
+    .addComponent(ActionQueue)
+    .addComponent(AxisQueue)
 
   const inputReceiverEntity = world
     .createEntity()
-    .addComponent(UserInputReceiver)
+    .addComponent(InputReceiver)
     .addComponent(ActionQueue)
     .addComponent(AxisQueue)
     .addComponent(ActionMapData)
@@ -83,9 +84,6 @@ export function initializeInputSystems(
       inputSystemEntity.getMutableComponent(KeyboardInput).inputMap = keyboardInputMap
     }
 
-    if (options.debug) {
-      world.registerSystem(KeyboardDebugSystem)
-    }
     console.log("Registered KeyboardInputSystem and added KeyboardInput component to input entity")
   }
 

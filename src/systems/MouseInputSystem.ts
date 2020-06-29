@@ -14,7 +14,7 @@ export default class MouseInputSystem extends System {
       this._mouse = ent.getMutableComponent(MouseInput)
       document.addEventListener("mousemove", e => (this._mouse.moveHandler = this.moveHandler(e, ent)), false)
     })
-    this.queries.button.added.forEach(ent => {
+    this.queries.buttons.added.forEach(ent => {
       this._mouse = ent.getMutableComponent(MouseInput)
       document.addEventListener(
         "mousedown",
@@ -50,7 +50,7 @@ export default class MouseInputSystem extends System {
     if (!this._mouse || this._mouse.actionMap[e.button] === undefined) return
     entity.getMutableComponent(ActionQueue).actions.add({
       action: this._mouse.actionMap[e.button],
-      value
+      value: value
     })
   }
 }

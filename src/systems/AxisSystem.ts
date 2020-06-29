@@ -1,7 +1,7 @@
 import { System, Not } from "ecsy"
 import AxisQueue from "../components/AxisQueue"
 import Input from "../components/Input"
-import UserInputReceiver from "../components/UserInputReceiver"
+import InputReceiver from "../components/InputReceiver"
 
 export default class AxisSystem extends System {
   // Temp variables
@@ -11,10 +11,12 @@ export default class AxisSystem extends System {
     this.queries.userInputAxisQueue.results.forEach(entity => {
       this._userInputAxisQueue = entity.getMutableComponent(AxisQueue)
     })
+    // If the queue hasn't been set yet, or the queue length is 0
+    if (this._userInputAxisQueue || this._userInputAxisQueue.axes.getSize() < 1) return
     this.queries.axisReceivers.results.forEach(entity => {
       this.applyInputToListener(this._userInputAxisQueue, entity.getMutableComponent(AxisQueue))
     })
-    // Clear all axiss
+    // Clear all axis
     this._userInputAxisQueue.axes.clear()
   }
 
@@ -42,6 +44,6 @@ AxisSystem.queries = {
     components: [AxisQueue, Input]
   },
   axisReceivers: {
-    components: [AxisQueue, UserInputReceiver, Not(Input)]
+    components: [AxisQueue, InputReceiver, Not(Input)]
   }
 }
