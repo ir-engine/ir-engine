@@ -1,12 +1,13 @@
 import { System, Not } from "ecsy"
 import ActionQueue from "../components/ActionQueue"
 import Input from "../components/Input"
-import UserInputReceiver from "../components/UserInputReceiver"
+import InputReceiver from "../components/InputReceiver"
 
 export default class ActionDebugSystem extends System {
   _userInputActionQueue: ActionQueue
   public execute(): void {
     this.queries.actionReceivers.changed.forEach(entity => {
+      console.log("ActionDebugSystem: ")
       console.log(entity.getComponent(ActionQueue).actions.toArray())
     })
   }
@@ -14,7 +15,7 @@ export default class ActionDebugSystem extends System {
 
 ActionDebugSystem.queries = {
   actionReceivers: {
-    components: [ActionQueue, UserInputReceiver, Not(Input)],
+    components: [ActionQueue, InputReceiver, Not(Input)],
     listen: { changed: true }
   }
 }
