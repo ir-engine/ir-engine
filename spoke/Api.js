@@ -1024,6 +1024,7 @@ export default class Project extends EventEmitter {
   async upload(blob, onUploadProgress, signal) {
     // Use direct upload API, see: ${prefix}github.com/mozilla/reticulum/pull/319
     let host, port;
+    const token = this.getToken()
 
     if (USE_DIRECT_UPLOAD_API) {
       const { phx_host: uploadHost } = await (
@@ -1049,7 +1050,7 @@ export default class Project extends EventEmitter {
       }
 
       if (USE_DIRECT_UPLOAD_API) {
-        request.open("post", `${prefix}${host}:${port}${API_MEDIA_ROUTE}`, true);
+        request.open("post", `${host}${API_MEDIA_ROUTE}`, true);
       } else {
         request.open("post", `http://${API_SERVER_ADDRESS}${API_MEDIA_ROUTE}`, true);
       }
@@ -1082,6 +1083,8 @@ export default class Project extends EventEmitter {
 
       const formData = new FormData();
       formData.set("media", blob);
+
+      request.setRequestHeader('Authorization', `Bearer ${token}`)
 
       request.send(formData);
     });
