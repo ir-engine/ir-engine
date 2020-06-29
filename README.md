@@ -2,7 +2,7 @@
 A simple, cross-platform input system for ECSY
 
 # Why Do I Need This?
-Mapping a WASD keyboard to drive movement or state is easy enough for a few inputs-- but once you start developing complex behaviors, and you need them accounted for across multiple platforms or input types, it quickly becomes a monstrous task to maintain or add additional functionality to your input <-> response loops without having to test for lots of unintended consequences, often marking up your code with conditionals to prevent unwanted state from these new actions (some people want crouching + jumping, some people want either/or)
+Mapping a WASD keyboard to drive movement or state is easy enough for a few inputs-- but once you start developing complex behaviors, and you need them accounted for across multiple platforms or input types, it quickly becomes a monstrous task to maintain or add additional functionality to your input <-> response loops without having to test for lots of unintended consequences, often marking up your code with conditionals to prevent unwanted state from these new actions (as an example-- some people want crouching + jumping to be simultaneous and some people want to prevent the mid-air crouch)
 
 ecsy-input abstracts the complexity of the input layer down to "actions". All input is collected, mapped to actions, and then validated at the action layer-- opposing, overriding and blocking actions are considered and then pushed to any entity with an ActionListener component attached. While default input mappings are provided, ecsy-input can be initialized with custom input mappings, so you can decide what inputs map to what actions and how actions relate to each other.
 
