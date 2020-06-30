@@ -21,7 +21,7 @@ const dashManifestName = 'manifest.mpd'
 const hlsPlaylistName = 'master.m3u8'
 
 // choose dash or hls
-function getManifestUri(manifestPath: string): string {
+function getManifestUri (manifestPath: string): string {
   return AFRAME.utils.device.isIOS() ? manifestPath.replace(dashManifestName, hlsPlaylistName) : manifestPath
 }
 
@@ -33,7 +33,7 @@ export interface Video360Props {
   format: string
 }
 
-function Video360Room(props: Video360Props) {
+function Video360Room (props: Video360Props) {
   const text = `${props.title || ''}\n\n(click to play)`
 
   const videospherePrimitive = props.format === 'eac' ? 'a-eaccube' : 'a-videosphere'
@@ -61,7 +61,7 @@ function Video360Room(props: Video360Props) {
     setPlaying(video360State.get('playing'))
   }, [video360State])
 
-  function playPauseHandler(e) {
+  function playPauseHandler (e): void {
     dispatch(setVideoPlaying(e.detail))
   }
 
@@ -74,7 +74,7 @@ function Video360Room(props: Video360Props) {
 
   // get or create video asset
   useEffect(() => {
-    let videoEl = document.getElementById(videosrc) as HTMLElement
+    let videoEl = document.getElementById(videosrc)
     if (videoEl === null) {
       videoEl = document.createElement('video')
       videoEl.setAttribute('id', videosrc)

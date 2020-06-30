@@ -93,7 +93,7 @@ const VideoGridScene = (props: VideoProps): any => {
         videoformat: (focusCellEl.attributes).videoformat?.value,
         mediaUrl: (focusCellEl.attributes)['media-url'].value,
         thumbnailUrl: (focusCellEl.attributes)['thumbnail-url'].value,
-        productionCredit: (focusCellEl.attributes)['production-credit'].value,
+        productionCredit: (focusCellEl.attributes)['production-credit']?.value,
         rating: (focusCellEl.attributes).rating?.value,
         categories: (focusCellEl.attributes).categories?.value,
         runtime: (focusCellEl.attributes).runtime.value

@@ -10,24 +10,24 @@ export interface PublicVideoState {
 
 export interface VideoMetaData {
   // eslint-disable-next-line camelcase
-  thumbnail_url?: string,
-  '360_format'?: string,
-  rating?: string,
-  categories?: string[],
+  thumbnail_url?: string
+  '360_format'?: string
+  rating?: string
+  categories?: string[]
   runtime?: string
 }
 
 export interface Attribution {
-  creator?: string,
+  creator?: string
   url?: string
 }
 export interface PublicVideo {
   id: number
   name: string
   description: string
-  url: string,
-  subscriptionLevel: string,
-  metadata: Partial<VideoMetaData>,
+  url: string
+  subscriptionLevel: string
+  metadata: Partial<VideoMetaData>
   attribution?: Partial<Attribution>
 }
 export interface Image {
@@ -44,9 +44,9 @@ export interface VideosFetchedAction {
 }
 
 export interface UploadAction {
-  type: string;
-  payload?: any;
-  message?: string;
+  type: string
+  payload?: any
+  message?: string
 }
 
 export function videosFetchedSuccess (videos: PublicVideo[]): VideosFetchedAction {

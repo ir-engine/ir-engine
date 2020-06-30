@@ -150,8 +150,7 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
       flexEl.appendChild(descriptionFlexEl)
     }
 
-    // categories
-    const categories = (this.data.categories !== 'undefined' && this.data.categories !== undefined) ? this.data.categories : ''
+    const categories = (this.data.categories.length === 1 && this.data.categories[0] === 'undefined') ? '' : this.data.categories
     const categoriesFlexEl = this.createDetailsItem({
       height: 0.05 * this.data.detailsHeight
     }, categories)
