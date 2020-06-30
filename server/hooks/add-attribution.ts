@@ -7,10 +7,8 @@ export default async function (context: any): Promise<void> {
 
   if (data.creator) {
     try {
-      const response = await app.service('attribution').create(data, context.params)
-      await app.service('static-resource').patch(result.id, {
-        attributionId: response.id
-      })
+      data.staticResourceId = result.id
+      await app.service('attribution').create(data, context.params)
       return context
     } catch (err) {
       console.log('add-attribution error')
