@@ -1,9 +1,9 @@
 import { System, Entity } from "ecsy"
 import MouseInput from "../components/MouseInput"
 import ActionValues from "../enums/ActionValues"
-import ActionQueue from "../components/ActionQueue"
+import InputActionQueue from "../components/InputActionQueue"
 import Input from "../components/Input"
-import AxisQueue from "../components/AxisQueue"
+import InputAxisQueue from "../components/InputAxisQueue"
 import AxisType from "../enums/AxisType"
 
 export default class MouseInputSystem extends System {
@@ -39,7 +39,7 @@ export default class MouseInputSystem extends System {
   }
 
   private moveHandler = (e: MouseEvent, entity: Entity): void => {
-    entity.getComponent(AxisQueue).axes.add({
+    entity.getComponent(InputAxisQueue).axes.add({
       axis: AxisType.SCREENXY,
       value: { x: e.clientX, y: e.clientY }
     })
@@ -48,7 +48,7 @@ export default class MouseInputSystem extends System {
   private buttonHandler = (e: MouseEvent, entity: Entity, value: ActionValues): void => {
     this._mouse = entity.getComponent(MouseInput)
     if (!this._mouse || this._mouse.actionMap[e.button] === undefined) return
-    entity.getMutableComponent(ActionQueue).actions.add({
+    entity.getMutableComponent(InputActionQueue).actions.add({
       action: this._mouse.actionMap[e.button],
       value: value
     })
@@ -57,14 +57,14 @@ export default class MouseInputSystem extends System {
 
 MouseInputSystem.queries = {
   buttons: {
-    components: [MouseInput, ActionQueue, Input],
+    components: [MouseInput, InputActionQueue, Input],
     listen: {
       added: true,
       removed: true
     }
   },
   axis: {
-    components: [MouseInput, AxisQueue, Input],
+    components: [MouseInput, InputAxisQueue, Input],
     listen: {
       added: true,
       removed: true

@@ -1,5 +1,5 @@
-import ActionType from "../enums/ActionType"
-import ActionMapping from "../interfaces/ActionMapping"
+import ActionType from "../enums/InputActionType"
+import ActionMapping from "../interfaces/InputActionMapping"
 
 type ActionMapType = {
   [key in ActionType]?: ActionMapping

@@ -1,10 +1,10 @@
 import { Component, Types } from "ecsy"
 import { ActionMap } from "../maps/ActionMap"
 
-export default class ActionMapData extends Component<any> {
+export default class InputActionMapData extends Component<any> {
   actionMap = ActionMap
 }
 
-ActionMapData.schema = {
+InputActionMapData.schema = {
   data: { type: Types.Ref, default: ActionMap }
 }

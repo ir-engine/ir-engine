@@ -1,34 +1,35 @@
 import { System, Not } from "ecsy"
-import ActionQueue from "../components/ActionQueue"
+import InputActionQueue from "../components/InputActionQueue"
 import Input from "../components/Input"
 import InputReceiver from "../components/InputReceiver"
 
 import { ActionMap } from "../maps/ActionMap"
 import ActionValue from "../interfaces/ActionValue"
-import ActionMapData from "../components/ActionMapData"
-import ActionType from "../enums/ActionType"
+import InputActionMapData from "../components/InputActionMapData"
+import ActionType from "../enums/InputActionType"
 
 export default class ActionSystem extends System {
   // Temp variables
-  private _userInputActionQueue: ActionQueue
+  private _userInputActionQueue: InputActionQueue
   private _actionMap = ActionMap
   private _skip: boolean
 
   public execute(): void {
     this.queries.actionMapData.added.forEach(entity => {
-      this._actionMap = entity.getComponent(ActionMapData).actionMap
+      this._actionMap = entity.getComponent(InputActionMapData).actionMap
     })
     this.queries.userInputActionQueue.changed.forEach(input => {
-      this._userInputActionQueue = input.getMutableComponent(ActionQueue)
+      this._userInputActionQueue = input.getMutableComponent(InputActionQueue)
       this.queries.actionReceivers.results.forEach(receiver => {
-        this.applyInputToListener(this._userInputActionQueue, receiver.getMutableComponent(ActionQueue))
+        receiver.getComponent(InputActionQueue).actions.clear()
+        this.applyInputToListener(this._userInputActionQueue, receiver.getMutableComponent(InputActionQueue))
       })
     })
     // Clear all actions
     if (this._userInputActionQueue) this._userInputActionQueue.actions.clear()
   }
 
-  private validateActions(actionQueue: ActionQueue): void {
+  private validateActions(actionQueue: InputActionQueue): void {
     if (!this._actionMap) return
     const actionQueueArray = actionQueue.actions.toArray()
     for (let i = 0; i < actionQueueArray.length; i++) {
@@ -93,7 +94,7 @@ export default class ActionSystem extends System {
     return false
   }
 
-  private applyInputToListener(userInputActionQueue: ActionQueue, listenerActionQueue: ActionQueue) {
+  private applyInputToListener(userInputActionQueue: InputActionQueue, listenerActionQueue: InputActionQueue) {
     // If action exists, but action state is different, update action state
     userInputActionQueue.actions.toArray().forEach(userInput => {
       this._skip = false
@@ -120,14 +121,14 @@ export default class ActionSystem extends System {
 
 ActionSystem.queries = {
   userInputActionQueue: {
-    components: [ActionQueue, Input],
+    components: [InputActionQueue, Input],
     listen: { added: true, changed: true }
   },
   actionReceivers: {
-    components: [ActionQueue, InputReceiver, Not(Input)]
+    components: [InputActionQueue, InputReceiver, Not(Input)]
   },
   actionMapData: {
-    components: [ActionMapData, Input],
+    components: [InputActionMapData, Input],
     listen: { added: true }
   }
 }

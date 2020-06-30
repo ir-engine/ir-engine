@@ -10,14 +10,14 @@ import GamepadInput from "./components/GamepadInput"
 
 import { isBrowser } from "./utils/IsBrowser"
 import Input from "./components/Input"
-import ActionQueue from "./components/ActionQueue"
+import InputActionQueue from "./components/InputActionQueue"
 import InputReceiver from "./components/InputReceiver"
 import ActionDebugSystem from "./systems/ActionDebugSystem"
 import ActionSystem from "./systems/ActionSystem"
 import AxisSystem from "./systems/AxisSystem"
 import AxisDebugSystem from "./systems/AxisDebugSystem"
-import ActionMapData from "./components/ActionMapData"
-import AxisQueue from "./components/AxisQueue"
+import InputActionMapData from "./components/InputActionMapData"
+import InputAxisQueue from "./components/InputAxisQueue"
 
 const DEFAULT_OPTIONS = {
   mouse: true,
@@ -53,27 +53,27 @@ export function initializeInputSystems(
 
   world
     .registerComponent(Input)
-    .registerComponent(ActionQueue)
-    .registerComponent(AxisQueue)
-    .registerComponent(ActionMapData)
+    .registerComponent(InputActionQueue)
+    .registerComponent(InputAxisQueue)
+    .registerComponent(InputActionMapData)
     .registerComponent(InputReceiver)
 
   const inputSystemEntity = world.createEntity()
   inputSystemEntity
     .addComponent(Input)
-    .addComponent(ActionQueue)
-    .addComponent(AxisQueue)
+    .addComponent(InputActionQueue)
+    .addComponent(InputAxisQueue)
 
   const inputReceiverEntity = world
     .createEntity()
     .addComponent(InputReceiver)
-    .addComponent(ActionQueue)
-    .addComponent(AxisQueue)
-    .addComponent(ActionMapData)
+    .addComponent(InputActionQueue)
+    .addComponent(InputAxisQueue)
+    .addComponent(InputActionMapData)
 
   // Custom Action Map
   if (actionMap) {
-    inputReceiverEntity.getMutableComponent(ActionMapData).actionMap = actionMap
+    inputReceiverEntity.getMutableComponent(InputActionMapData).actionMap = actionMap
   }
 
   if (options.keyboard) {

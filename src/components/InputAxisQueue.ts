@@ -4,10 +4,10 @@ import { Component } from "ecsy"
 import { AxisBuffer } from "../classes/AxisBuffer"
 import AxisBufferType from "../types/AxisBufferType"
 
-export default class AxisQueue extends Component<any> {
+export default class InputAxisQueue extends Component<any> {
   axes: AxisBuffer
 }
 
-AxisQueue.schema = {
+InputAxisQueue.schema = {
   axes: { type: AxisBufferType, default: new AxisBuffer(10) }
 }
