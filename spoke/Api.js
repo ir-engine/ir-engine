@@ -238,11 +238,11 @@ export default class Project extends EventEmitter {
 
     const json = await response.json();
 
-    if (!Array.isArray(json.data)) {
+    if (!Array.isArray(json.projects)) {
       throw new Error(`Error fetching projects: ${json.error || "Unknown error."}`);
     }
 
-    return json.data;
+    return json.projects;
   }
 
   async getProject(projectId) {
@@ -1259,8 +1259,13 @@ export default class Project extends EventEmitter {
     return JSON.parse(localStorage.getItem("spoke-user-info"));
   }
 
-  async fetch(url, options) {
+  async fetch(url, options = {}) {
     try {
+      const token = this.getToken();
+      if (options.headers == null) {
+        options.headers = {}
+      }
+      options.headers.authorization = `Bearer ${token}`
       const res = await fetch(url, options);
       console.log("Response: " + Object.values(res));
 
