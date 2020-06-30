@@ -1,7 +1,7 @@
 import { System, Entity } from "ecsy"
 import KeyboardInput from "../components/KeyboardInput"
 import ActionValues from "../enums/ActionValues"
-import ActionQueue from "../components/ActionQueue"
+import InputActionQueue from "../components/InputActionQueue"
 import Input from "../components/Input"
 
 export default class KeyboardInputSystem extends System {
@@ -32,7 +32,7 @@ export default class KeyboardInputSystem extends System {
     this._kb = entity.getComponent(KeyboardInput)
     if (this._kb.inputMap[key] === undefined) return
     // Add to action queue
-    entity.getMutableComponent(ActionQueue).actions.add({
+    entity.getMutableComponent(InputActionQueue).actions.add({
       action: this._kb.inputMap[key],
       value: value
     })
@@ -41,7 +41,7 @@ export default class KeyboardInputSystem extends System {
 
 KeyboardInputSystem.queries = {
   keyboard: {
-    components: [KeyboardInput, ActionQueue, Input],
+    components: [KeyboardInput, InputActionQueue, Input],
     listen: { added: true, removed: true }
   }
 }

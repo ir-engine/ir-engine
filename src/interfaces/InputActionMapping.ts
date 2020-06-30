@@ -1,4 +1,4 @@
-import ActionType from "../enums/ActionType"
+import ActionType from "../enums/InputActionType"
 
 export default interface ActionMapping {
   opposes?: ActionType[] // Cancel each other out (walk left and right at the same time)

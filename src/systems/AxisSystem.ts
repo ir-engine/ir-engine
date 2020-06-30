@@ -1,26 +1,26 @@
 import { System, Not } from "ecsy"
-import AxisQueue from "../components/AxisQueue"
+import InputAxisQueue from "../components/InputAxisQueue"
 import Input from "../components/Input"
 import InputReceiver from "../components/InputReceiver"
 
 export default class AxisSystem extends System {
   // Temp variables
-  private _userInputAxisQueue: AxisQueue
+  private _userInputAxisQueue: InputAxisQueue
 
   public execute(): void {
     this.queries.userInputAxisQueue.results.forEach(entity => {
-      this._userInputAxisQueue = entity.getMutableComponent(AxisQueue)
+      this._userInputAxisQueue = entity.getMutableComponent(InputAxisQueue)
     })
     // If the queue hasn't been set yet, or the queue length is 0
     if (this._userInputAxisQueue || this._userInputAxisQueue.axes.getSize() < 1) return
     this.queries.axisReceivers.results.forEach(entity => {
-      this.applyInputToListener(this._userInputAxisQueue, entity.getMutableComponent(AxisQueue))
+      this.applyInputToListener(this._userInputAxisQueue, entity.getMutableComponent(InputAxisQueue))
     })
     // Clear all axis
     this._userInputAxisQueue.axes.clear()
   }
 
-  private applyInputToListener(userInputAxisQueue: AxisQueue, listenerAxisQueue: AxisQueue): void {
+  private applyInputToListener(userInputAxisQueue: InputAxisQueue, listenerAxisQueue: InputAxisQueue): void {
     // If axis exists, but axis state is different, update axis state
     userInputAxisQueue.axes.toArray().forEach(userInput => {
       let skip = false
@@ -41,9 +41,9 @@ export default class AxisSystem extends System {
 
 AxisSystem.queries = {
   userInputAxisQueue: {
-    components: [AxisQueue, Input]
+    components: [InputAxisQueue, Input]
   },
   axisReceivers: {
-    components: [AxisQueue, InputReceiver, Not(Input)]
+    components: [InputAxisQueue, InputReceiver, Not(Input)]
   }
 }
