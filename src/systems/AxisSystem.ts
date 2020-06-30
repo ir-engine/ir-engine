@@ -14,6 +14,7 @@ export default class AxisSystem extends System {
     // If the queue hasn't been set yet, or the queue length is 0
     if (this._userInputAxisQueue || this._userInputAxisQueue.axes.getSize() < 1) return
     this.queries.axisReceivers.results.forEach(entity => {
+      entity.getComponent(InputAxisQueue).axes.clear()
       this.applyInputToListener(this._userInputAxisQueue, entity.getMutableComponent(InputAxisQueue))
     })
     // Clear all axis
