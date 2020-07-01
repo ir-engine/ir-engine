@@ -1,5 +1,5 @@
 import { Component, Types } from "ecsy"
-import { ActionMap } from "../maps/ActionMap"
+import { ActionMap } from "../defaults/ActionMap"
 
 export default class InputActionMapData extends Component<any> {
   actionMap = ActionMap

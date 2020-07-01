@@ -1,4 +1,4 @@
-import ActionType from "../enums/InputActionType"
+import ActionType from "../../common/src/action/enums/InputActionType"
 
 export const KeyboardInputMap = {
   w: ActionType.FORWARD,

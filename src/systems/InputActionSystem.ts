@@ -1,16 +1,15 @@
 import { System, Not } from "ecsy"
-import InputActionQueue from "../components/InputActionQueue"
-import Input from "../components/Input"
 import InputReceiver from "../components/InputReceiver"
-
-import { ActionMap } from "../maps/ActionMap"
+import UserInput from "../components/UserInput"
+import { ActionMap } from "../defaults/ActionMap"
 import ActionValue from "../interfaces/ActionValue"
 import InputActionMapData from "../components/InputActionMapData"
-import ActionType from "../enums/InputActionType"
+import ActionType from "../types/ActionType"
+import InputActionHandler from "../components/InputActionHandler"
 
-export default class ActionSystem extends System {
+export default class InputActionSystem extends System {
   // Temp variables
-  private _userInputActionQueue: InputActionQueue
+  private _userInputActionQueue: InputActionHandler
   private _actionMap = ActionMap
   private _skip: boolean
 
@@ -19,36 +18,36 @@ export default class ActionSystem extends System {
       this._actionMap = entity.getComponent(InputActionMapData).actionMap
     })
     this.queries.userInputActionQueue.changed.forEach(input => {
-      this._userInputActionQueue = input.getMutableComponent(InputActionQueue)
+      this._userInputActionQueue = input.getMutableComponent(InputActionHandler)
       this.queries.actionReceivers.results.forEach(receiver => {
-        receiver.getComponent(InputActionQueue).actions.clear()
-        this.applyInputToListener(this._userInputActionQueue, receiver.getMutableComponent(InputActionQueue))
+        receiver.getComponent(InputActionHandler).queue.clear()
+        this.applyInputToListener(this._userInputActionQueue, receiver.getMutableComponent(InputActionHandler))
       })
     })
     // Clear all actions
-    if (this._userInputActionQueue) this._userInputActionQueue.actions.clear()
+    if (this._userInputActionQueue) this._userInputActionQueue.queue.clear()
   }
 
-  private validateActions(actionQueue: InputActionQueue): void {
+  private validateActions(actionHandler: InputActionHandler): void {
     if (!this._actionMap) return
-    const actionQueueArray = actionQueue.actions.toArray()
+    const actionQueueArray = actionHandler.queue.toArray()
     for (let i = 0; i < actionQueueArray.length; i++) {
       for (let k = 0; k < actionQueueArray.length; k++) {
         if (i == k) continue // don't compare to self
 
         // Opposing actions cancel out
         if (this.actionsOpposeEachOther(actionQueueArray, i, k)) {
-          actionQueue.actions.remove(i)
-          actionQueue.actions.remove(k)
+          actionHandler.queue.remove(i)
+          actionHandler.queue.remove(k)
         }
 
         // If action is blocked by another action that overrides and is active, remove this action
         else if (this.actionIsBlockedByAnother(actionQueueArray, i, k)) {
-          actionQueue.actions.remove(i)
+          actionHandler.queue.remove(i)
         }
         // Override actions override
         else if (this.actionOverridesAnother(actionQueueArray, i, k)) {
-          actionQueue.actions.remove(k)
+          actionHandler.queue.remove(k)
         }
       }
     }
@@ -94,11 +93,11 @@ export default class ActionSystem extends System {
     return false
   }
 
-  private applyInputToListener(userInputActionQueue: InputActionQueue, listenerActionQueue: InputActionQueue) {
-    // If action exists, but action state is different, update action state
-    userInputActionQueue.actions.toArray().forEach(userInput => {
+  private applyInputToListener(userInputActionQueue: InputActionHandler, listenerActionQueue: InputActionHandler) {
+    // If action exists, but action state is different, update action InputActionHandler
+    userInputActionQueue.queue.toArray().forEach(userInput => {
       this._skip = false
-      listenerActionQueue.actions.toArray().forEach((listenerAction, listenerIndex) => {
+      listenerActionQueue.queue.toArray().forEach((listenerAction, listenerIndex) => {
         // Skip action since it's already in the listener queue
         if (userInput.action === listenerAction.action && userInput.value === listenerAction.value) {
           this._skip = true
@@ -107,28 +106,28 @@ export default class ActionSystem extends System {
           userInput.value !== listenerAction.value &&
           userInput.value !== undefined
         ) {
-          listenerActionQueue.actions.remove(listenerIndex)
-          listenerActionQueue.actions.add(userInput)
+          listenerActionQueue.queue.remove(listenerIndex)
+          listenerActionQueue.queue.add(userInput)
           this._skip = true
         }
       })
-      if (!this._skip) listenerActionQueue.actions.add(userInput)
+      if (!this._skip) listenerActionQueue.queue.add(userInput)
     })
     // If action exists, but action state is same, do nothing
     this.validateActions(listenerActionQueue)
   }
 }
 
-ActionSystem.queries = {
+InputActionSystem.queries = {
   userInputActionQueue: {
-    components: [InputActionQueue, Input],
+    components: [UserInput, InputActionHandler],
     listen: { added: true, changed: true }
   },
   actionReceivers: {
-    components: [InputActionQueue, InputReceiver, Not(Input)]
+    components: [InputReceiver, InputActionHandler]
   },
   actionMapData: {
-    components: [InputActionMapData, Input],
+    components: [InputActionMapData, UserInput],
     listen: { added: true }
   }
 }

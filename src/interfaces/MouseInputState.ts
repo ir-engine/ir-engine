@@ -1,10 +1,10 @@
-import ActionValues from "../enums/ActionValues"
+import LifecycleValue from "../enums/LifecycleValue"
 
 export interface MouseInputState {
-  mouseButtonLeft: ActionValues
-  mouseButtonMiddle: ActionValues
-  mouseButtonScrollUp: ActionValues
-  mouseButtonScrollDown: ActionValues
-  mouseButtonRight: ActionValues
+  mouseButtonLeft: LifecycleValue
+  mouseButtonMiddle: LifecycleValue
+  mouseButtonScrollUp: LifecycleValue
+  mouseButtonScrollDown: LifecycleValue
+  mouseButtonRight: LifecycleValue
   mousePosition: { x: number; y: number }
 }

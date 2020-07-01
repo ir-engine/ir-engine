@@ -1,10 +1,10 @@
 import { System, Entity } from "ecsy"
 import MouseInput from "../components/MouseInput"
-import ActionValues from "../enums/ActionValues"
-import InputActionQueue from "../components/InputActionQueue"
-import Input from "../components/Input"
-import InputAxisQueue from "../components/InputAxisQueue"
-import AxisType from "../enums/AxisType"
+import LifecycleValue from "../enums/LifecycleValue"
+import InputActionHandler from "../components/InputActionHandler"
+import UserInput from "../components/UserInput"
+import InputAxisHandler from "../components/InputAxisHandler"
+import AxisType from "../types/AxisType"
 
 export default class MouseInputSystem extends System {
   // Temp variables
@@ -18,12 +18,12 @@ export default class MouseInputSystem extends System {
       this._mouse = ent.getMutableComponent(MouseInput)
       document.addEventListener(
         "mousedown",
-        e => (this._mouse.downHandler = this.buttonHandler(e, ent, ActionValues.START)),
+        e => (this._mouse.downHandler = this.buttonHandler(e, ent, LifecycleValue.STARTED)),
         false
       )
       document.addEventListener(
         "mouseup",
-        e => (this._mouse.upHandler = this.buttonHandler(e, ent, ActionValues.END)),
+        e => (this._mouse.upHandler = this.buttonHandler(e, ent, LifecycleValue.ENDED)),
         false
       )
     })
@@ -39,16 +39,16 @@ export default class MouseInputSystem extends System {
   }
 
   private moveHandler = (e: MouseEvent, entity: Entity): void => {
-    entity.getComponent(InputAxisQueue).axes.add({
+    entity.getComponent(InputAxisHandler).queue.add({
       axis: AxisType.SCREENXY,
       value: { x: e.clientX, y: e.clientY }
     })
   }
 
-  private buttonHandler = (e: MouseEvent, entity: Entity, value: ActionValues): void => {
+  private buttonHandler = (e: MouseEvent, entity: Entity, value: LifecycleValue): void => {
     this._mouse = entity.getComponent(MouseInput)
     if (!this._mouse || this._mouse.actionMap[e.button] === undefined) return
-    entity.getMutableComponent(InputActionQueue).actions.add({
+    entity.getMutableComponent(InputActionHandler).queue.add({
       action: this._mouse.actionMap[e.button],
       value: value
     })
@@ -57,14 +57,14 @@ export default class MouseInputSystem extends System {
 
 MouseInputSystem.queries = {
   buttons: {
-    components: [MouseInput, InputActionQueue, Input],
+    components: [MouseInput, InputActionHandler, UserInput],
     listen: {
       added: true,
       removed: true
     }
   },
   axis: {
-    components: [MouseInput, InputAxisQueue, Input],
+    components: [MouseInput, InputAxisHandler, UserInput],
     listen: {
       added: true,
       removed: true
