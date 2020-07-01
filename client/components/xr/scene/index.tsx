@@ -9,6 +9,7 @@ import Player from '../player/player'
 import './style.scss'
 
 import AframeComponentRegisterer from '../aframe/index'
+import AframeInputRegisterer from '../aframe/controls/RegisterAframeInput'
 
 import LandingScene from './landing'
 import VideoGridScene from './videoGrid'
@@ -110,6 +111,7 @@ export default function RootScene (props: Props): any {
     <div style={{ height: '100%', width: '100%' }}>
       <SceneContainer>
         <AframeComponentRegisterer />
+        <AframeInputRegisterer />
         <Assets />
         <Player movementEnabled={playerMovementEnabled} />
         {sceneName !== 'video' &&

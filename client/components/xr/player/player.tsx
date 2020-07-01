@@ -21,6 +21,7 @@ const PlayerComp = (props: PlayerProps) => {
   const userAgent = navigator.userAgent
   const device = deviceDetector.parse(userAgent)
   const devicetype = device.device.type
+  const browser = device.client.name
 
   useEffect(() => {
     setFuse(inVrMode)
@@ -30,6 +31,7 @@ const PlayerComp = (props: PlayerProps) => {
       primitive='a-player'
       fuse-enabled={fuse}
       device-type={devicetype}
+      browser={browser}
       in-vr={inVrMode}
       movement-enabled={props.movementEnabled}
     />
