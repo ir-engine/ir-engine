@@ -1,6 +1,6 @@
 import { Component, Types } from "ecsy"
 import { MouseInputState } from "../interfaces/MouseInputState"
-import { MouseInputActionMap, MouseInputAxisMap } from "../defaults/MouseInputMap"
+import { MouseInputActionMap, MouseInputAxisMap } from "../defaults/DefaultMouseInputMap"
 
 export default class MouseInput extends Component<MouseInputState> {
   actionMap = MouseInputActionMap

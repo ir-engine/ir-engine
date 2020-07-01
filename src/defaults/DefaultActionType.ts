@@ -1,6 +1,4 @@
-import IKeyValueWithDefault from "ecsy-common/src/common/interfaces/IKeyValueWithDefault"
-
-const ActionType: IKeyValueWithDefault = {
+const ActionType = {
   DEFAULT: -1,
   PRIMARY: 0,
   SECONDARY: 1,

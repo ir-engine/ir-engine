@@ -3,16 +3,16 @@ import UserInput from "../components/UserInput"
 import InputAxisHandler from "../components/InputAxisHandler"
 import InputReceiver from "../components/InputReceiver"
 
-export default class AxisSystem extends System {
+export default class InputAxisSystem extends System {
   // Temp variables
   private _userInputAxisQueue: InputAxisHandler
 
   public execute(): void {
-    this.queries.userInputAxisQueue.results.forEach(entity => {
+    this.queries.userInputAxisQueue.added?.forEach(entity => {
       this._userInputAxisQueue = entity.getMutableComponent(InputAxisHandler)
     })
     // If the queue hasn't been set yet, or the queue length is 0
-    if (this._userInputAxisQueue || this._userInputAxisQueue.queue.getSize() < 1) return
+    if (!this._userInputAxisQueue || this._userInputAxisQueue.queue.getSize() < 1) return
     this.queries.axisReceivers.results.forEach(entity => {
       entity.getComponent(InputAxisHandler).queue.clear()
       this.applyInputToListener(this._userInputAxisQueue, entity.getMutableComponent(InputAxisHandler))
@@ -40,7 +40,7 @@ export default class AxisSystem extends System {
   }
 }
 
-AxisSystem.queries = {
+InputAxisSystem.queries = {
   userInputAxisQueue: {
     components: [UserInput, InputAxisHandler]
   },

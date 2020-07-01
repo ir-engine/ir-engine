@@ -1,5 +1,5 @@
-import ActionType from "../defaults/ActionType"
-import AxisType from "../defaults/AxisType"
+import ActionType from "./DefaultActionType"
+import AxisType from "./DefaultAxisType"
 
 export const MouseInputActionMap = {
   0: ActionType.PRIMARY,

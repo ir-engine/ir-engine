@@ -11,7 +11,6 @@
   "dependencies": {
     "@rollup/plugin-typescript": "^5.0.0",
     "ecsy": "^0.3.1",
-    "ecsy-common": "github:xr3ngine/ecsy-common",
     "prettier-eslint": "^11.0.0",
     "rollup-plugin-html-entry": "^0.3.0",
     "rollup-plugin-index-html": "^1.12.4",

@@ -1,5 +1,5 @@
-import IActionMap from "../interfaces/IActionMapping"
-import ActionType from "../../common/src/action/enums/InputActionType"
+import IActionMap from "../interfaces/ActionMapping"
+import ActionType from "./DefaultActionType"
 import ActionMapType from "../types/ActionMapType"
 
 export const ActionMap: ActionMapType = {
