@@ -1,6 +1,6 @@
 import IKeyValueWithDefault from "ecsy-common/src/common/interfaces/IKeyValueWithDefault"
 
-const DefaultActionType: IKeyValueWithDefault = {
+const ActionType: IKeyValueWithDefault = {
   DEFAULT: -1,
   PRIMARY: 0,
   SECONDARY: 1,
@@ -18,4 +18,4 @@ const DefaultActionType: IKeyValueWithDefault = {
   SPRINT: 13
 }
 
-export default DefaultActionType
+export default ActionType
