@@ -4,7 +4,6 @@ import LifecycleValue from "../enums/LifecycleValue"
 import InputActionHandler from "../components/InputActionHandler"
 import UserInput from "../components/UserInput"
 import InputAxisHandler from "../components/InputAxisHandler"
-import AxisType from "../types/AxisType"
 
 export default class MouseInputSystem extends System {
   // Temp variables
@@ -40,7 +39,7 @@ export default class MouseInputSystem extends System {
 
   private moveHandler = (e: MouseEvent, entity: Entity): void => {
     entity.getComponent(InputAxisHandler).queue.add({
-      axis: AxisType.SCREENXY,
+      axis: this._mouse.axisMap.mousePosition,
       value: { x: e.clientX, y: e.clientY }
     })
   }
