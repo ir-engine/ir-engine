@@ -23,6 +23,7 @@ export interface PlayerData {
   nafEnabled: boolean
   fuseEnabled: boolean
   deviceType: string
+  browser: string
   inVr: boolean
   movementEnabled: boolean
   lookEnabled: boolean
@@ -38,25 +39,26 @@ export const PlayerComponentSchema: AFRAME.MultiPropertySchema<PlayerData> = {
   nafEnabled: { default: false },
   fuseEnabled: { default: false },
   deviceType: { default: 'desktop' },
+  browser: { default: '' },
   inVr: { default: false },
   movementEnabled: { default: true },
   lookEnabled: { default: true }
 }
 
 export interface Props {
-  player: Player,
-  controls: PlayerControls,
-  cameraRig: CameraRig,
-  cameraRigEl: AFRAME.Entity | null,
-  playerCameraEl: AFRAME.Entity | null,
-  cameraComponent: CameraComponent,
-  firstUpdate: boolean,
-  initPlayer: () => void,
-  getCursorTypes: () => string[],
-  setControllers: () => void,
-  addHandlers: () => void,
-  removeHandlers: () => void,
-  exitVRHandler: () => void,
+  player: Player
+  controls: PlayerControls
+  cameraRig: CameraRig
+  cameraRigEl: AFRAME.Entity | null
+  playerCameraEl: AFRAME.Entity | null
+  cameraComponent: CameraComponent
+  firstUpdate: boolean
+  initPlayer: () => void
+  getCursorTypes: () => string[]
+  setControllers: () => void
+  addHandlers: () => void
+  removeHandlers: () => void
+  exitVRHandler: () => void
   enterVRHandler: () => void
 }
 
@@ -78,15 +80,15 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
     else this.el.sceneEl?.addEventListener('loaded', this.initPlayer.bind(this))
   },
 
-  play() {
+  play () {
     this.addHandlers()
   },
 
-  pause() {
+  pause () {
     this.removeHandlers()
   },
 
-  update(oldData: PlayerData) {
+  update (oldData: PlayerData) {
     const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
     if (['fuseEnabled', 'deviceType', 'inVr'].some(prop => changedData.includes(prop)) &&
       Object.keys(this.cameraRig).length !== 0) {
@@ -109,7 +111,7 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  initPlayer() {
+  initPlayer () {
     this.el.setAttribute('id', this.data.playerID)
 
     const cursorTypes: string[] = this.getCursorTypes()
@@ -130,7 +132,7 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
     this.el.object3D.position.set(this.el.object3D.position.x, this.data.playerHeight, this.el.object3D.position.z)
   },
 
-  setControllers() {
+  setControllers () {
     if (this.controls) this.controls.teardownControls(this.el)
     const controllers: ControllerComponent[] = []
     if (this.data.lookEnabled) controllers.push(new LookController())
@@ -140,30 +142,30 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
     this.controls.setupControls(this.el)
   },
 
-  getCursorTypes(): string[] {
+  getCursorTypes (): string[] {
     const types = ['mouse']
-    if (this.data.inVr && this.data.deviceType === 'smartphone') types.push('fuse')
+    if (this.data.inVr && this.data.deviceType === 'smartphone' && !this.data.browser.startsWith('Oculus')) types.push('fuse')
     return types
   },
 
-  enterVRHandler() {
+  enterVRHandler () {
     if (this.data.deviceType === 'smartphone') {
       this.el.setAttribute('player', { lookEnabled: false })
       this.el.object3D.position.set(this.el.object3D.position.x, 0, this.el.object3D.position.z)
     }
   },
 
-  exitVRHandler() {
+  exitVRHandler () {
     this.el.object3D.position.set(this.el.object3D.position.x, this.data.playerHeight, this.el.object3D.position.z)
     if (this.data.deviceType === 'smartphone') this.el.setAttribute('player', { lookEnabled: true })
   },
 
-  addHandlers() {
+  addHandlers () {
     this.el.sceneEl?.addEventListener('enter-vr', this.enterVRHandler.bind(this))
     this.el.sceneEl?.addEventListener('exit-vr', this.exitVRHandler.bind(this))
   },
 
-  removeHandlers() {
+  removeHandlers () {
     this.el.sceneEl?.removeEventListener('enter-vr', this.enterVRHandler.bind(this))
     this.el.sceneEl?.removeEventListener('exit-vr', this.exitVRHandler.bind(this))
   }
@@ -175,7 +177,8 @@ const primitiveProperties = [
   'fuseEnabled',
   'deviceType',
   'inVr',
-  'movementEnabled'
+  'movementEnabled',
+  'browser'
 ]
 
 export const PlayerPrimitive: AFRAME.PrimitiveDefinition = {

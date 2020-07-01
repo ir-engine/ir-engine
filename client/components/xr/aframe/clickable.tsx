@@ -124,6 +124,7 @@ export const ClickableComponent: AFRAME.ComponentDefinition<Props> = {
   },
 
   addHandlers: function () {
+    this.el.sceneEl.addEventListener('triggerup', this.clickHandler.bind(this))
     this.el.addEventListener('click', this.clickHandler.bind(this))
     this.el.addEventListener('raycaster-intersected', this.raycasterIntersectedHandler.bind(this))
     this.el.addEventListener('raycaster-intersected-cleared', this.raycasterIntersectedClearedHandler.bind(this))
