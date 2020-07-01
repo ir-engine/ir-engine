@@ -10,10 +10,11 @@ import GamepadInput from "./components/GamepadInput"
 
 import { isBrowser } from "./utils/IsBrowser"
 import UserInput from "./components/UserInput"
-import InputActionReceiver from "./components/InputActionHandler"
+import InputActionHandler from "./components/InputActionHandler"
+import InputAxisHandler from "./components/InputAxisHandler"
 import InputDebugSystem from "./systems/InputDebugSystem"
 import InputActionSystem from "./systems/InputActionSystem"
-import AxisSystem from "./systems/InputAxisSystem"
+import InputAxisSystem from "./systems/InputAxisSystem"
 import InputActionMapData from "./components/InputActionMapData"
 import InputReceiver from "./components/InputReceiver"
 
@@ -43,27 +44,35 @@ export function initializeInputSystems(
     console.log(options)
   }
 
-  world.registerSystem(InputActionSystem).registerSystem(AxisSystem)
+  world.registerSystem(InputActionSystem).registerSystem(InputAxisSystem)
 
   world
     .registerComponent(UserInput)
-    .registerComponent(InputActionReceiver)
+    .registerComponent(InputActionHandler)
+    .registerComponent(InputAxisHandler)
     .registerComponent(InputReceiver)
     .registerComponent(InputActionMapData)
     .registerComponent(UserInput)
 
-  const inputSystemEntity = world.createEntity()
-  inputSystemEntity
+  if (options.keyboard) world.registerSystem(KeyboardInputSystem).registerComponent(KeyboardInput)
+  if (options.mouse) world.registerSystem(MouseInputSystem).registerComponent(MouseInput)
+  if (options.gamepad) world.registerSystem(GamepadInputSystem).registerComponent(GamepadInput)
+  // TODO: VR, Mobile
+
+  const inputSystemEntity = world
+    .createEntity()
     .addComponent(UserInput)
-    .addComponent(InputActionReceiver)
+    .addComponent(InputActionHandler)
+    .addComponent(InputAxisHandler)
+    .addComponent(InputActionMapData)
     .addComponent(InputReceiver)
 
   const inputReceiverEntity = world
     .createEntity()
-    .addComponent(UserInput)
-    .addComponent(InputActionReceiver)
     .addComponent(InputReceiver)
+    .addComponent(InputActionHandler)
     .addComponent(InputActionMapData)
+    .addComponent(InputAxisHandler)
 
   // Custom Action Map
   if (actionMap) {
@@ -71,18 +80,14 @@ export function initializeInputSystems(
   }
 
   if (options.keyboard) {
-    world.registerComponent(KeyboardInput).registerSystem(KeyboardInputSystem, null)
     inputSystemEntity.addComponent(KeyboardInput)
-
     if (keyboardInputMap) {
       inputSystemEntity.getMutableComponent(KeyboardInput).inputMap = keyboardInputMap
     }
-
     console.log("Registered KeyboardInputSystem and added KeyboardInput component to input entity")
   }
 
   if (options.mouse) {
-    world.registerComponent(MouseInput).registerSystem(MouseInputSystem, null)
     inputSystemEntity.addComponent(MouseInput)
 
     if (mouseInputMap) {
@@ -93,7 +98,6 @@ export function initializeInputSystems(
   }
 
   if (options.gamepad) {
-    world.registerComponent(GamepadInput).registerSystem(GamepadInputSystem, null)
     inputSystemEntity.addComponent(GamepadInput)
     // TODO: Initialize with user mappings
     if (options.debug) console.log("Registered GamepadInputSystem and added MouseInput component to input entity")

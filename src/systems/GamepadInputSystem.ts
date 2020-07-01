@@ -18,18 +18,17 @@ export default class GamepadInputSystem extends System {
       if (gp.connected) {
         const gamepads = navigator.getGamepads()
         for (let i = 0; i < gamepads.length; i++) {
-          if (gamepads[i].axes && gamepads[i].axes.length >= 2) {
-            // X Axis
-            if (gamepads[i].axes[0] < -gp.axis_threshold || gamepads[i].axes[0] > gp.axis_threshold) {
-              if (i == 0) gp.dpadOneAxisX = gamepads[i].axes[0]
-              else if (i == 1) gp.dpadTwoAxisX = gamepads[i].axes[0]
-            }
-
-            if (gamepads[i].axes[1] < -gp.axis_threshold || gamepads[i].axes[1] > gp.axis_threshold) {
-              if (i == 0) gp.dpadOneAxisY = gamepads[i].axes[1]
-              else if (i == 1) gp.dpadTwoAxisY = gamepads[i].axes[1]
-            }
-          }
+          // if (gamepads[i].axes && gamepads[i].axes.length >= 2) {
+          //   // X Axis
+          //   if (gamepads[i].axes[0] < -gp.threshold || gamepads[i].axes[0] > gp.threshold) {
+          //     if (i == 0) gp.dpadOneAxisX = gamepads[i].axes[0]
+          //     else if (i == 1) gp.dpadTwoAxisX = gamepads[i].axes[0]
+          //   }
+          //   if (gamepads[i].axes[1] < -gp.threshold || gamepads[i].axes[1] > gp.threshold) {
+          //     if (i == 0) gp.dpadOneAxisY = gamepads[i].axes[1]
+          //     else if (i == 1) gp.dpadTwoAxisY = gamepads[i].axes[1]
+          //   }
+          // }
         }
       }
     })

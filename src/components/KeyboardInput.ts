@@ -1,5 +1,5 @@
 import { Component, Types } from "ecsy"
-import { KeyboardInputMap } from "../defaults/KeyboardInputMap"
+import { KeyboardInputMap } from "../defaults/DefaultKeyboardInputMap"
 
 export default class KeyboardInput extends Component<any> {
   inputMap = KeyboardInputMap

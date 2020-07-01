@@ -1,6 +1,6 @@
 import { Component, createType, copyCopyable, cloneClonable } from "ecsy"
 import ActionType from "../types/ActionType"
-import { RingBuffer } from "../classes/RingBuffer"
+import RingBuffer from "../classes/RingBuffer"
 import ActionValue from "../interfaces/ActionValue"
 
 export default interface InputActionProps {
@@ -9,7 +9,7 @@ export default interface InputActionProps {
 }
 
 export default class InputActionHandler extends Component<InputActionProps> {
-  queue: RingBuffer<ActionValue>
+  queue: RingBuffer<ActionValue> = new RingBuffer<ActionValue>(10)
   schema = {
     queue: { type: ActionBufferType }
   }
