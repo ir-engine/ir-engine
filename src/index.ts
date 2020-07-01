@@ -9,15 +9,15 @@ import KeyboardInput from "./components/KeyboardInput"
 import GamepadInput from "./components/GamepadInput"
 
 import { isBrowser } from "./utils/IsBrowser"
-import Input from "./components/Input"
-import InputActionQueue from "./components/InputActionQueue"
-import InputReceiver from "./components/InputReceiver"
-import ActionDebugSystem from "./systems/ActionDebugSystem"
-import ActionSystem from "./systems/ActionSystem"
-import AxisSystem from "./systems/AxisSystem"
+import UserInput from "./components/UserInput"
+import InputActionReceiver from "./components/InputActionHandler"
+import UserInput from "./components/UserInput"
+import InputDebugSystem from "./systems/InputDebugSystem"
+import InputActionSystem from "./systems/InputActionSystem"
+import AxisSystem from "./systems/InputAxisSystem"
 import AxisDebugSystem from "./systems/AxisDebugSystem"
 import InputActionMapData from "./components/InputActionMapData"
-import InputAxisQueue from "./components/InputAxisQueue"
+import InputAxisReceiver from "./components/InputAxisReceiver"
 
 const DEFAULT_OPTIONS = {
   mouse: true,
@@ -45,30 +45,30 @@ export function initializeInputSystems(
     console.log(options)
   }
 
-  world.registerSystem(ActionSystem).registerSystem(AxisSystem)
+  world.registerSystem(InputActionSystem).registerSystem(AxisSystem)
 
   if (options.debug) {
-    world.registerSystem(ActionDebugSystem).registerSystem(AxisDebugSystem)
+    world.registerSystem(InputDebugSystem).registerSystem(AxisDebugSystem)
   }
 
   world
-    .registerComponent(Input)
-    .registerComponent(InputActionQueue)
-    .registerComponent(InputAxisQueue)
+    .registerComponent(UserInput)
+    .registerComponent(InputActionReceiver)
+    .registerComponent(InputAxisReceiver)
     .registerComponent(InputActionMapData)
-    .registerComponent(InputReceiver)
+    .registerComponent(UserInput)
 
   const inputSystemEntity = world.createEntity()
   inputSystemEntity
-    .addComponent(Input)
-    .addComponent(InputActionQueue)
-    .addComponent(InputAxisQueue)
+    .addComponent(UserInput)
+    .addComponent(InputActionReceiver)
+    .addComponent(InputAxisReceiver)
 
   const inputReceiverEntity = world
     .createEntity()
-    .addComponent(InputReceiver)
-    .addComponent(InputActionQueue)
-    .addComponent(InputAxisQueue)
+    .addComponent(UserInput)
+    .addComponent(InputActionReceiver)
+    .addComponent(InputAxisReceiver)
     .addComponent(InputActionMapData)
 
   // Custom Action Map

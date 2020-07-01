@@ -1,8 +1,8 @@
 import { System, Entity } from "ecsy"
 import KeyboardInput from "../components/KeyboardInput"
-import ActionValues from "../enums/ActionValues"
-import InputActionQueue from "../components/InputActionQueue"
-import Input from "../components/Input"
+import LifecycleValue from "../enums/LifecycleValue"
+import InputActionHandler from "../components/InputActionHandler"
+import UserInput from "../components/UserInput"
 
 export default class KeyboardInputSystem extends System {
   // Temp variables
@@ -12,27 +12,27 @@ export default class KeyboardInputSystem extends System {
     // Query for user action queue
     this.queries.keyboard.added.forEach(entity => {
       document.addEventListener("keydown", (e: KeyboardEvent) => {
-        this.mapKeyToAction(entity, e.key, ActionValues.START)
+        this.mapKeyToAction(entity, e.key, LifecycleValue.STARTED)
       })
       document.addEventListener("keyup", (e: KeyboardEvent) => {
-        this.mapKeyToAction(entity, e.key, ActionValues.END)
+        this.mapKeyToAction(entity, e.key, LifecycleValue.ENDED)
       })
     })
     this.queries.keyboard.removed.forEach(entity => {
       document.removeEventListener("keydown", (e: KeyboardEvent) => {
-        this.mapKeyToAction(entity, e.key, ActionValues.START)
+        this.mapKeyToAction(entity, e.key, LifecycleValue.STARTED)
       })
       document.removeEventListener("keyup", (e: KeyboardEvent) => {
-        this.mapKeyToAction(entity, e.key, ActionValues.END)
+        this.mapKeyToAction(entity, e.key, LifecycleValue.ENDED)
       })
     })
   }
 
-  mapKeyToAction(entity: Entity, key: string, value: ActionValues): any {
+  mapKeyToAction(entity: Entity, key: string, value: LifecycleValue): any {
     this._kb = entity.getComponent(KeyboardInput)
     if (this._kb.inputMap[key] === undefined) return
     // Add to action queue
-    entity.getMutableComponent(InputActionQueue).actions.add({
+    entity.getMutableComponent(InputActionHandler).queue.add({
       action: this._kb.inputMap[key],
       value: value
     })
@@ -41,7 +41,7 @@ export default class KeyboardInputSystem extends System {
 
 KeyboardInputSystem.queries = {
   keyboard: {
-    components: [KeyboardInput, InputActionQueue, Input],
+    components: [KeyboardInput, InputActionHandler, UserInput],
     listen: { added: true, removed: true }
   }
 }

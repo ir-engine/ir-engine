@@ -1,7 +1,7 @@
-import ActionType from "../enums/InputActionType"
-import ActionValues from "../enums/ActionValues"
+import ActionType from "../types/ActionType"
+import LifecycleValue from "../enums/LifecycleValue"
 
 export default interface ActionValue {
   action: ActionType
-  value: ActionValues
+  value: LifecycleValue
 }
