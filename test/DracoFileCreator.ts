@@ -1,3 +1,16 @@
-// import DracoFileCreator from '../src/DracoFileCreator'
+import DracoFileCreator from "../src/Dracosis/Encoder";
+import * as THREE from "three";
 
-// const dracoFileCreator = new DracoFileCreator('obj', '')
+var callback = function () {
+  console.log("Conversion complete");
+};
+var renderer = new THREE.WebGLRenderer();
+var dracoFileCreator = new DracoFileCreator(
+  renderer,
+  "obj",
+  "jpg",
+  1,
+  4,
+  "final",
+  callback
+);
