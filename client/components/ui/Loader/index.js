@@ -1,3 +1,3 @@
-import Loader from './SpaceLoader'
+import Loader from './MulticolorsLoader'
 
 export default Loader

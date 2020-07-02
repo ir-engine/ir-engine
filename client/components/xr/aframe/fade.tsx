@@ -4,10 +4,10 @@ import PropertyMapper from './ComponentUtils'
 export const ComponentName = 'fade'
 
 export interface Data {
-  [key: string]: any,
-  fadeInEvent: string,
-  fadeOutEvent: string,
-  dur: number,
+  [key: string]: any
+  fadeInEvent: string
+  fadeOutEvent: string
+  dur: number
   animate: boolean
 }
 
@@ -19,17 +19,17 @@ export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
 }
 
 export interface Props {
-  initSomething: () => void,
-  addHandlers: () => void,
-  removeHandlers: () => void,
-  aHandler: () => void,
-  gatherMeshes: (object3D: THREE.Object3D) => THREE.Mesh[],
-  createOpacityMap: (meshes: THREE.Mesh[]) => Map<any, any>,
-  map: Map<any, any>,
-  meshes: THREE.Mesh[],
-  animateFadeOutPromise: () => Promise<any>,
-  animateFadeInPromise: () => Promise<any>,
-  fadeOutPromise: Promise<any>,
+  initSomething: () => void
+  addHandlers: () => void
+  removeHandlers: () => void
+  aHandler: () => void
+  gatherMeshes: (object3D: THREE.Object3D) => THREE.Mesh[]
+  createOpacityMap: (meshes: THREE.Mesh[]) => Map<any, any>
+  map: Map<any, any>
+  meshes: THREE.Mesh[]
+  animateFadeOutPromise: () => Promise<any>
+  animateFadeInPromise: () => Promise<any>
+  fadeOutPromise: Promise<any>
   fadeInPromise: Promise<any>
 }
 
@@ -48,15 +48,15 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     else this.el.sceneEl?.addEventListener('loaded', this.initSomething.bind(this))
   },
 
-  play() {
+  play () {
     this.addHandlers()
   },
 
-  pause() {
+  pause () {
     this.removeHandlers()
   },
 
-  update(oldData: Data) {
+  update (oldData: Data) {
     const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
     if (changedData.includes('someData')) {
       // update something
@@ -67,10 +67,10 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  initSomething() {
+  initSomething () {
   },
 
-  gatherMeshes(object3D) {
+  gatherMeshes (object3D) {
     const self = this
     const meshes = []
     if (object3D.type === 'Mesh') { return [object3D] }
@@ -90,7 +90,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     return meshes
   },
 
-  createOpacityMap(meshes) {
+  createOpacityMap (meshes) {
     const map = new Map()
     meshes.forEach(mesh => {
       const opacity = (mesh.material as THREE.MeshBasicMaterial).opacity
@@ -100,7 +100,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     return map
   },
 
-  async animateFadeOutPromise() {
+  async animateFadeOutPromise () {
     const self = this
     const el = this.el
 
@@ -124,10 +124,10 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
               easing: 'linear',
               opacity: 0,
               duration: self.data.dur * 1000,
-              begin: function() {
+              begin: function () {
                 mesh.material.transparent = true
               },
-              complete: function() {
+              complete: function () {
                 mesh.visible = false
                 mesh.updateMatrix()
                 mesh.updateMatrixWorld()
@@ -146,7 +146,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
             targets: el,
             easing: 'linear',
             duration: self.data.dur * 1000,
-            complete: function() {
+            complete: function () {
               resolve()
             }
           })
@@ -165,7 +165,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     return promise
   },
 
-  async animateFadeInPromise() {
+  async animateFadeInPromise () {
     const self = this
     const el = self.el
 
@@ -187,10 +187,10 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
               easing: 'linear',
               opacity: !!self.map && self.map.has(mesh) ? self.map.get(mesh).opacity : 1,
               duration: self.data.dur * 1000,
-              begin: function() {
+              begin: function () {
                 mesh.visible = true
               },
-              complete: function() {
+              complete: function () {
                 mesh.material.transparent = !!self.map && self.map.has(mesh)
                   ? self.map.get(mesh).transparency : false
                 resolve()
@@ -207,7 +207,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
             targets: el,
             easing: 'linear',
             duration: self.data.dur * 1000,
-            complete: function() {
+            complete: function () {
               resolve()
             }
           })
@@ -226,16 +226,16 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     return promise
   },
 
-  aHandler() {
+  aHandler () {
 
   },
 
-  addHandlers: function() {
+  addHandlers: function () {
     this.el.addEventListener(this.data.fadeInEvent, this.animateFadeInPromise.bind(this))
     this.el.addEventListener(this.data.fadeOutEvent, this.animateFadeOutPromise.bind(this))
   },
 
-  removeHandlers: function() {
+  removeHandlers: function () {
     this.el.removeEventListener('an-event', this.aHandler)
   }
 

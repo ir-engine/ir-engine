@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-plus-operands */
 import AFRAME from 'aframe'
 import PropertyMapper from './ComponentUtils'
 // import store from '../../../redux/store'
@@ -7,7 +8,7 @@ export const ComponentName = 'media-cell'
 export interface MediaCellSystemData {
 }
 export interface MediaCellSystemProps {
-  getSource: (m:any) => string
+  getSource: (m: any) => string
 }
 export const MediaCellSystemSchema: AFRAME.Schema<MediaCellSystemData> = {
 }
@@ -20,47 +21,51 @@ export const MediaCellSystemDef: AFRAME.SystemDefinition<MediaCellSystemProps> =
   init () {
   },
 
-  play() {
+  play () {
   },
 
-  pause() {
+  pause () {
   },
-  getSource(media:any): string {
+  getSource (media: any): string {
     return media.thumbnailUrl && media.thumbnailUrl.length > 0 ? media.thumbnailUrl : '#placeholder'
   }
 }
 
 export interface MediaCellData {
-  [key: string]: any,
-  active: boolean,
-  cellHeight?: number
-  cellWidth?: number
-  cellContentHeight?: number
+  [key: string]: any
+  active: boolean
+  contentWidth?: number
+  contentHeight?: number
+  borderSize?: number
   // TODO : media type
-  originalTitle: string,
-  title: string,
-  description: string,
-  url: string,
-  thumbnailType: string,
-  thumbnailUrl: string,
-  productionCredit: string,
-  rating: string,
-  categories: string[],
-  runtime: string,
-  tags: string[],
-  mediatype: string,
-  linktype: string,
-  sceneLinkPrefix: string,
-  videoformat: string,
-  clickable: boolean,
+  originalTitle: string
+  title: string
+  description: string
+  url: string
+  thumbnailType: string
+  thumbnailUrl: string
+  productionCredit: string
+  rating: string
+  categories: string[]
+  runtime: string
+  tags: string[]
+  mediatype: string
+  linktype: string
+  sceneLinkPrefix: string
+  videoformat: string
+  clickable: boolean
   linkEnabled: boolean
+  highLight: boolean
+  borderColor: number
+  hoverColor: number
+  activeColor: number
 }
 
 export const MediaCellComponentSchema: AFRAME.MultiPropertySchema<MediaCellData> = {
   active: { default: true },
-  cellHeight: { default: 0.6 },
-  cellWidth: { default: 1 },
-  cellContentHeight: { default: 0.5 },
+  contentWidth: { default: 1 },
+  contentHeight: { default: 0.5 },
+  borderSize: { default: 0 },
   originalTitle: { default: '' },
   title: { default: '' },
   description: { default: '' },
@@ -77,14 +82,19 @@ export const MediaCellComponentSchema: AFRAME.MultiPropertySchema<MediaCellData>
   sceneLinkPrefix: { default: 'vrRoom' },
   videoformat: { default: 'eac' },
   clickable: { default: true },
-  linkEnabled: { default: true }
+  linkEnabled: { default: true },
+  highLight: { default: false },
+  borderColor: { default: 0x484848 },
+  hoverColor: { default: 0x04FF5F },
+  activeColor: { default: 0xFFD704 }
 }
 
 export interface MediaCellProps {
-  initCell: () => void,
-  initCellCB: () => void,
-  createCell: () => AFRAME.Entity,
+  initCell: () => void
+  initCellCB: () => void
+  createCell: () => AFRAME.Entity
   enableLink: (el: any) => void
+  cellInialized: boolean
 }
 
 export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
@@ -92,17 +102,19 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
   data: {
   } as MediaCellData,
 
+  cellInialized: false,
+
   init () {
     this.initCellCB()
   },
 
-  play() {
+  play () {
   },
 
-  pause() {
+  pause () {
   },
 
-  update(oldData: MediaCellData) {
+  update (oldData: MediaCellData) {
     const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
     if (changedData.includes('active')) {
       this.el.setAttribute('grid-cell', { active: this.data.active })
@@ -110,7 +122,7 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
         this.initCellCB()
       } else {
         while (this.el.firstChild) {
-          this.el.removeChild((this.el as any).lastChild)
+          this.el.removeChild((this.el).lastChild)
         }
       }
     }
@@ -118,20 +130,23 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
 
   initCellCB () {
     if (this.el.sceneEl?.hasLoaded) this.initCell()
-    else this.el.sceneEl?.addEventListener('loaded', this.initCell.bind(this))
+    else this.el.sceneEl?.addEventListener('loaded', this.initCell.bind(this), { once: true })
   },
 
-  initCell() {
-    const active = (this.el.components['grid-cell'] as any).data.active
+  initCell () {
+    if (this.cellInialized) return
+    const active = (this.el.components['grid-cell']).data.active
     if (active) this.el.appendChild(this.createCell())
+    this.cellInialized = true
   },
 
-  createCell() {
+  createCell () {
     switch (this.data.thumbnailType) {
       case 'model': {
         const objEl = document.createElement('a-gltf-model')
         const source = (this.system as AFRAME.SystemDefinition<MediaCellSystemProps>).getSource(this.data)
         objEl.setAttribute('src', source)
+        if (this.data.id !== '') objEl.setAttribute('id', this.data.id + '-media')
         if (this.data.clickable) objEl.classList.add('clickable')
 
         if (this.data.linkEnabled) this.enableLink(objEl)
@@ -141,10 +156,21 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
       case 'image': {
         const imageEl = document.createElement('a-image')
         const source = (this.system as AFRAME.SystemDefinition<MediaCellSystemProps>).getSource(this.data)
+        if (this.data.id !== '') imageEl.setAttribute('id', this.data.id + '-media')
         imageEl.setAttribute('src', source)
-        imageEl.setAttribute('width', this.data.cellWidth)
-        imageEl.setAttribute('height', this.data.cellContentHeight)
+        imageEl.setAttribute('width', this.data.contentWidth)
+        imageEl.setAttribute('height', this.data.contentHeight)
         imageEl.setAttribute('side', 'double')
+        if (this.data.highLight) {
+          imageEl.setAttribute('highlight', {
+            type: 'border',
+            createborder: true,
+            bordersize: (this.data.borderSize / this.data.contentWidth),
+            color: this.data.backgroundColor,
+            hoverColor: this.data.hoverColor,
+            activeColor: this.data.activeColor
+          })
+        }
         if (this.data.clickable) imageEl.classList.add('clickable')
         if (this.data.linkEnabled) this.enableLink(imageEl)
 
@@ -156,7 +182,7 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
     }
   },
 
-  enableLink(el: any) {
+  enableLink (el: any) {
     if (this.data.clickable) el.classList.add('clickable')
     let url: string
     switch (this.data.linktype) {
@@ -197,9 +223,9 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
 
 const primitiveProps = [
   'id',
-  'cellHeight',
-  'cellWidth',
-  'cellContentHeight',
+  'contentWidth',
+  'contentHeight',
+  'borderSize',
   'originalTitle',
   'title',
   'description',
@@ -215,7 +241,11 @@ const primitiveProps = [
   'videoformat',
   'clickable',
   'linkEnabled',
-  'thumbnailType'
+  'thumbnailType',
+  'highLight',
+  'borderColor',
+  'hoverColor',
+  'activeColor'
 ]
 export const MediaCellPrimitive: AFRAME.PrimitiveDefinition = {
   defaultComponents: {

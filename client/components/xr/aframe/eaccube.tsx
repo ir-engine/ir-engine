@@ -8,22 +8,22 @@ const THREE = AFRAME.THREE
 export const ComponentName = 'eaccube'
 
 export interface EaccubeComponentProps {
-  setSrc: (src: HTMLVideoElement | HTMLImageElement) => void,
-  updateUV: () => void,
-  cropTileX: number,
-  cropTileY: number,
-  srcReadyListener: () => void,
-  onSrcReady: () => void,
+  setSrc: (src: HTMLVideoElement | HTMLImageElement) => void
+  updateUV: () => void
+  cropTileX: number
+  cropTileY: number
+  srcReadyListener: () => void
+  onSrcReady: () => void
   unsetSrc: (src: HTMLVideoElement | HTMLImageElement) => void
 }
 
 export interface EaccubeComponentData {
-  src: HTMLVideoElement | HTMLImageElement,
-  tileOrder: string,
-  tileRotation: string,
-  tileFlip: string,
-  size: number,
-  cropTileXBase: number,
+  src: HTMLVideoElement | HTMLImageElement
+  tileOrder: string
+  tileRotation: string
+  tileFlip: string
+  size: number
+  cropTileXBase: number
   cropTileYBase: number
 }
 
@@ -63,7 +63,7 @@ export const EaccubeComponentSchema: AFRAME.MultiPropertySchema<EaccubeComponent
   cropTileYBase: { type: 'number', default: 0 }
 }
 
-function generateEACUV(tileOrder: string[], tileRotation: string[], tileFlip: string[], cropX: number, cropY: number): number[] {
+function generateEACUV (tileOrder: string[], tileRotation: string[], tileFlip: string[], cropX: number, cropY: number): number[] {
   const cubeFaceCoords: number[][] = []
   const rows = 2
   const cols = 3
@@ -154,7 +154,7 @@ const rotateFaceCoord = (faceCoord: number[], rotation: string) => {
   }
   return faceCoord
 }
-function cropFaceBorders(faceCoord: number[], cropX: number, cropY: number) {
+function cropFaceBorders (faceCoord: number[], cropX: number, cropY: number) {
   return [
     faceCoord[0] + cropX, faceCoord[1] - cropY,
     faceCoord[2] + cropX, faceCoord[3] + cropY,
@@ -171,7 +171,7 @@ export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps>
   cropTileY: 0,
   srcReadyListener: () => null,
 
-  init() {
+  init () {
     this.srcReadyListener = this.onSrcReady.bind(this)
 
     this.el.setAttribute('geometry', {
@@ -198,7 +198,7 @@ export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps>
     mesh.rotation.y = Math.PI / 2
   },
 
-  update(oldData) {
+  update (oldData) {
     if (this.data.src !== oldData.src) {
       this.unsetSrc(oldData.src)
       this.setSrc(this.data.src)
@@ -212,7 +212,11 @@ export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps>
     }
   },
 
-  setSrc(src: HTMLVideoElement | HTMLImageElement) {
+  remove () {
+    this.unsetSrc(this.data.src)
+  },
+
+  setSrc (src: HTMLVideoElement | HTMLImageElement) {
     this.el.setAttribute('material', {
       src
     })
@@ -226,7 +230,7 @@ export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps>
     }
   },
 
-  updateUV() {
+  updateUV () {
     const mesh = this.el.getObject3D('mesh') as THREE.Mesh
     const geometry = mesh.geometry as THREE.BufferGeometry
     const uv = geometry.attributes.uv as THREE.BufferAttribute
@@ -242,7 +246,7 @@ export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps>
     uv.needsUpdate = true
   },
 
-  unsetSrc(src: HTMLVideoElement | HTMLImageElement) {
+  unsetSrc (src: HTMLVideoElement | HTMLImageElement) {
     if (!src) {
       return
     }
@@ -254,7 +258,7 @@ export const EaccubeComponent: AFRAME.ComponentDefinition<EaccubeComponentProps>
     }
   },
 
-  onSrcReady() {
+  onSrcReady () {
     let srcWidth, srcHeight
     const src = this.data.src
     if (src.tagName === 'VIDEO') {
@@ -301,8 +305,8 @@ const ComponentSystem = {
   shader: EaccubeShader
 }
 
-function clamp ( value, min, max ) {
-  return Math.max( min, Math.min( max, value ) );
+function clamp (value, min, max) {
+  return Math.max(min, Math.min(max, value))
 }
 
 export default ComponentSystem

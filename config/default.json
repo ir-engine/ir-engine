@@ -5,6 +5,11 @@
     "loginDisabled": false,
     "logo": "./logo.svg",
     "xr": {
+      "style": {
+        "borderColor": "0x131313",
+        "hoverColor": "0x04004E",
+        "activeColor": "0xB64800"
+      },
       "enterVRbuttonSrc": "",
       "networked-scene": {
         "app": "xrengine",
@@ -78,9 +83,10 @@
         "name": "vrRoomGrid",
         "src": "",
         "link": "/vrRoomGrid",
-        "cellWidth": 1,
-        "cellContentHeight": 1,
-        "cellHeight": 1.1,
+        "contentWidth": 1,
+        "contentHeight": 1,
+        "borderSize": 0.1,
+        "cellMargin": 0.1,
         "offset": {
           "x": 0,
           "y": 1.4,
@@ -101,9 +107,15 @@
         "link": "/video",
         "rows": 3,
         "columns": 5,
-        "cellWidth": 1,
-        "cellContentHeight": 1,
-        "cellHeight": 1.1,
+        "contentWidth": 1,
+        "contentHeight": 1,
+        "borderSize": 0.1,
+        "cellMargin": 0.1,
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
         "offset": {
           "x": 0,
           "y": 1.4,
@@ -117,6 +129,10 @@
         "comingSoon": {
           "enabled": false,
           "src": ""
+        },
+        "scene-gltf": {
+          "src": "",
+          "name": ""
         }
       },
       "spoke": {

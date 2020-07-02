@@ -3,6 +3,7 @@ $seeker-height: 20px;
 $bottom-distance: 0px;
 $button-gap: 8px;
 $icon-size: 36px;
+$left-position: 0px;
 
 .seek-bar-container {
     width: calc(100vw - #{$seeker-margin} * 2);
@@ -11,6 +12,7 @@ $icon-size: 36px;
     margin: $seeker-margin;
     margin-bottom: 0;
     z-index: 800;
+    left: $left-position;
     .seek-bar {
         height: $seeker-height;
         position: absolute;
@@ -40,6 +42,7 @@ $icon-size: 36px;
     margin-bottom: 0;// calc(#{$seeker-margin} - (41px / 2) - (#{$seeker-height} / 2) - 1px);
     margin-left: $icon-size;
     position: fixed;
+    left: $left-position;
     bottom: $seeker-height+$bottom-distance;
     z-index: 800;
     svg, img {
@@ -53,10 +56,12 @@ $icon-size: 36px;
     margin-left: #{$button-gap};// calc(#{$seeker-margin} - ($icon-size * 2) - (#{$button-gap} * 2));
     bottom: $seeker-height+$bottom-distance+$icon-size+($button-gap*2);
     z-index: 1000100; // click to play overlay has massive z index
+    position: fixed;
 }
 .play-controls {
     margin-left: $button-gap;
     margin-bottom: $button-gap;
+    position: fixed;
 }
 .time-remaining-text {
     position: fixed;

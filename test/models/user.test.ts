@@ -62,7 +62,7 @@ describe('CRUD operation on \'User\' model', () => {
     const deleteUser = await model.destroy({
       where: { userRole: 'testrole' }
     })
-    expect(deleteUser).toBe(1)
+    expect(deleteUser).toBeGreaterThan(0)
   })
 
   afterAll(async () => {

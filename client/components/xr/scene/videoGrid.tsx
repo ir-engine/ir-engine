@@ -12,17 +12,31 @@ import { fetchPublicVideos } from '../../../redux/video/service'
 
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr.videoGrid
+const style = getConfig().publicRuntimeConfig.xr.style
+const borderColor = Number(style.borderColor)
+const hoverColor = Number(style.hoverColor)
+const activeColor = Number(style.activeColor)
 
-const cellHeight = config.cellHeight
-const cellContentHeight = config.cellContentHeight
-const cellWidth = config.cellWidth
-const rows = config.rows
-const columns = config.columns
+const contentHeight: number = config.contentHeight
+const contentWidth: number = config.contentWidth
+const borderSize: number = config.borderSize
+const cellMargin: number = config.cellMargin
+
+const cellHeight: number = contentHeight + borderSize + cellMargin
+const cellWidth: number = contentWidth + borderSize + cellMargin
+
+const rows: number = config.rows
+const columns: number = config.columns
 
 const x: number = config.offset.x
 const y: number = config.offset.y
 const z: number = config.offset.z
 const pos = `${x} ${y} ${z}`
+
+const sx: number = config.scale.x
+const sy: number = config.scale.y
+const sz: number = config.scale.z
+const scale = `${sx} ${sy} ${sz}`
 
 const fx: number = config.focusedOffset.x
 const fy: number = config.focusedOffset.y
@@ -79,7 +93,7 @@ const VideoGridScene = (props: VideoProps): any => {
         videoformat: (focusCellEl.attributes).videoformat?.value,
         mediaUrl: (focusCellEl.attributes)['media-url'].value,
         thumbnailUrl: (focusCellEl.attributes)['thumbnail-url'].value,
-        productionCredit: (focusCellEl.attributes)['production-credit'].value,
+        productionCredit: (focusCellEl.attributes)['production-credit']?.value,
         rating: (focusCellEl.attributes).rating?.value,
         categories: (focusCellEl.attributes).categories?.value,
         runtime: (focusCellEl.attributes).runtime.value
@@ -130,8 +144,15 @@ const VideoGridScene = (props: VideoProps): any => {
   // grid entity doesn't adapt to changes in children.length, so only place grid when there are videos so the right pagination shows
   // TODO: possible more robust solution is use MutationObserver to look for changes in children of grid el
   return (
-    <Entity position={pos}>
-      { videosArr.length && videoGridState.focusedCellEl === null &&
+    <Entity>
+      <Entity
+        primitive="a-gltf-model"
+        src={`#${config['scene-gltf'].name as string}`}
+      />
+      <Entity
+        position={pos}
+        scale={scale}>
+        { videosArr.length && videoGridState.focusedCellEl === null &&
         <Entity
           id="videoGrid-grid"
           class="grid"
@@ -140,7 +161,8 @@ const VideoGridScene = (props: VideoProps): any => {
           columns={columns}
           cell-height={cellHeight}
           cell-width={cellWidth}
-          cell-content-height={cellContentHeight}>
+          grid-shape="rectangle"
+          back-ground={true}>
 
           {videosArr.map((video: PublicVideo, i: number) => {
             return (
@@ -158,12 +180,16 @@ const VideoGridScene = (props: VideoProps): any => {
                 categories={video.metadata.categories}
                 runtime={video.metadata.runtime}
                 // tags={video.tags}
-                cell-height={cellHeight}
-                cell-width={cellWidth}
-                cell-content-height={cellContentHeight}
+                content-height={contentHeight}
+                content-width={contentWidth}
+                border-size={borderSize}
                 mediatype="video360"
                 videoformat={video.metadata['360_format']}
                 link-enabled={false}
+                high-light={true}
+                border-color={borderColor}
+                hover-color={hoverColor}
+                active-color={activeColor}
                 class="clickable"
                 events={{
                   click: focusCell
@@ -172,8 +198,8 @@ const VideoGridScene = (props: VideoProps): any => {
             )
           })}
         </Entity>
-      }
-      { videoGridState.focusedCellEl !== null &&
+        }
+        { videoGridState.focusedCellEl !== null &&
           <Entity
             position={fpos}>
             <Entity
@@ -189,13 +215,16 @@ const VideoGridScene = (props: VideoProps): any => {
               rating={videoGridState.focusedCell?.rating}
               categories={videoGridState.focusedCell?.categories}
               runtime={videoGridState.focusedCell?.runtime}
-              cell-height={cellHeight}
-              cell-width={cellWidth}
-              details-width={cellWidth * 2}
-              cell-content-height={cellContentHeight}
+              content-height={contentHeight}
+              content-width={contentWidth}
+              details-width={contentWidth}
+              details-height={contentHeight * 2}
+              background-color={borderColor}
+              background-margin={0.1}
               class="clickable" />
           </Entity>
-      }
+        }
+      </Entity>
     </Entity>
   )
 }

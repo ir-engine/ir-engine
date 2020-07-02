@@ -9,6 +9,7 @@ import Player from '../player/player'
 import './style.scss'
 
 import AframeComponentRegisterer from '../aframe/index'
+import AframeInputRegisterer from '../aframe/controls/RegisterAframeInput'
 
 import LandingScene from './landing'
 import VideoGridScene from './videoGrid'
@@ -102,7 +103,7 @@ export default function RootScene (props: Props): any {
   }, [navigationHandler])
 
   useEffect(() => {
-    if (sceneName === 'video') setPlayerMovementEnabled(false)
+    if (sceneName === 'video' || sceneName === config.videoGrid.name) setPlayerMovementEnabled(false)
     else if (!playerMovementEnabled) setPlayerMovementEnabled(true)
   }, [sceneName])
 
@@ -110,10 +111,12 @@ export default function RootScene (props: Props): any {
     <div style={{ height: '100%', width: '100%' }}>
       <SceneContainer>
         <AframeComponentRegisterer />
+        <AframeInputRegisterer />
         <Assets />
         <Player movementEnabled={playerMovementEnabled} />
         {sceneName !== 'video' &&
          sceneName !== `${config.vrRoomGrid.name as string}-scene` &&
+         sceneName !== config.videoGrid.name &&
          <Environment />}
 
         {sceneName === 'landing' && <LandingScene />}
