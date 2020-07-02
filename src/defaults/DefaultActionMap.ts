@@ -1,12 +1,12 @@
 import ActionMapping from "../interfaces/ActionMapping"
-import ActionType from "./DefaultActionType"
+import Actions from "./DefaultActions"
 import IActionMap from "../interfaces/ActionMap"
 
 export const ActionMap: IActionMap = {
-  [ActionType.FORWARD]: { opposes: [ActionType.BACKWARD] } as ActionMapping,
-  [ActionType.BACKWARD]: { opposes: [ActionType.FORWARD] } as ActionMapping,
-  [ActionType.LEFT]: { opposes: [ActionType.RIGHT] } as ActionMapping,
-  [ActionType.RIGHT]: { opposes: [ActionType.LEFT] } as ActionMapping
+  [Actions.FORWARD]: { opposes: [Actions.BACKWARD] } as ActionMapping,
+  [Actions.BACKWARD]: { opposes: [Actions.FORWARD] } as ActionMapping,
+  [Actions.LEFT]: { opposes: [Actions.RIGHT] } as ActionMapping,
+  [Actions.RIGHT]: { opposes: [Actions.LEFT] } as ActionMapping
 }
 
 export default ActionMap
