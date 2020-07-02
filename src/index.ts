@@ -11,7 +11,7 @@ import GamepadInput from "./components/GamepadInput"
 import { isBrowser } from "./utils/IsBrowser"
 import UserInput from "./components/UserInput"
 import InputActionHandler from "./components/InputActionHandler"
-import InputAxisHandler from "./components/InputAxisHandler"
+import InputAxisHandler2D from "./components/InputAxisHandler2D"
 import InputDebugSystem from "./systems/InputDebugSystem"
 import InputActionSystem from "./systems/InputActionSystem"
 import InputAxisSystem from "./systems/InputAxisSystem"
@@ -49,10 +49,9 @@ export function initializeInputSystems(
   world
     .registerComponent(UserInput)
     .registerComponent(InputActionHandler)
-    .registerComponent(InputAxisHandler)
+    .registerComponent(InputAxisHandler2D)
     .registerComponent(InputReceiver)
     .registerComponent(InputActionMapData)
-    .registerComponent(UserInput)
 
   if (options.keyboard) world.registerSystem(KeyboardInputSystem).registerComponent(KeyboardInput)
   if (options.mouse) world.registerSystem(MouseInputSystem).registerComponent(MouseInput)
@@ -63,7 +62,7 @@ export function initializeInputSystems(
     .createEntity()
     .addComponent(UserInput)
     .addComponent(InputActionHandler)
-    .addComponent(InputAxisHandler)
+    .addComponent(InputAxisHandler2D)
     .addComponent(InputActionMapData)
     .addComponent(InputReceiver)
 
@@ -71,12 +70,11 @@ export function initializeInputSystems(
     .createEntity()
     .addComponent(InputReceiver)
     .addComponent(InputActionHandler)
-    .addComponent(InputActionMapData)
-    .addComponent(InputAxisHandler)
+    .addComponent(InputAxisHandler2D)
 
   // Custom Action Map
   if (actionMap) {
-    inputReceiverEntity.getMutableComponent(InputActionMapData).actionMap = actionMap
+    inputSystemEntity.getMutableComponent(InputActionMapData).actionMap = actionMap
   }
 
   if (options.keyboard) {
@@ -113,7 +111,7 @@ export function initializeInputSystems(
   }
 
   if (options.debug) {
-    world.registerSystem(InputDebugSystem).registerSystem(InputDebugSystem)
+    world.registerSystem(InputDebugSystem)
     console.log("INPUT: Registered input systems.")
   }
 }

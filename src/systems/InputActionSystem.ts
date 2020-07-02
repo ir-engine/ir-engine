@@ -1,4 +1,4 @@
-import { System } from "ecsy"
+import { System, Entity, Not } from "ecsy"
 import InputReceiver from "../components/InputReceiver"
 import UserInput from "../components/UserInput"
 import { ActionMap } from "../defaults/DefaultActionMap"
@@ -14,40 +14,46 @@ export default class InputActionSystem extends System {
   private _skip: boolean
 
   public execute(): void {
+    // Add action map
     this.queries.actionMapData.added.forEach(entity => {
       this._actionMap = entity.getComponent(InputActionMapData).actionMap
     })
-    this.queries.userInputActionQueue.changed.forEach(input => {
+
+    // Set action queue
+    this.queries.userInputActionQueue.added.forEach(input => {
+      console.log("User input action queue added")
       this._userInputActionQueue = input.getMutableComponent(InputActionHandler)
-      this.queries.actionReceivers.results.forEach(receiver => {
-        receiver.getComponent(InputActionHandler).queue.clear()
-        this.applyInputToListener(this._userInputActionQueue, receiver.getMutableComponent(InputActionHandler))
-      })
+    })
+
+    this.queries.actionReceivers.results.forEach(receiver => {
+      if (receiver.getComponent(InputActionHandler).queue.getBufferLength() > 0)
+        receiver.getMutableComponent(InputActionHandler).queue.clear()
+      if (this._userInputActionQueue.queue.getBufferLength() > 0)
+        this.applyInputToListener(this._userInputActionQueue, receiver)
     })
     // Clear all actions
     if (this._userInputActionQueue) this._userInputActionQueue.queue.clear()
   }
 
-  private validateActions(actionHandler: InputActionHandler): void {
+  private validateActions(actionHandler: Entity): void {
     if (!this._actionMap) return
-    const actionQueueArray = actionHandler.queue.toArray()
+    const actionQueueArray = actionHandler.getComponent(InputActionHandler).queue.toArray()
     for (let i = 0; i < actionQueueArray.length; i++) {
       for (let k = 0; k < actionQueueArray.length; k++) {
         if (i == k) continue // don't compare to self
 
         // Opposing actions cancel out
         if (this.actionsOpposeEachOther(actionQueueArray, i, k)) {
-          actionHandler.queue.remove(i)
-          actionHandler.queue.remove(k)
+          actionHandler.getMutableComponent(InputActionHandler).queue.remove(i)
+          actionHandler.getMutableComponent(InputActionHandler).queue.remove(k)
         }
-
         // If action is blocked by another action that overrides and is active, remove this action
         else if (this.actionIsBlockedByAnother(actionQueueArray, i, k)) {
-          actionHandler.queue.remove(i)
+          actionHandler.getMutableComponent(InputActionHandler).queue.remove(i)
         }
         // Override actions override
         else if (this.actionOverridesAnother(actionQueueArray, i, k)) {
-          actionHandler.queue.remove(k)
+          actionHandler.getMutableComponent(InputActionHandler).queue.remove(k)
         }
       }
     }
@@ -57,7 +63,7 @@ export default class InputActionSystem extends System {
   private actionsOpposeEachOther(actionQueueArray: ActionValue[], arrayPosOne: number, arrayPoseTwo: number): boolean {
     const actionToTest = actionQueueArray[arrayPosOne]
     const actionToTestAgainst = actionQueueArray[arrayPoseTwo]
-    this._actionMap[actionToTest.action].opposes.forEach((action: ActionType) => {
+    this._actionMap[actionToTest.action]?.opposes?.forEach((action: ActionType) => {
       if (action === actionToTestAgainst.action && actionToTest.value === actionToTestAgainst.value) {
         // If values are both active, cancel each other out
         return true
@@ -73,7 +79,7 @@ export default class InputActionSystem extends System {
   ): boolean {
     const actionToTest = actionQueueArray[arrayPosOne]
     const actionToTestAgainst = actionQueueArray[arrayPoseTwo]
-    this._actionMap[actionToTest.action].blockedBy.forEach((action: ActionType) => {
+    this._actionMap[actionToTest.action]?.blockedBy?.forEach((action: ActionType) => {
       if (action === actionToTestAgainst.action && actionToTest.value === actionToTestAgainst.value) {
         // If values are both active, cancel each other out
         return true
@@ -85,7 +91,7 @@ export default class InputActionSystem extends System {
   private actionOverridesAnother(actionQueueArray: ActionValue[], arrayPosOne: number, arrayPoseTwo: number): boolean {
     const actionToTest = actionQueueArray[arrayPosOne]
     const actionToTestAgainst = actionQueueArray[arrayPoseTwo]
-    this._actionMap[actionToTest.action].overrides.forEach((action: ActionType) => {
+    this._actionMap[actionToTest.action]?.overrides?.forEach((action: ActionType) => {
       if (action === actionToTestAgainst.action && actionToTest.value === actionToTestAgainst.value) {
         return true
       }
@@ -93,25 +99,30 @@ export default class InputActionSystem extends System {
     return false
   }
 
-  private applyInputToListener(userInputActionQueue: InputActionHandler, listenerActionQueue: InputActionHandler) {
+  private applyInputToListener(userInputActionQueue: InputActionHandler, listenerActionQueue: Entity) {
     // If action exists, but action state is different, update action InputActionHandler
     userInputActionQueue.queue.toArray().forEach(userInput => {
       this._skip = false
-      listenerActionQueue.queue.toArray().forEach((listenerAction, listenerIndex) => {
-        // Skip action since it's already in the listener queue
-        if (userInput.action === listenerAction.action && userInput.value === listenerAction.value) {
-          this._skip = true
-        } else if (
-          userInput.action === listenerAction.action &&
-          userInput.value !== listenerAction.value &&
-          userInput.value !== undefined
-        ) {
-          listenerActionQueue.queue.remove(listenerIndex)
-          listenerActionQueue.queue.add(userInput)
-          this._skip = true
-        }
-      })
-      if (!this._skip) listenerActionQueue.queue.add(userInput)
+      listenerActionQueue
+        .getComponent(InputActionHandler)
+        .queue.toArray()
+        .forEach((listenerAction, listenerIndex) => {
+          // Skip action since it's already in the listener queue
+          if (userInput.action === listenerAction.action && userInput.value === listenerAction.value) {
+            this._skip = true
+          } else if (
+            userInput.action === listenerAction.action &&
+            userInput.value !== listenerAction.value &&
+            userInput.value !== undefined
+          ) {
+            listenerActionQueue.getMutableComponent(InputActionHandler).queue.remove(listenerIndex)
+            listenerActionQueue.getMutableComponent(InputActionHandler).queue.add(userInput)
+            this._skip = true
+          }
+        })
+      if (!this._skip) {
+        listenerActionQueue.getMutableComponent(InputActionHandler).queue.add(userInput)
+      }
     })
     // If action exists, but action state is same, do nothing
     this.validateActions(listenerActionQueue)
@@ -124,7 +135,7 @@ InputActionSystem.queries = {
     listen: { added: true, changed: true }
   },
   actionReceivers: {
-    components: [InputReceiver, InputActionHandler]
+    components: [InputReceiver, InputActionHandler, Not(UserInput)]
   },
   actionMapData: {
     components: [InputActionMapData, UserInput],

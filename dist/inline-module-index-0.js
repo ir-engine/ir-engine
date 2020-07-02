@@ -63914,6 +63914,12 @@ class System$1 {
 
 }
 System$1.isSystem = true;
+function Not$1(Component) {
+  return {
+    operator: "not",
+    Component: Component
+  };
+}
 
 class TagComponent$1 extends Component$2 {
   constructor() {
@@ -64184,17 +64190,11 @@ const ActionType = {
   SPRINT: 13
 };
 
-var AxisType;
-
-(function (AxisType) {
-  AxisType[AxisType["SCREENXY"] = 0] = "SCREENXY";
-  AxisType[AxisType["DPADONE"] = 1] = "DPADONE";
-  AxisType[AxisType["DPADTWO"] = 2] = "DPADTWO";
-  AxisType[AxisType["DPADTHREE"] = 3] = "DPADTHREE";
-  AxisType[AxisType["DPADFOUR"] = 4] = "DPADFOUR";
-})(AxisType || (AxisType = {}));
-
-var AxisType$1 = AxisType;
+const DefaultAxisType = {
+  SCREENXY: 0,
+  DPADONE: 1,
+  DPADTWO: 2
+};
 
 const MouseInputActionMap = {
   0: ActionType.PRIMARY,
@@ -64203,7 +64203,7 @@ const MouseInputActionMap = {
 
 };
 const MouseInputAxisMap = {
-  mousePosition: AxisType$1.SCREENXY
+  mousePosition: DefaultAxisType.SCREENXY
 };
 
 class MouseInput extends Component$2 {
@@ -64250,6 +64250,7 @@ class RingBuffer {
   constructor(size) {
     this.buffer = [];
     this.pos = 0;
+    console.log("Constructing ring buffer");
 
     if (size < 0) {
       throw new RangeError("The size does not allow negative values.");
@@ -64410,7 +64411,7 @@ const ActionBufferType = createType$1({
 // Should be a singleton, we only need one in our world
 class UserInput extends TagComponent$1 {}
 
-class InputAxisHandler extends Component$2 {
+class InputAxisHandler2D extends Component$2 {
   constructor() {
     super(...arguments);
     this.queue = new RingBuffer(10);
@@ -64485,7 +64486,7 @@ class MouseInputSystem extends System$1 {
     super(...arguments);
 
     this.moveHandler = (e, entity) => {
-      entity.getComponent(InputAxisHandler).queue.add({
+      entity.getComponent(InputAxisHandler2D).queue.add({
         axis: this._mouse.axisMap.mousePosition,
         value: {
           x: e.clientX,
@@ -64539,7 +64540,7 @@ MouseInputSystem.queries = {
     }
   },
   axis: {
-    components: [MouseInput, InputAxisHandler, UserInput],
+    components: [MouseInput, InputAxisHandler2D, UserInput],
     listen: {
       added: true,
       removed: true
@@ -64694,25 +64695,27 @@ class InputReceiver extends TagComponent$1 {}
 class InputDebugSystem extends System$1 {
   execute() {
     this.queries.actionReceivers.changed.forEach(entity => {
-      console.log("Action: ");
-      console.log(entity.getComponent(InputActionHandler).queue.toArray[0]);
+      if (entity.getComponent(InputActionHandler).queue.getBufferLength() > 0) {
+        entity.getComponent(InputActionHandler).queue.toArray().forEach(element => {
+          console.log(element);
+        });
+      }
     });
     this.queries.axisReceivers.changed.forEach(entity => {
-      console.log("Axis: ");
-      console.log(entity.getComponent(InputAxisHandler).queue.toArray[0]);
+      if (entity.getComponent(InputAxisHandler2D).queue.getBufferLength() > 0) console.log("Axes: " + entity.getComponent(InputAxisHandler2D).queue.getBufferLength());
     });
   }
 
 }
 InputDebugSystem.queries = {
   actionReceivers: {
-    components: [UserInput, InputActionHandler],
+    components: [InputReceiver, InputActionHandler, Not$1(UserInput)],
     listen: {
       changed: true
     }
   },
   axisReceivers: {
-    components: [InputReceiver, InputAxisHandler],
+    components: [InputReceiver, InputAxisHandler2D, Not$1(UserInput)],
     listen: {
       changed: true
     }
@@ -64755,15 +64758,18 @@ class InputActionSystem extends System$1 {
   }
 
   execute() {
+    // Add action map
     this.queries.actionMapData.added.forEach(entity => {
       this._actionMap = entity.getComponent(InputActionMapData).actionMap;
-    });
-    this.queries.userInputActionQueue.changed.forEach(input => {
+    }); // Set action queue
+
+    this.queries.userInputActionQueue.added.forEach(input => {
+      console.log("User input action queue added");
       this._userInputActionQueue = input.getMutableComponent(InputActionHandler);
-      this.queries.actionReceivers.results.forEach(receiver => {
-        receiver.getComponent(InputActionHandler).queue.clear();
-        this.applyInputToListener(this._userInputActionQueue, receiver.getMutableComponent(InputActionHandler));
-      });
+    });
+    this.queries.actionReceivers.results.forEach(receiver => {
+      if (receiver.getComponent(InputActionHandler).queue.getBufferLength() > 0) receiver.getMutableComponent(InputActionHandler).queue.clear();
+      if (this._userInputActionQueue.queue.getBufferLength() > 0) this.applyInputToListener(this._userInputActionQueue, receiver);
     }); // Clear all actions
 
     if (this._userInputActionQueue) this._userInputActionQueue.queue.clear();
@@ -64771,7 +64777,7 @@ class InputActionSystem extends System$1 {
 
   validateActions(actionHandler) {
     if (!this._actionMap) return;
-    const actionQueueArray = actionHandler.queue.toArray();
+    const actionQueueArray = actionHandler.getComponent(InputActionHandler).queue.toArray();
 
     for (let i = 0; i < actionQueueArray.length; i++) {
       for (let k = 0; k < actionQueueArray.length; k++) {
@@ -64779,14 +64785,14 @@ class InputActionSystem extends System$1 {
         // Opposing actions cancel out
 
         if (this.actionsOpposeEachOther(actionQueueArray, i, k)) {
-          actionHandler.queue.remove(i);
-          actionHandler.queue.remove(k);
+          actionHandler.getMutableComponent(InputActionHandler).queue.remove(i);
+          actionHandler.getMutableComponent(InputActionHandler).queue.remove(k);
         } // If action is blocked by another action that overrides and is active, remove this action
         else if (this.actionIsBlockedByAnother(actionQueueArray, i, k)) {
-            actionHandler.queue.remove(i);
+            actionHandler.getMutableComponent(InputActionHandler).queue.remove(i);
           } // Override actions override
           else if (this.actionOverridesAnother(actionQueueArray, i, k)) {
-              actionHandler.queue.remove(k);
+              actionHandler.getMutableComponent(InputActionHandler).queue.remove(k);
             }
       }
     }
@@ -64794,43 +64800,43 @@ class InputActionSystem extends System$1 {
 
 
   actionsOpposeEachOther(actionQueueArray, arrayPosOne, arrayPoseTwo) {
+    var _a, _b;
+
     const actionToTest = actionQueueArray[arrayPosOne];
     const actionToTestAgainst = actionQueueArray[arrayPoseTwo];
-
-    this._actionMap[actionToTest.action].opposes.forEach(action => {
+    (_b = (_a = this._actionMap[actionToTest.action]) === null || _a === void 0 ? void 0 : _a.opposes) === null || _b === void 0 ? void 0 : _b.forEach(action => {
       if (action === actionToTestAgainst.action && actionToTest.value === actionToTestAgainst.value) {
         // If values are both active, cancel each other out
         return true;
       }
     });
-
     return false;
   }
 
   actionIsBlockedByAnother(actionQueueArray, arrayPosOne, arrayPoseTwo) {
+    var _a, _b;
+
     const actionToTest = actionQueueArray[arrayPosOne];
     const actionToTestAgainst = actionQueueArray[arrayPoseTwo];
-
-    this._actionMap[actionToTest.action].blockedBy.forEach(action => {
+    (_b = (_a = this._actionMap[actionToTest.action]) === null || _a === void 0 ? void 0 : _a.blockedBy) === null || _b === void 0 ? void 0 : _b.forEach(action => {
       if (action === actionToTestAgainst.action && actionToTest.value === actionToTestAgainst.value) {
         // If values are both active, cancel each other out
         return true;
       }
     });
-
     return false;
   }
 
   actionOverridesAnother(actionQueueArray, arrayPosOne, arrayPoseTwo) {
+    var _a, _b;
+
     const actionToTest = actionQueueArray[arrayPosOne];
     const actionToTestAgainst = actionQueueArray[arrayPoseTwo];
-
-    this._actionMap[actionToTest.action].overrides.forEach(action => {
+    (_b = (_a = this._actionMap[actionToTest.action]) === null || _a === void 0 ? void 0 : _a.overrides) === null || _b === void 0 ? void 0 : _b.forEach(action => {
       if (action === actionToTestAgainst.action && actionToTest.value === actionToTestAgainst.value) {
         return true;
       }
     });
-
     return false;
   }
 
@@ -64838,17 +64844,20 @@ class InputActionSystem extends System$1 {
     // If action exists, but action state is different, update action InputActionHandler
     userInputActionQueue.queue.toArray().forEach(userInput => {
       this._skip = false;
-      listenerActionQueue.queue.toArray().forEach((listenerAction, listenerIndex) => {
+      listenerActionQueue.getComponent(InputActionHandler).queue.toArray().forEach((listenerAction, listenerIndex) => {
         // Skip action since it's already in the listener queue
         if (userInput.action === listenerAction.action && userInput.value === listenerAction.value) {
           this._skip = true;
         } else if (userInput.action === listenerAction.action && userInput.value !== listenerAction.value && userInput.value !== undefined) {
-          listenerActionQueue.queue.remove(listenerIndex);
-          listenerActionQueue.queue.add(userInput);
+          listenerActionQueue.getMutableComponent(InputActionHandler).queue.remove(listenerIndex);
+          listenerActionQueue.getMutableComponent(InputActionHandler).queue.add(userInput);
           this._skip = true;
         }
       });
-      if (!this._skip) listenerActionQueue.queue.add(userInput);
+
+      if (!this._skip) {
+        listenerActionQueue.getMutableComponent(InputActionHandler).queue.add(userInput);
+      }
     }); // If action exists, but action state is same, do nothing
 
     this.validateActions(listenerActionQueue);
@@ -64864,7 +64873,7 @@ InputActionSystem.queries = {
     }
   },
   actionReceivers: {
-    components: [InputReceiver, InputActionHandler]
+    components: [InputReceiver, InputActionHandler, Not$1(UserInput)]
   },
   actionMapData: {
     components: [InputActionMapData, UserInput],
@@ -64879,13 +64888,13 @@ class InputAxisSystem extends System$1 {
     var _a;
 
     (_a = this.queries.userInputAxisQueue.added) === null || _a === void 0 ? void 0 : _a.forEach(entity => {
-      this._userInputAxisQueue = entity.getMutableComponent(InputAxisHandler);
+      this._userInputAxisQueue = entity.getMutableComponent(InputAxisHandler2D);
     }); // If the queue hasn't been set yet, or the queue length is 0
 
-    if (!this._userInputAxisQueue || this._userInputAxisQueue.queue.getSize() < 1) return;
+    if (!this._userInputAxisQueue || this._userInputAxisQueue.queue.getBufferLength() < 1) return;
     this.queries.axisReceivers.results.forEach(entity => {
-      entity.getComponent(InputAxisHandler).queue.clear();
-      this.applyInputToListener(this._userInputAxisQueue, entity.getMutableComponent(InputAxisHandler));
+      if (entity.getComponent(InputAxisHandler2D).queue.getBufferLength() > 0) entity.getMutableComponent(InputAxisHandler2D).queue.clear();
+      if (this._userInputAxisQueue.queue.getBufferLength() > 0) this.applyInputToListener(this._userInputAxisQueue, entity.getMutableComponent(InputAxisHandler2D));
     }); // Clear all axis
 
     this._userInputAxisQueue.queue.clear();
@@ -64912,10 +64921,10 @@ class InputAxisSystem extends System$1 {
 }
 InputAxisSystem.queries = {
   userInputAxisQueue: {
-    components: [UserInput, InputAxisHandler]
+    components: [UserInput, InputAxisHandler2D]
   },
   axisReceivers: {
-    components: [InputReceiver, InputAxisHandler]
+    components: [InputReceiver, InputAxisHandler2D]
   }
 };
 
@@ -64938,16 +64947,16 @@ actionMap) {
   }
 
   world.registerSystem(InputActionSystem).registerSystem(InputAxisSystem);
-  world.registerComponent(UserInput).registerComponent(InputActionHandler).registerComponent(InputAxisHandler).registerComponent(InputReceiver).registerComponent(InputActionMapData).registerComponent(UserInput);
+  world.registerComponent(UserInput).registerComponent(InputActionHandler).registerComponent(InputAxisHandler2D).registerComponent(InputReceiver).registerComponent(InputActionMapData);
   if (options.keyboard) world.registerSystem(KeyboardInputSystem).registerComponent(KeyboardInput);
   if (options.mouse) world.registerSystem(MouseInputSystem).registerComponent(MouseInput);
   if (options.gamepad) world.registerSystem(GamepadInputSystem).registerComponent(GamepadInput); // TODO: VR, Mobile
 
-  const inputSystemEntity = world.createEntity().addComponent(UserInput).addComponent(InputActionHandler).addComponent(InputAxisHandler).addComponent(InputActionMapData).addComponent(InputReceiver);
-  const inputReceiverEntity = world.createEntity().addComponent(InputReceiver).addComponent(InputActionHandler).addComponent(InputActionMapData).addComponent(InputAxisHandler); // Custom Action Map
+  const inputSystemEntity = world.createEntity().addComponent(UserInput).addComponent(InputActionHandler).addComponent(InputAxisHandler2D).addComponent(InputActionMapData).addComponent(InputReceiver);
+  const inputReceiverEntity = world.createEntity().addComponent(InputReceiver).addComponent(InputActionHandler).addComponent(InputAxisHandler2D); // Custom Action Map
 
   if (actionMap) {
-    inputReceiverEntity.getMutableComponent(InputActionMapData).actionMap = actionMap;
+    inputSystemEntity.getMutableComponent(InputActionMapData).actionMap = actionMap;
   }
 
   if (options.keyboard) {
@@ -64986,7 +64995,7 @@ actionMap) {
   }
 
   if (options.debug) {
-    world.registerSystem(InputDebugSystem).registerSystem(InputDebugSystem);
+    world.registerSystem(InputDebugSystem);
     console.log("INPUT: Registered input systems.");
   }
 }
