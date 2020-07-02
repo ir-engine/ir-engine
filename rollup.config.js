@@ -92,7 +92,7 @@ export default [
       resolve(),
       serve({
         // Launch in browser (default: false)
-        open: true,
+        // open: true,
         openPage: "/dist/index.html",
         contentBase: ["./"]
       })
