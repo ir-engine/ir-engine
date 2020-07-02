@@ -26,7 +26,14 @@ const DEFAULT_OPTIONS = {
   debug: false
 }
 
-export function initializeInputSystems(
+export {
+  InputReceiver,
+  InputActionHandler,
+  InputAxisHandler2D,
+  initializeInputSystems
+}
+
+function initializeInputSystems(
   world: World,
   options = DEFAULT_OPTIONS,
   keyboardInputMap?,

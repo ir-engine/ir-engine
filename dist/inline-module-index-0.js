@@ -64237,11 +64237,8 @@ MouseInput.schema = {
 var LifecycleValue;
 
 (function (LifecycleValue) {
-  LifecycleValue[LifecycleValue["STARTED"] = 0] = "STARTED";
-  LifecycleValue[LifecycleValue["ENDED"] = 1] = "ENDED";
-  LifecycleValue[LifecycleValue["STARTING"] = 2] = "STARTING";
-  LifecycleValue[LifecycleValue["CONTINUED"] = 3] = "CONTINUED";
-  LifecycleValue[LifecycleValue["ENDING"] = 4] = "ENDING";
+  LifecycleValue[LifecycleValue["STARTED"] = 1] = "STARTED";
+  LifecycleValue[LifecycleValue["ENDED"] = 0] = "ENDED"; // off
 })(LifecycleValue || (LifecycleValue = {}));
 
 var LifecycleValue$1 = LifecycleValue;
@@ -64486,6 +64483,13 @@ class MouseInputSystem extends System$1 {
     super(...arguments);
 
     this.moveHandler = (e, entity) => {
+      console.log('MH', {
+        axis: this._mouse.axisMap.mousePosition,
+        value: {
+          x: e.clientX,
+          y: e.clientY
+        }
+      });
       entity.getComponent(InputAxisHandler2D).queue.add({
         axis: this._mouse.axisMap.mousePosition,
         value: {
@@ -64507,6 +64511,7 @@ class MouseInputSystem extends System$1 {
 
   execute() {
     this.queries.axis.added.forEach(ent => {
+      console.log('axis added');
       this._mouse = ent.getMutableComponent(MouseInput);
       document.addEventListener("mousemove", e => this._mouse.moveHandler = this.moveHandler(e, ent), false);
     });
@@ -64935,6 +64940,7 @@ const DEFAULT_OPTIONS$1 = {
   gamepad: true,
   debug: false
 };
+
 function initializeInputSystems(world, options = DEFAULT_OPTIONS$1, keyboardInputMap, mouseInputMap, // mobileInputMap?,
 // VRInputMap?,
 actionMap) {
@@ -65000,24 +65006,15 @@ actionMap) {
   }
 }
 
-// Setup world
+console.log('here?');
+
+      // Setup world
         const world = new ECSYThreeWorld();
         let data = initialize(world);
         let { scene, camera } = data.entities;
         let camera3d = camera.getObject3D();
         camera3d.position.z = 5;
         world.createEntity().addObject3DComponent(new AmbientLight(), scene);
-        world
-          .createEntity()
-          .addObject3DComponent(
-            new Mesh(
-              new BoxBufferGeometry(1, 1, 1),
-              new MeshBasicMaterial({
-                map: new TextureLoader().load("../examples/textures/crate.gif")
-              })
-            ),
-            scene
-          );
 
           // Test input
           const inputOptions = {
@@ -65033,6 +65030,45 @@ actionMap) {
       // TODO: Pass to world
 
         initializeInputSystems(world, inputOptions);
+
+      world
+        .createEntity()
+        .addObject3DComponent(
+          new Mesh(
+            new BoxBufferGeometry(1, 1, 1),
+            new MeshBasicMaterial({
+              map: new TextureLoader().load("../examples/textures/crate.gif")
+            })
+          ),
+          scene
+        ).addComponent(InputReceiver)
+        .addComponent(InputActionHandler);
+
+
+      // MovableSystem
+      class MovableSystem extends System {
+        // This method will get called on every frame by default
+        execute(delta, time) {
+          // Iterate through all the entities on the query
+          this.queries.moving.results.forEach(entity => {
+            var inputHandler = entity.getComponent(InputActionHandler);
+            var lastAction = inputHandler.queue.pop();
+
+            console.log('last action', lastAction);
+
+
+
+          });
+        }
+      }
+
+      // Define a query of entities that have "Velocity" and "Position" components
+      MovableSystem.queries = {
+        moving: {
+          components: [ InputReceiver, InputActionHandler ]
+        }
+      };
+        world.registerSystem(MovableSystem);
 
 
         // Let's begin

@@ -11,6 +11,7 @@ export default class MouseInputSystem extends System {
   private _mouse: MouseInput
   public execute(): void {
     this.queries.axis.added.forEach(ent => {
+      console.log('axis added')
       this._mouse = ent.getMutableComponent(MouseInput)
       document.addEventListener("mousemove", e => (this._mouse.moveHandler = this.moveHandler(e, ent)), false)
     })

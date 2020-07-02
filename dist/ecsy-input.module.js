@@ -786,11 +786,8 @@ MouseInput.schema = {
 var LifecycleValue;
 
 (function (LifecycleValue) {
-  LifecycleValue[LifecycleValue["STARTED"] = 0] = "STARTED";
-  LifecycleValue[LifecycleValue["ENDED"] = 1] = "ENDED";
-  LifecycleValue[LifecycleValue["STARTING"] = 2] = "STARTING";
-  LifecycleValue[LifecycleValue["CONTINUED"] = 3] = "CONTINUED";
-  LifecycleValue[LifecycleValue["ENDING"] = 4] = "ENDING";
+  LifecycleValue[LifecycleValue["STARTED"] = 1] = "STARTED";
+  LifecycleValue[LifecycleValue["ENDED"] = 0] = "ENDED"; // off
 })(LifecycleValue || (LifecycleValue = {}));
 
 var LifecycleValue$1 = LifecycleValue;
@@ -1035,6 +1032,13 @@ class MouseInputSystem extends System {
     super(...arguments);
 
     this.moveHandler = (e, entity) => {
+      console.log('MH', {
+        axis: this._mouse.axisMap.mousePosition,
+        value: {
+          x: e.clientX,
+          y: e.clientY
+        }
+      });
       entity.getComponent(InputAxisHandler2D).queue.add({
         axis: this._mouse.axisMap.mousePosition,
         value: {
@@ -1056,6 +1060,7 @@ class MouseInputSystem extends System {
 
   execute() {
     this.queries.axis.added.forEach(ent => {
+      console.log('axis added');
       this._mouse = ent.getMutableComponent(MouseInput);
       document.addEventListener("mousemove", e => this._mouse.moveHandler = this.moveHandler(e, ent), false);
     });
@@ -1484,6 +1489,7 @@ const DEFAULT_OPTIONS = {
   gamepad: true,
   debug: false
 };
+
 function initializeInputSystems(world, options = DEFAULT_OPTIONS, keyboardInputMap, mouseInputMap, // mobileInputMap?,
 // VRInputMap?,
 actionMap) {
@@ -1549,4 +1555,4 @@ actionMap) {
   }
 }
 
-export { initializeInputSystems };
+export { InputActionHandler, InputReceiver, initializeInputSystems };

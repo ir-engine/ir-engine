@@ -29,7 +29,7 @@
         Vector3
       } from "three"
 
-      import { initializeInputSystems } from "../dist/ecsy-input.module.js"
+      import { initializeInputSystems, InputReceiver, InputActionHandler, InputAxisHandler2D } from "../dist/ecsy-input.module.js"
 
       // Setup world
         const world = new ECSYThreeWorld()
@@ -38,17 +38,6 @@
         let camera3d = camera.getObject3D()
         camera3d.position.z = 5
         world.createEntity().addObject3DComponent(new AmbientLight(), scene)
-        world
-          .createEntity()
-          .addObject3DComponent(
-            new Mesh(
-              new BoxBufferGeometry(1, 1, 1),
-              new MeshBasicMaterial({
-                map: new TextureLoader().load("../examples/textures/crate.gif")
-              })
-            ),
-            scene
-          )
 
           // Test input
           const inputOptions = {
@@ -64,6 +53,45 @@
       // TODO: Pass to world
 
         initializeInputSystems(world, inputOptions);
+
+      world
+        .createEntity()
+        .addObject3DComponent(
+          new Mesh(
+            new BoxBufferGeometry(1, 1, 1),
+            new MeshBasicMaterial({
+              map: new TextureLoader().load("../examples/textures/crate.gif")
+            })
+          ),
+          scene
+        ).addComponent(InputReceiver)
+        .addComponent(InputActionHandler)
+
+
+      // DemoInputSystem
+      class DemoInputSystem extends System {
+        // This method will get called on every frame by default
+        execute(delta, time) {
+          // Iterate through all the entities on the query
+          this.queries.input.results.forEach(entity => {
+            var inputHandler = entity.getComponent(InputActionHandler);
+            var lastAction = inputHandler.queue.pop();
+
+            console.log('last action', lastAction);
+          });
+        }
+      }
+
+      // Define a query of entities that have "Velocity" and "Position" components
+      DemoInputSystem.queries = {
+        action: {
+          components: [ InputReceiver, InputActionHandler ]
+        },
+        axis: {
+          components: [ InputReceiver, InputAxisHandler2D ]
+        }
+      }
+        world.registerSystem(DemoInputSystem)
 
 
         // Let's begin
