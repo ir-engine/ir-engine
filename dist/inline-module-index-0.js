@@ -64237,11 +64237,8 @@ MouseInput.schema = {
 var LifecycleValue;
 
 (function (LifecycleValue) {
-  LifecycleValue[LifecycleValue["STARTED"] = 0] = "STARTED";
-  LifecycleValue[LifecycleValue["ENDED"] = 1] = "ENDED";
-  LifecycleValue[LifecycleValue["STARTING"] = 2] = "STARTING";
-  LifecycleValue[LifecycleValue["CONTINUED"] = 3] = "CONTINUED";
-  LifecycleValue[LifecycleValue["ENDING"] = 4] = "ENDING";
+  LifecycleValue[LifecycleValue["STARTED"] = 1] = "STARTED";
+  LifecycleValue[LifecycleValue["ENDED"] = 0] = "ENDED"; // off
 })(LifecycleValue || (LifecycleValue = {}));
 
 var LifecycleValue$1 = LifecycleValue;
@@ -64574,6 +64571,7 @@ class KeyboardInputSystem extends System$1 {
     // Query for user action queue
     this.queries.keyboard.added.forEach(entity => {
       document.addEventListener("keydown", e => {
+        if (e.repeat) return;
         this.mapKeyToAction(entity, e.key, LifecycleValue$1.STARTED);
       });
       document.addEventListener("keyup", e => {
