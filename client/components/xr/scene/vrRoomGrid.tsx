@@ -12,6 +12,7 @@ import { fetchPublicScenes } from '../../../redux/scenes/service'
 
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr.vrRoomGrid
+const style = getConfig().publicRuntimeConfig.xr.style
 
 const cellHeight = config.cellHeight
 const cellContentHeight = config.cellContentHeight
@@ -68,6 +69,9 @@ const VrRoomGridScene = (props: Props): any => {
               cell-content-height={cellContentHeight}
               mediatype="scene"
               scene-link-prefix={config.name}
+              border-color={Number(style.borderColor)}
+              hover-color={Number(style.hoverColor)}
+              active-color={Number(style.activeColor)}
             />
           )
         })}

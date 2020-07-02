@@ -4,6 +4,8 @@ import cameraAngleComp from './camera-angle'
 import clickableComp from './clickable'
 import eaccubeComp from './eaccube'
 import fadeComp from './fade'
+import flexContainerComp from './flex-container'
+import flexItemComp from './flex-item'
 import gridComp from './grid'
 import gridCellComp from './grid-cell'
 import highlightComp from './highlight'
@@ -16,7 +18,7 @@ import videoDetails from './video-details'
 
 import AFRAME from 'aframe'
 
-type ComponentSystem = {
+interface ComponentSystem {
   name: string
   system?: AFRAME.SystemDefinition
   component?: AFRAME.ComponentDefinition
@@ -30,6 +32,8 @@ const ComponentSystemArray: ComponentSystem[] = [
   clickableComp,
   eaccubeComp,
   fadeComp,
+  flexContainerComp,
+  flexItemComp,
   gridComp,
   gridCellComp,
   highlightComp,
