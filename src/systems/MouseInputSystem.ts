@@ -44,7 +44,7 @@ export default class MouseInputSystem extends System {
   }
 
   private moveHandler = (e: MouseEvent, entity: Entity): void => {
-    entity.getComponent(InputAxisHandler2D).queue.add({
+    entity.getMutableComponent(InputAxisHandler2D).queue.add({
       axis: this._mouse.axisMap.mousePosition,
       value: { x: e.clientX, y: e.clientY }
     })
