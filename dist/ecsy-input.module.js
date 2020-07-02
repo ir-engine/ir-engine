@@ -978,6 +978,57 @@ const AxisBufferType = createType({
   clone: cloneClonable
 });
 
+const keys = {
+  37: 1,
+  38: 1,
+  39: 1,
+  40: 1
+};
+
+function preventDefault(e) {
+  e.preventDefault();
+}
+
+function preventDefaultForScrollKeys(e) {
+  if (keys[e.keyCode]) {
+    preventDefault(e);
+    return false;
+  }
+} // modern Chrome requires { passive: false } when adding event
+
+
+let supportsPassive = false;
+
+try {
+  window.addEventListener("test", null, Object.defineProperty({}, "passive", {
+    get: function () {
+      supportsPassive = true;
+    }
+  })); // eslint-disable-next-line no-empty
+} catch (e) {}
+
+const wheelOpt = supportsPassive ? {
+  passive: false
+} : false;
+const wheelEvent = "onwheel" in document.createElement("div") ? "wheel" : "mousewheel"; // call this to Disable
+
+function disableScroll() {
+  window.addEventListener("DOMMouseScroll", preventDefault, false); // older FF
+
+  window.addEventListener(wheelEvent, preventDefault, wheelOpt); // modern desktop
+
+  window.addEventListener("touchmove", preventDefault, wheelOpt); // mobile
+
+  window.addEventListener("keydown", preventDefaultForScrollKeys, false);
+} // call this to Enable
+
+function enableScroll() {
+  window.removeEventListener("DOMMouseScroll", preventDefault, false);
+  window.removeEventListener(wheelEvent, preventDefault);
+  window.removeEventListener("touchmove", preventDefault);
+  window.removeEventListener("keydown", preventDefaultForScrollKeys, false);
+}
+
 class MouseInputSystem extends System {
   constructor() {
     super(...arguments);
@@ -1010,15 +1061,17 @@ class MouseInputSystem extends System {
     this.queries.buttons.added.forEach(ent => {
       this._mouse = ent.getMutableComponent(MouseInput);
       document.addEventListener("contextmenu", event => event.preventDefault());
+      disableScroll();
       document.addEventListener("mousedown", e => this._mouse.downHandler = this.buttonHandler(e, ent, LifecycleValue$1.STARTED), false);
       document.addEventListener("mouseup", e => this._mouse.upHandler = this.buttonHandler(e, ent, LifecycleValue$1.ENDED), false);
     });
     this.queries.axis.removed.forEach(ent => {
-      document.removeEventListener("contextmenu", event => event.preventDefault());
       const mouse = ent.getComponent(MouseInput);
       if (mouse) document.removeEventListener("mousemove", mouse.upHandler);
     });
     this.queries.buttons.removed.forEach(ent => {
+      document.removeEventListener("contextmenu", event => event.preventDefault());
+      enableScroll();
       const mouse = ent.getComponent(MouseInput);
       if (mouse) document.removeEventListener("mousedown", mouse.downHandler);
       if (mouse) document.removeEventListener("mouseup", mouse.moveHandler);
