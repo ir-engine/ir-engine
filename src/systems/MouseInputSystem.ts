@@ -4,8 +4,7 @@ import LifecycleValue from "../enums/LifecycleValue"
 import InputActionHandler from "../components/InputActionHandler"
 import UserInput from "../components/UserInput"
 import InputAxisHandler from "../components/InputAxisHandler"
-import AxisValue from "../interfaces/AxisValue"
-import RingBuffer from "../classes/RingBuffer"
+import { enableScroll, disableScroll } from "../utils/EnableDisableScrolling"
 
 export default class MouseInputSystem extends System {
   // Temp variables
@@ -18,6 +17,7 @@ export default class MouseInputSystem extends System {
     this.queries.buttons.added.forEach(ent => {
       this._mouse = ent.getMutableComponent(MouseInput)
       document.addEventListener("contextmenu", event => event.preventDefault())
+      disableScroll()
       document.addEventListener(
         "mousedown",
         e => (this._mouse.downHandler = this.buttonHandler(e, ent, LifecycleValue.STARTED)),
@@ -30,11 +30,12 @@ export default class MouseInputSystem extends System {
       )
     })
     this.queries.axis.removed.forEach(ent => {
-      document.removeEventListener("contextmenu", event => event.preventDefault())
       const mouse = ent.getComponent(MouseInput)
       if (mouse) document.removeEventListener("mousemove", mouse.upHandler)
     })
     this.queries.buttons.removed.forEach(ent => {
+      document.removeEventListener("contextmenu", event => event.preventDefault())
+      enableScroll()
       const mouse = ent.getComponent(MouseInput)
       if (mouse) document.removeEventListener("mousedown", mouse.downHandler)
       if (mouse) document.removeEventListener("mouseup", mouse.moveHandler)
