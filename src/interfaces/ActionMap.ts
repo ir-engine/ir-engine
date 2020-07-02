@@ -1,7 +1,9 @@
 import ActionMapping from "./ActionMapping"
 
+const key: unique symbol = Symbol()
+
 interface ActionMap {
-  [key: string]: ActionMapping
+  [key]?: ActionMapping
 }
 
 export default ActionMap

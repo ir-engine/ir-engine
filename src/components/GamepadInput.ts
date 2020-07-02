@@ -1,9 +1,19 @@
 import { Component, Types } from "ecsy"
-import GamepadInputState from "../interfaces/GamepadInputState"
 import LifecycleValue from "../enums/LifecycleValue"
 import Axis2D from "../interfaces/Axis2D"
 
-export default class GamepadInput extends Component<GamepadInputState> {
+export default interface GamepadInputPropTypes {
+  connected: boolean
+  threshold: number
+  dpadOne: Axis2D
+  dpadTwo: Axis2D
+  buttonA: LifecycleValue
+  buttonB: LifecycleValue
+  buttonX: LifecycleValue
+  buttonY: LifecycleValue
+}
+
+export default class GamepadInput extends Component<GamepadInputPropTypes> {
   connected: boolean
   threshold: number
   dpadOne: Axis2D

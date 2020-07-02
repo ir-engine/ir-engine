@@ -3,7 +3,7 @@ import MouseInput from "../components/MouseInput"
 import LifecycleValue from "../enums/LifecycleValue"
 import InputActionHandler from "../components/InputActionHandler"
 import UserInput from "../components/UserInput"
-import InputAxisHandler from "../components/InputAxisHandler"
+import InputAxisHandler2D from "../components/InputAxisHandler2D"
 import { enableScroll, disableScroll } from "../utils/EnableDisableScrolling"
 
 export default class MouseInputSystem extends System {
@@ -43,7 +43,7 @@ export default class MouseInputSystem extends System {
   }
 
   private moveHandler = (e: MouseEvent, entity: Entity): void => {
-    entity.getComponent(InputAxisHandler).queue.add({
+    entity.getComponent(InputAxisHandler2D).queue.add({
       axis: this._mouse.axisMap.mousePosition,
       value: { x: e.clientX, y: e.clientY }
     })
@@ -68,7 +68,7 @@ MouseInputSystem.queries = {
     }
   },
   axis: {
-    components: [MouseInput, InputAxisHandler, UserInput],
+    components: [MouseInput, InputAxisHandler2D, UserInput],
     listen: {
       added: true,
       removed: true

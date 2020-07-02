@@ -1,9 +1,7 @@
-enum AxisType {
-  SCREENXY,
-  DPADONE,
-  DPADTWO,
-  DPADTHREE,
-  DPADFOUR
+const DefaultAxisType = {
+  SCREENXY: 0,
+  DPADONE: 1,
+  DPADTWO: 2
 }
 
-export default AxisType
+export default DefaultAxisType

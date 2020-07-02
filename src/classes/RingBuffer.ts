@@ -22,6 +22,7 @@ export default class RingBuffer<T> {
   }
 
   constructor(size: number) {
+    console.log("Constructing ring buffer")
     if (size < 0) {
       throw new RangeError("The size does not allow negative values.")
     }

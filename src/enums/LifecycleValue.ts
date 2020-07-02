@@ -1,9 +1,6 @@
 enum LifecycleValue {
-  STARTED = 0, // on
-  ENDED = 1, // off
-  STARTING,
-  CONTINUED,
-  ENDING
+  STARTED = 1, // on
+  ENDED = 0 // off
 }
 
 export default LifecycleValue

@@ -1,5 +1,5 @@
 import ActionType from "./DefaultActionType"
-import AxisType from "./DefaultAxisType"
+import DefaultAxisType from "./DefaultAxisType"
 
 export const MouseInputActionMap = {
   0: ActionType.PRIMARY,
@@ -8,5 +8,5 @@ export const MouseInputActionMap = {
 }
 
 export const MouseInputAxisMap = {
-  mousePosition: AxisType.SCREENXY
+  mousePosition: DefaultAxisType.SCREENXY
 }
