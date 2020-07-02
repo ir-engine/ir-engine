@@ -16,10 +16,11 @@ const mappings = {
         // 'trackpad.up': 'some-event'
       },
       'oculus-touch-controls': {
-        triggerdown: 'some-event'
+        // triggerdown: 'some-event',
         // triggerup: 'some-event',
         // bbuttonup: 'some-event',
-        // abuttonup: 'some-event'
+        abuttonup: 'toggle-menu',
+        xbuttonup: 'toggle-menu'
       },
       'windows-motion-controls': {
         // 'grip.down': 'some-event',
