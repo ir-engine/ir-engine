@@ -49,6 +49,9 @@ export interface Props {
   addHandlers: () => void
   removeHandlers: () => void
   clickHandler: (e: any) => void
+  buttonInputHandler: () => void
+  doubleClickWorkaroundState: boolean
+  toggleMenuHandler: () => void
   playPauseHandler: () => void
   seekHandler: (e: any) => void
   backButtonHandler: () => void
@@ -63,6 +66,7 @@ export interface Props {
   videoEl: HTMLVideoElement
   cameraAngleHandler: (e: any) => void
   setTimelineVisibility(visibility: boolean)
+  controlsVisibility: boolean
   firstCreate: boolean
 }
 
@@ -83,13 +87,18 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   playPauseButtonName: 'playPauseButton',
   backButtonName: 'backButton',
   timeRemainingTextName: 'timeRemainingText',
+  controlsVisibility: false,
   firstCreate: true,
+  doubleClickWorkaroundState: false,
 
   init () {
+    this.toggleMenuHandler = this.toggleMenuHandler.bind(this)
+    this.buttonInputHandler = this.buttonInputHandler.bind(this)
+
     const loader = new THREE.TextureLoader()
 
     this.videoEl = document.querySelector(this.data.videosrc)
-    this.duration = this.videoEl.duration
+    this.duration = this.videoEl?.duration || 0.000001
 
     this.el.classList.add('clickable')
     this.el.setAttribute('clickable', { clickevent: 'playpause' })
@@ -97,8 +106,8 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.el.setAttribute('highlight__playpause', { id: 'playpause', meshes: [this.playPauseButtonName] })
     this.el.setAttribute('highlight__back', { id: 'back', meshes: [this.backButtonName] })
 
-    this.el.setAttribute('camera-angle', {})
-    this.el.setAttribute('fade', { fadeInEvent: 'fade-in-video-controls', fadeOutEvent: 'fade-out-video-controls' })
+    // this.el.setAttribute('camera-angle', {})
+    this.el.setAttribute('fade', { fadeInEvent: 'fade-in-video-controls', fadeOutEvent: 'fade-out-video-controls', animate: false })
 
     // TODO: make pause/play icons the same for CSS and VR versions.
     // currently CSS is using MUI icons, and VR is using images in public/icons/
@@ -154,7 +163,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   // }
 
   remove () {
-    this.el.removeAttribute('camera-angle')
+    // this.el.removeAttribute('camera-angle')
   },
 
   createControls () {
@@ -208,12 +217,15 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     // but also add as THREE.js object
     this.el.setObject3D(this.timeRemainingTextName, timeRemainingText.object3D)
 
+    this.controlsVisibility = true
+
     // fade controls after timeout after they are first created
     if (this.firstCreate) {
       const setTimelineVisibility = this.setTimelineVisibility.bind(this)
-      const el = this.el
+      // const el = this.el
       setTimeout(() => {
-        if (el.components['camera-angle'].direction === 'out') setTimelineVisibility(false)
+        // if (el.components['camera-angle'].direction === 'out') setTimelineVisibility(false)
+        setTimelineVisibility(false)
       }, 5 * 1000)
       this.firstCreate = false
     }
@@ -413,6 +425,17 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.timeRemainingTextEl.setAttribute('text-cell', { text: '-' + secondsToString(timeRemaining) })
   },
 
+  buttonInputHandler () {
+    if (this.doubleClickWorkaroundState) {
+      this.doubleClickWorkaroundState = false
+      this.toggleMenuHandler()
+    } else { this.doubleClickWorkaroundState = true }
+  },
+
+  toggleMenuHandler () {
+    this.setTimelineVisibility(!this.controlsVisibility)
+  },
+
   clickHandler (e) {
     switch (e.detail.intersection.object.name) {
       case this.playPauseButtonName:
@@ -479,14 +502,17 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   setTimelineVisibility (visibility: boolean) {
     visibility ? this.el.emit('fade-in-video-controls') : this.el.emit('fade-out-video-controls')
     this.el.getObject3D(this.timeRemainingTextName).visible = visibility
+    this.controlsVisibility = visibility
   },
 
   addHandlers: function () {
+    this.el.sceneEl.addEventListener('toggle-menu', this.buttonInputHandler)
     this.el.addEventListener('playpause', this.clickHandler.bind(this))
     this.el.addEventListener('camera-passed-threshold', this.cameraAngleHandler.bind(this))
   },
 
   removeHandlers: function () {
+    this.el.sceneEl.removeEventListener('toggle-menu', this.buttonInputHandler)
     this.el.removeEventListener('playpause', this.clickHandler)
     this.el.removeEventListener('camera-passed-threshold', this.cameraAngleHandler.bind(this))
   }
