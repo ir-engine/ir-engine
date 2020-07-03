@@ -14,25 +14,24 @@ export default class InputActionSystem extends System {
   private _skip: boolean
 
   public execute(): void {
-    // Add action map
     this.queries.actionMapData.added.forEach(entity => {
+      console.log("map data added")
       this._actionMap = entity.getComponent(InputActionMapData).actionMap
     })
 
-    // Set action queue
+    // // Set action queue
     this.queries.userInputActionQueue.added.forEach(input => {
-      console.log("User input action queue added")
-      this._userInputActionQueue = input.getMutableComponent(InputActionHandler)
+      this._userInputActionQueue = input.getComponent(InputActionHandler)
     })
 
+    if (this._userInputActionQueue.queue.getBufferLength() < 1) return
     this.queries.actionReceivers.results.forEach(receiver => {
-      if (receiver.getComponent(InputActionHandler).queue.getBufferLength() > 0)
+      if (receiver.getComponent(InputActionHandler).queue.getBufferLength() > 0) {
         receiver.getMutableComponent(InputActionHandler).queue.clear()
-      if (this._userInputActionQueue.queue.getBufferLength() > 0)
-        this.applyInputToListener(this._userInputActionQueue, receiver)
+      }
+      this.applyInputToListener(this._userInputActionQueue, receiver)
     })
-    // Clear all actions
-    if (this._userInputActionQueue) this._userInputActionQueue.queue.clear()
+    this._userInputActionQueue.queue.clear()
   }
 
   private validateActions(actionHandler: Entity): void {

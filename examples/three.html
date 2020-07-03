@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>ecsy-input webgl - geometry - cube</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+  </head>
+  <body>
+    <div id="debug" style ="width:30%; height: 30%; background-color: white;">
+      <div id="actionDataWrapper"><span>Action: </span><span id="actionData"></span></div>
+      <div id="axisDataWrapper"><span>Axis: </span><span id="axisData"></span></div></div>
+    <script type="module">
+      import { Component, System } from "ecsy"
+      import { ECSYThreeWorld, Object3DComponent, Types } from "ecsy-three"
+      import {
+        initialize,
+        // Components
+        GLTFLoader,
+        // Systems
+        GLTFLoaderSystem,
+        Position
+      } from "ecsy-three/extras"
+      import {
+        AmbientLight,
+        Mesh,
+        BoxBufferGeometry,
+        MeshBasicMaterial,
+        TextureLoader,
+        Vector3
+      } from "three"
+
+      import { initializeInputSystems } from "../dist/ecsy-input.module.js"
+
+      // Setup world
+        const world = new ECSYThreeWorld()
+        let data = initialize(world)
+        let { scene, camera } = data.entities
+        let camera3d = camera.getObject3D()
+        camera3d.position.z = 5
+        world.createEntity().addObject3DComponent(new AmbientLight(), scene)
+        world
+          .createEntity()
+          .addObject3DComponent(
+            new Mesh(
+              new BoxBufferGeometry(1, 1, 1),
+              new MeshBasicMaterial({
+                map: new TextureLoader().load("../examples/textures/crate.gif")
+              })
+            ),
+            scene
+          )
+
+          // Test input
+          const inputOptions = {
+          mouse: true,
+          keyboard: true,
+          touchscreen: true,
+          gamepad: true,
+          debug: true
+        }
+
+      // TODO: Import input mapping
+      // TODO: Modify some values
+      // TODO: Pass to world
+
+        initializeInputSystems(world, inputOptions);
+
+
+        // Let's begin
+        world.execute()
+    </script>
+  </body>
+</html>

@@ -8,16 +8,20 @@ export default class InputAxisSystem extends System {
   private _userInputAxisQueue: InputAxisHandler2D
 
   public execute(): void {
-    this.queries.userInputAxisQueue.added?.forEach(entity => {
+    this.queries.userInputAxisQueue.added.forEach(entity => {
       this._userInputAxisQueue = entity.getMutableComponent(InputAxisHandler2D)
     })
     // If the queue hasn't been set yet, or the queue length is 0
-    if (!this._userInputAxisQueue || this._userInputAxisQueue.queue.getBufferLength() < 1) return
+    if (!this._userInputAxisQueue || this._userInputAxisQueue.queue.getBufferLength() < 1) {
+      return
+    }
     this.queries.axisReceivers.results.forEach(entity => {
-      if (entity.getComponent(InputAxisHandler2D).queue.getBufferLength() > 0)
+      if (entity.getComponent(InputAxisHandler2D).queue.getBufferLength() > 0){
         entity.getMutableComponent(InputAxisHandler2D).queue.clear()
-      if (this._userInputAxisQueue.queue.getBufferLength() > 0)
+      }
+      if (this._userInputAxisQueue.queue.getBufferLength() > 0) {
         this.applyInputToListener(this._userInputAxisQueue, entity.getMutableComponent(InputAxisHandler2D))
+      }
     })
     // Clear all axis
     this._userInputAxisQueue.queue.clear()
@@ -44,9 +48,10 @@ export default class InputAxisSystem extends System {
 
 InputAxisSystem.queries = {
   userInputAxisQueue: {
-    components: [UserInput, InputAxisHandler2D]
+    components: [UserInput, InputAxisHandler2D],
+    listen: { added: true }
   },
   axisReceivers: {
-    components: [InputReceiver, InputAxisHandler2D]
+    components: [InputReceiver, InputAxisHandler2D, Not(UserInput)]
   }
 }
