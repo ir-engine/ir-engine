@@ -16,7 +16,7 @@ export default class InputAxisSystem extends System {
       return
     }
     this.queries.axisReceivers.results.forEach(entity => {
-      if (entity.getComponent(InputAxisHandler2D).queue.getBufferLength() > 0){
+      if (entity.getComponent(InputAxisHandler2D).queue.getBufferLength() > 0) {
         entity.getMutableComponent(InputAxisHandler2D).queue.clear()
       }
       if (this._userInputAxisQueue.queue.getBufferLength() > 0) {
@@ -52,6 +52,6 @@ InputAxisSystem.queries = {
     listen: { added: true }
   },
   axisReceivers: {
-    components: [InputReceiver, InputAxisHandler2D, Not(UserInput)]
+    components: [InputReceiver, InputAxisHandler2D]
   }
 }

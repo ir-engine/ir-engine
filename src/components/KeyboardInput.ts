@@ -1,10 +1,3 @@
-import { Component, Types } from "ecsy"
-import { KeyboardInputMap } from "../defaults/DefaultKeyboardInputMap"
+import { TagComponent } from "ecsy"
 
-export default class KeyboardInput extends Component<any> {
-  inputMap = KeyboardInputMap
-}
-
-KeyboardInput.schema = {
-  inputMap: { type: Types.Ref, default: KeyboardInputMap }
-}
+export default class KeyboardInput extends TagComponent {}

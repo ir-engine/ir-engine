@@ -3038,5 +3038,5 @@ const world = new World();
         world.execute(delta);
         requestAnimationFrame(update);
       }
-
+      
       update();
