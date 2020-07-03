@@ -1,12 +1,12 @@
-import ActionType from "./DefaultActionType"
-import DefaultAxisType from "./DefaultAxisType"
+import Actions from "./DefaultActions"
+import Axes from "./DefaultAxes"
 
 export const MouseInputActionMap = {
-  0: ActionType.PRIMARY,
-  2: ActionType.SECONDARY, // Right mouse
-  1: ActionType.INTERACT // Middle Mouse button
+  0: Actions.PRIMARY,
+  2: Actions.SECONDARY, // Right mouse
+  1: Actions.INTERACT // Middle Mouse button
 }
 
 export const MouseInputAxisMap = {
-  mousePosition: DefaultAxisType.SCREENXY
+  mousePosition: Axes.SCREENXY
 }

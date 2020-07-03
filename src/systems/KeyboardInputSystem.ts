@@ -12,6 +12,7 @@ export default class KeyboardInputSystem extends System {
     // Query for user action queue
     this.queries.keyboard.added.forEach(entity => {
       document.addEventListener("keydown", (e: KeyboardEvent) => {
+        if (e.repeat) return
         this.mapKeyToAction(entity, e.key, LifecycleValue.STARTED)
       })
       document.addEventListener("keyup", (e: KeyboardEvent) => {

@@ -1,10 +1,10 @@
-import ActionType from "./DefaultActionType"
+import Actions from "./DefaultActions"
 
 export const KeyboardInputMap = {
-  w: ActionType.FORWARD,
-  a: ActionType.LEFT,
-  s: ActionType.RIGHT,
-  d: ActionType.BACKWARD
+  w: Actions.FORWARD,
+  a: Actions.LEFT,
+  s: Actions.RIGHT,
+  d: Actions.BACKWARD
 }
 
 export default KeyboardInputMap

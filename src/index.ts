@@ -1,4 +1,4 @@
-import { World } from "ecsy"
+import { Entity, World } from "ecsy"
 
 import MouseInputSystem from "./systems/MouseInputSystem"
 import KeyboardInputSystem from "./systems/KeyboardInputSystem"
@@ -17,6 +17,8 @@ import InputActionSystem from "./systems/InputActionSystem"
 import InputAxisSystem from "./systems/InputAxisSystem"
 import InputActionMapData from "./components/InputActionMapData"
 import InputReceiver from "./components/InputReceiver"
+import AxisMap from "./interfaces/AxisMap"
+import ActionMap from "./interfaces/ActionMap"
 
 const DEFAULT_OPTIONS = {
   mouse: true,
@@ -121,4 +123,16 @@ function initializeInputSystems(
     world.registerSystem(InputDebugSystem)
     console.log("INPUT: Registered input systems.")
   }
+}
+
+export function addActionHandlingToEntity(entity: Entity, actionFilter?: ActionMap){
+  // Try get component on actionhandler, inputreceiver
+  // If either is true, throw warning
+  // If either fails, add components
+}
+
+export function AddAxisHandlingToEntity(entity: Entity, axisFilter?: AxisMap){
+  // Try get component on axishandler, inputreceiver
+  // If either is true, throw warning
+  // If either fails, add components
 }
