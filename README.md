@@ -95,7 +95,7 @@ Input mappings map device input to abstract, cross-platform actions
 
       const world = new World()
       initializeInputSystems(world, inputOptions, inputMap)
-``
+```
 
 # To Build
 ```
