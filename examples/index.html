@@ -1,179 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>ecsy-input mouse</title>
+    <title>ecsy-input webgl - geometry - cube</title>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
-    />
-    <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        background: gray;
-      }
-
-      .mouse-container {
-        position: absolute;
-        padding: 10px;
-        top: 10px;
-        left: 10px;
-        border: black solid 1px;
-      }
-      .mouse-axis {
-      }
-    </style>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
   </head>
   <body>
     <script type="module">
-      import { World, Component, Types, TagComponent, System } from "ecsy"
-      import { initializeInputSystems, InputReceiver, InputActionHandler, InputAxisHandler2D } from "../dist/ecsy-input.js"
+      import { Component, System, World } from "ecsy"
+      import { initializeInputSystems } from "../dist/ecsy-input.js"
+      const world = new World()
 
-      // Setup world
-        const world = new World();
+      const inputOptions = {
+        mouse: true,
+        keyboard: true,
+        touchscreen: true,
+        gamepad: true,
+        debug: true
+      }
+      initializeInputSystems(world, inputOptions)
 
-        // Test input
-        const inputOptions = {
-          mouse: true,
-          keyboard: true,
-          touchscreen: true,
-          gamepad: true,
-          debug: true
-        }
-
-      // TODO: Import input mapping
-      // TODO: Modify some values
-      // TODO: Pass to world
-
-      initializeInputSystems(world, inputOptions);
-
-      class InputVisualizer extends TagComponent {}
-
-      class BaseDOMComponent extends Component {}
-      BaseDOMComponent.schema = {
-        value: { type: Types.Ref, default: null },
+      var lastTime = performance.now();
+      function update() {
+        var time = performance.now();
+        var delta = time - lastTime;
+        lastTime = time;
+        world.execute(delta);
+        requestAnimationFrame(update);
       }
 
-      class ContainerDOMComponent extends BaseDOMComponent {}
-      class ActionDOMComponent extends BaseDOMComponent {}
-      class AxisDOMComponent extends BaseDOMComponent {}
-
-      world
-        .registerComponent(InputVisualizer)
-        .registerComponent(ContainerDOMComponent)
-        .registerComponent(ActionDOMComponent)
-        .registerComponent(AxisDOMComponent)
-
-      // DemoInputSystem
-      class MouseVisualUpdateSystem extends System {
-        // This method will get called on every frame by default
-        execute(delta, time) {
-          // Iterate through all the entities on the query
-          this.queries.input.added.forEach(entity => {
-            console.log('added!')
-            const containerDiv = document.createElement('div')
-            containerDiv.classList.add('mouse-container')
-            const actionsDiv = document.createElement('div')
-            actionsDiv.classList.add('mouse-actions')
-            actionsDiv.textContent = '-'
-
-            const axisDiv = document.createElement('div')
-            axisDiv.classList.add('mouse-axis')
-            axisDiv.textContent = '-: x---, y---'
-
-            containerDiv.appendChild(actionsDiv)
-            containerDiv.appendChild(axisDiv)
-            document.body.appendChild(containerDiv)
-
-            entity.addComponent(ContainerDOMComponent, { value: containerDiv });
-            entity.addComponent(ActionDOMComponent, { value: actionsDiv });
-            entity.addComponent(AxisDOMComponent, { value: axisDiv });
-          })
-
-          // cleanup of DOM
-          this.queries.input.removed.forEach(entity => {
-            const containerDomComponent = entity.getComponent(ContainerDOMComponent)
-            if (containerDomComponent && containerDomComponent.value) {
-              const container = containerDomComponent.value
-
-              const actionDomComponent = entity.getComponent(ActionDOMComponent)
-              if (actionDomComponent && actionDomComponent.value) {
-                container.removeChild(actionDomComponent.value)
-              }
-              const axisDomComponent = entity.getComponent(AxisDOMComponent)
-              if (axisDomComponent && axisDomComponent.value) {
-                container.removeChild(axisDomComponent.value)
-              }
-
-              document.body.removeChild(container)
-            }
-          })
-
-          this.queries.input.changed.forEach(entity => {
-            const actionHandler = entity.getComponent(InputActionHandler);
-            const lastAction = actionHandler.queue.pop();
-
-            if (lastAction) {
-              const actionComponent = entity.getComponent(ActionDOMComponent)
-              if (actionComponent) {
-                actionComponent.value.textContent = lastAction.action + '-' + lastAction.value
-              }
-            }
-
-            const axisHandler = entity.getComponent(InputAxisHandler2D);
-            const lastAxis = axisHandler.queue.pop();
-
-            if (lastAxis) {
-              const axisDomComponent = entity.getComponent(AxisDOMComponent)
-              if (axisDomComponent) {
-                axisDomComponent.value.textContent = lastAxis.axis + ': x' + lastAxis.value.x + ' y' + lastAxis.value.y
-              }
-            }
-          });
-        }
-      }
-
-      // Define a query of entities that have "Velocity" and "Position" components
-      MouseVisualUpdateSystem.queries = {
-        input: {
-          components: [ InputVisualizer, InputReceiver, InputActionHandler, InputAxisHandler2D ],
-          listen: {
-            added: true,
-            changed: [ InputActionHandler, InputAxisHandler2D ],
-            removed: true
-          }
-        }
-      }
-      world.registerSystem(MouseVisualUpdateSystem)
-
-
-
-
-      world
-        .createEntity()
-        .addComponent(InputVisualizer)
-        .addComponent(InputReceiver)
-        .addComponent(InputActionHandler)
-        .addComponent(InputAxisHandler2D)
-
-        // Let's begin
-        // Run!
-        let lastTime = performance.now();
-        function run() {
-          // Compute delta and elapsed time
-          const time = performance.now();
-          const delta = time - lastTime;
-
-          // Run all the systems
-          world.execute(delta, time);
-
-          lastTime = time;
-          requestAnimationFrame(run);
-        }
-
-        run();
-    </script>
+      update();
+      </script>
+    <div id="actionDataWrapper"><span>Action: </span><span id="actionData"></span></div>
+    <div id="axisDataWrapper"><span>Axis: </span><span id="axisData"></span></div>
   </body>
 </html>
