@@ -34,19 +34,68 @@ initializeInputSystems(world, options)
 world.execute()
 ```
 
+To make an object receive input:
+```javascript
+import {  addInputHandlingToEntity } from 'ecsy-input'
+const newEntity = addInputHandlingToEntity(world.createEntity())
+```
+
 You can override the input mappings per device
 Input mappings map device input to abstract, cross-platform actions
 
-```
-const KeyboardInputMap = {
-  w: ActionType.FORWARD,
-  a: ActionType.LEFT,
-  s: ActionType.RIGHT,
-  d: ActionType.BACKWARD
-}
+```javascript
+      import { initializeInputSystems } from "../dist/ecsy-input.module.js"
 
-initializeInputSystems(world, options, KeyboardInputMap)
-``
+      const Axes = {
+        SCREENXY: 0
+      }
+
+      const Actions = {
+        PRIMARY: 0,
+        SECONDARY: 0,
+        FORWARD: 2,
+        BACKWARD: 3,
+        LEFT: 6,
+        RIGHT: 7
+      }
+
+      const inputMap = {
+        mouse: {
+          actions: {
+            0: Actions.PRIMARY
+          },
+          axes: {
+            mousePosition: Axes.SCREENXY
+          }
+        },
+        keyboard: {
+          actions: {
+            w: Actions.FORWARD,
+            a: Actions.LEFT,
+            s: Actions.RIGHT,
+            d: Actions.BACKWARD
+          }
+        },
+        actionMap: {
+          [Actions.FORWARD]: { opposes: [Actions.BACKWARD] },
+          [Actions.BACKWARD]: { opposes: [Actions.FORWARD] },
+          [Actions.LEFT]: { opposes: [Actions.RIGHT] },
+          [Actions.RIGHT]: { opposes: [Actions.LEFT] }
+        }
+      }
+
+      // Test input
+      const inputOptions = {
+        mouse: true,
+        keyboard: true,
+        touchscreen: true,
+        gamepad: true,
+        debug: true
+      }
+
+      const world = new World()
+      initializeInputSystems(world, inputOptions, inputMap)
+```
 
 # To Build
 ```
