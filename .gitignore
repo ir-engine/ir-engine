@@ -109,3 +109,5 @@ node_modules
 assets
 
 package-lock.json
+
+examples/assets
