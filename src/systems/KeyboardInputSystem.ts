@@ -6,11 +6,12 @@ import UserInput from "../components/UserInput"
 
 export default class KeyboardInputSystem extends System {
   // Temp variables
-  private _kb: KeyboardInput
+  private _userInput: UserInput
 
   execute(): void {
     // Query for user action queue
     this.queries.keyboard.added.forEach(entity => {
+      this._userInput = entity.getComponent(UserInput)
       document.addEventListener("keydown", (e: KeyboardEvent) => {
         if (e.repeat) return
         this.mapKeyToAction(entity, e.key, LifecycleValue.STARTED)
@@ -30,11 +31,10 @@ export default class KeyboardInputSystem extends System {
   }
 
   mapKeyToAction(entity: Entity, key: string, value: LifecycleValue): any {
-    this._kb = entity.getComponent(KeyboardInput)
-    if (this._kb.inputMap[key] === undefined) return
+    if (this._userInput.inputMap.keyboard.actions[key] === undefined) return
     // Add to action queue
     entity.getMutableComponent(InputActionHandler).queue.add({
-      action: this._kb.inputMap[key],
+      action: this._userInput.inputMap[key],
       value: value
     })
   }

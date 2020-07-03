@@ -43,11 +43,11 @@ export default class InputDebugSystem extends System {
 
 InputDebugSystem.queries = {
   actionReceivers: {
-    components: [InputReceiver, InputActionHandler, Not(UserInput)],
+    components: [InputReceiver, InputActionHandler],
     listen: { changed: true }
   },
   axisReceivers: {
-    components: [InputReceiver, InputAxisHandler2D, Not(UserInput)],
+    components: [InputReceiver, InputAxisHandler2D],
     listen: { changed: true }
   }
 }

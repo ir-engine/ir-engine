@@ -9,15 +9,10 @@ import { enableScroll, disableScroll } from "../utils/EnableDisableScrolling"
 export default class MouseInputSystem extends System {
   // Temp variables
   private _mouse: Entity
-  private _axisHandler: InputAxisHandler2D
   public execute(): void {
     this.queries.axis.added.forEach(ent => {
       this._mouse = ent
-      document.addEventListener(
-        "mousemove",
-        e => (this._mouse.getMutableComponent(MouseInput).moveHandler = this.moveHandler(e, ent)),
-        false
-      )
+      document.addEventListener("mousemove", e => (this._mouse.getMutableComponent(MouseInput).moveHandler = this.moveHandler(e, ent)), false)
     })
     this.queries.buttons.added.forEach(ent => {
       this._mouse = ent
@@ -25,8 +20,7 @@ export default class MouseInputSystem extends System {
       disableScroll()
       document.addEventListener(
         "mousedown",
-        e =>
-          (this._mouse.getMutableComponent(MouseInput).downHandler = this.buttonHandler(e, ent, LifecycleValue.STARTED)),
+        e => (this._mouse.getMutableComponent(MouseInput).downHandler = this.buttonHandler(e, ent, LifecycleValue.STARTED)),
         false
       )
       document.addEventListener(
@@ -36,8 +30,7 @@ export default class MouseInputSystem extends System {
       )
     })
     this.queries.axis.removed.forEach(() => {
-      if (this._mouse)
-        document.removeEventListener("mousemove", this._mouse.getMutableComponent(MouseInput).moveHandler)
+      if (this._mouse) document.removeEventListener("mousemove", this._mouse.getMutableComponent(MouseInput).moveHandler)
     })
     this.queries.buttons.removed.forEach(() => {
       document.removeEventListener("contextmenu", event => event.preventDefault())
@@ -51,15 +44,15 @@ export default class MouseInputSystem extends System {
 
   private moveHandler = (e: MouseEvent, entity: Entity): void => {
     entity.getComponent(InputAxisHandler2D).queue.add({
-      axis: this._mouse.getComponent(MouseInput).axisMap.mousePosition,
+      axis: this._mouse.getComponent(UserInput).inputMap.mouse.axes.mousePosition,
       value: { x: e.clientX, y: e.clientY }
     })
   }
 
   private buttonHandler = (e: MouseEvent, entity: Entity, value: LifecycleValue): void => {
-    if (!this._mouse || this._mouse.getComponent(MouseInput).actionMap[e.button] === undefined) return
+    if (!this._mouse || this._mouse.getComponent(UserInput).inputMap.mouse.actions[e.button] === undefined) return
     entity.getMutableComponent(InputActionHandler).queue.add({
-      action: this._mouse.getComponent(MouseInput).actionMap[e.button],
+      action: this._mouse.getComponent(UserInput).inputMap.mouse.actions[e.button],
       value: value
     })
   }
