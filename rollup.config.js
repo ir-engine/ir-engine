@@ -85,6 +85,11 @@ export default [
     ]
   },
   {
+    input: "examples/three.html",
+    output: { dir: "dist" },
+    plugins: [html(), resolve()]
+  },
+  {
     input: "examples/index.html",
     output: { dir: "dist" },
     plugins: [

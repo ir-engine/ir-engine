@@ -19,8 +19,18 @@
         debug: true
       }
       initializeInputSystems(world, inputOptions)
-      world.execute()
-    </script>
+
+      var lastTime = performance.now();
+      function update() {
+        var time = performance.now();
+        var delta = time - lastTime;
+        lastTime = time;
+        world.execute(delta);
+        requestAnimationFrame(update);
+      }
+
+      update();
+      </script>
     <div id="actionDataWrapper"><span>Action: </span><span id="actionData"></span></div>
     <div id="axisDataWrapper"><span>Axis: </span><span id="axisData"></span></div>
   </body>
