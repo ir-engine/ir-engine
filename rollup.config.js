@@ -33,6 +33,11 @@ export default [
     plugins: [typescript(), html(), resolve()]
   },
   {
+    input: "examples/custominput.html",
+    output: { dir: "dist" },
+    plugins: [typescript(), html(), resolve()]
+  },
+  {
     input: "examples/index.html",
     output: { dir: "dist" },
     plugins: [
