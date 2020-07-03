@@ -9,33 +9,33 @@ export default class InputDebugSystem extends System {
   _axisDataUIElement: any
   public execute(): void {
     this.queries.actionReceivers.changed.forEach(entity => {
-      if (entity.getComponent(InputActionHandler).queue.getBufferLength() > 0) {
+      if (entity.getComponent(InputActionHandler).values.getBufferLength() > 0) {
         entity
           .getComponent(InputActionHandler)
-          .queue.toArray()
+          .values.toArray()
           .forEach(element => {
             console.log(element)
             this._actionDataUIElement = document.getElementById("actionData")
             if (this._actionDataUIElement) {
               this._actionDataUIElement.innerHTML =
-                entity.getComponent(InputActionHandler).queue.toArray()[0].action +
+                entity.getComponent(InputActionHandler).values.toArray()[0].action +
                 " | " +
-                entity.getComponent(InputActionHandler).queue.toArray()[0].value
+                entity.getComponent(InputActionHandler).values.toArray()[0].value
             }
           })
       }
     })
     this.queries.axisReceivers.changed.forEach(entity => {
-      if (entity.getComponent(InputAxisHandler2D).queue.getBufferLength() > 0)
-        console.log("Axes: " + entity.getComponent(InputAxisHandler2D).queue.getBufferLength())
+      if (entity.getComponent(InputAxisHandler2D).values.getBufferLength() > 0)
+        console.log("Axes: " + entity.getComponent(InputAxisHandler2D).values.getBufferLength())
       this._axisDataUIElement = document.getElementById("axisData")
       if (this._axisDataUIElement) {
         this._axisDataUIElement.innerHTML =
-          entity.getComponent(InputAxisHandler2D).queue.toArray()[0].axis +
+          entity.getComponent(InputAxisHandler2D).values.toArray()[0].axis +
           " | x: " +
-          entity.getComponent(InputAxisHandler2D).queue.toArray()[0].value.x +
+          entity.getComponent(InputAxisHandler2D).values.toArray()[0].value.x +
           " | y: " +
-          entity.getComponent(InputAxisHandler2D).queue.toArray()[0].value.y
+          entity.getComponent(InputAxisHandler2D).values.toArray()[0].value.y
       }
     })
   }
@@ -43,11 +43,11 @@ export default class InputDebugSystem extends System {
 
 InputDebugSystem.queries = {
   actionReceivers: {
-    components: [InputReceiver, InputActionHandler, Not(UserInput)],
+    components: [InputReceiver, InputActionHandler],
     listen: { changed: true }
   },
   axisReceivers: {
-    components: [InputReceiver, InputAxisHandler2D, Not(UserInput)],
+    components: [InputReceiver, InputAxisHandler2D],
     listen: { changed: true }
   }
 }
