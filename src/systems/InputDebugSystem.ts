@@ -15,9 +15,12 @@ export default class InputDebugSystem extends System {
           .queue.toArray()
           .forEach(element => {
             console.log(element)
-            this._actionDataUIElement = document.getElementById("axisData")
+            this._actionDataUIElement = document.getElementById("actionData")
             if (this._actionDataUIElement !== undefined) {
-              this._actionDataUIElement.innerHTML = entity.getComponent(InputAxisHandler2D).queue.toArray()
+              this._actionDataUIElement.innerHTML =
+                entity.getComponent(InputActionHandler).queue.toArray()[0].action +
+                " | " +
+                entity.getComponent(InputActionHandler).queue.toArray()[0].value
             }
           })
       }
@@ -27,7 +30,12 @@ export default class InputDebugSystem extends System {
         console.log("Axes: " + entity.getComponent(InputAxisHandler2D).queue.getBufferLength())
       this._axisDataUIElement = document.getElementById("axisData")
       if (this._axisDataUIElement !== undefined) {
-        this._axisDataUIElement.innerHTML = entity.getComponent(InputAxisHandler2D).queue.toArray()
+        this._axisDataUIElement.innerHTML =
+          entity.getComponent(InputAxisHandler2D).queue.toArray()[0].axis +
+          " | x: " +
+          entity.getComponent(InputAxisHandler2D).queue.toArray()[0].value.x +
+          " | y: " +
+          entity.getComponent(InputAxisHandler2D).queue.toArray()[0].value.y
       }
     })
   }
