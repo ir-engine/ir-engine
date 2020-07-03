@@ -1,4 +1,7 @@
-export default class RingBuffer<T> {
+import { Component } from "ecsy"
+import { createType, copyCopyable, cloneClonable } from "ecsy"
+
+export class RingBuffer<T> {
   public static fromArray<T>(data: T[], size = 0): RingBuffer<T> {
     const actionBuffer = new RingBuffer<T>(size)
     actionBuffer.fromArray(data, size === 0)
@@ -139,5 +142,24 @@ export default class RingBuffer<T> {
 
   public empty(): boolean {
     return this.buffer.length === 0
+  }
+}
+
+export default class BufferedComponent<Props, BufferedType> extends Component<Props> {
+  bufferSize = 10
+  values: RingBuffer<BufferedType> = new RingBuffer<BufferedType>(this.bufferSize)
+  setBufferSize(newSize: number, resetBuffer = true): void {
+    this.bufferSize = newSize
+    if (resetBuffer) this.values = new RingBuffer<BufferedType>(this.bufferSize)
+  }
+  schema = {
+    values: {
+      type: createType<RingBuffer<BufferedType>>({
+        name: "ActionBuffer",
+        default: new RingBuffer<BufferedType>(this.bufferSize),
+        copy: copyCopyable,
+        clone: cloneClonable
+      })
+    }
   }
 }

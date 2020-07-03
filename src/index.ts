@@ -15,10 +15,8 @@ import InputAxisHandler2D from "./components/InputAxisHandler2D"
 import InputDebugSystem from "./systems/InputDebugSystem"
 import InputActionSystem from "./systems/InputActionSystem"
 import InputAxisSystem from "./systems/InputAxisSystem"
-import InputActionMapData from "./components/InputActionMapData"
 import InputReceiver from "./components/InputReceiver"
-import AxisMap from "./interfaces/AxisMap"
-import ActionMap from "./interfaces/ActionMap"
+import InputMap from "./interfaces/InputMap"
 
 const DEFAULT_OPTIONS = {
   mouse: true,
@@ -35,15 +33,7 @@ export {
   initializeInputSystems
 }
 
-function initializeInputSystems(
-  world: World,
-  options = DEFAULT_OPTIONS,
-  keyboardInputMap?,
-  mouseInputMap?,
-  // mobileInputMap?,
-  // VRInputMap?,
-  actionMap?
-): void {
+function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, inputMap?: InputMap): void {
   if (options.debug) console.log("Initializing input systems...")
 
   if (!isBrowser) return console.error("Couldn't initialize input, are you in a browser?")
@@ -60,7 +50,6 @@ function initializeInputSystems(
     .registerComponent(InputActionHandler)
     .registerComponent(InputAxisHandler2D)
     .registerComponent(InputReceiver)
-    .registerComponent(InputActionMapData)
 
   if (options.keyboard) world.registerSystem(KeyboardInputSystem).registerComponent(KeyboardInput)
   if (options.mouse) world.registerSystem(MouseInputSystem).registerComponent(MouseInput)
@@ -72,8 +61,6 @@ function initializeInputSystems(
     .addComponent(UserInput)
     .addComponent(InputActionHandler)
     .addComponent(InputAxisHandler2D)
-    .addComponent(InputActionMapData)
-    .addComponent(InputReceiver)
 
   const inputReceiverEntity = world
     .createEntity()
@@ -82,25 +69,21 @@ function initializeInputSystems(
     .addComponent(InputAxisHandler2D)
 
   // Custom Action Map
-  if (actionMap) {
-    inputSystemEntity.getMutableComponent(InputActionMapData).actionMap = actionMap
+  if (inputMap) {
+    console.log("Using input map:")
+    console.log(inputMap)
+    inputSystemEntity.getMutableComponent(UserInput).inputMap = inputMap
+  } else {
+    console.log("No input map")
   }
 
   if (options.keyboard) {
     inputSystemEntity.addComponent(KeyboardInput)
-    if (keyboardInputMap) {
-      inputSystemEntity.getMutableComponent(KeyboardInput).inputMap = keyboardInputMap
-    }
-    console.log("Registered KeyboardInputSystem and added KeyboardInput component to input entity")
+    if (options.debug) console.log("Registered KeyboardInputSystem and added KeyboardInput component to input entity")
   }
 
   if (options.mouse) {
     inputSystemEntity.addComponent(MouseInput)
-
-    if (mouseInputMap) {
-      inputSystemEntity.getMutableComponent(MouseInput).actionMap = mouseInputMap
-    }
-
     if (options.debug) console.log("Registered MouseInputSystem and added MouseInput component to input entity")
   }
 
@@ -125,14 +108,14 @@ function initializeInputSystems(
   }
 }
 
-export function addActionHandlingToEntity(entity: Entity, actionFilter?: ActionMap){
-  // Try get component on actionhandler, inputreceiver
-  // If either is true, throw warning
-  // If either fails, add components
-}
-
-export function AddAxisHandlingToEntity(entity: Entity, axisFilter?: AxisMap){
+export function addInputHandlingToEntity(entity: Entity, inputFilter?: InputMap): Entity {
   // Try get component on axishandler, inputreceiver
-  // If either is true, throw warning
-  // If either fails, add components
+  if (entity.getComponent(InputReceiver) !== undefined) console.warn("Warning: Entity already has input receiver component")
+  else {
+    entity
+      .addComponent(InputReceiver)
+      .addComponent(InputAxisHandler2D)
+      .addComponent(InputActionHandler)
+  }
+  return entity
 }
