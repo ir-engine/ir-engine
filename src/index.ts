@@ -26,7 +26,14 @@ const DEFAULT_OPTIONS = {
   debug: false
 }
 
-export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, inputMap?: InputMap): void {
+export {
+  InputReceiver,
+  InputActionHandler,
+  InputAxisHandler2D,
+  initializeInputSystems
+}
+
+function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, inputMap?: InputMap): void {
   if (options.debug) console.log("Initializing input systems...")
 
   if (!isBrowser) return console.error("Couldn't initialize input, are you in a browser?")
