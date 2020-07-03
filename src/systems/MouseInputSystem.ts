@@ -43,7 +43,7 @@ export default class MouseInputSystem extends System {
   }
 
   private moveHandler = (e: MouseEvent, entity: Entity): void => {
-    entity.getComponent(InputAxisHandler2D).queue.add({
+    entity.getComponent(InputAxisHandler2D).values.add({
       axis: this._mouse.getComponent(UserInput).inputMap.mouse.axes.mousePosition,
       value: { x: e.clientX, y: e.clientY }
     })
@@ -51,7 +51,7 @@ export default class MouseInputSystem extends System {
 
   private buttonHandler = (e: MouseEvent, entity: Entity, value: LifecycleValue): void => {
     if (!this._mouse || this._mouse.getComponent(UserInput).inputMap.mouse.actions[e.button] === undefined) return
-    entity.getMutableComponent(InputActionHandler).queue.add({
+    entity.getMutableComponent(InputActionHandler).values.add({
       action: this._mouse.getComponent(UserInput).inputMap.mouse.actions[e.button],
       value: value
     })
