@@ -1,4 +1,4 @@
-import DracoFileCreator from "../src/Dracosis/Encoder";
+import DracoFileCreator from "../dist/Dracosis/Encoder";
 import * as THREE from "three";
 
 var callback = function () {
