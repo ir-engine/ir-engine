@@ -13,7 +13,8 @@ const Actions = {
   JUMP: 10,
   WALK: 11,
   RUN: 12,
-  SPRINT: 13
+  SPRINT: 13,
+  SNEAK: 14
 }
 
 export default Actions
