@@ -17,6 +17,7 @@
 
       .mouse-container {
         position: absolute;
+        padding: 10px;
         top: 10px;
         left: 10px;
         border: black solid 1px;
@@ -28,7 +29,7 @@
   <body>
     <script type="module">
       import { World, Component, Types, TagComponent, System } from "ecsy"
-      import { initializeInputSystems, InputReceiver, InputActionHandler, InputAxisHandler2D } from "../dist/ecsy-input.module.js"
+      import { initializeInputSystems, InputReceiver, InputActionHandler, InputAxisHandler2D } from "../dist/ecsy-input.js"
 
       // Setup world
         const world = new World();
@@ -76,8 +77,11 @@
             containerDiv.classList.add('mouse-container')
             const actionsDiv = document.createElement('div')
             actionsDiv.classList.add('mouse-actions')
+            actionsDiv.textContent = '-'
+
             const axisDiv = document.createElement('div')
             axisDiv.classList.add('mouse-axis')
+            axisDiv.textContent = '-: x---, y---'
 
             containerDiv.appendChild(actionsDiv)
             containerDiv.appendChild(axisDiv)
@@ -87,13 +91,30 @@
             entity.addComponent(ActionDOMComponent, { value: actionsDiv });
             entity.addComponent(AxisDOMComponent, { value: axisDiv });
           })
-          // TODO: add "removed" cleanup of DOM
+
+          // cleanup of DOM
+          this.queries.input.removed.forEach(entity => {
+            const containerDomComponent = entity.getComponent(ContainerDOMComponent)
+            if (containerDomComponent && containerDomComponent.value) {
+              const container = containerDomComponent.value
+
+              const actionDomComponent = entity.getComponent(ActionDOMComponent)
+              if (actionDomComponent && actionDomComponent.value) {
+                container.removeChild(actionDomComponent.value)
+              }
+              const axisDomComponent = entity.getComponent(AxisDOMComponent)
+              if (axisDomComponent && axisDomComponent.value) {
+                container.removeChild(axisDomComponent.value)
+              }
+
+              document.body.removeChild(container)
+            }
+          })
 
           this.queries.input.changed.forEach(entity => {
             const actionHandler = entity.getComponent(InputActionHandler);
             const lastAction = actionHandler.queue.pop();
 
-            console.log('last action', lastAction);
             if (lastAction) {
               const actionComponent = entity.getComponent(ActionDOMComponent)
               if (actionComponent) {
@@ -104,12 +125,10 @@
             const axisHandler = entity.getComponent(InputAxisHandler2D);
             const lastAxis = axisHandler.queue.pop();
 
-            console.log('last axis', lastAxis);
             if (lastAxis) {
-
               const axisDomComponent = entity.getComponent(AxisDOMComponent)
               if (axisDomComponent) {
-                //axisDomComponent.value.textContent = lastAction.type + '-' + lastAction.input
+                axisDomComponent.value.textContent = lastAxis.axis + ': x' + lastAxis.value.x + ' y' + lastAxis.value.y
               }
             }
           });
