@@ -1,13 +1,12 @@
 {
     "compilerOptions": {
-      "declaration": true,
       "module": "es6",
       "noImplicitAny": false,
       "target": "es6",
       "moduleResolution": "Node"
     },
     "include": [
-      "src/**/*", "common/src/axis/types/Axis2DType.ts", "common/src/axis/types/AxisBufferType.ts", "common/src/action/enums/LifecycleState.ts", "common/src/action/types/ActionBufferType.ts", "common/src/action/enums/InputActionType.ts", "common/src/action/interfaces/Action copy.ts", "common/src/axis/enums/AxisType.ts", "common/src/axis/components/InputAxisQueue.ts", "common/src/actions/interfaces/ActionBuffer.ts", "common/actions/src/interfaces/ActionValue.ts"
+      "src/**/*", "common/src/axis/types/Axis2DType.ts", "common/src/axis/types/AxisBufferType.ts", "common/src/action/enums/LifecycleState.ts", "common/src/action/types/ActionBufferType.ts", "common/src/action/enums/InputActionType.ts", "common/src/action/interfaces/Action copy.ts", "common/src/axis/enums/AxisType.ts", "common/src/axis/components/InputAxisQueue.ts", "common/src/actions/interfaces/ActionBuffer.ts", "common/actions/src/interfaces/ActionValue.ts", "examples/input.js"
     ],
     "exclude": ["node_modules", "examples/**"]
   }
