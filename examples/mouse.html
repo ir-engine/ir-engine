@@ -113,7 +113,7 @@
 
           this.queries.input.changed.forEach(entity => {
             const actionHandler = entity.getComponent(InputActionHandler);
-            const lastAction = actionHandler.queue.pop();
+            const lastAction = actionHandler.queue.getLast();
 
             if (lastAction) {
               const actionComponent = entity.getComponent(ActionDOMComponent)
@@ -123,7 +123,7 @@
             }
 
             const axisHandler = entity.getComponent(InputAxisHandler2D);
-            const lastAxis = axisHandler.queue.pop();
+            const lastAxis = axisHandler.queue.getLast();
 
             if (lastAxis) {
               const axisDomComponent = entity.getComponent(AxisDOMComponent)
