@@ -64,7 +64,7 @@
   },
   "scripts": {
     "build": "rollup -c",
-    "dev": "rollup -cw --sourcemap",
+    "dev": "rollup -cw",
     "lint": "eslint ./src/**/*",
     "start": "npm run build"
   },
