@@ -721,7 +721,7 @@ if (hasWindow) {
   }
 }
 
-const ActionType = {
+const Actions = {
   DEFAULT: -1,
   PRIMARY: 0,
   SECONDARY: 1,
@@ -739,20 +739,31 @@ const ActionType = {
   SPRINT: 13
 };
 
-const DefaultAxisType = {
+const Axes = {
   SCREENXY: 0,
   DPADONE: 1,
-  DPADTWO: 2
+  DPADTWO: 2,
+  DPADTHREE: 3,
+  DPADFOUR: 4,
+  MOVEMENT_IDLE: 0,
+  MOVEMENT_WALKING_FORWARD: 11,
+  MOVEMENT_JOGGING_FORWARD: 12,
+  MOVEMENT_RUNNING_FORWARD: 13,
+  MOVEMENT_WALKING_BACKWARD: 14,
+  MOVEMENT_JOGGING_BACKWARD: 15,
+  MOVEMENT_STRAFING_RIGHT: 16,
+  MOVEMENT_STRAFING_LEFT: 17,
+  MOVEMENT_RUNNING_BACKWARD: 18
 };
 
 const MouseInputActionMap = {
-  0: ActionType.PRIMARY,
-  2: ActionType.SECONDARY,
-  1: ActionType.INTERACT // Middle Mouse button
+  0: Actions.PRIMARY,
+  2: Actions.SECONDARY,
+  1: Actions.INTERACT // Middle Mouse button
 
 };
 const MouseInputAxisMap = {
-  mousePosition: DefaultAxisType.SCREENXY
+  mousePosition: Axes.SCREENXY
 };
 
 class MouseInput extends Component {
@@ -1095,10 +1106,10 @@ MouseInputSystem.queries = {
 };
 
 const KeyboardInputMap = {
-  w: ActionType.FORWARD,
-  a: ActionType.LEFT,
-  s: ActionType.RIGHT,
-  d: ActionType.BACKWARD
+  w: Actions.FORWARD,
+  a: Actions.LEFT,
+  s: Actions.RIGHT,
+  d: Actions.BACKWARD
 };
 
 class KeyboardInput extends Component {
@@ -1245,11 +1256,21 @@ class InputDebugSystem extends System {
       if (entity.getComponent(InputActionHandler).queue.getBufferLength() > 0) {
         entity.getComponent(InputActionHandler).queue.toArray().forEach(element => {
           console.log(element);
+          this._actionDataUIElement = document.getElementById("axisData");
+
+          if (this._actionDataUIElement !== undefined) {
+            this._actionDataUIElement.innerHTML = entity.getComponent(InputAxisHandler2D).queue.toArray();
+          }
         });
       }
     });
     this.queries.axisReceivers.changed.forEach(entity => {
       if (entity.getComponent(InputAxisHandler2D).queue.getBufferLength() > 0) console.log("Axes: " + entity.getComponent(InputAxisHandler2D).queue.getBufferLength());
+      this._axisDataUIElement = document.getElementById("axisData");
+
+      if (this._axisDataUIElement !== undefined) {
+        this._axisDataUIElement.innerHTML = entity.getComponent(InputAxisHandler2D).queue.toArray();
+      }
     });
   }
 
@@ -1270,17 +1291,17 @@ InputDebugSystem.queries = {
 };
 
 const ActionMap = {
-  [ActionType.FORWARD]: {
-    opposes: [ActionType.BACKWARD]
+  [Actions.FORWARD]: {
+    opposes: [Actions.BACKWARD]
   },
-  [ActionType.BACKWARD]: {
-    opposes: [ActionType.FORWARD]
+  [Actions.BACKWARD]: {
+    opposes: [Actions.FORWARD]
   },
-  [ActionType.LEFT]: {
-    opposes: [ActionType.RIGHT]
+  [Actions.LEFT]: {
+    opposes: [Actions.RIGHT]
   },
-  [ActionType.RIGHT]: {
-    opposes: [ActionType.LEFT]
+  [Actions.RIGHT]: {
+    opposes: [Actions.LEFT]
   }
 };
 
@@ -1305,21 +1326,24 @@ class InputActionSystem extends System {
   }
 
   execute() {
-    // Add action map
     this.queries.actionMapData.added.forEach(entity => {
+      console.log("map data added");
       this._actionMap = entity.getComponent(InputActionMapData).actionMap;
-    }); // Set action queue
+    }); // // Set action queue
 
     this.queries.userInputActionQueue.added.forEach(input => {
-      console.log("User input action queue added");
-      this._userInputActionQueue = input.getMutableComponent(InputActionHandler);
+      this._userInputActionQueue = input.getComponent(InputActionHandler);
     });
+    if (this._userInputActionQueue.queue.getBufferLength() < 1) return;
     this.queries.actionReceivers.results.forEach(receiver => {
-      if (receiver.getComponent(InputActionHandler).queue.getBufferLength() > 0) receiver.getMutableComponent(InputActionHandler).queue.clear();
-      if (this._userInputActionQueue.queue.getBufferLength() > 0) this.applyInputToListener(this._userInputActionQueue, receiver);
-    }); // Clear all actions
+      if (receiver.getComponent(InputActionHandler).queue.getBufferLength() > 0) {
+        receiver.getMutableComponent(InputActionHandler).queue.clear();
+      }
 
-    if (this._userInputActionQueue) this._userInputActionQueue.queue.clear();
+      this.applyInputToListener(this._userInputActionQueue, receiver);
+    });
+
+    this._userInputActionQueue.queue.clear();
   }
 
   validateActions(actionHandler) {
