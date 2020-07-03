@@ -1,4 +1,4 @@
-const ActionType = {
+const Actions = {
   DEFAULT: -1,
   PRIMARY: 0,
   SECONDARY: 1,
@@ -16,4 +16,4 @@ const ActionType = {
   SPRINT: 13
 }
 
-export default ActionType
+export default Actions

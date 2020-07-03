@@ -721,7 +721,7 @@ if (hasWindow) {
   }
 }
 
-const ActionType = {
+const Actions = {
   DEFAULT: -1,
   PRIMARY: 0,
   SECONDARY: 1,
@@ -739,20 +739,31 @@ const ActionType = {
   SPRINT: 13
 };
 
-const DefaultAxisType = {
+const Axes = {
   SCREENXY: 0,
   DPADONE: 1,
-  DPADTWO: 2
+  DPADTWO: 2,
+  DPADTHREE: 3,
+  DPADFOUR: 4,
+  MOVEMENT_IDLE: 0,
+  MOVEMENT_WALKING_FORWARD: 11,
+  MOVEMENT_JOGGING_FORWARD: 12,
+  MOVEMENT_RUNNING_FORWARD: 13,
+  MOVEMENT_WALKING_BACKWARD: 14,
+  MOVEMENT_JOGGING_BACKWARD: 15,
+  MOVEMENT_STRAFING_RIGHT: 16,
+  MOVEMENT_STRAFING_LEFT: 17,
+  MOVEMENT_RUNNING_BACKWARD: 18
 };
 
 const MouseInputActionMap = {
-  0: ActionType.PRIMARY,
-  2: ActionType.SECONDARY,
-  1: ActionType.INTERACT // Middle Mouse button
+  0: Actions.PRIMARY,
+  2: Actions.SECONDARY,
+  1: Actions.INTERACT // Middle Mouse button
 
 };
 const MouseInputAxisMap = {
-  mousePosition: DefaultAxisType.SCREENXY
+  mousePosition: Axes.SCREENXY
 };
 
 class MouseInput extends Component {
@@ -1032,15 +1043,8 @@ class MouseInputSystem extends System {
     super(...arguments);
 
     this.moveHandler = (e, entity) => {
-      console.log('MH', {
-        axis: this._mouse.axisMap.mousePosition,
-        value: {
-          x: e.clientX,
-          y: e.clientY
-        }
-      });
       entity.getComponent(InputAxisHandler2D).queue.add({
-        axis: this._mouse.axisMap.mousePosition,
+        axis: this._mouse.getComponent(MouseInput).axisMap.mousePosition,
         value: {
           x: e.clientX,
           y: e.clientY
@@ -1049,10 +1053,9 @@ class MouseInputSystem extends System {
     };
 
     this.buttonHandler = (e, entity, value) => {
-      this._mouse = entity.getComponent(MouseInput);
-      if (!this._mouse || this._mouse.actionMap[e.button] === undefined) return;
+      if (!this._mouse || this._mouse.getComponent(MouseInput).actionMap[e.button] === undefined) return;
       entity.getMutableComponent(InputActionHandler).queue.add({
-        action: this._mouse.actionMap[e.button],
+        action: this._mouse.getComponent(MouseInput).actionMap[e.button],
         value: value
       });
     };
@@ -1060,27 +1063,27 @@ class MouseInputSystem extends System {
 
   execute() {
     this.queries.axis.added.forEach(ent => {
-      console.log('axis added');
-      this._mouse = ent.getMutableComponent(MouseInput);
-      document.addEventListener("mousemove", e => this._mouse.moveHandler = this.moveHandler(e, ent), false);
+      this._mouse = ent;
+      document.addEventListener("mousemove", e => this._mouse.getMutableComponent(MouseInput).moveHandler = this.moveHandler(e, ent), false);
     });
     this.queries.buttons.added.forEach(ent => {
-      this._mouse = ent.getMutableComponent(MouseInput);
+      this._mouse = ent;
       document.addEventListener("contextmenu", event => event.preventDefault());
       disableScroll();
-      document.addEventListener("mousedown", e => this._mouse.downHandler = this.buttonHandler(e, ent, LifecycleValue$1.STARTED), false);
-      document.addEventListener("mouseup", e => this._mouse.upHandler = this.buttonHandler(e, ent, LifecycleValue$1.ENDED), false);
+      document.addEventListener("mousedown", e => this._mouse.getMutableComponent(MouseInput).downHandler = this.buttonHandler(e, ent, LifecycleValue$1.STARTED), false);
+      document.addEventListener("mouseup", e => this._mouse.getMutableComponent(MouseInput).upHandler = this.buttonHandler(e, ent, LifecycleValue$1.ENDED), false);
     });
-    this.queries.axis.removed.forEach(ent => {
-      const mouse = ent.getComponent(MouseInput);
-      if (mouse) document.removeEventListener("mousemove", mouse.upHandler);
+    this.queries.axis.removed.forEach(() => {
+      if (this._mouse) document.removeEventListener("mousemove", this._mouse.getMutableComponent(MouseInput).moveHandler);
     });
-    this.queries.buttons.removed.forEach(ent => {
+    this.queries.buttons.removed.forEach(() => {
       document.removeEventListener("contextmenu", event => event.preventDefault());
       enableScroll();
-      const mouse = ent.getComponent(MouseInput);
-      if (mouse) document.removeEventListener("mousedown", mouse.downHandler);
-      if (mouse) document.removeEventListener("mouseup", mouse.moveHandler);
+
+      if (this._mouse) {
+        document.removeEventListener("mousedown", this._mouse.getMutableComponent(MouseInput).downHandler);
+        document.removeEventListener("mouseup", this._mouse.getMutableComponent(MouseInput).upHandler);
+      }
     });
   }
 
@@ -1103,10 +1106,10 @@ MouseInputSystem.queries = {
 };
 
 const KeyboardInputMap = {
-  w: ActionType.FORWARD,
-  a: ActionType.LEFT,
-  s: ActionType.RIGHT,
-  d: ActionType.BACKWARD
+  w: Actions.FORWARD,
+  a: Actions.LEFT,
+  s: Actions.RIGHT,
+  d: Actions.BACKWARD
 };
 
 class KeyboardInput extends Component {
@@ -1128,6 +1131,7 @@ class KeyboardInputSystem extends System {
     // Query for user action queue
     this.queries.keyboard.added.forEach(entity => {
       document.addEventListener("keydown", e => {
+        if (e.repeat) return;
         this.mapKeyToAction(entity, e.key, LifecycleValue$1.STARTED);
       });
       document.addEventListener("keyup", e => {
@@ -1252,11 +1256,21 @@ class InputDebugSystem extends System {
       if (entity.getComponent(InputActionHandler).queue.getBufferLength() > 0) {
         entity.getComponent(InputActionHandler).queue.toArray().forEach(element => {
           console.log(element);
+          this._actionDataUIElement = document.getElementById("actionData");
+
+          if (this._actionDataUIElement !== undefined) {
+            this._actionDataUIElement.innerHTML = entity.getComponent(InputActionHandler).queue.toArray()[0].action + " | " + entity.getComponent(InputActionHandler).queue.toArray()[0].value;
+          }
         });
       }
     });
     this.queries.axisReceivers.changed.forEach(entity => {
       if (entity.getComponent(InputAxisHandler2D).queue.getBufferLength() > 0) console.log("Axes: " + entity.getComponent(InputAxisHandler2D).queue.getBufferLength());
+      this._axisDataUIElement = document.getElementById("axisData");
+
+      if (this._axisDataUIElement !== undefined) {
+        this._axisDataUIElement.innerHTML = entity.getComponent(InputAxisHandler2D).queue.toArray()[0].axis + " | x: " + entity.getComponent(InputAxisHandler2D).queue.toArray()[0].value.x + " | y: " + entity.getComponent(InputAxisHandler2D).queue.toArray()[0].value.y;
+      }
     });
   }
 
@@ -1277,17 +1291,17 @@ InputDebugSystem.queries = {
 };
 
 const ActionMap = {
-  [ActionType.FORWARD]: {
-    opposes: [ActionType.BACKWARD]
+  [Actions.FORWARD]: {
+    opposes: [Actions.BACKWARD]
   },
-  [ActionType.BACKWARD]: {
-    opposes: [ActionType.FORWARD]
+  [Actions.BACKWARD]: {
+    opposes: [Actions.FORWARD]
   },
-  [ActionType.LEFT]: {
-    opposes: [ActionType.RIGHT]
+  [Actions.LEFT]: {
+    opposes: [Actions.RIGHT]
   },
-  [ActionType.RIGHT]: {
-    opposes: [ActionType.LEFT]
+  [Actions.RIGHT]: {
+    opposes: [Actions.LEFT]
   }
 };
 
@@ -1312,21 +1326,24 @@ class InputActionSystem extends System {
   }
 
   execute() {
-    // Add action map
     this.queries.actionMapData.added.forEach(entity => {
+      console.log("map data added");
       this._actionMap = entity.getComponent(InputActionMapData).actionMap;
-    }); // Set action queue
+    }); // // Set action queue
 
     this.queries.userInputActionQueue.added.forEach(input => {
-      console.log("User input action queue added");
-      this._userInputActionQueue = input.getMutableComponent(InputActionHandler);
+      this._userInputActionQueue = input.getComponent(InputActionHandler);
     });
+    if (this._userInputActionQueue.queue.getBufferLength() < 1) return;
     this.queries.actionReceivers.results.forEach(receiver => {
-      if (receiver.getComponent(InputActionHandler).queue.getBufferLength() > 0) receiver.getMutableComponent(InputActionHandler).queue.clear();
-      if (this._userInputActionQueue.queue.getBufferLength() > 0) this.applyInputToListener(this._userInputActionQueue, receiver);
-    }); // Clear all actions
+      if (receiver.getComponent(InputActionHandler).queue.getBufferLength() > 0) {
+        receiver.getMutableComponent(InputActionHandler).queue.clear();
+      }
 
-    if (this._userInputActionQueue) this._userInputActionQueue.queue.clear();
+      this.applyInputToListener(this._userInputActionQueue, receiver);
+    });
+
+    this._userInputActionQueue.queue.clear();
   }
 
   validateActions(actionHandler) {
@@ -1439,16 +1456,22 @@ InputActionSystem.queries = {
 
 class InputAxisSystem extends System {
   execute() {
-    var _a;
-
-    (_a = this.queries.userInputAxisQueue.added) === null || _a === void 0 ? void 0 : _a.forEach(entity => {
+    this.queries.userInputAxisQueue.added.forEach(entity => {
       this._userInputAxisQueue = entity.getMutableComponent(InputAxisHandler2D);
     }); // If the queue hasn't been set yet, or the queue length is 0
 
-    if (!this._userInputAxisQueue || this._userInputAxisQueue.queue.getBufferLength() < 1) return;
+    if (!this._userInputAxisQueue || this._userInputAxisQueue.queue.getBufferLength() < 1) {
+      return;
+    }
+
     this.queries.axisReceivers.results.forEach(entity => {
-      if (entity.getComponent(InputAxisHandler2D).queue.getBufferLength() > 0) entity.getMutableComponent(InputAxisHandler2D).queue.clear();
-      if (this._userInputAxisQueue.queue.getBufferLength() > 0) this.applyInputToListener(this._userInputAxisQueue, entity.getMutableComponent(InputAxisHandler2D));
+      if (entity.getComponent(InputAxisHandler2D).queue.getBufferLength() > 0) {
+        entity.getMutableComponent(InputAxisHandler2D).queue.clear();
+      }
+
+      if (this._userInputAxisQueue.queue.getBufferLength() > 0) {
+        this.applyInputToListener(this._userInputAxisQueue, entity.getMutableComponent(InputAxisHandler2D));
+      }
     }); // Clear all axis
 
     this._userInputAxisQueue.queue.clear();
@@ -1475,10 +1498,13 @@ class InputAxisSystem extends System {
 }
 InputAxisSystem.queries = {
   userInputAxisQueue: {
-    components: [UserInput, InputAxisHandler2D]
+    components: [UserInput, InputAxisHandler2D],
+    listen: {
+      added: true
+    }
   },
   axisReceivers: {
-    components: [InputReceiver, InputAxisHandler2D]
+    components: [InputReceiver, InputAxisHandler2D, Not(UserInput)]
   }
 };
 
@@ -1489,7 +1515,6 @@ const DEFAULT_OPTIONS = {
   gamepad: true,
   debug: false
 };
-
 function initializeInputSystems(world, options = DEFAULT_OPTIONS, keyboardInputMap, mouseInputMap, // mobileInputMap?,
 // VRInputMap?,
 actionMap) {
@@ -1555,4 +1580,4 @@ actionMap) {
   }
 }
 
-export { InputActionHandler, InputReceiver, initializeInputSystems };
+export { initializeInputSystems };
