@@ -10,7 +10,7 @@ export default [
   {
     input: "src/index.ts",
     plugins: [
-      typescript({ sourceMap: true }),
+      typescript(),
       resolve(),
       json({ exclude: ["node_modules/**", "examples/**"] }),
       // terser(),
@@ -41,12 +41,12 @@ export default [
     input: "examples/index.html",
     output: { dir: "dist" },
     plugins: [
-      typescript({ sourceMap: true }),
+      typescript(),
       html(),
       resolve(),
       serve({
         // Launch in browser (default: false)
-        // open: true,
+        open: true,
         openPage: "/dist/index.html",
         contentBase: ["./"]
       })
