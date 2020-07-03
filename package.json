@@ -14,7 +14,6 @@
     "prettier-eslint": "^11.0.0",
     "rollup-plugin-html-entry": "^0.3.0",
     "rollup-plugin-index-html": "^1.12.4",
-    "troika-3d-text": "^0.28.1",
     "tslib": "^2.0.0"
   },
   "deprecated": false,
@@ -64,8 +63,8 @@
     "url": "git+https://github.com/xr3ngine/ecsy-input.git"
   },
   "scripts": {
-    "build": "tsc --outDir .buildcache/ --declarationDir .buildcache/ --declaration true && rollup -c",
-    "dev": "tsc --outDir .buildcache/ --declarationDir .buildcache/ --declaration true && rollup -cw",
+    "build": "rollup -c",
+    "dev": "rollup -cw",
     "lint": "eslint ./src/**/*",
     "start": "npm run build"
   },

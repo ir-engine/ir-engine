@@ -1,6 +1,5 @@
 {
     "compilerOptions": {
-      "declaration": true,
       "module": "es6",
       "noImplicitAny": false,
       "target": "es6",
