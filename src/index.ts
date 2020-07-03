@@ -101,7 +101,7 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, 
   }
 }
 
-export function addActionHandlingToEntity(entity: Entity, inputFilter?: InputMap): Entity {
+export function addInputHandlingToEntity(entity: Entity, inputFilter?: InputMap): Entity {
   // Try get component on axishandler, inputreceiver
   if (entity.getComponent(InputReceiver) !== undefined) console.warn("Warning: Entity already has input receiver component")
   else {
