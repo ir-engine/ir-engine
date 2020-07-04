@@ -329,7 +329,7 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
 
 }
 
-const primitiveProperties = ['id', 'gridCellsPerRow', 'radius', 'columns', 'rows',
+const primitiveProperties = ['gridCellsPerRow', 'radius', 'columns', 'rows',
   'cellHeight', 'cellWidth', 'page', 'gridShape', 'backGround',
   'backgroundColor', 'backgroundMargin', 'borderRadius']
 

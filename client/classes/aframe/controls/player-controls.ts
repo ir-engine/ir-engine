@@ -32,8 +32,25 @@ export default class PlayerControls {
     else player.addEventListener('loaded', this.removeControlsHandler.bind(this, {} as Event, player))
   }
 
+  setupVRControls (player: AFRAME.Entity): void {
+    if (player.hasLoaded) this.setupVRControlsHandler({} as Event, player)
+    else player.addEventListener('loaded', this.setupVRControlsHandler.bind(this, {} as Event, player))
+  }
+
+  teardownVRControls (player: AFRAME.Entity): void {
+    if (player.hasLoaded) this.removeVRControlsHandler({} as Event, player)
+    else player.addEventListener('loaded', this.removeVRControlsHandler.bind(this, {} as Event, player))
+  }
+
   setupControlsHandler (evt: Event, player: AFRAME.Entity): void {
     this.controllers.forEach(controller => this.setController(player, controller))
+  }
+
+  removeControlsHandler (evt: Event, player: AFRAME.Entity): void {
+    this.controllers.forEach(controller => this.removeController(player, controller))
+  }
+
+  setupVRControlsHandler (evt: Event, player: AFRAME.Entity): void {
     if (this.leftHandController === null || this.rightHandController === null) this.intHandControllers(player)
     this.trackedControllers.forEach(controller => {
       if (controller.options.hand === 'left') this.setController(this.leftHandController, controller)
@@ -41,11 +58,10 @@ export default class PlayerControls {
     })
   }
 
-  removeControlsHandler (evt: Event, player: AFRAME.Entity): void {
-    this.controllers.forEach(controller => this.removeController(player, controller))
+  removeVRControlsHandler (evt: Event, player: AFRAME.Entity): void {
     this.trackedControllers.forEach(controller => {
-      this.removeController(this.leftHandController, controller)
-      this.removeController(this.rightHandController, controller)
+      if (this.leftHandController !== null) this.removeController(this.leftHandController, controller)
+      if (this.rightHandController !== null) this.removeController(this.rightHandController, controller)
     })
   }
 
