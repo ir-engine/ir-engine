@@ -13,8 +13,6 @@ export interface VideoDetailsData {
   cellWidth?: number
   detailsWidth?: number
   detailsHeight?: number
-  contentWidth?: number
-  contentHeight?: number
   borderRadius?: number
   // originalTitle: string,
   title: string
@@ -46,7 +44,6 @@ export const VideoDetailsComponentSchema: AFRAME.MultiPropertySchema<VideoDetail
   cellWidth: { default: 1 },
   detailsWidth: { default: 1 },
   detailsHeight: { default: 1 },
-  contentHeight: { default: 0.5 },
   borderRadius: { default: 0.1 },
   // originalTitle: { default: '' },
   title: { default: '' },
@@ -193,7 +190,6 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
       align: align,
       baseline: baseline,
       color: '#FFF',
-      transparent: false,
       fontsize: fontSize,
       text: text,
       wrapcount: wrapCount,
@@ -349,13 +345,10 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
 }
 
 const primitiveProps = [
-  'id',
   'cellHeight',
   'cellWidth',
   'detailsHeight',
   'detailsWidth',
-  'contentHeight',
-  'contentWidth',
   'originalTitle',
   'title',
   'description',

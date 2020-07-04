@@ -157,7 +157,7 @@ export const SystemDef: AFRAME.SystemDefinition<SystemProps> = {
 export interface Data {
   [key: string]: any
   width: number
-  // height: number
+  height: number
   flexDirection: string
   justifyContent: string
   alignItems: string
@@ -167,7 +167,7 @@ export interface Data {
 
 export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
   width: { default: 1 },
-  // height: { type: 'number', default: 1 },
+  height: { type: 'number', default: 1 },
   flexDirection: { default: 'row' },
   justifyContent: {
     default: 'flexStart'
@@ -185,7 +185,7 @@ export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
 }
 
 export interface Props {
-  initSomething: () => void
+  initFlexContainer: () => void
   addHandlers: () => void
   removeHandlers: () => void
   aHandler: () => void
@@ -201,8 +201,8 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   // multiple: true,
 
   init () {
-    if (this.el.sceneEl?.hasLoaded) this.initSomething()
-    else this.el.sceneEl?.addEventListener('loaded', this.initSomething.bind(this))
+    if (this.el.sceneEl?.hasLoaded) this.initFlexContainer()
+    else this.el.sceneEl?.addEventListener('loaded', this.initFlexContainer.bind(this))
   },
 
   play () {
@@ -221,7 +221,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     // }
   },
 
-  initSomething () {
+  initFlexContainer () {
     this.el.isFlexContainer = true
 
     switch (this.data.dimtype) {
