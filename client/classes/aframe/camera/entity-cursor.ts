@@ -14,7 +14,12 @@ export default class EntityCursor {
     this.el = document.createElement('a-entity')
     this.el.classList.add('cursor')
 
-    const cursor = new CursorComponent({ rayOrigin: 'entity', fuseTimeout: 0 })
+    const cursor = new CursorComponent({
+      rayOrigin: 'entity',
+      fuseTimeout: 0,
+      downEvents: ['triggerdown'],
+      upEvents: ['triggerup']
+    })
     setComponent(this.el, cursor)
     const raycaster = new RaycasterComponent({
       showLine: true,

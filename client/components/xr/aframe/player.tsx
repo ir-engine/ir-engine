@@ -95,15 +95,7 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
       this.cameraRig.tearDownCameraRig()
       this.el.removeChild(this.cameraRigEl)
 
-      const cursorTypes: string[] = this.getCursorTypes()
-      this.cameraRig = new CameraRig('player-camera', {}, cursorTypes)
-      this.cameraRigEl = this.cameraRig.el
-      this.playerCameraEl = this.cameraRig.cameraEl
-      this.cameraComponent = this.cameraRig.camera
-      if (this.cameraRigEl) this.el.appendChild(this.cameraRigEl)
-
-      this.cameraRig.setActive()
-      this.cameraRig.removeDefaultCamera()
+      this.initPlayer()
     }
     if (['movementEnabled', 'lookEnabled'].some(prop => changedData.includes(prop)) &&
       Object.keys(this.cameraRig).length !== 0) {
@@ -133,13 +125,22 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
   },
 
   setControllers () {
-    if (this.controls) this.controls.teardownControls(this.el)
+    if (this.controls) {
+      this.controls.teardownControls(this.el)
+      if (this.data.inVr && this.data.deviceType === 'smartphone' && this.data.browser.startsWith('Oculus')) {
+        this.controls.teardownVRControls(this.el)
+      }
+    }
     const controllers: ControllerComponent[] = []
     if (this.data.lookEnabled) controllers.push(new LookController())
     if (this.data.movementEnabled) controllers.push(new WASDController())
 
     this.controls = new PlayerControls(controllers)
     this.controls.setupControls(this.el)
+
+    if (this.data.inVr && this.data.deviceType === 'smartphone' && this.data.browser.startsWith('Oculus')) {
+      this.controls.setupVRControls(this.el)
+    }
   },
 
   getCursorTypes (): string[] {
