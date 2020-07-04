@@ -147,6 +147,8 @@ export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
 
   color: { default: '#FFF' },
 
+  font: { type: 'string', default: DEFAULT_FONT },
+
   fontsize: { type: 'number', default: 1 },
   wrapcount: { type: 'number', default: 20 },
   wrappixels: { type: 'number', default: 0 },

@@ -33,6 +33,7 @@ export const MediaCellSystemDef: AFRAME.SystemDefinition<MediaCellSystemProps> =
 
 export interface MediaCellData {
   [key: string]: any
+  id: string
   active: boolean
   contentWidth?: number
   contentHeight?: number
@@ -62,6 +63,7 @@ export interface MediaCellData {
 }
 
 export const MediaCellComponentSchema: AFRAME.MultiPropertySchema<MediaCellData> = {
+  id: { default: '' },
   active: { default: true },
   contentWidth: { default: 1 },
   contentHeight: { default: 0.5 },

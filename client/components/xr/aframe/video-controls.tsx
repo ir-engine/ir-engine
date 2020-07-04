@@ -19,6 +19,8 @@ export interface Data {
   videosrc: string
   backButtonHref: string
   playing: boolean
+  deviceType: string
+  browser: string
 }
 
 export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
@@ -26,7 +28,9 @@ export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
   barHeight: { default: 0.12 },
   videosrc: { default: 'videosrc' },
   backButtonHref: { default: '/' },
-  playing: { default: false }
+  playing: { default: false },
+  deviceType: { default: 'desktop' },
+  browser: { default: '' }
 }
 
 export interface Props {
@@ -106,7 +110,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.el.setAttribute('highlight__playpause', { id: 'playpause', meshes: [this.playPauseButtonName] })
     this.el.setAttribute('highlight__back', { id: 'back', meshes: [this.backButtonName] })
 
-    // this.el.setAttribute('camera-angle', {})
+    if (!this.data.browser.startsWith('Oculus')) this.el.setAttribute('camera-angle', {})
     this.el.setAttribute('fade', { fadeInEvent: 'fade-in-video-controls', fadeOutEvent: 'fade-out-video-controls', animate: false })
 
     // TODO: make pause/play icons the same for CSS and VR versions.
@@ -163,7 +167,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   // }
 
   remove () {
-    // this.el.removeAttribute('camera-angle')
+    if (!this.data.browser.startsWith('Oculus')) this.el.removeAttribute('camera-angle')
   },
 
   createControls () {
@@ -224,8 +228,10 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
       const setTimelineVisibility = this.setTimelineVisibility.bind(this)
       // const el = this.el
       setTimeout(() => {
-        // if (el.components['camera-angle'].direction === 'out') setTimelineVisibility(false)
-        setTimelineVisibility(false)
+        // if looking away from the controls (or if on Oculus), make controls invisible after timeout
+        if (this.data.browser.startsWith('Oculus') || this.el.components['camera-angle'].direction === 'out') {
+          setTimelineVisibility(false)
+        }
       }, 5 * 1000)
       this.firstCreate = false
     }
@@ -518,7 +524,8 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   }
 }
 
-const primitiveProps = ['videosrc', 'viewportWidth', 'barHeight', 'backButtonHref', 'playing']
+const primitiveProps = ['videosrc', 'viewportWidth', 'barHeight', 'backButtonHref', 'playing',
+  'deviceType', 'browser']
 
 export const Primitive: AFRAME.PrimitiveDefinition = {
   defaultComponents: {

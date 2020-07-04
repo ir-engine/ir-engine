@@ -12,6 +12,8 @@ import { selectVideo360State } from '../../../redux/video360/selector'
 import { setVideoPlaying } from '../../../redux/video360/actions'
 import { shakaPropTypes } from './ShakaPlayer'
 
+import DeviceDetector from 'device-detector-js'
+
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr.videoGrid
 
@@ -50,6 +52,12 @@ function Video360Room (props: Video360Props) {
   const [viewport, setViewport] = useState(app.get('viewport'))
   const video360State = useSelector(state => selectVideo360State(state))
   const [playing, setPlaying] = useState(false)
+
+  const deviceDetector = new DeviceDetector()
+  const userAgent = navigator.userAgent
+  const device = deviceDetector.parse(userAgent)
+  const devicetype = device.device.type
+  const browser = device.client.name
 
   // get viewport for width/height
   useEffect(() => {
@@ -112,6 +120,8 @@ function Video360Room (props: Video360Props) {
         bar-height={0.12}
         back-button-href={backButtonHref}
         playing={playing}
+        browser={browser}
+        device-type={devicetype}
       />
       }
       { !inVrMode &&
