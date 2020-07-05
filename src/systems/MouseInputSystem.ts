@@ -1,6 +1,6 @@
 import { System, Entity } from "ecsy"
 import MouseInput from "../components/MouseInput"
-import LifecycleValue from "../enums/LifecycleValue"
+import Switch from "../enums/Switch"
 import InputActionHandler from "../components/InputActionHandler"
 import UserInput from "../components/UserInput"
 import InputAxisHandler2D from "../components/InputAxisHandler2D"
@@ -20,12 +20,12 @@ export default class MouseInputSystem extends System {
       disableScroll()
       document.addEventListener(
         "mousedown",
-        e => (this._mouse.getMutableComponent(MouseInput).downHandler = this.buttonHandler(e, ent, LifecycleValue.STARTED)),
+        e => (this._mouse.getMutableComponent(MouseInput).downHandler = this.buttonHandler(e, ent, Switch.ON)),
         false
       )
       document.addEventListener(
         "mouseup",
-        e => (this._mouse.getMutableComponent(MouseInput).upHandler = this.buttonHandler(e, ent, LifecycleValue.ENDED)),
+        e => (this._mouse.getMutableComponent(MouseInput).upHandler = this.buttonHandler(e, ent, Switch.OFF)),
         false
       )
     })
@@ -49,7 +49,7 @@ export default class MouseInputSystem extends System {
     })
   }
 
-  private buttonHandler = (e: MouseEvent, entity: Entity, value: LifecycleValue): void => {
+  private buttonHandler = (e: MouseEvent, entity: Entity, value: Switch): void => {
     if (!this._mouse || this._mouse.getComponent(UserInput).inputMap.mouse.actions[e.button] === undefined) return
     entity.getMutableComponent(InputActionHandler).values.add({
       action: this._mouse.getComponent(UserInput).inputMap.mouse.actions[e.button],

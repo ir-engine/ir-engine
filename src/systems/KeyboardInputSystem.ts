@@ -1,6 +1,6 @@
 import { System, Entity } from "ecsy"
 import KeyboardInput from "../components/KeyboardInput"
-import LifecycleValue from "../enums/LifecycleValue"
+import Switch from "../enums/Switch"
 import InputActionHandler from "../components/InputActionHandler"
 import UserInput from "../components/UserInput"
 
@@ -14,23 +14,23 @@ export default class KeyboardInputSystem extends System {
       this._userInput = entity.getComponent(UserInput)
       document.addEventListener("keydown", (e: KeyboardEvent) => {
         if (e.repeat) return
-        this.mapKeyToAction(entity, e.key, LifecycleValue.STARTED)
+        this.mapKeyToAction(entity, e.key, Switch.ON)
       })
       document.addEventListener("keyup", (e: KeyboardEvent) => {
-        this.mapKeyToAction(entity, e.key, LifecycleValue.ENDED)
+        this.mapKeyToAction(entity, e.key, Switch.OFF)
       })
     })
     this.queries.keyboard.removed.forEach(entity => {
       document.removeEventListener("keydown", (e: KeyboardEvent) => {
-        this.mapKeyToAction(entity, e.key, LifecycleValue.STARTED)
+        this.mapKeyToAction(entity, e.key, Switch.ON)
       })
       document.removeEventListener("keyup", (e: KeyboardEvent) => {
-        this.mapKeyToAction(entity, e.key, LifecycleValue.ENDED)
+        this.mapKeyToAction(entity, e.key, Switch.OFF)
       })
     })
   }
 
-  mapKeyToAction(entity: Entity, key: string, value: LifecycleValue): any {
+  mapKeyToAction(entity: Entity, key: string, value: Switch): any {
     if (this._userInput.inputMap.keyboard.actions[key] === undefined) return
     // Add to action queue
     entity.getMutableComponent(InputActionHandler).values.add({
