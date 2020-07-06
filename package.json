@@ -50,10 +50,10 @@
     "typescript": "^3.9.5"
   },
   "homepage": "https://github.com/xr3ngine/ecsy-input#readme",
-  "jsnext:main": "dist/ecsy-input.module.js",
+  "jsnext:main": "dist/ecsy-input.mjs",
   "license": "MIT",
   "main": "dist/ecsy-input.js",
-  "module": "dist/ecsy-input.module.js",
+  "module": "dist/ecsy-input.mjs",
   "name": "ecsy-input",
   "files": [
     "dist"

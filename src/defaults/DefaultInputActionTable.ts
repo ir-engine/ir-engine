@@ -19,7 +19,9 @@ export const DefaultInputActionTable: InputActionTable = {
       w: DefaultActions.FORWARD,
       a: DefaultActions.LEFT,
       s: DefaultActions.RIGHT,
-      d: DefaultActions.BACKWARD
+      d: DefaultActions.BACKWARD,
+      [" "]: DefaultActions.JUMP,
+      shift: DefaultActions.CROUCH
     }
   },
   rules: {
