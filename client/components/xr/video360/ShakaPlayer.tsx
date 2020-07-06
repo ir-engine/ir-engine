@@ -22,7 +22,7 @@ const forceIOSCanvasRepaint = () => {
 }
 
 export default class ShakaPlayer extends React.Component {
-  constructor(props: shakaPropTypes) {
+  constructor (props: shakaPropTypes) {
     super(props)
 
     this.props = props
@@ -30,7 +30,7 @@ export default class ShakaPlayer extends React.Component {
     this.initPlayer = this.initPlayer.bind(this)
   }
 
-  componentDidMount() {
+  componentDidMount (): () => void {
     const sceneEl = document.querySelector('a-scene')
     if (sceneEl?.hasLoaded) this.initApp()
     else sceneEl?.addEventListener('loaded', this.initApp)
@@ -39,7 +39,7 @@ export default class ShakaPlayer extends React.Component {
     }
   }
 
-  componentWillUnmount() {
+  componentWillUnmount (): void {
     const sceneEl = document.querySelector('a-scene')
     sceneEl?.removeEventListener('loaded', this.initApp)
 
@@ -49,7 +49,7 @@ export default class ShakaPlayer extends React.Component {
 
   props: shakaPropTypes
 
-  private initApp () {
+  private initApp (): void {
     shaka.polyfill.installAll()
     if (shaka.Player.isBrowserSupported()) {
       this.initPlayer()
@@ -58,7 +58,7 @@ export default class ShakaPlayer extends React.Component {
     }
   }
 
-  private initPlayer () {
+  private initPlayer (): void {
     const video: HTMLVideoElement = document.getElementById(this.props.videosrc) as HTMLVideoElement
     const player = new shaka.Player(video)
     player.load(this.props.manifestUri).then(() => {
@@ -67,12 +67,12 @@ export default class ShakaPlayer extends React.Component {
     video.addEventListener('loadeddata', loadedDataVideoHandler)
   }
 
-  render() {
+  render () {
     return ''
   }
 }
 
 export interface shakaPropTypes extends React.Props<any> {
-  manifestUri: string,
+  manifestUri: string
   videosrc: string
 }

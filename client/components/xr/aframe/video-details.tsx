@@ -81,7 +81,8 @@ export interface Props {
     color: number) => AFRAME.Entity
   createDetailsFlex: (h: number) => AFRAME.Entity
   createDetailsItem: (opts: any, text: string) => AFRAME.Entity
-  createBackground: (w: number, h: number, r: number, m: number, color: number, x: number, y: number, z: number) => AFRAME.Entity
+  createBackground: (w: number, h: number, r: number, m: number,
+    color: number, x: number, y: number, z: number) => AFRAME.Entity
   createButtons: (h: number) => AFRAME.Entity
   createWatchButton: (w: number, h: number) => AFRAME.Entity
   createBackButton: (w: number, h: number) => AFRAME.Entity
@@ -93,14 +94,20 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
   } as VideoDetailsData,
 
   init () {
+    this.initDetailsl = this.initDetailsl.bind(this)
+
     if (this.el.sceneEl?.hasLoaded) this.initDetailsl()
-    else this.el.sceneEl?.addEventListener('loaded', this.initDetailsl.bind(this))
+    else this.el.sceneEl?.addEventListener('loaded', this.initDetailsl)
   },
 
   play () {
   },
 
   pause () {
+  },
+
+  remove () {
+    this.el.sceneEl?.removeEventListener('loaded', this.initDetailsl)
   },
 
   initDetailsl () {

@@ -188,7 +188,7 @@ export interface Props {
   initFlexContainer: () => void
   addHandlers: () => void
   removeHandlers: () => void
-  aHandler: () => void
+  // aHandler: () => void
   updateChildren: () => void
   flexItemAppendedHandler: (e: any) => void
 }
@@ -201,8 +201,10 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   // multiple: true,
 
   init () {
+    // this.aHandler = this.aHandler.bind(this)
+    this.initFlexContainer = this.initFlexContainer.bind(this)
     if (this.el.sceneEl?.hasLoaded) this.initFlexContainer()
-    else this.el.sceneEl?.addEventListener('loaded', this.initFlexContainer.bind(this))
+    else this.el.sceneEl?.addEventListener('loaded', this.initFlexContainer)
   },
 
   play () {
@@ -211,6 +213,10 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
   pause () {
     this.removeHandlers()
+  },
+
+  remove () {
+    this.el.sceneEl?.removeEventListener('loaded', this.initFlexContainer)
   },
 
   update (oldData: Data) {
@@ -236,16 +242,12 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.updateChildren()
   },
 
-  aHandler () {
-
-  },
-
   addHandlers: function () {
-    this.el.addEventListener('an-event', this.aHandler.bind(this))
+    // this.el.addEventListener('an-event', this.aHandler)
   },
 
   removeHandlers: function () {
-    this.el.removeEventListener('an-event', this.aHandler)
+    // this.el.removeEventListener('an-event', this.aHandler)
   },
 
   updateChildren () {
