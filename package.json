@@ -56,7 +56,7 @@
   "module": "dist/ecsy-input.mjs",
   "name": "ecsy-input",
   "files": [
-    "dist"
+    "src", "dist"
   ],
   "repository": {
     "type": "git",
