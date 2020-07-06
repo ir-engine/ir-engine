@@ -1,8 +1,7 @@
-import { System, Not } from "ecsy"
+import { System } from "ecsy"
 import InputActionHandler from "../components/InputActionHandler"
 import InputAxisHandler2D from "../components/InputAxisHandler2D"
 import InputReceiver from "../components/InputReceiver"
-import UserInput from "../components/UserInput"
 
 export default class InputDebugSystem extends System {
   _actionDataUIElement: any

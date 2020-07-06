@@ -3,8 +3,8 @@ import resolve from "@rollup/plugin-node-resolve"
 import html from "@open-wc/rollup-plugin-html"
 import { terser } from "rollup-plugin-terser"
 import babel from "@rollup/plugin-babel"
-import serve from "rollup-plugin-serve"
-import typescript from "@rollup/plugin-typescript"
+import typescript from "rollup-plugin-typescript2"
+import pkg from "./package.json"
 
 export default [
   {
@@ -20,9 +20,16 @@ export default [
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     output: [
       {
+        file: pkg.main,
+        format: "cjs",
+        exports: "named",
+        sourcemap: true
+      },
+      {
+        file: pkg.module,
         format: "es",
-        file: "dist/ecsy-input.js",
-        indent: "\t"
+        exports: "named",
+        sourcemap: true
       }
     ]
   },
@@ -40,16 +47,6 @@ export default [
   {
     input: "examples/index.html",
     output: { dir: "dist" },
-    plugins: [
-      typescript(),
-      html(),
-      resolve(),
-      serve({
-        // Launch in browser (default: false)
-        open: true,
-        openPage: "/dist/index.html",
-        contentBase: ["./"]
-      })
-    ]
+    plugins: [typescript(), html(), resolve()]
   }
 ]

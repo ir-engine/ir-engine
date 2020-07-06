@@ -1,4 +1,4 @@
-import { System, Entity, Not } from "ecsy"
+import { System, Entity } from "ecsy"
 import InputReceiver from "../components/InputReceiver"
 import UserInput from "../components/UserInput"
 import ActionValue from "../interfaces/ActionValue"
