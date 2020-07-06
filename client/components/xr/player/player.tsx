@@ -20,7 +20,7 @@ const PlayerComp = (props: PlayerProps) => {
   const deviceDetector = new DeviceDetector()
   const userAgent = navigator.userAgent
   const device = deviceDetector.parse(userAgent)
-  const devicetype = device.device.type
+  const devicetype = device.device !== null ? device.device.type : 'firefoxreality'
   const browser = device.client.name
 
   useEffect(() => {
