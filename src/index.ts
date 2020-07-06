@@ -35,10 +35,13 @@ const DEFAULT_OPTIONS = {
 
 export { InputReceiver, InputActionHandler, InputAxisHandler2D, initializeInputSystems }
 
-function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, inputMap?: InputActionTable): void {
+function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, inputMap?: InputActionTable): World | null {
   if (options.debug) console.log("Initializing input systems...")
 
-  if (!isBrowser) return console.error("Couldn't initialize input, are you in a browser?")
+  if (!isBrowser) {
+    console.error("Couldn't initialize input, are you in a browser?")
+    return null
+  }
 
   if (options.debug) {
     console.log("Registering input systems with the following options:")
@@ -108,6 +111,8 @@ function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, inputMa
     world.registerSystem(InputDebugSystem)
     console.log("INPUT: Registered input systems.")
   }
+
+  return world
 }
 
 export function addInputHandlingToEntity(entity: Entity, inputFilter?: InputActionTable): Entity {
