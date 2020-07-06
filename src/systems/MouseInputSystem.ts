@@ -45,7 +45,7 @@ export default class MouseInputSystem extends System {
   private moveHandler = (e: MouseEvent, entity: Entity): void => {
     entity.getComponent(InputAxisHandler2D).values.add({
       axis: this._mouse.getComponent(UserInput).inputMap.mouse.axes.mousePosition,
-      value: { x: (e.clientX / window.innerWidth) * 2 - 1, y: (e.clientY / window.innerHeight) * 2 + 1 }
+      value: { x: (e.clientX / window.innerWidth) * 2 - 1, y: (e.clientY / window.innerHeight) * -2 + 1 }
     })
   }
 
