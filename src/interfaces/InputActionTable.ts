@@ -1,33 +1,33 @@
-import ActionMapping from "./ActionMapping"
+import ActionRules from "./ActionMapping"
 import ActionType from "../types/ActionType"
 import AxisType from "../types/AxisType"
 
 const symbol: unique symbol = Symbol()
 
-interface InputMap {
-  actionMap: {
-    [symbol]?: ActionMapping
+interface InputActionTable {
+  rules: {
+    [symbol]?: ActionRules
   }
   mouse?: {
     actions?: {
-      [key: number]: ActionType
       [key: string]: ActionType
+      [key: number]: ActionType
     }
     axes?: {
-      [key: number]: AxisType
       [key: string]: AxisType
+      [key: number]: AxisType
     }
   }
   keyboard?: {
     actions?: {
-      [key: number]: ActionType
       [key: string]: ActionType
+      [key: number]: ActionType
     }
     axes?: {
-      [key: number]: AxisType
       [key: string]: AxisType
+      [key: number]: AxisType
     }
   }
 }
 
-export default InputMap
+export default InputActionTable

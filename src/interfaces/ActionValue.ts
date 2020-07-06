@@ -1,7 +1,7 @@
 import ActionType from "../types/ActionType"
-import LifecycleValue from "../enums/LifecycleValue"
+import Switch from "../enums/Switch"
 
 export default interface ActionValue {
   action: ActionType
-  value: LifecycleValue
+  value: Switch
 }

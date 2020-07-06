@@ -16,7 +16,7 @@ import InputDebugSystem from "./systems/InputDebugSystem"
 import InputActionSystem from "./systems/InputActionSystem"
 import InputAxisSystem from "./systems/InputAxisSystem"
 import InputReceiver from "./components/InputReceiver"
-import InputMap from "./interfaces/InputMap"
+import InputActionTable from "./interfaces/InputActionTable"
 
 const DEFAULT_OPTIONS = {
   mouse: true,
@@ -26,14 +26,9 @@ const DEFAULT_OPTIONS = {
   debug: false
 }
 
-export {
-  InputReceiver,
-  InputActionHandler,
-  InputAxisHandler2D,
-  initializeInputSystems
-}
+export { InputReceiver, InputActionHandler, InputAxisHandler2D, initializeInputSystems }
 
-function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, inputMap?: InputMap): void {
+function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, inputMap?: InputActionTable): void {
   if (options.debug) console.log("Initializing input systems...")
 
   if (!isBrowser) return console.error("Couldn't initialize input, are you in a browser?")
@@ -108,7 +103,7 @@ function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, inputMa
   }
 }
 
-export function addInputHandlingToEntity(entity: Entity, inputFilter?: InputMap): Entity {
+export function addInputHandlingToEntity(entity: Entity, inputFilter?: InputActionTable): Entity {
   // Try get component on axishandler, inputreceiver
   if (entity.getComponent(InputReceiver) !== undefined) console.warn("Warning: Entity already has input receiver component")
   else {
