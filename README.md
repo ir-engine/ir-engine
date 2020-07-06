@@ -44,7 +44,7 @@ You can override the input mappings per device
 Input mappings map device input to abstract, cross-platform actions
 
 ```javascript
-      import { initializeInputSystems } from "../dist/ecsy-input.module.js"
+      import { initializeInputSystems } from "../dist/ecsy-input.mjs"
 
       const Axes = {
         SCREENXY: 0
