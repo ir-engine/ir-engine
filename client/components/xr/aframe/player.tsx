@@ -127,7 +127,7 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
   setControllers () {
     if (this.controls) {
       this.controls.teardownControls(this.el)
-      if (this.data.inVr && this.data.deviceType === 'smartphone' && this.data.browser.startsWith('Oculus')) {
+      if (this.data.inVr && ((this.data.deviceType === 'smartphone' && this.data.browser.startsWith('Oculus')) || this.data.deviceType === 'firefoxreality')) {
         this.controls.teardownVRControls(this.el)
       }
     }
@@ -138,7 +138,7 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
     this.controls = new PlayerControls(controllers)
     this.controls.setupControls(this.el)
 
-    if (this.data.inVr && this.data.deviceType === 'smartphone' && this.data.browser.startsWith('Oculus')) {
+    if (this.data.inVr && ((this.data.deviceType === 'smartphone' && this.data.browser.startsWith('Oculus')) || this.data.deviceType === 'firefoxreality')) {
       this.controls.setupVRControls(this.el)
     }
   },

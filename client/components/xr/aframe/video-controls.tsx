@@ -53,8 +53,6 @@ export interface Props {
   addHandlers: () => void
   removeHandlers: () => void
   clickHandler: (e: any) => void
-  buttonInputHandler: () => void
-  doubleClickWorkaroundState: boolean
   toggleMenuHandler: () => void
   playPauseHandler: () => void
   seekHandler: (e: any) => void
@@ -93,11 +91,12 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   timeRemainingTextName: 'timeRemainingText',
   controlsVisibility: false,
   firstCreate: true,
-  doubleClickWorkaroundState: false,
 
   init () {
     this.toggleMenuHandler = this.toggleMenuHandler.bind(this)
     this.buttonInputHandler = this.buttonInputHandler.bind(this)
+    this.clickHandler = this.clickHandler.bind(this)
+    this.cameraAngleHandler = this.cameraAngleHandler.bind(this)
 
     const loader = new THREE.TextureLoader()
 
@@ -133,6 +132,11 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.removeHandlers()
   },
 
+  remove () {
+    this.removeHandlers()
+    if (!this.data.browser.startsWith('Oculus')) this.el.removeAttribute('camera-angle')
+  },
+
   update (oldData: Data) {
     const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
     if (changedData.includes('viewportWidth')) {
@@ -165,10 +169,6 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   //   }
   //   return output
   // }
-
-  remove () {
-    if (!this.data.browser.startsWith('Oculus')) this.el.removeAttribute('camera-angle')
-  },
 
   createControls () {
     const fullBar = this.createTimeline({
@@ -431,13 +431,6 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.timeRemainingTextEl.setAttribute('text-cell', { text: '-' + secondsToString(timeRemaining) })
   },
 
-  buttonInputHandler () {
-    if (this.doubleClickWorkaroundState) {
-      this.doubleClickWorkaroundState = false
-      this.toggleMenuHandler()
-    } else { this.doubleClickWorkaroundState = true }
-  },
-
   toggleMenuHandler () {
     this.setTimelineVisibility(!this.controlsVisibility)
   },
@@ -512,15 +505,15 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   },
 
   addHandlers: function () {
-    this.el.sceneEl.addEventListener('toggle-menu', this.buttonInputHandler)
-    this.el.addEventListener('playpause', this.clickHandler.bind(this))
-    this.el.addEventListener('camera-passed-threshold', this.cameraAngleHandler.bind(this))
+    this.el.sceneEl.addEventListener('toggle-menu', this.toggleMenuHandler)
+    this.el.addEventListener('playpause', this.clickHandler)
+    this.el.addEventListener('camera-passed-threshold', this.cameraAngleHandler)
   },
 
   removeHandlers: function () {
-    this.el.sceneEl.removeEventListener('toggle-menu', this.buttonInputHandler)
+    this.el.sceneEl.removeEventListener('toggle-menu', this.toggleMenuHandler)
     this.el.removeEventListener('playpause', this.clickHandler)
-    this.el.removeEventListener('camera-passed-threshold', this.cameraAngleHandler.bind(this))
+    this.el.removeEventListener('camera-passed-threshold', this.cameraAngleHandler)
   }
 }
 
