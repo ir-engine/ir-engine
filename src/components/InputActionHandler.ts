@@ -1,6 +1,5 @@
-import { Component, createType, copyCopyable, cloneClonable } from "ecsy"
 import ActionValue from "../interfaces/ActionValue"
-import { RingBuffer } from "./BufferedComponent"
+import RingBuffer from "../classes/RingBuffer"
 import BufferedComponent from "./BufferedComponent"
 
 export default interface InputActionProps {
