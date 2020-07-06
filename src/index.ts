@@ -33,9 +33,9 @@ const DEFAULT_OPTIONS = {
   debug: false
 }
 
-export { InputReceiver, InputActionHandler, InputAxisHandler2D, initializeInputSystems }
+export { InputReceiver, InputActionHandler, InputAxisHandler2D }
 
-function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, inputMap?: InputActionTable): World | null {
+export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, inputMap?: InputActionTable): World | null {
   if (options.debug) console.log("Initializing input systems...")
 
   if (!isBrowser) {

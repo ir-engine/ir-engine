@@ -3,10 +3,11 @@
       "module": "es6",
       "noImplicitAny": false,
       "target": "es6",
-      "moduleResolution": "Node"
+      "moduleResolution": "Node",
+      "declaration": true
     },
     "include": [
       "src/**/*"
     ],
-    "exclude": ["node_modules", "examples/**"]
+    "exclude": ["node_modules", "dist"]
   }

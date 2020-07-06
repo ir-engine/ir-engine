@@ -1,4 +1,4 @@
-import { System, Not } from "ecsy"
+import { System } from "ecsy"
 import UserInput from "../components/UserInput"
 import InputAxisHandler2D from "../components/InputAxisHandler2D"
 import InputReceiver from "../components/InputReceiver"

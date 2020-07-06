@@ -9,11 +9,11 @@
   },
   "bundleDependencies": false,
   "dependencies": {
-    "@rollup/plugin-typescript": "^5.0.1",
     "ecsy": "^0.3.1",
     "prettier-eslint": "^11.0.0",
     "rollup-plugin-html-entry": "^0.3.0",
     "rollup-plugin-index-html": "^1.12.4",
+    "rollup-plugin-typescript2": "^0.27.1",
     "tslib": "^2.0.0"
   },
   "deprecated": false,
@@ -40,6 +40,7 @@
     "gh-pages": "^2.1.1",
     "html-webpack-plugin": "^3.2.0",
     "http-server": "^0.12.3",
+    "pre-commit": "^1.2.2",
     "prettier": "^1.19.1",
     "rollup": "^1.27.13",
     "rollup-plugin-auto-external": "^2.0.0",
@@ -55,18 +56,27 @@
   "jsnext:main": "dist/ecsy-input.module.js",
   "license": "MIT",
   "main": "dist/ecsy-input.js",
-  "module": "src/index.js",
+  "module": "dist/ecsy-input.module.js",
   "name": "ecsy-input",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xr3ngine/ecsy-input.git"
   },
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c && tsc --emitDeclarationOnly --out dist/ecsy-input.js",
+    "patch-version": "npm version patch",
     "dev": "rollup -cw",
     "lint": "eslint ./src/**/*",
     "start": "npm run build"
   },
+  "pre-commit": [
+    "lint",
+    "build",
+    "patch-version"
+  ],
   "version": "0.0.11"
 }

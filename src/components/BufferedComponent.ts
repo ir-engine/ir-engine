@@ -4,7 +4,8 @@ import RingBuffer from "../classes/RingBuffer"
 export default class BufferedComponent<Props, T> extends Component<Props> {
   bufferSize = 10
   values: RingBuffer<T> = new RingBuffer<T>(this.bufferSize)
-  constructor(props) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  constructor(props: Props) {
     super(false)
     this.values = new RingBuffer<T>(this.bufferSize)
   }
@@ -12,7 +13,7 @@ export default class BufferedComponent<Props, T> extends Component<Props> {
     this.bufferSize = newSize
     if (resetBuffer) this.values = new RingBuffer<T>(this.bufferSize)
   }
-  copy(src) {
+  copy(src: this): this {
     this.bufferSize = src.bufferSize
     this.values = new RingBuffer<T>(src.bufferSize)
     return this
