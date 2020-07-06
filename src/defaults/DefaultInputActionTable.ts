@@ -21,7 +21,7 @@ export const DefaultInputActionTable: InputActionTable = {
       s: DefaultActions.RIGHT,
       d: DefaultActions.BACKWARD
     }
-
+  },
   rules: {
     [DefaultActions.FORWARD]: { opposes: [DefaultActions.BACKWARD] } as ActionRules,
     [DefaultActions.BACKWARD]: { opposes: [DefaultActions.FORWARD] } as ActionRules,
