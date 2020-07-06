@@ -20,9 +20,13 @@ export default [
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     output: [
       {
-        file: pkg.main,
+        file: pkg.module,
         format: "es",
-        exports: "named",
+        sourcemap: true
+      },
+      {
+        file: pkg.main,
+        format: "cjs",
         sourcemap: true
       }
     ]

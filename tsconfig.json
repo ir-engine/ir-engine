@@ -3,7 +3,9 @@
       "module": "es6",
       "noImplicitAny": false,
       "target": "es6",
-      "moduleResolution": "Node"
+      "moduleResolution": "Node",
+      "allowSyntheticDefaultImports": true,
+      "esModuleInterop": true
     },
     "include": [
       "src/**/*"

@@ -8,14 +8,7 @@
     "url": "https://github.com/xr3ngine/ecsy-input/issues"
   },
   "bundleDependencies": false,
-  "dependencies": {
-    "ecsy": "^0.3.1",
-    "prettier-eslint": "^11.0.0",
-    "rollup-plugin-html-entry": "^0.3.0",
-    "rollup-plugin-index-html": "^1.12.4",
-    "rollup-plugin-typescript2": "^0.27.1",
-    "tslib": "^2.0.0"
-  },
+  "dependencies": {},
   "deprecated": false,
   "description": "ECSY Input Controller",
   "devDependencies": {
@@ -33,6 +26,7 @@
     "babelify": "^10.0.0",
     "browserify": "^16.5.0",
     "concurrently": "^5.0.0",
+    "ecsy": "^0.3.1",
     "ecsy-three": "0.0.6",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.7.0",
@@ -42,23 +36,24 @@
     "http-server": "^0.12.3",
     "pre-commit": "^1.2.2",
     "prettier": "^1.19.1",
+    "prettier-eslint": "^11.0.0",
     "rollup": "^1.27.13",
     "rollup-plugin-auto-external": "^2.0.0",
     "rollup-plugin-external-globals": "^0.5.0",
     "rollup-plugin-html": "^0.2.1",
+    "rollup-plugin-html-entry": "^0.3.0",
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-serve": "^1.0.1",
     "rollup-plugin-terser": "^5.1.2",
+    "rollup-plugin-typescript2": "^0.27.1",
     "three": "^0.118.1",
     "typescript": "^3.9.5"
   },
   "homepage": "https://github.com/xr3ngine/ecsy-input#readme",
-  "jsnext:main": "dist/ecsy-input.module.js",
   "license": "MIT",
   "main": "dist/ecsy-input.js",
-  "module": "dist/ecsy-input.js",
+  "module": "dist/ecsy-input.module.js",
   "name": "ecsy-input",
-  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
