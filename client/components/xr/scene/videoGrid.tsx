@@ -10,6 +10,8 @@ import { connect } from 'react-redux'
 import { selectVideoState } from '../../../redux/video/selector'
 import { fetchPublicVideos } from '../../../redux/video/service'
 
+import Lights from './lights'
+
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr.videoGrid
 const style = getConfig().publicRuntimeConfig.xr.style
@@ -145,6 +147,7 @@ const VideoGridScene = (props: VideoProps): any => {
   // TODO: possible more robust solution is use MutationObserver to look for changes in children of grid el
   return (
     <Entity>
+      <Lights />
       <Entity
         primitive="a-gltf-model"
         src={`#${config['scene-gltf'].name as string}`}
