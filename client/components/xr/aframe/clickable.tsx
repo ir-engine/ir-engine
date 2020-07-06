@@ -43,6 +43,10 @@ export const ClickableComponent: AFRAME.ComponentDefinition<Props> = {
   beganClickableClass: false,
 
   init () {
+    this.clickHandler = this.clickHandler.bind(this)
+    this.raycasterIntersectedHandler = this.raycasterIntersectedHandler.bind(this)
+    this.raycasterIntersectedClearedHandler = this.raycasterIntersectedClearedHandler.bind(this)
+
     this.beganClickableClass = this.el.classList.contains('clickable')
     this.el.classList.add('clickable')
   },
@@ -124,10 +128,9 @@ export const ClickableComponent: AFRAME.ComponentDefinition<Props> = {
   },
 
   addHandlers: function () {
-    this.el.sceneEl.addEventListener('triggerup', this.clickHandler.bind(this))
-    this.el.addEventListener('click', this.clickHandler.bind(this))
-    this.el.addEventListener('raycaster-intersected', this.raycasterIntersectedHandler.bind(this))
-    this.el.addEventListener('raycaster-intersected-cleared', this.raycasterIntersectedClearedHandler.bind(this))
+    this.el.addEventListener('click', this.clickHandler)
+    this.el.addEventListener('raycaster-intersected', this.raycasterIntersectedHandler)
+    this.el.addEventListener('raycaster-intersected-cleared', this.raycasterIntersectedClearedHandler)
   },
 
   removeHandlers: function () {
