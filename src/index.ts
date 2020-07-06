@@ -1,3 +1,10 @@
+export * from "./classes"
+export * from "./components"
+export * from "./defaults"
+export * from "./interfaces"
+export * from "./systems"
+export * from "./types"
+
 import { Entity, World } from "ecsy"
 
 import MouseInputSystem from "./systems/MouseInputSystem"
