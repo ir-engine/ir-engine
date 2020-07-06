@@ -31,16 +31,16 @@ export default [
   {
     input: "examples/three.html",
     output: { dir: "dist/examples" },
-    plugins: [typescript(), html(), resolve()]
+    plugins: [html(), resolve()]
   },
   {
     input: "examples/custominput.html",
     output: { dir: "dist/examples" },
-    plugins: [typescript(), html(), resolve()]
+    plugins: [html(), resolve()]
   },
   {
     input: "examples/index.html",
     output: { dir: "dist/examples" },
-    plugins: [typescript(), html(), resolve()]
+    plugins: [html(), resolve()]
   }
 ]
