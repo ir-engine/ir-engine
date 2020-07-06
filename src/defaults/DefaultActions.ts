@@ -1,4 +1,4 @@
-const Actions = {
+const DefaultActions = {
   DEFAULT: -1,
   PRIMARY: 0,
   SECONDARY: 1,
@@ -17,4 +17,4 @@ const Actions = {
   SNEAK: 14
 }
 
-export default Actions
+export default DefaultActions
