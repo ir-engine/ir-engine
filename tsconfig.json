@@ -3,8 +3,7 @@
       "module": "es6",
       "noImplicitAny": false,
       "target": "es6",
-      "moduleResolution": "Node",
-      "declaration": true
+      "moduleResolution": "Node"
     },
     "include": [
       "src/**/*"

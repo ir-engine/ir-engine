@@ -21,12 +21,6 @@ export default [
     output: [
       {
         file: pkg.main,
-        format: "cjs",
-        exports: "named",
-        sourcemap: true
-      },
-      {
-        file: pkg.module,
         format: "es",
         exports: "named",
         sourcemap: true
@@ -36,17 +30,17 @@ export default [
   // HTML pages
   {
     input: "examples/three.html",
-    output: { dir: "dist" },
+    output: { dir: "dist/examples" },
     plugins: [typescript(), html(), resolve()]
   },
   {
     input: "examples/custominput.html",
-    output: { dir: "dist" },
+    output: { dir: "dist/examples" },
     plugins: [typescript(), html(), resolve()]
   },
   {
     input: "examples/index.html",
-    output: { dir: "dist" },
+    output: { dir: "dist/examples" },
     plugins: [typescript(), html(), resolve()]
   }
 ]
