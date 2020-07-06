@@ -1,5 +1,5 @@
 import DefaultActions from "./DefaultActions"
-import Axes from "./DefaultAxes"
+import DefaultAxes from "./DefaultAxes"
 import InputActionTable from "../interfaces/InputActionTable"
 import ActionRules from "../interfaces/ActionMapping"
 
@@ -11,7 +11,7 @@ export const DefaultInputActionTable: InputActionTable = {
       1: DefaultActions.INTERACT // Middle Mouse button
     },
     axes: {
-      mousePosition: Axes.SCREENXY
+      mousePosition: DefaultAxes.SCREENXY
     }
   },
   keyboard: {
