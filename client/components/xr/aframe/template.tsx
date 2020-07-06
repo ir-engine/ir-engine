@@ -72,7 +72,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   },
 
   update (oldData: Data) {
-    const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
+    const changedData: Partial<Data> = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
     if (changedData.includes('someData')) {
       // update something
     }

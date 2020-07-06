@@ -85,7 +85,11 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   attributeName: '',
 
   init () {
-    this.attributeName = this.data.id ? 'hightlight__' + this.data.id : 'highlight'
+    this.raycasterIntersectedHandler = this.raycasterIntersectedHandler.bind(this)
+    this.raycasterIntersectedClearedHandler = this.raycasterIntersectedClearedHandler.bind(this)
+    this.mousedownHandler = this.mousedownHandler.bind(this)
+    this.mouseupHandler = this.mouseupHandler.bind(this)
+
     if (this.el.sceneEl?.hasLoaded) this.initHighlight()
     else this.el.sceneEl?.addEventListener('loaded', this.initHighlight.bind(this))
   },
@@ -108,9 +112,9 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
   update (oldData: Data) {
     const data = this.data
-    const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
+    const changedData: Partial<Data> = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
 
-    if (changedData.includes('disabled')) {
+    if (changedData.includes('disabled') && changedData.disabled) {
       this.el.setAttribute(this.attributeName, { hover: false, active: false })
     }
 
@@ -137,10 +141,10 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   },
 
   addHandlers: function () {
-    this.el.addEventListener('raycaster-intersected', this.raycasterIntersectedHandler.bind(this))
-    this.el.addEventListener('raycaster-intersected-cleared', this.raycasterIntersectedClearedHandler.bind(this))
-    this.el.addEventListener('mousedown', this.mousedownHandler.bind(this))
-    this.el.addEventListener('mouseup', this.mouseupHandler.bind(this))
+    this.el.addEventListener('raycaster-intersected', this.raycasterIntersectedHandler)
+    this.el.addEventListener('raycaster-intersected-cleared', this.raycasterIntersectedClearedHandler)
+    this.el.addEventListener('mousedown', this.mousedownHandler)
+    this.el.addEventListener('mouseup', this.mouseupHandler)
   },
 
   removeHandlers: function () {
@@ -303,19 +307,14 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     const intersection = this.intersectingRaycaster.getIntersection(this.el)
     self.intersection = intersection
     if (intersection && !self.data[attribute]) {
-      if (self.data.target !== '') {
-        switch (intersection.object.name) {
-          case self.data.target:
-          case this.data.bordername:
-            this.data[attribute] = value
-            this.updateColor()
-            break
-          default:
-            break
-        }
-      } else {
-        this.data[attribute] = value
-        this.updateColor()
+      switch (intersection.object.name) {
+        case self.data.target:
+        case this.data.bordername:
+          this.data[attribute] = value
+          this.updateColor()
+          break
+        default:
+          break
       }
     }
   },
