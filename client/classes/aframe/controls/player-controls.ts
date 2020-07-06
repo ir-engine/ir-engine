@@ -28,7 +28,7 @@ export default class PlayerControls {
   }
 
   teardownControls (player: AFRAME.Entity): void {
-    if (player.hasLoaded) this.controllers.forEach(controller => this.removeController(player, controller))
+    if (player.hasLoaded) this.removeControlsHandler.bind(this, {} as Event, player)// this.controllers.forEach(controller => this.removeController(player, controller))
     else player.addEventListener('loaded', this.removeControlsHandler.bind(this, {} as Event, player))
   }
 
@@ -48,10 +48,11 @@ export default class PlayerControls {
 
   removeControlsHandler (evt: Event, player: AFRAME.Entity): void {
     this.controllers.forEach(controller => this.removeController(player, controller))
+    this.removeVRControlsHandler(evt, player)
   }
 
   setupVRControlsHandler (evt: Event, player: AFRAME.Entity): void {
-    if (this.leftHandController === null || this.rightHandController === null) this.intHandControllers(player)
+    if (this.leftHandController === null || this.rightHandController === null) this.initHandControllers(player)
     this.trackedControllers.forEach(controller => {
       if (controller.options.hand === 'left') this.setController(this.leftHandController, controller)
       else if (controller.options.hand === 'right') this.setController(this.rightHandController, controller)
@@ -59,6 +60,7 @@ export default class PlayerControls {
   }
 
   removeVRControlsHandler (evt: Event, player: AFRAME.Entity): void {
+    console.log('removeVRControlsHandler')
     this.trackedControllers.forEach(controller => {
       if (this.leftHandController !== null) this.removeController(this.leftHandController, controller)
       if (this.rightHandController !== null) this.removeController(this.rightHandController, controller)
@@ -73,7 +75,7 @@ export default class PlayerControls {
     player.removeAttribute(controller.name)
   }
 
-  intHandControllers (player: AFRAME.Entity): void {
+  initHandControllers (player: AFRAME.Entity): void {
     this.removeHandControllers(player)
     this.leftHandController = new EntityCursor().el
     this.leftHandController.setAttribute('id', 'left-hand-controller')
@@ -88,11 +90,17 @@ export default class PlayerControls {
     if (this.leftHandController !== null) {
       player.removeChild(this.leftHandController)
       this.leftHandController = null
+    } else {
+      const leftHandContoller = player.querySelector('#left-hand-controller')
+      if (leftHandContoller !== null) player.removeChild(leftHandContoller)
     }
 
     if (this.rightHandController !== null) {
       player.removeChild(this.rightHandController)
       this.rightHandController = null
+    } else {
+      const rightHandController = player.querySelector('#right-hand-controller')
+      if (rightHandController !== null) player.removeChild(rightHandController)
     }
   }
 }
