@@ -94,7 +94,6 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
   init () {
     this.toggleMenuHandler = this.toggleMenuHandler.bind(this)
-    this.buttonInputHandler = this.buttonInputHandler.bind(this)
     this.clickHandler = this.clickHandler.bind(this)
     this.cameraAngleHandler = this.cameraAngleHandler.bind(this)
 
@@ -106,8 +105,16 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.el.classList.add('clickable')
     this.el.setAttribute('clickable', { clickevent: 'playpause' })
 
-    this.el.setAttribute('highlight__playpause', { id: 'playpause', meshes: [this.playPauseButtonName] })
-    this.el.setAttribute('highlight__back', { id: 'back', meshes: [this.backButtonName] })
+    this.el.setAttribute('highlight__playpause', {
+      id: 'playpause',
+      meshes: [this.playPauseButtonName],
+      target: this.playPauseButtonName
+    })
+    this.el.setAttribute('highlight__back', {
+      id: 'back',
+      meshes: [this.backButtonName],
+      target: this.backButtonName
+    })
 
     if (!this.data.browser.startsWith('Oculus')) this.el.setAttribute('camera-angle', {})
     this.el.setAttribute('fade', { fadeInEvent: 'fade-in-video-controls', fadeOutEvent: 'fade-out-video-controls', animate: false })
@@ -135,6 +142,9 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   remove () {
     this.removeHandlers()
     if (!this.data.browser.startsWith('Oculus')) this.el.removeAttribute('camera-angle')
+    this.el.removeAttribute('clickable')
+    this.el.removeAttribute('highlight__playpause')
+    this.el.removeAttribute('highlight__back')
   },
 
   update (oldData: Data) {

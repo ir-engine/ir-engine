@@ -117,7 +117,7 @@ function Video360Room (props: Video360Props) {
         position="0 -1 -4"
         videosrc={'#' + videosrc}
         viewport-width={viewport.width}
-        bar-height={0.12}
+        bar-height={0.36}
         back-button-href={backButtonHref}
         playing={playing}
         browser={browser}
