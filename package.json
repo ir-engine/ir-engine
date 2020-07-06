@@ -56,7 +56,7 @@
   "jsnext:main": "dist/ecsy-input.module.js",
   "license": "MIT",
   "main": "dist/ecsy-input.js",
-  "module": "dist/ecsy-input.module.js",
+  "module": "dist/ecsy-input.js",
   "name": "ecsy-input",
   "types": "dist/index.d.ts",
   "files": [
@@ -67,16 +67,16 @@
     "url": "git+https://github.com/xr3ngine/ecsy-input.git"
   },
   "scripts": {
-    "build": "rollup -c && tsc --emitDeclarationOnly --out dist/ecsy-input.js",
-    "patch-version": "npm version patch",
+    "build": "rollup -c && tsc --emitDeclarationOnly --declaration true --out dist/ecsy-input.js",
+    "preversion": "npm run lint",
+    "version": "npm run build && git add -A",
     "dev": "rollup -cw",
     "lint": "eslint ./src/**/*",
     "start": "npm run build"
   },
   "pre-commit": [
     "lint",
-    "build",
-    "patch-version"
+    "build"
   ],
   "version": "0.0.11"
 }
