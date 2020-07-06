@@ -60,9 +60,10 @@ export const ArrowComponent: AFRAME.ComponentDefinition<Props> = {
   ellipsesRadius: 0,
 
   init: () => {
+    this.setupArrow = this.setupArrow.bind(this)
     this.ellipsesRadius = this.data.width / 20
     if (this.el.sceneEl?.hasLoaded) this.setupArrow()
-    else this.el.sceneEl?.addEventListener('loaded', this.setupArrow.bind(this))
+    else this.el.sceneEl?.addEventListener('loaded', this.setupArrow, { once: true })
   },
 
   update: (oldData: ArrowData) => {
@@ -81,6 +82,7 @@ export const ArrowComponent: AFRAME.ComponentDefinition<Props> = {
     if (this.el.object3DMap.hasOwnProperty('mesh1')) {
       this.el.removeObject3D('mesh1')
     }
+    this.el.sceneEl?.removeEventListener('loaded', this.setupArrow)
   },
 
   setupArrow: () => {

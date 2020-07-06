@@ -146,6 +146,11 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
   canPageRight: false,
 
   init () {
+    this.initGrid = this.initGrid.bind(this)
+
+    this.pageLeftHandler = this.pageLeftHandler.bind(this)
+    this.pageRightHandler = this.pageRightHandler.bind(this)
+
     this.cellsPerPage = this.data.rows * this.data.columns
     this.cylinder = new Cylinder(this.data.cellsPerRow,
       this.data.cellHeight,
@@ -171,7 +176,7 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
         break
     }
     if (this.el.sceneEl?.hasLoaded) this.initGrid()
-    else this.el.sceneEl?.addEventListener('loaded', this.initGrid.bind(this))
+    else this.el.sceneEl?.addEventListener('loaded', this.initGrid, { once: true })
   },
 
   play () {
@@ -180,6 +185,10 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
 
   pause () {
     this.removeHandlers()
+  },
+
+  remove () {
+    this.el.sceneEl?.removeEventListener('loaded', this.initGrid)
   },
 
   update (oldData: GridData) {
@@ -297,8 +306,8 @@ export const GridComponent: AFRAME.ComponentDefinition<GridProps> = {
   },
 
   addHandlers: function () {
-    this.el.addEventListener(this.data.pageLeftEvent, this.pageLeftHandler.bind(this))
-    this.el.addEventListener(this.data.pageRightEvent, this.pageRightHandler.bind(this))
+    this.el.addEventListener(this.data.pageLeftEvent, this.pageLeftHandler)
+    this.el.addEventListener(this.data.pageRightEvent, this.pageRightHandler)
   },
 
   removeHandlers: function () {

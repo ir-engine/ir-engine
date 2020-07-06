@@ -116,6 +116,10 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
   pause () {
   },
 
+  remove () {
+    this.el.sceneEl?.removeEventListener('loaded', this.initCell)
+  },
+
   update (oldData: MediaCellData) {
     const changedData = Object.keys(this.data).filter(x => this.data[x] !== oldData[x])
     if (changedData.includes('active')) {
@@ -131,8 +135,9 @@ export const MediaCellComponent: AFRAME.ComponentDefinition<MediaCellProps> = {
   },
 
   initCellCB () {
+    this.initCell = this.initCell.bind(this)
     if (this.el.sceneEl?.hasLoaded) this.initCell()
-    else this.el.sceneEl?.addEventListener('loaded', this.initCell.bind(this), { once: true })
+    else this.el.sceneEl?.addEventListener('loaded', this.initCell, { once: true })
   },
 
   initCell () {

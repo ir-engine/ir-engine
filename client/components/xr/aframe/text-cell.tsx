@@ -219,8 +219,12 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   textHeight: 0,
 
   init () {
+    this.initTextCell = this.initTextCell.bind(this)
+
+    this.textLayoutChangedHandler = this.textLayoutChangedHandler.bind(this)
+
     if (this.el.sceneEl?.hasLoaded) this.initTextCell()
-    else this.el.sceneEl?.addEventListener('loaded', this.initTextCell.bind(this))
+    else this.el.sceneEl?.addEventListener('loaded', this.initTextCell)
   },
 
   play () {
@@ -229,6 +233,10 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
   pause () {
     this.removeHandlers()
+  },
+
+  remove () {
+    this.el.sceneEl?.removeEventListener('loaded', this.initTextCell)
   },
 
   update () {
@@ -265,7 +273,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.textScale = this.data.width / this.textRenderWidth
     this.textHeight = this.lineHeight * this.textScale * this.data.fontsize
 
-    this.el.addEventListener('textlayoutchanged', this.textLayoutChangedHandler.bind(this),
+    this.el.addEventListener('textlayoutchanged', this.textLayoutChangedHandler,
       { once: true })
 
     this.createText({
@@ -442,11 +450,11 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   },
 
   addHandlers: function () {
-    this.el.removeEventListener('textlayoutchanged', this.textLayoutChangedHandler.bind(this))
+    this.el.removeEventListener('textlayoutchanged', this.textLayoutChangedHandler)
   },
 
   removeHandlers: function () {
-    this.el.removeEventListener('textlayoutchanged', this.textLayoutChangedHandler.bind(this))
+    this.el.removeEventListener('textlayoutchanged', this.textLayoutChangedHandler)
   }
 
 }

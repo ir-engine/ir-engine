@@ -31,10 +31,10 @@ export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
 }
 
 export interface Props {
-  initSomething: () => void
+  initFlexItem: () => void
   addHandlers: () => void
   removeHandlers: () => void
-  aHandler: () => void
+  // aHandler: () => void
   aProp: boolean
 }
 
@@ -47,8 +47,11 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   aProp: true,
 
   init () {
-    if (this.el.sceneEl?.hasLoaded) this.initSomething()
-    else this.el.sceneEl?.addEventListener('loaded', this.initSomething.bind(this))
+    // this.aHandler = this.aHandler.bind(this)
+    this.initFlexItem = this.initFlexItem.bind(this)
+
+    if (this.el.sceneEl?.hasLoaded) this.initFlexItem()
+    else this.el.sceneEl?.addEventListener('loaded', this.initFlexItem, { once: true })
   },
 
   play () {
@@ -57,6 +60,10 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
   pause () {
     this.removeHandlers()
+  },
+
+  remove () {
+    this.el.sceneEl?.removeEventListener('loaded', this.initFlexItem)
   },
 
   update (oldData: Data) {
@@ -70,7 +77,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  initSomething () {
+  initFlexItem () {
     this.el.isFlexItem = true
 
     switch (this.data.dimtype) {
@@ -102,16 +109,12 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  aHandler () {
-
-  },
-
   addHandlers: function () {
-    this.el.addEventListener('an-event', this.aHandler.bind(this))
+    // this.el.addEventListener('an-event', this.aHandler)
   },
 
   removeHandlers: function () {
-    this.el.removeEventListener('an-event', this.aHandler)
+    // this.el.removeEventListener('an-event', this.aHandler)
   }
 
 }
