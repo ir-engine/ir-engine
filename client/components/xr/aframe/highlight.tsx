@@ -85,13 +85,15 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   attributeName: '',
 
   init () {
+    this.initHighlight = this.initHighlight.bind(this)
+
     this.raycasterIntersectedHandler = this.raycasterIntersectedHandler.bind(this)
     this.raycasterIntersectedClearedHandler = this.raycasterIntersectedClearedHandler.bind(this)
     this.mousedownHandler = this.mousedownHandler.bind(this)
     this.mouseupHandler = this.mouseupHandler.bind(this)
 
     if (this.el.sceneEl?.hasLoaded) this.initHighlight()
-    else this.el.sceneEl?.addEventListener('loaded', this.initHighlight.bind(this))
+    else this.el.sceneEl?.addEventListener('loaded', this.initHighlight, { once: true })
   },
 
   play () {
@@ -104,6 +106,10 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     if (!this.data.disabled) {
       this.removeHandlers()
     }
+  },
+
+  remove () {
+    this.el.sceneEl?.removeEventListener('loaded', this.initHighlight)
   },
 
   tick () {

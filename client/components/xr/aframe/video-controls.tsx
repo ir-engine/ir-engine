@@ -93,6 +93,8 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   firstCreate: true,
 
   init () {
+    this.createControls = this.createControls.bind(this)
+
     this.toggleMenuHandler = this.toggleMenuHandler.bind(this)
     this.clickHandler = this.clickHandler.bind(this)
     this.cameraAngleHandler = this.cameraAngleHandler.bind(this)
@@ -128,7 +130,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.pauseBtnImageMap = loader.load(pauseBtnImageSrc)
     this.backBtnImageMap = loader.load(backBtnImageSrc)
     if (this.el.sceneEl?.hasLoaded) this.createControls()
-    else this.el.sceneEl?.addEventListener('loaded', this.createControls.bind(this))
+    else this.el.sceneEl?.addEventListener('loaded', this.createControls, { once: true })
   },
 
   play () {
@@ -145,6 +147,8 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.el.removeAttribute('clickable')
     this.el.removeAttribute('highlight__playpause')
     this.el.removeAttribute('highlight__back')
+
+    this.el.sceneEl?.removeEventListener('loaded', this.createControls)
   },
 
   update (oldData: Data) {

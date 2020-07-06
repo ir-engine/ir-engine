@@ -76,8 +76,13 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
   firstUpdate: true,
 
   init () {
+    this.initPlayer = this.initPlayer.bind(this)
+
+    this.enterVRHandler = this.enterVRHandler.bind(this)
+    this.exitVRHandler = this.exitVRHandler.bind(this)
+
     if (this.el.sceneEl?.hasLoaded) this.initPlayer()
-    else this.el.sceneEl?.addEventListener('loaded', this.initPlayer.bind(this))
+    else this.el.sceneEl?.addEventListener('loaded', this.initPlayer, { once: true })
   },
 
   play () {
@@ -86,6 +91,10 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
 
   pause () {
     this.removeHandlers()
+  },
+
+  remove () {
+    this.el.sceneEl?.removeEventListener('loaded', this.initPlayer)
   },
 
   update (oldData: PlayerData) {
@@ -162,13 +171,13 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
   },
 
   addHandlers () {
-    this.el.sceneEl?.addEventListener('enter-vr', this.enterVRHandler.bind(this))
-    this.el.sceneEl?.addEventListener('exit-vr', this.exitVRHandler.bind(this))
+    this.el.sceneEl?.addEventListener('enter-vr', this.enterVRHandler)
+    this.el.sceneEl?.addEventListener('exit-vr', this.exitVRHandler)
   },
 
   removeHandlers () {
-    this.el.sceneEl?.removeEventListener('enter-vr', this.enterVRHandler.bind(this))
-    this.el.sceneEl?.removeEventListener('exit-vr', this.exitVRHandler.bind(this))
+    this.el.sceneEl?.removeEventListener('enter-vr', this.enterVRHandler)
+    this.el.sceneEl?.removeEventListener('exit-vr', this.exitVRHandler)
   }
 
 }

@@ -19,8 +19,6 @@ export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
 export interface Props {
   addHandlers: () => void
   removeHandlers: () => void
-  aHandler: () => void
-  aProp: boolean
   cameraEl: AFRAME.Entity
   camera: THREE.Object3D
   setCameraEl: () => void
@@ -35,16 +33,16 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   data: {} as Data,
 
-  aProp: true,
   cameraEl: null,
   camera: null,
   direction: 'out',
 
   init () {
     this.setActiveCameraHandler = this.setActiveCameraHandler.bind(this)
+    this.setCameraEl = this.setCameraEl.bind(this)
 
     if (this.el.sceneEl?.hasLoaded) this.setCameraEl()
-    else this.el.sceneEl?.addEventListener('loaded', this.setCameraEl.bind(this))
+    else this.el.sceneEl?.addEventListener('loaded', this.setCameraEl, { once: true })
   },
 
   play () {
@@ -53,6 +51,10 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
   pause () {
     this.removeHandlers()
+  },
+
+  remove () {
+    this.el.sceneEl?.removeEventListener('loaded', this.setCameraEl)
   },
 
   update (oldData: Data) {
@@ -79,10 +81,6 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     this.camera = this.cameraEl.getObject3D('camera')
   },
 
-  aHandler () {
-
-  },
-
   setActiveCameraHandler (e: any) {
     this.cameraEl = e.detail.cameraEl
     this.camera = this.cameraEl.getObject3D('camera')
@@ -98,12 +96,10 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   },
 
   addHandlers: function () {
-    this.el.addEventListener('an-event', this.aHandler.bind(this))
     this.el.sceneEl.addEventListener('camera-set-active', this.setActiveCameraHandler)
   },
 
   removeHandlers: function () {
-    this.el.removeEventListener('an-event', this.aHandler)
     this.el.sceneEl.removeEventListener('camera-set-active', this.setActiveCameraHandler)
   }
 

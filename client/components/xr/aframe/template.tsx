@@ -59,8 +59,12 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   aProp: true,
 
   init () {
+    this.initSomething = this.initSomething.bind(this)
+
+    this.aHandler = this.aHandler.bind(this)
+
     if (this.el.sceneEl?.hasLoaded) this.initSomething()
-    else this.el.sceneEl?.addEventListener('loaded', this.initSomething.bind(this))
+    else this.el.sceneEl?.addEventListener('loaded', this.initSomething, { once: true })
   },
 
   play () {
@@ -69,6 +73,10 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
 
   pause () {
     this.removeHandlers()
+  },
+
+  remove () {
+    this.el.sceneEl?.removeEventListener('loaded', this.initSomething)
   },
 
   update (oldData: Data) {
@@ -90,7 +98,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   },
 
   addHandlers: function () {
-    this.el.addEventListener('an-event', this.aHandler.bind(this))
+    this.el.addEventListener('an-event', this.aHandler)
   },
 
   removeHandlers: function () {

@@ -19,10 +19,8 @@ export const ComponentSchema: AFRAME.MultiPropertySchema<Data> = {
 }
 
 export interface Props {
-  initSomething: () => void
   addHandlers: () => void
   removeHandlers: () => void
-  aHandler: () => void
   gatherMeshes: (object3D: THREE.Object3D) => THREE.Mesh[]
   createOpacityMap: (meshes: THREE.Mesh[]) => Map<any, any>
   map: Map<any, any>
@@ -44,8 +42,8 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
   fadeInPromise: null,
 
   init () {
-    if (this.el.sceneEl?.hasLoaded) this.initSomething()
-    else this.el.sceneEl?.addEventListener('loaded', this.initSomething.bind(this))
+    this.animateFadeInPromise = this.animateFadeInPromise.bind(this)
+    this.animateFadeOutPromise = this.animateFadeOutPromise.bind(this)
   },
 
   play () {
@@ -65,9 +63,6 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     if (['someData', 'otherData'].some(prop => changedData.includes(prop))) {
       // update
     }
-  },
-
-  initSomething () {
   },
 
   gatherMeshes (object3D) {
@@ -226,17 +221,14 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     return promise
   },
 
-  aHandler () {
-
-  },
-
   addHandlers: function () {
-    this.el.addEventListener(this.data.fadeInEvent, this.animateFadeInPromise.bind(this))
-    this.el.addEventListener(this.data.fadeOutEvent, this.animateFadeOutPromise.bind(this))
+    this.el.addEventListener(this.data.fadeInEvent, this.animateFadeInPromise)
+    this.el.addEventListener(this.data.fadeOutEvent, this.animateFadeOutPromise)
   },
 
   removeHandlers: function () {
-    this.el.removeEventListener('an-event', this.aHandler)
+    this.el.removeEventListener(this.data.fadeInEvent, this.animateFadeInPromise)
+    this.el.removeEventListener(this.data.fadeOutEvent, this.animateFadeOutPromise)
   }
 
 }
