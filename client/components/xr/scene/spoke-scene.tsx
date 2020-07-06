@@ -16,7 +16,8 @@ import {
     Scale,
     Scene,
     SkyBox,
-    Visible
+    Visible,
+    WebGLRenderer
 } from 'ecsy-three/src/extras/components'
 import {
     SkyBoxSystem
@@ -26,6 +27,9 @@ import * as THREE from 'three'
 import {
     Sky
 } from 'three/examples/jsm/objects/Sky'
+// import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+// import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
+import { ImageLoader } from 'three/src/loaders/ImageLoader'
 import { selectAuthState } from '../../../redux/auth/selector'
 import { v4 } from 'uuid'
 import { client } from '../../../redux/feathers'
@@ -125,11 +129,11 @@ async function init(auth: any, projectId: string) {
         .registerComponent(Visible)
     world.registerSystem(GLTFLoaderSystem)
     let data = initialize(world)
-    let { scene, camera } = data.entities;
+    let { scene, camera, renderer } = data.entities;
     let camera3d = camera.getObject3D()
     camera3d.position.z = 5
     let scene3d = scene.getObject3D()
-    scene3d.add(new THREE.HemisphereLight(0xcccccc, 0x707070));
+    // scene3d.add(new THREE.HemisphereLight(0xcccccc, 0x707070));
     document.onkeydown = (e) => {
         const camera3dObjectComponent = camera.getMutableComponent(Object3DComponent).value
         switch (e.keyCode) {
@@ -147,16 +151,16 @@ async function init(auth: any, projectId: string) {
                 break
         }
     }
-    world.createEntity().addObject3DComponent(new THREE.AmbientLight(), scene)
-    var light = new THREE.DirectionalLight(0xaaaaaa);
-    light.position.set(0.2, 1.7, -0.7);
-    light.castShadow = true;
-    light.shadow.camera.top = 1;
-    light.shadow.camera.bottom = -1;
-    light.shadow.camera.right = 10;
-    light.shadow.camera.left = -10;
-    light.shadow.mapSize.set(4096, 4096);
-    scene3d.add(light);
+    // world.createEntity().addObject3DComponent(new THREE.AmbientLight(), scene)
+    // var light = new THREE.DirectionalLight(0xaaaaaa);
+    // light.position.set(0.2, 1.7, -0.7);
+    // light.castShadow = true;
+    // light.shadow.camera.top = 1;
+    // light.shadow.camera.bottom = -1;
+    // light.shadow.camera.right = 10;
+    // light.shadow.camera.left = -10;
+    // light.shadow.mapSize.set(4096, 4096);
+    // scene3d.add(light);
     // world.createEntity()
     //     .addObject3DComponent(new THREE.HemisphereLight(0xcccccc, 0x707070), scene)
     // world
@@ -173,17 +177,17 @@ async function init(auth: any, projectId: string) {
     //         }
     //     })
     //     .addComponent(Parent, { value: data.entities.scene });
-    world
-        .createEntity()
-        .addObject3DComponent(
-            new THREE.Mesh(
-                new THREE.BoxBufferGeometry(1, 1, 1),
-                new THREE.MeshBasicMaterial({
-                    map: new THREE.TextureLoader().load("../../textures/crate.gif")
-                })
-            ),
-            scene
-        )
+    // world
+    //     .createEntity()
+    //     .addObject3DComponent(
+    //         new THREE.Mesh(
+    //             new THREE.BoxBufferGeometry(1, 1, 1),
+    //             new THREE.MeshBasicMaterial({
+    //                 map: new THREE.TextureLoader().load("../../textures/crate.gif")
+    //             })
+    //         ),
+    //         scene
+    //     )
 
 
     const authUser = auth.get('authUser')
@@ -207,9 +211,9 @@ async function init(auth: any, projectId: string) {
                     console.log(component)
                     switch(component.name) {
                         case 'skybox':
-                            console.log(component)
                             const skyComponent = new Sky()
-                            let uniforms = skyComponent.material.uniforms
+                            skyComponent.scale.setScalar(component.data.distance)
+                            let uniforms = (skyComponent.material as any).uniforms
                             const sun = new THREE.Vector3();
                             var theta = Math.PI * ( component.data.inclination - 0.5 );
                             var phi = 2 * Math.PI * ( component.data.azimuth - 0.5 );
@@ -227,8 +231,9 @@ async function init(auth: any, projectId: string) {
 
                             newEntity.addObject3DComponent(skyComponent, scene)
                                 // .addComponent(Parent, { value: scene })
+                            // scene3d.add(skyComponent)
+                            break
                         case 'transform':
-                            // newEntity.addObject3DComponent(new THREE.Mesh(geometry, material), scene)
                             newEntity.addComponent(Position, { value: component.data.position })
                             newEntity.addComponent(Rotation, { rotation: component.data.rotation })
                             newEntity.addComponent(Scale, { value: component.data.scale })
@@ -237,15 +242,32 @@ async function init(auth: any, projectId: string) {
                             newEntity.addComponent(Visible, { value: component.data.visible })
                             break
                         case 'directional-light':
-                            var light = new THREE.DirectionalLight(component.data.color, component.data.intensity);
-                            light.castShadow = true;
-                            light.shadow.mapSize.set(component.data.shadowMapResolution[0], component.data.shadowMapResolution[1]);
-                            light.shadow.bias = (component.data.shadowBias)
-                            light.shadow.radius = (component.data.shadowRadius)
-                            newEntity.addObject3DComponent(light, scene)
+                            var directionlLight = new THREE.DirectionalLight(component.data.color, component.data.intensity);
+                            directionlLight.castShadow = true;
+                            directionlLight.shadow.mapSize.set(component.data.shadowMapResolution[0], component.data.shadowMapResolution[1]);
+                            directionlLight.shadow.bias = (component.data.shadowBias)
+                            directionlLight.shadow.radius = (component.data.shadowRadius)
+                            newEntity.addObject3DComponent(directionlLight, scene)
+                            break
+                        case 'gltf-model':
+                            newEntity.addComponent(GLTFLoader, {
+                                url: component.data.src,
+                            })
                                 .addComponent(Parent, { value: scene })
+                            console.log(newEntity)
+                            break
+                        case 'ground-plane':
+                            const geometry = new THREE.PlaneGeometry(40000, 40000)
+                            const material = new THREE.MeshBasicMaterial({ color: component.data.color, side: THREE.DoubleSide })
+                            const plane = new THREE.Mesh(geometry, material)
+                            newEntity.addObject3DComponent(plane, scene)
+                            break
+                        case 'ambient-light':
+                            var ambientLight = new THREE.AmbientLight(component.data.color, component.data.intensity)
+                            newEntity.addObject3DComponent(ambientLight, scene)
                     }
                 })
+                console.log(newEntity)
             })
             // Let's begin
             console.log(world)
