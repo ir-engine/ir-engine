@@ -53,10 +53,8 @@
   "license": "MIT",
   "main": "dist/ecsy-input.js",
   "module": "dist/ecsy-input.js",
+  "types": "dist/ecsy-input.d.ts",
   "name": "ecsy-input",
-  "files": [
-    "dist"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xr3ngine/ecsy-input.git"
@@ -74,5 +72,5 @@
     "lint",
     "build"
   ],
-  "version": "0.0.29"
+  "version": "0.0.31"
 }
