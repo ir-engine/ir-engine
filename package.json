@@ -52,6 +52,7 @@
   "homepage": "https://github.com/xr3ngine/ecsy-input#readme",
   "jsnext:main": "dist/ecsy-input.mjs",
   "license": "MIT",
+  "types": "dist/ecsy-input.d.ts",
   "main": "dist/ecsy-input.js",
   "module": "dist/ecsy-input.mjs",
   "name": "ecsy-input",
@@ -76,5 +77,5 @@
     "lint",
     "build"
   ],
-  "version": "0.0.18"
+  "version": "0.0.19"
 }
