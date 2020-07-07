@@ -1,7 +1,7 @@
 import DefaultActions from "./DefaultActions"
 import DefaultAxes from "./DefaultAxes"
 import InputActionTable from "../interfaces/InputActionTable"
-import ActionRules from "../interfaces/ActionMapping"
+import ActionRules from "../interfaces/ActionRules"
 
 export const DefaultInputActionTable: InputActionTable = {
   mouse: {

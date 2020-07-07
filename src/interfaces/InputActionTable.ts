@@ -1,4 +1,4 @@
-import ActionRules from "./ActionMapping"
+import ActionRules from "./ActionRules"
 import ActionType from "../types/ActionType"
 import AxisType from "../types/AxisType"
 
