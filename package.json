@@ -8,7 +8,9 @@
     "url": "https://github.com/xr3ngine/ecsy-input/issues"
   },
   "bundleDependencies": false,
-  "dependencies": {},
+  "dependencies": {
+    "rollup-plugin-peer-deps-external": "^2.2.3"
+  },
   "deprecated": false,
   "description": "ECSY Input Controller",
   "devDependencies": {
@@ -50,14 +52,13 @@
     "typescript": "^3.9.5"
   },
   "homepage": "https://github.com/xr3ngine/ecsy-input#readme",
-  "jsnext:main": "dist/ecsy-input.mjs",
   "license": "MIT",
-  "types": "dist/ecsy-input.d.ts",
-  "main": "dist/ecsy-input.js",
-  "module": "dist/ecsy-input.mjs",
+  "main": "dist/index.js",
+  "module": "dist/index.module.js",
+  "jsnext:main": "dist/index.module.js",
+  "typings": "dist/index.d.ts",
   "name": "ecsy-input",
   "files": [
-    "src",
     "dist"
   ],
   "repository": {
@@ -77,5 +78,5 @@
     "lint",
     "build"
   ],
-  "version": "0.0.22"
+  "version": "0.0.23"
 }
