@@ -120,6 +120,17 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
       alignItems: 'center'
     })
 
+    // title
+    if (this.data.title !== undefined) {
+      const titleFlexEl = this.createDetailsItem({
+        height: 0.1 * this.data.detailsHeight,
+        fontsize: 3,
+        wrapcount: 30
+      }, this.data.title)
+      flexEl.appendChild(titleFlexEl)
+    }
+
+    // Image
     const mediaCell = this.createCell()
     mediaCell.setAttribute('flex-item', { dimtype: 'attr', dimattr: 'media-cell' })
 
@@ -135,16 +146,6 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
     detailsCell.setAttribute('flex-item', { dimtype: 'flex-container' })
 
     flexEl.appendChild(detailsCell)
-
-    // title
-    if (this.data.title !== undefined) {
-      const titleFlexEl = this.createDetailsItem({
-        height: 0.1 * this.data.detailsHeight,
-        fontsize: 3,
-        wrapcount: 30
-      }, this.data.title)
-      flexEl.appendChild(titleFlexEl)
-    }
 
     // description
     if (this.data.description !== undefined) {
@@ -178,8 +179,12 @@ export const VideoDetailsComponent: AFRAME.ComponentDefinition<Props> = {
   createCell () {
     const mediaCell = document.createElement('a-media-cell')
     const cellData = {
-      clickable: false,
-      ...this.data
+      contentWidth: this.data.cellWidth,
+      contentHeight: this.data.cellHeight,
+      thumbnailUrl: this.data.thumbnailUrl,
+      linkEnabled: false,
+      highLight: false,
+      clickable: false
     }
     mediaCell.setAttribute('media-cell', cellData)
 

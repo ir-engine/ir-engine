@@ -72,6 +72,11 @@ export default class CameraRig {
     if (cameraSystem) (cameraSystem as any).setActiveCamera(this.cameraEl)
   }
 
+  resetRotation (): void {
+    this.el.object3D.rotation.set(0, 0, 0)
+    this.cameraEl.object3D.rotation.set(0, 0, 0)
+  }
+
   removeDefaultCamera (): void {
     const cams = document.querySelectorAll('[camera]')
     cams.forEach(el => { if (el.classList.contains('data-aframe-default-camera')) el.parentElement?.removeChild(el) })
