@@ -1,8 +1,8 @@
 {
     "compilerOptions": {
-      "module": "es6",
+      "module": "ESNext",
       "noImplicitAny": false,
-      "target": "es6",
+      "target": "ES2015",
       "moduleResolution": "Node",
       "allowSyntheticDefaultImports": true,
       "esModuleInterop": true
