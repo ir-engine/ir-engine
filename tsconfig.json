@@ -1,11 +1,18 @@
 {
     "compilerOptions": {
-      "module": "ESNext",
-      "noImplicitAny": false,
-      "target": "ES2015",
-      "moduleResolution": "Node",
-      "allowSyntheticDefaultImports": true,
-      "esModuleInterop": true
+      "outDir": "./dist",
+      "target": "ES5",
+      "module": "ES6",
+      "sourceMap": true,
+      "declaration": true,
+      "downlevelIteration": true,
+      "strict": false,
+      "resolveJsonModule": true,
+      "moduleResolution": "node",
+      "esModuleInterop": true,
+      "typeRoots": [
+        "node_modules/@types"
+      ]
     },
     "include": [
       "src/**/*"

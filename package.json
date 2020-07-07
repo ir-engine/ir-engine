@@ -65,7 +65,7 @@
     "url": "git+https://github.com/xr3ngine/ecsy-input.git"
   },
   "scripts": {
-    "build": "rollup -c && tsc --emitDeclarationOnly --declaration true --out dist/ecsy-input.js",
+    "build": "rollup -c && tsc --emitDeclarationOnly --declaration true",
     "preversion": "npm run lint",
     "version": "npm run build && git add -A",
     "postversion": "git push && git push --tags && sudo npm publish",
@@ -77,5 +77,5 @@
     "lint",
     "build"
   ],
-  "version": "0.0.20"
+  "version": "0.0.21"
 }
