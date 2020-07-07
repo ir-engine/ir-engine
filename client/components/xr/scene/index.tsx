@@ -81,6 +81,12 @@ export default function RootScene (props: Props): any {
           })
         }
       }
+      // reset player camera
+      const player = document.querySelector('#player')
+      if (player !== null) {
+        player.emit('reset-player-position')
+        player.emit('reset-player-rotation')
+      }
       setSceneName(newSceneName)
     }
   }

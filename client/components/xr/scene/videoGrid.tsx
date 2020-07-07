@@ -218,6 +218,8 @@ const VideoGridScene = (props: VideoProps): any => {
               rating={videoGridState.focusedCell?.rating}
               categories={videoGridState.focusedCell?.categories}
               runtime={videoGridState.focusedCell?.runtime}
+              cell-width={contentWidth}
+              cell-height={contentHeight}
               details-width={contentWidth}
               details-height={contentHeight * 2}
               background-color={borderColor}

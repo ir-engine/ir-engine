@@ -5,7 +5,7 @@ import { AvatarSchemaComponent, defaultComponents } from '../../../classes/afram
 
 import { ControllerComponent } from '../../../classes/aframe/controls/controls'
 import PlayerControls from '../../../classes/aframe/controls/player-controls'
-import LookController from '../../../classes/aframe/controls/look-controls'
+import LookController, { defaultLookControlsOptions } from '../../../classes/aframe/controls/look-controls'
 import WASDController from '../../../classes/aframe/controls/wasd-controls'
 
 import CameraRig from '../../../classes/aframe/camera/camera-rig'
@@ -60,6 +60,8 @@ export interface Props {
   removeHandlers: () => void
   exitVRHandler: () => void
   enterVRHandler: () => void
+  resetPositionHandler: () => void
+  resetRotationHandler: () => void
 }
 
 export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
@@ -80,6 +82,8 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
 
     this.enterVRHandler = this.enterVRHandler.bind(this)
     this.exitVRHandler = this.exitVRHandler.bind(this)
+    this.resetPositionHandler = this.resetPositionHandler.bind(this)
+    this.resetRotationHandler = this.resetRotationHandler.bind(this)
 
     if (this.el.sceneEl?.hasLoaded) this.initPlayer()
     else this.el.sceneEl?.addEventListener('loaded', this.initPlayer, { once: true })
@@ -170,9 +174,22 @@ export const PlayerComponent: AFRAME.ComponentDefinition<Props> = {
     if (this.data.deviceType === 'smartphone') this.el.setAttribute('player', { lookEnabled: true })
   },
 
+  resetPositionHandler () {
+    this.el.object3D.position.set(0, this.data.playerHeight, 0)
+  },
+
+  resetRotationHandler () {
+    this.el.removeAttribute('look-controls')
+    this.el.object3D.rotation.set(0, 0, 0)
+    this.cameraRig.resetRotation()
+    this.el.setAttribute('look-controls', defaultLookControlsOptions)
+  },
+
   addHandlers () {
     this.el.sceneEl?.addEventListener('enter-vr', this.enterVRHandler)
     this.el.sceneEl?.addEventListener('exit-vr', this.exitVRHandler)
+    this.el.sceneEl?.addEventListener('reset-player-position', this.resetPositionHandler)
+    this.el.sceneEl?.addEventListener('reset-player-rotation', this.resetRotationHandler)
   },
 
   removeHandlers () {
