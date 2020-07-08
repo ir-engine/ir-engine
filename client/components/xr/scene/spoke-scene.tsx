@@ -17,8 +17,9 @@ import {
   Scale,
   //   Scene,
   SkyBox,
-  Visible
-//   WebGLRenderer
+  Visible,
+  //   WebGLRenderer
+  Camera
 } from 'ecsy-three/src/extras/components'
 // import {
 //   SkyBoxSystem
@@ -28,6 +29,8 @@ import * as THREE from 'three'
 import {
   Sky
 } from 'three/examples/jsm/objects/Sky'
+
+import CameraSystem from '../ecsy/systems/CameraSystem'
 // import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 // import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
 // import { ImageLoader } from 'three/src/loaders/ImageLoader'
@@ -60,6 +63,7 @@ async function init (projectId: string): Promise<any> { // auth: any,
     .registerComponent(Scale)
     .registerComponent(Visible)
   world.registerSystem(GLTFLoaderSystem)
+    .registerSystem(CameraSystem)
   const data = initialize(world)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { scene, camera, renderer } = data.entities
@@ -82,6 +86,8 @@ async function init (projectId: string): Promise<any> { // auth: any,
         break
     }
   }
+  const cameraComp = camera.getMutableComponent(Camera)
+  cameraComp.far = 100000000000
 
   let service, serviceId
   const projectResult = await client.service('project').get(projectId)
@@ -142,10 +148,10 @@ async function init (projectId: string): Promise<any> { // auth: any,
           break
         case 'gltf-model':
           newEntity.addComponent(GLTFLoader, {
-            url: component.data.src
+            url: component.data.src,
+            onLoaded: () => { console.log('gltf loaded') }
           })
             .addComponent(Parent, { value: scene })
-          console.log(newEntity)
           break
         case 'ground-plane':
           const geometry = new THREE.PlaneGeometry(40000, 40000)
