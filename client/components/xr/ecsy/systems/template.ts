@@ -32,8 +32,8 @@ MySystem.queries = {
     // reactive queries
     listen: {
       added: true,
-      removed: false,
-      changed: [Object3DComponent]
+      removed: false
+      // changed: [Object3DComponent]
     }
   }
 }
