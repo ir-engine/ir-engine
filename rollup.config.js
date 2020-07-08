@@ -36,6 +36,11 @@ export default [
     plugins: [html(), resolve()]
   },
   {
+    input: "examples/mouse.html",
+    output: { dir: "dist/examples" },
+    plugins: [html(), resolve()]
+  },
+  {
     input: "examples/index.html",
     output: { dir: "dist/examples" },
     plugins: [html(), resolve()]
