@@ -6,10 +6,13 @@ import { Tabs, Tab } from '@material-ui/core'
 import SettingsIcon from '@material-ui/icons/Settings'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 // import AccountBoxIcon from '@material-ui/icons/AccountBox'
+import MailIcon from '@material-ui/icons/Mail'
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle'
 import UserProfile from './UserIcon'
 import UserSettings from './UserSettings'
 import Subscription from './Subscription'
+import Friends from './Friends'
+import Invite from './Invite'
 import './style.scss'
 
 interface Props {
@@ -47,6 +50,16 @@ const ProfileModal = (props: Props): any => {
     <TabPanel value={tabIndex} className="subscription-profile" index={2}>
       <Subscription auth={props.auth}/>
     </TabPanel>
+  )
+  const friends = (
+      <TabPanel value={tabIndex} index={3}>
+        <Friends auth={props.auth} />
+      </TabPanel>
+  )
+  const invite = (
+      <TabPanel value={tabIndex} index={4}>
+        <Invite auth={props.auth} />
+      </TabPanel>
   )
   return (
     <div>
@@ -88,11 +101,21 @@ const ProfileModal = (props: Props): any => {
                 icon={<SupervisedUserCircleIcon style={{ fontSize: 30 }} />}
                 label="Subscription"
               />
+              <Tab
+                icon={<SupervisedUserCircleIcon style={{ fontSize: 30}} />}
+                label="Friends"
+              />
+              <Tab
+                  icon={<MailIcon style={{ fontSize: 30}} />}
+                  label="Invite"
+              />
             </Tabs>
             {avatar}
             {settings}
             {/* {account} */}
             {subscription}
+            {friends}
+            {invite}
           </div>
         </Fade>
       </Modal>

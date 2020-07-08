@@ -83,3 +83,7 @@ export type Action = {
 export const VIDEO_CREATED = 'VIDEO_CREATED'
 export const VIDEO_UPDATED = 'VIDEO_UPDATED'
 export const VIDEO_DELETED = 'VIDEO_DELETED'
+
+export const LOADED_FRIENDS = 'LOADED_FRIENDS'
+
+export const INVITE_SENT = 'INVITE_SENT'
