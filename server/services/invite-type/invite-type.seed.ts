@@ -3,13 +3,13 @@ import config from '../../config'
 export const seed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
-  path: 'group-user-rank',
+  path: 'invite-type',
   randomize: false,
   templates:
         [
-          { rank: 'owner' },
-          { rank: 'admin' },
-          { rank: 'user' }
+          { type: 'friend' },
+          { type: 'group' },
+          { type: 'party' }
         ]
 }
 

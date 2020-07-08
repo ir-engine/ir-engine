@@ -2,6 +2,7 @@ import CollectionType from './services/collection-type/collection-type.seed'
 import ComponentTypeSeed from './services/component-type/component-type.seed'
 import EntityTypeSeed from './services/entity-type/entity-type.seed'
 import GroupUserRankSeed from './services/group-user-rank/group-user-rank.seed'
+import InviteTypeSeed from './services/invite-type/invite-type.seed'
 import SeatStatusSeed from './services/seat-status/seat-status.seed'
 import StaticResourceTypeSeed from './services/static-resource-type/static-resource-type.seed'
 import SubscriptionLevelSeed from './services/subscription-level/subscription-level.seed'
@@ -15,6 +16,7 @@ module.exports = {
     ComponentTypeSeed,
     EntityTypeSeed,
     GroupUserRankSeed,
+    InviteTypeSeed,
     SeatStatusSeed,
     StaticResourceTypeSeed,
     SubscriptionLevelSeed,
