@@ -30,7 +30,7 @@ RotationSystem.queries = {
   entities: {
     components: [Rotating, Object3DComponent],
     listen: {
-      changed: [Object3DComponent]
+      // changed: [Object3DComponent]
     }
   }
 }

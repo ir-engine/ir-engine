@@ -101,7 +101,9 @@ async function init (projectId: string): Promise<any> { // auth: any,
       switch (component.name) {
         case 'skybox':
           const skyComponent = new Sky()
-          skyComponent.scale.setScalar(component.data.distance)
+          const distance = component.data.distance // Math.min(1000, component.data.distance)
+          const ScaleComp = newEntity.getMutableComponent(Scale);
+          (ScaleComp as any).value = new THREE.Vector3(distance, distance, distance)
           const uniforms = (skyComponent.material as any).uniforms
           const sun = new THREE.Vector3()
           const theta = Math.PI * (component.data.inclination - 0.5)
