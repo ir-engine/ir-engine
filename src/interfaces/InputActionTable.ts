@@ -28,6 +28,16 @@ interface InputActionTable {
       [key: number]: AxisType
     }
   }
+  gamepad?: {
+    actions?: {
+      [key: number]: ActionType
+      [key: string]: ActionType
+    }
+    axes?: {
+      [key: number]: AxisType
+      [key: string]: AxisType
+    }
+  }
 }
 
 export default InputActionTable
