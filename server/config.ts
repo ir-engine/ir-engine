@@ -4,6 +4,7 @@ import url from 'url'
 import { inspect } from 'util'
 // Load all the ENV variables from `.env`, then `.env.local`, into process.env
 import dotenv from 'dotenv-flow'
+import * as chargebeeInst from 'chargebee'
 dotenv.config()
 
 /**
@@ -163,13 +164,15 @@ const aws = {
 }
 
 const chargebee = {
-  url: process.env.CHARGEBEE_URL ?? 'dummy.not-chargebee.com'
+  url: process.env.CHARGEBEE_SITE + '.chargebee.com' ?? 'dummy.not-chargebee.com',
+  apiKey: process.env.CHARGEBEE_API_KEY ?? ''
 }
 
 /**
  * Full config
  */
 const config = {
+  deployStage: process.env.DEPLOY_STAGE ?? 'local',
   authentication,
   aws,
   chargebee,
@@ -178,6 +181,11 @@ const config = {
   email,
   server
 }
+
+chargebeeInst.configure({
+  site: process.env.CHARGEBEE_SITE ?? '',
+  api_key: config.chargebee.apiKey
+})
 
 console.log(inspect(config))
 

@@ -89,25 +89,25 @@ const Pricing = (): any => {
           Please select the plan that is best suited to your requirements.
         </Typography>
       </Container>
-      <Tabs
-        className={classes.tabs}
-        value={value}
-        onChange={handleChange}
-        indicatorColor="primary"
-        textColor="primary"
-        centered
-      >
-        <Tab label="Monthly" />
-        <Tab label="Annually" />
-      </Tabs>
+      {/*<Tabs*/}
+        {/*className={classes.tabs}*/}
+        {/*value={value}*/}
+        {/*onChange={handleChange}*/}
+        {/*indicatorColor="primary"*/}
+        {/*textColor="primary"*/}
+        {/*centered*/}
+      {/*>*/}
+        {/*<Tab label="Monthly" />*/}
+        {/*<Tab label="Annually" />*/}
+      {/*</Tabs>*/}
       {/* End hero unit */}
       <div>
         <TabPanel value={value} index={0}>
           <Plans tiers={monthly}/>
         </TabPanel>
-        <TabPanel value={value} index={1}>
-          <Plans tiers={annual} />
-        </TabPanel>
+        {/*<TabPanel value={value} index={1}>*/}
+          {/*<Plans tiers={annual} />*/}
+        {/*</TabPanel>*/}
       </div>
     </React.Fragment>
   )

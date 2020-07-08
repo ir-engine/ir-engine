@@ -18,6 +18,10 @@ export default (app: Application): any => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     amount: {
       type: DataTypes.DOUBLE,
       allowNull: false
