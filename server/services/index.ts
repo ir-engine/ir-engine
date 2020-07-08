@@ -5,6 +5,7 @@ import ComponentType from './component-type/component-type.service'
 import CollectionType from './collection-type/collection-type.service'
 import EntityType from './entity-type/entity-type.service'
 import GroupUserRank from './group-user-rank/group-user-rank.service'
+import InviteType from './invite-type/invite-type.service';
 import StaticResourceType from './static-resource-type/static-resource-type.service'
 import SubscriptionLevel from './subscription-level/subscription-level.service'
 import SeatStatus from './seat-status/seat-status.service'
@@ -18,8 +19,9 @@ import Collection from './collection/collection.service'
 import Component from './component/component.service'
 import Entity from './entity/entity.service'
 import Group from './group/group.service'
-import Instance from './instance/instance.service'
 import IdentityProvider from './identity-provider/identity-provider.service'
+import Instance from './instance/instance.service'
+import Invite from './invite/invite.service'
 import License from './license/license.service'
 import Location from './location/location.service'
 import Party from './party/party.service'
@@ -70,6 +72,7 @@ export default (app: Application): void => {
   app.configure(SubscriptionType)
   app.configure(GroupUserRank)
   app.configure(SubscriptionLevel)
+  app.configure(InviteType)
 
   // Objects
   app.configure(Attribution)
@@ -78,6 +81,7 @@ export default (app: Application): void => {
   app.configure(Entity)
   app.configure(Group)
   app.configure(Instance)
+  app.configure(Invite)
   app.configure(Location)
   app.configure(License)
   app.configure(Party)

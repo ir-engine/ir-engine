@@ -9,6 +9,10 @@ export function getLink (type: string, hash: string, subscriptionId?: string): s
     : (config.client.url) + '/auth/magiclink' + `?type=${type}&token=${hash}`
 }
 
+export function getInviteLink(type: string, passcode: string) {
+  return (config.client.url) + '/accept_invite' + `?passcode=${passcode}`
+}
+
 export async function sendEmail (app: Application, email: any): Promise<void> {
   if (email.to) {
     email.html = email.html.replace(/&amp;/g, '&') // Text message links can't have HTML escaped ampersands.
