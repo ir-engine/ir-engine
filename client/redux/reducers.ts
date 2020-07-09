@@ -7,6 +7,7 @@ import alertReducer from './alert/reducers'
 import dialogReducer from './dialog/reducers'
 import deviceDetectReducer from './devicedetect/reducers'
 
+import friendReducer from './friend/reducers'
 import userReducer from './user/reducers'
 import video360Reducer from './video360/reducers'
 import seatReducer from './seats/reducers'
@@ -14,6 +15,7 @@ import seatReducer from './seats/reducers'
 export default combineReducers({
   app: appReducer,
   auth: authReducer,
+  friends: friendReducer,
   videos: videoReducer,
   video360: video360Reducer,
   scenes: sceneReducer,

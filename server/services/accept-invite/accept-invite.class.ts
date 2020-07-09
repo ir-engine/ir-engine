@@ -1,5 +1,6 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
+import { BadRequest } from '@feathersjs/errors'
 
 interface Data {}
 
@@ -19,9 +20,48 @@ export class AcceptInvite implements ServiceMethods<Data> {
   }
 
   async get (id: Id, params?: Params): Promise<Data> {
-    return {
-      id, text: `A new message with ID: ${id}!`
-    };
+    const invite = await this.app.service('invite').get(id)
+
+    if (invite == null) {
+      return new BadRequest('Invalid invite ID')
+    }
+
+    if (params.passcode !== invite.passcode) {
+      return new BadRequest('Invalid passcode')
+    }
+
+    if (invite.identityProviderType != null) {
+      const inviteeIdentityProvider = await this.app.service('identity-provider').find({
+        type: invite.identityProviderType,
+        token: invite.token
+      })
+
+      if (inviteeIdentityProvider == null) {
+        const newIdentityProvider = await this.app.service('identity-provider').create({
+          token: invite.token,
+          type: invite.identityProviderType
+        }, params)
+
+        if (invite.inviteType === 'friend') {
+          await this.app.service('user-relationship').create({
+            userRelationshipType: invite.inviteType,
+            userId: invite.userId,
+            relatedUserId: newIdentityProvider.userId
+          }, {})
+
+          await this.app.service('user-relationship').update(invite.userId, {
+            userRelationshipType: invite.inviteType,
+            userId: newIdentityProvider.userId
+          })        }
+      }
+      else {
+
+      }
+    }
+
+    if (invite.inviteType === 'friend') {
+
+    }
   }
 
   async create (data: Data, params?: Params): Promise<Data> {

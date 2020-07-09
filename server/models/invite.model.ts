@@ -6,6 +6,12 @@ import { Application } from '../declarations';
 export default function (app: Application) {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const invite = sequelizeClient.define('invite', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
+      allowNull: false,
+      primaryKey: true
+    },
     token: {
       type: DataTypes.STRING
     },

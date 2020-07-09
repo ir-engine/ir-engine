@@ -10,8 +10,8 @@ import ListItem from '@material-ui/core/ListItem'
 import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import ListItemText from '@material-ui/core/ListItemText'
 import Avatar from '@material-ui/core/Avatar'
-import { getFriends } from '../../../redux/friends/service'
-import { selectFriendState } from '../../../redux/friends/selector'
+import { getFriends } from '../../../redux/friend/service'
+import { selectFriendState } from '../../../redux/friend/selector'
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -49,4 +49,4 @@ const Friends = (props: Props): any => {
     )
 }
 
-export default connect(null, mapDispatchToProps)(Friends)
+export default connect(mapStateToProps, mapDispatchToProps)(Friends)

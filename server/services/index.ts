@@ -61,6 +61,8 @@ import ResolveMedia from './resolve-media/resolve-media.service'
 // GraphQL
 import GraphQL from './graphql/graphql.service'
 
+import acceptInvite from './accept-invite/accept-invite.service';
+
 export default (app: Application): void => {
   // Dynamic types
   app.configure(ComponentType)
@@ -122,4 +124,5 @@ export default (app: Application): void => {
 
   // GraphQL
   app.configure(GraphQL)
+  app.configure(acceptInvite);
 }
