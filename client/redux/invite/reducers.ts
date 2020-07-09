@@ -1,31 +1,29 @@
 import Immutable from 'immutable'
 import {
-  FriendAction,
-  LoadedFriendsAction
+  InviteAction,
+  InviteSentAction
 } from './actions'
 
 import {
-  LOADED_FRIENDS,
+  INVITE_SENT,
 } from '../actions'
-import { RelationshipSeed } from '../../../shared/interfaces/Relationship'
 
 export const initialState = {
-  relationship: RelationshipSeed,
   friends: [],
   updateNeeded: true
 }
 
 const immutableState = Immutable.fromJS(initialState)
 
-const userReducer = (state = immutableState, action: FriendAction): any => {
+const inviteReducer = (state = immutableState, action: InviteAction): any => {
   switch (action.type) {
-    case LOADED_FRIENDS:
+    case INVITE_SENT:
       return state
-        .set('friends', (action as LoadedFriendsAction).friends)
+        .set('invites', (action as InviteSentAction).id)
         .set('updateNeeded', false)
   }
 
   return state
 }
 
-export default userReducer
+export default inviteReducer

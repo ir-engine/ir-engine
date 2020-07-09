@@ -17,7 +17,7 @@ export const initialState = {
 
 const immutableState = Immutable.fromJS(initialState)
 
-const userReducer = (state = immutableState, action: FriendAction): any => {
+const friendReducer = (state = immutableState, action: FriendAction): any => {
   switch (action.type) {
     case LOADED_FRIENDS:
       return state
@@ -28,4 +28,4 @@ const userReducer = (state = immutableState, action: FriendAction): any => {
   return state
 }
 
-export default userReducer
+export default friendReducer

@@ -12,10 +12,11 @@ import ListItemText from '@material-ui/core/ListItemText'
 import MailIcon from '@material-ui/icons/Mail'
 import PhoneIcon from '@material-ui/icons/PhoneIphone'
 import Avatar from '@material-ui/core/Avatar'
-import { getFriends } from '../../../redux/friends/service'
-import { selectFriendState } from '../../../redux/friends/selector'
+import { getFriends } from '../../../redux/friend/service'
+import { selectFriendState } from '../../../redux/friend/selector'
 import {Tab, Tabs} from "@material-ui/core";
 import SettingsIcon from "./index";
+import { sendInvite } from '../../../redux/invite/service'
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -24,32 +25,47 @@ const mapStateToProps = (state: any): any => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-    getFriends: bindActionCreators(getFriends, dispatch)
+    getFriends: bindActionCreators(getFriends, dispatch),
+    sendInvite: bindActionCreators(sendInvite, dispatch)
 })
 
 interface Props {
     auth: any
     friendState?: any
+    sendInvite?: typeof sendInvite
 }
 
-const Friends = (props: Props): any => {
-    const { friendState } = props
+const identityProviderTabMap = new Map()
+identityProviderTabMap.set(0, 'email')
+identityProviderTabMap.set(1, 'sms')
+
+const Invites = (props: Props): any => {
+    const { friendState, sendInvite } = props
     const friends = friendState.friends
     const [tabIndex, setTabIndex] = useState(0)
-    const [userToken, setUsertoken] = useState()
+    const [userToken, setUserToken] = useState('')
 
     const handleChange = (event: any, newValue: number): void => {
         event.preventDefault()
         setTabIndex(newValue)
+        setUserToken('')
+        console.log(userToken)
     }
 
-    const handleUsertokenChange = (event: any): void => {
+    const handleUserTokenChange = (event: any): void => {
         const token = event.target.value
-        setUsertoken(token)
+        setUserToken(token)
     }
 
-    const sendInvite = (event: any): void => {
-        event.preventDefault()
+    const packageInvite = (event: any): void => {
+        console.log(event)
+        const mappedIDProvider = identityProviderTabMap.get(tabIndex)
+        sendInvite({
+            type: 'friend',
+            token: mappedIDProvider ? userToken : null,
+            identityProviderType: mappedIDProvider ? mappedIDProvider : null,
+            invitee: tabIndex === 2 ? userToken : null
+        })
     }
     return (
         <div className="friend-container">
@@ -72,7 +88,7 @@ const Friends = (props: Props): any => {
                     variant="fullWidth"
                     indicatorColor="secondary"
                     textColor="secondary"
-                    aria-label="Login Configure"
+                    aria-label="Invite Address"
                 >
                     <Tab
                         icon={<MailIcon />}
@@ -97,9 +113,10 @@ const Friends = (props: Props): any => {
                         label="User's email, phone number, or ID"
                         name="name"
                         autoFocus
-                        onChange={(e) => handleUsertokenChange(e)}
+                        value={userToken}
+                        onChange={(e) => handleUserTokenChange(e)}
                     />
-                    <Button variant="contained" color="primary" onClick={sendInvite}>
+                    <Button variant="contained" color="primary" onClick={packageInvite}>
                         Send Invite
                     </Button>
                 </div>
@@ -108,4 +125,4 @@ const Friends = (props: Props): any => {
     )
 }
 
-export default connect(null, mapDispatchToProps)(Friends)
+export default connect(mapStateToProps, mapDispatchToProps)(Invites)
