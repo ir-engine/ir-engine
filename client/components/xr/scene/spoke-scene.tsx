@@ -21,22 +21,17 @@ import {
   //   WebGLRenderer
   Camera
 } from 'ecsy-three/src/extras/components'
-// import {
-//   SkyBoxSystem
-// } from 'ecsy-three/src/extras/systems/SkyBoxSystem'
 import { GLTFLoaderSystem } from 'ecsy-three/src/extras/systems/GLTFLoaderSystem'
-import * as THREE from 'three'
-import {
-  Sky
-} from 'three/examples/jsm/objects/Sky'
+
+import SpokeNodeLoader from '../ecsy/spokeComponents'
+
+import Walkable from '../ecsy/components/Walkable'
 
 import CameraSystem from '../ecsy/systems/CameraSystem'
 // import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 // import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
 // import { ImageLoader } from 'three/src/loaders/ImageLoader'
 import { client } from '../../../redux/feathers'
-
-import _ from 'lodash'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
@@ -62,6 +57,7 @@ async function init (projectId: string): Promise<any> { // auth: any,
     .registerComponent(Rotation)
     .registerComponent(Scale)
     .registerComponent(Visible)
+    .registerComponent(Walkable)
   world.registerSystem(GLTFLoaderSystem)
     .registerSystem(CameraSystem)
   const data = initialize(world)
@@ -104,69 +100,7 @@ async function init (projectId: string): Promise<any> { // auth: any,
     entity.components.forEach((component) => {
       console.log(component.name)
       console.log(component)
-      switch (component.name) {
-        case 'skybox':
-          const skyComponent = new Sky()
-          const distance = component.data.distance // Math.min(1000, component.data.distance)
-          const ScaleComp = newEntity.getMutableComponent(Scale);
-          (ScaleComp as any).value = new THREE.Vector3(distance, distance, distance)
-          const uniforms = (skyComponent.material as any).uniforms
-          const sun = new THREE.Vector3()
-          const theta = Math.PI * (component.data.inclination - 0.5)
-          const phi = 2 * Math.PI * (component.data.azimuth - 0.5)
-
-          sun.x = Math.cos(phi)
-          sun.y = Math.sin(phi) * Math.sin(theta)
-          sun.z = Math.sin(phi) * Math.cos(theta)
-          uniforms.mieCoefficient.value = component.data.mieCoefficient
-          uniforms.mieDirectionalG.value = component.data.mieDirectionalG
-          uniforms.rayleigh.value = component.data.rayleigh
-          uniforms.turbidity.value = component.data.turbidity
-          uniforms.sunPosition.value = sun
-
-          console.log(skyComponent)
-
-          newEntity.addObject3DComponent(skyComponent, scene)
-          // .addComponent(Parent, { value: scene })
-          // scene3d.add(skyComponent)
-          break
-        case 'transform':
-          newEntity.addComponent(Position, { value: component.data.position })
-          newEntity.addComponent(Rotation, { rotation: component.data.rotation })
-          newEntity.addComponent(Scale, { value: component.data.scale })
-          break
-        case 'visible':
-          newEntity.addComponent(Visible, { value: component.data.visible })
-          break
-        case 'directional-light':
-          const directionlLight = new THREE.DirectionalLight(component.data.color, component.data.intensity)
-          directionlLight.castShadow = true
-          directionlLight.shadow.mapSize.set(component.data.shadowMapResolution[0], component.data.shadowMapResolution[1])
-          directionlLight.shadow.bias = (component.data.shadowBias)
-          directionlLight.shadow.radius = (component.data.shadowRadius)
-          newEntity.addObject3DComponent(directionlLight, scene)
-          break
-        case 'gltf-model':
-          newEntity.addComponent(GLTFLoader, {
-            url: component.data.src,
-            onLoaded: () => { console.log('gltf loaded') }
-          })
-            .addComponent(Parent, { value: scene })
-          break
-        case 'ground-plane':
-          const geometry = new THREE.PlaneGeometry(40000, 40000)
-          const material = new THREE.MeshBasicMaterial({ color: component.data.color, side: THREE.DoubleSide })
-          const plane = new THREE.Mesh(geometry, material)
-          plane.rotateX(180)
-          newEntity.addObject3DComponent(plane, scene)
-          break
-        case 'ambient-light':
-          const ambientLight = new THREE.AmbientLight(component.data.color, component.data.intensity)
-          newEntity.addObject3DComponent(ambientLight, scene)
-          break
-        default:
-          break
-      }
+      SpokeNodeLoader(scene, newEntity, component)
     })
     console.log(newEntity)
   })
