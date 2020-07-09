@@ -55,7 +55,7 @@ const MenuListComposition = (props: Props): any => {
 
   const handleSubscription = (): any => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    Router.push('/subscription/signup')
+    Router.push('/subscribe/signup')
   }
 
   // const handleContacts = () => {
