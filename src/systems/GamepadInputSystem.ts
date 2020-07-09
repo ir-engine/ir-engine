@@ -1,9 +1,10 @@
-import { System } from "ecsy"
+import { System, Entity } from "ecsy"
 import GamepadInput from "../components/GamepadInput"
 import InputAxisHandler2D from "../components/InputAxisHandler2D"
 import UserInput from "../components/UserInput"
 import InputActionHandler from "../components/InputActionHandler"
 import Switch from "../enums/Switch"
+import AxisType from "../types/AxisType"
 
 export default class GamepadInputSystem extends System {
   public execute(): void {
@@ -53,8 +54,6 @@ export default class GamepadInputSystem extends System {
         }
 
         const gamepads = navigator.getGamepads()
-        const queue = entity.getComponent(InputAxisHandler2D).values
-
         const axisPerGamepad = 2
 
         for (let index = 0; index < gamepads.length; index++) {
@@ -62,30 +61,26 @@ export default class GamepadInputSystem extends System {
           if (!gamepad) {
             return
           }
-          const axis0 = axisPerGamepad * index
-          const axis1 = axisPerGamepad * index + 1
 
           if (gamepad.axes) {
+            const axis0 = axisPerGamepad * index
+            const axis1 = axisPerGamepad * index + 1
+
             if (inputMap.axes[axis0] && gamepad.axes.length >= 2) {
               // GamePad 0 LStick XY
-              queue.add({
-                axis: inputMap.axes[axis0],
-                value: {
-                  x: gamepad.axes[0],
-                  y: gamepad.axes[1]
-                }
-              })
+              this.handleAxis(entity, gamepad, 0, inputMap.axes[axis0])
             }
 
             if (inputMap.axes[axis1] && gamepad.axes.length >= 4) {
               // GamePad 1 LStick XY
-              queue.add({
-                axis: inputMap.axes[axis1],
-                value: {
-                  x: gamepads[0].axes[2],
-                  y: gamepads[0].axes[3]
-                }
-              })
+              this.handleAxis(entity, gamepad, 1, inputMap.axes[axis1])
+              // queue.add({
+              //   axis: inputMap.axes[axis1],
+              //   value: {
+              //     x: gamepads[0].axes[2],
+              //     y: gamepads[0].axes[3]
+              //   }
+              // })
             }
           }
 
@@ -121,6 +116,29 @@ export default class GamepadInputSystem extends System {
       }
     })
   }
+
+  private handleAxis(entity: Entity, gamepad: Gamepad, axisIndex: number, mappedAxisValue: AxisType) {
+    const gamepadInput = entity.getMutableComponent(GamepadInput)
+    const axisBase = axisIndex * 2
+
+    const x = applyThreshold(gamepad.axes[axisBase], gamepadInput.threshold)
+    const y = applyThreshold(gamepad.axes[axisBase + 1], gamepadInput.threshold)
+    const prevLeftX = gamepadInput.axes[axisBase]
+    const prevLeftY = gamepadInput.axes[axisBase + 1]
+
+    if (x !== prevLeftX || y !== prevLeftY) {
+      entity.getComponent(InputAxisHandler2D).values.add({
+        axis: mappedAxisValue,
+        value: {
+          x,
+          y
+        }
+      })
+
+      gamepadInput.axes[axisBase] = x
+      gamepadInput.axes[axisBase + 1] = y
+    }
+  }
 }
 GamepadInputSystem.queries = {
   gamepad: {
@@ -130,4 +148,20 @@ GamepadInputSystem.queries = {
       removed: true
     }
   }
+}
+
+/**
+ *
+ * @param value -1 to 1
+ * @param threshold 0 to 1
+ */
+function applyThreshold(value: number, threshold: number): number {
+  if (threshold >= 1) {
+    return 0
+  }
+  if (value < threshold && value > -threshold) {
+    return 0
+  }
+
+  return (value - threshold) / (1 - threshold)
 }
