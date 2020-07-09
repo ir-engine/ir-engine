@@ -8,7 +8,8 @@ import {
 import * as path from 'path'
 import {BadRequest} from "@feathersjs/errors";
 import * as pug from "pug";
-import config from "../config";
+import config from '../config'
+import Invite from '../../server/models/invite.model'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
@@ -17,7 +18,7 @@ export default () => {
     const { app, result, params } = context
 
     const authService = app.service('authentication')
-    const identityProviderService = this.app.service(
+    const identityProviderService = app.service(
         'identity-provider'
     )
 
@@ -32,34 +33,73 @@ export default () => {
     }
     const inviteType = result.inviteType
 
-    const authUser = extractLoggedInUserFromParams(params)
+    const authProvider = extractLoggedInUserFromParams(params)
+    const authUser = await app.service('user').get(authProvider.userId)
 
     if (result.identityProviderType === 'email') {
       await generateEmail(
+          app,
+          result,
           token,
           inviteType,
-          result.passcode,
           authUser.name
       )
     } else if (result.identityProviderType === 'sms') {
       await generateSMS(
+          app,
+          result,
           token,
           inviteType,
-          result.passcode,
           authUser.name
       )
     }
+    else if (result.inviteeId != null) {
+      const emailIdentityProvider = await app.service('identity-provider').find({
+        where: {
+          userId: authUser.id,
+          type: 'email'
+        }
+      })
+
+      if (emailIdentityProvider) {
+        await generateEmail(
+            app,
+            result,
+            emailIdentityProvider.token,
+            inviteType,
+            authUser.name
+        )
+      }
+      else {
+        const SMSIdentityProvider = await app.service('identity-provider').find({
+          where: {
+            userId: authUser.id,
+            type: 'sms'
+          }
+        })
+
+        await generateSMS(
+            app,
+            result,
+            SMSIdentityProvider.token,
+            inviteType,
+            authUser.name
+        )
+      }
+    }
+
     return context
   }
 }
 
 async function generateEmail (
+    app: any,
+    result: any,
     toEmail: string,
     inviteType: string,
-    passcode: string,
     inviterUsername: string
 ): Promise<void> {
-  const hashLink = getInviteLink(inviteType, passcode)
+  const hashLink = getInviteLink(inviteType, result.id, result.passcode)
   const appPath = path.dirname(require.main ? require.main.filename : '')
   const emailAccountTemplatesPath = path.join(
       appPath,
@@ -71,7 +111,7 @@ async function generateEmail (
 
   const templatePath = path.join(
       emailAccountTemplatesPath,
-      `'magiclink-email-invite-${inviteType}.pug`
+      `magiclink-email-invite-${inviteType}.pug`
   )
 
   const compiledHTML = pug.compileFile(templatePath)({
@@ -88,16 +128,17 @@ async function generateEmail (
     html: compiledHTML
   }
 
-  return await sendEmail(this.app, email)
+  return await sendEmail(app, email)
 }
 
 async function generateSMS (
+    app: any,
+    result: any,
     mobile: string,
     inviteType: string,
-    passcode: string,
     inviterUsername
 ): Promise<void> {
-  const hashLink = getInviteLink(inviteType, passcode)
+  const hashLink = getInviteLink(inviteType, result.id, result.passcode)
   const appPath = path.dirname(require.main ? require.main.filename : '')
   const emailAccountTemplatesPath = path.join(
       appPath,
@@ -108,7 +149,7 @@ async function generateSMS (
   )
   const templatePath = path.join(
       emailAccountTemplatesPath,
-      `'magiclink-sms-invite-${inviteType}.pug`
+      `magiclink-sms-invite-${inviteType}.pug`
   )
   const compiledHTML = pug.compileFile(templatePath)({
     title: config.client.title,
@@ -120,5 +161,5 @@ async function generateSMS (
     mobile,
     text: compiledHTML
   }
-  return await sendSms(this.app, sms)
+  return await sendSms(app, sms)
 }

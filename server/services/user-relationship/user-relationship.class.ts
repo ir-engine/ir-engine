@@ -64,8 +64,7 @@ export class RelationRelation extends Service {
   }
 
   async create (data: any, params: Params): Promise<any> {
-    const authUser = params[loggedInUserEntity]
-    const userId = authUser.userId
+    const userId = data.userId || params[loggedInUserEntity].userId
     const { relatedUserId, userRelationshipType } = data
     const UserRelationshipModel = this.getModel(params)
     let result: any
@@ -94,8 +93,7 @@ export class RelationRelation extends Service {
   }
 
   async patch (id: NullableId, data: any, params: Params): Promise<any> {
-    const authUser = params[loggedInUserEntity]
-    const userId = authUser.userId
+    const userId = data.userId || params[loggedInUserEntity].userId
     const { userRelationshipType } = data
     const UserRelationshipModel = this.getModel(params)
 
