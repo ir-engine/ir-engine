@@ -1,7 +1,7 @@
 import { System } from 'ecsy'
 import { Object3DComponent } from 'ecsy-three'
 
-import { Rotating } from '../components/'
+import { Rotating } from '../components/Rotating'
 
 // According to the ECSY documentation, entities and components should be modified from systems.
 // You could probably modify them elsewhere, but this seems to be the most accepted and scoped place.

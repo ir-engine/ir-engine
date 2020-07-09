@@ -1,3 +1,3 @@
 import { TagComponent } from 'ecsy'
 
-export class LightTagComponent extends TagComponent {}
+export default class LightTagComponent extends TagComponent {}

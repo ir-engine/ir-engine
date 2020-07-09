@@ -1,17 +1,21 @@
-import { Component } from 'ecsy'
+import { Component, Types } from 'ecsy'
 
 export interface Props {
   aProp: number
 }
 
-class MyComponent extends Component<Props> {
+class TEMPLATEComponent extends Component<TEMPLATEComponent> {
   constructor (props: Props) {
     super()
     this.reset()
     this.aProp = props.aProp
   }
 
-  aProp: number
+  aProp: Number
+
+  static schema = {
+    aProp: { type: Types.Number, default: 1 }
+  }
 
   copy (src: this): this {
     this.aProp = src.aProp
@@ -27,4 +31,4 @@ class MyComponent extends Component<Props> {
   }
 }
 
-export default MyComponent
+export default TEMPLATEComponent
