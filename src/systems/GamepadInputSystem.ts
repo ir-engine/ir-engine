@@ -163,5 +163,5 @@ function applyThreshold(value: number, threshold: number): number {
     return 0
   }
 
-  return (value - threshold) / (1 - threshold)
+  return (Math.sign(value) * (Math.abs(value) - threshold)) / (1 - threshold)
 }
