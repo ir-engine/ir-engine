@@ -41,7 +41,7 @@ const UserSettings: React.FC<MProps> = (props: MProps) => {
           <Button
             variant="contained"
             color="primary"
-            href="/subscription/signup"
+            href="/subscribe/signup"
           >
             Subscribe
           </Button>
@@ -59,7 +59,7 @@ const UserSettings: React.FC<MProps> = (props: MProps) => {
       {authUser.subscription != null &&
         <Button variant="contained"
           color="primary"
-          href="/subscription/seats"
+          href="/subscribe/seats"
         >
           Manage subscription seats
         </Button>
