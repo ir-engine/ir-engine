@@ -4,6 +4,7 @@ export * from "./defaults"
 export * from "./interfaces"
 export * from "./systems"
 export * from "./types"
+export * from "./enums"
 
 import { Entity, World } from "ecsy"
 
