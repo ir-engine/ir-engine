@@ -1,7 +1,6 @@
 import { Dispatch } from 'redux'
 import { client } from '../feathers'
-import { Relationship } from '../../../shared/interfaces/Relationship'
-import { loadedFriends } from './actions'
+import { loadedFriends, unfriended } from './actions'
 import { User } from '../../../shared/interfaces/User'
 
 // export function getUserRelationship(userId: string) {
@@ -24,14 +23,14 @@ import { User } from '../../../shared/interfaces/User'
 //   }
 // }
 
-export function getFriends(userId: string, search: string) {
+export function getFriends(search: string) {
   return (dispatch: Dispatch): any => {
     // dispatch(actionProcessing(true))
 
+    console.log('GETFRIENDS')
     client.service('user').find({
       query: {
-        userId,
-        action: 'withRelation',
+        action: 'friends',
         search
       }
     }).then((res: any) => {
@@ -61,19 +60,19 @@ export function getFriends(userId: string, search: string) {
 //   }
 // }
 //
-// function removeRelation(userId: string, relatedUserId: string) {
-//   return (dispatch: Dispatch): any => {
-//     client.service('user-relationship').remove(relatedUserId)
-//       .then((res: any) => {
-//         console.log('add relations------', res)
-//         dispatch(changedRelation())
-//       })
-//       .catch((err: any) => {
-//         console.log(err)
-//       })
-//       // .finally(() => dispatch(actionProcessing(false)))
-//   }
-// }
+function removeFriend(relatedUserId: string) {
+  return (dispatch: Dispatch): any => {
+    client.service('user-relationship').remove(relatedUserId)
+      .then((res: any) => {
+        console.log('add relations------', res)
+        dispatch(unfriended())
+      })
+      .catch((err: any) => {
+        console.log(err)
+      })
+      // .finally(() => dispatch(actionProcessing(false)))
+  }
+}
 //
 // function patchRelation(userId: string, relatedUserId: string, type: 'friend') {
 //   return (dispatch: Dispatch): any => {
@@ -109,3 +108,7 @@ export function getFriends(userId: string, search: string) {
 // export function cancelBlock(userId: string, relatedUserId: string) {
 //   return removeRelation(userId, relatedUserId)
 // }
+
+export function unfriend(relatedUserId: string) {
+  return removeFriend(relatedUserId)
+}
