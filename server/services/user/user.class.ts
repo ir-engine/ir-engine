@@ -108,6 +108,29 @@ export class User extends Service {
       }
 
       return foundUsers
+    } else if (action === 'friends') {
+      let userRelationshipResult = await this.app.service('user-relationship').find({
+        query: {
+          userRelationshipType: 'friend',
+          relatedUserId: params.query?.userId
+        }
+      })
+
+      console.log(userRelationshipResult)
+
+      const friendIds = (userRelationshipResult as any).data.map((item) => {
+        return item.userId
+      })
+
+      console.log(friendIds)
+
+      return this.app.service('user').find({
+        query: {
+          id: {
+            $in: friendIds
+          }
+        }
+      })
     } else {
       return await super.find(params)
     }

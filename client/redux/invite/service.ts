@@ -12,7 +12,7 @@ export function sendInvite (data: any) {
       inviteType: data.type,
       token: data.token,
       identityProviderType: data.identityProviderType,
-      invitee: data.invitee
+      inviteeId: data.invitee
     })
     console.log(inviteResult)
     dispatchAlertSuccess(dispatch, 'Invite Sent')

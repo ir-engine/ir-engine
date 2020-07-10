@@ -9,7 +9,7 @@ export function getUserRelationship(userId: string) {
     // dispatch(actionProcessing(true))
 
     console.log('------get relations-------', userId)
-    client.service('user-relationship').find({
+    client.service('user-relationship').findAll({
       query: {
         userId
       }
