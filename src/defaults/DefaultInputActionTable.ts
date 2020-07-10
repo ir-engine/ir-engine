@@ -24,6 +24,30 @@ export const DefaultInputActionTable: InputActionTable = {
       shift: DefaultActions.CROUCH
     }
   },
+  gamepad: {
+    actions: {
+      0: DefaultActions.JUMP, // A - primary action
+      1: DefaultActions.CROUCH, // B - back
+      2: DefaultActions.SPRINT, // X - secondary action
+      3: DefaultActions.INTERACT, // Y - tertiary actions
+      // 4: DefaultActions.DEFAULT, // LB
+      // 5: DefaultActions.DEFAULT, // RB
+      // 6: DefaultActions.DEFAULT, // LT
+      // 7: DefaultActions.DEFAULT, // RT
+      // 8: DefaultActions.DEFAULT, // Back
+      // 9: DefaultActions.DEFAULT, // Start
+      // 10: DefaultActions.DEFAULT, // LStick
+      // 11: DefaultActions.DEFAULT, // RStick
+      12: DefaultActions.FORWARD, // DPAD 1
+      13: DefaultActions.BACKWARD, // DPAD 2
+      14: DefaultActions.LEFT, // DPAD 3
+      15: DefaultActions.RIGHT // DPAD 4
+    },
+    axes: {
+      0: DefaultAxes.MOVEMENT_PLAYERONE,
+      1: DefaultAxes.LOOKTURN_PLAYERONE
+    }
+  },
   rules: {
     [DefaultActions.FORWARD]: { opposes: [DefaultActions.BACKWARD] } as ActionRules,
     [DefaultActions.BACKWARD]: { opposes: [DefaultActions.FORWARD] } as ActionRules,

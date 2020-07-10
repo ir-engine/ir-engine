@@ -67,7 +67,8 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, 
     .addComponent(InputActionHandler)
     .addComponent(InputAxisHandler2D)
 
-  const inputReceiverEntity = world
+  // inputReceiverEntity
+  world
     .createEntity()
     .addComponent(InputReceiver)
     .addComponent(InputActionHandler)

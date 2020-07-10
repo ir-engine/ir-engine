@@ -113,17 +113,20 @@
 
           this.queries.input.changed.forEach(entity => {
             const actionHandler = entity.getComponent(InputActionHandler);
-            const lastAction = actionHandler.queue.getLast();
+            const actionComponent = entity.getComponent(ActionDOMComponent)
 
-            if (lastAction) {
-              const actionComponent = entity.getComponent(ActionDOMComponent)
-              if (actionComponent) {
-                actionComponent.value.textContent = lastAction.action + '-' + lastAction.value
+            for (let i = 0; i < actionHandler.buffer.size; i++) {
+              const action = actionHandler.buffer.get(i);
+
+              // process action, in this case just update action div textContent
+              if (action && actionComponent) {
+                actionComponent.value.textContent = action.action + '-' + action.value
               }
             }
+            actionHandler.buffer.clear()
 
             const axisHandler = entity.getComponent(InputAxisHandler2D);
-            const lastAxis = axisHandler.queue.getLast();
+            const lastAxis = axisHandler.buffer.getLast();
 
             if (lastAxis) {
               const axisDomComponent = entity.getComponent(AxisDOMComponent)
