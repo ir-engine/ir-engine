@@ -10,7 +10,7 @@ import config from '../../config'
 
 const loggedInUserEntity: string = config.authentication.entity
 
-export class RelationRelation extends Service {
+export class UserRelationship extends Service {
   app: Application
 
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -18,7 +18,7 @@ export class RelationRelation extends Service {
     this.app = app
   }
 
-  async find (params: Params): Promise<any> {
+  async findAll (params: Params): Promise<any> {
     const UserRelationshipModel = this.getModel(params)
     const UserRelationshipTypeService = this.app.service('user-relationship-type')
     const userRelationshipTypes = ((await UserRelationshipTypeService.find()) as any).data
@@ -64,9 +64,15 @@ export class RelationRelation extends Service {
   }
 
   async create (data: any, params: Params): Promise<any> {
+    console.log('USERRELATIONSHIP CREATE')
+    console.log(data)
+    console.log(params)
     const userId = data.userId || params[loggedInUserEntity].userId
     const { relatedUserId, userRelationshipType } = data
     const UserRelationshipModel = this.getModel(params)
+    console.log(userId)
+    console.log(relatedUserId)
+    console.log(userRelationshipType)
     let result: any
 
     console.log('-----------create---------', userId, relatedUserId)
@@ -75,7 +81,7 @@ export class RelationRelation extends Service {
       result = await UserRelationshipModel.create({
         userId: userId,
         relatedUserId: relatedUserId,
-        userRelationshipType
+        userRelationshipType: userRelationshipType
       }, {
         transaction: trans
       })
@@ -93,12 +99,16 @@ export class RelationRelation extends Service {
   }
 
   async patch (id: NullableId, data: any, params: Params): Promise<any> {
+    console.log('USERRELATIONSHIP PATCH')
     const userId = data.userId || params[loggedInUserEntity].userId
     const { userRelationshipType } = data
     const UserRelationshipModel = this.getModel(params)
+    console.log(id)
+    console.log(userId)
+    console.log(userRelationshipType)
 
     return UserRelationshipModel.update({
-      userRelationshipType
+      userRelationshipType: userRelationshipType
     }, {
       where: {
         userId: userId,

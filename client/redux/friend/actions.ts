@@ -1,7 +1,7 @@
 import {
-  LOADED_FRIENDS
+  LOADED_FRIENDS,
+  REMOVED_FRIEND
 } from '../actions'
-import { Relationship } from '../../../shared/interfaces/Relationship'
 import { User } from '../../../shared/interfaces/User'
 
 export interface LoadedFriendsAction {
@@ -9,12 +9,23 @@ export interface LoadedFriendsAction {
   friends: User[]
 }
 
+export interface RemovedFriendAction {
+  type: string
+}
+
 export type FriendAction =
     LoadedFriendsAction
+    | RemovedFriendAction
 
 export function loadedFriends(friends: User[]): LoadedFriendsAction {
   return {
     type: LOADED_FRIENDS,
     friends
+  }
+}
+
+export function unfriended(): RemovedFriendAction {
+  return {
+    type: REMOVED_FRIEND
   }
 }

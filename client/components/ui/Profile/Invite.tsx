@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, {useEffect, useState} from 'react'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import Button from '@material-ui/core/Button'
 import { bindActionCreators, Dispatch } from 'redux'
@@ -32,7 +32,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props {
     auth: any
     friendState?: any
-    sendInvite?: typeof sendInvite
+    sendInvite?: typeof sendInvite,
+    getFriends?: any
 }
 
 const identityProviderTabMap = new Map()
@@ -40,8 +41,8 @@ identityProviderTabMap.set(0, 'email')
 identityProviderTabMap.set(1, 'sms')
 
 const Invites = (props: Props): any => {
-    const { friendState, sendInvite } = props
-    const friends = friendState.friends
+    const { friendState, sendInvite, getFriends } = props
+    const friends = friendState.get('friends')
     const [tabIndex, setTabIndex] = useState(0)
     const [userToken, setUserToken] = useState('')
 
@@ -58,7 +59,6 @@ const Invites = (props: Props): any => {
     }
 
     const packageInvite = (event: any): void => {
-        console.log(event)
         const mappedIDProvider = identityProviderTabMap.get(tabIndex)
         sendInvite({
             type: 'friend',
@@ -67,11 +67,18 @@ const Invites = (props: Props): any => {
             invitee: tabIndex === 2 ? userToken : null
         })
     }
+
+    useEffect(() => {
+        if (friendState.get('updateNeeded') === true) {
+            getFriends('')
+        }
+    }, [friendState]);
+
     return (
         <div className="friend-container">
             <List>
-                { friends && friends.length > 0 && friends.map((friend) => {
-                        return <ListItem>
+                { friends && friends.length > 0 && friends.sort((a, b) => a.name - b.name).map((friend) => {
+                        return <ListItem key={friend.id}>
                                 <ListItemAvatar>
                                     <Avatar src={friend.avatarUrl}/>
                                 </ListItemAvatar>

@@ -14,81 +14,100 @@ import Invite from '../../server/models/invite.model'
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
   return async (context: HookContext) => {
-    // Getting logged in user and attaching owner of user
-    const { app, result, params } = context
+    try {
+      // Getting logged in user and attaching owner of user
+      const {app, result, params} = context
 
-    const authService = app.service('authentication')
-    const identityProviderService = app.service(
-        'identity-provider'
-    )
+      let token = ''
+      let identityProvider
+      if (result.identityProviderType === 'email' || result.identityProviderType === 'sms') {
+        token = result.token
+      } else {
+        token = result.inviteeId
+      }
+      const inviteType = result.inviteType
 
-// check magiclink type
-    let token = ''
-    let identityProvider
-    if (result.identityProviderType === 'email' || result.identityProviderType === 'sms') {
-      token = result.token
-    }
-    else {
-      token = result.inviteeId
-    }
-    const inviteType = result.inviteType
+      const authProvider = extractLoggedInUserFromParams(params)
+      const authUser = await app.service('user').get(authProvider.userId)
 
-    const authProvider = extractLoggedInUserFromParams(params)
-    const authUser = await app.service('user').get(authProvider.userId)
-
-    if (result.identityProviderType === 'email') {
-      await generateEmail(
-          app,
-          result,
-          token,
-          inviteType,
-          authUser.name
-      )
-    } else if (result.identityProviderType === 'sms') {
-      await generateSMS(
-          app,
-          result,
-          token,
-          inviteType,
-          authUser.name
-      )
-    }
-    else if (result.inviteeId != null) {
-      const emailIdentityProvider = await app.service('identity-provider').find({
-        where: {
-          userId: authUser.id,
-          type: 'email'
-        }
-      })
-
-      if (emailIdentityProvider) {
+      console.log(result.identityProviderType)
+      if (result.identityProviderType === 'email') {
         await generateEmail(
             app,
             result,
-            emailIdentityProvider.token,
+            token,
             inviteType,
             authUser.name
         )
-      }
-      else {
-        const SMSIdentityProvider = await app.service('identity-provider').find({
-          where: {
-            userId: authUser.id,
-            type: 'sms'
-          }
-        })
-
+      } else if (result.identityProviderType === 'sms') {
         await generateSMS(
             app,
             result,
-            SMSIdentityProvider.token,
+            token,
             inviteType,
             authUser.name
         )
-      }
-    }
+      } else if (result.inviteeId != null) {
+        const existingRelationshipStatus = await app.service('user-relationship').find({
+          query: {
+            userRelationshipType: result.inviteType,
+            userId: result.userId,
+            relatedUserId: result.inviteeId
+          }
+        })
+        if ((existingRelationshipStatus as any).total === 0) {
+          await app.service('user-relationship').create({
+            userRelationshipType: result.inviteType,
+            userId: result.userId,
+            relatedUserId: result.inviteeId
+          }, {})
+        }
 
-    return context
+        const emailIdentityProviderResult = await app.service('identity-provider').find({
+          query: {
+            userId: result.inviteeId,
+            type: 'email'
+          }
+        })
+
+        console.log('EMAILIDENTITYPROVIDER')
+        console.log(emailIdentityProviderResult)
+
+        if (emailIdentityProviderResult.total > 0) {
+          await generateEmail(
+              app,
+              result,
+              emailIdentityProviderResult.data[0].token,
+              inviteType,
+              authUser.name
+          )
+        } else {
+          const SMSIdentityProviderResult = await app.service('identity-provider').find({
+            query: {
+              userId: result.inviteeId,
+              type: 'sms'
+            }
+          })
+
+          console.log('SMSIDENTITYPROVIDER')
+          console.log(SMSIdentityProviderResult)
+
+          if (SMSIdentityProviderResult.total > 0) {
+            await generateSMS(
+                app,
+                result,
+                SMSIdentityProviderResult.data[0].token,
+                inviteType,
+                authUser.name
+            )
+          }
+        }
+      }
+
+      return context
+    } catch(err) {
+      console.log(err)
+    }
   }
 }
 
