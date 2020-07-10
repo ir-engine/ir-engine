@@ -12,36 +12,36 @@ export default class InputAxisSystem extends System {
       this._userInputAxisQueue = entity.getMutableComponent(InputAxisHandler2D)
     })
     // If the queue hasn't been set yet, or the queue length is 0
-    if (!this._userInputAxisQueue || this._userInputAxisQueue.values.getBufferLength() < 1) {
+    if (!this._userInputAxisQueue || this._userInputAxisQueue.buffer.getBufferLength() < 1) {
       return
     }
     this.queries.axisReceivers.results.forEach(entity => {
-      if (entity.getComponent(InputAxisHandler2D).values.getBufferLength() > 0) {
-        entity.getMutableComponent(InputAxisHandler2D).values.clear()
+      if (entity.getComponent(InputAxisHandler2D).buffer.getBufferLength() > 0) {
+        entity.getMutableComponent(InputAxisHandler2D).buffer.clear()
       }
-      if (this._userInputAxisQueue.values.getBufferLength() > 0) {
+      if (this._userInputAxisQueue.buffer.getBufferLength() > 0) {
         this.applyInputToListener(this._userInputAxisQueue, entity.getMutableComponent(InputAxisHandler2D))
       }
     })
     // Clear all axis
-    this._userInputAxisQueue.values.clear()
+    this._userInputAxisQueue.buffer.clear()
   }
 
   private applyInputToListener(userInputAxisQueue: InputAxisHandler2D, listenerAxisQueue: InputAxisHandler2D): void {
     // If axis exists, but axis state is different, update axis state
-    userInputAxisQueue.values.toArray().forEach(userInput => {
+    userInputAxisQueue.buffer.toArray().forEach(userInput => {
       let skip = false
-      listenerAxisQueue.values.toArray().forEach((listenerAxis, listenerIndex) => {
+      listenerAxisQueue.buffer.toArray().forEach((listenerAxis, listenerIndex) => {
         // Skip axis since it's already in the listener queue
         if (userInput.axis === listenerAxis.axis && userInput.value === listenerAxis.value) {
           skip = true
         } else if (userInput.axis === listenerAxis.axis && userInput.value !== listenerAxis.value) {
           // Axis value updated, so skip ading to queue
-          listenerAxisQueue.values.get(listenerIndex).value = userInput.value
+          listenerAxisQueue.buffer.get(listenerIndex).value = userInput.value
           skip = true
         }
       })
-      if (!skip) listenerAxisQueue.values.add(userInput)
+      if (!skip) listenerAxisQueue.buffer.add(userInput)
     })
   }
 }
