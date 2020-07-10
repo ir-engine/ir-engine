@@ -94,21 +94,21 @@ const SignUp = (props: Props): any => {
               </Button>
             </Grid>
           </Grid>
-          <Grid container justify="flex-end">
-            <Grid item>
-              <Link
-                href="#"
-                variant="body2"
-                onClick={() =>
-                  showDialog({
-                    children: <SignIn />
-                  })
-                }
-              >
-                Already have an account? Sign in
-              </Link>
-            </Grid>
-          </Grid>
+          {/*<Grid container justify="flex-end">*/}
+            {/*<Grid item>*/}
+              {/*<Link*/}
+                {/*href="#"*/}
+                {/*variant="body2"*/}
+                {/*onClick={() =>*/}
+                  {/*showDialog({*/}
+                    {/*children: <SignIn />*/}
+                  {/*})*/}
+                {/*}*/}
+              {/*>*/}
+                {/*Already have an account? Sign in*/}
+              {/*</Link>*/}
+            {/*</Grid>*/}
+          {/*</Grid>*/}
         </form>
       </div>
     </Container>
