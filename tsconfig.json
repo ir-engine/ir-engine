@@ -24,6 +24,6 @@
     "server",
     "shared",
     "./**/*.ts",
-    "./**/*.tsx"
+    "./**/*.tsx", "scripts"
   ]
 }
