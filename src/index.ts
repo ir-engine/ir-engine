@@ -25,6 +25,7 @@ import InputActionSystem from "./systems/InputActionSystem"
 import InputAxisSystem from "./systems/InputAxisSystem"
 import InputReceiver from "./components/InputReceiver"
 import InputActionTable from "./interfaces/InputActionTable"
+import { DefaultInputActionTable } from "./defaults"
 
 const DEFAULT_OPTIONS = {
   mouse: true,
@@ -82,6 +83,7 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, 
     inputSystemEntity.getMutableComponent(UserInput).inputMap = inputMap
   } else {
     console.log("No input map")
+    inputSystemEntity.getMutableComponent(UserInput).inputMap = DefaultInputActionTable
   }
 
   if (options.keyboard) {
