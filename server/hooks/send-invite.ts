@@ -1,4 +1,4 @@
-import {HookContext, Params} from '@feathersjs/feathers'
+import { HookContext, Params } from '@feathersjs/feathers'
 import {
   extractLoggedInUserFromParams,
   getInviteLink,
@@ -6,8 +6,8 @@ import {
   sendSms
 } from '../services/auth-management/auth-management.utils'
 import * as path from 'path'
-import {BadRequest} from "@feathersjs/errors";
-import * as pug from "pug";
+import { BadRequest } from '@feathersjs/errors'
+import * as pug from 'pug'
 import config from '../config'
 import Invite from '../../server/models/invite.model'
 
@@ -16,7 +16,7 @@ export default () => {
   return async (context: HookContext) => {
     try {
       // Getting logged in user and attaching owner of user
-      const {app, result, params} = context
+      const { app, result, params } = context
 
       let token = ''
       let identityProvider
@@ -33,19 +33,19 @@ export default () => {
       console.log(result.identityProviderType)
       if (result.identityProviderType === 'email') {
         await generateEmail(
-            app,
-            result,
-            token,
-            inviteType,
-            authUser.name
+          app,
+          result,
+          token,
+          inviteType,
+          authUser.name
         )
       } else if (result.identityProviderType === 'sms') {
         await generateSMS(
-            app,
-            result,
-            token,
-            inviteType,
-            authUser.name
+          app,
+          result,
+          token,
+          inviteType,
+          authUser.name
         )
       } else if (result.inviteeId != null) {
         const existingRelationshipStatus = await app.service('user-relationship').find({
@@ -55,7 +55,7 @@ export default () => {
             relatedUserId: result.inviteeId
           }
         })
-        if ((existingRelationshipStatus as any).total === 0) {
+        if ((existingRelationshipStatus).total === 0) {
           await app.service('user-relationship').create({
             userRelationshipType: result.inviteType,
             userId: result.userId,
@@ -75,11 +75,11 @@ export default () => {
 
         if (emailIdentityProviderResult.total > 0) {
           await generateEmail(
-              app,
-              result,
-              emailIdentityProviderResult.data[0].token,
-              inviteType,
-              authUser.name
+            app,
+            result,
+            emailIdentityProviderResult.data[0].token,
+            inviteType,
+            authUser.name
           )
         } else {
           const SMSIdentityProviderResult = await app.service('identity-provider').find({
@@ -94,42 +94,42 @@ export default () => {
 
           if (SMSIdentityProviderResult.total > 0) {
             await generateSMS(
-                app,
-                result,
-                SMSIdentityProviderResult.data[0].token,
-                inviteType,
-                authUser.name
+              app,
+              result,
+              SMSIdentityProviderResult.data[0].token,
+              inviteType,
+              authUser.name
             )
           }
         }
       }
 
       return context
-    } catch(err) {
+    } catch (err) {
       console.log(err)
     }
   }
 }
 
 async function generateEmail (
-    app: any,
-    result: any,
-    toEmail: string,
-    inviteType: string,
-    inviterUsername: string
+  app: any,
+  result: any,
+  toEmail: string,
+  inviteType: string,
+  inviterUsername: string
 ): Promise<void> {
   const hashLink = getInviteLink(inviteType, result.id, result.passcode)
   const appPath = path.dirname(require.main ? require.main.filename : '')
   const emailAccountTemplatesPath = path.join(
-      appPath,
-      '..',
-      'server',
-      'email-templates',
-      'invite'
+    appPath,
+    '..',
+    'server',
+    'email-templates',
+    'invite'
   )
 
   const templatePath = path.join(
-      emailAccountTemplatesPath,
+    emailAccountTemplatesPath,
       `magiclink-email-invite-${inviteType}.pug`
   )
 
@@ -151,23 +151,23 @@ async function generateEmail (
 }
 
 async function generateSMS (
-    app: any,
-    result: any,
-    mobile: string,
-    inviteType: string,
-    inviterUsername
+  app: any,
+  result: any,
+  mobile: string,
+  inviteType: string,
+  inviterUsername
 ): Promise<void> {
   const hashLink = getInviteLink(inviteType, result.id, result.passcode)
   const appPath = path.dirname(require.main ? require.main.filename : '')
   const emailAccountTemplatesPath = path.join(
-      appPath,
-      '..',
-      'server',
-      'email-templates',
-      'account'
+    appPath,
+    '..',
+    'server',
+    'email-templates',
+    'account'
   )
   const templatePath = path.join(
-      emailAccountTemplatesPath,
+    emailAccountTemplatesPath,
       `magiclink-sms-invite-${inviteType}.pug`
   )
   const compiledHTML = pug.compileFile(templatePath)({
