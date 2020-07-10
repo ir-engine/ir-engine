@@ -146,7 +146,7 @@ var DracoFileCreator = /** @class */ (function () {
         vertices: _this.geometry.vertices.length,
         faces: _this.geometry.faces.length,
         meshLength: encodedMesh.byteLength,
-        // textureLength: encodedTexture.byteLength,
+        textureLength: encodedTexture.byteLength,
       };
 
       // Add to the data array
