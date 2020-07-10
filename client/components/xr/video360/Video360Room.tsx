@@ -111,12 +111,12 @@ function Video360Room (props: Video360Props) {
       <VideoControls
         videosrc={videosrc} videotext="#videotext" videovrui="#video-player-vr-ui" backButtonHref={backButtonHref} />
       }
-      { videoEl && viewport.width && inVrMode &&
+      { videoEl && inVrMode &&
       <Entity
         primitive='a-video-controls'
         position="0 -1 -4"
         videosrc={'#' + videosrc}
-        viewport-width={viewport.width}
+        viewport-width={800}
         bar-height={0.36}
         back-button-href={backButtonHref}
         playing={playing}
