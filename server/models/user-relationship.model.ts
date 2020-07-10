@@ -21,7 +21,7 @@ export default (app: Application): any => {
   (userRelationship as any).associate = (models: any) => {
     (userRelationship as any).belongsTo(models.user, { as: 'user', primaryKey: 'true', constraints: false });
     (userRelationship as any).belongsTo(models.user, { as: 'relatedUser', primaryKey: 'true', constraints: false });
-    (userRelationship as any).belongsTo(models.user_relationship_type, { foreignKey: 'type'})
+    (userRelationship as any).belongsTo(models.user_relationship_type, { foreignKey: 'type' })
   }
 
   return userRelationship

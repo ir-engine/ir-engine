@@ -14,25 +14,32 @@ import PhoneIcon from '@material-ui/icons/PhoneIphone'
 import Avatar from '@material-ui/core/Avatar'
 import { getFriends } from '../../../redux/friend/service'
 import { selectFriendState } from '../../../redux/friend/selector'
+import { selectInviteState } from '../../../redux/invite/selector'
 import {Tab, Tabs} from "@material-ui/core";
 import SettingsIcon from "./index";
-import { sendInvite } from '../../../redux/invite/service'
+import { sendInvite, retrieveReceivedInvites, retrieveSentInvites } from '../../../redux/invite/service'
 
 const mapStateToProps = (state: any): any => {
     return {
-        friendState: selectFriendState(state)
+        friendState: selectFriendState(state),
+        inviteState: selectInviteState(state)
     }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     getFriends: bindActionCreators(getFriends, dispatch),
+    retrieveReceivedInvites: bindActionCreators(retrieveReceivedInvites, dispatch),
+    retrieveSentInvites: bindActionCreators(retrieveSentInvites, dispatch),
     sendInvite: bindActionCreators(sendInvite, dispatch)
 })
 
 interface Props {
     auth: any
     friendState?: any
-    sendInvite?: typeof sendInvite,
+    inviteState?: any
+    retrieveReceivedInvites?: typeof retrieveReceivedInvites
+    retrieveSentInvites?: typeof retrieveSentInvites
+    sendInvite?: typeof sendInvite
     getFriends?: any
 }
 
@@ -41,8 +48,10 @@ identityProviderTabMap.set(0, 'email')
 identityProviderTabMap.set(1, 'sms')
 
 const Invites = (props: Props): any => {
-    const { friendState, sendInvite, getFriends } = props
+    const { friendState, inviteState, sendInvite, retrieveReceivedInvites, retrieveSentInvites, getFriends } = props
     const friends = friendState.get('friends')
+    const receivedInvites = inviteState.get('receivedInvites')
+    const sentInvites = inviteState.get('sentInvites')
     const [tabIndex, setTabIndex] = useState(0)
     const [userToken, setUserToken] = useState('')
 
@@ -72,7 +81,19 @@ const Invites = (props: Props): any => {
         if (friendState.get('updateNeeded') === true) {
             getFriends('')
         }
-    }, [friendState]);
+    }, [friendState])
+
+    useEffect(() => {
+        if (inviteState.get('sentUpdateNeeded') === true) {
+            retrieveSentInvites()
+        }
+    }, [inviteState])
+
+    useEffect(() => {
+        if (inviteState.get('receivedUpdateNeeded') === true) {
+            retrieveReceivedInvites()
+        }
+    }, [inviteState])
 
     return (
         <div className="friend-container">
