@@ -3,6 +3,7 @@ import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common'
 import generateInvitePasscode from '../../hooks/generate-invite-passcode'
 import sendInvite from '../../hooks/send-invite'
+import attachOwnerIdInBody from '../../hooks/set-loggedin-user-in-body'
 
 const { authenticate } = authentication.hooks
 
@@ -13,6 +14,7 @@ export default {
     get: [],
     create: [
         authenticate('jwt'),
+        attachOwnerIdInBody('userId'),
         generateInvitePasscode()
     ],
     update: [disallow()],
