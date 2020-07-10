@@ -1,5 +1,5 @@
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Application } from '../../declarations'
 import { BadRequest } from '@feathersjs/errors'
 
 interface Data {}
@@ -7,16 +7,16 @@ interface Data {}
 interface ServiceOptions {}
 
 export class AcceptInvite implements ServiceMethods<Data> {
-  app: Application;
-  options: ServiceOptions;
+  app: Application
+  options: ServiceOptions
 
   constructor (options: ServiceOptions = {}, app: Application) {
-    this.options = options;
-    this.app = app;
+    this.options = options
+    this.app = app
   }
 
   async find (params?: Params): Promise<Data[] | Paginated<Data>> {
-    return [];
+    return []
   }
 
   async get (id: Id, params?: Params): Promise<Data> {
@@ -34,7 +34,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
 
       if (invite.identityProviderType != null) {
         let inviteeIdentityProvider
-        let inviteeIdentityProviderResult = await this.app.service('identity-provider').find({
+        const inviteeIdentityProviderResult = await this.app.service('identity-provider').find({
           query: {
             type: invite.identityProviderType,
             token: invite.token
@@ -46,7 +46,6 @@ export class AcceptInvite implements ServiceMethods<Data> {
             type: invite.identityProviderType,
             token: invite.token
           }, params)
-
         } else {
           inviteeIdentityProvider = (inviteeIdentityProviderResult as any).data[0]
         }
@@ -57,7 +56,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
             query: {
               userRelationshipType: invite.inviteType,
               userId: invite.userId,
-              relatedUserId: (inviteeIdentityProvider as any).userId
+              relatedUserId: (inviteeIdentityProvider).userId
             }
           })
 
@@ -67,12 +66,12 @@ export class AcceptInvite implements ServiceMethods<Data> {
             await this.app.service('user-relationship').create({
               userRelationshipType: invite.inviteType,
               userId: invite.userId,
-              relatedUserId: (inviteeIdentityProvider as any).userId
+              relatedUserId: (inviteeIdentityProvider).userId
             }, params)
 
             await this.app.service('user-relationship').patch(invite.userId, {
               userRelationshipType: invite.inviteType,
-              userId: (inviteeIdentityProvider as any).userId
+              userId: (inviteeIdentityProvider).userId
             }, params)
           }
         } else if (invite.inviteType === 'group') {
@@ -81,7 +80,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
 
         }
       } else if (invite.inviteeId != null) {
-        let invitee = await this.app.service('user').get(invite.inviteeId)
+        const invitee = await this.app.service('user').get(invite.inviteeId)
 
         if (invitee == null) {
           return new BadRequest('Invalid invitee ID')
@@ -94,28 +93,28 @@ export class AcceptInvite implements ServiceMethods<Data> {
       }
 
       // await this.app.service('invite').remove(invite.id)
-    } catch(err) {
+    } catch (err) {
       console.log(err)
     }
   }
 
   async create (data: Data, params?: Params): Promise<Data> {
     if (Array.isArray(data)) {
-      return Promise.all(data.map(current => this.create(current, params)));
+      return await Promise.all(data.map(current => this.create(current, params)))
     }
 
-    return data;
+    return data
   }
 
   async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data;
+    return data
   }
 
   async patch (id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data;
+    return data
   }
 
   async remove (id: NullableId, params?: Params): Promise<Data> {
-    return { id };
+    return { id }
   }
 }

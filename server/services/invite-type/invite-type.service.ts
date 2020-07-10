@@ -8,7 +8,7 @@ import hooks from './invite-type.hooks'
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'invite-type': InviteType & ServiceAddons<any>;
+    'invite-type': InviteType & ServiceAddons<any>
   }
 }
 
@@ -20,10 +20,10 @@ export default function (app: Application) {
   }
 
   // Initialize our service with any options it requires
-  app.use('/invite-type', new InviteType(options, app));
+  app.use('/invite-type', new InviteType(options, app))
 
   // Get our initialized service so that we can register hooks
-  const service = app.service('invite-type');
+  const service = app.service('invite-type')
 
   service.hooks(hooks)
 }

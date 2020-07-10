@@ -29,7 +29,7 @@ export default (app: Application): any => {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
     (inviteType as any).hasMany(models.invite, { foreignKey: 'inviteType' })
-  };
+  }
 
-  return inviteType;
+  return inviteType
 }

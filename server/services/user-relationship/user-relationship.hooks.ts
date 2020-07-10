@@ -6,8 +6,8 @@ const { authenticate } = authentication.hooks
 export default {
   before: {
     all: [commonHooks.iff(
-        commonHooks.isProvider('external'),
-        authenticate('jwt')
+      commonHooks.isProvider('external'),
+      authenticate('jwt')
     )],
     find: [],
     get: [],

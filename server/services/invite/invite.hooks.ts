@@ -13,9 +13,9 @@ export default {
     find: [authenticate('jwt')],
     get: [],
     create: [
-        authenticate('jwt'),
-        attachOwnerIdInBody('userId'),
-        generateInvitePasscode()
+      authenticate('jwt'),
+      attachOwnerIdInBody('userId'),
+      generateInvitePasscode()
     ],
     update: [disallow()],
     patch: [disallow()],
@@ -43,4 +43,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}
