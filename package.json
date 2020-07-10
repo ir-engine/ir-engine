@@ -98,6 +98,7 @@
     "bent": "^7.3.0",
     "camelcase": "^6.0.0",
     "chargebee": "^2.5.7",
+    "circular-dependency-plugin": "^5.2.0",
     "compression": "^1.7.4",
     "config": "^3.3.1",
     "copyfiles": "^2.3.0",
