@@ -39,7 +39,7 @@ export interface Props {
   setTimelineWidth: (mesh: THREE.Mesh, width: number) => void
   updateBuffered: () => void
   getBarFullWidth: (width: number) => void
-  createTimelineButton: ({ name, x, size, map }) => THREE.Mesh
+  createTimelineButton: ({ name, size, map, x, y }) => THREE.Mesh
   createText: (text: string, width: number, height: number, fontSize: number, wrapCount: number, align: string, baseline: string, anchor: string) => AFRAME.Entity
   createBackground: (w: number, h: number, color: string, x: number, y: number, z: number, opacity: number) => AFRAME.Entity
   createTimeRemaining: (x: number) => AFRAME.Entity
@@ -208,15 +208,17 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     const playPauseButton = this.createTimelineButton({
       name: this.playPauseButtonName,
       size: 1,
-      x: fullBar.position.x - 0.8,
-      map: this.data.playing ? this.pauseBtnImageMap : this.playBtnImageMap
+      map: this.data.playing ? this.pauseBtnImageMap : this.playBtnImageMap,
+      x: 0,
+      y: +this.data.barHeight * 2
     })
 
     const backButton = this.createTimelineButton({
       name: this.backButtonName,
       size: 1,
-      x: fullBar.position.x - 2,
-      map: this.backBtnImageMap
+      map: this.backBtnImageMap,
+      x: (fullBar.position.x as number) - 0.6,
+      y: 0
     })
 
     const timeRemainingText = this.createTimeRemaining(fullBar.position.x)
@@ -367,7 +369,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     }
   },
 
-  createTimelineButton ({ name, x, size, map }) {
+  createTimelineButton ({ name, size, map, x, y }) {
     const matButton = new THREE.MeshBasicMaterial({
       side: THREE.FrontSide,
       transparent: true,
@@ -380,6 +382,7 @@ export const Component: AFRAME.ComponentDefinition<Props> = {
     meshButton.name = name
     // translate geom positions so that it can grow from the left
     meshButton.position.x = x
+    meshButton.position.y = y
     return meshButton
   },
 
