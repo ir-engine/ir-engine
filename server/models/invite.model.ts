@@ -1,10 +1,10 @@
 // See http://docs.sequelizejs.com/en/latest/docs/models-definition/
 // for more of what you can do here.
-import { Sequelize, DataTypes } from 'sequelize';
-import { Application } from '../declarations';
+import { Sequelize, DataTypes } from 'sequelize'
+import { Application } from '../declarations'
 
 export default function (app: Application) {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient');
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const invite = sequelizeClient.define('invite', {
     id: {
       type: DataTypes.UUID,
@@ -27,8 +27,8 @@ export default function (app: Application) {
     }
   }, {
     hooks: {
-      beforeCount(options: any) {
-        options.raw = true;
+      beforeCount (options: any) {
+        options.raw = true
       }
     }
   });
@@ -36,11 +36,11 @@ export default function (app: Application) {
   // eslint-disable-next-line no-unused-vars
   (invite as any).associate = function (models: any) {
     (invite as any).belongsTo(models.user);
-    (invite as any).belongsTo(models.user, { as: 'invitee'});
-    (invite as any).belongsTo(models.invite_type, { foreignKey: 'type', required: true });
+    (invite as any).belongsTo(models.user, { as: 'invitee' });
+    (invite as any).belongsTo(models.invite_type, { foreignKey: 'type', required: true })
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
-  };
+  }
 
-  return invite;
+  return invite
 }

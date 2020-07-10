@@ -5,7 +5,7 @@ import ComponentType from './component-type/component-type.service'
 import CollectionType from './collection-type/collection-type.service'
 import EntityType from './entity-type/entity-type.service'
 import GroupUserRank from './group-user-rank/group-user-rank.service'
-import InviteType from './invite-type/invite-type.service';
+import InviteType from './invite-type/invite-type.service'
 import StaticResourceType from './static-resource-type/static-resource-type.service'
 import SubscriptionLevel from './subscription-level/subscription-level.service'
 import SeatStatus from './seat-status/seat-status.service'
@@ -61,7 +61,7 @@ import ResolveMedia from './resolve-media/resolve-media.service'
 // GraphQL
 import GraphQL from './graphql/graphql.service'
 
-import acceptInvite from './accept-invite/accept-invite.service';
+import acceptInvite from './accept-invite/accept-invite.service'
 
 export default (app: Application): void => {
   // Dynamic types
@@ -124,5 +124,5 @@ export default (app: Application): void => {
 
   // GraphQL
   app.configure(GraphQL)
-  app.configure(acceptInvite);
+  app.configure(acceptInvite)
 }

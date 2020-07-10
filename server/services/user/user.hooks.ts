@@ -2,7 +2,7 @@ import * as authentication from '@feathersjs/authentication'
 import addAssociations from '../../hooks/add-associations'
 import { HookContext } from '@feathersjs/feathers'
 import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
-import * as commonHooks from "feathers-hooks-common";
+import * as commonHooks from 'feathers-hooks-common'
 
 const { authenticate } = authentication.hooks
 
@@ -12,7 +12,7 @@ export default {
     find: [
       commonHooks.iff(
         commonHooks.isProvider('external'),
-        attachOwnerIdInQuery('userId'),
+        attachOwnerIdInQuery('userId')
       ),
       addAssociations({
         models: [
@@ -47,8 +47,8 @@ export default {
     all: [],
     find: [
       async (context: HookContext) => {
-      console.log('USER FIND AFTER HOOK')
-        const {app, result} = context
+        console.log('USER FIND AFTER HOOK')
+        const { app, result } = context
         console.log(result)
         result.data.forEach(async (item) => {
           console.log(item)
@@ -68,7 +68,6 @@ export default {
           if (userAvatarResult.total > 0) {
             item.dataValues.avatarUrl = userAvatarResult.data[0].url
           }
-
         })
         return context
       }

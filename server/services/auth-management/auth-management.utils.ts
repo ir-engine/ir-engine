@@ -9,7 +9,7 @@ export function getLink (type: string, hash: string, subscriptionId?: string): s
     : (config.client.url) + '/auth/magiclink' + `?type=${type}&token=${hash}`
 }
 
-export function getInviteLink(type: string, id: string, passcode: string) {
+export function getInviteLink (type: string, id: string, passcode: string) {
   return (config.server.url) + `/accept-invite/${id}?passcode=${passcode}`
 }
 
