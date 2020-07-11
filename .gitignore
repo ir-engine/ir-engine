@@ -103,6 +103,10 @@ typings/
 .tern-port
 .buildcache
 build
+<<<<<<< HEAD
 dist
 dist/
 dist/*
+=======
+dist
+>>>>>>> 139db757b216c53bd885f1bb6a1ee036aa0de602
