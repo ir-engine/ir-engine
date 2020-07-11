@@ -66,22 +66,22 @@ const Friends = (props: Props): any => {
                             </ListItemAvatar>
                             <ListItemText primary={friend.name}/>
                                 {deletePending !== friend.id && <Button onClick={() => showDeleteConfirm(friend.id)}>Unfriend</Button> }
-                            {deletePending === friend.id &&
-	                        <div>
-		                        <Button variant="contained"
-		                                color="primary"
-		                                onClick={() => confirmDelete(friend.id)}
-                                >
-                                    Unfriend
-		                        </Button>
-		                        <Button variant="contained"
-		                                color="secondary"
-		                                onClick={() => cancelDelete()}
-                                >
-                                    Cancel
-		                        </Button>
-	                        </div>
-                            }
+                                {deletePending === friend.id &&
+                                    <div>
+                                        <Button variant="contained"
+                                                color="primary"
+                                                onClick={() => confirmDelete(friend.id)}
+                                        >
+                                            Unfriend
+                                        </Button>
+                                        <Button variant="contained"
+                                                color="secondary"
+                                                onClick={() => cancelDelete()}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </div>
+                                }
                             </ListItem>
                         }
                     )
