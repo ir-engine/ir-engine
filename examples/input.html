@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>armada webgl - geometry - cube</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+  </head>
+  <body>
+    <script type="module">
+      import { Component, System, World } from "ecsy"
+      import { initializeInputSystems } from "../dist/armada.js"
+      const world = new World()
+
+      const inputOptions = {
+        mouse: true,
+        keyboard: true,
+        touchscreen: true,
+        gamepad: true,
+        debug: true
+      }
+      initializeInputSystems(world, inputOptions)
+
+      var lastTime = performance.now();
+      function update() {
+        var time = performance.now();
+        var delta = time - lastTime;
+        lastTime = time;
+        world.execute(delta);
+        requestAnimationFrame(update);
+      }
+
+      update();
+      </script>
+    <div id="actionDataWrapper"><span>Action: </span><span id="actionData"></span></div>
+    <div id="axisDataWrapper"><span>Axis: </span><span id="axisData"></span></div>
+  </body>
+</html>
