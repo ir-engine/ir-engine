@@ -4,7 +4,7 @@ export type Invite = {
   id: string
   invitee: User
   token: string
-  inviter: User
+  user: User
 }
 
 export const InviteSeed = {

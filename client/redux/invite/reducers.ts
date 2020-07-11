@@ -2,13 +2,15 @@ import Immutable from 'immutable'
 import {
   InviteAction,
   InviteSentAction,
-  InvitesRetrievedAction
+  InvitesRetrievedAction,
+  InviteRemovedAction
 } from './actions'
 
 import {
   SENT_INVITES_RETRIEVED,
   RECEIVED_INVITES_RETRIEVED,
   INVITE_SENT,
+  REMOVED_INVITE,
 } from '../actions'
 
 export const initialState = {
@@ -32,6 +34,8 @@ const inviteReducer = (state = immutableState, action: InviteAction): any => {
       return state
           .set('receivedInvites', (action as InvitesRetrievedAction).invites)
           .set('receivedUpdateNeeded', false)
+    case REMOVED_INVITE:
+      return state.set('sentUpdateNeeded', true)
   }
 
   return state
