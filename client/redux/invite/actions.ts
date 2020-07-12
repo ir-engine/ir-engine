@@ -6,6 +6,7 @@ import {
 } from '../actions'
 
 import { Invite } from '../../../shared/interfaces/Invite'
+import { InviteResult } from '../../../shared/interfaces/InviteResult'
 
 export interface InviteSentAction {
   type: string,
@@ -14,7 +15,10 @@ export interface InviteSentAction {
 
 export interface InvitesRetrievedAction {
   type: string,
-  invites: Invite[]
+  invites: Invite[],
+  total: number,
+  limit: number
+  skip: number
 }
 
 export interface InviteRemovedAction {
@@ -33,17 +37,23 @@ export function sentInvite(id: string): InviteAction {
   }
 }
 
-export function retrievedSentInvites(invites: Invite[]): InviteAction {
+export function retrievedSentInvites(inviteResult: InviteResult): InviteAction {
   return {
     type: SENT_INVITES_RETRIEVED,
-    invites: invites
+    invites: inviteResult.data,
+    total: inviteResult.total,
+    limit: inviteResult.limit,
+    skip: inviteResult.skip
   }
 }
 
-export function retrievedReceivedInvites(invites: Invite[]): InviteAction {
+export function retrievedReceivedInvites(inviteResult: InviteResult): InviteAction {
   return {
     type: RECEIVED_INVITES_RETRIEVED,
-    invites: invites
+    invites: inviteResult.data,
+    total: inviteResult.total,
+    limit: inviteResult.limit,
+    skip: inviteResult.skip
   }
 }
 export function removedInvite(): InviteAction {

@@ -17,6 +17,8 @@ import {
     AccountCircle,
     ArrowDownward,
     ArrowUpward,
+    ChevronLeft,
+    ChevronRight,
     Mail,
     PhoneIphone
 } from "@material-ui/icons";
@@ -65,8 +67,10 @@ const Invites = (props: Props): any => {
     const { friendState, inviteState, sendInvite, retrieveReceivedInvites, retrieveSentInvites, getFriends, deleteInvite } = props
     const friends = friendState.get('friends')
     console.log(inviteState)
-    const receivedInvites = inviteState.get('receivedInvites')
-    const sentInvites = inviteState.get('sentInvites')
+    const receivedInviteState = inviteState.get('receivedInvites')
+    const receivedInvites = receivedInviteState.get('invites')
+    const sentInviteState = inviteState.get('sentInvites')
+    const sentInvites = sentInviteState.get('invites')
     const [tabIndex, setTabIndex] = useState(0)
     const [inviteTabIndex, setInviteTabIndex] = useState(0)
     const [userToken, setUserToken] = useState('')
@@ -113,6 +117,24 @@ const Invites = (props: Props): any => {
         deleteInvite(inviteId)
     }
 
+    const previousInvitePage = (): void => {
+        if (inviteTabIndex === 0) {
+            retrieveReceivedInvites(receivedInviteState.get('skip') - receivedInviteState.get('limit'))
+        }
+        else {
+            retrieveSentInvites(sentInviteState.get('skip') - sentInviteState.get('limit'))
+        }
+    }
+
+    const nextInvitePage = (): void => {
+        if (inviteTabIndex === 0) {
+            retrieveReceivedInvites(receivedInviteState.get('skip') + receivedInviteState.get('limit'))
+        }
+        else {
+            retrieveSentInvites(sentInviteState.get('skip') + sentInviteState.get('limit'))
+        }
+    }
+
     useEffect(() => {
         if (friendState.get('updateNeeded') === true) {
             getFriends('')
@@ -156,7 +178,7 @@ const Invites = (props: Props): any => {
                     />
                 </Tabs>
                 <List>
-                    { inviteTabIndex === 0 && receivedInvites.map((invite) => {
+                    { inviteTabIndex === 0 && receivedInvites.sort((a, b) => { return a.created - b.created }).map((invite) => {
                             return <ListItem key={invite.id}>
                                 <ListItemAvatar>
                                     <Avatar src={invite.user.avatarUrl}/>
@@ -165,7 +187,7 @@ const Invites = (props: Props): any => {
                             </ListItem>
                         }
                     )}
-                    { inviteTabIndex === 1 && sentInvites.map((invite) => {
+                    { inviteTabIndex === 1 && sentInvites.sort((a, b) => { return a.created - b.created }).map((invite) => {
                             return <ListItem key={invite.id}>
                                 <ListItemAvatar>
                                     <Avatar src={invite.user.avatarUrl}/>
@@ -192,6 +214,20 @@ const Invites = (props: Props): any => {
                         }
                     )}
                 </List>
+                <div>
+                    <Button
+                        disabled={(inviteTabIndex === 0 && receivedInviteState.get('skip') === 0) || (inviteTabIndex === 1 && sentInviteState.get('skip') === 0)}
+                        onClick={previousInvitePage}
+                    >
+                        <ChevronLeft/>
+                    </Button>
+                    <Button
+                        disabled={(inviteTabIndex === 0 && (receivedInviteState.get('skip') + receivedInviteState.get('limit')) > receivedInviteState.get('total')) || (inviteTabIndex === 1 && (sentInviteState.get('skip') + sentInviteState.get('limit')) > sentInviteState.get('total'))}
+                        onClick={nextInvitePage}
+                    >
+                        <ChevronRight/>
+                    </Button>
+                </div>
             </div>
             <List>
                 { friends && friends.length > 0 && friends.sort((a, b) => a.name - b.name).map((friend) => {
