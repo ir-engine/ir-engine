@@ -1,14 +1,14 @@
 import { System } from "ecsy"
 import Input from "../components/Input"
-
+import { handleInput } from "../behaviors/handleInput"
 export default class InputSystem extends System {
   private _inputEntity: Input
-  public execute(): void {
+  public execute(delta: number): void {
     this.queries.inputs.added.forEach(entity => {
       this._inputEntity = entity.getComponent(Input)
 
       // Call all behaviors in "onAdded" of input map
-      this._inputEntity.inputMap.onAdded.forEach(behavior => {
+      this._inputEntity.map.onAdded.forEach(behavior => {
         behavior.behavior.call({
           entityIn: entity.getComponent(Input),
           args: behavior.args
@@ -16,13 +16,13 @@ export default class InputSystem extends System {
       })
 
       // Bind events to DOM
-      if (!this._inputEntity.inputMap.eventBindings) return
-      Object.keys(this._inputEntity.inputMap.eventBindings).forEach((key: string) => {
+      if (!this._inputEntity.map.eventBindings) return
+      Object.keys(this._inputEntity.map.eventBindings).forEach((key: string) => {
         document.addEventListener(key, e => {
-          this._inputEntity.inputMap.eventBindings[key].behavior.call({
+          this._inputEntity.map.eventBindings[key].behavior.call({
             event: e,
             entityIn: this._inputEntity,
-            args: this._inputEntity.inputMap.eventBindings[key].args
+            args: this._inputEntity.map.eventBindings[key].args
           })
         })
       })
@@ -30,23 +30,27 @@ export default class InputSystem extends System {
 
     // Call all behaviors in "onRemoved" of input map
     this.queries.inputs.removed.forEach(entity => {
-      this._inputEntity.inputMap.onRemoved.forEach(behavior => {
+      this._inputEntity.map.onRemoved.forEach(behavior => {
         behavior.behavior.call({
           entityIn: entity.getComponent(Input),
           args: behavior.args
         })
       })
       // Unbind events from DOM
-      if (!this._inputEntity.inputMap.eventBindings) return
-      Object.keys(this._inputEntity.inputMap.eventBindings).forEach((key: string) => {
+      if (!this._inputEntity.map.eventBindings) return
+      Object.keys(this._inputEntity.map.eventBindings).forEach((key: string) => {
         document.addEventListener(key, e => {
-          this._inputEntity.inputMap.eventBindings[key].behavior.call({
+          this._inputEntity.map.eventBindings[key].behavior.call({
             event: e,
             entityIn: this._inputEntity,
-            args: this._inputEntity.inputMap.eventBindings[key].args
+            args: this._inputEntity.map.eventBindings[key].args
           })
         })
       })
+    })
+
+    this.queries.inputs.results.forEach(entity => {
+      handleInput(entity, delta)
     })
   }
 }
