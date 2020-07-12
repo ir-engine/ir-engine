@@ -1,5 +1,5 @@
 import { DefaultAxes } from "../../axis/defaults/DefaultAxisData"
-import InputData from "../interfaces/InputData"
+import InputMap from "../interfaces/InputMap"
 import { handleMouseButton, handleMouseMovement } from "../behaviors/handleMouse"
 import Binary from "../../common/enums/Binary"
 import { handleKey } from "../behaviors/handleKey"
@@ -7,11 +7,9 @@ import { GamepadButtons } from "../enums/GamepadButtons"
 import { GamepadAxes } from "../enums/GamepadAxes"
 import { preventDefault } from "../../common/utils/preventDefault"
 import { disableScroll, enableScroll } from "../../common/utils/EnableDisableScrolling"
-import { handleGamepadConnected } from "../behaviors/handleGamepadConnected"
-import { handleGamepadDisconnected } from "../behaviors/handleGamepadDisconnected"
+import { handleGamepadConnected, handleGamepadDisconnected } from "../behaviors/handleGamepads"
 
-export const DefaultInputActionTable: InputData = {
-  en
+export const DefaultInputMap: InputMap = {
   onAdded: [
     {
       behavior: disableScroll
@@ -65,17 +63,17 @@ export const DefaultInputActionTable: InputData = {
       behavior: handleGamepadDisconnected
     }
   },
-  mouseAxisBindings: {
+  mouseAxisMap: {
     buttons: {
       [MouseButtons.LeftButton]: DefaultAxes.PRIMARY,
       [MouseButtons.RightButton]: DefaultAxes.SECONDARY,
       [MouseButtons.MiddleButton]: DefaultAxes.INTERACT
     },
     axes: {
-      0: DefaultAxes.SCREENXY
+      mousePosition: DefaultAxes.SCREENXY
     }
   },
-  gamepadAxisBindings: {
+  gamepadAxisMap: {
     buttons: {
       [GamepadButtons.A]: DefaultAxes.JUMP,
       [GamepadButtons.B]: DefaultAxes.CROUCH, // B - back
@@ -99,7 +97,7 @@ export const DefaultInputActionTable: InputData = {
       [GamepadAxes.Right]: DefaultAxes.LOOKTURN_PLAYERONE
     }
   },
-  keyboardAxisBindings: {
+  keyboardAxisMap: {
     w: DefaultAxes.FORWARD,
     a: DefaultAxes.LEFT,
     s: DefaultAxes.RIGHT,
@@ -109,4 +107,4 @@ export const DefaultInputActionTable: InputData = {
   }
 }
 
-export default DefaultInputActionTable
+export default DefaultInputMap

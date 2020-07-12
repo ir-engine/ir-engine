@@ -1,39 +1,30 @@
 // Should be a singleton, we only need one in our world
 
 import { Component, Types } from "ecsy"
-import DefaultInputActionTable from "../defaults/DefaultInputMap"
-import InputData from "../interfaces/InputData"
+import DefaultInputMap from "../defaults/DefaultInputMap"
+import InputMap from "../interfaces/InputMap"
 
 export default interface InputProps {
-  inputMap: InputData
-  connected: boolean
-  threshold: number
-  buttons: boolean[]
-  axes: number[]
-  downHandler: any
-  moveHandler: any
-  upHandler: any
+  inputMap: InputMap
+  gamepadConnected: boolean
+  gamepadThreshold: number
+  gamepadButtons: boolean[]
+  gamepadAxes: number[]
 }
 
 export default class Input extends Component<InputProps> {
-  inputMap: InputData
-  connected: boolean
-  threshold: number
-  buttons: boolean[]
-  axes: number[]
-  downHandler: any
-  moveHandler: any
-  upHandler: any
+  inputMap: InputMap
+  gamepadConnected: boolean
+  gamepadThreshold: number
+  gamepadButtons: boolean[]
+  gamepadAxes: number[]
 }
 
 Input.schema = {
-  inputMap: { type: Types.Ref, default: DefaultInputActionTable },
-  data: { type: Types.Ref, default: DefaultInputActionTable },
-  connected: { type: Types.Boolean, default: false },
-  threshold: { type: Types.Number, default: 0.1 },
-  buttons: { type: Types.Array, default: [] },
-  axes: { type: Types.Array, default: [] },
-  downHandler: { type: Types.Ref },
-  moveHandler: { type: Types.Ref },
-  upHandler: { type: Types.Ref }
+  inputMap: { type: Types.Ref, default: DefaultInputMap },
+  data: { type: Types.Ref, default: DefaultInputMap },
+  gamepadConnected: { type: Types.Boolean, default: false },
+  gamepadThreshold: { type: Types.Number, default: 0.1 },
+  gamepadButtons: { type: Types.Array, default: [] },
+  gamepadAxes: { type: Types.Array, default: [] }
 }

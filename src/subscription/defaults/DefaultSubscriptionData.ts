@@ -1,8 +1,8 @@
-import SubscriptionMap from "../interfaces/SubscriptionMap"
+import SubscriptionMap from "../interfaces/SubscriptionData"
 import { updatePosition } from "../../common/defaults/behaviors/updatePosition"
 
 export const DefaultDataTransformationData: SubscriptionMap = {
-  data: [
+  onUpdate: [
     {
       behavior: updatePosition
     }

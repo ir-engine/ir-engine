@@ -1,4 +1,4 @@
-import StateType from "../types/StateType"
+import StateType from "../types/StateAlias"
 import Behavior from "../../common/interfaces/Behavior"
 import { Entity } from "ecsy"
 import { getComponentsFromStateGroup } from "./StateGroupBehaviors"

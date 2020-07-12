@@ -1,31 +1,26 @@
 import { Component } from "ecsy"
-import RingBuffer from "../classes/RingBuffer"
 
-interface PropTypes<TInputMap, TValues> {
-  data: TInputMap
-  bufferSize?: number
-  values: RingBuffer<TValues>
+export interface PropTypes<TDataType extends string | number | symbol, TBehaviorMap, TDataValues> {
+  behaviorMap: TBehaviorMap
+  data: BehaviorData<TDataType, TDataValues>
 }
 
-export default class BehaviorComponent<Props, TInputMap, TValues> extends Component<Props> {
-  inputMap: TInputMap
-  bufferSize = 10
-  values: RingBuffer<TValues> = new RingBuffer<TValues>(this.bufferSize)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  constructor(props: Props) {
+export default class BehaviorComponent<TInputType extends string | number | symbol, TBehaviorMap, TValues> extends Component<
+  PropTypes<TInputType, TBehaviorMap, TValues>
+> {
+  behaviorMap: TBehaviorMap
+  data: BehaviorData<TInputType, TValues> = new Map<TInputType, TValues>()
+  constructor(props: PropTypes<TInputType, TBehaviorMap, TValues>) {
     super(false)
-    this.values = new RingBuffer<TValues>(this.bufferSize)
-  }
-  setBufferSize(newSize: number, resetBuffer = true): void {
-    this.bufferSize = newSize
-    if (resetBuffer) this.values = new RingBuffer<TValues>(this.bufferSize)
+    if (props.behaviorMap) this.behaviorMap = props.behaviorMap // TODO: ? DefaultBehaviorMap
+    this.data = new Map<TInputType, TValues>()
   }
   copy(src: this): this {
-    this.bufferSize = src.bufferSize
-    this.values = new RingBuffer<TValues>(src.bufferSize)
+    this.behaviorMap = src.behaviorMap
+    this.data = new Map(src.data)
     return this
   }
   reset(): void {
-    this.values.clear()
+    this.data.clear()
   }
 }

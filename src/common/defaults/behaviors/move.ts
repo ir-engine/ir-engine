@@ -3,7 +3,7 @@ import Behavior from "../../interfaces/Behavior"
 import { Actor } from "../components/Actor"
 import { Transform } from "../components/Transform"
 import { Scalar, Vector2, Vector3 } from "../../types/NumericalTypes"
-import State2D from "../../../state/components/State2D"
+import State from "../../../state/components/State"
 import { Crouching } from "../components/Crouching"
 import { Sprinting } from "../components/Sprinting"
 
@@ -19,7 +19,7 @@ export const move: Behavior = (entityIn: Entity, args: { state: Scalar | Vector2
   transform = entityIn.getComponent(Transform)
   movementModifer = entityIn.hasComponent(Crouching) ? 0.5 : entityIn.hasComponent(Sprinting) ? 1.5 : 1.0
   stateValue = entityIn
-    .getComponent(State2D)
+    .getComponent(State)
     .values.toArray()
     .filter(value => {
       value.type === args.state
