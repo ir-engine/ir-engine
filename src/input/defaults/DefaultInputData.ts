@@ -8,7 +8,6 @@ import { preventDefault } from "../../common/utils/preventDefault"
 import { disableScroll, enableScroll } from "../../common/utils/EnableDisableScrolling"
 import { handleGamepadConnected, handleGamepadDisconnected } from "../behaviors/GamepadInputBehaviors"
 import { addState, removeState } from "../../state/behaviors/StateBehaviors"
-import { mapInputToState } from "../behaviors/mapInputToState"
 import { InputType } from "../enums/InputType"
 import InputPriorityMapping from "../interfaces/InputPriorityMapping"
 import { DefaultStateTypes } from "../../state/defaults/DefaultStateData"
@@ -146,7 +145,7 @@ export const DefaultInputMap: InputMap = {
     [DefaultInput.WALK]: { blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT], overrides: [DefaultInput.CROUCH] } as InputPriorityMapping,
     [DefaultInput.INTERACT]: { blockedBy: [DefaultInput.JUMP] } as InputPriorityMapping
   },
-  inputButtonsToState: {
+  inputButtonBehaviors: {
     [DefaultInput.JUMP]: {
       [BinaryValue.ON]: {
         behavior: addState,
@@ -172,21 +171,21 @@ export const DefaultInputMap: InputMap = {
         behavior: removeState,
         args: { state: DefaultStateTypes.SPRINTING }
       }
+    }
+  },
+  inputAxisBehaviors: {
+    [DefaultInput.MOVEMENT_PLAYERONE]: {
+      behavior: move,
+      args: {
+        input: DefaultInput.MOVEMENT_PLAYERONE,
+        inputType: InputType.TWOD
+      }
     },
-    inputAxesToState: {
-      [DefaultInput.MOVEMENT_PLAYERONE]: {
-        behavior: move,
-        args: {
-          input: DefaultInput.MOVEMENT_PLAYERONE,
-          inputType: InputType.TWOD
-        }
-      },
-      [DefaultInput.SCREENXY]: {
-        behavior: debugInput,
-        args: {
-          input: DefaultInput.LOOKTURN_PLAYERONE,
-          inputType: InputType.TWOD
-        }
+    [DefaultInput.SCREENXY]: {
+      behavior: debugInput,
+      args: {
+        input: DefaultInput.LOOKTURN_PLAYERONE,
+        inputType: InputType.TWOD
       }
     }
   }

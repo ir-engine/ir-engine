@@ -31,7 +31,7 @@ export const handleButtonInput: Behavior = (entityIn: Entity, args: { state: Sta
 
   // get state and set with input
   vec2.scale(stateValueOut, inputValue, args.multiplier ? args.multiplier : 1)
-  entityIn.getMutableComponent(Input).behaviorMap.inputButtonsToState[args.input]
+  entityIn.getMutableComponent(Input).map.inputButtonBehaviors[args.input]
 
 
     .values.toArray()
