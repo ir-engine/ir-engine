@@ -1,5 +1,5 @@
 export default class RingBuffer<T> {
-  private _newAxisBuffer: RingBuffer<T>
+  private _newInputBuffer: RingBuffer<T>
 
   public static fromArray<T>(data: T[], size = 0): RingBuffer<T> {
     const actionBuffer = new RingBuffer<T>(size)
@@ -12,15 +12,15 @@ export default class RingBuffer<T> {
   private pos = 0
 
   public copy(): RingBuffer<T> {
-    this._newAxisBuffer = new RingBuffer<T>(this.getBufferLength())
-    this._newAxisBuffer.values = this.values
-    return this._newAxisBuffer
+    this._newInputBuffer = new RingBuffer<T>(this.getBufferLength())
+    this._newInputBuffer.values = this.values
+    return this._newInputBuffer
   }
 
   public clone(): RingBuffer<T> {
-    this._newAxisBuffer = new RingBuffer<T>(this.getBufferLength())
-    this._newAxisBuffer.values = this.values
-    return this._newAxisBuffer
+    this._newInputBuffer = new RingBuffer<T>(this.getBufferLength())
+    this._newInputBuffer.values = this.values
+    return this._newInputBuffer
   }
 
   constructor(size: number) {

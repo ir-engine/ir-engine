@@ -1,12 +1,12 @@
 import StateType from "../../state/types/StateAlias"
-import AxisRules from "./AxisRules"
+import InputRules from "./InputRules"
 
-export interface AxisMap {
+export interface InputMap {
   rules: {
-    [key: string]: AxisRules
+    [key: string]: InputRules
   }
-  buttonAxes: {
-    // axis name
+  buttonInput: {
+    // input name
     [key: string]: {
       // binary state (on, off)
       [key: string]: {
@@ -22,8 +22,8 @@ export interface AxisMap {
       }
     }
   }
-  continuousAxes: {
-    // axis name
+  continuousInput: {
+    // input name
     [key: string]: {
       behavior: any
       args: { state: StateType }
@@ -35,4 +35,4 @@ export interface AxisMap {
   }
 }
 
-export default AxisMap
+export default InputMap

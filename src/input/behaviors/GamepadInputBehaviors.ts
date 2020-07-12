@@ -1,29 +1,29 @@
 import { Entity } from "ecsy"
-import Axis from "../../axis/components/Axis"
+import Input from "../../input/components/Input"
 import BinaryValue from "../../common/enums/BinaryValue"
-import AxisAlias from "../../axis/types/AxisAlias"
+import InputAlias from "../../input/types/InputAlias"
 import { applyThreshold } from "../../common/utils/applyThreshold"
 import InputMap from "../interfaces/InputMap"
 import Input from "../components/Input"
 import Behavior from "../../common/interfaces/Behavior"
-import { AxisType } from "../../axis/enums/AxisType"
+import { InputType } from "../../input/enums/InputType"
 
-const axisPerGamepad = 2
+const inputPerGamepad = 2
 let input: Input
-let axis: Axis
+let input: Input
 let inputMap: InputMap
 let gamepads: Gamepad[]
-let axis0: number
-let axis1: number
+let input0: number
+let input1: number
 let gamepad: Gamepad
-let axisBase: number
+let inputBase: number
 let x: number
 let y: number
 let prevLeftX: number
 let prevLeftY: number
 
 export const handleGamepads: Behavior = (entityIn: Entity) => {
-  if (!inputMap || !inputMap.gamepadAxisMap || !input.gamepadConnected) return
+  if (!inputMap || !inputMap.gamepadInputMap || !input.gamepadConnected) return
   input = entityIn.getComponent(Input)
   gamepads = navigator.getGamepads()
 
@@ -31,26 +31,26 @@ export const handleGamepads: Behavior = (entityIn: Entity) => {
     if (!gamepads[index]) return
     gamepad = gamepads[index]
 
-    if (gamepad.axes) {
-      axis0 = axisPerGamepad * index
-      axis1 = axisPerGamepad * index + 1
+    if (gamepad.input) {
+      input0 = inputPerGamepad * index
+      input1 = inputPerGamepad * index + 1
 
       // GamePad 0 LStick XY
-      if (inputMap.eventBindings.axes[axis0] && gamepad.axes.length >= axisPerGamepad)
-        handleGamepadInput(entityIn, { gamepad: gamepad, axisIndex: 0, mappedAxisValue: inputMap.gamepadAxisMap.axes[axis0] })
+      if (inputMap.eventBindings.input[input0] && gamepad.input.length >= inputPerGamepad)
+        handleGamepadInput(entityIn, { gamepad: gamepad, inputIndex: 0, mappedInputValue: inputMap.gamepadInputMap.input[input0] })
 
       // GamePad 1 LStick XY
-      if (inputMap.gamepadAxisMap.axes[axis1] && gamepad.axes.length >= axisPerGamepad * 2)
-        handleGamepadInput(entityIn, { gamepad, axisIndex: 1, mappedAxisValue: inputMap.gamepadAxisMap.axes[axis1] })
+      if (inputMap.gamepadInputMap.input[input1] && gamepad.input.length >= inputPerGamepad * 2)
+        handleGamepadInput(entityIn, { gamepad, inputIndex: 1, mappedInputValue: inputMap.gamepadInputMap.input[input1] })
     }
 
-    if (!gamepad.buttons || !inputMap.gamepadAxisMap.axes) return
-    axis = entityIn.getMutableComponent(Axis)
+    if (!gamepad.buttons || !inputMap.gamepadInputMap.input) return
+    input = entityIn.getMutableComponent(Input)
 
     for (let index = 0; index < gamepad.buttons.length; index++) {
-      if (typeof inputMap.gamepadAxisMap.axes[index] === "undefined" || gamepad.buttons[index].touched === input.gamepadButtons[index]) continue
-      axis.data.set(inputMap.gamepadAxisMap.axes[index], {
-        type: AxisType.BUTTON,
+      if (typeof inputMap.gamepadInputMap.input[index] === "undefined" || gamepad.buttons[index].touched === input.gamepadButtons[index]) continue
+      input.data.set(inputMap.gamepadInputMap.input[index], {
+        type: InputType.BUTTON,
         value: gamepad.buttons[index].touched ? BinaryValue.ON : BinaryValue.OFF
       })
       input.gamepadButtons[index] = gamepad.buttons[index].touched
@@ -58,24 +58,24 @@ export const handleGamepads: Behavior = (entityIn: Entity) => {
   }
 }
 
-export const handleGamepadInput: Behavior = (entityIn: Entity, args: { gamepad: Gamepad; axisIndex: number; mappedAxisValue: AxisAlias }) => {
+export const handleGamepadInput: Behavior = (entityIn: Entity, args: { gamepad: Gamepad; inputIndex: number; mappedInputValue: InputAlias }) => {
   input = entityIn.getComponent(Input)
 
-  axisBase = args.axisIndex * 2
+  inputBase = args.inputIndex * 2
 
-  x = applyThreshold(gamepad.axes[axisBase], input.gamepadThreshold)
-  y = applyThreshold(gamepad.axes[axisBase + 1], input.gamepadThreshold)
-  prevLeftX = input.gamepadAxes[axisBase]
-  prevLeftY = input.gamepadAxes[axisBase + 1]
+  x = applyThreshold(gamepad.input[inputBase], input.gamepadThreshold)
+  y = applyThreshold(gamepad.input[inputBase + 1], input.gamepadThreshold)
+  prevLeftX = input.gamepadInput[inputBase]
+  prevLeftY = input.gamepadInput[inputBase + 1]
 
   if (x !== prevLeftX || y !== prevLeftY) {
-    entityIn.getComponent(Axis).data.set(args.mappedAxisValue, {
-      type: AxisType.TWOD,
+    entityIn.getComponent(Input).data.set(args.mappedInputValue, {
+      type: InputType.TWOD,
       value: [x, y]
     })
 
-    input.gamepadAxes[axisBase] = x
-    input.gamepadAxes[axisBase + 1] = y
+    input.gamepadInput[inputBase] = x
+    input.gamepadInput[inputBase + 1] = y
   }
 }
 
@@ -92,7 +92,7 @@ export const handleGamepadConnected: Behavior = (entityIn: Entity, args: { event
 
 export const handleGamepadDisconnected: Behavior = (entityIn: Entity, args: { event: any }): void => {
   input = entityIn.getMutableComponent(Input)
-  axis = entityIn.getMutableComponent(Axis)
+  input = entityIn.getMutableComponent(Input)
   inputMap = input.inputMap
   console.log("A gamepad disconnected:", args.event.gamepad)
 
@@ -101,9 +101,9 @@ export const handleGamepadDisconnected: Behavior = (entityIn: Entity, args: { ev
   if (!inputMap) return
 
   for (let index = 0; index < input.gamepadButtons.length; index++) {
-    if (input.gamepadButtons[index] === true && typeof inputMap.gamepadAxisMap.axes[index] !== "undefined") {
-      axis.data.set(inputMap.gamepadAxisMap.axes[index], {
-        type: AxisType.BUTTON,
+    if (input.gamepadButtons[index] === true && typeof inputMap.gamepadInputMap.input[index] !== "undefined") {
+      input.data.set(inputMap.gamepadInputMap.input[index], {
+        type: InputType.BUTTON,
         value: BinaryValue.OFF
       })
     }

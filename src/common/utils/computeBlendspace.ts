@@ -24,12 +24,12 @@ let a: number
 let b: number
 let c: number
 
-export default function computeBlendValue(axisValue: Scalar | Vector2 | Vector3, blendStateValues: blendStatePositionValue[]): outputState[] {
+export default function computeBlendValue(inputValue: Scalar | Vector2 | Vector3, blendStateValues: blendStatePositionValue[]): outputState[] {
   bufferPosition = 0
   totalDistance = 0
   blendStateValues.forEach(element => {
     // compute distance
-    distance = computeDistance(axisValue, element.position)
+    distance = computeDistance(inputValue, element.position)
     // if distance is less than 1.5 (slightly more than sqrt 2/2), continue
     if (distance > 1.5) {
       // Cull

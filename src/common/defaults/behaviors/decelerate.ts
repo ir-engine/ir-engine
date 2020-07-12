@@ -2,13 +2,12 @@ import { Entity } from "ecsy"
 import Behavior from "../../interfaces/Behavior"
 import { Actor } from "../components/Actor"
 import { Transform } from "../components/Transform"
-import { Scalar, Vector2, Vector3 } from "../../types/NumericalTypes"
 import { vec3 } from "gl-matrix"
 
 let actor: Actor
 let transform: Transform
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const decelerate: Behavior = (entityIn: Entity, args: { state: Scalar | Vector2 | Vector3 }, delta: number): void => {
+export const decelerate: Behavior = (entityIn: Entity, delta: number): void => {
   // get actor comonent
   actor = entityIn.getComponent(Actor)
   // get the transform

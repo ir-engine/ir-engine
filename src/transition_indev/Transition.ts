@@ -11,7 +11,7 @@ export interface Transition {
   to: StateType
   duration: { type: number; default: 0.3 }
   timeAlive: { type: number; default: 0 }
-  axisFilter?: {
+  inputFilter?: {
     from?: [
       {
         blendStateValue: StateValue<State1D | State2D | State3D>

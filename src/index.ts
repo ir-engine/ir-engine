@@ -10,11 +10,11 @@ import GamepadInput from "./input/components/GamepadInput"
 
 import { isBrowser } from "./common/utils/IsBrowser"
 import UserInput from "./input/components/Input"
-import InputActionHandler from "./axis/components/InputActionHandler"
-import Axis from "./axis/components/Axis"
-import InputDebugSystem from "./axis/systems/AxisDebugSystem"
-import InputActionSystem from "./axis/systems/InputActionSystem"
-import InputAxisSystem from "./axis/systems/AxisPropogationSystem"
+import InputActionHandler from "./input/components/InputActionHandler"
+import Input from "./input/components/Input"
+import InputDebugSystem from "./input/systems/InputDebugSystem"
+import InputActionSystem from "./input/systems/InputActionSystem"
+import InputInputSystem from "./input/systems/InputPropogationSystem"
 import InputReceiver from "./input/components/InputReceiver"
 import InputMap from "./input/interfaces/InputMap"
 import DefaultInputMap from "./input/defaults/DefaultInputData"
@@ -27,7 +27,7 @@ const DEFAULT_OPTIONS = {
   debug: false
 }
 
-export { InputReceiver, InputActionHandler, Axis as InputAxisHandler2D }
+export { InputReceiver, InputActionHandler, Input as InputInputHandler2D }
 
 export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, inputMap?: InputMap): World | null {
   if (options.debug) console.log("Initializing input systems...")
@@ -42,12 +42,12 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, 
     console.log(options)
   }
 
-  world.registerSystem(InputActionSystem).registerSystem(InputAxisSystem)
+  world.registerSystem(InputActionSystem).registerSystem(InputInputSystem)
 
   world
     .registerComponent(UserInput)
     .registerComponent(InputActionHandler)
-    .registerComponent(Axis)
+    .registerComponent(Input)
     .registerComponent(InputReceiver)
 
   if (options.keyboard) world.registerSystem(KeyboardInputSystem).registerComponent(KeyboardInput)
@@ -59,14 +59,14 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, 
     .createEntity()
     .addComponent(UserInput)
     .addComponent(InputActionHandler)
-    .addComponent(Axis)
+    .addComponent(Input)
 
   // inputReceiverEntity
   world
     .createEntity()
     .addComponent(InputReceiver)
     .addComponent(InputActionHandler)
-    .addComponent(Axis)
+    .addComponent(Input)
 
   // Custom Action Map
   if (inputMap) {
@@ -112,12 +112,12 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, 
 }
 
 export function addInputHandlingToEntity(entity: Entity, inputFilter?: InputMap): Entity {
-  // Try get component on axishandler, inputreceiver
+  // Try get component on inputhandler, inputreceiver
   if (entity.getComponent(InputReceiver) !== undefined) console.warn("Warning: Entity already has input receiver component")
   else {
     entity
       .addComponent(InputReceiver)
-      .addComponent(Axis)
+      .addComponent(Input)
       .addComponent(InputActionHandler)
   }
   return entity

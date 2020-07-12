@@ -6,8 +6,8 @@ A simple, cross-platform input system for ECSY
 
 Network -- Get latest network state and update world, send and clear message queue out
 Input -- Handle user input
-AI -- All AI happens here (AI can affect axes, state, arbitrary data)
-Action -- Apply current axes from AI and input to state and other components
+AI -- All AI happens here (AI can affect input, state, arbitrary data)
+Action -- Apply current input from AI and input to state and other components
 Navigation -- Compute if and where actors can walk
 Collision & Physics -- Compute collision and physics
 State -- Compute current state and apply
@@ -50,12 +50,12 @@ const newEntity = addInputHandlingToEntity(world.createEntity())
 ```
 
 You can override the input mappings per device
-Input mappings map device input to abstract, cross-platform axes
+Input mappings map device input to abstract, cross-platform input
 
 ```javascript
       import { initializeInputSystems } from "../dist/armada.module.js"
 
-      const Axes = {
+      const Input = {
         SCREENXY: 0
       }
 
@@ -70,15 +70,15 @@ Input mappings map device input to abstract, cross-platform axes
 
       const inputMap = {
         mouse: {
-          axes: {
+          input: {
             0: Actions.PRIMARY
           },
-          axes: {
-            mousePosition: Axes.SCREENXY
+          input: {
+            mousePosition: Input.SCREENXY
           }
         },
         keyboard: {
-          axes: {
+          input: {
             w: Actions.FORWARD,
             a: Actions.LEFT,
             s: Actions.RIGHT,

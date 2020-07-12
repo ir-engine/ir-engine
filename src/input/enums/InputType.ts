@@ -1,4 +1,4 @@
-export enum AxisType {
+export enum InputType {
   BUTTON,
   ONED,
   TWOD,
