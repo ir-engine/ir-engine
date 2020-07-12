@@ -1,14 +1,14 @@
-import StateType from "../../state/types/StateType"
-import { Scalar, Vector2, Vector3 } from "../types/NumericalTypes"
-import instanceOf from "./instanceOf"
+import StateType from "../types/StateType"
+import { Scalar, Vector2, Vector3 } from "../../common/types/NumericalTypes"
+import instanceOf from "../../common/utils/instanceOf"
 
-interface blendStatePositionValue {
-  stateType: StateType
-  position: Scalar | Vector2 | Vector3
+interface weightedState {
+  type: StateType
+  value: Scalar | Vector2 | Vector3
 }
 
 interface outputState {
-  stateType: StateType
+  type: StateType
   weight: number
 }
 
@@ -24,18 +24,18 @@ let a: number
 let b: number
 let c: number
 
-export default function computeBlendValue(axisValue: Scalar | Vector2 | Vector3, blendStateValues: blendStatePositionValue[]): outputState[] {
+export function computeOutputFromWeightedStates(axisValue: Scalar | Vector2 | Vector3, blendStateValues: weightedState[]): outputState[] {
   bufferPosition = 0
   totalDistance = 0
-  blendStateValues.forEach(element => {
+  blendStateValues.forEach(state => {
     // compute distance
-    distance = computeDistance(axisValue, element.position)
+    distance = computeDistance(axisValue, state.value)
     // if distance is less than 1.5 (slightly more than sqrt 2/2), continue
     if (distance > 1.5) {
       // Cull
     } else {
       _outputBlendState = {
-        stateType: element.stateType,
+        type: state.type,
         weight: distance
       }
       // otherwise, add to buffer as statetype and magnitude
@@ -65,6 +65,6 @@ function computeDistance(p0: Scalar | Vector2 | Vector3, p1: Scalar | Vector2 | 
   // P1 = (x1, y1, z1); P2 = (x2, y2, z2)
   a = instanceOf<Scalar>(p1) ? p1[0] - p0[0] : 0
   b = instanceOf<Vector2>(p1) && instanceOf<Vector2>(p0) ? p1[1] - p0[1] : 0
-  c = instanceOf<Vector3>(p1) && instanceOf<Vector3>(p0) ? p1[1] - p0[1] : 0
+  c = instanceOf<Vector3>(p1) && instanceOf<Vector3>(p0) ? p1[2] - p0[2] : 0
   return Math.sqrt(a * a + b * b + c * c)
 }

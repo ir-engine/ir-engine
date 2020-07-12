@@ -1,9 +1,9 @@
 import Operators from "../src/enums/Operators"
 import StateType from "../src/types/StateType"
-import BlendspaceValue from "../src/interfaces/BlendspaceValue"
-import Blendspace1D from "../src/types/Blendspace1D"
-import Blendspace2D from "../src/types/Blendspace2D"
-import Blendspace3D from "../src/types/Blendspace3D"
+import StateValue from "../src/interfaces/StateValue"
+import State1D from "../src/types/State1D"
+import State2D from "../src/types/State2D"
+import State3D from "../src/types/State3D"
 import StateGroupType from "../src/types/StateGroupType"
 
 export interface Transition {
@@ -14,7 +14,7 @@ export interface Transition {
   axisFilter?: {
     from?: [
       {
-        blendStateValue: BlendspaceValue<Blendspace1D | Blendspace2D | Blendspace3D>
+        blendStateValue: StateValue<State1D | State2D | State3D>
         operator?: {
           type: Operators
           default: Operators.AND
@@ -23,7 +23,7 @@ export interface Transition {
     ]
     to?: [
       {
-        blendStateValue: BlendspaceValue<Blendspace1D | Blendspace2D | Blendspace3D>
+        blendStateValue: StateValue<State1D | State2D | State3D>
         operator?: {
           type: Operators
           default: Operators.AND
