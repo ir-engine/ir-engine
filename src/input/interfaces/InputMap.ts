@@ -1,7 +1,5 @@
 import InputAlias from "../../input/types/InputAlias"
-import { InputType } from "../enums/InputType"
 import ButtonPriorityMap from "./InputPriorityMapping"
-import { Scalar, Vector2, Vector3, NumericalType } from "../../common/types/NumericalTypes"
 
 interface InputMap {
   // Called by input system when an Input component is added
@@ -54,15 +52,14 @@ interface InputMap {
   buttonPriorities: {
     [key: string]: ButtonPriorityMap
   }
-  inputButtonsToState: {
+  inputButtonBehaviors: {
     // input name
     [key: string]: {
       // binary state (on, off)
       [key: string]: {
         behavior: any
-        args: {
-          input: InputAlias
-          inputType: InputType
+        args?: {
+          [key: string]: any
         }
       }
     }
@@ -71,21 +68,17 @@ interface InputMap {
       [key: number]: {
         behavior: any
         args: {
-          input: InputAlias
-          inputType: InputType
-          value?: NumericalType
+          [key: string]: any
         }
       }
     }
   }
-  inputAxesToState: {
+  inputAxisBehaviors: {
     // input name
     [key: string]: {
       behavior: any
       args: {
-        input: InputAlias
-        inputType: InputType
-        value?: NumericalType
+        [key: string]: any
       }
     }
   }
