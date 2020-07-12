@@ -1,6 +1,6 @@
 import { Entity, World } from "ecsy"
 
-import MouseInputSystem from "./input/systems/MouseInputSystem"
+import InputSystem from "./input/systems/InputSystem"
 import KeyboardInputSystem from "./input/systems/KeyboardInputSystem"
 import GamepadInputSystem from "./input/systems/GamepadInputSystem"
 
@@ -9,15 +9,15 @@ import KeyboardInput from "./input/components/KeyboardInput"
 import GamepadInput from "./input/components/GamepadInput"
 
 import { isBrowser } from "./common/utils/IsBrowser"
-import UserInput from "./input/components/UserInput"
-import InputActionHandler from "./action/components/InputActionHandler"
-import InputAxisHandler2D from "./action/components/InputAxisHandler2D"
-import InputDebugSystem from "./input/systems/InputDebugSystem"
-import InputActionSystem from "./input/systems/InputActionSystem"
-import InputAxisSystem from "./input/systems/InputAxisSystem"
+import UserInput from "./input/components/Input"
+import InputActionHandler from "./axis/components/InputActionHandler"
+import Axis from "./axis/components/Axis"
+import InputDebugSystem from "./axis/systems/AxisDebugSystem"
+import InputActionSystem from "./axis/systems/InputActionSystem"
+import InputAxisSystem from "./axis/systems/AxisPropogationSystem"
 import InputReceiver from "./input/components/InputReceiver"
-import InputActionTable from "./input/interfaces/InputActionTable"
-import DefaultInputActionTable from "./input/defaults/DefaultInputActionTable"
+import InputData from "./input/interfaces/InputData"
+import DefaultInputActionTable from "./input/defaults/DefaultInputMap"
 
 const DEFAULT_OPTIONS = {
   mouse: true,
@@ -27,9 +27,9 @@ const DEFAULT_OPTIONS = {
   debug: false
 }
 
-export { InputReceiver, InputActionHandler, InputAxisHandler2D }
+export { InputReceiver, InputActionHandler, Axis as InputAxisHandler2D }
 
-export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, inputMap?: InputActionTable): World | null {
+export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, inputMap?: InputData): World | null {
   if (options.debug) console.log("Initializing input systems...")
 
   if (!isBrowser) {
@@ -47,11 +47,11 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, 
   world
     .registerComponent(UserInput)
     .registerComponent(InputActionHandler)
-    .registerComponent(InputAxisHandler2D)
+    .registerComponent(Axis)
     .registerComponent(InputReceiver)
 
   if (options.keyboard) world.registerSystem(KeyboardInputSystem).registerComponent(KeyboardInput)
-  if (options.mouse) world.registerSystem(MouseInputSystem).registerComponent(MouseInput)
+  if (options.mouse) world.registerSystem(InputSystem).registerComponent(MouseInput)
   if (options.gamepad) world.registerSystem(GamepadInputSystem).registerComponent(GamepadInput)
   // TODO: VR, Mobile
 
@@ -59,14 +59,14 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, 
     .createEntity()
     .addComponent(UserInput)
     .addComponent(InputActionHandler)
-    .addComponent(InputAxisHandler2D)
+    .addComponent(Axis)
 
   // inputReceiverEntity
   world
     .createEntity()
     .addComponent(InputReceiver)
     .addComponent(InputActionHandler)
-    .addComponent(InputAxisHandler2D)
+    .addComponent(Axis)
 
   // Custom Action Map
   if (inputMap) {
@@ -111,13 +111,13 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, 
   return world
 }
 
-export function addInputHandlingToEntity(entity: Entity, inputFilter?: InputActionTable): Entity {
+export function addInputHandlingToEntity(entity: Entity, inputFilter?: InputData): Entity {
   // Try get component on axishandler, inputreceiver
   if (entity.getComponent(InputReceiver) !== undefined) console.warn("Warning: Entity already has input receiver component")
   else {
     entity
       .addComponent(InputReceiver)
-      .addComponent(InputAxisHandler2D)
+      .addComponent(Axis)
       .addComponent(InputActionHandler)
   }
   return entity

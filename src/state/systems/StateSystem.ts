@@ -1,18 +1,18 @@
-// Handles the mapping of actions to state/blendspaces (weighted state groups)
-// Uses an action state table
+// Handles the mapping of axes to state/states (weighted state groups)
+// Uses an axis state table
 import { System, Entity } from "ecsy"
 import StateHandler from "../components/StateHandler"
-import Blendspace2D from "../components/Blendspace2D"
-import StateBehaviorMap from "../interfaces/StateBehaviorMap"
+import State2D from "../components/State2D"
+import StateData from "../interfaces/StateData"
 import StateTransformation from "../components/StateTransformation"
 import StateValue from "../interfaces/StateValue"
-import BlendspaceValue from "../interfaces/BlendspaceValue"
+import StateValue from "../interfaces/StateValue"
 import { Vector2 } from "../../common/types/NumericalTypes"
 
 export default class StateSystem extends System {
   private _stateHandler: StateHandler
-  private _blendspaceHandler: Blendspace2D
-  private _stateTransformationData: StateBehaviorMap
+  private _stateHandler: State2D
+  private _stateTransformationData: StateData
   private _args: any
   public execute(delta: number, time: number): void {
     // Execute me
@@ -21,8 +21,8 @@ export default class StateSystem extends System {
       this.makeTransformationsFromState(entity, delta)
     })
 
-    this.queries.blendspaceHandlers.changed.forEach(entity => {
-      this.makeTransformationsFromBlendspaces(entity, delta)
+    this.queries.stateHandlers.changed.forEach(entity => {
+      this.makeTransformationsFromStates(entity, delta)
     })
   }
 
@@ -31,21 +31,21 @@ export default class StateSystem extends System {
     this._stateTransformationData = entity.getComponent(StateTransformation).data
 
     this._stateHandler.values.toArray().forEach((stateValue: StateValue) => {
-      if (this._stateTransformationData.blendspaces[stateValue.state] !== undefined) {
-        this._args = { entityIn: entity, ...this._stateTransformationData.blendspaces[stateValue.state].args }
-        Function.call(this._stateTransformationData.blendspaces[stateValue.state].behavior, this._args, delta)
+      if (this._stateTransformationData.states[stateValue.state] !== undefined) {
+        this._args = { entityIn: entity, ...this._stateTransformationData.states[stateValue.state].args }
+        Function.call(this._stateTransformationData.states[stateValue.state].behavior, this._args, delta)
       }
     })
   }
 
-  private makeTransformationsFromBlendspaces(entity: Entity, delta: number) {
-    this._blendspaceHandler = entity.getComponent(Blendspace2D)
+  private makeTransformationsFromStates(entity: Entity, delta: number) {
+    this._stateHandler = entity.getComponent(State2D)
     this._stateTransformationData = entity.getComponent(StateTransformation).data
 
-    this._blendspaceHandler.values.toArray().forEach((blendspaceValue: BlendspaceValue<Vector2>) => {
-      if (this._stateTransformationData.blendspaces[blendspaceValue.type] !== undefined) {
-        this._args = { entityIn: entity, ...this._stateTransformationData.blendspaces[blendspaceValue.type].args }
-        Function.call(this._stateTransformationData.blendspaces[blendspaceValue.type].behavior, this._args, delta)
+    this._stateHandler.values.toArray().forEach((stateValue: StateValue<Vector2>) => {
+      if (this._stateTransformationData.states[stateValue.type] !== undefined) {
+        this._args = { entityIn: entity, ...this._stateTransformationData.states[stateValue.type].args }
+        Function.call(this._stateTransformationData.states[stateValue.type].behavior, this._args, delta)
       }
     })
   }
@@ -56,8 +56,8 @@ StateSystem.queries = {
     components: [StateHandler],
     listen: { changed: true }
   },
-  blendspaceHandlers: {
-    components: [Blendspace2D],
+  stateHandlers: {
+    components: [State2D],
     listen: { changed: true }
   }
 }

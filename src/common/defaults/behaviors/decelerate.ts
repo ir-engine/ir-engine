@@ -8,7 +8,7 @@ import { vec3 } from "gl-matrix"
 let actor: Actor
 let transform: Transform
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const decelerate: Behavior = (entityIn: Entity, args: { blendspace: Scalar | Vector2 | Vector3 }, delta: number): void => {
+export const decelerate: Behavior = (entityIn: Entity, args: { state: Scalar | Vector2 | Vector3 }, delta: number): void => {
   // get actor comonent
   actor = entityIn.getComponent(Actor)
   // get the transform
@@ -16,7 +16,7 @@ export const decelerate: Behavior = (entityIn: Entity, args: { blendspace: Scala
 
   // if magnitude of velocity is more than .001
   if (vec3.length(transform.velocity as vec3) > 0.001) {
-    // add to velocity by adding blendspace value * acceleration * delta
+    // add to velocity by adding state value * acceleration * delta
     transform.velocity[0] -= Math.max(actor.accelerationSpeed * delta, 0)
     transform.velocity[1] -= Math.max(actor.accelerationSpeed * delta, 0)
     transform.velocity[2] -= Math.max(actor.accelerationSpeed * delta, 0)

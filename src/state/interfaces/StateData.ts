@@ -1,5 +1,6 @@
 import StateType from "../types/StateType"
 import StateGroupType from "../types/StateGroupType"
+import Behavior from "../../common/interfaces/Behavior"
 
 export default interface StateData {
   groups: {
@@ -9,12 +10,28 @@ export default interface StateData {
       default?: StateType
     }
   }
-  stateData: {
+  states: {
     [key: number]: {
       group?: StateGroupType
       component?: any
       blockedBy?: StateType
       overrides?: StateType
+      onAwake?: {
+        behavior: Behavior
+        args?: any
+      }
+      onUpdate?: {
+        behavior: Behavior
+        args?: any
+      }
+      onLateUpdate?: {
+        behavior: Behavior
+        args?: any
+      }
+      onDestroy?: {
+        behavior: Behavior
+        args?: any
+      }
     }
   }
 }

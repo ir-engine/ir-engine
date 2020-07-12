@@ -14,7 +14,7 @@ export const componentsFromStateGroupExist = (entityIn: Entity, stateGroupType: 
   stateGroupData = entityIn.getComponent(State).data
   stateGroupData.groups[stateGroupType].states.array.forEach(element => {
     if (ignoreComponent && ignoreComponent === element.component) return
-    if (entityIn.getComponent(stateGroupData.stateData[element].component)) stateGroupExists = true
+    if (entityIn.getComponent(stateGroupData.states[element].component)) stateGroupExists = true
   })
   return stateGroupExists
 }
@@ -31,7 +31,7 @@ export const getComponentsFromStateGroup = (entityIn: Entity, stateGroupType: St
   components.clear()
   stateGroupData = entityIn.getComponent(State).data
   stateGroupData.groups[stateGroupType].states.array.forEach(element => {
-    if (entityIn.getComponent(stateGroupData.stateData[element].component)) components.add(stateGroupData.stateData[element].component)
+    if (entityIn.getComponent(stateGroupData.states[element].component)) components.add(stateGroupData.states[element].component)
   })
   return components.toArray()
 }
@@ -40,7 +40,7 @@ export const getComponentFromStateGroup = (entityIn: Entity, stateGroupType: Sta
   component = null
   stateGroupData = entityIn.getComponent(State).data
   stateGroupData.groups[stateGroupType].states.array.forEach(element => {
-    if (entityIn.getComponent(stateGroupData.stateData[element].component)) component = stateGroupData.stateData[element].component
+    if (entityIn.getComponent(stateGroupData.states[element].component)) component = stateGroupData.states[element].component
   })
   return component
 }
