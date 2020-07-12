@@ -12,6 +12,7 @@ import ListItemText from '@material-ui/core/ListItemText'
 import Avatar from '@material-ui/core/Avatar'
 import { getFriends, unfriend } from '../../../redux/friend/service'
 import { selectFriendState } from '../../../redux/friend/selector'
+import {ChevronLeft, ChevronRight} from '@material-ui/icons'
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -33,11 +34,11 @@ interface Props {
 
 const Friends = (props: Props): any => {
     const { friendState, getFriends, unfriend } = props
-    const friends = friendState.get('friends')
+    const friendSubState = friendState.get('friends')
+    const friends = friendSubState.get('friends')
     const [ deletePending, setDeletePending ] = useState('')
 
     useEffect(() => {
-        console.log('FRIENDS USEEFFECT')
         if (friendState.get('updateNeeded') === true) {
             getFriends()
         }
@@ -54,6 +55,14 @@ const Friends = (props: Props): any => {
     const confirmDelete = (friendId) => {
         setDeletePending('')
         unfriend(friendId)
+    }
+
+    const previousFriendsPage = (): void => {
+        getFriends(null, friendSubState.get('skip') - friendSubState.get('limit'))
+    }
+
+    const nextFriendsPage = (): void => {
+        getFriends(null, friendSubState.get('skip') + friendSubState.get('limit'))
     }
 
     return (
@@ -87,6 +96,20 @@ const Friends = (props: Props): any => {
                     )
                 }
             </List>
+            <div>
+                <Button
+                    disabled={friendSubState.get('skip') === 0}
+                    onClick={previousFriendsPage}
+                >
+                    <ChevronLeft/>
+                </Button>
+                <Button
+                    disabled={(friendSubState.get('skip') + friendSubState.get('limit')) > friendSubState.get('total')}
+                    onClick={nextFriendsPage}
+                >
+                    <ChevronRight/>
+                </Button>
+            </div>
         </div>
     )
 }

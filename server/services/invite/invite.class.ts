@@ -17,13 +17,19 @@ export class Invite extends Service {
     if (query.type === 'received') {
       return super.find({
         query: {
-          inviteeId: query.userId
+          inviteeId: query.userId,
+          $limit: query.$limit || 10,
+          $skip: query.$skip || 0
         }
       })
     }
     else {
       return super.find({
-        userId: query.userId
+        query: {
+          userId: query.userId,
+          $limit: query.$limit || 10,
+          $skip: query.$skip || 0
+        }
       })
     }
   }
