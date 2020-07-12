@@ -1,8 +1,8 @@
 import { Scalar, Vector2, Vector3 } from "../../common/types/NumericalTypes"
-import Binary from "../../common/enums/Binary"
+import BinaryValue from "../../common/enums/BinaryValue"
 import { AxisType } from "../enums/AxisType"
 
-export default interface AxisValue<T extends Binary | Scalar | Vector2 | Vector3> {
+export default interface AxisValue<T extends BinaryValue | Scalar | Vector2 | Vector3> {
   type: AxisType
   value: T
 }

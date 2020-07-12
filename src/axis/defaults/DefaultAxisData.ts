@@ -1,9 +1,10 @@
-import Binary from "../../common/enums/Binary"
+import BinaryValue from "../../common/enums/BinaryValue"
 import { addState, removeState } from "../../state/behaviors/StateBehaviors"
 import { mapAxisToState } from "../behaviors/mapAxisToState"
-import DefaultStateTypes from "../../state/defaults/DefaultStateTypes"
-import AxisData from "../interfaces/AxisData"
+import DefaultStateTypes from "../../state/defaults/DefaultStateData"
+import AxisMap from "../interfaces/AxisMap"
 import AxisRules from "../interfaces/AxisRules"
+import { AxisType } from "../enums/AxisType"
 
 export const DefaultAxes = {
   PRIMARY: 0,
@@ -29,7 +30,7 @@ export const DefaultAxes = {
   ALTERNATE: 20
 }
 
-export const DefaultAxisData: AxisData = {
+export const DefaultAxisData: AxisMap = {
   rules: {
     [DefaultAxes.FORWARD]: { opposes: [DefaultAxes.BACKWARD] } as AxisRules,
     [DefaultAxes.BACKWARD]: { opposes: [DefaultAxes.FORWARD] } as AxisRules,
@@ -43,27 +44,27 @@ export const DefaultAxisData: AxisData = {
   },
   buttonAxes: {
     [DefaultAxes.JUMP]: {
-      [Binary.ON]: {
+      [BinaryValue.ON]: {
         behavior: addState,
         args: { state: DefaultStateTypes.JUMPING }
       }
     },
     [DefaultAxes.CROUCH]: {
-      [Binary.ON]: {
+      [BinaryValue.ON]: {
         behavior: addState,
         args: { state: DefaultStateTypes.CROUCHING }
       },
-      [Binary.OFF]: {
+      [BinaryValue.OFF]: {
         behavior: removeState,
         args: { state: DefaultStateTypes.CROUCHING }
       }
     },
     [DefaultAxes.SPRINT]: {
-      [Binary.ON]: {
+      [BinaryValue.ON]: {
         behavior: addState,
         args: { state: DefaultStateTypes.SPRINTING }
       },
-      [Binary.OFF]: {
+      [BinaryValue.OFF]: {
         behavior: removeState,
         args: { state: DefaultStateTypes.SPRINTING }
       }
@@ -72,11 +73,15 @@ export const DefaultAxisData: AxisData = {
   continuousAxes: {
     [DefaultAxes.MOVEMENT_PLAYERONE]: {
       behavior: mapAxisToState,
-      args: { state: DefaultStateTypes.MOVING }
+      args: {
+        state: DefaultStateTypes.MOVING,
+        type: AxisType.TWOD
+      }
     },
     [DefaultAxes.SCREENXY]: {
       behavior: mapAxisToState,
-      args: { state: DefaultStateTypes.MOVING }
+      args: { state: DefaultStateTypes.MOVING,
+      type: AxisType.TWOD }
     }
   }
 }

@@ -1,19 +1,19 @@
 import { Component } from "ecsy"
 
-export interface PropTypes<TDataType extends string | number | symbol, TBehaviorMap, TDataValues> {
+export interface PropTypes<TDataType extends string | number | symbol, TBehaviorMap, TValue> {
   behaviorMap: TBehaviorMap
-  data: BehaviorData<TDataType, TDataValues>
+  data: BehaviorMapType<TDataType, TValue>
 }
 
-export default class BehaviorComponent<TInputType extends string | number | symbol, TBehaviorMap, TValues> extends Component<
-  PropTypes<TInputType, TBehaviorMap, TValues>
+export default class BehaviorComponent<TDataType extends string | number | symbol, TBehaviorMap, TValue> extends Component<
+  PropTypes<TDataType, TBehaviorMap, TValue>
 > {
   behaviorMap: TBehaviorMap
-  data: BehaviorData<TInputType, TValues> = new Map<TInputType, TValues>()
-  constructor(props: PropTypes<TInputType, TBehaviorMap, TValues>) {
+  data: BehaviorMapType<TDataType, TValue> = new Map<TDataType, TValue>()
+  constructor(props: PropTypes<TDataType, TBehaviorMap, TValue>) {
     super(false)
     if (props.behaviorMap) this.behaviorMap = props.behaviorMap // TODO: ? DefaultBehaviorMap
-    this.data = new Map<TInputType, TValues>()
+    this.data = new Map<TDataType, TValue>()
   }
   copy(src: this): this {
     this.behaviorMap = src.behaviorMap

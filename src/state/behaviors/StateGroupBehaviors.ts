@@ -1,12 +1,12 @@
 import StateGroupType from "../types/StateGroupType"
 import { Entity, Component } from "ecsy"
-import StateData from "../interfaces/StateData"
+import StateMap from "../interfaces/StateMap"
 import State from "../components/State"
 import RingBuffer from "../../common/classes/RingBuffer"
 
 let component: Component<any>
 const components = new RingBuffer<Component<any>>(10)
-let stateGroupData: StateData
+let stateGroupData: StateMap
 let stateGroupExists: boolean
 // component from state group exists
 export const componentsFromStateGroupExist = (entityIn: Entity, stateGroupType: StateGroupType, ignoreComponent?: Component<any>): boolean => {

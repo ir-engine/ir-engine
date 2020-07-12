@@ -6,8 +6,8 @@ export default class InputDebugSystem extends System {
   _axisDataUIElement: any
   public execute(): void {
     // TODO: buttons, axes, need to switch these receivers
-    const values = entity.getComponent(Axis).values
     this.queries.actionReceivers.changed.forEach(entity => {
+      const values = entity.getComponent(Axis).values
       if (values.getBufferLength() > 0) {
         this._actionDataUIElement = document.getElementById("actionData")
         if (this._actionDataUIElement) {

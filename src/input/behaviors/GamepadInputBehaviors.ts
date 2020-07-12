@@ -1,6 +1,6 @@
 import { Entity } from "ecsy"
 import Axis from "../../axis/components/Axis"
-import Binary from "../../common/enums/Binary"
+import BinaryValue from "../../common/enums/BinaryValue"
 import AxisAlias from "../../axis/types/AxisAlias"
 import { applyThreshold } from "../../common/utils/applyThreshold"
 import InputMap from "../interfaces/InputMap"
@@ -8,11 +8,11 @@ import Input from "../components/Input"
 import Behavior from "../../common/interfaces/Behavior"
 import { AxisType } from "../../axis/enums/AxisType"
 
+const axisPerGamepad = 2
 let input: Input
 let axis: Axis
 let inputMap: InputMap
 let gamepads: Gamepad[]
-const axisPerGamepad = 2
 let axis0: number
 let axis1: number
 let gamepad: Gamepad
@@ -51,7 +51,7 @@ export const handleGamepads: Behavior = (entityIn: Entity) => {
       if (typeof inputMap.gamepadAxisMap.axes[index] === "undefined" || gamepad.buttons[index].touched === input.gamepadButtons[index]) continue
       axis.data.set(inputMap.gamepadAxisMap.axes[index], {
         type: AxisType.BUTTON,
-        value: gamepad.buttons[index].touched ? Binary.ON : Binary.OFF
+        value: gamepad.buttons[index].touched ? BinaryValue.ON : BinaryValue.OFF
       })
       input.gamepadButtons[index] = gamepad.buttons[index].touched
     }
@@ -104,7 +104,7 @@ export const handleGamepadDisconnected: Behavior = (entityIn: Entity, args: { ev
     if (input.gamepadButtons[index] === true && typeof inputMap.gamepadAxisMap.axes[index] !== "undefined") {
       axis.data.set(inputMap.gamepadAxisMap.axes[index], {
         type: AxisType.BUTTON,
-        value: Binary.OFF
+        value: BinaryValue.OFF
       })
     }
     input.gamepadButtons[index] = false

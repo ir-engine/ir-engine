@@ -1,7 +1,5 @@
-// Should be a singleton, we only need one in our world
-
-import { Component, Types } from "ecsy"
-import DefaultInputMap from "../defaults/DefaultInputMap"
+import { Types, Component } from "ecsy"
+import { DefaultInputMap } from "../defaults/DefaultInputData"
 import InputMap from "../interfaces/InputMap"
 
 export default interface InputProps {
@@ -22,7 +20,6 @@ export default class Input extends Component<InputProps> {
 
 Input.schema = {
   inputMap: { type: Types.Ref, default: DefaultInputMap },
-  data: { type: Types.Ref, default: DefaultInputMap },
   gamepadConnected: { type: Types.Boolean, default: false },
   gamepadThreshold: { type: Types.Number, default: 0.1 },
   gamepadButtons: { type: Types.Array, default: [] },

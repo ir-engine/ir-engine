@@ -1,7 +1,7 @@
 import { System } from "ecsy"
 import SubscriptionMap from "../interfaces/SubscriptionData"
 import Subscription from "../components/Subscription"
-import BehaviorArgValue from "../../common/interfaces/BehaviorArgValue"
+import BehaviorArgValue from "../../common/interfaces/BehaviorValue"
 
 export default class BehaviorSystem extends System {
   private _transformationData: SubscriptionMap

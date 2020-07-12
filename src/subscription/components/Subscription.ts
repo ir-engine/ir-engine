@@ -3,7 +3,7 @@ import BehaviorComponent from "../../common/components/BehaviorComponent"
 import { Types } from "ecsy"
 import DefaultBehaviorData from "../defaults/DefaultSubscriptionData"
 import RingBuffer from "../../common/classes/RingBuffer"
-import BehaviorArgValue from "../../common/interfaces/BehaviorArgValue"
+import BehaviorArgValue from "../../common/interfaces/BehaviorValue"
 
 interface SubscriptionProps {
   data: SubscriptionData
