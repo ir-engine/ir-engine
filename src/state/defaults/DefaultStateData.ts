@@ -49,10 +49,7 @@ export const DefaultStateMap: StateMap = {
     [DefaultStateTypes.IDLE]: { group: DefaultStateGroups.MOVEMENT, component: Idle, onUpdate: { behavior: decelerate } },
     [DefaultStateTypes.MOVING]: {
       group: DefaultStateGroups.MOVEMENT,
-      component: Moving,
-      onUpdate: {
-        behavior: move
-      }
+      component: Moving
     },
     [DefaultStateTypes.JUMPING]: { group: DefaultStateGroups.MOVEMENT, component: Jumping, onUpdate: { behavior: jump } },
     [DefaultStateTypes.CROUCHING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS, component: Crouching, blockedBy: DefaultStateTypes.JUMPING },

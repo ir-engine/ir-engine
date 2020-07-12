@@ -10,7 +10,7 @@
       import { Component, System, World } from "ecsy"
       import { initializeInputSystems } from "../dist/armada.js"
 
-      const Axes = {
+      const Input = {
         SCREENXY: 0
       }
 
@@ -25,15 +25,15 @@
 
       const inputMap = {
         mouse: {
-          axes: {
+          input: {
             0: Actions.PRIMARY
           },
-          axes: {
-            mousePosition: Axes.SCREENXY
+          input: {
+            mousePosition: Input.SCREENXY
           }
         },
         keyboard: {
-          axes: {
+          input: {
             w: Actions.FORWARD,
             a: Actions.LEFT,
             s: Actions.RIGHT,
@@ -71,6 +71,6 @@
       update()
     </script>
     <div id="actionDataWrapper"><span>Action: </span><span id="actionData"></span></div>
-    <div id="axisDataWrapper"><span>Axis: </span><span id="axisData"></span></div>
+    <div id="inputDataWrapper"><span>Input: </span><span id="inputData"></span></div>
   </body>
 </html>

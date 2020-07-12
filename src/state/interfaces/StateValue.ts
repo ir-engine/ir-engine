@@ -1,8 +1,8 @@
 import StateAlias from "../types/StateAlias"
 import StateGroupType from "../types/StateGroupType"
 import { StateType } from "../enums/StateType"
-import { Binary, Scalar, Vector2, Vector3 } from "../../common/types/NumericalTypes"
-export default interface StateValue<T extends Binary | Scalar | Vector2 | Vector3> {
+import { NumericalType } from "../../common/types/NumericalTypes"
+export default interface StateValue<T extends NumericalType> {
   state: StateAlias
   type: StateType
   value: T

@@ -1,37 +1,37 @@
 import { System } from "ecsy"
-import Axis from "../components/Axis"
+import Input from "../components/Input"
 
 export default class InputDebugSystem extends System {
   _actionDataUIElement: any
-  _axisDataUIElement: any
+  _inputDataUIElement: any
   public execute(): void {
-    // TODO: buttons, axes, need to switch these receivers
+    // TODO: buttons, input, need to switch these receivers
     this.queries.actionReceivers.changed.forEach(entity => {
-      const values = entity.getComponent(Axis).values
+      const values = entity.getComponent(Input).values
       if (values.getBufferLength() > 0) {
         this._actionDataUIElement = document.getElementById("actionData")
         if (this._actionDataUIElement) {
           this._actionDataUIElement.innerHTML = values
             .toArray()
             .map((element, index) => {
-              return index + ": " + element.axis + " | " + element.value
+              return index + ": " + element.input + " | " + element.value
             })
             .join("<br/>")
         }
       }
     })
-    this.queries.axisReceivers.changed.forEach(entity => {
-      const inputHandler = entity.getComponent(Axis)
+    this.queries.inputReceivers.changed.forEach(entity => {
+      const inputHandler = entity.getComponent(Input)
       if (inputHandler.values.getBufferLength() > 0) {
-        console.log("Axes: " + inputHandler.values.getBufferLength())
+        console.log("Input: " + inputHandler.values.getBufferLength())
       }
 
-      this._axisDataUIElement = document.getElementById("axisData")
-      if (this._axisDataUIElement) {
-        this._axisDataUIElement.innerHTML = inputHandler.values
+      this._inputDataUIElement = document.getElementById("inputData")
+      if (this._inputDataUIElement) {
+        this._inputDataUIElement.innerHTML = inputHandler.values
           .toArray()
           .map((element, index) => {
-            return `${index}:  ${element.axis} | x: ${element.value[0]} | y: ${element.value[1]}`
+            return `${index}:  ${element.input} | x: ${element.value[0]} | y: ${element.value[1]}`
           })
           .join("<br />")
       }
@@ -40,8 +40,8 @@ export default class InputDebugSystem extends System {
 }
 
 InputDebugSystem.queries = {
-  axisReceivers: {
-    components: [Axis],
+  inputReceivers: {
+    components: [Input],
     listen: { changed: true }
   }
 }

@@ -1,5 +1,5 @@
-// Handles the mapping of axes to state/states (weighted state groups)
-// Uses an axis state table
+// Handles the mapping of input to state/states (weighted state groups)
+// Uses an input state table
 import { System, Entity } from "ecsy"
 import StateHandler from "../components/StateHandler"
 import State2D from "../components/State2D"

@@ -12,6 +12,7 @@ export class Actor extends Component<PropTypes> {
   rotationSpeedY: number
   maxSpeed: number
   accelerationSpeed: number
+  rotationSpeedZ: number
 
   constructor() {
     super()

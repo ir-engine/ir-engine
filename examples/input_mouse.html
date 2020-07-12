@@ -22,14 +22,14 @@
         left: 10px;
         border: black solid 1px;
       }
-      .mouse-axis {
+      .mouse-input {
       }
     </style>
   </head>
   <body>
     <script type="module">
       import { World, Component, Types, TagComponent, System } from "ecsy"
-      import { initializeInputSystems, InputReceiver, InputActionHandler, InputAxisHandler2D } from "../dist/armada.js"
+      import { initializeInputSystems, InputReceiver, InputActionHandler, InputInputHandler2D } from "../dist/armada.js"
 
       // Setup world
         const world = new World();
@@ -58,13 +58,13 @@
 
       class ContainerDOMComponent extends BaseDOMComponent {}
       class ActionDOMComponent extends BaseDOMComponent {}
-      class AxisDOMComponent extends BaseDOMComponent {}
+      class InputDOMComponent extends BaseDOMComponent {}
 
       world
         .registerComponent(InputVisualizer)
         .registerComponent(ContainerDOMComponent)
         .registerComponent(ActionDOMComponent)
-        .registerComponent(AxisDOMComponent)
+        .registerComponent(InputDOMComponent)
 
       // DemoInputSystem
       class MouseVisualUpdateSystem extends System {
@@ -75,21 +75,21 @@
             console.log('added!')
             const containerDiv = document.createElement('div')
             containerDiv.classList.add('mouse-container')
-            const axesDiv = document.createElement('div')
-            axesDiv.classList.add('mouse-axes')
-            axesDiv.textContent = '-'
+            const inputDiv = document.createElement('div')
+            inputDiv.classList.add('mouse-input')
+            inputDiv.textContent = '-'
 
-            const axisDiv = document.createElement('div')
-            axisDiv.classList.add('mouse-axis')
-            axisDiv.textContent = '-: x---, y---'
+            const inputDiv = document.createElement('div')
+            inputDiv.classList.add('mouse-input')
+            inputDiv.textContent = '-: x---, y---'
 
-            containerDiv.appendChild(axesDiv)
-            containerDiv.appendChild(axisDiv)
+            containerDiv.appendChild(inputDiv)
+            containerDiv.appendChild(inputDiv)
             document.body.appendChild(containerDiv)
 
             entity.addComponent(ContainerDOMComponent, { value: containerDiv });
-            entity.addComponent(ActionDOMComponent, { value: axesDiv });
-            entity.addComponent(AxisDOMComponent, { value: axisDiv });
+            entity.addComponent(ActionDOMComponent, { value: inputDiv });
+            entity.addComponent(InputDOMComponent, { value: inputDiv });
           })
 
           // cleanup of DOM
@@ -102,9 +102,9 @@
               if (actionDomComponent && actionDomComponent.value) {
                 container.removeChild(actionDomComponent.value)
               }
-              const axisDomComponent = entity.getComponent(AxisDOMComponent)
-              if (axisDomComponent && axisDomComponent.value) {
-                container.removeChild(axisDomComponent.value)
+              const inputDomComponent = entity.getComponent(InputDOMComponent)
+              if (inputDomComponent && inputDomComponent.value) {
+                container.removeChild(inputDomComponent.value)
               }
 
               document.body.removeChild(container)
@@ -116,22 +116,22 @@
             const actionComponent = entity.getComponent(ActionDOMComponent)
 
             for (let i = 0; i < actionHandler.values.size; i++) {
-              const axis = actionHandler.values.get(i);
+              const input = actionHandler.values.get(i);
 
-              // process axis, in this case just update axis div textContent
-              if (axis && actionComponent) {
-                actionComponent.value.textContent = axis.axis + '-' + axis.value
+              // process input, in this case just update input div textContent
+              if (input && actionComponent) {
+                actionComponent.value.textContent = input.input + '-' + input.value
               }
             }
             actionHandler.values.clear()
 
-            const axisHandler = entity.getComponent(InputAxisHandler2D);
-            const lastAxis = axisHandler.values.getLast();
+            const inputHandler = entity.getComponent(InputInputHandler2D);
+            const lastInput = inputHandler.values.getLast();
 
-            if (lastAxis) {
-              const axisDomComponent = entity.getComponent(AxisDOMComponent)
-              if (axisDomComponent) {
-                axisDomComponent.value.textContent = lastAxis.axis + ': x' + lastAxis.value.x + ' y' + lastAxis.value.y
+            if (lastInput) {
+              const inputDomComponent = entity.getComponent(InputDOMComponent)
+              if (inputDomComponent) {
+                inputDomComponent.value.textContent = lastInput.input + ': x' + lastInput.value.x + ' y' + lastInput.value.y
               }
             }
           });
@@ -141,10 +141,10 @@
       // Define a query of entities that have "Velocity" and "Position" components
       MouseVisualUpdateSystem.queries = {
         input: {
-          components: [ InputVisualizer, InputReceiver, InputActionHandler, InputAxisHandler2D ],
+          components: [ InputVisualizer, InputReceiver, InputActionHandler, InputInputHandler2D ],
           listen: {
             added: true,
-            changed: [ InputActionHandler, InputAxisHandler2D ],
+            changed: [ InputActionHandler, InputInputHandler2D ],
             removed: true
           }
         }
@@ -159,7 +159,7 @@
         .addComponent(InputVisualizer)
         .addComponent(InputReceiver)
         .addComponent(InputActionHandler)
-        .addComponent(InputAxisHandler2D)
+        .addComponent(InputInputHandler2D)
 
         // Let's begin
         // Run!

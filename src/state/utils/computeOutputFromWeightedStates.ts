@@ -24,12 +24,12 @@ let a: number
 let b: number
 let c: number
 
-export function computeOutputFromWeightedStates(axisValue: Scalar | Vector2 | Vector3, blendStateValues: weightedState[]): outputState[] {
+export function computeOutputFromWeightedStates(inputValue: Scalar | Vector2 | Vector3, blendStateValues: weightedState[]): outputState[] {
   bufferPosition = 0
   totalDistance = 0
   blendStateValues.forEach(state => {
     // compute distance
-    distance = computeDistance(axisValue, state.value)
+    distance = computeDistance(inputValue, state.value)
     // if distance is less than 1.5 (slightly more than sqrt 2/2), continue
     if (distance > 1.5) {
       // Cull

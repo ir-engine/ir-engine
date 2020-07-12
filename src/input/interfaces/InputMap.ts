@@ -1,4 +1,7 @@
-import AxisAlias from "../../axis/types/AxisAlias"
+import InputAlias from "../../input/types/InputAlias"
+import { InputType } from "../enums/InputType"
+import ButtonPriorityMap from "./InputPriorityMapping"
+import { Scalar, Vector2, Vector3, NumericalType } from "../../common/types/NumericalTypes"
 
 interface InputMap {
   // Called by input system when an Input component is added
@@ -24,29 +27,67 @@ interface InputMap {
       }
     }
   }
-  mouseAxisMap?: {
+  mouseInputMap?: {
     buttons?: {
-      [key: string]: AxisAlias
-      [key: number]: AxisAlias
+      [key: string]: InputAlias
+      [key: number]: InputAlias
     }
-    axes?: {
-      [key: string]: AxisAlias
-      [key: number]: AxisAlias
+    input?: {
+      [key: string]: InputAlias
+      [key: number]: InputAlias
     }
   }
-  gamepadAxisMap?: {
+  gamepadInputMap?: {
     buttons?: {
-      [key: string]: AxisAlias
-      [key: number]: AxisAlias
+      [key: string]: InputAlias
+      [key: number]: InputAlias
     }
-    axes?: {
-      [key: string]: AxisAlias
-      [key: number]: AxisAlias
+    input?: {
+      [key: string]: InputAlias
+      [key: number]: InputAlias
     }
   }
-  keyboardAxisMap?: {
-    [key: string]: AxisAlias
-    [key: number]: AxisAlias
+  keyboardInputMap?: {
+    [key: string]: InputAlias
+    [key: number]: InputAlias
+  }
+  buttonPriorities: {
+    [key: string]: ButtonPriorityMap
+  }
+  inputButtonsToState: {
+    // input name
+    [key: string]: {
+      // binary state (on, off)
+      [key: string]: {
+        behavior: any
+        args: {
+          input: InputAlias
+          inputType: InputType
+        }
+      }
+    }
+    [key: number]: {
+      // binary state (on, off)
+      [key: number]: {
+        behavior: any
+        args: {
+          input: InputAlias
+          inputType: InputType
+          value?: NumericalType
+        }
+      }
+    }
+  }
+  inputAxesToState: {
+    // input name
+    [key: string]: {
+      behavior: any
+      args: {
+        input: InputAlias
+        inputType: InputType
+        value?: NumericalType
+      }
+    }
   }
 }
 
