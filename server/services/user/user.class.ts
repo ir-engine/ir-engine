@@ -54,15 +54,15 @@ export class User extends Service {
             replacements: {
               userId,
               search: `%${search}%`,
-              skip: params.query?.$skip || 0,
-              limit: params.query?.$limit || 10
+              $skip: params.query?.$skip || 0,
+              $limit: params.query?.$limit || 10
             }
           })
 
         foundUsers = {
           total,
-          limit: params.query?.$limit,
-          skip: params.query?.$skip,
+          $limit: params.query?.$limit || 10,
+          $skip: params.query?.$skip || 0,
           data: foundUsers
         }
       } else {
@@ -112,7 +112,9 @@ export class User extends Service {
       const userRelationshipResult = await this.app.service('user-relationship').find({
         query: {
           userRelationshipType: 'friend',
-          relatedUserId: params.query?.userId
+          relatedUserId: params.query?.userId,
+          $skip: params.query?.$skip || 0,
+          $limit: params.query?.$limit || 10
         }
       })
 
@@ -124,7 +126,9 @@ export class User extends Service {
         query: {
           id: {
             $in: friendIds
-          }
+          },
+          $limit: params.query?.$limit || 10,
+          $skip: params.query?.$skip || 0
         }
       })
     } else {
