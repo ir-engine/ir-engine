@@ -3,7 +3,7 @@ import Behavior from "../../interfaces/Behavior"
 import { Scalar, Vector2, Vector4 } from "../../types/NumericalTypes"
 import { Actor } from "../components/Actor"
 import { Transform } from "../components/Transform"
-import State2D from "../../../state/components/State2D"
+import State from "../../../state/components/State"
 import { quat } from "gl-matrix"
 
 let actor: Actor
@@ -15,7 +15,7 @@ export const rotateAround: Behavior = (entityIn: Entity, args: { state: Scalar |
   actor = entityIn.getComponent(Actor)
   transform = entityIn.getComponent(Transform)
   stateValue = entityIn
-    .getComponent(State2D)
+    .getComponent(State)
     .values.toArray()
     .filter(value => {
       value.type === args.state

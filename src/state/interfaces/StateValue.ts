@@ -1,7 +1,9 @@
-import StateType from "../types/StateType"
+import StateAlias from "../types/StateAlias"
 import StateGroupType from "../types/StateGroupType"
+import { StateType } from "../enums/StateType"
 export default interface StateValue {
-  state: StateType
+  state: StateAlias
+  type: StateType
   value: number
   group: StateGroupType
 }

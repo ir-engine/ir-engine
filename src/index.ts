@@ -16,8 +16,8 @@ import InputDebugSystem from "./axis/systems/AxisDebugSystem"
 import InputActionSystem from "./axis/systems/InputActionSystem"
 import InputAxisSystem from "./axis/systems/AxisPropogationSystem"
 import InputReceiver from "./input/components/InputReceiver"
-import InputData from "./input/interfaces/InputData"
-import DefaultInputActionTable from "./input/defaults/DefaultInputMap"
+import InputMap from "./input/interfaces/InputMap"
+import DefaultInputMap from "./input/defaults/DefaultInputMap"
 
 const DEFAULT_OPTIONS = {
   mouse: true,
@@ -29,7 +29,7 @@ const DEFAULT_OPTIONS = {
 
 export { InputReceiver, InputActionHandler, Axis as InputAxisHandler2D }
 
-export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, inputMap?: InputData): World | null {
+export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, inputMap?: InputMap): World | null {
   if (options.debug) console.log("Initializing input systems...")
 
   if (!isBrowser) {
@@ -75,7 +75,7 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, 
     inputSystemEntity.getMutableComponent(UserInput).inputMap = inputMap
   } else {
     console.log("No input map")
-    inputSystemEntity.getMutableComponent(UserInput).inputMap = DefaultInputActionTable
+    inputSystemEntity.getMutableComponent(UserInput).inputMap = DefaultInputMap
   }
 
   if (options.keyboard) {
@@ -111,7 +111,7 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, 
   return world
 }
 
-export function addInputHandlingToEntity(entity: Entity, inputFilter?: InputData): Entity {
+export function addInputHandlingToEntity(entity: Entity, inputFilter?: InputMap): Entity {
   // Try get component on axishandler, inputreceiver
   if (entity.getComponent(InputReceiver) !== undefined) console.warn("Warning: Entity already has input receiver component")
   else {

@@ -1,4 +1,4 @@
-import StateType from "../../state/types/StateType"
+import StateType from "../../state/types/StateAlias"
 import AxisRules from "./AxisRules"
 
 export interface AxisData {

@@ -1,86 +1,112 @@
 import { Entity } from "ecsy"
-import GamepadInput from "../components/GamepadInput"
 import Axis from "../../axis/components/Axis"
-import UserInput from "../components/Input"
 import Binary from "../../common/enums/Binary"
 import AxisAlias from "../../axis/types/AxisAlias"
 import { applyThreshold } from "../../common/utils/applyThreshold"
-import InputData from "../interfaces/InputData"
+import InputMap from "../interfaces/InputMap"
+import Input from "../components/Input"
+import Behavior from "../../common/interfaces/Behavior"
+import { AxisType } from "../../axis/enums/AxisType"
 
-let gamepadInput: GamepadInput
-let inputMap: InputData
+let input: Input
+let axis: Axis
+let inputMap: InputMap
 let gamepads: Gamepad[]
 const axisPerGamepad = 2
+let axis0: number
+let axis1: number
+let gamepad: Gamepad
+let axisBase: number
+let x: number
+let y: number
+let prevLeftX: number
+let prevLeftY: number
 
-export function handleGamepads(entityIn: Entity) {
-  gamepadInput = entityIn.getMutableComponent(GamepadInput)
-  if (gamepadInput.connected) {
-    inputMap = entityIn.getComponent(UserInput).inputMap
-    if (!inputMap) {
-      // no need to process if gamepad is not mapped
-      console.error("No gamepad input map")
-      return
+export const handleGamepads: Behavior = (entityIn: Entity) => {
+  if (!inputMap || !inputMap.gamepadAxisMap || !input.gamepadConnected) return
+  input = entityIn.getComponent(Input)
+  gamepads = navigator.getGamepads()
+
+  for (let index = 0; index < gamepads.length; index++) {
+    if (!gamepads[index]) return
+    gamepad = gamepads[index]
+
+    if (gamepad.axes) {
+      axis0 = axisPerGamepad * index
+      axis1 = axisPerGamepad * index + 1
+
+      // GamePad 0 LStick XY
+      if (inputMap.eventBindings.axes[axis0] && gamepad.axes.length >= axisPerGamepad)
+        handleGamepadInput(entityIn, { gamepad: gamepad, axisIndex: 0, mappedAxisValue: inputMap.gamepadAxisMap.axes[axis0] })
+
+      // GamePad 1 LStick XY
+      if (inputMap.gamepadAxisMap.axes[axis1] && gamepad.axes.length >= axisPerGamepad * 2)
+        handleGamepadInput(entityIn, { gamepad, axisIndex: 1, mappedAxisValue: inputMap.gamepadAxisMap.axes[axis1] })
     }
 
-    gamepads = navigator.getGamepads()
+    if (!gamepad.buttons || !inputMap.gamepadAxisMap.axes) return
+    axis = entityIn.getMutableComponent(Axis)
 
-    for (let index = 0; index < gamepads.length; index++) {
-      const gamepad = gamepads[index]
-      if (!gamepad) {
-        return
-      }
-
-      if (gamepad.axes) {
-        const axis0 = axisPerGamepad * index
-        const axis1 = axisPerGamepad * index + 1
-
-        // GamePad 0 LStick XY
-        if (inputMap.gamepad.axes[axis0] && gamepad.axes.length >= 2) {
-          handleGamepadInput(entityIn, gamepad, 0, inputMap.gamepad.axes[axis0])
-        }
-
-        // GamePad 1 LStick XY
-        if (inputMap.gamepad.axes[axis1] && gamepad.axes.length >= 4) {
-          handleGamepadInput(entityIn, gamepad, 1, inputMap.gamepad.axes[axis1])
-        }
-      }
-
-      if (gamepad.buttons && inputMap.gamepad.axes) {
-        const actionHandler = entityIn.getMutableComponent(Axis)
-
-        for (let index = 0; index < gamepad.buttons.length; index++) {
-          if (typeof inputMap.gamepad.axes[index] === "undefined") {
-            continue
-          }
-          if (gamepad.buttons[index].touched !== gamepadInput.buttons[index]) {
-            actionHandler.values.add({
-              axis: inputMap.gamepad.axes[index],
-              value: gamepad.buttons[index].touched ? Binary.ON : Binary.OFF
-            })
-            gamepadInput.buttons[index] = gamepad.buttons[index].touched
-          }
-        }
-      }
+    for (let index = 0; index < gamepad.buttons.length; index++) {
+      if (typeof inputMap.gamepadAxisMap.axes[index] === "undefined" || gamepad.buttons[index].touched === input.gamepadButtons[index]) continue
+      axis.data.set(inputMap.gamepadAxisMap.axes[index], {
+        type: AxisType.BUTTON,
+        value: gamepad.buttons[index].touched ? Binary.ON : Binary.OFF
+      })
+      input.gamepadButtons[index] = gamepad.buttons[index].touched
     }
   }
 }
 
-function handleGamepadInput(entity: Entity, gamepad: Gamepad, axisIndex: number, mappedAxisValue: AxisAlias) {
-  const gamepadInput = entity.getMutableComponent(GamepadInput)
-  const axisBase = axisIndex * 2
+export const handleGamepadInput: Behavior = (entityIn: Entity, args: { gamepad: Gamepad; axisIndex: number; mappedAxisValue: AxisAlias }) => {
+  input = entityIn.getComponent(Input)
 
-  const x = applyThreshold(gamepad.axes[axisBase], gamepadInput.threshold)
-  const y = applyThreshold(gamepad.axes[axisBase + 1], gamepadInput.threshold)
-  const prevLeftX = gamepadInput.axes[axisBase]
-  const prevLeftY = gamepadInput.axes[axisBase + 1]
+  axisBase = args.axisIndex * 2
+
+  x = applyThreshold(gamepad.axes[axisBase], input.gamepadThreshold)
+  y = applyThreshold(gamepad.axes[axisBase + 1], input.gamepadThreshold)
+  prevLeftX = input.gamepadAxes[axisBase]
+  prevLeftY = input.gamepadAxes[axisBase + 1]
 
   if (x !== prevLeftX || y !== prevLeftY) {
-    entity.getComponent(Axis).values.add({
-      axis: mappedAxisValue,
+    entityIn.getComponent(Axis).data.set(args.mappedAxisValue, {
+      type: AxisType.TWOD,
       value: [x, y]
     })
 
-    gamepadInput.axes[axisBase] = x
-    gamepadInput.axes[axisBase + 1] = y
+    input.gamepadAxes[axisBase] = x
+    input.gamepadAxes[axisBase + 1] = y
+  }
+}
+
+export const handleGamepadConnected: Behavior = (entityIn: Entity, args: { event: any }): void => {
+  input = entityIn.getMutableComponent(Input)
+  console.log("A gamepad connected:", args.event.gamepad, args.event.gamepad.mapping)
+  if (args.event.gamepad.mapping !== "standard") return console.error("Non-standard gamepad mapping detected, not properly handled")
+  input.gamepadConnected = true
+  gamepad = args.event.gamepad
+  for (let index = 0; index < gamepad.buttons.length; index++) {
+    if (typeof input.gamepadButtons[index] === "undefined") input.gamepadButtons[index] = false
+  }
+}
+
+export const handleGamepadDisconnected: Behavior = (entityIn: Entity, args: { event: any }): void => {
+  input = entityIn.getMutableComponent(Input)
+  axis = entityIn.getMutableComponent(Axis)
+  inputMap = input.inputMap
+  console.log("A gamepad disconnected:", args.event.gamepad)
+
+  input.gamepadConnected = false
+
+  if (!inputMap) return
+
+  for (let index = 0; index < input.gamepadButtons.length; index++) {
+    if (input.gamepadButtons[index] === true && typeof inputMap.gamepadAxisMap.axes[index] !== "undefined") {
+      axis.data.set(inputMap.gamepadAxisMap.axes[index], {
+        type: AxisType.BUTTON,
+        value: Binary.OFF
+      })
+    }
+    input.gamepadButtons[index] = false
   }
 }

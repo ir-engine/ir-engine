@@ -1,4 +1,4 @@
-import StateType from "../../state/types/StateType"
+import StateType from "../../state/types/StateAlias"
 import { Scalar, Vector2, Vector3 } from "../types/NumericalTypes"
 import instanceOf from "./instanceOf"
 

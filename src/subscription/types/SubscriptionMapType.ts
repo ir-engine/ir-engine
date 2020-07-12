@@ -1,9 +1,9 @@
 import { createType, Component, copyCopyable, cloneClonable } from "ecsy"
-import SubscriptionMapValue from "../interfaces/SubscriptionMapValue"
+import BehaviorArgValue from "../../common/interfaces/BehaviorArgValue"
 
-export const DataTransformationMapType = createType({
-  name: "DataTransformationMapType",
-  default: new Map<Component<any>, SubscriptionMapValue>(),
+export const SubscriptionMapType = createType({
+  name: "SubscriptionMapType",
+  default: new Map<Component<any>, BehaviorArgValue>(),
   copy: copyCopyable,
   clone: cloneClonable
 })
