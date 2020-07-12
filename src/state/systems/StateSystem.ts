@@ -3,7 +3,7 @@
 import { System, Entity } from "ecsy"
 import StateHandler from "../components/StateHandler"
 import State2D from "../components/State2D"
-import StateData from "../interfaces/StateData"
+import StateData from "../interfaces/StateMap"
 import StateTransformation from "../components/StateTransformation"
 import StateValue from "../interfaces/StateValue"
 import StateValue from "../interfaces/StateValue"

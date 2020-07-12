@@ -17,7 +17,7 @@ import InputActionSystem from "./axis/systems/InputActionSystem"
 import InputAxisSystem from "./axis/systems/AxisPropogationSystem"
 import InputReceiver from "./input/components/InputReceiver"
 import InputMap from "./input/interfaces/InputMap"
-import DefaultInputMap from "./input/defaults/DefaultInputMap"
+import DefaultInputMap from "./input/defaults/DefaultInputData"
 
 const DEFAULT_OPTIONS = {
   mouse: true,

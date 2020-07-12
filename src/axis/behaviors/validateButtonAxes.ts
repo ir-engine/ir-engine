@@ -3,14 +3,14 @@ import Axis from "../components/Axis"
 import Behavior from "../../common/interfaces/Behavior"
 import AxisValue from "../interfaces/AxisValue"
 import AxisAlias from "../types/AxisAlias"
-import Binary from "../../common/enums/Binary"
+import BinaryValue from "../../common/enums/BinaryValue"
 import { Vector3, Vector2, Scalar } from "../../common/types/NumericalTypes"
 import RingBuffer from "../../common/classes/RingBuffer"
 
 let axis: Axis
 // Todo: Replace queue with map so we can simplify this
 
-export const validateButtons: Behavior = (entityIn: Entity): void => {
+export const validateButtonAxes: Behavior = (entityIn: Entity): void => {
   axis = entityIn.getComponent(Axis)
   for (let i = 0; i < axis.values.getSize(); i++) {
     for (let k = 0; k < axis.values.getSize(); k++) {
@@ -34,7 +34,7 @@ export const validateButtons: Behavior = (entityIn: Entity): void => {
 
 // If they oppose, cancel them
 function buttonsOpposeEachOther(
-  actionQueueArray: RingBuffer<AxisValue<Binary | Scalar | Vector2 | Vector3>>,
+  actionQueueArray: RingBuffer<AxisValue<BinaryValue | Scalar | Vector2 | Vector3>>,
   arrayPosOne: number,
   arrayPoseTwo: number
 ): boolean {
@@ -49,7 +49,7 @@ function buttonsOpposeEachOther(
   return false
 }
 
-function buttonIsBlockedByAnother(actionQueueArray: AxisValue<Binary>[], arrayPosOne: number, arrayPoseTwo: number): boolean {
+function buttonIsBlockedByAnother(actionQueueArray: AxisValue<BinaryValue>[], arrayPosOne: number, arrayPoseTwo: number): boolean {
   const actionToTest = actionQueueArray[arrayPosOne]
   const actionToTestAgainst = actionQueueArray[arrayPoseTwo]
   this._userInput.inputMap[actionToTest.type]?.blockedBy?.forEach((axis: AxisAlias) => {
@@ -61,7 +61,7 @@ function buttonIsBlockedByAnother(actionQueueArray: AxisValue<Binary>[], arrayPo
   return false
 }
 
-function buttonOverridesAnother(actionQueueArray: AxisValue<Binary>[], arrayPosOne: number, arrayPoseTwo: number): boolean {
+function buttonOverridesAnother(actionQueueArray: AxisValue<BinaryValue>[], arrayPosOne: number, arrayPoseTwo: number): boolean {
   const actionToTest = actionQueueArray[arrayPosOne]
   const actionToTestAgainst = actionQueueArray[arrayPoseTwo]
   this._userInput.inputMap[actionToTest.type]?.overrides?.forEach((axis: AxisAlias) => {

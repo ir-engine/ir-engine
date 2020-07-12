@@ -1,23 +1,7 @@
-import { Types } from "ecsy"
-import StateData from "../interfaces/StateData"
-import DefaultStateGroupData from "../defaults/DefaultStateData"
+import StateMap from "../interfaces/StateMap"
 import BehaviorComponent from "../../common/components/BehaviorComponent"
-import RingBuffer from "../../common/classes/RingBuffer"
 import StateValue from "../interfaces/StateValue"
+import StateAlias from "../types/StateAlias"
+import { Binary, Scalar, Vector2, Vector3 } from "../../common/types/NumericalTypes"
 
-interface StateProps {
-  data: StateData
-  bufferSize: 10
-  values: RingBuffer<StateValue>
-}
-
-export default class State extends BehaviorComponent<StateProps, StateData, StateValue> {
-  data: StateData
-  bufferSize: 10
-  values: RingBuffer<StateValue>
-}
-
-State.schema = {
-  data: { type: Types.Ref, default: DefaultStateGroupData },
-  bufferSize: { type: Types.Number, default: 10 }
-}
+export default class State extends BehaviorComponent<StateAlias, StateMap, StateValue<Binary | Scalar | Vector2 | Vector3>> {}

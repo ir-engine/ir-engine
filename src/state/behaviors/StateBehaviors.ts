@@ -3,13 +3,13 @@ import Behavior from "../../common/interfaces/Behavior"
 import { Entity } from "ecsy"
 import { getComponentsFromStateGroup } from "./StateGroupBehaviors"
 import State from "../components/State"
-import StateData from "../../state//interfaces/StateData"
-import Binary from "../../common/enums/Binary"
+import StateData from "../interfaces/StateMap"
+import BinaryValue from "../../common/enums/BinaryValue"
 
 let stateGroupData: StateData
 
-export const setState: Behavior = (entityIn: Entity, args: { value: Binary; stateType: StateType }): void => {
-  if (args.value === Binary.ON) addState(entityIn, args)
+export const setState: Behavior = (entityIn: Entity, args: { value: BinaryValue; stateType: StateType }): void => {
+  if (args.value === BinaryValue.ON) addState(entityIn, args)
   else removeState(entityIn, args)
 }
 

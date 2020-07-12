@@ -1,6 +1,4 @@
-import DefaultStateGroups from "./DefaultStateGroups"
-import DefaultStateTypes from "./DefaultStateTypes"
-import StateData from "../interfaces/StateData"
+import StateMap from "../interfaces/StateMap"
 import { Idle } from "../../common/defaults/components/Idle"
 import { Moving } from "../../common/defaults/components/Moving"
 import Jumping from "../../common/defaults/components/Jumping"
@@ -10,7 +8,32 @@ import { move } from "../../common/defaults/behaviors/move"
 import { jump } from "../../common/defaults/behaviors/jump"
 import { decelerate } from "../../common/defaults/behaviors/decelerate"
 
-export const DefaultStateGroupData: StateData = {
+export const DefaultStateTypes = {
+  // Main States
+  IDLE: 0,
+  MOVING: 1,
+  JUMPING: 2,
+  FALLING: 3,
+
+  // Modifier States
+  CROUCHING: 4,
+  WALKING: 5,
+  SPRINTING: 6,
+  INTERACTING: 7,
+
+  // Moving substates
+  MOVING_FORWARD: 8,
+  MOVING_BACKWARD: 9,
+  MOVING_LEFT: 10,
+  MOVING_RIGHT: 11
+}
+
+export const DefaultStateGroups = {
+  MOVEMENT: 0,
+  MOVEMENT_MODIFIERS: 1
+}
+
+export const DefaultStateMap: StateMap = {
   groups: {
     [DefaultStateGroups.MOVEMENT]: {
       exclusive: true,
@@ -36,5 +59,3 @@ export const DefaultStateGroupData: StateData = {
     [DefaultStateTypes.SPRINTING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS, component: Sprinting }
   }
 }
-
-export default DefaultStateGroupData

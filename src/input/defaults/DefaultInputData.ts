@@ -1,13 +1,13 @@
 import { DefaultAxes } from "../../axis/defaults/DefaultAxisData"
 import InputMap from "../interfaces/InputMap"
-import { handleMouseButton, handleMouseMovement } from "../behaviors/handleMouse"
-import Binary from "../../common/enums/Binary"
-import { handleKey } from "../behaviors/handleKey"
+import { handleMouseButton, handleMouseMovement } from "../behaviors/DesktopInputBehaviors"
+import BinaryValue from "../../common/enums/BinaryValue"
+import { handleKey } from "../behaviors/DesktopInputBehaviors"
 import { GamepadButtons } from "../enums/GamepadButtons"
-import { GamepadAxes } from "../enums/GamepadAxes"
+import { Thumbsticks } from "../../common/enums/Thumbsticks"
 import { preventDefault } from "../../common/utils/preventDefault"
 import { disableScroll, enableScroll } from "../../common/utils/EnableDisableScrolling"
-import { handleGamepadConnected, handleGamepadDisconnected } from "../behaviors/handleGamepads"
+import { handleGamepadConnected, handleGamepadDisconnected } from "../behaviors/GamepadInputBehaviors"
 
 export const DefaultInputMap: InputMap = {
   onAdded: [
@@ -34,26 +34,26 @@ export const DefaultInputMap: InputMap = {
     ["mouseup"]: {
       behavior: handleMouseButton,
       args: {
-        value: Binary.OFF
+        value: BinaryValue.OFF
       }
     },
     ["mousedown"]: {
       behavior: handleMouseButton,
       args: {
-        value: Binary.ON
+        value: BinaryValue.ON
       }
     },
     // Keys
     ["keyup"]: {
       behavior: handleKey,
       args: {
-        value: Binary.OFF
+        value: BinaryValue.OFF
       }
     },
     ["keydown"]: {
       behavior: handleKey,
       args: {
-        value: Binary.ON
+        value: BinaryValue.ON
       }
     },
     ["gamepadconnected"]: {
@@ -93,8 +93,8 @@ export const DefaultInputMap: InputMap = {
       [GamepadButtons.DPad4]: DefaultAxes.RIGHT // DPAD 4
     },
     axes: {
-      [GamepadAxes.Left]: DefaultAxes.MOVEMENT_PLAYERONE,
-      [GamepadAxes.Right]: DefaultAxes.LOOKTURN_PLAYERONE
+      [Thumbsticks.Left]: DefaultAxes.MOVEMENT_PLAYERONE,
+      [Thumbsticks.Right]: DefaultAxes.LOOKTURN_PLAYERONE
     }
   },
   keyboardAxisMap: {
@@ -106,5 +106,3 @@ export const DefaultInputMap: InputMap = {
     shift: DefaultAxes.CROUCH
   }
 }
-
-export default DefaultInputMap

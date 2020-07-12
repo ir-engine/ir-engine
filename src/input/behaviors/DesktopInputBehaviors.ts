@@ -1,5 +1,5 @@
 import { Entity } from "ecsy"
-import Binary from "../../common/enums/Binary"
+import BinaryValue from "../../common/enums/BinaryValue"
 import Input from "../components/Input"
 import Axis from "../../axis/components/Axis"
 import Behavior from "../../common/interfaces/Behavior"
@@ -15,11 +15,20 @@ export const handleMouseMovement: Behavior = (entityIn: Entity, args: { e: Mouse
   })
 }
 
-export const handleMouseButton: Behavior = (entityIn: Entity, args: { e: MouseEvent; value: Binary }, entityOut: Entity): void => {
+export const handleMouseButton: Behavior = (entityIn: Entity, args: { e: MouseEvent; value: BinaryValue }, entityOut: Entity): void => {
   input = entityIn.getComponent(Input)
   if (!input || input.inputMap.mouseAxisMap.buttons[args.e.button] === undefined) return
   entityOut.getMutableComponent(Axis).data.set(input.inputMap.mouseAxisMap.buttons[args.e.button], {
     type: AxisType.BUTTON,
     value: args.value
+  })
+}
+
+export function handleKey(entity: Entity, key: string, value: BinaryValue): any {
+  input = entity.getComponent(Input)
+  if (input.inputMap.keyboardAxisMap.axes[key] === undefined) return
+  entity.getMutableComponent(Axis).data.set(input.inputMap.keyboardAxisMap.axes[key], {
+    type: AxisType.BUTTON,
+    value: value
   })
 }
