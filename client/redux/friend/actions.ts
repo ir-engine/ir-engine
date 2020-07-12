@@ -3,10 +3,14 @@ import {
   REMOVED_FRIEND
 } from '../actions'
 import { User } from '../../../shared/interfaces/User'
+import { FriendResult } from '../../../shared/interfaces/FriendResult'
 
 export interface LoadedFriendsAction {
   type: string
-  friends: User[]
+  friends: User[],
+  total: number,
+  limit: number
+  skip: number
 }
 
 export interface RemovedFriendAction {
@@ -17,10 +21,13 @@ export type FriendAction =
     LoadedFriendsAction
     | RemovedFriendAction
 
-export function loadedFriends(friends: User[]): LoadedFriendsAction {
+export function loadedFriends(friendResult: FriendResult): FriendAction {
   return {
     type: LOADED_FRIENDS,
-    friends
+    friends: friendResult.data,
+    total: friendResult.total,
+    limit: friendResult.limit,
+    skip: friendResult.skip
   }
 }
 

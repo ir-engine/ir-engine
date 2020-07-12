@@ -22,36 +22,38 @@ export function sendInvite (data: any) {
   }
 }
 
-export function retrieveReceivedInvites() {
+export function retrieveReceivedInvites(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any) => {
     const inviteResult = await client.service('invite').find({
       query: {
-        type: 'received'
+        type: 'received',
+        $limit: limit != null ? limit :  getState().get('invite').get('receivedInvites').get('limit'),
+        $skip: skip != null ? skip : getState().get('invite').get('receivedInvites').get('skip')
       }
     })
     console.log('RECEIVED INVITES:')
     console.log(inviteResult)
-    dispatch(retrievedReceivedInvites(inviteResult.data))
+    dispatch(retrievedReceivedInvites(inviteResult))
   }
 }
 
-export function retrieveSentInvites() {
+export function retrieveSentInvites(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any) => {
     const inviteResult = await client.service('invite').find({
       query: {
-        type: 'sent'
+        type: 'sent',
+        $limit: limit != null ? limit : getState().get('invite').get('sentInvites').get('limit'),
+        $skip: skip != null ? skip : getState().get('invite').get('sentInvites').get('skip')
       }
     })
     console.log('SENT INVITES:')
     console.log(inviteResult)
-    dispatch(retrievedSentInvites(inviteResult.data))
+    dispatch(retrievedSentInvites(inviteResult))
   }
 }
 
 function removeInvite(inviteId: string) {
   return (dispatch: Dispatch): any => {
-    console.log('REMOVING INVITE')
-    console.log(inviteId)
     client.service('invite').remove(inviteId)
         .then((res: any) => {
           console.log('REMOVED INVITE')
