@@ -8,6 +8,7 @@ import StateTransformation from "../components/StateTransformation"
 import StateValue from "../interfaces/StateValue"
 import StateValue from "../interfaces/StateValue"
 import { Vector2 } from "../../common/types/NumericalTypes"
+import State from "../components/State"
 
 export default class StateSystem extends System {
   private _stateHandler: StateHandler
@@ -52,12 +53,8 @@ export default class StateSystem extends System {
 }
 
 StateSystem.queries = {
-  stateHandlers: {
-    components: [StateHandler],
-    listen: { changed: true }
-  },
-  stateHandlers: {
-    components: [State2D],
+  state: {
+    components: [State],
     listen: { changed: true }
   }
 }

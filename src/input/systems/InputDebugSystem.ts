@@ -7,7 +7,7 @@ export default class InputDebugSystem extends System {
   public execute(): void {
     // TODO: buttons, input, need to switch these receivers
     this.queries.actionReceivers.changed.forEach(entity => {
-      const values = entity.getComponent(Input).values
+      const values = entity.getComponent(Input).map.to
       if (values.getBufferLength() > 0) {
         this._actionDataUIElement = document.getElementById("actionData")
         if (this._actionDataUIElement) {
