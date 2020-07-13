@@ -28,10 +28,10 @@ export const handleMouseButton: Behavior = (
   })
 }
 
-export function handleKey(entity: Entity, key: string, value: BinaryValue): any {
-  input = entity.getComponent(Input)
+export const handleKey: Behavior(entityIn: Entity, key: string, value: BinaryValue): any {
+  input = entityIn.getComponent(Input)
   if (input.map.keyboardInputMap.input[key] === undefined) return
-  entity.getMutableComponent(Input).data.set(input.map.keyboardInputMap.input[key], {
+  entityIn.getMutableComponent(Input).data.set(input.map.keyboardInputMap.input[key], {
     type: InputType.BUTTON,
     value: value
   })
