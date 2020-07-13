@@ -6,15 +6,15 @@ import RingBuffer from "../../common/classes/RingBuffer"
 
 let component: Component<any>
 const components = new RingBuffer<Component<any>>(10)
-let stateGroupData: StateMap
+let stateMap: StateMap
 let stateGroupExists: boolean
 // component from state group exists
 export const componentsFromStateGroupExist = (entityIn: Entity, stateGroupType: StateGroupType, ignoreComponent?: Component<any>): boolean => {
   stateGroupExists = false
-  stateGroupData = entityIn.getComponent(State).data
-  stateGroupData.groups[stateGroupType].states.array.forEach(element => {
+  stateMap = entityIn.getComponent(State).map
+  stateMap.groups[stateGroupType].states.array.forEach(element => {
     if (ignoreComponent && ignoreComponent === element.component) return
-    if (entityIn.getComponent(stateGroupData.states[element].component)) stateGroupExists = true
+    if (entityIn.getComponent(stateMap.states[element].component)) stateGroupExists = true
   })
   return stateGroupExists
 }
@@ -29,18 +29,18 @@ export const removeComponentsFromStateGroup = (entityIn: Entity, stateGroupType:
 
 export const getComponentsFromStateGroup = (entityIn: Entity, stateGroupType: StateGroupType): Component<any>[] => {
   components.clear()
-  stateGroupData = entityIn.getComponent(State).data
-  stateGroupData.groups[stateGroupType].states.array.forEach(element => {
-    if (entityIn.getComponent(stateGroupData.states[element].component)) components.add(stateGroupData.states[element].component)
+  stateMap = entityIn.getComponent(State).map
+  stateMap.groups[stateGroupType].states.array.forEach(element => {
+    if (entityIn.getComponent(stateMap.states[element].component)) components.add(stateMap.states[element].component)
   })
   return components.toArray()
 }
 
 export const getComponentFromStateGroup = (entityIn: Entity, stateGroupType: StateGroupType): Component<any> | null => {
   component = null
-  stateGroupData = entityIn.getComponent(State).data
-  stateGroupData.groups[stateGroupType].states.array.forEach(element => {
-    if (entityIn.getComponent(stateGroupData.states[element].component)) component = stateGroupData.states[element].component
+  stateMap = entityIn.getComponent(State).map
+  stateMap.groups[stateGroupType].states.array.forEach(element => {
+    if (entityIn.getComponent(stateMap.states[element].component)) component = stateMap.states[element].component
   })
   return component
 }

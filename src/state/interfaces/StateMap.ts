@@ -16,7 +16,11 @@ export default interface StateMap {
       component?: any
       blockedBy?: StateAlias
       overrides?: StateAlias
-      onAwake?: {
+      onAdded?: {
+        behavior: Behavior
+        args?: any
+      }
+      onChanged?: {
         behavior: Behavior
         args?: any
       }
@@ -28,7 +32,7 @@ export default interface StateMap {
         behavior: Behavior
         args?: any
       }
-      onDestroy?: {
+      onRemoved?: {
         behavior: Behavior
         args?: any
       }

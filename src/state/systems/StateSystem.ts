@@ -1,52 +1,37 @@
-// Handles the mapping of input to state/states (weighted state groups)
-// Uses an input state table
 import { System, Entity } from "ecsy"
-import StateHandler from "../components/StateHandler"
-import State2D from "../components/State2D"
-import StateData from "../interfaces/StateMap"
-import StateTransformation from "../components/StateTransformation"
-import StateValue from "../interfaces/StateValue"
+import State from "../components/State"
 import StateValue from "../interfaces/StateValue"
 import { Vector2 } from "../../common/types/NumericalTypes"
-import State from "../components/State"
+import Behavior from "../../common/interfaces/Behavior"
 
 export default class StateSystem extends System {
-  private _stateHandler: StateHandler
-  private _stateHandler: State2D
-  private _stateTransformationData: StateData
+  private _state: State
   private _args: any
   public execute(delta: number, time: number): void {
-    // Execute me
-    console.log("ActionStateSystem")
-    this.queries.stateHandlers.changed.forEach(entity => {
-      this.makeTransformationsFromState(entity, delta)
+    this.queries.state.added?.forEach(entity => {
+      this.callBehaviorsForHook(entity, { hook: "onAdded" }, delta)
     })
 
-    this.queries.stateHandlers.changed.forEach(entity => {
-      this.makeTransformationsFromStates(entity, delta)
+    this.queries.state.changed?.forEach(entity => {
+      this.callBehaviorsForHook(entity, { phase: "onChanged" }, delta)
     })
-  }
 
-  private makeTransformationsFromState(entity: Entity, delta: number) {
-    this._stateHandler = entity.getComponent(StateHandler)
-    this._stateTransformationData = entity.getComponent(StateTransformation).data
+    this.queries.state.results?.forEach(entity => {
+      this.callBehaviorsForHook(entity, { phase: "onUpdate" }, delta)
+      this.callBehaviorsForHook(entity, { phase: "onLateUpdate" }, delta)
+    })
 
-    this._stateHandler.values.toArray().forEach((stateValue: StateValue) => {
-      if (this._stateTransformationData.states[stateValue.state] !== undefined) {
-        this._args = { entityIn: entity, ...this._stateTransformationData.states[stateValue.state].args }
-        Function.call(this._stateTransformationData.states[stateValue.state].behavior, this._args, delta)
-      }
+    this.queries.state.removed?.forEach(entity => {
+      this.callBehaviorsForHook(entity, { phase: "onRemoved" }, delta)
     })
   }
 
-  private makeTransformationsFromStates(entity: Entity, delta: number) {
-    this._stateHandler = entity.getComponent(State2D)
-    this._stateTransformationData = entity.getComponent(StateTransformation).data
-
-    this._stateHandler.values.toArray().forEach((stateValue: StateValue<Vector2>) => {
-      if (this._stateTransformationData.states[stateValue.type] !== undefined) {
-        this._args = { entityIn: entity, ...this._stateTransformationData.states[stateValue.type].args }
-        Function.call(this._stateTransformationData.states[stateValue.type].behavior, this._args, delta)
+  private callBehaviorsForHook: Behavior = (entityIn: Entity, args: { hook: string }, delta: number) => {
+    this._state = entityIn.getComponent(State)
+    this._state.data.forEach((stateValue: StateValue<Vector2>) => {
+      if (this._state.map.states[stateValue.type] !== undefined && this._state.map.states[stateValue.type][args.hook] !== undefined) {
+        this._args = { entityIn: entityIn, ...this._state.map.states[stateValue.type][args.hook].args }
+        Function.call(this._state.map.states[stateValue.type][args.hook].behavior, this._args, delta)
       }
     })
   }
@@ -55,6 +40,10 @@ export default class StateSystem extends System {
 StateSystem.queries = {
   state: {
     components: [State],
-    listen: { changed: true }
+    listen: {
+      added: true,
+      changed: true,
+      removed: true
+    }
   }
 }
