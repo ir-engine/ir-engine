@@ -5,12 +5,13 @@
     "url": "http://github.com/xr3ngine"
   },
   "bugs": {
-    "url": "https://github.com/xr3ngine/ecsy-input/issues"
+    "url": "https://github.com/xr3ngine/armada/issues"
   },
   "bundleDependencies": false,
   "dependencies": {},
   "deprecated": false,
-  "description": "ECSY Input Controller",
+  "name": "@xr3ngine/armada",
+  "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
   "devDependencies": {
     "@babel/core": "^7.6.4",
     "@open-wc/rollup-plugin-html": "^1.1.0",
@@ -32,6 +33,7 @@
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-prettier": "^3.1.1",
     "gh-pages": "^2.1.1",
+    "gl-matrix": "^3.3.0",
     "html-webpack-plugin": "^3.2.0",
     "http-server": "^0.12.3",
     "pre-commit": "^1.2.2",
@@ -49,22 +51,21 @@
     "three": "^0.118.1",
     "typescript": "^3.9.5"
   },
-  "homepage": "https://github.com/xr3ngine/ecsy-input#readme",
+  "homepage": "https://github.com/xr3ngine/armada#readme",
   "license": "MIT",
-  "main": "dist/ecsy-input.js",
-  "module": "dist/ecsy-input.js",
-  "types": "dist/ecsy-input.d.ts",
-  "name": "ecsy-input",
+  "main": "dist/armada.js",
+  "module": "dist/armada.js",
+  "types": "dist/armada.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xr3ngine/ecsy-input.git"
+    "url": "git+https://github.com/xr3ngine/armada.git"
   },
   "scripts": {
     "build": "rollup -c",
     "preversion": "npm run lint",
     "version": "npm run build && git add -A",
     "postversion": "git push && git push --tags && sudo npm publish",
-    "dev": "rollup -cw",
+    "dev": "rollup -cw & http-server ./dist/examples",
     "lint": "eslint ./src/**/*",
     "start": "npm run build"
   },
@@ -72,5 +73,5 @@
     "lint",
     "build"
   ],
-  "version": "0.0.35"
+  "version": "0.0.1"
 }
