@@ -1,9 +1,0 @@
-const DefaultAxes = {
-  SCREENXY: 0,
-  MOVEMENT_PLAYERONE: 1,
-  LOOKTURN_PLAYERONE: 2,
-  MOVEMENT_PLAYERTWO: 3,
-  LOOKTURN_PLAYERTWO: 4
-}
-
-export default DefaultAxes
