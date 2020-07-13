@@ -1,7 +1,7 @@
 import { Component } from "ecsy"
 
 export interface PropTypes<TDataType extends string | number | symbol, TBehaviorMap, TValue> {
-  behaviorMap: TBehaviorMap
+  map: TBehaviorMap
   data: BehaviorMapType<TDataType, TValue>
 }
 
@@ -10,9 +10,8 @@ export default class BehaviorComponent<TDataType extends string | number | symbo
 > {
   map: TBehaviorMap
   data: BehaviorMapType<TDataType, TValue> = new Map<TDataType, TValue>()
-  constructor(props: PropTypes<TDataType, TBehaviorMap, TValue>) {
+  constructor() {
     super(false)
-    if (props.behaviorMap) this.map = props.behaviorMap // TODO: ? DefaultBehaviorMap
     this.data = new Map<TDataType, TValue>()
   }
   copy(src: this): this {

@@ -29,17 +29,13 @@
   <body>
     <script type="module">
       import { World, Component, Types, TagComponent, System } from "ecsy"
-      import { initializeInputSystems, InputReceiver, InputActionHandler, InputInputHandler2D } from "../dist/armada.js"
+      import { initializeInputSystems } from "../dist/armada.js"
 
       // Setup world
         const world = new World();
 
         // Test input
         const inputOptions = {
-          mouse: true,
-          keyboard: true,
-          touchscreen: true,
-          gamepad: true,
           debug: true
         }
 
@@ -79,11 +75,11 @@
             inputDiv.classList.add('mouse-input')
             inputDiv.textContent = '-'
 
-            const inputDiv = document.createElement('div')
-            inputDiv.classList.add('mouse-input')
-            inputDiv.textContent = '-: x---, y---'
+            // const inputDiv = document.createElement('div')
+            // inputDiv.classList.add('mouse-input')
+            // inputDiv.textContent = '-: x---, y---'
 
-            containerDiv.appendChild(inputDiv)
+            // containerDiv.appendChild(inputDiv)
             containerDiv.appendChild(inputDiv)
             document.body.appendChild(containerDiv)
 
@@ -112,7 +108,7 @@
           })
 
           this.queries.input.changed.forEach(entity => {
-            const actionHandler = entity.getComponent(InputActionHandler);
+            const actionHandler = entity.getComponent(Input);
             const actionComponent = entity.getComponent(ActionDOMComponent)
 
             for (let i = 0; i < actionHandler.values.size; i++) {
@@ -141,10 +137,10 @@
       // Define a query of entities that have "Velocity" and "Position" components
       MouseVisualUpdateSystem.queries = {
         input: {
-          components: [ InputVisualizer, InputReceiver, InputActionHandler, InputInputHandler2D ],
+          components: [ InputVisualizer, Input ],
           listen: {
             added: true,
-            changed: [ InputActionHandler, InputInputHandler2D ],
+            changed: true,
             removed: true
           }
         }
@@ -157,9 +153,7 @@
       world
         .createEntity()
         .addComponent(InputVisualizer)
-        .addComponent(InputReceiver)
-        .addComponent(InputActionHandler)
-        .addComponent(InputInputHandler2D)
+        .addComponent(Input)
 
         // Let's begin
         // Run!

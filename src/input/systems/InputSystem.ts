@@ -1,11 +1,15 @@
 import { System } from "ecsy"
 import Input from "../components/Input"
 import { handleInput } from "../behaviors/handleInput"
+import { DefaultInputMap } from "../defaults/DefaultInputData"
 export default class InputSystem extends System {
   private _inputEntity: Input
   public execute(delta: number): void {
     this.queries.inputs.added.forEach(entity => {
       this._inputEntity = entity.getComponent(Input)
+
+      // TODO: Map is not defined
+      if (this._inputEntity.map === undefined) this._inputEntity.map = DefaultInputMap
 
       // Call all behaviors in "onAdded" of input map
       this._inputEntity.map.onAdded.forEach(behavior => {
