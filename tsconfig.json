@@ -1,15 +1,15 @@
 {
-    "compilerOptions": {
-        "outDir": "./dist/",
-        "noImplicitAny": true,
-        "declaration": true,
-        "module": "es6",
-        "target": "es6",
-        "moduleResolution": "node",
-        "sourceMap": true
-    },
-    "files": [
-        "src/index.ts",
-        "src/GLTFPlayer.ts"
-    ]
+  "compilerOptions": {
+    "module": "es6",
+    "declaration": true,
+    "noImplicitAny": false,
+    "target": "es6",
+    "moduleResolution": "Node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": ["node_modules", "dist"]
 }
