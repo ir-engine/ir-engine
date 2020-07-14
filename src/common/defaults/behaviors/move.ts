@@ -1,7 +1,7 @@
 import { Entity } from "ecsy"
 import Behavior from "../../interfaces/Behavior"
 import { Actor } from "../components/Actor"
-import { Transform } from "../components/Transform"
+import { TransformComponent } from "../components/TransformComponent"
 import { NumericalType, Vector3, Vector2 } from "../../types/NumericalTypes"
 import { Crouching } from "../components/Crouching"
 import { Sprinting } from "../components/Sprinting"
@@ -11,7 +11,7 @@ import { InputType } from "../../../input/enums/InputType"
 
 let input: Input
 let actor: Actor
-let transform: Transform
+let transform: TransformComponent
 let inputValue: NumericalType // Could be a (small) source of garbage
 let inputType: InputAlias
 let movementModifer: number
@@ -19,7 +19,7 @@ let outputSpeed: number
 export const move: Behavior = (entityIn: Entity, args: { input: InputAlias; inputType: InputType; value: NumericalType }, delta: number): void => {
   input = entityIn.getComponent(Input)
   actor = entityIn.getComponent(Actor)
-  transform = entityIn.getComponent(Transform)
+  transform = entityIn.getComponent(TransformComponent)
   movementModifer = entityIn.hasComponent(Crouching) ? 0.5 : entityIn.hasComponent(Sprinting) ? 1.5 : 1.0
 
   outputSpeed = actor.accelerationSpeed * delta * movementModifer
