@@ -1,6 +1,6 @@
 {
   "name": "three-volumetric",
-  "version": "0.0.4",
+  "version": "0.0.7",
   "description": "Three.js Volumetric Player",
   "scripts": {
     "build": "rollup -c",

@@ -1,6 +1,6 @@
 "use_strict"
 import fs from "fs"
-import * as draco3d from "draco3d"
+import * as draco3d from "./libs/draco3d/draco3d"
 import { byteArrayToLong, lerp } from "../Shared/Utilities"
 import {
   Action,
@@ -129,7 +129,6 @@ export default class DracosisPlayer {
     this._startFrame = startFrame
     this._playOnStart = playOnStart
     this._currentFrame = startFrame
-    const player = this
 
     this.bufferGeometry = new BoxBufferGeometry(1, 1, 1)
     this.material = new MeshBasicMaterial({ color: 0xffff00 })
@@ -139,106 +138,102 @@ export default class DracosisPlayer {
     this.httpGetAsync("http://localhost:8000/dracosis", function(data: any) {
       data = JSON.parse(data)
       if (endFrame > 1) {
-        player._endFrame = endFrame
+        this._endFrame = endFrame
       } else {
-        player._endFrame = data.fileHeader.frameData.length
+        this._endFrame = data.fileHeader.frameData.length
       }
-      player._numberOfFrames = player._endFrame - player._startFrame
+      this._numberOfFrames = this._endFrame - this._startFrame
 
       // init buffers with settings
-      player._ringBuffer = new RingBuffer(bufferSize)
+      this._ringBuffer = new RingBuffer(bufferSize)
 
       const initializeMessage = {
-        startFrame: player._startFrame,
-        endFrame: player._endFrame,
+        startFrame: this._startFrame,
+        endFrame: this._endFrame,
         type: MessageType.InitializationResponse,
         // type: MessageType.DataResponse,
         data: data,
-        loop: player._loop,
+        loop: this._loop,
         filePath: data.filePath,
         fileHeader: data.fileHeader,
         isInitialized: true,
         readStreamOffset: data.readStreamOffset
       }
-      // console.log("initializeMessage", initializeMessage);
-      // worker.postMessage(initializeMessage);
-      // const worker = new Worker();
+      console.log("initializeMessage", initializeMessage)
+      const worker = new Worker("./Worker")
+      worker.postMessage(initializeMessage)
 
       worker.postMessage("Hello World")
 
-      // // Add event handler for manging worker responses
-      // worker.addEventListener('message', ({ data }) => {
-      //   console.log('hi worker recieved message');
-      //   player.handleMessage(data);
-      // });
+      // Add event handler for manging worker responses
+      worker.addEventListener("message", ({ data }) => {
+        console.log("hi worker recieved message")
+        this.handleMessage(data)
+      })
     })
 
-    // Validate file exists, throw error if it doesn't
-    // if (!fs.existsSync(filePath)) {
-    //   console.error('File not found at ' + filePath);
-    //   return;
-    // }
+    if (!fs.existsSync(filePath)) {
+      console.error("File not found at " + filePath)
+      return
+    }
 
-    // Open the file
-    // fs.open(filePath, 'r', (err, fd) => {
-    //   if (err) return console.log(err.message);
+    fs.open(filePath, "r", (err, fd) => {
+      if (err) return console.log(err.message)
 
-    //   // Read first 8 bytes for header length (long)
-    //   let buffer = Buffer.alloc(8);
-    //   fs.readSync(fd, buffer, 0, 8, 0);
-    //   const fileHeaderLength = byteArrayToLong(buffer);
+      // Read first 8 bytes for header length (long)
+      let buffer = Buffer.alloc(8)
+      fs.readSync(fd, buffer, 0, 8, 0)
+      const fileHeaderLength = byteArrayToLong(buffer)
 
-    //   // Read the header bytes (skip the header length, first 8 bytes)
-    //   buffer = Buffer.alloc(fileHeaderLength);
-    //   fs.readSync(fd, buffer, 0, fileHeaderLength, 8); // Skip 8 bytes for the header length val
+      // Read the header bytes (skip the header length, first 8 bytes)
+      buffer = Buffer.alloc(fileHeaderLength)
+      fs.readSync(fd, buffer, 0, fileHeaderLength, 8) // Skip 8 bytes for the header length val
 
-    //   // Buffer to json, json to object
-    //   this._fileHeader = JSON.parse(buffer.toString('utf8'));
-    //   console.log('Parsed to json: ', this._fileHeader);
+      // Buffer to json, json to object
+      this._fileHeader = JSON.parse(buffer.toString("utf8"))
+      console.log("Parsed to json: ", this._fileHeader)
 
-    //   this._readStreamOffset = fileHeaderLength + 8;
+      this._readStreamOffset = fileHeaderLength + 8
 
-    //   // Get current frame
-    //   this._currentFrame = startFrame;
+      // Get current frame
+      this._currentFrame = startFrame
 
-    //   // If the end frame was supplied, use it, otherwise determine from length
-    //   if (endFrame > 1) {
-    //     this._endFrame = endFrame;
-    //   } else {
-    //     this._endFrame = this._fileHeader.frameData.length;
-    //   }
+      // If the end frame was supplied, use it, otherwise determine from length
+      if (endFrame > 1) {
+        this._endFrame = endFrame
+      } else {
+        this._endFrame = this._fileHeader.frameData.length
+      }
 
-    //   this._numberOfFrames = this._endFrame - this._startFrame;
+      this._numberOfFrames = this._endFrame - this._startFrame
 
-    //   // Create Threejs object, right now it starts as a cube
-    //   this.bufferGeometry = new BoxBufferGeometry(1, 1, 1);
-    //   this.material = new MeshBasicMaterial({ color: 0xffff00 });
-    //   this.mesh = new Mesh(this.bufferGeometry, this.material);
-    //   scene.add(this.mesh);
+      // Create Threejs object, right now it starts as a cube
+      this.bufferGeometry = new BoxBufferGeometry(1, 1, 1)
+      this.material = new MeshBasicMaterial({ color: 0xffff00 })
+      this.mesh = new Mesh(this.bufferGeometry, this.material)
+      scene.add(this.mesh)
 
-    //   // init buffers with settings
-    //   this._ringBuffer = new RingBuffer<IBufferGeometryCompressedTexture>(
-    //     bufferSize
-    //   );
+      // init buffers with settings
+      this._ringBuffer = new RingBuffer<IBufferGeometryCompressedTexture>(bufferSize)
 
-    //   // Send init data to worker
-    //   const initializeMessage: WorkerInitializationRequest = {
-    //     startFrame,
-    //     endFrame,
-    //     type: MessageType.InitializationResponse,
-    //     loop,
-    //     filePath,
-    //     fileHeader: this._fileHeader,
-    //     readStreamOffset: this._readStreamOffset,
-    //   };
+      // Send init data to worker
+      const initializeMessage: WorkerInitializationRequest = {
+        startFrame,
+        endFrame,
+        type: MessageType.InitializationResponse,
+        loop,
+        filePath,
+        fileHeader: this._fileHeader,
+        readStreamOffset: this._readStreamOffset
+      }
 
-    //   worker.postMessage(initializeMessage);
+      worker.postMessage(initializeMessage)
 
-    //   // Add event handler for manging worker responses
-    //   worker.addEventListener('message', ({ data }) => {
-    //     this.handleMessage(data);
-    //   });
-    // });
+      // Add event handler for manging worker responses
+      worker.addEventListener("message", ({ data }) => {
+        this.handleMessage(data)
+      })
+    })
   }
 
   handleMessage(data: any) {
