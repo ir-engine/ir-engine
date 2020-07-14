@@ -1,19 +1,25 @@
 import React, { Fragment, useState } from 'react'
-import Modal from '@material-ui/core/Modal'
-import Backdrop from '@material-ui/core/Backdrop'
-import Fade from '@material-ui/core/Fade'
-import { Tabs, Tab } from '@material-ui/core'
-import SettingsIcon from '@material-ui/icons/Settings'
-import AccountCircleIcon from '@material-ui/icons/AccountCircle'
-// import AccountBoxIcon from '@material-ui/icons/AccountBox'
-import MailIcon from '@material-ui/icons/Mail'
-import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle'
 import UserProfile from './UserIcon'
 import UserSettings from './UserSettings'
 import Subscription from './Subscription'
 import Friends from './Friends'
+import Groups from './Groups'
 import Invite from './Invite'
 import './style.scss'
+import {
+    Settings,
+    AccountCircle,
+    Mail,
+    SupervisedUserCircle,
+    Group,
+} from '@material-ui/icons'
+import {
+    Backdrop,
+    Fade,
+    Modal,
+    Tab,
+    Tabs
+} from '@material-ui/core'
 
 interface Props {
   open: boolean
@@ -56,8 +62,13 @@ const ProfileModal = (props: Props): any => {
         <Friends auth={props.auth} />
       </TabPanel>
   )
+    const groups = (
+        <TabPanel value={tabIndex} index={4}>
+            <Groups auth={props.auth} />
+        </TabPanel>
+    )
   const invite = (
-      <TabPanel value={tabIndex} index={4}>
+      <TabPanel value={tabIndex} index={5}>
         <Invite auth={props.auth} />
       </TabPanel>
   )
@@ -86,11 +97,11 @@ const ProfileModal = (props: Props): any => {
               aria-label="Login Configure"
             >
               <Tab
-                icon={<AccountCircleIcon style={{ fontSize: 30 }} />}
+                icon={<AccountCircle style={{ fontSize: 30 }} />}
                 label="Profile"
               />
               <Tab
-                icon={<SettingsIcon style={{ fontSize: 30 }} />}
+                icon={<Settings style={{ fontSize: 30 }} />}
                 label="Settings"
               />
               {/* <Tab */}
@@ -98,15 +109,19 @@ const ProfileModal = (props: Props): any => {
               {/* label="Accounts" */}
               {/* /> */}
               <Tab
-                icon={<SupervisedUserCircleIcon style={{ fontSize: 30 }} />}
+                icon={<SupervisedUserCircle style={{ fontSize: 30 }} />}
                 label="Subscription"
               />
               <Tab
-                icon={<SupervisedUserCircleIcon style={{ fontSize: 30}} />}
+                icon={<SupervisedUserCircle style={{ fontSize: 30}} />}
                 label="Friends"
               />
+            <Tab
+                icon={<Group style={{ fontSize: 30}} />}
+                label="Groups"
+            />
               <Tab
-                  icon={<MailIcon style={{ fontSize: 30}} />}
+                  icon={<Mail style={{ fontSize: 30}} />}
                   label="Invite"
               />
             </Tabs>
@@ -115,6 +130,7 @@ const ProfileModal = (props: Props): any => {
             {/* {account} */}
             {subscription}
             {friends}
+            {groups}
             {invite}
           </div>
         </Fade>
