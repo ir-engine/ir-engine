@@ -1,8 +1,8 @@
-import { AframeComponentOptions, AframeComponetInterface } from '../aframe-component'
+import { AframeComponentOptions, AframeComponentInterface } from '../aframe-component'
 
 export interface ControlsOptions extends AframeComponentOptions {
 }
 
-export interface ControllerComponent extends AframeComponetInterface {
+export interface ControllerComponent extends AframeComponentInterface {
   options?: ControlsOptions
 }

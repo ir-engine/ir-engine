@@ -1,4 +1,4 @@
-import { AframeComponentOptions, AframeComponetInterface } from '../aframe-component'
+import { AframeComponentOptions, AframeComponentInterface } from '../aframe-component'
 
 export interface CursorComponentOptions extends AframeComponentOptions {
   downEvents: Array<string>, // additional events on the entity to listen to for triggering mousedown
@@ -18,7 +18,7 @@ export const defaultCursorComponentOptions: CursorComponentOptions = {
   upEvents: []
 }
 
-export default class Cursor implements AframeComponetInterface {
+export default class Cursor implements AframeComponentInterface {
   name = 'cursor'
   options?: Partial<CursorComponentOptions>
 

@@ -1,4 +1,4 @@
-import { AframeComponentOptions, AframeComponetInterface } from '../aframe-component'
+import { AframeComponentOptions, AframeComponentInterface } from '../aframe-component'
 
 export interface RaycasterComponentOptions extends AframeComponentOptions {
   autoRefresh: boolean
@@ -26,7 +26,7 @@ export const defaultRaycasterComponentOptions: RaycasterComponentOptions = {
   useWorldCoordinates: false
 }
 
-export default class Cursor implements AframeComponetInterface {
+export default class Cursor implements AframeComponentInterface {
   name = 'raycaster'
   options?: Partial<RaycasterComponentOptions>
 
