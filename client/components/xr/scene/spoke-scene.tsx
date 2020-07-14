@@ -25,6 +25,9 @@ import { GLTFLoaderSystem } from 'ecsy-three/src/extras/systems/GLTFLoaderSystem
 
 import SpokeNodeLoader from '../ecsy/spokeComponents'
 
+import Collidable from '../ecsy/components/Collidable'
+import Image from '../ecsy/components/Image'
+import ImageSystem from '../ecsy/systems/ImageSystem'
 import Walkable from '../ecsy/components/Walkable'
 
 import CameraSystem from '../ecsy/systems/CameraSystem'
@@ -57,9 +60,12 @@ async function init (projectId: string): Promise<any> { // auth: any,
     .registerComponent(Rotation)
     .registerComponent(Scale)
     .registerComponent(Visible)
+    .registerComponent(Collidable)
+    .registerComponent(Image)
     .registerComponent(Walkable)
   world.registerSystem(GLTFLoaderSystem)
-    .registerSystem(CameraSystem)
+  .registerSystem(CameraSystem)
+  .registerSystem(ImageSystem)
   const data = initialize(world)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { scene, camera, renderer } = data.entities

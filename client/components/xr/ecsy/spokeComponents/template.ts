@@ -4,5 +4,5 @@
 
 export default function loadTEMPLATEComponent (scene: any, entity: any, component: any): void {
 
-  // entity.addComponet(TEMPLATEComp, scene)
+  // entity.addComponent(TEMPLATEComp, scene)
 }
