@@ -4,6 +4,7 @@ import html from "@open-wc/rollup-plugin-html"
 import babel from "@rollup/plugin-babel"
 import typescript from "rollup-plugin-typescript2"
 import pkg from "./package.json"
+import commonjs from 'rollup-plugin-commonjs';
 
 export default [
   {
@@ -11,6 +12,12 @@ export default [
     plugins: [
       typescript(),
       resolve(),
+      commonjs({
+        include: 'node_modules/**',  // Default: undefined
+        // explicitly specify unresolvable named exports
+        // (see below for more details)
+        namedExports: { 'react': ['createElement', 'Component' ] },  // Default: undefined
+      }),
       json({ exclude: ["node_modules/**", "examples/**"] }),
       // terser(),
       babel({ babelHelpers: "bundled" })
@@ -29,6 +36,11 @@ export default [
   {
     input: "examples/sequence_player.html",
     output: { dir: "dist/examples" },
-    plugins: [html(), resolve()]
+    plugins: [html(), resolve(), commonjs({
+      include: 'node_modules/**',  // Default: undefined
+      // explicitly specify unresolvable named exports
+      // (see below for more details)
+      namedExports: { 'react': ['createElement', 'Component' ] },  // Default: undefined
+    }),]
   }
 ]
