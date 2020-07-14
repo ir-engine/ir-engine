@@ -16,8 +16,7 @@ import { BasisTextureLoader } from "three/examples/jsm/loaders/BasisTextureLoade
 import { ReadStream } from "fs"
 import { MessageType } from "./Enums"
 
-
-const worker = new Worker("./Worker");
+const worker = new Worker("./Worker")
 
 // Class draco / basis player
 export default class DracosisPlayer {
