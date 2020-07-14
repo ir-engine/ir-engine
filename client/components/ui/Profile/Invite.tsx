@@ -111,8 +111,6 @@ const Invites = (props: Props): any => {
     }
 
     const confirmDelete = (inviteId) => {
-        console.log('DELETING INVITE')
-        console.log(inviteId)
         setDeletePending('')
         deleteInvite(inviteId)
     }
