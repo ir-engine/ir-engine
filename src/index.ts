@@ -26,7 +26,10 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, 
   }
 
   world.registerSystem(InputSystem)
-  world.registerComponent(Input).registerComponent(State).registerComponent(Subscription)
+  world
+    .registerComponent(Input)
+    .registerComponent(State)
+    .registerComponent(Subscription)
 
   const inputSystemEntity = world.createEntity().addComponent(Input)
 
@@ -59,7 +62,10 @@ export function addInputHandlingToEntity(entity: Entity, inputFilter?: InputMap)
   // Try get component on inputhandler, inputreceiver
   if (entity.getComponent(Input) !== undefined) console.warn("Warning: Entity already has input component")
   else {
-    entity.addComponent(Input)
+    entity
+      .addComponent(Input)
+      .addComponent(State)
+      .addComponent(Subscription)
   }
   return entity
 }
