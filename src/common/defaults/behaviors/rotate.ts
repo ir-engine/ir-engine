@@ -2,14 +2,14 @@ import { Entity } from "ecsy"
 import Behavior from "../../interfaces/Behavior"
 import { Vector2, Vector4, NumericalType, Vector3 } from "../../types/NumericalTypes"
 import { Actor } from "../components/Actor"
-import { Transform } from "../components/Transform"
+import { TransformComponent } from "../components/TransformComponent"
 import { quat } from "gl-matrix"
 import InputAlias from "../../../input/types/InputAlias"
 import { InputType } from "../../../input/enums/InputType"
 import Input from "../../../input/components/Input"
 
 let actor: Actor
-let transform: Transform
+let transform: TransformComponent
 let inputValue: Vector2 | Vector3
 let q: Vector4
 let qOut: Vector4
@@ -22,7 +22,7 @@ export const rotateAround: Behavior = (
 ): void => {
   inputComponent = entityIn.getComponent(Input)
   actor = entityIn.getComponent(Actor)
-  transform = entityIn.getComponent(Transform)
+  transform = entityIn.getComponent(TransformComponent)
   quat.set(qOut, transform.rotation[0], transform.rotation[1], transform.rotation[2], transform.rotation[3])
   if (input === InputType.TWOD) {
     inputValue = inputComponent.data.get(args.input).value as Vector2
