@@ -18,9 +18,9 @@ let y: number
 let prevLeftX: number
 let prevLeftY: number
 
-export const handleGamepads: Behavior = (entityIn: Entity) => {
+export const handleGamepads: Behavior = (entity: Entity) => {
   if (!input.map || !input.map.gamepadInputMap || !input.gamepadConnected) return
-  input = entityIn.getComponent(Input)
+  input = entity.getComponent(Input)
   gamepads = navigator.getGamepads()
 
   for (let index = 0; index < gamepads.length; index++) {
@@ -33,15 +33,15 @@ export const handleGamepads: Behavior = (entityIn: Entity) => {
 
       // GamePad 0 LStick XY
       if (input.map.eventBindings.input[input0] && gamepad.axes.length >= inputPerGamepad)
-        handleGamepadInput(entityIn, { gamepad: gamepad, inputIndex: 0, mappedInputValue: input.map.gamepadInputMap.input[input0] })
+        handleGamepadInput(entity, { gamepad: gamepad, inputIndex: 0, mappedInputValue: input.map.gamepadInputMap.input[input0] })
 
       // GamePad 1 LStick XY
       if (input.map.gamepadInputMap.input[input1] && gamepad.axes.length >= inputPerGamepad * 2)
-        handleGamepadInput(entityIn, { gamepad, inputIndex: 1, mappedInputValue: input.map.gamepadInputMap.input[input1] })
+        handleGamepadInput(entity, { gamepad, inputIndex: 1, mappedInputValue: input.map.gamepadInputMap.input[input1] })
     }
 
     if (!gamepad.buttons || !input.map.gamepadInputMap.input) return
-    input = entityIn.getMutableComponent(Input)
+    input = entity.getMutableComponent(Input)
 
     for (let index = 0; index < gamepad.buttons.length; index++) {
       if (
@@ -58,8 +58,8 @@ export const handleGamepads: Behavior = (entityIn: Entity) => {
   }
 }
 
-export const handleGamepadInput: Behavior = (entityIn: Entity, args: { gamepad: Gamepad; inputIndex: number; mappedInputValue: InputAlias }) => {
-  input = entityIn.getComponent(Input)
+export const handleGamepadInput: Behavior = (entity: Entity, args: { gamepad: Gamepad; inputIndex: number; mappedInputValue: InputAlias }) => {
+  input = entity.getComponent(Input)
 
   inputBase = args.inputIndex * 2
 
@@ -69,7 +69,7 @@ export const handleGamepadInput: Behavior = (entityIn: Entity, args: { gamepad: 
   prevLeftY = input.gamepadInput[inputBase + 1]
 
   if (x !== prevLeftX || y !== prevLeftY) {
-    entityIn.getComponent(Input).data.set(args.mappedInputValue, {
+    entity.getComponent(Input).data.set(args.mappedInputValue, {
       type: InputType.TWOD,
       value: [x, y]
     })
@@ -79,8 +79,8 @@ export const handleGamepadInput: Behavior = (entityIn: Entity, args: { gamepad: 
   }
 }
 
-export const handleGamepadConnected: Behavior = (entityIn: Entity, args: { event: any }): void => {
-  input = entityIn.getMutableComponent(Input)
+export const handleGamepadConnected: Behavior = (entity: Entity, args: { event: any }): void => {
+  input = entity.getMutableComponent(Input)
 
   console.log("A gamepad connected:", args.event.gamepad, args.event.gamepad.mapping)
 
@@ -94,8 +94,8 @@ export const handleGamepadConnected: Behavior = (entityIn: Entity, args: { event
   }
 }
 
-export const handleGamepadDisconnected: Behavior = (entityIn: Entity, args: { event: any }): void => {
-  input = entityIn.getMutableComponent(Input)
+export const handleGamepadDisconnected: Behavior = (entity: Entity, args: { event: any }): void => {
+  input = entity.getMutableComponent(Input)
   console.log("A gamepad disconnected:", args.event.gamepad)
 
   input.gamepadConnected = false

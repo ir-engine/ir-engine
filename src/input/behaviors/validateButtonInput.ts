@@ -10,23 +10,23 @@ import RingBuffer from "../../common/classes/RingBuffer"
 let input: Input
 // Todo: Replace queue with map so we can simplify this
 
-export const validateButtonInput: Behavior = (entityIn: Entity): void => {
-  input = entityIn.getComponent(Input)
+export const validateButtonInput: Behavior = (entity: Entity): void => {
+  input = entity.getComponent(Input)
   for (let i = 0; i < input.values.getSize(); i++) {
     for (let k = 0; k < input.values.getSize(); k++) {
       if (i == k) continue // don't compare to self
       // Opposing input cancel out
       if (buttonsOpposeEachOther(input.values, i, k)) {
-        entityIn.getMutableComponent(Input).values.remove(i)
-        entityIn.getMutableComponent(Input).values.remove(k)
+        entity.getMutableComponent(Input).values.remove(i)
+        entity.getMutableComponent(Input).values.remove(k)
       }
       // If input is blocked by another input that overrides and is active, remove this input
       else if (buttonIsBlockedByAnother(input.values, i, k)) {
-        entityIn.getMutableComponent(Input).values.remove(i)
+        entity.getMutableComponent(Input).values.remove(i)
       }
       // Override input override
       else if (buttonOverridesAnother(input.values, i, k)) {
-        entityIn.getMutableComponent(Input).values.remove(k)
+        entity.getMutableComponent(Input).values.remove(k)
       }
     }
   }

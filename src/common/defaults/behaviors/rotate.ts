@@ -16,13 +16,13 @@ let qOut: Vector4
 let inputComponent: Input
 let input: InputAlias
 export const rotateAround: Behavior = (
-  entityIn: Entity,
+  entity: Entity,
   args: { input: InputAlias; inputType: InputType; value: NumericalType },
   delta: number
 ): void => {
-  inputComponent = entityIn.getComponent(Input)
-  actor = entityIn.getComponent(Actor)
-  transform = entityIn.getComponent(Transform)
+  inputComponent = entity.getComponent(Input)
+  actor = entity.getComponent(Actor)
+  transform = entity.getComponent(Transform)
   quat.set(qOut, transform.rotation[0], transform.rotation[1], transform.rotation[2], transform.rotation[3])
   if (input === InputType.TWOD) {
     inputValue = inputComponent.data.get(args.input).value as Vector2
