@@ -13,6 +13,9 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
+    "react-three-fiber": "^4.2.16",
+    "three": "^0.118.3",
+    "three-volumetric": "0.0.5",
     "typescript": "~3.7.2"
   },
   "scripts": {
@@ -35,5 +38,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "worker-loader": "^2.0.0"
   }
 }
