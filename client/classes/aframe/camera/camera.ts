@@ -1,4 +1,4 @@
-import { AframeComponentOptions, AframeComponetInterface } from '../aframe-component'
+import { AframeComponentOptions, AframeComponentInterface } from '../aframe-component'
 
 export interface CameraComponentOptions extends AframeComponentOptions {
   active: boolean,
@@ -18,7 +18,7 @@ export const defaultCameraComponentOptions: CameraComponentOptions = {
   zoom: 1
 }
 
-export default class Camera implements AframeComponetInterface {
+export default class Camera implements AframeComponentInterface {
   name = 'camera'
   options?: Partial<CameraComponentOptions>
 

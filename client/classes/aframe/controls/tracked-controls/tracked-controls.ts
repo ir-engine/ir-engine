@@ -1,9 +1,9 @@
-import { AframeComponentOptions, AframeComponetInterface } from '../../aframe-component'
+import { AframeComponentOptions, AframeComponentInterface } from '../../aframe-component'
 
 export interface TrackedControlsOptions extends AframeComponentOptions {
   hand?: string
 }
 
-export interface TrackedControllerComponent extends AframeComponetInterface {
+export interface TrackedControllerComponent extends AframeComponentInterface {
   options?: Partial<TrackedControlsOptions>
 }

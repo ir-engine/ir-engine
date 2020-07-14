@@ -140,11 +140,11 @@ export class Project implements ServiceMethods<Data> {
       })
       const savedEntities = await EntityModel.bulkCreate(entites, { transaction })
       const components: any = []
-      const componetTypeSet = new Set()
+      const componentTypeSet = new Set()
       savedEntities.forEach((savedEntity: any, index: number) => {
         const entity = sceneEntitiesArray[index]
         entity.components.forEach((component: any) => {
-          componetTypeSet.add(component.name.toLowerCase())
+          componentTypeSet.add(component.name.toLowerCase())
           components.push(
             {
               data: component.props,
@@ -159,15 +159,15 @@ export class Project implements ServiceMethods<Data> {
       // Now we check if any of component-type is missing, then create that one
       let savedComponentTypes = await ComponentTypeModel.findAll({
         where: {
-          type: Array.from(componetTypeSet)
+          type: Array.from(componentTypeSet)
         },
         raw: true,
         attributes: ['type']
       })
 
       savedComponentTypes = savedComponentTypes.map((item: any) => item.type)
-      if (savedComponentTypes.length <= componetTypeSet.size) {
-        let nonExistedComponentTypes = Array.from(componetTypeSet).filter((item) => savedComponentTypes.indexOf(item) < 0)
+      if (savedComponentTypes.length <= componentTypeSet.size) {
+        let nonExistedComponentTypes = Array.from(componentTypeSet).filter((item) => savedComponentTypes.indexOf(item) < 0)
 
         nonExistedComponentTypes = nonExistedComponentTypes.map((item) => {
           return {
