@@ -1,6 +1,6 @@
 "use_strict"
 import fs from "fs"
-import * as draco3d from "./libs/draco3d/draco3d"
+import * as draco3d from "draco3d"
 import { byteArrayToLong, lerp } from "../Shared/Utilities"
 import {
   Action,
@@ -16,10 +16,8 @@ import { BasisTextureLoader } from "three/examples/jsm/loaders/BasisTextureLoade
 import { ReadStream } from "fs"
 import { MessageType } from "./Enums"
 
-import TestWorker from "./TestWorker"
-const worker = new (TestWorker as any)()
 
-// const worker = new Worker("./Worker");
+const worker = new Worker("./Worker");
 
 // Class draco / basis player
 export default class DracosisPlayer {
