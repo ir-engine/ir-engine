@@ -196,7 +196,17 @@ export class Project implements ServiceMethods<Data> {
   }
 
   async remove (id: NullableId, params?: Params): Promise<Data> {
-    return { id }
+    if (!params.query.projectId) return { id }
+
+    const { collection } = this.models
+    await collection.destroy({
+      where: {
+        sid: params.query.projectId
+      }
+    })
+    return {
+      id: params.query.projectId
+    }
   }
 
   private async reloadProject (projectId: string, loadedProject?: any): Promise<any> {
