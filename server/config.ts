@@ -34,7 +34,7 @@ const server = {
   // Public directory (used for favicon.ico, logo, etc)
   rootDir: path.resolve(__dirname, '..'),
   publicDir: process.env.SERVER_PUBLIC_DIR ?? path.resolve(__dirname, '..', 'client/public'),
-  nodeModulesDir: path.resolve(__dirname, '../..', 'node_modules')
+  nodeModulesDir: path.resolve(__dirname, '../..', 'node_modules'),
   // Used for CI/tests to force Sequelize init an empty database
   performDryRun: process.env.PERFORM_DRY_RUN === 'true',
   storageProvider: process.env.STORAGE_PROVIDER ?? 'aws',
