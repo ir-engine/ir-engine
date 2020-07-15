@@ -12,10 +12,7 @@ export default class InputSystem extends System {
 
       // Call all behaviors in "onAdded" of input map
       this._inputComponent.map.onAdded.forEach(behavior => {
-        behavior.behavior.call({
-          entity: entity,
-          args: behavior.args
-        })
+        behavior.behavior(entity, { ...behavior.args })
       })
 
       Object.keys(this._inputComponent.map.eventBindings)?.forEach((key: string) => {
@@ -29,10 +26,7 @@ export default class InputSystem extends System {
     this.queries.inputs.removed.forEach(entity => {
       this._inputComponent = entity.getComponent(Input)
       this._inputComponent.map.onRemoved.forEach(behavior => {
-        behavior.behavior.call({
-          entity: entity,
-          args: behavior.args
-        })
+        behavior.behavior(entity, { ...behavior.args })
       })
       // Unbind events from DOM
       if (!this._inputComponent.map.eventBindings) return

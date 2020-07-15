@@ -7,6 +7,10 @@ import InputMap from "./input/interfaces/InputMap"
 import { DefaultInputMap } from "./input/defaults/DefaultInputData"
 import Subscription from "./subscription/components/Subscription"
 import State from "./state/components/State"
+import Jumping from "./common/defaults/components/Jumping"
+import { TransformComponent } from "./common/defaults/components/TransformComponent"
+import { Actor } from "./common/defaults/components/Actor"
+import StateSystem from "./state/systems/StateSystem"
 
 const DEFAULT_OPTIONS = {
   debug: false
@@ -25,20 +29,23 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, 
     console.log(options)
   }
 
-  world.registerSystem(InputSystem)
+  world.registerSystem(InputSystem).registerSystem(StateSystem)
   world
     .registerComponent(Input)
     .registerComponent(State)
     .registerComponent(Subscription)
+    .registerComponent(Actor)
+    .registerComponent(Jumping)
+    .registerComponent(TransformComponent)
 
-  const inputSystemEntity = world.createEntity().addComponent(Input)
-
-  // inputReceiverEntity
-  world
+  const inputSystemEntity = world
     .createEntity()
     .addComponent(Input)
     .addComponent(State)
+    .addComponent(Actor)
     .addComponent(Subscription)
+    .addComponent(Jumping)
+    .addComponent(TransformComponent)
 
   // Custom Action Map
   if (inputMap) {
@@ -46,7 +53,7 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, 
     console.log(inputMap)
     inputSystemEntity.getMutableComponent(Input).map = inputMap
   } else {
-    console.log("No input map")
+    console.log("No input map provided, defaulting to default input")
     inputSystemEntity.getMutableComponent(Input).map = DefaultInputMap
   }
 

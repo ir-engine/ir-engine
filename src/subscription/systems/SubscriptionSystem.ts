@@ -29,7 +29,7 @@ export default class BehaviorSystem extends System {
     this.subscription = entity.getComponent(Subscription)
     if (this.subscription.map[args.hook] !== undefined) {
       this.subscription.map[args.hook].forEach((value: BehaviorArgValue) => {
-        Function.call(value.behavior, value.args ? value.args : null, delta)
+        value.behavior(entity, value.args ? value.args : null, delta)
       })
     }
   }
