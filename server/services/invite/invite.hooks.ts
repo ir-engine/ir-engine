@@ -5,7 +5,9 @@ import generateInvitePasscode from '../../hooks/generate-invite-passcode'
 import sendInvite from '../../hooks/send-invite'
 import attachOwnerIdInBody from '../../hooks/set-loggedin-user-in-body'
 import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
-import {HookContext} from "@feathersjs/feathers";
+import {HookContext} from '@feathersjs/feathers'
+import inviteRemoveAuthenticate from '../../hooks/invite-remove-authenticate'
+import * as commonHooks from 'feathers-hooks-common'
 
 const { authenticate } = authentication.hooks
 
@@ -16,7 +18,13 @@ export default {
         authenticate('jwt'),
         attachOwnerIdInQuery('userId')
     ],
-    get: [],
+    get: [
+        commonHooks.iff(
+          commonHooks.isProvider('external'),
+          authenticate('jwt'),
+          attachOwnerIdInQuery('userId')
+        )
+    ],
     create: [
       authenticate('jwt'),
       attachOwnerIdInBody('userId'),
@@ -24,7 +32,10 @@ export default {
     ],
     update: [disallow()],
     patch: [disallow()],
-    remove: []
+    remove: [
+      authenticate('jwt'),
+      inviteRemoveAuthenticate()
+    ]
   },
 
   after: {

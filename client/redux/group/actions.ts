@@ -1,6 +1,6 @@
 import {
   ADDED_GROUP,
-  UPDATED_GROUP,
+  PATCHED_GROUP,
   LOADED_GROUPS,
   REMOVED_GROUP,
   LEFT_GROUP,
@@ -23,7 +23,7 @@ export interface AddedGroupAction {
   type: string
 }
 
-export interface UpdatedGroupAction {
+export interface PatchedGroupAction {
   type: string
 }
 
@@ -46,7 +46,7 @@ export interface LeftGroupAction {
 export type GroupAction =
     LoadedGroupsAction
     | AddedGroupAction
-    | UpdatedGroupAction
+    | PatchedGroupAction
     | RemovedGroupAction
     | LeftGroupAction
     | LeftGroupAction
@@ -67,9 +67,9 @@ export function addedGroup(): AddedGroupAction {
   }
 }
 
-export function updatedGroup(): UpdatedGroupAction {
+export function patchedGroup(): PatchedGroupAction {
   return {
-    type: UPDATED_GROUP
+    type: PATCHED_GROUP
   }
 }
 

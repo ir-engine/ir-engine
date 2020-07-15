@@ -17,7 +17,7 @@ import {
 import {
     getGroups,
     createGroup,
-    updateGroup,
+    patchGroup,
     removeGroup,
     removeGroupUser
 } from '../../../redux/group/service'
@@ -46,7 +46,7 @@ const mapStateToProps = (state: any): any => {
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     getGroups: bindActionCreators(getGroups, dispatch),
     createGroup: bindActionCreators(createGroup, dispatch),
-    updateGroup: bindActionCreators(updateGroup, dispatch),
+    patchGroup: bindActionCreators(patchGroup, dispatch),
     removeGroup: bindActionCreators(removeGroup, dispatch),
     removeGroupUser: bindActionCreators(removeGroupUser, dispatch),
     sendInvite: bindActionCreators(sendInvite, dispatch)
@@ -58,7 +58,7 @@ interface Props {
     inviteState?: any,
     getGroups?: any,
     createGroup?: any,
-    updateGroup?: any,
+    patchGroup?: any,
     removeGroup?: any,
     removeGroupUser?: any,
     sendInvite?: any
@@ -75,7 +75,7 @@ const Groups = (props: Props): any => {
         inviteState,
         getGroups,
         createGroup,
-        updateGroup,
+        patchGroup,
         removeGroup,
         removeGroupUser
     } = props
@@ -88,6 +88,7 @@ const Groups = (props: Props): any => {
     const [userToken, setUserToken] = useState('')
     const [inviteTabIndex, setInviteTabIndex] = useState(0)
     const [targetGroupId, setTargetGroupId] = useState('')
+    const [inviteFormOpen, setInviteFormOpen] = useState(false)
     const [groupFormOpen, setGroupFormOpen] = useState(false)
     const [groupFormMode, setGroupFormMode] = useState('create')
     const [groupForm, setGroupForm] = useState({
@@ -112,6 +113,13 @@ const Groups = (props: Props): any => {
         setUserToken(token)
     }
 
+    const handleGroupCreateInput = (e: any): void => {
+        const value = e.target.value
+        let form = Object.assign({}, groupForm)
+        form[e.target.name] = value
+        setGroupForm(form)
+    }
+
     const packageInvite = (event: any): void => {
         const mappedIDProvider = identityProviderTabMap.get(tabIndex)
         sendInvite({
@@ -121,6 +129,7 @@ const Groups = (props: Props): any => {
             targetObjectId: targetGroupId,
             invitee: tabIndex === 2 ? userToken : null
         })
+        setInviteFormOpen(false)
     }
 
     useEffect(() => {
@@ -135,11 +144,33 @@ const Groups = (props: Props): any => {
 
     const cancelGroupDelete = () => {
         setGroupDeletePending('')
+        setGroupForm({
+            id: '',
+            name: '',
+            description: ''
+        })
+    }
+
+    const openInviteForm = (groupId: string) => {
+        setInviteFormOpen(true)
+        setTargetGroupId(groupId)
+        setUserToken('')
+    }
+
+    const closeInviteForm = () => {
+        setInviteFormOpen(false)
+        setTargetGroupId('')
+        setUserToken('')
     }
 
     const confirmGroupDelete = (groupId) => {
         setGroupDeletePending('')
         removeGroup(groupId)
+        setGroupForm({
+            id: '',
+            name: '',
+            description: ''
+        })
     }
 
     const previousGroupsPage = (): void => {
@@ -153,10 +184,13 @@ const Groups = (props: Props): any => {
     const openGroupForm = (mode: string, groupId?: string): void => {
         setGroupFormOpen(true)
         setGroupFormMode(mode)
+        console.log(groupId)
         if (groupId != null) {
             const group = _.find(groups, (group) => {
                 return group.id === groupId
             })
+            console.log('NEW DISPLAY GROUP')
+            console.log(group)
             setGroupForm({
                 id: group.id,
                 name: group.name,
@@ -167,10 +201,11 @@ const Groups = (props: Props): any => {
 
     const closeGroupForm = (): void => {
         setGroupFormOpen(false)
-    }
-
-    const handleGroupCreateInput = (e: any): void => {
-        groupForm[e.target.name] = e.target.value
+        setGroupForm({
+            id: '',
+            name: '',
+            description: ''
+        })
     }
 
     const submitGroup = (e: any): void => {
@@ -185,28 +220,32 @@ const Groups = (props: Props): any => {
         if (groupFormMode === 'create') {
             delete form.id
             createGroup(form)
-            setGroupFormOpen(false)
         } else {
-            updateGroup(form)
-            setGroupFormOpen(false)
+            patchGroup(form)
         }
+        setGroupFormOpen(false)
+        setGroupForm({
+            id: '',
+            name: '',
+            description: ''
+        })
     }
 
     return (
         <div className="group-container">
-            <List>
+            <List className="flex-center flex-column">
                 { groups && groups.length > 0 && groups.sort((a, b) => a.name - b.name).map((group) => {
                         return <ListItem key={group.id}>
-                            <ListItemAvatar>
-                                <Avatar src={group.avatarUrl}/>
-                            </ListItemAvatar>
                             <ListItemText primary={group.name}/>
                                 {groupDeletePending !== group.id &&
                                     <div>
-                                        <Button onClick={() => showGroupDeleteConfirm(group.id)}>X</Button>
                                         <Button onClick={() => openGroupForm('update', group.id)}>
                                             <Edit/>
                                         </Button>
+                                        <Button onClick={() => openInviteForm(group.id)}>
+                                            <Mail/>
+                                        </Button>
+	                                    <Button onClick={() => showGroupDeleteConfirm(group.id)}>X</Button>
                                     </div>
                                 }
                                 {groupDeletePending === group.id &&
@@ -230,7 +269,7 @@ const Groups = (props: Props): any => {
                     )
                 }
             </List>
-            <div>
+            <div className="flex-center">
                 <Button
                     disabled={groupSubState.get('skip') === 0}
                     onClick={previousGroupsPage}
@@ -244,97 +283,111 @@ const Groups = (props: Props): any => {
                     <ChevronRight/>
                 </Button>
             </div>
-            { groupFormOpen === false && <Button onClick={() => openGroupForm('create')}>Create Group</Button> }
-            { groupFormOpen === true &&
-                <form className={'form'} noValidate onSubmit={(e) => submitGroup(e)}>
-                    { groupFormMode === 'create' && <span>New Group</span> }
-                    { groupFormMode === 'update' && <span>Update Group</span> }
-                    <TextField
-	                    variant="outlined"
-	                    margin="normal"
-	                    required
-	                    fullWidth
-	                    id="name"
-	                    label="Group Name"
-	                    name="name"
-	                    autoComplete="name"
-	                    autoFocus
-	                    defaultValue={groupForm.name}
-	                    onChange={(e) => handleGroupCreateInput(e)}
-                    />
-	                <TextField
-		                variant="outlined"
-		                margin="normal"
-		                required
-		                fullWidth
-		                id="description"
-		                label="Group Description"
-		                name="description"
-		                autoComplete="description"
-		                autoFocus
-		                defaultValue={groupForm.description}
-		                onChange={(e) => handleGroupCreateInput(e)}
-	                />
-	                <div>
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            color="primary"
-                            className={'submit'}
+            <div className="flex-center">
+                { groupFormOpen === false && <Button onClick={() => openGroupForm('create')}>Create Group</Button> }
+                { groupFormOpen === true &&
+                    <form className={'form'} noValidate onSubmit={(e) => submitGroup(e)}>
+                        { groupFormMode === 'create' && <span>New Group</span> }
+                        { groupFormMode === 'update' && <span>Update Group</span> }
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="name"
+                            label="Group Name"
+                            name="name"
+                            autoComplete="name"
+                            autoFocus
+                            value={groupForm.name}
+                            onChange={(e) => handleGroupCreateInput(e)}
+                        />
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="description"
+                            label="Group Description"
+                            name="description"
+                            autoComplete="description"
+                            autoFocus
+                            value={groupForm.description}
+                            onChange={(e) => handleGroupCreateInput(e)}
+                        />
+                        <div className="flex-center flex-column">
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                className={'submit'}
+                            >
+                                {groupFormMode === 'create' && 'Create Group'}
+                                {groupFormMode === 'update' && 'Update Group'}
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="secondary"
+                                onClick={() => closeGroupForm()}>
+                                Cancel
+                            </Button>
+                        </div>
+                    </form>
+                }
+                {inviteFormOpen === true &&
+                    <div className="paper">
+                        <Tabs
+                            value={tabIndex}
+                            onChange={handleChange}
+                            variant="fullWidth"
+                            indicatorColor="secondary"
+                            textColor="secondary"
+                            aria-label="Invite Address"
                         >
-                            {groupFormMode === 'create' && 'Create Group'}
-                            {groupFormMode === 'update' && 'Update Group'}
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="secondary"
-                            onClick={() => closeGroupForm()}>
-                            Cancel
-                        </Button>
-                    </div>
-                </form>
-            }
-            {/*<div className="paper">*/}
-                {/*<Tabs*/}
-                    {/*value={tabIndex}*/}
-                    {/*onChange={handleChange}*/}
-                    {/*variant="fullWidth"*/}
-                    {/*indicatorColor="secondary"*/}
-                    {/*textColor="secondary"*/}
-                    {/*aria-label="Invite Address"*/}
-                {/*>*/}
-                    {/*<Tab*/}
-                        {/*icon={<Mail />}*/}
-                        {/*label="Email"*/}
-                    {/*/>*/}
-                    {/*<Tab*/}
-                        {/*icon={<PhoneIphone />}*/}
-                        {/*label="Phone Number"*/}
-                    {/*/>*/}
-                    {/*<Tab*/}
-                        {/*icon={<AccountCircle />}*/}
-                        {/*label="User ID"*/}
-                    {/*/>*/}
-                {/*</Tabs>*/}
+                            <Tab
+                                icon={<Mail/>}
+                                label="Email"
+                            />
+                            <Tab
+                                icon={<PhoneIphone/>}
+                                label="Phone Number"
+                            />
+                            <Tab
+                                icon={<AccountCircle/>}
+                                label="User ID"
+                            />
+                        </Tabs>
 
-                {/*<div className="username">*/}
-                    {/*<TextField*/}
-                        {/*variant="outlined"*/}
-                        {/*margin="normal"*/}
-                        {/*fullWidth*/}
-                        {/*id="token"*/}
-                        {/*label="User's email, phone number, or ID"*/}
-                        {/*name="name"*/}
-                        {/*autoFocus*/}
-                        {/*value={userToken}*/}
-                        {/*onChange={(e) => handleUserTokenChange(e)}*/}
-                    {/*/>*/}
-                    {/*<Button variant="contained" color="primary" onClick={packageInvite}>*/}
-                        {/*Send Invite*/}
-                    {/*</Button>*/}
-                {/*</div>*/}
-            {/*</div>*/}
+                        <div className="username">
+                            <TextField
+                                variant="outlined"
+                                margin="normal"
+                                fullWidth
+                                id="token"
+                                label="User's email, phone number, or ID"
+                                name="name"
+                                autoFocus
+                                value={userToken}
+                                onChange={(e) => handleUserTokenChange(e)}
+                            />
+                            <Button variant="contained"
+                                    color="primary"
+                                    onClick={packageInvite}
+                            >
+                                Send Invite
+                            </Button>
+                            <Button variant="contained"
+                                    color="secondary"
+                                    onClick={closeInviteForm}
+                            >
+                                Cancel
+                            </Button>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
+
     )
 }
 
