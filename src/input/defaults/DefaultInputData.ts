@@ -13,6 +13,7 @@ import InputPriorityMapping from "../interfaces/InputPriorityMapping"
 import { DefaultStateTypes } from "../../state/defaults/DefaultStateData"
 import { move } from "../../common/defaults/behaviors/move"
 import { debugInput } from "../behaviors/debugInput"
+import { MouseButtons } from "../enums/MouseButtons"
 
 export const DefaultInput = {
   PRIMARY: 0,

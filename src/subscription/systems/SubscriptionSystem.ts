@@ -25,8 +25,8 @@ export default class BehaviorSystem extends System {
   }
 
   // TODO: Make this a generic behavior and move to common
-  callBehaviorsForHook: Behavior = (entityIn: Entity, args: { hook: string }, delta: number) => {
-    this.subscription = entityIn.getComponent(Subscription)
+  callBehaviorsForHook: Behavior = (entity: Entity, args: { hook: string }, delta: number) => {
+    this.subscription = entity.getComponent(Subscription)
     if (this.subscription.map[args.hook] !== undefined) {
       this.subscription.map[args.hook].forEach((value: BehaviorArgValue) => {
         Function.call(value.behavior, value.args ? value.args : null, delta)

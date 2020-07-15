@@ -26,22 +26,22 @@ export default [
   },
   // HTML pages
   {
-    input: "examples/three.html",
+    input: "examples/input_three.html",
     output: { dir: "dist/examples" },
     plugins: [html(), resolve()]
   },
   {
-    input: "examples/custominput.html",
+    input: "examples/input_custom.html",
     output: { dir: "dist/examples" },
     plugins: [html(), resolve()]
   },
   {
-    input: "examples/mouse.html",
+    input: "examples/input_mouse.html",
     output: { dir: "dist/examples" },
     plugins: [html(), resolve()]
   },
   {
-    input: "examples/index.html",
+    input: "examples/input.html",
     output: { dir: "dist/examples" },
     plugins: [html(), resolve()]
   }
