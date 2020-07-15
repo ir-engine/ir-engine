@@ -20,9 +20,9 @@ export const rotateAround: Behavior = (
   args: { input: InputAlias; inputType: InputType; value: NumericalType },
   delta: number
 ): void => {
-  inputComponent = entityIn.getComponent(Input)
-  actor = entityIn.getComponent(Actor)
-  transform = entityIn.getComponent(TransformComponent)
+  inputComponent = entity.getComponent(Input)
+  actor = entity.getComponent(Actor)
+  transform = entity.getComponent(TransformComponent)
   quat.set(qOut, transform.rotation[0], transform.rotation[1], transform.rotation[2], transform.rotation[3])
   if (input === InputType.TWOD) {
     inputValue = inputComponent.data.get(args.input).value as Vector2

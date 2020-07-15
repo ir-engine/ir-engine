@@ -16,11 +16,11 @@ let inputValue: NumericalType // Could be a (small) source of garbage
 let inputType: InputAlias
 let movementModifer: number
 let outputSpeed: number
-export const move: Behavior = (entityIn: Entity, args: { input: InputAlias; inputType: InputType; value: NumericalType }, delta: number): void => {
-  input = entityIn.getComponent(Input)
-  actor = entityIn.getComponent(Actor)
-  transform = entityIn.getComponent(TransformComponent)
-  movementModifer = entityIn.hasComponent(Crouching) ? 0.5 : entityIn.hasComponent(Sprinting) ? 1.5 : 1.0
+export const move: Behavior = (entity: Entity, args: { input: InputAlias; inputType: InputType; value: NumericalType }, delta: number): void => {
+  input = entity.getComponent(Input)
+  actor = entity.getComponent(Actor)
+  transform = entity.getComponent(TransformComponent)
+  movementModifer = entity.hasComponent(Crouching) ? 0.5 : entity.hasComponent(Sprinting) ? 1.5 : 1.0
 
   outputSpeed = actor.accelerationSpeed * delta * movementModifer
 
