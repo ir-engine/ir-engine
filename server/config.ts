@@ -32,7 +32,7 @@ const server = {
   hostname: process.env.SERVER_HOSTNAME ?? 'localhost',
   port: process.env.SERVER_PORT ?? 3030,
   // Public directory (used for favicon.ico, logo, etc)
-  rootDir: path.resolve(__dirname, '..'),
+  rootDir: process.env.NODE_ENV === 'production' ? path.resolve(__dirname, '../../') : path.resolve(__dirname, '..'),
   publicDir: process.env.SERVER_PUBLIC_DIR ?? path.resolve(__dirname, '..', 'client/public'),
   // Used for CI/tests to force Sequelize init an empty database
   performDryRun: process.env.PERFORM_DRY_RUN === 'true',

@@ -97,7 +97,7 @@ app.use(express.errorHandler({ logger } as any))
 
 if (config.client.enabled) {
   const clientApp = next({
-    dir: path.join(config.server.rootDir, '/client'),
+    dir: path.join(config.server.rootDir, '/lib/client'),
     dev: process.env.NODE_ENV !== 'production'
   })
 
