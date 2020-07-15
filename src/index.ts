@@ -3,7 +3,6 @@ import { Entity, World } from "ecsy"
 import InputSystem from "./input/systems/InputSystem"
 import { isBrowser } from "./common/utils/IsBrowser"
 import Input from "./input/components/Input"
-import InputDebugSystem from "./input/systems/InputDebugSystem"
 import InputMap from "./input/interfaces/InputMap"
 import { DefaultInputMap } from "./input/defaults/DefaultInputData"
 import Subscription from "./subscription/components/Subscription"
@@ -27,7 +26,10 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, 
   }
 
   world.registerSystem(InputSystem)
-  world.registerComponent(Input)
+  world
+    .registerComponent(Input)
+    .registerComponent(State)
+    .registerComponent(Subscription)
 
   const inputSystemEntity = world.createEntity().addComponent(Input)
 
@@ -48,10 +50,10 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, 
     inputSystemEntity.getMutableComponent(Input).map = DefaultInputMap
   }
 
-  if (options.debug) {
-    world.registerSystem(InputDebugSystem)
-    console.log("INPUT: Registered input systems.")
-  }
+  // if (options.debug) {
+  //   world.registerSystem(InputDebugSystem)
+  //   console.log("INPUT: Registered input systems.")
+  // }
 
   return world
 }
@@ -60,7 +62,10 @@ export function addInputHandlingToEntity(entity: Entity, inputFilter?: InputMap)
   // Try get component on inputhandler, inputreceiver
   if (entity.getComponent(Input) !== undefined) console.warn("Warning: Entity already has input component")
   else {
-    entity.addComponent(Input)
+    entity
+      .addComponent(Input)
+      .addComponent(State)
+      .addComponent(Subscription)
   }
   return entity
 }

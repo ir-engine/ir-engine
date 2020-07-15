@@ -14,7 +14,7 @@ export const jump: Behavior = (entityIn: Entity, args: { stateGroup: StateGroupT
   if (jumping.t < jumping.duration) {
     transform.velocity[1] = transform.velocity[1] + Math.cos((jumping.t / jumping.duration) * Math.PI)
   }
-  removeComponentsFromStateGroup(entityIn, args.stateGroup, Jumping as any)
+  removeComponentsFromStateGroup(entity, args.stateGroup, Jumping as any)
   // if t < duration, remove this component
   console.log("Jumped")
 }

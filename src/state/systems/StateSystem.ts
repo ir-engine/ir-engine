@@ -26,11 +26,11 @@ export default class StateSystem extends System {
     })
   }
 
-  private callBehaviorsForHook: Behavior = (entityIn: Entity, args: { hook: string }, delta: number) => {
-    this._state = entityIn.getComponent(State)
+  private callBehaviorsForHook: Behavior = (entity: Entity, args: { hook: string }, delta: number) => {
+    this._state = entity.getComponent(State)
     this._state.data.forEach((stateValue: StateValue<Vector2>) => {
       if (this._state.map.states[stateValue.type] !== undefined && this._state.map.states[stateValue.type][args.hook] !== undefined) {
-        this._args = { entityIn: entityIn, ...this._state.map.states[stateValue.type][args.hook].args }
+        this._args = { entity: entity, ...this._state.map.states[stateValue.type][args.hook].args }
         Function.call(this._state.map.states[stateValue.type][args.hook].behavior, this._args, delta)
       }
     })

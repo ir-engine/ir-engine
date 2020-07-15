@@ -16,7 +16,7 @@ let qOut: Vector4
 let inputComponent: Input
 let input: InputAlias
 export const rotateAround: Behavior = (
-  entityIn: Entity,
+  entity: Entity,
   args: { input: InputAlias; inputType: InputType; value: NumericalType },
   delta: number
 ): void => {
