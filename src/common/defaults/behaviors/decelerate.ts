@@ -1,17 +1,17 @@
 import { Entity } from "ecsy"
 import Behavior from "../../interfaces/Behavior"
 import { Actor } from "../components/Actor"
-import { Transform } from "../components/Transform"
+import { TransformComponent } from "../components/TransformComponent"
 import { vec3 } from "gl-matrix"
 
 let actor: Actor
-let transform: Transform
+let transform: TransformComponent
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const decelerate: Behavior = (entity: Entity, delta: number): void => {
   // get actor comonent
   actor = entity.getComponent(Actor)
   // get the transform
-  transform = entity.getComponent(Transform)
+  transform = entityIn.getComponent(TransformComponent)
 
   // if magnitude of velocity is more than .001
   if (vec3.length(transform.velocity as vec3) > 0.001) {
