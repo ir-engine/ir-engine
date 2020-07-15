@@ -1,3 +1,3 @@
 import GLTFPlayer from "./GLTFPlayer";
-export { DracosisPlayer, DracosisEncoder } from "./Dracosis";
+export { DracosisPlayer } from "./Dracosis";
 export { GLTFPlayer };

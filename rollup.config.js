@@ -13,7 +13,7 @@ export default [
       typescript(),
       resolve(),
       commonjs({
-        include: "node_modules/**"
+        include: ["src/", "node_modules/**"]
       }),
       json({ exclude: ["examples/**"] }),
       // terser(),
@@ -38,7 +38,7 @@ export default [
       resolve(),
       json({ exclude: ["examples/**"] }),
       commonjs({
-        include: "node_modules/**"
+        include: ["src/", "node_modules/**"]
       })
    ]
   }
