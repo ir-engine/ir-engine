@@ -1,51 +1,34 @@
-# armada
-A simple, cross-platform input system for ECSY
+# Armada
+A data driven game engine for WebGL, building on Mozilla ECSY with a Behavior pattern to emphasize modularity.
 
 # Why Do I Need This?
-
-
-Network -- Get latest network state and update world, send and clear message queue out
-Input -- Handle user input
-AI -- All AI happens here (AI can affect input, state, arbitrary data)
-Action -- Apply current input from AI and input to state and other components
-Navigation -- Compute if and where actors can walk
-Collision & Physics -- Compute collision and physics
-State -- Compute current state and apply
-Subscriptions -- Execute arbitrary behavior subscriptions
-Particles -- Execute particle systems
-Animation -- Compute current animation
-Renderer -- Display final output
+Everything you need to get started without having to fuss with writng your own input system, state machine, networking layer, etc.
 
 
 # Installation
 ```
-npm install armada
+npm install @xr3ngine/armada
 ```
 
 # How to use
 ```javascript
 import { World } from 'ecsy'
-import {  initializeInputSystems } from 'armada'
+import {  initializeInput } from '@xr3ngine/armada'
 
 const world = new World()
 
 const options = {
-  xr: true,
-  mouse: true,
-  keyboard: true,
-  mobile: false,
-  gamepad: true,
   debug: true
 }
 
-initializeInputSystems(world, options)
+initializeInput(world, options)
 
 world.execute()
 ```
 
 To make an object receive input:
 ```javascript
-import {  addInputHandlingToEntity } from 'armada'
+import {  addInputHandlingToEntity } from '@xr3ngine/armada'
 const newEntity = addInputHandlingToEntity(world.createEntity())
 ```
 
