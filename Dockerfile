@@ -17,6 +17,7 @@ COPY . .
 RUN /bin/bash -c 'source ./scripts/write_env_stub.sh'
 ENV NEXT_PUBLIC_API_SERVER=http://localhost:3333
 
+RUN npm run build-spoke
 RUN npm run compile
 
 ENV NODE_ENV=production
