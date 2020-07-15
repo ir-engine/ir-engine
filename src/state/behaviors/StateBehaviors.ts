@@ -29,6 +29,7 @@ export const addState: Behavior = (entity: Entity, args: { state: StateAlias }):
     group: stateComponent.map.states[args.state].group
   } as StateValue<Binary>)
 
+  // TODO: 
   // stateGroup = stateComponent.map.states[args.state].group
   // // If state group is set to exclusive (XOR) then check if other states from state group are on
   // if (stateComponent.map.groups[stateGroup].exclusive) {
