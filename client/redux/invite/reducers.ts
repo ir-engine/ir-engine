@@ -12,6 +12,8 @@ import {
   RECEIVED_INVITES_RETRIEVED,
   INVITE_SENT,
   REMOVED_INVITE,
+  ACCEPTED_INVITE,
+  DECLINED_INVITE
 } from '../actions'
 
 export const initialState = {
@@ -60,6 +62,10 @@ const inviteReducer = (state = immutableState, action: InviteAction): any => {
           .set('receivedUpdateNeeded', false)
     case REMOVED_INVITE:
       return state.set('sentUpdateNeeded', true)
+    case ACCEPTED_INVITE:
+      return state.set('receivedUpdateNeeded', true)
+    case DECLINED_INVITE:
+      return state.set('receivedUpdateNeeded', true)
   }
 
   return state

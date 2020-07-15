@@ -37,7 +37,7 @@ export default function (app: Application) {
   (invite as any).associate = function (models: any) {
     (invite as any).belongsTo(models.user);
     (invite as any).belongsTo(models.user, { as: 'invitee' });
-    (invite as any).belongsTo(models.invite_type, { foreignKey: 'type', required: true })
+    (invite as any).belongsTo(models.invite_type, { foreignKey: 'inviteType', required: true })
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
   }

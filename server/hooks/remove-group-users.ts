@@ -1,24 +1,24 @@
 import { HookContext } from '@feathersjs/feathers'
-import { extractLoggedInUserFromParams } from '../services/auth-management/auth-management.utils'
-import { BadRequest, Forbidden } from '@feathersjs/errors'
+import _ from 'lodash'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {
-    console.log('REMOVING GROUP USERS')
     // Getting logged in user and attaching owner of user
     const { id, app, params } = context
-    console.log(params)
     const groupUserResult = await app.service('group-user').find({
       query: {
         groupId: id || params.query?.groupId
       }
     })
-    console.log(groupUserResult)
     await Promise.all(groupUserResult.data.map((groupUser) => {
-      return app.service('group-user').remove(groupUser.id)
+      const paramsCopy = _.cloneDeep(params)
+      paramsCopy.query.groupId = id
+      paramsCopy.query.userId = groupUser.userId
+      return app.service('group-user').remove(groupUser.id, paramsCopy)
     }))
 
+    console.log('REMOVED GROUP USERS')
     return context
   }
 }

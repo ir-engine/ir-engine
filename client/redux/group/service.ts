@@ -3,7 +3,7 @@ import { client } from '../feathers'
 import {
   loadedGroups,
   addedGroup,
-  updatedGroup,
+  patchedGroup,
   removedGroup,
   removedGroupUser,
   leftGroup
@@ -39,21 +39,19 @@ export function createGroup(values: any) {
   }
 }
 
-export function updateGroup(values: any) {
+export function patchGroup(values: any) {
   return async (dispatch: Dispatch): Promise<any> => {
-    let update = {}
+    let patch = {}
     if (values.name != null) {
-      (update as any).name = values.name
+      (patch as any).name = values.name
     }
     if (values.description != null) {
-      (update as any).description = values.description
+      (patch as any).description = values.description
     }
-    await client.service('group').update(update, {
-      where: {
-        id: values.groupId
-      }
-    })
-    dispatch(updatedGroup())
+    console.log('UPDATE GROUP VALUES:')
+    console.log(values)
+    await client.service('group').patch(values.id, patch)
+    dispatch(patchedGroup())
   }
 }
 
@@ -66,11 +64,7 @@ export function removeGroup(groupId: string) {
 
 export function removeGroupUser(groupUserId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
-    await client.service('group-user').remove({
-      query: {
-        id: groupUserId
-      }
-    })
+    await client.service('group-user').remove(groupUserId)
     dispatch(removedGroupUser())
   }
 }
