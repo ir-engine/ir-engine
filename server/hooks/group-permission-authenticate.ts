@@ -7,12 +7,18 @@ export default () => {
   return async (context: HookContext): Promise<HookContext> => {
     // Getting logged in user and attaching owner of user
     console.log('GROUP PERMISSION AUTHENTICATE')
-      const { id, params, app } = context
+      const { id, params, app, path } = context
     const loggedInUser = extractLoggedInUserFromParams(params)
+    console.log(loggedInUser)
+    console.log(path)
+    const groupId = path === 'group-user' ? params.query.groupId : id
+    const userId = path === 'group' ? loggedInUser.userId : params.query.userId
+    console.log('groupId: ' + groupId)
+    console.log('userId: ' + userId)
     const groupUserResult = await app.service('group-user').find({
       query: {
-        groupId: id || params.query.groupId,
-        userId: loggedInUser.userId
+        groupId: groupId,
+        userId: userId
       }
     })
       if (groupUserResult.total === 0) {

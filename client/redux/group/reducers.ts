@@ -7,7 +7,7 @@ import {
 import {
   LOADED_GROUPS,
   ADDED_GROUP,
-  UPDATED_GROUP,
+  PATCHED_GROUP,
   REMOVED_GROUP,
   INVITED_GROUP_USER,
   REMOVED_GROUP_USER,
@@ -43,7 +43,7 @@ const groupReducer = (state = immutableState, action: GroupAction): any => {
     case ADDED_GROUP:
       return state
           .set('updateNeeded', true)
-    case UPDATED_GROUP:
+    case PATCHED_GROUP:
       return state
           .set('updateNeeded', true)
     case REMOVED_GROUP:

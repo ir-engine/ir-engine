@@ -5,7 +5,9 @@ import {
   sentInvite,
   retrievedReceivedInvites,
   retrievedSentInvites,
-  removedInvite
+  removedInvite,
+  acceptedInvite,
+  declinedInvite
 } from './actions'
 
 
@@ -14,6 +16,7 @@ export function sendInvite (data: any) {
     const inviteResult = await client.service('invite').create({
       inviteType: data.type,
       token: data.token,
+      targetObjectId: data.targetObjectId,
       identityProviderType: data.identityProviderType,
       inviteeId: data.invitee
     })
@@ -23,7 +26,7 @@ export function sendInvite (data: any) {
 }
 
 export function retrieveReceivedInvites(skip?: number, limit?: number) {
-  return async (dispatch: Dispatch, getState: any) => {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const inviteResult = await client.service('invite').find({
       query: {
         type: 'received',
@@ -38,7 +41,7 @@ export function retrieveReceivedInvites(skip?: number, limit?: number) {
 }
 
 export function retrieveSentInvites(skip?: number, limit?: number) {
-  return async (dispatch: Dispatch, getState: any) => {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const inviteResult = await client.service('invite').find({
       query: {
         type: 'sent',
@@ -53,16 +56,9 @@ export function retrieveSentInvites(skip?: number, limit?: number) {
 }
 
 function removeInvite(inviteId: string) {
-  return (dispatch: Dispatch): any => {
-    client.service('invite').remove(inviteId)
-        .then((res: any) => {
-          console.log('REMOVED INVITE')
-          dispatch(removedInvite())
-        })
-        .catch((err: any) => {
-          console.log(err)
-        })
-    // .finally(() => dispatch(actionProcessing(false)))
+  return async (dispatch: Dispatch): Promise<any> => {
+    await client.service('invite').remove(inviteId)
+    dispatch(removedInvite())
   }
 }
 
@@ -70,4 +66,25 @@ export function deleteInvite(inviteId: string) {
   console.log('deleteInvite:')
   console.log(inviteId)
   return removeInvite(inviteId)
+}
+
+export function acceptInvite(inviteId: string, passcode: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    console.log('ACCEPTING INVITE')
+    console.log(inviteId)
+    console.log(passcode)
+    await client.service('accept-invite').get(inviteId, {
+      query: {
+        passcode: passcode
+      }
+    })
+    dispatch(acceptedInvite())
+  }
+}
+
+export function declineInvite(inviteId: string, passcode: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    await client.service('invite').remove(inviteId)
+    dispatch(declinedInvite())
+  }
 }
