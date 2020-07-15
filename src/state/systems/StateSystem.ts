@@ -10,15 +10,18 @@ export default class StateSystem extends System {
   public execute(delta: number, time: number): void {
     this.queries.state.added?.forEach(entity => {
       this.callBehaviorsForHook(entity, { hook: "onAdded" }, delta)
+      console.log("onAdded")
     })
 
     this.queries.state.changed?.forEach(entity => {
       this.callBehaviorsForHook(entity, { phase: "onChanged" }, delta)
+      console.log("onChanged")
     })
 
     this.queries.state.results?.forEach(entity => {
       this.callBehaviorsForHook(entity, { phase: "onUpdate" }, delta)
       this.callBehaviorsForHook(entity, { phase: "onLateUpdate" }, delta)
+      console.log("onLateUpdate")
     })
 
     this.queries.state.removed?.forEach(entity => {
@@ -30,8 +33,7 @@ export default class StateSystem extends System {
     this._state = entity.getComponent(State)
     this._state.data.forEach((stateValue: StateValue<Vector2>) => {
       if (this._state.map.states[stateValue.type] !== undefined && this._state.map.states[stateValue.type][args.hook] !== undefined) {
-        this._args = { entity: entity, ...this._state.map.states[stateValue.type][args.hook].args }
-        Function.call(this._state.map.states[stateValue.type][args.hook].behavior, this._args, delta)
+        this._state.map.states[stateValue.type][args.hook].behavior(entity, this._state.map.states[stateValue.type][args.hook].args, delta)
       }
     })
   }

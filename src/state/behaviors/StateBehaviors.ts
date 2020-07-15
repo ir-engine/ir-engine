@@ -3,10 +3,10 @@ import Behavior from "../../common/interfaces/Behavior"
 import { Entity } from "ecsy"
 import { getComponentsFromStateGroup } from "./StateGroupBehaviors"
 import State from "../components/State"
-import StateData from "../interfaces/StateMap"
+import StateMap from "../interfaces/StateMap"
 import BinaryValue from "../../common/enums/BinaryValue"
 
-let stateData: StateData
+let stateMap: StateMap
 let stateGroup: any
 
 export const setState: Behavior = (entity: Entity, args: { value: BinaryValue; stateType: StateType }): void => {
@@ -14,24 +14,27 @@ export const setState: Behavior = (entity: Entity, args: { value: BinaryValue; s
   else removeState(entity, args)
 }
 
-export const addState: Behavior = (entity: Entity, args: { stateType: StateType }): void => {
+export const addState: Behavior = (entity: Entity, args: { state: StateType }): void => {
+  console.log("addState")
   // TODO: Simplify and check for efficiency
   // check state group
-  stateData = entity.getComponent(State).map
-  stateGroup = stateData.states[args.stateType].group
+  stateMap = entity.getComponent(State).map
+  console.log(args.state)
+  console.log(stateMap.states[0])
+  stateGroup = stateMap.states[args.state].group
   // If state group is set to exclusive (XOR) then check if other states from state group are on
-  if (stateData.groups[stateGroup].exclusive) {
+  if (stateMap.groups[stateGroup].exclusive) {
     getComponentsFromStateGroup(entity, stateGroup).forEach((component: any) => {
       entity.removeComponent(component)
     })
   }
-  entity.addComponent(stateData.states[args.stateType].component)
+  entity.addComponent(stateMap.states[args.state].component)
   console.log("Added component to " + entity.id)
 }
 
 export const removeState: Behavior = (entity: Entity, args: { stateType: StateType }): void => {
   // check state group
-  stateData = entity.getComponent(State).map
-  entity.removeComponent(stateData.states[args.stateType].component)
+  stateMap = entity.getComponent(State).map
+  entity.removeComponent(stateMap.states[args.stateType].component)
   console.log("Removed component from " + entity.id)
 }

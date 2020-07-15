@@ -38,7 +38,7 @@ export const DefaultStateMap: StateMap = {
     [DefaultStateGroups.MOVEMENT]: {
       exclusive: true,
       default: DefaultStateTypes.IDLE,
-      states: [DefaultStateTypes.IDLE, DefaultStateTypes.MOVING, DefaultStateTypes.JUMPING, DefaultStateTypes.FALLING]
+      states: [DefaultStateTypes.IDLE, DefaultStateTypes.MOVING, DefaultStateTypes.JUMPING]
     },
     [DefaultStateGroups.MOVEMENT_MODIFIERS]: {
       exclusive: true,
