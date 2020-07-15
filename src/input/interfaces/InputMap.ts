@@ -1,25 +1,29 @@
 import InputAlias from "../../input/types/InputAlias"
-import ButtonPriorityMap from "./InputPriorityMapping"
+import InputRelationshipMapping from "./InputRelationshipMapping"
 
 interface InputMap {
   // Called by input system when an Input component is added
   onAdded: [
     {
-      behavior: any
-      args?: any
+      behavior: any // Function
+      args?: {
+        [key: string]: any
+      }
     }
   ]
   // Called by input system when on Input component is removed
   onRemoved: [
     {
-      behavior: any
-      args?: any
+      behavior: any // Function
+      args?: {
+        [key: string]: any
+      }
     }
   ]
   // Bound to events on added, unbound on removed
   eventBindings?: {
     [key: string]: {
-      behavior: any
+      behavior: any // Function
       args?: {
         [key: string]: any
       }
@@ -30,7 +34,7 @@ interface InputMap {
       [key: string]: InputAlias
       [key: number]: InputAlias
     }
-    input?: {
+    axes?: {
       [key: string]: InputAlias
       [key: number]: InputAlias
     }
@@ -40,7 +44,7 @@ interface InputMap {
       [key: string]: InputAlias
       [key: number]: InputAlias
     }
-    input?: {
+    axes?: {
       [key: string]: InputAlias
       [key: number]: InputAlias
     }
@@ -49,11 +53,11 @@ interface InputMap {
     [key: string]: InputAlias
     [key: number]: InputAlias
   }
-  buttonPriorities: {
-    [key: string]: ButtonPriorityMap
+  inputRelationships: {
+    [key: string]: InputRelationshipMapping
   }
   inputButtonBehaviors: {
-    // input name
+    // input name / alias
     [key: string]: {
       // binary state (on, off)
       [key: string]: {
@@ -74,7 +78,7 @@ interface InputMap {
     }
   }
   inputAxisBehaviors: {
-    // input name
+    // input name / alias
     [key: string]: {
       behavior: any
       args: {

@@ -4,29 +4,40 @@ import Input from "../components/Input"
 import Behavior from "../../common/interfaces/Behavior"
 import { InputType } from "../../input/enums/InputType"
 
+// Local reference to input component
 let input: Input
+
+// System behavior called whenever the mouse pressed
 export const handleMouseMovement: Behavior = (entity: Entity, args: { event: MouseEvent }): void => {
-  input = entity.getComponent(Input)
-  if (!input || input.map.mouseInputMap === undefined) return
+  // Set type to TWOD (two-dimensional axis) and value to a normalized -1, 1 on X and Y
   entity.getMutableComponent(Input).data.set(input.map.mouseInputMap["mousePosition"], {
     type: InputType.TWOD,
     value: [(args.event.clientX / window.innerWidth) * 2 - 1, (args.event.clientY / window.innerHeight) * -2 + 1]
   })
 }
 
+// System behavior called when a mouse button is fired
 export const handleMouseButton: Behavior = (entity: Entity, args: { event: MouseEvent; value: BinaryValue }, delta: number): void => {
+  // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
   input = entity.getComponent(Input)
-  if (!input || input.map.mouseInputMap.buttons[args.event.button] === undefined) return
+  if (input.map.mouseInputMap.buttons[args.event.button] === undefined) return
+  // Set type to BUTTON (up/down discrete state) and value to up or down, as called by the DOM mouse events
   entity.getMutableComponent(Input).data.set(input.map.mouseInputMap.buttons[args.event.button], {
     type: InputType.BUTTON,
     value: args.value
   })
 }
 
+// System behavior called when a keyboard key is pressed
 export function handleKey(entity: Entity, args: { event: KeyboardEvent; value: BinaryValue }): any {
+  // Get immutable reference to Input and check if the button is defined -- ignore undefined keys
   input = entity.getComponent(Input)
   if (input.map.keyboardInputMap[args.event.key] === undefined) return
-  entity.getMutableComponent(Input).data.set(input.map.keyboardInputMap[args.event.key], {
+  // If the key is in the map but it's in the same state as now, let's skip it (debounce)
+  if (input.data.has(input.map.keyboardInputMap[args.event.key]) && input.data.get(input.map.keyboardInputMap[args.event.key]).value === args.value)
+    return
+  // Set type to BUTTON (up/down discrete state) and value to up or down, depending on what the value is set to
+  input.data.set(input.map.keyboardInputMap[args.event.key], {
     type: InputType.BUTTON,
     value: args.value
   })

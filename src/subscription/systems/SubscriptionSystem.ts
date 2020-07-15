@@ -3,7 +3,7 @@ import Subscription from "../components/Subscription"
 import BehaviorArgValue from "../../common/interfaces/BehaviorValue"
 import Behavior from "../../common/interfaces/Behavior"
 
-export default class BehaviorSystem extends System {
+export default class SubscriptionSystem extends System {
   private subscription: Subscription
   public execute(delta: number, time: number): void {
     this.queries.subscriptions.added?.forEach(entity => {
@@ -25,17 +25,17 @@ export default class BehaviorSystem extends System {
   }
 
   // TODO: Make this a generic behavior and move to common
-  callBehaviorsForHook: Behavior = (entity: Entity, args: { hook: string }, delta: number) => {
+  callBehaviorsForHook: Behavior = (entity: Entity, args: { phase: string }, delta: number) => {
     this.subscription = entity.getComponent(Subscription)
-    if (this.subscription.map[args.hook] !== undefined) {
-      this.subscription.map[args.hook].forEach((value: BehaviorArgValue) => {
+    if (this.subscription.map[args.phase] !== undefined) {
+      this.subscription.map[args.phase].forEach((value: BehaviorArgValue) => {
         value.behavior(entity, value.args ? value.args : null, delta)
       })
     }
   }
 }
 
-BehaviorSystem.queries = {
+SubscriptionSystem.queries = {
   subscriptions: {
     components: [Subscription],
     listen: {

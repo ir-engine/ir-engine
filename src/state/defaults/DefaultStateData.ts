@@ -4,7 +4,6 @@ import { Moving } from "../../common/defaults/components/Moving"
 import Jumping from "../../common/defaults/components/Jumping"
 import { Crouching } from "../../common/defaults/components/Crouching"
 import { Sprinting } from "../../common/defaults/components/Sprinting"
-import { move } from "../../common/defaults/behaviors/move"
 import { jump } from "../../common/defaults/behaviors/jump"
 import { decelerate } from "../../common/defaults/behaviors/decelerate"
 
@@ -38,11 +37,11 @@ export const DefaultStateMap: StateMap = {
     [DefaultStateGroups.MOVEMENT]: {
       exclusive: true,
       default: DefaultStateTypes.IDLE,
-      states: [DefaultStateTypes.IDLE, DefaultStateTypes.MOVING, DefaultStateTypes.JUMPING]
+      states: [DefaultStateTypes.IDLE, DefaultStateTypes.MOVING]
     },
     [DefaultStateGroups.MOVEMENT_MODIFIERS]: {
       exclusive: true,
-      states: [DefaultStateTypes.CROUCHING, DefaultStateTypes.SPRINTING]
+      states: [DefaultStateTypes.CROUCHING, DefaultStateTypes.SPRINTING, DefaultStateTypes.JUMPING]
     }
   },
   states: {
@@ -51,7 +50,7 @@ export const DefaultStateMap: StateMap = {
       group: DefaultStateGroups.MOVEMENT,
       component: Moving
     },
-    [DefaultStateTypes.JUMPING]: { group: DefaultStateGroups.MOVEMENT, component: Jumping, onUpdate: { behavior: jump } },
+    [DefaultStateTypes.JUMPING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS, component: Jumping, onUpdate: { behavior: jump } },
     [DefaultStateTypes.CROUCHING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS, component: Crouching, blockedBy: DefaultStateTypes.JUMPING },
     [DefaultStateTypes.SPRINTING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS, component: Sprinting }
   }

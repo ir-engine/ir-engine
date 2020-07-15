@@ -9,12 +9,12 @@ import { disableScroll, enableScroll } from "../../common/utils/EnableDisableScr
 import { handleGamepadConnected, handleGamepadDisconnected } from "../behaviors/GamepadInputBehaviors"
 import { addState, removeState } from "../../state/behaviors/StateBehaviors"
 import { InputType } from "../enums/InputType"
-import InputPriorityMapping from "../interfaces/InputPriorityMapping"
+import InputRelationshipMapping from "../interfaces/InputRelationshipMapping"
 import { DefaultStateTypes } from "../../state/defaults/DefaultStateData"
 import { move } from "../../common/defaults/behaviors/move"
-import { debugInput } from "../behaviors/debugInput"
 import { MouseButtons } from "../enums/MouseButtons"
 
+// Abstract inputs that all input devices get mapped to
 export const DefaultInput = {
   PRIMARY: 0,
   SECONDARY: 1,
@@ -40,21 +40,26 @@ export const DefaultInput = {
 }
 
 export const DefaultInputMap: InputMap = {
+  // When an Input component is added, the system will call this array of behaviors
   onAdded: [
     {
       behavior: disableScroll
+      // args: { }
     }
   ],
+  // When an Input component is removed, the system will call this array of behaviors
   onRemoved: [
     {
       behavior: enableScroll
+       // args: { }
     }
   ],
+  // When the input component is added or removed, the system will bind/unbind these events to the DOM
   eventBindings: {
+    // Mouse
     ["contextmenu"]: {
       behavior: preventDefault
     },
-    // Mouse
     ["mousemove"]: {
       behavior: handleMouseMovement,
       args: {
@@ -86,6 +91,7 @@ export const DefaultInputMap: InputMap = {
         value: BinaryValue.ON
       }
     },
+    // Gamepad
     ["gamepadconnected"]: {
       behavior: handleGamepadConnected
     },
@@ -93,16 +99,18 @@ export const DefaultInputMap: InputMap = {
       behavior: handleGamepadDisconnected
     }
   },
+  // Map mouse buttons to abstract input
   mouseInputMap: {
     buttons: {
       [MouseButtons.LeftButton]: DefaultInput.PRIMARY,
       [MouseButtons.RightButton]: DefaultInput.SECONDARY,
       [MouseButtons.MiddleButton]: DefaultInput.INTERACT
     },
-    input: {
+    axes: {
       mousePosition: DefaultInput.SCREENXY
     }
   },
+  // Map gamepad buttons to abstract input
   gamepadInputMap: {
     buttons: {
       [GamepadButtons.A]: DefaultInput.JUMP,
@@ -122,11 +130,12 @@ export const DefaultInputMap: InputMap = {
       [GamepadButtons.DPad3]: DefaultInput.LEFT, // DPAD 3
       [GamepadButtons.DPad4]: DefaultInput.RIGHT // DPAD 4
     },
-    input: {
+    axes: {
       [Thumbsticks.Left]: DefaultInput.MOVEMENT_PLAYERONE,
       [Thumbsticks.Right]: DefaultInput.LOOKTURN_PLAYERONE
     }
   },
+  // Map keyboard buttons to abstract input
   keyboardInputMap: {
     w: DefaultInput.FORWARD,
     a: DefaultInput.LEFT,
@@ -135,17 +144,19 @@ export const DefaultInputMap: InputMap = {
     [" "]: DefaultInput.JUMP,
     shift: DefaultInput.CROUCH
   },
-  buttonPriorities: {
-    [DefaultInput.FORWARD]: { opposes: [DefaultInput.BACKWARD] } as InputPriorityMapping,
-    [DefaultInput.BACKWARD]: { opposes: [DefaultInput.FORWARD] } as InputPriorityMapping,
-    [DefaultInput.LEFT]: { opposes: [DefaultInput.RIGHT] } as InputPriorityMapping,
-    [DefaultInput.RIGHT]: { opposes: [DefaultInput.LEFT] } as InputPriorityMapping,
-    [DefaultInput.CROUCH]: { blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT] } as InputPriorityMapping,
-    [DefaultInput.JUMP]: { overrides: [DefaultInput.CROUCH] } as InputPriorityMapping,
-    [DefaultInput.SPRINT]: { blockedBy: [DefaultInput.JUMP], overrides: [DefaultInput.CROUCH] } as InputPriorityMapping,
-    [DefaultInput.WALK]: { blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT], overrides: [DefaultInput.CROUCH] } as InputPriorityMapping,
-    [DefaultInput.INTERACT]: { blockedBy: [DefaultInput.JUMP] } as InputPriorityMapping
+  // Map how inputs relate to each other
+  inputRelationships: {
+    [DefaultInput.FORWARD]: { opposes: [DefaultInput.BACKWARD] } as InputRelationshipMapping,
+    [DefaultInput.BACKWARD]: { opposes: [DefaultInput.FORWARD] } as InputRelationshipMapping,
+    [DefaultInput.LEFT]: { opposes: [DefaultInput.RIGHT] } as InputRelationshipMapping,
+    [DefaultInput.RIGHT]: { opposes: [DefaultInput.LEFT] } as InputRelationshipMapping,
+    [DefaultInput.CROUCH]: { blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT] } as InputRelationshipMapping,
+    [DefaultInput.JUMP]: { overrides: [DefaultInput.CROUCH] } as InputRelationshipMapping,
+    [DefaultInput.SPRINT]: { blockedBy: [DefaultInput.JUMP], overrides: [DefaultInput.CROUCH] } as InputRelationshipMapping,
+    [DefaultInput.WALK]: { blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT], overrides: [DefaultInput.CROUCH] } as InputRelationshipMapping,
+    [DefaultInput.INTERACT]: { blockedBy: [DefaultInput.JUMP] } as InputRelationshipMapping
   },
+  // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
     [DefaultInput.JUMP]: {
       [BinaryValue.ON]: {
@@ -174,6 +185,7 @@ export const DefaultInputMap: InputMap = {
       }
     }
   },
+  // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
   inputAxisBehaviors: {
     [DefaultInput.MOVEMENT_PLAYERONE]: {
       behavior: move,
@@ -181,13 +193,13 @@ export const DefaultInputMap: InputMap = {
         input: DefaultInput.MOVEMENT_PLAYERONE,
         inputType: InputType.TWOD
       }
-    },
-    [DefaultInput.SCREENXY]: {
-      behavior: debugInput,
-      args: {
-        input: DefaultInput.LOOKTURN_PLAYERONE,
-        inputType: InputType.TWOD
-      }
     }
+    // },
+    // [DefaultInput.SCREENXY]: {
+    //   behavior: console.log,
+    //   args: {
+    //     input: DefaultInput.LOOKTURN_PLAYERONE,
+    //     inputType: InputType.TWOD
+    //   }
   }
 }

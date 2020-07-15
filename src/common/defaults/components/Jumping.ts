@@ -7,9 +7,9 @@ interface PropTypes {
 }
 
 export default class Jumping extends Component<PropTypes> {
-  t: 0
-  height: 0
-  duration: 0
+  t: number
+  height: number
+  duration: number
 }
 
 Jumping.schema = {
