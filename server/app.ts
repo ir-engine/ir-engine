@@ -97,14 +97,14 @@ app.use(express.errorHandler({ logger } as any))
 
 if (config.client.enabled) {
   const clientApp = next({
-    dir: path.join(config.server.rootDir, '/lib/client'),
+    dir: path.join(config.server.rootDir, '/client'),
     dev: process.env.NODE_ENV !== 'production'
   })
 
   const clientAppHandler = clientApp.getRequestHandler()
 
-  app.use(express.static(config.server.rootDir + '/node_modules/xr3-spoke/dist/'))
-  app.all('/spoke/*', (req, res) => res.sendFile(path.join(config.server.rootDir, '/node_modules/xr3-spoke/dist/spoke/index.html')))
+  app.use(express.static(config.server.nodeModulesDir + '/xr3-spoke/dist/'))
+  app.all('/spoke/*', (req, res) => res.sendFile(path.join(config.server.nodeModulesDir, '/xr3-spoke/dist/spoke/index.html')))
 
   clientApp.prepare().then(() => {
     app.all('*', (req, res) => {
