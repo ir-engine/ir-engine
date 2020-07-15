@@ -40,10 +40,7 @@ export default (app: Application): any => {
       as: 'relatedUser',
       through: models.user_relationship
     });
-    (User as any).belongsToMany(models.group, { through: models.group_user }); // user can join multiple orgs
-    (User as any).belongsToMany(models.group_user_rank, {
-      through: models.group_user
-    }); // user can join multiple orgs
+    (User as any).belongsToMany(models.group, { through: 'group_user' }); // user can join multiple orgs
     (User as any).hasMany(models.identity_provider);
     (User as any).hasMany(models.static_resource);
     (User as any).hasMany(models.subscription);

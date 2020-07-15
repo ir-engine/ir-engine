@@ -20,18 +20,25 @@ export class AcceptInvite implements ServiceMethods<Data> {
   }
 
   async get (id: Id, params?: Params): Promise<Data> {
+    console.log('ACCEPT_INVITE')
+    console.log(id)
+    console.log(params)
     try {
       params.provider = null
-      const invite = await this.app.service('invite').get(id)
+      const invite = await this.app.service('invite').get(id, params)
 
       if (invite == null) {
+        console.log('INVALID INVITE ID')
         return new BadRequest('Invalid invite ID')
       }
 
       if (params.query.passcode !== invite.passcode) {
+        console.log('INVALID INVITE PASSCODE')
         return new BadRequest('Invalid passcode')
       }
 
+      console.log('GOT INVITE')
+      console.log(invite)
       if (invite.identityProviderType != null) {
         let inviteeIdentityProvider
         const inviteeIdentityProviderResult = await this.app.service('identity-provider').find({
@@ -56,7 +63,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
             query: {
               userRelationshipType: invite.inviteType,
               userId: invite.userId,
-              relatedUserId: (inviteeIdentityProvider).userId
+              relatedUserId: inviteeIdentityProvider.userId
             }
           })
 
@@ -75,7 +82,21 @@ export class AcceptInvite implements ServiceMethods<Data> {
             }, params)
           }
         } else if (invite.inviteType === 'group') {
+          console.log('Adding group user:')
+          const group = await this.app.service('group').get(invite.targetObjectId)
+          console.log(group)
 
+          if (group == null) {
+            return new BadRequest('Invalid group ID')
+          }
+
+          console.log(inviteeIdentityProvider.userId)
+          console.log(invite.targetObjectId)
+          await this.app.service('group-user').create({
+            userId: inviteeIdentityProvider.userId,
+            groupId: invite.targetObjectId,
+            groupUserRank: 'user'
+          })
         } else if (invite.inviteType === 'party') {
 
         }
@@ -86,10 +107,37 @@ export class AcceptInvite implements ServiceMethods<Data> {
           return new BadRequest('Invalid invitee ID')
         }
 
-        await this.app.service('user-relationship').patch(invite.userId, {
-          userRelationshipType: invite.inviteType,
-          userId: invite.inviteeId
-        }, params)
+        if (invite.inviteType === 'friend') {
+          const existingRelationshipResult = await this.app.service('user-relationship').find({
+            query: {
+              userRelationshipType: invite.inviteType,
+              userId: invite.userId,
+              relatedUserId: invite.inviteeId
+            }
+          })
+
+          console.log(existingRelationshipResult)
+
+          if ((existingRelationshipResult as any).total === 0) {
+            await this.app.service('user-relationship').patch(invite.userId, {
+              userRelationshipType: invite.inviteType,
+              userId: invite.inviteeId
+            }, params)
+          }
+        }
+        else if (invite.inviteType === 'group') {
+          const group = await this.app.service('group').get(invite.targetObjectId)
+
+          if (group == null) {
+            return new BadRequest('Invalid group ID')
+          }
+
+          await this.app.service('group-user').create({
+            userId: invite.userId,
+            groupId: invite.targetObjectId,
+            groupUserRank: 'user'
+          })
+        }
       }
 
       // await this.app.service('invite').remove(invite.id)

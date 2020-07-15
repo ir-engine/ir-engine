@@ -13,8 +13,12 @@ export default {
     find: [],
     get: [],
     create: [],
-    update: [],
-    patch: [],
+    update: [
+        groupPermissionAuthenticate()
+    ],
+    patch: [
+        groupPermissionAuthenticate()
+    ],
     remove: [
         groupPermissionAuthenticate(),
         removeGroupUsers()

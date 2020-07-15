@@ -2,7 +2,9 @@ import {
   SENT_INVITES_RETRIEVED,
   RECEIVED_INVITES_RETRIEVED,
   INVITE_SENT,
-  REMOVED_INVITE
+  REMOVED_INVITE,
+  ACCEPTED_INVITE,
+  DECLINED_INVITE
 } from '../actions'
 
 import { Invite } from '../../../shared/interfaces/Invite'
@@ -59,5 +61,17 @@ export function retrievedReceivedInvites(inviteResult: InviteResult): InviteActi
 export function removedInvite(): InviteAction {
   return {
     type: REMOVED_INVITE
+  }
+}
+
+export function acceptedInvite(): InviteAction {
+  return {
+    type: ACCEPTED_INVITE
+  }
+}
+
+export function declinedInvite(): InviteAction {
+  return {
+    type: DECLINED_INVITE
   }
 }

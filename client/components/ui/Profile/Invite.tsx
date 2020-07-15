@@ -29,8 +29,11 @@ import {
     sendInvite,
     retrieveReceivedInvites,
     retrieveSentInvites,
-    deleteInvite
+    deleteInvite,
+    acceptInvite,
+    declineInvite
 } from '../../../redux/invite/service'
+import {declineFriend} from "../../../redux/user/service";
 
 
 const mapStateToProps = (state: any): any => {
@@ -45,7 +48,9 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     retrieveReceivedInvites: bindActionCreators(retrieveReceivedInvites, dispatch),
     retrieveSentInvites: bindActionCreators(retrieveSentInvites, dispatch),
     sendInvite: bindActionCreators(sendInvite, dispatch),
-    deleteInvite: bindActionCreators(deleteInvite, dispatch)
+    deleteInvite: bindActionCreators(deleteInvite, dispatch),
+    acceptInvite: bindActionCreators(acceptInvite, dispatch),
+    declineInvite: bindActionCreators(declineInvite, dispatch)
 })
 
 interface Props {
@@ -55,8 +60,10 @@ interface Props {
     retrieveReceivedInvites?: typeof retrieveReceivedInvites
     retrieveSentInvites?: typeof retrieveSentInvites
     sendInvite?: typeof sendInvite
-    getFriends?: any,
-    deleteInvite?: any
+    getFriends?: typeof getFriends,
+    deleteInvite?: typeof deleteInvite,
+    acceptInvite?: typeof acceptInvite,
+    declineInvite?: typeof declineInvite
 }
 
 const identityProviderTabMap = new Map()
@@ -64,7 +71,17 @@ identityProviderTabMap.set(0, 'email')
 identityProviderTabMap.set(1, 'sms')
 
 const Invites = (props: Props): any => {
-    const { friendState, inviteState, sendInvite, retrieveReceivedInvites, retrieveSentInvites, getFriends, deleteInvite } = props
+    const {
+        friendState,
+        inviteState,
+        sendInvite,
+        retrieveReceivedInvites,
+        retrieveSentInvites,
+        getFriends,
+        deleteInvite,
+        acceptInvite,
+        declineInvite
+    } = props
     const friends = friendState.get('friends')
     console.log(inviteState)
     const receivedInviteState = inviteState.get('receivedInvites')
@@ -115,7 +132,7 @@ const Invites = (props: Props): any => {
         deleteInvite(inviteId)
     }
 
-    const previousInvitePage = (): void => {
+    const previousInvitePage = () => {
         if (inviteTabIndex === 0) {
             retrieveReceivedInvites(receivedInviteState.get('skip') - receivedInviteState.get('limit'))
         }
@@ -124,13 +141,23 @@ const Invites = (props: Props): any => {
         }
     }
 
-    const nextInvitePage = (): void => {
+    const nextInvitePage = () => {
         if (inviteTabIndex === 0) {
             retrieveReceivedInvites(receivedInviteState.get('skip') + receivedInviteState.get('limit'))
         }
         else {
             retrieveSentInvites(sentInviteState.get('skip') + sentInviteState.get('limit'))
         }
+    }
+
+    const acceptRequest = (invite) => {
+        console.log('ACCEPTY PANTS')
+        acceptInvite(invite.id, invite.passcode)
+    }
+
+    const declineRequest = (invite) => {
+        console.log('DECLINY PANTS')
+        declineInvite(invite.id, invite.passcode)
     }
 
     useEffect(() => {
@@ -181,7 +208,23 @@ const Invites = (props: Props): any => {
                                 <ListItemAvatar>
                                     <Avatar src={invite.user.avatarUrl}/>
                                 </ListItemAvatar>
-                                <ListItemText>{capitalize(invite.inviteType)} Request from {invite.user.name}</ListItemText>
+                                { invite.inviteType === 'friend' && <ListItemText>{capitalize(invite.inviteType)} request from {invite.user.name}</ListItemText> }
+                                { invite.inviteType === 'group' && <ListItemText>Join group {invite.groupName} from {invite.user.name}</ListItemText> }
+                                { invite.inviteType === 'party' && <ListItemText>Join a party from {invite.user.name}</ListItemText> }
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => acceptRequest(invite)}
+                                >
+                                    Accept
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    color="secondary"
+                                    onClick={() => declineRequest(invite)}
+                                >
+                                    Decline
+                                </Button>
                             </ListItem>
                         }
                     )}
@@ -193,20 +236,20 @@ const Invites = (props: Props): any => {
                                 <ListItemText>{capitalize(invite.inviteType)} Request to { invite.invitee ? invite.invitee.name : invite.token }</ListItemText>
                                 {deletePending !== invite.id && <Button onClick={() => showDeleteConfirm(invite.id)}>Uninvite</Button> }
                                 {deletePending === invite.id &&
-	                            <div>
-		                            <Button variant="contained"
-		                                    color="primary"
-		                                    onClick={() => confirmDelete(invite.id)}
-		                            >
-			                            Uninvite
-		                            </Button>
-		                            <Button variant="contained"
-		                                    color="secondary"
-		                                    onClick={() => cancelDelete()}
-		                            >
-			                            Cancel
-		                            </Button>
-	                            </div>
+								<div>
+									<Button variant="contained"
+									        color="primary"
+									        onClick={() => confirmDelete(invite.id)}
+									>
+										Uninvite
+									</Button>
+									<Button variant="contained"
+									        color="secondary"
+									        onClick={() => cancelDelete()}
+									>
+										Cancel
+									</Button>
+								</div>
                                 }
                             </ListItem>
                         }
@@ -230,13 +273,13 @@ const Invites = (props: Props): any => {
             <List>
                 { friends && friends.length > 0 && friends.sort((a, b) => a.name - b.name).map((friend) => {
                         return <ListItem key={friend.id}>
-                                <ListItemAvatar>
-                                    <Avatar src={friend.avatarUrl}/>
-                                </ListItemAvatar>
-                                <ListItemText primary={friend.name}/>
-                            </ListItem>
-                        }
-                    )
+                            <ListItemAvatar>
+                                <Avatar src={friend.avatarUrl}/>
+                            </ListItemAvatar>
+                            <ListItemText primary={friend.name}/>
+                        </ListItem>
+                    }
+                )
                 }
             </List>
             <div className="paper">
