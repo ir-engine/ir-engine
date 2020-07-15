@@ -1,4 +1,4 @@
-import * as fs from "fs"
+import * as fs from "browserify-fs"
 import { execFile } from "child_process"
 import * as basisu from "basisu"
 import * as draco3d from "draco3d"
