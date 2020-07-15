@@ -11,7 +11,7 @@ export const decelerate: Behavior = (entity: Entity, delta: number): void => {
   // get actor comonent
   actor = entity.getComponent(Actor)
   // get the transform
-  transform = entityIn.getComponent(TransformComponent)
+  transform = entity.getComponent(TransformComponent)
 
   // if magnitude of velocity is more than .001
   if (vec3.length(transform.velocity as vec3) > 0.001) {
