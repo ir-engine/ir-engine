@@ -1,6 +1,6 @@
 "use_strict"
 import * as glob from "glob"
-import * as fs from "fs"
+import * as fs from "browserify-fs"
 import { Geometry, Mesh, LoadingManager, WebGLRenderer } from "three"
 import { BasisTextureLoader } from "three/examples/jsm/loaders/BasisTextureLoader"
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader"
