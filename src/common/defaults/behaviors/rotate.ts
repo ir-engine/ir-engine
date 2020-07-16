@@ -1,7 +1,7 @@
 import { Entity } from "ecsy"
 import Behavior from "../../interfaces/Behavior"
 import { Vector2, Vector4, NumericalType, Vector3 } from "../../types/NumericalTypes"
-import { Actor } from "../components/Actor"
+import Actor from "../components/Actor"
 import { TransformComponent } from "../components/TransformComponent"
 import { quat } from "gl-matrix"
 import InputAlias from "../../../input/types/InputAlias"

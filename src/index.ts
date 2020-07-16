@@ -1,4 +1,4 @@
-import { Entity, World, Component } from "ecsy"
+import { Entity, World } from "ecsy"
 
 import InputSystem from "./input/systems/InputSystem"
 import { isBrowser } from "./common/utils/IsBrowser"
@@ -7,20 +7,15 @@ import InputMap from "./input/interfaces/InputMap"
 import { DefaultInputMap } from "./input/defaults/DefaultInputData"
 import Subscription from "./subscription/components/Subscription"
 import State from "./state/components/State"
-import Jumping from "./common/defaults/components/Jumping"
 import { TransformComponent } from "./common/defaults/components/TransformComponent"
-import { Actor } from "./common/defaults/components/Actor"
+import Actor from "./common/defaults/components/Actor"
 import StateSystem from "./state/systems/StateSystem"
 
 const DEFAULT_OPTIONS = {
   debug: false
 }
 
-export function initializeInputSystems(
-  world: World,
-  options = DEFAULT_OPTIONS,
-  inputMap?: InputMap
-): World | null {
+export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, inputMap?: InputMap): World | null {
   if (options.debug) console.log("Initializing input systems...")
 
   if (!isBrowser) {
@@ -37,6 +32,7 @@ export function initializeInputSystems(
   world
     .registerComponent(Input)
     .registerComponent(State)
+    .registerComponent(Actor)
     .registerComponent(Subscription)
     .registerComponent(TransformComponent)
 
@@ -44,6 +40,7 @@ export function initializeInputSystems(
     .createEntity()
     .addComponent(Input)
     .addComponent(State)
+    .addComponent(Actor)
     .addComponent(Subscription)
     .addComponent(TransformComponent)
 
@@ -65,7 +62,7 @@ export function initializeInputSystems(
   return world
 }
 
-export function addInputHandlingToEntity(entity: Entity, inputFilter?: InputMap): Entity {
+export function addInputHandlingToEntity(entity: Entity): Entity {
   // Try get component on inputhandler, inputreceiver
   if (entity.getComponent(Input) !== undefined) console.warn("Warning: Entity already has input component")
   else {

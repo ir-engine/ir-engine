@@ -1,5 +1,5 @@
 import StateAlias from "../types/StateAlias"
-import StateGroupType from "../types/StateGroupType"
+import StateGroupType from "../types/StateGroupAlias"
 import Behavior from "../../common/interfaces/Behavior"
 
 export default interface StateMap {

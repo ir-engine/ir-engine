@@ -13,8 +13,6 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
   _value[0] = (args.event.clientX / window.innerWidth) * 2 - 1
   _value[1] = (args.event.clientY / window.innerHeight) * -2 + 1
   // Set type to TWOD (two-dimensional axis) and value to a normalized -1, 1 on X and Y
-  if (input.data.has(input.map.mouseInputMap.axes["mousePosition"]) && input.data.get(input.map.mouseInputMap.axes["mousePosition"]).value === _value) return
-  console.log("Mouse X: " + _value[0] + " | Mouse Y: " + _value[1])
   input.data.set(input.map.mouseInputMap.axes["mousePosition"], {
     type: InputType.TWOD,
     value: _value

@@ -13,6 +13,7 @@ import InputRelationshipMapping from "../interfaces/InputRelationshipMapping"
 import { DefaultStateTypes } from "../../state/defaults/DefaultStateData"
 import { move } from "../../common/defaults/behaviors/move"
 import { MouseButtons } from "../enums/MouseButtons"
+import { jump } from "../../common/defaults/behaviors/jump"
 
 // Abstract inputs that all input devices get mapped to
 export const DefaultInput = {
@@ -160,8 +161,8 @@ export const DefaultInputMap: InputMap = {
   inputButtonBehaviors: {
     [DefaultInput.JUMP]: {
       [BinaryValue.ON]: {
-        behavior: addState,
-        args: { state: DefaultStateTypes.JUMPING }
+        behavior: jump,
+        args: {}
       }
     },
     [DefaultInput.CROUCH]: {
