@@ -6,6 +6,7 @@ import Behavior from "../../common/interfaces/Behavior"
 import StateMap from "../interfaces/StateMap"
 import StateGroupAlias from "../types/StateGroupAlias"
 import { addState } from "../behaviors/StateBehaviors"
+import LifecycleValue from "../../common/enums/LifecycleValue"
 
 export default class StateSystem extends System {
   private _state: State
@@ -32,6 +33,12 @@ export default class StateSystem extends System {
     this._state = entity.getComponent(State)
     this._state.data.forEach((stateValue: StateValue<NumericalType>) => {
       if (this._state.map.states[stateValue.state] !== undefined && this._state.map.states[stateValue.state][args.phase] !== undefined) {
+        if (stateValue.lifecycleState === LifecycleValue.STARTED) {
+          this._state.data.set(stateValue.state, {
+            ...stateValue,
+            lifecycleState: LifecycleValue.CONTINUED
+          })
+        }
         this._state.map.states[stateValue.state][args.phase].behavior(entity, this._state.map.states[stateValue.state][args.phase].args, delta)
       }
     })

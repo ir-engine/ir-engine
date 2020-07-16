@@ -3,8 +3,6 @@ import Behavior from "../../interfaces/Behavior"
 import Actor from "../components/Actor"
 import { TransformComponent } from "../components/TransformComponent"
 import { NumericalType, Vector3, Vector2 } from "../../types/NumericalTypes"
-import { Crouching } from "../components/Crouching"
-import { Sprinting } from "../components/Sprinting"
 import Input from "../../../input/components/Input"
 import InputAlias from "../../../input/types/InputAlias"
 import { InputType } from "../../../input/enums/InputType"
@@ -14,13 +12,13 @@ let actor: Actor
 let transform: TransformComponent
 let inputValue: NumericalType // Could be a (small) source of garbage
 let inputType: InputAlias
-let movementModifer: number
+const movementModifer = 1.0 // TODO: Add sprinting and crouching
 let outputSpeed: number
 export const move: Behavior = (entity: Entity, args: { input: InputAlias; inputType: InputType; value: NumericalType }, delta: number): void => {
   input = entity.getComponent(Input)
   actor = entity.getComponent(Actor)
   transform = entity.getComponent(TransformComponent)
-  movementModifer = entity.hasComponent(Crouching) ? 0.5 : entity.hasComponent(Sprinting) ? 1.5 : 1.0
+  // movementModifer = entity.hasComponent(Crouching) ? 0.5 : entity.hasComponent(Sprinting) ? 1.5 : 1.0
 
   outputSpeed = actor.accelerationSpeed * delta * movementModifer
 

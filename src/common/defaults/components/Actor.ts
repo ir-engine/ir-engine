@@ -11,7 +11,7 @@ const defaultJumpValues = {
   canJump: true,
   t: 0,
   height: 1.0,
-  duration: 1.0
+  duration: 1000
 }
 
 interface PropTypes {
