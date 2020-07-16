@@ -1,3 +1,4 @@
+// Default component, holds data about what behaviors our character has.
 import { Component } from "ecsy"
 
 interface jumpVals {
