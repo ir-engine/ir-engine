@@ -183,7 +183,7 @@
     "url-loader": "^4.1.0",
     "uuid": "^8.0.0",
     "winston": "^3.2.1",
-    "xr3-spoke": "git+https://git@github.com/barankyle/Spoke.git",
+    "xr3-spoke": "https://github.com/barankyle/Spoke.git",
     "youtube-dl": "^3.0.2"
   },
   "devDependencies": {
