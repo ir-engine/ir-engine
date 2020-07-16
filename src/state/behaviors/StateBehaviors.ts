@@ -7,11 +7,12 @@ import StateGroupType from "../types/StateGroupAlias"
 import { StateType } from "../enums/StateType"
 import StateValue from "../interfaces/StateValue"
 import { Binary } from "../../common/types/NumericalTypes"
+import LifecycleValue from "../../common/enums/LifecycleValue"
 
 let stateComponent: State
 let stateGroup: StateGroupType
 
-export const setState: Behavior = (entity: Entity, args: { value: BinaryValue; stateType: StateAlias }): void => {
+export const toggleState: Behavior = (entity: Entity, args: { value: BinaryValue; stateType: StateAlias }): void => {
   if (args.value === BinaryValue.ON) addState(entity, args)
   else removeState(entity, args)
 }
@@ -23,7 +24,7 @@ export const addState: Behavior = (entity: Entity, args: { state: StateAlias }):
   stateComponent.data.set(args.state, {
     state: args.state,
     type: StateType.DISCRETE,
-    value: BinaryValue.ON,
+    lifecycleState: LifecycleValue.STARTED,
     group: stateComponent.map.states[args.state].group
   } as StateValue<Binary>)
 
@@ -45,4 +46,11 @@ export const removeState: Behavior = (entity: Entity, args: { state: StateAlias 
     stateComponent.data.delete(args.state)
     console.log("Removed component from " + entity.id)
   }
+}
+
+export const hasState: Behavior = (entity: Entity, args: { state: StateAlias }): boolean => {
+  // check state group
+  stateComponent = entity.getComponent(State)
+  if (stateComponent.data.has(args.state)) return true
+  return false
 }
