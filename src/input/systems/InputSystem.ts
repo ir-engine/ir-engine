@@ -73,6 +73,7 @@ export const handleInput: Behavior = (entity: Entity, delta: number): void => {
       console.error("handleInput called with an invalid input type")
     }
   })
+  input.data.clear()
 }
 
 InputSystem.queries = {

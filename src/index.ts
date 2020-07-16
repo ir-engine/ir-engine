@@ -70,6 +70,7 @@ export function addInputHandlingToEntity(entity: Entity): Entity {
       .addComponent(Input)
       .addComponent(State)
       .addComponent(Subscription)
+      .addComponent(Actor)
   }
   return entity
 }
