@@ -2,20 +2,20 @@ Setup instructions for Dracosis Playet
 
 ## Setup Instructions
 
-- Clone the project: https://github.com/xr3ngine/three-volumetric
-  `cd three-volumetric`
-  `npm install`
-  `yarn build`
+- Clone the project: https://github.com/xr3ngine/three-volumetric  
+  `cd three-volumetric`  
+  `npm install`  
+  `yarn build`  
   `npm link`
 
-- Clone this project: https://github.com/xr3ngine/dracosis-player
-  `cd dracosis-player`
-  `npm install`
-  `npm link three-volumetric`
+- Clone this project: https://github.com/xr3ngine/dracosis-player  
+  `cd dracosis-player`  
+  `npm install`  
+  `npm link three-volumetric`  
   `yarn start`
 
-- Start the server to serve sample.drcs
-  `cd server`
+- Start the server to serve sample.drcs  
+  `cd server`  
   `npm start`
 
 ## Issues
