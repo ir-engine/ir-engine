@@ -4,7 +4,8 @@ export interface PropTypes<TDataType extends string | number | symbol, TBehavior
   map: TBehaviorMap
   data: BehaviorMapType<TDataType, TValue>
 }
-
+// Constructs a component with a map and data values
+// Data contains a map() of arbitrary data
 export default class BehaviorComponent<TDataType extends string | number | symbol, TBehaviorMap, TValue> extends Component<
   PropTypes<TDataType, TBehaviorMap, TValue>
 > {

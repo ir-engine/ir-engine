@@ -1,4 +1,4 @@
-import { Entity, World } from "ecsy"
+import { Entity, World, Component } from "ecsy"
 
 import InputSystem from "./input/systems/InputSystem"
 import { isBrowser } from "./common/utils/IsBrowser"
@@ -16,7 +16,11 @@ const DEFAULT_OPTIONS = {
   debug: false
 }
 
-export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, inputMap?: InputMap): World | null {
+export function initializeInputSystems(
+  world: World,
+  options = DEFAULT_OPTIONS,
+  inputMap?: InputMap
+): World | null {
   if (options.debug) console.log("Initializing input systems...")
 
   if (!isBrowser) {
@@ -34,27 +38,23 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS, 
     .registerComponent(Input)
     .registerComponent(State)
     .registerComponent(Subscription)
-    .registerComponent(Actor)
-    .registerComponent(Jumping)
     .registerComponent(TransformComponent)
 
   const inputSystemEntity = world
     .createEntity()
     .addComponent(Input)
     .addComponent(State)
-    .addComponent(Actor)
     .addComponent(Subscription)
-    .addComponent(Jumping)
     .addComponent(TransformComponent)
 
   // Custom Action Map
   if (inputMap) {
     console.log("Using input map:")
     console.log(inputMap)
-    inputSystemEntity.getMutableComponent(Input).map = inputMap
+    ;(inputSystemEntity.getMutableComponent(Input) as any).map = inputMap
   } else {
     console.log("No input map provided, defaulting to default input")
-    inputSystemEntity.getMutableComponent(Input).map = DefaultInputMap
+    ;(inputSystemEntity.getMutableComponent(Input) as any).map = DefaultInputMap
   }
 
   // if (options.debug) {

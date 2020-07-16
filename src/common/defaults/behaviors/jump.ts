@@ -8,7 +8,6 @@ let jumping: Jumping
 let transform: TransformComponent
 export const jump: Behavior = (entity: Entity, args: { stateGroup: StateGroupType }, delta: number): void => {
   console.log("Jump!")
-  jumping = entity.getComponent(Jumping)
   jumping.duration = 1.0
   transform = entity.getComponent(TransformComponent)
   jumping.t += delta

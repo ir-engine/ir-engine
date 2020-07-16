@@ -8,15 +8,6 @@ function getName(Component) {
 }
 
 /**
- * Return a valid property name for the Component
- * @param {Component} Component
- * @private
- */
-function componentPropertyName(Component) {
-  return getName(Component);
-}
-
-/**
  * Get a key from a list of components
  * @param {Array(Component)} Components Array of components to generate the key
  * @private
@@ -61,7 +52,7 @@ class SystemManager {
     }
 
     if (this.getSystem(SystemClass) !== undefined) {
-      console.warn(`System '${SystemClass.name}' already registered.`);
+      console.warn(`System '${SystemClass.getName()}' already registered.`);
       return this;
     }
 
@@ -80,7 +71,7 @@ class SystemManager {
     let system = this.getSystem(SystemClass);
     if (system === undefined) {
       console.warn(
-        `Can unregister system '${SystemClass.name}'. It doesn't exist.`
+        `Can unregister system '${SystemClass.getName()}'. It doesn't exist.`
       );
       return this;
     }
@@ -147,7 +138,7 @@ class SystemManager {
 
     for (var i = 0; i < this._systems.length; i++) {
       var system = this._systems[i];
-      var systemStats = (stats.systems[system.constructor.name] = {
+      var systemStats = (stats.systems[system.getName()] = {
         queries: {},
         executeTime: system.executeTime
       });
@@ -569,10 +560,17 @@ class Component {
       this._pool.release(this);
     }
   }
+
+  getName() {
+    return this.constructor.getName();
+  }
 }
 
 Component.schema = {};
 Component.isComponent = true;
+Component.getName = function() {
+  return this.displayName || this.name;
+};
 
 class SystemStateComponent extends Component {}
 
@@ -660,9 +658,13 @@ class EntityManager {
    * @param {Object} values Optional values to replace the default attributes
    */
   entityAddComponent(entity, Component, values) {
-    if (!this.world.componentsManager.Components[Component.name]) {
+    // @todo Probably define Component._typeId with a default value and avoid using typeof
+    if (
+      typeof Component._typeId === "undefined" &&
+      !this.world.componentsManager._ComponentsMap[Component._typeId]
+    ) {
       throw new Error(
-        `Attempted to add unregistered component "${Component.name}"`
+        `Attempted to add unregistered component "${Component.getName()}"`
       );
     }
 
@@ -671,7 +673,7 @@ class EntityManager {
       console.warn(
         "Component type already exists on entity.",
         entity,
-        Component.name
+        Component.getName()
       );
       return;
     }
@@ -694,7 +696,7 @@ class EntityManager {
       component.copy(values);
     }
 
-    entity._components[Component.name] = component;
+    entity._components[Component._typeId] = component;
 
     this._queryManager.onEntityComponentAdded(entity, Component);
     this.world.componentsManager.componentAddedToEntity(Component);
@@ -723,10 +725,9 @@ class EntityManager {
       entity._ComponentTypes.splice(index, 1);
       entity._ComponentTypesToRemove.push(Component);
 
-      var componentName = getName(Component);
-      entity._componentsToRemove[componentName] =
-        entity._components[componentName];
-      delete entity._components[componentName];
+      entity._componentsToRemove[Component._typeId] =
+        entity._components[Component._typeId];
+      delete entity._components[Component._typeId];
     }
 
     // Check each indexed query to see if we need to remove it
@@ -745,9 +746,8 @@ class EntityManager {
   _entityRemoveComponentSync(entity, Component, index) {
     // Remove T listing on entity and property ref, then free the component.
     entity._ComponentTypes.splice(index, 1);
-    var componentName = getName(Component);
-    var component = entity._components[componentName];
-    delete entity._components[componentName];
+    var component = entity._components[Component._typeId];
+    delete entity._components[Component._typeId];
     component.dispose();
     this.world.componentsManager.componentRemovedFromEntity(Component);
   }
@@ -826,9 +826,8 @@ class EntityManager {
       while (entity._ComponentTypesToRemove.length > 0) {
         let Component = entity._ComponentTypesToRemove.pop();
 
-        var componentName = getName(Component);
-        var component = entity._componentsToRemove[componentName];
-        delete entity._componentsToRemove[componentName];
+        var component = entity._componentsToRemove[Component._typeId];
+        delete entity._componentsToRemove[Component._typeId];
         component.dispose();
         this.world.componentsManager.componentRemovedFromEntity(Component);
 
@@ -870,9 +869,9 @@ class EntityManager {
       eventDispatcher: this.eventDispatcher.stats
     };
 
-    for (var cname in this.componentsManager._componentPool) {
-      var pool = this.componentsManager._componentPool[cname];
-      stats.componentPool[cname] = {
+    for (var ecsyComponentId in this.componentsManager._componentPool) {
+      var pool = this.componentsManager._componentPool[ecsyComponentId];
+      stats.componentPool[ecsyComponentId] = {
         used: pool.totalUsed(),
         size: pool.count
       };
@@ -889,21 +888,28 @@ const COMPONENT_REMOVE = "EntityManager#COMPONENT_REMOVE";
 
 class ComponentManager {
   constructor() {
-    this.Components = {};
+    this.Components = [];
+    this._ComponentsMap = {};
+
     this._componentPool = {};
     this.numComponents = {};
+    this.nextComponentId = 0;
   }
 
   registerComponent(Component, objectPool) {
-    if (this.Components[Component.name]) {
-      console.warn(`Component type: '${Component.name}' already registered.`);
+    if (this.Components.indexOf(Component) !== -1) {
+      console.warn(
+        `Component type: '${Component.getName()}' already registered.`
+      );
       return;
     }
 
     const schema = Component.schema;
 
     if (!schema) {
-      throw new Error(`Component "${Component.name}" has no schema property.`);
+      throw new Error(
+        `Component "${Component.getName()}" has no schema property.`
+      );
     }
 
     for (const propName in schema) {
@@ -911,13 +917,15 @@ class ComponentManager {
 
       if (!prop.type) {
         throw new Error(
-          `Invalid schema for component "${Component.name}". Missing type for "${propName}" property.`
+          `Invalid schema for component "${Component.getName()}". Missing type for "${propName}" property.`
         );
       }
     }
 
-    this.Components[Component.name] = Component;
-    this.numComponents[Component.name] = 0;
+    Component._typeId = this.nextComponentId++;
+    this.Components.push(Component);
+    this._ComponentsMap[Component._typeId] = Component;
+    this.numComponents[Component._typeId] = 0;
 
     if (objectPool === undefined) {
       objectPool = new ObjectPool(Component);
@@ -925,24 +933,19 @@ class ComponentManager {
       objectPool = undefined;
     }
 
-    this._componentPool[Component.name] = objectPool;
+    this._componentPool[Component._typeId] = objectPool;
   }
 
   componentAddedToEntity(Component) {
-    if (!this.Components[Component.name]) {
-      this.registerComponent(Component);
-    }
-
-    this.numComponents[Component.name]++;
+    this.numComponents[Component._typeId]++;
   }
 
   componentRemovedFromEntity(Component) {
-    this.numComponents[Component.name]--;
+    this.numComponents[Component._typeId]--;
   }
 
   getComponentsPool(Component) {
-    var componentName = componentPropertyName(Component);
-    return this._componentPool[componentName];
+    return this._componentPool[Component._typeId];
   }
 }
 
@@ -978,17 +981,17 @@ class Entity {
   // COMPONENTS
 
   getComponent(Component, includeRemoved) {
-    var component = this._components[Component.name];
+    var component = this._components[Component._typeId];
 
     if (!component && includeRemoved === true) {
-      component = this._componentsToRemove[Component.name];
+      component = this._componentsToRemove[Component._typeId];
     }
 
     return  component;
   }
 
   getRemovedComponent(Component) {
-    return this._componentsToRemove[Component.name];
+    return this._componentsToRemove[Component._typeId];
   }
 
   getComponents() {
@@ -1004,7 +1007,7 @@ class Entity {
   }
 
   getMutableComponent(Component) {
-    var component = this._components[Component.name];
+    var component = this._components[Component._typeId];
     for (var i = 0; i < this.queries.length; i++) {
       var query = this.queries[i];
       // @todo accelerate this check. Maybe having query._Components as an object
@@ -1061,8 +1064,8 @@ class Entity {
 
   copy(src) {
     // TODO: This can definitely be optimized
-    for (var componentName in src._components) {
-      var srcComponent = src._components[componentName];
+    for (var ecsyComponentId in src._components) {
+      var srcComponent = src._components[ecsyComponentId];
       this.addComponent(srcComponent.constructor);
       var component = this.getComponent(srcComponent.constructor);
       component.copy(srcComponent);
@@ -1080,8 +1083,8 @@ class Entity {
     this._ComponentTypes.length = 0;
     this.queries.length = 0;
 
-    for (var componentName in this._components) {
-      delete this._components[componentName];
+    for (var ecsyComponentId in this._components) {
+      delete this._components[ecsyComponentId];
     }
   }
 
@@ -1189,6 +1192,10 @@ class System {
     return true;
   }
 
+  getName() {
+    return this.constructor.getName();
+  }
+
   constructor(world, attributes) {
     this.world = world;
     this.enabled = true;
@@ -1239,9 +1246,7 @@ class System {
           validEvents.forEach(eventName => {
             if (!this.execute) {
               console.warn(
-                `System '${
-                  this.constructor.name
-                }' has defined listen events (${validEvents.join(
+                `System '${this.getName()}' has defined listen events (${validEvents.join(
                   ", "
                 )}) for query '${queryName}' but it does not implement the 'execute' method.`
               );
@@ -1332,7 +1337,7 @@ class System {
 
   toJSON() {
     var json = {
-      name: this.constructor.name,
+      name: this.getName(),
       enabled: this.enabled,
       executeTime: this.executeTime,
       priority: this.priority,
@@ -1376,6 +1381,9 @@ class System {
 }
 
 System.isSystem = true;
+System.getName = function() {
+  return this.displayName || this.name;
+};
 
 class TagComponent extends Component {
   constructor() {
@@ -1390,19 +1398,24 @@ const copyValue = src => src;
 const cloneValue = src => src;
 
 const copyArray = (src, dest) => {
-  const srcArray = src;
-  const destArray = dest;
-
-  destArray.length = 0;
-
-  for (let i = 0; i < srcArray.length; i++) {
-    destArray.push(srcArray[i]);
+  if (!src) {
+    return src;
   }
 
-  return destArray;
+  if (!dest) {
+    return src.slice();
+  }
+
+  dest.length = 0;
+
+  for (let i = 0; i < src.length; i++) {
+    dest.push(src[i]);
+  }
+
+  return dest;
 };
 
-const cloneArray = src => src.slice();
+const cloneArray = src => src && src.slice();
 
 const copyJSON = src => JSON.parse(JSON.stringify(src));
 
@@ -1929,9 +1942,17 @@ class Component$1 {
     }
   }
 
+  getName() {
+    return this.constructor.getName();
+  }
+
 }
 Component$1.schema = {};
 Component$1.isComponent = true;
+
+Component$1.getName = function () {
+  return this.displayName || this.name;
+};
 
 class System$1 {
   canExecute() {
@@ -1946,6 +1967,10 @@ class System$1 {
     }
 
     return true;
+  }
+
+  getName() {
+    return this.constructor.getName();
   }
 
   constructor(world, attributes) {
@@ -1996,7 +2021,7 @@ class System$1 {
         if (queryConfig.listen) {
           validEvents.forEach(eventName => {
             if (!this.execute) {
-              console.warn(`System '${this.constructor.name}' has defined listen events (${validEvents.join(", ")}) for query '${queryName}' but it does not implement the 'execute' method.`);
+              console.warn(`System '${this.getName()}' has defined listen events (${validEvents.join(", ")}) for query '${queryName}' but it does not implement the 'execute' method.`);
             } // Is the event enabled on this system's query?
 
 
@@ -2074,7 +2099,7 @@ class System$1 {
 
   toJSON() {
     var json = {
-      name: this.constructor.name,
+      name: this.getName(),
       enabled: this.enabled,
       executeTime: this.executeTime,
       priority: this.priority,
@@ -2113,6 +2138,10 @@ class System$1 {
 }
 System$1.isSystem = true;
 
+System$1.getName = function () {
+  return this.displayName || this.name;
+};
+
 class TagComponent$1 extends Component$1 {
   constructor() {
     super(false);
@@ -2124,17 +2153,23 @@ TagComponent$1.isTagComponent = true;
 const copyValue$1 = src => src;
 const cloneValue$1 = src => src;
 const copyArray$1 = (src, dest) => {
-  const srcArray = src;
-  const destArray = dest;
-  destArray.length = 0;
-
-  for (let i = 0; i < srcArray.length; i++) {
-    destArray.push(srcArray[i]);
+  if (!src) {
+    return src;
   }
 
-  return destArray;
+  if (!dest) {
+    return src.slice();
+  }
+
+  dest.length = 0;
+
+  for (let i = 0; i < src.length; i++) {
+    dest.push(src[i]);
+  }
+
+  return dest;
 };
-const cloneArray$1 = src => src.slice();
+const cloneArray$1 = src => src && src.slice();
 const copyJSON$1 = src => JSON.parse(JSON.stringify(src));
 const cloneJSON$1 = src => JSON.parse(JSON.stringify(src));
 function createType$1(typeDefinition) {
@@ -2362,6 +2397,8 @@ if (hasWindow$1) {
   }
 }
 
+// Constructs a component with a map and data values
+// Data contains a map() of arbitrary data
 class BehaviorComponent extends Component$1 {
     constructor() {
         super(false);
@@ -2384,6 +2421,13 @@ class Input$1 extends BehaviorComponent {
 // Set schema to itself plus gamepad data
 Input$1.schema = Object.assign(Object.assign({}, Input$1.schema), { gamepadConnected: { type: Types$1.Boolean, default: false }, gamepadThreshold: { type: Types$1.Number, default: 0.1 }, gamepadButtons: { type: Types$1.Array, default: [] }, gamepadInput: { type: Types$1.Array, default: [] } });
 
+var BinaryValue;
+(function (BinaryValue) {
+    BinaryValue[BinaryValue["ON"] = 1] = "ON";
+    BinaryValue[BinaryValue["OFF"] = 0] = "OFF";
+})(BinaryValue || (BinaryValue = {}));
+var BinaryValue$1 = BinaryValue;
+
 // Button -- discrete states of ON and OFF, like a button
 // OneD -- one dimensional value between 0 and 1, or -1 and 1, like a trigger
 // TwoD -- Two dimensional value with x: -1, 1 and y: -1, 1 like a mouse input
@@ -2400,25 +2444,38 @@ var InputType;
 
 // Local reference to input component
 let input;
+const _value = [0, 0];
 // System behavior called whenever the mouse pressed
 const handleMouseMovement = (entity, args) => {
+    input = entity.getComponent(Input$1);
+    _value[0] = (args.event.clientX / window.innerWidth) * 2 - 1;
+    _value[1] = (args.event.clientY / window.innerHeight) * -2 + 1;
     // Set type to TWOD (two-dimensional axis) and value to a normalized -1, 1 on X and Y
-    entity.getMutableComponent(Input$1).data.set(input.map.mouseInputMap["mousePosition"], {
+    if (input.data.has(input.map.mouseInputMap.axes["mousePosition"]) && input.data.get(input.map.mouseInputMap.axes["mousePosition"]).value === _value)
+        return;
+    console.log("Mouse X: " + _value[0] + " | Mouse Y: " + _value[1]);
+    input.data.set(input.map.mouseInputMap.axes["mousePosition"], {
         type: InputType.TWOD,
-        value: [(args.event.clientX / window.innerWidth) * 2 - 1, (args.event.clientY / window.innerHeight) * -2 + 1]
+        value: _value
     });
 };
 // System behavior called when a mouse button is fired
-const handleMouseButton = (entity, args, delta) => {
+const handleMouseButton = (entity, args) => {
     // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
     input = entity.getComponent(Input$1);
     if (input.map.mouseInputMap.buttons[args.event.button] === undefined)
-        return;
-    // Set type to BUTTON (up/down discrete state) and value to up or down, as called by the DOM mouse events
-    entity.getMutableComponent(Input$1).data.set(input.map.mouseInputMap.buttons[args.event.button], {
-        type: InputType.BUTTON,
-        value: args.value
-    });
+        return; // Set type to BUTTON (up/down discrete state) and value to up or down, as called by the DOM mouse events
+    if (args.value === BinaryValue$1.ON) {
+        console.log("Mouse button down: " + args.event.button);
+        input.data.set(input.map.mouseInputMap.buttons[args.event.button], {
+            type: InputType.BUTTON,
+            value: args.value
+        });
+    }
+    else {
+        console.log("Mouse button up" + args.event.button);
+        input.data.delete(input.map.mouseInputMap.buttons[args.event.button]);
+    }
 };
 // System behavior called when a keyboard key is pressed
 function handleKey(entity, args) {
@@ -2430,18 +2487,18 @@ function handleKey(entity, args) {
     if (input.data.has(input.map.keyboardInputMap[args.event.key]) && input.data.get(input.map.keyboardInputMap[args.event.key]).value === args.value)
         return;
     // Set type to BUTTON (up/down discrete state) and value to up or down, depending on what the value is set to
-    input.data.set(input.map.keyboardInputMap[args.event.key], {
-        type: InputType.BUTTON,
-        value: args.value
-    });
+    if (args.value === BinaryValue$1.ON) {
+        console.log("Key down: " + args.event.key);
+        input.data.set(input.map.keyboardInputMap[args.event.key], {
+            type: InputType.BUTTON,
+            value: args.value
+        });
+    }
+    else {
+        console.log("Key up:" + args.event.key);
+        input.data.delete(input.map.mouseInputMap.buttons[args.event.key]);
+    }
 }
-
-var BinaryValue;
-(function (BinaryValue) {
-    BinaryValue[BinaryValue["ON"] = 1] = "ON";
-    BinaryValue[BinaryValue["OFF"] = 0] = "OFF";
-})(BinaryValue || (BinaryValue = {}));
-var BinaryValue$1 = BinaryValue;
 
 var GamepadButtons;
 (function (GamepadButtons) {
@@ -2598,15 +2655,10 @@ let jumping;
 let transform;
 const jump = (entity, args, delta) => {
     console.log("Jump!");
-    jumping = entity.getComponent(Jumping);
     jumping.duration = 1.0;
     transform = entity.getComponent(TransformComponent);
     jumping.t += delta;
-    if (jumping.t < jumping.duration) {
-        transform.velocity[1] = transform.velocity[1] + Math.cos((jumping.t / jumping.duration) * Math.PI);
-        console.log(jumping.t);
-        return;
-    }
+    if (jumping.t < jumping.duration) ;
     // needs to remove self from stack!
     //  removeComponentsFromStateGroup(entity, args.stateGroup, Jumping as any)
     // if t < duration, remove this component
@@ -2822,6 +2874,7 @@ const addState = (entity, args) => {
         value: BinaryValue$1.ON,
         group: stateComponent.map.states[args.state].group
     });
+    // TODO: 
     // stateGroup = stateComponent.map.states[args.state].group
     // // If state group is set to exclusive (XOR) then check if other states from state group are on
     // if (stateComponent.map.groups[stateGroup].exclusive) {
@@ -3203,16 +3256,12 @@ function initializeInputSystems(world, options = DEFAULT_OPTIONS$1, inputMap) {
         .registerComponent(Input$1)
         .registerComponent(State)
         .registerComponent(Subscription)
-        .registerComponent(Actor)
-        .registerComponent(Jumping)
         .registerComponent(TransformComponent);
     const inputSystemEntity = world
         .createEntity()
         .addComponent(Input$1)
         .addComponent(State)
-        .addComponent(Actor)
         .addComponent(Subscription)
-        .addComponent(Jumping)
         .addComponent(TransformComponent);
     // Custom Action Map
     if (inputMap) {
