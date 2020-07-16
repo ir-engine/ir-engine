@@ -1,6 +1,6 @@
 import { Entity } from "ecsy"
 import Behavior from "../../interfaces/Behavior"
-import { Actor } from "../components/Actor"
+import Actor from "../components/Actor"
 import { TransformComponent } from "../components/TransformComponent"
 import { vec3 } from "gl-matrix"
 

@@ -1,18 +1,34 @@
 import { Component } from "ecsy"
 
+interface jumpVals {
+  canJump: boolean
+  t?: number
+  height?: number
+  duration?: number
+}
+
+const defaultJumpValues = {
+  canJump: true,
+  t: 0,
+  height: 1.0,
+  duration: 1.0
+}
+
 interface PropTypes {
   rotationSpeedX: number
   rotationSpeedY: number
   maxSpeed: number
   accelerationSpeed: number
+  jump: jumpVals
 }
 
-export class Actor extends Component<PropTypes> {
+export default class Actor extends Component<PropTypes> {
   rotationSpeedX: number
   rotationSpeedY: number
   maxSpeed: number
   accelerationSpeed: number
   rotationSpeedZ: number
+  jump: jumpVals = defaultJumpValues
 
   constructor() {
     super()
@@ -23,6 +39,7 @@ export class Actor extends Component<PropTypes> {
     this.rotationSpeedY = src.rotationSpeedY
     this.maxSpeed = src.maxSpeed
     this.accelerationSpeed = src.accelerationSpeed
+    this.jump = src.jump
     return this
   }
   reset(): void {
@@ -30,5 +47,6 @@ export class Actor extends Component<PropTypes> {
     this.rotationSpeedY = 1
     this.maxSpeed = 10
     this.accelerationSpeed = 1
+    this.jump = defaultJumpValues
   }
 }

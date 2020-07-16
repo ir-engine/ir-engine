@@ -1,6 +1,6 @@
 import { Entity } from "ecsy"
 import Behavior from "../../interfaces/Behavior"
-import { Actor } from "../components/Actor"
+import Actor from "../components/Actor"
 import { TransformComponent } from "../components/TransformComponent"
 import { NumericalType, Vector3, Vector2 } from "../../types/NumericalTypes"
 import { Crouching } from "../components/Crouching"
