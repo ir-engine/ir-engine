@@ -2,7 +2,6 @@ import { Entity } from "ecsy"
 import Behavior from "../../interfaces/Behavior"
 import Actor from "../components/Actor"
 import { TransformComponent } from "../components/TransformComponent"
-import StateGroupType from "../../../state/types/StateGroupAlias"
 import { DefaultStateTypes } from "../../../state/defaults/DefaultStateData"
 import { addState, removeState } from "../../../state/behaviors/StateBehaviors"
 

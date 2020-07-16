@@ -14,6 +14,7 @@ import { DefaultStateTypes } from "../../state/defaults/DefaultStateData"
 import { move } from "../../common/defaults/behaviors/move"
 import { MouseButtons } from "../enums/MouseButtons"
 import { jump } from "../../common/defaults/behaviors/jump"
+import { rotateAround } from "../../common/defaults/behaviors/rotate"
 
 // Abstract inputs that all input devices get mapped to
 export const DefaultInput = {
@@ -105,7 +106,7 @@ export const DefaultInputMap: InputMap = {
     buttons: {
       [MouseButtons.LeftButton]: DefaultInput.PRIMARY,
       [MouseButtons.RightButton]: DefaultInput.SECONDARY,
-      [MouseButtons.MiddleButton]: DefaultInput.INTERACT
+      // [MouseButtons.MiddleButton]: DefaultInput.INTERACT
     },
     axes: {
       mousePosition: DefaultInput.SCREENXY
@@ -116,8 +117,8 @@ export const DefaultInputMap: InputMap = {
     buttons: {
       [GamepadButtons.A]: DefaultInput.JUMP,
       [GamepadButtons.B]: DefaultInput.CROUCH, // B - back
-      [GamepadButtons.X]: DefaultInput.SPRINT, // X - secondary input
-      [GamepadButtons.Y]: DefaultInput.INTERACT, // Y - tertiary input
+      // [GamepadButtons.X]: DefaultInput.SPRINT, // X - secondary input
+      // [GamepadButtons.Y]: DefaultInput.INTERACT, // Y - tertiary input
       // 4: DefaultInput.DEFAULT, // LB
       // 5: DefaultInput.DEFAULT, // RB
       // 6: DefaultInput.DEFAULT, // LT
@@ -152,10 +153,7 @@ export const DefaultInputMap: InputMap = {
     [DefaultInput.LEFT]: { opposes: [DefaultInput.RIGHT] } as InputRelationshipMapping,
     [DefaultInput.RIGHT]: { opposes: [DefaultInput.LEFT] } as InputRelationshipMapping,
     [DefaultInput.CROUCH]: { blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT] } as InputRelationshipMapping,
-    [DefaultInput.JUMP]: { overrides: [DefaultInput.CROUCH] } as InputRelationshipMapping,
-    [DefaultInput.SPRINT]: { blockedBy: [DefaultInput.JUMP], overrides: [DefaultInput.CROUCH] } as InputRelationshipMapping,
-    [DefaultInput.WALK]: { blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT], overrides: [DefaultInput.CROUCH] } as InputRelationshipMapping,
-    [DefaultInput.INTERACT]: { blockedBy: [DefaultInput.JUMP] } as InputRelationshipMapping
+    [DefaultInput.JUMP]: { overrides: [DefaultInput.CROUCH] } as InputRelationshipMapping
   },
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
@@ -164,27 +162,17 @@ export const DefaultInputMap: InputMap = {
         behavior: jump,
         args: {}
       }
-    },
-    [DefaultInput.CROUCH]: {
-      [BinaryValue.ON]: {
-        behavior: addState,
-        args: { state: DefaultStateTypes.CROUCHING }
-      },
-      [BinaryValue.OFF]: {
-        behavior: removeState,
-        args: { state: DefaultStateTypes.CROUCHING }
-      }
-    },
-    [DefaultInput.SPRINT]: {
-      [BinaryValue.ON]: {
-        behavior: addState,
-        args: { state: DefaultStateTypes.SPRINTING }
-      },
-      [BinaryValue.OFF]: {
-        behavior: removeState,
-        args: { state: DefaultStateTypes.SPRINTING }
-      }
     }
+    // [DefaultInput.CROUCH]: {
+    //   [BinaryValue.ON]: {
+    //     behavior: startCrouching,
+    //     args: { state: DefaultStateTypes.CROUCHING }
+    //   },
+    //   [BinaryValue.OFF]: {
+    //     behavior: stopCrouching,
+    //     args: { state: DefaultStateTypes.CROUCHING }
+    //   }
+    // }
   },
   // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
   inputAxisBehaviors: {
@@ -194,13 +182,12 @@ export const DefaultInputMap: InputMap = {
         input: DefaultInput.MOVEMENT_PLAYERONE,
         inputType: InputType.TWOD
       }
-    }
-    // },
-    // [DefaultInput.SCREENXY]: {
-    //   behavior: console.log,
-    //   args: {
-    //     input: DefaultInput.LOOKTURN_PLAYERONE,
-    //     inputType: InputType.TWOD
-    //   }
+    },
+    [DefaultInput.SCREENXY]: {
+      behavior: rotateAround,
+      args: {
+        input: DefaultInput.LOOKTURN_PLAYERONE,
+        inputType: InputType.TWOD
+      }
   }
 }
