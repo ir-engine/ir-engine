@@ -51,7 +51,7 @@ export const DefaultInputMap: InputMap = {
   onRemoved: [
     {
       behavior: enableScroll
-       // args: { }
+      // args: { }
     }
   ],
   // When the input component is added or removed, the system will bind/unbind these events to the DOM

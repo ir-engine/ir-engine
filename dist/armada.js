@@ -280,9 +280,17 @@ class Component {
     }
   }
 
+  getName() {
+    return this.constructor.getName();
+  }
+
 }
 Component.schema = {};
 Component.isComponent = true;
+
+Component.getName = function () {
+  return this.displayName || this.name;
+};
 
 class System {
   canExecute() {
@@ -297,6 +305,10 @@ class System {
     }
 
     return true;
+  }
+
+  getName() {
+    return this.constructor.getName();
   }
 
   constructor(world, attributes) {
@@ -347,7 +359,7 @@ class System {
         if (queryConfig.listen) {
           validEvents.forEach(eventName => {
             if (!this.execute) {
-              console.warn(`System '${this.constructor.name}' has defined listen events (${validEvents.join(", ")}) for query '${queryName}' but it does not implement the 'execute' method.`);
+              console.warn(`System '${this.getName()}' has defined listen events (${validEvents.join(", ")}) for query '${queryName}' but it does not implement the 'execute' method.`);
             } // Is the event enabled on this system's query?
 
 
@@ -425,7 +437,7 @@ class System {
 
   toJSON() {
     var json = {
-      name: this.constructor.name,
+      name: this.getName(),
       enabled: this.enabled,
       executeTime: this.executeTime,
       priority: this.priority,
@@ -464,6 +476,10 @@ class System {
 }
 System.isSystem = true;
 
+System.getName = function () {
+  return this.displayName || this.name;
+};
+
 class TagComponent extends Component {
   constructor() {
     super(false);
@@ -475,17 +491,23 @@ TagComponent.isTagComponent = true;
 const copyValue = src => src;
 const cloneValue = src => src;
 const copyArray = (src, dest) => {
-  const srcArray = src;
-  const destArray = dest;
-  destArray.length = 0;
-
-  for (let i = 0; i < srcArray.length; i++) {
-    destArray.push(srcArray[i]);
+  if (!src) {
+    return src;
   }
 
-  return destArray;
+  if (!dest) {
+    return src.slice();
+  }
+
+  dest.length = 0;
+
+  for (let i = 0; i < src.length; i++) {
+    dest.push(src[i]);
+  }
+
+  return dest;
 };
-const cloneArray = src => src.slice();
+const cloneArray = src => src && src.slice();
 const copyJSON = src => JSON.parse(JSON.stringify(src));
 const cloneJSON = src => JSON.parse(JSON.stringify(src));
 function createType(typeDefinition) {
@@ -713,6 +735,8 @@ if (hasWindow) {
   }
 }
 
+// Constructs a component with a map and data values
+// Data contains a map() of arbitrary data
 class BehaviorComponent extends Component {
     constructor() {
         super(false);
@@ -735,6 +759,13 @@ class Input extends BehaviorComponent {
 // Set schema to itself plus gamepad data
 Input.schema = Object.assign(Object.assign({}, Input.schema), { gamepadConnected: { type: Types.Boolean, default: false }, gamepadThreshold: { type: Types.Number, default: 0.1 }, gamepadButtons: { type: Types.Array, default: [] }, gamepadInput: { type: Types.Array, default: [] } });
 
+var BinaryValue;
+(function (BinaryValue) {
+    BinaryValue[BinaryValue["ON"] = 1] = "ON";
+    BinaryValue[BinaryValue["OFF"] = 0] = "OFF";
+})(BinaryValue || (BinaryValue = {}));
+var BinaryValue$1 = BinaryValue;
+
 // Button -- discrete states of ON and OFF, like a button
 // OneD -- one dimensional value between 0 and 1, or -1 and 1, like a trigger
 // TwoD -- Two dimensional value with x: -1, 1 and y: -1, 1 like a mouse input
@@ -751,25 +782,38 @@ var InputType;
 
 // Local reference to input component
 let input;
+const _value = [0, 0];
 // System behavior called whenever the mouse pressed
 const handleMouseMovement = (entity, args) => {
+    input = entity.getComponent(Input);
+    _value[0] = (args.event.clientX / window.innerWidth) * 2 - 1;
+    _value[1] = (args.event.clientY / window.innerHeight) * -2 + 1;
     // Set type to TWOD (two-dimensional axis) and value to a normalized -1, 1 on X and Y
-    entity.getMutableComponent(Input).data.set(input.map.mouseInputMap["mousePosition"], {
+    if (input.data.has(input.map.mouseInputMap.axes["mousePosition"]) && input.data.get(input.map.mouseInputMap.axes["mousePosition"]).value === _value)
+        return;
+    console.log("Mouse X: " + _value[0] + " | Mouse Y: " + _value[1]);
+    input.data.set(input.map.mouseInputMap.axes["mousePosition"], {
         type: InputType.TWOD,
-        value: [(args.event.clientX / window.innerWidth) * 2 - 1, (args.event.clientY / window.innerHeight) * -2 + 1]
+        value: _value
     });
 };
 // System behavior called when a mouse button is fired
-const handleMouseButton = (entity, args, delta) => {
+const handleMouseButton = (entity, args) => {
     // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
     input = entity.getComponent(Input);
     if (input.map.mouseInputMap.buttons[args.event.button] === undefined)
-        return;
-    // Set type to BUTTON (up/down discrete state) and value to up or down, as called by the DOM mouse events
-    entity.getMutableComponent(Input).data.set(input.map.mouseInputMap.buttons[args.event.button], {
-        type: InputType.BUTTON,
-        value: args.value
-    });
+        return; // Set type to BUTTON (up/down discrete state) and value to up or down, as called by the DOM mouse events
+    if (args.value === BinaryValue$1.ON) {
+        console.log("Mouse button down: " + args.event.button);
+        input.data.set(input.map.mouseInputMap.buttons[args.event.button], {
+            type: InputType.BUTTON,
+            value: args.value
+        });
+    }
+    else {
+        console.log("Mouse button up" + args.event.button);
+        input.data.delete(input.map.mouseInputMap.buttons[args.event.button]);
+    }
 };
 // System behavior called when a keyboard key is pressed
 function handleKey(entity, args) {
@@ -781,18 +825,18 @@ function handleKey(entity, args) {
     if (input.data.has(input.map.keyboardInputMap[args.event.key]) && input.data.get(input.map.keyboardInputMap[args.event.key]).value === args.value)
         return;
     // Set type to BUTTON (up/down discrete state) and value to up or down, depending on what the value is set to
-    input.data.set(input.map.keyboardInputMap[args.event.key], {
-        type: InputType.BUTTON,
-        value: args.value
-    });
+    if (args.value === BinaryValue$1.ON) {
+        console.log("Key down: " + args.event.key);
+        input.data.set(input.map.keyboardInputMap[args.event.key], {
+            type: InputType.BUTTON,
+            value: args.value
+        });
+    }
+    else {
+        console.log("Key up:" + args.event.key);
+        input.data.delete(input.map.mouseInputMap.buttons[args.event.key]);
+    }
 }
-
-var BinaryValue;
-(function (BinaryValue) {
-    BinaryValue[BinaryValue["ON"] = 1] = "ON";
-    BinaryValue[BinaryValue["OFF"] = 0] = "OFF";
-})(BinaryValue || (BinaryValue = {}));
-var BinaryValue$1 = BinaryValue;
 
 var GamepadButtons;
 (function (GamepadButtons) {
@@ -949,15 +993,10 @@ let jumping;
 let transform;
 const jump = (entity, args, delta) => {
     console.log("Jump!");
-    jumping = entity.getComponent(Jumping);
     jumping.duration = 1.0;
     transform = entity.getComponent(TransformComponent);
     jumping.t += delta;
-    if (jumping.t < jumping.duration) {
-        transform.velocity[1] = transform.velocity[1] + Math.cos((jumping.t / jumping.duration) * Math.PI);
-        console.log(jumping.t);
-        return;
-    }
+    if (jumping.t < jumping.duration) ;
     // needs to remove self from stack!
     //  removeComponentsFromStateGroup(entity, args.stateGroup, Jumping as any)
     // if t < duration, remove this component
@@ -1173,6 +1212,7 @@ const addState = (entity, args) => {
         value: BinaryValue$1.ON,
         group: stateComponent.map.states[args.state].group
     });
+    // TODO: 
     // stateGroup = stateComponent.map.states[args.state].group
     // // If state group is set to exclusive (XOR) then check if other states from state group are on
     // if (stateComponent.map.groups[stateGroup].exclusive) {
@@ -1554,16 +1594,12 @@ function initializeInputSystems(world, options = DEFAULT_OPTIONS, inputMap) {
         .registerComponent(Input)
         .registerComponent(State)
         .registerComponent(Subscription)
-        .registerComponent(Actor)
-        .registerComponent(Jumping)
         .registerComponent(TransformComponent);
     const inputSystemEntity = world
         .createEntity()
         .addComponent(Input)
         .addComponent(State)
-        .addComponent(Actor)
         .addComponent(Subscription)
-        .addComponent(Jumping)
         .addComponent(TransformComponent);
     // Custom Action Map
     if (inputMap) {

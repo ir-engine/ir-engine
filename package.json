@@ -10,7 +10,7 @@
   "bundleDependencies": false,
   "dependencies": {},
   "deprecated": false,
-  "name": "@xr3ngine/armada",
+  "name": "xr3ngine-armada",
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
   "devDependencies": {
     "@babel/core": "^7.6.4",
@@ -27,7 +27,7 @@
     "babelify": "^10.0.0",
     "browserify": "^16.5.0",
     "concurrently": "^5.0.0",
-    "ecsy": "^0.3.1",
+    "ecsy": "^0.3.2",
     "ecsy-three": "0.0.6",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.7.0",
