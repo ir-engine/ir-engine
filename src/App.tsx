@@ -14,12 +14,7 @@ import {
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-// import { DracosisPlayer } from 'three-volumetric/dist/index';
-
-// eslint-disable-next-line
-import TestWorker from './TestWorker';
-
-// import Worker from 'worker-loader!./TestWorker.js';
+import { DracosisPlayer } from 'three-volumetric/dist/three-volumetric';
 
 extend({ OrbitControls });
 
@@ -36,6 +31,30 @@ declare global {
   var model: any;
 }
 
+function LoadPlayer() {
+  var callback = function () {
+    console.log('drc');
+  };
+  const { scene } = useThree();
+
+  // var renderer = new THREE.WebGLRenderer();
+  // var scene = new THREE.Scene();
+  new DracosisPlayer(
+    scene,
+    '../public/assets/sample.drcs',
+    callback,
+    true,
+    true,
+    0,
+    -1,
+    1,
+    100
+  );
+
+  const mesh: any = useRef();
+  return <mesh></mesh>;
+}
+
 function Box(props: any) {
   // This reference will give us direct access to the mesh
   const mesh: any = useRef();
@@ -46,9 +65,6 @@ function Box(props: any) {
 
   // Rotate mesh every frame, this is outside of React without overhead
   useFrame(() => (mesh.current.rotation.x = mesh.current.rotation.y += 0.01));
-
-  let myWorker = new TestWorker();
-  myWorker.postMessage('Hello World');
 
   return (
     <mesh
@@ -90,6 +106,7 @@ function App(props: any) {
         <ambientLight intensity={0.2} />
         <pointLight position={[1, 1, 1]} />
         <Box position={[0, 0, 0]} />
+        <LoadPlayer />
         <Controls />
       </Canvas>,
       document.getElementById('root')
