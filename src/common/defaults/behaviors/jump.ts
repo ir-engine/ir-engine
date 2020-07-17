@@ -2,8 +2,8 @@ import { Entity } from "ecsy"
 import Behavior from "../../interfaces/Behavior"
 import Actor from "../components/Actor"
 import { TransformComponent } from "../components/TransformComponent"
-import { DefaultStateTypes } from "../../../state/defaults/DefaultStateData"
 import { addState, removeState } from "../../../state/behaviors/StateBehaviors"
+import { DefaultStateTypes } from "../../../state/defaults/DefaultStateTypes"
 
 let actor: Actor
 let transform: TransformComponent

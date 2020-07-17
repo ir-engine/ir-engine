@@ -12,7 +12,7 @@ import LifecycleValue from "../../common/enums/LifecycleValue"
 let stateComponent: State
 let stateGroup: StateGroupType
 
-export const toggleState: Behavior = (entity: Entity, args: { value: BinaryValue; stateType: StateAlias }): void => {
+export const toggleState: Behavior = (entity: Entity, args: { value: Binary; stateType: StateAlias }): void => {
   if (args.value === BinaryValue.ON) addState(entity, args)
   else removeState(entity, args)
 }

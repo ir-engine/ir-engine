@@ -8,7 +8,6 @@
     "url": "https://github.com/xr3ngine/armada/issues"
   },
   "bundleDependencies": false,
-  "dependencies": {},
   "deprecated": false,
   "name": "xr3ngine-armada",
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
@@ -48,7 +47,8 @@
     "rollup-plugin-serve": "^1.0.1",
     "rollup-plugin-terser": "^5.1.2",
     "rollup-plugin-typescript2": "^0.27.1",
-    "three": "^0.118.1",
+    "three": "^0.118.3",
+    "troika-3d-text": "^0.28.1",
     "typescript": "^3.9.5"
   },
   "homepage": "https://github.com/xr3ngine/armada#readme",
