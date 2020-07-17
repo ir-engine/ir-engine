@@ -156,7 +156,7 @@ async function generateEmail (
   const email = {
     from: mailSender,
     to: toEmail,
-    subject: config.email.subject.login,
+    subject: config.email.subject[inviteType],
     html: compiledHTML
   }
 
