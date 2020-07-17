@@ -10,7 +10,7 @@ import { handleGamepadConnected, handleGamepadDisconnected } from "../behaviors/
 import { addState, removeState } from "../../state/behaviors/StateBehaviors"
 import { InputType } from "../enums/InputType"
 import InputRelationshipMapping from "../interfaces/InputRelationshipMapping"
-import { DefaultStateTypes } from "../../state/defaults/DefaultStateData"
+import { DefaultStateTypes } from "../../state/defaults/DefaultStateTypes"
 import { move } from "../../common/defaults/behaviors/move"
 import { MouseButtons } from "../enums/MouseButtons"
 import { jump } from "../../common/defaults/behaviors/jump"
@@ -105,7 +105,7 @@ export const DefaultInputMap: InputMap = {
   mouseInputMap: {
     buttons: {
       [MouseButtons.LeftButton]: DefaultInput.PRIMARY,
-      [MouseButtons.RightButton]: DefaultInput.SECONDARY,
+      [MouseButtons.RightButton]: DefaultInput.SECONDARY
       // [MouseButtons.MiddleButton]: DefaultInput.INTERACT
     },
     axes: {
@@ -189,5 +189,6 @@ export const DefaultInputMap: InputMap = {
         input: DefaultInput.LOOKTURN_PLAYERONE,
         inputType: InputType.TWOD
       }
+    }
   }
 }

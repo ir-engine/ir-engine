@@ -2,13 +2,12 @@ import { System } from "ecsy"
 import Input from "../components/Input"
 import { DefaultInputMap } from "../defaults/DefaultInputData"
 import { Entity } from "ecsy"
-import { NumericalType } from "../../common/types/NumericalTypes"
+import { NumericalType, Binary } from "../../common/types/NumericalTypes"
 import Behavior from "../../common/interfaces/Behavior"
 import InputValue from "../interfaces/InputValue"
 import InputAlias from "../types/InputAlias"
 import { InputType } from "../enums/InputType"
 import LifecycleValue from "../../common/enums/LifecycleValue"
-import BinaryValue from "../../common/enums/BinaryValue"
 
 export default class InputSystem extends System {
   // Temp/ref variables
@@ -64,7 +63,7 @@ export const handleInput: Behavior = (entity: Entity, delta: number): void => {
         if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue.STARTED) {
           input.data.set(key, {
             type: value.type,
-            value: value.value as BinaryValue,
+            value: value.value as Binary,
             lifecycleState: LifecycleValue.CONTINUED
           })
           input.map.inputButtonBehaviors[key][value.value as number].behavior(
@@ -79,10 +78,10 @@ export const handleInput: Behavior = (entity: Entity, delta: number): void => {
         if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue.STARTED) {
           input.data.set(key, {
             type: value.type,
-            value: value.value as BinaryValue,
+            value: value.value as Binary,
             lifecycleState: LifecycleValue.CONTINUED
           })
-          input.map.inputButtonBehaviors[key][value.value as number].behavior(entity, input.map.inputAxisBehaviors[key].args, delta)
+          input.map.inputAxisBehaviors[key].behavior(entity, input.map.inputAxisBehaviors[key].args, delta)
         }
       }
     } else {

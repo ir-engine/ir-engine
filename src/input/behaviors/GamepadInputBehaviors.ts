@@ -73,7 +73,7 @@ const handleGamepadButton: Behavior = (entity: Entity, args: { gamepad: Gamepad;
     type: InputType.BUTTON,
     value: gamepad.buttons[args.index].touched ? BinaryValue.ON : BinaryValue.OFF
   })
-  input.gamepadButtons[args.index] = gamepad.buttons[args.index].touched ? BinaryValue.ON : BinaryValue.OFF
+  input.gamepadButtons[args.index] = gamepad.buttons[args.index].touched ? 1 : 0
 }
 
 export const handleGamepadAxis: Behavior = (entity: Entity, args: { gamepad: Gamepad; inputIndex: number; mappedInputValue: InputAlias }) => {
@@ -111,7 +111,7 @@ export const handleGamepadConnected: Behavior = (entity: Entity, args: { event: 
   gamepad = args.event.gamepad
 
   for (let index = 0; index < gamepad.buttons.length; index++) {
-    if (typeof input.gamepadButtons[index] === "undefined") input.gamepadButtons[index] = BinaryValue.OFF
+    if (typeof input.gamepadButtons[index] === "undefined") input.gamepadButtons[index] = 0
   }
 }
 
@@ -131,6 +131,6 @@ export const handleGamepadDisconnected: Behavior = (entity: Entity, args: { even
         value: BinaryValue.OFF
       })
     }
-    input.gamepadButtons[index] = BinaryValue.OFF
+    input.gamepadButtons[index] = 0
   }
 }

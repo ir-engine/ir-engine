@@ -28,21 +28,21 @@ export default [
   {
     input: "examples/input_three.html",
     output: { dir: "dist/examples" },
-    plugins: [html(), resolve()]
+    plugins: [html(), typescript(), resolve()]
   },
   {
     input: "examples/input_custom.html",
     output: { dir: "dist/examples" },
-    plugins: [html(), resolve()]
+    plugins: [html(), typescript(), resolve()]
   },
   {
     input: "examples/input_mouse.html",
     output: { dir: "dist/examples" },
-    plugins: [html(), resolve()]
+    plugins: [html(), typescript(), resolve()]
   },
   {
     input: "examples/input.html",
     output: { dir: "dist/examples" },
-    plugins: [html(), resolve()]
+    plugins: [html(), typescript(), resolve()]
   }
 ]

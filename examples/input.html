@@ -20,6 +20,8 @@
       }
       initializeInputSystems(world, inputOptions)
 
+      initializeActor(new Entity())
+
       var lastTime = performance.now();
       function update() {
         var time = performance.now();
@@ -31,7 +33,6 @@
 
       update();
       </script>
-    <div id="actionDataWrapper"><span>Action: </span><span id="actionData"></span></div>
-    <div id="inputDataWrapper"><span>Input: </span><span id="inputData"></span></div>
+    Check console
   </body>
 </html>
