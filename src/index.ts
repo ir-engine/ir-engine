@@ -56,20 +56,20 @@ export function initializeActor(entity: Entity, options: { inputMap?: InputMap; 
   if (options.inputMap) {
     console.log("Using input map:")
     console.log(options.inputMap)
-    ;(entity.getMutableComponent(Input) as any).map = options.inputMap
+    entity.getMutableComponent(Input).map = options.inputMap
   } else {
     console.log("No input map provided, defaulting to default input")
-    ;(entity.getMutableComponent(Input) as any).map = DefaultInputMap
+    entity.getMutableComponent(Input).map = DefaultInputMap
   }
 
   // Custom Action Map
   if (options.stateMap) {
     console.log("Using input map:")
     console.log(options.stateMap)
-    ;(entity.getMutableComponent(State) as any).map = options.stateMap
+    entity.getMutableComponent(State).map = options.stateMap
   } else {
     console.log("No input map provided, defaulting to default input")
-    ;(entity.getMutableComponent(State) as any).stateMap = DefaultStateMap
+    entity.getMutableComponent(State).map = DefaultStateMap
   }
 
   return entity
