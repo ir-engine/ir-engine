@@ -5,30 +5,38 @@ import { BadRequest, Forbidden } from '@feathersjs/errors'
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {
-    // Getting logged in user and attaching owner of user
-    console.log('GROUP PERMISSION AUTHENTICATE')
-      const { id, params, app, path } = context
+    let fetchedGroupId
+    const { id, method, params, app, path } = context
     const loggedInUser = extractLoggedInUserFromParams(params)
-    console.log(loggedInUser)
-    console.log(path)
-    const groupId = path === 'group-user' ? params.query.groupId : id
-    const userId = path === 'group' ? loggedInUser.userId : params.query.userId
-    console.log('groupId: ' + groupId)
-    console.log('userId: ' + userId)
-    const groupUserResult = await app.service('group-user').find({
+    if (path === 'group-user' && method === 'remove') {
+      const groupUser = await app.service('group-user').get(id)
+      fetchedGroupId = groupUser.groupId
+    }
+    const groupId = path === 'group-user' && method === 'find' ? params.query.groupId : fetchedGroupId != null ? fetchedGroupId : id
+    params.query.groupId = groupId
+    const userId = path === 'group' ? loggedInUser.userId : params.query.userId || loggedInUser.userId
+    const groupUserCountResult = await app.service('group-user').find({
       query: {
         groupId: groupId,
-        userId: userId
+        $limit: 0
       }
     })
+    if (groupUserCountResult.total > 0) {
+      const groupUserResult = await app.service('group-user').find({
+        query: {
+          groupId: groupId,
+          userId: userId
+        }
+      })
       if (groupUserResult.total === 0) {
         throw new BadRequest('Invalid group ID')
       }
       const groupUser = groupUserResult.data[0]
-      if (groupUser.groupUserRank !== 'owner' && groupUser.groupUserRank !== 'admin') {
+      if (groupUser.groupUserRank !== 'owner' && groupUser.groupUserRank !== 'admin' && groupUser.userId !== loggedInUser.userId) {
         throw new Forbidden('You must be the owner or an admin of this group to perform that action')
       }
+    }
 
-      return context
+    return context
   }
 }

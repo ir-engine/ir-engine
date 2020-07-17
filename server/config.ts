@@ -91,7 +91,10 @@ const email = {
     ` <${process.env.SMTP_FROM_EMAIL ?? 'noreply@myxr.email'}>`,
   subject: {
     // Subject of the Login Link email
-    login: 'Your login link'
+    login: 'XR3ngine login link',
+    friend: 'XR3ngine friend request',
+    group: 'XR3ngine group invitation',
+    party: 'XR3ngine party invitation'
   }
 }
 
