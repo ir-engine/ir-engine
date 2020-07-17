@@ -11,6 +11,8 @@ export default () => {
         groupId: id || params.query?.groupId
       }
     })
+    delete params.query.groupId
+    params.groupUsersRemoved = true
     await Promise.all(groupUserResult.data.map((groupUser) => {
       const paramsCopy = _.cloneDeep(params)
       paramsCopy.query.groupId = id
@@ -18,7 +20,6 @@ export default () => {
       return app.service('group-user').remove(groupUser.id, paramsCopy)
     }))
 
-    console.log('REMOVED GROUP USERS')
     return context
   }
 }

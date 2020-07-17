@@ -233,7 +233,9 @@ const Invites = (props: Props): any => {
                                 <ListItemAvatar>
                                     <Avatar src={invite.user.avatarUrl}/>
                                 </ListItemAvatar>
-                                <ListItemText>{capitalize(invite.inviteType)} Request to { invite.invitee ? invite.invitee.name : invite.token }</ListItemText>
+                                { invite.inviteType === 'friend' && <ListItemText>{capitalize(invite.inviteType)} request to { invite.invitee ? invite.invitee.name : invite.token }</ListItemText> }
+                                { invite.inviteType === 'group' && <ListItemText>Join group {invite.groupName} to { invite.invitee ? invite.invitee.name : invite.token }</ListItemText> }
+                                { invite.inviteType === 'party' && <ListItemText>Join a party to { invite.invitee ? invite.invitee.name : invite.token }</ListItemText> }
                                 {deletePending !== invite.id && <Button onClick={() => showDeleteConfirm(invite.id)}>Uninvite</Button> }
                                 {deletePending === invite.id &&
 								<div>
