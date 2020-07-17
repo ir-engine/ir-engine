@@ -24,6 +24,25 @@ export default [
       }
     ]
   },
+
+  {
+    input: "src/touch-handler-examples/touch-handler-example.ts",
+    plugins: [
+      typescript(),
+      // resolve(),
+      json({ exclude: ["node_modules/**", "examples/**"] })
+      // babel({ babelHelpers: "bundled" })
+    ],
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+    output: [
+      {
+        file: "dist/touch-handler-example.js",
+        format: "es",
+        sourcemap: true
+      }
+    ]
+  },
+
   // HTML pages
   {
     input: "examples/input_three.html",
@@ -44,5 +63,10 @@ export default [
     input: "examples/input.html",
     output: { dir: "dist/examples" },
     plugins: [html(), resolve()]
-  }
+  },
+  {
+    input: "examples/touch-handler.html",
+    output: { dir: "dist/examples" },
+    plugins: [html(), resolve()]
+  },
 ]

@@ -280,17 +280,9 @@ class Component {
     }
   }
 
-  getName() {
-    return this.constructor.getName();
-  }
-
 }
 Component.schema = {};
 Component.isComponent = true;
-
-Component.getName = function () {
-  return this.displayName || this.name;
-};
 
 class System {
   canExecute() {
@@ -305,10 +297,6 @@ class System {
     }
 
     return true;
-  }
-
-  getName() {
-    return this.constructor.getName();
   }
 
   constructor(world, attributes) {
@@ -359,7 +347,7 @@ class System {
         if (queryConfig.listen) {
           validEvents.forEach(eventName => {
             if (!this.execute) {
-              console.warn(`System '${this.getName()}' has defined listen events (${validEvents.join(", ")}) for query '${queryName}' but it does not implement the 'execute' method.`);
+              console.warn(`System '${this.constructor.name}' has defined listen events (${validEvents.join(", ")}) for query '${queryName}' but it does not implement the 'execute' method.`);
             } // Is the event enabled on this system's query?
 
 
@@ -437,7 +425,7 @@ class System {
 
   toJSON() {
     var json = {
-      name: this.getName(),
+      name: this.constructor.name,
       enabled: this.enabled,
       executeTime: this.executeTime,
       priority: this.priority,
@@ -476,10 +464,6 @@ class System {
 }
 System.isSystem = true;
 
-System.getName = function () {
-  return this.displayName || this.name;
-};
-
 class TagComponent extends Component {
   constructor() {
     super(false);
@@ -491,23 +475,17 @@ TagComponent.isTagComponent = true;
 const copyValue = src => src;
 const cloneValue = src => src;
 const copyArray = (src, dest) => {
-  if (!src) {
-    return src;
+  const srcArray = src;
+  const destArray = dest;
+  destArray.length = 0;
+
+  for (let i = 0; i < srcArray.length; i++) {
+    destArray.push(srcArray[i]);
   }
 
-  if (!dest) {
-    return src.slice();
-  }
-
-  dest.length = 0;
-
-  for (let i = 0; i < src.length; i++) {
-    dest.push(src[i]);
-  }
-
-  return dest;
+  return destArray;
 };
-const cloneArray = src => src && src.slice();
+const cloneArray = src => src.slice();
 const copyJSON = src => JSON.parse(JSON.stringify(src));
 const cloneJSON = src => JSON.parse(JSON.stringify(src));
 function createType(typeDefinition) {
@@ -789,9 +767,6 @@ const handleMouseMovement = (entity, args) => {
     _value[0] = (args.event.clientX / window.innerWidth) * 2 - 1;
     _value[1] = (args.event.clientY / window.innerHeight) * -2 + 1;
     // Set type to TWOD (two-dimensional axis) and value to a normalized -1, 1 on X and Y
-    if (input.data.has(input.map.mouseInputMap.axes["mousePosition"]) && input.data.get(input.map.mouseInputMap.axes["mousePosition"]).value === _value)
-        return;
-    console.log("Mouse X: " + _value[0] + " | Mouse Y: " + _value[1]);
     input.data.set(input.map.mouseInputMap.axes["mousePosition"], {
         type: InputType.TWOD,
         value: _value
@@ -939,24 +914,33 @@ const handleGamepadDisconnected = (entity, args) => {
     }
 };
 
-class Idle extends TagComponent {
-}
-
-class Moving extends TagComponent {
-}
-
-class Jumping extends Component {
-}
-Jumping.schema = {
-    t: { type: Types.Number, default: 0 },
-    height: { type: Types.Number, default: 0.5 },
-    duration: { type: Types.Number, default: 0.5 }
+const defaultJumpValues = {
+    canJump: true,
+    t: 0,
+    height: 1.0,
+    duration: 1.0
 };
-
-class Crouching extends TagComponent {
-}
-
-class Sprinting extends TagComponent {
+class Actor extends Component {
+    constructor() {
+        super();
+        this.jump = defaultJumpValues;
+        this.reset();
+    }
+    copy(src) {
+        this.rotationSpeedX = src.rotationSpeedX;
+        this.rotationSpeedY = src.rotationSpeedY;
+        this.maxSpeed = src.maxSpeed;
+        this.accelerationSpeed = src.accelerationSpeed;
+        this.jump = src.jump;
+        return this;
+    }
+    reset() {
+        this.rotationSpeedX = 1;
+        this.rotationSpeedY = 1;
+        this.maxSpeed = 10;
+        this.accelerationSpeed = 1;
+        this.jump = defaultJumpValues;
+    }
 }
 
 const vector3Identity = [0, 0, 0];
@@ -989,154 +973,25 @@ class TransformComponent extends Component {
     }
 }
 
-let jumping;
-let transform;
-const jump = (entity, args, delta) => {
-    console.log("Jump!");
-    jumping.duration = 1.0;
-    transform = entity.getComponent(TransformComponent);
-    jumping.t += delta;
-    if (jumping.t < jumping.duration) ;
-    // needs to remove self from stack!
-    //  removeComponentsFromStateGroup(entity, args.stateGroup, Jumping as any)
-    // if t < duration, remove this component
-    console.log("Jumped");
-};
-
-class Actor extends Component {
-    constructor() {
-        super();
-        this.reset();
-    }
-    copy(src) {
-        this.rotationSpeedX = src.rotationSpeedX;
-        this.rotationSpeedY = src.rotationSpeedY;
-        this.maxSpeed = src.maxSpeed;
-        this.accelerationSpeed = src.accelerationSpeed;
-        return this;
-    }
-    reset() {
-        this.rotationSpeedX = 1;
-        this.rotationSpeedY = 1;
-        this.maxSpeed = 10;
-        this.accelerationSpeed = 1;
-    }
-}
-
-/**
- * Common utilities
- * @module glMatrix
- */
-var ARRAY_TYPE = typeof Float32Array !== 'undefined' ? Float32Array : Array;
-if (!Math.hypot) Math.hypot = function () {
-  var y = 0,
-      i = arguments.length;
-
-  while (i--) {
-    y += arguments[i] * arguments[i];
-  }
-
-  return Math.sqrt(y);
-};
-
-/**
- * 3 Dimensional Vector
- * @module vec3
- */
-
-/**
- * Creates a new, empty vec3
- *
- * @returns {vec3} a new 3D vector
- */
-
-function create() {
-  var out = new ARRAY_TYPE(3);
-
-  if (ARRAY_TYPE != Float32Array) {
-    out[0] = 0;
-    out[1] = 0;
-    out[2] = 0;
-  }
-
-  return out;
-}
-/**
- * Calculates the length of a vec3
- *
- * @param {ReadonlyVec3} a vector to calculate length of
- * @returns {Number} length of a
- */
-
-function length(a) {
-  var x = a[0];
-  var y = a[1];
-  var z = a[2];
-  return Math.hypot(x, y, z);
-}
-/**
- * Perform some operation over an array of vec3s.
- *
- * @param {Array} a the array of vectors to iterate over
- * @param {Number} stride Number of elements between the start of each vec3. If 0 assumes tightly packed
- * @param {Number} offset Number of elements to skip at the beginning of the array
- * @param {Number} count Number of vec3s to iterate over. If 0 iterates over entire array
- * @param {Function} fn Function to call for each vector in the array
- * @param {Object} [arg] additional argument to pass to fn
- * @returns {Array} a
- * @function
- */
-
-var forEach = function () {
-  var vec = create();
-  return function (a, stride, offset, count, fn, arg) {
-    var i, l;
-
-    if (!stride) {
-      stride = 3;
-    }
-
-    if (!offset) {
-      offset = 0;
-    }
-
-    if (count) {
-      l = Math.min(count * stride + offset, a.length);
-    } else {
-      l = a.length;
-    }
-
-    for (i = offset; i < l; i += stride) {
-      vec[0] = a[i];
-      vec[1] = a[i + 1];
-      vec[2] = a[i + 2];
-      fn(vec, vec, arg);
-      a[i] = vec[0];
-      a[i + 1] = vec[1];
-      a[i + 2] = vec[2];
-    }
-
-    return a;
-  };
-}();
-
 let actor;
-let transform$1;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const decelerate = (entity, delta) => {
-    // get actor comonent
-    actor = entity.getComponent(Actor);
-    // get the transform
-    transform$1 = entity.getComponent(TransformComponent);
-    // if magnitude of velocity is more than .001
-    if (length(transform$1.velocity) > 0.001) {
-        // add to velocity by adding state value * acceleration * delta
-        transform$1.velocity[0] *= Math.max(1.0 - actor.accelerationSpeed * delta, 0);
-        // transform.velocity[1] *= Math.max(1.0 - actor.accelerationSpeed * delta, 0)
-        transform$1.velocity[2] *= Math.max(1.0 - actor.accelerationSpeed * delta, 0);
-        console.log(transform$1.velocity[0] + " | " + transform$1.velocity[1] + " | " + transform$1.velocity[2]);
+let transform;
+const jump = (entity) => {
+    console.log("Jump!");
+    addState(entity, { state: DefaultStateTypes.JUMPING });
+    actor = entity.getMutableComponent(Actor);
+    actor.jump.t = 0;
+};
+const jumping = (entity, args, delta) => {
+    transform = entity.getComponent(TransformComponent);
+    actor = entity.getMutableComponent(Actor);
+    actor.jump.t += delta;
+    if (actor.jump.t < actor.jump.duration) {
+        transform.velocity[1] = transform.velocity[1] + Math.cos((actor.jump.t / actor.jump.duration) * Math.PI);
+        console.log("Jumping: " + actor.jump.t);
+        return;
     }
-    // clamp velocity to max value
+    removeState(entity, { state: DefaultStateTypes.JUMPING });
+    console.log("Jumped");
 };
 
 const DefaultStateTypes = {
@@ -1173,14 +1028,13 @@ const DefaultStateMap = {
         }
     },
     states: {
-        [DefaultStateTypes.IDLE]: { group: DefaultStateGroups.MOVEMENT, component: Idle, onUpdate: { behavior: decelerate } },
+        [DefaultStateTypes.IDLE]: { group: DefaultStateGroups.MOVEMENT },
         [DefaultStateTypes.MOVING]: {
-            group: DefaultStateGroups.MOVEMENT,
-            component: Moving
+            group: DefaultStateGroups.MOVEMENT
         },
-        [DefaultStateTypes.JUMPING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS, component: Jumping, onUpdate: { behavior: jump } },
-        [DefaultStateTypes.CROUCHING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS, component: Crouching, blockedBy: DefaultStateTypes.JUMPING },
-        [DefaultStateTypes.SPRINTING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS, component: Sprinting }
+        [DefaultStateTypes.JUMPING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS, onUpdate: { behavior: jumping } },
+        [DefaultStateTypes.CROUCHING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS, blockedBy: DefaultStateTypes.JUMPING },
+        [DefaultStateTypes.SPRINTING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS }
     }
 };
 
@@ -1200,11 +1054,11 @@ var StateType;
 })(StateType || (StateType = {}));
 
 let stateComponent;
+let stateGroup;
 const addState = (entity, args) => {
     stateComponent = entity.getComponent(State);
-    if (stateComponent.data.has(args.state) && stateComponent.data.get(args.state).value === BinaryValue$1.ON) {
+    if (stateComponent.data.has(args.state))
         return;
-    }
     console.log("Adding state: " + args.state);
     stateComponent.data.set(args.state, {
         state: args.state,
@@ -1212,30 +1066,35 @@ const addState = (entity, args) => {
         value: BinaryValue$1.ON,
         group: stateComponent.map.states[args.state].group
     });
-    // TODO: 
-    // stateGroup = stateComponent.map.states[args.state].group
-    // // If state group is set to exclusive (XOR) then check if other states from state group are on
-    // if (stateComponent.map.groups[stateGroup].exclusive) {
-    //   stateComponent.data.set(args.state, { ...stateComponent.data.get(args.state), value: BinaryValue.OFF })
-    // }
+    stateGroup = stateComponent.map.states[args.state].group;
+    // If state group is set to exclusive (XOR) then check if other states from state group are on
+    if (stateComponent.map.groups[stateGroup].exclusive) {
+        stateComponent.map.groups[stateGroup].states.forEach(state => {
+            if (state === args.state || !stateComponent.data.has(state))
+                return;
+            stateComponent.data.delete(state);
+            console.log("Removed mutex state " + state);
+        });
+    }
 };
 const removeState = (entity, args) => {
     // check state group
     stateComponent = entity.getComponent(State);
-    stateComponent.data.set(args.state, Object.assign({}, (stateComponent.data.has(args.state)
-        ? stateComponent.data.get(args.state)
-        : {
-            state: args.state,
-            type: StateType.DISCRETE,
-            value: BinaryValue$1.OFF,
-            group: stateComponent.map.states[args.state].group
-        })));
-    console.log("Removed component from " + entity.id);
+    if (stateComponent.data.has(args.state)) {
+        stateComponent.data.delete(args.state);
+        console.log("Removed component from " + entity.id);
+    }
 };
+
+class Crouching extends TagComponent {
+}
+
+class Sprinting extends TagComponent {
+}
 
 let input$2;
 let actor$1;
-let transform$2;
+let transform$1;
 let inputValue; // Could be a (small) source of garbage
 let inputType;
 let movementModifer;
@@ -1243,19 +1102,19 @@ let outputSpeed;
 const move = (entity, args, delta) => {
     input$2 = entity.getComponent(Input);
     actor$1 = entity.getComponent(Actor);
-    transform$2 = entity.getComponent(TransformComponent);
+    transform$1 = entity.getComponent(TransformComponent);
     movementModifer = entity.hasComponent(Crouching) ? 0.5 : entity.hasComponent(Sprinting) ? 1.5 : 1.0;
     outputSpeed = actor$1.accelerationSpeed * delta * movementModifer;
     if (inputType === InputType.TWOD) {
         inputValue = input$2.data.get(args.input).value;
-        transform$2.velocity[0] += Math.min(inputValue[0] + inputValue[0] * outputSpeed, actor$1.maxSpeed);
-        transform$2.velocity[2] += Math.min(inputValue[1] + inputValue[1] * outputSpeed, actor$1.maxSpeed);
+        transform$1.velocity[0] += Math.min(inputValue[0] + inputValue[0] * outputSpeed, actor$1.maxSpeed);
+        transform$1.velocity[2] += Math.min(inputValue[1] + inputValue[1] * outputSpeed, actor$1.maxSpeed);
     }
     if (inputType === InputType.THREED) {
         inputValue = input$2.data.get(args.input).value;
-        transform$2.velocity[0] += Math.min(inputValue[0] + inputValue[0] * outputSpeed, actor$1.maxSpeed);
-        transform$2.velocity[1] += Math.min(inputValue[1] + inputValue[1] * outputSpeed, actor$1.maxSpeed);
-        transform$2.velocity[2] += Math.min(inputValue[2] + inputValue[2] * outputSpeed, actor$1.maxSpeed);
+        transform$1.velocity[0] += Math.min(inputValue[0] + inputValue[0] * outputSpeed, actor$1.maxSpeed);
+        transform$1.velocity[1] += Math.min(inputValue[1] + inputValue[1] * outputSpeed, actor$1.maxSpeed);
+        transform$1.velocity[2] += Math.min(inputValue[2] + inputValue[2] * outputSpeed, actor$1.maxSpeed);
     }
     else {
         console.error("Movement is only available for 2D and 3D inputs");
@@ -1414,8 +1273,8 @@ const DefaultInputMap = {
     inputButtonBehaviors: {
         [DefaultInput.JUMP]: {
             [BinaryValue$1.ON]: {
-                behavior: addState,
-                args: { state: DefaultStateTypes.JUMPING }
+                behavior: jump,
+                args: {}
             }
         },
         [DefaultInput.CROUCH]: {
@@ -1516,6 +1375,7 @@ const handleInput = (entity, delta) => {
             console.error("handleInput called with an invalid input type");
         }
     });
+    input$3.data.clear();
 };
 InputSystem.queries = {
     inputs: {
@@ -1535,32 +1395,30 @@ class Subscription extends BehaviorComponent {
 class StateSystem extends System {
     constructor() {
         super(...arguments);
-        this.callBehaviorsForPhase = (entity, args, delta) => {
+        this.callBehaviors = (entity, args, delta) => {
             this._state = entity.getComponent(State);
             this._state.data.forEach((stateValue) => {
-                if (stateValue.type == StateType.DISCRETE && stateValue.value == BinaryValue$1.OFF)
-                    return;
-                if (this._state.map.states[stateValue.type] !== undefined && this._state.map.states[stateValue.type][args.phase] !== undefined) {
-                    this._state.map.states[stateValue.type][args.phase].behavior(entity, this._state.map.states[stateValue.type][args.phase].args, delta);
+                if (this._state.map.states[stateValue.state] !== undefined && this._state.map.states[stateValue.state][args.phase] !== undefined) {
+                    this._state.map.states[stateValue.state][args.phase].behavior(entity, this._state.map.states[stateValue.state][args.phase].args, delta);
                 }
             });
         };
     }
     execute(delta, time) {
-        var _a, _b, _c, _d;
+        var _a, _b;
         (_a = this.queries.state.added) === null || _a === void 0 ? void 0 : _a.forEach(entity => {
-            // Set default states is there is one
-            this.callBehaviorsForPhase(entity, { phase: "onAdded" }, delta);
+            // If stategroup has a default, add it to our state map
+            this._state = entity.getComponent(State);
+            Object.keys(this._state.map.groups).forEach((stateGroup) => {
+                if (this._state.map.groups[stateGroup] !== undefined && this._state.map.groups[stateGroup].default !== undefined) {
+                    addState(entity, { state: this._state.map.groups[stateGroup].default });
+                    console.log("Added default state: " + this._state.map.groups[stateGroup].default);
+                }
+            });
         });
-        (_b = this.queries.state.changed) === null || _b === void 0 ? void 0 : _b.forEach(entity => {
-            this.callBehaviorsForPhase(entity, { phase: "onChanged" }, delta);
-        });
-        (_c = this.queries.state.results) === null || _c === void 0 ? void 0 : _c.forEach(entity => {
-            this.callBehaviorsForPhase(entity, { phase: "onUpdate" }, delta);
-            this.callBehaviorsForPhase(entity, { phase: "onLateUpdate" }, delta);
-        });
-        (_d = this.queries.state.removed) === null || _d === void 0 ? void 0 : _d.forEach(entity => {
-            this.callBehaviorsForPhase(entity, { phase: "onRemoved" }, delta);
+        (_b = this.queries.state.results) === null || _b === void 0 ? void 0 : _b.forEach(entity => {
+            this.callBehaviors(entity, { phase: "onUpdate" }, delta);
+            this.callBehaviors(entity, { phase: "onLateUpdate" }, delta);
         });
     }
 }
@@ -1593,12 +1451,14 @@ function initializeInputSystems(world, options = DEFAULT_OPTIONS, inputMap) {
     world
         .registerComponent(Input)
         .registerComponent(State)
+        .registerComponent(Actor)
         .registerComponent(Subscription)
         .registerComponent(TransformComponent);
     const inputSystemEntity = world
         .createEntity()
         .addComponent(Input)
         .addComponent(State)
+        .addComponent(Actor)
         .addComponent(Subscription)
         .addComponent(TransformComponent);
     // Custom Action Map
@@ -1617,7 +1477,7 @@ function initializeInputSystems(world, options = DEFAULT_OPTIONS, inputMap) {
     // }
     return world;
 }
-function addInputHandlingToEntity(entity, inputFilter) {
+function addInputHandlingToEntity(entity) {
     // Try get component on inputhandler, inputreceiver
     if (entity.getComponent(Input) !== undefined)
         console.warn("Warning: Entity already has input component");
@@ -1625,7 +1485,8 @@ function addInputHandlingToEntity(entity, inputFilter) {
         entity
             .addComponent(Input)
             .addComponent(State)
-            .addComponent(Subscription);
+            .addComponent(Subscription)
+            .addComponent(Actor);
     }
     return entity;
 }
