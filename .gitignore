@@ -103,5 +103,3 @@ typings/
 .tern-port
 .buildcache
 build
-
-dist/input/behaviors/touchHandler.d.ts

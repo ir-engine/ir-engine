@@ -6,8 +6,8 @@ export interface ITouchHandler {
 }
 
 export function setTouchHandler(touchHandler: ITouchHandler): void {
-	touchHandler.element.ontouchstart = touchHandler.touchStart;
-	touchHandler.element.ontouchend = touchHandler.touchEnd;
-	touchHandler.element.ontouchcancel = touchHandler.touchEnd;
-	touchHandler.element.ontouchmove = touchHandler.touchMove;
+	touchHandler.element.ontouchstart = touchHandler.touchStart.bind(touchHandler);
+	touchHandler.element.ontouchend = touchHandler.touchEnd.bind(touchHandler);
+	touchHandler.element.ontouchcancel = touchHandler.touchEnd.bind(touchHandler);
+	touchHandler.element.ontouchmove = touchHandler.touchMove.bind(touchHandler);
 }
