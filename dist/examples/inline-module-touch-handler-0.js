@@ -5,10 +5,15 @@ function setTouchHandler(touchHandler) {
     touchHandler.element.ontouchmove = touchHandler.touchMove.bind(touchHandler);
 }
 
+function resizeCanvas(canvas) {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
 class TouchHandler {
     constructor() {
         this.element = document.getElementById('touch-area');
         this.canvas = this.element;
+        resizeCanvas(this.canvas);
     }
     drawCircle(x, y) {
         let ctx = this.canvas.getContext('2d');
@@ -39,7 +44,11 @@ class TouchHandler {
 }
 function touchHandlerExample() {
     // console.log('Check.');
-    setTouchHandler(new TouchHandler());
+    let th = new TouchHandler();
+    setTouchHandler(th);
+    window.addEventListener('resize', function () {
+        resizeCanvas(th.canvas);
+    }, false);
 }
 
 touchHandlerExample();

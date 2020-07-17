@@ -1,5 +1,10 @@
 import { ITouchHandler, setTouchHandler }  from '../input/behaviors/touchHandler';
 
+function resizeCanvas(canvas: HTMLCanvasElement) {
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+}
+
 class TouchHandler implements ITouchHandler {
 	element: HTMLElement;
 	canvas: HTMLCanvasElement;
@@ -8,6 +13,7 @@ class TouchHandler implements ITouchHandler {
 	constructor() {
 		this.element = document.getElementById('touch-area');
 		this.canvas = <HTMLCanvasElement>this.element;
+		resizeCanvas(this.canvas);
 	}
 
 	drawCircle(x: number, y: number) {
@@ -43,5 +49,12 @@ class TouchHandler implements ITouchHandler {
 
 export function touchHandlerExample(): void {
 	// console.log('Check.');
-	setTouchHandler(new TouchHandler());
+	let th: TouchHandler = new TouchHandler();
+	setTouchHandler(th);
+	window.addEventListener(
+			'resize',
+			function(): void {
+				resizeCanvas(th.canvas);
+			},
+			false);
 }
