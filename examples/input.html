@@ -8,14 +8,10 @@
   <body>
     <script type="module">
       import { Component, System, World } from "ecsy"
-      import { initializeInputSystems } from "../dist/armada.js"
+      import { initializeInputSystems, addInputHandlingToEntity } from "../dist/armada.js"
       const world = new World()
 
       const inputOptions = {
-        mouse: true,
-        keyboard: true,
-        touchscreen: true,
-        gamepad: true,
         debug: true
       }
       initializeInputSystems(world, inputOptions)
