@@ -11,8 +11,8 @@ export function getGroupUsers(groupId: string, skip?: number, limit?: number) {
     const groupUserResults = await client.service('group-user').find({
       query: {
         groupId: groupId,
-        $limit: limit != null ? limit : getState().get('groups').get('groups').get('limit'),
-        $skip: skip != null ? skip : getState().get('groups').get('groups').get('skip'),
+        $limit: limit != null ? limit : getState().get('groupUsers').get('groupUsers').get('limit'),
+        $skip: skip != null ? skip : getState().get('groupUsers').get('groupUsers').get('skip'),
       }
     })
     dispatch(loadedGroupUsers(groupUserResults))

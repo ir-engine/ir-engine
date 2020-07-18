@@ -98,7 +98,21 @@ export class AcceptInvite implements ServiceMethods<Data> {
             groupUserRank: 'user'
           })
         } else if (invite.inviteType === 'party') {
+          console.log('Adding party user:')
+          const party = await this.app.service('party').get(invite.targetObjectId, params)
+          console.log(party)
 
+          if (party == null) {
+            return new BadRequest('Invalid party ID')
+          }
+
+          console.log(inviteeIdentityProvider.userId)
+          console.log(invite.targetObjectId)
+          await this.app.service('party-user').create({
+            userId: inviteeIdentityProvider.userId,
+            partyId: invite.targetObjectId,
+            isOwner: false
+          })
         }
       } else if (invite.inviteeId != null) {
         const invitee = await this.app.service('user').get(invite.inviteeId)
@@ -136,6 +150,19 @@ export class AcceptInvite implements ServiceMethods<Data> {
             userId: invite.userId,
             groupId: invite.targetObjectId,
             groupUserRank: 'user'
+          })
+        }
+        else if (invite.inviteType === 'party') {
+          const party = await this.app.service('party').get(invite.targetObjectId, params)
+
+          if (party == null) {
+            return new BadRequest('Invalid party ID')
+          }
+
+          await this.app.service('party-user').create({
+            userId: invite.userId,
+            partyId: invite.targetObjectId,
+            isOwner: false
           })
         }
       }
