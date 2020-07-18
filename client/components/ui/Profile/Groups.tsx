@@ -210,6 +210,8 @@ const Groups = (props: Props): any => {
             name: '',
             description: ''
         })
+        setGroupUserListOpen(false)
+        setGroupUserListGroupId('')
     }
 
     const showGroupUserDeleteConfirm = (groupUserId: string) => {

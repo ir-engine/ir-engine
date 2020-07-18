@@ -2,6 +2,8 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 // import { Params, Id, NullableId } from '@feathersjs/feathers'
 
 import { Application } from '../../declarations'
+import {Params} from '@feathersjs/feathers'
+import {extractLoggedInUserFromParams} from '../auth-management/auth-management.utils'
 // import { Forbidden } from '@feathersjs/errors'
 
 export class Party extends Service {
@@ -10,6 +12,27 @@ export class Party extends Service {
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
+  }
+
+  async get (id: string | null, params?: Params): Promise<any> {
+    if (id == null) {
+      const loggedInUser = extractLoggedInUserFromParams(params)
+      const partyUserResult = await this.app.service('party-user').find({
+        query: {
+          userId: loggedInUser.userId
+        }
+      })
+
+      if ((partyUserResult as any).total === 0) {
+        return null
+      }
+
+      let partyId = (partyUserResult as any).data[0].partyId
+
+      return super.get(partyId)
+    } else {
+      return super.get(id)
+    }
   }
 
   // async find (params: Params): Promise<[]> {

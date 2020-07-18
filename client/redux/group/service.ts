@@ -22,13 +22,6 @@ export function getGroups(skip?: number, limit?: number) {
   }
 }
 
-export function leaveGroup(groupId: string) {
-  return async (dispatch: Dispatch): Promise<any> => {
-    await client.service('group-user').remove(groupId)
-    dispatch(leftGroup())
-  }
-}
-
 export function createGroup(values: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     await client.service('group').create({

@@ -4,11 +4,13 @@ import UserSettings from './UserSettings'
 import Subscription from './Subscription'
 import Friends from './Friends'
 import Groups from './Groups'
+import Party from './Party'
 import Invite from './Invite'
 import './style.scss'
 import {
     Settings,
     AccountCircle,
+    Cake,
     Mail,
     SupervisedUserCircle,
     Group,
@@ -67,8 +69,13 @@ const ProfileModal = (props: Props): any => {
             <Groups auth={props.auth} />
         </TabPanel>
     )
+    const party = (
+        <TabPanel value={tabIndex} index={5}>
+            <Party auth={props.auth} />
+        </TabPanel>
+    )
   const invite = (
-      <TabPanel value={tabIndex} index={5}>
+      <TabPanel value={tabIndex} index={6}>
         <Invite auth={props.auth} />
       </TabPanel>
   )
@@ -120,6 +127,10 @@ const ProfileModal = (props: Props): any => {
                 icon={<Group style={{ fontSize: 30}} />}
                 label="Groups"
             />
+                <Tab
+                    icon={<Cake style={{ fontSize: 30}} />}
+                    label="Party"
+                />
               <Tab
                   icon={<Mail style={{ fontSize: 30}} />}
                   label="Invite"
@@ -131,6 +142,7 @@ const ProfileModal = (props: Props): any => {
             {subscription}
             {friends}
             {groups}
+            {party}
             {invite}
           </div>
         </Fade>
