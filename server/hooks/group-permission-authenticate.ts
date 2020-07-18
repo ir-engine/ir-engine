@@ -32,7 +32,7 @@ export default () => {
         throw new BadRequest('Invalid group ID')
       }
       const groupUser = groupUserResult.data[0]
-      if (groupUser.groupUserRank !== 'owner' && groupUser.groupUserRank !== 'admin' && groupUser.userId !== loggedInUser.userId) {
+      if (params.groupUsersRemoved !== true && groupUser.groupUserRank !== 'owner' && groupUser.groupUserRank !== 'admin' && groupUser.userId !== loggedInUser.userId) {
         throw new Forbidden('You must be the owner or an admin of this group to perform that action')
       }
     }

@@ -2,7 +2,6 @@ import collectAnalytics from '../../hooks/collect-analytics'
 import groupPermissionAuthenticate from '../../hooks/group-permission-authenticate'
 import groupUserPermissionAuthenticate from '../../hooks/group-user-permission-authenticate'
 import * as authentication from '@feathersjs/authentication'
-import addAssociations from '../../hooks/add-associations'
 import { disallow, isProvider, iff } from 'feathers-hooks-common'
 import {HookContext} from '@feathersjs/feathers'
 
