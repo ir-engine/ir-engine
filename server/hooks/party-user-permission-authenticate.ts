@@ -8,19 +8,21 @@ export default () => {
   return async (context: HookContext): Promise<HookContext> => {
     const { id, params, method, app, path } = context
     const loggedInUser = extractLoggedInUserFromParams(params)
-    const groupId = params.query.groupId
+    const partyId = params.query.partyId
     const userId = params.query.userId || loggedInUser.userId
     const paramsClone = _.cloneDeep(context.params)
     paramsClone.provider = null
-    if (params.groupUsersRemoved !== true) {
-      const groupUserResult = await app.service('group-user').find({
+    if (params.partyUsersRemoved !== true) {
+      const partyUserResult = await app.service('party-user').find({
         query: {
-          groupId: groupId,
+          partyId: partyId,
           userId: userId
         }
       }, paramsClone)
-      if (groupUserResult.total === 0) {
-        throw new BadRequest('Invalid group ID in group-user-permission')
+      if (partyUserResult.total === 0) {
+        console.log('INVALID PARTY ID')
+        console.log(params)
+        throw new BadRequest('Invalid party ID in party-user-permission')
       }
     }
     return context

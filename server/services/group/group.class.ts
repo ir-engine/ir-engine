@@ -10,6 +10,7 @@ export class Group extends Service {
     super(options)
     this.app = app
   }
+
   async find (params: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params)
     const groupUserResult = await this.app.service('group-user').find({
