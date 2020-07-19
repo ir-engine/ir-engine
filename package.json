@@ -61,5 +61,10 @@
     "worker-loader": "^2.0.0",
     "xmlhttprequest": "^1.8.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@open-wc/rollup-plugin-html": "^1.1.0",
+    "@rollup/plugin-babel": "^5.1.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^8.4.0"
+  }
 }

@@ -56457,4 +56457,5 @@ var MessageType;
     MessageType[MessageType["SetEndFrameRequest"] = 6] = "SetEndFrameRequest";
 })(MessageType || (MessageType = {}));
 
-const worker = new Worker("./Worker");
+// import fs from 'fs';
+const worker = new Worker('./TestWorker');
