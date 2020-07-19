@@ -1,6 +1,6 @@
 /// <reference types="node" />
-import { IBufferGeometryCompressedTexture, WorkerInitializationResponse } from "./Interfaces";
-import { Scene, BufferGeometry, CompressedTexture, MeshBasicMaterial, Mesh } from "three";
+import { IBufferGeometryCompressedTexture, WorkerInitializationResponse } from './Interfaces';
+import { Scene, BufferGeometry, CompressedTexture, MeshBasicMaterial, Mesh } from 'three';
 export default class DracosisPlayer {
     frameRate: number;
     speed: number;

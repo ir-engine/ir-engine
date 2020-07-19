@@ -4,4 +4,4 @@ ctx.addEventListener('message', (event) => {
   console.log(event);
 });
 
-export default {} as typeof Worker & (new () => Worker);
+// export default {} as typeof Worker & (new () => Worker);

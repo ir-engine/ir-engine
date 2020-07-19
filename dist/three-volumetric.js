@@ -6367,13 +6367,6 @@ var draco3d = {
 var draco3d_1 = draco3d.createEncoderModule;
 var draco3d_2 = draco3d.createDecoderModule;
 
-function byteArrayToLong(/*byte[]*/ byteArray) {
-    let value = 0;
-    for (let i = byteArray.length - 1; i >= 0; i--) {
-        value = (value * 256) + byteArray[i];
-    }
-    return value;
-}
 function lerp(v0, v1, t) {
     return v0 * (1 - t) + v1 * t;
 }
@@ -6898,7 +6891,8 @@ var MessageType;
     MessageType[MessageType["SetEndFrameRequest"] = 6] = "SetEndFrameRequest";
 })(MessageType || (MessageType = {}));
 
-const worker = new Worker("./Worker");
+// import fs from 'fs';
+const worker = new Worker('./TestWorker');
 // Class draco / basis player
 class DracosisPlayer {
     constructor(scene, filePath, onLoaded, playOnStart = true, loop = true, startFrame = 0, endFrame = -1, speedMultiplier = 1, bufferSize = 100) {
@@ -6938,90 +6932,96 @@ class DracosisPlayer {
         this.material = new MeshBasicMaterial({ color: 0xffff00 });
         this.mesh = new Mesh(this.bufferGeometry, this.material);
         scene.add(this.mesh);
-        this.httpGetAsync("http://localhost:8000/dracosis", function (data) {
+        console.log('146');
+        let player = this;
+        this.httpGetAsync('http://localhost:8000/dracosis', function (data) {
             data = JSON.parse(data);
             if (endFrame > 1) {
-                this._endFrame = endFrame;
+                player._endFrame = endFrame;
             }
             else {
-                this._endFrame = data.fileHeader.frameData.length;
+                player._endFrame = data.fileHeader.frameData.length;
             }
-            this._numberOfFrames = this._endFrame - this._startFrame;
+            player._numberOfFrames = player._endFrame - player._startFrame;
             // init buffers with settings
-            this._ringBuffer = new RingBuffer(bufferSize);
+            player._ringBuffer = new RingBuffer(bufferSize);
             const initializeMessage = {
-                startFrame: this._startFrame,
-                endFrame: this._endFrame,
+                startFrame: player._startFrame,
+                endFrame: player._endFrame,
                 type: MessageType.InitializationResponse,
                 // type: MessageType.DataResponse,
                 data: data,
-                loop: this._loop,
+                loop: player._loop,
                 filePath: data.filePath,
                 fileHeader: data.fileHeader,
                 isInitialized: true,
-                readStreamOffset: data.readStreamOffset
+                readStreamOffset: data.readStreamOffset,
             };
-            console.log("initializeMessage", initializeMessage);
-            const worker = new Worker("./Worker");
+            console.log('initializeMessage', initializeMessage);
+            // const worker = new Worker('./Worker');
             worker.postMessage(initializeMessage);
-            worker.postMessage("Hello World");
+            // let fileReadStream = new ReadStream(filePath, {
+            //   start: data.readStreamOffset,
+            // });
+            // console.log('178', fileReadStream);
+            // worker.postMessage('Hello World');
             // Add event handler for manging worker responses
-            worker.addEventListener("message", ({ data }) => {
-                console.log("hi worker recieved message");
-                this.handleMessage(data);
-            });
+            // worker.addEventListener('message', ({ data }) => {
+            //   console.log('hi worker recieved message');
+            //   player.handleMessage(data);
+            // });
         });
-        if (!fs.existsSync(filePath)) {
-            console.error("File not found at " + filePath);
-            return;
-        }
-        fs.open(filePath, "r", (err, fd) => {
-            if (err)
-                return console.log(err.message);
-            // Read first 8 bytes for header length (long)
-            let buffer = Buffer.alloc(8);
-            fs.readSync(fd, buffer, 0, 8, 0);
-            const fileHeaderLength = byteArrayToLong(buffer);
-            // Read the header bytes (skip the header length, first 8 bytes)
-            buffer = Buffer.alloc(fileHeaderLength);
-            fs.readSync(fd, buffer, 0, fileHeaderLength, 8); // Skip 8 bytes for the header length val
-            // Buffer to json, json to object
-            this._fileHeader = JSON.parse(buffer.toString("utf8"));
-            console.log("Parsed to json: ", this._fileHeader);
-            this._readStreamOffset = fileHeaderLength + 8;
-            // Get current frame
-            this._currentFrame = startFrame;
-            // If the end frame was supplied, use it, otherwise determine from length
-            if (endFrame > 1) {
-                this._endFrame = endFrame;
-            }
-            else {
-                this._endFrame = this._fileHeader.frameData.length;
-            }
-            this._numberOfFrames = this._endFrame - this._startFrame;
-            // Create Threejs object, right now it starts as a cube
-            this.bufferGeometry = new BoxBufferGeometry(1, 1, 1);
-            this.material = new MeshBasicMaterial({ color: 0xffff00 });
-            this.mesh = new Mesh(this.bufferGeometry, this.material);
-            scene.add(this.mesh);
-            // init buffers with settings
-            this._ringBuffer = new RingBuffer(bufferSize);
-            // Send init data to worker
-            const initializeMessage = {
-                startFrame,
-                endFrame,
-                type: MessageType.InitializationResponse,
-                loop,
-                filePath,
-                fileHeader: this._fileHeader,
-                readStreamOffset: this._readStreamOffset
-            };
-            worker.postMessage(initializeMessage);
-            // Add event handler for manging worker responses
-            worker.addEventListener("message", ({ data }) => {
-                this.handleMessage(data);
-            });
-        });
+        // if (!fs.existsSync(filePath)) {
+        //   console.error('File not found at ' + filePath);
+        //   return;
+        // }
+        // fs.open(filePath, 'r', (err, fd) => {
+        //   if (err) return console.log(err.message);
+        //   // Read first 8 bytes for header length (long)
+        //   let buffer = Buffer.alloc(8);
+        //   fs.readSync(fd, buffer, 0, 8, 0);
+        //   const fileHeaderLength = byteArrayToLong(buffer);
+        //   // Read the header bytes (skip the header length, first 8 bytes)
+        //   buffer = Buffer.alloc(fileHeaderLength);
+        //   fs.readSync(fd, buffer, 0, fileHeaderLength, 8); // Skip 8 bytes for the header length val
+        //   // Buffer to json, json to object
+        //   this._fileHeader = JSON.parse(buffer.toString('utf8'));
+        //   console.log('Parsed to json: ', this._fileHeader);
+        //   this._readStreamOffset = fileHeaderLength + 8;
+        //   // Get current frame
+        //   this._currentFrame = startFrame;
+        //   // If the end frame was supplied, use it, otherwise determine from length
+        //   if (endFrame > 1) {
+        //     this._endFrame = endFrame;
+        //   } else {
+        //     this._endFrame = this._fileHeader.frameData.length;
+        //   }
+        //   this._numberOfFrames = this._endFrame - this._startFrame;
+        //   // Create Threejs object, right now it starts as a cube
+        //   this.bufferGeometry = new BoxBufferGeometry(1, 1, 1);
+        //   this.material = new MeshBasicMaterial({ color: 0xffff00 });
+        //   this.mesh = new Mesh(this.bufferGeometry, this.material);
+        //   scene.add(this.mesh);
+        //   // init buffers with settings
+        //   this._ringBuffer = new RingBuffer<IBufferGeometryCompressedTexture>(
+        //     bufferSize
+        //   );
+        //   // Send init data to worker
+        //   const initializeMessage: WorkerInitializationRequest = {
+        //     startFrame,
+        //     endFrame,
+        //     type: MessageType.InitializationResponse,
+        //     loop,
+        //     filePath,
+        //     fileHeader: this._fileHeader,
+        //     readStreamOffset: this._readStreamOffset,
+        //   };
+        //   worker.postMessage(initializeMessage);
+        //   // Add event handler for manging worker responses
+        //   worker.addEventListener('message', ({ data }) => {
+        //     this.handleMessage(data);
+        //   });
+        // });
     }
     // public getters and settings
     get currentFrame() {
@@ -7035,7 +7035,7 @@ class DracosisPlayer {
         this._numberOfFrames = this._endFrame - this._startFrame;
         worker.postMessage({
             type: MessageType.SetEndFrameRequest,
-            value
+            value,
         });
     }
     get endFrame() {
@@ -7046,7 +7046,7 @@ class DracosisPlayer {
         this._numberOfFrames = this._endFrame - this._startFrame;
         worker.postMessage({
             type: MessageType.SetEndFrameRequest,
-            value
+            value,
         });
     }
     get loop() {
@@ -7062,7 +7062,7 @@ class DracosisPlayer {
             if (xmlHttp.readyState === 4 && xmlHttp.status === 200)
                 callback(xmlHttp.responseText);
         };
-        xmlHttp.open("GET", theUrl, true); // true for asynchronous
+        xmlHttp.open('GET', theUrl, true); // true for asynchronous
         xmlHttp.send(null);
     }
     handleMessage(data) {
@@ -7082,23 +7082,25 @@ class DracosisPlayer {
             this.handleBuffers();
             if (this._playOnStart)
                 this.play();
-            console.log("Received initialization response from worker");
+            console.log('Received initialization response from worker');
         }
         else
-            console.error("Initialization failed");
+            console.error('Initialization failed');
     }
     handleDataResponse(data) {
         // For each object in the array...
-        data.forEach(geomTex => {
+        data.forEach((geomTex) => {
             this._frameNumber = geomTex.frameNumber;
             // Find the frame in our circular buffer
             this._pos = this.getPositionInBuffer(this._frameNumber);
             // Set the mesh and texture buffers
-            this._ringBuffer.get(this._frameNumber).bufferGeometry = geomTex.bufferGeometry;
-            this._ringBuffer.get(this._frameNumber).compressedTexture = geomTex.compressedTexture;
+            this._ringBuffer.get(this._frameNumber).bufferGeometry =
+                geomTex.bufferGeometry;
+            this._ringBuffer.get(this._frameNumber).compressedTexture =
+                geomTex.compressedTexture;
             this._framesUpdated++;
         });
-        console.log("Updated mesh and texture data on " + this._framesUpdated + " frames");
+        console.log('Updated mesh and texture data on ' + this._framesUpdated + ' frames');
     }
     getPositionInBuffer(frameNumber) {
         // Search backwards, which should make the for loop shorter on longer buffer
@@ -7121,7 +7123,9 @@ class DracosisPlayer {
             this._numberOfBuffersRemoved++;
         }
         if (this._numberOfBuffersRemoved > 0)
-            console.warn("Removed " + this._numberOfBuffersRemoved + " since they were skipped in playback");
+            console.warn('Removed ' +
+                this._numberOfBuffersRemoved +
+                ' since they were skipped in playback');
         const framesToFetch = [];
         // Fill buffers with new data
         while (!this._ringBuffer.full()) {
@@ -7131,14 +7135,14 @@ class DracosisPlayer {
             const frameData = {
                 frameNumber: nextFrame,
                 bufferGeometry: this._nullBufferGeometry,
-                compressedTexture: this._nullCompressedTexture
+                compressedTexture: this._nullCompressedTexture,
             };
             framesToFetch.push(nextFrame);
             this._ringBuffer.add(frameData);
         }
         const fetchFramesMessage = {
             type: MessageType.DataRequest,
-            framesToFetch
+            framesToFetch,
         };
         if (framesToFetch.length > 0)
             worker.postMessage(fetchFramesMessage);
@@ -7146,7 +7150,7 @@ class DracosisPlayer {
         setTimeout(this.handleBuffers, 100);
     }
     update() {
-        console.log("Player update called, current frame is + " + this._currentFrame);
+        console.log('Player update called, current frame is + ' + this._currentFrame);
         // If playback is paused, stop updating
         if (!this._isPlaying)
             return;
@@ -7172,11 +7176,13 @@ class DracosisPlayer {
             this.compressedTexture = this._ringBuffer.getFirst().compressedTexture;
             // Remove buffer
             this._ringBuffer.remove(0);
-            console.log("Recalled the frame " + this._ringBuffer.getFirst().frameNumber);
+            console.log('Recalled the frame ' + this._ringBuffer.getFirst().frameNumber);
         }
         else {
             // Frame doesn't exist in ring buffer, so throw an error
-            console.warn("Frame " + this._ringBuffer.getFirst().frameNumber + " did not exist in ring buffer");
+            console.warn('Frame ' +
+                this._ringBuffer.getFirst().frameNumber +
+                ' did not exist in ring buffer');
         }
         // Advance current buffer
         setTimeout(this.update, (1.0 / this.frameRate) * this.speed);
