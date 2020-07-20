@@ -5,6 +5,8 @@
 /.pnp
 .pnp.js
 /server/node_modules
+/worker/dist
+/worker/node_modules
 
 # testing
 /coverage

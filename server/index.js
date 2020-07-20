@@ -1,15 +1,15 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const { randomBytes } = require("crypto");
-const cors = require("cors");
-const axios = require("axios");
-const fs = require("fs");
+const express = require('express');
+const bodyParser = require('body-parser');
+const { randomBytes } = require('crypto');
+const cors = require('cors');
+const axios = require('axios');
+const fs = require('fs');
 
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-const filePath = "sample.drcs";
+const filePath = 'sample.drcs';
 
 function byteArrayToLong(/*byte[]*/ byteArray) {
   let value = 0;
@@ -19,12 +19,12 @@ function byteArrayToLong(/*byte[]*/ byteArray) {
   return value;
 }
 
-app.get("/dracosis", (req, res) => {
+app.get('/dracosis', (req, res) => {
   if (!fs.existsSync(filePath)) {
-    console.error("File not found at " + filePath);
+    console.error('File not found at ' + filePath);
     return;
   }
-  fs.open(filePath, "r", (err, fd) => {
+  fs.open(filePath, 'r', (err, fd) => {
     if (err) return console.log(err.message);
     // Read first 8 bytes for header length (long)
     let buffer = Buffer.alloc(8);
@@ -35,7 +35,7 @@ app.get("/dracosis", (req, res) => {
     buffer = Buffer.alloc(fileHeaderLength);
     fs.readSync(fd, buffer, 0, fileHeaderLength, 8); // Skip 8 bytes for the header length val
     // Buffer to json, json to object
-    this._fileHeader = JSON.parse(buffer.toString("utf8"));
+    this._fileHeader = JSON.parse(buffer.toString('utf8'));
     this._readStreamOffset = fileHeaderLength + 8;
     // Get current frame
     // If the end frame was supplied, use it, otherwise determine from length
@@ -50,7 +50,7 @@ app.get("/dracosis", (req, res) => {
     console.log(buffer);
 
     const initializeMessage = {
-      // type: MessageType.InitializationResponse,
+      type: 1,
       filePath,
       fileHeader: this._fileHeader,
       readStreamOffset: this._readStreamOffset,
@@ -72,5 +72,5 @@ app.get("/dracosis", (req, res) => {
 });
 
 app.listen(8000, () => {
-  console.log("Listening on 8000");
+  console.log('Listening on 8000');
 });
