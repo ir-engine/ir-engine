@@ -15,7 +15,20 @@ export default class StateSystem extends System {
     this.queries.state.added?.forEach(entity => {
       // If stategroup has a default, add it to our state map
       this._state = entity.getComponent(State)
-      Object.keys((this._state.map as StateMap).groups).forEach((stateGroup: StateGroupAlias) => {
+      if (this._state.map === undefined) return
+      Object.keys((this._state.map as StateMap)?.groups).forEach((stateGroup: StateGroupAlias) => {
+        if (this._state.map.groups[stateGroup] !== undefined && this._state.map.groups[stateGroup].default !== undefined) {
+          addState(entity, { state: this._state.map.groups[stateGroup].default })
+          console.log("Added default state: " + this._state.map.groups[stateGroup].default)
+        }
+      })
+    })
+
+    this.queries.state.changed?.forEach(entity => {
+      // If stategroup has a default, add it to our state map
+      this._state = entity.getComponent(State)
+      if (this._state.map === undefined) return
+      Object.keys((this._state.map as StateMap)?.groups).forEach((stateGroup: StateGroupAlias) => {
         if (this._state.map.groups[stateGroup] !== undefined && this._state.map.groups[stateGroup].default !== undefined) {
           addState(entity, { state: this._state.map.groups[stateGroup].default })
           console.log("Added default state: " + this._state.map.groups[stateGroup].default)

@@ -9,9 +9,13 @@ import { isBrowser } from "./common/utils/IsBrowser"
 import Input from "./input/components/Input"
 import InputMap from "./input/interfaces/InputMap"
 import { DefaultInputMap } from "./input/defaults/DefaultInputData"
+import SubscriptionSystem from "./subscription/systems/SubscriptionSystem"
 import Subscription from "./subscription/components/Subscription"
+import SubscriptionMap from "./subscription/interfaces/SubscriptionMap"
+import { DefaultSubscriptionMap } from './subscription/defaults/DefaultSubscriptionData'
 import State from "./state/components/State"
 import { TransformComponent } from "./common/defaults/components/TransformComponent"
+// import TransformComponentSystem from "./common/defaults/systems/TransformComponentSystem"
 import Actor from "./common/defaults/components/Actor"
 import StateSystem from "./state/systems/StateSystem"
 import StateMap from "./state/interfaces/StateMap"
@@ -34,7 +38,10 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS):
     console.log(options)
   }
 
-  world.registerSystem(InputSystem).registerSystem(StateSystem)
+  world.registerSystem(InputSystem)
+    .registerSystem(StateSystem)
+    .registerSystem(SubscriptionSystem)
+    // .registerSystem(TransformComponentSystem)
   world
     .registerComponent(Input)
     .registerComponent(State)
@@ -44,7 +51,9 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS):
   return world
 }
 
-export function initializeActor(entity: Entity, options: { inputMap?: InputMap; stateMap?: StateMap }): Entity {
+export function initializeActor(entity: Entity, options: {
+  inputMap?: InputMap; stateMap?: StateMap, subscriptionMap?: SubscriptionMap
+  }): Entity {
   entity
     .addComponent(Input)
     .addComponent(State)
@@ -68,8 +77,18 @@ export function initializeActor(entity: Entity, options: { inputMap?: InputMap; 
     console.log(options.stateMap)
     ;(entity.getMutableComponent(State) as any).map = options.stateMap
   } else {
-    console.log("No input map provided, defaulting to default input")
-    ;(entity.getMutableComponent(State) as any).stateMap = DefaultStateMap
+    console.log("No state map provided, defaulting to default state")
+    ;(entity.getMutableComponent(State) as any).map = DefaultStateMap
+  }
+
+  // Custom Subscription Map
+  if (options.subscriptionMap) {
+    console.log("Using subscription map:")
+    console.log(options.subscriptionMap)
+    ;(entity.getMutableComponent(Subscription) as any).map = options.subscriptionMap
+  } else {
+    console.log("No subscription map provided, defaulting to default subscriptions")
+    ;(entity.getMutableComponent(Subscription) as any).map = DefaultSubscriptionMap
   }
 
   return entity

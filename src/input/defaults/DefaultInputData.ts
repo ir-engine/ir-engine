@@ -162,6 +162,54 @@ export const DefaultInputMap: InputMap = {
         behavior: jump,
         args: {}
       }
+    },
+    [DefaultInput.FORWARD]: {
+      [BinaryValue.ON]: {
+        behavior: move,
+        args: {
+          inputType: InputType.TWOD,
+          input: {
+            value: [0, -1]
+          },
+          value: [0, -1]
+        }
+      }
+    },
+    [DefaultInput.BACKWARD]: {
+      [BinaryValue.ON]: {
+        behavior: move,
+        args: {
+          inputType: InputType.TWOD,
+          input: {
+            value: [0, -1]
+          },
+          value: [0, -1]
+        }
+      }
+    },
+    [DefaultInput.LEFT]: {
+      [BinaryValue.ON]: {
+        behavior: move,
+        args: {
+          inputType: InputType.TWOD,
+          input: {
+            value: [-1, 0]
+          },
+          value: [-1, 0]
+        }
+      }
+    },
+    [DefaultInput.RIGHT]: {
+      [BinaryValue.ON]: {
+        behavior: move,
+        args: {
+          inputType: InputType.TWOD,
+          input: {
+            value: [1, 0]
+          },
+          value: [1, 0]
+        }
+      }
     }
     // [DefaultInput.CROUCH]: {
     //   [BinaryValue.ON]: {

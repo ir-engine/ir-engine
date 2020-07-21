@@ -103,3 +103,6 @@ typings/
 .tern-port
 .buildcache
 build
+
+# macos
+.DS_Store
