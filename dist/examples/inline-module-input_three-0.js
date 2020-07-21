@@ -62116,6 +62116,52 @@ const Vector3Type$1 = createType$1({
   clone: cloneClonable$1
 });
 
+class Transform$1 extends Component$2 {}
+Transform$1.schema = {
+  position: {
+    default: new Vector3$1(),
+    type: Vector3Type$1
+  },
+  rotation: {
+    default: new Vector3$1(),
+    type: Vector3Type$1
+  }
+};
+
+class TransformComponentSystem extends System$1 {
+    execute(delta, time) {
+        var _a, _b;
+        (_a = this.queries.transforms.added) === null || _a === void 0 ? void 0 : _a.forEach(entity => {
+            console.log('TransformComponentSystem query added');
+            const armadaTransform = entity.getComponent(TransformComponent);
+            const transform = entity.getMutableComponent(Transform$1);
+            const input = entity.getMutableComponent(Input);
+            let pos = armadaTransform.position;
+            let rot = armadaTransform.rotation;
+            transform.position.set(pos[0], pos[1], pos[2]);
+            transform.rotation.set(rot[0], rot[1], rot[2]);
+        });
+        (_b = this.queries.transforms.changed) === null || _b === void 0 ? void 0 : _b.forEach(entity => {
+            const armadaTransform = entity.getComponent(TransformComponent);
+            const transform = entity.getMutableComponent(Transform$1);
+            let pos = armadaTransform.position;
+            let rot = armadaTransform.rotation;
+            transform.position.set(pos[0], pos[1], pos[2]);
+            transform.rotation.set(rot[0], rot[1], rot[2]);
+        });
+    }
+}
+TransformComponentSystem.queries = {
+    transforms: {
+        components: [Transform$1, TransformComponent],
+        listen: {
+            added: true,
+            changed: true,
+            removed: true
+        }
+    }
+};
+
 var Thumbsticks;
 (function (Thumbsticks) {
     Thumbsticks[Thumbsticks["Left"] = 0] = "Left";
@@ -62728,6 +62774,7 @@ const DefaultSubscriptionMap = {
     ]
 };
 
+// import { Transform } from 'ecsy-three/src/extras/components'
 const DEFAULT_OPTIONS$1 = {
     debug: false
 };
@@ -62744,14 +62791,15 @@ function initializeInputSystems(world, options = DEFAULT_OPTIONS$1) {
     }
     world.registerSystem(InputSystem)
         .registerSystem(StateSystem)
-        .registerSystem(SubscriptionSystem);
-    // .registerSystem(TransformComponentSystem)
+        .registerSystem(SubscriptionSystem)
+        .registerSystem(TransformComponentSystem);
     world
         .registerComponent(Input)
         .registerComponent(State)
         .registerComponent(Actor)
         .registerComponent(Subscription)
         .registerComponent(TransformComponent);
+    // .registerComponent(Transform)
     return world;
 }
 function initializeActor(entity, options) {
@@ -62761,6 +62809,7 @@ function initializeActor(entity, options) {
         .addComponent(Actor)
         .addComponent(Subscription)
         .addComponent(TransformComponent);
+    // .addComponent(Transform)
     // Custom Action Map
     if (options.inputMap) {
         console.log("Using input map:");

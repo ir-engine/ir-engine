@@ -6358,6 +6358,52 @@ const Vector3Type = createType$1({
   clone: cloneClonable
 });
 
+class Transform extends Component$1 {}
+Transform.schema = {
+  position: {
+    default: new Vector3(),
+    type: Vector3Type
+  },
+  rotation: {
+    default: new Vector3(),
+    type: Vector3Type
+  }
+};
+
+class TransformComponentSystem extends System {
+    execute(delta, time) {
+        var _a, _b;
+        (_a = this.queries.transforms.added) === null || _a === void 0 ? void 0 : _a.forEach(entity => {
+            console.log('TransformComponentSystem query added');
+            const armadaTransform = entity.getComponent(TransformComponent);
+            const transform = entity.getMutableComponent(Transform);
+            const input = entity.getMutableComponent(Input);
+            let pos = armadaTransform.position;
+            let rot = armadaTransform.rotation;
+            transform.position.set(pos[0], pos[1], pos[2]);
+            transform.rotation.set(rot[0], rot[1], rot[2]);
+        });
+        (_b = this.queries.transforms.changed) === null || _b === void 0 ? void 0 : _b.forEach(entity => {
+            const armadaTransform = entity.getComponent(TransformComponent);
+            const transform = entity.getMutableComponent(Transform);
+            let pos = armadaTransform.position;
+            let rot = armadaTransform.rotation;
+            transform.position.set(pos[0], pos[1], pos[2]);
+            transform.rotation.set(rot[0], rot[1], rot[2]);
+        });
+    }
+}
+TransformComponentSystem.queries = {
+    transforms: {
+        components: [Transform, TransformComponent],
+        listen: {
+            added: true,
+            changed: true,
+            removed: true
+        }
+    }
+};
+
 var Thumbsticks;
 (function (Thumbsticks) {
     Thumbsticks[Thumbsticks["Left"] = 0] = "Left";
@@ -6934,6 +6980,7 @@ SubscriptionSystem.queries = {
     }
 };
 
+// import { Transform } from 'ecsy-three/src/extras/components'
 const DEFAULT_OPTIONS$1 = {
     debug: false
 };
@@ -6950,14 +6997,15 @@ function initializeInputSystems(world, options = DEFAULT_OPTIONS$1) {
     }
     world.registerSystem(InputSystem)
         .registerSystem(StateSystem)
-        .registerSystem(SubscriptionSystem);
-    // .registerSystem(TransformComponentSystem)
+        .registerSystem(SubscriptionSystem)
+        .registerSystem(TransformComponentSystem);
     world
         .registerComponent(Input)
         .registerComponent(State)
         .registerComponent(Actor)
         .registerComponent(Subscription)
         .registerComponent(TransformComponent);
+    // .registerComponent(Transform)
     return world;
 }
 

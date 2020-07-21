@@ -15,11 +15,13 @@ import SubscriptionMap from "./subscription/interfaces/SubscriptionMap"
 import { DefaultSubscriptionMap } from './subscription/defaults/DefaultSubscriptionData'
 import State from "./state/components/State"
 import { TransformComponent } from "./common/defaults/components/TransformComponent"
-// import TransformComponentSystem from "./common/defaults/systems/TransformComponentSystem"
+import TransformComponentSystem from "./common/defaults/systems/TransformComponentSystem"
 import Actor from "./common/defaults/components/Actor"
 import StateSystem from "./state/systems/StateSystem"
 import StateMap from "./state/interfaces/StateMap"
 import { DefaultStateMap } from "./state/defaults/DefaultStateData"
+
+// import { Transform } from 'ecsy-three/src/extras/components'
 
 const DEFAULT_OPTIONS = {
   debug: false
@@ -41,13 +43,14 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS):
   world.registerSystem(InputSystem)
     .registerSystem(StateSystem)
     .registerSystem(SubscriptionSystem)
-    // .registerSystem(TransformComponentSystem)
+    .registerSystem(TransformComponentSystem)
   world
     .registerComponent(Input)
     .registerComponent(State)
     .registerComponent(Actor)
     .registerComponent(Subscription)
     .registerComponent(TransformComponent)
+    // .registerComponent(Transform)
   return world
 }
 
@@ -60,6 +63,7 @@ export function initializeActor(entity: Entity, options: {
     .addComponent(Actor)
     .addComponent(Subscription)
     .addComponent(TransformComponent)
+    // .addComponent(Transform)
 
   // Custom Action Map
   if (options.inputMap) {
