@@ -3,24 +3,25 @@ import { Application } from '../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const messageStatus = sequelizeClient.define('message_status', {
-    status: {
+  const channelType = sequelizeClient.define('channel_type', {
+    type: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'unread'
+      primaryKey: true,
+      unique: true
     }
   }, {
     hooks: {
       beforeCount (options: any) {
         options.raw = true
       }
-    }
+    },
+    timestamps: false
   });
 
-  (messageStatus as any).associate = (models: any) => {
-    (messageStatus as any).belongsTo(models.message);
-    (messageStatus as any).belongsTo(models.user)
+  (channelType as any).associate = (models: any) => {
+    (channelType as any).hasMany(models.channel, { foreignKey: 'channelType' })
   }
 
-  return messageStatus
+  return channelType
 }
