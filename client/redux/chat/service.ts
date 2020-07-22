@@ -54,6 +54,8 @@ export function getPartyChannel() {
 
 export function createMessage(values: any) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    console.log('CREATING MESSAGE WITH VALUES:')
+    console.log(values)
     const newMessage = await client.service('message').create({
       targetObjectId: values.targetObjectId,
       targetObjectType: values.targetObjectType,
@@ -67,16 +69,18 @@ export function createMessage(values: any) {
 
 export function getChannelMessages(channelId: string, channelType: string, skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    console.log(`GETTING CHANNEL MESSAGES FOR CHANNEL ${channelId} OF TYPE ${channelType}`)
+    console.log(getState().get('chat').get('channels').get(channelType).get('channels').get(channelId))
     const messageResult = await client.service('message').find({
       query: {
         channelId: channelId,
-        $limit: limit != null ? limit: getState().get('chat').get('channels').get(channelType).get('channels').get(channelId).get('limit'),
-        $skip: skip != null ? skip: getState().get('chat').get('channels').get(channelType).get('channels').get(channelId).get('skip')
+        $limit: limit != null ? limit: getState().get('chat').get('channels').get(channelType).get('channels').get(channelId).limit,
+        $skip: skip != null ? skip: getState().get('chat').get('channels').get(channelType).get('channels').get(channelId).skip
       }
     })
     console.log(`GOT MESSAGES FOR CHANNEL ${channelId} OF TYPE ${channelType}`)
     console.log(messageResult)
-    dispatch(loadedMessages(channelType, messageResult))
+    dispatch(loadedMessages(channelType, channelId, messageResult))
   }
 }
 

@@ -3,6 +3,7 @@ import { Application } from '../../declarations'
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 import { Params } from '@feathersjs/feathers'
 import { BadRequest } from '@feathersjs/errors'
+import { Op } from 'sequelize'
 
 export class Message extends Service {
   app: Application
@@ -14,21 +15,21 @@ export class Message extends Service {
   async create (data: any, params: Params): Promise<any> {
     let channelId
     let userIdList = []
-    const { query } = params
     const loggedInUser = extractLoggedInUserFromParams(params)
     const userId = loggedInUser.userId
 
     const targetObjectId = data.targetObjectId
     const targetObjectType = data.targetObjectType
+    const channelModel = this.app.service('channel').Model
 
     if (targetObjectType === 'user') {
       const targetUser = await this.app.service('user').get(targetObjectId)
       if (targetUser == null) {
         throw new BadRequest('Invalid target user ID')
       }
-      const channel = await this.app.service('channel').find({
-        query: {
-          $or: [
+      const channel = await channelModel.findOne({
+        where: {
+          [Op.or]: [
             {
               userId1: userId,
               userId2: targetObjectId
@@ -40,7 +41,7 @@ export class Message extends Service {
           ]
         }
       })
-      if ((channel as any).total === 0) {
+      if (channel == null) {
         const newChannel = await this.app.service('channel').create({
           channelType: 'user',
           userId1: userId,
@@ -49,7 +50,7 @@ export class Message extends Service {
         channelId = newChannel.id
       }
       else {
-        channelId = (channel as any).data[0].id
+        channelId = channel.id
       }
       userIdList = [userId, targetObjectId]
     }
@@ -58,12 +59,12 @@ export class Message extends Service {
       if (targetGroup == null) {
         throw new BadRequest('Invalid target group ID')
       }
-      const channel = await this.app.service('channel').find({
-        query: {
+      const channel = await channelModel.findOne({
+        where: {
           groupId: targetObjectId
         }
       })
-      if ((channel as any).total === 0) {
+      if (channel == null) {
         const newChannel = await this.app.service('channel').create({
           channelType: 'group',
           groupId: targetObjectId
@@ -71,7 +72,7 @@ export class Message extends Service {
         channelId = newChannel.id
       }
       else {
-        channelId = (channel as any).data[0].id
+        channelId = channel.id
       }
       const groupUsers = await this.app.service('group-user').find({
         query: {
@@ -87,12 +88,12 @@ export class Message extends Service {
       if (targetParty == null) {
         throw new BadRequest('Invalid target party ID')
       }
-      const channel = await this.app.service('channel').find({
-        query: {
+      const channel = await channelModel.findOne({
+        where: {
           partyId: targetObjectId
         }
       })
-      if ((channel as any).total === 0) {
+      if (channel == null) {
         const newChannel = await this.app.service('channel').create({
           channelType: 'group',
           groupId: targetObjectId
@@ -100,7 +101,7 @@ export class Message extends Service {
         channelId = newChannel.id
       }
       else {
-        channelId = (channel as any).data[0].id
+        channelId = channel.id
       }
       const partyUsers = await this.app.service('party-user').find({
         query: {

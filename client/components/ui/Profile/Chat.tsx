@@ -33,7 +33,7 @@ import {
     PeopleOutlined,
     PhoneIphone
 } from '@material-ui/icons'
-import _ from 'lodash'
+import moment from 'moment'
 import {User} from "../../../../shared/interfaces/User";
 
 const mapStateToProps = (state: any): any => {
@@ -91,6 +91,9 @@ const Groups = (props: Props): any => {
     const [composingMessage, setComposingMessage] = useState('')
     const [targetObjectId, setTargetObjectId] = useState('')
     const [targetObjectType, setTargetObjectType] = useState('')
+    const [activeChatId, setActiveChatId] = useState('')
+    const [activeChatType, setActiveChatType] = useState('')
+    const [activeChatTargetId, setActiveChatTargetId] = useState('')
 
     useEffect(() => {
         console.log('UserChannelState useeffect')
@@ -115,24 +118,26 @@ const Groups = (props: Props): any => {
     }, [partyChannelState]);
 
     useEffect(() => {
-        userChannels.forEach((userChannel, channelId) => {
-          if (userChannel.get('updateNeeded') === true) {
-              getChannelMessages(channelId, 'user')
+        console.log('userChannels useeffect')
+        console.log(userChannels)
+        userChannels.forEach((userChannel) => {
+          if (userChannel.updateNeeded === true) {
+              getChannelMessages(userChannel.id, 'user')
           }
         })
     }, [userChannels]);
 
     useEffect(() => {
-        groupChannels.forEach((groupChannel, channelId) => {
-            if (groupChannel.get('updateNeeded') === true) {
-                getChannelMessages(channelId, 'group')
+        groupChannels.forEach((groupChannel) => {
+            if (groupChannel.updateNeeded === true) {
+                getChannelMessages(groupChannel.id, 'group')
             }
         })
     }, [groupChannels]);
 
     useEffect(() => {
-        if (partyChannel.get('updateNeeded') === true) {
-            getChannelMessages(partyChannel.channelId)
+        if (partyChannel.updateNeeded === true) {
+            getChannelMessages(partyChannel.id)
         }
     }, [partyChannel]);
 
@@ -143,23 +148,38 @@ const Groups = (props: Props): any => {
 
     const packageMessage = (event: any): void => {
         createMessage({
-            // targetObjectId: targetObjectId,
-            // targetObjectType: targetObjectType
-            targetObjectId: '36263b93ba7c6d243306dd8b5d7f36bd',
-            targetObjectType: 'user',
+            targetObjectId: activeChatTargetId,
+            targetObjectType: activeChatType,
             text: composingMessage
         })
         setComposingMessage('')
     }
 
+    const setActiveChat = (channelType, channelId, userChannel): void => {
+        const userId = user.id
+        const targetId = channelType === 'user' ? (userChannel.userId1 === userId ? userChannel.userId2 : userChannel.userId1) : channelType === 'group' ? userChannel.groupId : userChannel.partyId
+        setActiveChatId(channelId)
+        setActiveChatType(channelType)
+        setActiveChatTargetId(targetId)
+    }
+
     return (
         <div className="chat-container">
             <List className="flex-center flex-column">
-                { userChannels && Object.keys(userChannels).length > 0 && userChannels.map((userChannel, channelId) => {
-                        return <ListItem key={channelId}>
+                { userChannels && userChannels.size > 0 && Array.from(userChannels).map(([channelId, userChannel]) => {
+                        return <ListItem key={channelId} onClick={() => setActiveChat('user', channelId, userChannel)}>
                             <ListItemText primary={channelId}/>
                         </ListItem>
                     })
+                }
+            </List>
+            <List className="flex-center flex-column">
+                { activeChatId.length > 0 && activeChatType === 'user' && userChannels.get(activeChatId).messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).map((message) => {
+                    return <ListItem key={message.id}>
+                        <ListItemText primary={message.text}/>
+                        <ListItemText primary={moment(message.createdAt).format('MMM D YYYY [at] h:mm a')}/>
+                    </ListItem>
+                })
                 }
             </List>
             <div className="flex-center">

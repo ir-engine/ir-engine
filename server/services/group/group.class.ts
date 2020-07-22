@@ -1,6 +1,6 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../declarations'
-import {Params, Query} from "@feathersjs/feathers";
+import { Params } from '@feathersjs/feathers'
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 
 export class Group extends Service {
