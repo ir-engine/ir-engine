@@ -89,12 +89,12 @@ export function createdMessage(channelType: string, message: Message): ChatActio
   }
 }
 
-export function loadedMessages(channelType: string, messageResult: MessageResult): ChatAction {
+export function loadedMessages(channelType: string, channelId: string, messageResult: MessageResult): ChatAction {
   return {
     type: LOADED_MESSAGES,
     channelType: channelType,
     messages: messageResult.data,
-    channelId: messageResult.channelId
+    channelId: channelId
   }
 }
 
