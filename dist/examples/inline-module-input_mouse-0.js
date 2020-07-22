@@ -53299,8 +53299,8 @@ const DefaultInputMap = {
     keyboardInputMap: {
         w: DefaultInput.FORWARD,
         a: DefaultInput.LEFT,
-        s: DefaultInput.RIGHT,
-        d: DefaultInput.BACKWARD,
+        s: DefaultInput.BACKWARD,
+        d: DefaultInput.RIGHT,
         [" "]: DefaultInput.JUMP,
         shift: DefaultInput.CROUCH
     },
@@ -53339,9 +53339,9 @@ const DefaultInputMap = {
                 args: {
                     inputType: InputType.TWOD,
                     input: {
-                        value: [0, -1]
+                        value: [0, 1]
                     },
-                    value: [0, -1]
+                    value: [0, 1]
                 }
             }
         },
@@ -53553,7 +53553,6 @@ class SubscriptionSystem extends System {
         super(...arguments);
         // TODO: Make this a generic behavior and move to common
         this.callBehaviorsForHook = (entity, args, delta) => {
-            // console.log("callBehaviorsForHook: Calling for hook")
             this.subscription = entity.getComponent(Subscription);
             if (this.subscription.map[args.phase] !== undefined) {
                 this.subscription.map[args.phase].forEach((value) => {
