@@ -7,9 +7,10 @@ import SubscriptionMap from "./subscription/interfaces/SubscriptionMap";
 import StateMap from "./state/interfaces/StateMap";
 export declare function initializeInputSystems(world: World, options?: {
     debug: boolean;
+    withTransform: boolean;
 }): World | null;
 export declare function initializeActor(entity: Entity, options: {
     inputMap?: InputMap;
     stateMap?: StateMap;
     subscriptionMap?: SubscriptionMap;
-}): Entity;
+}, withTransform?: boolean): Entity;
