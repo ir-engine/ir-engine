@@ -1,6 +1,7 @@
 import { Application } from '../declarations'
 
 // Types
+import ChannelType from './channel-type/channel-type.service'
 import ComponentType from './component-type/component-type.service'
 import CollectionType from './collection-type/collection-type.service'
 import EntityType from './entity-type/entity-type.service'
@@ -38,8 +39,7 @@ import PartyUser from './party-user/party-user.service'
 
 // Services
 import Auth from './auth-management/auth-management.service'
-import ChatRoom from './chatroom/chatroom.service'
-import Conversation from './conversation/conversation.service'
+import Channel from './channel/channel.service'
 import Email from './email/email.service'
 import MagicLink from './magic-link/magic-link.service'
 import Message from './message/message.service'
@@ -65,6 +65,7 @@ import acceptInvite from './accept-invite/accept-invite.service'
 
 export default (app: Application): void => {
   // Dynamic types
+  app.configure(ChannelType)
   app.configure(ComponentType)
   app.configure(CollectionType)
   app.configure(StaticResourceType)
@@ -102,8 +103,7 @@ export default (app: Application): void => {
 
   // Services
   app.configure(Auth)
-  app.configure(Conversation)
-  app.configure(ChatRoom)
+  app.configure(Channel)
   app.configure(Email)
   app.configure(IdentityProvider)
   app.configure(MagicLink)

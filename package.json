@@ -60,6 +60,8 @@
     "sequelize": "~5.21.8"
   },
   "dependencies": {
+    "@apollo/client": "^3.0.2",
+    "@apollo/link-ws": "^2.0.0-beta.3",
     "@apollo/react-hooks": "^3.1.5",
     "@eclass/sequelize-graphql-tools": "^4.1.0",
     "@feathersjs/authentication": "^4.5.3",
@@ -88,6 +90,7 @@
     "aframe-react": "^4.4.0",
     "aframe-sun-sky": "^3.0.3",
     "apollo-boost": "^0.4.7",
+    "apollo-link-context": "^1.0.20",
     "apollo-link-ws": "^1.0.20",
     "apollo-server": "^2.13.1",
     "apollo-server-express": "^2.13.1",
