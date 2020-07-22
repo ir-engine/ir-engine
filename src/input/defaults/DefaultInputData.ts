@@ -141,8 +141,8 @@ export const DefaultInputMap: InputMap = {
   keyboardInputMap: {
     w: DefaultInput.FORWARD,
     a: DefaultInput.LEFT,
-    s: DefaultInput.RIGHT,
-    d: DefaultInput.BACKWARD,
+    s: DefaultInput.BACKWARD,
+    d: DefaultInput.RIGHT,
     [" "]: DefaultInput.JUMP,
     shift: DefaultInput.CROUCH
   },
@@ -181,9 +181,9 @@ export const DefaultInputMap: InputMap = {
         args: {
           inputType: InputType.TWOD,
           input: {
-            value: [0, -1]
+            value: [0, 1]
           },
-          value: [0, -1]
+          value: [0, 1]
         }
       }
     },
