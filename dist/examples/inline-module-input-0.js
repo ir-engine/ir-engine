@@ -6980,9 +6980,9 @@ SubscriptionSystem.queries = {
     }
 };
 
-// import { Transform } from 'ecsy-three/src/extras/components'
 const DEFAULT_OPTIONS$1 = {
-    debug: false
+    debug: false,
+    withTransform: false
 };
 function initializeInputSystems(world, options = DEFAULT_OPTIONS$1) {
     if (options.debug)
@@ -7005,7 +7005,8 @@ function initializeInputSystems(world, options = DEFAULT_OPTIONS$1) {
         .registerComponent(Actor)
         .registerComponent(Subscription)
         .registerComponent(TransformComponent);
-    // .registerComponent(Transform)
+    if (options.withTransform)
+        world.registerComponent(Transform);
     return world;
 }
 

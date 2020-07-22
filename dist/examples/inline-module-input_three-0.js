@@ -62774,9 +62774,9 @@ const DefaultSubscriptionMap = {
     ]
 };
 
-// import { Transform } from 'ecsy-three/src/extras/components'
 const DEFAULT_OPTIONS$1 = {
-    debug: false
+    debug: false,
+    withTransform: false
 };
 function initializeInputSystems(world, options = DEFAULT_OPTIONS$1) {
     if (options.debug)
@@ -62799,10 +62799,11 @@ function initializeInputSystems(world, options = DEFAULT_OPTIONS$1) {
         .registerComponent(Actor)
         .registerComponent(Subscription)
         .registerComponent(TransformComponent);
-    // .registerComponent(Transform)
+    if (options.withTransform)
+        world.registerComponent(Transform$1);
     return world;
 }
-function initializeActor(entity, options) {
+function initializeActor(entity, options, withTransform = false) {
     entity
         .addComponent(Input)
         .addComponent(State)
@@ -62810,6 +62811,8 @@ function initializeActor(entity, options) {
         .addComponent(Subscription)
         .addComponent(TransformComponent);
     // .addComponent(Transform)
+    if (withTransform)
+        entity.addComponent(Transform$1);
     // Custom Action Map
     if (options.inputMap) {
         console.log("Using input map:");
