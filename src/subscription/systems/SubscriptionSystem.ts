@@ -26,7 +26,6 @@ export default class SubscriptionSystem extends System {
 
   // TODO: Make this a generic behavior and move to common
   callBehaviorsForHook: Behavior = (entity: Entity, args: { phase: string }, delta: number) => {
-    console.log("Calling for hook")
     this.subscription = entity.getComponent(Subscription)
     if (this.subscription.map[args.phase] !== undefined) {
       this.subscription.map[args.phase].forEach((value: BehaviorArgValue) => {
