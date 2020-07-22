@@ -23,23 +23,20 @@ export const initialState = {
   channels: {
     user: {
       channels: {},
-      limit: 0,
+      limit: 50,
       skip: 0,
       total: 0,
       updateNeeded: true
     },
     group: {
       channels: {},
-      limit: 0,
+      limit: 50,
       skip: 0,
       total: 0,
       updateNeeded: true
     },
     party: {
       channel: {},
-      limit: 0,
-      skip: 0,
-      total: 0,
       updateNeeded: true
     }
   }
@@ -52,97 +49,119 @@ const chatReducer = (state = immutableState, action: ChatAction): any => {
   switch (action.type) {
     case LOADED_USER_CHANNELS:
       localAction = (action as LoadedChannelsAction)
-        console.log('INITIAL STATE')
-        console.log(state)
       updateMap = new Map(state.get('channels'))
-        console.log('Are maps the same?')
-        console.log(state.get('channels') === updateMap)
-        console.log('intitial updateMap:')
-        console.log(updateMap)
-        updateMap.set('user', new Map())
-        console.log('UPDATED UPDATE MAP')
-        console.log(updateMap)
-      const updateMapUserChannels = (updateMap as any).get('user')
-        console.log('updateMapUserChannels:')
-        console.log(updateMapUserChannels)
+      const updateMapUserChannels = new Map((updateMap as any).get('user'))
       updateMapUserChannels.set('limit', localAction.limit)
       updateMapUserChannels.set('skip', localAction.skip)
       updateMapUserChannels.set('total', localAction.total)
-        console.log('new pagination values:')
-        console.log(updateMapUserChannels.get('updateNeeded'))
-      const updateMapUserChannelsChildren = (updateMapUserChannels as any).get('channels')
+      const updateMapUserChannelsChildren = new Map((updateMapUserChannels as any).get('channels'))
       updateMapUserChannels.set('updateNeeded', false)
-        console.log(updateMapUserChannels.get('updateNeeded'))
-        console.log(updateMapUserChannels)
-        console.log('localAction:')
-        console.log(localAction)
       localAction.channels.forEach((userChannel) => {
-        userChannel.messageUpdateNeeded = true
+        userChannel.updateNeeded = true
+        userChannel.limit = 50
+        userChannel.skip = 0
+        userChannel.total = 0
         updateMapUserChannelsChildren.set(userChannel.id, userChannel)
       })
-        console.log('GOT USER CHANNELS')
-        console.log(updateMap)
+      updateMapUserChannels.set('channels', updateMapUserChannelsChildren)
+      updateMap.set('user', updateMapUserChannels)
       return state
         .set('channels', updateMap)
     case LOADED_GROUP_CHANNELS:
       localAction = (action as LoadedChannelsAction)
       updateMap = new Map(state.get('channels'))
-      const updateMapGroupChannels = (updateMap as any).get('group')
+      const updateMapGroupChannels = new Map((updateMap as any).get('group'))
       updateMapGroupChannels.set('limit', localAction.limit)
       updateMapGroupChannels.set('skip', localAction.skip)
       updateMapGroupChannels.set('total', localAction.total)
-      const updateMapGroupChannelsChildren = (updateMapGroupChannels as any).get('channels')
+      const updateMapGroupChannelsChildren = new Map((updateMapGroupChannels as any).get('channels'))
       updateMapGroupChannels.set('updateNeeded', false)
       localAction.channels.forEach((groupChannel) => {
         groupChannel.updateNeeded = true
-        // setMap = new Map()
-        // setMap.set('messages', [])
-        // setMap.set('updateNeeded', true)
+        groupChannel.limit = 50
+        groupChannel.skip = 0
+        groupChannel.total = 0
         updateMapGroupChannelsChildren.set(groupChannel.id, groupChannel)
       })
-      console.log('GOT GROUP CHANNELS')
-      console.log(updateMap)
+      updateMapGroupChannels.set('channels', updateMapGroupChannelsChildren)
+      updateMap.set('group', updateMapGroupChannels)
       return state
         .set('channels', updateMap)
     case LOADED_PARTY_CHANNEL:
       localAction = (action as LoadedChannelAction)
       updateMap = new Map(state.get('channels'))
-      const updateMapPartyChannel = (updateMap as any).get('party')
-      const updateMapPartyChannelChild = (updateMapPartyChannel as any).get('channel')
+      const updateMapPartyChannel = new Map((updateMap as any).get('party'))
       updateMapPartyChannel.set('updateNeeded', false)
-      updateMapPartyChannelChild.set(localAction.channel)
-      console.log('GOT PARTY CHANNEL')
-      console.log(updateMap)
+      updateMapPartyChannel.set('limit', 50)
+      updateMapPartyChannel.set('skip', 0)
+      updateMapPartyChannel.set('total', 0)
+      updateMapPartyChannel.set('channel', localAction.channel)
+      updateMap.set('party', updateMapPartyChannel)
       return state
         .set('channels', updateMap)
     case CREATED_MESSAGE:
       localAction = (action as CreatedMessageAction)
+        console.log('CREATE MESSAGE LOCAL ACTION')
+        console.log(localAction)
       updateMap = new Map(state.get('channels'))
-      updateMapChannelsType = (updateMap as any).get(localAction.channelType)
-      updateMapChannelsTypeChildren = (updateMapChannelsType as any).get('channels')
-      updateMapChannelsTypeChild = (updateMapChannelsTypeChildren as any).get(localAction.channelId)
-      if (updateMapChannelsTypeChild == null) {
-       updateMapChannelsType.set('updateNeeded', true)
+      updateMapChannelsType = new Map((updateMap as any).get(localAction.channelType))
+        console.log(updateMapChannelsType)
+      if (localAction.channelType === 'party') {
+        updateMapChannelsType.set('updateNeeded', true)
+        updateMap.set(localAction.channelType, updateMapChannelsType)
       }
       else {
-        updateMapChannelsTypeChild.set('updateNeeded', true)
+        updateMapChannelsTypeChildren = new Map((updateMapChannelsType as any).get('channels'))
+        console.log(updateMapChannelsTypeChildren)
+        updateMapChannelsTypeChild = (updateMapChannelsTypeChildren as any).get(localAction.channelId)
+        console.log('CREATE MESSAGE TYPECHILD:')
+        console.log(updateMapChannelsTypeChild)
+        if (updateMapChannelsTypeChild == null) {
+          updateMapChannelsType.updateNeeded = true
+          updateMap.set(localAction.channelType, updateMapChannelsType)
+        }
+        else {
+          updateMapChannelsTypeChild.updateNeeded = true
+          updateMapChannelsTypeChildren.set(localAction.channelId, updateMapChannelsTypeChild)
+          updateMapChannelsType.set('channels', updateMapChannelsTypeChildren)
+          updateMap.set(localAction.channelType, updateMapChannelsType)
+        }
       }
-      console.log('CREATED MESSAGE')
-      console.log(updateMap)
+      console.log('CREATE MESSAGE UPDATEMAP:')
+        console.log(updateMap)
       return state
           .set('channels', updateMap)
     case LOADED_MESSAGES:
       localAction = (action as LoadedMessagesAction)
+        console.log('LOADED MESSAGES LOCAL ACTION')
+        console.log(localAction)
       updateMap = new Map(state.get('channels'))
-      updateMapChannelsType = (updateMap as any).get(localAction.channelType)
-      updateMapChannelsTypeChildren = (updateMapChannelsType as any).get('channels')
-      updateMapChannelsTypeChild = (updateMapChannelsTypeChildren as any).get(localAction.channelId)
-      updateMapChannelsTypeChild.set('messages', localAction.messages)
-      updateMapChannelsTypeChild.set('limit', localAction.limit)
-      updateMapChannelsTypeChild.set('skip', localAction.skip)
-      updateMapChannelsTypeChild.set('total', localAction.total)
-      updateMapChannelsTypeChild.set('updateNeeded', false)
-
+      updateMapChannelsType = new Map((updateMap as any).get(localAction.channelType))
+      if (localAction.channelType === 'party') {
+       updateMapChannelsTypeChild = new Map((updateMapChannelsType as any).channel)
+        updateMapChannelsTypeChild.messages = localAction.messages
+        updateMapChannelsTypeChild.limit = localAction.limit
+        updateMapChannelsTypeChild.skip = localAction.skip
+        updateMapChannelsTypeChild.total = localAction.total
+        updateMapChannelsTypeChild.updateNeeded = false
+        updateMapChannelsType.set('channels', updateMapChannelsTypeChild)
+        updateMap.set(localAction.channelType, updateMapChannelsType)
+      }
+      else {
+        console.log(updateMapChannelsType)
+        console.log(updateMapChannelsType.get('channels'))
+        console.log(updateMapChannelsType.get('channels').get(localAction.channelId))
+        updateMapChannelsTypeChildren = new Map((updateMapChannelsType as any).get('channels'))
+        updateMapChannelsTypeChild = (updateMapChannelsTypeChildren as any).get(localAction.channelId)
+        updateMapChannelsTypeChild.messages =  localAction.messages
+        updateMapChannelsTypeChild.limit = localAction.limit
+        updateMapChannelsTypeChild.skip = localAction.skip
+        updateMapChannelsTypeChild.total = localAction.total
+        updateMapChannelsTypeChild.updateNeeded = false
+        updateMapChannelsTypeChildren.set(localAction.channelId, updateMapChannelsTypeChild)
+        updateMapChannelsType.set('channels', updateMapChannelsTypeChildren)
+        updateMap.set(localAction.channelType, updateMapChannelsType)
+      }
       console.log(`LOADED MESSAGES FOR CHANNEL ${localAction.channelId}`)
       console.log(updateMap)
       return state
@@ -150,10 +169,21 @@ const chatReducer = (state = immutableState, action: ChatAction): any => {
     case REMOVED_MESSAGE:
       localAction = (action as RemovedMessageAction)
       updateMap = new Map(state.get('channels'))
-      updateMapChannelsType = (updateMap as any).get(localAction.channelType)
-      updateMapChannelsTypeChildren = (updateMapChannelsType as any).get('channels')
-      updateMapChannelsTypeChild = (updateMapChannelsTypeChildren as any).get(localAction.channelId)
-      updateMapChannelsTypeChild.set('updateNeeded', true)
+      updateMapChannelsType = new Map((updateMap as any).get(localAction.channelType))
+      if (localAction.channelType === 'party') {
+        updateMapChannelsTypeChild = (updateMapChannelsType as any).channel
+        updateMapChannelsTypeChild.updateNeeded = true
+        updateMapChannelsType.set('channel', updateMapChannelsTypeChild)
+        updateMap.set(localAction.channelType, updateMapChannelsType)
+      }
+      else {
+        updateMapChannelsTypeChildren = new Map((updateMapChannelsType as any).get('channels'))
+        updateMapChannelsTypeChild = (updateMapChannelsTypeChildren as any).get(localAction.channelId)
+        updateMapChannelsTypeChild.updateNeeded = true
+        updateMapChannelsTypeChildren.set(localAction.channelId, updateMapChannelsTypeChild)
+        updateMapChannelsType.set('channels', updateMapChannelsTypeChildren)
+        updateMap.set(localAction.channelType, updateMapChannelsType)
+      }
       console.log('REMOVED MESSAGE')
       console.log(updateMap)
       return state
