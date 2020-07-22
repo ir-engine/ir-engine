@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux-immutable'
 import appReducer from './app/reducers'
 import authReducer from './auth/reducers'
+import chatReducer from './chat/reducers'
 import videoReducer from './video/reducers'
 import sceneReducer from './scenes/reducers'
 import alertReducer from './alert/reducers'
@@ -19,6 +20,7 @@ import seatReducer from './seats/reducers'
 export default combineReducers({
   app: appReducer,
   auth: authReducer,
+  chat: chatReducer,
   friends: friendReducer,
   groups: groupReducer,
   groupUsers: groupUserReducer,

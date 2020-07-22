@@ -2,6 +2,7 @@ import React, { Fragment, useState } from 'react'
 import UserProfile from './UserIcon'
 import UserSettings from './UserSettings'
 import Subscription from './Subscription'
+import Chat from './Chat'
 import Friends from './Friends'
 import Groups from './Groups'
 import Party from './Party'
@@ -14,6 +15,7 @@ import {
     Mail,
     SupervisedUserCircle,
     Group,
+    QuestionAnswer
 } from '@material-ui/icons'
 import {
     Backdrop,
@@ -59,23 +61,28 @@ const ProfileModal = (props: Props): any => {
       <Subscription auth={props.auth}/>
     </TabPanel>
   )
-  const friends = (
+    const chat = (
       <TabPanel value={tabIndex} index={3}>
+        <Chat auth={props.auth} />
+      </TabPanel>
+    )
+  const friends = (
+      <TabPanel value={tabIndex} index={4}>
         <Friends auth={props.auth} />
       </TabPanel>
   )
     const groups = (
-        <TabPanel value={tabIndex} index={4}>
+        <TabPanel value={tabIndex} index={5}>
             <Groups auth={props.auth} />
         </TabPanel>
     )
     const party = (
-        <TabPanel value={tabIndex} index={5}>
+        <TabPanel value={tabIndex} index={6}>
             <Party auth={props.auth} />
         </TabPanel>
     )
   const invite = (
-      <TabPanel value={tabIndex} index={6}>
+      <TabPanel value={tabIndex} index={7}>
         <Invite auth={props.auth} />
       </TabPanel>
   )
@@ -120,13 +127,17 @@ const ProfileModal = (props: Props): any => {
                 label="Subscription"
               />
               <Tab
+                  icon={<QuestionAnswer style={{ fontSize: 30}}/>}
+                  label="Chat"
+              />
+              <Tab
                 icon={<SupervisedUserCircle style={{ fontSize: 30}} />}
                 label="Friends"
               />
-            <Tab
-                icon={<Group style={{ fontSize: 30}} />}
-                label="Groups"
-            />
+                <Tab
+                    icon={<Group style={{ fontSize: 30}} />}
+                    label="Groups"
+                />
                 <Tab
                     icon={<Cake style={{ fontSize: 30}} />}
                     label="Party"
@@ -140,6 +151,7 @@ const ProfileModal = (props: Props): any => {
             {settings}
             {/* {account} */}
             {subscription}
+            {chat}
             {friends}
             {groups}
             {party}

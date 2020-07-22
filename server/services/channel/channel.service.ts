@@ -1,13 +1,13 @@
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
-import { Conversation } from './conversation.class'
-import createModel from '../../models/conversation.model'
-import hooks from './conversation.hooks'
+import { Channel } from './channel.class'
+import createModel from '../../models/channel.model'
+import hooks from './channel.hooks'
 
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'conversation': Conversation & ServiceAddons<any>
+    'channel': Channel & ServiceAddons<any>
   }
 }
 
@@ -17,9 +17,9 @@ export default (app: Application): any => {
     paginate: app.get('paginate')
   }
 
-  app.use('/conversation', new Conversation(options, app))
+  app.use('/channel', new Channel(options, app))
 
-  const service = app.service('conversation')
+  const service = app.service('channel')
 
   service.hooks(hooks)
 }
