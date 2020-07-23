@@ -9,14 +9,8 @@ export default (app: Application): void => {
   }
 
   app.on('login', (authResult: any, { connection }: any) => {
-    // connection can be undefined if there is no
-    // real-time connection, e.g. when logging in via REST
-    console.log('LOGIN LISTENER')
-    console.log(authResult)
-    console.log(connection)
     if (connection) {
-
-      app.channel(`${connection['identity-provider'].userId}`).join(connection)
+      app.channel(`userIds/${connection['identity-provider'].userId}`).join(connection)
     }
   })
   //
@@ -81,7 +75,7 @@ export default (app: Application): void => {
         return groupUser.id
       })
     }
-    else if (channel.channelType === 'friend') {
+    else if (channel.channelType === 'user') {
       console.log('Sending friend message notification')
       targetIds = [channel.userId1, channel.userId2]
     }
@@ -90,8 +84,9 @@ export default (app: Application): void => {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return Promise.all(targetIds.map((userId) => {
       console.log('Sending notification to user ' + userId)
-      return app.channel(userId).send({
-        channel: channel.id
+      return app.channel(`userIds/${userId}`).send({
+        channelType: channel.channelType,
+        message: data
       })
     }))
   })
