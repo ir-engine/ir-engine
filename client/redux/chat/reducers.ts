@@ -8,8 +8,6 @@ import {
   ChatAction
 } from './actions'
 
-import _ from 'lodash'
-
 import {
   CREATED_MESSAGE,
   LOADED_MESSAGES,

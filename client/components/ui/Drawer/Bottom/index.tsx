@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import './style.scss'
@@ -21,8 +20,8 @@ import {
     getChannelMessages,
     createMessage,
     removeMessage
-} from '../../../redux/chat/service'
-import { selectChatState } from '../../../redux/chat/selector'
+} from '../../../../redux/chat/service'
+import { selectChatState } from '../../../../redux/chat/selector'
 import {
     AccountCircle,
     ChevronLeft,
@@ -34,8 +33,8 @@ import {
     PhoneIphone
 } from '@material-ui/icons'
 import moment from 'moment'
-import {User} from "../../../../shared/interfaces/User";
-import { client } from '../../../redux/feathers'
+import {User} from "../../../../../shared/interfaces/User";
+import { client } from '../../../../redux/feathers'
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -63,7 +62,7 @@ interface Props {
     removeMessage?: any
 }
 
-const Groups = (props: Props): any => {
+const BottomDrawer = (props: Props): any => {
     const {
         auth,
         chatState,
@@ -122,9 +121,9 @@ const Groups = (props: Props): any => {
         console.log('userChannels useeffect')
         console.log(userChannels)
         userChannels.forEach((userChannel) => {
-          if (userChannel.updateNeeded === true) {
-              getChannelMessages(userChannel.id, 'user')
-          }
+            if (userChannel.updateNeeded === true) {
+                getChannelMessages(userChannel.id, 'user')
+            }
         })
     }, [userChannels]);
 
@@ -165,13 +164,13 @@ const Groups = (props: Props): any => {
     }
 
     return (
-        <div className="chat-container">
+        <div className="bottom-drawer">
             <List className="flex-center flex-column">
                 { userChannels && userChannels.size > 0 && Array.from(userChannels).map(([channelId, userChannel]) => {
-                        return <ListItem key={channelId} onClick={() => setActiveChat('user', channelId, userChannel)}>
-                            <ListItemText primary={channelId}/>
-                        </ListItem>
-                    })
+                    return <ListItem key={channelId} onClick={() => setActiveChat('user', channelId, userChannel)}>
+                        <ListItemText primary={channelId}/>
+                    </ListItem>
+                })
                 }
             </List>
             <List className="flex-center flex-column">
@@ -184,26 +183,26 @@ const Groups = (props: Props): any => {
                 }
             </List>
             <div className="flex-center">
-				<div className="paper">
-					<div className="username">
-						<TextField
-							variant="outlined"
-							margin="normal"
-							fullWidth
-							id="newMessage"
-							label="Message text"
-							name="name"
-							autoFocus
-							value={composingMessage}
-							onChange={(e) => handleComposingMessageChange(e)}
-						/>
-						<Button variant="contained"
-						        color="primary"
-						        onClick={packageMessage}
-						>
-							Send Message
-						</Button>
-					</div>
+                <div className="paper">
+                    <div className="username">
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            fullWidth
+                            id="newMessage"
+                            label="Message text"
+                            name="name"
+                            autoFocus
+                            value={composingMessage}
+                            onChange={(e) => handleComposingMessageChange(e)}
+                        />
+                        <Button variant="contained"
+                                color="primary"
+                                onClick={packageMessage}
+                        >
+                            Send Message
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -211,4 +210,4 @@ const Groups = (props: Props): any => {
     )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Groups)
+export default connect(mapStateToProps, mapDispatchToProps)(BottomDrawer)
