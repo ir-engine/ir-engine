@@ -9,6 +9,8 @@ import {
   removedMessage
 } from './actions'
 
+import store from '../store'
+
 export function getUserChannels(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const channelResult = await client.service('channel').find({
@@ -18,8 +20,6 @@ export function getUserChannels(skip?: number, limit?: number) {
         $skip: skip != null ? skip: getState().get('chat').get('channels').get('user').get('skip')
       }
     })
-    console.log('GOT USER CHANNELS')
-    console.log(channelResult)
     dispatch(loadedUserChannels(channelResult))
   }
 }
@@ -33,8 +33,6 @@ export function getGroupChannels(skip?: number, limit?: number) {
         $skip: skip != null ? skip: getState().get('chat').get('channels').get('group').get('skip')
       }
     })
-    console.log('GOT GROUP CHANNELS')
-    console.log(channelResult)
     dispatch(loadedGroupChannels(channelResult))
   }
 }
@@ -46,23 +44,17 @@ export function getPartyChannel() {
         channelType: 'party'
       }
     })
-    console.log('GOT PARTY CHANNEL')
-    console.log(channelResult)
     dispatch(loadedPartyChannel(channelResult))
   }
 }
 
 export function createMessage(values: any) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    console.log('CREATING MESSAGE WITH VALUES:')
-    console.log(values)
     const newMessage = await client.service('message').create({
       targetObjectId: values.targetObjectId,
       targetObjectType: values.targetObjectType,
       text: values.text
     })
-    console.log('NEW MESSAGE:')
-    console.log(newMessage)
     dispatch(createdMessage(values.targetObjectType, newMessage))
   }
 }
@@ -92,3 +84,9 @@ export function removeMessage(messageId: string, channelType: string, channelId:
     dispatch(removedMessage(channelType, channelId))
   }
 }
+
+client.service('message').on('created', (params) => {
+  console.log('MESSAGE CREATED EVENT')
+  console.log(params)
+  store.dispatch(createdMessage(params.channelType, params.message))
+})

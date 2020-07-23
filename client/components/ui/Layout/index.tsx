@@ -1,10 +1,15 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import getConfig from 'next/config'
 import NavMenu from '../NavMenu'
 import Head from 'next/head'
 import './style.scss'
 import Alerts from '../Common/Alerts'
 import UIDialog from '../Dialog/Dialog'
+import DrawerControls from '../DrawerControls'
+import LeftDrawer from '../Drawer/Left'
+import RightDrawer from '../Drawer/Right'
+import TopDrawer from '../Drawer/Top'
+import BottomDrawer from '../Drawer/Bottom'
 
 const { publicRuntimeConfig } = getConfig()
 const siteTitle: string = publicRuntimeConfig.siteTitle
@@ -16,6 +21,11 @@ interface Props {
 
 const Layout = (props: Props): any => {
   const { pageTitle, children } = props
+  const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)
+  const [rightDrawerOpen, setRightDrawerOpen] = useState(false)
+  const [topDrawerOpen, setTopDrawerOpen] = useState(false)
+  const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false)
+
   return (
     <section>
       <Head>
@@ -32,6 +42,12 @@ const Layout = (props: Props): any => {
         <Alerts />
         {children}
       </Fragment>
+      <Fragment>
+         <LeftDrawer leftDrawerOpen={leftDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen}/>
+      </Fragment>
+      <footer>
+          { leftDrawerOpen === false && rightDrawerOpen === false && topDrawerOpen === false && bottomDrawerOpen === false && <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen}/> }
+      </footer>
     </section>
   )
 }

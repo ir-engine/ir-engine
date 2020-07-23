@@ -27,8 +27,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 interface Props {
     auth: any
-    friendState?: any,
-    getFriends?: any,
+    friendState?: any
+    getFriends?: any
     unfriend?: any
 }
 
