@@ -8,6 +8,12 @@ Setup instructions for Dracosis Playet
   `yarn build`  
   `npm link`
 
+- To make any changes to the worker
+  `cd three-volumetric/worker`
+  `npm install`  
+  `npm run build`
+  `cp dist/Worker.js ./../dracosis-player/public/`
+
 - Clone this project: https://github.com/xr3ngine/dracosis-player  
   `cd dracosis-player`  
   `npm install`  
@@ -20,5 +26,5 @@ Setup instructions for Dracosis Playet
 
 ## Issues
 
-- Worker not running on src/Dracosis/Player.ts
-- readStream not supported in src/Dracosis/Player.ts. Need to remove 'fs' and move streaming data to server/ and reading streamed data from server to Player.ts
+- Texture is being compressed but saving texture length in header data is not allowing the drcs file to be read
+- Decode compressed buffer data to show the mesh
