@@ -31,7 +31,8 @@ const groupReducer = (state = immutableState, action: GroupAction): any => {
     case LOADED_GROUPS:
       const newValues = (action as LoadedGroupsAction)
       const updateMap = new Map()
-      updateMap.set('groups', newValues.groups)
+      const existingGroups = state.get('groups').get('groups')
+      updateMap.set('groups', (existingGroups.size != null || state.get('updateNeeded') === true) ? newValues.groups : existingGroups.concat(newValues.groups))
       updateMap.set('skip', newValues.skip)
       updateMap.set('limit', newValues.limit)
       updateMap.set('total', newValues.total)
