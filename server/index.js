@@ -8,7 +8,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
 
-const filePath = 'test.drcs';
+const filePath = 'sample_10_frames.drcs';
 
 function byteArrayToLong(/*byte[]*/ byteArray) {
   let value = 0;
@@ -60,6 +60,8 @@ app.post('/dracosis-stream', (req, res) => {
   console.log(req.body);
   const startBytePosition = req.body.startByte;
   const meshLength = req.body.meshLength;
+  const textureLength = req.body.textureLength;
+
   // const transferableBuffers = Buffer[];
 
   // startBytePosition = req.startBytePosition;
@@ -68,9 +70,9 @@ app.post('/dracosis-stream', (req, res) => {
   // console.log(bufferGeometry);
 
   var stream = fs
-    .createReadStream('test.drcs', {
+    .createReadStream(filePath, {
       start: startBytePosition,
-      end: meshLength,
+      end: startBytePosition + meshLength,
     })
     .on('open', function () {
       stream.pipe(res);
@@ -78,6 +80,18 @@ app.post('/dracosis-stream', (req, res) => {
     .on('error', function (err) {
       res.end(err);
     });
+
+  // stream = fs
+  //   .createReadStream(filePath, {
+  //     start: startBytePosition + meshLength,
+  //     end: startBytePosition + meshLength + textureLength,
+  //   })
+  //   .on('open', function () {
+  //     stream.pipe(res);
+  //   })
+  //   .on('error', function (err) {
+  //     res.end(err);
+  //   });
 });
 
 app.listen(8000, () => {
