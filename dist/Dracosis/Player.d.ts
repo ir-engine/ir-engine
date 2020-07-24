@@ -1,12 +1,12 @@
 /// <reference types="node" />
 import { IBufferGeometryCompressedTexture, WorkerInitializationResponse } from './Interfaces';
-import { Scene, BufferGeometry, CompressedTexture, MeshBasicMaterial, Mesh } from 'three';
+import { Scene, BufferGeometry, CompressedTexture, MeshPhongMaterial, Mesh } from 'three';
 export default class DracosisPlayer {
     frameRate: number;
     speed: number;
     scene: Scene;
     mesh: Mesh;
-    material: MeshBasicMaterial;
+    material: MeshPhongMaterial;
     bufferGeometry: BufferGeometry;
     compressedTexture: CompressedTexture;
     private _startFrame;
@@ -47,7 +47,7 @@ export default class DracosisPlayer {
     handleDataResponse(data: IBufferGeometryCompressedTexture[]): void;
     getPositionInBuffer(frameNumber: number): number;
     handleBuffers(): NodeJS.Timeout;
-    update(): NodeJS.Timeout;
+    update(): void;
     play(): void;
     pause(): void;
     reset(): void;
