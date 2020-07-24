@@ -1,7 +1,7 @@
-import InputAlias from "../../input/types/InputAlias"
-import InputRelationshipMapping from "./InputRelationshipMapping"
+import InputAlias from "../types/InputAlias"
+import InputRelationshipMapping from "./InputRelationship"
 
-interface InputMap {
+interface InputSchema {
   // Called by input system when an Input component is added
   onAdded: [
     {
@@ -88,4 +88,4 @@ interface InputMap {
   }
 }
 
-export default InputMap
+export default InputSchema

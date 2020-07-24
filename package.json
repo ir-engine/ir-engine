@@ -73,5 +73,10 @@
     "lint",
     "build"
   ],
-  "version": "0.0.1"
+  "version": "0.0.1",
+  "dependencies": {
+    "@geckos.io/typed-array-buffer-schema": "0.0.4",
+    "mediasoup-client": "^3.6.12",
+    "socket.io-client": "^2.3.0"
+  }
 }
