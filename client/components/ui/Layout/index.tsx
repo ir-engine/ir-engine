@@ -1,4 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react'
+import { bindActionCreators, Dispatch } from 'redux'
+import { connect } from 'react-redux'
 import getConfig from 'next/config'
 import NavMenu from '../NavMenu'
 import Head from 'next/head'
@@ -10,17 +12,27 @@ import LeftDrawer from '../Drawer/Left'
 import RightDrawer from '../Drawer/Right'
 import TopDrawer from '../Drawer/Top'
 import BottomDrawer from '../Drawer/Bottom'
+import { selectAuthState } from '../../../redux/auth/selector'
 
 const { publicRuntimeConfig } = getConfig()
 const siteTitle: string = publicRuntimeConfig.siteTitle
 
 interface Props {
+  authState?: any,
   pageTitle: string
   children: any
 }
+const mapStateToProps = (state: any): any => {
+    return {
+        authState: selectAuthState(state)
+    }
+}
+
+const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const Layout = (props: Props): any => {
-  const { pageTitle, children } = props
+  const { pageTitle, children, authState } = props
+  const authUser = authState.get('authUser')
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false)
   const [topDrawerOpen, setTopDrawerOpen] = useState(false)
@@ -42,14 +54,16 @@ const Layout = (props: Props): any => {
         <Alerts />
         {children}
       </Fragment>
-      <Fragment>
-         <LeftDrawer leftDrawerOpen={leftDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen}/>
-      </Fragment>
+      { authState.get('authUser') != null &&
+        <Fragment>
+          <LeftDrawer leftDrawerOpen={leftDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen}/>
+        </Fragment>
+      }
       <footer>
-          { leftDrawerOpen === false && rightDrawerOpen === false && topDrawerOpen === false && bottomDrawerOpen === false && <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen}/> }
+          { authState.get('authUser') != null && leftDrawerOpen === false && rightDrawerOpen === false && topDrawerOpen === false && bottomDrawerOpen === false && <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen}/> }
       </footer>
     </section>
   )
 }
 
-export default Layout
+export default connect(mapStateToProps, mapDispatchToProps)(Layout)

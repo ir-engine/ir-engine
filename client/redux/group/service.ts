@@ -12,12 +12,16 @@ import { User } from '../../../shared/interfaces/User'
 
 export function getGroups(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    console.log(`group skip: ${skip}`)
+    console.log(`group limit: ${limit}`)
     const groupResults = await client.service('group').find({
       query: {
         $limit: limit != null ? limit : getState().get('groups').get('groups').get('limit'),
         $skip: skip != null ? skip : getState().get('groups').get('groups').get('skip'),
       }
     })
+    console.log('GROUP RESULT:')
+    console.log(groupResults)
     dispatch(loadedGroups(groupResults))
   }
 }

@@ -6,7 +6,9 @@ import {
   INVITED_PARTY_USER,
   REMOVED_PARTY_USER,
   LOADED_PARTY_USERS,
-  LOADED_SELF_PARTY_USER
+  LOADED_SELF_PARTY_USER,
+  FETCHING_PARTY_USERS,
+  FETCHING_SELF_PARTY_USER
 } from '../actions'
 import { Party } from '../../../shared/interfaces/Party'
 import { PartyUser } from '../../../shared/interfaces/PartyUser'
@@ -38,12 +40,21 @@ export interface LeftPartyAction {
   type: string
 }
 
+export interface FetchingPartyUserAction {
+  type: string
+}
+
+export interface FetchingSelfPartyUserAction {
+  type: string
+}
+
 export type PartyAction =
     LoadedPartyAction
     | AddedPartyAction
     | RemovedPartyAction
     | LeftPartyAction
-    | LeftPartyAction
+    | FetchingPartyUserAction
+    | FetchingSelfPartyUserAction
 
 export function loadedParty(partyResult: PartyResult): PartyAction {
   return {
@@ -120,5 +131,17 @@ export function loadedSelfPartyUser(partyUserResult: PartyUserResult): PartyUser
 export function removedPartyUser(): RemovedPartyUserAction {
   return {
     type: REMOVED_PARTY_USER
+  }
+}
+
+export function fetchingPartyUsers(): FetchingPartyUserAction {
+  return {
+    type: FETCHING_PARTY_USERS
+  }
+}
+
+export function fetchingSelfPartyUser(): FetchingSelfPartyUserAction {
+  return {
+    type: FETCHING_SELF_PARTY_USER
   }
 }

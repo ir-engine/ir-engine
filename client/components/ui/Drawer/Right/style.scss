@@ -29,7 +29,7 @@
     width: 30%;
 
     @media (max-width: 768px) {
-        width: 70%;
+        max-width: 70%;
     }
 }
 
@@ -65,8 +65,4 @@
         overflow-y: auto;
         min-height: 0;
     }
-}
-
-.MuiTabs-root {
-    min-height: 75px;
 }
