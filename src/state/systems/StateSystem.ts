@@ -3,7 +3,7 @@ import State from "../components/State"
 import StateValue from "../interfaces/StateValue"
 import { Vector2, NumericalType } from "../../common/types/NumericalTypes"
 import Behavior from "../../common/interfaces/Behavior"
-import StateMap from "../interfaces/StateMap"
+import StateSchema from "../interfaces/StateSchema"
 import StateGroupAlias from "../types/StateGroupAlias"
 import { addState } from "../behaviors/StateBehaviors"
 import LifecycleValue from "../../common/enums/LifecycleValue"
@@ -15,7 +15,7 @@ export default class StateSystem extends System {
     this.queries.state.added?.forEach(entity => {
       // If stategroup has a default, add it to our state map
       this._state = entity.getComponent(State)
-      Object.keys((this._state.map as StateMap).groups).forEach((stateGroup: StateGroupAlias) => {
+      Object.keys((this._state.map as StateSchema).groups).forEach((stateGroup: StateGroupAlias) => {
         if (this._state.map.groups[stateGroup] !== undefined && this._state.map.groups[stateGroup].default !== undefined) {
           addState(entity, { state: this._state.map.groups[stateGroup].default })
           console.log("Added default state: " + this._state.map.groups[stateGroup].default)

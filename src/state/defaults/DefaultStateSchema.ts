@@ -1,4 +1,4 @@
-import StateMap from "../interfaces/StateMap"
+import StateSchema from "../interfaces/StateSchema"
 import { jumping } from "../../common/defaults/behaviors/jump"
 import { decelerate } from "../../common/defaults/behaviors/decelerate"
 import { DefaultStateTypes } from "./DefaultStateTypes"
@@ -11,7 +11,7 @@ export const DefaultStateGroups = {
   MOVEMENT_MODIFIERS: 1
 }
 
-export const DefaultStateMap: StateMap = {
+export const DefaultStateSchema: StateSchema = {
   groups: {
     [DefaultStateGroups.MOVEMENT]: {
       exclusive: true,

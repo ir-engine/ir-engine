@@ -1,4 +1,4 @@
-export interface SubscriptionMap {
+export interface SubscriptionSchema {
   onAdded?: [
     {
       behavior: any
@@ -31,4 +31,4 @@ export interface SubscriptionMap {
   ]
 }
 
-export default SubscriptionMap
+export default SubscriptionSchema

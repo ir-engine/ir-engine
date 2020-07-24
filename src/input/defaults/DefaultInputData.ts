@@ -1,4 +1,4 @@
-import InputMap from "../interfaces/InputMap"
+import InputSchema from "../interfaces/InputSchema"
 import { handleMouseButton, handleMouseMovement } from "../behaviors/DesktopInputBehaviors"
 import BinaryValue from "../../common/enums/BinaryValue"
 import { handleKey } from "../behaviors/DesktopInputBehaviors"
@@ -9,7 +9,7 @@ import { disableScroll, enableScroll } from "../../common/utils/EnableDisableScr
 import { handleGamepadConnected, handleGamepadDisconnected } from "../behaviors/GamepadInputBehaviors"
 import { addState, removeState } from "../../state/behaviors/StateBehaviors"
 import { InputType } from "../enums/InputType"
-import InputRelationshipMapping from "../interfaces/InputRelationshipMapping"
+import InputRelationshipMapping from "../interfaces/InputRelationship"
 import { DefaultStateTypes } from "../../state/defaults/DefaultStateTypes"
 import { move } from "../../common/defaults/behaviors/move"
 import { MouseButtons } from "../enums/MouseButtons"
@@ -41,7 +41,7 @@ export const DefaultInput = {
   ALTERNATE: 20
 }
 
-export const DefaultInputMap: InputMap = {
+export const DefaultInputMap: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
   onAdded: [
     {

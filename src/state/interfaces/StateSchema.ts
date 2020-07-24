@@ -2,7 +2,7 @@ import StateAlias from "../types/StateAlias"
 import StateGroupType from "../types/StateGroupAlias"
 import Behavior from "../../common/interfaces/Behavior"
 
-export default interface StateMap {
+export default interface StateSchema {
   groups: {
     [key: number]: {
       exclusive: boolean
