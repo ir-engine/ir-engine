@@ -29,6 +29,7 @@ let message: WorkerDataResponse;
 
 self.addEventListener('message', (event) => {
   const data = (<any>event).data;
+  console.log(data);
   const type = (<any>event).data.type;
   switch (type) {
     case MessageType.InitializationRequest:
@@ -110,7 +111,8 @@ async function fetch(data: WorkerDataRequest): Promise<void> {
 
     axios
       .post('http://localhost:8000/dracosis-stream', {
-        startByte: readStreamOffset,
+        startByte:
+          readStreamOffset + fileHeader.frameData[frame].startBytePosition,
         meshLength: fileHeader.frameData[frame].meshLength,
         textureLength: fileHeader.frameData[frame].textureLength,
       })
