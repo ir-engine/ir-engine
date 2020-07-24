@@ -47,7 +47,7 @@ class TouchHandler implements ITouchHandler {
 	}
 }
 
-export function touchHandlerExample(): void {
+export function touchHandlerExample1(): void {
 	// console.log('Check.');
 	let th: TouchHandler = new TouchHandler();
 	setTouchHandler(th);
