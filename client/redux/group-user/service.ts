@@ -3,11 +3,14 @@ import { client } from '../feathers'
 import {
   loadedGroupUsers,
   loadedSelfGroupUser,
-  removedGroupUser
+  removedGroupUser,
+  fetchingGroupUsers,
+  fetchingSelfGroupUser
 } from './actions'
 
 export function getGroupUsers(groupId: string, skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    dispatch(fetchingGroupUsers())
     const groupUserResults = await client.service('group-user').find({
       query: {
         groupId: groupId,
@@ -21,8 +24,7 @@ export function getGroupUsers(groupId: string, skip?: number, limit?: number) {
 
 export function getSelfGroupUser(groupId: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    console.log('getSelfGroupUser')
-    console.log('groupId: ' + groupId)
+    dispatch(fetchingSelfGroupUser())
     const selfGroupUserResults = await client.service('group-user').find({
       query: {
         groupId: groupId,

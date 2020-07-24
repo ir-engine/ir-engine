@@ -1,4 +1,6 @@
 import {
+  FETCHING_GROUP_USERS,
+  FETCHING_SELF_GROUP_USER,
   LOADED_GROUP_USERS,
   LOADED_SELF_GROUP_USER,
   REMOVED_GROUP_USER
@@ -24,10 +26,20 @@ export interface RemovedGroupUserAction {
   type: string
 }
 
+export interface FetchingGroupUsersAction {
+  type: string
+}
+
+export interface FetchingSelfGroupUserAction {
+  type: string
+}
+
 export type GroupUserAction =
     LoadedGroupUsersAction
     | RemovedGroupUserAction
     | LoadedSelfGroupUserAction
+    | FetchingGroupUsersAction
+    | FetchingSelfGroupUserAction
 
 export function loadedGroupUsers(groupUserResult: GroupUserResult): GroupUserAction {
   return {
@@ -50,5 +62,17 @@ export function loadedSelfGroupUser(groupUserResult: GroupUserResult): GroupUser
 export function removedGroupUser(): RemovedGroupUserAction {
   return {
     type: REMOVED_GROUP_USER
+  }
+}
+
+export function fetchingGroupUsers(): FetchingGroupUsersAction {
+  return {
+    type: FETCHING_GROUP_USERS
+  }
+}
+
+export function fetchingSelfGroupUser(): FetchingSelfGroupUserAction {
+  return {
+    type: FETCHING_SELF_GROUP_USER
   }
 }
