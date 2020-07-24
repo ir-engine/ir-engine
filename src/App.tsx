@@ -41,7 +41,7 @@ function LoadPlayer() {
   // var scene = new THREE.Scene();
   new DracosisPlayer(
     scene,
-    '../public/assets/sample.drcs',
+    '../public/assets/new_sample.drcs',
     callback,
     true,
     true,
@@ -102,10 +102,10 @@ export function Controls() {
 function App(props: any) {
   useEffect(() => {
     ReactDOM.render(
-      <Canvas camera={{ position: [0, 0, 5], up: [0, 1, 0] }}>
-        <ambientLight intensity={0.2} />
+      <Canvas camera={{ position: [0, 0, -5], up: [0, 1, 0] }}>
+        <ambientLight intensity={0.6} />
         <pointLight position={[1, 1, 1]} />
-        <Box position={[0, 0, 0]} />
+        {/* <Box position={[0, 0, 0]} /> */}
         <LoadPlayer />
         <Controls />
       </Canvas>,
