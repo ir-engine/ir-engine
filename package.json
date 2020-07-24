@@ -54,7 +54,7 @@
     "rollup-plugin-terser": "^5.1.2",
     "rollup-plugin-typescript2": "^0.27.1",
     "stream-http": "^3.1.1",
-    "three": "^0.117.1",
+    "three": "^0.118.3",
     "ts-loader": "^7.0.5",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.5",
