@@ -27,7 +27,8 @@ const friendReducer = (state = immutableState, action: FriendAction): any => {
     case LOADED_FRIENDS:
       const newValues = (action as LoadedFriendsAction)
       const updateMap = new Map()
-      updateMap.set('friends', newValues.friends)
+      const existingFriends = state.get('friends').get('friends')
+      updateMap.set('friends', (existingFriends.size != null || state.get('updateNeeded') === true) ? newValues.friends : existingFriends.concat(newValues.friends))
       updateMap.set('skip', newValues.skip)
       updateMap.set('limit', newValues.limit)
       updateMap.set('total', newValues.total)

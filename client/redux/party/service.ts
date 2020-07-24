@@ -7,7 +7,8 @@ import {
   removedPartyUser,
   loadedPartyUsers,
   loadedSelfPartyUser,
-  leftParty
+  fetchingPartyUsers,
+  fetchingSelfPartyUser
 } from './actions'
 
 export function getParty() {
@@ -46,7 +47,7 @@ export function removePartyUser(partyUserId: string) {
 
 export function getPartyUsers(partyId: string, skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    console.log('GETTING PARTY USERS')
+    dispatch(fetchingPartyUsers())
     const partyUserResults = await client.service('party-user').find({
       query: {
         partyId: partyId,
@@ -54,16 +55,13 @@ export function getPartyUsers(partyId: string, skip?: number, limit?: number) {
         $skip: skip != null ? skip : getState().get('party').get('partyUsers').get('skip'),
       }
     })
-    console.log('GOT PARTY USERS')
-    console.log(partyUserResults)
     dispatch(loadedPartyUsers(partyUserResults))
   }
 }
 
 export function getSelfPartyUser(partyId: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    console.log('getSelfPartyUser')
-    console.log('partyId: ' + partyId)
+    dispatch(fetchingSelfPartyUser())
     const selfPartyUserResults = await client.service('party-user').find({
       query: {
         partyId: partyId,
