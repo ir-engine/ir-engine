@@ -26,7 +26,7 @@ export default [
   },
 
   {
-    input: "src/touch-handler-examples/touch-handler-example.ts",
+    input: "src/touch-handler-examples/touch-handler-example-1.ts",
     plugins: [
       typescript(),
       // resolve(),
@@ -36,7 +36,25 @@ export default [
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     output: [
       {
-        file: "dist/touch-handler-example.js",
+        file: "dist/touch-handler-example-1.js",
+        format: "es",
+        sourcemap: true
+      }
+    ]
+  },
+
+  {
+    input: "src/touch-handler-examples/touch-handler-example-2.ts",
+    plugins: [
+      typescript(),
+      // resolve(),
+      json({ exclude: ["node_modules/**", "examples/**"] })
+      // babel({ babelHelpers: "bundled" })
+    ],
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+    output: [
+      {
+        file: "dist/touch-handler-example-2.js",
         format: "es",
         sourcemap: true
       }
@@ -65,7 +83,12 @@ export default [
     plugins: [html(), resolve()]
   },
   {
-    input: "examples/touch-handler.html",
+    input: "examples/touch-handler-1.html",
+    output: { dir: "dist/examples" },
+    plugins: [html(), resolve()]
+  },
+  {
+    input: "examples/touch-handler-2.html",
     output: { dir: "dist/examples" },
     plugins: [html(), resolve()]
   },
