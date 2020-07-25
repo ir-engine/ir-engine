@@ -9,6 +9,9 @@ import { selectPartyState } from '../../../../redux/party/selector'
 import './style.scss'
 
 import {
+    updateInviteTarget
+} from '../../../../redux/invite/service'
+import {
     getFriends,
     unfriend
 } from '../../../../redux/friend/service'
@@ -29,8 +32,7 @@ import {
     removeParty,
     getPartyUsers,
     getSelfPartyUser,
-    removePartyUser,
-    forcePartyUserRefresh
+    removePartyUser
 } from '../../../../redux/party/service'
 import { User } from '../../../../../shared/interfaces/User'
 import {
@@ -59,13 +61,14 @@ import {
 } from "@material-ui/icons";
 import _ from 'lodash'
 
+
 const mapStateToProps = (state: any): any => {
     return {
         authState: selectAuthState(state),
         friendState: selectFriendState(state),
         groupState: selectGroupState(state),
         groupUserState: selectGroupUserState(state),
-        partyState: selectPartyState(state),
+        partyState: selectPartyState(state)
     }
 }
 
@@ -85,11 +88,13 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createParty: bindActionCreators(createParty, dispatch),
     removeParty: bindActionCreators(removeParty, dispatch),
     removePartyUser: bindActionCreators(removePartyUser, dispatch),
+    updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch)
 })
 
 interface Props {
-    leftDrawerOpen: boolean,
-    setLeftDrawerOpen: any,
+    leftDrawerOpen: boolean
+    setLeftDrawerOpen: any
+    setRightDrawerOpen: any
     authState?: any
     friendState?: any
     getFriends?: any
@@ -109,9 +114,9 @@ interface Props {
     removeParty?: any
     getPartyUsers?: any
     getSelfPartyUser?: any
-    removePartyUser?: any,
-    openChat?: any,
-    openInvite?: any
+    removePartyUser?: any
+    setBottomDrawerOpen: any
+    updateInviteTarget?: any
 }
 
 const initialSelectedUserState = {
@@ -156,8 +161,9 @@ const LeftDrawer = (props: Props): any => {
         removePartyUser,
         setLeftDrawerOpen,
         leftDrawerOpen,
-        openChat,
-        openInvite
+        setRightDrawerOpen,
+        setBottomDrawerOpen,
+        updateInviteTarget
     } = props
 
     const user = authState.get('user') as User
@@ -187,13 +193,13 @@ const LeftDrawer = (props: Props): any => {
     const [ partyUserDeletePending, setPartyUserDeletePending] = useState('')
 
     useEffect(() => {
-        if (friendState.get('updateNeeded') === true) {
+        if (friendState.get('updateNeeded') === true && friendState.get('getFriendsInProgress') !== true) {
             getFriends(0)
         }
     }, [friendState]);
 
     useEffect(() => {
-        if (groupState.get('updateNeeded') === true) {
+        if (groupState.get('updateNeeded') === true && groupState.get('getGroupsInProgress') !== true) {
             getGroups(0)
         }
     }, [groupState]);
@@ -243,8 +249,9 @@ const LeftDrawer = (props: Props): any => {
     }
 
     const nextFriendsPage = (): void => {
-        if ((friendSubState.get('skip') + friendSubState.get('limit')) < friendSubState.get('total'))
-        getFriends(friendSubState.get('skip') + friendSubState.get('limit'))
+        if ((friendSubState.get('skip') + friendSubState.get('limit')) < friendSubState.get('total')) {
+            getFriends(friendSubState.get('skip') + friendSubState.get('limit'))
+        }
     }
 
     const showGroupDeleteConfirm = (e, groupId) => {
@@ -429,6 +436,19 @@ const LeftDrawer = (props: Props): any => {
         }
     }
 
+    const openInvite = (targetObjectType?: string, targetObjectId?: string): void => {
+        updateInviteTarget(targetObjectType, targetObjectId)
+        console.log('openInvite')
+        console.log('targetObjectType: ' + targetObjectType)
+        setLeftDrawerOpen(false)
+        setRightDrawerOpen(true)
+    }
+
+    const openChat = (targetObjectType, targetObjectId): void => {
+        setLeftDrawerOpen(false)
+        setRightDrawerOpen(true)
+    }
+
     return (
         <div>
             <SwipeableDrawer
@@ -541,6 +561,9 @@ const LeftDrawer = (props: Props): any => {
                             { party != null &&
 		                    <div className="list-container">
 			                    <div className="title">Current Party</div>
+                                <div className="party-id flex-center">
+                                    <div>ID: {party.id}</div>
+                                </div>
 			                    <div className="actionButtons flex-center flex-column">
 				                    <Button
 					                    variant="contained"
@@ -671,6 +694,9 @@ const LeftDrawer = (props: Props): any => {
                             <div className="userName flex-center">
                                 <div>{selectedUser.name}</div>
                             </div>
+                            <div className="userId flex-center">
+                                <div>ID: {selectedUser.id}</div>
+                            </div>
                             <div className="actionButtons flex-center flex-column">
                                 <Button
                                     variant="contained"
@@ -729,6 +755,9 @@ const LeftDrawer = (props: Props): any => {
                         <div className="details list-container">
                             <div className="title flex-center">
                                 <div>{selectedGroup.name}</div>
+                            </div>
+                            <div className="group-id flex-center">
+                                <div>ID: {selectedGroup.id}</div>
                             </div>
 	                        <div className="description flex-center">
 		                        <div>{selectedGroup.description}</div>

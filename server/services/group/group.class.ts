@@ -2,6 +2,7 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../declarations'
 import { Params } from '@feathersjs/feathers'
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
+import { Op } from 'sequelize'
 
 export class Group extends Service {
   app: Application
@@ -15,54 +16,44 @@ export class Group extends Service {
     const loggedInUser = extractLoggedInUserFromParams(params)
     const skip = params.query?.$skip ? params.query.$skip : 0
     const limit = params.query?.$limit ? params.query.$limit : 10
-    const groupResult = await this.app.service('group').Model.findAndCountAll({
-      offset: skip,
-      limit: limit,
-      order: [
-          ['name', 'ASC']
-      ],
-      include: [{
+    let include: any = [
+      {
         model: this.app.service('user').Model,
         where: {
           id: loggedInUser.userId
         }
-      }]
+      }
+    ]
+    if (params.query?.invitable === true) {
+      console.log('SEARCH FOR INVITABLE GROUPS')
+      include.push({
+        model: this.app.service('group-user').Model,
+        where: {
+          userId: loggedInUser.userId,
+          [Op.or]: [
+            {
+              groupUserRank: 'owner'
+            },
+            {
+              groupUserRank: 'admin'
+            }
+          ]
+        }
+      })
+    }
+    const groupResult = await this.app.service('group').Model.findAndCountAll({
+      offset: skip,
+      limit: limit,
+      order: [
+        ['name', 'ASC']
+      ],
+      include: include
     })
-    console.log(groupResult)
     return {
       skip: skip,
       limit: limit,
       total: groupResult.count,
       data: groupResult.rows
     }
-    // const groupUserResult = await this.app.service('group-user').find({
-    //   query: {
-    //     userId: loggedInUser.userId,
-    //     $limit: params.query?.$limit ? params.query.$limit : 10,
-    //     $skip: params.query?.$skip ? params.query.$skip : 0,
-    //     $sort: {
-    //       createdAt: -1
-    //     }
-    //   }
-    // })
-    //
-    // console.log(groupUserResult)
-    // let groupIds = (groupUserResult as any).data.map((groupUser) => {
-    //   return groupUser.groupId
-    // })
-    //
-    // const groupResult = await super.find({
-    //   query: {
-    //     id: {
-    //       $in: groupIds
-    //     }
-    //   }
-    // });
-    //
-    // (groupResult as any).total = (groupUserResult as any).total;
-    // (groupResult as any).limit = (groupUserResult as any).limit;
-    // (groupResult as any).skip = (groupUserResult as any).skip
-
-    // return groupResult
   }
 }
