@@ -123,6 +123,17 @@ async function fetch(data: WorkerDataRequest): Promise<void> {
           // fileReadStream.seek(fileHeader.frameData[frame].startBytePosition);
         }
 
+        const bufferGeom = Buffer.alloc(fileHeader.frameData[frame].meshLength);
+        const bufferTex = Buffer.alloc(
+          fileHeader.frameData[frame].textureLength
+        );
+
+        const buffer = Buffer.from(<any>response.data);
+        buffer.copy(bufferGeom, 0, 0, fileHeader.frameData[frame].meshLength);
+        buffer.copy(bufferTex, 0, fileHeader.frameData[frame].meshLength);
+
+        // bufferTex.write(<any>response.data, fileHeader.frameData[frame].meshLength, )
+
         // tell the stream reader to read out the next bytes..
         // Set temp buffer object frame number
         tempBufferObject.frameNumber = frame;
@@ -131,19 +142,20 @@ async function fetch(data: WorkerDataRequest): Promise<void> {
         // tempBufferObject.bufferGeometry = fileReadStream.read(
         //   fileHeader.frameData[frame].meshLength
         // );
-        tempBufferObject.bufferGeometry = <any>response.data;
+        tempBufferObject.bufferGeometry = bufferGeom;
 
         // Then texture
         // tempBufferObject.compressedTexture = fileReadStream.read(
         //   fileHeader.frameData[frame].textureLength
         // );
+        tempBufferObject.compressedTexture = bufferTex;
 
         // Add it to the ring buffer
         ringBuffer.add(tempBufferObject);
 
         // Add buffers to transferableBuffers
         transferableBuffers.push(tempBufferObject.bufferGeometry);
-        // transferableBuffers.push(tempBufferObject.compressedTexture);
+        transferableBuffers.push(tempBufferObject.compressedTexture);
 
         count++;
 
