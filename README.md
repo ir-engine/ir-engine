@@ -26,5 +26,4 @@ Setup instructions for Dracosis Playet
 
 ## Issues
 
-- Texture is being compressed but saving texture length in header data is not allowing the drcs file to be read
 - Decode compressed buffer data to show the mesh
