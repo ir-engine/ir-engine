@@ -1,6 +1,10 @@
 import { Dispatch } from 'redux'
 import { client } from '../feathers'
-import { loadedFriends, unfriended } from './actions'
+import {
+  loadedFriends,
+  unfriended,
+  fetchingFriends
+} from './actions'
 import { User } from '../../../shared/interfaces/User'
 
 // export function getUserRelationship(userId: string) {
@@ -25,6 +29,7 @@ import { User } from '../../../shared/interfaces/User'
 
 export function getFriends(search: string, skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    dispatch(fetchingFriends())
     const friendResult = await client.service('user').find({
       query: {
         action: 'friends',
@@ -33,6 +38,8 @@ export function getFriends(search: string, skip?: number, limit?: number) {
         search
       }
     })
+    console.log('GOT FRIENDS')
+    console.log(friendResult)
     dispatch(loadedFriends(friendResult))
   }
 }

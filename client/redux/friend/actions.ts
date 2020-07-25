@@ -1,6 +1,7 @@
 import {
   LOADED_FRIENDS,
-  REMOVED_FRIEND
+  REMOVED_FRIEND,
+  FETCHING_FRIENDS
 } from '../actions'
 import { User } from '../../../shared/interfaces/User'
 import { FriendResult } from '../../../shared/interfaces/FriendResult'
@@ -17,9 +18,14 @@ export interface RemovedFriendAction {
   type: string
 }
 
+export interface FetchingFriendsAction {
+  type: string
+}
+
 export type FriendAction =
     LoadedFriendsAction
     | RemovedFriendAction
+    | FetchingFriendsAction
 
 export function loadedFriends(friendResult: FriendResult): FriendAction {
   return {
@@ -34,5 +40,11 @@ export function loadedFriends(friendResult: FriendResult): FriendAction {
 export function unfriended(): RemovedFriendAction {
   return {
     type: REMOVED_FRIEND
+  }
+}
+
+export function fetchingFriends(): FriendAction {
+  return {
+    type: FETCHING_FRIENDS
   }
 }

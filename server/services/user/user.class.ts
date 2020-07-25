@@ -15,6 +15,8 @@ export class User extends Service {
 
   async find (params: Params): Promise<any> {
     const action = params.query?.action
+    const skip = params.query?.$skip ? params.query.$skip : 0
+    const limit = params.query?.$limit ? params.query.$limit : 10
     console.log(params.query)
     if (action === 'withRelation') {
       const userId = params.query?.userId
@@ -109,28 +111,50 @@ export class User extends Service {
 
       return foundUsers
     } else if (action === 'friends') {
-      const userRelationshipResult = await this.app.service('user-relationship').find({
-        query: {
-          userRelationshipType: 'friend',
-          relatedUserId: params.query?.userId,
-          $skip: params.query?.$skip || 0,
-          $limit: params.query?.$limit || 10
-        }
+      const userResult = await this.app.service('user').Model.findAndCountAll({
+        offset: skip,
+        limit: limit,
+        order: [
+          ['name', 'ASC']
+        ],
+        include: [
+          {
+            model: this.app.service('user-relationship').Model,
+            where: {
+              relatedUserId: params.query.userId,
+              userRelationshipType: 'friend'
+            }
+          }
+        ]
       })
-
-      const friendIds = (userRelationshipResult as any).data.map((item) => {
-        return item.userId
-      })
-
-      return this.app.service('user').find({
-        query: {
-          id: {
-            $in: friendIds
-          },
-          $limit: params.query?.$limit || 10,
-          $skip: params.query?.$skip || 0
-        }
-      })
+      return {
+        skip: skip,
+        limit: limit,
+        total: userResult.count,
+        data: userResult.rows
+      }
+      // const userRelationshipResult = await this.app.service('user-relationship').find({
+      //   query: {
+      //     userRelationshipType: 'friend',
+      //     relatedUserId: params.query?.userId,
+      //     $skip: params.query?.$skip || 0,
+      //     $limit: params.query?.$limit || 10
+      //   }
+      // })
+      //
+      // const friendIds = (userRelationshipResult as any).data.map((item) => {
+      //   return item.userId
+      // })
+      //
+      // return this.app.service('user').find({
+      //   query: {
+      //     id: {
+      //       $in: friendIds
+      //     },
+      //     $limit: params.query?.$limit || 10,
+      //     $skip: params.query?.$skip || 0
+      //   }
+      // })
     } else {
       return await super.find(params)
     }

@@ -5,10 +5,12 @@ import {
   REMOVED_GROUP,
   LEFT_GROUP,
   INVITED_GROUP_USER,
-  REMOVED_GROUP_USER
+  REMOVED_GROUP_USER,
+  FETCHING_GROUPS,
+  LOADED_INVITABLE_GROUPS,
+  FETCHING_INVITABLE_GROUPS
 } from '../actions'
 import { Group } from '../../../shared/interfaces/Group'
-import { GroupUser } from '../../../shared/interfaces/GroupUser'
 import { GroupResult } from '../../../shared/interfaces/GroupResult'
 
 export interface LoadedGroupsAction {
@@ -43,6 +45,22 @@ export interface LeftGroupAction {
   type: string
 }
 
+export interface FetchingGroupsAction {
+  type: string
+}
+
+export interface LoadedInvitableGroupsAction {
+  type: string
+  groups: Group[],
+  total: number,
+  limit: number
+  skip: number
+}
+
+export interface FetchingInvitableGroupsAction {
+  type: string
+}
+
 export type GroupAction =
     LoadedGroupsAction
     | AddedGroupAction
@@ -50,6 +68,9 @@ export type GroupAction =
     | RemovedGroupAction
     | LeftGroupAction
     | LeftGroupAction
+    | FetchingGroupsAction
+    | LoadedInvitableGroupsAction
+    | FetchingInvitableGroupsAction
 
 export function loadedGroups(groupResult: GroupResult): GroupAction {
   return {
@@ -94,5 +115,27 @@ export function invitedGroupUser(): InvitedGroupUserAction {
 export function leftGroup(): LeftGroupAction {
   return {
     type: LEFT_GROUP
+  }
+}
+
+export function fetchingGroups(): FetchingGroupsAction {
+  return {
+    type: FETCHING_GROUPS
+  }
+}
+
+export function loadedInvitableGroups(groupResult: GroupResult): GroupAction {
+  return {
+    type: LOADED_INVITABLE_GROUPS,
+    groups: groupResult.data,
+    total: groupResult.total,
+    limit: groupResult.limit,
+    skip: groupResult.skip
+  }
+}
+
+export function fetchingInvitableGroups(): FetchingInvitableGroupsAction {
+  return {
+    type: FETCHING_INVITABLE_GROUPS
   }
 }
