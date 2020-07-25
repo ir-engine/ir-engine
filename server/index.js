@@ -72,7 +72,7 @@ app.post('/dracosis-stream', (req, res) => {
   var stream = fs
     .createReadStream(filePath, {
       start: startBytePosition,
-      end: startBytePosition + meshLength,
+      end: startBytePosition + meshLength + textureLength,
     })
     .on('open', function () {
       stream.pipe(res);
@@ -80,18 +80,6 @@ app.post('/dracosis-stream', (req, res) => {
     .on('error', function (err) {
       res.end(err);
     });
-
-  // stream = fs
-  //   .createReadStream(filePath, {
-  //     start: startBytePosition + meshLength,
-  //     end: startBytePosition + meshLength + textureLength,
-  //   })
-  //   .on('open', function () {
-  //     stream.pipe(res);
-  //   })
-  //   .on('error', function (err) {
-  //     res.end(err);
-  //   });
 });
 
 app.listen(8000, () => {
