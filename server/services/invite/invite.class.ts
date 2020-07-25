@@ -54,13 +54,23 @@ export class Invite extends Service {
       return result
     }
     else {
-      return super.find({
+      const result = await super.find({
         query: {
           userId: query.userId,
           $limit: query.$limit || 10,
           $skip: query.$skip || 0
         }
       })
+
+      await Promise.all((result as any).data.map(async (invite) => {
+        if (invite.inviteType === 'group') {
+          const group = await this.app.service('group').get(invite.targetObjectId)
+          invite.groupName = group.name
+        }
+        return
+      }))
+
+      return result
     }
   }
 }

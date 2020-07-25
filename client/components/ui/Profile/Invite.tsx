@@ -157,7 +157,7 @@ const Invites = (props: Props): any => {
 
     const declineRequest = (invite) => {
         console.log('DECLINY PANTS')
-        declineInvite(invite.id, invite.passcode)
+        declineInvite(invite.id)
     }
 
     useEffect(() => {
@@ -168,6 +168,7 @@ const Invites = (props: Props): any => {
 
     useEffect(() => {
         if (inviteState.get('sentUpdateNeeded') === true) {
+            console.log('PROFILE RETRIEVING SENT INVITES')
             retrieveSentInvites()
             console.log(inviteState)
         }
@@ -175,6 +176,7 @@ const Invites = (props: Props): any => {
 
     useEffect(() => {
         if (inviteState.get('receivedUpdateNeeded') === true) {
+            console.log('PROFILE RETRIEVING RECEIVED INVITES')
             retrieveReceivedInvites()
             console.log(inviteState)
         }

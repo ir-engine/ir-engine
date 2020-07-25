@@ -53,19 +53,21 @@ export default () => {
           targetObjectId
         )
       } else if (result.inviteeId != null) {
-        const existingRelationshipStatus = await app.service('user-relationship').find({
-          query: {
-            userRelationshipType: result.inviteType,
-            userId: result.userId,
-            relatedUserId: result.inviteeId
+        if (inviteType === 'friend') {
+          const existingRelationshipStatus = await app.service('user-relationship').find({
+            query: {
+              userRelationshipType: result.inviteType,
+              userId: result.userId,
+              relatedUserId: result.inviteeId
+            }
+          })
+          if ((existingRelationshipStatus).total === 0) {
+            await app.service('user-relationship').create({
+              userRelationshipType: result.inviteType,
+              userId: result.userId,
+              relatedUserId: result.inviteeId
+            }, {})
           }
-        })
-        if ((existingRelationshipStatus).total === 0) {
-          await app.service('user-relationship').create({
-            userRelationshipType: result.inviteType,
-            userId: result.userId,
-            relatedUserId: result.inviteeId
-          }, {})
         }
 
         const emailIdentityProviderResult = await app.service('identity-provider').find({
@@ -84,7 +86,8 @@ export default () => {
             result,
             emailIdentityProviderResult.data[0].token,
             inviteType,
-            authUser.name
+            authUser.name,
+            targetObjectId
           )
         } else {
           const SMSIdentityProviderResult = await app.service('identity-provider').find({
@@ -103,7 +106,8 @@ export default () => {
               result,
               SMSIdentityProviderResult.data[0].token,
               inviteType,
-              authUser.name
+              authUser.name,
+              targetObjectId
             )
           }
         }
