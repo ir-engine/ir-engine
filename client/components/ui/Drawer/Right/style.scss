@@ -66,3 +66,26 @@
         min-height: 0;
     }
 }
+
+.group-select,
+.friend-select {
+    min-width: 100px;
+}
+
+.flex-justify-center {
+    display: flex;
+    justify-content: center;
+    padding: 0.5em;
+}
+
+.sub-header {
+    text-align: center;
+    padding: 0.5em;
+}
+
+.username {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5em;
+}

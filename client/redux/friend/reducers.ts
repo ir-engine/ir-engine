@@ -5,9 +5,9 @@ import {
 } from './actions'
 
 import {
-  CHANGED_RELATION,
   LOADED_FRIENDS,
   REMOVED_FRIEND,
+  FETCHING_FRIENDS
 } from '../actions'
 
 export const initialState = {
@@ -17,6 +17,7 @@ export const initialState = {
     limit: 5,
     skip: 0
   },
+  getFriendsInProgress: false,
   updateNeeded: true
 }
 
@@ -35,9 +36,13 @@ const friendReducer = (state = immutableState, action: FriendAction): any => {
       return state
         .set('friends', updateMap)
         .set('updateNeeded', false)
+          .set('getFriendsInProgress', false)
     case REMOVED_FRIEND:
       return state
           .set('updateNeeded', true)
+    case FETCHING_FRIENDS:
+      return state
+          .set('getFriendsInProgress', true)
   }
 
   return state

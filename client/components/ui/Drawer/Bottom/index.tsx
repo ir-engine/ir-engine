@@ -89,8 +89,6 @@ const BottomDrawer = (props: Props): any => {
     const partyChannel = partyChannelState.get('channel')
 
     const [composingMessage, setComposingMessage] = useState('')
-    const [targetObjectId, setTargetObjectId] = useState('')
-    const [targetObjectType, setTargetObjectType] = useState('')
     const [activeChatId, setActiveChatId] = useState('')
     const [activeChatType, setActiveChatType] = useState('')
     const [activeChatTargetId, setActiveChatTargetId] = useState('')

@@ -7,7 +7,10 @@ import {
   retrievedSentInvites,
   removedInvite,
   acceptedInvite,
-  declinedInvite
+  declinedInvite,
+  setInviteTarget,
+  fetchingReceivedInvites,
+  fetchingSentInvites
 } from './actions'
 
 
@@ -27,6 +30,7 @@ export function sendInvite (data: any) {
 
 export function retrieveReceivedInvites(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    dispatch(fetchingReceivedInvites())
     const inviteResult = await client.service('invite').find({
       query: {
         type: 'received',
@@ -42,6 +46,7 @@ export function retrieveReceivedInvites(skip?: number, limit?: number) {
 
 export function retrieveSentInvites(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    dispatch(fetchingSentInvites())
     const inviteResult = await client.service('invite').find({
       query: {
         type: 'sent',
@@ -82,9 +87,15 @@ export function acceptInvite(inviteId: string, passcode: string) {
   }
 }
 
-export function declineInvite(inviteId: string, passcode: string) {
+export function declineInvite(inviteId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     await client.service('invite').remove(inviteId)
     dispatch(declinedInvite())
+  }
+}
+
+export function updateInviteTarget(targetObjectType?: string, targetObjectId?: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    dispatch(setInviteTarget(targetObjectType, targetObjectId))
   }
 }
