@@ -38,13 +38,6 @@ const Layout = (props: Props): any => {
     const [topDrawerOpen, setTopDrawerOpen] = useState(false)
     const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false)
 
-    const openRightDrawer = (targetObjectType?: string, targetObjectId?: string) => {
-        setLeftDrawerOpen(false)
-        setTopDrawerOpen(false)
-        setBottomDrawerOpen(false)
-        setRightDrawerOpen(false)
-    }
-
     console.log(authUser)
 
     return (
@@ -74,7 +67,8 @@ const Layout = (props: Props): any => {
 				</Fragment>
             }
             <footer>
-                { authState.get('authUser') != null && leftDrawerOpen === false && rightDrawerOpen === false && topDrawerOpen === false && bottomDrawerOpen === false && <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen}/> }
+                { authState.get('authUser') != null && leftDrawerOpen === false && rightDrawerOpen === false && topDrawerOpen === false && bottomDrawerOpen === false &&
+                <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> }
             </footer>
         </section>
     )

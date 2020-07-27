@@ -771,14 +771,16 @@ const LeftDrawer = (props: Props): any => {
                                 >
                                     Chat
                                 </Button>
-                                <Button
-                                    variant="contained"
-                                    color="secondary"
-                                    startIcon={<PersonAdd/>}
-                                    onClick={() => openInvite('group', selectedGroup.id)}
-                                >
-                                    Invite
-                                </Button>
+                                {selfGroupUser != null && (selfGroupUser.groupUserRank === 'owner' || selfGroupUser.groupUserRank === 'admin') &&
+                                    <Button
+                                        variant="contained"
+                                        color="secondary"
+                                        startIcon={<PersonAdd/>}
+                                        onClick={() => openInvite('group', selectedGroup.id)}
+                                    >
+                                        Invite
+                                    </Button>
+                                }
                                 {groupDeletePending !== selectedGroup.id &&
                                 selfGroupUser != null && selfGroupUser.groupUserRank === 'owner' &&
                                 <Button
