@@ -57163,4 +57163,5 @@ var MessageType;
 })(MessageType || (MessageType = {}));
 
 // import fs from 'fs';
+// import { decodeDracoData } from './CodecHelpers';
 const worker = new Worker('./Worker.js');

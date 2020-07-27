@@ -21,9 +21,11 @@ import {
   Mesh,
 } from 'three';
 import { BasisTextureLoader } from 'three/examples/jsm/loaders/BasisTextureLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 // import { ReadStream } from 'fs';
 import ReadStream from 'fs-readstream-seek';
 import { MessageType } from './Enums';
+// import { decodeDracoData } from './CodecHelpers';
 
 const worker = new Worker('./Worker.js');
 
@@ -39,6 +41,7 @@ export default class DracosisPlayer {
   public material: MeshPhongMaterial;
   public bufferGeometry: BufferGeometry;
   public compressedTexture: CompressedTexture;
+  public dracoLoader = new DRACOLoader();
 
   // Private Fields
   private _startFrame = 0;
@@ -59,6 +62,7 @@ export default class DracosisPlayer {
   private _readStreamOffset = 0;
   private _decoderModule = draco3d.createDecoderModule({});
   private _encoderModule = draco3d.createEncoderModule({});
+  // private decoder = new this._decoderModule.Decoder();
   private _basisTextureLoader = new BasisTextureLoader();
 
   private _nullBufferGeometry = new BufferGeometry();
@@ -182,12 +186,44 @@ export default class DracosisPlayer {
     });
   }
 
+  decodeDracoData(rawBuffer: Buffer, decoder: any) {
+    const buffer = new this._decoderModule.DecoderBuffer()
+    buffer.Init(new Int8Array(rawBuffer), rawBuffer.byteLength)
+    // const geometryType = decoder.GetEncodedGeometryType(buffer)
+  
+    // let dracoGeometry
+    // let status
+    // if (geometryType === this._decoderModule.TRIANGULAR_MESH) {
+    //   dracoGeometry = new this._decoderModule.Mesh()
+    //   status = decoder.DecodeBufferToMesh(buffer, dracoGeometry)
+    // } else if (geometryType === this._decoderModule.POINT_CLOUD) {
+    //   dracoGeometry = new this._decoderModule.PointCloud()
+    //   status = decoder.DecodeBufferToPointCloud(buffer, dracoGeometry)
+    // } else {
+    //   const errorMsg = "Error: Unknown geometry type."
+    //   console.error(errorMsg)
+    // }
+    // this._decoderModule.destroy(buffer)
+
+ 
+    this.dracoLoader.decodeDracoFile(buffer, function(bufferGeometry) {
+      console.log("BufferGeometry", bufferGeometry);
+    }, null, null );
+    
+    // return dracoGeometry
+  }
+
   handleMessage(data: any) {
     switch (data.type) {
       case MessageType.InitializationResponse:
         this.handleInitializationResponse(data);
         break;
       case MessageType.DataResponse: {
+        const decoder = new this._decoderModule.Decoder();
+        if(data && data.buffers) {
+          console.log("Decoded data", this.decodeDracoData(data.buffers[0].bufferGeometry, decoder));
+        
+        }
         this.handleDataResponse(data.buffers);
         break;
       }
@@ -284,9 +320,9 @@ export default class DracosisPlayer {
   }
 
   update() {
-    console.log(
-      'Player update called, current frame is + ' + this._currentFrame
-    );
+    // console.log(
+    //   'Player update called, current frame is + ' + this._currentFrame
+    // );
 
     // If playback is paused, stop updating
     if (!this._isPlaying) return;
@@ -307,7 +343,7 @@ export default class DracosisPlayer {
       }
     }
 
-    console.log('Current frame', this._currentFrame);
+    // console.log('Current frame', this._currentFrame);
 
     // If the frame exists in the ring buffer, use it
     if (
@@ -317,17 +353,15 @@ export default class DracosisPlayer {
       // read buffer into current buffer geometry
       this.bufferGeometry = this._ringBuffer.getFirst().bufferGeometry;
 
-      console.log('BufferGeometry', this.bufferGeometry);
-
       // read buffer into current texture
       this.compressedTexture = this._ringBuffer.getFirst().compressedTexture;
 
       // Remove buffer
       // this._ringBuffer.remove(0);
 
-      console.log(
-        'Recalled the frame ' + this._ringBuffer.getFirst().frameNumber
-      );
+      // console.log(
+      //   'Recalled the frame ' + this._ringBuffer.getFirst().frameNumber
+      // );
     } else {
       // Frame doesn't exist in ring buffer, so throw an error
       console.warn(
