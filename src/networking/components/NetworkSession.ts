@@ -1,11 +1,6 @@
-import { Component, Types } from "ecsy"
+import BehaviorComponent from "../../common/components/BehaviorComponent"
+import NetworkSessionSchema from "../interfaces/NetworkSessionSchema"
+import MessageTypeAlias from "../types/MessageTypeAlias"
+import MessageSchema from "../classes/MessageSchema"
 
-interface PropTypes {
-  transport: Transport
-}
-
-export default class NetworkSession extends Component<PropTypes> {}
-
-NetworkSession.schema = {
-  transport: { type: Types.Ref }
-}
+export default class NetworkSession extends BehaviorComponent<MessageTypeAlias, NetworkSessionSchema, MessageSchema> {}
