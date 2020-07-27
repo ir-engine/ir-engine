@@ -25,11 +25,11 @@
     flex-direction: column;
 }
 
-.MuiDrawer-paperAnchorLeft {
+.MuiDrawer-paperAnchorRight {
     width: 30%;
 
     @media (max-width: 768px) {
-        max-width: 70%;
+        width: 90%;
     }
 }
 
@@ -45,6 +45,7 @@
     font-size: 1.4em;
     font-weight: bold;
     text-align: center;
+    margin: 0.5em;
 }
 
 .description {
@@ -88,4 +89,10 @@
     align-items: center;
     justify-content: center;
     padding: 0.5em;
+}
+
+.MuiTab-root {
+    @media (min-width: 600px) {
+        min-width: initial;
+    }
 }

@@ -5,7 +5,7 @@ import {
   unfriended,
   fetchingFriends
 } from './actions'
-import { User } from '../../../shared/interfaces/User'
+import {dispatchAlertError} from "../alert/service";
 
 // export function getUserRelationship(userId: string) {
 //   return (dispatch: Dispatch): any => {
@@ -30,17 +30,22 @@ import { User } from '../../../shared/interfaces/User'
 export function getFriends(search: string, skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     dispatch(fetchingFriends())
-    const friendResult = await client.service('user').find({
-      query: {
-        action: 'friends',
-        $limit: limit != null ? limit : getState().get('friends').get('friends').get('limit'),
-        $skip: skip != null ? skip : getState().get('friends').get('friends').get('skip'),
-        search
-      }
-    })
-    console.log('GOT FRIENDS')
-    console.log(friendResult)
-    dispatch(loadedFriends(friendResult))
+    try {
+      const friendResult = await client.service('user').find({
+        query: {
+          action: 'friends',
+          $limit: limit != null ? limit : getState().get('friends').get('friends').get('limit'),
+          $skip: skip != null ? skip : getState().get('friends').get('friends').get('skip'),
+          search
+        }
+      })
+      console.log('GOT FRIENDS')
+      console.log(friendResult)
+      dispatch(loadedFriends(friendResult))
+    } catch(err) {
+      dispatchAlertError(dispatch, err.message)
+      dispatch(loadedFriends({ data: [], limit: 0, skip: 0, total: 0 }))
+    }
   }
 }
 
@@ -62,8 +67,12 @@ export function getFriends(search: string, skip?: number, limit?: number) {
 //
 function removeFriend(relatedUserId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
-    await client.service('user-relationship').remove(relatedUserId)
-    dispatch(unfriended())
+    try {
+      await client.service('user-relationship').remove(relatedUserId)
+      dispatch(unfriended())
+    } catch(err) {
+      dispatchAlertError(dispatch, err.message)
+    }
   }
 }
 //

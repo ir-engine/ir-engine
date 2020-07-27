@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import './style.scss'
+import _ from 'lodash'
 import {
     Avatar,
     Button,
@@ -50,7 +51,6 @@ import {
 import {
     getInvitableGroups
 } from '../../../../redux/group/service'
-import {User} from "../../../../../shared/interfaces/User";
 
 
 const mapStateToProps = (state: any): any => {
@@ -150,6 +150,11 @@ const Invites = (props: Props): any => {
         }
     }
 
+    const updateInviteTargetType = (targetObjectType: string, targetObjectId: string) => {
+        updateInviteTarget(targetObjectType, targetObjectId)
+        setUserToken((''))
+    }
+
     const handleInviteGroupChange = (event: React.ChangeEvent<{ value: unknown }>): void => {
         updateInviteTarget('group', event.target.value)
     }
@@ -165,6 +170,8 @@ const Invites = (props: Props): any => {
 
     const packageInvite = (event: any): void => {
         const mappedIDProvider = identityProviderTabMap.get(tabIndex)
+        console.log('inviteState:')
+        console.log(inviteState)
         const sendData = {
             type: inviteState.get('targetObjectType') === 'user' ? 'friend' : inviteState.get('targetObjectType'),
             token: mappedIDProvider ? userToken : null,
@@ -227,7 +234,10 @@ const Invites = (props: Props): any => {
         if (inviteState.get('receivedUpdateNeeded') === true && inviteState.get('getReceivedInvitesInProgress') !== true) {
             retrieveReceivedInvites()
         }
-        setInviteTypeIndex(targetObjectType === 'user' ? 0 : targetObjectType === 'group' ? 1 : 2)
+        setInviteTypeIndex(targetObjectType === 'party' ? 2 : targetObjectType === 'group' ? 1 : 0)
+        if (targetObjectType == null || targetObjectType.length === 0) {
+            updateInviteTarget('user', null)
+        }
     }, [inviteState])
 
     const capitalize = (word) => word[0].toUpperCase() + word.slice(1)
@@ -261,6 +271,8 @@ const Invites = (props: Props): any => {
             getFriends(friendSubState.get('skip') + friendSubState.get('limit'))
         }
     }
+
+    console.log(`inviteTypeIndex: ${inviteTypeIndex}`)
 
     return (
         <div className="invite-container">
@@ -383,17 +395,21 @@ const Invites = (props: Props): any => {
                             <Tab
                                 icon={<SupervisedUserCircle style={{fontSize: 30}}/>}
                                 label="Friends"
-                                onClick={() => updateInviteTarget('user', null)}
+                                onClick={() => updateInviteTargetType('user', null)}
                             />
                             <Tab
                                 icon={<Group style={{fontSize: 30}}/>}
                                 label="Groups"
-                                onClick={() => updateInviteTarget('group', null)}
+                                onClick={() => updateInviteTargetType('group', null)}
                             />
                             <Tab
                                 icon={<GroupWork style={{fontSize: 30}}/>}
                                 label="Party"
-                                onClick={() => updateInviteTarget('party', party.id)}
+                                onClick={() => {
+                                    if (party?.id) {
+                                        updateInviteTargetType('party', party.id)
+                                    }
+                                }}
                             />
                         </Tabs>
                         {inviteTypeIndex === 1 &&
@@ -430,7 +446,10 @@ const Invites = (props: Props): any => {
                         { inviteTypeIndex === 2 && party != null && selfPartyUser?.isOwner !== 1 &&
                             <div className="flex-justify-center">You are not the owner of your current party</div>
                         }
-                        {!((inviteTypeIndex === 1 && invitableGroupState.get('total') === 0) || party == null || (party != null && selfPartyUser?.isOwner !== 1)) &&
+                        {!((inviteTypeIndex === 1 && invitableGroupState.get('total') === 0) ||
+                            (inviteTypeIndex === 1 && _.find(invitableGroupState.get('groups'), (invitableGroup) => invitableGroup.id === inviteState.get('targetObjectId')) == null) ||
+                            (inviteTypeIndex === 2 && party == null) ||
+                            (inviteTypeIndex === 2 && party != null && selfPartyUser?.isOwner !== 1)) &&
                                 <div>
                                     <Tabs
                                         value={tabIndex}
@@ -446,7 +465,7 @@ const Invites = (props: Props): any => {
                                         />
                                         <Tab
                                             icon={<PhoneIphone/>}
-                                            label="Phone Number"
+                                            label="Phone #"
                                         />
                                         <Tab
                                             icon={<AccountCircle/>}
@@ -466,7 +485,7 @@ const Invites = (props: Props): any => {
 		                                    margin="normal"
 		                                    fullWidth
 		                                    id="token"
-		                                    label="Recipient's email, phone number, or ID"
+		                                    label={tabIndex === 0 ? "Recipient's email" : tabIndex === 1 ? "Recipient's phone number" : "Recipient's user ID"}
 		                                    name="name"
 		                                    autoFocus
 		                                    value={userToken}
