@@ -23011,7 +23011,7 @@ const localMediaConstraints = {
         frameRate: { max: 30 }
     }
 };
-const socket$2 = lib$1();
+const socket$2 = lib$1("http://localhost:3001");
 // Adds support for Promise to socket.io-client
 function promise(socket) {
     return function request(type, data = {}) {
@@ -23145,8 +23145,7 @@ class SocketWebRTCTransport {
     // uses promise to ensure that we receive our so
     initSocketConnection() {
         return new Promise(resolve => {
-            const { location: { hostname } } = window;
-            console.log(`Initializing socket.io..., on host ${hostname} and port: ${process.env.SERVER_PORT}`);
+            console.log(`Initializing socket.io...,`);
             socket$2.on("connect", () => {
                 console.log("Connected");
             });
