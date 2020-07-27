@@ -4,7 +4,8 @@ import Logo from '../../../../../xrchat-client/components/ui/Logo'
 import './style.scss'
 import {
     Forum,
-    People
+    People,
+    PersonAdd
 } from '@material-ui/icons'
 import {
     AppBar,
@@ -13,6 +14,8 @@ import {
 
 interface Props {
     setLeftDrawerOpen: any
+    setTopDrawerOpen: any
+    setRightDrawerOpen: any
     setBottomDrawerOpen: any
 }
 
@@ -22,14 +25,27 @@ export const NavMenu = (props: Props) => {
   }
   const openChat = () => {
       props.setLeftDrawerOpen(false)
+      props.setTopDrawerOpen(false)
+      props.setRightDrawerOpen(false)
       props.setBottomDrawerOpen(true)
   }
   const openPeople = () => {
-    props.setLeftDrawerOpen(true)
-    props.setBottomDrawerOpen(false)
+      props.setLeftDrawerOpen(true)
+      props.setTopDrawerOpen(false)
+      props.setRightDrawerOpen(false)
+      props.setBottomDrawerOpen(false)
+  }
+  const openInvite = () => {
+      props.setLeftDrawerOpen(false)
+      props.setTopDrawerOpen(false)
+      props.setRightDrawerOpen(true)
+      props.setBottomDrawerOpen(false)
   }
   return (
     <AppBar className="bottom-appbar">
+        <Button onClick={openInvite}>
+            <PersonAdd />
+        </Button>
         <Button onClick={openChat}>
             <Forum />
         </Button>
