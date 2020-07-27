@@ -1,12 +1,9 @@
 import * as mediasoup from "mediasoup-client"
-
 import { webcamState } from "./WebcamState"
-import DataTransport from "../interfaces/DataTransport"
 import io from "socket.io-client"
 import promise from "socket.io-promise"
 import Message from "../interfaces/Message"
 import DataAudioVideoTransport from "../interfaces/DataAudioVideoTransport"
-
 import RingBuffer from "../../common/classes/RingBuffer"
 
 // adding constraints, VIDEO_CONSTRAINTS is video quality levels
