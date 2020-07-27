@@ -1,10 +1,9 @@
-import * as mediasoup from "mediasoup-client"
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { webcamState } from "./WebcamState"
-import io from "socket.io-client"
-import promise from "socket.io-promise"
 import Message from "../interfaces/Message"
 import DataAudioVideoTransport from "../interfaces/DataAudioVideoTransport"
 import RingBuffer from "../../common/classes/RingBuffer"
+// Also using import with destructuring assignment.
 
 // adding constraints, VIDEO_CONSTRAINTS is video quality levels
 // localMediaConstraints is passed to the getUserMedia object to request a lower video quality than the maximum
@@ -28,7 +27,47 @@ const localMediaConstraints = {
   }
 }
 
+import io from "socket.io-client"
+import { Device } from "mediasoup-client"
+
+const socket = io()
+
+// Adds support for Promise to socket.io-client
+function promise(socket) {
+  return function request(type, data = {}) {
+    return new Promise(resolve => {
+      socket.emit(type, data, resolve)
+    })
+  }
+}
+
+const request = promise(socket)
+
 export default class SocketWebRTCTransport implements DataAudioVideoTransport {
+  stopCamera(): Promise<boolean> {
+    throw new Error("Method not implemented.")
+  }
+  stopScreenshare(): Promise<boolean> {
+    throw new Error("Method not implemented.")
+  }
+  startAudio(): boolean {
+    throw new Error("Method not implemented.")
+  }
+  stopAudio(): boolean {
+    throw new Error("Method not implemented.")
+  }
+  joinMediaRoom(roomId: string | number): boolean {
+    throw new Error("Method not implemented.")
+  }
+  leaveMediaRoom(): void {
+    throw new Error("Method not implemented.")
+  }
+  muteUser(userId: number) {
+    throw new Error("Method not implemented.")
+  }
+  unmuteUser(userId: number) {
+    throw new Error("Method not implemented.")
+  }
   deinitialize(deinitializationCallback?: any): boolean {
     throw new Error("Method not implemented.")
   }
@@ -39,7 +78,7 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
   sendAllMessages() {
     throw new Error("Method not implemented.")
   }
-  getNewClients(): number[] {
+  getNewClients(): any {
     return this.clients
   }
   getAllClients(): number[] {
@@ -47,7 +86,6 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
   }
   clients = {}
   mySocketID
-  socket
   mediasoupDevice
   joined
   localCam
@@ -72,13 +110,12 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
   }
 
   private async init(initializationCallback: any) {
-    this.socket = io()
     //TODO: const scene = createScene()
     const getClients = () => this.clients
 
     // create mediasoup Device
     try {
-      this.mediasoupDevice = new mediasoup.Device()
+      this.mediasoupDevice = new Device()
     } catch (e) {
       if (e.name === "UnsupportedError") {
         console.error("browser not supported for video calls")
@@ -91,8 +128,13 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
 
     // use sendBeacon to tell the server we're disconnecting when
     // the page unloads
-    window.addEventListener("unload", () => {
-      this.socket.request("leave", {})
+    window.addEventListener("unload", async () => {
+      try {
+        const result = await request("leave", {})
+        console.log(result)
+      } catch (e) {
+        console.log(e.type)
+      }
       // sig('leave', {}, true)
     })
 
@@ -116,6 +158,8 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
       console.log("jointed")
       initializationCallback()
     }
+
+    console.log("inited!")
   }
 
   // Adds client object with THREE.js object, DOM video object and and an RTC peer connection for each :
@@ -137,14 +181,13 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
         location: { hostname }
       } = window
       console.log(`Initializing socket.io..., on host ${hostname} and port: ${process.env.SERVER_PORT}`)
-      this.socket.request = promise(this.socket)
 
-      this.socket.on("connect", () => {
+      socket.on("connect", () => {
         console.log("Connected")
       })
 
       // On connection server sends the client his ID and a list of all keys
-      this.socket.on("introduction", (_id, _ids) => {
+      socket.on("introduction", (_id, _ids) => {
         // keep a local copy of my ID:
         console.log(`My socket ID is: ${_id}`)
         this.mySocketID = _id
@@ -159,7 +202,7 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
       })
 
       // when a new user has entered the server
-      this.socket.on("newUserConnected", (clientCount, _id) => {
+      socket.on("newUserConnected", (clientCount, _id) => {
         console.log(`${clientCount} clients connected`)
 
         if (!(_id in this.clients)) {
@@ -170,7 +213,7 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
         }
       })
 
-      this.socket.on("userDisconnected", _id => {
+      socket.on("userDisconnected", _id => {
         // Update the data from the server
 
         if (_id in this.clients) {
@@ -186,7 +229,7 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
       })
 
       // Update when one of the users moves in space
-      this.socket.on("userPositions", _clientProps => {
+      socket.on("userPositions", _clientProps => {
         this.worldScene.updateClientPositions(_clientProps)
       })
     })
@@ -228,8 +271,8 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
     try {
       // signal that we're a new peer and initialize our
       // mediasoup-client device, if this is our first time connecting
-      const resp = await this.socket.request("join-as-new-peer")
-      const { routerRtpCapabilities } = resp
+      const resp = await request("join-as-new-peer")
+      const { routerRtpCapabilities } = resp as any
       if (!this.mediasoupDevice.loaded) {
         await this.mediasoupDevice.load({ routerRtpCapabilities })
       }
@@ -295,7 +338,7 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
     }
   }
 
-  async startScreenshare() {
+  async startScreenshare(): Promise<boolean> {
     console.log("start screen share")
 
     // make sure we've joined the room and that we have a sending
@@ -306,6 +349,7 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
     }
 
     // get a screen share track
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     this.localScreen = await navigator.mediaDevices.getDisplayMedia({
       video: true,
@@ -334,18 +378,19 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
       try {
         await this.screenVideoProducer.pause()
 
-        const { error } = await this.socket.request("close-producer", {
+        const { error } = (await request("close-producer", {
           producerId: this.screenVideoProducer.id
-        })
+        })) as any
         await this.screenVideoProducer.close()
         this.screenVideoProducer = null
         if (error) {
           console.error(error)
         }
         if (this.screenAudioProducer) {
-          const { error: screenAudioProducerError } = await this.socket.request("close-producer", {
+          const { error: screenAudioProducerError } = (await request("close-producer", {
             producerId: this.screenAudioProducer.id
-          })
+          })) as any
+
           await this.screenAudioProducer.close()
           this.screenAudioProducer = null
           if (screenAudioProducerError) {
@@ -356,30 +401,33 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
         console.error(e)
       }
     }
+    return true
   }
 
-  async startCamera() {
+  async startCamera(): Promise<boolean> {
     if (this.localCam) {
-      return
+      return false
     }
     console.log("start camera")
     try {
       this.localCam = await navigator.mediaDevices.getUserMedia(localMediaConstraints)
       webcamState.audioPaused = false
       webcamState.videoPaused = false
+      return true
     } catch (e) {
       console.error("Start camera error", e)
       webcamState.audioPaused = true
       webcamState.videoPaused = true
+      return false
     }
   }
 
   // switch to sending video from the "next" camera device in our device
   // list (if we have multiple cameras)
-  async cycleCamera() {
+  async cycleCamera(): Promise<boolean> {
     if (!(this.camVideoProducer && this.camVideoProducer.track)) {
       console.log("cannot cycle camera - no current camera track")
-      return
+      return false
     }
 
     console.log("cycle camera")
@@ -390,7 +438,7 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
     const vidDevices = allDevices.filter(d => d.kind === "videoinput")
     if (!(vidDevices.length > 1)) {
       console.log("cannot cycle camera - only one camera")
-      return
+      return false
     }
     let idx = vidDevices.findIndex(d => d.deviceId === deviceId)
     if (idx === vidDevices.length - 1) {
@@ -412,22 +460,23 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
     // replace the tracks we are sending
     await this.camVideoProducer.replaceTrack({ track: this.localCam.getVideoTracks()[0] })
     await this.camAudioProducer.replaceTrack({ track: this.localCam.getAudioTracks()[0] })
+    return true
   }
 
-  async stopSendingMediaStreams(): Promise<void> {
-    if (!(this.localCam || this.localScreen)) {
-      return
+  async stopSendingMediaStreams(): Promise<boolean> {
+    if (!(this.localCam && this.localScreen)) {
+      return false
     }
     if (!this.sendTransport) {
-      return
+      return false
     }
 
     console.log("stop sending media streams")
     // $('#stop-streams').style.display = 'none';
 
-    const { error } = await this.socket.request("close-transport", {
+    const { error } = (await request("close-transport", {
       transportId: this.sendTransport.id
-    })
+    })) as any
     if (error) {
       console.error(error)
     }
@@ -447,6 +496,7 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
     this.screenAudioProducer = null
     this.localCam = null
     this.localScreen = null
+    return true
   }
 
   async leaveRoom(): Promise<boolean> {
@@ -460,7 +510,7 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
     clearInterval(this.pollingInterval)
 
     // close everything on the server-side (transports, producers, consumers)
-    const { error } = await this.socket.request("leave")
+    const { error } = (await request("leave")) as any
     if (error) {
       console.error(error)
     }
@@ -508,11 +558,11 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
     // ask the server to create a server-side consumer object and send
     // us back the info we need to create a client-side consumer
 
-    const consumerParameters = await this.socket.request("recv-track", {
+    const consumerParameters = (await request("recv-track", {
       mediaTag,
       mediaPeerId: peerId,
       rtpCapabilities: this.mediasoupDevice.rtpCapabilities
-    })
+    })) as any
     console.log("consumer parameters", consumerParameters)
     consumer = await this.recvTransport.consume({
       ...consumerParameters,
@@ -555,7 +605,7 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
     if (consumer) {
       console.log("pause consumer", consumer.appData.peerId, consumer.appData.mediaTag)
       try {
-        await this.socket.request("pause-consumer", { consumerId: consumer.id })
+        await request("pause-consumer", { consumerId: consumer.id })
         await consumer.pause()
       } catch (e) {
         console.error(e)
@@ -567,7 +617,7 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
     if (consumer) {
       console.log("resume consumer", consumer.appData.peerId, consumer.appData.mediaTag)
       try {
-        await this.socket.request("resume-consumer", { consumerId: consumer.id })
+        await request("resume-consumer", { consumerId: consumer.id })
         await consumer.resume()
       } catch (e) {
         console.error(e)
@@ -579,7 +629,7 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
     if (producer) {
       console.log("pause producer", producer.appData.mediaTag)
       try {
-        await this.socket.request("pause-producer", { producerId: producer.id })
+        await request("pause-producer", { producerId: producer.id })
         await producer.pause()
       } catch (e) {
         console.error(e)
@@ -591,7 +641,7 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
     if (producer) {
       console.log("resume producer", producer.appData.mediaTag)
       try {
-        await this.socket.request("resume-producer", { producerId: producer.id })
+        await request("resume-producer", { producerId: producer.id })
 
         await producer.resume()
       } catch (e) {
@@ -608,7 +658,7 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
     try {
       // tell the server we're closing this consumer. (the server-side
       // consumer may have been closed already, but that's okay.)
-      await this.socket.request("close-consumer", { consumerId: consumer.id })
+      await request("close-consumer", { consumerId: consumer.id })
       await consumer.close()
 
       this.consumers = this.consumers.filter(c => c !== consumer)
@@ -627,9 +677,9 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
     // ask the server to create a server-side transport object and send
     // us back the info we need to create a client-side transport
     let transport
-    const { transportOptions } = await this.socket.request("create-transport", {
+    const { transportOptions } = (await request("create-transport", {
       direction
-    })
+    })) as any
     console.log("transport options", transportOptions)
 
     if (direction === "recv") {
@@ -646,10 +696,10 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
     transport.on("connect", async ({ dtlsParameters }, callback, errback) => {
       console.log("transport connect event", direction)
 
-      const { error } = await this.socket.request("connect-transport", {
+      const { error } = (await request("connect-transport", {
         transportId: transportOptions.id,
         dtlsParameters
-      })
+      })) as any
       if (error) {
         console.error("error connecting transport", direction, error)
         errback()
@@ -678,13 +728,13 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
         // producer.id. call callback() on success or errback() on
         // failure.
 
-        const { error, id } = await this.socket.request("send-track", {
+        const { error, id } = (await request("send-track", {
           transportId: transportOptions.id,
           kind,
           rtpParameters,
           paused,
           appData
-        })
+        })) as any
         if (error) {
           console.error("error setting up server-side producer", error)
           errback()
@@ -718,7 +768,7 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
 
   async pollAndUpdate() {
     console.log("Polling server for current peers array!")
-    const { peers, error } = await this.socket.request("sync")
+    const { peers, error } = (await request("sync")) as any
 
     if (error) {
       console.error("PollAndUpdateError: ", error)
@@ -876,12 +926,10 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
       // play() succeeding. play() will not succeed on a producer-paused
       // track until the producer unpauses.
       // @ts-ignore
-      el.play()
-        .then(() => {})
-        .catch(e => {
-          console.log(`Play video error: ${e}`)
-          console.error(e)
-        })
+      el.play().catch(e => {
+        console.log(`Play video error: ${e}`)
+        console.error(e)
+      })
     } else {
       // Positional Audio Works in Firefox:
       // Global Audio:

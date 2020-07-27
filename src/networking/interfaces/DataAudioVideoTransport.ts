@@ -1,10 +1,10 @@
 import DataAudioTransport from "./DataAudioTransport"
 
 export default interface DataAudioVideoTransport extends DataAudioTransport {
-  startScreenshare(): boolean
-  startCamera(): boolean
-  cycleCamera(): boolean
+  startScreenshare(): Promise<boolean>
+  startCamera(): Promise<boolean>
+  cycleCamera(): Promise<boolean>
 
-  stopCamera(): boolean
-  stopScreenshare(): boolean
+  stopCamera(): Promise<boolean>
+  stopScreenshare(): Promise<boolean>
 }

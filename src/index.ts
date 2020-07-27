@@ -17,9 +17,10 @@ import StateSystem from "./state/systems/StateSystem"
 import StateSchema from "./state/interfaces/StateSchema"
 import { DefaultStateSchema } from "./state/defaults/DefaultStateSchema"
 import { NetworkSystem } from "./networking/systems/NetworkSystem"
-import NetworkSession from "./networking/components/NetworkSession"
-import NetworkOwner from "./networking/components/NetworkOwner"
+import NetworkPlayer from "./networking/components/NetworkPlayer"
 import NetworkObject from "./networking/components/NetworkObject"
+import SocketWebRTCTransport from "./networking/transports/SocketWebRTCTransport"
+import NetworkTransportAlias from "./networking/types/NetworkTransportAlias"
 
 const DEFAULT_OPTIONS = {
   debug: false
@@ -79,10 +80,12 @@ export function initializeActor(entity: Entity, options: { inputMap?: InputSchem
   return entity
 }
 
-export function initializeNetworking(world: World) {
+export function initializeNetworking(world: World, transport?: NetworkTransportAlias) {
   world
     .registerSystem(NetworkSystem)
-    .registerComponent(NetworkSession)
     .registerComponent(NetworkObject)
-    .registerComponent(NetworkOwner)
+    .registerComponent(NetworkPlayer)
+
+  const networkSystem = world.getSystem(NetworkSystem)
+  ;(networkSystem as NetworkSystem).initializeSession(world, transport ?? new SocketWebRTCTransport())
 }

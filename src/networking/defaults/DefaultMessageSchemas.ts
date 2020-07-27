@@ -20,7 +20,7 @@ const positionData = {
 
 const positionSchema = NetworkSystem.addMessageSchema<typeof positionData>(DefaultMessageTypes.Position, positionData)
 
-// Position
+// Velocity
 const velocityData = {
   entityId: typeof uint32,
   x: { type: typeof int16, digits: 3 },
@@ -28,9 +28,9 @@ const velocityData = {
   z: { type: typeof int16, digits: 3 }
 }
 
-const velocitySchema = NetworkSystem.addMessageSchema<typeof velocityData>(DefaultMessageTypes.Position, velocityData)
+const velocitySchema = NetworkSystem.addMessageSchema<typeof velocityData>(DefaultMessageTypes.Velocity, velocityData)
 
-// Position
+// Spin
 const spinData = {
   entityId: typeof uint32,
   x: { type: typeof int16, digits: 3 },
@@ -38,7 +38,7 @@ const spinData = {
   z: { type: typeof int16, digits: 3 }
 }
 
-const spinSchema = NetworkSystem.addMessageSchema<typeof spinData>(DefaultMessageTypes.Position, spinData)
+const spinSchema = NetworkSystem.addMessageSchema<typeof spinData>(DefaultMessageTypes.Spin, spinData)
 
 // Rotation
 const rotationData = {
@@ -59,7 +59,7 @@ const scaleData = {
   z: { type: typeof int16, digits: 3 }
 }
 
-const scaleSchema = NetworkSystem.addMessageSchema<typeof scaleData>(DefaultMessageTypes.Rotation, scaleData)
+const scaleSchema = NetworkSystem.addMessageSchema<typeof scaleData>(DefaultMessageTypes.Scale, scaleData)
 
 //Player
 const playerData = {
@@ -73,11 +73,10 @@ const playerSchema = NetworkSystem.addMessageSchema<typeof playerData>(DefaultMe
 //Object
 const objectData = {
   networkId: typeof uint8,
-  ownerId: { type: typeof string8, length: 16 },
-  name: { type: typeof string8, length: 16 }
+  ownerId: { type: typeof string8, length: 16 }
 }
 
-const objectSchema = NetworkSystem.addMessageSchema<typeof objectData>(DefaultMessageTypes.Player, objectData)
+const objectSchema = NetworkSystem.addMessageSchema<typeof objectData>(DefaultMessageTypes.Object, objectData)
 
 // World state
 const worldData = {
@@ -87,5 +86,3 @@ const worldData = {
 }
 
 const worldSync = NetworkSystem.addMessageSchema<typeof worldData>(DefaultMessageTypes.World, worldData)
-
-const test = worldSync.struct.clock
