@@ -75,12 +75,12 @@ export class AcceptInvite implements ServiceMethods<Data> {
               userId: invite.userId,
               relatedUserId: (inviteeIdentityProvider).userId
             }, params)
-
-            await this.app.service('user-relationship').patch(invite.userId, {
-              userRelationshipType: invite.inviteType,
-              userId: (inviteeIdentityProvider).userId
-            }, params)
           }
+
+          await this.app.service('user-relationship').patch(invite.userId, {
+            userRelationshipType: invite.inviteType,
+            userId: (inviteeIdentityProvider).userId
+          }, params)
         } else if (invite.inviteType === 'group') {
           console.log('Adding group user:')
           const group = await this.app.service('group').get(invite.targetObjectId)
@@ -130,9 +130,10 @@ export class AcceptInvite implements ServiceMethods<Data> {
             }
           })
 
+          console.log('existingRelationshipResult:')
           console.log(existingRelationshipResult)
 
-          if ((existingRelationshipResult as any).total === 0) {
+          if ((existingRelationshipResult as any).total > 0) {
             await this.app.service('user-relationship').patch(invite.userId, {
               userRelationshipType: invite.inviteType,
               userId: invite.inviteeId

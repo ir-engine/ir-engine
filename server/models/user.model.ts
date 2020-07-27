@@ -42,7 +42,7 @@ export default (app: Application): any => {
     });
     (User as any).hasMany(models.user_relationship);
     (User as any).belongsToMany(models.group, { through: 'group_user' }); // user can join multiple orgs
-    (User as any).hasMany(models.group_user);
+    (User as any).hasMany(models.group_user, { unique: false });
     (User as any).hasMany(models.identity_provider);
     (User as any).hasMany(models.static_resource);
     (User as any).hasMany(models.subscription);
