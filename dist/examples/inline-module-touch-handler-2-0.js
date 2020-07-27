@@ -32,14 +32,13 @@ function setTouchHandler(touchHandler) {
                 let new_x_distance = Math.abs(new_point1.clientX - new_point2.clientX);
                 let x_distance_diff = Math.abs(x_distance - new_x_distance);
                 if (y_distance_diff > threshold && x_distance_diff < threshold) {
-                    ev.target.style.background = 'green';
                     if (new_y_distance > y_distance) {
-                        if ('verticalZoomOut' in this.th)
-                            this.th.verticalZoomOut();
-                    }
-                    else {
                         if ('verticalZoomIn' in this.th)
                             this.th.verticalZoomIn();
+                    }
+                    else {
+                        if ('verticalZoomOut' in this.th)
+                            this.th.verticalZoomOut();
                     }
                     this.tpCache[point1] = new_point1;
                     this.tpCache[point2] = new_point2;
@@ -47,12 +46,12 @@ function setTouchHandler(touchHandler) {
                 }
                 if (x_distance_diff > threshold && y_distance_diff < threshold) {
                     if (new_x_distance > x_distance) {
-                        if ('horizontalZoomOut' in this.th)
-                            this.th.horizontalZoomOut();
-                    }
-                    else {
                         if ('horizontalZoomIn' in this.th)
                             this.th.horizontalZoomIn();
+                    }
+                    else {
+                        if ('horizontalZoomOut' in this.th)
+                            this.th.horizontalZoomOut();
                     }
                     this.tpCache[point1] = new_point1;
                     this.tpCache[point2] = new_point2;
@@ -72,20 +71,20 @@ function setTouchHandler(touchHandler) {
                     this.tpCache.push(ev.targetTouches[i]);
             }
             if ('touchStart' in this.th)
-                this.th.touchStart();
+                this.th.touchStart(ev);
         };
         zoomInOutHandler.touch_move = function (ev) {
             ev.preventDefault();
             this.handle_zoom_in_out(ev);
             if ('touchMove' in this.th)
-                this.th.touchMove();
+                this.th.touchMove(ev);
         };
-        zoomInOutHandler.touch_end_handler = function (ev) {
-            ev.preventDefault();
+        zoomInOutHandler.touch_end = function (ev) {
+            // ev.preventDefault();
             if (ev.targetTouches.length === 0)
                 this.tpCache = new Array();
             if ('touchEnd' in this.th)
-                this.th.touchEnd();
+                this.th.touchEnd(ev);
         };
         touchHandler.element.ontouchstart =
             zoomInOutHandler.touch_start.bind(zoomInOutHandler);
@@ -96,10 +95,14 @@ function setTouchHandler(touchHandler) {
             zoomInOutHandler.touch_move.bind(zoomInOutHandler);
     }
     else {
-        touchHandler.element.ontouchstart = touchHandler.touchStart.bind(touchHandler);
-        touchHandler.element.ontouchend = touchHandler.touchEnd.bind(touchHandler);
-        touchHandler.element.ontouchcancel = touchHandler.element.ontouchend;
-        touchHandler.element.ontouchmove = touchHandler.touchMove.bind(touchHandler);
+        if ('touchStart' in touchHandler)
+            touchHandler.element.ontouchstart = touchHandler.touchStart.bind(touchHandler);
+        if ('touchEnd' in touchHandler) {
+            touchHandler.element.ontouchend = touchHandler.touchEnd.bind(touchHandler);
+            touchHandler.element.ontouchcancel = touchHandler.element.ontouchend;
+        }
+        if ('touchMove' in touchHandler)
+            touchHandler.element.ontouchmove = touchHandler.touchMove.bind(touchHandler);
     }
 }
 
@@ -107,6 +110,7 @@ class TouchHandler {
     constructor() {
         this.rectangleWidth = 50;
         this.rectangleHeight = 50;
+        this.rectangleChangeSizeStep = 30;
         this.element = document.getElementById('touch-area');
         this.canvas = this.element;
         this.resizeCanvas();
@@ -118,27 +122,35 @@ class TouchHandler {
     }
     drawRectangle() {
         let ctx = this.canvas.getContext('2d');
+        ctx.clearRect(1, 1, this.canvas.width - 2, this.canvas.height - 2);
         ctx.strokeRect(this.canvas.width / 2 - this.rectangleWidth / 2, this.canvas.height / 2 - this.rectangleHeight / 2, this.rectangleWidth, this.rectangleHeight);
     }
-    /*
-        drawCircle(x: number, y: number) {
-            let ctx: CanvasRenderingContext2D = this.canvas.getContext('2d');
-            ctx.fillStyle = this.circleColor;
-            ctx.beginPath();
-            ctx.ellipse(x, y, 10, 10, 0, 0, Math.PI * 2);
-            ctx.closePath();
-            ctx.fill();
-        }
-    */
-    touchStart(ev) {
+    verticalZoomIn() {
+        this.rectangleHeight += this.rectangleChangeSizeStep;
+        if (this.rectangleHeight > (this.canvas.height - 10))
+            this.rectangleHeight = this.canvas.height - 10;
+        this.drawRectangle();
     }
-    touchEnd(ev) {
+    verticalZoomOut() {
+        this.rectangleHeight -= this.rectangleChangeSizeStep;
+        if (this.rectangleHeight < 50)
+            this.rectangleHeight = 50;
+        this.drawRectangle();
     }
-    touchMove(ev) {
+    horizontalZoomIn() {
+        this.rectangleWidth += this.rectangleChangeSizeStep;
+        if (this.rectangleWidth > (this.canvas.width - 10))
+            this.rectangleWidth = this.canvas.width - 10;
+        this.drawRectangle();
+    }
+    horizontalZoomOut() {
+        this.rectangleWidth -= this.rectangleChangeSizeStep;
+        if (this.rectangleWidth < 50)
+            this.rectangleWidth = 50;
+        this.drawRectangle();
     }
 }
 function touchHandlerExample2() {
-    // console.log('Check.');
     let th = new TouchHandler();
     setTouchHandler(th);
     window.addEventListener('resize', th.resizeCanvas.bind(th), false);

@@ -56,14 +56,13 @@ export function setTouchHandler(touchHandler: ITouchHandler): void {
 				let x_distance_diff = Math.abs(x_distance - new_x_distance);
 
 				if (y_distance_diff > threshold && x_distance_diff < threshold) {
-					ev.target.style.background = 'green';
 
 					if (new_y_distance > y_distance) {
+						if ('verticalZoomIn' in this.th)
+								this.th.verticalZoomIn();
+					} else {
 						if ('verticalZoomOut' in this.th)
 							this.th.verticalZoomOut();
-					} else {
-						if ('verticalZoomIn' in this.th)
-							this.th.verticalZoomIn();
 					}
 
 					this.tpCache[point1] = new_point1;
@@ -71,14 +70,13 @@ export function setTouchHandler(touchHandler: ITouchHandler): void {
 					return;
 				}
 
-
 				if (x_distance_diff > threshold && y_distance_diff < threshold) {
 					if (new_x_distance > x_distance) {
-						if ('horizontalZoomOut' in this.th)
-							this.th.horizontalZoomOut();
-					} else {
 						if ('horizontalZoomIn' in this.th)
 							this.th.horizontalZoomIn();
+					} else {
+						if ('horizontalZoomOut' in this.th)
+							this.th.horizontalZoomOut();
 					}
 
 					this.tpCache[point1] = new_point1;
@@ -99,20 +97,20 @@ export function setTouchHandler(touchHandler: ITouchHandler): void {
 				for (let i = 0; i < ev.targetTouches.length; i++)
 					this.tpCache.push(ev.targetTouches[i]);
 			}
-			if ('touchStart' in this.th) this.th.touchStart();
+			if ('touchStart' in this.th) this.th.touchStart(ev);
 		};
 
 		zoomInOutHandler.touch_move = function(ev) {
 			ev.preventDefault();
 			this.handle_zoom_in_out(ev);
-			if ('touchMove' in this.th) this.th.touchMove();
+			if ('touchMove' in this.th) this.th.touchMove(ev);
 		};
 
-		zoomInOutHandler.touch_end_handler = function(ev) {
-			ev.preventDefault();
+		zoomInOutHandler.touch_end = function(ev) {
+			// ev.preventDefault();
 			if (ev.targetTouches.length === 0)
 				this.tpCache = new Array();
-			if ('touchEnd' in this.th) this.th.touchEnd();
+			if ('touchEnd' in this.th) this.th.touchEnd(ev);
 		};
 
 		touchHandler.element.ontouchstart =
@@ -124,9 +122,13 @@ export function setTouchHandler(touchHandler: ITouchHandler): void {
 				zoomInOutHandler.touch_move.bind(zoomInOutHandler);
 
 	} else {
-		touchHandler.element.ontouchstart = touchHandler.touchStart.bind(touchHandler);
-		touchHandler.element.ontouchend = touchHandler.touchEnd.bind(touchHandler);
-		touchHandler.element.ontouchcancel = touchHandler.element.ontouchend;
-		touchHandler.element.ontouchmove = touchHandler.touchMove.bind(touchHandler);
+		if ('touchStart' in touchHandler)
+			touchHandler.element.ontouchstart = touchHandler.touchStart.bind(touchHandler);
+		if ('touchEnd' in touchHandler) {
+			touchHandler.element.ontouchend = touchHandler.touchEnd.bind(touchHandler);
+			touchHandler.element.ontouchcancel = touchHandler.element.ontouchend;
+		}
+		if ('touchMove' in touchHandler)
+			touchHandler.element.ontouchmove = touchHandler.touchMove.bind(touchHandler);
 	}
 }

@@ -5,6 +5,7 @@ class TouchHandler implements ITouchHandler {
 	canvas: HTMLCanvasElement;
 	rectangleWidth: number = 50;
 	rectangleHeight: number = 50;
+	rectangleChangeSizeStep: number = 30;
 
 	constructor() {
 		this.element = document.getElementById('touch-area');
@@ -20,35 +21,45 @@ class TouchHandler implements ITouchHandler {
 
 	drawRectangle() {
 		let ctx: CanvasRenderingContext2D = this.canvas.getContext('2d');
+		ctx.clearRect(1, 1, this.canvas.width - 2, this.canvas.height - 2);
 		ctx.strokeRect(
 				this.canvas.width / 2 - this.rectangleWidth / 2,
 				this.canvas.height / 2 - this.rectangleHeight / 2,
 				this.rectangleWidth,
-				this.rectangleHeight)
+				this.rectangleHeight);
 	}
 
-/*
-	drawCircle(x: number, y: number) {
-		let ctx: CanvasRenderingContext2D = this.canvas.getContext('2d');
-		ctx.fillStyle = this.circleColor;
-		ctx.beginPath();
-		ctx.ellipse(x, y, 10, 10, 0, 0, Math.PI * 2);
-		ctx.closePath();
-		ctx.fill();
-	}
-*/
-	touchStart(ev: TouchEvent): void {
+	verticalZoomIn() {
+		this.rectangleHeight += this.rectangleChangeSizeStep;
+		if (this.rectangleHeight > (this.canvas.height - 10))
+			this.rectangleHeight = this.canvas.height - 10;
+		this.drawRectangle();
 	}
 
-	touchEnd(ev: TouchEvent): void {
+	verticalZoomOut() {
+		this.rectangleHeight -= this.rectangleChangeSizeStep;
+		if (this.rectangleHeight < 50)
+			this.rectangleHeight = 50;
+		this.drawRectangle();
 	}
 
-	touchMove(ev: TouchEvent): void {
+	horizontalZoomIn() {
+		this.rectangleWidth += this.rectangleChangeSizeStep;
+		if (this.rectangleWidth > (this.canvas.width - 10))
+			this.rectangleWidth = this.canvas.width - 10;
+		this.drawRectangle();
 	}
+
+	horizontalZoomOut() {
+		this.rectangleWidth -= this.rectangleChangeSizeStep;
+		if (this.rectangleWidth < 50)
+			this.rectangleWidth = 50;
+		this.drawRectangle();
+	}
+
 }
 
 export function touchHandlerExample2(): void {
-	// console.log('Check.');
 	let th: TouchHandler = new TouchHandler();
 	setTouchHandler(th);
 	window.addEventListener('resize', th.resizeCanvas.bind(th),	false);

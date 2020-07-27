@@ -36,10 +36,6 @@ class TouchHandler implements ITouchHandler {
 			this.drawCircle(ev.targetTouches[0].clientX, ev.targetTouches[0].clientY);
 	}
 
-	touchEnd(ev: TouchEvent): void {
-		ev.preventDefault();
-	}
-
 	touchMove(ev: TouchEvent): void {
 		ev.preventDefault();
 		if (ev.targetTouches.length)
