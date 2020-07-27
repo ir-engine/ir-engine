@@ -30,7 +30,7 @@ const localMediaConstraints = {
 import io from "socket.io-client"
 import { Device } from "mediasoup-client"
 
-const socket = io()
+const socket = io("http://localhost:3001")
 
 // Adds support for Promise to socket.io-client
 function promise(socket) {
@@ -180,8 +180,7 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
       const {
         location: { hostname }
       } = window
-      console.log(`Initializing socket.io..., on host ${hostname} and port: ${process.env.SERVER_PORT}`)
-
+      console.log(`Initializing socket.io...,`)
       socket.on("connect", () => {
         console.log("Connected")
       })

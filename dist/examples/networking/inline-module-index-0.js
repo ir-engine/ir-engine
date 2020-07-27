@@ -951,7 +951,7 @@ class ComponentManager {
 
 const Version = "0.3.1";
 
-class Entity$1 {
+class Entity {
   constructor(entityManager) {
     this._entityManager = entityManager || null;
 
@@ -1075,7 +1075,7 @@ class Entity$1 {
   }
 
   clone() {
-    return new Entity$1(this._entityManager).copy(this);
+    return new Entity(this._entityManager).copy(this);
   }
 
   reset() {
@@ -1095,7 +1095,7 @@ class Entity$1 {
 
 const DEFAULT_OPTIONS = {
   entityPoolSize: 0,
-  entityClass: Entity$1
+  entityClass: Entity
 };
 
 class World {
@@ -24245,7 +24245,7 @@ const localMediaConstraints = {
         frameRate: { max: 30 }
     }
 };
-const socket$2 = lib$1();
+const socket$2 = lib$1("http://localhost:3001");
 // Adds support for Promise to socket.io-client
 function promise(socket) {
     return function request(type, data = {}) {
@@ -24379,8 +24379,7 @@ class SocketWebRTCTransport {
     // uses promise to ensure that we receive our so
     initSocketConnection() {
         return new Promise(resolve => {
-            const { location: { hostname } } = window;
-            console.log(`Initializing socket.io..., on host ${hostname} and port: ${process.env.SERVER_PORT}`);
+            console.log(`Initializing socket.io...,`);
             socket$2.on("connect", () => {
                 console.log("Connected");
             });
@@ -25213,8 +25212,6 @@ const world = new World();
         debug: true
       };
       initializeInputSystems(world, inputOptions);
-
-      initializeActor(new Entity());
 
       initializeNetworking(world);
 
