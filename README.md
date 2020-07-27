@@ -26,12 +26,6 @@ initializeInput(world, options)
 world.execute()
 ```
 
-To make an object receive input:
-```javascript
-import {  addInputHandlingToEntity } from '@xr3ngine/armada'
-const newEntity = addInputHandlingToEntity(world.createEntity())
-```
-
 You can override the input mappings per device
 Input mappings map device input to abstract, cross-platform input
 

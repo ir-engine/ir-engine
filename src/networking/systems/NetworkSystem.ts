@@ -1,69 +1,60 @@
 import { System, Entity, World } from "ecsy"
-import NetworkOwner from "../components/NetworkOwner"
+import NetworkPlayer from "../components/NetworkPlayer"
 import MessageSchema from "../classes/MessageSchema"
 import set from "../../common/utils/set"
 import cropString from "../../common/utils/cropString"
-import NetworkSession from "../components/NetworkSession"
 import NetworkObject from "../components/NetworkObject"
-import TransportAlias from "../types/TransportAlias"
+import NetworkTransportAlias from "../types/NetworkTransportAlias"
 import MessageTypeAlias from "../types/MessageTypeAlias"
 
+import RingBuffer from "../../common/classes/RingBuffer"
+
 export class NetworkSystem extends System {
-  public static _schemas: Map<MessageTypeAlias, MessageSchema> = new Map()
+  public static _schemas: Map<MessageTypeAlias, MessageSchema<any>> = new Map()
 
   _isInitialized: boolean
   _sessionEntity: Entity
-  _schema: MessageSchema
-  _transport: TransportAlias
+  static _schema: MessageSchema<any>
+  _transport: NetworkTransportAlias
 
   // TODO: Move to component?
-  protected _buffer: ArrayBuffer = new ArrayBuffer(0)
-  protected _dataView: DataView = new DataView(this._buffer)
-  protected _bytes = 0
+  protected static _buffer: ArrayBuffer = new ArrayBuffer(0)
+  protected static _dataView: DataView = new DataView(NetworkSystem._buffer)
+  protected static _bytes = 0
 
   static queries: any = {
-    networkSession: {
-      components: [NetworkSession],
-      listen: {
-        added: true,
-        changed: true,
-        removed: true
-      }
-    },
     networkObject: {
       components: [NetworkObject]
     },
     networkOwners: {
-      components: [NetworkOwner]
+      components: [NetworkPlayer]
     }
   }
 
-  execute(delta: number): void {
+  public execute(delta: number): void {
     if (!this._isInitialized) return
     // Ask transport for all new messages
   }
 
-  public static addMessageSchema<StructType>(messageType: MessageTypeAlias, messageData: StructType): MessageSchema {
+  public static addMessageSchema<StructType>(messageType: MessageTypeAlias, messageData: StructType): MessageSchema<any> {
     const s = new MessageSchema<StructType>(messageType, messageData)
     this._schemas.set(messageType, s)
     return s
   }
 
-  initializeSession(world: World, transport?: TransportAlias) {
-    this._sessionEntity = world.createEntity("NetworkSession")
-    this._sessionEntity.addComponent(NetworkSession)
+  public initializeSession(world: World, transport?: NetworkTransportAlias) {
     this._isInitialized = true
     this._transport = transport
     transport.initialize()
   }
 
-  deinitializeSession() {
+  public deinitializeSession() {
     this._sessionEntity?.remove()
     this._isInitialized = false
     this._transport.deinitialize()
   }
 
-  public toBuffer(input: MessageSchema) {
+  public static toBuffer(input: MessageSchema<any>): ArrayBuffer {
     // deep clone the worldState
     const data = { ...input }
 
@@ -129,7 +120,7 @@ export class NetworkSystem extends System {
     return newBuffer
   }
 
-  public fromBuffer(buffer: ArrayBuffer) {
+  public static fromBuffer(buffer: ArrayBuffer) {
     // check where, in the buffer, the schemas are
     let index = 0
     const indexes: number[] = []
@@ -161,8 +152,8 @@ export class NetworkSystem extends System {
     schemaIds.forEach((id, i) => {
       // check if the schemaId exists
       // (this can be, for example, if charCode 35 is not really a #)
-      const schemaId = SchemaDictionary._schemas.get(id)
-      if (schemaId) schemas.push({ id, schema: SchemaDictionary._schemas.get(id), startsAt: indexes[i] + 5 })
+      const schemaId = NetworkSystem._schemas.get(id)
+      if (schemaId) schemas.push({ id, schema: NetworkSystem._schemas.get(id), startsAt: indexes[i] + 5 })
     })
     // schemas[] contains now all the schemas we need to fromBuffer the bufferArray
 
@@ -305,13 +296,13 @@ export class NetworkSystem extends System {
     for (let i = 0; i < Object.keys(dataPerSchema).length; i++) {
       const key = Object.keys(dataPerSchema)[i]
       const value = dataPerSchema[key]
-      populateData(this._schema, key, value, "")
+      populateData(NetworkSystem._schema, key, value, "")
     }
 
     return data
   }
 
-  flattenSchema(schema: MessageSchema, data: any): any[] {
+  static flattenSchema(schema: MessageSchema<any>, data: any): any[] {
     const flat: any[] = []
 
     const flatten = (schema: any, data: any) => {

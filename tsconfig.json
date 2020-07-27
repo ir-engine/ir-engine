@@ -9,7 +9,7 @@
     "esModuleInterop": true
   },
   "include": [
-    "src/**/*", "in_development"
+    "src/**/*"
   ],
   "exclude": ["node_modules", "dist"]
 }

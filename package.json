@@ -19,6 +19,8 @@
     "@rollup/plugin-json": "^4.0.2",
     "@rollup/plugin-node-resolve": "^6.1.0",
     "@rollup/plugin-replace": "^2.2.1",
+    "@types/socket.io": "^2.1.10",
+    "@types/socket.io-client": "^1.4.33",
     "@typescript-eslint/eslint-plugin": "^3.4.0",
     "@typescript-eslint/parser": "^3.4.0",
     "babel-eslint": "^10.0.3",
@@ -26,20 +28,28 @@
     "babelify": "^10.0.0",
     "browserify": "^16.5.0",
     "concurrently": "^5.0.0",
+    "dotenv": "^8.2.0",
     "ecsy": "^0.3.2",
     "ecsy-three": "0.0.6",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-prettier": "^3.1.1",
+    "express": "^4.17.1",
     "gh-pages": "^2.1.1",
     "gl-matrix": "^3.3.0",
     "html-webpack-plugin": "^3.2.0",
     "http-server": "^0.12.3",
+    "install": "^0.13.0",
+    "mediasoup": "^3.6.13",
+    "mediasoup-client": "^3.6.12",
+    "npm": "^6.14.7",
     "pre-commit": "^1.2.2",
     "prettier": "^1.19.1",
     "prettier-eslint": "^11.0.0",
+    "requirejs": "^2.3.6",
     "rollup": "^1.27.13",
     "rollup-plugin-auto-external": "^2.0.0",
+    "rollup-plugin-auto-named-exports": "^1.0.0-beta.3",
     "rollup-plugin-external-globals": "^0.5.0",
     "rollup-plugin-html": "^0.2.1",
     "rollup-plugin-html-entry": "^0.3.0",
@@ -47,8 +57,11 @@
     "rollup-plugin-serve": "^1.0.1",
     "rollup-plugin-terser": "^5.1.2",
     "rollup-plugin-typescript2": "^0.27.1",
+    "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.0",
     "three": "^0.118.3",
     "troika-3d-text": "^0.28.1",
+    "ts-node": "^8.10.2",
     "typescript": "^3.9.5"
   },
   "homepage": "https://github.com/xr3ngine/armada#readme",
@@ -65,7 +78,7 @@
     "preversion": "npm run lint",
     "version": "npm run build && git add -A",
     "postversion": "git push && git push --tags && sudo npm publish",
-    "dev": "rollup -cw & http-server ./dist/examples",
+    "dev": "(rollup -cw & http-server ./dist/examples)",
     "lint": "eslint ./src/**/*",
     "start": "npm run build"
   },
@@ -74,9 +87,16 @@
     "build"
   ],
   "version": "0.0.1",
-  "dependencies": {
-    "@geckos.io/typed-array-buffer-schema": "0.0.4",
+  "peerDependencies": {
+    "@types/socket.io-client": "^1.4.33",
+    "@types/socket.io": "^2.1.10",
     "mediasoup-client": "^3.6.12",
-    "socket.io-client": "^2.3.0"
+    "socket.io-client": "^2.3.0",
+    "socket.io": "^2.3.0"
+  },
+  "dependencies": {
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-globals": "^1.4.0"
   }
 }

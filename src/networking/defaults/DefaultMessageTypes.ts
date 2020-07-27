@@ -1,13 +1,17 @@
 const DefaultMessageTypes = {
   Player: 0,
   Position: 1,
-  Clock: 2,
-  World: 3,
-  Rotation: 4,
-  Init: 0,
-  ComponentDataUpdate: 1,
-  UserConnected: 2,
-  UserDisconnected: 3
+  Rotation: 2,
+  Scale: 3,
+  Velocity: 4,
+  Spin: 5,
+  Clock: 6,
+  World: 7,
+  Object: 8,
+  Init: 9,
+  ComponentDataUpdate: 10,
+  UserConnected: 11,
+  UserDisconnected: 12
 }
 
 export default DefaultMessageTypes
