@@ -10,7 +10,8 @@ import {
 } from './Interfaces';
 import { RingBuffer } from 'ring-buffer-ts';
 import { MessageType } from './Enums';
-
+import { decodeDracoData } from './DecodeCodecHelpers';
+// import * as draco3d from 'draco3d';
 import axios from 'axios';
 
 let fileHeader: IFileHeader;
@@ -26,6 +27,10 @@ let startFrame = 0;
 let endFrame = 0;
 let loop = true;
 let message: WorkerDataResponse;
+// let _decoderModule = draco3d.createDecoderModule({});
+  
+// const decoderModule = draco3d.createDecoderModule({});
+// console.log('31 decoder', decoderModule);
 
 self.addEventListener('message', (event) => {
   const data = (<any>event).data;
@@ -131,6 +136,8 @@ async function fetch(data: WorkerDataRequest): Promise<void> {
         const buffer = Buffer.from(<any>response.data);
         buffer.copy(bufferGeom, 0, 0, fileHeader.frameData[frame].meshLength);
         buffer.copy(bufferTex, 0, fileHeader.frameData[frame].meshLength);
+
+        // console.log(bufferGeom);
 
         // bufferTex.write(<any>response.data, fileHeader.frameData[frame].meshLength, )
 

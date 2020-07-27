@@ -7007,6 +7007,7 @@ var MessageType;
 })(MessageType || (MessageType = {}));
 
 // import fs from 'fs';
+// import { decodeDracoData } from './CodecHelpers';
 const worker = new Worker('./Worker.js');
 // Class draco / basis player
 class DracosisPlayer {
@@ -7014,6 +7015,7 @@ class DracosisPlayer {
         // Public Fields
         this.frameRate = 30;
         this.speed = 1.0; // Multiplied by framerate for final playback output rate
+        this.dracoLoader = new DRACOLoader();
         // Private Fields
         this._startFrame = 0;
         this._endFrame = 0;
@@ -7027,6 +7029,7 @@ class DracosisPlayer {
         this._readStreamOffset = 0;
         this._decoderModule = draco3d_2({});
         this._encoderModule = draco3d_1({});
+        // private decoder = new this._decoderModule.Decoder();
         this._basisTextureLoader = new BasisTextureLoader();
         this._nullBufferGeometry = new BufferGeometry();
         this._nullCompressedTexture = new CompressedTexture([new ImageData(200, 200)], 0, 0);
@@ -7047,6 +7050,7 @@ class DracosisPlayer {
         this.material = new MeshPhongMaterial({ color: 0xffff00 });
         this.mesh = new Mesh(this.bufferGeometry, this.material);
         this.scene.add(this.mesh);
+        console.log("63 dracodecoder", this._decoderModule);
         let player = this;
         this.httpGetAsync('http://localhost:8000/dracosis', function (data) {
             data = JSON.parse(data);
@@ -7119,12 +7123,39 @@ class DracosisPlayer {
         xmlHttp.open('GET', theUrl, true); // true for asynchronous
         xmlHttp.send(null);
     }
+    decodeDracoData(rawBuffer, decoder) {
+        console.log("8 rawBuffer", rawBuffer);
+        const buffer = new this._decoderModule.DecoderBuffer();
+        buffer.Init(new Int8Array(rawBuffer), rawBuffer.byteLength);
+        // if (geometryType === this._decoderModule.TRIANGULAR_MESH) {
+        //   dracoGeometry = new this._decoderModule.Mesh()
+        //   status = decoder.DecodeBufferToMesh(buffer, dracoGeometry)
+        // } else if (geometryType === this._decoderModule.POINT_CLOUD) {
+        //   dracoGeometry = new this._decoderModule.PointCloud()
+        //   status = decoder.DecodeBufferToPointCloud(buffer, dracoGeometry)
+        // } else {
+        //   const errorMsg = "Error: Unknown geometry type."
+        //   console.error(errorMsg)
+        // }
+        // this._decoderModule.destroy(buffer)
+        this.dracoLoader.decodeDracoFile(buffer, function (bufferGeometry) {
+            console.log("BufferGeometry", bufferGeometry);
+        }, null, null);
+        // return dracoGeometry
+    }
     handleMessage(data) {
+        console.log('190 data buffers', data.buffers);
         switch (data.type) {
             case MessageType.InitializationResponse:
                 this.handleInitializationResponse(data);
                 break;
             case MessageType.DataResponse: {
+                const decoder = new this._decoderModule.Decoder();
+                console.log("212 Decoder", decoder);
+                if (data && data.buffers) {
+                    console.log("bufferGeometry", data.buffers[0].bufferGeometry);
+                    console.log("Decoded data", this.decodeDracoData(data.buffers[0].bufferGeometry, decoder));
+                }
                 this.handleDataResponse(data.buffers);
                 break;
             }
@@ -7208,7 +7239,9 @@ class DracosisPlayer {
         setTimeout(this.handleBuffers, 100);
     }
     update() {
-        console.log('Player update called, current frame is + ' + this._currentFrame);
+        // console.log(
+        //   'Player update called, current frame is + ' + this._currentFrame
+        // );
         // If playback is paused, stop updating
         if (!this._isPlaying)
             return;
@@ -7227,18 +7260,20 @@ class DracosisPlayer {
                 return;
             }
         }
-        console.log('Current frame', this._currentFrame);
+        // console.log('Current frame', this._currentFrame);
         // If the frame exists in the ring buffer, use it
         if (this._ringBuffer &&
             this._ringBuffer.getFirst().frameNumber == this._currentFrame) {
             // read buffer into current buffer geometry
             this.bufferGeometry = this._ringBuffer.getFirst().bufferGeometry;
-            console.log('BufferGeometry', this.bufferGeometry);
+            // console.log('BufferGeometry', this.bufferGeometry);
             // read buffer into current texture
             this.compressedTexture = this._ringBuffer.getFirst().compressedTexture;
             // Remove buffer
             // this._ringBuffer.remove(0);
-            console.log('Recalled the frame ' + this._ringBuffer.getFirst().frameNumber);
+            // console.log(
+            //   'Recalled the frame ' + this._ringBuffer.getFirst().frameNumber
+            // );
         }
         else {
             // Frame doesn't exist in ring buffer, so throw an error
