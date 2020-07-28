@@ -189,11 +189,11 @@ export const DefaultInputMap: InputMap = {
             value: [0, 1]
           },
           value: [0, 1]
-        },
+        }
+      },
       [BinaryValue.OFF]: {
         behavior: updateMovementState,
         args: {},
-      }
       }
     },
     [DefaultInput.LEFT]: {
@@ -206,10 +206,10 @@ export const DefaultInputMap: InputMap = {
           },
           value: [-1, 0]
         },
+      },
       [BinaryValue.OFF]: {
         behavior: updateMovementState,
         args: {},
-      }
       }
     },
     [DefaultInput.RIGHT]: {
@@ -221,11 +221,11 @@ export const DefaultInputMap: InputMap = {
             value: [1, 0]
           },
           value: [1, 0]
-        },
+        }
+      },
       [BinaryValue.OFF]: {
         behavior: updateMovementState,
         args: {},
-      }
       }
     }
     // [DefaultInput.CROUCH]: {
