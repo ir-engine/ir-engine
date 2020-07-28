@@ -108,15 +108,15 @@ const SeatList = (props: Props): any => {
             <Typography variant="h4">
               Subscription Seats
             </Typography>
-            <Button variant="contained" color="primary" onClick={() => router.push('/')}>
+            {/* <Button variant="contained" color="primary" onClick={() => router.push('/')}>
               <ArrowBackIcon />
-            </Button>
+            </Button> */}
           </Grid>
         </Grid>
       </div>
 
       <Divider variant="middle" />
-      { subscription != null && <Grid container>
+      {subscription != null && <Grid container>
         <Grid item
           xs
           className={classes.inviteBox}
@@ -141,15 +141,15 @@ const SeatList = (props: Props): any => {
       </Grid>
       }
 
-      { subscription != null && pending && pending.length > 0 &&
-      pending.map((seat) => {
-        return <SeatItem key={`pending_${seat.id as string}`} seat={seat}/>
-      })
+      {subscription != null && pending && pending.length > 0 &&
+        pending.map((seat) => {
+          return <SeatItem key={`pending_${seat.id as string}`} seat={seat} />
+        })
       }
-      { subscription != null && filled && filled.length > 0 &&
-      filled.map((seat) => {
-        return <SeatItem key={`filled_${seat.id as string}`} seat={seat}/>
-      })
+      {subscription != null && filled && filled.length > 0 &&
+        filled.map((seat) => {
+          return <SeatItem key={`filled_${seat.id as string}`} seat={seat} />
+        })
       }
     </div>
   )
@@ -158,7 +158,7 @@ const SeatList = (props: Props): any => {
 const SeatListWrapper = (props: Props): any => {
   const classes = useStyles()
   return (
-    <SeatList {...props} classes={classes}/>
+    <SeatList {...props} classes={classes} />
   )
 }
 
