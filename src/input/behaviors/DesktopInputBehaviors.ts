@@ -55,5 +55,9 @@ export function handleKey(entity: Entity, args: { event: KeyboardEvent; value: B
   } else {
     console.log("Key up: " + args.event.key)
     input.data.delete(input.map.mouseInputMap.buttons[args.event.key])
+    input.data.set(input.map.keyboardInputMap[args.event.key], {
+      type: InputType.BUTTON,
+      value: args.value
+    })
   }
 }

@@ -12,6 +12,7 @@ import { InputType } from "../enums/InputType"
 import InputRelationshipMapping from "../interfaces/InputRelationshipMapping"
 import { DefaultStateTypes } from "../../state/defaults/DefaultStateTypes"
 import { move } from "../../common/defaults/behaviors/move"
+import { updateMovementState } from "../../common/defaults/behaviors/updateMovementState"
 import { MouseButtons } from "../enums/MouseButtons"
 import { jump } from "../../common/defaults/behaviors/jump"
 import { rotateAround } from "../../common/defaults/behaviors/rotate"
@@ -173,6 +174,10 @@ export const DefaultInputMap: InputMap = {
           },
           value: [0, -1]
         }
+      },
+      [BinaryValue.OFF]: {
+        behavior: updateMovementState,
+        args: {},
       }
     },
     [DefaultInput.BACKWARD]: {
@@ -184,7 +189,11 @@ export const DefaultInputMap: InputMap = {
             value: [0, 1]
           },
           value: [0, 1]
-        }
+        },
+      [BinaryValue.OFF]: {
+        behavior: updateMovementState,
+        args: {},
+      }
       }
     },
     [DefaultInput.LEFT]: {
@@ -196,7 +205,11 @@ export const DefaultInputMap: InputMap = {
             value: [-1, 0]
           },
           value: [-1, 0]
-        }
+        },
+      [BinaryValue.OFF]: {
+        behavior: updateMovementState,
+        args: {},
+      }
       }
     },
     [DefaultInput.RIGHT]: {
@@ -208,7 +221,11 @@ export const DefaultInputMap: InputMap = {
             value: [1, 0]
           },
           value: [1, 0]
-        }
+        },
+      [BinaryValue.OFF]: {
+        behavior: updateMovementState,
+        args: {},
+      }
       }
     }
     // [DefaultInput.CROUCH]: {
