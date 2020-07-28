@@ -60,7 +60,6 @@ export default class PlayerControls {
   }
 
   removeVRControlsHandler (evt: Event, player: AFRAME.Entity): void {
-    console.log('removeVRControlsHandler')
     this.trackedControllers.forEach(controller => {
       if (this.leftHandController !== null) this.removeController(this.leftHandController, controller)
       if (this.rightHandController !== null) this.removeController(this.rightHandController, controller)

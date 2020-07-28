@@ -1,7 +1,6 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { BadRequest } from '@feathersjs/errors'
-import app from './../../app'
 import chargebee from 'chargebee'
 
 interface Data {}
@@ -35,7 +34,7 @@ export class SubscriptionConfirm implements ServiceMethods<Data> {
       throw new BadRequest('Mismatched Customer ID')
     }
 
-    const subscriptionResult = await app.service('subscription').find({
+    const subscriptionResult = await this.app.service('subscription').find({
       where: {
         id: id,
         userId: userId,
@@ -44,8 +43,8 @@ export class SubscriptionConfirm implements ServiceMethods<Data> {
     })
     if ((subscriptionResult as any).total > 0) {
       const subscription = (subscriptionResult as any).data[0]
-      const subscriptionType = await app.service('subscription-type').get((subscription).plan)
-      await app.service('subscription').patch(id, {
+      const subscriptionType = await this.app.service('subscription-type').get((subscription).plan)
+      await this.app.service('subscription').patch(id, {
         status: 1,
         totalSeats: subscriptionType.seats,
         filledSeats: 0,
@@ -54,7 +53,7 @@ export class SubscriptionConfirm implements ServiceMethods<Data> {
       })
 
       try {
-        await app.service('seat').create({
+        await this.app.service('seat').create({
           subscriptionId: (subscription).id
         }, {
           self: true,

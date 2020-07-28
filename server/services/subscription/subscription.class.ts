@@ -1,12 +1,13 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Params } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
-import app from './../../app'
 import config from './../../config'
 
 export class Subscription extends Service {
+  app: Application
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
+    this.app = app
   }
 
   async create (data: any, params: Params): Promise<any> {
@@ -26,7 +27,7 @@ export class Subscription extends Service {
       return super.remove(subscription.id)
     }))
     let plan: string
-    const found = await app.service('subscription-type').find({
+    const found = await this.app.service('subscription-type').find({
       query: {
         plan: data.plan
       }
