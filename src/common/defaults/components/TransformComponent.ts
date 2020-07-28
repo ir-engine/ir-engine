@@ -12,17 +12,17 @@ interface PropTypes {
 }
 
 export class TransformComponent extends Component<PropTypes> {
-  position: number[] = vector3Identity
-  rotation: number[] = quaternionIdentity
-  scale: number[] = vector3ScaleIdentity
-  velocity: number[] = vector3Identity
+  position: number[] = [...vector3Identity]
+  rotation: number[] = [...quaternionIdentity]
+  scale: number[] = [...vector3ScaleIdentity]
+  velocity: number[] = [...vector3Identity]
 
   constructor() {
     super()
-    this.position = vector3Identity
-    this.rotation = quaternionIdentity
-    this.scale = vector3ScaleIdentity
-    this.velocity = vector3Identity
+    this.position = [...vector3Identity]
+    this.rotation = [...quaternionIdentity]
+    this.scale = [...vector3ScaleIdentity]
+    this.velocity = [...vector3Identity]
   }
   copy(src: this): this {
     this.position = src.position
@@ -32,9 +32,9 @@ export class TransformComponent extends Component<PropTypes> {
     return this
   }
   reset(): void {
-    this.position = vector3Identity
-    this.rotation = quaternionIdentity
-    this.scale = vector3ScaleIdentity
-    this.velocity = vector3Identity
+    this.position = [...vector3Identity]
+    this.rotation = [...quaternionIdentity]
+    this.scale = [...vector3ScaleIdentity]
+    this.velocity = [...vector3Identity]
   }
 }
