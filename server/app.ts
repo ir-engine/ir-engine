@@ -103,8 +103,9 @@ if (config.client.enabled) {
 
   const clientAppHandler = clientApp.getRequestHandler()
 
-  app.use(express.static(config.server.rootDir + '/node_modules/xr3-spoke/dist/'))
-  app.all('/spoke/*', (req, res) => res.sendFile(path.join(config.server.rootDir, '/node_modules/xr3-spoke/dist/spoke/index.html')))
+  const spokePath = process.env.NODE_ENV === 'production' ? path.join(config.server.nodeModulesDir, '/xr3-spoke/dist') : path.join(config.server.rootDir, '/node_modules/xr3-spoke/dist')
+  app.use(express.static(spokePath))
+  app.all('/spoke/*', (req, res) => res.sendFile(path.join(spokePath, 'spoke/index.html')))
 
   clientApp.prepare().then(() => {
     app.all('*', (req, res) => {
