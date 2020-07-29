@@ -20,9 +20,7 @@ export class Invite extends Service {
           userId: query.userId
         }
       })
-      console.log(identityProviders)
       let identityProviderTokens = (identityProviders as any).data.map((provider) => provider.token)
-      console.log(identityProviderTokens)
       const result = await super.find({
         query: {
           $or: [
@@ -38,8 +36,6 @@ export class Invite extends Service {
         }
       })
 
-      console.log(result)
-
       await Promise.all((result as any).data.map(async (invite) => {
         if (invite.inviteType === 'group') {
           const group = await this.app.service('group').get(invite.targetObjectId)
@@ -47,9 +43,6 @@ export class Invite extends Service {
         }
         return
       }))
-
-      console.log('RESULT WITH GROUPNAME ADDED:')
-      console.log(result)
 
       return result
     }
