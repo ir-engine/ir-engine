@@ -10,8 +10,8 @@ export default {
     find: [],
     get: [],
     create: [disallow('external')],
-    update: [disallow()],
-    patch: [disallow()],
+    update: [disallow('external')],
+    patch: [disallow('external')],
     remove: []
   },
 

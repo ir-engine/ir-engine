@@ -2,86 +2,135 @@ import { Dispatch } from 'redux'
 import { client } from '../feathers'
 import {
   createdMessage,
-  loadedGroupChannels,
+  loadedChannels,
   loadedMessages,
-  loadedPartyChannel,
-  loadedUserChannels,
-  removedMessage
+  removedMessage,
+  setChatTarget
 } from './actions'
 
 import store from '../store'
+import {dispatchAlertError} from '../alert/service'
 
-export function getUserChannels(skip?: number, limit?: number) {
+export function getChannels(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    const channelResult = await client.service('channel').find({
-      query: {
-        channelType: 'user',
-        $limit: limit != null ? limit: getState().get('chat').get('channels').get('user').get('limit'),
-        $skip: skip != null ? skip: getState().get('chat').get('channels').get('user').get('skip')
-      }
-    })
-    dispatch(loadedUserChannels(channelResult))
+    try {
+      console.log('FETCHING CHANNELS')
+      const channelResult = await client.service('channel').find({
+        query: {
+          $limit: limit != null ? limit : getState().get('chat').get('channels').get('channels').get('limit'),
+          $skip: skip != null ? skip : getState().get('chat').get('channels').get('channels').get('skip')
+        }
+      })
+      console.log(channelResult)
+      dispatch(loadedChannels(channelResult))
+    } catch(err) {
+      dispatchAlertError(dispatch, err.message)
+    }
   }
 }
 
-export function getGroupChannels(skip?: number, limit?: number) {
-  return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    const channelResult = await client.service('channel').find({
-      query: {
-        channelType: 'group',
-        $limit: limit != null ? limit: getState().get('chat').get('channels').get('group').get('limit'),
-        $skip: skip != null ? skip: getState().get('chat').get('channels').get('group').get('skip')
-      }
-    })
-    dispatch(loadedGroupChannels(channelResult))
-  }
-}
-
-export function getPartyChannel() {
-  return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    const channelResult = await client.service('channel').find({
-      query: {
-        channelType: 'party'
-      }
-    })
-    dispatch(loadedPartyChannel(channelResult))
-  }
-}
+// export function getUserChannels(skip?: number, limit?: number) {
+//   return async (dispatch: Dispatch, getState: any): Promise<any> => {
+//     try {
+//       const channelResult = await client.service('channel').find({
+//         query: {
+//           channelType: 'user',
+//           $limit: limit != null ? limit : getState().get('chat').get('channels').get('user').get('limit'),
+//           $skip: skip != null ? skip : getState().get('chat').get('channels').get('user').get('skip')
+//         }
+//       })
+//       dispatch(loadedUserChannels(channelResult))
+//     } catch(err) {
+//       dispatchAlertError(dispatch, err.message)
+//     }
+//   }
+// }
+//
+// export function getGroupChannels(skip?: number, limit?: number) {
+//   return async (dispatch: Dispatch, getState: any): Promise<any> => {
+//     try {
+//       const channelResult = await client.service('channel').find({
+//         query: {
+//           channelType: 'group',
+//           $limit: limit != null ? limit : getState().get('chat').get('channels').get('group').get('limit'),
+//           $skip: skip != null ? skip : getState().get('chat').get('channels').get('group').get('skip')
+//         }
+//       })
+//       dispatch(loadedGroupChannels(channelResult))
+//     } catch(err) {
+//       dispatchAlertError(dispatch, err.message)
+//     }
+//   }
+// }
+//
+// export function getPartyChannel() {
+//   return async (dispatch: Dispatch, getState: any): Promise<any> => {
+//     try {
+//       const channelResult = await client.service('channel').find({
+//         query: {
+//           channelType: 'party'
+//         }
+//       })
+//       dispatch(loadedPartyChannel(channelResult))
+//     } catch(err) {
+//       dispatchAlertError(dispatch, err.message)}
+//   }
+// }
 
 export function createMessage(values: any) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    const newMessage = await client.service('message').create({
-      targetObjectId: values.targetObjectId,
-      targetObjectType: values.targetObjectType,
-      text: values.text
-    })
-    dispatch(createdMessage(values.targetObjectType, newMessage))
+    try {
+      const newMessage = await client.service('message').create({
+        targetObjectId: values.targetObjectId,
+        targetObjectType: values.targetObjectType,
+        text: values.text
+      })
+    } catch(err) {
+      dispatchAlertError(dispatch, err.message)}
   }
 }
 
-export function getChannelMessages(channelId: string, channelType: string, skip?: number, limit?: number) {
+export function getChannelMessages(channelId: string, skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    console.log(`GETTING CHANNEL MESSAGES FOR CHANNEL ${channelId} OF TYPE ${channelType}`)
-    console.log(getState().get('chat').get('channels').get(channelType).get('channels').get(channelId))
-    const messageResult = await client.service('message').find({
-      query: {
-        channelId: channelId,
-        $limit: limit != null ? limit: getState().get('chat').get('channels').get(channelType).get('channels').get(channelId).limit,
-        $skip: skip != null ? skip: getState().get('chat').get('channels').get(channelType).get('channels').get(channelId).skip
-      }
-    })
-    console.log(`GOT MESSAGES FOR CHANNEL ${channelId} OF TYPE ${channelType}`)
-    console.log(messageResult)
-    dispatch(loadedMessages(channelType, channelId, messageResult))
+    console.log(`GETTING CHANNEL MESSAGES FOR CHANNEL ${channelId}`)
+    console.log(getState().get('chat').get('channels').get('channels').get(channelId))
+    try {
+      const messageResult = await client.service('message').find({
+        query: {
+          channelId: channelId,
+          $sort: {
+            updatedAt: -1
+          },
+          $limit: limit != null ? limit : getState().get('chat').get('channels').get('channels').get(channelId).limit,
+          $skip: skip != null ? skip : getState().get('chat').get('channels').get('channels').get(channelId).skip
+        }
+      })
+      console.log(`GOT MESSAGES FOR CHANNEL ${channelId}`)
+      console.log(messageResult)
+      dispatch(loadedMessages(channelId, messageResult))
+    } catch(err) {
+      dispatchAlertError(dispatch, err.message)}
   }
 }
 
 
 export function removeMessage(messageId: string, channelType: string, channelId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
-    await client.service('message').remove(messageId)
-    console.log(`REMOVED MESSAGE ${messageId} FROM CHANNEL ${channelId} OF TYPE ${channelType}`)
-    dispatch(removedMessage(channelType, channelId))
+    try {
+      await client.service('message').remove(messageId)
+      console.log(`REMOVED MESSAGE ${messageId} FROM CHANNEL ${channelId} OF TYPE ${channelType}`)
+      dispatch(removedMessage(messageId, channelId))
+    } catch(err) {
+      dispatchAlertError(dispatch, err.message)}
+  }
+}
+
+export function updateChatTarget(targetObjectType, targetObject: any) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    console.log('DISPATCHING CHAT TARGET')
+    console.log(targetObjectType)
+    console.log(targetObject)
+    dispatch(setChatTarget(targetObjectType, targetObject))
   }
 }
 
