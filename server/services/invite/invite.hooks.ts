@@ -63,7 +63,6 @@ export default {
               resolve()
             })
           }))
-          console.log(result)
           return context
         } catch(err) {
           console.log('INVITE AFTER HOOK ERROR')

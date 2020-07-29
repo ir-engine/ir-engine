@@ -25,7 +25,6 @@ export class Group extends Service {
       }
     ]
     if (params.query?.invitable === true) {
-      console.log('SEARCH FOR INVITABLE GROUPS')
       include.push({
         model: this.app.service('group-user').Model,
         where: {

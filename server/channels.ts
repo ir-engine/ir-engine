@@ -58,7 +58,7 @@ export default (app: Application): void => {
       console.log(partyUsers)
 
       targetIds = (partyUsers as any).data.map((partyUser) => {
-        return partyUser.id
+        return partyUser.userId
       })
     }
     else if (channel.channelType === 'group') {
@@ -72,7 +72,7 @@ export default (app: Application): void => {
       console.log(groupUsers)
 
       targetIds = (groupUsers as any).data.map((groupUser) => {
-        return groupUser.id
+        return groupUser.userId
       })
     }
     else if (channel.channelType === 'user') {

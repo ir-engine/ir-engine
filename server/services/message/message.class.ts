@@ -13,7 +13,7 @@ export class Message extends Service {
   }
 
   async create (data: any, params: Params): Promise<any> {
-    let channelId
+    let channel, channelId
     let userIdList = []
     const loggedInUser = extractLoggedInUserFromParams(params)
     const userId = loggedInUser.userId
@@ -27,7 +27,7 @@ export class Message extends Service {
       if (targetUser == null) {
         throw new BadRequest('Invalid target user ID')
       }
-      const channel = await channelModel.findOne({
+      channel = await channelModel.findOne({
         where: {
           [Op.or]: [
             {
@@ -59,7 +59,7 @@ export class Message extends Service {
       if (targetGroup == null) {
         throw new BadRequest('Invalid target group ID')
       }
-      const channel = await channelModel.findOne({
+      channel = await channelModel.findOne({
         where: {
           groupId: targetObjectId
         }
@@ -80,7 +80,7 @@ export class Message extends Service {
         }
       })
       userIdList = (groupUsers as any).data.map((groupUser) => {
-        return groupUser.id
+        return groupUser.userId
       })
     }
     else if (targetObjectType === 'party') {
@@ -88,7 +88,7 @@ export class Message extends Service {
       if (targetParty == null) {
         throw new BadRequest('Invalid target party ID')
       }
-      const channel = await channelModel.findOne({
+      channel = await channelModel.findOne({
         where: {
           partyId: targetObjectId
         }
@@ -109,7 +109,7 @@ export class Message extends Service {
         }
       })
       userIdList = (partyUsers as any).data.map((partyUser) => {
-        return partyUser.id
+        return partyUser.userId
       })
     }
 
@@ -126,6 +126,10 @@ export class Message extends Service {
         status: userId === mappedUserId ? 'unread' : 'read'
       })
     }))
+
+    const patchresult = await this.app.service('channel').patch(channelId, {
+      channelType: channel.channelType
+    })
 
     return newMessage
   }
