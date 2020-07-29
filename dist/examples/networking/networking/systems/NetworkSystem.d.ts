@@ -3,6 +3,8 @@ import MessageSchema from "../classes/MessageSchema";
 import NetworkTransportAlias from "../types/NetworkTransportAlias";
 import MessageTypeAlias from "../types/MessageTypeAlias";
 export declare class NetworkSystem extends System {
+    clients: string[];
+    mySocketID: any;
     static _schemas: Map<MessageTypeAlias, MessageSchema<any>>;
     _isInitialized: boolean;
     _sessionEntity: Entity;
@@ -12,9 +14,16 @@ export declare class NetworkSystem extends System {
     protected static _dataView: DataView;
     protected static _bytes: number;
     static queries: any;
+    setLocalConnectionId(_id: any): void;
+    initializeClient(_ids: any): void;
+    addClient(_id: any): void;
+    getClosestPeers(): any[];
+    onConnected(): void;
+    removeClient(_id: any): void;
     execute(delta: number): void;
     static addMessageSchema<StructType>(messageType: MessageTypeAlias, messageData: StructType): MessageSchema<any>;
-    initializeSession(world: World, transport?: NetworkTransportAlias): void;
+    getLocalConnectionId(): any;
+    initializeSession(world: World, transport?: any): void;
     deinitializeSession(): void;
     static toBuffer(input: MessageSchema<any>): ArrayBuffer;
     static fromBuffer(buffer: ArrayBuffer): any;

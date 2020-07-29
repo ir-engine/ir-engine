@@ -3589,6 +3589,49 @@ NetworkObject.schema = {
 };
 
 class NetworkSystem extends System {
+    constructor() {
+        super(...arguments);
+        this.clients = []; // TODO: Replace with ringbuffer
+    }
+    setLocalConnectionId(_id) {
+        console.log(`Initialized with socket ID ${_id}`);
+        this.mySocketID = _id;
+    }
+    initializeClient(_ids) {
+        console.log("ids: ");
+        console.log(_ids);
+        if (_ids === undefined)
+            return;
+        // for each existing user, add them as a client and add tracks to their peer connection
+        for (let i = 0; i < _ids.length; i++)
+            this.addClient(_ids[i]);
+    }
+    addClient(_id) {
+        if (this.clients.includes(_id))
+            return console.error("Client is already in client list");
+        if (_id === this.mySocketID)
+            return console.log("Not adding client because we are that client");
+        console.log(`A new user connected with the id: ${_id}`);
+        // Create an entity, add component NetworkClient and set id
+        this.clients.push(_id);
+    }
+    getClosestPeers() {
+        return this.clients;
+    }
+    onConnected() {
+        console.log("Client connected to server!");
+    }
+    removeClient(_id) {
+        if (_id in this.clients) {
+            if (_id === this.mySocketID) {
+                console.log("Server thinks that we disconnected!");
+            }
+            else {
+                console.log(`A user was disconnected with the id: ${_id}`);
+                // Get NetworkClient component where id is _id, and destroy the entity
+            }
+        }
+    }
     execute(delta) {
         if (!this._isInitialized)
             return;
@@ -3599,10 +3642,13 @@ class NetworkSystem extends System {
         this._schemas.set(messageType, s);
         return s;
     }
+    getLocalConnectionId() {
+        return this.mySocketID;
+    }
     initializeSession(world, transport) {
         this._isInitialized = true;
         this._transport = transport;
-        transport.initialize();
+        transport.initialize(this.initializeClient, this.setLocalConnectionId, this.onConnected, this.addClient, this.removeClient, this.getClosestPeers, this.getLocalConnectionId);
     }
     deinitializeSession() {
         var _a;
@@ -3981,122 +4027,6 @@ class WebcamState {
     }
 }
 const webcamState = new WebcamState();
-
-class RingBuffer {
-    constructor(size) {
-        this.buffer = [];
-        this.pos = 0;
-        console.log("Constructing ring buffer");
-        if (size < 0) {
-            throw new RangeError("The size does not allow negative values.");
-        }
-        this.size = size;
-    }
-    static fromArray(data, size = 0) {
-        const actionBuffer = new RingBuffer(size);
-        actionBuffer.fromArray(data, size === 0);
-        return actionBuffer;
-    }
-    copy() {
-        const newAxisBuffer = new RingBuffer(this.getBufferLength());
-        newAxisBuffer.buffer = this.buffer;
-        return newAxisBuffer;
-    }
-    clone() {
-        const newAxisBuffer = new RingBuffer(this.getBufferLength());
-        newAxisBuffer.buffer = this.buffer;
-        return newAxisBuffer;
-    }
-    getSize() {
-        return this.size;
-    }
-    getPos() {
-        return this.pos;
-    }
-    getBufferLength() {
-        return this.buffer.length;
-    }
-    add(...items) {
-        items.forEach(item => {
-            this.buffer[this.pos] = item;
-            this.pos = (this.pos + 1) % this.size;
-        });
-    }
-    get(index) {
-        if (index < 0) {
-            index += this.buffer.length;
-        }
-        if (index < 0 || index > this.buffer.length) {
-            return undefined;
-        }
-        if (this.buffer.length < this.size) {
-            return this.buffer[index];
-        }
-        return this.buffer[(this.pos + index) % this.size];
-    }
-    getFirst() {
-        return this.get(0);
-    }
-    getLast() {
-        return this.get(-1);
-    }
-    remove(index, count = 1) {
-        if (index < 0) {
-            index += this.buffer.length;
-        }
-        if (index < 0 || index > this.buffer.length) {
-            return [];
-        }
-        const arr = this.toArray();
-        const removedItems = arr.splice(index, count);
-        this.fromArray(arr);
-        return removedItems;
-    }
-    pop() {
-        return this.remove(0)[0];
-    }
-    popLast() {
-        return this.remove(-1)[0];
-    }
-    toArray() {
-        return this.buffer.slice(this.pos).concat(this.buffer.slice(0, this.pos));
-    }
-    fromArray(data, resize = false) {
-        if (!Array.isArray(data)) {
-            throw new TypeError("Input value is not an array.");
-        }
-        if (resize)
-            this.resize(data.length);
-        if (this.size === 0)
-            return;
-        this.buffer = data.slice(-this.size);
-        this.pos = this.buffer.length % this.size;
-    }
-    clear() {
-        this.buffer = [];
-        this.pos = 0;
-    }
-    resize(newSize) {
-        if (newSize < 0) {
-            throw new RangeError("The size does not allow negative values.");
-        }
-        if (newSize === 0) {
-            this.clear();
-        }
-        else if (newSize !== this.size) {
-            const currentBuffer = this.toArray();
-            this.fromArray(currentBuffer.slice(-newSize));
-            this.pos = this.buffer.length % newSize;
-        }
-        this.size = newSize;
-    }
-    full() {
-        return this.buffer.length === this.size;
-    }
-    empty() {
-        return this.buffer.length === 0;
-    }
-}
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -24226,12 +24156,8 @@ var lib_3$1 = lib$4.types;
 var lib_4$1 = lib$4.version;
 var lib_5$1 = lib$4.parseScalabilityMode;
 
-// Also using import with destructuring assignment.
 // adding constraints, VIDEO_CONSTRAINTS is video quality levels
 // localMediaConstraints is passed to the getUserMedia object to request a lower video quality than the maximum
-const MAX_USERS = 50;
-const newClients = new RingBuffer(MAX_USERS);
-const outgoingMessageQueue = new RingBuffer(500);
 const VIDEO_CONSTRAINTS = {
     qvga: { width: { ideal: 320 }, height: { ideal: 240 } },
     vga: { width: { ideal: 640 }, height: { ideal: 480 } },
@@ -24245,19 +24171,22 @@ const localMediaConstraints = {
         frameRate: { max: 30 }
     }
 };
-const socket$2 = lib$1("http://localhost:3001");
+
 // Adds support for Promise to socket.io-client
 function promise(socket) {
     return function request(type, data = {}) {
         return new Promise(resolve => {
             socket.emit(type, data, resolve);
+            console.log("Emitting data: " + data);
         });
     };
 }
-const request = promise(socket$2);
+
+// TODO: server connection goes here
+const socket$2 = lib$1("https://localhost:3001");
+let request;
 class SocketWebRTCTransport {
     constructor() {
-        this.clients = {};
         this.lastPollSyncData = {};
         this.consumers = [];
         this.screenShareVideoPaused = false;
@@ -24287,20 +24216,17 @@ class SocketWebRTCTransport {
     stopAudio() {
         throw new Error("Method not implemented.");
     }
-    joinMediaRoom(roomId) {
-        throw new Error("Method not implemented.");
-    }
-    leaveMediaRoom() {
-        throw new Error("Method not implemented.");
-    }
     muteUser(userId) {
         throw new Error("Method not implemented.");
     }
     unmuteUser(userId) {
         throw new Error("Method not implemented.");
     }
-    deinitialize(deinitializationCallback) {
+    deinitialize() {
         throw new Error("Method not implemented.");
+    }
+    getAllMessages() {
+        return [];
     }
     addMessageToQueue(message) {
         throw new Error("Method not implemented.");
@@ -24308,124 +24234,56 @@ class SocketWebRTCTransport {
     sendAllMessages() {
         throw new Error("Method not implemented.");
     }
-    getNewClients() {
-        return this.clients;
-    }
-    getAllClients() {
-        throw new Error("Method not implemented.");
-    }
-    initialize(initializationCallback) {
-        this.init(initializationCallback);
-        return true;
-    }
-    init(initializationCallback) {
+    initialize(initializationCallback, setLocalConnectionIdCallback, onConnectedCallback, clientAddedCallback, clientRemovedCallback, getClosestPeersCallback, getLocalConnectionIdCallback) {
         return __awaiter(this, void 0, void 0, function* () {
-            // create mediasoup Device
-            try {
-                this.mediasoupDevice = new lib_1$2();
-            }
-            catch (e) {
-                if (e.name === "UnsupportedError") {
-                    console.error("browser not supported for video calls");
-                    return;
-                }
-                console.error(e);
-            }
-            this.initSocketConnection();
+            this.mediasoupDevice = new lib_1$2();
+            this.initializationCallback = initializationCallback;
+            this.setLocalConnectionIdCallback = setLocalConnectionIdCallback;
+            this.onConnectedCallback = onConnectedCallback;
+            this.clientAddedCallback = clientAddedCallback;
+            this.clientRemovedCallback = clientRemovedCallback;
+            this.getClosestPeersCallback = getClosestPeersCallback;
+            this.getLocalConnectionIdCallback = getLocalConnectionIdCallback;
             // use sendBeacon to tell the server we're disconnecting when
             // the page unloads
             window.addEventListener("unload", () => __awaiter(this, void 0, void 0, function* () {
-                try {
-                    const result = yield request("leave", {});
-                    console.log(result);
-                }
-                catch (e) {
-                    console.log(e.type);
-                }
-                // sig('leave', {}, true)
+                const result = yield request("leave", {});
+                console.log(result);
             }));
             //@ts-ignore
             window.screenshare = this.startScreenshare;
             alert("Access camera for full experience");
             yield this.startCamera();
-            //TODO: const startButton = document.getElementById("startButton")
-            //TODO: startButton.addEventListener("click", init)
-            //TODO: worldScene.initializeAudio()
-            //TODO: worldScene.controls.lock()
+            function initSockets() {
+                return new Promise(resolve => {
+                    console.log(`Initializing socket.io...,`);
+                    socket$2.on("connect", () => this.onConnectedCallback());
+                    request = promise(socket$2);
+                    socket$2.on("client-initialization", (_id, _ids) => {
+                        this.setLocalConnectionIdCallback(_id);
+                        if (_ids !== undefined)
+                            this.initializationCallback(_ids);
+                        resolve();
+                    });
+                    socket$2.on("newUserConnected", (clientCount, _id) => this.clientAddedCallback(_id));
+                    socket$2.on("userDisconnected", (_id) => this.clientRemovedCallback(_id));
+                });
+            }
+            initSockets();
             // only join room after we user has interacted with DOM (to ensure that media elements play)
             if (!this.initialized) {
-                yield this.joinRoom();
-                this.sendCameraStreams();
-                //TODO: setupControls()
                 this.initialized = true;
-                console.log("jointed");
-                initializationCallback();
+                yield this.sendCameraStreams();
+                if (initializationCallback)
+                    initializationCallback();
             }
-            console.log("inited!");
+            setInterval(() => {
+                socket$2.emit("heartbeat");
+            }, 2000);
+            console.log("Initialized!");
         });
     }
-    // Adds client object with THREE.js object, DOM video object and and an RTC peer connection for each :
-    addClient(_id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log(`Adding client with id ${_id}`);
-            this.clients[_id] = {};
-            this.worldScene.addClient(_id);
-        });
-    }
-    //= =//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//
-    // Socket.io
-    //= =//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//
-    // establishes socket connection
-    // uses promise to ensure that we receive our so
-    initSocketConnection() {
-        return new Promise(resolve => {
-            console.log(`Initializing socket.io...,`);
-            socket$2.on("connect", () => {
-                console.log("Connected");
-            });
-            // On connection server sends the client his ID and a list of all keys
-            socket$2.on("introduction", (_id, _ids) => {
-                // keep a local copy of my ID:
-                console.log(`My socket ID is: ${_id}`);
-                this.mySocketID = _id;
-                // for each existing user, add them as a client and add tracks to their peer connection
-                for (let i = 0; i < _ids.length; i++) {
-                    if (_ids[i] !== this.mySocketID) {
-                        this.addClient(_ids[i]);
-                    }
-                }
-                resolve();
-            });
-            // when a new user has entered the server
-            socket$2.on("newUserConnected", (clientCount, _id) => {
-                console.log(`${clientCount} clients connected`);
-                if (!(_id in this.clients)) {
-                    if (_id !== this.mySocketID) {
-                        console.log(`A new user connected with the id: ${_id}`);
-                        this.addClient(_id);
-                    }
-                }
-            });
-            socket$2.on("userDisconnected", _id => {
-                // Update the data from the server
-                if (_id in this.clients) {
-                    if (_id === this.mySocketID) {
-                        console.log("Uh oh!  The server thinks we disconnected!");
-                    }
-                    else {
-                        console.log(`A user disconnected with the id: ${_id}`);
-                        this.worldScene.removeClient(_id);
-                        this.removeClientDOMElements(_id);
-                        delete this.clients[_id];
-                    }
-                }
-            });
-            // Update when one of the users moves in space
-            socket$2.on("userPositions", _clientProps => {
-                this.worldScene.updateClientPositions(_clientProps);
-            });
-        });
-    }
+    // TODO: HANDLE
     // remove <video> element and corresponding <canvas> using client ID
     removeClientDOMElements(_id) {
         console.log(`Removing DOM elements for client with ID: ${_id}`);
@@ -24450,24 +24308,16 @@ class SocketWebRTCTransport {
     //
     joinRoom() {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO: Fix this, since we will want to join many rooms
-            if (this.joined) {
+            if (this.joined)
                 return;
-            }
-            console.log("join room");
-            try {
-                // signal that we're a new peer and initialize our
-                // mediasoup-client device, if this is our first time connecting
-                const resp = yield request("join-as-new-peer");
-                const { routerRtpCapabilities } = resp;
-                if (!this.mediasoupDevice.loaded) {
-                    yield this.mediasoupDevice.load({ routerRtpCapabilities });
-                }
-                this.joined = true;
-            }
-            catch (e) {
-                console.error(e);
-                return;
+            this.joined = true;
+            console.log("Joining room");
+            // signal that we're a new peer and initialize our
+            // mediasoup-client device, if this is our first time connecting
+            const resp = yield request("join-as-new-peer");
+            const { routerRtpCapabilities } = resp;
+            if (!this.mediasoupDevice.loaded) {
+                yield this.mediasoupDevice.load({ routerRtpCapabilities });
             }
             yield this.pollAndUpdate(); // start this polling loop
         });
@@ -24498,12 +24348,7 @@ class SocketWebRTCTransport {
                     appData: { mediaTag: "cam-video" }
                 });
                 if (webcamState.videoPaused) {
-                    try {
-                        yield this.camVideoProducer.pause();
-                    }
-                    catch (e) {
-                        console.error(e);
-                    }
+                    yield this.camVideoProducer.pause();
                 }
                 // same thing for audio, but we can use our already-created
                 this.camAudioProducer = yield this.sendTransport.produce({
@@ -24511,14 +24356,10 @@ class SocketWebRTCTransport {
                     appData: { mediaTag: "cam-audio" }
                 });
                 if (webcamState.audioPaused) {
-                    try {
-                        this.camAudioProducer.pause();
-                    }
-                    catch (e) {
-                        console.error(e);
-                    }
+                    this.camAudioProducer.pause();
                 }
             }
+            return;
         });
     }
     startScreenshare() {
@@ -24554,29 +24395,24 @@ class SocketWebRTCTransport {
             // browser's built-in screen sharing ui)
             this.screenVideoProducer.track.onended = () => __awaiter(this, void 0, void 0, function* () {
                 console.log("screen share stopped");
-                try {
-                    yield this.screenVideoProducer.pause();
-                    const { error } = (yield request("close-producer", {
-                        producerId: this.screenVideoProducer.id
-                    }));
-                    yield this.screenVideoProducer.close();
-                    this.screenVideoProducer = null;
-                    if (error) {
-                        console.error(error);
-                    }
-                    if (this.screenAudioProducer) {
-                        const { error: screenAudioProducerError } = (yield request("close-producer", {
-                            producerId: this.screenAudioProducer.id
-                        }));
-                        yield this.screenAudioProducer.close();
-                        this.screenAudioProducer = null;
-                        if (screenAudioProducerError) {
-                            console.error(screenAudioProducerError);
-                        }
-                    }
+                yield this.screenVideoProducer.pause();
+                const { error } = (yield request("close-producer", {
+                    producerId: this.screenVideoProducer.id
+                }));
+                yield this.screenVideoProducer.close();
+                this.screenVideoProducer = null;
+                if (error) {
+                    console.error(error);
                 }
-                catch (e) {
-                    console.error(e);
+                if (this.screenAudioProducer) {
+                    const { error: screenAudioProducerError } = (yield request("close-producer", {
+                        producerId: this.screenAudioProducer.id
+                    }));
+                    yield this.screenAudioProducer.close();
+                    this.screenAudioProducer = null;
+                    if (screenAudioProducerError) {
+                        console.error(screenAudioProducerError);
+                    }
                 }
             });
             return true;
@@ -24661,12 +24497,7 @@ class SocketWebRTCTransport {
             // the camVideoProducer and camAudioProducer are closed,
             // mediasoup-client stops the local cam tracks, so we don't need to
             // do anything except set all our local variables to null.
-            try {
-                yield this.sendTransport.close();
-            }
-            catch (e) {
-                console.error(e);
-            }
+            yield this.sendTransport.close();
             this.sendTransport = null;
             this.camVideoProducer = null;
             this.camAudioProducer = null;
@@ -24693,16 +24524,10 @@ class SocketWebRTCTransport {
             // closing the transports closes all producers and consumers. we
             // don't need to do anything beyond closing the transports, except
             // to set all our local variables to their initial states
-            try {
-                if (this.recvTransport)
-                    yield this.recvTransport.close();
-                if (this.sendTransport)
-                    yield this.sendTransport.close();
-            }
-            catch (e) {
-                console.error(e);
-                return false;
-            }
+            if (this.recvTransport)
+                yield this.recvTransport.close();
+            if (this.sendTransport)
+                yield this.sendTransport.close();
             this.recvTransport = null;
             this.sendTransport = null;
             this.camVideoProducer = null;
@@ -24721,31 +24546,25 @@ class SocketWebRTCTransport {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("subscribe to track", peerId, mediaTag);
             // create a receive transport if we don't already have one
-            if (!this.recvTransport) {
+            if (!this.recvTransport)
                 this.recvTransport = yield this.createTransport("recv");
-            }
             // if we do already have a consumer, we shouldn't have called this
             // method
-            let consumer = this.findConsumerForTrack(peerId, mediaTag);
-            if (consumer) {
-                console.error("already have consumer for track", peerId, mediaTag);
-                return;
-            }
+            let consumer = this.consumers.find(c => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag);
+            if (consumer)
+                return console.error("already have consumer for track", peerId, mediaTag);
             // ask the server to create a server-side consumer object and send
             // us back the info we need to create a client-side consumer
-            const consumerParameters = (yield request("recv-track", {
+            const consumerParameters = yield request("recv-track", {
                 mediaTag,
                 mediaPeerId: peerId,
                 rtpCapabilities: this.mediasoupDevice.rtpCapabilities
-            }));
-            console.log("consumer parameters", consumerParameters);
+            });
             consumer = yield this.recvTransport.consume(Object.assign(Object.assign({}, consumerParameters), { appData: { peerId, mediaTag } }));
-            console.log("created new consumer", consumer.id);
             // the server-side consumer will be started in paused state. wait
             // until we're connected, then send a resume request to the server
             // to get our first keyframe and start displaying video
             while (this.recvTransport.connectionState !== "connected") {
-                console.log("  transport connstate", this.recvTransport.connectionState);
                 yield this.sleep(100);
             }
             // okay, we're ready. let's ask the peer to send us media
@@ -24758,30 +24577,20 @@ class SocketWebRTCTransport {
     }
     unsubscribeFromTrack(peerId, mediaTag) {
         return __awaiter(this, void 0, void 0, function* () {
-            const consumer = this.findConsumerForTrack(peerId, mediaTag);
+            const consumer = this.consumers.find(c => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag);
             if (!consumer) {
                 return;
             }
             console.log("unsubscribe from track", peerId, mediaTag);
-            try {
-                yield this.closeConsumer(consumer);
-            }
-            catch (e) {
-                console.error(e);
-            }
+            yield this.closeConsumer(consumer);
         });
     }
     pauseConsumer(consumer) {
         return __awaiter(this, void 0, void 0, function* () {
             if (consumer) {
                 console.log("pause consumer", consumer.appData.peerId, consumer.appData.mediaTag);
-                try {
-                    yield request("pause-consumer", { consumerId: consumer.id });
-                    yield consumer.pause();
-                }
-                catch (e) {
-                    console.error(e);
-                }
+                yield request("pause-consumer", { consumerId: consumer.id });
+                yield consumer.pause();
             }
         });
     }
@@ -24789,13 +24598,8 @@ class SocketWebRTCTransport {
         return __awaiter(this, void 0, void 0, function* () {
             if (consumer) {
                 console.log("resume consumer", consumer.appData.peerId, consumer.appData.mediaTag);
-                try {
-                    yield request("resume-consumer", { consumerId: consumer.id });
-                    yield consumer.resume();
-                }
-                catch (e) {
-                    console.error(e);
-                }
+                yield request("resume-consumer", { consumerId: consumer.id });
+                yield consumer.resume();
             }
         });
     }
@@ -24803,13 +24607,8 @@ class SocketWebRTCTransport {
         return __awaiter(this, void 0, void 0, function* () {
             if (producer) {
                 console.log("pause producer", producer.appData.mediaTag);
-                try {
-                    yield request("pause-producer", { producerId: producer.id });
-                    yield producer.pause();
-                }
-                catch (e) {
-                    console.error(e);
-                }
+                yield request("pause-producer", { producerId: producer.id });
+                yield producer.pause();
             }
         });
     }
@@ -24817,13 +24616,8 @@ class SocketWebRTCTransport {
         return __awaiter(this, void 0, void 0, function* () {
             if (producer) {
                 console.log("resume producer", producer.appData.mediaTag);
-                try {
-                    yield request("resume-producer", { producerId: producer.id });
-                    yield producer.resume();
-                }
-                catch (e) {
-                    console.error(e);
-                }
+                yield request("resume-producer", { producerId: producer.id });
+                yield producer.resume();
             }
         });
     }
@@ -24833,17 +24627,12 @@ class SocketWebRTCTransport {
                 return;
             }
             console.log("closing consumer", consumer.appData.peerId, consumer.appData.mediaTag);
-            try {
-                // tell the server we're closing this consumer. (the server-side
-                // consumer may have been closed already, but that's okay.)
-                yield request("close-consumer", { consumerId: consumer.id });
-                yield consumer.close();
-                this.consumers = this.consumers.filter(c => c !== consumer);
-                this.removeVideoAudio(consumer);
-            }
-            catch (e) {
-                console.error(e);
-            }
+            // tell the server we're closing this consumer. (the server-side
+            // consumer may have been closed already, but that's okay.)
+            yield request("close-consumer", { consumerId: consumer.id });
+            yield consumer.close();
+            this.consumers = this.consumers.filter(c => c !== consumer);
+            this.removeVideoAudio(consumer);
         });
     }
     // utility function to create a transport and hook up signaling logic
@@ -24855,14 +24644,16 @@ class SocketWebRTCTransport {
             // ask the server to create a server-side transport object and send
             // us back the info we need to create a client-side transport
             let transport;
-            const { transportOptions } = (yield request("create-transport", {
+            const { transportOptions } = yield request("create-transport", {
                 direction
-            }));
+            });
             console.log("transport options", transportOptions);
             if (direction === "recv") {
                 transport = yield this.mediasoupDevice.createRecvTransport(transportOptions);
             }
             else if (direction === "send") {
+                console.log("transport options:");
+                console.log(transportOptions);
                 transport = yield this.mediasoupDevice.createSendTransport(transportOptions);
             }
             else {
@@ -24919,7 +24710,7 @@ class SocketWebRTCTransport {
                     callback({ id });
                 }));
             }
-            // for this simple demo, any time a transport transitions to closed,
+            // any time a transport transitions to closed,
             // failed, or disconnected, leave the room and reset
             //
             transport.on("connectionstatechange", (state) => __awaiter(this, void 0, void 0, function* () {
@@ -24940,13 +24731,18 @@ class SocketWebRTCTransport {
     // polling/update logic
     //
     pollAndUpdate() {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             console.log("Polling server for current peers array!");
+            setTimeout(this.pollAndUpdate, 1000);
             const { peers, error } = (yield request("sync"));
             if (error) {
                 console.error("PollAndUpdateError: ", error);
             }
-            if (!(this.mySocketID in peers)) {
+            if (this.getLocalConnectionIdCallback === undefined)
+                return;
+            const localConnectionId = this.getLocalConnectionIdCallback();
+            if (!(localConnectionId in peers)) {
                 console.log("Server doesn't think you're connected!");
             }
             // decide if we need to update tracks list and video/audio
@@ -24955,21 +24751,21 @@ class SocketWebRTCTransport {
             // comparison. compare this list with the cached list from last
             // poll.
             // auto-subscribe to their feeds:
-            // TODO auto subscribe at lowest spatial layer
-            const closestPeers = this.worldScene.getClosestPeers();
+            const closestPeers = this.getClosestPeersCallback();
             for (const id in peers) {
                 // for each peer...
-                if (id !== this.mySocketID) {
+                if (id !== localConnectionId) {
                     // if it isnt me...
-                    if (closestPeers.includes(id)) {
+                    if (closestPeers !== undefined && closestPeers.includes(id)) {
                         // and if it is close enough in the 3d space...
                         for (const [mediaTag, _] of Object.entries(peers[id].media)) {
                             // for each of the peer's producers...
-                            if (!this.findConsumerForTrack(id, mediaTag)) {
-                                // that we don't already have consumers for...
-                                console.log(`auto subscribing to track that ${id} has added`);
-                                yield this.subscribeToTrack(id, mediaTag);
-                            }
+                            console.log(id + " | " + mediaTag);
+                            if (((_a = this.consumers) === null || _a === void 0 ? void 0 : _a.find(c => c.appData.peerId === id && c.appData.mediaTag === mediaTag)) !== null)
+                                return;
+                            // that we don't already have consumers for...
+                            console.log(`auto subscribing to track that ${id} has added`);
+                            yield this.subscribeToTrack(id, mediaTag);
                         }
                     }
                 }
@@ -24979,6 +24775,8 @@ class SocketWebRTCTransport {
             for (const id in this.lastPollSyncData) {
                 if (!peers[id]) {
                     console.log(`Peer ${id} has exited`);
+                    if (this.consumers.length === 0)
+                        return console.log("Consumers length is 0");
                     this.consumers.forEach(consumer => {
                         if (consumer.appData.peerId === id) {
                             this.closeConsumer(consumer);
@@ -24988,6 +24786,8 @@ class SocketWebRTCTransport {
             }
             // if a peer has stopped sending media that we are consuming, we
             // need to close the consumer and remove video and audio elements
+            if (this.consumers == undefined || this.consumers.length === 0)
+                return console.log("Consumers length is 0");
             this.consumers.forEach(consumer => {
                 const { peerId, mediaTag } = consumer.appData;
                 if (!peers[peerId]) {
@@ -25001,11 +24801,7 @@ class SocketWebRTCTransport {
             });
             // push through the paused state to new sync list
             this.lastPollSyncData = peers;
-            setTimeout(this.pollAndUpdate, 1000);
         });
-    }
-    findConsumerForTrack(peerId, mediaTag) {
-        return this.consumers.find(c => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag);
     }
     //
     // -- user interface --
@@ -25077,9 +24873,9 @@ class SocketWebRTCTransport {
                 // @ts-ignore
                 el.autoplay = true;
                 // @ts-ignore
-                el.muted = true; // necessary for
+                // el.muted = true // necessary for
                 // @ts-ignore
-                el.style = "visibility: hidden;";
+                // el.style = "visibility: hidden;"
                 document.body.appendChild(el);
                 // @ts-ignore
                 el.setAttribute("playsinline", true);
@@ -25094,7 +24890,7 @@ class SocketWebRTCTransport {
             // play() succeeding. play() will not succeed on a producer-paused
             // track until the producer unpauses.
             // @ts-ignore
-            el.play().catch(e => {
+            el.play().catch((e) => {
                 console.log(`Play video error: ${e}`);
                 console.error(e);
             });
@@ -25119,19 +24915,20 @@ class SocketWebRTCTransport {
             el.consumer = consumer;
             // @ts-ignore
             el.volume = 0; // start at 0 and let the three.js scene take over from here...
-            this.worldScene.createOrUpdatePositionalAudio(peerId);
+            // this.worldScene.createOrUpdatePositionalAudio(peerId)
             // let's "yield" and return before playing, rather than awaiting on
             // play() succeeding. play() will not succeed on a producer-paused
             // track until the producer unpauses.
             // @ts-ignore
-            el.play().catch(e => {
+            el.play().catch((e) => {
                 console.log(`Play audio error: ${e}`);
                 console.error(e);
             });
         }
     }
     removeVideoAudio(consumer) {
-        document.querySelectorAll(consumer.kind).forEach(v => {
+        // TODO: This was kind, now it's id, is that ok?
+        document.querySelectorAll(consumer.id).forEach(v => {
             if (v.consumer === consumer) {
                 v.parentNode.removeChild(v);
             }
@@ -25205,6 +25002,7 @@ function initializeNetworking(world, transport) {
     const networkSystem = world.getSystem(NetworkSystem);
     networkSystem.initializeSession(world, transport !== null && transport !== void 0 ? transport : new SocketWebRTCTransport());
 }
+//# sourceMappingURL=armada.js.map
 
 const world = new World();
 
