@@ -272,8 +272,6 @@ const Invites = (props: Props): any => {
         }
     }
 
-    console.log(`inviteTypeIndex: ${inviteTypeIndex}`)
-
     return (
         <div className="invite-container">
             <SwipeableDrawer

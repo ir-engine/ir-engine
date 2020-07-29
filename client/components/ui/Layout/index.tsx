@@ -66,6 +66,11 @@ const Layout = (props: Props): any => {
 					<RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/>
 				</Fragment>
             }
+            { authUser != null && authUser.accessToken != null && authUser.accessToken.length > 0 &&
+                <Fragment>
+                    <BottomDrawer bottomDrawerOpen={bottomDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen}/>
+                </Fragment>
+            }
             <footer>
                 { authState.get('authUser') != null && leftDrawerOpen === false && rightDrawerOpen === false && topDrawerOpen === false && bottomDrawerOpen === false &&
                 <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> }

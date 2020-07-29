@@ -2,6 +2,7 @@ import React, {useState, useEffect, Fragment} from 'react'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { selectAuthState } from '../../../../redux/auth/selector'
+import { selectChatState } from '../../../../redux/chat/selector'
 import { selectFriendState } from '../../../../redux/friend/selector'
 import { selectGroupState } from '../../../../redux/group/selector'
 import { selectGroupUserState } from '../../../../redux/group-user/selector'
@@ -11,6 +12,9 @@ import './style.scss'
 import {
     updateInviteTarget
 } from '../../../../redux/invite/service'
+import {
+    updateChatTarget
+} from '../../../../redux/chat/service'
 import {
     getFriends,
     unfriend
@@ -65,6 +69,7 @@ import _ from 'lodash'
 const mapStateToProps = (state: any): any => {
     return {
         authState: selectAuthState(state),
+        chatState: selectChatState(state),
         friendState: selectFriendState(state),
         groupState: selectGroupState(state),
         groupUserState: selectGroupUserState(state),
@@ -88,7 +93,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createParty: bindActionCreators(createParty, dispatch),
     removeParty: bindActionCreators(removeParty, dispatch),
     removePartyUser: bindActionCreators(removePartyUser, dispatch),
-    updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch)
+    updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch),
+    updateChatTarget: bindActionCreators(updateChatTarget, dispatch)
 })
 
 interface Props {
@@ -117,6 +123,7 @@ interface Props {
     removePartyUser?: any
     setBottomDrawerOpen: any
     updateInviteTarget?: any
+    updateChatTarget?: any
 }
 
 const initialSelectedUserState = {
@@ -163,7 +170,8 @@ const LeftDrawer = (props: Props): any => {
         leftDrawerOpen,
         setRightDrawerOpen,
         setBottomDrawerOpen,
-        updateInviteTarget
+        updateInviteTarget,
+        updateChatTarget
     } = props
 
     const user = authState.get('user') as User
@@ -444,484 +452,487 @@ const LeftDrawer = (props: Props): any => {
         setRightDrawerOpen(true)
     }
 
-    const openChat = (targetObjectType, targetObjectId): void => {
+    const openChat = (targetObjectType: string, targetObject: any): void => {
+        console.log('OPENING CHAT DRAWER FROM LEFT DRAWER')
+        console.log(targetObjectType)
+        console.log(targetObject)
+        updateChatTarget(targetObjectType, targetObject )
         setLeftDrawerOpen(false)
-        setRightDrawerOpen(true)
+        setBottomDrawerOpen(true)
     }
 
     return (
         <div>
             <SwipeableDrawer
                 className="flex-column"
-                BackdropProps={{ invisible: true }}
                 anchor="left"
                 open={props.leftDrawerOpen === true}
                 onClose={() => {setLeftDrawerOpen(false)}}
                 onOpen={() => {}}
             >
                 { detailsOpen === false && groupFormOpen === false &&
-                    <div className="list-container">
-                        <Tabs
-                            value={tabIndex}
-                            onChange={handleChange}
-                            variant="fullWidth"
-                            indicatorColor="primary"
-                            textColor="secondary"
-                            aria-label="People Type"
-                        >
-                            <Tab
-                                icon={<SupervisedUserCircle style={{ fontSize: 30}} />}
-                                label="Friends"
-                            />
-                            <Tab
-                                icon={<Group style={{ fontSize: 30}} />}
-                                label="Groups"
-                            />
-                            <Tab
-                                icon={<GroupWork style={{ fontSize: 30}} />}
-                                label="Party"
-                            />
-                        </Tabs>
-                        <Divider/>
-                        { tabIndex === 0 &&
-                            <div className="flex-center">
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    startIcon={<Add/>}
-                                    onClick={() => openInvite('user')}>
-                                    Invite Friend
-                                </Button>
+				<div className="list-container">
+					<Tabs
+						value={tabIndex}
+						onChange={handleChange}
+						variant="fullWidth"
+						indicatorColor="primary"
+						textColor="secondary"
+						aria-label="People Type"
+					>
+						<Tab
+							icon={<SupervisedUserCircle style={{ fontSize: 30}} />}
+							label="Friends"
+						/>
+						<Tab
+							icon={<Group style={{ fontSize: 30}} />}
+							label="Groups"
+						/>
+						<Tab
+							icon={<GroupWork style={{ fontSize: 30}} />}
+							label="Party"
+						/>
+					</Tabs>
+					<Divider/>
+                    { tabIndex === 0 &&
+					<div className="flex-center">
+						<Button
+							variant="contained"
+							color="primary"
+							startIcon={<Add/>}
+							onClick={() => openInvite('user')}>
+							Invite Friend
+						</Button>
+					</div>
+                    }
+                    { tabIndex === 1 &&
+					<div className="flex-center">
+						<Button
+							variant="contained"
+							color="primary"
+							startIcon={<Add/>}
+							onClick={() => openGroupForm('create')}>
+							Create Group
+						</Button>
+					</div>
+                    }
+                    {(tabIndex === 0 || tabIndex === 1) &&
+					<List
+						onScroll={(e) => onListScroll(e)}
+					>
+                        {tabIndex === 0 && friends && friends.length > 0 && friends.sort((a, b) => a.name - b.name).map((friend, index) => {
+                            return <div key={friend.id}>
+                                <ListItem
+                                    className="selectable"
+                                    onClick={() => {
+                                        openDetails('user', friend)
+                                    }}
+                                >
+                                    <ListItemAvatar>
+                                        <Avatar src={friend.avatarUrl}/>
+                                    </ListItemAvatar>
+                                    <ListItemText primary={friend.name}/>
+                                </ListItem>
+                                {index < friends.length - 1 && <Divider/>}
                             </div>
+                        })
                         }
-                        { tabIndex === 1 &&
-                            <div className="flex-center">
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    startIcon={<Add/>}
-                                    onClick={() => openGroupForm('create')}>
-                                    Create Group
-                                </Button>
+                        {tabIndex === 1 && groups && groups.length > 0 && groups.sort((a, b) => a.name - b.name).map((group, index) => {
+                            return <div key={group.id}>
+                                <ListItem
+                                    className="selectable"
+                                    onClick={() => {
+                                        openDetails('group', group)
+                                    }}
+                                >
+                                    <ListItemText primary={group.name}/>
+                                </ListItem>
+                                {index < groups.length - 1 && <Divider/>}
                             </div>
+                        })
                         }
-                        {(tabIndex === 0 || tabIndex === 1) &&
-                            <List
-                                onScroll={(e) => onListScroll(e)}
-                            >
-                                {tabIndex === 0 && friends && friends.length > 0 && friends.sort((a, b) => a.name - b.name).map((friend, index) => {
-                                    return <div key={friend.id}>
-                                        <ListItem
-                                            className="selectable"
-                                            onClick={() => {
-                                                openDetails('user', friend)
-                                            }}
-                                        >
+					</List>
+                    }
+                    {tabIndex === 2 &&
+					<div className="list-container">
+                        {party == null &&
+						<div>
+							<div className="title">You are not currently in a party</div>
+							<div className="flex-center">
+								<Button
+									variant="contained"
+									color="primary"
+									startIcon={<Add/>}
+									onClick={() => createNewParty()}>
+									Create Party
+								</Button>
+							</div>
+						</div>
+                        }
+                        { party != null &&
+						<div className="list-container">
+							<div className="title">Current Party</div>
+							<div className="party-id flex-center">
+								<div>ID: {party.id}</div>
+							</div>
+							<div className="actionButtons flex-center flex-column">
+								<Button
+									variant="contained"
+									color="primary"
+									startIcon={<Forum/>}
+									onClick={() => openChat('party', party)}
+								>
+									Chat
+								</Button>
+								<Button
+									variant="contained"
+									color="secondary"
+									startIcon={<PersonAdd/>}
+									onClick={() => openInvite('party', party.id)}
+								>
+									Invite
+								</Button>
+                                { partyDeletePending !== true &&
+								<Button
+									variant="contained"
+									className="background-red"
+									startIcon={<Delete/>}
+									onClick={(e) => showPartyDeleteConfirm(e)}
+								>
+									Delete
+								</Button>
+                                }
+                                { partyDeletePending === true &&
+								<div>
+									<Button variant="contained"
+									        startIcon={<Delete/>}
+									        className="background-red"
+									        onClick={(e) => confirmPartyDelete(e, party.id)}
+									>
+										Confirm Delete
+									</Button>
+									<Button variant="contained"
+									        color="secondary"
+									        onClick={(e) => cancelPartyDelete(e)}
+									>
+										Cancel
+									</Button>
+								</div>
+                                }
+							</div>
+							<Divider/>
+							<div className="title margin-top">Members</div>
+							<List
+								className="flex-center flex-column"
+								onScroll={(e) => onListScroll(e)}
+							>
+                                { partyUsers && partyUsers.length > 0 && partyUsers.sort((a, b) => a.name - b.name).map((partyUser) => {
+                                        return <ListItem key={partyUser.id}>
                                             <ListItemAvatar>
-                                                <Avatar src={friend.avatarUrl}/>
+                                                <Avatar src={partyUser.user.avatarUrl}/>
                                             </ListItemAvatar>
-                                            <ListItemText primary={friend.name}/>
-                                        </ListItem>
-                                        {index < friends.length - 1 && <Divider/>}
-                                    </div>
-                                })
-                                }
-                                {tabIndex === 1 && groups && groups.length > 0 && groups.sort((a, b) => a.name - b.name).map((group, index) => {
-                                    return <div key={group.id}>
-                                        <ListItem
-                                            className="selectable"
-                                            onClick={() => {
-                                                openDetails('group', group)
-                                            }}
-                                        >
-                                            <ListItemText primary={group.name}/>
-                                        </ListItem>
-                                        {index < groups.length - 1 && <Divider/>}
-                                    </div>
-                                })
-                                }
-                            </List>
-                        }
-                        {tabIndex === 2 &&
-	                    <div className="list-container">
-                            {party == null &&
-		                    <div>
-			                    <div className="title">You are not currently in a party</div>
-			                    <div className="flex-center">
-				                    <Button
-					                    variant="contained"
-					                    color="primary"
-					                    startIcon={<Add/>}
-					                    onClick={() => createNewParty()}>
-					                    Create Party
-				                    </Button>
-			                    </div>
-		                    </div>
-                            }
-                            { party != null &&
-		                    <div className="list-container">
-			                    <div className="title">Current Party</div>
-                                <div className="party-id flex-center">
-                                    <div>ID: {party.id}</div>
-                                </div>
-			                    <div className="actionButtons flex-center flex-column">
-				                    <Button
-					                    variant="contained"
-					                    color="primary"
-					                    startIcon={<Forum/>}
-					                    onClick={() => openChat('party', party.id)}
-				                    >
-					                    Chat
-				                    </Button>
-				                    <Button
-					                    variant="contained"
-					                    color="secondary"
-					                    startIcon={<PersonAdd/>}
-					                    onClick={() => openInvite('party', party.id)}
-				                    >
-					                    Invite
-				                    </Button>
-                                    { partyDeletePending !== true &&
-				                    <Button
-					                    variant="contained"
-					                    className="background-red"
-					                    startIcon={<Delete/>}
-					                    onClick={(e) => showPartyDeleteConfirm(e)}
-				                    >
-					                    Delete
-				                    </Button>
-                                    }
-                                    { partyDeletePending === true &&
-				                    <div>
-					                    <Button variant="contained"
-					                            startIcon={<Delete/>}
-					                            className="background-red"
-					                            onClick={(e) => confirmPartyDelete(e, party.id)}
-					                    >
-						                    Confirm Delete
-					                    </Button>
-					                    <Button variant="contained"
-					                            color="secondary"
-					                            onClick={(e) => cancelPartyDelete(e)}
-					                    >
-						                    Cancel
-					                    </Button>
-				                    </div>
-                                    }
-			                    </div>
-			                    <Divider/>
-			                    <div className="title margin-top">Members</div>
-			                    <List
-				                    className="flex-center flex-column"
-				                    onScroll={(e) => onListScroll(e)}
-			                    >
-                                    { partyUsers && partyUsers.length > 0 && partyUsers.sort((a, b) => a.name - b.name).map((partyUser) => {
-                                            return <ListItem key={partyUser.id}>
-                                                <ListItemAvatar>
-                                                    <Avatar src={partyUser.user.avatarUrl}/>
-                                                </ListItemAvatar>
-                                                {user.id === partyUser.userId && <ListItemText primary={partyUser.user.name + ' (you)'}/> }
-                                                {user.id !== partyUser.userId && <ListItemText primary={partyUser.user.name}/> }
-                                                {
-                                                    partyUserDeletePending !== partyUser.id &&
-                                                    partyState.get('selfPartyUser') != null &&
-                                                    (partyState.get('selfPartyUser').partyUserRank === 'owner' || partyState.get('selfPartyUser').partyUserRank === 'admin') &&
-                                                    user.id !== partyUser.userId &&
-								                    <div>
-									                    <Button onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}>
-										                    <Delete/>
-									                    </Button>
-								                    </div>
-                                                }
-                                                { partyUserDeletePending !== partyUser.id && user.id === partyUser.userId &&
-							                    <div>
-								                    <Button onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}>
-									                    <Delete/>
-								                    </Button>
-							                    </div>
-                                                }
-                                                {partyUserDeletePending === partyUser.id &&
-							                    <div>
-                                                    {
-                                                        user.id !== partyUser.userId &&
-									                    <Button variant="contained"
-									                            color="primary"
-									                            onClick={(e) => confirmPartyUserDelete(e, partyUser.id)}
-									                    >
-										                    Remove User
-									                    </Button>
-                                                    }
-                                                    {
-                                                        user.id === partyUser.userId &&
-									                    <Button variant="contained"
-									                            color="primary"
-									                            onClick={(e) => confirmPartyUserDelete(e, partyUser.id)}
-									                    >
-										                    Leave party
-									                    </Button>
-                                                    }
-								                    <Button variant="contained"
-								                            color="secondary"
-								                            onClick={(e) => cancelPartyUserDelete(e)}
-								                    >
-									                    Cancel
-								                    </Button>
-							                    </div>
-                                                }
-                                            </ListItem>
-                                        }
-                                    )
-                                    }
-			                    </List>
-		                    </div>
-                            }
-	                    </div>
-                        }
-                    </div>
-                }
-                { detailsOpen === true && groupFormOpen === false && detailsType === 'user' &&
-                    <div className="flex-center flex-column">
-                        <div className="header">
-                            <Button onClick={closeDetails}>
-                                <ArrowLeft/>
-                            </Button>
-                            <Divider/>
-                        </div>
-                        <div className="details">
-                            <div className="avatarUrl flex-center">
-                                <Avatar src={selectedUser.avatarUrl}/>
-                            </div>
-                            <div className="userName flex-center">
-                                <div>{selectedUser.name}</div>
-                            </div>
-                            <div className="userId flex-center">
-                                <div>ID: {selectedUser.id}</div>
-                            </div>
-                            <div className="actionButtons flex-center flex-column">
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    startIcon={<Forum/>}
-                                    onClick={() => {openChat('user', selectedUser.id)}}
-                                >
-                                    Chat
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    color="secondary"
-                                    startIcon={<PersonAdd/>}
-                                    onClick={() => openInvite('user', selectedUser.id)}
-                                >
-                                    Invite
-                                </Button>
-                                {friendDeletePending !== selectedUser.id &&
-                                <Button
-                                    variant="contained"
-                                    className="background-red"
-                                    startIcon={<Delete/>}
-                                    onClick={(e) => showFriendDeleteConfirm(e, selectedUser.id)}
-                                >
-                                    Unfriend
-                                </Button>}
-                                {friendDeletePending === selectedUser.id &&
-                                <div>
-                                    <Button variant="contained"
-                                            startIcon={<Delete/>}
-                                            className="background-red"
-                                            onClick={(e) => confirmFriendDelete(e, selectedUser.id)}
-                                    >
-                                        Unfriend
-                                    </Button>
-                                    <Button variant="contained"
-                                            color="secondary"
-                                            onClick={(e) => cancelFriendDelete(e)}
-                                    >
-                                        Cancel
-                                    </Button>
-                                </div>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                }
-                { detailsOpen === true && groupFormOpen === false && detailsType === 'group' &&
-                    <div className="flex-center flex-column">
-                        <div className="header">
-                            <Button onClick={closeDetails}>
-                                <ArrowLeft/>
-                            </Button>
-                            <Divider/>
-                        </div>
-                        <div className="details list-container">
-                            <div className="title flex-center">
-                                <div>{selectedGroup.name}</div>
-                            </div>
-                            <div className="group-id flex-center">
-                                <div>ID: {selectedGroup.id}</div>
-                            </div>
-	                        <div className="description flex-center">
-		                        <div>{selectedGroup.description}</div>
-	                        </div>
-                            <div className="actionButtons flex-center flex-column">
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    startIcon={<Forum/>}
-                                    onClick={() => {openChat('group', selectedGroup.id)}}
-                                >
-                                    Chat
-                                </Button>
-                                {selfGroupUser != null && (selfGroupUser.groupUserRank === 'owner' || selfGroupUser.groupUserRank === 'admin') &&
-                                    <Button
-                                        variant="contained"
-                                        color="secondary"
-                                        startIcon={<PersonAdd/>}
-                                        onClick={() => openInvite('group', selectedGroup.id)}
-                                    >
-                                        Invite
-                                    </Button>
-                                }
-                                {groupDeletePending !== selectedGroup.id &&
-                                selfGroupUser != null && selfGroupUser.groupUserRank === 'owner' &&
-                                <Button
-                                    variant="contained"
-                                    className="background-red"
-                                    startIcon={<Delete/>}
-                                    onClick={(e) => showGroupDeleteConfirm(e, selectedGroup.id)}
-                                >
-                                    Delete
-                                </Button>}
-                                {groupDeletePending === selectedGroup.id &&
-                                    <div>
-                                        <Button variant="contained"
-                                                startIcon={<Delete/>}
-                                                className="background-red"
-                                                onClick={(e) => confirmGroupDelete(e, selectedGroup.id)}
-                                        >
-                                            Confirm Delete
-                                        </Button>
-                                        <Button variant="contained"
-                                                color="secondary"
-                                                onClick={(e) => cancelGroupDelete(e)}
-                                        >
-                                            Cancel
-                                        </Button>
-                                    </div>
-                                }
-                            </div>
-                            <Divider/>
-                            <div className="title margin-top">Members</div>
-                            <List className="flex-center flex-column">
-                                { groupUsers && groupUsers.length > 0 && groupUsers.sort((a, b) => a.name - b.name).map((groupUser) => {
-                                        return <ListItem key={groupUser.id}>
-                                            <ListItemAvatar>
-                                                <Avatar src={groupUser.user.avatarUrl}/>
-                                            </ListItemAvatar>
-                                            {user.id === groupUser.userId && <ListItemText primary={groupUser.user.name + ' (you)'}/> }
-                                            {user.id !== groupUser.userId && <ListItemText primary={groupUser.user.name}/> }
+                                            {user.id === partyUser.userId && <ListItemText primary={partyUser.user.name + ' (you)'}/> }
+                                            {user.id !== partyUser.userId && <ListItemText primary={partyUser.user.name}/> }
                                             {
-                                                groupUserDeletePending !== groupUser.id &&
-                                                selfGroupUser != null &&
-                                                (selfGroupUser.groupUserRank === 'owner' || selfGroupUser.groupUserRank === 'admin') &&
-                                                user.id !== groupUser.userId &&
-                                                <div>
-                                                    <Button onClick={(e) => showGroupUserDeleteConfirm(e, groupUser.id)}>
-                                                        <Delete/>
-                                                    </Button>
-                                                </div>
+                                                partyUserDeletePending !== partyUser.id &&
+                                                partyState.get('selfPartyUser') != null &&
+                                                (partyState.get('selfPartyUser').partyUserRank === 'owner' || partyState.get('selfPartyUser').partyUserRank === 'admin') &&
+                                                user.id !== partyUser.userId &&
+												<div>
+													<Button onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}>
+														<Delete/>
+													</Button>
+												</div>
                                             }
-                                            { groupUserDeletePending !== groupUser.id && user.id === groupUser.userId &&
-                                            <div>
-                                                <Button onClick={(e) => showGroupUserDeleteConfirm(e, groupUser.id)}>
-                                                    <Delete/>
-                                                </Button>
-                                            </div>
+                                            { partyUserDeletePending !== partyUser.id && user.id === partyUser.userId &&
+											<div>
+												<Button onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}>
+													<Delete/>
+												</Button>
+											</div>
                                             }
-                                            {groupUserDeletePending === groupUser.id &&
-                                            <div>
+                                            {partyUserDeletePending === partyUser.id &&
+											<div>
                                                 {
-                                                    user.id !== groupUser.userId &&
-                                                    <Button variant="contained"
-                                                            color="primary"
-                                                            onClick={(e) => confirmGroupUserDelete(e, groupUser.id)}
-                                                    >
-                                                        Remove User
-                                                    </Button>
+                                                    user.id !== partyUser.userId &&
+													<Button variant="contained"
+													        color="primary"
+													        onClick={(e) => confirmPartyUserDelete(e, partyUser.id)}
+													>
+														Remove User
+													</Button>
                                                 }
                                                 {
-                                                    user.id === groupUser.userId &&
-                                                    <Button variant="contained"
-                                                            color="primary"
-                                                            onClick={(e) => confirmGroupUserDelete(e, groupUser.id)}
-                                                    >
-                                                        Leave group
-                                                    </Button>
+                                                    user.id === partyUser.userId &&
+													<Button variant="contained"
+													        color="primary"
+													        onClick={(e) => confirmPartyUserDelete(e, partyUser.id)}
+													>
+														Leave party
+													</Button>
                                                 }
-                                                <Button variant="contained"
-                                                        color="secondary"
-                                                        onClick={(e) => cancelGroupUserDelete(e)}
-                                                >
-                                                    Cancel
-                                                </Button>
-                                            </div>
+												<Button variant="contained"
+												        color="secondary"
+												        onClick={(e) => cancelPartyUserDelete(e)}
+												>
+													Cancel
+												</Button>
+											</div>
                                             }
                                         </ListItem>
                                     }
                                 )
                                 }
-                            </List>
-                        </div>
-                    </div>
+							</List>
+						</div>
+                        }
+					</div>
+                    }
+				</div>
+                }
+                { detailsOpen === true && groupFormOpen === false && detailsType === 'user' &&
+				<div className="flex-center flex-column">
+					<div className="header">
+						<Button onClick={closeDetails}>
+							<ArrowLeft/>
+						</Button>
+						<Divider/>
+					</div>
+					<div className="details">
+						<div className="avatarUrl flex-center">
+							<Avatar src={selectedUser.avatarUrl}/>
+						</div>
+						<div className="userName flex-center">
+							<div>{selectedUser.name}</div>
+						</div>
+						<div className="userId flex-center">
+							<div>ID: {selectedUser.id}</div>
+						</div>
+						<div className="actionButtons flex-center flex-column">
+							<Button
+								variant="contained"
+								color="primary"
+								startIcon={<Forum/>}
+								onClick={() => {openChat('user', selectedUser)}}
+							>
+								Chat
+							</Button>
+							<Button
+								variant="contained"
+								color="secondary"
+								startIcon={<PersonAdd/>}
+								onClick={() => openInvite('user', selectedUser.id)}
+							>
+								Invite
+							</Button>
+                            {friendDeletePending !== selectedUser.id &&
+							<Button
+								variant="contained"
+								className="background-red"
+								startIcon={<Delete/>}
+								onClick={(e) => showFriendDeleteConfirm(e, selectedUser.id)}
+							>
+								Unfriend
+							</Button>}
+                            {friendDeletePending === selectedUser.id &&
+							<div>
+								<Button variant="contained"
+								        startIcon={<Delete/>}
+								        className="background-red"
+								        onClick={(e) => confirmFriendDelete(e, selectedUser.id)}
+								>
+									Unfriend
+								</Button>
+								<Button variant="contained"
+								        color="secondary"
+								        onClick={(e) => cancelFriendDelete(e)}
+								>
+									Cancel
+								</Button>
+							</div>
+                            }
+						</div>
+					</div>
+				</div>
+                }
+                { detailsOpen === true && groupFormOpen === false && detailsType === 'group' &&
+				<div className="flex-center flex-column">
+					<div className="header">
+						<Button onClick={closeDetails}>
+							<ArrowLeft/>
+						</Button>
+						<Divider/>
+					</div>
+					<div className="details list-container">
+						<div className="title flex-center">
+							<div>{selectedGroup.name}</div>
+						</div>
+						<div className="group-id flex-center">
+							<div>ID: {selectedGroup.id}</div>
+						</div>
+						<div className="description flex-center">
+							<div>{selectedGroup.description}</div>
+						</div>
+						<div className="actionButtons flex-center flex-column">
+							<Button
+								variant="contained"
+								color="primary"
+								startIcon={<Forum/>}
+								onClick={() => {openChat('group', selectedGroup)}}
+							>
+								Chat
+							</Button>
+                            {selfGroupUser != null && (selfGroupUser.groupUserRank === 'owner' || selfGroupUser.groupUserRank === 'admin') &&
+							<Button
+								variant="contained"
+								color="secondary"
+								startIcon={<PersonAdd/>}
+								onClick={() => openInvite('group', selectedGroup.id)}
+							>
+								Invite
+							</Button>
+                            }
+                            {groupDeletePending !== selectedGroup.id &&
+                            selfGroupUser != null && selfGroupUser.groupUserRank === 'owner' &&
+							<Button
+								variant="contained"
+								className="background-red"
+								startIcon={<Delete/>}
+								onClick={(e) => showGroupDeleteConfirm(e, selectedGroup.id)}
+							>
+								Delete
+							</Button>}
+                            {groupDeletePending === selectedGroup.id &&
+							<div>
+								<Button variant="contained"
+								        startIcon={<Delete/>}
+								        className="background-red"
+								        onClick={(e) => confirmGroupDelete(e, selectedGroup.id)}
+								>
+									Confirm Delete
+								</Button>
+								<Button variant="contained"
+								        color="secondary"
+								        onClick={(e) => cancelGroupDelete(e)}
+								>
+									Cancel
+								</Button>
+							</div>
+                            }
+						</div>
+						<Divider/>
+						<div className="title margin-top">Members</div>
+						<List className="flex-center flex-column">
+                            { groupUsers && groupUsers.length > 0 && groupUsers.sort((a, b) => a.name - b.name).map((groupUser) => {
+                                    return <ListItem key={groupUser.id}>
+                                        <ListItemAvatar>
+                                            <Avatar src={groupUser.user.avatarUrl}/>
+                                        </ListItemAvatar>
+                                        {user.id === groupUser.userId && <ListItemText primary={groupUser.user.name + ' (you)'}/> }
+                                        {user.id !== groupUser.userId && <ListItemText primary={groupUser.user.name}/> }
+                                        {
+                                            groupUserDeletePending !== groupUser.id &&
+                                            selfGroupUser != null &&
+                                            (selfGroupUser.groupUserRank === 'owner' || selfGroupUser.groupUserRank === 'admin') &&
+                                            user.id !== groupUser.userId &&
+											<div>
+												<Button onClick={(e) => showGroupUserDeleteConfirm(e, groupUser.id)}>
+													<Delete/>
+												</Button>
+											</div>
+                                        }
+                                        { groupUserDeletePending !== groupUser.id && user.id === groupUser.userId &&
+										<div>
+											<Button onClick={(e) => showGroupUserDeleteConfirm(e, groupUser.id)}>
+												<Delete/>
+											</Button>
+										</div>
+                                        }
+                                        {groupUserDeletePending === groupUser.id &&
+										<div>
+                                            {
+                                                user.id !== groupUser.userId &&
+												<Button variant="contained"
+												        color="primary"
+												        onClick={(e) => confirmGroupUserDelete(e, groupUser.id)}
+												>
+													Remove User
+												</Button>
+                                            }
+                                            {
+                                                user.id === groupUser.userId &&
+												<Button variant="contained"
+												        color="primary"
+												        onClick={(e) => confirmGroupUserDelete(e, groupUser.id)}
+												>
+													Leave group
+												</Button>
+                                            }
+											<Button variant="contained"
+											        color="secondary"
+											        onClick={(e) => cancelGroupUserDelete(e)}
+											>
+												Cancel
+											</Button>
+										</div>
+                                        }
+                                    </ListItem>
+                                }
+                            )
+                            }
+						</List>
+					</div>
+				</div>
                 }
                 {
                     groupFormOpen === true && detailsOpen === false &&
-                        <form className='group-form' noValidate onSubmit={(e) => submitGroup(e)}>
-                            { groupFormMode === 'create' && <div className="title">New Group</div> }
-                            { groupFormMode === 'update' && <div className="title">Update Group</div> }
-                            <TextField
-                                variant="outlined"
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="name"
-                                label="Group Name"
-                                name="name"
-                                autoComplete="name"
-                                autoFocus
-                                value={groupForm.name}
-                                onChange={(e) => handleGroupCreateInput(e)}
-                            />
-                            <TextField
-                                variant="outlined"
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="description"
-                                label="Group Description"
-                                name="description"
-                                autoComplete="description"
-                                autoFocus
-                                value={groupForm.description}
-                                onChange={(e) => handleGroupCreateInput(e)}
-                            />
-                            <div className="flex-center flex-column">
-                                <Button
-                                    type="submit"
-                                    variant="contained"
-                                    color="primary"
-                                    className={'submit'}
-                                >
-                                    {groupFormMode === 'create' && 'Create Group'}
-                                    {groupFormMode === 'update' && 'Update Group'}
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    color="secondary"
-                                    onClick={() => closeGroupForm()}>
-                                    Cancel
-                                </Button>
-                            </div>
-                        </form>
+					<form className='group-form' noValidate onSubmit={(e) => submitGroup(e)}>
+                        { groupFormMode === 'create' && <div className="title">New Group</div> }
+                        { groupFormMode === 'update' && <div className="title">Update Group</div> }
+						<TextField
+							variant="outlined"
+							margin="normal"
+							required
+							fullWidth
+							id="name"
+							label="Group Name"
+							name="name"
+							autoComplete="name"
+							autoFocus
+							value={groupForm.name}
+							onChange={(e) => handleGroupCreateInput(e)}
+						/>
+						<TextField
+							variant="outlined"
+							margin="normal"
+							required
+							fullWidth
+							id="description"
+							label="Group Description"
+							name="description"
+							autoComplete="description"
+							autoFocus
+							value={groupForm.description}
+							onChange={(e) => handleGroupCreateInput(e)}
+						/>
+						<div className="flex-center flex-column">
+							<Button
+								type="submit"
+								variant="contained"
+								color="primary"
+								className={'submit'}
+							>
+                                {groupFormMode === 'create' && 'Create Group'}
+                                {groupFormMode === 'update' && 'Update Group'}
+							</Button>
+							<Button
+								variant="contained"
+								color="secondary"
+								onClick={() => closeGroupForm()}>
+								Cancel
+							</Button>
+						</div>
+					</form>
                 }
             </SwipeableDrawer>
         </div>
