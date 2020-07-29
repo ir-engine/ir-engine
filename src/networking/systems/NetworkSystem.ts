@@ -7,9 +7,10 @@ import NetworkObject from "../components/NetworkObject"
 import NetworkTransportAlias from "../types/NetworkTransportAlias"
 import MessageTypeAlias from "../types/MessageTypeAlias"
 
-import RingBuffer from "../../common/classes/RingBuffer"
-
 export class NetworkSystem extends System {
+  clients: string[] = [] // TODO: Replace with ringbuffer
+
+  mySocketID
   public static _schemas: Map<MessageTypeAlias, MessageSchema<any>> = new Map()
 
   _isInitialized: boolean
@@ -31,6 +32,47 @@ export class NetworkSystem extends System {
     }
   }
 
+  setLocalConnectionId(_id: any): void {
+    console.log(`Initialized with socket ID ${_id}`)
+    this.mySocketID = _id
+  }
+
+  initializeClient(_ids): void {
+    console.log("ids: ")
+    console.log(_ids)
+    if (_ids === undefined) return
+    // for each existing user, add them as a client and add tracks to their peer connection
+    for (let i = 0; i < _ids.length; i++) this.addClient(_ids[i])
+  }
+
+  addClient(_id: any): void {
+    if (this.clients.includes(_id)) return console.error("Client is already in client list")
+    if (_id === this.mySocketID) return console.log("Not adding client because we are that client")
+    console.log(`A new user connected with the id: ${_id}`)
+    // Create an entity, add component NetworkClient and set id
+    this.clients.push(_id)
+  }
+
+  getClosestPeers(): any[] {
+    return this.clients
+  }
+
+  onConnected() {
+    console.log("Client connected to server!")
+  }
+
+  removeClient(_id: any): void {
+    if (_id in this.clients) {
+      if (_id === this.mySocketID) {
+        console.log("Server thinks that we disconnected!")
+      } else {
+        console.log(`A user was disconnected with the id: ${_id}`)
+        // Get NetworkClient component where id is _id, and destroy the entity
+      }
+    }
+  }
+
+
   public execute(delta: number): void {
     if (!this._isInitialized) return
     // Ask transport for all new messages
@@ -42,10 +84,22 @@ export class NetworkSystem extends System {
     return s
   }
 
-  public initializeSession(world: World, transport?: NetworkTransportAlias) {
+  getLocalConnectionId() {
+    return this.mySocketID
+  }
+
+  public initializeSession(world: World, transport?: any) {
     this._isInitialized = true
-    this._transport = transport
-    transport.initialize()
+    this._transport = transport as NetworkTransportAlias
+    transport.initialize(
+      this.initializeClient,
+      this.setLocalConnectionId,
+      this.onConnected,
+      this.addClient,
+      this.removeClient,
+      this.getClosestPeers,
+      this.getLocalConnectionId
+    )
   }
 
   public deinitializeSession() {
