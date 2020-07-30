@@ -4,6 +4,7 @@ import Input from "../components/Input"
 import Behavior from "../../common/interfaces/Behavior"
 import { InputType } from "../../input/enums/InputType"
 import { Binary } from "../../common/types/NumericalTypes"
+import { TransformComponent } from "../../common/defaults/components/TransformComponent"
 
 // Local reference to input component
 let input: Input
@@ -27,13 +28,33 @@ export const handleMouseButton: Behavior = (entity: Entity, args: { event: Mouse
   if (input.map.mouseInputMap.buttons[args.event.button] === undefined) return // Set type to BUTTON (up/down discrete state) and value to up or down, as called by the DOM mouse events
   if (args.value === BinaryValue.ON) {
     console.log("Mouse button down: " + args.event.button)
+    let transform = entity.getComponent(TransformComponent)
     input.data.set(input.map.mouseInputMap.buttons[args.event.button], {
       type: InputType.BUTTON,
       value: args.value
     })
+    const mousePosition: [number, number] = [0, 0]
+    mousePosition[0] = (args.event.clientX / window.innerWidth) * 2 - 1
+    mousePosition[1] = (args.event.clientY / window.innerHeight) * -2 + 1
+    const transformRotation: [number, number, number, number] = [
+      transform.rotation[0],
+      transform.rotation[1],
+      transform.rotation[2],
+      transform.rotation[3]
+    ]
+    input.data.set(input.map.mouseInputMap.axes["mouseClickDownPosition"], {
+      type: InputType.TWOD,
+      value: mousePosition
+    })
+    input.data.set(input.map.mouseInputMap.axes["mouseClickDownTransformRotation"], {
+      type: InputType.FOURD,
+      value: transformRotation
+    })
   } else {
     console.log("Mouse button up" + args.event.button)
     input.data.delete(input.map.mouseInputMap.buttons[args.event.button])
+    input.data.delete(input.map.mouseInputMap.axes["mouseClickDownPosition"])
+    input.data.delete(input.map.mouseInputMap.axes["mouseClickDownTransformRotation"])
   }
 }
 

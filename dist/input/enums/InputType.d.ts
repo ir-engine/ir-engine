@@ -3,5 +3,6 @@ export declare enum InputType {
     ONED = 1,
     TWOD = 2,
     THREED = 3,
-    SIXDOF = 4
+    FOURD = 4,
+    SIXDOF = 5
 }

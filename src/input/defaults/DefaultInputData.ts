@@ -16,6 +16,7 @@ import { updateMovementState } from "../../common/defaults/behaviors/updateMovem
 import { MouseButtons } from "../enums/MouseButtons"
 import { jump } from "../../common/defaults/behaviors/jump"
 import { rotateAround } from "../../common/defaults/behaviors/rotate"
+import { rotateStart } from "../../common/defaults/behaviors/updateLookingState"
 
 // Abstract inputs that all input devices get mapped to
 export const DefaultInput = {
@@ -35,11 +36,13 @@ export const DefaultInput = {
   SPRINT: 13,
   SNEAK: 14,
   SCREENXY: 15, // Is this too specific, or useful?
-  MOVEMENT_PLAYERONE: 16,
-  LOOKTURN_PLAYERONE: 17,
-  MOVEMENT_PLAYERTWO: 18,
-  LOOKTURN_PLAYERTWO: 19,
-  ALTERNATE: 20
+  SCREENXY_START: 16,
+  ROTATION_START: 17,
+  MOVEMENT_PLAYERONE: 18,
+  LOOKTURN_PLAYERONE: 19,
+  MOVEMENT_PLAYERTWO: 20,
+  LOOKTURN_PLAYERTWO: 21,
+  ALTERNATE: 22
 }
 
 export const DefaultInputMap: InputMap = {
@@ -110,7 +113,9 @@ export const DefaultInputMap: InputMap = {
       // [MouseButtons.MiddleButton]: DefaultInput.INTERACT
     },
     axes: {
-      mousePosition: DefaultInput.SCREENXY
+      mousePosition: DefaultInput.SCREENXY,
+      mouseClickDownPosition: DefaultInput.SCREENXY_START,
+      mouseClickDownTransformRotation: DefaultInput.ROTATION_START
     }
   },
   // Map gamepad buttons to abstract input
@@ -227,7 +232,7 @@ export const DefaultInputMap: InputMap = {
         behavior: updateMovementState,
         args: {},
       }
-    }
+    },
     // [DefaultInput.CROUCH]: {
     //   [BinaryValue.ON]: {
     //     behavior: startCrouching,
@@ -237,7 +242,6 @@ export const DefaultInputMap: InputMap = {
     //     behavior: stopCrouching,
     //     args: { state: DefaultStateTypes.CROUCHING }
     //   }
-    // }
   },
   // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
   inputAxisBehaviors: {
@@ -251,7 +255,13 @@ export const DefaultInputMap: InputMap = {
     [DefaultInput.SCREENXY]: {
       behavior: rotateAround,
       args: {
-        input: DefaultInput.LOOKTURN_PLAYERONE,
+        input: DefaultInput.SCREENXY,
+        inputType: InputType.TWOD
+      }
+    },
+    [DefaultInput.SCREENXY_START]: {
+      behavior: rotateStart,
+      args: {
         inputType: InputType.TWOD
       }
     }

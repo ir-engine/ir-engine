@@ -52190,6 +52190,8 @@ class TransformComponent extends Component {
  * Common utilities
  * @module glMatrix
  */
+// Configuration Constants
+var EPSILON = 0.000001;
 var ARRAY_TYPE = typeof Float32Array !== 'undefined' ? Float32Array : Array;
 if (!Math.hypot) Math.hypot = function () {
   var y = 0,
@@ -52203,6 +52205,35 @@ if (!Math.hypot) Math.hypot = function () {
 };
 
 /**
+ * 3x3 Matrix
+ * @module mat3
+ */
+
+/**
+ * Creates a new identity mat3
+ *
+ * @returns {mat3} a new 3x3 matrix
+ */
+
+function create() {
+  var out = new ARRAY_TYPE(9);
+
+  if (ARRAY_TYPE != Float32Array) {
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[5] = 0;
+    out[6] = 0;
+    out[7] = 0;
+  }
+
+  out[0] = 1;
+  out[4] = 1;
+  out[8] = 1;
+  return out;
+}
+
+/**
  * 3 Dimensional Vector
  * @module vec3
  */
@@ -52213,7 +52244,7 @@ if (!Math.hypot) Math.hypot = function () {
  * @returns {vec3} a new 3D vector
  */
 
-function create() {
+function create$1() {
   var out = new ARRAY_TYPE(3);
 
   if (ARRAY_TYPE != Float32Array) {
@@ -52224,6 +52255,97 @@ function create() {
 
   return out;
 }
+/**
+ * Calculates the length of a vec3
+ *
+ * @param {ReadonlyVec3} a vector to calculate length of
+ * @returns {Number} length of a
+ */
+
+function length(a) {
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+  return Math.hypot(x, y, z);
+}
+/**
+ * Creates a new vec3 initialized with the given values
+ *
+ * @param {Number} x X component
+ * @param {Number} y Y component
+ * @param {Number} z Z component
+ * @returns {vec3} a new 3D vector
+ */
+
+function fromValues(x, y, z) {
+  var out = new ARRAY_TYPE(3);
+  out[0] = x;
+  out[1] = y;
+  out[2] = z;
+  return out;
+}
+/**
+ * Normalize a vec3
+ *
+ * @param {vec3} out the receiving vector
+ * @param {ReadonlyVec3} a vector to normalize
+ * @returns {vec3} out
+ */
+
+function normalize(out, a) {
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+  var len = x * x + y * y + z * z;
+
+  if (len > 0) {
+    //TODO: evaluate use of glm_invsqrt here?
+    len = 1 / Math.sqrt(len);
+  }
+
+  out[0] = a[0] * len;
+  out[1] = a[1] * len;
+  out[2] = a[2] * len;
+  return out;
+}
+/**
+ * Calculates the dot product of two vec3's
+ *
+ * @param {ReadonlyVec3} a the first operand
+ * @param {ReadonlyVec3} b the second operand
+ * @returns {Number} dot product of a and b
+ */
+
+function dot(a, b) {
+  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+}
+/**
+ * Computes the cross product of two vec3's
+ *
+ * @param {vec3} out the receiving vector
+ * @param {ReadonlyVec3} a the first operand
+ * @param {ReadonlyVec3} b the second operand
+ * @returns {vec3} out
+ */
+
+function cross(out, a, b) {
+  var ax = a[0],
+      ay = a[1],
+      az = a[2];
+  var bx = b[0],
+      by = b[1],
+      bz = b[2];
+  out[0] = ay * bz - az * by;
+  out[1] = az * bx - ax * bz;
+  out[2] = ax * by - ay * bx;
+  return out;
+}
+/**
+ * Alias for {@link vec3.length}
+ * @function
+ */
+
+var len = length;
 /**
  * Perform some operation over an array of vec3s.
  *
@@ -52238,7 +52360,7 @@ function create() {
  */
 
 var forEach = function () {
-  var vec = create();
+  var vec = create$1();
   return function (a, stride, offset, count, fn, arg) {
     var i, l;
 
@@ -52267,6 +52389,448 @@ var forEach = function () {
     }
 
     return a;
+  };
+}();
+
+/**
+ * 4 Dimensional Vector
+ * @module vec4
+ */
+
+/**
+ * Creates a new, empty vec4
+ *
+ * @returns {vec4} a new 4D vector
+ */
+
+function create$2() {
+  var out = new ARRAY_TYPE(4);
+
+  if (ARRAY_TYPE != Float32Array) {
+    out[0] = 0;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+  }
+
+  return out;
+}
+/**
+ * Set the components of a vec4 to the given values
+ *
+ * @param {vec4} out the receiving vector
+ * @param {Number} x X component
+ * @param {Number} y Y component
+ * @param {Number} z Z component
+ * @param {Number} w W component
+ * @returns {vec4} out
+ */
+
+function set(out, x, y, z, w) {
+  out[0] = x;
+  out[1] = y;
+  out[2] = z;
+  out[3] = w;
+  return out;
+}
+/**
+ * Normalize a vec4
+ *
+ * @param {vec4} out the receiving vector
+ * @param {ReadonlyVec4} a vector to normalize
+ * @returns {vec4} out
+ */
+
+function normalize$1(out, a) {
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+  var w = a[3];
+  var len = x * x + y * y + z * z + w * w;
+
+  if (len > 0) {
+    len = 1 / Math.sqrt(len);
+  }
+
+  out[0] = x * len;
+  out[1] = y * len;
+  out[2] = z * len;
+  out[3] = w * len;
+  return out;
+}
+/**
+ * Perform some operation over an array of vec4s.
+ *
+ * @param {Array} a the array of vectors to iterate over
+ * @param {Number} stride Number of elements between the start of each vec4. If 0 assumes tightly packed
+ * @param {Number} offset Number of elements to skip at the beginning of the array
+ * @param {Number} count Number of vec4s to iterate over. If 0 iterates over entire array
+ * @param {Function} fn Function to call for each vector in the array
+ * @param {Object} [arg] additional argument to pass to fn
+ * @returns {Array} a
+ * @function
+ */
+
+var forEach$1 = function () {
+  var vec = create$2();
+  return function (a, stride, offset, count, fn, arg) {
+    var i, l;
+
+    if (!stride) {
+      stride = 4;
+    }
+
+    if (!offset) {
+      offset = 0;
+    }
+
+    if (count) {
+      l = Math.min(count * stride + offset, a.length);
+    } else {
+      l = a.length;
+    }
+
+    for (i = offset; i < l; i += stride) {
+      vec[0] = a[i];
+      vec[1] = a[i + 1];
+      vec[2] = a[i + 2];
+      vec[3] = a[i + 3];
+      fn(vec, vec, arg);
+      a[i] = vec[0];
+      a[i + 1] = vec[1];
+      a[i + 2] = vec[2];
+      a[i + 3] = vec[3];
+    }
+
+    return a;
+  };
+}();
+
+/**
+ * Quaternion
+ * @module quat
+ */
+
+/**
+ * Creates a new identity quat
+ *
+ * @returns {quat} a new quaternion
+ */
+
+function create$3() {
+  var out = new ARRAY_TYPE(4);
+
+  if (ARRAY_TYPE != Float32Array) {
+    out[0] = 0;
+    out[1] = 0;
+    out[2] = 0;
+  }
+
+  out[3] = 1;
+  return out;
+}
+/**
+ * Sets a quat from the given angle and rotation axis,
+ * then returns it.
+ *
+ * @param {quat} out the receiving quaternion
+ * @param {ReadonlyVec3} axis the axis around which to rotate
+ * @param {Number} rad the angle in radians
+ * @returns {quat} out
+ **/
+
+function setAxisAngle(out, axis, rad) {
+  rad = rad * 0.5;
+  var s = Math.sin(rad);
+  out[0] = s * axis[0];
+  out[1] = s * axis[1];
+  out[2] = s * axis[2];
+  out[3] = Math.cos(rad);
+  return out;
+}
+/**
+ * Rotates a quaternion by the given angle about the X axis
+ *
+ * @param {quat} out quat receiving operation result
+ * @param {ReadonlyQuat} a quat to rotate
+ * @param {number} rad angle (in radians) to rotate
+ * @returns {quat} out
+ */
+
+function rotateX(out, a, rad) {
+  rad *= 0.5;
+  var ax = a[0],
+      ay = a[1],
+      az = a[2],
+      aw = a[3];
+  var bx = Math.sin(rad),
+      bw = Math.cos(rad);
+  out[0] = ax * bw + aw * bx;
+  out[1] = ay * bw + az * bx;
+  out[2] = az * bw - ay * bx;
+  out[3] = aw * bw - ax * bx;
+  return out;
+}
+/**
+ * Rotates a quaternion by the given angle about the Y axis
+ *
+ * @param {quat} out quat receiving operation result
+ * @param {ReadonlyQuat} a quat to rotate
+ * @param {number} rad angle (in radians) to rotate
+ * @returns {quat} out
+ */
+
+function rotateY(out, a, rad) {
+  rad *= 0.5;
+  var ax = a[0],
+      ay = a[1],
+      az = a[2],
+      aw = a[3];
+  var by = Math.sin(rad),
+      bw = Math.cos(rad);
+  out[0] = ax * bw - az * by;
+  out[1] = ay * bw + aw * by;
+  out[2] = az * bw + ax * by;
+  out[3] = aw * bw - ay * by;
+  return out;
+}
+/**
+ * Performs a spherical linear interpolation between two quat
+ *
+ * @param {quat} out the receiving quaternion
+ * @param {ReadonlyQuat} a the first operand
+ * @param {ReadonlyQuat} b the second operand
+ * @param {Number} t interpolation amount, in the range [0-1], between the two inputs
+ * @returns {quat} out
+ */
+
+function slerp(out, a, b, t) {
+  // benchmarks:
+  //    http://jsperf.com/quaternion-slerp-implementations
+  var ax = a[0],
+      ay = a[1],
+      az = a[2],
+      aw = a[3];
+  var bx = b[0],
+      by = b[1],
+      bz = b[2],
+      bw = b[3];
+  var omega, cosom, sinom, scale0, scale1; // calc cosine
+
+  cosom = ax * bx + ay * by + az * bz + aw * bw; // adjust signs (if necessary)
+
+  if (cosom < 0.0) {
+    cosom = -cosom;
+    bx = -bx;
+    by = -by;
+    bz = -bz;
+    bw = -bw;
+  } // calculate coefficients
+
+
+  if (1.0 - cosom > EPSILON) {
+    // standard case (slerp)
+    omega = Math.acos(cosom);
+    sinom = Math.sin(omega);
+    scale0 = Math.sin((1.0 - t) * omega) / sinom;
+    scale1 = Math.sin(t * omega) / sinom;
+  } else {
+    // "from" and "to" quaternions are very close
+    //  ... so we can do a linear interpolation
+    scale0 = 1.0 - t;
+    scale1 = t;
+  } // calculate final values
+
+
+  out[0] = scale0 * ax + scale1 * bx;
+  out[1] = scale0 * ay + scale1 * by;
+  out[2] = scale0 * az + scale1 * bz;
+  out[3] = scale0 * aw + scale1 * bw;
+  return out;
+}
+/**
+ * Creates a quaternion from the given 3x3 rotation matrix.
+ *
+ * NOTE: The resultant quaternion is not normalized, so you should be sure
+ * to renormalize the quaternion yourself where necessary.
+ *
+ * @param {quat} out the receiving quaternion
+ * @param {ReadonlyMat3} m rotation matrix
+ * @returns {quat} out
+ * @function
+ */
+
+function fromMat3(out, m) {
+  // Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
+  // article "Quaternion Calculus and Fast Animation".
+  var fTrace = m[0] + m[4] + m[8];
+  var fRoot;
+
+  if (fTrace > 0.0) {
+    // |w| > 1/2, may as well choose w > 1/2
+    fRoot = Math.sqrt(fTrace + 1.0); // 2w
+
+    out[3] = 0.5 * fRoot;
+    fRoot = 0.5 / fRoot; // 1/(4w)
+
+    out[0] = (m[5] - m[7]) * fRoot;
+    out[1] = (m[6] - m[2]) * fRoot;
+    out[2] = (m[1] - m[3]) * fRoot;
+  } else {
+    // |w| <= 1/2
+    var i = 0;
+    if (m[4] > m[0]) i = 1;
+    if (m[8] > m[i * 3 + i]) i = 2;
+    var j = (i + 1) % 3;
+    var k = (i + 2) % 3;
+    fRoot = Math.sqrt(m[i * 3 + i] - m[j * 3 + j] - m[k * 3 + k] + 1.0);
+    out[i] = 0.5 * fRoot;
+    fRoot = 0.5 / fRoot;
+    out[3] = (m[j * 3 + k] - m[k * 3 + j]) * fRoot;
+    out[j] = (m[j * 3 + i] + m[i * 3 + j]) * fRoot;
+    out[k] = (m[k * 3 + i] + m[i * 3 + k]) * fRoot;
+  }
+
+  return out;
+}
+/**
+ * Creates a quaternion from the given euler angle x, y, z.
+ *
+ * @param {quat} out the receiving quaternion
+ * @param {x} Angle to rotate around X axis in degrees.
+ * @param {y} Angle to rotate around Y axis in degrees.
+ * @param {z} Angle to rotate around Z axis in degrees.
+ * @returns {quat} out
+ * @function
+ */
+
+function fromEuler(out, x, y, z) {
+  var halfToRad = 0.5 * Math.PI / 180.0;
+  x *= halfToRad;
+  y *= halfToRad;
+  z *= halfToRad;
+  var sx = Math.sin(x);
+  var cx = Math.cos(x);
+  var sy = Math.sin(y);
+  var cy = Math.cos(y);
+  var sz = Math.sin(z);
+  var cz = Math.cos(z);
+  out[0] = sx * cy * cz - cx * sy * sz;
+  out[1] = cx * sy * cz + sx * cy * sz;
+  out[2] = cx * cy * sz - sx * sy * cz;
+  out[3] = cx * cy * cz + sx * sy * sz;
+  return out;
+}
+/**
+ * Set the components of a quat to the given values
+ *
+ * @param {quat} out the receiving quaternion
+ * @param {Number} x X component
+ * @param {Number} y Y component
+ * @param {Number} z Z component
+ * @param {Number} w W component
+ * @returns {quat} out
+ * @function
+ */
+
+var set$1 = set;
+/**
+ * Normalize a quat
+ *
+ * @param {quat} out the receiving quaternion
+ * @param {ReadonlyQuat} a quaternion to normalize
+ * @returns {quat} out
+ * @function
+ */
+
+var normalize$2 = normalize$1;
+/**
+ * Sets a quaternion to represent the shortest rotation from one
+ * vector to another.
+ *
+ * Both vectors are assumed to be unit length.
+ *
+ * @param {quat} out the receiving quaternion.
+ * @param {ReadonlyVec3} a the initial vector
+ * @param {ReadonlyVec3} b the destination vector
+ * @returns {quat} out
+ */
+
+var rotationTo = function () {
+  var tmpvec3 = create$1();
+  var xUnitVec3 = fromValues(1, 0, 0);
+  var yUnitVec3 = fromValues(0, 1, 0);
+  return function (out, a, b) {
+    var dot$1 = dot(a, b);
+
+    if (dot$1 < -0.999999) {
+      cross(tmpvec3, xUnitVec3, a);
+      if (len(tmpvec3) < 0.000001) cross(tmpvec3, yUnitVec3, a);
+      normalize(tmpvec3, tmpvec3);
+      setAxisAngle(out, tmpvec3, Math.PI);
+      return out;
+    } else if (dot$1 > 0.999999) {
+      out[0] = 0;
+      out[1] = 0;
+      out[2] = 0;
+      out[3] = 1;
+      return out;
+    } else {
+      cross(tmpvec3, a, b);
+      out[0] = tmpvec3[0];
+      out[1] = tmpvec3[1];
+      out[2] = tmpvec3[2];
+      out[3] = 1 + dot$1;
+      return normalize$2(out, out);
+    }
+  };
+}();
+/**
+ * Performs a spherical linear interpolation with two control points
+ *
+ * @param {quat} out the receiving quaternion
+ * @param {ReadonlyQuat} a the first operand
+ * @param {ReadonlyQuat} b the second operand
+ * @param {ReadonlyQuat} c the third operand
+ * @param {ReadonlyQuat} d the fourth operand
+ * @param {Number} t interpolation amount, in the range [0-1], between the two inputs
+ * @returns {quat} out
+ */
+
+var sqlerp = function () {
+  var temp1 = create$3();
+  var temp2 = create$3();
+  return function (out, a, b, c, d, t) {
+    slerp(temp1, a, d, t);
+    slerp(temp2, b, c, t);
+    slerp(out, temp1, temp2, 2 * t * (1 - t));
+    return out;
+  };
+}();
+/**
+ * Sets the specified quaternion with values corresponding to the given
+ * axes. Each axis is a vec3 and is expected to be unit length and
+ * perpendicular to all other specified axes.
+ *
+ * @param {ReadonlyVec3} view  the vector representing the viewing direction
+ * @param {ReadonlyVec3} right the vector representing the local "right" direction
+ * @param {ReadonlyVec3} up    the vector representing the local "up" direction
+ * @returns {quat} out
+ */
+
+var setAxes = function () {
+  var matr = create();
+  return function (out, view, right, up) {
+    matr[0] = right[0];
+    matr[3] = right[1];
+    matr[6] = right[2];
+    matr[1] = up[0];
+    matr[4] = up[1];
+    matr[7] = up[2];
+    matr[2] = -view[0];
+    matr[5] = -view[1];
+    matr[8] = -view[2];
+    return normalize$2(out, fromMat3(out, matr));
   };
 }();
 
@@ -52334,8 +52898,7 @@ const DefaultStateTypes = {
     MOVING_FORWARD: 8,
     MOVING_BACKWARD: 9,
     MOVING_LEFT: 10,
-    MOVING_RIGHT: 11,
-    LOOKING: 12
+    MOVING_RIGHT: 11
 };
 
 let actor$1;
@@ -52356,6 +52919,7 @@ Input$1.schema = Object.assign(Object.assign({}, Input$1.schema), { gamepadConne
 // OneD -- one dimensional value between 0 and 1, or -1 and 1, like a trigger
 // TwoD -- Two dimensional value with x: -1, 1 and y: -1, 1 like a mouse input
 // ThreeD -- Three dimensional value, just in case
+// FourD -- Four dimensional value, for quaternions like rotation
 // 6DOF -- Six dimensional input, three for pose and three for rotation (in euler?), i.e. for VR controllers
 var InputType;
 (function (InputType) {
@@ -52363,7 +52927,8 @@ var InputType;
     InputType[InputType["ONED"] = 1] = "ONED";
     InputType[InputType["TWOD"] = 2] = "TWOD";
     InputType[InputType["THREED"] = 3] = "THREED";
-    InputType[InputType["SIXDOF"] = 4] = "SIXDOF";
+    InputType[InputType["FOURD"] = 4] = "FOURD";
+    InputType[InputType["SIXDOF"] = 5] = "SIXDOF";
 })(InputType || (InputType = {}));
 
 class Crouching extends TagComponent {
@@ -52401,67 +52966,52 @@ const move = (entity, args, delta) => {
     console.log("Moved");
 };
 
+let actor$3;
+let transform$3;
+let inputValue$1;
+let startValue;
+let q = [0, 0, 0, 0];
+const qOut = [0, 0, 0, 0];
 const rotateAround = (entity, args, delta) => {
-    // console.log('rotateAround')
-    // console.log('args.input', args.input)
-    // console.log('args.value', args.value)
-    // inputComponent = entity.getComponent(Input)
-    // actor = entity.getComponent(Actor)
-    // transform = entity.getMutableComponent(TransformComponent)
-    // if (!inputComponent.data.has(args.input)) {
-    //   inputComponent.data.set(args.input, { type: args.inputType, value: vec3.create() })
-    // }
-    // quat.set(qOut, transform.rotation[0], transform.rotation[1], transform.rotation[2], transform.rotation[3])
-    // if (args.inputType === InputType.TWOD) {
-    //   // console.log('InputType.TWOD')
-    //   if (inputComponent.data.has(args.input)) {
-    //     inputValue = inputComponent.data.get(args.input).value as Vector2
-    //     // console.log('inputValue', inputValue)
-    //     quat.fromEuler(q, inputValue[1] * actor.rotationSpeedY * delta, inputValue[0] * actor.rotationSpeedX * delta, 0)
-    //   }
-    // } else if (args.inputType === InputType.THREED) {
-    //   // console.log('InputType.THREED')
-    //   inputValue = inputComponent.data.get(args.input).value as Vector3
-    //   // console.log('inputValue', inputValue)
-    //   quat.fromEuler(
-    //     q,
-    //     inputValue[0] * actor.rotationSpeedY * delta,
-    //     inputValue[1] * actor.rotationSpeedX * delta,
-    //     inputValue[2] * actor.rotationSpeedZ * delta
-    //   )
-    // } else {
-    //   console.error("Rotation is only available for 2D and 3D inputs")
-    // }
-    // // console.log('q', q)
-    // // console.log('quat', quat)
-    // quat.mul(qOut, q, qOut)
-    // // console.log('qOut', qOut)
-    // transform.rotation = [qOut[0], qOut[1], qOut[2], qOut[3]]
-    // console.log("rotated ")
+    let inputComponent;
+    inputComponent = entity.getComponent(Input$1);
+    actor$3 = entity.getComponent(Actor);
+    transform$3 = entity.getMutableComponent(TransformComponent);
+    let mouseDownPosition = inputComponent.data.get(inputComponent.map.mouseInputMap.axes["mouseClickDownPosition"]);
+    let originalRotation = inputComponent.data.get(inputComponent.map.mouseInputMap.axes["mouseClickDownTransformRotation"]);
+    if (mouseDownPosition == undefined || originalRotation == undefined)
+        return;
+    if (!inputComponent.data.has(args.input)) {
+        inputComponent.data.set(args.input, { type: args.inputType, value: create$1() });
+    }
+    set$1(qOut, originalRotation.value[0], originalRotation.value[1], originalRotation.value[2], originalRotation.value[3]);
+    if (args.inputType === InputType.TWOD) {
+        if (inputComponent.data.has(args.input)) {
+            inputValue$1 = inputComponent.data.get(args.input).value;
+            startValue = mouseDownPosition.value;
+            rotateY(qOut, qOut, (inputValue$1[0] - startValue[0]) * Math.PI);
+            rotateX(qOut, qOut, -(inputValue$1[1] - startValue[1]) * Math.PI);
+        }
+    }
+    else if (args.inputType === InputType.THREED) {
+        inputValue$1 = inputComponent.data.get(args.input).value;
+        fromEuler(q, inputValue$1[0] * actor$3.rotationSpeedY * delta, inputValue$1[1] * actor$3.rotationSpeedX * delta, inputValue$1[2] * actor$3.rotationSpeedZ * delta);
+    }
+    else {
+        console.error("Rotation is only available for 2D and 3D inputs");
+    }
+    transform$3.rotation = [qOut[0], qOut[1], qOut[2], qOut[3]];
+    console.log("rotated ");
 };
 
 class TransformComponentSystem extends System {
     execute(delta, time) {
         var _a, _b;
         (_a = this.queries.transforms.added) === null || _a === void 0 ? void 0 : _a.forEach(entity => {
-            console.log('TransformComponentSystem query added');
-            const armadaTransform = entity.getComponent(TransformComponent);
-            const transform = entity.getMutableComponent(Transform);
-            const input = entity.getMutableComponent(Input$1);
-            let pos = armadaTransform.position;
-            let rot = armadaTransform.rotation;
-            transform.position.set(pos[0], pos[1], pos[2]);
-            transform.rotation.set(rot[0], rot[1], rot[2]);
+            updateTransform(entity);
         });
         (_b = this.queries.transforms.changed) === null || _b === void 0 ? void 0 : _b.forEach(entity => {
-            const armadaTransform = entity.getComponent(TransformComponent);
-            const transform = entity.getMutableComponent(Transform);
-            let pos = armadaTransform.position;
-            let rot = armadaTransform.rotation;
-            // console.log('rot', rot)
-            transform.position.set(pos[0], pos[1], pos[2]);
-            transform.rotation.set(rot[0] * 500, rot[1] * 500, rot[2] * 500);
-            // console.log('transform.rotation', transform.rotation)
+            updateTransform(entity);
         });
     }
 }
@@ -52475,6 +53025,18 @@ TransformComponentSystem.queries = {
         }
     }
 };
+function updateTransform(entity) {
+    const armadaTransform = entity.getComponent(TransformComponent);
+    const transform = entity.getMutableComponent(Transform);
+    const input = entity.getMutableComponent(Input$1);
+    let pos = armadaTransform.position;
+    let rot = armadaTransform.rotation;
+    let rotQuat = new Quaternion(rot[0], rot[1], rot[2], rot[3]);
+    let rotEuler = new Euler();
+    rotEuler.setFromQuaternion(rotQuat);
+    transform.position.set(pos[0], pos[1], pos[2]);
+    transform.rotation.set(rotEuler.x, rotEuler.y, rotEuler.z);
+}
 
 var Thumbsticks;
 (function (Thumbsticks) {
@@ -52504,14 +53066,34 @@ const handleMouseButton = (entity, args) => {
         return; // Set type to BUTTON (up/down discrete state) and value to up or down, as called by the DOM mouse events
     if (args.value === BinaryValue.ON) {
         console.log("Mouse button down: " + args.event.button);
+        let transform = entity.getComponent(TransformComponent);
         input$1.data.set(input$1.map.mouseInputMap.buttons[args.event.button], {
             type: InputType.BUTTON,
             value: args.value
+        });
+        const mousePosition = [0, 0];
+        mousePosition[0] = (args.event.clientX / window.innerWidth) * 2 - 1;
+        mousePosition[1] = (args.event.clientY / window.innerHeight) * -2 + 1;
+        const transformRotation = [
+            transform.rotation[0],
+            transform.rotation[1],
+            transform.rotation[2],
+            transform.rotation[3]
+        ];
+        input$1.data.set(input$1.map.mouseInputMap.axes["mouseClickDownPosition"], {
+            type: InputType.TWOD,
+            value: mousePosition
+        });
+        input$1.data.set(input$1.map.mouseInputMap.axes["mouseClickDownTransformRotation"], {
+            type: InputType.FOURD,
+            value: transformRotation
         });
     }
     else {
         console.log("Mouse button up" + args.event.button);
         input$1.data.delete(input$1.map.mouseInputMap.buttons[args.event.button]);
+        input$1.data.delete(input$1.map.mouseInputMap.axes["mouseClickDownPosition"]);
+        input$1.data.delete(input$1.map.mouseInputMap.axes["mouseClickDownTransformRotation"]);
     }
 };
 // System behavior called when a keyboard key is pressed
@@ -52649,7 +53231,6 @@ const updateMovementState = (entity, args, delta) => {
     ];
     movementInputs.forEach(direction => {
         var _a;
-        console.log(direction);
         if (((_a = input.data.get(direction)) === null || _a === void 0 ? void 0 : _a.value) == BinaryValue.ON)
             moving = true;
     });
@@ -52661,6 +53242,10 @@ const MouseButtons = {
     LeftButton: 0,
     MiddleButton: 1,
     RightButton: 2
+};
+
+const rotateStart = (entity, args, delta) => {
+    console.log('rotateStart');
 };
 
 // Abstract inputs that all input devices get mapped to
@@ -52681,11 +53266,13 @@ const DefaultInput = {
     SPRINT: 13,
     SNEAK: 14,
     SCREENXY: 15,
-    MOVEMENT_PLAYERONE: 16,
-    LOOKTURN_PLAYERONE: 17,
-    MOVEMENT_PLAYERTWO: 18,
-    LOOKTURN_PLAYERTWO: 19,
-    ALTERNATE: 20
+    SCREENXY_START: 16,
+    ROTATION_START: 17,
+    MOVEMENT_PLAYERONE: 18,
+    LOOKTURN_PLAYERONE: 19,
+    MOVEMENT_PLAYERTWO: 20,
+    LOOKTURN_PLAYERTWO: 21,
+    ALTERNATE: 22
 };
 const DefaultInputMap = {
     // When an Input component is added, the system will call this array of behaviors
@@ -52755,7 +53342,9 @@ const DefaultInputMap = {
             // [MouseButtons.MiddleButton]: DefaultInput.INTERACT
         },
         axes: {
-            mousePosition: DefaultInput.SCREENXY
+            mousePosition: DefaultInput.SCREENXY,
+            mouseClickDownPosition: DefaultInput.SCREENXY_START,
+            mouseClickDownTransformRotation: DefaultInput.ROTATION_START
         }
     },
     // Map gamepad buttons to abstract input
@@ -52834,11 +53423,11 @@ const DefaultInputMap = {
                         value: [0, 1]
                     },
                     value: [0, 1]
-                },
-                [BinaryValue.OFF]: {
-                    behavior: updateMovementState,
-                    args: {},
                 }
+            },
+            [BinaryValue.OFF]: {
+                behavior: updateMovementState,
+                args: {},
             }
         },
         [DefaultInput.LEFT]: {
@@ -52851,10 +53440,10 @@ const DefaultInputMap = {
                     },
                     value: [-1, 0]
                 },
-                [BinaryValue.OFF]: {
-                    behavior: updateMovementState,
-                    args: {},
-                }
+            },
+            [BinaryValue.OFF]: {
+                behavior: updateMovementState,
+                args: {},
             }
         },
         [DefaultInput.RIGHT]: {
@@ -52866,23 +53455,13 @@ const DefaultInputMap = {
                         value: [1, 0]
                     },
                     value: [1, 0]
-                },
-                [BinaryValue.OFF]: {
-                    behavior: updateMovementState,
-                    args: {},
                 }
+            },
+            [BinaryValue.OFF]: {
+                behavior: updateMovementState,
+                args: {},
             }
-        }
-        // [DefaultInput.CROUCH]: {
-        //   [BinaryValue.ON]: {
-        //     behavior: startCrouching,
-        //     args: { state: DefaultStateTypes.CROUCHING }
-        //   },
-        //   [BinaryValue.OFF]: {
-        //     behavior: stopCrouching,
-        //     args: { state: DefaultStateTypes.CROUCHING }
-        //   }
-        // }
+        },
     },
     // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
     inputAxisBehaviors: {
@@ -52896,7 +53475,13 @@ const DefaultInputMap = {
         [DefaultInput.SCREENXY]: {
             behavior: rotateAround,
             args: {
-                input: DefaultInput.LOOKTURN_PLAYERONE,
+                input: DefaultInput.SCREENXY,
+                inputType: InputType.TWOD
+            }
+        },
+        [DefaultInput.SCREENXY_START]: {
+            behavior: rotateStart,
+            args: {
                 inputType: InputType.TWOD
             }
         }
@@ -52943,43 +53528,32 @@ class InputSystem extends System {
         this.queries.inputs.results.forEach(entity => handleInput(entity, delta));
     }
 }
-let input$3;
 const handleInput = (entity, delta) => {
-    input$3 = entity.getComponent(Input$1);
-    console.log("handleInput");
-    input$3.data.forEach((value, key) => {
-        console.log("value", value);
-        console.log("value.type", value.type);
-        console.log("value.value", value.value);
-        console.log("key", key);
+    let input;
+    input = entity.getMutableComponent(Input$1);
+    input.data.forEach((value, key) => {
         if (value.type === InputType.BUTTON) {
-            console.log('value.type === InputType.BUTTON');
-            console.log('input.map.inputButtonBehaviors[key]', input$3.map.inputButtonBehaviors[key]);
-            if (input$3.map.inputButtonBehaviors[key] && input$3.map.inputButtonBehaviors[key][value.value]) {
-                console.log('value.lifecycleState', value.lifecycleState);
+            if (input.map.inputButtonBehaviors[key] && input.map.inputButtonBehaviors[key][value.value]) {
                 if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue$1.STARTED) {
-                    console.log('input.data.get(key)', input$3.data.get(key));
-                    input$3.data.set(key, {
+                    input.data.set(key, {
                         type: value.type,
                         value: value.value,
                         lifecycleState: LifecycleValue$1.CONTINUED
                     });
-                    console.log('post-set input.data.get(key)', input$3.data.get(key));
-                    input$3.map.inputButtonBehaviors[key][value.value].behavior(entity, input$3.map.inputButtonBehaviors[key][value.value].args, delta);
+                    input.map.inputButtonBehaviors[key][value.value].behavior(entity, input.map.inputButtonBehaviors[key][value.value].args, delta);
                 }
             }
         }
-        else if (value.type === InputType.ONED || value.type === InputType.TWOD || value.type === InputType.THREED) {
-            if (input$3.map.inputAxisBehaviors[key]) {
+        else if (value.type === InputType.ONED || value.type === InputType.TWOD || value.type === InputType.THREED ||
+            value.type === InputType.FOURD) {
+            if (input.map.inputAxisBehaviors[key]) {
                 if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue$1.STARTED) {
-                    console.log('key', key);
-                    console.log('value.value', value.value);
-                    input$3.data.set(key, {
+                    input.data.set(key, {
                         type: value.type,
                         value: value.value,
                         lifecycleState: LifecycleValue$1.CONTINUED
                     });
-                    input$3.map.inputAxisBehaviors[key].behavior(entity, input$3.map.inputAxisBehaviors[key].args, delta);
+                    input.map.inputAxisBehaviors[key].behavior(entity, input.map.inputAxisBehaviors[key].args, delta);
                 }
             }
         }
@@ -52987,7 +53561,6 @@ const handleInput = (entity, delta) => {
             console.error("handleInput called with an invalid input type");
         }
     });
-    input$3.data.clear();
 };
 InputSystem.queries = {
     inputs: {

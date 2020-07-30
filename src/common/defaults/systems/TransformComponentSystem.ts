@@ -4,29 +4,17 @@ import { Transform } from 'ecsy-three/src/extras/components'
 import { TransformComponent } from '../components/TransformComponent'
 import Input from '../../../input/components/Input'
 
+import * as THREE from 'three'
+
 export default class TransformComponentSystem extends System {
   public execute(delta: number, time: number): void {
 
     this.queries.transforms.added?.forEach(entity => {
-      console.log('TransformComponentSystem query added')
-      const armadaTransform: TransformComponent = entity.getComponent(TransformComponent)
-      const transform: Transform = entity.getMutableComponent(Transform)
-      const input: Input = entity.getMutableComponent(Input)
-
-      let pos = (armadaTransform as any).position
-      let rot = (armadaTransform as any).rotation
-      transform.position.set(pos[0], pos[1], pos[2])
-      transform.rotation.set(rot[0], rot[1], rot[2])
+      updateTransform(entity)
     })
 
     this.queries.transforms.changed?.forEach(entity => {
-      const armadaTransform: TransformComponent = entity.getComponent(TransformComponent)
-      const transform: Transform = entity.getMutableComponent(Transform)
-
-      let pos = (armadaTransform as any).position
-      let rot = (armadaTransform as any).rotation
-      transform.position.set(pos[0], pos[1], pos[2])
-      transform.rotation.set(rot[0], rot[1], rot[2])
+      updateTransform(entity)
     })
   }
 }
@@ -40,4 +28,18 @@ TransformComponentSystem.queries = {
       removed: true
     }
   }
+}
+
+function updateTransform(entity) {
+    const armadaTransform: TransformComponent = entity.getComponent(TransformComponent)
+    const transform: Transform = entity.getMutableComponent(Transform)
+    const input: Input = entity.getMutableComponent(Input)
+
+    let pos = (armadaTransform as any).position
+    let rot = (armadaTransform as any).rotation
+    let rotQuat = new THREE.Quaternion(rot[0], rot[1], rot[2], rot[3])
+    let rotEuler = new THREE.Euler()
+    rotEuler.setFromQuaternion(rotQuat)
+    transform.position.set(pos[0], pos[1], pos[2])
+    transform.rotation.set(rotEuler.x, rotEuler.y, rotEuler.z)
 }

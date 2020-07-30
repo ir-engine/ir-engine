@@ -53,10 +53,10 @@ export default class InputSystem extends System {
   }
 }
 
-let input: Input
 export const handleInput: Behavior = (entity: Entity, delta: number): void => {
-  input = entity.getComponent(Input)
+  let input: Input
 
+  input = entity.getMutableComponent(Input)
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
     if (value.type === InputType.BUTTON) {
       if (input.map.inputButtonBehaviors[key] && input.map.inputButtonBehaviors[key][value.value as number]) {
@@ -73,7 +73,8 @@ export const handleInput: Behavior = (entity: Entity, delta: number): void => {
           )
         }
       }
-    } else if (value.type === InputType.ONED || value.type === InputType.TWOD || value.type === InputType.THREED) {
+    } else if (value.type === InputType.ONED || value.type === InputType.TWOD || value.type === InputType.THREED ||
+        value.type === InputType.FOURD) {
       if (input.map.inputAxisBehaviors[key]) {
         if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue.STARTED) {
           input.data.set(key, {
@@ -88,7 +89,6 @@ export const handleInput: Behavior = (entity: Entity, delta: number): void => {
       console.error("handleInput called with an invalid input type")
     }
   })
-  input.data.clear()
 }
 
 InputSystem.queries = {
