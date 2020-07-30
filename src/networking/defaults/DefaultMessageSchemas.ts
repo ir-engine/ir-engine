@@ -1,6 +1,6 @@
 import { string16, uint8, int16, uint16, int64, string8, uint32 } from "../types/DataTypes"
 import { NetworkSystem } from "../systems/NetworkSystem"
-import DefaultMessageTypes from "./DefaultMessageTypes"
+import MessageTypes from "../types/MessageTypes"
 
 // Clock
 const clockData = {
@@ -8,7 +8,7 @@ const clockData = {
   tick: typeof uint16
 }
 
-const clockSchema = NetworkSystem.addMessageSchema<typeof clockData>(DefaultMessageTypes.Clock, clockData)
+const clockSchema = NetworkSystem.addMessageSchema<typeof clockData>(MessageTypes.Clock, clockData)
 
 // Position
 const positionData = {
@@ -18,7 +18,7 @@ const positionData = {
   z: { type: typeof int16, digits: 3 }
 }
 
-const positionSchema = NetworkSystem.addMessageSchema<typeof positionData>(DefaultMessageTypes.Position, positionData)
+const positionSchema = NetworkSystem.addMessageSchema<typeof positionData>(MessageTypes.Position, positionData)
 
 // Velocity
 const velocityData = {
@@ -28,7 +28,7 @@ const velocityData = {
   z: { type: typeof int16, digits: 3 }
 }
 
-const velocitySchema = NetworkSystem.addMessageSchema<typeof velocityData>(DefaultMessageTypes.Velocity, velocityData)
+const velocitySchema = NetworkSystem.addMessageSchema<typeof velocityData>(MessageTypes.Velocity, velocityData)
 
 // Spin
 const spinData = {
@@ -38,7 +38,7 @@ const spinData = {
   z: { type: typeof int16, digits: 3 }
 }
 
-const spinSchema = NetworkSystem.addMessageSchema<typeof spinData>(DefaultMessageTypes.Spin, spinData)
+const spinSchema = NetworkSystem.addMessageSchema<typeof spinData>(MessageTypes.Spin, spinData)
 
 // Rotation
 const rotationData = {
@@ -49,7 +49,7 @@ const rotationData = {
   w: { type: typeof int16, digits: 3 }
 }
 
-const rotationSchema = NetworkSystem.addMessageSchema<typeof rotationData>(DefaultMessageTypes.Rotation, rotationData)
+const rotationSchema = NetworkSystem.addMessageSchema<typeof rotationData>(MessageTypes.Rotation, rotationData)
 
 // Scale
 const scaleData = {
@@ -59,7 +59,7 @@ const scaleData = {
   z: { type: typeof int16, digits: 3 }
 }
 
-const scaleSchema = NetworkSystem.addMessageSchema<typeof scaleData>(DefaultMessageTypes.Scale, scaleData)
+const scaleSchema = NetworkSystem.addMessageSchema<typeof scaleData>(MessageTypes.Scale, scaleData)
 
 //Player
 const playerData = {
@@ -68,7 +68,7 @@ const playerData = {
   name: { type: typeof string8, length: 16 }
 }
 
-const playerSchema = NetworkSystem.addMessageSchema<typeof playerData>(DefaultMessageTypes.Player, playerData)
+const playerSchema = NetworkSystem.addMessageSchema<typeof playerData>(MessageTypes.Player, playerData)
 
 //Object
 const objectData = {
@@ -76,7 +76,7 @@ const objectData = {
   ownerId: { type: typeof string8, length: 16 }
 }
 
-const objectSchema = NetworkSystem.addMessageSchema<typeof objectData>(DefaultMessageTypes.Object, objectData)
+const objectSchema = NetworkSystem.addMessageSchema<typeof objectData>(MessageTypes.Object, objectData)
 
 // World state
 const worldData = {
@@ -85,4 +85,4 @@ const worldData = {
   objects: [objectSchema]
 }
 
-const worldSync = NetworkSystem.addMessageSchema<typeof worldData>(DefaultMessageTypes.World, worldData)
+const worldSync = NetworkSystem.addMessageSchema<typeof worldData>(MessageTypes.World, worldData)

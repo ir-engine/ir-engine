@@ -1,8 +1,8 @@
 import Message from "./Message";
 export default interface DataTransport {
-    initialize(initializationCallback: any, setLocalConnectionIdCallback: any, onConnectedCallback: any, clientAddedCallback: any, clientRemovedCallback: any, getClosestPeersCallback: any, getLocalConnectionIdCallback: any): void;
+    initialize(initializationCallback?: any): boolean;
     deinitialize(deinitializationCallback?: any): boolean;
-    getAllMessages(): Message[];
+    getAllMessages: Message[];
     addMessageToQueue(message: Message): boolean;
     sendAllMessages(): any;
 }

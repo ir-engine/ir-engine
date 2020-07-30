@@ -1,11 +1,21 @@
-/// <reference types="node" />
 import Message from "../interfaces/Message";
 import DataAudioVideoTransport from "../interfaces/DataAudioVideoTransport";
-import { Device } from "mediasoup-client";
 export default class SocketWebRTCTransport implements DataAudioVideoTransport {
-    mediasoupDevice: Device;
-    joined: boolean;
-    localCam: MediaStream;
+    stopCamera(): Promise<boolean>;
+    stopScreenshare(): Promise<boolean>;
+    startAudio(): boolean;
+    stopAudio(): boolean;
+    joinMediaRoom(roomId: string | number): boolean;
+    leaveMediaRoom(): void;
+    muteUser(userId: number): void;
+    unmuteUser(userId: number): void;
+    deinitialize(deinitializationCallback?: any): boolean;
+    getAllMessages: import("../interfaces/Message").default[];
+    addMessageToQueue(message: Message): boolean;
+    sendAllMessages(): void;
+    mediasoupDevice: any;
+    joined: any;
+    localCam: any;
     localScreen: any;
     recvTransport: any;
     sendTransport: any;
@@ -15,28 +25,13 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
     screenAudioProducer: any;
     lastPollSyncData: {};
     consumers: any[];
-    pollingInterval: NodeJS.Timeout;
+    pollingInterval: any;
     screenShareVideoPaused: boolean;
     screenShareAudioPaused: boolean;
     initialized: boolean;
-    initializationCallback?: any;
-    setLocalConnectionIdCallback: any;
-    onConnectedCallback: any;
-    clientAddedCallback: any;
-    clientRemovedCallback: any;
-    getClosestPeersCallback: any;
-    getLocalConnectionIdCallback: any;
-    stopCamera(): Promise<boolean>;
-    stopScreenshare(): Promise<boolean>;
-    startAudio(): boolean;
-    stopAudio(): boolean;
-    muteUser(userId: number): void;
-    unmuteUser(userId: number): void;
-    deinitialize(): boolean;
-    getAllMessages(): Message[];
-    addMessageToQueue(message: Message): boolean;
-    sendAllMessages(): void;
-    initialize(initializationCallback: any, setLocalConnectionIdCallback: any, onConnectedCallback: any, clientAddedCallback: any, clientRemovedCallback: any, getClosestPeersCallback: any, getLocalConnectionIdCallback: any): Promise<void>;
+    initialize(initializationCallback: any): boolean;
+    private init;
+    initSocketConnection(): Promise<unknown>;
     removeClientDOMElements(_id: any): void;
     joinRoom(): Promise<void>;
     sendCameraStreams(): Promise<void>;
@@ -45,53 +40,23 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
     cycleCamera(): Promise<boolean>;
     stopSendingMediaStreams(): Promise<boolean>;
     leaveRoom(): Promise<boolean>;
-    subscribeToTrack(peerId: string, mediaTag: string): Promise<void>;
+    subscribeToTrack(peerId: any, mediaTag: any): Promise<void>;
     unsubscribeFromTrack(peerId: any, mediaTag: any): Promise<void>;
-    pauseConsumer(consumer: {
-        appData: {
-            peerId: any;
-            mediaTag: any;
-        };
-        id: any;
-        pause: () => any;
-    }): Promise<void>;
-    resumeConsumer(consumer: {
-        appData: {
-            peerId: any;
-            mediaTag: any;
-        };
-        id: any;
-        resume: () => any;
-    }): Promise<void>;
-    pauseProducer(producer: {
-        appData: {
-            mediaTag: any;
-        };
-        id: any;
-        pause: () => any;
-    }): Promise<void>;
-    resumeProducer(producer: {
-        appData: {
-            mediaTag: any;
-        };
-        id: any;
-        resume: () => any;
-    }): Promise<void>;
+    pauseConsumer(consumer: any): Promise<void>;
+    resumeConsumer(consumer: any): Promise<void>;
+    pauseProducer(producer: any): Promise<void>;
+    resumeProducer(producer: any): Promise<void>;
     closeConsumer(consumer: any): Promise<void>;
-    createTransport(direction: string): Promise<any>;
+    createTransport(direction: any): Promise<any>;
     pollAndUpdate(): Promise<void>;
+    findConsumerForTrack(peerId: any, mediaTag: any): any;
     getScreenPausedState(): boolean;
     getScreenAudioPausedState(): boolean;
     toggleWebcamVideoPauseState(): Promise<void>;
     toggleWebcamAudioPauseState(): Promise<void>;
     toggleScreenshareVideoPauseState(): Promise<void>;
     toggleScreenshareAudioPauseState(): Promise<void>;
-    addVideoAudio(consumer: {
-        track: {
-            clone: () => MediaStreamTrack;
-        };
-        kind: string;
-    }, peerId: any): void;
+    addVideoAudio(consumer: any, peerId: any): void;
     removeVideoAudio(consumer: any): void;
     getCurrentDeviceId(): Promise<any>;
     CAM_VIDEO_SIMULCAST_ENCODINGS: {
@@ -103,5 +68,5 @@ export default class SocketWebRTCTransport implements DataAudioVideoTransport {
         scaleResolutionDownBy: number;
     }[];
     screenshareEncodings(): void;
-    sleep(ms: number): Promise<unknown>;
+    sleep(ms: any): Promise<unknown>;
 }

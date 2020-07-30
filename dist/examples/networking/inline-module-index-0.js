@@ -24184,7 +24184,7 @@ function promise(socket) {
 
 // TODO: server connection goes here
 const socket$2 = lib$1("https://localhost:3001");
-let request;
+let request = promise(socket$2);
 class SocketWebRTCTransport {
     constructor() {
         this.lastPollSyncData = {};
@@ -24254,6 +24254,13 @@ class SocketWebRTCTransport {
             window.screenshare = this.startScreenshare;
             alert("Access camera for full experience");
             yield this.startCamera();
+            // only join room after we user has interacted with DOM (to ensure that media elements play)
+            if (!this.initialized) {
+                this.initialized = true;
+                yield this.sendCameraStreams();
+                if (initializationCallback)
+                    initializationCallback();
+            }
             function initSockets() {
                 return new Promise(resolve => {
                     console.log(`Initializing socket.io...,`);
@@ -24270,13 +24277,6 @@ class SocketWebRTCTransport {
                 });
             }
             initSockets();
-            // only join room after we user has interacted with DOM (to ensure that media elements play)
-            if (!this.initialized) {
-                this.initialized = true;
-                yield this.sendCameraStreams();
-                if (initializationCallback)
-                    initializationCallback();
-            }
             setInterval(() => {
                 socket$2.emit("heartbeat");
             }, 2000);
@@ -24372,7 +24372,6 @@ class SocketWebRTCTransport {
                 this.sendTransport = yield this.createTransport("send");
             }
             // get a screen share track
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             this.localScreen = yield navigator.mediaDevices.getDisplayMedia({
                 video: true,
@@ -24555,11 +24554,11 @@ class SocketWebRTCTransport {
                 return console.error("already have consumer for track", peerId, mediaTag);
             // ask the server to create a server-side consumer object and send
             // us back the info we need to create a client-side consumer
-            const consumerParameters = yield request("recv-track", {
+            const consumerParameters = (yield request("recv-track", {
                 mediaTag,
                 mediaPeerId: peerId,
                 rtpCapabilities: this.mediasoupDevice.rtpCapabilities
-            });
+            }));
             consumer = yield this.recvTransport.consume(Object.assign(Object.assign({}, consumerParameters), { appData: { peerId, mediaTag } }));
             // the server-side consumer will be started in paused state. wait
             // until we're connected, then send a resume request to the server
@@ -24644,9 +24643,9 @@ class SocketWebRTCTransport {
             // ask the server to create a server-side transport object and send
             // us back the info we need to create a client-side transport
             let transport;
-            const { transportOptions } = yield request("create-transport", {
+            const { transportOptions } = (yield request("create-transport", {
                 direction
-            });
+            }));
             console.log("transport options", transportOptions);
             if (direction === "recv") {
                 transport = yield this.mediasoupDevice.createRecvTransport(transportOptions);
