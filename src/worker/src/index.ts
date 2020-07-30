@@ -164,6 +164,12 @@ async function fetch(data: WorkerDataRequest): Promise<void> {
         transferableBuffers.push(tempBufferObject.bufferGeometry);
         transferableBuffers.push(tempBufferObject.compressedTexture);
 
+        tempBufferObject = {
+          frameNumber: 0,
+          bufferGeometry: null,
+          compressedTexture: null,
+        };
+
         count++;
 
         // Set whether end was reached
@@ -174,8 +180,9 @@ async function fetch(data: WorkerDataRequest): Promise<void> {
             buffers: ringBuffer.toArray(),
             endReached: endOfRangeReached,
           };
+          console.log("RingBuffer", ringBuffer);
+          // postMessage(message);
           postMessage(message);
-          // postMessage(message, '*', transferableBuffers);
         }
       });
     // Set the last frame

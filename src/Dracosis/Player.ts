@@ -60,9 +60,6 @@ export default class DracosisPlayer {
 
   private _fileReadStream: ReadStream;
   private _readStreamOffset = 0;
-  private _decoderModule = draco3d.createDecoderModule({});
-  private _encoderModule = draco3d.createEncoderModule({});
-  // private decoder = new this._decoderModule.Decoder();
   private _basisTextureLoader = new BasisTextureLoader();
 
   private _nullBufferGeometry = new BufferGeometry();
@@ -151,6 +148,10 @@ export default class DracosisPlayer {
     this.mesh = new Mesh(this.bufferGeometry, this.material);
     this.scene.add(this.mesh);
 
+    // this.dracoLoader.setDecoderPath(
+    //   "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/draco/"
+    // );
+
     let player = this;
 
     this.httpGetAsync('http://localhost:8000/dracosis', function (data: any) {
@@ -186,13 +187,19 @@ export default class DracosisPlayer {
     });
   }
 
-  decodeDracoData(rawBuffer: Buffer, decoder: any) {
-    const buffer = new this._decoderModule.DecoderBuffer()
-    buffer.Init(new Int8Array(rawBuffer), rawBuffer.byteLength)
-    // const geometryType = decoder.GetEncodedGeometryType(buffer)
+  decodeDracoData(rawBuffer: Buffer) {
+    const decoderModule = draco3d.createDecoderModule({});
+    // const _encoderModule = draco3d.createEncoderModule({});
   
-    // let dracoGeometry
-    // let status
+    const decoder = new decoderModule.Decoder();
+    const buffer = new decoderModule.DecoderBuffer()
+    buffer.Init(new Int8Array(rawBuffer), rawBuffer.byteLength)
+    const geometryType = decoder.GetEncodedGeometryType(buffer)
+    
+    let dracoGeometry
+    let status
+    dracoGeometry = new decoderModule.Mesh()
+    status = decoder.DecodeBufferToMesh(buffer, dracoGeometry)
     // if (geometryType === this._decoderModule.TRIANGULAR_MESH) {
     //   dracoGeometry = new this._decoderModule.Mesh()
     //   status = decoder.DecodeBufferToMesh(buffer, dracoGeometry)
@@ -203,14 +210,19 @@ export default class DracosisPlayer {
     //   const errorMsg = "Error: Unknown geometry type."
     //   console.error(errorMsg)
     // }
-    // this._decoderModule.destroy(buffer)
+    decoderModule.destroy(buffer)
 
+    // const dracoLoader = new DRACOLoader();
+    // // const bufferGeometry = dracoLoader.decodeDracoFile(buffer);
+    // dracoLoader.decodeDracoFile(buffer, function(bg) {
+    //   console.log("BufferGeometry", bg);
+    // }, null, null);
  
-    this.dracoLoader.decodeDracoFile(buffer, function(bufferGeometry) {
-      console.log("BufferGeometry", bufferGeometry);
-    }, null, null );
+    // this.dracoLoader.decodeDracoFile(rawBuffer, function(bufferGeometry) {
+    //   console.log("BufferGeometry", bufferGeometry);
+    // }, null, null );
     
-    // return dracoGeometry
+    return dracoGeometry
   }
 
   handleMessage(data: any) {
@@ -219,9 +231,10 @@ export default class DracosisPlayer {
         this.handleInitializationResponse(data);
         break;
       case MessageType.DataResponse: {
-        const decoder = new this._decoderModule.Decoder();
         if(data && data.buffers) {
-          console.log("Decoded data", this.decodeDracoData(data.buffers[0].bufferGeometry, decoder));
+          var geometry = this.decodeDracoData(data.buffers[0].bufferGeometry);
+          // console.log("Decoded data", decodeDracoData(data.buffers[0].bufferGeometry));
+          // console.log("Decoded data", data.buffers[0].bufferGeometry);
         
         }
         this.handleDataResponse(data.buffers);

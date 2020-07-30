@@ -26,8 +26,6 @@ export default class DracosisPlayer {
     private _fileHeader;
     private _fileReadStream;
     private _readStreamOffset;
-    private _decoderModule;
-    private _encoderModule;
     private _basisTextureLoader;
     private _nullBufferGeometry;
     private _nullCompressedTexture;
@@ -44,7 +42,7 @@ export default class DracosisPlayer {
     set loop(value: boolean);
     httpGetAsync(theUrl: any, callback: any): void;
     constructor(scene: any, filePath: string, onLoaded: any, playOnStart?: boolean, loop?: boolean, startFrame?: number, endFrame?: number, speedMultiplier?: number, bufferSize?: number);
-    decodeDracoData(rawBuffer: Buffer, decoder: any): void;
+    decodeDracoData(rawBuffer: Buffer): any;
     handleMessage(data: any): void;
     handleInitializationResponse(data: WorkerInitializationResponse): void;
     handleDataResponse(data: IBufferGeometryCompressedTexture[]): void;
