@@ -79,7 +79,7 @@
     "version": "npm run build && git add -A",
     "postversion": "git push && git push --tags && sudo npm publish",
     "dev": "(rollup -cw & http-server --ssl --cert certs/armada.crt --key certs/armada.key ./dist/examples)",
-    "dev-ws": "node server/index.js",
+    "dev-ws": "node dist/examples/server.js",
     "lint": "eslint ./src/**/*",
     "start": "npm run build"
   },

@@ -1,6 +1,6 @@
 import { System, Entity, World } from "ecsy";
 import MessageSchema from "../classes/MessageSchema";
-import NetworkTransportAlias from "../types/NetworkTransportAlias";
+import NetworkTransport from "../types/NetworkTransport";
 import MessageTypeAlias from "../types/MessageTypeAlias";
 export declare class NetworkSystem extends System {
     clients: string[];
@@ -9,7 +9,7 @@ export declare class NetworkSystem extends System {
     _isInitialized: boolean;
     _sessionEntity: Entity;
     static _schema: MessageSchema<any>;
-    _transport: NetworkTransportAlias;
+    _transport: NetworkTransport;
     protected static _buffer: ArrayBuffer;
     protected static _dataView: DataView;
     protected static _bytes: number;

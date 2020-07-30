@@ -22,7 +22,9 @@ const MessageTypes = {
   WebRTCCloseProducerRequest: 19,
   WebRTCMuteOtherProducerRequest: 20,
   WebRTCUnmuteOtherProducerRequest: 21,
-  WebRTCConsumerSetLayersRequest: 22
+  WebRTCConsumerSetLayersRequest: 22,
+  ReliableMessage: 23,
+  UnreliableMessage: 24
 }
 
 export default MessageTypes
