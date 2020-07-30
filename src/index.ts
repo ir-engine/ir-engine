@@ -1,6 +1,7 @@
 export * from "./common"
 export * from "./input"
 export * from "./state"
+export * from "./state"
 
 import { Entity, World } from "ecsy"
 
@@ -19,13 +20,15 @@ import { DefaultStateSchema } from "./state/defaults/DefaultStateSchema"
 import { NetworkSystem } from "./networking/systems/NetworkSystem"
 import NetworkPlayer from "./networking/components/NetworkPlayer"
 import NetworkObject from "./networking/components/NetworkObject"
-import SocketWebRTCTransport from "./networking/transports/SocketWebRTCClientTransport"
-import NetworkTransportAlias from "./networking/types/NetworkTransportAlias"
+import NetworkTransport from "./networking/interfaces/NetworkTransport"
+import CreateTransport from "./networking/transports/SocketWebRTC/Transport"
+import { MediaStreamControlSystem } from "./networking/systems/MediaStreamSystem"
 
 const DEFAULT_OPTIONS = {
   debug: false
 }
 
+// TODO: Make this a static function on InputSystem
 export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS): World | null {
   if (options.debug) console.log("Initializing input systems...")
 
@@ -49,6 +52,7 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS):
   return world
 }
 
+// TODO: Make this a static function on ActorSystem
 export function initializeActor(entity: Entity, options: { inputMap?: InputSchema; stateMap?: StateSchema }): Entity {
   entity
     .addComponent(Input)
@@ -80,12 +84,14 @@ export function initializeActor(entity: Entity, options: { inputMap?: InputSchem
   return entity
 }
 
-export function initializeNetworking(world: World, transport?: NetworkTransportAlias) {
+// TODO: Make this a static function on NetworkSystem
+export function initializeNetworking(world: World, transport?: NetworkTransport) {
   world
     .registerSystem(NetworkSystem)
     .registerComponent(NetworkObject)
     .registerComponent(NetworkPlayer)
+  if (transport.supportsMediaStreams) world.registerSystem(MediaStreamControlSystem)
 
   const networkSystem = world.getSystem(NetworkSystem)
-  ;(networkSystem as NetworkSystem).initializeSession(world, transport ?? new SocketWebRTCTransport())
+  ;(networkSystem as NetworkSystem).initializeSession(world, transport ?? CreateTransport())
 }

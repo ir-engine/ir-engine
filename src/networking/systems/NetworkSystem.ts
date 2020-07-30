@@ -4,24 +4,35 @@ import MessageSchema from "../classes/MessageSchema"
 import set from "../../common/utils/set"
 import cropString from "../../common/utils/cropString"
 import NetworkObject from "../components/NetworkObject"
-import NetworkTransportAlias from "../types/NetworkTransportAlias"
 import MessageTypeAlias from "../types/MessageTypeAlias"
+import NetworkTransportComponent from "../components/NetworkTransportComponent"
 
 export class NetworkSystem extends System {
+  public static instance: NetworkSystem
+
+  networkTransport: NetworkTransportComponent
   clients: string[] = [] // TODO: Replace with ringbuffer
 
   mySocketID
-  public static _schemas: Map<MessageTypeAlias, MessageSchema<any>> = new Map()
+  public _schemas: Map<MessageTypeAlias, MessageSchema<any>> = new Map()
 
   _isInitialized: boolean
   _sessionEntity: Entity
-  static _schema: MessageSchema<any>
-  _transport: NetworkTransportAlias
+  _schema: MessageSchema<any>
 
-  // TODO: Move to component?
-  protected static _buffer: ArrayBuffer = new ArrayBuffer(0)
-  protected static _dataView: DataView = new DataView(NetworkSystem._buffer)
-  protected static _bytes = 0
+  protected _buffer: ArrayBuffer = new ArrayBuffer(0)
+  protected _dataView: DataView = new DataView(this._buffer)
+  protected _bytes = 0
+
+  constructor(world: World) {
+    super(world)
+    NetworkSystem.instance = this
+    this.networkTransport = world
+      .registerComponent(NetworkTransportComponent)
+      .createEntity()
+      .addComponent(NetworkTransportComponent)
+      .getComponent(NetworkTransportComponent)
+  }
 
   static queries: any = {
     networkObject: {
@@ -37,12 +48,13 @@ export class NetworkSystem extends System {
     this.mySocketID = _id
   }
 
-  initializeClient(_ids): void {
+  initializeClient(myClientId, allClientIds): void {
+    this.setLocalConnectionId(myClientId)
     console.log("ids: ")
-    console.log(_ids)
-    if (_ids === undefined) return
+    console.log(allClientIds)
+    if (allClientIds === undefined) return
     // for each existing user, add them as a client and add tracks to their peer connection
-    for (let i = 0; i < _ids.length; i++) this.addClient(_ids[i])
+    for (let i = 0; i < allClientIds.length; i++) this.addClient(allClientIds[i])
   }
 
   addClient(_id: any): void {
@@ -72,13 +84,12 @@ export class NetworkSystem extends System {
     }
   }
 
-
   public execute(delta: number): void {
     if (!this._isInitialized) return
     // Ask transport for all new messages
   }
 
-  public static addMessageSchema<StructType>(messageType: MessageTypeAlias, messageData: StructType): MessageSchema<any> {
+  public addMessageSchema<StructType>(messageType: MessageTypeAlias, messageData: StructType): MessageSchema<any> {
     const s = new MessageSchema<StructType>(messageType, messageData)
     this._schemas.set(messageType, s)
     return s
@@ -90,25 +101,17 @@ export class NetworkSystem extends System {
 
   public initializeSession(world: World, transport?: any) {
     this._isInitialized = true
-    this._transport = transport as NetworkTransportAlias
-    transport.initialize(
-      this.initializeClient,
-      this.setLocalConnectionId,
-      this.onConnected,
-      this.addClient,
-      this.removeClient,
-      this.getClosestPeers,
-      this.getLocalConnectionId
-    )
+    NetworkTransportComponent.instance.transport = transport
+    transport.initialize()
   }
 
   public deinitializeSession() {
     this._sessionEntity?.remove()
     this._isInitialized = false
-    this._transport.deinitialize()
+    // NetworkTransport.instance.transport.deinitialize()
   }
 
-  public static toBuffer(input: MessageSchema<any>): ArrayBuffer {
+  public toBuffer(input: MessageSchema<any>): ArrayBuffer {
     // deep clone the worldState
     const data = { ...input }
 
@@ -174,7 +177,7 @@ export class NetworkSystem extends System {
     return newBuffer
   }
 
-  public static fromBuffer(buffer: ArrayBuffer) {
+  public fromBuffer(buffer: ArrayBuffer) {
     // check where, in the buffer, the schemas are
     let index = 0
     const indexes: number[] = []
@@ -206,8 +209,8 @@ export class NetworkSystem extends System {
     schemaIds.forEach((id, i) => {
       // check if the schemaId exists
       // (this can be, for example, if charCode 35 is not really a #)
-      const schemaId = NetworkSystem._schemas.get(id)
-      if (schemaId) schemas.push({ id, schema: NetworkSystem._schemas.get(id), startsAt: indexes[i] + 5 })
+      const schemaId = this._schemas.get(id)
+      if (schemaId) schemas.push({ id, schema: this._schemas.get(id), startsAt: indexes[i] + 5 })
     })
     // schemas[] contains now all the schemas we need to fromBuffer the bufferArray
 
@@ -350,13 +353,13 @@ export class NetworkSystem extends System {
     for (let i = 0; i < Object.keys(dataPerSchema).length; i++) {
       const key = Object.keys(dataPerSchema)[i]
       const value = dataPerSchema[key]
-      populateData(NetworkSystem._schema, key, value, "")
+      populateData(this._schema, key, value, "")
     }
 
     return data
   }
 
-  static flattenSchema(schema: MessageSchema<any>, data: any): any[] {
+  flattenSchema(schema: MessageSchema<any>, data: any): any[] {
     const flat: any[] = []
 
     const flatten = (schema: any, data: any) => {
