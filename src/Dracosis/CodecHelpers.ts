@@ -4,23 +4,28 @@ import * as basisu from "basisu"
 import * as draco3d from "draco3d"
 import { Geometry } from "three"
 
-export function decodeDracoData(rawBuffer: Buffer, decoder: any) {
+export function decodeDracoData(rawBuffer: Buffer) {
+  const decoderModule = draco3d.createDecoderModule({});
+  const decoder = new decoderModule.Decoder();
   const buffer = new this.decoderModule.DecoderBuffer()
   buffer.Init(new Int8Array(rawBuffer), rawBuffer.byteLength)
-  const geometryType = decoder.GetEncodedGeometryType(buffer)
+  // const geometryType = decoder.GetEncodedGeometryType(buffer)
 
   let dracoGeometry
   let status
-  if (geometryType === this.decoderModule.TRIANGULAR_MESH) {
-    dracoGeometry = new this.decoderModule.Mesh()
-    status = decoder.DecodeBufferToMesh(buffer, dracoGeometry)
-  } else if (geometryType === this.decoderModule.POINT_CLOUD) {
-    dracoGeometry = new this.decoderModule.PointCloud()
-    status = decoder.DecodeBufferToPointCloud(buffer, dracoGeometry)
-  } else {
-    const errorMsg = "Error: Unknown geometry type."
-    console.error(errorMsg)
-  }
+  dracoGeometry = new this.decoderModule.Mesh()
+  status = decoder.DecodeBufferToMesh(buffer, dracoGeometry)
+  // if (geometryType === this.decoderModule.TRIANGULAR_MESH) {
+  //   dracoGeometry = new this.decoderModule.Mesh()
+  //   status = decoder.DecodeBufferToMesh(buffer, dracoGeometry)
+  // } else if (geometryType === this.decoderModule.POINT_CLOUD) {
+  //   dracoGeometry = new this.decoderModule.PointCloud()
+  //   status = decoder.DecodeBufferToPointCloud(buffer, dracoGeometry)
+  // } else {
+  //   const errorMsg = "Error: Unknown geometry type."
+  //   console.error(errorMsg)
+  // }
+
   this.decoderModule.destroy(buffer)
 
   return dracoGeometry
@@ -105,6 +110,8 @@ export function encodeMeshToDraco(mesh: Geometry): any {
 
   console.log("DRACO ENCODED////////////////////////////")
   console.log("Length of buffer: " + outputBuffer.byteLength)
+
+  // const geometry = this.decodeDracoData(outputBuffer);
 
   return outputBuffer
 }

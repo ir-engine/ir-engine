@@ -5862,20 +5862,23 @@ DRACOLoader.prototype = Object.assign(Object.create(Loader.prototype), {
       attributeTypes: attributeTypes || this.defaultAttributeTypes,
       useUniqueIDs: !!attributeIDs
     };
+    console.log("128 DracoLoader decodeDracoFile buffer", buffer);
     this.decodeGeometry(buffer, taskConfig).then(callback);
   },
   decodeGeometry: function (buffer, taskConfig) {
-    // TODO: For backward-compatibility, support 'attributeTypes' objects containing
+    console.log('134 DracoLoader Buffer', buffer); // TODO: For backward-compatibility, support 'attributeTypes' objects containing
     // references (rather than names) to typed array constructors. These must be
     // serialized before sending them to the worker.
+
     for (var attribute in taskConfig.attributeTypes) {
       var type = taskConfig.attributeTypes[attribute];
 
       if (type.BYTES_PER_ELEMENT !== undefined) {
         taskConfig.attributeTypes[attribute] = type.name;
       }
-    } //
+    }
 
+    console.log('149 DracoLoader'); //
 
     var taskKey = JSON.stringify(taskConfig); // Check for an existing task using this buffer. A transferred buffer cannot be transferred
     // again from this thread.
@@ -5907,12 +5910,14 @@ DRACOLoader.prototype = Object.assign(Object.create(Loader.prototype), {
           resolve,
           reject
         };
+        console.log("199 DracoLoader", buffer); // worker.postMessage( { type: 'decode', id: taskID, taskConfig, buffer } );
+
         worker.postMessage({
           type: 'decode',
           id: taskID,
           taskConfig,
           buffer
-        }, [buffer]); // this.debug();
+        }, [buffer.buffer]); // this.debug();
       });
     }).then(message => this._createGeometry(message.geometry)); // Remove task from the task list.
     // Note: replaced '.finally()' with '.catch().then()' block - iOS 11 support (#19416)
@@ -5999,6 +6004,7 @@ DRACOLoader.prototype = Object.assign(Object.create(Loader.prototype), {
         });
 
         worker.onmessage = function (e) {
+          console.log('353 inside worker of DracoLoader');
           var message = e.data;
 
           switch (message.type) {
@@ -6054,6 +6060,7 @@ DRACOLoader.DRACOWorker = function () {
   var decoderPending;
 
   onmessage = function (e) {
+    console.log("434 inside Dracoloader worker");
     var message = e.data;
 
     switch (message.type) {
@@ -6084,6 +6091,7 @@ DRACOLoader.DRACOWorker = function () {
 
           try {
             var geometry = decodeGeometry(draco, decoder, decoderBuffer, taskConfig);
+            console.log("Geometry", geometry);
             var buffers = geometry.attributes.map(attr => attr.array.buffer);
             if (geometry.index) buffers.push(geometry.index.array.buffer);
             self.postMessage({
@@ -6464,7 +6472,6 @@ var draco3d = {
   createEncoderModule: draco_encoder_nodejs,
   createDecoderModule: draco_decoder_nodejs
 };
-var draco3d_1 = draco3d.createEncoderModule;
 var draco3d_2 = draco3d.createDecoderModule;
 
 function lerp(v0, v1, t) {
@@ -7027,9 +7034,6 @@ class DracosisPlayer {
         this._dataBufferSize = 100;
         this._isPlaying = false;
         this._readStreamOffset = 0;
-        this._decoderModule = draco3d_2({});
-        this._encoderModule = draco3d_1({});
-        // private decoder = new this._decoderModule.Decoder();
         this._basisTextureLoader = new BasisTextureLoader();
         this._nullBufferGeometry = new BufferGeometry();
         this._nullCompressedTexture = new CompressedTexture([new ImageData(200, 200)], 0, 0);
@@ -7050,7 +7054,9 @@ class DracosisPlayer {
         this.material = new MeshPhongMaterial({ color: 0xffff00 });
         this.mesh = new Mesh(this.bufferGeometry, this.material);
         this.scene.add(this.mesh);
-        console.log("63 dracodecoder", this._decoderModule);
+        // this.dracoLoader.setDecoderPath(
+        //   "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/draco/"
+        // );
         let player = this;
         this.httpGetAsync('http://localhost:8000/dracosis', function (data) {
             data = JSON.parse(data);
@@ -7123,10 +7129,18 @@ class DracosisPlayer {
         xmlHttp.open('GET', theUrl, true); // true for asynchronous
         xmlHttp.send(null);
     }
-    decodeDracoData(rawBuffer, decoder) {
-        console.log("8 rawBuffer", rawBuffer);
-        const buffer = new this._decoderModule.DecoderBuffer();
+    decodeDracoData(rawBuffer) {
+        const decoderModule = draco3d_2({});
+        // const _encoderModule = draco3d.createEncoderModule({});
+        const decoder = new decoderModule.Decoder();
+        const buffer = new decoderModule.DecoderBuffer();
         buffer.Init(new Int8Array(rawBuffer), rawBuffer.byteLength);
+        const geometryType = decoder.GetEncodedGeometryType(buffer);
+        console.log(geometryType);
+        let dracoGeometry;
+        let status;
+        dracoGeometry = new decoderModule.Mesh();
+        status = decoder.DecodeBufferToMesh(buffer, dracoGeometry);
         // if (geometryType === this._decoderModule.TRIANGULAR_MESH) {
         //   dracoGeometry = new this._decoderModule.Mesh()
         //   status = decoder.DecodeBufferToMesh(buffer, dracoGeometry)
@@ -7137,24 +7151,28 @@ class DracosisPlayer {
         //   const errorMsg = "Error: Unknown geometry type."
         //   console.error(errorMsg)
         // }
-        // this._decoderModule.destroy(buffer)
-        this.dracoLoader.decodeDracoFile(buffer, function (bufferGeometry) {
-            console.log("BufferGeometry", bufferGeometry);
-        }, null, null);
-        // return dracoGeometry
+        decoderModule.destroy(buffer);
+        // const dracoLoader = new DRACOLoader();
+        // // const bufferGeometry = dracoLoader.decodeDracoFile(buffer);
+        // dracoLoader.decodeDracoFile(buffer, function(bg) {
+        //   console.log("BufferGeometry", bg);
+        // }, null, null);
+        // this.dracoLoader.decodeDracoFile(rawBuffer, function(bufferGeometry) {
+        //   console.log("BufferGeometry", bufferGeometry);
+        // }, null, null );
+        return dracoGeometry;
     }
     handleMessage(data) {
-        console.log('190 data buffers', data.buffers);
         switch (data.type) {
             case MessageType.InitializationResponse:
                 this.handleInitializationResponse(data);
                 break;
             case MessageType.DataResponse: {
-                const decoder = new this._decoderModule.Decoder();
-                console.log("212 Decoder", decoder);
                 if (data && data.buffers) {
-                    console.log("bufferGeometry", data.buffers[0].bufferGeometry);
-                    console.log("Decoded data", this.decodeDracoData(data.buffers[0].bufferGeometry, decoder));
+                    var geometry = this.decodeDracoData(data.buffers[0].bufferGeometry);
+                    console.log("Decoded geometry", geometry);
+                    // console.log("Decoded data", decodeDracoData(data.buffers[0].bufferGeometry));
+                    // console.log("Decoded data", data.buffers[0].bufferGeometry);
                 }
                 this.handleDataResponse(data.buffers);
                 break;
@@ -7266,7 +7284,6 @@ class DracosisPlayer {
             this._ringBuffer.getFirst().frameNumber == this._currentFrame) {
             // read buffer into current buffer geometry
             this.bufferGeometry = this._ringBuffer.getFirst().bufferGeometry;
-            // console.log('BufferGeometry', this.bufferGeometry);
             // read buffer into current texture
             this.compressedTexture = this._ringBuffer.getFirst().compressedTexture;
             // Remove buffer
