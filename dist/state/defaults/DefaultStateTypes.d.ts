@@ -11,5 +11,4 @@ export declare const DefaultStateTypes: {
     MOVING_BACKWARD: number;
     MOVING_LEFT: number;
     MOVING_RIGHT: number;
-    LOOKING: number;
 };

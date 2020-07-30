@@ -16,6 +16,8 @@ export declare const DefaultInput: {
     SPRINT: number;
     SNEAK: number;
     SCREENXY: number;
+    SCREENXY_START: number;
+    ROTATION_START: number;
     MOVEMENT_PLAYERONE: number;
     LOOKTURN_PLAYERONE: number;
     MOVEMENT_PLAYERTWO: number;

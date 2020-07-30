@@ -25,7 +25,6 @@ export const updateMovementState: Behavior = (entity: Entity, args: {}, delta: n
     DefaultInput.RIGHT
   ]
   movementInputs.forEach(direction => {
-    console.log(direction)
     if (input.data.get(direction)?.value == BinaryValue.ON) moving = true
   })
   const movementState = moving ? DefaultStateTypes.MOVING : DefaultStateTypes.IDLE
