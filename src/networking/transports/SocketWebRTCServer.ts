@@ -1,17 +1,15 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const config = require("../src/networking/transports/serverConfig")
-require("dotenv").config()
-
-import MessageTypes from "../src/networking/types/MessageTypes"
-
-const mediasoup = require("mediasoup")
-const express = require("express")
-const https = require("https")
-const fs = require("fs")
-const path = require("path")
+import config from "./serverConfig"
+import mediasoup from "mediasoup"
+import express from "express"
+import https from "https"
+import fs from "fs"
+import path from "path"
+import socketIO from "socket.io"
+import MessageTypes from "../types/MessageTypes"
+import dotenv from "dotenv"
 
 const expressApp = express()
-const socketIO = require("socket.io")
+dotenv.config()
 
 config.mediasoup.webRtcTransport.listenIps = [{ ip: "127.0.0.1", announcedIp: null }]
 
@@ -29,7 +27,7 @@ const defaultRoomState = {
 
 let roomState = defaultRoomState
 
-let clients = {}
+const clients = []
 
 const tls = {
   cert: fs.readFileSync(path.resolve(__dirname, "..", process.env.CERT)),
@@ -56,8 +54,7 @@ async function main() {
 
   // every 5 seconds, check for inactive clients and send them into cyberspace
   setInterval(() => {
-    let now = Date.now()
-    for (let id in clients) if (now - clients[id].lastSeenTs > 10000) console.log("Culling inactive user with id", id)
+    for (let id = 0; id < clients.length; id++) if (Date.now() - clients[id].lastSeenTs > 10000) console.log("Culling inactive user with id", id)
   }, 5000)
 
   io.on(MessageTypes.ConnectionRequest, socket => {
@@ -69,7 +66,7 @@ async function main() {
     socket.emit(MessageTypes.InitializationResponse, socket.id, Object.keys(clients))
 
     //Update everyone that the number of users has changed
-    io.sockets.emit(MessageTypes.ConnectionResponse, io.engine.clientsCount, socket.id, Object.keys(clients))
+    io.sockets.emit(MessageTypes.ClientConnected, io.engine.clientsCount, socket.id, Object.keys(clients))
 
     // On heartbeat received from client
     socket.on(MessageTypes.Heartbeat, () => {
@@ -81,7 +78,7 @@ async function main() {
     socket.on(MessageTypes.DisconnectionRequest, () => {
       //Delete this client from the object
       delete clients[socket.id]
-      io.sockets.emit(MessageTypes.DisconnectionResponse, socket.id, Object.keys(clients))
+      io.sockets.emit(MessageTypes.ClientDisconnected as any, socket.id, Object.keys(clients))
       console.log("User " + socket.id + " diconnected, there are " + io.engine.clientsCount + " clients connected")
     })
 
@@ -108,8 +105,8 @@ async function main() {
     // transport that the peer will use for receiving media. returns
     // router rtpCapabilities for mediasoup-client device initialization
     socket.on(MessageTypes.JoinWorldRequest, async (data, callback) => {
-      let peerId = socket.id
-      let now = Date.now()
+      const peerId = socket.id
+      const now = Date.now()
       console.log("Join world request", peerId)
 
       roomState.peers[peerId] = {
@@ -136,14 +133,14 @@ async function main() {
     // create a mediasoup transport object and send back info needed
     // to create a transport object on the client side
     socket.on(MessageTypes.WebRTCTransportCreateRequest, async (data, callback) => {
-      let peerId = socket.id
-      let { direction } = data
+      const peerId = socket.id
+      const { direction } = data
       console.log("WebRTCTransportCreateRequest", peerId, direction)
 
-      let transport = await createWebRtcTransport({ peerId, direction })
+      const transport = await createWebRtcTransport({ peerId, direction })
       roomState.transports[transport.id] = transport
 
-      let { id, iceParameters, iceCandidates, dtlsParameters } = transport
+      const { id, iceParameters, iceCandidates, dtlsParameters } = transport
       callback({
         transportOptions: {
           id,
@@ -159,7 +156,7 @@ async function main() {
     // handler.
     socket.on(MessageTypes.WebRTCTransportConnectRequest, async (data, callback) => {
       console.log("WebRTCTransportConnectRequest", socket.id, transport.appData)
-      let { transportId, dtlsParameters } = data,
+      const { transportId, dtlsParameters } = data,
         transport = roomState.transports[transportId]
       await transport.connect({ dtlsParameters })
       callback({ connected: true })
@@ -169,28 +166,28 @@ async function main() {
     // example, a client that is no longer sending any media).
     socket.on(MessageTypes.WebRTCTransportCloseRequest, async (data, callback) => {
       console.log("close-transport", socket.id, transport.appData)
-      let { transportId } = data
+      const { transportId } = data
       transport = roomState.transports[transportId]
-      await closeTransport(transport, socket.id)
+      await closeTransport(transport)
       callback({ closed: true })
     })
 
     // called by a client that is no longer sending a specific track
     socket.on(MessageTypes.WebRTCCloseProducerRequest, async (data, callback) => {
-      console.log("WebRTCCloseProducerRequest", socket.id, producer.appData)
-      let { producerId } = data,
+      const { producerId } = data,
         producer = roomState.producers.find(p => p.id === producerId)
+      console.log("WebRTCCloseProducerRequest", socket.id, producer.appData)
       await closeProducerAndAllPipeProducers(producer, socket.id)
       callback({ closed: true })
     })
 
     // called from inside a client's `transport.on('produce')` event handler.
     socket.on(MessageTypes.WebRTCSendTrackRequest, async (data, callback) => {
-      let peerId = socket.id
-      let { transportId, kind, rtpParameters, paused = false, appData } = data,
+      const peerId = socket.id
+      const { transportId, kind, rtpParameters, paused = false, appData } = data,
         transport = roomState.transports[transportId]
 
-      let producer = await transport.produce({
+      const producer = await transport.produce({
         kind,
         rtpParameters,
         paused,
@@ -218,19 +215,21 @@ async function main() {
     // object on the client side. always start consumers paused. client
     // will request media to resume when the connection completes
     socket.on(MessageTypes.WebRTCReceiveTrackRequest, async (data, callback) => {
-      let { mediaPeerId, mediaTag, rtpCapabilities } = data
-      let peerId = socket.id
-      let producer = roomState.producers.find(p => p.appData.mediaTag === mediaTag && p.appData.peerId === mediaPeerId)
+      const { mediaPeerId, mediaTag, rtpCapabilities } = data
+      const peerId = socket.id
+      const producer = roomState.producers.find(p => p.appData.mediaTag === mediaTag && p.appData.peerId === mediaPeerId)
       if (!router.canConsume({ producerId: producer.id, rtpCapabilities })) {
-        let msg = `client cannot consume ${mediaPeerId}:${mediaTag}`
+        const msg = `client cannot consume ${mediaPeerId}:${mediaTag}`
         console.err(`recv-track: ${peerId} ${msg}`)
         callback({ error: msg })
         return
       }
 
-      let transport = Object.values(roomState.transports).find(t => t.appData.peerId === peerId && t.appData.clientDirection === "recv")
+      const transport = Object.values(roomState.transports).find(
+        t => (t as any).appData.peerId === peerId && (t as any).appData.clientDirection === "recv"
+      )
 
-      let consumer = await transport.consume({
+      const consumer = await (transport as any).consume({
         producerId: producer.id,
         rtpCapabilities,
         paused: true, // see note above about always starting paused
@@ -242,11 +241,11 @@ async function main() {
       // circumstances
       consumer.on("transportclose", () => {
         console.log(`consumer's transport closed`, consumer.id)
-        closeConsumer(consumer, peerId)
+        closeConsumer(consumer)
       })
       consumer.on("producerclose", () => {
         console.log(`consumer's producer closed`, consumer.id)
-        closeConsumer(consumer, peerId)
+        closeConsumer(consumer)
       })
 
       // stick this consumer in our list of consumers to keep track of,
@@ -279,9 +278,9 @@ async function main() {
     // --> /signaling/pause-consumer
     // called to pause receiving a track for a specific client
     socket.on(MessageTypes.WebRTCPauseConsumerRequest, async (data, callback) => {
-      console.log("pause-consumer", consumer.appData)
-      let { consumerId } = data,
+      const { consumerId } = data,
         consumer = roomState.consumers.find(c => c.id === consumerId)
+      console.log("pause-consumer", consumer.appData)
       await consumer.pause()
       callback({ paused: true })
     })
@@ -289,9 +288,9 @@ async function main() {
     // --> /signaling/resume-consumer
     // called to resume receiving a track for a specific client
     socket.on(MessageTypes.WebRTCResumeConsumerRequest, async (data, callback) => {
-      console.log("resume-consumer", consumer.appData)
-      let { consumerId } = data,
+      const { consumerId } = data,
         consumer = roomState.consumers.find(c => c.id === consumerId)
+      console.log("resume-consumer", consumer.appData)
       await consumer.resume()
       callback({ resumed: true })
     })
@@ -300,10 +299,10 @@ async function main() {
     // called to stop receiving a track for a specific client. close and
     // clean up consumer object
     socket.on(MessageTypes.WebRTCCloseConsumerRequest, async (data, callback) => {
-      console.log("WebRTCCloseConsumerRequest", data)
-      let { consumerId } = data,
+      const { consumerId } = data,
         consumer = roomState.consumers.find(c => c.id === consumerId)
-      await closeConsumer(consumer, socket.id)
+      console.log("WebRTCCloseConsumerRequest", data)
+      await closeConsumer(consumer)
       callback({ closed: true })
     })
 
@@ -311,9 +310,9 @@ async function main() {
     // called to set the largest spatial layer that a specific client
     // wants to receive
     socket.on(MessageTypes.WebRTCConsumerSetLayersRequest, async (data, callback) => {
-      console.log("consumer-set-layers", spatialLayer, consumer.appData)
-      let { consumerId, spatialLayer } = data,
+      const { consumerId, spatialLayer } = data,
         consumer = roomState.consumers.find(c => c.id === consumerId)
+      console.log("consumer-set-layers", spatialLayer, consumer.appData)
       await consumer.setPreferredLayers({ spatialLayer })
       callback({ layersSet: true })
     })
@@ -321,9 +320,9 @@ async function main() {
     // --> /signaling/pause-producer
     // called to stop sending a track from a specific client
     socket.on(MessageTypes.WebRTCCloseProducerRequest, async (data, callback) => {
-      console.log("pause-producer", producer.appData)
-      let { producerId } = data,
+      const { producerId } = data,
         producer = roomState.producers.find(p => p.id === producerId)
+      console.log("pause-producer", producer.appData)
       await producer.pause()
       roomState.peers[socket.id].media[producer.appData.mediaTag].paused = true
       callback({ paused: true })
@@ -332,9 +331,9 @@ async function main() {
     // --> /signaling/resume-producer
     // called to resume sending a track from a specific client
     socket.on(MessageTypes.WebRTCResumeProducerRequest, async (data, callback) => {
-      console.log("resume-producer", producer.appData)
-      let { producerId } = data,
+      const { producerId } = data,
         producer = roomState.producers.find(p => p.id === producerId)
+      console.log("resume-producer", producer.appData)
       await producer.resume()
       roomState.peers[socket.id].media[producer.appData.mediaTag].paused = false
       callback({ resumed: true })
@@ -361,28 +360,11 @@ async function startMediasoup() {
 
   const mediaCodecs = config.mediasoup.router.mediaCodecs
   router = await worker.createRouter({ mediaCodecs })
-
-  // audioLevelObserver for signaling active speaker
-  const audioLevelObserver = await router.createAudioLevelObserver({ interval: 800 })
-
-  audioLevelObserver.on("volumes", volumes => {
-    const { producer, volume } = volumes[0]
-    console.log("audio-level volumes event", producer.appData.peerId, volume)
-    roomState.activeSpeaker.producerId = producer.id
-    roomState.activeSpeaker.volume = volume
-    roomState.activeSpeaker.peerId = producer.appData.peerId
-  })
-  audioLevelObserver.on("silence", () => {
-    console.log("audio-level silence event")
-    roomState.activeSpeaker.producerId = null
-    roomState.activeSpeaker.volume = null
-    roomState.activeSpeaker.peerId = null
-  })
 }
 
 function closePeer(peerId) {
   console.log("closing peer", peerId)
-  for (let [id, transport] of Object.entries(roomState.transports)) if (transport.appData.peerId === peerId) closeTransport(transport, peerId)
+  for (const [, transport] of Object.entries(roomState.transports)) if ((transport as any).appData.peerId === peerId) closeTransport(transport)
 
   delete roomState.peers[peerId]
 }

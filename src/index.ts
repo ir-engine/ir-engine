@@ -19,7 +19,7 @@ import { DefaultStateSchema } from "./state/defaults/DefaultStateSchema"
 import { NetworkSystem } from "./networking/systems/NetworkSystem"
 import NetworkPlayer from "./networking/components/NetworkPlayer"
 import NetworkObject from "./networking/components/NetworkObject"
-import SocketWebRTCTransport from "./networking/transports/SocketWebRTCTransport"
+import SocketWebRTCTransport from "./networking/transports/SocketWebRTCClientTransport"
 import NetworkTransportAlias from "./networking/types/NetworkTransportAlias"
 
 const DEFAULT_OPTIONS = {
