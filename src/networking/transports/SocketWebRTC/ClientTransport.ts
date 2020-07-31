@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import MediaStreamComponent from "../../components/MediaStreamComponent"
-import io from "socket.io-client"
+import io from "socket.io-client/dist/socket.io"
 import * as mediasoup from "mediasoup-client"
 import { promise } from "../../../common/utils/promise"
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "../../constants/VideoConstants"
