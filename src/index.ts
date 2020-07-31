@@ -23,6 +23,7 @@ import NetworkObject from "./networking/components/NetworkObject"
 import NetworkTransport from "./networking/interfaces/NetworkTransport"
 import CreateTransport from "./networking/transports/SocketWebRTC/Transport"
 import { MediaStreamControlSystem } from "./networking/systems/MediaStreamSystem"
+import { Transport } from "mediasoup-client/lib/types"
 
 const DEFAULT_OPTIONS = {
   debug: false
@@ -86,12 +87,13 @@ export function initializeActor(entity: Entity, options: { inputMap?: InputSchem
 
 // TODO: Make this a static function on NetworkSystem
 export function initializeNetworking(world: World, transport?: NetworkTransport) {
+  const t = transport ? transport : CreateTransport()
   world
     .registerSystem(NetworkSystem)
     .registerComponent(NetworkObject)
     .registerComponent(NetworkPlayer)
-  if (transport.supportsMediaStreams) world.registerSystem(MediaStreamControlSystem)
+  if (t.supportsMediaStreams) world.registerSystem(MediaStreamControlSystem)
 
   const networkSystem = world.getSystem(NetworkSystem)
-  ;(networkSystem as NetworkSystem).initializeSession(world, transport ?? CreateTransport())
+  ;(networkSystem as NetworkSystem).initializeSession(world, t)
 }

@@ -1,10 +1,11 @@
 export * from "./common";
 export * from "./input";
 export * from "./state";
+export * from "./state";
 import { Entity, World } from "ecsy";
 import InputSchema from "./input/interfaces/InputSchema";
 import StateSchema from "./state/interfaces/StateSchema";
-import NetworkTransport from "./networking/types/NetworkTransport";
+import NetworkTransport from "./networking/interfaces/NetworkTransport";
 export declare function initializeInputSystems(world: World, options?: {
     debug: boolean;
 }): World | null;

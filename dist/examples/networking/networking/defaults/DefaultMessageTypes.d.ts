@@ -1,16 +1,13 @@
 declare const DefaultMessageTypes: {
-    Player: number;
-    Position: number;
-    Rotation: number;
-    Scale: number;
-    Velocity: number;
-    Spin: number;
     Clock: number;
-    World: number;
+    Position: number;
+    Velocity: number;
+    Rotation: number;
+    Spin: number;
+    Scale: number;
+    Client: number;
     Object: number;
-    Init: number;
-    ComponentDataUpdate: number;
-    UserConnected: number;
-    UserDisconnected: number;
+    World: number;
+    Test: number;
 };
 export default DefaultMessageTypes;

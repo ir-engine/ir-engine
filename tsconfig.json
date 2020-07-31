@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "es6",
+    "module": "esnext",
     "declaration": true,
     "noImplicitAny": false,
     "target": "es6",
@@ -9,7 +9,7 @@
     "esModuleInterop": true
   },
   "include": [
-    "src/**/*"
+    "src/**/*", "server/server.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }
