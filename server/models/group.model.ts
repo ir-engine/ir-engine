@@ -28,7 +28,7 @@ export default (app: Application): any => {
 
   (group as any).associate = (models: any) => {
     (group as any).belongsToMany(models.user, { through: 'group_user' }); // user can join multiple orgs
-    (group as any).hasMany(models.group_user, { unique: false});
+    (group as any).hasMany(models.group_user, { unique: false })
   }
 
   return group

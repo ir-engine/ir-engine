@@ -1,5 +1,6 @@
 import * as authentication from '@feathersjs/authentication'
 import messagePermissionAuthenticate from '../../hooks/message-permission-authenticate'
+import removeMessageStatuses from '../../hooks/remove-message-statuses'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks
@@ -11,7 +12,7 @@ export default {
     get: [],
     create: [],
     update: [],
-    patch: [],
+    patch: [messagePermissionAuthenticate()],
     remove: [messagePermissionAuthenticate()]
   },
 
@@ -22,7 +23,7 @@ export default {
     create: [],
     update: [],
     patch: [],
-    remove: []
+    remove: [removeMessageStatuses()]
   },
 
   error: {

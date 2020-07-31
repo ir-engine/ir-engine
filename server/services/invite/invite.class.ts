@@ -20,7 +20,7 @@ export class Invite extends Service {
           userId: query.userId
         }
       })
-      let identityProviderTokens = (identityProviders as any).data.map((provider) => provider.token)
+      const identityProviderTokens = (identityProviders as any).data.map((provider) => provider.token)
       const result = await super.find({
         query: {
           $or: [
@@ -41,12 +41,10 @@ export class Invite extends Service {
           const group = await this.app.service('group').get(invite.targetObjectId)
           invite.groupName = group.name
         }
-        return
       }))
 
       return result
-    }
-    else {
+    } else {
       const result = await super.find({
         query: {
           userId: query.userId,
@@ -60,7 +58,6 @@ export class Invite extends Service {
           const group = await this.app.service('group').get(invite.targetObjectId)
           invite.groupName = group.name
         }
-        return
       }))
 
       return result

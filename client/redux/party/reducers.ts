@@ -13,9 +13,7 @@ import {
   REMOVED_PARTY,
   INVITED_PARTY_USER,
   REMOVED_PARTY_USER,
-  FETCHING_PARTY_USERS,
-  LOADED_PARTY_USERS,
-  LOADED_SELF_PARTY_USER, FETCHING_SELF_PARTY_USER
+  FETCHING_PARTY_USERS
 } from '../actions'
 
 export const initialState = {
@@ -63,36 +61,13 @@ const partyReducer = (state = immutableState, action: PartyAction): any => {
     case INVITED_PARTY_USER:
       return state
           .set('updateNeeded', true)
-    case LOADED_PARTY_USERS:
-      newValues = (action as LoadedPartyUsersAction)
-      updateMap = new Map()
-      const existingPartyUsers = state.get('partyUsers').get('partyUsers')
-        console.log('PARTY USER STATE UPDATE')
-        console.log(existingPartyUsers.size)
-        console.log(state.get('partyUsersUpdateNeeded'))
-      updateMap.set('partyUsers', (existingPartyUsers.size != null || state.get('partyUsersUpdateNeeded') === true) ? newValues.partyUsers: existingPartyUsers.concat(newValues.partyUsers))
-      updateMap.set('skip', newValues.skip)
-      updateMap.set('limit', newValues.limit)
-      updateMap.set('total', newValues.total)
-      return state
-          .set('partyUsers', updateMap)
-          .set('partyUsersUpdateNeeded', false)
-          .set('getPartyUsersInProgress', false)
     case REMOVED_PARTY_USER:
       return state
           .set('updateNeeded', true)
           .set('partyUsersUpdateNeeded', true)
-    case LOADED_SELF_PARTY_USER:
-      return state
-          .set('selfPartyUser', (action as LoadedSelfPartyUserAction).selfPartyUser)
-          .set('selfUpdateNeeded', false)
-          .set('getSelfPartyUserInProgress', false)
     case FETCHING_PARTY_USERS:
       return state
           .set('getPartyUsersInProgress', true)
-    case FETCHING_SELF_PARTY_USER:
-      return state
-          .set('getSelfPartyUserInProgress', true)
   }
 
   return state

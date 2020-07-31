@@ -48,7 +48,7 @@ export default {
     find: [
       async (context: HookContext) => {
         try {
-          const {app, result} = context
+          const { app, result } = context
           result.data.forEach(async (item) => {
             if (item.subscriptions && item.subscriptions.length > 0) {
               await Promise.all(item.subscriptions.map(async (subscription: any) => {
@@ -68,7 +68,7 @@ export default {
             }
           })
           return context
-        } catch(err) {
+        } catch (err) {
           console.log('USER AFTER FIND ERROR')
           console.log(err)
         }
@@ -83,7 +83,7 @@ export default {
             }))
           }
 
-          const {id, app, result} = context
+          const { id, app, result } = context
 
           const userAvatarResult = await app.service('static-resource').find({
             query: {
@@ -96,7 +96,7 @@ export default {
           }
 
           return context
-        } catch(err) {
+        } catch (err) {
           console.log('USER AFTER GET ERROR')
           console.log(err)
         }

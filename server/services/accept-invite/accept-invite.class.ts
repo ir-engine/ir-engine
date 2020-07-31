@@ -139,8 +139,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
               userId: invite.inviteeId
             }, params)
           }
-        }
-        else if (invite.inviteType === 'group') {
+        } else if (invite.inviteType === 'group') {
           const group = await this.app.service('group').get(invite.targetObjectId)
 
           if (group == null) {
@@ -148,12 +147,11 @@ export class AcceptInvite implements ServiceMethods<Data> {
           }
 
           await this.app.service('group-user').create({
-            userId: invite.userId,
+            userId: invite.inviteeId,
             groupId: invite.targetObjectId,
             groupUserRank: 'user'
           })
-        }
-        else if (invite.inviteType === 'party') {
+        } else if (invite.inviteType === 'party') {
           const party = await this.app.service('party').get(invite.targetObjectId, params)
 
           if (party == null) {
@@ -161,7 +159,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
           }
 
           await this.app.service('party-user').create({
-            userId: invite.userId,
+            userId: invite.inviteeId,
             partyId: invite.targetObjectId,
             isOwner: false
           })

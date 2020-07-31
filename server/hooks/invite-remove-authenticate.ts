@@ -7,7 +7,7 @@ export default () => {
   return async (context: HookContext): Promise<HookContext> => {
     // Getting logged in user and attaching owner of user
     console.log('INVITE DELETE AUTHENTICATE')
-      const { id, params, app, path } = context
+    const { id, params, app, path } = context
     const loggedInUser = extractLoggedInUserFromParams(params)
     const invite = await app.service('invite').get(id)
     if (invite == null) {
