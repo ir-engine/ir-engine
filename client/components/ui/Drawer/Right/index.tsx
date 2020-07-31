@@ -34,6 +34,7 @@ import {
     PhoneIphone,
     SupervisedUserCircle
 } from '@material-ui/icons'
+import { selectAuthState } from '../../../../redux/auth/selector'
 import { getFriends } from '../../../../redux/friend/service'
 import { selectFriendState } from '../../../../redux/friend/selector'
 import { selectInviteState } from '../../../../redux/invite/selector'
@@ -51,10 +52,12 @@ import {
 import {
     getInvitableGroups
 } from '../../../../redux/group/service'
+import {User} from '../../../../../shared/interfaces/User'
 
 
 const mapStateToProps = (state: any): any => {
     return {
+        authState: selectAuthState(state),
         friendState: selectFriendState(state),
         inviteState: selectInviteState(state),
         groupState: selectGroupState(state),
@@ -75,6 +78,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 interface Props {
+    authState?: any
     friendState?: any
     inviteState?: any
     retrieveReceivedInvites?: typeof retrieveReceivedInvites
@@ -98,6 +102,7 @@ identityProviderTabMap.set(1, 'sms')
 
 const Invites = (props: Props): any => {
     const {
+        authState,
         friendState,
         inviteState,
         sendInvite,
@@ -112,6 +117,7 @@ const Invites = (props: Props): any => {
         partyState,
         getInvitableGroups
     } = props
+    const user = authState.get('user') as User
     const friendSubState = friendState.get('friends')
     const friends = friendSubState.get('friends')
     const receivedInviteState = inviteState.get('receivedInvites')
@@ -123,7 +129,7 @@ const Invites = (props: Props): any => {
     const invitableGroupState = groupState.get('invitableGroups')
     const invitableGroups = invitableGroupState.get('groups')
     const party = partyState.get('party')
-    const selfPartyUser = partyState.get('selfPartyUser')
+    const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === user.id): {}
     const [tabIndex, setTabIndex] = useState(0)
     const [inviteTabIndex, setInviteTabIndex] = useState(0)
     const [ inviteTypeIndex, setInviteTypeIndex ] = useState(0)
@@ -272,6 +278,9 @@ const Invites = (props: Props): any => {
         }
     }
 
+    console.log('RIGHT DRAWER')
+    console.log(party)
+    console.log(selfPartyUser)
     return (
         <div className="invite-container">
             <SwipeableDrawer
@@ -441,13 +450,13 @@ const Invites = (props: Props): any => {
                         { inviteTypeIndex === 2 && party == null &&
                             <div className="flex-justify-center">You are not currently in a party</div>
                         }
-                        { inviteTypeIndex === 2 && party != null && selfPartyUser?.isOwner !== 1 &&
+                        { inviteTypeIndex === 2 && party != null && selfPartyUser?.isOwner !== true &&
                             <div className="flex-justify-center">You are not the owner of your current party</div>
                         }
                         {!((inviteTypeIndex === 1 && invitableGroupState.get('total') === 0) ||
                             (inviteTypeIndex === 1 && _.find(invitableGroupState.get('groups'), (invitableGroup) => invitableGroup.id === inviteState.get('targetObjectId')) == null) ||
                             (inviteTypeIndex === 2 && party == null) ||
-                            (inviteTypeIndex === 2 && party != null && selfPartyUser?.isOwner !== 1)) &&
+                            (inviteTypeIndex === 2 && party != null && selfPartyUser?.isOwner !== true)) &&
                                 <div>
                                     <Tabs
                                         value={tabIndex}

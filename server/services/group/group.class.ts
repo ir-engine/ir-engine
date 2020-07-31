@@ -16,7 +16,7 @@ export class Group extends Service {
     const loggedInUser = extractLoggedInUserFromParams(params)
     const skip = params.query?.$skip ? params.query.$skip : 0
     const limit = params.query?.$limit ? params.query.$limit : 10
-    let include: any = [
+    const include: any = [
       {
         model: this.app.service('user').Model,
         where: {
@@ -48,6 +48,38 @@ export class Group extends Service {
       ],
       include: include
     })
+    await Promise.all(groupResult.rows.map(async (group) => {
+      return await new Promise(async (resolve) => {
+        const groupUsers = await this.app.service('group-user').Model.findAll({
+          limit: 1000,
+          where: {
+            groupId: group.id
+          },
+          include: [
+            {
+              model: this.app.service('user').Model
+            }
+          ]
+        })
+        await Promise.all(groupUsers.map(async (groupUser) => {
+          const avatarResult = await this.app.service('static-resource').find({
+            query: {
+              staticResourceType: 'user-thumbnail',
+              userId: groupUser.userId
+            }
+          }) as any
+
+          if (avatarResult.total > 0) {
+            groupUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url
+          }
+
+          return await Promise.resolve()
+        }))
+
+        group.dataValues.groupUsers = groupUsers
+        resolve()
+      })
+    }))
     return {
       skip: skip,
       limit: limit,

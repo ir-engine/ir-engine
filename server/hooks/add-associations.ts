@@ -6,7 +6,7 @@ export default (options = {}): any => {
       const sequelize = context.params.sequelize || {}
       const include = sequelize.include || []
       sequelize.include = include.concat((options as any).models.map((model: any) => {
-        const newModel = {...model, ...processInclude(model.include, context)}
+        const newModel = { ...model, ...processInclude(model.include, context) }
         newModel.model = context.app.services[model.model].Model
         return newModel
       }))
@@ -14,7 +14,7 @@ export default (options = {}): any => {
       sequelize.raw = false
       context.params.sequelize = sequelize
       return context
-    } catch(err) {
+    } catch (err) {
       console.log('ADD ATTRIBUTION ERROR')
       console.log(err)
     }

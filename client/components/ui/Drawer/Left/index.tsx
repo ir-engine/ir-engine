@@ -5,7 +5,6 @@ import { selectAuthState } from '../../../../redux/auth/selector'
 import { selectChatState } from '../../../../redux/chat/selector'
 import { selectFriendState } from '../../../../redux/friend/selector'
 import { selectGroupState } from '../../../../redux/group/selector'
-import { selectGroupUserState } from '../../../../redux/group-user/selector'
 import { selectPartyState } from '../../../../redux/party/selector'
 import './style.scss'
 
@@ -13,7 +12,8 @@ import {
     updateInviteTarget
 } from '../../../../redux/invite/service'
 import {
-    updateChatTarget
+    updateChatTarget,
+    updateMessageScrollInit
 } from '../../../../redux/chat/service'
 import {
     getFriends,
@@ -23,19 +23,13 @@ import {
     getGroups,
     createGroup,
     patchGroup,
-    removeGroup
-} from '../../../../redux/group/service'
-import {
-    getGroupUsers,
-    getSelfGroupUser,
+    removeGroup,
     removeGroupUser
-} from '../../../../redux/group-user/service'
+} from '../../../../redux/group/service'
 import {
     getParty,
     createParty,
     removeParty,
-    getPartyUsers,
-    getSelfPartyUser,
     removePartyUser
 } from '../../../../redux/party/service'
 import { User } from '../../../../../shared/interfaces/User'
@@ -72,7 +66,6 @@ const mapStateToProps = (state: any): any => {
         chatState: selectChatState(state),
         friendState: selectFriendState(state),
         groupState: selectGroupState(state),
-        groupUserState: selectGroupUserState(state),
         partyState: selectPartyState(state)
     }
 }
@@ -81,20 +74,17 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     getFriends: bindActionCreators(getFriends, dispatch),
     unfriend: bindActionCreators(unfriend, dispatch),
     getGroups: bindActionCreators(getGroups, dispatch),
-    getGroupUsers: bindActionCreators(getGroupUsers, dispatch),
-    getSelfGroupUser: bindActionCreators(getSelfGroupUser, dispatch),
     createGroup: bindActionCreators(createGroup, dispatch),
     patchGroup: bindActionCreators(patchGroup, dispatch),
     removeGroup: bindActionCreators(removeGroup, dispatch),
     removeGroupUser: bindActionCreators(removeGroupUser, dispatch),
     getParty: bindActionCreators(getParty, dispatch),
-    getPartyUsers: bindActionCreators(getPartyUsers, dispatch),
-    getSelfPartyUser: bindActionCreators(getSelfPartyUser, dispatch),
     createParty: bindActionCreators(createParty, dispatch),
     removeParty: bindActionCreators(removeParty, dispatch),
     removePartyUser: bindActionCreators(removePartyUser, dispatch),
     updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch),
-    updateChatTarget: bindActionCreators(updateChatTarget, dispatch)
+    updateChatTarget: bindActionCreators(updateChatTarget, dispatch),
+    updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch)
 })
 
 interface Props {
@@ -106,24 +96,20 @@ interface Props {
     getFriends?: any
     unfriend?: any
     groupState?: any
-    groupUserState?: any
     getGroups?: any
     createGroup?: any
     patchGroup?: any
     removeGroup?: any
-    getGroupUsers?: any
-    getSelfGroupUser?: any
     removeGroupUser?: any
     partyState?: any
     getParty?: any
     createParty?: any
     removeParty?: any
-    getPartyUsers?: any
-    getSelfPartyUser?: any
     removePartyUser?: any
     setBottomDrawerOpen: any
     updateInviteTarget?: any
     updateChatTarget?: any
+    updateMessageScrollInit?: any
 }
 
 const initialSelectedUserState = {
@@ -141,6 +127,7 @@ const initialSelectedUserState = {
 const initialGroupForm = {
     id: '',
     name: '',
+    groupUsers: [],
     description: ''
 }
 
@@ -151,27 +138,23 @@ const LeftDrawer = (props: Props): any => {
         getFriends,
         unfriend,
         groupState,
-        groupUserState,
         getGroups,
         createGroup,
         patchGroup,
         removeGroup,
-        getGroupUsers,
-        getSelfGroupUser,
         removeGroupUser,
         partyState,
         getParty,
         createParty,
         removeParty,
-        getPartyUsers,
-        getSelfPartyUser,
         removePartyUser,
         setLeftDrawerOpen,
         leftDrawerOpen,
         setRightDrawerOpen,
         setBottomDrawerOpen,
         updateInviteTarget,
-        updateChatTarget
+        updateChatTarget,
+        updateMessageScrollInit
     } = props
 
     const user = authState.get('user') as User
@@ -179,13 +162,8 @@ const LeftDrawer = (props: Props): any => {
     const friends = friendSubState.get('friends')
     const groupSubState = groupState.get('groups')
     const groups = groupSubState.get('groups')
-    const groupUserSubState = groupUserState.get('groupUsers')
-    const groupUsers = groupUserSubState.get('groupUsers')
-    const selfGroupUser = groupUserState.get('selfGroupUser')
     const party = partyState.get('party')
     const partyUserSubState = partyState.get('partyUsers')
-    const partyUsers = partyUserSubState.get('partyUsers')
-    const selfPartyUser = partyState.get('selfPartyUser')
     const [tabIndex, setTabIndex] = useState(0)
     const [ friendDeletePending, setFriendDeletePending ] = useState('')
     const [ groupDeletePending, setGroupDeletePending ] = useState('')
@@ -199,7 +177,9 @@ const LeftDrawer = (props: Props): any => {
     const [ groupFormMode, setGroupFormMode ] = useState('')
     const [ groupFormOpen, setGroupFormOpen ] = useState(false)
     const [ partyUserDeletePending, setPartyUserDeletePending] = useState('')
-
+    const selfGroupUser = selectedGroup.id && selectedGroup.id.length > 0 ? selectedGroup.groupUsers.find((groupUser) => groupUser.userId === user.id) : {}
+    const partyUsers = party && party.partyUsers ? party.partyUsers : []
+    const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === user.id): {}
     useEffect(() => {
         if (friendState.get('updateNeeded') === true && friendState.get('getFriendsInProgress') !== true) {
             getFriends(0)
@@ -213,30 +193,8 @@ const LeftDrawer = (props: Props): any => {
     }, [groupState]);
 
     useEffect(() => {
-        if (groupState.get('updateNeeded') === false && selectedGroup.id != null && selectedGroup.id.length > 0) {
-            if (groupUserState.get('getGroupUsersInProgress') !== true && groupUserState.get('updateNeeded') === true) {
-                getGroupUsers(selectedGroup.id)
-            }
-            if (groupUserState.get('getSelfGroupUserInProgress') !== true && groupUserState.get('selfUpdateNeeded') === true) {
-                getSelfGroupUser(selectedGroup.id)
-            }
-        }
-    }, [groupUserState, groupState, selectedGroup]);
-
-    useEffect(() => {
         if (partyState.get('updateNeeded') === true) {
             getParty()
-        }
-    }, [partyState]);
-
-    useEffect(() => {
-        if (party != null  && partyState.get('updateNeeded') === false) {
-            if (partyState.get('getSelfPartyUserInProgress') !== true && partyState.get('selfUpdateNeeded') === true) {
-                getSelfPartyUser(party.id)
-            }
-            if (partyState.get('getPartyUsersInProgress') !== true && partyState.get('partyUsersUpdateNeeded') === true) {
-                getPartyUsers(party.id)
-            }
         }
     }, [partyState]);
 
@@ -299,19 +257,13 @@ const LeftDrawer = (props: Props): any => {
 
     const confirmGroupUserDelete = (e, groupUserId) => {
         e.preventDefault()
-        const groupUser = _.find(groupUsers, (groupUser) => groupUser.id === groupUserId)
+        const groupUser = _.find(selectedGroup.groupUsers, (groupUser) => groupUser.id === groupUserId)
         setGroupUserDeletePending('')
         removeGroupUser(groupUserId)
         if (groupUser.userId === user.id) {
             setSelectedGroup(initialGroupForm)
             setDetailsOpen(false)
             setDetailsType('')
-        }
-    }
-
-    const nextGroupUsersPage = (): void => {
-        if ((groupUserSubState.get('skip') + groupUserSubState.get('limit')) < groupUserSubState.get('total')) {
-            getGroupUsers(groupUserSubState.get('skip') + groupUserSubState.get('limit'))
         }
     }
 
@@ -347,12 +299,6 @@ const LeftDrawer = (props: Props): any => {
         removePartyUser(partyUserId)
     }
 
-    const nextPartyUsersPage = (): void => {
-        if ((partyUserSubState.get('skip') + partyUserSubState.get('limit')) < partyUserSubState.get('total')) {
-            getPartyUsers(partyUserSubState.get('skip') + partyUserSubState.get('limit'))
-        }
-    }
-
     const handleChange = (event: any, newValue: number): void => {
         event.preventDefault()
         setTabIndex(newValue)
@@ -366,7 +312,6 @@ const LeftDrawer = (props: Props): any => {
         }
         else if (type === 'group') {
             setSelectedGroup(object)
-            getSelfGroupUser(object.id)
         }
     }
 
@@ -387,6 +332,7 @@ const LeftDrawer = (props: Props): any => {
             setGroupForm({
                 id: group.id,
                 name: group.name,
+                groupUsers: group.groupUsers,
                 description: group.description
             })
         }
@@ -435,31 +381,26 @@ const LeftDrawer = (props: Props): any => {
             else if (detailsOpen === false && tabIndex === 1) {
                 nextGroupsPage()
             }
-            else if (detailsOpen === true && detailsType === 'group') {
-                nextGroupUsersPage()
-            }
-            else if (detailsOpen === false && tabIndex === 2) {
-                nextPartyUsersPage()
-            }
         }
     }
 
     const openInvite = (targetObjectType?: string, targetObjectId?: string): void => {
         updateInviteTarget(targetObjectType, targetObjectId)
-        console.log('openInvite')
-        console.log('targetObjectType: ' + targetObjectType)
         setLeftDrawerOpen(false)
         setRightDrawerOpen(true)
     }
 
     const openChat = (targetObjectType: string, targetObject: any): void => {
-        console.log('OPENING CHAT DRAWER FROM LEFT DRAWER')
-        console.log(targetObjectType)
-        console.log(targetObject)
-        updateChatTarget(targetObjectType, targetObject )
         setLeftDrawerOpen(false)
         setBottomDrawerOpen(true)
+        setTimeout(() => {
+            updateChatTarget(targetObjectType, targetObject)
+            updateMessageScrollInit(true)
+        }, 100)
     }
+
+    console.log('selfGroupUser:')
+    console.log(selfGroupUser)
 
     return (
         <div>
@@ -635,8 +576,8 @@ const LeftDrawer = (props: Props): any => {
                                             {user.id !== partyUser.userId && <ListItemText primary={partyUser.user.name}/> }
                                             {
                                                 partyUserDeletePending !== partyUser.id &&
-                                                partyState.get('selfPartyUser') != null &&
-                                                (partyState.get('selfPartyUser').partyUserRank === 'owner' || partyState.get('selfPartyUser').partyUserRank === 'admin') &&
+                                                selfPartyUser != null &&
+                                                (selfPartyUser.isOwner === true || selfPartyUser.isOwner === 1) &&
                                                 user.id !== partyUser.userId &&
 												<div>
 													<Button onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}>
@@ -756,7 +697,7 @@ const LeftDrawer = (props: Props): any => {
 				</div>
                 }
                 { detailsOpen === true && groupFormOpen === false && detailsType === 'group' &&
-				<div className="flex-center flex-column">
+				<div className="list-container flex-center flex-column">
 					<div className="header">
 						<Button onClick={closeDetails}>
 							<ArrowLeft/>
@@ -823,7 +764,7 @@ const LeftDrawer = (props: Props): any => {
 						<Divider/>
 						<div className="title margin-top">Members</div>
 						<List className="flex-center flex-column">
-                            { groupUsers && groupUsers.length > 0 && groupUsers.sort((a, b) => a.name - b.name).map((groupUser) => {
+                            { selectedGroup && selectedGroup.groupUsers && selectedGroup.groupUsers.length > 0 && selectedGroup.groupUsers.sort((a, b) => a.name - b.name).map((groupUser) => {
                                     return <ListItem key={groupUser.id}>
                                         <ListItemAvatar>
                                             <Avatar src={groupUser.user.avatarUrl}/>
@@ -835,11 +776,9 @@ const LeftDrawer = (props: Props): any => {
                                             selfGroupUser != null &&
                                             (selfGroupUser.groupUserRank === 'owner' || selfGroupUser.groupUserRank === 'admin') &&
                                             user.id !== groupUser.userId &&
-											<div>
-												<Button onClick={(e) => showGroupUserDeleteConfirm(e, groupUser.id)}>
-													<Delete/>
-												</Button>
-											</div>
+                                            <Button onClick={(e) => showGroupUserDeleteConfirm(e, groupUser.id)}>
+                                                <Delete/>
+                                            </Button>
                                         }
                                         { groupUserDeletePending !== groupUser.id && user.id === groupUser.userId &&
 										<div>

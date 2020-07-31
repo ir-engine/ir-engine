@@ -3,7 +3,7 @@ import groupPermissionAuthenticate from '../../hooks/group-permission-authentica
 import groupUserPermissionAuthenticate from '../../hooks/group-user-permission-authenticate'
 import * as authentication from '@feathersjs/authentication'
 import { disallow, isProvider, iff } from 'feathers-hooks-common'
-import {HookContext} from '@feathersjs/feathers'
+import { HookContext } from '@feathersjs/feathers'
 
 const { authenticate } = authentication.hooks
 
@@ -11,10 +11,10 @@ export default {
   before: {
     all: [authenticate('jwt'), collectAnalytics()],
     find: [
-        iff(
-          isProvider('external'),
-          groupUserPermissionAuthenticate()
-        )
+      iff(
+        isProvider('external'),
+        groupUserPermissionAuthenticate()
+      )
     ],
     get: [],
     create: [disallow('external')],
@@ -48,7 +48,7 @@ export default {
     patch: [],
     remove: [
       async (context: HookContext) => {
-        const {app, params} = context
+        const { app, params } = context
         if (params.groupUsersRemoved !== true) {
           const groupUserCount = await app.service('group-user').find({
             query: {

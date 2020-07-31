@@ -108,7 +108,7 @@ export default (app: Application): any => {
             console.log(err)
             throw err
           }
-        },
+        }
       },
       introspection: true
     },

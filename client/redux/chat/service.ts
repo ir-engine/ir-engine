@@ -4,10 +4,13 @@ import {
   createdMessage,
   loadedChannels,
   loadedMessages,
+  patchedMessage,
   removedMessage,
-  setChatTarget
+  setChatTarget,
+  setMessageScrollInit
 } from './actions'
 
+import { Message } from '../../../shared/interfaces/Message'
 import store from '../store'
 import {dispatchAlertError} from '../alert/service'
 
@@ -99,7 +102,7 @@ export function getChannelMessages(channelId: string, skip?: number, limit?: num
         query: {
           channelId: channelId,
           $sort: {
-            updatedAt: -1
+            createdAt: -1
           },
           $limit: limit != null ? limit : getState().get('chat').get('channels').get('channels').get(channelId).limit,
           $skip: skip != null ? skip : getState().get('chat').get('channels').get('channels').get(channelId).skip
@@ -113,29 +116,71 @@ export function getChannelMessages(channelId: string, skip?: number, limit?: num
   }
 }
 
-
-export function removeMessage(messageId: string, channelType: string, channelId: string) {
+export function removeMessage(messageId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
+      console.log('Removing message with id: ' + messageId)
       await client.service('message').remove(messageId)
-      console.log(`REMOVED MESSAGE ${messageId} FROM CHANNEL ${channelId} OF TYPE ${channelType}`)
-      dispatch(removedMessage(messageId, channelId))
+      console.log(`REMOVED MESSAGE ${messageId}`)
     } catch(err) {
       dispatchAlertError(dispatch, err.message)}
   }
 }
 
-export function updateChatTarget(targetObjectType, targetObject: any) {
+export function patchMessage(messageId: string, text: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      console.log('Patching message with id: ' + messageId)
+      console.log('New text:')
+      console.log(text)
+      await client.service('message').patch(messageId, {
+        text: text
+      })
+      console.log(`PATCHED MESSAGE ${messageId}`)
+    } catch(err) {
+      dispatchAlertError(dispatch, err.message)}
+  }
+}
+
+export function updateChatTarget(targetObjectType: string, targetObject: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     console.log('DISPATCHING CHAT TARGET')
     console.log(targetObjectType)
     console.log(targetObject)
-    dispatch(setChatTarget(targetObjectType, targetObject))
+    const targetChannelResult = await client.service('channel').find({
+      query: {
+        findTargetId: true,
+        targetObjectType: targetObjectType,
+        targetObjectId: targetObject.id
+      }
+    })
+    console.log('TargetChannel result:')
+    console.log(targetChannelResult)
+    dispatch(setChatTarget(targetObjectType, targetObject, targetChannelResult.total > 0 ? targetChannelResult.data[0].id : ''))
+  }
+}
+
+export function updateMessageScrollInit(value: boolean) {
+  return async(dispatch: Dispatch): Promise<any> => {
+    console.log('Dispatching setMessageScrollInit: ' + value)
+    dispatch(setMessageScrollInit(value))
   }
 }
 
 client.service('message').on('created', (params) => {
   console.log('MESSAGE CREATED EVENT')
   console.log(params)
-  store.dispatch(createdMessage(params.channelType, params.message))
+  store.dispatch(createdMessage(params.message))
+})
+
+client.service('message').on('patched', (params) => {
+  console.log('MESSAGE PATCHED EVENT')
+  console.log(params)
+  store.dispatch(patchedMessage(params.message))
+})
+
+client.service('message').on('removed', (params) => {
+  console.log('MESSAGE REMOVED EVENT')
+  console.log(params)
+  store.dispatch(removedMessage(params.message))
 })

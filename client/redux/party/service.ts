@@ -4,11 +4,7 @@ import {
   loadedParty,
   addedParty,
   removedParty,
-  removedPartyUser,
-  loadedPartyUsers,
-  loadedSelfPartyUser,
-  fetchingPartyUsers,
-  fetchingSelfPartyUser
+  removedPartyUser
 } from './actions'
 import {dispatchAlertError} from "../alert/service";
 
@@ -58,44 +54,6 @@ export function removePartyUser(partyUserId: string) {
       dispatch(removedPartyUser())
     } catch(err) {
       dispatchAlertError(dispatch, err.message)
-    }
-  }
-}
-
-export function getPartyUsers(partyId: string, skip?: number, limit?: number) {
-  return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    dispatch(fetchingPartyUsers())
-    try {
-      const partyUserResults = await client.service('party-user').find({
-        query: {
-          partyId: partyId,
-          $limit: limit != null ? limit : getState().get('party').get('partyUsers').get('limit'),
-          $skip: skip != null ? skip : getState().get('party').get('partyUsers').get('skip'),
-        }
-      })
-      dispatch(loadedPartyUsers(partyUserResults))
-    } catch(err) {
-      dispatchAlertError(dispatch, err.message)
-    }
-  }
-}
-
-export function getSelfPartyUser(partyId: string) {
-  return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    dispatch(fetchingSelfPartyUser())
-    try {
-      const selfPartyUserResults = await client.service('party-user').find({
-        query: {
-          partyId: partyId,
-          userId: getState().get('auth').get('user').id
-        }
-      })
-      console.log('GOT SELF PARTY USER:')
-      console.log(selfPartyUserResults.data)
-      dispatch(loadedSelfPartyUser(selfPartyUserResults))
-    } catch(err) {
-      dispatchAlertError(dispatch, err.message)
-      dispatch(loadedSelfPartyUser({data: [], limit: 0, skip: 0, total: 0}))
     }
   }
 }

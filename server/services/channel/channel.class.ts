@@ -3,6 +3,7 @@ import { Application } from '../../declarations'
 import { Params } from '@feathersjs/feathers'
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 import { Op, Sequelize } from 'sequelize'
+import _ from 'lodash'
 
 export class Channel extends Service {
   app: Application
@@ -11,7 +12,7 @@ export class Channel extends Service {
     this.app = app
   }
 
-  async find(params: Params): Promise<any> {
+  async find (params: Params): Promise<any> {
     console.log('CHANNEL FIND')
     console.log(params)
     const { query } = params
@@ -79,105 +80,116 @@ export class Channel extends Service {
               '$party.party_users.userId$': userId
             }
           ]
-        },
+        }
       })
 
-      await Promise.all(results.rows.map(async (channel) => {
-        return new Promise(async (resolve) => {
-          if (channel.channelType === 'user') {
-            const user1AvatarResult = await this.app.service('static-resource').find({
-              query: {
-                staticResourceType: 'user-thumbnail',
-                userId: channel.userId1
-              }
-            }) as any
-
-            const user2AvatarResult = await this.app.service('static-resource').find({
-              query: {
-                staticResourceType: 'user-thumbnail',
-                userId: channel.userId2
-              }
-            }) as any
-
-            if (user1AvatarResult.total > 0) {
-              channel.user1.dataValues.avatarUrl = user1AvatarResult.data[0].url
-            }
-
-            if (user2AvatarResult.total > 0) {
-              channel.user2.dataValues.avatarUrl = user2AvatarResult.data[0].url
-            }
-
-            resolve()
-          }
-          else if (channel.channelType === 'group') {
-            const groupUsers = await this.app.service('group-user').Model.findAll({
-              limit: 1000,
-              where: {
-                groupId: channel.groupId
-              },
-              include: [
-                {
-                  model: this.app.service('user').Model
-                }
-              ]
-            })
-            await Promise.all(groupUsers.map(async (groupUser) => {
-              const avatarResult = await this.app.service('static-resource').find({
-                query: {
-                  staticResourceType: 'user-thumbnail',
-                  userId: groupUser.userId
-                }
-              }) as any
-
-              if (avatarResult.total > 0) {
-                groupUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url
-              }
-
-              return Promise.resolve()
-            }))
-
-            channel.group.dataValues.groupUsers = groupUsers
-            resolve()
-          }
-          else if (channel.channelType === 'party') {
-            const partyUsers = await this.app.service('party-user').Model.findAll({
-              limit: 1000,
-              where: {
-                partyId: channel.partyId
-              },
-              include: [
-                {
-                  model: this.app.service('user').Model
-                }
-              ]
-            })
-            await Promise.all(partyUsers.map(async (partyUser) => {
-              const avatarResult = await this.app.service('static-resource').find({
-                query: {
-                  staticResourceType: 'user-thumbnail',
-                  userId: partyUser.userId
-                }
-              }) as any
-
-              if (avatarResult.total > 0) {
-                partyUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url
-              }
-
-              return Promise.resolve()
-            }))
-            channel.party.dataValues.partyUsers = partyUsers
-            resolve()
-          }
-        })
-      }))
-
-      return {
-        data: results.rows,
-        total: results.count,
-        skip: skip,
-        limit: limit
+      if (query.findTargetId === true) {
+        const match = _.find(results.rows, (result: any) => query.targetObjectType === 'user' ? (result.userId1 === query.targetObjectId || result.userId2 === query.targetObjectId) : query.targetObjectType === 'group' ? result.groupId === query.targetObjectId :result.partyId === query.targetObjectId)
+        console.log('findTargetId match:')
+        console.log(match)
+        return {
+          data: [match] || [],
+          total: match == null ? 0 : 1,
+          skip: skip,
+          limit: limit
+        }
       }
-    } catch(err) {
+      else {
+        await Promise.all(results.rows.map(async (channel) => {
+          return await new Promise(async (resolve) => {
+            if (channel.channelType === 'user') {
+              const user1AvatarResult = await this.app.service('static-resource').find({
+                query: {
+                  staticResourceType: 'user-thumbnail',
+                  userId: channel.userId1
+                }
+              }) as any
+
+              const user2AvatarResult = await this.app.service('static-resource').find({
+                query: {
+                  staticResourceType: 'user-thumbnail',
+                  userId: channel.userId2
+                }
+              }) as any
+
+              if (user1AvatarResult.total > 0) {
+                channel.user1.dataValues.avatarUrl = user1AvatarResult.data[0].url
+              }
+
+              if (user2AvatarResult.total > 0) {
+                channel.user2.dataValues.avatarUrl = user2AvatarResult.data[0].url
+              }
+
+              resolve()
+            } else if (channel.channelType === 'group') {
+              const groupUsers = await this.app.service('group-user').Model.findAll({
+                limit: 1000,
+                where: {
+                  groupId: channel.groupId
+                },
+                include: [
+                  {
+                    model: this.app.service('user').Model
+                  }
+                ]
+              })
+              await Promise.all(groupUsers.map(async (groupUser) => {
+                const avatarResult = await this.app.service('static-resource').find({
+                  query: {
+                    staticResourceType: 'user-thumbnail',
+                    userId: groupUser.userId
+                  }
+                }) as any
+
+                if (avatarResult.total > 0) {
+                  groupUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url
+                }
+
+                return await Promise.resolve()
+              }))
+
+              channel.group.dataValues.groupUsers = groupUsers
+              resolve()
+            } else if (channel.channelType === 'party') {
+              const partyUsers = await this.app.service('party-user').Model.findAll({
+                limit: 1000,
+                where: {
+                  partyId: channel.partyId
+                },
+                include: [
+                  {
+                    model: this.app.service('user').Model
+                  }
+                ]
+              })
+              await Promise.all(partyUsers.map(async (partyUser) => {
+                const avatarResult = await this.app.service('static-resource').find({
+                  query: {
+                    staticResourceType: 'user-thumbnail',
+                    userId: partyUser.userId
+                  }
+                }) as any
+
+                if (avatarResult.total > 0) {
+                  partyUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url
+                }
+
+                return await Promise.resolve()
+              }))
+              channel.party.dataValues.partyUsers = partyUsers
+              resolve()
+            }
+          })
+        }))
+
+        return {
+          data: results.rows,
+          total: results.count,
+          skip: skip,
+          limit: limit
+        }
+      }
+    } catch (err) {
       console.log('Channel find failed')
       console.log(err)
       throw err

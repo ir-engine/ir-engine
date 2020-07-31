@@ -126,6 +126,24 @@ export class User extends Service {
           }
         ]
       })
+
+      await Promise.all(userResult.rows.map(async (user) => {
+        return await new Promise(async (resolve) => {
+          const userAvatarResult = await this.app.service('static-resource').find({
+            query: {
+              staticResourceType: 'user-thumbnail',
+              userId: user.id
+            }
+          }) as any
+
+          if (userAvatarResult.total > 0) {
+            user.dataValues.avatarUrl = userAvatarResult.data[0].url
+          }
+
+          resolve()
+        })
+      }))
+
       return {
         skip: skip,
         limit: limit,
