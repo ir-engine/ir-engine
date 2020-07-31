@@ -2,8 +2,8 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 // import { Params, Id, NullableId } from '@feathersjs/feathers'
 
 import { Application } from '../../declarations'
-import {Params} from '@feathersjs/feathers'
-import {extractLoggedInUserFromParams} from '../auth-management/auth-management.utils'
+import { Params } from '@feathersjs/feathers'
+import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 // import { Forbidden } from '@feathersjs/errors'
 
 export class Party extends Service {
@@ -27,11 +27,45 @@ export class Party extends Service {
         return null
       }
 
-      let partyId = (partyUserResult as any).data[0].partyId
+      const partyId = (partyUserResult as any).data[0].partyId
 
-      return super.get(partyId)
+      let party = await super.get(partyId)
+
+      const partyUsers = await this.app.service('party-user').Model.findAll({
+        limit: 1000,
+        where: {
+          partyId: party.id
+        },
+        include: [
+          {
+            model: this.app.service('user').Model
+          }
+        ]
+      })
+      await Promise.all(partyUsers.map(async (partyUser) => {
+        const avatarResult = await this.app.service('static-resource').find({
+          query: {
+            staticResourceType: 'user-thumbnail',
+            userId: partyUser.userId
+          }
+        }) as any
+
+        if (avatarResult.total > 0) {
+          partyUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url
+        }
+
+        return await Promise.resolve()
+      }))
+
+      console.log('Setting partyUsers:')
+      console.log(party)
+      party.partyUsers = partyUsers
+
+      console.log('Returning party:')
+      console.log(party)
+      return party
     } else {
-      return super.get(id)
+      return await super.get(id)
     }
   }
 

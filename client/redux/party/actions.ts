@@ -5,8 +5,6 @@ import {
   LEFT_PARTY,
   INVITED_PARTY_USER,
   REMOVED_PARTY_USER,
-  LOADED_PARTY_USERS,
-  LOADED_SELF_PARTY_USER,
   FETCHING_PARTY_USERS,
   FETCHING_SELF_PARTY_USER
 } from '../actions'
@@ -109,24 +107,6 @@ export type PartyUserAction =
     LoadedPartyUsersAction
     | RemovedPartyUserAction
     | LoadedSelfPartyUserAction
-
-export function loadedPartyUsers(partyUserResult: PartyUserResult): PartyUserAction {
-  return {
-    type: LOADED_PARTY_USERS,
-    partyUsers: partyUserResult.data,
-    total: partyUserResult.total,
-    limit: partyUserResult.limit,
-    skip: partyUserResult.skip
-  }
-}
-
-export function loadedSelfPartyUser(partyUserResult: PartyUserResult): PartyUserAction {
-  return {
-    type: LOADED_SELF_PARTY_USER,
-    selfPartyUser: partyUserResult.data[0],
-    total: partyUserResult.total
-  }
-}
 
 export function removedPartyUser(): RemovedPartyUserAction {
   return {

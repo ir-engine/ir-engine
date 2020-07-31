@@ -4,6 +4,8 @@ import {
   LOADED_GROUPS,
   REMOVED_GROUP,
   LEFT_GROUP,
+  CREATED_GROUP_USER,
+  PATCHED_GROUP_USER,
   INVITED_GROUP_USER,
   REMOVED_GROUP_USER,
   FETCHING_GROUPS,
@@ -11,6 +13,7 @@ import {
   FETCHING_INVITABLE_GROUPS
 } from '../actions'
 import { Group } from '../../../shared/interfaces/Group'
+import { GroupUser } from '../../../shared/interfaces/GroupUser'
 import { GroupResult } from '../../../shared/interfaces/GroupResult'
 
 export interface LoadedGroupsAction {
@@ -35,6 +38,21 @@ export interface RemovedGroupAction {
 
 export interface RemovedGroupUserAction {
   type: string
+}
+
+export interface CreatedGroupUserAction {
+  type: string
+  groupUser: GroupUser
+}
+
+export interface PatchedGroupUserAction {
+  type: string
+  groupUser: GroupUser
+}
+
+export interface RemovedGroupUserAction {
+  type: string
+  groupUser: GroupUser
 }
 
 export interface InvitedGroupUserAction {
@@ -67,10 +85,12 @@ export type GroupAction =
     | PatchedGroupAction
     | RemovedGroupAction
     | LeftGroupAction
-    | LeftGroupAction
     | FetchingGroupsAction
     | LoadedInvitableGroupsAction
     | FetchingInvitableGroupsAction
+    | CreatedGroupUserAction
+    | PatchedGroupUserAction
+    | RemovedGroupUserAction
 
 export function loadedGroups(groupResult: GroupResult): GroupAction {
   return {
@@ -100,9 +120,24 @@ export function removedGroup(): RemovedGroupAction {
   }
 }
 
-export function removedGroupUser(): RemovedGroupUserAction {
+export function createdGroupUser(groupUser: GroupUser): RemovedGroupUserAction {
   return {
-    type: REMOVED_GROUP_USER
+    type: CREATED_GROUP_USER,
+    groupUser: groupUser
+  }
+}
+
+export function patchedGroupUser(groupUser: GroupUser): RemovedGroupUserAction {
+  return {
+    type: PATCHED_GROUP_USER,
+    groupUser: groupUser
+  }
+}
+
+export function removedGroupUser(groupUser: GroupUser): RemovedGroupUserAction {
+  return {
+    type: REMOVED_GROUP_USER,
+    groupUser: groupUser
   }
 }
 

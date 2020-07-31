@@ -5,8 +5,8 @@ import createPartyOwner from '../../hooks/create-party-owner'
 import removePartyUsers from '../../hooks/remove-party-users'
 import collectAnalytics from '../../hooks/collect-analytics'
 import { HookContext } from '@feathersjs/feathers'
-import {extractLoggedInUserFromParams} from '../auth-management/auth-management.utils'
-import {BadRequest} from '@feathersjs/errors'
+import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
+import { BadRequest } from '@feathersjs/errors'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks
@@ -17,25 +17,25 @@ export default {
     find: [],
     get: [],
     create: [
-        async (context): Promise<HookContext>  =>  {
-          const loggedInUser = extractLoggedInUserFromParams(context.params)
-          const currentPartyUser = await context.app.service('party-user').find({
-            query: {
-              userId: loggedInUser.userId
-            }
-          })
-          if (currentPartyUser.total > 0) {
-            throw new BadRequest('You are already in a party, leave it to make a new one')
+      async (context): Promise<HookContext> => {
+        const loggedInUser = extractLoggedInUserFromParams(context.params)
+        const currentPartyUser = await context.app.service('party-user').find({
+          query: {
+            userId: loggedInUser.userId
           }
-          return context
+        })
+        if (currentPartyUser.total > 0) {
+          throw new BadRequest('You are already in a party, leave it to make a new one')
         }
+        return context
+      }
     ],
     update: [disallow()],
     patch: [disallow()],
     // TODO: Need to ask if we allow user to remove party or not
     remove: [
-        partyPermissionAuthenticate(),
-        removePartyUsers()
+      partyPermissionAuthenticate(),
+      removePartyUsers()
     ]
   },
 
@@ -44,7 +44,7 @@ export default {
     find: [],
     get: [],
     create: [
-        createPartyOwner()
+      createPartyOwner()
     ],
     update: [],
     patch: [],

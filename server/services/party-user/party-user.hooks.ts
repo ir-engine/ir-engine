@@ -2,10 +2,10 @@ import * as authentication from '@feathersjs/authentication'
 import partyPermissionAuthenticate from '../../hooks/party-permission-authenticate'
 import partyUserPermissionAuthenticate from '../../hooks/party-user-permission-authenticate'
 import { HookContext } from '@feathersjs/feathers'
-import {disallow, iff, isProvider} from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import { BadRequest } from '@feathersjs/errors'
 import collectAnalytics from '../../hooks/collect-analytics'
-import groupUserPermissionAuthenticate from "../../hooks/group-user-permission-authenticate";
+import groupUserPermissionAuthenticate from '../../hooks/group-user-permission-authenticate'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -36,8 +36,8 @@ export default {
     all: [authenticate('jwt'), collectAnalytics()],
     find: [
       iff(
-          isProvider('external'),
-          partyUserPermissionAuthenticate()
+        isProvider('external'),
+        partyUserPermissionAuthenticate()
       )
     ],
     get: [],
@@ -45,7 +45,7 @@ export default {
     update: [disallow()],
     patch: [],
     remove: [
-        partyPermissionAuthenticate()
+      partyPermissionAuthenticate()
     ]
   },
 
@@ -72,7 +72,7 @@ export default {
     patch: [],
     remove: [
       async (context: HookContext) => {
-        const {app, params} = context
+        const { app, params } = context
         if (params.partyUsersRemoved !== true) {
           const partyUserCount = await app.service('party-user').find({
             query: {
