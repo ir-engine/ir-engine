@@ -6,5 +6,8 @@ export default class NetworkTransportComponent extends Component<any> {
   static instance: NetworkTransportComponent
   transport: NetworkTransport
   initialized = false
+  constructor() {
+    super()
+    NetworkTransportComponent.instance = this
   }
 }

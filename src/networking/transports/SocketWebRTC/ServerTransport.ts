@@ -1,22 +1,73 @@
-import config from "./serverConfig"
 import mediasoup from "mediasoup"
 import express from "express"
 import https from "https"
 import fs from "fs"
+import * as io from "socket.io"
 import path from "path"
-import socketIO from "socket.io"
 import MessageTypes from "./MessageTypes"
-import dotenv from "dotenv"
+import * as dotenv from "dotenv"
 import NetworkTransport from "../../interfaces/NetworkTransport"
 import MessageQueue from "../../components/MessageQueue"
 import Message from "../../interfaces/Message"
-
-const expressApp = express()
 dotenv.config()
 
-config.mediasoup.webRtcTransport.listenIps = [{ ip: "127.0.0.1", announcedIp: null }]
+const config = {
+  httpPeerStale: 15000,
+  mediasoup: {
+    worker: {
+      rtcMinPort: 40000,
+      rtcMaxPort: 49999,
+      logLevel: "info",
+      logTags: ["info", "ice", "dtls", "rtp", "srtp", "rtcp"]
+    },
+    router: {
+      mediaCodecs: [
+        {
+          kind: "audio",
+          mimeType: "audio/opus",
+          clockRate: 48000,
+          channels: 2
+        },
+        {
+          kind: "video",
+          mimeType: "video/VP8",
+          clockRate: 90000,
+          parameters: {
+            //                'x-google-start-bitrate': 1000
+          }
+        },
+        {
+          kind: "video",
+          mimeType: "video/h264",
+          clockRate: 90000,
+          parameters: {
+            "packetization-mode": 1,
+            "profile-level-id": "4d0032",
+            "level-asymmetry-allowed": 1
+          }
+        },
+        {
+          kind: "video",
+          mimeType: "video/h264",
+          clockRate: 90000,
+          parameters: {
+            "packetization-mode": 1,
+            "profile-level-id": "42e01f",
+            "level-asymmetry-allowed": 1
+          }
+        }
+      ]
+    },
 
-let server, io, worker, router, transport
+    // rtp listenIps are the most important thing, below. you'll need
+    // to set these appropriately for your network for the demo to
+    // run anywhere but on localhost
+    webRtcTransport: {
+      listenIps: [{ ip: "127.0.0.1", announcedIp: null }],
+      initialAvailableOutgoingBitrate: 800000
+    }
+  }
+}
 
 const defaultRoomState = {
   // external
@@ -35,9 +86,15 @@ const tls = {
   rejectUnauthorized: false
 }
 
-const clients = []
-
 export default class SocketWebRTCServerTransport implements NetworkTransport {
+  expressApp = express()
+  clients = []
+  server
+  socketIO
+  worker
+  router
+  transport
+
   roomState = defaultRoomState
   supportsMediaStreams: false
 
@@ -46,52 +103,59 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
     while (!MessageQueue.instance.outgoingReliableQueue.empty) {
       const message = MessageQueue.instance.outgoingReliableQueue.pop
       console.log(message)
-      io.emit(MessageTypes.ReliableMessage as any, message)
+      this.socketIO.emit(MessageTypes.ReliableMessage as any, message)
     }
   }
 
-  public async initialize(address = "https://localhost", port = 3001): Promise<void> {
-    if (!config.mediasoup.webRtcTransport.listenIps.includes(address)) config.mediasoup.webRtcTransport.listenIps.push(address)
+  public async initialize(address = "127.0.0.1", port = 3001): Promise<void> {
+    config.mediasoup.webRtcTransport.listenIps = [{ ip: address + ":" + port, announcedIp: null }]
     await this.startMediasoup()
 
     // start https server
     console.log("Starting Express")
-    server = https.createServer(tls, expressApp)
-    server.on("error", e => console.error("https server error,", e.message))
-    server.listen(address, port, () => console.log(`https server listening on port ${port}`))
+    this.server = https.createServer(tls, this.expressApp)
+    this.server.on("error", e => console.error("https server error,", e.message))
+    await new Promise(resolve => {
+      this.server.listen(port, address, () => {
+        console.log(`https server listening on port ${port}`)
+        resolve()
+      })
+    })
 
     // Start Websockets
     console.log("Starting websockets")
-    io = socketIO(server)
+    this.socketIO = io.default(this.server)
 
     // every 5 seconds, check for inactive clients and send them into cyberspace
     setInterval(() => {
-      for (let id = 0; id < clients.length; id++) if (Date.now() - clients[id].lastSeenTs > 10000) console.log("Culling inactive user with id", id)
+      console.log("Clearing the noobs")
+      for (let id = 0; id < this.clients.length; id++)
+        if (Date.now() - this.clients[id].lastSeenTs > 10000) console.log("Culling inactive user with id", id)
     }, 5000)
 
-    io.on(MessageTypes.ConnectionRequest, socket => {
-      console.log("User " + socket.id + " connected, there are " + io.engine.clientsCount + " clients connected")
+    this.socketIO.on(MessageTypes.ConnectionRequest, socket => {
+      console.log("User " + socket.id + " connected, there are " + this.socketIO.engine.clientsCount + " clients connected")
 
       //Add a new client indexed by his id
-      clients.push(socket.id)
+      this.clients.push(socket.id)
       // Respond to initialization request with a list of clients
-      socket.emit(MessageTypes.InitializationResponse, socket.id, Object.keys(clients))
+      socket.emit(MessageTypes.InitializationResponse, socket.id, Object.keys(this.clients))
 
       //Update everyone that the number of users has changed
-      io.sockets.emit(MessageTypes.ClientConnected, io.engine.clientsCount, socket.id, Object.keys(clients))
+      this.socketIO.sockets.emit(MessageTypes.ClientConnected, this.socketIO.engine.clientsCount, socket.id, Object.keys(this.clients))
 
       // On heartbeat received from client
       socket.on(MessageTypes.Heartbeat, () => {
-        if (clients[socket.id]) clients[socket.id].lastSeenTs = Date.now()
+        if (this.clients[socket.id]) this.clients[socket.id].lastSeenTs = Date.now()
         else console.log("Receiving message from peer who isn't in client list")
       })
 
       // Handle the disconnection
       socket.on(MessageTypes.DisconnectionRequest, () => {
         //Delete this client from the object
-        delete clients[socket.id]
-        io.sockets.emit(MessageTypes.ClientDisconnected as any, socket.id, Object.keys(clients))
-        console.log("User " + socket.id + " diconnected, there are " + io.engine.clientsCount + " clients connected")
+        delete this.clients[socket.id]
+        this.socketIO.sockets.emit(MessageTypes.ClientDisconnected as any, socket.id, Object.keys(this.clients))
+        console.log("User " + socket.id + " diconnected, there are " + this.socketIO.engine.clientsCount + " clients connected")
       })
 
       // If a reliable message is received, add it to the queue
@@ -134,7 +198,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
           stats: {}
         }
 
-        callback({ routerRtpCapabilities: router.rtpCapabilities })
+        callback({ routerRtpCapabilities: this.router.rtpCapabilities })
       })
 
       // --> /signaling/leave
@@ -182,10 +246,10 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
       // called by a client that wants to close a single transport (for
       // example, a client that is no longer sending any media).
       socket.on(MessageTypes.WebRTCTransportCloseRequest, async (data, callback) => {
-        console.log("close-transport", socket.id, transport.appData)
+        console.log("close-transport", socket.id, this.transport.appData)
         const { transportId } = data
-        transport = this.roomState.transports[transportId]
-        await this.closeTransport(transport)
+        this.transport = this.roomState.transports[transportId]
+        await this.closeTransport(this.transport)
         callback({ closed: true })
       })
 
@@ -235,7 +299,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
         const { mediaPeerId, mediaTag, rtpCapabilities } = data
         const peerId = socket.id
         const producer = this.roomState.producers.find(p => p.appData.mediaTag === mediaTag && p.appData.peerId === mediaPeerId)
-        if (!router.canConsume({ producerId: producer.id, rtpCapabilities })) {
+        if (!this.router.canConsume({ producerId: producer.id, rtpCapabilities })) {
           const msg = `client cannot consume ${mediaPeerId}:${mediaTag}`
           console.error(`recv-track: ${peerId} ${msg}`)
           callback({ error: msg })
@@ -363,20 +427,25 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
     console.log("Starting mediasoup")
     // Initialize roomstate
     this.roomState = defaultRoomState
-    worker = await mediasoup.createWorker({
-      logLevel: config.mediasoup.worker.logLevel,
-      logTags: config.mediasoup.worker.logTags,
-      rtcMinPort: config.mediasoup.worker.rtcMinPort,
-      rtcMaxPort: config.mediasoup.worker.rtcMaxPort
-    })
-
-    worker.on("died", () => {
+    console.log("Worker starting")
+    try {
+      this.worker = await mediasoup.createWorker({
+        rtcMinPort: config.mediasoup.worker.rtcMinPort,
+        rtcMaxPort: config.mediasoup.worker.rtcMaxPort
+      })
+    } catch (e) {
+      console.log("Failed jwith exception:")
+      console.log(e)
+    }
+    this.worker.on("died", () => {
       console.error("mediasoup worker died (this should never happen)")
       process.exit(1)
     })
+    console.log("Worker got created")
 
     const mediaCodecs = config.mediasoup.router.mediaCodecs
-    router = await worker.createRouter({ mediaCodecs })
+    this.router = await this.worker.createRouter({ mediaCodecs })
+    console.log("Worer created router")
   }
 
   closePeer(peerId) {
@@ -444,7 +513,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
   async createWebRtcTransport({ peerId, direction }) {
     const { listenIps, initialAvailableOutgoingBitrate } = config.mediasoup.webRtcTransport
 
-    const transport = await router.createWebRtcTransport({
+    const transport = await this.router.createWebRtcTransport({
       listenIps: listenIps,
       enableUdp: true,
       enableTcp: true,

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import MediaStreamComponent from "../../components/MediaStreamComponent"
 import io from "socket.io-client"
-import { Device } from "mediasoup-client"
+import * as mediasoup from "mediasoup-client"
 import { promise } from "../../../common/utils/promise"
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "../../constants/VideoConstants"
 import { sleep } from "../../../common/utils/sleep"
@@ -12,9 +12,11 @@ import NetworkTransport from "../../interfaces/NetworkTransport"
 import MessageQueue from "../../components/MessageQueue"
 import Message from "../../interfaces/Message"
 
+const Device = mediasoup.Device
+
 export default class SocketWebRTCClientTransport implements NetworkTransport {
   supportsMediaStreams = true
-  mediasoupDevice: Device
+  mediasoupDevice: mediasoup.Device
   joined: boolean
   recvTransport
   sendTransport
@@ -36,7 +38,7 @@ export default class SocketWebRTCClientTransport implements NetworkTransport {
   public async initialize(address = "https://localhost", port = 3001): Promise<void> {
     this.mediasoupDevice = new Device()
 
-    this.socket = io(`${address}:${port}`)
+    this.socket = io.connect(`${address}:${port}`)
     this.request = promise(this.socket)
 
     // use sendBeacon to tell the server we're disconnecting when

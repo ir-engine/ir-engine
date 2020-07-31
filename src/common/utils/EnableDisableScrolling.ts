@@ -27,12 +27,12 @@ try {
 } catch (e) {}
 
 const wheelOpt = supportsPassive ? { passive: false } : false
-const wheelEvent = "onwheel" in document.createElement("div") ? "wheel" : "mousewheel"
+// const wheelEvent = "onwheel" in document.createElement("div") ? "wheel" : "mousewheel"
 
 // call this to Disable
 export function disableScroll(): void {
   window.addEventListener("DOMMouseScroll", preventDefault, false) // older FF
-  window.addEventListener(wheelEvent, preventDefault, wheelOpt) // modern desktop
+  // window.addEventListener(wheelEvent, preventDefault, wheelOpt) // modern desktop
   window.addEventListener("touchmove", preventDefault, wheelOpt) // mobile
   window.addEventListener("keydown", preventDefaultForScrollKeys, false)
 }
@@ -40,7 +40,7 @@ export function disableScroll(): void {
 // call this to Enable
 export function enableScroll(): void {
   window.removeEventListener("DOMMouseScroll", preventDefault, false)
-  window.removeEventListener(wheelEvent, preventDefault)
+  // window.removeEventListener(wheelEvent, preventDefault)
   window.removeEventListener("touchmove", preventDefault)
   window.removeEventListener("keydown", preventDefaultForScrollKeys, false)
 }

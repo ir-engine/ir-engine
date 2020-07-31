@@ -26,12 +26,18 @@ export class NetworkSystem extends System {
 
   constructor(world: World) {
     super(world)
+  }
+
+  public initializeSession(world: World, transport?: any) {
     NetworkSystem.instance = this
     this.networkTransport = world
       .registerComponent(NetworkTransportComponent)
       .createEntity()
       .addComponent(NetworkTransportComponent)
       .getComponent(NetworkTransportComponent)
+    this._isInitialized = true
+    NetworkTransportComponent.instance.transport = transport
+    transport.initialize()
   }
 
   static queries: any = {
@@ -97,12 +103,6 @@ export class NetworkSystem extends System {
 
   getLocalConnectionId() {
     return this.mySocketID
-  }
-
-  public initializeSession(world: World, transport?: any) {
-    this._isInitialized = true
-    NetworkTransportComponent.instance.transport = transport
-    transport.initialize()
   }
 
   public deinitializeSession() {
