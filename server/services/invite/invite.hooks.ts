@@ -5,7 +5,7 @@ import generateInvitePasscode from '../../hooks/generate-invite-passcode'
 import sendInvite from '../../hooks/send-invite'
 import attachOwnerIdInBody from '../../hooks/set-loggedin-user-in-body'
 import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
-import {HookContext} from '@feathersjs/feathers'
+import { HookContext } from '@feathersjs/feathers'
 import inviteRemoveAuthenticate from '../../hooks/invite-remove-authenticate'
 import * as commonHooks from 'feathers-hooks-common'
 
@@ -15,15 +15,15 @@ export default {
   before: {
     all: [collectAnalytics()],
     find: [
-        authenticate('jwt'),
-        attachOwnerIdInQuery('userId')
+      authenticate('jwt'),
+      attachOwnerIdInQuery('userId')
     ],
     get: [
-        commonHooks.iff(
-          commonHooks.isProvider('external'),
-          authenticate('jwt'),
-          attachOwnerIdInQuery('userId')
-        )
+      commonHooks.iff(
+        commonHooks.isProvider('external'),
+        authenticate('jwt'),
+        attachOwnerIdInQuery('userId')
+      )
     ],
     create: [
       authenticate('jwt'),
@@ -43,9 +43,9 @@ export default {
     find: [
       async (context: HookContext) => {
         try {
-          const {app, result} = context
+          const { app, result } = context
           await Promise.all(result.data.map(async (item) => {
-            return new Promise(async (resolve) => {
+            return await new Promise(async (resolve) => {
               if (item.inviteeId != null) {
                 item.invitee = await app.service('user').get(item.inviteeId)
               } else if (item.token) {
@@ -64,7 +64,7 @@ export default {
             })
           }))
           return context
-        } catch(err) {
+        } catch (err) {
           console.log('INVITE AFTER HOOK ERROR')
           console.log(err)
         }

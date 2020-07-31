@@ -3,7 +3,6 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { selectFriendState } from '../../../../redux/friend/selector'
 import { selectGroupState } from '../../../../redux/group/selector'
-import { selectGroupUserState } from '../../../../redux/group-user/selector'
 import { selectPartyState } from '../../../../redux/party/selector'
 
 import {
@@ -17,16 +16,9 @@ import {
     removeGroup
 } from '../../../../redux/group/service'
 import {
-    getGroupUsers,
-    getSelfGroupUser,
-    removeGroupUser
-} from '../../../../redux/group-user/service'
-import {
     getParty,
     createParty,
     removeParty,
-    getPartyUsers,
-    getSelfPartyUser,
     removePartyUser,
     forcePartyUserRefresh
 } from '../../../../redux/party/service'
@@ -38,7 +30,6 @@ const mapStateToProps = (state: any): any => {
     return {
         friendState: selectFriendState(state),
         groupState: selectGroupState(state),
-        groupUserState: selectGroupUserState(state),
         partyState: selectPartyState(state),
     }
 }
@@ -47,15 +38,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     getFriends: bindActionCreators(getFriends, dispatch),
     unfriend: bindActionCreators(unfriend, dispatch),
     getGroups: bindActionCreators(getGroups, dispatch),
-    getGroupUsers: bindActionCreators(getGroupUsers, dispatch),
-    getSelfGroupUser: bindActionCreators(getSelfGroupUser, dispatch),
     createGroup: bindActionCreators(createGroup, dispatch),
     patchGroup: bindActionCreators(patchGroup, dispatch),
     removeGroup: bindActionCreators(removeGroup, dispatch),
-    removeGroupUser: bindActionCreators(removeGroupUser, dispatch),
     getParty: bindActionCreators(getParty, dispatch),
-    getPartyUsers: bindActionCreators(getPartyUsers, dispatch),
-    getSelfPartyUser: bindActionCreators(getSelfPartyUser, dispatch),
     createParty: bindActionCreators(createParty, dispatch),
     removeParty: bindActionCreators(removeParty, dispatch),
     removePartyUser: bindActionCreators(removePartyUser, dispatch),

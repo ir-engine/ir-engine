@@ -4,7 +4,6 @@ import createGroupOwner from '../../hooks/create-group-owner'
 import removeGroupUsers from '../../hooks/remove-group-users'
 import * as authentication from '@feathersjs/authentication'
 
-
 const { authenticate } = authentication.hooks
 
 export default {
@@ -14,14 +13,14 @@ export default {
     get: [],
     create: [],
     update: [
-        groupPermissionAuthenticate()
+      groupPermissionAuthenticate()
     ],
     patch: [
-        groupPermissionAuthenticate()
+      groupPermissionAuthenticate()
     ],
     remove: [
-        groupPermissionAuthenticate(),
-        removeGroupUsers()
+      groupPermissionAuthenticate(),
+      removeGroupUsers()
     ]
   },
 
@@ -30,7 +29,7 @@ export default {
     find: [],
     get: [],
     create: [
-        createGroupOwner()
+      createGroupOwner()
     ],
     update: [],
     patch: [],

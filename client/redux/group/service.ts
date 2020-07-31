@@ -9,9 +9,13 @@ import {
   leftGroup,
   fetchingGroups,
   loadedInvitableGroups,
-  fetchingInvitableGroups
+  fetchingInvitableGroups,
+  createdGroupUser,
+  patchedGroupUser
 } from './actions'
 import {dispatchAlertError} from "../alert/service";
+import store from "../store";
+import {createdMessage, patchedMessage, removedMessage} from "../chat/actions";
 
 export function getGroups(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -81,7 +85,6 @@ export function removeGroupUser(groupUserId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       await client.service('group-user').remove(groupUserId)
-      dispatch(removedGroupUser())
     } catch(err) {
       dispatchAlertError(dispatch, err.message)
     }
@@ -110,3 +113,21 @@ export function getInvitableGroups(skip?: number, limit?: number) {
     }
   }
 }
+
+client.service('group-user').on('created', (params) => {
+  console.log('GROUP-USER CREATED EVENT')
+  console.log(params)
+  store.dispatch(createdGroupUser(params.groupUser))
+})
+
+client.service('group-user').on('patched', (params) => {
+  console.log('GROUP-USER PATCHED EVENT')
+  console.log(params)
+  store.dispatch(patchedGroupUser(params.groupUser))
+})
+
+client.service('group-user').on('removed', (params) => {
+  console.log('GROUP-USER REMOVED EVENT')
+  console.log(params)
+  store.dispatch(removedGroupUser(params.groupUser))
+})

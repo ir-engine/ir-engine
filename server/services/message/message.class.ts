@@ -42,19 +42,17 @@ export class Message extends Service {
         }
       })
       if (channel == null) {
-        const newChannel = await this.app.service('channel').create({
+        channel = await this.app.service('channel').create({
           channelType: 'user',
           userId1: userId,
           userId2: targetObjectId
         })
-        channelId = newChannel.id
-      }
-      else {
+        channelId = channel.id
+      } else {
         channelId = channel.id
       }
       userIdList = [userId, targetObjectId]
-    }
-    else if (targetObjectType === 'group') {
+    } else if (targetObjectType === 'group') {
       const targetGroup = await this.app.service('group').get(targetObjectId)
       if (targetGroup == null) {
         throw new BadRequest('Invalid target group ID')
@@ -65,13 +63,12 @@ export class Message extends Service {
         }
       })
       if (channel == null) {
-        const newChannel = await this.app.service('channel').create({
+        channel = await this.app.service('channel').create({
           channelType: 'group',
           groupId: targetObjectId
         })
-        channelId = newChannel.id
-      }
-      else {
+        channelId = channel.id
+      } else {
         channelId = channel.id
       }
       const groupUsers = await this.app.service('group-user').find({
@@ -82,8 +79,7 @@ export class Message extends Service {
       userIdList = (groupUsers as any).data.map((groupUser) => {
         return groupUser.userId
       })
-    }
-    else if (targetObjectType === 'party') {
+    } else if (targetObjectType === 'party') {
       const targetParty = await this.app.service('party').get(targetObjectId)
       if (targetParty == null) {
         throw new BadRequest('Invalid target party ID')
@@ -94,13 +90,12 @@ export class Message extends Service {
         }
       })
       if (channel == null) {
-        const newChannel = await this.app.service('channel').create({
-          channelType: 'group',
+        channel = await this.app.service('channel').create({
+          channelType: 'party',
           groupId: targetObjectId
         })
-        channelId = newChannel.id
-      }
-      else {
+        channelId = channel.id
+      } else {
         channelId = channel.id
       }
       const partyUsers = await this.app.service('party-user').find({
@@ -133,4 +128,6 @@ export class Message extends Service {
 
     return newMessage
   }
+
+
 }

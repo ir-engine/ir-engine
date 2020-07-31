@@ -5,17 +5,19 @@ import {
   CreatedMessageAction,
   LoadedChannelsAction,
   RemovedMessageAction,
-  ChatAction, ChatTargetSetAction
+  ChatAction,
+  ChatTargetSetAction,
+  SetMessageScrollInitAction
 } from './actions'
 
 import {
   CREATED_MESSAGE,
   LOADED_CHANNELS,
   LOADED_MESSAGES,
-  LOADED_PARTY_CHANNEL,
-  LOADED_GROUP_CHANNELS,
-  LOADED_USER_CHANNELS,
-  REMOVED_MESSAGE, CHAT_TARGET_SET
+  PATCHED_MESSAGE,
+  REMOVED_MESSAGE,
+  CHAT_TARGET_SET,
+  SET_MESSAGE_SCROLL_INIT
 } from '../actions'
 
 import { Message } from '../../../shared/interfaces/Message'
@@ -25,24 +27,6 @@ import moment from 'moment'
 
 export const initialState = {
   channels: {
-    // user: {
-    //   channels: {},
-    //   limit: 50,
-    //   skip: 0,
-    //   total: 0,
-    //   updateNeeded: true
-    // },
-    // group: {
-    //   channels: {},
-    //   limit: 50,
-    //   skip: 0,
-    //   total: 0,
-    //   updateNeeded: true
-    // },
-    // party: {
-    //   channel: {},
-    //   updateNeeded: true
-    // }
     channels: {},
     limit: 5,
     skip: 0,
@@ -51,13 +35,15 @@ export const initialState = {
   },
   targetObjectType: '',
   targetObject: {},
-  updateMessageScroll: false
+  targetChannelId: '',
+  updateMessageScroll: false,
+  messageScrollInit: false
 }
 
 const immutableState = Immutable.fromJS(initialState)
 
 const chatReducer = (state = immutableState, action: ChatAction): any => {
-  let updateMap, localAction, updateMapChannels, updateMapChannelsType, updateMapChannelsTypeChildren, updateMapChannelsChild, setMap
+  let updateMap, localAction, updateMapChannels, updateMapChannelsChild
   switch (action.type) {
     case LOADED_CHANNELS:
       localAction = (action as LoadedChannelsAction)
@@ -109,9 +95,15 @@ const chatReducer = (state = immutableState, action: ChatAction): any => {
         }
       console.log('CREATE MESSAGE UPDATEMAP:')
         console.log(updateMap)
-      return state
-          .set('channels', updateMap)
-          .set('updateMessageScroll', true)
+      let returned = state
+        .set('channels', updateMap)
+        .set('updateMessageScroll', true)
+
+      if (state.get('targetChannelId').length === 0) {
+        returned = returned
+          .set('targetChannelId', channelId)
+      }
+      return returned
     case LOADED_MESSAGES:
       localAction = (action as LoadedMessagesAction)
         console.log('LOADED MESSAGES LOCAL ACTION')
@@ -137,28 +129,59 @@ const chatReducer = (state = immutableState, action: ChatAction): any => {
       updateMap = new Map(state.get('channels'))
 
         updateMapChannels = new Map(updateMap.get('channels'))
-        updateMapChannelsChild = (updateMapChannels as any).get(localAction.channelId)
+        updateMapChannelsChild = (updateMapChannels as any).get(localAction.message.channelId)
+        if (updateMapChannelsChild != null) {
+            console.log('OLD MESSAGES:')
+            console.log(updateMapChannelsChild.messages)
+            _.remove(updateMapChannelsChild.messages, (message: Message) => message.id === localAction.message.id)
+            console.log('NEW MESSAGES:')
+            console.log(updateMapChannelsChild.messages)
+            updateMapChannelsChild.skip = updateMapChannelsChild.skip - 1
+            updateMapChannels.set(localAction.message.channelId, updateMapChannelsChild)
+            updateMap.set('channels', updateMapChannels)
+            console.log('REMOVED MESSAGE')
+            console.log(updateMap)
+        }
+      return state
+          .set('channels', updateMap)
+    case PATCHED_MESSAGE:
+      localAction = (action as LoadedMessagesAction)
+      console.log('PATCHED MESSAGE REDUCER')
+      console.log(localAction)
+      updateMap = new Map(state.get('channels'))
+
+      updateMapChannels = new Map(updateMap.get('channels'))
+      updateMapChannelsChild = (updateMapChannels as any).get(localAction.message.channelId)
+      if (updateMapChannelsChild != null) {
         console.log('OLD MESSAGES:')
         console.log(updateMapChannelsChild.messages)
-        updateMapChannelsChild.messages = _.remove(updateMapChannelsChild.messages, (message: Message) => message.id === localAction.messageId)
+        updateMapChannelsChild.messages = updateMapChannelsChild.messages.map((message: Message) => message.id === localAction.message.id ? localAction.message : message)
         console.log('NEW MESSAGES:')
         console.log(updateMapChannelsChild.messages)
-        updateMapChannelsChild.skip = updateMapChannelsChild.skip - 1
-        updateMapChannels.set(localAction.channelId, updateMapChannelsChild)
+        updateMapChannels.set(localAction.message.channelId, updateMapChannelsChild)
         updateMap.set('channels', updateMapChannels)
-      console.log('REMOVED MESSAGE')
-      console.log(updateMap)
+        console.log('PATCHED MESSAGE')
+        console.log(updateMap)
+      }
       return state
           .set('channels', updateMap)
 
     case CHAT_TARGET_SET:
       console.log('CHAT_TARGET_SET REDUCER')
-      const { targetObjectType, targetObject } = (action as ChatTargetSetAction)
+      const { targetObjectType, targetObject, targetChannelId } = (action as ChatTargetSetAction)
         console.log(targetObjectType)
         console.log(targetObject)
       return state
           .set('targetObjectType', targetObjectType)
           .set('targetObject', targetObject)
+          .set('targetChannelId', targetChannelId)
+          .set('updateMessageScroll', true)
+          .set('messageScrollInit', true)
+
+    case SET_MESSAGE_SCROLL_INIT:
+      console.log('SETTING MESSAGE SCROLL INIT')
+          const { value } = (action as SetMessageScrollInitAction)
+          return state.set('messageScrollInit', value)
   }
 
   return state

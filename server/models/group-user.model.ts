@@ -1,4 +1,4 @@
-import {DataTypes, Sequelize} from 'sequelize'
+import { DataTypes, Sequelize } from 'sequelize'
 import { Application } from '../declarations'
 
 export default (app: Application): any => {
@@ -9,7 +9,7 @@ export default (app: Application): any => {
       defaultValue: DataTypes.UUIDV1,
       allowNull: false,
       primaryKey: true
-    },
+    }
   }, {
     hooks: {
       beforeCount (options: any) {
@@ -21,7 +21,7 @@ export default (app: Application): any => {
   (groupUser as any).associate = function (models: any) {
     (groupUser as any).belongsTo(models.group_user_rank, { foreignKey: 'groupUserRank', as: 'rank', required: true });
     (groupUser as any).belongsTo(models.group, { required: true, allowNull: false });
-    (groupUser as any).belongsTo(models.user, { required: true, allowNull: false });
+    (groupUser as any).belongsTo(models.user, { required: true, allowNull: false })
   }
 
   return groupUser

@@ -10,7 +10,6 @@ import deviceDetectReducer from './devicedetect/reducers'
 
 import friendReducer from './friend/reducers'
 import groupReducer from './group/reducers'
-import groupUserReducer from './group-user/reducers'
 import partyReducer from './party/reducers'
 import inviteReducer from './invite/reducers'
 import userReducer from './user/reducers'
@@ -23,7 +22,6 @@ export default combineReducers({
   chat: chatReducer,
   friends: friendReducer,
   groups: groupReducer,
-  groupUsers: groupUserReducer,
   party: partyReducer,
   invite: inviteReducer,
   videos: videoReducer,
