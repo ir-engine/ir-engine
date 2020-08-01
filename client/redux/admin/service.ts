@@ -26,6 +26,7 @@ export function createVideo (data: VideoCreationForm) {
       dispatchAlertSuccess(dispatch, 'Video uploaded')
       dispatch(videoCreated(result))
     } catch (err) {
+      console.log(err)
       dispatchAlertError(dispatch, 'Video upload error: ' + err.response.data.message)
     }
   }

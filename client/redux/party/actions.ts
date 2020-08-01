@@ -1,12 +1,13 @@
 import {
-  ADDED_PARTY,
+  CREATED_PARTY,
+  PATCHED_PARTY,
   LOADED_PARTY,
   REMOVED_PARTY,
   LEFT_PARTY,
   INVITED_PARTY_USER,
   REMOVED_PARTY_USER,
-  FETCHING_PARTY_USERS,
-  FETCHING_SELF_PARTY_USER
+  CREATED_PARTY_USER,
+  PATCHED_PARTY_USER
 } from '../actions'
 import { Party } from '../../../shared/interfaces/Party'
 import { PartyUser } from '../../../shared/interfaces/PartyUser'
@@ -18,16 +19,34 @@ export interface LoadedPartyAction {
   party: Party
 }
 
-export interface AddedPartyAction {
+export interface PatchedPartyAction {
   type: string
+  party: Party
+}
+
+export interface CreatedPartyAction {
+  type: string
+  party: Party
 }
 
 export interface RemovedPartyAction {
   type: string
+  party: Party
+}
+
+export interface CreatedPartyUserAction {
+  type: string
+  partyUser: PartyUser
+}
+
+export interface PatchedPartyUserAction {
+  type: string
+  partyUser: PartyUser
 }
 
 export interface RemovedPartyUserAction {
   type: string
+  partyUser: PartyUser
 }
 
 export interface InvitedPartyUserAction {
@@ -38,21 +57,14 @@ export interface LeftPartyAction {
   type: string
 }
 
-export interface FetchingPartyUserAction {
-  type: string
-}
-
-export interface FetchingSelfPartyUserAction {
-  type: string
-}
-
 export type PartyAction =
     LoadedPartyAction
-    | AddedPartyAction
+    | CreatedPartyAction
+    | PatchedPartyAction
     | RemovedPartyAction
     | LeftPartyAction
-    | FetchingPartyUserAction
-    | FetchingSelfPartyUserAction
+    | CreatedPartyUserAction
+    | PatchedPartyUserAction
 
 export function loadedParty(partyResult: PartyResult): PartyAction {
   return {
@@ -61,15 +73,24 @@ export function loadedParty(partyResult: PartyResult): PartyAction {
   }
 }
 
-export function addedParty(): AddedPartyAction {
+export function createdParty(party: Party): CreatedPartyAction {
   return {
-    type: ADDED_PARTY
+    type: CREATED_PARTY,
+    party: party
   }
 }
 
-export function removedParty(): RemovedPartyAction {
+export function patchedParty(party: Party): PatchedPartyAction {
   return {
-    type: REMOVED_PARTY
+    type: PATCHED_PARTY,
+    party: party
+  }
+}
+
+export function removedParty(party: Party): RemovedPartyAction {
+  return {
+    type: REMOVED_PARTY,
+    party: party
   }
 }
 
@@ -108,20 +129,24 @@ export type PartyUserAction =
     | RemovedPartyUserAction
     | LoadedSelfPartyUserAction
 
-export function removedPartyUser(): RemovedPartyUserAction {
+
+export function createdPartyUser(partyUser: PartyUser): CreatedPartyUserAction {
   return {
-    type: REMOVED_PARTY_USER
+    type: CREATED_PARTY_USER,
+    partyUser: partyUser
   }
 }
 
-export function fetchingPartyUsers(): FetchingPartyUserAction {
+export function patchedPartyUser(partyUser: PartyUser): PatchedPartyUserAction {
   return {
-    type: FETCHING_PARTY_USERS
+    type: PATCHED_PARTY_USER,
+    partyUser: partyUser
   }
 }
 
-export function fetchingSelfPartyUser(): FetchingSelfPartyUserAction {
+export function removedPartyUser(partyUser: PartyUser): RemovedPartyUserAction {
   return {
-    type: FETCHING_SELF_PARTY_USER
+    type: REMOVED_PARTY_USER,
+    partyUser: partyUser
   }
 }

@@ -13,16 +13,12 @@ export class Channel extends Service {
   }
 
   async find (params: Params): Promise<any> {
-    console.log('CHANNEL FIND')
-    console.log(params)
     const { query } = params
     const skip = query?.skip || 0
     const limit = query?.limit || 10
     const loggedInUser = extractLoggedInUserFromParams(params)
     const userId = loggedInUser.userId
-    console.log(query)
     const Model = this.app.service('channel').Model
-    console.log(Model.associations)
     try {
       const results = await Model.findAndCountAll({
         subQuery: false,
@@ -84,17 +80,14 @@ export class Channel extends Service {
       })
 
       if (query.findTargetId === true) {
-        const match = _.find(results.rows, (result: any) => query.targetObjectType === 'user' ? (result.userId1 === query.targetObjectId || result.userId2 === query.targetObjectId) : query.targetObjectType === 'group' ? result.groupId === query.targetObjectId :result.partyId === query.targetObjectId)
-        console.log('findTargetId match:')
-        console.log(match)
+        const match = _.find(results.rows, (result: any) => query.targetObjectType === 'user' ? (result.userId1 === query.targetObjectId || result.userId2 === query.targetObjectId) : query.targetObjectType === 'group' ? result.groupId === query.targetObjectId : result.partyId === query.targetObjectId)
         return {
           data: [match] || [],
           total: match == null ? 0 : 1,
           skip: skip,
           limit: limit
         }
-      }
-      else {
+      } else {
         await Promise.all(results.rows.map(async (channel) => {
           return await new Promise(async (resolve) => {
             if (channel.channelType === 'user') {
@@ -123,7 +116,6 @@ export class Channel extends Service {
               resolve()
             } else if (channel.channelType === 'group') {
               const groupUsers = await this.app.service('group-user').Model.findAll({
-                limit: 1000,
                 where: {
                   groupId: channel.groupId
                 },
@@ -152,7 +144,6 @@ export class Channel extends Service {
               resolve()
             } else if (channel.channelType === 'party') {
               const partyUsers = await this.app.service('party-user').Model.findAll({
-                limit: 1000,
                 where: {
                   partyId: channel.partyId
                 },

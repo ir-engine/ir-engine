@@ -9,16 +9,12 @@ export default () => {
     const loggedInUser = extractLoggedInUserFromParams(params)
     const userId = loggedInUser.userId
     if (method === 'remove' || method === 'patch') {
-      console.log(`Checking if message ${id} is owned by user ${userId}`)
       const match = await app.service('message').Model.findOne({
         where: {
           id: id,
           senderId: loggedInUser.userId
         }
       })
-
-      console.log('Message ownership result:')
-      console.log(match)
 
       if (match == null) {
         throw new BadRequest('Message not owned by requesting user')

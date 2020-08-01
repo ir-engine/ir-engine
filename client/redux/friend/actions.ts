@@ -1,9 +1,12 @@
 import {
   LOADED_FRIENDS,
+  CREATED_FRIEND,
+  PATCHED_FRIEND,
   REMOVED_FRIEND,
   FETCHING_FRIENDS
 } from '../actions'
 import { User } from '../../../shared/interfaces/User'
+import { UserRelationship } from '../../../shared/interfaces/UserRelationship'
 import { FriendResult } from '../../../shared/interfaces/FriendResult'
 
 export interface LoadedFriendsAction {
@@ -14,8 +17,21 @@ export interface LoadedFriendsAction {
   skip: number
 }
 
+export interface CreatedFriendAction {
+  type: string
+  userRelationship: UserRelationship
+}
+
+export interface PatchedFriendAction {
+  type: string
+  userRelationship: UserRelationship
+  selfUser: User
+}
+
 export interface RemovedFriendAction {
   type: string
+  userRelationship: UserRelationship
+  selfUser: User
 }
 
 export interface FetchingFriendsAction {
@@ -24,6 +40,8 @@ export interface FetchingFriendsAction {
 
 export type FriendAction =
     LoadedFriendsAction
+    | CreatedFriendAction
+    | PatchedFriendAction
     | RemovedFriendAction
     | FetchingFriendsAction
 
@@ -37,9 +55,26 @@ export function loadedFriends(friendResult: FriendResult): FriendAction {
   }
 }
 
-export function unfriended(): RemovedFriendAction {
+export function createdFriend(userRelationship: UserRelationship): CreatedFriendAction {
   return {
-    type: REMOVED_FRIEND
+    type: CREATED_FRIEND,
+    userRelationship: userRelationship
+  }
+}
+
+export function patchedFriend(userRelationship: UserRelationship, selfUser: User): PatchedFriendAction {
+  return {
+    type: PATCHED_FRIEND,
+    userRelationship: userRelationship,
+    selfUser: selfUser
+  }
+}
+
+export function removedFriend(userRelationship: UserRelationship, selfUser: User): RemovedFriendAction {
+  return {
+    type: REMOVED_FRIEND,
+    userRelationship: userRelationship,
+    selfUser: selfUser
   }
 }
 

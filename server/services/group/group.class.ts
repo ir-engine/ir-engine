@@ -51,7 +51,6 @@ export class Group extends Service {
     await Promise.all(groupResult.rows.map(async (group) => {
       return await new Promise(async (resolve) => {
         const groupUsers = await this.app.service('group-user').Model.findAll({
-          limit: 1000,
           where: {
             groupId: group.id
           },

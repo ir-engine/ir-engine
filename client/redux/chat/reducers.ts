@@ -7,7 +7,10 @@ import {
   RemovedMessageAction,
   ChatAction,
   ChatTargetSetAction,
-  SetMessageScrollInitAction
+  SetMessageScrollInitAction,
+  CreatedChannelAction,
+  PatchedChannelAction,
+  RemovedChannelAction
 } from './actions'
 
 import {
@@ -17,10 +20,14 @@ import {
   PATCHED_MESSAGE,
   REMOVED_MESSAGE,
   CHAT_TARGET_SET,
-  SET_MESSAGE_SCROLL_INIT
+  SET_MESSAGE_SCROLL_INIT,
+  CREATED_CHANNEL,
+  PATCHED_CHANNEL,
+  REMOVED_CHANNEL
 } from '../actions'
 
 import { Message } from '../../../shared/interfaces/Message'
+import { Channel } from '../../../shared/interfaces/Channel'
 
 import _ from 'lodash'
 import moment from 'moment'
@@ -74,6 +81,7 @@ const chatReducer = (state = immutableState, action: ChatAction): any => {
     case CREATED_MESSAGE:
       localAction = (action as CreatedMessageAction)
         const channelId = localAction.message.channelId
+        const selfUser = localAction.selfUser
         console.log('CREATE MESSAGE LOCAL ACTION')
         console.log(localAction)
       updateMap = new Map(state.get('channels'))
@@ -87,7 +95,7 @@ const chatReducer = (state = immutableState, action: ChatAction): any => {
           updateMap.set('updateNeeded', true)
         }
         else {
-          updateMapChannelsChild.messages = (updateMapChannelsChild.messages == null || updateMapChannelsChild.messages.size != null || updateMapChannels.get('updateNeeded') === true) ? localAction.message : _.unionBy(updateMapChannelsChild.messages, [localAction.message], 'id')
+          updateMapChannelsChild.messages = (updateMapChannelsChild.messages == null || updateMapChannelsChild.messages.size != null || updateMapChannels.get('updateNeeded') === true) ? [localAction.message] : _.unionBy(updateMapChannelsChild.messages, [localAction.message], 'id')
           updateMapChannelsChild.skip = updateMapChannelsChild.skip + 1
           updateMapChannelsChild.updatedAt = moment().utc().toJSON()
           updateMapChannels.set(channelId, updateMapChannelsChild)
@@ -99,9 +107,13 @@ const chatReducer = (state = immutableState, action: ChatAction): any => {
         .set('channels', updateMap)
         .set('updateMessageScroll', true)
 
-      if (state.get('targetChannelId').length === 0) {
+      if (state.get('targetChannelId').length === 0 && updateMapChannelsChild != null) {
+        const channelType = updateMapChannelsChild.channelType
+        const targetObject = channelType === 'user' ? (updateMapChannelsChild.userId1 === selfUser.id ? updateMapChannelsChild.user2 : updateMapChannelsChild.user1) : channelType === 'group' ? updateMapChannelsChild.group : updateMapChannelsChild.party
         returned = returned
           .set('targetChannelId', channelId)
+          .set('targetObjectType', channelType)
+          .set('targetObject', targetObject)
       }
       return returned
     case LOADED_MESSAGES:
@@ -163,6 +175,68 @@ const chatReducer = (state = immutableState, action: ChatAction): any => {
         console.log('PATCHED MESSAGE')
         console.log(updateMap)
       }
+      return state
+          .set('channels', updateMap)
+    case CREATED_CHANNEL:
+      localAction = (action as CreatedChannelAction)
+      const createdChannel = localAction.channel
+      console.log('CREATED CHANNEL REDUCER')
+      console.log(localAction)
+      updateMap = new Map(state.get('channels'))
+
+      updateMapChannels = new Map(updateMap.get('channels'))
+        console.log('updateMapChannels')
+        console.log(updateMapChannels)
+        updateMapChannels.set(createdChannel.id, createdChannel)
+        console.log('New updateMapChannels')
+        console.log(updateMapChannels)
+        updateMap.set('channels', updateMapChannels)
+        console.log('CREATD CHANNEL')
+        console.log(updateMap)
+
+      return state
+          .set('channels', updateMap)
+    case PATCHED_CHANNEL:
+      localAction = (action as PatchedChannelAction)
+        const updateChannel = localAction.channel
+      console.log('PATCHED CHANNEL REDUCER')
+      console.log(localAction)
+      updateMap = new Map(state.get('channels'))
+
+      updateMapChannels = new Map(updateMap.get('channels'))
+      updateMapChannelsChild = (updateMapChannels as any).get(localAction.channel.id)
+      if (updateMapChannelsChild != null) {
+        console.log('old updateMapChannelsChild')
+        console.log(updateMapChannelsChild)
+        updateMapChannelsChild.updatedAt = updateChannel.updatedAt
+        updateMapChannelsChild.group = updateChannel.group
+        updateMapChannelsChild.party = updateChannel.party
+        updateMapChannelsChild.user1 = updateChannel.user1
+        updateMapChannelsChild.user2 = updateChannel.user2
+        console.log('new updateMapChannelsChild')
+        console.log(updateMapChannelsChild)
+        updateMapChannels.set(localAction.channel.id, updateMapChannelsChild)
+        updateMap.set('channels', updateMapChannels)
+        console.log('PATCHED CHANNEL')
+        console.log(updateMap)
+      }
+      return state
+          .set('channels', updateMap)
+    case REMOVED_CHANNEL:
+      console.log('REMOVED CHANNEL REDUCER')
+      localAction = (action as RemovedChannelAction)
+      console.log(localAction)
+      updateMap = new Map(state.get('channels'))
+      updateMapChannels = new Map(updateMap.get('channels'))
+        console.log('Original updateMapChannels:')
+        console.log(updateMapChannels)
+        updateMapChannels.delete(localAction.channel.id)
+        console.log('New updateMapChannels')
+        console.log(updateMapChannels)
+
+        updateMap.set('channels', updateMapChannels)
+        console.log('REMOVED MESSAGE')
+        console.log(updateMap)
       return state
           .set('channels', updateMap)
 

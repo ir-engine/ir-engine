@@ -7,10 +7,13 @@ import {
   patchedMessage,
   removedMessage,
   setChatTarget,
-  setMessageScrollInit
+  setMessageScrollInit,
+  createdChannel,
+  patchedChannel,
+  removedChannel
 } from './actions'
 
-import { Message } from '../../../shared/interfaces/Message'
+import { User } from '../../../shared/interfaces/User'
 import store from '../store'
 import {dispatchAlertError} from '../alert/service'
 
@@ -27,6 +30,7 @@ export function getChannels(skip?: number, limit?: number) {
       console.log(channelResult)
       dispatch(loadedChannels(channelResult))
     } catch(err) {
+      console.log(err)
       dispatchAlertError(dispatch, err.message)
     }
   }
@@ -83,20 +87,19 @@ export function getChannels(skip?: number, limit?: number) {
 export function createMessage(values: any) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      const newMessage = await client.service('message').create({
+      await client.service('message').create({
         targetObjectId: values.targetObjectId,
         targetObjectType: values.targetObjectType,
         text: values.text
       })
     } catch(err) {
+      console.log(err)
       dispatchAlertError(dispatch, err.message)}
   }
 }
 
 export function getChannelMessages(channelId: string, skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    console.log(`GETTING CHANNEL MESSAGES FOR CHANNEL ${channelId}`)
-    console.log(getState().get('chat').get('channels').get('channels').get(channelId))
     try {
       const messageResult = await client.service('message').find({
         query: {
@@ -108,10 +111,9 @@ export function getChannelMessages(channelId: string, skip?: number, limit?: num
           $skip: skip != null ? skip : getState().get('chat').get('channels').get('channels').get(channelId).skip
         }
       })
-      console.log(`GOT MESSAGES FOR CHANNEL ${channelId}`)
-      console.log(messageResult)
       dispatch(loadedMessages(channelId, messageResult))
     } catch(err) {
+      console.log(err)
       dispatchAlertError(dispatch, err.message)}
   }
 }
@@ -119,10 +121,9 @@ export function getChannelMessages(channelId: string, skip?: number, limit?: num
 export function removeMessage(messageId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      console.log('Removing message with id: ' + messageId)
       await client.service('message').remove(messageId)
-      console.log(`REMOVED MESSAGE ${messageId}`)
     } catch(err) {
+      console.log(err)
       dispatchAlertError(dispatch, err.message)}
   }
 }
@@ -130,23 +131,17 @@ export function removeMessage(messageId: string) {
 export function patchMessage(messageId: string, text: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      console.log('Patching message with id: ' + messageId)
-      console.log('New text:')
-      console.log(text)
       await client.service('message').patch(messageId, {
         text: text
       })
-      console.log(`PATCHED MESSAGE ${messageId}`)
     } catch(err) {
+      console.log(err)
       dispatchAlertError(dispatch, err.message)}
   }
 }
 
 export function updateChatTarget(targetObjectType: string, targetObject: any) {
   return async (dispatch: Dispatch): Promise<any> => {
-    console.log('DISPATCHING CHAT TARGET')
-    console.log(targetObjectType)
-    console.log(targetObject)
     const targetChannelResult = await client.service('channel').find({
       query: {
         findTargetId: true,
@@ -154,8 +149,6 @@ export function updateChatTarget(targetObjectType: string, targetObject: any) {
         targetObjectId: targetObject.id
       }
     })
-    console.log('TargetChannel result:')
-    console.log(targetChannelResult)
     dispatch(setChatTarget(targetObjectType, targetObject, targetChannelResult.total > 0 ? targetChannelResult.data[0].id : ''))
   }
 }
@@ -170,7 +163,8 @@ export function updateMessageScrollInit(value: boolean) {
 client.service('message').on('created', (params) => {
   console.log('MESSAGE CREATED EVENT')
   console.log(params)
-  store.dispatch(createdMessage(params.message))
+  const selfUser = (store.getState() as any).get('auth').get('user') as User
+  store.dispatch(createdMessage(params.message, selfUser))
 })
 
 client.service('message').on('patched', (params) => {
@@ -183,4 +177,22 @@ client.service('message').on('removed', (params) => {
   console.log('MESSAGE REMOVED EVENT')
   console.log(params)
   store.dispatch(removedMessage(params.message))
+})
+
+client.service('channel').on('created', (params) => {
+  console.log('CHANNEL CREATED EVENT')
+  console.log(params)
+  store.dispatch(createdChannel(params.channel))
+})
+
+client.service('channel').on('patched', (params) => {
+  console.log('CHANNEL PATCHED EVENT')
+  console.log(params)
+  store.dispatch(patchedChannel(params.channel))
+})
+
+client.service('channel').on('removed', (params) => {
+  console.log('CHANNEL REMOVED EVENT')
+  console.log(params)
+  store.dispatch(removedChannel(params.channel))
 })
