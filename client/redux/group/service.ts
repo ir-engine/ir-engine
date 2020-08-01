@@ -2,7 +2,7 @@ import { Dispatch } from 'redux'
 import { client } from '../feathers'
 import {
   loadedGroups,
-  addedGroup,
+  createdGroup,
   patchedGroup,
   removedGroup,
   removedGroupUser,
@@ -13,9 +13,8 @@ import {
   createdGroupUser,
   patchedGroupUser
 } from './actions'
-import {dispatchAlertError} from "../alert/service";
-import store from "../store";
-import {createdMessage, patchedMessage, removedMessage} from "../chat/actions";
+import {dispatchAlertError} from '../alert/service'
+import store from '../store'
 
 export function getGroups(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -31,6 +30,7 @@ export function getGroups(skip?: number, limit?: number) {
       console.log(groupResults)
       dispatch(loadedGroups(groupResults))
     } catch(err) {
+      console.log(err)
       dispatchAlertError(dispatch, err.message)
     }
   }
@@ -43,8 +43,8 @@ export function createGroup(values: any) {
         name: values.name,
         description: values.description
       })
-      dispatch(addedGroup())
     } catch(err) {
+      console.log(err)
       dispatchAlertError(dispatch, err.message)
     }
   }
@@ -63,8 +63,8 @@ export function patchGroup(values: any) {
     console.log(values)
     try {
       await client.service('group').patch(values.id, patch)
-      dispatch(patchedGroup())
     } catch(err) {
+      console.log(err)
       dispatchAlertError(dispatch, err.message)
     }
   }
@@ -73,9 +73,17 @@ export function patchGroup(values: any) {
 export function removeGroup(groupId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
+      const channelResult = await client.service('channel').find({
+        query: {
+          groupId: groupId
+        }
+      }) as any
+      if (channelResult.total > 0) {
+        await client.service('channel').remove(channelResult.data[0].id)
+      }
       await client.service('group').remove(groupId)
-      dispatch(removedGroup())
     } catch(err) {
+      console.log(err)
       dispatchAlertError(dispatch, err.message)
     }
   }
@@ -86,6 +94,7 @@ export function removeGroupUser(groupUserId: string) {
     try {
       await client.service('group-user').remove(groupUserId)
     } catch(err) {
+      console.log(err)
       dispatchAlertError(dispatch, err.message)
     }
   }
@@ -108,6 +117,7 @@ export function getInvitableGroups(skip?: number, limit?: number) {
       console.log(groupResults)
       dispatch(loadedInvitableGroups(groupResults))
     } catch(err) {
+      console.log(err)
       dispatchAlertError(dispatch, err.message)
       dispatch(loadedInvitableGroups({ data: [], limit: 0, skip: 0, total: 0 }))
     }
@@ -129,5 +139,23 @@ client.service('group-user').on('patched', (params) => {
 client.service('group-user').on('removed', (params) => {
   console.log('GROUP-USER REMOVED EVENT')
   console.log(params)
-  store.dispatch(removedGroupUser(params.groupUser))
+  store.dispatch(removedGroupUser(params.groupUser, params.self))
+})
+
+client.service('group').on('created', (params) => {
+  console.log('GROUP CREATED EVENT')
+  console.log(params)
+  store.dispatch(createdGroup(params.group))
+})
+
+client.service('group').on('patched', (params) => {
+  console.log('GROUP PATCHED EVENT')
+  console.log(params)
+  store.dispatch(patchedGroup(params.group))
+})
+
+client.service('group').on('removed', (params) => {
+  console.log('GROUP REMOVED EVENT')
+  console.log(params)
+  store.dispatch(removedGroup(params.group))
 })

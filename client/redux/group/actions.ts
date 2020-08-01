@@ -1,5 +1,5 @@
 import {
-  ADDED_GROUP,
+  CREATED_GROUP,
   PATCHED_GROUP,
   LOADED_GROUPS,
   REMOVED_GROUP,
@@ -24,20 +24,19 @@ export interface LoadedGroupsAction {
   skip: number
 }
 
-export interface AddedGroupAction {
+export interface CreatedGroupAction {
   type: string
+  group: Group
 }
 
 export interface PatchedGroupAction {
   type: string
+  group: Group
 }
 
 export interface RemovedGroupAction {
   type: string
-}
-
-export interface RemovedGroupUserAction {
-  type: string
+  group: Group
 }
 
 export interface CreatedGroupUserAction {
@@ -53,6 +52,7 @@ export interface PatchedGroupUserAction {
 export interface RemovedGroupUserAction {
   type: string
   groupUser: GroupUser
+  self: boolean
 }
 
 export interface InvitedGroupUserAction {
@@ -81,7 +81,7 @@ export interface FetchingInvitableGroupsAction {
 
 export type GroupAction =
     LoadedGroupsAction
-    | AddedGroupAction
+    | CreatedGroupAction
     | PatchedGroupAction
     | RemovedGroupAction
     | LeftGroupAction
@@ -102,42 +102,46 @@ export function loadedGroups(groupResult: GroupResult): GroupAction {
   }
 }
 
-export function addedGroup(): AddedGroupAction {
+export function createdGroup(group: Group): CreatedGroupAction {
   return {
-    type: ADDED_GROUP
+    type: CREATED_GROUP,
+    group: group
   }
 }
 
-export function patchedGroup(): PatchedGroupAction {
+export function patchedGroup(group: Group): PatchedGroupAction {
   return {
-    type: PATCHED_GROUP
+    type: PATCHED_GROUP,
+    group: group
   }
 }
 
-export function removedGroup(): RemovedGroupAction {
+export function removedGroup(group: Group): RemovedGroupAction {
   return {
-    type: REMOVED_GROUP
+    type: REMOVED_GROUP,
+    group: group
   }
 }
 
-export function createdGroupUser(groupUser: GroupUser): RemovedGroupUserAction {
+export function createdGroupUser(groupUser: GroupUser): CreatedGroupUserAction {
   return {
     type: CREATED_GROUP_USER,
     groupUser: groupUser
   }
 }
 
-export function patchedGroupUser(groupUser: GroupUser): RemovedGroupUserAction {
+export function patchedGroupUser(groupUser: GroupUser): PatchedGroupUserAction {
   return {
     type: PATCHED_GROUP_USER,
     groupUser: groupUser
   }
 }
 
-export function removedGroupUser(groupUser: GroupUser): RemovedGroupUserAction {
+export function removedGroupUser(groupUser: GroupUser, self: boolean): RemovedGroupUserAction {
   return {
     type: REMOVED_GROUP_USER,
-    groupUser: groupUser
+    groupUser: groupUser,
+    self: self
   }
 }
 

@@ -2,72 +2,82 @@ import Immutable from 'immutable'
 import {
   PartyAction,
   LoadedPartyAction,
-  PartyUserAction,
-  LoadedPartyUsersAction,
-  LoadedSelfPartyUserAction,
+  CreatedPartyUserAction,
+  PatchedPartyUserAction,
+  RemovedPartyUserAction
 } from './actions'
 
 import {
   LOADED_PARTY,
-  ADDED_PARTY,
+  CREATED_PARTY,
   REMOVED_PARTY,
   INVITED_PARTY_USER,
   REMOVED_PARTY_USER,
-  FETCHING_PARTY_USERS
+  CREATED_PARTY_USER,
+  PATCHED_PARTY_USER
 } from '../actions'
+import { PartyUser } from '../../../shared/interfaces/PartyUser'
+import _ from 'lodash'
 
 export const initialState = {
-  party: null,
-  selfUpdateNeeded: true,
-  partyUsersUpdateNeeded: true,
-  getPartyUsersInProgress: false,
-  getSelfPartyUserInProgress: false,
-  updateNeeded: true,
-  partyUsers: {
-    partyUsers: [],
-    total: 0,
-    limit: 5,
-    skip: 0
-  },
-  selfPartyUser: null
+  party: {},
+  updateNeeded: true
 }
 
 const immutableState = Immutable.fromJS(initialState)
 
 const partyReducer = (state = immutableState, action: PartyAction): any => {
-  let newValues, updateMap
+  let newValues, updateMap, partyUser, updateMapPartyUsers
   switch (action.type) {
     case LOADED_PARTY:
       return state
         .set('party', (action as LoadedPartyAction).party)
         .set('updateNeeded', false)
-        .set('partyUsersUpdateNeeded', true)
-    case ADDED_PARTY:
+    case CREATED_PARTY:
       return state
           .set('updateNeeded', true)
-          .set('selfUpdateNeeded', true)
     case REMOVED_PARTY:
       updateMap = new Map()
-      updateMap.set('partyUsers', initialState.partyUsers.partyUsers)
-      updateMap.set('skip', initialState.partyUsers.skip)
-      updateMap.set('limit', initialState.partyUsers.limit)
-      updateMap.set('total', initialState.partyUsers.total)
       return state
-          .set('party', null)
+          .set('party', {})
           .set('updateNeeded', true)
-          .set('selfUpdateNeeded', true)
-          .set('partyUsersUpdatedNeeded', true)
-          .set('partyUsers', updateMap)
     case INVITED_PARTY_USER:
       return state
           .set('updateNeeded', true)
+    case CREATED_PARTY_USER:
+      console.log('CREATED_PARTY_USER REDUCER')
+      newValues = (action as CreatedPartyUserAction)
+      partyUser = newValues.partyUser
+      updateMap = _.cloneDeep(state.get('party'))
+      if (updateMap != null) {
+        updateMapPartyUsers = updateMap.partyUsers
+        updateMapPartyUsers = Array.isArray(updateMapPartyUsers) ? updateMapPartyUsers.concat([partyUser]) : [partyUser]
+        updateMap.partyUsers = updateMapPartyUsers
+      }
+
+      return state
+          .set('party', updateMap)
+    case PATCHED_PARTY_USER:
+      newValues = (action as PatchedPartyUserAction)
+      partyUser = newValues.partyUser
+      updateMap = _.cloneDeep(state.get('party'))
+      if (updateMap != null) {
+        updateMap.partyUsers = updateMap.partyUsers.map((pUser) => pUser.id === partyUser.id ? partyUser : pUser)
+      }
+
+      return state
+          .set('party', updateMap)
     case REMOVED_PARTY_USER:
+      newValues = (action as RemovedPartyUserAction)
+      partyUser = newValues.partyUser
+      updateMap = _.cloneDeep(state.get('party'))
+      if (updateMap != null) {
+        updateMapPartyUsers = updateMap.partyUsers
+        _.remove(updateMapPartyUsers, (pUser: PartyUser) => partyUser.id === pUser.id)
+      }
       return state
+          .set('party', updateMap)
           .set('updateNeeded', true)
-          .set('partyUsersUpdateNeeded', true)
-    case FETCHING_PARTY_USERS:
-      return state
-          .set('getPartyUsersInProgress', true)
   }
 
   return state

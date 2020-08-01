@@ -29,10 +29,9 @@ export class Party extends Service {
 
       const partyId = (partyUserResult as any).data[0].partyId
 
-      let party = await super.get(partyId)
+      const party = await super.get(partyId)
 
       const partyUsers = await this.app.service('party-user').Model.findAll({
-        limit: 1000,
         where: {
           partyId: party.id
         },
@@ -57,76 +56,11 @@ export class Party extends Service {
         return await Promise.resolve()
       }))
 
-      console.log('Setting partyUsers:')
-      console.log(party)
       party.partyUsers = partyUsers
 
-      console.log('Returning party:')
-      console.log(party)
       return party
     } else {
       return await super.get(id)
     }
   }
-
-  // async find (params: Params): Promise<[]> {
-  //   const partyUsersModel = this.app.service('party-user').Model
-
-  //   const partys = await partyUsersModel.findAll({
-  //     where: {
-  //       userId: params.user.userId
-  //     },
-  //     attributes: [['partyId', 'id'], 'isMuted', 'isOwner'],
-  //     include: [
-  //       {
-  //         model: this.getModel(params)
-  //       }
-  //     ]
-  //   })
-
-  //   return partys
-  // }
-
-  // async get (id: Id, params: Params): Promise<any> {
-  //   const partyUsersModel = this.app.service('party-user').Model
-
-  //   const party = await partyUsersModel.findOne({
-  //     where: {
-  //       partyId: id,
-  //       userId: params.user.userId
-  //     },
-  //     attributes: ['partyId', 'isMuted', 'isOwner'],
-  //     include: [{ model: this.getModel(params) }]
-  //   })
-
-  //   if (!party) {
-  //     return await Promise.reject(new Forbidden('Party not found Or you don\'t have access!'))
-  //   }
-  //   return party
-  // }
-
-  // async create (data: any, params: Params): Promise<any> {
-  //   const PartyUsersModel = this.app.service('party-user').Model
-  //   const PartyModel = this.getModel(params)
-  //   let savedGroup = new PartyModel(data)
-  //   savedGroup = await savedGroup.save()
-
-  //   // We are able to take benefit of using sequelize method *addUser* available due to *many to many* relationShip but
-  //   // that was making one extra Query for getting party details Therefore we are doing it manually
-  //   const userPartyModel = new PartyUsersModel({
-  //     partyId: savedGroup.id,
-  //     userId: params.user.userId,
-  //     isOwner: true,
-  //     isInviteAccepted: true
-  //   })
-  //   await userPartyModel.save()
-  //   // TODO: After saving party, update contacts via Socket
-  //   // TODO: If party is public update to all those users which are in same location
-  //   return savedGroup
-  // }
-
-  // async patch (id: NullableId, data: any, params?: Params): Promise<any> {
-  //   // TODO: Handle socket update
-  //   return await super.patch(id, data, params)
-  // }
 }

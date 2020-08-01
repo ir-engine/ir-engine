@@ -50,6 +50,7 @@ import {
     Add,
     ArrowLeft,
     Delete,
+    Edit,
     Forum,
     Group,
     GroupWork,
@@ -58,6 +59,7 @@ import {
     SupervisedUserCircle
 } from "@material-ui/icons";
 import _ from 'lodash'
+import { Group as GroupType } from '../../../../../shared/interfaces/Group'
 
 
 const mapStateToProps = (state: any): any => {
@@ -163,7 +165,6 @@ const LeftDrawer = (props: Props): any => {
     const groupSubState = groupState.get('groups')
     const groups = groupSubState.get('groups')
     const party = partyState.get('party')
-    const partyUserSubState = partyState.get('partyUsers')
     const [tabIndex, setTabIndex] = useState(0)
     const [ friendDeletePending, setFriendDeletePending ] = useState('')
     const [ groupDeletePending, setGroupDeletePending ] = useState('')
@@ -184,11 +185,19 @@ const LeftDrawer = (props: Props): any => {
         if (friendState.get('updateNeeded') === true && friendState.get('getFriendsInProgress') !== true) {
             getFriends(0)
         }
+        if (friendState.get('closeDetails') === selectedUser.id) {
+            closeDetails()
+            friendState.set('closeDetails', '')
+        }
     }, [friendState]);
 
     useEffect(() => {
         if (groupState.get('updateNeeded') === true && groupState.get('getGroupsInProgress') !== true) {
             getGroups(0)
+        }
+        if (groupState.get('closeDetails') === selectedGroup.id) {
+            closeDetails()
+            groupState.set('closeDetails', '')
         }
     }, [groupState]);
 
@@ -212,6 +221,7 @@ const LeftDrawer = (props: Props): any => {
         e.preventDefault()
         setFriendDeletePending('')
         unfriend(friendId)
+        closeDetails()
     }
 
     const nextFriendsPage = (): void => {
@@ -305,6 +315,8 @@ const LeftDrawer = (props: Props): any => {
     }
 
     const openDetails = (type, object) => {
+        console.log('opening details')
+        console.log(groupState)
         setDetailsOpen(true)
         setDetailsType(type)
         if (type === 'user') {
@@ -322,13 +334,13 @@ const LeftDrawer = (props: Props): any => {
         setSelectedGroup(initialGroupForm)
     }
 
-    const openGroupForm = (mode: string, groupId?: string): void => {
+    const openGroupForm = (mode: string, group?: GroupType) => {
+        console.log('Opening group form')
+        console.log(mode)
+        console.log(group)
         setGroupFormOpen(true)
         setGroupFormMode(mode)
-        if (groupId != null) {
-            const group = _.find(groups, (group) => {
-                return group.id === groupId
-            })
+        if (group != null) {
             setGroupForm({
                 id: group.id,
                 name: group.name,
@@ -398,9 +410,6 @@ const LeftDrawer = (props: Props): any => {
             updateMessageScrollInit(true)
         }, 100)
     }
-
-    console.log('selfGroupUser:')
-    console.log(selfGroupUser)
 
     return (
         <div>
@@ -723,6 +732,15 @@ const LeftDrawer = (props: Props): any => {
 							>
 								Chat
 							</Button>
+                            {selfGroupUser != null && (selfGroupUser.groupUserRank === 'owner') &&
+								<Button
+									variant="contained"
+									startIcon={<Edit/>}
+									onClick={() => openGroupForm('update', selectedGroup)}
+								>
+                                Edit
+                                </Button>
+                            }
                             {selfGroupUser != null && (selfGroupUser.groupUserRank === 'owner' || selfGroupUser.groupUserRank === 'admin') &&
 							<Button
 								variant="contained"
@@ -824,7 +842,7 @@ const LeftDrawer = (props: Props): any => {
 				</div>
                 }
                 {
-                    groupFormOpen === true && detailsOpen === false &&
+                    groupFormOpen === true &&
 					<form className='group-form' noValidate onSubmit={(e) => submitGroup(e)}>
                         { groupFormMode === 'create' && <div className="title">New Group</div> }
                         { groupFormMode === 'update' && <div className="title">Update Group</div> }

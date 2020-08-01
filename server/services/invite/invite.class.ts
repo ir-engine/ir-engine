@@ -38,8 +38,12 @@ export class Invite extends Service {
 
       await Promise.all((result as any).data.map(async (invite) => {
         if (invite.inviteType === 'group') {
-          const group = await this.app.service('group').get(invite.targetObjectId)
-          invite.groupName = group.name
+          try {
+            const group = await this.app.service('group').get(invite.targetObjectId)
+            invite.groupName = group.name
+          } catch(err) {
+            invite.groupName = '&ltA deleted group&gt'
+          }
         }
       }))
 
@@ -55,8 +59,12 @@ export class Invite extends Service {
 
       await Promise.all((result as any).data.map(async (invite) => {
         if (invite.inviteType === 'group') {
-          const group = await this.app.service('group').get(invite.targetObjectId)
-          invite.groupName = group.name
+          try {
+            const group = await this.app.service('group').get(invite.targetObjectId)
+            invite.groupName = group.name
+          } catch(err) {
+            invite.groupName = '&ltA deleted group&gt'
+          }
         }
       }))
 
