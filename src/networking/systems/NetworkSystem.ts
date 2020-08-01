@@ -1,5 +1,5 @@
 import { System, Entity, World } from "ecsy"
-import NetworkPlayer from "../components/NetworkPlayer"
+import NetworkClient from "../components/NetworkClient"
 import MessageSchema from "../classes/MessageSchema"
 import set from "../../common/utils/set"
 import cropString from "../../common/utils/cropString"
@@ -45,7 +45,7 @@ export class NetworkSystem extends System {
       components: [NetworkObject]
     },
     networkOwners: {
-      components: [NetworkPlayer]
+      components: [NetworkClient]
     }
   }
 

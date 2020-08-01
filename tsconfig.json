@@ -1,15 +1,16 @@
 {
   "compilerOptions": {
-    "module": "esnext",
+    "module": "es6",
     "declaration": true,
     "noImplicitAny": false,
     "target": "es6",
     "moduleResolution": "Node",
+    "sourceMap": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true
   },
   "include": [
-    "src/**/*", "server/server.ts"
+    "src/**/*", "server/**/*"
   ],
   "exclude": ["node_modules", "dist"]
 }
