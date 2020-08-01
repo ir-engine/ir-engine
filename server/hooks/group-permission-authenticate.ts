@@ -14,7 +14,7 @@ export default () => {
     }
     const groupId = path === 'group-user' && method === 'find' ? params.query.groupId : fetchedGroupId != null ? fetchedGroupId : id
     params.query.groupId = groupId
-    const userId = path === 'group' ? loggedInUser.userId : params.query.userId || loggedInUser.userId
+    const userId = (path === 'group') ? loggedInUser.userId : (params.query.userId || loggedInUser.userId)
     const groupUserCountResult = await app.service('group-user').find({
       query: {
         groupId: groupId,
@@ -37,6 +37,9 @@ export default () => {
       }
     }
 
+    if (path === 'group') {
+      delete params.query.groupId
+    }
     return context
   }
 }

@@ -5,8 +5,12 @@ import {
   LOADED_MESSAGES,
   PATCHED_MESSAGE,
   REMOVED_MESSAGE,
-  SET_MESSAGE_SCROLL_INIT
+  SET_MESSAGE_SCROLL_INIT,
+  CREATED_CHANNEL,
+  PATCHED_CHANNEL,
+  REMOVED_CHANNEL
 } from '../actions'
+import { User } from '../../../shared/interfaces/User'
 import { Message } from '../../../shared/interfaces/Message'
 import { MessageStatus } from '../../../shared/interfaces/MessageStatus'
 import { MessageResult } from '../../../shared/interfaces/MessageResult'
@@ -56,11 +60,27 @@ export interface PatchedMessageAction {
 export interface CreatedMessageAction {
   type: string
   message: Message
+  selfUser: User
 }
 
 export interface SetMessageScrollInitAction {
   type: string
   value: boolean
+}
+
+export interface CreatedChannelAction {
+  type: string
+  channel: Channel
+}
+
+export interface PatchedChannelAction {
+  type: string
+  channel: Channel
+}
+
+export interface RemovedChannelAction {
+  type: string
+  channel: Channel
 }
 
 export type ChatAction =
@@ -72,6 +92,9 @@ export type ChatAction =
     | RemovedMessageAction
     | ChatTargetSetAction
     | SetMessageScrollInitAction
+    | CreatedChannelAction
+    | PatchedChannelAction
+    | RemovedChannelAction
 
 export function loadedChannels(channelResult: ChannelResult): ChatAction {
   return {
@@ -83,10 +106,11 @@ export function loadedChannels(channelResult: ChannelResult): ChatAction {
   }
 }
 
-export function createdMessage(message: Message): ChatAction {
+export function createdMessage(message: Message, selfUser: User): ChatAction {
   return {
     type: CREATED_MESSAGE,
-    message: message
+    message: message,
+    selfUser: selfUser
   }
 }
 
@@ -128,5 +152,26 @@ export function setMessageScrollInit(value: boolean): ChatAction {
   return {
     type: SET_MESSAGE_SCROLL_INIT,
     value: value
+  }
+}
+
+export function createdChannel(channel: Channel) {
+  return {
+    type: CREATED_CHANNEL,
+    channel: channel
+  }
+}
+
+export function patchedChannel(channel: Channel) {
+  return {
+    type: PATCHED_CHANNEL,
+    channel: channel
+  }
+}
+
+export function removedChannel(channel: Channel) {
+  return {
+    type: REMOVED_CHANNEL,
+    channel: channel
   }
 }

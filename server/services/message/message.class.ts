@@ -92,7 +92,7 @@ export class Message extends Service {
       if (channel == null) {
         channel = await this.app.service('channel').create({
           channelType: 'party',
-          groupId: targetObjectId
+          partyId: targetObjectId
         })
         channelId = channel.id
       } else {
@@ -122,12 +122,10 @@ export class Message extends Service {
       })
     }))
 
-    const patchresult = await this.app.service('channel').patch(channelId, {
+    await this.app.service('channel').patch(channelId, {
       channelType: channel.channelType
     })
 
     return newMessage
   }
-
-
 }

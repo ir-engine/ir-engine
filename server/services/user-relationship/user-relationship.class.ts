@@ -24,7 +24,7 @@ export class UserRelationship extends Service {
     const userRelationshipTypes = ((await UserRelationshipTypeService.find()) as any).data
 
     const userId = params.query?.userId
-    const result = {}
+    let result = {}
 
     for (const userRelationType of userRelationshipTypes) {
       const userRelations = await UserRelationshipModel.findAll({
@@ -99,20 +99,28 @@ export class UserRelationship extends Service {
   }
 
   async patch (id: NullableId, data: any, params: Params): Promise<any> {
-    console.log('USERRELATIONSHIP PATCH')
+    console.log('USER-RELATIONSHIP PATCH')
     const userId = data.userId || params[loggedInUserEntity].userId
     const { userRelationshipType } = data
     const UserRelationshipModel = this.getModel(params)
-    console.log(id)
-    console.log(userId)
-    console.log(userRelationshipType)
 
-    return UserRelationshipModel.update({
+    console.log(`userRelationshipType: ${userRelationshipType}`)
+    console.log(`userId: ${userId}`)
+    console.log(`id: ${id}`)
+    const result = await UserRelationshipModel.update({
       userRelationshipType: userRelationshipType
     }, {
       where: {
-        userId: userId,
-        relatedUserId: id
+        id: id
+      }
+    })
+
+    console.log('update result:')
+    console.log(result)
+
+    return await UserRelationshipModel.findOne({
+      where: {
+        id: id
       }
     })
   }
@@ -122,10 +130,21 @@ export class UserRelationship extends Service {
     const userId = authUser.userId
     const UserRelationshipModel = this.getModel(params)
 
-    return UserRelationshipModel.destroy({
+    const relationship = await UserRelationshipModel.findOne({
+      where: {
+        userId: userId,
+        relatedUserId: id
+      }
+    })
+    const result = await UserRelationshipModel.destroy({
       where: Sequelize.literal(
           `(userId='${userId as string}' AND relatedUserId='${id as string}') OR 
              (userId='${id as string}' AND relatedUserId='${userId as string}')`)
     })
+
+    console.log('remove result:')
+    console.log(result)
+
+    return relationship
   }
 }
