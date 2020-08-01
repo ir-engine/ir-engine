@@ -3,87 +3,72 @@ import resolve from "@rollup/plugin-node-resolve"
 import html from "@open-wc/rollup-plugin-html"
 import babel from "@rollup/plugin-babel"
 import typescript from "rollup-plugin-typescript2"
-import commonjs from "rollup-plugin-commonjs"
+import commonjs from "@rollup/plugin-commonjs"
 import nodePolyfills from "rollup-plugin-node-polyfills"
-
+import builtins from "rollup-plugin-node-builtins"
+import nodeGlobals from "rollup-plugin-node-globals"
+import dynamicImportVars from "@rollup/plugin-dynamic-import-vars"
 export default [
+  // {
+  //   input: "src/index.ts",
+  //   plugins: [
+  //     resolve({ browser: true, preferBuiltins: true }),
+  //     commonjs({
+  //       include: ["node_modules/**/*"], // Default: undefined
+  //       transformMixedEsModules: true
+  //     }),
+  //     json(),
+  //     nodePolyfills(),
+  //     typescript(),
+  //     // terser(),
+  //     babel({ babelHelpers: "bundled" })
+  //   ],
+  //   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  //   output: [
+  //     {
+  //       file: "dist/armada.js",
+  //       format: "esm",
+  //       sourcemap: true
+  //     }
+  //   ],
+  //   external: ["socket.io-client"]
+  // },
   {
-    cache: null,
-    input: "src/index.ts",
+    input: "server/index.ts",
+    output: [
+      { file: "dist/armada.server.js", format: "esm", sourcemap: true },
+      { file: "dist/armada.server.cjs.js", format: "cjs", sourcemap: true }
+    ],
     plugins: [
-      resolve({ browser: true, preferBuiltins: false }),
+      json(),
+      resolve(),
       commonjs({
+        preferBuiltins: true,
         include: ["node_modules/**/*"] // Default: undefined
       }),
-      json(),
-      typescript(),
-      // terser(),
-      babel({ babelHelpers: "bundled" })
-    ],
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    output: [
-      {
-        file: "dist/armada.js",
-        format: "esm",
-        sourcemap: true
-      }
-    ],
-    external: ["socket.io-client"]
-  },
-  // HTML pages
-  // {
-  //   input: "examples/input_three.html",
-  //   output: { dir: "dist/examples" },
-  //   plugins: [html(), typescript(), resolve({ preferBuiltins: true })]
-  // },
-  // {
-  //   input: "examples/input_custom.html",
-  //   output: { dir: "dist/examples" },
-  //   plugins: [html(), typescript(), resolve({ preferBuiltins: true })]
-  // },
-  // {
-  //   input: "examples/input_mouse.html",
-  //   output: { dir: "dist/examples" },
-  //   plugins: [html(), typescript(), resolve({ preferBuiltins: true })]
-  // },
-  // {
-  //   input: "examples/input.html",
-  //   output: { dir: "dist/examples" },
-  //   plugins: [html(), typescript(), resolve({ preferBuiltins: true })]
-  // },
-  {
-    input: "src/networking/classes/server.ts",
-    output: { file: "dist/examples/networking/server.js", format: "cjs", sourcemap: true },
-    plugins: [
-      resolve({ preferBuiltins: true }),
-      commonjs({
-        namedExports: {
-          "socket.io-client": ["connect"],
-          "socket.io": ["listen"]
-        }
-      }),
-      json(),
+      nodeGlobals(),
+      builtins(),
       typescript()
-      // terser(),
     ],
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    external: ["socket.io-client"]
+    external: ["mediasoup", "mediasoup-client", "buffer-es6"],
+    globals: ["tls, stream, path, mediasoup-client, mediasoup"]
   },
+  // {
+  //   input: "examples/networking/index.html",
+  //   output: { dir: "dist/examples/networking" },
+  //   plugins: [html(), resolve({ browser: true, preferBuiltins: false }), commonjs(), typescript(), json(), babel({ babelHelpers: "bundled" })],
+  //   external: ["socket.io-client"]
+  // },
   {
-    input: "examples/networking/index.html",
-    output: { dir: "dist/examples/networking" },
+    input: "examples/networking/server.js",
+    output: { dir: "dist/examples/networking/server.js" },
     plugins: [
-      html(),
-      resolve({ browser: true, preferBuiltins: false }),
-      commonjs({
-        namedExports: {
-          "socket.io-client": ["connect"]
-        }
-      }),
-      typescript(),
       json(),
-      babel({ babelHelpers: "bundled" })
-    ],
-    external: ["socket.io-client"]
+      resolve(),
+      commonjs({
+        include: ["node_modules/**/*"], // Default: undefined
+        transformMixedEsModules: true
+      })
+    ]
   }
 ]

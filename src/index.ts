@@ -1,7 +1,7 @@
 export * from "./common"
 export * from "./input"
 export * from "./state"
-export * from "./state"
+export * from "./networking"
 
 import { Entity, World } from "ecsy"
 
@@ -18,12 +18,10 @@ import StateSystem from "./state/systems/StateSystem"
 import StateSchema from "./state/interfaces/StateSchema"
 import { DefaultStateSchema } from "./state/defaults/DefaultStateSchema"
 import { NetworkSystem } from "./networking/systems/NetworkSystem"
-import NetworkPlayer from "./networking/components/NetworkPlayer"
+import NetworkClient from "./networking/components/NetworkClient"
 import NetworkObject from "./networking/components/NetworkObject"
 import NetworkTransport from "./networking/interfaces/NetworkTransport"
-import CreateTransport from "./networking/transports/SocketWebRTC/Transport"
 import { MediaStreamControlSystem } from "./networking/systems/MediaStreamSystem"
-import { Transport } from "mediasoup-client/lib/types"
 
 const DEFAULT_OPTIONS = {
   debug: false
@@ -85,15 +83,13 @@ export function initializeActor(entity: Entity, options: { inputMap?: InputSchem
   return entity
 }
 
-// TODO: Make this a static function on NetworkSystem
 export function initializeNetworking(world: World, transport?: NetworkTransport) {
-  const t = transport ? transport : CreateTransport()
   world
     .registerSystem(NetworkSystem)
     .registerComponent(NetworkObject)
-    .registerComponent(NetworkPlayer)
-  if (t.supportsMediaStreams) world.registerSystem(MediaStreamControlSystem)
+    .registerComponent(NetworkClient)
+  if (transport.supportsMediaStreams) world.registerSystem(MediaStreamControlSystem)
 
-  const networkSystem = world.getSystem(NetworkSystem)
-  ;(networkSystem as NetworkSystem).initializeSession(world, t)
+  const networkSystem = world.getSystem(NetworkSystem) as NetworkSystem
+  networkSystem.initializeSession(world, transport)
 }

@@ -1,7 +1,7 @@
 export * from "./common";
 export * from "./input";
 export * from "./state";
-export * from "./state";
+export * from "./networking";
 import { Entity, World } from "ecsy";
 import InputSchema from "./input/interfaces/InputSchema";
 import StateSchema from "./state/interfaces/StateSchema";
