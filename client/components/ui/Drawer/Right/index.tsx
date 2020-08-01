@@ -278,9 +278,6 @@ const Invites = (props: Props): any => {
         }
     }
 
-    console.log('RIGHT DRAWER')
-    console.log(party)
-    console.log(selfPartyUser)
     return (
         <div className="invite-container">
             <SwipeableDrawer

@@ -58,6 +58,7 @@ export function sendInvite (data: any) {
         dispatchAlertSuccess(dispatch, 'Invite Sent')
         dispatch(sentInvite(inviteResult))
       } catch (err) {
+        console.log(err)
         dispatchAlertError(dispatch, err.message)
       }
     }
@@ -68,6 +69,7 @@ export function retrieveReceivedInvites(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     dispatch(fetchingReceivedInvites())
     try {
+      console.log('GETTING RECEIVED INVITES')
       const inviteResult = await client.service('invite').find({
         query: {
           type: 'received',
@@ -79,6 +81,7 @@ export function retrieveReceivedInvites(skip?: number, limit?: number) {
       console.log(inviteResult)
       dispatch(retrievedReceivedInvites(inviteResult))
     } catch(err) {
+      console.log(err)
       dispatchAlertError(dispatch, err.message)
     }
   }
@@ -88,6 +91,7 @@ export function retrieveSentInvites(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     dispatch(fetchingSentInvites())
     try {
+      console.log('GETTING SENT INVITES')
       const inviteResult = await client.service('invite').find({
         query: {
           type: 'sent',
@@ -99,6 +103,7 @@ export function retrieveSentInvites(skip?: number, limit?: number) {
       console.log(inviteResult)
       dispatch(retrievedSentInvites(inviteResult))
     } catch(err) {
+      console.log(err)
       dispatchAlertError(dispatch, err.message)
     }
   }
@@ -110,6 +115,7 @@ function removeInvite(inviteId: string) {
       await client.service('invite').remove(inviteId)
       dispatch(removedInvite())
     } catch(err) {
+      console.log(err)
       dispatchAlertError(dispatch, err.message)}
   }
 }
@@ -133,6 +139,7 @@ export function acceptInvite(inviteId: string, passcode: string) {
       })
       dispatch(acceptedInvite())
     } catch(err) {
+      console.log(err)
       dispatchAlertError(dispatch, err.message)}
   }
 }

@@ -19,8 +19,7 @@ import {
     getParty,
     createParty,
     removeParty,
-    removePartyUser,
-    forcePartyUserRefresh
+    removePartyUser
 } from '../../../../redux/party/service'
 import {User} from "../../../../../shared/interfaces/User";
 import { AppBar } from '@material-ui/core'
