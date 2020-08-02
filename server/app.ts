@@ -23,6 +23,7 @@ import winston from 'winston'
 import feathersLogger from 'feathers-logger'
 import next from 'next'
 import { EventEmitter } from 'events'
+import partySocket from './socket/party-socket'
 
 const emitter = new EventEmitter()
 
@@ -67,7 +68,7 @@ if (config.server.enabled) {
 
   // Set up Plugins and providers
   app.configure(express.rest())
-  app.configure(socketio())
+  app.configure(socketio(partySocket))
 
   // Configure other middleware (see `middleware/index.js`)
   app.configure(middleware)
