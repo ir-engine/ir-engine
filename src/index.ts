@@ -6,7 +6,7 @@ export * from "./networking"
 import { Entity, World } from "ecsy"
 
 import InputSystem from "./input/systems/InputSystem"
-import { isBrowser } from "./common/utils/IsBrowser"
+import { isBrowser } from "./common/utils/isBrowser"
 import Input from "./input/components/Input"
 import InputSchema from "./input/interfaces/InputSchema"
 import { DefaultInputMap } from "./input/defaults/DefaultInputData"
