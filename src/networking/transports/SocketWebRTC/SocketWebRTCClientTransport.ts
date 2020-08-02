@@ -2,7 +2,6 @@
 import MediaStreamComponent from "../../components/MediaStreamComponent"
 import ioclient, { Socket } from "socket.io-client"
 import mediasoup from "mediasoup-client"
-import { promise } from "../../../common/utils/promise"
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "../../constants/VideoConstants"
 import { sleep } from "../../../common/utils/sleep"
 import SocketWebRTCMessageTypes from "./SocketWebRTCMessageTypes"

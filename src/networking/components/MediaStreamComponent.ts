@@ -1,10 +1,8 @@
 // TODO: Clean me up, add schema, etc
 import { Component } from "ecsy"
-import NetworkTransport from "../interfaces/NetworkTransport"
 
 export default class MediaStreamComponent extends Component<any> {
   static instance: MediaStreamComponent
-  transport: NetworkTransport
   initialized = false
   localScreen
   camVideoProducer

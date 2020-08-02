@@ -3,7 +3,7 @@ import NetworkClient from "../components/NetworkClient"
 import MessageSchema from "../classes/MessageSchema"
 import set from "../../common/utils/set"
 import cropString from "../../common/utils/cropString"
-import NetworkObject from "../components/NetworkObject"
+import NetworkObject from "../defaults/components/NetworkObject"
 import MessageTypeAlias from "../types/MessageTypeAlias"
 import NetworkTransportComponent from "../components/NetworkTransportComponent"
 
@@ -61,7 +61,7 @@ export class NetworkSystem extends System {
     console.log("My id: ", myClientId)
     console.log("ids: ")
     console.log(allClientIds.length)
-    if (allClientIds === undefined) return console.log ("All IDs are null")
+    if (allClientIds === undefined) return console.log("All IDs are null")
     // for each existing user, add them as a client and add tracks to their peer connection
     for (let i = 0; i < allClientIds.length; i++) this.addClient(allClientIds[i])
   }
