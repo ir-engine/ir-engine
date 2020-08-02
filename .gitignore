@@ -104,3 +104,6 @@ typings/
 .buildcache
 build
 dist
+
+# macos
+.DS_Store
