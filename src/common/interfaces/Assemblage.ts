@@ -6,6 +6,9 @@ export interface Assemblage {
     type: any
     data?: any
   }[]
-
+  localComponents: {
+    type: any
+    data?: any
+  }[]
   children?: Assemblage[]
 }
