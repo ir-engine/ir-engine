@@ -4,18 +4,18 @@ import SocketWebRTCServerTransport from "./transports/SocketWebRTCServerTranspor
 
 export default class SocketWebRTCServer {
   lastTime: number = Date.now()
-  world = new World()
   time = Date.now()
   delta
   constructor() {
-    initializeNetworking(this.world, new SocketWebRTCServerTransport())
-    this.update()
+    const world = new World()
+    initializeNetworking(world, new SocketWebRTCServerTransport())
+    this.update(world)
   }
 
-  update(): void {
+  update(world: World): void {
     this.delta = this.time - this.lastTime
     this.lastTime = this.time
-    this.world.execute(this.delta)
-    setImmediate(this.update)
+    world.execute()
+    setImmediate(() => this.update(world))
   }
 }
