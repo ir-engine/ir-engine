@@ -29,6 +29,7 @@ export class NetworkSystem extends System {
   }
 
   public initializeSession(world: World, transport?: any) {
+    console.log("Initialization session")
     NetworkSystem.instance = this
     this.networkTransport = world
       .registerComponent(NetworkTransportComponent)
@@ -37,6 +38,7 @@ export class NetworkSystem extends System {
       .getComponent(NetworkTransportComponent)
     this._isInitialized = true
     NetworkTransportComponent.instance.transport = transport
+    console.log("Init transport:")
     transport.initialize()
   }
 
@@ -56,9 +58,10 @@ export class NetworkSystem extends System {
 
   initializeClient(myClientId, allClientIds): void {
     this.setLocalConnectionId(myClientId)
+    console.log("My id: ", myClientId)
     console.log("ids: ")
-    console.log(allClientIds)
-    if (allClientIds === undefined) return
+    console.log(allClientIds.length)
+    if (allClientIds === undefined) return console.log ("All IDs are null")
     // for each existing user, add them as a client and add tracks to their peer connection
     for (let i = 0; i < allClientIds.length; i++) this.addClient(allClientIds[i])
   }
@@ -69,6 +72,7 @@ export class NetworkSystem extends System {
     console.log(`A new user connected with the id: ${_id}`)
     // Create an entity, add component NetworkClient and set id
     this.clients.push(_id)
+    console.log("Adding client ", _id)
   }
 
   getClosestPeers(): any[] {

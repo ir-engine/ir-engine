@@ -1,3 +1,3 @@
-const Armada = require("../../dist/armada.server.cjs.js")
+import * as Armada from "../../dist/armada.server.js"
 new Armada.SocketWebRTCServer()
 console.log("Server started")
