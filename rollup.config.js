@@ -12,6 +12,9 @@ import nodeGlobals from "rollup-plugin-node-globals"
 export default [
   {
     input: "src/index.ts",
+    external: id => {
+      return ([ 'three', 'ecsy', 'ecsy-three', 'ecsy-input' ]).includes(id) || /^three\//.test(id) || /^troika-3d-text\//.test(id) || /^ecsy-three\//.test(id)
+    },
     plugins: [
       resolve({ browser: true, preferBuiltins: true }),
       commonjs({

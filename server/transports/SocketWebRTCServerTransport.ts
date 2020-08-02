@@ -9,7 +9,6 @@ import * as dotenv from "dotenv"
 import NetworkTransport from "../../src/networking/interfaces/NetworkTransport"
 import MessageQueue from "../../src/networking/components/MessageQueue"
 import Message from "../../src/networking/interfaces/Message"
-import { RequestListener } from "http"
 
 dotenv.config()
 interface Client {
@@ -447,7 +446,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
   }
 
   // start mediasoup with a single worker and router
-  async startMediasoup() {
+  async startMediasoup(): Promise<void> {
     console.log("Starting mediasoup")
     // Initialize roomstate
     this.roomState = defaultRoomState
@@ -472,9 +471,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
     console.log("Worer created router")
   }
 
-  closePeer(peerId) {}
-
-  async closeTransport(transport) {
+  async closeTransport(transport): Promise<void> {
     console.log("closing transport", transport.id, transport.appData)
 
     // our producer and consumer event handlers will take care of
@@ -487,7 +484,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
     delete this.roomState.transports[transport.id]
   }
 
-  async closeProducer(producer) {
+  async closeProducer(producer): Promise<void> {
     console.log("closing producer", producer.id, producer.appData)
     await producer.close()
 
@@ -498,7 +495,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
     if (this.roomState.peers[producer.appData.peerId]) this.roomState.peers[producer.appData.peerId].media[producer.appData.mediaTag]
   }
 
-  async closeProducerAndAllPipeProducers(producer, peerId) {
+  async closeProducerAndAllPipeProducers(producer, peerId): Promise<void> {
     console.log("closing producer", producer.id, producer.appData)
 
     // first, close all of the pipe producer clones
@@ -517,7 +514,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
     if (this.roomState.peers[producer.appData.peerId]) delete this.roomState.peers[producer.appData.peerId].media[producer.appData.mediaTag]
   }
 
-  async closeConsumer(consumer) {
+  async closeConsumer(consumer): Promise<void> {
     console.log("closing consumer", consumer.id, consumer.appData)
     await consumer.close()
 
@@ -528,23 +525,18 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
     if (this.roomState.peers[consumer.appData.peerId]) delete this.roomState.peers[consumer.appData.peerId].consumerLayers[consumer.id]
   }
 
-  async createWebRtcTransport({ peerId, direction }) {
+  async createWebRtcTransport({ peerId, direction }): Promise<any> {
     console.log("Creating Mediasoup transport")
     const { listenIps, initialAvailableOutgoingBitrate } = config.mediasoup.webRtcTransport
-    try {
-      const transport = await this.router.createWebRtcTransport({
-        listenIps: listenIps,
-        enableUdp: true,
-        enableTcp: true,
-        preferUdp: true,
-        initialAvailableOutgoingBitrate: initialAvailableOutgoingBitrate,
-        appData: { peerId, clientDirection: direction }
-      })
+    const transport = await this.router.createWebRtcTransport({
+      listenIps: listenIps,
+      enableUdp: true,
+      enableTcp: true,
+      preferUdp: true,
+      initialAvailableOutgoingBitrate: initialAvailableOutgoingBitrate,
+      appData: { peerId, clientDirection: direction }
+    })
 
-      return transport
-    } catch (error) {
-      console.log("Error creating transport: ")
-      console.log(error)
-    }
+    return transport
   }
 }
