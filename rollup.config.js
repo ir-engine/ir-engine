@@ -5,8 +5,6 @@ import babel from "@rollup/plugin-babel"
 import typescript from "rollup-plugin-typescript2"
 import commonjs from "@rollup/plugin-commonjs"
 import nodePolyfills from "rollup-plugin-node-polyfills"
-import dynamicImportVars from "@rollup/plugin-dynamic-import-vars"
-import esModuleInterop from "rollup-plugin-es-module-interop"
 import nodeGlobals from "rollup-plugin-node-globals"
 
 export default [
