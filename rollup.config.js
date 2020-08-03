@@ -103,5 +103,19 @@ export default [
     output: { dir: "dist/examples/networking" },
     plugins: [html(), resolve({ browser: true, preferBuiltins: false }), commonjs(), typescript(), json(), babel({ babelHelpers: "bundled" })],
     external: ["socket.io-client"]
+  },
+
+  // Particles
+  {
+    input: "examples/particles/fireworks.html",
+    output: { dir: "dist/examples/particles" },
+    plugins: [html(), resolve(), typescript(), babel({ plugins: ["transform-class-properties"] }), commonjs(), json()]
+  },
+
+  // Physics
+  {
+    input: "examples/physics/index.html",
+    output: { dir: "dist/examples/phjysics" },
+    plugins: [html(), resolve(), typescript(), babel({ plugins: ["transform-class-properties"] }), commonjs(), json()]
   }
 ]

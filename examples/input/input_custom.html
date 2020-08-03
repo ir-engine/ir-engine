@@ -25,7 +25,7 @@
       RIGHT: 7
     }
 
-    const inputMap = {
+    const inputSchema = {
       mouse: {
         input: {
           0: Actions.PRIMARY
@@ -60,7 +60,7 @@
     }
 
     const world = new World()
-    initializeInputSystems(world, inputOptions, inputMap)
+    initializeInputSystems(world, inputOptions, inputSchema)
     var lastTime = performance.now()
     function update() {
       var time = performance.now()

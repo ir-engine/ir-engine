@@ -1,4 +1,4 @@
-export interface ITouchHandler {
+export interface TouchHandler {
   element: HTMLElement
   touchStart?: (ev: TouchEvent) => void
   touchEnd?: (ev: TouchEvent) => void

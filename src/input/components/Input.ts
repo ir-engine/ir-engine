@@ -15,7 +15,7 @@ export default interface InputProps {
   gamepadInput: number[]
 }
 
-// Input inherits from BehaviorComponent, which adds .map and .data
+// Input inherits from BehaviorComponent, which adds .schema and .data
 export default class Input extends BehaviorComponent<InputAlias, InputSchema, InputValue<Scalar | Vector2 | Vector3>> {
   gamepadConnected: boolean
   gamepadThreshold: number

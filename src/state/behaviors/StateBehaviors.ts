@@ -25,13 +25,13 @@ export const addState: Behavior = (entity: Entity, args: { state: StateAlias }):
     state: args.state,
     type: StateType.DISCRETE,
     lifecycleState: LifecycleValue.STARTED,
-    group: stateComponent.map.states[args.state].group
+    group: stateComponent.schema.states[args.state].group
   } as StateValue<Binary>)
 
-  stateGroup = stateComponent.map.states[args.state].group
+  stateGroup = stateComponent.schema.states[args.state].group
   // If state group is set to exclusive (XOR) then check if other states from state group are on
-  if (stateComponent.map.groups[stateGroup].exclusive) {
-    stateComponent.map.groups[stateGroup].states.forEach(state => {
+  if (stateComponent.schema.groups[stateGroup].exclusive) {
+    stateComponent.schema.groups[stateGroup].states.forEach(state => {
       if (state === args.state || !stateComponent.data.has(state)) return
       stateComponent.data.delete(state)
       console.log("Removed mutex state " + state)

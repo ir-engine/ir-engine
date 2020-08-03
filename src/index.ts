@@ -9,7 +9,7 @@ import InputSystem from "./input/systems/InputSystem"
 import { isBrowser } from "./common/utils/isBrowser"
 import Input from "./input/components/Input"
 import InputSchema from "./input/interfaces/InputSchema"
-import { DefaultInputMap } from "./input/defaults/DefaultInputData"
+import { DefaultInputSchema } from "./input/defaults/DefaultInputSchema"
 import SubscriptionSystem from "./subscription/systems/SubscriptionSystem"
 import Subscription from "./subscription/components/Subscription"
 import SubscriptionSchema from "./subscription/interfaces/SubscriptionSchema"
@@ -64,8 +64,8 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS):
 export function initializeActor(
   entity: Entity,
   options: {
-    inputMap?: InputSchema
-    stateMap?: StateSchema
+    inputSchema?: InputSchema
+    stateSchema?: StateSchema
     subscriptionMap?: SubscriptionSchema
   },
   withTransform = false
@@ -80,33 +80,33 @@ export function initializeActor(
   if (withTransform) entity.addComponent(Transform)
 
   // Custom Action Map
-  if (options.inputMap) {
+  if (options.inputSchema) {
     console.log("Using input map:")
-    console.log(options.inputMap)
-    entity.getMutableComponent(Input).map = options.inputMap
+    console.log(options.inputSchema)
+    entity.getMutableComponent(Input).schema = options.inputSchema
   } else {
     console.log("No input map provided, defaulting to default input")
-    entity.getMutableComponent(Input).map = DefaultInputMap
+    entity.getMutableComponent(Input).schema = DefaultInputSchema
   }
 
   // Custom Action Map
-  if (options.stateMap) {
+  if (options.stateSchema) {
     console.log("Using input map:")
-    console.log(options.stateMap)
-    entity.getMutableComponent(State).map = options.stateMap
+    console.log(options.stateSchema)
+    entity.getMutableComponent(State).schema = options.stateSchema
   } else {
     console.log("No state map provided, defaulting to default state")
-    entity.getMutableComponent(State).map = DefaultStateSchema
+    entity.getMutableComponent(State).schema = DefaultStateSchema
   }
 
   // Custom Subscription Map
   if (options.subscriptionMap) {
     console.log("Using subscription map:")
     console.log(options.subscriptionMap)
-    entity.getMutableComponent(Subscription).map = options.subscriptionMap
+    entity.getMutableComponent(Subscription).schema = options.subscriptionMap
   } else {
     console.log("No subscription map provided, defaulting to default subscriptions")
-    entity.getMutableComponent(Subscription).map = DefaultSubscriptionSchema
+    entity.getMutableComponent(Subscription).schema = DefaultSubscriptionSchema
   }
 
   return entity

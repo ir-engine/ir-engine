@@ -76,7 +76,7 @@
       ALTERNATE: 20
     }
 
-    const DefaultInputMap = {
+    const DefaultInputSchema = {
       // When an Input component is added, the system will call this array of behaviors
       onAdded: [
       ],
@@ -205,7 +205,7 @@
       MOVEMENT_MODIFIERS: 1
     }
 
-    export const DefaultStateMap = {
+    export const DefaultStateSchema = {
       groups: {
         [DefaultStateGroups.MOVEMENT]: {
           exclusive: true,
@@ -251,8 +251,8 @@
     // Test input
     const inputOptions = {
       debug: true,
-      inputMap: DefaultInputMap,
-      stateMap: DefaultStateMap
+      inputSchema: DefaultInputSchema,
+      stateSchema: DefaultStateSchema
     }
 
     // TODO: Import input mapping
