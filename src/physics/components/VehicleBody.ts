@@ -8,7 +8,7 @@ interface PropTypes {
   scale: Vector3
 }
 
-export default class VehicleBody extends Component<PropTypes> {
+export class VehicleBody extends Component<PropTypes> {
   wheelMesh: any
   convexMesh: any
   mass: number

@@ -118,16 +118,15 @@ export default [
     input: "examples/particles/index-not-vr.html",
     output: { dir: "dist/examples/particles" },
     plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
+  },
+  {
+    input: "examples/physics/box.html",
+    output: { dir: "dist/examples/physics" },
+    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
+  },
+  {
+    input: "examples/physics/car.html",
+    output: { dir: "dist/examples/physics" },
+    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
   }
-  // Physicsz
-  // {
-  //   input: "examples/physics/box.html",
-  //   output: { dir: "dist/examples/physics" },
-  //   plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
-  // },
-  // {
-  //   input: "examples/physics/car.html",
-  //   output: { dir: "dist/examples/physics" },
-  //   plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
-  // }
 ]
