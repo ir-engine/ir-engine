@@ -61,8 +61,6 @@ const groupReducer = (state = immutableState, action: GroupAction): any => {
       updateMap.set('skip', newValues.skip)
       updateMap.set('limit', newValues.limit)
       updateMap.set('total', newValues.total)
-        console.log('GROUP UPDATEMAP')
-        console.log(updateMap)
       return state
         .set('groups', updateMap)
         .set('updateNeeded', false)
@@ -75,8 +73,6 @@ const groupReducer = (state = immutableState, action: GroupAction): any => {
       updateMap.set('skip', newValues.skip)
       updateMap.set('limit', newValues.limit)
       updateMap.set('total', newValues.total)
-      console.log('INVITABLE GROUP UPDATEMAP')
-      console.log(updateMap)
       return state
           .set('invitableGroups', updateMap)
           .set('invitableUpdateNeeded', false)
@@ -87,32 +83,16 @@ const groupReducer = (state = immutableState, action: GroupAction): any => {
           .set('updateNeeded', true)
           .set('invitableUpdateNeeded', true)
     case PATCHED_GROUP:
-      console.log('PATCHED GROUP REDUCER')
       newValues = (action as PatchedGroupAction)
-        console.log('newValues:')
-        console.log(newValues)
       updateGroup = newValues.group
-        console.log('updateGroup:')
-        console.log(updateGroup)
       updateMap = new Map(state.get('groups'))
-        console.log('initial updateMap:')
-        console.log(updateMap)
       updateMapGroups = updateMap.get('groups')
-        console.log('updateMapGroups:')
-        console.log(updateMapGroups)
       updateMapGroupsChild = _.find(updateMapGroups, (group) => group.id === updateGroup.id)
-        console.log('updateMapGroupsChild:')
-        console.log(updateMapGroupsChild)
         if (updateMapGroupsChild != null) {
-          console.log('Updating updateMapGroupsChild')
           updateMapGroupsChild.name = updateGroup.name
           updateMapGroupsChild.description = updateGroup.description
-          console.log(updateMapGroupsChild)
         }
-        console.log(updateMapGroups)
         updateMap.set('groups', updateMapGroups)
-        console.log('FINAL UPDATEMAP:')
-        console.log(updateMap)
       return state
           .set('groups', updateMap)
     case REMOVED_GROUP:
@@ -164,7 +144,6 @@ const groupReducer = (state = immutableState, action: GroupAction): any => {
       const self = newValues.self
       updateMap = new Map(state.get('groups'))
       updateMapGroups = updateMap.get('groups')
-      console.log(updateMapGroups)
       updateMapGroupsChild = _.find(updateMapGroups, (group) => group.id === groupUser.groupId)
       if (updateMapGroupsChild != null) {
         updateMapGroupUsers = updateMapGroupsChild.groupUsers

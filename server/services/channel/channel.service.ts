@@ -26,8 +26,6 @@ export default (app: Application): any => {
   service.publish('created', async (data): Promise<any> => {
     try {
       let targetIds
-      console.log(`Channel ${data.id} created`)
-      console.log(data)
       if (data.channelType === 'user') {
         data.user1 = await app.service('user').get(data.userId1)
         data.user2 = await app.service('user').get(data.userId2)
@@ -71,8 +69,6 @@ export default (app: Application): any => {
             }
           ]
         })
-        console.log('groupUsers:')
-        console.log(groupUsers)
         await Promise.all(groupUsers.map(async (groupUser) => {
           const avatarResult = await app.service('static-resource').find({
             query: {
@@ -87,7 +83,6 @@ export default (app: Application): any => {
 
           return await Promise.resolve()
         }))
-        console.log('Got avatar URLs')
 
         if (data.group.dataValues) {
           data.group.dataValues.groupUsers = groupUsers
@@ -134,15 +129,13 @@ export default (app: Application): any => {
         }
         targetIds = partyUsers.map((partyUser) => partyUser.userId)
       }
-      console.log('Sending channel created to targetIds:')
-      console.log(targetIds)
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      return Promise.all(targetIds.map((userId) => {
+      return Promise.all(targetIds.map((userId: string) => {
         return app.channel(`userIds/${userId}`).send({
           channel: data
         })
       }))
-    } catch(err) {
+    } catch (err) {
       console.log(err)
       throw err
     }
@@ -151,8 +144,6 @@ export default (app: Application): any => {
   service.publish('patched', async (data): Promise<any> => {
     try {
       let targetIds
-      console.log(`Channel ${data.id} patched`)
-      console.log(data)
       if (data.channelType === 'user') {
         data.user1 = await app.service('user').get(data.userId1)
         data.user2 = await app.service('user').get(data.userId2)
@@ -196,8 +187,6 @@ export default (app: Application): any => {
             }
           ]
         })
-        console.log('groupUsers:')
-        console.log(groupUsers)
         await Promise.all(groupUsers.map(async (groupUser) => {
           const avatarResult = await app.service('static-resource').find({
             query: {
@@ -212,8 +201,6 @@ export default (app: Application): any => {
 
           return await Promise.resolve()
         }))
-        console.log('Got avatar URLs')
-
         if (data.group.dataValues) {
           data.group.dataValues.groupUsers = groupUsers
         } else {
@@ -259,15 +246,13 @@ export default (app: Application): any => {
         }
         targetIds = partyUsers.map((partyUser) => partyUser.userId)
       }
-      console.log('Sending channel patch to targetIds:')
-      console.log(targetIds)
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      return Promise.all(targetIds.map((userId) => {
+      return Promise.all(targetIds.map((userId: string) => {
         return app.channel(`userIds/${userId}`).send({
           channel: data
         })
       }))
-    } catch(err) {
+    } catch (err) {
       console.log(err)
       throw err
     }
@@ -292,10 +277,8 @@ export default (app: Application): any => {
       })
       targetIds = partyUsers.map((partyUser) => partyUser.userId)
     }
-    console.log('Sending channel remove to targetIds:')
-    console.log(targetIds)
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    return Promise.all(targetIds.map((userId) => {
+    return Promise.all(targetIds.map((userId: string) => {
       return app.channel(`userIds/${userId}`).send({
         channel: data
       })

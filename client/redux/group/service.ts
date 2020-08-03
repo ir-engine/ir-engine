@@ -26,8 +26,6 @@ export function getGroups(skip?: number, limit?: number) {
           $skip: skip != null ? skip : getState().get('groups').get('groups').get('skip'),
         }
       })
-      console.log('GROUP RESULT:')
-      console.log(groupResults)
       dispatch(loadedGroups(groupResults))
     } catch(err) {
       console.log(err)
@@ -59,8 +57,6 @@ export function patchGroup(values: any) {
     if (values.description != null) {
       (patch as any).description = values.description
     }
-    console.log('UPDATE GROUP VALUES:')
-    console.log(values)
     try {
       await client.service('group').patch(values.id, patch)
     } catch(err) {
@@ -102,9 +98,7 @@ export function removeGroupUser(groupUserId: string) {
 
 export function getInvitableGroups(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    console.log('Dispatching fetchingInvitableGroups')
     dispatch(fetchingInvitableGroups())
-    console.log('GETTING INVITABLE GROUPS')
     try {
       const groupResults = await client.service('group').find({
         query: {
@@ -113,8 +107,6 @@ export function getInvitableGroups(skip?: number, limit?: number) {
           $skip: skip != null ? skip : getState().get('groups').get('groups').get('skip'),
         }
       })
-      console.log('INVITABLE GROUP RESULT:')
-      console.log(groupResults)
       dispatch(loadedInvitableGroups(groupResults))
     } catch(err) {
       console.log(err)
@@ -125,37 +117,25 @@ export function getInvitableGroups(skip?: number, limit?: number) {
 }
 
 client.service('group-user').on('created', (params) => {
-  console.log('GROUP-USER CREATED EVENT')
-  console.log(params)
   store.dispatch(createdGroupUser(params.groupUser))
 })
 
 client.service('group-user').on('patched', (params) => {
-  console.log('GROUP-USER PATCHED EVENT')
-  console.log(params)
   store.dispatch(patchedGroupUser(params.groupUser))
 })
 
 client.service('group-user').on('removed', (params) => {
-  console.log('GROUP-USER REMOVED EVENT')
-  console.log(params)
   store.dispatch(removedGroupUser(params.groupUser, params.self))
 })
 
 client.service('group').on('created', (params) => {
-  console.log('GROUP CREATED EVENT')
-  console.log(params)
   store.dispatch(createdGroup(params.group))
 })
 
 client.service('group').on('patched', (params) => {
-  console.log('GROUP PATCHED EVENT')
-  console.log(params)
   store.dispatch(patchedGroup(params.group))
 })
 
 client.service('group').on('removed', (params) => {
-  console.log('GROUP REMOVED EVENT')
-  console.log(params)
   store.dispatch(removedGroup(params.group))
 })

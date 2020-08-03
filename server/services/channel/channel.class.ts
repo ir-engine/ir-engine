@@ -2,7 +2,7 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../declarations'
 import { Params } from '@feathersjs/feathers'
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
-import { Op, Sequelize } from 'sequelize'
+import { Op } from 'sequelize'
 import _ from 'lodash'
 
 export class Channel extends Service {
@@ -88,8 +88,9 @@ export class Channel extends Service {
           limit: limit
         }
       } else {
-        await Promise.all(results.rows.map(async (channel) => {
-          return await new Promise(async (resolve) => {
+        await Promise.all(results.rows.map((channel) => {
+          // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
+          return new Promise(async (resolve) => {
             if (channel.channelType === 'user') {
               const user1AvatarResult = await this.app.service('static-resource').find({
                 query: {

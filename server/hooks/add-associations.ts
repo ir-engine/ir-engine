@@ -15,7 +15,7 @@ export default (options = {}): any => {
       context.params.sequelize = sequelize
       return context
     } catch (err) {
-      console.log('ADD ATTRIBUTION ERROR')
+      console.log('Add association error')
       console.log(err)
     }
   }

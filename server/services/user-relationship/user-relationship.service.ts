@@ -25,8 +25,6 @@ export default (app: Application): any => {
   service.hooks(hooks)
 
   // service.publish('created', async (data): Promise<any> => {
-  //   console.log('Publishing user-relationship created')
-  //   console.log(data)
   //   data.user1 = await app.service('user').get(data.userId1)
   //   data.user2 = await app.service('user').get(data.userId2)
   //   const avatar1Result = await app.service('static-resource').find({
@@ -52,8 +50,6 @@ export default (app: Application): any => {
   //   }
   //
   //   const targetIds = [data.userId1, data.userId2]
-  //   console.log('friend patch targetIds:')
-  //   console.log(targetIds)
   //   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   //   return Promise.all(targetIds.map((userId) => {
   //     return app.channel(`userIds/${userId}`).send({
@@ -64,16 +60,12 @@ export default (app: Application): any => {
 
   service.publish('patched', async (data): Promise<any> => {
     try {
-      console.log('Publishing user-relationship patched')
-      console.log(data)
       const inverseRelationship = await app.service('user-relationship').Model.findOne({
         where: {
           relatedUserId: data.userId,
           userId: data.relatedUserId
         }
       })
-      console.log('Inverse user relationship:')
-      console.log(inverseRelationship)
       if (data.userRelationshipType === 'friend' && inverseRelationship != null) {
         const channel = await app.service('channel').Model.findOne({
           where: {
@@ -89,8 +81,6 @@ export default (app: Application): any => {
             ]
           }
         })
-        console.log('user-relationship channel:')
-        console.log(channel)
         if (channel != null) {
           await app.service('channel').patch(channel.id, {
             channelType: channel.channelType
@@ -109,7 +99,6 @@ export default (app: Application): any => {
           }
         }) as any
 
-        console.log(data)
         if (avatarResult.total > 0) {
           data.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url
         }
@@ -126,16 +115,14 @@ export default (app: Application): any => {
         }
 
         const targetIds = [data.userId, data.relatedUserId]
-        console.log('friend patch targetIds:')
-        console.log(targetIds)
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        return Promise.all(targetIds.map((userId) => {
+        return await Promise.all(targetIds.map((userId: string) => {
           return app.channel(`userIds/${userId}`).send({
             userRelationship: data
           })
         }))
       }
-    } catch(err) {
+    } catch (err) {
       console.log(err)
       throw err
     }
@@ -143,8 +130,6 @@ export default (app: Application): any => {
 
   service.publish('removed', async (data): Promise<any> => {
     try {
-      console.log('Publishing user-relationship removed')
-      console.log(data)
       const channel = await app.service('channel').Model.findOne({
         where: {
           [Op.or]: [
@@ -159,20 +144,17 @@ export default (app: Application): any => {
           ]
         }
       })
-      console.log(channel)
       if (channel != null) {
         await app.service('channel').remove(channel.id)
       }
       const targetIds = [data.userId, data.relatedUserId]
-      console.log('User-relationship removal targets:')
-      console.log(targetIds)
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      return Promise.all(targetIds.map((userId) => {
+      return await Promise.all(targetIds.map((userId: string) => {
         return app.channel(`userIds/${userId}`).send({
           userRelationship: data
         })
       }))
-    } catch(err) {
+    } catch (err) {
       console.log(err)
       throw err
     }

@@ -16,8 +16,6 @@ export function getParty() {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       const partyResult = await client.service('party').get(null)
-      console.log('GOT PARTY')
-      console.log(partyResult)
       dispatch(loadedParty(partyResult))
     } catch(err) {
       console.log(err)
@@ -28,7 +26,6 @@ export function getParty() {
 
 export function createParty(values: any) {
   return async (dispatch: Dispatch): Promise<any> => {
-    console.log('CREATING PARTY')
     try {
       await client.service('party').create({})
     } catch(err) {
@@ -40,7 +37,6 @@ export function createParty(values: any) {
 
 export function removeParty(partyId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
-    console.log('CALLING FEATHERS REMOVE PARTY')
     try {
       const channelResult = await client.service('channel').find({
         query: {
@@ -70,37 +66,25 @@ export function removePartyUser(partyUserId: string) {
 }
 
 client.service('party-user').on('created', (params) => {
-  console.log('PARTY-USER CREATED EVENT')
-  console.log(params)
   store.dispatch(createdPartyUser(params.partyUser))
 })
 
 client.service('party-user').on('patched', (params) => {
-  console.log('PARTY-USER PATCHED EVENT')
-  console.log(params)
   store.dispatch(patchedPartyUser(params.partyUser))
 })
 
 client.service('party-user').on('removed', (params) => {
-  console.log('PARTY-USER REMOVED EVENT')
-  console.log(params)
   store.dispatch(removedPartyUser(params.partyUser))
 })
 
 client.service('party').on('created', (params) => {
-  console.log('PARTY CREATED EVENT')
-  console.log(params)
   store.dispatch(createdParty(params.party))
 })
 
 client.service('party').on('patched', (params) => {
-  console.log('PARTY PATCHED EVENT')
-  console.log(params)
   store.dispatch(patchedParty(params.party))
 })
 
 client.service('party').on('removed', (params) => {
-  console.log('PARTY REMOVED EVENT')
-  console.log(params)
   store.dispatch(removedParty(params.party))
 })

@@ -229,12 +229,15 @@ const BottomDrawer = (props: Props): any => {
     }
 
     const generateMessageSecondary = (message: Message): string => {
-        const date = moment(message.createdAt).format('MMM D YYYY, h:mm a')
+        const createdDate = moment(message.createdAt)
+        const editedDate = moment(message.updatedAt)
+        const date = createdDate.format('MMM D YYYY, h:mm a')
+        const editText = editedDate > createdDate.add(1, 'second') ? ' [edited]' : ''
         if (message.senderId !== user.id) {
-            return `${getMessageUser(message).name? getMessageUser(message).name : 'A former user'} on ${date}`
+            return `${getMessageUser(message).name? getMessageUser(message).name : 'A former user'} on ${date}${editText}`
         }
         else {
-            return date
+            return `${date}${editText}`
         }
     }
 
