@@ -2,7 +2,7 @@ import { Component } from "ecsy"
 import { BehaviorMapType } from "../types/BehaviorMapType"
 
 export interface PropTypes<TDataType extends string | number | symbol, TBehaviorMap, TValue> {
-  map: TBehaviorMap
+  schema: TBehaviorMap
   data: BehaviorMapType<TDataType, TValue>
 }
 // Constructs a component with a map and data values
@@ -10,14 +10,14 @@ export interface PropTypes<TDataType extends string | number | symbol, TBehavior
 export default class BehaviorComponent<TDataType extends string | number | symbol, TBehaviorMap, TValue> extends Component<
   PropTypes<TDataType, TBehaviorMap, TValue>
 > {
-  map: TBehaviorMap
+  schema: TBehaviorMap
   data: BehaviorMapType<TDataType, TValue> = new Map<TDataType, TValue>()
   constructor() {
     super(false)
     this.data = new Map<TDataType, TValue>()
   }
   copy(src: this): this {
-    this.map = src.map
+    this.schema = src.schema
     this.data = new Map(src.data)
     return this
   }

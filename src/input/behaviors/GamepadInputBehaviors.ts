@@ -41,20 +41,20 @@ export const handleGamepads: Behavior = (entity: Entity) => {
       input1 = inputPerGamepad * _index + 1
 
       // GamePad 0 LStick XY
-      if (input.map.eventBindings.input[input0] && gamepad.axes.length >= inputPerGamepad)
-        handleGamepadAxis(entity, { gamepad: gamepad, inputIndex: 0, mappedInputValue: input.map.gamepadInputMap.axes[input0] })
+      if (input.schema.eventBindings.input[input0] && gamepad.axes.length >= inputPerGamepad)
+        handleGamepadAxis(entity, { gamepad: gamepad, inputIndex: 0, mappedInputValue: input.schema.gamepadInputMap.axes[input0] })
 
       // GamePad 1 LStick XY
-      if (input.map.gamepadInputMap.axes[input1] && gamepad.axes.length >= inputPerGamepad * 2)
-        handleGamepadAxis(entity, { gamepad, inputIndex: 1, mappedInputValue: input.map.gamepadInputMap.axes[input1] })
+      if (input.schema.gamepadInputMap.axes[input1] && gamepad.axes.length >= inputPerGamepad * 2)
+        handleGamepadAxis(entity, { gamepad, inputIndex: 1, mappedInputValue: input.schema.gamepadInputMap.axes[input1] })
     }
 
     // If the gamepad doesn't have buttons, or the input isn't mapped, return
-    if (!gamepad.buttons || !input.map.gamepadInputMap.axes) return
+    if (!gamepad.buttons || !input.schema.gamepadInputMap.axes) return
 
     // Otherwise, loop through gamepad buttons
     for (_index = 0; _index < gamepad.buttons.length; _index++) {
-      handleGamepadButton(entity, { gamepad, index: _index, mappedInputValue: input.map.gamepadInputMap.axes[input1] })
+      handleGamepadButton(entity, { gamepad, index: _index, mappedInputValue: input.schema.gamepadInputMap.axes[input1] })
     }
   }
 }
@@ -64,12 +64,12 @@ const handleGamepadButton: Behavior = (entity: Entity, args: { gamepad: Gamepad;
   input = entity.getMutableComponent(Input)
   // Make sure button is in the map
   if (
-    typeof input.map.gamepadInputMap.axes[args.index] === "undefined" ||
+    typeof input.schema.gamepadInputMap.axes[args.index] === "undefined" ||
     gamepad.buttons[args.index].touched === (input.gamepadButtons[args.index] === BinaryValue.ON)
   )
     return
   // Set input data
-  input.data.set(input.map.gamepadInputMap.axes[args.index], {
+  input.data.set(input.schema.gamepadInputMap.axes[args.index], {
     type: InputType.BUTTON,
     value: gamepad.buttons[args.index].touched ? BinaryValue.ON : BinaryValue.OFF
   })
@@ -122,11 +122,11 @@ export const handleGamepadDisconnected: Behavior = (entity: Entity, args: { even
 
   input.gamepadConnected = false
 
-  if (!input.map) return // Already disconnected?
+  if (!input.schema) return // Already disconnected?
 
   for (let index = 0; index < input.gamepadButtons.length; index++) {
-    if (input.gamepadButtons[index] === BinaryValue.ON && typeof input.map.gamepadInputMap.axes[index] !== "undefined") {
-      input.data.set(input.map.gamepadInputMap.axes[index], {
+    if (input.gamepadButtons[index] === BinaryValue.ON && typeof input.schema.gamepadInputMap.axes[index] !== "undefined") {
+      input.data.set(input.schema.gamepadInputMap.axes[index], {
         type: InputType.BUTTON,
         value: BinaryValue.OFF
       })

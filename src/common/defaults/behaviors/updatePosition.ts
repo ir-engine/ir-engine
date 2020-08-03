@@ -7,10 +7,8 @@ const _output: vec3 = [0, 0, 0]
 let transform: TransformComponent
 
 export const updatePosition: Behavior = (entity: Entity, delta: number): void => {
-  transform = entity.getComponent(TransformComponent)
+  transform = entity.getMutableComponent(TransformComponent)
 
-  if (vec3.length(transform.velocity as vec3) > 0.001)
-    vec3.add(transform.position as vec3, transform.position as vec3, vec3.scale(_output, transform.velocity as vec3, delta))
-
-  console.log("updatePosition")
+  // if (vec3.length(transform.velocity as vec3) > 0.001)
+  //   vec3.add(transform.position as vec3, transform.position as vec3, vec3.scale(_output, transform.velocity as vec3, delta))
 }

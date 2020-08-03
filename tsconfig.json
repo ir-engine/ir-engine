@@ -5,11 +5,12 @@
     "noImplicitAny": false,
     "target": "es6",
     "moduleResolution": "Node",
+    "sourceMap": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true
   },
   "include": [
-    "src/**/*", "in_development"
+    "src/**/*", "server/**/*", "examples/input/touch-handler-example-1.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }
