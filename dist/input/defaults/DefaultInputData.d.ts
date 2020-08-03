@@ -1,27 +1,2 @@
 import InputMap from "../interfaces/InputMap";
-export declare const DefaultInput: {
-    PRIMARY: number;
-    SECONDARY: number;
-    FORWARD: number;
-    BACKWARD: number;
-    UP: number;
-    DOWN: number;
-    LEFT: number;
-    RIGHT: number;
-    INTERACT: number;
-    CROUCH: number;
-    JUMP: number;
-    WALK: number;
-    RUN: number;
-    SPRINT: number;
-    SNEAK: number;
-    SCREENXY: number;
-    SCREENXY_START: number;
-    ROTATION_START: number;
-    MOVEMENT_PLAYERONE: number;
-    LOOKTURN_PLAYERONE: number;
-    MOVEMENT_PLAYERTWO: number;
-    LOOKTURN_PLAYERTWO: number;
-    ALTERNATE: number;
-};
 export declare const DefaultInputMap: InputMap;
