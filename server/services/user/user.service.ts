@@ -25,34 +25,26 @@ export default (app: Application): void => {
   service.hooks(hooks)
 
   service.publish('patched', async (data, params): Promise<any> => {
-    console.log('User patched publishing')
     try {
-      console.log(data)
       const groupUsers = await app.service('group-user').Model.findAll({
         where: {
           userId: data.id
         }
       })
-      console.log(`User's groupUsers:`)
-      console.log(groupUsers)
       const partyUsers = await app.service('party-user').Model.findAll({
         where: {
           userId: data.id
         }
       })
-      console.log(`User's partyUsers:`)
-      console.log(partyUsers)
       const userRelationships = await app.service('user-relationship').Model.findAll({
         where: {
           userRelationshipType: 'friend',
           relatedUserId: data.id
         }
       })
-      console.log(`User's friends:`)
-      console.log(userRelationships)
 
       let targetIds = []
-      let updatePromises = []
+      const updatePromises = []
 
       groupUsers.forEach((groupUser) => {
         updatePromises.push(app.service('group-user').patch(groupUser.id, {
@@ -76,21 +68,13 @@ export default (app: Application): void => {
       })
 
       await Promise.all(updatePromises)
-
-      console.log('targetIds before uniq:')
-      console.log(targetIds)
       targetIds = _.uniq(targetIds)
-      console.log('targetIds after _.uniq:')
-      console.log(targetIds)
-
-      console.log('Updated all related entities')
-
-      return Promise.all(targetIds.map((userId) => {
+      return Promise.all(targetIds.map((userId: string) => {
         return app.channel(`userIds/${userId}`).send({
           userRelationship: data
         })
       }))
-    } catch(err) {
+    } catch (err) {
       console.log(err)
       throw err
     }

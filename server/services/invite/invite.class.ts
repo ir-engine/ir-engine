@@ -41,8 +41,8 @@ export class Invite extends Service {
           try {
             const group = await this.app.service('group').get(invite.targetObjectId)
             invite.groupName = group.name
-          } catch(err) {
-            invite.groupName = '&ltA deleted group&gt'
+          } catch (err) {
+            invite.groupName = '<A deleted group>'
           }
         }
       }))
@@ -62,8 +62,8 @@ export class Invite extends Service {
           try {
             const group = await this.app.service('group').get(invite.targetObjectId)
             invite.groupName = group.name
-          } catch(err) {
-            invite.groupName = '&ltA deleted group&gt'
+          } catch (err) {
+            invite.groupName = '<A deleted group>'
           }
         }
       }))

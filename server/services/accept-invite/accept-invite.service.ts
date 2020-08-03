@@ -12,7 +12,7 @@ declare module '../../declarations' {
   }
 }
 
-export default function (app: Application) {
+export default function (app: Application): any {
   const options = {
     paginate: app.get('paginate')
   }
@@ -26,7 +26,6 @@ export default function (app: Application) {
   service.hooks(hooks)
 }
 
-function redirect (req, res, next) {
-  console.log('REDIRECTING')
+function redirect (req, res, next): Promise<any> {
   return res.redirect(config.client.url)
 }

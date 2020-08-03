@@ -24,7 +24,7 @@ export class UserRelationship extends Service {
     const userRelationshipTypes = ((await UserRelationshipTypeService.find()) as any).data
 
     const userId = params.query?.userId
-    let result = {}
+    const result = {}
 
     for (const userRelationType of userRelationshipTypes) {
       const userRelations = await UserRelationshipModel.findAll({
@@ -64,18 +64,10 @@ export class UserRelationship extends Service {
   }
 
   async create (data: any, params: Params): Promise<any> {
-    console.log('USERRELATIONSHIP CREATE')
-    console.log(data)
-    console.log(params)
     const userId = data.userId || params[loggedInUserEntity].userId
     const { relatedUserId, userRelationshipType } = data
     const UserRelationshipModel = this.getModel(params)
-    console.log(userId)
-    console.log(relatedUserId)
-    console.log(userRelationshipType)
     let result: any
-
-    console.log('-----------create---------', userId, relatedUserId)
 
     await this.app.get('sequelizeClient').transaction(async (trans: Transaction) => {
       result = await UserRelationshipModel.create({
@@ -99,15 +91,10 @@ export class UserRelationship extends Service {
   }
 
   async patch (id: NullableId, data: any, params: Params): Promise<any> {
-    console.log('USER-RELATIONSHIP PATCH')
-    const userId = data.userId || params[loggedInUserEntity].userId
     const { userRelationshipType } = data
     const UserRelationshipModel = this.getModel(params)
 
-    console.log(`userRelationshipType: ${userRelationshipType}`)
-    console.log(`userId: ${userId}`)
-    console.log(`id: ${id}`)
-    const result = await UserRelationshipModel.update({
+    await UserRelationshipModel.update({
       userRelationshipType: userRelationshipType
     }, {
       where: {
@@ -115,10 +102,7 @@ export class UserRelationship extends Service {
       }
     })
 
-    console.log('update result:')
-    console.log(result)
-
-    return await UserRelationshipModel.findOne({
+    return UserRelationshipModel.findOne({
       where: {
         id: id
       }
@@ -136,14 +120,11 @@ export class UserRelationship extends Service {
         relatedUserId: id
       }
     })
-    const result = await UserRelationshipModel.destroy({
+    await UserRelationshipModel.destroy({
       where: Sequelize.literal(
           `(userId='${userId as string}' AND relatedUserId='${id as string}') OR 
              (userId='${id as string}' AND relatedUserId='${userId as string}')`)
     })
-
-    console.log('remove result:')
-    console.log(result)
 
     return relationship
   }

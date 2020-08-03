@@ -52,7 +52,7 @@ export default (app: Application): any => {
       targetIds = [channel.userId1, channel.userId2]
     }
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    return Promise.all(targetIds.map((userId) => {
+    return Promise.all(targetIds.map((userId: string) => {
       return app.channel(`userIds/${userId}`).send({
         message: data
       })
@@ -60,8 +60,6 @@ export default (app: Application): any => {
   })
 
   service.publish('removed', async (data): Promise<any> => {
-    console.log('Publishing message removal')
-    console.log(data)
     const channel = await app.service('channel').get(data.channelId)
     let targetIds = []
     if (channel.channelType === 'party') {
@@ -90,7 +88,7 @@ export default (app: Application): any => {
       targetIds = [channel.userId1, channel.userId2]
     }
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    return Promise.all(targetIds.map((userId) => {
+    return Promise.all(targetIds.map((userId: string) => {
       return app.channel(`userIds/${userId}`).send({
         message: data
       })
@@ -98,8 +96,6 @@ export default (app: Application): any => {
   })
 
   service.publish('patched', async (data): Promise<any> => {
-    console.log('Publishing message patch')
-    console.log(data)
     const channel = await app.service('channel').get(data.channelId)
     let targetIds = []
     if (channel.channelType === 'party') {
@@ -128,7 +124,7 @@ export default (app: Application): any => {
       targetIds = [channel.userId1, channel.userId2]
     }
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    return Promise.all(targetIds.map((userId) => {
+    return Promise.all(targetIds.map((userId: string) => {
       return app.channel(`userIds/${userId}`).send({
         message: data
       })

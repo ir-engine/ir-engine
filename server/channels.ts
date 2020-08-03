@@ -1,5 +1,4 @@
 import '@feathersjs/transport-commons'
-import { HookContext } from '@feathersjs/feathers'
 import { Application } from './declarations'
 
 export default (app: Application): void => {
@@ -10,7 +9,13 @@ export default (app: Application): void => {
 
   app.on('login', (authResult: any, { connection }: any) => {
     if (connection) {
-      app.channel(`userIds/${connection['identity-provider'].userId}`).join(connection)
+      app.channel(`userIds/${connection['identity-provider'].userId as string}`).join(connection)
+    }
+  })
+
+  app.on('logout', (authResult: any, { connection }: any) => {
+    if (connection) {
+      app.channel(`userIds/${connection['identity-provider'].userId as string}`).leave(connection)
     }
   })
   //

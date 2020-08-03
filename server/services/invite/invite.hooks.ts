@@ -44,8 +44,9 @@ export default {
       async (context: HookContext) => {
         try {
           const { app, result } = context
-          await Promise.all(result.data.map(async (item) => {
-            return await new Promise(async (resolve) => {
+          await Promise.all(result.data.map((item) => {
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
+            return new Promise(async (resolve) => {
               if (item.inviteeId != null) {
                 item.invitee = await app.service('user').get(item.inviteeId)
               } else if (item.token) {

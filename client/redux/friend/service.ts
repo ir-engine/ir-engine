@@ -118,35 +118,21 @@ export function unfriend(relatedUserId: string) {
   return removeFriend(relatedUserId)
 }
 
-
-
 client.service('user-relationship').on('created', (params) => {
-  console.log('USER-RELATIONSHIP CREATED EVENT')
-  console.log(params)
   if (params.userRelationship.userRelationshipType === 'friend') {
     store.dispatch(createdFriend(params.userRelationship))
   }
 })
 
 client.service('user-relationship').on('patched', (params) => {
-  console.log('USER-RELATIONSHIP PATCHED EVENT')
-  console.log(params)
-  console.log(store)
   const selfUser = (store.getState() as any).get('auth').get('user') as User
-  console.log('selfUser:')
-  console.log(selfUser)
   if (params.userRelationship.userRelationshipType === 'friend') {
     store.dispatch(patchedFriend(params.userRelationship, selfUser))
   }
 })
 
 client.service('user-relationship').on('removed', (params) => {
-  console.log('USER-RELATIONSHIP REMOVED EVENT')
-  console.log(params)
-  console.log(store)
   const selfUser = (store.getState() as any).get('auth').get('user') as User
-  console.log('selfUser:')
-  console.log(selfUser)
   if (params.userRelationship.userRelationshipType === 'friend') {
     store.dispatch(removedFriend(params.userRelationship, selfUser))
   }

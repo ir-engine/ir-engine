@@ -48,8 +48,9 @@ export class Group extends Service {
       ],
       include: include
     })
-    await Promise.all(groupResult.rows.map(async (group) => {
-      return await new Promise(async (resolve) => {
+    await Promise.all(groupResult.rows.map((group) => {
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
+      return new Promise(async (resolve) => {
         const groupUsers = await this.app.service('group-user').Model.findAll({
           where: {
             groupId: group.id

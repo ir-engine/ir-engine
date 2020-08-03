@@ -350,7 +350,7 @@ const Invites = (props: Props): any => {
                             return <div key={invite.id}>
                                 <ListItem>
                                     <ListItemAvatar>
-                                        <Avatar src={invite.user.avatarUrl}/>
+                                        <Avatar src={invite.invitee?.avatarUrl}/>
                                     </ListItemAvatar>
                                     {invite.inviteType === 'friend' && <ListItemText>{capitalize(invite.inviteType)} request
 										to {invite.invitee ? invite.invitee.name : invite.token}</ListItemText>}
@@ -361,7 +361,7 @@ const Invites = (props: Props): any => {
                                     {deletePending !== invite.id &&
 									<Button onClick={() => showDeleteConfirm(invite.id)}>Uninvite</Button>}
                                     {deletePending === invite.id &&
-									<div>
+									<div className="invite-delete-confirm">
 										<Button variant="contained"
 										        color="primary"
 										        onClick={() => confirmDelete(invite.id)}

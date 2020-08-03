@@ -24,7 +24,6 @@ export default (app: Application): any => {
   service.hooks(hooks)
 
   service.publish('created', async (data): Promise<any> => {
-    console.log('Created group-user publishing')
     try {
       const channel = await app.service('channel').Model.findOne({
         where: {
@@ -61,19 +60,18 @@ export default (app: Application): any => {
         return groupUser.userId
       })
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      return Promise.all(targetIds.map((userId) => {
+      return Promise.all(targetIds.map((userId: string) => {
         return app.channel(`userIds/${userId}`).send({
           groupUser: data
         })
       }))
-    } catch(err) {
+    } catch (err) {
       console.log(err)
       throw err
     }
   })
 
   service.publish('patched', async (data): Promise<any> => {
-    console.log('Patched group-user publishing')
     try {
       const channel = await app.service('channel').Model.findOne({
         where: {
@@ -89,8 +87,6 @@ export default (app: Application): any => {
           }
         })
       }
-      console.log('Publishing group-user patched')
-      console.log(data)
       const groupUsers = await app.service('group-user').find({
         query: {
           $limit: 1000,
@@ -112,22 +108,19 @@ export default (app: Application): any => {
       const targetIds = (groupUsers as any).data.map((groupUser) => {
         return groupUser.userId
       })
-      console.log('group-user patch targetIds:')
-      console.log(targetIds)
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      return Promise.all(targetIds.map((userId) => {
+      return Promise.all(targetIds.map((userId: string) => {
         return app.channel(`userIds/${userId}`).send({
           groupUser: data
         })
       }))
-    } catch(err) {
+    } catch (err) {
       console.log(err)
       throw err
     }
   })
 
   service.publish('removed', async (data): Promise<any> => {
-    console.log('Removed group-user publishing')
     try {
       const channel = await app.service('channel').Model.findOne({
         where: {
@@ -154,13 +147,13 @@ export default (app: Application): any => {
       })
       targetIds.push(data.userId)
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      return Promise.all(targetIds.map((userId) => {
+      return Promise.all(targetIds.map((userId: string) => {
         return app.channel(`userIds/${userId}`).send({
           groupUser: data,
           self: userId === data.userId
         })
       }))
-    } catch(err) {
+    } catch (err) {
       console.log(err)
       throw err
     }

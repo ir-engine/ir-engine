@@ -23,7 +23,6 @@ export default (app: Application): void => {
   service.hooks(hooks)
 
   service.publish('created', async (data): Promise<any> => {
-    console.log('start party publish')
     const partyUsers = await app.service('party-user').find({
       query: {
         $limit: 1000,
@@ -45,14 +44,11 @@ export default (app: Application): void => {
       return await Promise.resolve()
     }))
     data.partyUsers = partyUsers.data
-    const targetIds = (partyUsers as any).data.map((partyUser) => {
+    const targetIds = (partyUsers).data.map((partyUser) => {
       return partyUser.userId
     })
-    console.log('Publishing new party to targets:')
-    console.log(data)
-    console.log(targetIds)
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    return Promise.all(targetIds.map((userId) => {
+    return Promise.all(targetIds.map((userId: string) => {
       return app.channel(`userIds/${userId}`).send({
         party: data
       })
@@ -70,7 +66,7 @@ export default (app: Application): void => {
       return partyUser.userId
     })
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    return Promise.all(targetIds.map((userId) => {
+    return Promise.all(targetIds.map((userId: string) => {
       return app.channel(`userIds/${userId}`).send({
         party: data
       })
@@ -88,7 +84,7 @@ export default (app: Application): void => {
       return partyUser.userId
     })
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    return Promise.all(targetIds.map((userId) => {
+    return Promise.all(targetIds.map((userId: string) => {
       return app.channel(`userIds/${userId}`).send({
         party: data
       })

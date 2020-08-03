@@ -25,7 +25,7 @@ export default (app: Application): any => {
   (message as any).associate = (models: any): any => {
     (message as any).belongsTo(models.channel, { allowNull: false });
     (message as any).belongsTo(models.user, { foreignKey: 'senderId' });
-    (message as any).hasMany(models.message_status)
+    (message as any).hasMany(models.message_status, { onDelete: 'cascade', hooks: true })
   }
 
   return message
