@@ -212,30 +212,123 @@ Each entity can have their own schema. A static building could have a subscripti
 A lot of things in games and spatial applications can be represented by **state**. The concept for BECS came from trying to tackle some of the issues that many ECS systems have with managing state, especially grouped and overlapping states. The idea of using a schema to map transformation data is borrowed from the idea of State Tables and State Diagrams.
 
 States define what something currently is. For example, the character could be jumping -- in which case you are likely to find the "jumping" state attached to the actor. Concretely, there is a jump() behavior mapped to the DefaultStateSchema.
+```typescript
+const jump: Behavior = (entity: Entity): void => {
+  // Add the state to the entity (addState is also a behavior)
+  addState(entity, { state: DefaultStateTypes.JUMPING })
+  actor = entity.getMutableComponent(Actor)
+  // Set actor's jump time to 0 -- jump will end when t increments to jump length
+  actor.jump.t = 0
+}
+```
+This function adds a state to the State component's .data field. States can trigger a behavior on entry or exit -- these are knows as "transitions" in finite state machine design. States can also execute logic every frame while active. We control this just like input and subscriptions, by defining our mapping on the StateSchema and initialization our State component with it.
+Concretely, this is what the jumping state mapping in the DefaultStateSchema looks like:
+```typescript
+    [DefaultStateTypes.JUMPING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS, onUpdate: { behavior: jumpingBehavior } },
+```
+Jumping doesn't currently have entry or exit transitions, but does perform the jumping behavior every time the State system executes.
+The jumping state is removed by the jumping behavior when the actor's jump time exceeds the jump duration. In a more complex scenario, the user's jumping state might get removed by landing back on ground or transitioning to another state, otherwise the jumping state would transition into falling. In this case, however, when jumping is over, we remove the state.
+```typescript
+export const jumping: Behavior = (entity: Entity, args, delta: number): void => {
+  transform = entity.getComponent(TransformComponent)
+  actor = entity.getMutableComponent(Actor)
+  actor.jump.t += delta
+  if (actor.jump.t < actor.jump.duration) {
+    transform.velocity[1] = transform.velocity[1] + Math.cos((actor.jump.t / actor.jump.duration) * Math.PI)
+    console.log("Jumping: " + actor.jump.t)
+    return
+  }
+  removeState(entity, { state: DefaultStateTypes.JUMPING })
+  console.log("Jumped")
+}
+```
+
+### State Groups
+Typically you will want to group states together as they are related, transition into each other and are often mutually exclusive. For example, you will want to know that if your character jumps, the crouching state will be overriden and removed until the character stops jumping (unless you're making a crouch jump game, more power to you!) By defining state groups, we can relate states to each other.
+You can find the interface that defines state groups in the StateSchema at **src/state/defaults/interfaces/DefaultStateSchema**
+```typescript
+  groups: {
+    [DefaultStateGroups.MOVEMENT]: {
+      exclusive: true,
+      default: DefaultStateTypes.IDLE,
+      states: [DefaultStateTypes.IDLE, DefaultStateTypes.MOVING]
+    },
+    [DefaultStateGroups.MOVEMENT_MODIFIERS]: {
+      exclusive: true,
+      states: [DefaultStateTypes.CROUCHING, DefaultStateTypes.SPRINTING, DefaultStateTypes.JUMPING]
+    }
+  },
+  ...
+  ```
+The DefaultStateSchema defines two groups, MOVEMENT and MOVEMENT_MODIFIERS. Both are exclusive, so any time a state is added it will transition over the existing state unless blocked. For example:
+```typescript
+  states: {
+...
+    [DefaultStateTypes.JUMPING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS, onUpdate: { behavior: jumpingBehavior } },
+    [DefaultStateTypes.CROUCHING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS, blockedBy: DefaultStateTypes.JUMPING },
+...  }
+  ```
+In the DefaultStateSchema example, CROUCHING is **blockedBy** JUMPING, so the character can't crouch mid-air.
+The job of the state system is to ensure that these rules are respected and that changes in state have the appropriate side effects on other states.
+
+#### So what's the difference between State and Subscriptions?
+Subscriptions are typically not added to and removed from, and operate more like standard lifecycle events in other game engines. Subscriptions don't have a queue (.data), so to manipulate them you need to change the schema, which is acceptable but not often necessary. States are always changing, and can be added and removed from the State component often through the queue available at State.data, while the StateSchema is unlikely to be altered much after initialization (dynamic state machines are possible if you want to go full automata!)
+
+### How to add a state and state group
+Let's say we wanted to make a hunger system for our a monster in our game that the player must feed. So we will define a state group
+```typescript
+const StateGroups = {
+  HUNGER: 0 // value should be unique but can be anything, numbers are easy to send over the network
+}
+```
+Now we will define a StateSchema
+```typescript
+const MyStateSchema: StateSchema = {
+  groups: {
+    [StateGroups.HUNGER]: {
+      exclusive: true,
+      default: "FULL",
+      states: ["FULL", "HUNGRY", "STARVING" ]
+    },
+  },
+  states: {
+    ["FULL"]: { group: StateGroups.HUNGER, onUpdate: { behavior: hungerBehavior, args: { type: "FULL" } } },
+    ["HUNGRY"]: { group: StateGroups.HUNGER, onUpdate: { behavior: hungerBehavior, args: { type: "HUNGRY" } } },
+    ["STARVING"]: { group: StateGroups.HUNGER, onUpdate: { behavior: hungerBehavior, args: { type: "STARVING"} } },
+  }
+}
+
+```
+The states are mutually exclusive, and while they all execute the same behavior, they pass a different argument. We can assume the hungerBehavior decreases some "fullness" value on a component, and issues different warnings to the player based on the current type.
+You can then use this state elsewhere, for example you could program your movement behavior to check if the entity is hungry and slow movement speed on "hungry" or "starving".
+
+#### Other systems can map to state
+Behaviors allow us to make data transformations on a component, or between components. For example, when we press the "w" key, that issues the action "forward", which adds the state "moving" and removes the "idle" state if it's currently in the state queue.
 
 
-.. pushing to Github now, but continuing to write.\
+## So what system should I put something in?
+If the player presses, touches, shakes or rotates something with their head, this should be managed by the InputSystem.
+If you want something to happen every frame when a component is attached, consider adding it as a **Subscription**.
+If you want something to happen when ____ is _____, that should probably be framed as a State, especially if it interacts or transitions to other states.
 
-A simple example of state is movement. If the player is crouching, and they jump, we probably want to end the crouching state, lest we look like an old school game. Maybe you want jumping crouching. But if you don't, you need a way to transition.
-
-!!!! How state works
-!!!! How to add a state
+### What if I wanted to do a "classic" system and integrate Armada?
+Yes! Great! Each system in Armada has it's own initialization call, so you can add your own systems and order them however you like. Mix and match!
 
 !!!! How networking works
 !!!! Unreliable vs reliable messaging
 
+#### Defaults are overridable
+All of the defaults have been provided so that the library works out of the box, and to give you an example of best practice. However, every default is designed to be overriden. Create your own defaults and pass them in when you construct your Behavior Components.
 
-## So what system should I put something in?
+#### You can have multiple of each schema type
+Consider making one schema for each type of entity you plan on creating. All of the monsters in your game can probably be constructed from a shared schema. Schema are passed by reference, so if you alter the schema on a component make sure that it's not being referenced by other components, or be prepared to handle the side effects.
 
+#### On singleton components - a design note
+Some systems -- for example, the network system -- use a singleton component to store data. Singleton components can be initialized by the system they are attached to, and should set a static reference to themselves on creation so that they are accessible everywhere without a getComponent query.
+You can store data, especially temp variables, on systems, if they rarely change, are only changed onAdded/onRemoved, and typically are a singleton. It is always better to query for all of the entities that match the component pattern over keeping and updating a list on the system.
 
-#### What if I wanted to do a "classic" system and integrate Armada?
-Yes! Great! Each system in Armada has it's own initialization call, so you can add your own systems and order them however you like. Mix and match!
+### Networking
 
-!!!! Defaults
-!!!! Singletons
-!!!! Do I need to store it on a component?
-
-!!!! Required reading
 
 
 ## TODO:
