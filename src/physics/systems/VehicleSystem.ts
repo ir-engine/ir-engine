@@ -1,5 +1,5 @@
 import * as ECSY from "ecsy"
-import CANNON from "cannon-es"
+import * as CANNON from "cannon-es"
 import VehicleBody from "../components/VehicleBody"
 import { RigidBody } from "../components/RigidBody"
 

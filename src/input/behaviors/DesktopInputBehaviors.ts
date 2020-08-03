@@ -43,7 +43,10 @@ export function handleKey(entity: Entity, args: { event: KeyboardEvent; value: B
   input = entity.getComponent(Input)
   if (input.schema.keyboardInputMap[args.event.key] === undefined) return
   // If the key is in the map but it's in the same state as now, let's skip it (debounce)
-  if (input.data.has(input.schema.keyboardInputMap[args.event.key]) && input.data.get(input.schema.keyboardInputMap[args.event.key]).value === args.value)
+  if (
+    input.data.has(input.schema.keyboardInputMap[args.event.key]) &&
+    input.data.get(input.schema.keyboardInputMap[args.event.key]).value === args.value
+  )
     return
   // Set type to BUTTON (up/down discrete state) and value to up or down, depending on what the value is set to
   if (args.value === BinaryValue.ON) {
