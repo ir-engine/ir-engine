@@ -1,6 +1,6 @@
 import * as CANNON from "cannon-es"
 import { RigidBody } from "../components/RigidBody"
-import VehicleBody from "../components/VehicleBody"
+import { VehicleBody } from "../components/VehicleBody"
 import { System, Entity } from "ecsy"
 // TODO: Replace me with our own default transform component
 import { Transform } from "ecsy-three/src/extras/components"

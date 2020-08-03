@@ -1,4 +1,3 @@
-
 export const DefaultStateTypes = {
   // Main States
   IDLE: 0,
@@ -17,4 +16,4 @@ export const DefaultStateTypes = {
   MOVING_BACKWARD: 9,
   MOVING_LEFT: 10,
   MOVING_RIGHT: 11
-};
+}

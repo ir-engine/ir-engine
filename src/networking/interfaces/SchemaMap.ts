@@ -1,4 +1,3 @@
-
 export default interface SchemaMap {
-  [key: string]: any;
+  [key: string]: any
 }

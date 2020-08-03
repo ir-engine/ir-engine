@@ -20,12 +20,12 @@
   import * as ECSYTHREEX from "ecsy-three/extras"
   import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 
-  import { PhysicsRigidBody, PhysicsSystem } from "../../dist/armada.js"
+  import { RigidBody, PhysicsSystem } from "../../dist/armada.js"
 
   const world = new ECSYTHREE.ECSYThreeWorld()
     .registerSystem(PhysicsSystem)
     .registerComponent(ECSYTHREEX.Transform)
-    .registerComponent(PhysicsRigidBody)
+    .registerComponent(RigidBody)
 
   const data = ECSYTHREEX.initialize(world, { vr: false })
 
@@ -57,7 +57,7 @@
       .createEntity()
       .addObject3DComponent(miniMesh.clone(), scene)
 
-      .addComponent(PhysicsRigidBody, {
+      .addComponent(RigidBody, {
         scale: { x: 0.2, y: 0.2, z: 0.2 },
         mass: 0.1
       })
@@ -82,7 +82,7 @@
     .createEntity()
     .addObject3DComponent(boxMesh.clone(), scene)
 
-    .addComponent(PhysicsRigidBody, { scale: { x: 1, y: 1, z: 1 }, mass: 0 })
+    .addComponent(RigidBody, { scale: { x: 1, y: 1, z: 1 }, mass: 0 })
 
     .addComponent(ECSYTHREEX.Transform, {
       position: { x: 0, y: 0, z: 0 },
