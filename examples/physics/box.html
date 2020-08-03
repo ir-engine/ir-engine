@@ -20,8 +20,7 @@
   import * as ECSYTHREEX from "ecsy-three/extras"
   import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 
-  import { PhysicsRigidBody } from "../src/components/physics-rigid-body"
-  import { PhysicsSystem } from "../src/systems/physics-system"
+  import { PhysicsRigidBody, PhysicsSystem } from "../../dist/armada.js"
 
   const world = new ECSYTHREE.ECSYThreeWorld()
     .registerSystem(PhysicsSystem)

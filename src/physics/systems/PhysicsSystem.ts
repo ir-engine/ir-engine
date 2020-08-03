@@ -1,5 +1,5 @@
 import * as CANNON from "cannon-es"
-import { PhysicsRigidBody } from "../components/PhysicsRigidBody"
+import { RigidBody } from "../components/RigidBody"
 import { VehicleBody } from "../components/VehicleBody"
 import { WheelBody } from "../components/WheelBody"
 import { System } from "ecsy"
@@ -12,12 +12,12 @@ function inputs(vehicle) {
   document.onkeydown = handler
   document.onkeyup = handler
 
-  var maxSteerVal = 0.5
-  var maxForce = 1000
-  var brakeForce = 1000000
+  const maxSteerVal = 0.5
+  const maxForce = 1000
+  const brakeForce = 1000000
   function handler(event) {
     //console.log('test');
-    var up = event.type == "keyup"
+    const up = event.type == "keyup"
 
     if (!up && event.type !== "keydown") {
       return
@@ -55,10 +55,13 @@ function inputs(vehicle) {
   }
 }
 
-var quaternion = new Quaternion()
-var euler = new Euler()
+const quaternion = new Quaternion()
+const euler = new Euler()
 
 export class PhysicsSystem extends System {
+  frame: number
+  _physicsWorld: any
+  timeStep: number
   init() {
     this.frame = 0
     this._physicsWorld = new CANNON.World()
@@ -68,9 +71,9 @@ export class PhysicsSystem extends System {
     this._physicsWorld.broadphase = new CANNON.SAPBroadphase(this._physicsWorld)
 
     //  this._physicsWorld.solver.iterations = 10;
-    var groundMaterial = new CANNON.Material("groundMaterial")
-    var wheelMaterial = new CANNON.Material("wheelMaterial")
-    var wheelGroundContactMaterial = (window.wheelGroundContactMaterial = new CANNON.ContactMaterial(wheelMaterial, groundMaterial, {
+    const groundMaterial = new CANNON.Material("groundMaterial")
+    const wheelMaterial = new CANNON.Material("wheelMaterial")
+    const wheelGroundContactMaterial = (window.wheelGroundContactMaterial = new CANNON.ContactMaterial(wheelMaterial, groundMaterial, {
       friction: 0.3,
       restitution: 0,
       contactEquationStiffness: 1000
@@ -90,8 +93,8 @@ export class PhysicsSystem extends System {
 
     this._physicsWorld.step(this.timeStep)
 
-    for (let entity of this.queries.physicsRigidBody.added) {
-      const physicsRigidBody = entity.getComponent(PhysicsRigidBody)
+    for (const entity of this.queries.physicsRigidBody.added) {
+      const physicsRigidBody = entity.getComponent(RigidBody)
       let object = entity.getObject3D()
       object ? "" : (object = { userData: { body: {} } })
       let body
@@ -105,16 +108,16 @@ export class PhysicsSystem extends System {
       this._physicsWorld.addBody(body)
     }
 
-    for (let entity of this.queries.vehicleBody.added) {
-      let object = entity.getObject3D()
+    for (const entity of this.queries.vehicleBody.added) {
+      const object = entity.getObject3D()
 
       const vehicleComponent = entity.getComponent(VehicleBody)
 
-      let [vehicle, wheelBodies] = this._createVehicleBody(entity, vehicleComponent.convexMesh)
+      const [vehicle, wheelBodies] = this._createVehicleBody(entity, vehicleComponent.convexMesh)
       object.userData.vehicle = vehicle
       vehicle.addToWorld(this._physicsWorld)
 
-      for (var i = 0; i < wheelBodies.length; i++) {
+      for (let i = 0; i < wheelBodies.length; i++) {
         this._physicsWorld.addBody(wheelBodies[i])
       }
       inputs(vehicle)
@@ -137,9 +140,9 @@ export class PhysicsSystem extends System {
       //  console.log('test');
     }
 
-    for (let entity of this.queries.physicsRigidBody.results) {
+    for (const entity of this.queries.physicsRigidBody.results) {
       //  if (rigidBody.weight === 0.0) continue;
-      const transform = entity.getMutableComponent(Transform)
+      const transform = entity.getMutableComponent(Transform) as Transform
       const object = entity.getObject3D()
       const body = object.userData.body
       //console.log(body);
@@ -151,9 +154,9 @@ export class PhysicsSystem extends System {
       transform.rotation.copy(euler)
     }
 
-    for (let entity of this.queries.vehicleBody.results) {
+    for (const entity of this.queries.vehicleBody.results) {
       //  if (rigidBody.weight === 0.0) continue;
-      const transform = entity.getMutableComponent(Transform)
+      const transform = entity.getMutableComponent(Transform) as Transform
       const object = entity.getObject3D()
       const vehicle = object.userData.vehicle.chassisBody
 
@@ -167,16 +170,16 @@ export class PhysicsSystem extends System {
   }
 
   _createBox(entity) {
-    const rigidBody = entity.getComponent(PhysicsRigidBody)
+    const rigidBody = entity.getComponent(RigidBody)
     const transform = entity.getComponent(Transform)
 
-    let shape = new CANNON.Box(new CANNON.Vec3(rigidBody.scale.x / 2, rigidBody.scale.y / 2, rigidBody.scale.z / 2))
+    const shape = new CANNON.Box(new CANNON.Vec3(rigidBody.scale.x / 2, rigidBody.scale.y / 2, rigidBody.scale.z / 2))
 
-    let body = new CANNON.Body({
+    const body = new CANNON.Body({
       mass: rigidBody.mass,
       position: new CANNON.Vec3(transform.position.x, transform.position.y, transform.position.z)
     })
-    var q = new CANNON.Quaternion()
+    const q = new CANNON.Quaternion()
     q.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2)
     body.addShape(shape)
 
@@ -188,16 +191,16 @@ export class PhysicsSystem extends System {
   }
 
   _createGroundGeometry(entity) {
-    const rigidBody = entity.getComponent(PhysicsRigidBody)
+    const rigidBody = entity.getComponent(RigidBody)
     const transform = entity.getComponent(Transform)
 
-    let shape = new CANNON.Box(new CANNON.Vec3(rigidBody.scale.x / 2, rigidBody.scale.y / 2, rigidBody.scale.z / 2))
+    const shape = new CANNON.Box(new CANNON.Vec3(rigidBody.scale.x / 2, rigidBody.scale.y / 2, rigidBody.scale.z / 2))
 
-    let body = new CANNON.Body({
+    const body = new CANNON.Body({
       mass: rigidBody.mass,
       position: new CANNON.Vec3(transform.position.x, transform.position.y, transform.position.z)
     })
-    var q = new CANNON.Quaternion()
+    const q = new CANNON.Quaternion()
     q.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2)
     body.addShape(shape)
 
@@ -209,17 +212,17 @@ export class PhysicsSystem extends System {
   }
 
   _createCylinder(entity) {
-    const rigidBody = entity.getComponent(PhysicsRigidBody)
+    const rigidBody = entity.getComponent(RigidBody)
     const transform = entity.getComponent(Transform)
 
-    var cylinderShape = new CANNON.Cylinder(rigidBody.scale.x, rigidBody.scale.y, rigidBody.scale.z, 20)
-    var body = new CANNON.Body({
+    const cylinderShape = new CANNON.Cylinder(rigidBody.scale.x, rigidBody.scale.y, rigidBody.scale.z, 20)
+    const body = new CANNON.Body({
       mass: rigidBody.mass,
       position: new CANNON.Vec3(transform.position.x, transform.position.y, transform.position.z)
     })
     //body.type = CANNON.Body.KINEMATIC;
     //body.collisionFilterGroup = 1; // turn off collisions
-    var q = new CANNON.Quaternion()
+    const q = new CANNON.Quaternion()
     q.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2)
     body.addShape(cylinderShape, new CANNON.Vec3(), q)
     //body.angularVelocity.set(0,0,1);
@@ -227,12 +230,12 @@ export class PhysicsSystem extends System {
   }
 
   _createShare(entity) {
-    const rigidBody = entity.getComponent(PhysicsRigidBody)
+    const rigidBody = entity.getComponent(RigidBody)
     const transform = entity.getComponent(Transform)
 
-    let shape = new CANNON.Sphere(rigidBody.scale.x / 2)
+    const shape = new CANNON.Sphere(rigidBody.scale.x / 2)
 
-    let body = new CANNON.Body({
+    const body = new CANNON.Body({
       mass: rigidBody.mass,
       position: new CANNON.Vec3(transform.position.x, transform.position.y, transform.position.z)
     })
@@ -247,16 +250,16 @@ export class PhysicsSystem extends System {
       object = mesh
       attributePosition = mesh.geometry.attributes.position
     } else {
-      rigidBody = entity.getComponent(PhysicsRigidBody)
+      rigidBody = entity.getComponent(RigidBody)
       object = entity.getObject3D()
       transform = entity.getComponent(Transform)
       attributePosition = object.geometry.attributes.position
     }
 
-    var convexBody = new CANNON.Body({
+    const convexBody = new CANNON.Body({
       mass: 50
     })
-    let verts = [],
+    const verts = [],
       faces = [],
       normals = []
 
@@ -267,7 +270,7 @@ export class PhysicsSystem extends System {
     console.log(verts)
     // Get faces
 
-    for (var j = 0; j < object.geometry.index.array.length; j += 3) {
+    for (let j = 0; j < object.geometry.index.array.length; j += 3) {
       faces.push([object.geometry.index.array[j], object.geometry.index.array[j + 1], object.geometry.index.array[j + 2]])
     }
     /*
@@ -285,10 +288,10 @@ export class PhysicsSystem extends System {
     //  let offset = new CANNON.Vec3(200,200,200);
 
     // Construct polyhedron
-    var bunnyPart = new CANNON.ConvexPolyhedron({ vertices: verts, faces })
+    const bunnyPart = new CANNON.ConvexPolyhedron({ vertices: verts, faces })
     console.log(bunnyPart)
 
-    var q = new CANNON.Quaternion()
+    const q = new CANNON.Quaternion()
     q.setFromAxisAngle(new CANNON.Vec3(1, 1, 0), -Math.PI / 2)
     //  body.addShape(cylinderShape, new CANNON.Vec3(), q);
     // Add to compound
@@ -303,7 +306,7 @@ export class PhysicsSystem extends System {
     if (mesh) {
       chassisBody = this._createConvexGeometry(entity, mesh)
     } else {
-      let chassisShape = new CANNON.Box(new CANNON.Vec3(1, 1.2, 2.8))
+      const chassisShape = new CANNON.Box(new CANNON.Vec3(1, 1.2, 2.8))
       chassisBody = new CANNON.Body({ mass: 150 })
       chassisBody.addShape(chassisShape)
     }
@@ -311,7 +314,7 @@ export class PhysicsSystem extends System {
     chassisBody.position.copy(transform.position)
     //  chassisBody.angularVelocity.set(0, 0, 0.5);
 
-    var options = {
+    const options = {
       radius: 0.5,
       directionLocal: new CANNON.Vec3(0, -1, 0),
       suspensionStiffness: 30,
@@ -329,7 +332,7 @@ export class PhysicsSystem extends System {
     }
 
     // Create the vehicle
-    let vehicle = new CANNON.RaycastVehicle({
+    const vehicle = new CANNON.RaycastVehicle({
       chassisBody: chassisBody,
       indexUpAxis: 1,
       indexRightAxis: 0,
@@ -348,16 +351,16 @@ export class PhysicsSystem extends System {
     options.chassisConnectionPointLocal.set(1.4, -0.6, -2.2)
     vehicle.addWheel(options)
 
-    var wheelBodies = []
-    for (var i = 0; i < vehicle.wheelInfos.length; i++) {
-      var wheel = vehicle.wheelInfos[i]
-      var cylinderShape = new CANNON.Cylinder(1, 1, 0.1, 20)
-      var wheelBody = new CANNON.Body({
+    const wheelBodies = []
+    for (let i = 0; i < vehicle.wheelInfos.length; i++) {
+      const wheel = vehicle.wheelInfos[i]
+      const cylinderShape = new CANNON.Cylinder(1, 1, 0.1, 20)
+      const wheelBody = new CANNON.Body({
         mass: 0
       })
       wheelBody.type = CANNON.Body.KINEMATIC
       wheelBody.collisionFilterGroup = 0 // turn off collisions
-      var q = new CANNON.Quaternion()
+      const q = new CANNON.Quaternion()
       //   q.setFromAxisAngle(new CANNON.Vec3(1,0,0), -Math.PI / 2);
       wheelBody.addShape(cylinderShape)
       //   wheelBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0), -Math.PI/2)
@@ -372,7 +375,7 @@ export class PhysicsSystem extends System {
 
 PhysicsSystem.queries = {
   physicsRigidBody: {
-    components: [PhysicsRigidBody],
+    components: [RigidBody],
     listen: {
       added: true
     }

@@ -10,7 +10,7 @@ class BehaviorComponent extends Component {
         this.data = new Map();
     }
     copy(src) {
-        this.map = src.map;
+        this.schema = src.schema;
         this.data = new Map(src.data);
         return this;
     }
@@ -139,12 +139,12 @@ const addState = (entity, args) => {
         state: args.state,
         type: StateType.DISCRETE,
         lifecycleState: LifecycleValue$1.STARTED,
-        group: stateComponent.map.states[args.state].group
+        group: stateComponent.schema.states[args.state].group
     });
-    stateGroup = stateComponent.map.states[args.state].group;
+    stateGroup = stateComponent.schema.states[args.state].group;
     // If state group is set to exclusive (XOR) then check if other states from state group are on
-    if (stateComponent.map.groups[stateGroup].exclusive) {
-        stateComponent.map.groups[stateGroup].states.forEach(state => {
+    if (stateComponent.schema.groups[stateGroup].exclusive) {
+        stateComponent.schema.groups[stateGroup].states.forEach(state => {
             if (state === args.state || !stateComponent.data.has(state))
                 return;
             stateComponent.data.delete(state);
@@ -207,7 +207,7 @@ const jumping = (entity, args, delta) => {
     console.log("Jumped");
 };
 
-// Input inherits from BehaviorComponent, which adds .map and .data
+// Input inherits from BehaviorComponent, which adds .schema and .data
 class Input extends BehaviorComponent {
 }
 // Set schema to itself plus gamepad data
@@ -982,7 +982,7 @@ const handleMouseMovement = (entity, args) => {
     _value[0] = (args.event.clientX / window.innerWidth) * 2 - 1;
     _value[1] = (args.event.clientY / window.innerHeight) * -2 + 1;
     // Set type to TWOD (two-dimensional axis) and value to a normalized -1, 1 on X and Y
-    input$1.data.set(input$1.map.mouseInputMap.axes["mousePosition"], {
+    input$1.data.set(input$1.schema.mouseInputMap.axes["mousePosition"], {
         type: InputType.TWOD,
         value: _value
     });
@@ -991,40 +991,40 @@ const handleMouseMovement = (entity, args) => {
 const handleMouseButton = (entity, args) => {
     // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
     input$1 = entity.getComponent(Input);
-    if (input$1.map.mouseInputMap.buttons[args.event.button] === undefined)
+    if (input$1.schema.mouseInputMap.buttons[args.event.button] === undefined)
         return; // Set type to BUTTON (up/down discrete state) and value to up or down, as called by the DOM mouse events
     if (args.value === BinaryValue.ON) {
         console.log("Mouse button down: " + args.event.button);
-        input$1.data.set(input$1.map.mouseInputMap.buttons[args.event.button], {
+        input$1.data.set(input$1.schema.mouseInputMap.buttons[args.event.button], {
             type: InputType.BUTTON,
             value: args.value
         });
     }
     else {
         console.log("Mouse button up" + args.event.button);
-        input$1.data.delete(input$1.map.mouseInputMap.buttons[args.event.button]);
+        input$1.data.delete(input$1.schema.mouseInputMap.buttons[args.event.button]);
     }
 };
 // System behavior called when a keyboard key is pressed
 function handleKey(entity, args) {
     // Get immutable reference to Input and check if the button is defined -- ignore undefined keys
     input$1 = entity.getComponent(Input);
-    if (input$1.map.keyboardInputMap[args.event.key] === undefined)
+    if (input$1.schema.keyboardInputMap[args.event.key] === undefined)
         return;
     // If the key is in the map but it's in the same state as now, let's skip it (debounce)
-    if (input$1.data.has(input$1.map.keyboardInputMap[args.event.key]) && input$1.data.get(input$1.map.keyboardInputMap[args.event.key]).value === args.value)
+    if (input$1.data.has(input$1.schema.keyboardInputMap[args.event.key]) && input$1.data.get(input$1.schema.keyboardInputMap[args.event.key]).value === args.value)
         return;
     // Set type to BUTTON (up/down discrete state) and value to up or down, depending on what the value is set to
     if (args.value === BinaryValue.ON) {
         console.log("Key down: " + args.event.key);
-        input$1.data.set(input$1.map.keyboardInputMap[args.event.key], {
+        input$1.data.set(input$1.schema.keyboardInputMap[args.event.key], {
             type: InputType.BUTTON,
             value: args.value
         });
     }
     else {
         console.log("Key up: " + args.event.key);
-        input$1.data.delete(input$1.map.mouseInputMap.buttons[args.event.key]);
+        input$1.data.delete(input$1.schema.mouseInputMap.buttons[args.event.key]);
     }
 }
 
@@ -1075,18 +1075,18 @@ const handleGamepads = (entity) => {
             input0 = inputPerGamepad * _index;
             input1 = inputPerGamepad * _index + 1;
             // GamePad 0 LStick XY
-            if (input$2.map.eventBindings.input[input0] && gamepad.axes.length >= inputPerGamepad)
-                handleGamepadAxis(entity, { gamepad: gamepad, inputIndex: 0, mappedInputValue: input$2.map.gamepadInputMap.axes[input0] });
+            if (input$2.schema.eventBindings.input[input0] && gamepad.axes.length >= inputPerGamepad)
+                handleGamepadAxis(entity, { gamepad: gamepad, inputIndex: 0, mappedInputValue: input$2.schema.gamepadInputMap.axes[input0] });
             // GamePad 1 LStick XY
-            if (input$2.map.gamepadInputMap.axes[input1] && gamepad.axes.length >= inputPerGamepad * 2)
-                handleGamepadAxis(entity, { gamepad, inputIndex: 1, mappedInputValue: input$2.map.gamepadInputMap.axes[input1] });
+            if (input$2.schema.gamepadInputMap.axes[input1] && gamepad.axes.length >= inputPerGamepad * 2)
+                handleGamepadAxis(entity, { gamepad, inputIndex: 1, mappedInputValue: input$2.schema.gamepadInputMap.axes[input1] });
         }
         // If the gamepad doesn't have buttons, or the input isn't mapped, return
-        if (!gamepad.buttons || !input$2.map.gamepadInputMap.axes)
+        if (!gamepad.buttons || !input$2.schema.gamepadInputMap.axes)
             return;
         // Otherwise, loop through gamepad buttons
         for (_index = 0; _index < gamepad.buttons.length; _index++) {
-            handleGamepadButton(entity, { gamepad, index: _index, mappedInputValue: input$2.map.gamepadInputMap.axes[input1] });
+            handleGamepadButton(entity, { gamepad, index: _index, mappedInputValue: input$2.schema.gamepadInputMap.axes[input1] });
         }
     }
 };
@@ -1094,11 +1094,11 @@ const handleGamepadButton = (entity, args) => {
     // Get mutable component reference
     input$2 = entity.getMutableComponent(Input);
     // Make sure button is in the map
-    if (typeof input$2.map.gamepadInputMap.axes[args.index] === "undefined" ||
+    if (typeof input$2.schema.gamepadInputMap.axes[args.index] === "undefined" ||
         gamepad.buttons[args.index].touched === (input$2.gamepadButtons[args.index] === BinaryValue.ON))
         return;
     // Set input data
-    input$2.data.set(input$2.map.gamepadInputMap.axes[args.index], {
+    input$2.data.set(input$2.schema.gamepadInputMap.axes[args.index], {
         type: InputType.BUTTON,
         value: gamepad.buttons[args.index].touched ? BinaryValue.ON : BinaryValue.OFF
     });
@@ -1140,11 +1140,11 @@ const handleGamepadDisconnected = (entity, args) => {
     input$2 = entity.getMutableComponent(Input);
     console.log("A gamepad disconnected:", args.event.gamepad);
     input$2.gamepadConnected = false;
-    if (!input$2.map)
+    if (!input$2.schema)
         return; // Already disconnected?
     for (let index = 0; index < input$2.gamepadButtons.length; index++) {
-        if (input$2.gamepadButtons[index] === BinaryValue.ON && typeof input$2.map.gamepadInputMap.axes[index] !== "undefined") {
-            input$2.data.set(input$2.map.gamepadInputMap.axes[index], {
+        if (input$2.gamepadButtons[index] === BinaryValue.ON && typeof input$2.schema.gamepadInputMap.axes[index] !== "undefined") {
+            input$2.data.set(input$2.schema.gamepadInputMap.axes[index], {
                 type: InputType.BUTTON,
                 value: BinaryValue.OFF
             });
@@ -1346,7 +1346,7 @@ const DefaultInput = {
     LOOKTURN_PLAYERTWO: 19,
     ALTERNATE: 20
 };
-const DefaultInputMap = {
+const DefaultInputSchema = {
     // When an Input component is added, the system will call this array of behaviors
     onAdded: [
         {
@@ -1554,16 +1554,16 @@ class InputSystem extends System {
             // Get component reference
             this._inputComponent = entity.getComponent(Input);
             // If input doesn't have a map, set the default
-            if (this._inputComponent.map === undefined)
-                this._inputComponent.map = DefaultInputMap;
+            if (this._inputComponent.schema === undefined)
+                this._inputComponent.schema = DefaultInputSchema;
             // Call all behaviors in "onAdded" of input map
-            this._inputComponent.map.onAdded.forEach(behavior => {
+            this._inputComponent.schema.onAdded.forEach(behavior => {
                 behavior.behavior(entity, Object.assign({}, behavior.args));
             });
             // Bind DOM events to event behavior
-            (_a = Object.keys(this._inputComponent.map.eventBindings)) === null || _a === void 0 ? void 0 : _a.forEach((key) => {
+            (_a = Object.keys(this._inputComponent.schema.eventBindings)) === null || _a === void 0 ? void 0 : _a.forEach((key) => {
                 document.addEventListener(key, e => {
-                    this._inputComponent.map.eventBindings[key].behavior(entity, Object.assign({ event: e }, this._inputComponent.map.eventBindings[key].args));
+                    this._inputComponent.schema.eventBindings[key].behavior(entity, Object.assign({ event: e }, this._inputComponent.schema.eventBindings[key].args));
                 });
             });
         });
@@ -1572,45 +1572,55 @@ class InputSystem extends System {
             // Get component reference
             this._inputComponent = entity.getComponent(Input);
             // Call all behaviors in "onRemoved" of input map
-            this._inputComponent.map.onRemoved.forEach(behavior => {
+            this._inputComponent.schema.onRemoved.forEach(behavior => {
                 behavior.behavior(entity, behavior.args);
             });
             // Unbind events from DOM
-            Object.keys(this._inputComponent.map.eventBindings).forEach((key) => {
+            Object.keys(this._inputComponent.schema.eventBindings).forEach((key) => {
                 document.addEventListener(key, e => {
-                    this._inputComponent.map.eventBindings[key].behavior(entity, Object.assign({ event: e }, this._inputComponent.map.eventBindings[key].args));
+                    this._inputComponent.schema.eventBindings[key].behavior(entity, Object.assign({ event: e }, this._inputComponent.schema.eventBindings[key].args));
                 });
             });
         });
         // Called every frame on all input components
-        this.queries.inputs.results.forEach(entity => handleInput(entity, delta));
+        this.queries.inputs.results.forEach(entity => handleInput(entity, { delta }));
     }
 }
 let input$3;
-const handleInput = (entity, delta) => {
+const handleInput = (entity, args) => {
     input$3 = entity.getComponent(Input);
     input$3.data.forEach((value, key) => {
+        // If the input is a button
         if (value.type === InputType.BUTTON) {
-            if (input$3.map.inputButtonBehaviors[key] && input$3.map.inputButtonBehaviors[key][value.value]) {
+            // If the input exists on the input map (otherwise ignore it)
+            if (input$3.schema.inputButtonBehaviors[key] && input$3.schema.inputButtonBehaviors[key][value.value]) {
+                // If the lifecycle hasn't been set or just started (so we don't keep spamming repeatedly)
                 if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue$1.STARTED) {
+                    // Set the value of the input to continued to debounce
                     input$3.data.set(key, {
                         type: value.type,
                         value: value.value,
                         lifecycleState: LifecycleValue$1.CONTINUED
                     });
-                    input$3.map.inputButtonBehaviors[key][value.value].behavior(entity, input$3.map.inputButtonBehaviors[key][value.value].args, delta);
+                    // Call the behavior with args
+                    input$3.schema.inputButtonBehaviors[key][value.value].behavior(entity, input$3.schema.inputButtonBehaviors[key][value.value].args, args.delta);
                 }
             }
+            // Otherwise, if the input type is an axis, i.e. not a button
         }
         else if (value.type === InputType.ONED || value.type === InputType.TWOD || value.type === InputType.THREED) {
-            if (input$3.map.inputAxisBehaviors[key]) {
+            // If the key exists in the map, otherwise ignore it
+            if (input$3.schema.inputAxisBehaviors[key]) {
+                // If the lifecycle vawlue hasn't been set to continue
                 if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue$1.STARTED) {
+                    // Set the value to continued to debounce
                     input$3.data.set(key, {
                         type: value.type,
                         value: value.value,
                         lifecycleState: LifecycleValue$1.CONTINUED
                     });
-                    input$3.map.inputAxisBehaviors[key].behavior(entity, input$3.map.inputAxisBehaviors[key].args, delta);
+                    // Call the behavior with args
+                    input$3.schema.inputAxisBehaviors[key].behavior(entity, input$3.schema.inputAxisBehaviors[key].args, args.delta);
                 }
             }
         }
@@ -1664,11 +1674,11 @@ class StateSystem extends System {
         this.callBehaviors = (entity, args, delta) => {
             this._state = entity.getComponent(State);
             this._state.data.forEach((stateValue) => {
-                if (this._state.map.states[stateValue.state] !== undefined && this._state.map.states[stateValue.state][args.phase] !== undefined) {
+                if (this._state.schema.states[stateValue.state] !== undefined && this._state.schema.states[stateValue.state][args.phase] !== undefined) {
                     if (stateValue.lifecycleState === LifecycleValue$1.STARTED) {
                         this._state.data.set(stateValue.state, Object.assign(Object.assign({}, stateValue), { lifecycleState: LifecycleValue$1.CONTINUED }));
                     }
-                    this._state.map.states[stateValue.state][args.phase].behavior(entity, this._state.map.states[stateValue.state][args.phase].args, delta);
+                    this._state.schema.states[stateValue.state][args.phase].behavior(entity, this._state.schema.states[stateValue.state][args.phase].args, delta);
                 }
             });
         };
@@ -1679,12 +1689,12 @@ class StateSystem extends System {
             var _a;
             // If stategroup has a default, add it to our state map
             this._state = entity.getComponent(State);
-            if (this._state.map === undefined)
+            if (this._state.schema === undefined)
                 return;
-            Object.keys((_a = this._state.map) === null || _a === void 0 ? void 0 : _a.groups).forEach((stateGroup) => {
-                if (this._state.map.groups[stateGroup] !== undefined && this._state.map.groups[stateGroup].default !== undefined) {
-                    addState(entity, { state: this._state.map.groups[stateGroup].default });
-                    console.log("Added default state: " + this._state.map.groups[stateGroup].default);
+            Object.keys((_a = this._state.schema) === null || _a === void 0 ? void 0 : _a.groups).forEach((stateGroup) => {
+                if (this._state.schema.groups[stateGroup] !== undefined && this._state.schema.groups[stateGroup].default !== undefined) {
+                    addState(entity, { state: this._state.schema.groups[stateGroup].default });
+                    console.log("Added default state: " + this._state.schema.groups[stateGroup].default);
                 }
             });
         });
@@ -1692,12 +1702,12 @@ class StateSystem extends System {
             var _a;
             // If stategroup has a default, add it to our state map
             this._state = entity.getComponent(State);
-            if (this._state.map === undefined)
+            if (this._state.schema === undefined)
                 return;
-            Object.keys((_a = this._state.map) === null || _a === void 0 ? void 0 : _a.groups).forEach((stateGroup) => {
-                if (this._state.map.groups[stateGroup] !== undefined && this._state.map.groups[stateGroup].default !== undefined) {
-                    addState(entity, { state: this._state.map.groups[stateGroup].default });
-                    console.log("Added default state: " + this._state.map.groups[stateGroup].default);
+            Object.keys((_a = this._state.schema) === null || _a === void 0 ? void 0 : _a.groups).forEach((stateGroup) => {
+                if (this._state.schema.groups[stateGroup] !== undefined && this._state.schema.groups[stateGroup].default !== undefined) {
+                    addState(entity, { state: this._state.schema.groups[stateGroup].default });
+                    console.log("Added default state: " + this._state.schema.groups[stateGroup].default);
                 }
             });
         });
@@ -25399,12 +25409,14 @@ class Subscription extends BehaviorComponent {
 class SubscriptionSystem extends System {
     constructor() {
         super(...arguments);
-        // TODO: Make this a generic behavior and move to common
-        this.callBehaviorsForHook = (entity, args, delta) => {
+        this.callBehaviorsForHook = (entity, args) => {
             this.subscription = entity.getComponent(Subscription);
-            if (this.subscription.map[args.phase] !== undefined) {
-                this.subscription.map[args.phase].forEach((value) => {
-                    value.behavior(entity, value.args ? value.args : null, delta);
+            // If the schema for this subscription component has any values in this phase
+            if (this.subscription.schema[args.phase] !== undefined) {
+                // Foreach value in this phase
+                this.subscription.schema[args.phase].forEach((value) => {
+                    // Call the behavior with the args supplied in the schema, as well as delta provided here
+                    value.behavior(entity, value.args ? value.args : null, args.delta);
                 });
             }
         };
@@ -25412,17 +25424,17 @@ class SubscriptionSystem extends System {
     execute(delta, time) {
         var _a, _b, _c, _d;
         (_a = this.queries.subscriptions.added) === null || _a === void 0 ? void 0 : _a.forEach(entity => {
-            this.callBehaviorsForHook(entity, { phase: "onAdded" }, delta);
+            this.callBehaviorsForHook(entity, { phase: "onAdded", delta });
         });
         (_b = this.queries.subscriptions.changed) === null || _b === void 0 ? void 0 : _b.forEach(entity => {
-            this.callBehaviorsForHook(entity, { phase: "onChanged" }, delta);
+            this.callBehaviorsForHook(entity, { phase: "onChanged", delta });
         });
         (_c = this.queries.subscriptions.results) === null || _c === void 0 ? void 0 : _c.forEach(entity => {
-            this.callBehaviorsForHook(entity, { phase: "onUpdate" }, delta);
-            this.callBehaviorsForHook(entity, { phase: "onLateUpdate" }, delta);
+            this.callBehaviorsForHook(entity, { phase: "onUpdate", delta });
+            this.callBehaviorsForHook(entity, { phase: "onLateUpdate", delta });
         });
         (_d = this.queries.subscriptions.removed) === null || _d === void 0 ? void 0 : _d.forEach(entity => {
-            this.callBehaviorsForHook(entity, { phase: "onRemoved" }, delta);
+            this.callBehaviorsForHook(entity, { phase: "onRemoved", delta });
         });
     }
 }
@@ -25486,34 +25498,34 @@ function initializeActor(entity, options, withTransform = false) {
     if (withTransform)
         entity.addComponent(Transform);
     // Custom Action Map
-    if (options.inputMap) {
+    if (options.inputSchema) {
         console.log("Using input map:");
-        console.log(options.inputMap);
-        entity.getMutableComponent(Input).map = options.inputMap;
+        console.log(options.inputSchema);
+        entity.getMutableComponent(Input).schema = options.inputSchema;
     }
     else {
         console.log("No input map provided, defaulting to default input");
-        entity.getMutableComponent(Input).map = DefaultInputMap;
+        entity.getMutableComponent(Input).schema = DefaultInputSchema;
     }
     // Custom Action Map
-    if (options.stateMap) {
+    if (options.stateSchema) {
         console.log("Using input map:");
-        console.log(options.stateMap);
-        entity.getMutableComponent(State).map = options.stateMap;
+        console.log(options.stateSchema);
+        entity.getMutableComponent(State).schema = options.stateSchema;
     }
     else {
         console.log("No state map provided, defaulting to default state");
-        entity.getMutableComponent(State).map = DefaultStateSchema;
+        entity.getMutableComponent(State).schema = DefaultStateSchema;
     }
     // Custom Subscription Map
     if (options.subscriptionMap) {
         console.log("Using subscription map:");
         console.log(options.subscriptionMap);
-        entity.getMutableComponent(Subscription).map = options.subscriptionMap;
+        entity.getMutableComponent(Subscription).schema = options.subscriptionMap;
     }
     else {
         console.log("No subscription map provided, defaulting to default subscriptions");
-        entity.getMutableComponent(Subscription).map = DefaultSubscriptionSchema;
+        entity.getMutableComponent(Subscription).schema = DefaultSubscriptionSchema;
     }
     return entity;
 }
@@ -25525,5 +25537,5 @@ function initializeNetworking(world, transport) {
     networkSystem.initializeSession(world, transport);
 }
 
-export { CAM_VIDEO_SIMULCAST_ENCODINGS, DefaultInput, DefaultInputMap, DefaultStateGroups, DefaultStateSchema, DefaultStateTypes, GamepadButtons, InputType, MediaStreamControlSystem, MouseButtons, NetworkObjectAssemblage, NetworkSystem, SocketWebRTCClientTransport, StateType, Thumbsticks, TransformComponent, VIDEO_CONSTRAINTS, addState, decelerate, handleGamepadAxis, handleGamepadConnected, handleGamepadDisconnected, handleGamepads, handleInput, handleKey, handleMouseButton, handleMouseMovement, hasState, initializeActor, initializeInputSystems, initializeNetworking, jump, jumping, localMediaConstraints, move, removeState, rotateAround, setTouchHandler, toggleState, updatePosition };
+export { CAM_VIDEO_SIMULCAST_ENCODINGS, DefaultInput, DefaultInputSchema, DefaultStateGroups, DefaultStateSchema, DefaultStateTypes, GamepadButtons, InputType, MediaStreamControlSystem, MouseButtons, NetworkObjectAssemblage, NetworkSystem, SocketWebRTCClientTransport, StateType, Thumbsticks, TransformComponent, VIDEO_CONSTRAINTS, addState, decelerate, handleGamepadAxis, handleGamepadConnected, handleGamepadDisconnected, handleGamepads, handleInput, handleKey, handleMouseButton, handleMouseMovement, hasState, initializeActor, initializeInputSystems, initializeNetworking, jump, jumping, localMediaConstraints, move, removeState, rotateAround, setTouchHandler, toggleState, updatePosition };
 //# sourceMappingURL=armada.js.map

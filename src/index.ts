@@ -1,6 +1,8 @@
 export * from "./common"
 export * from "./input"
 export * from "./state"
+export * from "./physics"
+export * from "./particles"
 export * from "./networking"
 
 import { Entity, World } from "ecsy"
