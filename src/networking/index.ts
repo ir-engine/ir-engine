@@ -1,7 +1,6 @@
 export * from "./classes/MessageSchema"
 export * from "./components/MediaStreamComponent"
 export * from "./components/MessageQueue"
-export * from "./components/NetworkObject"
 
 export * from "./components/NetworkClient"
 export * from "./components/NetworkTransportComponent"

@@ -1,9 +1,10 @@
-import { Entity } from "ecsy"
+import { Entity, World, ComponentManager } from "ecsy"
 import { NetworkPlayerCharacter } from "../../networking/defaults/assemblages/NetworkPlayerCharacter"
 
-export function CreateAssemblage(id: any, isLocal = false) {
-  const entity = new Entity()
+export function CreateAssemblage(world: World, id: any, isLocal = false) {
+  const entity = world.createEntity()
   Object.keys(NetworkPlayerCharacter.components).forEach(value => {
+      if(world.componentManager.)
     entity.addComponent(NetworkPlayerCharacter[value].type, { ownerId: id })
   })
   if (isLocal)

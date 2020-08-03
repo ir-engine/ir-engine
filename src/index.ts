@@ -12,8 +12,8 @@ import InputSchema from "./input/interfaces/InputSchema"
 import { DefaultInputMap } from "./input/defaults/DefaultInputData"
 import SubscriptionSystem from "./subscription/systems/SubscriptionSystem"
 import Subscription from "./subscription/components/Subscription"
-import SubscriptionMap from "./subscription/interfaces/SubscriptionMap"
-import { DefaultSubscriptionMap } from "./subscription/defaults/DefaultSubscriptionData"
+import SubscriptionSchema from "./subscription/interfaces/SubscriptionSchema"
+import { DefaultSubscriptionSchema } from "./subscription/defaults/DefaultSubscriptionSchema"
 import State from "./state/components/State"
 import { TransformComponent } from "./common/defaults/components/TransformComponent"
 import TransformComponentSystem from "./common/defaults/systems/TransformComponentSystem"
@@ -23,7 +23,6 @@ import StateSchema from "./state/interfaces/StateSchema"
 import { DefaultStateSchema } from "./state/defaults/DefaultStateSchema"
 import { NetworkSystem } from "./networking/systems/NetworkSystem"
 import NetworkClient from "./networking/components/NetworkClient"
-import NetworkObject from "./networking/components/NetworkObject"
 import NetworkTransport from "./networking/interfaces/NetworkTransport"
 import { MediaStreamControlSystem } from "./networking/systems/MediaStreamSystem"
 
@@ -67,7 +66,7 @@ export function initializeActor(
   options: {
     inputMap?: InputSchema
     stateMap?: StateSchema
-    subscriptionMap?: SubscriptionMap
+    subscriptionMap?: SubscriptionSchema
   },
   withTransform = false
 ): Entity {
@@ -107,7 +106,7 @@ export function initializeActor(
     entity.getMutableComponent(Subscription).map = options.subscriptionMap
   } else {
     console.log("No subscription map provided, defaulting to default subscriptions")
-    entity.getMutableComponent(Subscription).map = DefaultSubscriptionMap
+    entity.getMutableComponent(Subscription).map = DefaultSubscriptionSchema
   }
 
   return entity
