@@ -1,4 +1,4 @@
-import { Entity, World } from "ecsy"
+import { World } from "ecsy"
 import { NetworkPlayerCharacter } from "../../networking/defaults/assemblages/NetworkPlayerCharacter"
 
 export function CreateAssemblage(world: World, id: any, isLocal = false) {
