@@ -1,5 +1,5 @@
 import { Types } from "ecsy"
-import InputMap from "../interfaces/InputMap"
+import InputSchema from "../interfaces/InputSchema"
 import BehaviorComponent from "../../common/components/BehaviorComponent"
 import InputAlias from "../types/InputAlias"
 import InputValue from "../interfaces/InputValue"
@@ -15,8 +15,8 @@ export default interface InputProps {
   gamepadInput: number[]
 }
 
-// Input inherits from BehaviorComponent, which adds .map and .data
-export default class Input extends BehaviorComponent<InputAlias, InputMap, InputValue<Scalar | Vector2 | Vector3>> {
+// Input inherits from BehaviorComponent, which adds .schema and .data
+export default class Input extends BehaviorComponent<InputAlias, InputSchema, InputValue<Scalar | Vector2 | Vector3>> {
   gamepadConnected: boolean
   gamepadThreshold: number
   gamepadButtons: Binary[]

@@ -39,7 +39,7 @@
 // ): boolean {
 //   const actionToTest = actionQueueArray[arrayPosOne]
 //   const actionToTestAgainst = actionQueueArray[arrayPoseTwo]
-//   this._userInput.inputMap[actionToTest.input]?.opposes?.forEach((input: InputAlias) => {
+//   this._userInput.inputSchema[actionToTest.input]?.opposes?.forEach((input: InputAlias) => {
 //     if (input === actionToTestAgainst.input && actionToTest.value === actionToTestAgainst.value) {
 //       // If values are both active, cancel each other out
 //       return true
@@ -51,7 +51,7 @@
 // function buttonIsBlockedByAnother(actionQueueArray: InputValue<BinaryValue>[], arrayPosOne: number, arrayPoseTwo: number): boolean {
 //   const actionToTest = actionQueueArray[arrayPosOne]
 //   const actionToTestAgainst = actionQueueArray[arrayPoseTwo]
-//   this._userInput.inputMap[actionToTest.type]?.blockedBy?.forEach((input: InputAlias) => {
+//   this._userInput.inputSchema[actionToTest.type]?.blockedBy?.forEach((input: InputAlias) => {
 //     if (input === actionToTestAgainst.type && actionToTest.value === actionToTestAgainst.value) {
 //       // If values are both active, cancel each other out
 //       return true
@@ -63,7 +63,7 @@
 // function buttonOverridesAnother(actionQueueArray: InputValue<BinaryValue>[], arrayPosOne: number, arrayPoseTwo: number): boolean {
 //   const actionToTest = actionQueueArray[arrayPosOne]
 //   const actionToTestAgainst = actionQueueArray[arrayPoseTwo]
-//   this._userInput.inputMap[actionToTest.type]?.overrides?.forEach((input: InputAlias) => {
+//   this._userInput.inputSchema[actionToTest.type]?.overrides?.forEach((input: InputAlias) => {
 //     if (input === actionToTestAgainst.type && actionToTest.value === actionToTestAgainst.value) {
 //       return true
 //     }
