@@ -1,34 +1,14 @@
+interface behaviorEntry = {
+  behavior: any
+  args?: any
+}
+
 export interface SubscriptionMap {
-  onAdded?: [
-    {
-      behavior: any
-      args?: any
-    }
-  ]
-  onChanged?: [
-    {
-      behavior: any
-      args?: any
-    }
-  ]
-  onRemoved?: [
-    {
-      behavior: any
-      args?: any
-    }
-  ]
-  onUpdate?: [
-    {
-      behavior: any
-      args?: any
-    }
-  ]
-  onLateUpdate?: [
-    {
-      behavior: any
-      args?: any
-    }
-  ]
+  onAdded?: behaviorEntry[]
+  onChanged?: behaviorEntry[]
+  onRemoved?: behaviorEntry[]
+  onUpdate?: behaviorEntry[]
+  onLateUpdate?: behaviorEntry[]
 }
 
 export default SubscriptionMap

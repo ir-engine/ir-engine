@@ -58118,40 +58118,6 @@ const updatePosition = (entity, args, delta) => {
     }
 };
 
-class TransformComponentSystem extends System {
-    execute(delta, time) {
-        var _a, _b;
-        (_a = this.queries.transforms.added) === null || _a === void 0 ? void 0 : _a.forEach(entity => {
-            updateTransform(entity);
-        });
-        (_b = this.queries.transforms.changed) === null || _b === void 0 ? void 0 : _b.forEach(entity => {
-            updateTransform(entity);
-        });
-    }
-}
-TransformComponentSystem.queries = {
-    transforms: {
-        components: [Transform, TransformComponent],
-        listen: {
-            added: true,
-            changed: true,
-            removed: true
-        }
-    }
-};
-function updateTransform(entity) {
-    const armadaTransform = entity.getComponent(TransformComponent);
-    const transform = entity.getMutableComponent(Transform);
-    const input = entity.getMutableComponent(Input);
-    let pos = armadaTransform.position;
-    let rot = armadaTransform.rotation;
-    let rotQuat = new Quaternion(rot[0], rot[1], rot[2], rot[3]);
-    let rotEuler = new Euler();
-    rotEuler.setFromQuaternion(rotQuat);
-    transform.position.set(pos[0], pos[1], pos[2]);
-    transform.rotation.set(rotEuler.x, rotEuler.y, rotEuler.z);
-}
-
 var Thumbsticks;
 (function (Thumbsticks) {
     Thumbsticks[Thumbsticks["Left"] = 0] = "Left";
@@ -58820,10 +58786,25 @@ SubscriptionSystem.queries = {
     }
 };
 
+const updateTransform = (entity, args, delta) => {
+    const armadaTransform = entity.getComponent(TransformComponent);
+    const transform = entity.getMutableComponent(Transform);
+    let pos = armadaTransform.position;
+    let rot = armadaTransform.rotation;
+    let rotQuat = new Quaternion(rot[0], rot[1], rot[2], rot[3]);
+    let rotEuler = new Euler();
+    rotEuler.setFromQuaternion(rotQuat);
+    transform.position.set(pos[0], pos[1], pos[2]);
+    transform.rotation.set(rotEuler.x, rotEuler.y, rotEuler.z);
+};
+
 const DefaultSubscriptionMap = {
     onUpdate: [
         {
             behavior: updatePosition
+        },
+        {
+            behavior: updateTransform
         }
     ]
 };
@@ -58845,8 +58826,7 @@ function initializeInputSystems(world, options = DEFAULT_OPTIONS$1) {
     }
     world.registerSystem(InputSystem)
         .registerSystem(StateSystem)
-        .registerSystem(SubscriptionSystem)
-        .registerSystem(TransformComponentSystem);
+        .registerSystem(SubscriptionSystem);
     world
         .registerComponent(Input)
         .registerComponent(State)
