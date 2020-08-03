@@ -1,19 +1,19 @@
 const RND_BASIS = 0x100000000
 
 export function createPseudoRandom(s) {
-  let seed = s || Math.random()*RND_BASIS
+  let seed = s || Math.random() * RND_BASIS
 
   return () => {
-    seed = (1664525*seed + 1013904223) % RND_BASIS
-    return seed/RND_BASIS
+    seed = (1664525 * seed + 1013904223) % RND_BASIS
+    return seed / RND_BASIS
   }
 }
 
 export function randomNumber(min, max, rndFn = Math.random) {
-  if (typeof min === 'undefined') return undefined
-  if (typeof max === 'undefined') return min
+  if (typeof min === "undefined") return undefined
+  if (typeof max === "undefined") return min
 
-  return rndFn()*(max - min) + min
+  return rndFn() * (max - min) + min
 }
 
 export function randomObject(min, max, rndFn = Math.random) {
@@ -21,7 +21,7 @@ export function randomObject(min, max, rndFn = Math.random) {
   if (!max) return min
 
   const v = {}
-  for (let k in min) {
+  for (const k in min) {
     const typeofMin = typeof min[k]
     if (Array.isArray(min[k])) {
       v[k] = randomArray(min[k], max[k], rndFn)
@@ -70,25 +70,25 @@ export function randomize(min, max, rndFn = Math.random) {
   }
 }
 
-export const randomBoxOffset = (dx, dy, dz, rndFn = Math.random) => { 
+export const randomBoxOffset = (dx, dy, dz, rndFn = Math.random) => {
   return {
-    x: (rndFn() - .5)*dx,
-    y: (rndFn() - .5)*dy,
-    z: (rndFn() - .5)*dz,
+    x: (rndFn() - 0.5) * dx,
+    y: (rndFn() - 0.5) * dy,
+    z: (rndFn() - 0.5) * dz
   }
 }
 
 // https://mathworld.wolfram.com/SpherePointPicking.html
 // https://mathworld.wolfram.com/SphericalCoordinates.html
-export const randomEllipsoidOffset = (rx, ry, rz, rndFn = Math.random) => { 
-  const theta = rndFn()*2*Math.PI
-  const phi = Math.acos(2*rndFn() - 1)
+export const randomEllipsoidOffset = (rx, ry, rz, rndFn = Math.random) => {
+  const theta = rndFn() * 2 * Math.PI
+  const phi = Math.acos(2 * rndFn() - 1)
   return {
-    x: rx*Math.cos(theta)*Math.sin(phi),
-    y: ry*Math.sin(theta)*Math.sin(phi),
-    z: rz*Math.cos(phi),
+    x: rx * Math.cos(theta) * Math.sin(phi),
+    y: ry * Math.sin(theta) * Math.sin(phi),
+    z: rz * Math.cos(phi)
   }
 }
 
-export const randomSphereOffset = (r, rndFn) => randomEllipsoidOffset(r,r,r,rndFn)
-export const randomCubeOffset = (d, rndFn) => randomBoxOffset(d,d,d,rndFn)
+export const randomSphereOffset = (r, rndFn) => randomEllipsoidOffset(r, r, r, rndFn)
+export const randomCubeOffset = (d, rndFn) => randomBoxOffset(d, d, d, rndFn)
