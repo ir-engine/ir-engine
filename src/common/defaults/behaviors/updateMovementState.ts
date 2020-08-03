@@ -3,7 +3,7 @@ import { Entity } from "ecsy"
 import Behavior from "../../interfaces/Behavior"
 
 import Input from "../../../input/components/Input"
-import { DefaultInput } from "../../../input/defaults/DefaultInputData"
+import { DefaultInput } from "../../../input/defaults/DefaultInput"
 
 import State from "../../../state/components/State"
 import { DefaultStateGroups } from "../../../state/defaults/DefaultStateData"
