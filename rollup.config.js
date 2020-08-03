@@ -11,7 +11,9 @@ export default [
   {
     input: "src/index.ts",
     external: id => {
-      return ([ 'three', 'ecsy', 'ecsy-three', 'ecsy-input' ]).includes(id) || /^three\//.test(id) || /^troika-3d-text\//.test(id) || /^ecsy-three\//.test(id)
+      return (
+        ["three", "ecsy", "ecsy-three", "ecsy-input"].includes(id) || /^three\//.test(id) || /^troika-3d-text\//.test(id) || /^ecsy-three\//.test(id)
+      )
     },
     plugins: [
       resolve({ browser: true, preferBuiltins: true }),
@@ -57,12 +59,7 @@ export default [
     external: ["mediasoup", "mediasoup-client", "buffer-es6", "buffer", "fs", "debug", "path", "socket.io", "safer", "depd"],
     globals: ["tls, stream, path, mediasoup-client, mediasoup"]
   },
-  {
-    input: "examples/networking/index.html",
-    output: { dir: "dist/examples/networking" },
-    plugins: [html(), resolve({ browser: true, preferBuiltins: false }), commonjs(), typescript(), json(), babel({ babelHelpers: "bundled" })],
-    external: ["socket.io-client"]
-  },
+  // Express socket networking server (for local dev)
   {
     input: "examples/networking/server.js",
     output: { dir: "dist/examples/networking/server.js" },
@@ -74,5 +71,37 @@ export default [
         transformMixedEsModules: true
       })
     ]
+  },
+
+  // HTML Example Pages
+  {
+    input: "examples/input/input.html",
+    output: { dir: "dist/examples/input" },
+    plugins: [html(), resolve(), commonjs(), typescript(), json(), babel({ babelHelpers: "bundled" })]
+  },
+
+  // Input
+  {
+    input: "examples/input/input_three.html",
+    output: { dir: "dist/examples/input" },
+    plugins: [html(), resolve()]
+  },
+  {
+    input: "examples/input/touch-handler-1.html",
+    output: { dir: "dist/examples/input" },
+    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
+  },
+  {
+    input: "examples/input/touch-handler-2.html",
+    output: { dir: "dist/examples/input" },
+    plugins: [html(), resolve(), typescript(), babel({ plugins: ["transform-class-properties"] }), commonjs(), json()]
+  },
+
+  // Networking
+  {
+    input: "examples/networking/index.html",
+    output: { dir: "dist/examples/networking" },
+    plugins: [html(), resolve({ browser: true, preferBuiltins: false }), commonjs(), typescript(), json(), babel({ babelHelpers: "bundled" })],
+    external: ["socket.io-client"]
   }
 ]
