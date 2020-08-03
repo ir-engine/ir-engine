@@ -2,6 +2,11 @@ import * as CANNON from "cannon-es"
 import { PhysicsRigidBody } from "../components/PhysicsRigidBody"
 import { VehicleBody } from "../components/VehicleBody"
 import { WheelBody } from "../components/WheelBody"
+import { System } from "ecsy"
+// TODO: Replace me with our own default transform component
+import { Transform } from "ecsy-three"
+// TODO: Remove THREE references, replace with gl-matrix
+import { Quaternion, Euler } from "three"
 
 function inputs(vehicle) {
   document.onkeydown = handler

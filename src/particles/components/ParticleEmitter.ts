@@ -1,4 +1,4 @@
-import {Component, SystemStateComponent, Types} from "ecsy"
+import { Component, SystemStateComponent, Types } from "ecsy"
 
 interface ParticleEmitterStateInterface {
   emitter3D: any
@@ -13,11 +13,11 @@ export class ParticleEmitterState extends SystemStateComponent<ParticleEmitterSt
 }
 
 ParticleEmitterState.schema = {
-  ... ParticleEmitterState.schema,
+  ...ParticleEmitterState.schema,
   emitter3D: { type: Types.Ref },
   useEntityRotation: { type: Types.Boolean, default: true },
   syncTransform: { type: Types.Boolean, default: false }
-};
+}
 
 interface ParticleEmitterInterface {
   particleMesh: any
@@ -86,7 +86,7 @@ export class ParticleEmitter extends Component<ParticleEmitterInterface> {
 }
 
 ParticleEmitter.schema = {
-  ... ParticleEmitter.schema,
+  ...ParticleEmitter.schema,
   particleMesh: { type: Types.Ref, default: null },
   enabled: { type: Types.Boolean, default: true },
   count: { type: Types.Number, default: -1 },
@@ -118,4 +118,4 @@ ParticleEmitter.schema = {
   worldAcceleration: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } },
   brownianSpeed: { type: Types.Number, default: 0 },
   brownianScale: { type: Types.Number, default: 0 }
-};
+}

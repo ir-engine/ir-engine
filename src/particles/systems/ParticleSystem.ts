@@ -1,23 +1,17 @@
 import { System } from "ecsy"
-import {
-  ParticleEmitter,
-  ParticleEmitterState
-} from "../components/ParticleEmitter"
+import { ParticleEmitter, ParticleEmitterState } from "../components/ParticleEmitter"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
+// TODO:
 import { Object3DComponent } from "ecsy-three"
 import { Transform, Parent } from "ecsy-three/extras"
 import * as THREE from "three"
-import {
-  createParticleEmitter,
-  setEmitterMatrixWorld,
-  setEmitterTime
-} from "../three/ParticleEmitter.js"
+import { createParticleEmitter, setEmitterMatrixWorld, setEmitterTime } from "../classes/ParticleEmitter.js"
 
 export class ParticleSystem extends System {
   execute(deltaTime, time): void {
     for (const entity of this.queries.emitters.added) {
-      const emitter = entity.getComponent(ParticleEmitter)
+      const emitter = entity.getComponent(ParticleEmitter) as ParticleEmitter
       const object3D = entity.getComponent(Object3DComponent)
 
       const matrixWorld = calcMatrixWorld(entity)
@@ -34,7 +28,7 @@ export class ParticleSystem extends System {
     }
 
     for (const entity of this.queries.emitterStates.results) {
-      const emitterState = entity.getComponent(ParticleEmitterState)
+      const emitterState = entity.getComponent(ParticleEmitterState) as ParticleEmitterState
 
       if (emitterState.syncTransform) {
         const matrixWorld = calcMatrixWorld(entity)
@@ -42,12 +36,7 @@ export class ParticleSystem extends System {
           clearMatrixRotation(matrixWorld)
         }
 
-        setEmitterMatrixWorld(
-          emitterState.emitter3D,
-          matrixWorld,
-          time,
-          deltaTime
-        )
+        setEmitterMatrixWorld(emitterState.emitter3D, matrixWorld, time, deltaTime)
       }
 
       setEmitterTime(emitterState.emitter3D, time)
@@ -91,26 +80,18 @@ const calcMatrixWorld = (function() {
     const transform = entity.getComponent(Transform)
 
     if (object3D) {
-      return childMatrix
-        ? childMatrix.multiply(object3D["value"].matrixWorld)
-        : object3D["value"].matrixWorld
+      return childMatrix ? childMatrix.multiply(object3D["value"].matrixWorld) : object3D["value"].matrixWorld
     } else if (transform) {
       const transformMatrix = new THREE.Matrix4()
 
-      transformMatrix.compose(
-        transform.position,
-        quaternion.setFromEuler(euler.setFromVector3(transform.rotation)),
-        scale.set(1, 1, 1)
-      )
+      transformMatrix.compose(transform.position, quaternion.setFromEuler(euler.setFromVector3(transform.rotation)), scale.set(1, 1, 1))
 
       if (childMatrix) {
         transformMatrix.premultiply(childMatrix)
       }
 
       const parent = entity.getComponent(Parent)
-      return parent
-        ? calcMatrixWorld(parent["value"], transformMatrix)
-        : transformMatrix
+      return parent ? calcMatrixWorld(parent["value"], transformMatrix) : transformMatrix
     } else {
       return new THREE.Matrix4()
     }
