@@ -1,11 +1,12 @@
 import * as ECSY from "ecsy"
-import CANNON from "cannon"
+import CANNON from "cannon-es"
 import VehicleBody from "../components/VehicleBody"
+import { RigidBody } from "../components/RigidBody"
 
 export class VehicleSystem extends ECSY.System {
   execute(dt, t) {
-    for (let entity of this.queries.physicsBody.added) {
-      const physicsBody = entity.getComponent(CANNON.PhysicsBody)
+    for (const entity of this.queries.physicsBody.added) {
+      const physicsBody = entity.getComponent(RigidBody)
 
       let shape
 
@@ -16,7 +17,7 @@ export class VehicleSystem extends ECSY.System {
       }
 
       //let shape = new CANNON.Sphere(0.1)
-      let body = new CANNON.Body({
+      const body = new CANNON.Body({
         mass: physicsBody.mass,
         position: new CANNON.Vec3(physicsBody.startPosition.x, physicsBody.startPosition.y, physicsBody.startPosition.z)
       })
@@ -25,7 +26,7 @@ export class VehicleSystem extends ECSY.System {
       //  body.angularVelocity.set(0,10,0);
       //  body.angularDamping = 0.5;
 
-      entity.getMutableComponent(CANNON.PhysicsBody).body = body
+      entity.getMutableComponent(RigidBody).body = body
       //  console.log(body.position);
       //  console.log(body.mass);
 

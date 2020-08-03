@@ -2,9 +2,9 @@ import * as CANNON from "cannon-es"
 import { RigidBody } from "../components/RigidBody"
 import { VehicleBody } from "../components/VehicleBody"
 import { WheelBody } from "../components/WheelBody"
-import { System } from "ecsy"
+import { System, Entity } from "ecsy"
 // TODO: Replace me with our own default transform component
-import { Transform } from "ecsy-three"
+import { Transform } from "ecsy-three/src/extras/components"
 // TODO: Remove THREE references, replace with gl-matrix
 import { Quaternion, Euler } from "three"
 
@@ -59,6 +59,7 @@ const quaternion = new Quaternion()
 const euler = new Euler()
 
 export class PhysicsSystem extends System {
+  static wheelGroundContactMaterial
   frame: number
   _physicsWorld: any
   timeStep: number
@@ -73,13 +74,14 @@ export class PhysicsSystem extends System {
     //  this._physicsWorld.solver.iterations = 10;
     const groundMaterial = new CANNON.Material("groundMaterial")
     const wheelMaterial = new CANNON.Material("wheelMaterial")
-    const wheelGroundContactMaterial = (window.wheelGroundContactMaterial = new CANNON.ContactMaterial(wheelMaterial, groundMaterial, {
+    // TODO: Move onto component, which should reference a physics material (ideally this existing one)
+    PhysicsSystem.wheelGroundContactMaterial = new CANNON.ContactMaterial(wheelMaterial, groundMaterial, {
       friction: 0.3,
       restitution: 0,
       contactEquationStiffness: 1000
-    }))
+    })
     // We must add the contact materials to the world
-    this._physicsWorld.addContactMaterial(wheelGroundContactMaterial)
+    this._physicsWorld.addContactMaterial(PhysicsSystem.wheelGroundContactMaterial)
 
     /*
     world.broadphase = new CANNON.SAPBroadphase(world);
@@ -95,13 +97,13 @@ export class PhysicsSystem extends System {
 
     for (const entity of this.queries.physicsRigidBody.added) {
       const physicsRigidBody = entity.getComponent(RigidBody)
-      let object = entity.getObject3D()
+      let object = physicsRigidBody.getObject3D()
       object ? "" : (object = { userData: { body: {} } })
       let body
       if (physicsRigidBody.type === "box") body = this._createBox(entity)
       else if (physicsRigidBody.type === "cylinder") body = this._createCylinder(entity)
       else if (physicsRigidBody.type === "share") body = this._createShare(entity)
-      else if (physicsRigidBody.type === "convex") body = this._createConvexGeometry(entity)
+      else if (physicsRigidBody.type === "convex") body = this._createConvexGeometry(entity, null)
       else if (physicsRigidBody.type === "ground") body = this._createGroundGeometry(entity)
 
       object.userData.body = body
@@ -109,9 +111,9 @@ export class PhysicsSystem extends System {
     }
 
     for (const entity of this.queries.vehicleBody.added) {
-      const object = entity.getObject3D()
+      const object = entity.getComponent<Transform>(Transform).getObject3D()
 
-      const vehicleComponent = entity.getComponent(VehicleBody)
+      const vehicleComponent = entity.getComponent(VehicleBody) as VehicleBody
 
       const [vehicle, wheelBodies] = this._createVehicleBody(entity, vehicleComponent.convexMesh)
       object.userData.vehicle = vehicle
@@ -143,7 +145,7 @@ export class PhysicsSystem extends System {
     for (const entity of this.queries.physicsRigidBody.results) {
       //  if (rigidBody.weight === 0.0) continue;
       const transform = entity.getMutableComponent(Transform) as Transform
-      const object = entity.getObject3D()
+      const object = transform.getObject3D()
       const body = object.userData.body
       //console.log(body);
       transform.position.copy(body.position)
@@ -157,7 +159,7 @@ export class PhysicsSystem extends System {
     for (const entity of this.queries.vehicleBody.results) {
       //  if (rigidBody.weight === 0.0) continue;
       const transform = entity.getMutableComponent(Transform) as Transform
-      const object = entity.getObject3D()
+      const object = transform.getObject3D()
       const vehicle = object.userData.vehicle.chassisBody
 
       transform.position.copy(vehicle.position)
@@ -244,15 +246,15 @@ export class PhysicsSystem extends System {
     return body
   }
 
-  _createConvexGeometry(entity, mesh) {
+  _createConvexGeometry(entity: Entity, mesh: THREE.Mesh) {
     let rigidBody, object, transform, attributePosition
     if (mesh) {
       object = mesh
-      attributePosition = mesh.geometry.attributes.position
+      attributePosition = object.geometry.attributes.position
     } else {
       rigidBody = entity.getComponent(RigidBody)
-      object = entity.getObject3D()
       transform = entity.getComponent(Transform)
+      object = transform.getObject3D()
       attributePosition = object.geometry.attributes.position
     }
 
@@ -299,9 +301,8 @@ export class PhysicsSystem extends System {
     return convexBody
   }
 
-  _createVehicleBody(entity, mesh) {
-    const vehicleBody = entity.getComponent(VehicleBody)
-    const transform = entity.getComponent(Transform)
+  _createVehicleBody(entity: Entity, mesh: any): [CANNON.RaycastVehicle, CANNON.Body[]] {
+    const transform = entity.getComponent<Transform>(Transform)
     let chassisBody
     if (mesh) {
       chassisBody = this._createConvexGeometry(entity, mesh)
