@@ -328,8 +328,7 @@ Some systems -- for example, the network system -- use a singleton component to 
 You can store data, especially temp variables, on systems, if they rarely change, are only changed onAdded/onRemoved, and typically are a singleton. It is always better to query for all of the entities that match the component pattern over keeping and updating a list on the system.
 
 ### Networking
-
-
+Networking is currently under development. Our default Transport uses socket.io and Mediasoup acting as an SFU to handing voice and video, as well as unreliable messaging over data channels.
 
 ## TODO:
 We haven't finished these parts:
