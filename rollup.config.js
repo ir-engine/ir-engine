@@ -38,7 +38,6 @@ export default [
   },
   {
     input: "server/index.ts",
-    syntheticNamedExports: true,
     output: { file: "dist/armada.server.js", format: "esm", sourcemap: true },
     plugins: [
       typescript(),
@@ -56,8 +55,7 @@ export default [
         process: false
       })
     ],
-    external: ["mediasoup", "mediasoup-client", "buffer-es6", "buffer", "fs", "debug", "path", "socket.io", "safer", "depd"],
-    globals: ["tls, stream, path, mediasoup-client, mediasoup"]
+    external: ["mediasoup", "mediasoup-client", "buffer-es6", "buffer", "fs", "debug", "path", "socket.io", "safer", "depd"]
   },
   // Express socket networking server (for local dev)
   {
@@ -94,7 +92,7 @@ export default [
   {
     input: "examples/input/touch-handler-2.html",
     output: { dir: "dist/examples/input" },
-    plugins: [html(), resolve(), typescript(), babel({ plugins: ["transform-class-properties"] }), commonjs(), json()]
+    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
   },
 
   // Networking
@@ -109,13 +107,27 @@ export default [
   {
     input: "examples/particles/fireworks.html",
     output: { dir: "dist/examples/particles" },
-    plugins: [html(), resolve(), typescript(), babel({ plugins: ["transform-class-properties"] }), commonjs(), json()]
+    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
   },
-
+  {
+    input: "examples/particles/index.html",
+    output: { dir: "dist/examples/particles" },
+    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
+  },
+  {
+    input: "examples/particles/index-not-vr.html",
+    output: { dir: "dist/examples/particles" },
+    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
+  },
   // Physics
   {
-    input: "examples/physics/index.html",
-    output: { dir: "dist/examples/phjysics" },
-    plugins: [html(), resolve(), typescript(), babel({ plugins: ["transform-class-properties"] }), commonjs(), json()]
+    input: "examples/physics/box.html",
+    output: { dir: "dist/examples/physics" },
+    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
+  },
+  {
+    input: "examples/physics/car.html",
+    output: { dir: "dist/examples/physics" },
+    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
   }
 ]

@@ -26,15 +26,7 @@
   import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
   import { createLightProbe } from '../src/scene/lightProbe';
 
-  import { ConvexBufferGeometry } from '../src/lib/ConvexGeometry.js';
-
-  import { PhysicsRigidBody } from "../src/components/physics-rigid-body"
-  import { VehicleBody } from "../src/components/vehicle-body"
-  import { WheelBody } from "../src/components/wheel-body"
-
-  import { PhysicsSystem } from "../src/systems/physics-system"
-  import { WheelSystem } from "../src/systems/wheel-system"
-
+  import { ConvexBufferGeometry, PhysicsSystem, WheelSystem, WheelBody, VehicleBody, PhysicsRigidBody } from "../../dist/armada.js"
 
   const world = new ECSYTHREE.ECSYThreeWorld()
     .registerSystem(PhysicsSystem)
@@ -43,7 +35,6 @@
     .registerComponent(PhysicsRigidBody)
     .registerComponent(VehicleBody)
     .registerComponent(WheelBody)
-
 
   const data = ECSYTHREEX.initialize(world, { vr: false })
 
