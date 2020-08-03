@@ -4,7 +4,7 @@ export * from "./behaviors/DesktopInputBehaviors"
 export * from "./behaviors/GamepadInputBehaviors"
 export * from "./behaviors/TouchInputBehaviors"
 
-export * from "./defaults/DefaultInputData"
+export * from "./defaults/DefaultInputSchema"
 
 export * from "./enums/GamepadButtons"
 export * from "./enums/InputType"

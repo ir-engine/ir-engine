@@ -30,8 +30,7 @@ export const move: Behavior = (entity: Entity, args: { input: InputAlias; inputT
     inputValue = args.value as Vector2
     transform.velocity[0] = Math.min(transform.velocity[0] + inputValue[0] * outputSpeed, actor.maxSpeed)
     transform.velocity[2] = Math.min(transform.velocity[2] + inputValue[1] * outputSpeed, actor.maxSpeed)
-  }
-  else if (inputType === InputType.THREED) {
+  } else if (inputType === InputType.THREED) {
     inputValue = input.data.get(args.input).value as Vector3
     transform.velocity[0] = Math.min(transform.velocity[0] + inputValue[0] * outputSpeed, actor.maxSpeed)
     transform.velocity[1] = Math.min(transform.velocity[1] + inputValue[1] * outputSpeed, actor.maxSpeed)

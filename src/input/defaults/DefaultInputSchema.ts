@@ -41,7 +41,7 @@ export const DefaultInput = {
   ALTERNATE: 20
 }
 
-export const DefaultInputMap: InputSchema = {
+export const DefaultInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
   onAdded: [
     {

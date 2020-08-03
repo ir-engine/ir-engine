@@ -1,7 +1,7 @@
 // TODO: Refactor to fit behavior pattern
-import { ITouchHandler } from "../interfaces/ITouchHandler"
+import { TouchHandler } from "../interfaces/TouchHandler"
 
-export function setTouchHandler(touchHandler: ITouchHandler): void {
+export function setTouchHandler(touchHandler: TouchHandler): void {
   if (
     "verticalZoomIn" in touchHandler ||
     "verticalZoomOut" in touchHandler ||
