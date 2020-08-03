@@ -10,7 +10,7 @@
     "esModuleInterop": true
   },
   "include": [
-    "src/**/*", "server/**/*"
+    "src/**/*", "server/**/*", "examples/input/touch-handler-example-1.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }

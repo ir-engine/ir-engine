@@ -102,8 +102,8 @@ typings/
 # TernJS port file
 .tern-port
 .buildcache
+
 build
 dist
 
-# macos
 .DS_Store
