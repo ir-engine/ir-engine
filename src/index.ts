@@ -15,7 +15,6 @@ import SubscriptionMap from "./subscription/interfaces/SubscriptionMap"
 import { DefaultSubscriptionMap } from './subscription/defaults/DefaultSubscriptionData'
 import State from "./state/components/State"
 import { TransformComponent } from "./common/defaults/components/TransformComponent"
-import TransformComponentSystem from "./common/defaults/systems/TransformComponentSystem"
 import Actor from "./common/defaults/components/Actor"
 import StateSystem from "./state/systems/StateSystem"
 import StateMap from "./state/interfaces/StateMap"
@@ -44,7 +43,6 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS):
   world.registerSystem(InputSystem)
     .registerSystem(StateSystem)
     .registerSystem(SubscriptionSystem)
-    .registerSystem(TransformComponentSystem)
   world
     .registerComponent(Input)
     .registerComponent(State)

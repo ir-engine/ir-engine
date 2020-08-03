@@ -6,7 +6,6 @@ export * from "./defaults/behaviors/rotate";
 export * from "./defaults/behaviors/updatePosition";
 export * from "./defaults/components/Actor";
 export * from "./defaults/components/TransformComponent";
-export * from "./defaults/systems/TransformComponentSystem";
 export * from "./enums/BinaryValue";
 export * from "./enums/LifecycleValue";
 export * from "./enums/Thumbsticks";
