@@ -59,6 +59,7 @@
     "rollup-plugin-terser": "^5.1.2",
     "rollup-plugin-typescript2": "^0.27.1",
     "three": "^0.118.3",
+    "three-snapshot-serializer": "^1.1.0",
     "troika-3d-text": "^0.28.1",
     "typescript": "^3.9.7"
   },
@@ -80,7 +81,7 @@
     "dev-server": "node examples/networking/server.js",
     "lint": "eslint --fix \"./src/**/*\"",
     "start": "npm run build",
-    "test": "jest"
+    "test": "jest --watch"
   },
   "pre-commit": [
     "lint",
