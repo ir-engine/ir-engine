@@ -1,5 +1,4 @@
-const parseValue = (x, self, ...args) =>
-  typeof x === "function" ? x(self, ...args) : x
+const parseValue = (x, self, ...args) => (typeof x === "function" ? x(self, ...args) : x)
 
 export function createKeyframes(options, startTime) {
   options = {

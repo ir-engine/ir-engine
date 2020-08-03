@@ -1,16 +1,14 @@
-import InputMap from "../interfaces/InputMap"
+import InputSchema from "../interfaces/InputSchema"
 import { handleMouseButton, handleMouseMovement } from "../behaviors/DesktopInputBehaviors"
 import BinaryValue from "../../common/enums/BinaryValue"
 import { handleKey } from "../behaviors/DesktopInputBehaviors"
 import { GamepadButtons } from "../enums/GamepadButtons"
 import { Thumbsticks } from "../../common/enums/Thumbsticks"
 import { preventDefault } from "../../common/utils/preventDefault"
-import { disableScroll, enableScroll } from "../../common/utils/EnableDisableScrolling"
+import { disableScroll, enableScroll } from "../../common/utils/enableDisableScrolling"
 import { handleGamepadConnected, handleGamepadDisconnected } from "../behaviors/GamepadInputBehaviors"
-import { addState, removeState } from "../../state/behaviors/StateBehaviors"
 import { InputType } from "../enums/InputType"
-import InputRelationshipMapping from "../interfaces/InputRelationshipMapping"
-import { DefaultStateTypes } from "../../state/defaults/DefaultStateTypes"
+import InputRelationship from "../interfaces/InputRelationship"
 import { move } from "../../common/defaults/behaviors/move"
 import { updateMovementState } from "../../common/defaults/behaviors/updateMovementState"
 import { MouseButtons } from "../enums/MouseButtons"
@@ -45,7 +43,7 @@ export const DefaultInput = {
   ALTERNATE: 22
 }
 
-export const DefaultInputMap: InputMap = {
+export const DefaultInputMap: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
   onAdded: [
     {
@@ -154,12 +152,12 @@ export const DefaultInputMap: InputMap = {
   },
   // Map how inputs relate to each other
   inputRelationships: {
-    [DefaultInput.FORWARD]: { opposes: [DefaultInput.BACKWARD] } as InputRelationshipMapping,
-    [DefaultInput.BACKWARD]: { opposes: [DefaultInput.FORWARD] } as InputRelationshipMapping,
-    [DefaultInput.LEFT]: { opposes: [DefaultInput.RIGHT] } as InputRelationshipMapping,
-    [DefaultInput.RIGHT]: { opposes: [DefaultInput.LEFT] } as InputRelationshipMapping,
-    [DefaultInput.CROUCH]: { blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT] } as InputRelationshipMapping,
-    [DefaultInput.JUMP]: { overrides: [DefaultInput.CROUCH] } as InputRelationshipMapping
+    [DefaultInput.FORWARD]: { opposes: [DefaultInput.BACKWARD] } as InputRelationship,
+    [DefaultInput.BACKWARD]: { opposes: [DefaultInput.FORWARD] } as InputRelationship,
+    [DefaultInput.LEFT]: { opposes: [DefaultInput.RIGHT] } as InputRelationship,
+    [DefaultInput.RIGHT]: { opposes: [DefaultInput.LEFT] } as InputRelationship,
+    [DefaultInput.CROUCH]: { blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT] } as InputRelationship,
+    [DefaultInput.JUMP]: { overrides: [DefaultInput.CROUCH] } as InputRelationship
   },
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
@@ -182,7 +180,7 @@ export const DefaultInputMap: InputMap = {
       },
       [BinaryValue.OFF]: {
         behavior: updateMovementState,
-        args: {},
+        args: {}
       }
     },
     [DefaultInput.BACKWARD]: {
@@ -198,7 +196,7 @@ export const DefaultInputMap: InputMap = {
       },
       [BinaryValue.OFF]: {
         behavior: updateMovementState,
-        args: {},
+        args: {}
       }
     },
     [DefaultInput.LEFT]: {
@@ -210,11 +208,11 @@ export const DefaultInputMap: InputMap = {
             value: [-1, 0]
           },
           value: [-1, 0]
-        },
+        }
       },
       [BinaryValue.OFF]: {
         behavior: updateMovementState,
-        args: {},
+        args: {}
       }
     },
     [DefaultInput.RIGHT]: {
@@ -230,9 +228,9 @@ export const DefaultInputMap: InputMap = {
       },
       [BinaryValue.OFF]: {
         behavior: updateMovementState,
-        args: {},
+        args: {}
       }
-    },
+    }
     // [DefaultInput.CROUCH]: {
     //   [BinaryValue.ON]: {
     //     behavior: startCrouching,
