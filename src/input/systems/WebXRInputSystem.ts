@@ -88,8 +88,7 @@ export default class WebXRInputSystem extends System {
         console.log("XR session started", session)
       }
 
-    if (sessions.results)
-      for (const entity of sessions.results) {
+    if (sessions.results) for (const entity of sessions.results) {
         const { session, isImmersive } = entity.getComponent(WebXRSession)
         if (isImmersive) {
           console.log("requesting animation frame", session)
@@ -101,8 +100,7 @@ export default class WebXRInputSystem extends System {
             //     xrImmersiveRefSpace :
             //     inlineViewerHelper.referenceSpace;
 
-            if (space)
-              setComponent(entity, WebXRViewPoint, {
+            if (space) setComponent(entity, WebXRViewPoint, {
                 pose: frame.getViewerPose(space)
               })
 
@@ -118,24 +116,21 @@ export default class WebXRInputSystem extends System {
                 pose: second.gripPose,
                 handId: second.handedness
               })
-              if (second.gamepad)
-                setComponent(entity, WebXRSecondGamepad, {
+              if (second.gamepad) setComponent(entity, WebXRSecondGamepad, {
                   gamepad: second.gamepad
-                })
+              })
             } else return
             setComponent(entity, WebXRMainController, {
               pose: main.gripPose,
               handId: main.handedness
             })
-            if (main.gamepad)
-              setComponent(entity, WebXRMainGamepad, {
+            if (main.gamepad) setComponent(entity, WebXRMainGamepad, {
                 gamepad: main.gamepad
-              })
-            if (main.targetRayPose)
-              setComponent(entity, WebXRPointer, {
+            })
+            if (main.targetRayPose) setComponent(entity, WebXRPointer, {
                 pose: main.targetRayPose,
                 pointMode: main.targetRayMode
-              })
+            })
             //webXRRenderer.drawFrame(viewerPose, controllers, session)
           })
         }
