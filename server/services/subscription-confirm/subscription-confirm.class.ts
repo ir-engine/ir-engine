@@ -35,7 +35,7 @@ export class SubscriptionConfirm implements ServiceMethods<Data> {
     }
 
     const subscriptionResult = await this.app.service('subscription').find({
-      where: {
+      query: {
         id: id,
         userId: userId,
         status: 0

@@ -9,7 +9,7 @@ export function getUserRelationship(userId: string) {
     // dispatch(actionProcessing(true))
 
     console.log('------get relations-------', userId)
-    client.service('user-relationship').find({
+    client.service('user-relationship').findAll({
       query: {
         userId
       }
@@ -35,7 +35,6 @@ export function getUsers(userId: string, search: string) {
         search
       }
     }).then((res: any) => {
-      console.log('relations------', res)
       dispatch(loadedUsers(res.data as User[]))
     })
       .catch((err: any) => {
@@ -51,7 +50,6 @@ function createRelation(userId: string, relatedUserId: string, type: 'friend' | 
       relatedUserId,
       userRelationshipType: type
     }).then((res: any) => {
-      console.log('add relations------', res)
       dispatch(changedRelation())
     })
       .catch((err: any) => {
@@ -65,7 +63,6 @@ function removeRelation(userId: string, relatedUserId: string) {
   return (dispatch: Dispatch): any => {
     client.service('user-relationship').remove(relatedUserId)
       .then((res: any) => {
-        console.log('add relations------', res)
         dispatch(changedRelation())
       })
       .catch((err: any) => {
@@ -80,7 +77,6 @@ function patchRelation(userId: string, relatedUserId: string, type: 'friend') {
     client.service('user-relationship').patch(relatedUserId, {
       userRelationshipType: type
     }).then((res: any) => {
-      console.log('Patching relationship to friend', res)
       dispatch(changedRelation())
     })
       .catch((err: any) => {

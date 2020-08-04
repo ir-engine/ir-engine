@@ -15,7 +15,8 @@ export class User extends Service {
 
   async find (params: Params): Promise<any> {
     const action = params.query?.action
-    console.log(params.query)
+    const skip = params.query?.$skip ? params.query.$skip : 0
+    const limit = params.query?.$limit ? params.query.$limit : 10
     if (action === 'withRelation') {
       const userId = params.query?.userId
       const search = params.query?.search as string
@@ -54,15 +55,15 @@ export class User extends Service {
             replacements: {
               userId,
               search: `%${search}%`,
-              skip: params.query?.$skip || 0,
-              limit: params.query?.$limit || 10
+              $skip: params.query?.$skip || 0,
+              $limit: params.query?.$limit || 10
             }
           })
 
         foundUsers = {
           total,
-          limit: params.query?.$limit,
-          skip: params.query?.$skip,
+          $limit: params.query?.$limit || 10,
+          $skip: params.query?.$skip || 0,
           data: foundUsers
         }
       } else {
@@ -108,6 +109,48 @@ export class User extends Service {
       }
 
       return foundUsers
+    } else if (action === 'friends') {
+      const userResult = await this.app.service('user').Model.findAndCountAll({
+        offset: skip,
+        limit: limit,
+        order: [
+          ['name', 'ASC']
+        ],
+        include: [
+          {
+            model: this.app.service('user-relationship').Model,
+            where: {
+              relatedUserId: params.query.userId,
+              userRelationshipType: 'friend'
+            }
+          }
+        ]
+      })
+
+      await Promise.all(userResult.rows.map((user) => {
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
+        return new Promise(async (resolve) => {
+          const userAvatarResult = await this.app.service('static-resource').find({
+            query: {
+              staticResourceType: 'user-thumbnail',
+              userId: user.id
+            }
+          }) as any
+
+          if (userAvatarResult.total > 0) {
+            user.dataValues.avatarUrl = userAvatarResult.data[0].url
+          }
+
+          resolve()
+        })
+      }))
+
+      return {
+        skip: skip,
+        limit: limit,
+        total: userResult.count,
+        data: userResult.rows
+      }
     } else {
       return await super.find(params)
     }
