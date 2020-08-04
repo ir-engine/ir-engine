@@ -1,7 +1,6 @@
 import { System, Entity, Component } from "ecsy"
 import {
   WebXRRenderer,
-  WebXRButton,
   WebXRSession,
   WebXRSpace,
   WebXRViewPoint,
@@ -39,7 +38,7 @@ export default class WebXRInputSystem extends System {
     } else this.debug("WebXR isn't supported by this browser")
   }
 
-  startVR(onStarted: Function, onEnded: Function) {
+  startVR(onStarted = Function(), onEnded = Function() ) {
     let entity: Entity, session: XRSession, isImmersive: boolean, spaceType: any
     const onSpaceCreated = space => {
         entity.addComponent(WebXRSpace, { space, spaceType })
@@ -92,8 +91,8 @@ export default class WebXRInputSystem extends System {
           entity.remove()
           webXRRenderer.requestAnimationFrame = WebXRRenderer.schema.requestAnimationFrame.default
         })
-        this.debug("XR session added to", entity.name, "isImmersive", isImmersive)
-        if (entity.name == "vr-session") {
+        this.debug("XR session added to", entity, "isImmersive", isImmersive)
+        if (isImmersive/*entity.name == "vr-session"*/) {
           webXRRenderer.context.makeXRCompatible()
             .then(() => session.updateRenderState({ 
                 baseLayer: new XRWebGLLayer(session, webXRRenderer.context) 
@@ -163,7 +162,7 @@ export default class WebXRInputSystem extends System {
   }
 }
 
-function setComponent(entity: Entity, Class: Component, data = {}) {
+function setComponent(entity: Entity, Class, data = {}) {
   if (entity.hasComponent(Class)) {
     const mutate = entity.getMutableComponent(Class)
     for (let property in data) mutate[property] = data[property]
