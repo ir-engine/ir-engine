@@ -32,6 +32,7 @@ import {
     Send
 } from '@material-ui/icons'
 import moment from 'moment'
+// import { Channel } from '../../../../../shared/interfaces/Channel'
 import {User} from "../../../../../shared/interfaces/User";
 import { Message } from '../../../../../shared/interfaces/Message'
 import _ from 'lodash'
@@ -103,11 +104,8 @@ const BottomDrawer = (props: Props): any => {
     const activeChannel = channels.get(targetChannelId)
 
     useEffect(() => {
-        console.log(`useEffect messageScrollInit: ${messageScrollInit}`)
         if (messageScrollInit === true && messageEl != null && (messageEl as any).scrollTop != null) {
-            console.log('Triggering messageScrollInit');
             (messageEl as any).scrollTop = (messageEl as any).scrollHeight
-            console.log(updateMessageScrollInit)
             updateMessageScrollInit(false)
             setMessageScrollUpdate(false)
         }
@@ -167,7 +165,6 @@ const BottomDrawer = (props: Props): any => {
     }
 
     const setActiveChat = (channel): void => {
-        console.log('setActiveChat:')
         updateMessageScrollInit(true)
         const channelType = channel.channelType
         const target = channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2 : channel.user2?.id === user.id ? channel.user1 : {}) : channelType === 'group' ? channel.group : channel.party
@@ -185,7 +182,6 @@ const BottomDrawer = (props: Props): any => {
     }
 
     const onMessageScroll = (e): void => {
-        console.log(messageScrollInit)
         if (e.target.scrollTop === 0 && (e.target.scrollHeight > e.target.clientHeight) && messageScrollInit !== true && (activeChannel.skip + activeChannel.limit) < activeChannel.total) {
             setMessageScrollUpdate(true)
             setTopMessage((messageEl as any).firstElementChild)
@@ -289,6 +285,10 @@ const BottomDrawer = (props: Props): any => {
         }
     }
 
+    // const unreadMessages = (channel: Channel) => {
+    //     return _.find(channel.messages, (message) => message.message_statuses.status === 'unread')
+    // }
+
     return (
         <div>
             <SwipeableDrawer
@@ -308,6 +308,7 @@ const BottomDrawer = (props: Props): any => {
                                 selected={ channelId === targetChannelId }
                                 divider={ index < channels.size - 1 }
                             >
+                                    {/*{ unreadMessages(channel) && <div className="unread-messages"/> }*/}
                                     { channel.channelType === 'user' &&
                                         <ListItemAvatar>
                                             <Avatar src={channel.userId1 === user.id ? channel.user2.avatarUrl: channel.user1.avatarUrl}/>

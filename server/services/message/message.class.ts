@@ -118,7 +118,7 @@ export class Message extends Service {
       return this.app.service('message-status').create({
         userId: mappedUserId,
         messageId: newMessage.id,
-        status: userId === mappedUserId ? 'unread' : 'read'
+        status: userId === mappedUserId ? 'read' : 'unread'
       })
     }))
 
