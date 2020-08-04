@@ -50,10 +50,10 @@ const MyApp = (props: Props): any => {
     }
     // NOTE: getDeviceInfo is an async function, but here is running
     // without `await`.
+    store.dispatch(restoreState())
     initGA()
     logPageView()
     getDeviceInfo()
-    store.dispatch(restoreState())
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     doLoginAuto(store.dispatch)
   }, [])

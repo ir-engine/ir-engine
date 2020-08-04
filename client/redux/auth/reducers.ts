@@ -47,7 +47,7 @@ const authReducer = (state = immutableState, action: any): any => {
         .set('isProcessing', (action as AuthProcessingAction).processing)
         .set('error', '')
     case LOGIN_USER_SUCCESS:
-      console.log('*****************Logined****************')
+      console.log('*****************Logged in****************')
       return state
         .set('isLoggedIn', true)
         .set('authUser', (action as LoginResultAction).authUser)
