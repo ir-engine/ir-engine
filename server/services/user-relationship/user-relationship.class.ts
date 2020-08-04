@@ -10,7 +10,7 @@ import config from '../../config'
 
 const loggedInUserEntity: string = config.authentication.entity
 
-export class RelationRelation extends Service {
+export class UserRelationship extends Service {
   app: Application
 
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -18,7 +18,7 @@ export class RelationRelation extends Service {
     this.app = app
   }
 
-  async find (params: Params): Promise<any> {
+  async findAll (params: Params): Promise<any> {
     const UserRelationshipModel = this.getModel(params)
     const UserRelationshipTypeService = this.app.service('user-relationship-type')
     const userRelationshipTypes = ((await UserRelationshipTypeService.find()) as any).data
@@ -64,19 +64,16 @@ export class RelationRelation extends Service {
   }
 
   async create (data: any, params: Params): Promise<any> {
-    const authUser = params[loggedInUserEntity]
-    const userId = authUser.userId
+    const userId = data.userId || params[loggedInUserEntity].userId
     const { relatedUserId, userRelationshipType } = data
     const UserRelationshipModel = this.getModel(params)
     let result: any
-
-    console.log('-----------create---------', userId, relatedUserId)
 
     await this.app.get('sequelizeClient').transaction(async (trans: Transaction) => {
       result = await UserRelationshipModel.create({
         userId: userId,
         relatedUserId: relatedUserId,
-        userRelationshipType
+        userRelationshipType: userRelationshipType
       }, {
         transaction: trans
       })
@@ -94,17 +91,20 @@ export class RelationRelation extends Service {
   }
 
   async patch (id: NullableId, data: any, params: Params): Promise<any> {
-    const authUser = params[loggedInUserEntity]
-    const userId = authUser.userId
     const { userRelationshipType } = data
     const UserRelationshipModel = this.getModel(params)
 
-    return UserRelationshipModel.update({
-      userRelationshipType
+    await UserRelationshipModel.update({
+      userRelationshipType: userRelationshipType
     }, {
       where: {
-        userId: userId,
-        relatedUserId: id
+        id: id
+      }
+    })
+
+    return UserRelationshipModel.findOne({
+      where: {
+        id: id
       }
     })
   }
@@ -114,10 +114,18 @@ export class RelationRelation extends Service {
     const userId = authUser.userId
     const UserRelationshipModel = this.getModel(params)
 
-    return UserRelationshipModel.destroy({
+    const relationship = await UserRelationshipModel.findOne({
+      where: {
+        userId: userId,
+        relatedUserId: id
+      }
+    })
+    await UserRelationshipModel.destroy({
       where: Sequelize.literal(
           `(userId='${userId as string}' AND relatedUserId='${id as string}') OR 
              (userId='${id as string}' AND relatedUserId='${userId as string}')`)
     })
+
+    return relationship
   }
 }

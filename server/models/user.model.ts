@@ -40,14 +40,14 @@ export default (app: Application): any => {
       as: 'relatedUser',
       through: models.user_relationship
     });
-    (User as any).belongsToMany(models.group, { through: models.group_user }); // user can join multiple orgs
-    (User as any).belongsToMany(models.group_user_rank, {
-      through: models.group_user
-    }); // user can join multiple orgs
+    (User as any).hasMany(models.user_relationship);
+    (User as any).belongsToMany(models.group, { through: 'group_user' }); // user can join multiple orgs
+    (User as any).hasMany(models.group_user, { unique: false });
     (User as any).hasMany(models.identity_provider);
     (User as any).hasMany(models.static_resource);
     (User as any).hasMany(models.subscription);
-    (User as any).hasMany(models.conversation, { foreignKey: 'senderId' });
+    (User as any).hasMany(models.channel, { foreignKey: 'userId1' });
+    (User as any).hasMany(models.channel, { foreignKey: 'userId2' });
     (User as any).hasOne(models.seat, { foreignKey: 'userId' })
   }
 

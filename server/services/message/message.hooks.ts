@@ -1,18 +1,20 @@
 import * as authentication from '@feathersjs/authentication'
+import messagePermissionAuthenticate from '../../hooks/message-permission-authenticate'
+import removeMessageStatuses from '../../hooks/remove-message-statuses'
+import channelPermissionAuthenticate from '../../hooks/channel-permission-authenticate'
 // Don't remove this comment. It's needed to format import lines nicely.
 
-import formatMessage from '../../hooks/format-message'
 const { authenticate } = authentication.hooks
 
 export default {
   before: {
     all: [authenticate('jwt')],
-    find: [],
+    find: [channelPermissionAuthenticate()],
     get: [],
-    create: [formatMessage()],
+    create: [],
     update: [],
-    patch: [],
-    remove: []
+    patch: [messagePermissionAuthenticate()],
+    remove: [messagePermissionAuthenticate()]
   },
 
   after: {
@@ -22,7 +24,7 @@ export default {
     create: [],
     update: [],
     patch: [],
-    remove: []
+    remove: [removeMessageStatuses()]
   },
 
   error: {

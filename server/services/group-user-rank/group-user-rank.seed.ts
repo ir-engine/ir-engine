@@ -4,11 +4,12 @@ export const seed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
   path: 'group-user-rank',
+  randomize: false,
   templates:
         [
-          { rank: 'principal' },
-          { rank: 'teacher' },
-          { rank: 'student' }
+          { rank: 'owner' },
+          { rank: 'admin' },
+          { rank: 'user' }
         ]
 }
 

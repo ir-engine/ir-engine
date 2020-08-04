@@ -439,11 +439,15 @@ export const updateUserSettings = (id: any, data: any) => async (dispatch: any) 
 export function uploadAvatar (data: any) {
   return async (dispatch: Dispatch, getState: any) => {
     const token = getState().get('auth').get('authUser').accessToken
+    const selfUser = getState().get('auth').get('user')
     const res = await axios.post(`${apiUrl}/upload`, data, {
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: 'Bearer ' + token
       }
+    })
+    await client.service('user').patch(selfUser.id, {
+      name: selfUser.name
     })
     const result = res.data
     dispatchAlertSuccess(dispatch, 'Avatar updated')

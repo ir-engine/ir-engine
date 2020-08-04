@@ -1,10 +1,14 @@
 import * as authentication from '@feathersjs/authentication'
+import * as commonHooks from 'feathers-hooks-common'
 
 const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [commonHooks.iff(
+      commonHooks.isProvider('external'),
+      authenticate('jwt')
+    )],
     find: [],
     get: [],
     create: [],

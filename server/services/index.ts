@@ -1,10 +1,12 @@
 import { Application } from '../declarations'
 
 // Types
+import ChannelType from './channel-type/channel-type.service'
 import ComponentType from './component-type/component-type.service'
 import CollectionType from './collection-type/collection-type.service'
 import EntityType from './entity-type/entity-type.service'
 import GroupUserRank from './group-user-rank/group-user-rank.service'
+import InviteType from './invite-type/invite-type.service'
 import StaticResourceType from './static-resource-type/static-resource-type.service'
 import SubscriptionLevel from './subscription-level/subscription-level.service'
 import SeatStatus from './seat-status/seat-status.service'
@@ -18,8 +20,9 @@ import Collection from './collection/collection.service'
 import Component from './component/component.service'
 import Entity from './entity/entity.service'
 import Group from './group/group.service'
-import Instance from './instance/instance.service'
 import IdentityProvider from './identity-provider/identity-provider.service'
+import Instance from './instance/instance.service'
+import Invite from './invite/invite.service'
 import License from './license/license.service'
 import Location from './location/location.service'
 import Party from './party/party.service'
@@ -36,8 +39,7 @@ import PartyUser from './party-user/party-user.service'
 
 // Services
 import Auth from './auth-management/auth-management.service'
-import ChatRoom from './chatroom/chatroom.service'
-import Conversation from './conversation/conversation.service'
+import Channel from './channel/channel.service'
 import Email from './email/email.service'
 import MagicLink from './magic-link/magic-link.service'
 import Message from './message/message.service'
@@ -59,8 +61,11 @@ import ResolveMedia from './resolve-media/resolve-media.service'
 // GraphQL
 import GraphQL from './graphql/graphql.service'
 
+import acceptInvite from './accept-invite/accept-invite.service'
+
 export default (app: Application): void => {
   // Dynamic types
+  app.configure(ChannelType)
   app.configure(ComponentType)
   app.configure(CollectionType)
   app.configure(StaticResourceType)
@@ -70,6 +75,7 @@ export default (app: Application): void => {
   app.configure(SubscriptionType)
   app.configure(GroupUserRank)
   app.configure(SubscriptionLevel)
+  app.configure(InviteType)
 
   // Objects
   app.configure(Attribution)
@@ -78,6 +84,7 @@ export default (app: Application): void => {
   app.configure(Entity)
   app.configure(Group)
   app.configure(Instance)
+  app.configure(Invite)
   app.configure(Location)
   app.configure(License)
   app.configure(Party)
@@ -96,8 +103,7 @@ export default (app: Application): void => {
 
   // Services
   app.configure(Auth)
-  app.configure(Conversation)
-  app.configure(ChatRoom)
+  app.configure(Channel)
   app.configure(Email)
   app.configure(IdentityProvider)
   app.configure(MagicLink)
@@ -118,4 +124,5 @@ export default (app: Application): void => {
 
   // GraphQL
   app.configure(GraphQL)
+  app.configure(acceptInvite)
 }

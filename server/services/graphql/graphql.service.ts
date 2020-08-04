@@ -4,6 +4,9 @@ import { Graphql } from './graphql.class'
 import { PubSub } from 'graphql-subscriptions'
 // @ts-ignore
 import { generateModelTypes, generateApolloServer } from 'graphql-sequelize-generator'
+import { NotAuthenticated } from '@feathersjs/errors'
+import jwt from 'jsonwebtoken'
+import config from '../../config'
 
 import { Sequelize } from 'sequelize'
 
@@ -58,12 +61,53 @@ export default (app: Application): any => {
           'editor.theme': 'dark'
         }
       },
+      context: async (context: any) => {
+        const req = context.req
+        if (context.req && context.req.body && context.req.body.operationName === 'IntrospectionQuery') {
+          return
+        }
+        if (context.connection && context.connection.context && context.connection.context.user) {
+          return {
+            user: context.connection.context.user
+          }
+        }
+        const authHeader = req.headers.authorization
+        if (authHeader == null) {
+          throw new NotAuthenticated('Missing authorization header')
+        }
+        const token = authHeader.replace('Bearer ', '')
+        try {
+          const verify = await jwt.verify(token, config.authentication.secret)
+          const identityProvider = await app.service('identity-provider').get((verify as any).sub)
+          const user = await app.service('user').get((identityProvider).userId)
+          return {
+            user: user.dataValues
+          }
+        } catch (err) {
+          console.log(err)
+          throw err
+        }
+      },
       subscriptions: {
-        path: '/graphql',
+        path: '/subscriptions',
         onConnect: async (connectionParams: any, webSocket: any) => {
-          console.log(connectionParams)
-          console.log(webSocket)
-          return true
+          const authHeader = connectionParams.Authorization || connectionParams.authorization
+          if (authHeader == null) {
+            throw new NotAuthenticated('Missing authorization header')
+          }
+          const token = authHeader.replace('Bearer ', '')
+          try {
+            const verify = await jwt.verify(token, config.authentication.secret)
+            const identityProvider = await app.service('identity-provider').get((verify as any).sub)
+            const user = await app.service('user').get((identityProvider).userId)
+
+            return {
+              user: user.dataValues
+            }
+          } catch (err) {
+            console.log(err)
+            throw err
+          }
         }
       },
       introspection: true
