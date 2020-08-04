@@ -38,16 +38,17 @@ export class WebXRViewPoint extends Component<any> {
   }
 }
 
-abstract class WebXRTrackingDevice extends Component<any> {
-  static schema = {
-    pose: { type: Ref },
-    handId: { type: t.Number }
-  }
-}
 export class WebXRPointer extends Component<any> {
   static schema = {
     pose: { type: Ref },
     pointerMode: { type: t.String }
+  }
+}
+
+abstract class WebXRTrackingDevice extends Component<any> {
+  static schema = {
+    pose: { type: Ref },
+    handId: { type: t.Number }
   }
 }
 export class WebXRMainController extends WebXRTrackingDevice {}
