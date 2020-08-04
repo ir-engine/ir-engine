@@ -1,6 +1,5 @@
-import BehaviorComponent from "../../common/components/BehaviorComponent"
 import Input from "../components/Input"
-import { Types as t, Component } from "ecsy"
+import { Component, Types as t } from "ecsy"
 const { Ref } = t
 
 export class WebXRRenderer extends Component<any> {
@@ -10,10 +9,19 @@ export class WebXRRenderer extends Component<any> {
   }
 }
 
+export class WebXRButton {
+    static schema = {
+        domEl: { type: Ref },
+        onVRSupportRequested: { type: Ref }
+    }
+}
+
 export class WebXRSession extends Component<any> {
   static schema = {
     session: { type: Ref },
-    isImmersive: { type: t.Boolean, default: false }
+    isImmersive: { type: t.Boolean, default: false },
+    // onStarted: { type: Ref },
+    // onEnded: { type: Ref }
   }
 }
 
