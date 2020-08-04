@@ -27,19 +27,21 @@ export default class InputSystem extends System {
         behavior.behavior(entity, { ...behavior.args })
       })
       // Bind DOM events to event behavior
-      const {eventBindings} = this._inputComponent.schema
-      if( eventBindings ) this.boundListeners[ entity.id ] =
-        Object.entries(eventBindings).map( ([eventName, {behavior, args, selector}]) => {
-          const domElement = selector ? document.querySelector(selector) : document
-          if( domElement ){
-            const listener = (event: Event) => behavior(entity, { event, ...args })
-            domElement.addEventListener(eventName, listener)
-            return [selector, eventName, listener]
-          } else {
-            console.warn("DOM Element not found:", selector)
-            return false
-          }
-        }).filter(Boolean)
+      const { eventBindings } = this._inputComponent.schema
+      if (eventBindings)
+        this.boundListeners[entity.id] = Object.entries(eventBindings)
+          .map(([eventName, { behavior, args, selector }]) => {
+            const domElement = selector ? document.querySelector(selector) : document
+            if (domElement) {
+              const listener = (event: Event) => behavior(entity, { event, ...args })
+              domElement.addEventListener(eventName, listener)
+              return [selector, eventName, listener]
+            } else {
+              console.warn("DOM Element not found:", selector)
+              return false
+            }
+          })
+          .filter(Boolean)
     })
 
     // Called when input component is removed from entity
@@ -51,13 +53,13 @@ export default class InputSystem extends System {
         behavior.behavior(entity, behavior.args)
       })
       // Unbind events from DOM
-      const bound = this.boundListeners[ entity.id ]
-      if( bound ){
-        for(const [selector, eventName, listener] of bound){
+      const bound = this.boundListeners[entity.id]
+      if (bound) {
+        for (const [selector, eventName, listener] of bound) {
           const domElement = selector ? document.querySelector(selector) : document
           domElement?.removeEventListener(eventName, listener)
         }
-        delete this.boundListeners[ entity.id ]
+        delete this.boundListeners[entity.id]
       }
     })
 
