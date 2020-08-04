@@ -12,8 +12,8 @@
 }
 
 .background-red {
-    background-color: #ef5350;
-    color: white;
+    background-color: #ef5350 !important;
+    color: white !important;
 }
 
 .flex-center {
@@ -66,9 +66,26 @@
         overflow-y: auto;
         min-height: 100px;
         justify-content: end;
+
+        li {
+            word-break: break-word;
+
+            @media (max-width: 768px) {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
     }
 }
 
 .MuiTabs-root {
     min-height: 75px;
+}
+
+.delete-confirm {
+    display: flex;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+    }
 }
