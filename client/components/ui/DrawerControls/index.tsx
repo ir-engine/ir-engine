@@ -1,6 +1,4 @@
-import NavUserWidget from '../../../../../xrchat-client/components/ui/NavUserWidget'
 import Router from 'next/router'
-import Logo from '../../../../../xrchat-client/components/ui/Logo'
 import './style.scss'
 import {
     Forum,
