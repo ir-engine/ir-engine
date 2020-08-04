@@ -116,6 +116,15 @@
                 flex-direction: column;
                 text-align: center;
             }
+
+            .unread-messages {
+                background-color: #556cd6;
+                width: 10px;
+                height: 10px;
+                border-radius: 100px;
+                position: absolute;
+                left: 3px;
+            }
         }
     }
 

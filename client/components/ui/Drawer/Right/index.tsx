@@ -176,8 +176,6 @@ const Invites = (props: Props): any => {
 
     const packageInvite = (event: any): void => {
         const mappedIDProvider = identityProviderTabMap.get(tabIndex)
-        console.log('inviteState:')
-        console.log(inviteState)
         const sendData = {
             type: inviteState.get('targetObjectType') === 'user' ? 'friend' : inviteState.get('targetObjectType'),
             token: mappedIDProvider ? userToken : null,
@@ -361,7 +359,7 @@ const Invites = (props: Props): any => {
                                     {deletePending !== invite.id &&
 									<Button onClick={() => showDeleteConfirm(invite.id)}>Uninvite</Button>}
                                     {deletePending === invite.id &&
-									<div className="invite-delete-confirm">
+									<div className="delete-confirm">
 										<Button variant="contained"
 										        color="primary"
 										        onClick={() => confirmDelete(invite.id)}

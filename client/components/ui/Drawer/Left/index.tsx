@@ -315,8 +315,6 @@ const LeftDrawer = (props: Props): any => {
     }
 
     const openDetails = (type, object) => {
-        console.log('opening details')
-        console.log(groupState)
         setDetailsOpen(true)
         setDetailsType(type)
         if (type === 'user') {
@@ -335,9 +333,6 @@ const LeftDrawer = (props: Props): any => {
     }
 
     const openGroupForm = (mode: string, group?: GroupType) => {
-        console.log('Opening group form')
-        console.log(mode)
-        console.log(group)
         setGroupFormOpen(true)
         setGroupFormMode(mode)
         if (group != null) {
@@ -602,7 +597,7 @@ const LeftDrawer = (props: Props): any => {
 											</div>
                                             }
                                             {partyUserDeletePending === partyUser.id &&
-											<div>
+											<div className="delete-confirm">
                                                 {
                                                     user.id !== partyUser.userId &&
 													<Button variant="contained"
@@ -806,7 +801,7 @@ const LeftDrawer = (props: Props): any => {
 										</div>
                                         }
                                         {groupUserDeletePending === groupUser.id &&
-										<div>
+										<div className="delete-confirm">
                                             {
                                                 user.id !== groupUser.userId &&
 												<Button variant="contained"

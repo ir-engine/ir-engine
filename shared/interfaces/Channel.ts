@@ -3,7 +3,7 @@ import { Message } from './Message'
 export type Channel = {
   id: string
   channelType: string,
-  Messages: Message[],
+  messages: Message[],
   userId1: string | null,
   userId2: string | null,
   groupId: string | null,

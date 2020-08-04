@@ -9,5 +9,5 @@ export type Message = {
   createdAt: string,
   updatedAt: string,
   sender: User,
-  messageStatus: MessageStatus
+  message_statuses: MessageStatus
 }
