@@ -61,19 +61,21 @@ interface InputMap {
     [key: string]: {
       // binary state (on, off)
       [key: string]: {
-        behavior: any
+        behavior?: any
         args?: {
           [key: string]: any
         }
+        behaviors?: any
       }
     }
     [key: number]: {
       // binary state (on, off)
       [key: number]: {
-        behavior: any
-        args: {
+        behavior?: any
+        args?: {
           [key: string]: any
         }
+        behaviors?: any
       }
     }
   }
