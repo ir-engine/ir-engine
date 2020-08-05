@@ -1,7 +1,7 @@
 import { Entity } from "ecsy"
 import Behavior from "../../interfaces/Behavior"
 import Actor from "../components/Actor"
-import { TransformComponent } from "../components/TransformComponent"
+import { TransformComponent } from "../../../transform/components/TransformComponent"
 import { NumericalType, Vector3, Vector2 } from "../../types/NumericalTypes"
 import Input from "../../../input/components/Input"
 import InputAlias from "../../../input/types/InputAlias"

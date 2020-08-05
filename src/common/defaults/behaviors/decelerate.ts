@@ -1,7 +1,7 @@
 import { Entity } from "ecsy"
 import Behavior from "../../interfaces/Behavior"
 import Actor from "../components/Actor"
-import { TransformComponent } from "../components/TransformComponent"
+import { TransformComponent } from "../../../transform/components/TransformComponent"
 import { vec3 } from "gl-matrix"
 
 let actor: Actor
