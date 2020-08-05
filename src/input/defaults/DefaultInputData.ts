@@ -39,45 +39,81 @@ export const DefaultInputMap: InputMap = {
   eventBindings: {
     // Mouse
     ["contextmenu"]: {
-      behavior: preventDefault
+      behaviors: [
+        {
+          behavior: preventDefault
+        }
+      ]
     },
     ["mousemove"]: {
-      behavior: handleMouseMovement,
-      args: {
-        value: DefaultInput.SCREENXY
-      }
+      behaviors: [
+        {      
+          behavior: handleMouseMovement,
+          args: {
+            value: DefaultInput.SCREENXY
+          }
+        }
+      ]
     },
     ["mouseup"]: {
-      behavior: handleMouseButton,
-      args: {
-        value: BinaryValue.OFF
-      }
+      behaviors: [
+        {  
+          behavior: handleMouseButton,
+          args: {
+            value: BinaryValue.OFF
+          }
+        }
+      ]
     },
     ["mousedown"]: {
-      behavior: handleMouseButton,
-      args: {
-        value: BinaryValue.ON
-      }
+      behaviors: [
+        {      
+          behavior: handleMouseButton,
+          args: {
+            value: BinaryValue.ON
+          }
+        },
+        {
+          behavior: rotateStart,
+          args: {}
+        }
+      ]
     },
     // Keys
     ["keyup"]: {
-      behavior: handleKey,
-      args: {
-        value: BinaryValue.OFF
-      }
+      behaviors: [
+        {  
+          behavior: handleKey,
+          args: {
+            value: BinaryValue.OFF
+          }
+        }
+      ]
     },
     ["keydown"]: {
-      behavior: handleKey,
-      args: {
-        value: BinaryValue.ON
-      }
+      behaviors: [
+        {  
+          behavior: handleKey,
+          args: {
+            value: BinaryValue.ON
+          }
+        }
+      ]
     },
     // Gamepad
     ["gamepadconnected"]: {
-      behavior: handleGamepadConnected
+      behaviors: [
+        {  
+          behavior: handleGamepadConnected
+        }
+      ]
     },
     ["gamepaddisconnected"]: {
-      behavior: handleGamepadDisconnected
+      behaviors: [
+        {
+          behavior: handleGamepadDisconnected
+        }
+      ]
     }
   },
   // Map mouse buttons to abstract input
@@ -273,24 +309,30 @@ export const DefaultInputMap: InputMap = {
   // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
   inputAxisBehaviors: {
     [DefaultInput.MOVEMENT_PLAYERONE]: {
-      behavior: move,
-      args: {
-        input: DefaultInput.MOVEMENT_PLAYERONE,
-        inputType: InputType.TWOD
+      behaviors: {
+        started: {
+          behavior: updateMovementState,
+          args: {},
+        },
+        continued: {
+          behavior: move,
+          args: {
+            input: DefaultInput.MOVEMENT_PLAYERONE,
+            inputType: InputType.TWOD
+          }
+        }
       }
     },
     [DefaultInput.SCREENXY]: {
-      behavior: rotateAround,
-      args: {
-        input: DefaultInput.SCREENXY,
-        inputType: InputType.TWOD
+      behaviors: {
+        started: {
+          behavior: rotateAround,
+          args: {
+            input: DefaultInput.SCREENXY,
+            inputType: InputType.TWOD
+          }
+        }
       }
     },
-    [DefaultInput.SCREENXY_START]: {
-      behavior: rotateStart,
-      args: {
-        inputType: InputType.TWOD
-      }
-    }
   }
 }
