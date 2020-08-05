@@ -3,20 +3,21 @@ import TransformParent from "../components/TransformParent"
 import TransformComponent from "../components/TransformComponent"
 import Behavior from "../../common/interfaces/Behavior"
 
-export class TransformSystem extends System {
+export default class TransformSystem extends System {
   transformationBehavior: Behavior
   childTransformationBehavior: Behavior
   constructor(world: World, attributes: Attributes) {
     super(world, attributes)
-    if (attributes.transformationBehavior) {
-      this.transformationBehavior = attributes.transformationBehavior
-    }
-    if (attributes.childTransformationBehavior) {
-      this.childTransformationBehavior = attributes.childTransformationBehavior
-    }
+    // if (attributes.transformationBehavior) {
+    //   this.transformationBehavior = attributes.transformationBehavior
+    // }
+    // if (attributes.childTransformationBehavior) {
+    //   this.childTransformationBehavior = attributes.childTransformationBehavior
+    // }
   }
 
   execute() {
+    return console.log("Transform system is ignored for now")
     // Hierarchy
     this.queries.parent.results?.forEach((entity: Entity) => {
       this.childTransformationBehavior(entity)

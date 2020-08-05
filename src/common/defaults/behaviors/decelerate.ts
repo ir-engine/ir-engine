@@ -1,7 +1,7 @@
 import { Entity } from "ecsy"
 import Behavior from "../../interfaces/Behavior"
 import Actor from "../components/Actor"
-import { TransformComponent } from "../../../transform/components/TransformComponent"
+import TransformComponent from "../../../transform/components/TransformComponent"
 import { vec3 } from "gl-matrix"
 
 let actor: Actor
@@ -9,7 +9,7 @@ let transform: TransformComponent
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const decelerate: Behavior = (entity: Entity, delta: number): void => {
   // get actor comonent
-  actor = entity.getComponent(Actor)
+  actor = entity.getComponent<Actor>(Actor)
   // get the transform
   transform = entity.getMutableComponent(TransformComponent)
 

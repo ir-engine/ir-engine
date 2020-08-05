@@ -1,6 +1,6 @@
 import { Entity } from "ecsy"
 import Behavior from "../../interfaces/Behavior"
-import { TransformComponent } from "../../../transform/components/TransformComponent"
+import TransformComponent from "../../../transform/components/TransformComponent"
 import { vec3 } from "gl-matrix"
 
 const _output: vec3 = [0, 0, 0]

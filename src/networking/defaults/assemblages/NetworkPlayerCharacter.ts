@@ -1,6 +1,6 @@
 // Components
 import { Assemblage } from "../../../common/interfaces/Assemblage"
-import { TransformComponent } from "../../../common"
+import TransformComponent from "../../../common"
 import NetworkAvatar from "../components/NetworkAvatar"
 import Input from "../../../input/components/Input"
 

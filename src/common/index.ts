@@ -9,7 +9,7 @@ export * from "./defaults/behaviors/updatePosition"
 export * from "./defaults/components/Actor"
 export * from "../transform/components/TransformComponent"
 
-export * from "../transform/systems/TransformComponentSystem"
+export * from "../transform/systems/TransformSystem"
 
 export * from "./enums/BinaryValue"
 export * from "./enums/LifecycleValue"
