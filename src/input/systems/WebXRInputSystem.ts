@@ -12,8 +12,8 @@ import {
 } from "../components/WebXR"
 
 export default class WebXRInputSystem extends System {
-  mainControllerId = 0
-  secondControllerId = 1
+  readonly mainControllerId = 0
+  readonly secondControllerId = 1
   debug = Function()
 
   init({ onVRSupportRequested, debug }) {
@@ -28,6 +28,7 @@ export default class WebXRInputSystem extends System {
       .registerComponent(WebXRSecondController)
       .registerComponent(WebXRMainGamepad)
       .registerComponent(WebXRSecondGamepad)
+      
     const { xr } = navigator as any
     if (xr) {
       xr.isSessionSupported("immersive-vr").then(onVRSupportRequested)
