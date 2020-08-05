@@ -1,5 +1,9 @@
 import InputAlias from "../../input/types/InputAlias";
 import InputRelationshipMapping from "./InputRelationshipMapping";
+interface behaviorEntry {
+    behavior: any;
+    args?: any;
+}
 interface InputMap {
     onAdded: [{
         behavior: any;
@@ -15,10 +19,7 @@ interface InputMap {
     }];
     eventBindings?: {
         [key: string]: {
-            behavior: any;
-            args?: {
-                [key: string]: any;
-            };
+            behaviors: behaviorEntry[];
         };
     };
     mouseInputMap?: {
@@ -70,10 +71,7 @@ interface InputMap {
     };
     inputAxisBehaviors: {
         [key: string]: {
-            behavior: any;
-            args: {
-                [key: string]: any;
-            };
+            behaviors: any;
         };
     };
 }

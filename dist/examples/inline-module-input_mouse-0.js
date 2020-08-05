@@ -53050,7 +53050,7 @@ const handleMouseMovement = (entity, args) => {
 // System behavior called when a mouse button is fired
 const handleMouseButton = (entity, args) => {
     // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
-    input$1 = entity.getComponent(Input$1);
+    input$1 = entity.getMutableComponent(Input$1);
     if (input$1.map.mouseInputMap.buttons[args.event.button] === undefined)
         return; // Set type to BUTTON (up/down discrete state) and value to up or down, as called by the DOM mouse events
     if (args.value === BinaryValue.ON) {
@@ -53063,19 +53063,9 @@ const handleMouseButton = (entity, args) => {
         const mousePosition = [0, 0];
         mousePosition[0] = (args.event.clientX / window.innerWidth) * 2 - 1;
         mousePosition[1] = (args.event.clientY / window.innerHeight) * -2 + 1;
-        const transformRotation = [
-            transform.rotation[0],
-            transform.rotation[1],
-            transform.rotation[2],
-            transform.rotation[3]
-        ];
         input$1.data.set(input$1.map.mouseInputMap.axes["mouseClickDownPosition"], {
             type: InputType.TWOD,
             value: mousePosition
-        });
-        input$1.data.set(input$1.map.mouseInputMap.axes["mouseClickDownTransformRotation"], {
-            type: InputType.FOURD,
-            value: transformRotation
         });
     }
     else {
@@ -53261,7 +53251,18 @@ const MouseButtons = {
 };
 
 const rotateStart = (entity, args, delta) => {
-    console.log('rotateStart');
+    let input = entity.getMutableComponent(Input$1);
+    let transform = entity.getComponent(TransformComponent);
+    const transformRotation = [
+        transform.rotation[0],
+        transform.rotation[1],
+        transform.rotation[2],
+        transform.rotation[3]
+    ];
+    input.data.set(input.map.mouseInputMap.axes["mouseClickDownTransformRotation"], {
+        type: InputType.FOURD,
+        value: transformRotation
+    });
 };
 
 const DefaultInputMap = {
@@ -53283,45 +53284,81 @@ const DefaultInputMap = {
     eventBindings: {
         // Mouse
         ["contextmenu"]: {
-            behavior: preventDefault
+            behaviors: [
+                {
+                    behavior: preventDefault
+                }
+            ]
         },
         ["mousemove"]: {
-            behavior: handleMouseMovement,
-            args: {
-                value: DefaultInput.SCREENXY
-            }
+            behaviors: [
+                {
+                    behavior: handleMouseMovement,
+                    args: {
+                        value: DefaultInput.SCREENXY
+                    }
+                }
+            ]
         },
         ["mouseup"]: {
-            behavior: handleMouseButton,
-            args: {
-                value: BinaryValue.OFF
-            }
+            behaviors: [
+                {
+                    behavior: handleMouseButton,
+                    args: {
+                        value: BinaryValue.OFF
+                    }
+                }
+            ]
         },
         ["mousedown"]: {
-            behavior: handleMouseButton,
-            args: {
-                value: BinaryValue.ON
-            }
+            behaviors: [
+                {
+                    behavior: handleMouseButton,
+                    args: {
+                        value: BinaryValue.ON
+                    }
+                },
+                {
+                    behavior: rotateStart,
+                    args: {}
+                }
+            ]
         },
         // Keys
         ["keyup"]: {
-            behavior: handleKey,
-            args: {
-                value: BinaryValue.OFF
-            }
+            behaviors: [
+                {
+                    behavior: handleKey,
+                    args: {
+                        value: BinaryValue.OFF
+                    }
+                }
+            ]
         },
         ["keydown"]: {
-            behavior: handleKey,
-            args: {
-                value: BinaryValue.ON
-            }
+            behaviors: [
+                {
+                    behavior: handleKey,
+                    args: {
+                        value: BinaryValue.ON
+                    }
+                }
+            ]
         },
         // Gamepad
         ["gamepadconnected"]: {
-            behavior: handleGamepadConnected
+            behaviors: [
+                {
+                    behavior: handleGamepadConnected
+                }
+            ]
         },
         ["gamepaddisconnected"]: {
-            behavior: handleGamepadDisconnected
+            behaviors: [
+                {
+                    behavior: handleGamepadDisconnected
+                }
+            ]
         }
     },
     // Map mouse buttons to abstract input
@@ -53508,25 +53545,31 @@ const DefaultInputMap = {
     // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
     inputAxisBehaviors: {
         [DefaultInput.MOVEMENT_PLAYERONE]: {
-            behavior: move,
-            args: {
-                input: DefaultInput.MOVEMENT_PLAYERONE,
-                inputType: InputType.TWOD
+            behaviors: {
+                started: {
+                    behavior: updateMovementState,
+                    args: {},
+                },
+                continued: {
+                    behavior: move,
+                    args: {
+                        input: DefaultInput.MOVEMENT_PLAYERONE,
+                        inputType: InputType.TWOD
+                    }
+                }
             }
         },
         [DefaultInput.SCREENXY]: {
-            behavior: rotateAround,
-            args: {
-                input: DefaultInput.SCREENXY,
-                inputType: InputType.TWOD
+            behaviors: {
+                started: {
+                    behavior: rotateAround,
+                    args: {
+                        input: DefaultInput.SCREENXY,
+                        inputType: InputType.TWOD
+                    }
+                }
             }
         },
-        [DefaultInput.SCREENXY_START]: {
-            behavior: rotateStart,
-            args: {
-                inputType: InputType.TWOD
-            }
-        }
     }
 };
 
@@ -53545,9 +53588,11 @@ class InputSystem extends System {
                 behavior.behavior(entity, Object.assign({}, behavior.args));
             });
             // Bind DOM events to event behavior
-            (_a = Object.keys(this._inputComponent.map.eventBindings)) === null || _a === void 0 ? void 0 : _a.forEach((key) => {
-                document.addEventListener(key, e => {
-                    this._inputComponent.map.eventBindings[key].behavior(entity, Object.assign({ event: e }, this._inputComponent.map.eventBindings[key].args));
+            (_a = Object.keys(this._inputComponent.map.eventBindings)) === null || _a === void 0 ? void 0 : _a.forEach((event) => {
+                this._inputComponent.map.eventBindings[event].behaviors.forEach((behaviorEntry) => {
+                    document.addEventListener(event, e => {
+                        behaviorEntry.behavior(entity, Object.assign({ event: e }, behaviorEntry.args));
+                    });
                 });
             });
         });
@@ -53560,9 +53605,11 @@ class InputSystem extends System {
                 behavior.behavior(entity, behavior.args);
             });
             // Unbind events from DOM
-            Object.keys(this._inputComponent.map.eventBindings).forEach((key) => {
-                document.addEventListener(key, e => {
-                    this._inputComponent.map.eventBindings[key].behavior(entity, Object.assign({ event: e }, this._inputComponent.map.eventBindings[key].args));
+            Object.keys(this._inputComponent.map.eventBindings).forEach((event) => {
+                this._inputComponent.map.eventBindings[event].behaviors.forEach((behaviorEntry) => {
+                    document.removeEventListener(event, e => {
+                        behaviorEntry.behavior(entity, Object.assign({ event: e }, behaviorEntry.args));
+                    });
                 });
             });
         });
@@ -53574,7 +53621,7 @@ const handleInput = (entity, delta) => {
     let input;
     input = entity.getMutableComponent(Input$1);
     input.data.forEach((value, key) => {
-        var _a, _b, _c, _d;
+        var _a, _b, _c, _d, _e, _f, _g, _h;
         if (value.type === InputType.BUTTON) {
             if (input.map.inputButtonBehaviors[key] && input.map.inputButtonBehaviors[key][value.value]) {
                 if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue$1.STARTED) {
@@ -53599,7 +53646,10 @@ const handleInput = (entity, delta) => {
                         value: value.value,
                         lifecycleState: LifecycleValue$1.CONTINUED
                     });
-                    input.map.inputAxisBehaviors[key].behavior(entity, input.map.inputAxisBehaviors[key].args, delta);
+                    (_f = (_e = input.map.inputAxisBehaviors[key].behaviors) === null || _e === void 0 ? void 0 : _e.started) === null || _f === void 0 ? void 0 : _f.behavior(entity, input.map.inputAxisBehaviors[key].behaviors.started.args, delta);
+                }
+                else if (value.lifecycleState === LifecycleValue$1.CONTINUED) {
+                    (_h = (_g = input.map.inputAxisBehaviors[key].behaviors) === null || _g === void 0 ? void 0 : _g.continued) === null || _h === void 0 ? void 0 : _h.behavior(entity, input.map.inputAxisBehaviors[key].behaviors.continued.args, delta);
                 }
             }
         }

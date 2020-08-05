@@ -1,6 +1,11 @@
 import InputAlias from "../../input/types/InputAlias"
 import InputRelationshipMapping from "./InputRelationshipMapping"
 
+interface behaviorEntry {
+  behavior: any
+  args?: any
+}
+
 interface InputMap {
   // Called by input system when an Input component is added
   onAdded: [
@@ -23,10 +28,7 @@ interface InputMap {
   // Bound to events on added, unbound on removed
   eventBindings?: {
     [key: string]: {
-      behavior: any // Function
-      args?: {
-        [key: string]: any
-      }
+      behaviors: behaviorEntry[]
     }
   }
   mouseInputMap?: {
@@ -82,10 +84,7 @@ interface InputMap {
   inputAxisBehaviors: {
     // input name / alias
     [key: string]: {
-      behavior: any
-      args: {
-        [key: string]: any
-      }
+      behaviors: any
     }
   }
 }

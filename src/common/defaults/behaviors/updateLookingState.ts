@@ -15,5 +15,18 @@ export const rotateStart: Behavior = (
   args: { input: InputAlias; inputType: InputType; value: NumericalType },
   delta: number
 ): void => {
-  console.log('rotateStart')
+  let input = entity.getMutableComponent(Input) as Input
+  let transform = entity.getComponent(TransformComponent)
+
+  const transformRotation: [number, number, number, number] = [
+      transform.rotation[0],
+      transform.rotation[1],
+      transform.rotation[2],
+      transform.rotation[3]
+    ]
+
+  input.data.set(input.map.mouseInputMap.axes["mouseClickDownTransformRotation"], {
+      type: InputType.FOURD,
+      value: transformRotation
+    })
 }

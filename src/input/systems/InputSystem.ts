@@ -25,9 +25,11 @@ export default class InputSystem extends System {
         behavior.behavior(entity, { ...behavior.args })
       })
       // Bind DOM events to event behavior
-      Object.keys(this._inputComponent.map.eventBindings)?.forEach((key: string) => {
-        document.addEventListener(key, e => {
-          this._inputComponent.map.eventBindings[key].behavior(entity, { event: e, ...this._inputComponent.map.eventBindings[key].args })
+      Object.keys(this._inputComponent.map.eventBindings)?.forEach((event: string) => {
+        this._inputComponent.map.eventBindings[event].behaviors.forEach((behaviorEntry: any) => {
+          document.addEventListener(event, e => {
+            behaviorEntry.behavior(entity, { event: e, ...behaviorEntry.args })
+          })
         })
       })
     })
@@ -41,9 +43,11 @@ export default class InputSystem extends System {
         behavior.behavior(entity, behavior.args)
       })
       // Unbind events from DOM
-      Object.keys(this._inputComponent.map.eventBindings).forEach((key: string) => {
-        document.addEventListener(key, e => {
-          this._inputComponent.map.eventBindings[key].behavior(entity, { event: e, ...this._inputComponent.map.eventBindings[key].args })
+      Object.keys(this._inputComponent.map.eventBindings).forEach((event: string) => {
+        this._inputComponent.map.eventBindings[event].behaviors.forEach((behaviorEntry: any) => {
+          document.removeEventListener(event, e => {
+            behaviorEntry.behavior(entity, { event: e, ...behaviorEntry.args })
+          })
         })
       })
     })
@@ -88,7 +92,17 @@ export const handleInput: Behavior = (entity: Entity, delta: number): void => {
             value: value.value as Binary,
             lifecycleState: LifecycleValue.CONTINUED
           })
-          input.map.inputAxisBehaviors[key].behavior(entity, input.map.inputAxisBehaviors[key].args, delta)
+        input.map.inputAxisBehaviors[key].behaviors?.started?.behavior(
+            entity,
+            input.map.inputAxisBehaviors[key].behaviors.started.args,
+            delta
+          )
+        } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
+          input.map.inputAxisBehaviors[key].behaviors?.continued?.behavior(
+            entity,
+            input.map.inputAxisBehaviors[key].behaviors.continued.args,
+            delta
+          )
         }
       }
     } else {
