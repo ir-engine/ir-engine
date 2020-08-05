@@ -40,6 +40,8 @@
     "express": "^4.17.1",
     "gl-matrix": "^3.3.0",
     "http-server": "^0.12.3",
+    "jest": "^26.2.2",
+    "jest-runner-tsc": "^1.6.0",
     "mediasoup": "^3.6.14",
     "pre-commit": "^1.2.2",
     "prettier": "^1.19.1",
@@ -57,6 +59,7 @@
     "rollup-plugin-terser": "^5.1.2",
     "rollup-plugin-typescript2": "^0.27.1",
     "three": "^0.118.3",
+    "three-snapshot-serializer": "^1.1.0",
     "troika-3d-text": "^0.28.1",
     "typescript": "^3.9.7"
   },
@@ -77,7 +80,8 @@
     "dev": "concurrently \"rollup -cw\" \"http-server --ssl --cert certs/armada.crt --key certs/armada.key ./dist/examples\"",
     "dev-server": "node examples/networking/server.js",
     "lint": "eslint --fix \"./src/**/*\"",
-    "start": "npm run build"
+    "start": "npm run build",
+    "test": "jest --watch"
   },
   "pre-commit": [
     "lint",

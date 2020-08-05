@@ -23,7 +23,8 @@ interface InputSchema {
   // Bound to events on added, unbound on removed
   eventBindings?: {
     [key: string]: {
-      behavior: any // Function
+      behavior: Function
+      selector?: string
       args?: {
         [key: string]: any
       }
@@ -61,7 +62,7 @@ interface InputSchema {
     [key: string]: {
       // binary state (on, off)
       [key: string]: {
-        behavior: any
+        behavior: Function
         args?: {
           [key: string]: any
         }
@@ -70,7 +71,7 @@ interface InputSchema {
     [key: number]: {
       // binary state (on, off)
       [key: number]: {
-        behavior: any
+        behavior: Function
         args: {
           [key: string]: any
         }
@@ -80,7 +81,7 @@ interface InputSchema {
   inputAxisBehaviors: {
     // input name / alias
     [key: string]: {
-      behavior: any
+      behavior: Function
       args: {
         [key: string]: any
       }
