@@ -4,7 +4,7 @@
 import NetworkSchema from "../interfaces/NetworkSchema"
 import { Assemblage } from "../../common/interfaces/Assemblage"
 import NetworkObject from "./components/NetworkObject"
-import { TransformComponent } from "../.."
+import TransformComponent from "../.."
 
 // Assemblage is a pattern for creating an entity and component collection as a prototype
 export const NetworkPlayerCharacter: Assemblage = {

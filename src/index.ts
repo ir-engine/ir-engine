@@ -17,8 +17,8 @@ import Subscription from "./subscription/components/Subscription"
 import SubscriptionSchema from "./subscription/interfaces/SubscriptionSchema"
 import { DefaultSubscriptionSchema } from "./subscription/defaults/DefaultSubscriptionSchema"
 import State from "./state/components/State"
-import { TransformComponent } from "./transform/components/TransformComponent"
-import TransformComponentSystem from "./transform/systems/TransformComponentSystem"
+import TransformComponent from "./transform/components/TransformComponent"
+import TransformSystem from "./transform/systems/TransformSystem"
 import Actor from "./common/defaults/components/Actor"
 import StateSystem from "./state/systems/StateSystem"
 import StateSchema from "./state/interfaces/StateSchema"
@@ -28,11 +28,10 @@ import NetworkClient from "./networking/components/NetworkClient"
 import NetworkTransport from "./networking/interfaces/NetworkTransport"
 import { MediaStreamControlSystem } from "./networking/systems/MediaStreamSystem"
 
-import { Transform } from "ecsy-three/src/extras/components"
+import TransformParent from "./transform/components/TransformParent"
 
 const DEFAULT_OPTIONS = {
-  debug: false,
-  withTransform: false
+  debug: false
 }
 
 export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS): World | null {
@@ -49,17 +48,19 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS):
   }
 
   world
-    .registerSystem(InputSystem)
-    .registerSystem(StateSystem)
-    .registerSystem(SubscriptionSystem)
-    .registerSystem(TransformComponentSystem)
-  world
     .registerComponent(Input)
     .registerComponent(State)
     .registerComponent(Actor)
     .registerComponent(Subscription)
     .registerComponent(TransformComponent)
-  if (options.withTransform) world.registerComponent(Transform)
+    .registerComponent(TransformParent)
+
+  world
+    .registerSystem(InputSystem)
+    .registerSystem(StateSystem)
+    .registerSystem(SubscriptionSystem)
+    .registerSystem(TransformSystem)
+
   return world
 }
 
@@ -69,8 +70,7 @@ export function initializeActor(
     inputSchema?: InputSchema
     stateSchema?: StateSchema
     subscriptionMap?: SubscriptionSchema
-  },
-  withTransform = false
+  }
 ): Entity {
   entity
     .addComponent(Input)
@@ -78,8 +78,6 @@ export function initializeActor(
     .addComponent(Actor)
     .addComponent(Subscription)
     .addComponent(TransformComponent)
-  // .addComponent(Transform)
-  if (withTransform) entity.addComponent(Transform)
 
   // Custom Action Map
   if (options.inputSchema) {

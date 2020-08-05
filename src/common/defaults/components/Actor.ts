@@ -31,10 +31,6 @@ export default class Actor extends Component<PropTypes> {
   rotationSpeedZ: number
   jump: jumpVals = defaultJumpValues
 
-  constructor() {
-    super()
-    this.reset()
-  }
   copy(src: this): this {
     this.rotationSpeedX = src.rotationSpeedX
     this.rotationSpeedY = src.rotationSpeedY
@@ -50,4 +46,8 @@ export default class Actor extends Component<PropTypes> {
     this.accelerationSpeed = 1
     this.jump = defaultJumpValues
   }
+}
+
+Actor.schema = {
+  // TODO: Schema here
 }

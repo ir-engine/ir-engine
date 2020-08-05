@@ -2,7 +2,7 @@ import { Entity } from "ecsy"
 import Behavior from "../../interfaces/Behavior"
 import { Vector2, Vector4, NumericalType, Vector3 } from "../../types/NumericalTypes"
 import Actor from "../components/Actor"
-import { TransformComponent } from "../../../transform/components/TransformComponent"
+import TransformComponent from "../../../transform/components/TransformComponent"
 import { quat, vec3 } from "gl-matrix"
 import { InputType } from "../../../input/enums/InputType"
 import Input from "../../../input/components/Input"
@@ -20,7 +20,7 @@ export const rotateAround: Behavior = (
   delta: number
 ): void => {
   inputComponent = entity.getComponent(Input)
-  actor = entity.getComponent(Actor)
+  actor = entity.getComponent<Actor>(Actor)
   transform = entity.getComponent(TransformComponent)
 
   if (!inputComponent.data.has(args.input)) {
