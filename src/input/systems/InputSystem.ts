@@ -14,6 +14,9 @@ export default class InputSystem extends System {
   private _inputComponent: Input
 
   public execute(delta: number): void {
+    // Called every frame on all input components
+    this.queries.inputs.results.forEach(entity => handleInput(entity, { delta }))
+
     // Called when input component is added to entity
     this.queries.inputs.added.forEach(entity => {
       // Get component reference
@@ -47,9 +50,6 @@ export default class InputSystem extends System {
         })
       })
     })
-
-    // Called every frame on all input components
-    this.queries.inputs.results.forEach(entity => handleInput(entity, { delta }))
   }
 }
 

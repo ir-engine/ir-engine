@@ -32,7 +32,6 @@
     "bufferutil": "^4.0.1",
     "concurrently": "^5.2.0",
     "dotenv": "^8.2.0",
-    "ecsy": "^0.3.2",
     "ecsy-three": "0.0.6",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.7.0",
@@ -91,6 +90,7 @@
     "@types/socket.io": "^2.1.10",
     "@types/socket.io-client": "^1.4.33",
     "cannon-es": "^0.15.1",
+    "ecsy": "git+https://github.com/mozillareality/ecsy.git",
     "mediasoup-client": "^3.6.12",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0"
