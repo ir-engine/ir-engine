@@ -66,9 +66,15 @@ export const handleInput: Behavior = (entity: Entity, delta: number): void => {
             value: value.value as Binary,
             lifecycleState: LifecycleValue.CONTINUED
           })
-          input.map.inputButtonBehaviors[key][value.value as number].behavior(
+          input.map.inputButtonBehaviors[key][value.value as number].behaviors?.started?.behavior(
             entity,
-            input.map.inputButtonBehaviors[key][value.value as number].args,
+            input.map.inputButtonBehaviors[key][value.value as number].behaviors.started.args,
+            delta
+          )
+        } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
+          input.map.inputButtonBehaviors[key][value.value as number].behaviors?.continued?.behavior(
+            entity,
+            input.map.inputButtonBehaviors[key][value.value as number].behaviors.continued.args,
             delta
           )
         }

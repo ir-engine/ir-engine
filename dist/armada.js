@@ -1435,72 +1435,124 @@ const DefaultInputMap = {
     inputButtonBehaviors: {
         [DefaultInput.JUMP]: {
             [BinaryValue.ON]: {
-                behavior: jump,
-                args: {}
+                behaviors: {
+                    started: {
+                        behavior: jump,
+                        args: {}
+                    }
+                }
             }
         },
         [DefaultInput.FORWARD]: {
             [BinaryValue.ON]: {
-                behavior: move,
-                args: {
-                    inputType: InputType.TWOD,
-                    input: {
-                        value: [0, -1]
+                behaviors: {
+                    started: {
+                        behavior: updateMovementState,
+                        args: {},
                     },
-                    value: [0, -1]
+                    continued: {
+                        behavior: move,
+                        args: {
+                            inputType: InputType.TWOD,
+                            input: {
+                                value: [0, -1]
+                            },
+                            value: [0, -1]
+                        }
+                    }
                 }
             },
             [BinaryValue.OFF]: {
-                behavior: updateMovementState,
-                args: {},
+                behaviors: {
+                    started: {
+                        behavior: updateMovementState,
+                        args: {},
+                    }
+                }
             }
         },
         [DefaultInput.BACKWARD]: {
             [BinaryValue.ON]: {
-                behavior: move,
-                args: {
-                    inputType: InputType.TWOD,
-                    input: {
-                        value: [0, 1]
+                behaviors: {
+                    started: {
+                        behavior: updateMovementState,
+                        args: {},
                     },
-                    value: [0, 1]
+                    continued: {
+                        behavior: move,
+                        args: {
+                            inputType: InputType.TWOD,
+                            input: {
+                                value: [0, 1]
+                            },
+                            value: [0, 1]
+                        }
+                    }
                 }
             },
             [BinaryValue.OFF]: {
-                behavior: updateMovementState,
-                args: {},
+                behaviors: {
+                    started: {
+                        behavior: updateMovementState,
+                        args: {},
+                    }
+                }
             }
         },
         [DefaultInput.LEFT]: {
             [BinaryValue.ON]: {
-                behavior: move,
-                args: {
-                    inputType: InputType.TWOD,
-                    input: {
-                        value: [-1, 0]
+                behaviors: {
+                    started: {
+                        behavior: updateMovementState,
+                        args: {},
                     },
-                    value: [-1, 0]
-                },
+                    continued: {
+                        behavior: move,
+                        args: {
+                            inputType: InputType.TWOD,
+                            input: {
+                                value: [-1, 0]
+                            },
+                            value: [-1, 0]
+                        }
+                    }
+                }
             },
             [BinaryValue.OFF]: {
-                behavior: updateMovementState,
-                args: {},
+                behaviors: {
+                    started: {
+                        behavior: updateMovementState,
+                        args: {},
+                    }
+                }
             }
         },
         [DefaultInput.RIGHT]: {
             [BinaryValue.ON]: {
-                behavior: move,
-                args: {
-                    inputType: InputType.TWOD,
-                    input: {
-                        value: [1, 0]
+                behaviors: {
+                    started: {
+                        behavior: updateMovementState,
+                        args: {},
                     },
-                    value: [1, 0]
+                    continued: {
+                        behavior: move,
+                        args: {
+                            inputType: InputType.TWOD,
+                            input: {
+                                value: [1, 0]
+                            },
+                            value: [1, 0]
+                        }
+                    }
                 }
             },
             [BinaryValue.OFF]: {
-                behavior: updateMovementState,
-                args: {},
+                behaviors: {
+                    started: {
+                        behavior: updateMovementState,
+                        args: {},
+                    }
+                }
             }
         },
     },
@@ -1573,6 +1625,7 @@ const handleInput = (entity, delta) => {
     let input;
     input = entity.getMutableComponent(Input);
     input.data.forEach((value, key) => {
+        var _a, _b, _c, _d;
         if (value.type === InputType.BUTTON) {
             if (input.map.inputButtonBehaviors[key] && input.map.inputButtonBehaviors[key][value.value]) {
                 if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue$1.STARTED) {
@@ -1581,7 +1634,10 @@ const handleInput = (entity, delta) => {
                         value: value.value,
                         lifecycleState: LifecycleValue$1.CONTINUED
                     });
-                    input.map.inputButtonBehaviors[key][value.value].behavior(entity, input.map.inputButtonBehaviors[key][value.value].args, delta);
+                    (_b = (_a = input.map.inputButtonBehaviors[key][value.value].behaviors) === null || _a === void 0 ? void 0 : _a.started) === null || _b === void 0 ? void 0 : _b.behavior(entity, input.map.inputButtonBehaviors[key][value.value].behaviors.started.args, delta);
+                }
+                else if (value.lifecycleState === LifecycleValue$1.CONTINUED) {
+                    (_d = (_c = input.map.inputButtonBehaviors[key][value.value].behaviors) === null || _c === void 0 ? void 0 : _c.continued) === null || _d === void 0 ? void 0 : _d.behavior(entity, input.map.inputButtonBehaviors[key][value.value].behaviors.continued.args, delta);
                 }
             }
         }

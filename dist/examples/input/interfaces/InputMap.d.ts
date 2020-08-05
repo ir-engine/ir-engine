@@ -51,18 +51,20 @@ interface InputMap {
     inputButtonBehaviors: {
         [key: string]: {
             [key: string]: {
-                behavior: any;
+                behavior?: any;
                 args?: {
                     [key: string]: any;
                 };
+                behaviors?: any;
             };
         };
         [key: number]: {
             [key: number]: {
-                behavior: any;
-                args: {
+                behavior?: any;
+                args?: {
                     [key: string]: any;
                 };
+                behaviors?: any;
             };
         };
     };

@@ -140,72 +140,124 @@ export const DefaultInputMap: InputMap = {
   inputButtonBehaviors: {
     [DefaultInput.JUMP]: {
       [BinaryValue.ON]: {
-        behavior: jump,
-        args: {}
+        behaviors: {
+          started: {
+            behavior: jump,
+            args: {}
+          }
+        }
       }
     },
     [DefaultInput.FORWARD]: {
       [BinaryValue.ON]: {
-        behavior: move,
-        args: {
-          inputType: InputType.TWOD,
-          input: {
-            value: [0, -1]
+        behaviors: {
+          started: {
+            behavior: updateMovementState,
+            args: {},
           },
-          value: [0, -1]
+          continued: {
+            behavior: move,
+            args: {
+              inputType: InputType.TWOD,
+              input: {
+                value: [0, -1]
+              },
+              value: [0, -1]
+            }
+          }
         }
       },
       [BinaryValue.OFF]: {
-        behavior: updateMovementState,
-        args: {},
+        behaviors: {
+          started: {
+            behavior: updateMovementState,
+            args: {},
+          }
+        }
       }
     },
     [DefaultInput.BACKWARD]: {
       [BinaryValue.ON]: {
-        behavior: move,
-        args: {
-          inputType: InputType.TWOD,
-          input: {
-            value: [0, 1]
+        behaviors: {
+          started: {
+            behavior: updateMovementState,
+            args: {},
           },
-          value: [0, 1]
+          continued: {
+            behavior: move,
+            args: {
+              inputType: InputType.TWOD,
+              input: {
+                value: [0, 1]
+              },
+              value: [0, 1]
+            }
+          }
         }
       },
       [BinaryValue.OFF]: {
-        behavior: updateMovementState,
-        args: {},
+        behaviors: {
+          started: {
+            behavior: updateMovementState,
+            args: {},
+          }
+        }
       }
     },
     [DefaultInput.LEFT]: {
       [BinaryValue.ON]: {
-        behavior: move,
-        args: {
-          inputType: InputType.TWOD,
-          input: {
-            value: [-1, 0]
+        behaviors: {
+          started: {
+            behavior: updateMovementState,
+            args: {},
           },
-          value: [-1, 0]
-        },
+          continued: {
+            behavior: move,
+            args: {
+              inputType: InputType.TWOD,
+              input: {
+                value: [-1, 0]
+              },
+              value: [-1, 0]
+            }
+          }
+        }
       },
       [BinaryValue.OFF]: {
-        behavior: updateMovementState,
-        args: {},
+        behaviors: {
+          started: {
+            behavior: updateMovementState,
+            args: {},
+          }
+        }
       }
     },
     [DefaultInput.RIGHT]: {
       [BinaryValue.ON]: {
-        behavior: move,
-        args: {
-          inputType: InputType.TWOD,
-          input: {
-            value: [1, 0]
+        behaviors: {
+          started: {
+            behavior: updateMovementState,
+            args: {},
           },
-          value: [1, 0]
+          continued: {
+            behavior: move,
+            args: {
+              inputType: InputType.TWOD,
+              input: {
+                value: [1, 0]
+              },
+              value: [1, 0]
+            }
+          }
         }
       },
       [BinaryValue.OFF]: {
-        behavior: updateMovementState,
-        args: {},
+        behaviors: {
+          started: {
+            behavior: updateMovementState,
+            args: {},
+          }
+        }
       }
     },
     // [DefaultInput.CROUCH]: {
