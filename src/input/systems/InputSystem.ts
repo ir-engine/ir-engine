@@ -12,6 +12,8 @@ import LifecycleValue from "../../common/enums/LifecycleValue"
 export default class InputSystem extends System {
   // Temp/ref variables
   private _inputComponent: Input
+  // bound DOM listeners should be saved, otherwise they can't be unbound, becouse (f => f) !== (f => f)
+  private boundListeners = new Set()
 
   public execute(delta: number): void {
     // Called when input component is added to entity
@@ -25,11 +27,19 @@ export default class InputSystem extends System {
         behavior.behavior(entity, { ...behavior.args })
       })
       // Bind DOM events to event behavior
-      Object.keys(this._inputComponent.schema.eventBindings)?.forEach((key: string) => {
-        document.addEventListener(key, e => {
-          this._inputComponent.schema.eventBindings[key].behavior(entity, { event: e, ...this._inputComponent.schema.eventBindings[key].args })
-        })
-      })
+      const {eventBindings} = this._inputComponent.schema
+      if( eventBindings ) this.boundListeners[ entity.id ] =
+        Object.entries(eventBindings).map( ([eventName, {behavior, args, selector}]) => {
+          const domElement = selector ? document.querySelector(selector) : document
+          if( domElement ){
+            const listener = (event: Event) => behavior(entity, { event, ...args })
+            domElement.addEventListener(eventName, listener)
+            return [selector, eventName, listener]
+          } else {
+            console.warn("DOM Element not found:", selector)
+            return false
+          }
+        }).filter(Boolean)
     })
 
     // Called when input component is removed from entity
@@ -41,11 +51,14 @@ export default class InputSystem extends System {
         behavior.behavior(entity, behavior.args)
       })
       // Unbind events from DOM
-      Object.keys(this._inputComponent.schema.eventBindings).forEach((key: string) => {
-        document.addEventListener(key, e => {
-          this._inputComponent.schema.eventBindings[key].behavior(entity, { event: e, ...this._inputComponent.schema.eventBindings[key].args })
-        })
-      })
+      const bound = this.boundListeners[ entity.id ]
+      if( bound ){
+        for(const [selector, eventName, listener] of bound){
+          const domElement = selector ? document.querySelector(selector) : document
+          domElement?.removeEventListener(eventName, listener)
+        }
+        delete this.boundListeners[ entity.id ]
+      }
     })
 
     // Called every frame on all input components
