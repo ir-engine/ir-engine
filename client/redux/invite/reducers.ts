@@ -98,6 +98,7 @@ const inviteReducer = (state = immutableState, action: InviteAction): any => {
      else {
        console.log('Malformed invite retrieved, neither userId nor inviteeId matches selfUser')
        console.log(createdInvite)
+       stateUpdate = state
      }
      return stateUpdate
     case REMOVED_INVITE:
@@ -114,6 +115,9 @@ const inviteReducer = (state = immutableState, action: InviteAction): any => {
           updateMap.set('invites', updateMapInvites)
           stateUpdate = state.set('sentInvites', updateMap)
         }
+        else {
+          stateUpdate = state
+        }
       } else {
         updateMap = new Map(state.get('receivedInvites'))
         updateMapInvites = updateMap.get('invites')
@@ -123,6 +127,9 @@ const inviteReducer = (state = immutableState, action: InviteAction): any => {
           updateMap.set('skip', updateMap.set('skip') - 1)
           updateMap.set('invites', updateMapInvites)
           stateUpdate = state.set('receivedInvites', updateMap)
+        }
+        else {
+          stateUpdate = state
         }
       }
      return stateUpdate
