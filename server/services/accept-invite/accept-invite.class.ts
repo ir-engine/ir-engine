@@ -1,3 +1,4 @@
+import config from '../../config'
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { BadRequest } from '@feathersjs/errors'
@@ -21,6 +22,8 @@ export class AcceptInvite implements ServiceMethods<Data> {
   }
 
   async get (id: Id, params?: Params): Promise<Data> {
+    params.query.passcode = params.query.t
+    delete params.query.t
     try {
       params.provider = null
       const invite = await this.app.service('invite').get(id, params)
@@ -35,8 +38,8 @@ export class AcceptInvite implements ServiceMethods<Data> {
         return new BadRequest('Invalid passcode')
       }
 
+      let inviteeIdentityProvider
       if (invite.identityProviderType != null) {
-        let inviteeIdentityProvider
         const inviteeIdentityProviderResult = await this.app.service('identity-provider').find({
           query: {
             type: invite.identityProviderType,
@@ -64,13 +67,19 @@ export class AcceptInvite implements ServiceMethods<Data> {
             await this.app.service('user-relationship').create({
               userRelationshipType: invite.inviteType,
               userId: invite.userId,
-              relatedUserId: (inviteeIdentityProvider).userId
+              relatedUserId: inviteeIdentityProvider.userId
             }, params)
           }
 
-          await this.app.service('user-relationship').patch(invite.userId, {
-            userRelationshipType: invite.inviteType,
-            userId: (inviteeIdentityProvider).userId
+          const reciprocalRelationship = await this.app.service('user-relationship').Model.findOne({
+            where: {
+              userId: inviteeIdentityProvider.userId,
+              relatedUserId: invite.userId
+            }
+          })
+
+          await this.app.service('user-relationship').patch(reciprocalRelationship.id, {
+            userRelationshipType: invite.inviteType
           }, params)
         } else if (invite.inviteType === 'group') {
           const group = await this.app.service('group').get(invite.targetObjectId)
@@ -78,11 +87,19 @@ export class AcceptInvite implements ServiceMethods<Data> {
           if (group == null) {
             return new BadRequest('Invalid group ID')
           }
-          await this.app.service('group-user').create({
-            userId: inviteeIdentityProvider.userId,
-            groupId: invite.targetObjectId,
-            groupUserRank: 'user'
+          const existingGroupUser = await this.app.service('group-user').Model.findOne({
+            where: {
+              userId: inviteeIdentityProvider.userId,
+              groupId: invite.targetObjectId
+            }
           })
+          if (existingGroupUser == null) {
+            await this.app.service('group-user').create({
+              userId: inviteeIdentityProvider.userId,
+              groupId: invite.targetObjectId,
+              groupUserRank: 'user'
+            })
+          }
         } else if (invite.inviteType === 'party') {
           const party = await this.app.service('party').get(invite.targetObjectId, params)
 
@@ -110,6 +127,9 @@ export class AcceptInvite implements ServiceMethods<Data> {
         }
       } else if (invite.inviteeId != null) {
         const invitee = await this.app.service('user').get(invite.inviteeId)
+        inviteeIdentityProvider = await this.app.service('identity-provider').Model.findOne({
+          userId: invitee.id
+        })
 
         if (invitee == null) {
           return new BadRequest('Invalid invitee ID')
@@ -123,12 +143,24 @@ export class AcceptInvite implements ServiceMethods<Data> {
               relatedUserId: invite.inviteeId
             }
           })
-          if ((existingRelationshipResult as any).total > 0) {
-            await this.app.service('user-relationship').patch(invite.userId, {
+          if ((existingRelationshipResult as any).total === 0) {
+            await this.app.service('user-relationship').create({
               userRelationshipType: invite.inviteType,
-              userId: invite.inviteeId
+              userId: invite.userId,
+              relatedUserId: invite.inviteeId
             }, params)
           }
+
+          const reciprocalRelationship = await this.app.service('user-relationship').Model.findOne({
+            where: {
+              userId: invite.inviteeId,
+              relatedUserId: invite.userId
+            }
+          })
+
+          await this.app.service('user-relationship').patch(reciprocalRelationship.id, {
+            userRelationshipType: invite.inviteType
+          }, params)
         } else if (invite.inviteType === 'group') {
           const group = await this.app.service('group').get(invite.targetObjectId)
 
@@ -136,11 +168,19 @@ export class AcceptInvite implements ServiceMethods<Data> {
             return new BadRequest('Invalid group ID')
           }
 
-          await this.app.service('group-user').create({
-            userId: invite.inviteeId,
-            groupId: invite.targetObjectId,
-            groupUserRank: 'user'
+          const existingGroupUser = await this.app.service('group-user').Model.findOne({
+            where: {
+              userId: inviteeIdentityProvider.userId,
+              groupId: invite.targetObjectId
+            }
           })
+          if (existingGroupUser == null) {
+            await this.app.service('group-user').create({
+              userId: invite.inviteeId,
+              groupId: invite.targetObjectId,
+              groupUserRank: 'user'
+            })
+          }
         } else if (invite.inviteType === 'party') {
           const party = await this.app.service('party').get(invite.targetObjectId, params)
 
@@ -168,9 +208,21 @@ export class AcceptInvite implements ServiceMethods<Data> {
         }
       }
 
+      const token = await this.app.service('authentication').createAccessToken(
+        {},
+        { subject: inviteeIdentityProvider.id.toString() }
+      )
+      params[config.authentication.entity] = inviteeIdentityProvider
       await this.app.service('invite').remove(invite.id, params)
+
+      return {
+        token: token
+      }
     } catch (err) {
       console.log(err)
+      return {
+        error: err.message
+      }
     }
   }
 

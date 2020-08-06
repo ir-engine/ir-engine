@@ -12,7 +12,7 @@ export default () => {
     if (invite == null) {
       throw new BadRequest('Invalid invite ID')
     }
-    if (invite.userId !== loggedInUser.userId && invite.inviteeId !== loggedInUser.userId) {
+    if (invite.userId !== loggedInUser.userId && invite.inviteeId !== loggedInUser.userId && invite.token !== loggedInUser.token) {
       throw new Forbidden('Not the sender or recipient of this invite')
     }
     return context

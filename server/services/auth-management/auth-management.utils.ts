@@ -4,13 +4,12 @@ import config from '../../config'
 
 export function getLink (type: string, hash: string, subscriptionId?: string): string {
   return subscriptionId != null && subscriptionId.length > 0
-    ? (config.client.url) + '/auth/magiclink' +
-      `?type=${type}&token=${hash}&subscriptionId=${subscriptionId}`
-    : (config.client.url) + '/auth/magiclink' + `?type=${type}&token=${hash}`
+    ? `${config.client.url}/login/${hash}?subId=${subscriptionId}`
+    : `${config.client.url}/login/${hash}`
 }
 
 export function getInviteLink (type: string, id: string, passcode: string): string {
-  return (config.server.url) + `/accept-invite/${id}?passcode=${passcode}`
+  return `${config.server.url}/a-i/${id}?t=${passcode}`
 }
 
 export async function sendEmail (app: Application, email: any): Promise<void> {
@@ -29,12 +28,13 @@ export async function sendEmail (app: Application, email: any): Promise<void> {
   }
 }
 
-export const sendSms = async (app: Application, sms: any): Promise<void> =>
+export const sendSms = async (app: Application, sms: any): Promise<void> => {
   await app.service('sms').create(sms).then(() =>
     console.log('Sent SMS')
   ).catch((err: any) =>
     console.log('Error sending SMS', err)
   )
+}
 
 /**
  * This method will extract the loggedIn User from params

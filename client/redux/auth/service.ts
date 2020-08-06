@@ -170,7 +170,7 @@ export function loginUserByJwt (accessToken: string, redirectSuccess: string, re
         console.log(err)
         dispatch(loginUserError('Failed to login'))
         dispatchAlertError(dispatch, err.message)
-        window.location.href = redirectError
+        window.location.href = `${redirectError}?error=${err.message}`
       })
       .finally(() => dispatch(actionProcessing(false)))
   }

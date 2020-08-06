@@ -33,6 +33,7 @@ export function sendInvite (data: any) {
         dispatchAlertError(dispatch, 'Invalid 10-digit US phone number')
         send = false
       }
+      data.token = '+1' + data.token
     }
     if (data.invitee != null) {
       if (userIdRegex.test(data.invitee) !== true) {
@@ -118,7 +119,7 @@ export function deleteInvite(inviteId: string) {
 export function acceptInvite(inviteId: string, passcode: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      await client.service('accept-invite').get(inviteId, {
+      await client.service('a-i').get(inviteId, {
         query: {
           passcode: passcode
         }
@@ -152,5 +153,5 @@ client.service('invite').on('created', (params) => {
 
 client.service('invite').on('removed', (params) => {
   const selfUser = (store.getState() as any).get('auth').get('user') as User
-    store.dispatch(removedInvite(params.invite, selfUser))
+  store.dispatch(removedInvite(params.invite, selfUser))
 })

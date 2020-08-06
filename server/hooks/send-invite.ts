@@ -119,7 +119,7 @@ async function generateEmail (
   let groupName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode)
   const appPath = path.dirname(require.main ? require.main.filename : '')
-  const emailAccountTemplatesPath = path.join(
+  const emailInviteTemplatesPath = path.join(
     appPath,
     '..',
     'server',
@@ -128,7 +128,7 @@ async function generateEmail (
   )
 
   const templatePath = path.join(
-    emailAccountTemplatesPath,
+    emailInviteTemplatesPath,
       `magiclink-email-invite-${inviteType}.pug`
   )
 
@@ -166,19 +166,19 @@ async function generateSMS (
   let groupName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode)
   const appPath = path.dirname(require.main ? require.main.filename : '')
-  const emailAccountTemplatesPath = path.join(
+  const emailInviteTemplatesPath = path.join(
     appPath,
     '..',
     'server',
     'email-templates',
-    'account'
+    'invite'
   )
   if (inviteType === 'group') {
     const group = await app.service('group').get(targetObjectId)
     groupName = group.name
   }
   const templatePath = path.join(
-    emailAccountTemplatesPath,
+    emailInviteTemplatesPath,
       `magiclink-sms-invite-${inviteType}.pug`
   )
   const compiledHTML = pug.compileFile(templatePath)({

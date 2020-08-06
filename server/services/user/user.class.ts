@@ -123,6 +123,13 @@ export class User extends Service {
               relatedUserId: params.query.userId,
               userRelationshipType: 'friend'
             }
+          },
+          {
+            model: this.app.service('user-relationship').Model,
+            where: {
+              userId: params.query.userId,
+              userRelationshipType: 'friend'
+            }
           }
         ]
       })
