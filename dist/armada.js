@@ -1,7 +1,7 @@
 import { Component, Types, TagComponent, System, SystemStateComponent } from 'ecsy';
-import { Transform as Transform$1 } from 'ecsy-three/src/extras/components';
+import { Transform as Transform$2 } from 'ecsy-three/src/extras/components';
 import { Quaternion as Quaternion$1, Euler, DataTexture, RGBFormat, TextureLoader, InstancedBufferGeometry, BufferGeometry, ShaderLib, UniformsUtils, ShaderMaterial, Mesh, Points, Float32BufferAttribute, Matrix4, Texture, NormalBlending, InstancedBufferAttribute, MathUtils, Vector3 } from 'three';
-import { Transform as Transform$2, Parent } from 'ecsy-three/extras';
+import { Transform as Transform$3, Parent } from 'ecsy-three/extras';
 import { Object3DComponent } from 'ecsy-three';
 
 // Constructs a component with a map and data values
@@ -57,7 +57,7 @@ Actor.schema = {
 const vector3Identity = [0, 0, 0];
 const vector3ScaleIdentity = [1, 1, 1];
 const quaternionIdentity = [0, 0, 0, 1];
-class TransformComponent extends Component {
+class Transform extends Component {
     constructor() {
         super();
         this.position = vector3Identity;
@@ -767,7 +767,7 @@ let transform;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const decelerate = (entity, args, delta) => {
     actor = entity.getComponent(Actor);
-    transform = entity.getMutableComponent(TransformComponent);
+    transform = entity.getMutableComponent(Transform);
     if (length(transform.velocity) > 0.001) {
         transform.velocity[0] = transform.velocity[0] * Math.max(1.0 - actor.accelerationSpeed * delta, 0);
         transform.velocity[1] = transform.velocity[1] * Math.max(1.0 - actor.accelerationSpeed * delta, 0);
@@ -872,7 +872,7 @@ const jump = (entity) => {
     actor$1.jump.t = 0;
 };
 const jumping = (entity, args, delta) => {
-    transform$1 = entity.getComponent(TransformComponent);
+    transform$1 = entity.getComponent(Transform);
     actor$1 = entity.getMutableComponent(Actor);
     actor$1.jump.t += delta;
     if (actor$1.jump.t < actor$1.jump.duration) {
@@ -920,7 +920,7 @@ let outputSpeed;
 const move = (entity, args, delta) => {
     input = entity.getComponent(Input);
     actor$2 = entity.getComponent(Actor);
-    transform$2 = entity.getMutableComponent(TransformComponent);
+    transform$2 = entity.getMutableComponent(Transform);
     const movementModifer = entity.hasComponent(Crouching) ? 0.5 : entity.hasComponent(Sprinting) ? 1.5 : 1.0;
     const inputType = args.inputType;
     outputSpeed = actor$2.accelerationSpeed * delta * movementModifer;
@@ -953,7 +953,7 @@ let originalRotation;
 const rotateAround = (entity, args, delta) => {
     inputComponent = entity.getComponent(Input);
     actor$3 = entity.getComponent(Actor);
-    transform$3 = entity.getMutableComponent(TransformComponent);
+    transform$3 = entity.getMutableComponent(Transform);
     mouseDownPosition = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes["mouseClickDownPosition"]);
     originalRotation = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes["mouseClickDownTransformRotation"]);
     if (mouseDownPosition == undefined || originalRotation == undefined)
@@ -983,7 +983,7 @@ const rotateAround = (entity, args, delta) => {
 const _output = [0, 0, 0];
 let transform$4;
 const updatePosition = (entity, args, delta) => {
-    transform$4 = entity.getMutableComponent(TransformComponent);
+    transform$4 = entity.getMutableComponent(Transform);
     if (length(transform$4.velocity) > 0.001) {
         scale(_output, transform$4.velocity, delta);
         add(transform$4.position, transform$4.position, _output);
@@ -1410,39 +1410,9 @@ const MouseButtons = {
     RightButton: 2
 };
 
-const vector3Identity$1 = [0, 0, 0];
-const vector3ScaleIdentity$1 = [1, 1, 1];
-const quaternionIdentity$1 = [0, 0, 0, 1];
-class TransformComponent$1 extends Component {
-    constructor() {
-        super();
-        this.position = [...vector3Identity$1];
-        this.rotation = [...quaternionIdentity$1];
-        this.scale = [...vector3ScaleIdentity$1];
-        this.velocity = [...vector3Identity$1];
-        this.position = [...vector3Identity$1];
-        this.rotation = [...quaternionIdentity$1];
-        this.scale = [...vector3ScaleIdentity$1];
-        this.velocity = [...vector3Identity$1];
-    }
-    copy(src) {
-        this.position = src.position;
-        this.rotation = src.rotation;
-        this.scale = src.scale;
-        this.velocity = src.velocity;
-        return this;
-    }
-    reset() {
-        this.position = [...vector3Identity$1];
-        this.rotation = [...quaternionIdentity$1];
-        this.scale = [...vector3ScaleIdentity$1];
-        this.velocity = [...vector3Identity$1];
-    }
-}
-
 const rotateStart = (entity, args, delta) => {
     const input = entity.getMutableComponent(Input);
-    const transform = entity.getComponent(TransformComponent$1);
+    const transform = entity.getComponent(Transform);
     const transformRotation = [
         transform.rotation[0],
         transform.rotation[1],
@@ -1830,42 +1800,43 @@ class InputSystem extends System {
         });
     }
 }
+let input$4;
 const handleInput = (entity, delta) => {
-    undefined.input = entity.getMutableComponent(Input);
-    undefined.input.data.forEach((value, key) => {
+    input$4 = entity.getMutableComponent(Input);
+    input$4.data.forEach((value, key) => {
         var _a, _b, _c, _d;
         // If the input is a button
         if (value.type === InputType.BUTTON) {
             // If the input exists on the input map (otherwise ignore it)
-            if (undefined.input.schema.inputButtonBehaviors[key] && undefined.input.schema.inputButtonBehaviors[key][value.value]) {
+            if (input$4.schema.inputButtonBehaviors[key] && input$4.schema.inputButtonBehaviors[key][value.value]) {
                 // If the lifecycle hasn't been set or just started (so we don't keep spamming repeatedly)
                 if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue$1.STARTED) {
                     // Set the value of the input to continued to debounce
-                    undefined.input.data.set(key, {
+                    input$4.data.set(key, {
                         type: value.type,
                         value: value.value,
                         lifecycleState: LifecycleValue$1.CONTINUED
                     });
-                    (_a = undefined.input.map.inputButtonBehaviors[key][value.value].started) === null || _a === void 0 ? void 0 : _a.behavior(entity, undefined.input.map.inputButtonBehaviors[key][value.value].started.args, delta);
+                    (_a = input$4.schema.inputButtonBehaviors[key][value.value].started) === null || _a === void 0 ? void 0 : _a.forEach(buttonBehavior => buttonBehavior.behavior(entity, buttonBehavior.args, delta));
                 }
                 else if (value.lifecycleState === LifecycleValue$1.CONTINUED) {
-                    (_b = undefined.input.map.inputButtonBehaviors[key][value.value].continued) === null || _b === void 0 ? void 0 : _b.behavior(entity, undefined.input.map.inputButtonBehaviors[key][value.value].continued.args, delta);
+                    (_b = input$4.schema.inputButtonBehaviors[key][value.value].continued) === null || _b === void 0 ? void 0 : _b.forEach(buttonBehavior => buttonBehavior.behavior(entity, input$4.schema.inputButtonBehaviors[key][value.value].continued.args, delta));
                 }
             }
         }
         else if (value.type === InputType.ONED || value.type === InputType.TWOD || value.type === InputType.THREED || value.type === InputType.FOURD) {
-            if (undefined.input.schema.inputAxisBehaviors[key]) {
+            if (input$4.schema.inputAxisBehaviors[key]) {
                 if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue$1.STARTED) {
                     // Set the value to continued to debounce
-                    undefined.input.data.set(key, {
+                    input$4.data.set(key, {
                         type: value.type,
                         value: value.value,
                         lifecycleState: LifecycleValue$1.CONTINUED
                     });
-                    (_c = undefined.input.schema.inputAxisBehaviors[key].started) === null || _c === void 0 ? void 0 : _c.behavior(entity, undefined.input.schema.inputAxisBehaviors[key].started.args, delta);
+                    (_c = input$4.schema.inputAxisBehaviors[key].started) === null || _c === void 0 ? void 0 : _c.forEach(value => value.behavior(entity, value.args, delta));
                 }
                 else if (value.lifecycleState === LifecycleValue$1.CONTINUED) {
-                    (_d = undefined.input.schema.inputAxisBehaviors[key].continued) === null || _d === void 0 ? void 0 : _d.behavior(entity, undefined.input.schema.inputAxisBehaviors[key].continued.args, delta);
+                    (_d = input$4.schema.inputAxisBehaviors[key].continued) === null || _d === void 0 ? void 0 : _d.forEach(value => value.behavior(entity, value.args, delta));
                 }
             }
         }
@@ -3966,7 +3937,7 @@ Shape.idCounter = 0;
 
 Shape.types = SHAPE_TYPES;
 
-class Transform {
+class Transform$1 {
   constructor(options = {}) {
     this.position = new Vec3();
     this.quaternion = new Quaternion();
@@ -3985,7 +3956,7 @@ class Transform {
 
 
   pointToLocal(worldPoint, result) {
-    return Transform.pointToLocalFrame(this.position, this.quaternion, worldPoint, result);
+    return Transform$1.pointToLocalFrame(this.position, this.quaternion, worldPoint, result);
   }
   /**
    * Get a local point in global transform coordinates.
@@ -3993,7 +3964,7 @@ class Transform {
 
 
   pointToWorld(localPoint, result) {
-    return Transform.pointToWorldFrame(this.position, this.quaternion, localPoint, result);
+    return Transform$1.pointToWorldFrame(this.position, this.quaternion, localPoint, result);
   }
 
   vectorToWorldFrame(localVector, result = new Vec3()) {
@@ -4887,8 +4858,8 @@ ConvexPolyhedron.project = (shape, axis, pos, quat, result) => {
   const vs = shape.vertices;
   localOrigin.setZero(); // Transform the axis to local
 
-  Transform.vectorToLocalFrame(pos, quat, axis, localAxis);
-  Transform.pointToLocalFrame(pos, quat, localOrigin, localOrigin);
+  Transform$1.vectorToLocalFrame(pos, quat, axis, localAxis);
+  Transform$1.pointToLocalFrame(pos, quat, localOrigin, localOrigin);
   const add = localOrigin.dot(localAxis);
   min = max = vs[0].dot(localAxis);
 
@@ -6340,8 +6311,8 @@ class Ray {
 
     localRay.from.copy(this.from);
     localRay.to.copy(this.to);
-    Transform.pointToLocalFrame(position, quat, localRay.from, localRay.from);
-    Transform.pointToLocalFrame(position, quat, localRay.to, localRay.to);
+    Transform$1.pointToLocalFrame(position, quat, localRay.from, localRay.from);
+    Transform$1.pointToLocalFrame(position, quat, localRay.to, localRay.to);
     localRay.updateDirection(); // Get the index of the data points to test against
 
     const index = intersectHeightfield_index;
@@ -6375,7 +6346,7 @@ class Ray {
 
 
         shape.getConvexTrianglePillar(i, j, false);
-        Transform.pointToWorldFrame(position, quat, shape.pillarOffset, worldPillarOffset);
+        Transform$1.pointToWorldFrame(position, quat, shape.pillarOffset, worldPillarOffset);
 
         this._intersectConvex(shape.pillarConvex, quat, worldPillarOffset, body, reportedShape, intersectConvexOptions);
 
@@ -6385,7 +6356,7 @@ class Ray {
 
 
         shape.getConvexTrianglePillar(i, j, true);
-        Transform.pointToWorldFrame(position, quat, shape.pillarOffset, worldPillarOffset);
+        Transform$1.pointToWorldFrame(position, quat, shape.pillarOffset, worldPillarOffset);
 
         this._intersectConvex(shape.pillarConvex, quat, worldPillarOffset, body, reportedShape, intersectConvexOptions);
       }
@@ -6536,9 +6507,9 @@ class Ray {
     treeTransform.position.copy(position);
     treeTransform.quaternion.copy(quat); // Transform ray to local space!
 
-    Transform.vectorToLocalFrame(position, quat, direction, localDirection);
-    Transform.pointToLocalFrame(position, quat, from, localFrom);
-    Transform.pointToLocalFrame(position, quat, to, localTo);
+    Transform$1.vectorToLocalFrame(position, quat, direction, localDirection);
+    Transform$1.pointToLocalFrame(position, quat, from, localFrom);
+    Transform$1.pointToLocalFrame(position, quat, to, localTo);
     localTo.x *= mesh.scale.x;
     localTo.y *= mesh.scale.y;
     localTo.z *= mesh.scale.z;
@@ -6585,8 +6556,8 @@ class Ray {
       } // transform intersectpoint and normal to world
 
 
-      Transform.vectorToWorldFrame(quat, normal, worldNormal);
-      Transform.pointToWorldFrame(position, quat, intersectPoint, worldIntersectPoint);
+      Transform$1.vectorToWorldFrame(quat, normal, worldNormal);
+      Transform$1.pointToWorldFrame(position, quat, intersectPoint, worldIntersectPoint);
       this.reportIntersection(worldNormal, worldIntersectPoint, reportedShape, body, trianglesIndex);
     }
 
@@ -6695,7 +6666,7 @@ const intersectTrimesh_worldNormal = new Vec3();
 const intersectTrimesh_worldIntersectPoint = new Vec3();
 const intersectTrimesh_localAABB = new AABB();
 const intersectTrimesh_triangles = [];
-const intersectTrimesh_treeTransform = new Transform();
+const intersectTrimesh_treeTransform = new Transform$1();
 Ray.prototype[Shape.types.TRIMESH] = Ray.prototype._intersectTrimesh;
 const v0 = new Vec3();
 const intersect = new Vec3();
@@ -7626,7 +7597,7 @@ class WheelInfo {
     this.sideImpulse = 0;
     this.forwardImpulse = 0;
     this.raycastResult = new RaycastResult();
-    this.worldTransform = new Transform();
+    this.worldTransform = new Transform$1();
     this.isInContact = false;
   }
 
@@ -8379,7 +8350,7 @@ class Cylinder extends ConvexPolyhedron {
 const tmpAABB$1 = new AABB();
 const unscaledAABB = new AABB();
 const cli_aabb = new AABB();
-const calculateWorldAABB_frame = new Transform();
+const calculateWorldAABB_frame = new Transform$1();
 const calculateWorldAABB_aabb = new AABB();
 /**
  * Constraint equation solver base class.
@@ -9531,7 +9502,7 @@ class Narrowphase {
     const worldPillarOffset = sphereHeightfield_tmp2; // Get sphere position to heightfield local!
 
     const localSpherePos = sphereHeightfield_tmp1;
-    Transform.pointToLocalFrame(hfPos, hfQuat, spherePos, localSpherePos); // Get the index of the data points to test against
+    Transform$1.pointToLocalFrame(hfPos, hfQuat, spherePos, localSpherePos); // Get the index of the data points to test against
 
     let iMinX = Math.floor((localSpherePos.x - radius) / w) - 1;
     let iMaxX = Math.ceil((localSpherePos.x + radius) / w) + 1;
@@ -9592,7 +9563,7 @@ class Narrowphase {
         let intersecting = false; // Lower triangle
 
         hfShape.getConvexTrianglePillar(i, j, false);
-        Transform.pointToWorldFrame(hfPos, hfQuat, hfShape.pillarOffset, worldPillarOffset);
+        Transform$1.pointToWorldFrame(hfPos, hfQuat, hfShape.pillarOffset, worldPillarOffset);
 
         if (spherePos.distanceTo(worldPillarOffset) < hfShape.pillarConvex.boundingSphereRadius + sphereShape.boundingSphereRadius) {
           intersecting = this.sphereConvex(sphereShape, hfShape.pillarConvex, spherePos, worldPillarOffset, sphereQuat, hfQuat, sphereBody, hfBody, sphereShape, hfShape, justTest);
@@ -9604,7 +9575,7 @@ class Narrowphase {
 
 
         hfShape.getConvexTrianglePillar(i, j, true);
-        Transform.pointToWorldFrame(hfPos, hfQuat, hfShape.pillarOffset, worldPillarOffset);
+        Transform$1.pointToWorldFrame(hfPos, hfQuat, hfShape.pillarOffset, worldPillarOffset);
 
         if (spherePos.distanceTo(worldPillarOffset) < hfShape.pillarConvex.boundingSphereRadius + sphereShape.boundingSphereRadius) {
           intersecting = this.sphereConvex(sphereShape, hfShape.pillarConvex, spherePos, worldPillarOffset, sphereQuat, hfQuat, sphereBody, hfBody, sphereShape, hfShape, justTest);
@@ -9644,7 +9615,7 @@ class Narrowphase {
     const faceList = convexHeightfield_faceList; // Get sphere position to heightfield local!
 
     const localConvexPos = convexHeightfield_tmp1;
-    Transform.pointToLocalFrame(hfPos, hfQuat, convexPos, localConvexPos); // Get the index of the data points to test against
+    Transform$1.pointToLocalFrame(hfPos, hfQuat, convexPos, localConvexPos); // Get the index of the data points to test against
 
     let iMinX = Math.floor((localConvexPos.x - radius) / w) - 1;
     let iMaxX = Math.ceil((localConvexPos.x + radius) / w) + 1;
@@ -9702,7 +9673,7 @@ class Narrowphase {
         let intersecting = false; // Lower triangle
 
         hfShape.getConvexTrianglePillar(i, j, false);
-        Transform.pointToWorldFrame(hfPos, hfQuat, hfShape.pillarOffset, worldPillarOffset);
+        Transform$1.pointToWorldFrame(hfPos, hfQuat, hfShape.pillarOffset, worldPillarOffset);
 
         if (convexPos.distanceTo(worldPillarOffset) < hfShape.pillarConvex.boundingSphereRadius + convexShape.boundingSphereRadius) {
           intersecting = this.convexConvex(convexShape, hfShape.pillarConvex, convexPos, worldPillarOffset, convexQuat, hfQuat, convexBody, hfBody, null, null, justTest, faceList, null);
@@ -9714,7 +9685,7 @@ class Narrowphase {
 
 
         hfShape.getConvexTrianglePillar(i, j, true);
-        Transform.pointToWorldFrame(hfPos, hfQuat, hfShape.pillarOffset, worldPillarOffset);
+        Transform$1.pointToWorldFrame(hfPos, hfQuat, hfShape.pillarOffset, worldPillarOffset);
 
         if (convexPos.distanceTo(worldPillarOffset) < hfShape.pillarConvex.boundingSphereRadius + convexShape.boundingSphereRadius) {
           intersecting = this.convexConvex(convexShape, hfShape.pillarConvex, convexPos, worldPillarOffset, convexQuat, hfQuat, convexBody, hfBody, null, null, justTest, faceList, null);
@@ -9874,7 +9845,7 @@ class Narrowphase {
     const relpos = sphereTrimesh_relpos;
     const triangles = sphereTrimesh_triangles; // Convert sphere position to local in the trimesh
 
-    Transform.pointToLocalFrame(trimeshPos, trimeshQuat, spherePos, localSpherePos); // Get the aabb of the sphere locally in the trimesh
+    Transform$1.pointToLocalFrame(trimeshPos, trimeshQuat, spherePos, localSpherePos); // Get the aabb of the sphere locally in the trimesh
 
     const sphereRadius = sphereShape.radius;
     localSphereAABB.lowerBound.set(localSpherePos.x - sphereRadius, localSpherePos.y - sphereRadius, localSpherePos.z - sphereRadius);
@@ -9894,7 +9865,7 @@ class Narrowphase {
         if (relpos.lengthSquared() <= radiusSquared) {
           // Safe up
           v2.copy(v);
-          Transform.pointToWorldFrame(trimeshPos, trimeshQuat, v2, v);
+          Transform$1.pointToWorldFrame(trimeshPos, trimeshQuat, v2, v);
           v.vsub(spherePos, relpos);
 
           if (justTest) {
@@ -9952,10 +9923,10 @@ class Narrowphase {
             r.ni.scale(sphereShape.radius, r.ri);
             r.ri.vadd(spherePos, r.ri);
             r.ri.vsub(sphereBody.position, r.ri);
-            Transform.pointToWorldFrame(trimeshPos, trimeshQuat, tmp, tmp);
+            Transform$1.pointToWorldFrame(trimeshPos, trimeshQuat, tmp, tmp);
             tmp.vsub(trimeshBody.position, r.rj);
-            Transform.vectorToWorldFrame(trimeshQuat, r.ni, r.ni);
-            Transform.vectorToWorldFrame(trimeshQuat, r.ri, r.ri);
+            Transform$1.vectorToWorldFrame(trimeshQuat, r.ni, r.ni);
+            Transform$1.vectorToWorldFrame(trimeshQuat, r.ri, r.ri);
             this.result.push(r);
             this.createFrictionEquationsFromContact(r, this.frictionResult);
           }
@@ -9990,10 +9961,10 @@ class Narrowphase {
         r.ni.scale(sphereShape.radius, r.ri);
         r.ri.vadd(spherePos, r.ri);
         r.ri.vsub(sphereBody.position, r.ri);
-        Transform.pointToWorldFrame(trimeshPos, trimeshQuat, tmp, tmp);
+        Transform$1.pointToWorldFrame(trimeshPos, trimeshQuat, tmp, tmp);
         tmp.vsub(trimeshBody.position, r.rj);
-        Transform.vectorToWorldFrame(trimeshQuat, r.ni, r.ni);
-        Transform.vectorToWorldFrame(trimeshQuat, r.ri, r.ri);
+        Transform$1.vectorToWorldFrame(trimeshQuat, r.ni, r.ni);
+        Transform$1.vectorToWorldFrame(trimeshQuat, r.ri, r.ri);
         this.result.push(r);
         this.createFrictionEquationsFromContact(r, this.frictionResult);
       }
@@ -10015,7 +9986,7 @@ class Narrowphase {
 
       const v2 = new Vec3();
       v2.copy(v);
-      Transform.pointToWorldFrame(trimeshPos, trimeshQuat, v2, v); // Check plane side
+      Transform$1.pointToWorldFrame(trimeshPos, trimeshQuat, v2, v); // Check plane side
 
       const relpos = planeTrimesh_relpos;
       v.vsub(planePos, relpos);
@@ -11414,7 +11385,7 @@ class PhysicsSystem extends System {
             this._physicsWorld.addBody(body);
         }
         for (const entity of this.queries.vehicleBody.added) {
-            const object = entity.getComponent(Transform$1).getObject3D();
+            const object = entity.getComponent(Transform$2).getObject3D();
             const vehicleComponent = entity.getComponent(VehicleBody);
             const [vehicle, wheelBodies] = this._createVehicleBody(entity, vehicleComponent.convexMesh);
             object.userData.vehicle = vehicle;
@@ -11443,7 +11414,7 @@ class PhysicsSystem extends System {
         }
         for (const entity of this.queries.physicsRigidBody.results) {
             //  if (rigidBody.weight === 0.0) continue;
-            const transform = entity.getMutableComponent(Transform$1);
+            const transform = entity.getMutableComponent(Transform$2);
             const object = transform.getObject3D();
             const body = object.userData.body;
             //console.log(body);
@@ -11454,7 +11425,7 @@ class PhysicsSystem extends System {
         }
         for (const entity of this.queries.vehicleBody.results) {
             //  if (rigidBody.weight === 0.0) continue;
-            const transform = entity.getMutableComponent(Transform$1);
+            const transform = entity.getMutableComponent(Transform$2);
             const object = transform.getObject3D();
             const vehicle = object.userData.vehicle.chassisBody;
             transform.position.copy(vehicle.position);
@@ -11466,7 +11437,7 @@ class PhysicsSystem extends System {
     }
     _createBox(entity) {
         const rigidBody = entity.getComponent(RigidBody);
-        const transform = entity.getComponent(Transform$1);
+        const transform = entity.getComponent(Transform$2);
         const shape = new Box(new Vec3(rigidBody.scale.x / 2, rigidBody.scale.y / 2, rigidBody.scale.z / 2));
         const body = new Body({
             mass: rigidBody.mass,
@@ -11482,7 +11453,7 @@ class PhysicsSystem extends System {
     }
     _createGroundGeometry(entity) {
         const rigidBody = entity.getComponent(RigidBody);
-        const transform = entity.getComponent(Transform$1);
+        const transform = entity.getComponent(Transform$2);
         const shape = new Box(new Vec3(rigidBody.scale.x / 2, rigidBody.scale.y / 2, rigidBody.scale.z / 2));
         const body = new Body({
             mass: rigidBody.mass,
@@ -11498,7 +11469,7 @@ class PhysicsSystem extends System {
     }
     _createCylinder(entity) {
         const rigidBody = entity.getComponent(RigidBody);
-        const transform = entity.getComponent(Transform$1);
+        const transform = entity.getComponent(Transform$2);
         const cylinderShape = new Cylinder(rigidBody.scale.x, rigidBody.scale.y, rigidBody.scale.z, 20);
         const body = new Body({
             mass: rigidBody.mass,
@@ -11514,7 +11485,7 @@ class PhysicsSystem extends System {
     }
     _createShare(entity) {
         const rigidBody = entity.getComponent(RigidBody);
-        const transform = entity.getComponent(Transform$1);
+        const transform = entity.getComponent(Transform$2);
         const shape = new Sphere(rigidBody.scale.x / 2);
         const body = new Body({
             mass: rigidBody.mass,
@@ -11531,7 +11502,7 @@ class PhysicsSystem extends System {
         }
         else {
             rigidBody = entity.getComponent(RigidBody);
-            transform = entity.getComponent(Transform$1);
+            transform = entity.getComponent(Transform$2);
             object = transform.getObject3D();
             attributePosition = object.geometry.attributes.position;
         }
@@ -11572,7 +11543,7 @@ class PhysicsSystem extends System {
         return convexBody;
     }
     _createVehicleBody(entity, mesh) {
-        const transform = entity.getComponent(Transform$1);
+        const transform = entity.getComponent(Transform$2);
         let chassisBody;
         if (mesh) {
             chassisBody = this._createConvexGeometry(entity, mesh);
@@ -11710,7 +11681,7 @@ class WheelSystem extends System {
             const vehicle = parentObject.userData.vehicle;
             vehicle.updateWheelTransform(i);
             //  console.log(vehicle);
-            const transform = entity.getMutableComponent(Transform$2);
+            const transform = entity.getMutableComponent(Transform$3);
             transform.position.copy(vehicle.wheelInfos[i].worldTransform.position);
             quaternion$1.set(vehicle.wheelInfos[i].worldTransform.quaternion.x, vehicle.wheelInfos[i].worldTransform.quaternion.y, vehicle.wheelInfos[i].worldTransform.quaternion.z, vehicle.wheelInfos[i].worldTransform.quaternion.w);
             //  quaternion.slerp( new THREE.Quaternion(), 0.5 );
@@ -12762,7 +12733,7 @@ const calcMatrixWorld = (function () {
     const euler = new Euler();
     return function calcMatrixWorld(entity, childMatrix = undefined) {
         const object3D = entity.getComponent(Object3DComponent);
-        const transform = entity.getComponent(Transform$2);
+        const transform = entity.getComponent(Transform$3);
         if (object3D) {
             return childMatrix ? childMatrix.multiply(object3D["value"].matrixWorld) : object3D["value"].matrixWorld;
         }
@@ -13049,18 +13020,6 @@ const CAM_VIDEO_SIMULCAST_ENCODINGS = [
     // { maxBitrate: 96000, scaleResolutionDownBy: 2 },
     // { maxBitrate: 680000, scaleResolutionDownBy: 1 },
 ];
-
-class NetworkObject extends Component {
-}
-NetworkObject.schema = {
-    ownerId: { type: Types.Number },
-    networkId: { type: Types.Number }
-};
-
-// Assemblage is a pattern for creating an entity and component collection as a prototype
-const NetworkObjectAssemblage = {
-    components: [{ type: NetworkObject }, { type: TransformComponent }]
-};
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -13350,6 +13309,13 @@ const set$2 = (obj, path, value) => {
 function cropString(str, length) {
     return str.padEnd(length, " ").slice(0, length);
 }
+
+class NetworkObject extends Component {
+}
+NetworkObject.schema = {
+    ownerId: { type: Types.Number },
+    networkId: { type: Types.Number }
+};
 
 class NetworkSystem extends System {
     constructor(world) {
@@ -36529,16 +36495,24 @@ SubscriptionSystem.queries = {
     }
 };
 
+let i$1 = 0;
+const eulerMap = {
+    0: "x",
+    1: "y",
+    2: "z"
+};
 const updateTransform = (entity, args, delta) => {
-    const armadaTransform = entity.getComponent(TransformComponent$1);
-    const transform = entity.getMutableComponent(Transform$1);
+    const armadaTransform = entity.getComponent(Transform);
+    const transform = entity.getMutableComponent(Transform);
     const pos = armadaTransform.position;
     const rot = armadaTransform.rotation;
     const rotQuat = new Quaternion$1(rot[0], rot[1], rot[2], rot[3]);
     const rotEuler = new Euler();
     rotEuler.setFromQuaternion(rotQuat);
-    transform.position.set(pos[0], pos[1], pos[2]);
-    transform.rotation.set(rotEuler.x, rotEuler.y, rotEuler.z);
+    for (i$1 = 0; i$1 < 3; i$1++) {
+        transform.position[i$1] = pos[i$1];
+        transform.rotation[i$1] = rotEuler[eulerMap[i$1]];
+    }
 };
 
 const DefaultSubscriptionSchema = {
@@ -36578,13 +36552,13 @@ class TransformSystem extends System {
 }
 TransformSystem.queries = {
     parent: {
-        components: [TransformParent, TransformComponent],
+        components: [TransformParent, Transform],
         listen: {
             added: true
         }
     },
     transforms: {
-        components: [TransformComponent],
+        components: [Transform],
         listen: {
             added: true,
             changed: true
@@ -36611,7 +36585,7 @@ function initializeInputSystems(world, options = DEFAULT_OPTIONS$1) {
         .registerComponent(State)
         .registerComponent(Actor)
         .registerComponent(Subscription)
-        .registerComponent(TransformComponent)
+        .registerComponent(Transform)
         .registerComponent(TransformParent);
     world
         .registerSystem(InputSystem)
@@ -36626,7 +36600,7 @@ function initializeActor(entity, options) {
         .addComponent(State)
         .addComponent(Actor)
         .addComponent(Subscription)
-        .addComponent(TransformComponent);
+        .addComponent(Transform);
     // Custom Action Map
     if (options.inputSchema) {
         console.log("Using input map:");
@@ -36660,12 +36634,13 @@ function initializeActor(entity, options) {
     return entity;
 }
 function initializeNetworking(world, transport) {
-    world.registerSystem(NetworkSystem).registerComponent(NetworkClient);
+    world.registerComponent(NetworkClient).registerComponent(NetworkObject);
+    world.registerSystem(NetworkSystem);
     if (transport.supportsMediaStreams)
         world.registerSystem(MediaStreamControlSystem);
     const networkSystem = world.getSystem(NetworkSystem);
     networkSystem.initializeSession(world, transport);
 }
 
-export { CAM_VIDEO_SIMULCAST_ENCODINGS, DefaultInputSchema, DefaultStateGroups, DefaultStateSchema, DefaultStateTypes, GamepadButtons, InputType, Keyframe, KeyframeSystem, MediaStreamControlSystem, MouseButtons, NetworkObjectAssemblage, NetworkSystem, ParticleEmitter, ParticleEmitterState, ParticleSystem, PhysicsSystem, RigidBody, SocketWebRTCClientTransport, StateType, Thumbsticks, VIDEO_CONSTRAINTS, VehicleBody, VehicleSystem, WheelBody, WheelSystem, addState, createKeyframes, createParticleEmitter, createParticleMesh, decelerate, handleGamepadAxis, handleGamepadConnected, handleGamepadDisconnected, handleGamepads, handleInput, handleKey, handleMouseButton, handleMouseMovement, hasState, initializeActor, initializeInputSystems, initializeNetworking, initializeParticleSystem, jump, jumping, loadTexturePackerJSON, localMediaConstraints, move, needsUpdate, removeState, rotateAround, setAccelerationAt, setAngularAccelerationAt, setAngularVelocityAt, setAtlasIndexAt, setBrownianAt, setColorsAt, setEmitterMatrixWorld, setEmitterTime, setFrameAt, setKeyframesAt, setMaterialTime, setMatrixAt, setOffsetAt, setOpacitiesAt, setOrientationsAt, setScalesAt, setTextureAtlas, setTimingsAt, setTouchHandler, setVelocityAt, setVelocityScaleAt, setWorldAccelerationAt, syncKeyframes, toggleState, updateGeometry, updateMaterial, updateOriginalMaterialUniforms, updatePosition };
+export { CAM_VIDEO_SIMULCAST_ENCODINGS, DefaultInputSchema, DefaultStateGroups, DefaultStateSchema, DefaultStateTypes, GamepadButtons, InputType, Keyframe, KeyframeSystem, MediaStreamControlSystem, MouseButtons, NetworkSystem, ParticleEmitter, ParticleEmitterState, ParticleSystem, PhysicsSystem, RigidBody, SocketWebRTCClientTransport, StateType, Thumbsticks, VIDEO_CONSTRAINTS, VehicleBody, VehicleSystem, WheelBody, WheelSystem, addState, createKeyframes, createParticleEmitter, createParticleMesh, decelerate, handleGamepadAxis, handleGamepadConnected, handleGamepadDisconnected, handleGamepads, handleInput, handleKey, handleMouseButton, handleMouseMovement, hasState, initializeActor, initializeInputSystems, initializeNetworking, initializeParticleSystem, jump, jumping, loadTexturePackerJSON, localMediaConstraints, move, needsUpdate, removeState, rotateAround, setAccelerationAt, setAngularAccelerationAt, setAngularVelocityAt, setAtlasIndexAt, setBrownianAt, setColorsAt, setEmitterMatrixWorld, setEmitterTime, setFrameAt, setKeyframesAt, setMaterialTime, setMatrixAt, setOffsetAt, setOpacitiesAt, setOrientationsAt, setScalesAt, setTextureAtlas, setTimingsAt, setTouchHandler, setVelocityAt, setVelocityScaleAt, setWorldAccelerationAt, syncKeyframes, toggleState, updateGeometry, updateMaterial, updateOriginalMaterialUniforms, updatePosition };
 //# sourceMappingURL=armada.js.map

@@ -1,12 +1,12 @@
 import { Entity } from "ecsy"
 import Behavior from "../../interfaces/Behavior"
 import Actor from "../components/Actor"
-import TransformComponent from "../../../transform/components/TransformComponent"
+import Transform from "../../../transform/components/Transform"
 import { addState, removeState } from "../../../state/behaviors/StateBehaviors"
 import { DefaultStateTypes } from "../../../state/defaults/DefaultStateTypes"
 
 let actor: Actor
-let transform: TransformComponent
+let transform: Transform
 
 export const jump: Behavior = (entity: Entity): void => {
   console.log("Jump!")
@@ -16,7 +16,7 @@ export const jump: Behavior = (entity: Entity): void => {
 }
 
 export const jumping: Behavior = (entity: Entity, args, delta: number): void => {
-  transform = entity.getComponent(TransformComponent)
+  transform = entity.getComponent(Transform)
   actor = entity.getMutableComponent<Actor>(Actor)
   actor.jump.t += delta
   if (actor.jump.t < actor.jump.duration) {

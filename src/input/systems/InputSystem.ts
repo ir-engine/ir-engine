@@ -13,7 +13,6 @@ export default class InputSystem extends System {
   private _inputComponent: Input
   // bound DOM listeners should be saved, otherwise they can't be unbound, becouse (f => f) !== (f => f)
   private boundListeners = new Set()
-  private input: Input
 
   public execute(delta: number): void {
     // Called every frame on all input components
@@ -58,47 +57,43 @@ export default class InputSystem extends System {
     })
   }
 }
-
+let input: Input
 export const handleInput: Behavior = (entity: Entity, delta: number): void => {
-  this.input = entity.getMutableComponent(Input) as Input
-  this.input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+  input = entity.getMutableComponent(Input) as Input
+  input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
     // If the input is a button
     if (value.type === InputType.BUTTON) {
       // If the input exists on the input map (otherwise ignore it)
-      if (this.input.schema.inputButtonBehaviors[key] && this.input.schema.inputButtonBehaviors[key][value.value as number]) {
+      if (input.schema.inputButtonBehaviors[key] && input.schema.inputButtonBehaviors[key][value.value as number]) {
         // If the lifecycle hasn't been set or just started (so we don't keep spamming repeatedly)
         if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue.STARTED) {
           // Set the value of the input to continued to debounce
-          this.input.data.set(key, {
+          input.data.set(key, {
             type: value.type,
             value: value.value as Binary,
             lifecycleState: LifecycleValue.CONTINUED
           })
-          this.input.map.inputButtonBehaviors[key][value.value as number].started?.behavior(
-            entity,
-            this.input.map.inputButtonBehaviors[key][value.value as number].started.args,
-            delta
+          input.schema.inputButtonBehaviors[key][value.value as number].started?.forEach(buttonBehavior =>
+            buttonBehavior.behavior(entity, buttonBehavior.args, delta)
           )
         } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
-          this.input.map.inputButtonBehaviors[key][value.value as number].continued?.behavior(
-            entity,
-            this.input.map.inputButtonBehaviors[key][value.value as number].continued.args,
-            delta
+          input.schema.inputButtonBehaviors[key][value.value as number].continued?.forEach(buttonBehavior =>
+            buttonBehavior.behavior(entity, input.schema.inputButtonBehaviors[key][value.value as number].continued.args, delta)
           )
         }
       }
     } else if (value.type === InputType.ONED || value.type === InputType.TWOD || value.type === InputType.THREED || value.type === InputType.FOURD) {
-      if (this.input.schema.inputAxisBehaviors[key]) {
+      if (input.schema.inputAxisBehaviors[key]) {
         if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue.STARTED) {
           // Set the value to continued to debounce
-          this.input.data.set(key, {
+          input.data.set(key, {
             type: value.type,
             value: value.value as Binary,
             lifecycleState: LifecycleValue.CONTINUED
           })
-          this.input.schema.inputAxisBehaviors[key].started?.behavior(entity, this.input.schema.inputAxisBehaviors[key].started.args, delta)
+          input.schema.inputAxisBehaviors[key].started?.forEach(value => value.behavior(entity, value.args, delta))
         } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
-          this.input.schema.inputAxisBehaviors[key].continued?.behavior(entity, this.input.schema.inputAxisBehaviors[key].continued.args, delta)
+          input.schema.inputAxisBehaviors[key].continued?.forEach(value => value.behavior(entity, value.args, delta))
         }
       }
     } else {

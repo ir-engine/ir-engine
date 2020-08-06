@@ -1,6 +1,6 @@
 import { System, Entity, Attributes, World } from "ecsy"
 import TransformParent from "../components/TransformParent"
-import TransformComponent from "../components/TransformComponent"
+import Transform from "../components/Transform"
 import Behavior from "../../common/interfaces/Behavior"
 
 export default class TransformSystem extends System {
@@ -26,12 +26,12 @@ export default class TransformSystem extends System {
 
     // Transforms
     this.queries.transforms.added?.forEach(t => {
-      const transform = t.getComponent(TransformComponent)
+      const transform = t.getComponent(Transform)
       this.transformationBehavior(t, { position: transform.position, rotation: transform.rotation })
     })
 
     this.queries.transforms.changed?.forEach(t => {
-      const transform = t.getComponent(TransformComponent)
+      const transform = t.getComponent(Transform)
       this.transformationBehavior(t, { position: transform.position, rotation: transform.rotation })
     })
   }
@@ -39,13 +39,13 @@ export default class TransformSystem extends System {
 
 TransformSystem.queries = {
   parent: {
-    components: [TransformParent, TransformComponent],
+    components: [TransformParent, Transform],
     listen: {
       added: true
     }
   },
   transforms: {
-    components: [TransformComponent],
+    components: [Transform],
     listen: {
       added: true,
       changed: true
