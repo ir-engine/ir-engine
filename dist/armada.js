@@ -1,7 +1,6 @@
 import { Component, Types, TagComponent, System } from 'ecsy';
 import { Object3DComponent } from 'ecsy-three';
 import { Quaternion, Euler } from 'three';
-import { Transform } from 'ecsy-three/src/extras/components';
 
 // Constructs a component with a map and data values
 // Data contains a map() of arbitrary data
@@ -1884,7 +1883,6 @@ const DefaultSubscriptionMap = {
 
 const DEFAULT_OPTIONS = {
     debug: false,
-    withTransform: false
 };
 function initializeInputSystems(world, options = DEFAULT_OPTIONS) {
     if (options.debug)
@@ -1906,48 +1904,52 @@ function initializeInputSystems(world, options = DEFAULT_OPTIONS) {
         .registerComponent(Actor)
         .registerComponent(Subscription)
         .registerComponent(TransformComponent);
-    if (options.withTransform)
-        world.registerComponent(Transform);
     return world;
 }
-function initializeActor(entity, options, withTransform = false) {
+function initializeActor(entity, options) {
     entity
         .addComponent(Input)
         .addComponent(State)
         .addComponent(Actor)
         .addComponent(Subscription)
         .addComponent(TransformComponent);
-    // .addComponent(Transform)
-    if (withTransform)
-        entity.addComponent(Transform);
     // Custom Action Map
     if (options.inputMap) {
-        console.log("Using input map:");
-        console.log(options.inputMap);
+        if (options.debug)
+            console.log("Using input map:");
+        if (options.debug)
+            console.log(options.inputMap);
         entity.getMutableComponent(Input).map = options.inputMap;
     }
     else {
-        console.log("No input map provided, defaulting to default input");
+        if (options.debug)
+            console.log("No input map provided, defaulting to default input");
         entity.getMutableComponent(Input).map = DefaultInputMap;
     }
     // Custom Action Map
     if (options.stateMap) {
-        console.log("Using input map:");
-        console.log(options.stateMap);
+        if (options.debug)
+            console.log("Using input map:");
+        if (options.debug)
+            console.log(options.stateMap);
         entity.getMutableComponent(State).map = options.stateMap;
     }
     else {
-        console.log("No state map provided, defaulting to default state");
+        if (options.debug)
+            console.log("No state map provided, defaulting to default state");
         entity.getMutableComponent(State).map = DefaultStateMap;
     }
     // Custom Subscription Map
     if (options.subscriptionMap) {
-        console.log("Using subscription map:");
-        console.log(options.subscriptionMap);
+        if (options.debug)
+            console.log("Using subscription map:");
+        if (options.debug)
+            console.log(options.subscriptionMap);
         entity.getMutableComponent(Subscription).map = options.subscriptionMap;
     }
     else {
-        console.log("No subscription map provided, defaulting to default subscriptions");
+        if (options.debug)
+            console.log("No subscription map provided, defaulting to default subscriptions");
         entity.getMutableComponent(Subscription).map = DefaultSubscriptionMap;
     }
     return entity;

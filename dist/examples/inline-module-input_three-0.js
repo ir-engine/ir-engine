@@ -65246,7 +65246,6 @@ const DefaultSubscriptionMap = {
 
 const DEFAULT_OPTIONS$1 = {
     debug: false,
-    withTransform: false
 };
 function initializeInputSystems(world, options = DEFAULT_OPTIONS$1) {
     if (options.debug)
@@ -65268,236 +65267,61 @@ function initializeInputSystems(world, options = DEFAULT_OPTIONS$1) {
         .registerComponent(Actor)
         .registerComponent(Subscription)
         .registerComponent(TransformComponent);
-    if (options.withTransform)
-        world.registerComponent(Transform);
     return world;
 }
-function initializeActor(entity, options, withTransform = false) {
+function initializeActor(entity, options) {
     entity
         .addComponent(Input)
         .addComponent(State)
         .addComponent(Actor)
         .addComponent(Subscription)
         .addComponent(TransformComponent);
-    // .addComponent(Transform)
-    if (withTransform)
-        entity.addComponent(Transform);
     // Custom Action Map
     if (options.inputMap) {
-        console.log("Using input map:");
-        console.log(options.inputMap);
+        if (options.debug)
+            console.log("Using input map:");
+        if (options.debug)
+            console.log(options.inputMap);
         entity.getMutableComponent(Input).map = options.inputMap;
     }
     else {
-        console.log("No input map provided, defaulting to default input");
+        if (options.debug)
+            console.log("No input map provided, defaulting to default input");
         entity.getMutableComponent(Input).map = DefaultInputMap;
     }
     // Custom Action Map
     if (options.stateMap) {
-        console.log("Using input map:");
-        console.log(options.stateMap);
+        if (options.debug)
+            console.log("Using input map:");
+        if (options.debug)
+            console.log(options.stateMap);
         entity.getMutableComponent(State).map = options.stateMap;
     }
     else {
-        console.log("No state map provided, defaulting to default state");
+        if (options.debug)
+            console.log("No state map provided, defaulting to default state");
         entity.getMutableComponent(State).map = DefaultStateMap;
     }
     // Custom Subscription Map
     if (options.subscriptionMap) {
-        console.log("Using subscription map:");
-        console.log(options.subscriptionMap);
+        if (options.debug)
+            console.log("Using subscription map:");
+        if (options.debug)
+            console.log(options.subscriptionMap);
         entity.getMutableComponent(Subscription).map = options.subscriptionMap;
     }
     else {
-        console.log("No subscription map provided, defaulting to default subscriptions");
+        if (options.debug)
+            console.log("No subscription map provided, defaulting to default subscriptions");
         entity.getMutableComponent(Subscription).map = DefaultSubscriptionMap;
     }
     return entity;
 }
 
-const BinaryValue$1 = {
-  ON: 1,
-  OFF: 0
-};
-
-// Abstract inputs that all input devices get mapped to
-const DefaultInput$1 = {
-  PRIMARY: 0,
-  SECONDARY: 1,
-  FORWARD: 2,
-  BACKWARD: 3,
-  UP: 4,
-  DOWN: 5,
-  LEFT: 6,
-  RIGHT: 7,
-  INTERACT: 8,
-  CROUCH: 9,
-  JUMP: 10,
-  WALK: 11,
-  RUN: 12,
-  SPRINT: 13,
-  SNEAK: 14,
-  SCREENXY: 15, // Is this too specific, or useful?
-  MOVEMENT_PLAYERONE: 16,
-  LOOKTURN_PLAYERONE: 17,
-  MOVEMENT_PLAYERTWO: 18,
-  LOOKTURN_PLAYERTWO: 19,
-  ALTERNATE: 20
-};
-
-const DefaultInputMap$1 = {
-  // When an Input component is added, the system will call this array of behaviors
-  onAdded: [
-  ],
-  // When an Input component is removed, the system will call this array of behaviors
-  onRemoved: [
-  ],
-  // When the input component is added or removed, the system will bind/unbind these events to the DOM
-  eventBindings: {
-    // Mouse
-    ["mousemove"]: {
-      behavior: handleMouseMovement,
-      args: {
-        value: DefaultInput$1.SCREENXY
-      }
-    },
-    ["mouseup"]: {
-      behavior: handleMouseButton,
-      args: {
-        value: BinaryValue$1.OFF
-      }
-    },
-    ["mousedown"]: {
-      behavior: handleMouseButton,
-      args: {
-        value: BinaryValue$1.ON
-      }
-    },
-    // Keys
-    ["keyup"]: {
-      behavior: handleKey,
-      args: {
-        value: BinaryValue$1.OFF
-      }
-    },
-    ["keydown"]: {
-      behavior: handleKey,
-      args: {
-        value: BinaryValue$1.ON
-      }
-    }
-  },
-  // Map mouse buttons to abstract input
-  mouseInputMap: {
-    buttons: {
-      [MouseButtons.LeftButton]: DefaultInput$1.PRIMARY,
-      [MouseButtons.RightButton]: DefaultInput$1.SECONDARY
-    },
-    axes: {
-      mousePosition: DefaultInput$1.SCREENXY
-    }
-  },
-  // Map gamepad buttons to abstract input
-  gamepadInputMap: {
-
-  },
-  // Map keyboard buttons to abstract input
-  keyboardInputMap: {
-    w: DefaultInput$1.FORWARD,
-    a: DefaultInput$1.LEFT,
-    s: DefaultInput$1.RIGHT,
-    d: DefaultInput$1.BACKWARD,
-    [" "]: DefaultInput$1.JUMP,
-    shift: DefaultInput$1.CROUCH
-  },
-  // Map how inputs relate to each other
-  inputRelationships: {
-    [DefaultInput$1.FORWARD]: { opposes: [DefaultInput$1.BACKWARD] },
-    [DefaultInput$1.BACKWARD]: { opposes: [DefaultInput$1.FORWARD] },
-    [DefaultInput$1.LEFT]: { opposes: [DefaultInput$1.RIGHT] },
-    [DefaultInput$1.RIGHT]: { opposes: [DefaultInput$1.LEFT] },
-    [DefaultInput$1.CROUCH]: { blockedBy: [DefaultInput$1.JUMP, DefaultInput$1.SPRINT] },
-    [DefaultInput$1.JUMP]: { overrides: [DefaultInput$1.CROUCH] }
-  },
-  // "Button behaviors" are called when button input is called (i.e. not axis input)
-  inputButtonBehaviors: {
-    [DefaultInput$1.JUMP]: {
-      [BinaryValue$1.ON]: {
-        behavior: jump,
-        args: {}
-      }
-    }
-  },
-  // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
-  inputAxisBehaviors: {
-    [DefaultInput$1.MOVEMENT_PLAYERONE]: {
-      behavior: move,
-      args: {
-        input: DefaultInput$1.MOVEMENT_PLAYERONE,
-        inputType: InputType.TWOD
-      }
-    },
-    [DefaultInput$1.SCREENXY]: {
-      behavior: rotateAround,
-      args: {
-        input: DefaultInput$1.LOOKTURN_PLAYERONE,
-        inputType: InputType.TWOD
-      }
-    }
-  }
-};
-
-
-
-const DefaultStateTypes$1 = {
-  // Main States
-  IDLE: 0,
-  MOVING: 1,
-  JUMPING: 2,
-  FALLING: 3,
-
-  // Modifier States
-  CROUCHING: 4,
-  WALKING: 5,
-  SPRINTING: 6,
-  INTERACTING: 7,
-
-  // Moving substates
-  MOVING_FORWARD: 8,
-  MOVING_BACKWARD: 9,
-  MOVING_LEFT: 10,
-  MOVING_RIGHT: 11
-};
-
-const DefaultStateGroups$1 = {
-  MOVEMENT: 0,
-  MOVEMENT_MODIFIERS: 1
-};
-
-const DefaultStateMap$1 = {
-  groups: {
-    [DefaultStateGroups$1.MOVEMENT]: {
-      exclusive: true,
-      default: DefaultStateTypes$1.IDLE,
-      states: [DefaultStateTypes$1.IDLE, DefaultStateTypes$1.MOVING]
-    },
-    [DefaultStateGroups$1.MOVEMENT_MODIFIERS]: {
-      exclusive: true,
-      states: [DefaultStateTypes$1.CROUCHING, DefaultStateTypes$1.SPRINTING, DefaultStateTypes$1.JUMPING]
-    }
-  },
-  states: {
-    [DefaultStateTypes$1.IDLE]: { group: DefaultStateGroups$1.MOVEMENT, onUpdate: { behavior: decelerate } },
-    [DefaultStateTypes$1.MOVING]: {
-      group: DefaultStateGroups$1.MOVEMENT
-    },
-    [DefaultStateTypes$1.JUMPING]: { group: DefaultStateGroups$1.MOVEMENT_MODIFIERS, onUpdate: { behavior: jumping } },
-    [DefaultStateTypes$1.CROUCHING]: { group: DefaultStateGroups$1.MOVEMENT_MODIFIERS, blockedBy: DefaultStateTypes$1.JUMPING },
-    [DefaultStateTypes$1.SPRINTING]: { group: DefaultStateGroups$1.MOVEMENT_MODIFIERS }
-  }
-};
-
-
+// import { jumping, jump } from "../dist/armada.js"
+// import { decelerate } from "../dist/armada.js"
+// import { move } from "../dist/armada.js"
+// import { rotateAround, handleMouseMovement, handleMouseButton, handleKey, MouseButtons, InputType } from "../dist/armada.js"
 
       // Setup world
         const world = new ECSYThreeWorld();
@@ -65520,8 +65344,8 @@ const DefaultStateMap$1 = {
           // Test input
           const inputOptions = {
           debug: true,
-          inputMap: DefaultInputMap$1,
-          stateMap: DefaultStateMap$1
+          // inputMap: DefaultInputMap,
+          // stateMap: DefaultStateMap
         };
 
       // TODO: Import input mapping
@@ -65534,5 +65358,3 @@ const DefaultStateMap$1 = {
 
         // Let's begin
         world.execute();
-
-export { DefaultInput$1 as DefaultInput, DefaultStateGroups$1 as DefaultStateGroups, DefaultStateMap$1 as DefaultStateMap, DefaultStateTypes$1 as DefaultStateTypes };
