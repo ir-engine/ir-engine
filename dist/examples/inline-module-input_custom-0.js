@@ -52124,13 +52124,6 @@ const Vector3Type = createType({
   clone: cloneClonable
 });
 
-class Transform extends Component {}
-
-Transform.schema = {
-  position: { default: new Vector3(), type: Vector3Type },
-  rotation: { default: new Vector3(), type: Vector3Type }
-};
-
 // Constructs a component with a map and data values
 // Data contains a map() of arbitrary data
 class BehaviorComponent extends Component {
@@ -53776,7 +53769,6 @@ SubscriptionSystem.queries = {
 
 const DEFAULT_OPTIONS$1 = {
     debug: false,
-    withTransform: false
 };
 function initializeInputSystems(world, options = DEFAULT_OPTIONS$1) {
     if (options.debug)
@@ -53798,8 +53790,6 @@ function initializeInputSystems(world, options = DEFAULT_OPTIONS$1) {
         .registerComponent(Actor)
         .registerComponent(Subscription)
         .registerComponent(TransformComponent);
-    if (options.withTransform)
-        world.registerComponent(Transform);
     return world;
 }
 

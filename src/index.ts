@@ -20,11 +20,8 @@ import StateSystem from "./state/systems/StateSystem"
 import StateMap from "./state/interfaces/StateMap"
 import { DefaultStateMap } from "./state/defaults/DefaultStateData"
 
-import { Transform } from 'ecsy-three/src/extras/components'
-
 const DEFAULT_OPTIONS = {
   debug: false,
-  withTransform: false
 }
 
 export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS): World | null {
@@ -49,49 +46,46 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS):
     .registerComponent(Actor)
     .registerComponent(Subscription)
     .registerComponent(TransformComponent)
-  if (options.withTransform) world.registerComponent(Transform)
   return world
 }
 
 export function initializeActor(entity: Entity, options: {
-  inputMap?: InputMap; stateMap?: StateMap, subscriptionMap?: SubscriptionMap
-  }, withTransform: boolean = false): Entity {
+  inputMap?: InputMap; stateMap?: StateMap, subscriptionMap?: SubscriptionMap,
+  debug?: boolean}): Entity {
   entity
     .addComponent(Input)
     .addComponent(State)
     .addComponent(Actor)
     .addComponent(Subscription)
     .addComponent(TransformComponent)
-    // .addComponent(Transform)
-  if (withTransform) entity.addComponent(Transform)
 
   // Custom Action Map
   if (options.inputMap) {
-    console.log("Using input map:")
-    console.log(options.inputMap)
+    if (options.debug) console.log("Using input map:")
+    if (options.debug) console.log(options.inputMap)
     ;(entity.getMutableComponent(Input) as any).map = options.inputMap
   } else {
-    console.log("No input map provided, defaulting to default input")
+    if (options.debug) console.log("No input map provided, defaulting to default input")
     ;(entity.getMutableComponent(Input) as any).map = DefaultInputMap
   }
 
   // Custom Action Map
   if (options.stateMap) {
-    console.log("Using input map:")
-    console.log(options.stateMap)
+    if (options.debug) console.log("Using input map:")
+    if (options.debug) console.log(options.stateMap)
     ;(entity.getMutableComponent(State) as any).map = options.stateMap
   } else {
-    console.log("No state map provided, defaulting to default state")
+    if (options.debug) console.log("No state map provided, defaulting to default state")
     ;(entity.getMutableComponent(State) as any).map = DefaultStateMap
   }
 
   // Custom Subscription Map
   if (options.subscriptionMap) {
-    console.log("Using subscription map:")
-    console.log(options.subscriptionMap)
+    if (options.debug) console.log("Using subscription map:")
+    if (options.debug) console.log(options.subscriptionMap)
     ;(entity.getMutableComponent(Subscription) as any).map = options.subscriptionMap
   } else {
-    console.log("No subscription map provided, defaulting to default subscriptions")
+    if (options.debug) console.log("No subscription map provided, defaulting to default subscriptions")
     ;(entity.getMutableComponent(Subscription) as any).map = DefaultSubscriptionMap
   }
 
