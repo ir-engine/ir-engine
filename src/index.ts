@@ -69,7 +69,7 @@ export function initializeActor(
   options: {
     inputSchema?: InputSchema
     stateSchema?: StateSchema
-    subscriptionMap?: SubscriptionSchema
+    subscriptionSchema?: SubscriptionSchema
   }
 ): Entity {
   entity
@@ -100,10 +100,10 @@ export function initializeActor(
   }
 
   // Custom Subscription Map
-  if (options.subscriptionMap) {
+  if (options.subscriptionSchema) {
     console.log("Using subscription map:")
-    console.log(options.subscriptionMap)
-    entity.getMutableComponent(Subscription).schema = options.subscriptionMap
+    console.log(options.subscriptionSchema)
+    entity.getMutableComponent(Subscription).schema = options.subscriptionSchema
   } else {
     console.log("No subscription map provided, defaulting to default subscriptions")
     entity.getMutableComponent(Subscription).schema = DefaultSubscriptionSchema

@@ -23,7 +23,7 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
 // System behavior called when a mouse button is fired
 export const handleMouseButton: Behavior = (entity: Entity, args: { event: MouseEvent; value: Binary }): void => {
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
-  input = entity.getComponent(Input) as Input
+  input = entity.getMutableComponent(Input) as Input
   if (input.schema.mouseInputMap.buttons[args.event.button] === undefined) return // Set type to BUTTON (up/down discrete state) and value to up or down, as called by the DOM mouse events
   if (args.value === BinaryValue.ON) {
     console.log("Mouse button down: " + args.event.button)
@@ -31,9 +31,18 @@ export const handleMouseButton: Behavior = (entity: Entity, args: { event: Mouse
       type: InputType.BUTTON,
       value: args.value
     })
+    const mousePosition: [number, number] = [0, 0]
+    mousePosition[0] = (args.event.clientX / window.innerWidth) * 2 - 1
+    mousePosition[1] = (args.event.clientY / window.innerHeight) * -2 + 1
+    input.data.set(input.schema.mouseInputMap.axes["mouseClickDownPosition"], {
+      type: InputType.TWOD,
+      value: mousePosition
+    })
   } else {
     console.log("Mouse button up" + args.event.button)
     input.data.delete(input.schema.mouseInputMap.buttons[args.event.button])
+    input.data.delete(input.schema.mouseInputMap.axes["mouseClickDownPosition"])
+    input.data.delete(input.schema.mouseInputMap.axes["mouseClickDownTransformRotation"])
   }
 }
 
@@ -58,5 +67,9 @@ export function handleKey(entity: Entity, args: { event: KeyboardEvent; value: B
   } else {
     console.log("Key up: " + args.event.key)
     input.data.delete(input.schema.mouseInputMap.buttons[args.event.key])
+    input.data.set(input.schema.keyboardInputMap[args.event.key], {
+      type: InputType.BUTTON,
+      value: args.value
+    })
   }
 }

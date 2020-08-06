@@ -2,7 +2,7 @@ import { Assemblage } from "../../common/interfaces/Assemblage"
 import AssemblageAlias from "../../common/types/AssemblageAlias"
 
 export default interface NetworkSchema {
-  messagesHandlers: {
+  messageHandlers: {
     [key: string]: {
       behavior: typeof Function
       args?: any
