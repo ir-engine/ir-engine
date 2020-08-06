@@ -69,64 +69,64 @@ export default [
         transformMixedEsModules: true
       })
     ]
-  },
+  }
 
   // HTML Example Pages
-  {
-    input: "examples/input/input.html",
-    output: { dir: "dist/examples/input" },
-    plugins: [html(), resolve(), commonjs(), typescript(), json(), babel({ babelHelpers: "bundled" })]
-  },
+  // {
+  //   input: "examples/input/input.html",
+  //   output: { dir: "dist/examples/input" },
+  //   plugins: [html(), resolve(), commonjs(), typescript(), json(), babel({ babelHelpers: "bundled" })]
+  // },
 
-  // Input
-  {
-    input: "examples/input/input_three.html",
-    output: { dir: "dist/examples/input" },
-    plugins: [html(), resolve()]
-  },
-  {
-    input: "examples/input/touch-handler-1.html",
-    output: { dir: "dist/examples/input" },
-    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
-  },
-  {
-    input: "examples/input/touch-handler-2.html",
-    output: { dir: "dist/examples/input" },
-    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
-  },
+  // // Input
+  // {
+  //   input: "examples/input/input_three.html",
+  //   output: { dir: "dist/examples/input" },
+  //   plugins: [html(), resolve()]
+  // },
+  // {
+  //   input: "examples/input/touch-handler-1.html",
+  //   output: { dir: "dist/examples/input" },
+  //   plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
+  // },
+  // {
+  //   input: "examples/input/touch-handler-2.html",
+  //   output: { dir: "dist/examples/input" },
+  //   plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
+  // },
 
-  // Networking
-  {
-    input: "examples/networking/index.html",
-    output: { dir: "dist/examples/networking" },
-    plugins: [html(), resolve({ browser: true, preferBuiltins: false }), commonjs(), typescript(), json(), babel({ babelHelpers: "bundled" })],
-    external: ["socket.io-client"]
-  },
+  // // Networking
+  // {
+  //   input: "examples/networking/index.html",
+  //   output: { dir: "dist/examples/networking" },
+  //   plugins: [html(), resolve({ browser: true, preferBuiltins: false }), commonjs(), typescript(), json(), babel({ babelHelpers: "bundled" })],
+  //   external: ["socket.io-client"]
+  // },
 
-  // Particles
-  {
-    input: "examples/particles/fireworks.html",
-    output: { dir: "dist/examples/particles" },
-    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
-  },
-  {
-    input: "examples/particles/index.html",
-    output: { dir: "dist/examples/particles" },
-    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
-  },
-  {
-    input: "examples/particles/index-not-vr.html",
-    output: { dir: "dist/examples/particles" },
-    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
-  },
-  {
-    input: "examples/physics/box.html",
-    output: { dir: "dist/examples/physics" },
-    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
-  },
-  {
-    input: "examples/physics/car.html",
-    output: { dir: "dist/examples/physics" },
-    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
-  }
+  // // Particles
+  // {
+  //   input: "examples/particles/fireworks.html",
+  //   output: { dir: "dist/examples/particles" },
+  //   plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
+  // },
+  // {
+  //   input: "examples/particles/index.html",
+  //   output: { dir: "dist/examples/particles" },
+  //   plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
+  // },
+  // {
+  //   input: "examples/particles/index-not-vr.html",
+  //   output: { dir: "dist/examples/particles" },
+  //   plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
+  // },
+  // {
+  //   input: "examples/physics/box.html",
+  //   output: { dir: "dist/examples/physics" },
+  //   plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
+  // },
+  // {
+  //   input: "examples/physics/car.html",
+  //   output: { dir: "dist/examples/physics" },
+  //   plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
+  // }
 ]
