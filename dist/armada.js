@@ -1,6 +1,7 @@
 import { Component, Types, TagComponent, System } from 'ecsy';
-import { Transform } from 'ecsy-three/src/extras/components';
+import { Object3DComponent } from 'ecsy-three';
 import { Quaternion, Euler } from 'three';
+import { Transform } from 'ecsy-three/src/extras/components';
 
 // Constructs a component with a map and data values
 // Data contains a map() of arbitrary data
@@ -1853,16 +1854,21 @@ SubscriptionSystem.queries = {
     }
 };
 
-const updateTransform = (entity, args, delta) => {
-    const armadaTransform = entity.getComponent(TransformComponent);
-    const transform = entity.getMutableComponent(Transform);
-    let pos = armadaTransform.position;
-    let rot = armadaTransform.rotation;
+// import { Transform } from 'ecsy-three/src/extras/components'
+const updateObject3D = (entity, args, delta) => {
+    const transform = entity.getComponent(TransformComponent);
+    const obj3dcomp = entity.getMutableComponent(Object3DComponent);
+    if (obj3dcomp === null) {
+        console.error("entity has no Object3DComponent");
+        return;
+    }
+    let pos = transform.position;
+    let rot = transform.rotation;
     let rotQuat = new Quaternion(rot[0], rot[1], rot[2], rot[3]);
     let rotEuler = new Euler();
     rotEuler.setFromQuaternion(rotQuat);
-    transform.position.set(pos[0], pos[1], pos[2]);
-    transform.rotation.set(rotEuler.x, rotEuler.y, rotEuler.z);
+    obj3dcomp.value.position.set(pos[0], pos[1], pos[2]);
+    obj3dcomp.value.rotation.set(rotEuler.x, rotEuler.y, rotEuler.z);
 };
 
 const DefaultSubscriptionMap = {
@@ -1871,7 +1877,7 @@ const DefaultSubscriptionMap = {
             behavior: updatePosition
         },
         {
-            behavior: updateTransform
+            behavior: updateObject3D
         }
     ]
 };

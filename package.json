@@ -66,6 +66,7 @@
     "version": "npm run build && git add -A",
     "postversion": "git push && git push --tags && sudo npm publish",
     "dev": "rollup -cw & http-server ./dist/examples",
+    "serve": "http-server ./dist/examples",
     "lint": "eslint ./src/**/*",
     "start": "npm run build"
   },
