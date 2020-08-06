@@ -1,5 +1,6 @@
 import InputSchema from "../interfaces/InputSchema"
 import { handleMouseButton, handleMouseMovement } from "../behaviors/DesktopInputBehaviors"
+import { handleTouch, handleTouchMove } from "../behaviors/TouchBehaviors"
 import BinaryValue from "../../common/enums/BinaryValue"
 import { handleKey } from "../behaviors/DesktopInputBehaviors"
 import { GamepadButtons } from "../enums/GamepadButtons"
@@ -82,6 +83,30 @@ export const DefaultInputMap: InputSchema = {
         value: BinaryValue.ON
       }
     },
+
+    // Touch
+    ["touchstart"]: {
+      behavior: handleTouch,
+      args: {
+        value: BinaryValue.ON
+      }
+    },
+    ["touchend"]: {
+      behavior: handleTouch,
+      args: {
+        value: BinaryValue.OFF
+      }
+    },
+    ["touchcancel"]: {
+      behavior: handleTouch,
+      args: {
+        value: BinaryValue.OFF
+      }
+    },
+    ["touchmove"]: {
+      behavior: handleTouchMove,
+    },
+
     // Keys
     ["keyup"]: {
       behavior: handleKey,
@@ -95,6 +120,7 @@ export const DefaultInputMap: InputSchema = {
         value: BinaryValue.ON
       }
     },
+
     // Gamepad
     ["gamepadconnected"]: {
       behavior: handleGamepadConnected
