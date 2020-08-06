@@ -6,7 +6,6 @@ export * from "./components/NetworkClient"
 export * from "./components/NetworkTransportComponent"
 export * from "./constants/VideoConstants"
 
-export * from "./defaults/assemblages/NetworkObjectAssemblage"
 export * from "./defaults/DefaultMessageSchemas"
 export * from "./defaults/DefaultMessageTypes"
 

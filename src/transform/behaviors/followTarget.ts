@@ -1,10 +1,10 @@
 import { Entity } from "ecsy"
 import Behavior from "../../common/interfaces/Behavior"
-import TransformComponent from "../../transform/components/TransformComponent"
+import Transform from "../components/Transform"
 
 let follower, target
 export const followTarget: Behavior = (entityIn: Entity, args: any, delta: number, entityOut: Entity): void => {
   // TODO: Logic to have a camera follow a target
-  follower = entityIn.getComponent<TransformComponent>(TransformComponent)
-  target = entityOut.getComponent<TransformComponent>(TransformComponent)
+  follower = entityIn.getComponent<Transform>(Transform)
+  target = entityOut.getComponent<Transform>(Transform)
 }

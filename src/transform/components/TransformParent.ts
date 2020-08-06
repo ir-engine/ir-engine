@@ -1,8 +1,8 @@
 import { Component, Types } from "ecsy"
-import TransformComponent from "./TransformComponent"
+import Transform from "./Transform"
 
 export default class TransformParent extends Component<any> {
-  children: TransformComponent[] = []
+  children: Transform[] = []
 }
 TransformParent.schema = {
   value: { default: [], type: Types.Array }

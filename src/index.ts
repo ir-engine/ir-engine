@@ -17,7 +17,7 @@ import Subscription from "./subscription/components/Subscription"
 import SubscriptionSchema from "./subscription/interfaces/SubscriptionSchema"
 import { DefaultSubscriptionSchema } from "./subscription/defaults/DefaultSubscriptionSchema"
 import State from "./state/components/State"
-import TransformComponent from "./transform/components/TransformComponent"
+import Transform from "./transform/components/Transform"
 import TransformSystem from "./transform/systems/TransformSystem"
 import Actor from "./common/defaults/components/Actor"
 import StateSystem from "./state/systems/StateSystem"
@@ -29,6 +29,7 @@ import NetworkTransport from "./networking/interfaces/NetworkTransport"
 import { MediaStreamControlSystem } from "./networking/systems/MediaStreamSystem"
 
 import TransformParent from "./transform/components/TransformParent"
+import NetworkObject from "./networking/defaults/components/NetworkObject"
 
 const DEFAULT_OPTIONS = {
   debug: false
@@ -52,7 +53,7 @@ export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS):
     .registerComponent(State)
     .registerComponent(Actor)
     .registerComponent(Subscription)
-    .registerComponent(TransformComponent)
+    .registerComponent(Transform)
     .registerComponent(TransformParent)
 
   world
@@ -77,7 +78,7 @@ export function initializeActor(
     .addComponent(State)
     .addComponent(Actor)
     .addComponent(Subscription)
-    .addComponent(TransformComponent)
+    .addComponent(Transform)
 
   // Custom Action Map
   if (options.inputSchema) {
@@ -113,7 +114,8 @@ export function initializeActor(
 }
 
 export function initializeNetworking(world: World, transport?: NetworkTransport) {
-  world.registerSystem(NetworkSystem).registerComponent(NetworkClient)
+  world.registerComponent(NetworkClient).registerComponent(NetworkObject)
+  world.registerSystem(NetworkSystem)
   if (transport.supportsMediaStreams) world.registerSystem(MediaStreamControlSystem)
 
   const networkSystem = world.getSystem(NetworkSystem) as NetworkSystem

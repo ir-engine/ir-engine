@@ -67,6 +67,7 @@
   "main": "dist/armada.js",
   "module": "dist/armada.js",
   "types": "dist/armada.d.ts",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xr3ngine/armada.git"
@@ -97,6 +98,7 @@
     "ecsy": "git+https://github.com/xr3ngine/ecsy#init-typescript",
     "mediasoup-client": "^3.6.12",
     "socket.io": "^2.3.0",
-    "socket.io-client": "^2.3.0"
+    "socket.io-client": "^2.3.0",
+    "utf-8-validate": "^5.0.2"
   }
 }
