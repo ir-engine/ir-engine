@@ -16,7 +16,7 @@ import {User} from "../../../shared/interfaces/User";
 
 const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
 const phoneRegex = /^[0-9]{10}$/
-const userIdRegex = /^[0-9a-f]{32}$/
+const userIdRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
 export function sendInvite (data: any) {
   return async (dispatch: Dispatch, getState: any) => {
@@ -121,7 +121,7 @@ export function acceptInvite(inviteId: string, passcode: string) {
     try {
       await client.service('a-i').get(inviteId, {
         query: {
-          passcode: passcode
+          t: passcode
         }
       })
     } catch(err) {

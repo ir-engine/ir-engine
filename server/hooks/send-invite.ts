@@ -185,6 +185,7 @@ async function generateSMS (
     title: config.client.title,
     inviterUsername: inviterUsername,
     groupName: groupName,
+    smsNameCharacterLimit: config.email.smsNameCharacterLimit,
     hashLink
   }).replace(/&amp;/g, '&') // Text message links can't have HTML escaped ampersands.
 

@@ -95,7 +95,8 @@ const email = {
     friend: 'XR3ngine friend request',
     group: 'XR3ngine group invitation',
     party: 'XR3ngine party invitation'
-  }
+  },
+  smsNameCharacterLimit: 20
 }
 
 /**
