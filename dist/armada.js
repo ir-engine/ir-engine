@@ -1817,10 +1817,10 @@ const handleInput = (entity, delta) => {
                         value: value.value,
                         lifecycleState: LifecycleValue$1.CONTINUED
                     });
-                    (_a = input$4.schema.inputButtonBehaviors[key][value.value].started) === null || _a === void 0 ? void 0 : _a.forEach(buttonBehavior => buttonBehavior.behavior(entity, buttonBehavior.args, delta));
+                    (_a = input$4.schema.inputButtonBehaviors[key][value.value].started) === null || _a === void 0 ? void 0 : _a.forEach(element => element.behavior(entity, element.args, delta));
                 }
                 else if (value.lifecycleState === LifecycleValue$1.CONTINUED) {
-                    (_b = input$4.schema.inputButtonBehaviors[key][value.value].continued) === null || _b === void 0 ? void 0 : _b.forEach(buttonBehavior => buttonBehavior.behavior(entity, input$4.schema.inputButtonBehaviors[key][value.value].continued.args, delta));
+                    (_b = input$4.schema.inputButtonBehaviors[key][value.value].continued) === null || _b === void 0 ? void 0 : _b.forEach(element => element.behavior(entity, element.args, delta));
                 }
             }
         }
@@ -1833,10 +1833,10 @@ const handleInput = (entity, delta) => {
                         value: value.value,
                         lifecycleState: LifecycleValue$1.CONTINUED
                     });
-                    (_c = input$4.schema.inputAxisBehaviors[key].started) === null || _c === void 0 ? void 0 : _c.forEach(value => value.behavior(entity, value.args, delta));
+                    (_c = input$4.schema.inputAxisBehaviors[key].started) === null || _c === void 0 ? void 0 : _c.forEach(element => element.behavior(entity, element.args, delta));
                 }
                 else if (value.lifecycleState === LifecycleValue$1.CONTINUED) {
-                    (_d = input$4.schema.inputAxisBehaviors[key].continued) === null || _d === void 0 ? void 0 : _d.forEach(value => value.behavior(entity, value.args, delta));
+                    (_d = input$4.schema.inputAxisBehaviors[key].continued) === null || _d === void 0 ? void 0 : _d.forEach(element => element.behavior(entity, element.args, delta));
                 }
             }
         }
@@ -36536,18 +36536,45 @@ TransformParent.schema = {
     value: { default: [], type: Types.Array }
 };
 
+const transformBehavior = (entity, args) => {
+    console.log("Transformation here");
+};
+
+const childTransformBehavior = (entity, args) => {
+    console.log("Transformation child here");
+};
+
 class TransformSystem extends System {
-    constructor(world, attributes) {
-        super(world, attributes);
-        // if (attributes.transformationBehavior) {
-        //   this.transformationBehavior = attributes.transformationBehavior
-        // }
-        // if (attributes.childTransformationBehavior) {
-        //   this.childTransformationBehavior = attributes.childTransformationBehavior
-        // }
+    init(attributes) {
+        if (attributes && attributes.transformBehavior) {
+            this.transformBehavior = attributes.transformBehavior;
+        }
+        else {
+            this.transformBehavior = transformBehavior;
+        }
+        if (attributes && attributes.childTransformBehavior) {
+            this.childTransformBehavior = attributes.childTransformBehavior;
+        }
+        else {
+            this.childTransformBehavior = childTransformBehavior;
+        }
     }
     execute() {
-        return console.log("Transform system is ignored for now");
+        var _a, _b, _c;
+        // Hierarchy
+        (_a = this.queries.parent.results) === null || _a === void 0 ? void 0 : _a.forEach((entity) => {
+            this.childTransformBehavior(entity);
+            // Transform children by parent
+        });
+        // Transforms
+        (_b = this.queries.transforms.added) === null || _b === void 0 ? void 0 : _b.forEach(t => {
+            const transform = t.getComponent(Transform);
+            this.transformBehavior(t, { position: transform.position, rotation: transform.rotation });
+        });
+        (_c = this.queries.transforms.changed) === null || _c === void 0 ? void 0 : _c.forEach(t => {
+            const transform = t.getComponent(Transform);
+            this.transformBehavior(t, { position: transform.position, rotation: transform.rotation });
+        });
     }
 }
 TransformSystem.queries = {
