@@ -16,10 +16,6 @@ export default class TransformSystem extends System {
     // }
   }
 
-  init(){
-    
-  }
-
   execute() {
     return console.log("Transform system is ignored for now")
     // Hierarchy

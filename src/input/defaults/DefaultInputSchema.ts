@@ -7,39 +7,16 @@ import { Thumbsticks } from "../../common/enums/Thumbsticks"
 import { preventDefault } from "../../common/functions/preventDefault"
 import { disableScroll, enableScroll } from "../../common/functions/enableDisableScrolling"
 import { handleGamepadConnected, handleGamepadDisconnected } from "../behaviors/GamepadInputBehaviors"
-import { addState, removeState } from "../../state/behaviors/StateBehaviors"
 import { InputType } from "../enums/InputType"
-import InputRelationshipMapping from "../interfaces/InputRelationship"
-import { DefaultStateTypes } from "../../state/defaults/DefaultStateTypes"
+import InputRelationship from "../interfaces/InputRelationship"
 import { move } from "../../common/defaults/behaviors/move"
+import { updateMovementState } from "../../common/defaults/behaviors/updateMovementState"
 import { MouseButtons } from "../enums/MouseButtons"
 import { jump } from "../../common/defaults/behaviors/jump"
 import { rotateAround } from "../../common/defaults/behaviors/rotate"
+import { rotateStart } from "../../common/defaults/behaviors/updateLookingState"
 
-// Abstract inputs that all input devices get mapped to
-export const DefaultInput = {
-  PRIMARY: 0,
-  SECONDARY: 1,
-  FORWARD: 2,
-  BACKWARD: 3,
-  UP: 4,
-  DOWN: 5,
-  LEFT: 6,
-  RIGHT: 7,
-  INTERACT: 8,
-  CROUCH: 9,
-  JUMP: 10,
-  WALK: 11,
-  RUN: 12,
-  SPRINT: 13,
-  SNEAK: 14,
-  SCREENXY: 15, // Is this too specific, or useful?
-  MOVEMENT_PLAYERONE: 16,
-  LOOKTURN_PLAYERONE: 17,
-  MOVEMENT_PLAYERTWO: 18,
-  LOOKTURN_PLAYERTWO: 19,
-  ALTERNATE: 20
-}
+import { DefaultInput } from "./DefaultInput"
 
 export const DefaultInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -59,47 +36,67 @@ export const DefaultInputSchema: InputSchema = {
   // When the input component is added or removed, the system will bind/unbind these events to the DOM
   eventBindings: {
     // Mouse
-    ["contextmenu"]: {
-      behavior: preventDefault
-    },
-    ["mousemove"]: {
-      behavior: handleMouseMovement,
-      args: {
-        value: DefaultInput.SCREENXY
+    ["contextmenu"]: [
+      {
+        behavior: preventDefault
       }
-    },
-    ["mouseup"]: {
-      behavior: handleMouseButton,
-      args: {
-        value: BinaryValue.OFF
+    ],
+    ["mousemove"]: [
+      {
+        behavior: handleMouseMovement,
+        args: {
+          value: DefaultInput.SCREENXY
+        }
       }
-    },
-    ["mousedown"]: {
-      behavior: handleMouseButton,
-      args: {
-        value: BinaryValue.ON
+    ],
+    ["mouseup"]: [
+      {
+        behavior: handleMouseButton,
+        args: {
+          value: BinaryValue.OFF
+        }
       }
-    },
+    ],
+    ["mousedown"]: [
+      {
+        behavior: handleMouseButton,
+        args: {
+          value: BinaryValue.ON
+        }
+      },
+      {
+        behavior: rotateStart,
+        args: {}
+      }
+    ],
     // Keys
-    ["keyup"]: {
-      behavior: handleKey,
-      args: {
-        value: BinaryValue.OFF
+    ["keyup"]: [
+      {
+        behavior: handleKey,
+        args: {
+          value: BinaryValue.OFF
+        }
       }
-    },
-    ["keydown"]: {
-      behavior: handleKey,
-      args: {
-        value: BinaryValue.ON
+    ],
+    ["keydown"]: [
+      {
+        behavior: handleKey,
+        args: {
+          value: BinaryValue.ON
+        }
       }
-    },
+    ],
     // Gamepad
-    ["gamepadconnected"]: {
-      behavior: handleGamepadConnected
-    },
-    ["gamepaddisconnected"]: {
-      behavior: handleGamepadDisconnected
-    }
+    ["gamepadconnected"]: [
+      {
+        behavior: handleGamepadConnected
+      }
+    ],
+    ["gamepaddisconnected"]: [
+      {
+        behavior: handleGamepadDisconnected
+      }
+    ]
   },
   // Map mouse buttons to abstract input
   mouseInputMap: {
@@ -109,7 +106,9 @@ export const DefaultInputSchema: InputSchema = {
       // [MouseButtons.MiddleButton]: DefaultInput.INTERACT
     },
     axes: {
-      mousePosition: DefaultInput.SCREENXY
+      mousePosition: DefaultInput.SCREENXY,
+      mouseClickDownPosition: DefaultInput.SCREENXY_START,
+      mouseClickDownTransformRotation: DefaultInput.ROTATION_START
     }
   },
   // Map gamepad buttons to abstract input
@@ -148,95 +147,199 @@ export const DefaultInputSchema: InputSchema = {
   },
   // Map how inputs relate to each other
   inputRelationships: {
-    [DefaultInput.FORWARD]: { opposes: [DefaultInput.BACKWARD] } as InputRelationshipMapping,
-    [DefaultInput.BACKWARD]: { opposes: [DefaultInput.FORWARD] } as InputRelationshipMapping,
-    [DefaultInput.LEFT]: { opposes: [DefaultInput.RIGHT] } as InputRelationshipMapping,
-    [DefaultInput.RIGHT]: { opposes: [DefaultInput.LEFT] } as InputRelationshipMapping,
-    [DefaultInput.CROUCH]: { blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT] } as InputRelationshipMapping,
-    [DefaultInput.JUMP]: { overrides: [DefaultInput.CROUCH] } as InputRelationshipMapping
+    [DefaultInput.FORWARD]: { opposes: [DefaultInput.BACKWARD] } as InputRelationship,
+    [DefaultInput.BACKWARD]: { opposes: [DefaultInput.FORWARD] } as InputRelationship,
+    [DefaultInput.LEFT]: { opposes: [DefaultInput.RIGHT] } as InputRelationship,
+    [DefaultInput.RIGHT]: { opposes: [DefaultInput.LEFT] } as InputRelationship,
+    [DefaultInput.CROUCH]: { blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT] } as InputRelationship,
+    [DefaultInput.JUMP]: { overrides: [DefaultInput.CROUCH] } as InputRelationship
   },
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
     [DefaultInput.JUMP]: {
       [BinaryValue.ON]: {
-        behavior: jump,
-        args: {}
+        started: [
+          {
+            behavior: jump,
+            args: {}
+          }
+        ]
       }
     },
     [DefaultInput.FORWARD]: {
       [BinaryValue.ON]: {
-        behavior: move,
-        args: {
-          inputType: InputType.TWOD,
-          input: {
-            value: [0, -1]
-          },
-          value: [0, -1]
-        }
+        started: [
+          {
+            behavior: updateMovementState,
+            args: {}
+          }
+        ],
+        continued: [
+          {
+            behavior: move,
+            args: {
+              inputType: InputType.TWOD,
+              input: {
+                value: [0, -1]
+              },
+              value: [0, -1]
+            }
+          }
+        ]
+      },
+      [BinaryValue.OFF]: {
+        started: [
+          {
+            behavior: updateMovementState,
+            args: {}
+          }
+        ],
+        continued: [
+          {
+            behavior: updateMovementState,
+            args: {}
+          }
+        ]
       }
     },
     [DefaultInput.BACKWARD]: {
       [BinaryValue.ON]: {
-        behavior: move,
-        args: {
-          inputType: InputType.TWOD,
-          input: {
-            value: [0, 1]
-          },
-          value: [0, 1]
-        }
+        started: [
+          {
+            behavior: updateMovementState,
+            args: {}
+          }
+        ],
+        continued: [
+          {
+            behavior: move,
+            args: {
+              inputType: InputType.TWOD,
+              input: {
+                value: [0, 1]
+              },
+              value: [0, 1]
+            }
+          }
+        ]
+      },
+      [BinaryValue.OFF]: {
+        started: [
+          {
+            behavior: updateMovementState,
+            args: {}
+          }
+        ],
+        continued: [
+          {
+            behavior: updateMovementState,
+            args: {}
+          }
+        ]
       }
     },
     [DefaultInput.LEFT]: {
       [BinaryValue.ON]: {
-        behavior: move,
-        args: {
-          inputType: InputType.TWOD,
-          input: {
-            value: [-1, 0]
-          },
-          value: [-1, 0]
-        }
+        started: [
+          {
+            behavior: updateMovementState,
+            args: {}
+          }
+        ],
+        continued: [
+          {
+            behavior: move,
+            args: {
+              inputType: InputType.TWOD,
+              input: {
+                value: [-1, 0]
+              },
+              value: [-1, 0]
+            }
+          }
+        ]
+      },
+      [BinaryValue.OFF]: {
+        started: [
+          {
+            behavior: updateMovementState,
+            args: {}
+          }
+        ],
+        continued: [
+          {
+            behavior: updateMovementState,
+            args: {}
+          }
+        ]
       }
     },
     [DefaultInput.RIGHT]: {
       [BinaryValue.ON]: {
-        behavior: move,
-        args: {
-          inputType: InputType.TWOD,
-          input: {
-            value: [1, 0]
-          },
-          value: [1, 0]
-        }
+        started: [
+          {
+            behavior: updateMovementState,
+            args: {}
+          }
+        ],
+        continued: [
+          {
+            behavior: move,
+            args: {
+              inputType: InputType.TWOD,
+              input: {
+                value: [1, 0]
+              },
+              value: [1, 0]
+            }
+          }
+        ]
+      },
+      [BinaryValue.OFF]: {
+        started: [
+          {
+            behavior: updateMovementState,
+            args: {}
+          }
+        ],
+        continued: [
+          {
+            behavior: updateMovementState,
+            args: {}
+          }
+        ]
       }
     }
-    // [DefaultInput.CROUCH]: {
-    //   [BinaryValue.ON]: {
-    //     behavior: startCrouching,
-    //     args: { state: DefaultStateTypes.CROUCHING }
-    //   },
-    //   [BinaryValue.OFF]: {
-    //     behavior: stopCrouching,
-    //     args: { state: DefaultStateTypes.CROUCHING }
-    //   }
-    // }
   },
   // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
   inputAxisBehaviors: {
     [DefaultInput.MOVEMENT_PLAYERONE]: {
-      behavior: move,
-      args: {
-        input: DefaultInput.MOVEMENT_PLAYERONE,
-        inputType: InputType.TWOD
-      }
+      started: [
+        {
+          behavior: updateMovementState,
+          args: {}
+        }
+      ],
+      continued: [
+        {
+          behavior: move,
+          args: {
+            input: DefaultInput.MOVEMENT_PLAYERONE,
+            inputType: InputType.TWOD
+          }
+        }
+      ]
     },
     [DefaultInput.SCREENXY]: {
-      behavior: rotateAround,
-      args: {
-        input: DefaultInput.LOOKTURN_PLAYERONE,
-        inputType: InputType.TWOD
-      }
+      started: [
+        {
+          behavior: rotateAround,
+          args: {
+            input: DefaultInput.SCREENXY,
+            inputType: InputType.TWOD
+          }
+        }
+      ]
     }
   }
 }

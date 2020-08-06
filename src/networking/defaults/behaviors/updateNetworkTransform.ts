@@ -1,11 +1,10 @@
 import { Entity } from "ecsy"
-import Behavior from "../../interfaces/Behavior"
+import Behavior from "../../../common/interfaces/Behavior"
 import Input from "../../../input/components/Input"
-import { DefaultInput } from "../../../input/defaults/DefaultInputData"
+import { DefaultInput } from "../../../input/defaults/DefaultInput"
 import { DefaultStateTypes } from "../../../state/defaults/DefaultStateTypes"
 import { addState } from "../../../state/behaviors/StateBehaviors"
-
-import BinaryValue from "../../enums/BinaryValue"
+import BinaryValue from "../../../common/enums/BinaryValue"
 
 export const updateMovementState: Behavior = (entity: Entity, args: { delta: number }): void => {
   const input = entity.getComponent(Input)

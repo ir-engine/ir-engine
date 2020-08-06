@@ -1,14 +1,14 @@
 // Default component, holds data about what behaviors our character has.
 import { Component } from "ecsy"
 
-interface jumpVals {
+interface JumpPropTypes {
   canJump: boolean
   t?: number
   height?: number
   duration?: number
 }
 
-const defaultJumpValues = {
+const DefaultJumpData = {
   canJump: true,
   t: 0,
   height: 1.0,
@@ -20,7 +20,7 @@ interface PropTypes {
   rotationSpeedY: number
   maxSpeed: number
   accelerationSpeed: number
-  jump: jumpVals
+  jumpData: JumpPropTypes
 }
 
 export default class Actor extends Component<PropTypes> {
@@ -29,7 +29,7 @@ export default class Actor extends Component<PropTypes> {
   maxSpeed: number
   accelerationSpeed: number
   rotationSpeedZ: number
-  jump: jumpVals = defaultJumpValues
+  jump: JumpPropTypes = DefaultJumpData
 
   copy(src: this): this {
     this.rotationSpeedX = src.rotationSpeedX
@@ -44,7 +44,7 @@ export default class Actor extends Component<PropTypes> {
     this.rotationSpeedY = 1
     this.maxSpeed = 10
     this.accelerationSpeed = 1
-    this.jump = defaultJumpValues
+    this.jump = DefaultJumpData
   }
 }
 
