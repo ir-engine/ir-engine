@@ -49,5 +49,5 @@ export default class Actor extends Component<PropTypes> {
 }
 
 Actor.schema = {
-  // TODO: Schema here
+  // TODO: Schema
 }
