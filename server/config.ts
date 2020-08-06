@@ -116,6 +116,12 @@ const authentication = {
     usernameField: 'email',
     passwordField: 'password'
   },
+  jwtOptions: {
+    expiresIn: '30 days'
+  },
+  bearerToken: {
+    numBytes: 16
+  },
   callback: {
     facebook: process.env.FACEBOOK_CALLBACK_URL ?? `${client.url}/auth/oauth/facebook`,
     github: process.env.GITHUB_CALLBACK_URL ?? `${client.url}/auth/oauth/github`,

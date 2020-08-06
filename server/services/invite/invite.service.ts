@@ -71,6 +71,13 @@ export default function (app: Application): any {
       const targetIds = [data.userId]
       if (data.inviteeId) {
         targetIds.push(data.inviteeId)
+      } else {
+        const inviteeIdentityProvider = await app.service('identity-provider').Model.findOne({
+          where: {
+            token: data.token
+          }
+        })
+        targetIds.push(inviteeIdentityProvider.userId)
       }
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return await Promise.all(targetIds.map((userId: string) => {
