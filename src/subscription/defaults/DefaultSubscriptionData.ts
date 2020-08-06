@@ -1,6 +1,6 @@
 import SubscriptionMap from "../interfaces/SubscriptionMap"
 import { updatePosition } from "../../common/defaults/behaviors/updatePosition"
-import { updateTransform } from "../../common/defaults/behaviors/updateTransform"
+import { updateObject3D } from "../../common/defaults/behaviors/updateObject3D"
 
 export const DefaultSubscriptionMap: SubscriptionMap = {
   onUpdate: [
@@ -8,7 +8,7 @@ export const DefaultSubscriptionMap: SubscriptionMap = {
       behavior: updatePosition
     },
     {
-      behavior: updateTransform
+      behavior: updateObject3D
     }
   ]
 }
