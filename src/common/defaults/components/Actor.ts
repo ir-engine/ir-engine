@@ -11,8 +11,8 @@ interface JumpPropTypes {
 const DefaultJumpData = {
   canJump: true,
   t: 0,
-  height: 0.25,
-  duration: 0.5
+  height: 0.1,
+  duration: 0.25
 }
 
 interface PropTypes {
