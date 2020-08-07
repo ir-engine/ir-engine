@@ -4,15 +4,15 @@ import { Component } from "ecsy"
 interface JumpPropTypes {
   canJump: boolean
   t?: number
-  height?: number
+  force?: number
   duration?: number
 }
 
 const DefaultJumpData = {
   canJump: true,
   t: 0,
-  height: 0.1,
-  duration: 0.25
+  force: 0.025,
+  duration: 0.5
 }
 
 interface PropTypes {
