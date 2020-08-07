@@ -1,6 +1,6 @@
-import { Component, Types, TagComponent, System, SystemStateComponent } from 'ecsy';
-import { Quaternion as Quaternion$1, Euler, DataTexture, RGBFormat, TextureLoader, InstancedBufferGeometry, BufferGeometry, ShaderLib, UniformsUtils, ShaderMaterial, Mesh, Points, Float32BufferAttribute, Matrix4, Texture, NormalBlending, InstancedBufferAttribute, MathUtils, Vector3 } from 'three';
+import { Component, Types, System, TagComponent, SystemStateComponent } from 'ecsy';
 import { Object3DComponent } from 'ecsy-three';
+import { Quaternion as Quaternion$1, Euler, DataTexture, RGBFormat, TextureLoader, InstancedBufferGeometry, BufferGeometry, ShaderLib, UniformsUtils, ShaderMaterial, Mesh, Points, Float32BufferAttribute, Matrix4, Texture, NormalBlending, InstancedBufferAttribute, MathUtils, Vector3 } from 'three';
 
 (function() {
     const env = {"NODE_ENV":"production"};
@@ -31,44 +31,19 @@ class BehaviorComponent extends Component {
         this.data.clear();
     }
 }
-//# sourceMappingURL=BehaviorComponent.js.map
 
-const DefaultJumpData = {
-    canJump: true,
-    t: 0,
-    height: 0.1,
-    duration: 0.25
-};
-class Actor extends Component {
-    constructor() {
-        super(...arguments);
-        this.maxSpeed = 0.05;
-        this.accelerationSpeed = 0.05;
-        this.decelerationSpeed = 1;
-        this.jump = DefaultJumpData;
-    }
-    copy(src) {
-        this.rotationSpeedX = src.rotationSpeedX;
-        this.rotationSpeedY = src.rotationSpeedY;
-        this.maxSpeed = src.maxSpeed;
-        this.accelerationSpeed = src.accelerationSpeed;
-        this.decelerationSpeed = src.decelerationSpeed;
-        this.jump = src.jump;
-        return this;
-    }
-    reset() {
-        this.rotationSpeedX = 1;
-        this.rotationSpeedY = 1;
-        this.maxSpeed = 0.05;
-        this.accelerationSpeed = 0.05;
-        this.decelerationSpeed = 1;
-        this.jump = DefaultJumpData;
-    }
+class Camera extends Component {
 }
-Actor.schema = {
-// TODO: Schema
+Camera.schema = {
+    fov: { default: 45, type: Types.Number },
+    aspect: { default: 1, type: Types.Number },
+    near: { default: 0.1, type: Types.Number },
+    far: { default: 1000, type: Types.Number },
+    layers: { default: 0, type: Types.Number },
+    handleResize: { default: true, type: Types.Boolean },
+    cameraObjectReference: { default: null, type: Types.Ref },
+    followingObjectReference: { default: null, type: Types.Ref }
 };
-//# sourceMappingURL=Actor.js.map
 
 const vector3Identity = [0, 0, 0];
 const vector3ScaleIdentity = [1, 1, 1];
@@ -99,7 +74,6 @@ class Transform extends Component {
         this.velocity = vector3Identity;
     }
 }
-//# sourceMappingURL=Transform.js.map
 
 /**
  * Common utilities
@@ -796,6 +770,119 @@ var setAxes = function () {
   };
 }();
 
+let follower, target;
+const _deltaV = [0, 0, 0];
+const _position = [0, 0, 0];
+const _velocity = [0, 0, 0];
+const followTarget = (entityIn, args, delta, entityOut) => {
+    // TODO: Logic to have a camera follow a target
+    follower = entityIn.getMutableComponent(Transform);
+    target = entityOut.getComponent(Transform);
+    set(_position, target.position[0] - args.distance, target.position[1] + 50, target.position[2] - args.distance);
+    set(_velocity, target.velocity[0], target.velocity[1], target.velocity[2]);
+    if (length(_velocity) > 0) {
+        scale(_deltaV, _velocity, delta);
+        add(_position, _position, _deltaV);
+        follower.position = _position;
+    }
+    const camera3DComponent = entityIn.getComponent(Object3DComponent);
+    camera3DComponent.value.position.set(_position[0], _position[1], _position[2]);
+};
+
+class CameraSystem extends System {
+    constructor() {
+        super(...arguments);
+        this.follow = followTarget;
+    }
+    execute(time, delta) {
+        var _a;
+        (_a = this.queries.entities.results) === null || _a === void 0 ? void 0 : _a.forEach(entity => {
+            //this.applySettingsToCamera(entity)
+            const cam = entity.getComponent(Camera);
+            if (cam.followingObjectReference) {
+                cam.cameraObjectReference.addComponent(Transform);
+                console.log(cam.followingObjectReference);
+                this.follow(cam.cameraObjectReference, { distance: 100 }, delta, cam.followingObjectReference);
+                console.log('moved');
+            }
+            else {
+                console.log('not moved');
+            }
+        });
+        this.queries.entities.added.forEach(entity => {
+            console.log("Camera added!");
+            //this.applySettingsToCamera(entity)
+            const cam = entity.getComponent(Camera);
+            if (cam.followingObjectReference) {
+                cam.cameraObjectReference.addComponent(Transform);
+                console.log(cam.followingObjectReference);
+                this.follow(cam.cameraObjectReference, { distance: 100 }, delta, cam.followingObjectReference);
+                console.log('moved');
+            }
+            else {
+                console.log('not moved');
+            }
+        });
+        this.queries.entities.changed.forEach(entity => {
+            //this.applySettingsToCamera(entity)
+        });
+    }
+    applySettingsToCamera(entity) {
+        const cameraComponent = entity.getComponent(Camera);
+        cameraComponent.cameraObjectReference.fov = cameraComponent.fov;
+        cameraComponent.cameraObjectReference.aspect = cameraComponent.aspect;
+        cameraComponent.cameraObjectReference.near = cameraComponent.near;
+        cameraComponent.cameraObjectReference.far = cameraComponent.far;
+        cameraComponent.cameraObjectReference.layers = cameraComponent.layers;
+        cameraComponent.cameraObjectReference.handleResize = cameraComponent.handleResize;
+    }
+}
+CameraSystem.queries = {
+    entities: {
+        components: [Camera],
+        listen: {
+            added: true,
+            changed: true
+        }
+    }
+};
+
+const DefaultJumpData = {
+    canJump: true,
+    t: 0,
+    height: 0.1,
+    duration: 0.25
+};
+class Actor extends Component {
+    constructor() {
+        super(...arguments);
+        this.maxSpeed = 0.05;
+        this.accelerationSpeed = 0.05;
+        this.decelerationSpeed = 1;
+        this.jump = DefaultJumpData;
+    }
+    copy(src) {
+        this.rotationSpeedX = src.rotationSpeedX;
+        this.rotationSpeedY = src.rotationSpeedY;
+        this.maxSpeed = src.maxSpeed;
+        this.accelerationSpeed = src.accelerationSpeed;
+        this.decelerationSpeed = src.decelerationSpeed;
+        this.jump = src.jump;
+        return this;
+    }
+    reset() {
+        this.rotationSpeedX = 1;
+        this.rotationSpeedY = 1;
+        this.maxSpeed = 0.05;
+        this.accelerationSpeed = 0.05;
+        this.decelerationSpeed = 1;
+        this.jump = DefaultJumpData;
+    }
+}
+Actor.schema = {
+// TODO: Schema
+};
+
 let actor;
 let transform;
 const velocity = [0, 0, 0];
@@ -810,17 +897,14 @@ const decelerate = (entity, args, delta) => {
         transform.velocity = velocity;
     }
 };
-//# sourceMappingURL=decelerate.js.map
 
 class State extends BehaviorComponent {
 }
-//# sourceMappingURL=State.js.map
 
 const BinaryValue = {
     ON: 1,
     OFF: 0
 };
-//# sourceMappingURL=BinaryValue.js.map
 
 var StateType;
 (function (StateType) {
@@ -829,7 +913,6 @@ var StateType;
     StateType[StateType["TWOD"] = 2] = "TWOD";
     StateType[StateType["THREED"] = 3] = "THREED";
 })(StateType || (StateType = {}));
-//# sourceMappingURL=StateType.js.map
 
 var LifecycleValue;
 (function (LifecycleValue) {
@@ -838,7 +921,6 @@ var LifecycleValue;
     LifecycleValue[LifecycleValue["ENDED"] = 2] = "ENDED";
 })(LifecycleValue || (LifecycleValue = {}));
 var LifecycleValue$1 = LifecycleValue;
-//# sourceMappingURL=LifecycleValue.js.map
 
 let stateComponent;
 let stateGroup;
@@ -885,7 +967,6 @@ const hasState = (entity, args) => {
         return true;
     return false;
 };
-//# sourceMappingURL=StateBehaviors.js.map
 
 const DefaultStateTypes = {
     // Main States
@@ -904,7 +985,6 @@ const DefaultStateTypes = {
     MOVING_LEFT: 10,
     MOVING_RIGHT: 11
 };
-//# sourceMappingURL=DefaultStateTypes.js.map
 
 let actor$1;
 let transform$1;
@@ -925,14 +1005,12 @@ const jumping = (entity, args, delta) => {
     removeState(entity, { state: DefaultStateTypes.JUMPING });
     console.log("Jumped");
 };
-//# sourceMappingURL=jump.js.map
 
 // Input inherits from BehaviorComponent, which adds .map and .data
 class Input extends BehaviorComponent {
 }
 // Set schema to itself plus gamepad data
 Input.schema = Object.assign(Object.assign({}, Input.schema), { gamepadConnected: { type: Types.Boolean, default: false }, gamepadThreshold: { type: Types.Number, default: 0.1 }, gamepadButtons: { type: Types.Array, default: [] }, gamepadInput: { type: Types.Array, default: [] } });
-//# sourceMappingURL=Input.js.map
 
 // Button -- discrete states of ON and OFF, like a button
 // OneD -- one dimensional value between 0 and 1, or -1 and 1, like a trigger
@@ -949,15 +1027,12 @@ var InputType;
     InputType[InputType["FOURD"] = 4] = "FOURD";
     InputType[InputType["SIXDOF"] = 5] = "SIXDOF";
 })(InputType || (InputType = {}));
-//# sourceMappingURL=InputType.js.map
 
 class Crouching extends TagComponent {
 }
-//# sourceMappingURL=Crouching.js.map
 
 class Sprinting extends TagComponent {
 }
-//# sourceMappingURL=Sprinting.js.map
 
 let input;
 let actor$2;
@@ -992,7 +1067,6 @@ const move = (entity, args, time) => {
         console.error("Movement is only available for 2D and 3D inputs");
     }
 };
-//# sourceMappingURL=move.js.map
 
 let actor$3;
 let transform$3;
@@ -1032,30 +1106,27 @@ const rotateAround = (entity, args, delta) => {
     }
     transform$3.rotation = [qOut[0], qOut[1], qOut[2], qOut[3]];
 };
-//# sourceMappingURL=rotate.js.map
 
-const _deltaV = [0, 0, 0];
-const _position = [0, 0, 0];
+const _deltaV$1 = [0, 0, 0];
+const _position$1 = [0, 0, 0];
 let transform$4;
 const updatePosition = (entity, args, time) => {
     transform$4 = entity.getMutableComponent(Transform);
-    set(_position, transform$4.position[0], transform$4.position[1], transform$4.position[2]);
+    set(_position$1, transform$4.position[0], transform$4.position[1], transform$4.position[2]);
     if (length(transform$4.velocity) > 0) {
         console.log("Transform velocity is", transform$4.velocity);
-        scale(_deltaV, transform$4.velocity, time.delta);
-        add(_position, _position, _deltaV);
-        console.log("New position is ", _position);
-        transform$4.position = _position;
+        scale(_deltaV$1, transform$4.velocity, time.delta);
+        add(_position$1, _position$1, _deltaV$1);
+        console.log("New position is ", _position$1);
+        transform$4.position = _position$1;
     }
 };
-//# sourceMappingURL=updatePosition.js.map
 
 var Thumbsticks;
 (function (Thumbsticks) {
     Thumbsticks[Thumbsticks["Left"] = 0] = "Left";
     Thumbsticks[Thumbsticks["Right"] = 1] = "Right";
 })(Thumbsticks || (Thumbsticks = {}));
-//# sourceMappingURL=Thumbsticks.js.map
 
 // Local reference to input component
 let input$1;
@@ -1125,7 +1196,6 @@ function handleKey(entity, args) {
         });
     }
 }
-//# sourceMappingURL=DesktopInputBehaviors.js.map
 
 /**
  *
@@ -1141,7 +1211,6 @@ function applyThreshold(value, threshold) {
     }
     return (Math.sign(value) * (Math.abs(value) - threshold)) / (1 - threshold);
 }
-//# sourceMappingURL=applyThreshold.js.map
 
 const inputPerGamepad = 2;
 let input$2;
@@ -1252,7 +1321,6 @@ const handleGamepadDisconnected = (entity, args) => {
         input$2.gamepadButtons[index] = 0;
     }
 };
-//# sourceMappingURL=GamepadInputBehaviors.js.map
 
 const handleTouch = (entity, args) => {
     if (args.value === BinaryValue.ON) {
@@ -1273,7 +1341,6 @@ const handleTouchMove = (entity, args) => {
             ', y: ' + Math.trunc(args.event.targetTouches[0].clientY));
     console.log(s);
 };
-//# sourceMappingURL=TouchBehaviors.js.map
 
 function setTouchHandler(touchHandler) {
     if ("verticalZoomIn" in touchHandler ||
@@ -1378,7 +1445,6 @@ function setTouchHandler(touchHandler) {
             touchHandler.element.ontouchmove = touchHandler.touchMove.bind(touchHandler);
     }
 }
-//# sourceMappingURL=TouchInputBehaviors.js.map
 
 var GamepadButtons;
 (function (GamepadButtons) {
@@ -1399,12 +1465,10 @@ var GamepadButtons;
     GamepadButtons[GamepadButtons["DPad3"] = 14] = "DPad3";
     GamepadButtons[GamepadButtons["DPad4"] = 15] = "DPad4";
 })(GamepadButtons || (GamepadButtons = {}));
-//# sourceMappingURL=GamepadButtons.js.map
 
 function preventDefault(e) {
     event.preventDefault();
 }
-//# sourceMappingURL=preventDefault.js.map
 
 const keys = { 37: 1, 38: 1, 39: 1, 40: 1 };
 function preventDefault$1(e) {
@@ -1443,7 +1507,6 @@ function enableScroll() {
     window.removeEventListener("touchmove", preventDefault$1);
     window.removeEventListener("keydown", preventDefaultForScrollKeys, false);
 }
-//# sourceMappingURL=enableDisableScrolling.js.map
 
 // Abstract inputs that all input devices get mapped to
 const DefaultInput = {
@@ -1471,7 +1534,6 @@ const DefaultInput = {
     LOOKTURN_PLAYERTWO: 21,
     ALTERNATE: 22
 };
-//# sourceMappingURL=DefaultInput.js.map
 
 let input$3;
 let moving;
@@ -1493,14 +1555,12 @@ const updateMovementState = (entity) => {
     });
     addState(entity, { state: moving ? DefaultStateTypes.MOVING : DefaultStateTypes.IDLE });
 };
-//# sourceMappingURL=updateMovementState.js.map
 
 const MouseButtons = {
     LeftButton: 0,
     MiddleButton: 1,
     RightButton: 2
 };
-//# sourceMappingURL=MouseButtons.js.map
 
 const rotateStart = (entity, args, delta) => {
     const input = entity.getMutableComponent(Input);
@@ -1516,7 +1576,6 @@ const rotateStart = (entity, args, delta) => {
         value: transformRotation
     });
 };
-//# sourceMappingURL=updateLookingState.js.map
 
 const DefaultInputSchema = {
     // When an Input component is added, the system will call this array of behaviors
@@ -1843,7 +1902,6 @@ const DefaultInputSchema = {
         }
     }
 };
-//# sourceMappingURL=DefaultInputSchema.js.map
 
 class InputSystem extends System {
     constructor() {
@@ -1948,7 +2006,6 @@ InputSystem.queries = {
         }
     }
 };
-//# sourceMappingURL=InputSystem.js.map
 
 const DefaultStateGroups = {
     MOVEMENT: 0,
@@ -1976,7 +2033,6 @@ const DefaultStateSchema = {
         [DefaultStateTypes.SPRINTING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS }
     }
 };
-//# sourceMappingURL=DefaultStateSchema.js.map
 
 class StateSystem extends System {
     constructor() {
@@ -2037,7 +2093,6 @@ StateSystem.queries = {
         }
     }
 };
-//# sourceMappingURL=StateSystem.js.map
 
 /**
  * A 3x3 matrix.
@@ -11374,7 +11429,6 @@ RigidBody.schema = {
     scale: { type: Types.Number, default: { x: 0.1, y: 0.1, z: 0.1 } },
     type: { type: Types.String, default: "box" }
 };
-//# sourceMappingURL=RigidBody.js.map
 
 class VehicleBody extends Component {
 }
@@ -11384,7 +11438,6 @@ VehicleBody.schema = {
     wheelMesh: { type: Types.Ref },
     convexMesh: { type: Types.Ref }
 };
-//# sourceMappingURL=VehicleBody.js.map
 
 function inputs(vehicle) {
     document.onkeydown = handler;
@@ -11712,7 +11765,6 @@ PhysicsSystem.queries = {
         }
     }
 };
-//# sourceMappingURL=PhysicsSystem.js.map
 
 class VehicleSystem extends System {
     execute(dt, t) {
@@ -11752,7 +11804,6 @@ VehicleSystem.queries = {
         }
     }
 };
-//# sourceMappingURL=VehicleSystem.js.map
 
 class WheelBody extends Component {
 }
@@ -11762,7 +11813,6 @@ WheelBody.schema = {
     wheelMesh: { type: Types.Number, default: 1 },
     vehicle: { type: Types.Number, default: 1 }
 };
-//# sourceMappingURL=WheelBody.js.map
 
 const quaternion$1 = new Quaternion$1();
 const euler$1 = new Euler();
@@ -11792,7 +11842,6 @@ WheelSystem.queries = {
         }
     }
 };
-//# sourceMappingURL=WheelSystem.js.map
 
 const parseValue = (x, self, ...args) => (typeof x === "function" ? x(self, ...args) : x);
 function createKeyframes(options, startTime) {
@@ -11824,7 +11873,6 @@ function generateFrames(object, keyframes) {
         console.log("nothing here yet");
     }
 }
-//# sourceMappingURL=Keyframes.js.map
 
 const WHITE_TEXTURE = new DataTexture(new Uint8Array(3).fill(255), 1, 1, RGBFormat);
 WHITE_TEXTURE.needsUpdate = true;
@@ -12606,7 +12654,6 @@ diffuseColor *= vParticleColor;
 
 #include <color_fragment>`);
 }
-//# sourceMappingURL=ParticleMesh.js.map
 
 const RND_BASIS = 0x100000000;
 function createPseudoRandom(s) {
@@ -12616,7 +12663,6 @@ function createPseudoRandom(s) {
         return seed / RND_BASIS;
     };
 }
-//# sourceMappingURL=mathRandomFunctions.js.map
 
 const error = console.error;
 const FRAME_STYLES = ["sequence", "randomsequence", "random"];
@@ -12742,11 +12788,9 @@ function spawn(geometry, matrixWorld, config, index, spawnTime, lifeTime, repeat
     setBrownianAt(geometry, index, config.brownianSpeed, config.brownianScale);
     setVelocityScaleAt(geometry, index, config.velocityScale, config.velocityScaleMin, config.velocityScaleMax);
 }
-//# sourceMappingURL=ParticleEmitter.js.map
 
 class Keyframe extends Component {
 }
-//# sourceMappingURL=Keyframe.js.map
 
 class ParticleEmitterState extends SystemStateComponent {
 }
@@ -12756,7 +12800,6 @@ class ParticleEmitter extends Component {
 ParticleEmitter.schema = Object.assign(Object.assign({}, ParticleEmitter.schema), { particleMesh: { type: Types.Ref, default: null }, enabled: { type: Types.Boolean, default: true }, count: { type: Types.Number, default: -1 }, atlas: { type: Types.String, default: "" }, textureFrame: { type: Types.Ref, default: undefined }, frames: { type: Types.Array, default: [] }, lifeTime: { type: Types.Number, default: 1 }, repeatTime: { type: Types.Number, default: 0 }, spawnVariance: { type: Types.Number, default: 0 }, burst: { type: Types.Number, default: 0 }, syncTransform: { type: Types.Boolean, default: false }, useEntityRotation: { type: Types.Boolean, default: true }, worldUp: { type: Types.Boolean, default: false }, 
     // randomizable values
     colors: { type: Types.Array, default: [{ r: 1, g: 1, b: 1 }] }, orientations: { type: Types.Array, default: [0] }, scales: { type: Types.Array, default: [1] }, opacities: { type: Types.Array, default: [1] }, frameStyle: { type: Types.String, default: "sequence" }, offset: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } }, velocity: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } }, acceleration: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } }, radialVelocity: { type: Types.Number, default: 0 }, radialAcceleration: { type: Types.Number, default: 0 }, angularVelocity: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } }, angularAcceleration: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } }, orbitalVelocity: { type: Types.Number, default: 0 }, orbitalAcceleration: { type: Types.Number, default: 0 }, worldAcceleration: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } }, brownianSpeed: { type: Types.Number, default: 0 }, brownianScale: { type: Types.Number, default: 0 } });
-//# sourceMappingURL=ParticleEmitter.js.map
 
 class KeyframeSystem extends System {
     execute(deltaTime, time) {
@@ -12774,7 +12817,6 @@ KeyframeSystem.queries = {
         components: [Keyframe]
     }
 };
-//# sourceMappingURL=KeyframeSystem.js.map
 
 class TransformParent extends Component {
     constructor() {
@@ -12785,7 +12827,6 @@ class TransformParent extends Component {
 TransformParent.schema = {
     value: { default: [], type: Types.Array }
 };
-//# sourceMappingURL=TransformParent.js.map
 
 class ParticleSystem extends System {
     execute(deltaTime, time) {
@@ -12862,10 +12903,8 @@ const calcMatrixWorld = (function () {
         }
     };
 })();
-//# sourceMappingURL=ParticleSystem.js.map
 
 const isBrowser = typeof window !== "undefined" && typeof window.document !== "undefined";
-//# sourceMappingURL=isBrowser.js.map
 
 const DEFAULT_OPTIONS = {
     mouse: true,
@@ -12892,7 +12931,6 @@ function initializeParticleSystem(world, options = DEFAULT_OPTIONS) {
     if (options.debug)
         console.log("INPUT: Registered particle system.");
 }
-//# sourceMappingURL=index.js.map
 
 class MessageSchema {
     constructor(_messageType, _struct) {
@@ -12940,7 +12978,6 @@ class MessageSchema {
         return this._bytes;
     }
 }
-//# sourceMappingURL=MessageSchema.js.map
 
 class MediaStreamComponent extends Component {
     constructor() {
@@ -12964,7 +13001,6 @@ class MediaStreamComponent extends Component {
         return this.audioPaused;
     }
 }
-//# sourceMappingURL=MediaStreamComponent.js.map
 
 class RingBuffer {
     constructor(size) {
@@ -13081,7 +13117,6 @@ class RingBuffer {
         return this.buffer.length === 0;
     }
 }
-//# sourceMappingURL=RingBuffer.js.map
 
 class MessageQueue extends Component {
     // TODO: Message ring buffer should be able to grow
@@ -13094,7 +13129,6 @@ class MessageQueue extends Component {
         MessageQueue.instance = this;
     }
 }
-//# sourceMappingURL=MessageQueue.js.map
 
 class NetworkClient extends Component {
 }
@@ -13103,7 +13137,6 @@ NetworkClient.schema = {
     userId: { type: Types.String, default: "" },
     name: { type: Types.String, default: "Player" }
 };
-//# sourceMappingURL=NetworkClient.js.map
 
 class NetworkTransportComponent extends Component {
     constructor() {
@@ -13112,7 +13145,6 @@ class NetworkTransportComponent extends Component {
         NetworkTransportComponent.instance = this;
     }
 }
-//# sourceMappingURL=NetworkTransportComponent.js.map
 
 // adding constraints, VIDEO_CONSTRAINTS is video quality levels
 // localMediaConstraints is passed to the getUserMedia object to request a lower video quality than the maximum
@@ -13137,7 +13169,6 @@ const CAM_VIDEO_SIMULCAST_ENCODINGS = [
     // { maxBitrate: 96000, scaleResolutionDownBy: 2 },
     // { maxBitrate: 680000, scaleResolutionDownBy: 1 },
 ];
-//# sourceMappingURL=VideoConstants.js.map
 
 function __awaiter(thisArg, _arguments, P, generator) {
   function adopt(value) {
@@ -13398,7 +13429,6 @@ class MediaStreamControlSystem extends System {
         });
     }
 }
-//# sourceMappingURL=MediaStreamSystem.js.map
 
 const set$3 = (obj, path, value) => {
     const pathArray = Array.isArray(path) ? path : path.match(/([^[.\]])+/g);
@@ -13410,12 +13440,10 @@ const set$3 = (obj, path, value) => {
         return acc[key];
     }, obj);
 };
-//# sourceMappingURL=set.js.map
 
 function cropString(str, length) {
     return str.padEnd(length, " ").slice(0, length);
 }
-//# sourceMappingURL=cropString.js.map
 
 class NetworkObject extends Component {
 }
@@ -13423,7 +13451,6 @@ NetworkObject.schema = {
     ownerId: { type: Types.Number },
     networkId: { type: Types.Number }
 };
-//# sourceMappingURL=NetworkObject.js.map
 
 class NetworkSystem extends System {
     constructor(world) {
@@ -13819,7 +13846,6 @@ NetworkSystem.queries = {
         components: [NetworkClient]
     }
 };
-//# sourceMappingURL=NetworkSystem.js.map
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -36054,7 +36080,6 @@ function sleep(ms) {
         return new Promise(r => setTimeout(() => r(), ms));
     });
 }
-//# sourceMappingURL=sleep.js.map
 
 var SocketWebRTCMessageTypes;
 (function (SocketWebRTCMessageTypes) {
@@ -36087,7 +36112,6 @@ var SocketWebRTCMessageTypes;
     SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["UnreliableMessage"] = 24] = "UnreliableMessage";
 })(SocketWebRTCMessageTypes || (SocketWebRTCMessageTypes = {}));
 var SocketWebRTCMessageTypes$1 = SocketWebRTCMessageTypes;
-//# sourceMappingURL=SocketWebRTCMessageTypes.js.map
 
 const Device = lib$4.Device;
 class SocketWebRTCClientTransport {
@@ -36570,11 +36594,9 @@ class SocketWebRTCClientTransport {
         });
     }
 }
-//# sourceMappingURL=SocketWebRTCClientTransport.js.map
 
 class Subscription extends BehaviorComponent {
 }
-//# sourceMappingURL=Subscription.js.map
 
 class SubscriptionSystem extends System {
     constructor() {
@@ -36618,39 +36640,35 @@ SubscriptionSystem.queries = {
         }
     }
 };
-//# sourceMappingURL=SubscriptionSystem.js.map
 
 const DefaultSubscriptionSchema = {
     onUpdate: []
 };
-//# sourceMappingURL=DefaultSubscriptionSchema.js.map
 
 const q$1 = new Quaternion$1();
 const e = new Euler();
 let transform$5;
-const _deltaV$1 = [0, 0, 0];
-const _position$1 = [0, 0, 0];
-const _velocity = [0, 0, 0];
+const _deltaV$2 = [0, 0, 0];
+const _position$2 = [0, 0, 0];
+const _velocity$1 = [0, 0, 0];
 const transformBehavior = (entity, args, delta) => {
     transform$5 = entity.getMutableComponent(Transform);
-    set(_position$1, transform$5.position[0], transform$5.position[1], transform$5.position[2]);
-    set(_velocity, transform$5.velocity[0], transform$5.velocity[1], transform$5.velocity[2]);
-    if (length(_velocity) > 0) {
-        scale(_deltaV$1, _velocity, delta);
-        add(_position$1, _position$1, _deltaV$1);
-        transform$5.position = _position$1;
+    set(_position$2, transform$5.position[0], transform$5.position[1], transform$5.position[2]);
+    set(_velocity$1, transform$5.velocity[0], transform$5.velocity[1], transform$5.velocity[2]);
+    if (length(_velocity$1) > 0) {
+        scale(_deltaV$2, _velocity$1, delta);
+        add(_position$2, _position$2, _deltaV$2);
+        transform$5.position = _position$2;
     }
     // Apply to object3d
     const object3DComponent = entity.getComponent(Object3DComponent);
-    object3DComponent.value.position.set(_position$1[0], _position$1[1], _position$1[2]);
+    object3DComponent.value.position.set(_position$2[0], _position$2[1], _position$2[2]);
     object3DComponent.value.rotation.setFromQuaternion(q$1.fromArray(transform$5.rotation));
 };
-//# sourceMappingURL=transformBehavior.js.map
 
 const childTransformBehavior = (entity, args) => {
     console.log("Transformation child here");
 };
-//# sourceMappingURL=childTransformBehavior.js.map
 
 class TransformSystem extends System {
     init(attributes) {
@@ -36700,7 +36718,6 @@ TransformSystem.queries = {
         }
     }
 };
-//# sourceMappingURL=TransformSystem.js.map
 
 const DEFAULT_OPTIONS$1 = {
     debug: false
@@ -36777,7 +36794,6 @@ function initializeNetworking(world, transport) {
     const networkSystem = world.getSystem(NetworkSystem);
     networkSystem.initializeSession(world, transport);
 }
-//# sourceMappingURL=index.js.map
 
-export { CAM_VIDEO_SIMULCAST_ENCODINGS, DefaultInputSchema, DefaultStateGroups, DefaultStateSchema, DefaultStateTypes, GamepadButtons, InputType, Keyframe, KeyframeSystem, MediaStreamControlSystem, MouseButtons, NetworkSystem, ParticleEmitter, ParticleEmitterState, ParticleSystem, PhysicsSystem, RigidBody, SocketWebRTCClientTransport, StateType, Thumbsticks, VIDEO_CONSTRAINTS, VehicleBody, VehicleSystem, WheelBody, WheelSystem, addState, createKeyframes, createParticleEmitter, createParticleMesh, decelerate, handleGamepadAxis, handleGamepadConnected, handleGamepadDisconnected, handleGamepads, handleInput, handleKey, handleMouseButton, handleMouseMovement, handleTouch, handleTouchMove, hasState, initializeActor, initializeInputSystems, initializeNetworking, initializeParticleSystem, jump, jumping, loadTexturePackerJSON, localMediaConstraints, move, needsUpdate, removeState, rotateAround, setAccelerationAt, setAngularAccelerationAt, setAngularVelocityAt, setAtlasIndexAt, setBrownianAt, setColorsAt, setEmitterMatrixWorld, setEmitterTime, setFrameAt, setKeyframesAt, setMaterialTime, setMatrixAt, setOffsetAt, setOpacitiesAt, setOrientationsAt, setScalesAt, setTextureAtlas, setTimingsAt, setTouchHandler, setVelocityAt, setVelocityScaleAt, setWorldAccelerationAt, syncKeyframes, toggleState, updateGeometry, updateMaterial, updateOriginalMaterialUniforms, updatePosition };
+export { CAM_VIDEO_SIMULCAST_ENCODINGS, Camera, CameraSystem, DefaultInputSchema, DefaultStateGroups, DefaultStateSchema, DefaultStateTypes, GamepadButtons, InputType, Keyframe, KeyframeSystem, MediaStreamControlSystem, MouseButtons, NetworkSystem, ParticleEmitter, ParticleEmitterState, ParticleSystem, PhysicsSystem, RigidBody, SocketWebRTCClientTransport, StateType, Thumbsticks, VIDEO_CONSTRAINTS, VehicleBody, VehicleSystem, WheelBody, WheelSystem, addState, createKeyframes, createParticleEmitter, createParticleMesh, decelerate, followTarget, handleGamepadAxis, handleGamepadConnected, handleGamepadDisconnected, handleGamepads, handleInput, handleKey, handleMouseButton, handleMouseMovement, handleTouch, handleTouchMove, hasState, initializeActor, initializeInputSystems, initializeNetworking, initializeParticleSystem, jump, jumping, loadTexturePackerJSON, localMediaConstraints, move, needsUpdate, removeState, rotateAround, setAccelerationAt, setAngularAccelerationAt, setAngularVelocityAt, setAtlasIndexAt, setBrownianAt, setColorsAt, setEmitterMatrixWorld, setEmitterTime, setFrameAt, setKeyframesAt, setMaterialTime, setMatrixAt, setOffsetAt, setOpacitiesAt, setOrientationsAt, setScalesAt, setTextureAtlas, setTimingsAt, setTouchHandler, setVelocityAt, setVelocityScaleAt, setWorldAccelerationAt, syncKeyframes, toggleState, updateGeometry, updateMaterial, updateOriginalMaterialUniforms, updatePosition };
 //# sourceMappingURL=armada.js.map

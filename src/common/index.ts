@@ -1,10 +1,13 @@
 export * from "./components/BehaviorComponent"
+export * from "../camera/components/Camera"
+export * from "../camera/systems/CameraSystem"
 
 export * from "./defaults/behaviors/decelerate"
 export * from "./defaults/behaviors/jump"
 export * from "./defaults/behaviors/move"
 export * from "./defaults/behaviors/rotate"
 export * from "../transform/behaviors/updatePosition"
+export * from "../transform/behaviors/followTarget"
 
 export * from "./defaults/components/Actor"
 
