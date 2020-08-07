@@ -1,4 +1,4 @@
-import { System, Entity, Attributes, World } from "ecsy"
+import { System, Entity, Attributes } from "ecsy"
 import TransformParent from "../components/TransformParent"
 import Transform from "../components/Transform"
 import Behavior from "../../common/interfaces/Behavior"
@@ -21,22 +21,22 @@ export default class TransformSystem extends System {
     }
   }
 
-  execute() {
+  execute(time, delta) {
     // Hierarchy
     this.queries.parent.results?.forEach((entity: Entity) => {
-      this.childTransformBehavior(entity)
+      this.childTransformBehavior(entity, {}, delta)
       // Transform children by parent
     })
 
     // Transforms
     this.queries.transforms.added?.forEach(t => {
       const transform = t.getComponent(Transform)
-      this.transformBehavior(t, { position: transform.position, rotation: transform.rotation })
+      this.transformBehavior(t, { position: transform.position, rotation: transform.rotation }, delta)
     })
 
     this.queries.transforms.changed?.forEach(t => {
       const transform = t.getComponent(Transform)
-      this.transformBehavior(t, { position: transform.position, rotation: transform.rotation })
+      this.transformBehavior(t, { position: transform.position, rotation: transform.rotation }, delta)
     })
   }
 }

@@ -82,7 +82,7 @@ export function initializeActor(
 
   // Custom Action Map
   if (options.inputSchema) {
-    console.log("Using input map:")
+    console.log("Using input schema:")
     console.log(options.inputSchema)
     entity.getMutableComponent(Input).schema = options.inputSchema
   } else {
@@ -92,7 +92,7 @@ export function initializeActor(
 
   // Custom Action Map
   if (options.stateSchema) {
-    console.log("Using input map:")
+    console.log("Using state schema:")
     console.log(options.stateSchema)
     entity.getMutableComponent(State).schema = options.stateSchema
   } else {
@@ -102,11 +102,11 @@ export function initializeActor(
 
   // Custom Subscription Map
   if (options.subscriptionSchema) {
-    console.log("Using subscription map:")
+    console.log("Using subscription schema:")
     console.log(options.subscriptionSchema)
     entity.getMutableComponent(Subscription).schema = options.subscriptionSchema
   } else {
-    console.log("No subscription map provided, defaulting to default subscriptions")
+    console.log("No subscription schema provided, defaulting to default subscriptions")
     entity.getMutableComponent(Subscription).schema = DefaultSubscriptionSchema
   }
 

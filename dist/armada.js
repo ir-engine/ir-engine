@@ -1,8 +1,18 @@
 import { Component, Types, TagComponent, System, SystemStateComponent } from 'ecsy';
-import { Transform as Transform$2 } from 'ecsy-three/src/extras/components';
 import { Quaternion as Quaternion$1, Euler, DataTexture, RGBFormat, TextureLoader, InstancedBufferGeometry, BufferGeometry, ShaderLib, UniformsUtils, ShaderMaterial, Mesh, Points, Float32BufferAttribute, Matrix4, Texture, NormalBlending, InstancedBufferAttribute, MathUtils, Vector3 } from 'three';
-import { Transform as Transform$3, Parent } from 'ecsy-three/extras';
 import { Object3DComponent } from 'ecsy-three';
+
+(function() {
+    const env = {"NODE_ENV":"production"};
+    try {
+        if (process) {
+            process.env = Object.assign({}, process.env);
+            Object.assign(process.env, env);
+            return;
+        }
+    } catch (e) {} // avoid ReferenceError: process is not defined
+    globalThis.process = { env:env };
+})();
 
 // Constructs a component with a map and data values
 // Data contains a map() of arbitrary data
@@ -21,17 +31,20 @@ class BehaviorComponent extends Component {
         this.data.clear();
     }
 }
+//# sourceMappingURL=BehaviorComponent.js.map
 
-// Default component, holds data about what behaviors our character has.
 const DefaultJumpData = {
     canJump: true,
     t: 0,
-    height: 1.0,
-    duration: 1
+    height: 0.25,
+    duration: 0.5
 };
 class Actor extends Component {
     constructor() {
         super(...arguments);
+        this.maxSpeed = 0.05;
+        this.accelerationSpeed = 0.05;
+        this.decelerationSpeed = 1;
         this.jump = DefaultJumpData;
     }
     copy(src) {
@@ -39,14 +52,16 @@ class Actor extends Component {
         this.rotationSpeedY = src.rotationSpeedY;
         this.maxSpeed = src.maxSpeed;
         this.accelerationSpeed = src.accelerationSpeed;
+        this.decelerationSpeed = src.decelerationSpeed;
         this.jump = src.jump;
         return this;
     }
     reset() {
         this.rotationSpeedX = 1;
         this.rotationSpeedY = 1;
-        this.maxSpeed = 10;
-        this.accelerationSpeed = 1;
+        this.maxSpeed = 0.05;
+        this.accelerationSpeed = 0.05;
+        this.decelerationSpeed = 1;
         this.jump = DefaultJumpData;
     }
 }
@@ -83,12 +98,14 @@ class Transform extends Component {
         this.velocity = vector3Identity;
     }
 }
+//# sourceMappingURL=Transform.js.map
 
 /**
  * Common utilities
  * @module glMatrix
  */
 // Configuration Constants
+
 var EPSILON = 0.000001;
 var ARRAY_TYPE = typeof Float32Array !== 'undefined' ? Float32Array : Array;
 if (!Math.hypot) Math.hypot = function () {
@@ -177,6 +194,22 @@ function length(a) {
 
 function fromValues(x, y, z) {
   var out = new ARRAY_TYPE(3);
+  out[0] = x;
+  out[1] = y;
+  out[2] = z;
+  return out;
+}
+/**
+ * Set the components of a vec3 to the given values
+ *
+ * @param {vec3} out the receiving vector
+ * @param {Number} x X component
+ * @param {Number} y Y component
+ * @param {Number} z Z component
+ * @returns {vec3} out
+ */
+
+function set(out, x, y, z) {
   out[0] = x;
   out[1] = y;
   out[2] = z;
@@ -354,7 +387,7 @@ function create$2() {
  * @returns {vec4} out
  */
 
-function set(out, x, y, z, w) {
+function set$1(out, x, y, z, w) {
   out[0] = x;
   out[1] = y;
   out[2] = z;
@@ -661,7 +694,7 @@ function fromEuler(out, x, y, z) {
  * @function
  */
 
-var set$1 = set;
+var set$2 = set$1;
 /**
  * Normalize a quat
  *
@@ -764,24 +797,28 @@ var setAxes = function () {
 
 let actor;
 let transform;
+const velocity = [0, 0, 0];
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const decelerate = (entity, args, delta) => {
     actor = entity.getComponent(Actor);
     transform = entity.getMutableComponent(Transform);
-    if (length(transform.velocity) > 0.001) {
-        transform.velocity[0] = transform.velocity[0] * Math.max(1.0 - actor.accelerationSpeed * delta, 0);
-        transform.velocity[1] = transform.velocity[1] * Math.max(1.0 - actor.accelerationSpeed * delta, 0);
-        transform.velocity[2] = transform.velocity[2] * Math.max(1.0 - actor.accelerationSpeed * delta, 0);
+    console.log("Dec: transform velocty is ", transform.velocity);
+    set(velocity, transform.velocity[0], transform.velocity[1], transform.velocity[2]);
+    if (length(velocity) > 0) {
+        scale(velocity, velocity, 1.0 - actor.decelerationSpeed * delta);
+        transform.velocity = velocity;
     }
 };
 
 class State extends BehaviorComponent {
 }
+//# sourceMappingURL=State.js.map
 
 const BinaryValue = {
     ON: 1,
     OFF: 0
 };
+//# sourceMappingURL=BinaryValue.js.map
 
 var StateType;
 (function (StateType) {
@@ -790,6 +827,7 @@ var StateType;
     StateType[StateType["TWOD"] = 2] = "TWOD";
     StateType[StateType["THREED"] = 3] = "THREED";
 })(StateType || (StateType = {}));
+//# sourceMappingURL=StateType.js.map
 
 var LifecycleValue;
 (function (LifecycleValue) {
@@ -798,6 +836,7 @@ var LifecycleValue;
     LifecycleValue[LifecycleValue["ENDED"] = 2] = "ENDED";
 })(LifecycleValue || (LifecycleValue = {}));
 var LifecycleValue$1 = LifecycleValue;
+//# sourceMappingURL=LifecycleValue.js.map
 
 let stateComponent;
 let stateGroup;
@@ -844,6 +883,7 @@ const hasState = (entity, args) => {
         return true;
     return false;
 };
+//# sourceMappingURL=StateBehaviors.js.map
 
 const DefaultStateTypes = {
     // Main States
@@ -862,6 +902,7 @@ const DefaultStateTypes = {
     MOVING_LEFT: 10,
     MOVING_RIGHT: 11
 };
+//# sourceMappingURL=DefaultStateTypes.js.map
 
 let actor$1;
 let transform$1;
@@ -889,6 +930,7 @@ class Input extends BehaviorComponent {
 }
 // Set schema to itself plus gamepad data
 Input.schema = Object.assign(Object.assign({}, Input.schema), { gamepadConnected: { type: Types.Boolean, default: false }, gamepadThreshold: { type: Types.Number, default: 0.1 }, gamepadButtons: { type: Types.Array, default: [] }, gamepadInput: { type: Types.Array, default: [] } });
+//# sourceMappingURL=Input.js.map
 
 // Button -- discrete states of ON and OFF, like a button
 // OneD -- one dimensional value between 0 and 1, or -1 and 1, like a trigger
@@ -905,32 +947,41 @@ var InputType;
     InputType[InputType["FOURD"] = 4] = "FOURD";
     InputType[InputType["SIXDOF"] = 5] = "SIXDOF";
 })(InputType || (InputType = {}));
+//# sourceMappingURL=InputType.js.map
 
 class Crouching extends TagComponent {
 }
+//# sourceMappingURL=Crouching.js.map
 
 class Sprinting extends TagComponent {
 }
+//# sourceMappingURL=Sprinting.js.map
 
 let input;
 let actor$2;
 let transform$2;
 let inputValue; // Could be a (small) source of garbage
 let outputSpeed;
-const move = (entity, args, delta) => {
+const move = (entity, args, time) => {
     input = entity.getComponent(Input);
     actor$2 = entity.getComponent(Actor);
     transform$2 = entity.getMutableComponent(Transform);
     const movementModifer = entity.hasComponent(Crouching) ? 0.5 : entity.hasComponent(Sprinting) ? 1.5 : 1.0;
     const inputType = args.inputType;
-    outputSpeed = actor$2.accelerationSpeed * delta * movementModifer;
+    outputSpeed = actor$2.accelerationSpeed * time.delta * movementModifer;
+    console.log("Transform Velocity X", transform$2.velocity[0]);
+    console.log("accelerationspeed, " + actor$2.accelerationSpeed);
+    console.log("delta, ", time.delta);
+    console.log("movementModifer, " + movementModifer);
+    console.log("output speed", outputSpeed);
+    console.log("Movement X", Math.min(transform$2.velocity[0] + args.value[0] * outputSpeed, actor$2.maxSpeed));
     if (inputType === InputType.TWOD) {
         inputValue = args.value;
         transform$2.velocity[0] = Math.min(transform$2.velocity[0] + inputValue[0] * outputSpeed, actor$2.maxSpeed);
         transform$2.velocity[2] = Math.min(transform$2.velocity[2] + inputValue[1] * outputSpeed, actor$2.maxSpeed);
     }
     else if (inputType === InputType.THREED) {
-        inputValue = input.data.get(args.input).value;
+        inputValue = args.value;
         transform$2.velocity[0] = Math.min(transform$2.velocity[0] + inputValue[0] * outputSpeed, actor$2.maxSpeed);
         transform$2.velocity[1] = Math.min(transform$2.velocity[1] + inputValue[1] * outputSpeed, actor$2.maxSpeed);
         transform$2.velocity[2] = Math.min(transform$2.velocity[2] + inputValue[2] * outputSpeed, actor$2.maxSpeed);
@@ -938,7 +989,6 @@ const move = (entity, args, delta) => {
     else {
         console.error("Movement is only available for 2D and 3D inputs");
     }
-    console.log("Moved");
 };
 
 let actor$3;
@@ -961,7 +1011,7 @@ const rotateAround = (entity, args, delta) => {
     if (!inputComponent.data.has(args.input)) {
         inputComponent.data.set(args.input, { type: args.inputType, value: create$1() });
     }
-    set$1(qOut, originalRotation.value[0], originalRotation.value[1], originalRotation.value[2], originalRotation.value[3]);
+    set$2(qOut, originalRotation.value[0], originalRotation.value[1], originalRotation.value[2], originalRotation.value[3]);
     if (args.inputType === InputType.TWOD) {
         if (inputComponent.data.has(args.input)) {
             inputValue$1 = inputComponent.data.get(args.input).value;
@@ -980,21 +1030,28 @@ const rotateAround = (entity, args, delta) => {
     transform$3.rotation = [qOut[0], qOut[1], qOut[2], qOut[3]];
 };
 
-const _output = [0, 0, 0];
+const _deltaV = [0, 0, 0];
+const _position = [0, 0, 0];
 let transform$4;
-const updatePosition = (entity, args, delta) => {
+const updatePosition = (entity, args, time) => {
     transform$4 = entity.getMutableComponent(Transform);
-    if (length(transform$4.velocity) > 0.001) {
-        scale(_output, transform$4.velocity, delta);
-        add(transform$4.position, transform$4.position, _output);
+    set(_position, transform$4.position[0], transform$4.position[1], transform$4.position[2]);
+    if (length(transform$4.velocity) > 0) {
+        console.log("Transform velocity is", transform$4.velocity);
+        scale(_deltaV, transform$4.velocity, time.delta);
+        add(_position, _position, _deltaV);
+        console.log("New position is ", _position);
+        transform$4.position = _position;
     }
 };
+//# sourceMappingURL=updatePosition.js.map
 
 var Thumbsticks;
 (function (Thumbsticks) {
     Thumbsticks[Thumbsticks["Left"] = 0] = "Left";
     Thumbsticks[Thumbsticks["Right"] = 1] = "Right";
 })(Thumbsticks || (Thumbsticks = {}));
+//# sourceMappingURL=Thumbsticks.js.map
 
 // Local reference to input component
 let input$1;
@@ -1031,7 +1088,7 @@ const handleMouseButton = (entity, args) => {
         });
     }
     else {
-        console.log("Mouse button up" + args.event.button);
+        console.log("Mouse button up: " + args.event.button);
         input$1.data.delete(input$1.schema.mouseInputMap.buttons[args.event.button]);
         input$1.data.delete(input$1.schema.mouseInputMap.axes["mouseClickDownPosition"]);
         input$1.data.delete(input$1.schema.mouseInputMap.axes["mouseClickDownTransformRotation"]);
@@ -1064,6 +1121,7 @@ function handleKey(entity, args) {
         });
     }
 }
+//# sourceMappingURL=DesktopInputBehaviors.js.map
 
 /**
  *
@@ -1079,6 +1137,7 @@ function applyThreshold(value, threshold) {
     }
     return (Math.sign(value) * (Math.abs(value) - threshold)) / (1 - threshold);
 }
+//# sourceMappingURL=applyThreshold.js.map
 
 const inputPerGamepad = 2;
 let input$2;
@@ -1189,6 +1248,28 @@ const handleGamepadDisconnected = (entity, args) => {
         input$2.gamepadButtons[index] = 0;
     }
 };
+//# sourceMappingURL=GamepadInputBehaviors.js.map
+
+const handleTouch = (entity, args) => {
+    if (args.value === BinaryValue.ON) {
+        let s = 'Touch start.';
+        if (args.event.targetTouches.length)
+            s += (' x: ' + Math.trunc(args.event.targetTouches[0].clientX) +
+                ', y: ' + Math.trunc(args.event.targetTouches[0].clientY));
+        console.log(s);
+    }
+    else {
+        console.log('Touch end.');
+    }
+};
+const handleTouchMove = (entity, args) => {
+    let s = 'Touch move.';
+    if (args.event.targetTouches.length)
+        s += (' x: ' + Math.trunc(args.event.targetTouches[0].clientX) +
+            ', y: ' + Math.trunc(args.event.targetTouches[0].clientY));
+    console.log(s);
+};
+//# sourceMappingURL=TouchBehaviors.js.map
 
 function setTouchHandler(touchHandler) {
     if ("verticalZoomIn" in touchHandler ||
@@ -1293,6 +1374,7 @@ function setTouchHandler(touchHandler) {
             touchHandler.element.ontouchmove = touchHandler.touchMove.bind(touchHandler);
     }
 }
+//# sourceMappingURL=TouchInputBehaviors.js.map
 
 var GamepadButtons;
 (function (GamepadButtons) {
@@ -1313,10 +1395,12 @@ var GamepadButtons;
     GamepadButtons[GamepadButtons["DPad3"] = 14] = "DPad3";
     GamepadButtons[GamepadButtons["DPad4"] = 15] = "DPad4";
 })(GamepadButtons || (GamepadButtons = {}));
+//# sourceMappingURL=GamepadButtons.js.map
 
 function preventDefault(e) {
     event.preventDefault();
 }
+//# sourceMappingURL=preventDefault.js.map
 
 const keys = { 37: 1, 38: 1, 39: 1, 40: 1 };
 function preventDefault$1(e) {
@@ -1355,6 +1439,7 @@ function enableScroll() {
     window.removeEventListener("touchmove", preventDefault$1);
     window.removeEventListener("keydown", preventDefaultForScrollKeys, false);
 }
+//# sourceMappingURL=enableDisableScrolling.js.map
 
 // Abstract inputs that all input devices get mapped to
 const DefaultInput = {
@@ -1382,6 +1467,7 @@ const DefaultInput = {
     LOOKTURN_PLAYERTWO: 21,
     ALTERNATE: 22
 };
+//# sourceMappingURL=DefaultInput.js.map
 
 let input$3;
 let moving;
@@ -1403,12 +1489,14 @@ const updateMovementState = (entity) => {
     });
     addState(entity, { state: moving ? DefaultStateTypes.MOVING : DefaultStateTypes.IDLE });
 };
+//# sourceMappingURL=updateMovementState.js.map
 
 const MouseButtons = {
     LeftButton: 0,
     MiddleButton: 1,
     RightButton: 2
 };
+//# sourceMappingURL=MouseButtons.js.map
 
 const rotateStart = (entity, args, delta) => {
     const input = entity.getMutableComponent(Input);
@@ -1424,6 +1512,7 @@ const rotateStart = (entity, args, delta) => {
         value: transformRotation
     });
 };
+//# sourceMappingURL=updateLookingState.js.map
 
 const DefaultInputSchema = {
     // When an Input component is added, the system will call this array of behaviors
@@ -1750,6 +1839,7 @@ const DefaultInputSchema = {
         }
     }
 };
+//# sourceMappingURL=DefaultInputSchema.js.map
 
 class InputSystem extends System {
     constructor() {
@@ -1854,6 +1944,7 @@ InputSystem.queries = {
         }
     }
 };
+//# sourceMappingURL=InputSystem.js.map
 
 const DefaultStateGroups = {
     MOVEMENT: 0,
@@ -1881,6 +1972,7 @@ const DefaultStateSchema = {
         [DefaultStateTypes.SPRINTING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS }
     }
 };
+//# sourceMappingURL=DefaultStateSchema.js.map
 
 class StateSystem extends System {
     constructor() {
@@ -1941,12 +2033,8 @@ StateSystem.queries = {
         }
     }
 };
+//# sourceMappingURL=StateSystem.js.map
 
-/**
- * Records what objects are colliding with each other
- * @class ObjectCollisionMatrix
- * @constructor
- */
 /**
  * A 3x3 matrix.
  * @class Mat3
@@ -11282,6 +11370,7 @@ RigidBody.schema = {
     scale: { type: Types.Number, default: { x: 0.1, y: 0.1, z: 0.1 } },
     type: { type: Types.String, default: "box" }
 };
+//# sourceMappingURL=RigidBody.js.map
 
 class VehicleBody extends Component {
 }
@@ -11291,6 +11380,7 @@ VehicleBody.schema = {
     wheelMesh: { type: Types.Ref },
     convexMesh: { type: Types.Ref }
 };
+//# sourceMappingURL=VehicleBody.js.map
 
 function inputs(vehicle) {
     document.onkeydown = handler;
@@ -11385,7 +11475,7 @@ class PhysicsSystem extends System {
             this._physicsWorld.addBody(body);
         }
         for (const entity of this.queries.vehicleBody.added) {
-            const object = entity.getComponent(Transform$2).getObject3D();
+            const object = entity.getComponent(Object3DComponent).value;
             const vehicleComponent = entity.getComponent(VehicleBody);
             const [vehicle, wheelBodies] = this._createVehicleBody(entity, vehicleComponent.convexMesh);
             object.userData.vehicle = vehicle;
@@ -11414,30 +11504,28 @@ class PhysicsSystem extends System {
         }
         for (const entity of this.queries.physicsRigidBody.results) {
             //  if (rigidBody.weight === 0.0) continue;
-            const transform = entity.getMutableComponent(Transform$2);
-            const object = transform.getObject3D();
+            const transform = entity.getMutableComponent(Transform);
+            const object = entity.getMutableComponent(Object3DComponent).value;
             const body = object.userData.body;
             //console.log(body);
-            transform.position.copy(body.position);
+            transform.position = body.position;
             quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
-            euler.setFromQuaternion(quaternion, "XYZ");
-            transform.rotation.copy(euler);
+            transform.rotation = quaternion.toArray();
         }
         for (const entity of this.queries.vehicleBody.results) {
             //  if (rigidBody.weight === 0.0) continue;
-            const transform = entity.getMutableComponent(Transform$2);
-            const object = transform.getObject3D();
+            const transform = entity.getMutableComponent(Transform);
+            const object = entity.getMutableComponent(Object3DComponent).value;
             const vehicle = object.userData.vehicle.chassisBody;
-            transform.position.copy(vehicle.position);
+            transform.position = vehicle.position;
             //transform.position.y += 0.6
             quaternion.set(vehicle.quaternion.x, vehicle.quaternion.y, vehicle.quaternion.z, vehicle.quaternion.w);
-            euler.setFromQuaternion(quaternion, "XYZ");
-            transform.rotation.copy(euler);
+            transform.rotation = vehicle.quaternion.toArray();
         }
     }
     _createBox(entity) {
         const rigidBody = entity.getComponent(RigidBody);
-        const transform = entity.getComponent(Transform$2);
+        const transform = entity.getComponent(Transform);
         const shape = new Box(new Vec3(rigidBody.scale.x / 2, rigidBody.scale.y / 2, rigidBody.scale.z / 2));
         const body = new Body({
             mass: rigidBody.mass,
@@ -11453,7 +11541,7 @@ class PhysicsSystem extends System {
     }
     _createGroundGeometry(entity) {
         const rigidBody = entity.getComponent(RigidBody);
-        const transform = entity.getComponent(Transform$2);
+        const transform = entity.getComponent(Transform);
         const shape = new Box(new Vec3(rigidBody.scale.x / 2, rigidBody.scale.y / 2, rigidBody.scale.z / 2));
         const body = new Body({
             mass: rigidBody.mass,
@@ -11469,7 +11557,7 @@ class PhysicsSystem extends System {
     }
     _createCylinder(entity) {
         const rigidBody = entity.getComponent(RigidBody);
-        const transform = entity.getComponent(Transform$2);
+        const transform = entity.getComponent(Transform);
         const cylinderShape = new Cylinder(rigidBody.scale.x, rigidBody.scale.y, rigidBody.scale.z, 20);
         const body = new Body({
             mass: rigidBody.mass,
@@ -11485,7 +11573,7 @@ class PhysicsSystem extends System {
     }
     _createShare(entity) {
         const rigidBody = entity.getComponent(RigidBody);
-        const transform = entity.getComponent(Transform$2);
+        const transform = entity.getComponent(Transform);
         const shape = new Sphere(rigidBody.scale.x / 2);
         const body = new Body({
             mass: rigidBody.mass,
@@ -11502,7 +11590,7 @@ class PhysicsSystem extends System {
         }
         else {
             rigidBody = entity.getComponent(RigidBody);
-            transform = entity.getComponent(Transform$2);
+            transform = entity.getComponent(Transform);
             object = transform.getObject3D();
             attributePosition = object.geometry.attributes.position;
         }
@@ -11543,7 +11631,7 @@ class PhysicsSystem extends System {
         return convexBody;
     }
     _createVehicleBody(entity, mesh) {
-        const transform = entity.getComponent(Transform$2);
+        const transform = entity.getComponent(Transform);
         let chassisBody;
         if (mesh) {
             chassisBody = this._createConvexGeometry(entity, mesh);
@@ -11620,6 +11708,7 @@ PhysicsSystem.queries = {
         }
     }
 };
+//# sourceMappingURL=PhysicsSystem.js.map
 
 class VehicleSystem extends System {
     execute(dt, t) {
@@ -11659,6 +11748,7 @@ VehicleSystem.queries = {
         }
     }
 };
+//# sourceMappingURL=VehicleSystem.js.map
 
 class WheelBody extends Component {
 }
@@ -11668,6 +11758,7 @@ WheelBody.schema = {
     wheelMesh: { type: Types.Number, default: 1 },
     vehicle: { type: Types.Number, default: 1 }
 };
+//# sourceMappingURL=WheelBody.js.map
 
 const quaternion$1 = new Quaternion$1();
 const euler$1 = new Euler();
@@ -11681,13 +11772,10 @@ class WheelSystem extends System {
             const vehicle = parentObject.userData.vehicle;
             vehicle.updateWheelTransform(i);
             //  console.log(vehicle);
-            const transform = entity.getMutableComponent(Transform$3);
-            transform.position.copy(vehicle.wheelInfos[i].worldTransform.position);
-            quaternion$1.set(vehicle.wheelInfos[i].worldTransform.quaternion.x, vehicle.wheelInfos[i].worldTransform.quaternion.y, vehicle.wheelInfos[i].worldTransform.quaternion.z, vehicle.wheelInfos[i].worldTransform.quaternion.w);
-            //  quaternion.slerp( new THREE.Quaternion(), 0.5 );
-            euler$1.setFromQuaternion(quaternion$1, "XYZ");
+            const transform = entity.getMutableComponent(Transform);
+            transform.position = vehicle.wheelInfos[i].worldTransform.position;
             //let euler2 = new THREE.Euler(euler.x, euler.y/2, euler.z, 'XYZ')
-            transform.rotation.copy(euler$1);
+            transform.rotation = vehicle.wheelInfos[i].worldTransform.quaternion.toArray();
             //console.log(vehicle.wheelInfos[0].chassisConnectionPointWorld);
         }
     }
@@ -11700,6 +11788,7 @@ WheelSystem.queries = {
         }
     }
 };
+//# sourceMappingURL=WheelSystem.js.map
 
 const parseValue = (x, self, ...args) => (typeof x === "function" ? x(self, ...args) : x);
 function createKeyframes(options, startTime) {
@@ -11731,6 +11820,7 @@ function generateFrames(object, keyframes) {
         console.log("nothing here yet");
     }
 }
+//# sourceMappingURL=Keyframes.js.map
 
 const WHITE_TEXTURE = new DataTexture(new Uint8Array(3).fill(255), 1, 1, RGBFormat);
 WHITE_TEXTURE.needsUpdate = true;
@@ -12512,6 +12602,7 @@ diffuseColor *= vParticleColor;
 
 #include <color_fragment>`);
 }
+//# sourceMappingURL=ParticleMesh.js.map
 
 const RND_BASIS = 0x100000000;
 function createPseudoRandom(s) {
@@ -12521,6 +12612,7 @@ function createPseudoRandom(s) {
         return seed / RND_BASIS;
     };
 }
+//# sourceMappingURL=mathRandomFunctions.js.map
 
 const error = console.error;
 const FRAME_STYLES = ["sequence", "randomsequence", "random"];
@@ -12646,9 +12738,11 @@ function spawn(geometry, matrixWorld, config, index, spawnTime, lifeTime, repeat
     setBrownianAt(geometry, index, config.brownianSpeed, config.brownianScale);
     setVelocityScaleAt(geometry, index, config.velocityScale, config.velocityScaleMin, config.velocityScaleMax);
 }
+//# sourceMappingURL=ParticleEmitter.js.map
 
 class Keyframe extends Component {
 }
+//# sourceMappingURL=Keyframe.js.map
 
 class ParticleEmitterState extends SystemStateComponent {
 }
@@ -12658,6 +12752,7 @@ class ParticleEmitter extends Component {
 ParticleEmitter.schema = Object.assign(Object.assign({}, ParticleEmitter.schema), { particleMesh: { type: Types.Ref, default: null }, enabled: { type: Types.Boolean, default: true }, count: { type: Types.Number, default: -1 }, atlas: { type: Types.String, default: "" }, textureFrame: { type: Types.Ref, default: undefined }, frames: { type: Types.Array, default: [] }, lifeTime: { type: Types.Number, default: 1 }, repeatTime: { type: Types.Number, default: 0 }, spawnVariance: { type: Types.Number, default: 0 }, burst: { type: Types.Number, default: 0 }, syncTransform: { type: Types.Boolean, default: false }, useEntityRotation: { type: Types.Boolean, default: true }, worldUp: { type: Types.Boolean, default: false }, 
     // randomizable values
     colors: { type: Types.Array, default: [{ r: 1, g: 1, b: 1 }] }, orientations: { type: Types.Array, default: [0] }, scales: { type: Types.Array, default: [1] }, opacities: { type: Types.Array, default: [1] }, frameStyle: { type: Types.String, default: "sequence" }, offset: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } }, velocity: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } }, acceleration: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } }, radialVelocity: { type: Types.Number, default: 0 }, radialAcceleration: { type: Types.Number, default: 0 }, angularVelocity: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } }, angularAcceleration: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } }, orbitalVelocity: { type: Types.Number, default: 0 }, orbitalAcceleration: { type: Types.Number, default: 0 }, worldAcceleration: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } }, brownianSpeed: { type: Types.Number, default: 0 }, brownianScale: { type: Types.Number, default: 0 } });
+//# sourceMappingURL=ParticleEmitter.js.map
 
 class KeyframeSystem extends System {
     execute(deltaTime, time) {
@@ -12675,6 +12770,18 @@ KeyframeSystem.queries = {
         components: [Keyframe]
     }
 };
+//# sourceMappingURL=KeyframeSystem.js.map
+
+class TransformParent extends Component {
+    constructor() {
+        super(...arguments);
+        this.children = [];
+    }
+}
+TransformParent.schema = {
+    value: { default: [], type: Types.Array }
+};
+//# sourceMappingURL=TransformParent.js.map
 
 class ParticleSystem extends System {
     execute(deltaTime, time) {
@@ -12733,7 +12840,7 @@ const calcMatrixWorld = (function () {
     const euler = new Euler();
     return function calcMatrixWorld(entity, childMatrix = undefined) {
         const object3D = entity.getComponent(Object3DComponent);
-        const transform = entity.getComponent(Transform$3);
+        const transform = entity.getComponent(Transform);
         if (object3D) {
             return childMatrix ? childMatrix.multiply(object3D["value"].matrixWorld) : object3D["value"].matrixWorld;
         }
@@ -12743,7 +12850,7 @@ const calcMatrixWorld = (function () {
             if (childMatrix) {
                 transformMatrix.premultiply(childMatrix);
             }
-            const parent = entity.getComponent(Parent);
+            const parent = entity.getComponent(TransformParent);
             return parent ? calcMatrixWorld(parent["value"], transformMatrix) : transformMatrix;
         }
         else {
@@ -12751,8 +12858,10 @@ const calcMatrixWorld = (function () {
         }
     };
 })();
+//# sourceMappingURL=ParticleSystem.js.map
 
 const isBrowser = typeof window !== "undefined" && typeof window.document !== "undefined";
+//# sourceMappingURL=isBrowser.js.map
 
 const DEFAULT_OPTIONS = {
     mouse: true,
@@ -12779,6 +12888,7 @@ function initializeParticleSystem(world, options = DEFAULT_OPTIONS) {
     if (options.debug)
         console.log("INPUT: Registered particle system.");
 }
+//# sourceMappingURL=index.js.map
 
 class MessageSchema {
     constructor(_messageType, _struct) {
@@ -12826,8 +12936,8 @@ class MessageSchema {
         return this._bytes;
     }
 }
+//# sourceMappingURL=MessageSchema.js.map
 
-// TODO: Clean me up, add schema, etc
 class MediaStreamComponent extends Component {
     constructor() {
         super();
@@ -12850,6 +12960,7 @@ class MediaStreamComponent extends Component {
         return this.audioPaused;
     }
 }
+//# sourceMappingURL=MediaStreamComponent.js.map
 
 class RingBuffer {
     constructor(size) {
@@ -12966,8 +13077,8 @@ class RingBuffer {
         return this.buffer.length === 0;
     }
 }
+//# sourceMappingURL=RingBuffer.js.map
 
-// TODO: Clean me up, add schema, etc
 class MessageQueue extends Component {
     // TODO: Message ring buffer should be able to grow
     constructor() {
@@ -12979,6 +13090,7 @@ class MessageQueue extends Component {
         MessageQueue.instance = this;
     }
 }
+//# sourceMappingURL=MessageQueue.js.map
 
 class NetworkClient extends Component {
 }
@@ -12987,8 +13099,8 @@ NetworkClient.schema = {
     userId: { type: Types.String, default: "" },
     name: { type: Types.String, default: "Player" }
 };
+//# sourceMappingURL=NetworkClient.js.map
 
-// TODO: Clean me up, add schema, etc
 class NetworkTransportComponent extends Component {
     constructor() {
         super();
@@ -12996,6 +13108,7 @@ class NetworkTransportComponent extends Component {
         NetworkTransportComponent.instance = this;
     }
 }
+//# sourceMappingURL=NetworkTransportComponent.js.map
 
 // adding constraints, VIDEO_CONSTRAINTS is video quality levels
 // localMediaConstraints is passed to the getUserMedia object to request a lower video quality than the maximum
@@ -13020,21 +13133,8 @@ const CAM_VIDEO_SIMULCAST_ENCODINGS = [
     // { maxBitrate: 96000, scaleResolutionDownBy: 2 },
     // { maxBitrate: 680000, scaleResolutionDownBy: 1 },
 ];
+//# sourceMappingURL=VideoConstants.js.map
 
-/*! *****************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
 function __awaiter(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function (resolve) {
@@ -13294,8 +13394,9 @@ class MediaStreamControlSystem extends System {
         });
     }
 }
+//# sourceMappingURL=MediaStreamSystem.js.map
 
-const set$2 = (obj, path, value) => {
+const set$3 = (obj, path, value) => {
     const pathArray = Array.isArray(path) ? path : path.match(/([^[.\]])+/g);
     pathArray.reduce((acc, key, i) => {
         if (acc[key] === undefined)
@@ -13305,10 +13406,12 @@ const set$2 = (obj, path, value) => {
         return acc[key];
     }, obj);
 };
+//# sourceMappingURL=set.js.map
 
 function cropString(str, length) {
     return str.padEnd(length, " ").slice(0, length);
 }
+//# sourceMappingURL=cropString.js.map
 
 class NetworkObject extends Component {
 }
@@ -13316,6 +13419,7 @@ NetworkObject.schema = {
     ownerId: { type: Types.Number },
     networkId: { type: Types.Number }
 };
+//# sourceMappingURL=NetworkObject.js.map
 
 class NetworkSystem extends System {
     constructor(world) {
@@ -13634,7 +13738,7 @@ class NetworkSystem extends System {
                 if (p === "")
                     data = Object.assign(Object.assign({}, data), value);
                 else
-                    set$2(data, p, value);
+                    set$3(data, p, value);
             }
             else {
                 for (const props in obj) {
@@ -13711,6 +13815,7 @@ NetworkSystem.queries = {
         components: [NetworkClient]
     }
 };
+//# sourceMappingURL=NetworkSystem.js.map
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -13738,6 +13843,7 @@ function commonjsRequire () {
  * @author Steven Levithan <stevenlevithan.com> (MIT license)
  * @api private
  */
+
 var re = /^(?:(?![^:@]+:[^:@\/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
 var parts = ['source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host', 'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'];
 
@@ -14022,6 +14128,7 @@ var browser$1 = {
 /**
  * Helpers.
  */
+
 var s = 1000;
 var m = s * 60;
 var h = m * 60;
@@ -14709,6 +14816,7 @@ function url(uri, loc) {
 /**
  * Helpers.
  */
+
 var s$1 = 1000;
 var m$1 = s$1 * 60;
 var h$1 = m$1 * 60;
@@ -18101,6 +18209,7 @@ var xmlhttprequest = function (opts) {
  * @return {Array} keys
  * @api private
  */
+
 var keys$1 = Object.keys || function keys(obj) {
   var arr = [];
   var has = Object.prototype.hasOwnProperty;
@@ -18176,6 +18285,7 @@ function hasBinary(obj) {
  *
  * @api public
  */
+
 var arraybuffer_slice = function (arraybuffer, start, end) {
   var bytes = arraybuffer.byteLength;
   start = start || 0;
@@ -18240,6 +18350,7 @@ function after(count, callback, err_cb) {
 function noop$1() {}
 
 /*! https://mths.be/utf8js v2.1.2 by @mathias */
+
 var stringFromCharCode = String.fromCharCode; // Taken from https://mths.be/punycode
 
 function ucs2decode(string) {
@@ -18546,6 +18657,7 @@ var base64Arraybuffer = createCommonjsModule(function (module, exports) {
 /**
  * Create a blob builder even when vendor prefixes exist
  */
+
 var BlobBuilder = typeof BlobBuilder !== 'undefined' ? BlobBuilder : typeof WebKitBlobBuilder !== 'undefined' ? WebKitBlobBuilder : typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder : typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder : false;
 /**
  * Check if Blob constructor is supported
@@ -19609,6 +19721,7 @@ Transport.prototype.onClose = function () {
  * @param {Object}
  * @api private
  */
+
 var encode = function (obj) {
   var str = '';
 
@@ -20600,8 +20713,8 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
 var _nodeResolve_empty = {};
 
 var _nodeResolve_empty$1 = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  'default': _nodeResolve_empty
+    __proto__: null,
+    'default': _nodeResolve_empty
 });
 
 var require$$1 = getCjsExportFromNamespace(_nodeResolve_empty$1);
@@ -21688,6 +21801,7 @@ function toArray(list, index) {
 /**
  * Module exports.
  */
+
 var on_1 = on$1;
 /**
  * Helper for subscriptions.
@@ -21710,6 +21824,7 @@ function on$1(obj, ev, fn) {
 /**
  * Slice reference.
  */
+
 var slice = [].slice;
 /**
  * Bind `obj` to `fn`.
@@ -22162,6 +22277,7 @@ var socket$1 = createCommonjsModule(function (module, exports) {
 /**
  * Expose `Backoff`.
  */
+
 var backo2 = Backoff;
 /**
  * Initialize backoff timer with `opts`.
@@ -35934,6 +36050,7 @@ function sleep(ms) {
         return new Promise(r => setTimeout(() => r(), ms));
     });
 }
+//# sourceMappingURL=sleep.js.map
 
 var SocketWebRTCMessageTypes;
 (function (SocketWebRTCMessageTypes) {
@@ -35966,6 +36083,7 @@ var SocketWebRTCMessageTypes;
     SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["UnreliableMessage"] = 24] = "UnreliableMessage";
 })(SocketWebRTCMessageTypes || (SocketWebRTCMessageTypes = {}));
 var SocketWebRTCMessageTypes$1 = SocketWebRTCMessageTypes;
+//# sourceMappingURL=SocketWebRTCMessageTypes.js.map
 
 const Device = lib$4.Device;
 class SocketWebRTCClientTransport {
@@ -36448,39 +36566,41 @@ class SocketWebRTCClientTransport {
         });
     }
 }
+//# sourceMappingURL=SocketWebRTCClientTransport.js.map
 
 class Subscription extends BehaviorComponent {
 }
+//# sourceMappingURL=Subscription.js.map
 
 class SubscriptionSystem extends System {
     constructor() {
         super(...arguments);
-        this.callBehaviorsForHook = (entity, args) => {
+        this.callBehaviorsForHook = (entity, args, delta) => {
             this.subscription = entity.getComponent(Subscription);
             // If the schema for this subscription component has any values in this phase
             if (this.subscription.schema[args.phase] !== undefined) {
                 // Foreach value in this phase
                 this.subscription.schema[args.phase].forEach((value) => {
                     // Call the behavior with the args supplied in the schema, as well as delta provided here
-                    value.behavior(entity, value.args ? value.args : null, args.delta);
+                    value.behavior(entity, value.args ? value.args : null, delta);
                 });
             }
         };
     }
-    execute(delta, time) {
+    execute(delta) {
         var _a, _b, _c, _d;
         (_a = this.queries.subscriptions.added) === null || _a === void 0 ? void 0 : _a.forEach(entity => {
-            this.callBehaviorsForHook(entity, { phase: "onAdded", delta });
+            this.callBehaviorsForHook(entity, { phase: "onAdded" }, delta);
         });
         (_b = this.queries.subscriptions.changed) === null || _b === void 0 ? void 0 : _b.forEach(entity => {
-            this.callBehaviorsForHook(entity, { phase: "onChanged", delta });
+            this.callBehaviorsForHook(entity, { phase: "onChanged" }, delta);
         });
         (_c = this.queries.subscriptions.results) === null || _c === void 0 ? void 0 : _c.forEach(entity => {
-            this.callBehaviorsForHook(entity, { phase: "onUpdate", delta });
-            this.callBehaviorsForHook(entity, { phase: "onLateUpdate", delta });
+            this.callBehaviorsForHook(entity, { phase: "onUpdate" }, delta);
+            this.callBehaviorsForHook(entity, { phase: "onLateUpdate" }, delta);
         });
         (_d = this.queries.subscriptions.removed) === null || _d === void 0 ? void 0 : _d.forEach(entity => {
-            this.callBehaviorsForHook(entity, { phase: "onRemoved", delta });
+            this.callBehaviorsForHook(entity, { phase: "onRemoved" }, delta);
         });
     }
 }
@@ -36494,55 +36614,39 @@ SubscriptionSystem.queries = {
         }
     }
 };
-
-let i$1 = 0;
-const eulerMap = {
-    0: "x",
-    1: "y",
-    2: "z"
-};
-const updateTransform = (entity, args, delta) => {
-    const armadaTransform = entity.getComponent(Transform);
-    const transform = entity.getMutableComponent(Transform);
-    const pos = armadaTransform.position;
-    const rot = armadaTransform.rotation;
-    const rotQuat = new Quaternion$1(rot[0], rot[1], rot[2], rot[3]);
-    const rotEuler = new Euler();
-    rotEuler.setFromQuaternion(rotQuat);
-    for (i$1 = 0; i$1 < 3; i$1++) {
-        transform.position[i$1] = pos[i$1];
-        transform.rotation[i$1] = rotEuler[eulerMap[i$1]];
-    }
-};
+//# sourceMappingURL=SubscriptionSystem.js.map
 
 const DefaultSubscriptionSchema = {
-    onUpdate: [
-        {
-            behavior: updatePosition
-        },
-        {
-            behavior: updateTransform
-        }
-    ]
+    onUpdate: []
 };
+//# sourceMappingURL=DefaultSubscriptionSchema.js.map
 
-class TransformParent extends Component {
-    constructor() {
-        super(...arguments);
-        this.children = [];
+const q$1 = new Quaternion$1();
+const e = new Euler();
+let transform$5;
+const _deltaV$1 = [0, 0, 0];
+const _position$1 = [0, 0, 0];
+const _velocity = [0, 0, 0];
+const transformBehavior = (entity, args, delta) => {
+    transform$5 = entity.getMutableComponent(Transform);
+    set(_position$1, transform$5.position[0], transform$5.position[1], transform$5.position[2]);
+    set(_velocity, transform$5.velocity[0], transform$5.velocity[1], transform$5.velocity[2]);
+    if (length(_velocity) > 0) {
+        scale(_deltaV$1, _velocity, delta);
+        add(_position$1, _position$1, _deltaV$1);
+        transform$5.position = _position$1;
     }
-}
-TransformParent.schema = {
-    value: { default: [], type: Types.Array }
+    // Apply to object3d
+    const object3DComponent = entity.getComponent(Object3DComponent);
+    object3DComponent.value.position.set(_position$1[0], _position$1[1], _position$1[2]);
+    object3DComponent.value.rotation.setFromQuaternion(q$1.fromArray(transform$5.rotation));
 };
-
-const transformBehavior = (entity, args) => {
-    console.log("Transformation here");
-};
+//# sourceMappingURL=transformBehavior.js.map
 
 const childTransformBehavior = (entity, args) => {
     console.log("Transformation child here");
 };
+//# sourceMappingURL=childTransformBehavior.js.map
 
 class TransformSystem extends System {
     init(attributes) {
@@ -36559,21 +36663,21 @@ class TransformSystem extends System {
             this.childTransformBehavior = childTransformBehavior;
         }
     }
-    execute() {
+    execute(time, delta) {
         var _a, _b, _c;
         // Hierarchy
         (_a = this.queries.parent.results) === null || _a === void 0 ? void 0 : _a.forEach((entity) => {
-            this.childTransformBehavior(entity);
+            this.childTransformBehavior(entity, {}, delta);
             // Transform children by parent
         });
         // Transforms
         (_b = this.queries.transforms.added) === null || _b === void 0 ? void 0 : _b.forEach(t => {
             const transform = t.getComponent(Transform);
-            this.transformBehavior(t, { position: transform.position, rotation: transform.rotation });
+            this.transformBehavior(t, { position: transform.position, rotation: transform.rotation }, delta);
         });
         (_c = this.queries.transforms.changed) === null || _c === void 0 ? void 0 : _c.forEach(t => {
             const transform = t.getComponent(Transform);
-            this.transformBehavior(t, { position: transform.position, rotation: transform.rotation });
+            this.transformBehavior(t, { position: transform.position, rotation: transform.rotation }, delta);
         });
     }
 }
@@ -36592,6 +36696,7 @@ TransformSystem.queries = {
         }
     }
 };
+//# sourceMappingURL=TransformSystem.js.map
 
 const DEFAULT_OPTIONS$1 = {
     debug: false
@@ -36630,7 +36735,7 @@ function initializeActor(entity, options) {
         .addComponent(Transform);
     // Custom Action Map
     if (options.inputSchema) {
-        console.log("Using input map:");
+        console.log("Using input schema:");
         console.log(options.inputSchema);
         entity.getMutableComponent(Input).schema = options.inputSchema;
     }
@@ -36640,7 +36745,7 @@ function initializeActor(entity, options) {
     }
     // Custom Action Map
     if (options.stateSchema) {
-        console.log("Using input map:");
+        console.log("Using state schema:");
         console.log(options.stateSchema);
         entity.getMutableComponent(State).schema = options.stateSchema;
     }
@@ -36650,12 +36755,12 @@ function initializeActor(entity, options) {
     }
     // Custom Subscription Map
     if (options.subscriptionSchema) {
-        console.log("Using subscription map:");
+        console.log("Using subscription schema:");
         console.log(options.subscriptionSchema);
         entity.getMutableComponent(Subscription).schema = options.subscriptionSchema;
     }
     else {
-        console.log("No subscription map provided, defaulting to default subscriptions");
+        console.log("No subscription schema provided, defaulting to default subscriptions");
         entity.getMutableComponent(Subscription).schema = DefaultSubscriptionSchema;
     }
     return entity;
@@ -36669,5 +36774,5 @@ function initializeNetworking(world, transport) {
     networkSystem.initializeSession(world, transport);
 }
 
-export { CAM_VIDEO_SIMULCAST_ENCODINGS, DefaultInputSchema, DefaultStateGroups, DefaultStateSchema, DefaultStateTypes, GamepadButtons, InputType, Keyframe, KeyframeSystem, MediaStreamControlSystem, MouseButtons, NetworkSystem, ParticleEmitter, ParticleEmitterState, ParticleSystem, PhysicsSystem, RigidBody, SocketWebRTCClientTransport, StateType, Thumbsticks, VIDEO_CONSTRAINTS, VehicleBody, VehicleSystem, WheelBody, WheelSystem, addState, createKeyframes, createParticleEmitter, createParticleMesh, decelerate, handleGamepadAxis, handleGamepadConnected, handleGamepadDisconnected, handleGamepads, handleInput, handleKey, handleMouseButton, handleMouseMovement, hasState, initializeActor, initializeInputSystems, initializeNetworking, initializeParticleSystem, jump, jumping, loadTexturePackerJSON, localMediaConstraints, move, needsUpdate, removeState, rotateAround, setAccelerationAt, setAngularAccelerationAt, setAngularVelocityAt, setAtlasIndexAt, setBrownianAt, setColorsAt, setEmitterMatrixWorld, setEmitterTime, setFrameAt, setKeyframesAt, setMaterialTime, setMatrixAt, setOffsetAt, setOpacitiesAt, setOrientationsAt, setScalesAt, setTextureAtlas, setTimingsAt, setTouchHandler, setVelocityAt, setVelocityScaleAt, setWorldAccelerationAt, syncKeyframes, toggleState, updateGeometry, updateMaterial, updateOriginalMaterialUniforms, updatePosition };
+export { CAM_VIDEO_SIMULCAST_ENCODINGS, DefaultInputSchema, DefaultStateGroups, DefaultStateSchema, DefaultStateTypes, GamepadButtons, InputType, Keyframe, KeyframeSystem, MediaStreamControlSystem, MouseButtons, NetworkSystem, ParticleEmitter, ParticleEmitterState, ParticleSystem, PhysicsSystem, RigidBody, SocketWebRTCClientTransport, StateType, Thumbsticks, VIDEO_CONSTRAINTS, VehicleBody, VehicleSystem, WheelBody, WheelSystem, addState, createKeyframes, createParticleEmitter, createParticleMesh, decelerate, handleGamepadAxis, handleGamepadConnected, handleGamepadDisconnected, handleGamepads, handleInput, handleKey, handleMouseButton, handleMouseMovement, handleTouch, handleTouchMove, hasState, initializeActor, initializeInputSystems, initializeNetworking, initializeParticleSystem, jump, jumping, loadTexturePackerJSON, localMediaConstraints, move, needsUpdate, removeState, rotateAround, setAccelerationAt, setAngularAccelerationAt, setAngularVelocityAt, setAtlasIndexAt, setBrownianAt, setColorsAt, setEmitterMatrixWorld, setEmitterTime, setFrameAt, setKeyframesAt, setMaterialTime, setMatrixAt, setOffsetAt, setOpacitiesAt, setOrientationsAt, setScalesAt, setTextureAtlas, setTimingsAt, setTouchHandler, setVelocityAt, setVelocityScaleAt, setWorldAccelerationAt, syncKeyframes, toggleState, updateGeometry, updateMaterial, updateOriginalMaterialUniforms, updatePosition };
 //# sourceMappingURL=armada.js.map

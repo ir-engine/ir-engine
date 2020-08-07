@@ -14,15 +14,14 @@
   </div>
   <script type="module">
     import { Component, System } from "ecsy"
-    import { ECSYThreeWorld, Object3DComponent, Types } from "ecsy-three"
     import {
-      initialize,
+      ECSYThreeWorld, Object3DComponent, Types, initialize,
       // Components
       GLTFLoader,
       // Systems
       GLTFLoaderSystem,
       Position
-    } from "ecsy-three/extras"
+    } from "ecsy-three"
     import {
       AmbientLight,
       Mesh,
@@ -32,237 +31,19 @@
       Vector3
     } from "three"
 
-    import {
-      initializeInputSystems,
-      initializeActor, 
-      jumping,
-      jump,
-      decelerate,
-      move,
-      rotateAround,
-      handleMouseMovement,
-      handleMouseButton,
-      handleTouch,
-      handleTouchMove,
-      handleKey,
-      MouseButtons,
-      InputType } from "../../dist/armada.js"
+    import { initializeInputSystems, initializeActor } from "../../dist/armada.js"
 
-    const BinaryValue = {
-      ON: 1,
-      OFF: 0
-    }
-
-    // Abstract inputs that all input devices get mapped to
-    export const DefaultInput = {
-      PRIMARY: 0,
-      SECONDARY: 1,
-      FORWARD: 2,
-      BACKWARD: 3,
-      UP: 4,
-      DOWN: 5,
-      LEFT: 6,
-      RIGHT: 7,
-      INTERACT: 8,
-      CROUCH: 9,
-      JUMP: 10,
-      WALK: 11,
-      RUN: 12,
-      SPRINT: 13,
-      SNEAK: 14,
-      SCREENXY: 15, // Is this too specific, or useful?
-      MOVEMENT_PLAYERONE: 16,
-      LOOKTURN_PLAYERONE: 17,
-      MOVEMENT_PLAYERTWO: 18,
-      LOOKTURN_PLAYERTWO: 19,
-      ALTERNATE: 20
-    }
-
-    const DefaultInputSchema = {
-      // When an Input component is added, the system will call this array of behaviors
-      onAdded: [
-      ],
-      // When an Input component is removed, the system will call this array of behaviors
-      onRemoved: [
-      ],
-      // When the input component is added or removed, the system will bind/unbind these events to the DOM
-      eventBindings: {
-        // Mouse
-        ["mousemove"]: {
-          behavior: handleMouseMovement,
-          args: {
-            value: DefaultInput.SCREENXY
-          }
-        },
-        ["mouseup"]: {
-          behavior: handleMouseButton,
-          args: {
-            value: BinaryValue.OFF
-          }
-        },
-        ["mousedown"]: {
-          behavior: handleMouseButton,
-          args: {
-            value: BinaryValue.ON
-          }
-        },
-
-        // Touch
-        ["touchstart"]: {
-          behavior: handleTouch,
-          args: {
-            value: BinaryValue.ON
-          }
-        },
-        ["touchend"]: {
-          behavior: handleTouch,
-          args: {
-            value: BinaryValue.OFF
-          }
-        },
-        ["touchcancel"]: {
-          behavior: handleTouch,
-          args: {
-            value: BinaryValue.OFF
-          }
-        },
-        ["touchmove"]: {
-          behavior: handleTouchMove,
-        },
-
-        // Keys
-        ["keyup"]: {
-          behavior: handleKey,
-          args: {
-            value: BinaryValue.OFF
-          }
-        },
-        ["keydown"]: {
-          behavior: handleKey,
-          args: {
-            value: BinaryValue.ON
-          }
-        }
-      },
-      // Map mouse buttons to abstract input
-      mouseInputMap: {
-        buttons: {
-          [MouseButtons.LeftButton]: DefaultInput.PRIMARY,
-          [MouseButtons.RightButton]: DefaultInput.SECONDARY
-        },
-        axes: {
-          mousePosition: DefaultInput.SCREENXY
-        }
-      },
-      // Map gamepad buttons to abstract input
-      gamepadInputMap: {
-
-      },
-      // Map keyboard buttons to abstract input
-      keyboardInputMap: {
-        w: DefaultInput.FORWARD,
-        a: DefaultInput.LEFT,
-        s: DefaultInput.RIGHT,
-        d: DefaultInput.BACKWARD,
-        [" "]: DefaultInput.JUMP,
-        shift: DefaultInput.CROUCH
-      },
-      // Map how inputs relate to each other
-      inputRelationships: {
-        [DefaultInput.FORWARD]: { opposes: [DefaultInput.BACKWARD] },
-        [DefaultInput.BACKWARD]: { opposes: [DefaultInput.FORWARD] },
-        [DefaultInput.LEFT]: { opposes: [DefaultInput.RIGHT] },
-        [DefaultInput.RIGHT]: { opposes: [DefaultInput.LEFT] },
-        [DefaultInput.CROUCH]: { blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT] },
-        [DefaultInput.JUMP]: { overrides: [DefaultInput.CROUCH] }
-      },
-      // "Button behaviors" are called when button input is called (i.e. not axis input)
-      inputButtonBehaviors: {
-        [DefaultInput.JUMP]: {
-          [BinaryValue.ON]: {
-            behavior: jump,
-            args: {}
-          }
-        }
-      },
-      // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
-      inputAxisBehaviors: {
-        [DefaultInput.MOVEMENT_PLAYERONE]: {
-          behavior: move,
-          args: {
-            input: DefaultInput.MOVEMENT_PLAYERONE,
-            inputType: InputType.TWOD
-          }
-        },
-        [DefaultInput.SCREENXY]: {
-          behavior: rotateAround,
-          args: {
-            input: DefaultInput.LOOKTURN_PLAYERONE,
-            inputType: InputType.TWOD
-          }
-        }
-      }
-    }
-
-
-
-    export const DefaultStateTypes = {
-      // Main States
-      IDLE: 0,
-      MOVING: 1,
-      JUMPING: 2,
-      FALLING: 3,
-
-      // Modifier States
-      CROUCHING: 4,
-      WALKING: 5,
-      SPRINTING: 6,
-      INTERACTING: 7,
-
-      // Moving substates
-      MOVING_FORWARD: 8,
-      MOVING_BACKWARD: 9,
-      MOVING_LEFT: 10,
-      MOVING_RIGHT: 11
-    }
-
-    export const DefaultStateGroups = {
-      MOVEMENT: 0,
-      MOVEMENT_MODIFIERS: 1
-    }
-
-    export const DefaultStateSchema = {
-      groups: {
-        [DefaultStateGroups.MOVEMENT]: {
-          exclusive: true,
-          default: DefaultStateTypes.IDLE,
-          states: [DefaultStateTypes.IDLE, DefaultStateTypes.MOVING]
-        },
-        [DefaultStateGroups.MOVEMENT_MODIFIERS]: {
-          exclusive: true,
-          states: [DefaultStateTypes.CROUCHING, DefaultStateTypes.SPRINTING, DefaultStateTypes.JUMPING]
-        }
-      },
-      states: {
-        [DefaultStateTypes.IDLE]: { group: DefaultStateGroups.MOVEMENT, onUpdate: { behavior: decelerate } },
-        [DefaultStateTypes.MOVING]: {
-          group: DefaultStateGroups.MOVEMENT
-        },
-        [DefaultStateTypes.JUMPING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS, onUpdate: { behavior: jumping } },
-        [DefaultStateTypes.CROUCHING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS, blockedBy: DefaultStateTypes.JUMPING },
-        [DefaultStateTypes.SPRINTING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS }
-      }
-    }
-
-
+    // import { jumping, jump } from "../dist/armada.js"
+    // import { decelerate } from "../dist/armada.js"
+    // import { move } from "../dist/armada.js"
+    // import { rotateAround, handleMouseMovement, handleMouseButton, handleKey, MouseButtons, InputType } from "../dist/armada.js"
 
     // Setup world
     const world = new ECSYThreeWorld()
-    let data = initialize(world)
-    let { scene, camera } = data.entities
-    let camera3d = camera.getObject3D()
-    camera3d.position.z = 5
-    world.createEntity().addObject3DComponent(new AmbientLight(), scene)
+    let { cameraEntity, sceneEntity } = initialize(world)
+    let camera3d = cameraEntity.getObject3D()
+    camera3d.position.z = 10
+    world.createEntity().addObject3DComponent(new AmbientLight(), sceneEntity)
     const cube = world
       .createEntity()
       .addObject3DComponent(
@@ -271,14 +52,14 @@
           new MeshBasicMaterial({
           })
         ),
-        scene
+        sceneEntity
       )
 
     // Test input
     const inputOptions = {
       debug: true,
-      inputSchema: DefaultInputSchema,
-      stateSchema: DefaultStateSchema
+      // inputMap: DefaultInputMap,
+      // stateMap: DefaultStateMap
     }
 
     // TODO: Import input mapping
