@@ -10,20 +10,20 @@ let transform: Transform
 
 export const jump: Behavior = (entity: Entity): void => {
   console.log("Jump!")
-  addState(entity, { state: DefaultStateTypes.JUMPING })
   actor = entity.getMutableComponent<Actor>(Actor)
+  addState(entity, { state: DefaultStateTypes.JUMPING })
   actor.jump.t = 0
 }
 
-export const jumping: Behavior = (entity: Entity, args, delta: number): void => {
+export const jumping: Behavior = (entity: Entity, args, delta: any): void => {
   transform = entity.getComponent(Transform)
   actor = entity.getMutableComponent<Actor>(Actor)
   actor.jump.t += delta
   if (actor.jump.t < actor.jump.duration) {
-    transform.velocity[1] = transform.velocity[1] + Math.cos((actor.jump.t / actor.jump.duration) * Math.PI) * actor.jump.height
+    transform.velocity[1] = Math.sin((actor.jump.t / actor.jump.duration) * Math.PI) * actor.jump.force
     return
+  } else {
+    console.log("End jump")
+    removeState(entity, { state: DefaultStateTypes.JUMPING })
   }
-
-  removeState(entity, { state: DefaultStateTypes.JUMPING })
-  console.log("Jumped")
 }

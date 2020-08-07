@@ -11,9 +11,8 @@ const velocity: vec3 = [0, 0, 0]
 export const decelerate: Behavior = (entity: Entity, args: null, delta: number): void => {
   actor = entity.getComponent<Actor>(Actor)
   transform = entity.getMutableComponent(Transform)
-  console.log("Dec: transform velocty is ", transform.velocity)
   vec3.set(velocity, transform.velocity[0], transform.velocity[1], transform.velocity[2])
-  if (vec3.length(velocity as vec3) > 0) {
+  if (vec3.length(velocity) > 0) {
     vec3.scale(velocity, velocity, 1.0 - actor.decelerationSpeed * delta)
     transform.velocity = velocity
   }
