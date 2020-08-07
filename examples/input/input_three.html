@@ -42,6 +42,8 @@
       rotateAround,
       handleMouseMovement,
       handleMouseButton,
+      handleTouch,
+      handleTouchMove,
       handleKey,
       MouseButtons,
       InputType } from "../../dist/armada.js"
@@ -104,6 +106,30 @@
             value: BinaryValue.ON
           }
         },
+
+        // Touch
+        ["touchstart"]: {
+          behavior: handleTouch,
+          args: {
+            value: BinaryValue.ON
+          }
+        },
+        ["touchend"]: {
+          behavior: handleTouch,
+          args: {
+            value: BinaryValue.OFF
+          }
+        },
+        ["touchcancel"]: {
+          behavior: handleTouch,
+          args: {
+            value: BinaryValue.OFF
+          }
+        },
+        ["touchmove"]: {
+          behavior: handleTouchMove,
+        },
+
         // Keys
         ["keyup"]: {
           behavior: handleKey,
