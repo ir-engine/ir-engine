@@ -78,7 +78,7 @@
     "version": "npm run build && git add -A",
     "postversion": "git push && git push --tags && sudo npm publish",
     "dev": "concurrently \"rollup -cw\" \"http-server --ssl --cert certs/armada.crt --key certs/armada.key ./dist/examples\"",
-    "dev-server": "node examples/networking/server.js",
+    "dev-server": "node examples/server.js",
     "lint": "eslint --fix \"./src/**/*\"",
     "start": "npm run build",
     "test": "jest --watch"

@@ -19,7 +19,6 @@ export default class StateSystem extends System {
       Object.keys((this._state.schema as StateSchema)?.groups).forEach((stateGroup: StateGroupAlias) => {
         if (this._state.schema.groups[stateGroup] !== undefined && this._state.schema.groups[stateGroup].default !== undefined) {
           addState(entity, { state: this._state.schema.groups[stateGroup].default })
-          console.log("Added default state: " + this._state.schema.groups[stateGroup].default)
         }
       })
     })
@@ -31,7 +30,6 @@ export default class StateSystem extends System {
       Object.keys((this._state.schema as StateSchema)?.groups).forEach((stateGroup: StateGroupAlias) => {
         if (this._state.schema.groups[stateGroup] !== undefined && this._state.schema.groups[stateGroup].default !== undefined) {
           addState(entity, { state: this._state.schema.groups[stateGroup].default })
-          console.log("Added default state: " + this._state.schema.groups[stateGroup].default)
         }
       })
     })

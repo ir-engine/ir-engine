@@ -1,6 +1,6 @@
 import { World, Entity } from "ecsy"
 import { NetworkAssemblage } from "../interfaces/NetworkAssemblage"
-import NetworkObject from "../defaults/components/NetworkObject"
+import NetworkObject from "../components/NetworkObject"
 
 export function createNetworkEntityWithAssemblage(
   assemblage: NetworkAssemblage,

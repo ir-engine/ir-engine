@@ -9,7 +9,6 @@ let actor: Actor
 let transform: Transform
 
 export const jump: Behavior = (entity: Entity): void => {
-  console.log("Jump!")
   actor = entity.getMutableComponent<Actor>(Actor)
   addState(entity, { state: DefaultStateTypes.JUMPING })
   actor.jump.t = 0
@@ -23,7 +22,6 @@ export const jumping: Behavior = (entity: Entity, args, delta: any): void => {
     transform.velocity[1] = Math.sin((actor.jump.t / actor.jump.duration) * Math.PI) * actor.jump.force
     return
   } else {
-    console.log("End jump")
     removeState(entity, { state: DefaultStateTypes.JUMPING })
   }
 }

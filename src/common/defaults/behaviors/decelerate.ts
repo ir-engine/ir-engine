@@ -14,6 +14,8 @@ export const decelerate: Behavior = (entity: Entity, args: null, delta: number):
   vec3.set(velocity, transform.velocity[0], transform.velocity[1], transform.velocity[2])
   if (vec3.length(velocity) > 0) {
     vec3.scale(velocity, velocity, 1.0 - actor.decelerationSpeed * delta)
-    transform.velocity = velocity
+    // Set X and Z so gravity works OK
+    transform.velocity[0] = velocity[0]
+    transform.velocity[2] = velocity[2]
   }
 }

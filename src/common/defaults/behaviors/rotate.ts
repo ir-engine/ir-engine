@@ -7,7 +7,6 @@ import { quat, vec3 } from "gl-matrix"
 import { InputType } from "../../../input/enums/InputType"
 import Input from "../../../input/components/Input"
 import InputAlias from "../../../input/types/InputAlias"
-import State from "../../../state/components/State"
 
 let actor: Actor
 let transform: Transform
@@ -30,7 +29,7 @@ export const rotateAround: Behavior = (
   mouseDownPosition = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes["mouseClickDownPosition"])
   originalRotation = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes["mouseClickDownTransformRotation"])
 
-  if (mouseDownPosition == undefined || originalRotation == undefined) return console.log("returning because mouse down pos is undefined")
+  if (mouseDownPosition == undefined || originalRotation == undefined) return
 
   if (!inputComponent.data.has(args.input)) {
     inputComponent.data.set(args.input, { type: args.inputType, value: vec3.create() })

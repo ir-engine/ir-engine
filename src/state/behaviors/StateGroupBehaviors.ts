@@ -23,7 +23,6 @@ export const removeComponentsFromStateGroup = (entity: Entity, group: StateGroup
     if (ignoreComponent && ignoreComponent === component) return
     entity.removeComponent(component)
   })
-  console.log("Removed component")
 }
 
 export const getComponentsFromStateGroup = (entity: Entity, group: StateGroupAlias): Component<any>[] => {

@@ -29,10 +29,41 @@ import NetworkTransport from "./networking/interfaces/NetworkTransport"
 import { MediaStreamControlSystem } from "./networking/systems/MediaStreamSystem"
 
 import TransformParent from "./transform/components/TransformParent"
-import NetworkObject from "./networking/defaults/components/NetworkObject"
+import NetworkObject from "./networking/components/NetworkObject"
+import { DefaultNetworkSchema } from "./networking/defaults/DefaultNetworkSchema"
 
 const DEFAULT_OPTIONS = {
-  debug: false
+  debug: false,
+  input: {
+    enabled: true,
+    schema: DefaultInputSchema
+  },
+  networking:  {
+    enabled: true,
+    schema: DefaultNetworkSchema
+  },
+  state:  {
+    enabled: true,
+    schema: DefaultStateSchema
+  },
+  subscriptions:  {
+    enabled: true,
+    schema: DefaultSubscriptionSchema
+  },
+  physics:  {
+    enabled: true
+  },
+  particles:  {
+    enabled: true,
+    schema: DefaultSubscriptionSchema
+  },
+  transform:  {
+    enabled: true
+  }
+}
+
+export function start(world: World, options = DEFAULT_OPTIONS){
+  
 }
 
 export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS): World | null {
@@ -74,8 +105,6 @@ export function initializeActor(
   }
 ): Entity {
   entity
-    .addComponent(Input)
-    .addComponent(State)
     .addComponent(Actor)
     .addComponent(Subscription)
     .addComponent(Transform)

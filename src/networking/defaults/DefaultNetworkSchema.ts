@@ -1,6 +1,6 @@
 // Components
 import NetworkSchema from "../interfaces/NetworkSchema"
-import NetworkObject from "./components/NetworkObject"
+import NetworkObject from "../components/NetworkObject"
 import { NetworkAssemblage } from "../interfaces/NetworkAssemblage"
 import Input from "../../input/components/Input"
 import Transform from "../../transform/components/Transform"
@@ -37,6 +37,18 @@ export const DefaultAssemblages: {
   { id: AssemblageType.Cube, assemblage: NetworkCube },
   { id: AssemblageType.Car, assemblage: Car }
 ]
+
+const cube = world
+.createEntity()
+.addObject3DComponent(
+  new Mesh(
+    new BoxBufferGeometry(1, 1, 1),
+    new MeshBasicMaterial({
+    })
+  ),
+  sceneEntity
+)
+initializeActor(cube, inputOptions)
 
 export const DefaultNetworkSchema: NetworkSchema = {
   messageHandlers: {
