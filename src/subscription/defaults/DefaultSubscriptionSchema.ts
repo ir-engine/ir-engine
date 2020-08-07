@@ -1,7 +1,12 @@
 import SubscriptionSchema from "../interfaces/SubscriptionSchema"
+import { applyGravity } from "../../common/defaults/behaviors/applyGravity"
 
 export const DefaultSubscriptionSchema: SubscriptionSchema = {
-  onUpdate: []
+  onUpdate: [
+    {
+      behavior: applyGravity
+    }
+  ]
 }
 
 export default DefaultSubscriptionSchema
