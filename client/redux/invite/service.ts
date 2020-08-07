@@ -16,7 +16,7 @@ import {User} from "../../../shared/interfaces/User";
 
 const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
 const phoneRegex = /^[0-9]{10}$/
-const userIdRegex = /^[0-9a-f]{32}$/
+const userIdRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
 export function sendInvite (data: any) {
   return async (dispatch: Dispatch, getState: any) => {
@@ -33,31 +33,133 @@ export function sendInvite (data: any) {
         dispatchAlertError(dispatch, 'Invalid 10-digit US phone number')
         send = false
       }
+      data.token = '+1' + data.token
     }
-    if (data.invitee != null) {
-      if (userIdRegex.test(data.invitee) !== true) {
+    if (data.inviteeId != null) {
+      if (userIdRegex.test(data.inviteeId) !== true) {
         dispatchAlertError(dispatch, 'Invalid user ID')
         send = false
       }
     }
-    if ((data.token == null || data.token.length === 0) && (data.invitee == null || data.invitee.length === 0)) {
+    if ((data.token == null || data.token.length === 0) && (data.inviteeId == null || data.inviteeId.length === 0)) {
       dispatchAlertError(dispatch, `Not a valid recipient`)
       send = false
     }
 
+    if (data.identityProviderType === 'email' || data.identityProviderType === 'sms') {
+      const existingIdentityProviderResult = await client.service('identity-provider').find({
+        query: {
+          token: data.token
+        }
+      })
+      if (existingIdentityProviderResult.total > 0 && existingIdentityProviderResult.data[0].userId != null) {
+        const inviteeId = existingIdentityProviderResult.data[0].userId
+        if (data.type === 'friend') {
+          const reciprocalFriendResult = await client.service('user-relationship').find({
+            query: {
+              userRelationshipType: 'friend',
+              userId: inviteeId,
+              relatedUserId: getState().get('auth').get('user').id
+            }
+          })
+
+          if (reciprocalFriendResult.total > 0) {
+            send = false
+            dispatchAlertSuccess(dispatch, 'You\'re already friends with that person.')
+          }
+        }
+        else if (data.type === 'group') {
+          const existingGroupUserResult = await client.service('group-user').find({
+            query: {
+              groupId: data.targetObjectId,
+              userId: inviteeId
+            }
+          })
+          if (existingGroupUserResult.total > 0) {
+            send = false
+            dispatchAlertSuccess(dispatch, 'That person is already part of that group.')
+          }
+        }
+        else if (data.type === 'party') {
+          const existingPartyUserResult = await client.service('party-user').find({
+            query: {
+              partyId: data.targetObjectId,
+              userId: inviteeId
+            }
+          })
+          if (existingPartyUserResult.total > 0) {
+            send = false;
+            dispatchAlertSuccess(dispatch, 'That person is already part of your current party.')
+          }
+        }
+      }
+    } else {
+      if (data.type === 'friend') {
+        const reciprocalFriendResult = await client.service('user-relationship').find({
+          query: {
+            userRelationshipType: 'friend',
+            userId: data.inviteeId,
+            relatedUserId: getState().get('auth').get('user').id
+          }
+        })
+
+        if (reciprocalFriendResult.total > 0) {
+          send = false
+          dispatchAlertSuccess(dispatch, 'You\'re already friends with that person.')
+        }
+      }
+      else if (data.type === 'group') {
+        const existingGroupUserResult = await client.service('group-user').find({
+          query: {
+            groupId: data.targetObjectId,
+            userId: data.inviteeId
+          }
+        })
+        if (existingGroupUserResult.total > 0) {
+          send = false
+          dispatchAlertSuccess(dispatch, 'That person is already part of that group.')
+        }
+      }
+      else if (data.type === 'party') {
+        const existingPartyUserResult = await client.service('party-user').find({
+          query: {
+            partyId: data.targetObjectId,
+            userId: data.inviteeId
+          }
+        })
+        if (existingPartyUserResult.total > 0) {
+          send = false;
+          dispatchAlertSuccess(dispatch, 'That person is already part of your current party.')
+        }
+      }
+    }
     if (send === true) {
-      try {
-        await client.service('invite').create({
+      const existingInvite = await client.service('invite').find({
+        query: {
           inviteType: data.type,
           token: data.token,
           targetObjectId: data.targetObjectId,
           identityProviderType: data.identityProviderType,
-          inviteeId: data.invitee
-        })
-        dispatchAlertSuccess(dispatch, 'Invite Sent')
-      } catch (err) {
-        console.log(err)
-        dispatchAlertError(dispatch, err.message)
+          inviteeId: data.inviteeId
+        }
+      })
+      if (existingInvite.total > 0) {
+        dispatchAlertSuccess(dispatch, `You\'ve already sent a ${data.type} invite to that person`)
+      } else {
+
+        try {
+          await client.service('invite').create({
+            inviteType: data.type,
+            token: data.token,
+            targetObjectId: data.targetObjectId,
+            identityProviderType: data.identityProviderType,
+            inviteeId: data.inviteeId
+          })
+          dispatchAlertSuccess(dispatch, 'Invite Sent')
+        } catch (err) {
+          console.log(err)
+          dispatchAlertError(dispatch, err.message)
+        }
       }
     }
   }
@@ -118,9 +220,9 @@ export function deleteInvite(inviteId: string) {
 export function acceptInvite(inviteId: string, passcode: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      await client.service('accept-invite').get(inviteId, {
+      await client.service('a-i').get(inviteId, {
         query: {
-          passcode: passcode
+          t: passcode
         }
       })
     } catch(err) {
@@ -152,5 +254,5 @@ client.service('invite').on('created', (params) => {
 
 client.service('invite').on('removed', (params) => {
   const selfUser = (store.getState() as any).get('auth').get('user') as User
-    store.dispatch(removedInvite(params.invite, selfUser))
+  store.dispatch(removedInvite(params.invite, selfUser))
 })

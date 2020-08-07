@@ -4,6 +4,12 @@ import { Application } from '../declarations'
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const identityProvider = sequelizeClient.define('identity_provider', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
+      allowNull: false,
+      primaryKey: true
+    },
     token: { type: DataTypes.STRING },
     password: { type: DataTypes.STRING },
     isVerified: { type: DataTypes.BOOLEAN },
@@ -40,7 +46,8 @@ export default (app: Application): any => {
   });
 
   (identityProvider as any).associate = (models: any) => {
-    (identityProvider as any).belongsTo(models.user, { required: true, primaryKey: true })
+    (identityProvider as any).belongsTo(models.user, { required: true });
+    (identityProvider as any).hasMany(models.login_token)
   }
 
   return identityProvider

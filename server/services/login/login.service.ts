@@ -1,14 +1,14 @@
-// Initializes the `accept-invite` service on path `/accept-invite`
+// Initializes the `login` service on path `/login`
 import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
-import { AcceptInvite } from './accept-invite.class'
-import hooks from './accept-invite.hooks'
+import { Login } from './login.class'
+import hooks from './login.hooks'
 import config from '../../config'
 
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'a-i': AcceptInvite & ServiceAddons<any>
+    'login': Login & ServiceAddons<any>
   }
 }
 
@@ -18,18 +18,22 @@ export default function (app: Application): any {
   }
 
   // Initialize our service with any options it requires
-  app.use('/a-i', new AcceptInvite(options, app), redirect)
+  app.use('/login', new Login(options, app), redirect)
 
-  console.log(app.services)
   // Get our initialized service so that we can register hooks
-  const service = app.service('a-i')
+  const service = app.service('login')
 
   service.hooks(hooks)
 }
 
 function redirect (req, res, next): Promise<any> {
-  if (res.data.error) {
-    return res.redirect(`${(config.client.url)}/?error=${(res.data.error as string)}`)
+  try {
+    if (res.data.error) {
+      return res.redirect(`${(config.client.url)}/?error=${(res.data.error as string)}`)
+    }
+    return res.redirect(`${(config.client.url)}/auth/magiclink?type=login&token=${(res.data.token as string)}`)
+  } catch (err) {
+    console.log(err)
+    throw err
   }
-  return res.redirect(`${(config.client.url)}/auth/magiclink?type=login&token=${(res.data.token as string)}`)
 }

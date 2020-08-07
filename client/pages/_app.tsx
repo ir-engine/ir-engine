@@ -15,6 +15,9 @@ import DeviceDetector from 'device-detector-js'
 import { getDeviceType } from '../redux/devicedetect/actions'
 import React, { useEffect, Fragment } from 'react'
 import { initGA, logPageView } from '../components/analytics'
+import url from 'url'
+import querystring from 'querystring'
+import { dispatchAlertError } from '../redux/alert/service'
 
 import getConfig from 'next/config'
 import PageLoader from '../components/xr/scene/page-loader'
@@ -56,6 +59,14 @@ const MyApp = (props: Props): any => {
     getDeviceInfo()
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     doLoginAuto(store.dispatch)
+    const urlParts = url.parse(window.location.href)
+    let query = querystring.parse(urlParts.query)
+    if (query.error != null) {
+      store.dispatch(dispatchAlertError(store.dispatch, (query.error as string)))
+      delete query.error
+      const stringifiedQuery = querystring.stringify(query)
+      window.history.replaceState({}, document.title, urlParts.pathname + stringifiedQuery)
+    }
   }, [])
 
   return (

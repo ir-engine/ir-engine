@@ -181,7 +181,7 @@ const Invites = (props: Props): any => {
             token: mappedIDProvider ? userToken : null,
             identityProviderType: mappedIDProvider ? mappedIDProvider : null,
             targetObjectId: inviteState.get('targetObjectId'),
-            invitee: (tabIndex === 2 || tabIndex === 3) ? userToken : null
+            inviteeId: (tabIndex === 2 || tabIndex === 3) ? userToken : null
         }
 
         sendInvite(sendData)
@@ -199,15 +199,6 @@ const Invites = (props: Props): any => {
     const confirmDelete = (inviteId) => {
         setDeletePending('')
         deleteInvite(inviteId)
-    }
-
-    const previousInvitePage = () => {
-        if (inviteTabIndex === 0) {
-            retrieveReceivedInvites(receivedInviteState.get('skip') - receivedInviteState.get('limit'))
-        }
-        else {
-            retrieveSentInvites(sentInviteState.get('skip') - sentInviteState.get('limit'))
-        }
     }
 
     const nextInvitePage = () => {
@@ -238,7 +229,11 @@ const Invites = (props: Props): any => {
         if (inviteState.get('receivedUpdateNeeded') === true && inviteState.get('getReceivedInvitesInProgress') !== true) {
             retrieveReceivedInvites()
         }
-        setInviteTypeIndex(targetObjectType === 'party' ? 2 : targetObjectType === 'group' ? 1 : 0)
+        const value = targetObjectType === 'party' ? 2 : targetObjectType === 'group' ? 1 : 0
+        setInviteTypeIndex(value)
+        if (value === 0 && tabIndex === 3) {
+            setTabIndex(0)
+        }
         if (targetObjectType == null || targetObjectType.length === 0) {
             updateInviteTarget('user', null)
         }

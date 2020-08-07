@@ -14,14 +14,16 @@ describe('CRUD operation on \'User Relationship Type\' model', () => {
   it('Read', async () => {
     await model.findOne({
       where: {
-        type
+        type: type
       }
     })
   })
 
   it('Delete', async () => {
     await model.destroy({
-      where: { type }
+      where: {
+        type: type
+      }
     })
   })
 })

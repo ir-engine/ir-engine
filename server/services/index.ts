@@ -24,6 +24,7 @@ import IdentityProvider from './identity-provider/identity-provider.service'
 import Instance from './instance/instance.service'
 import Invite from './invite/invite.service'
 import License from './license/license.service'
+import LoginToken from './login-token/login-token.service'
 import Location from './location/location.service'
 import Party from './party/party.service'
 import Project from './project/project.service'
@@ -38,9 +39,11 @@ import GroupUser from './group-user/group-user.service'
 import PartyUser from './party-user/party-user.service'
 
 // Services
+import AcceptInvite from './accept-invite/accept-invite.service'
 import Auth from './auth-management/auth-management.service'
 import Channel from './channel/channel.service'
 import Email from './email/email.service'
+import Login from './login/login.service'
 import MagicLink from './magic-link/magic-link.service'
 import Message from './message/message.service'
 import MessageStatus from './message-status/message-status.service'
@@ -60,8 +63,6 @@ import ResolveMedia from './resolve-media/resolve-media.service'
 
 // GraphQL
 import GraphQL from './graphql/graphql.service'
-
-import acceptInvite from './accept-invite/accept-invite.service'
 
 export default (app: Application): void => {
   // Dynamic types
@@ -83,10 +84,12 @@ export default (app: Application): void => {
   app.configure(Component)
   app.configure(Entity)
   app.configure(Group)
+  app.configure(IdentityProvider)
   app.configure(Instance)
   app.configure(Invite)
   app.configure(Location)
   app.configure(License)
+  app.configure(LoginToken)
   app.configure(Party)
   app.configure(Project)
   app.configure(Seat)
@@ -102,10 +105,11 @@ export default (app: Application): void => {
   app.configure(GroupUser)
 
   // Services
+  app.configure(AcceptInvite)
   app.configure(Auth)
   app.configure(Channel)
   app.configure(Email)
-  app.configure(IdentityProvider)
+  app.configure(Login)
   app.configure(MagicLink)
   app.configure(Message)
   app.configure(MessageStatus)
@@ -124,5 +128,4 @@ export default (app: Application): void => {
 
   // GraphQL
   app.configure(GraphQL)
-  app.configure(acceptInvite)
 }

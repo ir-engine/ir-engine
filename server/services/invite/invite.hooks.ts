@@ -48,7 +48,14 @@ export default {
             // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
             return new Promise(async (resolve) => {
               if (item.inviteeId != null) {
-                item.invitee = await app.service('user').get(item.inviteeId)
+                try {
+                  item.invitee = await app.service('user').get(item.inviteeId)
+                } catch (err) {
+                  item.invitee = {
+                    id: 'abcd1234',
+                    name: 'A former user'
+                  }
+                }
               } else if (item.token) {
                 const identityProvider = await app.service('identity-provider').find({
                   query: {
@@ -56,7 +63,14 @@ export default {
                   }
                 })
                 if (identityProvider.data.length > 0) {
-                  item.invitee = await app.service('user').get(identityProvider.data[0].userId)
+                  try {
+                    item.invitee = await app.service('user').get(identityProvider.data[0].userId)
+                  } catch (err) {
+                    item.invtee = {
+                      id: 'abcd1234',
+                      name: 'A former user'
+                    }
+                  }
                 }
               }
               item.user = await app.service('user').get(item.userId)

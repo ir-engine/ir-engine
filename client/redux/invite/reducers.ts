@@ -98,33 +98,40 @@ const inviteReducer = (state = immutableState, action: InviteAction): any => {
      else {
        console.log('Malformed invite retrieved, neither userId nor inviteeId matches selfUser')
        console.log(createdInvite)
+       stateUpdate = state
      }
      return stateUpdate
     case REMOVED_INVITE:
       newValues = (action as RemovedInviteAction)
       const removedInvite = newValues.invite
       selfUser = newValues.selfUser
-        if (selfUser.id === removedInvite.userId) {
-          updateMap = new Map(state.get('sentInvites'))
-          updateMapInvites = updateMap.get('invites')
-          updateMapInvitesChild = _.find(updateMapInvites, (invite: Invite) => invite.id === removedInvite.id)
-          if (updateMapInvitesChild != null) {
-            _.remove(updateMapInvites, (invite: Invite) => invite.id === removedInvite.id)
-            updateMap.set('skip', updateMap.set('skip') - 1)
-            updateMap.set('invites', updateMapInvites)
-            stateUpdate = state.set('sentInvites', updateMap)
-          }
-        } else if (selfUser.id === removedInvite.inviteeId) {
-          updateMap = new Map(state.get('receivedInvites'))
-          updateMapInvites = updateMap.get('invites')
-          updateMapInvitesChild = _.find(updateMapInvites, (invite: Invite) => invite.id === removedInvite.id)
-          if (updateMapInvitesChild != null) {
-            _.remove(updateMapInvites, (invite: Invite) => invite.id === removedInvite.id)
-            updateMap.set('skip', updateMap.set('skip') - 1)
-            updateMap.set('invites', updateMapInvites)
-            stateUpdate = state.set('receivedInvites', updateMap)
-          }
+      if (selfUser.id === removedInvite.userId) {
+        updateMap = new Map(state.get('sentInvites'))
+        updateMapInvites = updateMap.get('invites')
+        updateMapInvitesChild = _.find(updateMapInvites, (invite: Invite) => invite.id === removedInvite.id)
+        if (updateMapInvitesChild != null) {
+          _.remove(updateMapInvites, (invite: Invite) => invite.id === removedInvite.id)
+          updateMap.set('skip', updateMap.set('skip') - 1)
+          updateMap.set('invites', updateMapInvites)
+          stateUpdate = state.set('sentInvites', updateMap)
         }
+        else {
+          stateUpdate = state
+        }
+      } else {
+        updateMap = new Map(state.get('receivedInvites'))
+        updateMapInvites = updateMap.get('invites')
+        updateMapInvitesChild = _.find(updateMapInvites, (invite: Invite) => invite.id === removedInvite.id)
+        if (updateMapInvitesChild != null) {
+          _.remove(updateMapInvites, (invite: Invite) => invite.id === removedInvite.id)
+          updateMap.set('skip', updateMap.set('skip') - 1)
+          updateMap.set('invites', updateMapInvites)
+          stateUpdate = state.set('receivedInvites', updateMap)
+        }
+        else {
+          stateUpdate = state
+        }
+      }
      return stateUpdate
     case ACCEPTED_INVITE:
       return state.set('receivedUpdateNeeded', true)

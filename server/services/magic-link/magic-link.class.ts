@@ -130,6 +130,7 @@ export class Magiclink implements ServiceMethods<Data> {
       'magiclink-sms.pug'
     )
     const compiledHTML = pug.compileFile(templatePath)({
+      title: config.client.title,
       hashLink
     }).replace(/&amp;/g, '&') // Text message links can't have HTML escaped ampersands.
 
@@ -141,10 +142,7 @@ export class Magiclink implements ServiceMethods<Data> {
   }
 
   async create (data: any, params?: Params): Promise<Data> {
-    const authService = this.app.service('authentication')
-    const identityProviderService: Service = this.app.service(
-      'identity-provider'
-    )
+    const identityProviderService: Service = this.app.service('identity-provider')
 
     // check magiclink type
     let token = ''
@@ -173,15 +171,14 @@ export class Magiclink implements ServiceMethods<Data> {
     }
 
     if (identityProvider) {
-      const accessToken = await authService.createAccessToken(
-        {},
-        { subject: identityProvider.id.toString() }
-      )
+      const loginToken = await this.app.service('login-token').create({
+        identityProviderId: identityProvider.id
+      })
 
       if (data.type === 'email') {
         await this.sendEmail(
           data.email,
-          accessToken,
+          loginToken.token,
           data.userId ? 'connection' : 'login',
           identityProvider,
           data.subscriptionId
@@ -189,7 +186,7 @@ export class Magiclink implements ServiceMethods<Data> {
       } else if (data.type === 'sms') {
         await this.sendSms(
           data.mobile,
-          accessToken,
+          loginToken.token,
           data.userId ? 'connection' : 'login'
         )
       }
