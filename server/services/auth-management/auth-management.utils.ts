@@ -4,8 +4,8 @@ import config from '../../config'
 
 export function getLink (type: string, hash: string, subscriptionId?: string): string {
   return subscriptionId != null && subscriptionId.length > 0
-    ? `${config.client.url}/login/${hash}?subId=${subscriptionId}`
-    : `${config.client.url}/login/${hash}`
+    ? `${config.server.url}/login/${hash}?subId=${subscriptionId}`
+    : `${config.server.url}/login/${hash}`
 }
 
 export function getInviteLink (type: string, id: string, passcode: string): string {
