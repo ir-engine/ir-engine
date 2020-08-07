@@ -20,9 +20,12 @@ interface Props {
 }
 
 const UserProfile = (props: Props): any => {
+  const { auth } = props
+  const user = auth.get('user')
+
   const [file, setFile] = useState({})
   const [fileUrl, setFileUrl] = useState('')
-  const [username, setUsername] = useState(props.auth.get('user').name)
+  const [username, setUsername] = useState(user.name)
   const handleChange = (e: any): void => {
     const efile = e.target.files[0]
     const formData = new FormData()
@@ -50,52 +53,55 @@ const UserProfile = (props: Props): any => {
     setUsername(name)
   }
   const updateUsername = async (): Promise<void> => {
-    await props.updateUsername(props.auth.get('user').id, username)
+    await props.updateUsername(user.id, username)
   }
   return (
-    <div className="user-container">
-      <div className="username">
-        <TextField
-          variant="outlined"
-          margin="normal"
-          fullWidth
-          id="username"
-          label="Your Name"
-          name="name"
-          autoFocus
-          defaultValue={props.auth.get('user').name}
-          onChange={(e) => handleUsernameChange(e)}
-        />
-        <Button variant="contained" color="primary" onClick={updateUsername}>
-          Update
-        </Button>
+      <div className="user-container">
+        <div className="username">
+          <TextField
+              variant="outlined"
+              margin="normal"
+              fullWidth
+              id="username"
+              label="Your Name"
+              name="name"
+              autoFocus
+              defaultValue={user.name}
+              onChange={(e) => handleUsernameChange(e)}
+          />
+          <Button variant="contained" color="primary" onClick={updateUsername}>
+            Update
+          </Button>
+        </div>
+        <div className="user-id">
+          <div>User ID: {user.id}</div>
+        </div>
+        <div className="uploadform">
+          <label className="hover-icon" htmlFor="fileInput">
+            {fileUrl ? (
+                <img
+                    src={URL.createObjectURL(fileUrl)}
+                    className="rounded mx-auto d-block max-size-200"
+                />
+            ) : props.avatarUrl ? (
+                <img src={props.avatarUrl} className="rounded mx-auto d-block max-size-200" />
+            ) : (
+                <AccountCircleIcon style={{ fontSize: 150 }} />
+            )}
+          </label>
+          <input
+              id="fileInput"
+              name="file"
+              placeholder="Upload Product Image"
+              type="file"
+              className="signup__fileField"
+              onChange={handleChange}
+          />
+          <Button disabled={fileUrl.length === 0} variant="contained" color="primary" onClick={handleSubmit}>
+            Upload Avatar
+          </Button>
+        </div>
       </div>
-      <div className="uploadform">
-        <label className="hover-icon" htmlFor="fileInput">
-          {fileUrl ? (
-            <img
-              src={URL.createObjectURL(fileUrl)}
-              className="rounded mx-auto d-block max-size-200"
-            />
-          ) : props.avatarUrl ? (
-            <img src={props.avatarUrl} className="rounded mx-auto d-block max-size-200" />
-          ) : (
-            <AccountCircleIcon style={{ fontSize: 150 }} />
-          )}
-        </label>
-        <input
-          id="fileInput"
-          name="file"
-          placeholder="Upload Product Image"
-          type="file"
-          className="signup__fileField"
-          onChange={handleChange}
-        />
-        <Button disabled={fileUrl.length === 0} variant="contained" color="primary" onClick={handleSubmit}>
-          Upload Avatar
-        </Button>
-      </div>
-    </div>
   )
 }
 

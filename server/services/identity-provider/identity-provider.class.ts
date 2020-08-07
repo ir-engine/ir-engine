@@ -1,7 +1,7 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../declarations'
 import { Sequelize } from 'sequelize'
-import crypto from 'crypto'
+import { v1 as uuidv1 } from 'uuid'
 
 interface Data {
   userId: string
@@ -27,24 +27,20 @@ export class IdentityProvider extends Service {
     let userId = data.userId
     let identityProvider: any
 
-    let hashData = ''
     switch (type) {
       case 'email':
-        hashData = token
         identityProvider = {
           token,
           type
         }
         break
       case 'sms':
-        hashData = token
         identityProvider = {
           token,
           type
         }
         break
       case 'password':
-        hashData = token
         identityProvider = {
           token,
           password,
@@ -52,21 +48,18 @@ export class IdentityProvider extends Service {
         }
         break
       case 'github':
-        hashData = token
         identityProvider = {
           token: token,
           type
         }
         break
       case 'facebook':
-        hashData = token
         identityProvider = {
           token: token,
           type
         }
         break
       case 'google':
-        hashData = token
         identityProvider = {
           token: token,
           type
@@ -78,7 +71,7 @@ export class IdentityProvider extends Service {
 
     // if userId is not defined, then generate userId
     if (!userId) {
-      userId = crypto.createHash('md5').update(hashData).digest('hex')
+      userId = uuidv1()
     }
 
     const sequelizeClient: Sequelize = this.app.get('sequelizeClient')

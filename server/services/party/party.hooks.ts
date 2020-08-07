@@ -6,7 +6,6 @@ import removePartyUsers from '../../hooks/remove-party-users'
 import collectAnalytics from '../../hooks/collect-analytics'
 import { HookContext } from '@feathersjs/feathers'
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
-import { BadRequest } from '@feathersjs/errors'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks
@@ -25,7 +24,7 @@ export default {
           }
         })
         if (currentPartyUser.total > 0) {
-          throw new BadRequest('You are already in a party, leave it to make a new one')
+          await context.app.service('party-user').remove(currentPartyUser.data[0].id)
         }
         return context
       }

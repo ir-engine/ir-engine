@@ -95,7 +95,8 @@ const email = {
     friend: 'XR3ngine friend request',
     group: 'XR3ngine group invitation',
     party: 'XR3ngine party invitation'
-  }
+  },
+  smsNameCharacterLimit: 20
 }
 
 /**
@@ -115,6 +116,12 @@ const authentication = {
   local: {
     usernameField: 'email',
     passwordField: 'password'
+  },
+  jwtOptions: {
+    expiresIn: '30 days'
+  },
+  bearerToken: {
+    numBytes: 16
   },
   callback: {
     facebook: process.env.FACEBOOK_CALLBACK_URL ?? `${client.url}/auth/oauth/facebook`,

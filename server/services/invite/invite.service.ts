@@ -53,6 +53,27 @@ export default function (app: Application): any {
         if (avatarResult.total > 0) {
           data.invitee.dataValues.avatarUrl = avatarResult.data[0].url
         }
+      } else {
+        const inviteeIdentityProvider = await app.service('identity-provider').Model.findOne({
+          where: {
+            token: data.token
+          }
+        })
+        if (inviteeIdentityProvider.userId != null) {
+          data.inviteeId = inviteeIdentityProvider.userId
+          data.invitee = await app.service('user').get(inviteeIdentityProvider.userId)
+          targetIds.push(inviteeIdentityProvider.userId)
+          const avatarResult = await app.service('static-resource').find({
+            query: {
+              staticResourceType: 'user-thumbnail',
+              userId: inviteeIdentityProvider.userId
+            }
+          }) as any
+
+          if (avatarResult.total > 0) {
+            data.invitee.dataValues.avatarUrl = avatarResult.data[0].url
+          }
+        }
       }
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return await Promise.all(targetIds.map((userId: string) => {
@@ -71,6 +92,13 @@ export default function (app: Application): any {
       const targetIds = [data.userId]
       if (data.inviteeId) {
         targetIds.push(data.inviteeId)
+      } else {
+        const inviteeIdentityProvider = await app.service('identity-provider').Model.findOne({
+          where: {
+            token: data.token
+          }
+        })
+        targetIds.push(inviteeIdentityProvider.userId)
       }
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return await Promise.all(targetIds.map((userId: string) => {

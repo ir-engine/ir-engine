@@ -40,7 +40,7 @@ const AuthMagicLink = (props: Props): any => {
     const subscriptionId = router.query.subscriptionId as string
 
     if (type === 'login') {
-      loginUserByJwt(token, '/', '#', subscriptionId)
+      loginUserByJwt(token, '/', '/', subscriptionId)
     } else if (type === 'connection') {
       const user = auth.get('user') as User
       if (user) {
