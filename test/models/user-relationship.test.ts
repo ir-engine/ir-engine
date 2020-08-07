@@ -16,15 +16,10 @@ describe('CRUD operation on \'UserRelationship\' model', () => {
       name: 'janice'
     })
     relatedUserId = relatedUser.id
-    const userRelationshipTypes = await userRelationshipTypeModel.findAll()
-    if (userRelationshipTypes.length) {
-      userRelationshipType = userRelationshipTypes[0].type
-    } else {
-      userRelationshipType = 'test'
-      userRelationshipTypeModel.create({
-        type: 'test'
-      })
-    }
+    userRelationshipType = 'test'
+    userRelationshipTypeModel.create({
+      type: 'test'
+    })
   })
 
   it('Create', () => {
