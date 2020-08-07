@@ -4,7 +4,6 @@ import Camera from "../components/Camera"
 class CameraSystem extends System {
   execute(): void {
     this.queries.entities.added.forEach(entity => {
-      console.log("Camera added!")
       this.applySettingsToCamera(entity)
     })
     this.queries.entities.changed.forEach(entity => {

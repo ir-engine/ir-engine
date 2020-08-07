@@ -20,7 +20,6 @@ export const toggleState: Behavior = (entity: Entity, args: { value: Binary; sta
 export const addState: Behavior = (entity: Entity, args: { state: StateAlias }): void => {
   stateComponent = entity.getComponent(State)
   if (stateComponent.data.has(args.state)) return
-  console.log("Adding state: " + args.state)
   stateComponent.data.set(args.state, {
     state: args.state,
     type: StateType.DISCRETE,
@@ -34,7 +33,6 @@ export const addState: Behavior = (entity: Entity, args: { state: StateAlias }):
     stateComponent.schema.groups[stateGroup].states.forEach(state => {
       if (state === args.state || !stateComponent.data.has(state)) return
       stateComponent.data.delete(state)
-      console.log("Removed mutex state " + state)
     })
   }
 }
@@ -44,7 +42,6 @@ export const removeState: Behavior = (entity: Entity, args: { state: StateAlias 
   stateComponent = entity.getComponent(State)
   if (stateComponent.data.has(args.state)) {
     stateComponent.data.delete(args.state)
-    console.log("Removed component from " + entity.id)
   }
 }
 

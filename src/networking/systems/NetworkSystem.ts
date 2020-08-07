@@ -3,7 +3,7 @@ import NetworkClient from "../components/NetworkClient"
 import MessageSchema from "../classes/MessageSchema"
 import set from "../../common/functions/set"
 import cropString from "../../common/functions/cropString"
-import NetworkObject from "../defaults/components/NetworkObject"
+import NetworkObject from "../components/NetworkObject"
 import MessageTypeAlias from "../types/MessageTypeAlias"
 import NetworkTransportComponent from "../components/NetworkTransportComponent"
 

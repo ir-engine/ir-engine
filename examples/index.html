@@ -31,7 +31,7 @@
       Vector3
     } from "three"
 
-    import { initializeInputSystems, initializeActor } from "../../dist/armada.js"
+    import { initializeInputSystems, initializeActor, SocketWebRTCClientTransport, initializeNetworking } from "../dist/armada.js"
 
     // import { jumping, jump } from "../dist/armada.js"
     // import { decelerate } from "../dist/armada.js"
@@ -44,16 +44,6 @@
     let camera3d = cameraEntity.getObject3D()
     camera3d.position.z = 10
     world.createEntity().addObject3DComponent(new AmbientLight(), sceneEntity)
-    const cube = world
-      .createEntity()
-      .addObject3DComponent(
-        new Mesh(
-          new BoxBufferGeometry(1, 1, 1),
-          new MeshBasicMaterial({
-          })
-        ),
-        sceneEntity
-      )
 
     // Test input
     const inputOptions = {
@@ -67,8 +57,8 @@
     // TODO: Pass to world
 
     initializeInputSystems(world, inputOptions);
+    initializeNetworking(world, new SocketWebRTCClientTransport())
 
-    initializeActor(cube, inputOptions)
 
     // Let's begin
     world.execute()

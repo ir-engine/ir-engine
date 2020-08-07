@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import MediaStreamComponent from "../../components/MediaStreamComponent"
-import ioclient, { Socket } from "socket.io-client"
-import mediasoup from "mediasoup-client"
+import ioclient from "socket.io-client"
+import mediasoupClient from "mediasoup-client"
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "../../constants/VideoConstants"
 import { sleep } from "../../../common/functions/sleep"
 import SocketWebRTCMessageTypes from "./SocketWebRTCMessageTypes"
@@ -11,11 +11,11 @@ import NetworkTransport from "../../interfaces/NetworkTransport"
 import MessageQueue from "../../components/MessageQueue"
 import Message from "../../interfaces/Message"
 
-const Device = mediasoup.Device
+const Device = mediasoupClient.Device
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
   supportsMediaStreams = true
-  mediasoupDevice: mediasoup.Device
+  mediasoupDevice: mediasoupClient.Device
   joined: boolean
   recvTransport
   sendTransport
