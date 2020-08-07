@@ -69,31 +69,32 @@ export default [
         transformMixedEsModules: true
       })
     ]
-  }
-
+  },
+  /*
   // HTML Example Pages
-  // {
-  //   input: "examples/input/input.html",
-  //   output: { dir: "dist/examples/input" },
-  //   plugins: [html(), resolve(), commonjs(), typescript(), json(), babel({ babelHelpers: "bundled" })]
-  // },
-
-  // // Input
-  // {
-  //   input: "examples/input/input_three.html",
-  //   output: { dir: "dist/examples/input" },
-  //   plugins: [html(), resolve()]
-  // },
-  // {
-  //   input: "examples/input/touch-handler-1.html",
-  //   output: { dir: "dist/examples/input" },
-  //   plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
-  // },
-  // {
-  //   input: "examples/input/touch-handler-2.html",
-  //   output: { dir: "dist/examples/input" },
-  //   plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
-  // },
+  {
+    input: "examples/input/input.html",
+    output: { dir: "dist/examples/input" },
+    plugins: [html(), resolve(), commonjs(), typescript(), json(), babel({ babelHelpers: "bundled" })]
+  },
+  */
+  // Input
+  {
+    input: "examples/input/input_three.html",
+    output: { dir: "dist/examples/input" },
+    plugins: [html(), resolve()]
+  }
+  /*
+  {
+    input: "examples/input/touch-handler-1.html",
+    output: { dir: "dist/examples/input" },
+    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
+  },
+  {
+    input: "examples/input/touch-handler-2.html",
+    output: { dir: "dist/examples/input" },
+    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
+  },
 
   // // Networking
   // {
@@ -129,4 +130,5 @@ export default [
   //   output: { dir: "dist/examples/physics" },
   //   plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
   // }
+  */
 ]

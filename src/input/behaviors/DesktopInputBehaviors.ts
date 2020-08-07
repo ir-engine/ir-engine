@@ -39,7 +39,7 @@ export const handleMouseButton: Behavior = (entity: Entity, args: { event: Mouse
       value: mousePosition
     })
   } else {
-    console.log("Mouse button up" + args.event.button)
+    console.log("Mouse button up: " + args.event.button)
     input.data.delete(input.schema.mouseInputMap.buttons[args.event.button])
     input.data.delete(input.schema.mouseInputMap.axes["mouseClickDownPosition"])
     input.data.delete(input.schema.mouseInputMap.axes["mouseClickDownTransformRotation"])
