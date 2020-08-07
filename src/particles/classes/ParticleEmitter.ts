@@ -19,7 +19,7 @@ import {
   setBrownianAt,
   setVelocityScaleAt
 } from "./ParticleMesh.js"
-import { createPseudoRandom } from "../../common/utils/mathRandomFunctions.js"
+import { createPseudoRandom } from "../../common/functions/mathRandomFunctions.js"
 
 const error = console.error
 const FRAME_STYLES = ["sequence", "randomsequence", "random"]

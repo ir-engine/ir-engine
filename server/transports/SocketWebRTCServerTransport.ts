@@ -85,6 +85,8 @@ const defaultRoomState = {
   transports: {},
   producers: [],
   consumers: [],
+  dataProducers: [],
+  dataConsumers: [],
   peers: []
 }
 
@@ -468,7 +470,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
 
     const mediaCodecs = config.mediasoup.router.mediaCodecs
     this.router = await this.worker.createRouter({ mediaCodecs })
-    console.log("Worer created router")
+    console.log("Worker created router")
   }
 
   async closeTransport(transport): Promise<void> {

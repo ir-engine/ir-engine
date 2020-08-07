@@ -2,7 +2,7 @@ import { Entity } from "ecsy"
 import Input from "../../input/components/Input"
 import BinaryValue from "../../common/enums/BinaryValue"
 import InputAlias from "../../input/types/InputAlias"
-import { applyThreshold } from "../../common/utils/applyThreshold"
+import { applyThreshold } from "../../common/functions/applyThreshold"
 import Behavior from "../../common/interfaces/Behavior"
 import { InputType } from "../../input/enums/InputType"
 
