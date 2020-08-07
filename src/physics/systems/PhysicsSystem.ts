@@ -2,10 +2,10 @@ import * as CANNON from "cannon-es"
 import { RigidBody } from "../components/RigidBody"
 import { VehicleBody } from "../components/VehicleBody"
 import { System, Entity } from "ecsy"
-// TODO: Replace me with our own default transform component
-import { Transform } from "ecsy-three/src/extras/components"
+import Transform from "../../transform/components/Transform"
 // TODO: Remove THREE references, replace with gl-matrix
 import { Quaternion, Euler } from "three"
+import { Object3DComponent } from "ecsy-three"
 
 function inputs(vehicle) {
   document.onkeydown = handler
@@ -110,7 +110,7 @@ export class PhysicsSystem extends System {
     }
 
     for (const entity of this.queries.vehicleBody.added) {
-      const object = entity.getComponent<Transform>(Transform).getObject3D()
+      const object = entity.getComponent<Object3DComponent>(Object3DComponent).value
 
       const vehicleComponent = entity.getComponent(VehicleBody) as VehicleBody
 
@@ -144,29 +144,26 @@ export class PhysicsSystem extends System {
     for (const entity of this.queries.physicsRigidBody.results) {
       //  if (rigidBody.weight === 0.0) continue;
       const transform = entity.getMutableComponent(Transform) as Transform
-      const object = transform.getObject3D()
+      const object = entity.getMutableComponent(Object3DComponent).value
       const body = object.userData.body
       //console.log(body);
-      transform.position.copy(body.position)
+      transform.position = body.position
 
       quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w)
-      euler.setFromQuaternion(quaternion, "XYZ")
 
-      transform.rotation.copy(euler)
+      transform.rotation = quaternion.toArray()
     }
 
     for (const entity of this.queries.vehicleBody.results) {
       //  if (rigidBody.weight === 0.0) continue;
       const transform = entity.getMutableComponent(Transform) as Transform
-      const object = transform.getObject3D()
+      const object = entity.getMutableComponent(Object3DComponent).value
       const vehicle = object.userData.vehicle.chassisBody
 
-      transform.position.copy(vehicle.position)
+      transform.position = vehicle.position
       //transform.position.y += 0.6
       quaternion.set(vehicle.quaternion.x, vehicle.quaternion.y, vehicle.quaternion.z, vehicle.quaternion.w)
-      euler.setFromQuaternion(quaternion, "XYZ")
-
-      transform.rotation.copy(euler)
+      transform.rotation = vehicle.quaternion.toArray()
     }
   }
 

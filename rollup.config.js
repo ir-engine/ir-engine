@@ -6,6 +6,7 @@ import typescript from "rollup-plugin-typescript2"
 import commonjs from "@rollup/plugin-commonjs"
 import nodePolyfills from "rollup-plugin-node-polyfills"
 import nodeGlobals from "rollup-plugin-node-globals"
+import injectProcessEnv from "rollup-plugin-inject-process-env"
 
 export default [
   {
@@ -20,6 +21,9 @@ export default [
       commonjs({
         include: ["node_modules/**/*"], // Default: undefined
         transformMixedEsModules: true
+      }),
+      injectProcessEnv({
+        NODE_ENV: "production"
       }),
       json(),
       nodePolyfills(),
@@ -36,40 +40,46 @@ export default [
       }
     ]
   },
-  {
-    input: "server/index.ts",
-    output: { file: "dist/armada.server.js", format: "esm", sourcemap: true },
-    plugins: [
-      typescript(),
-      json(),
-      resolve(),
-      commonjs({
-        preferBuiltins: true,
-        include: ["node_modules/**/*"], // Default: undefined
-        transformMixedEsModules: true
-      }),
-      nodeGlobals({
-        buffer: false,
-        debug: false,
-        path: false,
-        process: false
-      })
-    ],
-    external: ["mediasoup", "mediasoup-client", "buffer-es6", "buffer", "fs", "debug", "path", "socket.io", "safer", "depd"]
-  },
-  // Express socket networking server (for local dev)
-  {
-    input: "examples/networking/server.js",
-    output: { dir: "dist/examples/networking/server.js" },
-    plugins: [
-      json(),
-      resolve(),
-      commonjs({
-        include: ["node_modules/**/*"], // Default: undefined
-        transformMixedEsModules: true
-      })
-    ]
-  },
+  // {
+  //   input: "server/index.ts",
+  //   output: { file: "dist/armada.server.js", format: "esm", sourcemap: true },
+  //   plugins: [
+  //     typescript(),
+  //     json(),
+  //     resolve(),
+  //     commonjs({
+  //       preferBuiltins: true,
+  //       include: ["node_modules/**/*"], // Default: undefined
+  //       transformMixedEsModules: true
+  //     }),
+  //     injectProcessEnv({
+  //       NODE_ENV: "production"
+  //     }),
+  //     nodeGlobals({
+  //       buffer: false,
+  //       debug: false,
+  //       path: false,
+  //       process: false
+  //     })
+  //   ],
+  //   external: ["mediasoup", "mediasoup-client", "buffer-es6", "buffer", "fs", "debug", "path", "socket.io", "safer", "depd"]
+  // },
+  // // Express socket networking server (for local dev)
+  // {
+  //   input: "examples/networking/server.js",
+  //   output: { dir: "dist/examples/networking/server.js" },
+  //   plugins: [
+  //     json(),
+  //     resolve(),
+  //     commonjs({
+  //       include: ["node_modules/**/*"], // Default: undefined
+  //       transformMixedEsModules: true
+  //     }),
+  //     injectProcessEnv({
+  //       NODE_ENV: "production"
+  //     })
+  //   ]
+  // },
   /*
   // HTML Example Pages
   {
@@ -82,7 +92,13 @@ export default [
   {
     input: "examples/input/input_three.html",
     output: { dir: "dist/examples/input" },
-    plugins: [html(), resolve()]
+    plugins: [
+      html(),
+      resolve(),
+      injectProcessEnv({
+        NODE_ENV: "production"
+      })
+    ]
   }
   /*
   {
