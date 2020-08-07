@@ -36,8 +36,8 @@ class BehaviorComponent extends Component {
 const DefaultJumpData = {
     canJump: true,
     t: 0,
-    height: 0.25,
-    duration: 0.5
+    height: 0.1,
+    duration: 0.25
 };
 class Actor extends Component {
     constructor() {
@@ -68,6 +68,7 @@ class Actor extends Component {
 Actor.schema = {
 // TODO: Schema
 };
+//# sourceMappingURL=Actor.js.map
 
 const vector3Identity = [0, 0, 0];
 const vector3ScaleIdentity = [1, 1, 1];
@@ -809,6 +810,7 @@ const decelerate = (entity, args, delta) => {
         transform.velocity = velocity;
     }
 };
+//# sourceMappingURL=decelerate.js.map
 
 class State extends BehaviorComponent {
 }
@@ -917,13 +919,13 @@ const jumping = (entity, args, delta) => {
     actor$1 = entity.getMutableComponent(Actor);
     actor$1.jump.t += delta;
     if (actor$1.jump.t < actor$1.jump.duration) {
-        transform$1.velocity[1] = transform$1.velocity[1] + Math.cos((actor$1.jump.t / actor$1.jump.duration) * Math.PI);
-        console.log("Jumping: " + actor$1.jump.t);
+        transform$1.velocity[1] = transform$1.velocity[1] + Math.cos((actor$1.jump.t / actor$1.jump.duration) * Math.PI) * actor$1.jump.height;
         return;
     }
     removeState(entity, { state: DefaultStateTypes.JUMPING });
     console.log("Jumped");
 };
+//# sourceMappingURL=jump.js.map
 
 // Input inherits from BehaviorComponent, which adds .map and .data
 class Input extends BehaviorComponent {
@@ -990,6 +992,7 @@ const move = (entity, args, time) => {
         console.error("Movement is only available for 2D and 3D inputs");
     }
 };
+//# sourceMappingURL=move.js.map
 
 let actor$3;
 let transform$3;
@@ -1029,6 +1032,7 @@ const rotateAround = (entity, args, delta) => {
     }
     transform$3.rotation = [qOut[0], qOut[1], qOut[2], qOut[3]];
 };
+//# sourceMappingURL=rotate.js.map
 
 const _deltaV = [0, 0, 0];
 const _position = [0, 0, 0];
@@ -36773,6 +36777,7 @@ function initializeNetworking(world, transport) {
     const networkSystem = world.getSystem(NetworkSystem);
     networkSystem.initializeSession(world, transport);
 }
+//# sourceMappingURL=index.js.map
 
 export { CAM_VIDEO_SIMULCAST_ENCODINGS, DefaultInputSchema, DefaultStateGroups, DefaultStateSchema, DefaultStateTypes, GamepadButtons, InputType, Keyframe, KeyframeSystem, MediaStreamControlSystem, MouseButtons, NetworkSystem, ParticleEmitter, ParticleEmitterState, ParticleSystem, PhysicsSystem, RigidBody, SocketWebRTCClientTransport, StateType, Thumbsticks, VIDEO_CONSTRAINTS, VehicleBody, VehicleSystem, WheelBody, WheelSystem, addState, createKeyframes, createParticleEmitter, createParticleMesh, decelerate, handleGamepadAxis, handleGamepadConnected, handleGamepadDisconnected, handleGamepads, handleInput, handleKey, handleMouseButton, handleMouseMovement, handleTouch, handleTouchMove, hasState, initializeActor, initializeInputSystems, initializeNetworking, initializeParticleSystem, jump, jumping, loadTexturePackerJSON, localMediaConstraints, move, needsUpdate, removeState, rotateAround, setAccelerationAt, setAngularAccelerationAt, setAngularVelocityAt, setAtlasIndexAt, setBrownianAt, setColorsAt, setEmitterMatrixWorld, setEmitterTime, setFrameAt, setKeyframesAt, setMaterialTime, setMatrixAt, setOffsetAt, setOpacitiesAt, setOrientationsAt, setScalesAt, setTextureAtlas, setTimingsAt, setTouchHandler, setVelocityAt, setVelocityScaleAt, setWorldAccelerationAt, syncKeyframes, toggleState, updateGeometry, updateMaterial, updateOriginalMaterialUniforms, updatePosition };
 //# sourceMappingURL=armada.js.map

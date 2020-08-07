@@ -20,8 +20,7 @@ export const jumping: Behavior = (entity: Entity, args, delta: number): void => 
   actor = entity.getMutableComponent<Actor>(Actor)
   actor.jump.t += delta
   if (actor.jump.t < actor.jump.duration) {
-    transform.velocity[1] = transform.velocity[1] + Math.cos((actor.jump.t / actor.jump.duration) * Math.PI)
-    console.log("Jumping: " + actor.jump.t)
+    transform.velocity[1] = transform.velocity[1] + Math.cos((actor.jump.t / actor.jump.duration) * Math.PI) * actor.jump.height
     return
   }
 
