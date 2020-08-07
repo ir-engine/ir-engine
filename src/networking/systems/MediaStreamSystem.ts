@@ -118,6 +118,7 @@ export class MediaStreamControlSystem extends System {
     // mobile Safari happy. note that for audio to play you need to be
     // capturing from the mic/camera
     if (consumer.kind === "video") {
+      console.log("Creating video element with ID " + elementID)
       if (el === null) {
         console.log(`Creating video element for user with ID: ${peerId}`)
         el = document.createElement("video")

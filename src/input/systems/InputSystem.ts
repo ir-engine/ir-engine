@@ -1,7 +1,6 @@
-import { System } from "ecsy"
+import { Entity, System } from "ecsy"
 import Input from "../components/Input"
 import { DefaultInputSchema } from "../defaults/DefaultInputSchema"
-import { Entity } from "ecsy"
 import { NumericalType, Binary } from "../../common/types/NumericalTypes"
 import Behavior from "../../common/interfaces/Behavior"
 import InputValue from "../interfaces/InputValue"
@@ -16,6 +15,9 @@ export default class InputSystem extends System {
   private boundListeners = new Set()
 
   public execute(delta: number): void {
+    // Called every frame on all input components
+    this.queries.inputs.results.forEach(entity => handleInput(entity, { delta }))
+
     // Called when input component is added to entity
     this.queries.inputs.added.forEach(entity => {
       // Get component reference
@@ -27,19 +29,13 @@ export default class InputSystem extends System {
         behavior.behavior(entity, { ...behavior.args })
       })
       // Bind DOM events to event behavior
-      const {eventBindings} = this._inputComponent.schema
-      if( eventBindings ) this.boundListeners[ entity.id ] =
-        Object.entries(eventBindings).map( ([eventName, {behavior, args, selector}]) => {
-          const domElement = selector ? document.querySelector(selector) : document
-          if( domElement ){
-            const listener = (event: Event) => behavior(entity, { event, ...args })
-            domElement.addEventListener(eventName, listener)
-            return [selector, eventName, listener]
-          } else {
-            console.warn("DOM Element not found:", selector)
-            return false
-          }
-        }).filter(Boolean)
+      Object.keys(this._inputComponent.schema.eventBindings)?.forEach((event: string) => {
+        this._inputComponent.schema.eventBindings[event].forEach((behaviorEntry: any) => {
+          document.addEventListener(event, e => {
+            behaviorEntry.behavior(entity, { event: e, ...behaviorEntry.args })
+          })
+        })
+      })
     })
 
     // Called when input component is removed from entity
@@ -51,25 +47,19 @@ export default class InputSystem extends System {
         behavior.behavior(entity, behavior.args)
       })
       // Unbind events from DOM
-      const bound = this.boundListeners[ entity.id ]
-      if( bound ){
-        for(const [selector, eventName, listener] of bound){
-          const domElement = selector ? document.querySelector(selector) : document
-          domElement?.removeEventListener(eventName, listener)
-        }
-        delete this.boundListeners[ entity.id ]
-      }
+      Object.keys(this._inputComponent.schema.eventBindings).forEach((event: string) => {
+        this._inputComponent.schema.eventBindings[event].forEach((behaviorEntry: any) => {
+          document.removeEventListener(event, e => {
+            behaviorEntry.behavior(entity, { event: e, ...behaviorEntry.args })
+          })
+        })
+      })
     })
-
-    // Called every frame on all input components
-    this.queries.inputs.results.forEach(entity => handleInput(entity, { delta }))
   }
 }
-
 let input: Input
-export const handleInput: Behavior = (entity: Entity, args: { delta: number }): void => {
-  input = entity.getComponent(Input)
-
+export const handleInput: Behavior = (entity: Entity, delta: number): void => {
+  input = entity.getMutableComponent(Input) as Input
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
     // If the input is a button
     if (value.type === InputType.BUTTON) {
@@ -83,19 +73,13 @@ export const handleInput: Behavior = (entity: Entity, args: { delta: number }): 
             value: value.value as Binary,
             lifecycleState: LifecycleValue.CONTINUED
           })
-          // Call the behavior with args
-          input.schema.inputButtonBehaviors[key][value.value as number].behavior(
-            entity,
-            input.schema.inputButtonBehaviors[key][value.value as number].args,
-            args.delta
-          )
+          input.schema.inputButtonBehaviors[key][value.value as number].started?.forEach(element => element.behavior(entity, element.args, delta))
+        } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
+          input.schema.inputButtonBehaviors[key][value.value as number].continued?.forEach(element => element.behavior(entity, element.args, delta))
         }
       }
-      // Otherwise, if the input type is an axis, i.e. not a button
-    } else if (value.type === InputType.ONED || value.type === InputType.TWOD || value.type === InputType.THREED) {
-      // If the key exists in the map, otherwise ignore it
+    } else if (value.type === InputType.ONED || value.type === InputType.TWOD || value.type === InputType.THREED || value.type === InputType.FOURD) {
       if (input.schema.inputAxisBehaviors[key]) {
-        // If the lifecycle vawlue hasn't been set to continue
         if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue.STARTED) {
           // Set the value to continued to debounce
           input.data.set(key, {
@@ -103,15 +87,15 @@ export const handleInput: Behavior = (entity: Entity, args: { delta: number }): 
             value: value.value as Binary,
             lifecycleState: LifecycleValue.CONTINUED
           })
-          // Call the behavior with args
-          input.schema.inputAxisBehaviors[key].behavior(entity, input.schema.inputAxisBehaviors[key].args, args.delta)
+          input.schema.inputAxisBehaviors[key].started?.forEach(element => element.behavior(entity, element.args, delta))
+        } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
+          input.schema.inputAxisBehaviors[key].continued?.forEach(element => element.behavior(entity, element.args, delta))
         }
       }
     } else {
       console.error("handleInput called with an invalid input type")
     }
   })
-  input.data.clear()
 }
 
 InputSystem.queries = {

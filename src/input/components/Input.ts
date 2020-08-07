@@ -3,7 +3,7 @@ import InputSchema from "../interfaces/InputSchema"
 import BehaviorComponent from "../../common/components/BehaviorComponent"
 import InputAlias from "../types/InputAlias"
 import InputValue from "../interfaces/InputValue"
-import { Binary, Scalar, Vector2, Vector3 } from "../../common/types/NumericalTypes"
+import { Binary, NumericalType } from "../../common/types/NumericalTypes"
 
 // TODO: Put gamepad data into input data map() object
 
@@ -15,8 +15,8 @@ export default interface InputProps {
   gamepadInput: number[]
 }
 
-// Input inherits from BehaviorComponent, which adds .schema and .data
-export default class Input extends BehaviorComponent<InputAlias, InputSchema, InputValue<Scalar | Vector2 | Vector3>> {
+// Input inherits from BehaviorComponent, which adds .map and .data
+export default class Input extends BehaviorComponent<InputAlias, InputSchema, InputValue<NumericalType>> {
   gamepadConnected: boolean
   gamepadThreshold: number
   gamepadButtons: Binary[]

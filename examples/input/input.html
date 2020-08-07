@@ -9,8 +9,8 @@
 
 <body>
   <script type="module">
-    import { Component, System, World } from "ecsy"
-    import { initializeInputSystems } from "../../dist/armada.js"
+    import { Component, Entity, System, World } from "ecsy"
+    import { initializeInputSystems, initializeActor } from "../../dist/armada.js"
     const world = new World()
 
     const inputOptions = {
@@ -18,7 +18,7 @@
     }
     initializeInputSystems(world, inputOptions)
 
-    initializeActor(new Entity())
+    initializeActor(world.createEntity())
 
     var lastTime = performance.now();
     function update() {

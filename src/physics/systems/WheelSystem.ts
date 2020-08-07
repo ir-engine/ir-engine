@@ -1,7 +1,8 @@
 import * as THREE from "three"
 import * as ECSY from "ecsy"
-import * as ECSYTHREEX from "ecsy-three/extras"
+import * as ECSYTHREE from "ecsy-three"
 import * as CANNON from "cannon-es"
+import Transform from "../../transform/components/Transform"
 
 import { WheelBody } from "../components/WheelBody"
 
@@ -20,20 +21,12 @@ export class WheelSystem extends ECSY.System {
       vehicle.updateWheelTransform(i)
       //  console.log(vehicle);
 
-      const transform = entity.getMutableComponent(ECSYTHREEX.Transform) as ECSYTHREEX.Transform
+      const transform = entity.getMutableComponent(Transform) as Transform
 
-      transform.position.copy(vehicle.wheelInfos[i].worldTransform.position)
+      transform.position = vehicle.wheelInfos[i].worldTransform.position
 
-      quaternion.set(
-        vehicle.wheelInfos[i].worldTransform.quaternion.x,
-        vehicle.wheelInfos[i].worldTransform.quaternion.y,
-        vehicle.wheelInfos[i].worldTransform.quaternion.z,
-        vehicle.wheelInfos[i].worldTransform.quaternion.w
-      )
-      //  quaternion.slerp( new THREE.Quaternion(), 0.5 );
-      euler.setFromQuaternion(quaternion, "XYZ")
       //let euler2 = new THREE.Euler(euler.x, euler.y/2, euler.z, 'XYZ')
-      transform.rotation.copy(euler)
+      transform.rotation = vehicle.wheelInfos[i].worldTransform.quaternion.toArray()
       //console.log(vehicle.wheelInfos[0].chassisConnectionPointWorld);
     }
   }

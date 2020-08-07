@@ -1,10 +1,8 @@
 import { System } from "ecsy"
 import { ParticleEmitter, ParticleEmitterState } from "../components/ParticleEmitter"
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-// TODO:
 import { Object3DComponent } from "ecsy-three"
-import { Transform, Parent } from "ecsy-three/extras"
+import Transform from "../../transform/components/Transform"
+import TransformParent from "../../transform/components/TransformParent"
 import * as THREE from "three"
 import { createParticleEmitter, setEmitterMatrixWorld, setEmitterTime } from "../classes/ParticleEmitter.js"
 
@@ -90,7 +88,7 @@ const calcMatrixWorld = (function() {
         transformMatrix.premultiply(childMatrix)
       }
 
-      const parent = entity.getComponent(Parent)
+      const parent = entity.getComponent(TransformParent)
       return parent ? calcMatrixWorld(parent["value"], transformMatrix) : transformMatrix
     } else {
       return new THREE.Matrix4()

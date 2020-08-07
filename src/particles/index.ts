@@ -7,7 +7,7 @@ export * from "./systems/KeyframeSystem"
 export * from "./systems/ParticleSystem"
 
 import { World } from "ecsy"
-import { isBrowser } from "../common/utils/isBrowser"
+import { isBrowser } from "../common/functions/isBrowser"
 import { ParticleSystem } from "./systems/ParticleSystem"
 import { ParticleEmitterState, ParticleEmitter } from "./components/ParticleEmitter"
 
