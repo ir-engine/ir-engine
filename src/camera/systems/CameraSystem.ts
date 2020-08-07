@@ -2,7 +2,7 @@ import { System, Entity } from "ecsy"
 import Behavior from "../../common/interfaces/Behavior"
 import Transform from "../../transform/components/Transform"
 import { Camera } from "../components/Camera"
-import { followTarget } from '../../transform/behaviors/followTarget'
+import { followTarget } from "../../transform/behaviors/followTarget"
 
 export class CameraSystem extends System {
   follow: Behavior = followTarget
@@ -10,35 +10,30 @@ export class CameraSystem extends System {
     this.queries.entities.results?.forEach(entity => {
       //this.applySettingsToCamera(entity)
 
-      const cam = entity.getComponent(Camera) as Camera
-      if (cam.followingObjectReference) {
-        cam.cameraObjectReference.addComponent(Transform)
-        console.log(cam.followingObjectReference)
-        this.follow(cam.cameraObjectReference, { distance: 100 }, delta, cam.followingObjectReference)
-        console.log('moved')
-      } else {
-        console.log('not moved')
-      }
+      this.cameraFollowTarget(entity, delta)
     })
-    
+
     this.queries.entities.added.forEach(entity => {
       console.log("Camera added!")
       //this.applySettingsToCamera(entity)
 
-      const cam = entity.getComponent(Camera) as Camera
+      this.cameraFollowTarget(entity, delta)
+    })
+    this.queries.entities.changed.forEach(entity => {
+      //this.applySettingsToCamera(entity)
+    })
+  }
+
+  cameraFollowTarget(entity: Entity, delta: number): void {
+    const cam = entity.getComponent(Camera) as Camera
       if (cam.followingObjectReference) {
         cam.cameraObjectReference.addComponent(Transform)
         console.log(cam.followingObjectReference)
         this.follow(cam.cameraObjectReference, { distance: 100 }, delta, cam.followingObjectReference)
-        console.log('moved')
+        console.log("moved")
       } else {
-        console.log('not moved')
+        console.log("not moved")
       }
-    })
-    this.queries.entities.changed.forEach(entity => {
-      //this.applySettingsToCamera(entity)
-      
-    })
   }
 
   applySettingsToCamera(entity: Entity): void {
@@ -49,7 +44,6 @@ export class CameraSystem extends System {
     cameraComponent.cameraObjectReference.far = cameraComponent.far
     cameraComponent.cameraObjectReference.layers = cameraComponent.layers
     cameraComponent.cameraObjectReference.handleResize = cameraComponent.handleResize
-    
   }
 }
 
@@ -62,4 +56,3 @@ CameraSystem.queries = {
     }
   }
 }
-
