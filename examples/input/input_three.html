@@ -5,6 +5,16 @@
   <title>armada webgl - geometry - cube</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    canvas {
+      width: 100%;
+      height: 70%;
+    }
+  </style>
 </head>
 
 <body>
@@ -35,14 +45,18 @@
 
     // import { jumping, jump } from "../dist/armada.js"
     // import { decelerate } from "../dist/armada.js"
-    // import { move } from "../dist/armada.js"
+     import { Camera, CameraSystem } from "../../dist/armada.js"
     // import { rotateAround, handleMouseMovement, handleMouseButton, handleKey, MouseButtons, InputType } from "../dist/armada.js"
 
     // Setup world
     const world = new ECSYThreeWorld()
+    world.registerComponent(Camera)
+    world.registerSystem(CameraSystem)
+
     let { cameraEntity, sceneEntity } = initialize(world)
     let camera3d = cameraEntity.getObject3D()
     camera3d.position.z = 10
+    
     world.createEntity().addObject3DComponent(new AmbientLight(), sceneEntity)
     const cube = world
       .createEntity()
@@ -54,10 +68,10 @@
         ),
         sceneEntity
       )
-
+    
     // Test input
     const inputOptions = {
-      debug: true,
+      debug: false,
       // inputMap: DefaultInputMap,
       // stateMap: DefaultStateMap
     }
@@ -66,10 +80,12 @@
     // TODO: Modify some values
     // TODO: Pass to world
 
-    initializeInputSystems(world, inputOptions);
+    initializeInputSystems(world, inputOptions)
 
     initializeActor(cube, inputOptions)
 
+    cameraEntity.addComponent(Camera, { cameraObjectReference: cameraEntity, followingObjectReference: cube })
+    console.log(cube.getComponents())
     // Let's begin
     world.execute()
   </script>

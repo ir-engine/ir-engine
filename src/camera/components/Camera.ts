@@ -1,6 +1,6 @@
 import { Component, Types } from "ecsy"
 
-export default class Camera extends Component<any> {
+export class Camera extends Component<any> {
   fov: number // Field of view
   aspect: number // Width / height
   near: number // Geometry closer than this gets removed
@@ -8,6 +8,7 @@ export default class Camera extends Component<any> {
   layers: number // Bitmask of layers the camera can see, converted to an int
   handleResize: boolean // Should the camera resize if the window does?
   cameraObjectReference: any // Reference to the actual camera object
+  followingObjectReference: any
 }
 
 Camera.schema = {
@@ -17,5 +18,6 @@ Camera.schema = {
   far: { default: 1000, type: Types.Number },
   layers: { default: 0, type: Types.Number },
   handleResize: { default: true, type: Types.Boolean },
-  cameraObjectReference: { default: null, type: Types.Ref }
+  cameraObjectReference: { default: null, type: Types.Ref },
+  followingObjectReference: { default: null, type: Types.Ref }
 }
