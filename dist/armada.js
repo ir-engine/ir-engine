@@ -779,11 +779,12 @@ const followTarget = (entityIn, args, delta, entityOut) => {
     follower = entityIn.getMutableComponent(Transform);
     target = entityOut.getComponent(Transform);
     set(_position, target.position[0] - args.distance, target.position[1] + 50, target.position[2] - args.distance);
-    set(_velocity, target.velocity[0], target.velocity[1], target.velocity[2]);
+    //vec3.set(_velocity, target.velocity[0], target.velocity[1], target.velocity[2])
     if (length(_velocity) > 0) {
         scale(_deltaV, _velocity, delta);
         add(_position, _position, _deltaV);
         follower.position = _position;
+        follower.velocity = _velocity;
     }
     const camera3DComponent = entityIn.getComponent(Object3DComponent);
     camera3DComponent.value.position.set(_position[0], _position[1], _position[2]);
@@ -798,34 +799,28 @@ class CameraSystem extends System {
         var _a;
         (_a = this.queries.entities.results) === null || _a === void 0 ? void 0 : _a.forEach(entity => {
             //this.applySettingsToCamera(entity)
-            const cam = entity.getComponent(Camera);
-            if (cam.followingObjectReference) {
-                cam.cameraObjectReference.addComponent(Transform);
-                console.log(cam.followingObjectReference);
-                this.follow(cam.cameraObjectReference, { distance: 100 }, delta, cam.followingObjectReference);
-                console.log('moved');
-            }
-            else {
-                console.log('not moved');
-            }
+            this.cameraFollowTarget(entity, delta);
         });
         this.queries.entities.added.forEach(entity => {
             console.log("Camera added!");
             //this.applySettingsToCamera(entity)
-            const cam = entity.getComponent(Camera);
-            if (cam.followingObjectReference) {
-                cam.cameraObjectReference.addComponent(Transform);
-                console.log(cam.followingObjectReference);
-                this.follow(cam.cameraObjectReference, { distance: 100 }, delta, cam.followingObjectReference);
-                console.log('moved');
-            }
-            else {
-                console.log('not moved');
-            }
+            this.cameraFollowTarget(entity, delta);
         });
         this.queries.entities.changed.forEach(entity => {
             //this.applySettingsToCamera(entity)
         });
+    }
+    cameraFollowTarget(entity, delta) {
+        const cam = entity.getComponent(Camera);
+        if (cam.followingObjectReference) {
+            cam.cameraObjectReference.addComponent(Transform);
+            console.log(cam.followingObjectReference);
+            this.follow(cam.cameraObjectReference, { distance: 100 }, delta, cam.followingObjectReference);
+            console.log("moved");
+        }
+        else {
+            console.log("not moved");
+        }
     }
     applySettingsToCamera(entity) {
         const cameraComponent = entity.getComponent(Camera);
@@ -1324,21 +1319,19 @@ const handleGamepadDisconnected = (entity, args) => {
 
 const handleTouch = (entity, args) => {
     if (args.value === BinaryValue.ON) {
-        let s = 'Touch start.';
+        let s = "Touch start.";
         if (args.event.targetTouches.length)
-            s += (' x: ' + Math.trunc(args.event.targetTouches[0].clientX) +
-                ', y: ' + Math.trunc(args.event.targetTouches[0].clientY));
+            s += " x: " + Math.trunc(args.event.targetTouches[0].clientX) + ", y: " + Math.trunc(args.event.targetTouches[0].clientY);
         console.log(s);
     }
     else {
-        console.log('Touch end.');
+        console.log("Touch end.");
     }
 };
 const handleTouchMove = (entity, args) => {
-    let s = 'Touch move.';
+    let s = "Touch move.";
     if (args.event.targetTouches.length)
-        s += (' x: ' + Math.trunc(args.event.targetTouches[0].clientX) +
-            ', y: ' + Math.trunc(args.event.targetTouches[0].clientY));
+        s += " x: " + Math.trunc(args.event.targetTouches[0].clientX) + ", y: " + Math.trunc(args.event.targetTouches[0].clientY);
     console.log(s);
 };
 
