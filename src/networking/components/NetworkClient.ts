@@ -1,3 +1,4 @@
+// Todo: Attach stuff to be like inventory, etc, later, and use me!
 import { Component, Types } from "ecsy"
 
 interface PropTypes {

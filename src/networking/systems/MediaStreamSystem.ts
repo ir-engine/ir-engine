@@ -2,7 +2,7 @@
 import { System, World } from "ecsy"
 import MediaStreamComponent from "../components/MediaStreamComponent"
 import { localMediaConstraints } from "../constants/VideoConstants"
-import NetworkTransportComponent from "../components/NetworkTransportComponent"
+import Network from "../components/Network"
 
 export class MediaStreamControlSystem extends System {
   public static instance: MediaStreamControlSystem
@@ -77,27 +77,27 @@ export class MediaStreamControlSystem extends System {
 
   async toggleWebcamVideoPauseState() {
     const videoPaused = MediaStreamComponent.instance.toggleVideoPaused()
-    if (videoPaused) (NetworkTransportComponent.instance.transport as any).pauseProducer(MediaStreamComponent.instance.camVideoProducer)
-    else (NetworkTransportComponent.instance.transport as any).resumeProducer(MediaStreamComponent.instance.camVideoProducer)
+    if (videoPaused) (Network.instance.transport as any).pauseProducer(MediaStreamComponent.instance.camVideoProducer)
+    else (Network.instance.transport as any).resumeProducer(MediaStreamComponent.instance.camVideoProducer)
   }
 
   async toggleWebcamAudioPauseState() {
     const audioPaused = MediaStreamComponent.instance.toggleAudioPaused()
-    if (audioPaused) (NetworkTransportComponent.instance.transport as any).resumeProducer(MediaStreamComponent.instance.camAudioProducer)
-    else (NetworkTransportComponent.instance.transport as any).pauseProducer(MediaStreamComponent.instance.camAudioProducer)
+    if (audioPaused) (Network.instance.transport as any).resumeProducer(MediaStreamComponent.instance.camAudioProducer)
+    else (Network.instance.transport as any).pauseProducer(MediaStreamComponent.instance.camAudioProducer)
   }
 
   async toggleScreenshareVideoPauseState() {
     if (this.getScreenPausedState())
-      (NetworkTransportComponent.instance.transport as any).pauseProducer(MediaStreamComponent.instance.screenVideoProducer)
-    else (NetworkTransportComponent.instance.transport as any).resumeProducer(MediaStreamComponent.instance.screenVideoProducer)
+      (Network.instance.transport as any).pauseProducer(MediaStreamComponent.instance.screenVideoProducer)
+    else (Network.instance.transport as any).resumeProducer(MediaStreamComponent.instance.screenVideoProducer)
     MediaStreamComponent.instance.screenShareVideoPaused = !MediaStreamComponent.instance.screenShareVideoPaused
   }
 
   async toggleScreenshareAudioPauseState() {
     if (this.getScreenAudioPausedState())
-      (NetworkTransportComponent.instance.transport as any).pauseProducer(MediaStreamComponent.instance.screenAudioProducer)
-    else (NetworkTransportComponent.instance.transport as any).resumeProducer(MediaStreamComponent.instance.screenAudioProducer)
+      (Network.instance.transport as any).pauseProducer(MediaStreamComponent.instance.screenAudioProducer)
+    else (Network.instance.transport as any).resumeProducer(MediaStreamComponent.instance.screenAudioProducer)
     MediaStreamComponent.instance.screenShareAudioPaused = !MediaStreamComponent.instance.screenShareAudioPaused
   }
 

@@ -1,6 +1,44 @@
 import { World } from "ecsy"
-import { initializeNetworking } from "../src/index"
+import { initializeArmada, DefaultStateSchema } from "../src/index"
 import SocketWebRTCServerTransport from "./transports/SocketWebRTCServerTransport"
+import { DefaultNetworkSchema } from "../src/networking/defaults/DefaultNetworkSchema"
+import DefaultSubscriptionSchema from "../src/subscription/defaults/DefaultSubscriptionSchema"
+
+const networkSchema = {
+  ...DefaultNetworkSchema,
+  transport: SocketWebRTCServerTransport
+}
+
+const options = {
+  debug: false,
+  withTransform: true,
+  withWebXRInput: true,
+  input: {
+    enabled: false
+  },
+  networking: {
+    enabled: true,
+    schema: networkSchema,
+    supportsMediaStreams: true
+  },
+  state: {
+    enabled: true,
+    schema: DefaultStateSchema
+  },
+  subscriptions: {
+    enabled: true,
+    schema: DefaultSubscriptionSchema
+  },
+  physics: {
+    enabled: false
+  },
+  particles: {
+    enabled: false
+  },
+  transform: {
+    enabled: true
+  }
+}
 
 export default class SocketWebRTCServer {
   lastTime: number = Date.now()
@@ -8,7 +46,7 @@ export default class SocketWebRTCServer {
   delta
   constructor() {
     const world = new World()
-    initializeNetworking(world, new SocketWebRTCServerTransport())
+    initializeArmada(world, options)
     this.update(world)
   }
 

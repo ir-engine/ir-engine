@@ -1,0 +1,31 @@
+enum MessageTypes {
+  Connect = "connect",
+  Disconnect = "disconnect",
+  ConnectionError = "connect_error",
+  ConnectTimeout = "connect_timeout",
+  ReliableMessage = "0",
+  UnreliableMessage = "1",
+  Heartbeat = "2",
+  ClientConnected = "3",
+  ClientDisconnected = "4",
+  Initialization = "5",
+  Synchronization = "6",
+  JoinWorld = "7",
+  LeaveWorld = "8",
+  WebRTCTransportCreate = "9",
+  WebRTCTransportConnect = "10",
+  WebRTCTransportClose = "11",
+  WebRTCSendTrack = "12",
+  WebRTCReceiveTrack = "13",
+  WebRTCPauseConsumer = "14",
+  WebRTCResumeConsumer = "15",
+  WebRTCCloseConsumer = "16",
+  WebRTCPauseProducer = "17",
+  WebRTCResumeProducer = "18",
+  WebRTCCloseProducer = "19",
+  WebRTCMuteOtherProducer = "20",
+  WebRTCUnmuteOtherProducer = "21",
+  WebRTCConsumerSetLayers = "22"
+}
+
+export default MessageTypes

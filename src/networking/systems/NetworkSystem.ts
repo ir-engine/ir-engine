@@ -5,19 +5,19 @@ import set from "../../common/functions/set"
 import cropString from "../../common/functions/cropString"
 import NetworkObject from "../components/NetworkObject"
 import MessageTypeAlias from "../types/MessageTypeAlias"
-import NetworkTransportComponent from "../components/NetworkTransportComponent"
+import Network from "../components/Network"
+import NetworkSchema from "../interfaces/NetworkSchema"
+import MessageTypes from "../enums/MessageTypes"
+import NetworkTransport from "../interfaces/NetworkTransport"
+import MediaStreamComponent from "../components/MediaStreamComponent"
+
+export function constructInstance<T>(type: new () => T): T {
+  return new type()
+}
 
 export class NetworkSystem extends System {
   public static instance: NetworkSystem
 
-  networkTransport: NetworkTransportComponent
-  clients: string[] = [] // TODO: Replace with ringbuffer
-
-  mySocketID
-  public _schemas: Map<MessageTypeAlias, MessageSchema<any>> = new Map()
-
-  _isInitialized: boolean
-  _sessionEntity: Entity
   _schema: MessageSchema<any>
 
   protected _buffer: ArrayBuffer = new ArrayBuffer(0)
@@ -28,19 +28,20 @@ export class NetworkSystem extends System {
     super(world)
   }
 
-  public initializeSession(world: World, transportClass?: any) {
+  public initializeSession(world: World, networkSchema: NetworkSchema, transportClass?: any) {
     console.log("Initialization session")
-    const transport = new transportClass()
-    NetworkSystem.instance = this
-    this.networkTransport = world
-      .registerComponent(NetworkTransportComponent)
-      .createEntity()
-      .addComponent(NetworkTransportComponent)
-      .getComponent(NetworkTransportComponent)
-    this._isInitialized = true
-    NetworkTransportComponent.instance.transport = transport
-    console.log("Init transport:")
+    const transport = constructInstance<NetworkTransport>(transportClass)
+    const entity = world.createEntity()
+    entity.addComponent(Network)
+
+    if (transport.supportsMediaStreams) {
+      entity.addComponent(MediaStreamComponent)
+    }
+
+    Network.instance.schema = networkSchema
+    Network.instance.transport = transport
     transport.initialize()
+    Network.instance.isInitialized = true
   }
 
   static queries: any = {
@@ -52,68 +53,40 @@ export class NetworkSystem extends System {
     }
   }
 
-  setLocalConnectionId(_id: any): void {
-    console.log(`Initialized with socket ID ${_id}`)
-    this.mySocketID = _id
-  }
-
   initializeClient(myClientId, allClientIds): void {
-    this.setLocalConnectionId(myClientId)
-    console.log("My id: ", myClientId)
-    console.log("ids: ")
-    console.log(allClientIds.length)
+    Network.instance.mySocketID = myClientId
+    console.log("Initialized with socket ID", myClientId)
     if (allClientIds === undefined) return console.log("All IDs are null")
     // for each existing user, add them as a client and add tracks to their peer connection
     for (let i = 0; i < allClientIds.length; i++) this.addClient(allClientIds[i])
   }
 
-  addClient(_id: any): void {
-    if (this.clients.includes(_id)) return console.error("Client is already in client list")
-    if (_id === this.mySocketID) return console.log("Not adding client because we are that client")
-    console.log(`A new user connected with the id: ${_id}`)
-    // Create an entity, add component NetworkClient and set id
-    this.clients.push(_id)
-    console.log("Adding client ", _id)
-    // Instantiate object
-  }
-
   getClosestPeers(): any[] {
-    return this.clients
+    // TODO: InterestManagement!
+    return Network.instance.clients
   }
 
-  onConnected() {
-    console.log("Client connected to server!")
+  // TODO: Remove these and have transport affect these values
+  addClient(_id: string): void {
+    if (Network.instance.clients.includes(_id)) return console.error("Client is already in client list")
+    Network.instance.clients.push(_id)
+    Network.instance.schema.messageHandlers[MessageTypes.ClientConnected].behavior(_id, _id === Network.instance.mySocketID) // args: ID, isLocalPlayer?
   }
 
-  removeClient(_id: any): void {
-    if (_id in this.clients) {
-      if (_id === this.mySocketID) {
-        console.log("Server thinks that we disconnected!")
-      } else {
-        console.log(`A user was disconnected with the id: ${_id}`)
-        // Get NetworkClient component where id is _id, and destroy the entity
-      }
-    }
+  removeClient(_id: string): void {
+    // args: ID, isLocalPlayer?
+    if (_id in Network.instance.clients) {
+      Network.instance.clients.splice(Network.instance.clients.indexOf(_id))
+      Network.instance.schema.messageHandlers[MessageTypes.ClientDisconnected].behavior(_id, _id === Network.instance.mySocketID) // args: ID, isLocalPlayer?
+    } else console.warn("Couldn't remove client because they didn't exist in our list")
   }
 
   public execute(delta: number): void {
-    if (!this._isInitialized) return
-    // Ask transport for all new messages
-  }
-
-  public addMessageSchema<StructType>(messageType: MessageTypeAlias, messageData: StructType): MessageSchema<any> {
-    const s = new MessageSchema<StructType>(messageType, messageData)
-    this._schemas.set(messageType, s)
-    return s
-  }
-
-  getLocalConnectionId() {
-    return this.mySocketID
+    if (!Network.instance.isInitialized) return
   }
 
   public deinitializeSession() {
-    this._sessionEntity?.remove()
-    this._isInitialized = false
+    Network.instance.isInitialized = false
     // NetworkTransport.instance.transport.deinitialize()
   }
 
@@ -215,8 +188,8 @@ export class NetworkSystem extends System {
     schemaIds.forEach((id, i) => {
       // check if the schemaId exists
       // (this can be, for example, if charCode 35 is not really a #)
-      const schemaId = this._schemas.get(id)
-      if (schemaId) schemas.push({ id, schema: this._schemas.get(id), startsAt: indexes[i] + 5 })
+      const schemaId = Network.instance.schema.messageSchemas[id]
+      if (schemaId) schemas.push({ id, schema: Network.instance.schema.messageSchemas[id], startsAt: indexes[i] + 5 })
     })
     // schemas[] contains now all the schemas we need to fromBuffer the bufferArray
 

@@ -31,33 +31,47 @@
       Vector3
     } from "three"
 
-    import { initialize } from "../dist/armada.js"
-
-    // import { jumping, jump } from "../dist/armada.js"
-    // import { decelerate } from "../dist/armada.js"
-    // import { move } from "../dist/armada.js"
-    // import { rotateAround, handleMouseMovement, handleMouseButton, handleKey, MouseButtons, InputType } from "../dist/armada.js"
+    import { initializeArmada, DefaultInputSchema, DefaultNetworkSchema, DefaultStateSchema, DefaultSubscriptionSchema } from "../dist/armada.js"
 
     // Setup world
     const world = new ECSYThreeWorld()
-    let { cameraEntity, sceneEntity } = initialize(world)
-    let camera3d = cameraEntity.getObject3D()
-    camera3d.position.z = 10
+    let { camera, scene, cameraEntity, sceneEntity } = initialize(world)
+    camera.position.z = 10
     world.createEntity().addObject3DComponent(new AmbientLight(), sceneEntity)
 
-    // Test input
-    const inputOptions = {
-      debug: true,
-      // inputMap: DefaultInputMap,
-      // stateMap: DefaultStateMap
+    const options = {
+      debug: false,
+      withTransform: true,
+      withWebXRInput: true,
+      input: {
+        enabled: true,
+        schema: DefaultInputSchema
+      },
+      networking: {
+        enabled: true,
+        schema: DefaultNetworkSchema,
+        supportsMediaStreams: true
+      },
+      state: {
+        enabled: true,
+        schema: DefaultStateSchema
+      },
+      subscriptions: {
+        enabled: true,
+        schema: DefaultSubscriptionSchema
+      },
+      physics: {
+        enabled: false
+      },
+      particles: {
+        enabled: false
+      },
+      transform: {
+        enabled: true
+      }
     }
 
-    // TODO: Import input mapping
-    // TODO: Modify some values
-    // TODO: Pass to world
-
-    initializeInputSystems(world, inputOptions);
-    initializeNetworking(world, new SocketWebRTCClientTransport())
+    initializeArmada(world, options, scene, camera);
 
 
     // Let's begin
