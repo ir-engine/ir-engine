@@ -5,7 +5,6 @@ import Transform from "../../transform/components/Transform"
 import { Quaternion, Euler } from "three"
 import { vec3 } from "gl-matrix"
 const q: Quaternion = new Quaternion()
-const e: Euler = new Euler()
 let transform: Transform
 const _deltaV: vec3 = [0, 0, 0]
 const _position: vec3 = [0, 0, 0]

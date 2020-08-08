@@ -29,11 +29,17 @@ export default class InputSystem extends System {
         behavior.behavior(entity, { ...behavior.args })
       })
       // Bind DOM events to event behavior
-      Object.keys(this._inputComponent.schema.eventBindings)?.forEach((event: string) => {
-        this._inputComponent.schema.eventBindings[event].forEach((behaviorEntry: any) => {
-          document.addEventListener(event, e => {
-            behaviorEntry.behavior(entity, { event: e, ...behaviorEntry.args })
-          })
+      Object.keys(this._inputComponent.schema.eventBindings)?.forEach((eventName: string) => {
+        this._inputComponent.schema.eventBindings[eventName].forEach((behaviorEntry: any) => {
+          const domElement = behaviorEntry.selector ? document.querySelector(behaviorEntry.selector) : document
+          if (domElement) {
+            const listener = (event: Event) => behaviorEntry.behavior(entity, { event, ...behaviorEntry.args })
+            domElement.addEventListener(eventName, listener)
+            return [domElement, eventName, listener]
+          } else {
+            console.warn("DOM Element not found:", domElement)
+            return false
+          }
         })
       })
     })
@@ -54,9 +60,19 @@ export default class InputSystem extends System {
           })
         })
       })
+
+      const bound = this.boundListeners[entity.id]
+      if (bound) {
+        for (const [selector, eventName, listener] of bound) {
+          const domElement = selector ? document.querySelector(selector) : document
+          domElement?.removeEventListener(eventName, listener)
+        }
+        delete this.boundListeners[entity.id]
+      }
     })
   }
 }
+
 let input: Input
 export const handleInput: Behavior = (entity: Entity, delta: number): void => {
   input = entity.getMutableComponent(Input) as Input

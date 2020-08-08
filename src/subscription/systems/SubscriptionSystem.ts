@@ -1,6 +1,6 @@
 import { System, Entity } from "ecsy"
 import Subscription from "../components/Subscription"
-import BehaviorArgValue from "../../common/interfaces/BehaviorValue"
+import BehaviorValue from "../../common/interfaces/BehaviorValue"
 import Behavior from "../../common/interfaces/Behavior"
 
 export default class SubscriptionSystem extends System {
@@ -29,7 +29,7 @@ export default class SubscriptionSystem extends System {
     // If the schema for this subscription component has any values in this phase
     if (this.subscription.schema[args.phase] !== undefined) {
       // Foreach value in this phase
-      this.subscription.schema[args.phase].forEach((value: BehaviorArgValue) => {
+      this.subscription.schema[args.phase].forEach((value: BehaviorValue) => {
         // Call the behavior with the args supplied in the schema, as well as delta provided here
         value.behavior(entity, value.args ? value.args : null, delta)
       })

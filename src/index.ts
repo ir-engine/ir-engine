@@ -5,148 +5,129 @@ export * from "./physics"
 export * from "./particles"
 export * from "./networking"
 
-import { Entity, World } from "ecsy"
+import { World } from "ecsy"
 
 import InputSystem from "./input/systems/InputSystem"
 import { isBrowser } from "./common/functions/isBrowser"
 import Input from "./input/components/Input"
-import InputSchema from "./input/interfaces/InputSchema"
 import { DefaultInputSchema } from "./input/defaults/DefaultInputSchema"
 import SubscriptionSystem from "./subscription/systems/SubscriptionSystem"
 import Subscription from "./subscription/components/Subscription"
-import SubscriptionSchema from "./subscription/interfaces/SubscriptionSchema"
 import { DefaultSubscriptionSchema } from "./subscription/defaults/DefaultSubscriptionSchema"
 import State from "./state/components/State"
 import Transform from "./transform/components/Transform"
 import TransformSystem from "./transform/systems/TransformSystem"
-import Actor from "./common/defaults/components/Actor"
 import StateSystem from "./state/systems/StateSystem"
-import StateSchema from "./state/interfaces/StateSchema"
 import { DefaultStateSchema } from "./state/defaults/DefaultStateSchema"
 import { NetworkSystem } from "./networking/systems/NetworkSystem"
 import NetworkClient from "./networking/components/NetworkClient"
-import NetworkTransport from "./networking/interfaces/NetworkTransport"
 import { MediaStreamControlSystem } from "./networking/systems/MediaStreamSystem"
-
+import WebXRInputSystem from "./input/systems/WebXRInputSystem"
 import TransformParent from "./transform/components/TransformParent"
-import NetworkObject from "./networking/components/NetworkObject"
 import { DefaultNetworkSchema } from "./networking/defaults/DefaultNetworkSchema"
+import NetworkObject from "./networking/components/NetworkObject"
+import { ParticleSystem, ParticleEmitter, Keyframe, KeyframeSystem } from "./particles"
+import { RigidBody, VehicleBody, WheelBody, PhysicsSystem, VehicleSystem, WheelSystem } from "./physics"
+import SceneData from "./common/components/SceneData"
+import { Int8BufferAttribute } from "three"
+
+export class WorldManager {
+  static world: World
+}
 
 const DEFAULT_OPTIONS = {
   debug: false,
+  withTransform: true,
+  withWebXRInput: true,
   input: {
     enabled: true,
     schema: DefaultInputSchema
   },
-  networking:  {
+  networking: {
     enabled: true,
     schema: DefaultNetworkSchema
   },
-  state:  {
+  state: {
     enabled: true,
     schema: DefaultStateSchema
   },
-  subscriptions:  {
+  subscriptions: {
     enabled: true,
     schema: DefaultSubscriptionSchema
   },
-  physics:  {
-    enabled: true
+  physics: {
+    enabled: false
   },
-  particles:  {
-    enabled: true,
-    schema: DefaultSubscriptionSchema
+  particles: {
+    enabled: false
   },
-  transform:  {
+  transform: {
     enabled: true
   }
 }
+// TODO: Schema injections
+export function initializeArmada(world: World, options = DEFAULT_OPTIONS, scene?: any, camera?: any) {
+  world.registerComponent(SceneData)
 
-export function start(world: World, options = DEFAULT_OPTIONS){
-  
-}
+  // Set up our scene singleton so we can bind to our scene elsewhere
+  const sceneData = world
+    .createEntity()
+    .addComponent(SceneData)
+    .getMutableComponent(SceneData)
+  if (scene) sceneData.scene = scene
+  if (camera) sceneData.camera = camera
 
-export function initializeInputSystems(world: World, options = DEFAULT_OPTIONS): World | null {
-  if (options.debug) console.log("Initializing input systems...")
+  // Input
+  if (options.input && options.input.enabled && isBrowser)
+    world
+      .registerComponent(Input)
+      .registerSystem(InputSystem)
+      .registerSystem(WebXRInputSystem, {
+        onVRSupportRequested(vrSupported) {
+          if (vrSupported) {
+            const webxr: any = world.getSystem(WebXRInputSystem)
+            webxr.startVR()
+          }
+        }
+      })
 
-  if (!isBrowser) {
-    console.error("Couldn't initialize input, are you in a browser?")
-    return null
-  }
+  // Networking
+  if (options.networking && options.networking.enabled)
+    world
+      .registerComponent(NetworkClient)
+      .registerComponent(NetworkObject)
+      .registerSystem(NetworkSystem)
+  if (options.networking.schema.transport.supportsMediaStreams) world.registerSystem(MediaStreamControlSystem)
+  world.getSystem(NetworkSystem).initializeSession(world, options.networking.schema.transport)
 
-  if (options.debug) {
-    console.log("Registering input systems with the following options:")
-    console.log(options)
-  }
+  // State
+  if (options.state && options.state.enabled) world.registerComponent(State).registerSystem(StateSystem)
 
-  world
-    .registerComponent(Input)
-    .registerComponent(State)
-    .registerComponent(Actor)
-    .registerComponent(Subscription)
-    .registerComponent(Transform)
-    .registerComponent(TransformParent)
+  // Subscriptions
+  if (options.subscriptions && options.subscriptions.enabled) world.registerComponent(Subscription).registerSystem(SubscriptionSystem)
 
-  world
-    .registerSystem(InputSystem)
-    .registerSystem(StateSystem)
-    .registerSystem(SubscriptionSystem)
-    .registerSystem(TransformSystem)
+  // Physics
+  if (options.physics && options.physics.enabled)
+    world
+      .registerComponent(RigidBody)
+      .registerComponent(VehicleBody)
+      .registerComponent(WheelBody)
+      .registerSystem(PhysicsSystem)
+      .registerSystem(VehicleSystem)
+      .registerSystem(WheelSystem)
 
-  return world
-}
+  // Particles
+  if (options.particles && options.particles.enabled)
+    world
+      .registerComponent(ParticleEmitter)
+      .registerComponent(Keyframe)
+      .registerSystem(ParticleSystem)
+      .registerSystem(KeyframeSystem)
 
-export function initializeActor(
-  entity: Entity,
-  options: {
-    inputSchema?: InputSchema
-    stateSchema?: StateSchema
-    subscriptionSchema?: SubscriptionSchema
-  }
-): Entity {
-  entity
-    .addComponent(Actor)
-    .addComponent(Subscription)
-    .addComponent(Transform)
-
-  // Custom Action Map
-  if (options.inputSchema) {
-    console.log("Using input schema:")
-    console.log(options.inputSchema)
-    entity.getMutableComponent(Input).schema = options.inputSchema
-  } else {
-    console.log("No input map provided, defaulting to default input")
-    entity.getMutableComponent(Input).schema = DefaultInputSchema
-  }
-
-  // Custom Action Map
-  if (options.stateSchema) {
-    console.log("Using state schema:")
-    console.log(options.stateSchema)
-    entity.getMutableComponent(State).schema = options.stateSchema
-  } else {
-    console.log("No state map provided, defaulting to default state")
-    entity.getMutableComponent(State).schema = DefaultStateSchema
-  }
-
-  // Custom Subscription Map
-  if (options.subscriptionSchema) {
-    console.log("Using subscription schema:")
-    console.log(options.subscriptionSchema)
-    entity.getMutableComponent(Subscription).schema = options.subscriptionSchema
-  } else {
-    console.log("No subscription schema provided, defaulting to default subscriptions")
-    entity.getMutableComponent(Subscription).schema = DefaultSubscriptionSchema
-  }
-
-  return entity
-}
-
-export function initializeNetworking(world: World, transport?: NetworkTransport) {
-  world.registerComponent(NetworkClient).registerComponent(NetworkObject)
-  world.registerSystem(NetworkSystem)
-  if (transport.supportsMediaStreams) world.registerSystem(MediaStreamControlSystem)
-
-  const networkSystem = world.getSystem(NetworkSystem) as NetworkSystem
-  networkSystem.initializeSession(world, transport)
+  //Transform
+  if (options.transform && options.transform.enabled)
+    world
+      .registerComponent(Transform)
+      .registerComponent(TransformParent)
+      .registerSystem(TransformSystem)
 }
