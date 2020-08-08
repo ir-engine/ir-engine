@@ -17,6 +17,7 @@ import channels from './channels'
 import authentication from './authentication'
 import sequelize from './sequelize'
 import config from './config'
+import sync from 'feathers-sync'
 
 import winston from 'winston'
 // @ts-ignore
@@ -68,6 +69,16 @@ if (config.server.enabled) {
   // Set up Plugins and providers
   app.configure(express.rest())
   app.configure(socketio())
+
+  if (config.redis.enabled === true) {
+    app.configure(sync({
+      uri: config.redis.password != null ? `redis://${config.redis.address}:${config.redis.port}?password=${config.redis.password}` : `redis://${config.redis.address}:${config.redis.port}`
+    }));
+
+    (app as any).sync.ready.then(() => {
+      console.log('Feathers-sync started')
+    })
+  }
 
   // Configure other middleware (see `middleware/index.js`)
   app.configure(middleware)
