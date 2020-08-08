@@ -179,6 +179,13 @@ const chargebee = {
   apiKey: process.env.CHARGEBEE_API_KEY ?? ''
 }
 
+const redis = {
+  enabled: process.env.REDIS_ENABLED ?? false,
+  address: process.env.REDIS_ADDRESS ?? 'localhost',
+  port: process.env.REDIS_PORT ?? '6379',
+  password: process.env.REDIS_PASSWORD ?? null
+}
+
 /**
  * Full config
  */
@@ -190,7 +197,8 @@ const config = {
   client,
   db,
   email,
-  server
+  server,
+  redis
 }
 
 chargebeeInst.configure({
