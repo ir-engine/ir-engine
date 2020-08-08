@@ -1,19 +1,15 @@
 import InputAlias from "../../input/types/InputAlias"
 import InputRelationship from "./InputRelationship"
-
-interface BehaviorEntry {
-  behavior: any
-  args?: any
-}
+import BehaviorValue from "../../common/interfaces/BehaviorValue"
 
 interface InputSchema {
   // Called by input system when an Input component is added
-  onAdded: BehaviorEntry[] // Function
+  onAdded: BehaviorValue[] // Function
   // Called by input system when on Input component is removed
-  onRemoved: BehaviorEntry[] // Function
+  onRemoved: BehaviorValue[] // Function
   // Bound to events on added, unbound on removed
   eventBindings?: {
-    [key: string]: BehaviorEntry[]
+    [key: string]: BehaviorValue[]
   }
   mouseInputMap?: {
     buttons?: {
@@ -47,23 +43,23 @@ interface InputSchema {
     [key: string]: {
       // binary state (on, off)
       [key: string]: {
-        started?: BehaviorEntry[]
-        continued?: BehaviorEntry[]
+        started?: BehaviorValue[]
+        continued?: BehaviorValue[]
       }
     }
     [key: number]: {
       // binary state (on, off)
       [key: number]: {
-        started?: BehaviorEntry[]
-        continued?: BehaviorEntry[]
+        started?: BehaviorValue[]
+        continued?: BehaviorValue[]
       }
     }
   }
   inputAxisBehaviors: {
     // input name / alias
     [key: string]: {
-      started?: BehaviorEntry[]
-      continued?: BehaviorEntry[]
+      started?: BehaviorValue[]
+      continued?: BehaviorValue[]
     }
   }
 }

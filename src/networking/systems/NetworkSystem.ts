@@ -28,8 +28,9 @@ export class NetworkSystem extends System {
     super(world)
   }
 
-  public initializeSession(world: World, transport?: any) {
+  public initializeSession(world: World, transportClass?: any) {
     console.log("Initialization session")
+    const transport = new transportClass()
     NetworkSystem.instance = this
     this.networkTransport = world
       .registerComponent(NetworkTransportComponent)
@@ -73,6 +74,7 @@ export class NetworkSystem extends System {
     // Create an entity, add component NetworkClient and set id
     this.clients.push(_id)
     console.log("Adding client ", _id)
+    // Instantiate object
   }
 
   getClosestPeers(): any[] {

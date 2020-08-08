@@ -1,8 +1,8 @@
 import { World } from "ecsy"
-import { Assemblage } from "../interfaces/Assemblage"
+import { Prefab } from "../interfaces/Prefab"
 
-export function registerAssemblage(assemblage: Assemblage, world: World) {
-  assemblage.components.forEach((value: { type: any }) => {
+export function registerPrefab(aprefab: Prefab, world: World) {
+  aprefab.components.forEach((value: { type: any }) => {
     if (!world.hasRegisteredComponent(value.type)) world.registerComponent(value.type)
   })
 }

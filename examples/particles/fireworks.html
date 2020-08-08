@@ -173,6 +173,7 @@
 
       const object = world
         .createEntity()
+        // TODO: Replace with static behavior
         .addObject3DComponent(coneMesh2.clone(), scene)
         .addComponent(CircularTranslating, {
           radius: 1,
@@ -187,6 +188,7 @@
 
       const objectBox = world
         .createEntity()
+          // TODO: Replace with static behavior
         .addObject3DComponent(boxMesh2, object)
         .addComponent(ECSYTHREEX.Transform, {
           position: { x: 0, y: 0, z: 0 },

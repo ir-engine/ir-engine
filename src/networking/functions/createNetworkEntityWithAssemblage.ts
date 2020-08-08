@@ -1,21 +1,21 @@
 import { World, Entity } from "ecsy"
-import { NetworkAssemblage } from "../interfaces/NetworkAssemblage"
+import { NetworkPrefab } from "../interfaces/NetworkPrefab"
 import NetworkObject from "../components/NetworkObject"
 
-export function createNetworkEntityWithAssemblage(
-  assemblage: NetworkAssemblage,
+export function createNetworkEntityWithPrefab(
+  aprefab: NetworkPrefab,
   world: World,
   networkId: string | number,
   addLocalComponents = false
 ): Entity {
   const entity = world.createEntity()
   entity.addComponent(NetworkObject, { networkId })
-  Object.keys(assemblage.components).forEach(value => {
-    entity.addComponent(assemblage[value].type)
+  Object.keys(aprefab.components).forEach(value => {
+    entity.addComponent(aprefab[value].type)
   })
   if (addLocalComponents)
-    Object.keys(assemblage.localComponents).forEach(value => {
-      entity.addComponent(assemblage[value].type)
+    Object.keys(aprefab.localComponents).forEach(value => {
+      entity.addComponent(aprefab[value].type)
     })
   return entity
 }

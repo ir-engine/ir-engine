@@ -29,7 +29,7 @@ ECS is an architectural pattern that can be theoretically applied to to any prog
 
 A behavior is just a function, and almost always a function that transforms data on a component or between components on an entity. For example, the move() behavior, called when movement input occurs, transforms the velocity on the transform component, which later gets applied as a transformation to position.
 
-We see "behaviors" as just another tool in the ECS toolkit, along with other patterns such as assemblages and archetypes. However, in order to use behaviors effectively, aw little bit of mind-bending on how ECS should is required.
+We see "behaviors" as just another tool in the ECS toolkit, along with other patterns such as aprefabs and archetypes. However, in order to use behaviors effectively, aw little bit of mind-bending on how ECS should is required.
 
 Most ECS code bases have systems that contain declarative game logic operating directly on components. Because the complexity of this logic becomes quite large and scripts become too long to manage, most people break up a single system (for example, "state", or "input") into numerous systems (for example, "AnimationState" and "PlayerState", or "MobileInput" and "DesktopInput"). For simple applications this is fine, but in production many apps following this pattern end up with hundreds of systems and components.  The point of the system is to make sure that all execution within a specific domain at specific times. When we separate the logic out of one closed system into several systems, we introduce expounding system complexity, code duplication, race conditions and over-querying.
 
@@ -332,7 +332,7 @@ Networking is currently under development. Our default Transport uses socket.io 
 
 ## TODO:
 We haven't finished these parts:
-Assemblage definition and creation
+Prefab definition and creation
 Switching from player to car
 !!!! Adding a message type
 !!!! Sending a message

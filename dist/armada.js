@@ -1,6 +1,6 @@
 import { Component, Types, TagComponent, System, SystemStateComponent } from 'ecsy';
-import { Quaternion as Quaternion$1, Euler, DataTexture, RGBFormat, TextureLoader, InstancedBufferGeometry, BufferGeometry, ShaderLib, UniformsUtils, ShaderMaterial, Mesh, Points, Float32BufferAttribute, Matrix4, Texture, NormalBlending, InstancedBufferAttribute, MathUtils, Vector3 } from 'three';
-import { Object3DComponent } from 'ecsy-three';
+import { Quaternion as Quaternion$1, Euler, DataTexture, RGBFormat, TextureLoader, InstancedBufferGeometry, BufferGeometry, ShaderLib, UniformsUtils, ShaderMaterial, Mesh, Points, Float32BufferAttribute, Matrix4, Texture, NormalBlending, InstancedBufferAttribute, MathUtils, Vector3, BoxBufferGeometry, MeshBasicMaterial } from 'three';
+import { Object3DComponent, PositionalAudioTagComponent, AudioTagComponent, AudioListenerTagComponent, CameraTagComponent, OrthographicCameraTagComponent, PerspectiveCameraTagComponent, ArrayCameraTagComponent, CubeCameraTagComponent, ImmediateRenderObjectTagComponent, LightTagComponent, AmbientLightTagComponent, DirectionalLightTagComponent, HemisphereLightTagComponent, PointLightTagComponent, RectAreaLightTagComponent, SpotLightTagComponent, LightProbeTagComponent, AmbientLightProbeTagComponent, HemisphereLightProbeTagComponent, BoneTagComponent, GroupTagComponent, LODTagComponent, MeshTagComponent, InstancedMeshTagComponent, SkinnedMeshTagComponent, LineTagComponent, LineLoopTagComponent, LineSegmentsTagComponent, PointsTagComponent, SpriteTagComponent, SceneTagComponent } from 'ecsy-three';
 import ioclient from 'socket.io-client';
 import mediasoupClient from 'mediasoup-client';
 
@@ -986,6 +986,7 @@ const move = (entity, args, time) => {
         console.error("Movement is only available for 2D and 3D inputs");
     }
 };
+//# sourceMappingURL=move.js.map
 
 let actor$3;
 let transform$3;
@@ -1830,6 +1831,7 @@ const DefaultInputSchema = {
         }
     }
 };
+//# sourceMappingURL=DefaultInputSchema.js.map
 
 class InputSystem extends System {
     constructor() {
@@ -1853,11 +1855,18 @@ class InputSystem extends System {
                 behavior.behavior(entity, Object.assign({}, behavior.args));
             });
             // Bind DOM events to event behavior
-            (_a = Object.keys(this._inputComponent.schema.eventBindings)) === null || _a === void 0 ? void 0 : _a.forEach((event) => {
-                this._inputComponent.schema.eventBindings[event].forEach((behaviorEntry) => {
-                    document.addEventListener(event, e => {
-                        behaviorEntry.behavior(entity, Object.assign({ event: e }, behaviorEntry.args));
-                    });
+            (_a = Object.keys(this._inputComponent.schema.eventBindings)) === null || _a === void 0 ? void 0 : _a.forEach((eventName) => {
+                this._inputComponent.schema.eventBindings[eventName].forEach((behaviorEntry) => {
+                    const domElement = behaviorEntry.selector ? document.querySelector(behaviorEntry.selector) : document;
+                    if (domElement) {
+                        const listener = (event) => behaviorEntry.behavior(entity, Object.assign({ event }, behaviorEntry.args));
+                        domElement.addEventListener(eventName, listener);
+                        return [domElement, eventName, listener];
+                    }
+                    else {
+                        console.warn("DOM Element not found:", domElement);
+                        return false;
+                    }
                 });
             });
         });
@@ -1877,6 +1886,14 @@ class InputSystem extends System {
                     });
                 });
             });
+            const bound = this.boundListeners[entity.id];
+            if (bound) {
+                for (const [selector, eventName, listener] of bound) {
+                    const domElement = selector ? document.querySelector(selector) : document;
+                    domElement === null || domElement === void 0 ? void 0 : domElement.removeEventListener(eventName, listener);
+                }
+                delete this.boundListeners[entity.id];
+            }
         });
     }
 }
@@ -13417,8 +13434,9 @@ class NetworkSystem extends System {
         this._dataView = new DataView(this._buffer);
         this._bytes = 0;
     }
-    initializeSession(world, transport) {
+    initializeSession(world, transportClass) {
         console.log("Initialization session");
+        const transport = new transportClass();
         NetworkSystem.instance = this;
         this.networkTransport = world
             .registerComponent(NetworkTransportComponent)
@@ -13454,6 +13472,7 @@ class NetworkSystem extends System {
         // Create an entity, add component NetworkClient and set id
         this.clients.push(_id);
         console.log("Adding client ", _id);
+        // Instantiate object
     }
     getClosestPeers() {
         return this.clients;
@@ -14401,7 +14420,6 @@ const DefaultSubscriptionSchema = {
 //# sourceMappingURL=DefaultSubscriptionSchema.js.map
 
 const q$1 = new Quaternion$1();
-const e = new Euler();
 let transform$6;
 const _deltaV$1 = [0, 0, 0];
 const _position$1 = [0, 0, 0];
@@ -14410,6 +14428,7 @@ const transformBehavior = (entity, args, delta) => {
     transform$6 = entity.getMutableComponent(Transform);
     set(_position$1, transform$6.position[0], transform$6.position[1], transform$6.position[2]);
     set(_velocity, transform$6.velocity[0], transform$6.velocity[1], transform$6.velocity[2]);
+    // Apply velocity to position
     if (length(_velocity) > 0) {
         scale(_deltaV$1, _velocity, delta);
         add(_position$1, _position$1, _deltaV$1);
@@ -14477,82 +14496,505 @@ TransformSystem.queries = {
 };
 //# sourceMappingURL=TransformSystem.js.map
 
-const DEFAULT_OPTIONS$1 = {
-    debug: false
-};
-function initializeInputSystems(world, options = DEFAULT_OPTIONS$1) {
-    if (options.debug)
-        console.log("Initializing input systems...");
-    if (!isBrowser) {
-        console.error("Couldn't initialize input, are you in a browser?");
-        return null;
-    }
-    if (options.debug) {
-        console.log("Registering input systems with the following options:");
-        console.log(options);
-    }
-    world
-        .registerComponent(Input)
-        .registerComponent(State)
-        .registerComponent(Actor)
-        .registerComponent(Subscription)
-        .registerComponent(Transform)
-        .registerComponent(TransformParent);
-    world
-        .registerSystem(InputSystem)
-        .registerSystem(StateSystem)
-        .registerSystem(SubscriptionSystem)
-        .registerSystem(TransformSystem);
-    return world;
+const { Ref } = Types;
+class WebXRRenderer extends Component {
 }
-function initializeActor(entity, options) {
-    entity
-        .addComponent(Input)
-        .addComponent(State)
-        .addComponent(Actor)
-        .addComponent(Subscription)
-        .addComponent(Transform);
-    // Custom Action Map
-    if (options.inputSchema) {
-        console.log("Using input schema:");
-        console.log(options.inputSchema);
-        entity.getMutableComponent(Input).schema = options.inputSchema;
+WebXRRenderer.schema = {
+    context: { type: Ref },
+    requestAnimationFrame: { type: Ref, default: window.requestAnimationFrame }
+};
+class WebXRSession extends Component {
+}
+WebXRSession.schema = {
+    session: { type: Ref },
+    isImmersive: { type: Types.Boolean, default: false },
+};
+class WebXRSpace extends Component {
+}
+WebXRSpace.schema = {
+    space: { type: Ref },
+    spaceType: { type: Types.String }
+};
+class WebXRViewPoint extends Component {
+}
+WebXRViewPoint.schema = {
+    pose: { type: Ref }
+};
+class WebXRPointer extends Component {
+}
+WebXRPointer.schema = {
+    pose: { type: Ref },
+    pointerMode: { type: Types.String }
+};
+class WebXRTrackingDevice extends Component {
+}
+WebXRTrackingDevice.schema = {
+    pose: { type: Ref },
+    handId: { type: Types.Number }
+};
+class WebXRMainController extends WebXRTrackingDevice {
+}
+class WebXRSecondController extends WebXRTrackingDevice {
+}
+class WebXRMainGamepad extends Input {
+}
+class WebXRSecondGamepad extends Input {
+}
+//# sourceMappingURL=WebXR.js.map
+
+class WebXRInputSystem extends System {
+    constructor() {
+        super(...arguments);
+        this.mainControllerId = 0;
+        this.secondControllerId = 1;
+        this.debug = Function();
+    }
+    init({ onVRSupportRequested, debug }) {
+        if (debug)
+            this.debug = console.log;
+        const { world } = this;
+        world
+            .registerComponent(WebXRSession)
+            .registerComponent(WebXRSpace)
+            .registerComponent(WebXRViewPoint)
+            .registerComponent(WebXRPointer)
+            .registerComponent(WebXRMainController)
+            .registerComponent(WebXRSecondController)
+            .registerComponent(WebXRMainGamepad)
+            .registerComponent(WebXRSecondGamepad);
+        const { xr } = navigator;
+        if (xr) {
+            xr.isSessionSupported("immersive-vr").then(onVRSupportRequested);
+            xr.requestSession("inline").then(session => world.createEntity("inline-session")
+                .addComponent(WebXRSession, { session }));
+        }
+        else
+            this.debug("WebXR isn't supported by this browser");
+    }
+    startVR(onStarted = Function(), onEnded = Function()) {
+        let entity, session, isImmersive, spaceType;
+        const onSpaceCreated = space => {
+            entity.addComponent(WebXRSpace, { space, spaceType });
+            onStarted && onStarted(session, space);
+            this.debug("XR refSpace", space, spaceType);
+        };
+        return navigator.xr
+            .requestSession("immersive-vr", { optionalFeatures: ["local-floor"] })
+            .then(vrSession => {
+            session = vrSession;
+            session.addEventListener("end", onEnded);
+            isImmersive = true;
+            entity = this.world.createEntity("vr-session");
+            entity.addComponent(WebXRSession, { session, isImmersive });
+            spaceType = "local-floor";
+            return session.requestReferenceSpace(spaceType);
+        })
+            .then(onSpaceCreated)
+            .catch(error => {
+            this.debug("XR space", spaceType, error);
+            isImmersive = true;
+            spaceType = "local";
+            session.requestReferenceSpace(spaceType)
+                .then(onSpaceCreated)
+                .catch(error => {
+                this.debug("XR space", spaceType, error);
+                isImmersive = false;
+                spaceType = "viewer";
+                session.requestReferenceSpace(spaceType)
+                    .then(onSpaceCreated)
+                    .catch(console.warn);
+            });
+        })
+            .catch(console.warn);
+    }
+    execute() {
+        const { sessions, renderer } = this.queries;
+        const [rendererEntity] = renderer.results;
+        const webXRRenderer = rendererEntity && rendererEntity.getMutableComponent(WebXRRenderer);
+        if (sessions.added)
+            for (const entity of sessions.added) {
+                const { session, isImmersive } = entity.getComponent(WebXRSession);
+                session.addEventListener("end", () => {
+                    entity.remove();
+                    webXRRenderer.requestAnimationFrame = WebXRRenderer.schema.requestAnimationFrame.default;
+                });
+                this.debug("XR session added to", entity, "isImmersive", isImmersive);
+                if (isImmersive /*entity.name == "vr-session"*/) {
+                    webXRRenderer.context.makeXRCompatible()
+                        .then(() => session.updateRenderState({
+                        baseLayer: new XRWebGLLayer(session, webXRRenderer.context)
+                    }));
+                    webXRRenderer.requestAnimationFrame = session.requestAnimationFrame.bind(session);
+                }
+                this.debug("XR session started", session);
+            }
+        if (sessions.results)
+            for (const entity of sessions.results) {
+                const { session, isImmersive } = entity.getComponent(WebXRSession);
+                if (isImmersive) {
+                    this.debug("requesting animation frame", session);
+                    session.requestAnimationFrame((time, frame) => {
+                        this.debug(time, "XRFrame", frame);
+                        //TODO:
+                        // let refSpace = session.isImmersive ?
+                        //     xrImmersiveRefSpace :
+                        //     inlineViewerHelper.referenceSpace;
+                        const { space, spaceType } = entity.getComponent(WebXRSpace);
+                        if (space)
+                            setComponent(entity, WebXRViewPoint, {
+                                pose: frame.getViewerPose(space)
+                            });
+                        const controllers = space ? this.getInputSources(session, frame, space) : [];
+                        let main, second;
+                        if (controllers.length == 1) {
+                            main = controllers[0];
+                        }
+                        else if (controllers.length == 2) {
+                            main = controllers[this.mainControllerId];
+                            second = controllers[this.secondControllerId];
+                            setComponent(entity, WebXRSecondController, {
+                                pose: second.gripPose,
+                                handId: second.handedness
+                            });
+                            const { gamepad } = second;
+                            if (gamepad)
+                                setComponent(entity, WebXRSecondGamepad, { gamepad });
+                        }
+                        else
+                            return;
+                        if (main.targetRayPose)
+                            setComponent(entity, WebXRPointer, {
+                                pose: main.targetRayPose,
+                                pointMode: main.targetRayMode
+                            });
+                        setComponent(entity, WebXRMainController, {
+                            pose: main.gripPose,
+                            handId: main.handedness
+                        });
+                        const { gamepad } = main;
+                        if (gamepad)
+                            setComponent(entity, WebXRMainGamepad, { gamepad });
+                        //webXRRenderer.drawFrame(viewerPose, controllers, session)
+                    });
+                }
+            }
+    }
+    getInputSources({ inputSources = [] }, frame, refSpace) {
+        return inputSources.map((inputSource) => {
+            const { targetRaySpace, targetRayMode, handedness, gripSpace, gamepad } = inputSource;
+            const targetRayPose = frame.getPose(targetRaySpace, refSpace);
+            // We may not get a pose back in cases where the input source has lost
+            // tracking or does not know where it is relative to the given frame
+            // of reference.
+            if (!targetRayPose)
+                return null;
+            const gripPose = gripSpace && frame.getPose(gripSpace, refSpace);
+            return { targetRayPose, targetRayMode, gripPose, handedness, gamepad };
+        });
+    }
+}
+WebXRInputSystem.queries = {
+    renderer: { components: [WebXRRenderer] },
+    sessions: { components: [WebXRSession], listen: { added: true } },
+};
+function setComponent(entity, Class, data = {}) {
+    if (entity.hasComponent(Class)) {
+        const mutate = entity.getMutableComponent(Class);
+        for (let property in data)
+            mutate[property] = data[property];
     }
     else {
-        console.log("No input map provided, defaulting to default input");
-        entity.getMutableComponent(Input).schema = DefaultInputSchema;
+        entity.addComponent(Class, data);
     }
-    // Custom Action Map
-    if (options.stateSchema) {
-        console.log("Using state schema:");
-        console.log(options.stateSchema);
-        entity.getMutableComponent(State).schema = options.stateSchema;
+}
+//# sourceMappingURL=WebXRInputSystem.js.map
+
+class Camera extends Component {
+}
+Camera.schema = {
+    fov: { default: 45, type: Types.Number },
+    aspect: { default: 1, type: Types.Number },
+    near: { default: 0.1, type: Types.Number },
+    far: { default: 1000, type: Types.Number },
+    layers: { default: 0, type: Types.Number },
+    handleResize: { default: true, type: Types.Boolean },
+    cameraObjectReference: { default: null, type: Types.Ref }
+};
+//# sourceMappingURL=Camera.js.map
+
+const addObject3DComponent = (entity, args) => {
+    entity.addComponent(Object3DComponent, { value: args.obj });
+    if (args.obj.type === "Audio" && args.obj.panner !== undefined) {
+        entity.addComponent(PositionalAudioTagComponent);
     }
-    else {
-        console.log("No state map provided, defaulting to default state");
-        entity.getMutableComponent(State).schema = DefaultStateSchema;
+    else if (args.obj.type === "Audio") {
+        entity.addComponent(AudioTagComponent);
     }
-    // Custom Subscription Map
-    if (options.subscriptionSchema) {
-        console.log("Using subscription schema:");
-        console.log(options.subscriptionSchema);
-        entity.getMutableComponent(Subscription).schema = options.subscriptionSchema;
+    else if (args.obj.type === "AudioListener") {
+        entity.addComponent(AudioListenerTagComponent);
     }
-    else {
-        console.log("No subscription schema provided, defaulting to default subscriptions");
-        entity.getMutableComponent(Subscription).schema = DefaultSubscriptionSchema;
+    else if (args.obj.isCamera) {
+        entity.addComponent(CameraTagComponent);
+        if (args.obj.isOrthographicCamera) {
+            entity.addComponent(OrthographicCameraTagComponent);
+        }
+        else if (args.obj.isPerspectiveCamera) {
+            entity.addComponent(PerspectiveCameraTagComponent);
+            if (args.obj.isArrayCamera) {
+                entity.addComponent(ArrayCameraTagComponent);
+            }
+        }
+    }
+    else if (args.obj.type === "CubeCamera") {
+        entity.addComponent(CubeCameraTagComponent);
+    }
+    else if (args.obj.isImmediateRenderObject) {
+        entity.addComponent(ImmediateRenderObjectTagComponent);
+    }
+    else if (args.obj.isLight) {
+        entity.addComponent(LightTagComponent);
+        if (args.obj.isAmbientLight) {
+            entity.addComponent(AmbientLightTagComponent);
+        }
+        else if (args.obj.isDirectionalLight) {
+            entity.addComponent(DirectionalLightTagComponent);
+        }
+        else if (args.obj.isHemisphereLight) {
+            entity.addComponent(HemisphereLightTagComponent);
+        }
+        else if (args.obj.isPointLight) {
+            entity.addComponent(PointLightTagComponent);
+        }
+        else if (args.obj.isRectAreaLight) {
+            entity.addComponent(RectAreaLightTagComponent);
+        }
+        else if (args.obj.isSpotLight) {
+            entity.addComponent(SpotLightTagComponent);
+        }
+        else if (args.obj.isLightProbe) {
+            entity.addComponent(LightProbeTagComponent);
+            if (args.obj.isAmbientLightProbe) {
+                entity.addComponent(AmbientLightProbeTagComponent);
+            }
+            else if (args.obj.isHemisphereLightProbe) {
+                entity.addComponent(HemisphereLightProbeTagComponent);
+            }
+        }
+    }
+    else if (args.obj.isBone) {
+        entity.addComponent(BoneTagComponent);
+    }
+    else if (args.obj.isGroup) {
+        entity.addComponent(GroupTagComponent);
+    }
+    else if (args.obj.isLOD) {
+        entity.addComponent(LODTagComponent);
+    }
+    else if (args.obj.isMesh) {
+        entity.addComponent(MeshTagComponent);
+        if (args.obj.isInstancedMesh) {
+            entity.addComponent(InstancedMeshTagComponent);
+        }
+        else if (args.obj.isSkinnedMesh) {
+            entity.addComponent(SkinnedMeshTagComponent);
+        }
+    }
+    else if (args.obj.isLine) {
+        entity.addComponent(LineTagComponent);
+        if (args.obj.isLineLoop) {
+            entity.addComponent(LineLoopTagComponent);
+        }
+        else if (args.obj.isLineSegments) {
+            entity.addComponent(LineSegmentsTagComponent);
+        }
+    }
+    else if (args.obj.isPoints) {
+        entity.addComponent(PointsTagComponent);
+    }
+    else if (args.obj.isSprite) {
+        entity.addComponent(SpriteTagComponent);
+    }
+    else if (args.obj.isScene) {
+        entity.addComponent(SceneTagComponent);
     }
     return entity;
+};
+function removeObject3DComponent(entity, unparent = true) {
+    const obj = entity.getComponent(Object3DComponent, true).value;
+    if (unparent) {
+        // Using "true" as the entity could be removed somewhere else
+        obj.parent && obj.parent.remove(obj);
+    }
+    entity.removeComponent(Object3DComponent);
+    for (let i = entity._ComponentTypes.length - 1; i >= 0; i--) {
+        const Component = entity._ComponentTypes[i];
+        if (Component.isObject3DTagComponent) {
+            entity.removeComponent(Component);
+        }
+    }
+    obj.entity = null;
 }
-function initializeNetworking(world, transport) {
-    world.registerComponent(NetworkClient).registerComponent(NetworkObject);
-    world.registerSystem(NetworkSystem);
-    if (transport.supportsMediaStreams)
-        world.registerSystem(MediaStreamControlSystem);
-    const networkSystem = world.getSystem(NetworkSystem);
-    networkSystem.initializeSession(world, transport);
-}
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=Object3DBehaviors.js.map
 
-export { CAM_VIDEO_SIMULCAST_ENCODINGS, DefaultInputSchema, DefaultStateGroups, DefaultStateSchema, DefaultStateTypes, GamepadButtons, InputType, Keyframe, KeyframeSystem, MediaStreamControlSystem, MouseButtons, NetworkSystem, ParticleEmitter, ParticleEmitterState, ParticleSystem, PhysicsSystem, RigidBody, SocketWebRTCClientTransport, StateType, Thumbsticks, VIDEO_CONSTRAINTS, VehicleBody, VehicleSystem, WheelBody, WheelSystem, addState, createKeyframes, createParticleEmitter, createParticleMesh, decelerate, handleGamepadAxis, handleGamepadConnected, handleGamepadDisconnected, handleGamepads, handleInput, handleKey, handleMouseButton, handleMouseMovement, handleTouch, handleTouchMove, hasState, initializeActor, initializeInputSystems, initializeNetworking, initializeParticleSystem, jump, jumping, loadTexturePackerJSON, localMediaConstraints, move, needsUpdate, removeState, rotateAround, setAccelerationAt, setAngularAccelerationAt, setAngularVelocityAt, setAtlasIndexAt, setBrownianAt, setColorsAt, setEmitterMatrixWorld, setEmitterTime, setFrameAt, setKeyframesAt, setMaterialTime, setMatrixAt, setOffsetAt, setOpacitiesAt, setOrientationsAt, setScalesAt, setTextureAtlas, setTimingsAt, setTouchHandler, setVelocityAt, setVelocityScaleAt, setWorldAccelerationAt, syncKeyframes, toggleState, updateGeometry, updateMaterial, updateOriginalMaterialUniforms, updatePosition };
+// Prefab is a pattern for creating an entity and component collection as a prototype
+const NetworkPlayerCharacter = {
+    components: [{ type: NetworkObject }, { type: Actor }, { type: Transform }],
+    localComponents: [{ type: Input }, { type: Camera }],
+    onCreate: [
+        {
+            behavior: addObject3DComponent,
+            args: {
+                obj: new Mesh(new BoxBufferGeometry(1, 1, 1), new MeshBasicMaterial({}))
+            }
+        }
+    ],
+    onDestroy: [
+        {
+            behavior: removeObject3DComponent
+        }
+    ]
+};
+// initializeActor(cube, inputOptions)
+// Prefab is a pattern for creating an entity and component collection as a prototype
+const NetworkCube = {
+    components: [{ type: NetworkObject }, { type: Transform }]
+};
+// Prefab is a pattern for creating an entity and component collection as a prototype
+const Car = {
+    components: [{ type: NetworkObject }, { type: Transform }]
+};
+const PrefabType = {
+    Player: 0,
+    Cube: 1,
+    Car: 2
+};
+const DefaultPrefabs = [
+    { id: PrefabType.Player, aprefab: NetworkPlayerCharacter },
+    { id: PrefabType.Cube, aprefab: NetworkCube },
+    { id: PrefabType.Car, aprefab: Car }
+];
+const DefaultNetworkSchema = {
+    transport: SocketWebRTCClientTransport,
+    messageHandlers: {
+    // TODO: Map message to behavior
+    // Transform updates and client initialization!
+    // TODO: Move client init from system to here
+    },
+    aprefabs: DefaultPrefabs,
+    defaultClientPrefab: PrefabType.Player
+};
+//# sourceMappingURL=DefaultNetworkSchema.js.map
+
+class SceneData extends Component {
+    constructor() {
+        super();
+        if (SceneData.instance !== null)
+            console.error("Scene singleton has already been set");
+        else
+            SceneData.instance = this;
+    }
+}
+SceneData.schema = {
+    scene: { type: Types.Ref, default: null },
+    camera: { type: Types.Ref, default: null }
+};
+//# sourceMappingURL=SceneData.js.map
+
+class WorldManager {
+}
+const DEFAULT_OPTIONS$1 = {
+    debug: false,
+    withTransform: true,
+    withWebXRInput: true,
+    input: {
+        enabled: true,
+        schema: DefaultInputSchema
+    },
+    networking: {
+        enabled: true,
+        schema: DefaultNetworkSchema
+    },
+    state: {
+        enabled: true,
+        schema: DefaultStateSchema
+    },
+    subscriptions: {
+        enabled: true,
+        schema: DefaultSubscriptionSchema
+    },
+    physics: {
+        enabled: false
+    },
+    particles: {
+        enabled: false
+    },
+    transform: {
+        enabled: true
+    }
+};
+// TODO: Schema injections
+function initializeArmada(world, options = DEFAULT_OPTIONS$1, scene, camera) {
+    world.registerComponent(SceneData);
+    // Set up our scene singleton so we can bind to our scene elsewhere
+    const sceneData = world
+        .createEntity()
+        .addComponent(SceneData)
+        .getMutableComponent(SceneData);
+    if (scene)
+        sceneData.scene = scene;
+    if (camera)
+        sceneData.camera = camera;
+    // Input
+    if (options.input && options.input.enabled && isBrowser)
+        world
+            .registerComponent(Input)
+            .registerSystem(InputSystem)
+            .registerSystem(WebXRInputSystem, {
+            onVRSupportRequested(vrSupported) {
+                if (vrSupported) {
+                    const webxr = world.getSystem(WebXRInputSystem);
+                    webxr.startVR();
+                }
+            }
+        });
+    // Networking
+    if (options.networking && options.networking.enabled)
+        world
+            .registerComponent(NetworkClient)
+            .registerComponent(NetworkObject)
+            .registerSystem(NetworkSystem);
+    if (options.networking.schema.transport.supportsMediaStreams)
+        world.registerSystem(MediaStreamControlSystem);
+    world.getSystem(NetworkSystem).initializeSession(world, options.networking.schema.transport);
+    // State
+    if (options.state && options.state.enabled)
+        world.registerComponent(State).registerSystem(StateSystem);
+    // Subscriptions
+    if (options.subscriptions && options.subscriptions.enabled)
+        world.registerComponent(Subscription).registerSystem(SubscriptionSystem);
+    // Physics
+    if (options.physics && options.physics.enabled)
+        world
+            .registerComponent(RigidBody)
+            .registerComponent(VehicleBody)
+            .registerComponent(WheelBody)
+            .registerSystem(PhysicsSystem)
+            .registerSystem(VehicleSystem)
+            .registerSystem(WheelSystem);
+    // Particles
+    if (options.particles && options.particles.enabled)
+        world
+            .registerComponent(ParticleEmitter)
+            .registerComponent(Keyframe)
+            .registerSystem(ParticleSystem)
+            .registerSystem(KeyframeSystem);
+    //Transform
+    if (options.transform && options.transform.enabled)
+        world
+            .registerComponent(Transform)
+            .registerComponent(TransformParent)
+            .registerSystem(TransformSystem);
+}
+
+export { CAM_VIDEO_SIMULCAST_ENCODINGS, DefaultInputSchema, DefaultStateGroups, DefaultStateSchema, DefaultStateTypes, GamepadButtons, InputType, Keyframe, KeyframeSystem, MediaStreamControlSystem, MouseButtons, NetworkSystem, ParticleEmitter, ParticleEmitterState, ParticleSystem, PhysicsSystem, RigidBody, SocketWebRTCClientTransport, StateType, Thumbsticks, VIDEO_CONSTRAINTS, VehicleBody, VehicleSystem, WheelBody, WheelSystem, WorldManager, addState, createKeyframes, createParticleEmitter, createParticleMesh, decelerate, handleGamepadAxis, handleGamepadConnected, handleGamepadDisconnected, handleGamepads, handleInput, handleKey, handleMouseButton, handleMouseMovement, handleTouch, handleTouchMove, hasState, initializeArmada, initializeParticleSystem, jump, jumping, loadTexturePackerJSON, localMediaConstraints, move, needsUpdate, removeState, rotateAround, setAccelerationAt, setAngularAccelerationAt, setAngularVelocityAt, setAtlasIndexAt, setBrownianAt, setColorsAt, setEmitterMatrixWorld, setEmitterTime, setFrameAt, setKeyframesAt, setMaterialTime, setMatrixAt, setOffsetAt, setOpacitiesAt, setOrientationsAt, setScalesAt, setTextureAtlas, setTimingsAt, setTouchHandler, setVelocityAt, setVelocityScaleAt, setWorldAccelerationAt, syncKeyframes, toggleState, updateGeometry, updateMaterial, updateOriginalMaterialUniforms, updatePosition };
 //# sourceMappingURL=armada.js.map
