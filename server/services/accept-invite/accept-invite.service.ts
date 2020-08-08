@@ -20,7 +20,6 @@ export default function (app: Application): any {
   // Initialize our service with any options it requires
   app.use('/a-i', new AcceptInvite(options, app), redirect)
 
-  console.log(app.services)
   // Get our initialized service so that we can register hooks
   const service = app.service('a-i')
 

@@ -7,7 +7,7 @@ type: application
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 1.1.5
+version: 1.2.0
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
@@ -26,3 +26,8 @@ dependencies:
     version: "1.4.0"
     repository: "https://agones.dev/chart/stable"
     condition: agones.enabled
+
+  - name: redis
+    version: "10.7.13"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: redis.enabled

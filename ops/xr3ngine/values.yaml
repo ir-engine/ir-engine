@@ -312,3 +312,6 @@ mariadb:
 
 agones:
   enabled: false
+
+redis:
+  enabled: true

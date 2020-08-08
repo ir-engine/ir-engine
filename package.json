@@ -124,6 +124,7 @@
     "feathers-seeder": "^2.0.0",
     "feathers-sequelize": "^6.2.0",
     "feathers-swagger": "^1.2.1",
+    "feathers-sync": "^2.1.0",
     "file-loader": "^6.0.0",
     "fs-blob-store": "^5.2.1",
     "glob": "^7.1.6",
