@@ -1,15 +1,20 @@
 import { Prefab } from "../../common/interfaces/Prefab"
 import PrefabAlias from "../../common/types/PrefabAlias"
 import NetworkTransport from "./NetworkTransport"
+import MessageSchema from "../classes/MessageSchema"
 
 export default interface NetworkSchema {
-  transport: any
+  transport: NetworkTransport | unknown | null
+  messageSchemas: {
+    [key: string]: MessageSchema<any>
+    [key: number]: MessageSchema<any>
+  }
   messageHandlers: {
     [key: string]: {
-      behavior: typeof Function
+      behavior: any
       args?: any
     }
   }
   defaultClientPrefab: PrefabAlias
-  aprefabs: { id: PrefabAlias; aprefab: Prefab }[]
+  prefabs: { id: PrefabAlias; prefab: Prefab }[]
 }

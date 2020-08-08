@@ -34,9 +34,12 @@ import {
   ECSYThreeEntity
 } from "ecsy-three"
 import Behavior from "../../interfaces/Behavior"
-import { Object3D } from "three"
+import { Object3D, Scene } from "three"
+import SceneData from "../../components/SceneData"
 export const addObject3DComponent: Behavior = (entity: ECSYThreeEntity, args: { obj: Object3D }) => {
   entity.addComponent(Object3DComponent, { value: args.obj })
+  // Add the obj to our scene graph
+  SceneData.instance.scene.addComponent(args.obj)
   if (args.obj.type === "Audio" && (args.obj as any).panner !== undefined) {
     entity.addComponent(PositionalAudioTagComponent)
   } else if (args.obj.type === "Audio") {
@@ -118,6 +121,8 @@ export const addObject3DComponent: Behavior = (entity: ECSYThreeEntity, args: { 
 
 export function removeObject3DComponent(entity, unparent = true) {
   const obj = entity.getComponent(Object3DComponent, true).value
+  SceneData.instance.scene.remove(obj)
+
   if (unparent) {
     // Using "true" as the entity could be removed somewhere else
     obj.parent && obj.parent.remove(obj)

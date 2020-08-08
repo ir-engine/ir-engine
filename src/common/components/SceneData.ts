@@ -8,7 +8,7 @@ interface PropTypes {
 }
 
 export default class SceneData extends Component<PropTypes> {
-  static instance: SceneData
+  static instance: SceneData = null
   scene: any
   camera: any
 

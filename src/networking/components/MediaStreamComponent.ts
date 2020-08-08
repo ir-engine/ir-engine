@@ -19,7 +19,8 @@ export default class MediaStreamComponent extends Component<any> {
 
   constructor() {
     super()
-    MediaStreamComponent.instance = this
+    if (MediaStreamComponent.instance !== null) console.error("MediaStreamComponent singleton has already been set")
+    else MediaStreamComponent.instance = this
     this.videoPaused = true
     this.audioPaused = true
   }

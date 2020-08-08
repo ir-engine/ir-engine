@@ -10,6 +10,10 @@ import { addObject3DComponent, removeObject3DComponent } from "../../common/defa
 import { Mesh, BoxBufferGeometry, MeshBasicMaterial } from "three"
 import { Transport } from "mediasoup-client/lib/types"
 import { SocketWebRTCClientTransport } from "../transports/SocketWebRTC/SocketWebRTCClientTransport"
+import DefaultMessageTypes from "./DefaultMessageTypes"
+import MessageTypes from "../enums/MessageTypes"
+import { handleClientConnected, handleClientDisconnected, handleReliableMessage, handleUnreliableMessage } from "../behaviors/NetworkBehaviors"
+import DefaultMessageSchema from "./DefaultMessageSchema"
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 const NetworkPlayerCharacter: NetworkPrefab = {
@@ -49,20 +53,40 @@ export const PrefabType = {
 
 export const DefaultPrefabs: {
   id: any
-  aprefab: NetworkPrefab
+  prefab: NetworkPrefab
 }[] = [
-  { id: PrefabType.Player, aprefab: NetworkPlayerCharacter },
-  { id: PrefabType.Cube, aprefab: NetworkCube },
-  { id: PrefabType.Car, aprefab: Car }
+  { id: PrefabType.Player, prefab: NetworkPlayerCharacter },
+  { id: PrefabType.Cube, prefab: NetworkCube },
+  { id: PrefabType.Car, prefab: Car }
 ]
 
 export const DefaultNetworkSchema: NetworkSchema = {
   transport: SocketWebRTCClientTransport,
   messageHandlers: {
-    // TODO: Map message to behavior
-    // Transform updates and client initialization!
-    // TODO: Move client init from system to here
+    [MessageTypes.ClientConnected]: {
+      behavior: handleClientConnected
+    },
+    [MessageTypes.ClientDisconnected]: {
+      behavior: handleClientDisconnected
+    },
+    [MessageTypes.ReliableMessage]: {
+      behavior: handleReliableMessage
+    },
+    [MessageTypes.UnreliableMessage]: {
+      behavior: handleUnreliableMessage
+    }
   },
-  aprefabs: DefaultPrefabs,
+  messageSchemas: {
+    [DefaultMessageTypes.Clock]: DefaultMessageSchema.Clock,
+    [DefaultMessageTypes.World]: DefaultMessageSchema.World,
+    [DefaultMessageTypes.Position]: DefaultMessageSchema.Position,
+    [DefaultMessageTypes.Velocity]: DefaultMessageSchema.Velocity,
+    [DefaultMessageTypes.Spin]: DefaultMessageSchema.Spin,
+    [DefaultMessageTypes.Rotation]: DefaultMessageSchema.Rotation,
+    [DefaultMessageTypes.Scale]: DefaultMessageSchema.Scale,
+    [DefaultMessageTypes.Client]: DefaultMessageSchema.Client,
+    [DefaultMessageTypes.Object]: DefaultMessageSchema.Object
+  },
+  prefabs: DefaultPrefabs,
   defaultClientPrefab: PrefabType.Player
 }

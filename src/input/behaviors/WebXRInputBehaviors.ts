@@ -1,13 +1,13 @@
 import { Entity } from "ecsy"
 import Input from "../components/Input"
 import Behavior from "../../common/interfaces/Behavior"
+import { WebXRSecondController } from "../components/WebXRSecondController"
+import { WebXRMainController } from "../components/WebXRMainController"
+import { WebXRPointer } from "../components/WebXRPointer"
 import {
-    //WebXRSpace,
-    WebXRViewPoint,
-    WebXRPointer,
-    WebXRMainController,
-    WebXRSecondController,
-  } from "../components/WebXR"
+  //WebXRSpace,
+  WebXRViewPoint
+} from "../components/WebXRViewPoint"
 
 export function tracking(entity: Entity, { args: {} }) {
     const viewPoint = entity.getComponent(WebXRViewPoint)

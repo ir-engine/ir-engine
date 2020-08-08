@@ -1,12 +1,12 @@
 export * from "./classes/MessageSchema"
 export * from "./components/MediaStreamComponent"
-export * from "./components/MessageQueue"
 
 export * from "./components/NetworkClient"
-export * from "./components/NetworkTransportComponent"
+export * from "./components/Network"
 export * from "./constants/VideoConstants"
 
-export * from "./defaults/DefaultMessageSchemas"
+export * from "./defaults/DefaultNetworkSchema"
+export * from "./defaults/DefaultMessageSchema"
 export * from "./defaults/DefaultMessageTypes"
 
 export * from "./enums/NetworkOwnerType"
@@ -18,4 +18,4 @@ export * from "./interfaces/NetworkTransport"
 export * from "./systems/MediaStreamSystem"
 export * from "./systems/NetworkSystem"
 export * from "./transports/SocketWebRTC/SocketWebRTCClientTransport"
-export * from "./transports/SocketWebRTC/SocketWebRTCMessageTypes"
+export * from "./enums/MessageTypes"

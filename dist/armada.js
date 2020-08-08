@@ -33,7 +33,6 @@ class BehaviorComponent extends Component {
         this.data.clear();
     }
 }
-//# sourceMappingURL=BehaviorComponent.js.map
 
 const DefaultJumpData = {
     canJump: true,
@@ -63,14 +62,18 @@ class Actor extends Component {
         this.rotationSpeedY = 1;
         this.maxSpeed = 0.01;
         this.accelerationSpeed = 0.01;
-        this.decelerationSpeed = 10;
+        this.decelerationSpeed = 8;
         this.jump = DefaultJumpData;
     }
 }
 Actor.schema = {
-// TODO: Schema
+    rotationSpeedX: { type: Types.Number, default: 1 },
+    rotationSpeedY: { type: Types.Number, default: 1 },
+    maxSpeed: { type: Types.Number, default: 0.01 },
+    accelerationSpeed: { type: Types.Number, default: 0.01 },
+    decelerationSpeed: { type: Types.Number, default: 8 },
+    jump: { type: Types.Ref, default: DefaultJumpData }
 };
-//# sourceMappingURL=Actor.js.map
 
 const vector3Identity = [0, 0, 0];
 const vector3ScaleIdentity = [1, 1, 1];
@@ -101,7 +104,6 @@ class Transform extends Component {
         this.velocity = vector3Identity;
     }
 }
-//# sourceMappingURL=Transform.js.map
 
 /**
  * Common utilities
@@ -813,17 +815,14 @@ const decelerate = (entity, args, delta) => {
         transform.velocity[2] = velocity[2];
     }
 };
-//# sourceMappingURL=decelerate.js.map
 
 class State extends BehaviorComponent {
 }
-//# sourceMappingURL=State.js.map
 
 const BinaryValue = {
     ON: 1,
     OFF: 0
 };
-//# sourceMappingURL=BinaryValue.js.map
 
 var StateType;
 (function (StateType) {
@@ -832,7 +831,6 @@ var StateType;
     StateType[StateType["TWOD"] = 2] = "TWOD";
     StateType[StateType["THREED"] = 3] = "THREED";
 })(StateType || (StateType = {}));
-//# sourceMappingURL=StateType.js.map
 
 var LifecycleValue;
 (function (LifecycleValue) {
@@ -841,7 +839,6 @@ var LifecycleValue;
     LifecycleValue[LifecycleValue["ENDED"] = 2] = "ENDED";
 })(LifecycleValue || (LifecycleValue = {}));
 var LifecycleValue$1 = LifecycleValue;
-//# sourceMappingURL=LifecycleValue.js.map
 
 let stateComponent;
 let stateGroup;
@@ -885,7 +882,6 @@ const hasState = (entity, args) => {
         return true;
     return false;
 };
-//# sourceMappingURL=StateBehaviors.js.map
 
 const DefaultStateTypes = {
     // Main States
@@ -904,7 +900,6 @@ const DefaultStateTypes = {
     MOVING_LEFT: 10,
     MOVING_RIGHT: 11
 };
-//# sourceMappingURL=DefaultStateTypes.js.map
 
 let actor$1;
 let transform$1;
@@ -925,14 +920,12 @@ const jumping = (entity, args, delta) => {
         removeState(entity, { state: DefaultStateTypes.JUMPING });
     }
 };
-//# sourceMappingURL=jump.js.map
 
 // Input inherits from BehaviorComponent, which adds .map and .data
 class Input extends BehaviorComponent {
 }
 // Set schema to itself plus gamepad data
 Input.schema = Object.assign(Object.assign({}, Input.schema), { gamepadConnected: { type: Types.Boolean, default: false }, gamepadThreshold: { type: Types.Number, default: 0.1 }, gamepadButtons: { type: Types.Array, default: [] }, gamepadInput: { type: Types.Array, default: [] } });
-//# sourceMappingURL=Input.js.map
 
 // Button -- discrete states of ON and OFF, like a button
 // OneD -- one dimensional value between 0 and 1, or -1 and 1, like a trigger
@@ -949,15 +942,12 @@ var InputType;
     InputType[InputType["FOURD"] = 4] = "FOURD";
     InputType[InputType["SIXDOF"] = 5] = "SIXDOF";
 })(InputType || (InputType = {}));
-//# sourceMappingURL=InputType.js.map
 
 class Crouching extends TagComponent {
 }
-//# sourceMappingURL=Crouching.js.map
 
 class Sprinting extends TagComponent {
 }
-//# sourceMappingURL=Sprinting.js.map
 
 let input;
 let actor$2;
@@ -986,7 +976,6 @@ const move = (entity, args, time) => {
         console.error("Movement is only available for 2D and 3D inputs");
     }
 };
-//# sourceMappingURL=move.js.map
 
 let actor$3;
 let transform$3;
@@ -1026,7 +1015,6 @@ const rotateAround = (entity, args, delta) => {
     }
     transform$3.rotation = [qOut[0], qOut[1], qOut[2], qOut[3]];
 };
-//# sourceMappingURL=rotate.js.map
 
 const _deltaV = [0, 0, 0];
 const _position = [0, 0, 0];
@@ -1040,14 +1028,12 @@ const updatePosition = (entity, args, time) => {
         transform$4.position = _position;
     }
 };
-//# sourceMappingURL=updatePosition.js.map
 
 var Thumbsticks;
 (function (Thumbsticks) {
     Thumbsticks[Thumbsticks["Left"] = 0] = "Left";
     Thumbsticks[Thumbsticks["Right"] = 1] = "Right";
 })(Thumbsticks || (Thumbsticks = {}));
-//# sourceMappingURL=Thumbsticks.js.map
 
 // Local reference to input component
 let input$1;
@@ -1113,7 +1099,6 @@ function handleKey(entity, args) {
         });
     }
 }
-//# sourceMappingURL=DesktopInputBehaviors.js.map
 
 /**
  *
@@ -1129,7 +1114,6 @@ function applyThreshold(value, threshold) {
     }
     return (Math.sign(value) * (Math.abs(value) - threshold)) / (1 - threshold);
 }
-//# sourceMappingURL=applyThreshold.js.map
 
 const inputPerGamepad = 2;
 let input$2;
@@ -1240,7 +1224,6 @@ const handleGamepadDisconnected = (entity, args) => {
         input$2.gamepadButtons[index] = 0;
     }
 };
-//# sourceMappingURL=GamepadInputBehaviors.js.map
 
 const handleTouch = (entity, args) => {
     if (args.value === BinaryValue.ON) {
@@ -1261,7 +1244,6 @@ const handleTouchMove = (entity, args) => {
             ', y: ' + Math.trunc(args.event.targetTouches[0].clientY));
     console.log(s);
 };
-//# sourceMappingURL=TouchBehaviors.js.map
 
 function setTouchHandler(touchHandler) {
     if ("verticalZoomIn" in touchHandler ||
@@ -1366,7 +1348,6 @@ function setTouchHandler(touchHandler) {
             touchHandler.element.ontouchmove = touchHandler.touchMove.bind(touchHandler);
     }
 }
-//# sourceMappingURL=TouchInputBehaviors.js.map
 
 var GamepadButtons;
 (function (GamepadButtons) {
@@ -1387,12 +1368,10 @@ var GamepadButtons;
     GamepadButtons[GamepadButtons["DPad3"] = 14] = "DPad3";
     GamepadButtons[GamepadButtons["DPad4"] = 15] = "DPad4";
 })(GamepadButtons || (GamepadButtons = {}));
-//# sourceMappingURL=GamepadButtons.js.map
 
 function preventDefault(e) {
     event.preventDefault();
 }
-//# sourceMappingURL=preventDefault.js.map
 
 const keys = { 37: 1, 38: 1, 39: 1, 40: 1 };
 function preventDefault$1(e) {
@@ -1431,7 +1410,6 @@ function enableScroll() {
     window.removeEventListener("touchmove", preventDefault$1);
     window.removeEventListener("keydown", preventDefaultForScrollKeys, false);
 }
-//# sourceMappingURL=enableDisableScrolling.js.map
 
 // Abstract inputs that all input devices get mapped to
 const DefaultInput = {
@@ -1459,7 +1437,6 @@ const DefaultInput = {
     LOOKTURN_PLAYERTWO: 21,
     ALTERNATE: 22
 };
-//# sourceMappingURL=DefaultInput.js.map
 
 let input$3;
 let moving;
@@ -1481,14 +1458,12 @@ const updateMovementState = (entity) => {
     });
     addState(entity, { state: moving ? DefaultStateTypes.MOVING : DefaultStateTypes.IDLE });
 };
-//# sourceMappingURL=updateMovementState.js.map
 
 const MouseButtons = {
     LeftButton: 0,
     MiddleButton: 1,
     RightButton: 2
 };
-//# sourceMappingURL=MouseButtons.js.map
 
 const rotateStart = (entity, args, delta) => {
     const input = entity.getMutableComponent(Input);
@@ -1504,7 +1479,6 @@ const rotateStart = (entity, args, delta) => {
         value: transformRotation
     });
 };
-//# sourceMappingURL=updateLookingState.js.map
 
 const DefaultInputSchema = {
     // When an Input component is added, the system will call this array of behaviors
@@ -1831,7 +1805,6 @@ const DefaultInputSchema = {
         }
     }
 };
-//# sourceMappingURL=DefaultInputSchema.js.map
 
 class InputSystem extends System {
     constructor() {
@@ -1951,7 +1924,6 @@ InputSystem.queries = {
         }
     }
 };
-//# sourceMappingURL=InputSystem.js.map
 
 const DefaultStateGroups = {
     MOVEMENT: 0,
@@ -1979,7 +1951,6 @@ const DefaultStateSchema = {
         [DefaultStateTypes.SPRINTING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS }
     }
 };
-//# sourceMappingURL=DefaultStateSchema.js.map
 
 class StateSystem extends System {
     constructor() {
@@ -2038,7 +2009,6 @@ StateSystem.queries = {
         }
     }
 };
-//# sourceMappingURL=StateSystem.js.map
 
 /**
  * A 3x3 matrix.
@@ -11375,7 +11345,6 @@ RigidBody.schema = {
     scale: { type: Types.Number, default: { x: 0.1, y: 0.1, z: 0.1 } },
     type: { type: Types.String, default: "box" }
 };
-//# sourceMappingURL=RigidBody.js.map
 
 class VehicleBody extends Component {
 }
@@ -11385,7 +11354,6 @@ VehicleBody.schema = {
     wheelMesh: { type: Types.Ref },
     convexMesh: { type: Types.Ref }
 };
-//# sourceMappingURL=VehicleBody.js.map
 
 function inputs(vehicle) {
     document.onkeydown = handler;
@@ -11713,7 +11681,6 @@ PhysicsSystem.queries = {
         }
     }
 };
-//# sourceMappingURL=PhysicsSystem.js.map
 
 class VehicleSystem extends System {
     execute(dt, t) {
@@ -11753,7 +11720,6 @@ VehicleSystem.queries = {
         }
     }
 };
-//# sourceMappingURL=VehicleSystem.js.map
 
 class WheelBody extends Component {
 }
@@ -11763,7 +11729,6 @@ WheelBody.schema = {
     wheelMesh: { type: Types.Number, default: 1 },
     vehicle: { type: Types.Number, default: 1 }
 };
-//# sourceMappingURL=WheelBody.js.map
 
 const quaternion$1 = new Quaternion$1();
 const euler$1 = new Euler();
@@ -11793,7 +11758,6 @@ WheelSystem.queries = {
         }
     }
 };
-//# sourceMappingURL=WheelSystem.js.map
 
 const parseValue = (x, self, ...args) => (typeof x === "function" ? x(self, ...args) : x);
 function createKeyframes(options, startTime) {
@@ -11825,7 +11789,6 @@ function generateFrames(object, keyframes) {
         console.log("nothing here yet");
     }
 }
-//# sourceMappingURL=Keyframes.js.map
 
 const WHITE_TEXTURE = new DataTexture(new Uint8Array(3).fill(255), 1, 1, RGBFormat);
 WHITE_TEXTURE.needsUpdate = true;
@@ -12607,7 +12570,6 @@ diffuseColor *= vParticleColor;
 
 #include <color_fragment>`);
 }
-//# sourceMappingURL=ParticleMesh.js.map
 
 const RND_BASIS = 0x100000000;
 function createPseudoRandom(s) {
@@ -12617,7 +12579,6 @@ function createPseudoRandom(s) {
         return seed / RND_BASIS;
     };
 }
-//# sourceMappingURL=mathRandomFunctions.js.map
 
 const error = console.error;
 const FRAME_STYLES = ["sequence", "randomsequence", "random"];
@@ -12743,11 +12704,9 @@ function spawn(geometry, matrixWorld, config, index, spawnTime, lifeTime, repeat
     setBrownianAt(geometry, index, config.brownianSpeed, config.brownianScale);
     setVelocityScaleAt(geometry, index, config.velocityScale, config.velocityScaleMin, config.velocityScaleMax);
 }
-//# sourceMappingURL=ParticleEmitter.js.map
 
 class Keyframe extends Component {
 }
-//# sourceMappingURL=Keyframe.js.map
 
 class ParticleEmitterState extends SystemStateComponent {
 }
@@ -12757,7 +12716,6 @@ class ParticleEmitter extends Component {
 ParticleEmitter.schema = Object.assign(Object.assign({}, ParticleEmitter.schema), { particleMesh: { type: Types.Ref, default: null }, enabled: { type: Types.Boolean, default: true }, count: { type: Types.Number, default: -1 }, atlas: { type: Types.String, default: "" }, textureFrame: { type: Types.Ref, default: undefined }, frames: { type: Types.Array, default: [] }, lifeTime: { type: Types.Number, default: 1 }, repeatTime: { type: Types.Number, default: 0 }, spawnVariance: { type: Types.Number, default: 0 }, burst: { type: Types.Number, default: 0 }, syncTransform: { type: Types.Boolean, default: false }, useEntityRotation: { type: Types.Boolean, default: true }, worldUp: { type: Types.Boolean, default: false }, 
     // randomizable values
     colors: { type: Types.Array, default: [{ r: 1, g: 1, b: 1 }] }, orientations: { type: Types.Array, default: [0] }, scales: { type: Types.Array, default: [1] }, opacities: { type: Types.Array, default: [1] }, frameStyle: { type: Types.String, default: "sequence" }, offset: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } }, velocity: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } }, acceleration: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } }, radialVelocity: { type: Types.Number, default: 0 }, radialAcceleration: { type: Types.Number, default: 0 }, angularVelocity: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } }, angularAcceleration: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } }, orbitalVelocity: { type: Types.Number, default: 0 }, orbitalAcceleration: { type: Types.Number, default: 0 }, worldAcceleration: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } }, brownianSpeed: { type: Types.Number, default: 0 }, brownianScale: { type: Types.Number, default: 0 } });
-//# sourceMappingURL=ParticleEmitter.js.map
 
 class KeyframeSystem extends System {
     execute(deltaTime, time) {
@@ -12775,7 +12733,6 @@ KeyframeSystem.queries = {
         components: [Keyframe]
     }
 };
-//# sourceMappingURL=KeyframeSystem.js.map
 
 class TransformParent extends Component {
     constructor() {
@@ -12786,7 +12743,6 @@ class TransformParent extends Component {
 TransformParent.schema = {
     value: { default: [], type: Types.Array }
 };
-//# sourceMappingURL=TransformParent.js.map
 
 class ParticleSystem extends System {
     execute(deltaTime, time) {
@@ -12863,10 +12819,8 @@ const calcMatrixWorld = (function () {
         }
     };
 })();
-//# sourceMappingURL=ParticleSystem.js.map
 
 const isBrowser = typeof window !== "undefined" && typeof window.document !== "undefined";
-//# sourceMappingURL=isBrowser.js.map
 
 const DEFAULT_OPTIONS = {
     mouse: true,
@@ -12893,55 +12847,6 @@ function initializeParticleSystem(world, options = DEFAULT_OPTIONS) {
     if (options.debug)
         console.log("INPUT: Registered particle system.");
 }
-//# sourceMappingURL=index.js.map
-
-class MessageSchema {
-    constructor(_messageType, _struct) {
-        this._messageType = _messageType;
-        this._struct = _struct;
-        this._bytes = 0;
-        this.calcBytes();
-    }
-    get messageType() {
-        return this._messageType;
-    }
-    calcBytes() {
-        const iterate = (obj) => {
-            var _a, _b;
-            for (const property in obj) {
-                const type = (obj === null || obj === void 0 ? void 0 : obj._type) || ((_a = obj === null || obj === void 0 ? void 0 : obj.type) === null || _a === void 0 ? void 0 : _a._type);
-                const bytes = obj._bytes || ((_b = obj.type) === null || _b === void 0 ? void 0 : _b._bytes);
-                if (!type) {
-                    if (typeof obj[property] === "object") {
-                        iterate(obj[property]);
-                    }
-                }
-                else {
-                    if (property !== "_type" && property !== "type")
-                        return;
-                    if (!bytes)
-                        return;
-                    // we multiply the bytes by the String8 / String16 length.
-                    if (type === "String8" || type === "String16") {
-                        const length = obj.length || 12;
-                        this._bytes += bytes * length;
-                    }
-                    else {
-                        this._bytes += bytes;
-                    }
-                }
-            }
-        };
-        iterate(this._struct);
-    }
-    get struct() {
-        return this._struct;
-    }
-    get bytes() {
-        return this._bytes;
-    }
-}
-//# sourceMappingURL=MessageSchema.js.map
 
 class MediaStreamComponent extends Component {
     constructor() {
@@ -12952,7 +12857,10 @@ class MediaStreamComponent extends Component {
         this.screenShareAudioPaused = false;
         this.videoPaused = false;
         this.audioPaused = false;
-        MediaStreamComponent.instance = this;
+        if (MediaStreamComponent.instance !== null)
+            console.error("MediaStreamComponent singleton has already been set");
+        else
+            MediaStreamComponent.instance = this;
         this.videoPaused = true;
         this.audioPaused = true;
     }
@@ -12965,7 +12873,14 @@ class MediaStreamComponent extends Component {
         return this.audioPaused;
     }
 }
-//# sourceMappingURL=MediaStreamComponent.js.map
+
+class NetworkClient extends Component {
+}
+NetworkClient.schema = {
+    networkId: { type: Types.Number },
+    userId: { type: Types.String, default: "" },
+    name: { type: Types.String, default: "Player" }
+};
 
 class RingBuffer {
     constructor(size) {
@@ -13081,38 +12996,19 @@ class RingBuffer {
         return this.buffer.length === 0;
     }
 }
-//# sourceMappingURL=RingBuffer.js.map
 
-class MessageQueue extends Component {
-    // TODO: Message ring buffer should be able to grow
+class Network extends Component {
+    // TODO: Rename our other schema? Or these? We need these schemas to be understood to be buffered data
     constructor() {
         super();
+        this.clients = []; // TODO: Replace with ringbuffer
         this.outgoingReliableQueue = new RingBuffer(200);
         this.outgoingUnreliableQueue = new RingBuffer(200);
         this.incomingReliableQueue = new RingBuffer(200);
         this.incomingUnreliableQueue = new RingBuffer(200);
-        MessageQueue.instance = this;
+        Network.instance = this;
     }
 }
-//# sourceMappingURL=MessageQueue.js.map
-
-class NetworkClient extends Component {
-}
-NetworkClient.schema = {
-    networkId: { type: Types.Number },
-    userId: { type: Types.String, default: "" },
-    name: { type: Types.String, default: "Player" }
-};
-//# sourceMappingURL=NetworkClient.js.map
-
-class NetworkTransportComponent extends Component {
-    constructor() {
-        super();
-        this.initialized = false;
-        NetworkTransportComponent.instance = this;
-    }
-}
-//# sourceMappingURL=NetworkTransportComponent.js.map
 
 // adding constraints, VIDEO_CONSTRAINTS is video quality levels
 // localMediaConstraints is passed to the getUserMedia object to request a lower video quality than the maximum
@@ -13137,7 +13033,156 @@ const CAM_VIDEO_SIMULCAST_ENCODINGS = [
     // { maxBitrate: 96000, scaleResolutionDownBy: 2 },
     // { maxBitrate: 680000, scaleResolutionDownBy: 1 },
 ];
-//# sourceMappingURL=VideoConstants.js.map
+
+class NetworkObject extends Component {
+}
+NetworkObject.schema = {
+    ownerId: { type: Types.Number },
+    networkId: { type: Types.Number }
+};
+
+class Camera extends Component {
+}
+Camera.schema = {
+    fov: { default: 45, type: Types.Number },
+    aspect: { default: 1, type: Types.Number },
+    near: { default: 0.1, type: Types.Number },
+    far: { default: 1000, type: Types.Number },
+    layers: { default: 0, type: Types.Number },
+    handleResize: { default: true, type: Types.Boolean },
+    cameraObjectReference: { default: null, type: Types.Ref }
+};
+
+class SceneData extends Component {
+    constructor() {
+        super();
+        if (SceneData.instance !== null)
+            console.error("Scene singleton has already been set");
+        else
+            SceneData.instance = this;
+    }
+}
+SceneData.instance = null;
+SceneData.schema = {
+    scene: { type: Types.Ref, default: null },
+    camera: { type: Types.Ref, default: null }
+};
+
+const addObject3DComponent = (entity, args) => {
+    entity.addComponent(Object3DComponent, { value: args.obj });
+    // Add the obj to our scene graph
+    SceneData.instance.scene.addComponent(args.obj);
+    if (args.obj.type === "Audio" && args.obj.panner !== undefined) {
+        entity.addComponent(PositionalAudioTagComponent);
+    }
+    else if (args.obj.type === "Audio") {
+        entity.addComponent(AudioTagComponent);
+    }
+    else if (args.obj.type === "AudioListener") {
+        entity.addComponent(AudioListenerTagComponent);
+    }
+    else if (args.obj.isCamera) {
+        entity.addComponent(CameraTagComponent);
+        if (args.obj.isOrthographicCamera) {
+            entity.addComponent(OrthographicCameraTagComponent);
+        }
+        else if (args.obj.isPerspectiveCamera) {
+            entity.addComponent(PerspectiveCameraTagComponent);
+            if (args.obj.isArrayCamera) {
+                entity.addComponent(ArrayCameraTagComponent);
+            }
+        }
+    }
+    else if (args.obj.type === "CubeCamera") {
+        entity.addComponent(CubeCameraTagComponent);
+    }
+    else if (args.obj.isImmediateRenderObject) {
+        entity.addComponent(ImmediateRenderObjectTagComponent);
+    }
+    else if (args.obj.isLight) {
+        entity.addComponent(LightTagComponent);
+        if (args.obj.isAmbientLight) {
+            entity.addComponent(AmbientLightTagComponent);
+        }
+        else if (args.obj.isDirectionalLight) {
+            entity.addComponent(DirectionalLightTagComponent);
+        }
+        else if (args.obj.isHemisphereLight) {
+            entity.addComponent(HemisphereLightTagComponent);
+        }
+        else if (args.obj.isPointLight) {
+            entity.addComponent(PointLightTagComponent);
+        }
+        else if (args.obj.isRectAreaLight) {
+            entity.addComponent(RectAreaLightTagComponent);
+        }
+        else if (args.obj.isSpotLight) {
+            entity.addComponent(SpotLightTagComponent);
+        }
+        else if (args.obj.isLightProbe) {
+            entity.addComponent(LightProbeTagComponent);
+            if (args.obj.isAmbientLightProbe) {
+                entity.addComponent(AmbientLightProbeTagComponent);
+            }
+            else if (args.obj.isHemisphereLightProbe) {
+                entity.addComponent(HemisphereLightProbeTagComponent);
+            }
+        }
+    }
+    else if (args.obj.isBone) {
+        entity.addComponent(BoneTagComponent);
+    }
+    else if (args.obj.isGroup) {
+        entity.addComponent(GroupTagComponent);
+    }
+    else if (args.obj.isLOD) {
+        entity.addComponent(LODTagComponent);
+    }
+    else if (args.obj.isMesh) {
+        entity.addComponent(MeshTagComponent);
+        if (args.obj.isInstancedMesh) {
+            entity.addComponent(InstancedMeshTagComponent);
+        }
+        else if (args.obj.isSkinnedMesh) {
+            entity.addComponent(SkinnedMeshTagComponent);
+        }
+    }
+    else if (args.obj.isLine) {
+        entity.addComponent(LineTagComponent);
+        if (args.obj.isLineLoop) {
+            entity.addComponent(LineLoopTagComponent);
+        }
+        else if (args.obj.isLineSegments) {
+            entity.addComponent(LineSegmentsTagComponent);
+        }
+    }
+    else if (args.obj.isPoints) {
+        entity.addComponent(PointsTagComponent);
+    }
+    else if (args.obj.isSprite) {
+        entity.addComponent(SpriteTagComponent);
+    }
+    else if (args.obj.isScene) {
+        entity.addComponent(SceneTagComponent);
+    }
+    return entity;
+};
+function removeObject3DComponent(entity, unparent = true) {
+    const obj = entity.getComponent(Object3DComponent, true).value;
+    SceneData.instance.scene.remove(obj);
+    if (unparent) {
+        // Using "true" as the entity could be removed somewhere else
+        obj.parent && obj.parent.remove(obj);
+    }
+    entity.removeComponent(Object3DComponent);
+    for (let i = entity._ComponentTypes.length - 1; i >= 0; i--) {
+        const Component = entity._ComponentTypes[i];
+        if (Component.isObject3DTagComponent) {
+            entity.removeComponent(Component);
+        }
+    }
+    obj.entity = null;
+}
 
 function __awaiter(thisArg, _arguments, P, generator) {
   function adopt(value) {
@@ -13171,234 +13216,43 @@ function __awaiter(thisArg, _arguments, P, generator) {
   });
 }
 
-class MediaStreamControlSystem extends System {
-    constructor(world) {
-        super(world);
-        MediaStreamControlSystem.instance = this;
-        this.mediaStreamComponent = world
-            .registerComponent(MediaStreamComponent)
-            .createEntity()
-            .addComponent(MediaStreamComponent)
-            .getComponent(MediaStreamComponent);
-        this.startCamera();
-    }
-    execute() {
-        // eh
-    }
-    startCamera() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.mediaStreamComponent.mediaStream)
-                return false;
-            console.log("start camera");
-            return this.getMediaStream();
-        });
-    }
-    // switch to sending video from the "next" camera device in our device
-    // list (if we have multiple cameras)
-    cycleCamera() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!(this.mediaStreamComponent.camVideoProducer && this.mediaStreamComponent.camVideoProducer.track)) {
-                console.log("cannot cycle camera - no current camera track");
-                return false;
-            }
-            console.log("cycle camera");
-            // find "next" device in device list
-            const deviceId = yield this.getCurrentDeviceId();
-            const allDevices = yield navigator.mediaDevices.enumerateDevices();
-            const vidDevices = allDevices.filter(d => d.kind === "videoinput");
-            if (!(vidDevices.length > 1)) {
-                console.log("cannot cycle camera - only one camera");
-                return false;
-            }
-            let idx = vidDevices.findIndex(d => d.deviceId === deviceId);
-            if (idx === vidDevices.length - 1)
-                idx = 0;
-            else
-                idx += 1;
-            // get a new video stream. might as well get a new audio stream too,
-            // just in case browsers want to group audio/video streams together
-            // from the same device when possible (though they don't seem to,
-            // currently)
-            console.log("getting a video stream from new device", vidDevices[idx].label);
-            this.mediaStreamComponent.mediaStream = yield navigator.mediaDevices.getUserMedia({
-                video: { deviceId: { exact: vidDevices[idx].deviceId } },
-                audio: true
-            });
-            // replace the tracks we are sending
-            yield this.mediaStreamComponent.camVideoProducer.replaceTrack({ track: this.mediaStreamComponent.mediaStream.getVideoTracks()[0] });
-            yield this.mediaStreamComponent.camAudioProducer.replaceTrack({ track: this.mediaStreamComponent.mediaStream.getAudioTracks()[0] });
-            return true;
-        });
-    }
-    // -- user interface --
-    getScreenPausedState() {
-        return MediaStreamComponent.instance.screenShareVideoPaused;
-    }
-    getScreenAudioPausedState() {
-        return MediaStreamComponent.instance.screenShareAudioPaused;
-    }
-    toggleWebcamVideoPauseState() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const videoPaused = MediaStreamComponent.instance.toggleVideoPaused();
-            if (videoPaused)
-                NetworkTransportComponent.instance.transport.pauseProducer(MediaStreamComponent.instance.camVideoProducer);
-            else
-                NetworkTransportComponent.instance.transport.resumeProducer(MediaStreamComponent.instance.camVideoProducer);
-        });
-    }
-    toggleWebcamAudioPauseState() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const audioPaused = MediaStreamComponent.instance.toggleAudioPaused();
-            if (audioPaused)
-                NetworkTransportComponent.instance.transport.resumeProducer(MediaStreamComponent.instance.camAudioProducer);
-            else
-                NetworkTransportComponent.instance.transport.pauseProducer(MediaStreamComponent.instance.camAudioProducer);
-        });
-    }
-    toggleScreenshareVideoPauseState() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.getScreenPausedState())
-                NetworkTransportComponent.instance.transport.pauseProducer(MediaStreamComponent.instance.screenVideoProducer);
-            else
-                NetworkTransportComponent.instance.transport.resumeProducer(MediaStreamComponent.instance.screenVideoProducer);
-            MediaStreamComponent.instance.screenShareVideoPaused = !MediaStreamComponent.instance.screenShareVideoPaused;
-        });
-    }
-    toggleScreenshareAudioPauseState() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.getScreenAudioPausedState())
-                NetworkTransportComponent.instance.transport.pauseProducer(MediaStreamComponent.instance.screenAudioProducer);
-            else
-                NetworkTransportComponent.instance.transport.resumeProducer(MediaStreamComponent.instance.screenAudioProducer);
-            MediaStreamComponent.instance.screenShareAudioPaused = !MediaStreamComponent.instance.screenShareAudioPaused;
-        });
-    }
-    removeVideoAudio(consumer) {
-        document.querySelectorAll(consumer.id).forEach(v => {
-            if (v.consumer === consumer)
-                v.parentNode.removeChild(v);
-        });
-    }
-    addVideoAudio(consumer, peerId) {
-        if (!(consumer && consumer.track)) {
-            return;
-        }
-        const elementID = `${peerId}_${consumer.kind}`;
-        let el = document.getElementById(elementID);
-        // set some attributes on our audio and video elements to make
-        // mobile Safari happy. note that for audio to play you need to be
-        // capturing from the mic/camera
-        if (consumer.kind === "video") {
-            console.log("Creating video element with ID " + elementID);
-            if (el === null) {
-                console.log(`Creating video element for user with ID: ${peerId}`);
-                el = document.createElement("video");
-                el.id = `${peerId}_${consumer.kind}`;
-                // @ts-ignore
-                el.autoplay = true;
-                // @ts-ignore
-                // el.muted = true // necessary for
-                // @ts-ignore
-                // el.style = "visibility: hidden;"
-                document.body.appendChild(el);
-                // @ts-ignore
-                el.setAttribute("playsinline", true);
-            }
-            // TODO: do i need to update video width and height? or is that based on stream...?
-            console.log(`Updating video source for user with ID: ${peerId}`);
-            // @ts-ignore
-            el.srcObject = new MediaStream([consumer.track.clone()]);
-            // @ts-ignore
-            el.consumer = consumer;
-            // let's "yield" and return before playing, rather than awaiting on
-            // play() succeeding. play() will not succeed on a producer-paused
-            // track until the producer unpauses.
-            // @ts-ignore
-            el.play().catch((e) => {
-                console.log(`Play video error: ${e}`);
-                console.error(e);
-            });
-        }
-        else {
-            // Positional Audio Works in Firefox:
-            // Global Audio:
-            if (el === null) {
-                console.log(`Creating audio element for user with ID: ${peerId}`);
-                el = document.createElement("audio");
-                el.id = `${peerId}_${consumer.kind}`;
-                document.body.appendChild(el);
-                // @ts-ignore
-                el.setAttribute("playsinline", true);
-                // @ts-ignore
-                el.setAttribute("autoplay", true);
-            }
-            console.log(`Updating <audio> source object for client with ID: ${peerId}`);
-            // @ts-ignore
-            el.srcObject = new MediaStream([consumer.track.clone()]);
-            // @ts-ignore
-            el.consumer = consumer;
-            // @ts-ignore
-            el.volume = 0; // start at 0 and let the three.js scene take over from here...
-            // this.worldScene.createOrUpdatePositionalAudio(peerId)
-            // let's "yield" and return before playing, rather than awaiting on
-            // play() succeeding. play() will not succeed on a producer-paused
-            // track until the producer unpauses.
-            // @ts-ignore
-            el.play().catch((e) => {
-                console.log(`Play audio error: ${e}`);
-                console.error(e);
-            });
-        }
-    }
-    getCurrentDeviceId() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!MediaStreamComponent.instance.camVideoProducer)
-                return null;
-            const { deviceId } = MediaStreamComponent.instance.camVideoProducer.track.getSettings();
-            if (deviceId)
-                return deviceId;
-            // Firefox doesn't have deviceId in MediaTrackSettings object
-            const track = MediaStreamComponent.instance.mediaStream && MediaStreamComponent.instance.mediaStream.getVideoTracks()[0];
-            if (!track)
-                return null;
-            const devices = yield navigator.mediaDevices.enumerateDevices();
-            const deviceInfo = devices.find(d => d.label.startsWith(track.label));
-            return deviceInfo.deviceId;
-        });
-    }
-    stopCamera() {
-        throw new Error("Method not implemented.");
-    }
-    stopScreenshare() {
-        throw new Error("Method not implemented.");
-    }
-    startAudio() {
-        throw new Error("Method not implemented.");
-    }
-    stopAudio() {
-        throw new Error("Method not implemented.");
-    }
-    muteUser(userId) {
-        throw new Error("Method not implemented.");
-    }
-    unmuteUser(userId) {
-        throw new Error("Method not implemented.");
-    }
-    getMediaStream() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.mediaStreamComponent.mediaStream = yield navigator.mediaDevices.getUserMedia(localMediaConstraints);
-            if (this.mediaStreamComponent.mediaStream.active) {
-                this.mediaStreamComponent.audioPaused = false;
-                this.mediaStreamComponent.videoPaused = false;
-                return true;
-            }
-            this.mediaStreamComponent.audioPaused = true;
-            this.mediaStreamComponent.videoPaused = true;
-            return false;
-        });
-    }
+function sleep(ms) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise(r => setTimeout(() => r(), ms));
+    });
 }
-//# sourceMappingURL=MediaStreamSystem.js.map
+
+var MessageTypes;
+(function (MessageTypes) {
+    MessageTypes["Connect"] = "connect";
+    MessageTypes["Disconnect"] = "disconnect";
+    MessageTypes["ConnectionError"] = "connect_error";
+    MessageTypes["ConnectTimeout"] = "connect_timeout";
+    MessageTypes["ReliableMessage"] = "0";
+    MessageTypes["UnreliableMessage"] = "1";
+    MessageTypes["Heartbeat"] = "2";
+    MessageTypes["ClientConnected"] = "3";
+    MessageTypes["ClientDisconnected"] = "4";
+    MessageTypes["Initialization"] = "5";
+    MessageTypes["Synchronization"] = "6";
+    MessageTypes["JoinWorld"] = "7";
+    MessageTypes["LeaveWorld"] = "8";
+    MessageTypes["WebRTCTransportCreate"] = "9";
+    MessageTypes["WebRTCTransportConnect"] = "10";
+    MessageTypes["WebRTCTransportClose"] = "11";
+    MessageTypes["WebRTCSendTrack"] = "12";
+    MessageTypes["WebRTCReceiveTrack"] = "13";
+    MessageTypes["WebRTCPauseConsumer"] = "14";
+    MessageTypes["WebRTCResumeConsumer"] = "15";
+    MessageTypes["WebRTCCloseConsumer"] = "16";
+    MessageTypes["WebRTCPauseProducer"] = "17";
+    MessageTypes["WebRTCResumeProducer"] = "18";
+    MessageTypes["WebRTCCloseProducer"] = "19";
+    MessageTypes["WebRTCMuteOtherProducer"] = "20";
+    MessageTypes["WebRTCUnmuteOtherProducer"] = "21";
+    MessageTypes["WebRTCConsumerSetLayers"] = "22";
+})(MessageTypes || (MessageTypes = {}));
+var MessageTypes$1 = MessageTypes;
 
 const set$3 = (obj, path, value) => {
     const pathArray = Array.isArray(path) ? path : path.match(/([^[.\]])+/g);
@@ -13410,104 +13264,69 @@ const set$3 = (obj, path, value) => {
         return acc[key];
     }, obj);
 };
-//# sourceMappingURL=set.js.map
 
 function cropString(str, length) {
     return str.padEnd(length, " ").slice(0, length);
 }
-//# sourceMappingURL=cropString.js.map
 
-class NetworkObject extends Component {
+function constructInstance(type) {
+    return new type();
 }
-NetworkObject.schema = {
-    ownerId: { type: Types.Number },
-    networkId: { type: Types.Number }
-};
-//# sourceMappingURL=NetworkObject.js.map
-
 class NetworkSystem extends System {
     constructor(world) {
         super(world);
-        this.clients = []; // TODO: Replace with ringbuffer
-        this._schemas = new Map();
         this._buffer = new ArrayBuffer(0);
         this._dataView = new DataView(this._buffer);
         this._bytes = 0;
     }
-    initializeSession(world, transportClass) {
+    initializeSession(world, networkSchema, transportClass) {
         console.log("Initialization session");
-        const transport = new transportClass();
-        NetworkSystem.instance = this;
-        this.networkTransport = world
-            .registerComponent(NetworkTransportComponent)
-            .createEntity()
-            .addComponent(NetworkTransportComponent)
-            .getComponent(NetworkTransportComponent);
-        this._isInitialized = true;
-        NetworkTransportComponent.instance.transport = transport;
-        console.log("Init transport:");
+        const transport = constructInstance(transportClass);
+        const entity = world.createEntity();
+        entity.addComponent(Network);
+        if (transport.supportsMediaStreams) {
+            entity.addComponent(MediaStreamComponent);
+        }
+        Network.instance.schema = networkSchema;
+        Network.instance.transport = transport;
         transport.initialize();
-    }
-    setLocalConnectionId(_id) {
-        console.log(`Initialized with socket ID ${_id}`);
-        this.mySocketID = _id;
+        Network.instance.isInitialized = true;
     }
     initializeClient(myClientId, allClientIds) {
-        this.setLocalConnectionId(myClientId);
-        console.log("My id: ", myClientId);
-        console.log("ids: ");
-        console.log(allClientIds.length);
+        Network.instance.mySocketID = myClientId;
+        console.log("Initialized with socket ID", myClientId);
         if (allClientIds === undefined)
             return console.log("All IDs are null");
         // for each existing user, add them as a client and add tracks to their peer connection
         for (let i = 0; i < allClientIds.length; i++)
             this.addClient(allClientIds[i]);
     }
-    addClient(_id) {
-        if (this.clients.includes(_id))
-            return console.error("Client is already in client list");
-        if (_id === this.mySocketID)
-            return console.log("Not adding client because we are that client");
-        console.log(`A new user connected with the id: ${_id}`);
-        // Create an entity, add component NetworkClient and set id
-        this.clients.push(_id);
-        console.log("Adding client ", _id);
-        // Instantiate object
-    }
     getClosestPeers() {
-        return this.clients;
+        // TODO: InterestManagement!
+        return Network.instance.clients;
     }
-    onConnected() {
-        console.log("Client connected to server!");
+    // TODO: Remove these and have transport affect these values
+    addClient(_id) {
+        if (Network.instance.clients.includes(_id))
+            return console.error("Client is already in client list");
+        Network.instance.clients.push(_id);
+        Network.instance.schema.messageHandlers[MessageTypes$1.ClientConnected].behavior(_id, _id === Network.instance.mySocketID); // args: ID, isLocalPlayer?
     }
     removeClient(_id) {
-        if (_id in this.clients) {
-            if (_id === this.mySocketID) {
-                console.log("Server thinks that we disconnected!");
-            }
-            else {
-                console.log(`A user was disconnected with the id: ${_id}`);
-                // Get NetworkClient component where id is _id, and destroy the entity
-            }
+        // args: ID, isLocalPlayer?
+        if (_id in Network.instance.clients) {
+            Network.instance.clients.splice(Network.instance.clients.indexOf(_id));
+            Network.instance.schema.messageHandlers[MessageTypes$1.ClientDisconnected].behavior(_id, _id === Network.instance.mySocketID); // args: ID, isLocalPlayer?
         }
+        else
+            console.warn("Couldn't remove client because they didn't exist in our list");
     }
     execute(delta) {
-        if (!this._isInitialized)
+        if (!Network.instance.isInitialized)
             return;
-        // Ask transport for all new messages
-    }
-    addMessageSchema(messageType, messageData) {
-        const s = new MessageSchema(messageType, messageData);
-        this._schemas.set(messageType, s);
-        return s;
-    }
-    getLocalConnectionId() {
-        return this.mySocketID;
     }
     deinitializeSession() {
-        var _a;
-        (_a = this._sessionEntity) === null || _a === void 0 ? void 0 : _a.remove();
-        this._isInitialized = false;
+        Network.instance.isInitialized = false;
         // NetworkTransport.instance.transport.deinitialize()
     }
     toBuffer(input) {
@@ -13610,9 +13429,9 @@ class NetworkSystem extends System {
         schemaIds.forEach((id, i) => {
             // check if the schemaId exists
             // (this can be, for example, if charCode 35 is not really a #)
-            const schemaId = this._schemas.get(id);
+            const schemaId = Network.instance.schema.messageSchemas[id];
             if (schemaId)
-                schemas.push({ id, schema: this._schemas.get(id), startsAt: indexes[i] + 5 });
+                schemas.push({ id, schema: Network.instance.schema.messageSchemas[id], startsAt: indexes[i] + 5 });
         });
         // schemas[] contains now all the schemas we need to fromBuffer the bufferArray
         // lets begin the serialization
@@ -13821,47 +13640,234 @@ NetworkSystem.queries = {
         components: [NetworkClient]
     }
 };
-//# sourceMappingURL=NetworkSystem.js.map
 
-function sleep(ms) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return new Promise(r => setTimeout(() => r(), ms));
-    });
+class MediaStreamControlSystem extends System {
+    constructor(world) {
+        super(world);
+        MediaStreamControlSystem.instance = this;
+        this.mediaStreamComponent = world
+            .registerComponent(MediaStreamComponent)
+            .createEntity()
+            .addComponent(MediaStreamComponent)
+            .getComponent(MediaStreamComponent);
+        this.startCamera();
+    }
+    execute() {
+        // eh
+    }
+    startCamera() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.mediaStreamComponent.mediaStream)
+                return false;
+            console.log("start camera");
+            return this.getMediaStream();
+        });
+    }
+    // switch to sending video from the "next" camera device in our device
+    // list (if we have multiple cameras)
+    cycleCamera() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!(this.mediaStreamComponent.camVideoProducer && this.mediaStreamComponent.camVideoProducer.track)) {
+                console.log("cannot cycle camera - no current camera track");
+                return false;
+            }
+            console.log("cycle camera");
+            // find "next" device in device list
+            const deviceId = yield this.getCurrentDeviceId();
+            const allDevices = yield navigator.mediaDevices.enumerateDevices();
+            const vidDevices = allDevices.filter(d => d.kind === "videoinput");
+            if (!(vidDevices.length > 1)) {
+                console.log("cannot cycle camera - only one camera");
+                return false;
+            }
+            let idx = vidDevices.findIndex(d => d.deviceId === deviceId);
+            if (idx === vidDevices.length - 1)
+                idx = 0;
+            else
+                idx += 1;
+            // get a new video stream. might as well get a new audio stream too,
+            // just in case browsers want to group audio/video streams together
+            // from the same device when possible (though they don't seem to,
+            // currently)
+            console.log("getting a video stream from new device", vidDevices[idx].label);
+            this.mediaStreamComponent.mediaStream = yield navigator.mediaDevices.getUserMedia({
+                video: { deviceId: { exact: vidDevices[idx].deviceId } },
+                audio: true
+            });
+            // replace the tracks we are sending
+            yield this.mediaStreamComponent.camVideoProducer.replaceTrack({ track: this.mediaStreamComponent.mediaStream.getVideoTracks()[0] });
+            yield this.mediaStreamComponent.camAudioProducer.replaceTrack({ track: this.mediaStreamComponent.mediaStream.getAudioTracks()[0] });
+            return true;
+        });
+    }
+    // -- user interface --
+    getScreenPausedState() {
+        return MediaStreamComponent.instance.screenShareVideoPaused;
+    }
+    getScreenAudioPausedState() {
+        return MediaStreamComponent.instance.screenShareAudioPaused;
+    }
+    toggleWebcamVideoPauseState() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const videoPaused = MediaStreamComponent.instance.toggleVideoPaused();
+            if (videoPaused)
+                Network.instance.transport.pauseProducer(MediaStreamComponent.instance.camVideoProducer);
+            else
+                Network.instance.transport.resumeProducer(MediaStreamComponent.instance.camVideoProducer);
+        });
+    }
+    toggleWebcamAudioPauseState() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const audioPaused = MediaStreamComponent.instance.toggleAudioPaused();
+            if (audioPaused)
+                Network.instance.transport.resumeProducer(MediaStreamComponent.instance.camAudioProducer);
+            else
+                Network.instance.transport.pauseProducer(MediaStreamComponent.instance.camAudioProducer);
+        });
+    }
+    toggleScreenshareVideoPauseState() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.getScreenPausedState())
+                Network.instance.transport.pauseProducer(MediaStreamComponent.instance.screenVideoProducer);
+            else
+                Network.instance.transport.resumeProducer(MediaStreamComponent.instance.screenVideoProducer);
+            MediaStreamComponent.instance.screenShareVideoPaused = !MediaStreamComponent.instance.screenShareVideoPaused;
+        });
+    }
+    toggleScreenshareAudioPauseState() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.getScreenAudioPausedState())
+                Network.instance.transport.pauseProducer(MediaStreamComponent.instance.screenAudioProducer);
+            else
+                Network.instance.transport.resumeProducer(MediaStreamComponent.instance.screenAudioProducer);
+            MediaStreamComponent.instance.screenShareAudioPaused = !MediaStreamComponent.instance.screenShareAudioPaused;
+        });
+    }
+    removeVideoAudio(consumer) {
+        document.querySelectorAll(consumer.id).forEach(v => {
+            if (v.consumer === consumer)
+                v.parentNode.removeChild(v);
+        });
+    }
+    addVideoAudio(consumer, peerId) {
+        if (!(consumer && consumer.track)) {
+            return;
+        }
+        const elementID = `${peerId}_${consumer.kind}`;
+        let el = document.getElementById(elementID);
+        // set some attributes on our audio and video elements to make
+        // mobile Safari happy. note that for audio to play you need to be
+        // capturing from the mic/camera
+        if (consumer.kind === "video") {
+            console.log("Creating video element with ID " + elementID);
+            if (el === null) {
+                console.log(`Creating video element for user with ID: ${peerId}`);
+                el = document.createElement("video");
+                el.id = `${peerId}_${consumer.kind}`;
+                // @ts-ignore
+                el.autoplay = true;
+                // @ts-ignore
+                // el.muted = true // necessary for
+                // @ts-ignore
+                // el.style = "visibility: hidden;"
+                document.body.appendChild(el);
+                // @ts-ignore
+                el.setAttribute("playsinline", true);
+            }
+            // TODO: do i need to update video width and height? or is that based on stream...?
+            console.log(`Updating video source for user with ID: ${peerId}`);
+            // @ts-ignore
+            el.srcObject = new MediaStream([consumer.track.clone()]);
+            // @ts-ignore
+            el.consumer = consumer;
+            // let's "yield" and return before playing, rather than awaiting on
+            // play() succeeding. play() will not succeed on a producer-paused
+            // track until the producer unpauses.
+            // @ts-ignore
+            el.play().catch((e) => {
+                console.log(`Play video error: ${e}`);
+                console.error(e);
+            });
+        }
+        else {
+            // Positional Audio Works in Firefox:
+            // Global Audio:
+            if (el === null) {
+                console.log(`Creating audio element for user with ID: ${peerId}`);
+                el = document.createElement("audio");
+                el.id = `${peerId}_${consumer.kind}`;
+                document.body.appendChild(el);
+                // @ts-ignore
+                el.setAttribute("playsinline", true);
+                // @ts-ignore
+                el.setAttribute("autoplay", true);
+            }
+            console.log(`Updating <audio> source object for client with ID: ${peerId}`);
+            // @ts-ignore
+            el.srcObject = new MediaStream([consumer.track.clone()]);
+            // @ts-ignore
+            el.consumer = consumer;
+            // @ts-ignore
+            el.volume = 0; // start at 0 and let the three.js scene take over from here...
+            // this.worldScene.createOrUpdatePositionalAudio(peerId)
+            // let's "yield" and return before playing, rather than awaiting on
+            // play() succeeding. play() will not succeed on a producer-paused
+            // track until the producer unpauses.
+            // @ts-ignore
+            el.play().catch((e) => {
+                console.log(`Play audio error: ${e}`);
+                console.error(e);
+            });
+        }
+    }
+    getCurrentDeviceId() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!MediaStreamComponent.instance.camVideoProducer)
+                return null;
+            const { deviceId } = MediaStreamComponent.instance.camVideoProducer.track.getSettings();
+            if (deviceId)
+                return deviceId;
+            // Firefox doesn't have deviceId in MediaTrackSettings object
+            const track = MediaStreamComponent.instance.mediaStream && MediaStreamComponent.instance.mediaStream.getVideoTracks()[0];
+            if (!track)
+                return null;
+            const devices = yield navigator.mediaDevices.enumerateDevices();
+            const deviceInfo = devices.find(d => d.label.startsWith(track.label));
+            return deviceInfo.deviceId;
+        });
+    }
+    stopCamera() {
+        throw new Error("Method not implemented.");
+    }
+    stopScreenshare() {
+        throw new Error("Method not implemented.");
+    }
+    startAudio() {
+        throw new Error("Method not implemented.");
+    }
+    stopAudio() {
+        throw new Error("Method not implemented.");
+    }
+    muteUser(userId) {
+        throw new Error("Method not implemented.");
+    }
+    unmuteUser(userId) {
+        throw new Error("Method not implemented.");
+    }
+    getMediaStream() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.mediaStreamComponent.mediaStream = yield navigator.mediaDevices.getUserMedia(localMediaConstraints);
+            if (this.mediaStreamComponent.mediaStream.active) {
+                this.mediaStreamComponent.audioPaused = false;
+                this.mediaStreamComponent.videoPaused = false;
+                return true;
+            }
+            this.mediaStreamComponent.audioPaused = true;
+            this.mediaStreamComponent.videoPaused = true;
+            return false;
+        });
+    }
 }
-//# sourceMappingURL=sleep.js.map
-
-var SocketWebRTCMessageTypes;
-(function (SocketWebRTCMessageTypes) {
-    SocketWebRTCMessageTypes["Heartbeat"] = "h";
-    SocketWebRTCMessageTypes["Connect"] = "connect";
-    SocketWebRTCMessageTypes["Disconnect"] = "disconnect";
-    SocketWebRTCMessageTypes["ConnectionError"] = "connect_error";
-    SocketWebRTCMessageTypes["ConnectTimeout"] = "connect_timeout";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["ClientConnected"] = 0] = "ClientConnected";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["ClientDisconnected"] = 1] = "ClientDisconnected";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["Initialization"] = 3] = "Initialization";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["Synchronization"] = 5] = "Synchronization";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["JoinWorld"] = 7] = "JoinWorld";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["LeaveWorld"] = 8] = "LeaveWorld";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["WebRTCTransportCreate"] = 9] = "WebRTCTransportCreate";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["WebRTCTransportConnect"] = 10] = "WebRTCTransportConnect";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["WebRTCTransportClose"] = 11] = "WebRTCTransportClose";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["WebRTCSendTrack"] = 12] = "WebRTCSendTrack";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["WebRTCReceiveTrack"] = 13] = "WebRTCReceiveTrack";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["WebRTCPauseConsumer"] = 14] = "WebRTCPauseConsumer";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["WebRTCResumeConsumer"] = 15] = "WebRTCResumeConsumer";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["WebRTCCloseConsumer"] = 16] = "WebRTCCloseConsumer";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["WebRTCPauseProducer"] = 17] = "WebRTCPauseProducer";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["WebRTCResumeProducer"] = 18] = "WebRTCResumeProducer";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["WebRTCCloseProducer"] = 19] = "WebRTCCloseProducer";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["WebRTCMuteOtherProducer"] = 20] = "WebRTCMuteOtherProducer";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["WebRTCUnmuteOtherProducer"] = 21] = "WebRTCUnmuteOtherProducer";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["WebRTCConsumerSetLayers"] = 22] = "WebRTCConsumerSetLayers";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["ReliableMessage"] = 23] = "ReliableMessage";
-    SocketWebRTCMessageTypes[SocketWebRTCMessageTypes["UnreliableMessage"] = 24] = "UnreliableMessage";
-})(SocketWebRTCMessageTypes || (SocketWebRTCMessageTypes = {}));
-var SocketWebRTCMessageTypes$1 = SocketWebRTCMessageTypes;
-//# sourceMappingURL=SocketWebRTCMessageTypes.js.map
 
 const Device = mediasoupClient.Device;
 class SocketWebRTCClientTransport {
@@ -13873,8 +13879,8 @@ class SocketWebRTCClientTransport {
         this.socket = {};
     }
     sendAllReliableMessages() {
-        while (!MessageQueue.instance.outgoingReliableQueue.empty) {
-            this.socket.emit(SocketWebRTCMessageTypes$1.ReliableMessage.toString(), MessageQueue.instance.outgoingReliableQueue.pop);
+        while (!Network.instance.outgoingReliableQueue.empty) {
+            this.socket.emit(MessageTypes$1.ReliableMessage.toString(), Network.instance.outgoingReliableQueue.pop);
         }
     }
     // Adds support for Promise to socket.io-client
@@ -13905,14 +13911,14 @@ class SocketWebRTCClientTransport {
                 console.log("Connected!");
                 setInterval(() => {
                     console.log("Heartbeat");
-                    this.socket.emit(SocketWebRTCMessageTypes$1.Heartbeat);
+                    this.socket.emit(MessageTypes$1.Heartbeat);
                 }, this.heartbeatInterval);
                 // use sendBeacon to tell the server we're disconnecting when
                 // the page unloads
                 window.addEventListener("unload", () => __awaiter(this, void 0, void 0, function* () {
-                    this.socket.emit(SocketWebRTCMessageTypes$1.LeaveWorld.toString());
+                    this.socket.emit(MessageTypes$1.LeaveWorld.toString());
                 }));
-                this.socket.on(SocketWebRTCMessageTypes$1.Initialization.toString(), (_id, _ids) => __awaiter(this, void 0, void 0, function* () {
+                this.socket.on(MessageTypes$1.Initialization.toString(), (_id, _ids) => __awaiter(this, void 0, void 0, function* () {
                     console.log("Initiaslization response");
                     NetworkSystem.instance.initializeClient(_id, _ids);
                     yield this.joinWorld();
@@ -13920,12 +13926,12 @@ class SocketWebRTCClientTransport {
                     yield this.sendCameraStreams();
                     console.log("about to init sockets");
                 }));
-                this.socket.on(SocketWebRTCMessageTypes$1.ClientConnected.toString(), (_id) => NetworkSystem.instance.addClient(_id));
-                this.socket.on(SocketWebRTCMessageTypes$1.ClientDisconnected.toString(), (_id) => NetworkSystem.instance.removeClient(_id));
-                this.socket.on(SocketWebRTCMessageTypes$1.ReliableMessage.toString(), (message) => {
-                    MessageQueue.instance.incomingReliableQueue.add(message);
+                this.socket.on(MessageTypes$1.ClientConnected.toString(), (_id) => NetworkSystem.instance.addClient(_id));
+                this.socket.on(MessageTypes$1.ClientDisconnected.toString(), (_id) => NetworkSystem.instance.removeClient(_id));
+                this.socket.on(MessageTypes$1.ReliableMessage.toString(), (message) => {
+                    Network.instance.incomingReliableQueue.add(message);
                 });
-                this.socket.emit(SocketWebRTCMessageTypes$1.Initialization.toString());
+                this.socket.emit(MessageTypes$1.Initialization.toString());
             }));
         });
     }
@@ -13941,7 +13947,7 @@ class SocketWebRTCClientTransport {
             console.log("Joining world");
             // signal that we're a new peer and initialize our
             // mediasoup-client device, if this is our first time connecting
-            const resp = yield this.request(SocketWebRTCMessageTypes$1.JoinWorld.toString());
+            const resp = yield this.request(MessageTypes$1.JoinWorld.toString());
             console.log("Awaiting response to join world");
             const { routerRtpCapabilities } = resp;
             console.log("Loading mediasoup");
@@ -14015,7 +14021,7 @@ class SocketWebRTCClientTransport {
             MediaStreamComponent.instance.screenVideoProducer.track.onended = () => __awaiter(this, void 0, void 0, function* () {
                 console.log("screen share stopped");
                 yield MediaStreamComponent.instance.screenVideoProducer.pause();
-                const { error } = yield this.request(SocketWebRTCMessageTypes$1.WebRTCCloseProducer.toString(), {
+                const { error } = yield this.request(MessageTypes$1.WebRTCCloseProducer.toString(), {
                     producerId: MediaStreamComponent.instance.screenVideoProducer.id
                 });
                 yield MediaStreamComponent.instance.screenVideoProducer.close();
@@ -14024,7 +14030,7 @@ class SocketWebRTCClientTransport {
                     console.error(error);
                 }
                 if (MediaStreamComponent.instance.screenAudioProducer) {
-                    const { error: screenAudioProducerError } = yield this.request(SocketWebRTCMessageTypes$1.WebRTCCloseProducer.toString(), {
+                    const { error: screenAudioProducerError } = yield this.request(MessageTypes$1.WebRTCCloseProducer.toString(), {
                         producerId: MediaStreamComponent.instance.screenAudioProducer.id
                     });
                     yield MediaStreamComponent.instance.screenAudioProducer.close();
@@ -14044,7 +14050,7 @@ class SocketWebRTCClientTransport {
             if (!this.sendTransport)
                 return false;
             console.log("stop sending media streams");
-            const { error } = yield this.request(SocketWebRTCMessageTypes$1.WebRTCTransportClose.toString(), {
+            const { error } = yield this.request(MessageTypes$1.WebRTCTransportClose.toString(), {
                 transportId: this.sendTransport.id
             });
             if (error)
@@ -14072,7 +14078,7 @@ class SocketWebRTCClientTransport {
             // stop polling
             clearInterval(this.pollingInterval);
             // close everything on the server-side (transports, producers, consumers)
-            const { error } = yield this.request(SocketWebRTCMessageTypes$1.LeaveWorld.toString());
+            const { error } = yield this.request(MessageTypes$1.LeaveWorld.toString());
             if (error) {
                 console.error(error);
             }
@@ -14110,7 +14116,7 @@ class SocketWebRTCClientTransport {
                 return console.error("already have consumer for track", peerId, mediaTag);
             // ask the server to create a server-side consumer object and send
             // us back the info we need to create a client-side consumer
-            const consumerParameters = yield this.request(SocketWebRTCMessageTypes$1.WebRTCReceiveTrack.toString(), {
+            const consumerParameters = yield this.request(MessageTypes$1.WebRTCReceiveTrack.toString(), {
                 mediaTag,
                 mediaPeerId: peerId,
                 rtpCapabilities: this.mediasoupDevice.rtpCapabilities
@@ -14143,7 +14149,7 @@ class SocketWebRTCClientTransport {
             if (!consumer)
                 return;
             console.log("pause consumer", consumer.appData.peerId, consumer.appData.mediaTag);
-            yield this.request(SocketWebRTCMessageTypes$1.WebRTCPauseConsumer.toString(), { consumerId: consumer.id });
+            yield this.request(MessageTypes$1.WebRTCPauseConsumer.toString(), { consumerId: consumer.id });
             yield consumer.pause();
         });
     }
@@ -14152,7 +14158,7 @@ class SocketWebRTCClientTransport {
             if (!consumer)
                 return;
             console.log("resume consumer", consumer.appData.peerId, consumer.appData.mediaTag);
-            yield this.request(SocketWebRTCMessageTypes$1.WebRTCResumeConsumer.toString(), { consumerId: consumer.id });
+            yield this.request(MessageTypes$1.WebRTCResumeConsumer.toString(), { consumerId: consumer.id });
             yield consumer.resume();
         });
     }
@@ -14161,7 +14167,7 @@ class SocketWebRTCClientTransport {
             if (!producer)
                 return;
             console.log("pause producer", producer.appData.mediaTag);
-            yield this.request(SocketWebRTCMessageTypes$1.WebRTCPauseProducer.toString(), { producerId: producer.id });
+            yield this.request(MessageTypes$1.WebRTCPauseProducer.toString(), { producerId: producer.id });
             yield producer.pause();
         });
     }
@@ -14170,7 +14176,7 @@ class SocketWebRTCClientTransport {
             if (!producer)
                 return;
             console.log("resume producer", producer.appData.mediaTag);
-            yield this.request(SocketWebRTCMessageTypes$1.WebRTCResumeProducer.toString(), { producerId: producer.id });
+            yield this.request(MessageTypes$1.WebRTCResumeProducer.toString(), { producerId: producer.id });
             yield producer.resume();
         });
     }
@@ -14181,7 +14187,7 @@ class SocketWebRTCClientTransport {
             console.log("closing consumer", consumer.appData.peerId, consumer.appData.mediaTag);
             // tell the server we're closing this consumer. (the server-side
             // consumer may have been closed already, but that's okay.)
-            yield this.request(SocketWebRTCMessageTypes$1.WebRTCTransportClose.toString(), { consumerId: consumer.id });
+            yield this.request(MessageTypes$1.WebRTCTransportClose.toString(), { consumerId: consumer.id });
             yield consumer.close();
             MediaStreamComponent.instance.consumers = MediaStreamComponent.instance.consumers.filter(c => c !== consumer);
             MediaStreamControlSystem.instance.removeVideoAudio(consumer);
@@ -14195,7 +14201,7 @@ class SocketWebRTCClientTransport {
             // ask the server to create a server-side transport object and send
             // us back the info we need to create a client-side transport
             let transport;
-            const { transportOptions } = yield this.request(SocketWebRTCMessageTypes$1.WebRTCTransportCreate.toString(), { direction });
+            const { transportOptions } = yield this.request(MessageTypes$1.WebRTCTransportCreate.toString(), { direction });
             console.log("transport options", transportOptions);
             if (direction === "recv") {
                 transport = yield this.mediasoupDevice.createRecvTransport(transportOptions);
@@ -14213,7 +14219,7 @@ class SocketWebRTCClientTransport {
             // server, then call callback() on success or errback() on failure.
             transport.on("connect", ({ dtlsParameters }, callback, errback) => __awaiter(this, void 0, void 0, function* () {
                 console.log("transport connect event", direction);
-                const { error } = yield this.request(SocketWebRTCMessageTypes$1.WebRTCTransportConnect.toString(), {
+                const { error } = yield this.request(MessageTypes$1.WebRTCTransportConnect.toString(), {
                     transportId: transportOptions.id,
                     dtlsParameters
                 });
@@ -14242,7 +14248,7 @@ class SocketWebRTCClientTransport {
                     // up a server-side producer object, and get back a
                     // producer.id. call callback() on success or errback() on
                     // failure.
-                    const { error, id } = yield this.request(SocketWebRTCMessageTypes$1.WebRTCSendTrack.toString(), {
+                    const { error, id } = yield this.request(MessageTypes$1.WebRTCSendTrack.toString(), {
                         transportId: transportOptions.id,
                         kind,
                         rtpParameters,
@@ -14281,9 +14287,8 @@ class SocketWebRTCClientTransport {
             console.log("sending sync request");
             if (this.request === undefined)
                 return;
-            const { peers } = yield this.request(SocketWebRTCMessageTypes$1.Synchronization.toString());
-            const localConnectionId = NetworkSystem.instance.getLocalConnectionId();
-            if (peers[localConnectionId] === undefined)
+            const { peers } = yield this.request(MessageTypes$1.Synchronization.toString());
+            if (peers[Network.instance.mySocketID] === undefined)
                 console.log("Server doesn't think you're connected!");
             // decide if we need to update tracks list and video/audio
             // elements. build list of peers, sorted by join time, removing last
@@ -14294,7 +14299,7 @@ class SocketWebRTCClientTransport {
             const closestPeers = NetworkSystem.instance.getClosestPeers();
             for (const id in peers) {
                 // for each peer...
-                if (id !== localConnectionId) {
+                if (id !== Network.instance.mySocketID) {
                     // if it isnt me...
                     if (closestPeers !== undefined && closestPeers.includes(id)) {
                         // and if it is close enough in the 3d space...
@@ -14344,11 +14349,190 @@ class SocketWebRTCClientTransport {
         });
     }
 }
-//# sourceMappingURL=SocketWebRTCClientTransport.js.map
+
+const DefaultMessageTypes = {
+    Clock: 0,
+    Position: 1,
+    Velocity: 2,
+    Rotation: 3,
+    Spin: 4,
+    Scale: 5,
+    Client: 6,
+    Object: 7,
+    World: 8,
+    Test: 250
+};
+
+const handleClientConnected = (clientID, localPlayer) => {
+    console.log("Client ", clientID, " connected.");
+    // create a network assemblage using network schema
+};
+const handleClientDisconnected = (clientID, localPlayer) => {
+    console.log("Client ", clientID, " disconnected.");
+};
+const handleReliableMessage = (messageType, messageData) => {
+};
+const handleUnreliableMessage = (messageType, messageData) => {
+};
+
+/** 0 to 255 (1 byte) */
+const uint8 = { _type: "Uint8Array", _bytes: 1 };
+/** -32768 to 32767 (2 bytes) */
+const int16 = { _type: "Int16Array", _bytes: 2 };
+/** 0 to 65535 (2 bytes) */
+const uint16 = { _type: "Uint16Array", _bytes: 2 };
+/** 0 to 4294967295 (4 bytes) */
+const uint32 = { _type: "Uint32Array", _bytes: 4 };
+/** -2^63 to 2^63-1 (8 bytes) */
+const int64 = { _type: "BigInt64Array", _bytes: 8 };
+/** 1 byte per character */
+const string8 = { _type: "String8", _bytes: 1 };
+
+const DefaultMessageSchema = {
+    Clock: {
+        time: typeof int64,
+        tick: typeof uint16 // increment by one each frame
+    },
+    Position: {
+        entityId: typeof uint32,
+        x: { type: typeof int16, digits: 3 },
+        y: { type: typeof int16, digits: 3 },
+        z: { type: typeof int16, digits: 3 }
+    },
+    Velocity: {
+        entityId: typeof uint32,
+        x: { type: typeof int16, digits: 3 },
+        y: { type: typeof int16, digits: 3 },
+        z: { type: typeof int16, digits: 3 }
+    },
+    Spin: {
+        entityId: typeof uint32,
+        x: { type: typeof int16, digits: 3 },
+        y: { type: typeof int16, digits: 3 },
+        z: { type: typeof int16, digits: 3 }
+    },
+    Rotation: {
+        entityId: typeof uint32,
+        x: { type: typeof int16, digits: 3 },
+        y: { type: typeof int16, digits: 3 },
+        z: { type: typeof int16, digits: 3 },
+        w: { type: typeof int16, digits: 3 }
+    },
+    Scale: {
+        entityId: typeof uint32,
+        x: { type: typeof int16, digits: 3 },
+        y: { type: typeof int16, digits: 3 },
+        z: { type: typeof int16, digits: 3 }
+    },
+    Client: {
+        networkId: typeof uint16,
+        userId: { type: typeof string8, length: 16 },
+        name: { type: typeof string8, length: 16 }
+    },
+    Object: {
+        networkId: typeof uint8,
+        ownerId: { type: typeof string8, length: 16 }
+    }
+};
+DefaultMessageSchema.worldData = {
+    Clock: DefaultMessageSchema.clockSchema,
+    Players: [DefaultMessageSchema.clientSchema],
+    Objects: [DefaultMessageSchema.objectSchema]
+};
+
+// Prefab is a pattern for creating an entity and component collection as a prototype
+const NetworkPlayerCharacter = {
+    components: [{ type: NetworkObject }, { type: Actor }, { type: Transform }],
+    localComponents: [{ type: Input }, { type: Camera }],
+    onCreate: [
+        {
+            behavior: addObject3DComponent,
+            args: {
+                obj: new Mesh(new BoxBufferGeometry(1, 1, 1), new MeshBasicMaterial({}))
+            }
+        }
+    ],
+    onDestroy: [
+        {
+            behavior: removeObject3DComponent
+        }
+    ]
+};
+// initializeActor(cube, inputOptions)
+// Prefab is a pattern for creating an entity and component collection as a prototype
+const NetworkCube = {
+    components: [{ type: NetworkObject }, { type: Transform }]
+};
+// Prefab is a pattern for creating an entity and component collection as a prototype
+const Car = {
+    components: [{ type: NetworkObject }, { type: Transform }]
+};
+const PrefabType = {
+    Player: 0,
+    Cube: 1,
+    Car: 2
+};
+const DefaultPrefabs = [
+    { id: PrefabType.Player, prefab: NetworkPlayerCharacter },
+    { id: PrefabType.Cube, prefab: NetworkCube },
+    { id: PrefabType.Car, prefab: Car }
+];
+const DefaultNetworkSchema = {
+    transport: SocketWebRTCClientTransport,
+    messageHandlers: {
+        [MessageTypes$1.ClientConnected]: {
+            behavior: handleClientConnected
+        },
+        [MessageTypes$1.ClientDisconnected]: {
+            behavior: handleClientDisconnected
+        },
+        [MessageTypes$1.ReliableMessage]: {
+            behavior: handleReliableMessage
+        },
+        [MessageTypes$1.UnreliableMessage]: {
+            behavior: handleUnreliableMessage
+        }
+    },
+    messageSchemas: {
+        [DefaultMessageTypes.Clock]: DefaultMessageSchema.Clock,
+        [DefaultMessageTypes.World]: DefaultMessageSchema.World,
+        [DefaultMessageTypes.Position]: DefaultMessageSchema.Position,
+        [DefaultMessageTypes.Velocity]: DefaultMessageSchema.Velocity,
+        [DefaultMessageTypes.Spin]: DefaultMessageSchema.Spin,
+        [DefaultMessageTypes.Rotation]: DefaultMessageSchema.Rotation,
+        [DefaultMessageTypes.Scale]: DefaultMessageSchema.Scale,
+        [DefaultMessageTypes.Client]: DefaultMessageSchema.Client,
+        [DefaultMessageTypes.Object]: DefaultMessageSchema.Object
+    },
+    prefabs: DefaultPrefabs,
+    defaultClientPrefab: PrefabType.Player
+};
 
 class Subscription extends BehaviorComponent {
 }
-//# sourceMappingURL=Subscription.js.map
+
+let actor$4;
+let transform$5;
+const gravity = 9.81;
+const applyGravity = (entity, args, delta) => {
+    transform$5 = entity.getComponent(Transform);
+    actor$4 = entity.getMutableComponent(Actor);
+    if (transform$5.position[1] > 0) {
+        transform$5.velocity[1] = transform$5.velocity[1] - (gravity * (delta * delta)) / 2;
+    }
+    else if (transform$5.velocity[1] < 0.00001) {
+        transform$5.velocity[1] = 0;
+        transform$5.position[1] = 0;
+    }
+};
+
+const DefaultSubscriptionSchema = {
+    onUpdate: [
+        {
+            behavior: applyGravity
+        }
+    ]
+};
 
 class SubscriptionSystem extends System {
     constructor() {
@@ -14392,32 +14576,6 @@ SubscriptionSystem.queries = {
         }
     }
 };
-//# sourceMappingURL=SubscriptionSystem.js.map
-
-let actor$4;
-let transform$5;
-const gravity = 9.81;
-const applyGravity = (entity, args, delta) => {
-    transform$5 = entity.getComponent(Transform);
-    actor$4 = entity.getMutableComponent(Actor);
-    if (transform$5.position[1] > 0) {
-        transform$5.velocity[1] = transform$5.velocity[1] - (gravity * (delta * delta)) / 2;
-    }
-    else if (transform$5.velocity[1] < 0.00001) {
-        transform$5.velocity[1] = 0;
-        transform$5.position[1] = 0;
-    }
-};
-//# sourceMappingURL=applyGravity.js.map
-
-const DefaultSubscriptionSchema = {
-    onUpdate: [
-        {
-            behavior: applyGravity
-        }
-    ]
-};
-//# sourceMappingURL=DefaultSubscriptionSchema.js.map
 
 const q$1 = new Quaternion$1();
 let transform$6;
@@ -14439,12 +14597,10 @@ const transformBehavior = (entity, args, delta) => {
     object3DComponent.value.position.set(_position$1[0], _position$1[1], _position$1[2]);
     object3DComponent.value.rotation.setFromQuaternion(q$1.fromArray(transform$6.rotation));
 };
-//# sourceMappingURL=transformBehavior.js.map
 
 const childTransformBehavior = (entity, args) => {
     console.log("Transformation child here");
 };
-//# sourceMappingURL=childTransformBehavior.js.map
 
 class TransformSystem extends System {
     init(attributes) {
@@ -14494,53 +14650,62 @@ TransformSystem.queries = {
         }
     }
 };
-//# sourceMappingURL=TransformSystem.js.map
 
-const { Ref } = Types;
-class WebXRRenderer extends Component {
+class WebXRSecondGamepad extends Input {
 }
-WebXRRenderer.schema = {
-    context: { type: Ref },
-    requestAnimationFrame: { type: Ref, default: window.requestAnimationFrame }
-};
-class WebXRSession extends Component {
+
+class WebXRMainGamepad extends Input {
 }
-WebXRSession.schema = {
-    session: { type: Ref },
-    isImmersive: { type: Types.Boolean, default: false },
-};
-class WebXRSpace extends Component {
-}
-WebXRSpace.schema = {
-    space: { type: Ref },
-    spaceType: { type: Types.String }
-};
-class WebXRViewPoint extends Component {
-}
-WebXRViewPoint.schema = {
-    pose: { type: Ref }
-};
-class WebXRPointer extends Component {
-}
-WebXRPointer.schema = {
-    pose: { type: Ref },
-    pointerMode: { type: Types.String }
-};
+
 class WebXRTrackingDevice extends Component {
 }
 WebXRTrackingDevice.schema = {
-    pose: { type: Ref },
+    pose: { type: Types.Ref },
     handId: { type: Types.Number }
 };
-class WebXRMainController extends WebXRTrackingDevice {
-}
+
 class WebXRSecondController extends WebXRTrackingDevice {
 }
-class WebXRMainGamepad extends Input {
+
+class WebXRMainController extends WebXRTrackingDevice {
 }
-class WebXRSecondGamepad extends Input {
+
+class WebXRPointer extends Component {
 }
-//# sourceMappingURL=WebXR.js.map
+WebXRPointer.schema = {
+    pose: { type: Types.Ref },
+    pointerMode: { type: Types.String }
+};
+
+class WebXRViewPoint extends Component {
+}
+WebXRViewPoint.schema = {
+    pose: { type: Types.Ref }
+};
+
+class WebXRSpace extends Component {
+}
+WebXRSpace.schema = {
+    space: { type: Types.Ref },
+    spaceType: { type: Types.String }
+};
+
+class WebXRSession extends Component {
+}
+WebXRSession.schema = {
+    session: { type: Types.Ref },
+    isImmersive: { type: Types.Boolean, default: false }
+    // onStarted: { type: Ref },
+    // onEnded: { type: Ref }
+};
+
+class WebXRRenderer extends Component {
+}
+WebXRRenderer.schema = {
+    context: { type: Types.Ref },
+    // TODO: window refs will break our server, so let's be aware (or we can exclude this?)
+    requestAnimationFrame: { type: Types.Ref, default: typeof window !== "undefined" ? window.requestAnimationFrame : null }
+};
 
 class WebXRInputSystem extends System {
     constructor() {
@@ -14565,8 +14730,7 @@ class WebXRInputSystem extends System {
         const { xr } = navigator;
         if (xr) {
             xr.isSessionSupported("immersive-vr").then(onVRSupportRequested);
-            xr.requestSession("inline").then(session => world.createEntity("inline-session")
-                .addComponent(WebXRSession, { session }));
+            xr.requestSession("inline").then(session => world.createEntity("inline-session").addComponent(WebXRSession, { session }));
         }
         else
             this.debug("WebXR isn't supported by this browser");
@@ -14594,13 +14758,15 @@ class WebXRInputSystem extends System {
             this.debug("XR space", spaceType, error);
             isImmersive = true;
             spaceType = "local";
-            session.requestReferenceSpace(spaceType)
+            session
+                .requestReferenceSpace(spaceType)
                 .then(onSpaceCreated)
                 .catch(error => {
                 this.debug("XR space", spaceType, error);
                 isImmersive = false;
                 spaceType = "viewer";
-                session.requestReferenceSpace(spaceType)
+                session
+                    .requestReferenceSpace(spaceType)
                     .then(onSpaceCreated)
                     .catch(console.warn);
             });
@@ -14620,8 +14786,7 @@ class WebXRInputSystem extends System {
                 });
                 this.debug("XR session added to", entity, "isImmersive", isImmersive);
                 if (isImmersive /*entity.name == "vr-session"*/) {
-                    webXRRenderer.context.makeXRCompatible()
-                        .then(() => session.updateRenderState({
+                    webXRRenderer.context.makeXRCompatible().then(() => session.updateRenderState({
                         baseLayer: new XRWebGLLayer(session, webXRRenderer.context)
                     }));
                     webXRRenderer.requestAnimationFrame = session.requestAnimationFrame.bind(session);
@@ -14695,213 +14860,26 @@ class WebXRInputSystem extends System {
 }
 WebXRInputSystem.queries = {
     renderer: { components: [WebXRRenderer] },
-    sessions: { components: [WebXRSession], listen: { added: true } },
+    sessions: { components: [WebXRSession], listen: { added: true } }
 };
 function setComponent(entity, Class, data = {}) {
     if (entity.hasComponent(Class)) {
         const mutate = entity.getMutableComponent(Class);
-        for (let property in data)
+        for (const property in data)
             mutate[property] = data[property];
     }
     else {
         entity.addComponent(Class, data);
     }
 }
-//# sourceMappingURL=WebXRInputSystem.js.map
 
-class Camera extends Component {
+class WebXRButton extends Component {
 }
-Camera.schema = {
-    fov: { default: 45, type: Types.Number },
-    aspect: { default: 1, type: Types.Number },
-    near: { default: 0.1, type: Types.Number },
-    far: { default: 1000, type: Types.Number },
-    layers: { default: 0, type: Types.Number },
-    handleResize: { default: true, type: Types.Boolean },
-    cameraObjectReference: { default: null, type: Types.Ref }
+WebXRButton.schema = {
+    domEl: { type: Types.Ref },
+    onVRSupportRequested: { type: Types.Ref }
 };
-//# sourceMappingURL=Camera.js.map
 
-const addObject3DComponent = (entity, args) => {
-    entity.addComponent(Object3DComponent, { value: args.obj });
-    if (args.obj.type === "Audio" && args.obj.panner !== undefined) {
-        entity.addComponent(PositionalAudioTagComponent);
-    }
-    else if (args.obj.type === "Audio") {
-        entity.addComponent(AudioTagComponent);
-    }
-    else if (args.obj.type === "AudioListener") {
-        entity.addComponent(AudioListenerTagComponent);
-    }
-    else if (args.obj.isCamera) {
-        entity.addComponent(CameraTagComponent);
-        if (args.obj.isOrthographicCamera) {
-            entity.addComponent(OrthographicCameraTagComponent);
-        }
-        else if (args.obj.isPerspectiveCamera) {
-            entity.addComponent(PerspectiveCameraTagComponent);
-            if (args.obj.isArrayCamera) {
-                entity.addComponent(ArrayCameraTagComponent);
-            }
-        }
-    }
-    else if (args.obj.type === "CubeCamera") {
-        entity.addComponent(CubeCameraTagComponent);
-    }
-    else if (args.obj.isImmediateRenderObject) {
-        entity.addComponent(ImmediateRenderObjectTagComponent);
-    }
-    else if (args.obj.isLight) {
-        entity.addComponent(LightTagComponent);
-        if (args.obj.isAmbientLight) {
-            entity.addComponent(AmbientLightTagComponent);
-        }
-        else if (args.obj.isDirectionalLight) {
-            entity.addComponent(DirectionalLightTagComponent);
-        }
-        else if (args.obj.isHemisphereLight) {
-            entity.addComponent(HemisphereLightTagComponent);
-        }
-        else if (args.obj.isPointLight) {
-            entity.addComponent(PointLightTagComponent);
-        }
-        else if (args.obj.isRectAreaLight) {
-            entity.addComponent(RectAreaLightTagComponent);
-        }
-        else if (args.obj.isSpotLight) {
-            entity.addComponent(SpotLightTagComponent);
-        }
-        else if (args.obj.isLightProbe) {
-            entity.addComponent(LightProbeTagComponent);
-            if (args.obj.isAmbientLightProbe) {
-                entity.addComponent(AmbientLightProbeTagComponent);
-            }
-            else if (args.obj.isHemisphereLightProbe) {
-                entity.addComponent(HemisphereLightProbeTagComponent);
-            }
-        }
-    }
-    else if (args.obj.isBone) {
-        entity.addComponent(BoneTagComponent);
-    }
-    else if (args.obj.isGroup) {
-        entity.addComponent(GroupTagComponent);
-    }
-    else if (args.obj.isLOD) {
-        entity.addComponent(LODTagComponent);
-    }
-    else if (args.obj.isMesh) {
-        entity.addComponent(MeshTagComponent);
-        if (args.obj.isInstancedMesh) {
-            entity.addComponent(InstancedMeshTagComponent);
-        }
-        else if (args.obj.isSkinnedMesh) {
-            entity.addComponent(SkinnedMeshTagComponent);
-        }
-    }
-    else if (args.obj.isLine) {
-        entity.addComponent(LineTagComponent);
-        if (args.obj.isLineLoop) {
-            entity.addComponent(LineLoopTagComponent);
-        }
-        else if (args.obj.isLineSegments) {
-            entity.addComponent(LineSegmentsTagComponent);
-        }
-    }
-    else if (args.obj.isPoints) {
-        entity.addComponent(PointsTagComponent);
-    }
-    else if (args.obj.isSprite) {
-        entity.addComponent(SpriteTagComponent);
-    }
-    else if (args.obj.isScene) {
-        entity.addComponent(SceneTagComponent);
-    }
-    return entity;
-};
-function removeObject3DComponent(entity, unparent = true) {
-    const obj = entity.getComponent(Object3DComponent, true).value;
-    if (unparent) {
-        // Using "true" as the entity could be removed somewhere else
-        obj.parent && obj.parent.remove(obj);
-    }
-    entity.removeComponent(Object3DComponent);
-    for (let i = entity._ComponentTypes.length - 1; i >= 0; i--) {
-        const Component = entity._ComponentTypes[i];
-        if (Component.isObject3DTagComponent) {
-            entity.removeComponent(Component);
-        }
-    }
-    obj.entity = null;
-}
-//# sourceMappingURL=Object3DBehaviors.js.map
-
-// Prefab is a pattern for creating an entity and component collection as a prototype
-const NetworkPlayerCharacter = {
-    components: [{ type: NetworkObject }, { type: Actor }, { type: Transform }],
-    localComponents: [{ type: Input }, { type: Camera }],
-    onCreate: [
-        {
-            behavior: addObject3DComponent,
-            args: {
-                obj: new Mesh(new BoxBufferGeometry(1, 1, 1), new MeshBasicMaterial({}))
-            }
-        }
-    ],
-    onDestroy: [
-        {
-            behavior: removeObject3DComponent
-        }
-    ]
-};
-// initializeActor(cube, inputOptions)
-// Prefab is a pattern for creating an entity and component collection as a prototype
-const NetworkCube = {
-    components: [{ type: NetworkObject }, { type: Transform }]
-};
-// Prefab is a pattern for creating an entity and component collection as a prototype
-const Car = {
-    components: [{ type: NetworkObject }, { type: Transform }]
-};
-const PrefabType = {
-    Player: 0,
-    Cube: 1,
-    Car: 2
-};
-const DefaultPrefabs = [
-    { id: PrefabType.Player, aprefab: NetworkPlayerCharacter },
-    { id: PrefabType.Cube, aprefab: NetworkCube },
-    { id: PrefabType.Car, aprefab: Car }
-];
-const DefaultNetworkSchema = {
-    transport: SocketWebRTCClientTransport,
-    messageHandlers: {
-    // TODO: Map message to behavior
-    // Transform updates and client initialization!
-    // TODO: Move client init from system to here
-    },
-    aprefabs: DefaultPrefabs,
-    defaultClientPrefab: PrefabType.Player
-};
-//# sourceMappingURL=DefaultNetworkSchema.js.map
-
-class SceneData extends Component {
-    constructor() {
-        super();
-        if (SceneData.instance !== null)
-            console.error("Scene singleton has already been set");
-        else
-            SceneData.instance = this;
-    }
-}
-SceneData.schema = {
-    scene: { type: Types.Ref, default: null },
-    camera: { type: Types.Ref, default: null }
-};
-//# sourceMappingURL=SceneData.js.map
-
-class WorldManager {
-}
 const DEFAULT_OPTIONS$1 = {
     debug: false,
     withTransform: true,
@@ -14912,7 +14890,8 @@ const DEFAULT_OPTIONS$1 = {
     },
     networking: {
         enabled: true,
-        schema: DefaultNetworkSchema
+        schema: DefaultNetworkSchema,
+        supportsMediaStreams: true
     },
     state: {
         enabled: true,
@@ -14934,6 +14913,7 @@ const DEFAULT_OPTIONS$1 = {
 };
 // TODO: Schema injections
 function initializeArmada(world, options = DEFAULT_OPTIONS$1, scene, camera) {
+    var _a;
     world.registerComponent(SceneData);
     // Set up our scene singleton so we can bind to our scene elsewhere
     const sceneData = world
@@ -14949,6 +14929,16 @@ function initializeArmada(world, options = DEFAULT_OPTIONS$1, scene, camera) {
         world
             .registerComponent(Input)
             .registerSystem(InputSystem)
+            .registerComponent(WebXRButton)
+            .registerComponent(WebXRMainController)
+            .registerComponent(WebXRMainGamepad)
+            .registerComponent(WebXRPointer)
+            .registerComponent(WebXRRenderer)
+            .registerComponent(WebXRSecondController)
+            .registerComponent(WebXRSecondGamepad)
+            .registerComponent(WebXRSession)
+            .registerComponent(WebXRSpace)
+            .registerComponent(WebXRViewPoint)
             .registerSystem(WebXRInputSystem, {
             onVRSupportRequested(vrSupported) {
                 if (vrSupported) {
@@ -14958,14 +14948,18 @@ function initializeArmada(world, options = DEFAULT_OPTIONS$1, scene, camera) {
             }
         });
     // Networking
-    if (options.networking && options.networking.enabled)
+    if (options.networking && options.networking.enabled) {
         world
+            .registerComponent(Network)
             .registerComponent(NetworkClient)
             .registerComponent(NetworkObject)
             .registerSystem(NetworkSystem);
-    if (options.networking.schema.transport.supportsMediaStreams)
-        world.registerSystem(MediaStreamControlSystem);
-    world.getSystem(NetworkSystem).initializeSession(world, options.networking.schema.transport);
+        if (options.networking.supportsMediaStreams) {
+            world.registerComponent(MediaStreamComponent);
+            world.registerSystem(MediaStreamControlSystem);
+        }
+        world.getSystem(NetworkSystem).initializeSession(world, (_a = options.networking.schema) !== null && _a !== void 0 ? _a : DefaultNetworkSchema, options.networking.schema.transport);
+    }
     // State
     if (options.state && options.state.enabled)
         world.registerComponent(State).registerSystem(StateSystem);
@@ -14996,5 +14990,5 @@ function initializeArmada(world, options = DEFAULT_OPTIONS$1, scene, camera) {
             .registerSystem(TransformSystem);
 }
 
-export { CAM_VIDEO_SIMULCAST_ENCODINGS, DefaultInputSchema, DefaultStateGroups, DefaultStateSchema, DefaultStateTypes, GamepadButtons, InputType, Keyframe, KeyframeSystem, MediaStreamControlSystem, MouseButtons, NetworkSystem, ParticleEmitter, ParticleEmitterState, ParticleSystem, PhysicsSystem, RigidBody, SocketWebRTCClientTransport, StateType, Thumbsticks, VIDEO_CONSTRAINTS, VehicleBody, VehicleSystem, WheelBody, WheelSystem, WorldManager, addState, createKeyframes, createParticleEmitter, createParticleMesh, decelerate, handleGamepadAxis, handleGamepadConnected, handleGamepadDisconnected, handleGamepads, handleInput, handleKey, handleMouseButton, handleMouseMovement, handleTouch, handleTouchMove, hasState, initializeArmada, initializeParticleSystem, jump, jumping, loadTexturePackerJSON, localMediaConstraints, move, needsUpdate, removeState, rotateAround, setAccelerationAt, setAngularAccelerationAt, setAngularVelocityAt, setAtlasIndexAt, setBrownianAt, setColorsAt, setEmitterMatrixWorld, setEmitterTime, setFrameAt, setKeyframesAt, setMaterialTime, setMatrixAt, setOffsetAt, setOpacitiesAt, setOrientationsAt, setScalesAt, setTextureAtlas, setTimingsAt, setTouchHandler, setVelocityAt, setVelocityScaleAt, setWorldAccelerationAt, syncKeyframes, toggleState, updateGeometry, updateMaterial, updateOriginalMaterialUniforms, updatePosition };
+export { CAM_VIDEO_SIMULCAST_ENCODINGS, DefaultInputSchema, DefaultNetworkSchema, DefaultPrefabs, DefaultStateGroups, DefaultStateSchema, DefaultStateTypes, DefaultSubscriptionSchema, GamepadButtons, InputType, Keyframe, KeyframeSystem, MediaStreamControlSystem, MouseButtons, NetworkSystem, ParticleEmitter, ParticleEmitterState, ParticleSystem, PhysicsSystem, PrefabType, RigidBody, SocketWebRTCClientTransport, StateType, Thumbsticks, VIDEO_CONSTRAINTS, VehicleBody, VehicleSystem, WheelBody, WheelSystem, addState, constructInstance, createKeyframes, createParticleEmitter, createParticleMesh, decelerate, handleGamepadAxis, handleGamepadConnected, handleGamepadDisconnected, handleGamepads, handleInput, handleKey, handleMouseButton, handleMouseMovement, handleTouch, handleTouchMove, hasState, initializeArmada, initializeParticleSystem, jump, jumping, loadTexturePackerJSON, localMediaConstraints, move, needsUpdate, removeState, rotateAround, setAccelerationAt, setAngularAccelerationAt, setAngularVelocityAt, setAtlasIndexAt, setBrownianAt, setColorsAt, setEmitterMatrixWorld, setEmitterTime, setFrameAt, setKeyframesAt, setMaterialTime, setMatrixAt, setOffsetAt, setOpacitiesAt, setOrientationsAt, setScalesAt, setTextureAtlas, setTimingsAt, setTouchHandler, setVelocityAt, setVelocityScaleAt, setWorldAccelerationAt, syncKeyframes, toggleState, updateGeometry, updateMaterial, updateOriginalMaterialUniforms, updatePosition };
 //# sourceMappingURL=armada.js.map

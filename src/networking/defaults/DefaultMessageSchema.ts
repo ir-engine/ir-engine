@@ -1,57 +1,57 @@
 import { string16, uint8, int16, uint16, int64, string8, uint32 } from "../../common/types/DataTypes"
 import SchemaMap from "../interfaces/SchemaMap"
 
-const schema: SchemaMap = {
-  clockData: {
+const DefaultMessageSchema: SchemaMap = {
+  Clock: {
     time: typeof int64,
-    tick: typeof uint16
+    tick: typeof uint16 // increment by one each frame
   },
-  positionData: {
+  Position: {
     entityId: typeof uint32,
     x: { type: typeof int16, digits: 3 },
     y: { type: typeof int16, digits: 3 },
     z: { type: typeof int16, digits: 3 }
   },
-  velocityData: {
+  Velocity: {
     entityId: typeof uint32,
     x: { type: typeof int16, digits: 3 },
     y: { type: typeof int16, digits: 3 },
     z: { type: typeof int16, digits: 3 }
   },
-  spinData: {
+  Spin: {
     entityId: typeof uint32,
     x: { type: typeof int16, digits: 3 },
     y: { type: typeof int16, digits: 3 },
     z: { type: typeof int16, digits: 3 }
   },
-  eotationData: {
+  Rotation: {
     entityId: typeof uint32,
     x: { type: typeof int16, digits: 3 },
     y: { type: typeof int16, digits: 3 },
     z: { type: typeof int16, digits: 3 },
     w: { type: typeof int16, digits: 3 }
   },
-  scaleData: {
+  Scale: {
     entityId: typeof uint32,
     x: { type: typeof int16, digits: 3 },
     y: { type: typeof int16, digits: 3 },
     z: { type: typeof int16, digits: 3 }
   },
-  clientData: {
+  Client: {
     networkId: typeof uint16,
     userId: { type: typeof string8, length: 16 },
     name: { type: typeof string8, length: 16 }
   },
-  objectData: {
+  Object: {
     networkId: typeof uint8,
     ownerId: { type: typeof string8, length: 16 }
   }
 }
 
-schema.worldData = {
-  clock: schema.clockSchema,
-  players: [schema.clientSchema],
-  objects: [schema.objectSchema]
+DefaultMessageSchema.worldData = {
+  Clock: DefaultMessageSchema.clockSchema,
+  Players: [DefaultMessageSchema.clientSchema],
+  Objects: [DefaultMessageSchema.objectSchema]
 }
 
-export default schema
+export default DefaultMessageSchema
