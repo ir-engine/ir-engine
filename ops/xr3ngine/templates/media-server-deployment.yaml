@@ -64,9 +64,9 @@ spec:
             - name: REDIS_ENABLED
               value: "true"
             - name: REDIS_ADDRESS
-              value: "redis-master.default.svc.cluster.local"
+              value: "$({{ .Release.Name | upper }}_REDIS_MASTER_SERVICE_HOST)"
             - name: REDIS_PORT
-              value: "6379"
+              value: "$({{ .Release.Name | upper }}_REDIS_MASTER_SERVICE_PORT)"
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
