@@ -180,7 +180,7 @@ const chargebee = {
 }
 
 const redis = {
-  enabled: process.env.REDIS_ENABLED ?? false,
+  enabled: process.env.REDIS_ENABLED === 'true' ?? false,
   address: process.env.REDIS_ADDRESS ?? 'localhost',
   port: process.env.REDIS_PORT ?? '6379',
   password: process.env.REDIS_PASSWORD ?? null
