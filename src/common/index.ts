@@ -15,9 +15,3 @@ export * from "./interfaces/Behavior"
 export * from "./interfaces/BehaviorValue"
 export * from "./types/BehaviorMapType"
 export * from "./types/NumericalTypes"
-
-
-
-
-
-

@@ -16,7 +16,6 @@ import { InputRelationship } from "../interfaces/InputRelationship"
 import { InputSchema } from "../interfaces/InputSchema"
 import { DefaultInput } from "./DefaultInput"
 
-
 export const DefaultInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
   onAdded: [

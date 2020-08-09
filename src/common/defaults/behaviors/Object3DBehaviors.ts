@@ -1,157 +1,36 @@
 import {
-  AmbientLightProbeTagComponent, AmbientLightTagComponent, ArrayCameraTagComponent, AudioListenerTagComponent, AudioTagComponent,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  BoneTagComponent, CameraTagComponent,
-
-
-
+  AmbientLightProbeTagComponent,
+  AmbientLightTagComponent,
+  ArrayCameraTagComponent,
+  AudioListenerTagComponent,
+  AudioTagComponent,
+  BoneTagComponent,
+  CameraTagComponent,
   CubeCameraTagComponent,
-
-
-
   DirectionalLightTagComponent,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  ECSYThreeEntity, GroupTagComponent, HemisphereLightProbeTagComponent, HemisphereLightTagComponent, ImmediateRenderObjectTagComponent,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  InstancedMeshTagComponent, LightProbeTagComponent, LightTagComponent,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  ECSYThreeEntity,
+  GroupTagComponent,
+  HemisphereLightProbeTagComponent,
+  HemisphereLightTagComponent,
+  ImmediateRenderObjectTagComponent,
+  InstancedMeshTagComponent,
+  LightProbeTagComponent,
+  LightTagComponent,
   LineLoopTagComponent,
-  LineSegmentsTagComponent, LineTagComponent, LODTagComponent,
-  MeshTagComponent, Object3DComponent,
-
-
-
-
+  LineSegmentsTagComponent,
+  LineTagComponent,
+  LODTagComponent,
+  MeshTagComponent,
+  Object3DComponent,
   OrthographicCameraTagComponent,
   PerspectiveCameraTagComponent,
-
-
-
-
-
-
-
   PointLightTagComponent,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  PointsTagComponent, PositionalAudioTagComponent,
-
-
-
-
-
-
-
-
-
-
-
-
-
+  PointsTagComponent,
+  PositionalAudioTagComponent,
   RectAreaLightTagComponent,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  SceneTagComponent, SkinnedMeshTagComponent, SpotLightTagComponent,
-
-
-
-
-
-
-
-
-
-
-
-
-
+  SceneTagComponent,
+  SkinnedMeshTagComponent,
+  SpotLightTagComponent,
   SpriteTagComponent
 } from "ecsy-three"
 import { Object3D } from "three"

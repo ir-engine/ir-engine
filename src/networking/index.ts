@@ -14,9 +14,3 @@ export * from "./interfaces/NetworkTransport"
 export * from "./systems/MediaStreamSystem"
 export * from "./systems/NetworkSystem"
 export * from "./transports/SocketWebRTC/SocketWebRTCClientTransport"
-
-
-
-
-
-

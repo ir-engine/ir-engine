@@ -12,10 +12,3 @@ export * from "./interfaces/InputSchema"
 export * from "./interfaces/InputValue"
 export * from "./systems/InputSystem"
 export * from "./types/InputAlias"
-
-
-
-
-
-
-

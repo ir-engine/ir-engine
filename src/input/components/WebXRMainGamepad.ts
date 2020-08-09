@@ -1,3 +1,3 @@
-import { Input } from "./Input";
+import { Input } from "./Input"
 
 export class WebXRMainGamepad extends Input {}

@@ -6,8 +6,6 @@ import { DefaultStateTypes } from "../../../state/defaults/DefaultStateTypes"
 import { BinaryValue } from "../../enums/BinaryValue"
 import { Behavior } from "../../interfaces/Behavior"
 
-
-
 let input: Input
 let moving: boolean
 const movementInputs = [
