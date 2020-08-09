@@ -50,10 +50,12 @@ export const startVR = (onStarted = Function(), onEnded = Function()) => {
     .catch(console.warn)
 }
 
-export const initVR = (onVRSupportRequested: any) => {
+export const initVR = (onVRSupportRequested?: any) => {
   const { xr } = navigator as any
   if (xr) {
-    xr.isSessionSupported("immersive-vr").then(onVRSupportRequested)
+    xr.isSessionSupported("immersive-vr").then(() => {
+      if (onVRSupportRequested) onVRSupportRequested
+    })
     xr.requestSession("inline").then(session => WorldComponent.instance.world.createEntity("inline-session").addComponent(WebXRSession, { session }))
   } else console.warn("WebXR isn't supported by this browser")
 }
@@ -99,7 +101,6 @@ export const processSession: Behavior = (entity: Entity) => {
       })
       const { gamepad } = main
       if (gamepad) setComponent(entity, WebXRMainGamepad, { gamepad })
-      //webXRRenderer.drawFrame(viewerPose, controllers, session)
     })
   }
 }

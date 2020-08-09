@@ -1,5 +1,5 @@
 // Singleton component to store reference to camera and scene
-import { Component, Types, World } from "ecsy"
+import { Types, World } from "ecsy"
 import { SingletonComponent } from "./SingletonComponent"
 
 // World data schema
