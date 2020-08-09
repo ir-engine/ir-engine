@@ -7,14 +7,32 @@ import { DefaultInputSchema } from "../defaults/DefaultInputSchema"
 import { InputType } from "../enums/InputType"
 import { InputValue } from "../interfaces/InputValue"
 import { InputAlias } from "../types/InputAlias"
+import { WebXRRenderer } from "../components/WebXRRenderer"
+import { WebXRSession } from "../components/WebXRSession"
+import { initializeSession, processSession, initVR } from "../behaviors/WebXRInputBehaviors"
 
 export class InputSystem extends System {
+  readonly mainControllerId = 0
+  readonly secondControllerId = 1
+
   // Temp/ref variables
   private _inputComponent: Input
   // bound DOM listeners should be saved, otherwise they can't be unbound, becouse (f => f) !== (f => f)
   private boundListeners = new Set()
 
+  init(onVRSupportRequested): void {
+    if (onVRSupportRequested) initVR(onVRSupportRequested)
+    else initVR()
+  }
+
   public execute(delta: number): void {
+    // Handle XR input
+    const webXRRenderer = this.queries.xrRenderer.results && this.queries.xrRenderer.results[0].getMutableComponent(WebXRRenderer)
+
+    if (this.queries.xrSession.added) for (const entity of this.queries.xrSession.added) initializeSession(entity, { webXRRenderer })
+
+    if (this.queries.xrSession.results) for (const entity of this.queries.xrSession.results) processSession(entity)
+
     // Called every frame on all input components
     this.queries.inputs.results.forEach(entity => handleInput(entity, { delta }))
 
@@ -121,5 +139,7 @@ InputSystem.queries = {
       added: true,
       removed: true
     }
-  }
+  },
+  xrRenderer: { components: [WebXRRenderer] },
+  xrSession: { components: [WebXRSession], listen: { added: true } }
 }

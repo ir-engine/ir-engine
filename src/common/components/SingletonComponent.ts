@@ -1,7 +1,7 @@
 import { Component } from "ecsy"
 
 export class SingletonComponent<T> extends Component<T> {
-  static instance: SingletonComponent<any>
+  static instance: any
   constructor() {
     super(false)
     if (SingletonComponent.instance) {

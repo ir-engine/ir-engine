@@ -26,7 +26,6 @@ import { WebXRSpace } from "./input/components/WebXRSpace"
 import { WebXRViewPoint } from "./input/components/WebXRViewPoint"
 import { DefaultInputSchema } from "./input/defaults/DefaultInputSchema"
 import { InputSystem } from "./input/systems/InputSystem"
-import { WebXRInputSystem } from "./input/systems/WebXRInputSystem"
 import { MediaStreamComponent } from "./networking/components/MediaStreamComponent"
 import { Network as NetworkComponent } from "./networking/components/Network"
 import { NetworkClient } from "./networking/components/NetworkClient"
@@ -46,6 +45,7 @@ import { TransformComponent } from "./transform/components/TransformComponent"
 import { TransformParentComponent } from "./transform/components/TransformParentComponent"
 import { TransformSystem } from "./transform/systems/TransformSystem"
 import { WorldComponent } from "./common/components/WorldComponent"
+import { startVR } from "./input/behaviors/WebXRInputBehaviors"
 
 const DEFAULT_OPTIONS = {
   debug: false,
@@ -137,14 +137,6 @@ export function initializeArmada(world: World, options: any = DEFAULT_OPTIONS, s
       .registerComponent(WebXRRenderer)
       .registerComponent(WebXRSecondController)
       .registerComponent(WebXRSecondGamepad)
-      .registerSystem(WebXRInputSystem, {
-        onVRSupportRequested(vrSupported) {
-          if (vrSupported) {
-            const webxr: any = world.getSystem(WebXRInputSystem)
-            webxr.startVR()
-          }
-        }
-      })
 
   // Networking
   if (options.networking && options.networking.enabled) {
