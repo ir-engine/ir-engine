@@ -1,4 +1,4 @@
-export * from "./behaviors/Keyframes"
+export * from "./functions/Keyframes"
 export * from "./classes/ParticleEmitter"
 export * from "./classes/ParticleMesh"
 export * from "./components/Keyframe"

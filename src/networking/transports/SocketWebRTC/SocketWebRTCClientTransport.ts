@@ -9,7 +9,7 @@ import { MessageTypes } from "../../enums/MessageTypes"
 import { Message } from "../../interfaces/Message"
 import { NetworkTransport } from "../../interfaces/NetworkTransport"
 import { MediaStreamControlSystem } from "../../systems/MediaStreamSystem"
-import { NetworkSystem } from "../../systems/NetworkSystem"
+import { initializeClient, addClient, removeClient } from "../../functions/ClientFunctions"
 
 const Device = mediasoupClient.Device
 
@@ -77,15 +77,15 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       this.socket.on(MessageTypes.Initialization.toString(), async (_id: any, _ids: any) => {
         console.log("Initiaslization response")
-        NetworkSystem.instance.initializeClient(_id, _ids)
+        initializeClient(_id, _ids)
         await this.joinWorld()
         console.log("About to send camera streams")
         await this.sendCameraStreams()
         console.log("about to init sockets")
       })
 
-      this.socket.on(MessageTypes.ClientConnected.toString(), (_id: any) => NetworkSystem.instance.addClient(_id))
-      this.socket.on(MessageTypes.ClientDisconnected.toString(), (_id: any) => NetworkSystem.instance.removeClient(_id))
+      this.socket.on(MessageTypes.ClientConnected.toString(), (_id: any) => addClient(_id))
+      this.socket.on(MessageTypes.ClientDisconnected.toString(), (_id: any) => removeClient(_id))
 
       this.socket.on(MessageTypes.ReliableMessage.toString(), (message: Message) => {
         NetworkComponent.instance.incomingReliableQueue.add(message)
@@ -453,12 +453,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // poll.
 
     // auto-subscribe to their feeds:
-    const closestPeers = NetworkSystem.instance.getClosestPeers()
     for (const id in peers) {
       // for each peer...
       if (id !== NetworkComponent.instance.mySocketID) {
         // if it isnt me...
-        if (closestPeers !== undefined && closestPeers.includes(id)) {
+        if (NetworkComponent.instance.clients !== undefined && NetworkComponent.instance.clients.includes(id)) {
           // and if it is close enough in the 3d space...
           for (const [mediaTag, _] of Object.entries(peers[id].media)) {
             // for each of the peer's producers...
