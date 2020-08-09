@@ -1,7 +1,6 @@
 export * from "./behaviors/DesktopInputBehaviors"
 export * from "./behaviors/GamepadInputBehaviors"
 export * from "./behaviors/TouchBehaviors"
-export * from "./behaviors/TouchInputBehaviors"
 export * from "./components/Input"
 export * from "./components/WebXRButton"
 export * from "./components/WebXRMainController"

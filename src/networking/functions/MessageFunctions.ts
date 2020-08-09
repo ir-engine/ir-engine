@@ -1,8 +1,8 @@
-import { cropString } from "../../../common/functions/cropString"
-import { set } from "../../../common/functions/set"
-import { MessageSchema } from "../../classes/MessageSchema"
-import { Network as NetworkComponent } from "../../components/Network"
-import { MessageTypeAlias } from "../../types/MessageTypeAlias"
+import { cropString } from "../../common/functions/cropString"
+import { set } from "../../common/functions/set"
+import { MessageSchema } from "../classes/MessageSchema"
+import { Network as NetworkComponent } from "../components/Network"
+import { MessageTypeAlias } from "../types/MessageTypeAlias"
 let _schema: MessageSchema<any>
 let _buffer: ArrayBuffer = new ArrayBuffer(0)
 let _dataView: DataView = new DataView(this._buffer)
@@ -247,7 +247,7 @@ export const populateData = (data, obj: any, key: any, value: any, path = "", is
     for (const props in obj) {
       if (typeof obj[props] === "object") {
         const p = Array.isArray(obj) ? "" : `${props}.`
-        populateData(obj[props], key, value, path + p, Array.isArray(obj))
+        populateData(data, obj[props], key, value, path + p, Array.isArray(obj))
       }
       //obj
     }

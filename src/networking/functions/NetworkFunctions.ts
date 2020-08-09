@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { NetworkEventBehavior } from "../interfaces/NetworkEventBehavior"
 import { MessageTypeAlias } from "../types/MessageTypeAlias"
 import { createNetworkPrefab } from "./NetworkPrefabFunctions"
 import { Network } from "../components/Network"
@@ -8,6 +7,10 @@ import { MessageChannel } from "../enums/MessageChannel"
 import { RingBuffer } from "../../common/classes/RingBuffer"
 import { MediaStreamComponent } from "../components/MediaStreamComponent"
 import { constructInstance } from "../../common/functions/constructInstance"
+import { fromBuffer } from "./MessageFunctions"
+import { World } from "ecsy"
+import { NetworkSchema } from "../interfaces/NetworkSchema"
+import { NetworkTransport } from ".."
 
 export function initializeNetworkSession(world: World, networkSchema: NetworkSchema, transportClass?: any) {
   console.log("Initialization session")
@@ -25,7 +28,7 @@ export function initializeNetworkSession(world: World, networkSchema: NetworkSch
   Network.instance.isInitialized = true
 }
 
-export const handleClientConnected: NetworkEventBehavior = (clientID: string): void => {
+export const handleClientConnected = (clientID: string): void => {
   console.log("Client ", clientID, " connected.")
   // create a network prefab using network schema
   createNetworkPrefab(
@@ -46,9 +49,11 @@ export const handleClientDisconnected = (clientID: String): void => {
 }
 
 let instance: Network
-export const handleMessage = (messageData: any): void => {
+let message: any
+export const handleMessage = (messageType: MessageTypeAlias, messageData: any): void => {
   instance = Network.instance
-  instance.schema.messageHandlers[messageType].behavior({ ...instance.schema.messageHandlers[messageType].args, messageData })
+  message = fromBuffer(messageData)
+  // Process the message!
 }
 
 let queue: RingBuffer<any>
