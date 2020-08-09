@@ -1,4 +1,4 @@
-import { InputAlias } from "../types/InputAlias";
+import { InputAlias } from "../types/InputAlias"
 
 export interface InputRelationship {
   opposes?: InputAlias[] // Cancel each other out (walk left and right at the same time)

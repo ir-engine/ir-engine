@@ -8,10 +8,3 @@ export * from "./interfaces/StateValue"
 export * from "./systems/StateSystem"
 export * from "./types/StateAlias"
 export * from "./types/StateGroupAlias"
-
-
-
-
-
-
-

@@ -9,7 +9,6 @@ import { Actor } from "../components/Actor"
 import { Crouching } from "../components/Crouching"
 import { Sprinting } from "../components/Sprinting"
 
-
 let input: Input
 let actor: Actor
 let transform: TransformComponent
