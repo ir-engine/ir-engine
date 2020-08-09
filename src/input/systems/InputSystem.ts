@@ -3,7 +3,8 @@ import { Input } from "../components/Input"
 import { DefaultInputSchema } from "../defaults/DefaultInputSchema"
 import { WebXRRenderer } from "../components/WebXRRenderer"
 import { WebXRSession } from "../components/WebXRSession"
-import { initializeSession, processSession, initVR } from "../behaviors/WebXRInputBehaviors"
+import { initializeSession, processSession } from "../behaviors/WebXRInputBehaviors"
+import { initVR } from "../functions/WebXRFunctions"
 import { handleInput } from "../behaviors/handleInput"
 
 export class InputSystem extends System {
