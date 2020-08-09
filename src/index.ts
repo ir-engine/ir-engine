@@ -45,6 +45,7 @@ import { SubscriptionSystem } from "./subscription/systems/SubscriptionSystem"
 import { TransformComponent } from "./transform/components/TransformComponent"
 import { TransformParentComponent } from "./transform/components/TransformParentComponent"
 import { TransformSystem } from "./transform/systems/TransformSystem"
+import { WorldComponent } from "./common/components/WorldComponent"
 
 const DEFAULT_OPTIONS = {
   debug: false,
@@ -84,6 +85,14 @@ const DEFAULT_OPTIONS = {
 export function initializeArmada(world: World, options: any = DEFAULT_OPTIONS, scene?: any, camera?: any) {
   world.registerComponent(Scene)
 
+  // World singleton
+  const worldEntity = world
+    .createEntity()
+    .addComponent(WorldComponent)
+    .getMutableComponent(WorldComponent)
+
+  worldEntity.world = world
+
   // Set up our scene singleton so we can bind to our scene elsewhere
   const sceneEntity = world
     .createEntity()
@@ -103,21 +112,31 @@ export function initializeArmada(world: World, options: any = DEFAULT_OPTIONS, s
     camera.position.z = 10 // TODO: Remove, just here for setup
   }
 
+  WorldComponent.instance.world
+    .registerComponent(WebXRSession)
+    .registerComponent(WebXRSpace)
+    .registerComponent(WebXRViewPoint)
+    .registerComponent(WebXRPointer)
+    .registerComponent(WebXRMainController)
+    .registerComponent(WebXRSecondController)
+    .registerComponent(WebXRMainGamepad)
+    .registerComponent(WebXRSecondGamepad)
+
   // Input
   if (options.input && options.input.enabled && isBrowser)
     world
       .registerComponent(Input)
       .registerSystem(InputSystem)
-      .registerComponent(WebXRButton)
-      .registerComponent(WebXRMainController)
-      .registerComponent(WebXRMainGamepad)
-      .registerComponent(WebXRPointer)
-      .registerComponent(WebXRRenderer)
-      .registerComponent(WebXRSecondController)
-      .registerComponent(WebXRSecondGamepad)
       .registerComponent(WebXRSession)
       .registerComponent(WebXRSpace)
       .registerComponent(WebXRViewPoint)
+      .registerComponent(WebXRPointer)
+      .registerComponent(WebXRButton)
+      .registerComponent(WebXRMainController)
+      .registerComponent(WebXRMainGamepad)
+      .registerComponent(WebXRRenderer)
+      .registerComponent(WebXRSecondController)
+      .registerComponent(WebXRSecondGamepad)
       .registerSystem(WebXRInputSystem, {
         onVRSupportRequested(vrSupported) {
           if (vrSupported) {
