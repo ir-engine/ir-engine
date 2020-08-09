@@ -5,7 +5,7 @@ import { addObject3DComponent, removeObject3DComponent } from "../../common/defa
 import { Actor } from "../../common/defaults/components/Actor"
 import { Input } from "../../input/components/Input"
 import { TransformComponent } from "../../transform/components/TransformComponent"
-import { handleClientConnected, handleClientDisconnected, handleReliableMessage, handleUnreliableMessage } from "../behaviors/NetworkBehaviors"
+import { handleClientConnected, handleClientDisconnected, handleMessage } from "../functions/NetworkFunctions"
 import { NetworkObject } from "../components/NetworkObject"
 import { MessageTypes } from "../enums/MessageTypes"
 import { NetworkPrefab } from "../interfaces/NetworkPrefab"
@@ -69,10 +69,10 @@ export const DefaultNetworkSchema: NetworkSchema = {
       behavior: handleClientDisconnected
     },
     [MessageTypes.ReliableMessage]: {
-      behavior: handleReliableMessage
+      behavior: handleMessage
     },
     [MessageTypes.UnreliableMessage]: {
-      behavior: handleUnreliableMessage
+      behavior: handleMessage
     }
   },
   messageSchemas: {
