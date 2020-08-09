@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import MediaStreamComponent from "../../components/MediaStreamComponent"
-import ioclient from "socket.io-client"
 import mediasoupClient from "mediasoup-client"
-import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "../../constants/VideoConstants"
+import ioclient from "socket.io-client"
 import { sleep } from "../../../common/functions/sleep"
-import MessageTypes from "../../enums/MessageTypes"
-import { NetworkSystem } from "../../systems/NetworkSystem"
+import { MediaStreamComponent } from "../../components/MediaStreamComponent"
+import { Network as NetworkComponent } from "../../components/Network"
+import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "../../constants/VideoConstants"
+import { MessageTypes } from "../../enums/MessageTypes"
+import { Message } from "../../interfaces/Message"
+import { NetworkTransport } from "../../interfaces/NetworkTransport"
 import { MediaStreamControlSystem } from "../../systems/MediaStreamSystem"
-import NetworkTransport from "../../interfaces/NetworkTransport"
-import Message from "../../interfaces/Message"
-import Network from "../../components/Network"
+import { NetworkSystem } from "../../systems/NetworkSystem"
 
 const Device = mediasoupClient.Device
 
@@ -29,8 +29,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   request: any
 
   sendAllReliableMessages(): void {
-    while (!Network.instance.outgoingReliableQueue.empty) {
-      this.socket.emit(MessageTypes.ReliableMessage.toString(), Network.instance.outgoingReliableQueue.pop)
+    while (!NetworkComponent.instance.outgoingReliableQueue.empty) {
+      this.socket.emit(MessageTypes.ReliableMessage.toString(), NetworkComponent.instance.outgoingReliableQueue.pop)
     }
   }
 
@@ -88,7 +88,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       this.socket.on(MessageTypes.ClientDisconnected.toString(), (_id: any) => NetworkSystem.instance.removeClient(_id))
 
       this.socket.on(MessageTypes.ReliableMessage.toString(), (message: Message) => {
-        Network.instance.incomingReliableQueue.add(message)
+        NetworkComponent.instance.incomingReliableQueue.add(message)
       })
       this.socket.emit(MessageTypes.Initialization.toString())
     })
@@ -444,7 +444,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (this.request === undefined) return
     const { peers } = await this.request(MessageTypes.Synchronization.toString())
 
-    if (peers[Network.instance.mySocketID] === undefined) console.log("Server doesn't think you're connected!")
+    if (peers[NetworkComponent.instance.mySocketID] === undefined) console.log("Server doesn't think you're connected!")
 
     // decide if we need to update tracks list and video/audio
     // elements. build list of peers, sorted by join time, removing last
@@ -456,7 +456,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     const closestPeers = NetworkSystem.instance.getClosestPeers()
     for (const id in peers) {
       // for each peer...
-      if (id !== Network.instance.mySocketID) {
+      if (id !== NetworkComponent.instance.mySocketID) {
         // if it isnt me...
         if (closestPeers !== undefined && closestPeers.includes(id)) {
           // and if it is close enough in the 3d space...

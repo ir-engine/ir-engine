@@ -103,8 +103,6 @@ typings/
 .tern-port
 .buildcache
 
-build
-dist
 build/
 dist/
 

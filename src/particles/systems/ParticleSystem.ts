@@ -1,10 +1,10 @@
 import { System } from "ecsy"
-import { ParticleEmitter, ParticleEmitterState } from "../components/ParticleEmitter"
 import { Object3DComponent } from "ecsy-three"
-import Transform from "../../transform/components/Transform"
-import TransformParent from "../../transform/components/TransformParent"
 import * as THREE from "three"
+import { TransformComponent } from "../../transform/components/TransformComponent"
+import { TransformParentComponent } from "../../transform/components/TransformParentComponent"
 import { createParticleEmitter, setEmitterMatrixWorld, setEmitterTime } from "../classes/ParticleEmitter.js"
+import { ParticleEmitter, ParticleEmitterState } from "../components/ParticleEmitter"
 
 export class ParticleSystem extends System {
   execute(deltaTime, time): void {
@@ -75,7 +75,7 @@ const calcMatrixWorld = (function() {
 
   return function calcMatrixWorld(entity, childMatrix = undefined) {
     const object3D = entity.getComponent(Object3DComponent)
-    const transform = entity.getComponent(Transform)
+    const transform = entity.getComponent(TransformComponent)
 
     if (object3D) {
       return childMatrix ? childMatrix.multiply(object3D["value"].matrixWorld) : object3D["value"].matrixWorld
@@ -88,7 +88,7 @@ const calcMatrixWorld = (function() {
         transformMatrix.premultiply(childMatrix)
       }
 
-      const parent = entity.getComponent(TransformParent)
+      const parent = entity.getComponent(TransformParentComponent)
       return parent ? calcMatrixWorld(parent["value"], transformMatrix) : transformMatrix
     } else {
       return new THREE.Matrix4()

@@ -1,15 +1,15 @@
-import { System, Entity, World } from "ecsy"
-import NetworkClient from "../components/NetworkClient"
-import MessageSchema from "../classes/MessageSchema"
-import set from "../../common/functions/set"
-import cropString from "../../common/functions/cropString"
-import NetworkObject from "../components/NetworkObject"
-import MessageTypeAlias from "../types/MessageTypeAlias"
-import Network from "../components/Network"
-import NetworkSchema from "../interfaces/NetworkSchema"
-import MessageTypes from "../enums/MessageTypes"
-import NetworkTransport from "../interfaces/NetworkTransport"
-import MediaStreamComponent from "../components/MediaStreamComponent"
+import { System, World } from "ecsy"
+import { cropString } from "../../common/functions/cropString"
+import { set } from "../../common/functions/set"
+import { MessageSchema } from "../classes/MessageSchema"
+import { MediaStreamComponent } from "../components/MediaStreamComponent"
+import { Network as NetworkComponent } from "../components/Network"
+import { NetworkClient } from "../components/NetworkClient"
+import { NetworkObject } from "../components/NetworkObject"
+import { MessageTypes } from "../enums/MessageTypes"
+import { NetworkSchema } from "../interfaces/NetworkSchema"
+import { NetworkTransport } from "../interfaces/NetworkTransport"
+import { MessageTypeAlias } from "../types/MessageTypeAlias"
 
 export function constructInstance<T>(type: new () => T): T {
   return new type()
@@ -32,16 +32,16 @@ export class NetworkSystem extends System {
     console.log("Initialization session")
     const transport = constructInstance<NetworkTransport>(transportClass)
     const entity = world.createEntity()
-    entity.addComponent(Network)
+    entity.addComponent(NetworkComponent)
 
     if (transport.supportsMediaStreams) {
       entity.addComponent(MediaStreamComponent)
     }
 
-    Network.instance.schema = networkSchema
-    Network.instance.transport = transport
+    NetworkComponent.instance.schema = networkSchema
+    NetworkComponent.instance.transport = transport
     transport.initialize()
-    Network.instance.isInitialized = true
+    NetworkComponent.instance.isInitialized = true
   }
 
   static queries: any = {
@@ -54,7 +54,7 @@ export class NetworkSystem extends System {
   }
 
   initializeClient(myClientId, allClientIds): void {
-    Network.instance.mySocketID = myClientId
+    NetworkComponent.instance.mySocketID = myClientId
     console.log("Initialized with socket ID", myClientId)
     if (allClientIds === undefined) return console.log("All IDs are null")
     // for each existing user, add them as a client and add tracks to their peer connection
@@ -63,30 +63,30 @@ export class NetworkSystem extends System {
 
   getClosestPeers(): any[] {
     // TODO: InterestManagement!
-    return Network.instance.clients
+    return NetworkComponent.instance.clients
   }
 
   // TODO: Remove these and have transport affect these values
   addClient(_id: string): void {
-    if (Network.instance.clients.includes(_id)) return console.error("Client is already in client list")
-    Network.instance.clients.push(_id)
-    Network.instance.schema.messageHandlers[MessageTypes.ClientConnected].behavior(_id, _id === Network.instance.mySocketID) // args: ID, isLocalPlayer?
+    if (NetworkComponent.instance.clients.includes(_id)) return console.error("Client is already in client list")
+    NetworkComponent.instance.clients.push(_id)
+    NetworkComponent.instance.schema.messageHandlers[MessageTypes.ClientConnected].behavior(_id, _id === NetworkComponent.instance.mySocketID) // args: ID, isLocalPlayer?
   }
 
   removeClient(_id: string): void {
     // args: ID, isLocalPlayer?
-    if (_id in Network.instance.clients) {
-      Network.instance.clients.splice(Network.instance.clients.indexOf(_id))
-      Network.instance.schema.messageHandlers[MessageTypes.ClientDisconnected].behavior(_id, _id === Network.instance.mySocketID) // args: ID, isLocalPlayer?
+    if (_id in NetworkComponent.instance.clients) {
+      NetworkComponent.instance.clients.splice(NetworkComponent.instance.clients.indexOf(_id))
+      NetworkComponent.instance.schema.messageHandlers[MessageTypes.ClientDisconnected].behavior(_id, _id === NetworkComponent.instance.mySocketID) // args: ID, isLocalPlayer?
     } else console.warn("Couldn't remove client because they didn't exist in our list")
   }
 
   public execute(delta: number): void {
-    if (!Network.instance.isInitialized) return
+    if (!NetworkComponent.instance.isInitialized) return
   }
 
   public deinitializeSession() {
-    Network.instance.isInitialized = false
+    NetworkComponent.instance.isInitialized = false
     // NetworkTransport.instance.transport.deinitialize()
   }
 
@@ -188,8 +188,8 @@ export class NetworkSystem extends System {
     schemaIds.forEach((id, i) => {
       // check if the schemaId exists
       // (this can be, for example, if charCode 35 is not really a #)
-      const schemaId = Network.instance.schema.messageSchemas[id]
-      if (schemaId) schemas.push({ id, schema: Network.instance.schema.messageSchemas[id], startsAt: indexes[i] + 5 })
+      const schemaId = NetworkComponent.instance.schema.messageSchemas[id]
+      if (schemaId) schemas.push({ id, schema: NetworkComponent.instance.schema.messageSchemas[id], startsAt: indexes[i] + 5 })
     })
     // schemas[] contains now all the schemas we need to fromBuffer the bufferArray
 

@@ -5,6 +5,17 @@
   <title>armada webgl - geometry - cube</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    canvas {
+      width: 100%;
+      height: 70%;
+    }
+  </style>
 </head>
 
 <body>
@@ -31,12 +42,11 @@
       Vector3
     } from "three"
 
-    import { initializeArmada, DefaultInputSchema, DefaultNetworkSchema, DefaultStateSchema, DefaultSubscriptionSchema } from "../dist/armada.js"
+    import { Camera, initializeArmada, DefaultInputSchema, DefaultNetworkSchema, DefaultStateSchema, DefaultSubscriptionSchema } from "../dist/armada.js"
 
     // Setup world
     const world = new ECSYThreeWorld()
-    let { camera, scene, cameraEntity, sceneEntity } = initialize(world)
-    camera.position.z = 10
+    let { camera, scene } = initialize(world)
     world.createEntity().addObject3DComponent(new AmbientLight(), sceneEntity)
 
     const options = {
@@ -71,8 +81,21 @@
       }
     }
 
+    // Initialize with our three scene and camera
     initializeArmada(world, options, scene, camera);
 
+    const cube = world
+      .createEntity()
+      .addObject3DComponent(
+        new Mesh(
+          new BoxBufferGeometry(1, 1, 1),
+          new MeshBasicMaterial({
+          })
+        ),
+        sceneEntity
+      )
+
+    Camera.instance.followTarget = cube
 
     // Let's begin
     world.execute()

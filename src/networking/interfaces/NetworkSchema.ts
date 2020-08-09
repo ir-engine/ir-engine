@@ -1,9 +1,9 @@
 import { Prefab } from "../../common/interfaces/Prefab"
-import PrefabAlias from "../../common/types/PrefabAlias"
-import NetworkTransport from "./NetworkTransport"
-import MessageSchema from "../classes/MessageSchema"
+import { PrefabAlias } from "../../common/types/PrefabAlias"
+import { MessageSchema } from "../classes/MessageSchema"
+import { NetworkTransport } from "./NetworkTransport"
 
-export default interface NetworkSchema {
+export interface NetworkSchema {
   transport: NetworkTransport | unknown | null
   messageSchemas: {
     [key: string]: MessageSchema<any>

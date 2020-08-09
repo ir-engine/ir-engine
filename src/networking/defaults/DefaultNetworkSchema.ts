@@ -1,23 +1,22 @@
 // Components
-import NetworkSchema from "../interfaces/NetworkSchema"
-import NetworkObject from "../components/NetworkObject"
-import { NetworkPrefab } from "../interfaces/NetworkPrefab"
-import Input from "../../input/components/Input"
-import Transform from "../../transform/components/Transform"
-import Camera from "../../camera/components/Camera"
-import Actor from "../../common/defaults/components/Actor"
+import { BoxBufferGeometry, Mesh, MeshBasicMaterial } from "three"
+import { Camera } from "../../camera/components/Camera"
 import { addObject3DComponent, removeObject3DComponent } from "../../common/defaults/behaviors/Object3DBehaviors"
-import { Mesh, BoxBufferGeometry, MeshBasicMaterial } from "three"
-import { Transport } from "mediasoup-client/lib/types"
-import { SocketWebRTCClientTransport } from "../transports/SocketWebRTC/SocketWebRTCClientTransport"
-import DefaultMessageTypes from "./DefaultMessageTypes"
-import MessageTypes from "../enums/MessageTypes"
+import { Actor } from "../../common/defaults/components/Actor"
+import { Input } from "../../input/components/Input"
+import { TransformComponent } from "../../transform/components/TransformComponent"
 import { handleClientConnected, handleClientDisconnected, handleReliableMessage, handleUnreliableMessage } from "../behaviors/NetworkBehaviors"
-import DefaultMessageSchema from "./DefaultMessageSchema"
+import { NetworkObject } from "../components/NetworkObject"
+import { MessageTypes } from "../enums/MessageTypes"
+import { NetworkPrefab } from "../interfaces/NetworkPrefab"
+import { NetworkSchema } from "../interfaces/NetworkSchema"
+import { SocketWebRTCClientTransport } from "../transports/SocketWebRTC/SocketWebRTCClientTransport"
+import { DefaultMessageSchema } from "./DefaultMessageSchema"
+import { DefaultMessageTypes } from "./DefaultMessageTypes"
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 const NetworkPlayerCharacter: NetworkPrefab = {
-  components: [{ type: NetworkObject }, { type: Actor }, { type: Transform }],
+  components: [{ type: NetworkObject }, { type: Actor }, { type: TransformComponent }],
   localComponents: [{ type: Input }, { type: Camera }],
   onCreate: [
     {
@@ -37,12 +36,12 @@ const NetworkPlayerCharacter: NetworkPrefab = {
 // initializeActor(cube, inputOptions)
 // Prefab is a pattern for creating an entity and component collection as a prototype
 const NetworkCube: NetworkPrefab = {
-  components: [{ type: NetworkObject }, { type: Transform }]
+  components: [{ type: NetworkObject }, { type: TransformComponent }]
 }
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 const Car: NetworkPrefab = {
-  components: [{ type: NetworkObject }, { type: Transform }]
+  components: [{ type: NetworkObject }, { type: TransformComponent }]
 }
 
 export const PrefabType = {

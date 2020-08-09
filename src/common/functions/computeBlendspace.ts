@@ -1,6 +1,6 @@
 import StateType from "../../state/types/StateAlias"
 import { Scalar, Vector2, Vector3 } from "../types/NumericalTypes"
-import instanceOf from "./instanceOf"
+import { instanceOf } from "./instanceOf"
 
 interface blendStatePositionValue {
   stateType: StateType
@@ -24,7 +24,7 @@ let a: number
 let b: number
 let c: number
 
-export default function computeBlendValue(inputValue: Scalar | Vector2 | Vector3, blendStateValues: blendStatePositionValue[]): outputState[] {
+export function computeBlendValue(inputValue: Scalar | Vector2 | Vector3, blendStateValues: blendStatePositionValue[]): outputState[] {
   bufferPosition = 0
   totalDistance = 0
   blendStateValues.forEach(element => {

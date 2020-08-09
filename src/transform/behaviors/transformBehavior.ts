@@ -1,17 +1,17 @@
-import Behavior from "../../common/interfaces/Behavior"
 import { Entity } from "ecsy"
 import { Object3DComponent } from "ecsy-three"
-import Transform from "../../transform/components/Transform"
-import { Quaternion, Euler } from "three"
 import { vec3 } from "gl-matrix"
+import { Quaternion } from "three"
+import { Behavior } from "../../common/interfaces/Behavior"
+import { TransformComponent } from "../components/TransformComponent"
 const q: Quaternion = new Quaternion()
-let transform: Transform
+let transform: TransformComponent
 const _deltaV: vec3 = [0, 0, 0]
 const _position: vec3 = [0, 0, 0]
 const _velocity: vec3 = [0, 0, 0]
 
 export const transformBehavior: Behavior = (entity: Entity, args: { event: MouseEvent }, delta): void => {
-  transform = entity.getMutableComponent(Transform)
+  transform = entity.getMutableComponent(TransformComponent)
 
   vec3.set(_position, transform.position[0], transform.position[1], transform.position[2])
   vec3.set(_velocity, transform.velocity[0], transform.velocity[1], transform.velocity[2])

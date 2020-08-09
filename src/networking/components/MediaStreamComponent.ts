@@ -1,7 +1,7 @@
 // TODO: Clean me up, add schema, etc
 import { Component } from "ecsy"
 
-export default class MediaStreamComponent extends Component<any> {
+export class MediaStreamComponent extends Component<any> {
   static instance: MediaStreamComponent
   initialized = false
   localScreen

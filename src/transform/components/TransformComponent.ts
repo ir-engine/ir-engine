@@ -11,7 +11,7 @@ interface PropTypes {
   velocity: number[]
 }
 
-export default class Transform extends Component<PropTypes> {
+export class TransformComponent extends Component<PropTypes> {
   position: number[] = vector3Identity
   rotation: number[] = quaternionIdentity
   scale: number[] = vector3ScaleIdentity

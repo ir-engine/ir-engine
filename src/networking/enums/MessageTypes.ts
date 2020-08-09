@@ -1,4 +1,4 @@
-enum MessageTypes {
+export enum MessageTypes {
   Connect = "connect",
   Disconnect = "disconnect",
   ConnectionError = "connect_error",
@@ -27,5 +27,3 @@ enum MessageTypes {
   WebRTCUnmuteOtherProducer = "21",
   WebRTCConsumerSetLayers = "22"
 }
-
-export default MessageTypes

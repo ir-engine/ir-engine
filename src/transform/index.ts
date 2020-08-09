@@ -1,3 +1,4 @@
-export * from "./components/Transform"
-export * from "./components/TransformParent"
+export * from "./components/TransformComponent"
+export * from "./components/TransformParentComponent"
 export * from "./systems/TransformSystem"
+

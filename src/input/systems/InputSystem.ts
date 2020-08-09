@@ -1,14 +1,14 @@
 import { Entity, System } from "ecsy"
-import Input from "../components/Input"
+import { LifecycleValue } from "../../common/enums/LifecycleValue"
+import { Behavior } from "../../common/interfaces/Behavior"
+import { Binary, NumericalType } from "../../common/types/NumericalTypes"
+import { Input } from "../components/Input"
 import { DefaultInputSchema } from "../defaults/DefaultInputSchema"
-import { NumericalType, Binary } from "../../common/types/NumericalTypes"
-import Behavior from "../../common/interfaces/Behavior"
-import InputValue from "../interfaces/InputValue"
-import InputAlias from "../types/InputAlias"
 import { InputType } from "../enums/InputType"
-import LifecycleValue from "../../common/enums/LifecycleValue"
+import { InputValue } from "../interfaces/InputValue"
+import { InputAlias } from "../types/InputAlias"
 
-export default class InputSystem extends System {
+export class InputSystem extends System {
   // Temp/ref variables
   private _inputComponent: Input
   // bound DOM listeners should be saved, otherwise they can't be unbound, becouse (f => f) !== (f => f)

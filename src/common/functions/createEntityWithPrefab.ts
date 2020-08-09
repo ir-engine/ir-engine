@@ -1,4 +1,4 @@
-import { World, Entity } from "ecsy"
+import { Entity, World } from "ecsy"
 import { Prefab } from "../interfaces/Prefab"
 
 export function createEntityWithPrefab(prefab: Prefab, world: World): Entity {

@@ -24,7 +24,7 @@ interface PropTypes {
   jumpData: JumpPropTypes
 }
 
-export default class Actor extends Component<PropTypes> {
+export class Actor extends Component<PropTypes> {
   rotationSpeedX: number
   rotationSpeedY: number
   maxSpeed = 0.01

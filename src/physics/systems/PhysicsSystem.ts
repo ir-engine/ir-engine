@@ -1,11 +1,11 @@
 import * as CANNON from "cannon-es"
+import { Entity, System } from "ecsy"
+import { Object3DComponent } from "ecsy-three"
+// TODO: Remove THREE references, replace with gl-matrix
+import { Euler, Quaternion } from "three"
+import { TransformComponent } from "../../transform/components/TransformComponent"
 import { RigidBody } from "../components/RigidBody"
 import { VehicleBody } from "../components/VehicleBody"
-import { System, Entity } from "ecsy"
-import Transform from "../../transform/components/Transform"
-// TODO: Remove THREE references, replace with gl-matrix
-import { Quaternion, Euler } from "three"
-import { Object3DComponent } from "ecsy-three"
 
 function inputs(vehicle) {
   document.onkeydown = handler
@@ -143,7 +143,7 @@ export class PhysicsSystem extends System {
 
     for (const entity of this.queries.physicsRigidBody.results) {
       //  if (rigidBody.weight === 0.0) continue;
-      const transform = entity.getMutableComponent(Transform) as Transform
+      const transform = entity.getMutableComponent(TransformComponent) as TransformComponent
       const object = entity.getMutableComponent(Object3DComponent).value
       const body = object.userData.body
       //console.log(body);
@@ -156,7 +156,7 @@ export class PhysicsSystem extends System {
 
     for (const entity of this.queries.vehicleBody.results) {
       //  if (rigidBody.weight === 0.0) continue;
-      const transform = entity.getMutableComponent(Transform) as Transform
+      const transform = entity.getMutableComponent(TransformComponent) as TransformComponent
       const object = entity.getMutableComponent(Object3DComponent).value
       const vehicle = object.userData.vehicle.chassisBody
 
@@ -169,7 +169,7 @@ export class PhysicsSystem extends System {
 
   _createBox(entity) {
     const rigidBody = entity.getComponent(RigidBody)
-    const transform = entity.getComponent(Transform)
+    const transform = entity.getComponent(TransformComponent)
 
     const shape = new CANNON.Box(new CANNON.Vec3(rigidBody.scale.x / 2, rigidBody.scale.y / 2, rigidBody.scale.z / 2))
 
@@ -190,7 +190,7 @@ export class PhysicsSystem extends System {
 
   _createGroundGeometry(entity) {
     const rigidBody = entity.getComponent(RigidBody)
-    const transform = entity.getComponent(Transform)
+    const transform = entity.getComponent(TransformComponent)
 
     const shape = new CANNON.Box(new CANNON.Vec3(rigidBody.scale.x / 2, rigidBody.scale.y / 2, rigidBody.scale.z / 2))
 
@@ -211,7 +211,7 @@ export class PhysicsSystem extends System {
 
   _createCylinder(entity) {
     const rigidBody = entity.getComponent(RigidBody)
-    const transform = entity.getComponent(Transform)
+    const transform = entity.getComponent(TransformComponent)
 
     const cylinderShape = new CANNON.Cylinder(rigidBody.scale.x, rigidBody.scale.y, rigidBody.scale.z, 20)
     const body = new CANNON.Body({
@@ -229,7 +229,7 @@ export class PhysicsSystem extends System {
 
   _createShare(entity) {
     const rigidBody = entity.getComponent(RigidBody)
-    const transform = entity.getComponent(Transform)
+    const transform = entity.getComponent(TransformComponent)
 
     const shape = new CANNON.Sphere(rigidBody.scale.x / 2)
 
@@ -249,7 +249,7 @@ export class PhysicsSystem extends System {
       attributePosition = object.geometry.attributes.position
     } else {
       rigidBody = entity.getComponent(RigidBody)
-      transform = entity.getComponent(Transform)
+      transform = entity.getComponent(TransformComponent)
       object = transform.getObject3D()
       attributePosition = object.geometry.attributes.position
     }
@@ -298,7 +298,7 @@ export class PhysicsSystem extends System {
   }
 
   _createVehicleBody(entity: Entity, mesh: any): [CANNON.RaycastVehicle, CANNON.Body[]] {
-    const transform = entity.getComponent<Transform>(Transform)
+    const transform = entity.getComponent<TransformComponent>(TransformComponent)
     let chassisBody
     if (mesh) {
       chassisBody = this._createConvexGeometry(entity, mesh)

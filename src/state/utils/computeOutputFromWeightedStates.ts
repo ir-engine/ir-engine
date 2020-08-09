@@ -1,6 +1,6 @@
-import StateType from "../types/StateAlias"
+import { instanceOf } from "../../common/functions/instanceOf"
 import { Scalar, Vector2, Vector3 } from "../../common/types/NumericalTypes"
-import instanceOf from "../../common/functions/instanceOf"
+import StateType from "../types/StateAlias"
 
 interface weightedState {
   type: StateType

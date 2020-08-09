@@ -1,6 +1,6 @@
-import { World, Entity } from "ecsy"
+import { Entity, World } from "ecsy"
+import { NetworkObject } from "../components/NetworkObject"
 import { NetworkPrefab } from "../interfaces/NetworkPrefab"
-import NetworkObject from "../components/NetworkObject"
 
 export function createNetworkEntityWithPrefab(
   prefab: NetworkPrefab,

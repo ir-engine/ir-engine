@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { System, World } from "ecsy"
-import MediaStreamComponent from "../components/MediaStreamComponent"
+import { MediaStreamComponent } from "../components/MediaStreamComponent"
+import { Network } from "../components/Network"
 import { localMediaConstraints } from "../constants/VideoConstants"
-import Network from "../components/Network"
 
 export class MediaStreamControlSystem extends System {
   public static instance: MediaStreamControlSystem
@@ -88,15 +88,13 @@ export class MediaStreamControlSystem extends System {
   }
 
   async toggleScreenshareVideoPauseState() {
-    if (this.getScreenPausedState())
-      (Network.instance.transport as any).pauseProducer(MediaStreamComponent.instance.screenVideoProducer)
+    if (this.getScreenPausedState()) (Network.instance.transport as any).pauseProducer(MediaStreamComponent.instance.screenVideoProducer)
     else (Network.instance.transport as any).resumeProducer(MediaStreamComponent.instance.screenVideoProducer)
     MediaStreamComponent.instance.screenShareVideoPaused = !MediaStreamComponent.instance.screenShareVideoPaused
   }
 
   async toggleScreenshareAudioPauseState() {
-    if (this.getScreenAudioPausedState())
-      (Network.instance.transport as any).pauseProducer(MediaStreamComponent.instance.screenAudioProducer)
+    if (this.getScreenAudioPausedState()) (Network.instance.transport as any).pauseProducer(MediaStreamComponent.instance.screenAudioProducer)
     else (Network.instance.transport as any).resumeProducer(MediaStreamComponent.instance.screenAudioProducer)
     MediaStreamComponent.instance.screenShareAudioPaused = !MediaStreamComponent.instance.screenShareAudioPaused
   }

@@ -1,49 +1,50 @@
+export * from "./camera"
 export * from "./common"
 export * from "./input"
-export * from "./state"
-export * from "./physics"
-export * from "./particles"
 export * from "./networking"
+export * from "./particles"
+export * from "./physics"
+export * from "./state"
 export * from "./subscription"
 export * from "./transform"
 
 import { World } from "ecsy"
-
-import InputSystem from "./input/systems/InputSystem"
+import { Camera } from "./camera/components/Camera"
+import { CameraSystem } from "./camera/systems/CameraSystem"
+import { Scene } from "./common/components/Scene"
 import { isBrowser } from "./common/functions/isBrowser"
-import Input from "./input/components/Input"
-import SubscriptionSystem from "./subscription/systems/SubscriptionSystem"
-import Subscription from "./subscription/components/Subscription"
-import { DefaultInputSchema } from "./input/defaults/DefaultInputSchema"
-import { DefaultSubscriptionSchema } from "./subscription/defaults/DefaultSubscriptionSchema"
-import { DefaultStateSchema } from "./state/defaults/DefaultStateSchema"
-import State from "./state/components/State"
-import Transform from "./transform/components/Transform"
-import NetworkClient from "./networking/components/NetworkClient"
-import TransformSystem from "./transform/systems/TransformSystem"
-import StateSystem from "./state/systems/StateSystem"
-import { NetworkSystem } from "./networking/systems/NetworkSystem"
-import { MediaStreamControlSystem } from "./networking/systems/MediaStreamSystem"
-import WebXRInputSystem from "./input/systems/WebXRInputSystem"
-import TransformParent from "./transform/components/TransformParent"
-import { DefaultNetworkSchema } from "./networking/defaults/DefaultNetworkSchema"
-import NetworkObject from "./networking/components/NetworkObject"
-import { ParticleSystem, ParticleEmitter, Keyframe, KeyframeSystem } from "./particles"
-import { RigidBody, VehicleBody, WheelBody, PhysicsSystem, VehicleSystem, WheelSystem } from "./physics"
-import SceneData from "./common/components/SceneData"
-import { WebXRRenderer } from "./input/components/WebXRRenderer"
+import { Input } from "./input/components/Input"
 import { WebXRButton } from "./input/components/WebXRButton"
 import { WebXRMainController } from "./input/components/WebXRMainController"
 import { WebXRMainGamepad } from "./input/components/WebXRMainGamepad"
 import { WebXRPointer } from "./input/components/WebXRPointer"
+import { WebXRRenderer } from "./input/components/WebXRRenderer"
 import { WebXRSecondController } from "./input/components/WebXRSecondController"
 import { WebXRSecondGamepad } from "./input/components/WebXRSecondGamepad"
 import { WebXRSession } from "./input/components/WebXRSession"
-import { WebXRTrackingDevice } from "./input/components/WebXRTrackingDevice"
-import { WebXRViewPoint } from "./input/components/WebXRViewPoint"
 import { WebXRSpace } from "./input/components/WebXRSpace"
-import MediaStreamComponent from "./networking/components/MediaStreamComponent"
-import Network from "./networking/components/Network"
+import { WebXRViewPoint } from "./input/components/WebXRViewPoint"
+import { DefaultInputSchema } from "./input/defaults/DefaultInputSchema"
+import { InputSystem } from "./input/systems/InputSystem"
+import { WebXRInputSystem } from "./input/systems/WebXRInputSystem"
+import { MediaStreamComponent } from "./networking/components/MediaStreamComponent"
+import { Network as NetworkComponent } from "./networking/components/Network"
+import { NetworkClient } from "./networking/components/NetworkClient"
+import { NetworkObject } from "./networking/components/NetworkObject"
+import { DefaultNetworkSchema } from "./networking/defaults/DefaultNetworkSchema"
+import { MediaStreamControlSystem } from "./networking/systems/MediaStreamSystem"
+import { NetworkSystem } from "./networking/systems/NetworkSystem"
+import { Keyframe, KeyframeSystem, ParticleEmitter, ParticleSystem } from "./particles"
+import { PhysicsSystem, RigidBody, VehicleBody, VehicleSystem, WheelBody, WheelSystem } from "./physics"
+import { State } from "./state/components/State"
+import { DefaultStateSchema } from "./state/defaults/DefaultStateSchema"
+import { StateSystem } from "./state/systems/StateSystem"
+import { Subscription } from "./subscription/components/Subscription"
+import { DefaultSubscriptionSchema } from "./subscription/defaults/DefaultSubscriptionSchema"
+import { SubscriptionSystem } from "./subscription/systems/SubscriptionSystem"
+import { TransformComponent } from "./transform/components/TransformComponent"
+import { TransformParentComponent } from "./transform/components/TransformParentComponent"
+import { TransformSystem } from "./transform/systems/TransformSystem"
 
 const DEFAULT_OPTIONS = {
   debug: false,
@@ -72,21 +73,35 @@ const DEFAULT_OPTIONS = {
   particles: {
     enabled: false
   },
+  camera: {
+    enabled: true
+  },
   transform: {
     enabled: true
   }
 }
-// TODO: Schema injections
+
 export function initializeArmada(world: World, options: any = DEFAULT_OPTIONS, scene?: any, camera?: any) {
-  world.registerComponent(SceneData)
+  world.registerComponent(Scene)
 
   // Set up our scene singleton so we can bind to our scene elsewhere
-  const sceneData = world
+  const sceneEntity = world
     .createEntity()
-    .addComponent(SceneData)
-    .getMutableComponent(SceneData)
-  if (scene) sceneData.scene = scene
-  if (camera) sceneData.camera = camera
+    .addComponent(Scene)
+    .getMutableComponent(Scene)
+  if (scene) sceneEntity.scene = scene // Bind whatever scene is provided to our camera entity
+
+  // Camera
+  if (options.camera && options.camera.enabled) {
+    world.registerComponent(Camera).registerSystem(CameraSystem)
+
+    const cameraEntity = world
+      .createEntity()
+      .addComponent(Camera, { camera: camera ? camera : null, followTarget: null })
+      .getMutableComponent(Camera)
+    if (camera) cameraEntity.camera = camera // Bind whatever camera is provide to our camera entity
+    camera.position.z = 10 // TODO: Remove, just here for setup
+  }
 
   // Input
   if (options.input && options.input.enabled && isBrowser)
@@ -115,7 +130,7 @@ export function initializeArmada(world: World, options: any = DEFAULT_OPTIONS, s
   // Networking
   if (options.networking && options.networking.enabled) {
     world
-      .registerComponent(Network)
+      .registerComponent(NetworkComponent)
       .registerComponent(NetworkClient)
       .registerComponent(NetworkObject)
       .registerSystem(NetworkSystem)
@@ -153,7 +168,7 @@ export function initializeArmada(world: World, options: any = DEFAULT_OPTIONS, s
   //Transform
   if (options.transform && options.transform.enabled)
     world
-      .registerComponent(Transform)
-      .registerComponent(TransformParent)
+      .registerComponent(TransformComponent)
+      .registerComponent(TransformParentComponent)
       .registerSystem(TransformSystem)
 }

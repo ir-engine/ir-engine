@@ -1,6 +1,6 @@
-import MessageTypeAlias from "../types/MessageTypeAlias"
+import { MessageTypeAlias } from "../types/MessageTypeAlias"
 
-export default class MessageSchema<T> {
+export class MessageSchema<T> {
   private _bytes = 0
 
   constructor(private _messageType: MessageTypeAlias, private _struct: T) {

@@ -1,7 +1,7 @@
+import { Component, Entity } from "ecsy"
+import { State } from "../components/State"
+import { StateSchema } from "../interfaces/StateSchema"
 import StateGroupAlias from "../types/StateGroupAlias"
-import { Entity, Component } from "ecsy"
-import StateSchema from "../interfaces/StateSchema"
-import State from "../components/State"
 
 let stateSchema: StateSchema
 let stateGroupExists: boolean

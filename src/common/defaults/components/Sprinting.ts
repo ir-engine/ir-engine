@@ -1,3 +1,3 @@
-import { TagComponent } from "ecsy"
+import { TagComponent } from "ecsy";
 
 export class Sprinting extends TagComponent {}
