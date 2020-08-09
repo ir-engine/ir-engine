@@ -1,11 +1,11 @@
 import { Component, Types } from "ecsy"
+import { SingletonComponent } from "../../common/components/SingletonComponent"
 
 interface PropTypes {
   camera: any
 }
 
-export class Camera extends Component<PropTypes> {
-  static instance: Camera | null = null
+export class Camera extends SingletonComponent<PropTypes> {
   camera: any // Reference to the actual camera object
   followTarget: any // Reference to the object that should be followed
   fov: number // Field of view
@@ -14,11 +14,6 @@ export class Camera extends Component<PropTypes> {
   far: number // Geometry farther than this gets removed
   layers: number // Bitmask of layers the camera can see, converted to an int
   handleResize: boolean // Should the camera resize if the window does?
-  constructor() {
-    super()
-    if (Camera.instance !== null) Camera.instance = this
-    else console.warn("A camera already exists")
-  }
 }
 
 Camera.schema = {

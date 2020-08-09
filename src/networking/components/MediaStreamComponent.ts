@@ -1,9 +1,12 @@
-// TODO: Clean me up, add schema, etc
-import { Component } from "ecsy"
+import { SingletonComponent } from "../../common/components/SingletonComponent"
+import { Types } from "ecsy"
 
-export class MediaStreamComponent extends Component<any> {
-  static instance: MediaStreamComponent
-  initialized = false
+export class MediaStreamComponent extends SingletonComponent<any> {
+  public initialized = false
+  public videoPaused = false
+  public audioPaused = false
+  public mediaStream: MediaStream
+
   localScreen
   camVideoProducer
   camAudioProducer
@@ -12,26 +15,19 @@ export class MediaStreamComponent extends Component<any> {
   consumers = []
   screenShareVideoPaused = false
   screenShareAudioPaused = false
+}
 
-  public videoPaused = false
-  public audioPaused = false
-  public mediaStream: MediaStream
-
-  constructor() {
-    super()
-    if (MediaStreamComponent.instance !== null) console.error("MediaStreamComponent singleton has already been set")
-    else MediaStreamComponent.instance = this
-    this.videoPaused = true
-    this.audioPaused = true
-  }
-
-  public toggleVideoPaused(): boolean {
-    this.videoPaused = !this.videoPaused
-    return this.videoPaused
-  }
-
-  public toggleAudioPaused(): boolean {
-    this.audioPaused = !this.audioPaused
-    return this.audioPaused
-  }
+MediaStreamComponent.schema = {
+  initialized: { type: Types.Boolean },
+  localScreen: { type: Types.Ref },
+  camVideoProducer: { type: Types.Ref },
+  camAudioProducer: { type: Types.Ref },
+  screenVideoProducer: { type: Types.Ref },
+  screenAudioProducer: { type: Types.Ref },
+  consumers: { type: Types.Array },
+  screenShareVideoPaused: { type: Types.Boolean },
+  screenShareAudioPaused: { type: Types.Boolean },
+  videoPaused: { type: Types.Boolean },
+  audioPaused: { type: Types.Boolean },
+  mediaStream: { type: Types.Ref }
 }

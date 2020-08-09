@@ -1,20 +1,14 @@
 // Singleton component to store reference to camera and scene
 import { Component, Types } from "ecsy"
+import { SingletonComponent } from "./SingletonComponent"
 
 // World data schema
 interface PropTypes {
   scene: any
 }
 
-export class Scene extends Component<PropTypes> {
-  static instance: Scene = null
+export class Scene extends SingletonComponent<PropTypes> {
   scene: any
-
-  constructor() {
-    super()
-    if (Scene.instance !== null) console.error("Scene singleton has already been set")
-    else Scene.instance = this
-  }
 }
 
 Scene.schema = {
