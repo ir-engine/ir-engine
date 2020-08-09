@@ -1,11 +1,11 @@
 // TODO: Clean me up, add schema, etc
 import { Component } from "ecsy"
-import NetworkTransport from "../interfaces/NetworkTransport"
-import NetworkSchema from "../interfaces/NetworkSchema"
-import RingBuffer from "../../common/classes/RingBuffer"
-import Message from "../interfaces/Message"
+import { RingBuffer } from "../../common/classes/RingBuffer"
+import { Message } from "../interfaces/Message"
+import { NetworkSchema } from "../interfaces/NetworkSchema"
+import { NetworkTransport } from "../interfaces/NetworkTransport"
 
-export default class Network extends Component<any> {
+export class Network extends Component<any> {
   static instance: Network
   isInitialized: boolean
   transport: NetworkTransport

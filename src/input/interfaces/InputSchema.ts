@@ -1,8 +1,8 @@
-import InputAlias from "../../input/types/InputAlias"
-import InputRelationship from "./InputRelationship"
-import BehaviorValue from "../../common/interfaces/BehaviorValue"
+import { BehaviorValue } from "../../common/interfaces/BehaviorValue"
+import { InputAlias } from "../../input/types/InputAlias"
+import { InputRelationship } from "./InputRelationship"
 
-interface InputSchema {
+export interface InputSchema {
   // Called by input system when an Input component is added
   onAdded: BehaviorValue[] // Function
   // Called by input system when on Input component is removed
@@ -63,5 +63,3 @@ interface InputSchema {
     }
   }
 }
-
-export default InputSchema

@@ -1,3 +1,3 @@
-import { WebXRTrackingDevice } from "./WebXRTrackingDevice"
+import { WebXRTrackingDevice } from "./WebXRTrackingDevice";
 
 export class WebXRMainController extends WebXRTrackingDevice {}

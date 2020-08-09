@@ -5,7 +5,7 @@ interface PropTypes {
   ownerId: number
 }
 
-export default class NetworkObject extends Component<PropTypes> {}
+export class NetworkObject extends Component<PropTypes> {}
 
 NetworkObject.schema = {
   ownerId: { type: Types.Number },

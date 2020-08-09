@@ -1,14 +1,14 @@
-import { System, Entity } from "ecsy"
-import State from "../components/State"
-import StateValue from "../interfaces/StateValue"
-import { Vector2, NumericalType } from "../../common/types/NumericalTypes"
-import Behavior from "../../common/interfaces/Behavior"
-import StateSchema from "../interfaces/StateSchema"
-import StateGroupAlias from "../types/StateGroupAlias"
+import { Entity, System } from "ecsy"
+import { LifecycleValue } from "../../common/enums/LifecycleValue"
+import { Behavior } from "../../common/interfaces/Behavior"
+import { NumericalType } from "../../common/types/NumericalTypes"
 import { addState } from "../behaviors/StateBehaviors"
-import LifecycleValue from "../../common/enums/LifecycleValue"
+import { State } from "../components/State"
+import { StateSchema } from "../interfaces/StateSchema"
+import { StateValue } from "../interfaces/StateValue"
+import { StateGroupAlias } from "../types/StateGroupAlias"
 
-export default class StateSystem extends System {
+export class StateSystem extends System {
   private _state: State
   private _args: any
   public execute(delta: number, time: number): void {

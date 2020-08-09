@@ -1,21 +1,33 @@
 import { Component, Types } from "ecsy"
 
-export default class Camera extends Component<any> {
+interface PropTypes {
+  camera: any
+}
+
+export class Camera extends Component<PropTypes> {
+  static instance: Camera | null = null
+  camera: any // Reference to the actual camera object
+  followTarget: any // Reference to the object that should be followed
   fov: number // Field of view
   aspect: number // Width / height
   near: number // Geometry closer than this gets removed
   far: number // Geometry farther than this gets removed
   layers: number // Bitmask of layers the camera can see, converted to an int
   handleResize: boolean // Should the camera resize if the window does?
-  cameraObjectReference: any // Reference to the actual camera object
+  constructor() {
+    super()
+    if (Camera.instance !== null) Camera.instance = this
+    else console.warn("A camera already exists")
+  }
 }
 
 Camera.schema = {
+  camera: { default: null, type: Types.Ref },
+  followTarget: { default: null, type: Types.Ref },
   fov: { default: 45, type: Types.Number },
   aspect: { default: 1, type: Types.Number },
   near: { default: 0.1, type: Types.Number },
   far: { default: 1000, type: Types.Number },
   layers: { default: 0, type: Types.Number },
-  handleResize: { default: true, type: Types.Boolean },
-  cameraObjectReference: { default: null, type: Types.Ref }
+  handleResize: { default: true, type: Types.Boolean }
 }

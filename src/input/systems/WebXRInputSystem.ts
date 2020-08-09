@@ -1,15 +1,15 @@
-import { System, Entity } from "ecsy"
-import { WebXRSecondGamepad } from "../components/WebXRSecondGamepad"
-import { WebXRMainGamepad } from "../components/WebXRMainGamepad"
-import { WebXRSecondController } from "../components/WebXRSecondController"
+import { Entity, System } from "ecsy"
 import { WebXRMainController } from "../components/WebXRMainController"
+import { WebXRMainGamepad } from "../components/WebXRMainGamepad"
 import { WebXRPointer } from "../components/WebXRPointer"
-import { WebXRViewPoint } from "../components/WebXRViewPoint"
-import { WebXRSpace } from "../components/WebXRSpace"
-import { WebXRSession } from "../components/WebXRSession"
 import { WebXRRenderer } from "../components/WebXRRenderer"
+import { WebXRSecondController } from "../components/WebXRSecondController"
+import { WebXRSecondGamepad } from "../components/WebXRSecondGamepad"
+import { WebXRSession } from "../components/WebXRSession"
+import { WebXRSpace } from "../components/WebXRSpace"
+import { WebXRViewPoint } from "../components/WebXRViewPoint"
 
-export default class WebXRInputSystem extends System {
+export class WebXRInputSystem extends System {
   readonly mainControllerId = 0
   readonly secondControllerId = 1
   debug = Function()

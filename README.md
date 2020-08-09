@@ -179,14 +179,14 @@ The system looks for any behaviors mapped to these "phases" and executes them wh
 
 callBehaviorsForHook is also a behavior:
 ```typescript
-  callBehaviorsForHook: Behavior = (entity: Entity, args: { phase: string; delta: number }) => {
+  callBehaviorsForHook: Behavior = (entity: Entity, args: { phase: string; }, delta: number) => {
     this.subscription = entity.getComponent(Subscription)
     // If the schema for this subscription component has any values in this phase
     if (this.subscription.schema[args.phase] !== undefined) {
       // Foreach value in this phase
       this.subscription.schema[args.phase].forEach((value: BehaviorArgValue) => {
         // Call the behavior with the args supplied in the schema, as well as delta provided here
-        value.behavior(entity, value.args ? value.args : null, args.delta)
+        value.behavior(entity, value.args ? value.args : null, delta)
       })
     }
   }

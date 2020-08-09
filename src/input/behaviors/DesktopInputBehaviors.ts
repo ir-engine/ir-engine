@@ -1,9 +1,9 @@
 import { Entity } from "ecsy"
-import BinaryValue from "../../common/enums/BinaryValue"
-import Input from "../components/Input"
-import Behavior from "../../common/interfaces/Behavior"
-import { InputType } from "../../input/enums/InputType"
+import { BinaryValue } from "../../common/enums/BinaryValue"
+import { Behavior } from "../../common/interfaces/Behavior"
 import { Binary } from "../../common/types/NumericalTypes"
+import { InputType } from "../../input/enums/InputType"
+import { Input } from "../components/Input"
 
 // Local reference to input component
 let input: Input

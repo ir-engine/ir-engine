@@ -1,3 +1,3 @@
-export default interface SchemaMap {
+export interface SchemaMap {
   [key: string]: any
 }

@@ -1,4 +1,4 @@
-import { Types, Component } from "ecsy"
+import { Component, Types } from "ecsy"
 
 export class WebXRButton extends Component<any> {}
 

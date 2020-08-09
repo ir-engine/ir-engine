@@ -1,9 +1,9 @@
 import { Entity } from "ecsy"
-import Input from "../components/Input"
-import Behavior from "../../common/interfaces/Behavior"
-import InputValue from "../interfaces/InputValue"
-import InputAlias from "../types/InputAlias"
+import { Behavior } from "../../common/interfaces/Behavior"
 import { NumericalType } from "../../common/types/NumericalTypes"
+import { Input } from "../components/Input"
+import { InputValue } from "../interfaces/InputValue"
+import { InputAlias } from "../types/InputAlias"
 
 let input: Input
 export const validateButtonInput: Behavior = (entity: Entity): void => {

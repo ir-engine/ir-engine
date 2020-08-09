@@ -1,8 +1,8 @@
 import { World } from "ecsy"
 import { initializeArmada, DefaultStateSchema } from "../src/index"
-import SocketWebRTCServerTransport from "./transports/SocketWebRTCServerTransport"
+import { SocketWebRTCServerTransport } from "./transports/SocketWebRTCServerTransport"
 import { DefaultNetworkSchema } from "../src/networking/defaults/DefaultNetworkSchema"
-import DefaultSubscriptionSchema from "../src/subscription/defaults/DefaultSubscriptionSchema"
+import { DefaultSubscriptionSchema } from "../src/subscription/defaults/DefaultSubscriptionSchema"
 
 const networkSchema = {
   ...DefaultNetworkSchema,
@@ -40,7 +40,7 @@ const options = {
   }
 }
 
-export default class SocketWebRTCServer {
+export class SocketWebRTCServer {
   lastTime: number = Date.now()
   time = Date.now()
   delta

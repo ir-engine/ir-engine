@@ -1,16 +1,16 @@
-import StateAlias from "../types/StateAlias"
-import Behavior from "../../common/interfaces/Behavior"
 import { Entity } from "ecsy"
-import State from "../components/State"
-import BinaryValue from "../../common/enums/BinaryValue"
-import StateGroupType from "../types/StateGroupAlias"
-import { StateType } from "../enums/StateType"
-import StateValue from "../interfaces/StateValue"
+import { BinaryValue } from "../../common/enums/BinaryValue"
+import { LifecycleValue } from "../../common/enums/LifecycleValue"
+import { Behavior } from "../../common/interfaces/Behavior"
 import { Binary } from "../../common/types/NumericalTypes"
-import LifecycleValue from "../../common/enums/LifecycleValue"
+import { State } from "../components/State"
+import { StateType } from "../enums/StateType"
+import { StateValue } from "../interfaces/StateValue"
+import { StateAlias } from "../types/StateAlias"
+import { StateGroupAlias } from "../types/StateGroupAlias"
 
 let stateComponent: State
-let stateGroup: StateGroupType
+let stateGroup: StateGroupAlias
 
 export const toggleState: Behavior = (entity: Entity, args: { value: Binary; stateType: StateAlias }): void => {
   if (args.value === BinaryValue.ON) addState(entity, args)

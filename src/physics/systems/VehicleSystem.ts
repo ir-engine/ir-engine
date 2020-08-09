@@ -1,7 +1,7 @@
-import * as ECSY from "ecsy"
 import * as CANNON from "cannon-es"
-import { VehicleBody } from "../components/VehicleBody"
+import * as ECSY from "ecsy"
 import { RigidBody } from "../components/RigidBody"
+import { VehicleBody } from "../components/VehicleBody"
 
 export class VehicleSystem extends ECSY.System {
   execute(dt, t) {

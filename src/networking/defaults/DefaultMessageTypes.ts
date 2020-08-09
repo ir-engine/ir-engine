@@ -1,4 +1,4 @@
-const DefaultMessageTypes = {
+export const DefaultMessageTypes = {
   Clock: 0,
   Position: 1,
   Velocity: 2,
@@ -10,5 +10,3 @@ const DefaultMessageTypes = {
   World: 8,
   Test: 250
 }
-
-export default DefaultMessageTypes

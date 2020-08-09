@@ -4,7 +4,7 @@ import * as https from "https"
 import fs from "fs"
 import SocketIO, { Socket } from "socket.io"
 import * as path from "path"
-import MessageTypes from "../../src/networking/enums/MessageTypes"
+import { MessageTypes } from "../../src/networking/enums/MessageTypes"
 import * as dotenv from "dotenv"
 import NetworkTransport from "../../src/networking/interfaces/NetworkTransport"
 import Network from "../../src/networking/components/Network"
@@ -97,7 +97,7 @@ const tls = {
   rejectUnauthorized: false
 }
 
-export default class SocketWebRTCServerTransport implements NetworkTransport {
+export class SocketWebRTCServerTransport implements NetworkTransport {
   server: https.Server
   socketIO: SocketIO.Server
   worker

@@ -1,4 +1,4 @@
-export default interface NetworkTransport {
+export interface NetworkTransport {
   supportsMediaStreams: boolean
   initialize(address?: string, port?: number): void | Promise<void>
   sendAllReliableMessages(): void

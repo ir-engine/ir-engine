@@ -1,4 +1,4 @@
-const set = (obj: any, path: string, value: any): void => {
+export const set = (obj: any, path: string, value: any): void => {
   const pathArray = Array.isArray(path) ? path : path.match(/([^[.\]])+/g)
 
   pathArray.reduce((acc, key, i) => {
@@ -7,5 +7,3 @@ const set = (obj: any, path: string, value: any): void => {
     return acc[key]
   }, obj)
 }
-
-export default set

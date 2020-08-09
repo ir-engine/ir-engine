@@ -1,4 +1,4 @@
-enum CameraTypes {
-  Orthographic = 0,
-  Perspective = 1
+export const CameraTypes = {
+  Orthographic: 0,
+  Perspective: 1
 }

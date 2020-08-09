@@ -1,45 +1,166 @@
 import {
-  Object3DComponent,
-  PositionalAudioTagComponent,
-  AudioTagComponent,
-  AudioListenerTagComponent,
-  CameraTagComponent,
+  AmbientLightProbeTagComponent, AmbientLightTagComponent, ArrayCameraTagComponent, AudioListenerTagComponent, AudioTagComponent,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  BoneTagComponent, CameraTagComponent,
+
+
+
+  CubeCameraTagComponent,
+
+
+
+  DirectionalLightTagComponent,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  ECSYThreeEntity, GroupTagComponent, HemisphereLightProbeTagComponent, HemisphereLightTagComponent, ImmediateRenderObjectTagComponent,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  InstancedMeshTagComponent, LightProbeTagComponent, LightTagComponent,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  LineLoopTagComponent,
+  LineSegmentsTagComponent, LineTagComponent, LODTagComponent,
+  MeshTagComponent, Object3DComponent,
+
+
+
+
   OrthographicCameraTagComponent,
   PerspectiveCameraTagComponent,
-  ArrayCameraTagComponent,
-  CubeCameraTagComponent,
-  ImmediateRenderObjectTagComponent,
-  LightTagComponent,
-  AmbientLightTagComponent,
-  DirectionalLightTagComponent,
-  HemisphereLightTagComponent,
+
+
+
+
+
+
+
   PointLightTagComponent,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  PointsTagComponent, PositionalAudioTagComponent,
+
+
+
+
+
+
+
+
+
+
+
+
+
   RectAreaLightTagComponent,
-  SpotLightTagComponent,
-  LightProbeTagComponent,
-  AmbientLightProbeTagComponent,
-  HemisphereLightProbeTagComponent,
-  BoneTagComponent,
-  GroupTagComponent,
-  LODTagComponent,
-  MeshTagComponent,
-  InstancedMeshTagComponent,
-  SkinnedMeshTagComponent,
-  LineTagComponent,
-  LineLoopTagComponent,
-  LineSegmentsTagComponent,
-  PointsTagComponent,
-  SpriteTagComponent,
-  SceneTagComponent,
-  ECSYThreeEntity
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  SceneTagComponent, SkinnedMeshTagComponent, SpotLightTagComponent,
+
+
+
+
+
+
+
+
+
+
+
+
+
+  SpriteTagComponent
 } from "ecsy-three"
-import Behavior from "../../interfaces/Behavior"
-import { Object3D, Scene } from "three"
-import SceneData from "../../components/SceneData"
+import { Object3D } from "three"
+import { Scene } from "../../components/Scene"
+import { Behavior } from "../../interfaces/Behavior"
 export const addObject3DComponent: Behavior = (entity: ECSYThreeEntity, args: { obj: Object3D }) => {
   entity.addComponent(Object3DComponent, { value: args.obj })
   // Add the obj to our scene graph
-  SceneData.instance.scene.addComponent(args.obj)
+  Scene.instance.scene.addComponent(args.obj)
   if (args.obj.type === "Audio" && (args.obj as any).panner !== undefined) {
     entity.addComponent(PositionalAudioTagComponent)
   } else if (args.obj.type === "Audio") {
@@ -121,7 +242,7 @@ export const addObject3DComponent: Behavior = (entity: ECSYThreeEntity, args: { 
 
 export function removeObject3DComponent(entity, unparent = true) {
   const obj = entity.getComponent(Object3DComponent, true).value
-  SceneData.instance.scene.remove(obj)
+  Scene.instance.scene.remove(obj)
 
   if (unparent) {
     // Using "true" as the entity could be removed somewhere else

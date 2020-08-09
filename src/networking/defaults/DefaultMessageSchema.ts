@@ -1,7 +1,7 @@
-import { string16, uint8, int16, uint16, int64, string8, uint32 } from "../../common/types/DataTypes"
-import SchemaMap from "../interfaces/SchemaMap"
+import { int16, int64, string8, uint16, uint32, uint8 } from "../../common/types/DataTypes"
+import { SchemaMap } from "../interfaces/SchemaMap"
 
-const DefaultMessageSchema: SchemaMap = {
+export const DefaultMessageSchema: SchemaMap = {
   Clock: {
     time: typeof int64,
     tick: typeof uint16 // increment by one each frame
@@ -53,5 +53,3 @@ DefaultMessageSchema.worldData = {
   Players: [DefaultMessageSchema.clientSchema],
   Objects: [DefaultMessageSchema.objectSchema]
 }
-
-export default DefaultMessageSchema

@@ -7,7 +7,7 @@ interface PropTypes {
   name: string
 }
 
-export default class NetworkClient extends Component<PropTypes> {}
+export class NetworkClient extends Component<PropTypes> {}
 
 NetworkClient.schema = {
   networkId: { type: Types.Number },

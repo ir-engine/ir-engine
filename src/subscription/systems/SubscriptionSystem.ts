@@ -1,11 +1,11 @@
-import { System, Entity } from "ecsy"
-import Subscription from "../components/Subscription"
-import BehaviorValue from "../../common/interfaces/BehaviorValue"
-import Behavior from "../../common/interfaces/Behavior"
+import { Entity, System } from "ecsy"
+import { Behavior } from "../../common/interfaces/Behavior"
+import { BehaviorValue } from "../../common/interfaces/BehaviorValue"
+import { Subscription } from "../components/Subscription"
 
-export default class SubscriptionSystem extends System {
+export class SubscriptionSystem extends System {
   private subscription: Subscription
-  public execute(delta: number): void {
+  public execute(delta: number, time: number): void {
     this.queries.subscriptions.added?.forEach(entity => {
       this.callBehaviorsForHook(entity, { phase: "onAdded" }, delta)
     })

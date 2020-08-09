@@ -1,6 +1,6 @@
-import StateSchema from "../interfaces/StateSchema"
-import { jumping } from "../../common/defaults/behaviors/jump"
 import { decelerate } from "../../common/defaults/behaviors/decelerate"
+import { jumping } from "../../common/defaults/behaviors/jump"
+import { StateSchema } from "../interfaces/StateSchema"
 import { DefaultStateTypes } from "./DefaultStateTypes"
 
 export const DefaultStateGroups = {

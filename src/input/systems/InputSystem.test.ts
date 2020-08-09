@@ -1,5 +1,4 @@
-import { describe, expect, it, test } from "@jest/globals"
-import InputSystem from "./InputSystem"
+import { expect, test } from "@jest/globals"
 
 test("adds 1 + 2 to equal 3", () => {
   expect({

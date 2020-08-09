@@ -1,4 +1,4 @@
-import { Prefab } from "../../common/interfaces/Prefab"
+import { Prefab } from "../../common/interfaces/Prefab";
 
 export interface NetworkPrefab extends Prefab {
   localComponents?: {
