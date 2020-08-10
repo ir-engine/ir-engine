@@ -61,6 +61,7 @@ async function encodeMeshToDraco(mesh) {
         indices[index + 1] = mesh.faces[i].b;
         indices[index + 2] = mesh.faces[i].c;
       }
+      // console.log('64 indices', indices);
       meshBuilder.AddFacesToMesh(dracoMesh, numFaces, indices);
       // Add POSITION to mesh (Vertices)
       for (var i = 0; i < mesh.vertices.length; i++) {
@@ -69,6 +70,7 @@ async function encodeMeshToDraco(mesh) {
         vertices[index + 1] = mesh.vertices[i].y;
         vertices[index + 2] = mesh.vertices[i].z;
       }
+      // console.log('73 vertices', vertices);
       meshBuilder.AddFloatAttributeToMesh(
         dracoMesh,
         encoderModule.POSITION,
@@ -89,6 +91,7 @@ async function encodeMeshToDraco(mesh) {
         normals[face["c"] * 3 + 1] = face.vertexNormals[2].y;
         normals[face["c"] * 3 + 2] = face.vertexNormals[2].z;
       }
+      // console.log('94 normals', normals);
       meshBuilder.AddFloatAttributeToMesh(
         dracoMesh,
         encoderModule.NORMAL,
@@ -102,24 +105,36 @@ async function encodeMeshToDraco(mesh) {
       console.log("Number of Attributes " + dracoMesh.num_attributes());
       // Compressing using DRACO
       var encodedData = new encoderModule.DracoInt8Array();
-      encoder.SetSpeedOptions(5, 5);
-      encoder.SetAttributeQuantization(encoderModule.POSITION, 10);
+      // encoder.SetSpeedOptions(5, 5);
+      // encoder.SetAttributeQuantization(encoderModule.POSITION, 10);
       encoder.SetEncodingMethod(encoderModule.MESH_EDGEBREAKER_ENCODING);
       console.log("Encoding...");
+      console.log("DracoMesh", dracoMesh, dracoMesh.num_faces(), dracoMesh.num_points());
       var encodedLen = encoder.EncodeMeshToDracoBuffer(dracoMesh, encodedData);
       encoderModule.destroy(dracoMesh);
       if (encodedLen > 0) console.log("Encoded size is " + encodedLen);
       else console.log("Error: Encoding failed.");
+
+      console.log("Encoded Length", encodedLen);
+      console.log("Encoded Data", encodedData);
       // Copy encoded data to buffer.
       var outputBuffer = new ArrayBuffer(encodedLen);
-      encoderModule.destroy(encodedData);
+      const outputData = new Int8Array(outputBuffer);
+      for (let i = 0; i < encodedLen; ++i) {
+        outputData[i] = encodedData.GetValue(i);
+      }
+
+      // console.log(Buffer(outputData));
+      // encoderModule.destroy(encodedData);
       encoderModule.destroy(encoder);
       encoderModule.destroy(meshBuilder);
       console.log("DRACO ENCODED////////////////////////////");
       console.log("Length of buffer: " + outputBuffer.byteLength);
       console.log("outputBuffer", outputBuffer);
 
-      resolve(arrayBufferToBuffer(outputBuffer));
+      resolve(Buffer(outputBuffer));
+
+      // resolve(arrayBufferToBuffer(outputBuffer));
     };
 
     var encoderModule = draco3d_1.createEncoderModule(dracoEncoderType);

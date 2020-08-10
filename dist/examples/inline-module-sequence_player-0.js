@@ -56281,6 +56281,7 @@ DRACOLoader.prototype = Object.assign(Object.create(Loader$1.prototype), {
   },
   load: function (url, onLoad, onProgress, onError) {
     var loader = new FileLoader$1(this.manager);
+    console.log("94 DracoLoader", this.path, this.manager);
     loader.setPath(this.path);
     loader.setResponseType('arraybuffer');
 
@@ -56289,6 +56290,7 @@ DRACOLoader.prototype = Object.assign(Object.create(Loader$1.prototype), {
     }
 
     loader.load(url, buffer => {
+      console.log("107 DracoLoader", buffer.byteLength);
       var taskConfig = {
         attributeIDs: this.defaultAttributeIDs,
         attributeTypes: this.defaultAttributeTypes,
@@ -56305,23 +56307,20 @@ DRACOLoader.prototype = Object.assign(Object.create(Loader$1.prototype), {
       attributeTypes: attributeTypes || this.defaultAttributeTypes,
       useUniqueIDs: !!attributeIDs
     };
-    console.log("128 DracoLoader decodeDracoFile buffer", buffer);
     this.decodeGeometry(buffer, taskConfig).then(callback);
   },
   decodeGeometry: function (buffer, taskConfig) {
-    console.log('134 DracoLoader Buffer', buffer); // TODO: For backward-compatibility, support 'attributeTypes' objects containing
+    // TODO: For backward-compatibility, support 'attributeTypes' objects containing
     // references (rather than names) to typed array constructors. These must be
     // serialized before sending them to the worker.
-
     for (var attribute in taskConfig.attributeTypes) {
       var type = taskConfig.attributeTypes[attribute];
 
       if (type.BYTES_PER_ELEMENT !== undefined) {
         taskConfig.attributeTypes[attribute] = type.name;
       }
-    }
+    } //
 
-    console.log('149 DracoLoader'); //
 
     var taskKey = JSON.stringify(taskConfig); // Check for an existing task using this buffer. A transferred buffer cannot be transferred
     // again from this thread.
@@ -56353,14 +56352,12 @@ DRACOLoader.prototype = Object.assign(Object.create(Loader$1.prototype), {
           resolve,
           reject
         };
-        console.log("199 DracoLoader", buffer); // worker.postMessage( { type: 'decode', id: taskID, taskConfig, buffer } );
-
         worker.postMessage({
           type: 'decode',
           id: taskID,
           taskConfig,
           buffer
-        }, [buffer.buffer]); // this.debug();
+        }, [buffer]); // this.debug();
       });
     }).then(message => this._createGeometry(message.geometry)); // Remove task from the task list.
     // Note: replaced '.finally()' with '.catch().then()' block - iOS 11 support (#19416)
@@ -56447,7 +56444,6 @@ DRACOLoader.prototype = Object.assign(Object.create(Loader$1.prototype), {
         });
 
         worker.onmessage = function (e) {
-          console.log('353 inside worker of DracoLoader');
           var message = e.data;
 
           switch (message.type) {
@@ -56503,7 +56499,6 @@ DRACOLoader.DRACOWorker = function () {
   var decoderPending;
 
   onmessage = function (e) {
-    console.log("434 inside Dracoloader worker");
     var message = e.data;
 
     switch (message.type) {
@@ -56534,7 +56529,6 @@ DRACOLoader.DRACOWorker = function () {
 
           try {
             var geometry = decodeGeometry(draco, decoder, decoderBuffer, taskConfig);
-            console.log("Geometry", geometry);
             var buffers = geometry.attributes.map(attr => attr.array.buffer);
             if (geometry.index) buffers.push(geometry.index.array.buffer);
             self.postMessage({
@@ -57171,5 +57165,4 @@ var MessageType;
 })(MessageType || (MessageType = {}));
 
 // import fs from 'fs';
-// import { decodeDracoData } from './CodecHelpers';
 const worker = new Worker('./Worker.js');
