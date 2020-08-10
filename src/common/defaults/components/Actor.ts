@@ -11,7 +11,7 @@ interface JumpPropTypes {
 const DefaultJumpData = {
   canJump: true,
   t: 0,
-  force: 0.025,
+  force: 10,
   duration: 0.5
 }
 
@@ -27,8 +27,8 @@ interface PropTypes {
 export class Actor extends Component<PropTypes> {
   rotationSpeedX: number
   rotationSpeedY: number
-  maxSpeed = 0.01
-  accelerationSpeed = 0.01
+  maxSpeed = 10
+  accelerationSpeed = 10
   decelerationSpeed = 10
   rotationSpeedZ: number
   jump: JumpPropTypes = DefaultJumpData
@@ -45,8 +45,8 @@ export class Actor extends Component<PropTypes> {
   reset(): void {
     this.rotationSpeedX = 1
     this.rotationSpeedY = 1
-    this.maxSpeed = 0.01
-    this.accelerationSpeed = 0.01
+    this.maxSpeed = 1
+    this.accelerationSpeed = 0.1
     this.decelerationSpeed = 8
     this.jump = DefaultJumpData
   }
@@ -55,7 +55,7 @@ export class Actor extends Component<PropTypes> {
 Actor.schema = {
   rotationSpeedX: { type: Types.Number, default: 1 },
   rotationSpeedY: { type: Types.Number, default: 1 },
-  maxSpeed: { type: Types.Number, default: 0.01 },
+  maxSpeed: { type: Types.Number, default: 1 },
   accelerationSpeed: { type: Types.Number, default: 0.01 },
   decelerationSpeed: { type: Types.Number, default: 8 },
   jump: { type: Types.Ref, default: DefaultJumpData }
