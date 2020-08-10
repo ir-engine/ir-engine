@@ -35,19 +35,15 @@ import {
 } from "ecsy-three"
 import { SceneComponent } from "../../components/SceneComponent"
 import { Behavior } from "../../interfaces/Behavior"
+import { BoxBufferGeometry } from "three"
 
 let object3d
 export const addObject3DComponent: Behavior = (entity: ECSYThreeEntity, args: { obj: any; objArgs: any }) => {
-  console.log("addObject3DComponent")
-  object3d = new args.obj(eval(args.objArgs))
-  console.log("Instantiated object: ")
-  console.log(object3d)
+  // TODO: Fix this, we don't want to pass a box
+  object3d = new args.obj(new BoxBufferGeometry(1, 1, 1))
   entity.addComponent(Object3DComponent, { value: object3d })
   // Add the obj to our scene graph
-  console.log("Scene")
-  console.log(SceneComponent.instance.scene)
   SceneComponent.instance.scene.add(object3d)
-  return
   if (object3d.type === "Audio" && (object3d as any).panner !== undefined) {
     entity.addComponent(PositionalAudioTagComponent)
   } else if (object3d.type === "Audio") {
