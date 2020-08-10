@@ -129,7 +129,6 @@ export function initialize(world: World, options: any = DefaultInitializationOpt
       world.registerSystem(MediaStreamSystem)
       const mediaStreamComponent = networkEntity.addComponent(MediaStreamComponent).getMutableComponent(MediaStreamComponent)
       MediaStreamComponent.instance = mediaStreamComponent
-      console.log("Initialized media streams")
     } else {
       console.warn("Does not support media streams")
     }

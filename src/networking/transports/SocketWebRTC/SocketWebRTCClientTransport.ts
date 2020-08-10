@@ -71,7 +71,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       })
 
       this.socket.on(MessageTypes.Initialization.toString(), async (_id: any, _ids: any) => {
-        console.log("Initiaslization response")
+        console.log("Initialization response received from server")
         initializeClient(_id, _ids)
         await this.joinWorld()
         console.log("About to send camera streams")
