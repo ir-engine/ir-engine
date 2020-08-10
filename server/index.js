@@ -2,13 +2,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const fs = require('fs');
+const hexdump = require('hexdump-nodejs');
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
 
-const filePath = 'sample_10_frames.drcs';
+const filePath = 'sample_v7_10frames.drcs';
 
 function byteArrayToLong(/*byte[]*/ byteArray) {
   let value = 0;
@@ -62,12 +63,9 @@ app.post('/dracosis-stream', (req, res) => {
   const meshLength = req.body.meshLength;
   const textureLength = req.body.textureLength;
 
-  // const transferableBuffers = Buffer[];
-
-  // startBytePosition = req.startBytePosition;
-  // fileReadStream.seek(startBytePosition);
-  // const bufferGeometry = fileReadStream.read(meshLength);
-  // console.log(bufferGeometry);
+  console.log('StartBytePosition', startBytePosition);
+  console.log('MeshLength', meshLength);
+  console.log('TextureLength', textureLength);
 
   var stream = fs
     .createReadStream(filePath, {
@@ -80,6 +78,38 @@ app.post('/dracosis-stream', (req, res) => {
     .on('error', function (err) {
       res.end(err);
     });
+});
+
+app.get('/dracosis-file', function (req, res) {
+  // fs.readFile(filePath, function (err, data) {
+  //   if (err) {
+  //     return console.log(err);
+  //   }
+
+  //   const startBytePosition = 1299;
+  //   const meshLength = 428890;
+  //   console.log('Data length', data.byteLength);
+
+  //   const startData = Buffer.alloc(startBytePosition);
+  //   const bufferGeom = Buffer.alloc(meshLength);
+  //   const testData = Buffer.alloc(startBytePosition);
+
+  //   const buffer = Buffer.from(data);
+
+  //   buffer.copy(startData, 0, 0, startBytePosition);
+  //   buffer.copy(bufferGeom, 0, startBytePosition, meshLength);
+  //   buffer.copy(
+  //     testData,
+  //     0,
+  //     startBytePosition,
+  //     startBytePosition + startBytePosition
+  //   );
+
+  //   console.log('Hexdump', hexdump(testData));
+  // });
+  res.sendFile('sample_v7_10frames.drcs', { root: __dirname }, function (err) {
+    console.log('Sent file');
+  });
 });
 
 app.listen(8000, () => {
