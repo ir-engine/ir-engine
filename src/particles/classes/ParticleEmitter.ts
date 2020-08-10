@@ -1,25 +1,25 @@
 import * as THREE from "three"
+import { createPseudoRandom } from "../../common/functions/mathRandomFunctions.js"
 import {
-  needsUpdate,
   loadTexturePackerJSON,
+  needsUpdate,
+  setAccelerationAt,
+  setAngularAccelerationAt,
+  setAngularVelocityAt,
+  setBrownianAt,
+  setColorsAt,
+  setFrameAt,
   setMaterialTime,
   setMatrixAt,
   setOffsetAt,
-  setScalesAt,
-  setColorsAt,
-  setOrientationsAt,
   setOpacitiesAt,
-  setFrameAt,
+  setOrientationsAt,
+  setScalesAt,
   setTimingsAt,
   setVelocityAt,
-  setAccelerationAt,
-  setAngularVelocityAt,
-  setAngularAccelerationAt,
-  setWorldAccelerationAt,
-  setBrownianAt,
-  setVelocityScaleAt
+  setVelocityScaleAt,
+  setWorldAccelerationAt
 } from "./ParticleMesh.js"
-import { createPseudoRandom } from "../../common/functions/mathRandomFunctions.js"
 
 const error = console.error
 const FRAME_STYLES = ["sequence", "randomsequence", "random"]

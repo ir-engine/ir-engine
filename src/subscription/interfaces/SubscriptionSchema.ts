@@ -20,5 +20,3 @@ export interface SubscriptionSchema {
     args?: any
   }[]
 }
-
-export default SubscriptionSchema

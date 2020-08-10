@@ -1,5 +1,8 @@
 import * as THREE from "three"
-
+// import { RGBFormat } from "three"
+// import { DataTexture } from "three"
+// import { TextureLoader } from "three"
+// import { InstancedBufferGeometry } from "three"
 const WHITE_TEXTURE = new THREE.DataTexture(new Uint8Array(3).fill(255), 1, 1, THREE.RGBFormat)
 WHITE_TEXTURE.needsUpdate = true
 

@@ -4,11 +4,11 @@ import * as https from "https"
 import fs from "fs"
 import SocketIO, { Socket } from "socket.io"
 import * as path from "path"
-import SocketWebRTCMessageTypes from "../../src/networking/transports/SocketWebRTC/SocketWebRTCMessageTypes"
+import { MessageTypes } from "../../src/networking/enums/MessageTypes"
 import * as dotenv from "dotenv"
-import NetworkTransport from "../../src/networking/interfaces/NetworkTransport"
-import MessageQueue from "../../src/networking/components/MessageQueue"
-import Message from "../../src/networking/interfaces/Message"
+import { NetworkTransport } from "../../src/networking/interfaces/NetworkTransport"
+import { Network } from "../../src/networking/components/Network"
+import { Message } from "../../src/networking/interfaces/Message"
 
 dotenv.config()
 interface Client {
@@ -97,7 +97,7 @@ const tls = {
   rejectUnauthorized: false
 }
 
-export default class SocketWebRTCServerTransport implements NetworkTransport {
+export class SocketWebRTCServerTransport implements NetworkTransport {
   server: https.Server
   socketIO: SocketIO.Server
   worker
@@ -105,13 +105,12 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
   transport
 
   roomState = defaultRoomState
-  supportsMediaStreams: false
 
   sendAllReliableMessages(): void {
     // TODO: Analyze, we might want to route messages better to only specific clients
-    while (!MessageQueue.instance.outgoingReliableQueue.empty) {
-      const message = MessageQueue.instance.outgoingReliableQueue.pop
-      this.socketIO.sockets.emit(SocketWebRTCMessageTypes.ReliableMessage.toString(), message)
+    while (!Network.instance.outgoingReliableQueue.empty) {
+      const message = Network.instance.outgoingReliableQueue.pop
+      this.socketIO.sockets.emit(MessageTypes.ReliableMessage.toString(), message)
     }
   }
 
@@ -124,7 +123,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
     // start https server
     console.log("Starting Express")
     await new Promise(resolve => {
-      this.server = new https.Server(tls, expressApp)
+      this.server = new https.Server(tls, expressApp as any)
       this.server
         .on("error", e => console.error("https server error,", e.message))
         .listen(port, address, () => {
@@ -162,29 +161,29 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
       console.log(this.roomState.peers)
 
       // Respond to initialization request with a list of clients
-      socket.emit(SocketWebRTCMessageTypes.Initialization.toString(), socket.id, Object.keys(this.roomState.peers))
+      socket.emit(MessageTypes.Initialization.toString(), socket.id, Object.keys(this.roomState.peers))
 
       //Update everyone that the number of users has changed
-      socket.broadcast.emit(SocketWebRTCMessageTypes.ClientConnected.toString(), socket.id)
+      socket.broadcast.emit(MessageTypes.ClientConnected.toString(), socket.id)
 
       // Handle the disconnection
-      socket.on(SocketWebRTCMessageTypes.Disconnect.toString(), () => {
+      socket.on(MessageTypes.Disconnect.toString(), () => {
         console.log("User " + socket.id + " diconnected, there are " + this.socketIO.clients.length + " clients connected")
         //Delete this client from the object
         delete this.roomState.peers[socket.id]
         for (const otherSocket of this.roomState.peers as Client[]) {
-          otherSocket.socket.emit(SocketWebRTCMessageTypes.ClientDisconnected.toString(), socket.id)
+          otherSocket.socket.emit(MessageTypes.ClientDisconnected.toString(), socket.id)
           console.log("Telling client ", otherSocket, " about disconnection of " + socket.id)
         }
       })
 
       // If a reliable message is received, add it to the queue
-      socket.on(SocketWebRTCMessageTypes.ReliableMessage.toString(), (message: Message) => {
-        MessageQueue.instance.incomingReliableQueue.add(message)
+      socket.on(MessageTypes.ReliableMessage.toString(), (message: Message) => {
+        Network.instance.incomingReliableQueue.add(message)
       })
 
       // On heartbeat received from client
-      socket.on(SocketWebRTCMessageTypes.Heartbeat, () => {
+      socket.on(MessageTypes.Heartbeat, () => {
         if (this.roomState.peers[socket.id] !== undefined) {
           this.roomState.peers[socket.id].lastSeenTs = Date.now()
           console.log("Heartbeat from client " + socket.id)
@@ -195,7 +194,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
       // Mediasoup Signaling:
       // --> /signaling/sync
       // client polling endpoint. send back our 'peers' data structure
-      socket.on(SocketWebRTCMessageTypes.Synchronization.toString(), (data, callback) => {
+      socket.on(MessageTypes.Synchronization.toString(), (data, callback) => {
         // make sure this peer is connected. if we've disconnected the
         // peer because of a network outage we want the peer to know that
         // happened, when/if it returns
@@ -213,7 +212,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
       // adds the peer to the roomState data structure and creates a
       // transport that the peer will use for receiving media. returns
       // router rtpCapabilities for mediasoup-client device initialization
-      socket.on(SocketWebRTCMessageTypes.JoinWorld.toString(), async (data, callback) => {
+      socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) => {
         console.log("Join world request", socket.id)
         callback({ routerRtpCapabilities: this.router.rtpCapabilities })
       })
@@ -221,7 +220,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
       // --> /signaling/leave
       // removes the peer from the roomState data structure and and closes
       // all associated mediasoup objects
-      socket.on(SocketWebRTCMessageTypes.LeaveWorld.toString(), () => {
+      socket.on(MessageTypes.LeaveWorld.toString(), () => {
         console.log("closing peer", socket.id)
         if (this.roomState.transports)
           for (const [, transport] of Object.entries(this.roomState.transports))
@@ -238,7 +237,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
       // --> /signaling/create-transport
       // create a mediasoup transport object and send back info needed
       // to create a transport object on the client side
-      socket.on(SocketWebRTCMessageTypes.WebRTCTransportCreate.toString(), async (data, callback) => {
+      socket.on(MessageTypes.WebRTCTransportCreate.toString(), async (data, callback) => {
         const peerId = socket.id
         const { direction } = data
         console.log("WebRTCTransportCreateRequest", peerId, direction)
@@ -260,7 +259,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
       // --> /signaling/connect-transport
       // called from inside a client's `transport.on('connect')` event
       // handler.
-      socket.on(SocketWebRTCMessageTypes.WebRTCTransportConnect.toString(), async (data, callback) => {
+      socket.on(MessageTypes.WebRTCTransportConnect.toString(), async (data, callback) => {
         const { transportId, dtlsParameters } = data,
           transport = this.roomState.transports[transportId]
         console.log("WebRTCTransportConnectRequest", socket.id, transport.appData)
@@ -270,7 +269,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
 
       // called by a client that wants to close a single transport (for
       // example, a client that is no longer sending any media).
-      socket.on(SocketWebRTCMessageTypes.WebRTCTransportClose.toString(), async (data, callback) => {
+      socket.on(MessageTypes.WebRTCTransportClose.toString(), async (data, callback) => {
         console.log("close-transport", socket.id, this.transport.appData)
         const { transportId } = data
         this.transport = this.roomState.transports[transportId]
@@ -279,7 +278,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
       })
 
       // called by a client that is no longer sending a specific track
-      socket.on(SocketWebRTCMessageTypes.WebRTCCloseProducer.toString(), async (data, callback) => {
+      socket.on(MessageTypes.WebRTCCloseProducer.toString(), async (data, callback) => {
         const { producerId } = data,
           producer = this.roomState.producers.find(p => p.id === producerId)
         console.log("WebRTCCloseProducerRequest", socket.id, producer.appData)
@@ -288,7 +287,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
       })
 
       // called from inside a client's `transport.on('produce')` event handler.
-      socket.on(SocketWebRTCMessageTypes.WebRTCSendTrack.toString(), async (data, callback) => {
+      socket.on(MessageTypes.WebRTCSendTrack.toString(), async (data, callback) => {
         const peerId = socket.id
         const { transportId, kind, rtpParameters, paused = false, appData } = data,
           transport = this.roomState.transports[transportId]
@@ -320,7 +319,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
       // on the server side, and send back info needed to create a consumer
       // object on the client side. always start consumers paused. client
       // will request media to resume when the connection completes
-      socket.on(SocketWebRTCMessageTypes.WebRTCReceiveTrack.toString(), async (data, callback) => {
+      socket.on(MessageTypes.WebRTCReceiveTrack.toString(), async (data, callback) => {
         const { mediaPeerId, mediaTag, rtpCapabilities } = data
         const peerId = socket.id
         const producer = this.roomState.producers.find(p => p.appData.mediaTag === mediaTag && p.appData.peerId === mediaPeerId)
@@ -383,7 +382,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
 
       // --> /signaling/pause-consumer
       // called to pause receiving a track for a specific client
-      socket.on(SocketWebRTCMessageTypes.WebRTCPauseConsumer.toString(), async (data, callback) => {
+      socket.on(MessageTypes.WebRTCPauseConsumer.toString(), async (data, callback) => {
         const { consumerId } = data,
           consumer = this.roomState.consumers.find(c => c.id === consumerId)
         console.log("pause-consumer", consumer.appData)
@@ -393,7 +392,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
 
       // --> /signaling/resume-consumer
       // called to resume receiving a track for a specific client
-      socket.on(SocketWebRTCMessageTypes.WebRTCResumeConsumer.toString(), async (data, callback) => {
+      socket.on(MessageTypes.WebRTCResumeConsumer.toString(), async (data, callback) => {
         const { consumerId } = data,
           consumer = this.roomState.consumers.find(c => c.id === consumerId)
         console.log("resume-consumer", consumer.appData)
@@ -404,7 +403,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
       // --> /signalign/close-consumer
       // called to stop receiving a track for a specific client. close and
       // clean up consumer object
-      socket.on(SocketWebRTCMessageTypes.WebRTCCloseConsumer.toString(), async (data, callback) => {
+      socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (data, callback) => {
         const { consumerId } = data,
           consumer = this.roomState.consumers.find(c => c.id === consumerId)
         console.log("WebRTCCloseConsumerRequest", data)
@@ -415,7 +414,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
       // --> /signaling/consumer-set-layers
       // called to set the largest spatial layer that a specific client
       // wants to receive
-      socket.on(SocketWebRTCMessageTypes.WebRTCConsumerSetLayers.toString(), async (data, callback) => {
+      socket.on(MessageTypes.WebRTCConsumerSetLayers.toString(), async (data, callback) => {
         const { consumerId, spatialLayer } = data,
           consumer = this.roomState.consumers.find(c => c.id === consumerId)
         console.log("consumer-set-layers", spatialLayer, consumer.appData)
@@ -425,7 +424,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
 
       // --> /signaling/pause-producer
       // called to stop sending a track from a specific client
-      socket.on(SocketWebRTCMessageTypes.WebRTCCloseProducer.toString(), async (data, callback) => {
+      socket.on(MessageTypes.WebRTCCloseProducer.toString(), async (data, callback) => {
         const { producerId } = data,
           producer = this.roomState.producers.find(p => p.id === producerId)
         console.log("pause-producer", producer.appData)
@@ -436,7 +435,7 @@ export default class SocketWebRTCServerTransport implements NetworkTransport {
 
       // --> /signaling/resume-producer
       // called to resume sending a track from a specific client
-      socket.on(SocketWebRTCMessageTypes.WebRTCResumeProducer.toString(), async (data, callback) => {
+      socket.on(MessageTypes.WebRTCResumeProducer.toString(), async (data, callback) => {
         const { producerId } = data,
           producer = this.roomState.producers.find(p => p.id === producerId)
         console.log("resume-producer", producer.appData)

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>armada webgl - geometry - cube</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    canvas {
+      width: 100%;
+      height: 70%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="debug" style="width:30%; height: 30%; background-color: white;">
+    <div id="actionDataWrapper"><span>Action: </span><span id="actionData"></span></div>
+    <div id="inputDataWrapper"><span>Input: </span><span id="inputData"></span></div>
+  </div>
+  <script type="module">
+    import { Component, System } from "ecsy"
+    import {
+      ECSYThreeWorld, Object3DComponent, Types, initialize as initializeECSYThree,
+      // Components
+      GLTFLoader,
+      // Systems
+      GLTFLoaderSystem,
+      Position
+    } from "ecsy-three"
+    import {
+      AmbientLight,
+      Mesh,
+      BoxBufferGeometry,
+      MeshBasicMaterial,
+      TextureLoader,
+      Vector3
+    } from "three"
+
+    import { Camera, initialize, DefaultInputSchema, DefaultNetworkSchema, DefaultStateSchema, DefaultSubscriptionSchema } from "../dist/armada.js"
+
+    // Setup world
+    const world = new ECSYThreeWorld()
+    let { camera, scene, sceneEntity } = initializeECSYThree(world)
+    world.createEntity().addObject3DComponent(new AmbientLight(), sceneEntity)
+
+    const options = {
+      debug: false,
+      withTransform: true,
+      withWebXRInput: true,
+      input: {
+        enabled: true,
+        schema: DefaultInputSchema
+      },
+      networking: {
+        enabled: true,
+        schema: DefaultNetworkSchema,
+        supportsMediaStreams: true
+      },
+      state: {
+        enabled: true,
+        schema: DefaultStateSchema
+      },
+      subscriptions: {
+        enabled: true,
+        schema: DefaultSubscriptionSchema
+      },
+      physics: {
+        enabled: false
+      },
+      particles: {
+        enabled: false
+      },
+      transform: {
+        enabled: true
+      }
+    }
+
+    // Initialize with our three scene and camera
+    initialize(world, options, scene, camera);
+
+    // Let's begin
+    world.execute()
+  </script>
+</body>
+
+</html>

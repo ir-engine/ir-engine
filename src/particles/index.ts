@@ -1,4 +1,4 @@
-export * from "./behaviors/Keyframes"
+export * from "./functions/Keyframes"
 export * from "./classes/ParticleEmitter"
 export * from "./classes/ParticleMesh"
 export * from "./components/Keyframe"
@@ -8,8 +8,8 @@ export * from "./systems/ParticleSystem"
 
 import { World } from "ecsy"
 import { isBrowser } from "../common/functions/isBrowser"
+import { ParticleEmitter, ParticleEmitterState } from "./components/ParticleEmitter"
 import { ParticleSystem } from "./systems/ParticleSystem"
-import { ParticleEmitterState, ParticleEmitter } from "./components/ParticleEmitter"
 
 const DEFAULT_OPTIONS = {
   mouse: true,

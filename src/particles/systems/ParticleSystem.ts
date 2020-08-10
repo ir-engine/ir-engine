@@ -1,16 +1,18 @@
 import { System } from "ecsy"
-import { ParticleEmitter, ParticleEmitterState } from "../components/ParticleEmitter"
 import { Object3DComponent } from "ecsy-three"
-import Transform from "../../transform/components/Transform"
-import TransformParent from "../../transform/components/TransformParent"
-import * as THREE from "three"
+import { TransformComponent } from "../../transform/components/TransformComponent"
+import { TransformParentComponent } from "../../transform/components/TransformParentComponent"
 import { createParticleEmitter, setEmitterMatrixWorld, setEmitterTime } from "../classes/ParticleEmitter.js"
+import { ParticleEmitter, ParticleEmitterState } from "../components/ParticleEmitter"
+import { Vector3 } from "three/src/math/Vector3"
+import { Quaternion } from "three/src/math/Quaternion"
+import { Matrix4 } from "three/src/math/Matrix4"
+import { Euler } from "three/src/math/Euler"
 
 export class ParticleSystem extends System {
   execute(deltaTime, time): void {
     for (const entity of this.queries.emitters.added) {
       const emitter = entity.getComponent(ParticleEmitter) as ParticleEmitter
-      const object3D = entity.getComponent(Object3DComponent)
 
       const matrixWorld = calcMatrixWorld(entity)
       if (!emitter.useEntityRotation) {
@@ -57,10 +59,10 @@ ParticleSystem.queries = {
 }
 
 const clearMatrixRotation = (function() {
-  const translation = new THREE.Vector3()
-  const quaternion = new THREE.Quaternion()
-  const scale = new THREE.Vector3()
-  const unitQuat = new THREE.Quaternion()
+  const translation = new Vector3()
+  const quaternion = new Quaternion()
+  const scale = new Vector3()
+  const unitQuat = new Quaternion()
 
   return function clearMatrixRotation(matrix) {
     matrix.decompose(translation, quaternion, scale)
@@ -69,18 +71,18 @@ const clearMatrixRotation = (function() {
 })()
 
 const calcMatrixWorld = (function() {
-  const scale = new THREE.Vector3()
-  const quaternion = new THREE.Quaternion()
-  const euler = new THREE.Euler()
+  const scale = new Vector3()
+  const quaternion = new Quaternion()
+  const euler = new Euler()
 
   return function calcMatrixWorld(entity, childMatrix = undefined) {
     const object3D = entity.getComponent(Object3DComponent)
-    const transform = entity.getComponent(Transform)
+    const transform = entity.getComponent(TransformComponent)
 
     if (object3D) {
       return childMatrix ? childMatrix.multiply(object3D["value"].matrixWorld) : object3D["value"].matrixWorld
     } else if (transform) {
-      const transformMatrix = new THREE.Matrix4()
+      const transformMatrix = new Matrix4()
 
       transformMatrix.compose(transform.position, quaternion.setFromEuler(euler.setFromVector3(transform.rotation)), scale.set(1, 1, 1))
 
@@ -88,10 +90,10 @@ const calcMatrixWorld = (function() {
         transformMatrix.premultiply(childMatrix)
       }
 
-      const parent = entity.getComponent(TransformParent)
+      const parent = entity.getComponent(TransformParentComponent)
       return parent ? calcMatrixWorld(parent["value"], transformMatrix) : transformMatrix
     } else {
-      return new THREE.Matrix4()
+      return new Matrix4()
     }
   }
 })()

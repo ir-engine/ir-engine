@@ -1,5 +1,5 @@
 import { MessageTypeAlias } from "../types/MessageTypeAlias"
-export default interface Message {
+export interface Message {
   messageType: MessageTypeAlias
   data: any
 }

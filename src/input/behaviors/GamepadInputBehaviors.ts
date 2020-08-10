@@ -1,10 +1,10 @@
 import { Entity } from "ecsy"
-import Input from "../../input/components/Input"
-import BinaryValue from "../../common/enums/BinaryValue"
-import InputAlias from "../../input/types/InputAlias"
+import { BinaryValue } from "../../common/enums/BinaryValue"
 import { applyThreshold } from "../../common/functions/applyThreshold"
-import Behavior from "../../common/interfaces/Behavior"
+import { Behavior } from "../../common/interfaces/Behavior"
 import { InputType } from "../../input/enums/InputType"
+import { InputAlias } from "../../input/types/InputAlias"
+import { Input } from "../components/Input"
 
 const inputPerGamepad = 2
 let input: Input

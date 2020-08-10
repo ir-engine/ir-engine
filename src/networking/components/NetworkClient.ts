@@ -1,3 +1,4 @@
+// Todo: Attach stuff to be like inventory, etc, later, and use me!
 import { Component, Types } from "ecsy"
 
 interface PropTypes {
@@ -6,7 +7,7 @@ interface PropTypes {
   name: string
 }
 
-export default class NetworkClient extends Component<PropTypes> {}
+export class NetworkClient extends Component<PropTypes> {}
 
 NetworkClient.schema = {
   networkId: { type: Types.Number },

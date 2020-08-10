@@ -1,36 +1,29 @@
-import { System, Entity } from "ecsy"
-import Camera from "../components/Camera"
+import { System } from "ecsy"
+import { followTarget } from "../../transform/behaviors/followTarget"
+import { applySettingsToCamera } from "../behaviors/applySettingsToCamera"
+import { CameraComponent } from "../components/CameraComponent"
 
-class CameraSystem extends System {
-  execute(): void {
-    this.queries.entities.added.forEach(entity => {
-      console.log("Camera added!")
-      this.applySettingsToCamera(entity)
+export class CameraSystem extends System {
+  execute(delta: number): void {
+    this.queries.entities.results?.forEach(entity => {
+      const cam = entity.getComponent(CameraComponent) as CameraComponent
+      if (cam.followTarget !== null && cam.followTarget !== undefined) {
+        followTarget(cam.camera, { distance: 100 }, delta, cam.followTarget)
+      }
     })
+
     this.queries.entities.changed.forEach(entity => {
-      this.applySettingsToCamera(entity)
+      applySettingsToCamera(entity)
     })
-  }
-
-  applySettingsToCamera(entity: Entity): void {
-    const cameraComponent = entity.getComponent(Camera) as Camera
-    cameraComponent.cameraObjectReference.fov = cameraComponent.fov
-    cameraComponent.cameraObjectReference.aspect = cameraComponent.aspect
-    cameraComponent.cameraObjectReference.near = cameraComponent.near
-    cameraComponent.cameraObjectReference.far = cameraComponent.far
-    cameraComponent.cameraObjectReference.layers = cameraComponent.layers
-    cameraComponent.cameraObjectReference.handleResize = cameraComponent.handleResize
   }
 }
 
 CameraSystem.queries = {
   entities: {
-    components: [Camera],
+    components: [CameraComponent],
     listen: {
       added: true,
       changed: true
     }
   }
 }
-
-export default CameraSystem

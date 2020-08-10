@@ -1,4 +1,4 @@
-export default class RingBuffer<T> {
+export class RingBuffer<T> {
   public static fromArray<T>(data: T[], size = 0): RingBuffer<T> {
     const actionBuffer = new RingBuffer<T>(size)
     actionBuffer.fromArray(data, size === 0)
@@ -22,7 +22,6 @@ export default class RingBuffer<T> {
   }
 
   constructor(size: number) {
-    console.log("Constructing ring buffer")
     if (size < 0) {
       throw new RangeError("The size does not allow negative values.")
     }
