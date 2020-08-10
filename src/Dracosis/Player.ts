@@ -13,19 +13,23 @@ import RingBuffer from './RingBuffer';
 import {
   Scene,
   BufferGeometry,
+  SphereBufferGeometry,
   CompressedTexture,
   BoxBufferGeometry,
   MeshBasicMaterial,
   MeshStandardMaterial,
   MeshPhongMaterial,
   Mesh,
+  Uint16BufferAttribute,
+  Uint32BufferAttribute,
+  Float32BufferAttribute,
 } from 'three';
 import { BasisTextureLoader } from 'three/examples/jsm/loaders/BasisTextureLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 // import { ReadStream } from 'fs';
 import ReadStream from 'fs-readstream-seek';
 import { MessageType } from './Enums';
-// import { decodeDracoData } from './CodecHelpers';
+import * as CodecHelpers from './CodecHelpers';
 
 const worker = new Worker('./Worker.js');
 
@@ -61,6 +65,8 @@ export default class DracosisPlayer {
   private _fileReadStream: ReadStream;
   private _readStreamOffset = 0;
   private _basisTextureLoader = new BasisTextureLoader();
+  private _decoderModule = draco3d.createDecoderModule({});
+  private _encoderModule = draco3d.createEncoderModule({});
 
   private _nullBufferGeometry = new BufferGeometry();
   private _nullCompressedTexture = new CompressedTexture(
@@ -143,14 +149,17 @@ export default class DracosisPlayer {
     this._playOnStart = playOnStart;
     this._currentFrame = startFrame;
 
-    this.bufferGeometry = new BoxBufferGeometry(1, 1, 1);
+    this.bufferGeometry = new SphereBufferGeometry(1, 32, 32);
     this.material = new MeshPhongMaterial({ color: 0xffff00 });
+    this.bufferGeometry.name = 'sphere';
     this.mesh = new Mesh(this.bufferGeometry, this.material);
     this.scene.add(this.mesh);
+    console.log(this.bufferGeometry);
+    // this.bufferGeometry = true;
 
-    // this.dracoLoader.setDecoderPath(
-    //   "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/draco/"
-    // );
+    this.dracoLoader.setDecoderPath(
+      'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/draco/'
+    );
 
     let player = this;
 
@@ -188,41 +197,246 @@ export default class DracosisPlayer {
   }
 
   decodeDracoData(rawBuffer: Buffer) {
-    const decoderModule = draco3d.createDecoderModule({});
-    // const _encoderModule = draco3d.createEncoderModule({});
-  
-    const decoder = new decoderModule.Decoder();
-    const buffer = new decoderModule.DecoderBuffer()
-    buffer.Init(new Int8Array(rawBuffer), rawBuffer.byteLength)
-    const geometryType = decoder.GetEncodedGeometryType(buffer)
-    
-    let dracoGeometry
-    let status
-    dracoGeometry = new decoderModule.Mesh()
-    status = decoder.DecodeBufferToMesh(buffer, dracoGeometry)
-    // if (geometryType === this._decoderModule.TRIANGULAR_MESH) {
-    //   dracoGeometry = new this._decoderModule.Mesh()
-    //   status = decoder.DecodeBufferToMesh(buffer, dracoGeometry)
-    // } else if (geometryType === this._decoderModule.POINT_CLOUD) {
-    //   dracoGeometry = new this._decoderModule.PointCloud()
-    //   status = decoder.DecodeBufferToPointCloud(buffer, dracoGeometry)
-    // } else {
-    //   const errorMsg = "Error: Unknown geometry type."
-    //   console.error(errorMsg)
-    // }
-    decoderModule.destroy(buffer)
+    console.log('RawBufer', rawBuffer);
+    const decoder = new this._decoderModule.Decoder();
+    const buffer = new this._decoderModule.DecoderBuffer();
+    buffer.Init(new Int8Array(rawBuffer), rawBuffer.byteLength);
+    const geometryType = decoder.GetEncodedGeometryType(buffer);
 
-    // const dracoLoader = new DRACOLoader();
-    // // const bufferGeometry = dracoLoader.decodeDracoFile(buffer);
-    // dracoLoader.decodeDracoFile(buffer, function(bg) {
-    //   console.log("BufferGeometry", bg);
-    // }, null, null);
- 
-    // this.dracoLoader.decodeDracoFile(rawBuffer, function(bufferGeometry) {
-    //   console.log("BufferGeometry", bufferGeometry);
-    // }, null, null );
-    
-    return dracoGeometry
+    let dracoGeometry;
+    let status;
+
+    console.log('201 buffer', buffer);
+
+    if (geometryType === this._decoderModule.TRIANGULAR_MESH) {
+      dracoGeometry = new this._decoderModule.Mesh();
+      status = decoder.DecodeBufferToMesh(buffer, dracoGeometry);
+    } else if (geometryType === this._decoderModule.POINT_CLOUD) {
+      dracoGeometry = new this._decoderModule.PointCloud();
+      status = decoder.DecodeBufferToPointCloud(buffer, dracoGeometry);
+    } else {
+      const errorMsg = 'Error: Unknown geometry type.';
+      console.error(errorMsg);
+    }
+    this._decoderModule.destroy(buffer);
+
+    console.log('status', status);
+
+    const bufferGeometry = this.getBufferFromDracoGeometry(
+      dracoGeometry,
+      decoder
+    );
+
+    // @ts-ignore
+    // this.dracoLoader.decodeDracoFile(dracoGeometry, (geom) => {
+    //   console.log('222', geom);
+    // });
+
+    // const numFaces = dracoGeometry.num_faces();
+    // const numIndices = numFaces * 3;
+    // const numPoints = dracoGeometry.num_points();
+    // const indices = new Uint32Array(numIndices);
+
+    // console.log('Number of faces ' + numFaces);
+    // console.log('Number of vertices ' + numPoints);
+
+    return bufferGeometry;
+  }
+
+  getBufferFromDracoGeometry(uncompressedDracoMesh, decoder) {
+    const encoder = new this._encoderModule.Encoder();
+    const meshBuilder = new this._encoderModule.MeshBuilder();
+    // Create a mesh object for storing mesh data.
+    const newMesh = new this._encoderModule.Mesh();
+
+    let uncompressedNumFaces, uncompressedNumPoints;
+    let numVertexCoordinates, numTextureCoordinates, numColorCoordinates;
+    let numAttributes;
+    let numColorCoordinateComponents = 3;
+
+    // For output basic geometry information.
+    uncompressedNumFaces = uncompressedDracoMesh.num_faces();
+    uncompressedNumPoints = uncompressedDracoMesh.num_points();
+    numVertexCoordinates = uncompressedNumPoints * 3;
+    numTextureCoordinates = uncompressedNumPoints * 2;
+    numColorCoordinates = uncompressedNumPoints * 3;
+    numAttributes = uncompressedDracoMesh.num_attributes();
+
+    console.log(
+      '262 uncompressed',
+      uncompressedNumFaces,
+      uncompressedNumPoints,
+      numAttributes
+    );
+
+    // Get position attribute. Must exists.
+    let posAttId = decoder.GetAttributeId(
+      uncompressedDracoMesh,
+      this._decoderModule.POSITION
+    );
+    if (posAttId == -1) {
+      let errorMsg = 'THREE.DRACOLoader: No position attribute found.';
+      console.error(errorMsg);
+      this._decoderModule.destroy(decoder);
+      this._decoderModule.destroy(uncompressedDracoMesh);
+      throw new Error(errorMsg);
+    }
+    let posAttribute = decoder.GetAttribute(uncompressedDracoMesh, posAttId);
+    let posAttributeData = new this._decoderModule.DracoFloat32Array();
+    decoder.GetAttributeFloatForAllPoints(
+      uncompressedDracoMesh,
+      posAttribute,
+      posAttributeData
+    );
+
+    // Get normal attributes if exists.
+    let normalAttId = decoder.GetAttributeId(
+      uncompressedDracoMesh,
+      this._decoderModule.NORMAL
+    );
+    let norAttributeData;
+    if (normalAttId != -1) {
+      let norAttribute = decoder.GetAttribute(
+        uncompressedDracoMesh,
+        normalAttId
+      );
+      norAttributeData = new this._decoderModule.DracoFloat32Array();
+      decoder.GetAttributeFloatForAllPoints(
+        uncompressedDracoMesh,
+        norAttribute,
+        norAttributeData
+      );
+    }
+
+    // Structure for converting to THREEJS geometry later.
+    let geometryBuffer = {
+      vertices: new Float32Array(numVertexCoordinates),
+      normals: new Float32Array(numVertexCoordinates),
+      indices: null,
+    };
+
+    console.log('Geometry Buffer', geometryBuffer);
+
+    for (let i = 0; i < numVertexCoordinates; i += 3) {
+      geometryBuffer.vertices[i] = posAttributeData.GetValue(i);
+      geometryBuffer.vertices[i + 1] = posAttributeData.GetValue(i + 1);
+      geometryBuffer.vertices[i + 2] = posAttributeData.GetValue(i + 2);
+      // Add normal.
+      if (normalAttId != -1) {
+        geometryBuffer.normals[i] = norAttributeData.GetValue(i);
+        geometryBuffer.normals[i + 1] = norAttributeData.GetValue(i + 1);
+        geometryBuffer.normals[i + 2] = norAttributeData.GetValue(i + 2);
+      }
+    }
+
+    this._decoderModule.destroy(posAttributeData);
+    if (normalAttId != -1) this._decoderModule.destroy(norAttributeData);
+
+    let uncompressedNumIndices = uncompressedNumFaces * 3;
+    geometryBuffer.indices = new Uint32Array(uncompressedNumIndices);
+    let ia = new this._decoderModule.DracoInt32Array();
+    for (let i = 0; i < uncompressedNumFaces; ++i) {
+      decoder.GetFaceFromMesh(uncompressedDracoMesh, i, ia);
+      let index = i * 3;
+      geometryBuffer.indices[index] = ia.GetValue(0);
+      geometryBuffer.indices[index + 1] = ia.GetValue(1);
+      geometryBuffer.indices[index + 2] = ia.GetValue(2);
+    }
+    this._decoderModule.destroy(ia);
+
+    console.log('Geometry Buffer populated', geometryBuffer);
+
+    // Import data to Three JS geometry.
+    let geometry = new BufferGeometry();
+
+    geometry.setIndex(
+      new (geometryBuffer.indices.length > 65535
+        ? Uint32BufferAttribute
+        : Uint16BufferAttribute)(geometryBuffer.indices, 1)
+    );
+    geometry.addAttribute(
+      'position',
+      new Float32BufferAttribute(geometryBuffer.vertices, 3)
+    );
+
+    if (normalAttId != -1) {
+      geometry.addAttribute(
+        'normal',
+        new Float32BufferAttribute(geometryBuffer.normals, 3)
+      );
+    }
+
+    console.log('Geometry Buffer with attributes', geometryBuffer);
+
+    this._decoderModule.destroy(decoder);
+    this._decoderModule.destroy(uncompressedDracoMesh);
+
+    console.log('Geomtery', geometry);
+
+    return geometry;
+    // const numFaces = mesh.num_faces();
+    // const numIndices = numFaces * 3;
+    // const numPoints = mesh.num_points();
+    // const indices = new Uint32Array(numIndices);
+
+    // console.log(mesh);
+    // console.log('Number of faces ' + numFaces);
+    // console.log('Number of vertices ' + numPoints);
+
+    // let vertices = new Float32Array(numPoints * 3);
+    // let normals = new Float32Array(numPoints * 3);
+
+    // // Add Faces to mesh
+    // for (let i = 0; i < numFaces; i++) {
+    //   const index = i * 3;
+    //   console.log('261', index, mesh.faces[i], indices[index]);
+    //   indices[index] = mesh.faces[i].a;
+    //   indices[index + 1] = mesh.faces[i].b;
+    //   indices[index + 2] = mesh.faces[i].c;
+    // }
+    // meshBuilder.AddFacesToMesh(newMesh, numFaces, indices);
+
+    // // Add POSITION to mesh (Vertices)
+    // for (let i = 0; i < mesh.vertices.length; i++) {
+    //   const index = i * 3;
+    //   vertices[index] = mesh.vertices[i].x;
+    //   vertices[index + 1] = mesh.vertices[i].y;
+    //   vertices[index + 2] = mesh.vertices[i].z;
+    // }
+    // meshBuilder.AddFloatAttributeToMesh(
+    //   newMesh,
+    //   this._encoderModule.POSITION,
+    //   numPoints,
+    //   3,
+    //   vertices
+    // );
+
+    // // Add NORMAL to mesh
+    // for (let face of mesh.faces) {
+    //   normals[face['a'] * 3] = face.vertexNormals[0].x;
+    //   normals[face['a'] * 3 + 1] = face.vertexNormals[0].y;
+    //   normals[face['a'] * 3 + 2] = face.vertexNormals[0].z;
+
+    //   normals[face['b'] * 3] = face.vertexNormals[1].x;
+    //   normals[face['b'] * 3 + 1] = face.vertexNormals[1].y;
+    //   normals[face['b'] * 3 + 2] = face.vertexNormals[1].z;
+
+    //   normals[face['c'] * 3] = face.vertexNormals[2].x;
+    //   normals[face['c'] * 3 + 1] = face.vertexNormals[2].y;
+    //   normals[face['c'] * 3 + 2] = face.vertexNormals[2].z;
+    // }
+    // meshBuilder.AddFloatAttributeToMesh(
+    //   newMesh,
+    //   this._encoderModule.NORMAL,
+    //   numPoints,
+    //   3,
+    //   normals
+    // );
+
+    // console.log('//DRACO UNCOMPRESSED MESH STATS//////////');
+    // console.log('Number of faces ' + newMesh.num_faces());
+    // console.log('Number of Vertices ' + newMesh.num_points());
+    // console.log('Number of Attributes ' + newMesh.num_attributes());
   }
 
   handleMessage(data: any) {
@@ -231,13 +445,31 @@ export default class DracosisPlayer {
         this.handleInitializationResponse(data);
         break;
       case MessageType.DataResponse: {
-        if(data && data.buffers) {
-          var geometry = this.decodeDracoData(data.buffers[0].bufferGeometry);
+        // this.dracoLoader.load(
+        //   this._filePath,
+        //   function (geometry) {
+        //     console.log('205', geometry);
+        //   },
+        //   // called as loading progresses
+        //   function (xhr) {
+        //     console.log((xhr.loaded / xhr.total) * 100 + '% loaded');
+        //   },
+        //   // called when loading has errors
+        //   function (error) {
+        //     console.log('An error happened');
+        //   }
+        // );
+
+        if (data && data.buffers) {
+          // var geometry = this.decodeDracoData(data.buffers[0].bufferGeometry);
           // console.log("Decoded data", decodeDracoData(data.buffers[0].bufferGeometry));
-          // console.log("Decoded data", data.buffers[0].bufferGeometry);
-        
+          this.handleDataResponse(data.buffers);
+          // console.log("228");
+          // console.log("Buffers", data.buffers[10])
+          // console.log("Decoded data", this.decodeDracoData(data.buffers[10].bufferGeometry))
+          // console.log("Buffers", data.buffers[20])
+          // console.log("Decoded data", this.decodeDracoData(data.buffers[20].bufferGeometry))
         }
-        this.handleDataResponse(data.buffers);
         break;
       }
     }
@@ -252,19 +484,25 @@ export default class DracosisPlayer {
     } else console.error('Initialization failed');
   }
 
-  handleDataResponse(data: IBufferGeometryCompressedTexture[]) {
+  handleDataResponse(data) {
     // For each object in the array...
+
     const player = this;
     data.forEach((geomTex) => {
       player._frameNumber = geomTex.frameNumber;
       // Find the frame in our circular buffer
       // player._pos = player.getPositionInBuffer(player._frameNumber);
       // Set the mesh and texture buffers
-      player._ringBuffer.get(player._frameNumber).bufferGeometry =
-        geomTex.bufferGeometry;
+      player._ringBuffer.get(
+        player._frameNumber
+      ).bufferGeometry = player.decodeDracoData(geomTex.bufferGeometry);
       player._ringBuffer.get(player._frameNumber).compressedTexture =
         geomTex.compressedTexture;
       player._framesUpdated++;
+      console.log(
+        '263',
+        player._ringBuffer.get(player._frameNumber).bufferGeometry
+      );
     });
     console.log(
       'Updated mesh and texture data on ' + player._framesUpdated + ' frames'
@@ -363,8 +601,13 @@ export default class DracosisPlayer {
       this._ringBuffer &&
       this._ringBuffer.getFirst().frameNumber == this._currentFrame
     ) {
+      // console.log(
+      //   'Buffer Geometry',
+      //   this._ringBuffer.getFirst().bufferGeometry
+      // );
       // read buffer into current buffer geometry
       this.bufferGeometry = this._ringBuffer.getFirst().bufferGeometry;
+      this.mesh.geometry = this.bufferGeometry;
 
       // read buffer into current texture
       this.compressedTexture = this._ringBuffer.getFirst().compressedTexture;

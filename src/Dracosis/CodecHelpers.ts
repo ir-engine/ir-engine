@@ -4,27 +4,25 @@ import * as basisu from "basisu"
 import * as draco3d from "draco3d"
 import { Geometry } from "three"
 
-export function decodeDracoData(rawBuffer: Buffer) {
-  const decoderModule = draco3d.createDecoderModule({});
-  const decoder = new decoderModule.Decoder();
+export function decodeDracoData(rawBuffer: Buffer, decoder) {
+  // const decoderModule = draco3d.createDecoderModule({});
+  // const decoder = new decoderModule.Decoder();
   const buffer = new this.decoderModule.DecoderBuffer()
   buffer.Init(new Int8Array(rawBuffer), rawBuffer.byteLength)
-  // const geometryType = decoder.GetEncodedGeometryType(buffer)
+  const geometryType = decoder.GetEncodedGeometryType(buffer)
 
   let dracoGeometry
   let status
-  dracoGeometry = new this.decoderModule.Mesh()
-  status = decoder.DecodeBufferToMesh(buffer, dracoGeometry)
-  // if (geometryType === this.decoderModule.TRIANGULAR_MESH) {
-  //   dracoGeometry = new this.decoderModule.Mesh()
-  //   status = decoder.DecodeBufferToMesh(buffer, dracoGeometry)
-  // } else if (geometryType === this.decoderModule.POINT_CLOUD) {
-  //   dracoGeometry = new this.decoderModule.PointCloud()
-  //   status = decoder.DecodeBufferToPointCloud(buffer, dracoGeometry)
-  // } else {
-  //   const errorMsg = "Error: Unknown geometry type."
-  //   console.error(errorMsg)
-  // }
+  if (geometryType === this.decoderModule.TRIANGULAR_MESH) {
+    dracoGeometry = new this.decoderModule.Mesh()
+    status = decoder.DecodeBufferToMesh(buffer, dracoGeometry)
+  } else if (geometryType === this.decoderModule.POINT_CLOUD) {
+    dracoGeometry = new this.decoderModule.PointCloud()
+    status = decoder.DecodeBufferToPointCloud(buffer, dracoGeometry)
+  } else {
+    const errorMsg = "Error: Unknown geometry type."
+    console.error(errorMsg)
+  }
 
   this.decoderModule.destroy(buffer)
 
@@ -103,17 +101,18 @@ export function encodeMeshToDraco(mesh: Geometry): any {
 
   // Copy encoded data to buffer.
   const outputBuffer = new ArrayBuffer(encodedLen)
+  const outputData = new Int8Array(outputBuffer);
+  for (let i = 0; i < encodedLen; ++i) {
+    outputData[i] = encodedData.GetValue(i);
+  }
 
-  encoderModule.destroy(encodedData)
   encoderModule.destroy(encoder)
   encoderModule.destroy(meshBuilder)
 
   console.log("DRACO ENCODED////////////////////////////")
   console.log("Length of buffer: " + outputBuffer.byteLength)
 
-  // const geometry = this.decodeDracoData(outputBuffer);
-
-  return outputBuffer
+  return new Buffer(outputBuffer)
 }
 
 export function PNGToBasis(inPath: string): Buffer {

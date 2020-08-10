@@ -65,6 +65,11 @@
     "@open-wc/rollup-plugin-html": "^1.1.0",
     "@rollup/plugin-babel": "^5.1.0",
     "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^8.4.0"
+    "@rollup/plugin-node-resolve": "^8.4.0",
+    "axios": "^0.19.2",
+    "file-type": "^14.7.0",
+    "hexdump-nodejs": "^0.1.0",
+    "node-fetch": "^2.6.0",
+    "prepend": "^1.0.2"
   }
 }
