@@ -61,7 +61,7 @@ export const initializeSession: Behavior = (entity: Entity, args: { webXRRendere
     entity.remove()
     args.webXRRenderer.requestAnimationFrame = WebXRRenderer.schema.requestAnimationFrame.default
   })
-  console.log("XR session added to", entity, "isImmersive", isImmersive)
+  // console.log("XR session added to", entity, "isImmersive", isImmersive)
   if (isImmersive /*entity.name == "vr-session"*/) {
     args.webXRRenderer.context.makeXRCompatible().then(() =>
       session.updateRenderState({

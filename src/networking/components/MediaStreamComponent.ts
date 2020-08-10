@@ -19,7 +19,6 @@ export class MediaStreamComponent extends Component<any> {
     MediaStreamComponent.instance = this
     this.consumers = []
     this.mediaStream = null
-    console.log("Registered MediaStreamComponent")
   }
 
   public toggleVideoPaused(): boolean {
