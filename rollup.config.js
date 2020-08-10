@@ -49,8 +49,8 @@ export default [
     output: { dir: "dist/examples/" },
     plugins: [
       html(),
-      commonjs(),
       resolve({ browser: true, preferBuiltins: false }),
+      commonjs(),
       json(),
       injectProcessEnv({
         NODE_ENV: "production"
@@ -66,9 +66,8 @@ export default [
     plugins: [
       typescript(),
       json(),
-      resolve(),
+      resolve({ browser: false, preferBuiltins: true }),
       commonjs({
-        preferBuiltins: true,
         include: ["node_modules/**/*"], // Default: undefined
         transformMixedEsModules: true
       }),
@@ -82,6 +81,6 @@ export default [
         process: false
       })
     ],
-    external: ["mediasoup", "mediasoup-client", "buffer-es6", "buffer", "fs", "debug", "path", "socket.io", "safer", "depd"]
+    external: ["mediasoup", "mediasoup-client", "buffer-es6", "debug", "socket.io", "safer", "depd"]
   }
 ]

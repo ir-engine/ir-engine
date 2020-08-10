@@ -1,4 +1,8 @@
-import * as CANNON from "cannon-es"
+import { Box } from "cannon-es/src/shapes/Box"
+import { Vec3 } from "cannon-es/src/math/Vec3"
+import { Sphere } from "cannon-es/src/shapes/Sphere"
+import { Body } from "cannon-es/src/objects/Body"
+
 import * as ECSY from "ecsy"
 import { RigidBody } from "../components/RigidBody"
 import { VehicleBody } from "../components/VehicleBody"
@@ -11,15 +15,15 @@ export class VehicleSystem extends ECSY.System {
       let shape
 
       if (physicsBody.geometryType == "box") {
-        shape = new CANNON.Box(new CANNON.Vec3(physicsBody.scale.x / 2, physicsBody.scale.y / 2, physicsBody.scale.z / 2))
+        shape = new Box(new Vec3(physicsBody.scale.x / 2, physicsBody.scale.y / 2, physicsBody.scale.z / 2))
       } else {
-        shape = new CANNON.Sphere(physicsBody.scale.x / 2)
+        shape = new Sphere(physicsBody.scale.x / 2)
       }
 
       //let shape = new CANNON.Sphere(0.1)
-      const body = new CANNON.Body({
+      const body = new Body({
         mass: physicsBody.mass,
-        position: new CANNON.Vec3(physicsBody.startPosition.x, physicsBody.startPosition.y, physicsBody.startPosition.z)
+        position: new Vec3(physicsBody.startPosition.x, physicsBody.startPosition.y, physicsBody.startPosition.z)
       })
       body.addShape(shape)
 

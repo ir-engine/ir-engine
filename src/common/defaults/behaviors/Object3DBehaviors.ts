@@ -33,86 +33,94 @@ import {
   SpotLightTagComponent,
   SpriteTagComponent
 } from "ecsy-three"
-import { Object3D } from "three"
-import { Scene } from "../../components/Scene"
+import { SceneComponent } from "../../components/SceneComponent"
 import { Behavior } from "../../interfaces/Behavior"
-export const addObject3DComponent: Behavior = (entity: ECSYThreeEntity, args: { obj: Object3D }) => {
-  entity.addComponent(Object3DComponent, { value: args.obj })
+
+let object3d
+export const addObject3DComponent: Behavior = (entity: ECSYThreeEntity, args: { obj: any; objArgs: any }) => {
+  console.log("addObject3DComponent")
+  object3d = new args.obj(eval(args.objArgs))
+  console.log("Instantiated object: ")
+  console.log(object3d)
+  entity.addComponent(Object3DComponent, { value: object3d })
   // Add the obj to our scene graph
-  Scene.instance.scene.addComponent(args.obj)
-  if (args.obj.type === "Audio" && (args.obj as any).panner !== undefined) {
+  console.log("Scene")
+  console.log(SceneComponent.instance.scene)
+  SceneComponent.instance.scene.add(object3d)
+  return
+  if (object3d.type === "Audio" && (object3d as any).panner !== undefined) {
     entity.addComponent(PositionalAudioTagComponent)
-  } else if (args.obj.type === "Audio") {
+  } else if (object3d.type === "Audio") {
     entity.addComponent(AudioTagComponent)
-  } else if (args.obj.type === "AudioListener") {
+  } else if (object3d.type === "AudioListener") {
     entity.addComponent(AudioListenerTagComponent)
-  } else if ((args.obj as any).isCamera) {
+  } else if ((object3d as any).isCamera) {
     entity.addComponent(CameraTagComponent)
 
-    if ((args.obj as any).isOrthographicCamera) {
+    if ((object3d as any).isOrthographicCamera) {
       entity.addComponent(OrthographicCameraTagComponent)
-    } else if ((args.obj as any).isPerspectiveCamera) {
+    } else if ((object3d as any).isPerspectiveCamera) {
       entity.addComponent(PerspectiveCameraTagComponent)
 
-      if ((args.obj as any).isArrayCamera) {
+      if ((object3d as any).isArrayCamera) {
         entity.addComponent(ArrayCameraTagComponent)
       }
     }
-  } else if (args.obj.type === "CubeCamera") {
+  } else if (object3d.type === "CubeCamera") {
     entity.addComponent(CubeCameraTagComponent)
-  } else if ((args.obj as any).isImmediateRenderObject) {
+  } else if ((object3d as any).isImmediateRenderObject) {
     entity.addComponent(ImmediateRenderObjectTagComponent)
-  } else if ((args.obj as any).isLight) {
+  } else if ((object3d as any).isLight) {
     entity.addComponent(LightTagComponent)
 
-    if ((args.obj as any).isAmbientLight) {
+    if ((object3d as any).isAmbientLight) {
       entity.addComponent(AmbientLightTagComponent)
-    } else if ((args.obj as any).isDirectionalLight) {
+    } else if ((object3d as any).isDirectionalLight) {
       entity.addComponent(DirectionalLightTagComponent)
-    } else if ((args.obj as any).isHemisphereLight) {
+    } else if ((object3d as any).isHemisphereLight) {
       entity.addComponent(HemisphereLightTagComponent)
-    } else if ((args.obj as any).isPointLight) {
+    } else if ((object3d as any).isPointLight) {
       entity.addComponent(PointLightTagComponent)
-    } else if ((args.obj as any).isRectAreaLight) {
+    } else if ((object3d as any).isRectAreaLight) {
       entity.addComponent(RectAreaLightTagComponent)
-    } else if ((args.obj as any).isSpotLight) {
+    } else if ((object3d as any).isSpotLight) {
       entity.addComponent(SpotLightTagComponent)
-    } else if ((args.obj as any).isLightProbe) {
+    } else if ((object3d as any).isLightProbe) {
       entity.addComponent(LightProbeTagComponent)
 
-      if ((args.obj as any).isAmbientLightProbe) {
+      if ((object3d as any).isAmbientLightProbe) {
         entity.addComponent(AmbientLightProbeTagComponent)
-      } else if ((args.obj as any).isHemisphereLightProbe) {
+      } else if ((object3d as any).isHemisphereLightProbe) {
         entity.addComponent(HemisphereLightProbeTagComponent)
       }
     }
-  } else if ((args.obj as any).isBone) {
+  } else if ((object3d as any).isBone) {
     entity.addComponent(BoneTagComponent)
-  } else if ((args.obj as any).isGroup) {
+  } else if ((object3d as any).isGroup) {
     entity.addComponent(GroupTagComponent)
-  } else if ((args.obj as any).isLOD) {
+  } else if ((object3d as any).isLOD) {
     entity.addComponent(LODTagComponent)
-  } else if ((args.obj as any).isMesh) {
+  } else if ((object3d as any).isMesh) {
     entity.addComponent(MeshTagComponent)
 
-    if ((args.obj as any).isInstancedMesh) {
+    if ((object3d as any).isInstancedMesh) {
       entity.addComponent(InstancedMeshTagComponent)
-    } else if ((args.obj as any).isSkinnedMesh) {
+    } else if ((object3d as any).isSkinnedMesh) {
       entity.addComponent(SkinnedMeshTagComponent)
     }
-  } else if ((args.obj as any).isLine) {
+  } else if ((object3d as any).isLine) {
     entity.addComponent(LineTagComponent)
 
-    if ((args.obj as any).isLineLoop) {
+    if ((object3d as any).isLineLoop) {
       entity.addComponent(LineLoopTagComponent)
-    } else if ((args.obj as any).isLineSegments) {
+    } else if ((object3d as any).isLineSegments) {
       entity.addComponent(LineSegmentsTagComponent)
     }
-  } else if ((args.obj as any).isPoints) {
+  } else if ((object3d as any).isPoints) {
     entity.addComponent(PointsTagComponent)
-  } else if ((args.obj as any).isSprite) {
+  } else if ((object3d as any).isSprite) {
     entity.addComponent(SpriteTagComponent)
-  } else if ((args.obj as any).isScene) {
+  } else if ((object3d as any).isScene) {
     entity.addComponent(SceneTagComponent)
   }
 
@@ -121,7 +129,7 @@ export const addObject3DComponent: Behavior = (entity: ECSYThreeEntity, args: { 
 
 export function removeObject3DComponent(entity, unparent = true) {
   const obj = entity.getComponent(Object3DComponent, true).value
-  Scene.instance.scene.remove(obj)
+  SceneComponent.instance.scene.remove(obj)
 
   if (unparent) {
     // Using "true" as the entity could be removed somewhere else

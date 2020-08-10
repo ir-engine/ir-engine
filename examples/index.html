@@ -26,7 +26,7 @@
   <script type="module">
     import { Component, System } from "ecsy"
     import {
-      ECSYThreeWorld, Object3DComponent, Types, initialize,
+      ECSYThreeWorld, Object3DComponent, Types, initialize as initializeECSYThree,
       // Components
       GLTFLoader,
       // Systems
@@ -42,11 +42,11 @@
       Vector3
     } from "three"
 
-    import { Camera, initializeArmada, DefaultInputSchema, DefaultNetworkSchema, DefaultStateSchema, DefaultSubscriptionSchema } from "../dist/armada.js"
+    import { Camera, initialize, DefaultInputSchema, DefaultNetworkSchema, DefaultStateSchema, DefaultSubscriptionSchema } from "../dist/armada.js"
 
     // Setup world
     const world = new ECSYThreeWorld()
-    let { camera, scene } = initialize(world)
+    let { camera, scene, sceneEntity } = initializeECSYThree(world)
     world.createEntity().addObject3DComponent(new AmbientLight(), sceneEntity)
 
     const options = {
@@ -82,20 +82,7 @@
     }
 
     // Initialize with our three scene and camera
-    initializeArmada(world, options, scene, camera);
-
-    const cube = world
-      .createEntity()
-      .addObject3DComponent(
-        new Mesh(
-          new BoxBufferGeometry(1, 1, 1),
-          new MeshBasicMaterial({
-          })
-        ),
-        sceneEntity
-      )
-
-    Camera.instance.followTarget = cube
+    initialize(world, options, scene, camera);
 
     // Let's begin
     world.execute()

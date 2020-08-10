@@ -1,6 +1,6 @@
 // Components
 import { BoxBufferGeometry, Mesh, MeshBasicMaterial } from "three"
-import { Camera } from "../../camera/components/Camera"
+import { CameraComponent } from "../../camera/components/CameraComponent"
 import { addObject3DComponent, removeObject3DComponent } from "../../common/defaults/behaviors/Object3DBehaviors"
 import { Actor } from "../../common/defaults/components/Actor"
 import { Input } from "../../input/components/Input"
@@ -16,13 +16,14 @@ import { DefaultMessageTypes } from "./DefaultMessageTypes"
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 const NetworkPlayerCharacter: NetworkPrefab = {
-  components: [{ type: NetworkObject }, { type: Actor }, { type: TransformComponent }],
-  localComponents: [{ type: Input }, { type: Camera }],
+  networkComponents: [{ type: NetworkObject }, { type: Actor }, { type: TransformComponent, networkedValues: ["position", "rotation"] }],
+  components: [{ type: Input }],
   onCreate: [
     {
       behavior: addObject3DComponent,
       args: {
-        obj: new Mesh(new BoxBufferGeometry(1, 1, 1), new MeshBasicMaterial({}))
+        obj: Mesh,
+        objArgs: "new BoxBufferGeometry(1, 1, 1), new MeshBasicMaterial({})"
       }
     }
   ],
@@ -36,12 +37,12 @@ const NetworkPlayerCharacter: NetworkPrefab = {
 // initializeActor(cube, inputOptions)
 // Prefab is a pattern for creating an entity and component collection as a prototype
 const NetworkCube: NetworkPrefab = {
-  components: [{ type: NetworkObject }, { type: TransformComponent }]
+  networkComponents: [{ type: NetworkObject }, { type: TransformComponent }]
 }
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 const Car: NetworkPrefab = {
-  components: [{ type: NetworkObject }, { type: TransformComponent }]
+  networkComponents: [{ type: NetworkObject }, { type: TransformComponent }]
 }
 
 export const PrefabType = {

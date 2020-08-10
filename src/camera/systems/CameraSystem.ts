@@ -1,14 +1,12 @@
 import { System } from "ecsy"
-import { Behavior } from "../../common/interfaces/Behavior"
 import { followTarget } from "../../transform/behaviors/followTarget"
 import { applySettingsToCamera } from "../behaviors/applySettingsToCamera"
-import { Camera } from "../components/Camera"
+import { CameraComponent } from "../components/CameraComponent"
 
 export class CameraSystem extends System {
-  follow: Behavior = followTarget
   execute(delta: number): void {
     this.queries.entities.results?.forEach(entity => {
-      const cam = entity.getComponent(Camera) as Camera
+      const cam = entity.getComponent(CameraComponent) as CameraComponent
       if (cam.followTarget !== null && cam.followTarget !== undefined) {
         followTarget(cam.camera, { distance: 100 }, delta, cam.followTarget)
       }
@@ -22,7 +20,7 @@ export class CameraSystem extends System {
 
 CameraSystem.queries = {
   entities: {
-    components: [Camera],
+    components: [CameraComponent],
     listen: {
       added: true,
       changed: true

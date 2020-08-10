@@ -6,9 +6,9 @@ import SocketIO, { Socket } from "socket.io"
 import * as path from "path"
 import { MessageTypes } from "../../src/networking/enums/MessageTypes"
 import * as dotenv from "dotenv"
-import NetworkTransport from "../../src/networking/interfaces/NetworkTransport"
-import Network from "../../src/networking/components/Network"
-import Message from "../../src/networking/interfaces/Message"
+import { NetworkTransport } from "../../src/networking/interfaces/NetworkTransport"
+import { Network } from "../../src/networking/components/Network"
+import { Message } from "../../src/networking/interfaces/Message"
 
 dotenv.config()
 interface Client {
@@ -105,7 +105,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   transport
 
   roomState = defaultRoomState
-  supportsMediaStreams: false
 
   sendAllReliableMessages(): void {
     // TODO: Analyze, we might want to route messages better to only specific clients

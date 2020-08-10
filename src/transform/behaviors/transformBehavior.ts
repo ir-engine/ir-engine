@@ -1,7 +1,7 @@
 import { Entity } from "ecsy"
 import { Object3DComponent } from "ecsy-three"
 import { vec3 } from "gl-matrix"
-import { Quaternion } from "three"
+import { Quaternion } from "three/src/math/Quaternion"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { TransformComponent } from "../components/TransformComponent"
 const q: Quaternion = new Quaternion()

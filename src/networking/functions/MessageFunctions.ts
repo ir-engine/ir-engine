@@ -5,7 +5,7 @@ import { Network as NetworkComponent } from "../components/Network"
 import { MessageTypeAlias } from "../types/MessageTypeAlias"
 let _schema: MessageSchema<any>
 let _buffer: ArrayBuffer = new ArrayBuffer(0)
-let _dataView: DataView = new DataView(this._buffer)
+let _dataView: DataView = new DataView(_buffer)
 let _bytes = 0
 
 export function toBuffer(input: MessageSchema<any>): ArrayBuffer {

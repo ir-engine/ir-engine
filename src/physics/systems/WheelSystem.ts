@@ -1,10 +1,6 @@
 import * as ECSY from "ecsy"
-import * as THREE from "three"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { WheelBody } from "../components/WheelBody"
-
-const quaternion = new THREE.Quaternion()
-const euler = new THREE.Euler()
 
 export class WheelSystem extends ECSY.System {
   execute(dt, t) {
