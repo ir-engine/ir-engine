@@ -1,6 +1,21 @@
 # Armada
 A data driven game engine for WebGL, building on Mozilla ECSY using a behavior-oriented ECS pattern to emphasize modularity.
 
+## Quickstart
+```
+git clone https://github.com/xr3ngine/armada
+cd armada
+npm install
+cp .env.https .env
+
+// This will build the library and examples, and launch a server on https://localhost:8080
+// NOTE: ONLY works with HTTPS right now, http://localhost:8080 will not work
+npm run dev
+
+// To run the server, open another terminal window and run
+npm run dev-server
+```
+
 ### What is a behavior?
 A behavior is nothing more than a function that follows a specific interface.
 The interface for a behavior looks like this
