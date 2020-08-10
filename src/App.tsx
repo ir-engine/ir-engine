@@ -41,7 +41,7 @@ function LoadPlayer() {
   // var scene = new THREE.Scene();
   new DracosisPlayer(
     scene,
-    '../public/assets/new_sample.drcs',
+    '../server/sample_v7_10frames.drcs',
     callback,
     true,
     true,
