@@ -13,17 +13,25 @@ import { NetworkSchema } from "../interfaces/NetworkSchema"
 import { SocketWebRTCClientTransport } from "../transports/SocketWebRTC/SocketWebRTCClientTransport"
 import { DefaultMessageSchema } from "./DefaultMessageSchema"
 import { DefaultMessageTypes } from "./DefaultMessageTypes"
+import { State } from "../../state/components/State"
+import { Subscription, DefaultSubscriptionSchema } from "../../subscription"
+import { DefaultStateSchema } from "../../state"
+import { DefaultInputSchema } from "../../input"
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 const NetworkPlayerCharacter: NetworkPrefab = {
   networkComponents: [{ type: NetworkObject }, { type: Actor }, { type: TransformComponent, networkedValues: ["position", "rotation"] }],
-  components: [{ type: Input }],
+  components: [
+    { type: Input, data: { schema: DefaultInputSchema } },
+    { type: State, data: { schema: DefaultStateSchema } },
+    { type: Subscription, data: { schema: DefaultSubscriptionSchema } }
+  ],
   onCreate: [
     {
       behavior: addObject3DComponent,
       args: {
         obj: Mesh,
-        objArgs: "new BoxBufferGeometry(1, 1, 1), new MeshBasicMaterial({})"
+        objArgs: new BoxBufferGeometry(1, 1, 1)
       }
     }
   ],
