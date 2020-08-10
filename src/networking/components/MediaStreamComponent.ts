@@ -1,27 +1,25 @@
-// TODO: Clean me up, add schema, etc
-import { Component } from "ecsy"
+import { Types, Component } from "ecsy"
 
-export default class MediaStreamComponent extends Component<any> {
-  static instance: MediaStreamComponent
-  initialized = false
+export class MediaStreamComponent extends Component<any> {
+  static instance: MediaStreamComponent = null
+  public videoPaused = false
+  public audioPaused = false
+  public mediaStream: MediaStream
+
   localScreen
   camVideoProducer
   camAudioProducer
   screenVideoProducer
   screenAudioProducer
-  consumers = []
+  consumers: any[] = []
   screenShareVideoPaused = false
   screenShareAudioPaused = false
-
-  public videoPaused = false
-  public audioPaused = false
-  public mediaStream: MediaStream
-
   constructor() {
     super()
     MediaStreamComponent.instance = this
-    this.videoPaused = true
-    this.audioPaused = true
+    this.consumers = []
+    this.mediaStream = null
+    console.log("Registered MediaStreamComponent")
   }
 
   public toggleVideoPaused(): boolean {
@@ -33,4 +31,19 @@ export default class MediaStreamComponent extends Component<any> {
     this.audioPaused = !this.audioPaused
     return this.audioPaused
   }
+}
+
+MediaStreamComponent.schema = {
+  initialized: { type: Types.Boolean },
+  localScreen: { type: Types.Ref },
+  camVideoProducer: { type: Types.Ref },
+  camAudioProducer: { type: Types.Ref },
+  screenVideoProducer: { type: Types.Ref },
+  screenAudioProducer: { type: Types.Ref },
+  consumers: { type: Types.Array },
+  screenShareVideoPaused: { type: Types.Boolean },
+  screenShareAudioPaused: { type: Types.Boolean },
+  videoPaused: { type: Types.Boolean },
+  audioPaused: { type: Types.Boolean },
+  mediaStream: { type: Types.Ref }
 }

@@ -1,12 +1,14 @@
-import { Entity } from "ecsy"
-import Behavior from "../../../common/interfaces/Behavior"
-import Input from "../../../input/components/Input"
-import { DefaultInput } from "../../../input/defaults/DefaultInput"
-import { DefaultStateTypes } from "../../../state/defaults/DefaultStateTypes"
-import { addState } from "../../../state/behaviors/StateBehaviors"
-import BinaryValue from "../../../common/enums/BinaryValue"
+// TODO
 
-export const updateMovementState: Behavior = (entity: Entity, args: { delta: number }): void => {
+import { Entity } from "ecsy"
+import { BinaryValue } from "../../../common/enums/BinaryValue"
+import { Behavior } from "../../../common/interfaces/Behavior"
+import { Input } from "../../../input/components/Input"
+import { DefaultInput } from "../../../input/defaults/DefaultInput"
+import { addState } from "../../../state/behaviors/StateBehaviors"
+import { DefaultStateTypes } from "../../../state/defaults/DefaultStateTypes"
+
+export const updateMovementState: Behavior = (entity: Entity): void => {
   const input = entity.getComponent(Input)
   let moving = false
   const movementInputs = [

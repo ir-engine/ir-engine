@@ -1,5 +1,5 @@
 // Default component, holds data about what behaviors our character has.
-import { Component } from "ecsy"
+import { Component, Types } from "ecsy"
 
 interface JumpPropTypes {
   canJump: boolean
@@ -24,12 +24,12 @@ interface PropTypes {
   jumpData: JumpPropTypes
 }
 
-export default class Actor extends Component<PropTypes> {
+export class Actor extends Component<PropTypes> {
   rotationSpeedX: number
   rotationSpeedY: number
-  maxSpeed = 0.05
-  accelerationSpeed = 0.05
-  decelerationSpeed = 1
+  maxSpeed = 0.01
+  accelerationSpeed = 0.01
+  decelerationSpeed = 10
   rotationSpeedZ: number
   jump: JumpPropTypes = DefaultJumpData
 
@@ -45,13 +45,18 @@ export default class Actor extends Component<PropTypes> {
   reset(): void {
     this.rotationSpeedX = 1
     this.rotationSpeedY = 1
-    this.maxSpeed = 0.05
-    this.accelerationSpeed = 0.05
-    this.decelerationSpeed = 1
+    this.maxSpeed = 0.01
+    this.accelerationSpeed = 0.01
+    this.decelerationSpeed = 8
     this.jump = DefaultJumpData
   }
 }
 
 Actor.schema = {
-  // TODO: Schema
+  rotationSpeedX: { type: Types.Number, default: 1 },
+  rotationSpeedY: { type: Types.Number, default: 1 },
+  maxSpeed: { type: Types.Number, default: 0.01 },
+  accelerationSpeed: { type: Types.Number, default: 0.01 },
+  decelerationSpeed: { type: Types.Number, default: 8 },
+  jump: { type: Types.Ref, default: DefaultJumpData }
 }

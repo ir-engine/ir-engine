@@ -1,13 +1,11 @@
 import { Entity } from "ecsy"
-import Behavior from "../../interfaces/Behavior"
-
-import Input from "../../../input/components/Input"
+import { Input } from "../../../input/components/Input"
 import { DefaultInput } from "../../../input/defaults/DefaultInput"
-
-import { DefaultStateTypes } from "../../../state/defaults/DefaultStateTypes"
 import { addState } from "../../../state/behaviors/StateBehaviors"
+import { DefaultStateTypes } from "../../../state/defaults/DefaultStateTypes"
+import { BinaryValue } from "../../enums/BinaryValue"
+import { Behavior } from "../../interfaces/Behavior"
 
-import BinaryValue from "../../enums/BinaryValue"
 let input: Input
 let moving: boolean
 const movementInputs = [

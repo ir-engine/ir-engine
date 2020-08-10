@@ -13,10 +13,14 @@ export default [
     input: "src/index.ts",
     external: id => {
       return (
-        ["three", "ecsy", "ecsy-three", "ecsy-input"].includes(id) || /^three\//.test(id) || /^troika-3d-text\//.test(id) || /^ecsy-three\//.test(id)
+        ["three", "ecsy", "ecsy-three", "socket.io", "socket.io-client", "mediasoup", "mediasoup-client"].includes(id) ||
+        /^three\//.test(id) ||
+        /^troika-3d-text\//.test(id) ||
+        /^ecsy-three\//.test(id)
       )
     },
     plugins: [
+      json(),
       resolve({ browser: true, preferBuiltins: true }),
       commonjs({
         include: ["node_modules/**/*"], // Default: undefined
@@ -25,7 +29,6 @@ export default [
       injectProcessEnv({
         NODE_ENV: "production"
       }),
-      json(),
       nodePolyfills(),
       typescript(),
       // terser(),
@@ -40,111 +43,44 @@ export default [
       }
     ]
   },
-  // {
-  //   input: "server/index.ts",
-  //   output: { file: "dist/armada.server.js", format: "esm", sourcemap: true },
-  //   plugins: [
-  //     typescript(),
-  //     json(),
-  //     resolve(),
-  //     commonjs({
-  //       preferBuiltins: true,
-  //       include: ["node_modules/**/*"], // Default: undefined
-  //       transformMixedEsModules: true
-  //     }),
-  //     injectProcessEnv({
-  //       NODE_ENV: "production"
-  //     }),
-  //     nodeGlobals({
-  //       buffer: false,
-  //       debug: false,
-  //       path: false,
-  //       process: false
-  //     })
-  //   ],
-  //   external: ["mediasoup", "mediasoup-client", "buffer-es6", "buffer", "fs", "debug", "path", "socket.io", "safer", "depd"]
-  // },
-  // // Express socket networking server (for local dev)
-  // {
-  //   input: "examples/networking/server.js",
-  //   output: { dir: "dist/examples/networking/server.js" },
-  //   plugins: [
-  //     json(),
-  //     resolve(),
-  //     commonjs({
-  //       include: ["node_modules/**/*"], // Default: undefined
-  //       transformMixedEsModules: true
-  //     }),
-  //     injectProcessEnv({
-  //       NODE_ENV: "production"
-  //     })
-  //   ]
-  // },
-  /*
-  // HTML Example Pages
+  // HTML Example Page
   {
-    input: "examples/input/input.html",
-    output: { dir: "dist/examples/input" },
-    plugins: [html(), resolve(), commonjs(), typescript(), json(), babel({ babelHelpers: "bundled" })]
-  },
-  */
-  // Input
-  {
-    input: "examples/input/input_three.html",
-    output: { dir: "dist/examples/input" },
+    input: "examples/index.html",
+    output: { dir: "dist/examples/" },
     plugins: [
       html(),
-      resolve(),
+      resolve({ browser: true, preferBuiltins: false }),
+      commonjs(),
+      json(),
       injectProcessEnv({
         NODE_ENV: "production"
-      })
+      }),
+      typescript(),
+      babel({ babelHelpers: "bundled" })
     ]
+  },
+  // Server
+  {
+    input: "server/index.ts",
+    output: { file: "dist/armada.server.js", format: "esm", sourcemap: true },
+    plugins: [
+      typescript(),
+      json(),
+      resolve({ browser: false, preferBuiltins: true }),
+      commonjs({
+        include: ["node_modules/**/*"], // Default: undefined
+        transformMixedEsModules: true
+      }),
+      injectProcessEnv({
+        NODE_ENV: "production"
+      }),
+      nodeGlobals({
+        buffer: false,
+        debug: false,
+        path: false,
+        process: false
+      })
+    ],
+    external: ["mediasoup", "mediasoup-client", "buffer-es6", "debug", "socket.io", "safer", "depd"]
   }
-  /*
-  {
-    input: "examples/input/touch-handler-1.html",
-    output: { dir: "dist/examples/input" },
-    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
-  },
-  {
-    input: "examples/input/touch-handler-2.html",
-    output: { dir: "dist/examples/input" },
-    plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
-  },
-
-  // // Networking
-  // {
-  //   input: "examples/networking/index.html",
-  //   output: { dir: "dist/examples/networking" },
-  //   plugins: [html(), resolve({ browser: true, preferBuiltins: false }), commonjs(), typescript(), json(), babel({ babelHelpers: "bundled" })],
-  //   external: ["socket.io-client"]
-  // },
-
-  // // Particles
-  // {
-  //   input: "examples/particles/fireworks.html",
-  //   output: { dir: "dist/examples/particles" },
-  //   plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
-  // },
-  // {
-  //   input: "examples/particles/index.html",
-  //   output: { dir: "dist/examples/particles" },
-  //   plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
-  // },
-  // {
-  //   input: "examples/particles/index-not-vr.html",
-  //   output: { dir: "dist/examples/particles" },
-  //   plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
-  // },
-  // {
-  //   input: "examples/physics/box.html",
-  //   output: { dir: "dist/examples/physics" },
-  //   plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
-  // },
-  // {
-  //   input: "examples/physics/car.html",
-  //   output: { dir: "dist/examples/physics" },
-  //   plugins: [html(), resolve(), typescript(), babel({ babelHelpers: "bundled", plugins: ["transform-class-properties"] }), commonjs(), json()]
-  // }
-  */
 ]

@@ -1,20 +1,34 @@
-import { Entity, System } from "ecsy"
-import Input from "../components/Input"
+import { System } from "ecsy"
+import { Input } from "../components/Input"
 import { DefaultInputSchema } from "../defaults/DefaultInputSchema"
-import { NumericalType, Binary } from "../../common/types/NumericalTypes"
-import Behavior from "../../common/interfaces/Behavior"
-import InputValue from "../interfaces/InputValue"
-import InputAlias from "../types/InputAlias"
-import { InputType } from "../enums/InputType"
-import LifecycleValue from "../../common/enums/LifecycleValue"
+import { WebXRRenderer } from "../components/WebXRRenderer"
+import { WebXRSession } from "../components/WebXRSession"
+import { initializeSession, processSession } from "../behaviors/WebXRInputBehaviors"
+import { initVR } from "../functions/WebXRFunctions"
+import { handleInput } from "../behaviors/handleInput"
 
-export default class InputSystem extends System {
+export class InputSystem extends System {
+  readonly mainControllerId = 0
+  readonly secondControllerId = 1
+
   // Temp/ref variables
   private _inputComponent: Input
   // bound DOM listeners should be saved, otherwise they can't be unbound, becouse (f => f) !== (f => f)
   private boundListeners = new Set()
 
+  init(onVRSupportRequested): void {
+    if (onVRSupportRequested) initVR(onVRSupportRequested)
+    else initVR()
+  }
+
   public execute(delta: number): void {
+    // Handle XR input
+    const webXRRenderer = this.queries.xrRenderer.results.length > 0 && this.queries.xrRenderer.results[0].getMutableComponent(WebXRRenderer)
+
+    this.queries.xrSession.added.forEach(entity => initializeSession(entity, { webXRRenderer }))
+
+    this.queries.xrSession.results.forEach(entity => processSession(entity))
+
     // Called every frame on all input components
     this.queries.inputs.results.forEach(entity => handleInput(entity, { delta }))
 
@@ -29,11 +43,17 @@ export default class InputSystem extends System {
         behavior.behavior(entity, { ...behavior.args })
       })
       // Bind DOM events to event behavior
-      Object.keys(this._inputComponent.schema.eventBindings)?.forEach((event: string) => {
-        this._inputComponent.schema.eventBindings[event].forEach((behaviorEntry: any) => {
-          document.addEventListener(event, e => {
-            behaviorEntry.behavior(entity, { event: e, ...behaviorEntry.args })
-          })
+      Object.keys(this._inputComponent.schema.eventBindings)?.forEach((eventName: string) => {
+        this._inputComponent.schema.eventBindings[eventName].forEach((behaviorEntry: any) => {
+          const domElement = behaviorEntry.selector ? document.querySelector(behaviorEntry.selector) : document
+          if (domElement) {
+            const listener = (event: Event) => behaviorEntry.behavior(entity, { event, ...behaviorEntry.args })
+            domElement.addEventListener(eventName, listener)
+            return [domElement, eventName, listener]
+          } else {
+            console.warn("DOM Element not found:", domElement)
+            return false
+          }
         })
       })
     })
@@ -54,48 +74,17 @@ export default class InputSystem extends System {
           })
         })
       })
+
+      const bound = this.boundListeners[entity.id]
+      if (bound) {
+        for (const [selector, eventName, listener] of bound) {
+          const domElement = selector ? document.querySelector(selector) : document
+          domElement?.removeEventListener(eventName, listener)
+        }
+        delete this.boundListeners[entity.id]
+      }
     })
   }
-}
-let input: Input
-export const handleInput: Behavior = (entity: Entity, delta: number): void => {
-  input = entity.getMutableComponent(Input) as Input
-  input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-    // If the input is a button
-    if (value.type === InputType.BUTTON) {
-      // If the input exists on the input map (otherwise ignore it)
-      if (input.schema.inputButtonBehaviors[key] && input.schema.inputButtonBehaviors[key][value.value as number]) {
-        // If the lifecycle hasn't been set or just started (so we don't keep spamming repeatedly)
-        if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue.STARTED) {
-          // Set the value of the input to continued to debounce
-          input.data.set(key, {
-            type: value.type,
-            value: value.value as Binary,
-            lifecycleState: LifecycleValue.CONTINUED
-          })
-          input.schema.inputButtonBehaviors[key][value.value as number].started?.forEach(element => element.behavior(entity, element.args, delta))
-        } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
-          input.schema.inputButtonBehaviors[key][value.value as number].continued?.forEach(element => element.behavior(entity, element.args, delta))
-        }
-      }
-    } else if (value.type === InputType.ONED || value.type === InputType.TWOD || value.type === InputType.THREED || value.type === InputType.FOURD) {
-      if (input.schema.inputAxisBehaviors[key]) {
-        if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue.STARTED) {
-          // Set the value to continued to debounce
-          input.data.set(key, {
-            type: value.type,
-            value: value.value as Binary,
-            lifecycleState: LifecycleValue.CONTINUED
-          })
-          input.schema.inputAxisBehaviors[key].started?.forEach(element => element.behavior(entity, element.args, delta))
-        } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
-          input.schema.inputAxisBehaviors[key].continued?.forEach(element => element.behavior(entity, element.args, delta))
-        }
-      }
-    } else {
-      console.error("handleInput called with an invalid input type")
-    }
-  })
 }
 
 InputSystem.queries = {
@@ -105,5 +94,7 @@ InputSystem.queries = {
       added: true,
       removed: true
     }
-  }
+  },
+  xrRenderer: { components: [WebXRRenderer] },
+  xrSession: { components: [WebXRSession], listen: { added: true } }
 }

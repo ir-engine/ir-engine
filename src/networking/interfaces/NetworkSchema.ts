@@ -1,13 +1,20 @@
-import { Assemblage } from "../../common/interfaces/Assemblage"
-import AssemblageAlias from "../../common/types/AssemblageAlias"
+import { Prefab } from "../../common/interfaces/Prefab"
+import { PrefabAlias } from "../../common/types/PrefabAlias"
+import { MessageSchema } from "../classes/MessageSchema"
+import { NetworkTransport } from "./NetworkTransport"
 
-export default interface NetworkSchema {
+export interface NetworkSchema {
+  transport: NetworkTransport | unknown | null
+  messageSchemas: {
+    [key: string]: MessageSchema<any>
+    [key: number]: MessageSchema<any>
+  }
   messageHandlers: {
     [key: string]: {
-      behavior: typeof Function
+      behavior: any
       args?: any
     }
   }
-  defaultClientAssemblage: AssemblageAlias
-  assemblages: { id: AssemblageAlias; assemblage: Assemblage }[]
+  defaultClientPrefab: PrefabAlias
+  prefabs: { id: PrefabAlias; prefab: Prefab }[]
 }

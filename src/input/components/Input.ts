@@ -1,14 +1,12 @@
 import { Types } from "ecsy"
-import InputSchema from "../interfaces/InputSchema"
-import BehaviorComponent from "../../common/components/BehaviorComponent"
-import InputAlias from "../types/InputAlias"
-import InputValue from "../interfaces/InputValue"
+import { BehaviorComponent } from "../../common/components/BehaviorComponent"
 import { Binary, NumericalType } from "../../common/types/NumericalTypes"
-
-// TODO: Put gamepad data into input data map() object
+import { InputSchema } from "../interfaces/InputSchema"
+import { InputValue } from "../interfaces/InputValue"
+import { InputAlias } from "../types/InputAlias"
 
 // Props that don't get automatically added by the BehaviorComponent generic
-export default interface InputProps {
+export interface InputProps {
   gamepadConnected: boolean
   gamepadThreshold: number
   gamepadButtons: Binary[]
@@ -16,7 +14,7 @@ export default interface InputProps {
 }
 
 // Input inherits from BehaviorComponent, which adds .map and .data
-export default class Input extends BehaviorComponent<InputAlias, InputSchema, InputValue<NumericalType>> {
+export class Input extends BehaviorComponent<InputAlias, InputSchema, InputValue<NumericalType>> {
   gamepadConnected: boolean
   gamepadThreshold: number
   gamepadButtons: Binary[]

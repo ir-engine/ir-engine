@@ -1,11 +1,11 @@
-import { System, Entity, Attributes } from "ecsy"
-import TransformParent from "../components/TransformParent"
-import Transform from "../components/Transform"
-import Behavior from "../../common/interfaces/Behavior"
-import { transformBehavior } from "../behaviors/transformBehavior"
+import { Attributes, Entity, System } from "ecsy"
+import { Behavior } from "../../common/interfaces/Behavior"
 import { childTransformBehavior } from "../behaviors/childTransformBehavior"
+import { transformBehavior } from "../behaviors/transformBehavior"
+import { TransformComponent } from "../components/TransformComponent"
+import { TransformParentComponent } from "../components/TransformParentComponent"
 
-export default class TransformSystem extends System {
+export class TransformSystem extends System {
   transformBehavior: Behavior
   childTransformBehavior: Behavior
   init(attributes: Attributes) {
@@ -21,7 +21,7 @@ export default class TransformSystem extends System {
     }
   }
 
-  execute(time, delta) {
+  execute(delta, time) {
     // Hierarchy
     this.queries.parent.results?.forEach((entity: Entity) => {
       this.childTransformBehavior(entity, {}, delta)
@@ -30,12 +30,12 @@ export default class TransformSystem extends System {
 
     // Transforms
     this.queries.transforms.added?.forEach(t => {
-      const transform = t.getComponent(Transform)
+      const transform = t.getComponent(TransformComponent)
       this.transformBehavior(t, { position: transform.position, rotation: transform.rotation }, delta)
     })
 
     this.queries.transforms.changed?.forEach(t => {
-      const transform = t.getComponent(Transform)
+      const transform = t.getComponent(TransformComponent)
       this.transformBehavior(t, { position: transform.position, rotation: transform.rotation }, delta)
     })
   }
@@ -43,13 +43,13 @@ export default class TransformSystem extends System {
 
 TransformSystem.queries = {
   parent: {
-    components: [TransformParent, Transform],
+    components: [TransformParentComponent, TransformComponent],
     listen: {
       added: true
     }
   },
   transforms: {
-    components: [Transform],
+    components: [TransformComponent],
     listen: {
       added: true,
       changed: true

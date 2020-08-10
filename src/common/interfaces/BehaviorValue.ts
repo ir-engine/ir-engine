@@ -1,6 +1,6 @@
-import Behavior from "./Behavior"
+import { Behavior } from "./Behavior"
 
-export default interface BehaviorArgValue {
+export interface BehaviorValue {
   behavior: Behavior
   args?: any
 }

@@ -1,14 +1,52 @@
 import { World } from "ecsy"
-import { initializeNetworking } from "../src/index"
-import SocketWebRTCServerTransport from "./transports/SocketWebRTCServerTransport"
+import { initialize } from "../src/initialize"
+import { SocketWebRTCServerTransport } from "./transports/SocketWebRTCServerTransport"
+import { DefaultNetworkSchema } from "../src/networking/defaults/DefaultNetworkSchema"
+import { DefaultSubscriptionSchema } from "../src/subscription/defaults/DefaultSubscriptionSchema"
+import { DefaultStateSchema } from "../src/state/defaults/DefaultStateSchema"
 
-export default class SocketWebRTCServer {
+const networkSchema = {
+  ...DefaultNetworkSchema,
+  transport: SocketWebRTCServerTransport
+}
+
+const options = {
+  debug: false,
+  withTransform: true,
+  withWebXRInput: true,
+  input: {
+    enabled: false
+  },
+  networking: {
+    enabled: true,
+    schema: networkSchema
+  },
+  state: {
+    enabled: true,
+    schema: DefaultStateSchema
+  },
+  subscriptions: {
+    enabled: true,
+    schema: DefaultSubscriptionSchema
+  },
+  physics: {
+    enabled: false
+  },
+  particles: {
+    enabled: false
+  },
+  transform: {
+    enabled: true
+  }
+}
+
+export class SocketWebRTCServer {
   lastTime: number = Date.now()
   time = Date.now()
   delta
   constructor() {
     const world = new World()
-    initializeNetworking(world, new SocketWebRTCServerTransport())
+    initialize(world, options)
     this.update(world)
   }
 

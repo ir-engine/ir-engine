@@ -1,3 +1,1 @@
-export type StateGroupType = string | number
-
-export default StateGroupType
+export type StateGroupAlias = string | number

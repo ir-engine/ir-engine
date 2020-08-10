@@ -1,7 +1,7 @@
-import StateSchema from "../interfaces/StateSchema"
-import BehaviorComponent from "../../common/components/BehaviorComponent"
-import StateValue from "../interfaces/StateValue"
-import StateAlias from "../types/StateAlias"
+import { BehaviorComponent } from "../../common/components/BehaviorComponent"
 import { NumericalType } from "../../common/types/NumericalTypes"
+import { StateSchema } from "../interfaces/StateSchema"
+import { StateValue } from "../interfaces/StateValue"
+import { StateAlias } from "../types/StateAlias"
 
-export default class State extends BehaviorComponent<StateAlias, StateSchema, StateValue<NumericalType>> {}
+export class State extends BehaviorComponent<StateAlias, StateSchema, StateValue<NumericalType>> {}

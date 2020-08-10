@@ -1,12 +1,12 @@
-import StateAlias from "../types/StateAlias"
-import StateGroupType from "../types/StateGroupAlias"
-import { StateType } from "../enums/StateType"
+import { LifecycleValue } from "../../common/enums/LifecycleValue"
 import { NumericalType } from "../../common/types/NumericalTypes"
-import LifecycleValue from "../../common/enums/LifecycleValue"
-export default interface StateValue<T extends NumericalType> {
+import { StateType } from "../enums/StateType"
+import { StateAlias } from "../types/StateAlias"
+import { StateGroupAlias } from "../types/StateGroupAlias"
+export interface StateValue<T extends NumericalType> {
   state: StateAlias
   type?: StateType
   value?: T
-  group?: StateGroupType
+  group?: StateGroupAlias
   lifecycleState: LifecycleValue
 }

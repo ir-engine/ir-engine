@@ -1,8 +1,8 @@
-import StateAlias from "../types/StateAlias"
-import StateGroupType from "../types/StateGroupAlias"
-import Behavior from "../../common/interfaces/Behavior"
+import { Behavior } from "../../common/interfaces/Behavior"
+import { StateAlias } from "../types/StateAlias"
+import { StateGroupAlias } from "../types/StateGroupAlias"
 
-export default interface StateSchema {
+export interface StateSchema {
   groups: {
     [key: number]: {
       exclusive: boolean
@@ -12,7 +12,7 @@ export default interface StateSchema {
   }
   states: {
     [key: number]: {
-      group?: StateGroupType
+      group?: StateGroupAlias
       component?: any
       blockedBy?: StateAlias
       overrides?: StateAlias

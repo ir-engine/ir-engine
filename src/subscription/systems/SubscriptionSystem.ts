@@ -1,11 +1,11 @@
-import { System, Entity } from "ecsy"
-import Subscription from "../components/Subscription"
-import BehaviorArgValue from "../../common/interfaces/BehaviorValue"
-import Behavior from "../../common/interfaces/Behavior"
+import { Entity, System } from "ecsy"
+import { Behavior } from "../../common/interfaces/Behavior"
+import { BehaviorValue } from "../../common/interfaces/BehaviorValue"
+import { Subscription } from "../components/Subscription"
 
-export default class SubscriptionSystem extends System {
+export class SubscriptionSystem extends System {
   private subscription: Subscription
-  public execute(delta: number): void {
+  public execute(delta: number, time: number): void {
     this.queries.subscriptions.added?.forEach(entity => {
       this.callBehaviorsForHook(entity, { phase: "onAdded" }, delta)
     })
@@ -29,7 +29,7 @@ export default class SubscriptionSystem extends System {
     // If the schema for this subscription component has any values in this phase
     if (this.subscription.schema[args.phase] !== undefined) {
       // Foreach value in this phase
-      this.subscription.schema[args.phase].forEach((value: BehaviorArgValue) => {
+      this.subscription.schema[args.phase].forEach((value: BehaviorValue) => {
         // Call the behavior with the args supplied in the schema, as well as delta provided here
         value.behavior(entity, value.args ? value.args : null, delta)
       })
