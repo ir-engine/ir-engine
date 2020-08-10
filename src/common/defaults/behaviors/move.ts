@@ -19,10 +19,11 @@ export const move: Behavior = (entity: Entity, args: { input: InputAlias; inputT
   actor = entity.getComponent<Actor>(Actor)
   transform = entity.getMutableComponent(TransformComponent)
   const movementModifer = entity.hasComponent(Crouching) ? 0.5 : entity.hasComponent(Sprinting) ? 1.5 : 1.0
-
   const inputType = args.inputType
   outputSpeed = actor.accelerationSpeed * (time.delta as any) * movementModifer
   if (inputType === InputType.TWOD) {
+    console.log("Move", args.value)
+
     inputValue = args.value as Vector2
     transform.velocity[0] = Math.min(transform.velocity[0] + inputValue[0] * outputSpeed, actor.maxSpeed)
     transform.velocity[2] = Math.min(transform.velocity[2] + inputValue[1] * outputSpeed, actor.maxSpeed)

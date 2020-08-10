@@ -39,8 +39,12 @@ import { BoxBufferGeometry } from "three"
 
 let object3d
 export const addObject3DComponent: Behavior = (entity: ECSYThreeEntity, args: { obj: any; objArgs: any }) => {
-  // TODO: Fix this, we don't want to pass a box
+  console.log("Obj args")
+  console.log(args.objArgs)
   object3d = new args.obj(new BoxBufferGeometry(1, 1, 1))
+  // object3d = new args.obj(args.objArgs)
+  console.log("object3d")
+  console.log(object3d)
   entity.addComponent(Object3DComponent, { value: object3d })
   // Add the obj to our scene graph
   SceneComponent.instance.scene.add(object3d)
