@@ -16,8 +16,6 @@ export const transformBehavior: Behavior = (entity: Entity, args: { event: Mouse
   vec3.set(_position, transform.position[0], transform.position[1], transform.position[2])
   vec3.set(_velocity, transform.velocity[0], transform.velocity[1], transform.velocity[2])
 
-  console.log(_velocity)
-
   const object3DComponent = entity.getMutableComponent(Object3DComponent)
 
   // Apply velocity to position

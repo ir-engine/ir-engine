@@ -215,7 +215,7 @@ export class MediaStreamSystem extends System {
   }
 
   public async getMediaStream(): Promise<boolean> {
-   MediaStreamComponent.instance.mediaStream = await navigator.mediaDevices.getUserMedia(localMediaConstraints)
+    MediaStreamComponent.instance.mediaStream = await navigator.mediaDevices.getUserMedia(localMediaConstraints)
     if (MediaStreamComponent.instance.mediaStream.active) {
       MediaStreamComponent.instance.audioPaused = false
       MediaStreamComponent.instance.videoPaused = false
