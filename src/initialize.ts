@@ -1,35 +1,36 @@
 import { World } from "ecsy"
-import { Camera, CameraSystem } from "."
 import {
+  DefaultInputSchema,
+  WebXRSession,
+  WebXRSpace,
+  WebXRViewPoint,
+  WebXRPointer,
+  WebXRMainController,
+  WebXRSecondController,
+  WebXRMainGamepad,
+  WebXRSecondGamepad,
   Input,
   InputSystem,
   WebXRButton,
-  WebXRMainController,
-  WebXRMainGamepad,
-  WebXRPointer,
-  WebXRRenderer,
-  WebXRSecondController,
-  WebXRSecondGamepad,
-  WebXRSession,
-  WebXRSpace,
-  WebXRViewPoint
-} from "."
+  WebXRRenderer
+} from "./input"
 import {
+  DefaultNetworkSchema,
   Network,
-  NetworkSystem,
-  MediaStreamComponent,
-  MediaStreamControlSystem,
   NetworkClient,
   NetworkObject,
-  DefaultNetworkSchema,
+  NetworkSystem,
+  MediaStreamComponent,
+  MediaStreamSystem,
   initializeNetworkSession
-} from "."
-import { Keyframe, KeyframeSystem, ParticleEmitter, ParticleSystem } from "."
-import { PhysicsSystem, RigidBody, VehicleBody, VehicleSystem, WheelBody, WheelSystem } from "."
-import { State, StateSystem } from "."
-import { Subscription, SubscriptionSystem } from "."
-import { TransformComponent, TransformParentComponent, TransformSystem } from "."
-import { Scene, WorldComponent, DefaultInputSchema, DefaultStateSchema, DefaultSubscriptionSchema, isBrowser } from "."
+} from "./networking"
+import { DefaultStateSchema, State, StateSystem } from "./state"
+import { DefaultSubscriptionSchema, Subscription, SubscriptionSystem } from "./subscription"
+import { WorldComponent, isBrowser, SceneComponent } from "./common"
+import { CameraComponent, CameraSystem } from "./camera"
+import { RigidBody, VehicleBody, WheelBody, PhysicsSystem, VehicleSystem, WheelSystem } from "./physics"
+import { ParticleEmitter, Keyframe, ParticleSystem, KeyframeSystem } from "./particles"
+import { TransformComponent, TransformParentComponent, TransformSystem } from "./transform"
 
 export const DefaultInitializationOptions = {
   debug: false,
@@ -41,8 +42,8 @@ export const DefaultInitializationOptions = {
   },
   networking: {
     enabled: true,
-    schema: DefaultNetworkSchema,
-    supportsMediaStreams: true
+    supportsMediaStreams: true,
+    schema: DefaultNetworkSchema
   },
   state: {
     enabled: true,
@@ -67,7 +68,8 @@ export const DefaultInitializationOptions = {
 }
 
 export function initialize(world: World, options: any = DefaultInitializationOptions, scene?: any, camera?: any) {
-  world.registerComponent(Scene)
+  console.log("Initializing Armada")
+  world.registerComponent(SceneComponent).registerComponent(WorldComponent)
 
   // World singleton
   const worldEntity = world
@@ -80,37 +82,26 @@ export function initialize(world: World, options: any = DefaultInitializationOpt
   // Set up our scene singleton so we can bind to our scene elsewhere
   const sceneEntity = world
     .createEntity()
-    .addComponent(Scene)
-    .getMutableComponent(Scene)
+    .addComponent(SceneComponent)
+    .getMutableComponent(SceneComponent)
   if (scene) sceneEntity.scene = scene // Bind whatever scene is provided to our camera entity
 
   // Camera
   if (options.camera && options.camera.enabled) {
-    world.registerComponent(Camera).registerSystem(CameraSystem)
+    world.registerComponent(CameraComponent).registerSystem(CameraSystem)
 
     const cameraEntity = world
       .createEntity()
-      .addComponent(Camera, { camera: camera ? camera : null, followTarget: null })
-      .getMutableComponent(Camera)
+      .addComponent(CameraComponent, { camera: camera ? camera : null, followTarget: null })
+      .getMutableComponent(CameraComponent)
     if (camera) cameraEntity.camera = camera // Bind whatever camera is provide to our camera entity
     camera.position.z = 10 // TODO: Remove, just here for setup
   }
-
-  WorldComponent.instance.world
-    .registerComponent(WebXRSession)
-    .registerComponent(WebXRSpace)
-    .registerComponent(WebXRViewPoint)
-    .registerComponent(WebXRPointer)
-    .registerComponent(WebXRMainController)
-    .registerComponent(WebXRSecondController)
-    .registerComponent(WebXRMainGamepad)
-    .registerComponent(WebXRSecondGamepad)
 
   // Input
   if (options.input && options.input.enabled && isBrowser)
     world
       .registerComponent(Input)
-      .registerSystem(InputSystem)
       .registerComponent(WebXRSession)
       .registerComponent(WebXRSpace)
       .registerComponent(WebXRViewPoint)
@@ -121,6 +112,7 @@ export function initialize(world: World, options: any = DefaultInitializationOpt
       .registerComponent(WebXRRenderer)
       .registerComponent(WebXRSecondController)
       .registerComponent(WebXRSecondGamepad)
+      .registerSystem(InputSystem)
 
   // Networking
   if (options.networking && options.networking.enabled) {
@@ -129,11 +121,20 @@ export function initialize(world: World, options: any = DefaultInitializationOpt
       .registerComponent(NetworkClient)
       .registerComponent(NetworkObject)
       .registerSystem(NetworkSystem)
-    if (options.networking.supportsMediaStreams) {
+    const networkEntity = world.createEntity()
+    networkEntity.addComponent(Network)
+
+    if (options.networking.supportsMediaStreams == true) {
       world.registerComponent(MediaStreamComponent)
-      world.registerSystem(MediaStreamControlSystem)
+      world.registerSystem(MediaStreamSystem)
+      const mediaStreamComponent = networkEntity.addComponent(MediaStreamComponent).getMutableComponent(MediaStreamComponent)
+      MediaStreamComponent.instance = mediaStreamComponent
+      console.log("Initialized media streams")
+    } else {
+      console.warn("Does not support media streams")
     }
-    initializeNetworkSession(world, options.networking.schema ?? DefaultNetworkSchema, options.networking.schema.transport)
+
+    setTimeout(() => initializeNetworkSession(world, options.networking.schema ?? DefaultNetworkSchema, options.networking.schema.transport), 1)
   }
 
   // State

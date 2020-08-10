@@ -23,11 +23,11 @@ export class InputSystem extends System {
 
   public execute(delta: number): void {
     // Handle XR input
-    const webXRRenderer = this.queries.xrRenderer.results && this.queries.xrRenderer.results[0].getMutableComponent(WebXRRenderer)
+    const webXRRenderer = this.queries.xrRenderer.results.length > 0 && this.queries.xrRenderer.results[0].getMutableComponent(WebXRRenderer)
 
-    if (this.queries.xrSession.added) for (const entity of this.queries.xrSession.added) initializeSession(entity, { webXRRenderer })
+    this.queries.xrSession.added.forEach(entity => initializeSession(entity, { webXRRenderer }))
 
-    if (this.queries.xrSession.results) for (const entity of this.queries.xrSession.results) processSession(entity)
+    this.queries.xrSession.results.forEach(entity => processSession(entity))
 
     // Called every frame on all input components
     this.queries.inputs.results.forEach(entity => handleInput(entity, { delta }))

@@ -1,8 +1,7 @@
-import { SingletonComponent } from "../../common/components/SingletonComponent"
-import { Types } from "ecsy"
+import { Types, Component } from "ecsy"
 
-export class MediaStreamComponent extends SingletonComponent<any> {
-  public initialized = false
+export class MediaStreamComponent extends Component<any> {
+  static instance: MediaStreamComponent = null
   public videoPaused = false
   public audioPaused = false
   public mediaStream: MediaStream
@@ -12,9 +11,26 @@ export class MediaStreamComponent extends SingletonComponent<any> {
   camAudioProducer
   screenVideoProducer
   screenAudioProducer
-  consumers = []
+  consumers: any[] = []
   screenShareVideoPaused = false
   screenShareAudioPaused = false
+  constructor() {
+    super()
+    MediaStreamComponent.instance = this
+    this.consumers = []
+    this.mediaStream = null
+    console.log("Registered MediaStreamComponent")
+  }
+
+  public toggleVideoPaused(): boolean {
+    this.videoPaused = !this.videoPaused
+    return this.videoPaused
+  }
+
+  public toggleAudioPaused(): boolean {
+    this.audioPaused = !this.audioPaused
+    return this.audioPaused
+  }
 }
 
 MediaStreamComponent.schema = {

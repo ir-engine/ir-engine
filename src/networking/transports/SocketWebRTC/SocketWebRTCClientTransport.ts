@@ -8,13 +8,12 @@ import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "../../constants/VideoConstants"
 import { MessageTypes } from "../../enums/MessageTypes"
 import { Message } from "../../interfaces/Message"
 import { NetworkTransport } from "../../interfaces/NetworkTransport"
-import { MediaStreamControlSystem } from "../../systems/MediaStreamSystem"
+import { MediaStreamSystem } from "../../systems/MediaStreamSystem"
 import { initializeClient, addClient, removeClient } from "../../functions/ClientFunctions"
 
 const Device = mediasoupClient.Device
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
-  supportsMediaStreams = true
   mediasoupDevice: mediasoupClient.Device
   joined: boolean
   recvTransport
@@ -55,10 +54,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
     //@ts-ignore
     // window.screenshare = await this.startScreenshare
-
-    // only join  after we user has interacted with DOM (to ensure that media elements play)
-    if (MediaStreamComponent.instance.initialized) return
-    MediaStreamComponent.instance.initialized = true
 
     console.log(`Initializing socket.io...,`)
     this.socket.on("connect", async () => {
@@ -270,7 +265,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
     // if we do already have a consumer, we shouldn't have called this
     // method
-    let consumer = MediaStreamComponent.instance.consumers.find(c => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag)
+    let consumer = MediaStreamComponent.instance.consumers.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag)
     if (consumer) return console.error("already have consumer for track", peerId, mediaTag)
 
     // ask the server to create a server-side consumer object and send
@@ -298,7 +293,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     MediaStreamComponent.instance.consumers.push(consumer)
 
     // ui
-    await MediaStreamControlSystem.instance.addVideoAudio(consumer, peerId)
+    await MediaStreamSystem.instance.addVideoAudio(consumer, peerId)
   }
 
   async unsubscribeFromTrack(peerId: any, mediaTag: any) {
@@ -344,8 +339,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     await this.request(MessageTypes.WebRTCTransportClose.toString(), { consumerId: consumer.id })
     await consumer.close()
 
-    MediaStreamComponent.instance.consumers = MediaStreamComponent.instance.consumers.filter(c => c !== consumer)
-    MediaStreamControlSystem.instance.removeVideoAudio(consumer)
+    MediaStreamComponent.instance.consumers = MediaStreamComponent.instance.consumers.filter((c: any) => c !== consumer) as any[]
+    MediaStreamSystem.instance.removeVideoAudio(consumer)
   }
 
   // utility function to create a transport and hook up signaling logic

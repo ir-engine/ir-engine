@@ -1,12 +1,12 @@
 // TODO: Clean me up, add schema, etc
-import { Types } from "ecsy"
+import { Types, Component } from "ecsy"
 import { RingBuffer } from "../../common/classes/RingBuffer"
 import { Message } from "../interfaces/Message"
 import { NetworkSchema } from "../interfaces/NetworkSchema"
 import { NetworkTransport } from "../interfaces/NetworkTransport"
-import { SingletonComponent } from "../../common/components/SingletonComponent"
 
-export class Network extends SingletonComponent<any> {
+export class Network extends Component<any> {
+  static instance: Network = null
   isInitialized: boolean
   transport: NetworkTransport
   schema: NetworkSchema
@@ -16,6 +16,10 @@ export class Network extends SingletonComponent<any> {
   outgoingUnreliableQueue: RingBuffer<Message> = new RingBuffer<Message>(200)
   incomingReliableQueue: RingBuffer<Message> = new RingBuffer<Message>(200)
   incomingUnreliableQueue: RingBuffer<Message> = new RingBuffer<Message>(200)
+  constructor() {
+    super()
+    Network.instance = this
+  }
 }
 
 Network.schema = {

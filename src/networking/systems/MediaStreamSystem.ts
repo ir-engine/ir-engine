@@ -4,19 +4,15 @@ import { MediaStreamComponent } from "../components/MediaStreamComponent"
 import { Network } from "../components/Network"
 import { localMediaConstraints } from "../constants/VideoConstants"
 
-export class MediaStreamControlSystem extends System {
-  public static instance: MediaStreamControlSystem
-  mediaStreamComponent: MediaStreamComponent
+export class MediaStreamSystem extends System {
+  public static instance: MediaStreamSystem = null
   constructor(world: World) {
     super(world)
-    MediaStreamControlSystem.instance = this
-    this.mediaStreamComponent = world
-      .registerComponent(MediaStreamComponent)
-      .createEntity()
-      .addComponent(MediaStreamComponent)
-      .getComponent(MediaStreamComponent)
-
-    this.startCamera()
+    MediaStreamSystem.instance = this
+    // Do this next tickSphe so singleton can init
+    // TODO:
+    // Maybe replace this or expose camera permissreion explicitly so user can handle
+    setTimeout(() => this.startCamera(), 1)
   }
 
   public execute() {
@@ -24,7 +20,7 @@ export class MediaStreamControlSystem extends System {
   }
 
   async startCamera(): Promise<boolean> {
-    if (this.mediaStreamComponent.mediaStream) return false
+    if (MediaStreamComponent.instance.mediaStream) return false
     console.log("start camera")
     return this.getMediaStream()
   }
@@ -32,7 +28,7 @@ export class MediaStreamControlSystem extends System {
   // switch to sending video from the "next" camera device in our device
   // list (if we have multiple cameras)
   async cycleCamera(): Promise<boolean> {
-    if (!(this.mediaStreamComponent.camVideoProducer && this.mediaStreamComponent.camVideoProducer.track)) {
+    if (!(MediaStreamComponent.instance.camVideoProducer && MediaStreamComponent.instance.camVideoProducer.track)) {
       console.log("cannot cycle camera - no current camera track")
       return false
     }
@@ -55,14 +51,14 @@ export class MediaStreamControlSystem extends System {
     // from the same device when possible (though they don't seem to,
     // currently)
     console.log("getting a video stream from new device", vidDevices[idx].label)
-    this.mediaStreamComponent.mediaStream = await navigator.mediaDevices.getUserMedia({
+    MediaStreamComponent.instance.mediaStream = await navigator.mediaDevices.getUserMedia({
       video: { deviceId: { exact: vidDevices[idx].deviceId } },
       audio: true
     })
 
     // replace the tracks we are sending
-    await this.mediaStreamComponent.camVideoProducer.replaceTrack({ track: this.mediaStreamComponent.mediaStream.getVideoTracks()[0] })
-    await this.mediaStreamComponent.camAudioProducer.replaceTrack({ track: this.mediaStreamComponent.mediaStream.getAudioTracks()[0] })
+    await MediaStreamComponent.instance.camVideoProducer.replaceTrack({ track: MediaStreamComponent.instance.mediaStream.getVideoTracks()[0] })
+    await MediaStreamComponent.instance.camAudioProducer.replaceTrack({ track: MediaStreamComponent.instance.mediaStream.getAudioTracks()[0] })
     return true
   }
 
@@ -219,14 +215,14 @@ export class MediaStreamControlSystem extends System {
   }
 
   public async getMediaStream(): Promise<boolean> {
-    this.mediaStreamComponent.mediaStream = await navigator.mediaDevices.getUserMedia(localMediaConstraints)
-    if (this.mediaStreamComponent.mediaStream.active) {
-      this.mediaStreamComponent.audioPaused = false
-      this.mediaStreamComponent.videoPaused = false
+   MediaStreamComponent.instance.mediaStream = await navigator.mediaDevices.getUserMedia(localMediaConstraints)
+    if (MediaStreamComponent.instance.mediaStream.active) {
+      MediaStreamComponent.instance.audioPaused = false
+      MediaStreamComponent.instance.videoPaused = false
       return true
     }
-    this.mediaStreamComponent.audioPaused = true
-    this.mediaStreamComponent.videoPaused = true
+    MediaStreamComponent.instance.audioPaused = true
+    MediaStreamComponent.instance.videoPaused = true
     return false
   }
 }

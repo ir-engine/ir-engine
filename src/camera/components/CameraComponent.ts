@@ -1,11 +1,11 @@
 import { Component, Types } from "ecsy"
-import { SingletonComponent } from "../../common/components/SingletonComponent"
 
 interface PropTypes {
   camera: any
 }
 
-export class Camera extends SingletonComponent<PropTypes> {
+export class CameraComponent extends Component<PropTypes> {
+  static instance: CameraComponent = null
   camera: any // Reference to the actual camera object
   followTarget: any // Reference to the object that should be followed
   fov: number // Field of view
@@ -14,9 +14,13 @@ export class Camera extends SingletonComponent<PropTypes> {
   far: number // Geometry farther than this gets removed
   layers: number // Bitmask of layers the camera can see, converted to an int
   handleResize: boolean // Should the camera resize if the window does?
+  constructor() {
+    super()
+    CameraComponent.instance = this
+  }
 }
 
-Camera.schema = {
+CameraComponent.schema = {
   camera: { default: null, type: Types.Ref },
   followTarget: { default: null, type: Types.Ref },
   fov: { default: 45, type: Types.Number },

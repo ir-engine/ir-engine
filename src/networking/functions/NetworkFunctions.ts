@@ -5,7 +5,6 @@ import { Network } from "../components/Network"
 import { WorldComponent } from "../../common/components/WorldComponent"
 import { MessageChannel } from "../enums/MessageChannel"
 import { RingBuffer } from "../../common/classes/RingBuffer"
-import { MediaStreamComponent } from "../components/MediaStreamComponent"
 import { constructInstance } from "../../common/functions/constructInstance"
 import { fromBuffer } from "./MessageFunctions"
 import { World } from "ecsy"
@@ -15,12 +14,6 @@ import { NetworkTransport } from ".."
 export function initializeNetworkSession(world: World, networkSchema: NetworkSchema, transportClass?: any) {
   console.log("Initialization session")
   const transport = constructInstance<NetworkTransport>(transportClass)
-  const entity = world.createEntity()
-  entity.addComponent(Network)
-
-  if (transport.supportsMediaStreams) {
-    entity.addComponent(MediaStreamComponent)
-  }
 
   Network.instance.schema = networkSchema
   Network.instance.transport = transport
@@ -33,7 +26,7 @@ export const handleClientConnected = (clientID: string): void => {
   // create a network prefab using network schema
   createNetworkPrefab(
     // Prefab from the Network singleton's schema, using the defaultClientPrefab as a key
-    (Network.instance as Network).schema.prefabs[(Network.instance as Network).schema.defaultClientPrefab],
+    (Network.instance as Network).schema.prefabs[(Network.instance as Network).schema.defaultClientPrefab].prefab,
     // Singleton reference to the current world
     (WorldComponent.instance as WorldComponent).world,
     // Connecting client's ID as a string

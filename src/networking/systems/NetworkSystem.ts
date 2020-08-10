@@ -4,7 +4,7 @@ import { NetworkClient } from "../components/NetworkClient"
 import { NetworkObject } from "../components/NetworkObject"
 
 export class NetworkSystem extends System {
-  public static instance: NetworkSystem
+  public static instance: NetworkSystem = null
 
   static queries: any = {
     networkObject: {
