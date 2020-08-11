@@ -1,5 +1,7 @@
-const localVector = new THREE.Vector3();
-const localVector2 = new THREE.Vector3();
+import { Vector3 } from "three";
+
+const localVector = new Vector3();
+const localVector2 = new Vector3();
 const Helpers = {
   getWorldPosition(o, v) {
     return v.setFromMatrixPosition(o.matrixWorld);
