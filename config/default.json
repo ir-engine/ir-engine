@@ -4,6 +4,7 @@
     "dev": false,
     "loginDisabled": false,
     "logo": "./logo.svg",
+    "loader": "space",
     "xr": {
       "style": {
         "borderColor": "0x131313",
