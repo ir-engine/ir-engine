@@ -10,8 +10,6 @@
     "esModuleInterop": true,
     "resolveJsonModule": true
   },
-  "include": [
-    "src/**/*", "src/server/**/*"
-  ],
+  "include": ["src/**/*", "server/**/*", "test/**/*"],
   "exclude": ["node_modules", "dist"]
 }
