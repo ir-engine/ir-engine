@@ -3,10 +3,9 @@ import { fixSkeletonZForward } from "./vrarmik/SkeletonUtils.js"
 import PoseManager from "./vrarmik/PoseManager.js"
 import ShoulderTransforms from "./vrarmik/ShoulderTransforms.js"
 import LegsManager from "./vrarmik/LegsManager.js"
-import skeletonString from "./Skeleton.js"
+import skeletonString from "../Skeleton.js"
 import { Vector3, Quaternion, Matrix4, Scene, SkinnedMesh } from "three"
 import { Component } from "ecsy"
-import { VRMSpringBoneImporter } from "three-vrm"
 import {
   _findEye,
   _findHead,
@@ -23,35 +22,22 @@ import {
   _findClosestParentBone,
   _countCharacters,
   _findFurthestParentBone
-} from "../functions/SkeletonFunctions"
+} from "../../functions/SkeletonFunctions"
 
-const zeroVector = new Vector3()
 const upRotation = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2)
 const leftRotation = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI * 0.8)
 const rightRotation = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -Math.PI * 0.8)
-const z180Quaternion = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
-
 const localVector = new Vector3()
-const localVector2 = new Vector3()
-const localVector3 = new Vector3()
-const localVector4 = new Vector3()
-const localVector5 = new Vector3()
-const localVector6 = new Vector3()
-const localQuaternion = new Quaternion()
-const localQuaternion2 = new Quaternion()
-const localMatrix = new Matrix4()
 
 export class Avatar extends Component<any> {
   model: any
   options: {}
   skinnedMeshes: any[]
-  debugMeshes: any
   flipZ: boolean
   flipY: boolean
   flipLeg: boolean
   allHairBones: any[]
   hairBones: any[]
-  springBoneManager: any
   fingerBones: any
   tailBones: any
   armature: any
@@ -161,16 +147,6 @@ export class Avatar extends Component<any> {
     if (poseSkeleton) {
       _copySkeleton(poseSkeleton, skeleton)
       poseSkeletonSkinnedMesh.bind(skeleton)
-    }
-
-    if ((options as any).debug) {
-      const debugMeshes = _makeDebugMeshes()
-      for (const k in debugMeshes) {
-        this.model.add(debugMeshes[k])
-      }
-      this.debugMeshes = debugMeshes
-    } else {
-      this.debugMeshes = null
     }
 
     this.tailBones = _getTailBones(skeleton)
@@ -290,7 +266,6 @@ export class Avatar extends Component<any> {
     this.allHairBones = allHairBones
     this.hairBones = hairBones
 
-    this.springBoneManager = null
     if ((options as any).hair) {
       new Promise((accept, reject) => {
         if (!object) {
@@ -344,10 +319,6 @@ export class Avatar extends Component<any> {
             }
           }
         }
-
-        new VRMSpringBoneImporter().import(object).then(springBoneManager => {
-          this.springBoneManager = springBoneManager
-        })
       })
     }
 
@@ -660,7 +631,7 @@ export class Avatar extends Component<any> {
     // return;
 
     const wasDecapitated = this.decapitated
-    if (this.springBoneManager && wasDecapitated) {
+    if (wasDecapitated) {
       this.undecapitate()
     }
 
@@ -668,16 +639,6 @@ export class Avatar extends Component<any> {
     if (modelScaleFactor !== this.lastModelScaleFactor) {
       this.model.scale.set(modelScaleFactor, modelScaleFactor, modelScaleFactor)
       this.lastModelScaleFactor = modelScaleFactor
-
-      this.springBoneManager &&
-        this.springBoneManager.springBoneGroupList.forEach(springBoneGroup => {
-          springBoneGroup.forEach(springBone => {
-            springBone._worldBoneLength = springBone.bone
-              .localToWorld(localVector.copy(springBone._initialLocalChildPosition))
-              .sub(springBone._worldPosition)
-              .length()
-          })
-        })
     }
 
     this.shoulderTransforms.Update()
@@ -732,10 +693,7 @@ export class Avatar extends Component<any> {
       _processFingerBones(false)
     }
 
-    if (this.springBoneManager) {
-      this.springBoneManager.lateUpdate(timeDiff / 1000)
-    }
-    if (this.springBoneManager && wasDecapitated) {
+    if (wasDecapitated) {
       this.decapitate()
     }
 
@@ -780,14 +738,6 @@ export class Avatar extends Component<any> {
         }
       })
     }
-
-    if (this.debugMeshes) {
-      for (const k in this.debugMeshes) {
-        const mesh = this.debugMeshes[k]
-        const output = this.outputs[k]
-        mesh.matrixWorld.multiplyMatrices(this.model.matrixWorld, output.matrixWorld)
-      }
-    }
   }
 
   decapitate() {
@@ -798,14 +748,6 @@ export class Avatar extends Component<any> {
         o.position.set(NaN, NaN, NaN)
         o.matrixWorld.set(NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN)
       })
-      if (this.debugMeshes) {
-        this.debugMeshes.eyes?.forEach(mesh => {
-          mesh.visible = false
-        })
-        this.debugMeshes.head?.forEach(mesh => {
-          mesh.visible = false
-        })
-      }
       this.decapitated = true
     }
   }
@@ -815,11 +757,6 @@ export class Avatar extends Component<any> {
         o.position.copy(o.savedPosition)
         o.matrixWorld.copy(o.savedMatrixWorld)
       })
-      if (this.debugMeshes) {
-        ;[this.debugMeshes.eyes, this.debugMeshes.head].forEach(mesh => {
-          mesh.visible = true
-        })
-      }
       this.decapitated = false
     }
   }

@@ -1,5 +1,5 @@
 import * as THREE from "three"
-import { createPseudoRandom } from "../../common/functions/mathRandomFunctions.js"
+import { createPseudoRandom } from "../../common/functions/MathRandomFunctions.js"
 import {
   loadTexturePackerJSON,
   needsUpdate,

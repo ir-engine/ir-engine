@@ -1,14 +1,14 @@
-import StateType from "../../state/types/StateAlias"
+import { StateAlias } from "../../state/types/StateAlias"
 import { Scalar, Vector2, Vector3 } from "../types/NumericalTypes"
 import { instanceOf } from "./instanceOf"
 
 interface blendStatePositionValue {
-  stateType: StateType
+  stateType: StateAlias
   position: Scalar | Vector2 | Vector3
 }
 
 interface outputState {
-  stateType: StateType
+  stateType: StateAlias
   weight: number
 }
 

@@ -1,5 +1,11 @@
 const RND_BASIS = 0x100000000
 
+export function randomId() {
+  return Math.random()
+    .toString(36)
+    .substr(2, 6)
+}
+
 export function createPseudoRandom(s) {
   let seed = s || Math.random() * RND_BASIS
 
