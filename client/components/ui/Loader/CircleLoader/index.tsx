@@ -3,7 +3,7 @@ import './style.scss'
 
 const Loader = (): any => {
   return (
-    <div className='body'>
+    <div className='circle-loader'>
       <svg width={0} height={0}>
         <filter id="gooey-plasma">
           <feGaussianBlur in="SourceGraphic" stdDeviation={20} result="blur" />

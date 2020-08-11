@@ -3,7 +3,7 @@ import './style.scss'
 
 const App = (): any => {
   return (
-    <div>
+    <div className='space-loader'>
       <div className='loader'>
         <div className='backg'>
           <div className='planet'>
