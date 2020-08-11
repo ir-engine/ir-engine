@@ -82,7 +82,7 @@ Dependent charts can also have values overwritten. Preface values with mariadb.*
 | client.service.type | string | `"ClusterIP"` | override client service type |
 | client.serviceAccount | object | `{}` | override client service account |
 | client.tolerations | list | `[]` |  |
-| domain | string | `"kaiworld.com"` | domain root for all services, services will be subdomain from it |
+| domain | string | `"xr3ngine.io"` | domain root for all services, services will be subdomain from it |
 | mariadb.db.existingSecret | string | `nil` | Use existing secret for password details (rootUser.password, db.password, replication.password will be ignored and picked up from this secret). The secret has to contain the keys mariadb-root-password, mariadb-replication-password and mariadb-password. |
 | mariadb.db.name | string | `"xrchat"` | Database name to connect to |
 | mariadb.db.password | string | Password for the new user. Ignored if existing secret is provided. | random 10 character alphanumeric string if mariadb.db.user is defined |
