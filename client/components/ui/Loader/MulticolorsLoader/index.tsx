@@ -3,7 +3,7 @@ import './style.scss'
 
 const Loader = (): any => {
   return (
-    <div>
+    <div className='multicolor-loader'>
       <div className='loader' />
       <span className='text'>Loading...</span>
     </div>
