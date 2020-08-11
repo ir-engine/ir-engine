@@ -25,5 +25,7 @@ export enum MessageTypes {
   WebRTCCloseProducer = "19",
   WebRTCMuteOtherProducer = "20",
   WebRTCUnmuteOtherProducer = "21",
-  WebRTCConsumerSetLayers = "22"
+  WebRTCConsumerSetLayers = "22",
+  WebRTCConsumeData = "23",
+  WebRTCProduceData = "24"
 }
