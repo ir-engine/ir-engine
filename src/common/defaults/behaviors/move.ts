@@ -2,13 +2,15 @@ import { Entity } from "ecsy"
 import Behavior from "../../interfaces/Behavior"
 import Actor from "../components/Actor"
 import Transform from "../../../transform/components/Transform"
-import { NumericalType, Vector3, Vector2 } from "../../types/NumericalTypes"
+import { NumericalType, Vector3, Vector2, Vector4 } from "../../types/NumericalTypes"
 import Input from "../../../input/components/Input"
 import InputAlias from "../../../input/types/InputAlias"
 import { InputType } from "../../../input/enums/InputType"
 
 import { Crouching } from "../components/Crouching"
 import { Sprinting } from "../components/Sprinting"
+
+import * as QuaternionUtils from "../../../util/QuaternionUtils"
 
 let input: Input
 let actor: Actor
@@ -34,10 +36,16 @@ export const move: Behavior = (entity: Entity, args: { input: InputAlias; inputT
 
   console.log("Movement X", Math.min(transform.velocity[0] + args.value[0] * outputSpeed, actor.maxSpeed))
 
+  const rotation: number[]  = transform.rotation
+  const yaw = QuaternionUtils.yawFromQuaternion(rotation)
+
   if (inputType === InputType.TWOD) {
-    inputValue = args.value as Vector2
-    transform.velocity[0] = Math.min(transform.velocity[0] + inputValue[0] * outputSpeed, actor.maxSpeed)
-    transform.velocity[2] = Math.min(transform.velocity[2] + inputValue[1] * outputSpeed, actor.maxSpeed)
+    inputValue = args.value as Vector2 // [x, -z]
+    let xChange = outputSpeed * ( inputValue[1] * Math.sin(yaw) + inputValue[0] * Math.cos(yaw) )
+    let zChange = outputSpeed * ( inputValue[1] * Math.cos(yaw) - inputValue[0] * Math.sin(yaw) )
+
+    transform.velocity[0] = Math.min(transform.velocity[0] + xChange, actor.maxSpeed)
+    transform.velocity[2] = Math.min(transform.velocity[2] + zChange, actor.maxSpeed)
   } else if (inputType === InputType.THREED) {
     inputValue = args.value as Vector3
     transform.velocity[0] = Math.min(transform.velocity[0] + inputValue[0] * outputSpeed, actor.maxSpeed)
