@@ -10,7 +10,7 @@
     "esModuleInterop": true
   },
   "include": [
-    "src/**/*", "server/**/*"
+    "src/**/*", "server/**/*", "test/**/*"
   ],
   "exclude": ["node_modules", "dist"]
 }
