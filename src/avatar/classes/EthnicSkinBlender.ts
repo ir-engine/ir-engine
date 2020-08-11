@@ -16,6 +16,7 @@ export class EthnicSkinBlender {
   /**
    * return a blend of the three ethnic skin tones based on the human macro settings.
    **/
+  human
   constructor(human) {
     this.human = human
   }

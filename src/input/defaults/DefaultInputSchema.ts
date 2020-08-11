@@ -152,6 +152,19 @@ export const DefaultInputSchema: InputSchema = {
     [DefaultInput.CROUCH]: { blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT] } as InputRelationship,
     [DefaultInput.JUMP]: { overrides: [DefaultInput.CROUCH] } as InputRelationship
   },
+  // onInputButtonBehavior: {
+  //     [BinaryValue.ON]: {
+  //       started: [
+  //         {
+  //           behavior: sendMessage,
+  //           args: {}
+  //         }
+  //       ]
+  //     },
+  //     [BinaryValue.OFF]: {
+
+  //     }
+  //   }
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
     [DefaultInput.JUMP]: {

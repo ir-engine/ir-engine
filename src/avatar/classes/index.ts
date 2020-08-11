@@ -1,6 +1,6 @@
 export * from "./Human"
 export * from "./Proxy"
 export * from "./Targets"
-export * from "./HumanModifier"
+export * from "./Modifier"
 export * from "./EthnicSkinBlender"
 export * from "./Factors"

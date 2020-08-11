@@ -27,11 +27,6 @@ export function createNetworkPrefab(prefab: NetworkPrefab, world: World, network
       console.log("Set ", initValue, " to ", component.data[initValue])
     })
   })
-  // Call each create action
-  prefab.onCreate?.forEach(action => {
-    // Call the behavior with the args
-    action.behavior(entity, action.args)
-  })
   // Instantiate local components
   // If this is the local player, spawn the local components (these will not be spawned for other clients)
   // This is good for input, camera, etc
@@ -53,5 +48,15 @@ export function createNetworkPrefab(prefab: NetworkPrefab, world: World, network
         console.log("Set ", initValue, " to ", component.data[initValue])
       })
     })
+  // Call each create action
+  prefab.onCreate?.forEach(action => {
+    // Call the behavior with the args
+    action.behavior(entity, action.args)
+  })
+  // Call destroy create action
+  prefab.onDestroy?.forEach(action => {
+    // Call the behavior with the args
+    action.behavior(entity, action.args)
+  })
   return entity
 }
