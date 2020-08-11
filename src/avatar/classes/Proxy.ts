@@ -51,7 +51,8 @@ export class Proxy extends THREE.Object3D {
     // after fitting we expand the size by this fraction
     this.extraGeometryScaling = [1.0, 1.0, 1.0]
 
-    this.loader = new THREE.FileLoader(this.manager)
+    this.loader = new THREE.FileLoader
+    (this.manager)
 
     const { name, group, materialName, key, thumbnail } = parseProxyUrl(url)
     this.key = key

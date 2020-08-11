@@ -31,6 +31,7 @@ import { CameraComponent, CameraSystem } from "./camera"
 import { RigidBody, VehicleBody, WheelBody, PhysicsSystem, VehicleSystem, WheelSystem } from "./physics"
 import { ParticleEmitter, Keyframe, ParticleSystem, KeyframeSystem } from "./particles"
 import { TransformComponent, TransformParentComponent, TransformSystem } from "./transform"
+import { NetworkInterpolation } from "./networking/components/NetworkInterpolation"
 
 export const DefaultInitializationOptions = {
   debug: false,
@@ -120,6 +121,7 @@ export function initialize(world: World, options: any = DefaultInitializationOpt
       .registerComponent(Network)
       .registerComponent(NetworkClient)
       .registerComponent(NetworkObject)
+      .registerComponent(NetworkInterpolation)
       .registerSystem(NetworkSystem)
     const networkEntity = world.createEntity()
     networkEntity.addComponent(Network)
