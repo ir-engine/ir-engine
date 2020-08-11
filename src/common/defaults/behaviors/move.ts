@@ -24,13 +24,13 @@ export const move: Behavior = (entity: Entity, args: { input: InputAlias; inputT
   const inputType = args.inputType
   outputSpeed = actor.accelerationSpeed * (time.delta as any) * movementModifer
 
-  const rotation: number[]  = transform.rotation
+  const rotation: number[] = transform.rotation
   const yaw = QuaternionUtils.yawFromQuaternion(rotation)
 
   if (inputType === InputType.TWOD) {
     inputValue = args.value as Vector2 // [x, -z]
-    let xChange = outputSpeed * ( inputValue[1] * Math.sin(yaw) + inputValue[0] * Math.cos(yaw) )
-    let zChange = outputSpeed * ( inputValue[1] * Math.cos(yaw) - inputValue[0] * Math.sin(yaw) )
+    const xChange = outputSpeed * (inputValue[1] * Math.sin(yaw) + inputValue[0] * Math.cos(yaw))
+    const zChange = outputSpeed * (inputValue[1] * Math.cos(yaw) - inputValue[0] * Math.sin(yaw))
 
     transform.velocity[0] = Math.min(transform.velocity[0] + xChange, actor.maxSpeed)
     transform.velocity[2] = Math.min(transform.velocity[2] + zChange, actor.maxSpeed)
