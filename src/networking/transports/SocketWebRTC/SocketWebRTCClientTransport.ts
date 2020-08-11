@@ -16,8 +16,8 @@ const Device = mediasoupClient.Device
 export class SocketWebRTCClientTransport implements NetworkTransport {
   mediasoupDevice: mediasoupClient.Device
   joined: boolean
-  recvTransport
-  sendTransport
+  recvTransport: mediasoupClient.types.Transport
+  sendTransport: mediasoupClient.types.Transport
   lastPollSyncData = {}
   pollingInterval: NodeJS.Timeout
   heartbeatInterval = 2000
@@ -31,6 +31,30 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     while (!NetworkComponent.instance.outgoingReliableQueue.empty) {
       this.socket.emit(MessageTypes.ReliableMessage.toString(), NetworkComponent.instance.outgoingReliableQueue.pop)
     }
+  }
+
+  sendAllUnReliableMessages(): void {
+    while (!NetworkComponent.instance.outgoingUnreliableQueue.empty) {
+      this.socket.emit(MessageTypes.UnreliableMessage.toString(), NetworkComponent.instance.outgoingUnreliableQueue.pop)
+    }
+  }
+
+  async sendUnreliableMessage({
+    channelId,
+    data,
+    type
+  }: {
+    channelId: string
+    data: any
+    type: string
+  }): Promise<mediasoupClient.types.DataProducer> {
+    return this.sendTransport.produceData({
+      appData: data,
+      ordered: false,
+      label: channelId,
+      // maxRetransmits: 0, // TODO: Discussion needed
+      protocol: type // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
+    })
   }
 
   // Adds support for Promise to socket.io-client
@@ -84,6 +108,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       this.socket.on(MessageTypes.ReliableMessage.toString(), (message: Message) => {
         NetworkComponent.instance.incomingReliableQueue.add(message)
+      })
+
+      this.socket.on(MessageTypes.UnreliableMessage.toString(), (message: Message) => {
+        NetworkComponent.instance.incomingUnreliableQueue.add(message)
       })
       this.socket.emit(MessageTypes.Initialization.toString())
     })
@@ -158,7 +186,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // create a producer for video
     MediaStreamComponent.instance.screenVideoProducer = await this.sendTransport.produce({
       track: MediaStreamComponent.instance.localScreen.getVideoTracks()[0],
-      encodings: {}, // TODO: Add me
+      encodings: [], // TODO: Add me
       appData: { mediaTag: "screen-video" }
     })
 
@@ -405,6 +433,23 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           rtpParameters,
           paused,
           appData
+        })
+        if (error) {
+          console.error("error setting up server-side producer", error)
+          errback()
+          return
+        }
+        callback({ id })
+      })
+
+      transport.on("produceData", async (parameters: any, callback: (arg0: { id: any }) => void, errback: () => void) => {
+        console.log("transport produce data event, params: ", parameters)
+        const { sctpStreamParameters, label, protocol } = parameters
+        const { error, id } = await this.request(MessageTypes.WebRTCProduceData, {
+          transportId: transport.id,
+          sctpStreamParameters,
+          label,
+          protocol
         })
         if (error) {
           console.error("error setting up server-side producer", error)
