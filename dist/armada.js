@@ -945,6 +945,26 @@ class Crouching extends TagComponent {
 class Sprinting extends TagComponent {
 }
 
+function vector4ArrayToAxisObject(q) {
+    // TODO: different orders
+    return {
+        x: q[0],
+        y: q[2],
+        z: q[1],
+        w: q[3]
+    };
+}
+// heading: rotation about the Z-axis (z up)
+function yawFromQuaternion(q) {
+    const a = vector4ArrayToAxisObject(q);
+    const wz = a.w * a.z;
+    const xy = a.x * a.y;
+    const y2 = a.y * a.y;
+    const z2 = a.z * a.z;
+    const result = Math.atan2(2 * (wz + xy), 1 - 2 * (y2 + z2));
+    return result;
+}
+
 let input;
 let actor$2;
 let transform$2;
@@ -963,10 +983,14 @@ const move = (entity, args, time) => {
     console.log("movementModifer, " + movementModifer);
     console.log("output speed", outputSpeed);
     console.log("Movement X", Math.min(transform$2.velocity[0] + args.value[0] * outputSpeed, actor$2.maxSpeed));
+    const rotation = transform$2.rotation;
+    const yaw = yawFromQuaternion(rotation);
     if (inputType === InputType.TWOD) {
-        inputValue = args.value;
-        transform$2.velocity[0] = Math.min(transform$2.velocity[0] + inputValue[0] * outputSpeed, actor$2.maxSpeed);
-        transform$2.velocity[2] = Math.min(transform$2.velocity[2] + inputValue[1] * outputSpeed, actor$2.maxSpeed);
+        inputValue = args.value; // [x, -z]
+        let xChange = outputSpeed * (inputValue[1] * Math.sin(yaw) + inputValue[0] * Math.cos(yaw));
+        let zChange = outputSpeed * (inputValue[1] * Math.cos(yaw) - inputValue[0] * Math.sin(yaw));
+        transform$2.velocity[0] = Math.min(transform$2.velocity[0] + xChange, actor$2.maxSpeed);
+        transform$2.velocity[2] = Math.min(transform$2.velocity[2] + zChange, actor$2.maxSpeed);
     }
     else if (inputType === InputType.THREED) {
         inputValue = args.value;
