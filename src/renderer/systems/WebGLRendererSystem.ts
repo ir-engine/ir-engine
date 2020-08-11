@@ -1,15 +1,16 @@
-import { System } from "ecsy"
-import { WebGLRendererComponent } from "../components/WebGLRendererComponent.js"
-import { CameraComponent } from "../../camera/components/CameraComponent.js"
-import { SceneComponent } from "../../common/components/SceneComponent.js"
-
-export class WebGLRendererSystem extends System {
+import { System, Entity } from "ecsy"
+import { RendererComponent } from "../components/RendererComponent"
+import { CameraComponent } from "../../camera/components/CameraComponent"
+import { SceneComponent } from "../../common/components/SceneComponent"
+import { EffectComposer, RenderPass, EffectPass } from "postprocessing"
+import { DefaultPostProcessingSchema } from "../defaults/DefaultPostProcessingSchema"
+export class RendererSystem extends System {
   onResize() {
-    WebGLRendererComponent.instance.needsResize = true
+    RendererComponent.instance.needsResize = true
   }
 
   init() {
-    WebGLRendererComponent.instance.needsResize = true
+    RendererComponent.instance.needsResize = true
     this.onResize = this.onResize.bind(this)
     window.addEventListener("resize", this.onResize, false)
   }
@@ -18,34 +19,49 @@ export class WebGLRendererSystem extends System {
     window.removeEventListener("resize", this.onResize)
   }
 
-  execute() {
-    const entities = this.queries.renderers.results
+  configurePostProcessing(entity: Entity) {
+    const renderer = entity.getMutableComponent(RendererComponent)
+    const composer = new EffectComposer(renderer.renderer)
+    renderer.composer = composer
+    // This sets up the render
+    composer.addPass(new RenderPass(SceneComponent.instance.scene, CameraComponent.instance.camera))
+    if (renderer.postProcessingSchema == undefined) renderer.postProcessingSchema = DefaultPostProcessingSchema
+    renderer.postProcessingSchema.passes.forEach(pass => {
+      composer.addPass(new EffectPass(CameraComponent.instance.camera, new pass.effect(pass.effect.options)))
+    })
+  }
 
-    for (let i = 0; i < entities.length; i++) {
-      if (WebGLRendererComponent.instance.needsResize) {
-        const canvas = WebGLRendererComponent.instance.renderer.domElement
+  execute(delta: number) {
+    this.queries.renderers.added.forEach((entity: Entity) => this.configurePostProcessing(entity))
 
-        const curPixelRatio = WebGLRendererComponent.instance.renderer.getPixelRatio()
+    this.queries.renderers.results.forEach((entity: Entity) => {
+      const rendererComponent = entity.getComponent(RendererComponent)
 
-        if (curPixelRatio !== window.devicePixelRatio) {
-          WebGLRendererComponent.instance.renderer.setPixelRatio(window.devicePixelRatio)
-        }
+      if (rendererComponent.needsResize) {
+        const canvas = rendererComponent.renderer.domElement
+        const curPixelRatio = rendererComponent.renderer.getPixelRatio()
+
+        if (curPixelRatio !== window.devicePixelRatio) rendererComponent.renderer.setPixelRatio(window.devicePixelRatio)
 
         const width = canvas.clientWidth
         const height = canvas.clientHeight
 
         CameraComponent.instance.camera.aspect = width / height
         CameraComponent.instance.camera.updateProjectionMatrix()
-        WebGLRendererComponent.instance.renderer.setSize(width, height, false)
 
-        WebGLRendererComponent.instance.needsResize = false
+        rendererComponent.renderer.setSize(width, height, false)
+        rendererComponent.renderer.needsResize = false
       }
-
-      WebGLRendererComponent.instance.renderer.render(SceneComponent.instance.scene, CameraComponent.instance.camera)
-    }
+      rendererComponent.composer.render(delta)
+    })
   }
 }
 
-WebGLRendererSystem.queries = {
-  renderers: { components: [WebGLRendererComponent] }
+RendererSystem.queries = {
+  renderers: {
+    components: [RendererComponent],
+    listen: {
+      added: true
+    }
+  }
 }

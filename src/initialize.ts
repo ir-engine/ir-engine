@@ -32,6 +32,10 @@ import { RigidBody, VehicleBody, WheelBody, PhysicsSystem, VehicleSystem, WheelS
 import { ParticleEmitter, Keyframe, ParticleSystem, KeyframeSystem } from "./particles"
 import { TransformComponent, TransformParentComponent, TransformSystem } from "./transform"
 import { NetworkInterpolation } from "./networking/components/NetworkInterpolation"
+import { RendererComponent } from "./renderer/components/RendererComponent"
+import { WebGLRendererSystem } from "./renderer/systems/WebGLRendererSystem"
+import { Clock, WebGLRenderer, Scene, PerspectiveCamera } from "three"
+import { Timer } from "./common/functions/Timer"
 
 export const DefaultInitializationOptions = {
   debug: false,
@@ -65,11 +69,19 @@ export const DefaultInitializationOptions = {
   },
   transform: {
     enabled: true
+  },
+  renderer: {
+    enabled: true
   }
 }
 
-export function initialize(world: World, options: any = DefaultInitializationOptions, scene?: any, camera?: any) {
-  console.log("Initializing Armada")
+export function initialize(options: any = DefaultInitializationOptions, world?: World, scene?: any, camera?: any) {
+  console.log("Initializing")
+  if (world == undefined || world == null) world = new World()
+  if (scene == undefined || scene == null) scene = new Scene()
+  if (camera == undefined || camera == null)
+    camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000)
+
   world.registerComponent(SceneComponent).registerComponent(WorldComponent)
 
   // World singleton
@@ -129,20 +141,31 @@ export function initialize(world: World, options: any = DefaultInitializationOpt
     if (options.networking.supportsMediaStreams == true) {
       world.registerComponent(MediaStreamComponent)
       world.registerSystem(MediaStreamSystem)
-      const mediaStreamComponent = networkEntity.addComponent(MediaStreamComponent).getMutableComponent(MediaStreamComponent)
+      const mediaStreamComponent = networkEntity
+        .addComponent(MediaStreamComponent)
+        .getMutableComponent(MediaStreamComponent)
       MediaStreamComponent.instance = mediaStreamComponent
     } else {
       console.warn("Does not support media streams")
     }
 
-    setTimeout(() => initializeNetworkSession(world, options.networking.schema ?? DefaultNetworkSchema, options.networking.schema.transport), 1)
+    setTimeout(
+      () =>
+        initializeNetworkSession(
+          world,
+          options.networking.schema ?? DefaultNetworkSchema,
+          options.networking.schema.transport
+        ),
+      1
+    )
   }
 
   // State
   if (options.state && options.state.enabled) world.registerComponent(State).registerSystem(StateSystem)
 
   // Subscriptions
-  if (options.subscriptions && options.subscriptions.enabled) world.registerComponent(Subscription).registerSystem(SubscriptionSystem)
+  if (options.subscriptions && options.subscriptions.enabled)
+    world.registerComponent(Subscription).registerSystem(SubscriptionSystem)
 
   // Physics
   if (options.physics && options.physics.enabled)
@@ -168,4 +191,30 @@ export function initialize(world: World, options: any = DefaultInitializationOpt
       .registerComponent(TransformComponent)
       .registerComponent(TransformParentComponent)
       .registerSystem(TransformSystem)
+  if (options.renderer && options.renderer.enabled) {
+    world.registerComponent(RendererComponent).registerSystem(WebGLRendererSystem, { priority: 999 })
+    // Create the Three.js WebGL renderer
+    const renderer = new WebGLRenderer({
+      antialias: true
+    })
+    // Add the renderer to the body of the HTML document
+    document.body.appendChild(renderer.domElement)
+    // Create a new Three.js clock
+    const clock = new Clock()
+    // Create the Renderer singleton
+    world.createEntity().addComponent(RendererComponent, {
+      renderer: renderer
+    })
+    // Kick off the loop
+    renderer.setAnimationLoop(() => {
+      world.execute(clock.getDelta(), clock.elapsedTime)
+    })
+  } else {
+    // If we're not using the renderer, create a timer that calls a fixed update timestep
+    Timer({
+      update: (delta, elapsedTime) => {
+        world.execute(delta, elapsedTime)
+      }
+    }).start()
+  }
 }
