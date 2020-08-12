@@ -1,41 +1,42 @@
-import { World } from "ecsy"
+import { AmbientLight, Camera, Clock, GridHelper, PerspectiveCamera, Scene, WebGLRenderer } from "three"
+import { CameraComponent, CameraSystem } from "./camera"
+import { isBrowser, SceneComponent, Timer, WorldComponent } from "./common"
+import { Object3DComponent } from "./common/components/Object3DComponent"
+import { SceneTagComponent } from "./common/components/Object3DTagComponents"
+import { addObject3DComponent } from "./common/defaults/behaviors/Object3DBehaviors"
+import { World } from "./ecs/World"
 import {
   DefaultInputSchema,
-  WebXRSession,
-  WebXRSpace,
-  WebXRViewPoint,
-  WebXRPointer,
-  WebXRMainController,
-  WebXRSecondController,
-  WebXRMainGamepad,
-  WebXRSecondGamepad,
   Input,
   InputSystem,
   WebXRButton,
-  WebXRRenderer
+  WebXRMainController,
+  WebXRMainGamepad,
+  WebXRPointer,
+  WebXRRenderer,
+  WebXRSecondController,
+  WebXRSecondGamepad,
+  WebXRSession,
+  WebXRSpace,
+  WebXRViewPoint
 } from "./input"
 import {
   DefaultNetworkSchema,
-  Network,
-  NetworkClient,
-  NetworkObject,
-  NetworkSystem,
+  initializeNetworkSession,
   MediaStreamComponent,
   MediaStreamSystem,
-  NetworkInterpolation,
-  initializeNetworkSession
+  Network,
+  NetworkClient,
+  NetworkGameState,
+  NetworkObject,
+  NetworkSystem
 } from "./networking"
+import { Keyframe, KeyframeSystem, ParticleEmitter, ParticleSystem } from "./particles"
+import { PhysicsSystem, RigidBody, VehicleBody, VehicleSystem, WheelBody, WheelSystem } from "./physics"
+import { RendererComponent, WebGLRendererSystem } from "./renderer"
 import { DefaultStateSchema, State, StateSystem } from "./state"
 import { DefaultSubscriptionSchema, Subscription, SubscriptionSystem } from "./subscription"
-import { WorldComponent, isBrowser, SceneComponent, Timer } from "./common"
-import { CameraComponent, CameraSystem } from "./camera"
-import { RigidBody, VehicleBody, WheelBody, PhysicsSystem, VehicleSystem, WheelSystem } from "./physics"
-import { ParticleEmitter, Keyframe, ParticleSystem, KeyframeSystem } from "./particles"
 import { TransformComponent, TransformParentComponent, TransformSystem } from "./transform"
-import { RendererComponent, WebGLRendererSystem } from "./renderer"
-import { Clock, WebGLRenderer, Scene, PerspectiveCamera, AmbientLight, Camera, GridHelper } from "three"
-import { addObject3DComponent } from "./common/defaults/behaviors/Object3DBehaviors"
-import { Object3DComponent, SceneTagComponent } from "ecsy-three"
 
 export const DefaultInitializationOptions = {
   debug: false,
@@ -131,7 +132,7 @@ export function initialize(options: any = DefaultInitializationOptions, world?: 
       .registerComponent(Network)
       .registerComponent(NetworkClient)
       .registerComponent(NetworkObject)
-      .registerComponent(NetworkInterpolation)
+      .registerComponent(NetworkGameState)
       .registerSystem(NetworkSystem)
     const networkEntity = world.createEntity()
     networkEntity.addComponent(Network)

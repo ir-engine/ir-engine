@@ -1,4 +1,4 @@
-import { Entity } from "ecsy"
+import { Entity } from "../../../ecs"
 import { TransformComponent } from "../../../transform/components/TransformComponent"
 import { Behavior } from "../../interfaces/Behavior"
 import { Actor } from "../components/Actor"

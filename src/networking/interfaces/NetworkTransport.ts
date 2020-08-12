@@ -1,5 +1,3 @@
-import { Message } from "./Message"
-
 export interface NetworkTransport {
   initialize(address?: string, port?: number): void | Promise<void>
   sendAllReliableMessages(): void

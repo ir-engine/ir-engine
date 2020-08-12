@@ -1,4 +1,5 @@
-import { Entity } from "ecsy"
+import { Entity } from "../../../ecs/Entity"
+import { Input } from "../../../input/components/Input"
 import { InputType } from "../../../input/enums/InputType"
 import { InputAlias } from "../../../input/types/InputAlias"
 import { TransformComponent } from "../../../transform/components/TransformComponent"
@@ -7,8 +8,6 @@ import { NumericalType, Vector2, Vector3 } from "../../types/NumericalTypes"
 import { Actor } from "../components/Actor"
 import { Crouching } from "../components/Crouching"
 import { Sprinting } from "../components/Sprinting"
-
-import { Input } from "../../../input/components/Input"
 
 let input: Input
 let actor: Actor

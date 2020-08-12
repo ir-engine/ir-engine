@@ -1,5 +1,5 @@
 import * as THREE from "three"
-import { createPseudoRandom } from "../../common/functions/MathRandomFunctions.js"
+import { createPseudoRandom } from "../../common/functions/MathRandomFunctions"
 import {
   loadTexturePackerJSON,
   needsUpdate,
@@ -19,7 +19,7 @@ import {
   setVelocityAt,
   setVelocityScaleAt,
   setWorldAccelerationAt
-} from "./ParticleMesh.js"
+} from "./ParticleMesh"
 
 const error = console.error
 const FRAME_STYLES = ["sequence", "randomsequence", "random"]

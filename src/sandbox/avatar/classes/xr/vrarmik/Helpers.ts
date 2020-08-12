@@ -2,7 +2,7 @@ import { Vector3 } from "three"
 
 const localVector = new Vector3()
 const localVector2 = new Vector3()
-const Helpers = {
+export const Helpers = {
   getWorldPosition(o, v) {
     return v.setFromMatrixPosition(o.matrixWorld)
   },
@@ -24,5 +24,3 @@ const Helpers = {
     o.matrixWorld.multiplyMatrices(o.parent.matrixWorld, o.matrix)
   }
 }
-
-export { Helpers }

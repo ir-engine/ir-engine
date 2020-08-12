@@ -1,7 +1,7 @@
-import { Entity } from "ecsy"
 import { LifecycleValue } from "../../common/enums/LifecycleValue"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { Binary, NumericalType } from "../../common/types/NumericalTypes"
+import { Entity } from "../../ecs/Entity"
 import { Input } from "../components/Input"
 import { InputType } from "../enums/InputType"
 import { InputValue } from "../interfaces/InputValue"

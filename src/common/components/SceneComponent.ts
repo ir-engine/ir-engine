@@ -1,9 +1,10 @@
-// Singleton component to store reference to camera and scene
-import { Types, Component } from "ecsy"
+import { Scene } from "three"
+import { Component } from "../../ecs/Component"
+import { Types } from "../../ecs/Types"
 
-// World data schema
+// Singleton component to store reference to camera and scene
 interface PropTypes {
-  scene: any
+  scene: Scene
 }
 
 export class SceneComponent extends Component<PropTypes> {

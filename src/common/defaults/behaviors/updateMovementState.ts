@@ -1,4 +1,4 @@
-import { Entity } from "ecsy"
+import { Entity } from "../../../ecs/Entity"
 import { Input } from "../../../input/components/Input"
 import { DefaultInput } from "../../../input/defaults/DefaultInput"
 import { addState } from "../../../state/behaviors/StateBehaviors"

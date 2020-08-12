@@ -1,14 +1,12 @@
 import {
   BlendFunction,
+  BloomEffect,
+  BrightnessContrastEffect,
+  DepthOfFieldEffect,
+  HueSaturationEffect,
   KernelSize,
   SSAOEffect,
-  BloomEffect,
-  ToneMappingEffect,
-  BrightnessContrastEffect,
-  HueSaturationEffect,
-  DepthOfFieldEffect,
-  GodRaysEffect,
-  ColorDepthEffect
+  ToneMappingEffect
 } from "postprocessing"
 import { PostProcessingSchema } from "../interfaces/PostProcessingSchema"
 export const DefaultPostProcessingSchema: PostProcessingSchema = {

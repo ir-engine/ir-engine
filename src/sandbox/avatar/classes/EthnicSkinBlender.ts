@@ -4,8 +4,8 @@
  * @license         [AGPL3]{@link http://www.makehuman.org/license.php}
  * @description     blends three ethnic skin tones
  */
-import * as THREE from "three"
 import _ from "lodash"
+import * as THREE from "three"
 
 // these are set to look right when added to the caucasian skin
 const asianColor = new THREE.Color().setHSL(0.078, 0.34, 0.576)

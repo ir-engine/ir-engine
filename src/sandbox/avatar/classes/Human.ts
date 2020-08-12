@@ -9,18 +9,17 @@
  */
 
 import _ from "lodash"
+import * as qs from "qs"
 import * as THREE from "three"
 import TWEEN from "tween"
-
-import * as qs from "qs"
-import Targets from "./Targets"
-import Modifiers from "./Modifier"
+import { deepParseFloat, deepRoundValues, remapKeyValuesDeep } from "../../../common/functions/MakeHumanHelpers"
 import poses from "../json/poses/poses.json"
-import { Proxies } from "./Proxy"
 import { EthnicSkinBlender } from "./EthnicSkinBlender"
 import Factors from "./Factors"
-import { remapKeyValuesDeep, deepRoundValues, deepParseFloat } from "../../../common/functions/MakeHumanHelpers"
+import Modifiers from "./Modifier"
 import { ExportOBJ } from "./OBJExporter"
+import { Proxies } from "./Proxy"
+import Targets from "./Targets"
 
 export class HumanIO {
   human: any
@@ -207,8 +206,8 @@ export class BaseHuman extends THREE.Object3D {
     this.manager.onLoad = this.onLoadComplete.bind(this)
     this.materialLoader = new THREE.MaterialLoader(this.manager)
 
-    this.onBeforeRender = BaseHuman.prototype.onBeforeRender
-    this.onAfterRender = BaseHuman.prototype.onAfterRender
+    // this.onBeforeRender = BaseHuman.prototype.onBeforeRender
+    // this.onAfterRender = BaseHuman.prototype.onAfterRender
   }
 
   /**
@@ -599,10 +598,6 @@ export class Human extends BaseHuman {
     this.ethnicSkinBlender = new EthnicSkinBlender(this)
 
     this.io = new HumanIO(this)
-
-    // because three.js/core/object3d.js sets these in the constructor, preventing method override
-    this.onBeforeRender = Human.prototype.onBeforeRender
-    this.onAfterRender = Human.prototype.onAfterRender
   }
 
   updateHeight() {
@@ -639,7 +634,6 @@ export class Human extends BaseHuman {
 
   /** Call before render **/
   onBeforeRender() {
-    // super.onBeforeRender()
     TWEEN.update()
     this.targets.applyTargets()
     if (this.mesh && this.mesh.geometry.elementsNeedUpdate) {

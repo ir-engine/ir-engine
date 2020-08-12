@@ -1,5 +1,5 @@
-import { Helpers } from "./Unity.js"
-import { Vector3, Quaternion, Euler } from "three"
+import { Euler, Quaternion, Vector3 } from "three"
+import { Helpers } from "./Helpers"
 
 const rightVector = new Vector3(1, 0, 0)
 const z180Quaternion = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)

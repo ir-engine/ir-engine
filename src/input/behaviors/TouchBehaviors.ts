@@ -1,7 +1,7 @@
-import { Entity } from "ecsy"
 import { BinaryValue } from "../../common/enums/BinaryValue"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { Binary } from "../../common/types/NumericalTypes"
+import { Entity } from "../../ecs"
 
 export const handleTouch: Behavior = (entity: Entity, args: { event: TouchEvent; value: Binary }): void => {
   if (args.value === BinaryValue.ON) {

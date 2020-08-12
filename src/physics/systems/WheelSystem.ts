@@ -1,14 +1,16 @@
-import * as ECSY from "ecsy"
+import { Attributes, System } from "../../ecs/System"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { WheelBody } from "../components/WheelBody"
 
-export class WheelSystem extends ECSY.System {
+export class WheelSystem extends System {
+  init(attributes?: Attributes): void {
+    throw new Error("Method not implemented.")
+  }
   execute(dt, t) {
     for (let i = 0; i < this.queries.wheelBody.results.length; i++) {
       const entity = this.queries.wheelBody.results[i]
       //  console.log(entity);
-      const parentEntity = entity.getComponent(WheelBody).vehicle
-
+      const parentEntity = entity.getComponent(WheelBody as any)["vehicle"]
       const parentObject = parentEntity.getObject3D()
       const vehicle = parentObject.userData.vehicle
       vehicle.updateWheelTransform(i)

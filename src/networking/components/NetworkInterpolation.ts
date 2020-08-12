@@ -1,9 +1,9 @@
-import { Snapshot, ID } from "../types/SnapshotDataTypes"
-import { Component } from "ecsy"
+import { Component } from "../../ecs/Component"
+import { ID, Snapshot } from "../types/SnapshotDataTypes"
 
 /** A save place to store your snapshots. */
-export class NetworkInterpolation extends Component<any> {
-  static instance: NetworkInterpolation
+export class NetworkGameState extends Component<any> {
+  static instance: NetworkGameState
   public vault: Snapshot[] = []
   vaultSize = 120
   timeOffset = -1
@@ -14,7 +14,7 @@ export class NetworkInterpolation extends Component<any> {
 
   constructor() {
     super()
-    NetworkInterpolation.instance = this
+    NetworkGameState.instance = this
   }
 
   public get interpolationBuffer() {

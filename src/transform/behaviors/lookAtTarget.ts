@@ -1,5 +1,5 @@
-import { Entity } from "ecsy"
 import { Behavior } from "../../common/interfaces/Behavior"
+import { Entity } from "../../ecs/Entity"
 import { TransformComponent } from "../components/TransformComponent"
 
 let follower, target

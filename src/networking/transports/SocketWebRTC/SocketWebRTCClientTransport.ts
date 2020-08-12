@@ -6,10 +6,10 @@ import { MediaStreamComponent } from "../../components/MediaStreamComponent"
 import { Network as NetworkComponent } from "../../components/Network"
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "../../constants/VideoConstants"
 import { MessageTypes } from "../../enums/MessageTypes"
+import { addClient, initializeClient, removeClient } from "../../functions/ClientFunctions"
 import { Message } from "../../interfaces/Message"
 import { NetworkTransport } from "../../interfaces/NetworkTransport"
 import { MediaStreamSystem } from "../../systems/MediaStreamSystem"
-import { initializeClient, addClient, removeClient } from "../../functions/ClientFunctions"
 
 const Device = mediasoupClient.Device
 

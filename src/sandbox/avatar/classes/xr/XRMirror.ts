@@ -1,16 +1,16 @@
 import {
-  Mesh,
-  Plane,
-  Vector3,
-  Matrix4,
-  Vector4,
-  PerspectiveCamera,
   Color,
   LinearFilter,
+  Matrix4,
+  Mesh,
+  PerspectiveCamera,
+  Plane,
   RGBFormat,
-  WebGLRenderTarget,
   ShaderMaterial,
-  UniformsUtils
+  UniformsUtils,
+  Vector3,
+  Vector4,
+  WebGLRenderTarget
 } from "three"
 
 function isPowerOfTwo(x) {

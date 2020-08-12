@@ -1,8 +1,4 @@
-import { Component } from "ecsy"
-
-Number.prototype.clamp = function(min, max) {
-  return Math.min(Math.max(this, min), max)
-}
+import { Component } from "../../ecs/Component"
 
 export class ThereminComponent extends Component<any> {
   pitchBoundingBox: any

@@ -1,4 +1,4 @@
-import { Component, Types } from "ecsy"
+import { Component, Types } from "../../ecs"
 
 export class WebXRRenderer extends Component<any> {
   static schema = {

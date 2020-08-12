@@ -1,26 +1,26 @@
-import { fixSkeletonZForward } from "./vrarmik/SkeletonUtils.js"
-import PoseManager from "./vrarmik/PoseManager.js"
-import ShoulderTransforms from "./vrarmik/ShoulderTransforms.js"
-import LegsManager from "./vrarmik/LegsManager.js"
-import skeletonString from "../Skeleton.js"
-import { Vector3, Quaternion, Matrix4, Scene, SkinnedMesh } from "three"
-import { Component } from "ecsy"
+import { Matrix4, Quaternion, Scene, SkinnedMesh, Vector3 } from "three"
 import {
+  copySkeleton,
+  countCharacters,
+  findArmature,
+  findClosestParentBone,
   findEye,
+  findFoot,
+  findFurthestParentBone,
+  findHand,
   findHead,
   findHips,
-  findSpine,
   findShoulder,
-  findHand,
-  findFoot,
-  importSkeleton,
-  findArmature,
-  copySkeleton,
+  findSpine,
   getTailBones,
-  findClosestParentBone,
-  countCharacters,
-  findFurthestParentBone
+  importSkeleton
 } from "../../functions/SkeletonFunctions"
+import skeletonString from "../Skeleton"
+import LegsManager from "./vrarmik/LegsManager"
+import PoseManager from "./vrarmik/PoseManager"
+import ShoulderTransforms from "./vrarmik/ShoulderTransforms"
+import { fixSkeletonZForward } from "./vrarmik/SkeletonUtils"
+import { Component } from "../../../../ecs/Component"
 
 const upRotation = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2)
 const leftRotation = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI * 0.8)

@@ -12,7 +12,6 @@ export * from "./components/WebXRSecondGamepad"
 export * from "./components/WebXRSession"
 export * from "./components/WebXRSpace"
 export * from "./components/WebXRViewPoint"
-
 export * from "./defaults/DefaultInputSchema"
 export * from "./enums/GamepadButtons"
 export * from "./enums/InputType"

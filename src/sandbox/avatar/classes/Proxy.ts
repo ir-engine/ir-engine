@@ -8,7 +8,7 @@
 
 import _ from "lodash"
 import * as THREE from "three"
-import { Mesh, MeshStandardMaterial } from "three"
+import { MeshStandardMaterial } from "three"
 
 /**
  * parseProxyUrl

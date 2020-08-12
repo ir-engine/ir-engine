@@ -1,42 +1,42 @@
+import { Object3D } from "three"
+import { SceneComponent } from "../../components/SceneComponent"
+import { WorldComponent } from "../../components/WorldComponent"
+import { Behavior } from "../../interfaces/Behavior"
+import { Entity, Component, TagComponent } from "../../../ecs"
+import { Object3DComponent } from "../../components/Object3DComponent"
 import {
-  AmbientLightProbeTagComponent,
-  AmbientLightTagComponent,
-  ArrayCameraTagComponent,
-  AudioListenerTagComponent,
+  PositionalAudioTagComponent,
   AudioTagComponent,
-  BoneTagComponent,
+  AudioListenerTagComponent,
   CameraTagComponent,
-  CubeCameraTagComponent,
-  DirectionalLightTagComponent,
-  GroupTagComponent,
-  HemisphereLightProbeTagComponent,
-  HemisphereLightTagComponent,
-  ImmediateRenderObjectTagComponent,
-  InstancedMeshTagComponent,
-  LightProbeTagComponent,
-  LightTagComponent,
-  LineLoopTagComponent,
-  LineSegmentsTagComponent,
-  LineTagComponent,
-  LODTagComponent,
-  MeshTagComponent,
-  Object3DComponent,
   OrthographicCameraTagComponent,
   PerspectiveCameraTagComponent,
+  ArrayCameraTagComponent,
+  CubeCameraTagComponent,
+  ImmediateRenderObjectTagComponent,
+  LightTagComponent,
+  AmbientLightTagComponent,
+  DirectionalLightTagComponent,
+  HemisphereLightTagComponent,
   PointLightTagComponent,
-  PointsTagComponent,
-  PositionalAudioTagComponent,
   RectAreaLightTagComponent,
-  SceneTagComponent,
-  SkinnedMeshTagComponent,
   SpotLightTagComponent,
-  SpriteTagComponent
-} from "ecsy-three"
-import { SceneComponent } from "../../components/SceneComponent"
-import { Behavior } from "../../interfaces/Behavior"
-import { Component, TagComponent, Entity } from "ecsy"
-import { WorldComponent } from "../../components/WorldComponent"
-import { Object3D } from "three"
+  LightProbeTagComponent,
+  AmbientLightProbeTagComponent,
+  HemisphereLightProbeTagComponent,
+  BoneTagComponent,
+  GroupTagComponent,
+  LODTagComponent,
+  MeshTagComponent,
+  InstancedMeshTagComponent,
+  SkinnedMeshTagComponent,
+  LineTagComponent,
+  LineLoopTagComponent,
+  LineSegmentsTagComponent,
+  PointsTagComponent,
+  SpriteTagComponent,
+  SceneTagComponent
+} from "../../components/Object3DTagComponents"
 
 export const addObject3DComponent: Behavior = (
   entity: Entity,
@@ -55,7 +55,7 @@ export const addObject3DComponent: Behavior = (
     entity.addComponent(component)
   })
   if (args.parentEntity && args.parentEntity.hasComponent(Object3DComponent as any)) {
-    args.parentEntity.getComponent(Object3DComponent).value.add(object3d)
+    args.parentEntity.getComponent<Object3DComponent>(Object3DComponent).value.add(object3d)
   }
   // Add the obj to our scene graph
   else SceneComponent.instance.scene.add(object3d)
@@ -105,7 +105,7 @@ export function getObject3D(entity) {
 export function getComponentTags(object3d: Object3D): (Component<any> | TagComponent)[] {
   const components: Component<any>[] = []
   if (object3d.type === "Audio" && (object3d as any).panner !== undefined) {
-    if (!WorldComponent.instance.world.hasRegisteredComponent(PositionalAudioTagComponent as any))
+    if (!WorldComponent.instance.world.hasRegisteredComponent(PositionalAudioTagComponent))
       WorldComponent.instance.world.registerComponent(PositionalAudioTagComponent)
     components.push(PositionalAudioTagComponent as any)
   } else if (object3d.type === "Audio") {

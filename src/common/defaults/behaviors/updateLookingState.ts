@@ -1,4 +1,4 @@
-import { Entity } from "ecsy"
+import { Entity } from "../../../ecs/Entity"
 import { Input } from "../../../input/components/Input"
 import { InputType } from "../../../input/enums/InputType"
 import { InputAlias } from "../../../input/types/InputAlias"
@@ -11,7 +11,7 @@ export const rotateStart: Behavior = (
   delta: number
 ): void => {
   const input = entity.getMutableComponent(Input) as Input
-  const transform = entity.getComponent(TransformComponent)
+  const transform = entity.getComponent<TransformComponent>(TransformComponent)
 
   const transformRotation: [number, number, number, number] = [
     transform.rotation[0],

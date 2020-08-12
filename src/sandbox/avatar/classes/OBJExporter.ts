@@ -1,5 +1,5 @@
-import * as THREE from "three"
 import _ from "lodash"
+import * as THREE from "three"
 
 export function ExportOBJ(object) {
   let output = ""

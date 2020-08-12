@@ -1,6 +1,6 @@
 import { Object3D } from "three"
 
-class ArmTransforms {
+export class ArmTransforms {
   transform: any
   upperArm: any
   lowerArm: any
@@ -16,5 +16,3 @@ class ArmTransforms {
     this.lowerArm.add(this.hand)
   }
 }
-
-export default ArmTransforms

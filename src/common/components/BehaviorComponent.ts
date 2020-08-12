@@ -1,4 +1,4 @@
-import { Component } from "ecsy"
+import { Component } from "../../ecs/Component"
 import { BehaviorMapType } from "../types/BehaviorMapType"
 
 export interface PropTypes<TDataType extends string | number | symbol, TBehaviorMap, TValue> {

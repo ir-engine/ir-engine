@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { MessageTypeAlias } from "../types/MessageTypeAlias"
-import { createNetworkPrefab } from "./NetworkPrefabFunctions"
-import { Network } from "../components/Network"
-import { WorldComponent } from "../../common/components/WorldComponent"
-import { MessageChannel } from "../enums/MessageChannel"
+import { NetworkTransport } from ".."
 import { RingBuffer } from "../../common/classes/RingBuffer"
 import { constructInstance } from "../../common/functions/constructInstance"
-import { fromBuffer } from "./MessageFunctions"
-import { World } from "ecsy"
+import { World } from "../../ecs/World"
+import { Network } from "../components/Network"
+import { MessageChannel } from "../enums/MessageChannel"
 import { NetworkSchema } from "../interfaces/NetworkSchema"
-import { NetworkTransport } from ".."
+import { MessageTypeAlias } from "../types/MessageTypeAlias"
+import { fromBuffer } from "./MessageFunctions"
+import { createNetworkPrefab } from "./NetworkPrefabFunctions"
 
 export function initializeNetworkSession(world: World, networkSchema: NetworkSchema, transportClass?: any) {
   console.log("Initialization session")

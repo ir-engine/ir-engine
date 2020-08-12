@@ -1,9 +1,8 @@
+import { LoadingManager } from "three"
 import * as GLTFExporter from "three-gltf-exporter"
-import { SkeletonUtils } from "three/examples/jsm/utils/SkeletonUtils"
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-
-import { LoadingManager } from "three"
+import { SkeletonUtils } from "three/examples/jsm/utils/SkeletonUtils"
 
 const getFileType = filename => {
   if (/\.(?:gltf|glb|vrm)$/.test(filename)) {

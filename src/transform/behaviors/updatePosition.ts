@@ -1,6 +1,6 @@
-import { Entity } from "ecsy"
 import { vec3 } from "gl-matrix"
 import { Behavior } from "../../common/interfaces/Behavior"
+import { Entity } from "../../ecs/Entity"
 import { TransformComponent } from "../components/TransformComponent"
 
 const _deltaV: vec3 = [0, 0, 0]

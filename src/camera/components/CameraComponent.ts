@@ -1,4 +1,5 @@
-import { Component, Types } from "ecsy"
+import { Component } from "../../ecs/Component"
+import { Types } from "../../ecs/Types"
 
 interface PropTypes {
   camera: any

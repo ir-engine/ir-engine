@@ -1,4 +1,4 @@
-import { Component, SystemStateComponent, Types } from "ecsy"
+import { Component, SystemStateComponent, Types } from "../../ecs"
 
 interface ParticleEmitterStateInterface {
   emitter3D: any

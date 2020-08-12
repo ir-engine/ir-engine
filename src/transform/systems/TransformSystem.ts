@@ -1,5 +1,5 @@
-import { Attributes, Entity, System } from "ecsy"
 import { Behavior } from "../../common/interfaces/Behavior"
+import { Attributes, System } from "../../ecs"
 import { childTransformBehavior } from "../behaviors/childTransformBehavior"
 import { transformBehavior } from "../behaviors/transformBehavior"
 import { TransformComponent } from "../components/TransformComponent"

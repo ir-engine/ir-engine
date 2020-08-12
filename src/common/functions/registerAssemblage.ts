@@ -1,5 +1,5 @@
-import { World } from "ecsy"
 import { Prefab } from "../interfaces/Prefab"
+import { World } from "../../ecs/World"
 
 export function registerPrefab(prefab: Prefab, world: World) {
   prefab.components.forEach((value: { type: any }) => {

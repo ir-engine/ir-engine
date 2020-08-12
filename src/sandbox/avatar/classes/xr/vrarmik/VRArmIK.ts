@@ -1,5 +1,5 @@
-import { Helpers } from "./Unity.js"
-import { Vector3, Quaternion, Euler, Matrix4 } from "three"
+import { Euler, Matrix4, Quaternion, Vector3 } from "three"
+import { Helpers } from "./Helpers"
 
 const zeroVector = new Vector3()
 const forwardVector = new Vector3(0, 0, 1)

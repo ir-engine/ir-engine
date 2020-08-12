@@ -1,4 +1,4 @@
-import { Entity } from "ecsy"
+import { Entity } from "../../../ecs/Entity"
 import { addState, removeState } from "../../../state/behaviors/StateBehaviors"
 import { DefaultStateTypes } from "../../../state/defaults/DefaultStateTypes"
 import { TransformComponent } from "../../../transform/components/TransformComponent"

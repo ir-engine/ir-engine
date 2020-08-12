@@ -1,7 +1,7 @@
-import { Entity } from "ecsy"
 import { BinaryValue } from "../../common/enums/BinaryValue"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { Binary } from "../../common/types/NumericalTypes"
+import { Entity } from "../../ecs/Entity"
 import { InputType } from "../../input/enums/InputType"
 import { Input } from "../components/Input"
 
@@ -10,7 +10,7 @@ let input: Input
 const _value: [number, number] = [0, 0]
 // System behavior called whenever the mouse pressed
 export const handleMouseMovement: Behavior = (entity: Entity, args: { event: MouseEvent }): void => {
-  input = entity.getComponent(Input) as Input
+  input = entity.getComponent(Input)
   _value[0] = (args.event.clientX / window.innerWidth) * 2 - 1
   _value[1] = (args.event.clientY / window.innerHeight) * -2 + 1
   // Set type to TWOD (two-dimensional axis) and value to a normalized -1, 1 on X and Y
@@ -23,7 +23,7 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
 // System behavior called when a mouse button is fired
 export const handleMouseButton: Behavior = (entity: Entity, args: { event: MouseEvent; value: Binary }): void => {
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
-  input = entity.getMutableComponent(Input) as Input
+  input = entity.getMutableComponent(Input)
   if (input.schema.mouseInputMap.buttons[args.event.button] === undefined) return // Set type to BUTTON (up/down discrete state) and value to up or down, as called by the DOM mouse events
   if (args.value === BinaryValue.ON) {
     input.data.set(input.schema.mouseInputMap.buttons[args.event.button], {

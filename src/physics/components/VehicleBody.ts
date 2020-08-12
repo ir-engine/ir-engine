@@ -1,5 +1,5 @@
-import { Component, Types } from "ecsy"
 import { Vector3 } from "../../common"
+import { Component, Types } from "../../ecs"
 
 interface PropTypes {
   wheelMesh: any

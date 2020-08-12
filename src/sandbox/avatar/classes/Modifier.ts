@@ -13,11 +13,10 @@
  */
 
 import _ from "lodash"
-
-import { targetMetaData } from "./Targets"
-import modelingModifiers from "../json/modifiers/modeling_modifiers.json"
-import measurementModifiers from "../json/modifiers/measurement_modifiers.json"
 import { randomNormal } from "../functions/randomNormal"
+import measurementModifiers from "../json/modifiers/measurement_modifiers.json"
+import modelingModifiers from "../json/modifiers/modeling_modifiers.json"
+import { targetMetaData } from "./Targets"
 
 /**
  * The most basic modifier. All modifiers should inherit from this, directly or
