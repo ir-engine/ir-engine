@@ -52,8 +52,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       appData: data,
       ordered: false,
       label: channelId,
-      maxPacketLifeTime: 3000,
-      // maxRetransmits: 0, // TODO: Discussion needed
+      // maxPacketLifeTime: 3000,
+      maxRetransmits: 3,
       protocol: type // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
     })
   }
