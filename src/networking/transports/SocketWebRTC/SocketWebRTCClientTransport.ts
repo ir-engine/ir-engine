@@ -52,6 +52,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       appData: data,
       ordered: false,
       label: channelId,
+      maxPacketLifeTime: 3000,
       // maxRetransmits: 0, // TODO: Discussion needed
       protocol: type // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
     })
@@ -136,12 +137,14 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log("Polling")
     this.pollAndUpdate() // start this polling loop
     console.log("Joined world")
+    // ;(window as any).sendUnreliableMessage = this.sendUnreliableMessage.bind(this)
   }
 
   async sendCameraStreams(): Promise<void> {
     console.log("send camera streams")
     // create a transport for outgoing media, if we don't already have one
     if (!this.sendTransport) this.sendTransport = await this.createTransport("send")
+    console.log("SEND TRANSPORT: ", this.sendTransport)
     if (!MediaStreamComponent.instance.mediaStream) return
 
     // start sending video. the transport logic will initiate a
@@ -442,7 +445,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         callback({ id })
       })
 
-      transport.on("produceData", async (parameters: any, callback: (arg0: { id: any }) => void, errback: () => void) => {
+      transport.on("producedata", async (parameters: any, callback: (arg0: { id: any }) => void, errback: () => void) => {
         console.log("transport produce data event, params: ", parameters)
         const { sctpStreamParameters, label, protocol } = parameters
         const { error, id } = await this.request(MessageTypes.WebRTCProduceData, {
@@ -473,7 +476,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       }
     })
 
-    return transport
+    return Promise.resolve(transport)
   }
 
   // polling/update logic
