@@ -310,7 +310,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           
           // if our associated transport closes, close ourself, too
           dataProducer.on("transportclose", () => {
-            console.log("producer's transport closed", dataProducer.id)
+            console.log("data producer's transport closed", dataProducer.id)
             dataProducer.close()
             this.roomState.dataProducers = this.roomState.dataProducers.filter(producer => producer.id !== dataProducer.id)
           })
