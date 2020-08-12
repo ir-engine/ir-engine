@@ -1,22 +1,24 @@
-import { jump } from "../../common/defaults/behaviors/jump"
-import { move } from "../../common/defaults/behaviors/move"
-import { rotateAround } from "../../common/defaults/behaviors/rotate"
-import { rotateStart } from "../../common/defaults/behaviors/updateLookingState"
-import { updateMovementState } from "../../common/defaults/behaviors/updateMovementState"
-import { BinaryValue } from "../../common/enums/BinaryValue"
-import { Thumbsticks } from "../../common/enums/Thumbsticks"
+import { InputSchema } from "../../input/interfaces/InputSchema"
+import { DefaultInput } from "../../input/defaults/DefaultInput"
 import { disableScroll, enableScroll } from "../../common/functions/enableDisableScrolling"
 import { preventDefault } from "../../common/functions/preventDefault"
-import { handleKey, handleMouseButton, handleMouseMovement } from "../behaviors/DesktopInputBehaviors"
-import { handleGamepadConnected, handleGamepadDisconnected } from "../behaviors/GamepadInputBehaviors"
-import { GamepadButtons } from "../enums/GamepadButtons"
-import { InputType } from "../enums/InputType"
-import { MouseButtons } from "../enums/MouseButtons"
-import { InputRelationship } from "../interfaces/InputRelationship"
-import { InputSchema } from "../interfaces/InputSchema"
-import { DefaultInput } from "./DefaultInput"
+import {
+  handleMouseMovement,
+  handleMouseButton,
+  BinaryValue,
+  handleKey,
+  handleGamepadConnected,
+  handleGamepadDisconnected,
+  GamepadButtons,
+  Thumbsticks,
+  InputRelationship,
+  InputType,
+  rotateAround
+} from "../.."
+import { rotateStart } from "../../common/defaults/behaviors/updateLookingState"
+import { drive } from "../behavior/VehicleBehaviors"
 
-export const DefaultInputSchema: InputSchema = {
+export const VehicleInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
   onAdded: [
     {
@@ -61,8 +63,7 @@ export const DefaultInputSchema: InputSchema = {
         }
       },
       {
-        behavior: rotateStart,
-        args: {}
+        behavior: rotateStart
       }
     ],
     // Keys
@@ -96,11 +97,6 @@ export const DefaultInputSchema: InputSchema = {
   },
   // Map mouse buttons to abstract input
   mouseInputMap: {
-    buttons: {
-      [MouseButtons.LeftButton]: DefaultInput.PRIMARY,
-      [MouseButtons.RightButton]: DefaultInput.SECONDARY
-      // [MouseButtons.MiddleButton]: DefaultInput.INTERACT
-    },
     axes: {
       mousePosition: DefaultInput.SCREENXY,
       mouseClickDownPosition: DefaultInput.SCREENXY_START,
@@ -110,18 +106,6 @@ export const DefaultInputSchema: InputSchema = {
   // Map gamepad buttons to abstract input
   gamepadInputMap: {
     buttons: {
-      [GamepadButtons.A]: DefaultInput.JUMP,
-      [GamepadButtons.B]: DefaultInput.CROUCH, // B - back
-      // [GamepadButtons.X]: DefaultInput.SPRINT, // X - secondary input
-      // [GamepadButtons.Y]: DefaultInput.INTERACT, // Y - tertiary input
-      // 4: DefaultInput.DEFAULT, // LB
-      // 5: DefaultInput.DEFAULT, // RB
-      // 6: DefaultInput.DEFAULT, // LT
-      // 7: DefaultInput.DEFAULT, // RT
-      // 8: DefaultInput.DEFAULT, // Back
-      // 9: DefaultInput.DEFAULT, // Start
-      // 10: DefaultInput.DEFAULT, // LStick
-      // 11: DefaultInput.DEFAULT, // RStick
       [GamepadButtons.DPad1]: DefaultInput.FORWARD, // DPAD 1
       [GamepadButtons.DPad2]: DefaultInput.BACKWARD, // DPAD 2
       [GamepadButtons.DPad3]: DefaultInput.LEFT, // DPAD 3
@@ -129,7 +113,7 @@ export const DefaultInputSchema: InputSchema = {
     },
     axes: {
       [Thumbsticks.Left]: DefaultInput.MOVEMENT_PLAYERONE,
-      [Thumbsticks.Right]: DefaultInput.LOOKTURN_PLAYERONE
+      [Thumbsticks.Right]: DefaultInput.SCREENXY
     }
   },
   // Map keyboard buttons to abstract input
@@ -137,77 +121,35 @@ export const DefaultInputSchema: InputSchema = {
     w: DefaultInput.FORWARD,
     a: DefaultInput.LEFT,
     s: DefaultInput.BACKWARD,
-    d: DefaultInput.RIGHT,
-    [" "]: DefaultInput.JUMP,
-    shift: DefaultInput.CROUCH
+    d: DefaultInput.RIGHT
   },
   // Map how inputs relate to each other
   inputRelationships: {
     [DefaultInput.FORWARD]: { opposes: [DefaultInput.BACKWARD] } as InputRelationship,
     [DefaultInput.BACKWARD]: { opposes: [DefaultInput.FORWARD] } as InputRelationship,
     [DefaultInput.LEFT]: { opposes: [DefaultInput.RIGHT] } as InputRelationship,
-    [DefaultInput.RIGHT]: { opposes: [DefaultInput.LEFT] } as InputRelationship,
-    [DefaultInput.CROUCH]: { blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT] } as InputRelationship,
-    [DefaultInput.JUMP]: { overrides: [DefaultInput.CROUCH] } as InputRelationship
+    [DefaultInput.RIGHT]: { opposes: [DefaultInput.LEFT] } as InputRelationship
   },
-  // onInputButtonBehavior: {
-  //     [BinaryValue.ON]: {
-  //       started: [
-  //         {
-  //           behavior: sendMessage,
-  //           args: {}
-  //         }
-  //       ]
-  //     },
-  //     [BinaryValue.OFF]: {
-
-  //     }
-  //   }
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
-    [DefaultInput.JUMP]: {
-      [BinaryValue.ON]: {
-        started: [
-          {
-            behavior: jump,
-            args: {}
-          }
-        ]
-      }
-    },
     [DefaultInput.FORWARD]: {
       [BinaryValue.ON]: {
         started: [
           {
-            behavior: move,
-            args: {
-              inputType: InputType.TWOD,
-              value: [0, -1]
-            }
-          },
-          {
-            behavior: updateMovementState
-          }
-        ],
-        continued: [
-          {
-            behavior: move,
+            behavior: drive,
             args: {
               inputType: InputType.TWOD,
               value: [0, -1]
             }
           }
-        ]
-      },
-      [BinaryValue.OFF]: {
-        started: [
-          {
-            behavior: updateMovementState
-          }
         ],
         continued: [
           {
-            behavior: updateMovementState
+            behavior: drive,
+            args: {
+              inputType: InputType.TWOD,
+              value: [0, -1]
+            }
           }
         ]
       }
@@ -216,10 +158,7 @@ export const DefaultInputSchema: InputSchema = {
       [BinaryValue.ON]: {
         started: [
           {
-            behavior: updateMovementState
-          },
-          {
-            behavior: move,
+            behavior: drive,
             args: {
               inputType: InputType.TWOD,
               value: [0, 1]
@@ -228,23 +167,11 @@ export const DefaultInputSchema: InputSchema = {
         ],
         continued: [
           {
-            behavior: move,
+            behavior: drive,
             args: {
               inputType: InputType.TWOD,
               value: [0, 1]
             }
-          }
-        ]
-      },
-      [BinaryValue.OFF]: {
-        started: [
-          {
-            behavior: updateMovementState
-          }
-        ],
-        continued: [
-          {
-            behavior: updateMovementState
           }
         ]
       }
@@ -253,10 +180,7 @@ export const DefaultInputSchema: InputSchema = {
       [BinaryValue.ON]: {
         started: [
           {
-            behavior: updateMovementState
-          },
-          {
-            behavior: move,
+            behavior: drive,
             args: {
               inputType: InputType.TWOD,
               value: [-1, 0]
@@ -265,7 +189,7 @@ export const DefaultInputSchema: InputSchema = {
         ],
         continued: [
           {
-            behavior: move,
+            behavior: drive,
             args: {
               inputType: InputType.TWOD,
               input: {
@@ -275,28 +199,13 @@ export const DefaultInputSchema: InputSchema = {
             }
           }
         ]
-      },
-      [BinaryValue.OFF]: {
-        started: [
-          {
-            behavior: updateMovementState
-          }
-        ],
-        continued: [
-          {
-            behavior: updateMovementState
-          }
-        ]
       }
     },
     [DefaultInput.RIGHT]: {
       [BinaryValue.ON]: {
         started: [
           {
-            behavior: updateMovementState
-          },
-          {
-            behavior: move,
+            behavior: drive,
             args: {
               inputType: InputType.TWOD,
               value: [1, 0]
@@ -305,23 +214,11 @@ export const DefaultInputSchema: InputSchema = {
         ],
         continued: [
           {
-            behavior: move,
+            behavior: drive,
             args: {
               inputType: InputType.TWOD,
               value: [1, 0]
             }
-          }
-        ]
-      },
-      [BinaryValue.OFF]: {
-        started: [
-          {
-            behavior: updateMovementState
-          }
-        ],
-        continued: [
-          {
-            behavior: updateMovementState
           }
         ]
       }
@@ -332,12 +229,16 @@ export const DefaultInputSchema: InputSchema = {
     [DefaultInput.MOVEMENT_PLAYERONE]: {
       started: [
         {
-          behavior: updateMovementState
+          behavior: drive,
+          args: {
+            input: DefaultInput.MOVEMENT_PLAYERONE,
+            inputType: InputType.TWOD
+          }
         }
       ],
       continued: [
         {
-          behavior: move,
+          behavior: drive,
           args: {
             input: DefaultInput.MOVEMENT_PLAYERONE,
             inputType: InputType.TWOD
