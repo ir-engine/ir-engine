@@ -57,8 +57,12 @@ export class MediaStreamSystem extends System {
     })
 
     // replace the tracks we are sending
-    await MediaStreamComponent.instance.camVideoProducer.replaceTrack({ track: MediaStreamComponent.instance.mediaStream.getVideoTracks()[0] })
-    await MediaStreamComponent.instance.camAudioProducer.replaceTrack({ track: MediaStreamComponent.instance.mediaStream.getAudioTracks()[0] })
+    await MediaStreamComponent.instance.camVideoProducer.replaceTrack({
+      track: MediaStreamComponent.instance.mediaStream.getVideoTracks()[0]
+    })
+    await MediaStreamComponent.instance.camAudioProducer.replaceTrack({
+      track: MediaStreamComponent.instance.mediaStream.getAudioTracks()[0]
+    })
     return true
   }
 
@@ -84,13 +88,15 @@ export class MediaStreamSystem extends System {
   }
 
   async toggleScreenshareVideoPauseState() {
-    if (this.getScreenPausedState()) (Network.instance.transport as any).pauseProducer(MediaStreamComponent.instance.screenVideoProducer)
+    if (this.getScreenPausedState())
+      (Network.instance.transport as any).pauseProducer(MediaStreamComponent.instance.screenVideoProducer)
     else (Network.instance.transport as any).resumeProducer(MediaStreamComponent.instance.screenVideoProducer)
     MediaStreamComponent.instance.screenShareVideoPaused = !MediaStreamComponent.instance.screenShareVideoPaused
   }
 
   async toggleScreenshareAudioPauseState() {
-    if (this.getScreenAudioPausedState()) (Network.instance.transport as any).pauseProducer(MediaStreamComponent.instance.screenAudioProducer)
+    if (this.getScreenAudioPausedState())
+      (Network.instance.transport as any).pauseProducer(MediaStreamComponent.instance.screenAudioProducer)
     else (Network.instance.transport as any).resumeProducer(MediaStreamComponent.instance.screenAudioProducer)
     MediaStreamComponent.instance.screenShareAudioPaused = !MediaStreamComponent.instance.screenShareAudioPaused
   }
@@ -183,7 +189,8 @@ export class MediaStreamSystem extends System {
     const { deviceId } = MediaStreamComponent.instance.camVideoProducer.track.getSettings()
     if (deviceId) return deviceId
     // Firefox doesn't have deviceId in MediaTrackSettings object
-    const track = MediaStreamComponent.instance.mediaStream && MediaStreamComponent.instance.mediaStream.getVideoTracks()[0]
+    const track =
+      MediaStreamComponent.instance.mediaStream && MediaStreamComponent.instance.mediaStream.getVideoTracks()[0]
     if (!track) return null
     const devices = await navigator.mediaDevices.enumerateDevices()
     const deviceInfo = devices.find(d => d.label.startsWith(track.label))

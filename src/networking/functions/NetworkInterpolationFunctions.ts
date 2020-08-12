@@ -145,7 +145,8 @@ export function interpolate(
 /** Get the calculated interpolation on the client. */
 export function calcInterpolation(parameters: string, deep = ""): InterpolatedSnapshot | undefined {
   // get the snapshots [_interpolationBuffer] ago
-  const serverTime = Date.now() - NetworkInterpolation.instance.timeOffset - NetworkInterpolation.instance._interpolationBuffer
+  const serverTime =
+    Date.now() - NetworkInterpolation.instance.timeOffset - NetworkInterpolation.instance._interpolationBuffer
 
   const shots = NetworkInterpolation.instance.get(serverTime)
   if (!shots) return

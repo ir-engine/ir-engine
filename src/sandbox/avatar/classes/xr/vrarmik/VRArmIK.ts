@@ -46,7 +46,9 @@ class VRArmIK {
     this.upperArmLength = Helpers.getWorldPosition(this.arm.lowerArm, localVector).distanceTo(
       Helpers.getWorldPosition(this.arm.upperArm, localVector2)
     )
-    this.lowerArmLength = Helpers.getWorldPosition(this.arm.hand, localVector).distanceTo(Helpers.getWorldPosition(this.arm.lowerArm, localVector2))
+    this.lowerArmLength = Helpers.getWorldPosition(this.arm.hand, localVector).distanceTo(
+      Helpers.getWorldPosition(this.arm.lowerArm, localVector2)
+    )
     this.armLength = this.upperArmLength + this.lowerArmLength
   }
 
@@ -64,7 +66,9 @@ class VRArmIK {
     const hypotenuseDistance = this.upperArmLength
     const directDistance = upperArmPosition.distanceTo(handPosition) / 2
     const offsetDistance =
-      hypotenuseDistance > directDistance ? Math.sqrt(hypotenuseDistance * hypotenuseDistance - directDistance * directDistance) : 0
+      hypotenuseDistance > directDistance
+        ? Math.sqrt(hypotenuseDistance * hypotenuseDistance - directDistance * directDistance)
+        : 0
     const offsetDirection = localVector3
       .copy(handPosition)
       .sub(upperArmPosition)
@@ -96,12 +100,16 @@ class VRArmIK {
       .add(localVector5.copy(offsetDirection).multiplyScalar(offsetDistance))
     const upVector = localVector5.set(this.left ? -1 : 1, 0, 0).applyQuaternion(shoulderRotation)
     this.arm.upperArm.quaternion
-      .setFromRotationMatrix(localMatrix.lookAt(zeroVector, localVector6.copy(elbowPosition).sub(upperArmPosition), upVector))
+      .setFromRotationMatrix(
+        localMatrix.lookAt(zeroVector, localVector6.copy(elbowPosition).sub(upperArmPosition), upVector)
+      )
       .multiply(this.left ? rightRotation : leftRotation)
       .premultiply(Helpers.getWorldQuaternion(this.arm.upperArm.parent, localQuaternion3).inverse())
     Helpers.updateMatrixMatrixWorld(this.arm.upperArm)
     this.arm.lowerArm.quaternion
-      .setFromRotationMatrix(localMatrix.lookAt(zeroVector, localVector6.copy(handPosition).sub(elbowPosition), upVector))
+      .setFromRotationMatrix(
+        localMatrix.lookAt(zeroVector, localVector6.copy(handPosition).sub(elbowPosition), upVector)
+      )
       .multiply(this.left ? rightRotation : leftRotation)
       .premultiply(Helpers.getWorldQuaternion(this.arm.lowerArm.parent, localQuaternion3).inverse())
     Helpers.updateMatrixMatrixWorld(this.arm.lowerArm)

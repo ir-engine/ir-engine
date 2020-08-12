@@ -22,12 +22,21 @@ export const handleInput: Behavior = (entity: Entity, delta: number): void => {
             value: value.value as Binary,
             lifecycleState: LifecycleValue.CONTINUED
           })
-          input.schema.inputButtonBehaviors[key][value.value as number].started?.forEach(element => element.behavior(entity, element.args, delta))
+          input.schema.inputButtonBehaviors[key][value.value as number].started?.forEach(element =>
+            element.behavior(entity, element.args, delta)
+          )
         } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
-          input.schema.inputButtonBehaviors[key][value.value as number].continued?.forEach(element => element.behavior(entity, element.args, delta))
+          input.schema.inputButtonBehaviors[key][value.value as number].continued?.forEach(element =>
+            element.behavior(entity, element.args, delta)
+          )
         }
       }
-    } else if (value.type === InputType.ONED || value.type === InputType.TWOD || value.type === InputType.THREED || value.type === InputType.FOURD) {
+    } else if (
+      value.type === InputType.ONED ||
+      value.type === InputType.TWOD ||
+      value.type === InputType.THREED ||
+      value.type === InputType.FOURD
+    ) {
       if (input.schema.inputAxisBehaviors[key]) {
         if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue.STARTED) {
           // Set the value to continued to debounce
@@ -36,9 +45,13 @@ export const handleInput: Behavior = (entity: Entity, delta: number): void => {
             value: value.value as Binary,
             lifecycleState: LifecycleValue.CONTINUED
           })
-          input.schema.inputAxisBehaviors[key].started?.forEach(element => element.behavior(entity, element.args, delta))
+          input.schema.inputAxisBehaviors[key].started?.forEach(element =>
+            element.behavior(entity, element.args, delta)
+          )
         } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
-          input.schema.inputAxisBehaviors[key].continued?.forEach(element => element.behavior(entity, element.args, delta))
+          input.schema.inputAxisBehaviors[key].continued?.forEach(element =>
+            element.behavior(entity, element.args, delta)
+          )
         }
       }
     } else {

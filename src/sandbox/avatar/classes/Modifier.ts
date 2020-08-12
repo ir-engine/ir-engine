@@ -41,7 +41,7 @@ export class Modifier {
   macroDependencies: any[]
   _symmModifier: any
   _symmSide: number
-  targetMetaData: import("/home/beast/Documents/GitHub/ecsy-input/src/avatar/classes/Targets").TargetMetaData
+  targetMetaData: import("./Targets").TargetMetaData
   parent: any
   left: any
   right: any
@@ -557,7 +557,7 @@ export class Modifiers {
     // this.symmetryModeEnabled = false;
 
     // data
-    this.modelingModifiers = Array.concat([], measurementModifiers, modelingModifiers)
+    this.modelingModifiers = new Array({ ...measurementModifiers, ...modelingModifiers })
 
     // metadata
     this.modifier_varMapping = {} // Maps macro variable to the modifier group that modifies it
@@ -660,7 +660,10 @@ export class Modifiers {
 
     // Update dependency mapping
     if (modifier.macroVariable && modifier.macroVariable !== "None") {
-      if (modifier.macroVariable in this.modifier_varMapping && this.modifier_varMapping[modifier.macroVariable] !== modifier.groupName) {
+      if (
+        modifier.macroVariable in this.modifier_varMapping &&
+        this.modifier_varMapping[modifier.macroVariable] !== modifier.groupName
+      ) {
         console.error(
           "Error, multiple modifier groups setting var %s (%s && %s)",
           modifier.macroVariable,
@@ -806,7 +809,16 @@ export class Modifiers {
    * @return {Object}                   - modifier:value properties
    *                                      e.g. {'l-arm-length': 0.143145}
    */
-  randomValues(symmetry = 1, macro = true, height = false, face = true, body = true, measure = false, rounding = 2, sigmaMultiple = 1) {
+  randomValues(
+    symmetry = 1,
+    macro = true,
+    height = false,
+    face = true,
+    body = true,
+    measure = false,
+    rounding = 2,
+    sigmaMultiple = 1
+  ) {
     // should have dist:
     // bimodal with peaks at 0 and 1 - gender
     // uniform - "macrodetails/Age", "macrodetails/African", "macrodetails/Asian", "macrodetails/Caucasian"
@@ -825,10 +837,31 @@ export class Modifiers {
       modifierGroups.push.apply(modifierGroups, ["macrodetails-height"])
     }
     if (face) {
-      modifierGroups.push.apply(modifierGroups, ["eyebrows", "eyes", "chin", "forehead", "head", "mouth", "nose", "neck", "ears", "cheek"])
+      modifierGroups.push.apply(modifierGroups, [
+        "eyebrows",
+        "eyes",
+        "chin",
+        "forehead",
+        "head",
+        "mouth",
+        "nose",
+        "neck",
+        "ears",
+        "cheek"
+      ])
     }
     if (body) {
-      modifierGroups.push.apply(modifierGroups, ["pelvis", "hip", "armslegs", "stomach", "breast", "buttocks", "torso", "legs", "genitals"])
+      modifierGroups.push.apply(modifierGroups, [
+        "pelvis",
+        "hip",
+        "armslegs",
+        "stomach",
+        "breast",
+        "buttocks",
+        "torso",
+        "legs",
+        "genitals"
+      ])
     }
 
     let modifiers = _.flatten(modifierGroups.map(mGroup => this.getModifiersByGroup(mGroup)))
@@ -856,7 +889,9 @@ export class Modifiers {
         if (m.groupName === "head") {
           // narow distribution
           sigma = 0.1 * sigmaMultiple
-        } else if (["forehead/forehead-nubian-less|more", "forehead/forehead-scale-vert-less|more"].indexOf(m.fullName) > -1) {
+        } else if (
+          ["forehead/forehead-nubian-less|more", "forehead/forehead-scale-vert-less|more"].indexOf(m.fullName) > -1
+        ) {
           // very narrow distribution
           sigma = 0.02 * sigmaMultiple
         } else if (m.fullName.search("trans-horiz") > -1 || m.fullName === "hip/hip-trans-in|out") {
@@ -870,10 +905,16 @@ export class Modifiers {
             mMax = Math.min(mMax, m.defaultValue + w / 2)
             randomValue = this._getRandomValue(mMin, mMax, m.defaultValue, 0.1, rounding)
           }
-        } else if (["forehead", "eyebrows", "neck", "eyes", "nose", "ears", "chin", "cheek", "mouth"].indexOf(m.groupName) > -1) {
+        } else if (
+          ["forehead", "eyebrows", "neck", "eyes", "nose", "ears", "chin", "cheek", "mouth"].indexOf(m.groupName) > -1
+        ) {
           sigma = 0.1 * sigmaMultiple
         } else if (m.groupName === "macrodetails") {
-          if (["macrodetails/Age", "macrodetails/African", "macrodetails/Asian", "macrodetails/Caucasian"].indexOf(m.fullName) > -1) {
+          if (
+            ["macrodetails/Age", "macrodetails/African", "macrodetails/Asian", "macrodetails/Caucasian"].indexOf(
+              m.fullName
+            ) > -1
+          ) {
             // people could be any age/race so a uniform distribution here
             randomValue = Math.random()
           } else if (["macrodetails/Gender"].indexOf(m.fullName) > -1) {
@@ -926,7 +967,16 @@ export class Modifiers {
   }
 
   /** randomize the modifier value along a normal distribution **/
-  randomize(symmetry = 1, macro = true, height = false, face = true, body = true, measure = false, rounding = 2, sigmaMultiple = 1) {
+  randomize(
+    symmetry = 1,
+    macro = true,
+    height = false,
+    face = true,
+    body = true,
+    measure = false,
+    rounding = 2,
+    sigmaMultiple = 1
+  ) {
     // var oldValues = _.transform(modifiers, (a, m) => a[m.fullName] = m.getValue(), {})
     const randomVals = this.randomValues(symmetry, macro, height, face, body, measure, rounding, sigmaMultiple)
 

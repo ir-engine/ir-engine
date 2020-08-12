@@ -1,4 +1,3 @@
-import "./vrarmik/three-vrm.js"
 import { fixSkeletonZForward } from "./vrarmik/SkeletonUtils.js"
 import PoseManager from "./vrarmik/PoseManager.js"
 import ShoulderTransforms from "./vrarmik/ShoulderTransforms.js"
@@ -7,21 +6,20 @@ import skeletonString from "../Skeleton.js"
 import { Vector3, Quaternion, Matrix4, Scene, SkinnedMesh } from "three"
 import { Component } from "ecsy"
 import {
-  _findEye,
-  _findHead,
-  _findHips,
-  _findSpine,
-  _findShoulder,
-  _findHand,
-  _findFoot,
-  _importSkeleton,
-  _findArmature,
-  _copySkeleton,
-  _makeDebugMeshes,
-  _getTailBones,
-  _findClosestParentBone,
-  _countCharacters,
-  _findFurthestParentBone
+  findEye,
+  findHead,
+  findHips,
+  findSpine,
+  findShoulder,
+  findHand,
+  findFoot,
+  importSkeleton,
+  findArmature,
+  copySkeleton,
+  getTailBones,
+  findClosestParentBone,
+  countCharacters,
+  findFurthestParentBone
 } from "../../functions/SkeletonFunctions"
 
 const upRotation = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2)
@@ -114,11 +112,11 @@ export class Avatar extends Component<any> {
         skinnedMesh.bind = function(skeleton) {
           this.skeleton = skeleton
         }
-        skinnedMesh.bind(_importSkeleton(skeletonString))
+        skinnedMesh.bind(importSkeleton(skeletonString))
         scene.add(skinnedMesh)
 
-        const hips = _findHips(skinnedMesh.skeleton)
-        const armature = _findArmature(hips)
+        const hips = findHips(skinnedMesh.skeleton)
+        const armature = findArmature(hips)
         scene.add(armature)
 
         o = scene
@@ -145,12 +143,12 @@ export class Avatar extends Component<any> {
       : null
     const poseSkeleton = poseSkeletonSkinnedMesh && poseSkeletonSkinnedMesh.skeleton
     if (poseSkeleton) {
-      _copySkeleton(poseSkeleton, skeleton)
+      copySkeleton(poseSkeleton, skeleton)
       poseSkeletonSkinnedMesh.bind(skeleton)
     }
 
-    this.tailBones = _getTailBones(skeleton)
-    this.armature = _findArmature(this.Hips)
+    this.tailBones = getTailBones(skeleton)
+    this.armature = findArmature(this.Hips)
 
     // const tailBones = skeleton.bones.filter(bone => bone.children.length === 0);
 
@@ -159,25 +157,25 @@ export class Avatar extends Component<any> {
                     console.warn('missing bone', k);
                   }
                 } */
-    this.Eye_L = _findEye(this.tailBones, true)
-    this.Eye_R = _findEye(this.tailBones, false)
-    this.Head = _findHead(this.tailBones)
+    this.Eye_L = findEye(this.tailBones, true)
+    this.Eye_R = findEye(this.tailBones, false)
+    this.Head = findHead(this.tailBones)
     this.Neck = this.Head.parent
     this.Chest = this.Neck.parent
-    this.Hips = _findHips(this.skeleton)
-    this.Spine = _findSpine(this.Chest, this.Hips)
-    this.Left_shoulder = _findShoulder(this.tailBones, true)
-    this.Left_wrist = _findHand(this.Left_shoulder)
+    this.Hips = findHips(this.skeleton)
+    this.Spine = findSpine(this.Chest, this.Hips)
+    this.Left_shoulder = findShoulder(this.tailBones, true)
+    this.Left_wrist = findHand(this.Left_shoulder)
     this.Left_elbow = this.Left_wrist.parent
     this.Left_arm = this.Left_elbow.parent
-    this.Right_shoulder = _findShoulder(this.tailBones, false)
-    this.Right_wrist = _findHand(this.Right_shoulder)
+    this.Right_shoulder = findShoulder(this.tailBones, false)
+    this.Right_wrist = findHand(this.Right_shoulder)
     this.Right_elbow = this.Right_wrist.parent
     this.Right_arm = this.Right_elbow.parent
-    this.Left_ankle = _findFoot(this.tailBones, true)
+    this.Left_ankle = findFoot(this.tailBones, true)
     this.Left_knee = this.Left_ankle.parent
     this.Left_leg = this.Left_knee.parent
-    this.Right_ankle = _findFoot(this.tailBones, false)
+    this.Right_ankle = findFoot(this.tailBones, false)
     this.Right_knee = this.Right_ankle.parent
     this.Right_leg = this.Right_knee.parent
     this.modelBones = {
@@ -216,7 +214,9 @@ export class Avatar extends Component<any> {
       }
     }
     // const eyeDirection = _getEyePosition().sub(Head.getWorldPosition(new Vector3()));
-    const leftArmDirection = this.Left_wrist.getWorldPosition(new Vector3()).sub(this.Head.getWorldPosition(new Vector3()))
+    const leftArmDirection = this.Left_wrist.getWorldPosition(new Vector3()).sub(
+      this.Head.getWorldPosition(new Vector3())
+    )
     const flipZ = leftArmDirection.x < 0 //eyeDirection.z < 0;
     const armatureDirection = new Vector3(0, 1, 0).applyQuaternion(this.armature.quaternion)
     const flipY = armatureDirection.z < -0.5
@@ -326,20 +326,25 @@ export class Avatar extends Component<any> {
       const fingerTipBone = this.tailBones
         .filter(
           bone =>
-            r.test(bone.name) && _findClosestParentBone(bone, bone => bone === this.modelBones.Left_wrist || bone === this.modelBones.Right_wrist)
+            r.test(bone.name) &&
+            findClosestParentBone(
+              bone,
+              bone => bone === this.modelBones.Left_wrist || bone === this.modelBones.Right_wrist
+            )
         )
         .sort((a, b) => {
           const aName = a.name.replace(r, "")
-          const aLeftBalance = _countCharacters(aName, /l/i) - _countCharacters(aName, /r/i)
+          const aLeftBalance = countCharacters(aName, /l/i) - countCharacters(aName, /r/i)
           const bName = b.name.replace(r, "")
-          const bLeftBalance = _countCharacters(bName, /l/i) - _countCharacters(bName, /r/i)
+          const bLeftBalance = countCharacters(bName, /l/i) - countCharacters(bName, /r/i)
           if (!left) {
             return aLeftBalance - bLeftBalance
           } else {
             return bLeftBalance - aLeftBalance
           }
         })
-      const fingerRootBone = fingerTipBone.length > 0 ? _findFurthestParentBone(fingerTipBone[0], bone => r.test(bone.name)) : null
+      const fingerRootBone =
+        fingerTipBone.length > 0 ? findFurthestParentBone(fingerTipBone[0], bone => r.test(bone.name)) : null
       return fingerRootBone
     }
     const fingerBones = {
@@ -467,7 +472,10 @@ export class Avatar extends Component<any> {
     this.model.traverse(o => {
       if (o.isSkinnedMesh) {
         o.bind(
-          o.skeleton.bones.length === skeleton.bones.length && o.skeleton.bones.every((bone, i) => bone === skeleton.bones[i]) ? skeleton : o.skeleton
+          o.skeleton.bones.length === skeleton.bones.length &&
+            o.skeleton.bones.every((bone, i) => bone === skeleton.bones[i])
+            ? skeleton
+            : o.skeleton
         )
       }
     })
@@ -501,7 +509,8 @@ export class Avatar extends Component<any> {
     this.shoulderTransforms = new ShoulderTransforms(this)
     this.legsManager = new LegsManager(this)
 
-    const _getOffset = (bone, parent = bone.parent) => bone.getWorldPosition(new Vector3()).sub(parent.getWorldPosition(new Vector3()))
+    const _getOffset = (bone, parent = bone.parent) =>
+      bone.getWorldPosition(new Vector3()).sub(parent.getWorldPosition(new Vector3()))
     this.initializeBonePositions({
       spine: _getOffset(this.modelBones.Spine),
       chest: _getOffset(this.modelBones.Chest, this.modelBones.Spine),
@@ -529,7 +538,10 @@ export class Avatar extends Component<any> {
     })
 
     this.height = eyePosition.sub(
-      _averagePoint([this.modelBones.Left_ankle.getWorldPosition(new Vector3()), this.modelBones.Right_ankle.getWorldPosition(new Vector3())])
+      _averagePoint([
+        this.modelBones.Left_ankle.getWorldPosition(new Vector3()),
+        this.modelBones.Right_ankle.getWorldPosition(new Vector3())
+      ])
     ).y
     this.shoulderWidth = this.modelBones.Left_arm.getWorldPosition(new Vector3()).distanceTo(
       this.modelBones.Right_arm.getWorldPosition(new Vector3())
@@ -676,11 +688,17 @@ export class Avatar extends Component<any> {
           if (fingerBone) {
             let setter
             if (k === "thumb") {
-              setter = (q, i) => q.setFromAxisAngle(localVector.set(0, left ? 1 : -1, 0), gamepadInput.grip * Math.PI * (i === 0 ? 0.125 : 0.25))
+              setter = (q, i) =>
+                q.setFromAxisAngle(
+                  localVector.set(0, left ? 1 : -1, 0),
+                  gamepadInput.grip * Math.PI * (i === 0 ? 0.125 : 0.25)
+                )
             } else if (k === "index") {
-              setter = (q, i) => q.setFromAxisAngle(localVector.set(0, 0, left ? -1 : 1), gamepadInput.pointer * Math.PI * 0.5)
+              setter = (q, i) =>
+                q.setFromAxisAngle(localVector.set(0, 0, left ? -1 : 1), gamepadInput.pointer * Math.PI * 0.5)
             } else {
-              setter = (q, i) => q.setFromAxisAngle(localVector.set(0, 0, left ? -1 : 1), gamepadInput.grip * Math.PI * 0.5)
+              setter = (q, i) =>
+                q.setFromAxisAngle(localVector.set(0, 0, left ? -1 : 1), gamepadInput.grip * Math.PI * 0.5)
             }
             let index = 0
             fingerBone.traverse(subFingerBone => {

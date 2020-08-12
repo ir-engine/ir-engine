@@ -3,14 +3,18 @@
  * @author          wassname
  */
 
-import _ from "lodash"
+import _ from "../../sandbox/avatar/classes/node_modules/lodash"
 /**
  * inverts a object by many values
  * e.g. invertByMany({ 'a': [1,2,3], 'b': [1], c:[2]})
  * // {"1":["a","b"],"2":["a","c"],"3":["a"]}
  **/
 export function invertByMany(dataObj) {
-  return _.transform(dataObj, (result, values, key) => _.map(values, subvalue => (result[subvalue] || (result[subvalue] = [])).push(key)), {})
+  return _.transform(
+    dataObj,
+    (result, values, key) => _.map(values, subvalue => (result[subvalue] || (result[subvalue] = [])).push(key)),
+    {}
+  )
 }
 
 /**

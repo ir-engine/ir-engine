@@ -23,20 +23,13 @@ export class TransformSystem extends System {
 
   execute(delta, time) {
     // Hierarchy
-    this.queries.parent.results?.forEach((entity: Entity) => {
-      this.childTransformBehavior(entity, {}, delta)
-      // Transform children by parent
-    })
+    // this.queries.parent.results?.forEach((entity: Entity) => {
+    //   this.childTransformBehavior(entity, {}, delta)
+    //   // Transform children by parent
+    // })
 
-    // Transforms
-    this.queries.transforms.added?.forEach(t => {
-      const transform = t.getComponent(TransformComponent)
-      this.transformBehavior(t, { position: transform.position, rotation: transform.rotation }, delta)
-    })
-
-    this.queries.transforms.changed?.forEach(t => {
-      const transform = t.getComponent(TransformComponent)
-      this.transformBehavior(t, { position: transform.position, rotation: transform.rotation }, delta)
+    this.queries.transforms.results?.forEach(t => {
+      this.transformBehavior(t, {}, delta)
     })
   }
 }

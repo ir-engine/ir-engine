@@ -51,8 +51,7 @@ export class Proxy extends THREE.Object3D {
     // after fitting we expand the size by this fraction
     this.extraGeometryScaling = [1.0, 1.0, 1.0]
 
-    this.loader = new THREE.FileLoader
-    (this.manager)
+    this.loader = new THREE.FileLoader(this.manager)
 
     const { name, group, materialName, key, thumbnail } = parseProxyUrl(url)
     this.key = key
@@ -89,7 +88,10 @@ export class Proxy extends THREE.Object3D {
         .then((text: string) => JSON.parse(text))
         .then(json => {
           this.metadata = json.metadata
-          const texturePath = this.texturePath && typeof this.texturePath === "string" ? this.texturePath : THREE.LoaderUtils.extractUrlBase(this.url)
+          const texturePath =
+            this.texturePath && typeof this.texturePath === "string"
+              ? this.texturePath
+              : THREE.LoaderUtils.extractUrlBase(this.url)
           return new THREE.ObjectLoader(this.manager).load(texturePath)
         })
         // use unpacking here to turn one args into two, as promises only return one
@@ -208,7 +210,9 @@ export class Proxies extends THREE.Object3D {
     this._cache = {}
 
     // init an object for each proxy but don't load untill needed
-    this.human.config.proxies.map(url => new Proxy(`${this.human.config.baseUrl}proxies/${url}`, this.human)).map(proxy => this.add(proxy))
+    this.human.config.proxies
+      .map(url => new Proxy(`${this.human.config.baseUrl}proxies/${url}`, this.human))
+      .map(proxy => this.add(proxy))
   }
 
   /**
@@ -244,7 +248,13 @@ export class Proxies extends THREE.Object3D {
   updateFaceMask(minMaskedVertsPerFace = 3) {
     // get deleted vertices from all active proxies
     const deleteVerts = this.children
-      .filter(proxy => proxy.visible && proxy instanceof THREE.Mesh && proxy.userData.deleteVerts && proxy.userData.deleteVerts.length)
+      .filter(
+        proxy =>
+          proxy.visible &&
+          proxy instanceof THREE.Mesh &&
+          proxy.userData.deleteVerts &&
+          proxy.userData.deleteVerts.length
+      )
       .map(proxy => proxy.userData.deleteVerts)
     const nbVertices = this.human.mesh.geometry.vertices.length
     const nullMaterial = this.human.mesh.material.materials.findIndex(m => m.name === "maskedFaces")
@@ -272,7 +282,9 @@ export class Proxies extends THREE.Object3D {
 
   onElementsNeedUpdate() {
     this.updatePositions()
-    this.children.filter(proxy => proxy.visible && proxy instanceof THREE.Mesh).map((proxy: THREE.Mesh) => proxy.geometry.computeVertexNormals())
+    this.children
+      .filter(proxy => proxy.visible && proxy instanceof THREE.Mesh)
+      .map((proxy: THREE.Mesh) => proxy.geometry.computeVertexNormals())
   }
 
   exportConfig() {

@@ -293,7 +293,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
     // if we do already have a consumer, we shouldn't have called this
     // method
-    let consumer = MediaStreamComponent.instance.consumers.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag)
+    let consumer = MediaStreamComponent.instance.consumers.find(
+      (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag
+    )
     if (consumer) return console.error("already have consumer for track", peerId, mediaTag)
 
     // ask the server to create a server-side consumer object and send
@@ -326,7 +328,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   async unsubscribeFromTrack(peerId: any, mediaTag: any) {
     console.log("unsubscribe from track", peerId, mediaTag)
-    const consumer = MediaStreamComponent.instance.consumers.find(c => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag)
+    const consumer = MediaStreamComponent.instance.consumers.find(
+      c => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag
+    )
     if (!consumer) return
     await this.closeConsumer(consumer)
   }
@@ -367,7 +371,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     await this.request(MessageTypes.WebRTCTransportClose.toString(), { consumerId: consumer.id })
     await consumer.close()
 
-    MediaStreamComponent.instance.consumers = MediaStreamComponent.instance.consumers.filter((c: any) => c !== consumer) as any[]
+    MediaStreamComponent.instance.consumers = MediaStreamComponent.instance.consumers.filter(
+      (c: any) => c !== consumer
+    ) as any[]
     MediaStreamSystem.instance.removeVideoAudio(consumer)
   }
 
@@ -413,51 +419,57 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // sending transports will emit a produce event when a new track
       // needs to be set up to start sending. the producer's appData is
       // passed as a parameter
-      transport.on("produce", async ({ kind, rtpParameters, appData }: any, callback: (arg0: { id: any }) => void, errback: () => void) => {
-        console.log("transport produce event", appData.mediaTag)
+      transport.on(
+        "produce",
+        async ({ kind, rtpParameters, appData }: any, callback: (arg0: { id: any }) => void, errback: () => void) => {
+          console.log("transport produce event", appData.mediaTag)
 
-        // we may want to start out paused (if the checkboxes in the ui
-        // aren't checked, for each media type. not very clean code, here
-        // but, you know, this isn't a real application.)
-        let paused = false
-        if (appData.mediaTag === "cam-video") paused = MediaStreamComponent.instance.videoPaused
-        else if (appData.mediaTag === "cam-audio") paused = MediaStreamComponent.instance.audioPaused
+          // we may want to start out paused (if the checkboxes in the ui
+          // aren't checked, for each media type. not very clean code, here
+          // but, you know, this isn't a real application.)
+          let paused = false
+          if (appData.mediaTag === "cam-video") paused = MediaStreamComponent.instance.videoPaused
+          else if (appData.mediaTag === "cam-audio") paused = MediaStreamComponent.instance.audioPaused
 
-        // tell the server what it needs to know from us in order to set
-        // up a server-side producer object, and get back a
-        // producer.id. call callback() on success or errback() on
-        // failure.
-        const { error, id } = await this.request(MessageTypes.WebRTCSendTrack.toString(), {
-          transportId: transportOptions.id,
-          kind,
-          rtpParameters,
-          paused,
-          appData
-        })
-        if (error) {
-          console.error("error setting up server-side producer", error)
-          errback()
-          return
+          // tell the server what it needs to know from us in order to set
+          // up a server-side producer object, and get back a
+          // producer.id. call callback() on success or errback() on
+          // failure.
+          const { error, id } = await this.request(MessageTypes.WebRTCSendTrack.toString(), {
+            transportId: transportOptions.id,
+            kind,
+            rtpParameters,
+            paused,
+            appData
+          })
+          if (error) {
+            console.error("error setting up server-side producer", error)
+            errback()
+            return
+          }
+          callback({ id })
         }
-        callback({ id })
-      })
+      )
 
-      transport.on("produceData", async (parameters: any, callback: (arg0: { id: any }) => void, errback: () => void) => {
-        console.log("transport produce data event, params: ", parameters)
-        const { sctpStreamParameters, label, protocol } = parameters
-        const { error, id } = await this.request(MessageTypes.WebRTCProduceData, {
-          transportId: transport.id,
-          sctpStreamParameters,
-          label,
-          protocol
-        })
-        if (error) {
-          console.error("error setting up server-side producer", error)
-          errback()
-          return
+      transport.on(
+        "produceData",
+        async (parameters: any, callback: (arg0: { id: any }) => void, errback: () => void) => {
+          console.log("transport produce data event, params: ", parameters)
+          const { sctpStreamParameters, label, protocol } = parameters
+          const { error, id } = await this.request(MessageTypes.WebRTCProduceData, {
+            transportId: transport.id,
+            sctpStreamParameters,
+            label,
+            protocol
+          })
+          if (error) {
+            console.error("error setting up server-side producer", error)
+            errback()
+            return
+          }
+          callback({ id })
         }
-        callback({ id })
-      })
+      )
     }
 
     // any time a transport transitions to closed,
@@ -502,7 +514,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           for (const [mediaTag, _] of Object.entries(peers[id].media)) {
             // for each of the peer's producers...
             console.log(id + " | " + mediaTag)
-            if (MediaStreamComponent.instance.consumers?.find(c => c.appData.peerId === id && c.appData.mediaTag === mediaTag) !== null) return
+            if (
+              MediaStreamComponent.instance.consumers?.find(
+                c => c.appData.peerId === id && c.appData.mediaTag === mediaTag
+              ) !== null
+            )
+              return
             // that we don't already have consumers for...
             console.log(`auto subscribing to track that ${id} has added`)
             await this.subscribeToTrack(id, mediaTag)

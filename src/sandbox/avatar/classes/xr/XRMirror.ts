@@ -13,6 +13,10 @@ import {
   UniformsUtils
 } from "three"
 
+function isPowerOfTwo(x) {
+  return (Math.log(x) / Math.log(2)) % 1 === 0
+}
+
 export class Mirror extends Mesh {
   options: any
   color
@@ -22,7 +26,6 @@ export class Mirror extends Mesh {
   shader
   recursion
   onAfterRender2
-  //
 
   mirrorPlane = new Plane()
   normal = new Vector3()
@@ -76,7 +79,7 @@ export class Mirror extends Mesh {
     this.textureMatrix = new Matrix4()
     this.virtualCamera = new PerspectiveCamera()
 
-    this.renderTarget.texture.generateMipmaps = Math.isPowerOfTwo(this.textureWidth) && Math.isPowerOfTwo(this.textureHeight)
+    this.renderTarget.texture.generateMipmaps = isPowerOfTwo(this.textureWidth) && isPowerOfTwo(this.textureHeight)
 
     this.material.uniforms["tDiffuse"].value = this.renderTarget.texture
     this.material.uniforms["color"].value = this.color
@@ -142,7 +145,12 @@ export class Mirror extends Mesh {
     this.mirrorPlane.setFromNormalAndCoplanarPoint(this.normal, this.mirrorWorldPosition)
     this.mirrorPlane.applyMatrix4(this.virtualCamera.matrixWorldInverse)
 
-    this.clipPlane.set(this.mirrorPlane.normal.x, this.mirrorPlane.normal.y, this.mirrorPlane.normal.z, this.mirrorPlane.constant)
+    this.clipPlane.set(
+      this.mirrorPlane.normal.x,
+      this.mirrorPlane.normal.y,
+      this.mirrorPlane.normal.z,
+      this.mirrorPlane.constant
+    )
 
     const projectionMatrix = this.virtualCamera.projectionMatrix
 

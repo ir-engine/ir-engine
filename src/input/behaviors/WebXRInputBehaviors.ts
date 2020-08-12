@@ -38,7 +38,8 @@ export const processSession: Behavior = (entity: Entity) => {
         const { gamepad } = second
         if (gamepad) setComponent(entity, { class: WebXRSecondGamepad, gamepad })
       } else return
-      if (main.targetRayPose) setComponent(entity, { class: WebXRPointer, pose: main.targetRayPose, pointMode: main.targetRayMode })
+      if (main.targetRayPose)
+        setComponent(entity, { class: WebXRPointer, pose: main.targetRayPose, pointMode: main.targetRayMode })
       setComponent(entity, { class: WebXRMainController, pose: main.gripPose, handId: main.handedness })
       const { gamepad } = main
       if (gamepad) setComponent(entity, { class: WebXRMainGamepad, gamepad })

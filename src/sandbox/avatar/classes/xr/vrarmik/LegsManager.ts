@@ -121,7 +121,9 @@ class Leg {
         : Math.abs(upperLegPosition.y - this.foot["stickTransform"].position.y)
     const verticalDistance = (val * this.upperLegLength) / this.legLength
     const offsetDistance =
-      hypotenuseDistance > verticalDistance ? Math.sqrt(hypotenuseDistance * hypotenuseDistance - verticalDistance * verticalDistance) : 0
+      hypotenuseDistance > verticalDistance
+        ? Math.sqrt(hypotenuseDistance * hypotenuseDistance - verticalDistance * verticalDistance)
+        : 0
 
     const lowerLegPosition = localVector4
       .copy(upperLegPosition)
@@ -150,7 +152,11 @@ class Leg {
 
     this.lowerLeg.quaternion
       .setFromRotationMatrix(
-        localMatrix.lookAt(zeroVector, localVector5.copy(lowerLegPosition).sub(footPosition), localVector6.set(0, 0, 1).applyQuaternion(footRotation))
+        localMatrix.lookAt(
+          zeroVector,
+          localVector5.copy(lowerLegPosition).sub(footPosition),
+          localVector6.set(0, 0, 1).applyQuaternion(footRotation)
+        )
       )
       .multiply(downHalfRotation)
       .premultiply(Helpers.getWorldQuaternion(this.upperLeg, localQuaternion2).inverse())
@@ -176,7 +182,10 @@ class Leg {
       Math.pow(
         Math.min(
           Math.max(
-            (Helpers.getWorldPosition(this.legsManager.rig.shoulderTransforms.eyes, localVector).add(this.eyesToUpperLegOffset).y - this.legLength) /
+            (Helpers.getWorldPosition(this.legsManager.rig.shoulderTransforms.eyes, localVector).add(
+              this.eyesToUpperLegOffset
+            ).y -
+              this.legLength) /
               (this.legsManager.rig.height * 0.2),
             0
           ),
@@ -283,7 +292,11 @@ class LegsManager {
     const rightFootPosition = localVector5
     const rightFootRotation = localQuaternion2
     localMatrix3
-      .compose(this.rightLeg.foot["stickTransform"].position, this.rightLeg.foot["stickTransform"].quaternion, oneVector)
+      .compose(
+        this.rightLeg.foot["stickTransform"].position,
+        this.rightLeg.foot["stickTransform"].quaternion,
+        oneVector
+      )
       .premultiply(planeMatrixInverse)
       .decompose(rightFootPosition, rightFootRotation, fakeScale)
 
@@ -307,7 +320,9 @@ class LegsManager {
     } else if (!this.leftLeg.standing) {
       this.leftLeg.foot["stickTransform"].quaternion.copy(this.hips.quaternion).multiply(downJumpRotation)
     } else {
-      Helpers.getWorldQuaternion(this.leftLeg.foot, this.leftLeg.foot["stickTransform"].quaternion).multiply(upHalfRotation)
+      Helpers.getWorldQuaternion(this.leftLeg.foot, this.leftLeg.foot["stickTransform"].quaternion).multiply(
+        upHalfRotation
+      )
     }
     if (this.rightLeg.standing && !this.rig.shoulderTransforms.prone) {
       const rightFootEuler = localEuler.setFromQuaternion(rightFootRotation, "YXZ")
@@ -326,7 +341,9 @@ class LegsManager {
     } else if (!this.rightLeg.standing) {
       this.rightLeg.foot["stickTransform"].quaternion.copy(this.hips.quaternion).multiply(downJumpRotation)
     } else {
-      Helpers.getWorldQuaternion(this.rightLeg.foot, this.rightLeg.foot["stickTransform"].quaternion).multiply(upHalfRotation)
+      Helpers.getWorldQuaternion(this.rightLeg.foot, this.rightLeg.foot["stickTransform"].quaternion).multiply(
+        upHalfRotation
+      )
     }
 
     // position
@@ -342,7 +359,10 @@ class LegsManager {
 				  	  .distanceTo(leg.foot.startHmdFloorTransform.position),
 				  	minStepDistanceTimeFactor
 				  ) */
-        Math.max(localVector2.set(this.hmdVelocity.x, 0, this.hmdVelocity.z).length() / this.rig.height, minHmdVelocityTimeFactor)
+        Math.max(
+          localVector2.set(this.hmdVelocity.x, 0, this.hmdVelocity.z).length() / this.rig.height,
+          minHmdVelocityTimeFactor
+        )
         return Math.min(Math.max(leg.stepFactor + scaledStepRate * timeDiff, 0), 1)
       } else {
         return 0
@@ -351,14 +371,22 @@ class LegsManager {
     this.leftLeg.stepFactor = _getLegStepFactor(this.leftLeg)
     this.rightLeg.stepFactor = _getLegStepFactor(this.rightLeg)
 
-    const leftCanStep = this.leftLeg.standing && !this.leftLeg.stepping && (!this.rightLeg.stepping || this.rightLeg.stepFactor >= crossStepFactor)
-    const rightCanStep = this.rightLeg.standing && !this.rightLeg.stepping && (!this.leftLeg.stepping || this.leftLeg.stepFactor >= crossStepFactor)
+    const leftCanStep =
+      this.leftLeg.standing &&
+      !this.leftLeg.stepping &&
+      (!this.rightLeg.stepping || this.rightLeg.stepFactor >= crossStepFactor)
+    const rightCanStep =
+      this.rightLeg.standing &&
+      !this.rightLeg.stepping &&
+      (!this.leftLeg.stepping || this.leftLeg.stepFactor >= crossStepFactor)
     const maxStepAngleFactor = 0
     if (leftCanStep || rightCanStep) {
       let leftStepDistance = 0
       let leftStepAngleDiff = 0
       if (leftCanStep) {
-        const leftDistance = Math.sqrt(leftFootPosition.x * leftFootPosition.x + leftFootPosition.z * leftFootPosition.z)
+        const leftDistance = Math.sqrt(
+          leftFootPosition.x * leftFootPosition.x + leftFootPosition.z * leftFootPosition.z
+        )
         const leftAngleDiff = Math.atan2(leftFootPosition.x, leftFootPosition.z)
         if (leftDistance < this.rig.height * stepMinDistance) {
           leftStepDistance = leftDistance
@@ -374,7 +402,9 @@ class LegsManager {
       let rightStepDistance = 0
       let rightStepAngleDiff = 0
       if (rightCanStep) {
-        const rightDistance = Math.sqrt(rightFootPosition.x * rightFootPosition.x + rightFootPosition.z * rightFootPosition.z)
+        const rightDistance = Math.sqrt(
+          rightFootPosition.x * rightFootPosition.x + rightFootPosition.z * rightFootPosition.z
+        )
         const rightAngleDiff = Math.atan2(rightFootPosition.x, rightFootPosition.z)
         if (rightDistance < this.rig.height * stepMinDistance) {
           rightStepDistance = rightDistance
@@ -396,7 +426,11 @@ class LegsManager {
 
         leg.foot.endTransform.position
           .copy(hipsFloorPosition)
-          .add(localVector6.set((leg.left ? -1 : 1) * footDistance, 0, 0).applyQuaternion(leg.foot["stickTransform"].quaternion))
+          .add(
+            localVector6
+              .set((leg.left ? -1 : 1) * footDistance, 0, 0)
+              .applyQuaternion(leg.foot["stickTransform"].quaternion)
+          )
         const velocityVector = localVector6.set(this.hmdVelocity.x, 0, this.hmdVelocity.z)
         const velocityVectorLength = velocityVector.length()
         if (velocityVectorLength > maxVelocity * this.rig.height) {
@@ -406,7 +440,11 @@ class LegsManager {
         leg.foot.endTransform.position.add(velocityVector)
         // leg.foot.endTransform.quaternion.copy(this.rightLeg.foot["stickTransform"].quaternion);
 
-        leg.foot.startHmdFloorTransform.position.set(this.poseManager.vrTransforms.head.position.x, 0, this.poseManager.vrTransforms.head.position.z)
+        leg.foot.startHmdFloorTransform.position.set(
+          this.poseManager.vrTransforms.head.position.x,
+          0,
+          this.poseManager.vrTransforms.head.position.z
+        )
 
         leg.lastStepTimestamp = now
         leg.stepping = true
@@ -414,8 +452,10 @@ class LegsManager {
 
       if (
         (leftStepDistance !== 0 || leftStepAngleDiff !== 0) &&
-        (rightStepDistance === 0 || Math.abs(leftStepDistance * this.leftLeg.balance) >= Math.abs(rightStepDistance * this.rightLeg.balance)) &&
-        (rightStepAngleDiff === 0 || Math.abs(leftStepAngleDiff * this.leftLeg.balance) >= Math.abs(rightStepAngleDiff * this.rightLeg.balance))
+        (rightStepDistance === 0 ||
+          Math.abs(leftStepDistance * this.leftLeg.balance) >= Math.abs(rightStepDistance * this.rightLeg.balance)) &&
+        (rightStepAngleDiff === 0 ||
+          Math.abs(leftStepAngleDiff * this.leftLeg.balance) >= Math.abs(rightStepAngleDiff * this.rightLeg.balance))
       ) {
         _stepLeg(this.leftLeg)
         this.leftLeg.balance = 0

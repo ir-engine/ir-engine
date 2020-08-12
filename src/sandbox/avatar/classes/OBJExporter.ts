@@ -47,7 +47,10 @@ export function ExportOBJ(object) {
           vertex.applyMatrix4(mesh.matrixWorld)
 
           // transform the vertex to export format
-          output += `v ${_.round(vertex.x, precision)} ${_.round(vertex.y, precision)} ${_.round(vertex.z, precision)}\n`
+          output += `v ${_.round(vertex.x, precision)} ${_.round(vertex.y, precision)} ${_.round(
+            vertex.z,
+            precision
+          )}\n`
         }
       }
 
