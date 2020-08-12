@@ -1,4 +1,4 @@
-import mediasoup from "mediasoup"
+import mediasoup, { types as MediaSoupTypes } from "mediasoup"
 import { types as MediaSoupClientTypes } from "mediasoup-client"
 import express from "express"
 import * as https from "https"
@@ -98,12 +98,19 @@ const tls = {
   rejectUnauthorized: false
 }
 
+const sctpParameters: MediaSoupTypes.SctpParameters = {
+  OS: 16,
+  MIS: 10,
+  maxMessageSize: 65535,
+  port: 5000
+}
+
 export class SocketWebRTCServerTransport implements NetworkTransport {
   server: https.Server
   socketIO: SocketIO.Server
   worker
-  router: mediasoup.types.Router
-  transport: mediasoup.types.Transport
+  router: MediaSoupTypes.Router
+  transport: MediaSoupTypes.Transport
 
   roomState = defaultRoomState
 
@@ -124,7 +131,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   }
   
   // WIP
-  async sendUnreliableMessage({params: { id, appData, label, protocol, sctpStreamParameters }, transport}: { params: mediasoup.types.DataProducerOptions, transport: mediasoup.types.Transport }): Promise<mediasoup.types.DataProducer> {
+  async sendUnreliableMessage({params: { id, appData, label, protocol, sctpStreamParameters }, transport}: { params: MediaSoupTypes.DataProducerOptions, transport: MediaSoupTypes.Transport }): Promise<MediaSoupTypes.DataProducer> {
     return transport.produceData({ id, appData, label, protocol, sctpStreamParameters })
   }
 
@@ -266,6 +273,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         const { id, iceParameters, iceCandidates, dtlsParameters } = transport
         const clientTransportOptions: MediaSoupClientTypes.TransportOptions = {
           id,
+          sctpParameters,
           iceParameters,
           iceCandidates,
           dtlsParameters
@@ -276,7 +284,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       })
       socket.on(MessageTypes.WebRTCProduceData, async (params, callback: (arg0: { id?: string, error?: any }) => void) => {
         try {
-          const transport = this.roomState.transports[params.transportId] as mediasoup.types.Transport
+          console.log('Data channel used: ', `'${params.label}'` , 'by client id: ', socket.id)
+          console.log('Data channel params', params)
+          const transport = this.roomState.transports[params.transportId] as MediaSoupTypes.Transport
           const {
             transportId,
             sctpStreamParameters,
@@ -284,6 +294,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             protocol,
             appData
           } = params
+          console.log('creating transport data producer')
           const dataProducer = await transport.produceData({
             id: transportId,
             label,
@@ -292,17 +303,18 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             appData: { ...appData, peerID: socket.id, transportId }
           })
 
+          console.log('Adding data producer to room state')
           // TODO: Do stuff with appData
           this.roomState.dataProducers.push(dataProducer)
           // TODO: Test closing stuff
-
+          
           // if our associated transport closes, close ourself, too
           dataProducer.on("transportclose", () => {
             console.log("producer's transport closed", dataProducer.id)
             dataProducer.close()
             this.roomState.dataProducers = this.roomState.dataProducers.filter(producer => producer.id !== dataProducer.id)
           })
-
+          console.log('Sending transport id', dataProducer.id, 'to client')
           callback({ id: dataProducer.id })
         } catch (e) {
           callback({ error: e })
@@ -579,7 +591,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     if (this.roomState.peers[consumer.appData.peerId]) delete this.roomState.peers[consumer.appData.peerId].consumerLayers[consumer.id]
   }
 
-  async createWebRtcTransport({ peerId, direction }): Promise<mediasoup.types.WebRtcTransport> {
+  async createWebRtcTransport({ peerId, direction }): Promise<MediaSoupTypes.WebRtcTransport> {
     console.log("Creating Mediasoup transport")
     const { listenIps, initialAvailableOutgoingBitrate } = config.mediasoup.webRtcTransport
     const transport = await this.router.createWebRtcTransport({
@@ -588,6 +600,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       enableTcp: true,
       preferUdp: true,
       enableSctp: true, // Enabling it for setting up data channels
+      numSctpStreams: {
+        OS: sctpParameters.OS,
+        MIS: sctpParameters.MIS
+      },
       initialAvailableOutgoingBitrate: initialAvailableOutgoingBitrate,
       appData: { peerId, clientDirection: direction }
     })
