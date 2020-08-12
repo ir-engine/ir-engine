@@ -53,7 +53,8 @@ class ShoulderPoser {
     const hmdXYRotation = localQuaternion2.setFromEuler(hmdEuler)
     hmdXYRotation.multiply(localQuaternion3.setFromAxisAngle(rightVector, (this.shoulder.proneFactor * Math.PI) / 2))
     if (!this.rig.legsManager.leftLeg.standing && !this.rig.legsManager.rightLeg.standing) {
-      const jumpFactor = 1 - Math.min(this.rig.legsManager.leftLeg.standFactor, this.rig.legsManager.rightLeg.standFactor)
+      const jumpFactor =
+        1 - Math.min(this.rig.legsManager.leftLeg.standFactor, this.rig.legsManager.rightLeg.standFactor)
       hmdXYRotation.multiply(localQuaternion3.setFromAxisAngle(rightVector, (jumpFactor * Math.PI) / 4))
     } else {
       const standFactor = Math.min(this.rig.legsManager.leftLeg.standFactor, this.rig.legsManager.rightLeg.standFactor)
@@ -64,9 +65,15 @@ class ShoulderPoser {
       .copy(this.vrTransforms.head.position)
       .sub(localVector2.copy(this.shoulder.eyes.position).applyQuaternion(hmdRotation))
     const neckPosition = headPosition.sub(localVector2.copy(this.shoulder.head.position).applyQuaternion(hmdRotation))
-    const chestPosition = neckPosition.sub(localVector2.copy(this.shoulder.neck.position).applyQuaternion(hmdXYRotation))
-    const spinePosition = chestPosition.sub(localVector2.copy(this.shoulder.transform.position).applyQuaternion(hmdXYRotation))
-    const hipsPosition = spinePosition.sub(localVector2.copy(this.shoulder.spine.position).applyQuaternion(hmdXYRotation))
+    const chestPosition = neckPosition.sub(
+      localVector2.copy(this.shoulder.neck.position).applyQuaternion(hmdXYRotation)
+    )
+    const spinePosition = chestPosition.sub(
+      localVector2.copy(this.shoulder.transform.position).applyQuaternion(hmdXYRotation)
+    )
+    const hipsPosition = spinePosition.sub(
+      localVector2.copy(this.shoulder.spine.position).applyQuaternion(hmdXYRotation)
+    )
 
     this.shoulder.hips.position.copy(hipsPosition)
     this.shoulder.hips.quaternion.copy(hmdXYRotation)
@@ -83,10 +90,14 @@ class ShoulderPoser {
     hmdEuler.z = 0
     const hmdXYRotation = localQuaternion2.setFromEuler(hmdEuler)
 
-    this.shoulder.neck.quaternion.copy(hmdXYRotation).premultiply(Helpers.getWorldQuaternion(this.shoulder.neck.parent, localQuaternion3).inverse())
+    this.shoulder.neck.quaternion
+      .copy(hmdXYRotation)
+      .premultiply(Helpers.getWorldQuaternion(this.shoulder.neck.parent, localQuaternion3).inverse())
     Helpers.updateMatrixMatrixWorld(this.shoulder.neck)
 
-    this.shoulder.head.quaternion.copy(hmdRotation).premultiply(Helpers.getWorldQuaternion(this.shoulder.head.parent, localQuaternion3).inverse())
+    this.shoulder.head.quaternion
+      .copy(hmdRotation)
+      .premultiply(Helpers.getWorldQuaternion(this.shoulder.head.parent, localQuaternion3).inverse())
     Helpers.updateMatrixMatrixWorld(this.shoulder.head)
 
     Helpers.updateMatrixWorld(this.shoulder.eyes)
@@ -99,7 +110,9 @@ class ShoulderPoser {
       .setFromEuler(localEuler.set(0, angleY, 0, "YXZ"))
       .premultiply(localQuaternion.copy(this.shoulder.hips.quaternion).multiply(z180Quaternion))
 
-    this.shoulder.transform.quaternion.premultiply(Helpers.getWorldQuaternion(this.shoulder.transform.parent, localQuaternion).inverse())
+    this.shoulder.transform.quaternion.premultiply(
+      Helpers.getWorldQuaternion(this.shoulder.transform.parent, localQuaternion).inverse()
+    )
     Helpers.updateMatrixMatrixWorld(this.shoulder.transform)
     Helpers.updateMatrixWorld(this.shoulder.leftShoulderAnchor)
     Helpers.updateMatrixWorld(this.shoulder.rightShoulderAnchor)
@@ -135,7 +148,10 @@ class ShoulderPoser {
   }
 
   getProneFactor() {
-    return 1 - Math.min(Math.max((this.vrTransforms.head.position.y - this.rig.height * 0.3) / (this.rig.height * 0.3), 0), 1)
+    return (
+      1 -
+      Math.min(Math.max((this.vrTransforms.head.position.y - this.rig.height * 0.3) / (this.rig.height * 0.3), 0), 1)
+    )
   }
 }
 

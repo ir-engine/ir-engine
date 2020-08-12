@@ -132,7 +132,9 @@ export class Factors {
     let age
     ageYears = parseFloat(ageYears)
     if (ageYears < this.MIN_AGE || ageYears > this.MAX_AGE) {
-      throw new Error(`RuntimeError Invalid age specified, should be minimum ${this.MIN_AGE} && maximum ${this.MAX_AGE}.`)
+      throw new Error(
+        `RuntimeError Invalid age specified, should be minimum ${this.MIN_AGE} && maximum ${this.MAX_AGE}.`
+      )
     }
     if (ageYears < this.MID_AGE) {
       age = (ageYears - this.MIN_AGE) / ((this.MID_AGE - this.MIN_AGE) * 2)

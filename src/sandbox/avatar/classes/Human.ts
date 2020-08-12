@@ -19,7 +19,7 @@ import poses from "../json/poses/poses.json"
 import { Proxies } from "./Proxy"
 import { EthnicSkinBlender } from "./EthnicSkinBlender"
 import Factors from "./Factors"
-import { remapKeyValuesDeep, deepRoundValues, deepParseFloat } from "../../common/functions/MakeHumanHelpers"
+import { remapKeyValuesDeep, deepRoundValues, deepParseFloat } from "../../../common/functions/MakeHumanHelpers"
 import { ExportOBJ } from "./OBJExporter"
 
 export class HumanIO {
@@ -114,7 +114,9 @@ export class HumanIO {
       geom.faces = geom.faces.filter(f => f.materialIndex === 0)
 
       // TODO remove unused vertices without breaking the obj
-      const verticesToKeep = _.sortBy(_.uniq(_.concat(...geom.faces.filter(f => f.materialIndex === 0).map(f => [f.a, f.b, f.c]))))
+      const verticesToKeep = _.sortBy(
+        _.uniq(_.concat(...geom.faces.filter(f => f.materialIndex === 0).map(f => [f.a, f.b, f.c])))
+      )
       geom.vertices = geom.vertices.filter((v, i) => verticesToKeep.includes(i))
       geom.faces.forEach(f => {
         f.a = verticesToKeep.indexOf(f.a)
@@ -235,7 +237,10 @@ export class BaseHuman extends THREE.Object3D {
         .then((text: string) => JSON.parse(text))
         .then(json => {
           this.metadata = json.metadata
-          const texturePath = this.texturePath && typeof this.texturePath === "string" ? this.texturePath : THREE.LoaderUtils.extractUrlBase(modelUrl)
+          const texturePath =
+            this.texturePath && typeof this.texturePath === "string"
+              ? this.texturePath
+              : THREE.LoaderUtils.extractUrlBase(modelUrl)
 
           return new this.loader.load(texturePath)
         })
@@ -351,7 +356,10 @@ export class BaseHuman extends THREE.Object3D {
           })
             .then((text: string) => {
               const json = JSON.parse(text)
-              const texturePath = this.texturePath && typeof this.texturePath === "string" ? this.texturePath : THREE.LoaderUtils.extractUrlBase(url)
+              const texturePath =
+                this.texturePath && typeof this.texturePath === "string"
+                  ? this.texturePath
+                  : THREE.LoaderUtils.extractUrlBase(url)
               return new this.loader.load(texturePath)
             })
             .then(material => {
@@ -391,7 +399,11 @@ export class BaseHuman extends THREE.Object3D {
     if (vertices) {
       const positions = vertices.map(vId => this.mesh.geometry.vertices[vId].clone())
 
-      return new THREE.Vector3(_.mean(positions.map(v => v.x)), _.mean(positions.map(v => v.y)), _.mean(positions.map(v => v.z)))
+      return new THREE.Vector3(
+        _.mean(positions.map(v => v.x)),
+        _.mean(positions.map(v => v.y)),
+        _.mean(positions.map(v => v.z))
+      )
     } else {
       return null
     }
@@ -421,7 +433,9 @@ export class BaseHuman extends THREE.Object3D {
       if (vTail) {
         return vTail
       } else {
-        console.warn(`couldn't update ${bone.name} because no weights or group for ${vTail ? bone.name : bone.parent.name}`)
+        console.warn(
+          `couldn't update ${bone.name} because no weights or group for ${vTail ? bone.name : bone.parent.name}`
+        )
         return null
       }
     })
@@ -442,7 +456,8 @@ export class BaseHuman extends THREE.Object3D {
           boneInverse.getInverse(parent.matrixWorld).multiply(bone.matrixWorld)
           // subtract parents
           for (let j = 0; j < boneInverse.elements.length; j++) {
-            boneInverse.elements[j] = skeleton.boneInverses[parentIndex].elements[j] - boneInverse.elements[j] + identity.elements[j]
+            boneInverse.elements[j] =
+              skeleton.boneInverses[parentIndex].elements[j] - boneInverse.elements[j] + identity.elements[j]
           }
         } else {
           boneInverse.getInverse(bone.matrixWorld).multiply(this.matrixWorld)

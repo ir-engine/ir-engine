@@ -13,7 +13,7 @@ import _ from "lodash"
 import * as THREE from "three"
 import targetList from "../json/targets/target-list.json"
 import targetCategories from "../json/targets/target-category-data.json"
-import { invertByMany } from "../../common/functions/MakeHumanHelpers"
+import { invertByMany } from "../../../common/functions/MakeHumanHelpers"
 
 /**
  * A morphTarget for THREE.Geometry. It represents a target to interpolate the
@@ -263,8 +263,14 @@ export class Targets extends TargetMetaData {
       .then((data: any) => {
         this.targetData = new Int16Array(data)
         const loadedTargets = this.human.targets.targetData.length / 3 / this.human.mesh.geometry.vertices.length
-        console.assert(this.targetData.length % (3 * this.human.mesh.geometry.vertices.length) === 0, "targets should be a multiple of nb_vertices*3")
-        console.assert(loadedTargets === Object.keys(this.children).length, "length of target data doesn't match nb_targets*nb_vertices*3")
+        console.assert(
+          this.targetData.length % (3 * this.human.mesh.geometry.vertices.length) === 0,
+          "targets should be a multiple of nb_vertices*3"
+        )
+        console.assert(
+          loadedTargets === Object.keys(this.children).length,
+          "length of target data doesn't match nb_targets*nb_vertices*3"
+        )
         console.debug("loaded targets", loadedTargets)
         this.loading = false
         return this.targetData
@@ -281,7 +287,14 @@ export class Targets extends TargetMetaData {
    */
   applyTargets() {
     // skip if it hasn't been rendered
-    if (!this.human || !this.human.mesh || !this.human.mesh.geometry || !this.human.mesh.geometry._bufferGeometry || !this.targetData) return false
+    if (
+      !this.human ||
+      !this.human.mesh ||
+      !this.human.mesh.geometry ||
+      !this.human.mesh.geometry._bufferGeometry ||
+      !this.targetData
+    )
+      return false
 
     // skip if less than a second since last
     if (new Date().getTime() - this.lastBake < this.human.minUpdateInterval) return false

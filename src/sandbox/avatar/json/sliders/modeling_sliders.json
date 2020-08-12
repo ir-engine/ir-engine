@@ -231,15 +231,31 @@
     "sortOrder": 0.4,
     "modifiers": {
       "right hand": [
-        { "mod": "armslegs/r-hand-fingers-distance-decr|incr", "cam": "rightHandFrontCamera", "label": "Fingers distance" },
-        { "mod": "armslegs/r-hand-fingers-diameter-decr|incr", "cam": "rightHandFrontCamera", "label": "Fingers diameter" },
+        {
+          "mod": "armslegs/r-hand-fingers-distance-decr|incr",
+          "cam": "rightHandFrontCamera",
+          "label": "Fingers distance"
+        },
+        {
+          "mod": "armslegs/r-hand-fingers-diameter-decr|incr",
+          "cam": "rightHandFrontCamera",
+          "label": "Fingers diameter"
+        },
         { "mod": "armslegs/r-hand-fingers-length-decr|incr", "cam": "rightHandFrontCamera", "label": "Fingers length" },
         { "mod": "armslegs/r-hand-scale-decr|incr", "cam": "rightHandFrontCamera", "label": "Scale hand" },
         { "mod": "armslegs/r-hand-trans-in|out", "cam": "rightHandFrontCamera", "label": "Hand position" }
       ],
       "left hand": [
-        { "mod": "armslegs/l-hand-fingers-distance-decr|incr", "cam": "rightHandFrontCamera", "label": "Fingers distance" },
-        { "mod": "armslegs/l-hand-fingers-diameter-decr|incr", "cam": "leftHandFrontCamera", "label": "Fingers diameter" },
+        {
+          "mod": "armslegs/l-hand-fingers-distance-decr|incr",
+          "cam": "rightHandFrontCamera",
+          "label": "Fingers distance"
+        },
+        {
+          "mod": "armslegs/l-hand-fingers-diameter-decr|incr",
+          "cam": "leftHandFrontCamera",
+          "label": "Fingers diameter"
+        },
         { "mod": "armslegs/l-hand-fingers-length-decr|incr", "cam": "leftHandFrontCamera", "label": "Fingers length" },
         { "mod": "armslegs/l-hand-scale-decr|incr", "cam": "leftHandFrontCamera", "label": "Scale hand" },
         { "mod": "armslegs/l-hand-trans-in|out", "cam": "leftHandFrontCamera", "label": "Hand position" }
@@ -254,53 +270,145 @@
         { "mod": "armslegs/l-foot-trans-in|out", "cam": "leftFootFrontCamera", "label": "Move horizontally" },
         { "mod": "armslegs/l-foot-trans-forward|backward", "cam": "leftFootLeftCamera", "label": "Move depth" }
       ],
-      "left shoulder": [{ "mod": "armslegs/l-upperarm-shoulder-muscle-decr|incr", "cam": "leftArmTopCamera", "label": "Shoulder muscle mass" }],
-      "right shoulder": [{ "mod": "armslegs/r-upperarm-shoulder-muscle-decr|incr", "cam": "rightArmTopCamera", "label": "Shoulder muscle mass" }],
+      "left shoulder": [
+        {
+          "mod": "armslegs/l-upperarm-shoulder-muscle-decr|incr",
+          "cam": "leftArmTopCamera",
+          "label": "Shoulder muscle mass"
+        }
+      ],
+      "right shoulder": [
+        {
+          "mod": "armslegs/r-upperarm-shoulder-muscle-decr|incr",
+          "cam": "rightArmTopCamera",
+          "label": "Shoulder muscle mass"
+        }
+      ],
       "right arm": [
-        { "mod": "armslegs/r-lowerarm-scale-depth-decr|incr", "cam": "rightArmTopCamera", "label": "Lowerarm thickness 1" },
-        { "mod": "armslegs/r-lowerarm-scale-horiz-decr|incr", "cam": "rightArmFrontCamera", "label": "Lowerarm length" },
-        { "mod": "armslegs/r-lowerarm-scale-vert-decr|incr", "cam": "rightArmFrontCamera", "label": "Lowerarm thickness 2" },
+        {
+          "mod": "armslegs/r-lowerarm-scale-depth-decr|incr",
+          "cam": "rightArmTopCamera",
+          "label": "Lowerarm thickness 1"
+        },
+        {
+          "mod": "armslegs/r-lowerarm-scale-horiz-decr|incr",
+          "cam": "rightArmFrontCamera",
+          "label": "Lowerarm length"
+        },
+        {
+          "mod": "armslegs/r-lowerarm-scale-vert-decr|incr",
+          "cam": "rightArmFrontCamera",
+          "label": "Lowerarm thickness 2"
+        },
         { "mod": "armslegs/r-lowerarm-skinny|fat", "cam": "rightArmTopCamera", "label": "Lowerarm skinny-fat" },
         { "mod": "armslegs/r-lowerarm-muscle-decr|incr", "cam": "rightArmTopCamera", "label": "Lowerarm muscles" },
-        { "mod": "armslegs/r-upperarm-scale-depth-decr|incr", "cam": "rightArmTopCamera", "label": "Upperarm thickness 1" },
-        { "mod": "armslegs/r-upperarm-scale-horiz-decr|incr", "cam": "rightArmFrontCamera", "label": "Upperarm length" },
-        { "mod": "armslegs/r-upperarm-scale-vert-decr|incr", "cam": "rightArmFrontCamera", "label": "Upperarm thickness 2" },
+        {
+          "mod": "armslegs/r-upperarm-scale-depth-decr|incr",
+          "cam": "rightArmTopCamera",
+          "label": "Upperarm thickness 1"
+        },
+        {
+          "mod": "armslegs/r-upperarm-scale-horiz-decr|incr",
+          "cam": "rightArmFrontCamera",
+          "label": "Upperarm length"
+        },
+        {
+          "mod": "armslegs/r-upperarm-scale-vert-decr|incr",
+          "cam": "rightArmFrontCamera",
+          "label": "Upperarm thickness 2"
+        },
         { "mod": "armslegs/r-upperarm-skinny|fat", "cam": "rightArmTopCamera", "label": "Upperarm skinny-fat" },
         { "mod": "armslegs/r-upperarm-muscle-decr|incr", "cam": "rightArmTopCamera", "label": "Upperarm muscles" }
       ],
       "left arm": [
-        { "mod": "armslegs/l-lowerarm-scale-depth-decr|incr", "cam": "leftArmTopCamera", "label": "Lowerarm thickness 1" },
+        {
+          "mod": "armslegs/l-lowerarm-scale-depth-decr|incr",
+          "cam": "leftArmTopCamera",
+          "label": "Lowerarm thickness 1"
+        },
         { "mod": "armslegs/l-lowerarm-scale-horiz-decr|incr", "cam": "leftArmFrontCamera", "label": "Lowerarm length" },
-        { "mod": "armslegs/l-lowerarm-scale-vert-decr|incr", "cam": "leftArmFrontCamera", "label": "Lowerarm thickness 2" },
+        {
+          "mod": "armslegs/l-lowerarm-scale-vert-decr|incr",
+          "cam": "leftArmFrontCamera",
+          "label": "Lowerarm thickness 2"
+        },
         { "mod": "armslegs/l-lowerarm-skinny|fat", "cam": "leftArmFrontCamera", "label": "Lowerarm skinny-fat" },
         { "mod": "armslegs/l-lowerarm-muscle-decr|incr", "cam": "leftArmTopCamera", "label": "Lowerarm muscles" },
-        { "mod": "armslegs/l-upperarm-scale-depth-decr|incr", "cam": "leftArmTopCamera", "label": "Upperarm thickness 1" },
+        {
+          "mod": "armslegs/l-upperarm-scale-depth-decr|incr",
+          "cam": "leftArmTopCamera",
+          "label": "Upperarm thickness 1"
+        },
         { "mod": "armslegs/l-upperarm-scale-horiz-decr|incr", "cam": "leftArmFrontCamera", "label": "Upperarm length" },
-        { "mod": "armslegs/l-upperarm-scale-vert-decr|incr", "cam": "leftArmFrontCamera", "label": "Upperarm thickness 2" },
+        {
+          "mod": "armslegs/l-upperarm-scale-vert-decr|incr",
+          "cam": "leftArmFrontCamera",
+          "label": "Upperarm thickness 2"
+        },
         { "mod": "armslegs/l-upperarm-skinny|fat", "cam": "leftArmTopCamera", "label": "Upperarm skinny-fat" },
         { "mod": "armslegs/l-upperarm-muscle-decr|incr", "cam": "leftArmTopCamera", "label": "Upperarm muscles" }
       ],
       "right leg": [
         { "mod": "armslegs/r-leg-genu-varun|valgus", "cam": "rightLegFrontCamera", "label": "Move knee horizontally" },
-        { "mod": "armslegs/r-lowerleg-scale-depth-decr|incr", "cam": "rightLegRightCamera", "label": "Lowerleg scale depth" },
-        { "mod": "armslegs/r-lowerleg-scale-horiz-decr|incr", "cam": "rightLegFrontCamera", "label": "Lowerleg scale horizontally" },
+        {
+          "mod": "armslegs/r-lowerleg-scale-depth-decr|incr",
+          "cam": "rightLegRightCamera",
+          "label": "Lowerleg scale depth"
+        },
+        {
+          "mod": "armslegs/r-lowerleg-scale-horiz-decr|incr",
+          "cam": "rightLegFrontCamera",
+          "label": "Lowerleg scale horizontally"
+        },
         { "mod": "armslegs/r-lowerleg-skinny|fat", "cam": "rightLegFrontCamera", "label": "Lowerleg skinny-fat" },
         { "mod": "armslegs/r-lowerleg-muscle-decr|incr", "cam": "rightLegFrontCamera", "label": "Lowerleg muscle" },
-        { "mod": "armslegs/r-upperleg-scale-depth-decr|incr", "cam": "rightLegRightCamera", "label": "Upperleg scale depth" },
-        { "mod": "armslegs/r-upperleg-scale-horiz-decr|incr", "cam": "rightLegFrontCamera", "label": "Upperleg scale horizontally" },
-        { "mod": "armslegs/r-upperleg-scale-vert-decr|incr", "cam": "rightLegFrontCamera", "label": "Move knee vertically" },
+        {
+          "mod": "armslegs/r-upperleg-scale-depth-decr|incr",
+          "cam": "rightLegRightCamera",
+          "label": "Upperleg scale depth"
+        },
+        {
+          "mod": "armslegs/r-upperleg-scale-horiz-decr|incr",
+          "cam": "rightLegFrontCamera",
+          "label": "Upperleg scale horizontally"
+        },
+        {
+          "mod": "armslegs/r-upperleg-scale-vert-decr|incr",
+          "cam": "rightLegFrontCamera",
+          "label": "Move knee vertically"
+        },
         { "mod": "armslegs/r-upperleg-skinny|fat", "cam": "rightLegFrontCamera", "label": "Upperleg skinny-fat" },
         { "mod": "armslegs/r-upperleg-muscle-decr|incr", "cam": "rightLegFrontCamera", "label": "Upperleg muscle" }
       ],
       "left leg": [
         { "mod": "armslegs/l-leg-genu-varun|valgus", "cam": "leftLegFrontCamera", "label": "Move knee horizontally" },
-        { "mod": "armslegs/l-lowerleg-scale-depth-decr|incr", "cam": "leftLegLeftCamera", "label": "Lowerleg scale depth" },
-        { "mod": "armslegs/l-lowerleg-scale-horiz-decr|incr", "cam": "leftLegFrontCamera", "label": "Lowerleg scale horizontally" },
+        {
+          "mod": "armslegs/l-lowerleg-scale-depth-decr|incr",
+          "cam": "leftLegLeftCamera",
+          "label": "Lowerleg scale depth"
+        },
+        {
+          "mod": "armslegs/l-lowerleg-scale-horiz-decr|incr",
+          "cam": "leftLegFrontCamera",
+          "label": "Lowerleg scale horizontally"
+        },
         { "mod": "armslegs/l-lowerleg-skinny|fat", "cam": "leftLegFrontCamera", "label": "Lowerleg skinny-fat" },
         { "mod": "armslegs/l-lowerleg-muscle-decr|incr", "cam": "leftArmFrontCamera", "label": "Lowerleg muscle" },
-        { "mod": "armslegs/l-upperleg-scale-depth-decr|incr", "cam": "leftLegLeftCamera", "label": "Upperleg scale depth" },
-        { "mod": "armslegs/l-upperleg-scale-horiz-decr|incr", "cam": "leftLegFrontCamera", "label": "Upperleg scale horizontally" },
-        { "mod": "armslegs/l-upperleg-scale-vert-decr|incr", "cam": "leftLegFrontCamera", "label": "Move knee vertically" },
+        {
+          "mod": "armslegs/l-upperleg-scale-depth-decr|incr",
+          "cam": "leftLegLeftCamera",
+          "label": "Upperleg scale depth"
+        },
+        {
+          "mod": "armslegs/l-upperleg-scale-horiz-decr|incr",
+          "cam": "leftLegFrontCamera",
+          "label": "Upperleg scale horizontally"
+        },
+        {
+          "mod": "armslegs/l-upperleg-scale-vert-decr|incr",
+          "cam": "leftLegFrontCamera",
+          "label": "Move knee vertically"
+        },
         { "mod": "armslegs/l-upperleg-skinny|fat", "cam": "leftLegFrontCamera", "label": "Upperleg skinny-fat" },
         { "mod": "armslegs/l-upperleg-muscle-decr|incr", "cam": "leftLegFrontCamera", "label": "Upperleg muscle" }
       ],

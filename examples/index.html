@@ -13,43 +13,15 @@
 
     canvas {
       width: 100%;
-      height: 70%;
+      height: 100%;
     }
   </style>
 </head>
 
 <body>
-  <div id="debug" style="width:30%; height: 30%; background-color: white;">
-    <div id="actionDataWrapper"><span>Action: </span><span id="actionData"></span></div>
-    <div id="inputDataWrapper"><span>Input: </span><span id="inputData"></span></div>
-  </div>
   <script type="module">
-    import { Component, System } from "ecsy"
-    import {
-      ECSYThreeWorld, Object3DComponent, Types, initialize as initializeECSYThree,
-      // Components
-      GLTFLoader,
-      // Systems
-      GLTFLoaderSystem,
-      Position
-    } from "ecsy-three"
-    import {
-      AmbientLight,
-      Mesh,
-      BoxBufferGeometry,
-      MeshBasicMaterial,
-      TextureLoader,
-      Vector3
-    } from "three"
-
-    import { Camera, initialize, DefaultInputSchema, DefaultNetworkSchema, DefaultStateSchema, DefaultSubscriptionSchema } from "../dist/armada.js"
-
-    // Setup world
-    const world = new ECSYThreeWorld()
-    let { camera, scene, sceneEntity } = initializeECSYThree(world)
-    world.createEntity().addObject3DComponent(new AmbientLight(), sceneEntity)
-
-    const options = {
+    import { initialize, DefaultInputSchema, DefaultNetworkSchema, DefaultStateSchema, DefaultSubscriptionSchema } from "../dist/armada.js"
+    export const options = {
       debug: false,
       withTransform: true,
       withWebXRInput: true,
@@ -59,8 +31,8 @@
       },
       networking: {
         enabled: true,
-        schema: DefaultNetworkSchema,
-        supportsMediaStreams: true
+        supportsMediaStreams: true,
+        schema: DefaultNetworkSchema
       },
       state: {
         enabled: true,
@@ -76,16 +48,19 @@
       particles: {
         enabled: false
       },
+      camera: {
+        enabled: true
+      },
       transform: {
         enabled: true
+      },
+      renderer: {
+        enabled: true
+        // TODO: Post-processing map
       }
     }
-
     // Initialize with our three scene and camera
-    initialize(world, options, scene, camera);
-
-    // Let's begin
-    world.execute()
+    initialize(options);
   </script>
 </body>
 

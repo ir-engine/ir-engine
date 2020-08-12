@@ -154,8 +154,8 @@ export class PhysicsSystem extends System {
 
     for (const entity of this.queries.physicsRigidBody.results) {
       //  if (rigidBody.weight === 0.0) continue;
-      const transform = entity.getMutableComponent(TransformComponent) as TransformComponent
-      const object = entity.getMutableComponent(Object3DComponent).value
+      const transform = entity.getMutableComponent(TransformComponent)
+      const object = entity.getComponent(Object3DComponent).value
       const body = object.userData.body
       //console.log(body);
       transform.position = body.position
@@ -167,8 +167,8 @@ export class PhysicsSystem extends System {
 
     for (const entity of this.queries.vehicleBody.results) {
       //  if (rigidBody.weight === 0.0) continue;
-      const transform = entity.getMutableComponent(TransformComponent) as TransformComponent
-      const object = entity.getMutableComponent(Object3DComponent).value
+      const transform = entity.getMutableComponent(TransformComponent)
+      const object = entity.getComponent(Object3DComponent).value
       const vehicle = object.userData.vehicle.chassisBody
 
       transform.position = vehicle.position
@@ -280,7 +280,11 @@ export class PhysicsSystem extends System {
     // Get faces
 
     for (let j = 0; j < object.geometry.index.array.length; j += 3) {
-      faces.push([object.geometry.index.array[j], object.geometry.index.array[j + 1], object.geometry.index.array[j + 2]])
+      faces.push([
+        object.geometry.index.array[j],
+        object.geometry.index.array[j + 1],
+        object.geometry.index.array[j + 2]
+      ])
     }
     /*
       for(var j=0; j<attributeNormal.array.length; j+=3){

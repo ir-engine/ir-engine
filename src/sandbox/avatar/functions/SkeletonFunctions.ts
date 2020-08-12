@@ -1,6 +1,9 @@
-import { Vector3, Quaternion, Matrix4, ConeBufferGeometry, MeshPhongMaterial, Mesh, Object3D, Bone, Skeleton } from "three"
+// Skeleton functions from Exokit Avatars
+// github.com/exokitxr/avatars
 
-export const _localizeMatrixWorld = bone => {
+import { Matrix4, Object3D, Bone, Skeleton } from "three"
+
+export const worldToLocal = bone => {
   bone.matrix.copy(bone.matrixWorld)
   if (bone.parent) {
     bone.matrix.premultiply(new Matrix4().getInverse(bone.parent.matrixWorld))
@@ -8,16 +11,16 @@ export const _localizeMatrixWorld = bone => {
   bone.matrix.decompose(bone.position, bone.quaternion, bone.scale)
 
   for (let i = 0; i < bone.children.length; i++) {
-    _localizeMatrixWorld(bone.children[i])
+    worldToLocal(bone.children[i])
   }
 }
-export const _findBoneDeep = (bones, boneName) => {
+export const findBoneDeep = (bones, boneName) => {
   for (let i = 0; i < bones.length; i++) {
     const bone = bones[i]
     if (bone.name === boneName) {
       return bone
     } else {
-      const deepBone = _findBoneDeep(bone.children, boneName)
+      const deepBone = findBoneDeep(bone.children, boneName)
       if (deepBone) {
         return deepBone
       }
@@ -25,68 +28,20 @@ export const _findBoneDeep = (bones, boneName) => {
   }
   return null
 }
-export const _copySkeleton = (src, dst) => {
+export const copySkeleton = (src, dst) => {
   for (let i = 0; i < src.bones.length; i++) {
     const srcBone = src.bones[i]
-    const dstBone = _findBoneDeep(dst.bones, srcBone.name)
+    const dstBone = findBoneDeep(dst.bones, srcBone.name)
     dstBone.matrixWorld.copy(srcBone.matrixWorld)
   }
 
   const armature = dst.bones[0].parent
-  _localizeMatrixWorld(armature)
+  worldToLocal(armature)
 
   dst.calculateInverses()
 }
-const cubeGeometry = new ConeBufferGeometry(0.05, 0.2, 3).applyMatrix4(
-  new Matrix4().makeRotationFromQuaternion(new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(0, 0, 1)))
-)
-const cubeMaterials = {}
-const _getCubeMaterial = color => {
-  let material = cubeMaterials[color]
-  if (!material) {
-    material = new MeshPhongMaterial({
-      color,
-      flatShading: true
-    })
-    cubeMaterials[color] = material
-  }
-  return material
-}
-const _makeCubeMesh = (color = 0x0000ff) => {
-  const mesh = new Mesh(cubeGeometry, _getCubeMaterial(color))
-  mesh.frustumCulled = false
-  /* if (color === 0x008000 || color === 0x808000) {
-        mesh.add(new AxesHelper());
-      } */
-  mesh.updateMatrixWorld = () => {
-    console.log("UpdateMatrixWorld")
-  }
-  return mesh
-}
-export const _makeDebugMeshes = () => ({
-  eyes: _makeCubeMesh(0xff0000),
-  head: _makeCubeMesh(0xff8080),
 
-  chest: _makeCubeMesh(0xffff00),
-  leftShoulder: _makeCubeMesh(0x00ff00),
-  rightShoulder: _makeCubeMesh(0x008000),
-  leftUpperArm: _makeCubeMesh(0x00ffff),
-  rightUpperArm: _makeCubeMesh(0x008080),
-  leftLowerArm: _makeCubeMesh(0x0000ff),
-  rightLowerArm: _makeCubeMesh(0x000080),
-  leftHand: _makeCubeMesh(0xffffff),
-  rightHand: _makeCubeMesh(0x808080),
-
-  hips: _makeCubeMesh(0xff0000),
-  leftUpperLeg: _makeCubeMesh(0xffff00),
-  rightUpperLeg: _makeCubeMesh(0x808000),
-  leftLowerLeg: _makeCubeMesh(0x00ff00),
-  rightLowerLeg: _makeCubeMesh(0x008000),
-  leftFoot: _makeCubeMesh(0xffffff),
-  rightFoot: _makeCubeMesh(0x808080)
-})
-
-export const _getTailBones = skeleton => {
+export const getTailBones = skeleton => {
   const result = []
   const _recurse = bones => {
     for (let i = 0; i < bones.length; i++) {
@@ -103,7 +58,7 @@ export const _getTailBones = skeleton => {
   _recurse(skeleton.bones)
   return result
 }
-export const _findClosestParentBone = (bone, pred) => {
+export const findClosestParentBone = (bone, pred) => {
   for (; bone; bone = bone.parent) {
     if (pred(bone)) {
       return bone
@@ -111,7 +66,7 @@ export const _findClosestParentBone = (bone, pred) => {
   }
   return null
 }
-export const _findFurthestParentBone = (bone, pred) => {
+export const findFurthestParentBone = (bone, pred) => {
   let result = null
   for (; bone; bone = bone.parent) {
     if (pred(bone)) {
@@ -120,7 +75,7 @@ export const _findFurthestParentBone = (bone, pred) => {
   }
   return result
 }
-export const _distanceToParentBone = (bone, parentBone) => {
+export const distanceToParentBone = (bone, parentBone) => {
   for (let i = 0; bone; bone = bone.parent, i++) {
     if (bone === parentBone) {
       return i
@@ -128,7 +83,7 @@ export const _distanceToParentBone = (bone, parentBone) => {
   }
   return Infinity
 }
-export const _findClosestChildBone = (bone, pred) => {
+export const findClosestChildBone = (bone, pred) => {
   const _recurse = bone => {
     if (pred(bone)) {
       return bone
@@ -144,13 +99,13 @@ export const _findClosestChildBone = (bone, pred) => {
   }
   return _recurse(bone)
 }
-export const _traverseChild = (bone, distance) => {
+export const traverseChild = (bone, distance) => {
   if (distance <= 0) {
     return bone
   } else {
     for (let i = 0; i < bone.children.length; i++) {
       const child = bone.children[i]
-      const subchild = _traverseChild(child, distance - 1)
+      const subchild = traverseChild(child, distance - 1)
       if (subchild !== null) {
         return subchild
       }
@@ -158,7 +113,7 @@ export const _traverseChild = (bone, distance) => {
     return null
   }
 }
-export const _countCharacters = (name, regex) => {
+export const countCharacters = (name, regex) => {
   let result = 0
   for (let i = 0; i < name.length; i++) {
     if (regex.test(name[i])) {
@@ -167,11 +122,11 @@ export const _countCharacters = (name, regex) => {
   }
   return result
 }
-export const _findHips = skeleton => skeleton.bones.find(bone => /hip/i.test(bone.name))
-export const _findHead = tailBones => {
+export const findHips = skeleton => skeleton.bones.find(bone => /hip/i.test(bone.name))
+export const findHead = tailBones => {
   const headBones = tailBones
     .map(tailBone => {
-      const headBone = _findFurthestParentBone(tailBone, bone => /head/i.test(bone.name))
+      const headBone = findFurthestParentBone(tailBone, bone => /head/i.test(bone.name))
       if (headBone) {
         return headBone
       } else {
@@ -186,11 +141,14 @@ export const _findHead = tailBones => {
     return null
   }
 }
-export const _findEye = (tailBones, left) => {
+export const findEye = (tailBones, left) => {
   const regexp = left ? /l/i : /r/i
   const eyeBones = tailBones
     .map(tailBone => {
-      const eyeBone = _findFurthestParentBone(tailBone, bone => /eye/i.test(bone.name) && regexp.test(bone.name.replace(/eye/gi, "")))
+      const eyeBone = findFurthestParentBone(
+        tailBone,
+        bone => /eye/i.test(bone.name) && regexp.test(bone.name.replace(/eye/gi, ""))
+      )
       if (eyeBone) {
         return eyeBone
       } else {
@@ -200,9 +158,9 @@ export const _findEye = (tailBones, left) => {
     .filter(spec => spec)
     .sort((a, b) => {
       const aName = a.name.replace(/shoulder/gi, "")
-      const aLeftBalance = _countCharacters(aName, /l/i) - _countCharacters(aName, /r/i)
+      const aLeftBalance = countCharacters(aName, /l/i) - countCharacters(aName, /r/i)
       const bName = b.name.replace(/shoulder/gi, "")
-      const bLeftBalance = _countCharacters(bName, /l/i) - _countCharacters(bName, /r/i)
+      const bLeftBalance = countCharacters(bName, /l/i) - countCharacters(bName, /r/i)
       if (!left) {
         return aLeftBalance - bLeftBalance
       } else {
@@ -216,7 +174,7 @@ export const _findEye = (tailBones, left) => {
     return null
   }
 }
-export const _findSpine = (chest, hips) => {
+export const findSpine = (chest, hips) => {
   for (let bone = chest; bone; bone = bone.parent) {
     if (bone.parent === hips) {
       return bone
@@ -224,13 +182,16 @@ export const _findSpine = (chest, hips) => {
   }
   return null
 }
-export const _findShoulder = (tailBones, left) => {
+export const findShoulder = (tailBones, left) => {
   const regexp = left ? /l/i : /r/i
   const shoulderBones = tailBones
     .map(tailBone => {
-      const shoulderBone = _findClosestParentBone(tailBone, bone => /shoulder/i.test(bone.name) && regexp.test(bone.name.replace(/shoulder/gi, "")))
+      const shoulderBone = findClosestParentBone(
+        tailBone,
+        bone => /shoulder/i.test(bone.name) && regexp.test(bone.name.replace(/shoulder/gi, ""))
+      )
       if (shoulderBone) {
-        const distance = _distanceToParentBone(tailBone, shoulderBone)
+        const distance = distanceToParentBone(tailBone, shoulderBone)
         if (distance >= 3) {
           return {
             bone: shoulderBone,
@@ -250,9 +211,9 @@ export const _findShoulder = (tailBones, left) => {
         return diff
       } else {
         const aName = a.bone.name.replace(/shoulder/gi, "")
-        const aLeftBalance = _countCharacters(aName, /l/i) - _countCharacters(aName, /r/i)
+        const aLeftBalance = countCharacters(aName, /l/i) - countCharacters(aName, /r/i)
         const bName = b.bone.name.replace(/shoulder/gi, "")
-        const bLeftBalance = _countCharacters(bName, /l/i) - _countCharacters(bName, /r/i)
+        const bLeftBalance = countCharacters(bName, /l/i) - countCharacters(bName, /r/i)
         if (!left) {
           return aLeftBalance - bLeftBalance
         } else {
@@ -267,16 +228,22 @@ export const _findShoulder = (tailBones, left) => {
     return null
   }
 }
-export const _findHand = shoulderBone => _findClosestChildBone(shoulderBone, bone => /hand|wrist/i.test(bone.name))
-export const _findFoot = (tailBones, left) => {
+export const findHand = shoulderBone => findClosestChildBone(shoulderBone, bone => /hand|wrist/i.test(bone.name))
+export const findFoot = (tailBones, left) => {
   const regexp = left ? /l/i : /r/i
   const legBones = tailBones
     .map(tailBone => {
-      const footBone = _findFurthestParentBone(tailBone, bone => /foot|ankle/i.test(bone.name) && regexp.test(bone.name.replace(/foot|ankle/gi, "")))
+      const footBone = findFurthestParentBone(
+        tailBone,
+        bone => /foot|ankle/i.test(bone.name) && regexp.test(bone.name.replace(/foot|ankle/gi, ""))
+      )
       if (footBone) {
-        const legBone = _findFurthestParentBone(footBone, bone => /leg|thigh/i.test(bone.name) && regexp.test(bone.name.replace(/leg|thigh/gi, "")))
+        const legBone = findFurthestParentBone(
+          footBone,
+          bone => /leg|thigh/i.test(bone.name) && regexp.test(bone.name.replace(/leg|thigh/gi, ""))
+        )
         if (legBone) {
-          const distance = _distanceToParentBone(footBone, legBone)
+          const distance = distanceToParentBone(footBone, legBone)
           if (distance >= 2) {
             return {
               footBone,
@@ -299,9 +266,9 @@ export const _findFoot = (tailBones, left) => {
         return diff
       } else {
         const aName = a.footBone.name.replace(/foot|ankle/gi, "")
-        const aLeftBalance = _countCharacters(aName, /l/i) - _countCharacters(aName, /r/i)
+        const aLeftBalance = countCharacters(aName, /l/i) - countCharacters(aName, /r/i)
         const bName = b.footBone.name.replace(/foot|ankle/gi, "")
-        const bLeftBalance = _countCharacters(bName, /l/i) - _countCharacters(bName, /r/i)
+        const bLeftBalance = countCharacters(bName, /l/i) - countCharacters(bName, /r/i)
         if (!left) {
           return aLeftBalance - bLeftBalance
         } else {
@@ -316,7 +283,7 @@ export const _findFoot = (tailBones, left) => {
     return null
   }
 }
-export const _findArmature = bone => {
+export const findArmature = bone => {
   for (; ; bone = bone.parent) {
     if (!bone.isBone) {
       return bone
@@ -325,22 +292,22 @@ export const _findArmature = bone => {
   return null // can't happen
 }
 
-export const _exportBone = bone => {
+export const exportBone = bone => {
   return [
     bone.name,
     bone.position
       .toArray()
       .concat(bone.quaternion.toArray())
       .concat(bone.scale.toArray()),
-    bone.children.map(b => _exportBone(b))
+    bone.children.map(b => exportBone(b))
   ]
 }
-export const _exportSkeleton = skeleton => {
-  const hips = _findHips(skeleton)
-  const armature = _findArmature(hips)
-  return JSON.stringify(_exportBone(armature))
+export const exportSkeleton = skeleton => {
+  const hips = findHips(skeleton)
+  const armature = findArmature(hips)
+  return JSON.stringify(exportBone(armature))
 }
-export const _importObject = (b, Cons, ChildCons) => {
+export const importObject = (b, Cons, ChildCons) => {
   const [name, array, children] = b
   const bone = new Cons()
   bone.name = name
@@ -348,12 +315,12 @@ export const _importObject = (b, Cons, ChildCons) => {
   bone.quaternion.fromArray(array, 3)
   bone.scale.fromArray(array, 3 + 4)
   for (let i = 0; i < children.length; i++) {
-    bone.add(_importObject(children[i], ChildCons, ChildCons))
+    bone.add(importObject(children[i], ChildCons, ChildCons))
   }
   return bone
 }
-export const _importArmature = b => _importObject(b, Object3D, Bone)
-export const _importSkeleton = s => {
-  const armature = _importArmature(JSON.parse(s))
+export const importArmature = b => importObject(b, Object3D, Bone)
+export const importSkeleton = s => {
+  const armature = importArmature(JSON.parse(s))
   return new Skeleton(armature.children)
 }

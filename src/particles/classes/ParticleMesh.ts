@@ -150,12 +150,18 @@ export function updateGeometry(geometry, config) {
     const angularVelocities = new Float32Array(particleCount * 4) // angularVelocity (xyz) + orbitalVelocity (w)
     const angularAccelerations = new Float32Array(particleCount * 4) // angularAcceleration (xyz) + orbitalAcceleration (w)
     geometry.setAttribute("angularvelocity", new bufferFn(angularVelocities, angularVelocities.length / particleCount))
-    geometry.setAttribute("angularacceleration", new bufferFn(angularAccelerations, angularAccelerations.length / particleCount))
+    geometry.setAttribute(
+      "angularacceleration",
+      new bufferFn(angularAccelerations, angularAccelerations.length / particleCount)
+    )
   }
 
   if (config.useWorldMotion || config.useBrownianMotion) {
     const worldAccelerations = new Float32Array(particleCount * 4) // worldAcceleration (xyz) + brownian (w)
-    geometry.setAttribute("worldacceleration", new bufferFn(worldAccelerations, worldAccelerations.length / particleCount))
+    geometry.setAttribute(
+      "worldacceleration",
+      new bufferFn(worldAccelerations, worldAccelerations.length / particleCount)
+    )
   }
 
   if (config.useVelocityScale) {

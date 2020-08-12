@@ -60,7 +60,13 @@ class ShoulderTransforms {
     this.shoulderPoser = new ShoulderPoser(rig, this)
 
     this.leftArmIk = new VRArmIK(this.leftArm, this, this.shoulderPoser, this.shoulderPoser.vrTransforms.leftHand, true)
-    this.rightArmIk = new VRArmIK(this.rightArm, this, this.shoulderPoser, this.shoulderPoser.vrTransforms.rightHand, false)
+    this.rightArmIk = new VRArmIK(
+      this.rightArm,
+      this,
+      this.shoulderPoser,
+      this.shoulderPoser.vrTransforms.rightHand,
+      false
+    )
   }
 
   Start() {

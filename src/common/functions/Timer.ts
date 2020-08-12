@@ -1,3 +1,5 @@
+import { isBrowser } from "./isBrowser"
+
 export function Timer(
   callbacks: { update?: Function; render?: Function },
   step?: number
@@ -13,19 +15,19 @@ export function Timer(
     if (last !== null) {
       accumulated = accumulated + (time - last) / 1000
       while (accumulated > increment) {
-        callbacks?.update(increment, tick)
+        if (callbacks.update) callbacks.update(increment, tick)
         tick = tick + 1
         accumulated = accumulated - increment
       }
     }
     last = time
-    callbacks?.render()
-    frameId = requestAnimationFrame(onFrame)
+    if (callbacks.render) callbacks.render()
+    frameId = (isBrowser ? requestAnimationFrame : requestAnimationFrameOnServer)(onFrame)
   }
 
   function start() {
     last = null
-    frameId = requestAnimationFrame(onFrame)
+    frameId = (isBrowser ? requestAnimationFrame : requestAnimationFrameOnServer)(onFrame)
   }
 
   function stop() {
@@ -36,4 +38,7 @@ export function Timer(
     start: start,
     stop: stop
   }
+}
+function requestAnimationFrameOnServer(f) {
+  setImmediate(() => f(Date.now()))
 }

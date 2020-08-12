@@ -1,8 +1,8 @@
 import { Component, Types } from "ecsy"
 import { EffectComposer } from "postprocessing"
 import { PostProcessingSchema } from "../interfaces/PostProcessingSchema"
-export class WebGLRendererComponent extends Component<any> {
-  static instance: WebGLRendererComponent
+export class RendererComponent extends Component<any> {
+  static instance: RendererComponent
   renderer: any
   composer: EffectComposer
   needsResize: boolean
@@ -10,9 +10,9 @@ export class WebGLRendererComponent extends Component<any> {
 
   constructor() {
     super()
-    WebGLRendererComponent.instance = this
+    RendererComponent.instance = this
   }
 }
-WebGLRendererComponent.schema = {
+RendererComponent.schema = {
   renderer: { type: Types.Ref }
 }
