@@ -27,7 +27,7 @@ interface PropTypes {
 export class Actor extends Component<PropTypes> {
   rotationSpeedX: number
   rotationSpeedY: number
-  maxSpeed = 10
+  maxSpeed = 1
   accelerationSpeed = 10
   decelerationSpeed = 10
   rotationSpeedZ: number

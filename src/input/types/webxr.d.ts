@@ -60,7 +60,9 @@ interface XRSession {
 
   // hit test
   requestHitTestSource(options: XRHitTestOptionsInit): Promise<XRHitTestSource>
-  requestHitTestSourceForTransientInput(options: XRTransientInputHitTestOptionsInit): Promise<XRTransientInputHitTestSource>
+  requestHitTestSourceForTransientInput(
+    options: XRTransientInputHitTestOptionsInit
+  ): Promise<XRTransientInputHitTestSource>
 
   // legacy AR hit test
   requestHitTest(ray: XRRay, referenceSpace: XRReferenceSpace): Promise<XRHitResult[]>

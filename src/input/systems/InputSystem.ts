@@ -23,7 +23,9 @@ export class InputSystem extends System {
 
   public execute(delta: number): void {
     // Handle XR input
-    const webXRRenderer = this.queries.xrRenderer.results.length > 0 && this.queries.xrRenderer.results[0].getMutableComponent(WebXRRenderer)
+    const webXRRenderer =
+      this.queries.xrRenderer.results.length > 0 &&
+      this.queries.xrRenderer.results[0].getMutableComponent(WebXRRenderer)
 
     this.queries.xrSession.added.forEach(entity => initializeSession(entity, { webXRRenderer }))
 
@@ -34,7 +36,6 @@ export class InputSystem extends System {
 
     // Called when input component is added to entity
     this.queries.inputs.added.forEach(entity => {
-      console.log("Input query added")
       // Get component reference
       this._inputComponent = entity.getComponent(Input)
       // If input doesn't have a map, set the default

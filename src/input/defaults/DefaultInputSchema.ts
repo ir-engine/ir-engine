@@ -152,6 +152,19 @@ export const DefaultInputSchema: InputSchema = {
     [DefaultInput.CROUCH]: { blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT] } as InputRelationship,
     [DefaultInput.JUMP]: { overrides: [DefaultInput.CROUCH] } as InputRelationship
   },
+  // onInputButtonBehavior: {
+  //     [BinaryValue.ON]: {
+  //       started: [
+  //         {
+  //           behavior: sendMessage,
+  //           args: {}
+  //         }
+  //       ]
+  //     },
+  //     [BinaryValue.OFF]: {
+
+  //     }
+  //   }
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
     [DefaultInput.JUMP]: {
@@ -168,8 +181,14 @@ export const DefaultInputSchema: InputSchema = {
       [BinaryValue.ON]: {
         started: [
           {
-            behavior: updateMovementState,
-            args: {}
+            behavior: move,
+            args: {
+              inputType: InputType.TWOD,
+              value: [0, -1]
+            }
+          },
+          {
+            behavior: updateMovementState
           }
         ],
         continued: [
@@ -177,9 +196,6 @@ export const DefaultInputSchema: InputSchema = {
             behavior: move,
             args: {
               inputType: InputType.TWOD,
-              input: {
-                value: [0, -1]
-              },
               value: [0, -1]
             }
           }
@@ -188,14 +204,12 @@ export const DefaultInputSchema: InputSchema = {
       [BinaryValue.OFF]: {
         started: [
           {
-            behavior: updateMovementState,
-            args: {}
+            behavior: updateMovementState
           }
         ],
         continued: [
           {
-            behavior: updateMovementState,
-            args: {}
+            behavior: updateMovementState
           }
         ]
       }
@@ -204,8 +218,14 @@ export const DefaultInputSchema: InputSchema = {
       [BinaryValue.ON]: {
         started: [
           {
-            behavior: updateMovementState,
-            args: {}
+            behavior: updateMovementState
+          },
+          {
+            behavior: move,
+            args: {
+              inputType: InputType.TWOD,
+              value: [0, 1]
+            }
           }
         ],
         continued: [
@@ -213,9 +233,6 @@ export const DefaultInputSchema: InputSchema = {
             behavior: move,
             args: {
               inputType: InputType.TWOD,
-              input: {
-                value: [0, 1]
-              },
               value: [0, 1]
             }
           }
@@ -224,14 +241,12 @@ export const DefaultInputSchema: InputSchema = {
       [BinaryValue.OFF]: {
         started: [
           {
-            behavior: updateMovementState,
-            args: {}
+            behavior: updateMovementState
           }
         ],
         continued: [
           {
-            behavior: updateMovementState,
-            args: {}
+            behavior: updateMovementState
           }
         ]
       }
@@ -240,8 +255,14 @@ export const DefaultInputSchema: InputSchema = {
       [BinaryValue.ON]: {
         started: [
           {
-            behavior: updateMovementState,
-            args: {}
+            behavior: updateMovementState
+          },
+          {
+            behavior: move,
+            args: {
+              inputType: InputType.TWOD,
+              value: [-1, 0]
+            }
           }
         ],
         continued: [
@@ -260,14 +281,12 @@ export const DefaultInputSchema: InputSchema = {
       [BinaryValue.OFF]: {
         started: [
           {
-            behavior: updateMovementState,
-            args: {}
+            behavior: updateMovementState
           }
         ],
         continued: [
           {
-            behavior: updateMovementState,
-            args: {}
+            behavior: updateMovementState
           }
         ]
       }
@@ -276,8 +295,14 @@ export const DefaultInputSchema: InputSchema = {
       [BinaryValue.ON]: {
         started: [
           {
-            behavior: updateMovementState,
-            args: {}
+            behavior: updateMovementState
+          },
+          {
+            behavior: move,
+            args: {
+              inputType: InputType.TWOD,
+              value: [1, 0]
+            }
           }
         ],
         continued: [
@@ -285,9 +310,6 @@ export const DefaultInputSchema: InputSchema = {
             behavior: move,
             args: {
               inputType: InputType.TWOD,
-              input: {
-                value: [1, 0]
-              },
               value: [1, 0]
             }
           }
@@ -296,14 +318,12 @@ export const DefaultInputSchema: InputSchema = {
       [BinaryValue.OFF]: {
         started: [
           {
-            behavior: updateMovementState,
-            args: {}
+            behavior: updateMovementState
           }
         ],
         continued: [
           {
-            behavior: updateMovementState,
-            args: {}
+            behavior: updateMovementState
           }
         ]
       }
@@ -314,8 +334,7 @@ export const DefaultInputSchema: InputSchema = {
     [DefaultInput.MOVEMENT_PLAYERONE]: {
       started: [
         {
-          behavior: updateMovementState,
-          args: {}
+          behavior: updateMovementState
         }
       ],
       continued: [

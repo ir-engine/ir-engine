@@ -1,4 +1,5 @@
 import mediasoup from "mediasoup"
+import { types as MediaSoupClientTypes } from "mediasoup-client"
 import express from "express"
 import * as https from "https"
 import fs from "fs"
@@ -101,8 +102,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   server: https.Server
   socketIO: SocketIO.Server
   worker
-  router
-  transport
+  router: mediasoup.types.Router
+  transport: mediasoup.types.Transport
 
   roomState = defaultRoomState
 
@@ -112,6 +113,19 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       const message = Network.instance.outgoingReliableQueue.pop
       this.socketIO.sockets.emit(MessageTypes.ReliableMessage.toString(), message)
     }
+  }
+
+  sendAllUnReliableMessages(): void {
+    // TODO: Analyze, we might want to route messages better to only specific clients
+    while (!Network.instance.outgoingUnreliableQueue.empty) {
+      const message = Network.instance.outgoingUnreliableQueue.pop
+      this.socketIO.sockets.emit(MessageTypes.UnreliableMessage.toString(), message)
+    }
+  }
+  
+  // WIP
+  async sendUnreliableMessage({params: { id, appData, label, protocol, sctpStreamParameters }, transport}: { params: mediasoup.types.DataProducerOptions, transport: mediasoup.types.Transport }): Promise<mediasoup.types.DataProducer> {
+    return transport.produceData({ id, appData, label, protocol, sctpStreamParameters })
   }
 
   public async initialize(address = "127.0.0.1", port = 3001): Promise<void> {
@@ -181,6 +195,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       socket.on(MessageTypes.ReliableMessage.toString(), (message: Message) => {
         Network.instance.incomingReliableQueue.add(message)
       })
+      // If an unreliable message is received, add it to the queue
+      socket.on(MessageTypes.UnreliableMessage.toString(), (message: Message) => {
+        Network.instance.incomingUnreliableQueue.add(message)
+      })
 
       // On heartbeat received from client
       socket.on(MessageTypes.Heartbeat, () => {
@@ -246,14 +264,49 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         this.roomState.transports[transport.id] = transport
 
         const { id, iceParameters, iceCandidates, dtlsParameters } = transport
+        const clientTransportOptions: MediaSoupClientTypes.TransportOptions = {
+          id,
+          iceParameters,
+          iceCandidates,
+          dtlsParameters
+        }
         callback({
-          transportOptions: {
-            id,
-            iceParameters,
-            iceCandidates,
-            dtlsParameters
-          }
+          transportOptions: clientTransportOptions
         })
+      })
+      socket.on(MessageTypes.WebRTCProduceData, async (params, callback: (arg0: { id?: string, error?: any }) => void) => {
+        try {
+          const transport = this.roomState.transports[params.transportId] as mediasoup.types.Transport
+          const {
+            transportId,
+            sctpStreamParameters,
+            label,
+            protocol,
+            appData
+          } = params
+          const dataProducer = await transport.produceData({
+            id: transportId,
+            label,
+            protocol,
+            sctpStreamParameters,
+            appData: { ...appData, peerID: socket.id, transportId }
+          })
+
+          // TODO: Do stuff with appData
+          this.roomState.dataProducers.push(dataProducer)
+          // TODO: Test closing stuff
+
+          // if our associated transport closes, close ourself, too
+          dataProducer.on("transportclose", () => {
+            console.log("producer's transport closed", dataProducer.id)
+            dataProducer.close()
+            this.roomState.dataProducers = this.roomState.dataProducers.filter(producer => producer.id !== dataProducer.id)
+          })
+
+          callback({ id: dataProducer.id })
+        } catch (e) {
+          callback({ error: e })
+        }
       })
 
       // --> /signaling/connect-transport
@@ -526,7 +579,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     if (this.roomState.peers[consumer.appData.peerId]) delete this.roomState.peers[consumer.appData.peerId].consumerLayers[consumer.id]
   }
 
-  async createWebRtcTransport({ peerId, direction }): Promise<any> {
+  async createWebRtcTransport({ peerId, direction }): Promise<mediasoup.types.WebRtcTransport> {
     console.log("Creating Mediasoup transport")
     const { listenIps, initialAvailableOutgoingBitrate } = config.mediasoup.webRtcTransport
     const transport = await this.router.createWebRtcTransport({
@@ -534,6 +587,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       enableUdp: true,
       enableTcp: true,
       preferUdp: true,
+      enableSctp: true, // Enabling it for setting up data channels
       initialAvailableOutgoingBitrate: initialAvailableOutgoingBitrate,
       appData: { peerId, clientDirection: direction }
     })

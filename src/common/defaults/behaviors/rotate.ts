@@ -27,7 +27,9 @@ export const rotateAround: Behavior = (
   transform = entity.getMutableComponent(TransformComponent)
 
   mouseDownPosition = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes["mouseClickDownPosition"])
-  originalRotation = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes["mouseClickDownTransformRotation"])
+  originalRotation = inputComponent.data.get(
+    inputComponent.schema.mouseInputMap.axes["mouseClickDownTransformRotation"]
+  )
 
   if (mouseDownPosition == undefined || originalRotation == undefined) return
 
@@ -35,7 +37,13 @@ export const rotateAround: Behavior = (
     inputComponent.data.set(args.input, { type: args.inputType, value: vec3.create() })
   }
 
-  quat.set(qOut, originalRotation.value[0], originalRotation.value[1], originalRotation.value[2], originalRotation.value[3])
+  quat.set(
+    qOut,
+    originalRotation.value[0],
+    originalRotation.value[1],
+    originalRotation.value[2],
+    originalRotation.value[3]
+  )
   if (args.inputType === InputType.TWOD) {
     if (inputComponent.data.has(args.input)) {
       inputValue = inputComponent.data.get(args.input).value as Vector2
