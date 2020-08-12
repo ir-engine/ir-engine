@@ -9,8 +9,8 @@ helm repo add stable https://kubernetes-charts.storage.googleapis.com
 helm repo update
 helm install nginx1 nginx-stable/nginx-ingress
 
-aws eks describe-cluster --name kaixr-production > ~/.kube/kaixr.yaml
-export KUBECONFIG=/home/${USER}/.kube/kaixr.yaml
+aws eks describe-cluster --name xr3ngine-demo > ~/.kube/xr3ngine.yaml
+export KUBECONFIG=/home/${USER}/.kube/xr3ngine.yaml
 echo $KUBECONFIG
 
 # get dependencies
