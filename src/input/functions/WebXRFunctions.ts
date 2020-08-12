@@ -48,7 +48,9 @@ export const initVR = (onVRSupportRequested?: any) => {
     xr.isSessionSupported("immersive-vr").then(() => {
       if (onVRSupportRequested) onVRSupportRequested
     })
-    xr.requestSession("inline").then(session => WorldComponent.instance.world.createEntity("inline-session").addComponent(WebXRSession, { session }))
+    xr.requestSession("inline").then(session =>
+      WorldComponent.instance.world.createEntity("inline-session").addComponent(WebXRSession, { session })
+    )
   } else console.warn("WebXR isn't supported by this browser")
 }
 

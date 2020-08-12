@@ -1,5 +1,5 @@
 import * as THREE from "three"
-import { createPseudoRandom } from "../../common/functions/mathRandomFunctions.js"
+import { createPseudoRandom } from "../../common/functions/MathRandomFunctions.js"
 import {
   loadTexturePackerJSON,
   needsUpdate,
@@ -146,7 +146,8 @@ function spawn(geometry, matrixWorld, config, index, spawnTime, lifeTime, repeat
   const atlas = config.atlas
 
   const startFrame = frames.length > 0 ? frames[0] : 0
-  const endFrame = frames.length > 1 ? frames[1] : frames.length > 0 ? frames[0] : textureFrame.cols * textureFrame.rows - 1
+  const endFrame =
+    frames.length > 1 ? frames[1] : frames.length > 0 ? frames[0] : textureFrame.cols * textureFrame.rows - 1
   const frameStyleIndex = FRAME_STYLES.indexOf(config.frameStyle) >= 0 ? FRAME_STYLES.indexOf(config.frameStyle) : 0
   const atlasIndex = typeof atlas === "number" ? atlas : 0
 

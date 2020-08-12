@@ -26,7 +26,10 @@ export const DefaultStateSchema: StateSchema = {
       group: DefaultStateGroups.MOVEMENT
     },
     [DefaultStateTypes.JUMPING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS, onUpdate: { behavior: jumping } },
-    [DefaultStateTypes.CROUCHING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS, blockedBy: DefaultStateTypes.JUMPING },
+    [DefaultStateTypes.CROUCHING]: {
+      group: DefaultStateGroups.MOVEMENT_MODIFIERS,
+      blockedBy: DefaultStateTypes.JUMPING
+    },
     [DefaultStateTypes.SPRINTING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS }
   }
 }

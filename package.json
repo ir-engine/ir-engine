@@ -19,11 +19,13 @@
     "@rollup/plugin-commonjs": "^14.0.0",
     "@rollup/plugin-json": "^4.0.2",
     "@rollup/plugin-node-resolve": "^6.1.0",
+    "@types/jest": "^26.0.9",
     "@types/socket.io": "^2.1.10",
     "@types/socket.io-client": "^1.4.33",
     "@typescript-eslint/eslint-plugin": "^3.4.0",
     "@typescript-eslint/parser": "^3.4.0",
     "babel-eslint": "^10.0.3",
+    "babel-jest": "^26.2.2",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^10.0.0",
@@ -38,7 +40,7 @@
     "express": "^4.17.1",
     "gl-matrix": "^3.3.0",
     "http-server": "^0.12.3",
-    "jest": "^26.2.2",
+    "jest": "^26.3.0",
     "jest-runner-tsc": "^1.6.0",
     "mediasoup": "^3.6.14",
     "pre-commit": "^1.2.2",
@@ -57,8 +59,6 @@
     "rollup-plugin-serve": "^1.0.1",
     "rollup-plugin-terser": "^5.1.2",
     "rollup-plugin-typescript2": "^0.27.1",
-    "three": "^0.118.3",
-    "three-snapshot-serializer": "^1.1.0",
     "troika-3d-text": "^0.28.1",
     "typescript": "^3.9.7"
   },
@@ -81,7 +81,7 @@
     "dev-server": "node examples/server.js",
     "lint": "eslint --fix \"./src/**/*\"",
     "start": "npm run build",
-    "test": "jest --watch"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch"
   },
   "pre-commit": [
     "lint",
@@ -89,16 +89,28 @@
   ],
   "version": "0.0.1",
   "peerDependencies": {
-    "socket.io-client": "^2.3.0"
+    "socket.io-client": "^2.3.0",
+    "three": "^0.119.1"
   },
   "dependencies": {
+    "@pixiv/three-vrm": "^0.3.6",
     "@types/socket.io": "^2.1.10",
     "@types/socket.io-client": "^1.4.33",
     "cannon-es": "^0.15.1",
     "ecsy": "^0.4.0",
+    "gunzip": "^1.2.2",
+    "inflate": "0.0.7",
     "mediasoup-client": "^3.6.12",
+    "postprocessing": "^6.16.0",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",
-    "utf-8-validate": "^5.0.2"
+    "three": "^0.119.1",
+    "three-fbx-loader": "^1.0.3",
+    "three-gltf-exporter": "0.0.1",
+    "ts-jest": "^26.1.4",
+    "tween": "^0.9.0",
+    "untar": "^0.2.9",
+    "utf-8-validate": "^5.0.2",
+    "zip.js": "git://github.com/xr3ngine-archive/zip.js.git"
   }
 }

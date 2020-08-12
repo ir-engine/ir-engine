@@ -107,7 +107,8 @@ export function fromBuffer(buffer: ArrayBuffer) {
     // check if the schemaId exists
     // (this can be, for example, if charCode 35 is not really a #)
     const schemaId = NetworkComponent.instance.schema.messageSchemas[id]
-    if (schemaId) schemas.push({ id, schema: NetworkComponent.instance.schema.messageSchemas[id], startsAt: indexes[i] + 5 })
+    if (schemaId)
+      schemas.push({ id, schema: NetworkComponent.instance.schema.messageSchemas[id], startsAt: indexes[i] + 5 })
   })
   // schemas[] contains now all the schemas we need to fromBuffer the bufferArray
   // lets begin the serialization
