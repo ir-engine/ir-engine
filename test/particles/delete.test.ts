@@ -22,10 +22,10 @@ const options = {
   }
 }
 
-beforeEach(() => {
+function createSharedMesh() {
   sharedParticleMesh = createParticleMesh({
     //texture: "assets/spritesheet.png",
-    particleCount: 20000,
+    particleCount: 100,
     alphaTest: 0.3,
     useBrownianMotion: true,
     useVelocityScale: true,
@@ -36,26 +36,40 @@ beforeEach(() => {
   options.emitter1.particleMesh = sharedParticleMesh
   options.emitter2.particleMesh = sharedParticleMesh
   options.emitter3.particleMesh = sharedParticleMesh
-})
+}
 
-afterEach(() => {
+function clearSharedMesh() {
   sharedParticleMesh = null
   options.emitter1.particleMesh = null
   options.emitter2.particleMesh = null
   options.emitter3.particleMesh = null
-})
+}
 
-test("nextIndex properly updated", () => {
-  createParticleEmitter(options.emitter1, new Matrix4(), 0)
+describe("nextIndex and emitters data properly updated", () => {
+  createSharedMesh()
+
+  const emitter1 = createParticleEmitter(options.emitter1, new Matrix4(), 0)
   const emitter2 = createParticleEmitter(options.emitter2, new Matrix4(), 0)
-  createParticleEmitter(options.emitter3, new Matrix4(), 0)
+  const emitter3 = createParticleEmitter(options.emitter3, new Matrix4(), 0)
 
   deleteParticleEmitter(emitter2)
 
-  expect(sharedParticleMesh.userData.nextIndex).toBe(40)
+  test("nextIndex", () => {
+    expect(sharedParticleMesh.userData.nextIndex).toBe(40)
+  })
+  test("emitter1: startIndex,endIndex", () => {
+    expect([emitter1.startIndex, emitter1.endIndex]).toStrictEqual([0, 9])
+  })
+  test("emitter2: startIndex,endIndex", () => {
+    expect([emitter3.startIndex, emitter3.endIndex]).toStrictEqual([10, 39])
+  })
+
+  clearSharedMesh()
 })
 
 test("delete correctly updates geometry", () => {
+  createSharedMesh()
+
   createParticleEmitter(options.emitter1, new Matrix4(), 0)
   const emitter2 = createParticleEmitter(options.emitter2, new Matrix4(), 0)
   createParticleEmitter(options.emitter3, new Matrix4(), 0)
@@ -84,4 +98,6 @@ test("delete correctly updates geometry", () => {
   console.log("expected", expected)
 
   expect(result).toStrictEqual(expected)
+
+  clearSharedMesh()
 })
