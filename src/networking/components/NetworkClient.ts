@@ -1,5 +1,6 @@
 // Todo: Attach stuff to be like inventory, etc, later, and use me!
-import { Component, Types } from "ecsy"
+
+import { Component, Types } from "../../ecs"
 
 interface PropTypes {
   networkId: number

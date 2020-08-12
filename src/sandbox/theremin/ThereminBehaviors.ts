@@ -1,10 +1,10 @@
-import { Entity } from "ecsy"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { ThereminComponent } from "./ThereminComponent"
+import { Entity } from "../../ecs"
 let theremin: ThereminComponent
 // Starts the theremin
 export const startOscillator: Behavior = (entity: Entity) => {
-  theremin = entity.getComponent(ThereminComponent as any)
+  theremin = entity.getComponent<ThereminComponent>(ThereminComponent)
   theremin.oscillator = this.context.createOscillator()
   theremin.oscillator.frequency.setTargetAtTime(0, theremin.context.currentTime, 0.001)
   theremin.gainNode.gain.setTargetAtTime(0, theremin.context.currentTime, 0.001)

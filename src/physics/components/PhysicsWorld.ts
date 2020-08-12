@@ -1,8 +1,8 @@
-import { Component } from "ecsy"
-import { World } from "cannon-es/src/world/World"
-import { ContactMaterial } from "cannon-es/src/material/ContactMaterial"
 import { SAPBroadphase } from "cannon-es/src/collision/SAPBroadphase"
+import { ContactMaterial } from "cannon-es/src/material/ContactMaterial"
 import { Material } from "cannon-es/src/material/Material"
+import { World } from "cannon-es/src/world/World"
+import { Component } from "../../ecs/Component"
 
 export class PhysicsWorld extends Component<any> {
   static instance: PhysicsWorld

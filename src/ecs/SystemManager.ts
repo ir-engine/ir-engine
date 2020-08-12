@@ -1,0 +1,113 @@
+import { now } from "./Utils"
+
+export class SystemManager {
+  _systems: any[]
+  _executeSystems: any[]
+  world: any
+  lastExecutedSystem: any
+  constructor(world) {
+    this._systems = []
+    this._executeSystems = [] // Systems that have `execute` method
+    this.world = world
+    this.lastExecutedSystem = null
+  }
+
+  registerSystem(SystemClass, attributes) {
+    if (!SystemClass.isSystem) {
+      throw new Error(`System '${SystemClass.name}' does not extend 'System' class`)
+    }
+
+    if (this.getSystem(SystemClass) !== undefined) {
+      console.warn(`System '${SystemClass.getName()}' already registered.`)
+      return this
+    }
+
+    const system = new SystemClass(this.world, attributes)
+    if (system.init) system.init(attributes)
+    system.order = this._systems.length
+    this._systems.push(system)
+    if (system.execute) {
+      this._executeSystems.push(system)
+      this.sortSystems()
+    }
+    return this
+  }
+
+  unregisterSystem(SystemClass) {
+    const system = this.getSystem(SystemClass)
+    if (system === undefined) {
+      console.warn(`Can unregister system '${SystemClass.getName()}'. It doesn't exist.`)
+      return this
+    }
+
+    this._systems.splice(this._systems.indexOf(system), 1)
+
+    if (system.execute) {
+      this._executeSystems.splice(this._executeSystems.indexOf(system), 1)
+    }
+
+    // @todo Add system.unregister() call to free resources
+    return this
+  }
+
+  sortSystems() {
+    this._executeSystems.sort((a, b) => {
+      return a.priority - b.priority || a.order - b.order
+    })
+  }
+
+  getSystem(SystemClass) {
+    return this._systems.find(s => s instanceof SystemClass)
+  }
+
+  getSystems() {
+    return this._systems
+  }
+
+  removeSystem(SystemClass) {
+    const index = this._systems.indexOf(SystemClass)
+    if (!~index) return
+
+    this._systems.splice(index, 1)
+  }
+
+  executeSystem(system, delta, time) {
+    if (system.initialized) {
+      if (system.canExecute()) {
+        const startTime = now()
+        system.execute(delta, time)
+        system.executeTime = now() - startTime
+        this.lastExecutedSystem = system
+        system.clearEvents()
+      }
+    }
+  }
+
+  stop() {
+    this._executeSystems.forEach(system => system.stop())
+  }
+
+  execute(delta, time, forcePlay?) {
+    this._executeSystems.forEach(system => (forcePlay || system.enabled) && this.executeSystem(system, delta, time))
+  }
+
+  stats() {
+    const stats = {
+      numSystems: this._systems.length,
+      systems: {}
+    }
+
+    for (let i = 0; i < this._systems.length; i++) {
+      const system = this._systems[i]
+      const systemStats = (stats.systems[system.getName()] = {
+        queries: {},
+        executeTime: system.executeTime
+      })
+      for (const name in system.ctx) {
+        systemStats.queries[name] = system.ctx[name].stats()
+      }
+    }
+
+    return stats
+  }
+}

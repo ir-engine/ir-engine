@@ -1,8 +1,8 @@
-import { Entity, World } from "ecsy"
+import { WorldComponent } from "../../common"
+import { Entity } from "../../ecs/Entity"
+import { Network } from "../components/Network"
 import { NetworkObject } from "../components/NetworkObject"
 import { NetworkPrefab } from "../interfaces/NetworkPrefab"
-import { Network } from "../components/Network"
-import { WorldComponent } from "../../common"
 
 export function createNetworkPrefab(prefab: NetworkPrefab, networkId: string | number): Entity {
   const entity = WorldComponent.instance.world.createEntity()

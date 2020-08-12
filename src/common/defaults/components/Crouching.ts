@@ -1,3 +1,3 @@
-import { TagComponent } from "ecsy"
+import { TagComponent } from "../../../ecs/TagComponent"
 
 export class Crouching extends TagComponent {}

@@ -1,15 +1,18 @@
-import { System } from "ecsy"
-import { Object3DComponent } from "ecsy-three"
+import { Euler } from "three/src/math/Euler"
+import { Matrix4 } from "three/src/math/Matrix4"
+import { Quaternion } from "three/src/math/Quaternion"
+import { Vector3 } from "three/src/math/Vector3"
+import { Object3DComponent } from "../../common/components/Object3DComponent"
+import { Attributes, System } from "../../ecs"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { TransformParentComponent } from "../../transform/components/TransformParentComponent"
-import { createParticleEmitter, setEmitterMatrixWorld, setEmitterTime } from "../classes/ParticleEmitter.js"
+import { createParticleEmitter, setEmitterMatrixWorld, setEmitterTime } from "../classes/ParticleEmitter"
 import { ParticleEmitter, ParticleEmitterState } from "../components/ParticleEmitter"
-import { Vector3 } from "three/src/math/Vector3"
-import { Quaternion } from "three/src/math/Quaternion"
-import { Matrix4 } from "three/src/math/Matrix4"
-import { Euler } from "three/src/math/Euler"
 
 export class ParticleSystem extends System {
+  init(attributes?: Attributes): void {
+    throw new Error("Method not implemented.")
+  }
   execute(deltaTime, time): void {
     for (const entity of this.queries.emitters.added) {
       const emitter = entity.getComponent(ParticleEmitter) as ParticleEmitter
@@ -28,7 +31,7 @@ export class ParticleSystem extends System {
     }
 
     for (const entity of this.queries.emitterStates.results) {
-      const emitterState = entity.getComponent(ParticleEmitterState) as ParticleEmitterState
+      const emitterState = entity.getComponent<ParticleEmitterState>(ParticleEmitterState)
 
       if (emitterState.syncTransform) {
         const matrixWorld = calcMatrixWorld(entity)

@@ -11,7 +11,7 @@
  *                 context.preRotations: { boneName: Quaternion, ... }
  */
 
-import { Quaternion, Vector3, Matrix4 } from "three"
+import { Matrix4, Quaternion, Vector3 } from "three"
 
 function fixSkeletonZForward(rootBone, context) {
   context = context || {}

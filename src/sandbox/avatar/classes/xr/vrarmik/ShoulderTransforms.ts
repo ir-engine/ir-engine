@@ -1,7 +1,7 @@
-import ArmTransforms from "./ArmTransforms.js"
-import ShoulderPoser from "./ShoulderPoser.js"
-import VRArmIK from "./VRArmIK.js"
 import { Object3D } from "three"
+import { ArmTransforms } from "./ArmTransforms"
+import ShoulderPoser from "./ShoulderPoser"
+import VRArmIK from "./VRArmIK"
 
 class ShoulderTransforms {
   transform: Object3D

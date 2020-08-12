@@ -1,9 +1,13 @@
-import { Entity, System } from "ecsy"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { BehaviorValue } from "../../common/interfaces/BehaviorValue"
+import { Entity } from "../../ecs/Entity"
+import { Attributes, System } from "../../ecs/System"
 import { Subscription } from "../components/Subscription"
 
 export class SubscriptionSystem extends System {
+  init(attributes?: Attributes): void {
+    throw new Error("Method not implemented.")
+  }
   private subscription: Subscription
   public execute(delta: number, time: number): void {
     this.queries.subscriptions.added?.forEach(entity => {

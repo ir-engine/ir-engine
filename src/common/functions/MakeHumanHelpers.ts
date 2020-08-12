@@ -3,7 +3,7 @@
  * @author          wassname
  */
 
-import _ from "../../sandbox/avatar/classes/node_modules/lodash"
+import _ from "lodash"
 /**
  * inverts a object by many values
  * e.g. invertByMany({ 'a': [1,2,3], 'b': [1], c:[2]})

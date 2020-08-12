@@ -1,7 +1,7 @@
 import { Behavior } from "../../common/interfaces/Behavior"
-import { Entity } from "ecsy"
-import { VehicleComponent } from "../components/VehicleComponent"
 import { Vector2 } from "../../common/types/NumericalTypes"
+import { Entity } from "../../ecs/Entity"
+import { VehicleComponent } from "../components/VehicleComponent"
 
 export const drive: Behavior = (entity: Entity, args: { value: Vector2 }): void => {
   const vehicleComponent = entity.getMutableComponent(VehicleComponent)

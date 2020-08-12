@@ -1,5 +1,6 @@
 // Default component, holds data about what behaviors our character has.
-import { Component, Types } from "ecsy"
+
+import { Component, Types } from "../../../ecs"
 
 interface JumpPropTypes {
   canJump: boolean

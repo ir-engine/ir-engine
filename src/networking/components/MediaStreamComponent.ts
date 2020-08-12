@@ -1,4 +1,5 @@
-import { Types, Component } from "ecsy"
+import { Component } from "../../ecs/Component"
+import { Types } from "../../ecs/Types"
 
 export class MediaStreamComponent extends Component<any> {
   static instance: MediaStreamComponent = null

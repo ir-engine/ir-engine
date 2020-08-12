@@ -1,5 +1,5 @@
-import { Entity } from "ecsy"
 import { vec3 } from "gl-matrix"
+import { Entity } from "../../../ecs/Entity"
 import { TransformComponent } from "../../../transform/components/TransformComponent"
 import { Behavior } from "../../interfaces/Behavior"
 import { Actor } from "../components/Actor"

@@ -1,6 +1,6 @@
 // TODO: Clean me up, add schema, etc
-import { Types, Component } from "ecsy"
 import { RingBuffer } from "../../common/classes/RingBuffer"
+import { Component, Types } from "../../ecs"
 import { Message } from "../interfaces/Message"
 import { NetworkSchema } from "../interfaces/NetworkSchema"
 import { NetworkTransport } from "../interfaces/NetworkTransport"

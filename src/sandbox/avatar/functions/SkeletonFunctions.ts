@@ -1,7 +1,7 @@
 // Skeleton functions from Exokit Avatars
 // github.com/exokitxr/avatars
 
-import { Matrix4, Object3D, Bone, Skeleton } from "three"
+import { Bone, Matrix4, Object3D, Skeleton } from "three"
 
 export const worldToLocal = bone => {
   bone.matrix.copy(bone.matrixWorld)

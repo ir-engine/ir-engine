@@ -1,20 +1,22 @@
-import { Box } from "cannon-es/src/shapes/Box"
 import { Vec3 } from "cannon-es/src/math/Vec3"
-import { Sphere } from "cannon-es/src/shapes/Sphere"
 import { Body } from "cannon-es/src/objects/Body"
-
-import * as ECSY from "ecsy"
+import { Box } from "cannon-es/src/shapes/Box"
+import { Sphere } from "cannon-es/src/shapes/Sphere"
+import { Attributes, System } from "../../ecs/System"
 import { RigidBody } from "../components/RigidBody"
 import { VehicleBody } from "../components/VehicleBody"
 
-export class VehicleSystem extends ECSY.System {
+export class VehicleSystem extends System {
+  init(attributes?: Attributes): void {
+    throw new Error("Method not implemented.")
+  }
   execute(dt, t) {
     for (const entity of this.queries.physicsBody.added) {
-      const physicsBody = entity.getComponent(RigidBody)
+      const physicsBody = entity.getComponent<RigidBody>(RigidBody) as any
 
       let shape
 
-      if (physicsBody.geometryType == "box") {
+      if (physicsBody.type == "box") {
         shape = new Box(new Vec3(physicsBody.scale.x / 2, physicsBody.scale.y / 2, physicsBody.scale.z / 2))
       } else {
         shape = new Sphere(physicsBody.scale.x / 2)

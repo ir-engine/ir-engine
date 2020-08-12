@@ -1,10 +1,13 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-import { System, World } from "ecsy"
+import { Attributes, System } from "../../ecs/System"
+import { World } from "../../ecs/World"
 import { MediaStreamComponent } from "../components/MediaStreamComponent"
 import { Network } from "../components/Network"
 import { localMediaConstraints } from "../constants/VideoConstants"
 
 export class MediaStreamSystem extends System {
+  init(attributes?: Attributes): void {
+    //
+  }
   public static instance: MediaStreamSystem = null
   constructor(world: World) {
     super(world)
@@ -123,29 +126,20 @@ export class MediaStreamSystem extends System {
         console.log(`Creating video element for user with ID: ${peerId}`)
         el = document.createElement("video")
         el.id = `${peerId}_${consumer.kind}`
-        // @ts-ignore
-        el.autoplay = true
-        // @ts-ignore
-        // el.muted = true // necessary for
-        // @ts-ignore
-        // el.style = "visibility: hidden;"
+        el["autoplay"] = true
         document.body.appendChild(el)
-        // @ts-ignore
-        el.setAttribute("playsinline", true)
+        el.setAttribute("playsinline", "true")
       }
 
       // TODO: do i need to update video width and height? or is that based on stream...?
       console.log(`Updating video source for user with ID: ${peerId}`)
-      // @ts-ignore
-      el.srcObject = new MediaStream([consumer.track.clone()])
-      // @ts-ignore
-      el.consumer = consumer
+      el["srcObject"] = new MediaStream([consumer.track.clone()])
+      el["consumer"] = consumer
 
       // let's "yield" and return before playing, rather than awaiting on
       // play() succeeding. play() will not succeed on a producer-paused
       // track until the producer unpauses.
-      // @ts-ignore
-      el.play().catch((e: any) => {
+      el["play"]().catch((e: any) => {
         console.log(`Play video error: ${e}`)
         console.error(e)
       })
@@ -157,26 +151,20 @@ export class MediaStreamSystem extends System {
         el = document.createElement("audio")
         el.id = `${peerId}_${consumer.kind}`
         document.body.appendChild(el)
-        // @ts-ignore
-        el.setAttribute("playsinline", true)
-        // @ts-ignore
-        el.setAttribute("autoplay", true)
+        el.setAttribute("playsinline", "true")
+        el.setAttribute("autoplay", "true")
       }
 
       console.log(`Updating <audio> source object for client with ID: ${peerId}`)
-      // @ts-ignore
-      el.srcObject = new MediaStream([consumer.track.clone()])
-      // @ts-ignore
-      el.consumer = consumer
-      // @ts-ignore
-      el.volume = 0 // start at 0 and let the three.js scene take over from here...
+      el["srcObject"] = new MediaStream([consumer.track.clone()])
+      el["consumer"] = consumer
+      el["volume"] = 0 // start at 0 and let the three.js scene take over from here...
       // this.worldScene.createOrUpdatePositionalAudio(peerId)
 
       // let's "yield" and return before playing, rather than awaiting on
       // play() succeeding. play() will not succeed on a producer-paused
       // track until the producer unpauses.
-      // @ts-ignore
-      el.play().catch((e: any) => {
+      el["play"]().catch((e: any) => {
         console.log(`Play audio error: ${e}`)
         console.error(e)
       })

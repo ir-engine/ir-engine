@@ -1,7 +1,8 @@
-import { Entity, System } from "ecsy"
 import { LifecycleValue } from "../../common/enums/LifecycleValue"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { NumericalType } from "../../common/types/NumericalTypes"
+import { Entity } from "../../ecs/Entity"
+import { Attributes, System } from "../../ecs/System"
 import { addState } from "../behaviors/StateBehaviors"
 import { State } from "../components/State"
 import { StateSchema } from "../interfaces/StateSchema"
@@ -9,6 +10,9 @@ import { StateValue } from "../interfaces/StateValue"
 import { StateGroupAlias } from "../types/StateGroupAlias"
 
 export class StateSystem extends System {
+  init(attributes?: Attributes): void {
+    throw new Error("Method not implemented.")
+  }
   private _state: State
   private _args: any
   public execute(delta: number, time: number): void {

@@ -1,8 +1,8 @@
-import { Entity } from "ecsy"
-import { Object3DComponent } from "ecsy-three"
 import { vec3 } from "gl-matrix"
 import { Quaternion } from "three/src/math/Quaternion"
+import { Object3DComponent } from "../../common/components/Object3DComponent"
 import { Behavior } from "../../common/interfaces/Behavior"
+import { Entity } from "../../ecs/Entity"
 import { TransformComponent } from "../components/TransformComponent"
 const q: Quaternion = new Quaternion()
 let transform: TransformComponent
@@ -15,7 +15,7 @@ export const transformBehavior: Behavior = (entity: Entity, args: { event: Mouse
   vec3.set(_position, transform.position[0], transform.position[1], transform.position[2])
   vec3.set(_velocity, transform.velocity[0], transform.velocity[1], transform.velocity[2])
 
-  const object3DComponent = entity.getMutableComponent(Object3DComponent)
+  const object3DComponent = entity.getMutableComponent<Object3DComponent>(Object3DComponent)
   if (object3DComponent == undefined) return console.warn("No Object3D located")
   // Apply velocity to position
   if (Math.abs(vec3.length(_velocity)) > 0) {

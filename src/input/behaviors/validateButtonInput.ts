@@ -1,6 +1,6 @@
-import { Entity } from "ecsy"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { NumericalType } from "../../common/types/NumericalTypes"
+import { Entity } from "../../ecs/Entity"
 import { Input } from "../components/Input"
 import { InputValue } from "../interfaces/InputValue"
 import { InputAlias } from "../types/InputAlias"

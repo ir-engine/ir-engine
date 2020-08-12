@@ -1,5 +1,5 @@
-import { Helpers } from "./Unity.js"
-import { Vector3, Quaternion, Euler, Matrix4, Object3D } from "three"
+import { Euler, Matrix4, Object3D, Quaternion, Vector3 } from "three"
+import { Helpers } from "./Helpers"
 
 const stepRate = 0.2
 const stepHeight = 0.2

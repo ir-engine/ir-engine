@@ -1,11 +1,14 @@
-import { System, Entity } from "ecsy"
-import { RendererComponent } from "../components/RendererComponent"
+import { DepthOfFieldEffect, Effect, EffectComposer, EffectPass, RenderPass, SSAOEffect } from "postprocessing"
 import { CameraComponent } from "../../camera/components/CameraComponent"
 import { SceneComponent } from "../../common/components/SceneComponent"
-import { EffectComposer, RenderPass, EffectPass, Effect, SSAOEffect, DepthOfFieldEffect } from "postprocessing"
-import { DefaultPostProcessingSchema } from "../defaults/DefaultPostProcessingSchema"
 import { Behavior } from "../../common/interfaces/Behavior"
+import { Attributes, Entity, System } from "../../ecs"
+import { RendererComponent } from "../components/RendererComponent"
+import { DefaultPostProcessingSchema } from "../defaults/DefaultPostProcessingSchema"
 export class WebGLRendererSystem extends System {
+  init(attributes?: Attributes): void {
+    throw new Error("Method not implemented.")
+  }
   onResize() {
     RendererComponent.instance.needsResize = true
   }
@@ -50,13 +53,13 @@ export class WebGLRendererSystem extends System {
     })
 
     this.queries.renderers.results.forEach((entity: Entity) => {
-      entity.getComponent(RendererComponent).composer.render(delta)
+      entity.getComponent<RendererComponent>(RendererComponent).composer.render(delta)
     })
   }
 }
 
 export const resize: Behavior = entity => {
-  const rendererComponent = entity.getComponent(RendererComponent)
+  const rendererComponent = entity.getComponent<RendererComponent>(RendererComponent)
 
   if (rendererComponent.needsResize) {
     const canvas = rendererComponent.renderer.domElement

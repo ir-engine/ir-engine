@@ -1,5 +1,6 @@
-// Singleton component to store reference to camera and scene
-import { Types, World, Component } from "ecsy"
+import { Component } from "../../ecs/Component"
+import { Types } from "../../ecs/Types"
+import { World } from "../../ecs/World"
 
 // World data schema
 interface PropTypes {

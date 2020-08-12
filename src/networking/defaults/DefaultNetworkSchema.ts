@@ -1,22 +1,22 @@
 // Components
 import { BoxBufferGeometry, Mesh } from "three"
+import { attachCamera } from "../../camera/behaviors/attachCamera"
 import { addObject3DComponent, removeObject3DComponent } from "../../common/defaults/behaviors/Object3DBehaviors"
 import { Actor } from "../../common/defaults/components/Actor"
+import { DefaultInputSchema } from "../../input"
 import { Input } from "../../input/components/Input"
+import { DefaultStateSchema } from "../../state"
+import { State } from "../../state/components/State"
+import { DefaultSubscriptionSchema, Subscription } from "../../subscription"
 import { TransformComponent } from "../../transform/components/TransformComponent"
-import { handleClientConnected, handleClientDisconnected, handleMessage } from "../functions/NetworkFunctions"
 import { NetworkObject } from "../components/NetworkObject"
 import { MessageTypes } from "../enums/MessageTypes"
+import { handleClientConnected, handleClientDisconnected, handleMessage } from "../functions/NetworkFunctions"
 import { NetworkPrefab } from "../interfaces/NetworkPrefab"
 import { NetworkSchema } from "../interfaces/NetworkSchema"
 import { SocketWebRTCClientTransport } from "../transports/SocketWebRTC/SocketWebRTCClientTransport"
 import { DefaultMessageSchema } from "./DefaultMessageSchema"
 import { DefaultMessageTypes } from "./DefaultMessageTypes"
-import { State } from "../../state/components/State"
-import { Subscription, DefaultSubscriptionSchema } from "../../subscription"
-import { DefaultStateSchema } from "../../state"
-import { DefaultInputSchema } from "../../input"
-import { attachCamera } from "../../camera/behaviors/attachCamera"
 
 const box = new BoxBufferGeometry(0.25, 0.25, 0.25)
 

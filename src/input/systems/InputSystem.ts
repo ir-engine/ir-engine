@@ -1,11 +1,11 @@
-import { System } from "ecsy"
+import { System } from "../../ecs/System"
+import { handleInput } from "../behaviors/handleInput"
+import { initializeSession, processSession } from "../behaviors/WebXRInputBehaviors"
 import { Input } from "../components/Input"
-import { DefaultInputSchema } from "../defaults/DefaultInputSchema"
 import { WebXRRenderer } from "../components/WebXRRenderer"
 import { WebXRSession } from "../components/WebXRSession"
-import { initializeSession, processSession } from "../behaviors/WebXRInputBehaviors"
+import { DefaultInputSchema } from "../defaults/DefaultInputSchema"
 import { initVR } from "../functions/WebXRFunctions"
-import { handleInput } from "../behaviors/handleInput"
 
 export class InputSystem extends System {
   readonly mainControllerId = 0

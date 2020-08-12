@@ -1,4 +1,4 @@
-import { Component, Types } from "ecsy"
+import { Component, Types } from "../../ecs"
 import { TransformComponent } from "./TransformComponent"
 
 export class TransformParentComponent extends Component<any> {

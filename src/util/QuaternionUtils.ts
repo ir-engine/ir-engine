@@ -1,6 +1,3 @@
-import { quat, vec3 } from "gl-matrix"
-import { Vector2, Vector4, NumericalType, Vector3 } from "../common/types/NumericalTypes"
-
 export interface quatAxis {
   x: number
   y: number

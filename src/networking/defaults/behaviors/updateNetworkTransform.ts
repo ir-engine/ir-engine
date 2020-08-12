@@ -1,8 +1,7 @@
 // TODO
-
-import { Entity } from "ecsy"
 import { BinaryValue } from "../../../common/enums/BinaryValue"
 import { Behavior } from "../../../common/interfaces/Behavior"
+import { Entity } from "../../../ecs/Entity"
 import { Input } from "../../../input/components/Input"
 import { DefaultInput } from "../../../input/defaults/DefaultInput"
 import { addState } from "../../../state/behaviors/StateBehaviors"

@@ -1,4 +1,4 @@
-import VRTrackingReferences from "./VRTrackingReferences.js"
+import VRTrackingReferences from "./VRTrackingReferences"
 
 class PoseManager {
   vrTransforms: any

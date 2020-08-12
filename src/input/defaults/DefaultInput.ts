@@ -1,4 +1,5 @@
 // Abstract inputs that all input devices get mapped to
+
 export const DefaultInput = {
   PRIMARY: 0,
   SECONDARY: 1,

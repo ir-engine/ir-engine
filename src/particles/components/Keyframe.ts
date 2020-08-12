@@ -1,4 +1,4 @@
-import { Component } from "ecsy"
+import { Component } from "../../ecs/Component"
 
 interface KeyframeInterface {
   attributes: any[]
@@ -10,10 +10,4 @@ export class Keyframe extends Component<KeyframeInterface> {
   attributes: any[]
   duration: number
   direction: string
-
-  // reset(): void {
-  //   this.attributes = []
-  //   this.duration = 1
-  //   this.direction = "ping-pong"
-  // }
 }

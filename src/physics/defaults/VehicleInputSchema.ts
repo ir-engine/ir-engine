@@ -1,21 +1,21 @@
-import { InputSchema } from "../../input/interfaces/InputSchema"
-import { DefaultInput } from "../../input/defaults/DefaultInput"
-import { disableScroll, enableScroll } from "../../common/functions/enableDisableScrolling"
-import { preventDefault } from "../../common/functions/preventDefault"
 import {
-  handleMouseMovement,
-  handleMouseButton,
   BinaryValue,
-  handleKey,
+  GamepadButtons,
   handleGamepadConnected,
   handleGamepadDisconnected,
-  GamepadButtons,
-  Thumbsticks,
+  handleKey,
+  handleMouseButton,
+  handleMouseMovement,
   InputRelationship,
   InputType,
-  rotateAround
+  rotateAround,
+  Thumbsticks
 } from "../.."
 import { rotateStart } from "../../common/defaults/behaviors/updateLookingState"
+import { disableScroll, enableScroll } from "../../common/functions/enableDisableScrolling"
+import { preventDefault } from "../../common/functions/preventDefault"
+import { DefaultInput } from "../../input/defaults/DefaultInput"
+import { InputSchema } from "../../input/interfaces/InputSchema"
 import { drive } from "../behavior/VehicleBehaviors"
 
 export const VehicleInputSchema: InputSchema = {
