@@ -2,12 +2,12 @@ import { System } from "ecsy"
 import { Object3DComponent } from "ecsy-three"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { TransformParentComponent } from "../../transform/components/TransformParentComponent"
-import { createParticleEmitter, setEmitterMatrixWorld, setEmitterTime } from "../classes/ParticleEmitter.js"
+import { createParticleEmitter, deleteParticleEmitter, setEmitterMatrixWorld, setEmitterTime } from "../classes/ParticleEmitter"
 import { ParticleEmitter, ParticleEmitterState } from "../components/ParticleEmitter"
-import { Vector3 } from "three/src/math/Vector3"
-import { Quaternion } from "three/src/math/Quaternion"
-import { Matrix4 } from "three/src/math/Matrix4"
-import { Euler } from "three/src/math/Euler"
+import { Vector3 } from "three"
+import { Quaternion } from "three"
+import { Matrix4 } from "three"
+import { Euler } from "three"
 
 export class ParticleSystem extends System {
   execute(deltaTime, time): void {
@@ -41,6 +41,16 @@ export class ParticleSystem extends System {
 
       setEmitterTime(emitterState.emitter3D, time)
     }
+
+    for (const entity of this.queries.emitters.removed) {
+      //const emitterState = entity.getComponent(ParticleEmitterState)
+      entity.removeComponent(ParticleEmitterState)
+    }
+
+    for (const entity of this.queries.emitterStates.removed) {
+      const emitterState = entity.getComponent(ParticleEmitterState, true) as ParticleEmitterState
+      deleteParticleEmitter(emitterState.emitter3D)
+    }
   }
 }
 
@@ -54,7 +64,10 @@ ParticleSystem.queries = {
   },
 
   emitterStates: {
-    components: [ParticleEmitterState]
+    components: [ParticleEmitterState],
+    listen: {
+      removed: true
+    }
   }
 }
 

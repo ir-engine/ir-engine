@@ -1,5 +1,5 @@
 import * as THREE from "three"
-import { createPseudoRandom } from "../../common/functions/MathRandomFunctions.js"
+import { createPseudoRandom } from "../../common/functions/MathRandomFunctions"
 import {
   loadTexturePackerJSON,
   needsUpdate,
@@ -19,13 +19,18 @@ import {
   setVelocityAt,
   setVelocityScaleAt,
   setWorldAccelerationAt
-} from "./ParticleMesh.js"
+} from "./ParticleMesh"
+import { ParticleEmitterInterface, ParticleEmitter } from "../interfaces"
 
 const error = console.error
 const FRAME_STYLES = ["sequence", "randomsequence", "random"]
 const DEG2RAD = THREE.MathUtils.DEG2RAD
 
-export function createParticleEmitter(options, matrixWorld, time = 0) {
+export function createParticleEmitter(
+  options: ParticleEmitterInterface,
+  matrixWorld: THREE.Matrix4,
+  time = 0
+): ParticleEmitter {
   const config = {
     particleMesh: null,
     enabled: true,
@@ -76,10 +81,9 @@ export function createParticleEmitter(options, matrixWorld, time = 0) {
   const rndFn = createPseudoRandom(seed)
 
   const particleRepeatTime = config.repeatTime
-  let textureFrame = config.textureFrame
 
   const effectRepeatTime = Math.max(particleRepeatTime, Array.isArray(lifeTime) ? Math.max(...lifeTime) : lifeTime)
-  textureFrame = config.textureFrame ? config.textureFrame : mesh.userData.meshConfig.textureFrame
+  const textureFrame = config.textureFrame ? config.textureFrame : mesh.userData.meshConfig.textureFrame
 
   if (config.count > 0 && startIndex + config.count > meshParticleCount) {
     error(`run out of particles, increase the particleCount for this ThreeParticleMesh`)
@@ -106,11 +110,25 @@ export function createParticleEmitter(options, matrixWorld, time = 0) {
   return { startTime, startIndex, endIndex, mesh }
 }
 
-export function setEmitterTime(emitter, time): void {
+export function deleteParticleEmitter(emitter: ParticleEmitter): void {
+  //emitter.mesh.userData.nextIndex = emitter.startIndex;
+  for (let i = emitter.startIndex; i < emitter.endIndex; i++) {
+    despawn(emitter.mesh.geometry, i)
+  }
+
+  needsUpdate(emitter.mesh.geometry)
+}
+
+function despawn(geometry, index) {
+  // TODO: cleanup mesh!
+  setTimingsAt(geometry, index, 0, 0, 0, 0)
+}
+
+export function setEmitterTime(emitter: ParticleEmitter, time: number): void {
   setMaterialTime(emitter.mesh.material, time)
 }
 
-export function setEmitterMatrixWorld(emitter, matrixWorld, time, deltaTime): void {
+export function setEmitterMatrixWorld(emitter: ParticleEmitter, matrixWorld: THREE.Matrix4, time: number, deltaTime: number): void {
   const geometry = emitter.mesh.geometry
   const endIndex = emitter.endIndex
   const startIndex = emitter.startIndex
@@ -183,35 +201,35 @@ function spawn(geometry, matrixWorld, config, index, spawnTime, lifeTime, repeat
   setVelocityScaleAt(geometry, index, config.velocityScale, config.velocityScaleMin, config.velocityScaleMax)
 }
 
-function calcSpawnOffsetsFromGeometry(geometry): any {
-  if (!geometry || !geometry.object3D) {
-    return undefined
-  }
-
-  const worldPositions = []
-  const pos = new THREE.Vector3()
-  const inverseObjectMatrix = new THREE.Matrix4()
-  const mat4 = new THREE.Matrix4()
-
-  geometry.object3D.updateMatrixWorld()
-  inverseObjectMatrix.getInverse(geometry.object3D.matrixWorld)
-
-  geometry.object3D.traverse(node => {
-    if (!node.geometry || !node.geometry.getAttribute) {
-      return
-    }
-
-    const position = node.geometry.getAttribute("position")
-    if (!position || position.itemSize !== 3) {
-      return
-    }
-
-    for (let i = 0; i < position.count; i++) {
-      mat4.copy(node.matrixWorld).multiply(inverseObjectMatrix)
-      pos.fromBufferAttribute(position, i).applyMatrix4(mat4)
-      worldPositions.push(pos.x, pos.y, pos.z)
-    }
-  })
-
-  return Float32Array.from(worldPositions)
-}
+// function calcSpawnOffsetsFromGeometry(geometry): any {
+//   if (!geometry || !geometry.object3D) {
+//     return undefined
+//   }
+//
+//   const worldPositions = []
+//   const pos = new THREE.Vector3()
+//   const inverseObjectMatrix = new THREE.Matrix4()
+//   const mat4 = new THREE.Matrix4()
+//
+//   geometry.object3D.updateMatrixWorld()
+//   inverseObjectMatrix.getInverse(geometry.object3D.matrixWorld)
+//
+//   geometry.object3D.traverse(node => {
+//     if (!node.geometry || !node.geometry.getAttribute) {
+//       return
+//     }
+//
+//     const position = node.geometry.getAttribute("position")
+//     if (!position || position.itemSize !== 3) {
+//       return
+//     }
+//
+//     for (let i = 0; i < position.count; i++) {
+//       mat4.copy(node.matrixWorld).multiply(inverseObjectMatrix)
+//       pos.fromBufferAttribute(position, i).applyMatrix4(mat4)
+//       worldPositions.push(pos.x, pos.y, pos.z)
+//     }
+//   })
+//
+//   return Float32Array.from(worldPositions)
+// }

@@ -1,4 +1,5 @@
 import { Component, SystemStateComponent, Types } from "ecsy"
+import { FrameStyle, ParticleEmitterInterface } from "../interfaces"
 
 interface ParticleEmitterStateInterface {
   emitter3D: any
@@ -19,39 +20,6 @@ ParticleEmitterState.schema = {
   syncTransform: { type: Types.Boolean, default: false }
 }
 
-interface ParticleEmitterInterface {
-  particleMesh: any
-  enabled: boolean
-  count: number
-  atlas: string
-  textureFrame: any
-  frames: any[]
-  lifeTime: number
-  repeatTime: number
-  spawnVariance: number
-  burst: number
-  syncTransform: boolean
-  useEntityRotation: boolean
-  worldUp: boolean
-  colors: { r: number; g: number; b: number }[]
-  orientations: number[]
-  scales: number[]
-  opacities: number[]
-  frameStyle: string
-  offset: { x: number; y: number; z: number }
-  velocity: { x: number; y: number; z: number }
-  acceleration: { x: number; y: number; z: number }
-  radialVelocity: number
-  radialAcceleration: number
-  angularVelocity: { x: number; y: number; z: number }
-  angularAcceleration: { x: number; y: number; z: number }
-  orbitalVelocity: number
-  orbitalAcceleration: number
-  worldAcceleration: { x: number; y: number; z: number }
-  brownianSpeed: number
-  brownianScale: number
-}
-
 export class ParticleEmitter extends Component<ParticleEmitterInterface> {
   particleMesh: any
   enabled: boolean
@@ -70,7 +38,7 @@ export class ParticleEmitter extends Component<ParticleEmitterInterface> {
   orientations: number[]
   scales: number[]
   opacities: number[]
-  frameStyle: string
+  frameStyle: FrameStyle
   offset: { x: number; y: number; z: number }
   velocity: { x: number; y: number; z: number }
   acceleration: { x: number; y: number; z: number }
@@ -83,6 +51,10 @@ export class ParticleEmitter extends Component<ParticleEmitterInterface> {
   worldAcceleration: { x: number; y: number; z: number }
   brownianSpeed: number
   brownianScale: number
+  seed: number
+  velocityScale: number
+  velocityScaleMin: number
+  velocityScaleMax: number
 }
 
 ParticleEmitter.schema = {
