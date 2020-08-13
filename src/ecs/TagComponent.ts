@@ -5,7 +5,7 @@ export interface TagComponentConstructor<C extends Component<{}>> extends Compon
 
 import { Component, ComponentConstructor } from "./Component"
 
-export class TagComponent extends Component<{}> {
+export class TagComponent extends Component<any> {
   static isTagComponent = true
   constructor() {
     super(false)

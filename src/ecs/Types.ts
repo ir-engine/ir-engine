@@ -1,3 +1,5 @@
+import { vec3 } from "gl-matrix"
+
 export type TypeCopyFunction<T> = (src: T, dest: T) => T
 export type TypeCloneFunction<T> = (value: T) => T
 
@@ -109,5 +111,26 @@ export const Types = {
     default: null,
     copy: copyJSON,
     clone: cloneJSON
+  }),
+
+  Vector3Type: createType({
+    name: "Vector3",
+    default: [0, 0, 0],
+    copy: copyCopyable,
+    clone: cloneClonable
+  }),
+
+  Vector2Type: createType({
+    name: "Vector2",
+    default: [0, 0],
+    copy: copyCopyable,
+    clone: cloneClonable
+  }),
+
+  QuaternionType: createType({
+    name: "Quaternion",
+    default: [0, 0, 0],
+    copy: copyCopyable,
+    clone: cloneClonable
   })
 }

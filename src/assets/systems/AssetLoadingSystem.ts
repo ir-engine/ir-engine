@@ -1,29 +1,22 @@
 import { System } from "../../ecs/System"
-import { loadGltfAssets, loadFbxAssets, loadTextureAssets } from "../functions/LoadingFunctions"
-import AssetStoreComponent from "../components/AssetStoreComponent"
+import AssetVault from "../components/AssetVault"
 
-export default class InitSystem extends System {
-  assetsLoaded!: boolean
-
+export default class AssetLoadingSystem extends System {
   init() {
-    this.assetsLoaded = false
-    loadTextureAssets(() => loadFbxAssets(() => loadGltfAssets(() => (this.assetsLoaded = true))))
+    // Init goes here
   }
 
   execute() {
-    if (this.assetsLoaded) {
-      this.queries.gameState.results.forEach(entity => {
-        const gameState = entity.getMutableComponent(AssetStoreComponent)
-        gameState.assetsLoaded = true
-      })
+    this.queries.assetVault.results.forEach(entity => {
+      // Do things here
+    })
 
-      this.enabled = false
-    }
+    this.enabled = false
   }
 }
 
-InitSystem.queries = {
-  gameState: {
-    components: [AssetStoreComponent]
+AssetLoadingSystem.queries = {
+  assetVault: {
+    components: [AssetVault]
   }
 }
