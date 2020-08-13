@@ -17,11 +17,10 @@ import {
 export const quaternion = new Quaternion()
 //let quaternion = new THREE.Quaternion();
 //let euler = new THREE.Euler();
-export const ColliderBehavior: Behavior = (entity: Entity, args ): void => {
-
+export const ColliderBehavior: Behavior = (entity: Entity, args): void => {
   if (args.phase == "onAdded") {
     const collider = entity.getComponent(Collider)
-    let object = entity.getComponent<Object3DComponent>(Object3DComponent).value
+    const object = entity.getComponent<Object3DComponent>(Object3DComponent).value
     //if (object) continue
     let body
     if (collider.type === "box") body = _createBox(entity)
@@ -30,11 +29,9 @@ export const ColliderBehavior: Behavior = (entity: Entity, args ): void => {
     else if (collider.type === "convex") body = _createConvexGeometry(entity, null)
     else if (collider.type === "ground") body = _createGroundGeometry(entity)
 
-    object.userData.body = body;
+    object.userData.body = body
     PhysicsWorld.instance._physicsWorld.addBody(body)
-
   } else if (args.phase == "onUpdate") {
-
     const transform = entity.getMutableComponent(TransformComponent)
     const object = entity.getComponent(Object3DComponent).value
     const body = object.userData.body
@@ -44,19 +41,13 @@ export const ColliderBehavior: Behavior = (entity: Entity, args ): void => {
     quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w)
 
     transform.rotation = quaternion.toArray()
-
   } else if (args.phase == "onRemoved") {
-
     const object = entity.getComponent<Object3DComponent>(Object3DComponent).value
-    const body = object.userData.body;
+    const body = object.userData.body
     delete object.userData.body
-    PhysicsWorld.instance._physicsWorld.removeBody(body);
-
+    PhysicsWorld.instance._physicsWorld.removeBody(body)
   }
 }
-
-
-
 
 /*
 function createConvexGeometry( entity , mesh){
