@@ -1,8 +1,12 @@
-import { Component } from "ecsy"
+import { Component, Types } from "ecsy"
 import { World } from "cannon-es/src/world/World"
 import { ContactMaterial } from "cannon-es/src/material/ContactMaterial"
 import { SAPBroadphase } from "cannon-es/src/collision/SAPBroadphase"
 import { Material } from "cannon-es/src/material/Material"
+
+interface PropTypes {
+  _physicsWorld: World
+}
 
 export class PhysicsWorld extends Component<any> {
   static instance: PhysicsWorld
@@ -30,4 +34,6 @@ export class PhysicsWorld extends Component<any> {
     this._physicsWorld.addContactMaterial(PhysicsWorld.instance.wheelGroundContactMaterial)
   }
 }
-PhysicsWorld.schema = {}
+PhysicsWorld.schema = {
+  _physicsWorld: { type: Types.Ref, default: null }
+}
