@@ -17,6 +17,9 @@ import { System } from "ecsy"
 export const quaternion = new Quaternion()
 
 export class PhysicsSystem extends System {
+  init() {
+    new PhysicsWorld()
+  }
   execute(dt, t) {
     PhysicsWorld.instance.frame++
     PhysicsWorld.instance._physicsWorld.step(PhysicsWorld.instance.timeStep)

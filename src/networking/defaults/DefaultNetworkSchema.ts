@@ -19,6 +19,7 @@ import { DefaultInputSchema } from "../../input"
 import { attachCamera } from "../../camera/behaviors/attachCamera"
 
 const box = new BoxBufferGeometry(0.25, 0.25, 0.25)
+const miniGeo = new BoxBufferGeometry(2, 1, 4)
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 const NetworkPlayerCharacter: NetworkPrefab = {
@@ -41,6 +42,14 @@ const NetworkPlayerCharacter: NetworkPrefab = {
       args: {
         obj: Mesh,
         objArgs: box
+      }
+    },
+    {
+      behavior: addObject3DComponent,
+      networked: false,
+      args: {
+        obj: Mesh,
+        objArgs: miniGeo
       }
     },
     {
