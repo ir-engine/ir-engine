@@ -1,14 +1,13 @@
 import { Quaternion } from "cannon-es/src/math/Quaternion"
 import { RigidBody } from "../components/RigidBody"
+import { Collider } from "../components/Collider"
 import { VehicleBody } from "../components/VehicleBody"
-import {
-  _createBox,
-  _createCylinder,
-  _createShare,
-  _createConvexGeometry,
-  _createGroundGeometry,
-  _createVehicleBody
-} from "../behavior/PhysicsBehaviors"
+import { WheelBody } from "../components/WheelBody"
+
+import { ColliderBehavior } from "../behavior/ColliderBehavior"
+import { RigidBodyBehavior } from "../behavior/RigidBodyBehavior"
+import { VehicleBehavior } from "../behavior/VehicleBehavior"
+import { WheelBehavior } from "../behavior/WheelBehavior"
 
 import { Object3DComponent } from "ecsy-three"
 import { TransformComponent } from "../../transform/components/TransformComponent"
@@ -22,72 +21,84 @@ export class PhysicsSystem extends System {
     PhysicsWorld.instance.frame++
     PhysicsWorld.instance._physicsWorld.step(PhysicsWorld.instance.timeStep)
 
-    for (const entity of this.queries.physicsRigidBody.added) {
-      const physicsRigidBody = entity.getComponent(RigidBody)
-      let object = physicsRigidBody.getObject3D()
-      object ? "" : (object = { userData: { body: {} } })
-      let body
-      if (physicsRigidBody.type === "box") body = _createBox(entity)
-      else if (physicsRigidBody.type === "cylinder") body = _createCylinder(entity)
-      else if (physicsRigidBody.type === "share") body = _createShare(entity)
-      else if (physicsRigidBody.type === "convex") body = _createConvexGeometry(entity, null)
-      else if (physicsRigidBody.type === "ground") body = _createGroundGeometry(entity)
+    // Collider
+      this.queries.сollider.added?.forEach(entity => {
+        ColliderBehavior(entity, { phase: "onAdded" })
+      })
 
-      object.userData.body = body
-      PhysicsWorld.instance._physicsWorld.addBody(body)
-    }
+      this.queries.сollider.results?.forEach(entity => {
+        ColliderBehavior(entity, { phase: "onUpdate" })
+      })
 
-    for (const entity of this.queries.vehicleBody.added) {
-      const object = entity.getComponent<Object3DComponent>(Object3DComponent).value
+      this.queries.сollider.removed?.forEach(entity => {
+        ColliderBehavior(entity, { phase: "onRemoved" })
+      })
 
-      const vehicleComponent = entity.getComponent(VehicleBody) as VehicleBody
+    // RigidBody
+      this.queries.сollider.added?.forEach(entity => {
+        RigidBodyBehavior(entity, { phase: "onAdded" })
+      })
 
-      const [vehicle, wheelBodies] = _createVehicleBody(entity, vehicleComponent.convexMesh)
-      object.userData.vehicle = vehicle
-      vehicle.addToWorld(PhysicsWorld.instance._physicsWorld)
+      this.queries.сollider.removed?.forEach(entity => {
+        RigidBodyBehavior(entity, { phase: "onRemoved" })
+      })
 
-      for (let i = 0; i < wheelBodies.length; i++) {
-        PhysicsWorld.instance._physicsWorld.addBody(wheelBodies[i])
-      }
-    }
+    // Vehicle
 
-    for (const entity of this.queries.physicsRigidBody.results) {
-      //  if (rigidBody.weight === 0.0) continue;
-      const transform = entity.getMutableComponent(TransformComponent)
-      const object = entity.getComponent(Object3DComponent).value
-      const body = object.userData.body
-      //console.log(body);
-      transform.position = body.position
+      this.queries.vehicleBody.added?.forEach(entity => {
+        VehicleBehavior(entity, { phase: "onAdded" })
+      })
 
-      quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w)
+      this.queries.vehicleBody.results?.forEach(entity => {
+        VehicleBehavior(entity, { phase: "onUpdate" })
+      })
+      this.queries.vehicleBody.removed?.forEach(entity => {
+        VehicleBehavior(entity, { phase: "onRemoved" })
+      })
 
-      transform.rotation = quaternion.toArray()
-    }
+   // Wheel
+      this.queries.wheelBody.added?.forEach(entity => {
+        WheelBehavior(entity, { phase: "onAdded" })
+      })
 
-    for (const entity of this.queries.vehicleBody.results) {
-      //  if (rigidBody.weight === 0.0) continue;
-      const transform = entity.getMutableComponent(TransformComponent)
-      const object = entity.getComponent(Object3DComponent).value
-      const vehicle = object.userData.vehicle.chassisBody
+      this.queries.wheelBody.results?.forEach((entity, i) => {
+        WheelBehavior(entity, { phase: "onUpdate", i })
+      })
 
-      transform.position = vehicle.position
-      //transform.position.y += 0.6
-      quaternion.set(vehicle.quaternion.x, vehicle.quaternion.y, vehicle.quaternion.z, vehicle.quaternion.w)
-      transform.rotation = vehicle.quaternion.toArray()
-    }
+      this.queries.wheelBody.removed?.forEach(entity => {
+        WheelBehavior(entity, { phase: "onRemoved" })
+      })
+
   }
 }
+
 PhysicsSystem.queries = {
-  physicsRigidBody: {
+  сollider: {
+    components: [Collider],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  rigidBody: {
     components: [RigidBody],
     listen: {
-      added: true
+      added: true,
+      removed: true
     }
   },
   vehicleBody: {
     components: [VehicleBody],
     listen: {
-      added: true
+      added: true,
+      removed: true
+    }
+  },
+  wheelBody: {
+    components: [WheelBody],
+    listen: {
+      added: true,
+      removed: true
     }
   }
 }

@@ -2,7 +2,6 @@ import { Vec3 } from "cannon-es/src/math/Vec3"
 import { Box } from "cannon-es/src/shapes/Box"
 import { Cylinder } from "cannon-es/src/shapes/Cylinder"
 import { ConvexPolyhedron } from "cannon-es/src/shapes/ConvexPolyhedron"
-import { RaycastVehicle } from "cannon-es/src/objects/RaycastVehicle"
 import { Quaternion } from "cannon-es/src/math/Quaternion"
 import { Sphere } from "cannon-es/src/shapes/Sphere"
 import { Body } from "cannon-es/src/objects/Body"
@@ -136,75 +135,4 @@ export function _createConvexGeometry(entity: Entity, mesh: THREE.Mesh) {
   // Add to compound
   convexBody.addShape(bunnyPart, new Vec3(), q) //,offset);
   return convexBody
-}
-
-export function _createVehicleBody(entity: Entity, mesh: any): [RaycastVehicle, Body[]] {
-  const transform = entity.getComponent<TransformComponent>(TransformComponent)
-  let chassisBody
-  if (mesh) {
-    chassisBody = this._createConvexGeometry(entity, mesh)
-  } else {
-    const chassisShape = new Box(new Vec3(1, 1.2, 2.8))
-    chassisBody = new Body({ mass: 150 })
-    chassisBody.addShape(chassisShape)
-  }
-  //  let
-  chassisBody.position.copy(transform.position)
-  //  chassisBody.angularVelocity.set(0, 0, 0.5);
-  const options = {
-    radius: 0.5,
-    directionLocal: new Vec3(0, -1, 0),
-    suspensionStiffness: 30,
-    suspensionRestLength: 0.3,
-    frictionSlip: 5,
-    dampingRelaxation: 2.3,
-    dampingCompression: 4.4,
-    maxSuspensionForce: 100000,
-    rollInfluence: 0.01,
-    axleLocal: new Vec3(-1, 0, 0),
-    chassisConnectionPointLocal: new Vec3(),
-    maxSuspensionTravel: 0.3,
-    customSlidingRotationalSpeed: -30,
-    useCustomSlidingRotationalSpeed: true
-  }
-
-  // Create the vehicle
-  const vehicle = new RaycastVehicle({
-    chassisBody: chassisBody,
-    indexUpAxis: 1,
-    indexRightAxis: 0,
-    indexForwardAxis: 2
-  })
-
-  options.chassisConnectionPointLocal.set(1.4, -0.6, 2.35)
-  vehicle.addWheel(options)
-
-  options.chassisConnectionPointLocal.set(-1.4, -0.6, 2.35)
-  vehicle.addWheel(options)
-
-  options.chassisConnectionPointLocal.set(-1.4, -0.6, -2.2)
-  vehicle.addWheel(options)
-
-  options.chassisConnectionPointLocal.set(1.4, -0.6, -2.2)
-  vehicle.addWheel(options)
-
-  const wheelBodies = []
-  for (let i = 0; i < vehicle.wheelInfos.length; i++) {
-    const wheel = vehicle.wheelInfos[i]
-    const cylinderShape = new Cylinder(1, 1, 0.1, 20)
-    const wheelBody = new Body({
-      mass: 0
-    })
-    wheelBody.type = Body.KINEMATIC
-    wheelBody.collisionFilterGroup = 0 // turn off collisions
-    const q = new Quaternion()
-    //   q.setFromAxisAngle(new Vec3(1,0,0), -Math.PI / 2);
-    wheelBody.addShape(cylinderShape)
-    //   wheelBody.quaternion.setFromAxisAngle(new Vec3(1,0,0), -Math.PI/2)
-    wheelBodies.push(wheelBody)
-    //demo.addVisual(wheelBody);
-    //world.addBody(wheelBody);
-  }
-
-  return [vehicle, wheelBodies]
 }

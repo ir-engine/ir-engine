@@ -81,6 +81,6 @@ export default [
         process: false
       })
     ],
-    external: ["mediasoup", "mediasoup-client", "buffer-es6", "debug", "socket.io", "safer", "depd"]
+    external: ["mediasoup","utf-8-validate", "mediasoup-client", "buffer-es6", "debug", "socket.io", "safer", "depd"]
   }
 ]
