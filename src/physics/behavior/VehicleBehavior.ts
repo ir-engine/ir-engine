@@ -11,15 +11,12 @@ import { Body } from "cannon-es/src/objects/Body"
 import { Entity } from "ecsy"
 import { Collider } from "../components/Collider"
 
-
 export const quaternion = new Quaternion()
 
 import { VehicleBody } from "../components/VehicleBody"
 
-export const VehicleBehavior: Behavior = (entity: Entity, args ): void => {
-
+export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
   if (args.phase == "onAdded") {
-
     const object = entity.getComponent<Object3DComponent>(Object3DComponent).value
 
     const vehicleComponent = entity.getComponent(VehicleBody) as VehicleBody
@@ -31,28 +28,22 @@ export const VehicleBehavior: Behavior = (entity: Entity, args ): void => {
     for (let i = 0; i < wheelBodies.length; i++) {
       PhysicsWorld.instance._physicsWorld.addBody(wheelBodies[i])
     }
+  } else if (args.phase == "onUpdate") {
+    const transform = entity.getMutableComponent(TransformComponent)
+    const object = entity.getComponent(Object3DComponent).value
+    const vehicle = object.userData.vehicle.chassisBody
 
-} else if (args.phase == "onUpdate") {
-
-   const transform = entity.getMutableComponent(TransformComponent)
-   const object = entity.getComponent(Object3DComponent).value
-   const vehicle = object.userData.vehicle.chassisBody
-
-   transform.position = vehicle.position
-   //transform.position.y += 0.6
-   quaternion.set(vehicle.quaternion.x, vehicle.quaternion.y, vehicle.quaternion.z, vehicle.quaternion.w)
-   transform.rotation = vehicle.quaternion.toArray()
-
+    transform.position = vehicle.position
+    //transform.position.y += 0.6
+    quaternion.set(vehicle.quaternion.x, vehicle.quaternion.y, vehicle.quaternion.z, vehicle.quaternion.w)
+    transform.rotation = vehicle.quaternion.toArray()
   } else if (args.phase == "onRemoved") {
-
     const object = entity.getComponent<Object3DComponent>(Object3DComponent).value
-    const body = object.userData.vehicle;
+    const body = object.userData.vehicle
     delete object.userData.vehicle
-    PhysicsWorld.instance._physicsWorld.removeBody(body);
-
+    PhysicsWorld.instance._physicsWorld.removeBody(body)
   }
 }
-
 
 export function _createVehicleBody(entity: Entity, mesh: any): [RaycastVehicle, Body[]] {
   const transform = entity.getComponent<TransformComponent>(TransformComponent)

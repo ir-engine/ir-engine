@@ -8,31 +8,28 @@ import { Entity } from "ecsy"
 
 export const quaternion = new Quaternion()
 
-export const WheelBehavior: Behavior = (entity: Entity, args ): void => {
-
+export const WheelBehavior: Behavior = (entity: Entity, args): void => {
   if (args.phase == "onUpdate") {
-
-  //  console.log(entity);
+    //  console.log(entity);
     const parentEntity = entity.getComponent(WheelBody).vehicle
     const transform = entity.getMutableComponent(TransformComponent)
 
-  //  let parentObject = parentEntity.getComponent(Object3DComponent);
-    let vehicle = parentEntity
-    console.log(parentEntity);
+    //  let parentObject = parentEntity.getComponent(Object3DComponent);
+    const vehicle = parentEntity
+    console.log(parentEntity)
 
-    vehicle.updateWheelTransform(args.i);
-  //  console.log(vehicle);
+    vehicle.updateWheelTransform(args.i)
+    //  console.log(vehicle);
 
-  transform.position = vehicle.wheelInfos[args.i].worldTransform.position
+    transform.position = vehicle.wheelInfos[args.i].worldTransform.position
 
-  quaternion.set(
-    vehicle.wheelInfos[args.i].worldTransform.quaternion.x,
-    vehicle.wheelInfos[args.i].worldTransform.quaternion.y,
-    vehicle.wheelInfos[args.i].worldTransform.quaternion.z,
-    vehicle.wheelInfos[args.i].worldTransform.quaternion.w
-  )
+    quaternion.set(
+      vehicle.wheelInfos[args.i].worldTransform.quaternion.x,
+      vehicle.wheelInfos[args.i].worldTransform.quaternion.y,
+      vehicle.wheelInfos[args.i].worldTransform.quaternion.z,
+      vehicle.wheelInfos[args.i].worldTransform.quaternion.w
+    )
 
-  transform.rotation = vehicle.quaternion.toArray()
-
+    transform.rotation = vehicle.quaternion.toArray()
   }
 }

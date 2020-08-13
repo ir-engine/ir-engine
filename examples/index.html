@@ -20,13 +20,7 @@
 
 <body>
   <script type="module">
-    import { BoxBufferGeometry, Mesh, MeshStandardMaterial } from "three"
-    import { TransformComponent } from "../dist/armada.js"
-    import { Collider } from "../dist/armada.js"
-    import { addObject3DComponent } from "../dist/armada.js"
     import { initialize, DefaultInputSchema, DefaultNetworkSchema, DefaultStateSchema, DefaultSubscriptionSchema } from "../dist/armada.js"
-
-    import { WorldComponent } from "../dist/armada.js"
 
     export const options = {
       debug: false,
@@ -68,25 +62,6 @@
     }
     // Initialize with our three scene and camera
     initialize(options);
-
-    const boxGeo = new BoxBufferGeometry(100, 0.5, 100)
-    const boxMesh = new Mesh( boxGeo, new MeshStandardMaterial({ color: "grey" }))
-
-    const entity = WorldComponent.instance.world.createEntity()
-    console.log(entity);
-      addObject3DComponent(entity, {obj: Mesh, objArgs: boxMesh})
-
-      entity.addComponent(Collider, { scale:{ x:100, y:1, z:100 }, mass: 0, type: 'box' })
-
-      entity.addComponent(TransformComponent)
-      /*
-      , {
-        position: { x: 0, y: -3.3, z: 0 },
-        rotation: { x: 0, y: 0, z: 0 }
-      }
-      */
-      //.addComponent(ECSYTHREEX.Parent, { value: scene })
-
   </script>
 </body>
 

@@ -22,53 +22,52 @@ export class PhysicsSystem extends System {
     PhysicsWorld.instance._physicsWorld.step(PhysicsWorld.instance.timeStep)
 
     // Collider
-      this.queries.сollider.added?.forEach(entity => {
-        ColliderBehavior(entity, { phase: "onAdded" })
-      })
+    this.queries.сollider.added?.forEach(entity => {
+      ColliderBehavior(entity, { phase: "onAdded" })
+    })
 
-      this.queries.сollider.results?.forEach(entity => {
-        ColliderBehavior(entity, { phase: "onUpdate" })
-      })
+    this.queries.сollider.results?.forEach(entity => {
+      ColliderBehavior(entity, { phase: "onUpdate" })
+    })
 
-      this.queries.сollider.removed?.forEach(entity => {
-        ColliderBehavior(entity, { phase: "onRemoved" })
-      })
+    this.queries.сollider.removed?.forEach(entity => {
+      ColliderBehavior(entity, { phase: "onRemoved" })
+    })
 
     // RigidBody
-      this.queries.сollider.added?.forEach(entity => {
-        RigidBodyBehavior(entity, { phase: "onAdded" })
-      })
+    this.queries.сollider.added?.forEach(entity => {
+      RigidBodyBehavior(entity, { phase: "onAdded" })
+    })
 
-      this.queries.сollider.removed?.forEach(entity => {
-        RigidBodyBehavior(entity, { phase: "onRemoved" })
-      })
+    this.queries.сollider.removed?.forEach(entity => {
+      RigidBodyBehavior(entity, { phase: "onRemoved" })
+    })
 
     // Vehicle
 
-      this.queries.vehicleBody.added?.forEach(entity => {
-        VehicleBehavior(entity, { phase: "onAdded" })
-      })
+    this.queries.vehicleBody.added?.forEach(entity => {
+      VehicleBehavior(entity, { phase: "onAdded" })
+    })
 
-      this.queries.vehicleBody.results?.forEach(entity => {
-        VehicleBehavior(entity, { phase: "onUpdate" })
-      })
-      this.queries.vehicleBody.removed?.forEach(entity => {
-        VehicleBehavior(entity, { phase: "onRemoved" })
-      })
+    this.queries.vehicleBody.results?.forEach(entity => {
+      VehicleBehavior(entity, { phase: "onUpdate" })
+    })
+    this.queries.vehicleBody.removed?.forEach(entity => {
+      VehicleBehavior(entity, { phase: "onRemoved" })
+    })
 
-   // Wheel
-      this.queries.wheelBody.added?.forEach(entity => {
-        WheelBehavior(entity, { phase: "onAdded" })
-      })
+    // Wheel
+    this.queries.wheelBody.added?.forEach(entity => {
+      WheelBehavior(entity, { phase: "onAdded" })
+    })
 
-      this.queries.wheelBody.results?.forEach((entity, i) => {
-        WheelBehavior(entity, { phase: "onUpdate", i })
-      })
+    this.queries.wheelBody.results?.forEach((entity, i) => {
+      WheelBehavior(entity, { phase: "onUpdate", i })
+    })
 
-      this.queries.wheelBody.removed?.forEach(entity => {
-        WheelBehavior(entity, { phase: "onRemoved" })
-      })
-
+    this.queries.wheelBody.removed?.forEach(entity => {
+      WheelBehavior(entity, { phase: "onRemoved" })
+    })
   }
 }
 
