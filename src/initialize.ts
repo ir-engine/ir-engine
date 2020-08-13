@@ -29,7 +29,7 @@ import { DefaultStateSchema, State, StateSystem } from "./state"
 import { DefaultSubscriptionSchema, Subscription, SubscriptionSystem } from "./subscription"
 import { WorldComponent, isBrowser, SceneComponent, Timer } from "./common"
 import { CameraComponent, CameraSystem } from "./camera"
-import { RigidBody, VehicleBody, WheelBody, PhysicsSystem, VehicleSystem, WheelSystem } from "./physics"
+import { PhysicsWorld, Collider, RigidBody, VehicleBody, VehicleComponent, WheelBody, PhysicsSystem  } from "./physics"
 import { ParticleEmitter, Keyframe, ParticleSystem, KeyframeSystem } from "./particles"
 import { TransformComponent, TransformParentComponent, TransformSystem } from "./transform"
 import { RendererComponent, WebGLRendererSystem } from "./renderer"
@@ -168,12 +168,13 @@ export function initialize(options: any = DefaultInitializationOptions, world?: 
   // Physics
   if (options.physics && options.physics.enabled)
     world
+      .registerComponent(PhysicsWorld)
+      .registerComponent(VehicleComponent)
+      .registerComponent(Collider)
       .registerComponent(RigidBody)
       .registerComponent(VehicleBody)
       .registerComponent(WheelBody)
       .registerSystem(PhysicsSystem)
-      .registerSystem(VehicleSystem)
-      .registerSystem(WheelSystem)
 
   // Particles
   if (options.particles && options.particles.enabled)
