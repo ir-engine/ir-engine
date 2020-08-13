@@ -23,6 +23,7 @@ export class Component<C> {
   static _typeId: number
   _pool: any
   _typeId: any
+  assetsLoaded: boolean
   constructor(props?: Partial<Omit<C, keyof Component<any>>> | false) {
     if (props !== false) {
       const schema = (this.constructor as ComponentConstructor<Component<C>>).schema

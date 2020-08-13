@@ -40,7 +40,7 @@ import {
 
 export const addObject3DComponent: Behavior = (
   entity: Entity,
-  args: { obj: any; objArgs: any; parentEntity: Entity }
+  args: { obj: any; objArgs: any; parentEntity?: Entity }
 ) => {
   const object3d = args.obj ? new args.obj(args.objArgs) : new Object3D()
 
@@ -54,6 +54,7 @@ export const addObject3DComponent: Behavior = (
   getComponentTags(object3d).forEach((component: any) => {
     entity.addComponent(component)
   })
+  if (args.parentEntity === undefined) args.parentEntity = SceneComponent.instance.scene
   if (args.parentEntity && args.parentEntity.hasComponent(Object3DComponent as any)) {
     args.parentEntity.getComponent<Object3DComponent>(Object3DComponent).value.add(object3d)
   }
@@ -104,6 +105,11 @@ export function getObject3D(entity) {
 
 export function getComponentTags(object3d: Object3D): (Component<any> | TagComponent)[] {
   const components: Component<any>[] = []
+  if (object3d.type === "Audio" && (object3d as any).panner !== undefined) {
+    if (!WorldComponent.instance.world.hasRegisteredComponent(PositionalAudioTagComponent))
+      WorldComponent.instance.world.registerComponent(PositionalAudioTagComponent)
+    components.push(PositionalAudioTagComponent as any)
+  }
   if (object3d.type === "Audio" && (object3d as any).panner !== undefined) {
     if (!WorldComponent.instance.world.hasRegisteredComponent(PositionalAudioTagComponent))
       WorldComponent.instance.world.registerComponent(PositionalAudioTagComponent)
