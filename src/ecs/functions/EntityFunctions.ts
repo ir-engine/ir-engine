@@ -1,7 +1,12 @@
-import { Component, ComponentConstructor } from "./Component"
-import Query from "./Query"
-import wrapImmutableComponent from "./ComponentFunctions"
-import { Entity } from "./Entity"
+import { Component, ComponentConstructor } from "../classes/Component"
+import wrapImmutableComponent, {
+  addComponentToEntity,
+  removeComponentFromEntity,
+  removeAllComponentsFromEntity
+} from "./ComponentFunctions"
+import { Entity } from "../classes/Entity"
+import Query from "../classes/Query"
+import { World } from "../classes/World"
 
 export function getComponent<C extends Component<any>>(
   entity: Entity,
@@ -61,7 +66,7 @@ export function addComponent<C extends Component<any>>(
   Component: ComponentConstructor<C>,
   values?: Partial<Omit<C, keyof Component<any>>>
 ): Entity {
-  entity._entityManager.entityAddComponent(entity, Component, values)
+  addComponentToEntity(entity, Component, values)
   return entity
 }
 
@@ -70,7 +75,7 @@ export function removeComponent<C extends Component<any>>(
   Component: ComponentConstructor<C>,
   forceImmediate?: boolean
 ): Entity {
-  entity._entityManager.entityRemoveComponent(entity, Component, forceImmediate)
+  removeComponentFromEntity(entity, Component, forceImmediate)
   return entity
 }
 
@@ -81,7 +86,7 @@ export function hasComponent<C extends Component<any>>(
 ): boolean {
   return (
     !!~entity.componentTypes.indexOf(Component) ||
-    (includeRemoved !== undefined && includeRemoved === true && entity.hasRemovedComponent(Component))
+    (includeRemoved !== undefined && includeRemoved === true && hasRemovedComponent(entity, Component))
   )
 }
 
@@ -94,18 +99,51 @@ export function hasRemovedComponent<C extends Component<any>>(
 
 export function hasAllComponents(entity: Entity, Components: Array<ComponentConstructor<any>>): boolean {
   for (let i = 0; i < Components.length; i++) {
-    if (!entity.hasComponent(Components[i])) return false
+    if (!hasComponent(entity, Components[i])) return false
   }
   return true
 }
 
 export function hasAnyComponents(entity: Entity, Components: Array<ComponentConstructor<any>>): boolean {
   for (let i = 0; i < Components.length; i++) {
-    if (entity.hasComponent(Components[i])) return true
+    if (hasComponent(entity, entity.components[i])) return true
   }
   return false
 }
 
 export function removeAllComponents(entity: Entity, forceImmediate?: boolean): void {
-  return entity._entityManager.entityRemoveAllComponents(entity, forceImmediate)
+  return removeAllComponentsFromEntity(entity, forceImmediate)
+}
+
+export function getEntityByName(name) {
+  return World.entitiesByName[name]
+}
+
+export function onEntityRemoved(entity) {
+  for (const queryName in this.queries) {
+    const query = this.queries[queryName]
+    if (entity.queries.indexOf(query) !== -1) {
+      query.removeEntity(entity)
+    }
+  }
+}
+
+export function onEntityComponentAdded(entity, Component) {
+  // Check each indexed query to see if we need to add this entity to the list
+  for (const queryName in this.queries) {
+    const query = this.queries[queryName]
+
+    if (!!~query.NotComponents.indexOf(Component) && ~query.entities.indexOf(entity)) {
+      query.removeEntity(entity)
+      continue
+    }
+
+    // Add the entity only if:
+    // Component is in the query
+    // and Entity has ALL the components of the query
+    // and Entity is not already in the query
+    if (!~query.Components.indexOf(Component) || !query.match(entity) || ~query.entities.indexOf(entity)) continue
+
+    query.addEntity(entity)
+  }
 }

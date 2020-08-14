@@ -1,3 +1,6 @@
+import { Component } from "./Component"
+import { Entity } from "./Entity"
+
 /**
  * @private
  * @class EventDispatcher
@@ -59,7 +62,7 @@ export default class EventDispatcher {
    * @param {Entity} entity (Optional) Entity to emit
    * @param {Component} component
    */
-  dispatchEvent(eventName: string | number, entity: any, component?: undefined): void {
+  dispatchEvent(eventName: string | number, entity: Entity, component?: Component<any>): void {
     this.stats.fired++
 
     const listenerArray = this._listeners[eventName]

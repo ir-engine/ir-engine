@@ -1,12 +1,11 @@
 import { Component } from "./Component"
 import EventDispatcher from "./EventDispatcher"
-import QueryManager from "./QueryManager"
-import { queryKey } from "./Utils"
+import { queryKey } from "../functions/Utils"
 import { World } from "./World"
 
 export default class Query {
-  Components: any[]
-  NotComponents: any[]
+  components: any[]
+  notComponents: any[]
   entities: any[]
   eventDispatcher: EventDispatcher
   reactive: boolean
@@ -19,18 +18,18 @@ export default class Query {
    * @param {Array(Component)} Components List of types of components to query
    */
   constructor(Components: Component<any>[]) {
-    this.Components = []
-    this.NotComponents = []
+    this.components = []
+    this.notComponents = []
 
     Components.forEach(component => {
       if (typeof component === "object") {
-        this.NotComponents.push((component as any).Component)
+        this.notComponents.push((component as any).Component)
       } else {
-        this.Components.push(component)
+        this.components.push(component)
       }
     })
 
-    if (this.Components.length === 0) {
+    if (this.components.length === 0) {
       throw new Error("Can't create a query without components")
     }
 
@@ -82,7 +81,7 @@ export default class Query {
   }
 
   match(entity) {
-    return entity.hasAllComponents(this.Components) && !entity.hasAnyComponents(this.NotComponents)
+    return entity.hasAllComponents(this.components) && !entity.hasAnyComponents(this.notComponents)
   }
 
   toJSON() {
@@ -90,8 +89,8 @@ export default class Query {
       key: this.key,
       reactive: this.reactive,
       components: {
-        included: this.Components.map(C => C.name),
-        not: this.NotComponents.map(C => C.name)
+        included: this.components.map(C => C.name),
+        not: this.notComponents.map(C => C.name)
       },
       numEntities: this.entities.length
     }
@@ -102,7 +101,7 @@ export default class Query {
    */
   stats() {
     return {
-      numComponents: this.Components.length,
+      numComponents: this.components.length,
       numEntities: this.entities.length
     }
   }

@@ -29,11 +29,11 @@ export interface NotComponent<C extends Component<any>> {
 //  */
 // export function Not<C extends Component<any>>(Component: ComponentConstructor<C>): NotComponent<C>;
 
+import { getQuery } from "../functions/QueryFunctions"
 import { Component, ComponentConstructor } from "./Component"
 import { Entity } from "./Entity"
 import Query from "./Query"
-import { componentRegistered } from "./Utils"
-import { World } from "./World"
+import { componentRegistered } from "../functions/Utils"
 
 export abstract class System {
   /**
@@ -54,7 +54,7 @@ export abstract class System {
    */
   queries: {
     [queryName: string]: {
-      results: Entity[]
+      results?: Entity[]
       added?: Entity[]
       removed?: Entity[]
       changed?: Entity[]
@@ -116,13 +116,13 @@ export abstract class System {
 
         if (unregisteredComponents.length > 0) {
           throw new Error(
-            `Tried to create a query '${
-              this.constructor.name
-            }.${queryName}' with unregistered components: [${unregisteredComponents.map(c => typeof c)}]`
+            `Tried to create a query '${queryName}.${queryName}' with unregistered components: [${unregisteredComponents.map(
+              c => typeof c
+            )}]`
           )
         }
 
-        const query = World.queryComponents(Components)
+        const query = getQuery(Components)
 
         this.queries[queryName] = query
         this._mandatoryQueries.push(query)

@@ -1,5 +1,3 @@
-import { vec3 } from "gl-matrix"
-
 export type TypeCopyFunction<T> = (src: T, dest: T) => T
 export type TypeCloneFunction<T> = (value: T) => T
 
