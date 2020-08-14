@@ -74,7 +74,7 @@ export const initializeSession: Behavior = (entity: Entity, args: { webXRRendere
   console.log("XR session started", session)
 }
 
-export const setComponent: Behavior = (entity: Entity, args: { class; data: any }) => {
+function setComponent(entity: Entity, args: { class; data: any }) {
   if (entity.hasComponent(args.class)) {
     const mutate = entity.getMutableComponent(args.class)
     for (const property in args.data) mutate[property] = args.data[property]
