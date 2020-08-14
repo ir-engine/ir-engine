@@ -1,10 +1,10 @@
-import { getComponent, getMutableComponent } from "../../../ecs"
 import { Entity } from "../../../ecs/classes/Entity"
 import { addState, removeState } from "../../../state/behaviors/StateBehaviors"
 import { DefaultStateTypes } from "../../../state/defaults/DefaultStateTypes"
 import { TransformComponent } from "../../../transform/components/TransformComponent"
 import { Behavior } from "../../interfaces/Behavior"
 import { Actor } from "../components/Actor"
+import { getMutableComponent, getComponent } from "../../../ecs/functions/EntityFunctions"
 
 let actor: Actor
 let transform: TransformComponent

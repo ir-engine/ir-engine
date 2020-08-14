@@ -1,8 +1,8 @@
-import { Component, ComponentConstructor } from "./Component"
-import EventDispatcher from "./EventDispatcher"
 import { queryKey } from "../functions/Utils"
+import { ComponentConstructor } from "./Component"
+import EventDispatcher from "./EventDispatcher"
 import { World } from "./World"
-import { NotComponent } from ".."
+import { NotComponent } from "./System"
 
 export default class Query {
   components: any[]

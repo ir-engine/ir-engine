@@ -1,5 +1,6 @@
 import { Vector3 } from "../../../src/common"
-import { Component, Types } from "../../../src/ecs"
+import { Component } from "../../../src/ecs/classes/Component"
+import { Types } from "../../../src/ecs/types/Types"
 
 interface PropTypes {
   wheelMesh: any

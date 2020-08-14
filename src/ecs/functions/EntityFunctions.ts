@@ -5,8 +5,10 @@ import { World } from "../classes/World"
 import wrapImmutableComponent, {
   addComponentToEntity,
   removeAllComponentsFromEntity,
-  removeComponentFromEntity
+  removeComponentFromEntity,
+  componentRemovedFromEntity
 } from "./ComponentFunctions"
+import { ENTITY_CREATED, ENTITY_REMOVED } from "../types/EventTypes"
 
 export function getComponent<C extends Component<any>>(
   entity: Entity,
@@ -148,4 +150,84 @@ export function onEntityComponentAdded(entity, Component) {
 
     query.addEntity(entity)
   }
+}
+
+export function createEntity(name?: string): Entity {
+  const entity = World.entityPool.acquire()
+  entity.alive = true
+  entity.name = name || ""
+  if (name) {
+    if (World.entitiesByName[name]) {
+      console.warn(`Entity name '${name}' already exist`)
+    } else {
+      World.entitiesByName[name] = entity
+    }
+  }
+
+  World.entities.push(entity)
+  World.eventDispatcher.dispatchEvent(ENTITY_CREATED, entity)
+  return entity
+}
+export function removeEntity(entity: Entity, immediately?: boolean): void {
+  const index = World.entities.indexOf(entity)
+
+  if (!~index) throw new Error("Tried to remove entity not in list")
+
+  entity.alive = false
+
+  if (entity.numStateComponents === 0) {
+    // Remove from entity list
+    World.eventDispatcher.dispatchEvent(ENTITY_REMOVED, entity)
+    onEntityRemoved(entity)
+    if (immediately === true) {
+      releaseEntity(entity, index)
+    } else {
+      World.entitiesToRemove.push(entity)
+    }
+  }
+
+  removeAllComponentsFromEntity(entity, immediately)
+}
+
+export function removeAllEntities(): void {
+  for (let i = World.entities.length - 1; i >= 0; i--) {
+    removeEntity(World.entities[i])
+  }
+}
+
+export function releaseEntity(entity: Entity, index: number): void {
+  World.entities.splice(index, 1)
+
+  if (World.entitiesByName[entity.name]) {
+    delete World.entitiesByName[entity.name]
+  }
+  World.entityPool.release(entity)
+}
+
+export function processDeferredEntityRemoval() {
+  if (!World.deferredRemovalEnabled) {
+    return
+  }
+  let entitiesToRemove
+  let entitiesWithComponentsToRemove
+  for (let i = 0; i < entitiesToRemove.length; i++) {
+    const entity = entitiesToRemove[i]
+    const index = World.entities.indexOf(entity)
+    releaseEntity(entity, index)
+  }
+  entitiesToRemove.length = 0
+
+  for (let i = 0; i < entitiesWithComponentsToRemove.length; i++) {
+    const entity = entitiesWithComponentsToRemove[i]
+    while (entity.componentTypesToRemove.length > 0) {
+      const Component = entity.componentTypesToRemove.pop()
+
+      const component = entity.componentsToRemove[Component._typeId]
+      delete entity.componentsToRemove[Component._typeId]
+      component.dispose()
+      componentRemovedFromEntity(Component)
+    }
+  }
+
+  World.entitiesWithComponentsToRemove.length = 0
 }

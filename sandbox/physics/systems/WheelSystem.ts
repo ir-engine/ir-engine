@@ -1,4 +1,6 @@
-import { getComponent, getMutableComponent, registerComponent } from "../../../src/ecs"
+import { getComponent, getMutableComponent } from "../../../src/ecs/functions/EntityFunctions"
+import { registerComponent } from "../../../src/ecs/functions/ComponentFunctions"
+
 import { Attributes, System } from "../../../src/ecs/classes/System"
 import { TransformComponent } from "../../../src/transform/components/TransformComponent"
 import { WheelBody } from "../components/WheelBody"

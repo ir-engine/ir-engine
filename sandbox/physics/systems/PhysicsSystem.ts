@@ -1,6 +1,9 @@
 import { Quaternion } from "cannon-es/src/math/Quaternion"
 import { Object3DComponent } from "../../../src/common/components/Object3DComponent"
-import { getComponent, getMutableComponent, registerComponent, System } from "../../../src/ecs"
+import { getComponent, getMutableComponent } from "../../../src/ecs/functions/EntityFunctions"
+import { registerComponent } from "../../../src/ecs/functions/ComponentFunctions"
+import { System } from "../../../src/ecs/classes/System"
+
 import { TransformComponent } from "../../../src/transform/components/TransformComponent"
 // import {
 //   _createBox,

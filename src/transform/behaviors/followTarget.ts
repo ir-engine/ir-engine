@@ -1,6 +1,7 @@
 import { Behavior } from "../../common/interfaces/Behavior"
 import { TransformComponent } from "../components/TransformComponent"
-import { Entity, getMutableComponent, getComponent } from "../../ecs"
+import { Entity } from "../../ecs/classes/Entity"
+import { getMutableComponent, getComponent } from "../../ecs/functions/EntityFunctions"
 
 let follower, target
 

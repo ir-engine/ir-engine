@@ -4,7 +4,7 @@ import { Entity } from "../../ecs/classes/Entity"
 import { Input } from "../components/Input"
 import { InputValue } from "../interfaces/InputValue"
 import { InputAlias } from "../types/InputAlias"
-import { getComponent, getMutableComponent } from "../../ecs"
+import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions"
 
 let input: Input
 export const validateButtonInput: Behavior = (entity: Entity): void => {

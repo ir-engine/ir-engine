@@ -1,4 +1,3 @@
-import { SystemStateComponent } from ".."
 import { Component, ComponentConstructor } from "../classes/Component"
 import { Entity } from "../classes/Entity"
 import { ObjectPool } from "../classes/ObjectPool"
@@ -6,6 +5,7 @@ import { World } from "../classes/World"
 import { COMPONENT_ADDED, COMPONENT_REMOVE } from "../types/EventTypes"
 import { onEntityComponentAdded } from "./EntityFunctions"
 import { getName } from "./Utils"
+import { SystemStateComponent } from "../classes/SystemStateComponent"
 
 const proxyMap = new WeakMap()
 

@@ -1,5 +1,6 @@
-import { Component, SystemStateComponent, Types } from "../../ecs"
-
+import { Types } from "../../ecs//types/Types"
+import { Component } from "../../ecs/classes/Component"
+import { SystemStateComponent } from "../../ecs/classes/SystemStateComponent"
 interface ParticleEmitterStateInterface {
   emitter3D: any
   useEntityRotation: boolean

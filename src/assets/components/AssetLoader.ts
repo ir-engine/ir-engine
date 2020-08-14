@@ -1,4 +1,5 @@
-import { Component, Types } from "../../ecs"
+import { Component } from "../../ecs/classes/Component"
+import { Types } from "../../ecs/types/Types"
 import { AssetClass } from "../enums/AssetClass"
 import { AssetType } from "../enums/AssetType"
 import { AssetClassAlias, AssetsLoadedHandler, AssetTypeAlias } from "../types/AssetTypes"

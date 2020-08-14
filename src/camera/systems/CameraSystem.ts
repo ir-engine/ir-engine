@@ -1,9 +1,11 @@
-import { TransformComponent } from "../.."
-import { addComponent, createEntity, getComponent, getMutableComponent, World } from "../../ecs"
+import { TransformComponent } from "../../transform/components/TransformComponent"
+
 import { System } from "../../ecs/classes/System"
 import { registerComponent } from "../../ecs/functions/ComponentFunctions"
 import { followTarget } from "../../transform/behaviors/followTarget"
 import { CameraComponent } from "../components/CameraComponent"
+import { createEntity, addComponent, getMutableComponent, getComponent } from "../../ecs/functions/EntityFunctions"
+import { World } from "../../ecs/classes/World"
 
 export class CameraSystem extends System {
   init(): void {

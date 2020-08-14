@@ -1,5 +1,6 @@
 import { RaycastVehicle } from "cannon-es/src/objects/RaycastVehicle"
-import { Component, Types } from "../../../src/ecs"
+import { Component } from "../../../src/ecs/classes/Component"
+import { Types } from "../../../src/ecs/types/Types"
 
 export class VehicleComponent extends Component<any> {
   // Move to Vehicle component

@@ -1,8 +1,9 @@
-import { addComponent, getMutableComponent, hasRegisteredComponent, registerComponent } from "../../ecs"
-import { createEntity, Entity } from "../../ecs/classes/Entity"
+import { Entity } from "../../ecs/classes/Entity"
+import { createEntity, addComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions"
 import { Network } from "../components/Network"
 import { NetworkObject } from "../components/NetworkObject"
 import { NetworkPrefab } from "../interfaces/NetworkPrefab"
+import { hasRegisteredComponent, registerComponent } from "../../ecs/functions/ComponentFunctions"
 
 export function createNetworkPrefab(prefab: NetworkPrefab, networkId: string | number): Entity {
   const entity = createEntity()

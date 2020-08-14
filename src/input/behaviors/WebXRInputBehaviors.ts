@@ -10,7 +10,7 @@ import { WebXRSession } from "../components/WebXRSession"
 import { WebXRSpace } from "../components/WebXRSpace"
 import { WebXRViewPoint } from "../components/WebXRViewPoint"
 import { getInputSources } from "../functions/WebXRFunctions"
-import { getComponent, hasComponent, getMutableComponent, addComponent } from "../../ecs"
+import { getComponent, hasComponent, getMutableComponent, addComponent } from "../../ecs/functions/EntityFunctions"
 
 let mainControllerId: any
 let secondControllerId: any

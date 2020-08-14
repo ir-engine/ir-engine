@@ -9,7 +9,7 @@ import { Sphere } from "cannon-es/src/shapes/Sphere"
 import { Entity } from "../../../src/ecs/classes/Entity"
 import { TransformComponent } from "../../../src/transform/components/TransformComponent"
 import { RigidBody } from "../components/RigidBody"
-import { getComponent } from "../../../src/ecs"
+import { getComponent } from "../../../src/ecs/functions/EntityFunctions"
 
 // export function _createBox(entity) {
 //   const rigidBody = getComponent(entity, RigidBody)
@@ -207,5 +207,5 @@ import { getComponent } from "../../../src/ecs"
 //     //world.addBody(wheelBody);
 //   }
 
-  return [vehicle, wheelBodies]
-}
+//   return [vehicle, wheelBodies]
+// }

@@ -1,10 +1,10 @@
 import { BinaryValue } from "../../common/enums/BinaryValue"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { Binary } from "../../common/types/NumericalTypes"
-import { getComponent, getMutableComponent } from "../../ecs"
 import { Entity } from "../../ecs/classes/Entity"
 import { InputType } from "../../input/enums/InputType"
 import { Input } from "../components/Input"
+import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions"
 
 // Local reference to input component
 let input: Input

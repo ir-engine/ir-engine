@@ -1,5 +1,7 @@
-import { Entity, World, createEntity, addComponent } from "../../ecs"
 import { Prefab } from "../interfaces/Prefab"
+import { World } from "../../ecs/classes/World"
+import { Entity } from "../../ecs/classes/Entity"
+import { createEntity, addComponent } from "../../ecs/functions/EntityFunctions"
 
 export function createPrefab(prefab: Prefab, world: World): Entity {
   const entity = createEntity()

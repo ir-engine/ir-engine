@@ -3,18 +3,12 @@ import { WebGLRenderer } from "three"
 import { CameraComponent } from "../../camera/components/CameraComponent"
 import { SceneManager } from "../../common/classes/SceneManager"
 import { Behavior } from "../../common/interfaces/Behavior"
-import {
-  addComponent,
-  Attributes,
-  createEntity,
-  Entity,
-  getComponent,
-  getMutableComponent,
-  registerComponent,
-  System
-} from "../../ecs"
 import { RendererComponent } from "../components/RendererComponent"
 import { DefaultPostProcessingSchema } from "../defaults/DefaultPostProcessingSchema"
+import { System, Attributes } from "../../ecs/classes/System"
+import { registerComponent } from "../../ecs/functions/ComponentFunctions"
+import { addComponent, createEntity, getMutableComponent, getComponent } from "../../ecs/functions/EntityFunctions"
+import { Entity } from "../../ecs/classes/Entity"
 export class WebGLRendererSystem extends System {
   init(attributes?: Attributes): void {
     registerComponent(RendererComponent)

@@ -2,13 +2,14 @@ import { LifecycleValue } from "../../common/enums/LifecycleValue"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { NumericalType } from "../../common/types/NumericalTypes"
 import { Entity } from "../../ecs/classes/Entity"
-import { Attributes, System } from "../../ecs/classes/System"
+import { System } from "../../ecs/classes/System"
 import { addState } from "../behaviors/StateBehaviors"
 import { State } from "../components/State"
 import { StateSchema } from "../interfaces/StateSchema"
 import { StateValue } from "../interfaces/StateValue"
 import { StateGroupAlias } from "../types/StateGroupAlias"
-import { registerComponent, getComponent } from "../../ecs"
+import { registerComponent } from "../../ecs/functions/ComponentFunctions"
+import { getComponent } from "../../ecs/functions/EntityFunctions"
 
 export class StateSystem extends System {
   init(): void {

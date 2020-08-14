@@ -1,4 +1,5 @@
-import { Component, Types } from "../../../src/ecs"
+import { Component } from "../../../src/ecs/classes/Component"
+import { Types } from "../../../src/ecs/types/Types"
 
 export class RigidBody extends Component<any> {}
 

@@ -4,7 +4,7 @@ import { Object3DComponent } from "../../common/components/Object3DComponent"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { Entity } from "../../ecs/classes/Entity"
 import { TransformComponent } from "../components/TransformComponent"
-import { getMutableComponent } from "../../ecs"
+import { getMutableComponent } from "../../ecs/functions/EntityFunctions"
 const q: Quaternion = new Quaternion()
 let transform: TransformComponent
 const _deltaV: vec3 = [0, 0, 0]
