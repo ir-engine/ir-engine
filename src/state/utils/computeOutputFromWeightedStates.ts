@@ -1,14 +1,14 @@
 import { instanceOf } from "../../common/functions/instanceOf"
 import { Scalar, Vector2, Vector3 } from "../../common/types/NumericalTypes"
-import StateType from "../types/StateAlias"
+import { StateAlias } from "../types/StateAlias"
 
 interface weightedState {
-  type: StateType
+  type: StateAlias
   value: Scalar | Vector2 | Vector3
 }
 
 interface outputState {
-  type: StateType
+  type: StateAlias
   weight: number
 }
 
@@ -24,7 +24,10 @@ let a: number
 let b: number
 let c: number
 
-export function computeOutputFromWeightedStates(inputValue: Scalar | Vector2 | Vector3, blendStateValues: weightedState[]): outputState[] {
+export function computeOutputFromWeightedStates(
+  inputValue: Scalar | Vector2 | Vector3,
+  blendStateValues: weightedState[]
+): outputState[] {
   bufferPosition = 0
   totalDistance = 0
   blendStateValues.forEach(state => {
@@ -51,7 +54,9 @@ export function computeOutputFromWeightedStates(inputValue: Scalar | Vector2 | V
 
   for (i = 0; i <= bufferPosition; i++) {
     //  divide all magnitudes by total to normalize, and invert (1.0 - val)
-    outputBlendStateBuffer[bufferPosition].weight = normalizedRelu(1.0 - outputBlendStateBuffer[bufferPosition].weight / totalDistance)
+    outputBlendStateBuffer[bufferPosition].weight = normalizedRelu(
+      1.0 - outputBlendStateBuffer[bufferPosition].weight / totalDistance
+    )
   }
   return outputBlendStateBuffer
 }

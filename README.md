@@ -437,3 +437,24 @@ npm run build
 ```
 This will open up the rollup dev server on port 10001
 You can see input in the console
+
+# Troubleshooting
+## Errors on npm install
+### ‘MSBuild’ is not recognized as an internal or external command, operable program or batch file (on mediasoup installation) and MSB5011: Parent project GUID not found in "mediasoup-worker" project dependency section.
+One of our dependencies requires Python2 and Visual Studio >= 2015 for installation (build of worker binaries) 
+```
+node version >= v8.6.0
+python version 2
+python version 3 will be supported once GYP project fixes this issue
+Visual Studio >= 2015
+```
+Append the path of MSBuild.exe folder to the Windows PATH environment variable (e.g. `“C:\Program Files (x86)\MSBuild\14.0\Bin”`).
+Create a new Windows environment variable `GYP_MSVS_VERSION` with the version of Visual Studio as value (e.g. “2017” for Visual Studio 2017).
+
+More recent instructions could be here: https://mediasoup.org/documentation/v3/mediasoup/installation/#windows
+
+## Build - Bad character escape sequence (utf-8-validate)
+add `"utf-8-validate"` to externals in server section in file `rollup.config.js`
+## Run dev-server - path.resolve is not a function
+add `"path"` to externals in server section in file `rollup.config.js`
+and rebuild server

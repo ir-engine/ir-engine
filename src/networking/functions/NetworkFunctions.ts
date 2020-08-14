@@ -27,8 +27,6 @@ export const handleClientConnected = (clientID: string): void => {
   createNetworkPrefab(
     // Prefab from the Network singleton's schema, using the defaultClientPrefab as a key
     (Network.instance as Network).schema.prefabs[(Network.instance as Network).schema.defaultClientPrefab].prefab,
-    // Singleton reference to the current world
-    (WorldComponent.instance as WorldComponent).world,
     // Connecting client's ID as a string
     clientID
   )

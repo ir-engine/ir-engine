@@ -41,7 +41,10 @@ export const getComponentsFromStateGroup = (entity: Entity, args: { group: State
   return components
 }
 
-export const getComponentFromStateGroup = (entity: Entity, args: { stateGroupType: StateGroupAlias }): Component<any> | null => {
+export const getComponentFromStateGroup = (
+  entity: Entity,
+  args: { stateGroupType: StateGroupAlias }
+): Component<any> | null => {
   stateSchema = entity.getComponent(State).schema
   Object.keys(stateSchema.groups[args.stateGroupType].states).forEach(element => {
     if (entity.getComponent(stateSchema.states[element].component)) component = stateSchema.states[element].component
