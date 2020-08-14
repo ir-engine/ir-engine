@@ -9,7 +9,7 @@ let transform: TransformComponent
 const gravity = 9.81
 
 export const applyGravity: Behavior = (entity: Entity, args, delta: number): void => {
-  transform = entity.getComponent(TransformComponent)
+  transform = getComponent(entity, TransformComponent)
   actor = entity.getMutableComponent<Actor>(Actor)
   if (transform.position[1] > 0) {
     transform.velocity[1] = transform.velocity[1] - (gravity * (delta * delta)) / 2

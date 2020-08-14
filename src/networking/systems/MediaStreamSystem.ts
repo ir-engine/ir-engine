@@ -1,14 +1,20 @@
-import { Attributes, System } from "../../ecs/System"
-import { World } from "../../ecs/World"
+import { Attributes, System } from "../../ecs/classes/System"
+import { World } from "../../ecs/classes/World"
 import { MediaStreamComponent } from "../components/MediaStreamComponent"
 import { Network } from "../components/Network"
 import { localMediaConstraints } from "../constants/VideoConstants"
+import { registerComponent } from "../../ecs/functions/ComponentFunctions"
+import { addComponent, getMutableComponent, getEntityByName } from "../../ecs"
 
 export class MediaStreamSystem extends System {
-  init(attributes?: Attributes): void {
-    //
-  }
   public static instance: MediaStreamSystem = null
+  init(attributes?: Attributes): void {
+    registerComponent(MediaStreamComponent)
+    const networkEntity = getEntityByName("network")
+    addComponent(networkEntity, MediaStreamComponent)
+    const mediaStreamComponent = getMutableComponent(networkEntity, MediaStreamComponent)
+    MediaStreamComponent.instance = mediaStreamComponent
+  }
   constructor(world: World) {
     super(world)
     MediaStreamSystem.instance = this
@@ -183,30 +189,6 @@ export class MediaStreamSystem extends System {
     const devices = await navigator.mediaDevices.enumerateDevices()
     const deviceInfo = devices.find(d => d.label.startsWith(track.label))
     return deviceInfo.deviceId
-  }
-
-  stopCamera(): Promise<boolean> {
-    throw new Error("Method not implemented.")
-  }
-
-  stopScreenshare(): Promise<boolean> {
-    throw new Error("Method not implemented.")
-  }
-
-  startAudio(): boolean {
-    throw new Error("Method not implemented.")
-  }
-
-  stopAudio(): boolean {
-    throw new Error("Method not implemented.")
-  }
-
-  muteUser(userId: number) {
-    throw new Error("Method not implemented.")
-  }
-
-  unmuteUser(userId: number) {
-    throw new Error("Method not implemented.")
   }
 
   public async getMediaStream(): Promise<boolean> {

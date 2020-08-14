@@ -15,7 +15,7 @@ export const jump: Behavior = (entity: Entity): void => {
 }
 
 export const jumping: Behavior = (entity: Entity, args, delta: any): void => {
-  transform = entity.getComponent(TransformComponent)
+  transform = getComponent(entity, TransformComponent)
   actor = entity.getMutableComponent<Actor>(Actor)
   actor.jump.t += delta
   if (actor.jump.t < actor.jump.duration) {

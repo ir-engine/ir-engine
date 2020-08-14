@@ -1,7 +1,7 @@
 import { BinaryValue } from "../../common/enums/BinaryValue"
 import { applyThreshold } from "../../common/functions/applyThreshold"
 import { Behavior } from "../../common/interfaces/Behavior"
-import { Entity } from "../../ecs/Entity"
+import { Entity } from "../../ecs/classes/Entity"
 import { InputType } from "../../input/enums/InputType"
 import { InputAlias } from "../../input/types/InputAlias"
 import { Input } from "../components/Input"
@@ -24,7 +24,7 @@ let _index: number // temp var for iterator loops
 export const handleGamepads: Behavior = (entity: Entity) => {
   if (!input.gamepadConnected) return
   // Get an immutable reference to input
-  input = entity.getComponent(Input)
+  input = getComponent(entity, Input)
   // Get gamepads from the DOM
   gamepads = navigator.getGamepads()
 
@@ -76,7 +76,7 @@ const handleGamepadButton: Behavior = (
   args: { gamepad: Gamepad; index: number; mappedInputValue: InputAlias }
 ) => {
   // Get mutable component reference
-  input = entity.getMutableComponent(Input)
+  input = getMutableComponent(entity, Input)
   // Make sure button is in the map
   if (
     typeof input.schema.gamepadInputMap.axes[args.index] === "undefined" ||
@@ -96,7 +96,7 @@ export const handleGamepadAxis: Behavior = (
   args: { gamepad: Gamepad; inputIndex: number; mappedInputValue: InputAlias }
 ) => {
   // get immutable component reference
-  input = entity.getComponent(Input)
+  input = getComponent(entity, Input)
 
   inputBase = args.inputIndex * 2
 
@@ -107,7 +107,7 @@ export const handleGamepadAxis: Behavior = (
 
   // Axis has changed, so get mutable reference to Input and set data
   if (x !== prevLeftX || y !== prevLeftY) {
-    entity.getMutableComponent(Input).data.set(args.mappedInputValue, {
+    getMutableComponent(entity, Input).data.set(args.mappedInputValue, {
       type: InputType.TWOD,
       value: [x, y]
     })
@@ -119,7 +119,7 @@ export const handleGamepadAxis: Behavior = (
 
 // When a gamepad connects
 export const handleGamepadConnected: Behavior = (entity: Entity, args: { event: any }): void => {
-  input = entity.getMutableComponent(Input)
+  input = getMutableComponent(entity, Input)
 
   console.log("A gamepad connected:", args.event.gamepad, args.event.gamepad.mapping)
 
@@ -136,7 +136,7 @@ export const handleGamepadConnected: Behavior = (entity: Entity, args: { event: 
 
 // When a gamepad disconnects
 export const handleGamepadDisconnected: Behavior = (entity: Entity, args: { event: any }): void => {
-  input = entity.getMutableComponent(Input)
+  input = getMutableComponent(entity, Input)
   console.log("A gamepad disconnected:", args.event.gamepad)
 
   input.gamepadConnected = false

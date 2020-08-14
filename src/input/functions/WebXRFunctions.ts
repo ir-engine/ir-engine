@@ -1,12 +1,12 @@
-import { WorldComponent } from "../../common/components/WorldComponent"
-import { Entity } from "../../ecs/Entity"
+import { Entity, createEntity } from "../../ecs/classes/Entity"
 import { WebXRSession } from "../components/WebXRSession"
 import { WebXRSpace } from "../components/WebXRSpace"
+import { addComponent } from "../../ecs"
 
 export const startVR = (onStarted = Function(), onEnded = Function()) => {
   let entity: Entity, session: XRSession, isImmersive: boolean, spaceType: any
   const onSpaceCreated = space => {
-    entity.addComponent(WebXRSpace, { space, spaceType })
+    addComponent(entity, WebXRSpace, { space, spaceType })
     onStarted && onStarted(session, space)
     console.log("XR refSpace", space, spaceType)
   }
@@ -16,8 +16,8 @@ export const startVR = (onStarted = Function(), onEnded = Function()) => {
       session = vrSession
       session.addEventListener("end", onEnded)
       isImmersive = true
-      entity = WorldComponent.instance.world.createEntity("vr-session")
-      entity.addComponent(WebXRSession, { session, isImmersive })
+      entity = createEntity("vr-session")
+      addComponent(entity, WebXRSession, { session, isImmersive })
       spaceType = "local-floor"
       return session.requestReferenceSpace(spaceType)
     })
@@ -48,9 +48,7 @@ export const initVR = (onVRSupportRequested?: any) => {
     xr.isSessionSupported("immersive-vr").then(() => {
       if (onVRSupportRequested) onVRSupportRequested
     })
-    xr.requestSession("inline").then(session =>
-      WorldComponent.instance.world.createEntity("inline-session").addComponent(WebXRSession, { session })
-    )
+    xr.requestSession("inline").then(session => addComponent(createEntity("inline-session"), WebXRSession, { session }))
   } else console.warn("WebXR isn't supported by this browser")
 }
 

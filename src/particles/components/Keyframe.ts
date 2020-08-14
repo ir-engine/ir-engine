@@ -1,4 +1,4 @@
-import { Component } from "../../ecs/Component"
+import { Component } from "../../ecs/classes/Component"
 
 interface KeyframeInterface {
   attributes: any[]

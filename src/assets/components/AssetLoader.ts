@@ -1,5 +1,5 @@
 import { Component, Types } from "../../ecs"
-import { AssetTypeAlias, AssetClassAlias } from "../types/AssetTypes"
+import { AssetTypeAlias, AssetClassAlias, AssetsLoadedHandler } from "../types/AssetTypes"
 import { AssetType } from "../enums/AssetType"
 import { AssetClass } from "../enums/AssetClass"
 
@@ -11,7 +11,7 @@ export class AssetLoader extends Component<AssetLoader> {
   castShadow: false
   envMapOverride: null
   append: true
-  onLoaded: null
+  onLoaded: AssetsLoadedHandler = null
   parent: null
 }
 AssetLoader.schema = {

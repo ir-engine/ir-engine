@@ -1,6 +1,6 @@
 import { BehaviorComponent } from "../../common/components/BehaviorComponent"
 import { Binary, NumericalType } from "../../common/types/NumericalTypes"
-import { Types } from "../../ecs/Types"
+import { Types } from "../../ecs/types/Types"
 import { InputSchema } from "../interfaces/InputSchema"
 import { InputValue } from "../interfaces/InputValue"
 import { InputAlias } from "../types/InputAlias"

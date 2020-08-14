@@ -1,24 +1,25 @@
 import { LifecycleValue } from "../../common/enums/LifecycleValue"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { NumericalType } from "../../common/types/NumericalTypes"
-import { Entity } from "../../ecs/Entity"
-import { Attributes, System } from "../../ecs/System"
+import { Entity } from "../../ecs/classes/Entity"
+import { Attributes, System } from "../../ecs/classes/System"
 import { addState } from "../behaviors/StateBehaviors"
 import { State } from "../components/State"
 import { StateSchema } from "../interfaces/StateSchema"
 import { StateValue } from "../interfaces/StateValue"
 import { StateGroupAlias } from "../types/StateGroupAlias"
+import { registerComponent, getComponent } from "../../ecs"
 
 export class StateSystem extends System {
-  init(attributes?: Attributes): void {
-    throw new Error("Method not implemented.")
+  init(): void {
+    registerComponent(State)
   }
   private _state: State
   private _args: any
   public execute(delta: number, time: number): void {
     this.queries.state.added?.forEach(entity => {
       // If stategroup has a default, add it to our state map
-      this._state = entity.getComponent(State)
+      this._state = getComponent(entity, State)
       if (this._state.schema === undefined) return
       Object.keys((this._state.schema as StateSchema)?.groups).forEach((stateGroup: StateGroupAlias) => {
         if (
@@ -32,7 +33,7 @@ export class StateSystem extends System {
 
     this.queries.state.changed?.forEach(entity => {
       // If stategroup has a default, add it to our state map
-      this._state = entity.getComponent(State)
+      this._state = getComponent(entity, State)
       if (this._state.schema === undefined) return
       Object.keys((this._state.schema as StateSchema)?.groups).forEach((stateGroup: StateGroupAlias) => {
         if (
@@ -51,7 +52,7 @@ export class StateSystem extends System {
   }
 
   private callBehaviors: Behavior = (entity: Entity, args: { phase: string }, delta: number) => {
-    this._state = entity.getComponent(State)
+    this._state = getComponent(entity, State)
     this._state.data.forEach((stateValue: StateValue<NumericalType>) => {
       if (
         this._state.schema.states[stateValue.state] !== undefined &&

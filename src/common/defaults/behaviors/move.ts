@@ -19,9 +19,9 @@ export const move: Behavior = (
   args: { input: InputAlias; inputType: InputType; value: NumericalType },
   time: any
 ): void => {
-  input = entity.getComponent(Input)
+  input = getComponent(entity, Input)
   actor = entity.getComponent<Actor>(Actor)
-  transform = entity.getMutableComponent(TransformComponent)
+  transform = getMutableComponent(entity, TransformComponent)
   const movementModifer = entity.hasComponent(Crouching) ? 0.5 : entity.hasComponent(Sprinting) ? 1.5 : 1.0
   const inputType = args.inputType
   outputSpeed = actor.accelerationSpeed * (time.delta as any) * movementModifer

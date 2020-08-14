@@ -1,22 +1,23 @@
-import { Attributes, System } from "../../ecs/System"
+import { Attributes, System } from "../../ecs/classes/System"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { WheelBody } from "../components/WheelBody"
+import { registerComponent, getComponent, getMutableComponent } from "../../ecs"
 
 export class WheelSystem extends System {
   init(attributes?: Attributes): void {
-    throw new Error("Method not implemented.")
+    registerComponent(WheelBody)
   }
   execute(dt, t) {
     for (let i = 0; i < this.queries.wheelBody.results.length; i++) {
       const entity = this.queries.wheelBody.results[i]
       //  console.log(entity);
-      const parentEntity = entity.getComponent(WheelBody as any)["vehicle"]
+      const parentEntity = getComponent(entity, WheelBody as any)["vehicle"]
       const parentObject = parentEntity.getObject3D()
       const vehicle = parentObject.userData.vehicle
       vehicle.updateWheelTransform(i)
       //  console.log(vehicle);
 
-      const transform = entity.getMutableComponent(TransformComponent) as TransformComponent
+      const transform = getMutableComponent(entity, TransformComponent) as TransformComponent
 
       transform.position = vehicle.wheelInfos[i].worldTransform.position
 

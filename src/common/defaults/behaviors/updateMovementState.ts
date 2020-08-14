@@ -17,7 +17,7 @@ const movementInputs = [
   DefaultInput.RIGHT
 ]
 export const updateMovementState: Behavior = (entity: Entity): void => {
-  input = entity.getComponent(Input)
+  input = getComponent(entity, Input)
   moving = false
   movementInputs.forEach(direction => {
     if (input.data.get(direction)?.value == BinaryValue.ON) moving = true

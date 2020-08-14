@@ -10,7 +10,7 @@ import { World } from "../classes/World"
 
 export function getComponent<C extends Component<any>>(
   entity: Entity,
-  Component: C | unknown,
+  Component: ComponentConstructor<C> | unknown,
   includeRemoved?: boolean
 ): Readonly<C> {
   let component = entity.components[(Component as C)._typeId]
@@ -20,6 +20,27 @@ export function getComponent<C extends Component<any>>(
   }
 
   return process.env.NODE_ENV !== "production" ? <C>wrapImmutableComponent(Component, component) : <C>component
+}
+
+export function getMutableComponent<C extends Component<any>>(
+  entity: Entity,
+  Component: ComponentConstructor<C> | any
+): C {
+  const component = entity.components[Component._typeId]
+
+  if (!component) {
+    return
+  }
+
+  for (let i = 0; i < entity.queries.length; i++) {
+    const query = entity.queries[i]
+    // @todo accelerate entity check. Maybe having query._Components as an object
+    // @todo add Not components
+    if (query.reactive && query.Components.indexOf(Component) !== -1) {
+      query.eventDispatcher.dispatchEvent(Query.prototype.COMPONENT_CHANGED, entity, component)
+    }
+  }
+  return <C>component
 }
 
 export function getRemovedComponent<C extends Component<any>>(
@@ -41,24 +62,6 @@ export function getComponentsToRemove(entity: Entity): { [componentName: string]
 
 export function getComponentTypes(entity: Entity): Array<Component<any>> {
   return entity.componentTypes
-}
-
-export function getMutableComponent<C extends Component<any>>(entity: Entity, Component: ComponentConstructor<C>): C {
-  const component = entity.components[Component._typeId]
-
-  if (!component) {
-    return
-  }
-
-  for (let i = 0; i < entity.queries.length; i++) {
-    const query = entity.queries[i]
-    // @todo accelerate entity check. Maybe having query._Components as an object
-    // @todo add Not components
-    if (query.reactive && query.Components.indexOf(Component) !== -1) {
-      query.eventDispatcher.dispatchEvent(Query.prototype.COMPONENT_CHANGED, entity, component)
-    }
-  }
-  return <C>component
 }
 
 export function addComponent<C extends Component<any>>(

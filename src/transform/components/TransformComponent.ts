@@ -1,4 +1,4 @@
-import { Component } from "../../ecs/Component"
+import { Component } from "../../ecs/classes/Component"
 
 const vector3Identity: number[] = [0, 0, 0]
 const quaternionIdentity: number[] = [0, 0, 0, 1]

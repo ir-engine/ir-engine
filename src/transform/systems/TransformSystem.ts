@@ -1,5 +1,5 @@
 import { Behavior } from "../../common/interfaces/Behavior"
-import { Attributes, System } from "../../ecs"
+import { Attributes, System, registerComponent } from "../../ecs"
 import { childTransformBehavior } from "../behaviors/childTransformBehavior"
 import { transformBehavior } from "../behaviors/transformBehavior"
 import { TransformComponent } from "../components/TransformComponent"
@@ -9,6 +9,8 @@ export class TransformSystem extends System {
   transformBehavior: Behavior
   childTransformBehavior: Behavior
   init(attributes: Attributes) {
+    registerComponent(TransformComponent)
+    registerComponent(TransformParentComponent)
     if (attributes && attributes.transformBehavior) {
       this.transformBehavior = attributes.transformBehavior
     } else {

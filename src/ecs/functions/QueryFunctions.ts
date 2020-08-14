@@ -1,6 +1,6 @@
 import { Component } from "../classes/Component"
-import { queryKey } from "./Utils"
 import Query from "../classes/Query"
+import { queryKey } from "./Utils"
 
 export function getQuery(components: Component<any>[]): Query {
   const key = queryKey(components)

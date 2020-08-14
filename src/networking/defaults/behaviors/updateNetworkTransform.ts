@@ -8,7 +8,7 @@ import { addState } from "../../../state/behaviors/StateBehaviors"
 import { DefaultStateTypes } from "../../../state/defaults/DefaultStateTypes"
 
 export const updateMovementState: Behavior = (entity: Entity): void => {
-  const input = entity.getComponent(Input)
+  const input = getComponent(entity, Input)
   let moving = false
   const movementInputs = [
     DefaultInput.FORWARD,

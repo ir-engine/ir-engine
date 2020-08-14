@@ -1,14 +1,14 @@
 import { LifecycleValue } from "../../common/enums/LifecycleValue"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { Binary, NumericalType } from "../../common/types/NumericalTypes"
-import { Entity } from "../../ecs/Entity"
+import { Entity } from "../../ecs/classes/Entity"
 import { Input } from "../components/Input"
 import { InputType } from "../enums/InputType"
 import { InputValue } from "../interfaces/InputValue"
 import { InputAlias } from "../types/InputAlias"
 let input: Input
 export const handleInput: Behavior = (entity: Entity, delta: number): void => {
-  input = entity.getMutableComponent(Input) as Input
+  input = getMutableComponent(entity, Input) as Input
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
     // If the input is a button
     if (value.type === InputType.BUTTON) {

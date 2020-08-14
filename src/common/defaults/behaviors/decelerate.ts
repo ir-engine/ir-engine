@@ -10,7 +10,7 @@ const velocity: vec3 = [0, 0, 0]
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const decelerate: Behavior = (entity: Entity, args: null, delta: number): void => {
   actor = entity.getComponent<Actor>(Actor)
-  transform = entity.getMutableComponent(TransformComponent)
+  transform = getMutableComponent(entity, TransformComponent)
   vec3.set(velocity, transform.velocity[0], transform.velocity[1], transform.velocity[2])
   if (Math.abs(vec3.length(velocity)) != 0) {
     vec3.scale(velocity, velocity, 1.0 - actor.decelerationSpeed * delta)

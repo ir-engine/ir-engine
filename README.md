@@ -28,7 +28,7 @@ interface Behavior {
 A behavior that follows this interface looks like this:
 ```typescript
 const handleMouseMovement: Behavior = (entity: Entity, args: { event: MouseEvent }): void => {
-  input = entity.getComponent(Input) as Input
+  input = getComponent(entity, Input) as Input
   _value[0] = (args.event.clientX / window.innerWidth) * 2 - 1
   _value[1] = (args.event.clientY / window.innerHeight) * -2 + 1
   // Set type to TWOD (two-dimensional axis) and value to a normalized -1, 1 on X and Y
@@ -66,7 +66,7 @@ Let's take a look at the input system to see what's going on. To simplify, we'll
 
 // where the magic happens
 export const handleInput: Behavior = (entity: Entity, delta: number): void => {
-  entity.getComponent(Input).data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+  getComponent(entity, Input).data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
     // If the input is a button
     if (value.type === InputType.BUTTON) { 
     // If the input exists on the input map (otherwise ignore it)
@@ -195,7 +195,7 @@ The system looks for any behaviors mapped to these "phases" and executes them wh
 callBehaviorsForHook is also a behavior:
 ```typescript
   callBehaviorsForHook: Behavior = (entity: Entity, args: { phase: string; }, delta: number) => {
-    this.subscription = entity.getComponent(Subscription)
+    this.subscription = getComponent(entity, Subscription)
     // If the schema for this subscription component has any values in this phase
     if (this.subscription.schema[args.phase] !== undefined) {
       // Foreach value in this phase
@@ -231,7 +231,7 @@ States define what something currently is. For example, the character could be j
 const jump: Behavior = (entity: Entity): void => {
   // Add the state to the entity (addState is also a behavior)
   addState(entity, { state: DefaultStateTypes.JUMPING })
-  actor = entity.getMutableComponent(Actor)
+  actor = getMutableComponent(entity, Actor)
   // Set actor's jump time to 0 -- jump will end when t increments to jump length
   actor.jump.t = 0
 }
@@ -245,8 +245,8 @@ Jumping doesn't currently have entry or exit transitions, but does perform the j
 The jumping state is removed by the jumping behavior when the actor's jump time exceeds the jump duration. In a more complex scenario, the user's jumping state might get removed by landing back on ground or transitioning to another state, otherwise the jumping state would transition into falling. In this case, however, when jumping is over, we remove the state.
 ```typescript
 export const jumping: Behavior = (entity: Entity, args, delta: number): void => {
-  transform = entity.getComponent(TransformComponent)
-  actor = entity.getMutableComponent(Actor)
+  transform = getComponent(entity, TransformComponent)
+  actor = getMutableComponent(entity, Actor)
   actor.jump.t += delta
   if (actor.jump.t < actor.jump.duration) {
     transform.velocity[1] = transform.velocity[1] + Math.cos((actor.jump.t / actor.jump.duration) * Math.PI)

@@ -22,9 +22,9 @@ export const rotateAround: Behavior = (
   args: { input: InputAlias; inputType: InputType; value: NumericalType },
   delta: number
 ): void => {
-  inputComponent = entity.getComponent(Input)
-  actor = entity.getComponent(Actor) as Actor
-  transform = entity.getMutableComponent(TransformComponent)
+  inputComponent = getComponent(entity, Input)
+  actor = getComponent(entity, Actor) as Actor
+  transform = getMutableComponent(entity, TransformComponent)
 
   mouseDownPosition = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes["mouseClickDownPosition"])
   originalRotation = inputComponent.data.get(

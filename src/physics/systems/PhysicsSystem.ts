@@ -1,6 +1,6 @@
 import { Quaternion } from "cannon-es/src/math/Quaternion"
 import { Object3DComponent } from "../../common/components/Object3DComponent"
-import { Attributes, System } from "../../ecs"
+import { Attributes, System, registerComponent, getComponent, getMutableComponent } from "../../ecs"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import {
   _createBox,
@@ -17,16 +17,16 @@ import { VehicleBody } from "../components/VehicleBody"
 export const quaternion = new Quaternion()
 
 export class PhysicsSystem extends System {
-  init(attributes?: Attributes): void {
-    throw new Error("Method not implemented.")
+  init(): void {
+    registerComponent(RigidBody)
   }
   execute(dt, t) {
     PhysicsWorld.instance.frame++
     PhysicsWorld.instance._physicsWorld.step(PhysicsWorld.instance.timeStep)
 
     for (const entity of this.queries.physicsRigidBody.added) {
-      const physicsRigidBody = entity.getComponent<RigidBody>(RigidBody) as any
-      const obj = entity.getComponent<Object3DComponent>(Object3DComponent).value
+      const physicsRigidBody = getComponent<RigidBody>(entity, RigidBody) as any
+      const obj = getComponent<Object3DComponent>(entity, Object3DComponent).value
       let body
       if (physicsRigidBody.type === "box") body = _createBox(entity)
       else if (physicsRigidBody.type === "cylinder") body = _createCylinder(entity)
@@ -39,9 +39,9 @@ export class PhysicsSystem extends System {
     }
 
     for (const entity of this.queries.vehicleBody.added) {
-      const object = entity.getComponent<Object3DComponent>(Object3DComponent).value
+      const object = getComponent<Object3DComponent>(entity, Object3DComponent).value
 
-      const vehicleComponent = entity.getComponent(VehicleBody) as VehicleBody
+      const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody
 
       const [vehicle, wheelBodies] = _createVehicleBody(entity, vehicleComponent.convexMesh)
       object.userData.vehicle = vehicle
@@ -54,8 +54,8 @@ export class PhysicsSystem extends System {
 
     for (const entity of this.queries.physicsRigidBody.results) {
       //  if (rigidBody.weight === 0.0) continue;
-      const transform = entity.getMutableComponent(TransformComponent)
-      const object = entity.getComponent<Object3DComponent>(Object3DComponent).value
+      const transform = getMutableComponent(entity, TransformComponent)
+      const object = getComponent<Object3DComponent>(entity, Object3DComponent).value
       const body = object.userData.body
       //console.log(body);
       transform.position = body.position
@@ -67,8 +67,8 @@ export class PhysicsSystem extends System {
 
     for (const entity of this.queries.vehicleBody.results) {
       //  if (rigidBody.weight === 0.0) continue;
-      const transform = entity.getMutableComponent(TransformComponent)
-      const object = entity.getComponent<Object3DComponent>(Object3DComponent).value
+      const transform = getMutableComponent(entity, TransformComponent)
+      const object = getComponent<Object3DComponent>(entity, Object3DComponent).value
       const vehicle = object.userData.vehicle.chassisBody
 
       transform.position = vehicle.position
