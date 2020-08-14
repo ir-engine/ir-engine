@@ -1,5 +1,3 @@
-import { NetworkGameState } from ".."
-import { addComponent, createEntity, registerComponent } from "../../ecs"
 import { System } from "../../ecs/classes/System"
 import { Network, Network as NetworkComponent } from "../components/Network"
 import { NetworkClient } from "../components/NetworkClient"
@@ -7,6 +5,9 @@ import { NetworkObject } from "../components/NetworkObject"
 import { DefaultNetworkSchema } from "../defaults/DefaultNetworkSchema"
 import { NetworkSchema } from "../interfaces/NetworkSchema"
 import { NetworkTransport } from "../interfaces/NetworkTransport"
+import { registerComponent } from "../../ecs/functions/ComponentFunctions"
+import { NetworkGameState } from "../components/NetworkInterpolation"
+import { createEntity, addComponent } from "../../ecs/functions/EntityFunctions"
 
 export class NetworkSystem extends System {
   init(schema?: NetworkSchema) {

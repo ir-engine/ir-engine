@@ -1,8 +1,10 @@
-import { Behavior } from "../../common"
-import { Component, Entity, getComponent, removeComponent } from "../../ecs"
 import { State } from "../components/State"
 import { StateSchema } from "../interfaces/StateSchema"
 import { StateGroupAlias } from "../types/StateGroupAlias"
+import { Component } from "../../ecs/classes/Component"
+import { Behavior } from "../../common/interfaces/Behavior"
+import { Entity } from "../../ecs/classes/Entity"
+import { getComponent, removeComponent } from "../../ecs/functions/EntityFunctions"
 
 let stateSchema: StateSchema
 let stateGroupExists: boolean

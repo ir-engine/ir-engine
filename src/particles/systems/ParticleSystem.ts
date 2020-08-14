@@ -2,11 +2,13 @@ import { Matrix4 } from "three/src/math/Matrix4"
 import { Quaternion } from "three/src/math/Quaternion"
 import { Vector3 } from "three/src/math/Vector3"
 import { Object3DComponent } from "../../common/components/Object3DComponent"
-import { addComponent, Attributes, getComponent, registerComponent, System } from "../../ecs"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { TransformParentComponent } from "../../transform/components/TransformParentComponent"
 import { createParticleEmitter, setEmitterMatrixWorld, setEmitterTime } from "../classes/ParticleEmitter"
 import { ParticleEmitter, ParticleEmitterState } from "../components/ParticleEmitter"
+import { System, Attributes } from "../../ecs/classes/System"
+import { registerComponent } from "../../ecs/functions/ComponentFunctions"
+import { getComponent, addComponent } from "../../ecs/functions/EntityFunctions"
 
 export class ParticleSystem extends System {
   init(attributes?: Attributes): void {

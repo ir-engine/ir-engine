@@ -1,7 +1,7 @@
 import { Vector3 } from "three"
 import { ScaleComponent } from "../../transform/components/ScaleComponent"
 import { addObject3DComponent } from "../../common/defaults/behaviors/Object3DBehaviors"
-import { createEntity, addComponent, getMutableComponent } from "../../ecs"
+import { getMutableComponent, createEntity, addComponent } from "../../ecs/functions/EntityFunctions"
 
 export default function createSkybox(args: {
   obj

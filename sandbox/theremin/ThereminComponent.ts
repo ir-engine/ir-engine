@@ -1,5 +1,5 @@
-import { Component } from "../../ecs/classes/Component"
-import { Types } from "../../ecs"
+import { Component } from "../../src/ecs/classes/Component"
+import { Types } from "../../src/ecs/types/Types"
 
 export class ThereminComponent extends Component<ThereminComponent> {
   pitchBoundingBox: any

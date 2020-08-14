@@ -1,6 +1,7 @@
 import { EffectComposer } from "postprocessing"
-import { Component, Types } from "../../ecs"
 import { PostProcessingSchema } from "../interfaces/PostProcessingSchema"
+import { Component } from "../../ecs/classes/Component"
+import { Types } from "../../ecs/types/Types"
 export class RendererComponent extends Component<any> {
   static instance: RendererComponent
   renderer: any

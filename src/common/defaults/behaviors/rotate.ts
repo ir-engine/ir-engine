@@ -1,5 +1,4 @@
 import { quat, vec3 } from "gl-matrix"
-import { getComponent, getMutableComponent } from "../../../ecs"
 import { Entity } from "../../../ecs/classes/Entity"
 import { Input } from "../../../input/components/Input"
 import { InputType } from "../../../input/enums/InputType"
@@ -8,6 +7,7 @@ import { TransformComponent } from "../../../transform/components/TransformCompo
 import { Behavior } from "../../interfaces/Behavior"
 import { NumericalType, Vector2, Vector3, Vector4 } from "../../types/NumericalTypes"
 import { Actor } from "../components/Actor"
+import { getComponent, getMutableComponent } from "../../../ecs/functions/EntityFunctions"
 
 let actor: Actor
 let transform: TransformComponent

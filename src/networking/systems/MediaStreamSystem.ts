@@ -1,10 +1,10 @@
-import { addComponent, getEntityByName, getMutableComponent } from "../../ecs"
 import { Attributes, System } from "../../ecs/classes/System"
 import { World } from "../../ecs/classes/World"
 import { registerComponent } from "../../ecs/functions/ComponentFunctions"
 import { MediaStreamComponent } from "../components/MediaStreamComponent"
 import { Network } from "../components/Network"
 import { localMediaConstraints } from "../constants/VideoConstants"
+import { getEntityByName, addComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions"
 
 export class MediaStreamSystem extends System {
   public static instance: MediaStreamSystem = null

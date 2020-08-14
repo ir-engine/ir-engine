@@ -1,5 +1,5 @@
-import { addComponent } from "../../ecs"
-import { createEntity, Entity } from "../../ecs/classes/Entity"
+import { Entity } from "../../ecs/classes/Entity"
+import { createEntity, addComponent } from "../../ecs/functions/EntityFunctions"
 import { WebXRSession } from "../components/WebXRSession"
 import { WebXRSpace } from "../components/WebXRSpace"
 

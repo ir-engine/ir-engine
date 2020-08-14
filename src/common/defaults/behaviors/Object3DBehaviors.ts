@@ -1,18 +1,4 @@
 import { Object3D } from "three"
-import {
-  addComponent,
-  Component,
-  ComponentConstructor,
-  Entity,
-  getComponent,
-  getMutableComponent,
-  hasComponent,
-  hasRegisteredComponent,
-  registerComponent,
-  removeComponent,
-  removeEntity
-} from "../../../ecs"
-import { Skybox } from "../../../scene/components/Skybox"
 import { SceneManager } from "../../classes/SceneManager"
 import { Object3DComponent } from "../../components/Object3DComponent"
 import {
@@ -49,6 +35,18 @@ import {
   SpriteTagComponent
 } from "../../components/Object3DTagComponents"
 import { Behavior } from "../../interfaces/Behavior"
+import { Entity } from "../../../ecs/classes/Entity"
+import { ComponentConstructor, Component } from "../../../ecs/classes/Component"
+import {
+  addComponent,
+  getMutableComponent,
+  hasComponent,
+  getComponent,
+  removeComponent,
+  removeEntity
+} from "../../../ecs/functions/EntityFunctions"
+import { hasRegisteredComponent, registerComponent } from "../../../ecs/functions/ComponentFunctions"
+import { SkyboxComponent } from "../../../scene/components/SkyboxComponent"
 
 export function addTagComponentFromBehavior<C>(
   entity: Entity,
@@ -238,7 +236,7 @@ export function getComponentTags(object3d: Object3D): Component<any>[] {
     if (!hasRegisteredComponent(SceneTagComponent as any)) registerComponent(SceneTagComponent)
     components.push(SceneTagComponent as any)
   } else if ((object3d as any).isSky) {
-    if (!hasRegisteredComponent(Skybox as any)) registerComponent(Skybox)
+    if (!hasRegisteredComponent(SkyboxComponent as any)) registerComponent(SkyboxComponent)
     components.push(SceneTagComponent as any)
   }
   return components

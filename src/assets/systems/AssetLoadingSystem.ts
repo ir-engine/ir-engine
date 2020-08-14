@@ -1,15 +1,5 @@
 import { Object3DComponent } from "../../common/components/Object3DComponent"
 import { addObject3DComponent, removeObject3DComponent } from "../../common/defaults/behaviors/Object3DBehaviors"
-import {
-  addComponent,
-  Entity,
-  getComponent,
-  getMutableComponent,
-  hasComponent,
-  Not,
-  registerComponent,
-  removeComponent
-} from "../../ecs"
 import { System } from "../../ecs/classes/System"
 import { AssetLoader } from "../components/AssetLoader"
 import { AssetLoaderState } from "../components/AssetLoaderState"
@@ -18,6 +8,15 @@ import { Model } from "../components/Model"
 import { AssetClass } from "../enums/AssetClass"
 import { getAssetClass, getAssetType, loadAsset } from "../functions/LoadingFunctions"
 import { AssetsLoadedHandler } from "../types/AssetTypes"
+import { registerComponent, Not } from "../../ecs/functions/ComponentFunctions"
+import { Entity } from "../../ecs/classes/Entity"
+import {
+  addComponent,
+  getMutableComponent,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from "../../ecs/functions/EntityFunctions"
 
 export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()

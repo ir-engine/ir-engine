@@ -1,4 +1,3 @@
-import { getComponent, getMutableComponent, hasComponent } from "../../../ecs"
 import { Entity } from "../../../ecs/classes/Entity"
 import { Input } from "../../../input/components/Input"
 import { InputType } from "../../../input/enums/InputType"
@@ -9,6 +8,7 @@ import { NumericalType, Vector2, Vector3 } from "../../types/NumericalTypes"
 import { Actor } from "../components/Actor"
 import { Crouching } from "../components/Crouching"
 import { Sprinting } from "../components/Sprinting"
+import { getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions"
 
 let input: Input
 let actor: Actor

@@ -1,9 +1,10 @@
 import { Behavior } from "../../common/interfaces/Behavior"
 import { BehaviorValue } from "../../common/interfaces/BehaviorValue"
 import { Entity } from "../../ecs/classes/Entity"
-import { Attributes, System } from "../../ecs/classes/System"
+import { System } from "../../ecs/classes/System"
 import { Subscription } from "../components/Subscription"
-import { registerComponent, getComponent } from "../../ecs"
+import { registerComponent } from "../../ecs/functions/ComponentFunctions"
+import { getComponent } from "../../ecs/functions/EntityFunctions"
 
 export class SubscriptionSystem extends System {
   init(): void {

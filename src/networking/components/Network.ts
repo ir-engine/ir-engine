@@ -1,9 +1,10 @@
 // TODO: Clean me up, add schema, etc
 import { RingBuffer } from "../../common/classes/RingBuffer"
-import { Component, Types } from "../../ecs"
 import { Message } from "../interfaces/Message"
 import { NetworkSchema } from "../interfaces/NetworkSchema"
 import { NetworkTransport } from "../interfaces/NetworkTransport"
+import { Component } from "../../ecs/classes/Component"
+import { Types } from "../../ecs/types/Types"
 
 export class Network extends Component<any> {
   static instance: Network = null

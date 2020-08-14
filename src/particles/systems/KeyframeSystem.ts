@@ -1,6 +1,7 @@
-import { getComponent, registerComponent } from "../../ecs"
 import { Attributes, System } from "../../ecs/classes/System"
 import { Keyframe } from "../components/Keyframe"
+import { registerComponent } from "../../ecs/functions/ComponentFunctions"
+import { getComponent } from "../../ecs/functions/EntityFunctions"
 
 export class KeyframeSystem extends System {
   init(attributes?: Attributes): void {

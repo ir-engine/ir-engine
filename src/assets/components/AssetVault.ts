@@ -1,4 +1,5 @@
-import { Component, Types } from "../../ecs"
+import { Component } from "../../ecs/classes/Component"
+import { Types } from "../../ecs/types/Types"
 import { AssetId, AssetMap, AssetUrl } from "../types/AssetTypes"
 
 // This component should only be used once per game

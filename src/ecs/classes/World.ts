@@ -1,10 +1,12 @@
-import { Entity, processDeferredEntityRemoval } from "./Entity"
+import { Entity } from "./Entity"
+import { processDeferredEntityRemoval } from "../functions/EntityFunctions"
 import { EntityPool } from "./EntityPool"
 import EventDispatcher from "./EventDispatcher"
 import Query from "./Query"
 import { WebGLRenderer, Camera } from "three"
-import { SceneManager } from "../.."
-import { hasWindow, now, System } from ".."
+import { SceneManager } from "../../common/classes/SceneManager"
+import { hasWindow, now } from "../functions/Utils"
+import { System } from "./System"
 
 export interface WorldOptions {
   entityPoolSize?: number

@@ -1,4 +1,3 @@
-import { getComponent, getMutableComponent } from "../../../ecs"
 import { Entity } from "../../../ecs/classes/Entity"
 import { Input } from "../../../input/components/Input"
 import { InputType } from "../../../input/enums/InputType"
@@ -6,6 +5,7 @@ import { InputAlias } from "../../../input/types/InputAlias"
 import { TransformComponent } from "../../../transform/components/TransformComponent"
 import { Behavior } from "../../interfaces/Behavior"
 import { NumericalType } from "../../types/NumericalTypes"
+import { getMutableComponent, getComponent } from "../../../ecs/functions/EntityFunctions"
 export const rotateStart: Behavior = (
   entity: Entity,
   args: { input: InputAlias; inputType: InputType; value: NumericalType }

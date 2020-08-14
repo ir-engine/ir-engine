@@ -1,14 +1,3 @@
-import {
-  WebXRButton,
-  WebXRMainController,
-  WebXRMainGamepad,
-  WebXRPointer,
-  WebXRSecondController,
-  WebXRSecondGamepad,
-  WebXRSpace,
-  WebXRViewPoint
-} from ".."
-import { getComponent, getMutableComponent, registerComponent } from "../../ecs"
 import { System } from "../../ecs/classes/System"
 import { handleInput } from "../behaviors/handleInput"
 import { initializeSession, processSession } from "../behaviors/WebXRInputBehaviors"
@@ -17,6 +6,16 @@ import { WebXRRenderer } from "../components/WebXRRenderer"
 import { WebXRSession } from "../components/WebXRSession"
 import { DefaultInputSchema } from "../defaults/DefaultInputSchema"
 import { initVR } from "../functions/WebXRFunctions"
+import { WebXRSpace } from "../components/WebXRSpace"
+import { WebXRViewPoint } from "../components/WebXRViewPoint"
+import { WebXRPointer } from "../components/WebXRPointer"
+import { WebXRButton } from "../components/WebXRButton"
+import { WebXRMainController } from "../components/WebXRMainController"
+import { WebXRMainGamepad } from "../components/WebXRMainGamepad"
+import { WebXRSecondController } from "../components/WebXRSecondController"
+import { WebXRSecondGamepad } from "../components/WebXRSecondGamepad"
+import { registerComponent } from "../../ecs/functions/ComponentFunctions"
+import { getMutableComponent, getComponent } from "../../ecs/functions/EntityFunctions"
 
 export class InputSystem extends System {
   readonly mainControllerId = 0

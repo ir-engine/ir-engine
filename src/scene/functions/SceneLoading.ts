@@ -1,6 +1,5 @@
 import { SceneTagComponent } from "../../common/components/Object3DTagComponents"
-import { createEntity } from "../../ecs"
-import { addComponent } from "../../ecs/functions/EntityFunctions"
+import { addComponent, createEntity } from "../../ecs/functions/EntityFunctions"
 import { SceneObjectLoadingSchema } from "../constants/SceneObjectLoadingSchema"
 
 export function loadScene(scene) {

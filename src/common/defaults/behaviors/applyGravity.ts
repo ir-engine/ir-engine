@@ -1,7 +1,8 @@
-import { Entity, getComponent, getMutableComponent } from "../../../ecs"
 import { TransformComponent } from "../../../transform/components/TransformComponent"
 import { Behavior } from "../../interfaces/Behavior"
 import { Actor } from "../components/Actor"
+import { Entity } from "../../../ecs/classes/Entity"
+import { getComponent, getMutableComponent } from "../../../ecs/functions/EntityFunctions"
 
 let actor: Actor
 let transform: TransformComponent

@@ -1,4 +1,5 @@
-import { Component, Types } from "../../ecs"
+import { Component } from "../../ecs/classes/Component"
+import { Types } from "../../ecs/types/Types"
 
 export class WebXRSession extends Component<any> {
   static schema = {

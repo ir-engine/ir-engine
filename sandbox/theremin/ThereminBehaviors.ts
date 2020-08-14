@@ -1,6 +1,8 @@
-import { Behavior } from "../../common/interfaces/Behavior"
+import { Behavior } from "../../src/common/interfaces/Behavior"
 import { ThereminComponent } from "./ThereminComponent"
-import { Entity, getComponent, getMutableComponent } from "../../ecs"
+import { Entity } from "../../src/ecs/classes/Entity"
+import { getComponent, getMutableComponent } from "../../src/ecs/functions/EntityFunctions"
+
 let theremin: ThereminComponent
 // Starts the theremin
 export const startOscillator: Behavior = (entity: Entity) => {

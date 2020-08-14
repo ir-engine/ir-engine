@@ -1,9 +1,10 @@
 import { Behavior } from "../../common/interfaces/Behavior"
-import { Attributes, System, registerComponent } from "../../ecs"
 import { childTransformBehavior } from "../behaviors/childTransformBehavior"
 import { transformBehavior } from "../behaviors/transformBehavior"
 import { TransformComponent } from "../components/TransformComponent"
 import { TransformParentComponent } from "../components/TransformParentComponent"
+import { System, Attributes } from "../../ecs/classes/System"
+import { registerComponent } from "../../ecs/functions/ComponentFunctions"
 
 export class TransformSystem extends System {
   transformBehavior: Behavior
