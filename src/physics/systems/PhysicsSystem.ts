@@ -4,10 +4,10 @@ import { Collider } from "../components/Collider"
 import { VehicleBody } from "../components/VehicleBody"
 import { WheelBody } from "../components/WheelBody"
 
-import { ColliderBehavior } from "../behavior/ColliderBehavior"
-import { RigidBodyBehavior } from "../behavior/RigidBodyBehavior"
-import { VehicleBehavior } from "../behavior/VehicleBehavior"
-import { WheelBehavior } from "../behavior/WheelBehavior"
+import { ColliderBehavior } from "../behaviors/ColliderBehavior"
+import { RigidBodyBehavior } from "../behaviors/RigidBodyBehavior"
+import { VehicleBehavior } from "../behaviors/VehicleBehavior"
+import { WheelBehavior } from "../behaviors/WheelBehavior"
 
 import { Object3DComponent } from "ecsy-three"
 import { TransformComponent } from "../../transform/components/TransformComponent"
@@ -29,20 +29,21 @@ export class PhysicsSystem extends System {
       ColliderBehavior(entity, { phase: "onAdded" })
     })
 
-    this.queries.сollider.results?.forEach(entity => {
-      ColliderBehavior(entity, { phase: "onUpdate" })
-    })
 
     this.queries.сollider.removed?.forEach(entity => {
       ColliderBehavior(entity, { phase: "onRemoved" })
     })
 
     // RigidBody
-    this.queries.сollider.added?.forEach(entity => {
+    this.queries.rigidBody.added?.forEach(entity => {
       RigidBodyBehavior(entity, { phase: "onAdded" })
     })
 
-    this.queries.сollider.removed?.forEach(entity => {
+    this.queries.rigidBody.results?.forEach(entity => {
+      RigidBodyBehavior(entity, { phase: "onUpdate" })
+    })
+
+    this.queries.rigidBody.removed?.forEach(entity => {
       RigidBodyBehavior(entity, { phase: "onRemoved" })
     })
 

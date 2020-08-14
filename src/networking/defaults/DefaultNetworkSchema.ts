@@ -1,6 +1,7 @@
 // Components
 import { BoxBufferGeometry, Mesh } from "three"
 import { addObject3DComponent, removeObject3DComponent } from "../../common/defaults/behaviors/Object3DBehaviors"
+import { addMeshCollider } from "../../physics/behaviors/addMeshCollider"
 import { Actor } from "../../common/defaults/components/Actor"
 import { Input } from "../../input/components/Input"
 import { TransformComponent } from "../../transform/components/TransformComponent"
@@ -41,19 +42,17 @@ const NetworkPlayerCharacter: NetworkPrefab = {
       networked: true,
       args: {
         obj: Mesh,
-        objArgs: box
-      }
-    },
-    {
-      behavior: addObject3DComponent,
-      networked: false,
-      args: {
-        obj: Mesh,
         objArgs: miniGeo
       }
     },
+    /*
     {
       behavior: attachCamera
+    },
+    */
+    {
+      behavior: addMeshCollider,
+      networked: true,
     }
   ],
   onDestroy: [
