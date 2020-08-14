@@ -211,8 +211,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log("Polling")
     this.pollAndUpdate() // start this polling loop
     console.log("Joined world")
-    ;(window as any).sendUnreliableMessage = this.sendUnreliableMessage.bind(this)
-    ;(window as any).initRecv = this.initRecv.bind(this)
+    // ;(window as any).sendUnreliableMessage = this.sendUnreliableMessage.bind(this)
+    // ;(window as any).initRecv = this.initRecv.bind(this)
   }
 
   async initRecv(): Promise<void> {
