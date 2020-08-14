@@ -44,11 +44,9 @@ export abstract class System {
 
   static isSystem: true
   _mandatoryQueries: any
-  _queries: {}
   priority: number
   executeTime: number
   initialized: boolean
-  static getName: () => any
 
   /**
    * The results of the queries.
@@ -63,12 +61,11 @@ export abstract class System {
     }
   }
 
-  world: World
-
   /**
    * Whether the system will execute during the world tick.
    */
   enabled: boolean
+  name: string
 
   abstract init(attributes?: Attributes): void
   abstract execute(delta: number, time: number): void
@@ -86,16 +83,11 @@ export abstract class System {
     return true
   }
 
-  getName(): string {
-    return this.getName()
-  }
-
-  constructor(world: World, attributes?: Attributes) {
-    this.world = world
+  constructor(attributes?: Attributes) {
     this.enabled = true
 
     // @todo Better naming :)
-    this._queries = {}
+    this.queries = {}
     this.queries = {}
 
     this.priority = 0
@@ -130,9 +122,9 @@ export abstract class System {
           )
         }
 
-        const query = this.world.entityManager.queryComponents(Components)
+        const query = World.queryComponents(Components)
 
-        this._queries[queryName] = query
+        this.queries[queryName] = query
         this._mandatoryQueries.push(query)
         this.queries[queryName] = {
           results: query.entities
@@ -151,7 +143,7 @@ export abstract class System {
           validEvents.forEach(eventName => {
             if (!this.execute) {
               console.warn(
-                `System '${this.getName()}' has defined listen events (${validEvents.join(
+                `System '${this.name}' has defined listen events (${validEvents.join(
                   ", "
                 )}) for query '${queryName}' but it does not implement the 'execute' method.`
               )
@@ -183,27 +175,6 @@ export abstract class System {
                       }
                     }
                   )
-                } else {
-                  /*
-                  // Checking just specific components
-                  let changedList = (this.queries[queryName][eventName] = {});
-                  event.forEach(component => {
-                    let eventList = (changedList[
-                      componentPropertyName(component)
-                    ] = []);
-                    query.eventDispatcher.addEventListener(
-                      Query.prototype.COMPONENT_CHANGED,
-                      (entity, changedComponent) => {
-                        if (
-                          changedComponent.constructor === component &&
-                          eventList.indexOf(entity) === -1
-                        ) {
-                          eventList.push(entity);
-                        }
-                      }
-                    );
-                  });
-                  */
                 }
               } else {
                 const eventList = (this.queries[queryName][eventName] = [])
@@ -229,8 +200,7 @@ export abstract class System {
     this.enabled = true
   }
 
-  // @question rename to clear queues?
-  clearEvents(): void {
+  clearEventQueues(): void {
     for (const queryName in this.queries) {
       const query = this.queries[queryName]
       if (query.added) {
@@ -254,7 +224,7 @@ export abstract class System {
 
   toJSON() {
     const json = {
-      name: this.getName(),
+      name: this.name,
       enabled: this.enabled,
       executeTime: this.executeTime,
       priority: this.priority,
@@ -267,7 +237,7 @@ export abstract class System {
         const query = this.queries[queryName]
         const queryDefinition = queries[queryName] as any
         const jsonQuery = (json.queries[queryName] = {
-          key: this._queries[queryName].key
+          key: queryName
         })
         const j = jsonQuery as any
         j.mandatory = queryDefinition.mandatory === true
@@ -299,13 +269,3 @@ export abstract class System {
 }
 
 System.isSystem = true
-System.getName = function() {
-  return this.displayName || this.name
-}
-
-export function Not(Component) {
-  return {
-    operator: "not",
-    Component: Component
-  }
-}

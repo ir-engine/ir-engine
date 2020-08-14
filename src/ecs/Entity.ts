@@ -1,76 +1,66 @@
 import { Component, ComponentConstructor } from "./Component"
 import Query from "./Query"
-import wrapImmutableComponent from "./WrapImmutableComponent"
+import wrapImmutableComponent from "./ComponentFunctions"
+import { World } from "./World"
 
 export class Entity {
-  _entityManager: any
+  removeObject3DComponent() {
+    throw new Error("Method not implemented.")
+  }
   id: number
-  _ComponentTypes: any[]
-  _components: {}
-  _componentsToRemove: {}
+  componentTypes: any[]
+  components: {}
+  componentsToRemove: {}
   queries: any[]
-  _ComponentTypesToRemove: any[]
+  componentTypesToRemove: any[]
   alive: boolean
   numStateComponents: number
   name: any
-  constructor(entityManager) {
-    this._entityManager = entityManager || null
+  constructor() {
 
     // Unique ID for this entity
-    this.id = entityManager._nextEntityId++
-
-    // List of components types the entity has
-    this._ComponentTypes = []
-
-    // Instance of the components
-    this._components = {}
-
-    this._componentsToRemove = {}
-
-    // Queries where the entity is added
+    this.id = World.nextEntityId++
+    this.componentTypes = []
+    this.components = {}
+    this.componentsToRemove = {}
     this.queries = []
-
-    // Used for deferred removal
-    this._ComponentTypesToRemove = []
-
+    this.componentTypesToRemove = []
     this.alive = false
-
-    //if there are state components on a entity, it can't be removed completely
     this.numStateComponents = 0
   }
 
   // COMPONENTS
 
   getComponent<C extends Component<any>>(Component: C | unknown, includeRemoved?: boolean): Readonly<C> {
-    let component = this._components[(Component as C)._typeId]
+    let component = this.components[(Component as C)._typeId]
 
     if (!component && includeRemoved === true) {
-      component = this._componentsToRemove[(Component as any)._typeId]
+      component = this.componentsToRemove[(Component as any)._typeId]
     }
 
     return process.env.NODE_ENV !== "production" ? <C>wrapImmutableComponent(Component, component) : <C>component
   }
 
   getRemovedComponent<C extends Component<any>>(Component: ComponentConstructor<C>): Readonly<C> {
-    const component = this._componentsToRemove[Component._typeId]
+    const component = this.componentsToRemove[Component._typeId]
 
     return <C>(process.env.NODE_ENV !== "production" ? wrapImmutableComponent(Component, component) : component)
   }
 
   getComponents(): { [componentName: string]: ComponentConstructor<any> } {
-    return this._components
+    return this.components
   }
 
   getComponentsToRemove(): { [componentName: string]: ComponentConstructor<any> } {
-    return this._componentsToRemove
+    return this.componentsToRemove
   }
 
   getComponentTypes(): Array<Component<any>> {
-    return this._ComponentTypes
+    return this.componentTypes
   }
 
   getMutableComponent<C extends Component<any>>(Component: ComponentConstructor<C>): C {
-    const component = this._components[Component._typeId]
+    const component = this.components[Component._typeId]
 
     if (!component) {
       return
@@ -91,24 +81,24 @@ export class Entity {
     Component: ComponentConstructor<C>,
     values?: Partial<Omit<C, keyof Component<any>>>
   ): this {
-    this._entityManager.entityAddComponent(this, Component, values)
+    entityAddComponent(this, Component, values)
     return this
   }
 
   removeComponent<C extends Component<any>>(Component: ComponentConstructor<C>, forceImmediate?: boolean): this {
-    this._entityManager.entityRemoveComponent(this, Component, forceImmediate)
+    entityRemoveComponent(this, Component, forceImmediate)
     return this
   }
 
   hasComponent<C extends Component<any>>(Component: ComponentConstructor<C>, includeRemoved?: boolean): boolean {
     return (
-      !!~this._ComponentTypes.indexOf(Component) ||
+      !!~this.componentTypes.indexOf(Component) ||
       (includeRemoved !== undefined && includeRemoved === true && this.hasRemovedComponent(Component))
     )
   }
 
   hasRemovedComponent<C extends Component<any>>(Component: ComponentConstructor<C>): boolean {
-    return !!~this._ComponentTypesToRemove.indexOf(Component)
+    return !!~this.componentTypesToRemove.indexOf(Component)
   }
 
   hasAllComponents(Components: Array<ComponentConstructor<any>>): boolean {
@@ -126,7 +116,7 @@ export class Entity {
   }
 
   removeAllComponents(forceImmediate?: boolean): void {
-    return this._entityManager.entityRemoveAllComponents(this, forceImmediate)
+    return entityRemoveAllComponents(this, forceImmediate)
   }
 
   copy(src): Entity {
@@ -146,16 +136,16 @@ export class Entity {
   }
 
   reset(): void {
-    this.id = this._entityManager._nextEntityId++
-    this._ComponentTypes.length = 0
+    this.id = _nextEntityId++
+    this.componentTypes.length = 0
     this.queries.length = 0
 
-    for (const ecsyComponentId in this._components) {
-      delete this._components[ecsyComponentId]
+    for (const ecsyComponentId in this.components) {
+      delete this.components[ecsyComponentId]
     }
   }
 
   remove(forceImmediate?: boolean): void {
-    return this._entityManager.removeEntity(this, forceImmediate)
+    return removeEntity(this, forceImmediate)
   }
 }
