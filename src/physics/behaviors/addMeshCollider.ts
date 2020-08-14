@@ -17,7 +17,7 @@ export const addMeshCollider: Behavior = (
 
   // object3d = new args.obj(args.objArgs)
   entity.addComponent(Collider, { scale: { x: 1, y: 1, z: 1 }, mass: 0.2 })
-  //entity.addComponent(RigidBody)
+  entity.addComponent(RigidBody)
   console.log(entity);
 
   //entity.getMutableComponent(Object3DComponent).value = object3d
