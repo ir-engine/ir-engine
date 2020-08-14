@@ -1,10 +1,10 @@
-import { CameraManager } from "../camera"
-import { SceneManager } from "../common"
 import { Entity, processDeferredEntityRemoval } from "./Entity"
 import { EntityPool } from "./EntityPool"
 import EventDispatcher from "./EventDispatcher"
 import Query from "./Query"
-import { hasWindow, now } from "./Utils"
+import { WebGLRenderer, Camera } from "three"
+import { SceneManager } from "../.."
+import { hasWindow, now } from ".."
 
 export interface WorldOptions {
   entityPoolSize?: number
@@ -17,9 +17,10 @@ const DEFAULT_OPTIONS = {
 }
 
 export class World {
+  static renderer: WebGLRenderer = null
   static world: World = null
   static sceneManager: SceneManager = new SceneManager()
-  static cameraManager: CameraManager = new CameraManager()
+  static camera: Camera = new null()
   static eventDispatcher = new EventDispatcher()
 
   static options: { entityPoolSize: number; entityClass: typeof Entity } & WorldOptions = DEFAULT_OPTIONS

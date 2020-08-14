@@ -19,7 +19,7 @@ import {
   Vector3 as _Vector3,
   Vector4 as _Vector4
 } from "three"
-import { PropType } from "../../ecs/Types"
+import { PropType } from "../../ecs/types/Types"
 
 export type Box2Type = PropType<_Box2, _Box2>
 export type Box3Type = PropType<_Box3, _Box3>

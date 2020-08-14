@@ -2,18 +2,9 @@ import { TextureLoader } from "three"
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import AssetVault from "../components/AssetVault"
-import { DefaultAssetCollection } from "../defaults/DefaultAssetCollection"
 import { AssetType } from "../enums/AssetType"
-import { AssetId, AssetMap, AssetsLoadedHandler, AssetUrl } from "../types/AssetTypes"
+import { AssetId, AssetMap, AssetsLoadedHandler, AssetUrl, AssetTypeAlias } from "../types/AssetTypes"
 import { AssetClass } from "../enums/AssetClass"
-
-export function loadDefaultAssets(onAssetLoaded: AssetsLoadedHandler, onAllAssetsLoaded: AssetsLoadedHandler): void {
-  const collection = new Map<AssetId, AssetUrl>()
-  Object.keys(DefaultAssetCollection).forEach(key => {
-    collection.set(key, DefaultAssetCollection[key])
-  })
-  iterateLoadAsset(collection.entries(), onAssetLoaded, onAllAssetsLoaded)
-}
 
 // Kicks off an iterator to load the list of assets and add them to the vault
 export function loadAssets(
@@ -26,15 +17,7 @@ export function loadAssets(
 
 export function loadAsset(url: AssetUrl, onAssetLoaded: AssetsLoadedHandler): void {
   if (!AssetVault.instance.assets.has(url)) {
-    const type = getAssetType(url)
-    const loader =
-      type == AssetType.FBX
-        ? FBXLoader
-        : type == AssetType.glTF
-          ? GLTFLoader
-          : type == (AssetType.PNG | AssetType.JPEG)
-            ? TextureLoader
-            : null
+    const loader = getLoaderForAssetType(getAssetType(url))
     new loader().load(url, resource => {
       AssetVault.instance.assets.set(url, resource)
       onAssetLoaded(resource)
@@ -54,16 +37,8 @@ function iterateLoadAsset(
   } else {
     const [{ url }] = current.value
     if (!AssetVault.instance.assets.has(url)) {
-      const type = getAssetType(url)
-      const assetClass = getAssetClass(url)
-      const loader =
-        type == AssetType.FBX
-          ? FBXLoader
-          : type == AssetType.glTF
-            ? GLTFLoader
-            : assetClass == AssetClass.Image
-              ? TextureLoader
-              : null
+      const loader = getLoaderForAssetType(getAssetType(url))
+
       if (loader == null) {
         console.error("Loader failed on ", url)
         iterateLoadAsset(iterable, onAssetLoaded, onAllAssetsLoaded)
@@ -80,6 +55,13 @@ function iterateLoadAsset(
       iterateLoadAsset(iterable, onAssetLoaded, onAllAssetsLoaded)
     }
   }
+}
+
+function getLoaderForAssetType(assetType: AssetTypeAlias) {
+  if (assetType == AssetType.FBX) return FBXLoader
+  else if (assetType == AssetType.glTF) return GLTFLoader
+  else if (assetType == AssetType.PNG) return TextureLoader
+  else if (assetType == AssetType.JPEG) return TextureLoader
 }
 
 export function getAssetType(assetFileName) {

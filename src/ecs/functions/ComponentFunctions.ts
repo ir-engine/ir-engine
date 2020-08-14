@@ -79,7 +79,7 @@ export function registerComponent<C extends Component<any>>(
   World.componentPool[Component._typeId] = objectPool
 }
 
-export function hasRegisteredComponent<C extends Component<any>>(Component: Component<C>): boolean {
+export function hasRegisteredComponent<C extends Component<any>>(Component: ComponentConstructor<C>): boolean {
   return World.components.indexOf(Component) !== -1
 }
 

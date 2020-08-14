@@ -1,4 +1,4 @@
-import { Component } from "../../ecs/Component"
+import { Component } from "../../ecs/classes/Component"
 import { ID, Snapshot } from "../types/SnapshotDataTypes"
 
 /** A save place to store your snapshots. */

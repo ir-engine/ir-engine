@@ -72,7 +72,7 @@
     .addComponent(ECSYTHREEX.Parent, { value: scene })
   
   for (var i = 0; i < 4; i++) {
-    world.createEntity()
+    createEntity()
       .addObject3DComponent(sphereMesh.clone(), scene)
       .addComponent(WheelBody, { vehicle: car })
       .addComponent(ECSYTHREEX.Transform, {
@@ -273,7 +273,7 @@
                     .addComponent(ECSYTHREEX.Parent, { value: scene })
                 } else {
 
-                  world.createEntity()
+                  createEntity()
                     .addObject3DComponent(node.clone(), scene)
                     .addComponent(WheelBody, { vehicle: car })
                     .addComponent(ECSYTHREEX.Transform, {

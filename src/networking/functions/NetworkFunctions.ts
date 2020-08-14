@@ -2,23 +2,13 @@
 import { NetworkTransport } from ".."
 import { RingBuffer } from "../../common/classes/RingBuffer"
 import { constructInstance } from "../../common/functions/constructInstance"
-import { World } from "../../ecs/World"
+import { World } from "../../ecs/classes/World"
 import { Network } from "../components/Network"
 import { MessageChannel } from "../enums/MessageChannel"
 import { NetworkSchema } from "../interfaces/NetworkSchema"
 import { MessageTypeAlias } from "../types/MessageTypeAlias"
 import { fromBuffer } from "./MessageFunctions"
 import { createNetworkPrefab } from "./NetworkPrefabFunctions"
-
-export function initializeNetworkSession(world: World, networkSchema: NetworkSchema, transportClass?: any) {
-  console.log("Initialization session")
-  const transport = constructInstance<NetworkTransport>(transportClass)
-
-  Network.instance.schema = networkSchema
-  Network.instance.transport = transport
-  transport.initialize()
-  Network.instance.isInitialized = true
-}
 
 export const handleClientConnected = (clientID: string): void => {
   console.log("Client ", clientID, " connected.")

@@ -3,7 +3,7 @@ import { Matrix4 } from "three/src/math/Matrix4"
 import { Quaternion } from "three/src/math/Quaternion"
 import { Vector3 } from "three/src/math/Vector3"
 import { Object3DComponent } from "../../common/components/Object3DComponent"
-import { Attributes, System } from "../../ecs"
+import { Attributes, System, getComponent, addComponent } from "../../ecs"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { TransformParentComponent } from "../../transform/components/TransformParentComponent"
 import { createParticleEmitter, setEmitterMatrixWorld, setEmitterTime } from "../classes/ParticleEmitter"
@@ -11,11 +11,11 @@ import { ParticleEmitter, ParticleEmitterState } from "../components/ParticleEmi
 
 export class ParticleSystem extends System {
   init(attributes?: Attributes): void {
-    throw new Error("Method not implemented.")
+    registerComponent(ParticleEmitter)
   }
   execute(deltaTime, time): void {
     for (const entity of this.queries.emitters.added) {
-      const emitter = entity.getComponent(ParticleEmitter) as ParticleEmitter
+      const emitter = getComponent(entity, ParticleEmitter) as ParticleEmitter
 
       const matrixWorld = calcMatrixWorld(entity)
       if (!emitter.useEntityRotation) {
@@ -23,7 +23,7 @@ export class ParticleSystem extends System {
       }
 
       const emitter3D = createParticleEmitter(emitter, matrixWorld, time)
-      entity.addComponent(ParticleEmitterState, {
+      addComponent(entity, ParticleEmitterState, {
         emitter3D,
         useEntityRotation: emitter.useEntityRotation,
         syncTransform: emitter.syncTransform
@@ -31,7 +31,7 @@ export class ParticleSystem extends System {
     }
 
     for (const entity of this.queries.emitterStates.results) {
-      const emitterState = entity.getComponent<ParticleEmitterState>(ParticleEmitterState)
+      const emitterState = getComponent<ParticleEmitterState>(entity, ParticleEmitterState)
 
       if (emitterState.syncTransform) {
         const matrixWorld = calcMatrixWorld(entity)
@@ -75,12 +75,12 @@ const clearMatrixRotation = (function() {
 
 const calcMatrixWorld = (function() {
   const scale = new Vector3()
-  const quaternion = new Quaternion()
-  const euler = new Euler()
+  const rotation = new Quaternion()
+  const position = new Vector3()
 
   return function calcMatrixWorld(entity, childMatrix = undefined) {
-    const object3D = entity.getComponent(Object3DComponent)
-    const transform = entity.getComponent(TransformComponent)
+    const object3D = getComponent(entity, Object3DComponent)
+    const transform = getComponent<TransformComponent>(entity, TransformComponent)
 
     if (object3D) {
       return childMatrix ? childMatrix.multiply(object3D["value"].matrixWorld) : object3D["value"].matrixWorld
@@ -88,8 +88,8 @@ const calcMatrixWorld = (function() {
       const transformMatrix = new Matrix4()
 
       transformMatrix.compose(
-        transform.position,
-        quaternion.setFromEuler(euler.setFromVector3(transform.rotation)),
+        position.fromArray(transform.position),
+        rotation.fromArray(transform.rotation),
         scale.set(1, 1, 1)
       )
 
@@ -97,7 +97,7 @@ const calcMatrixWorld = (function() {
         transformMatrix.premultiply(childMatrix)
       }
 
-      const parent = entity.getComponent(TransformParentComponent)
+      const parent = getComponent(entity, TransformParentComponent)
       return parent ? calcMatrixWorld(parent["value"], transformMatrix) : transformMatrix
     } else {
       return new Matrix4()

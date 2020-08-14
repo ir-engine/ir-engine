@@ -16,6 +16,7 @@ export class Network extends Component<any> {
   outgoingUnreliableQueue: RingBuffer<Message> = new RingBuffer<Message>(200)
   incomingReliableQueue: RingBuffer<Message> = new RingBuffer<Message>(200)
   incomingUnreliableQueue: RingBuffer<Message> = new RingBuffer<Message>(200)
+  static Network: any
   constructor() {
     super()
     Network.instance = this

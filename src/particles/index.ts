@@ -9,7 +9,7 @@ export * from "./systems/ParticleSystem"
 import { isBrowser } from "../common/functions/isBrowser"
 import { ParticleEmitter, ParticleEmitterState } from "./components/ParticleEmitter"
 import { ParticleSystem } from "./systems/ParticleSystem"
-import { World } from "../ecs/World"
+import { World } from "../ecs/classes/World"
 
 const DEFAULT_OPTIONS = {
   mouse: true,

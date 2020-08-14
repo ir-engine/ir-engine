@@ -1,45 +1,20 @@
-import { AmbientLight, Camera, Clock, GridHelper, PerspectiveCamera, Scene, WebGLRenderer } from "three"
-import { CameraComponent, CameraSystem } from "./camera"
-import { isBrowser, SceneComponent, Timer, WorldComponent } from "./common"
-import { Object3DComponent } from "./common/components/Object3DComponent"
-import { SceneTagComponent } from "./common/components/Object3DTagComponents"
+import { AmbientLight, Camera, Clock, GridHelper, PerspectiveCamera, Scene } from "three"
+import { CameraSystem } from "./camera"
+import { isBrowser, SceneManager, Timer } from "./common"
 import { addObject3DComponent } from "./common/defaults/behaviors/Object3DBehaviors"
-import { World } from "./ecs/World"
-import {
-  DefaultInputSchema,
-  Input,
-  InputSystem,
-  WebXRButton,
-  WebXRMainController,
-  WebXRMainGamepad,
-  WebXRPointer,
-  WebXRRenderer,
-  WebXRSecondController,
-  WebXRSecondGamepad,
-  WebXRSession,
-  WebXRSpace,
-  WebXRViewPoint
-} from "./input"
-import {
-  DefaultNetworkSchema,
-  initializeNetworkSession,
-  MediaStreamComponent,
-  MediaStreamSystem,
-  Network,
-  NetworkClient,
-  NetworkGameState,
-  NetworkObject,
-  NetworkSystem
-} from "./networking"
-import { Keyframe, KeyframeSystem, ParticleEmitter, ParticleSystem } from "./particles"
-import { PhysicsSystem, RigidBody, VehicleBody, VehicleSystem, WheelBody, WheelSystem } from "./physics"
-import { RendererComponent, WebGLRendererSystem } from "./renderer"
-import { DefaultStateSchema, State, StateSystem } from "./state"
-import { DefaultSubscriptionSchema, Subscription, SubscriptionSystem } from "./subscription"
-import { TransformComponent, TransformParentComponent, TransformSystem } from "./transform"
+import { createEntity, registerSystem } from "./ecs"
+import { execute, initializeWorld, World } from "./ecs/classes/World"
+import { DefaultInputSchema, InputSystem } from "./input"
+import { DefaultNetworkSchema, MediaStreamSystem, NetworkSystem } from "./networking"
+import { KeyframeSystem, ParticleSystem } from "./particles"
+import { PhysicsSystem, WheelSystem } from "./physics"
+import { WebGLRendererSystem } from "./renderer"
+import { DefaultStateSchema, StateSystem } from "./state"
+import { DefaultSubscriptionSchema, SubscriptionSystem } from "./subscription"
+import { TransformSystem } from "./transform"
 
 export const DefaultInitializationOptions = {
-  debug: false,
+  debug: true,
   withTransform: true,
   withWebXRInput: true,
   input: {
@@ -76,163 +51,104 @@ export const DefaultInitializationOptions = {
   }
 }
 
-export function initialize(options: any = DefaultInitializationOptions, world?: World, scene?: Scene, camera?: Camera) {
+export function initialize(options: any = DefaultInitializationOptions) {
   console.log("Initializing")
-  if (world == undefined || world == null) world = new World()
-  if (scene == undefined || scene == null) scene = new Scene()
-  if (isBrowser && (camera == undefined || camera == null))
-    camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000)
+  // Create a new world -- this holds all of our simulation state, entities, etc
+  initializeWorld()
+  // Create a new three.js scene
+  const scene = new Scene()
+  // Create a new scene manager -- this is a singleton that holds our scene data
+  World.sceneManager = new SceneManager()
+  // Add the three.js scene to our manager -- it is now available anywhere
+  World.sceneManager.scene = scene
+  // If we're a browser (we don't need to create or render on the server)
+  if (isBrowser) {
+    // Create a new three.js camera
+    const camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000)
+    // Add the camera to the camera manager so it's available anywhere
+    World.camera = new Camera()
+    // Add the camera to the three.js scene
+    scene.add(camera)
 
-  const gridHelper = new GridHelper(1000, 100, 0xffffff, 0xeeeeee)
-  scene.add(gridHelper)
-  scene.add(camera)
+    // Camera system and component setup
+    if (options.camera && options.camera.enabled) registerSystem(CameraSystem)
+  }
 
-  world.registerComponent(SceneComponent).registerComponent(WorldComponent)
+  if (options.debug === true) {
+    // If we're in debug, add a gridhelper
+    const gridHelper = new GridHelper(1000, 100, 0xffffff, 0xeeeeee)
+    scene.add(gridHelper)
 
-  // World singleton
-  const worldEntity = world
-    .createEntity()
-    .addComponent(WorldComponent)
-    .getMutableComponent(WorldComponent) as WorldComponent
-
-  worldEntity.world = world
-
-  // Set up our scene singleton so we can bind to our scene elsewhere
-  const sceneEntity = world.createEntity()
-
-  const sceneComponent = sceneEntity.addComponent(SceneComponent).getMutableComponent(SceneComponent)
-  // If scene exists, bind it
-  sceneComponent.scene = scene
-  if (!world.hasRegisteredComponent(SceneTagComponent as any)) world.registerComponent(SceneTagComponent)
-  if (!world.hasRegisteredComponent(Object3DComponent as any)) world.registerComponent(Object3DComponent)
-  sceneEntity
-    .addComponent(Object3DComponent)
-    .addComponent(SceneTagComponent)
-    .getMutableComponent(Object3DComponent).value = scene
+    // Add an ambient light to the scene
+    addObject3DComponent(createEntity(), { obj: AmbientLight })
+  }
 
   // Input
-  if (options.input && options.input.enabled && isBrowser)
-    world
-      .registerComponent(Input)
-      .registerComponent(WebXRSession)
-      .registerComponent(WebXRSpace)
-      .registerComponent(WebXRViewPoint)
-      .registerComponent(WebXRPointer)
-      .registerComponent(WebXRButton)
-      .registerComponent(WebXRMainController)
-      .registerComponent(WebXRMainGamepad)
-      .registerComponent(WebXRRenderer)
-      .registerComponent(WebXRSecondController)
-      .registerComponent(WebXRSecondGamepad)
-      .registerSystem(InputSystem)
+  if (options.input && options.input.enabled && isBrowser) {
+    registerSystem(InputSystem, { useWebXR: options.withWebXRInput })
+  }
 
   // Networking
   if (options.networking && options.networking.enabled) {
-    world
-      .registerComponent(Network)
-      .registerComponent(NetworkClient)
-      .registerComponent(NetworkObject)
-      .registerComponent(NetworkGameState)
-      .registerSystem(NetworkSystem)
-    const networkEntity = world.createEntity()
-    networkEntity.addComponent(Network)
+    registerSystem(NetworkSystem)
 
+    // Do we want audio and video streams?
     if (options.networking.supportsMediaStreams == true) {
-      world.registerComponent(MediaStreamComponent)
-      world.registerSystem(MediaStreamSystem)
-      const mediaStreamComponent = networkEntity
-        .addComponent(MediaStreamComponent)
-        .getMutableComponent(MediaStreamComponent)
-      MediaStreamComponent.instance = mediaStreamComponent
+      registerSystem(MediaStreamSystem)
     } else {
       console.warn("Does not support media streams")
     }
-
-    setTimeout(
-      () =>
-        initializeNetworkSession(
-          world,
-          options.networking.schema ?? DefaultNetworkSchema,
-          options.networking.schema.transport
-        ),
-      1
-    )
   }
 
   // State
-  if (options.state && options.state.enabled) world.registerComponent(State).registerSystem(StateSystem)
-
-  // Subscriptions
-  if (options.subscriptions && options.subscriptions.enabled)
-    world.registerComponent(Subscription).registerSystem(SubscriptionSystem)
-
-  // Physics
-  if (options.physics && options.physics.enabled)
-    world
-      .registerComponent(RigidBody)
-      .registerComponent(VehicleBody)
-      .registerComponent(WheelBody)
-      .registerSystem(PhysicsSystem)
-      .registerSystem(VehicleSystem)
-      .registerSystem(WheelSystem)
-
-  // Particles
-  if (options.particles && options.particles.enabled)
-    world
-      .registerComponent(ParticleEmitter)
-      .registerComponent(Keyframe)
-      .registerSystem(ParticleSystem)
-      .registerSystem(KeyframeSystem)
-
-  //Transform
-  if (options.transform && options.transform.enabled)
-    world
-      .registerComponent(TransformComponent)
-      .registerComponent(TransformParentComponent)
-      .registerSystem(TransformSystem)
-
-  // Camera
-  if (options.camera && options.camera.enabled) {
-    world.registerComponent(CameraComponent).registerSystem(CameraSystem)
-
-    const cameraEntity = world
-      .createEntity()
-      .addComponent(CameraComponent, { camera: camera, followTarget: null })
-      .addComponent(Object3DComponent, { value: camera })
-      .addComponent(TransformComponent)
-      .getMutableComponent(CameraComponent)
-    if (camera) cameraEntity.camera = camera // Bind whatever camera is provide to our camera entity
-    camera.position.z = 10 // TODO: Remove, just here for setup
+  if (options.state && options.state.enabled) {
+    registerSystem(StateSystem)
   }
 
-  // Add an ambient light to the scene, we may wish to remove this later
-  addObject3DComponent(world.createEntity(), { obj: AmbientLight })
+  // Subscriptions
+  if (options.subscriptions && options.subscriptions.enabled) {
+    registerSystem(SubscriptionSystem)
+  }
+  // Physics
+  if (options.physics && options.physics.enabled) {
+    registerSystem(PhysicsSystem)
+    registerSystem(WheelSystem)
+  }
+  // Particles
+  if (options.particles && options.particles.enabled) {
+    registerSystem(ParticleSystem)
+    registerSystem(KeyframeSystem)
+  }
+
+  //Transform
+  if (options.transform && options.transform.enabled) {
+    registerSystem(TransformSystem)
+  }
 
   // Rendering
   if (options.renderer && options.renderer.enabled) {
-    world.registerComponent(RendererComponent).registerSystem(WebGLRendererSystem, { priority: 999 })
-    // Create the Three.js WebGL renderer
-    const renderer = new WebGLRenderer({
-      antialias: true
-    })
-    // Add the renderer to the body of the HTML document
-    document.body.appendChild(renderer.domElement)
-    // Create a new Three.js clock
-    const clock = new Clock()
-    // Create the Renderer singleton
-    world.createEntity().addComponent(RendererComponent, {
-      renderer: renderer
-    })
-    // Kick off the loop
-    renderer.setAnimationLoop(() => {
-      world.execute(clock.getDelta(), clock.elapsedTime)
-    })
-  } else {
-    // If we're not using the renderer, create a timer that calls a fixed update timestep
-    setTimeout(() => {
-      Timer({
-        update: (delta, elapsedTime) => world.execute(delta, elapsedTime)
-      }).start()
-    }, 1)
+    registerSystem(WebGLRendererSystem, { priority: 999 })
   }
+
+  // Start our timer!
+  if (isBrowser) startTimerForClient()
+  // If we're not using the renderer, create a timer that calls a fixed update timestep
+  else startTimerForServer()
+}
+
+export function startTimerForClient() {
+  // Create a new Three.js clock
+  const clock = new Clock()
+  // Kick off the loop
+  World.renderer.setAnimationLoop(() => {
+    execute(clock.getDelta(), clock.elapsedTime)
+  })
+}
+
+export function startTimerForServer() {
+  setTimeout(() => {
+    Timer({
+      update: (delta, elapsedTime) => execute(delta, elapsedTime)
+    }).start()
+  }, 1)
 }

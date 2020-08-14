@@ -10,7 +10,7 @@ export const rotateStart: Behavior = (
   args: { input: InputAlias; inputType: InputType; value: NumericalType },
   delta: number
 ): void => {
-  const input = entity.getMutableComponent(Input) as Input
+  const input = getMutableComponent(entity, Input) as Input
   const transform = entity.getComponent<TransformComponent>(TransformComponent)
 
   const transformRotation: [number, number, number, number] = [

@@ -1,13 +1,13 @@
-import { WorldComponent } from "../../common"
-import { Entity } from "../../ecs/Entity"
+import { World } from "../../common"
+import { Entity } from "../../ecs/classes/Entity"
 import { Network } from "../components/Network"
 import { NetworkObject } from "../components/NetworkObject"
 import { NetworkPrefab } from "../interfaces/NetworkPrefab"
 
 export function createNetworkPrefab(prefab: NetworkPrefab, networkId: string | number): Entity {
-  const entity = WorldComponent.instance.world.createEntity()
+  const entity = World.instance.createEntity()
   // Add a NetworkObject component to the entity, this will store information about changing state
-  entity.addComponent(NetworkObject, { networkId })
+  addComponent(entity, NetworkObject, { networkId })
   // Call each create action
   prefab.onCreate?.forEach(action => {
     // If it's a networked behavior, or this is the local player, call it
@@ -19,14 +19,13 @@ export function createNetworkPrefab(prefab: NetworkPrefab, networkId: string | n
   // These will be attached to the entity on all clients
   prefab.networkComponents?.forEach(component => {
     // Register the component if it hasn't already been registered with the world
-    if (!WorldComponent.instance.world.hasRegisteredComponent(component.type))
-      WorldComponent.instance.world.registerComponent(component.type)
+    if (!World.instance.hasRegisteredComponent(component.type)) World.instance.world.registerComponent(component.type)
     // Add the component to our entity
-    entity.addComponent(component.type)
+    addComponent(entity, component.type)
     // If the component has initialization data...
     // If the component has no initialization data, return
     if (component.data == undefined) return // Get a mutable reference to the component
-    const addedComponent = entity.getMutableComponent(component.type)
+    const addedComponent = getMutableComponent(entity, component.type)
     // Set initialization data for each key
     Object.keys(component.data).forEach(initValue => {
       // Get the component on the entity, and set it to the initializing value from the prefab
@@ -40,14 +39,13 @@ export function createNetworkPrefab(prefab: NetworkPrefab, networkId: string | n
     // For each local component on the prefab...
     prefab.components?.forEach(component => {
       // If the component hasn't been registered with the world, register it
-      if (!WorldComponent.instance.world.hasRegisteredComponent(component.type))
-        WorldComponent.instance.world.registerComponent(component.type)
+      if (!World.instance.hasRegisteredComponent(component.type)) World.instance.world.registerComponent(component.type)
       // The component to the entity
-      entity.addComponent(component.type)
+      addComponent(entity, component.type)
       // If the component has no initialization data, return
       if (component.data == undefined) return
       // Get a mutable reference to the component
-      const addedComponent = entity.getMutableComponent(component.type)
+      const addedComponent = getMutableComponent(entity, component.type)
       // Set initialization data for each key
       Object.keys(component.data).forEach(initValue => {
         // Get the component on the entity, and set it to the initializing value from the prefab

@@ -2,7 +2,7 @@ import { vec3 } from "gl-matrix"
 import { Quaternion } from "three/src/math/Quaternion"
 import { Object3DComponent } from "../../common/components/Object3DComponent"
 import { Behavior } from "../../common/interfaces/Behavior"
-import { Entity } from "../../ecs/Entity"
+import { Entity } from "../../ecs/classes/Entity"
 import { TransformComponent } from "../components/TransformComponent"
 const q: Quaternion = new Quaternion()
 let transform: TransformComponent
@@ -11,7 +11,7 @@ const _position: vec3 = [0, 0, 0]
 const _velocity: vec3 = [0, 0, 0]
 
 export const transformBehavior: Behavior = (entity: Entity, args: { event: MouseEvent }, delta): void => {
-  transform = entity.getMutableComponent(TransformComponent)
+  transform = getMutableComponent(entity, TransformComponent)
   vec3.set(_position, transform.position[0], transform.position[1], transform.position[2])
   vec3.set(_velocity, transform.velocity[0], transform.velocity[1], transform.velocity[2])
 

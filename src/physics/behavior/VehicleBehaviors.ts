@@ -1,10 +1,10 @@
 import { Behavior } from "../../common/interfaces/Behavior"
 import { Vector2 } from "../../common/types/NumericalTypes"
-import { Entity } from "../../ecs/Entity"
+import { Entity } from "../../ecs/classes/Entity"
 import { VehicleComponent } from "../components/VehicleComponent"
 
 export const drive: Behavior = (entity: Entity, args: { value: Vector2 }): void => {
-  const vehicleComponent = entity.getMutableComponent(VehicleComponent)
+  const vehicleComponent = getMutableComponent(entity, VehicleComponent)
   const vehicle = vehicleComponent.vehicle
 
   vehicle.setBrake(0, 0)

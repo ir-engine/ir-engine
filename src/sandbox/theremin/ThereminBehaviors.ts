@@ -1,10 +1,10 @@
 import { Behavior } from "../../common/interfaces/Behavior"
 import { ThereminComponent } from "./ThereminComponent"
-import { Entity } from "../../ecs"
+import { Entity, getComponent, getMutableComponent } from "../../ecs"
 let theremin: ThereminComponent
 // Starts the theremin
 export const startOscillator: Behavior = (entity: Entity) => {
-  theremin = entity.getComponent<ThereminComponent>(ThereminComponent)
+  theremin = getComponent<ThereminComponent>(entity, ThereminComponent)
   theremin.oscillator = this.context.createOscillator()
   theremin.oscillator.frequency.setTargetAtTime(0, theremin.context.currentTime, 0.001)
   theremin.gainNode.gain.setTargetAtTime(0, theremin.context.currentTime, 0.001)
@@ -13,7 +13,7 @@ export const startOscillator: Behavior = (entity: Entity) => {
 }
 
 export const stopOscillator: Behavior = (entity: Entity) => {
-  theremin = entity.getComponent(ThereminComponent as any)
+  theremin = getComponent(entity, ThereminComponent)
   if (theremin.oscillator) {
     theremin.oscillator.stop(theremin.context.currentTime)
     theremin.oscillator.disconnect()
@@ -21,7 +21,7 @@ export const stopOscillator: Behavior = (entity: Entity) => {
 }
 
 export const setFrequency: Behavior = (entity: Entity, args: { xPos }) => {
-  theremin = entity.getComponent(ThereminComponent as any)
+  theremin = getComponent(entity, ThereminComponent)
   const minFrequency = 2,
     maxFrequency = 800
 
@@ -35,7 +35,7 @@ export const setFrequency: Behavior = (entity: Entity, args: { xPos }) => {
 }
 
 export const calculateGain: Behavior = (entity: Entity, args: { yPos }) => {
-  entity.getMutableComponent<ThereminComponent>(ThereminComponent as any).gain =
+  getMutableComponent<ThereminComponent>(entity, ThereminComponent).gain =
     1 -
     Math.abs(
       (args.yPos - theremin.gainBoundingBox.y - theremin.gainBoundingBox.height * 0.5) / theremin.gainBoundingBox.height
@@ -43,7 +43,7 @@ export const calculateGain: Behavior = (entity: Entity, args: { yPos }) => {
 }
 
 export const insideBox: Behavior = (entity: Entity, args: { position; box }) => {
-  theremin = entity.getComponent(ThereminComponent as any)
+  theremin = getComponent(entity, ThereminComponent as any)
   return (
     args.position.z < args.box.z + args.box.depth * 0.5 &&
     args.position.z > args.box.z - args.box.depth * 0.5 &&
@@ -55,7 +55,7 @@ export const insideBox: Behavior = (entity: Entity, args: { position; box }) => 
 }
 
 export const changeFrequency: Behavior = (entity: Entity, args: { pitchPosition; gainPosition }) => {
-  theremin = entity.getMutableComponent(ThereminComponent as any)
+  theremin = getMutableComponent(entity, ThereminComponent as any)
   if (theremin.oscillator) {
     if (args.pitchPosition != undefined && args.gainPosition != undefined) {
       setFrequency(entity, { pitchPosition: args.pitchPosition })
@@ -68,7 +68,7 @@ export const changeFrequency: Behavior = (entity: Entity, args: { pitchPosition;
 }
 
 export const updatePositions: Behavior = (entity: Entity, args: { positions }) => {
-  theremin = entity.getComponent(ThereminComponent as any)
+  theremin = getComponent(entity, ThereminComponent as any)
   const pitchPosition = Math.max(
     ...args.positions
       .filter(position => {
@@ -82,7 +82,7 @@ export const updatePositions: Behavior = (entity: Entity, args: { positions }) =
   const gainPosition = Math.max(
     ...args.positions
       .filter(position => {
-        theremin = entity.getComponent(ThereminComponent as any)
+        theremin = getComponent(entity, ThereminComponent as any)
         return insideBox(entity, { position, gainBoundingBox: theremin.gainBoundingBox })
       })
       .map(position => {

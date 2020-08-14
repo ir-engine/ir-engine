@@ -1,4 +1,4 @@
-import { Component } from "../../ecs/Component"
+import { Component } from "../../ecs/classes/Component"
 
 const vector3ScaleIdentity: number[] = [1, 1, 1]
 

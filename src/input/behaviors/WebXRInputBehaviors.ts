@@ -1,5 +1,5 @@
 import { Behavior } from "../../common/interfaces/Behavior"
-import { Entity } from "../../ecs/Entity"
+import { Entity } from "../../ecs/classes/Entity"
 import { WebXRMainController } from "../components/WebXRMainController"
 import { WebXRMainGamepad } from "../components/WebXRMainGamepad"
 import { WebXRPointer } from "../components/WebXRPointer"
@@ -15,7 +15,7 @@ let mainControllerId: any
 let secondControllerId: any
 
 export const processSession: Behavior = (entity: Entity) => {
-  const { session, isImmersive } = entity.getComponent(WebXRSession) as any
+  const { session, isImmersive } = getComponent(entity, WebXRSession) as any
   if (isImmersive) {
     console.log("requesting animation frame", session)
     session.requestAnimationFrame((time, frame) => {
@@ -24,7 +24,7 @@ export const processSession: Behavior = (entity: Entity) => {
       // let refSpace = session.isImmersive ?
       //     xrImmersiveRefSpace :
       //     inlineViewerHelper.referenceSpace;
-      const { space, spaceType } = entity.getComponent(WebXRSpace) as any
+      const { space, spaceType } = getComponent(entity, WebXRSpace) as any
       if (space) setComponent(entity, { class: WebXRViewPoint, pose: frame.getViewerPose(space) })
 
       const controllers = space ? getInputSources(session, frame, space) : []
@@ -49,13 +49,13 @@ export const processSession: Behavior = (entity: Entity) => {
 
 export const tracking: Behavior = (entity: Entity) => {
   const viewPoint = entity.getComponent<WebXRViewPoint>(WebXRViewPoint)
-  const pointer = entity.getComponent(WebXRPointer)
-  const mainController = entity.getComponent(WebXRMainController)
-  const secondController = entity.getComponent(WebXRSecondController)
+  const pointer = getComponent(entity, WebXRPointer)
+  const mainController = getComponent(entity, WebXRMainController)
+  const secondController = getComponent(entity, WebXRSecondController)
 }
 
 export const initializeSession: Behavior = (entity: Entity, args: { webXRRenderer: any }) => {
-  const { session, isImmersive } = entity.getComponent(WebXRSession) as any
+  const { session, isImmersive } = getComponent(entity, WebXRSession) as any
   session.addEventListener("end", () => {
     entity.remove()
     args.webXRRenderer.requestAnimationFrame = WebXRRenderer.schema.requestAnimationFrame.default
@@ -74,9 +74,9 @@ export const initializeSession: Behavior = (entity: Entity, args: { webXRRendere
 
 export const setComponent: Behavior = (entity: Entity, args: { class; data: any }) => {
   if (entity.hasComponent(args.class)) {
-    const mutate = entity.getMutableComponent(args.class)
+    const mutate = getMutableComponent(entity, args.class)
     for (const property in args.data) mutate[property] = args.data[property]
   } else {
-    entity.addComponent(args.class, args.data)
+    addComponent(entity, args.class, args.data)
   }
 }

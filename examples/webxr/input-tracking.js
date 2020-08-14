@@ -61,7 +61,7 @@
           world.execute(delta, time)
 
           lastTime = time
-          renderer = entity.getComponent( WebXRRenderer )
+          renderer = getComponent(entity,  WebXRRenderer )
           renderer.requestAnimationFrame( animationLoop )
         }
         animationLoop()
@@ -85,9 +85,9 @@
       }
 
       function initEntity(){
-        entity = world.createEntity()
+        entity = createEntity()
         world.registerComponent(WebXRRenderer)
-        entity.addComponent(WebXRRenderer, {context: gl})
+        addComponent(entity, WebXRRenderer, {context: gl})
       }
 
       function startXR(){}
@@ -129,15 +129,15 @@
         scene.startFrame()
         renderer.requestAnimationFrame(drawFrame)
         renderMain()
-        session = entity.getComponent(WebXRViewPoint)
-        const viewer = entity.getComponent(WebXRViewPoint)
+        session = getComponent(entity, WebXRViewPoint)
+        const viewer = getComponent(entity, WebXRViewPoint)
         viewer && scene.drawXRFrame({session}, viewer.pose)
         scene.endFrame()
       }
 
       function renderMain() {
 
-        const { pose, pointerMode } = entity.getComponent(WebXRPointer)
+        const { pose, pointerMode } = getComponent(entity, WebXRPointer)
         if (pointerMode == 'tracked-pointer') {
           // If we have a pointer matrix and the pointer origin is the users
           // hand (as opposed to their head or the screen) use it to render
@@ -146,12 +146,12 @@
           scene.inputRenderer.addLaserPointer(pose.transform)
         }
 
-        //entity.getComponent(WebXRSpace)
+        //getComponent(entity, WebXRSpace)
         const gripSpace, gripPose
         
         const controllers = [ 
-          entity.getComponent(WebXRMainController),
-          entity.getComponent(WebXRSecondController)
+          getComponent(entity, WebXRMainController),
+          getComponent(entity, WebXRSecondController)
         ]
 
         for (let { pose, gripSpace, handId } of controllers) {

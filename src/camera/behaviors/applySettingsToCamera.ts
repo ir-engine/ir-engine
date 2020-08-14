@@ -1,9 +1,9 @@
 import { Behavior } from "../../common/interfaces/Behavior"
-import { Entity } from "../../ecs/Entity"
+import { Entity } from "../../ecs/classes/Entity"
 import { CameraComponent } from "../components/CameraComponent"
 
 export const applySettingsToCamera: Behavior = (entity: Entity): void => {
-  const cameraComponent = entity.getComponent(CameraComponent) as CameraComponent
+  const cameraComponent = getComponent(entity, CameraComponent) as CameraComponent
   cameraComponent.camera.fov = cameraComponent.fov
   cameraComponent.camera.aspect = cameraComponent.aspect
   cameraComponent.camera.near = cameraComponent.near

@@ -1,8 +1,10 @@
 // TODO: Change camera properties to object and use setter that updates camera
 
-export class CameraManager {
-  static instance: CameraManager = null
-  static camera: any // Reference to the actual camera object
+import { Component } from "../../ecs/classes/Component"
+
+export class CameraComponent extends Component<CameraComponent> {
+  static instance: CameraComponent = null
+  camera: any // Reference to the actual camera object
   followTarget: any // Reference to the object that should be followed
   fov: number // Field of view
   aspect: number // Width / height
@@ -11,6 +13,7 @@ export class CameraManager {
   layers: number // Bitmask of layers the camera can see, converted to an int
   handleResize: boolean // Should the camera resize if the window does?
   constructor() {
-    CameraManager.instance = this
+    super()
+    CameraComponent.instance = this
   }
 }

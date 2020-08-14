@@ -2,7 +2,7 @@ import { SAPBroadphase } from "cannon-es/src/collision/SAPBroadphase"
 import { ContactMaterial } from "cannon-es/src/material/ContactMaterial"
 import { Material } from "cannon-es/src/material/Material"
 import { World } from "cannon-es/src/world/World"
-import { Component } from "../../ecs/Component"
+import { Component } from "../../ecs/classes/Component"
 
 export class PhysicsWorld extends Component<any> {
   static instance: PhysicsWorld

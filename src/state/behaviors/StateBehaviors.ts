@@ -2,7 +2,7 @@ import { BinaryValue } from "../../common/enums/BinaryValue"
 import { LifecycleValue } from "../../common/enums/LifecycleValue"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { Binary } from "../../common/types/NumericalTypes"
-import { Entity } from "../../ecs/Entity"
+import { Entity } from "../../ecs/classes/Entity"
 import { State } from "../components/State"
 import { StateType } from "../enums/StateType"
 import { StateValue } from "../interfaces/StateValue"
@@ -18,7 +18,7 @@ export const toggleState: Behavior = (entity: Entity, args: { value: Binary; sta
 }
 
 export const addState: Behavior = (entity: Entity, args: { state: StateAlias }): void => {
-  stateComponent = entity.getComponent(State)
+  stateComponent = getComponent(entity, State)
   if (stateComponent.data.has(args.state)) return
   stateComponent.data.set(args.state, {
     state: args.state,
@@ -39,7 +39,7 @@ export const addState: Behavior = (entity: Entity, args: { state: StateAlias }):
 
 export const removeState: Behavior = (entity: Entity, args: { state: StateAlias }): void => {
   // check state group
-  stateComponent = entity.getComponent(State)
+  stateComponent = getComponent(entity, State)
   if (stateComponent.data.has(args.state)) {
     stateComponent.data.delete(args.state)
   }
@@ -47,7 +47,7 @@ export const removeState: Behavior = (entity: Entity, args: { state: StateAlias 
 
 export const hasState: Behavior = (entity: Entity, args: { state: StateAlias }): boolean => {
   // check state group
-  stateComponent = entity.getComponent(State)
+  stateComponent = getComponent(entity, State)
   if (stateComponent.data.has(args.state)) return true
   return false
 }

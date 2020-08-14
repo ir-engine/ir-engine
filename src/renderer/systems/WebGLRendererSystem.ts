@@ -1,13 +1,33 @@
 import { DepthOfFieldEffect, Effect, EffectComposer, EffectPass, RenderPass, SSAOEffect } from "postprocessing"
 import { CameraComponent } from "../../camera/components/CameraComponent"
-import { SceneComponent } from "../../common/components/SceneComponent"
+import { SceneManager } from "../../common/classes/SceneManager"
 import { Behavior } from "../../common/interfaces/Behavior"
-import { Attributes, Entity, System } from "../../ecs"
+import {
+  Attributes,
+  Entity,
+  System,
+  getMutableComponent,
+  registerComponent,
+  addComponent,
+  createEntity,
+  getComponent
+} from "../../ecs"
 import { RendererComponent } from "../components/RendererComponent"
 import { DefaultPostProcessingSchema } from "../defaults/DefaultPostProcessingSchema"
+import { WebGLRenderer, Clock } from "three"
 export class WebGLRendererSystem extends System {
   init(attributes?: Attributes): void {
-    throw new Error("Method not implemented.")
+    registerComponent(RendererComponent)
+    // Create the Three.js WebGL renderer
+    const renderer = new WebGLRenderer({
+      antialias: true
+    })
+    // Add the renderer to the body of the HTML document
+    document.body.appendChild(renderer.domElement)
+    // Create the Renderer singleton
+    addComponent(createEntity(), RendererComponent, {
+      renderer: renderer
+    })
   }
   onResize() {
     RendererComponent.instance.needsResize = true
@@ -20,17 +40,17 @@ export class WebGLRendererSystem extends System {
   isInitialized: boolean
 
   configurePostProcessing(entity: Entity) {
-    const renderer = entity.getMutableComponent(RendererComponent)
+    const renderer = getMutableComponent(entity, RendererComponent)
     if (renderer.postProcessingSchema == undefined) renderer.postProcessingSchema = DefaultPostProcessingSchema
     const composer = new EffectComposer(renderer.renderer)
     renderer.composer = composer
-    const renderPass = new RenderPass(SceneComponent.instance.scene, CameraComponent.instance.camera)
+    const renderPass = new RenderPass(SceneManager.instance.scene, CameraComponent.instance.camera)
     console.log(renderPass.camera)
     console.log(renderPass.scene)
-    renderPass.scene = SceneComponent.instance.scene
+    renderPass.scene = SceneManager.instance.scene
     renderPass.camera = CameraComponent.instance.camera
     composer.addPass(renderPass)
-    composer.scene = SceneComponent.instance.scene
+    composer.scene = SceneManager.instance.scene
     composer.camera = CameraComponent.instance.camera
     // // This sets up the render
     const passes: any[] = []
@@ -53,13 +73,13 @@ export class WebGLRendererSystem extends System {
     })
 
     this.queries.renderers.results.forEach((entity: Entity) => {
-      entity.getComponent<RendererComponent>(RendererComponent).composer.render(delta)
+      getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta)
     })
   }
 }
 
 export const resize: Behavior = entity => {
-  const rendererComponent = entity.getComponent<RendererComponent>(RendererComponent)
+  const rendererComponent = getComponent<RendererComponent>(entity, RendererComponent)
 
   if (rendererComponent.needsResize) {
     const canvas = rendererComponent.renderer.domElement

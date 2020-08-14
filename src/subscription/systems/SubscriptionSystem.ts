@@ -1,15 +1,16 @@
 import { Behavior } from "../../common/interfaces/Behavior"
 import { BehaviorValue } from "../../common/interfaces/BehaviorValue"
-import { Entity } from "../../ecs/Entity"
-import { Attributes, System } from "../../ecs/System"
+import { Entity } from "../../ecs/classes/Entity"
+import { Attributes, System } from "../../ecs/classes/System"
 import { Subscription } from "../components/Subscription"
+import { registerComponent, getComponent } from "../../ecs"
 
 export class SubscriptionSystem extends System {
-  init(attributes?: Attributes): void {
-    throw new Error("Method not implemented.")
+  init(): void {
+    registerComponent(Subscription)
   }
   private subscription: Subscription
-  public execute(delta: number, time: number): void {
+  public execute(delta: number): void {
     this.queries.subscriptions.added?.forEach(entity => {
       this.callBehaviorsForHook(entity, { phase: "onAdded" }, delta)
     })
@@ -29,7 +30,7 @@ export class SubscriptionSystem extends System {
   }
 
   callBehaviorsForHook: Behavior = (entity: Entity, args: { phase: string }, delta: any) => {
-    this.subscription = entity.getComponent(Subscription)
+    this.subscription = getComponent(entity, Subscription)
     // If the schema for this subscription component has any values in this phase
     if (this.subscription.schema[args.phase] !== undefined) {
       // Foreach value in this phase
