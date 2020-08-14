@@ -17,13 +17,19 @@ export function initializeClient(myClientId, allClientIds): void {
 export function addClient(_id: string): void {
   if (NetworkComponent.instance.clients.includes(_id)) return console.error("Client is already in client list")
   NetworkComponent.instance.clients.push(_id)
-  NetworkComponent.instance.schema.messageHandlers[MessageTypes.ClientConnected].behavior(_id, _id === NetworkComponent.instance.mySocketID) // args: ID, isLocalPlayer?
+  NetworkComponent.instance.schema.messageHandlers[MessageTypes.ClientConnected].behavior(
+    _id,
+    _id === NetworkComponent.instance.mySocketID
+  ) // args: ID, isLocalPlayer?
 }
 
 export function removeClient(_id: string): void {
   // args: ID, isLocalPlayer?
   if (_id in NetworkComponent.instance.clients) {
     NetworkComponent.instance.clients.splice(NetworkComponent.instance.clients.indexOf(_id))
-    NetworkComponent.instance.schema.messageHandlers[MessageTypes.ClientDisconnected].behavior(_id, _id === NetworkComponent.instance.mySocketID) // args: ID, isLocalPlayer?
+    NetworkComponent.instance.schema.messageHandlers[MessageTypes.ClientDisconnected].behavior(
+      _id,
+      _id === NetworkComponent.instance.mySocketID
+    ) // args: ID, isLocalPlayer?
   } else console.warn("Couldn't remove client because they didn't exist in our list")
 }

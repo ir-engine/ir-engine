@@ -30,7 +30,11 @@ export const validateButtonInput: Behavior = (entity: Entity): void => {
 }
 
 // If they oppose, cancel them
-function buttonsOpposeEachOther(actionQueueArray: Map<InputAlias, InputValue<NumericalType>>, arrayPosOne: number, arrayPoseTwo: number): boolean {
+function buttonsOpposeEachOther(
+  actionQueueArray: Map<InputAlias, InputValue<NumericalType>>,
+  arrayPosOne: number,
+  arrayPoseTwo: number
+): boolean {
   const actionToTest = actionQueueArray[arrayPosOne]
   const actionToTestAgainst = actionQueueArray[arrayPoseTwo]
   this._userInput.inputSchema[actionToTest.input]?.opposes?.forEach((input: InputAlias) => {
@@ -42,7 +46,11 @@ function buttonsOpposeEachOther(actionQueueArray: Map<InputAlias, InputValue<Num
   return false
 }
 
-function buttonIsBlockedByAnother(actionQueueArray: Map<InputAlias, InputValue<NumericalType>>, arrayPosOne: number, arrayPoseTwo: number): boolean {
+function buttonIsBlockedByAnother(
+  actionQueueArray: Map<InputAlias, InputValue<NumericalType>>,
+  arrayPosOne: number,
+  arrayPoseTwo: number
+): boolean {
   const actionToTest = actionQueueArray[arrayPosOne]
   const actionToTestAgainst = actionQueueArray[arrayPoseTwo]
   this._userInput.inputSchema[actionToTest.type]?.blockedBy?.forEach((input: InputAlias) => {
@@ -54,7 +62,11 @@ function buttonIsBlockedByAnother(actionQueueArray: Map<InputAlias, InputValue<N
   return false
 }
 
-function buttonOverridesAnother(actionQueueArray: Map<InputAlias, InputValue<NumericalType>>, arrayPosOne: number, arrayPoseTwo: number): boolean {
+function buttonOverridesAnother(
+  actionQueueArray: Map<InputAlias, InputValue<NumericalType>>,
+  arrayPosOne: number,
+  arrayPoseTwo: number
+): boolean {
   const actionToTest = actionQueueArray[arrayPosOne]
   const actionToTestAgainst = actionQueueArray[arrayPoseTwo]
   this._userInput.inputSchema[actionToTest.type]?.overrides?.forEach((input: InputAlias) => {

@@ -84,7 +84,11 @@ const calcMatrixWorld = (function() {
     } else if (transform) {
       const transformMatrix = new Matrix4()
 
-      transformMatrix.compose(transform.position, quaternion.setFromEuler(euler.setFromVector3(transform.rotation)), scale.set(1, 1, 1))
+      transformMatrix.compose(
+        transform.position,
+        quaternion.setFromEuler(euler.setFromVector3(transform.rotation)),
+        scale.set(1, 1, 1)
+      )
 
       if (childMatrix) {
         transformMatrix.premultiply(childMatrix)

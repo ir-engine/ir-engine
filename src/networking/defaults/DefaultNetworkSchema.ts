@@ -1,6 +1,5 @@
 // Components
-import { BoxBufferGeometry, Mesh, MeshBasicMaterial } from "three"
-import { CameraComponent } from "../../camera/components/CameraComponent"
+import { BoxBufferGeometry, Mesh } from "three"
 import { addObject3DComponent, removeObject3DComponent } from "../../common/defaults/behaviors/Object3DBehaviors"
 import { Actor } from "../../common/defaults/components/Actor"
 import { Input } from "../../input/components/Input"
@@ -17,10 +16,19 @@ import { State } from "../../state/components/State"
 import { Subscription, DefaultSubscriptionSchema } from "../../subscription"
 import { DefaultStateSchema } from "../../state"
 import { DefaultInputSchema } from "../../input"
+import { attachCamera } from "../../camera/behaviors/attachCamera"
+
+const box = new BoxBufferGeometry(0.25, 0.25, 0.25)
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 const NetworkPlayerCharacter: NetworkPrefab = {
-  networkComponents: [{ type: NetworkObject }, { type: Actor }, { type: TransformComponent, networkedValues: ["position", "rotation"] }],
+  // These will be created for all players on the network
+  networkComponents: [
+    { type: NetworkObject },
+    { type: Actor },
+    { type: TransformComponent, networkedValues: ["position", "rotation"] }
+  ],
+  // These are only created for the local player who owns this prefab
   components: [
     { type: Input, data: { schema: DefaultInputSchema } },
     { type: State, data: { schema: DefaultStateSchema } },
@@ -29,10 +37,14 @@ const NetworkPlayerCharacter: NetworkPrefab = {
   onCreate: [
     {
       behavior: addObject3DComponent,
+      networked: true,
       args: {
         obj: Mesh,
-        objArgs: new BoxBufferGeometry(1, 1, 1)
+        objArgs: box
       }
+    },
+    {
+      behavior: attachCamera
     }
   ],
   onDestroy: [

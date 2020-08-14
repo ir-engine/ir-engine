@@ -12,19 +12,19 @@ const _velocity: vec3 = [0, 0, 0]
 
 export const transformBehavior: Behavior = (entity: Entity, args: { event: MouseEvent }, delta): void => {
   transform = entity.getMutableComponent(TransformComponent)
-
   vec3.set(_position, transform.position[0], transform.position[1], transform.position[2])
   vec3.set(_velocity, transform.velocity[0], transform.velocity[1], transform.velocity[2])
 
+  const object3DComponent = entity.getMutableComponent(Object3DComponent)
+  if (object3DComponent == undefined) return console.warn("No Object3D located")
   // Apply velocity to position
-  if (vec3.length(_velocity) > 0) {
+  if (Math.abs(vec3.length(_velocity)) > 0) {
     vec3.scale(_deltaV, _velocity, delta)
     vec3.add(_position, _position, _deltaV)
     transform.position = _position
   }
-
-  // Apply to object3d
-  const object3DComponent = entity.getComponent(Object3DComponent)
   object3DComponent.value.position.set(_position[0], _position[1], _position[2])
+
+  // TODO: Need to apply spin
   object3DComponent.value.rotation.setFromQuaternion(q.fromArray(transform.rotation))
 }

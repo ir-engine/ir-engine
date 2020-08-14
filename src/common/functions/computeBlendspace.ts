@@ -1,14 +1,14 @@
-import StateType from "../../state/types/StateAlias"
+import { StateAlias } from "../../state/types/StateAlias"
 import { Scalar, Vector2, Vector3 } from "../types/NumericalTypes"
 import { instanceOf } from "./instanceOf"
 
 interface blendStatePositionValue {
-  stateType: StateType
+  stateType: StateAlias
   position: Scalar | Vector2 | Vector3
 }
 
 interface outputState {
-  stateType: StateType
+  stateType: StateAlias
   weight: number
 }
 
@@ -24,7 +24,10 @@ let a: number
 let b: number
 let c: number
 
-export function computeBlendValue(inputValue: Scalar | Vector2 | Vector3, blendStateValues: blendStatePositionValue[]): outputState[] {
+export function computeBlendValue(
+  inputValue: Scalar | Vector2 | Vector3,
+  blendStateValues: blendStatePositionValue[]
+): outputState[] {
   bufferPosition = 0
   totalDistance = 0
   blendStateValues.forEach(element => {
@@ -51,7 +54,9 @@ export function computeBlendValue(inputValue: Scalar | Vector2 | Vector3, blendS
 
   for (i = 0; i <= bufferPosition; i++) {
     //  divide all magnitudes by total to normalize, and invert (1.0 - val)
-    outputBlendStateBuffer[bufferPosition].weight = normalizedRelu(1.0 - outputBlendStateBuffer[bufferPosition].weight / totalDistance)
+    outputBlendStateBuffer[bufferPosition].weight = normalizedRelu(
+      1.0 - outputBlendStateBuffer[bufferPosition].weight / totalDistance
+    )
   }
   return outputBlendStateBuffer
 }

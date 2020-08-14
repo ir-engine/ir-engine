@@ -1,4 +1,3 @@
-import { World } from "ecsy"
 import { initialize } from "../src/initialize"
 import { SocketWebRTCServerTransport } from "./transports/SocketWebRTCServerTransport"
 import { DefaultNetworkSchema } from "../src/networking/defaults/DefaultNetworkSchema"
@@ -37,23 +36,14 @@ const options = {
   },
   transform: {
     enabled: true
+  },
+  renderer: {
+    enabled: false
   }
 }
 
 export class SocketWebRTCServer {
-  lastTime: number = Date.now()
-  time = Date.now()
-  delta
   constructor() {
-    const world = new World()
-    initialize(world, options)
-    this.update(world)
-  }
-
-  update(world: World): void {
-    this.delta = this.time - this.lastTime
-    this.lastTime = this.time
-    world.execute()
-    setImmediate(() => this.update(world))
+    initialize(options)
   }
 }
