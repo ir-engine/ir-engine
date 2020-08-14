@@ -8,6 +8,7 @@ import { StateType } from "../enums/StateType"
 import { StateValue } from "../interfaces/StateValue"
 import { StateAlias } from "../types/StateAlias"
 import { StateGroupAlias } from "../types/StateGroupAlias"
+import { getComponent } from "../../ecs"
 
 let stateComponent: State
 let stateGroup: StateGroupAlias

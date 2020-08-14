@@ -1,6 +1,5 @@
+export * from "./classes/SceneManager"
 export * from "./components/BehaviorComponent"
-export * from "./components/SceneComponent"
-export * from "./components/WorldComponent"
 export * from "./defaults/behaviors/decelerate"
 export * from "./defaults/behaviors/jump"
 export * from "./defaults/behaviors/move"

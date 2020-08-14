@@ -1,4 +1,4 @@
-import { BoxBufferGeometry, Mesh, ShaderMaterial, UniformsUtils, BackSide, Vector3 } from "three"
+import { BackSide, BoxBufferGeometry, Mesh, ShaderMaterial, UniformsUtils, Vector3 } from "three"
 
 export class Sky extends Mesh {
   geometry = new BoxBufferGeometry(1, 1, 1)

@@ -1,5 +1,5 @@
-import { ObjectPool } from "./ObjectPool"
 import { Entity } from "./Entity"
+import { ObjectPool } from "./ObjectPool"
 import { World } from "./World"
 
 export class EntityPool extends ObjectPool<Entity> {

@@ -29,18 +29,18 @@ export interface NotComponent<C extends Component<any>> {
 //  */
 // export function Not<C extends Component<any>>(Component: ComponentConstructor<C>): NotComponent<C>;
 
-import { getQuery } from "../functions/QueryFunctions"
+import { componentRegistered, queryKey } from "../functions/Utils"
 import { Component, ComponentConstructor } from "./Component"
 import { Entity } from "./Entity"
 import Query from "./Query"
-import { componentRegistered } from "../functions/Utils"
 
 export abstract class System {
   /**
    * Defines what Components the System will query for.
    * This needs to be user defined.
    */
-  static queries: SystemQueries
+  static systemQueries: SystemQueries
+  static queries: {}
 
   static isSystem: true
   _mandatoryQueries: any
@@ -52,7 +52,7 @@ export abstract class System {
    * The results of the queries.
    * Should be used inside of execute.
    */
-  queries: {
+  queryResults: {
     [queryName: string]: {
       results?: Entity[]
       added?: Entity[]
@@ -66,7 +66,7 @@ export abstract class System {
    */
   enabled: boolean
   name: string
-
+  _queries: {}
   abstract init(attributes?: Attributes): void
   abstract execute(delta: number, time: number): void
 
@@ -87,8 +87,9 @@ export abstract class System {
     this.enabled = true
 
     // @todo Better naming :)
-    this.queries = {}
-    this.queries = {}
+    this._queries = {}
+    this.queryResults = {}
+    this.queryResults = {}
 
     this.priority = 0
 
@@ -103,10 +104,10 @@ export abstract class System {
 
     this.initialized = true
 
-    if (this.queries) {
-      for (const queryName in this.queries) {
-        const queryConfig = this.queries[queryName]
-        const Components = queryConfig.results
+    if (this.queryResults) {
+      for (const queryName in System.systemQueries) {
+        const queryConfig = System.systemQueries[queryName]
+        const Components = queryConfig.components
         if (!Components || Components.length === 0) {
           throw new Error("'components' attribute can't be empty in a query")
         }
@@ -122,11 +123,14 @@ export abstract class System {
           )
         }
 
-        const query = getQuery(Components)
+        // TODO: Solve this
+        const query = this.getQuery(Components)
 
-        this.queries[queryName] = query
-        this._mandatoryQueries.push(query)
-        this.queries[queryName] = {
+        this._queries[queryName] = query
+        if ((queryConfig as any).mandatory === true) {
+          this._mandatoryQueries.push(query)
+        }
+        this.queryResults[queryName] = {
           results: query.entities
         }
 
@@ -157,7 +161,7 @@ export abstract class System {
                 query.reactive = true
                 if (event === true) {
                   // Any change on the entity from the components in the query
-                  const eventList = (this.queries[queryName][eventName] = [])
+                  const eventList = (this.queryResults[queryName][eventName] = [])
                   query.eventDispatcher.addEventListener(Query.prototype.COMPONENT_CHANGED, entity => {
                     // Avoid duplicates
                     if (eventList.indexOf(entity) === -1) {
@@ -165,7 +169,7 @@ export abstract class System {
                     }
                   })
                 } else if (Array.isArray(event)) {
-                  const eventList = (this.queries[queryName][eventName] = [])
+                  const eventList = (this.queryResults[queryName][eventName] = [])
                   query.eventDispatcher.addEventListener(
                     Query.prototype.COMPONENT_CHANGED,
                     (entity, changedComponent) => {
@@ -177,7 +181,7 @@ export abstract class System {
                   )
                 }
               } else {
-                const eventList = (this.queries[queryName][eventName] = [])
+                const eventList = (this.queryResults[queryName][eventName] = [])
 
                 query.eventDispatcher.addEventListener(eventMapping[eventName], entity => {
                   // @fixme overhead?
@@ -191,6 +195,15 @@ export abstract class System {
     }
   }
 
+  getQuery(components: (ComponentConstructor<any> | NotComponent<any>)[]): Query {
+    const key = queryKey(components)
+    let query = this._queries[key]
+    if (!query) {
+      this._queries[key] = query = new Query(components)
+    }
+    return query
+  }
+
   stop(): void {
     this.executeTime = 0
     this.enabled = false
@@ -201,8 +214,8 @@ export abstract class System {
   }
 
   clearEventQueues(): void {
-    for (const queryName in this.queries) {
-      const query = this.queries[queryName]
+    for (const queryName in this.queryResults) {
+      const query = this.queryResults[queryName]
       if (query.added) {
         query.added.length = 0
       }
@@ -231,13 +244,13 @@ export abstract class System {
       queries: {}
     }
 
-    if (this.queries) {
-      const queries = this.queries
+    if (this.queryResults) {
+      const queries = this.queryResults
       for (const queryName in queries) {
-        const query = this.queries[queryName]
+        const query = this.queryResults[queryName]
         const queryDefinition = queries[queryName] as any
         const jsonQuery = (json.queries[queryName] = {
-          key: queryName
+          key: this._queries[queryName].key
         })
         const j = jsonQuery as any
         j.mandatory = queryDefinition.mandatory === true

@@ -1,3 +1,3 @@
-import { TagComponent } from "../../../ecs/TagComponent"
+import { Component } from "../../../ecs/classes/Component"
 
-export class Sprinting extends Component<any> {}
+export class Sprinting extends Component<Sprinting> {}

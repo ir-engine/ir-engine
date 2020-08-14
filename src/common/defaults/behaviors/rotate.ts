@@ -1,5 +1,6 @@
 import { quat, vec3 } from "gl-matrix"
-import { Entity } from "../../../ecs/Entity"
+import { getComponent, getMutableComponent } from "../../../ecs"
+import { Entity } from "../../../ecs/classes/Entity"
 import { Input } from "../../../input/components/Input"
 import { InputType } from "../../../input/enums/InputType"
 import { InputAlias } from "../../../input/types/InputAlias"

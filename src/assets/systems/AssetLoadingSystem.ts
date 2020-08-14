@@ -1,16 +1,23 @@
-import { System, Not } from "../../ecs/classes/System"
-import AssetVault from "../components/AssetVault"
-import { AssetLoaderState } from "../components/AssetLoaderState"
-import { AssetLoader } from "../components/AssetLoader"
-import { loadAsset, getAssetType, getAssetClass } from "../functions/LoadingFunctions"
-import { Entity, addComponent, getMutableComponent, removeComponent, registerComponent } from "../../ecs"
-import { AssetsLoadedHandler } from "../types/AssetTypes"
-import { AssetType } from "../enums/AssetType"
 import { Object3DComponent } from "../../common/components/Object3DComponent"
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { AssetClass } from "../enums/AssetClass"
-import { Model } from "../components/Model"
 import { addObject3DComponent, removeObject3DComponent } from "../../common/defaults/behaviors/Object3DBehaviors"
+import {
+  addComponent,
+  Entity,
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  Not,
+  registerComponent,
+  removeComponent
+} from "../../ecs"
+import { System } from "../../ecs/classes/System"
+import { AssetLoader } from "../components/AssetLoader"
+import { AssetLoaderState } from "../components/AssetLoaderState"
+import AssetVault from "../components/AssetVault"
+import { Model } from "../components/Model"
+import { AssetClass } from "../enums/AssetClass"
+import { getAssetClass, getAssetType, loadAsset } from "../functions/LoadingFunctions"
+import { AssetsLoadedHandler } from "../types/AssetTypes"
 
 export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
@@ -21,12 +28,12 @@ export default class AssetLoadingSystem extends System {
   }
 
   execute() {
-    this.queries.assetVault.results.forEach(entity => {
+    this.queryResults.assetVault.results.forEach(entity => {
       // Do things here
     })
-    while (this.queries.toLoad.results.length) {
+    while (this.queryResults.toLoad.results.length) {
       // Create a new entity
-      const entity = this.queries.toLoad.results[0]
+      const entity = this.queryResults.toLoad.results[0]
       // Asset the AssetLoaderState so it falls out of this query
       addComponent(entity, AssetLoaderState)
       const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader)
@@ -44,7 +51,7 @@ export default class AssetLoadingSystem extends System {
     // Do the actual entity creation inside the system tick not in the loader callback
     for (let i = 0; i < this.loaded.size; i++) {
       const [entity, asset] = this.loaded[i]
-      const component = entity.getComponent<AssetLoader>(AssetLoader) as AssetLoader
+      const component = getComponent<AssetLoader>(entity, AssetLoader) as AssetLoader
       if (component.assetClass === AssetClass.Model)
         asset.scene.traverse(function(child) {
           if (child.isMesh) {
@@ -57,9 +64,9 @@ export default class AssetLoadingSystem extends System {
           }
         })
 
-      if (entity.hasComponent(Object3DComponent)) {
+      if (hasComponent(entity, Object3DComponent)) {
         if (component.append) {
-          getComponent(entity, Object3DComponent).value.add(asset.scene)
+          getComponent<Object3DComponent>(entity, Object3DComponent).value.add(asset.scene)
         }
       } else {
         addComponent(entity, Model, { value: asset })
@@ -73,7 +80,7 @@ export default class AssetLoadingSystem extends System {
     }
     this.loaded.clear()
 
-    const toUnload = this.queries.toUnload.results
+    const toUnload = this.queryResults.toUnload.results
     while (toUnload.length) {
       const entity = toUnload[0]
       removeComponent(entity, AssetLoaderState)
@@ -93,7 +100,7 @@ export function hashResourceString(str) {
   return `${hash}${str.substr(Math.max(str.length - 7, 0))}`
 }
 
-AssetLoadingSystem.queries = {
+AssetLoadingSystem.systemQueries = {
   assetVault: {
     components: [AssetVault]
   },

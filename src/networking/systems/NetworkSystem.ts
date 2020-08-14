@@ -1,11 +1,11 @@
+import { NetworkGameState } from ".."
+import { addComponent, createEntity, registerComponent } from "../../ecs"
 import { System } from "../../ecs/classes/System"
-import { Network as NetworkComponent, Network } from "../components/Network"
+import { Network, Network as NetworkComponent } from "../components/Network"
 import { NetworkClient } from "../components/NetworkClient"
 import { NetworkObject } from "../components/NetworkObject"
-import { registerComponent, createEntity, addComponent } from "../../ecs"
-import { NetworkGameState } from ".."
-import { NetworkSchema } from "../interfaces/NetworkSchema"
 import { DefaultNetworkSchema } from "../defaults/DefaultNetworkSchema"
+import { NetworkSchema } from "../interfaces/NetworkSchema"
 import { NetworkTransport } from "../interfaces/NetworkTransport"
 
 export class NetworkSystem extends System {
@@ -29,7 +29,7 @@ export class NetworkSystem extends System {
   }
   public static instance: NetworkSystem = null
 
-  static queries: any = {
+  static queryResults: any = {
     networkObject: {
       components: [NetworkObject]
     },

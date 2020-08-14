@@ -1,4 +1,4 @@
-import { Component, Types } from "../../ecs"
+import { Component, Types } from "../../../src/ecs"
 
 export class WheelBody extends Component<any> {}
 WheelBody.schema = {

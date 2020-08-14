@@ -1,58 +1,59 @@
 import { Object3D } from "three"
-import { Behavior } from "../../interfaces/Behavior"
 import {
-  Entity,
+  addComponent,
   Component,
+  ComponentConstructor,
+  Entity,
+  getComponent,
+  getMutableComponent,
+  hasComponent,
   hasRegisteredComponent,
   registerComponent,
-  removeEntity,
-  addComponent,
-  getMutableComponent,
-  getComponent,
-  hasComponent,
-  ComponentConstructor
+  removeComponent,
+  removeEntity
 } from "../../../ecs"
+import { Skybox } from "../../../scene/components/Skybox"
+import { SceneManager } from "../../classes/SceneManager"
 import { Object3DComponent } from "../../components/Object3DComponent"
 import {
-  PositionalAudioTagComponent,
-  AudioTagComponent,
-  AudioListenerTagComponent,
-  CameraTagComponent,
-  OrthographicCameraTagComponent,
-  PerspectiveCameraTagComponent,
-  ArrayCameraTagComponent,
-  CubeCameraTagComponent,
-  ImmediateRenderObjectTagComponent,
-  LightTagComponent,
-  AmbientLightTagComponent,
-  DirectionalLightTagComponent,
-  HemisphereLightTagComponent,
-  PointLightTagComponent,
-  RectAreaLightTagComponent,
-  SpotLightTagComponent,
-  LightProbeTagComponent,
   AmbientLightProbeTagComponent,
-  HemisphereLightProbeTagComponent,
+  AmbientLightTagComponent,
+  ArrayCameraTagComponent,
+  AudioListenerTagComponent,
+  AudioTagComponent,
   BoneTagComponent,
+  CameraTagComponent,
+  CubeCameraTagComponent,
+  DirectionalLightTagComponent,
   GroupTagComponent,
-  LODTagComponent,
-  MeshTagComponent,
+  HemisphereLightProbeTagComponent,
+  HemisphereLightTagComponent,
+  ImmediateRenderObjectTagComponent,
   InstancedMeshTagComponent,
-  SkinnedMeshTagComponent,
-  LineTagComponent,
+  LightProbeTagComponent,
+  LightTagComponent,
   LineLoopTagComponent,
   LineSegmentsTagComponent,
+  LineTagComponent,
+  LODTagComponent,
+  MeshTagComponent,
+  OrthographicCameraTagComponent,
+  PerspectiveCameraTagComponent,
+  PointLightTagComponent,
   PointsTagComponent,
-  SpriteTagComponent,
-  SceneTagComponent
+  PositionalAudioTagComponent,
+  RectAreaLightTagComponent,
+  SceneTagComponent,
+  SkinnedMeshTagComponent,
+  SpotLightTagComponent,
+  SpriteTagComponent
 } from "../../components/Object3DTagComponents"
-import { SceneManager } from "../../components/SceneComponent"
-import { Skybox } from "../../../scene/components/Skybox"
+import { Behavior } from "../../interfaces/Behavior"
 
 export function addTagComponentFromBehavior<C>(
   entity: Entity,
   args: { component: ComponentConstructor<Component<C>> }
-) {
+): void {
   addComponent(entity, args.component, args)
 }
 
@@ -67,7 +68,7 @@ export const addObject3DComponent: Behavior = (
   }
   // object3d = new args.obj(args.objArgs)
   addComponent(entity, Object3DComponent, { value: object3d })
-  getMutableComponent(entity, Object3DComponent).value = object3d
+  getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = object3d
 
   getComponentTags(object3d).forEach((component: any) => {
     addComponent(entity, component)
@@ -90,13 +91,13 @@ export function removeObject3DComponent(entity, unparent = true) {
     // Using "true" as the entity could be removed somewhere else
     object3d.parent && object3d.parent.remove(object3d)
   }
-  entity.removeComponent(Object3DComponent)
+  removeComponent(entity, Object3DComponent)
 
-  for (let i = entity._ComponentTypes.length - 1; i >= 0; i--) {
-    const Component = entity._ComponentTypes[i]
+  for (let i = entity.componentTypes.length - 1; i >= 0; i--) {
+    const Component = entity.componentTypes[i]
 
     if (Component.isObject3DTagComponent) {
-      entity.removeComponent(Component)
+      removeComponent(entity, Component)
     }
   }
 
@@ -104,13 +105,11 @@ export function removeObject3DComponent(entity, unparent = true) {
 }
 
 export function remove(entity, forceImmediate) {
-  if (entity.hasComponent(Object3DComponent)) {
-    const obj = entity.getObject3D()
+  if (hasComponent<Object3DComponent>(entity, Object3DComponent)) {
+    const obj = getObject3D(entity)
     obj.traverse(o => {
-      if (o.entity) {
-        removeEntity(o.entity, forceImmediate)
-      }
-      o.entity = null
+      if ((o as any).entity) removeEntity((o as any).entity, forceImmediate)
+      ;(o as any).entity = null
     })
     obj.parent && obj.parent.remove(obj)
   }

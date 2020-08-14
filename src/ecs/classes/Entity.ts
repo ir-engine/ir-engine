@@ -122,11 +122,11 @@ export function processDeferredEntityRemoval() {
 
   for (let i = 0; i < entitiesWithComponentsToRemove.length; i++) {
     const entity = entitiesWithComponentsToRemove[i]
-    while (entity._ComponentTypesToRemove.length > 0) {
-      const Component = entity._ComponentTypesToRemove.pop()
+    while (entity.componentTypesToRemove.length > 0) {
+      const Component = entity.componentTypesToRemove.pop()
 
-      const component = entity._componentsToRemove[Component._typeId]
-      delete entity._componentsToRemove[Component._typeId]
+      const component = entity.componentsToRemove[Component._typeId]
+      delete entity.componentsToRemove[Component._typeId]
       component.dispose()
       componentRemovedFromEntity(Component)
     }

@@ -2,17 +2,17 @@ import { Vec3 } from "cannon-es/src/math/Vec3"
 import { Body } from "cannon-es/src/objects/Body"
 import { Box } from "cannon-es/src/shapes/Box"
 import { Sphere } from "cannon-es/src/shapes/Sphere"
-import { Attributes, System } from "../../ecs/classes/System"
+import { getComponent, getMutableComponent, registerComponent } from "../../../src/ecs"
+import { Attributes, System } from "../../../src/ecs/classes/System"
 import { RigidBody } from "../components/RigidBody"
 import { VehicleBody } from "../components/VehicleBody"
-import { registerComponent, getComponent, getMutableComponent } from "../../ecs"
 
 export class VehicleSystem extends System {
   init(attributes?: Attributes): void {
     registerComponent(VehicleBody)
   }
   execute(dt, t) {
-    for (const entity of this.queries.physicsBody.added) {
+    for (const entity of this.queryResults.physicsBody.added) {
       const physicsBody = getComponent<RigidBody>(entity, RigidBody) as any
 
       let shape
@@ -32,8 +32,8 @@ export class VehicleSystem extends System {
 
       //  body.angularVelocity.set(0,10,0);
       //  body.angularDamping = 0.5;
-
-      getMutableComponent(entity, RigidBody).body = body
+      const rigidBody = getMutableComponent<RigidBody>(entity, RigidBody) as any
+      rigidBody.body = body
       //  console.log(body.position);
       //  console.log(body.mass);
 
@@ -46,7 +46,7 @@ export class VehicleSystem extends System {
   }
 }
 
-VehicleSystem.queries = {
+VehicleSystem.systemQueries = {
   vehicleBody: {
     components: [VehicleBody],
     listen: {

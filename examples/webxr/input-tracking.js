@@ -77,16 +77,16 @@
       }
 
       function initSystem(){
-        world.registerSystem(WebXRSystem, {
+        registerSystem(WebXRSystem, {
           onVRSupportRequested: isSupported => 
             isImmersive = xrButton.enabled = isSupported,
         })
-        system = world.getSystem(WebXRSystem)
+        system = getSystem(WebXRSystem)
       }
 
       function initEntity(){
         entity = createEntity()
-        world.registerComponent(WebXRRenderer)
+        registerComponent(WebXRRenderer)
         addComponent(entity, WebXRRenderer, {context: gl})
       }
 

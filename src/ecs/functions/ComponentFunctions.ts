@@ -1,12 +1,11 @@
 import { SystemStateComponent } from ".."
-import { ComponentConstructor } from "../classes/Component"
+import { Component, ComponentConstructor } from "../classes/Component"
 import { Entity } from "../classes/Entity"
 import { ObjectPool } from "../classes/ObjectPool"
+import { World } from "../classes/World"
 import { COMPONENT_ADDED, COMPONENT_REMOVE } from "../types/EventTypes"
-import { Component } from "../classes/Component"
 import { onEntityComponentAdded } from "./EntityFunctions"
 import { getName } from "./Utils"
-import { World } from "../classes/World"
 
 const proxyMap = new WeakMap()
 
@@ -27,7 +26,7 @@ export function Not(Component) {
   }
 }
 
-export default function wrapImmutableComponent<T>(x, component: Component<any>): T {
+export default function wrapImmutableComponent<T>(component: Component<T>): T {
   if (component === undefined) {
     return undefined
   }
@@ -101,14 +100,14 @@ export function addComponentToEntity(entity, Component, values) {
     throw new Error(`Attempted to add unregistered component "${Component.name}"`)
   }
 
-  if (~entity._ComponentTypes.indexOf(Component)) {
+  if (~entity.componentTypes.indexOf(Component)) {
     if (process.env.NODE_ENV !== "production") {
       console.warn("Component type already exists on entity.", entity, Component.name)
     }
     return
   }
 
-  entity._ComponentTypes.push(Component)
+  entity.componentTypes.push(Component)
 
   if (Component.__proto__ === SystemStateComponent) {
     entity.numStateComponents++

@@ -1,13 +1,13 @@
+import { getComponent, registerComponent } from "../../ecs"
 import { Attributes, System } from "../../ecs/classes/System"
 import { Keyframe } from "../components/Keyframe"
-import { registerComponent, getComponent } from "../../ecs"
 
 export class KeyframeSystem extends System {
   init(attributes?: Attributes): void {
     registerComponent(Keyframe)
   }
   execute(deltaTime, time): void {
-    for (const entity of this.queries.keyframes.results) {
+    for (const entity of this.queryResults.keyframes.results) {
       const keyframe = getComponent(entity, Keyframe) as Keyframe
       const frameTime = time % keyframe.duration
 
@@ -18,7 +18,7 @@ export class KeyframeSystem extends System {
   }
 }
 
-KeyframeSystem.queries = {
+KeyframeSystem.systemQueries = {
   keyframes: {
     components: [Keyframe]
   }

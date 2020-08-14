@@ -134,7 +134,7 @@ A behavior is just a function that implements the Behavior interface. You can fi
 Let's make a behavior.
 ```typescript
 export const myBehavior: Behavior = (entity: Entity, args: { myArgs }): void => {
-  const myComponent = entity.GetComponent(MyComponent)
+  const myComponent = getComponent(entity, MyComponent)
   myComponent.value = myArgs.someArg
 }
 ```

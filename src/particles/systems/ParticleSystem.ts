@@ -1,9 +1,8 @@
-import { Euler } from "three/src/math/Euler"
 import { Matrix4 } from "three/src/math/Matrix4"
 import { Quaternion } from "three/src/math/Quaternion"
 import { Vector3 } from "three/src/math/Vector3"
 import { Object3DComponent } from "../../common/components/Object3DComponent"
-import { Attributes, System, getComponent, addComponent } from "../../ecs"
+import { addComponent, Attributes, getComponent, registerComponent, System } from "../../ecs"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { TransformParentComponent } from "../../transform/components/TransformParentComponent"
 import { createParticleEmitter, setEmitterMatrixWorld, setEmitterTime } from "../classes/ParticleEmitter"
@@ -12,9 +11,10 @@ import { ParticleEmitter, ParticleEmitterState } from "../components/ParticleEmi
 export class ParticleSystem extends System {
   init(attributes?: Attributes): void {
     registerComponent(ParticleEmitter)
+    registerComponent(ParticleEmitterState)
   }
   execute(deltaTime, time): void {
-    for (const entity of this.queries.emitters.added) {
+    for (const entity of this.queryResults.emitters.added) {
       const emitter = getComponent(entity, ParticleEmitter) as ParticleEmitter
 
       const matrixWorld = calcMatrixWorld(entity)
@@ -30,7 +30,7 @@ export class ParticleSystem extends System {
       })
     }
 
-    for (const entity of this.queries.emitterStates.results) {
+    for (const entity of this.queryResults.emitterStates.results) {
       const emitterState = getComponent<ParticleEmitterState>(entity, ParticleEmitterState)
 
       if (emitterState.syncTransform) {
@@ -47,7 +47,7 @@ export class ParticleSystem extends System {
   }
 }
 
-ParticleSystem.queries = {
+ParticleSystem.systemQueries = {
   emitters: {
     components: [ParticleEmitter],
     listen: {

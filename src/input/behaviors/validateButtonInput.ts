@@ -4,6 +4,7 @@ import { Entity } from "../../ecs/classes/Entity"
 import { Input } from "../components/Input"
 import { InputValue } from "../interfaces/InputValue"
 import { InputAlias } from "../types/InputAlias"
+import { getComponent, getMutableComponent } from "../../ecs"
 
 let input: Input
 export const validateButtonInput: Behavior = (entity: Entity): void => {
@@ -14,16 +15,16 @@ export const validateButtonInput: Behavior = (entity: Entity): void => {
       if (i == k) continue // don't compare to self
       // Opposing input cancel out
       if (buttonsOpposeEachOther(input.data, i, k)) {
-        getMutableComponent(entity, Input).data.delete(i)
-        getMutableComponent(entity, Input).data.delete(k)
+        getMutableComponent<Input>(entity, Input).data.delete(i)
+        getMutableComponent<Input>(entity, Input).data.delete(k)
       }
       // If input is blocked by another input that overrides and is active, remove this input
       else if (buttonIsBlockedByAnother(input.data, i, k)) {
-        getMutableComponent(entity, Input).data.delete(i)
+        getMutableComponent<Input>(entity, Input).data.delete(i)
       }
       // Override input override
       else if (buttonOverridesAnother(input.data, i, k)) {
-        getMutableComponent(entity, Input).data.delete(k)
+        getMutableComponent<Input>(entity, Input).data.delete(k)
       }
     }
   }

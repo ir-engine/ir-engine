@@ -6,6 +6,7 @@ import { Input } from "../components/Input"
 import { InputType } from "../enums/InputType"
 import { InputValue } from "../interfaces/InputValue"
 import { InputAlias } from "../types/InputAlias"
+import { getMutableComponent } from "../../ecs/functions/EntityFunctions"
 let input: Input
 export const handleInput: Behavior = (entity: Entity, delta: number): void => {
   input = getMutableComponent(entity, Input) as Input

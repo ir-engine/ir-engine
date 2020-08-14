@@ -11,7 +11,7 @@
 
 import _ from "lodash"
 import * as THREE from "three"
-import { invertByMany } from "../../../common/functions/MakeHumanHelpers"
+import { invertByMany } from "../../../src/common/functions/MakeHumanHelpers"
 import targetCategories from "../json/targets/target-category-data.json"
 import targetList from "../json/targets/target-list.json"
 

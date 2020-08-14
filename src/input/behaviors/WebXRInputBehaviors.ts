@@ -10,6 +10,7 @@ import { WebXRSession } from "../components/WebXRSession"
 import { WebXRSpace } from "../components/WebXRSpace"
 import { WebXRViewPoint } from "../components/WebXRViewPoint"
 import { getInputSources } from "../functions/WebXRFunctions"
+import { getComponent, hasComponent, getMutableComponent, addComponent } from "../../ecs"
 
 let mainControllerId: any
 let secondControllerId: any
@@ -48,7 +49,7 @@ export const processSession: Behavior = (entity: Entity) => {
 }
 
 export const tracking: Behavior = (entity: Entity) => {
-  const viewPoint = entity.getComponent<WebXRViewPoint>(WebXRViewPoint)
+  const viewPoint = getComponent<WebXRViewPoint>(entity, WebXRViewPoint)
   const pointer = getComponent(entity, WebXRPointer)
   const mainController = getComponent(entity, WebXRMainController)
   const secondController = getComponent(entity, WebXRSecondController)
@@ -73,7 +74,7 @@ export const initializeSession: Behavior = (entity: Entity, args: { webXRRendere
 }
 
 export const setComponent: Behavior = (entity: Entity, args: { class; data: any }) => {
-  if (entity.hasComponent(args.class)) {
+  if (hasComponent(entity, args.class)) {
     const mutate = getMutableComponent(entity, args.class)
     for (const property in args.data) mutate[property] = args.data[property]
   } else {

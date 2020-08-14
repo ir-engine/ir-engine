@@ -1,5 +1,6 @@
 import { Behavior } from "../../common/interfaces/Behavior"
 import { Entity } from "../../ecs/classes/Entity"
+import { getComponent } from "../../ecs/functions/EntityFunctions"
 import { CameraComponent } from "../components/CameraComponent"
 
 export const applySettingsToCamera: Behavior = (entity: Entity): void => {

@@ -1,9 +1,9 @@
-import { Attributes, System } from "../../ecs/classes/System"
+import { TransformComponent } from "../.."
+import { addComponent, createEntity, getComponent, getMutableComponent, World } from "../../ecs"
+import { System } from "../../ecs/classes/System"
+import { registerComponent } from "../../ecs/functions/ComponentFunctions"
 import { followTarget } from "../../transform/behaviors/followTarget"
 import { CameraComponent } from "../components/CameraComponent"
-import { registerComponent } from "../../ecs/functions/ComponentFunctions"
-import { createEntity, addComponent, getMutableComponent, getComponent, World } from "../../ecs"
-import { TransformComponent } from "../.."
 
 export class CameraSystem extends System {
   init(): void {
@@ -14,20 +14,20 @@ export class CameraSystem extends System {
     getMutableComponent(cameraEntity, CameraComponent)
   }
   execute(delta: number): void {
-    this.queries.entities.results?.forEach(entity => {
+    this.queryResults.entities.results?.forEach(entity => {
       const cam = getComponent(entity, CameraComponent) as CameraComponent
       if (cam.followTarget !== null && cam.followTarget !== undefined) {
         followTarget(entity, { distance: 100 }, delta, cam.followTarget)
       }
     })
 
-    this.queries.entities.changed.forEach(entity => {
+    this.queryResults.entities.changed.forEach(entity => {
       // applySettingsToCamera(entity)
     })
   }
 }
 
-CameraSystem.queries = {
+CameraSystem.systemQueries = {
   entities: {
     components: [CameraComponent],
     listen: {

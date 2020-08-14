@@ -1,7 +1,6 @@
-import { Plane } from "three"
+import { SceneTagComponent } from "../../common/components/Object3DTagComponents"
 import { createEntity } from "../../ecs"
 import { addComponent } from "../../ecs/functions/EntityFunctions"
-import { SceneTagComponent } from "../../common/components/Object3DTagComponents"
 import { SceneObjectLoadingSchema } from "../constants/SceneObjectLoadingSchema"
 
 export function loadScene(scene) {

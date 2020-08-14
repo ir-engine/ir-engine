@@ -1,3 +1,14 @@
+import {
+  WebXRButton,
+  WebXRMainController,
+  WebXRMainGamepad,
+  WebXRPointer,
+  WebXRSecondController,
+  WebXRSecondGamepad,
+  WebXRSpace,
+  WebXRViewPoint
+} from ".."
+import { getComponent, getMutableComponent, registerComponent } from "../../ecs"
 import { System } from "../../ecs/classes/System"
 import { handleInput } from "../behaviors/handleInput"
 import { initializeSession, processSession } from "../behaviors/WebXRInputBehaviors"
@@ -6,17 +17,6 @@ import { WebXRRenderer } from "../components/WebXRRenderer"
 import { WebXRSession } from "../components/WebXRSession"
 import { DefaultInputSchema } from "../defaults/DefaultInputSchema"
 import { initVR } from "../functions/WebXRFunctions"
-import { registerComponent, getComponent, getMutableComponent } from "../../ecs"
-import {
-  WebXRSpace,
-  WebXRViewPoint,
-  WebXRPointer,
-  WebXRButton,
-  WebXRMainController,
-  WebXRMainGamepad,
-  WebXRSecondController,
-  WebXRSecondGamepad
-} from ".."
 
 export class InputSystem extends System {
   readonly mainControllerId = 0
@@ -46,19 +46,19 @@ export class InputSystem extends System {
 
   public execute(delta: number): void {
     // Handle XR input
-    if (this.queries.xrRenderer.results.length > 0) {
-      const webXRRenderer = getMutableComponent(this.queries.xrRenderer.results[0], WebXRRenderer)
+    if (this.queryResults.xrRenderer.results.length > 0) {
+      const webXRRenderer = getMutableComponent(this.queryResults.xrRenderer.results[0], WebXRRenderer)
 
-      this.queries.xrSession.added.forEach(entity => initializeSession(entity, { webXRRenderer }))
+      this.queryResults.xrSession.added.forEach(entity => initializeSession(entity, { webXRRenderer }))
 
-      this.queries.xrSession.results.forEach(entity => processSession(entity))
+      this.queryResults.xrSession.results.forEach(entity => processSession(entity))
     }
 
     // Called every frame on all input components
-    this.queries.inputs.results.forEach(entity => handleInput(entity, { delta }))
+    this.queryResults.inputs.results.forEach(entity => handleInput(entity, { delta }))
 
     // Called when input component is added to entity
-    this.queries.inputs.added.forEach(entity => {
+    this.queryResults.inputs.added.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input)
       // If input doesn't have a map, set the default
@@ -84,7 +84,7 @@ export class InputSystem extends System {
     })
 
     // Called when input component is removed from entity
-    this.queries.inputs.removed.forEach(entity => {
+    this.queryResults.inputs.removed.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input)
       // Call all behaviors in "onRemoved" of input map
@@ -112,7 +112,7 @@ export class InputSystem extends System {
   }
 }
 
-InputSystem.queries = {
+InputSystem.systemQueries = {
   inputs: {
     components: [Input],
     listen: {

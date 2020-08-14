@@ -1,7 +1,7 @@
 import { Component, Types } from "../../ecs"
-import { AssetTypeAlias, AssetClassAlias, AssetsLoadedHandler } from "../types/AssetTypes"
-import { AssetType } from "../enums/AssetType"
 import { AssetClass } from "../enums/AssetClass"
+import { AssetType } from "../enums/AssetType"
+import { AssetClassAlias, AssetsLoadedHandler, AssetTypeAlias } from "../types/AssetTypes"
 
 export class AssetLoader extends Component<AssetLoader> {
   url: ""

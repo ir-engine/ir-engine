@@ -7,7 +7,7 @@ import { execute, initializeWorld, World } from "./ecs/classes/World"
 import { DefaultInputSchema, InputSystem } from "./input"
 import { DefaultNetworkSchema, MediaStreamSystem, NetworkSystem } from "./networking"
 import { KeyframeSystem, ParticleSystem } from "./particles"
-import { PhysicsSystem, WheelSystem } from "./physics"
+// import { PhysicsSystem, WheelSystem } from "../sandbox/physics"
 import { WebGLRendererSystem } from "./renderer"
 import { DefaultStateSchema, StateSystem } from "./state"
 import { DefaultSubscriptionSchema, SubscriptionSystem } from "./subscription"
@@ -109,11 +109,11 @@ export function initialize(options: any = DefaultInitializationOptions) {
   if (options.subscriptions && options.subscriptions.enabled) {
     registerSystem(SubscriptionSystem)
   }
-  // Physics
-  if (options.physics && options.physics.enabled) {
-    registerSystem(PhysicsSystem)
-    registerSystem(WheelSystem)
-  }
+  // // Physics
+  // if (options.physics && options.physics.enabled) {
+  //   registerSystem(PhysicsSystem)
+  //   registerSystem(WheelSystem)
+  // }
   // Particles
   if (options.particles && options.particles.enabled) {
     registerSystem(ParticleSystem)
