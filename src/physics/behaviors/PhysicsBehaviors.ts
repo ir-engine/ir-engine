@@ -9,15 +9,14 @@ import { Entity } from "ecsy"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { RigidBody } from "../components/RigidBody"
 
-export function _createBox(entity) {
-  const rigidBody = entity.getComponent(RigidBody)
-  const transform = entity.getComponent(TransformComponent)
+export function _createBox(rigidBody, transform) {
 
   const shape = new Box(new Vec3(rigidBody.scale.x / 2, rigidBody.scale.y / 2, rigidBody.scale.z / 2))
+  console.log(transform);
 
   const body = new Body({
     mass: rigidBody.mass,
-    position: new Vec3(transform.position.x, transform.position.y, transform.position.z)
+    position: new Vec3(transform[0], transform[1], transform[2])
   })
   const q = new Quaternion()
   q.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2)

@@ -1,3 +1,5 @@
+export * from "./behaviors/addMeshCollider"
+
 export * from "./components/PhysicsWorld"
 export * from "./components/Collider"
 export * from "./components/RigidBody"
