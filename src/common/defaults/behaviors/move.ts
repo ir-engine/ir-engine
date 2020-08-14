@@ -1,4 +1,5 @@
-import { Entity } from "../../../ecs/Entity"
+import { getComponent, getMutableComponent, hasComponent } from "../../../ecs"
+import { Entity } from "../../../ecs/classes/Entity"
 import { Input } from "../../../input/components/Input"
 import { InputType } from "../../../input/enums/InputType"
 import { InputAlias } from "../../../input/types/InputAlias"
@@ -20,9 +21,9 @@ export const move: Behavior = (
   time: any
 ): void => {
   input = getComponent(entity, Input)
-  actor = entity.getComponent<Actor>(Actor)
+  actor = getMutableComponent<Actor>(entity, Actor)
   transform = getMutableComponent(entity, TransformComponent)
-  const movementModifer = entity.hasComponent(Crouching) ? 0.5 : entity.hasComponent(Sprinting) ? 1.5 : 1.0
+  const movementModifer = hasComponent(entity, Crouching) ? 0.5 : hasComponent(entity, Sprinting) ? 1.5 : 1.0
   const inputType = args.inputType
   outputSpeed = actor.accelerationSpeed * (time.delta as any) * movementModifer
   if (inputType === InputType.TWOD) {

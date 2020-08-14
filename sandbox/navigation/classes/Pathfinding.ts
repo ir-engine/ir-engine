@@ -1,9 +1,8 @@
-import { Vector3, Plane, Geometry, Triangle } from "three"
-
-import { Utils } from "./Utils"
+import { Geometry, Plane, Triangle, Vector3 } from "three"
 import { AStar } from "./AStar"
 import { Builder } from "./Builder"
 import { Channel } from "./Channel"
+import { Utils } from "./Utils"
 
 /**
  * Defines an instance of the pathfinding module, with one or more zones.

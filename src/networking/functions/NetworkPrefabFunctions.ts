@@ -1,11 +1,11 @@
-import { World } from "../../common"
-import { Entity } from "../../ecs/classes/Entity"
+import { addComponent, getMutableComponent, hasRegisteredComponent, registerComponent } from "../../ecs"
+import { createEntity, Entity } from "../../ecs/classes/Entity"
 import { Network } from "../components/Network"
 import { NetworkObject } from "../components/NetworkObject"
 import { NetworkPrefab } from "../interfaces/NetworkPrefab"
 
 export function createNetworkPrefab(prefab: NetworkPrefab, networkId: string | number): Entity {
-  const entity = World.instance.createEntity()
+  const entity = createEntity()
   // Add a NetworkObject component to the entity, this will store information about changing state
   addComponent(entity, NetworkObject, { networkId })
   // Call each create action
@@ -19,7 +19,7 @@ export function createNetworkPrefab(prefab: NetworkPrefab, networkId: string | n
   // These will be attached to the entity on all clients
   prefab.networkComponents?.forEach(component => {
     // Register the component if it hasn't already been registered with the world
-    if (!World.instance.hasRegisteredComponent(component.type)) World.instance.world.registerComponent(component.type)
+    if (!hasRegisteredComponent(component.type)) registerComponent(component.type)
     // Add the component to our entity
     addComponent(entity, component.type)
     // If the component has initialization data...
@@ -39,7 +39,7 @@ export function createNetworkPrefab(prefab: NetworkPrefab, networkId: string | n
     // For each local component on the prefab...
     prefab.components?.forEach(component => {
       // If the component hasn't been registered with the world, register it
-      if (!World.instance.hasRegisteredComponent(component.type)) World.instance.world.registerComponent(component.type)
+      if (!hasRegisteredComponent(component.type)) registerComponent(component.type)
       // The component to the entity
       addComponent(entity, component.type)
       // If the component has no initialization data, return

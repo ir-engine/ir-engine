@@ -30,13 +30,13 @@ export class TransformSystem extends System {
     //   // Transform children by parent
     // })
 
-    this.queries.transforms.results?.forEach(t => {
+    this.queryResults.transforms.results?.forEach(t => {
       this.transformBehavior(t, {}, delta)
     })
   }
 }
 
-TransformSystem.queries = {
+TransformSystem.systemQueries = {
   parent: {
     components: [TransformParentComponent, TransformComponent],
     listen: {

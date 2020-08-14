@@ -11,20 +11,20 @@ export class SubscriptionSystem extends System {
   }
   private subscription: Subscription
   public execute(delta: number): void {
-    this.queries.subscriptions.added?.forEach(entity => {
+    this.queryResults.subscriptions.added?.forEach(entity => {
       this.callBehaviorsForHook(entity, { phase: "onAdded" }, delta)
     })
 
-    this.queries.subscriptions.changed?.forEach(entity => {
+    this.queryResults.subscriptions.changed?.forEach(entity => {
       this.callBehaviorsForHook(entity, { phase: "onChanged" }, delta)
     })
 
-    this.queries.subscriptions.results?.forEach(entity => {
+    this.queryResults.subscriptions.results?.forEach(entity => {
       this.callBehaviorsForHook(entity, { phase: "onUpdate" }, delta)
       this.callBehaviorsForHook(entity, { phase: "onLateUpdate" }, delta)
     })
 
-    this.queries.subscriptions.removed?.forEach(entity => {
+    this.queryResults.subscriptions.removed?.forEach(entity => {
       this.callBehaviorsForHook(entity, { phase: "onRemoved" }, delta)
     })
   }
@@ -42,7 +42,7 @@ export class SubscriptionSystem extends System {
   }
 }
 
-SubscriptionSystem.queries = {
+SubscriptionSystem.systemQueries = {
   subscriptions: {
     components: [Subscription],
     listen: {

@@ -2,9 +2,9 @@ import { TextureLoader } from "three"
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import AssetVault from "../components/AssetVault"
-import { AssetType } from "../enums/AssetType"
-import { AssetId, AssetMap, AssetsLoadedHandler, AssetUrl, AssetTypeAlias } from "../types/AssetTypes"
 import { AssetClass } from "../enums/AssetClass"
+import { AssetType } from "../enums/AssetType"
+import { AssetId, AssetMap, AssetsLoadedHandler, AssetTypeAlias, AssetUrl } from "../types/AssetTypes"
 
 // Kicks off an iterator to load the list of assets and add them to the vault
 export function loadAssets(

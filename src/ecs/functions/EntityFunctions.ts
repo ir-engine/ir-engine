@@ -1,25 +1,25 @@
 import { Component, ComponentConstructor } from "../classes/Component"
-import wrapImmutableComponent, {
-  addComponentToEntity,
-  removeComponentFromEntity,
-  removeAllComponentsFromEntity
-} from "./ComponentFunctions"
 import { Entity } from "../classes/Entity"
 import Query from "../classes/Query"
 import { World } from "../classes/World"
+import wrapImmutableComponent, {
+  addComponentToEntity,
+  removeAllComponentsFromEntity,
+  removeComponentFromEntity
+} from "./ComponentFunctions"
 
 export function getComponent<C extends Component<any>>(
   entity: Entity,
-  Component: ComponentConstructor<C> | unknown,
+  component: ComponentConstructor<C> | unknown,
   includeRemoved?: boolean
 ): Readonly<C> {
-  let component = entity.components[(Component as C)._typeId]
+  let _component = entity.components[(component as C)._typeId]
 
-  if (!component && includeRemoved === true) {
-    component = entity.componentsToRemove[(Component as any)._typeId]
+  if (!_component && includeRemoved === true) {
+    _component = entity.componentsToRemove[(component as any)._typeId]
   }
 
-  return process.env.NODE_ENV !== "production" ? <C>wrapImmutableComponent(Component, component) : <C>component
+  return process.env.NODE_ENV !== "production" ? <C>wrapImmutableComponent(_component) : <C>_component
 }
 
 export function getMutableComponent<C extends Component<any>>(
@@ -34,8 +34,7 @@ export function getMutableComponent<C extends Component<any>>(
 
   for (let i = 0; i < entity.queries.length; i++) {
     const query = entity.queries[i]
-    // @todo accelerate entity check. Maybe having query._Components as an object
-    // @todo add Not components
+
     if (query.reactive && query.Components.indexOf(Component) !== -1) {
       query.eventDispatcher.dispatchEvent(Query.prototype.COMPONENT_CHANGED, entity, component)
     }
@@ -49,7 +48,7 @@ export function getRemovedComponent<C extends Component<any>>(
 ): Readonly<C> {
   const component = entity.componentsToRemove[Component._typeId]
 
-  return <C>(process.env.NODE_ENV !== "production" ? wrapImmutableComponent(Component, component) : component)
+  return <C>(process.env.NODE_ENV !== "production" ? wrapImmutableComponent<Component<C>>(component) : component)
 }
 
 export function getComponents(entity: Entity): { [componentName: string]: ComponentConstructor<any> } {

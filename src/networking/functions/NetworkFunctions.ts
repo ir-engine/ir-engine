@@ -1,11 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { NetworkTransport } from ".."
 import { RingBuffer } from "../../common/classes/RingBuffer"
-import { constructInstance } from "../../common/functions/constructInstance"
-import { World } from "../../ecs/classes/World"
 import { Network } from "../components/Network"
 import { MessageChannel } from "../enums/MessageChannel"
-import { NetworkSchema } from "../interfaces/NetworkSchema"
 import { MessageTypeAlias } from "../types/MessageTypeAlias"
 import { fromBuffer } from "./MessageFunctions"
 import { createNetworkPrefab } from "./NetworkPrefabFunctions"

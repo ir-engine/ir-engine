@@ -1,7 +1,7 @@
-import { Entity, createEntity } from "../../ecs/classes/Entity"
+import { addComponent } from "../../ecs"
+import { createEntity, Entity } from "../../ecs/classes/Entity"
 import { WebXRSession } from "../components/WebXRSession"
 import { WebXRSpace } from "../components/WebXRSpace"
-import { addComponent } from "../../ecs"
 
 export const startVR = (onStarted = Function(), onEnded = Function()) => {
   let entity: Entity, session: XRSession, isImmersive: boolean, spaceType: any

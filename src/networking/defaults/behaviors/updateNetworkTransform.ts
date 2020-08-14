@@ -1,14 +1,15 @@
 // TODO
 import { BinaryValue } from "../../../common/enums/BinaryValue"
 import { Behavior } from "../../../common/interfaces/Behavior"
-import { Entity } from "../../../ecs/Entity"
+import { Entity } from "../../../ecs/classes/Entity"
 import { Input } from "../../../input/components/Input"
 import { DefaultInput } from "../../../input/defaults/DefaultInput"
 import { addState } from "../../../state/behaviors/StateBehaviors"
 import { DefaultStateTypes } from "../../../state/defaults/DefaultStateTypes"
+import { getComponent } from "../../../ecs/functions/EntityFunctions"
 
 export const updateMovementState: Behavior = (entity: Entity): void => {
-  const input = getComponent(entity, Input)
+  const input = getComponent<Input>(entity, Input)
   let moving = false
   const movementInputs = [
     DefaultInput.FORWARD,

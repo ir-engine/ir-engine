@@ -1,7 +1,8 @@
-import { Component } from "./Component"
+import { Component, ComponentConstructor } from "./Component"
 import EventDispatcher from "./EventDispatcher"
 import { queryKey } from "../functions/Utils"
 import { World } from "./World"
+import { NotComponent } from ".."
 
 export default class Query {
   components: any[]
@@ -17,7 +18,7 @@ export default class Query {
   /**
    * @param {Array(Component)} Components List of types of components to query
    */
-  constructor(Components: Component<any>[]) {
+  constructor(Components: (ComponentConstructor<any> | NotComponent<any>)[]) {
     this.components = []
     this.notComponents = []
 

@@ -1,6 +1,6 @@
 import { Vector3 } from "three"
-import { Types } from "../../ecs/types/Types"
-import { Component } from "../../ecs/classes/Component"
+import { Component } from "../../../src/ecs/classes/Component"
+import { Types } from "../../../src/ecs/types/Types"
 
 export default class RaycastComponent extends Component<RaycastComponent> {
   position!: Vector3

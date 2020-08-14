@@ -1,20 +1,20 @@
 import { DepthOfFieldEffect, Effect, EffectComposer, EffectPass, RenderPass, SSAOEffect } from "postprocessing"
+import { WebGLRenderer } from "three"
 import { CameraComponent } from "../../camera/components/CameraComponent"
 import { SceneManager } from "../../common/classes/SceneManager"
 import { Behavior } from "../../common/interfaces/Behavior"
 import {
+  addComponent,
   Attributes,
+  createEntity,
   Entity,
-  System,
+  getComponent,
   getMutableComponent,
   registerComponent,
-  addComponent,
-  createEntity,
-  getComponent
+  System
 } from "../../ecs"
 import { RendererComponent } from "../components/RendererComponent"
 import { DefaultPostProcessingSchema } from "../defaults/DefaultPostProcessingSchema"
-import { WebGLRenderer, Clock } from "three"
 export class WebGLRendererSystem extends System {
   init(attributes?: Attributes): void {
     registerComponent(RendererComponent)
@@ -40,7 +40,7 @@ export class WebGLRendererSystem extends System {
   isInitialized: boolean
 
   configurePostProcessing(entity: Entity) {
-    const renderer = getMutableComponent(entity, RendererComponent)
+    const renderer = getMutableComponent<RendererComponent>(entity, RendererComponent)
     if (renderer.postProcessingSchema == undefined) renderer.postProcessingSchema = DefaultPostProcessingSchema
     const composer = new EffectComposer(renderer.renderer)
     renderer.composer = composer
@@ -65,14 +65,14 @@ export class WebGLRendererSystem extends System {
   }
 
   execute(delta: number) {
-    this.queries.renderers.added.forEach((entity: Entity) => {
+    this.queryResults.renderers.added.forEach((entity: Entity) => {
       RendererComponent.instance.needsResize = true
       this.onResize = this.onResize.bind(this)
       window.addEventListener("resize", this.onResize, false)
       this.configurePostProcessing(entity)
     })
 
-    this.queries.renderers.results.forEach((entity: Entity) => {
+    this.queryResults.renderers.results.forEach((entity: Entity) => {
       getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta)
     })
   }
@@ -98,7 +98,7 @@ export const resize: Behavior = entity => {
   }
 }
 
-WebGLRendererSystem.queries = {
+WebGLRendererSystem.systemQueries = {
   renderers: {
     components: [RendererComponent],
     listen: {

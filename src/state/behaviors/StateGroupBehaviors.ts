@@ -1,5 +1,5 @@
 import { Behavior } from "../../common"
-import { Component, Entity, getComponent } from "../../ecs"
+import { Component, Entity, getComponent, removeComponent } from "../../ecs"
 import { State } from "../components/State"
 import { StateSchema } from "../interfaces/StateSchema"
 import { StateGroupAlias } from "../types/StateGroupAlias"
@@ -28,7 +28,7 @@ export const removeComponentsFromStateGroup: Behavior = (
 ): void => {
   getComponentsFromStateGroup(entity, args).forEach((component: any) => {
     if (args.ignoreComponent && args.ignoreComponent === component) return
-    entity.removeComponent(component)
+    removeComponent(entity, component)
   })
 }
 

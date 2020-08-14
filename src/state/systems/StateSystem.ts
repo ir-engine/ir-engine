@@ -17,7 +17,7 @@ export class StateSystem extends System {
   private _state: State
   private _args: any
   public execute(delta: number, time: number): void {
-    this.queries.state.added?.forEach(entity => {
+    this.queryResults.state.added?.forEach(entity => {
       // If stategroup has a default, add it to our state map
       this._state = getComponent(entity, State)
       if (this._state.schema === undefined) return
@@ -31,7 +31,7 @@ export class StateSystem extends System {
       })
     })
 
-    this.queries.state.changed?.forEach(entity => {
+    this.queryResults.state.changed?.forEach(entity => {
       // If stategroup has a default, add it to our state map
       this._state = getComponent(entity, State)
       if (this._state.schema === undefined) return
@@ -45,7 +45,7 @@ export class StateSystem extends System {
       })
     })
 
-    this.queries.state.results?.forEach(entity => {
+    this.queryResults.state.results?.forEach(entity => {
       this.callBehaviors(entity, { phase: "onUpdate" }, delta)
       this.callBehaviors(entity, { phase: "onLateUpdate" }, delta)
     })
@@ -74,7 +74,7 @@ export class StateSystem extends System {
   }
 }
 
-StateSystem.queries = {
+StateSystem.systemQueries = {
   state: {
     components: [State],
     listen: {

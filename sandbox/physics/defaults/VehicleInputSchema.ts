@@ -10,12 +10,12 @@ import {
   InputType,
   rotateAround,
   Thumbsticks
-} from "../.."
-import { rotateStart } from "../../common/defaults/behaviors/updateLookingState"
-import { disableScroll, enableScroll } from "../../common/functions/enableDisableScrolling"
-import { preventDefault } from "../../common/functions/preventDefault"
-import { DefaultInput } from "../../input/defaults/DefaultInput"
-import { InputSchema } from "../../input/interfaces/InputSchema"
+} from "../../../src"
+import { rotateStart } from "../../../src/common/defaults/behaviors/updateLookingState"
+import { disableScroll, enableScroll } from "../../../src/common/functions/enableDisableScrolling"
+import { preventDefault } from "../../../src/common/functions/preventDefault"
+import { DefaultInput } from "../../../src/input/defaults/DefaultInput"
+import { InputSchema } from "../../../src/input/interfaces/InputSchema"
 import { drive } from "../behavior/VehicleBehaviors"
 
 export const VehicleInputSchema: InputSchema = {

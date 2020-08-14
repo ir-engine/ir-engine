@@ -1,5 +1,4 @@
 import { Vector3 } from "three"
-
 import { Utils } from "./Utils"
 
 export class Builder {

@@ -4,7 +4,7 @@ import EventDispatcher from "./EventDispatcher"
 import Query from "./Query"
 import { WebGLRenderer, Camera } from "three"
 import { SceneManager } from "../.."
-import { hasWindow, now } from ".."
+import { hasWindow, now, System } from ".."
 
 export interface WorldOptions {
   entityPoolSize?: number
@@ -20,7 +20,7 @@ export class World {
   static renderer: WebGLRenderer = null
   static world: World = null
   static sceneManager: SceneManager = new SceneManager()
-  static camera: Camera = new null()
+  static camera: Camera = null
   static eventDispatcher = new EventDispatcher()
 
   static options: { entityPoolSize: number; entityClass: typeof Entity } & WorldOptions = DEFAULT_OPTIONS
@@ -84,13 +84,13 @@ export function stop(): void {
 
 export function stats(): { entities: any; system: any } {
   const queryStats = {}
-  for (const queryName in World.queries) {
-    queryStats[queryName] = World.queries[queryName].stats()
+  for (const queryName in System.queries) {
+    queryStats[queryName] = System.queries[queryName].stats()
   }
 
   const entityStatus = {
     numEntities: World.entities.length,
-    numQueries: Object.keys(World.queries).length,
+    numQueries: Object.keys(System.systemQueries).length,
     queries: queryStats,
     numComponentPool: Object.keys(World.componentPool).length,
     componentPool: {},

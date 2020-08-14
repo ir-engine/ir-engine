@@ -1,15 +1,15 @@
 import {
-  Color,
-  Object3D,
-  LineBasicMaterial,
-  MeshBasicMaterial,
-  SphereBufferGeometry,
   BoxGeometry,
-  Mesh,
-  SphereGeometry,
+  Color,
   Geometry,
-  Vector3,
-  Line
+  Line,
+  LineBasicMaterial,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  SphereBufferGeometry,
+  SphereGeometry,
+  Vector3
 } from "three"
 
 const colors = {

@@ -1,5 +1,5 @@
 import { Component, Types } from "../../ecs"
-import { AssetMap, AssetId, AssetUrl } from "../types/AssetTypes"
+import { AssetId, AssetMap, AssetUrl } from "../types/AssetTypes"
 
 // This component should only be used once per game
 export default class AssetVault extends Component<AssetVault> {

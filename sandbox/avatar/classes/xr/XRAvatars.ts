@@ -1,4 +1,5 @@
 import { Matrix4, Quaternion, Scene, SkinnedMesh, Vector3 } from "three"
+import { Component } from "../../../../ecs/classes/Component"
 import {
   copySkeleton,
   countCharacters,
@@ -20,7 +21,6 @@ import LegsManager from "./vrarmik/LegsManager"
 import PoseManager from "./vrarmik/PoseManager"
 import ShoulderTransforms from "./vrarmik/ShoulderTransforms"
 import { fixSkeletonZForward } from "./vrarmik/SkeletonUtils"
-import { Component } from "../../../../ecs/classes/Component"
 
 const upRotation = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2)
 const leftRotation = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI * 0.8)

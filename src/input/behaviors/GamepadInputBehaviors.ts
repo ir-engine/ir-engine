@@ -1,6 +1,7 @@
 import { BinaryValue } from "../../common/enums/BinaryValue"
 import { applyThreshold } from "../../common/functions/applyThreshold"
 import { Behavior } from "../../common/interfaces/Behavior"
+import { getComponent, getMutableComponent } from "../../ecs"
 import { Entity } from "../../ecs/classes/Entity"
 import { InputType } from "../../input/enums/InputType"
 import { InputAlias } from "../../input/types/InputAlias"
@@ -107,7 +108,7 @@ export const handleGamepadAxis: Behavior = (
 
   // Axis has changed, so get mutable reference to Input and set data
   if (x !== prevLeftX || y !== prevLeftY) {
-    getMutableComponent(entity, Input).data.set(args.mappedInputValue, {
+    getMutableComponent<Input>(entity, Input).data.set(args.mappedInputValue, {
       type: InputType.TWOD,
       value: [x, y]
     })

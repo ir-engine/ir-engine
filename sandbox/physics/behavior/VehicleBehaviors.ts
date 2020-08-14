@@ -1,10 +1,11 @@
-import { Behavior } from "../../common/interfaces/Behavior"
-import { Vector2 } from "../../common/types/NumericalTypes"
-import { Entity } from "../../ecs/classes/Entity"
+import { Behavior } from "../../../src/common/interfaces/Behavior"
+import { Vector2 } from "../../../src/common/types/NumericalTypes"
+import { Entity } from "../../../src/ecs/classes/Entity"
 import { VehicleComponent } from "../components/VehicleComponent"
+import { getMutableComponent } from "../../../src/ecs/functions/EntityFunctions"
 
 export const drive: Behavior = (entity: Entity, args: { value: Vector2 }): void => {
-  const vehicleComponent = getMutableComponent(entity, VehicleComponent)
+  const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent)
   const vehicle = vehicleComponent.vehicle
 
   vehicle.setBrake(0, 0)
