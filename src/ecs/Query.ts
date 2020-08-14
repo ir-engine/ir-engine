@@ -2,6 +2,7 @@ import { Component } from "./Component"
 import EventDispatcher from "./EventDispatcher"
 import QueryManager from "./QueryManager"
 import { queryKey } from "./Utils"
+import { World } from "./World"
 
 export default class Query {
   Components: any[]
@@ -17,7 +18,7 @@ export default class Query {
   /**
    * @param {Array(Component)} Components List of types of components to query
    */
-  constructor(Components: Component<any>[], manager: QueryManager) {
+  constructor(Components: Component<any>[]) {
     this.Components = []
     this.NotComponents = []
 
@@ -43,8 +44,8 @@ export default class Query {
     this.key = queryKey(Components)
 
     // Fill the query with the existing entities
-    for (let i = 0; i < manager._entities.length; i++) {
-      const entity = manager._entities[i]
+    for (let i = 0; i < World.entities.length; i++) {
+      const entity = World.entities[i]
       if (this.match(entity)) {
         // @todo ??? this.addEntity(entity); => preventing the event to be generated
         entity.queries.push(this)

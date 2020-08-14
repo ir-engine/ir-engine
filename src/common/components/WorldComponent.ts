@@ -7,15 +7,15 @@ interface PropTypes {
   world: World
 }
 
-export class WorldComponent extends Component<PropTypes> {
-  static instance: WorldComponent = null
+export class World extends Component<PropTypes> {
+  static instance: World = null
   world: World
   constructor() {
     super()
-    WorldComponent.instance = this
+    World.instance = this
   }
 }
 
-WorldComponent.schema = {
+World.schema = {
   world: { type: Types.Ref, default: null }
 }

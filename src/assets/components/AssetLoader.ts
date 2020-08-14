@@ -1,7 +1,12 @@
 import { Component, Types } from "../../ecs"
+import { AssetTypeAlias, AssetClassAlias } from "../types/AssetTypes"
+import { AssetType } from "../enums/AssetType"
+import { AssetClass } from "../enums/AssetClass"
 
-export class GLTFLoader extends Component<GLTFLoader> {
+export class AssetLoader extends Component<AssetLoader> {
   url: ""
+  assetType: AssetTypeAlias
+  assetClass: AssetClassAlias
   receiveShadow: false
   castShadow: false
   envMapOverride: null
@@ -9,8 +14,10 @@ export class GLTFLoader extends Component<GLTFLoader> {
   onLoaded: null
   parent: null
 }
-GLTFLoader.schema = {
-  url: { default: "", type: Types.String },
+AssetLoader.schema = {
+  assetType: { default: AssetType.glTF, type: Types.Number },
+  assetClass: { default: AssetClass, type: Types.Number },
+  url: { default: "", type: Types.Number },
   receiveShadow: { default: false, type: Types.Boolean },
   castShadow: { default: false, type: Types.Boolean },
   envMapOverride: { default: null, type: Types.Ref },

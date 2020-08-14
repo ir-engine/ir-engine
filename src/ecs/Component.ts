@@ -24,6 +24,8 @@ export class Component<C> {
   _pool: any
   _typeId: any
   assetsLoaded: boolean
+  name: any = Component.name
+
   constructor(props?: Partial<Omit<C, keyof Component<any>>> | false) {
     if (props !== false) {
       const schema = (this.constructor as ComponentConstructor<Component<C>>).schema
@@ -94,10 +96,6 @@ export class Component<C> {
     }
   }
 
-  getName() {
-    return this.getName()
-  }
-
   checkUndefinedAttributes(src) {
     const schema = (this.constructor as ComponentConstructor<Component<C>>).schema
 
@@ -105,7 +103,7 @@ export class Component<C> {
     Object.keys(src).forEach(srcKey => {
       if (!schema[srcKey]) {
         console.warn(
-          `Trying to set attribute '${srcKey}' not defined in the '${this.constructor.name}' schema. Please fix the schema, the attribute value won't be set`
+          `Trying to set attribute '${srcKey}' not defined in the '${this.name}' schema. Please fix the schema, the attribute value won't be set`
         )
       }
     })
