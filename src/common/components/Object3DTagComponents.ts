@@ -3,41 +3,41 @@
 import { TagComponent } from "../../ecs/TagComponent"
 
 // audio
-export class AudioTagComponent extends TagComponent {
+export class AudioTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class AudioListenerTagComponent extends TagComponent {
+export class AudioListenerTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class PositionalAudioTagComponent extends TagComponent {
+export class PositionalAudioTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
 // cameras
-export class ArrayCameraTagComponent extends TagComponent {
+export class ArrayCameraTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class CameraTagComponent extends TagComponent {
+export class CameraTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class CubeCameraTagComponent extends TagComponent {
+export class CubeCameraTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class OrthographicCameraTagComponent extends TagComponent {
+export class OrthographicCameraTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class PerspectiveCameraTagComponent extends TagComponent {
+export class PerspectiveCameraTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
 // extras/objects
-export class ImmediateRenderObjectTagComponent extends TagComponent {
+export class ImmediateRenderObjectTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
@@ -47,91 +47,91 @@ export class ImmediateRenderObjectTagComponent extends TagComponent {
 // chosen to exclude helper tag components.
 
 // lights
-export class AmbientLightTagComponent extends TagComponent {
+export class AmbientLightTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class AmbientLightProbeTagComponent extends TagComponent {
+export class AmbientLightProbeTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class DirectionalLightTagComponent extends TagComponent {
+export class DirectionalLightTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class HemisphereLightTagComponent extends TagComponent {
+export class HemisphereLightTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class HemisphereLightProbeTagComponent extends TagComponent {
+export class HemisphereLightProbeTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class LightTagComponent extends TagComponent {
+export class LightTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class LightProbeTagComponent extends TagComponent {
+export class LightProbeTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class PointLightTagComponent extends TagComponent {
+export class PointLightTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class RectAreaLightTagComponent extends TagComponent {
+export class RectAreaLightTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class SpotLightTagComponent extends TagComponent {
+export class SpotLightTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
 // objects
-export class BoneTagComponent extends TagComponent {
+export class BoneTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class GroupTagComponent extends TagComponent {
+export class GroupTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class InstancedMeshTagComponent extends TagComponent {
+export class InstancedMeshTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class LODTagComponent extends TagComponent {
+export class LODTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class LineTagComponent extends TagComponent {
+export class LineTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class LineLoopTagComponent extends TagComponent {
+export class LineLoopTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class LineSegmentsTagComponent extends TagComponent {
+export class LineSegmentsTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class MeshTagComponent extends TagComponent {
+export class MeshTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
-export class PointsTagComponent extends TagComponent {
-  static isObject3DTagComponent = true
-}
-
-export class SkinnedMeshTagComponent extends TagComponent {
+export class PointsTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
-export class SpriteTagComponent extends TagComponent {
+export class SkinnedMeshTagComponent extends Component<any> {
+  static isObject3DTagComponent = true
+}
+
+export class SpriteTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }
 
 // scenes
-export class SceneTagComponent extends TagComponent {
+export class SceneTagComponent extends Component<any> {
   static isObject3DTagComponent = true
 }

@@ -1,4 +1,4 @@
-import { PropType } from "./Types"
+import { PropType } from "../types/Types"
 
 export type ComponentSchemaProp = {
   default?: any
