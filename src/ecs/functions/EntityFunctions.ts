@@ -206,7 +206,7 @@ export function releaseEntity(entity: Entity, index: number): void {
 
 export function processDeferredEntityRemoval() {
   // if (!World.deferredRemovalEnabled) {
-    return
+  return
   // }
   let entitiesToRemove
   let entitiesWithComponentsToRemove

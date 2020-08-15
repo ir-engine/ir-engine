@@ -21,7 +21,9 @@
 <body>
   <script type="module">
     import { initialize, DefaultInputSchema, DefaultNetworkSchema, DefaultStateSchema, DefaultSubscriptionSchema } from "./dist/armada.js"
-    export const options = {
+
+    // Initialize with our three scene and camera
+    initialize({
       debug: false,
       withTransform: true,
       withWebXRInput: true,
@@ -43,7 +45,7 @@
         schema: DefaultSubscriptionSchema
       },
       physics: {
-        enabled: false
+        enabled: true
       },
       particles: {
         enabled: false
@@ -58,9 +60,7 @@
         enabled: true
         // TODO: Post-processing map
       }
-    }
-    // Initialize with our three scene and camera
-    initialize(options);
+    });
   </script>
 </body>
 

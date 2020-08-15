@@ -140,7 +140,7 @@ import { getComponent } from "../../../src/ecs/functions/EntityFunctions"
 // }
 
 // export function _createVehicleBody(entity: Entity, mesh: any): [RaycastVehicle, Body[]] {
-//   const transform = entity.getComponent<TransformComponent>(TransformComponent)
+//   const transform = getComponent<TransformComponent>(entity, TransformComponent)
 //   let chassisBody
 //   if (mesh) {
 //     chassisBody = this._createConvexGeometry(entity, mesh)

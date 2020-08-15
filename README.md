@@ -1,5 +1,5 @@
 # Armada
-A data driven game engine for WebGL, building on Mozilla ECSY using a behavior-oriented ECS pattern to emphasize modularity.
+A data driven game engine, built on three.js
 
 ## Quickstart
 ```
@@ -38,18 +38,9 @@ const handleMouseMovement: Behavior = (entity: Entity, args: { event: MouseEvent
   })
 }
 ```
-
-### Neat, but why?
-ECS is an architectural pattern that can be theoretically applied to to any programming paradigm. In ECSY, we construct components and systems from ES6 classes, which means we are largely following object oriented paradigms. ECSY becomes the framework to drive our game logic, and ECS becomes the pattern we follow to ensure that we get the ideal properties of of ECS. We are still constructing objects as normal, but we are enforcing strict rules about code separation and code execution. While ECS was created for performance benefit that we largely don't see in a high level language with managed memory, the ECS pattern helps enforce code modularity, separation of concern and inversion of control. ECS also makes object pooling easy to implement, and ECSY's object pooling should provide meaningful performance benefit for many applications.
-
-A behavior is just a function, and almost always a function that transforms data on a component or between components on an entity. For example, the move() behavior, called when movement input occurs, transforms the velocity on the transform component, which later gets applied as a transformation to position.
-
-We see "behaviors" as just another tool in the ECS toolkit, along with other patterns such as aprefabs and archetypes. However, in order to use behaviors effectively, aw little bit of mind-bending on how ECS should is required.
-
-Most ECS code bases have systems that contain declarative game logic operating directly on components. Because the complexity of this logic becomes quite large and scripts become too long to manage, most people break up a single system (for example, "state", or "input") into numerous systems (for example, "AnimationState" and "PlayerState", or "MobileInput" and "DesktopInput"). For simple applications this is fine, but in production many apps following this pattern end up with hundreds of systems and components.  The point of the system is to make sure that all execution within a specific domain at specific times. When we separate the logic out of one closed system into several systems, we introduce expounding system complexity, code duplication, race conditions and over-querying.
-
 ## Systems, with regard to behaviors
-Systems in Armada hold no game logic. Instead, systems are fundamentally concerned with ordering and execution of game logic, most of which can be expressed as a data transformation.
+Systems in Armada hold very little game logic. Instead, systems are fundamentally concerned with ordering and execution of behaviors, most of which can be expressed as a static function. Behaviors are impure by nature-- they are always concerned with reading data from components and applying transformations on it. Systems process maps, which can be expressed as JSON, JS objects and eventually as node graphs with as node editor.
+
 Behaviors contain all of the game logic. In this way a user can completely modify and build their own application from Armada by building and mapping behaviors. While Armada is compatible with other ECS systems and components built in the "classic" fashion, we hope to encapsulate nearly every common system and offer generalized systems like Subscriptions to allow for most use cases.
 
 **The takeaway here is this:**

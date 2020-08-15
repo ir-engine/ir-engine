@@ -18,7 +18,7 @@ export default function createSkybox(args: {
   addObject3DComponent(entity, args.obj)
   // Add entity
   addComponent(entity, ScaleComponent)
-  const scaleComponent = getMutableComponent(entity, ScaleComponent)
+  const scaleComponent = getMutableComponent<ScaleComponent>(entity, ScaleComponent)
   scaleComponent.scale = [args.distance, args.distance, args.distance]
   const uniforms = args.material.uniforms
   const sun = new Vector3()

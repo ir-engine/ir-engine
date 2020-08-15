@@ -27,7 +27,7 @@ export const processSession: Behavior = (entity: Entity) => {
       //     xrImmersiveRefSpace :
       //     inlineViewerHelper.referenceSpace;
       const { space, spaceType } = getComponent(entity, WebXRSpace) as any
-      if (space) setComponent(entity, { class: WebXRViewPoint, pose: frame.getViewerPose(space) })
+      if (space) setComponent(entity, WebXRViewPoint, { pose: frame.getViewerPose(space) })
 
       const controllers = space ? getInputSources(session, frame, space) : []
       let main, second
@@ -36,15 +36,15 @@ export const processSession: Behavior = (entity: Entity) => {
       } else if (controllers.length == 2) {
         main = controllers[mainControllerId]
         second = controllers[secondControllerId]
-        setComponent(entity, WebXRSecondController, {pose: second.gripPose, handId: second.handedness })
+        setComponent(entity, WebXRSecondController, { pose: second.gripPose, handId: second.handedness })
         const { gamepad } = second
-        if (gamepad) setComponent(entity, WebXRSecondGamepad, {gamepad})
+        if (gamepad) setComponent(entity, WebXRSecondGamepad, { gamepad })
       } else return
       if (main.targetRayPose)
-        setComponent(entity, WebXRPointer, {pose: main.targetRayPose, pointMode: main.targetRayMode })
-      setComponent(entity, WebXRMainController, {pose: main.gripPose, handId: main.handedness })
+        setComponent(entity, WebXRPointer, { pose: main.targetRayPose, pointMode: main.targetRayMode })
+      setComponent(entity, WebXRMainController, { pose: main.gripPose, handId: main.handedness })
       const { gamepad } = main
-      if (gamepad) setComponent(entity, WebXRMainGamepad, {gamepad})
+      if (gamepad) setComponent(entity, WebXRMainGamepad, { gamepad })
     })
   }
 }
