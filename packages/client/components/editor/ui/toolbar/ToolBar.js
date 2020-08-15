@@ -232,10 +232,10 @@ export default class ToolBar extends Component {
 
   onEditorInitialized = () => {
     const editor = this.props.editor;
-    editor.spokeControls.addListener("transformModeChanged", this.onForceUpdate);
-    editor.spokeControls.addListener("transformSpaceChanged", this.onForceUpdate);
-    editor.spokeControls.addListener("transformPivotChanged", this.onForceUpdate);
-    editor.spokeControls.addListener("snapSettingsChanged", this.onForceUpdate);
+    editor.editorControls.addListener("transformModeChanged", this.onForceUpdate);
+    editor.editorControls.addListener("transformSpaceChanged", this.onForceUpdate);
+    editor.editorControls.addListener("transformPivotChanged", this.onForceUpdate);
+    editor.editorControls.addListener("snapSettingsChanged", this.onForceUpdate);
     editor.addListener("gridHeightChanged", this.onForceUpdate);
     editor.addListener("gridVisibilityChanged", this.onForceUpdate);
     this.setState({ editorInitialized: true });
@@ -245,11 +245,11 @@ export default class ToolBar extends Component {
     const editor = this.props.editor;
     editor.removeListener("initialized", this.onEditorInitialized);
 
-    if (editor.spokeControls) {
-      editor.spokeControls.removeListener("transformModeChanged", this.onForceUpdate);
-      editor.spokeControls.removeListener("transformSpaceChanged", this.onForceUpdate);
-      editor.spokeControls.removeListener("transformPivotChanged", this.onForceUpdate);
-      editor.spokeControls.removeListener("snapSettingsChanged", this.onForceUpdate);
+    if (editor.editorControls) {
+      editor.editorControls.removeListener("transformModeChanged", this.onForceUpdate);
+      editor.editorControls.removeListener("transformSpaceChanged", this.onForceUpdate);
+      editor.editorControls.removeListener("transformPivotChanged", this.onForceUpdate);
+      editor.editorControls.removeListener("snapSettingsChanged", this.onForceUpdate);
       editor.removeListener("gridHeightChanged", this.onForceUpdate);
       editor.removeListener("gridVisibilityChanged", this.onForceUpdate);
       editor.removeListener("playModeChanged", this.onForceUpdate);
@@ -301,45 +301,45 @@ export default class ToolBar extends Component {
   };
 
   onSelectTranslate = () => {
-    this.props.editor.spokeControls.setTransformMode(TransformMode.Translate);
+    this.props.editor.editorControls.setTransformMode(TransformMode.Translate);
   };
 
   onSelectRotate = () => {
-    this.props.editor.spokeControls.setTransformMode(TransformMode.Rotate);
+    this.props.editor.editorControls.setTransformMode(TransformMode.Rotate);
   };
 
   onSelectScale = () => {
-    this.props.editor.spokeControls.setTransformMode(TransformMode.Scale);
+    this.props.editor.editorControls.setTransformMode(TransformMode.Scale);
   };
 
   onToggleTransformSpace = () => {
-    this.props.editor.spokeControls.toggleTransformSpace();
+    this.props.editor.editorControls.toggleTransformSpace();
   };
 
   onChangeTransformPivot = transformPivot => {
-    this.props.editor.spokeControls.setTransformPivot(transformPivot);
+    this.props.editor.editorControls.setTransformPivot(transformPivot);
   };
 
   onToggleTransformPivot = () => {
-    this.props.editor.spokeControls.changeTransformPivot();
+    this.props.editor.editorControls.changeTransformPivot();
   };
 
   onToggleSnapMode = () => {
-    this.props.editor.spokeControls.toggleSnapMode();
+    this.props.editor.editorControls.toggleSnapMode();
   };
 
   onChangeTranslationSnap = translationSnap => {
-    this.props.editor.spokeControls.setTranslationSnap(parseFloat(translationSnap));
-    this.props.editor.spokeControls.setSnapMode(SnapMode.Grid);
+    this.props.editor.editorControls.setTranslationSnap(parseFloat(translationSnap));
+    this.props.editor.editorControls.setSnapMode(SnapMode.Grid);
   };
 
   onChangeScaleSnap = scaleSnap => {
-    this.props.editor.spokeControls.setScaleSnap(scaleSnap);
+    this.props.editor.editorControls.setScaleSnap(scaleSnap);
   };
 
   onChangeRotationSnap = rotationSnap => {
-    this.props.editor.spokeControls.setRotationSnap(parseFloat(rotationSnap));
-    this.props.editor.spokeControls.setSnapMode(SnapMode.Grid);
+    this.props.editor.editorControls.setRotationSnap(parseFloat(rotationSnap));
+    this.props.editor.editorControls.setSnapMode(SnapMode.Grid);
   };
 
   onChangeGridHeight = value => {
@@ -372,7 +372,7 @@ export default class ToolBar extends Component {
       snapMode,
       translationSnap,
       rotationSnap
-    } = this.props.editor.spokeControls;
+    } = this.props.editor.editorControls;
 
     return (
       <StyledToolbar>

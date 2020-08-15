@@ -8,7 +8,7 @@ import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr.landing
 const videoGrid = getConfig().publicRuntimeConfig.xr.videoGrid
 const vrRoomGrid = getConfig().publicRuntimeConfig.xr.vrRoomGrid
-const spoke = getConfig().publicRuntimeConfig.xr.spoke
+const editor = getConfig().publicRuntimeConfig.xr.editor
 const store = getConfig().publicRuntimeConfig.xr.store
 
 const cellHeight = config.cellHeight
@@ -84,21 +84,21 @@ export default function LandingScene (): any {
         </Entity>
         <Entity
           primitive="a-media-cell"
-          title="spoke"
-          media-url={spoke.link}
-          thumbnail-type={getSourceType(spoke.src)}
-          thumbnail-url="#spokeBanner"
+          title="editor"
+          media-url={editor.link}
+          thumbnail-type={getSourceType(editor.src)}
+          thumbnail-url="#editorBanner"
           cell-height={cellHeight}
           cell-width={cellWidth}
           cell-content-height={cellContentHeight}
           mediatype="landing"
           linktype="external"
-          link-enabled={!spoke.comingSoon.enabled}>
-          { spoke.comingSoon.enabled &&
+          link-enabled={!editor.comingSoon.enabled}>
+          { editor.comingSoon.enabled &&
               <Entity
                 position={comingSoon.pos}
                 primitive="a-image"
-                src={spoke.comingSoon.src}
+                src={editor.comingSoon.src}
                 opacity={comingSoon.opacity}
                 width={comingSoon.width}
                 height={comingSoon.height}

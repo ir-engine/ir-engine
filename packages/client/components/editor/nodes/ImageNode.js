@@ -1,6 +1,6 @@
 import EditorNodeMixin from "./EditorNodeMixin";
 import Image, { ImageAlphaMode } from "../objects/Image";
-import spokeLogoSrc from "../../assets/spoke-icon.png";
+import editorLogoSrc from "../../assets/editor-icon.png";
 import { RethrownError } from "../utils/errors";
 import { getObjectPerfIssues, maybeAddLargeFileIssue } from "../utils/performance";
 
@@ -10,7 +10,7 @@ export default class ImageNode extends EditorNodeMixin(Image) {
   static nodeName = "Image";
 
   static initialElementProps = {
-    src: new URL(spokeLogoSrc, location).href
+    src: new URL(editorLogoSrc, location).href
   };
 
   static async deserialize(editor, json, loadAsync, onError) {

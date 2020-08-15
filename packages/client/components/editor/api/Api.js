@@ -2,8 +2,6 @@ import configs from "../configs";
 import EventEmitter from "eventemitter3";
 import { Socket } from "phoenix";
 import uuid from "uuid/v4";
-import AuthContainer from "./AuthContainer";
-import LoginDialog from "./LoginDialog";
 import PublishDialog from "./PublishDialog";
 import ProgressDialog from "../ui/dialogs/ProgressDialog";
 import PerformanceCheckDialog from "../ui/dialogs/PerformanceCheckDialog";
@@ -129,10 +127,6 @@ export default class Project extends EventEmitter {
     this.handleAuthorization();
   }
 
-  getAuthContainer() {
-    return AuthContainer;
-  }
-
   async authenticate(email, signal) {
     const reticulumServer = API_SERVER_ADDRESS;
     const socketUrl = `wss://${reticulumServer}${API_SOCKET_ENDPOINT}`;
@@ -163,7 +157,7 @@ export default class Project extends EventEmitter {
       })
     );
 
-    channel.push("auth_request", { email, origin: "spoke" });
+    channel.push("auth_request", { email, origin: "editor" });
 
     signal.removeEventListener("abort", onAbort);
 
@@ -201,22 +195,6 @@ export default class Project extends EventEmitter {
   getAccountId() {
     const token = this.getToken();
     return jwtDecode(token).sub;
-  }
-
-  logout() {
-    localStorage.removeItem(LOCAL_STORE_KEY);
-    this.emit("authentication-changed", false);
-  }
-
-  showLoginDialog(showDialog, hideDialog) {
-    return new Promise(resolve => {
-      showDialog(LoginDialog, {
-        onSuccess: () => {
-          hideDialog();
-          resolve();
-        }
-      });
-    });
   }
 
   async getProjects() {
@@ -461,15 +439,6 @@ export default class Project extends EventEmitter {
   async createProject(scene, parentSceneId, thumbnailBlob, signal, showDialog, hideDialog) {
     this.emit("project-saving");
 
-    // Ensure the user is authenticated before continuing.
-    if (!this.isAuthenticated()) {
-      await new Promise(resolve => {
-        showDialog(LoginDialog, {
-          onSuccess: resolve
-        });
-      });
-    }
-
     if (signal.aborted) {
       throw new Error("Save project aborted");
     }
@@ -524,28 +493,6 @@ export default class Project extends EventEmitter {
       throw new Error("Save project aborted");
     }
 
-    if (resp.status === 401) {
-      return await new Promise((resolve, reject) => {
-        showDialog(LoginDialog, {
-          onSuccess: async () => {
-            try {
-              const result = await this.createProject(
-                scene,
-                parentSceneId,
-                thumbnailBlob,
-                signal,
-                showDialog,
-                hideDialog
-              );
-              resolve(result);
-            } catch (e) {
-              reject(e);
-            }
-          }
-        });
-      });
-    }
-
     if (resp.status !== 200) {
       throw new Error(`Project creation failed. ${await resp.text()}`);
     }
@@ -583,15 +530,6 @@ export default class Project extends EventEmitter {
 
   async saveProject(projectId, editor, signal, showDialog, hideDialog) {
     this.emit("project-saving");
-
-    // Ensure the user is authenticated before continuing.
-    if (!this.isAuthenticated()) {
-      await new Promise(resolve => {
-        showDialog(LoginDialog, {
-          onSuccess: resolve
-        });
-      });
-    }
 
     if (signal.aborted) {
       throw new Error("Save project aborted");
@@ -657,21 +595,6 @@ export default class Project extends EventEmitter {
 
     if (signal.aborted) {
       throw new Error("Save project aborted");
-    }
-
-    if (resp.status === 401) {
-      return await new Promise((resolve, reject) => {
-        showDialog(LoginDialog, {
-          onSuccess: async () => {
-            try {
-              const result = await this.saveProject(projectId, editor, signal, showDialog, hideDialog);
-              resolve(result);
-            } catch (e) {
-              reject(e);
-            }
-          }
-        });
-      });
     }
 
     if (resp.status !== 200) {
@@ -742,15 +665,6 @@ export default class Project extends EventEmitter {
           error.aborted = true;
           throw error;
         }
-      }
-
-      // Ensure the user is authenticated before continuing.
-      if (!this.isAuthenticated()) {
-        await new Promise(resolve => {
-          showDialog(LoginDialog, {
-            onSuccess: resolve
-          });
-        });
       }
 
       showDialog(ProgressDialog, {
@@ -970,21 +884,6 @@ export default class Project extends EventEmitter {
         const error = new Error("Publish project aborted");
         error.aborted = true;
         throw error;
-      }
-
-      if (resp.status === 401) {
-        return await new Promise((resolve, reject) => {
-          showDialog(LoginDialog, {
-            onSuccess: async () => {
-              try {
-                const result = await this.publish(editor, showDialog, hideDialog);
-                resolve(result);
-              } catch (e) {
-                reject(e);
-              }
-            }
-          });
-        });
       }
 
       if (resp.status !== 200) {
@@ -1241,11 +1140,11 @@ export default class Project extends EventEmitter {
   }
 
   setUserInfo(userInfo) {
-    localStorage.setItem("spoke-user-info", JSON.stringify(userInfo));
+    localStorage.setItem("editor-user-info", JSON.stringify(userInfo));
   }
 
   getUserInfo() {
-    return JSON.parse(localStorage.getItem("spoke-user-info"));
+    return JSON.parse(localStorage.getItem("editor-user-info"));
   }
 
   async fetch(url, options = {}) {
@@ -1282,7 +1181,7 @@ export default class Project extends EventEmitter {
       this.saveCredentials(email, accessToken);
     }
     else {
-      window.location = `${window.location.origin}?redirectTo=spoke&login=true`;
+      window.location = `${window.location.origin}?redirectTo=editor&login=true`;
     }
   }
 }

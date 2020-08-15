@@ -128,7 +128,7 @@ export default class Editor extends EventEmitter {
 
     this.renderer = null;
     this.inputManager = null;
-    this.spokeControls = null;
+    this.editorControls = null;
     this.flyControls = null;
     this.playModeControls = null;
 
@@ -246,9 +246,9 @@ export default class Editor extends EventEmitter {
 
     this.inputManager = new InputManager(this.renderer.canvas);
     this.flyControls = new FlyControls(this.camera, this.inputManager);
-    this.spokeControls = new SpokeControls(this.camera, this, this.inputManager, this.flyControls);
-    this.playModeControls = new PlayModeControls(this.inputManager, this.spokeControls, this.flyControls);
-    this.spokeControls.enable();
+    this.editorControls = new SpokeControls(this.camera, this, this.inputManager, this.flyControls);
+    this.playModeControls = new PlayModeControls(this.inputManager, this.editorControls, this.flyControls);
+    this.editorControls.enable();
 
     window.addEventListener("copy", this.onCopy);
     window.addEventListener("paste", this.onPaste);
@@ -301,8 +301,8 @@ export default class Editor extends EventEmitter {
     this.camera.lookAt(new Vector3());
     this.scene.add(this.camera);
 
-    this.spokeControls.center.set(0, 0, 0);
-    this.spokeControls.onSceneSet(scene);
+    this.editorControls.center.set(0, 0, 0);
+    this.editorControls.onSceneSet(scene);
 
     this.renderer.onSceneSet();
 
@@ -413,9 +413,9 @@ export default class Editor extends EventEmitter {
       for (let i = 0; i < nodeDefs.length; i++) {
         const nodeDef = nodeDefs[i];
 
-        if (nodeDef.extras && nodeDef.extras.MOZ_spoke_uuid) {
-          uuidToIndexMap[nodeDef.extras.MOZ_spoke_uuid] = i;
-          delete nodeDef.extras.MOZ_spoke_uuid;
+        if (nodeDef.extras && nodeDef.extras.MOZ_editor_uuid) {
+          uuidToIndexMap[nodeDef.extras.MOZ_editor_uuid] = i;
+          delete nodeDef.extras.MOZ_editor_uuid;
 
           if (isEmptyObject(nodeDef.extras)) {
             delete nodeDef.extras;
@@ -462,8 +462,8 @@ export default class Editor extends EventEmitter {
       this.raycaster.ray.at(20, target);
     }
 
-    if (this.spokeControls.shouldSnap()) {
-      const translationSnap = this.spokeControls.translationSnap;
+    if (this.editorControls.shouldSnap()) {
+      const translationSnap = this.editorControls.translationSnap;
 
       target.set(
         Math.round(target.x / translationSnap) * translationSnap,
@@ -550,7 +550,7 @@ export default class Editor extends EventEmitter {
         }
       });
       this.flyControls.update(delta);
-      this.spokeControls.update(delta);
+      this.editorControls.update(delta);
 
       this.renderer.update(delta, time);
       this.inputManager.reset();
@@ -1843,7 +1843,7 @@ export default class Editor extends EventEmitter {
     // TODO: Prevent copying objects with a disabled transform
     if (this.selected.length > 0) {
       event.clipboardData.setData(
-        "application/vnd.spoke.nodes",
+        "application/vnd.editor.nodes",
         JSON.stringify({ nodeUUIDs: this.selected.map(node => node.uuid) })
       );
     }
@@ -1858,7 +1858,7 @@ export default class Editor extends EventEmitter {
 
     let data;
 
-    if ((data = event.clipboardData.getData("application/vnd.spoke.nodes")) !== "") {
+    if ((data = event.clipboardData.getData("application/vnd.editor.nodes")) !== "") {
       const { nodeUUIDs } = JSON.parse(data);
 
       if (!Array.isArray(nodeUUIDs)) {
@@ -1923,7 +1923,7 @@ export default class Editor extends EventEmitter {
   }
 
   spawnGrabbedObject(object) {
-    if (this.spokeControls.transformMode === TransformMode.Placement) {
+    if (this.editorControls.transformMode === TransformMode.Placement) {
       this.removeSelectedObjects();
     }
 
@@ -1934,7 +1934,7 @@ export default class Editor extends EventEmitter {
     this.addObject(object);
 
     if (!object.disableTransform) {
-      this.spokeControls.setTransformMode(TransformMode.Placement, object.useMultiplePlacementMode);
+      this.editorControls.setTransformMode(TransformMode.Placement, object.useMultiplePlacementMode);
     }
   }
 

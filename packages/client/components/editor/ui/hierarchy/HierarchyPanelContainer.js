@@ -654,7 +654,7 @@ export default function HierarchyPanel() {
   const onClick = useCallback(
     (e, node) => {
       if (e.detail === 2) {
-        editor.spokeControls.focus([node.object]);
+        editor.editorControls.focus([node.object]);
       } else if (!e.shiftKey) {
         editor.setSelection([node.object]);
       }

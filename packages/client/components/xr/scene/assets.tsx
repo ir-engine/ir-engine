@@ -7,7 +7,7 @@ import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig
 const env = config.xr.environment
 const grid = config.xr.grid
-const spoke = config.xr.spoke
+const editor = config.xr.editor
 const vrRoomGrid = config.xr.vrRoomGrid
 const videoGrid = config.xr.videoGrid
 const store = config.xr.store
@@ -81,8 +81,8 @@ function addAsset (id, src): any {
 
 const landingAssets = [
   {
-    id: 'spokeBanner',
-    src: spoke.src
+    id: 'editorBanner',
+    src: editor.src
   },
   {
     id: 'vrRoomGridBanner',
