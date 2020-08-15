@@ -70,7 +70,7 @@ if (config.server.enabled) {
   app.configure(express.rest())
   app.configure(socketio())
 
-  if (config.redis.enabled === true) {
+  if (config.redis.enabled) {
     app.configure(sync({
       uri: config.redis.password != null ? `redis://${config.redis.address}:${config.redis.port}?password=${config.redis.password}` : `redis://${config.redis.address}:${config.redis.port}`
     }));

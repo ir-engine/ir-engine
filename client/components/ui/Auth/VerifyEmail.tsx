@@ -7,8 +7,8 @@ import { verifyEmail } from '../../../redux/auth/service'
 import './style.scss'
 
 interface Props {
-  auth: any
-  type: string
+  // auth: any
+  // type: string
   token: string
   verifyEmail: typeof verifyEmail
 }

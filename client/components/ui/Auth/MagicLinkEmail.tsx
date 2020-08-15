@@ -3,6 +3,9 @@ import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
+
+import WalletIcon from '@material-ui/icons/AccountBalanceWallet'
+
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectAuthState } from '../../../redux/auth/selector'
@@ -18,6 +21,7 @@ import NextLink from 'next/link'
 import getConfig from 'next/config'
 import './style.scss'
 import { User } from '../../../../shared/interfaces/User'
+import { Head } from 'next/document'
 
 const config = getConfig().publicRuntimeConfig.staticPages
 const authConfig = getConfig().publicRuntimeConfig.auth
@@ -54,7 +58,8 @@ const defaultState = {
 const termsOfService = (config?.termsOfService) ?? '/terms-of-service'
 
 const MagicLinkEmail = (props: Props): any => {
-  const { auth, type, isAddConnection, createMagicLink, addConnectionBySms, addConnectionByEmail } = props
+  const { auth, type, isAddConnection, createMagicLink, addConnectionBySms,
+    addConnectionByEmail } = props
   const [state, setState] = useState(defaultState)
 
   const handleInput = (e: any): any => {
@@ -127,6 +132,11 @@ const MagicLinkEmail = (props: Props): any => {
   return (
     <Container component="main" maxWidth="xs">
       <div>
+        <Head>
+          <script src="https://unpkg.com/credential-handler-polyfill@2.1.1/dist/credential-handler-polyfill.min.js"/>
+          <script src="https://unpkg.com/web-credential-handler@1.0.1/dist/web-credential-handler.min.js"/>
+        </Head>
+
         <Typography component="h1" variant="h5">
           Login Link
         </Typography>
