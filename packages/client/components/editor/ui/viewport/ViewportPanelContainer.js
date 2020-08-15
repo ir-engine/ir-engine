@@ -190,8 +190,8 @@ export default function ViewportPanelContainer() {
 
   const onEditorInitialized = useCallback(() => {
     editor.addListener("selectionChanged", onSelectionChanged);
-    editor.spokeControls.addListener("flyModeChanged", onFlyModeChanged);
-    editor.spokeControls.addListener("transformModeChanged", onTransformModeChanged);
+    editor.editorControls.addListener("flyModeChanged", onFlyModeChanged);
+    editor.editorControls.addListener("transformModeChanged", onTransformModeChanged);
   }, [editor, onSelectionChanged, onFlyModeChanged, onTransformModeChanged]);
 
   useEffect(() => {
@@ -201,8 +201,8 @@ export default function ViewportPanelContainer() {
     return () => {
       editor.removeListener("selectionChanged", onSelectionChanged);
 
-      if (editor.spokeControls) {
-        editor.spokeControls.removeListener("flyModeChanged", onFlyModeChanged);
+      if (editor.editorControls) {
+        editor.editorControls.removeListener("flyModeChanged", onFlyModeChanged);
       }
 
       if (editor.renderer) {

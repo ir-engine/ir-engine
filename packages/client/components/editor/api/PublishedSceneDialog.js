@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import configs from "../../../spoke/configs";
+import configs from "../../../editor/configs";
 import PreviewDialog from "../ui/dialogs/PreviewDialog";
 import { Button } from "../ui/inputs/Button";
 

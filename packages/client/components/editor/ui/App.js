@@ -9,14 +9,10 @@ import Loading from "./Loading";
 import Error from "./Error";
 
 import { ApiContextProvider } from "./contexts/ApiContext";
-import { AuthContextProvider } from "./contexts/AuthContext";
 
 import RedirectRoute from "./router/RedirectRoute";
 
 import LandingPage from "./landing/LandingPage";
-import WhatsNewPage from "./whats-new/WhatsNewPage";
-import LoginPage from "./auth/LoginPage";
-import LogoutPage from "./auth/LogoutPage";
 import ProjectsPage from "./projects/ProjectsPage";
 import CreateProjectPage from "./projects/CreateProjectPage";
 
@@ -64,7 +60,6 @@ export default class App extends Component {
 
     return (
       <ApiContextProvider value={api}>
-        <AuthContextProvider value={this.state.isAuthenticated}>
           <ThemeProvider theme={theme}>
             <Router basename={process.env.ROUTER_BASE_PATH}>
               <GlobalStyle />
@@ -72,10 +67,7 @@ export default class App extends Component {
                 <Switch>
                   {configs.isXR3() && <Route path="/" exact component={LandingPage} />}
                   {!configs.isXR3() && <RedirectRoute path="/" exact to="/projects" />}
-                  <Route path="/whats-new" exact component={WhatsNewPage} />
                   <RedirectRoute path="/new" exact to="/projects" />
-                  <Route path="/login" exact component={LoginPage} />
-                  <Route path="/logout" exact component={LogoutPage} />
                   <Route path="/projects/create" exact component={CreateProjectPage} />
                   <RedirectRoute path="/projects/templates" exact to="/projects/create" />
                   <Route path="/projects" exact component={ProjectsPage} />
@@ -86,7 +78,6 @@ export default class App extends Component {
               </Column>
             </Router>
           </ThemeProvider>
-        </AuthContextProvider>
       </ApiContextProvider>
     );
   }

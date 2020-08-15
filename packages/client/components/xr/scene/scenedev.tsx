@@ -101,7 +101,7 @@ export default class SceneRoot extends React.Component<Props> {
               src={grid.placeholderImageSrc}
               crossOrigin="anonymous"
             />
-            <img id="spoke" src={landing.spoke.src} crossOrigin="anonymous" />
+            <img id="editor" src={landing.editor.src} crossOrigin="anonymous" />
             <img id="vrRoom" src={landing.vrRoom.src} crossOrigin="anonymous" />
             <img
               id="video360banner"

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import styled from "styled-components";
-import spokeLogo from "../../assets/spoke-logo.png";
+import editorLogo from "../../assets/editor-logo.png";
 import landingVideoMp4 from "../../assets/video/SpokePromo.mp4";
 import landingVideoWebm from "../../assets/video/SpokePromo.webm";
 import NavBar from "../navigation/NavBar";
@@ -101,12 +101,12 @@ export default class LandingPage extends Component {
             <HeroContainer>
               <HeroLeft>
                 <LogoContainer>
-                  <img src={spokeLogo} alt="Spoke by Mozilla" />
+                  <img src={editorLogo} alt="XR3ngine Scene Editor" />
                   <h2>make your space</h2>
                 </LogoContainer>
                 <h3>
                   Create 3D social scenes for{" "}
-                  <a href="https://hubs.mozilla.com" rel="noopener noreferrer">
+                  <a href="htts://xr3ngine.dev" rel="noopener noreferrer">
                     Hubs
                   </a>
                 </h3>

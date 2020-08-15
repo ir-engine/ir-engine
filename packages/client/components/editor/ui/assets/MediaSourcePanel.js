@@ -34,7 +34,7 @@ export default function MediaSourcePanel({
       const transformPivot = item.transformPivot || source.transformPivot;
 
       if (transformPivot) {
-        editor.spokeControls.setTransformPivot(transformPivot);
+        editor.editorControls.setTransformPivot(transformPivot);
       }
 
       editor.spawnGrabbedObject(node);

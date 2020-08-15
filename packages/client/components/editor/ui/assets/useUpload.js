@@ -1,7 +1,6 @@
 import { useCallback, useContext } from "react";
 import ErrorDialog from "../dialogs/ErrorDialog";
 import ProgressDialog from "../dialogs/ProgressDialog";
-import LoginDialog from "../../api/LoginDialog";
 import { DialogContext } from "../contexts/DialogContext";
 import { EditorContext } from "../contexts/EditorContext";
 import { AllFileTypes } from "../assets/fileTypes";
@@ -44,21 +43,6 @@ export default function useUpload(options = {}) {
                 `"${file.name}" does not match the following mime types or extensions: ${accepts.join(", ")}`
               );
             }
-          }
-        }
-
-        if (!editor.api.isAuthenticated()) {
-          // Ensure the user is authenticated before continuing.
-          const loggedIn = await new Promise(resolve => {
-            showDialog(LoginDialog, {
-              onSuccess: () => resolve(true),
-              onCancel: () => resolve(false)
-            });
-          });
-
-          if (!loggedIn) {
-            hideDialog();
-            return null;
           }
         }
 

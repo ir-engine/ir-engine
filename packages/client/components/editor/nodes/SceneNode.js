@@ -8,7 +8,7 @@ import getNodeWithUUID from "../utils/getNodeWithUUID";
 import serializeColor from "../utils/serializeColor";
 import { DistanceModelType } from "../objects/AudioSource";
 
-// Migrate v1 spoke scene to v2
+// Migrate v1 editor scene to v2
 function migrateV1ToV2(json) {
   const { root, metadata, entities } = json;
 

@@ -1,7 +1,7 @@
 export default class PlayModeControls {
-  constructor(inputManager, spokeControls, flyControls) {
+  constructor(inputManager, editorControls, flyControls) {
     this.inputManager = inputManager;
-    this.spokeControls = spokeControls;
+    this.editorControls = editorControls;
     this.flyControls = flyControls;
     this.enabled = false;
   }
@@ -14,7 +14,7 @@ export default class PlayModeControls {
 
   disable() {
     this.enabled = false;
-    this.spokeControls.enable();
+    this.editorControls.enable();
     this.flyControls.disable();
     this.inputManager.canvas.removeEventListener("click", this.onClickCanvas);
     document.removeEventListener("pointerlockchange", this.onPointerLockChange);
@@ -27,10 +27,10 @@ export default class PlayModeControls {
 
   onPointerLockChange = () => {
     if (document.pointerLockElement === this.inputManager.canvas) {
-      this.spokeControls.disable();
+      this.editorControls.disable();
       this.flyControls.enable();
     } else {
-      this.spokeControls.enable();
+      this.editorControls.enable();
       this.flyControls.disable();
     }
   };
