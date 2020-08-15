@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "xrsocial.media.fullname" . }}
+  name: {{ include "xr3ngine.media.fullname" . }}
   labels:
-    {{- include "xrsocial.media.labels" . | nindent 4 }}
+    {{- include "xr3ngine.media.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.media.service.type }}
   ports:
@@ -13,5 +13,5 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "xrsocial.media.selectorLabels" . | nindent 4 }}
+    {{- include "xr3ngine.media.selectorLabels" . | nindent 4 }}
 {{- end -}}

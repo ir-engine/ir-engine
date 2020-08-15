@@ -246,7 +246,6 @@ export function updateInviteTarget(targetObjectType?: string, targetObjectId?: s
   }
 }
 
-
 client.service('invite').on('created', (params) => {
   const selfUser = (store.getState() as any).get('auth').get('user') as User
   store.dispatch(createdInvite(params.invite, selfUser))

@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "xrsocial.api.fullname" . }}
+  name: {{ template "xr3ngine.api.fullname" . }}
   labels:
-    {{- include "xrsocial.api.labels" . | nindent 4 }}
+    {{- include "xr3ngine.api.labels" . | nindent 4 }}
 data:
 {{- if .Values.api.extraEnv }}
 {{ toYaml .Values.api.extraEnv | indent 2 }}

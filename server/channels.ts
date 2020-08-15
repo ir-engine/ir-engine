@@ -6,6 +6,85 @@ export default (app: Application): void => {
     // If no real-time functionality has been configured just return
     return
   }
+  app.on('connection', async (connection) => {
+    console.log(connection)
+    if ((process.env.KUBERNETES === 'true' && process.env.SERVER_MODE === 'realtime') || (process.env.NODE_ENV === 'development')) {
+      try {
+        const token = (connection as any).socketQuery?.token
+        if (token != null) {
+          const authResult = await app.service('authentication').strategies.jwt.authenticate({ accessToken: token }, {})
+          console.log('Auth Result:')
+          console.log(authResult)
+          const identityProvider = authResult['identity-provider']
+          if (identityProvider != null) {
+            const userId = identityProvider.userId
+            console.log(userId)
+            console.log('Connected to gameserver')
+            const locationId = (connection as any).socketQuery.locationId
+            const agonesSDK = (app as any).agonesSDK
+            const gsResult = await agonesSDK.getGameServer()
+            console.log(gsResult)
+            const { status } = gsResult
+            if (status.state === 'Ready') {
+              const selfIpAddress = `${(status.address as string)}:${(status.portsList[0].port as string)}`
+              const instanceResult = await app.service('instance').create({
+                currentUsers: 1,
+                locationId: locationId,
+                ipAddress: selfIpAddress
+              })
+              await agonesSDK.allocate();
+              (app as any).instance = instanceResult
+            } else {
+              const instance = await app.service('instance').get((app as any).instance.id)
+              await app.service('instance').patch((app as any).instance.id, {
+                currentUsers: (instance.currentUsers as number) + 1
+              })
+            }
+            await app.service('user').patch(userId, {
+              instanceId: (app as any).instance.id
+            })
+          }
+        }
+      } catch (err) {
+        console.log(err)
+        throw err
+      }
+    }
+  })
+
+  app.on('disconnect', async (connection) => {
+    console.log(connection)
+    if ((process.env.KUBERNETES === 'true' && process.env.SERVER_MODE === 'realtime') || (process.env.NODE_ENV === 'development')) {
+      try {
+        console.log('realtime disconnect')
+        console.log(connection)
+        const token = (connection as any).socketQuery?.token
+        if (token != null) {
+          const authResult = await app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {})
+          console.log('Auth Result:')
+          console.log(authResult)
+          const identityProvider = authResult['identity-provider']
+          if (identityProvider != null) {
+            const userId = identityProvider.userId
+            await app.service('user').patch(userId, {
+              instanceId: null
+            })
+            const instance = await app.service('instance').get((app as any).instance.id)
+            await app.service('instance').patch((app as any).instance.id, {
+              currentUsers: instance.currentUsers - 1
+            })
+
+            if (instance.currentUsers === 1) {
+              await (app as any).agonesSDK.shutdown()
+            }
+          }
+        }
+      } catch (err) {
+        console.log(err)
+        throw err
+      }
+    }
+  })
 
   app.on('login', (authResult: any, { connection }: any) => {
     if (connection) {
@@ -18,6 +97,7 @@ export default (app: Application): void => {
       app.channel(`userIds/${connection['identity-provider'].userId as string}`).leave(connection)
     }
   })
+
   //
   // app.publish((data: any, hook: HookContext) => {
   //   // Here you can add event publishers to channels set up in `channels.js`

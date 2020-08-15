@@ -1,5 +1,5 @@
 {{- if and .Values.media.enabled .Values.media.ingress.enabled -}}
-{{- $fullName := include "xrsocial.media.fullname" . -}}
+{{- $fullName := include "xr3ngine.media.fullname" . -}}
 {{- $svcPort := .Values.media.service.port -}}
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1beta1
@@ -10,7 +10,7 @@ kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
-    {{- include "xrsocial.media.labels" . | nindent 4 }}
+    {{- include "xr3ngine.media.labels" . | nindent 4 }}
   {{- with .Values.media.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}

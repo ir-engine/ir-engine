@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "xrsocial.spoke.fullname" . }}
+  name: {{ template "xr3ngine.spoke.fullname" . }}
   labels:
-    {{- include "xrsocial.spoke.labels" . | nindent 4 }}
+    {{- include "xr3ngine.spoke.labels" . | nindent 4 }}
 data:
 {{- if .Values.spoke.extraEnv }}
 {{ toYaml .Values.spoke.extraEnv | indent 2 }}

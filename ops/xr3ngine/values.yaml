@@ -196,12 +196,12 @@ media:
   affinity: {}
   podSecurityContext: {}
   securityContext: {}
-  
+
   # Extra Environment variables to configure xrsocial
   extraEnv:
     # ENV_VAR1: val1
     # ENV_VAR2: val2
-    
+
     APP_HOST: http://api.xrsocial.local/
 
     CLIENT_ENABLED: "false"
@@ -250,7 +250,7 @@ media:
 
 spoke:
   enabled: true
-  name: xrsocial-spoke
+  name: xr3ngine-spoke
 
   replicaCount: 1
   image:
@@ -293,19 +293,42 @@ spoke:
   affinity: {}
   podSecurityContext: {}
   securityContext: {}
-  
+
+
+gameserver:
+  enabled: true
+  name: gameserver
+
+  replicaCount: 1
+  image:
+    repository: xr3ngine/xr3ngine
+    tag: latest
+    pullPolicy: Always
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+
 
 
 ########### Subcharts - values here will overwrite the subchart
 
 mariadb:
-  enabled: true
-  nameOverride: xrsocial-mariadb
+  enabled: false
+  nameOverride: xr3ngine-mariadb
   db:
     name: xrchat
     user: server
     password: password
-    existingSecret: 
+    existingSecret:
   replication:
     enabled: false
   externalHost: ""  # use to override - must set mariadb.enabled to false

@@ -2,23 +2,27 @@
 {{/*
 Expand the name of the chart.
 */}}
-# {{- define "xrsocial.name" -}}
+# {{- define "xr3ngine.name" -}}
 # {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 # {{- end -}}
 
-{{- define "xrsocial.client.name" -}}
+{{- define "xr3ngine.client.name" -}}
 {{- default .Chart.Name .Values.client.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "xrsocial.api.name" -}}
+{{- define "xr3ngine.api.name" -}}
 {{- default .Chart.Name .Values.api.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "xrsocial.media.name" -}}
+{{- define "xr3ngine.media.name" -}}
 {{- default .Chart.Name .Values.media.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "xrsocial.spoke.name" -}}
+{{- define "xr3ngine.gameserver.name" -}}
+{{- default .Chart.Name .Values.gameserver.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "xr3ngine.spoke.name" -}}
 {{- default .Chart.Name .Values.spoke.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -28,7 +32,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "xrsocial.fullname" -}}
+{{- define "xr3ngine.fullname" -}}
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -42,7 +46,7 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 
 
-{{- define "xrsocial.client.fullname" -}}
+{{- define "xr3ngine.client.fullname" -}}
 {{- if .Values.client.fullnameOverride -}}
 {{- .Values.client.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -51,7 +55,7 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 
 
-{{- define "xrsocial.api.fullname" -}}
+{{- define "xr3ngine.api.fullname" -}}
 {{- if .Values.api.fullnameOverride -}}
 {{- .Values.api.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -60,7 +64,7 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 
 
-{{- define "xrsocial.media.fullname" -}}
+{{- define "xr3ngine.media.fullname" -}}
 {{- if .Values.media.fullnameOverride -}}
 {{- .Values.media.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -68,7 +72,15 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- end -}}
 
-{{- define "xrsocial.spoke.fullname" -}}
+{{- define "xr3ngine.gameserver.fullname" -}}
+{{- if .Values.gameserver.fullnameOverride -}}
+{{- .Values.gameserver.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name .Values.gameserver.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "xr3ngine.spoke.fullname" -}}
 {{- if .Values.spoke.fullnameOverride -}}
 {{- .Values.spoke.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -76,12 +88,12 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- end -}}
 
-{{- define "xrsocial.client.host" -}}
+{{- define "xr3ngine.client.host" -}}
 {{- printf "%s.%s.%s" "dashboard" .Release.Name .Values.domain -}}
 {{- end -}}
 
 
-{{- define "xrsocial.media.host" -}}
+{{- define "xr3ngine.media.host" -}}
 {{- printf "%s.%s.%s" "media" .Release.Name .Values.domain -}}
 {{- end -}}
 
@@ -90,16 +102,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "xrsocial.chart" -}}
+{{- define "xr3ngine.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Common labels
 */}}
-{{- define "xrsocial.client.labels" -}}
-helm.sh/chart: {{ include "xrsocial.chart" . }}
-{{ include "xrsocial.client.selectorLabels" . }}
+{{- define "xr3ngine.client.labels" -}}
+helm.sh/chart: {{ include "xr3ngine.chart" . }}
+{{ include "xr3ngine.client.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -109,8 +121,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "xrsocial.client.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "xrsocial.client.name" . }}
+{{- define "xr3ngine.client.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xr3ngine.client.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: client
 {{- end -}}
@@ -119,9 +131,9 @@ app.kubernetes.io/component: client
 {{/*
 Common labels
 */}}
-{{- define "xrsocial.api.labels" -}}
-helm.sh/chart: {{ include "xrsocial.chart" . }}
-{{ include "xrsocial.api.selectorLabels" . }}
+{{- define "xr3ngine.api.labels" -}}
+helm.sh/chart: {{ include "xr3ngine.chart" . }}
+{{ include "xr3ngine.api.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -131,8 +143,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "xrsocial.api.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "xrsocial.api.name" . }}
+{{- define "xr3ngine.api.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xr3ngine.api.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: api
 {{- end -}}
@@ -141,9 +153,9 @@ app.kubernetes.io/component: api
 {{/*
 Common labels
 */}}
-{{- define "xrsocial.media.labels" -}}
-helm.sh/chart: {{ include "xrsocial.chart" . }}
-{{ include "xrsocial.media.selectorLabels" . }}
+{{- define "xr3ngine.media.labels" -}}
+helm.sh/chart: {{ include "xr3ngine.chart" . }}
+{{ include "xr3ngine.media.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -153,20 +165,18 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "xrsocial.media.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "xrsocial.media.name" . }}
+{{- define "xr3ngine.media.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xr3ngine.media.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: media
 {{- end -}}
 
-
-
 {{/*
 Common labels
 */}}
-{{- define "xrsocial.spoke.labels" -}}
-helm.sh/chart: {{ include "xrsocial.chart" . }}
-{{ include "xrsocial.spoke.selectorLabels" . }}
+{{- define "xr3ngine.gameserver.labels" -}}
+helm.sh/chart: {{ include "xr3ngine.chart" . }}
+{{ include "xr3ngine.gameserver.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -176,8 +186,29 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "xrsocial.spoke.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "xrsocial.spoke.name" . }}
+{{- define "xr3ngine.gameserver.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xr3ngine.gameserver.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: gameserver
+{{- end -}}
+
+{{/*
+Common labels
+*/}}
+{{- define "xr3ngine.spoke.labels" -}}
+helm.sh/chart: {{ include "xr3ngine.chart" . }}
+{{ include "xr3ngine.spoke.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
+
+{{/*
+Selector labels
+*/}}
+{{- define "xr3ngine.spoke.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xr3ngine.spoke.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: spoke
 {{- end -}}
@@ -186,9 +217,9 @@ app.kubernetes.io/component: spoke
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "xrsocial.client.serviceAccountName" -}}
+{{- define "xr3ngine.client.serviceAccountName" -}}
 {{- if .Values.client.serviceAccount.create -}}
-    {{ default (include "xrsocial.client.fullname" .) .Values.client.serviceAccount.name }}
+    {{ default (include "xr3ngine.client.fullname" .) .Values.client.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.client.serviceAccount.name }}
 {{- end -}}
@@ -198,9 +229,9 @@ Create the name of the service account to use
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "xrsocial.api.serviceAccountName" -}}
+{{- define "xr3ngine.api.serviceAccountName" -}}
 {{- if .Values.api.serviceAccount.create -}}
-    {{ default (include "xrsocial.api.fullname" .) .Values.api.serviceAccount.name }}
+    {{ default (include "xr3ngine.api.fullname" .) .Values.api.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.api.serviceAccount.name }}
 {{- end -}}
@@ -209,11 +240,22 @@ Create the name of the service account to use
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "xrsocial.media.serviceAccountName" -}}
+{{- define "xr3ngine.media.serviceAccountName" -}}
 {{- if .Values.media.serviceAccount.create -}}
-    {{ default (include "xrsocial.media.fullname" .) .Values.media.serviceAccount.name }}
+    {{ default (include "xr3ngine.media.fullname" .) .Values.media.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.media.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "xr3ngine.gameserver.serviceAccountName" -}}
+{{- if .Values.gameserver.serviceAccount.create -}}
+    {{ default (include "xr3ngine.gameserver.fullname" .) .Values.gameserver.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.gameserver.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
 
@@ -221,9 +263,9 @@ Create the name of the service account to use
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "xrsocial.spoke.serviceAccountName" -}}
+{{- define "xr3ngine.spoke.serviceAccountName" -}}
 {{- if .Values.spoke.serviceAccount.create -}}
-    {{ default (include "xrsocial.spoke.fullname" .) .Values.spoke.serviceAccount.name }}
+    {{ default (include "xr3ngine.spoke.fullname" .) .Values.spoke.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.spoke.serviceAccount.name }}
 {{- end -}}
@@ -234,7 +276,7 @@ Create the name of the service account to use
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
-{{- define "xrsocial.mariadb.fullname" -}}
+{{- define "xr3ngine.mariadb.fullname" -}}
 {{- if .Values.mariadb.fullnameOverride -}}
 {{- .Values.mariadb.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -247,9 +289,9 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{/*
 Set maria host
 */}}
-{{- define "xrsocial.mariadb.host" -}}
+{{- define "xr3ngine.mariadb.host" -}}
 {{- if .Values.mariadb.enabled -}}
-{{- template "xrsocial.mariadb.fullname" . -}}
+{{- template "xr3ngine.mariadb.fullname" . -}}
 {{- else -}}
 {{- .Values.mariadb.externalHost | quote -}}
 {{- end -}}
