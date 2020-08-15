@@ -10,6 +10,8 @@ test("check navigator", () => {
 })
 
 test("check hidden magic from the globalised world", () => {
-  initializeWorld()
-  registerSystem(InputSystem)
+  expect(() => {
+    initializeWorld()
+    registerSystem(InputSystem)
+  }).not.toThrowError()
 })
