@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "{{ include "xrsocial.client.fullname" . }}-test-connection"
+  name: "{{ include "xr3ngine.client.fullname" . }}-test-connection"
   labels:
-    {{- include "xrsocial.client.labels" . | nindent 4 }}
+    {{- include "xr3ngine.client.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": test-success
 spec:
@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "xrsocial.client.fullname" . }}:{{ .Values.client.service.port }}']
+      args: ['{{ include "xr3ngine.client.fullname" . }}:{{ .Values.client.service.port }}']
   restartPolicy: Never

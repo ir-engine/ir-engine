@@ -2,18 +2,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "xrsocial.api.fullname" . }}
+  name: {{ include "xr3ngine.api.fullname" . }}
   labels:
-    {{- include "xrsocial.api.labels" . | nindent 4 }}
+    {{- include "xr3ngine.api.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.api.replicaCount }}
   selector:
     matchLabels:
-      {{- include "xrsocial.api.selectorLabels" . | nindent 6 }}
+      {{- include "xr3ngine.api.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "xrsocial.api.selectorLabels" . | nindent 8 }}
+        {{- include "xr3ngine.api.selectorLabels" . | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/api-server-configmap.yaml") . | sha256sum }}
     spec:
@@ -21,7 +21,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ include "xrsocial.api.serviceAccountName" . }}
+      serviceAccountName: {{ include "xr3ngine.api.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.api.podSecurityContext | nindent 8 }}
       containers:
@@ -32,7 +32,7 @@ spec:
           imagePullPolicy: {{ .Values.api.image.pullPolicy }}
           envFrom:
             - configMapRef:
-                name: {{ include "xrsocial.api.fullname" . }}
+                name: {{ include "xr3ngine.api.fullname" . }}
                 optional: true
           env:
             - name: SERVER_MODE
@@ -52,12 +52,12 @@ spec:
                   {{- if .Values.mariadb.existingSecret }}
                   name: {{ .Values.mariadb.existingSecret }}
                   {{- else }}
-                  name: {{ template "xrsocial.mariadb.fullname" . }}
-                  {{- end }} 
+                  name: {{ template "xr3ngine.mariadb.fullname" . }}
+                  {{- end }}
                   key: mariadb-password
               {{- end }}
             - name: MYSQL_HOST
-              value: {{ template "xrsocial.mariadb.host" . }}
+              value: {{ template "xr3ngine.mariadb.host" . }}
             - name: REDIS_ENABLED
               value: "true"
             - name: REDIS_ADDRESS

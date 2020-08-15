@@ -43,6 +43,7 @@ import AcceptInvite from './accept-invite/accept-invite.service'
 import Auth from './auth-management/auth-management.service'
 import Channel from './channel/channel.service'
 import Email from './email/email.service'
+import InstanceProvision from './instance-provision/instance-provision.service'
 import Login from './login/login.service'
 import MagicLink from './magic-link/magic-link.service'
 import Message from './message/message.service'
@@ -109,6 +110,7 @@ export default (app: Application): void => {
   app.configure(Auth)
   app.configure(Channel)
   app.configure(Email)
+  app.configure(InstanceProvision)
   app.configure(Login)
   app.configure(MagicLink)
   app.configure(Message)

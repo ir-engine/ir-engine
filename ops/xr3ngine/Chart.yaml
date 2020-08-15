@@ -23,7 +23,7 @@ dependencies:
     condition: mariadb.enabled
 
   - name: agones
-    version: "1.4.0"
+    version: "1.7.0"
     repository: "https://agones.dev/chart/stable"
     condition: agones.enabled
 

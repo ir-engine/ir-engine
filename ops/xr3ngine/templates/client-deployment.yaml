@@ -2,18 +2,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "xrsocial.client.fullname" . }}
+  name: {{ include "xr3ngine.client.fullname" . }}
   labels:
-    {{- include "xrsocial.client.labels" . | nindent 4 }}
+    {{- include "xr3ngine.client.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.client.replicaCount }}
   selector:
     matchLabels:
-      {{- include "xrsocial.client.selectorLabels" . | nindent 6 }}
+      {{- include "xr3ngine.client.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "xrsocial.client.selectorLabels" . | nindent 8 }}
+        {{- include "xr3ngine.client.selectorLabels" . | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/client-configmap.yaml") . | sha256sum }}
     spec:
@@ -21,7 +21,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ include "xrsocial.client.serviceAccountName" . }}
+      serviceAccountName: {{ include "xr3ngine.client.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.client.podSecurityContext | nindent 8 }}
       containers:
@@ -32,8 +32,13 @@ spec:
           imagePullPolicy: {{ .Values.client.image.pullPolicy }}
           envFrom:
             - configMapRef:
-                name: {{ include "xrsocial.client.fullname" . }}
+                name: {{ include "xr3ngine.client.fullname" . }}
                 optional: true
+          env:
+            - name: SERVER_MODE
+              value: "client"
+            - name: KUBERNETES
+              value: "true"
           ports:
             - name: http
               containerPort: 3030
