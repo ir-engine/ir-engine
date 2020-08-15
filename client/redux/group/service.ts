@@ -6,7 +6,6 @@ import {
   patchedGroup,
   removedGroup,
   removedGroupUser,
-  leftGroup,
   fetchingGroups,
   loadedInvitableGroups,
   fetchingInvitableGroups,

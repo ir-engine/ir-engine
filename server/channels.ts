@@ -1,11 +1,25 @@
 import '@feathersjs/transport-commons'
 import { Application } from './declarations'
 
+
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
     // If no real-time functionality has been configured just return
     return
   }
+
+  function pingInstanceChannel (instanceId: string): any {
+    console.log(`Pinging clients connected to instance ${instanceId}`)
+    app.service('instance-provision').publish('created', async (data): Promise<any> => {
+      const channelName = `instanceIds/${instanceId}`
+      console.log(`Publishing to: ${channelName}`)
+      return app.channel(channelName).send({
+        cool: 'pants'
+      })
+    })
+    setTimeout(() => pingInstanceChannel(instanceId), 2000)
+  }
+
   app.on('connection', async (connection) => {
     console.log(connection)
     if ((process.env.KUBERNETES === 'true' && process.env.SERVER_MODE === 'realtime') || (process.env.NODE_ENV === 'development')) {
@@ -34,6 +48,10 @@ export default (app: Application): void => {
               })
               await agonesSDK.allocate();
               (app as any).instance = instanceResult
+              pingInstanceChannel((app as any).instance.id)
+              app.service('instance-provision').on('created', (data: any) => {
+                console.log('Server-side instance-provision created listener triggered')
+              })
             } else {
               const instance = await app.service('instance').get((app as any).instance.id)
               await app.service('instance').patch((app as any).instance.id, {
@@ -43,6 +61,8 @@ export default (app: Application): void => {
             await app.service('user').patch(userId, {
               instanceId: (app as any).instance.id
             })
+            app.channel(`instanceIds/${(app as any).instance.id as string}`).join(connection)
+            console.log(app.channels)
           }
         }
       } catch (err) {
@@ -74,7 +94,10 @@ export default (app: Application): void => {
               currentUsers: instance.currentUsers - 1
             })
 
+            app.channel(`instanceIds/${(app as any).instance.id as string}`).leave(connection)
+
             if (instance.currentUsers === 1) {
+              await app.service('instance').remove((app as any).instance.id)
               await (app as any).agonesSDK.shutdown()
             }
           }
