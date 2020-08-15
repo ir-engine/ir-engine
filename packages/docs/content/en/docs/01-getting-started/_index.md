@@ -26,7 +26,7 @@ AR Devices
 
 ## Setup
 
-https://github.com/xr3ngine/xrengine
+https://github.com/xr3ngine/xr3ngine
 
 ## Try it out!
 

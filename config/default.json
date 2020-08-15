@@ -13,11 +13,11 @@
       },
       "enterVRbuttonSrc": "",
       "networked-scene": {
-        "app": "xrengine",
+        "app": "xr3ngine",
         "room": "lobby",
         "audio": true,
         "adapter": "socketio",
-        "serverURL": "nxr.xr3ngine.io"
+        "serverURL": "nxr.xr3ngine.dev"
       },
       "avatar": {
         "defaultAvatarModelSrc" : "/gltf/avatars/head/scene.gltf",
@@ -161,7 +161,7 @@
     "siteTitle": "XREngine",
     "siteDescription": "Connected Worlds for Everyone",
     "featherStoreKey": "XREngine-Auth-Store",
-    "localStorageKey": "xrengine-client-store-key-v1",
+    "localStorageKey": "xr3ngine-client-store-key-v1",
     "auth": {
       "enableSmsMagicLink": true,
       "enableEmailMagicLink": true,

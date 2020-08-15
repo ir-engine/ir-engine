@@ -1,12 +1,12 @@
 ## XREngine Docs
 
-### Please visit school.xrengine.io to see docs
+### Please visit school.xr3ngine.dev to see docs
 
 Uses Hugo
 https://gohugo.io/getting-started/quick-start/ 
 
 ```bash
-git clone --recurse-submodules --depth 1 https://github.com/xr3ngine/xrengine
+git clone --recurse-submodules --depth 1 https://github.com/xr3ngine/xr3ngine
 
 npm install
 

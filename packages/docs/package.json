@@ -1,21 +1,22 @@
 {
   "name": "@xr3ngine/docs",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "description": "XREngine technical documentation.",
+  "private": true,
   "main": "none.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xr3ngine/xrengine"
+    "url": "git+https://github.com/xr3ngine/xr3ngine"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/xr3ngine/xrengine/issues"
+    "url": "https://github.com/xr3ngine/xr3ngine/issues"
   },
-  "homepage": "https://github.com/xr3ngine/xrengine#readme",
+  "homepage": "https://github.com/xr3ngine/xr3ngine#readme",
   "dependencies": {},
   "devDependencies": {
     "autoprefixer": "^9.4.6",

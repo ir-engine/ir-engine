@@ -9,7 +9,8 @@
   },
   "bundleDependencies": false,
   "deprecated": false,
-  "name": "xr3ngine-armada",
+  "name": "@xr3ngine/armada",
+  "private": true,
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
   "devDependencies": {
     "@babel/core": "^7.6.4",
@@ -89,7 +90,7 @@
     "lint",
     "build"
   ],
-  "version": "0.0.1",
+  "version": "0.2.0",
   "peerDependencies": {
     "socket.io-client": "^2.3.0",
     "three": "^0.119.1"

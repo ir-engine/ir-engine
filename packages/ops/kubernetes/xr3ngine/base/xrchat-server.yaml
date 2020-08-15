@@ -209,10 +209,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - api.dev.xr3ngine.io
+        - api.dev.xr3ngine.dev
       secretName: xr3ngine-secret
   rules:
-    - host: api.dev.xr3ngine.io
+    - host: api.dev.xr3ngine.dev
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -224,7 +224,7 @@ metadata:
     nginx.org/mergeable-ingress-type: "minion"
 spec:
   rules:
-    - host: api.dev.xr3ngine.io
+    - host: api.dev.xr3ngine.dev
       http:
         paths:
           - backend:
