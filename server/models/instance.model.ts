@@ -11,6 +11,9 @@ export default (app: Application): any => {
       allowNull: false,
       primaryKey: true
     },
+    ipAddress: {
+      type: DataTypes.STRING
+    },
     currentUsers: {
       type: DataTypes.INTEGER,
       defaultValue: 0

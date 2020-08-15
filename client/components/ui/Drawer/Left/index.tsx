@@ -61,7 +61,6 @@ import {
 import _ from 'lodash'
 import { Group as GroupType } from '../../../../../shared/interfaces/Group'
 
-
 const mapStateToProps = (state: any): any => {
     return {
         authState: selectAuthState(state),

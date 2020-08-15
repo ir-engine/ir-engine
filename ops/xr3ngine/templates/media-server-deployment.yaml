@@ -2,18 +2,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "xrsocial.media.fullname" . }}
+  name: {{ include "xr3ngine.media.fullname" . }}
   labels:
-    {{- include "xrsocial.media.labels" . | nindent 4 }}
+    {{- include "xr3ngine.media.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.media.replicaCount }}
   selector:
     matchLabels:
-      {{- include "xrsocial.media.selectorLabels" . | nindent 6 }}
+      {{- include "xr3ngine.media.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "xrsocial.media.selectorLabels" . | nindent 8 }}
+        {{- include "xr3ngine.media.selectorLabels" . | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/media-server-configmap.yaml") . | sha256sum }}
     spec:
@@ -21,7 +21,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ include "xrsocial.media.serviceAccountName" . }}
+      serviceAccountName: {{ include "xr3ngine.media.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.media.podSecurityContext | nindent 8 }}
       containers:
@@ -32,10 +32,10 @@ spec:
           imagePullPolicy: {{ .Values.media.image.pullPolicy }}
           envFrom:
             - configMapRef:
-                name: {{ include "xrsocial.media.fullname" . }}
+                name: {{ include "xr3ngine.media.fullname" . }}
                 optional: true
             - configMapRef:
-                name: {{ include "xrsocial.api.fullname" . }}
+                name: {{ include "xr3ngine.api.fullname" . }}
                 optional: true
           env:
             - name: SERVER_MODE
@@ -55,12 +55,12 @@ spec:
                   {{- if .Values.mariadb.existingSecret }}
                   name: {{ .Values.mariadb.existingSecret }}
                   {{- else }}
-                  name: {{ template "xrsocial.mariadb.fullname" . }}
-                  {{- end }} 
+                  name: {{ template "xr3ngine.mariadb.fullname" . }}
+                  {{- end }}
                   key: mariadb-password
               {{- end }}
             - name: MYSQL_HOST
-              value: {{ template "xrsocial.mariadb.host" . }}
+              value: {{ template "xr3ngine.mariadb.host" . }}
             - name: REDIS_ENABLED
               value: "true"
             - name: REDIS_ADDRESS

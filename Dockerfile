@@ -25,4 +25,4 @@ ENV PORT=3030
 ENV MYSQL_URL=
 
 EXPOSE 3030
-CMD [ "sh", "-c", "npm run build-spoke && node lib/server/index.js" ]
+CMD ["scripts/start-server.sh"]
