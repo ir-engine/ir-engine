@@ -6,10 +6,7 @@
   "private": true,
   "main": "server",
   "workspaces": [
-    "client",
-    "engine",
-    "server",
-    "docs"
+    "packages/*"
   ],
   "keywords": [
     "three",
@@ -271,6 +268,7 @@
     "jest": "^26.4.0",
     "jest-cli": "^26.2.2",
     "lebab": "^3.1.0",
+    "lerna": "^3.22.1",
     "mocha": "^8.1.1",
     "no-master-commits": "^1.1.1",
     "nodemon": "^2.0.3",
