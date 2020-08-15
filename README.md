@@ -360,7 +360,7 @@ npm install @xr3ngine/armada
 
 # How to use
 ```javascript
-import { World } from 'ecsy'
+import { World } from '../ecs/classes/World'
 import { initializeInput } from '@xr3ngine/armada'
 
 const world = new World()

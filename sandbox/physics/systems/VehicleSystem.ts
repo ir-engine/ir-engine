@@ -48,7 +48,7 @@ export class VehicleSystem extends System {
   }
 }
 
-VehicleSystem.systemQueries = {
+VehicleSystem.queries = {
   vehicleBody: {
     components: [VehicleBody],
     listen: {

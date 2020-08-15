@@ -66,7 +66,7 @@ export class WebGLRendererSystem extends System {
       this.configurePostProcessing(entity)
     })
 
-    this.queryResults.renderers.results.forEach((entity: Entity) => {
+    this.queryResults.renderers.all.forEach((entity: Entity) => {
       getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta)
     })
   }
@@ -92,7 +92,7 @@ export const resize: Behavior = entity => {
   }
 }
 
-WebGLRendererSystem.systemQueries = {
+WebGLRendererSystem.queries = {
   renderers: {
     components: [RendererComponent],
     listen: {

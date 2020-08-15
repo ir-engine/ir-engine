@@ -1,6 +1,4 @@
-import { Matrix4 } from "three/src/math/Matrix4"
-import { Quaternion } from "three/src/math/Quaternion"
-import { Vector3 } from "three/src/math/Vector3"
+import { Matrix4, Quaternion, Vector3 } from "three"
 import { Object3DComponent } from "../../common/components/Object3DComponent"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { TransformParentComponent } from "../../transform/components/TransformParentComponent"
@@ -32,7 +30,7 @@ export class ParticleSystem extends System {
       })
     }
 
-    for (const entity of this.queryResults.emitterStates.results) {
+    for (const entity of this.queryResults.emitterStates.all) {
       const emitterState = getComponent<ParticleEmitterState>(entity, ParticleEmitterState)
 
       if (emitterState.syncTransform) {
@@ -49,7 +47,7 @@ export class ParticleSystem extends System {
   }
 }
 
-ParticleSystem.systemQueries = {
+ParticleSystem.queries = {
   emitters: {
     components: [ParticleEmitter],
     listen: {

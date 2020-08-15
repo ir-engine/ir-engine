@@ -1,8 +1,8 @@
-import { initialize } from "../src/initialize"
-import { SocketWebRTCServerTransport } from "./transports/SocketWebRTCServerTransport"
-import { DefaultNetworkSchema } from "../src/networking/defaults/DefaultNetworkSchema"
-import { DefaultSubscriptionSchema } from "../src/subscription/defaults/DefaultSubscriptionSchema"
-import { DefaultStateSchema } from "../src/state/defaults/DefaultStateSchema"
+import { initialize } from "./initialize"
+import { SocketWebRTCServerTransport } from "./networking/transports/SocketWebRTC/SocketWebRTCServerTransport"
+import { DefaultNetworkSchema } from "./networking/defaults/DefaultNetworkSchema"
+import { DefaultSubscriptionSchema } from "./subscription/defaults/DefaultSubscriptionSchema"
+import { DefaultStateSchema } from "./state/defaults/DefaultStateSchema"
 
 const networkSchema = {
   ...DefaultNetworkSchema,

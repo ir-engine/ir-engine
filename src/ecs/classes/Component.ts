@@ -22,14 +22,14 @@ export class Component<C> {
   static isComponent: true
   static _typeId: number
   _pool: any
-  _typeId: any
+  _typeId: any = -1
   assetsLoaded: boolean
   name: any = Component.name
 
   constructor(props?: Partial<Omit<C, keyof Component<any>>> | false) {
     if (props !== false) {
       const schema = (this.constructor as ComponentConstructor<Component<C>>).schema
-      Component.schema = schema
+
       for (const key in schema) {
         if (props && props["key"] != undefined) {
           this[key] = props[key]
@@ -72,7 +72,8 @@ export class Component<C> {
   }
 
   clone() {
-    return new Component<C>().copy(this)
+    return (this.constructor as any).copy(this)
+    //     return new Component<C>().copy(this)
   }
 
   reset() {
@@ -96,6 +97,10 @@ export class Component<C> {
     }
   }
 
+  static getName() {
+    return (this.constructor as any).getName()
+  }
+
   checkUndefinedAttributes(src) {
     const schema = (this.constructor as ComponentConstructor<Component<C>>).schema
 
@@ -108,4 +113,10 @@ export class Component<C> {
       }
     })
   }
+}
+
+Component.schema = {}
+Component.isComponent = true
+Component.getName = function() {
+  return this.displayName || this.name
 }

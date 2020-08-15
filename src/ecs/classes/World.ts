@@ -7,6 +7,7 @@ import { WebGLRenderer, Camera } from "three"
 import { SceneManager } from "../../common/classes/SceneManager"
 import { hasWindow, now } from "../functions/Utils"
 import { System } from "./System"
+import { executeSystem } from "../functions/SystemFunctions"
 
 export interface WorldOptions {
   entityPoolSize?: number
@@ -27,28 +28,28 @@ export class World {
 
   static options: { entityPoolSize: number; entityClass: typeof Entity } & WorldOptions = DEFAULT_OPTIONS
   static enabled = true
-  static deferredRemovalEnabled: boolean
+  static deferredRemovalEnabled = true
 
-  static systems: any[]
-  static entities: any[]
-  static entitiesByName: {}
-  static queries: Query[]
-  static components: any[]
+  static systems: any[] = []
+  static entities: any[] = []
+  static entitiesByName: {} = {}
+  static queries: Query[] = []
+  static components: any[] = []
 
   static lastTime: number
 
-  static nextEntityId: number
-  static nextComponentId: number
+  static nextEntityId = 0
+  static nextComponentId = 0
 
-  static eventQueues: {}
+  static eventQueues: {} = {}
   static entityPool: EntityPool = new EntityPool()
-  static componentsMap: {}
-  static componentPool: {}
-  static numComponents: {}
-  static entitiesWithComponentsToRemove: any[]
-  static entitiesToRemove: any[]
+  static componentsMap: {} = {}
+  static componentPool: {} = {}
+  static numComponents: {} = {}
+  static entitiesWithComponentsToRemove: any[] = []
+  static entitiesToRemove: any[] = []
 
-  static executeSystems: any[]
+  static executeSystems: any[] = []
   static lastExecutedSystem: any
 
   static initialize(options?: WorldOptions) {
@@ -74,7 +75,7 @@ export function execute(delta?: number, time?: number): void {
   }
 
   if (World.enabled) {
-    World.executeSystems.forEach(system => system.enabled && this.executeSystem(system, delta, time))
+    World.executeSystems.forEach(system => system.enabled && executeSystem(system, delta, time))
     processDeferredEntityRemoval()
   }
 }
@@ -86,13 +87,13 @@ export function stop(): void {
 
 export function stats(): { entities: any; system: any } {
   const queryStats = {}
-  for (const queryName in System.queries) {
-    queryStats[queryName] = System.queries[queryName].stats()
+  for (const queryName in World.queries) {
+    queryStats[queryName] = World.queries[queryName].stats()
   }
 
   const entityStatus = {
     numEntities: World.entities.length,
-    numQueries: Object.keys(System.systemQueries).length,
+    numQueries: Object.keys(System.queries).length,
     queries: queryStats,
     numComponentPool: Object.keys(World.componentPool).length,
     componentPool: {},
@@ -101,19 +102,19 @@ export function stats(): { entities: any; system: any } {
 
   for (const componentId in World.componentPool) {
     const pool = World.componentPool[componentId]
-    entityStatus.componentPool[pool.T.name] = {
+    entityStatus.componentPool[pool.type.name] = {
       used: pool.totalUsed(),
       size: pool.count
     }
   }
 
   const systemStatus = {
-    numSystems: this.systems.length,
+    numSystems: World.systems.length,
     systems: {}
   }
 
-  for (let i = 0; i < this.systems.length; i++) {
-    const system = this.systems[i]
+  for (let i = 0; i < World.systems.length; i++) {
+    const system = World.systems[i]
     const systemStats = (systemStatus.systems[system.name] = {
       queries: {},
       executeTime: system.executeTime

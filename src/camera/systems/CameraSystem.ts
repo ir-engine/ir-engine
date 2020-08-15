@@ -16,7 +16,7 @@ export class CameraSystem extends System {
     getMutableComponent(cameraEntity, CameraComponent)
   }
   execute(delta: number): void {
-    this.queryResults.entities.results?.forEach(entity => {
+    this.queryResults.entities.all?.forEach(entity => {
       const cam = getComponent(entity, CameraComponent) as CameraComponent
       if (cam.followTarget !== null && cam.followTarget !== undefined) {
         followTarget(entity, { distance: 100 }, delta, cam.followTarget)
@@ -29,7 +29,7 @@ export class CameraSystem extends System {
   }
 }
 
-CameraSystem.systemQueries = {
+CameraSystem.queries = {
   entities: {
     components: [CameraComponent],
     listen: {

@@ -6,6 +6,7 @@ import { COMPONENT_ADDED, COMPONENT_REMOVE } from "../types/EventTypes"
 import { onEntityComponentAdded } from "./EntityFunctions"
 import { getName } from "./Utils"
 import { SystemStateComponent } from "../classes/SystemStateComponent"
+import { System } from "../classes/System"
 
 const proxyMap = new WeakMap()
 
@@ -94,9 +95,8 @@ export function getPoolForComponent(component: Component<any>): void {
   World.componentPool[component._typeId]
 }
 
-export function addComponentToEntity(entity, Component, values) {
-  // @todo Probably define Component._typeId with a default value and avoid using typeof
-  if (typeof Component._typeId === "undefined" && !World.componentsMap[Component._typeId]) {
+export function addComponentToEntity(entity: Entity, Component: ComponentConstructor<Component<any>>, values) {
+  if (typeof Component._typeId === "undefined" && !World.componentsMap[(Component as any)._typeId]) {
     throw new Error(`Attempted to add unregistered component "${Component.name}"`)
   }
 
@@ -109,24 +109,24 @@ export function addComponentToEntity(entity, Component, values) {
 
   entity.componentTypes.push(Component)
 
-  if (Component.__proto__ === SystemStateComponent) {
+  if ((Component as any).isSystemStateComponent !== undefined) {
     entity.numStateComponents++
   }
 
   const componentPool = new ObjectPool(Component)
 
-  const component = componentPool ? componentPool.acquire() : new Component(values)
+  const component = (componentPool ? componentPool.acquire() : new Component(values)) as Component<any>
 
   if (componentPool && values) {
     component.copy(values)
   }
 
-  entity._components[Component._typeId] = component
+  entity.components[Component._typeId] = component
 
   onEntityComponentAdded(entity, Component)
-  componentAddedToEntity(Component)
+  componentAddedToEntity(Component as any)
 
-  World.eventDispatcher.dispatchEvent(COMPONENT_ADDED, entity, Component)
+  World.eventDispatcher.dispatchEvent(COMPONENT_ADDED, entity, Component as any)
 }
 
 /**
@@ -155,15 +155,15 @@ export function removeComponentFromEntity(entity: Entity, component: any, immedi
 }
 
 export function onEntityComponentRemoved(entity, component) {
-  for (const queryName in this.queries) {
-    const query = this.queries[queryName]
+  for (const queryName in World.queries) {
+    const query = World.queries[queryName]
 
-    if (!!~query.NotComponents.indexOf(component) && !~query.entities.indexOf(entity) && query.match(entity)) {
+    if (!!~query.notComponents.indexOf(component) && !~query.entities.indexOf(entity) && query.match(entity)) {
       query.addEntity(entity)
       continue
     }
 
-    if (!!~query.Components.indexOf(component) && !!~query.entities.indexOf(entity) && !query.match(entity)) {
+    if (!!~query.components.indexOf(component) && !!~query.entities.indexOf(entity) && !query.match(entity)) {
       query.removeEntity(entity)
       continue
     }

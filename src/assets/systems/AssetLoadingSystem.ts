@@ -27,12 +27,12 @@ export default class AssetLoadingSystem extends System {
   }
 
   execute() {
-    this.queryResults.assetVault.results.forEach(entity => {
+    this.queryResults.assetVault.all.forEach(entity => {
       // Do things here
     })
-    while (this.queryResults.toLoad.results.length) {
+    while (this.queryResults.toLoad.all.length) {
       // Create a new entity
-      const entity = this.queryResults.toLoad.results[0]
+      const entity = this.queryResults.toLoad.all[0]
       // Asset the AssetLoaderState so it falls out of this query
       addComponent(entity, AssetLoaderState)
       const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader)
@@ -79,7 +79,7 @@ export default class AssetLoadingSystem extends System {
     }
     this.loaded.clear()
 
-    const toUnload = this.queryResults.toUnload.results
+    const toUnload = this.queryResults.toUnload.all
     while (toUnload.length) {
       const entity = toUnload[0]
       removeComponent(entity, AssetLoaderState)
@@ -99,7 +99,7 @@ export function hashResourceString(str) {
   return `${hash}${str.substr(Math.max(str.length - 7, 0))}`
 }
 
-AssetLoadingSystem.systemQueries = {
+AssetLoadingSystem.queries = {
   assetVault: {
     components: [AssetVault]
   },

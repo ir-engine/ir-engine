@@ -45,16 +45,16 @@ export class InputSystem extends System {
 
   public execute(delta: number): void {
     // Handle XR input
-    if (this.queryResults.xrRenderer.results.length > 0) {
-      const webXRRenderer = getMutableComponent(this.queryResults.xrRenderer.results[0], WebXRRenderer)
+    if (this.queryResults.xrRenderer.all.length > 0) {
+      const webXRRenderer = getMutableComponent(this.queryResults.xrRenderer.all[0], WebXRRenderer)
 
       this.queryResults.xrSession.added.forEach(entity => initializeSession(entity, { webXRRenderer }))
 
-      this.queryResults.xrSession.results.forEach(entity => processSession(entity))
+      this.queryResults.xrSession.all.forEach(entity => processSession(entity))
     }
 
     // Called every frame on all input components
-    this.queryResults.inputs.results.forEach(entity => handleInput(entity, { delta }))
+    this.queryResults.inputs.all.forEach(entity => handleInput(entity, { delta }))
 
     // Called when input component is added to entity
     this.queryResults.inputs.added.forEach(entity => {
@@ -111,7 +111,7 @@ export class InputSystem extends System {
   }
 }
 
-InputSystem.systemQueries = {
+InputSystem.queries = {
   inputs: {
     components: [Input],
     listen: {

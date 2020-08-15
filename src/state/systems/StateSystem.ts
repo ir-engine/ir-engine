@@ -46,7 +46,7 @@ export class StateSystem extends System {
       })
     })
 
-    this.queryResults.state.results?.forEach(entity => {
+    this.queryResults.state.all?.forEach(entity => {
       this.callBehaviors(entity, { phase: "onUpdate" }, delta)
       this.callBehaviors(entity, { phase: "onLateUpdate" }, delta)
     })
@@ -75,7 +75,7 @@ export class StateSystem extends System {
   }
 }
 
-StateSystem.systemQueries = {
+StateSystem.queries = {
   state: {
     components: [State],
     listen: {

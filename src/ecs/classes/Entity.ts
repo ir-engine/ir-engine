@@ -25,8 +25,8 @@ export class Entity {
   }
 
   copy(src): Entity {
-    for (const ecsyComponentId in src._components) {
-      const srcComponent = src._components[ecsyComponentId]
+    for (const componentId in src.components) {
+      const srcComponent = src.components[componentId]
       addComponent(this, srcComponent.constructor)
       const component = getComponent(this, srcComponent.constructor)
       component.copy(srcComponent)
@@ -44,8 +44,8 @@ export class Entity {
     this.componentTypes.length = 0
     this.queries.length = 0
 
-    for (const ecsyComponentId in this.components) {
-      delete this.components[ecsyComponentId]
+    for (const componentId in this.components) {
+      delete this.components[componentId]
     }
   }
 
@@ -53,5 +53,3 @@ export class Entity {
     return removeEntity(this, forceImmediate)
   }
 }
-
-

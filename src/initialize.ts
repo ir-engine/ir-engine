@@ -3,16 +3,17 @@ import { CameraSystem } from "./camera"
 import { isBrowser, SceneManager, Timer } from "./common"
 import { addObject3DComponent } from "./common/defaults/behaviors/Object3DBehaviors"
 import { registerSystem } from "./ecs/functions/SystemFunctions"
-import { createEntity} from "./ecs/functions/EntityFunctions"
+import { createEntity } from "./ecs/functions/EntityFunctions"
 import { execute, initializeWorld, World } from "./ecs/classes/World"
 import { DefaultInputSchema, InputSystem } from "./input"
 import { DefaultNetworkSchema, MediaStreamSystem, NetworkSystem } from "./networking"
 import { KeyframeSystem, ParticleSystem } from "./particles"
 // import { PhysicsSystem, WheelSystem } from "../sandbox/physics"
-import { WebGLRendererSystem } from "./renderer"
+import { WebGLRendererSystem, RendererComponent } from "./renderer"
 import { DefaultStateSchema, StateSystem } from "./state"
 import { DefaultSubscriptionSchema, SubscriptionSystem } from "./subscription"
-import { TransformSystem } from "./transform"
+import { TransformSystem, TransformComponent, TransformParentComponent } from "./transform"
+import { registerComponent } from "./ecs"
 
 export const DefaultInitializationOptions = {
   debug: true,
@@ -62,6 +63,14 @@ export function initialize(options: any = DefaultInitializationOptions) {
   World.sceneManager = new SceneManager()
   // Add the three.js scene to our manager -- it is now available anywhere
   World.sceneManager.scene = scene
+
+  //Transform
+  if (options.transform && options.transform.enabled) {
+    registerComponent(TransformComponent)
+    registerComponent(TransformParentComponent)
+    registerSystem(TransformSystem, { priority: 900 })
+  }
+
   // If we're a browser (we don't need to create or render on the server)
   if (isBrowser) {
     // Create a new three.js camera
@@ -73,15 +82,6 @@ export function initialize(options: any = DefaultInitializationOptions) {
 
     // Camera system and component setup
     if (options.camera && options.camera.enabled) registerSystem(CameraSystem)
-  }
-
-  if (options.debug === true) {
-    // If we're in debug, add a gridhelper
-    const gridHelper = new GridHelper(1000, 100, 0xffffff, 0xeeeeee)
-    scene.add(gridHelper)
-
-    // Add an ambient light to the scene
-    addObject3DComponent(createEntity(), { obj: AmbientLight })
   }
 
   // Input
@@ -121,27 +121,31 @@ export function initialize(options: any = DefaultInitializationOptions) {
     registerSystem(KeyframeSystem)
   }
 
-  //Transform
-  if (options.transform && options.transform.enabled) {
-    registerSystem(TransformSystem)
-  }
-
   // Rendering
   if (options.renderer && options.renderer.enabled) {
     registerSystem(WebGLRendererSystem, { priority: 999 })
   }
 
   // Start our timer!
-  if (isBrowser) startTimerForClient()
+  if (isBrowser) setTimeout(startTimerForClient, 1000) // TODO: Remove
   // If we're not using the renderer, create a timer that calls a fixed update timestep
   else startTimerForServer()
+
+  if (options.debug === true) {
+    // If we're in debug, add a gridhelper
+    const gridHelper = new GridHelper(1000, 100, 0xffffff, 0xeeeeee)
+    scene.add(gridHelper)
+
+    // Add an ambient light to the scene
+    addObject3DComponent(createEntity(), { obj: AmbientLight })
+  }
 }
 
 export function startTimerForClient() {
   // Create a new Three.js clock
   const clock = new Clock()
   // Kick off the loop
-  World.renderer.setAnimationLoop(() => {
+  RendererComponent.instance.renderer.setAnimationLoop(() => {
     execute(clock.getDelta(), clock.elapsedTime)
   })
 }

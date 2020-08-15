@@ -1,10 +1,11 @@
 export class ObjectPool<T> {
   freeList: any[]
   count: number
-  T: T
   isObjectPool: boolean
+  type: { new (...args: any[]): T }
   // @todo Add initial size
-  constructor(baseObject: { new (...args: any[]): T }, initialSize?: number) {
+  constructor(baseObject: any, initialSize?: number) {
+    this.type = baseObject
     this.freeList = []
     this.count = 0
     this.isObjectPool = true
@@ -32,8 +33,8 @@ export class ObjectPool<T> {
 
   expand(count: number): void {
     for (let n = 0; n < count; n++) {
-      const clone = new (this.T as any)()
-      clone._pool = this
+      const clone = new this.type()
+      ;(clone as any)._pool = this
       this.freeList.push(clone)
     }
     this.count += count

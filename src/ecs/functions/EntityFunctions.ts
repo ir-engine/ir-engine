@@ -124,8 +124,8 @@ export function getEntityByName(name) {
 }
 
 export function onEntityRemoved(entity) {
-  for (const queryName in this.queries) {
-    const query = this.queries[queryName]
+  for (const queryName in World.queries) {
+    const query = World.queries[queryName]
     if (entity.queries.indexOf(query) !== -1) {
       query.removeEntity(entity)
     }
@@ -134,10 +134,10 @@ export function onEntityRemoved(entity) {
 
 export function onEntityComponentAdded(entity, Component) {
   // Check each indexed query to see if we need to add this entity to the list
-  for (const queryName in this.queries) {
-    const query = this.queries[queryName]
+  for (const queryName in World.queries) {
+    const query = World.queries[queryName]
 
-    if (!!~query.NotComponents.indexOf(Component) && ~query.entities.indexOf(entity)) {
+    if (!!~query.notComponents.indexOf(Component) && ~query.entities.indexOf(entity)) {
       query.removeEntity(entity)
       continue
     }
@@ -146,7 +146,7 @@ export function onEntityComponentAdded(entity, Component) {
     // Component is in the query
     // and Entity has ALL the components of the query
     // and Entity is not already in the query
-    if (!~query.Components.indexOf(Component) || !query.match(entity) || ~query.entities.indexOf(entity)) continue
+    if (!~query.components.indexOf(Component) || !query.match(entity) || ~query.entities.indexOf(entity)) continue
 
     query.addEntity(entity)
   }
@@ -205,9 +205,9 @@ export function releaseEntity(entity: Entity, index: number): void {
 }
 
 export function processDeferredEntityRemoval() {
-  if (!World.deferredRemovalEnabled) {
+  // if (!World.deferredRemovalEnabled) {
     return
-  }
+  // }
   let entitiesToRemove
   let entitiesWithComponentsToRemove
   for (let i = 0; i < entitiesToRemove.length; i++) {

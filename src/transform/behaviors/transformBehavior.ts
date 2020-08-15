@@ -1,5 +1,5 @@
 import { vec3 } from "gl-matrix"
-import { Quaternion } from "three/src/math/Quaternion"
+import { Quaternion } from "three"
 import { Object3DComponent } from "../../common/components/Object3DComponent"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { Entity } from "../../ecs/classes/Entity"

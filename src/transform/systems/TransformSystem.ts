@@ -10,8 +10,6 @@ export class TransformSystem extends System {
   transformBehavior: Behavior
   childTransformBehavior: Behavior
   init(attributes: Attributes) {
-    registerComponent(TransformComponent)
-    registerComponent(TransformParentComponent)
     if (attributes && attributes.transformBehavior) {
       this.transformBehavior = attributes.transformBehavior
     } else {
@@ -31,13 +29,13 @@ export class TransformSystem extends System {
     //   // Transform children by parent
     // })
 
-    this.queryResults.transforms.results?.forEach(t => {
+    this.queryResults.transforms.all?.forEach(t => {
       this.transformBehavior(t, {}, delta)
     })
   }
 }
 
-TransformSystem.systemQueries = {
+TransformSystem.queries = {
   parent: {
     components: [TransformParentComponent, TransformComponent],
     listen: {

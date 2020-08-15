@@ -4,7 +4,7 @@
  * @private
  */
 export function getName(Component) {
-  return Component.name
+  return Component.getName()
 }
 
 /**
