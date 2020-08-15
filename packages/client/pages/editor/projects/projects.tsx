@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
 import configs from "../../configs";
 import { withApi } from "../contexts/ApiContext";
 import NavBar from "../navigation/NavBar";
@@ -12,14 +11,12 @@ import {
   ErrorMessage
 } from "./ProjectGrid";
 import { Button } from "../inputs/Button";
-
 import { MediumButton } from "../inputs/Button";
 import { Link } from "react-router-dom";
 import LatestUpdate from "../whats-new/LatestUpdate";
 import { connectMenu, ContextMenu, MenuItem } from "../layout/ContextMenu";
 import templates from "./templates";
 import styled from "styled-components";
-
 export const ProjectsSection = styled.section`
   padding-bottom: 100px;
   display: flex;
@@ -37,7 +34,6 @@ export const ProjectsSection = styled.section`
     font-size: 16px;
   }
 `;
-
 export const ProjectsContainer = styled.div`
   display: flex;
   flex: 1;
@@ -46,7 +42,6 @@ export const ProjectsContainer = styled.div`
   max-width: 1200px;
   padding: 0 20px;
 `;
-
 const WelcomeContainer = styled(ProjectsContainer)`
   align-items: center;
 
@@ -62,27 +57,30 @@ const WelcomeContainer = styled(ProjectsContainer)`
     max-width: 480px;
   }
 `;
-
 export const ProjectsHeader = styled.div`
   margin-bottom: 36px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 `;
-
 const contextMenuId = "project-menu";
-
-class ProjectsPage extends Component {
-  static propTypes = {
-    api: PropTypes.object.isRequired,
-    history: PropTypes.object.isRequired
+type ProjectsPageProps = {
+  api: object,
+  history: object
+};
+type ProjectsPageState = { projects: any, loading: boolean } & {
+  error: any,
+  loading: boolean
+} & ((error: any) => any) & {
+    projects: undefined[],
+    loading: any,
+    isAuthenticated: any,
+    error: null
   };
-
+class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
   constructor(props) {
     super(props);
-
     const isAuthenticated = this.props.api.isAuthenticated();
-
     this.state = {
       projects: [],
       loading: isAuthenticated,
@@ -90,7 +88,6 @@ class ProjectsPage extends Component {
       error: null
     };
   }
-
   componentDidMount() {
     // We dont need to load projects if the user isn't logged in
     if (this.state.isAuthenticated) {
@@ -107,45 +104,43 @@ class ProjectsPage extends Component {
         })
         .catch(error => {
           console.error(error);
-
           if (error.response && error.response.status === 401) {
             // User has an invalid auth token. Prompt them to login again.
             return this.props.history.push("/", { from: "/projects" });
           }
-
           this.setState({ error, loading: false });
         });
     }
   }
-
   onDeleteProject = project => {
     this.props.api
       .deleteProject(project.project_id)
-      .then(() => this.setState({ projects: this.state.projects.filter(p => p.project_id !== project.project_id) }))
+      .then(() =>
+        this.setState({
+          projects: this.state.projects.filter(
+            p => p.project_id !== project.project_id
+          )
+        })
+      )
       .catch(error => this.setState({ error }));
   };
-
   renderContextMenu = props => {
     return (
       <ContextMenu id={contextMenuId}>
-        <MenuItem onClick={e => this.onDeleteProject(props.trigger.project, e)}>Delete Project</MenuItem>
+        <MenuItem onClick={e => this.onDeleteProject(props.trigger.project, e)}>
+          Delete Project
+        </MenuItem>
       </ContextMenu>
     );
   };
-
   ProjectContextMenu = connectMenu(contextMenuId)(this.renderContextMenu);
-
   render() {
     const { error, loading, projects, isAuthenticated } = this.state;
-
     const ProjectContextMenu = this.ProjectContextMenu;
-
     const topTemplates = [];
-
     for (let i = 0; i < templates.length && i < 4; i++) {
       topTemplates.push(templates[i]);
     }
-
     return (
       <>
         <NavBar />
@@ -155,8 +150,9 @@ class ProjectsPage extends Component {
               <WelcomeContainer>
                 <h1>Welcome{configs.isXR3() ? " to Spoke" : ""}</h1>
                 <h2>
-                  If you&#39;re new here we recommend going through the tutorial. Otherwise, jump right in and create a
-                  project from scratch or from one of our templates.
+                  If you&#39;re new here we recommend going through the
+                  tutorial. Otherwise, jump right in and create a project from
+                  scratch or from one of our templates.
                 </h2>
                 <MediumButton as={Link} to="/projects/tutorial">
                   Start Tutorial
@@ -173,7 +169,7 @@ class ProjectsPage extends Component {
               </ProjectsHeader>
               <ProjectGridContainer>
                 <ProjectGridHeader>
-                  <ProjectGridHeaderRow></ProjectGridHeaderRow>
+                  <ProjectGridHeaderRow />
                   <ProjectGridHeaderRow>
                     <Button as={Link} to="/projects/create">
                       New Project
@@ -196,10 +192,8 @@ class ProjectsPage extends Component {
           </ProjectsSection>
           <ProjectContextMenu />
         </main>
-        
       </>
     );
   }
 }
-
 export default withApi(ProjectsPage);

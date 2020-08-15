@@ -24,6 +24,6 @@
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx", "pages/editor/projects/templates.js", "pages/editor/projects/projects.js", "pages/editor/projects/packager.js", "pages/editor/projects/index.js", "pages/editor/projects/create.js", "pages/editor/projects/[projectId].js"
+    "**/*.tsx", "pages/editor/projects/[projectId].js", "pages/editor/projects/templates.js", "pages/editor/projects/projects.js", "pages/editor/projects/packager.js", "pages/editor/projects/index.js", "pages/editor/projects/create.js", "pages/editor/projects/[projectId].js"
   ]
 }

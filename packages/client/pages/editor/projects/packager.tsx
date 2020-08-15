@@ -4,7 +4,6 @@ import NavBar from "../navigation/NavBar";
 import FileInput from "../inputs/FileInput";
 import ProgressBar from "../inputs/ProgressBar";
 import KitPackager from "../../editor/kits/KitPackager";
-
 const Container = styled.div`
   display: flex;
   margin: auto;
@@ -26,22 +25,17 @@ const Container = styled.div`
     margin-bottom: 12px;
   }
 `;
-
 export default function PackageKitPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [message, setMessage] = useState(null);
-
   const onUpload = useCallback(async files => {
     setIsGenerating(true);
-
     const kitPackager = new KitPackager();
-
     try {
       const file = files[0];
       const fileUrl = URL.createObjectURL(file);
       const kitName = file.name.replace(".glb", "");
       const zipBlob = await kitPackager.package(kitName, fileUrl, setMessage);
-
       const el = document.createElement("a");
       const fileName = kitName + ".zip";
       el.download = fileName;
@@ -49,7 +43,6 @@ export default function PackageKitPage() {
       document.body.appendChild(el);
       el.click();
       document.body.removeChild(el);
-
       setMessage(`Downloading ${fileName}`);
     } catch (error) {
       console.error(error);
@@ -58,7 +51,6 @@ export default function PackageKitPage() {
       setIsGenerating(false);
     }
   }, []);
-
   return (
     <>
       <NavBar />
@@ -69,7 +61,11 @@ export default function PackageKitPage() {
           {isGenerating ? (
             <ProgressBar />
           ) : (
-            <FileInput label="Upload Kit (.glb)" accept=".glb,model/gltf-binary" onChange={onUpload} />
+            <FileInput
+              label="Upload Kit (.glb)"
+              accept=".glb,model/gltf-binary"
+              onChange={onUpload}
+            />
           )}
         </Container>
       </main>
