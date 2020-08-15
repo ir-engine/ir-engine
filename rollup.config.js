@@ -15,8 +15,7 @@ export default [
       return (
         ["three", "socket.io", "socket.io-client", "mediasoup", "mediasoup-client"].includes(id) ||
         /^three\//.test(id) ||
-        /^troika-3d-text\//.test(id) ||
-        /^ecsy-three\//.test(id)
+        /^troika-3d-text\//.test(id)
       )
     },
     plugins: [
@@ -26,7 +25,6 @@ export default [
         include: ["node_modules/**/*"], // Default: undefined
         transformMixedEsModules: true
       }),
-      ignore(["socket.io", "mediasoup"]),
       injectProcessEnv({
         NODE_ENV: "production"
       }),
@@ -82,6 +80,6 @@ export default [
         process: false
       })
     ],
-    external: ["mediasoup", "mediasoup-client", "buffer-es6", "debug", "socket.io", "safer", "depd"]
+    external: ["mediasoup", "utf-8-validate", "mediasoup-client", "buffer-es6", "debug", "socket.io", "safer", "depd"]
   }
 ]

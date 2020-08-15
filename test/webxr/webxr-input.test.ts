@@ -2,13 +2,13 @@ import "./webxr-input.mock"
 //jest.mock("./webxr-input.mock")
 
 import { InputSystem } from "../../src/input/systems/InputSystem"
-import { World } from "ecsy"
+import { initializeWorld, registerSystem } from "../../src/ecs"
 
-const world = new World()
-world.registerSystem(InputSystem)
+initializeWorld()
+registerSystem(InputSystem)
 // new InputSystem()
 
-test('check navigator', () => {
-    expect( 'xr' in navigator ).toBeTruthy()
-    expect( 'requestSession' in (navigator as any).xr ).toBeTruthy()
+test("check navigator", () => {
+  expect("xr" in navigator).toBeTruthy()
+  expect("requestSession" in (navigator as any).xr).toBeTruthy()
 })

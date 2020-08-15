@@ -2,6 +2,7 @@
 import { BoxBufferGeometry, Mesh } from "three"
 import { attachCamera } from "../../camera/behaviors/attachCamera"
 import { addObject3DComponent, removeObject3DComponent } from "../../common/defaults/behaviors/Object3DBehaviors"
+import { addMeshCollider } from "../../physics/behaviors/addMeshCollider"
 import { Actor } from "../../common/defaults/components/Actor"
 import { DefaultInputSchema } from "../../input"
 import { Input } from "../../input/components/Input"
@@ -21,6 +22,7 @@ import { SocketWebRTCServerTransport } from "../transports/SocketWebRTC/SocketWe
 import { isBrowser } from "../../common/functions/isBrowser"
 
 const box = new BoxBufferGeometry(0.25, 0.25, 0.25)
+const miniGeo = new BoxBufferGeometry(2, 1, 4)
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 const NetworkPlayerCharacter: NetworkPrefab = {
@@ -42,11 +44,17 @@ const NetworkPlayerCharacter: NetworkPrefab = {
       networked: true,
       args: {
         obj: Mesh,
-        objArgs: box
+        objArgs: miniGeo
       }
     },
+    /*
     {
       behavior: attachCamera
+    },
+    */
+    {
+      behavior: addMeshCollider,
+      networked: true
     }
   ],
   onDestroy: [

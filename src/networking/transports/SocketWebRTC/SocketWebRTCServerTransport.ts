@@ -122,9 +122,15 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       this.socketIO.sockets.emit(MessageTypes.UnreliableMessage.toString(), message)
     }
   }
-  
+
   // WIP
-  async sendUnreliableMessage({params: { id, appData, label, protocol, sctpStreamParameters }, transport}: { params: mediasoup.types.DataProducerOptions, transport: mediasoup.types.Transport }): Promise<mediasoup.types.DataProducer> {
+  async sendUnreliableMessage({
+    params: { id, appData, label, protocol, sctpStreamParameters },
+    transport
+  }: {
+    params: mediasoup.types.DataProducerOptions
+    transport: mediasoup.types.Transport
+  }): Promise<mediasoup.types.DataProducer> {
     return transport.produceData({ id, appData, label, protocol, sctpStreamParameters })
   }
 
@@ -182,7 +188,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
       // Handle the disconnection
       socket.on(MessageTypes.Disconnect.toString(), () => {
-        console.log("User " + socket.id + " diconnected, there are " + this.socketIO.clients.length + " clients connected")
+        console.log(
+          "User " + socket.id + " diconnected, there are " + this.socketIO.clients.length + " clients connected"
+        )
         //Delete this client from the object
         delete this.roomState.peers[socket.id]
         for (const otherSocket of this.roomState.peers as Client[]) {
@@ -274,40 +282,39 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           transportOptions: clientTransportOptions
         })
       })
-      socket.on(MessageTypes.WebRTCProduceData, async (params, callback: (arg0: { id?: string, error?: any }) => void) => {
-        try {
-          const transport = this.roomState.transports[params.transportId] as mediasoup.types.Transport
-          const {
-            transportId,
-            sctpStreamParameters,
-            label,
-            protocol,
-            appData
-          } = params
-          const dataProducer = await transport.produceData({
-            id: transportId,
-            label,
-            protocol,
-            sctpStreamParameters,
-            appData: { ...appData, peerID: socket.id, transportId }
-          })
+      socket.on(
+        MessageTypes.WebRTCProduceData,
+        async (params, callback: (arg0: { id?: string; error?: any }) => void) => {
+          try {
+            const transport = this.roomState.transports[params.transportId] as mediasoup.types.Transport
+            const { transportId, sctpStreamParameters, label, protocol, appData } = params
+            const dataProducer = await transport.produceData({
+              id: transportId,
+              label,
+              protocol,
+              sctpStreamParameters,
+              appData: { ...appData, peerID: socket.id, transportId }
+            })
 
-          // TODO: Do stuff with appData
-          this.roomState.dataProducers.push(dataProducer)
-          // TODO: Test closing stuff
+            // TODO: Do stuff with appData
+            this.roomState.dataProducers.push(dataProducer)
+            // TODO: Test closing stuff
 
-          // if our associated transport closes, close ourself, too
-          dataProducer.on("transportclose", () => {
-            console.log("producer's transport closed", dataProducer.id)
-            dataProducer.close()
-            this.roomState.dataProducers = this.roomState.dataProducers.filter(producer => producer.id !== dataProducer.id)
-          })
+            // if our associated transport closes, close ourself, too
+            dataProducer.on("transportclose", () => {
+              console.log("producer's transport closed", dataProducer.id)
+              dataProducer.close()
+              this.roomState.dataProducers = this.roomState.dataProducers.filter(
+                producer => producer.id !== dataProducer.id
+              )
+            })
 
-          callback({ id: dataProducer.id })
-        } catch (e) {
-          callback({ error: e })
+            callback({ id: dataProducer.id })
+          } catch (e) {
+            callback({ error: e })
+          }
         }
-      })
+      )
 
       // --> /signaling/connect-transport
       // called from inside a client's `transport.on('connect')` event
@@ -375,7 +382,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       socket.on(MessageTypes.WebRTCReceiveTrack.toString(), async (data, callback) => {
         const { mediaPeerId, mediaTag, rtpCapabilities } = data
         const peerId = socket.id
-        const producer = this.roomState.producers.find(p => p.appData.mediaTag === mediaTag && p.appData.peerId === mediaPeerId)
+        const producer = this.roomState.producers.find(
+          p => p.appData.mediaTag === mediaTag && p.appData.peerId === mediaPeerId
+        )
         if (!this.router.canConsume({ producerId: producer.id, rtpCapabilities })) {
           const msg = `client cannot consume ${mediaPeerId}:${mediaTag}`
           console.error(`recv-track: ${peerId} ${msg}`)
@@ -546,7 +555,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     this.roomState.producers = this.roomState.producers.filter(p => p.id !== producer.id)
 
     // remove this track's info from our roomState...mediaTag bookkeeping
-    if (this.roomState.peers[producer.appData.peerId]) this.roomState.peers[producer.appData.peerId].media[producer.appData.mediaTag]
+    if (this.roomState.peers[producer.appData.peerId])
+      this.roomState.peers[producer.appData.peerId].media[producer.appData.mediaTag]
   }
 
   async closeProducerAndAllPipeProducers(producer, peerId): Promise<void> {
@@ -565,7 +575,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     this.roomState.producers = this.roomState.producers.filter(p => p.id !== producer.id)
 
     // remove this track's info from our roomState...mediaTag bookkeeping
-    if (this.roomState.peers[producer.appData.peerId]) delete this.roomState.peers[producer.appData.peerId].media[producer.appData.mediaTag]
+    if (this.roomState.peers[producer.appData.peerId])
+      delete this.roomState.peers[producer.appData.peerId].media[producer.appData.mediaTag]
   }
 
   async closeConsumer(consumer): Promise<void> {
@@ -576,7 +587,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     this.roomState.consumers = this.roomState.consumers.filter(c => c.id !== consumer.id)
 
     // remove layer info from from our roomState...consumerLayers bookkeeping
-    if (this.roomState.peers[consumer.appData.peerId]) delete this.roomState.peers[consumer.appData.peerId].consumerLayers[consumer.id]
+    if (this.roomState.peers[consumer.appData.peerId])
+      delete this.roomState.peers[consumer.appData.peerId].consumerLayers[consumer.id]
   }
 
   async createWebRtcTransport({ peerId, direction }): Promise<mediasoup.types.WebRtcTransport> {

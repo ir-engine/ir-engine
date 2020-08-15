@@ -74135,7 +74135,7 @@ class PhysicsWorld extends Component {
         this.physicsWorld = new World$1();
         this.timeStep = 1 / 60;
         this.physicsWorld.gravity.set(0, -10, 0);
-        //  this._physicsWorld.broadphase = new NaiveBroadphase();
+        //  this.physicsWorld.broadphase = new NaiveBroadphase();
         this.physicsWorld.broadphase = new SAPBroadphase(this.physicsWorld);
         // We must add the contact materials to the world
         this.physicsWorld.addContactMaterial(PhysicsWorld.instance.wheelGroundContactMaterial);
