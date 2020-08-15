@@ -5,11 +5,11 @@
     "url": "http://github.com/xr3ngine"
   },
   "bugs": {
-    "url": "https://github.com/xr3ngine/armada/issues"
+    "url": "https://github.com/xr3ngine/xr3ngine/issues"
   },
   "bundleDependencies": false,
   "deprecated": false,
-  "name": "@xr3ngine/armada",
+  "name": "@xr3ngine/engine",
   "private": true,
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
   "devDependencies": {
@@ -64,27 +64,23 @@
     "troika-3d-text": "^0.28.1",
     "typescript": "^3.9.7"
   },
-  "homepage": "https://github.com/xr3ngine/armada#readme",
+  "homepage": "https://github.com/xr3ngine/xr3ngine#readme",
   "license": "MIT",
-  "main": "dist/armada.js",
-  "module": "dist/armada.js",
-  "types": "dist/armada.d.ts",
+  "main": "dist/engine.js",
+  "module": "dist/engine.js",
+  "types": "dist/engine.d.ts",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xr3ngine/armada.git"
+    "url": "git+https://github.com/xr3ngine/xr3ngine.git"
   },
   "scripts": {
+    "start": "yarn run build",
     "build": "rollup -c",
-    "preversion": "npm run lint",
-    "version": "npm run build && git add -A",
-    "postversion": "git push && git push --tags && sudo npm publish",
-    "dev": "cp -r examples/static dist/static && concurrently \"rollup -cw\" \"http-server --ssl --cert certs/armada.crt --key certs/armada.key ./examples\"",
-    "dev-server": "node examples/server.js",
-    "dev-server-watch": "nodemon examples/server.js --watch server/** --watch src/networking --ext .js,.ts",
+    "dev": "rollup -cw",
     "lint": "eslint --fix \"./src/**/*\"",
-    "start": "npm run build",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "validate": "yarn run lint && yarn run test"
   },
   "pre-commit": [
     "lint",
