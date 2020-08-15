@@ -29,7 +29,7 @@
 
       class RotatingSystem extends ECSY.System {
         execute(dt) {
-          for (let entity of this.queries.rotating.results) {
+          for (let entity of this.queryResults.rotating.results) {
             const rotating = getComponent(entity, Rotating)
             /** @type {ECSYTHREEX.Transform} */
             const transform = getMutableComponent(entity, ECSYTHREEX.Transform)
@@ -55,7 +55,7 @@
 
       class TranslatingSystem extends ECSY.System {
         execute(dt, t) {
-          for (let entity of this.queries.translating.results) {
+          for (let entity of this.queryResults.translating.results) {
             const translating = getComponent(entity, Translating)
             /** @type {ECSYTHREEX.Transform} */
             const transform = getMutableComponent(entity, ECSYTHREEX.Transform)
@@ -80,7 +80,7 @@
 
       class CircularTranslatingSystem extends ECSY.System {
         execute(dt, t) {
-          for (let entity of this.queries.translating.results) {
+          for (let entity of this.queryResults.translating.results) {
             const translating = getComponent(entity, CircularTranslating)
             /** @type {ECSYTHREEX.Transform} */
             const transform = getMutableComponent(entity, ECSYTHREEX.Transform)

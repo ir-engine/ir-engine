@@ -1,5 +1,7 @@
-import { _Entity, ComponentConstructor } from "ecsy"
 import { TransformComponent } from "../../transform/components/TransformComponent"
+import { Entity } from "../../ecs/classes/Entity"
+import { addComponent, removeComponent } from "../../ecs/functions/EntityFunctions"
+import { ComponentConstructor } from "../../ecs/classes/Component"
 
 /**
  * GameObjects are the fundamental objects in Armada that represent characters,
@@ -8,15 +10,15 @@ import { TransformComponent } from "../../transform/components/TransformComponen
  * A GameObject always has a Transform component attached (to represent position
  * and orientation) and it is not possible to remove this.
  */
-export class GameObject extends _Entity {
+export class GameObject extends Entity {
   constructor() {
     super()
-    this.addComponent(TransformComponent)
+    addComponent(this, TransformComponent)
   }
 
   removeComponent(component: ComponentConstructor<any>, forceImmediate?: boolean): this {
     if (component !== TransformComponent) {
-      super.removeComponent(component, forceImmediate)
+      removeComponent(this, component, forceImmediate)
     }
     return this
   }

@@ -41,7 +41,7 @@ export class PhysicsSystem extends System {
       //   PhysicsWorld.instance.physicsWorld.addBody(body)
       // }
 
-      // for (const entity of this.queries.vehicleBody.added) {
+      // for (const entity of this.queryResults.vehicleBody.added) {
       //   const object = getComponent<Object3DComponent>(entity, Object3DComponent).value
 
       //   const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody

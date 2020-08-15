@@ -24,7 +24,7 @@ export class TransformSystem extends System {
 
   execute(delta, time) {
     // Hierarchy
-    // this.queries.parent.results?.forEach((entity: Entity) => {
+    // this.queryResults.parent.results?.forEach((entity: Entity) => {
     //   this.childTransformBehavior(entity, {}, delta)
     //   // Transform children by parent
     // })
