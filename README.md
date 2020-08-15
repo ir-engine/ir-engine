@@ -20,7 +20,7 @@ Getting up and running is as easy as 1, 2, 3.
 
     ```
     cd path/to/xr3ngine
-    npm install
+    yarn install
     ```
 2. Make sure you have a mysql database installed and running -- our recommendation is Mariadb. We've provided a docker container for easy setup:
 ```
@@ -31,9 +31,11 @@ This creates a docker image of mariadb named xr3ngine_db.
 
 3. Start your app
 
-    ```
-    npm start
-    ```
+```
+yarn run dev-reinit-db
+```
+
+Load **https://localhost:3030**
 
 ### Notes
 
@@ -44,11 +46,13 @@ This creates a docker image of mariadb named xr3ngine_db.
 
 You may refresh the database with:
 
-    FORCE_DB_REFRESH=true npm run start
+```
+yarn run dev-reinit-db
+```
 
 ### troubleshooting
 
-#### AccessDenied connecting to maraidb
+#### AccessDenied connecting to mariadb
 
 Make sure you don't have another instance of mariadb running on port 3306
 
@@ -65,13 +69,12 @@ check which process is using port 3030 and kill
 ## Weird issues with your database?
 Try
 ```
-npm run dev-reinit-db
+yarn run dev-reinit-db
 ```
-
 
 ## Testing
 
-Simply run `npm test` and all your tests in the `test/` directory will be run.
+Simply run `yarn test` and all your tests in the `test/` directory will be run.
 
 ## Linting
 
@@ -172,24 +175,90 @@ https://github.com/douglas-treadwell/sequelize-cli-typescript
 
 ### DB Init
 
+XR3ngine requires either MariaDB or MySQL as the database backend.
+
+#### Mac OS X (Homebrew)
+
+```
 brew install mysql
 
-mysql_secure_installation
 server
 password
- 
-mysql -uroot -ppassword
-mysql -userver -ppassword
+```
 
+#### Linux (Ubuntu)
+
+```
+sudo apt install mysql-server mysql-client
+```
+
+Stop MySQL service
+
+```
+sudo /etc/init.d/mysql stop
+```
+
+Start MySQL without a password, connect to it.
+
+```
+sudo mysqld_safe --skip-grant-tables &
+mysql -uroot
+```
+
+Note: If you get the error `mysqld_safe Directory '/var/run/mysqld' for UNIX socket file don't exists.`, 
+you may need to create the `mysqld` dir, and retry.
+
+```
+sudo mkdir -p /var/run/mysqld
+sudo chown mysql:mysql /var/run/mysqld
+```
+
+Set a new MySQL root password.
+
+```mysql
+create database xr3ngine;
+create user 'server'@'localhost' identified by 'password';
+grant all on xr3ngine.* to 'server'@'localhost';
+exit
+```
+
+Stop and re-start MySQL service.
+
+```
+sudo /etc/init.d/mysql stop
+sudo /etc/init.d/mysql start
+```
+
+#### Database Setup
+
+Connect as `root`, create the `xr3ngine` db (it will be initialized by the server itself).
+
+```mysql
 create database xr3ngine;
 create user 'server'@'localhost' identified by 'password';
 grant all on xr3ngine.* to 'server'@'localhost';
 
 show databases;
+```
+
+Restart db.
 
 mysql.server start
 mysql.server stop
 
+#### Resetting the Database
+
+Some major changes to xr3ngine will require you to drop and re-create the database. (And then run the db-init script).
+
+```
+mysql -userver -ppassword
+```
+
+```mysql
+drop database xr3ngine;
+
+create database xr3ngine;
+```
 
 ### STMP Testing
 
