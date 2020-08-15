@@ -1,0 +1,1 @@
+This is the Mediasoup worker. Leave this here as it is the default library path for Mediasoup
