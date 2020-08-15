@@ -33,9 +33,7 @@
   "engines": {
     "yarn": ">= 0.18.0"
   },
-  "npmClient": {
-    "yarn"
-  },
+  "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
     "start": "yarn run dev",
