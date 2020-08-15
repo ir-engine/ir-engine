@@ -11,6 +11,7 @@ import { WebXRSpace } from "../components/WebXRSpace"
 import { WebXRViewPoint } from "../components/WebXRViewPoint"
 import { getInputSources } from "../functions/WebXRFunctions"
 import { getComponent, hasComponent, getMutableComponent, addComponent } from "../../ecs/functions/EntityFunctions"
+import { ComponentConstructor } from "../../ecs/classes/Component"
 
 let mainControllerId: any
 let secondControllerId: any
@@ -35,15 +36,15 @@ export const processSession: Behavior = (entity: Entity) => {
       } else if (controllers.length == 2) {
         main = controllers[mainControllerId]
         second = controllers[secondControllerId]
-        setComponent(entity, { class: WebXRSecondController, pose: second.gripPose, handId: second.handedness })
+        setComponent(entity, WebXRSecondController, {pose: second.gripPose, handId: second.handedness })
         const { gamepad } = second
-        if (gamepad) setComponent(entity, { class: WebXRSecondGamepad, gamepad })
+        if (gamepad) setComponent(entity, WebXRSecondGamepad, {gamepad})
       } else return
       if (main.targetRayPose)
-        setComponent(entity, { class: WebXRPointer, pose: main.targetRayPose, pointMode: main.targetRayMode })
-      setComponent(entity, { class: WebXRMainController, pose: main.gripPose, handId: main.handedness })
+        setComponent(entity, WebXRPointer, {pose: main.targetRayPose, pointMode: main.targetRayMode })
+      setComponent(entity, WebXRMainController, {pose: main.gripPose, handId: main.handedness })
       const { gamepad } = main
-      if (gamepad) setComponent(entity, { class: WebXRMainGamepad, gamepad })
+      if (gamepad) setComponent(entity, WebXRMainGamepad, {gamepad})
     })
   }
 }
@@ -73,11 +74,11 @@ export const initializeSession: Behavior = (entity: Entity, args: { webXRRendere
   console.log("XR session started", session)
 }
 
-export const setComponent: Behavior = (entity: Entity, args: { class; data: any }) => {
-  if (hasComponent(entity, args.class)) {
-    const mutate = getMutableComponent(entity, args.class)
-    for (const property in args.data) mutate[property] = args.data[property]
+function setComponent(entity: Entity, Class: ComponentConstructor<any>, data: object) {
+  if (hasComponent(entity, Class)) {
+    const mutate = getMutableComponent(entity, Class)
+    for (const property in data) mutate[property] = data[property]
   } else {
-    addComponent(entity, args.class, args.data)
+    addComponent(entity, Class, data)
   }
 }

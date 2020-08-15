@@ -6,39 +6,25 @@ import { WebXRRenderer } from "../components/WebXRRenderer"
 import { WebXRSession } from "../components/WebXRSession"
 import { DefaultInputSchema } from "../defaults/DefaultInputSchema"
 import { initVR } from "../functions/WebXRFunctions"
-import { WebXRSpace } from "../components/WebXRSpace"
-import { WebXRViewPoint } from "../components/WebXRViewPoint"
-import { WebXRPointer } from "../components/WebXRPointer"
-import { WebXRButton } from "../components/WebXRButton"
-import { WebXRMainController } from "../components/WebXRMainController"
-import { WebXRMainGamepad } from "../components/WebXRMainGamepad"
-import { WebXRSecondController } from "../components/WebXRSecondController"
-import { WebXRSecondGamepad } from "../components/WebXRSecondGamepad"
-import { registerComponent } from "../../ecs/functions/ComponentFunctions"
 import { getMutableComponent, getComponent } from "../../ecs/functions/EntityFunctions"
 
 export class InputSystem extends System {
-  readonly mainControllerId = 0
-  readonly secondControllerId = 1
+  readonly mainControllerId //= 0
+  readonly secondControllerId //= 1
 
   // Temp/ref variables
   private _inputComponent: Input
-  // bound DOM listeners should be saved, otherwise they can't be unbound, becouse (f => f) !== (f => f)
-  private boundListeners = new Set()
+  private boundListeners //= new Set()
+
+  constructor() {
+    super()
+    this.mainControllerId = 0
+    this.secondControllerId = 1
+    this.boundListeners = new Set()
+  }
 
   init(onVRSupportRequested): void {
-    registerComponent(Input)
     if (onVRSupportRequested) {
-      registerComponent(WebXRSession)
-      registerComponent(WebXRSpace)
-      registerComponent(WebXRViewPoint)
-      registerComponent(WebXRPointer)
-      registerComponent(WebXRButton)
-      registerComponent(WebXRMainController)
-      registerComponent(WebXRMainGamepad)
-      registerComponent(WebXRRenderer)
-      registerComponent(WebXRSecondController)
-      registerComponent(WebXRSecondGamepad)
       initVR(onVRSupportRequested)
     } else initVR()
   }
