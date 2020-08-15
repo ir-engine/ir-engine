@@ -34,9 +34,9 @@ const { publicRuntimeConfig } = getConfig()
 const apiServer: string = publicRuntimeConfig.apiServer
 const authConfig = publicRuntimeConfig.auth
 
-export async function doLoginAuto (dispatch: Dispatch) {
+export async function doLoginAuto (dispatch: Dispatch): Promise<void> {
   const authData = getStoredState('auth')
-  const accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined
+  const accessToken = authData?.authUser ? authData.authUser.accessToken : undefined
 
   if (!accessToken) {
     return
@@ -291,8 +291,8 @@ export function createMagicLink (emailPhone: string, linkType?: 'email' | 'sms')
 
     let type = 'email'
     let paramName = 'email'
-    const enableEmailMagicLink = (authConfig && authConfig.enableEmailMagicLink) ?? true
-    const enableSmsMagicLink = (authConfig && authConfig.enableSmsMagicLink) ?? false
+    const enableEmailMagicLink = (authConfig?.enableEmailMagicLink) ?? true
+    const enableSmsMagicLink = (authConfig?.enableSmsMagicLink) ?? false
 
     if (linkType === 'email') {
       type = 'email'

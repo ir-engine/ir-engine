@@ -5,14 +5,13 @@ import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
 
 import WalletIcon from '@material-ui/icons/AccountBalanceWallet'
+// import MailIcon from '@material-ui/icons/MailOutline'
 
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectAuthState } from '../../../redux/auth/selector'
 import {
-  createMagicLink,
-  addConnectionByEmail,
-  addConnectionBySms
+  createMagicLink, addConnectionByEmail, addConnectionBySms
 } from '../../../redux/auth/service'
 import Grid from '@material-ui/core/Grid'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
@@ -21,7 +20,8 @@ import NextLink from 'next/link'
 import getConfig from 'next/config'
 import './style.scss'
 import { User } from '../../../../shared/interfaces/User'
-import { Head } from 'next/document'
+import Head from 'next/head'
+import { actionProcessing } from '../../../redux/auth/actions'
 
 const config = getConfig().publicRuntimeConfig.staticPages
 const authConfig = getConfig().publicRuntimeConfig.auth
@@ -57,9 +57,40 @@ const defaultState = {
 
 const termsOfService = (config?.termsOfService) ?? '/terms-of-service'
 
+function loginWithWallet () {
+  return async (dispatch: Dispatch): Promise<void> => {
+    dispatch(actionProcessing(true))
+
+    const domain = window.location.origin
+    const challenge = '99612b24-63d9-11ea-b99f-4f66f3e4f81a' // TODO: generate
+
+    console.log('Sending DIDAuth query...')
+
+    const didAuthQuery: any = {
+      web: {
+        VerifiablePresentation: {
+          query: [
+            {
+              type: 'DIDAuth'
+            }
+          ],
+          challenge,
+          domain // e.g.: requestingparty.example.com
+        }
+      }
+    }
+
+    // document.getElementById('rawResults').innerText = 'Logging in...'
+
+    // Use Credential Handler API to authenticate
+    const result: any = await navigator.credentials.get(didAuthQuery)
+  }
+}
+
 const MagicLinkEmail = (props: Props): any => {
-  const { auth, type, isAddConnection, createMagicLink, addConnectionBySms,
-    addConnectionByEmail } = props
+  const {
+    auth, type, isAddConnection, createMagicLink, addConnectionBySms, addConnectionByEmail
+  } = props
   const [state, setState] = useState(defaultState)
 
   const handleInput = (e: any): any => {
@@ -71,9 +102,12 @@ const MagicLinkEmail = (props: Props): any => {
   }
 
   const handleSubmit = (e: any): any => {
-    e.preventDefault()
+    e.preventDefault() // do not actually submit form
+
     if (!isAddConnection) {
-      createMagicLink(state.email_phone)
+      // createMagicLink(state.email_phone)
+      loginWithWallet()
+
       setState({ ...state, isSubmitted: true })
       return
     }
@@ -181,6 +215,20 @@ const MagicLinkEmail = (props: Props): any => {
                 }
               />
             </Grid>
+            {/* <Grid item xs={12}>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                className="submit"
+                disabled={!state.isAgreedTermsOfService}
+              >
+                <MailIcon/>
+                Send Login Link
+              </Button>
+            </Grid> */}
+
             <Grid item xs={12}>
               <Button
                 type="submit"
@@ -190,7 +238,8 @@ const MagicLinkEmail = (props: Props): any => {
                 className="submit"
                 disabled={!state.isAgreedTermsOfService}
               >
-                Send Login Link
+                <WalletIcon/>
+                Login with Wallet
               </Button>
             </Grid>
           </Grid>

@@ -1,10 +1,10 @@
 import { IdentityProvider, IdentityProviderSeed } from './IdentityProvider'
 
-export type AuthUser = {
+export interface AuthUser {
   accessToken: string
   authentication: {
-      strategy: string
-  },
+    strategy: string
+  }
   identityProvider: IdentityProvider
 }
 
