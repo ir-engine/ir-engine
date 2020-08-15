@@ -12,7 +12,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "moduleResolution":"node",
-    "typeRoots": ["shared/types", "./node_modules/@types"],
+    "typeRoots": ["packages/common/types", "./node_modules/@types"],
     "sourceMap": true,
     "jsx": "preserve",
     "outDir": "./lib"
@@ -21,8 +21,8 @@
     "node_modules"
   ],
   "include": [
-    "server",
-    "shared",
+    "packages/server",
+    "packages/common",
     "./**/*.ts",
     "./**/*.tsx", "scripts"
   ]

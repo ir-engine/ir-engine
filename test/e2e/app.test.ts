@@ -1,8 +1,8 @@
 import { Server } from 'http'
-import axios from 'axios'
-import app from '../../server/app'
-import config from '../../server/config'
-import { getUrl } from '../../server/test-utils'
+import axios from '../../packages/server/tests/services/node_modules/axios'
+import app from '../../packages/server/app'
+import config from '../../packages/server/config'
+import { getUrl } from '../../packages/server/test-utils'
 
 const port = config.server.port
 

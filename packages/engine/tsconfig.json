@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "declaration": true,
+    "noImplicitAny": false,
+    "target": "es6",
+    "moduleResolution": "Node",
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*", "src/networking/server/**/*", "test/**/*", "src/sandbox"],
+  "exclude": ["node_modules", "dist"]
+}

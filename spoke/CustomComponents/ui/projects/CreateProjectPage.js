@@ -13,7 +13,7 @@ import {
   ProjectGridContent,
   ErrorMessage
 } from "./ProjectGrid";
-import Footer from "../navigation/Footer";
+
 import PrimaryLink from "../inputs/PrimaryLink";
 import { Button } from "../inputs/Button";
 import { ProjectsSection, ProjectsContainer, ProjectsHeader } from "./ProjectsPage";
@@ -151,7 +151,7 @@ export default function CreateProjectPage({ history, location }) {
           </ProjectsContainer>
         </ProjectsSection>
       </main>
-      <Footer />
+      
     </>
   );
 }
