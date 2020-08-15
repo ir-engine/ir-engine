@@ -29,6 +29,8 @@
     "react-transition-group": "~4.3.0"
   },
   "dependencies": {
+    "@xr3ngine/common": "^0.0.1",
+    "@xr3ngine/engine": "^0.0.1",
     "@apollo/react-hooks": "^3.1.5",
     "@babel/plugin-proposal-object-rest-spread": "^7.9.0",
     "@feathersjs/authentication-client": "^4.5.2",
@@ -96,11 +98,11 @@
     "shaka-player": "^2.5.10",
     "shaka-player-react": "^1.0.1",
     "socket.io-client": "^2.3.0",
-    "socketio": "^1.0.0",
     "subscriptions-transport-ws": "^0.9.16",
     "three": "^0.115.0"
   },
   "devDependencies": {
+    "@xr3ngine/server": "^0.0.1",
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.9.0",
     "@babel/register": "^7.9.0",

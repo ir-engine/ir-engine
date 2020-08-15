@@ -71,6 +71,8 @@
     "sequelize": "~5.21.8"
   },
   "dependencies": {
+    "@xr3ngine/common": "^0.2.0",
+    "@xr3ngine/engine": "^0.2.0",
     "@apollo/client": "^3.0.2",
     "@apollo/link-ws": "^2.0.0-beta.3",
     "@eclass/sequelize-graphql-tools": "^4.1.0",
