@@ -9,7 +9,7 @@ test("check navigator", () => {
   expect("requestSession" in (navigator as any).xr).toBeTruthy()
 })
 
-test("check global magic from the underworld", () => {
+test("check hidden magic from the globalised world", () => {
   initializeWorld()
   registerSystem(InputSystem)
 })
