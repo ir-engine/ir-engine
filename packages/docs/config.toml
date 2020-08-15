@@ -87,12 +87,12 @@ version = "0.0"
 
 # A link to latest version of the docs. Used in the "version-banner" partial to
 # point people to the main doc site.
-url_latest_version = "https://school.xrengine.io"
+url_latest_version = "https://school.xr3ngine.dev"
 
 # Repository configuration (URLs for in-page links to opening issues and suggesting changes)
-github_repo = "https://github.com/xr3ngine/xrengine"
+github_repo = "https://github.com/xr3ngine/xr3ngine"
 # An optional link to a related project repo. For example, the sibling repository where your product code lives.
-github_project_repo = "https://github.com/xr3ngine/xrengine"
+github_project_repo = "https://github.com/xr3ngine/xr3ngine"
 
 # Specify a value here if your content directory is not in your repo's root directory
 # github_subdir = ""
@@ -126,8 +126,8 @@ footer_about_disable = false
 [params.ui.feedback]
 enable = false
 # The responses that the user sees after clicking "yes" (the page was helpful) or "no" (the page was not helpful).
-yes = 'Glad to hear it! Please <a href="https://github.com/xr3ngine/xrengine/issues/new">tell us how we can improve</a>.'
-no = 'Sorry to hear that. Please <a href="https://github.com/xr3ngine/xrengine/issues/new">tell us how we can improve</a>.'
+yes = 'Glad to hear it! Please <a href="https://github.com/xr3ngine/xr3ngine/issues/new">tell us how we can improve</a>.'
+no = 'Sorry to hear that. Please <a href="https://github.com/xr3ngine/xr3ngine/issues/new">tell us how we can improve</a>.'
 
 # Adds a reading time to the top of each doc.
 # If you want this feature, but occasionally need to remove the Reading time from a single page, 
@@ -139,7 +139,7 @@ enable = false
 # Developer relevant links. These will show up on right side of footer and in the community page if you have one.
 [[params.links.developer]]
 	name = "GitHub"
-	url = "https://github.com/xr3ngine/xrengine"
+	url = "https://github.com/xr3ngine/xr3ngine"
 	icon = "fab fa-github"
         desc = "Source code on Github"
 [[params.links.developer]]

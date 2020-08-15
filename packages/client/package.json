@@ -1,6 +1,7 @@
 {
   "name": "@xr3ngine/client",
-  "version": "1.0.0",
+  "version": "0.2.0",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "git://github.com/xr3ngine/xr3ngine.git"

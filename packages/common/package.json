@@ -1,6 +1,7 @@
 {
   "name": "@xr3ngine/common",
-  "version": "0.0.1",
+  "private": true,
+  "version": "0.2.0",
   "description": "Shared types for other XR3ngine packages",
   "main": "index.ts",
   "repository": "http://github.com/xr3ngine/xr3ngine",
