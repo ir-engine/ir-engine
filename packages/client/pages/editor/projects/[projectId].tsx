@@ -58,21 +58,14 @@ type EditorContainerState = {
   project: null,
   parentSceneId: null,
   templateUrl: any,
-  creatingProject: boolean,
+  settingsContext: any,
   error: null,
   editor: any,
-  settingsContext: {
-    settings: any,
-    updateSetting: (key: any, value: any) => void
-  },
   DialogComponent: null,
   dialogProps: {},
   modified: boolean
 };
-class EditorContainer extends Component<
-  EditorContainerProps,
-  EditorContainerState
-> {
+class EditorContainer extends Component<{}, EditorContainerState> {
   constructor(props) {
     super(props);
     let settings = defaultSettings;
