@@ -1,5 +1,5 @@
 {{- if and .Values.api.enabled .Values.api.ingress.enabled -}}
-{{- $fullName := include "xrsocial.api.fullname" . -}}
+{{- $fullName := include "xr3ngine.api.fullname" . -}}
 {{- $svcPort := .Values.api.service.port -}}
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1beta1
@@ -10,7 +10,7 @@ kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
-    {{- include "xrsocial.api.labels" . | nindent 4 }}
+    {{- include "xr3ngine.api.labels" . | nindent 4 }}
   {{- with .Values.api.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}

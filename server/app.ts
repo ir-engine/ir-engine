@@ -1,3 +1,4 @@
+import fs from 'fs'
 import path from 'path'
 import favicon from 'serve-favicon'
 import compress from 'compression'
@@ -7,6 +8,7 @@ import swagger from 'feathers-swagger'
 import feathers from '@feathersjs/feathers'
 import express from '@feathersjs/express'
 import socketio from '@feathersjs/socketio'
+import AgonesSDK from '@google-cloud/agones-sdk'
 
 import { Application } from './declarations'
 import logger from './logger'
@@ -18,6 +20,7 @@ import authentication from './authentication'
 import sequelize from './sequelize'
 import config from './config'
 import sync from 'feathers-sync'
+import K8s from 'k8s'
 
 import winston from 'winston'
 // @ts-ignore
@@ -30,6 +33,7 @@ const emitter = new EventEmitter()
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const app: Application = express(feathers())
+const agonesSDK = new AgonesSDK()
 
 app.set('nextReadyEmitter', emitter)
 
@@ -68,9 +72,14 @@ if (config.server.enabled) {
 
   // Set up Plugins and providers
   app.configure(express.rest())
-  app.configure(socketio())
+  app.configure(socketio((io) => {
+    io.use((socket, next) => {
+      (socket as any).feathers.socketQuery = socket.handshake.query
+      next()
+    })
+  }))
 
-  if (config.redis.enabled === true) {
+  if (config.redis.enabled) {
     app.configure(sync({
       uri: config.redis.password != null ? `redis://${config.redis.address}:${config.redis.port}?password=${config.redis.password}` : `redis://${config.redis.address}:${config.redis.port}`
     }));
@@ -98,6 +107,17 @@ if (config.server.enabled) {
   // Configure a middleware for 404s and the error handler
 
   app.hooks(appHooks)
+
+  if ((process.env.KUBERNETES === 'true' && process.env.SERVER_MODE === 'realtime') || (process.env.NODE_ENV === 'development')) {
+    agonesSDK.connect()
+    agonesSDK.ready();
+    (app as any).agonesSDK = agonesSDK
+    healthPing(agonesSDK)
+  }
+
+  if (process.env.SERVER_MODE === 'api') {
+    (app as any).k8Client = K8s.api({ endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`, version: '/apis/agones.dev/v1', auth: { caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'), token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token') } })
+  }
 
   app.use('/healthcheck', (req, res) => {
     res.sendStatus(200)
@@ -132,3 +152,8 @@ if (config.client.enabled) {
 }
 
 export default app
+
+function healthPing (agonesSDK: AgonesSDK): void {
+  agonesSDK.health()
+  setTimeout(() => healthPing(agonesSDK), 1000)
+}

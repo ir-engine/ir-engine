@@ -21,7 +21,6 @@ import {
   FETCHING_SENT_INVITES
 } from '../actions'
 import { Invite } from '../../../shared/interfaces/Invite'
-import {User} from "../../../shared/interfaces/User";
 
 export const initialState = {
   receivedInvites: {

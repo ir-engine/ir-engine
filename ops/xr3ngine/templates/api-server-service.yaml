@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "xrsocial.api.fullname" . }}
+  name: {{ include "xr3ngine.api.fullname" . }}
   labels:
-    {{- include "xrsocial.api.labels" . | nindent 4 }}
+    {{- include "xr3ngine.api.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.api.service.type }}
   ports:
@@ -13,5 +13,5 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "xrsocial.api.selectorLabels" . | nindent 4 }}
+    {{- include "xr3ngine.api.selectorLabels" . | nindent 4 }}
 {{- end -}}
