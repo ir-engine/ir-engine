@@ -7,15 +7,12 @@
     "url": "git://github.com/xr3ngine/xr3ngine.git"
   },
   "scripts": {
+    "start": "next start",
     "dev": "cross-env NODE_ENV=dev next --port $PORT",
     "build": "next build",
-    "start": "next start",
-    "type-check": "tsc",
-    "test": "yarn run lint && yarn run stylelint && yarn run build",
-    "lint:ts": "eslint '*.ts' '**/*.ts' '**/*.tsx'",
-    "lint": "yarn run lint:ts",
-    "lint-fix": "eslint --fix '*.ts' '**/*.ts' '**/*.tsx'",
-    "stylelint": "stylelint '**/*.scss'",
+    "validate": "yarn run lint && yarn run test",
+    "test": "echo 'TODO: Add Testing to Client'",
+    "lint": "stylelint '**/*.scss' && eslint --fix '*.ts' '**/*.ts' '**/*.tsx'",
     "precommit": "no-master-commits -b master,dev && echo \\* Running pre-commit test  && echo \\*\\* \\`git commit --no-verify\\` to skip && echo \\*\\*\\* PRs THAT DO NOT PASS TESTS WILL NOT BE ACCEPTED && yarn run test"
   },
   "pre-push": [

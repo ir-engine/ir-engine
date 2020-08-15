@@ -37,19 +37,13 @@
   },
   "jest": "ts-jest",
   "scripts": {
-    "test": "yarn run lint && yarn run compile && NODE_ENV=production jest lib/test",
-    "jest-only": "NODE_ENV=production jest lib/test",
+    "start": "shx rm -rf lib/ && tsc && node lib/",
+    "dev": "NODE_ENV=development node -r ts-node/register ./",
+    "build": "shx rm -rf lib/ && tsc && cd scripts && bash copyfiles.sh",
+    "test": "NODE_ENV=production jest lib/test",
     "lint": "node node_modules/.bin/eslint --ext .js,.ts ./ --fix",
-    "dev": "NODE_ENV=development node --max_old_space_size=4096 -r ts-node/register ./",
-    "dev-reinit-db": "NODE_ENV=development FORCE_DB_REFRESH=true node -r ts-node/register ./",
-    "dev-generate-fakes": "NODE_ENV=development GENERATE_FAKES=true node -r ts-node/register ./",
-    "start": "yarn run compile && node lib/",
-    "compile": "shx rm -rf lib/ && tsc && npm run copyfiles",
-    "copyfiles": "copyfiles email-templates/**/* lib",
-    "sync": "PERFORM_DRY_RUN=true FORCE_DB_REFRESH=true node lib/",
-    "precommit": "no-master-commits -b master,dev",
-    "postinstall": "yarn run build-spoke",
-    "generate-certs": "cd scripts && bash generate-certs.sh"
+    "validate": "yarn run lint && yarn run build && yarn run test",
+    "precommit": "no-master-commits -b master,dev"
   },
   "resolutions": {
     "is-promise": "2.1.0",
