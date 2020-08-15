@@ -226,7 +226,7 @@ module.exports = env => {
             __dirname,
             "src",
             "assets",
-            process.env.IS_MOZ === "true" ? "favicon-spoke.ico" : "favicon-editor.ico"
+            process.env.IS_XR3 === "true" ? "favicon-spoke.ico" : "favicon-editor.ico"
           ),
           to: "assets/images/favicon.ico"
         }
@@ -277,7 +277,7 @@ module.exports = env => {
         ROUTER_BASE_PATH: "",
         SENTRY_DSN: null,
         GA_TRACKING_ID: null,
-        IS_MOZ: false,
+        IS_XR3: false,
         USE_HTTPS: true,
         GITHUB_ORG: "mozilla",
         GITHUB_REPO: "spoke",
