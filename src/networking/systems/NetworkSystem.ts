@@ -4,7 +4,6 @@ import { NetworkClient } from "../components/NetworkClient"
 import { NetworkObject } from "../components/NetworkObject"
 import { DefaultNetworkSchema } from "../defaults/DefaultNetworkSchema"
 import { NetworkSchema } from "../interfaces/NetworkSchema"
-import { NetworkTransport } from "../interfaces/NetworkTransport"
 import { registerComponent } from "../../ecs/functions/ComponentFunctions"
 import { NetworkGameState } from "../components/NetworkInterpolation"
 import { createEntity, addComponent } from "../../ecs/functions/EntityFunctions"
@@ -23,7 +22,10 @@ export class NetworkSystem extends System {
     // Late initialization of network
     setTimeout(() => {
       Network.instance.schema = schema ?? DefaultNetworkSchema
-      Network.instance.transport = ((schema && schema.transport) ?? DefaultNetworkSchema.transport) as NetworkTransport
+
+      console.log("Initialization session")
+
+      Network.instance.transport = new (Network.instance.schema.transport as any)()
       Network.instance.transport.initialize()
       Network.instance.isInitialized = true
     }, 1)

@@ -8,7 +8,7 @@ export class KeyframeSystem extends System {
     registerComponent(Keyframe)
   }
   execute(deltaTime, time): void {
-    for (const entity of this.queryResults.keyframes.results) {
+    for (const entity of this.queryResults.keyframes.all) {
       const keyframe = getComponent(entity, Keyframe) as Keyframe
       const frameTime = time % keyframe.duration
 
@@ -19,7 +19,7 @@ export class KeyframeSystem extends System {
   }
 }
 
-KeyframeSystem.systemQueries = {
+KeyframeSystem.queries = {
   keyframes: {
     components: [Keyframe]
   }

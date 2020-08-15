@@ -3,7 +3,7 @@ import { ObjectPool } from "./ObjectPool"
 import { World } from "./World"
 
 export class EntityPool extends ObjectPool<Entity> {
-  T: any
+  type: any
   freeList: any
   count: any
   constructor() {
@@ -12,7 +12,7 @@ export class EntityPool extends ObjectPool<Entity> {
 
   expand(count) {
     for (let n = 0; n < count; n++) {
-      const clone = new this.T()
+      const clone = new this.type()
       clone._pool = this
       this.freeList.push(clone)
     }

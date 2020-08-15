@@ -7,13 +7,13 @@ import commonjs from "@rollup/plugin-commonjs"
 import nodePolyfills from "rollup-plugin-node-polyfills"
 import nodeGlobals from "rollup-plugin-node-globals"
 import injectProcessEnv from "rollup-plugin-inject-process-env"
-
+import ignore from "rollup-plugin-ignore"
 export default [
   {
     input: "src/index.ts",
     external: id => {
       return (
-        ["three", "ecsy", "ecsy-three", "socket.io", "socket.io-client", "mediasoup", "mediasoup-client"].includes(id) ||
+        ["three", "socket.io", "socket.io-client", "mediasoup", "mediasoup-client"].includes(id) ||
         /^three\//.test(id) ||
         /^troika-3d-text\//.test(id) ||
         /^ecsy-three\//.test(id)
@@ -26,6 +26,7 @@ export default [
         include: ["node_modules/**/*"], // Default: undefined
         transformMixedEsModules: true
       }),
+      ignore(["socket.io", "mediasoup"]),
       injectProcessEnv({
         NODE_ENV: "production"
       }),

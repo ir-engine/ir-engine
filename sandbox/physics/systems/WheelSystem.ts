@@ -10,8 +10,8 @@ export class WheelSystem extends System {
     registerComponent(WheelBody)
   }
   execute(dt, t) {
-    for (let i = 0; i < this.queryResults.wheelBody.results.length; i++) {
-      const entity = this.queryResults.wheelBody.results[i]
+    for (let i = 0; i < this.queryResults.wheelBody.all.length; i++) {
+      const entity = this.queryResults.wheelBody.all[i]
       //  console.log(entity);
       const parentEntity = getComponent(entity, WheelBody as any)["vehicle"]
       const parentObject = parentEntity.getObject3D()
@@ -30,7 +30,7 @@ export class WheelSystem extends System {
   }
 }
 
-WheelSystem.systemQueries = {
+WheelSystem.queries = {
   wheelBody: {
     components: [WheelBody],
     listen: {

@@ -3,6 +3,7 @@ import { ComponentConstructor } from "./Component"
 import EventDispatcher from "./EventDispatcher"
 import { World } from "./World"
 import { NotComponent } from "./System"
+import { hasAllComponents, hasAnyComponents } from "../functions/EntityFunctions"
 
 export default class Query {
   components: any[]
@@ -82,7 +83,7 @@ export default class Query {
   }
 
   match(entity) {
-    return entity.hasAllComponents(this.components) && !entity.hasAnyComponents(this.notComponents)
+    return hasAllComponents(entity, this.components) && !hasAnyComponents(entity, this.notComponents)
   }
 
   toJSON() {

@@ -5,11 +5,11 @@ import * as https from "https"
 import fs from "fs"
 import SocketIO, { Socket } from "socket.io"
 import * as path from "path"
-import { MessageTypes } from "../../src/networking/enums/MessageTypes"
+import { MessageTypes } from "../../enums/MessageTypes"
 import * as dotenv from "dotenv"
-import { NetworkTransport } from "../../src/networking/interfaces/NetworkTransport"
-import { Network } from "../../src/networking/components/Network"
-import { Message } from "../../src/networking/interfaces/Message"
+import { NetworkTransport } from "../../interfaces/NetworkTransport"
+import { Network } from "../../components/Network"
+import { Message } from "../../interfaces/Message"
 
 dotenv.config()
 interface Client {

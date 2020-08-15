@@ -55,7 +55,7 @@ export class PhysicsSystem extends System {
       //   }
     }
 
-    for (const entity of this.queryResults.physicsRigidBody.results) {
+    for (const entity of this.queryResults.physicsRigidBody.all) {
       //  if (rigidBody.weight === 0.0) continue;
       const transform = getMutableComponent<TransformComponent>(entity, TransformComponent)
       const object = getComponent<Object3DComponent>(entity, Object3DComponent).value
@@ -68,7 +68,7 @@ export class PhysicsSystem extends System {
       transform.rotation = quaternion.toArray()
     }
 
-    for (const entity of this.queryResults.vehicleBody.results) {
+    for (const entity of this.queryResults.vehicleBody.all) {
       //  if (rigidBody.weight === 0.0) continue;
       const transform = getMutableComponent<TransformComponent>(entity, TransformComponent)
       const object = getComponent<Object3DComponent>(entity, Object3DComponent).value
@@ -81,7 +81,7 @@ export class PhysicsSystem extends System {
     }
   }
 }
-PhysicsSystem.systemQueries = {
+PhysicsSystem.queries = {
   physicsRigidBody: {
     components: [RigidBody],
     listen: {

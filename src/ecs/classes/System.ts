@@ -33,14 +33,14 @@ import { componentRegistered, queryKey } from "../functions/Utils"
 import { Component, ComponentConstructor } from "./Component"
 import { Entity } from "./Entity"
 import Query from "./Query"
+import { registerComponent } from "../functions/ComponentFunctions"
 
 export abstract class System {
   /**
    * Defines what Components the System will query for.
    * This needs to be user defined.
    */
-  static systemQueries: SystemQueries
-  static queries: {}
+  static queries: SystemQueries = {}
 
   static isSystem: true
   _mandatoryQueries: any
@@ -54,19 +54,19 @@ export abstract class System {
    */
   queryResults: {
     [queryName: string]: {
-      results?: Entity[]
+      all?: Entity[]
       added?: Entity[]
       removed?: Entity[]
       changed?: Entity[]
     }
-  }
+  } = {}
 
   /**
    * Whether the system will execute during the world tick.
    */
   enabled: boolean
   name: string
-  _queries: {}
+  _queries: {} = {}
   abstract init(attributes?: Attributes): void
   abstract execute(delta: number, time: number): void
 
@@ -89,7 +89,6 @@ export abstract class System {
     // @todo Better naming :)
     this._queries = {}
     this.queryResults = {}
-    this.queryResults = {}
 
     this.priority = 0
 
@@ -104,34 +103,42 @@ export abstract class System {
 
     this.initialized = true
 
-    if (this.queryResults) {
-      for (const queryName in System.systemQueries) {
-        const queryConfig = System.systemQueries[queryName]
+    if ((this.constructor as any).queries) {
+      console.log("System queries")
+      for (const queryName in (this.constructor as any).queries) {
+        console.log(queryName)
+
+        const queryConfig = (this.constructor as any).queries[queryName]
         const Components = queryConfig.components
         if (!Components || Components.length === 0) {
           throw new Error("'components' attribute can't be empty in a query")
         }
 
         // Detect if the components have already been registered
-        const unregisteredComponents = Components.filter(Component => !componentRegistered(Component))
+        const unregisteredComponents: any[] = Components.filter(Component => !componentRegistered(Component))
+
+        console.log(unregisteredComponents)
 
         if (unregisteredComponents.length > 0) {
-          throw new Error(
-            `Tried to create a query '${queryName}.${queryName}' with unregistered components: [${unregisteredComponents.map(
-              c => typeof c
-            )}]`
-          )
+          unregisteredComponents.forEach(component => {
+            registerComponent(component)
+            console.log("Registed component ", component.getName())
+          })
         }
 
+        console.log("Components")
+        console.log(Components)
         // TODO: Solve this
         const query = this.getQuery(Components)
+        console.log(query)
+        console.log("query")
 
         this._queries[queryName] = query
         if ((queryConfig as any).mandatory === true) {
           this._mandatoryQueries.push(query)
         }
         this.queryResults[queryName] = {
-          results: query.entities
+          all: query.entities
         }
 
         // Reactive configuration added/removed/changed
@@ -193,6 +200,10 @@ export abstract class System {
         }
       }
     }
+  }
+
+  static getName() {
+    return (this.constructor as any).getName()
   }
 
   getQuery(components: (ComponentConstructor<any> | NotComponent<any>)[]): Query {
@@ -282,3 +293,6 @@ export abstract class System {
 }
 
 System.isSystem = true
+System.getName = function() {
+  return this.displayName || this.name
+}

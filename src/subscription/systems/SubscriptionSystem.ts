@@ -20,7 +20,7 @@ export class SubscriptionSystem extends System {
       this.callBehaviorsForHook(entity, { phase: "onChanged" }, delta)
     })
 
-    this.queryResults.subscriptions.results?.forEach(entity => {
+    this.queryResults.subscriptions.all?.forEach(entity => {
       this.callBehaviorsForHook(entity, { phase: "onUpdate" }, delta)
       this.callBehaviorsForHook(entity, { phase: "onLateUpdate" }, delta)
     })
@@ -43,7 +43,7 @@ export class SubscriptionSystem extends System {
   }
 }
 
-SubscriptionSystem.systemQueries = {
+SubscriptionSystem.queries = {
   subscriptions: {
     components: [Subscription],
     listen: {

@@ -17,6 +17,8 @@ import { NetworkSchema } from "../interfaces/NetworkSchema"
 import { SocketWebRTCClientTransport } from "../transports/SocketWebRTC/SocketWebRTCClientTransport"
 import { DefaultMessageSchema } from "./DefaultMessageSchema"
 import { DefaultMessageTypes } from "./DefaultMessageTypes"
+import { SocketWebRTCServerTransport } from "../transports/SocketWebRTC/SocketWebRTCServerTransport"
+import { isBrowser } from "../../common/functions/isBrowser"
 
 const box = new BoxBufferGeometry(0.25, 0.25, 0.25)
 
@@ -81,7 +83,7 @@ export const DefaultPrefabs: {
 ]
 
 export const DefaultNetworkSchema: NetworkSchema = {
-  transport: SocketWebRTCClientTransport,
+  transport: isBrowser ? SocketWebRTCClientTransport : SocketWebRTCServerTransport,
   messageHandlers: {
     [MessageTypes.ClientConnected]: {
       behavior: handleClientConnected
