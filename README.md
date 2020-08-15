@@ -53,7 +53,7 @@ Let's take a look at the input system to see what's going on. To simplify, we'll
 
 ```typescript
 // this is called in execute() every frame
-    this.queries.inputs.results.forEach(entity => handleInput(entity, args: { delta }))
+    this.queryResults.inputs.results.forEach(entity => handleInput(entity, args: { delta }))
 
 // where the magic happens
 export const handleInput: Behavior = (entity: Entity, delta: number): void => {
@@ -160,23 +160,23 @@ Subscriptions follow the same pattern as Input above, in that they are initializ
 First, let's get an overview of the subscription system:
 ```typescript
 public execute(delta: number, time: number): void {
-    this.queries.subscriptions.added?.forEach(entity => {
+    this.queryResults.subscriptions.added?.forEach(entity => {
       this.callBehaviorsForHook(entity, { phase: "onAdded", delta })
     })
 
-    this.queries.subscriptions.changed?.forEach(entity => {
+    this.queryResults.subscriptions.changed?.forEach(entity => {
       this.callBehaviorsForHook(entity, { phase: "onChanged", delta })
     })
 
-    this.queries.subscriptions.results?.forEach(entity => {
+    this.queryResults.subscriptions.results?.forEach(entity => {
       this.callBehaviorsForHook(entity, { phase: "onUpdate", delta })
     })
 
-    this.queries.subscriptions.results?.forEach(entity => {
+    this.queryResults.subscriptions.results?.forEach(entity => {
           this.callBehaviorsForHook(entity, { phase: "onLateUpdate", delta })
     })
 
-    this.queries.subscriptions.removed?.forEach(entity => {
+    this.queryResults.subscriptions.removed?.forEach(entity => {
       this.callBehaviorsForHook(entity, { phase: "onRemoved", delta })
     })
   }

@@ -39,13 +39,13 @@ export function removeObject3DComponent(entity, unparent = true) {
     // Using "true" as the entity could be removed somewhere else
     obj.parent && obj.parent.remove(obj)
   }
-  entity.removeComponent(Object3DComponent)
+  removeComponent(entity, Object3DComponent)
 
   for (let i = entity._ComponentTypes.length - 1; i >= 0; i--) {
     const Component = entity._ComponentTypes[i]
 
     if (Component.isObject3DTagComponent) {
-      entity.removeComponent(Component)
+      removeComponent(entity, Component)
     }
   }
 

@@ -1,13 +1,11 @@
 import json from "@rollup/plugin-json"
 import resolve from "@rollup/plugin-node-resolve"
-import html from "@open-wc/rollup-plugin-html"
 import babel from "@rollup/plugin-babel"
 import typescript from "rollup-plugin-typescript2"
 import commonjs from "@rollup/plugin-commonjs"
 import nodePolyfills from "rollup-plugin-node-polyfills"
 import nodeGlobals from "rollup-plugin-node-globals"
 import injectProcessEnv from "rollup-plugin-inject-process-env"
-import ignore from "rollup-plugin-ignore"
 export default [
   {
     input: "src/index.ts",
@@ -42,25 +40,25 @@ export default [
       }
     ]
   },
-  // HTML Example Page
-  {
-    input: "examples/index.html",
-    output: { dir: "dist/examples/" },
-    plugins: [
-      html(),
-      resolve({ browser: true, preferBuiltins: false }),
-      commonjs(),
-      json(),
-      injectProcessEnv({
-        NODE_ENV: "production"
-      }),
-      typescript(),
-      babel({ babelHelpers: "bundled" })
-    ]
-  },
+  // // HTML Example Page
+  // {
+  //   input: "examples/index.html",
+  //   output: { dir: "dist/examples/" },
+  //   plugins: [
+  //     html(),
+  //     resolve({ browser: true, preferBuiltins: false }),
+  //     commonjs(),
+  //     json(),
+  //     injectProcessEnv({
+  //       NODE_ENV: "production"
+  //     }),
+  //     typescript(),
+  //     babel({ babelHelpers: "bundled" })
+  //   ]
+  // },
   // Server
   {
-    input: "server/index.ts",
+    input: "src/server.ts",
     output: { file: "dist/armada.server.js", format: "esm", sourcemap: true },
     plugins: [
       typescript(),

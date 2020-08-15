@@ -130,22 +130,28 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     }
   }
 
-  handleConsumeDataEvent = (socket: SocketIO.Socket) => async (data: { consumerOptions: MediaSoupTypes.DataConsumerOptions, transportId: string }, callback: (arg0: { dataConsumerOptions?: { id: string, sctpStreamParameters: MediaSoupClientTypes.SctpStreamParameters }, error?: any }) => void) => {
-     try {
-       const transport: MediaSoupTypes.Transport | undefined = this.roomState.transports[data.transportId]
-       if (!transport) {
-         throw new Error('Transport is not available for the transport id or it is invalid')
-       }
-       data.consumerOptions.appData = { ...data.consumerOptions.appData, peerId: socket.id }
-       const dataConsumer = await transport.consumeData({... data.consumerOptions })
-       this.roomState.dataConsumers.push(dataConsumer)
-       dataConsumer.on("transportclose", () => {
-         dataConsumer.close()
-         this.roomState.dataConsumers = this.roomState.dataConsumers.filter(
-           (consumer: MediaSoupTypes.DataConsumer) => consumer.id !== dataConsumer.id
-         )
-       })
-       /**
+  handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
+    data: { consumerOptions: MediaSoupTypes.DataConsumerOptions; transportId: string },
+    callback: (arg0: {
+      dataConsumerOptions?: { id: string; sctpStreamParameters: MediaSoupClientTypes.SctpStreamParameters }
+      error?: any
+    }) => void
+  ) => {
+    try {
+      const transport: MediaSoupTypes.Transport | undefined = this.roomState.transports[data.transportId]
+      if (!transport) {
+        throw new Error("Transport is not available for the transport id or it is invalid")
+      }
+      data.consumerOptions.appData = { ...data.consumerOptions.appData, peerId: socket.id }
+      const dataConsumer = await transport.consumeData({ ...data.consumerOptions })
+      this.roomState.dataConsumers.push(dataConsumer)
+      dataConsumer.on("transportclose", () => {
+        dataConsumer.close()
+        this.roomState.dataConsumers = this.roomState.dataConsumers.filter(
+          (consumer: MediaSoupTypes.DataConsumer) => consumer.id !== dataConsumer.id
+        )
+      })
+      /**
         * peerId, // NOTE: Null if bot.
 						dataProducerId,
 						id,
@@ -154,17 +160,25 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 						protocol,
 						appData
         */
-       callback({ dataConsumerOptions: {
-         id: dataConsumer.id,
-         sctpStreamParameters: dataConsumer.sctpStreamParameters
-       } })
-     } catch (error) {
-       callback({ error })
-     }
+      callback({
+        dataConsumerOptions: {
+          id: dataConsumer.id,
+          sctpStreamParameters: dataConsumer.sctpStreamParameters
+        }
+      })
+    } catch (error) {
+      callback({ error })
+    }
   }
 
   // WIP
-  async sendUnreliableMessage({params: { id, appData, label, protocol, sctpStreamParameters }, transport}: { params: MediaSoupTypes.DataProducerOptions, transport: MediaSoupTypes.Transport }): Promise<MediaSoupTypes.DataProducer> {
+  async sendUnreliableMessage({
+    params: { id, appData, label, protocol, sctpStreamParameters },
+    transport
+  }: {
+    params: MediaSoupTypes.DataProducerOptions
+    transport: MediaSoupTypes.Transport
+  }): Promise<MediaSoupTypes.DataProducer> {
     return transport.produceData({ id, appData, label, protocol, sctpStreamParameters })
   }
 
@@ -317,44 +331,43 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           transportOptions: clientTransportOptions
         })
       })
-      socket.on(MessageTypes.WebRTCProduceData, async (params, callback: (arg0: { id?: string, error?: any }) => void) => {
-        try {
-          console.log('Data channel used: ', `'${params.label}'` , 'by client id: ', socket.id)
-          console.log('Data channel params', params)
-          const transport = this.roomState.transports[params.transportId] as MediaSoupTypes.Transport
-          const {
-            transportId,
-            sctpStreamParameters,
-            label,
-            protocol,
-            appData
-          } = params
-          console.log('creating transport data producer')
-          const dataProducer = await transport.produceData({
-            id: transportId,
-            label,
-            protocol,
-            sctpStreamParameters,
-            appData: { ...appData, peerID: socket.id, transportId }
-          })
+      socket.on(
+        MessageTypes.WebRTCProduceData,
+        async (params, callback: (arg0: { id?: string; error?: any }) => void) => {
+          try {
+            console.log("Data channel used: ", `'${params.label}'`, "by client id: ", socket.id)
+            console.log("Data channel params", params)
+            const transport = this.roomState.transports[params.transportId] as MediaSoupTypes.Transport
+            const { transportId, sctpStreamParameters, label, protocol, appData } = params
+            console.log("creating transport data producer")
+            const dataProducer = await transport.produceData({
+              id: transportId,
+              label,
+              protocol,
+              sctpStreamParameters,
+              appData: { ...appData, peerID: socket.id, transportId }
+            })
 
-          console.log('Adding data producer to room state')
-          // TODO: Do stuff with appData
-          this.roomState.dataProducers.push(dataProducer)
-          // TODO: Test closing stuff
+            console.log("Adding data producer to room state")
+            // TODO: Do stuff with appData
+            this.roomState.dataProducers.push(dataProducer)
+            // TODO: Test closing stuff
 
-          // if our associated transport closes, close ourself, too
-          dataProducer.on("transportclose", () => {
-            console.log("data producer's transport closed: ", dataProducer.id)
-            dataProducer.close()
-            this.roomState.dataProducers = this.roomState.dataProducers.filter(producer => producer.id !== dataProducer.id)
-          })
-          console.log('Sending dataproducer id to client:', dataProducer.id)
-          callback({ id: dataProducer.id })
-        } catch (e) {
-          callback({ error: e })
+            // if our associated transport closes, close ourself, too
+            dataProducer.on("transportclose", () => {
+              console.log("data producer's transport closed: ", dataProducer.id)
+              dataProducer.close()
+              this.roomState.dataProducers = this.roomState.dataProducers.filter(
+                producer => producer.id !== dataProducer.id
+              )
+            })
+            console.log("Sending dataproducer id to client:", dataProducer.id)
+            callback({ id: dataProducer.id })
+          } catch (e) {
+            callback({ error: e })
+          }
         }
-      })
+      )
       socket.on(MessageTypes.WebRTCConsumeData, this.handleConsumeDataEvent(socket))
 
       // --> /signaling/connect-transport

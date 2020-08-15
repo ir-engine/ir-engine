@@ -153,7 +153,7 @@ class Entity {
     reset() {
         this.id = World.nextEntityId++;
         this.componentTypes.length = 0;
-        this.queries.length = 0;
+        this.queryResults.length = 0;
         for (const componentId in this.components) {
             delete this.components[componentId];
         }
@@ -66774,7 +66774,7 @@ class TransformSystem extends System {
     }
     execute(delta, time) {
         // Hierarchy
-        // this.queries.parent.results?.forEach((entity: Entity) => {
+        // this.queryResults.parent.results?.forEach((entity: Entity) => {
         //   this.childTransformBehavior(entity, {}, delta)
         //   // Transform children by parent
         // })
@@ -74162,7 +74162,7 @@ class PhysicsSystem extends System {
             //   obj.userData.body = body
             //   PhysicsWorld.instance.physicsWorld.addBody(body)
             // }
-            // for (const entity of this.queries.vehicleBody.added) {
+            // for (const entity of this.queryResults.vehicleBody.added) {
             //   const object = getComponent<Object3DComponent>(entity, Object3DComponent).value
             //   const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody
             //   const [vehicle, wheelBodies] = _createVehicleBody(entity, vehicleComponent.convexMesh)

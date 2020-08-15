@@ -1,4 +1,5 @@
 import * as THREE from "three"
+import { ParticleMesh, ParticleMeshMaterial, particleMeshOptions, ParticleGeometry } from "../interfaces"
 // import { RGBFormat } from "three"
 // import { DataTexture } from "three"
 // import { TextureLoader } from "three"
@@ -27,8 +28,8 @@ const shaderIDs = {
   SpriteMaterial: "sprite"
 }
 
-export function createParticleMesh(options) {
-  const config = {
+export function createParticleMesh(options: particleMeshOptions): ParticleMesh {
+  const config: particleMeshOptions = {
     particleCount: 1000,
     texture: "",
     textureFrame: { cols: 1, rows: 1 },
@@ -87,7 +88,7 @@ export function createParticleMesh(options) {
 
   injectParticleShaderCode(material)
 
-  updateMaterial(material, config)
+  updateMaterial(material as ParticleMeshMaterial, config)
 
   let particleMesh
   if (isMesh) {
@@ -106,7 +107,7 @@ export function createParticleMesh(options) {
   return particleMesh
 }
 
-export function updateGeometry(geometry, config) {
+export function updateGeometry(geometry: ParticleGeometry, config: particleMeshOptions): void {
   const particleCount = config.particleCount
   const NUM_KEYFRAMES = 3
 
@@ -169,7 +170,7 @@ export function updateGeometry(geometry, config) {
     geometry.setAttribute("velocityscale", new bufferFn(velocityScales, velocityScales.length / particleCount))
   }
 
-  if ("maxInstancedCount" in geometry) {
+  if (geometry instanceof THREE.InstancedBufferGeometry) {
     geometry.instanceCount = particleCount
   }
 
@@ -179,7 +180,7 @@ export function updateGeometry(geometry, config) {
   }
 }
 
-export function updateMaterial(material, config) {
+export function updateMaterial(material: ParticleMeshMaterial, config: particleMeshOptions): void {
   updateOriginalMaterialUniforms(material)
 
   material.uniforms.textureAtlas.value[0] = 0 // 0,0 unpacked uvs
@@ -236,7 +237,7 @@ export function updateMaterial(material, config) {
   material.needsUpdate = true
 }
 
-export function updateOriginalMaterialUniforms(material): void {
+export function updateOriginalMaterialUniforms(material: ParticleMeshMaterial): void {
   if (material.originalMaterial) {
     for (const k in material.uniforms) {
       if (k in material) {
@@ -246,7 +247,7 @@ export function updateOriginalMaterialUniforms(material): void {
   }
 }
 
-export function setMaterialTime(material, time): void {
+export function setMaterialTime(material: ParticleMeshMaterial, time: number): void {
   material.uniforms.time.value = time
 }
 

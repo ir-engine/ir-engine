@@ -2,11 +2,16 @@ import { Matrix4, Quaternion, Vector3 } from "three"
 import { Object3DComponent } from "../../common/components/Object3DComponent"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { TransformParentComponent } from "../../transform/components/TransformParentComponent"
-import { createParticleEmitter, setEmitterMatrixWorld, setEmitterTime } from "../classes/ParticleEmitter"
 import { ParticleEmitter, ParticleEmitterState } from "../components/ParticleEmitter"
 import { System, Attributes } from "../../ecs/classes/System"
 import { registerComponent } from "../../ecs/functions/ComponentFunctions"
-import { getComponent, addComponent } from "../../ecs/functions/EntityFunctions"
+import { getComponent, addComponent, removeComponent } from "../../ecs/functions/EntityFunctions"
+import {
+  createParticleEmitter,
+  deleteParticleEmitter,
+  setEmitterMatrixWorld,
+  setEmitterTime
+} from "../classes/ParticleEmitter"
 
 export class ParticleSystem extends System {
   init(attributes?: Attributes): void {
@@ -44,6 +49,16 @@ export class ParticleSystem extends System {
 
       setEmitterTime(emitterState.emitter3D, time)
     }
+
+    for (const entity of this.queryResults.emitters.removed) {
+      //const emitterState = getComponent(entity, ParticleEmitterState)
+      removeComponent(entity, ParticleEmitterState)
+    }
+
+    for (const entity of this.queryResults.emitterStates.removed) {
+      const emitterState = getComponent(entity, ParticleEmitterState, true) as ParticleEmitterState
+      deleteParticleEmitter(emitterState.emitter3D)
+    }
   }
 }
 
@@ -57,7 +72,10 @@ ParticleSystem.queries = {
   },
 
   emitterStates: {
-    components: [ParticleEmitterState]
+    components: [ParticleEmitterState],
+    listen: {
+      removed: true
+    }
   }
 }
 
