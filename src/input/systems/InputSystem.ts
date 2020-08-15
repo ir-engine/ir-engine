@@ -1,4 +1,4 @@
-import { System } from "ecsy"
+import { System, World } from "ecsy"
 import { Input } from "../components/Input"
 import { DefaultInputSchema } from "../defaults/DefaultInputSchema"
 import { WebXRRenderer } from "../components/WebXRRenderer"
@@ -7,14 +7,24 @@ import { initializeSession, processSession } from "../behaviors/WebXRInputBehavi
 import { initVR } from "../functions/WebXRFunctions"
 import { handleInput } from "../behaviors/handleInput"
 
+
 export class InputSystem extends System {
-  readonly mainControllerId = 0
-  readonly secondControllerId = 1
+  readonly mainControllerId //= 0
+  readonly secondControllerId //= 1
 
   // Temp/ref variables
   private _inputComponent: Input
-  // bound DOM listeners should be saved, otherwise they can't be unbound, becouse (f => f) !== (f => f)
-  private boundListeners = new Set()
+  private boundListeners //= new Set()
+
+  constructor(world = new World, atributes={}){
+    world.registerComponent(Input)
+    world.registerComponent(WebXRRenderer)
+    world.registerComponent(WebXRSession)
+    super(world, atributes)
+    this.mainControllerId = 0
+    this.secondControllerId = 1
+    this.boundListeners = new Set()
+  }
 
   init(onVRSupportRequested): void {
     if (onVRSupportRequested) initVR(onVRSupportRequested)

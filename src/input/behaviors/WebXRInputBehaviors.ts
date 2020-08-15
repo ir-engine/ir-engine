@@ -1,4 +1,4 @@
-import { Entity } from "ecsy"
+import { Entity, ComponentConstructor } from "ecsy"
 import { WebXRMainController } from "../components/WebXRMainController"
 import { WebXRMainGamepad } from "../components/WebXRMainGamepad"
 import { WebXRPointer } from "../components/WebXRPointer"
@@ -25,7 +25,7 @@ export const processSession: Behavior = (entity: Entity) => {
       //     xrImmersiveRefSpace :
       //     inlineViewerHelper.referenceSpace;
       const { space, spaceType } = entity.getComponent(WebXRSpace)
-      if (space) setComponent(entity, { class: WebXRViewPoint, pose: frame.getViewerPose(space) })
+      if (space) setComponent(entity, WebXRViewPoint, {pose: frame.getViewerPose(space) })
 
       const controllers = space ? getInputSources(session, frame, space) : []
       let main, second
@@ -34,15 +34,15 @@ export const processSession: Behavior = (entity: Entity) => {
       } else if (controllers.length == 2) {
         main = controllers[mainControllerId]
         second = controllers[secondControllerId]
-        setComponent(entity, { class: WebXRSecondController, pose: second.gripPose, handId: second.handedness })
+        setComponent(entity, WebXRSecondController, {pose: second.gripPose, handId: second.handedness })
         const { gamepad } = second
-        if (gamepad) setComponent(entity, { class: WebXRSecondGamepad, gamepad })
+        if (gamepad) setComponent(entity, WebXRSecondGamepad, {gamepad})
       } else return
       if (main.targetRayPose)
-        setComponent(entity, { class: WebXRPointer, pose: main.targetRayPose, pointMode: main.targetRayMode })
-      setComponent(entity, { class: WebXRMainController, pose: main.gripPose, handId: main.handedness })
+        setComponent(entity, WebXRPointer, {pose: main.targetRayPose, pointMode: main.targetRayMode })
+      setComponent(entity, WebXRMainController, {pose: main.gripPose, handId: main.handedness })
       const { gamepad } = main
-      if (gamepad) setComponent(entity, { class: WebXRMainGamepad, gamepad })
+      if (gamepad) setComponent(entity, WebXRMainGamepad, {gamepad})
     })
   }
 }
@@ -74,11 +74,11 @@ export const initializeSession: Behavior = (entity: Entity, args: { webXRRendere
   console.log("XR session started", session)
 }
 
-function setComponent(entity: Entity, args: { class; data: any }) {
-  if (entity.hasComponent(args.class)) {
-    const mutate = entity.getMutableComponent(args.class)
-    for (const property in args.data) mutate[property] = args.data[property]
+function setComponent(entity: Entity, Class: ComponentConstructor<any>, data: object) {
+  if (entity.hasComponent(Class)) {
+    const mutate = entity.getMutableComponent(Class)
+    for (const property in data) mutate[property] = data[property]
   } else {
-    entity.addComponent(args.class, args.data)
+    entity.addComponent(Class, data)
   }
 }

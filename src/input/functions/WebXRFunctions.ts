@@ -2,6 +2,7 @@ import { Entity } from "ecsy"
 import { WebXRSession } from "../components/WebXRSession"
 import { WebXRSpace } from "../components/WebXRSpace"
 import { WorldComponent } from "../../common/components/WorldComponent"
+import "../types/webxr.d.ts"
 
 export const startVR = (onStarted = Function(), onEnded = Function()) => {
   let entity: Entity, session: XRSession, isImmersive: boolean, spaceType: any
