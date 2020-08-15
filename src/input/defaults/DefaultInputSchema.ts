@@ -8,6 +8,7 @@ import { Thumbsticks } from "../../common/enums/Thumbsticks"
 import { disableScroll, enableScroll } from "../../common/functions/enableDisableScrolling"
 import { preventDefault } from "../../common/functions/preventDefault"
 import { handleKey, handleMouseButton, handleMouseMovement } from "../behaviors/DesktopInputBehaviors"
+import { handleTouch, handleTouchMove } from "../behaviors/TouchBehaviors"
 import { handleGamepadConnected, handleGamepadDisconnected } from "../behaviors/GamepadInputBehaviors"
 import { GamepadButtons } from "../enums/GamepadButtons"
 import { InputType } from "../enums/InputType"
@@ -65,6 +66,42 @@ export const DefaultInputSchema: InputSchema = {
         args: {}
       }
     ],
+
+    // Touch
+    ["touchstart"]: [
+      {
+        behavior: handleTouch,
+        args: {
+          value: BinaryValue.ON
+        }
+      },
+      {
+        behavior: rotateStart,
+        args: {}
+      }
+    ],
+    ["touchend"]: [
+      {
+        behavior: handleTouch,
+        args: {
+          value: BinaryValue.OFF
+        }
+      }
+    ],
+    ["touchcancel"]: [
+      {
+        behavior: handleTouch,
+        args: {
+          value: BinaryValue.OFF
+        }
+      }
+    ],
+    ["touchmove"]: [
+      {
+        behavior: handleTouchMove,
+      }
+    ],
+
     // Keys
     ["keyup"]: [
       {
