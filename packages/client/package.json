@@ -27,8 +27,8 @@
     "react-transition-group": "~4.3.0"
   },
   "dependencies": {
-    "@xr3ngine/common": "^0.0.1",
-    "@xr3ngine/engine": "^0.0.1",
+    "@xr3ngine/common": "^0.2.0",
+    "@xr3ngine/engine": "^0.2.0",
     "@apollo/react-hooks": "^3.1.5",
     "@babel/plugin-proposal-object-rest-spread": "^7.9.0",
     "@feathersjs/authentication-client": "^4.5.2",
@@ -100,7 +100,7 @@
     "three": "^0.115.0"
   },
   "devDependencies": {
-    "@xr3ngine/server": "^0.0.1",
+    "@xr3ngine/server": "^0.2.0",
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.9.0",
     "@babel/register": "^7.9.0",
