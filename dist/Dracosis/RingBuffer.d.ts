@@ -9,6 +9,7 @@ export default class RingBuffer<T> {
     getPos(): number;
     getBufferLength(): number;
     add(...items: T[]): void;
+    addSingle(item: any): void;
     get(index: number): T | undefined;
     getFirst(): T | undefined;
     getLast(): T | undefined;

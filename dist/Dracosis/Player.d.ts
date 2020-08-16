@@ -1,13 +1,14 @@
 /// <reference types="node" />
 import { WorkerInitializationResponse } from './Interfaces';
-import { Scene, BufferGeometry, CompressedTexture, MeshPhongMaterial, Mesh } from 'three';
+import { Scene, Renderer, BufferGeometry, CompressedTexture, MeshBasicMaterial, Mesh } from 'three';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 export default class DracosisPlayer {
     frameRate: number;
     speed: number;
     scene: Scene;
+    renderer: Renderer;
     mesh: Mesh;
-    material: MeshPhongMaterial;
+    material: MeshBasicMaterial;
     bufferGeometry: BufferGeometry;
     compressedTexture: CompressedTexture;
     dracoLoader: DRACOLoader;
@@ -43,7 +44,7 @@ export default class DracosisPlayer {
     get loop(): boolean;
     set loop(value: boolean);
     httpGetAsync(theUrl: any, callback: any): void;
-    constructor(scene: any, filePath: string, onLoaded: any, playOnStart?: boolean, loop?: boolean, startFrame?: number, endFrame?: number, speedMultiplier?: number, bufferSize?: number);
+    constructor(scene: any, renderer: any, filePath: string, onLoaded: any, playOnStart?: boolean, loop?: boolean, startFrame?: number, endFrame?: number, speedMultiplier?: number, bufferSize?: number);
     decodeDracoData(rawBuffer: Buffer): BufferGeometry;
     getBufferFromDracoGeometry(uncompressedDracoMesh: any, decoder: any): BufferGeometry;
     handleMessage(data: any): void;

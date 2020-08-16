@@ -41,6 +41,8 @@ async function encodeMeshToDraco(mesh) {
   var encoder = null;
   const _this = this;
 
+  // console.log('44', mesh.faceVertexUvs[0].length);
+
   let encodedPromise = new Promise((resolve, reject) => {
     dracoEncoderType["onModuleLoaded"] = async function (module) {
       encoder = new module.Encoder();
@@ -48,13 +50,20 @@ async function encodeMeshToDraco(mesh) {
       var dracoMesh = new encoderModule.Mesh();
       var numFaces = mesh.faces.length;
       var numPoints = mesh.vertices.length;
+      var numUvs = mesh.faceVertexUvs.length;
       var numIndices = numFaces * 3;
       var indices = new Uint32Array(numIndices);
       console.log("Number of faces " + numFaces);
       console.log("Number of vertices " + numPoints);
       var vertices = new Float32Array(mesh.vertices.length * 3);
       var normals = new Float32Array(mesh.vertices.length * 3);
-      //   // Add Faces to mesh
+      var uvs = new Float32Array(mesh.faceVertexUvs[0].length * 2);
+
+      console.log('60', mesh.faceVertexUvs[0][0])
+
+      // console.log("60 uv", mesh.uv[0]);
+
+      //  Add Faces to mesh
       for (var i = 0; i < numFaces; i++) {
         var index = i * 3;
         indices[index] = mesh.faces[i].a;
@@ -78,6 +87,23 @@ async function encodeMeshToDraco(mesh) {
         3,
         vertices
       );
+      // Add UVs to mesh
+      // for (var i = 0; i < numUVs; i++) {
+      //   var index = i * 3;
+      //   indices[index] = mesh.faces[i].a;
+      //   indices[index + 1] = mesh.faces[i].b;
+      //   indices[index + 2] = mesh.faces[i].c;
+      // }
+      // console.log('64 indices', indices);
+      meshBuilder.AddFloatAttributeToMesh(
+        dracoMesh,
+        encoderModule.TEX_COORD,
+        numPoints,
+        3,
+        mesh.faceVertexUvs[0]
+      );
+      // meshBuilder.AddFacesToMesh(dracoMesh, numFaces, mesh.);
+
       // Add NORMAL to mesh
       for (var _i = 0, _a = mesh.faces; _i < _a.length; _i++) {
         var face = _a[_i];
@@ -147,7 +173,7 @@ async function encodeMeshToDraco(mesh) {
 exports.encodeMeshToDraco = encodeMeshToDraco;
 
 async function PNGToBasis(inPath) {
-  var basisFilePath = inPath.replace(".jpg", ".basis");
+  var basisFilePath = inPath.replace(".png", ".basis");
   var basisFilePathArray = basisFilePath.split("/");
   basisFilePath = basisFilePathArray[basisFilePathArray.length - 1];
 

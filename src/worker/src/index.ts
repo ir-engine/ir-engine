@@ -28,6 +28,8 @@ import {
   FileLoader,
 } from 'three';
 
+// import { BasisTextureLoader } from 'three/examples/jsm/loaders/BasisTextureLoader.js';
+
 let fileHeader: IFileHeader;
 let filePath: string;
 let fileReadStream: ReadStream;
@@ -41,6 +43,9 @@ let startFrame = 0;
 let endFrame = 0;
 let loop = true;
 let message: WorkerDataResponse;
+
+// let _basisTextureLoader = new BasisTextureLoader();
+
 // let _decoderModule = draco3d.createDecoderModule({});
 
 // const decoderModule = draco3d.createDecoderModule({});
@@ -185,16 +190,14 @@ async function fetchData(data: WorkerDataRequest): Promise<void> {
       textureLength: fileHeader.frameData[frame].textureLength,
     };
 
-    console.log('Body', body);
-
     fetch('http://localhost:8000/dracosis-stream', {
       method: 'POST',
       body: JSON.stringify(body),
       headers: { 'Content-Type': 'application/json' },
     })
       .then((res) => {
-        console.log(res.status);
-        console.log(res);
+        // console.log(res.status);
+        // console.log(res);
         // @ts-ignore
         return res.arrayBuffer();
         // return res.buffer();
@@ -203,8 +206,8 @@ async function fetchData(data: WorkerDataRequest): Promise<void> {
         // const geometryString = text.substring(startBytePosition, meshLength);
         // const bufferGeom = Buffer.from(geometryString);
         // console.log(hexdump(buffer));
-        console.log('202 inside fetch');
-        console.log(buffer.byteLength);
+        // console.log('202 inside fetch');
+        // console.log(buffer.byteLength, fileHeader.frameData[frame].meshLength, fileHeader.frameData[frame].textureLength);
 
         const bufferGeom = buffer.slice(
           0,
@@ -212,8 +215,7 @@ async function fetchData(data: WorkerDataRequest): Promise<void> {
         );
 
         const bufferTex = buffer.slice(
-          fileHeader.frameData[frame].meshLength,
-          fileHeader.frameData[frame].textureLength
+          fileHeader.frameData[frame].meshLength
         );
         // const bufferGeom = Buffer.alloc(fileHeader.frameData[frame].meshLength);
         // const bufferTex = Buffer.alloc(
@@ -222,6 +224,9 @@ async function fetchData(data: WorkerDataRequest): Promise<void> {
 
         // buffer.copy(bufferGeom, 0, 0, fileHeader.frameData[frame].meshLength);
         // buffer.copy(bufferTex, 0, fileHeader.frameData[frame].meshLength);
+
+        // console.log("224 BufferTex", bufferTex);
+        // console.log("225 Texture Length", fileHeader.frameData[frame].textureLength);
 
         tempBufferObject.frameNumber = frame;
         tempBufferObject.bufferGeometry = bufferGeom;
@@ -238,6 +243,13 @@ async function fetchData(data: WorkerDataRequest): Promise<void> {
           bufferGeometry: null,
           compressedTexture: null,
         };
+
+        console.log("Type of tex", typeof bufferTex)
+        console.log("Bytelength", bufferTex.byteLength)
+
+        // // @ts-ignore
+        // const newTex = _basisTextureLoader._createTexture(bufferTex, tempBufferObject.frameNumber.toString());
+        // console.log("249 New Texture", newTex);
 
         count++;
 
