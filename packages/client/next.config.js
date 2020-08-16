@@ -26,11 +26,12 @@ module.exports = withImages(
           }
         }
       })
-      config.module.rules.push([{
+      config.module.rules.push({
         test: /\.ts$/,
         use: 'ts-loader',
         include: /shared/
-      },
+      })
+      config.module.rules.push(
       {
         test: /\.(png|jpg|jpeg|gif|svg)(\?.*$|$)/,
         use: {
@@ -40,7 +41,8 @@ module.exports = withImages(
             outputPath: "components/editor/assets/images"
           }
         }
-      },
+      })
+      config.module.rules.push(
       {
         test: /\.(woff|woff2|ttf|eot)(\?.*$|$)/,
         use: {
@@ -50,8 +52,8 @@ module.exports = withImages(
             outputPath: "components/editor/assets/fonts"
           }
         }
-      },
-      {
+      })
+      config.module.rules.push({
         test: /\.(glb)(\?.*$|$)/,
         use: {
           loader: "file-loader",
@@ -60,8 +62,8 @@ module.exports = withImages(
             outputPath: "components/editor/assets/models"
           }
         }
-      },
-      {
+      }),
+      config.module.rules.push({
         test: /\.(gltf)(\?.*$|$)/,
         use: {
           loader: "gltf-webpack-loader",
@@ -70,8 +72,8 @@ module.exports = withImages(
             outputPath: "components/editor/assets/models"
           }
         }
-      },
-      {
+      }),
+      config.module.rules.push({
         test: /\.(bin)$/,
         use: [
           {
@@ -82,8 +84,8 @@ module.exports = withImages(
             }
           }
         ]
-      },
-      {
+      }),
+      config.module.rules.push({
         test: /\.(mp4|webm)(\?.*$|$)/,
         use: {
           loader: "file-loader",
@@ -92,9 +94,9 @@ module.exports = withImages(
             outputPath: "components/editor/assets/videos"
           }
         }
-      },
-      {
-        test: /\.(spoke)(\?.*$|$)/,
+      }),
+      config.module.rules.push({
+        test: /\.(world)(\?.*$|$)/,
         use: {
           loader: "file-loader",
           options: {
@@ -102,13 +104,13 @@ module.exports = withImages(
             outputPath: "components/editor/assets/templates"
           }
         }
-      },
-      {
+      }),
+      config.module.rules.push({
         test: /\.js$/,
         include: path.join(__dirname, "src"),
         use: "babel-loader"
-      },
-      {
+      }),
+      config.module.rules.push({
         test: /\.worker\.js$/,
         include: path.join(__dirname, "src"),
         loader: "worker-loader",
@@ -120,8 +122,8 @@ module.exports = withImages(
           inline: true,
           fallback: false
         }
-      },
-      {
+      }),
+      config.module.rules.push({
         test: /\.wasm$/,
         type: "javascript/auto",
         use: {
@@ -131,9 +133,9 @@ module.exports = withImages(
             name: "[name]-[hash].[ext]"
           }
         }
-      }
-      ])
-      config.plugins.push([new CircularDependencyPlugin({
+      })
+
+      config.plugins.push(new CircularDependencyPlugin({
         exclude: /a\.js|node_modules/,
         // add errors to webpack instead of warnings
         failOnError: true,
@@ -142,40 +144,7 @@ module.exports = withImages(
         allowAsyncCycles: false,
         // set the current working directory for displaying module paths
         cwd: process.cwd()
-      }),
-      new webpack.EnvironmentPlugin({
-        BUILD_VERSION: "dev",
-        NODE_ENV: "development",
-        API_SERVER_ADDRESS: undefined,
-        API_ASSETS_ROUTE: "",
-        API_ASSETS_ACTION: "",
-        API_MEDIA_ROUTE: "",
-        API_MEDIA_SEARCH_ROUTE: "",
-        API_META_ROUTE: "",
-        API_PROJECTS_ROUTE: "",
-        API_PROJECT_PUBLISH_ACTION: "",
-        API_RESOLVE_MEDIA_ROUTE: "",
-        API_SCENES_ROUTE: "",
-        API_SOCKET_ENDPOINT: "",
-        THUMBNAIL_SERVER: "",
-        THUMBNAIL_ROUTE: "",
-        CLIENT_SCENE_ROUTE: "",
-        CLIENT_LOCAL_SCENE_ROUTE: "",
-        USE_DIRECT_UPLOAD_API: true,
-        CLIENT_ADDRESS: undefined,
-        CORS_PROXY_SERVER: null,
-        BASE_ASSETS_PATH: "",
-        NON_CORS_PROXY_DOMAINS: "",
-        ROUTER_BASE_PATH: "",
-        SENTRY_DSN: null,
-        GA_TRACKING_ID: null,
-        IS_XR3: true,
-        USE_HTTPS: true,
-        GITHUB_ORG: "xr3ngine",
-        GITHUB_REPO: "xr3ngine",
-        GITHUB_PUBLIC_TOKEN: ""
       })
-      ]
       )
       return config
     }

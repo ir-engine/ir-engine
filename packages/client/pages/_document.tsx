@@ -2,7 +2,7 @@ import React, { Children } from 'react'
 import getConfig from 'next/config'
 import Document, { Html, Head, Main, NextScript } from 'next/document'
 import { ServerStyleSheets } from '@material-ui/core/styles'
-import theme from '../components/editor/assets/theme'
+import theme from '../theme'
 
 const { publicRuntimeConfig } = getConfig()
 const siteDescription: string = publicRuntimeConfig.siteDescription
