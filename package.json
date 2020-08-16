@@ -51,5 +51,8 @@
   "types": "lib/",
   "pre-push": [
     "test"
-  ]
+  ],
+  "devDependencies": {
+    "lerna": "^3.22.1"
+  }
 }

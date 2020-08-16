@@ -1,4 +1,4 @@
-import axios from '../../packages/server/tests/services/node_modules/axios'
+import axios from 'node_modules/axios'
 import getConfig from 'next/dist/next-server/lib/runtime-config'
 const { publicRuntimeConfig } = getConfig()
 

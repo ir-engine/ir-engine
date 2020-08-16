@@ -8,7 +8,7 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { resendVerificationEmail } from '../../../redux/auth/service'
 import { selectAuthState } from '../../../redux/auth/selector'
 import EmptyLayout from '../Layout/EmptyLayout'
-import { IdentityProvider } from '../../../../common/interfaces/IdentityProvider'
+import { IdentityProvider } from '@xr3ngine/common'
 import './style.scss'
 
 const mapStateToProps = (state: any): any => {

@@ -5,8 +5,8 @@ import {
   REMOVED_FRIEND,
   FETCHING_FRIENDS
 } from '../actions'
-import { User } from '../../../common/interfaces/User'
-import { UserRelationship } from '../../../common/interfaces/UserRelationship'
+import { User } from '@xr3ngine/common'
+import { UserRelationship } from '@xr3ngine/commonRelationship'
 import { FriendResult } from '../../../common/interfaces/FriendResult'
 
 export interface LoadedFriendsAction {

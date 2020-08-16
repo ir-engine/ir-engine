@@ -8,7 +8,7 @@
  * and morphTargets.
  */
 
-import _ from "../../../../packages/server/hooks/node_modules/lodash"
+import _ from "lodash"
 
 /**
  * This class stores macrovariables. They need transformation and it happens

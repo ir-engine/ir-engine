@@ -1,4 +1,4 @@
-import _ from "../../../../packages/server/hooks/node_modules/lodash"
+import _ from "lodash"
 import * as THREE from "three"
 
 export function ExportOBJ(object) {

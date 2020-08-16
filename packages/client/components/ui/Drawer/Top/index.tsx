@@ -21,7 +21,7 @@ import {
     removeParty,
     removePartyUser
 } from '../../../../redux/party/service'
-import {User} from "../../../../../common/interfaces/User";
+import {User} from "@xr3ngine/common";
 import { AppBar } from '@material-ui/core'
 
 

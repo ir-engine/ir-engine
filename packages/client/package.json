@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "next start",
-    "dev": "cross-env NODE_ENV=dev next --port $PORT",
+    "dev": "cross-env NODE_ENV=dev next --port 3000",
     "build": "next build",
     "validate": "yarn run lint && yarn run test",
     "test": "echo 'TODO: Add Testing to Client'",

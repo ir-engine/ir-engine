@@ -9,7 +9,7 @@
 
 // TODO I want to bypass threejs morphtarget sinxe it only support 8target. ThenI canjust update the vertices
 
-import _ from "../../../../packages/server/hooks/node_modules/lodash"
+import _ from "lodash"
 import * as THREE from "three"
 import { invertByMany } from "../../common/functions/MakeHumanHelpers"
 import targetCategories from "../json/targets/target-category-data.json"

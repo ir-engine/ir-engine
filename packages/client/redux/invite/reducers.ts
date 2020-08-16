@@ -6,7 +6,7 @@ import {
   CreatedInviteAction,
   RemovedInviteAction
 } from './actions'
-import _ from '../../../packages/server/hooks/node_modules/lodash'
+import _ from 'lodash'
 
 import {
   SENT_INVITES_RETRIEVED,

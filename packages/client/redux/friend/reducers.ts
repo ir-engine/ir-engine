@@ -13,9 +13,9 @@ import {
   REMOVED_FRIEND,
   FETCHING_FRIENDS
 } from '../actions'
-import { User } from '../../../common/interfaces/User'
-import { UserRelationship } from '../../../common/interfaces/UserRelationship'
-import _ from '../../../packages/server/hooks/node_modules/lodash'
+import { User } from '@xr3ngine/common'
+import { UserRelationship } from '@xr3ngine/commonRelationship'
+import _ from 'lodash'
 
 export const initialState = {
   friends: {

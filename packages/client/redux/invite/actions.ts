@@ -13,7 +13,7 @@ import {
 
 import { Invite } from '../../../common/interfaces/Invite'
 import { InviteResult } from '../../../common/interfaces/InviteResult'
-import { User } from '../../../common/interfaces/User'
+import { User } from '@xr3ngine/common'
 
 export interface InviteSentAction {
   type: string,

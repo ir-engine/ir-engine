@@ -29,8 +29,8 @@ import {
 import { Message } from '../../../common/interfaces/Message'
 import { Channel } from '../../../common/interfaces/Channel'
 
-import _ from '../../../packages/server/hooks/node_modules/lodash'
-import moment from '../../../packages/server/services/login-token/node_modules/moment'
+import _ from 'lodash'
+import moment from 'moment'
 
 export const initialState = {
   channels: {

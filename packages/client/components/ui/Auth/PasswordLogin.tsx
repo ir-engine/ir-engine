@@ -17,7 +17,7 @@ import { showDialog, closeDialog } from '../../../redux/dialog/service'
 import SignUp from './Register'
 import ForgotPassword from './ForgotPassword'
 import './style.scss'
-import { User } from '../../../../common/interfaces/User'
+import { User } from '@xr3ngine/common'
 import { ProposalActions } from 'aws-sdk/clients/managedblockchain'
 
 const mapStateToProps = (state: any): any => {

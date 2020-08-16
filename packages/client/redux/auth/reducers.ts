@@ -25,7 +25,7 @@ import {
   USERNAME_UPDATED
 } from '../actions'
 import { getStoredState } from '../persisted.store'
-import { UserSeed } from '../../../common/interfaces/User'
+import { UserSeed } from '@xr3ngine/common'
 import { IdentityProviderSeed } from '../../../common/interfaces/IdentityProvider'
 import { AuthUserSeed } from '../../../common/interfaces/AuthUser'
 

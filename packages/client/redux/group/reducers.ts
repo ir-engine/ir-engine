@@ -25,7 +25,7 @@ import {
   PATCHED_GROUP_USER
 } from '../actions'
 
-import _ from '../../../packages/server/hooks/node_modules/lodash'
+import _ from 'lodash'
 import {GroupUser} from "../../../common/interfaces/GroupUser";
 
 export const initialState = {
