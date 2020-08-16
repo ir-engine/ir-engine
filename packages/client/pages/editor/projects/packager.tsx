@@ -1,9 +1,8 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
-import NavBar from "../navigation/NavBar";
-import FileInput from "../inputs/FileInput";
-import ProgressBar from "../inputs/ProgressBar";
-import KitPackager from "../../editor/kits/KitPackager";
+import KitPackager from "../../../components/editor/kits/KitPackager"
+import ProgressBar from "../../../components/editor/ui/inputs/ProgressBar"
+import FileInput from "../../../components/editor/ui/inputs/FileInput"
 const Container = styled.div`
   display: flex;
   margin: auto;
@@ -53,7 +52,6 @@ export default function PackageKitPage() {
   }, []);
   return (
     <>
-      <NavBar />
       <main>
         <Container>
           <h1>Kit Packager</h1>

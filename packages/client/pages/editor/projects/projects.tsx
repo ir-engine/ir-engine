@@ -1,22 +1,12 @@
 import React, { Component } from "react";
-import configs from "../../configs";
-import { withApi } from "../contexts/ApiContext";
-import NavBar from "../navigation/NavBar";
-import {
-  ProjectGrid,
-  ProjectGridContainer,
-  ProjectGridHeader,
-  ProjectGridHeaderRow,
-  ProjectGridContent,
-  ErrorMessage
-} from "./ProjectGrid";
-import { Button } from "../inputs/Button";
-import { MediumButton } from "../inputs/Button";
-import { Link } from "react-router-dom";
-import LatestUpdate from "../whats-new/LatestUpdate";
-import { connectMenu, ContextMenu, MenuItem } from "../layout/ContextMenu";
-import templates from "./templates";
 import styled from "styled-components";
+import { ContextMenu, connectMenu, MenuItem } from "../../../components/editor/ui/layout/ContextMenu";
+import templates from "../../../components/editor/ui/projects/templates";
+import { Button, MediumButton } from "../../../components/editor/ui/inputs/Button";
+import { ProjectGridContainer, ProjectGridHeader, ProjectGridHeaderRow, ProjectGridContent, ErrorMessage, ProjectGrid } from "../../../components/editor/ui/projects/ProjectGrid";
+import { withApi } from "../../../components/editor/ui/contexts/ApiContext";
+import { Link } from "react-router-dom";
+import configs from "../../../spoke/configs"
 export const ProjectsSection = styled.section`
   padding-bottom: 100px;
   display: flex;
@@ -78,9 +68,9 @@ type ProjectsPageState = { projects: any, loading: boolean } & {
     error: null
   };
 class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
-  constructor(props) {
+  constructor(props: ProjectsPageProps) {
     super(props);
-    const isAuthenticated = this.props.api.isAuthenticated();
+    const isAuthenticated = (this.props as any).api.isAuthenticated();
     this.state = {
       projects: [],
       loading: isAuthenticated,
@@ -91,7 +81,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
   componentDidMount() {
     // We dont need to load projects if the user isn't logged in
     if (this.state.isAuthenticated) {
-      this.props.api
+      (this.props as any).api
         .getProjects()
         .then(projects => {
           this.setState({
@@ -106,14 +96,14 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
           console.error(error);
           if (error.response && error.response.status === 401) {
             // User has an invalid auth token. Prompt them to login again.
-            return this.props.history.push("/", { from: "/projects" });
+            return (this.props as any).history.push("/", { from: "/projects" });
           }
           this.setState({ error, loading: false });
         });
     }
   }
   onDeleteProject = project => {
-    this.props.api
+    (this.props as any).api
       .deleteProject(project.project_id)
       .then(() =>
         this.setState({
@@ -127,7 +117,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
   renderContextMenu = props => {
     return (
       <ContextMenu id={contextMenuId}>
-        <MenuItem onClick={e => this.onDeleteProject(props.trigger.project, e)}>
+        <MenuItem onClick={e => this.onDeleteProject(props.trigger.project)}>
           Delete Project
         </MenuItem>
       </ContextMenu>
@@ -143,7 +133,6 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
     }
     return (
       <>
-        <NavBar />
         <main>
           {!isAuthenticated || (projects.length === 0 && !loading) ? (
             <ProjectsSection flex={0}>
@@ -159,9 +148,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
                 </MediumButton>
               </WelcomeContainer>
             </ProjectsSection>
-          ) : (
-            <LatestUpdate />
-          )}
+          ) : null}
           <ProjectsSection>
             <ProjectsContainer>
               <ProjectsHeader>

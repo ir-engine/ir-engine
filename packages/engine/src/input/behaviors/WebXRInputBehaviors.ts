@@ -12,6 +12,7 @@ import { WebXRViewPoint } from "../components/WebXRViewPoint"
 import { getInputSources } from "../functions/WebXRFunctions"
 import { getComponent, hasComponent, getMutableComponent, addComponent } from "../../ecs/functions/EntityFunctions"
 import { ComponentConstructor } from "../../ecs/classes/Component"
+import { XRWebGLLayer } from "../types/WebXR"
 
 let mainControllerId: any
 let secondControllerId: any

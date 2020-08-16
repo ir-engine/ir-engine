@@ -12,7 +12,6 @@ import { ApiContextProvider } from "./contexts/ApiContext";
 
 import RedirectRoute from "./router/RedirectRoute";
 
-import LandingPage from "./landing/LandingPage";
 import ProjectsPage from "./projects/ProjectsPage";
 import CreateProjectPage from "./projects/CreateProjectPage";
 
@@ -65,7 +64,6 @@ export default class App extends Component {
               <GlobalStyle />
               <Column as={Suspense} fallback={<Loading message="Loading..." fullScreen />}>
                 <Switch>
-                  {configs.isXR3() && <Route path="/" exact component={LandingPage} />}
                   {!configs.isXR3() && <RedirectRoute path="/" exact to="/projects" />}
                   <RedirectRoute path="/new" exact to="/projects" />
                   <Route path="/projects/create" exact component={CreateProjectPage} />

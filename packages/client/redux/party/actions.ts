@@ -9,10 +9,10 @@ import {
   CREATED_PARTY_USER,
   PATCHED_PARTY_USER
 } from '../actions'
-import { Party } from '@xr3ngine/common'
-import { PartyUser } from '@xr3ngine/common'
-import { PartyResult } from '@xr3ngine/common'
-import { PartyUserResult } from '@xr3ngine/common'
+import { Party } from '@xr3ngine/common/interfaces/Party'
+import { PartyUser } from '@xr3ngine/common/interfaces/PartyUser'
+import { PartyResult } from '@xr3ngine/common/interfaces/PartyResult'
+import { PartyUserResult } from '@xr3ngine/common/interfaces/PartyUserResult'
 
 export interface LoadedPartyAction {
   type: string

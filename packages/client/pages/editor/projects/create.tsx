@@ -1,7 +1,6 @@
 import React, { useCallback, useState, useContext } from "react";
 import PropTypes from "prop-types";
-import ScrollToTop from "../router/ScrollToTop";
-import NavBar from "../navigation/NavBar";
+import ScrollToTop from "../../../components/editor/ui/router/ScrollToTop";
 import {
   ProjectGrid,
   ProjectGridContainer,
@@ -12,15 +11,15 @@ import {
   SearchInput,
   ProjectGridContent,
   ErrorMessage
-} from "./ProjectGrid";
+} from "../../../components/editor/ui/projects/ProjectGrid";
 
-import PrimaryLink from "../inputs/PrimaryLink";
-import { Button } from "../inputs/Button";
-import { ProjectsSection, ProjectsContainer, ProjectsHeader } from "./ProjectsPage";
-import { ApiContext } from "../contexts/ApiContext";
+import PrimaryLink from "../../../components/editor/ui/inputs/PrimaryLink";
+import { Button } from "../../../components/editor/ui/inputs/Button";
+import { ProjectsSection, ProjectsContainer, ProjectsHeader } from "../../../components/editor/ui/projects/ProjectsPage";
+import { ApiContext } from "../../../components/editor/ui/contexts/ApiContext";
 import { Link } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroller";
-import usePaginatedSearch from "./usePaginatedSearch";
+import usePaginatedSearch from "../../../components/editor/ui/projects/usePaginatedSearch";
 
 export default function CreateProjectPage({ history, location }) {
   const api = useContext(ApiContext);
@@ -79,17 +78,8 @@ export default function CreateProjectPage({ history, location }) {
     });
   }, [updateParams, params]);
 
-  const onSelectScene = useCallback(
-    scene => {
-      const search = new URLSearchParams();
-      search.set("sceneId", scene.id);
-      history.push(`/projects/new?${search}`);
-    },
-    [history]
-  );
-
   // MODIFIED FROM ORIGINAL
-  const { loading, error, entries, hasMore, loadMore } = { loading: false, error: false, entries: [] };
+  const { loading, error, entries } = { loading: false, error: false, entries: [] };
 
   const filteredEntries = entries.map(result => ({
     ...result,
@@ -99,7 +89,6 @@ export default function CreateProjectPage({ history, location }) {
 
   return (
     <>
-      <NavBar />
       <main>
         <ProjectsSection>
           <ProjectsContainer>
@@ -127,24 +116,14 @@ export default function CreateProjectPage({ history, location }) {
               </ProjectGridHeader>
               <ProjectGridContent>
                 <ScrollToTop />
-                {error && <ErrorMessage>{error.message}</ErrorMessage>}
+                {error && <ErrorMessage>{(error as any).message}</ErrorMessage>}
                 {!error && (
-                  <InfiniteScroll
-                    initialLoad={false}
-                    pageStart={0}
-                    loadMore={loadMore}
-                    hasMore={hasMore}
-                    threshold={100}
-                    useWindow={true}
-                  >
                     <ProjectGrid
                       projects={filteredEntries}
                       newProjectPath="/projects/new"
                       newProjectLabel="New Empty Project"
-                      onSelectProject={onSelectScene}
                       loading={loading}
                     />
-                  </InfiniteScroll>
                 )}
               </ProjectGridContent>
             </ProjectGridContainer>

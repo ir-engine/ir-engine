@@ -3,6 +3,6 @@ module.exports = {
         "next/babel",
         ['@babel/preset-env', {targets: {node: 'current'}}],
         '@babel/preset-typescript',
-        "react"
+        "@babel/preset-react"
     ]
   }

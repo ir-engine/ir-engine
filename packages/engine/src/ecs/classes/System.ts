@@ -32,7 +32,7 @@ export interface NotComponent<C extends Component<any>> {
 import { componentRegistered, queryKey } from "../functions/Utils"
 import { Component, ComponentConstructor } from "./Component"
 import { Entity } from "./Entity"
-import Query from "./Query"
+import { Query} from "./Query"
 import { registerComponent } from "../functions/ComponentFunctions"
 
 export abstract class System {

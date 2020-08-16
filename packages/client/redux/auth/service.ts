@@ -23,12 +23,12 @@ import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service'
 import { validateEmail, validatePhoneNumber } from '../helper'
 import { axiosRequest, apiUrl } from '../service.common'
 
-import { resolveUser } from '@xr3ngine/common'
-import { resolveAuthUser } from '@xr3ngine/common'
-import { IdentityProvider } from '@xr3ngine/common'
+import { IdentityProvider } from '@xr3ngine/common/interfaces/IdentityProvider'
 import getConfig from 'next/config'
 import { getStoredState } from '../persisted.store'
 import axios from 'axios'
+import { resolveAuthUser } from '@xr3ngine/common/interfaces/AuthUser'
+import { resolveUser } from '@xr3ngine/common/interfaces/User'
 
 const { publicRuntimeConfig } = getConfig()
 const apiServer: string = publicRuntimeConfig.apiServer

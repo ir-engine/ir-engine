@@ -1,34 +1,34 @@
-import cliffmeetingTemplateUrl from "../../assets/templates/cliffside-meeting-room.editor";
+import cliffmeetingTemplateUrl from "../../assets/templates/cliffside-meeting-room.world;
 import cliffmeetingTemplateThumbnail from "../../assets/templates/cliffside-meeting-room.jpg";
 
-import clubhubTemplateUrl from "../../assets/templates/club-hub.editor";
+import clubhubTemplateUrl from "../../assets/templates/club-hub.world;
 import clubhubTemplateThumbnail from "../../assets/templates/club-hub.jpg";
 
-import cudilleroTemplateUrl from "../../assets/templates/cudillero-diorama.editor";
+import cudilleroTemplateUrl from "../../assets/templates/cudillero-diorama.world;
 import cudilleroTemplateThumbnail from "../../assets/templates/cudillero-diorama.jpg";
 
-import hunterslodgeTemplateUrl from "../../assets/templates/hunters-lodge.editor";
+import hunterslodgeTemplateUrl from "../../assets/templates/hunters-lodge.world;
 import hunterslodgeTemplateThumbnail from "../../assets/templates/hunters-lodge.jpg";
 
-import mozatriumTemplateUrl from "../../assets/templates/moz-atrium.editor";
+import mozatriumTemplateUrl from "../../assets/templates/moz-atrium.world;
 import mozatriumTemplateThumbnail from "../../assets/templates/moz-atrium.jpg";
 
-import outdoormeetupTemplateUrl from "../../assets/templates/outdoor-meetup.editor";
+import outdoormeetupTemplateUrl from "../../assets/templates/outdoor-meetup.world;
 import outdoormeetupTemplateThumbnail from "../../assets/templates/outdoor-meetup.jpg";
 
-import riverislandTemplateUrl from "../../assets/templates/river-island.editor";
+import riverislandTemplateUrl from "../../assets/templates/river-island.world;
 import riverislandTemplateThumbnail from "../../assets/templates/river-island.jpg";
 
-import trippytunnelTemplateUrl from "../../assets/templates/trippy-tunnel.editor";
+import trippytunnelTemplateUrl from "../../assets/templates/trippy-tunnel.world;
 import trippytunnelTemplateThumbnail from "../../assets/templates/trippy-tunnel.jpg";
 
-import wideopenTemplateUrl from "../../assets/templates/wide-open-space.editor";
+import wideopenTemplateUrl from "../../assets/templates/wide-open-space.world;
 import wideopenTemplateThumbnail from "../../assets/templates/wide-open-space.jpg";
 
-import craterTemplateUrl from "../../assets/templates/crater.editor";
+import craterTemplateUrl from "../../assets/templates/crater.world;
 import craterTemplateThumbnail from "../../assets/templates/crater.jpg";
 
-import surroundedLakeTemplateUrl from "../../assets/templates/surrounded-lake.editor";
+import surroundedLakeTemplateUrl from "../../assets/templates/surrounded-lake.world;
 import surroundedLakeTemplateThumbnail from "../../assets/templates/surrounded-lake.jpg";
 
 const templates = [

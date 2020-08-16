@@ -18,8 +18,8 @@ import {
 } from '../../../redux/auth/service'
 import MagicLinkEmail from '../Auth/MagicLinkEmail'
 import PasswordLogin from '../Auth/PasswordLogin'
-import { User } from '@xr3ngine/common'
-import { IdentityProviderSeed } from '@xr3ngine/common'
+import { User } from '@xr3ngine/common/interfaces/User'
+import { IdentityProviderSeed } from '@xr3ngine/common/interfaces/IdentityProvider'
 import { showAlert } from '../../../redux/alert/actions'
 import './style.scss'
 

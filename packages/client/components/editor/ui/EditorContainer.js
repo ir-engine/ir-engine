@@ -36,8 +36,8 @@ import { Resizeable } from "./layout/Resizeable";
 import DragLayer from "./dnd/DragLayer";
 import Editor from "../editor/Editor";
 
-import defaultTemplateUrl from "./../assets/templates/crater.editor";
-import tutorialTemplateUrl from "./../assets/templates/tutorial.editor";
+import defaultTemplateUrl from "./../assets/templates/crater.world";
+import tutorialTemplateUrl from "./../assets/templates/tutorial.world";
 
 const StyledEditorContainer = styled.div`
   display: flex;
@@ -755,7 +755,7 @@ class EditorContainer extends Component {
 
     const el = document.createElement("input");
     el.type = "file";
-    el.accept = ".editor";
+    el.accept = ".world;
     el.style.display = "none";
     el.onchange = () => {
       if (el.files.length > 0) {
@@ -790,7 +790,7 @@ class EditorContainer extends Component {
     const projectBlob = new Blob([projectJson]);
     const el = document.createElement("a");
     const fileName = this.state.editor.scene.name.toLowerCase().replace(/\s+/g, "-");
-    el.download = fileName + ".editor";
+    el.download = fileName + ".world;
     el.href = URL.createObjectURL(projectBlob);
     document.body.appendChild(el);
     el.click();

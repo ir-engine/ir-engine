@@ -1,7 +1,6 @@
 import React, { useCallback, useState, useContext } from "react";
 import PropTypes from "prop-types";
 import ScrollToTop from "../router/ScrollToTop";
-import NavBar from "../navigation/NavBar";
 import {
   ProjectGrid,
   ProjectGridContainer,
@@ -78,16 +77,6 @@ export default function CreateProjectPage({ history, location }) {
       q: ""
     });
   }, [updateParams, params]);
-
-  const onSelectScene = useCallback(
-    scene => {
-      const search = new URLSearchParams();
-      search.set("sceneId", scene.id);
-      history.push(`/projects/new?${search}`);
-    },
-    [history]
-  );
-
   // MODIFIED FROM ORIGINAL
   const { loading, error, entries, hasMore, loadMore } = { loading: false, error: false, entries: [] };
 
@@ -99,7 +88,6 @@ export default function CreateProjectPage({ history, location }) {
 
   return (
     <>
-      <NavBar />
       <main>
         <ProjectsSection>
           <ProjectsContainer>
@@ -141,7 +129,6 @@ export default function CreateProjectPage({ history, location }) {
                       projects={filteredEntries}
                       newProjectPath="/projects/new"
                       newProjectLabel="New Empty Project"
-                      onSelectProject={onSelectScene}
                       loading={loading}
                     />
                   </InfiniteScroll>

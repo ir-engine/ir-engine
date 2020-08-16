@@ -63,7 +63,7 @@ const StyledProjectGrid = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 `;
 
-export function ProjectGrid({ newProjectPath, newProjectLabel, projects, contextMenuId, loading }) {
+export function ProjectGrid({ projects, newProjectPath, newProjectLabel, contextMenuId, loading }) {
   return (
     <StyledProjectGrid>
       {newProjectPath && !loading && <NewProjectGridItem path={newProjectPath} label={newProjectLabel} />}
