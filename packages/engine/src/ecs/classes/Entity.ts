@@ -1,4 +1,4 @@
-import { addComponent, getComponent } from "../functions/EntityFunctions"
+import { addComponentToEntity, getComponentOnEntity } from "../functions/EntityFunctions"
 import { Engine } from "./Engine"
 import { removeEntity } from "../functions/EntityFunctions"
 
@@ -27,8 +27,8 @@ export class Entity {
   copy(src): Entity {
     for (const componentId in src.components) {
       const srcComponent = src.components[componentId]
-      addComponent(this, srcComponent.constructor)
-      const component = getComponent(this, srcComponent.constructor)
+      addComponentToEntity(this, srcComponent.constructor)
+      const component = getComponentOnEntity(this, srcComponent.constructor)
       component.copy(srcComponent)
     }
 

@@ -4,7 +4,7 @@ import { StateGroupAlias } from "../types/StateGroupAlias"
 import { Component } from "../../ecs/classes/Component"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { Entity } from "../../ecs/classes/Entity"
-import { getComponent, removeComponent } from "../../ecs/functions/EntityFunctions"
+import { getComponentOnEntity, removeComponentFromEntity } from "../../ecs/functions/EntityFunctions"
 
 let stateSchema: StateSchema
 let stateGroupExists: boolean
@@ -16,10 +16,10 @@ export const componentsFromStateGroupExist: Behavior = (
   args: { stateGroupType: StateGroupAlias; ignoreComponent?: Component<any> }
 ): boolean => {
   stateGroupExists = false
-  stateSchema = getComponent<State>(entity, State).schema
+  stateSchema = getComponentOnEntity<State>(entity, State).schema
   Object.keys(stateSchema.groups[args.stateGroupType].states).forEach(key => {
     if (args.ignoreComponent && args.ignoreComponent === stateSchema.states[key].component) return
-    if (getComponent(entity, stateSchema.states[key].component)) stateGroupExists = true
+    if (getComponentOnEntity(entity, stateSchema.states[key].component)) stateGroupExists = true
   })
   return stateGroupExists
 }
@@ -30,15 +30,15 @@ export const removeComponentsFromStateGroup: Behavior = (
 ): void => {
   getComponentsFromStateGroup(entity, args).forEach((component: any) => {
     if (args.ignoreComponent && args.ignoreComponent === component) return
-    removeComponent(entity, component)
+    removeComponentFromEntity(entity, component)
   })
 }
 
 export const getComponentsFromStateGroup = (entity: Entity, args: { group: StateGroupAlias }): Component<any>[] => {
   components = []
-  stateSchema = getComponent<State>(entity, State).schema
+  stateSchema = getComponentOnEntity<State>(entity, State).schema
   Object.keys(stateSchema.groups[args.group].states).forEach(key => {
-    if (getComponent(entity, stateSchema.states[key].component)) components.push(stateSchema.states[key].component)
+    if (getComponentOnEntity(entity, stateSchema.states[key].component)) components.push(stateSchema.states[key].component)
   })
   return components
 }
@@ -47,9 +47,9 @@ export const getComponentFromStateGroup = (
   entity: Entity,
   args: { stateGroupType: StateGroupAlias }
 ): Component<any> | null => {
-  stateSchema = getComponent<State>(entity, State).schema
+  stateSchema = getComponentOnEntity<State>(entity, State).schema
   Object.keys(stateSchema.groups[args.stateGroupType].states).forEach(element => {
-    if (getComponent(entity, stateSchema.states[element].component)) component = stateSchema.states[element].component
+    if (getComponentOnEntity(entity, stateSchema.states[element].component)) component = stateSchema.states[element].component
   })
   return component
 }

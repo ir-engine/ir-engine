@@ -8,7 +8,7 @@ import { NumericalType, Vector2, Vector3 } from "../../types/NumericalTypes"
 import { Actor } from "../components/Actor"
 import { Crouching } from "../components/Crouching"
 import { Sprinting } from "../components/Sprinting"
-import { getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions"
+import { getComponentOnEntity, getMutableComponent, entityHasComponent } from "../../../ecs/functions/EntityFunctions"
 
 let input: Input
 let actor: Actor
@@ -20,10 +20,10 @@ export const move: Behavior = (
   args: { input: InputAlias; inputType: InputType; value: NumericalType },
   time: any
 ): void => {
-  input = getComponent(entity, Input)
+  input = getComponentOnEntity(entity, Input)
   actor = getMutableComponent<Actor>(entity, Actor)
   transform = getMutableComponent(entity, TransformComponent)
-  const movementModifer = hasComponent(entity, Crouching) ? 0.5 : hasComponent(entity, Sprinting) ? 1.5 : 1.0
+  const movementModifer = entityHasComponent(entity, Crouching) ? 0.5 : entityHasComponent(entity, Sprinting) ? 1.5 : 1.0
   const inputType = args.inputType
   outputSpeed = actor.accelerationSpeed * (time.delta as any) * movementModifer
   if (inputType === InputType.TWOD) {

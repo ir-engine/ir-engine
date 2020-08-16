@@ -6,7 +6,7 @@ import { DefaultNetworkSchema } from "../defaults/DefaultNetworkSchema"
 import { NetworkSchema } from "../interfaces/NetworkSchema"
 import { registerComponent } from "../../ecs/functions/ComponentFunctions"
 import { NetworkGameState } from "../components/NetworkInterpolation"
-import { createEntity, addComponent } from "../../ecs/functions/EntityFunctions"
+import { createEntity, addComponentToEntity } from "../../ecs/functions/EntityFunctions"
 
 export class NetworkSystem extends System {
   init(schema?: NetworkSchema) {
@@ -17,7 +17,7 @@ export class NetworkSystem extends System {
 
     // Create a Network entity (singleton)
     const networkEntity = createEntity("network")
-    addComponent(networkEntity, Network)
+    addComponentToEntity(networkEntity, Network)
 
     // Late initialization of network
     setTimeout(() => {

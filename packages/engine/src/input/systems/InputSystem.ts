@@ -6,7 +6,7 @@ import { WebXRRenderer } from "../components/WebXRRenderer"
 import { WebXRSession } from "../components/WebXRSession"
 import { DefaultInputSchema } from "../defaults/DefaultInputSchema"
 import { initVR } from "../functions/WebXRFunctions"
-import { getMutableComponent, getComponent } from "../../ecs/functions/EntityFunctions"
+import { getMutableComponent, getComponentOnEntity } from "../../ecs/functions/EntityFunctions"
 
 export class InputSystem extends System {
   readonly mainControllerId //= 0
@@ -45,7 +45,7 @@ export class InputSystem extends System {
     // Called when input component is added to entity
     this.queryResults.inputs.added.forEach(entity => {
       // Get component reference
-      this._inputComponent = getComponent(entity, Input)
+      this._inputComponent = getComponentOnEntity(entity, Input)
       // If input doesn't have a map, set the default
       if (this._inputComponent.schema === undefined) this._inputComponent.schema = DefaultInputSchema
       // Call all behaviors in "onAdded" of input map
@@ -71,7 +71,7 @@ export class InputSystem extends System {
     // Called when input component is removed from entity
     this.queryResults.inputs.removed.forEach(entity => {
       // Get component reference
-      this._inputComponent = getComponent(entity, Input)
+      this._inputComponent = getComponentOnEntity(entity, Input)
       // Call all behaviors in "onRemoved" of input map
       this._inputComponent.schema.onRemoved.forEach(behavior => {
         behavior.behavior(entity, behavior.args)

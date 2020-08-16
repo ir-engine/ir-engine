@@ -2,7 +2,7 @@ import { BinaryValue } from "../../common/enums/BinaryValue"
 import { applyThreshold } from "../../common/functions/applyThreshold"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { Entity } from "../../ecs/classes/Entity"
-import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions"
+import { getComponentOnEntity, getMutableComponent } from "../../ecs/functions/EntityFunctions"
 import { InputType } from "../enums/InputType"
 import { InputAlias } from "../types/InputAlias"
 import { Input } from "../components/Input"
@@ -25,7 +25,7 @@ let _index: number // temp var for iterator loops
 export const handleGamepads: Behavior = (entity: Entity) => {
   if (!input.gamepadConnected) return
   // Get an immutable reference to input
-  input = getComponent(entity, Input)
+  input = getComponentOnEntity(entity, Input)
   // Get gamepads from the DOM
   gamepads = navigator.getGamepads()
 
@@ -97,7 +97,7 @@ export const handleGamepadAxis: Behavior = (
   args: { gamepad: Gamepad; inputIndex: number; mappedInputValue: InputAlias }
 ) => {
   // get immutable component reference
-  input = getComponent(entity, Input)
+  input = getComponentOnEntity(entity, Input)
 
   inputBase = args.inputIndex * 2
 

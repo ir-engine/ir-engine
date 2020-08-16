@@ -2,11 +2,14 @@ import { Component, ComponentConstructor } from "../classes/Component"
 import { Entity } from "../classes/Entity"
 import { ObjectPool } from "../classes/ObjectPool"
 import { Engine } from "../classes/Engine"
-import { COMPONENT_ADDED, COMPONENT_REMOVE } from "../types/EventTypes"
 import { onEntityComponentAdded } from "./EntityFunctions"
 import { getName } from "./Utils"
 import { SystemStateComponent } from "../classes/SystemStateComponent"
 import { System } from "../classes/System"
+
+
+export const COMPONENT_ADDED = "EntityManager#COMPONENT_ADDED"
+export const COMPONENT_REMOVE = "EntityManager#COMPONENT_REMOVE"
 
 const proxyMap = new WeakMap()
 
@@ -27,7 +30,7 @@ export function Not(Component) {
   }
 }
 
-export default function wrapImmutableComponent<T>(component: Component<T>): T {
+export function wrapImmutableComponent<T>(component: Component<T>): T {
   if (component === undefined) {
     return undefined
   }

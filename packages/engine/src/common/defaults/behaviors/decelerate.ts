@@ -3,14 +3,14 @@ import { Entity } from "../../../ecs/classes/Entity"
 import { TransformComponent } from "../../../transform/components/TransformComponent"
 import { Behavior } from "../../interfaces/Behavior"
 import { Actor } from "../components/Actor"
-import { getComponent, getMutableComponent } from "../../../ecs/functions/EntityFunctions"
+import { getComponentOnEntity, getMutableComponent } from "../../../ecs/functions/EntityFunctions"
 
 let actor: Actor
 let transform: TransformComponent
 const velocity: vec3 = [0, 0, 0]
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const decelerate: Behavior = (entity: Entity, args: null, delta: number): void => {
-  actor = getComponent<Actor>(entity, Actor)
+  actor = getComponentOnEntity<Actor>(entity, Actor)
   transform = getMutableComponent<TransformComponent>(entity, TransformComponent)
   vec3.set(velocity, transform.velocity[0], transform.velocity[1], transform.velocity[2])
   if (Math.abs(vec3.length(velocity)) != 0) {
