@@ -1,6 +1,6 @@
 import { Dispatch } from 'redux'
 import { client } from '../feathers'
-import { Relationship } from '../../../common/interfaces/Relationship'
+import { Relationship } from '@xr3ngine/common'
 import { loadedUserRelationship, loadedUsers, changedRelation } from './actions'
 import { User } from '@xr3ngine/common'
 

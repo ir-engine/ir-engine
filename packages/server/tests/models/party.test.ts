@@ -4,7 +4,7 @@
 // Create party with two users and verify that it succeeds
 // Remove one user and verify that the party is destroyed
 
-import app from '../../server/app'
+import app from '../../app'
 
 describe.skip('CRUD operation on \'Party\' model', () => {
   const model = app.service('party').Model

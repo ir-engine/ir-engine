@@ -1,5 +1,5 @@
 import { Attributes, System } from "../../ecs/classes/System"
-import { World } from "../../ecs/classes/World"
+import { Engine } from "../../ecs/classes/Engine"
 import { registerComponent } from "../../ecs/functions/ComponentFunctions"
 import { MediaStreamComponent } from "../components/MediaStreamComponent"
 import { Network } from "../components/Network"
@@ -15,7 +15,7 @@ export class MediaStreamSystem extends System {
     const mediaStreamComponent = getMutableComponent<MediaStreamComponent>(networkEntity, MediaStreamComponent)
     MediaStreamComponent.instance = mediaStreamComponent
   }
-  constructor(world: World) {
+  constructor(world: Engine) {
     super(world)
     MediaStreamSystem.instance = this
     // Do this next tickSphe so singleton can init

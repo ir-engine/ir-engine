@@ -362,7 +362,7 @@ const options = {
 
 initializeInput(world, options)
 
-world.execute()
+execute()
 ```
 
 You can override the input mappings per device

@@ -11,11 +11,11 @@ import {
   REMOVED_CHANNEL
 } from '../actions'
 import { User } from '@xr3ngine/common'
-import { Message } from '../../../common/interfaces/Message'
-import { MessageStatus } from '../../../common/interfaces/MessageStatus'
-import { MessageResult } from '../../../common/interfaces/MessageResult'
-import { Channel } from '../../../common/interfaces/Channel'
-import { ChannelResult } from '../../../common/interfaces/ChannelResult'
+import { Message } from '@xr3ngine/common'
+import { MessageStatus } from '@xr3ngine/common'
+import { MessageResult } from '@xr3ngine/common'
+import { Channel } from '@xr3ngine/common'
+import { ChannelResult } from '@xr3ngine/common'
 
 export interface LoadedChannelsAction {
   type: string

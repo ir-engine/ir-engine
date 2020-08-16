@@ -1,4 +1,4 @@
-import app from '../../server/app'
+import app from '../../app'
 import { Op } from 'sequelize'
 
 describe('CRUD operation on \'UserRelationship\' model', () => {

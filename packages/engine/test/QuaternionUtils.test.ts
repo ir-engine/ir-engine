@@ -1,4 +1,4 @@
-import * as QuatUtils from '../src/common/functions/QuaternionUtils'
+import * as QuatUtils from '@xr3ngine/common'
 
 function degToRad(deg) {
   return deg * Math.PI / 180

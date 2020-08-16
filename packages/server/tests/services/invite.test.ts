@@ -1,4 +1,4 @@
-import app from '../../server/app';
+import app from '../../app';
 
 describe('\'invite\' service', () => {
   it('registered the service', () => {

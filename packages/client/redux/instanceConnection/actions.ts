@@ -4,7 +4,7 @@ import {
   INSTANCE_SERVER_DISCONNECTED
 } from '../actions'
 
-import { InstanceServerProvisionResult } from '../../../common/interfaces/InstanceServerProvisionResult'
+import { InstanceServerProvisionResult } from '@xr3ngine/common'
 
 export interface InstanceServerProvisionedAction {
   type: string

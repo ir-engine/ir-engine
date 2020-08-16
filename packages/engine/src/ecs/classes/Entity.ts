@@ -1,5 +1,5 @@
 import { addComponent, getComponent } from "../functions/EntityFunctions"
-import { World } from "./World"
+import { Engine } from "./Engine"
 import { removeEntity } from "../functions/EntityFunctions"
 
 export class Entity {
@@ -14,7 +14,7 @@ export class Entity {
   name: any
   constructor() {
     // Unique ID for this entity
-    this.id = World.nextEntityId++
+    this.id = Engine.nextEntityId++
     this.componentTypes = []
     this.components = {}
     this.componentsToRemove = {}
@@ -40,7 +40,7 @@ export class Entity {
   }
 
   reset(): void {
-    this.id = World.nextEntityId++
+    this.id = Engine.nextEntityId++
     this.componentTypes.length = 0
     this.queries.length = 0
 

@@ -7,8 +7,8 @@ import {
   VIDEO_CREATED
 } from '../actions'
 import { UserSeed } from '@xr3ngine/common'
-import { IdentityProviderSeed } from '../../../common/interfaces/IdentityProvider'
-import { AuthUserSeed } from '../../../common/interfaces/AuthUser'
+import { IdentityProviderSeed } from '@xr3ngine/common'
+import { AuthUserSeed } from '@xr3ngine/common'
 
 export const initialState = {
   isLoggedIn: false,

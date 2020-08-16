@@ -59,7 +59,7 @@ import {
     SupervisedUserCircle
 } from "@material-ui/icons";
 import _ from 'lodash'
-import { Group as GroupType } from '../../../../../common/interfaces/Group'
+import { Group as GroupType } from '@xr3ngine/common'
 
 const mapStateToProps = (state: any): any => {
     return {

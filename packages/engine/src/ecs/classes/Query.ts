@@ -1,11 +1,11 @@
 import { queryKey } from "../functions/Utils"
 import { ComponentConstructor } from "./Component"
-import EventDispatcher from "./EventDispatcher"
-import { World } from "./World"
+import { EventDispatcher } from "./EventDispatcher"
+import { Engine } from "./Engine"
 import { NotComponent } from "./System"
 import { hasAllComponents, hasAnyComponents } from "../functions/EntityFunctions"
 
-export default class Query {
+export class Query {
   components: any[]
   notComponents: any[]
   entities: any[]
@@ -45,8 +45,8 @@ export default class Query {
     this.key = queryKey(Components)
 
     // Fill the query with the existing entities
-    for (let i = 0; i < World.entities.length; i++) {
-      const entity = World.entities[i]
+    for (let i = 0; i < Engine.entities.length; i++) {
+      const entity = Engine.entities[i]
       if (this.match(entity)) {
         // @todo ??? this.addEntity(entity); => preventing the event to be generated
         entity.queries.push(this)

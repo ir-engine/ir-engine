@@ -1,4 +1,4 @@
-import app from '../../server/app'
+import app from '../../app'
 
 describe('\'CollectionType\' service', () => {
   it('registered the service', () => {

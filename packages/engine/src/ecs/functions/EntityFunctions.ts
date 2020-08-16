@@ -1,7 +1,7 @@
 import { Component, ComponentConstructor } from "../classes/Component"
 import { Entity } from "../classes/Entity"
 import Query from "../classes/Query"
-import { World } from "../classes/World"
+import { Engine } from "../classes/Engine"
 import wrapImmutableComponent, {
   addComponentToEntity,
   removeAllComponentsFromEntity,
@@ -120,12 +120,12 @@ export function removeAllComponents(entity: Entity, forceImmediate?: boolean): v
 }
 
 export function getEntityByName(name) {
-  return World.entitiesByName[name]
+  return Engine.entitiesByName[name]
 }
 
 export function onEntityRemoved(entity) {
-  for (const queryName in World.queries) {
-    const query = World.queries[queryName]
+  for (const queryName in Engine.queries) {
+    const query = Engine.queries[queryName]
     if (entity.queries.indexOf(query) !== -1) {
       query.removeEntity(entity)
     }
@@ -134,8 +134,8 @@ export function onEntityRemoved(entity) {
 
 export function onEntityComponentAdded(entity, Component) {
   // Check each indexed query to see if we need to add this entity to the list
-  for (const queryName in World.queries) {
-    const query = World.queries[queryName]
+  for (const queryName in Engine.queries) {
+    const query = Engine.queries[queryName]
 
     if (!!~query.notComponents.indexOf(Component) && ~query.entities.indexOf(entity)) {
       query.removeEntity(entity)
@@ -153,23 +153,23 @@ export function onEntityComponentAdded(entity, Component) {
 }
 
 export function createEntity(name?: string): Entity {
-  const entity = World.entityPool.acquire()
+  const entity = Engine.entityPool.acquire()
   entity.alive = true
   entity.name = name || ""
   if (name) {
-    if (World.entitiesByName[name]) {
+    if (Engine.entitiesByName[name]) {
       console.warn(`Entity name '${name}' already exist`)
     } else {
-      World.entitiesByName[name] = entity
+      Engine.entitiesByName[name] = entity
     }
   }
 
-  World.entities.push(entity)
-  World.eventDispatcher.dispatchEvent(ENTITY_CREATED, entity)
+  Engine.entities.push(entity)
+  Engine.eventDispatcher.dispatchEvent(ENTITY_CREATED, entity)
   return entity
 }
 export function removeEntity(entity: Entity, immediately?: boolean): void {
-  const index = World.entities.indexOf(entity)
+  const index = Engine.entities.indexOf(entity)
 
   if (!~index) throw new Error("Tried to remove entity not in list")
 
@@ -177,12 +177,12 @@ export function removeEntity(entity: Entity, immediately?: boolean): void {
 
   if (entity.numStateComponents === 0) {
     // Remove from entity list
-    World.eventDispatcher.dispatchEvent(ENTITY_REMOVED, entity)
+    Engine.eventDispatcher.dispatchEvent(ENTITY_REMOVED, entity)
     onEntityRemoved(entity)
     if (immediately === true) {
       releaseEntity(entity, index)
     } else {
-      World.entitiesToRemove.push(entity)
+      Engine.entitiesToRemove.push(entity)
     }
   }
 
@@ -190,18 +190,18 @@ export function removeEntity(entity: Entity, immediately?: boolean): void {
 }
 
 export function removeAllEntities(): void {
-  for (let i = World.entities.length - 1; i >= 0; i--) {
-    removeEntity(World.entities[i])
+  for (let i = Engine.entities.length - 1; i >= 0; i--) {
+    removeEntity(Engine.entities[i])
   }
 }
 
 export function releaseEntity(entity: Entity, index: number): void {
-  World.entities.splice(index, 1)
+  Engine.entities.splice(index, 1)
 
-  if (World.entitiesByName[entity.name]) {
-    delete World.entitiesByName[entity.name]
+  if (Engine.entitiesByName[entity.name]) {
+    delete Engine.entitiesByName[entity.name]
   }
-  World.entityPool.release(entity)
+  Engine.entityPool.release(entity)
 }
 
 export function processDeferredEntityRemoval() {
@@ -212,7 +212,7 @@ export function processDeferredEntityRemoval() {
   let entitiesWithComponentsToRemove
   for (let i = 0; i < entitiesToRemove.length; i++) {
     const entity = entitiesToRemove[i]
-    const index = World.entities.indexOf(entity)
+    const index = Engine.entities.indexOf(entity)
     releaseEntity(entity, index)
   }
   entitiesToRemove.length = 0
@@ -229,5 +229,5 @@ export function processDeferredEntityRemoval() {
     }
   }
 
-  World.entitiesWithComponentsToRemove.length = 0
+  Engine.entitiesWithComponentsToRemove.length = 0
 }

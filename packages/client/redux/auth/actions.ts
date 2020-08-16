@@ -19,9 +19,9 @@ import {
   AVATAR_UPDATED,
   USERNAME_UPDATED
 } from '../actions'
-import { AuthUser } from '../../../common/interfaces/AuthUser'
+import { AuthUser } from '@xr3ngine/common'
 import { User } from '@xr3ngine/common'
-import { IdentityProvider } from '../../../common/interfaces/IdentityProvider'
+import { IdentityProvider } from '@xr3ngine/common'
 
 export interface EmailLoginForm {
   email: string

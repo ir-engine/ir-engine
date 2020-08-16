@@ -2,7 +2,7 @@ import { Quaternion } from "cannon-es/src/math/Quaternion"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions"
-import { WheelBody } from "../../sandbox/physics/components/WheelBody"
+import { WheelBody } from "../../physics/components/WheelBody"
 import { Entity } from "../../ecs/classes/Entity"
 
 export const quaternion = new Quaternion()

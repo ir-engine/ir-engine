@@ -1,4 +1,4 @@
-import app from '../../server/app'
+import app from '../../app'
 
 describe('\'SMS\' service', () => {
   it('registered the service', () => {

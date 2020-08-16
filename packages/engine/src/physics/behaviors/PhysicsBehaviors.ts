@@ -7,10 +7,15 @@ import { Sphere } from "cannon-es/src/shapes/Sphere"
 import { Body } from "cannon-es/src/objects/Body"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { getComponent } from "../../ecs/functions/EntityFunctions"
-import { RigidBody } from "../../sandbox/physics"
+import { Entity } from "../../ecs/classes/Entity"
+import { RigidBody } from "../components/RigidBody"
+import { MeshTagComponent } from "../../common/components/Object3DTagComponents"
 
-export function createBox(rigidBody, transform) {
-  const shape = new Box(new Vec3(rigidBody.scale.x / 2, rigidBody.scale.y / 2, rigidBody.scale.z / 2))
+export function createBox(entity: Entity) {
+  const rigidBody = getComponent<RigidBody>(entity, RigidBody)
+  const transform = getComponent<TransformComponent>(entity, TransformComponent)
+
+  const shape = new Box(new Vec3(rigidBody.scale[0] / 2, rigidBody.scale[1] / 2, rigidBody.scale[2] / 2))
   console.log(transform)
 
   const body = new Body({
@@ -28,7 +33,7 @@ export function createBox(rigidBody, transform) {
   return body
 }
 
-export function createGroundGeometry(entity) {
+export function createGroundGeometry(entity: Entity) {
   const rigidBody = getComponent<RigidBody>(entity, RigidBody)
   const transform = getComponent<TransformComponent>(entity, TransformComponent)
 
@@ -49,7 +54,7 @@ export function createGroundGeometry(entity) {
   return body
 }
 
-export function createCylinder(entity) {
+export function createCylinder(entity: Entity) {
   const rigidBody = getComponent<RigidBody>(entity, RigidBody)
   const transform = getComponent<TransformComponent>(entity, TransformComponent)
 
@@ -67,7 +72,7 @@ export function createCylinder(entity) {
   return body
 }
 
-export function createSphere(entity) {
+export function createSphere(entity: Entity) {
   const rigidBody = getComponent<RigidBody>(entity, RigidBody)
   const transform = getComponent<TransformComponent>(entity, TransformComponent)
 
@@ -82,7 +87,8 @@ export function createSphere(entity) {
   return body
 }
 
-export function createConvexGeometry(entity: Entity, mesh: THREE.Mesh) {
+export function createConvexGeometry(entity: Entity) {
+  const mesh = getComponent<MeshTagComponent>(entity, MeshTagComponent)
   let rigidBody, object, transform, attributePosition
   if (mesh) {
     object = mesh

@@ -1,4 +1,4 @@
-import app from '../../server/app'
+import app from '../../app'
 
 describe('\'EntityType\' service', () => {
   it('registered the service', () => {

@@ -6,10 +6,16 @@
     "type": "git",
     "url": "git://github.com/xr3ngine/xr3ngine.git"
   },
+  "engines": {
+    "yarn": ">= 0.18.0"
+  },
+  "npmClient": "yarn",
+  "jest": "ts-jest",
   "scripts": {
     "start": "next start",
-    "dev": "cross-env NODE_ENV=dev next --port 3000",
+    "dev": "cross-env NODE_ENV=dev next start --port 3000",
     "build": "next build",
+    "watch": "cross-env NODE_ENV=dev next --port 3000",
     "validate": "yarn run lint && yarn run test",
     "test": "echo 'TODO: Add Testing to Client'",
     "lint": "stylelint '**/*.scss' && eslint --fix '*.ts' '**/*.ts' '**/*.tsx'",
@@ -27,10 +33,9 @@
     "react-transition-group": "~4.3.0"
   },
   "dependencies": {
-    "@xr3ngine/common": "^0.2.0",
-    "@xr3ngine/engine": "^0.2.0",
     "@apollo/react-hooks": "^3.1.5",
     "@babel/plugin-proposal-object-rest-spread": "^7.9.0",
+    "@babel/preset-typescript": "^7.10.4",
     "@feathersjs/authentication-client": "^4.5.2",
     "@feathersjs/client": "^4.5.2",
     "@feathersjs/errors": "^4.5.2",
@@ -51,6 +56,8 @@
     "@types/redux-immutable": "^4.0.1",
     "@types/socket.io-client": "^1.4.32",
     "@types/three": "^0.103.2",
+    "@xr3ngine/common": "^0.2.0",
+    "@xr3ngine/engine": "^0.2.0",
     "@zeit/next-sass": "^1.0.1",
     "apollo-boost": "^0.4.7",
     "apollo-link-ws": "^1.0.20",
@@ -81,6 +88,7 @@
     "react": "^16.12.0",
     "react-apollo": "^3.1.5",
     "react-dom": "^16.12.0",
+    "react-ga": "^3.1.2",
     "react-image": "^2.4.0",
     "react-loadable": "^5.5.0",
     "react-redux": "^7.2.0",
@@ -100,7 +108,6 @@
     "three": "^0.115.0"
   },
   "devDependencies": {
-    "@xr3ngine/server": "^0.2.0",
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.9.0",
     "@babel/register": "^7.9.0",
@@ -110,6 +117,7 @@
     "@types/react-dom": "^16.9.4",
     "@typescript-eslint/eslint-plugin": "^2.26.0",
     "@typescript-eslint/parser": "^2.26.0",
+    "@xr3ngine/server": "^0.2.0",
     "config": "^3.3.1",
     "cross-env": "^7.0.2",
     "eslint": "^6.8.0",

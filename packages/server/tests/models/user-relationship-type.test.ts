@@ -1,4 +1,4 @@
-import app from '../../server/app'
+import app from '../../app'
 
 describe('CRUD operation on \'User Relationship Type\' model', () => {
   const model = app.service('user-relationship-type').Model

@@ -1,5 +1,5 @@
 
-import app from '../../server/app'
+import app from '../../app'
 // import { Server } from 'http'
 import axios from 'axios'
 import qs from 'querystring'

@@ -7,10 +7,10 @@ import { VehicleBehavior } from "../behaviors/VehicleBehavior"
 import { WheelBehavior } from "../behaviors/WheelBehavior"
 
 import { System } from "../../ecs/classes/System"
-import { PhysicsWorld } from "../../sandbox/physics/components/PhysicsWorld"
-import { RigidBody } from "../../sandbox/physics/components/RigidBody"
-import { VehicleBody } from "../../sandbox/physics/components/VehicleBody"
-import { WheelBody } from "../../sandbox/physics/components/WheelBody"
+import { PhysicsWorld } from "../../physics/components/PhysicsWorld"
+import { RigidBody } from "../../physics/components/RigidBody"
+import { VehicleBody } from "../../physics/components/VehicleBody"
+import { WheelBody } from "../../physics/components/WheelBody"
 
 export const quaternion = new Quaternion()
 

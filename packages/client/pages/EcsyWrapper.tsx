@@ -1,7 +1,7 @@
 import React from 'react'
 import dynamic from 'next/dynamic'
 // eslint-disable-next-line no-unused-vars
-const EcsyPage = dynamic(() => import('../components/xr/scene/Ecsy'), { ssr: false })
+const EcsyPage = dynamic(() => import('../components/xr/scene/ecsy'), { ssr: false })
 
 export const EcsyWrapper = (): any => <EcsyPage />
 

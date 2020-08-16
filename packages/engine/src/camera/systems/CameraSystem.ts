@@ -5,13 +5,13 @@ import { registerComponent } from "../../ecs/functions/ComponentFunctions"
 import { followTarget } from "../../transform/behaviors/followTarget"
 import { CameraComponent } from "../components/CameraComponent"
 import { createEntity, addComponent, getMutableComponent, getComponent } from "../../ecs/functions/EntityFunctions"
-import { World } from "../../ecs/classes/World"
+import { Engine } from "../../ecs/classes/Engine"
 
 export class CameraSystem extends System {
   init(): void {
     registerComponent(CameraComponent)
     const cameraEntity = createEntity()
-    addComponent(cameraEntity, CameraComponent, { camera: World.camera, followTarget: null })
+    addComponent(cameraEntity, CameraComponent, { camera: Engine.camera, followTarget: null })
     addComponent(cameraEntity, TransformComponent)
     getMutableComponent(cameraEntity, CameraComponent)
   }

@@ -1,5 +1,5 @@
 import { System, SystemConstructor } from "../classes/System"
-import { World } from "../classes/World"
+import { Engine } from "../classes/Engine"
 import { now } from "./Utils"
 
 export function registerSystem(SystemClass: SystemConstructor<any>, attributes?: object): void {
@@ -11,12 +11,12 @@ export function registerSystem(SystemClass: SystemConstructor<any>, attributes?:
     console.warn(`System '${SystemClass.name}' already registered.`)
   }
 
-  const system = new SystemClass(World.world, attributes)
+  const system = new SystemClass(Engine.engine, attributes)
   if (system.init) system.init(attributes)
-  system.order = World.systems.length
-  World.systems.push(system)
+  system.order = Engine.systems.length
+  Engine.systems.push(system)
   if (system.execute) {
-    World.executeSystems.push(system)
+    Engine.executeSystems.push(system)
     sortSystems()
   }
 }
@@ -27,24 +27,24 @@ export function unregisterSystem(SystemClass: SystemConstructor<any>): void {
     console.warn(`Can unregister system '${SystemClass.name}'. It doesn't exist.`)
   }
 
-  World.systems.splice(World.systems.indexOf(system), 1)
+  Engine.systems.splice(Engine.systems.indexOf(system), 1)
 
-  if (system.execute) World.executeSystems.splice(World.executeSystems.indexOf(system), 1)
+  if (system.execute) Engine.executeSystems.splice(Engine.executeSystems.indexOf(system), 1)
 }
 
 export function getSystem<S extends System>(SystemClass: SystemConstructor<S>): S {
-  return World.systems.find(s => s instanceof SystemClass)
+  return Engine.systems.find(s => s instanceof SystemClass)
 }
 
 export function getSystems(): Array<System> {
-  return World.systems
+  return Engine.systems
 }
 
 export function removeSystem(SystemClass) {
-  const index = World.systems.indexOf(SystemClass)
+  const index = Engine.systems.indexOf(SystemClass)
   if (!~index) return
 
-  World.systems.splice(index, 1)
+  Engine.systems.splice(index, 1)
 }
 
 export function executeSystem(system: System, delta: number, time: number): void {
@@ -53,13 +53,13 @@ export function executeSystem(system: System, delta: number, time: number): void
       const startTime = now()
       system.execute(delta, time)
       system.executeTime = now() - startTime
-      World.lastExecutedSystem = system
+      Engine.lastExecutedSystem = system
     }
   }
 }
 
 export function sortSystems() {
-  World.executeSystems.sort((a, b) => {
+  Engine.executeSystems.sort((a, b) => {
     return a.priority - b.priority || a.order - b.order
   })
 }

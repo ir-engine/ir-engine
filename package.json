@@ -2,9 +2,8 @@
   "name": "xr3ngine",
   "description": "Game Engine, Server & Devops for Everyone",
   "version": "0.2.0",
-  "homepage": "",
+  "homepage": "xrengine.io",
   "private": true,
-  "main": "server",
   "workspaces": [
     "packages/*"
   ],
@@ -37,11 +36,13 @@
   "jest": "ts-jest",
   "scripts": {
     "start": "yarn run dev",
-    "dev": "lerna run dev",
+    "dev": "lerna run dev --parallel",
     "test": "lerna run test",
     "lint": "lerna run lint",
+    "version-increment": "lerna version --comventional-commits --yes",
     "validate": "lerna run validate",
-    "build": "lerna run build"
+    "build": "lerna run build",
+    "diff": "lerna diff"
   },
   "resolutions": {
     "is-promise": "2.1.0",
@@ -54,5 +55,9 @@
   ],
   "devDependencies": {
     "lerna": "^3.22.1"
+  },
+  "dependencies": {
+    "@xr3ngine/server": "^0.2.0",
+    "@xr3ngine/client": "^0.2.0"
   }
 }

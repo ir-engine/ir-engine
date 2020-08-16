@@ -14,7 +14,7 @@ import {
 } from '../../../redux/seats/service'
 import { Button } from '@material-ui/core'
 import { User } from '@xr3ngine/common'
-import { Seat } from '../../../../common/interfaces/Seat'
+import { Seat } from '@xr3ngine/common'
 
 interface Props {
   auth?: any

@@ -7,7 +7,7 @@ import {
 } from '../actions'
 import { User } from '@xr3ngine/common'
 import { UserRelationship } from '@xr3ngine/commonRelationship'
-import { FriendResult } from '../../../common/interfaces/FriendResult'
+import { FriendResult } from '@xr3ngine/common'
 
 export interface LoadedFriendsAction {
   type: string
