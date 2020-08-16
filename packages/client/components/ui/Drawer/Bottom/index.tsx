@@ -31,11 +31,10 @@ import {
     Save,
     Send
 } from '@material-ui/icons'
-import moment from '../../../../../packages/server/services/login-token/node_modules/moment'
-// import { Channel } from '../../../../../shared/interfaces/Channel'
-import {User} from "../../../../../common/interfaces/User";
+import moment from 'moment'
+import { User } from "@xr3ngine/common";
 import { Message } from '../../../../../common/interfaces/Message'
-import _ from '../../../../../packages/server/hooks/node_modules/lodash'
+import _ from 'lodash'
 
 const mapStateToProps = (state: any): any => {
     return {

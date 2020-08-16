@@ -4,7 +4,7 @@
  * @license         [AGPL3]{@link http://www.makehuman.org/license.php}
  * @description     blends three ethnic skin tones
  */
-import _ from "../../../../packages/server/hooks/node_modules/lodash"
+import _ from "lodash"
 import * as THREE from "three"
 
 // these are set to look right when added to the caucasian skin

@@ -32,7 +32,7 @@ import {
     removeParty,
     removePartyUser
 } from '../../../../redux/party/service'
-import { User } from '../../../../../common/interfaces/User'
+import { User } from '@xr3ngine/common'
 import {
     Avatar,
     Button,
@@ -58,7 +58,7 @@ import {
     PersonAdd,
     SupervisedUserCircle
 } from "@material-ui/icons";
-import _ from '../../../../../packages/server/hooks/node_modules/lodash'
+import _ from 'lodash'
 import { Group as GroupType } from '../../../../../common/interfaces/Group'
 
 const mapStateToProps = (state: any): any => {

@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import './style.scss'
-import _ from '../../../../../packages/server/hooks/node_modules/lodash'
+import _ from 'lodash'
 import {
     Avatar,
     Button,
@@ -52,7 +52,7 @@ import {
 import {
     getInvitableGroups
 } from '../../../../redux/group/service'
-import {User} from '../../../../../common/interfaces/User'
+import {User} from '@xr3ngine/common'
 
 
 const mapStateToProps = (state: any): any => {

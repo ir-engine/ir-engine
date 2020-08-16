@@ -8,7 +8,7 @@ import {
 } from './actions'
 import { client } from '../feathers'
 import { PublicVideo, videosFetchedError, videosFetchedSuccess } from '../video/actions'
-import axios from '../../../packages/server/tests/services/node_modules/axios'
+import axios from 'axios'
 import { apiUrl } from '../service.common'
 import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service'
 

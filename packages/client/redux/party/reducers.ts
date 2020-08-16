@@ -17,7 +17,7 @@ import {
   PATCHED_PARTY_USER
 } from '../actions'
 import { PartyUser } from '../../../common/interfaces/PartyUser'
-import _ from '../../../packages/server/hooks/node_modules/lodash'
+import _ from 'lodash'
 
 export const initialState = {
   party: {},

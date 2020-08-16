@@ -14,8 +14,7 @@ import { DefaultStateSchema, StateSystem } from "./state"
 import { DefaultSubscriptionSchema, SubscriptionSystem } from "./subscription"
 import { TransformSystem, TransformComponent, TransformParentComponent } from "./transform"
 import { registerComponent } from "./ecs"
-import { PhysicsSystem } from "."
-import { WheelSystem } from "./sandbox/physics/systems/WheelSystem"
+import { PhysicsSystem } from "./physics/systems/PhysicsSystem"
 
 export const DefaultInitializationOptions = {
   debug: true,
@@ -115,7 +114,6 @@ export function initialize(options: any = DefaultInitializationOptions) {
   // Physics
   if (options.physics && options.physics.enabled) {
     registerSystem(PhysicsSystem)
-    registerSystem(WheelSystem)
   }
   // Particles
   if (options.particles && options.particles.enabled) {

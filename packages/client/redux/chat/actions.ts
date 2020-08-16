@@ -10,7 +10,7 @@ import {
   PATCHED_CHANNEL,
   REMOVED_CHANNEL
 } from '../actions'
-import { User } from '../../../common/interfaces/User'
+import { User } from '@xr3ngine/common'
 import { Message } from '../../../common/interfaces/Message'
 import { MessageStatus } from '../../../common/interfaces/MessageStatus'
 import { MessageResult } from '../../../common/interfaces/MessageResult'

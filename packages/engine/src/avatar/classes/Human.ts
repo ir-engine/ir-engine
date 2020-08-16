@@ -8,7 +8,7 @@
  * and morphTargets.
  */
 
-import _ from "../../../../packages/server/hooks/node_modules/lodash"
+import _ from "lodash"
 import * as qs from "qs"
 import * as THREE from "three"
 import TWEEN from "tween"

@@ -4,7 +4,7 @@ import {
   CHANGED_RELATION
 } from '../actions'
 import { Relationship } from '../../../common/interfaces/Relationship'
-import { User } from '../../../common/interfaces/User'
+import { User } from '@xr3ngine/common'
 
 export interface LoadedUserRelationshipAction {
   type: string

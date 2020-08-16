@@ -20,7 +20,7 @@ import {
   USERNAME_UPDATED
 } from '../actions'
 import { AuthUser } from '../../../common/interfaces/AuthUser'
-import { User } from '../../../common/interfaces/User'
+import { User } from '@xr3ngine/common'
 import { IdentityProvider } from '../../../common/interfaces/IdentityProvider'
 
 export interface EmailLoginForm {

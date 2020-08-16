@@ -13,7 +13,7 @@ import {
   removedChannel
 } from './actions'
 
-import { User } from '../../../common/interfaces/User'
+import { User } from '@xr3ngine/common'
 import store from '../store'
 import {dispatchAlertError} from '../alert/service'
 

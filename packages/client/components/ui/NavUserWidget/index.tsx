@@ -7,7 +7,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { showDialog } from '../../../redux/dialog/service'
 import Dropdown from '../Profile/ProfileDropdown'
-import { User } from '../../../../common/interfaces/User'
+import { User } from '@xr3ngine/common'
 import './style.scss'
 
 const mapStateToProps = (state: any): any => {

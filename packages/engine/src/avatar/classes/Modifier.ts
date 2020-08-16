@@ -12,7 +12,7 @@
  * a matrix of changes to the targets.
  */
 
-import _ from "../../../../packages/server/hooks/node_modules/lodash"
+import _ from "lodash"
 import { randomNormal } from "../functions/randomNormal"
 import measurementModifiers from "../json/modifiers/measurement_modifiers.json"
 import modelingModifiers from "../json/modifiers/modeling_modifiers.json"

@@ -3,7 +3,7 @@
  * @author          wassname
  */
 
-import _ from "../../../../packages/server/hooks/node_modules/lodash"
+import _ from "lodash"
 /**
  * inverts a object by many values
  * e.g. invertByMany({ 'a': [1,2,3], 'b': [1], c:[2]})
