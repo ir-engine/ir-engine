@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import EmailIcon from '@material-ui/icons/Email'
 import SocialIcon from '@material-ui/icons/Public'
 import UserIcon from '@material-ui/icons/Person'
@@ -29,6 +29,15 @@ const SignIn = (): any => {
   let enableGoogleSocial = false
   let enableFacebookSocial = false
   const [tabIndex, setTabIndex] = useState(0)
+
+  useEffect(async () => {
+    try {
+      await credentialHandlerPolyfill.loadOnce(MEDIATOR)
+      console.log('Polyfill loaded.')
+    } catch (e) {
+      console.error('Error loading polyfill:', e)
+    }
+  }, []) // Only run once
 
   const handleChange = (event: any, newValue: number): void => {
     event.preventDefault()

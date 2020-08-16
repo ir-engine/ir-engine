@@ -80,8 +80,6 @@ function loginWithWallet () {
       }
     }
 
-    // document.getElementById('rawResults').innerText = 'Logging in...'
-
     // Use Credential Handler API to authenticate
     const result: any = await navigator.credentials.get(didAuthQuery)
   }
