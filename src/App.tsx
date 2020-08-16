@@ -35,12 +35,13 @@ function LoadPlayer() {
   var callback = function () {
     console.log('drc');
   };
-  const { scene } = useThree();
+  const { scene, gl } = useThree();
 
   // var renderer = new THREE.WebGLRenderer();
   // var scene = new THREE.Scene();
   new DracosisPlayer(
     scene,
+    gl,
     '../server/sample_v7_10frames.drcs',
     callback,
     true,
