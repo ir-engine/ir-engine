@@ -64,9 +64,9 @@ var DracoFileCreator = /** @class */ (function () {
     if (this._meshFiles.length != this._textureFiles.length)
       return console.error(
         'Mesh and texture sequence lengths are not the same, Mesh[] is ' +
-          this._meshFiles.length +
-          ', Texture[] is ' +
-          this._textureFiles.length
+        this._meshFiles.length +
+        ', Texture[] is ' +
+        this._textureFiles.length
       );
     console.log('Writing file to ' + fileName);
     var writeStream = fs.createWriteStream('./assets/temp.drcs');
@@ -90,11 +90,13 @@ var DracoFileCreator = /** @class */ (function () {
           // _this.geometry = child.geometry;
           var bufferGeometry = child.geometry;
 
-          console.log('96 bufferGeometry', bufferGeometry);
+          // console.log('96 bufferGeometry', bufferGeometry);
 
           _this.geometry = new THREE.Geometry().fromBufferGeometry(
             bufferGeometry
           );
+
+          // console.log("99 geometry", _this.geometry);
 
           // console.log('102 geometry', _this.geometry);
 
@@ -182,9 +184,9 @@ var DracoFileCreator = /** @class */ (function () {
     // Get length of that buffer and save as 32 bit number, append to end of file
     console.log(
       'Wrote ' +
-        this._frameData.length +
-        ' meshes and textures into file ' +
-        this._outputFileName
+      this._frameData.length +
+      ' meshes and textures into file ' +
+      this._outputFileName
     );
 
     console.log('FileDataBuffer', JSON.stringify(fileData));
@@ -217,6 +219,6 @@ var DracoFileCreator = /** @class */ (function () {
   return DracoFileCreator;
 })();
 
-new DracoFileCreator('obj', 'jpg', 0, 1, 'sample_v8_1frames.drcs', function () {
+new DracoFileCreator('obj', 'png', 0, 10, 'sample_v14_10frames.drcs', function () {
   console.log('Converted to Dracosis');
 });

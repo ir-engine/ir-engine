@@ -56281,7 +56281,6 @@ DRACOLoader.prototype = Object.assign(Object.create(Loader$1.prototype), {
   },
   load: function (url, onLoad, onProgress, onError) {
     var loader = new FileLoader$1(this.manager);
-    console.log("94 DracoLoader", this.path, this.manager);
     loader.setPath(this.path);
     loader.setResponseType('arraybuffer');
 
@@ -56290,7 +56289,6 @@ DRACOLoader.prototype = Object.assign(Object.create(Loader$1.prototype), {
     }
 
     loader.load(url, buffer => {
-      console.log("107 DracoLoader", buffer.byteLength);
       var taskConfig = {
         attributeIDs: this.defaultAttributeIDs,
         attributeTypes: this.defaultAttributeTypes,
@@ -56832,10 +56830,12 @@ BasisTextureLoader.prototype = Object.assign(Object.create(Loader$1.prototype), 
     var worker;
     var taskID;
     var taskCost = buffer.byteLength;
+    console.log("158", taskCost);
 
     var texturePending = this._allocateWorker(taskCost).then(_worker => {
       worker = _worker;
       taskID = this.workerNextTaskID++;
+      console.log("166", _worker, taskID);
       return new Promise((resolve, reject) => {
         worker._callbacks[taskID] = {
           resolve,
@@ -56848,6 +56848,7 @@ BasisTextureLoader.prototype = Object.assign(Object.create(Loader$1.prototype), 
         }, [buffer]);
       });
     }).then(message => {
+      console.log("177 basisTextureLoader", message);
       var config = this.workerConfig;
       var {
         width,
