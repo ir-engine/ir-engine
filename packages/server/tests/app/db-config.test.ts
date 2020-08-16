@@ -1,4 +1,4 @@
-import { db } from '@xrengine/server/db-config'
+import { db } from '../../db-config'
 
 describe('db-config', () => {
   it('should export db url', () => {

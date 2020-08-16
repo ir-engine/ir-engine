@@ -4,7 +4,7 @@ import Grid from '@material-ui/core/Grid'
 import Container from '@material-ui/core/Container'
 import GitHubIcon from '@material-ui/icons/GitHub'
 import FacebookIcon from '@material-ui/icons/Facebook'
-import GoogleIcon from '../../assets/GoogleIcon'
+import GoogleIcon from '../../editor/assets/GoogleIcon'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import {

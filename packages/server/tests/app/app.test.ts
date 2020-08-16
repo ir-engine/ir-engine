@@ -1,8 +1,8 @@
 import { Server } from 'http'
 import axios from 'axios'
-import app from '@xrengine/server/app'
-import config from '@xrengine/server/config'
-import { getUrl } from '@xrengine/server/test-utils'
+import app from '../../app'
+import config from '../../config'
+import { getUrl } from '../test-utils'
 
 const port = config.server.port
 

@@ -1,11 +1,11 @@
 import { CubeTextureLoader, RGBFormat } from "three";
 import { RethrownError } from "./errors";
-import negx from "../../assets/cubemap/negx.jpg";
-import negy from "../../assets/cubemap/negy.jpg";
-import negz from "../../assets/cubemap/negz.jpg";
-import posx from "../../assets/cubemap/posx.jpg";
-import posy from "../../assets/cubemap/posy.jpg";
-import posz from "../../assets/cubemap/posz.jpg";
+import negx from "../assets/cubemap/negx.jpg";
+import negy from "../assets/cubemap/negy.jpg";
+import negz from "../assets/cubemap/negz.jpg";
+import posx from "../assets/cubemap/posx.jpg";
+import posy from "../assets/cubemap/posy.jpg";
+import posz from "../assets/cubemap/posz.jpg";
 
 let cubeMapTexturePromise = null;
 

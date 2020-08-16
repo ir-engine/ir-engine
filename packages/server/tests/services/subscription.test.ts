@@ -5,7 +5,7 @@ import axios from 'axios'
 import qs from 'querystring'
 
 // import config from '../../server/config'
-import { getUrl } from '../../server/test-utils'
+import { getUrl } from '../test-utils'
 
 // const port = config.server.port
 

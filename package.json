@@ -41,7 +41,7 @@
     "lint": "lerna run lint",
     "version-increment": "lerna version --comventional-commits --yes",
     "validate": "lerna run validate",
-    "build": "lerna run build",
+    "build": "lerna run build --parallel",
     "diff": "lerna diff"
   },
   "resolutions": {

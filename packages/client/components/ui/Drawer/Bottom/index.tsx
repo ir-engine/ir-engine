@@ -32,8 +32,8 @@ import {
     Send
 } from '@material-ui/icons'
 import moment from 'moment'
-import { User } from "@xr3ngine/common";
-import { Message } from '@xr3ngine/common'
+import { User } from '@xr3ngine/common/interfaces/User'
+import { Message } from '@xr3ngine/common/interfaces/Message'
 import _ from 'lodash'
 
 const mapStateToProps = (state: any): any => {

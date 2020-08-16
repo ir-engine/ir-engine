@@ -14,7 +14,7 @@ import {
   cancelBlock
 } from '../../../redux/user/service'
 import { Button } from '@material-ui/core'
-import { User } from '@xr3ngine/common'
+import { User } from '@xr3ngine/common/interfaces/User'
 import './style.scss'
 
 interface Props {

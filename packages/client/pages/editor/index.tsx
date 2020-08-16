@@ -1,16 +1,6 @@
 import React, { Component } from "react";
 import styled from "styled-components";
-import editorLogo from "../../assets/editor-logo.png";
-import landingVideoMp4 from "../../assets/video/SpokePromo.mp4";
-import landingVideoWebm from "../../assets/video/SpokePromo.webm";
-import NavBar from "../navigation/NavBar";
-
-import Callout from "./Callout";
 import { Link } from "react-router-dom";
-import { LargeButton } from "../inputs/Button";
-import benches from "../../assets/landing/benches.jpg";
-import editor from "../../assets/landing/environment-editor.jpg";
-import meeting from "../../assets/landing/meeting.jpg";
 
 const Section = styled.section`
   padding: 100px 0;
@@ -94,64 +84,13 @@ const CalloutContainer = styled.div`
 export default class LandingPage extends Component {
   render() {
     return (
-      <>
-        <NavBar />
         <main>
           <Section>
-            <HeroContainer>
-              <HeroLeft>
-                <LogoContainer>
-                  <img src={editorLogo} alt="XR3ngine Scene Editor" />
-                  <h2>make your space</h2>
-                </LogoContainer>
-                <h3>
-                  Create 3D social scenes for{" "}
-                  <a href="htts://xr3ngine.dev" rel="noopener noreferrer">
-                    Hubs
-                  </a>
-                </h3>
-                <LargeButton as={Link} to="/new">
+                <Link to="/new">
                   Get Started
-                </LargeButton>
-              </HeroLeft>
-              <HeroRight>
-                <video playsInline loop autoPlay muted>
-                  <source src={landingVideoMp4} type="video/mp4" />
-                  <source src={landingVideoWebm} type="video/webm" />
-                </video>
-              </HeroRight>
-            </HeroContainer>
-          </Section>
-          <Section>
-            <CalloutContainer>
-              <Callout imageSrc={benches}>
-                <h3>Discover</h3>
-                <p>
-                  Explore images, videos, and 3D models from around the web, all without opening up a new tab. With
-                  media integrations from Sketchfab and Google Poly, you&#39;ll be on your way to creating a scene in no
-                  time.
-                </p>
-              </Callout>
-              <Callout imageSrc={editor}>
-                <h3>Create</h3>
-                <p>
-                  No external software or 3D modeling experience required - build 3D scenes using the Spoke web editor
-                  so you can have a space that&#39;s entirely custom to your needs. From a board room to outer space and
-                  beyond, your space is in your control.
-                </p>
-              </Callout>
-              <Callout imageSrc={meeting}>
-                <h3>Share</h3>
-                <p>
-                  Invite people to meet in your new space by publishing your content to Hubs immediately. With just a
-                  few clicks, you&#39;ll have a world of your own to experience and share - all from your browser.
-                </p>
-              </Callout>
-            </CalloutContainer>
+                </Link>
           </Section>
         </main>
-        
-      </>
     );
   }
 }

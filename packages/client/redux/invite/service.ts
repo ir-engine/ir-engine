@@ -1,6 +1,6 @@
 import { Dispatch } from 'redux'
 import { client } from '../feathers'
-import {dispatchAlertSuccess} from '../alert/service'
+import { dispatchAlertSuccess } from '../alert/service'
 import {
   retrievedReceivedInvites,
   retrievedSentInvites,
@@ -10,15 +10,15 @@ import {
   fetchingReceivedInvites,
   fetchingSentInvites
 } from './actions'
-import {dispatchAlertError} from '../alert/service'
+import { dispatchAlertError } from '../alert/service'
 import store from "../store";
-import {User} from "@xr3ngine/common";
+import { User } from '@xr3ngine/common/interfaces/User';
 
 const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
 const phoneRegex = /^[0-9]{10}$/
 const userIdRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
-export function sendInvite (data: any) {
+export function sendInvite(data: any) {
   return async (dispatch: Dispatch, getState: any) => {
     let send = true
 
@@ -177,7 +177,7 @@ export function retrieveReceivedInvites(skip?: number, limit?: number) {
         }
       })
       dispatch(retrievedReceivedInvites(inviteResult))
-    } catch(err) {
+    } catch (err) {
       console.log(err)
       dispatchAlertError(dispatch, err.message)
     }
@@ -196,7 +196,7 @@ export function retrieveSentInvites(skip?: number, limit?: number) {
         }
       })
       dispatch(retrievedSentInvites(inviteResult))
-    } catch(err) {
+    } catch (err) {
       console.log(err)
       dispatchAlertError(dispatch, err.message)
     }
@@ -207,9 +207,10 @@ function removeInvite(inviteId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       await client.service('invite').remove(inviteId)
-    } catch(err) {
+    } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)}
+      dispatchAlertError(dispatch, err.message)
+    }
   }
 }
 
@@ -225,9 +226,10 @@ export function acceptInvite(inviteId: string, passcode: string) {
           t: passcode
         }
       })
-    } catch(err) {
+    } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)}
+      dispatchAlertError(dispatch, err.message)
+    }
   }
 }
 
@@ -235,8 +237,9 @@ export function declineInvite(inviteId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       await client.service('invite').remove(inviteId)
-    } catch(err) {
-      dispatchAlertError(dispatch, err.message)}
+    } catch (err) {
+      dispatchAlertError(dispatch, err.message)
+    }
   }
 }
 

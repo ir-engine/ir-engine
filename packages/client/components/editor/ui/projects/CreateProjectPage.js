@@ -1,7 +1,6 @@
 import React, { useCallback, useState, useContext } from "react";
 import PropTypes from "prop-types";
 import ScrollToTop from "../router/ScrollToTop";
-import NavBar from "../navigation/NavBar";
 import {
   ProjectGrid,
   ProjectGridContainer,
@@ -99,7 +98,6 @@ export default function CreateProjectPage({ history, location }) {
 
   return (
     <>
-      <NavBar />
       <main>
         <ProjectsSection>
           <ProjectsContainer>

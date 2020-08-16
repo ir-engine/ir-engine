@@ -34,7 +34,7 @@ interface XRRenderState {
   baseLayer?: XRWebGLLayer
 }
 
-interface XRInputSource {
+export interface XRInputSource {
   handedness: XRHandedness
   targetRayMode: XRTargetRayMode
   targetRaySpace: XRSpace
@@ -48,7 +48,7 @@ interface XRSessionInit {
   requiredFeatures?: string[]
 }
 
-interface XRSession {
+export interface XRSession {
   addEventListener: Function
   removeEventListener: Function
   requestReferenceSpace(type: XRReferenceSpaceType): Promise<XRReferenceSpace>
@@ -71,7 +71,7 @@ interface XRSession {
   updateWorldTrackingState(options: { planeDetectionState?: { enabled: boolean } }): void
 }
 
-interface XRReferenceSpace extends XRSpace {
+export interface XRReferenceSpace extends XRSpace {
   getOffsetReferenceSpace(originOffset: XRRigidTransform): XRReferenceSpace
   onreset: any
 }
@@ -79,7 +79,7 @@ interface XRReferenceSpace extends XRSpace {
 type XRPlaneSet = Set<XRPlane>
 type XRAnchorSet = Set<XRAnchor>
 
-interface XRFrame {
+export interface XRFrame {
   session: XRSession
   getViewerPose(referenceSpace: XRReferenceSpace): XRViewerPose | undefined
   getPose(space: XRSpace, baseSpace: XRSpace): XRPose | undefined
@@ -100,7 +100,7 @@ interface XRViewerPose extends XRPose {
   views: Array<XRView>
 }
 
-interface XRPose {
+export interface XRPose {
   transform: XRRigidTransform
   emulatedPosition: boolean
 }
@@ -114,7 +114,7 @@ interface XRWebGLLayerOptions {
   framebufferScaleFactor?: number
 }
 
-declare let XRWebGLLayer: {
+export declare let XRWebGLLayer: {
   prototype: XRWebGLLayer
   new (session: XRSession, context: WebGLRenderingContext | undefined, options?: XRWebGLLayerOptions): XRWebGLLayer
 }

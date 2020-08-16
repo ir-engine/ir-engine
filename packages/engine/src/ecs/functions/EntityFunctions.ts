@@ -1,6 +1,6 @@
 import { Component, ComponentConstructor } from "../classes/Component"
 import { Entity } from "../classes/Entity"
-import Query from "../classes/Query"
+import { Query } from "../classes/Query"
 import { Engine } from "../classes/Engine"
 import wrapImmutableComponent, {
   addComponentToEntity,

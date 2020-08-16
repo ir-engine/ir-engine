@@ -13,8 +13,8 @@ import {
   removeSeat
 } from '../../../redux/seats/service'
 import { Button } from '@material-ui/core'
-import { User } from '@xr3ngine/common'
-import { Seat } from '@xr3ngine/common'
+import { User } from '@xr3ngine/common/interfaces/User'
+import { Seat } from '@xr3ngine/common/interfaces/Seat'
 
 interface Props {
   auth?: any

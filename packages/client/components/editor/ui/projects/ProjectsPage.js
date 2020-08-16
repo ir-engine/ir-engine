@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import configs from "../../configs";
 import { withApi } from "../contexts/ApiContext";
-import NavBar from "../navigation/NavBar";
 import {
   ProjectGrid,
   ProjectGridContainer,
@@ -148,7 +147,6 @@ class ProjectsPage extends Component {
 
     return (
       <>
-        <NavBar />
         <main>
           {!isAuthenticated || (projects.length === 0 && !loading) ? (
             <ProjectsSection flex={0}>

@@ -1,8 +1,8 @@
 import { Dispatch } from 'redux'
 import { client } from '../feathers'
-import { Relationship } from '@xr3ngine/common'
+import { Relationship } from '@xr3ngine/common/interfaces/Relationship'
 import { loadedUserRelationship, loadedUsers, changedRelation } from './actions'
-import { User } from '@xr3ngine/common'
+import { User } from '@xr3ngine/common/interfaces/User'
 
 export function getUserRelationship(userId: string) {
   return (dispatch: Dispatch): any => {

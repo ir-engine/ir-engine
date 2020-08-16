@@ -6,7 +6,7 @@ import {
   canceledInvitation,
   removedSeat
 } from './actions'
-import { Seat } from '@xr3ngine/common'
+import { Seat } from '@xr3ngine/common/interfaces/Seat'
 
 export function getSeats() {
   return (dispatch: Dispatch): any => {

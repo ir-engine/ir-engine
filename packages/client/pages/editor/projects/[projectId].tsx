@@ -1,38 +1,35 @@
-import React, { Component } from "react";
-import configs from "../configs";
-import Modal from "react-modal";
-import { Helmet } from "react-helmet";
-import * as Sentry from "@sentry/browser";
-import styled from "styled-components";
-import { DndProvider } from "react-dnd";
+import { Component } from "react";
+import configs from "../../../spoke/configs";
+import { withApi } from "../../../components/editor/ui/contexts/ApiContext";
+import styled from "styled-components"
+import { createEditor} from "../../../components/editor/nodes/Nodes.js"
+import { defaultSettings, SettingsContextProvider } from "../../../components/editor/ui/contexts/SettingsContext"
+import defaultTemplateUrl from "./crater.json";
+import tutorialTemplateUrl from "./tutorial.json";
+import ErrorDialog from "../../../components/editor/ui/dialogs/ErrorDialog"
+import ProgressDialog from "../../../components/editor/ui/dialogs/ProgressDialog"
+import { cmdOrCtrlString } from "../../../components/editor/ui/utils"
+import SaveNewProjectDialog from "../../../components/editor/ui/dialogs/SaveNewProjectDialog"
+import ExportProjectDialog from "../../../components/editor/ui/dialogs/ExportProjectDialog"
+import ConfirmDialog from "../../../components/editor/ui/dialogs/ConfirmDialog"
+import DndProvider from "../../../components/editor/ui/EditorContainer"
+import Onboarding from "../../../components/editor/ui/onboarding/Onboarding"
+import { OnboardingContextProvider } from "../../../components/editor/ui/contexts/OnboardingContext"
+import { Modal } from "react-modal"
+import { Resizeable } from "../../../components/editor/ui/layout/Resizeable";
+import ViewportPanelContainer from "../../../components/editor/ui/viewport/ViewportPanelContainer";
+import DragLayer from "../../../components/editor/ui/dnd/DragLayer";
+import { DialogContextProvider } from "../../../components/editor/ui/contexts/DialogContext";
+import { EditorContextProvider } from "../../../components/editor/ui/contexts/EditorContext";
+import ToolBar from "../../../components/editor/ui/toolbar/ToolBar";
+import PropertiesPanelContainer from "../../../components/editor/ui/properties/PropertiesPanelContainer";
+import BrowserPrompt from "../../../components/editor/ui/router/BrowserPrompt";
 import HTML5Backend from "react-dnd-html5-backend";
-import ToolBar from "./toolbar/ToolBar";
-import HierarchyPanelContainer from "./hierarchy/HierarchyPanelContainer";
-import PropertiesPanelContainer from "./properties/PropertiesPanelContainer";
-import ViewportPanelContainer from "./viewport/ViewportPanelContainer";
-import {
-  defaultSettings,
-  SettingsContextProvider
-} from "./contexts/SettingsContext";
-import { EditorContextProvider } from "./contexts/EditorContext";
-import { DialogContextProvider } from "./contexts/DialogContext";
-import { OnboardingContextProvider } from "./contexts/OnboardingContext";
-import { withApi } from "./contexts/ApiContext";
-import { createEditor } from "../config";
-import ErrorDialog from "./dialogs/ErrorDialog";
-import ProgressDialog from "./dialogs/ProgressDialog";
-import ConfirmDialog from "./dialogs/ConfirmDialog";
-import SaveNewProjectDialog from "./dialogs/SaveNewProjectDialog";
-import ExportProjectDialog from "./dialogs/ExportProjectDialog";
-import Onboarding from "./onboarding/Onboarding";
-import SupportDialog from "./dialogs/SupportDialog";
-import { cmdOrCtrlString } from "./utils";
-import BrowserPrompt from "./router/BrowserPrompt";
-import { Resizeable } from "./layout/Resizeable";
-import DragLayer from "./dnd/DragLayer";
-import Editor from "../editor/Editor";
-import defaultTemplateUrl from "./../assets/templates/crater.editor";
-import tutorialTemplateUrl from "./../assets/templates/tutorial.editor";
+import Editor from "../../../components/editor/Editor";
+import HierarchyPanelContainer from "../../../components/editor/ui/hierarchy/HierarchyPanelContainer"
+import Helmet from "react-helmet"
+
+//  BrowserPrompt
 const StyledEditorContainer = styled.div`
   display: flex;
   flex: 1;
@@ -48,10 +45,10 @@ const WorkspaceContainer = styled.div`
   margin: 6px;
 `;
 type EditorContainerProps = {
-  api: object,
-  history: object,
-  match: object,
-  location: object
+  api: any,
+  history: any,
+  match: any,
+  location: any
 };
 type EditorContainerState = {
   onboardingContext: { enabled: boolean },
@@ -61,11 +58,12 @@ type EditorContainerState = {
   settingsContext: any,
   error: null,
   editor: any,
+  creatingProject: any,
   DialogComponent: null,
   dialogProps: {},
   modified: boolean
 };
-class EditorContainer extends Component<{}, EditorContainerState> {
+class EditorContainer extends Component<EditorContainerProps, EditorContainerState> {
   constructor(props) {
     super(props);
     let settings = defaultSettings;
@@ -74,14 +72,16 @@ class EditorContainer extends Component<{}, EditorContainerState> {
       settings = JSON.parse(storedSettings);
     }
     const editor = createEditor(props.api, settings);
-    window.editor = editor;
+    (window as any).editor = editor;
     editor.init();
     editor.addListener("initialized", this.onEditorInitialized);
     this.state = {
       error: null,
       project: null,
       parentSceneId: null,
+      creatingProject: null,
       editor,
+      templateUrl: defaultTemplateUrl,
       settingsContext: {
         settings,
         updateSetting: this.updateSetting
@@ -107,7 +107,7 @@ class EditorContainer extends Component<{}, EditorContainerState> {
         this.loadProjectTemplate(defaultTemplateUrl);
       }
     } else if (projectId === "tutorial") {
-      this.loadProjectTemplate(tutorialTemplateUrl, true);
+      this.loadProjectTemplate(tutorialTemplateUrl);
     } else {
       this.loadProject(projectId);
     }
@@ -228,8 +228,9 @@ class EditorContainer extends Component<{}, EditorContainerState> {
       await editor.init();
       await editor.loadProject(projectFile);
       editor.sceneModified = true;
-      this.updateModifiedState();
-      this.hideDialog();
+      this.updateModifiedState(()=> {
+        this.hideDialog();
+      });
     } catch (error) {
       console.error(error);
       this.showDialog(ErrorDialog, {
@@ -354,10 +355,6 @@ class EditorContainer extends Component<{}, EditorContainerState> {
               )
           },
           {
-            name: "Get Support",
-            action: () => this.showDialog(SupportDialog)
-          },
-          {
             name: "Report an Issue",
             action: () =>
               window.open("https://github.com/xr3ngine/xr3ngine/issues/new")
@@ -409,10 +406,6 @@ class EditorContainer extends Component<{}, EditorContainerState> {
       webglVendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
       webglRenderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
     }
-    Sentry.configureScope(scope => {
-      scope.setTag("webgl-vendor", webglVendor);
-      scope.setTag("webgl-renderer", webglRenderer);
-    });
     window.addEventListener("resize", this.onResize);
     this.onResize();
     editor.addListener("projectLoaded", this.onProjectLoaded);
@@ -468,10 +461,10 @@ class EditorContainer extends Component<{}, EditorContainerState> {
     });
   };
   onSceneModified = () => {
-    this.updateModifiedState();
+    this.updateModifiedState(null);
   };
   onProjectLoaded = () => {
-    this.updateModifiedState();
+    this.updateModifiedState(null);
   };
   updateSetting(key, value) {
     const settings = Object.assign(this.state.settingsContext.settings, {
@@ -500,7 +493,7 @@ class EditorContainer extends Component<{}, EditorContainerState> {
     // Wait for 5ms so that the ProgressDialog shows up.
     await new Promise(resolve => setTimeout(resolve, 5));
     const blob = await editor.takeScreenshot(512, 320);
-    const result = await new Promise(resolve => {
+    const result: any = await new Promise(resolve => {
       this.showDialog(SaveNewProjectDialog, {
         thumbnailUrl: URL.createObjectURL(blob),
         initialName: editor.scene.name,
@@ -524,7 +517,7 @@ class EditorContainer extends Component<{}, EditorContainerState> {
     });
     editor.setProperty(editor.scene, "name", result.name, false);
     editor.scene.setMetadata({ name: result.name });
-    const project = await this.props.api.createProject(
+    const project = await (this.props.api as any).createProject(
       editor.scene,
       parentSceneId,
       blob,
@@ -564,7 +557,7 @@ class EditorContainer extends Component<{}, EditorContainerState> {
       const { editor, project } = this.state;
       if (project) {
         const newProject = await this.props.api.saveProject(
-          project.project_id,
+          (project as any).project_id,
           editor,
           abortController.signal,
           this.showDialog,
@@ -575,7 +568,7 @@ class EditorContainer extends Component<{}, EditorContainerState> {
         await this.createProject();
       }
       editor.sceneModified = false;
-      this.updateModifiedState();
+      this.updateModifiedState(null);
       this.hideDialog();
     } catch (error) {
       console.error(error);
@@ -601,8 +594,10 @@ class EditorContainer extends Component<{}, EditorContainerState> {
       const editor = this.state.editor;
       await this.createProject();
       editor.sceneModified = false;
-      this.updateModifiedState();
-      this.hideDialog();
+      this.updateModifiedState(() => {
+        this.hideDialog();
+      });
+      
     } catch (error) {
       console.error(error);
       this.showDialog(ErrorDialog, {
@@ -671,13 +666,13 @@ class EditorContainer extends Component<{}, EditorContainerState> {
     if (!confirm) return;
     const el = document.createElement("input");
     el.type = "file";
-    el.accept = ".editor";
+    el.accept = ".world;
     el.style.display = "none";
     el.onchange = () => {
       if (el.files.length > 0) {
         const fileReader = new FileReader();
         fileReader.onload = () => {
-          const json = JSON.parse(fileReader.result);
+          const json = JSON.parse(fileReader.result.toString());
           if (json.metadata) {
             delete json.metadata.sceneUrl;
             delete json.metadata.sceneId;
@@ -702,7 +697,7 @@ class EditorContainer extends Component<{}, EditorContainerState> {
     const fileName = this.state.editor.scene.name
       .toLowerCase()
       .replace(/\s+/g, "-");
-    el.download = fileName + ".editor";
+    el.download = fileName + ".world;
     el.href = URL.createObjectURL(projectBlob);
     document.body.appendChild(el);
     el.click();
@@ -728,8 +723,9 @@ class EditorContainer extends Component<{}, EditorContainerState> {
         return;
       }
       editor.sceneModified = false;
-      this.updateModifiedState();
-      this.setState({ project });
+      this.updateModifiedState(() => {
+        this.setState({ project });
+      });
     } catch (error) {
       if (error.aborted) {
         this.hideDialog();
@@ -746,7 +742,7 @@ class EditorContainer extends Component<{}, EditorContainerState> {
   getSceneId() {
     const { editor, project } = this.state;
     return (
-      (project && project.scene && project.scene.scene_id) ||
+      (project && (project as any).scene && (project as any).scene.scene_id) ||
       (editor.scene.metadata && editor.scene.metadata.sceneId)
     );
   }
@@ -848,4 +844,3 @@ class EditorContainer extends Component<{}, EditorContainerState> {
     );
   }
 }
-export default withApi(EditorContainer);

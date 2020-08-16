@@ -11,9 +11,9 @@ import {
   FETCHING_RECEIVED_INVITES
 } from '../actions'
 
-import { Invite } from '@xr3ngine/common'
-import { InviteResult } from '@xr3ngine/common'
-import { User } from '@xr3ngine/common'
+import { Invite } from '@xr3ngine/common/interfaces/Invite'
+import { InviteResult } from '@xr3ngine/common/interfaces/InviteResult'
+import { User } from '@xr3ngine/common/interfaces/User'
 
 export interface InviteSentAction {
   type: string,
