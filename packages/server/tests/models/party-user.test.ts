@@ -1,4 +1,4 @@
-import app from '../../server/app'
+import app from '../../app'
 
 describe('CRUD operation on \'PartyUser\' model', () => {
   const model = app.service('party-user').Model

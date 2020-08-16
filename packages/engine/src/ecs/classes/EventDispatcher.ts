@@ -5,7 +5,7 @@ import { Entity } from "./Entity"
  * @private
  * @class EventDispatcher
  */
-export default class EventDispatcher {
+export class EventDispatcher {
   _listeners: {}
   stats: { fired: number; handled: number }
   constructor() {

@@ -1,4 +1,4 @@
-import app from '../../server/app'
+import app from '../../app'
 
 describe('CRUD operation on \'License\' model', () => {
   const model = app.service('license').Model

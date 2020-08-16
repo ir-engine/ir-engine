@@ -20,7 +20,7 @@ import {
   FETCHING_RECEIVED_INVITES,
   FETCHING_SENT_INVITES
 } from '../actions'
-import { Invite } from '../../../common/interfaces/Invite'
+import { Invite } from '@xr3ngine/common'
 
 export const initialState = {
   receivedInvites: {

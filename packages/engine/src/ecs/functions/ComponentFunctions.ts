@@ -1,7 +1,7 @@
 import { Component, ComponentConstructor } from "../classes/Component"
 import { Entity } from "../classes/Entity"
 import { ObjectPool } from "../classes/ObjectPool"
-import { World } from "../classes/World"
+import { Engine } from "../classes/Engine"
 import { COMPONENT_ADDED, COMPONENT_REMOVE } from "../types/EventTypes"
 import { onEntityComponentAdded } from "./EntityFunctions"
 import { getName } from "./Utils"
@@ -46,7 +46,7 @@ export function registerComponent<C extends Component<any>>(
   Component: ComponentConstructor<C>,
   objectPool?: ObjectPool<C> | false
 ): void {
-  if (World.components.indexOf(Component) !== -1) {
+  if (Engine.components.indexOf(Component) !== -1) {
     console.warn(`Component type: '${getName(Component)}' already registered.`)
     return
   }
@@ -65,10 +65,10 @@ export function registerComponent<C extends Component<any>>(
     }
   }
 
-  Component._typeId = World.nextComponentId++
-  World.components.push(Component)
-  World.componentsMap[Component._typeId] = Component
-  World.numComponents[Component._typeId] = 0
+  Component._typeId = Engine.nextComponentId++
+  Engine.components.push(Component)
+  Engine.componentsMap[Component._typeId] = Component
+  Engine.numComponents[Component._typeId] = 0
 
   if (objectPool === undefined) {
     objectPool = new ObjectPool(Component)
@@ -76,27 +76,27 @@ export function registerComponent<C extends Component<any>>(
     objectPool = undefined
   }
 
-  World.componentPool[Component._typeId] = objectPool
+  Engine.componentPool[Component._typeId] = objectPool
 }
 
 export function hasRegisteredComponent<C extends Component<any>>(Component: ComponentConstructor<C>): boolean {
-  return World.components.indexOf(Component) !== -1
+  return Engine.components.indexOf(Component) !== -1
 }
 
 export function componentAddedToEntity(component: Component<any>): void {
-  World.numComponents[component._typeId]++
+  Engine.numComponents[component._typeId]++
 }
 
 export function componentRemovedFromEntity(component: Component<any>): void {
-  World.numComponents[component._typeId]--
+  Engine.numComponents[component._typeId]--
 }
 
 export function getPoolForComponent(component: Component<any>): void {
-  World.componentPool[component._typeId]
+  Engine.componentPool[component._typeId]
 }
 
 export function addComponentToEntity(entity: Entity, Component: ComponentConstructor<Component<any>>, values) {
-  if (typeof Component._typeId === "undefined" && !World.componentsMap[(Component as any)._typeId]) {
+  if (typeof Component._typeId === "undefined" && !Engine.componentsMap[(Component as any)._typeId]) {
     throw new Error(`Attempted to add unregistered component "${Component.name}"`)
   }
 
@@ -126,7 +126,7 @@ export function addComponentToEntity(entity: Entity, Component: ComponentConstru
   onEntityComponentAdded(entity, Component)
   componentAddedToEntity(Component as any)
 
-  World.eventDispatcher.dispatchEvent(COMPONENT_ADDED, entity, Component as any)
+  Engine.eventDispatcher.dispatchEvent(COMPONENT_ADDED, entity, Component as any)
 }
 
 /**
@@ -139,12 +139,12 @@ export function removeComponentFromEntity(entity: Entity, component: any, immedi
   const index = entity.componentTypes.indexOf(component)
   if (!~index) return
 
-  World.eventDispatcher.dispatchEvent(COMPONENT_REMOVE, entity, component)
+  Engine.eventDispatcher.dispatchEvent(COMPONENT_REMOVE, entity, component)
 
   if (immediately) {
     removeComponentFromEntitySync(entity, component, index)
   } else {
-    if (entity.componentTypesToRemove.length === 0) World.entitiesWithComponentsToRemove.push(entity)
+    if (entity.componentTypesToRemove.length === 0) Engine.entitiesWithComponentsToRemove.push(entity)
 
     entity.componentTypes.splice(index, 1)
     entity.componentTypesToRemove.push(component)
@@ -155,8 +155,8 @@ export function removeComponentFromEntity(entity: Entity, component: any, immedi
 }
 
 export function onEntityComponentRemoved(entity, component) {
-  for (const queryName in World.queries) {
-    const query = World.queries[queryName]
+  for (const queryName in Engine.queries) {
+    const query = Engine.queries[queryName]
 
     if (!!~query.notComponents.indexOf(component) && !~query.entities.indexOf(entity) && query.match(entity)) {
       query.addEntity(entity)

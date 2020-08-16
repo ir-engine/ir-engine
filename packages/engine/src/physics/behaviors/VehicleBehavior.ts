@@ -10,8 +10,8 @@ import { Body } from "cannon-es/src/objects/Body"
 export const quaternion = new Quaternion()
 
 import { getMutableComponent, getComponent } from "../../ecs/functions/EntityFunctions"
-import { PhysicsWorld } from "../../sandbox/physics/components/PhysicsWorld"
-import { VehicleBody } from "../../sandbox/physics/components/VehicleBody"
+import { PhysicsWorld } from "../../physics/components/PhysicsWorld"
+import { VehicleBody } from "../../physics/components/VehicleBody"
 import { Object3DComponent } from "../../common/components/Object3DComponent"
 import { Entity } from "../../ecs/classes/Entity"
 
@@ -110,7 +110,7 @@ export function _createVehicleBody(entity: Entity, mesh: any): [RaycastVehicle, 
     //   wheelBody.quaternion.setFromAxisAngle(new Vec3(1,0,0), -Math.PI/2)
     wheelBodies.push(wheelBody)
     //demo.addVisual(wheelBody);
-    //world.addBody(wheelBody);
+    //addBody(wheelBody);
   }
 
   return [vehicle, wheelBodies]

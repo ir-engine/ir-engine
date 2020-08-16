@@ -1,4 +1,4 @@
-import app from '../../server/app';
+import app from '../../app';
 
 describe('\'login-token\' service', () => {
   it('registered the service', () => {

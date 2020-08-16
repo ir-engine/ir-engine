@@ -3,7 +3,7 @@ import {
   LOADED_USERS,
   CHANGED_RELATION
 } from '../actions'
-import { Relationship } from '../../../common/interfaces/Relationship'
+import { Relationship } from '@xr3ngine/common'
 import { User } from '@xr3ngine/common'
 
 export interface LoadedUserRelationshipAction {

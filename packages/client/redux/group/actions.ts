@@ -12,9 +12,9 @@ import {
   LOADED_INVITABLE_GROUPS,
   FETCHING_INVITABLE_GROUPS
 } from '../actions'
-import { Group } from '../../../common/interfaces/Group'
-import { GroupUser } from '../../../common/interfaces/GroupUser'
-import { GroupResult } from '../../../common/interfaces/GroupResult'
+import { Group } from '@xr3ngine/common'
+import { GroupUser } from '@xr3ngine/common'
+import { GroupResult } from '@xr3ngine/common'
 
 export interface LoadedGroupsAction {
   type: string

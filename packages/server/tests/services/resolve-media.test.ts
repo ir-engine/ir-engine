@@ -1,4 +1,4 @@
-import app from '../../server/app'
+import app from '../../app'
 
 describe('\'resolve-media\' service', () => {
   it('registered the service', () => {

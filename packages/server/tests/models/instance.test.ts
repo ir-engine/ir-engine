@@ -1,4 +1,4 @@
-import app from '../../server/app'
+import app from '../../app'
 
 describe('CRUD operation on \'Instance\' model', () => {
   const model = app.service('instance').Model

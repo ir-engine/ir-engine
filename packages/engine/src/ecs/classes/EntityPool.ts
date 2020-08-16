@@ -1,13 +1,13 @@
 import { Entity } from "./Entity"
 import { ObjectPool } from "./ObjectPool"
-import { World } from "./World"
+import { Engine } from "./Engine"
 
 export class EntityPool extends ObjectPool<Entity> {
   type: any
   freeList: any
   count: any
   constructor() {
-    super(World.options.entityClass, World.options.entityPoolSize)
+    super(Engine.options.entityClass, Engine.options.entityPoolSize)
   }
 
   expand(count) {

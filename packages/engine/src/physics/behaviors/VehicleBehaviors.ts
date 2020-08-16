@@ -2,7 +2,7 @@ import { Behavior } from "../../common/interfaces/Behavior"
 import { Vector2 } from "../../common/types/NumericalTypes"
 import { Entity } from "../../ecs/classes/Entity"
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions"
-import { VehicleComponent } from "../../sandbox/physics/components/VehicleComponent"
+import { VehicleComponent } from "../../physics/components/VehicleComponent"
 
 export const drive: Behavior = (entity: Entity, args: { value: Vector2 }): void => {
   const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent)

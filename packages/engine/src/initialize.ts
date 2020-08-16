@@ -1,20 +1,30 @@
 import { AmbientLight, Camera, Clock, GridHelper, PerspectiveCamera, Scene } from "three"
-import { CameraSystem } from "./camera"
-import { isBrowser, SceneManager, Timer } from "./common"
 import { addObject3DComponent } from "./common/defaults/behaviors/Object3DBehaviors"
 import { registerSystem } from "./ecs/functions/SystemFunctions"
 import { createEntity } from "./ecs/functions/EntityFunctions"
-import { execute, initializeWorld, World } from "./ecs/classes/World"
-import { DefaultInputSchema, InputSystem } from "./input"
-import { DefaultNetworkSchema, MediaStreamSystem, NetworkSystem } from "./networking"
-import { KeyframeSystem, ParticleSystem } from "./particles"
-// import { PhysicsSystem, WheelSystem } from "../sandbox/physics"
-import { WebGLRendererSystem, RendererComponent } from "./renderer"
-import { DefaultStateSchema, StateSystem } from "./state"
-import { DefaultSubscriptionSchema, SubscriptionSystem } from "./subscription"
-import { TransformSystem, TransformComponent, TransformParentComponent } from "./transform"
-import { registerComponent } from "./ecs"
+import { execute, initializeEngine, Engine } from "./ecs/classes/Engine"
 import { PhysicsSystem } from "./physics/systems/PhysicsSystem"
+import { DefaultInputSchema } from "./input/defaults/DefaultInputSchema"
+import { DefaultNetworkSchema } from "./networking/defaults/DefaultNetworkSchema"
+import { DefaultStateSchema } from "./state/defaults/DefaultStateSchema"
+import { DefaultSubscriptionSchema } from "./subscription/defaults/DefaultSubscriptionSchema"
+import { SceneManager } from "./common/classes/SceneManager"
+import { registerComponent } from "./ecs/functions/ComponentFunctions"
+import { TransformComponent } from "./transform/components/TransformComponent"
+import { TransformParentComponent } from "./transform/components/TransformParentComponent"
+import { TransformSystem } from "./transform/systems/TransformSystem"
+import { isBrowser } from "./common/functions/isBrowser"
+import { CameraSystem } from "./camera/systems/CameraSystem"
+import { InputSystem } from "./input/systems/InputSystem"
+import { NetworkSystem } from "./networking/systems/NetworkSystem"
+import { MediaStreamSystem } from "./networking/systems/MediaStreamSystem"
+import { StateSystem } from "./state/systems/StateSystem"
+import { SubscriptionSystem } from "./subscription/systems/SubscriptionSystem"
+import { ParticleSystem } from "./particles/systems/ParticleSystem"
+import { KeyframeSystem } from "./particles/systems/KeyframeSystem"
+import { WebGLRendererSystem } from "./renderer/systems/WebGLRendererSystem"
+import { RendererComponent } from "./renderer/components/RendererComponent"
+import { Timer } from "./common/functions/Timer"
 
 export const DefaultInitializationOptions = {
   debug: true,
@@ -57,13 +67,13 @@ export const DefaultInitializationOptions = {
 export function initialize(options: any = DefaultInitializationOptions) {
   console.log("Initializing")
   // Create a new world -- this holds all of our simulation state, entities, etc
-  initializeWorld()
+  initializeEngine()
   // Create a new three.js scene
   const scene = new Scene()
   // Create a new scene manager -- this is a singleton that holds our scene data
-  World.sceneManager = new SceneManager()
+  Engine.sceneManager = new SceneManager()
   // Add the three.js scene to our manager -- it is now available anywhere
-  World.sceneManager.scene = scene
+  Engine.sceneManager.scene = scene
 
   //Transform
   if (options.transform && options.transform.enabled) {
@@ -77,7 +87,7 @@ export function initialize(options: any = DefaultInitializationOptions) {
     // Create a new three.js camera
     const camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000)
     // Add the camera to the camera manager so it's available anywhere
-    World.camera = new Camera()
+    Engine.camera = new Camera()
     // Add the camera to the three.js scene
     scene.add(camera)
 

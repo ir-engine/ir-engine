@@ -4,7 +4,7 @@ import {
   CANCELED_INVITATION,
   REMOVED_SEAT
 } from '../actions'
-import { Seat } from '../../../common/interfaces/Seat'
+import { Seat } from '@xr3ngine/common'
 
 export interface LoadedSeatsAction {
   type: string

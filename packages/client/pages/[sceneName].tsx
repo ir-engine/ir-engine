@@ -3,7 +3,7 @@ import Layout from '../components/ui/Layout'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import Error404 from './404'
-import capitalizeFirstLetter from '../../common/utils/capitalizeFirstLetter'
+import capitalizeFirstLetter from '@xr3ngine/common'
 import getConfig from 'next/config'
 const config = getConfig().publicRuntimeConfig.xr
 

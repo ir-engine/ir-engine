@@ -3,7 +3,7 @@ import {
   VIDEO_UPDATED,
   VIDEO_DELETED
 } from '../actions'
-import { StaticResource } from '../../../common/interfaces/StaticResource'
+import { StaticResource } from '@xr3ngine/common'
 
 export interface VideoCreationForm {
   name: string,

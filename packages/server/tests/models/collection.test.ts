@@ -1,4 +1,4 @@
-import app from '../../server/app'
+import app from '../../app'
 
 describe.skip('CRUD operation on \'Collection\' model', () => {
   const model = app.service('collection').Model

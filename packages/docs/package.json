@@ -6,7 +6,8 @@
   "main": "none.js",
   "scripts": {
     "start": "yarn run dev",
-    "dev": "hugo server",
+    "dev": "hugo server --watch=false",
+    "watch": "hugo server",
     "test": "hugo check",
     "lint": "echo 'No linting for docs'",
     "validate": "yarn run lint && yarn run test",

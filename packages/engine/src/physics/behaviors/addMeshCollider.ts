@@ -1,9 +1,10 @@
 import { Behavior } from "../../common/interfaces/Behavior"
 import { ColliderComponent } from "../components/Collider"
-import { RigidBody } from "../../sandbox/physics/components/RigidBody"
+import { RigidBody } from "../../physics/components/RigidBody"
 import { Entity } from "../../ecs/classes/Entity"
 import { addComponent } from "../../ecs/functions/EntityFunctions"
 import { hasRegisteredComponent, registerComponent } from "../../ecs/functions/ComponentFunctions"
+
 
 export const addMeshCollider: Behavior = (entity: Entity, args: { obj: any; objArgs: any; parentEntity: Entity }) => {
   //  const object3d = args.obj ? new args.obj(args.objArgs) : new Object3D()
@@ -77,139 +78,139 @@ export function getObject3D(entity) {
 export function getComponentTags(object3d: Object3D): (Component<any> | TagComponent)[] {
   const components: Component<any>[] = []
   if (object3d.type === "Audio" && (object3d as any).panner !== undefined) {
-    if (!WorldComponent.instance.world.hasRegisteredComponent(PositionalAudioTagComponent as any))
-      WorldComponent.instance.world.registerComponent(PositionalAudioTagComponent)
+    if (!hasRegisteredComponent(PositionalAudioTagComponent as any))
+      registerComponent(PositionalAudioTagComponent)
     components.push(PositionalAudioTagComponent as any)
   } else if (object3d.type === "Audio") {
-    if (!WorldComponent.instance.world.hasRegisteredComponent(AudioTagComponent as any))
-      WorldComponent.instance.world.registerComponent(AudioTagComponent)
+    if (!hasRegisteredComponent(AudioTagComponent as any))
+      registerComponent(AudioTagComponent)
     components.push(AudioTagComponent as any)
   } else if (object3d.type === "AudioListener") {
-    if (!WorldComponent.instance.world.hasRegisteredComponent(AudioListenerTagComponent as any))
-      WorldComponent.instance.world.registerComponent(AudioListenerTagComponent)
+    if (!hasRegisteredComponent(AudioListenerTagComponent as any))
+      registerComponent(AudioListenerTagComponent)
     components.push(AudioListenerTagComponent as any)
   } else if ((object3d as any).isCamera) {
-    if (!WorldComponent.instance.world.hasRegisteredComponent(CameraTagComponent as any))
-      WorldComponent.instance.world.registerComponent(CameraTagComponent)
+    if (!hasRegisteredComponent(CameraTagComponent as any))
+      registerComponent(CameraTagComponent)
     components.push(CameraTagComponent as any)
 
     if ((object3d as any).isOrthographicCamera) {
-      if (!WorldComponent.instance.world.hasRegisteredComponent(OrthographicCameraTagComponent as any))
-        WorldComponent.instance.world.registerComponent(OrthographicCameraTagComponent)
+      if (!hasRegisteredComponent(OrthographicCameraTagComponent as any))
+        registerComponent(OrthographicCameraTagComponent)
       components.push(OrthographicCameraTagComponent as any)
     } else if ((object3d as any).isPerspectiveCamera) {
-      if (!WorldComponent.instance.world.hasRegisteredComponent(PerspectiveCameraTagComponent as any))
-        WorldComponent.instance.world.registerComponent(PerspectiveCameraTagComponent)
+      if (!hasRegisteredComponent(PerspectiveCameraTagComponent as any))
+        registerComponent(PerspectiveCameraTagComponent)
       components.push(PerspectiveCameraTagComponent as any)
     }
     if ((object3d as any).isArrayCamera) {
-      if (!WorldComponent.instance.world.hasRegisteredComponent(ArrayCameraTagComponent as any))
-        WorldComponent.instance.world.registerComponent(ArrayCameraTagComponent)
+      if (!hasRegisteredComponent(ArrayCameraTagComponent as any))
+        registerComponent(ArrayCameraTagComponent)
       components.push(ArrayCameraTagComponent as any)
     } else if (object3d.type === "CubeCamera") {
-      if (!WorldComponent.instance.world.hasRegisteredComponent(CubeCameraTagComponent as any))
-        WorldComponent.instance.world.registerComponent(CubeCameraTagComponent)
+      if (!hasRegisteredComponent(CubeCameraTagComponent as any))
+        registerComponent(CubeCameraTagComponent)
       components.push(CubeCameraTagComponent as any)
     } else if ((object3d as any).isImmediateRenderObject) {
-      if (!WorldComponent.instance.world.hasRegisteredComponent(ImmediateRenderObjectTagComponent as any))
-        WorldComponent.instance.world.registerComponent(ImmediateRenderObjectTagComponent)
+      if (!hasRegisteredComponent(ImmediateRenderObjectTagComponent as any))
+        registerComponent(ImmediateRenderObjectTagComponent)
       components.push(ImmediateRenderObjectTagComponent as any)
     }
   } else if ((object3d as any).isLight) {
-    if (!WorldComponent.instance.world.hasRegisteredComponent(LightTagComponent as any))
-      WorldComponent.instance.world.registerComponent(LightTagComponent)
+    if (!hasRegisteredComponent(LightTagComponent as any))
+      registerComponent(LightTagComponent)
     components.push(LightTagComponent as any)
 
     if ((object3d as any).isAmbientLight) {
-      if (!WorldComponent.instance.world.hasRegisteredComponent(AmbientLightTagComponent as any))
-        WorldComponent.instance.world.registerComponent(AmbientLightTagComponent)
+      if (!hasRegisteredComponent(AmbientLightTagComponent as any))
+        registerComponent(AmbientLightTagComponent)
       components.push(AmbientLightTagComponent as any)
     } else if ((object3d as any).isDirectionalLight) {
-      if (!WorldComponent.instance.world.hasRegisteredComponent(DirectionalLightTagComponent as any))
-        WorldComponent.instance.world.registerComponent(DirectionalLightTagComponent)
+      if (!hasRegisteredComponent(DirectionalLightTagComponent as any))
+        registerComponent(DirectionalLightTagComponent)
       components.push(DirectionalLightTagComponent as any)
     } else if ((object3d as any).isHemisphereLight) {
-      if (!WorldComponent.instance.world.hasRegisteredComponent(HemisphereLightTagComponent as any))
-        WorldComponent.instance.world.registerComponent(HemisphereLightTagComponent)
+      if (!hasRegisteredComponent(HemisphereLightTagComponent as any))
+        registerComponent(HemisphereLightTagComponent)
       components.push(HemisphereLightTagComponent as any)
     } else if ((object3d as any).isPointLight) {
-      if (!WorldComponent.instance.world.hasRegisteredComponent(PointLightTagComponent as any))
-        WorldComponent.instance.world.registerComponent(PointLightTagComponent)
+      if (!hasRegisteredComponent(PointLightTagComponent as any))
+        registerComponent(PointLightTagComponent)
       components.push(PointLightTagComponent as any)
     } else if ((object3d as any).isRectAreaLight) {
-      if (!WorldComponent.instance.world.hasRegisteredComponent(RectAreaLightTagComponent as any))
-        WorldComponent.instance.world.registerComponent(RectAreaLightTagComponent)
+      if (!hasRegisteredComponent(RectAreaLightTagComponent as any))
+        registerComponent(RectAreaLightTagComponent)
       components.push(RectAreaLightTagComponent as any)
     } else if ((object3d as any).isSpotLight) {
-      if (!WorldComponent.instance.world.hasRegisteredComponent(SpotLightTagComponent as any))
-        WorldComponent.instance.world.registerComponent(SpotLightTagComponent)
+      if (!hasRegisteredComponent(SpotLightTagComponent as any))
+        registerComponent(SpotLightTagComponent)
       components.push(SpotLightTagComponent as any)
     }
   } else if ((object3d as any).isLightProbe) {
-    if (!WorldComponent.instance.world.hasRegisteredComponent(LightProbeTagComponent as any))
-      WorldComponent.instance.world.registerComponent(LightProbeTagComponent)
+    if (!hasRegisteredComponent(LightProbeTagComponent as any))
+      registerComponent(LightProbeTagComponent)
     components.push(LightProbeTagComponent as any)
 
     if ((object3d as any).isAmbientLightProbe) {
-      if (!WorldComponent.instance.world.hasRegisteredComponent(AmbientLightProbeTagComponent as any))
-        WorldComponent.instance.world.registerComponent(AmbientLightProbeTagComponent)
+      if (!hasRegisteredComponent(AmbientLightProbeTagComponent as any))
+        registerComponent(AmbientLightProbeTagComponent)
       components.push(AmbientLightProbeTagComponent as any)
     } else if ((object3d as any).isHemisphereLightProbe) {
-      if (!WorldComponent.instance.world.hasRegisteredComponent(HemisphereLightProbeTagComponent as any))
-        WorldComponent.instance.world.registerComponent(HemisphereLightProbeTagComponent)
+      if (!hasRegisteredComponent(HemisphereLightProbeTagComponent as any))
+        registerComponent(HemisphereLightProbeTagComponent)
       components.push(HemisphereLightProbeTagComponent as any)
     }
   } else if ((object3d as any).isBone) {
-    if (!WorldComponent.instance.world.hasRegisteredComponent(BoneTagComponent as any))
-      WorldComponent.instance.world.registerComponent(BoneTagComponent)
+    if (!hasRegisteredComponent(BoneTagComponent as any))
+      registerComponent(BoneTagComponent)
     components.push(BoneTagComponent as any)
   } else if ((object3d as any).isGroup) {
-    if (!WorldComponent.instance.world.hasRegisteredComponent(GroupTagComponent as any))
-      WorldComponent.instance.world.registerComponent(GroupTagComponent)
+    if (!hasRegisteredComponent(GroupTagComponent as any))
+      registerComponent(GroupTagComponent)
     components.push(GroupTagComponent as any)
   } else if ((object3d as any).isLOD) {
-    if (!WorldComponent.instance.world.hasRegisteredComponent(LODTagComponent as any))
-      WorldComponent.instance.world.registerComponent(LODTagComponent)
+    if (!hasRegisteredComponent(LODTagComponent as any))
+      registerComponent(LODTagComponent)
     components.push(LODTagComponent as any)
   } else if ((object3d as any).isMesh) {
-    if (!WorldComponent.instance.world.hasRegisteredComponent(MeshTagComponent as any))
-      WorldComponent.instance.world.registerComponent(MeshTagComponent)
+    if (!hasRegisteredComponent(MeshTagComponent as any))
+      registerComponent(MeshTagComponent)
     components.push(MeshTagComponent as any)
 
     if ((object3d as any).isInstancedMesh) {
-      if (!WorldComponent.instance.world.hasRegisteredComponent(InstancedMeshTagComponent as any))
-        WorldComponent.instance.world.registerComponent(InstancedMeshTagComponent)
+      if (!hasRegisteredComponent(InstancedMeshTagComponent as any))
+        registerComponent(InstancedMeshTagComponent)
       components.push(InstancedMeshTagComponent as any)
     } else if ((object3d as any).isSkinnedMesh) {
-      if (!WorldComponent.instance.world.hasRegisteredComponent(SkinnedMeshTagComponent as any))
-        WorldComponent.instance.world.registerComponent(SkinnedMeshTagComponent)
+      if (!hasRegisteredComponent(SkinnedMeshTagComponent as any))
+        registerComponent(SkinnedMeshTagComponent)
       components.push(SkinnedMeshTagComponent as any)
     }
   } else if ((object3d as any).isLine) {
-    if (!WorldComponent.instance.world.hasRegisteredComponent(LineTagComponent as any))
-      WorldComponent.instance.world.registerComponent(LineTagComponent)
+    if (!hasRegisteredComponent(LineTagComponent as any))
+      registerComponent(LineTagComponent)
     components.push(LineTagComponent as any)
 
     if ((object3d as any).isLineLoop) {
-      if (!WorldComponent.instance.world.hasRegisteredComponent(LineLoopTagComponent as any))
-        WorldComponent.instance.world.registerComponent(LineLoopTagComponent)
+      if (!hasRegisteredComponent(LineLoopTagComponent as any))
+        registerComponent(LineLoopTagComponent)
       components.push(HemisphereLightProbeTagComponent as any)
     } else if ((object3d as any).isLineSegments) {
-      if (!WorldComponent.instance.world.hasRegisteredComponent(LineSegmentsTagComponent as any))
-        WorldComponent.instance.world.registerComponent(LineSegmentsTagComponent)
+      if (!hasRegisteredComponent(LineSegmentsTagComponent as any))
+        registerComponent(LineSegmentsTagComponent)
       components.push(LineSegmentsTagComponent as any)
     }
   } else if ((object3d as any).isPoints) {
-    if (!WorldComponent.instance.world.hasRegisteredComponent(PointsTagComponent as any))
-      WorldComponent.instance.world.registerComponent(PointsTagComponent)
+    if (!hasRegisteredComponent(PointsTagComponent as any))
+      registerComponent(PointsTagComponent)
     components.push(PointsTagComponent as any)
   } else if ((object3d as any).isSprite) {
-    if (!WorldComponent.instance.world.hasRegisteredComponent(SpriteTagComponent as any))
-      WorldComponent.instance.world.registerComponent(SpriteTagComponent)
+    if (!hasRegisteredComponent(SpriteTagComponent as any))
+      registerComponent(SpriteTagComponent)
     components.push(SpriteTagComponent as any)
   } else if ((object3d as any).isScene) {
-    if (!WorldComponent.instance.world.hasRegisteredComponent(SceneTagComponent as any))
-      WorldComponent.instance.world.registerComponent(SceneTagComponent)
+    if (!hasRegisteredComponent(SceneTagComponent as any))
+      registerComponent(SceneTagComponent)
     components.push(SceneTagComponent as any)
   }
   return components

@@ -33,7 +33,7 @@ import {
 } from '@material-ui/icons'
 import moment from 'moment'
 import { User } from "@xr3ngine/common";
-import { Message } from '../../../../../common/interfaces/Message'
+import { Message } from '@xr3ngine/common'
 import _ from 'lodash'
 
 const mapStateToProps = (state: any): any => {

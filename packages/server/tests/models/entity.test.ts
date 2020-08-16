@@ -1,4 +1,4 @@
-import app from '../../server/app'
+import app from '../../app'
 import { v1 } from 'uuid'
 
 describe('CRUD operation on \'Entity\' model', () => {
