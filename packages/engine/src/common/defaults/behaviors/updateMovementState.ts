@@ -5,7 +5,7 @@ import { addState } from "../../../state/behaviors/StateBehaviors"
 import { DefaultStateTypes } from "../../../state/defaults/DefaultStateTypes"
 import { BinaryValue } from "../../enums/BinaryValue"
 import { Behavior } from "../../interfaces/Behavior"
-import { getComponent } from "../../../ecs/functions/EntityFunctions"
+import { getComponentOnEntity } from "../../../ecs/functions/EntityFunctions"
 
 let input: Input
 let moving: boolean
@@ -18,7 +18,7 @@ const movementInputs = [
   DefaultInput.RIGHT
 ]
 export const updateMovementState: Behavior = (entity: Entity): void => {
-  input = getComponent(entity, Input)
+  input = getComponentOnEntity(entity, Input)
   moving = false
   movementInputs.forEach(direction => {
     if (input.data.get(direction)?.value == BinaryValue.ON) moving = true

@@ -38,11 +38,11 @@ import { Behavior } from "../../interfaces/Behavior"
 import { Entity } from "../../../ecs/classes/Entity"
 import { ComponentConstructor, Component } from "../../../ecs/classes/Component"
 import {
-  addComponent,
+  addComponentToEntity,
   getMutableComponent,
-  hasComponent,
-  getComponent,
-  removeComponent,
+  entityHasComponent,
+  getComponentOnEntity,
+  removeComponentFromEntity,
   removeEntity
 } from "../../../ecs/functions/EntityFunctions"
 import { hasRegisteredComponent, registerComponent } from "../../../ecs/functions/ComponentFunctions"
@@ -52,7 +52,7 @@ export function addTagComponentFromBehavior<C>(
   entity: Entity,
   args: { component: ComponentConstructor<Component<C>> }
 ): void {
-  addComponent(entity, args.component, args)
+  addComponentToEntity(entity, args.component, args)
 }
 
 export const addObject3DComponent: Behavior = (
@@ -65,15 +65,15 @@ export const addObject3DComponent: Behavior = (
     registerComponent(Object3DComponent)
   }
   // object3d = new args.obj(args.objArgs)
-  addComponent(entity, Object3DComponent, { value: object3d })
+  addComponentToEntity(entity, Object3DComponent, { value: object3d })
   getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = object3d
 
   getComponentTags(object3d).forEach((component: any) => {
-    addComponent(entity, component)
+    addComponentToEntity(entity, component)
   })
   if (args.parentEntity === undefined) args.parentEntity = SceneManager.instance.scene
-  if (args.parentEntity && hasComponent(args.parentEntity, Object3DComponent as any)) {
-    getComponent<Object3DComponent>(args.parentEntity, Object3DComponent).value.add(object3d)
+  if (args.parentEntity && entityHasComponent(args.parentEntity, Object3DComponent as any)) {
+    getComponentOnEntity<Object3DComponent>(args.parentEntity, Object3DComponent).value.add(object3d)
   }
   // Add the obj to our scene graph
   else SceneManager.instance.scene.add(object3d)
@@ -82,20 +82,20 @@ export const addObject3DComponent: Behavior = (
 }
 
 export function removeObject3DComponent(entity, unparent = true) {
-  const object3d = getComponent<Object3DComponent>(entity, Object3DComponent, true).value
+  const object3d = getComponentOnEntity<Object3DComponent>(entity, Object3DComponent, true).value
   SceneManager.instance.scene.remove(object3d)
 
   if (unparent) {
     // Using "true" as the entity could be removed somewhere else
     object3d.parent && object3d.parent.remove(object3d)
   }
-  removeComponent(entity, Object3DComponent)
+  removeComponentFromEntity(entity, Object3DComponent)
 
   for (let i = entity.componentTypes.length - 1; i >= 0; i--) {
     const Component = entity.componentTypes[i]
 
     if (Component.isObject3DTagComponent) {
-      removeComponent(entity, Component)
+      removeComponentFromEntity(entity, Component)
     }
   }
 
@@ -103,7 +103,7 @@ export function removeObject3DComponent(entity, unparent = true) {
 }
 
 export function remove(entity, forceImmediate) {
-  if (hasComponent<Object3DComponent>(entity, Object3DComponent)) {
+  if (entityHasComponent<Object3DComponent>(entity, Object3DComponent)) {
     const obj = getObject3D(entity)
     obj.traverse(o => {
       if ((o as any).entity) removeEntity((o as any).entity, forceImmediate)
@@ -115,7 +115,7 @@ export function remove(entity, forceImmediate) {
 }
 
 export function getObject3D(entity) {
-  const component = getComponent<Object3DComponent>(entity, Object3DComponent)
+  const component = getComponentOnEntity<Object3DComponent>(entity, Object3DComponent)
   return component && component.value
 }
 

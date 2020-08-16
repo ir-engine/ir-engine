@@ -11,11 +11,11 @@ import { AssetsLoadedHandler } from "../types/AssetTypes"
 import { registerComponent, Not } from "../../ecs/functions/ComponentFunctions"
 import { Entity } from "../../ecs/classes/Entity"
 import {
-  addComponent,
+  addComponentToEntity,
   getMutableComponent,
-  getComponent,
-  hasComponent,
-  removeComponent
+  getComponentOnEntity,
+  entityHasComponent,
+  removeComponentFromEntity
 } from "../../ecs/functions/EntityFunctions"
 
 export default class AssetLoadingSystem extends System {
@@ -34,7 +34,7 @@ export default class AssetLoadingSystem extends System {
       // Create a new entity
       const entity = this.queryResults.toLoad.all[0]
       // Asset the AssetLoaderState so it falls out of this query
-      addComponent(entity, AssetLoaderState)
+      addComponentToEntity(entity, AssetLoaderState)
       const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader)
       // Set the filetype
       assetLoader.assetType = getAssetType(assetLoader.url)
@@ -50,7 +50,7 @@ export default class AssetLoadingSystem extends System {
     // Do the actual entity creation inside the system tick not in the loader callback
     for (let i = 0; i < this.loaded.size; i++) {
       const [entity, asset] = this.loaded[i]
-      const component = getComponent<AssetLoader>(entity, AssetLoader) as AssetLoader
+      const component = getComponentOnEntity<AssetLoader>(entity, AssetLoader) as AssetLoader
       if (component.assetClass === AssetClass.Model)
         asset.scene.traverse(function(child) {
           if (child.isMesh) {
@@ -63,12 +63,12 @@ export default class AssetLoadingSystem extends System {
           }
         })
 
-      if (hasComponent(entity, Object3DComponent)) {
+      if (entityHasComponent(entity, Object3DComponent)) {
         if (component.append) {
-          getComponent<Object3DComponent>(entity, Object3DComponent).value.add(asset.scene)
+          getComponentOnEntity<Object3DComponent>(entity, Object3DComponent).value.add(asset.scene)
         }
       } else {
-        addComponent(entity, Model, { value: asset })
+        addComponentToEntity(entity, Model, { value: asset })
         addObject3DComponent(entity, { obj: asset, parent: component.parent })
       }
 
@@ -82,7 +82,7 @@ export default class AssetLoadingSystem extends System {
     const toUnload = this.queryResults.toUnload.all
     while (toUnload.length) {
       const entity = toUnload[0]
-      removeComponent(entity, AssetLoaderState)
+      removeComponentFromEntity(entity, AssetLoaderState)
       removeObject3DComponent(entity)
     }
   }

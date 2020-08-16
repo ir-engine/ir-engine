@@ -1,6 +1,6 @@
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { Entity } from "../../ecs/classes/Entity"
-import { addComponent, removeComponent } from "../../ecs/functions/EntityFunctions"
+import { addComponentToEntity, removeComponentFromEntity } from "../../ecs/functions/EntityFunctions"
 import { ComponentConstructor } from "../../ecs/classes/Component"
 
 /**
@@ -13,12 +13,12 @@ import { ComponentConstructor } from "../../ecs/classes/Component"
 export class GameObject extends Entity {
   constructor() {
     super()
-    addComponent(this, TransformComponent)
+    addComponentToEntity(this, TransformComponent)
   }
 
   removeComponent(component: ComponentConstructor<any>, forceImmediate?: boolean): this {
     if (component !== TransformComponent) {
-      removeComponent(this, component, forceImmediate)
+      removeComponentFromEntity(this, component, forceImmediate)
     }
     return this
   }

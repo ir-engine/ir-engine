@@ -6,10 +6,10 @@ import { Input } from "../../../input/components/Input"
 import { DefaultInput } from "../../../input/defaults/DefaultInput"
 import { addState } from "../../../state/behaviors/StateBehaviors"
 import { DefaultStateTypes } from "../../../state/defaults/DefaultStateTypes"
-import { getComponent } from "../../../ecs/functions/EntityFunctions"
+import { getComponentOnEntity } from "../../../ecs/functions/EntityFunctions"
 
 export const updateMovementState: Behavior = (entity: Entity): void => {
-  const input = getComponent<Input>(entity, Input)
+  const input = getComponentOnEntity<Input>(entity, Input)
   let moving = false
   const movementInputs = [
     DefaultInput.FORWARD,

@@ -12,7 +12,7 @@ import _ from "lodash"
 export function invertByMany(dataObj) {
   return _.transform(
     dataObj,
-    (result, values, key) => _.map(values, subvalue => (result[subvalue] || (result[subvalue] = [])).push(key)),
+    (result: any, values: any, ke: any) => _.map(values, subvalue => (result[subvalue] || (result[subvalue] = [])).push(key)),
     {}
   )
 }
@@ -23,7 +23,7 @@ export function invertByMany(dataObj) {
  * // {1: "a", 2: "a", 3: "b", 4:"c"}
  */
 export function invertByUniqueValues(dataObj) {
-  return _.transform(dataObj, (a, v, k) => _.map(v, sv => (a[sv] = k)), {})
+  return _.transform(dataObj, (a: any, v: any, k: any) => _.map(v, sv => (a[sv] = k)), {})
 }
 
 /**

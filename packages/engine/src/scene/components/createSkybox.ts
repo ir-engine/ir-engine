@@ -1,7 +1,7 @@
 import { Vector3 } from "three"
 import { ScaleComponent } from "../../transform/components/ScaleComponent"
 import { addObject3DComponent } from "../../common/defaults/behaviors/Object3DBehaviors"
-import { getMutableComponent, createEntity, addComponent } from "../../ecs/functions/EntityFunctions"
+import { getMutableComponent, createEntity, addComponentToEntity } from "../../ecs/functions/EntityFunctions"
 
 export default function createSkybox(args: {
   obj
@@ -17,7 +17,7 @@ export default function createSkybox(args: {
   const entity = createEntity()
   addObject3DComponent(entity, args.obj)
   // Add entity
-  addComponent(entity, ScaleComponent)
+  addComponentToEntity(entity, ScaleComponent)
   const scaleComponent = getMutableComponent<ScaleComponent>(entity, ScaleComponent)
   scaleComponent.scale = [args.distance, args.distance, args.distance]
   const uniforms = args.material.uniforms

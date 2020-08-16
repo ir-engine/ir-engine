@@ -7,7 +7,7 @@ import { RendererComponent } from "../components/RendererComponent"
 import { DefaultPostProcessingSchema } from "../defaults/DefaultPostProcessingSchema"
 import { System, Attributes } from "../../ecs/classes/System"
 import { registerComponent } from "../../ecs/functions/ComponentFunctions"
-import { addComponent, createEntity, getMutableComponent, getComponent } from "../../ecs/functions/EntityFunctions"
+import { addComponentToEntity, createEntity, getMutableComponent, getComponentOnEntity } from "../../ecs/functions/EntityFunctions"
 import { Entity } from "../../ecs/classes/Entity"
 export class WebGLRendererSystem extends System {
   init(attributes?: Attributes): void {
@@ -19,7 +19,7 @@ export class WebGLRendererSystem extends System {
     // Add the renderer to the body of the HTML document
     document.body.appendChild(renderer.domElement)
     // Create the Renderer singleton
-    addComponent(createEntity(), RendererComponent, {
+    addComponentToEntity(createEntity(), RendererComponent, {
       renderer: renderer
     })
   }
@@ -67,13 +67,13 @@ export class WebGLRendererSystem extends System {
     })
 
     this.queryResults.renderers.all.forEach((entity: Entity) => {
-      getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta)
+      getComponentOnEntity<RendererComponent>(entity, RendererComponent).composer.render(delta)
     })
   }
 }
 
 export const resize: Behavior = entity => {
-  const rendererComponent = getComponent<RendererComponent>(entity, RendererComponent)
+  const rendererComponent = getComponentOnEntity<RendererComponent>(entity, RendererComponent)
 
   if (rendererComponent.needsResize) {
     const canvas = rendererComponent.renderer.domElement

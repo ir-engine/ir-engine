@@ -2,15 +2,12 @@ import { Component, ComponentConstructor } from "../classes/Component"
 import { Entity } from "../classes/Entity"
 import { Query } from "../classes/Query"
 import { Engine } from "../classes/Engine"
-import wrapImmutableComponent, {
-  addComponentToEntity,
-  removeAllComponentsFromEntity,
-  removeComponentFromEntity,
-  componentRemovedFromEntity
-} from "./ComponentFunctions"
-import { ENTITY_CREATED, ENTITY_REMOVED } from "../types/EventTypes"
+import { wrapImmutableComponent, removeAllComponentsFromEntity, componentRemovedFromEntity } from "./ComponentFunctions"
 
-export function getComponent<C extends Component<any>>(
+export const ENTITY_CREATED = "EntityManager#ENTITY_CREATE"
+export const ENTITY_REMOVED = "EntityManager#ENTITY_REMOVED"
+
+export function getComponentOnEntity<C extends Component<C>>(
   entity: Entity,
   component: ComponentConstructor<C> | unknown,
   includeRemoved?: boolean
@@ -53,7 +50,7 @@ export function getRemovedComponent<C extends Component<any>>(
   return <C>(process.env.NODE_ENV !== "production" ? wrapImmutableComponent<Component<C>>(component) : component)
 }
 
-export function getComponents(entity: Entity): { [componentName: string]: ComponentConstructor<any> } {
+export function getComponentsFromEntity(entity: Entity): { [componentName: string]: ComponentConstructor<any> } {
   return entity.components
 }
 
@@ -65,7 +62,7 @@ export function getComponentTypes(entity: Entity): Array<Component<any>> {
   return entity.componentTypes
 }
 
-export function addComponent<C extends Component<any>>(
+export function addComponentToEntity<C extends Component<any>>(
   entity: Entity,
   Component: ComponentConstructor<C>,
   values?: Partial<Omit<C, keyof Component<any>>>
@@ -74,7 +71,7 @@ export function addComponent<C extends Component<any>>(
   return entity
 }
 
-export function removeComponent<C extends Component<any>>(
+export function removeComponentFromEntity<C extends Component<any>>(
   entity: Entity,
   Component: ComponentConstructor<C>,
   forceImmediate?: boolean
@@ -83,7 +80,7 @@ export function removeComponent<C extends Component<any>>(
   return entity
 }
 
-export function hasComponent<C extends Component<any>>(
+export function entityHasComponent<C extends Component<any>>(
   entity: Entity,
   Component: ComponentConstructor<C>,
   includeRemoved?: boolean
@@ -103,14 +100,14 @@ export function hasRemovedComponent<C extends Component<any>>(
 
 export function hasAllComponents(entity: Entity, Components: Array<ComponentConstructor<any>>): boolean {
   for (let i = 0; i < Components.length; i++) {
-    if (!hasComponent(entity, Components[i])) return false
+    if (!entityHasComponent(entity, Components[i])) return false
   }
   return true
 }
 
 export function hasAnyComponents(entity: Entity, Components: Array<ComponentConstructor<any>>): boolean {
   for (let i = 0; i < Components.length; i++) {
-    if (hasComponent(entity, entity.components[i])) return true
+    if (entityHasComponent(entity, entity.components[i])) return true
   }
   return false
 }

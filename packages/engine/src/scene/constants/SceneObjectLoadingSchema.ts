@@ -5,7 +5,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { Sky } from "three/examples/jsm/objects/Sky"
 import { VisibleTagComponent } from "../../common/components/Object3DTagComponents"
 import { addObject3DComponent, addTagComponentFromBehavior } from "../../common/defaults/behaviors/Object3DBehaviors"
-import { addComponent } from "../../ecs/functions/EntityFunctions"
+import { addComponentToEntity } from "../../ecs/functions/EntityFunctions"
 import createSkybox from "../components/SkyboxComponent"
 import CollidableTagComponent from "../components/Collidable"
 import Image from "../components/Image"
@@ -60,7 +60,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   ["gltf-model"]: {
     behaviors: [
       {
-        behavior: addComponent,
+        behavior: addComponentToEntity,
         args: {
           obj: GLTFLoader,
           onLoaded: () => {

@@ -1,6 +1,0 @@
-export * from "./EthnicSkinBlender"
-export * from "./Factors"
-export * from "./Human"
-export * from "./Modifier"
-export * from "./Proxy"
-export * from "./Targets"

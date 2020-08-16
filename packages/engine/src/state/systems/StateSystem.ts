@@ -9,7 +9,7 @@ import { StateSchema } from "../interfaces/StateSchema"
 import { StateValue } from "../interfaces/StateValue"
 import { StateGroupAlias } from "../types/StateGroupAlias"
 import { registerComponent } from "../../ecs/functions/ComponentFunctions"
-import { getComponent } from "../../ecs/functions/EntityFunctions"
+import { getComponentOnEntity } from "../../ecs/functions/EntityFunctions"
 
 export class StateSystem extends System {
   init(): void {
@@ -20,7 +20,7 @@ export class StateSystem extends System {
   public execute(delta: number, time: number): void {
     this.queryResults.state.added?.forEach(entity => {
       // If stategroup has a default, add it to our state map
-      this._state = getComponent(entity, State)
+      this._state = getComponentOnEntity(entity, State)
       if (this._state.schema === undefined) return
       Object.keys((this._state.schema as StateSchema)?.groups).forEach((stateGroup: StateGroupAlias) => {
         if (
@@ -34,7 +34,7 @@ export class StateSystem extends System {
 
     this.queryResults.state.changed?.forEach(entity => {
       // If stategroup has a default, add it to our state map
-      this._state = getComponent(entity, State)
+      this._state = getComponentOnEntity(entity, State)
       if (this._state.schema === undefined) return
       Object.keys((this._state.schema as StateSchema)?.groups).forEach((stateGroup: StateGroupAlias) => {
         if (
@@ -53,7 +53,7 @@ export class StateSystem extends System {
   }
 
   private callBehaviors: Behavior = (entity: Entity, args: { phase: string }, delta: number) => {
-    this._state = getComponent(entity, State)
+    this._state = getComponentOnEntity(entity, State)
     this._state.data.forEach((stateValue: StateValue<NumericalType>) => {
       if (
         this._state.schema.states[stateValue.state] !== undefined &&
