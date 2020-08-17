@@ -2,7 +2,7 @@ import { Component, ComponentConstructor } from "../classes/Component"
 import { Entity } from "../classes/Entity"
 import { Query } from "../classes/Query"
 import { Engine } from "../classes/Engine"
-import { wrapImmutableComponent } from "./ComponentFunctions"
+import { wrapImmutableComponent, registerComponent } from "./ComponentFunctions"
 import { ObjectPool } from "../classes/ObjectPool"
 import { SystemStateComponent } from "../classes/SystemStateComponent"
 
@@ -58,7 +58,7 @@ export function addComponent<C extends Component<any>>(
   values?: Partial<Omit<C, keyof Component<any>>>
 ): Entity {
   if (typeof Component._typeId === "undefined" && !Engine.componentsMap[(Component as any)._typeId]) {
-    throw new Error(`Attempted to add unregistered component "${Component.name}"`)
+    registerComponent(Component)
   }
 
   if (~entity.componentTypes.indexOf(Component)) {

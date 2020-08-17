@@ -1,6 +1,5 @@
 import { Attributes, System } from "../../ecs/classes/System"
 import { Engine } from "../../ecs/classes/Engine"
-import { registerComponent } from "../../ecs/functions/ComponentFunctions"
 import { MediaStreamComponent } from "../components/MediaStreamComponent"
 import { Network } from "../components/Network"
 import { localMediaConstraints } from "../constants/VideoConstants"
@@ -9,7 +8,6 @@ import { getEntityByName, addComponent, getMutableComponent } from "../../ecs/fu
 export class MediaStreamSystem extends System {
   public static instance: MediaStreamSystem = null
   init(attributes?: Attributes): void {
-    registerComponent(MediaStreamComponent)
     const networkEntity = getEntityByName("network")
     addComponent(networkEntity, MediaStreamComponent)
     const mediaStreamComponent = getMutableComponent<MediaStreamComponent>(networkEntity, MediaStreamComponent)

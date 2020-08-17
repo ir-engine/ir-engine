@@ -199,7 +199,7 @@ export abstract class System {
   }
 
   static getName() {
-    return (this.constructor as any).prototype.getName()
+    return (this.constructor as any).getName()
   }
 
   getQuery(components: (ComponentConstructor<any> | NotComponent<any>)[]): Query {
