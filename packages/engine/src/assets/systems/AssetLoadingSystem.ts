@@ -8,13 +8,14 @@ import { Model } from "../components/Model"
 import { AssetClass } from "../enums/AssetClass"
 import { getAssetClass, getAssetType, loadAsset } from "../functions/LoadingFunctions"
 import { AssetsLoadedHandler } from "../types/AssetTypes"
-import { registerComponent, Not, addComponentToEntity } from "../../ecs/functions/ComponentFunctions"
+import { registerComponent, Not } from "../../ecs/functions/ComponentFunctions"
 import { Entity } from "../../ecs/classes/Entity"
 import {
   getMutableComponent,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  addComponent
 } from "../../ecs/functions/EntityFunctions"
 
 export default class AssetLoadingSystem extends System {
@@ -33,7 +34,7 @@ export default class AssetLoadingSystem extends System {
       // Create a new entity
       const entity = this.queryResults.toLoad.all[0]
       // Asset the AssetLoaderState so it falls out of this query
-      addComponentToEntity(entity, AssetLoaderState)
+      addComponent(entity, AssetLoaderState)
       const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader)
       // Set the filetype
       assetLoader.assetType = getAssetType(assetLoader.url)
@@ -67,7 +68,7 @@ export default class AssetLoadingSystem extends System {
           getComponent<Object3DComponent>(entity, Object3DComponent).value.add(asset.scene)
         }
       } else {
-        addComponentToEntity(entity, Model, { value: asset })
+        addComponent(entity, Model, { value: asset })
         addObject3DComponent(entity, { obj: asset, parent: component.parent })
       }
 

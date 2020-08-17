@@ -1,5 +1,4 @@
 import { Entity } from "./Entity"
-import { processDeferredEntityRemoval } from "../functions/EntityFunctions"
 import { EntityPool } from "./EntityPool"
 import { EventDispatcher } from "./EventDispatcher"
 import { Query } from "./Query"
@@ -50,10 +49,6 @@ export class Engine {
 
   static executeSystems: any[] = []
   static lastExecutedSystem: any
-
-  static initialize(options?: EngineOptions) {
-    initializeEngine(options)
-  }
 }
 
 export function initializeEngine(options?: EngineOptions) {
@@ -77,6 +72,39 @@ export function execute(delta?: number, time?: number): void {
     Engine.executeSystems.forEach(system => system.enabled && executeSystem(system, delta, time))
     processDeferredEntityRemoval()
   }
+}
+
+function processDeferredEntityRemoval() {
+  if (!Engine.deferredRemovalEnabled) {
+    return
+  }
+  let entitiesToRemove
+  let entitiesWithComponentsToRemove
+  for (let i = 0; i < entitiesToRemove.length; i++) {
+    const entity = entitiesToRemove[i]
+    const index = Engine.entities.indexOf(entity)
+    this._entities.splice(index, 1);
+
+    if (this.entitiesByNames[entity.name]) {
+      delete this.entitiesByNames[entity.name];
+    }
+    entity._pool.release(entity);
+    }
+  entitiesToRemove.length = 0
+
+  for (let i = 0; i < entitiesWithComponentsToRemove.length; i++) {
+    const entity = entitiesWithComponentsToRemove[i]
+    while (entity.componentTypesToRemove.length > 0) {
+      const Component = entity.componentTypesToRemove.pop()
+
+      const component = entity.componentsToRemove[Component._typeId]
+      delete entity.componentsToRemove[Component._typeId]
+      component.dispose()
+      Engine.numComponents[component._typeId]--
+    }
+  }
+
+  Engine.entitiesWithComponentsToRemove.length = 0
 }
 
 export function stop(): void {
