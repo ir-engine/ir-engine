@@ -1,4 +1,4 @@
-import app from '../../app'
+import app from '../../packages/server/app'
 
 describe('CRUD operation on \'Component Type\' model', () => {
   const model = app.service('component-type').Model

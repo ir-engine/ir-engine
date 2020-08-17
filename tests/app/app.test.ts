@@ -1,7 +1,7 @@
 import { Server } from 'http'
 import axios from 'axios'
-import app from '../../app'
-import config from '../../config'
+import app from '../../packages/server/app'
+import config from '../../packages/server/config'
 import { getUrl } from '../test-utils'
 
 const port = config.server.port

@@ -1,10 +1,10 @@
 import { Sequelize } from 'sequelize'
-import { Application } from './declarations'
+import { Application } from '../declarations'
 // @ts-ignore
 import seederConfig from './seeder-config'
 // @ts-ignore
 import seeder from 'feathers-seeder'
-import config from './config'
+import config from '../config'
 import { setTimeout } from 'timers'
 
 export default (app: Application): void => {
