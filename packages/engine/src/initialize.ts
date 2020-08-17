@@ -20,8 +20,8 @@ import { NetworkSystem } from "./networking/systems/NetworkSystem"
 import { MediaStreamSystem } from "./networking/systems/MediaStreamSystem"
 import { StateSystem } from "./state/systems/StateSystem"
 import { SubscriptionSystem } from "./subscription/systems/SubscriptionSystem"
-import { ParticleSystem } from "./particles/systems/ParticleSystem"
-import { KeyframeSystem } from "./particles/systems/KeyframeSystem"
+// import { ParticleSystem } from "./particles/systems/ParticleSystem"
+// import { KeyframeSystem } from "./particles/systems/KeyframeSystem"
 import { WebGLRendererSystem } from "./renderer/systems/WebGLRendererSystem"
 import { RendererComponent } from "./renderer/components/RendererComponent"
 import { Timer } from "./common/functions/Timer"
@@ -126,10 +126,10 @@ export function initialize(options: any = DefaultInitializationOptions) {
     registerSystem(PhysicsSystem)
   }
   // Particles
-  if (options.particles && options.particles.enabled) {
-    registerSystem(ParticleSystem)
-    registerSystem(KeyframeSystem)
-  }
+  // if (options.particles && options.particles.enabled) {
+  //   registerSystem(ParticleSystem)
+  //   registerSystem(KeyframeSystem)
+  // }
 
   // Rendering
   if (options.renderer && options.renderer.enabled) {

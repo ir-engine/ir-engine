@@ -1,3 +1,6 @@
+// @ts-nocheck
+/// <reference no-default-lib="true"/>
+
 import { DepthOfFieldEffect, Effect, EffectComposer, EffectPass, RenderPass, SSAOEffect } from "postprocessing"
 import { WebGLRenderer } from "three"
 import { CameraComponent } from "../../camera/components/CameraComponent"
@@ -39,8 +42,6 @@ export class WebGLRendererSystem extends System {
     const composer = new EffectComposer(renderer.renderer)
     renderer.composer = composer
     const renderPass = new RenderPass(SceneManager.instance.scene, CameraComponent.instance.camera)
-    console.log(renderPass.camera)
-    console.log(renderPass.scene)
     renderPass.scene = SceneManager.instance.scene
     renderPass.camera = CameraComponent.instance.camera
     composer.addPass(renderPass)

@@ -7,20 +7,6 @@ import { wrapImmutableComponent, removeAllComponentsFromEntity, componentRemoved
 export const ENTITY_CREATED = "EntityManager#ENTITY_CREATE"
 export const ENTITY_REMOVED = "EntityManager#ENTITY_REMOVED"
 
-export function getComponentOnEntity<C extends Component<C>>(
-  entity: Entity,
-  component: ComponentConstructor<C> | unknown,
-  includeRemoved?: boolean
-): Readonly<C> {
-  let _component = entity.components[(component as C)._typeId]
-
-  if (!_component && includeRemoved === true) {
-    _component = entity.componentsToRemove[(component as any)._typeId]
-  }
-
-  return process.env.NODE_ENV !== "production" ? <C>wrapImmutableComponent(_component) : <C>_component
-}
-
 export function getMutableComponent<C extends Component<any>>(
   entity: Entity,
   Component: ComponentConstructor<C> | any
@@ -227,4 +213,18 @@ export function processDeferredEntityRemoval() {
   }
 
   Engine.entitiesWithComponentsToRemove.length = 0
+}
+
+export function getComponentOnEntity<C extends Component<C>>(
+  entity: Entity,
+  component: ComponentConstructor<C> | unknown,
+  includeRemoved?: boolean
+): Readonly<C> {
+  let _component = entity.components[(component as C)._typeId]
+
+  if (!_component && includeRemoved === true) {
+    _component = entity.componentsToRemove[(component as any)._typeId]
+  }
+
+  return process.env.NODE_ENV !== "production" ? <C>wrapImmutableComponent(_component) : <C>_component
 }
