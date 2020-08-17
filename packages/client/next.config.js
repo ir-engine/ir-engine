@@ -15,12 +15,15 @@ module.exports = withImages(
     dir: './client',
     distDir: './.next',
     webpack(config, options) {
+      config.externals = config.externals || [];
       config.externals.push(nodeExternals())
+      if(!options.isServer){
       config.node = {
         fs: 'empty',
         child_process: 'empty',
         net: 'empty'
       }
+    }
       config.resolve.alias.utils = path.join(__dirname, 'utils')
       config.optimization.minimize = process.env.NODE_ENV === 'production'
       config.module.rules.push({
