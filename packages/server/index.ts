@@ -1,4 +1,4 @@
-import logger from './logger'
+import logger from './app/logger'
 import app from './app'
 import config from './config'
 import fs from 'fs'

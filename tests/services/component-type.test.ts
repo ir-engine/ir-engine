@@ -1,4 +1,4 @@
-import app from '../../app'
+import app from '../../packages/server/app'
 
 describe('\'ComponentType\' service', () => {
   it('registered the service', () => {

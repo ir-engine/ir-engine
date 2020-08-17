@@ -1,4 +1,4 @@
-import app from '../../app'
+import app from '../../packages/server/app'
 
 describe('CRUD operation on \'CollectionType\' model', () => {
   const model = app.service('collection-type').Model

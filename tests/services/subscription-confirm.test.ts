@@ -1,4 +1,4 @@
-import app from '../../app'
+import app from '../../packages/server/app'
 
 describe('\'subscription-confirm\' service', () => {
   it('registered the service', () => {
