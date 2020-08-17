@@ -2,7 +2,7 @@ import "./webxr-input.mock"
 //jest.mock("./webxr-input.mock")
 
 import { InputSystem } from "../../src/input/systems/InputSystem"
-import { initializeWorld, registerSystem } from "../../src/ecs"
+import { initializeWorld, registerSystem, getSystem } from "../../src/ecs"
 
 test("check navigator", () => {
   expect("xr" in navigator).toBeTruthy()
@@ -14,4 +14,15 @@ test("check hidden magic from the globalised world", () => {
     initializeWorld()
     registerSystem(InputSystem)
   }).not.toThrowError()
+})
+
+test("start XR sesion", () => {
+  expect(() => {
+    const system = getSystem(InputSystem)
+    system.init({ onVRSupportRequested })
+  }).not.toThrowError()
+
+  function onVRSupportRequested(isSupported = false) {
+    expect(isSupported).toBeTruthy()
+  }
 })
