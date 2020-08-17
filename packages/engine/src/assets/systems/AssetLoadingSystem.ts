@@ -8,14 +8,13 @@ import { Model } from "../components/Model"
 import { AssetClass } from "../enums/AssetClass"
 import { getAssetClass, getAssetType, loadAsset } from "../functions/LoadingFunctions"
 import { AssetsLoadedHandler } from "../types/AssetTypes"
-import { registerComponent, Not } from "../../ecs/functions/ComponentFunctions"
+import { registerComponent, Not, addComponentToEntity } from "../../ecs/functions/ComponentFunctions"
 import { Entity } from "../../ecs/classes/Entity"
 import {
-  addComponentToEntity,
   getMutableComponent,
-  getComponentOnEntity,
-  entityHasComponent,
-  removeComponentFromEntity
+  getComponent,
+  hasComponent,
+  removeComponent
 } from "../../ecs/functions/EntityFunctions"
 
 export default class AssetLoadingSystem extends System {
@@ -50,7 +49,7 @@ export default class AssetLoadingSystem extends System {
     // Do the actual entity creation inside the system tick not in the loader callback
     for (let i = 0; i < this.loaded.size; i++) {
       const [entity, asset] = this.loaded[i]
-      const component = getComponentOnEntity<AssetLoader>(entity, AssetLoader) as AssetLoader
+      const component = getComponent<AssetLoader>(entity, AssetLoader) as AssetLoader
       if (component.assetClass === AssetClass.Model)
         asset.scene.traverse(function(child) {
           if (child.isMesh) {
@@ -63,9 +62,9 @@ export default class AssetLoadingSystem extends System {
           }
         })
 
-      if (entityHasComponent(entity, Object3DComponent)) {
+      if (hasComponent(entity, Object3DComponent)) {
         if (component.append) {
-          getComponentOnEntity<Object3DComponent>(entity, Object3DComponent).value.add(asset.scene)
+          getComponent<Object3DComponent>(entity, Object3DComponent).value.add(asset.scene)
         }
       } else {
         addComponentToEntity(entity, Model, { value: asset })
@@ -82,7 +81,7 @@ export default class AssetLoadingSystem extends System {
     const toUnload = this.queryResults.toUnload.all
     while (toUnload.length) {
       const entity = toUnload[0]
-      removeComponentFromEntity(entity, AssetLoaderState)
+      removeComponent(entity, AssetLoaderState)
       removeObject3DComponent(entity)
     }
   }

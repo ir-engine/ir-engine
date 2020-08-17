@@ -101,16 +101,16 @@ export function initialize(options: any = DefaultInitializationOptions) {
   }
 
   // Networking
-  if (options.networking && options.networking.enabled) {
-    registerSystem(NetworkSystem)
+  // if (options.networking && options.networking.enabled) {
+  //   registerSystem(NetworkSystem)
 
-    // Do we want audio and video streams?
-    if (options.networking.supportsMediaStreams == true) {
-      registerSystem(MediaStreamSystem)
-    } else {
-      console.warn("Does not support media streams")
-    }
-  }
+  //   // Do we want audio and video streams?
+  //   if (options.networking.supportsMediaStreams == true) {
+  //     registerSystem(MediaStreamSystem)
+  //   } else {
+  //     console.warn("Does not support media streams")
+  //   }
+  // }
 
   // State
   if (options.state && options.state.enabled) {

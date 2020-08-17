@@ -8,6 +8,7 @@ import { configureStore } from '../redux/store'
 import { Store } from 'redux'
 import { ThemeProvider } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
+import theme from '../theme'
 import { restoreState } from '../redux/persisted.store'
 import { doLoginAuto } from '../redux/auth/service'
 import DeviceDetector from 'device-detector-js'
@@ -19,7 +20,6 @@ import querystring from 'querystring'
 import { dispatchAlertError } from '../redux/alert/service'
 
 import getConfig from 'next/config'
-import theme from '../theme'
 
 const config = getConfig().publicRuntimeConfig
 

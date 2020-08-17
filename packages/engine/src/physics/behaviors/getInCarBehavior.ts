@@ -4,7 +4,7 @@ import { Vector2 } from "three"
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions"
 import { VehicleComponent } from ".."
 
-export const drive: Behavior = (entity: Entity, args: { value: Vector2 }): void => {
+export const getInCar: Behavior = (entity: Entity, args: { value: Vector2 }): void => {
   const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent)
   const vehicle = vehicleComponent.vehicle
 

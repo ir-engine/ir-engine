@@ -4,11 +4,11 @@ import { Entity } from "../../ecs/classes/Entity"
 import { Input } from "../components/Input"
 import { InputValue } from "../interfaces/InputValue"
 import { InputAlias } from "../types/InputAlias"
-import { getComponentOnEntity, getMutableComponent } from "../../ecs/functions/EntityFunctions"
+import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions"
 
 let input: Input
 export const validateButtonInput: Behavior = (entity: Entity): void => {
-  input = getComponentOnEntity(entity, Input)
+  input = getComponent(entity, Input)
   // TODO: This for loop could be simplified probably now that we are using map
   for (let i = 0; i < input.data.size; i++) {
     for (let k = 0; k < input.data.size; k++) {

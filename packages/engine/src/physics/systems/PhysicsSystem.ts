@@ -1,4 +1,4 @@
-import { Quaternion } from "cannon-es/src/math/Quaternion"
+import { Quaternion } from "cannon-es"
 import { ColliderComponent } from "../components/Collider"
 
 import { ColliderBehavior } from "../behaviors/ColliderBehavior"
@@ -12,7 +12,7 @@ import { RigidBody } from "../../physics/components/RigidBody"
 import { VehicleBody } from "../../physics/components/VehicleBody"
 import { WheelBody } from "../../physics/components/WheelBody"
 
-export const quaternion = new Quaternion()
+const quaternion = new Quaternion()
 
 export class PhysicsSystem extends System {
   init() {

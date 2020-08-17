@@ -1,11 +1,11 @@
-import { Quaternion } from "cannon-es/src/math/Quaternion"
+import { Quaternion } from "cannon-es"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { ColliderComponent } from "../components/Collider"
-import { getComponentOnEntity, getMutableComponent } from "../../ecs/functions/EntityFunctions"
+import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions"
 import { Object3DComponent } from "../../common/components/Object3DComponent"
 import { Entity } from "../../ecs/classes/Entity"
-export const quaternion = new Quaternion()
+const quaternion = new Quaternion()
 //let quaternion = new THREE.Quaternion();
 //let euler = new THREE.Euler();
 export const RigidBodyBehavior: Behavior = (entity: Entity, args): void => {
@@ -25,8 +25,8 @@ export const RigidBodyBehavior: Behavior = (entity: Entity, args): void => {
     PhysicsWorld.instance.physicsWorld.addBody(body)
     */
   } else if (args.phase == "onUpdate") {
-    const collider = getComponentOnEntity<ColliderComponent>(entity, ColliderComponent).collider
-    const object = getComponentOnEntity<Object3DComponent>(entity, Object3DComponent).value
+    const collider = getComponent<ColliderComponent>(entity, ColliderComponent).collider
+    const object = getComponent<Object3DComponent>(entity, Object3DComponent).value
     const transform = getMutableComponent<TransformComponent>(entity, TransformComponent)
 
     if (args.isKinematic) {

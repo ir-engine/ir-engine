@@ -4,14 +4,14 @@ import { Binary } from "../../common/types/NumericalTypes"
 import { Entity } from "../../ecs/classes/Entity"
 import { InputType } from "../enums/InputType"
 import { Input } from "../components/Input"
-import { getComponentOnEntity, getMutableComponent } from "../../ecs/functions/EntityFunctions"
+import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions"
 
 // Local reference to input component
 let input: Input
 const _value: [number, number] = [0, 0]
 // System behavior called whenever the mouse pressed
 export const handleMouseMovement: Behavior = (entity: Entity, args: { event: MouseEvent }): void => {
-  input = getComponentOnEntity(entity, Input)
+  input = getComponent(entity, Input)
   _value[0] = (args.event.clientX / window.innerWidth) * 2 - 1
   _value[1] = (args.event.clientY / window.innerHeight) * -2 + 1
   // Set type to TWOD (two-dimensional axis) and value to a normalized -1, 1 on X and Y
@@ -48,7 +48,7 @@ export const handleMouseButton: Behavior = (entity: Entity, args: { event: Mouse
 // System behavior called when a keyboard key is pressed
 export function handleKey(entity: Entity, args: { event: KeyboardEvent; value: Binary }): any {
   // Get immutable reference to Input and check if the button is defined -- ignore undefined keys
-  input = getComponentOnEntity(entity, Input)
+  input = getComponent(entity, Input)
   if (input.schema.keyboardInputMap[args.event.key] === undefined) return
   // If the key is in the map but it's in the same state as now, let's skip it (debounce)
   if (

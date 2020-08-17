@@ -1,18 +1,18 @@
-type XRSessionMode = "inline" | "immersive-vr" | "immersive-ar"
+export type XRSessionMode = "inline" | "immersive-vr" | "immersive-ar"
 
-type XRReferenceSpaceType = "viewer" | "local" | "local-floor" | "bounded-floor" | "unbounded"
+export type XRReferenceSpaceType = "viewer" | "local" | "local-floor" | "bounded-floor" | "unbounded"
 
-type XREnvironmentBlendMode = "opaque" | "additive" | "alpha-blend"
+export type XREnvironmentBlendMode = "opaque" | "additive" | "alpha-blend"
 
-type XRVisibilityState = "visible" | "visible-blurred" | "hidden"
+export type XRVisibilityState = "visible" | "visible-blurred" | "hidden"
 
-type XRHandedness = "none" | "left" | "right"
+export type XRHandedness = "none" | "left" | "right"
 
-type XRTargetRayMode = "gaze" | "tracked-pointer" | "screen"
+export type XRTargetRayMode = "gaze" | "tracked-pointer" | "screen"
 
-type XREye = "none" | "left" | "right"
+export type XREye = "none" | "left" | "right"
 
-type XREventType =
+export type XREventType =
   | "devicechange"
   | "visibilitychange"
   | "end"
@@ -105,7 +105,7 @@ export interface XRPose {
   emulatedPosition: boolean
 }
 
-interface XRWebGLLayerOptions {
+export interface XRWebGLLayerOptions {
   antialias?: boolean
   depth?: boolean
   stencil?: boolean
@@ -114,11 +114,7 @@ interface XRWebGLLayerOptions {
   framebufferScaleFactor?: number
 }
 
-export declare let XRWebGLLayer: {
-  prototype: XRWebGLLayer
-  new (session: XRSession, context: WebGLRenderingContext | undefined, options?: XRWebGLLayerOptions): XRWebGLLayer
-}
-interface XRWebGLLayer {
+export interface XRWebGLLayer {
   framebuffer: WebGLFramebuffer
   framebufferWidth: number
   framebufferHeight: number

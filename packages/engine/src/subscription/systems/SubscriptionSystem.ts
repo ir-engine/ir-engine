@@ -4,7 +4,7 @@ import { Entity } from "../../ecs/classes/Entity"
 import { System } from "../../ecs/classes/System"
 import { Subscription } from "../components/Subscription"
 import { registerComponent } from "../../ecs/functions/ComponentFunctions"
-import { getComponentOnEntity } from "../../ecs/functions/EntityFunctions"
+import { getComponent } from "../../ecs/functions/EntityFunctions"
 
 export class SubscriptionSystem extends System {
   init(): void {
@@ -31,7 +31,7 @@ export class SubscriptionSystem extends System {
   }
 
   callBehaviorsForHook: Behavior = (entity: Entity, args: { phase: string }, delta: any) => {
-    this.subscription = getComponentOnEntity(entity, Subscription)
+    this.subscription = getComponent(entity, Subscription)
     // If the schema for this subscription component has any values in this phase
     if (this.subscription.schema[args.phase] !== undefined) {
       // Foreach value in this phase

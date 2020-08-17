@@ -2,7 +2,7 @@ import { Behavior } from "../../common/interfaces/Behavior"
 import { ColliderComponent } from "../components/Collider"
 import { RigidBody } from "../../physics/components/RigidBody"
 import { Entity } from "../../ecs/classes/Entity"
-import { addComponentToEntity } from "../../ecs/functions/EntityFunctions"
+import { addComponent } from "../../ecs/functions/EntityFunctions"
 import { hasRegisteredComponent, registerComponent } from "../../ecs/functions/ComponentFunctions"
 
 
@@ -14,8 +14,8 @@ export const addMeshCollider: Behavior = (entity: Entity, args: { obj: any; objA
   }
 
   // object3d = new args.obj(args.objArgs)
-  addComponentToEntity(entity, ColliderComponent, { scale: [1, 1, 1], mass: 0.2 })
-  addComponentToEntity(entity, RigidBody)
+  addComponent(entity, ColliderComponent, { scale: [1, 1, 1], mass: 0.2 })
+  addComponent(entity, RigidBody)
   console.log(entity)
 
   //getMutableComponent(entity, Object3DComponent).value = object3d

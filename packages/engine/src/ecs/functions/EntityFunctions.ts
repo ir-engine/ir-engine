@@ -36,7 +36,7 @@ export function getRemovedComponent<C extends Component<any>>(
   return <C>(process.env.NODE_ENV !== "production" ? wrapImmutableComponent<Component<C>>(component) : component)
 }
 
-export function getComponentsFromEntity(entity: Entity): { [componentName: string]: ComponentConstructor<any> } {
+export function getComponents(entity: Entity): { [componentName: string]: ComponentConstructor<any> } {
   return entity.components
 }
 
@@ -48,25 +48,25 @@ export function getComponentTypes(entity: Entity): Array<Component<any>> {
   return entity.componentTypes
 }
 
-export function addComponentToEntity<C extends Component<any>>(
+export function addComponent<C extends Component<any>>(
   entity: Entity,
   Component: ComponentConstructor<C>,
   values?: Partial<Omit<C, keyof Component<any>>>
 ): Entity {
-  addComponentToEntity(entity, Component, values)
+  addComponent(entity, Component, values)
   return entity
 }
 
-export function removeComponentFromEntity<C extends Component<any>>(
+export function removeComponent<C extends Component<any>>(
   entity: Entity,
   Component: ComponentConstructor<C>,
   forceImmediate?: boolean
 ): Entity {
-  removeComponentFromEntity(entity, Component, forceImmediate)
+  removeComponent(entity, Component, forceImmediate)
   return entity
 }
 
-export function entityHasComponent<C extends Component<any>>(
+export function hasComponent<C extends Component<any>>(
   entity: Entity,
   Component: ComponentConstructor<C>,
   includeRemoved?: boolean
@@ -86,14 +86,14 @@ export function hasRemovedComponent<C extends Component<any>>(
 
 export function hasAllComponents(entity: Entity, Components: Array<ComponentConstructor<any>>): boolean {
   for (let i = 0; i < Components.length; i++) {
-    if (!entityHasComponent(entity, Components[i])) return false
+    if (!hasComponent(entity, Components[i])) return false
   }
   return true
 }
 
 export function hasAnyComponents(entity: Entity, Components: Array<ComponentConstructor<any>>): boolean {
   for (let i = 0; i < Components.length; i++) {
-    if (entityHasComponent(entity, entity.components[i])) return true
+    if (hasComponent(entity, entity.components[i])) return true
   }
   return false
 }
@@ -215,7 +215,7 @@ export function processDeferredEntityRemoval() {
   Engine.entitiesWithComponentsToRemove.length = 0
 }
 
-export function getComponentOnEntity<C extends Component<C>>(
+export function getComponent<C extends Component<C>>(
   entity: Entity,
   component: ComponentConstructor<C> | unknown,
   includeRemoved?: boolean

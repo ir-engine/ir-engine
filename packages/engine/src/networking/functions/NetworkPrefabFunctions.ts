@@ -1,5 +1,5 @@
 import { Entity } from "../../ecs/classes/Entity"
-import { createEntity, addComponentToEntity, getMutableComponent } from "../../ecs/functions/EntityFunctions"
+import { createEntity, addComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions"
 import { Network } from "../components/Network"
 import { NetworkObject } from "../components/NetworkObject"
 import { NetworkPrefab } from "../interfaces/NetworkPrefab"
@@ -8,7 +8,7 @@ import { hasRegisteredComponent, registerComponent } from "../../ecs/functions/C
 export function createNetworkPrefab(prefab: NetworkPrefab, networkId: string | number): Entity {
   const entity = createEntity()
   // Add a NetworkObject component to the entity, this will store information about changing state
-  addComponentToEntity(entity, NetworkObject, { networkId })
+  addComponent(entity, NetworkObject, { networkId })
   // Call each create action
   prefab.onCreate?.forEach(action => {
     // If it's a networked behavior, or this is the local player, call it
@@ -22,7 +22,7 @@ export function createNetworkPrefab(prefab: NetworkPrefab, networkId: string | n
     // Register the component if it hasn't already been registered with the world
     if (!hasRegisteredComponent(component.type)) registerComponent(component.type)
     // Add the component to our entity
-    addComponentToEntity(entity, component.type)
+    addComponent(entity, component.type)
     // If the component has initialization data...
     // If the component has no initialization data, return
     if (component.data == undefined) return // Get a mutable reference to the component
@@ -42,7 +42,7 @@ export function createNetworkPrefab(prefab: NetworkPrefab, networkId: string | n
       // If the component hasn't been registered with the world, register it
       if (!hasRegisteredComponent(component.type)) registerComponent(component.type)
       // The component to the entity
-      addComponentToEntity(entity, component.type)
+      addComponent(entity, component.type)
       // If the component has no initialization data, return
       if (component.data == undefined) return
       // Get a mutable reference to the component

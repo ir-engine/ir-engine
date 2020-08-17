@@ -1,7 +1,7 @@
-import { SAPBroadphase } from "cannon-es/src/collision/SAPBroadphase"
-import { ContactMaterial } from "cannon-es/src/material/ContactMaterial"
-import { Material } from "cannon-es/src/material/Material"
-import { World } from "cannon-es/src/world/World"
+import { SAPBroadphase } from "cannon-es"
+import { ContactMaterial } from "cannon-es"
+import { Material } from "cannon-es"
+import { World } from "cannon-es"
 import { Component } from "../../ecs/classes/Component"
 import { Types } from "../../ecs/types/Types"
 

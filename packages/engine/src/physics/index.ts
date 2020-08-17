@@ -1,8 +1,6 @@
-export * from "./behaviors/addMeshCollider"
-export * from "./components/PhysicsWorld"
-export * from "./components/Collider"
-export * from "./components/RigidBody"
-export * from "./components/VehicleBody"
-export * from "./components/VehicleComponent"
-export * from "./components/WheelBody"
-export * from "./systems/PhysicsSystem"
+// created from 'create-ts-index'
+
+export * from './behaviors';
+export * from './components';
+export * from './defaults';
+export * from './systems';
