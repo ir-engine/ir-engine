@@ -1,15 +1,15 @@
-import { Quaternion } from "cannon-es/src/math/Quaternion"
-import { Box } from "cannon-es/src/shapes/Box"
-import { Cylinder } from "cannon-es/src/shapes/Cylinder"
-import { Vec3 } from "cannon-es/src/math/Vec3"
+import { Quaternion } from "cannon-es"
+import { Box } from "cannon-es"
+import { Cylinder } from "cannon-es"
+import { Vec3 } from "cannon-es"
 import { Behavior } from "../../common/interfaces/Behavior"
 import { TransformComponent } from "../../transform/components/TransformComponent"
-import { RaycastVehicle } from "cannon-es/src/objects/RaycastVehicle"
-import { Body } from "cannon-es/src/objects/Body"
+import { RaycastVehicle } from "cannon-es"
+import { Body } from "cannon-es"
 
-export const quaternion = new Quaternion()
+const quaternion = new Quaternion()
 
-import { getMutableComponent, getComponentOnEntity } from "../../ecs/functions/EntityFunctions"
+import { getMutableComponent, getComponent } from "../../ecs/functions/EntityFunctions"
 import { PhysicsWorld } from "../../physics/components/PhysicsWorld"
 import { VehicleBody } from "../../physics/components/VehicleBody"
 import { Object3DComponent } from "../../common/components/Object3DComponent"
@@ -17,9 +17,9 @@ import { Entity } from "../../ecs/classes/Entity"
 
 export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
   if (args.phase == "onAdded") {
-    const object = getComponentOnEntity<Object3DComponent>(entity, Object3DComponent).value
+    const object = getComponent<Object3DComponent>(entity, Object3DComponent).value
 
-    const vehicleComponent = getComponentOnEntity(entity, VehicleBody) as VehicleBody
+    const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody
 
     const [vehicle, wheelBodies] = _createVehicleBody(entity, vehicleComponent.convexMesh)
     object.userData.vehicle = vehicle
@@ -30,7 +30,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
     }
   } else if (args.phase == "onUpdate") {
     const transform = getMutableComponent<TransformComponent>(entity, TransformComponent)
-    const object = getComponentOnEntity<Object3DComponent>(entity, Object3DComponent).value
+    const object = getComponent<Object3DComponent>(entity, Object3DComponent).value
     const vehicle = object.userData.vehicle.chassisBody
 
     transform.position = vehicle.position
@@ -38,7 +38,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
     quaternion.set(vehicle.quaternion.x, vehicle.quaternion.y, vehicle.quaternion.z, vehicle.quaternion.w)
     transform.rotation = vehicle.quaternion.toArray()
   } else if (args.phase == "onRemoved") {
-    const object = getComponentOnEntity<Object3DComponent>(entity, Object3DComponent).value
+    const object = getComponent<Object3DComponent>(entity, Object3DComponent).value
     const body = object.userData.vehicle
     delete object.userData.vehicle
     PhysicsWorld.instance.physicsWorld.removeBody(body)
@@ -46,7 +46,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
 }
 
 export function _createVehicleBody(entity: Entity, mesh: any): [RaycastVehicle, Body[]] {
-  const transform = getComponentOnEntity<TransformComponent>(entity, TransformComponent)
+  const transform = getComponent<TransformComponent>(entity, TransformComponent)
   let chassisBody
   if (mesh) {
     chassisBody = this._createConvexGeometry(entity, mesh)

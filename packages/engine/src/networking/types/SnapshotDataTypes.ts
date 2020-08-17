@@ -9,16 +9,16 @@ export interface StateEntity {
 
 export type ID = string
 export type Time = number
-export type State = StateEntity[]
+export type StateEntityGroup = StateEntity[]
 
 export interface Snapshot {
   id: ID
   time: Time
-  state: State | { [key: string]: State }
+  state: StateEntityGroup | { [key: string]: StateEntityGroup }
 }
 
 export interface InterpolatedSnapshot {
-  state: State
+  state: StateEntityGroup
   percentage: number
   older: ID
   newer: ID

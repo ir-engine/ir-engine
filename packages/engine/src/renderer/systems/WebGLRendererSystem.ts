@@ -1,7 +1,10 @@
-// @ts-nocheck
-/// <reference no-default-lib="true"/>
+import { EffectComposer } from "../../postprocessing/core/EffectComposer"
+import { RenderPass } from "../../postprocessing/passes/RenderPass"
+import { Effect } from "../../postprocessing/effects/Effect"
+import { EffectPass } from "../../postprocessing/passes/EffectPass"
+import { SSAOEffect } from "../../postprocessing/effects/SSAOEffect"
+import { DepthOfFieldEffect } from "../../postprocessing/effects/DepthOfFieldEffect"
 
-import { DepthOfFieldEffect, Effect, EffectComposer, EffectPass, RenderPass, SSAOEffect } from "postprocessing"
 import { WebGLRenderer } from "three"
 import { CameraComponent } from "../../camera/components/CameraComponent"
 import { SceneManager } from "../../common/classes/SceneManager"
@@ -10,7 +13,7 @@ import { RendererComponent } from "../components/RendererComponent"
 import { DefaultPostProcessingSchema } from "../defaults/DefaultPostProcessingSchema"
 import { System, Attributes } from "../../ecs/classes/System"
 import { registerComponent } from "../../ecs/functions/ComponentFunctions"
-import { addComponentToEntity, createEntity, getMutableComponent, getComponentOnEntity } from "../../ecs/functions/EntityFunctions"
+import { addComponent, createEntity, getMutableComponent, getComponent } from "../../ecs/functions/EntityFunctions"
 import { Entity } from "../../ecs/classes/Entity"
 export class WebGLRendererSystem extends System {
   init(attributes?: Attributes): void {
@@ -22,7 +25,7 @@ export class WebGLRendererSystem extends System {
     // Add the renderer to the body of the HTML document
     document.body.appendChild(renderer.domElement)
     // Create the Renderer singleton
-    addComponentToEntity(createEntity(), RendererComponent, {
+    addComponent(createEntity(), RendererComponent, {
       renderer: renderer
     })
   }
@@ -45,18 +48,16 @@ export class WebGLRendererSystem extends System {
     renderPass.scene = SceneManager.instance.scene
     renderPass.camera = CameraComponent.instance.camera
     composer.addPass(renderPass)
-    composer.scene = SceneManager.instance.scene
-    composer.camera = CameraComponent.instance.camera
     // // This sets up the render
-    const passes: any[] = []
-    renderer.postProcessingSchema.effects.forEach((pass: any) => {
-      if (typeof pass.effect === typeof SSAOEffect)
-        passes.push(new (pass.effect as Effect)(CameraComponent.instance.camera, {}, pass.effect.options))
-      else if (typeof pass.effect === typeof DepthOfFieldEffect)
-        passes.push(new (pass.effect as Effect)(CameraComponent.instance.camera, pass.effect.options))
-      else passes.push(new (pass.effect as Effect)(pass.effect.options))
-    })
-    composer.addPass(new EffectPass(CameraComponent.instance.camera, ...passes))
+    // const passes: any[] = []
+    // renderer.postProcessingSchema.effects.forEach((pass: any) => {
+    //   if (typeof pass.effect === typeof SSAOEffect)
+    //     passes.push(new (pass.effect as Effect)(CameraComponent.instance.camera, {}, pass.effect.options))
+    //   else if (typeof pass.effect === typeof DepthOfFieldEffect)
+    //     passes.push(new (pass.effect as Effect)(CameraComponent.instance.camera, pass.effect.options))
+    //   else passes.push(new (pass.effect as Effect)(pass.effect.options))
+    // })
+    // composer.addPass(new EffectPass(CameraComponent.instance.camera, ...passes))
   }
 
   execute(delta: number) {
@@ -68,13 +69,13 @@ export class WebGLRendererSystem extends System {
     })
 
     this.queryResults.renderers.all.forEach((entity: Entity) => {
-      getComponentOnEntity<RendererComponent>(entity, RendererComponent).composer.render(delta)
+      getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta)
     })
   }
 }
 
 export const resize: Behavior = entity => {
-  const rendererComponent = getComponentOnEntity<RendererComponent>(entity, RendererComponent)
+  const rendererComponent = getComponent<RendererComponent>(entity, RendererComponent)
 
   if (rendererComponent.needsResize) {
     const canvas = rendererComponent.renderer.domElement

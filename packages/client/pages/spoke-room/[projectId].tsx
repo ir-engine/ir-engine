@@ -3,8 +3,8 @@ import { useRouter } from 'next/router'
 import Error404 from '../404'
 import React, { useEffect } from 'react'
 import { client } from '../../redux/feathers'
-import { initialize } from "@xr3ngine/engine/src/initialize"
-import { createEntity } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions'
+import { initialize } from "@xr3ngine/engine/dist/armada"
+import { createEntity } from "@xr3ngine/engine/dist/armada"
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 

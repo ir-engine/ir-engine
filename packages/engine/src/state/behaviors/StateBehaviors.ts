@@ -8,7 +8,7 @@ import { StateType } from "../enums/StateType"
 import { StateValue } from "../interfaces/StateValue"
 import { StateAlias } from "../types/StateAlias"
 import { StateGroupAlias } from "../types/StateGroupAlias"
-import { getComponentOnEntity } from "../../ecs/functions/EntityFunctions"
+import { getComponent } from "../../ecs/functions/EntityFunctions"
 
 let stateComponent: State
 let stateGroup: StateGroupAlias
@@ -19,7 +19,7 @@ export const toggleState: Behavior = (entity: Entity, args: { value: Binary; sta
 }
 
 export const addState: Behavior = (entity: Entity, args: { state: StateAlias }): void => {
-  stateComponent = getComponentOnEntity(entity, State)
+  stateComponent = getComponent(entity, State)
   if (stateComponent.data.has(args.state)) return
   stateComponent.data.set(args.state, {
     state: args.state,
@@ -40,7 +40,7 @@ export const addState: Behavior = (entity: Entity, args: { state: StateAlias }):
 
 export const removeState: Behavior = (entity: Entity, args: { state: StateAlias }): void => {
   // check state group
-  stateComponent = getComponentOnEntity(entity, State)
+  stateComponent = getComponent(entity, State)
   if (stateComponent.data.has(args.state)) {
     stateComponent.data.delete(args.state)
   }
@@ -48,7 +48,7 @@ export const removeState: Behavior = (entity: Entity, args: { state: StateAlias 
 
 export const hasState: Behavior = (entity: Entity, args: { state: StateAlias }): boolean => {
   // check state group
-  stateComponent = getComponentOnEntity(entity, State)
+  stateComponent = getComponent(entity, State)
   if (stateComponent.data.has(args.state)) return true
   return false
 }

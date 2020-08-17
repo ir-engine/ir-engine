@@ -1,4 +1,4 @@
-import { RaycastVehicle } from "cannon-es/src/objects/RaycastVehicle"
+import { RaycastVehicle } from "cannon-es"
 import { Component } from "../../ecs/classes/Component"
 import { Types } from "../../ecs/types/Types"
 

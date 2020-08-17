@@ -1,6 +1,5 @@
 // Components
 import { BoxBufferGeometry, Mesh } from "three"
-import { attachCamera } from "../../camera/behaviors/attachCamera"
 import { addObject3DComponent, removeObject3DComponent } from "../../common/defaults/behaviors/Object3DBehaviors"
 import { addMeshCollider } from "../../physics/behaviors/addMeshCollider"
 import { Actor } from "../../common/defaults/components/Actor"
@@ -12,11 +11,8 @@ import { MessageTypes } from "../enums/MessageTypes"
 import { handleClientConnected, handleClientDisconnected, handleMessage } from "../functions/NetworkFunctions"
 import { NetworkPrefab } from "../interfaces/NetworkPrefab"
 import { NetworkSchema } from "../interfaces/NetworkSchema"
-import { SocketWebRTCClientTransport } from "../transports/SocketWebRTC/SocketWebRTCClientTransport"
 import { DefaultMessageSchema } from "./DefaultMessageSchema"
 import { DefaultMessageTypes } from "./DefaultMessageTypes"
-import { SocketWebRTCServerTransport } from "../transports/SocketWebRTC/SocketWebRTCServerTransport"
-import { isBrowser } from "../../common/functions/isBrowser"
 import { DefaultStateSchema } from "../../state/defaults/DefaultStateSchema"
 import { DefaultInputSchema } from "../../input/defaults/DefaultInputSchema"
 import { Subscription } from "../../subscription/components/Subscription"
@@ -92,7 +88,7 @@ export const DefaultPrefabs: {
 ]
 
 export const DefaultNetworkSchema: NetworkSchema = {
-  transport: isBrowser ? SocketWebRTCClientTransport : SocketWebRTCServerTransport,
+  transport: null,
   messageHandlers: {
     [MessageTypes.ClientConnected]: {
       behavior: handleClientConnected

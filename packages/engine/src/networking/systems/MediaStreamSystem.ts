@@ -4,14 +4,14 @@ import { registerComponent } from "../../ecs/functions/ComponentFunctions"
 import { MediaStreamComponent } from "../components/MediaStreamComponent"
 import { Network } from "../components/Network"
 import { localMediaConstraints } from "../constants/VideoConstants"
-import { getEntityByName, addComponentToEntity, getMutableComponent } from "../../ecs/functions/EntityFunctions"
+import { getEntityByName, addComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions"
 
 export class MediaStreamSystem extends System {
   public static instance: MediaStreamSystem = null
   init(attributes?: Attributes): void {
     registerComponent(MediaStreamComponent)
     const networkEntity = getEntityByName("network")
-    addComponentToEntity(networkEntity, MediaStreamComponent)
+    addComponent(networkEntity, MediaStreamComponent)
     const mediaStreamComponent = getMutableComponent<MediaStreamComponent>(networkEntity, MediaStreamComponent)
     MediaStreamComponent.instance = mediaStreamComponent
   }

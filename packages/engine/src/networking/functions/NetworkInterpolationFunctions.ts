@@ -1,20 +1,20 @@
 import { degreeLerp, lerp, quatSlerp, radianLerp } from "../../common/functions/MathLerpFunctions"
 import { randomId } from "../../common/functions/MathRandomFunctions"
 import { NetworkGameState } from "../components/NetworkInterpolation"
-import { InterpolatedSnapshot, Snapshot, State, StateEntity, Time, Value } from "../types/SnapshotDataTypes"
+import { InterpolatedSnapshot, Snapshot, StateEntityGroup, StateEntity, Time, Value } from "../types/SnapshotDataTypes"
 
 export function snapshot() {
   return {
     /** Create the snapshot on the server. */
-    create: (state: State | { [key: string]: State }): Snapshot => CreateSnapshot(state),
+    create: (state: StateEntityGroup | { [key: string]: StateEntityGroup }): Snapshot => CreateSnapshot(state),
     /** Add the snapshot you received from the server to automatically calculate the interpolation with calcInterpolation() */
     add: (snapshot: Snapshot): void => addSnapshot(snapshot)
   }
 }
 
 /** Create a new Snapshot */
-export function CreateSnapshot(state: State | { [key: string]: State }): Snapshot {
-  const check = (state: State) => {
+export function CreateSnapshot(state: StateEntityGroup | { [key: string]: StateEntityGroup }): Snapshot {
+  const check = (state: StateEntityGroup) => {
     // check if state is an array
     if (!Array.isArray(state)) throw new Error("You have to pass an Array to createSnapshot()")
 
@@ -108,8 +108,8 @@ export function interpolate(
 
   if (Array.isArray(newer.state) && deep !== "") throw new Error('No "deep" needed it state is an array.')
 
-  const newerState: State = Array.isArray(newer.state) ? newer.state : newer.state[deep]
-  const olderState: State = Array.isArray(older.state) ? older.state : older.state[deep]
+  const newerState: StateEntityGroup = Array.isArray(newer.state) ? newer.state : newer.state[deep]
+  const olderState: StateEntityGroup = Array.isArray(older.state) ? older.state : older.state[deep]
 
   const tmpSnapshot: Snapshot = JSON.parse(JSON.stringify({ ...newer, state: newerState }))
 
@@ -133,7 +133,7 @@ export function interpolate(
   })
 
   const interpolatedSnapshot: InterpolatedSnapshot = {
-    state: tmpSnapshot.state as State,
+    state: tmpSnapshot.state as StateEntityGroup,
     percentage: pPercent,
     newer: newer.id,
     older: older.id

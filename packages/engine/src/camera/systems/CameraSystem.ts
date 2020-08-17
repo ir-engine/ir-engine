@@ -4,20 +4,20 @@ import { System } from "../../ecs/classes/System"
 import { registerComponent } from "../../ecs/functions/ComponentFunctions"
 import { followTarget } from "../../transform/behaviors/followTarget"
 import { CameraComponent } from "../components/CameraComponent"
-import { createEntity, addComponentToEntity, getMutableComponent, getComponentOnEntity } from "../../ecs/functions/EntityFunctions"
+import { createEntity, getMutableComponent, getComponent, addComponent } from "../../ecs/functions/EntityFunctions"
 import { Engine } from "../../ecs/classes/Engine"
 
 export class CameraSystem extends System {
   init(): void {
     registerComponent(CameraComponent)
     const cameraEntity = createEntity()
-    addComponentToEntity(cameraEntity, CameraComponent, { camera: Engine.camera, followTarget: null })
-    addComponentToEntity(cameraEntity, TransformComponent)
+    addComponent(cameraEntity, CameraComponent, { camera: Engine.camera, followTarget: null })
+    addComponent(cameraEntity, TransformComponent)
     getMutableComponent(cameraEntity, CameraComponent)
   }
   execute(delta: number): void {
     this.queryResults.entities.all?.forEach(entity => {
-      const cam = getComponentOnEntity(entity, CameraComponent) as CameraComponent
+      const cam = getComponent(entity, CameraComponent) as CameraComponent
       if (cam.followTarget !== null && cam.followTarget !== undefined) {
         followTarget(entity, { distance: 100 }, delta, cam.followTarget)
       }

@@ -98,7 +98,7 @@ export function getPoolForComponent(component: Component<any>): void {
   Engine.componentPool[component._typeId]
 }
 
-export function addComponentToEntity(entity: Entity, Component: ComponentConstructor<Component<any>>, values) {
+export function addComponentToEntity(entity: Entity, Component: ComponentConstructor<Component<any>>, values?) {
   if (typeof Component._typeId === "undefined" && !Engine.componentsMap[(Component as any)._typeId]) {
     throw new Error(`Attempted to add unregistered component "${Component.name}"`)
   }
