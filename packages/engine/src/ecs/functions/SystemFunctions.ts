@@ -11,7 +11,7 @@ export function registerSystem(SystemClass: SystemConstructor<any>, attributes?:
     console.warn(`System '${SystemClass.name}' already registered.`)
   }
 
-  const system = new SystemClass(Engine.engine, attributes)
+  const system = new SystemClass(attributes)
   Engine.systems.push(system)
   if (system.execute) {
     Engine.executeSystems.push(system)
