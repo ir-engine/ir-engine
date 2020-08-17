@@ -16,7 +16,7 @@ import {
   rotateAround
 } from "../.."
 import { rotateStart } from "../../common/defaults/behaviors/updateLookingState"
-import { drive } from "../behavior/VehicleBehaviors"
+import { drive } from "../behaviors/VehicleBehaviors"
 
 export const VehicleInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors

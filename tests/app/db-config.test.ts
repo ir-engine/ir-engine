@@ -1,4 +1,4 @@
-import { db } from '../../db-config'
+import { db } from '../../packages/server/db-config'
 
 describe('db-config', () => {
   it('should export db url', () => {

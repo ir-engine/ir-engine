@@ -1,4 +1,4 @@
-import app from '../../app'
+import app from '../../packages/server/app'
 
 describe('CRUD operation on \'GroupUserRank\' model', () => {
   const model = app.service('group-user-rank').Model
