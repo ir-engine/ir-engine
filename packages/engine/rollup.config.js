@@ -54,7 +54,7 @@ export default [
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     output: [
       {
-        file: "dist/armada.js",
+        file: "dist/engine.js",
         format: "cjs",
         sourcemap: true
       }

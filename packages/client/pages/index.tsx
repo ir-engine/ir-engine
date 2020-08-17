@@ -1,12 +1,9 @@
 import React from 'react'
-import Layout from '../components/ui/Layout'
+import dynamic from 'next/dynamic'
+const EcsComponent = dynamic(() => import('../components/ecs'))
 
 export const IndexPage = (): any => {
-  return (
-    <Layout pageTitle="Home">
-
-    </Layout>
-  )
+  return <EcsComponent />
 }
 
 export default IndexPage

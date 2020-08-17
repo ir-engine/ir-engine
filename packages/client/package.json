@@ -12,8 +12,8 @@
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
-    "start": "cross-env NODE_ENV=dev node index.js",
-    "dev": "cross-env NODE_ENV=dev next start --port 3000",
+    "start": "yarn run dev",
+    "dev": "cross-env NODE_ENV=dev next dev --port 3000",
     "build": "next build",
     "watch": "cross-env NODE_ENV=dev next --port 3000",
     "validate": "yarn run lint && yarn run test",
@@ -96,6 +96,7 @@
     "react-infinite-scroller": "^1.2.4",
     "react-loadable": "^5.5.0",
     "react-modal": "^3.11.2",
+    "react-no-ssr": "^1.1.0",
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.1.2",
     "react-select": "^3.0.4",
