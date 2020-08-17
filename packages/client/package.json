@@ -66,6 +66,7 @@
     "autoprefixer": "^9.7.5",
     "axios": "^0.19.2",
     "eslint-plugin-react-hooks": "^3.0.0",
+    "fs": "^0.0.1-security",
     "glob": "^7.1.6",
     "graphql": "^15.0.0",
     "graphql-tag": "^2.10.3",
@@ -190,6 +191,7 @@
     "tap-xunit": "^2.4.1",
     "terser-webpack-plugin": "^2.0.1",
     "typescript": "^3.9.7",
+    "webpack-node-externals": "^2.5.1",
     "worker-loader": "^2.0.0"
   },
   "license": "ISC"
