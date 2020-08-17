@@ -71,7 +71,6 @@ export const addObject3DComponent: Behavior = (
   getComponentTags(object3d).forEach((component: any) => {
     addComponent(entity, component)
   })
-  if (args.parentEntity === undefined) args.parentEntity = SceneManager.instance.scene
   if (args.parentEntity && hasComponent(args.parentEntity, Object3DComponent as any)) {
     getComponent<Object3DComponent>(args.parentEntity, Object3DComponent).value.add(object3d)
   }

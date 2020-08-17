@@ -4,7 +4,6 @@ import { Component } from "../../ecs/classes/Component"
 import { Types } from "../../ecs/types/Types"
 export class RendererComponent extends Component<any> {
   static instance: RendererComponent
-  renderer: any
   composer: EffectComposer
   needsResize: boolean
   postProcessingSchema: PostProcessingSchema
@@ -15,5 +14,7 @@ export class RendererComponent extends Component<any> {
   }
 }
 RendererComponent.schema = {
-  renderer: { type: Types.Ref }
+  composer: { type: Types.Ref },
+  needsResize: { type: Types.Boolean },
+  postProcessingSchema: { type: Types.Ref }
 }
