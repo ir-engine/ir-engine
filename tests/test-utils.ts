@@ -2,7 +2,7 @@
  * Test Utility functions
  */
 import url from 'url'
-import config from '../config'
+import config from '../packages/server/config'
 
 export function getUrl (pathname?: string): string {
   return url.format({

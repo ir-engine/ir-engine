@@ -1,5 +1,5 @@
 import '@feathersjs/transport-commons'
-import { Application } from './declarations'
+import { Application } from '../declarations'
 
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
