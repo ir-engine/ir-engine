@@ -5,7 +5,9 @@ import { inspect } from 'util'
 // Load all the ENV variables from `.env`, then `.env.local`, into process.env
 import dotenv from 'dotenv-flow'
 import * as chargebeeInst from 'chargebee'
-dotenv.config()
+dotenv.config({
+  path: `${__dirname}/../../`
+})
 
 /**
  * Database
