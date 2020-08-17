@@ -2,7 +2,7 @@ import { System, SystemConstructor } from "../classes/System"
 import { Engine } from "../classes/Engine"
 import { now } from "./Utils"
 
-export function registerSystem(SystemClass: SystemConstructor<any>, attributes?: object): void {
+export function registerSystem(SystemClass: SystemConstructor<any>, attributes?: object): System {
   if (!SystemClass.isSystem) {
     throw new Error(`System '${SystemClass.name}' does not extend 'System' class`)
   }
@@ -11,14 +11,13 @@ export function registerSystem(SystemClass: SystemConstructor<any>, attributes?:
     console.warn(`System '${SystemClass.name}' already registered.`)
   }
 
-  const system = new SystemClass(Engine.engine, attributes)
-  if (system.init) system.init(attributes)
-  system.order = Engine.systems.length
+  const system = new SystemClass(attributes)
   Engine.systems.push(system)
   if (system.execute) {
     Engine.executeSystems.push(system)
     sortSystems()
   }
+  return system as System
 }
 
 export function unregisterSystem(SystemClass: SystemConstructor<any>): void {
