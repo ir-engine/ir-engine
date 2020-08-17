@@ -140,5 +140,6 @@ dist
 **/xr3ngine-secrets.env
 **/xr3ngine-dev-secrets.env
 lib/
+bin/
 
 .vscode/
