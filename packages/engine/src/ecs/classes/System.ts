@@ -34,6 +34,7 @@ import { Component, ComponentConstructor } from "./Component"
 import { Entity } from "./Entity"
 import { Query} from "./Query"
 import { registerComponent } from "../functions/ComponentFunctions"
+import { Engine } from "./Engine"
 
 export abstract class System {
   /**
@@ -106,7 +107,6 @@ export abstract class System {
     if ((this.constructor as any).queries) {
       console.log("System queries")
       for (const queryName in (this.constructor as any).queries) {
-        console.log(queryName)
 
         const queryConfig = (this.constructor as any).queries[queryName]
         const Components = queryConfig.components
@@ -117,8 +117,6 @@ export abstract class System {
         // Detect if the components have already been registered
         const unregisteredComponents: any[] = Components.filter(Component => !componentRegistered(Component))
 
-        console.log(unregisteredComponents)
-
         if (unregisteredComponents.length > 0) {
           unregisteredComponents.forEach(component => {
             registerComponent(component)
@@ -126,12 +124,8 @@ export abstract class System {
           })
         }
 
-        console.log("Components")
-        console.log(Components)
         // TODO: Solve this
         const query = this.getQuery(Components)
-        console.log(query)
-        console.log("query")
 
         this._queries[queryName] = query
         if ((queryConfig as any).mandatory === true) {
@@ -200,6 +194,9 @@ export abstract class System {
         }
       }
     }
+    const c = this.constructor as any
+    if (c.init) c.init(attributes)
+    c.order = Engine.systems.length
   }
 
   static getName() {
