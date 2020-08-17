@@ -8,7 +8,7 @@ import { Model } from "../components/Model"
 import { AssetClass } from "../enums/AssetClass"
 import { getAssetClass, getAssetType, loadAsset } from "../functions/LoadingFunctions"
 import { AssetsLoadedHandler } from "../types/AssetTypes"
-import { registerComponent, Not } from "../../ecs/functions/ComponentFunctions"
+import {  Not } from "../../ecs/functions/ComponentFunctions"
 import { Entity } from "../../ecs/classes/Entity"
 import {
   getMutableComponent,
@@ -22,8 +22,6 @@ export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
 
   init() {
-    registerComponent(AssetLoaderState)
-    registerComponent(AssetLoader)
   }
 
   execute() {

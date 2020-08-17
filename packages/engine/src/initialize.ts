@@ -9,9 +9,6 @@ import { DefaultNetworkSchema } from "./networking/defaults/DefaultNetworkSchema
 import { DefaultStateSchema } from "./state/defaults/DefaultStateSchema"
 import { DefaultSubscriptionSchema } from "./subscription/defaults/DefaultSubscriptionSchema"
 import { SceneManager } from "./common/classes/SceneManager"
-import { registerComponent } from "./ecs/functions/ComponentFunctions"
-import { TransformComponent } from "./transform/components/TransformComponent"
-import { TransformParentComponent } from "./transform/components/TransformParentComponent"
 import { TransformSystem } from "./transform/systems/TransformSystem"
 import { isBrowser } from "./common/functions/isBrowser"
 import { CameraSystem } from "./camera/systems/CameraSystem"
@@ -77,8 +74,6 @@ export function initialize(options: any = DefaultInitializationOptions) {
 
   //Transform
   if (options.transform && options.transform.enabled) {
-    registerComponent(TransformComponent)
-    registerComponent(TransformParentComponent)
     registerSystem(TransformSystem, { priority: 900 })
   }
 

@@ -3,7 +3,6 @@ import { createEntity, addComponent, getMutableComponent } from "../../ecs/funct
 import { Network } from "../components/Network"
 import { NetworkObject } from "../components/NetworkObject"
 import { NetworkPrefab } from "../interfaces/NetworkPrefab"
-import { hasRegisteredComponent, registerComponent } from "../../ecs/functions/ComponentFunctions"
 
 export function createNetworkPrefab(prefab: NetworkPrefab, networkId: string | number): Entity {
   const entity = createEntity()
@@ -19,8 +18,6 @@ export function createNetworkPrefab(prefab: NetworkPrefab, networkId: string | n
   // Instantiate network components
   // These will be attached to the entity on all clients
   prefab.networkComponents?.forEach(component => {
-    // Register the component if it hasn't already been registered with the world
-    if (!hasRegisteredComponent(component.type)) registerComponent(component.type)
     // Add the component to our entity
     addComponent(entity, component.type)
     // If the component has initialization data...
@@ -39,8 +36,6 @@ export function createNetworkPrefab(prefab: NetworkPrefab, networkId: string | n
   if (networkId === (Network.instance as Network).mySocketID && prefab.components)
     // For each local component on the prefab...
     prefab.components?.forEach(component => {
-      // If the component hasn't been registered with the world, register it
-      if (!hasRegisteredComponent(component.type)) registerComponent(component.type)
       // The component to the entity
       addComponent(entity, component.type)
       // If the component has no initialization data, return
