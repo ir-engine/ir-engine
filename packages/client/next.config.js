@@ -1,7 +1,9 @@
+const path = require('path')
+const appRootPath = require('app-root-path')
+process.env.NODE_CONFIG_DIR = path.join(appRootPath.path, 'packages/client/config')
 const config = require('config')
 const withSass = require('@zeit/next-sass')
 const withImages = require('next-images')
-const path = require('path')
 const CircularDependencyPlugin = require('circular-dependency-plugin')
 
 const glsl = {
