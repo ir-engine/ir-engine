@@ -78,8 +78,8 @@ function processDeferredEntityRemoval() {
   if (!Engine.deferredRemovalEnabled) {
     return
   }
-  let entitiesToRemove
-  let entitiesWithComponentsToRemove
+  let entitiesToRemove = []
+  let entitiesWithComponentsToRemove = []
   for (let i = 0; i < entitiesToRemove.length; i++) {
     const entity = entitiesToRemove[i]
     const index = Engine.entities.indexOf(entity)

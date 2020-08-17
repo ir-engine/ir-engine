@@ -136,32 +136,20 @@ export function initialize(options: any = DefaultInitializationOptions) {
     registerSystem(WebGLRendererSystem, { priority: 999 })
   }
 
-  // Start our timer!
-  if (isBrowser) setTimeout(startTimerForClient, 1000)
-  // TODO: Remove
-  // If we're not using the renderer, create a timer that calls a fixed update timestep
-  else startTimerForServer()
-
   if (options.debug === true) {
     // If we're in debug, add a gridhelper
     const gridHelper = new GridHelper(1000, 100, 0xffffff, 0xeeeeee)
     scene.add(gridHelper)
-
+    const entity = createEntity()
     // Add an ambient light to the scene
-    addObject3DComponent(createEntity(), { obj: AmbientLight })
+    addObject3DComponent(entity, { obj: AmbientLight })
   }
+
+    // Start our timer!
+    if (isBrowser) setInterval(startTimer, 1000)
 }
 
-export function startTimerForClient() {
-  // Create a new Three.js clock
-  const clock = new Clock()
-  // Kick off the loop
-  RendererComponent.instance.renderer.setAnimationLoop(() => {
-    execute(clock.getDelta(), clock.elapsedTime)
-  })
-}
-
-export function startTimerForServer() {
+export function startTimer() {
   setTimeout(() => {
     Timer({
       update: (delta, elapsedTime) => execute(delta, elapsedTime)

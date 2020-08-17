@@ -114,12 +114,13 @@ export function removeComponent<C extends Component<any>>(
   return entity
 }
 
-export function hasComponent<C extends Component<any>>(
+export function hasComponent<C extends Component<C>>(
   entity: Entity,
   Component: ComponentConstructor<C>,
   includeRemoved?: boolean
 ): boolean {
   return (
+    entity.componentTypes.length > 0 &&
     !!~entity.componentTypes.indexOf(Component) ||
     (includeRemoved !== undefined && includeRemoved === true && hasRemovedComponent(entity, Component))
   )

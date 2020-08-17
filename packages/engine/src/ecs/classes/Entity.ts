@@ -4,13 +4,13 @@ import { removeEntity } from "../functions/EntityFunctions"
 
 export class Entity {
   id: number
-  componentTypes: any[]
-  components: {}
-  componentsToRemove: {}
-  queries: any[]
-  componentTypesToRemove: any[]
-  alive: boolean
-  numStateComponents: number
+  componentTypes: any[] = new Array()
+  components = {}
+  componentsToRemove: {} = {}
+  queries: any[] = []
+  componentTypesToRemove: any[] = []
+  alive: boolean = false
+  numStateComponents: number = 0
   name: any
   constructor() {
     // Unique ID for this entity

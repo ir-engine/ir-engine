@@ -15,19 +15,25 @@ import { System, Attributes } from "../../ecs/classes/System"
 import { registerComponent } from "../../ecs/functions/ComponentFunctions"
 import { addComponent, createEntity, getMutableComponent, getComponent } from "../../ecs/functions/EntityFunctions"
 import { Entity } from "../../ecs/classes/Entity"
+import { Engine } from "../../ecs"
 export class WebGLRendererSystem extends System {
+  constructor(attributes?: Attributes){
+    super(attributes)
+        // Create the Three.js WebGL renderer
+
+
+  }
   init(attributes?: Attributes): void {
+    console.log("init called!!")
     registerComponent(RendererComponent)
-    // Create the Three.js WebGL renderer
+    // Create the Renderer singleton
+    addComponent(createEntity(), RendererComponent)
     const renderer = new WebGLRenderer({
       antialias: true
     })
+    Engine.renderer = renderer
     // Add the renderer to the body of the HTML document
-    document.body.appendChild(renderer.domElement)
-    // Create the Renderer singleton
-    addComponent(createEntity(), RendererComponent, {
-      renderer: renderer
-    })
+    document.body.appendChild(Engine.renderer.domElement)
   }
   onResize() {
     RendererComponent.instance.needsResize = true
@@ -40,10 +46,10 @@ export class WebGLRendererSystem extends System {
   isInitialized: boolean
 
   configurePostProcessing(entity: Entity) {
-    const renderer = getMutableComponent<RendererComponent>(entity, RendererComponent)
-    if (renderer.postProcessingSchema == undefined) renderer.postProcessingSchema = DefaultPostProcessingSchema
-    const composer = new EffectComposer(renderer.renderer)
-    renderer.composer = composer
+    const rendererComponent = getMutableComponent<RendererComponent>(entity, RendererComponent)
+    if (rendererComponent.postProcessingSchema == undefined) rendererComponent.postProcessingSchema = DefaultPostProcessingSchema
+    const composer = new EffectComposer(Engine.renderer)
+    rendererComponent.composer = composer
     const renderPass = new RenderPass(SceneManager.instance.scene, CameraComponent.instance.camera)
     renderPass.scene = SceneManager.instance.scene
     renderPass.camera = CameraComponent.instance.camera
@@ -78,10 +84,10 @@ export const resize: Behavior = entity => {
   const rendererComponent = getComponent<RendererComponent>(entity, RendererComponent)
 
   if (rendererComponent.needsResize) {
-    const canvas = rendererComponent.renderer.domElement
-    const curPixelRatio = rendererComponent.renderer.getPixelRatio()
+    const canvas = Engine.renderer.domElement
+    const curPixelRatio = Engine.renderer.getPixelRatio()
 
-    if (curPixelRatio !== window.devicePixelRatio) rendererComponent.renderer.setPixelRatio(window.devicePixelRatio)
+    if (curPixelRatio !== window.devicePixelRatio) Engine.renderer.setPixelRatio(window.devicePixelRatio)
 
     const width = canvas.clientWidth
     const height = canvas.clientHeight
@@ -89,8 +95,8 @@ export const resize: Behavior = entity => {
     CameraComponent.instance.camera.aspect = width / height
     CameraComponent.instance.camera.updateProjectionMatrix()
 
-    rendererComponent.renderer.setSize(width, height)
-    rendererComponent.renderer.needsResize = false
+    Engine.renderer.setSize(width, height)
+    RendererComponent.instance.needsResize = false
   }
 }
 
