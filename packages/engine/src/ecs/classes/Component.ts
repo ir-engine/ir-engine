@@ -72,8 +72,7 @@ export class Component<C> {
   }
 
   clone() {
-    return (this.constructor as any).copy(this)
-    //     return new Component<C>().copy(this)
+    return (this.constructor as any).prototype.copy(this)
   }
 
   reset() {
@@ -98,7 +97,7 @@ export class Component<C> {
   }
 
   static getName() {
-    return (this.constructor as any).getName()
+    return (this.constructor as any).prototype.getName()
   }
 
   checkUndefinedAttributes(src) {
@@ -108,7 +107,7 @@ export class Component<C> {
     Object.keys(src).forEach(srcKey => {
       if (!schema[srcKey]) {
         console.warn(
-          `Trying to set attribute '${srcKey}' not defined in the '${this.name}' schema. Please fix the schema, the attribute value won't be set`
+          `Trying to set attribute '${srcKey}' not defined in the '${this.constructor.name}' schema. Please fix the schema, the attribute value won't be set`
         )
       }
     })
