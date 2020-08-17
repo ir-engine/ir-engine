@@ -105,7 +105,6 @@ export abstract class System {
     this.initialized = true
 
     if ((this.constructor as any).queries) {
-      console.log("System queries")
       for (const queryName in (this.constructor as any).queries) {
 
         const queryConfig = (this.constructor as any).queries[queryName]
@@ -194,13 +193,13 @@ export abstract class System {
         }
       }
     }
-    const c = this.constructor as any
-    if (c.init) c.init(attributes)
+    const c = (this.constructor as any).prototype
+    c.init(attributes)
     c.order = Engine.systems.length
   }
 
   static getName() {
-    return (this.constructor as any).getName()
+    return (this.constructor as any).prototype.getName()
   }
 
   getQuery(components: (ComponentConstructor<any> | NotComponent<any>)[]): Query {

@@ -1,9 +1,14 @@
 import React from 'react'
-import dynamic from 'next/dynamic'
-const EcsComponent = dynamic(() => import('@xr3ngine/engine'))
+import NoSSR from 'react-no-ssr'
 
+import Scene from "../components/gl/scene"
+import Loading from '../components/gl/loading'
 export const IndexPage = (): any => {
-  return <EcsComponent />
+  return(
+  <NoSSR onSSR={<Loading/>}>
+    <Scene />
+  </NoSSR>
+  )
 }
 
 export default IndexPage
