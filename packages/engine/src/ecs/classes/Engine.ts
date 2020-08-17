@@ -21,7 +21,6 @@ const DEFAULT_OPTIONS = {
 
 export class Engine {
   static renderer: WebGLRenderer = null
-  static engine: Engine = null
   static sceneManager: SceneManager = new SceneManager()
   static camera: Camera = null
   static eventDispatcher = new EventDispatcher()
