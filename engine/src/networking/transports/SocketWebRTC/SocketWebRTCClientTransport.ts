@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { types as MediaSoupServerTypes } from "mediasoup"
-import mediasoupClient, { types as MediaSoupClientTypes } from "mediasoup-client"
+import mediasoupClient from "mediasoup-client"
 import ioclient from "socket.io-client"
 import { sleep } from "../../../common/functions/sleep"
 import { MediaStreamComponent } from "../../components/MediaStreamComponent"
@@ -11,6 +11,7 @@ import { addClient, initializeClient, removeClient } from "../../functions/Clien
 import { Message } from "../../interfaces/Message"
 import { NetworkTransport } from "../../interfaces/NetworkTransport"
 import { MediaStreamSystem } from "../../systems/MediaStreamSystem"
+import { DataConsumer, DataConsumerOptions, DataProducer } from "mediasoup-client/lib/types"
 
 const Device = mediasoupClient.Device
 
@@ -23,8 +24,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   pollingInterval: NodeJS.Timeout
   heartbeatInterval = 2000
   pollingTickRate = 1000
-  dataProducers = new Map<string, MediaSoupClientTypes.DataProducer>()
-  dataConsumers = new Map<string, MediaSoupClientTypes.DataConsumer>()
+  dataProducers = new Map<string, DataProducer>()
+  dataConsumers = new Map<string, DataConsumer>()
 
   socket: SocketIOClient.Socket = {} as SocketIOClient.Socket
 
@@ -42,90 +43,112 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     }
   }
 
-  handleConsumerMessage = (consumerLabel: string, channelId: string, callback: (data: any) => void) => (
+  handleConsumerMessage = (dataConsumer: DataConsumer, channel: string, callback: (data: any) => void) => (
     message: any
   ) => {
+    // If Data is anything other than string then parse it else just use message directly
+    // as it is probably not a json object string
+    let data
+    try {
+      data = JSON.parse(message)
+    } catch (e) {
+      data = message
+    }
     // Check if message received is for this channel
-    if (consumerLabel === channelId) {
+    if (dataConsumer.label === channel) {
       // call cb function for which the callee wanted to do stuff if message was received on this channel
-      callback(message)
+      callback(data)
     }
   }
 
-  // TODO: Separate producer and consumer stuff for sending unreliable data on a data channel and receiving it
-  // Keep this for sending/using data producer only.
-  async sendUnreliableMessage({
-    callback,
-    channelId,
-    data,
-    type
-  }: {
-    channelId: string
-    data: any
-    type: string
-    callback?: (data: any) => void
-  }): Promise<mediasoupClient.types.DataProducer> {
-    let clientDataConsumer = this.dataConsumers.get(channelId)
-    if (clientDataConsumer && callback) {
-      // Listen to message event of the consumer
-      clientDataConsumer.on("message", this.handleConsumerMessage(clientDataConsumer.label, channelId, callback))
+  // make sure the data producer/ Data channel exists before subscribing to it
+  async subscribeToDataChannel(channel: string, callback: (message: any) => void, params?: { type?: string }): Promise<DataConsumer | Error> {
+    // Check if data channel/data-producer exists
+    if (!this.dataProducers.get(channel)) {
+      return Promise.reject(new Error('Channel producer doesn\'t exist'))
+    } else if (this.dataConsumers.get(channel)) {
+      return Promise.reject(new Error('Data Channel Consumer already exists!'))
     }
+    await this.initReceiveTransport()
     try {
-      console.log("Producing Data on data channel: ", channelId)
-      const dataProducer = await this.sendTransport.produceData({
-        appData: data, // Probably Add additional info to send to server
-        ordered: false,
-        label: channelId,
-        // maxPacketLifeTime: 3000,
-        maxRetransmits: 3,
-        protocol: type // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
-      })
+      let dataProducerId = this.dataProducers.get(channel).id
       console.log("Requesting data consumer from server")
       const {
         dataConsumerOptions,
         error
       }: {
         error: any
-        dataConsumerOptions: { id: string; sctpStreamParameters: MediaSoupClientTypes.SctpStreamParameters }
+        dataConsumerOptions: DataConsumerOptions
       } = await this.request(MessageTypes.WebRTCConsumeData.toString(), {
         consumerOptions: {
-          dataProducerId: dataProducer.id,
+          dataProducerId,
           // appData, Probably Add additional info to send to server
           maxRetransmits: 3,
           ordered: false
         } as MediaSoupServerTypes.DataConsumerOptions,
         transportId: this.recvTransport.id
       })
-      console.log(
-        "Receiving response for data consumer from server",
-        "response: ",
-        { error, dataConsumerOptions },
-        "ID: ",
-        dataConsumerOptions.id,
-        "label:"
-      )
       if (error) {
         throw error
       }
-      /**
-        * peerId, // NOTE: Null if bot.
-						dataProducerId,
-						id,
-						sctpStreamParameters,
-						label,
-						protocol,
-						appData
-        */
-      clientDataConsumer = await this.recvTransport.consumeData({
-        // appData
-        dataProducerId: dataProducer.id,
-        id: dataConsumerOptions.id,
-        protocol: type,
-        label: channelId,
-        sctpStreamParameters: dataConsumerOptions.sctpStreamParameters
+      console.log("Receiving options for data consumer from server")
+      console.log('subscribing to consumer for data channel:', channel)
+      const clientDataConsumer = await this.recvTransport.consumeData({
+        ...dataConsumerOptions,
+        dataProducerId,
+        label: channel,
+        protocol: params.type || "json"
       })
-      this.dataConsumers.set(channelId, clientDataConsumer)
-      clientDataConsumer.on("message", this.handleConsumerMessage(clientDataConsumer.label, channelId, callback))
+      clientDataConsumer.on("transportclose", () => {
+        this.dataConsumers.delete(channel)
+      })
+      clientDataConsumer.on("producerclose", () => {
+        this.dataConsumers.delete(channel)
+      })
+      clientDataConsumer.on("message", this.handleConsumerMessage(clientDataConsumer, channel, callback))
+      console.log('subscribed to consumer for data channel')
+      this.dataConsumers.set(channel, clientDataConsumer)
+      return Promise.resolve(clientDataConsumer)
+    } catch (e) {
+      console.log('consumer subscription failed! err:', e)
+      return Promise.resolve(e)
+    }
+  }
+
+  // This sends message on a data channel
+  async sendUnreliableMessage({
+    channel,
+    data,
+    type
+  }: {
+    channel: string
+    data: any
+    type: string
+  }): Promise<DataProducer> {
+    try {
+      console.log("Producing Data on data channel: ", channel)
+      if (this.dataProducers.get(channel)) {
+        const dataProducer = this.dataProducers.get(channel)
+        console.log('Sending data to channel: ', channel)
+        dataProducer.send(JSON.stringify(data))
+        return Promise.resolve(dataProducer)
+      }
+      const dataProducer = await this.sendTransport.produceData({
+        appData: { data }, // Probably Add additional info to send to server
+        ordered: false,
+        label: channel,
+        // maxPacketLifeTime: 3000,
+        maxRetransmits: 3,
+        protocol: type // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
+      })
+      dataProducer.on('open', () => {
+        console.log('Sending data to channel: ', channel)
+        dataProducer.send(JSON.stringify(data))
+      })
+      dataProducer.on("transportclose", () => {
+        this.dataProducers.delete(dataProducer.id)
+      })
+      this.dataProducers.set(channel, dataProducer)
       return Promise.resolve(dataProducer)
     } catch (e) {
       return Promise.reject(e)
@@ -211,12 +234,16 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log("Polling")
     this.pollAndUpdate() // start this polling loop
     console.log("Joined world")
-    // ;(window as any).sendUnreliableMessage = this.sendUnreliableMessage.bind(this)
-    // ;(window as any).initRecv = this.initRecv.bind(this)
   }
 
-  async initRecv(): Promise<void> {
-    if (!this.recvTransport) this.recvTransport = await this.createTransport("recv")
+  // Init receive transport, create one if it doesn't exist else just resolve promise
+  async initReceiveTransport(): Promise<void> {
+    if (!this.recvTransport) {
+      this.recvTransport = await this.createTransport("recv")
+      return Promise.resolve()
+    } else {
+      return Promise.resolve()
+    }
   }
 
   async sendCameraStreams(): Promise<void> {
@@ -530,7 +557,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
             return
           }
           callback({ id })
-          callback({ id })
         }
       )
 
@@ -538,18 +564,20 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         "producedata",
         async (parameters: any, callback: (arg0: { id: any }) => void, errback: () => void) => {
           console.log("transport produce data event, params: ", parameters)
-          const { sctpStreamParameters, label, protocol } = parameters
+          const { sctpStreamParameters, label, protocol, appData } = parameters
           const { error, id } = await this.request(MessageTypes.WebRTCProduceData, {
             transportId: transport.id,
             sctpStreamParameters,
             label,
-            protocol
+            protocol,
+            appData
           })
           if (error) {
             console.error("error setting up server-side producer", error)
             errback()
             return
           }
+          return callback({ id })
         }
       )
     }
