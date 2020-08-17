@@ -1,6 +1,7 @@
 // TODO: Change camera properties to object and use setter that updates camera
 
 import { Component } from "../../ecs/classes/Component"
+import { Types } from "../../ecs/types/Types"
 
 export class CameraComponent extends Component<CameraComponent> {
   static instance: CameraComponent = null
@@ -16,4 +17,9 @@ export class CameraComponent extends Component<CameraComponent> {
     super()
     CameraComponent.instance = this
   }
+}
+
+CameraComponent.schema = {
+    camera: { type: Types.Ref, default: null},
+    followTarget: { type: Types.Ref, default: null}
 }

@@ -8,12 +8,10 @@ import { State } from "../components/State"
 import { StateSchema } from "../interfaces/StateSchema"
 import { StateValue } from "../interfaces/StateValue"
 import { StateGroupAlias } from "../types/StateGroupAlias"
-import { registerComponent } from "../../ecs/functions/ComponentFunctions"
 import { getComponent } from "../../ecs/functions/EntityFunctions"
 
 export class StateSystem extends System {
   init(): void {
-    registerComponent(State)
   }
   private _state: State
   private _args: any

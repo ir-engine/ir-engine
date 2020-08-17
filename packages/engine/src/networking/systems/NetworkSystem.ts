@@ -4,17 +4,11 @@ import { NetworkClient } from "../components/NetworkClient"
 import { NetworkObject } from "../components/NetworkObject"
 import { DefaultNetworkSchema } from "../defaults/DefaultNetworkSchema"
 import { NetworkSchema } from "../interfaces/NetworkSchema"
-import { registerComponent } from "../../ecs/functions/ComponentFunctions"
 import { NetworkGameState } from "../components/NetworkInterpolation"
 import { createEntity, addComponent } from "../../ecs/functions/EntityFunctions"
 
 export class NetworkSystem extends System {
   init(schema?: NetworkSchema) {
-    registerComponent(Network)
-    registerComponent(NetworkClient)
-    registerComponent(NetworkObject)
-    registerComponent(NetworkGameState)
-
     // Create a Network entity (singleton)
     const networkEntity = createEntity("network")
     addComponent(networkEntity, Network)
@@ -22,9 +16,6 @@ export class NetworkSystem extends System {
     // Late initialization of network
     setTimeout(() => {
       Network.instance.schema = schema ?? DefaultNetworkSchema
-
-      console.log("Initialization session")
-
       Network.instance.transport = new (Network.instance.schema.transport as any)()
       Network.instance.transport.initialize()
       Network.instance.isInitialized = true
@@ -33,6 +24,9 @@ export class NetworkSystem extends System {
   public static instance: NetworkSystem = null
 
   static queryResults: any = {
+    gameState: {
+      components: [NetworkGameState]
+    },
     networkObject: {
       components: [NetworkObject]
     },

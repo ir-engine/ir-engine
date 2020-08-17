@@ -12,7 +12,6 @@ import { Behavior } from "../../common/interfaces/Behavior"
 import { RendererComponent } from "../components/RendererComponent"
 import { DefaultPostProcessingSchema } from "../defaults/DefaultPostProcessingSchema"
 import { System, Attributes } from "../../ecs/classes/System"
-import { registerComponent } from "../../ecs/functions/ComponentFunctions"
 import { addComponent, createEntity, getMutableComponent, getComponent } from "../../ecs/functions/EntityFunctions"
 import { Entity } from "../../ecs/classes/Entity"
 import { Engine } from "../../ecs"
@@ -24,8 +23,6 @@ export class WebGLRendererSystem extends System {
 
   }
   init(attributes?: Attributes): void {
-    console.log("init called!!")
-    registerComponent(RendererComponent)
     // Create the Renderer singleton
     addComponent(createEntity(), RendererComponent)
     const renderer = new WebGLRenderer({

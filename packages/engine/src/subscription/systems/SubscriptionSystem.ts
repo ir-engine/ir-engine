@@ -3,12 +3,10 @@ import { BehaviorValue } from "../../common/interfaces/BehaviorValue"
 import { Entity } from "../../ecs/classes/Entity"
 import { System } from "../../ecs/classes/System"
 import { Subscription } from "../components/Subscription"
-import { registerComponent } from "../../ecs/functions/ComponentFunctions"
 import { getComponent } from "../../ecs/functions/EntityFunctions"
 
 export class SubscriptionSystem extends System {
   init(): void {
-    registerComponent(Subscription)
   }
   private subscription: Subscription
   public execute(delta: number): void {

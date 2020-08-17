@@ -22,10 +22,7 @@
     "url": "git+https://github.com/xr3ngine/xr3ngine.git"
   },
   "scripts": {
-    "start": "yarn run build",
     "build": "yarn run create-indexes && rollup -c",
-    "watch": "rollup -cw",
-    "dev": "rollup -c",
     "lint": "eslint --fix \"./src/**/*\"",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "validate": "yarn run lint && yarn run test",
