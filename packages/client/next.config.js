@@ -3,7 +3,6 @@ const withSass = require('@zeit/next-sass')
 const withImages = require('next-images')
 const path = require('path')
 const CircularDependencyPlugin = require('circular-dependency-plugin')
-const nodeExternals = require('webpack-node-externals');
 
 module.exports = withImages(
   withSass({
@@ -12,18 +11,9 @@ module.exports = withImages(
     env: {
       API_SERVER: process.env.API_SERVER
     },
-    dir: './client',
+    dir: './',
     distDir: './.next',
     webpack(config, options) {
-      config.externals = config.externals || [];
-      config.externals.push(nodeExternals())
-      if(!options.isServer){
-      config.node = {
-        fs: 'empty',
-        child_process: 'empty',
-        net: 'empty'
-      }
-    }
       config.resolve.alias.utils = path.join(__dirname, 'utils')
       config.optimization.minimize = process.env.NODE_ENV === 'production'
       config.module.rules.push({

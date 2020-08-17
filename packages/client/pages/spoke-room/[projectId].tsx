@@ -3,13 +3,13 @@ import { useRouter } from 'next/router'
 import Error404 from '../404'
 import React, { useEffect } from 'react'
 import { client } from '../../redux/feathers'
-import { initialize } from "@xr3ngine/engine/dist/armada"
+import { initializeEngine } from "@xr3ngine/engine/dist/armada"
 import { createEntity } from "@xr3ngine/engine/dist/armada"
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
 async function init (projectId: string): Promise<any> { // auth: any,
-  initialize()
+  createEntity()
 
   let service, serviceId
   const projectResult = await client.service('project').get(projectId)
