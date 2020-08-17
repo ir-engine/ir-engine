@@ -142,9 +142,9 @@ The production one is expected to be called 'xr3ngine-secrets.env' and is also i
 As these are very sensitive files, they should be transmitted to you securely.
 
 Finally run ```kubectl apply -k kubernetes/xr3ngine/base``` to deploy the MariaDB server and xr3ngine.
-The server is set up in dev mode to be behind the domain 'api.dev.xr3ngine.io' and is secured by a self-signed certificate.
+The server is set up in dev mode to be behind the domain 'api.dev.xr3ngine.dev' and is secured by a self-signed certificate.
 If you wanted to call one of the endpoints with curl, you could run the following and get a 401 error: 
-```curl https://192.168.99.109/user -H HOST:api.dev.xr3ngine.io --insecure```
+```curl https://192.168.99.109/user -H HOST:api.dev.xr3ngine.dev --insecure```
 
 NOTE: As of this writing, the MariaDB server sometimes finishes initializing after xr3ngine has already tried to
 connect to it. To reboot xr3ngine, run the following:
