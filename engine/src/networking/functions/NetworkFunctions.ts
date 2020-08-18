@@ -35,6 +35,13 @@ export const handleMessage = (messageType: MessageTypeAlias, messageData: any): 
 let queue: RingBuffer<any>
 export const sendMessage = (messageChannel: MessageChannel, messageType: MessageTypeAlias, messageData: any): void => {
   instance = Network.instance
-  queue = messageChannel === MessageChannel.Reliable ? instance.outgoingReliableQueue : instance.outgoingUnreliableQueue
-  queue.add(messageType, messageData)
+  switch (messageChannel) {
+    case MessageChannel.Reliable:
+      instance.outgoingReliableQueue.add({
+        messageType,
+        data: messageData
+      })
+    case MessageChannel.Unreliable:
+      instance.transport.sendUnreliableMessage({ channel: messageType.toString(), data: messageData })
+  }
 }

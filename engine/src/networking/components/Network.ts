@@ -14,9 +14,9 @@ export class Network extends Component<any> {
   clients: string[] = [] // TODO: Replace with ringbuffer
   mySocketID
   outgoingReliableQueue: RingBuffer<Message> = new RingBuffer<Message>(200)
-  outgoingUnreliableQueue: RingBuffer<Message> = new RingBuffer<Message>(200)
+  // outgoingUnreliableQueue: RingBuffer<Message> = new RingBuffer<Message>(200)
   incomingReliableQueue: RingBuffer<Message> = new RingBuffer<Message>(200)
-  incomingUnreliableQueue: RingBuffer<Message> = new RingBuffer<Message>(200)
+  // incomingUnreliableQueue: RingBuffer<Message> = new RingBuffer<Message>(200)
   static Network: any
   constructor() {
     super()
@@ -31,7 +31,7 @@ Network.schema = {
   clients: { type: Types.Array },
   mySocketID: { type: Types.String },
   outgoingReliableQueue: { type: Types.Ref, default: new RingBuffer<Message>(200) },
-  outgoingUnreliableQueue: { type: Types.Ref, default: new RingBuffer<Message>(200) },
-  incomingReliableQueue: { type: Types.Ref, default: new RingBuffer<Message>(200) },
-  incomingUnreliableQueue: { type: Types.Ref, default: new RingBuffer<Message>(200) }
+  // outgoingUnreliableQueue: { type: Types.Ref, default: new RingBuffer<Message>(200) },
+  incomingReliableQueue: { type: Types.Ref, default: new RingBuffer<Message>(200) }
+  // incomingUnreliableQueue: { type: Types.Ref, default: new RingBuffer<Message>(200) }
 }

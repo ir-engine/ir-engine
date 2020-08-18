@@ -20,6 +20,7 @@ import {
   WebRtcTransport
 } from "mediasoup/lib/types"
 import { types as MediaSoupClientTypes } from "mediasoup-client"
+import { UnreliableMessageParams, UnreliableMessageReturn } from "../../types/NetworkingTypes"
 
 dotenv.config()
 interface Client {
@@ -97,7 +98,7 @@ const defaultRoomState = {
   producers: [],
   consumers: [],
   dataProducers: [] as DataProducer[],
-  dataConsumers: []as DataConsumer[],
+  dataConsumers: [] as DataConsumer[],
   peers: []
 }
 
@@ -132,35 +133,30 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     }
   }
 
-  sendAllUnReliableMessages(): void {
-    // TODO: Analyze, we might want to route messages better to only specific clients
-    while (!Network.instance.outgoingUnreliableQueue.empty) {
-      const message = Network.instance.outgoingUnreliableQueue.pop
-      this.socketIO.sockets.emit(MessageTypes.UnreliableMessage.toString(), message)
-    }
-  }
-
-  handleConsumeDataEvent = (socket: SocketIO.Socket) => async (data: { consumerOptions: DataConsumerOptions, transportId: string }, callback: (arg0: { dataConsumerOptions?: MediaSoupClientTypes.DataConsumerOptions, error?: any }) => void) => {
-     try {
-       console.log('Got Data channel subscription from client with params: ', data)
-       console.log('Getting transport ID')
-       const transport: Transport | undefined = this.roomState.transports[data.transportId]
-       if (!transport) {
-         throw new Error('Transport is not available for the transport id or it is invalid')
-       }
-       data.consumerOptions.appData = { ...(data.consumerOptions.appData || {}), peerId: socket.id }
-       console.log("Creating DataConsumer")
-       const dataConsumer = await transport.consumeData(data.consumerOptions)
-       this.roomState.dataConsumers.push(dataConsumer)
-       console.log("Adding DataConsumer to roomstate")
-       dataConsumer.on("transportclose", () => {
-         console.log("closing DataConsumer and removing it from roomstate")
-         dataConsumer.close()
-         this.roomState.dataConsumers = this.roomState.dataConsumers.filter(
-           (consumer: DataConsumer) => consumer.id !== dataConsumer.id
-         )
-       })
-       const options: { dataConsumerOptions: MediaSoupClientTypes.DataConsumerOptions } = {
+  handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
+    data: { consumerOptions: DataConsumerOptions; transportId: string },
+    callback: (arg0: { dataConsumerOptions?: MediaSoupClientTypes.DataConsumerOptions; error?: any }) => void
+  ) => {
+    try {
+      console.log("Got Data channel subscription from client with params: ", data)
+      console.log("Getting transport ID")
+      const transport: Transport | undefined = this.roomState.transports[data.transportId]
+      if (!transport) {
+        throw new Error("Transport is not available for the transport id or it is invalid")
+      }
+      data.consumerOptions.appData = { ...(data.consumerOptions.appData || {}), peerId: socket.id }
+      console.log("Creating DataConsumer")
+      const dataConsumer = await transport.consumeData(data.consumerOptions)
+      this.roomState.dataConsumers.push(dataConsumer)
+      console.log("Adding DataConsumer to roomstate")
+      dataConsumer.on("transportclose", () => {
+        console.log("closing DataConsumer and removing it from roomstate")
+        dataConsumer.close()
+        this.roomState.dataConsumers = this.roomState.dataConsumers.filter(
+          (consumer: DataConsumer) => consumer.id !== dataConsumer.id
+        )
+      })
+      const options: { dataConsumerOptions: MediaSoupClientTypes.DataConsumerOptions } = {
         dataConsumerOptions: {
           id: dataConsumer.id,
           label: dataConsumer.label,
@@ -168,17 +164,29 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           appData: data.consumerOptions.appData,
           dataProducerId: dataConsumer.dataProducerId
         }
-       }
-       console.log("Sending data consumer options to client: ", options)
-       callback(options)
-     } catch (error) {
-       callback({ error })
-     }
+      }
+      console.log("Sending data consumer options to client: ", options)
+      callback(options)
+    } catch (error) {
+      callback({ error })
+    }
   }
 
-  // WIP
-  async sendUnreliableMessage({params: { id, appData, label, protocol, sctpStreamParameters }, transport}: { params: DataProducerOptions, transport: Transport }): Promise<DataProducer> {
-    return transport.produceData({ id, appData, label, protocol, sctpStreamParameters })
+  // WIP -- Init transport before calling with how it works right now in server?
+  async sendUnreliableMessage({
+    channel,
+    data,
+    type = "json"
+  }: UnreliableMessageParams): Promise<UnreliableMessageReturn> {
+    if (!data.transportId) {
+      return Promise.reject(new Error("TransportId not provided!"))
+    }
+    return this.transport.produceData({
+      appData: { data }, // Probably Add additional info to send to server
+      sctpStreamParameters: data.sctpStreamParameters,
+      label: channel,
+      protocol: type
+    })
   }
 
   public async initialize(address = "127.0.0.1", port = 3001): Promise<void> {
@@ -235,7 +243,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
       // Handle the disconnection
       socket.on(MessageTypes.Disconnect.toString(), () => {
-        console.log("User " + socket.id + " diconnected, there are " + this.socketIO.clients.length + " clients connected")
+        console.log(
+          "User " + socket.id + " diconnected, there are " + this.socketIO.clients.length + " clients connected"
+        )
         //Delete this client from the object
         delete this.roomState.peers[socket.id]
         for (const otherSocket of this.roomState.peers as Client[]) {
@@ -247,10 +257,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       // If a reliable message is received, add it to the queue
       socket.on(MessageTypes.ReliableMessage.toString(), (message: Message) => {
         Network.instance.incomingReliableQueue.add(message)
-      })
-      // If an unreliable message is received, add it to the queue
-      socket.on(MessageTypes.UnreliableMessage.toString(), (message: Message) => {
-        Network.instance.incomingUnreliableQueue.add(message)
       })
 
       // On heartbeat received from client
@@ -328,55 +334,52 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           transportOptions: clientTransportOptions
         })
       })
-      socket.on(MessageTypes.WebRTCProduceData, async (params, callback: (arg0: { id?: string, error?: any }) => void) => {
-        try {
-          const {
-            transportId,
-            sctpStreamParameters,
-            label,
-            protocol,
-            appData
-          } = params
-          console.log('Data channel used: ', `'${label}'` , 'by client id: ', socket.id)
-          console.log('Data channel params', params)
-          const transport = this.roomState.transports[transportId] as Transport
-          let dataProducer: DataProducer | undefined
-          if (appData.dataProducerId) {
-            dataProducer = this.roomState.dataProducers.find(prod => prod.id === appData.dataProducerId)
-          }
-          if (dataProducer === undefined) {
-            const options: DataProducerOptions = {
-              label,
-              protocol,
-              sctpStreamParameters,
-              appData: { ...appData, peerID: socket.id, transportId }
+      socket.on(
+        MessageTypes.WebRTCProduceData,
+        async (params, callback: (arg0: { id?: string; error?: any }) => void) => {
+          try {
+            const { transportId, sctpStreamParameters, label, protocol, appData } = params
+            console.log("Data channel used: ", `'${label}'`, "by client id: ", socket.id)
+            console.log("Data channel params", params)
+            const transport = this.roomState.transports[transportId] as Transport
+            let dataProducer: DataProducer | undefined
+            if (appData.dataProducerId) {
+              dataProducer = this.roomState.dataProducers.find(prod => prod.id === appData.dataProducerId)
             }
-            console.log("creating transport data producer")
-            dataProducer = await transport.produceData(options)
-            console.log("adding data producer to room state")
-            this.roomState.dataProducers.push(dataProducer)
+            if (dataProducer === undefined) {
+              const options: DataProducerOptions = {
+                label,
+                protocol,
+                sctpStreamParameters,
+                appData: { ...appData, peerID: socket.id, transportId }
+              }
+              console.log("creating transport data producer")
+              dataProducer = await transport.produceData(options)
+              console.log("adding data producer to room state")
+              this.roomState.dataProducers.push(dataProducer)
 
-            // if our associated transport closes, close ourself, too
-            dataProducer.on("transportclose", () => {
-              console.log("data producer's transport closed: ", dataProducer.id)
-              dataProducer.close()
-              this.roomState.dataProducers = this.roomState.dataProducers.filter(
-                producer => producer.id !== dataProducer.id
-              )
-            })
+              // if our associated transport closes, close ourself, too
+              dataProducer.on("transportclose", () => {
+                console.log("data producer's transport closed: ", dataProducer.id)
+                dataProducer.close()
+                this.roomState.dataProducers = this.roomState.dataProducers.filter(
+                  producer => producer.id !== dataProducer.id
+                )
+              })
+              console.log("Sending dataproducer id to client:", dataProducer.id)
+              return callback({ id: dataProducer.id })
+            }
+
+            // Possibly do stuff with appData here
+
             console.log("Sending dataproducer id to client:", dataProducer.id)
             return callback({ id: dataProducer.id })
+          } catch (e) {
+            console.log("ERROR SENDING DATA TO DATA CHANNEL: ", e)
+            callback({ error: e })
           }
-
-          // Possibly do stuff with appData here
-
-          console.log("Sending dataproducer id to client:", dataProducer.id)
-          return callback({ id: dataProducer.id })
-        } catch (e) {
-          console.log('ERROR SENDING DATA TO DATA CHANNEL: ', e)
-          callback({ error: e })
         }
-      })
+      )
       socket.on(MessageTypes.WebRTCConsumeData, this.handleConsumeDataEvent(socket))
 
       // --> /signaling/connect-transport
