@@ -1,4 +1,4 @@
-import { Vector2 } from "three";
+import { Vector2 } from 'three';
 
 /**
  * An auto sizing constant.
@@ -18,8 +18,7 @@ const AUTO_SIZE = -1;
  */
 
 export class Resizer {
-
-	/**
+  /**
 	 * Constructs a new resizer.
 	 *
 	 * @param {Resizable} resizeable - A resizable object.
@@ -28,17 +27,16 @@ export class Resizer {
 	 * @param {Number} [scale=1.0] - An alternative resolution scale.
 	 */
 
-	constructor(resizable, width = AUTO_SIZE, height = AUTO_SIZE, scale = 1.0) {
-
-		/**
+  constructor (resizable, width = AUTO_SIZE, height = AUTO_SIZE, scale = 1.0) {
+    /**
 		 * A resizable object.
 		 *
 		 * @type {Resizable}
 		 */
 
-		this.resizable = resizable;
+    this.resizable = resizable;
 
-		/**
+    /**
 		 * The base size.
 		 *
 		 * This size will be passed to the resizable object every time the target
@@ -47,18 +45,18 @@ export class Resizer {
 		 * @type {Vector2}
 		 */
 
-		this.base = new Vector2(1, 1);
+    this.base = new Vector2(1, 1);
 
-		/**
+    /**
 		 * The target size.
 		 *
 		 * @type {Vector2}
 		 * @private
 		 */
 
-		this.target = new Vector2(width, height);
+    this.target = new Vector2(width, height);
 
-		/**
+    /**
 		 * A scale.
 		 *
 		 * If both the width and the height are set to {@link Resizer.AUTO_SIZE},
@@ -68,23 +66,20 @@ export class Resizer {
 		 * @private
 		 */
 
-		this.s = scale;
+    this.s = scale;
+  }
 
-	}
-
-	/**
+  /**
 	 * The current resolution scale.
 	 *
 	 * @type {Number}
 	 */
 
-	get scale() {
+  get scale () {
+    return this.s;
+  }
 
-		return this.s;
-
-	}
-
-	/**
+  /**
 	 * Sets the resolution scale.
 	 *
 	 * Also sets the width and height to {@link Resizer.AUTO_SIZE}.
@@ -92,18 +87,16 @@ export class Resizer {
 	 * @type {Number}
 	 */
 
-	set scale(value) {
+  set scale (value) {
+    this.s = value;
 
-		this.s = value;
+    this.target.x = AUTO_SIZE;
+    this.target.y = AUTO_SIZE;
 
-		this.target.x = AUTO_SIZE;
-		this.target.y = AUTO_SIZE;
+    this.resizable.setSize(this.base.x, this.base.y);
+  }
 
-		this.resizable.setSize(this.base.x, this.base.y);
-
-	}
-
-	/**
+  /**
 	 * The calculated width.
 	 *
 	 * If both the width and the height are set to {@link Resizer.AUTO_SIZE}, the
@@ -112,32 +105,24 @@ export class Resizer {
 	 * @type {Number}
 	 */
 
-	get width() {
+  get width () {
+    const base = this.base;
+    const target = this.target;
 
-		const base = this.base;
-		const target = this.target;
+    let result;
 
-		let result;
+    if (target.x !== AUTO_SIZE) {
+      result = target.x;
+    } else if (target.y !== AUTO_SIZE) {
+      result = Math.round(target.y * (base.x / base.y));
+    } else {
+      result = Math.round(base.x * this.s);
+    }
 
-		if(target.x !== AUTO_SIZE) {
+    return result;
+  }
 
-			result = target.x;
-
-		} else if(target.y !== AUTO_SIZE) {
-
-			result = Math.round(target.y * (base.x / base.y));
-
-		} else {
-
-			result = Math.round(base.x * this.s);
-
-		}
-
-		return result;
-
-	}
-
-	/**
+  /**
 	 * Sets the target width.
 	 *
 	 * Use {@link Resizer.AUTO_SIZE} to automatically calculate the width based
@@ -146,14 +131,12 @@ export class Resizer {
 	 * @type {Number}
 	 */
 
-	set width(value) {
+  set width (value) {
+    this.target.x = value;
+    this.resizable.setSize(this.base.x, this.base.y);
+  }
 
-		this.target.x = value;
-		this.resizable.setSize(this.base.x, this.base.y);
-
-	}
-
-	/**
+  /**
 	 * The calculated height.
 	 *
 	 * If both the width and the height are set to {@link Resizer.AUTO_SIZE}, the
@@ -162,32 +145,24 @@ export class Resizer {
 	 * @type {Number}
 	 */
 
-	get height() {
+  get height () {
+    const base = this.base;
+    const target = this.target;
 
-		const base = this.base;
-		const target = this.target;
+    let result;
 
-		let result;
+    if (target.y !== AUTO_SIZE) {
+      result = target.y;
+    } else if (target.x !== AUTO_SIZE) {
+      result = Math.round(target.x / (base.x / base.y));
+    } else {
+      result = Math.round(base.y * this.s);
+    }
 
-		if(target.y !== AUTO_SIZE) {
+    return result;
+  }
 
-			result = target.y;
-
-		} else if(target.x !== AUTO_SIZE) {
-
-			result = Math.round(target.x / (base.x / base.y));
-
-		} else {
-
-			result = Math.round(base.y * this.s);
-
-		}
-
-		return result;
-
-	}
-
-	/**
+  /**
 	 * Sets the target height.
 	 *
 	 * Use {@link Resizer.AUTO_SIZE} to automatically calculate the height based
@@ -196,14 +171,12 @@ export class Resizer {
 	 * @type {Number}
 	 */
 
-	set height(value) {
+  set height (value) {
+    this.target.y = value;
+    this.resizable.setSize(this.base.x, this.base.y);
+  }
 
-		this.target.y = value;
-		this.resizable.setSize(this.base.x, this.base.y);
-
-	}
-
-	/**
+  /**
 	 * An auto sizing constant.
 	 *
 	 * Can be used to automatically calculate the width or height based on the
@@ -212,10 +185,7 @@ export class Resizer {
 	 * @type {Number}
 	 */
 
-	static get AUTO_SIZE() {
-
-		return AUTO_SIZE;
-
-	}
-
+  static get AUTO_SIZE () {
+    return AUTO_SIZE;
+  }
 }

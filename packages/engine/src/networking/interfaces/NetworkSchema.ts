@@ -1,6 +1,6 @@
-import { Prefab } from "../../common/interfaces/Prefab"
-import { PrefabAlias } from "../../common/types/PrefabAlias"
-import { MessageSchema } from "../classes/MessageSchema"
+import { Prefab } from '../../common/interfaces/Prefab';
+import { PrefabAlias } from '../../common/types/PrefabAlias';
+import { MessageSchema } from '../classes/MessageSchema';
 
 export interface NetworkSchema {
   transport: any
@@ -15,5 +15,5 @@ export interface NetworkSchema {
     }
   }
   defaultClientPrefab: PrefabAlias
-  prefabs: { id: PrefabAlias; prefab: Prefab }[]
+  prefabs: Array<{ id: PrefabAlias, prefab: Prefab }>
 }

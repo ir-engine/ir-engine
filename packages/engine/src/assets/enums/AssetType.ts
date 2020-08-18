@@ -16,4 +16,4 @@ export const AssetType = {
   DOC: 14,
   XLS: 15,
   Script: 16
-}
+};

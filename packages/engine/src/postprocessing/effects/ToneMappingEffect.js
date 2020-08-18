@@ -1,19 +1,19 @@
 import {
-	Color,
-	LinearFilter,
-	LinearMipMapLinearFilter,
-	LinearMipmapLinearFilter,
-	RGBFormat,
-	Uniform,
-	WebGLRenderTarget
-} from "three";
+  Color,
+  LinearFilter,
+  LinearMipMapLinearFilter,
+  LinearMipmapLinearFilter,
+  RGBFormat,
+  Uniform,
+  WebGLRenderTarget
+} from 'three';
 
-import { AdaptiveLuminanceMaterial, LuminanceMaterial } from "../materials";
-import { ClearPass, SavePass, ShaderPass } from "../passes";
-import { BlendFunction } from "./blending/BlendFunction.js";
-import { Effect } from "./Effect.js";
+import { AdaptiveLuminanceMaterial, LuminanceMaterial } from '../materials';
+import { ClearPass, SavePass, ShaderPass } from '../passes';
+import { BlendFunction } from './blending/BlendFunction.js';
+import { Effect } from './Effect.js';
 
-import fragmentShader from "./glsl/tone-mapping/shader.frag";
+import fragmentShader from './glsl/tone-mapping/shader.frag';
 
 /**
  * A tone mapping effect that supports adaptive luminosity.
@@ -28,8 +28,7 @@ import fragmentShader from "./glsl/tone-mapping/shader.frag";
  */
 
 export class ToneMappingEffect extends Effect {
-
-	/**
+  /**
 	 * Constructs a new tone mapping effect.
 	 *
 	 * @param {Object} [options] - The options.
@@ -42,30 +41,29 @@ export class ToneMappingEffect extends Effect {
 	 * @param {Number} [options.adaptationRate=1.0] - The luminance adaptation rate.
 	 */
 
-	constructor({
-		blendFunction = BlendFunction.NORMAL,
-		adaptive = true,
-		resolution = 256,
-		middleGrey = 0.6,
-		maxLuminance = 16.0,
-		averageLuminance = 1.0,
-		adaptationRate = 2.0
-	} = {}) {
+  constructor ({
+    blendFunction = BlendFunction.NORMAL,
+    adaptive = true,
+    resolution = 256,
+    middleGrey = 0.6,
+    maxLuminance = 16.0,
+    averageLuminance = 1.0,
+    adaptationRate = 2.0
+  } = {}) {
+    super('ToneMappingEffect', fragmentShader, {
 
-		super("ToneMappingEffect", fragmentShader, {
+      blendFunction,
 
-			blendFunction,
+      uniforms: new Map([
+        ['luminanceMap', new Uniform(null)],
+        ['middleGrey', new Uniform(middleGrey)],
+        ['maxLuminance', new Uniform(maxLuminance)],
+        ['averageLuminance', new Uniform(averageLuminance)]
+      ])
 
-			uniforms: new Map([
-				["luminanceMap", new Uniform(null)],
-				["middleGrey", new Uniform(middleGrey)],
-				["maxLuminance", new Uniform(maxLuminance)],
-				["averageLuminance", new Uniform(averageLuminance)]
-			])
+    });
 
-		});
-
-		/**
+    /**
 		 * The render target for the current luminance.
 		 *
 		 * @type {WebGLRenderTarget}
@@ -73,200 +71,177 @@ export class ToneMappingEffect extends Effect {
 		 * @todo Remove LinearMipMapLinearFilter in next major release.
 		 */
 
-		this.renderTargetLuminance = new WebGLRenderTarget(1, 1, {
-			minFilter: (LinearMipmapLinearFilter !== undefined) ? LinearMipmapLinearFilter : LinearMipMapLinearFilter,
-			magFilter: LinearFilter,
-			stencilBuffer: false,
-			depthBuffer: false,
-			format: RGBFormat
-		});
+    this.renderTargetLuminance = new WebGLRenderTarget(1, 1, {
+      minFilter: (LinearMipmapLinearFilter !== undefined) ? LinearMipmapLinearFilter : LinearMipMapLinearFilter,
+      magFilter: LinearFilter,
+      stencilBuffer: false,
+      depthBuffer: false,
+      format: RGBFormat
+    });
 
-		this.renderTargetLuminance.texture.name = "ToneMapping.Luminance";
-		this.renderTargetLuminance.texture.generateMipmaps = true;
+    this.renderTargetLuminance.texture.name = 'ToneMapping.Luminance';
+    this.renderTargetLuminance.texture.generateMipmaps = true;
 
-		/**
+    /**
 		 * The render target for adapted luminance.
 		 *
 		 * @type {WebGLRenderTarget}
 		 * @private
 		 */
 
-		this.renderTargetAdapted = this.renderTargetLuminance.clone();
-		this.renderTargetAdapted.texture.name = "ToneMapping.AdaptedLuminance";
-		this.renderTargetAdapted.texture.generateMipmaps = false;
-		this.renderTargetAdapted.texture.minFilter = LinearFilter;
+    this.renderTargetAdapted = this.renderTargetLuminance.clone();
+    this.renderTargetAdapted.texture.name = 'ToneMapping.AdaptedLuminance';
+    this.renderTargetAdapted.texture.generateMipmaps = false;
+    this.renderTargetAdapted.texture.minFilter = LinearFilter;
 
-		/**
+    /**
 		 * A render target that holds a copy of the adapted luminance.
 		 *
 		 * @type {WebGLRenderTarget}
 		 * @private
 		 */
 
-		this.renderTargetPrevious = this.renderTargetAdapted.clone();
-		this.renderTargetPrevious.texture.name = "ToneMapping.PreviousLuminance";
+    this.renderTargetPrevious = this.renderTargetAdapted.clone();
+    this.renderTargetPrevious.texture.name = 'ToneMapping.PreviousLuminance';
 
-		/**
+    /**
 		 * A save pass.
 		 *
 		 * @type {SavePass}
 		 * @private
 		 */
 
-		this.savePass = new SavePass(this.renderTargetPrevious, false);
+    this.savePass = new SavePass(this.renderTargetPrevious, false);
 
-		/**
+    /**
 		 * A luminance shader pass.
 		 *
 		 * @type {ShaderPass}
 		 * @private
 		 */
 
-		this.luminancePass = new ShaderPass(new LuminanceMaterial());
+    this.luminancePass = new ShaderPass(new LuminanceMaterial());
 
-		const luminanceMaterial = this.luminancePass.getFullscreenMaterial();
-		luminanceMaterial.useThreshold = false;
+    const luminanceMaterial = this.luminancePass.getFullscreenMaterial();
+    luminanceMaterial.useThreshold = false;
 
-		/**
+    /**
 		 * An adaptive luminance shader pass.
 		 *
 		 * @type {ShaderPass}
 		 * @private
 		 */
 
-		this.adaptiveLuminancePass = new ShaderPass(new AdaptiveLuminanceMaterial());
+    this.adaptiveLuminancePass = new ShaderPass(new AdaptiveLuminanceMaterial());
 
-		const uniforms = this.adaptiveLuminancePass.getFullscreenMaterial().uniforms;
-		uniforms.previousLuminanceBuffer.value = this.renderTargetPrevious.texture;
-		uniforms.currentLuminanceBuffer.value = this.renderTargetLuminance.texture;
+    const uniforms = this.adaptiveLuminancePass.getFullscreenMaterial().uniforms;
+    uniforms.previousLuminanceBuffer.value = this.renderTargetPrevious.texture;
+    uniforms.currentLuminanceBuffer.value = this.renderTargetLuminance.texture;
 
-		this.adaptationRate = adaptationRate;
-		this.resolution = resolution;
-		this.adaptive = adaptive;
+    this.adaptationRate = adaptationRate;
+    this.resolution = resolution;
+    this.adaptive = adaptive;
+  }
 
-	}
-
-	/**
+  /**
 	 * The resolution of the render targets.
 	 *
 	 * @type {Number}
 	 */
 
-	get resolution() {
+  get resolution () {
+    return this.renderTargetLuminance.width;
+  }
 
-		return this.renderTargetLuminance.width;
-
-	}
-
-	/**
+  /**
 	 * Sets the resolution of the internal render targets.
 	 *
 	 * @type {Number}
 	 */
 
-	set resolution(value) {
+  set resolution (value) {
+    // Round the given value to the next power of two.
+    const exponent = Math.max(0, Math.ceil(Math.log2(value)));
+    const size = Math.pow(2, exponent);
 
-		// Round the given value to the next power of two.
-		const exponent = Math.max(0, Math.ceil(Math.log2(value)));
-		const size = Math.pow(2, exponent);
+    this.renderTargetLuminance.setSize(size, size);
+    this.renderTargetPrevious.setSize(size, size);
+    this.renderTargetAdapted.setSize(size, size);
 
-		this.renderTargetLuminance.setSize(size, size);
-		this.renderTargetPrevious.setSize(size, size);
-		this.renderTargetAdapted.setSize(size, size);
+    const material = this.adaptiveLuminancePass.getFullscreenMaterial();
+    material.defines.MIP_LEVEL_1X1 = exponent.toFixed(1);
+    material.needsUpdate = true;
+  }
 
-		const material = this.adaptiveLuminancePass.getFullscreenMaterial();
-		material.defines.MIP_LEVEL_1X1 = exponent.toFixed(1);
-		material.needsUpdate = true;
-
-	}
-
-	/**
+  /**
 	 * Indicates whether this pass uses adaptive luminance.
 	 *
 	 * @type {Boolean}
 	 */
 
-	get adaptive() {
+  get adaptive () {
+    return this.defines.has('ADAPTED_LUMINANCE');
+  }
 
-		return this.defines.has("ADAPTED_LUMINANCE");
-
-	}
-
-	/**
+  /**
 	 * Enables or disables adaptive luminance.
 	 *
 	 * @type {Boolean}
 	 */
 
-	set adaptive(value) {
+  set adaptive (value) {
+    if (this.adaptive !== value) {
+      if (value) {
+        this.defines.set('ADAPTED_LUMINANCE', '1');
+        this.uniforms.get('luminanceMap').value = this.renderTargetAdapted.texture;
+      } else {
+        this.defines.delete('ADAPTED_LUMINANCE');
+        this.uniforms.get('luminanceMap').value = null;
+      }
 
-		if(this.adaptive !== value) {
+      this.setChanged();
+    }
+  }
 
-			if(value) {
-
-				this.defines.set("ADAPTED_LUMINANCE", "1");
-				this.uniforms.get("luminanceMap").value = this.renderTargetAdapted.texture;
-
-			} else {
-
-				this.defines.delete("ADAPTED_LUMINANCE");
-				this.uniforms.get("luminanceMap").value = null;
-
-			}
-
-			this.setChanged();
-
-		}
-
-	}
-
-	/**
+  /**
 	 * The luminance adaptation rate.
 	 *
 	 * @type {Number}
 	 */
 
-	get adaptationRate() {
+  get adaptationRate () {
+    return this.adaptiveLuminancePass.getFullscreenMaterial().uniforms.tau.value;
+  }
 
-		return this.adaptiveLuminancePass.getFullscreenMaterial().uniforms.tau.value;
-
-	}
-
-	/**
+  /**
 	 * @type {Number}
 	 */
 
-	set adaptationRate(value) {
+  set adaptationRate (value) {
+    this.adaptiveLuminancePass.getFullscreenMaterial().uniforms.tau.value = value;
+  }
 
-		this.adaptiveLuminancePass.getFullscreenMaterial().uniforms.tau.value = value;
-
-	}
-
-	/**
+  /**
 	 * @type {Number}
 	 * @deprecated
 	 */
 
-	get distinction() {
+  get distinction () {
+    console.warn(this.name, 'The distinction field has been removed.');
 
-		console.warn(this.name, "The distinction field has been removed.");
+    return 1.0;
+  }
 
-		return 1.0;
-
-	}
-
-	/**
+  /**
 	 * @type {Number}
 	 * @deprecated
 	 */
 
-	set distinction(value) {
+  set distinction (value) {
+    console.warn(this.name, 'The distinction field has been removed.');
+  }
 
-		console.warn(this.name, "The distinction field has been removed.");
-
-	}
-
-	/**
+  /**
 	 * Updates this effect.
 	 *
 	 * @param {WebGLRenderer} renderer - The renderer.
@@ -274,39 +249,33 @@ export class ToneMappingEffect extends Effect {
 	 * @param {Number} [deltaTime] - The time between the last frame and the current one in seconds.
 	 */
 
-	update(renderer, inputBuffer, deltaTime) {
+  update (renderer, inputBuffer, deltaTime) {
+    if (this.adaptive) {
+      // Render the luminance of the current scene into a mipmap render target.
+      this.luminancePass.render(renderer, inputBuffer, this.renderTargetLuminance);
 
-		if(this.adaptive) {
+      // Use the frame delta to adapt the luminance over time.
+      const uniforms = this.adaptiveLuminancePass.getFullscreenMaterial().uniforms;
+      uniforms.deltaTime.value = deltaTime;
+      this.adaptiveLuminancePass.render(renderer, null, this.renderTargetAdapted);
 
-			// Render the luminance of the current scene into a mipmap render target.
-			this.luminancePass.render(renderer, inputBuffer, this.renderTargetLuminance);
+      // Save the adapted luminance for the next frame.
+      this.savePass.render(renderer, this.renderTargetAdapted);
+    }
+  }
 
-			// Use the frame delta to adapt the luminance over time.
-			const uniforms = this.adaptiveLuminancePass.getFullscreenMaterial().uniforms;
-			uniforms.deltaTime.value = deltaTime;
-			this.adaptiveLuminancePass.render(renderer, null, this.renderTargetAdapted);
-
-			// Save the adapted luminance for the next frame.
-			this.savePass.render(renderer, this.renderTargetAdapted);
-
-		}
-
-	}
-
-	/**
+  /**
 	 * Updates the size of internal render targets.
 	 *
 	 * @param {Number} width - The width.
 	 * @param {Number} height - The height.
 	 */
 
-	setSize(width, height) {
+  setSize (width, height) {
+    this.savePass.setSize(width, height);
+  }
 
-		this.savePass.setSize(width, height);
-
-	}
-
-	/**
+  /**
 	 * Performs initialization tasks.
 	 *
 	 * @param {WebGLRenderer} renderer - The renderer.
@@ -314,13 +283,10 @@ export class ToneMappingEffect extends Effect {
 	 * @param {Number} frameBufferType - The type of the main frame buffers.
 	 */
 
-	initialize(renderer, alpha, frameBufferType) {
-
-		const clearPass = new ClearPass(true, false, false);
-		clearPass.overrideClearColor = new Color(0x7fffff);
-		clearPass.render(renderer, this.renderTargetPrevious);
-		clearPass.dispose();
-
-	}
-
+  initialize (renderer, alpha, frameBufferType) {
+    const clearPass = new ClearPass(true, false, false);
+    clearPass.overrideClearColor = new Color(0x7fffff);
+    clearPass.render(renderer, this.renderTargetPrevious);
+    clearPass.dispose();
+  }
 }

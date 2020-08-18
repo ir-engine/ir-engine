@@ -1,6 +1,6 @@
-import { BehaviorValue } from "../../common/interfaces/BehaviorValue"
-import { InputAlias } from "../types/InputAlias"
-import { InputRelationship } from "./InputRelationship"
+import { BehaviorValue } from '../../common/interfaces/BehaviorValue';
+import { InputAlias } from '../types/InputAlias';
+import { InputRelationship } from './InputRelationship';
 
 export interface InputSchema {
   // Called by input system when an Input component is added

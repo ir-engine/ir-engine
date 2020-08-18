@@ -1,158 +1,125 @@
-import { Entity } from "./Entity"
-import { EntityPool } from "./EntityPool"
-import { EventDispatcher } from "./EventDispatcher"
-import { Query } from "./Query"
-import { WebGLRenderer, Camera } from "three"
-import { SceneManager } from "../../common/classes/SceneManager"
-import { hasWindow, now } from "../functions/Utils"
-import { System } from "./System"
-import { executeSystem } from "../functions/SystemFunctions"
-
-export interface EngineOptions {
-  entityPoolSize?: number
-  [propName: string]: any
-}
-
-const DEFAULT_OPTIONS = {
-  entityPoolSize: 0,
-  entityClass: Entity
-}
+import { EntityPool } from './EntityPool';
+import { EventDispatcher } from './EventDispatcher';
+import { Query } from './Query';
+import { WebGLRenderer, Camera, Scene } from 'three';
+import { EngineOptions } from '../interfaces/EngineOptions';
+import { DefaultOptions } from '../constants/DefaultOptions';
+import { Entity } from './Entity';
 
 export class Engine {
+  /**
+   * Reference to the three.js renderer object
+   * This is set in {@link @xr3ngine/engine/src/initialize#initializeEngine}
+   */
   static renderer: WebGLRenderer = null
-  static sceneManager: SceneManager = new SceneManager()
+
+  /**
+ * Reference to the three.js scene object
+ * This is set in {@link @xr3ngine/engine/src/initialize#initializeEngine}
+ */
+  static scene: Scene
+
+  /**
+ * Reference to the three.js camera object
+ * This is set in {@link @xr3ngine/engine/src/initialize#initializeEngine}
+ */
   static camera: Camera = null
+
+  /**
+ * Event dispatcher manages sending events which can be interpreted by devtools
+ */
   static eventDispatcher = new EventDispatcher()
 
-  static options: { entityPoolSize: number; entityClass: typeof Entity } & EngineOptions = DEFAULT_OPTIONS
+  /**
+* Initialization options
+*/
+  static options: { entityPoolSize: number } & EngineOptions = DefaultOptions
+
+  /**
+   * Controls whether engine should execute this frame
+   * Engine can be paused by setting enabled to false
+   */
   static enabled = true
+
+  /**
+   * Controls whether components should be removed immediately or after all systems execute
+   */
   static deferredRemovalEnabled = true
 
+  /**
+   * List of registered systems
+   * Engine can be paused by setting enabled to false
+   */
   static systems: any[] = []
+
+  /**
+   * List of registered entities
+   * Engine can be paused by setting enabled to false
+   */
   static entities: any[] = []
-  static entitiesByName: {} = {}
+
+  /**
+   * List of registered queries
+   * Engine can be paused by setting enabled to false
+   */
   static queries: Query[] = []
+
+  /**
+   * List of registered components
+   * Engine can be paused by setting enabled to false
+   */
   static components: any[] = []
 
+  /**
+   * Timestamp of last time execute() was called
+   */
   static lastTime: number
 
+  /**
+   * Next entity created will have this ID
+   */
   static nextEntityId = 0
+
+  /**
+   * Next component created will have this ID
+   */
   static nextComponentId = 0
 
-  static eventQueues: {} = {}
-  static entityPool: EntityPool = new EntityPool()
+  /**
+   * Pool of available entities
+   */
+  static entityPool: EntityPool = new EntityPool(Entity)
+
+  /**
+   * Map of component classes to their type ID
+   */
   static componentsMap: {} = {}
+
+  /**
+   * List of component pools, one for each component class
+   */
   static componentPool: {} = {}
+
+  /**
+   * Stores a count for each component type
+   */
   static numComponents: {} = {}
+
+  /**
+   * List of entities with components that will be removed this frame
+   * @todo replace with a ring buffer and set buffer size in default options
+   */
   static entitiesWithComponentsToRemove: any[] = []
+
+  /**
+   * List of entities that will be removed this frame
+   * @todo replace with a ring buffer and set buffer size in default options
+   */
   static entitiesToRemove: any[] = []
 
-  static executeSystems: any[] = []
-  static lastExecutedSystem: any
-}
-
-export function initializeEngine(options?: EngineOptions) {
-  Engine.options = { ...Engine.options, ...options }
-  if (hasWindow && typeof CustomEvent !== "undefined") {
-    const event = new CustomEvent("world-created")
-    window.dispatchEvent(event)
-  }
-
-  Engine.lastTime = now() / 1000
-}
-
-export function execute(delta?: number, time?: number): void {
-  if (!delta) {
-    time = now() / 1000
-    delta = time - Engine.lastTime
-    Engine.lastTime = time
-  }
-
-  if (Engine.enabled) {
-    Engine.executeSystems.forEach(system => system.enabled && executeSystem(system, delta, time))
-    processDeferredEntityRemoval()
-  }
-}
-
-function processDeferredEntityRemoval() {
-  if (!Engine.deferredRemovalEnabled) {
-    return
-  }
-  let entitiesToRemove = []
-  let entitiesWithComponentsToRemove = []
-  for (let i = 0; i < entitiesToRemove.length; i++) {
-    const entity = entitiesToRemove[i]
-    const index = Engine.entities.indexOf(entity)
-    this._entities.splice(index, 1);
-
-    if (this.entitiesByNames[entity.name]) {
-      delete this.entitiesByNames[entity.name];
-    }
-    entity._pool.release(entity);
-    }
-  entitiesToRemove.length = 0
-
-  for (let i = 0; i < entitiesWithComponentsToRemove.length; i++) {
-    const entity = entitiesWithComponentsToRemove[i]
-    while (entity.componentTypesToRemove.length > 0) {
-      const Component = entity.componentTypesToRemove.pop()
-
-      const component = entity.componentsToRemove[Component._typeId]
-      delete entity.componentsToRemove[Component._typeId]
-      component.dispose()
-      Engine.numComponents[component._typeId]--
-    }
-  }
-
-  Engine.entitiesWithComponentsToRemove.length = 0
-}
-
-export function stop(): void {
-  Engine.enabled = false
-  Engine.executeSystems.forEach(system => system.stop())
-}
-
-export function stats(): { entities: any; system: any } {
-  const queryStats = {}
-  for (const queryName in Engine.queries) {
-    queryStats[queryName] = Engine.queries[queryName].stats()
-  }
-
-  const entityStatus = {
-    numEntities: Engine.entities.length,
-    numQueries: Object.keys(System.queries).length,
-    queries: queryStats,
-    numComponentPool: Object.keys(Engine.componentPool).length,
-    componentPool: {},
-    eventDispatcher: (Engine.eventDispatcher as any).stats
-  }
-
-  for (const componentId in Engine.componentPool) {
-    const pool = Engine.componentPool[componentId]
-    entityStatus.componentPool[pool.type.name] = {
-      used: pool.totalUsed(),
-      size: pool.count
-    }
-  }
-
-  const systemStatus = {
-    numSystems: Engine.systems.length,
-    systems: {}
-  }
-
-  for (let i = 0; i < Engine.systems.length; i++) {
-    const system = Engine.systems[i]
-    const systemStats = (systemStatus.systems[system.name] = {
-      queries: {},
-      executeTime: system.executeTime
-    })
-    for (const name in system.ctx) {
-      systemStats.queries[name] = system.ctx[name].stats()
-    }
-  }
-
-  return {
-    entities: entityStatus,
-    system: systemStatus
-  }
+  /**
+   * List of entities with components that will be removed this frame
+   * @todo replace with a ring buffer and set buffer size in default options
+   */
+  static systemsToExecute: any[] = []
 }

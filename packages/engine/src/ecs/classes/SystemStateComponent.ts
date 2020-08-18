@@ -1,4 +1,5 @@
-import { Component, ComponentConstructor } from "./Component"
+import { Component } from './Component';
+import { ComponentConstructor } from '../interfaces/ComponentInterfaces';
 
 export interface SystemStateComponentConstructor<C extends Component<any>> extends ComponentConstructor<C> {
   isSystemStateComponent: true

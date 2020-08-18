@@ -1,5 +1,5 @@
-import { applyGravity } from "../../common/defaults/behaviors/applyGravity"
-import { SubscriptionSchema } from "../interfaces/SubscriptionSchema"
+import { applyGravity } from '../../common/defaults/behaviors/applyGravity';
+import { SubscriptionSchema } from '../interfaces/SubscriptionSchema';
 
 export const DefaultSubscriptionSchema: SubscriptionSchema = {
   onUpdate: [
@@ -7,4 +7,4 @@ export const DefaultSubscriptionSchema: SubscriptionSchema = {
       behavior: applyGravity
     }
   ]
-}
+};

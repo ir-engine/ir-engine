@@ -1,17 +1,17 @@
-import { rotateStart } from "../../common/defaults/behaviors/updateLookingState"
-import { disableScroll, enableScroll } from "../../common/functions/enableDisableScrolling"
-import { preventDefault } from "../../common/functions/preventDefault"
-import { DefaultInput } from "../../input/defaults/DefaultInput"
-import { InputSchema } from "../../input/interfaces/InputSchema"
-import { BinaryValue } from "../../common/enums/BinaryValue"
-import { handleKey, handleMouseMovement, handleMouseButton } from "../../input/behaviors/DesktopInputBehaviors"
-import { handleGamepadConnected, handleGamepadDisconnected } from "../../input/behaviors/GamepadInputBehaviors"
-import { GamepadButtons } from "../../input/enums/GamepadButtons"
-import { Thumbsticks } from "../../common/enums/Thumbsticks"
-import { InputRelationship } from "../../input/interfaces/InputRelationship"
-import { drive } from "../behaviors/driveBehavior"
-import { InputType } from "../../input/enums/InputType"
-import { rotateAround } from "../../common/defaults/behaviors/rotate"
+import { rotateStart } from '../../common/defaults/behaviors/updateLookingState';
+import { disableScroll, enableScroll } from '../../common/functions/enableDisableScrolling';
+import { preventDefault } from '../../common/functions/preventDefault';
+import { DefaultInput } from '../../input/defaults/DefaultInput';
+import { InputSchema } from '../../input/interfaces/InputSchema';
+import { BinaryValue } from '../../common/enums/BinaryValue';
+import { handleKey, handleMouseMovement, handleMouseButton } from '../../input/behaviors/DesktopInputBehaviors';
+import { handleGamepadConnected, handleGamepadDisconnected } from '../../input/behaviors/GamepadInputBehaviors';
+import { GamepadButtons } from '../../input/enums/GamepadButtons';
+import { Thumbsticks } from '../../common/enums/Thumbsticks';
+import { InputRelationship } from '../../input/interfaces/InputRelationship';
+import { drive } from '../behaviors/driveBehavior';
+import { InputType } from '../../input/enums/InputType';
+import { rotateAround } from '../../common/defaults/behaviors/rotate';
 
 export const VehicleInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -29,12 +29,12 @@ export const VehicleInputSchema: InputSchema = {
   // When the input component is added or removed, the system will bind/unbind these events to the DOM
   eventBindings: {
     // Mouse
-    ["contextmenu"]: [
+    contextmenu: [
       {
         behavior: preventDefault
       }
     ],
-    ["mousemove"]: [
+    mousemove: [
       {
         behavior: handleMouseMovement,
         args: {
@@ -42,7 +42,7 @@ export const VehicleInputSchema: InputSchema = {
         }
       }
     ],
-    ["mouseup"]: [
+    mouseup: [
       {
         behavior: handleMouseButton,
         args: {
@@ -50,7 +50,7 @@ export const VehicleInputSchema: InputSchema = {
         }
       }
     ],
-    ["mousedown"]: [
+    mousedown: [
       {
         behavior: handleMouseButton,
         args: {
@@ -62,7 +62,7 @@ export const VehicleInputSchema: InputSchema = {
       }
     ],
     // Keys
-    ["keyup"]: [
+    keyup: [
       {
         behavior: handleKey,
         args: {
@@ -70,7 +70,7 @@ export const VehicleInputSchema: InputSchema = {
         }
       }
     ],
-    ["keydown"]: [
+    keydown: [
       {
         behavior: handleKey,
         args: {
@@ -79,12 +79,12 @@ export const VehicleInputSchema: InputSchema = {
       }
     ],
     // Gamepad
-    ["gamepadconnected"]: [
+    gamepadconnected: [
       {
         behavior: handleGamepadConnected
       }
     ],
-    ["gamepaddisconnected"]: [
+    gamepaddisconnected: [
       {
         behavior: handleGamepadDisconnected
       }
@@ -253,4 +253,4 @@ export const VehicleInputSchema: InputSchema = {
       ]
     }
   }
-}
+};
