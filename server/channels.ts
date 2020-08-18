@@ -1,23 +1,10 @@
 import '@feathersjs/transport-commons'
 import { Application } from './declarations'
 
-
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
     // If no real-time functionality has been configured just return
     return
-  }
-
-  function pingInstanceChannel (instanceId: string): any {
-    console.log(`Pinging clients connected to instance ${instanceId}`)
-    app.service('instance-provision').publish('created', async (data): Promise<any> => {
-      const channelName = `instanceIds/${instanceId}`
-      console.log(`Publishing to: ${channelName}`)
-      return app.channel(channelName).send({
-        cool: 'pants'
-      })
-    })
-    setTimeout(() => pingInstanceChannel(instanceId), 2000)
   }
 
   app.on('connection', async (connection) => {
@@ -27,19 +14,14 @@ export default (app: Application): void => {
         const token = (connection as any).socketQuery?.token
         if (token != null) {
           const authResult = await app.service('authentication').strategies.jwt.authenticate({ accessToken: token }, {})
-          console.log('Auth Result:')
-          console.log(authResult)
           const identityProvider = authResult['identity-provider']
           if (identityProvider != null) {
             const userId = identityProvider.userId
-            console.log(userId)
-            console.log('Connected to gameserver')
             const locationId = (connection as any).socketQuery.locationId
             const agonesSDK = (app as any).agonesSDK
             const gsResult = await agonesSDK.getGameServer()
-            console.log(gsResult)
             const { status } = gsResult
-            if (status.state === 'Ready') {
+            if (status.state === 'Ready' || (process.env.NODE_ENV === 'development' && status.state === 'Shutdown')) {
               const selfIpAddress = `${(status.address as string)}:${(status.portsList[0].port as string)}`
               const instanceResult = await app.service('instance').create({
                 currentUsers: 1,
@@ -48,10 +30,21 @@ export default (app: Application): void => {
               })
               await agonesSDK.allocate();
               (app as any).instance = instanceResult
-              pingInstanceChannel((app as any).instance.id)
-              app.service('instance-provision').on('created', (data: any) => {
-                console.log('Server-side instance-provision created listener triggered')
-              })
+              // Here's an example of sending data to the channel 'instanceIds/<instanceId>'
+              // This .publish is a publish handler that controls which connections to send data to.
+              // app.service('instance-provision').publish('created', async (data): Promise<any> => {
+              //   const channelName = `instanceIds/${(app as any).instance.id}`
+              //   return app.channel(channelName).send({
+              //      data: data
+              //   })
+              // })
+              //  This is how you could manually emit data on a service method
+              //  app.service('instance-provision').emit('created', {
+              //   type: 'created',
+              //   data: {
+              //     cool: 'pants'
+              //   }
+              // })
             } else {
               const instance = await app.service('instance').get((app as any).instance.id)
               await app.service('instance').patch((app as any).instance.id, {
@@ -76,13 +69,9 @@ export default (app: Application): void => {
     console.log(connection)
     if ((process.env.KUBERNETES === 'true' && process.env.SERVER_MODE === 'realtime') || (process.env.NODE_ENV === 'development')) {
       try {
-        console.log('realtime disconnect')
-        console.log(connection)
         const token = (connection as any).socketQuery?.token
         if (token != null) {
           const authResult = await app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {})
-          console.log('Auth Result:')
-          console.log(authResult)
           const identityProvider = authResult['identity-provider']
           if (identityProvider != null) {
             const userId = identityProvider.userId
@@ -98,6 +87,7 @@ export default (app: Application): void => {
 
             if (instance.currentUsers === 1) {
               await app.service('instance').remove((app as any).instance.id)
+              delete (app as any).instance
               await (app as any).agonesSDK.shutdown()
             }
           }
