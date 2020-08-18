@@ -17,6 +17,7 @@ import { DefaultStateSchema } from '../../state/defaults/DefaultStateSchema';
 import { DefaultInputSchema } from '../../input/defaults/DefaultInputSchema';
 import { Subscription } from '../../subscription/components/Subscription';
 import { DefaultSubscriptionSchema } from '../../subscription/defaults/DefaultSubscriptionSchema';
+import { SocketWebRTCClientTransport } from '../transports/SocketWebRTC/SocketWebRTCClientTransport';
 
 const box = new BoxBufferGeometry(0.25, 0.25, 0.25);
 const miniGeo = new BoxBufferGeometry(2, 1, 4);
@@ -88,7 +89,7 @@ export const DefaultPrefabs: Array<{
 ];
 
 export const DefaultNetworkSchema: NetworkSchema = {
-  transport: null,
+  transport: SocketWebRTCClientTransport,
   messageHandlers: {
     [MessageTypes.ClientConnected]: {
       behavior: handleClientConnected

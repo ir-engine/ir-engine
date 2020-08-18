@@ -1,5 +1,5 @@
 
-import { queryKeyFromComponents } from '../functions/Utils';
+import { queryKeyFromComponents } from '../functions/ComponentFunctions';
 import { Component } from './Component';
 import { ComponentConstructor } from '../interfaces/ComponentInterfaces';
 import { Entity } from './Entity';

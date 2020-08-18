@@ -1,9 +1,9 @@
 import { hasWindow } from "../../common/functions/hasWindow";
-import { now } from "./now";
 import { System } from '../classes/System';
 import { executeSystem } from './SystemFunctions';
 import { Engine } from '../classes/Engine';
 import { EngineOptions } from '../interfaces/EngineOptions';
+import { now } from "../../common/functions/now";
 
 /**
  * Initialize options on the engine object and fire a command for devtools

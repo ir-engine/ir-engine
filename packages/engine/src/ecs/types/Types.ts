@@ -67,6 +67,7 @@ export function createType<T, D> (typeDefinition: PropTypeDefinition<T, D>): Pro
 
 /**
  * Standard types
+ * NOTE: Use ref for attaching objects to this entity unless you want to make the object clonable
  */
 export const Types = {
   Number: createType({
