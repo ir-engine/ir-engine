@@ -1,7 +1,7 @@
-import { PerspectiveCamera, ShaderMaterial, Uniform, Vector2 } from "three";
+import { PerspectiveCamera, ShaderMaterial, Uniform, Vector2 } from 'three';
 
-import fragmentTemplate from "./glsl/effect/shader.frag";
-import vertexTemplate from "./glsl/effect/shader.vert";
+import fragmentTemplate from './glsl/effect/shader.frag';
+import vertexTemplate from './glsl/effect/shader.vert';
 
 /**
  * An effect material for compound shaders.
@@ -12,8 +12,7 @@ import vertexTemplate from "./glsl/effect/shader.vert";
  */
 
 export class EffectMaterial extends ShaderMaterial {
-
-	/**
+  /**
 	 * Constructs a new effect material.
 	 *
 	 * @param {Map<String, String>} [shaderParts=null] - A collection of shader snippets. See {@link Section}.
@@ -23,72 +22,62 @@ export class EffectMaterial extends ShaderMaterial {
 	 * @param {Boolean} [dithering=false] - Whether dithering should be enabled.
 	 */
 
-	constructor(shaderParts = null, defines = null, uniforms = null, camera = null, dithering = false) {
+  constructor (shaderParts = null, defines = null, uniforms = null, camera = null, dithering = false) {
+    super({
 
-		super({
+      type: 'EffectMaterial',
 
-			type: "EffectMaterial",
+      defines: {
+        DEPTH_PACKING: '0',
+        ENCODE_OUTPUT: '1'
+      },
 
-			defines: {
-				DEPTH_PACKING: "0",
-				ENCODE_OUTPUT: "1"
-			},
+      uniforms: {
+        inputBuffer: new Uniform(null),
+        depthBuffer: new Uniform(null),
+        resolution: new Uniform(new Vector2()),
+        texelSize: new Uniform(new Vector2()),
+        cameraNear: new Uniform(0.3),
+        cameraFar: new Uniform(1000.0),
+        aspect: new Uniform(1.0),
+        time: new Uniform(0.0)
+      },
 
-			uniforms: {
-				inputBuffer: new Uniform(null),
-				depthBuffer: new Uniform(null),
-				resolution: new Uniform(new Vector2()),
-				texelSize: new Uniform(new Vector2()),
-				cameraNear: new Uniform(0.3),
-				cameraFar: new Uniform(1000.0),
-				aspect: new Uniform(1.0),
-				time: new Uniform(0.0)
-			},
+      depthWrite: false,
+      depthTest: false,
+      dithering
 
-			depthWrite: false,
-			depthTest: false,
-			dithering
+    });
 
-		});
+    /** @ignore */
+    this.toneMapped = false;
 
-		/** @ignore */
-		this.toneMapped = false;
+    if (shaderParts !== null) {
+      this.setShaderParts(shaderParts);
+    }
 
-		if(shaderParts !== null) {
+    if (defines !== null) {
+      this.setDefines(defines);
+    }
 
-			this.setShaderParts(shaderParts);
+    if (uniforms !== null) {
+      this.setUniforms(uniforms);
+    }
 
-		}
+    this.adoptCameraSettings(camera);
+  }
 
-		if(defines !== null) {
-
-			this.setDefines(defines);
-
-		}
-
-		if(uniforms !== null) {
-
-			this.setUniforms(uniforms);
-
-		}
-
-		this.adoptCameraSettings(camera);
-
-	}
-
-	/**
+  /**
 	 * The current depth packing.
 	 *
 	 * @type {Number}
 	 */
 
-	get depthPacking() {
+  get depthPacking () {
+    return Number(this.defines.DEPTH_PACKING);
+  }
 
-		return Number(this.defines.DEPTH_PACKING);
-
-	}
-
-	/**
+  /**
 	 * Sets the depth packing.
 	 *
 	 * Use `BasicDepthPacking` or `RGBADepthPacking` if your depth texture
@@ -97,124 +86,101 @@ export class EffectMaterial extends ShaderMaterial {
 	 * @type {Number}
 	 */
 
-	set depthPacking(value) {
+  set depthPacking (value) {
+    this.defines.DEPTH_PACKING = value.toFixed(0);
+    this.needsUpdate = true;
+  }
 
-		this.defines.DEPTH_PACKING = value.toFixed(0);
-		this.needsUpdate = true;
-
-	}
-
-	/**
+  /**
 	 * Sets the shader parts.
 	 *
 	 * @param {Map<String, String>} shaderParts - A collection of shader snippets. See {@link Section}.
 	 * @return {EffectMaterial} This material.
 	 */
 
-	setShaderParts(shaderParts) {
+  setShaderParts (shaderParts) {
+    this.fragmentShader = fragmentTemplate
+      .replace(Section.FRAGMENT_HEAD, shaderParts.get(Section.FRAGMENT_HEAD))
+      .replace(Section.FRAGMENT_MAIN_UV, shaderParts.get(Section.FRAGMENT_MAIN_UV))
+      .replace(Section.FRAGMENT_MAIN_IMAGE, shaderParts.get(Section.FRAGMENT_MAIN_IMAGE));
 
-		this.fragmentShader = fragmentTemplate
-			.replace(Section.FRAGMENT_HEAD, shaderParts.get(Section.FRAGMENT_HEAD))
-			.replace(Section.FRAGMENT_MAIN_UV, shaderParts.get(Section.FRAGMENT_MAIN_UV))
-			.replace(Section.FRAGMENT_MAIN_IMAGE, shaderParts.get(Section.FRAGMENT_MAIN_IMAGE));
+    this.vertexShader = vertexTemplate
+      .replace(Section.VERTEX_HEAD, shaderParts.get(Section.VERTEX_HEAD))
+      .replace(Section.VERTEX_MAIN_SUPPORT, shaderParts.get(Section.VERTEX_MAIN_SUPPORT));
 
-		this.vertexShader = vertexTemplate
-			.replace(Section.VERTEX_HEAD, shaderParts.get(Section.VERTEX_HEAD))
-			.replace(Section.VERTEX_MAIN_SUPPORT, shaderParts.get(Section.VERTEX_MAIN_SUPPORT));
+    this.needsUpdate = true;
 
-		this.needsUpdate = true;
+    return this;
+  }
 
-		return this;
-
-	}
-
-	/**
+  /**
 	 * Sets the shader macros.
 	 *
 	 * @param {Map<String, String>} defines - A collection of preprocessor macro definitions.
 	 * @return {EffectMaterial} This material.
 	 */
 
-	setDefines(defines) {
+  setDefines (defines) {
+    for (const entry of defines.entries()) {
+      this.defines[entry[0]] = entry[1];
+    }
 
-		for(const entry of defines.entries()) {
+    this.needsUpdate = true;
 
-			this.defines[entry[0]] = entry[1];
+    return this;
+  }
 
-		}
-
-		this.needsUpdate = true;
-
-		return this;
-
-	}
-
-	/**
+  /**
 	 * Sets the shader uniforms.
 	 *
 	 * @param {Map<String, Uniform>} uniforms - A collection of uniforms.
 	 * @return {EffectMaterial} This material.
 	 */
 
-	setUniforms(uniforms) {
+  setUniforms (uniforms) {
+    for (const entry of uniforms.entries()) {
+      this.uniforms[entry[0]] = entry[1];
+    }
 
-		for(const entry of uniforms.entries()) {
+    return this;
+  }
 
-			this.uniforms[entry[0]] = entry[1];
-
-		}
-
-		return this;
-
-	}
-
-	/**
+  /**
 	 * Adopts the settings of the given camera.
 	 *
 	 * @param {Camera} [camera=null] - A camera.
 	 */
 
-	adoptCameraSettings(camera = null) {
+  adoptCameraSettings (camera = null) {
+    if (camera !== null) {
+      this.uniforms.cameraNear.value = camera.near;
+      this.uniforms.cameraFar.value = camera.far;
 
-		if(camera !== null) {
+      if (camera instanceof PerspectiveCamera) {
+        this.defines.PERSPECTIVE_CAMERA = '1';
+      } else {
+        delete this.defines.PERSPECTIVE_CAMERA;
+      }
 
-			this.uniforms.cameraNear.value = camera.near;
-			this.uniforms.cameraFar.value = camera.far;
+      this.needsUpdate = true;
+    }
+  }
 
-			if(camera instanceof PerspectiveCamera) {
-
-				this.defines.PERSPECTIVE_CAMERA = "1";
-
-			} else {
-
-				delete this.defines.PERSPECTIVE_CAMERA;
-
-			}
-
-			this.needsUpdate = true;
-
-		}
-
-	}
-
-	/**
+  /**
 	 * Sets the resolution.
 	 *
 	 * @param {Number} width - The width.
 	 * @param {Number} height - The height.
 	 */
 
-	setSize(width, height) {
+  setSize (width, height) {
+    const w = Math.max(width, 1);
+    const h = Math.max(height, 1);
 
-		const w = Math.max(width, 1);
-		const h = Math.max(height, 1);
-
-		this.uniforms.resolution.value.set(w, h);
-		this.uniforms.texelSize.value.set(1.0 / w, 1.0 / h);
-		this.uniforms.aspect.value = w / h;
-
-	}
-
+    this.uniforms.resolution.value.set(w, h);
+    this.uniforms.texelSize.value.set(1.0 / w, 1.0 / h);
+    this.uniforms.aspect.value = w / h;
+  }
 }
 
 /**
@@ -230,10 +196,10 @@ export class EffectMaterial extends ShaderMaterial {
 
 export const Section = {
 
-	FRAGMENT_HEAD: "FRAGMENT_HEAD",
-	FRAGMENT_MAIN_UV: "FRAGMENT_MAIN_UV",
-	FRAGMENT_MAIN_IMAGE: "FRAGMENT_MAIN_IMAGE",
-	VERTEX_HEAD: "VERTEX_HEAD",
-	VERTEX_MAIN_SUPPORT: "VERTEX_MAIN_SUPPORT"
+  FRAGMENT_HEAD: 'FRAGMENT_HEAD',
+  FRAGMENT_MAIN_UV: 'FRAGMENT_MAIN_UV',
+  FRAGMENT_MAIN_IMAGE: 'FRAGMENT_MAIN_IMAGE',
+  VERTEX_HEAD: 'VERTEX_HEAD',
+  VERTEX_MAIN_SUPPORT: 'VERTEX_MAIN_SUPPORT'
 
 };

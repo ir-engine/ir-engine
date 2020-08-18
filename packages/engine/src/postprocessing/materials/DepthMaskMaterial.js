@@ -1,7 +1,7 @@
-import { ShaderMaterial, Uniform } from "three";
+import { ShaderMaterial, Uniform } from 'three';
 
-import fragmentShader from "./glsl/depth-mask/shader.frag";
-import vertexShader from "./glsl/common/shader.vert";
+import fragmentShader from './glsl/depth-mask/shader.frag';
+import vertexShader from './glsl/common/shader.vert';
 
 /**
  * A depth mask shader material.
@@ -10,39 +10,35 @@ import vertexShader from "./glsl/common/shader.vert";
  */
 
 export class DepthMaskMaterial extends ShaderMaterial {
-
-	/**
+  /**
 	 * Constructs a new depth mask material.
 	 */
 
-	constructor() {
+  constructor () {
+    super({
 
-		super({
+      type: 'DepthMaskMaterial',
 
-			type: "DepthMaskMaterial",
+      defines: {
+        DEPTH_PACKING_0: '0',
+        DEPTH_PACKING_1: '0'
+      },
 
-			defines: {
-				DEPTH_PACKING_0: "0",
-				DEPTH_PACKING_1: "0"
-			},
+      uniforms: {
+        depthBuffer0: new Uniform(null),
+        depthBuffer1: new Uniform(null),
+        inputBuffer: new Uniform(null)
+      },
 
-			uniforms: {
-				depthBuffer0: new Uniform(null),
-				depthBuffer1: new Uniform(null),
-				inputBuffer: new Uniform(null)
-			},
+      fragmentShader,
+      vertexShader,
 
-			fragmentShader,
-			vertexShader,
+      depthWrite: false,
+      depthTest: false
 
-			depthWrite: false,
-			depthTest: false
+    });
 
-		});
-
-		/** @ignore */
-		this.toneMapped = false;
-
-	}
-
+    /** @ignore */
+    this.toneMapped = false;
+  }
 }

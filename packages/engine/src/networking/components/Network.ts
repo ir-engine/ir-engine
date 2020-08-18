@@ -1,10 +1,10 @@
 // TODO: Clean me up, add schema, etc
-import { RingBuffer } from "../../common/classes/RingBuffer"
-import { Message } from "../interfaces/Message"
-import { NetworkSchema } from "../interfaces/NetworkSchema"
-import { NetworkTransport } from "../interfaces/NetworkTransport"
-import { Component } from "../../ecs/classes/Component"
-import { Types } from "../../ecs/types/Types"
+import { RingBuffer } from '../../common/classes/RingBuffer';
+import { Message } from '../interfaces/Message';
+import { NetworkSchema } from '../interfaces/NetworkSchema';
+import { NetworkTransport } from '../interfaces/NetworkTransport';
+import { Component } from '../../ecs/classes/Component';
+import { Types } from '../../ecs/types/Types';
 
 export class Network extends Component<any> {
   static instance: Network = null
@@ -18,9 +18,9 @@ export class Network extends Component<any> {
   incomingReliableQueue: RingBuffer<Message> = new RingBuffer<Message>(200)
   incomingUnreliableQueue: RingBuffer<Message> = new RingBuffer<Message>(200)
   static Network: any
-  constructor() {
-    super()
-    Network.instance = this
+  constructor () {
+    super();
+    Network.instance = this;
   }
 }
 
@@ -34,4 +34,4 @@ Network.schema = {
   outgoingUnreliableQueue: { type: Types.Ref, default: new RingBuffer<Message>(200) },
   incomingReliableQueue: { type: Types.Ref, default: new RingBuffer<Message>(200) },
   incomingUnreliableQueue: { type: Types.Ref, default: new RingBuffer<Message>(200) }
-}
+};

@@ -6,4 +6,4 @@ export const AssetClass = {
   Document: 4,
   Text: 5,
   Script: 6
-}
+};

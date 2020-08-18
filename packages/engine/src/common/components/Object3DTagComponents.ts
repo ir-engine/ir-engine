@@ -1,5 +1,5 @@
 // Components for every Object3D in the three.js core library
-import { Component } from "../../ecs/classes/Component"
+import { Component } from '../../ecs/classes/Component';
 
 // audio
 export class AudioTagComponent extends Component<AudioTagComponent> {

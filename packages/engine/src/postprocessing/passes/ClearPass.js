@@ -1,5 +1,5 @@
-import { Color } from "three";
-import { Pass } from "./Pass.js";
+import { Color } from 'three';
+import { Pass } from './Pass.js';
 
 /**
  * Stores the original clear color of the renderer.
@@ -15,8 +15,7 @@ const color = new Color();
  */
 
 export class ClearPass extends Pass {
-
-	/**
+  /**
 	 * Constructs a new clear pass.
 	 *
 	 * @param {Boolean} [color=true] - Determines whether the color buffer should be cleared.
@@ -24,37 +23,36 @@ export class ClearPass extends Pass {
 	 * @param {Boolean} [stencil=false] - Determines whether the stencil buffer should be cleared.
 	 */
 
-	constructor(color = true, depth = true, stencil = false) {
+  constructor (color = true, depth = true, stencil = false) {
+    super('ClearPass', null, null);
 
-		super("ClearPass", null, null);
+    this.needsSwap = false;
 
-		this.needsSwap = false;
-
-		/**
+    /**
 		 * Indicates whether the color buffer should be cleared.
 		 *
 		 * @type {Boolean}
 		 */
 
-		this.color = color;
+    this.color = color;
 
-		/**
+    /**
 		 * Indicates whether the depth buffer should be cleared.
 		 *
 		 * @type {Boolean}
 		 */
 
-		this.depth = depth;
+    this.depth = depth;
 
-		/**
+    /**
 		 * Indicates whether the stencil buffer should be cleared.
 		 *
 		 * @type {Boolean}
 		 */
 
-		this.stencil = stencil;
+    this.stencil = stencil;
 
-		/**
+    /**
 		 * An override clear color.
 		 *
 		 * The default value is null.
@@ -62,9 +60,9 @@ export class ClearPass extends Pass {
 		 * @type {Color}
 		 */
 
-		this.overrideClearColor = null;
+    this.overrideClearColor = null;
 
-		/**
+    /**
 		 * An override clear alpha.
 		 *
 		 * The default value is -1.
@@ -72,11 +70,10 @@ export class ClearPass extends Pass {
 		 * @type {Number}
 		 */
 
-		this.overrideClearAlpha = -1.0;
+    this.overrideClearAlpha = -1.0;
+  }
 
-	}
-
-	/**
+  /**
 	 * Clears the input buffer or the screen.
 	 *
 	 * @param {WebGLRenderer} renderer - The renderer.
@@ -86,40 +83,29 @@ export class ClearPass extends Pass {
 	 * @param {Boolean} [stencilTest] - Indicates whether a stencil mask is active.
 	 */
 
-	render(renderer, inputBuffer, outputBuffer, deltaTime, stencilTest) {
+  render (renderer, inputBuffer, outputBuffer, deltaTime, stencilTest) {
+    const overrideClearColor = this.overrideClearColor;
+    const overrideClearAlpha = this.overrideClearAlpha;
+    const clearAlpha = renderer.getClearAlpha();
 
-		const overrideClearColor = this.overrideClearColor;
-		const overrideClearAlpha = this.overrideClearAlpha;
-		const clearAlpha = renderer.getClearAlpha();
+    const hasOverrideClearColor = (overrideClearColor !== null);
+    const hasOverrideClearAlpha = (overrideClearAlpha >= 0.0);
 
-		const hasOverrideClearColor = (overrideClearColor !== null);
-		const hasOverrideClearAlpha = (overrideClearAlpha >= 0.0);
+    if (hasOverrideClearColor) {
+      color.copy(renderer.getClearColor());
+      renderer.setClearColor(overrideClearColor, hasOverrideClearAlpha
+        ? overrideClearAlpha : clearAlpha);
+    } else if (hasOverrideClearAlpha) {
+      renderer.setClearAlpha(overrideClearAlpha);
+    }
 
-		if(hasOverrideClearColor) {
+    renderer.setRenderTarget(this.renderToScreen ? null : inputBuffer);
+    renderer.clear(this.color, this.depth, this.stencil);
 
-			color.copy(renderer.getClearColor());
-			renderer.setClearColor(overrideClearColor, hasOverrideClearAlpha ?
-				overrideClearAlpha : clearAlpha);
-
-		} else if(hasOverrideClearAlpha) {
-
-			renderer.setClearAlpha(overrideClearAlpha);
-
-		}
-
-		renderer.setRenderTarget(this.renderToScreen ? null : inputBuffer);
-		renderer.clear(this.color, this.depth, this.stencil);
-
-		if(hasOverrideClearColor) {
-
-			renderer.setClearColor(color, clearAlpha);
-
-		} else if(hasOverrideClearAlpha) {
-
-			renderer.setClearAlpha(clearAlpha);
-
-		}
-
-	}
-
+    if (hasOverrideClearColor) {
+      renderer.setClearColor(color, clearAlpha);
+    } else if (hasOverrideClearAlpha) {
+      renderer.setClearAlpha(clearAlpha);
+    }
+  }
 }

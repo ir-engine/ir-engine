@@ -3,8 +3,8 @@
  * @param {Component} Component
  * @private
  */
-export function getName(Component) {
-  return Component.getName()
+export function getName (Component) {
+  return Component.getName();
 }
 
 /**
@@ -12,8 +12,8 @@ export function getName(Component) {
  * @param {Component} Component
  * @private
  */
-export function componentPropertyName(Component) {
-  return getName(Component)
+export function componentPropertyName (Component) {
+  return getName(Component);
 }
 
 /**
@@ -21,33 +21,33 @@ export function componentPropertyName(Component) {
  * @param {Array(Component)} Components Array of components to generate the key
  * @private
  */
-export function queryKey(Components) {
-  const ids = []
+export function queryKey (Components) {
+  const ids = [];
   for (let n = 0; n < Components.length; n++) {
-    const T = Components[n]
+    const T = Components[n];
 
     if (!componentRegistered(T)) {
-      throw new Error(`Tried to create a query with an unregistered component`)
+      throw new Error('Tried to create a query with an unregistered component');
     }
 
-    if (typeof T === "object") {
-      const operator = T.operator === "not" ? "!" : T.operator
-      ids.push(operator + T.Component._typeId)
+    if (typeof T === 'object') {
+      const operator = T.operator === 'not' ? '!' : T.operator;
+      ids.push(operator + T.Component._typeId);
     } else {
-      ids.push(T._typeId)
+      ids.push(T._typeId);
     }
   }
 
-  return ids.sort().join("-")
+  return ids.sort().join('-');
 }
 
 // Detector for browser's "window"
-export const hasWindow = typeof window !== "undefined"
+export const hasWindow = typeof window !== 'undefined';
 
 // performance.now() "polyfill"
 export const now =
-  hasWindow && typeof window.performance !== "undefined" ? performance.now.bind(performance) : Date.now.bind(Date)
+  hasWindow && typeof window.performance !== 'undefined' ? performance.now.bind(performance) : Date.now.bind(Date);
 
-export function componentRegistered(T) {
-  return (typeof T === "object" && T.Component._typeId !== undefined) || (T.isComponent && T._typeId !== undefined)
+export function componentRegistered (T) {
+  return (typeof T === 'object' && T.Component._typeId !== undefined) || (T._typeId !== undefined);
 }

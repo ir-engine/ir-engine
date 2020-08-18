@@ -1,8 +1,8 @@
-import { Uniform, Vector4 } from "three";
-import { BlendFunction } from "./blending/BlendFunction.js";
-import { Effect, EffectAttribute } from "./Effect.js";
+import { Uniform, Vector4 } from 'three';
+import { BlendFunction } from './blending/BlendFunction.js';
+import { Effect, EffectAttribute } from './Effect.js';
 
-import fragmentShader from "./glsl/realistic-bokeh/shader.frag";
+import fragmentShader from './glsl/realistic-bokeh/shader.frag';
 
 /**
  * Depth of Field shader v2.4.
@@ -16,8 +16,7 @@ import fragmentShader from "./glsl/realistic-bokeh/shader.frag";
  */
 
 export class RealisticBokehEffect extends Effect {
-
-	/**
+  /**
 	 * Constructs a new bokeh effect.
 	 *
 	 * @param {Object} [options] - The options.
@@ -37,145 +36,125 @@ export class RealisticBokehEffect extends Effect {
 	 * @param {Boolean} [options.pentagon=false] - Enables pentagonal blur shapes. Requires a high number of rings and samples.
 	 */
 
-	constructor({
-		blendFunction = BlendFunction.NORMAL,
-		focus = 1.0,
-		focalLength = 24.0,
-		fStop = 0.9,
-		luminanceThreshold = 0.5,
-		luminanceGain = 2.0,
-		bias = 0.5,
-		fringe = 0.7,
-		maxBlur = 1.0,
-		rings = 3,
-		samples = 2,
-		showFocus = false,
-		manualDoF = false,
-		pentagon = false
-	} = {}) {
+  constructor ({
+    blendFunction = BlendFunction.NORMAL,
+    focus = 1.0,
+    focalLength = 24.0,
+    fStop = 0.9,
+    luminanceThreshold = 0.5,
+    luminanceGain = 2.0,
+    bias = 0.5,
+    fringe = 0.7,
+    maxBlur = 1.0,
+    rings = 3,
+    samples = 2,
+    showFocus = false,
+    manualDoF = false,
+    pentagon = false
+  } = {}) {
+    super('RealisticBokehEffect', fragmentShader, {
 
-		super("RealisticBokehEffect", fragmentShader, {
+      blendFunction,
+      attributes: EffectAttribute.CONVOLUTION | EffectAttribute.DEPTH,
 
-			blendFunction,
-			attributes: EffectAttribute.CONVOLUTION | EffectAttribute.DEPTH,
+      uniforms: new Map([
+        ['focus', new Uniform(focus)],
+        ['focalLength', new Uniform(focalLength)],
+        ['fStop', new Uniform(fStop)],
+        ['luminanceThreshold', new Uniform(luminanceThreshold)],
+        ['luminanceGain', new Uniform(luminanceGain)],
+        ['bias', new Uniform(bias)],
+        ['fringe', new Uniform(fringe)],
+        ['maxBlur', new Uniform(maxBlur)],
+        ['dof', new Uniform(null)]
+      ])
 
-			uniforms: new Map([
-				["focus", new Uniform(focus)],
-				["focalLength", new Uniform(focalLength)],
-				["fStop", new Uniform(fStop)],
-				["luminanceThreshold", new Uniform(luminanceThreshold)],
-				["luminanceGain", new Uniform(luminanceGain)],
-				["bias", new Uniform(bias)],
-				["fringe", new Uniform(fringe)],
-				["maxBlur", new Uniform(maxBlur)],
-				["dof", new Uniform(null)]
-			])
+    });
 
-		});
+    this.rings = rings;
+    this.samples = samples;
+    this.showFocus = showFocus;
+    this.manualDoF = manualDoF;
+    this.pentagon = pentagon;
+  }
 
-		this.rings = rings;
-		this.samples = samples;
-		this.showFocus = showFocus;
-		this.manualDoF = manualDoF;
-		this.pentagon = pentagon;
-
-	}
-
-	/**
+  /**
 	 * The amount of blur iterations.
 	 *
 	 * @type {Number}
 	 */
 
-	get rings() {
+  get rings () {
+    return Number.parseInt(this.defines.get('RINGS_INT'));
+  }
 
-		return Number.parseInt(this.defines.get("RINGS_INT"));
-
-	}
-
-	/**
+  /**
 	 * Sets the amount of blur iterations.
 	 *
 	 * @type {Number}
 	 */
 
-	set rings(value) {
+  set rings (value) {
+    const r = Math.floor(value);
+    this.defines.set('RINGS_INT', r.toFixed(0));
+    this.defines.set('RINGS_FLOAT', r.toFixed(1));
 
-		const r = Math.floor(value);
-		this.defines.set("RINGS_INT", r.toFixed(0));
-		this.defines.set("RINGS_FLOAT", r.toFixed(1));
+    this.setChanged();
+  }
 
-		this.setChanged();
-
-	}
-
-	/**
+  /**
 	 * The amount of blur samples per ring.
 	 *
 	 * @type {Number}
 	 */
 
-	get samples() {
+  get samples () {
+    return Number.parseInt(this.defines.get('SAMPLES_INT'));
+  }
 
-		return Number.parseInt(this.defines.get("SAMPLES_INT"));
-
-	}
-
-	/**
+  /**
 	 * Sets the amount of blur samples per ring.
 	 *
 	 * @type {Number}
 	 */
 
-	set samples(value) {
+  set samples (value) {
+    const s = Math.floor(value);
+    this.defines.set('SAMPLES_INT', s.toFixed(0));
+    this.defines.set('SAMPLES_FLOAT', s.toFixed(1));
 
-		const s = Math.floor(value);
-		this.defines.set("SAMPLES_INT", s.toFixed(0));
-		this.defines.set("SAMPLES_FLOAT", s.toFixed(1));
+    this.setChanged();
+  }
 
-		this.setChanged();
-
-	}
-
-	/**
+  /**
 	 * Indicates whether the focal point will be highlighted.
 	 *
 	 * @type {Boolean}
 	 */
 
-	get showFocus() {
+  get showFocus () {
+    return this.defines.has('SHOW_FOCUS');
+  }
 
-		return this.defines.has("SHOW_FOCUS");
-
-	}
-
-	/**
+  /**
 	 * Enables or disables focal point highlighting.
 	 *
 	 * @type {Boolean}
 	 */
 
-	set showFocus(value) {
+  set showFocus (value) {
+    if (this.showFocus !== value) {
+      if (value) {
+        this.defines.set('SHOW_FOCUS', '1');
+      } else {
+        this.defines.delete('SHOW_FOCUS');
+      }
 
-		if(this.showFocus !== value) {
+      this.setChanged();
+    }
+  }
 
-			if(value) {
-
-				this.defines.set("SHOW_FOCUS", "1");
-
-			} else {
-
-				this.defines.delete("SHOW_FOCUS");
-
-			}
-
-			this.setChanged();
-
-		}
-
-	}
-
-	/**
+  /**
 	 * Indicates whether the Depth of Field should be calculated manually.
 	 *
 	 * If enabled, the Depth of Field can be adjusted via the `dof` uniform.
@@ -183,76 +162,55 @@ export class RealisticBokehEffect extends Effect {
 	 * @type {Boolean}
 	 */
 
-	get manualDoF() {
+  get manualDoF () {
+    return this.defines.has('MANUAL_DOF');
+  }
 
-		return this.defines.has("MANUAL_DOF");
-
-	}
-
-	/**
+  /**
 	 * Enables or disables manual Depth of Field.
 	 *
 	 * @type {Boolean}
 	 */
 
-	set manualDoF(value) {
+  set manualDoF (value) {
+    if (this.manualDoF !== value) {
+      if (value) {
+        this.defines.set('MANUAL_DOF', '1');
+        this.uniforms.get('dof').value = new Vector4(0.2, 1.0, 0.2, 2.0);
+      } else {
+        this.defines.delete('MANUAL_DOF');
+        this.uniforms.get('dof').value = null;
+      }
 
-		if(this.manualDoF !== value) {
+      this.setChanged();
+    }
+  }
 
-			if(value) {
-
-				this.defines.set("MANUAL_DOF", "1");
-				this.uniforms.get("dof").value = new Vector4(0.2, 1.0, 0.2, 2.0);
-
-			} else {
-
-				this.defines.delete("MANUAL_DOF");
-				this.uniforms.get("dof").value = null;
-
-			}
-
-			this.setChanged();
-
-		}
-
-	}
-
-	/**
+  /**
 	 * Indicates whether the blur shape should be pentagonal.
 	 *
 	 * @type {Boolean}
 	 */
 
-	get pentagon() {
+  get pentagon () {
+    return this.defines.has('PENTAGON');
+  }
 
-		return this.defines.has("PENTAGON");
-
-	}
-
-	/**
+  /**
 	 * Enables or disables pentagonal blur.
 	 *
 	 * @type {Boolean}
 	 */
 
-	set pentagon(value) {
+  set pentagon (value) {
+    if (this.pentagon !== value) {
+      if (value) {
+        this.defines.set('PENTAGON', '1');
+      } else {
+        this.defines.delete('PENTAGON');
+      }
 
-		if(this.pentagon !== value) {
-
-			if(value) {
-
-				this.defines.set("PENTAGON", "1");
-
-			} else {
-
-				this.defines.delete("PENTAGON");
-
-			}
-
-			this.setChanged();
-
-		}
-
-	}
-
+      this.setChanged();
+    }
+  }
 }
