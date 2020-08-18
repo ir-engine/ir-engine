@@ -120,5 +120,5 @@ export class Engine {
    * List of entities with components that will be removed this frame
    * @todo replace with a ring buffer and set buffer size in default options
    */
-  static executeSystems: any[] = []
+  static systemsToExecute: any[] = []
 }
