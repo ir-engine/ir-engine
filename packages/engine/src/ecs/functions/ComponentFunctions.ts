@@ -2,7 +2,6 @@ import { Component } from '../classes/Component';
 import { ComponentConstructor } from '../interfaces/ComponentInterfaces';
 import { ObjectPool } from '../classes/ObjectPool';
 import { Engine } from '../classes/Engine';
-import { getName } from './Utils';
 import { NotComponent } from '../classes/System';
 
 const proxyMap = new WeakMap();
@@ -99,4 +98,54 @@ export function hasRegisteredComponent<C extends Component<any>> (Component: Com
  */
 export function getPoolForComponent (component: Component<any>): void {
   Engine.componentPool[component._typeId];
+}
+
+/**
+ * Get a key from a list of components
+ * @param {Array(Component)} Components Array of components to generate the key
+ * @private
+ */
+export function queryKeyFromComponents (Components) {
+  const ids = [];
+  for (let n = 0; n < Components.length; n++) {
+    const T = Components[n];
+
+    if (!componentRegistered(T)) {
+      throw new Error('Tried to create a query with an unregistered component');
+    }
+
+    if (typeof T === 'object') {
+      const operator = T.operator === 'not' ? '!' : T.operator;
+      ids.push(operator + T.Component._typeId);
+    } else {
+      ids.push(T._typeId);
+    }
+  }
+
+  return ids.sort().join('-');
+}
+
+  /**
+ * check if component is registered
+ */
+export function componentRegistered (T) {
+  return (typeof T === 'object' && T.Component._typeId !== undefined) || (T._typeId !== undefined);
+}
+
+/**
+ * Return the name of a component
+ * @param {Component} Component
+ * @private
+ */
+export function getName (Component) {
+  return Component.getName();
+}
+
+/**
+ * Return a valid property name for the Component
+ * @param {Component} Component
+ * @private
+ */
+export function componentPropertyName (Component) {
+  return getName(Component);
 }

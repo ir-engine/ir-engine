@@ -1,4 +1,4 @@
-import { queryKey } from '../functions/Utils';
+import { queryKeyFromComponents } from '../functions/Utils';
 import { ComponentConstructor } from '../interfaces/ComponentInterfaces';
 import { EventDispatcher } from './EventDispatcher';
 import { Engine } from './Engine';
@@ -70,7 +70,7 @@ export class Query {
     // This query is being used by a reactive system
     this.reactive = false;
 
-    this.key = queryKey(Components);
+    this.key = queryKeyFromComponents(Components);
 
     // Fill the query with the existing entities
     for (let i = 0; i < Engine.entities.length; i++) {

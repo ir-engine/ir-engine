@@ -3,14 +3,14 @@ import { Engine } from '../../ecs/classes/Engine';
 import { MediaStreamComponent } from '../components/MediaStreamComponent';
 import { Network } from '../components/Network';
 import { localMediaConstraints } from '../constants/VideoConstants';
-import { getEntityByName, addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, getMutableComponent, createEntity } from '../../ecs/functions/EntityFunctions';
 
 export class MediaStreamSystem extends System {
   public static instance: MediaStreamSystem = null
-  init (attributes?:SystemAttributess): void {
-    const networkEntity = getEntityByName('network');
-    addComponent(networkEntity, MediaStreamComponent);
-    const mediaStreamComponent = getMutableComponent<MediaStreamComponent>(networkEntity, MediaStreamComponent);
+  init (): void {
+    const entity = createEntity()
+    addComponent(entity, MediaStreamComponent);
+    const mediaStreamComponent = getMutableComponent<MediaStreamComponent>(entity, MediaStreamComponent);
     MediaStreamComponent.instance = mediaStreamComponent;
   }
 
@@ -116,7 +116,7 @@ export class MediaStreamSystem extends System {
       return;
     }
     const elementID = `${peerId}_${consumer.kind}`;
-    let el = document.getElementById(elementID);
+    let el = document.getElementById(elementID) as any;
 
     // set some attributes on our audio and video elements to make
     // mobile Safari happy. note that for audio to play you need to be
