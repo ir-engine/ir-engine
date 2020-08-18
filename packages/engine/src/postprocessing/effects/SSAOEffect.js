@@ -1,20 +1,20 @@
 import {
-	Color,
-	LinearFilter,
-	RepeatWrapping,
-	RGBFormat,
-	Uniform,
-	WebGLRenderTarget
-} from "three";
+  Color,
+  LinearFilter,
+  RepeatWrapping,
+  RGBFormat,
+  Uniform,
+  WebGLRenderTarget
+} from 'three';
 
-import { BlendFunction } from "./blending/BlendFunction.js";
-import { Resizer } from "../core";
-import { NoiseTexture } from "../images";
-import { SSAOMaterial } from "../materials";
-import { ShaderPass } from "../passes";
-import { Effect, EffectAttribute } from "./Effect.js";
+import { BlendFunction } from './blending/BlendFunction.js';
+import { Resizer } from '../core';
+import { NoiseTexture } from '../images';
+import { SSAOMaterial } from '../materials';
+import { ShaderPass } from '../passes';
+import { Effect, EffectAttribute } from './Effect.js';
 
-import fragmentShader from "./glsl/ssao/shader.frag";
+import fragmentShader from './glsl/ssao/shader.frag';
 
 /**
  * The size of the generated noise texture.
@@ -47,8 +47,7 @@ const NOISE_TEXTURE_SIZE = 64;
  */
 
 export class SSAOEffect extends Effect {
-
-	/**
+  /**
 	 * Constructs a new SSAO effect.
 	 *
 	 * @todo Move normalBuffer to options.
@@ -77,331 +76,285 @@ export class SSAOEffect extends Effect {
 	 * @param {Number} [options.height=Resizer.AUTO_SIZE] - The render height.
 	 */
 
-	constructor(camera, normalBuffer, {
-		blendFunction = BlendFunction.MULTIPLY,
-		distanceScaling = true,
-		depthAwareUpsampling = true,
-		normalDepthBuffer = null,
-		samples = 9,
-		rings = 7,
-		distanceThreshold = 0.97,
-		distanceFalloff = 0.03,
-		rangeThreshold = 0.0005,
-		rangeFalloff = 0.001,
-		minRadiusScale = 0.33,
-		luminanceInfluence = 0.7,
-		radius = 0.1825,
-		intensity = 1.0,
-		bias = 0.025,
-		fade = 0.01,
-		color = null,
-		resolutionScale = 1.0,
-		width = Resizer.AUTO_SIZE,
-		height = Resizer.AUTO_SIZE
-	} = {}) {
+  constructor (camera, normalBuffer, {
+    blendFunction = BlendFunction.MULTIPLY,
+    distanceScaling = true,
+    depthAwareUpsampling = true,
+    normalDepthBuffer = null,
+    samples = 9,
+    rings = 7,
+    distanceThreshold = 0.97,
+    distanceFalloff = 0.03,
+    rangeThreshold = 0.0005,
+    rangeFalloff = 0.001,
+    minRadiusScale = 0.33,
+    luminanceInfluence = 0.7,
+    radius = 0.1825,
+    intensity = 1.0,
+    bias = 0.025,
+    fade = 0.01,
+    color = null,
+    resolutionScale = 1.0,
+    width = Resizer.AUTO_SIZE,
+    height = Resizer.AUTO_SIZE
+  } = {}) {
+    super('SSAOEffect', fragmentShader, {
 
-		super("SSAOEffect", fragmentShader, {
+      blendFunction,
+      attributes: EffectAttribute.DEPTH,
 
-			blendFunction,
-			attributes: EffectAttribute.DEPTH,
+      uniforms: new Map([
+        ['aoBuffer', new Uniform(null)],
+        ['normalDepthBuffer', new Uniform(null)],
+        ['luminanceInfluence', new Uniform(luminanceInfluence)],
+        ['color', new Uniform(null)],
+        ['scale', new Uniform(0.0)] // Unused.
+      ])
 
-			uniforms: new Map([
-				["aoBuffer", new Uniform(null)],
-				["normalDepthBuffer", new Uniform(null)],
-				["luminanceInfluence", new Uniform(luminanceInfluence)],
-				["color", new Uniform(null)],
-				["scale", new Uniform(0.0)] // Unused.
-			])
+    });
 
-		});
-
-		/**
+    /**
 		 * A render target for the ambient occlusion shadows.
 		 *
 		 * @type {WebGLRenderTarget}
 		 * @private
 		 */
 
-		this.renderTargetAO = new WebGLRenderTarget(1, 1, {
-			minFilter: LinearFilter,
-			magFilter: LinearFilter,
-			stencilBuffer: false,
-			depthBuffer: false,
-			format: RGBFormat
-		});
+    this.renderTargetAO = new WebGLRenderTarget(1, 1, {
+      minFilter: LinearFilter,
+      magFilter: LinearFilter,
+      stencilBuffer: false,
+      depthBuffer: false,
+      format: RGBFormat
+    });
 
-		this.renderTargetAO.texture.name = "AO.Target";
-		this.renderTargetAO.texture.generateMipmaps = false;
+    this.renderTargetAO.texture.name = 'AO.Target';
+    this.renderTargetAO.texture.generateMipmaps = false;
 
-		this.uniforms.get("aoBuffer").value = this.renderTargetAO.texture;
+    this.uniforms.get('aoBuffer').value = this.renderTargetAO.texture;
 
-		/**
+    /**
 		 * The resolution of this effect.
 		 *
 		 * @type {Resizer}
 		 */
 
-		this.resolution = new Resizer(this, width, height, resolutionScale);
+    this.resolution = new Resizer(this, width, height, resolutionScale);
 
-		/**
+    /**
 		 * The current radius relative to the render height.
 		 *
 		 * @type {Camera}
 		 * @private
 		 */
 
-		this.r = 1.0;
+    this.r = 1.0;
 
-		/**
+    /**
 		 * The main camera.
 		 *
 		 * @type {Camera}
 		 * @private
 		 */
 
-		this.camera = camera;
+    this.camera = camera;
 
-		/**
+    /**
 		 * An SSAO pass.
 		 *
 		 * @type {ShaderPass}
 		 * @private
 		 */
 
-		this.ssaoPass = new ShaderPass((() => {
+    this.ssaoPass = new ShaderPass((() => {
+      const noiseTexture = new NoiseTexture(NOISE_TEXTURE_SIZE, NOISE_TEXTURE_SIZE);
+      noiseTexture.wrapS = noiseTexture.wrapT = RepeatWrapping;
 
-			const noiseTexture = new NoiseTexture(NOISE_TEXTURE_SIZE, NOISE_TEXTURE_SIZE);
-			noiseTexture.wrapS = noiseTexture.wrapT = RepeatWrapping;
+      const material = new SSAOMaterial(camera);
+      material.uniforms.noiseTexture.value = noiseTexture;
+      material.uniforms.intensity.value = intensity;
+      material.uniforms.minRadiusScale.value = minRadiusScale;
+      material.uniforms.fade.value = fade;
+      material.uniforms.bias.value = bias;
 
-			const material = new SSAOMaterial(camera);
-			material.uniforms.noiseTexture.value = noiseTexture;
-			material.uniforms.intensity.value = intensity;
-			material.uniforms.minRadiusScale.value = minRadiusScale;
-			material.uniforms.fade.value = fade;
-			material.uniforms.bias.value = bias;
+      if (normalDepthBuffer !== null) {
+        material.uniforms.normalDepthBuffer.value = normalDepthBuffer;
+        material.defines.NORMAL_DEPTH = '1';
 
-			if(normalDepthBuffer !== null) {
+        if (depthAwareUpsampling) {
+          this.depthAwareUpsampling = depthAwareUpsampling;
+          this.uniforms.get('normalDepthBuffer').value = normalDepthBuffer;
+          this.defines.set('THRESHOLD', '0.997');
+        }
+      } else {
+        material.uniforms.normalBuffer.value = normalBuffer;
+      }
 
-				material.uniforms.normalDepthBuffer.value = normalDepthBuffer;
-				material.defines.NORMAL_DEPTH = "1";
+      return material;
+    })());
 
-				if(depthAwareUpsampling) {
+    this.distanceScaling = distanceScaling;
+    this.samples = samples;
+    this.rings = rings;
+    this.color = color;
 
-					this.depthAwareUpsampling = depthAwareUpsampling;
-					this.uniforms.get("normalDepthBuffer").value = normalDepthBuffer;
-					this.defines.set("THRESHOLD", "0.997");
+    // @todo Special case treatment added for backwards-compatibility.
+    this.radius = (radius > 1.0) ? (radius / 100.0) : radius;
 
-				}
+    this.setDistanceCutoff(distanceThreshold, distanceFalloff);
+    this.setProximityCutoff(rangeThreshold, rangeFalloff);
+  }
 
-			} else {
-
-				material.uniforms.normalBuffer.value = normalBuffer;
-
-			}
-
-			return material;
-
-		})());
-
-		this.distanceScaling = distanceScaling;
-		this.samples = samples;
-		this.rings = rings;
-		this.color = color;
-
-		// @todo Special case treatment added for backwards-compatibility.
-		this.radius = (radius > 1.0) ? (radius / 100.0) : radius;
-
-		this.setDistanceCutoff(distanceThreshold, distanceFalloff);
-		this.setProximityCutoff(rangeThreshold, rangeFalloff);
-
-	}
-
-	/**
+  /**
 	 * The SSAO material.
 	 *
 	 * @type {SSAOMaterial}
 	 */
 
-	get ssaoMaterial() {
+  get ssaoMaterial () {
+    return this.ssaoPass.getFullscreenMaterial();
+  }
 
-		return this.ssaoPass.getFullscreenMaterial();
-
-	}
-
-	/**
+  /**
 	 * The amount of occlusion samples per pixel.
 	 *
 	 * @type {Number}
 	 */
 
-	get samples() {
+  get samples () {
+    return Number(this.ssaoMaterial.defines.SAMPLES_INT);
+  }
 
-		return Number(this.ssaoMaterial.defines.SAMPLES_INT);
-
-	}
-
-	/**
+  /**
 	 * Sets the amount of occlusion samples per pixel.
 	 *
 	 * @type {Number}
 	 */
 
-	set samples(value) {
+  set samples (value) {
+    const material = this.ssaoMaterial;
+    material.defines.SAMPLES_INT = value.toFixed(0);
+    material.defines.SAMPLES_FLOAT = value.toFixed(1);
+    material.needsUpdate = true;
+  }
 
-		const material = this.ssaoMaterial;
-		material.defines.SAMPLES_INT = value.toFixed(0);
-		material.defines.SAMPLES_FLOAT = value.toFixed(1);
-		material.needsUpdate = true;
-
-	}
-
-	/**
+  /**
 	 * The amount of spiral turns in the occlusion sampling pattern.
 	 *
 	 * @type {Number}
 	 */
 
-	get rings() {
+  get rings () {
+    return Number(this.ssaoMaterial.defines.SPIRAL_TURNS);
+  }
 
-		return Number(this.ssaoMaterial.defines.SPIRAL_TURNS);
-
-	}
-
-	/**
+  /**
 	 * Sets the amount of spiral turns in the occlusion sampling pattern.
 	 *
 	 * @type {Number}
 	 */
 
-	set rings(value) {
+  set rings (value) {
+    const material = this.ssaoMaterial;
+    material.defines.SPIRAL_TURNS = value.toFixed(1);
+    material.needsUpdate = true;
+  }
 
-		const material = this.ssaoMaterial;
-		material.defines.SPIRAL_TURNS = value.toFixed(1);
-		material.needsUpdate = true;
-
-	}
-
-	/**
+  /**
 	 * The occlusion sampling radius.
 	 *
 	 * @type {Number}
 	 */
 
-	get radius() {
+  get radius () {
+    return this.r;
+  }
 
-		return this.r;
-
-	}
-
-	/**
+  /**
 	 * Sets the occlusion sampling radius. Range [1e-6, 1.0].
 	 *
 	 * @type {Number}
 	 */
 
-	set radius(value) {
+  set radius (value) {
+    this.r = Math.min(Math.max(value, 1e-6), 1.0);
 
-		this.r = Math.min(Math.max(value, 1e-6), 1.0);
+    const radius = this.r * this.resolution.height;
+    const material = this.ssaoMaterial;
+    material.defines.RADIUS = radius.toFixed(11);
+    material.defines.RADIUS_SQ = (radius * radius).toFixed(11);
+    material.needsUpdate = true;
+  }
 
-		const radius = this.r * this.resolution.height;
-		const material = this.ssaoMaterial;
-		material.defines.RADIUS = radius.toFixed(11);
-		material.defines.RADIUS_SQ = (radius * radius).toFixed(11);
-		material.needsUpdate = true;
-
-	}
-
-	/**
+  /**
 	 * Indicates whether depth-aware upsampling is enabled.
 	 *
 	 * @type {Boolean}
 	 */
 
-	get depthAwareUpsampling() {
+  get depthAwareUpsampling () {
+    return this.defines.has('DEPTH_AWARE_UPSAMPLING');
+  }
 
-		return this.defines.has("DEPTH_AWARE_UPSAMPLING");
-
-	}
-
-	/**
+  /**
 	 * Enables or disables depth-aware upsampling.
 	 *
 	 * @type {Boolean}
 	 */
 
-	set depthAwareUpsampling(value) {
+  set depthAwareUpsampling (value) {
+    if (this.depthAwareUpsampling !== value) {
+      if (value) {
+        this.defines.set('DEPTH_AWARE_UPSAMPLING', '1');
+      } else {
+        this.defines.delete('DEPTH_AWARE_UPSAMPLING');
+      }
 
-		if(this.depthAwareUpsampling !== value) {
+      this.setChanged();
+    }
+  }
 
-			if(value) {
-
-				this.defines.set("DEPTH_AWARE_UPSAMPLING", "1");
-
-			} else {
-
-				this.defines.delete("DEPTH_AWARE_UPSAMPLING");
-
-			}
-
-			this.setChanged();
-
-		}
-
-	}
-
-	/**
+  /**
 	 * Indicates whether distance-based radius scaling is enabled.
 	 *
 	 * @type {Boolean}
 	 */
 
-	get distanceScaling() {
+  get distanceScaling () {
+    return (this.ssaoMaterial.defines.DISTANCE_SCALING !== undefined);
+  }
 
-		return (this.ssaoMaterial.defines.DISTANCE_SCALING !== undefined);
-
-	}
-
-	/**
+  /**
 	 * Enables or disables distance-based radius scaling.
 	 *
 	 * @type {Boolean}
 	 */
 
-	set distanceScaling(value) {
+  set distanceScaling (value) {
+    if (this.distanceScaling !== value) {
+      const material = this.ssaoMaterial;
 
-		if(this.distanceScaling !== value) {
+      if (value) {
+        material.defines.DISTANCE_SCALING = '1';
+      } else {
+        delete material.defines.DISTANCE_SCALING;
+      }
 
-			const material = this.ssaoMaterial;
+      material.needsUpdate = true;
+    }
+  }
 
-			if(value) {
-
-				material.defines.DISTANCE_SCALING = "1";
-
-			} else {
-
-				delete material.defines.DISTANCE_SCALING;
-
-			}
-
-			material.needsUpdate = true;
-
-		}
-
-	}
-
-	/**
+  /**
 	 * The color of the ambient occlusion.
 	 *
 	 * @type {Color}
 	 */
 
-	get color() {
+  get color () {
+    return this.uniforms.get('color').value;
+  }
 
-		return this.uniforms.get("color").value;
-
-	}
-
-	/**
+  /**
 	 * Sets the color of the ambient occlusion.
 	 *
 	 * Set to `null` to disable colorization.
@@ -409,92 +362,72 @@ export class SSAOEffect extends Effect {
 	 * @type {Color}
 	 */
 
-	set color(value) {
+  set color (value) {
+    const uniforms = this.uniforms;
+    const defines = this.defines;
 
-		const uniforms = this.uniforms;
-		const defines = this.defines;
+    if (value === null) {
+      if (defines.has('COLORIZE')) {
+        defines.delete('COLORIZE');
+        uniforms.get('color').value = null;
+        this.setChanged();
+      }
+    } else {
+      if (defines.has('COLORIZE')) {
+        uniforms.get('color').value.set(value);
+      } else {
+        defines.set('COLORIZE', '1');
+        uniforms.get('color').value = new Color(value);
+        this.setChanged();
+      }
+    }
+  }
 
-		if(value === null) {
-
-			if(defines.has("COLORIZE")) {
-
-				defines.delete("COLORIZE");
-				uniforms.get("color").value = null;
-				this.setChanged();
-
-			}
-
-		} else {
-
-			if(defines.has("COLORIZE")) {
-
-				uniforms.get("color").value.set(value);
-
-			} else {
-
-				defines.set("COLORIZE", "1");
-				uniforms.get("color").value = new Color(value);
-				this.setChanged();
-
-			}
-
-		}
-
-	}
-
-	/**
+  /**
 	 * Sets the occlusion distance cutoff.
 	 *
 	 * @param {Number} threshold - The distance threshold. Range [0.0, 1.0].
 	 * @param {Number} falloff - The falloff. Range [0.0, 1.0].
 	 */
 
-	setDistanceCutoff(threshold, falloff) {
+  setDistanceCutoff (threshold, falloff) {
+    this.ssaoMaterial.uniforms.distanceCutoff.value.set(
+      Math.min(Math.max(threshold, 0.0), 1.0),
+      Math.min(Math.max(threshold + falloff, 0.0), 1.0)
+    );
+  }
 
-		this.ssaoMaterial.uniforms.distanceCutoff.value.set(
-			Math.min(Math.max(threshold, 0.0), 1.0),
-			Math.min(Math.max(threshold + falloff, 0.0), 1.0)
-		);
-
-	}
-
-	/**
+  /**
 	 * Sets the occlusion proximity cutoff.
 	 *
 	 * @param {Number} threshold - The range threshold. Range [0.0, 1.0].
 	 * @param {Number} falloff - The falloff. Range [0.0, 1.0].
 	 */
 
-	setProximityCutoff(threshold, falloff) {
+  setProximityCutoff (threshold, falloff) {
+    this.ssaoMaterial.uniforms.proximityCutoff.value.set(
+      Math.min(Math.max(threshold, 0.0), 1.0),
+      Math.min(Math.max(threshold + falloff, 0.0), 1.0)
+    );
+  }
 
-		this.ssaoMaterial.uniforms.proximityCutoff.value.set(
-			Math.min(Math.max(threshold, 0.0), 1.0),
-			Math.min(Math.max(threshold + falloff, 0.0), 1.0)
-		);
-
-	}
-
-	/**
+  /**
 	 * Sets the depth texture.
 	 *
 	 * @param {Texture} depthTexture - A depth texture.
 	 * @param {Number} [depthPacking=0] - The depth packing.
 	 */
 
-	setDepthTexture(depthTexture, depthPacking = 0) {
+  setDepthTexture (depthTexture, depthPacking = 0) {
+    const material = this.ssaoMaterial;
 
-		const material = this.ssaoMaterial;
+    if (material.defines.NORMAL_DEPTH === undefined) {
+      material.uniforms.normalDepthBuffer.value = depthTexture;
+      material.depthPacking = depthPacking;
+    }
+  }
 
-		if(material.defines.NORMAL_DEPTH === undefined) {
-
-			material.uniforms.normalDepthBuffer.value = depthTexture;
-			material.depthPacking = depthPacking;
-
-		}
-
-	}
-
-	/**
+  /**
 	 * Updates this effect.
 	 *
 	 * @param {WebGLRenderer} renderer - The renderer.
@@ -502,13 +435,11 @@ export class SSAOEffect extends Effect {
 	 * @param {Number} [deltaTime] - The time between the last frame and the current one in seconds.
 	 */
 
-	update(renderer, inputBuffer, deltaTime) {
+  update (renderer, inputBuffer, deltaTime) {
+    this.ssaoPass.render(renderer, null, this.renderTargetAO);
+  }
 
-		this.ssaoPass.render(renderer, null, this.renderTargetAO);
-
-	}
-
-	/**
+  /**
 	 * Updates the camera projection matrix uniforms and the size of internal
 	 * render targets.
 	 *
@@ -516,26 +447,23 @@ export class SSAOEffect extends Effect {
 	 * @param {Number} height - The height.
 	 */
 
-	setSize(width, height) {
+  setSize (width, height) {
+    const resolution = this.resolution;
+    resolution.base.set(width, height);
 
-		const resolution = this.resolution;
-		resolution.base.set(width, height);
+    const w = resolution.width;
+    const h = resolution.height;
 
-		const w = resolution.width;
-		const h = resolution.height;
+    this.renderTargetAO.setSize(w, h);
+    this.ssaoMaterial.setTexelSize(1.0 / w, 1.0 / h);
 
-		this.renderTargetAO.setSize(w, h);
-		this.ssaoMaterial.setTexelSize(1.0 / w, 1.0 / h);
+    const camera = this.camera;
+    const uniforms = this.ssaoMaterial.uniforms;
+    uniforms.noiseScale.value.set(w, h).divideScalar(NOISE_TEXTURE_SIZE);
+    uniforms.inverseProjectionMatrix.value.getInverse(camera.projectionMatrix);
+    uniforms.projectionMatrix.value.copy(camera.projectionMatrix);
 
-		const camera = this.camera;
-		const uniforms = this.ssaoMaterial.uniforms;
-		uniforms.noiseScale.value.set(w, h).divideScalar(NOISE_TEXTURE_SIZE);
-		uniforms.inverseProjectionMatrix.value.getInverse(camera.projectionMatrix);
-		uniforms.projectionMatrix.value.copy(camera.projectionMatrix);
-
-		// Update the absolute radius.
-		this.radius = this.r;
-
-	}
-
+    // Update the absolute radius.
+    this.radius = this.r;
+  }
 }

@@ -1,10 +1,10 @@
 import {
-	BufferAttribute,
-	BufferGeometry,
-	Camera,
-	Mesh,
-	Scene
-} from "three";
+  BufferAttribute,
+  BufferGeometry,
+  Camera,
+  Mesh,
+  Scene
+} from 'three';
 
 /**
  * A dummy camera
@@ -34,31 +34,23 @@ let geometry = null;
  * @return {BufferGeometry} The fullscreen geometry.
  */
 
-function getFullscreenTriangle() {
+function getFullscreenTriangle () {
+  if (geometry === null) {
+    const vertices = new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]);
+    const uvs = new Float32Array([0, 0, 2, 0, 0, 2]);
+    geometry = new BufferGeometry();
 
-	if(geometry === null) {
+    // Added for backward compatibility (setAttribute was added in three r110).
+    if (geometry.setAttribute !== undefined) {
+      geometry.setAttribute('position', new BufferAttribute(vertices, 3));
+      geometry.setAttribute('uv', new BufferAttribute(uvs, 2));
+    } else {
+      geometry.addAttribute('position', new BufferAttribute(vertices, 3));
+      geometry.addAttribute('uv', new BufferAttribute(uvs, 2));
+    }
+  }
 
-		const vertices = new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]);
-		const uvs = new Float32Array([0, 0, 2, 0, 0, 2]);
-		geometry = new BufferGeometry();
-
-		// Added for backward compatibility (setAttribute was added in three r110).
-		if(geometry.setAttribute !== undefined) {
-
-			geometry.setAttribute("position", new BufferAttribute(vertices, 3));
-			geometry.setAttribute("uv", new BufferAttribute(uvs, 2));
-
-		} else {
-
-			geometry.addAttribute("position", new BufferAttribute(vertices, 3));
-			geometry.addAttribute("uv", new BufferAttribute(uvs, 2));
-
-		}
-
-	}
-
-	return geometry;
-
+  return geometry;
 }
 
 /**
@@ -76,8 +68,7 @@ function getFullscreenTriangle() {
  */
 
 export class Pass {
-
-	/**
+  /**
 	 * Constructs a new pass.
 	 *
 	 * @param {String} [name] - The name of this pass. Does not have to be unique.
@@ -85,49 +76,48 @@ export class Pass {
 	 * @param {Camera} [camera] - A camera. Fullscreen effect passes don't require a camera.
 	 */
 
-	constructor(name = "Pass", scene = new Scene(), camera = dummyCamera) {
-
-		/**
+  constructor (name = 'Pass', scene = new Scene(), camera = dummyCamera) {
+    /**
 		 * The name of this pass.
 		 *
 		 * @type {String}
 		 */
 
-		this.name = name;
+    this.name = name;
 
-		/**
+    /**
 		 * The scene to render.
 		 *
 		 * @type {Scene}
 		 */
 
-		this.scene = scene;
+    this.scene = scene;
 
-		/**
+    /**
 		 * The camera.
 		 *
 		 * @type {Camera}
 		 */
 
-		this.camera = camera;
+    this.camera = camera;
 
-		/**
+    /**
 		 * A mesh that fills the screen.
 		 *
 		 * @type {Mesh}
 		 */
 
-		this.screen = null;
+    this.screen = null;
 
-		/**
+    /**
 		 * Indicates whether this pass should render to texture.
 		 *
 		 * @type {Boolean}
 		 */
 
-		this.rtt = true;
+    this.rtt = true;
 
-		/**
+    /**
 		 * Only relevant for subclassing.
 		 *
 		 * Indicates whether the {@link EffectComposer} should swap the frame
@@ -139,9 +129,9 @@ export class Pass {
 		 * @type {Boolean}
 		 */
 
-		this.needsSwap = true;
+    this.needsSwap = true;
 
-		/**
+    /**
 		 * Only relevant for subclassing.
 		 *
 		 * Indicates whether the {@link EffectComposer} should prepare a depth
@@ -153,31 +143,28 @@ export class Pass {
 		 * @type {Boolean}
 		 */
 
-		this.needsDepthTexture = false;
+    this.needsDepthTexture = false;
 
-		/**
+    /**
 		 * Indicates whether this pass should be executed.
 		 *
 		 * @type {Boolean}
 		 */
 
-		this.enabled = true;
+    this.enabled = true;
+  }
 
-	}
-
-	/**
+  /**
 	 * Indicates whether this pass should render to screen.
 	 *
 	 * @type {Boolean}
 	 */
 
-	get renderToScreen() {
+  get renderToScreen () {
+    return !this.rtt;
+  }
 
-		return !this.rtt;
-
-	}
-
-	/**
+  /**
 	 * Sets the render to screen flag.
 	 *
 	 * If the flag is changed to a different value, the fullscreen material will
@@ -186,37 +173,29 @@ export class Pass {
 	 * @type {Boolean}
 	 */
 
-	set renderToScreen(value) {
+  set renderToScreen (value) {
+    if (this.rtt === value) {
+      const material = this.getFullscreenMaterial();
 
-		if(this.rtt === value) {
+      if (material !== null) {
+        material.needsUpdate = true;
+      }
 
-			const material = this.getFullscreenMaterial();
+      this.rtt = !value;
+    }
+  }
 
-			if(material !== null) {
-
-				material.needsUpdate = true;
-
-			}
-
-			this.rtt = !value;
-
-		}
-
-	}
-
-	/**
+  /**
 	 * Returns the current fullscreen material.
 	 *
 	 * @return {Material} The current fullscreen material, or null if there is none.
 	 */
 
-	getFullscreenMaterial() {
+  getFullscreenMaterial () {
+    return (this.screen !== null) ? this.screen.material : null;
+  }
 
-		return (this.screen !== null) ? this.screen.material : null;
-
-	}
-
-	/**
+  /**
 	 * Sets the fullscreen material.
 	 *
 	 * The material will be assigned to a mesh that fills the screen. The mesh
@@ -226,45 +205,35 @@ export class Pass {
 	 * @param {Material} material - A fullscreen material.
 	 */
 
-	setFullscreenMaterial(material) {
+  setFullscreenMaterial (material) {
+    let screen = this.screen;
 
-		let screen = this.screen;
+    if (screen !== null) {
+      screen.material = material;
+    } else {
+      screen = new Mesh(getFullscreenTriangle(), material);
+      screen.frustumCulled = false;
 
-		if(screen !== null) {
+      if (this.scene === null) {
+        this.scene = new Scene();
+      }
 
-			screen.material = material;
+      this.scene.add(screen);
+      this.screen = screen;
+    }
+  }
 
-		} else {
-
-			screen = new Mesh(getFullscreenTriangle(), material);
-			screen.frustumCulled = false;
-
-			if(this.scene === null) {
-
-				this.scene = new Scene();
-
-			}
-
-			this.scene.add(screen);
-			this.screen = screen;
-
-		}
-
-	}
-
-	/**
+  /**
 	 * Returns the current depth texture.
 	 *
 	 * @return {Texture} The current depth texture, or null if there is none.
 	 */
 
-	getDepthTexture() {
+  getDepthTexture () {
+    return null;
+  }
 
-		return null;
-
-	}
-
-	/**
+  /**
 	 * Sets the depth texture.
 	 *
 	 * This method will be called automatically by the {@link EffectComposer}.
@@ -276,9 +245,9 @@ export class Pass {
 	 * @param {Number} [depthPacking=0] - The depth packing.
 	 */
 
-	setDepthTexture(depthTexture, depthPacking = 0) {}
+  setDepthTexture (depthTexture, depthPacking = 0) {}
 
-	/**
+  /**
 	 * Renders the effect.
 	 *
 	 * This is an abstract method that must be overridden.
@@ -292,13 +261,11 @@ export class Pass {
 	 * @param {Boolean} [stencilTest] - Indicates whether a stencil mask is active.
 	 */
 
-	render(renderer, inputBuffer, outputBuffer, deltaTime, stencilTest) {
+  render (renderer, inputBuffer, outputBuffer, deltaTime, stencilTest) {
+    throw new Error('Render method not implemented!');
+  }
 
-		throw new Error("Render method not implemented!");
-
-	}
-
-	/**
+  /**
 	 * Updates this pass with the renderer's size.
 	 *
 	 * You may override this method in case you want to be informed about the size
@@ -312,9 +279,9 @@ export class Pass {
 	 * @example this.myRenderTarget.setSize(width, height);
 	 */
 
-	setSize(width, height) {}
+  setSize (width, height) {}
 
-	/**
+  /**
 	 * Performs initialization tasks.
 	 *
 	 * By overriding this method you gain access to the renderer. You'll also be
@@ -333,9 +300,9 @@ export class Pass {
 	 * @example if(!alpha && frameBufferType === UnsignedByteType) { this.myRenderTarget.texture.format = RGBFormat; }
 	 */
 
-	initialize(renderer, alpha, frameBufferType) {}
+  initialize (renderer, alpha, frameBufferType) {}
 
-	/**
+  /**
 	 * Performs a shallow search for disposable properties and deletes them. The
 	 * pass will be inoperative after this method was called!
 	 *
@@ -344,27 +311,18 @@ export class Pass {
 	 * that you don't need this pass anymore.
 	 */
 
-	dispose() {
+  dispose () {
+    const material = this.getFullscreenMaterial();
 
-		const material = this.getFullscreenMaterial();
+    if (material !== null) {
+      material.dispose();
+    }
 
-		if(material !== null) {
-
-			material.dispose();
-
-		}
-
-		for(const key of Object.keys(this)) {
-
-			if(this[key] !== null && typeof this[key].dispose === "function") {
-
-				/** @ignore */
-				this[key].dispose();
-
-			}
-
-		}
-
-	}
-
+    for (const key of Object.keys(this)) {
+      if (this[key] !== null && typeof this[key].dispose === 'function') {
+        /** @ignore */
+        this[key].dispose();
+      }
+    }
+  }
 }

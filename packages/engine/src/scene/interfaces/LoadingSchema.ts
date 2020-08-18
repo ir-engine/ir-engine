@@ -1,13 +1,13 @@
 export interface LoadingSchema {
   [key: string]: {
-    components?: {
+    components?: Array<{
       type: any
       values?: any
-    }[]
-    behaviors?: {
+    }>
+    behaviors?: Array<{
       behavior: any
       args?: any
       values?: any
-    }[]
+    }>
   }
 }

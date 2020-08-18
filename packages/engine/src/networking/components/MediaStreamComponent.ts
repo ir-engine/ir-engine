@@ -1,5 +1,5 @@
-import { Component } from "../../ecs/classes/Component"
-import { Types } from "../../ecs/types/Types"
+import { Component } from '../../ecs/classes/Component';
+import { Types } from '../../ecs/types/Types';
 
 export class MediaStreamComponent extends Component<any> {
   static instance: MediaStreamComponent = null
@@ -15,21 +15,21 @@ export class MediaStreamComponent extends Component<any> {
   consumers: any[] = []
   screenShareVideoPaused = false
   screenShareAudioPaused = false
-  constructor() {
-    super()
-    MediaStreamComponent.instance = this
-    this.consumers = []
-    this.mediaStream = null
+  constructor () {
+    super();
+    MediaStreamComponent.instance = this;
+    this.consumers = [];
+    this.mediaStream = null;
   }
 
-  public toggleVideoPaused(): boolean {
-    this.videoPaused = !this.videoPaused
-    return this.videoPaused
+  public toggleVideoPaused (): boolean {
+    this.videoPaused = !this.videoPaused;
+    return this.videoPaused;
   }
 
-  public toggleAudioPaused(): boolean {
-    this.audioPaused = !this.audioPaused
-    return this.audioPaused
+  public toggleAudioPaused (): boolean {
+    this.audioPaused = !this.audioPaused;
+    return this.audioPaused;
   }
 }
 
@@ -46,4 +46,4 @@ MediaStreamComponent.schema = {
   videoPaused: { type: Types.Boolean },
   audioPaused: { type: Types.Boolean },
   mediaStream: { type: Types.Ref }
-}
+};

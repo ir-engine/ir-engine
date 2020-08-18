@@ -1,22 +1,21 @@
 import {
-	Color,
-	MeshNormalMaterial,
-	NearestFilter,
-	RGBFormat,
-	WebGLRenderTarget
-} from "three";
+  Color,
+  MeshNormalMaterial,
+  NearestFilter,
+  RGBFormat,
+  WebGLRenderTarget
+} from 'three';
 
-import { Resizer } from "../core/Resizer.js";
-import { Pass } from "./Pass.js";
-import { RenderPass } from "./RenderPass.js";
+import { Resizer } from '../core/Resizer.js';
+import { Pass } from './Pass.js';
+import { RenderPass } from './RenderPass.js';
 
 /**
  * A pass that renders the normals of a given scene.
  */
 
 export class NormalPass extends Pass {
-
-	/**
+  /**
 	 * Constructs a new normal pass.
 	 *
 	 * @param {Scene} scene - The scene to render.
@@ -28,56 +27,53 @@ export class NormalPass extends Pass {
 	 * @param {WebGLRenderTarget} [options.renderTarget] - A custom render target.
 	 */
 
-	constructor(scene, camera, {
-		resolutionScale = 1.0,
-		width = Resizer.AUTO_SIZE,
-		height = Resizer.AUTO_SIZE,
-		renderTarget
-	} = {}) {
+  constructor (scene, camera, {
+    resolutionScale = 1.0,
+    width = Resizer.AUTO_SIZE,
+    height = Resizer.AUTO_SIZE,
+    renderTarget
+  } = {}) {
+    super('NormalPass');
 
-		super("NormalPass");
+    this.needsSwap = false;
 
-		this.needsSwap = false;
-
-		/**
+    /**
 		 * A render pass.
 		 *
 		 * @type {RenderPass}
 		 * @private
 		 */
 
-		this.renderPass = new RenderPass(scene, camera, new MeshNormalMaterial({
-			morphTargets: true,
-			morphNormals: true,
-			skinning: true
-		}));
+    this.renderPass = new RenderPass(scene, camera, new MeshNormalMaterial({
+      morphTargets: true,
+      morphNormals: true,
+      skinning: true
+    }));
 
-		const clearPass = this.renderPass.getClearPass();
-		clearPass.overrideClearColor = new Color(0x7777ff);
-		clearPass.overrideClearAlpha = 1.0;
+    const clearPass = this.renderPass.getClearPass();
+    clearPass.overrideClearColor = new Color(0x7777ff);
+    clearPass.overrideClearAlpha = 1.0;
 
-		/**
+    /**
 		 * A render target that contains the scene normals.
 		 *
 		 * @type {WebGLRenderTarget}
 		 */
 
-		this.renderTarget = renderTarget;
+    this.renderTarget = renderTarget;
 
-		if(this.renderTarget === undefined) {
+    if (this.renderTarget === undefined) {
+      this.renderTarget = new WebGLRenderTarget(1, 1, {
+        minFilter: NearestFilter,
+        magFilter: NearestFilter,
+        format: RGBFormat,
+        stencilBuffer: false
+      });
 
-			this.renderTarget = new WebGLRenderTarget(1, 1, {
-				minFilter: NearestFilter,
-				magFilter: NearestFilter,
-				format: RGBFormat,
-				stencilBuffer: false
-			});
+      this.renderTarget.texture.name = 'NormalPass.Target';
+    }
 
-			this.renderTarget.texture.name = "NormalPass.Target";
-
-		}
-
-		/**
+    /**
 		 * The desired render resolution.
 		 *
 		 * Use {@link Resizer.AUTO_SIZE} for the width or height to automatically
@@ -86,50 +82,43 @@ export class NormalPass extends Pass {
 		 * @type {Resizer}
 		 */
 
-		this.resolution = new Resizer(this, width, height, resolutionScale);
+    this.resolution = new Resizer(this, width, height, resolutionScale);
+  }
 
-	}
-
-	/**
+  /**
 	 * The normal texture.
 	 *
 	 * @type {Texture}
 	 */
 
-	get texture() {
+  get texture () {
+    return this.renderTarget.texture;
+  }
 
-		return this.renderTarget.texture;
-
-	}
-
-	/**
+  /**
 	 * Returns the current resolution scale.
 	 *
 	 * @return {Number} The resolution scale.
 	 * @deprecated Adjust the fixed resolution width or height instead.
 	 */
 
-	getResolutionScale() {
+  getResolutionScale () {
+    return this.resolutionScale;
+  }
 
-		return this.resolutionScale;
-
-	}
-
-	/**
+  /**
 	 * Sets the resolution scale.
 	 *
 	 * @param {Number} scale - The new resolution scale.
 	 * @deprecated Adjust the fixed resolution width or height instead.
 	 */
 
-	setResolutionScale(scale) {
+  setResolutionScale (scale) {
+    this.resolutionScale = scale;
+    this.setSize(this.resolution.base.x, this.resolution.base.y);
+  }
 
-		this.resolutionScale = scale;
-		this.setSize(this.resolution.base.x, this.resolution.base.y);
-
-	}
-
-	/**
+  /**
 	 * Renders the scene normals.
 	 *
 	 * @param {WebGLRenderer} renderer - The renderer.
@@ -139,27 +128,22 @@ export class NormalPass extends Pass {
 	 * @param {Boolean} [stencilTest] - Indicates whether a stencil mask is active.
 	 */
 
-	render(renderer, inputBuffer, outputBuffer, deltaTime, stencilTest) {
+  render (renderer, inputBuffer, outputBuffer, deltaTime, stencilTest) {
+    const renderTarget = this.renderToScreen ? null : this.renderTarget;
+    this.renderPass.render(renderer, renderTarget, renderTarget);
+  }
 
-		const renderTarget = this.renderToScreen ? null : this.renderTarget;
-		this.renderPass.render(renderer, renderTarget, renderTarget);
-
-	}
-
-	/**
+  /**
 	 * Updates the size of this pass.
 	 *
 	 * @param {Number} width - The width.
 	 * @param {Number} height - The height.
 	 */
 
-	setSize(width, height) {
+  setSize (width, height) {
+    const resolution = this.resolution;
+    resolution.base.set(width, height);
 
-		const resolution = this.resolution;
-		resolution.base.set(width, height);
-
-		this.renderTarget.setSize(resolution.width, resolution.height);
-
-	}
-
+    this.renderTarget.setSize(resolution.width, resolution.height);
+  }
 }

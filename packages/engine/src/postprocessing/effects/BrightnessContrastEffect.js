@@ -1,8 +1,8 @@
-import { Uniform } from "three";
-import { BlendFunction } from "./blending/BlendFunction.js";
-import { Effect } from "./Effect.js";
+import { Uniform } from 'three';
+import { BlendFunction } from './blending/BlendFunction.js';
+import { Effect } from './Effect.js';
 
-import fragmentShader from "./glsl/brightness-contrast/shader.frag";
+import fragmentShader from './glsl/brightness-contrast/shader.frag';
 
 /**
  * A brightness/contrast effect.
@@ -11,8 +11,7 @@ import fragmentShader from "./glsl/brightness-contrast/shader.frag";
  */
 
 export class BrightnessContrastEffect extends Effect {
-
-	/**
+  /**
 	 * Constructs a new brightness/contrast effect.
 	 *
 	 * @param {Object} [options] - The options.
@@ -21,19 +20,16 @@ export class BrightnessContrastEffect extends Effect {
 	 * @param {Number} [options.contrast=0.0] - The contrast factor, ranging from -1 to 1, where 0 means no change.
 	 */
 
-	constructor({ blendFunction = BlendFunction.NORMAL, brightness = 0.0, contrast = 0.0 } = {}) {
+  constructor ({ blendFunction = BlendFunction.NORMAL, brightness = 0.0, contrast = 0.0 } = {}) {
+    super('BrightnessContrastEffect', fragmentShader, {
 
-		super("BrightnessContrastEffect", fragmentShader, {
+      blendFunction,
 
-			blendFunction,
+      uniforms: new Map([
+        ['brightness', new Uniform(brightness)],
+        ['contrast', new Uniform(contrast)]
+      ])
 
-			uniforms: new Map([
-				["brightness", new Uniform(brightness)],
-				["contrast", new Uniform(contrast)]
-			])
-
-		});
-
-	}
-
+    });
+  }
 }

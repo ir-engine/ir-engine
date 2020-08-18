@@ -4,13 +4,13 @@
  * @param threshold 0 to 1
  */
 
-export function applyThreshold(value: number, threshold: number): number {
+export function applyThreshold (value: number, threshold: number): number {
   if (threshold >= 1) {
-    return 0
+    return 0;
   }
   if (value < threshold && value > -threshold) {
-    return 0
+    return 0;
   }
 
-  return (Math.sign(value) * (Math.abs(value) - threshold)) / (1 - threshold)
+  return (Math.sign(value) * (Math.abs(value) - threshold)) / (1 - threshold);
 }

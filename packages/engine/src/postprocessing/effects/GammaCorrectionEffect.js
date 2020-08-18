@@ -1,8 +1,8 @@
-import { Uniform } from "three";
-import { BlendFunction } from "./blending/BlendFunction.js";
-import { Effect } from "./Effect.js";
+import { Uniform } from 'three';
+import { BlendFunction } from './blending/BlendFunction.js';
+import { Effect } from './Effect.js';
 
-import fragmentShader from "./glsl/gamma-correction/shader.frag";
+import fragmentShader from './glsl/gamma-correction/shader.frag';
 
 /**
  * A gamma correction effect.
@@ -11,8 +11,7 @@ import fragmentShader from "./glsl/gamma-correction/shader.frag";
  */
 
 export class GammaCorrectionEffect extends Effect {
-
-	/**
+  /**
 	 * Constructs a new gamma correction effect.
 	 *
 	 * @param {Object} [options] - The options.
@@ -20,18 +19,15 @@ export class GammaCorrectionEffect extends Effect {
 	 * @param {Number} [options.gamma=2.0] - The gamma factor.
 	 */
 
-	constructor({ blendFunction = BlendFunction.NORMAL, gamma = 2.0 } = {}) {
+  constructor ({ blendFunction = BlendFunction.NORMAL, gamma = 2.0 } = {}) {
+    super('GammaCorrectionEffect', fragmentShader, {
 
-		super("GammaCorrectionEffect", fragmentShader, {
+      blendFunction,
 
-			blendFunction,
+      uniforms: new Map([
+        ['gamma', new Uniform(gamma)]
+      ])
 
-			uniforms: new Map([
-				["gamma", new Uniform(gamma)]
-			])
-
-		});
-
-	}
-
+    });
+  }
 }

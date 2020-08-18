@@ -1,7 +1,7 @@
 // Default component, holds data about what behaviors our character has.
 
-import { Component } from "../../../ecs/classes/Component"
-import { Types } from "../../../ecs/types/Types"
+import { Component } from '../../../ecs/classes/Component';
+import { Types } from '../../../ecs/types/Types';
 interface JumpPropTypes {
   canJump: boolean
   t?: number
@@ -14,7 +14,7 @@ const DefaultJumpData = {
   t: 0,
   force: 10,
   duration: 0.5
-}
+};
 
 interface PropTypes {
   rotationSpeedX: number
@@ -34,22 +34,23 @@ export class Actor extends Component<PropTypes> {
   rotationSpeedZ: number
   jump: JumpPropTypes = DefaultJumpData
 
-  copy(src: this): this {
-    this.rotationSpeedX = src.rotationSpeedX
-    this.rotationSpeedY = src.rotationSpeedY
-    this.maxSpeed = src.maxSpeed
-    this.accelerationSpeed = src.accelerationSpeed
-    this.decelerationSpeed = src.decelerationSpeed
-    this.jump = src.jump
-    return this
+  copy (src: this): this {
+    this.rotationSpeedX = src.rotationSpeedX;
+    this.rotationSpeedY = src.rotationSpeedY;
+    this.maxSpeed = src.maxSpeed;
+    this.accelerationSpeed = src.accelerationSpeed;
+    this.decelerationSpeed = src.decelerationSpeed;
+    this.jump = src.jump;
+    return this;
   }
-  reset(): void {
-    this.rotationSpeedX = 1
-    this.rotationSpeedY = 1
-    this.maxSpeed = 1
-    this.accelerationSpeed = 0.1
-    this.decelerationSpeed = 8
-    this.jump = DefaultJumpData
+
+  reset (): void {
+    this.rotationSpeedX = 1;
+    this.rotationSpeedY = 1;
+    this.maxSpeed = 1;
+    this.accelerationSpeed = 0.1;
+    this.decelerationSpeed = 8;
+    this.jump = DefaultJumpData;
   }
 }
 
@@ -60,4 +61,4 @@ Actor.schema = {
   accelerationSpeed: { type: Types.Number, default: 0.01 },
   decelerationSpeed: { type: Types.Number, default: 8 },
   jump: { type: Types.Ref, default: DefaultJumpData }
-}
+};
