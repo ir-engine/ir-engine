@@ -110,7 +110,7 @@ export class Query {
   }
 
   /**
-   * Does an entity conform to this query?
+   * Check if an entity matches this query
    */
   match (entity: Entity): boolean {
     return hasAllComponents(entity, this.components) && !hasAnyComponents(entity, this.notComponents);

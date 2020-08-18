@@ -4,6 +4,11 @@ import { executeSystem } from './SystemFunctions';
 import { Engine } from '../classes/Engine';
 import { EngineOptions } from '../interfaces/EngineOptions';
 
+/**
+ * Initialize options on the engine object and fire a command for devtools
+ * WARNING: This is called by initializeEngine() in {@link @xr3ngine/engine/initialize#initializeEngine}
+ * (You probably don't want to use this) 
+ */
 export function initialize (options?: EngineOptions) {
   Engine.options = { ...Engine.options, ...options };
   if (hasWindow && typeof CustomEvent !== 'undefined') {
@@ -14,6 +19,12 @@ export function initialize (options?: EngineOptions) {
   Engine.lastTime = now() / 1000;
 }
 
+/**
+ * Execute all systems (a "frame")
+ * This is typically called on a loop
+ * WARNING: This is called by initializeEngine() in {@link @xr3ngine/engine/initialize#initializeEngine}
+ * (You probably don't want to use this) 
+ */
 export function execute (delta?: number, time?: number): void {
   if (!delta) {
     time = now() / 1000;
@@ -22,10 +33,15 @@ export function execute (delta?: number, time?: number): void {
   }
 
   if (Engine.enabled) {
-    Engine.executeSystems.forEach(system => system.enabled && executeSystem(system, delta, time));
+    Engine.systemsToExecute.forEach(system => system.enabled && executeSystem(system, delta, time));
     processDeferredEntityRemoval();
   }
 }
+
+/**
+ * Remove entities at the end of a simulation frame
+ * NOTE: By default, the engine is set to process deferred removal, so this will be called
+ */
 function processDeferredEntityRemoval () {
   if (!Engine.deferredRemovalEnabled) {
     return;
@@ -55,11 +71,17 @@ function processDeferredEntityRemoval () {
   Engine.entitiesWithComponentsToRemove.length = 0;
 }
 
-export function stop (): void {
+/**
+ * Disable execution of systems without stopping timer
+ */
+export function pause (): void {
   Engine.enabled = false;
-  Engine.executeSystems.forEach(system => system.stop());
+  Engine.systemsToExecute.forEach(system => system.stop());
 }
 
+/**
+ * Get stats for all entities, components and systems in the simulation
+ */
 export function stats (): { entities: any, system: any } {
   const queryStats = {};
   for (const queryName in Engine.queries) {
