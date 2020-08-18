@@ -1,4 +1,5 @@
-import { hasWindow, now } from './Utils';
+import { hasWindow } from "../../common/functions/hasWindow";
+import { now } from "./now";
 import { System } from '../classes/System';
 import { executeSystem } from './SystemFunctions';
 import { Engine } from '../classes/Engine';

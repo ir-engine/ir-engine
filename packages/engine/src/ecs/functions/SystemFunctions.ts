@@ -1,6 +1,6 @@
 import { System, SystemConstructor } from '../classes/System';
 import { Engine } from '../classes/Engine';
-import { now } from './Utils';
+import { now } from "./now";
 
 /**
  * Register a system with the simulation

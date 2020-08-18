@@ -1,10 +1,10 @@
 
-import { componentRegistered, queryKey } from '../functions/Utils';
+import { queryKeyFromComponents } from '../functions/Utils';
 import { Component } from './Component';
 import { ComponentConstructor } from '../interfaces/ComponentInterfaces';
 import { Entity } from './Entity';
 import { Query } from './Query';
-import { registerComponent } from '../functions/ComponentFunctions';
+import { registerComponent, componentRegistered } from '../functions/ComponentFunctions';
 import { Engine } from './Engine';
 import { QUERY_ENTITY_ADDED, QUERY_ENTITY_REMOVED, QUERY_COMPONENT_CHANGED } from '../constants/Events';
 
@@ -200,7 +200,7 @@ export abstract class System {
   }
 
   getQuery (components: Array<ComponentConstructor<any> | NotComponent<any>>): Query {
-    const key = queryKey(components);
+    const key = queryKeyFromComponents(components);
     let query = this._queries[key];
     if (!query) {
       this._queries[key] = query = new Query(components);
