@@ -1,7 +1,7 @@
-import { ShaderMaterial, Uniform, Vector2 } from "three";
+import { ShaderMaterial, Uniform, Vector2 } from 'three';
 
-import fragmentShader from "./glsl/smaa-weights/shader.frag";
-import vertexShader from "./glsl/smaa-weights/shader.vert";
+import fragmentShader from './glsl/smaa-weights/shader.frag';
+import vertexShader from './glsl/smaa-weights/shader.vert';
 
 /**
  * Subpixel Morphological Antialiasing.
@@ -10,62 +10,59 @@ import vertexShader from "./glsl/smaa-weights/shader.vert";
  */
 
 export class SMAAWeightsMaterial extends ShaderMaterial {
-
-	/**
+  /**
 	 * Constructs a new SMAA weights material.
 	 *
 	 * @param {Vector2} [texelSize] - The absolute screen texel size.
 	 * @param {Vector2} [resolution] - The resolution.
 	 */
 
-	constructor(texelSize = new Vector2(), resolution = new Vector2()) {
+  constructor (texelSize = new Vector2(), resolution = new Vector2()) {
+    super({
 
-		super({
+      type: 'SMAAWeightsMaterial',
 
-			type: "SMAAWeightsMaterial",
+      defines: {
 
-			defines: {
+        // Configurable settings:
+        MAX_SEARCH_STEPS_INT: '16',
+        MAX_SEARCH_STEPS_FLOAT: '16.0',
+        MAX_SEARCH_STEPS_DIAG_INT: '8',
+        MAX_SEARCH_STEPS_DIAG_FLOAT: '8.0',
+        CORNER_ROUNDING: '25',
+        CORNER_ROUNDING_NORM: '0.25',
 
-				// Configurable settings:
-				MAX_SEARCH_STEPS_INT: "16",
-				MAX_SEARCH_STEPS_FLOAT: "16.0",
-				MAX_SEARCH_STEPS_DIAG_INT: "8",
-				MAX_SEARCH_STEPS_DIAG_FLOAT: "8.0",
-				CORNER_ROUNDING: "25",
-				CORNER_ROUNDING_NORM: "0.25",
+        // Non-configurable settings:
+        AREATEX_MAX_DISTANCE: '16.0',
+        AREATEX_MAX_DISTANCE_DIAG: '20.0',
+        AREATEX_PIXEL_SIZE: '(1.0 / vec2(160.0, 560.0))',
+        AREATEX_SUBTEX_SIZE: '(1.0 / 7.0)',
+        SEARCHTEX_SIZE: 'vec2(66.0, 33.0)',
+        SEARCHTEX_PACKED_SIZE: 'vec2(64.0, 16.0)'
 
-				// Non-configurable settings:
-				AREATEX_MAX_DISTANCE: "16.0",
-				AREATEX_MAX_DISTANCE_DIAG: "20.0",
-				AREATEX_PIXEL_SIZE: "(1.0 / vec2(160.0, 560.0))",
-				AREATEX_SUBTEX_SIZE: "(1.0 / 7.0)",
-				SEARCHTEX_SIZE: "vec2(66.0, 33.0)",
-				SEARCHTEX_PACKED_SIZE: "vec2(64.0, 16.0)"
+      },
 
-			},
+      uniforms: {
+        inputBuffer: new Uniform(null),
+        areaTexture: new Uniform(null),
+        searchTexture: new Uniform(null),
+        texelSize: new Uniform(texelSize),
+        resolution: new Uniform(resolution)
+      },
 
-			uniforms: {
-				inputBuffer: new Uniform(null),
-				areaTexture: new Uniform(null),
-				searchTexture: new Uniform(null),
-				texelSize: new Uniform(texelSize),
-				resolution: new Uniform(resolution)
-			},
+      fragmentShader,
+      vertexShader,
 
-			fragmentShader,
-			vertexShader,
+      depthWrite: false,
+      depthTest: false
 
-			depthWrite: false,
-			depthTest: false
+    });
 
-		});
+    /** @ignore */
+    this.toneMapped = false;
+  }
 
-		/** @ignore */
-		this.toneMapped = false;
-
-	}
-
-	/**
+  /**
 	 * Sets the maximum amount of steps performed in the horizontal/vertical
 	 * pattern searches, at each side of the pixel.
 	 *
@@ -76,17 +73,15 @@ export class SMAAWeightsMaterial extends ShaderMaterial {
 	 * @param {Number} steps - The search steps. Range: [0, 112].
 	 */
 
-	setOrthogonalSearchSteps(steps) {
+  setOrthogonalSearchSteps (steps) {
+    const s = Math.min(Math.max(steps, 0), 112);
 
-		const s = Math.min(Math.max(steps, 0), 112);
+    this.defines.MAX_SEARCH_STEPS_INT = s.toFixed('0');
+    this.defines.MAX_SEARCH_STEPS_FLOAT = s.toFixed('1');
+    this.needsUpdate = true;
+  }
 
-		this.defines.MAX_SEARCH_STEPS_INT = s.toFixed("0");
-		this.defines.MAX_SEARCH_STEPS_FLOAT = s.toFixed("1");
-		this.needsUpdate = true;
-
-	}
-
-	/**
+  /**
 	 * Specifies the maximum steps performed in the diagonal pattern searches, at
 	 * each side of the pixel. This search jumps one pixel at time.
 	 *
@@ -96,98 +91,77 @@ export class SMAAWeightsMaterial extends ShaderMaterial {
 	 * @param {Number} steps - The search steps. Range: [0, 20].
 	 */
 
-	setDiagonalSearchSteps(steps) {
+  setDiagonalSearchSteps (steps) {
+    const s = Math.min(Math.max(steps, 0), 20);
 
-		const s = Math.min(Math.max(steps, 0), 20);
+    this.defines.MAX_SEARCH_STEPS_DIAG_INT = s.toFixed('0');
+    this.defines.MAX_SEARCH_STEPS_DIAG_FLOAT = s.toFixed('1');
+    this.needsUpdate = true;
+  }
 
-		this.defines.MAX_SEARCH_STEPS_DIAG_INT = s.toFixed("0");
-		this.defines.MAX_SEARCH_STEPS_DIAG_FLOAT = s.toFixed("1");
-		this.needsUpdate = true;
-
-	}
-
-	/**
+  /**
 	 * Specifies how much sharp corners will be rounded.
 	 *
 	 * @param {Number} rounding - The corner rounding amount. Range: [0, 100].
 	 */
 
-	setCornerRounding(rounding) {
+  setCornerRounding (rounding) {
+    const r = Math.min(Math.max(rounding, 0), 100);
 
-		const r = Math.min(Math.max(rounding, 0), 100);
+    this.defines.CORNER_ROUNDING = r.toFixed('4');
+    this.defines.CORNER_ROUNDING_NORM = (r / 100.0).toFixed('4');
+    this.needsUpdate = true;
+  }
 
-		this.defines.CORNER_ROUNDING = r.toFixed("4");
-		this.defines.CORNER_ROUNDING_NORM = (r / 100.0).toFixed("4");
-		this.needsUpdate = true;
-
-	}
-
-	/**
+  /**
 	 * Indicates whether diagonal pattern detection is enabled.
 	 *
 	 * @type {Boolean}
 	 */
 
-	get diagonalDetection() {
+  get diagonalDetection () {
+    return (this.defines.DISABLE_DIAG_DETECTION === undefined);
+  }
 
-		return (this.defines.DISABLE_DIAG_DETECTION === undefined);
-
-	}
-
-	/**
+  /**
 	 * Enables or disables diagonal pattern detection.
 	 *
 	 * @type {Boolean}
 	 */
 
-	set diagonalDetection(value) {
+  set diagonalDetection (value) {
+    if (value) {
+      delete this.defines.DISABLE_DIAG_DETECTION;
+    } else {
+      this.defines.DISABLE_DIAG_DETECTION = '1';
+    }
 
-		if(value) {
+    this.needsUpdate = true;
+  }
 
-			delete this.defines.DISABLE_DIAG_DETECTION;
-
-		} else {
-
-			this.defines.DISABLE_DIAG_DETECTION = "1";
-
-		}
-
-		this.needsUpdate = true;
-
-	}
-
-	/**
+  /**
 	 * Indicates whether corner rounding is enabled.
 	 *
 	 * @type {Boolean}
 	 */
 
-	get cornerRounding() {
+  get cornerRounding () {
+    return (this.defines.DISABLE_CORNER_DETECTION === undefined);
+  }
 
-		return (this.defines.DISABLE_CORNER_DETECTION === undefined);
-
-	}
-
-	/**
+  /**
 	 * Enables or disables corner rounding.
 	 *
 	 * @type {Boolean}
 	 */
 
-	set cornerRounding(value) {
+  set cornerRounding (value) {
+    if (value) {
+      delete this.defines.DISABLE_CORNER_DETECTION;
+    } else {
+      this.defines.DISABLE_CORNER_DETECTION = '1';
+    }
 
-		if(value) {
-
-			delete this.defines.DISABLE_CORNER_DETECTION;
-
-		} else {
-
-			this.defines.DISABLE_CORNER_DETECTION = "1";
-
-		}
-
-		this.needsUpdate = true;
-
-	}
-
+    this.needsUpdate = true;
+  }
 }

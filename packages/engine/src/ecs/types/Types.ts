@@ -15,54 +15,54 @@ export interface PropType<T, D> extends PropTypeDefinition<T, D> {
 export type NumberPropType = PropType<number, number>
 export type BooleanPropType = PropType<boolean, boolean>
 export type StringPropType = PropType<string, string>
-export type ArrayPropType<T> = PropType<Array<T>, []>
+export type ArrayPropType<T> = PropType<T[], []>
 export type RefPropType<T> = PropType<T, undefined>
 export type JSONPropType = PropType<any, null>
 
-export const copyValue = <T>(src: T, dest: T): T => src
+export const copyValue = <T>(src: T, dest: T): T => { dest = src; return src };
 
-export const cloneValue = <T>(value: T): T => value
+export const cloneValue = <T>(value: T): T => value;
 
-export const copyArray = <T>(src?: Array<T>, dest?: Array<T>): Array<T> => {
-  dest = [...src]
-  return dest
-}
-export const cloneArray = <T>(value: Array<T>): Array<T> => value && value.slice()
+export const copyArray = <T>(src?: T[], dest?: T[]): T[] => {
+  dest = [...src];
+  return dest;
+};
+export const cloneArray = <T>(value: T[]): T[] => value && value.slice();
 
-export const copyJSON = (src: any, dest: any): any => JSON.parse(JSON.stringify(src))
+export const copyJSON = (src: any, dest: any): any => JSON.parse(JSON.stringify(src));
 
-export const cloneJSON = (value: any): any => JSON.parse(JSON.stringify(value))
+export const cloneJSON = (value: any): any => JSON.parse(JSON.stringify(value));
 
 export const copyCopyable = <T>(src: T, dest: T): T => {
   if (!src) {
-    return src
+    return src;
   }
 
   if (!dest) {
-    return (src as any).clone()
+    return (src as any).clone();
   }
 
-  return (dest as any).copy(src)
-}
+  return (dest as any).copy(src);
+};
 
-export const cloneClonable = <T>(value: T): T => value && (value as any).clone()
+export const cloneClonable = <T>(value: T): T => value && (value as any).clone();
 
-export function createType<T, D>(typeDefinition: PropTypeDefinition<T, D>): PropType<T, D> {
-  const mandatoryProperties = ["name", "copy", "clone"]
+export function createType<T, D> (typeDefinition: PropTypeDefinition<T, D>): PropType<T, D> {
+  const mandatoryProperties = ['name', 'copy', 'clone'];
 
   const undefinedProperties = mandatoryProperties.filter(p => {
-    return !typeDefinition[p]
-  })
+    return !typeDefinition[p];
+  });
 
   if (undefinedProperties.length > 0) {
     throw new Error(
-      `createType expects a type definition with the following properties: ${undefinedProperties.join(", ")}`
-    )
+      `createType expects a type definition with the following properties: ${undefinedProperties.join(', ')}`
+    );
   }
 
-  typeDefinition["isType"] = true
+  typeDefinition.isType = true;
 
-  return typeDefinition as PropType<T, D>
+  return typeDefinition as PropType<T, D>;
 }
 
 /**
@@ -70,65 +70,65 @@ export function createType<T, D>(typeDefinition: PropTypeDefinition<T, D>): Prop
  */
 export const Types = {
   Number: createType({
-    name: "Number",
+    name: 'Number',
     default: 0,
     copy: copyValue,
     clone: cloneValue
   }),
 
   Boolean: createType({
-    name: "Boolean",
+    name: 'Boolean',
     default: false,
     copy: copyValue,
     clone: cloneValue
   }),
 
   String: createType({
-    name: "String",
-    default: "",
+    name: 'String',
+    default: '',
     copy: copyValue,
     clone: cloneValue
   }),
 
   Array: createType({
-    name: "Array",
+    name: 'Array',
     default: [],
     copy: copyArray,
     clone: cloneArray
   }),
 
   Ref: createType({
-    name: "Ref",
+    name: 'Ref',
     default: undefined,
     copy: copyValue,
     clone: cloneValue
   }),
 
   JSON: createType({
-    name: "JSON",
+    name: 'JSON',
     default: null,
     copy: copyJSON,
     clone: cloneJSON
   }),
 
   Vector3Type: createType({
-    name: "Vector3",
+    name: 'Vector3',
     default: [0, 0, 0],
     copy: copyCopyable,
     clone: cloneClonable
   }),
 
   Vector2Type: createType({
-    name: "Vector2",
+    name: 'Vector2',
     default: [0, 0],
     copy: copyCopyable,
     clone: cloneClonable
   }),
 
   QuaternionType: createType({
-    name: "Quaternion",
+    name: 'Quaternion',
     default: [0, 0, 0],
     copy: copyCopyable,
     clone: cloneClonable
   })
-}
+};

@@ -24,4 +24,4 @@ export const DefaultInput = {
   MOVEMENT_PLAYERTWO: 20,
   LOOKTURN_PLAYERTWO: 21,
   ALTERNATE: 22
-}
+};

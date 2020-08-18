@@ -1,9 +1,9 @@
-import { ShaderMaterial, Uniform, Vector2 } from "three";
+import { ShaderMaterial, Uniform, Vector2 } from 'three';
 
-import fragmentShaderDepth from "./glsl/edge-detection/depth.frag";
-import fragmentShaderLuma from "./glsl/edge-detection/luma.frag";
-import fragmentShaderColor from "./glsl/edge-detection/color.frag";
-import vertexShader from "./glsl/edge-detection/shader.vert";
+import fragmentShaderDepth from './glsl/edge-detection/depth.frag';
+import fragmentShaderLuma from './glsl/edge-detection/luma.frag';
+import fragmentShaderColor from './glsl/edge-detection/color.frag';
+import vertexShader from './glsl/edge-detection/shader.vert';
 
 /**
  * An edge detection material.
@@ -12,8 +12,7 @@ import vertexShader from "./glsl/edge-detection/shader.vert";
  */
 
 export class EdgeDetectionMaterial extends ShaderMaterial {
-
-	/**
+  /**
 	 * Constructs a new edge detection material.
 	 *
 	 * @param {Vector2} [texelSize] - The screen texel size.
@@ -21,64 +20,58 @@ export class EdgeDetectionMaterial extends ShaderMaterial {
 	 * @todo Remove texelSize parameter.
 	 */
 
-	constructor(texelSize = new Vector2(), mode = EdgeDetectionMode.COLOR) {
+  constructor (texelSize = new Vector2(), mode = EdgeDetectionMode.COLOR) {
+    super({
 
-		super({
+      type: 'EdgeDetectionMaterial',
 
-			type: "EdgeDetectionMaterial",
+      defines: {
+        LOCAL_CONTRAST_ADAPTATION_FACTOR: '2.0',
+        EDGE_THRESHOLD: '0.1',
+        DEPTH_THRESHOLD: '0.01',
+        DEPTH_PACKING: '0'
+      },
 
-			defines: {
-				LOCAL_CONTRAST_ADAPTATION_FACTOR: "2.0",
-				EDGE_THRESHOLD: "0.1",
-				DEPTH_THRESHOLD: "0.01",
-				DEPTH_PACKING: "0"
-			},
+      uniforms: {
+        inputBuffer: new Uniform(null),
+        depthBuffer: new Uniform(null),
+        texelSize: new Uniform(texelSize)
+      },
 
-			uniforms: {
-				inputBuffer: new Uniform(null),
-				depthBuffer: new Uniform(null),
-				texelSize: new Uniform(texelSize)
-			},
+      vertexShader,
+      depthWrite: false,
+      depthTest: false
 
-			vertexShader,
-			depthWrite: false,
-			depthTest: false
+    });
 
-		});
+    /** @ignore */
+    this.toneMapped = false;
 
-		/** @ignore */
-		this.toneMapped = false;
+    this.setEdgeDetectionMode(mode);
+  }
 
-		this.setEdgeDetectionMode(mode);
-
-	}
-
-	/**
+  /**
 	 * The current depth packing.
 	 *
 	 * @type {Number}
 	 */
 
-	get depthPacking() {
+  get depthPacking () {
+    return Number(this.defines.DEPTH_PACKING);
+  }
 
-		return Number(this.defines.DEPTH_PACKING);
-
-	}
-
-	/**
+  /**
 	 * Sets the depth packing.
 	 *
 	 * @type {Number}
 	 */
 
-	set depthPacking(value) {
+  set depthPacking (value) {
+    this.defines.DEPTH_PACKING = value.toFixed(0);
+    this.needsUpdate = true;
+  }
 
-		this.defines.DEPTH_PACKING = value.toFixed(0);
-		this.needsUpdate = true;
-
-	}
-
-	/**
+  /**
 	 * Sets the edge detection mode.
 	 *
 	 * Warning: If you intend to change the edge detection mode at runtime, make
@@ -88,31 +81,27 @@ export class EdgeDetectionMaterial extends ShaderMaterial {
 	 * @param {EdgeDetectionMode} mode - The edge detection mode.
 	 */
 
-	setEdgeDetectionMode(mode) {
+  setEdgeDetectionMode (mode) {
+    switch (mode) {
+      case EdgeDetectionMode.DEPTH:
+        this.fragmentShader = fragmentShaderDepth;
+        break;
 
-		switch(mode) {
+      case EdgeDetectionMode.LUMA:
+        this.fragmentShader = fragmentShaderLuma;
+        break;
 
-			case EdgeDetectionMode.DEPTH:
-				this.fragmentShader = fragmentShaderDepth;
-				break;
+      case EdgeDetectionMode.COLOR:
+      default:
+        this.fragmentShader = fragmentShaderColor;
+        break;
+    }
 
-			case EdgeDetectionMode.LUMA:
-				this.fragmentShader = fragmentShaderLuma;
-				break;
+    this.defines.EDGE_DETECTION_MODE = mode.toFixed(0);
+    this.needsUpdate = true;
+  }
 
-			case EdgeDetectionMode.COLOR:
-			default:
-				this.fragmentShader = fragmentShaderColor;
-				break;
-
-		}
-
-		this.defines.EDGE_DETECTION_MODE = mode.toFixed(0);
-		this.needsUpdate = true;
-
-	}
-
-	/**
+  /**
 	 * Sets the local contrast adaptation factor. Has no effect if the edge
 	 * detection mode is set to DEPTH.
 	 *
@@ -126,14 +115,12 @@ export class EdgeDetectionMaterial extends ShaderMaterial {
 	 * @param {Number} factor - The local contrast adaptation factor. Default is 2.0.
 	 */
 
-	setLocalContrastAdaptationFactor(factor) {
+  setLocalContrastAdaptationFactor (factor) {
+    this.defines.LOCAL_CONTRAST_ADAPTATION_FACTOR = factor.toFixed('2');
+    this.needsUpdate = true;
+  }
 
-		this.defines.LOCAL_CONTRAST_ADAPTATION_FACTOR = factor.toFixed("2");
-		this.needsUpdate = true;
-
-	}
-
-	/**
+  /**
 	 * Sets the edge detection sensitivity.
 	 *
 	 * A lower value results in more edges being detected at the expense of
@@ -148,16 +135,13 @@ export class EdgeDetectionMaterial extends ShaderMaterial {
 	 * @param {Number} threshold - The edge detection sensitivity. Range: [0.05, 0.5].
 	 */
 
-	setEdgeDetectionThreshold(threshold) {
+  setEdgeDetectionThreshold (threshold) {
+    const t = Math.min(Math.max(threshold, 0.05), 0.5);
 
-		const t = Math.min(Math.max(threshold, 0.05), 0.5);
-
-		this.defines.EDGE_THRESHOLD = t.toFixed("2");
-		this.defines.DEPTH_THRESHOLD = (t * 0.1).toFixed("3");
-		this.needsUpdate = true;
-
-	}
-
+    this.defines.EDGE_THRESHOLD = t.toFixed('2');
+    this.defines.DEPTH_THRESHOLD = (t * 0.1).toFixed('3');
+    this.needsUpdate = true;
+  }
 }
 
 /**
@@ -171,8 +155,8 @@ export class EdgeDetectionMaterial extends ShaderMaterial {
 
 export const EdgeDetectionMode = {
 
-	DEPTH: 0,
-	LUMA: 1,
-	COLOR: 2
+  DEPTH: 0,
+  LUMA: 1,
+  COLOR: 2
 
 };

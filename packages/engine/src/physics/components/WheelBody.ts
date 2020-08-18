@@ -1,5 +1,5 @@
-import { Component } from "../../ecs/classes/Component"
-import { Types } from "../../ecs/types/Types"
+import { Component } from '../../ecs/classes/Component';
+import { Types } from '../../ecs/types/Types';
 
 export class WheelBody extends Component<WheelBody> {
   mass: 1
@@ -12,4 +12,4 @@ WheelBody.schema = {
   scale: { type: Types.Number, default: { x: 0.2, y: 0.1, z: 0.1 } },
   wheelMesh: { type: Types.Number, default: 1 },
   vehicle: { type: Types.Ref, default: null }
-}
+};

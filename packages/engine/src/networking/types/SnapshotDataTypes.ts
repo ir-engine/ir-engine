@@ -25,4 +25,4 @@ export interface InterpolatedSnapshot {
 }
 
 // TODO: Remove / move
-export type Quat = { x: number; y: number; z: number; w: number }
+export interface Quat { x: number, y: number, z: number, w: number }

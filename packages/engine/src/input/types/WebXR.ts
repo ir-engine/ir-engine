@@ -1,29 +1,29 @@
-export type XRSessionMode = "inline" | "immersive-vr" | "immersive-ar"
+export type XRSessionMode = 'inline' | 'immersive-vr' | 'immersive-ar'
 
-export type XRReferenceSpaceType = "viewer" | "local" | "local-floor" | "bounded-floor" | "unbounded"
+export type XRReferenceSpaceType = 'viewer' | 'local' | 'local-floor' | 'bounded-floor' | 'unbounded'
 
-export type XREnvironmentBlendMode = "opaque" | "additive" | "alpha-blend"
+export type XREnvironmentBlendMode = 'opaque' | 'additive' | 'alpha-blend'
 
-export type XRVisibilityState = "visible" | "visible-blurred" | "hidden"
+export type XRVisibilityState = 'visible' | 'visible-blurred' | 'hidden'
 
-export type XRHandedness = "none" | "left" | "right"
+export type XRHandedness = 'none' | 'left' | 'right'
 
-export type XRTargetRayMode = "gaze" | "tracked-pointer" | "screen"
+export type XRTargetRayMode = 'gaze' | 'tracked-pointer' | 'screen'
 
-export type XREye = "none" | "left" | "right"
+export type XREye = 'none' | 'left' | 'right'
 
 export type XREventType =
-  | "devicechange"
-  | "visibilitychange"
-  | "end"
-  | "inputsourceschange"
-  | "select"
-  | "selectstart"
-  | "selectend"
-  | "squeeze"
-  | "squeezestart"
-  | "squeezeend"
-  | "reset"
+  | 'devicechange'
+  | 'visibilitychange'
+  | 'end'
+  | 'inputsourceschange'
+  | 'select'
+  | 'selectstart'
+  | 'selectend'
+  | 'squeeze'
+  | 'squeezestart'
+  | 'squeezeend'
+  | 'reset'
 
 type XRSpace = EventTarget
 
@@ -40,7 +40,7 @@ export interface XRInputSource {
   targetRaySpace: XRSpace
   gripSpace: XRSpace | undefined
   gamepad: Gamepad | undefined
-  profiles: Array<string>
+  profiles: string[]
 }
 
 interface XRSessionInit {
@@ -49,14 +49,14 @@ interface XRSessionInit {
 }
 
 export interface XRSession {
-  addEventListener: Function
-  removeEventListener: Function
+  addEventListener: any
+  removeEventListener: any
   requestReferenceSpace(type: XRReferenceSpaceType): Promise<XRReferenceSpace>
   updateRenderState(XRRenderStateInit: XRRenderState): Promise<void>
-  requestAnimationFrame: Function
+  requestAnimationFrame: any
   end(): Promise<void>
   renderState: XRRenderState
-  inputSources: Array<XRInputSource>
+  inputSources: XRInputSource[]
 
   // hit test
   requestHitTestSource(options: XRHitTestOptionsInit): Promise<XRHitTestSource>
@@ -85,8 +85,8 @@ export interface XRFrame {
   getPose(space: XRSpace, baseSpace: XRSpace): XRPose | undefined
 
   // AR
-  getHitTestResults(hitTestSource: XRHitTestSource): Array<XRHitTestResult>
-  getHitTestResultsForTransientInput(hitTestSource: XRTransientInputHitTestSource): Array<XRTransientInputHitTestResult>
+  getHitTestResults(hitTestSource: XRHitTestSource): XRHitTestResult[]
+  getHitTestResultsForTransientInput(hitTestSource: XRTransientInputHitTestSource): XRTransientInputHitTestResult[]
   // Anchors
   trackedAnchors?: XRAnchorSet
   createAnchor(pose: XRRigidTransform, space: XRSpace): Promise<XRAnchor>
@@ -97,7 +97,7 @@ export interface XRFrame {
 }
 
 interface XRViewerPose extends XRPose {
-  views: Array<XRView>
+  views: XRView[]
 }
 
 export interface XRPose {
@@ -118,11 +118,11 @@ export interface XRWebGLLayer {
   framebuffer: WebGLFramebuffer
   framebufferWidth: number
   framebufferHeight: number
-  getViewport: Function
+  getViewport: any
 }
 
 declare class XRRigidTransform {
-  constructor(matrix: Float32Array | DOMPointInit, direction?: DOMPointInit)
+  constructor (matrix: Float32Array | DOMPointInit, direction?: DOMPointInit)
   position: DOMPointReadOnly
   orientation: DOMPointReadOnly
   matrix: Float32Array
@@ -137,8 +137,8 @@ interface XRView {
 
 interface XRInputSourceChangeEvent {
   session: XRSession
-  removed: Array<XRInputSource>
-  added: Array<XRInputSource>
+  removed: XRInputSource[]
+  added: XRInputSource[]
 }
 
 interface XRInputSourceEvent extends Event {
@@ -148,15 +148,15 @@ interface XRInputSourceEvent extends Event {
 
 // Experimental(er) features
 declare class XRRay {
-  constructor(transformOrOrigin: XRRigidTransform | DOMPointInit, direction?: DOMPointInit)
+  constructor (transformOrOrigin: XRRigidTransform | DOMPointInit, direction?: DOMPointInit)
   origin: DOMPointReadOnly
   direction: DOMPointReadOnly
   matrix: Float32Array
 }
 
 declare enum XRHitTestTrackableType {
-  "point",
-  "plane"
+  'point',
+  'plane'
 }
 
 interface XRHitResult {
@@ -165,7 +165,7 @@ interface XRHitResult {
 
 interface XRTransientInputHitTestResult {
   readonly inputSource: XRInputSource
-  readonly results: Array<XRHitTestResult>
+  readonly results: XRHitTestResult[]
 }
 
 interface XRHitTestResult {
@@ -184,13 +184,13 @@ interface XRTransientInputHitTestSource {
 
 interface XRHitTestOptionsInit {
   space: XRSpace
-  entityTypes?: Array<XRHitTestTrackableType>
+  entityTypes?: XRHitTestTrackableType[]
   offsetRay?: XRRay
 }
 
 interface XRTransientInputHitTestOptionsInit {
   profile: string
-  entityTypes?: Array<XRHitTestTrackableType>
+  entityTypes?: XRHitTestTrackableType[]
   offsetRay?: XRRay
 }
 
@@ -200,8 +200,8 @@ interface XRAnchor {
 }
 
 interface XRPlane {
-  orientation: "Horizontal" | "Vertical"
+  orientation: 'Horizontal' | 'Vertical'
   planeSpace: XRSpace
-  polygon: Array<DOMPointReadOnly>
+  polygon: DOMPointReadOnly[]
   lastChangedTime: number
 }

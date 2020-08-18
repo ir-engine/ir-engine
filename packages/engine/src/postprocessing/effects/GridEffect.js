@@ -1,16 +1,15 @@
-import { Uniform, Vector2 } from "three";
-import { BlendFunction } from "./blending/BlendFunction.js";
-import { Effect } from "./Effect.js";
+import { Uniform, Vector2 } from 'three';
+import { BlendFunction } from './blending/BlendFunction.js';
+import { Effect } from './Effect.js';
 
-import fragmentShader from "./glsl/grid/shader.frag";
+import fragmentShader from './glsl/grid/shader.frag';
 
 /**
  * A grid effect.
  */
 
 export class GridEffect extends Effect {
-
-	/**
+  /**
 	 * Constructs a new grid effect.
 	 *
 	 * @param {Object} [options] - The options.
@@ -19,115 +18,102 @@ export class GridEffect extends Effect {
 	 * @param {Number} [options.lineWidth=0.0] - The line width of the grid pattern.
 	 */
 
-	constructor({ blendFunction = BlendFunction.OVERLAY, scale = 1.0, lineWidth = 0.0 } = {}) {
+  constructor ({ blendFunction = BlendFunction.OVERLAY, scale = 1.0, lineWidth = 0.0 } = {}) {
+    super('GridEffect', fragmentShader, {
 
-		super("GridEffect", fragmentShader, {
+      blendFunction,
 
-			blendFunction,
+      uniforms: new Map([
+        ['scale', new Uniform(new Vector2())],
+        ['lineWidth', new Uniform(lineWidth)]
+      ])
 
-			uniforms: new Map([
-				["scale", new Uniform(new Vector2())],
-				["lineWidth", new Uniform(lineWidth)]
-			])
+    });
 
-		});
-
-		/**
+    /**
 		 * The original resolution.
 		 *
 		 * @type {Vector2}
 		 * @private
 		 */
 
-		this.resolution = new Vector2();
+    this.resolution = new Vector2();
 
-		/**
+    /**
 		 * The grid scale, relative to the screen height.
 		 *
 		 * @type {Number}
 		 * @private
 		 */
 
-		this.scale = Math.max(scale, 1e-6);
+    this.scale = Math.max(scale, 1e-6);
 
-		/**
+    /**
 		 * The grid line width.
 		 *
 		 * @type {Number}
 		 * @private
 		 */
 
-		this.lineWidth = Math.max(lineWidth, 0.0);
+    this.lineWidth = Math.max(lineWidth, 0.0);
+  }
 
-	}
-
-	/**
+  /**
 	 * Returns the current grid scale.
 	 *
 	 * @return {Number} The grid scale.
 	 */
 
-	getScale() {
+  getScale () {
+    return this.scale;
+  }
 
-		return this.scale;
-
-	}
-
-	/**
+  /**
 	 * Sets the grid scale.
 	 *
 	 * @param {Number} scale - The new grid scale.
 	 */
 
-	setScale(scale) {
+  setScale (scale) {
+    this.scale = scale;
+    this.setSize(this.resolution.x, this.resolution.y);
+  }
 
-		this.scale = scale;
-		this.setSize(this.resolution.x, this.resolution.y);
-
-	}
-
-	/**
+  /**
 	 * Returns the current grid line width.
 	 *
 	 * @return {Number} The grid line width.
 	 */
 
-	getLineWidth() {
+  getLineWidth () {
+    return this.lineWidth;
+  }
 
-		return this.lineWidth;
-
-	}
-
-	/**
+  /**
 	 * Sets the grid line width.
 	 *
 	 * @param {Number} lineWidth - The new grid line width.
 	 */
 
-	setLineWidth(lineWidth) {
+  setLineWidth (lineWidth) {
+    this.lineWidth = lineWidth;
+    this.setSize(this.resolution.x, this.resolution.y);
+  }
 
-		this.lineWidth = lineWidth;
-		this.setSize(this.resolution.x, this.resolution.y);
-
-	}
-
-	/**
+  /**
 	 * Updates the size of this pass.
 	 *
 	 * @param {Number} width - The width.
 	 * @param {Number} height - The height.
 	 */
 
-	setSize(width, height) {
+  setSize (width, height) {
+    this.resolution.set(width, height);
 
-		this.resolution.set(width, height);
+    const aspect = width / height;
+    const scale = this.scale * (height * 0.125);
 
-		const aspect = width / height;
-		const scale = this.scale * (height * 0.125);
-
-		this.uniforms.get("scale").value.set(aspect * scale, scale);
-		this.uniforms.get("lineWidth").value = (scale / height) + this.lineWidth;
-
-	}
-
+    this.uniforms.get('scale').value.set(aspect * scale, scale);
+    this.uniforms.get('lineWidth').value = (scale / height) + this.lineWidth;
+  }
 }

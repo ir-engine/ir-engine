@@ -1,24 +1,24 @@
 import {
-	Color,
-	DepthTexture,
-	LinearFilter,
-	Matrix4,
-	RGBFormat,
-	Scene,
-	Uniform,
-	Vector2,
-	Vector3,
-	UnsignedByteType,
-	WebGLRenderTarget
-} from "three";
+  Color,
+  DepthTexture,
+  LinearFilter,
+  Matrix4,
+  RGBFormat,
+  Scene,
+  Uniform,
+  Vector2,
+  Vector3,
+  UnsignedByteType,
+  WebGLRenderTarget
+} from 'three';
 
-import { Resizer } from "../core";
-import { DepthMaskMaterial, KernelSize, GodRaysMaterial } from "../materials";
-import { BlurPass, ClearPass, RenderPass, ShaderPass } from "../passes";
-import { BlendFunction } from "./blending/BlendFunction.js";
-import { Effect, EffectAttribute } from "./Effect.js";
+import { Resizer } from '../core';
+import { DepthMaskMaterial, KernelSize, GodRaysMaterial } from '../materials';
+import { BlurPass, ClearPass, RenderPass, ShaderPass } from '../passes';
+import { BlendFunction } from './blending/BlendFunction.js';
+import { Effect, EffectAttribute } from './Effect.js';
 
-import fragmentShader from "./glsl/god-rays/shader.frag";
+import fragmentShader from './glsl/god-rays/shader.frag';
 
 /**
  * A vector.
@@ -43,8 +43,7 @@ const m = new Matrix4();
  */
 
 export class GodRaysEffect extends Effect {
-
-	/**
+  /**
 	 * Constructs a new god rays effect.
 	 *
 	 * @param {Camera} camera - The main camera.
@@ -64,130 +63,129 @@ export class GodRaysEffect extends Effect {
 	 * @param {Boolean} [options.blur=true] - Whether the god rays should be blurred to reduce artifacts.
 	 */
 
-	constructor(camera, lightSource, {
-		blendFunction = BlendFunction.SCREEN,
-		samples = 60.0,
-		density = 0.96,
-		decay = 0.9,
-		weight = 0.4,
-		exposure = 0.6,
-		clampMax = 1.0,
-		resolutionScale = 0.5,
-		width = Resizer.AUTO_SIZE,
-		height = Resizer.AUTO_SIZE,
-		kernelSize = KernelSize.SMALL,
-		blur = true
-	} = {}) {
+  constructor (camera, lightSource, {
+    blendFunction = BlendFunction.SCREEN,
+    samples = 60.0,
+    density = 0.96,
+    decay = 0.9,
+    weight = 0.4,
+    exposure = 0.6,
+    clampMax = 1.0,
+    resolutionScale = 0.5,
+    width = Resizer.AUTO_SIZE,
+    height = Resizer.AUTO_SIZE,
+    kernelSize = KernelSize.SMALL,
+    blur = true
+  } = {}) {
+    super('GodRaysEffect', fragmentShader, {
 
-		super("GodRaysEffect", fragmentShader, {
+      blendFunction,
+      attributes: EffectAttribute.DEPTH,
 
-			blendFunction,
-			attributes: EffectAttribute.DEPTH,
+      uniforms: new Map([
+        ['texture', new Uniform(null)]
+      ])
 
-			uniforms: new Map([
-				["texture", new Uniform(null)]
-			])
+    });
 
-		});
-
-		/**
+    /**
 		 * The main camera.
 		 *
 		 * @type {Camera}
 		 * @private
 		 */
 
-		this.camera = camera;
+    this.camera = camera;
 
-		/**
+    /**
 		 * The light source.
 		 *
 		 * @type {Mesh|Points}
 		 * @private
 		 */
 
-		this.lightSource = lightSource;
-		this.lightSource.material.depthWrite = false;
-		this.lightSource.material.transparent = true;
+    this.lightSource = lightSource;
+    this.lightSource.material.depthWrite = false;
+    this.lightSource.material.transparent = true;
 
-		/**
+    /**
 		 * A scene that only contains the light source.
 		 *
 		 * @type {Scene}
 		 * @private
 		 */
 
-		this.lightScene = new Scene();
+    this.lightScene = new Scene();
 
-		/**
+    /**
 		 * The light position in screen space.
 		 *
 		 * @type {Vector3}
 		 * @private
 		 */
 
-		this.screenPosition = new Vector2();
+    this.screenPosition = new Vector2();
 
-		/**
+    /**
 		 * A render target.
 		 *
 		 * @type {WebGLRenderTarget}
 		 * @private
 		 */
 
-		this.renderTargetA = new WebGLRenderTarget(1, 1, {
-			minFilter: LinearFilter,
-			magFilter: LinearFilter,
-			stencilBuffer: false,
-			depthBuffer: false
-		});
+    this.renderTargetA = new WebGLRenderTarget(1, 1, {
+      minFilter: LinearFilter,
+      magFilter: LinearFilter,
+      stencilBuffer: false,
+      depthBuffer: false
+    });
 
-		this.renderTargetA.texture.name = "GodRays.Target.A";
+    this.renderTargetA.texture.name = 'GodRays.Target.A';
 
-		/**
+    /**
 		 * A render target.
 		 *
 		 * @type {WebGLRenderTarget}
 		 * @private
 		 */
 
-		this.renderTargetB = this.renderTargetA.clone();
-		this.renderTargetB.texture.name = "GodRays.Target.B";
-		this.uniforms.get("texture").value = this.renderTargetB.texture;
+    this.renderTargetB = this.renderTargetA.clone();
+    this.renderTargetB.texture.name = 'GodRays.Target.B';
+    this.uniforms.get('texture').value = this.renderTargetB.texture;
 
-		/**
+    /**
 		 * A render target for the light scene.
 		 *
 		 * @type {WebGLRenderTarget}
 		 * @private
 		 */
 
-		this.renderTargetLight = this.renderTargetA.clone();
-		this.renderTargetLight.texture.name = "GodRays.Light";
-		this.renderTargetLight.depthBuffer = true;
-		this.renderTargetLight.depthTexture = new DepthTexture();
+    this.renderTargetLight = this.renderTargetA.clone();
+    this.renderTargetLight.texture.name = 'GodRays.Light';
+    this.renderTargetLight.depthBuffer = true;
+    this.renderTargetLight.depthTexture = new DepthTexture();
 
-		/**
+    /**
 		 * A pass that only renders the light source.
 		 *
 		 * @type {RenderPass}
 		 * @private
 		 */
 
-		this.renderPassLight = new RenderPass(this.lightScene, camera);
-		this.renderPassLight.getClearPass().overrideClearColor = new Color(0x000000);
+    this.renderPassLight = new RenderPass(this.lightScene, camera);
+    this.renderPassLight.getClearPass().overrideClearColor = new Color(0x000000);
 
-		/**
+    /**
 		 * A clear pass.
 		 *
 		 * @type {ClearPass}
 		 * @private
 		 */
 
-		this.clearPass = new ClearPass(true, false, false);
-		this.clearPass.overrideClearColor = new Color(0x000000);
+    this.clearPass = new ClearPass(true, false, false);
+    this.clearPass.overrideClearColor = new Color(0x000000);
 
-		/**
+    /**
 		 * A blur pass that reduces aliasing artifacts and makes the light softer.
 		 *
 		 * Disable this pass to improve performance.
@@ -195,51 +193,46 @@ export class GodRaysEffect extends Effect {
 		 * @type {BlurPass}
 		 */
 
-		this.blurPass = new BlurPass({ resolutionScale, width, height, kernelSize });
-		this.blurPass.resolution.resizable = this;
+    this.blurPass = new BlurPass({ resolutionScale, width, height, kernelSize });
+    this.blurPass.resolution.resizable = this;
 
-		/**
+    /**
 		 * A depth mask pass.
 		 *
 		 * @type {ShaderPass}
 		 * @private
 		 */
 
-		this.depthMaskPass = new ShaderPass(((depthTexture) => {
+    this.depthMaskPass = new ShaderPass(((depthTexture) => {
+      const material = new DepthMaskMaterial();
+      material.uniforms.depthBuffer1.value = depthTexture;
 
-			const material = new DepthMaskMaterial();
-			material.uniforms.depthBuffer1.value = depthTexture;
+      return material;
+    })(this.renderTargetLight.depthTexture));
 
-			return material;
-
-		})(this.renderTargetLight.depthTexture));
-
-		/**
+    /**
 		 * A god rays blur pass.
 		 *
 		 * @type {ShaderPass}
 		 * @private
 		 */
 
-		this.godRaysPass = new ShaderPass((() => {
+    this.godRaysPass = new ShaderPass((() => {
+      const material = new GodRaysMaterial(this.screenPosition);
+      material.uniforms.density.value = density;
+      material.uniforms.decay.value = decay;
+      material.uniforms.weight.value = weight;
+      material.uniforms.exposure.value = exposure;
+      material.uniforms.clampMax.value = clampMax;
 
-			const material = new GodRaysMaterial(this.screenPosition);
-			material.uniforms.density.value = density;
-			material.uniforms.decay.value = decay;
-			material.uniforms.weight.value = weight;
-			material.uniforms.exposure.value = exposure;
-			material.uniforms.clampMax.value = clampMax;
+      return material;
+    })());
 
-			return material;
+    this.samples = samples;
+    this.blur = blur;
+  }
 
-		})());
-
-		this.samples = samples;
-		this.blur = blur;
-
-	}
-
-	/**
+  /**
 	 * A texture that contains the intermediate result of this effect.
 	 *
 	 * This texture will be applied to the scene colors unless the blend function
@@ -248,231 +241,195 @@ export class GodRaysEffect extends Effect {
 	 * @type {Texture}
 	 */
 
-	get texture() {
+  get texture () {
+    return this.renderTargetB.texture;
+  }
 
-		return this.renderTargetB.texture;
-
-	}
-
-	/**
+  /**
 	 * The internal god rays material.
 	 *
 	 * @type {GodRaysMaterial}
 	 */
 
-	get godRaysMaterial() {
+  get godRaysMaterial () {
+    return this.godRaysPass.getFullscreenMaterial();
+  }
 
-		return this.godRaysPass.getFullscreenMaterial();
-
-	}
-
-	/**
+  /**
 	 * The resolution of this effect.
 	 *
 	 * @type {Resizer}
 	 */
 
-	get resolution() {
+  get resolution () {
+    return this.blurPass.resolution;
+  }
 
-		return this.blurPass.resolution;
-
-	}
-
-	/**
+  /**
 	 * The current width of the internal render targets.
 	 *
 	 * @type {Number}
 	 * @deprecated Use resolution.width instead.
 	 */
 
-	get width() {
+  get width () {
+    return this.resolution.width;
+  }
 
-		return this.resolution.width;
-
-	}
-
-	/**
+  /**
 	 * Sets the render width.
 	 *
 	 * @type {Number}
 	 * @deprecated Use resolution.width instead.
 	 */
 
-	set width(value) {
+  set width (value) {
+    this.resolution.width = value;
+  }
 
-		this.resolution.width = value;
-
-	}
-
-	/**
+  /**
 	 * The current height of the internal render targets.
 	 *
 	 * @type {Number}
 	 * @deprecated Use resolution.height instead.
 	 */
 
-	get height() {
+  get height () {
+    return this.resolution.height;
+  }
 
-		return this.resolution.height;
-
-	}
-
-	/**
+  /**
 	 * Sets the render height.
 	 *
 	 * @type {Number}
 	 * @deprecated Use resolution.height instead.
 	 */
 
-	set height(value) {
+  set height (value) {
+    this.resolution.height = value;
+  }
 
-		this.resolution.height = value;
-
-	}
-
-	/**
+  /**
 	 * Indicates whether dithering is enabled.
 	 *
 	 * @type {Boolean}
 	 * @deprecated Set the frameBufferType of the EffectComposer to HalfFloatType instead.
 	 */
 
-	get dithering() {
+  get dithering () {
+    return this.godRaysMaterial.dithering;
+  }
 
-		return this.godRaysMaterial.dithering;
-
-	}
-
-	/**
+  /**
 	 * Enables or disables dithering.
 	 *
 	 * @type {Boolean}
 	 * @deprecated Set the frameBufferType of the EffectComposer to HalfFloatType instead.
 	 */
 
-	set dithering(value) {
+  set dithering (value) {
+    const material = this.godRaysMaterial;
 
-		const material = this.godRaysMaterial;
+    material.dithering = value;
+    material.needsUpdate = true;
+  }
 
-		material.dithering = value;
-		material.needsUpdate = true;
-
-	}
-
-	/**
+  /**
 	 * Indicates whether the god rays should be blurred to reduce artifacts.
 	 *
 	 * @type {Boolean}
 	 */
 
-	get blur() {
+  get blur () {
+    return this.blurPass.enabled;
+  }
 
-		return this.blurPass.enabled;
-
-	}
-
-	/**
+  /**
 	 * @type {Boolean}
 	 */
 
-	set blur(value) {
+  set blur (value) {
+    this.blurPass.enabled = value;
+  }
 
-		this.blurPass.enabled = value;
-
-	}
-
-	/**
+  /**
 	 * The blur kernel size.
 	 *
 	 * @type {KernelSize}
 	 * @deprecated Use blurPass.kernelSize instead.
 	 */
 
-	get kernelSize() {
+  get kernelSize () {
+    return this.blurPass.kernelSize;
+  }
 
-		return this.blurPass.kernelSize;
-
-	}
-
-	/**
+  /**
 	 * Sets the blur kernel size.
 	 *
 	 * @type {KernelSize}
 	 * @deprecated Use blurPass.kernelSize instead.
 	 */
 
-	set kernelSize(value) {
+  set kernelSize (value) {
+    this.blurPass.kernelSize = value;
+  }
 
-		this.blurPass.kernelSize = value;
-
-	}
-
-	/**
+  /**
 	 * Returns the current resolution scale.
 	 *
 	 * @return {Number} The resolution scale.
 	 * @deprecated Adjust the fixed resolution width or height instead.
 	 */
 
-	getResolutionScale() {
+  getResolutionScale () {
+    return this.resolution.scale;
+  }
 
-		return this.resolution.scale;
-
-	}
-
-	/**
+  /**
 	 * Sets the resolution scale.
 	 *
 	 * @param {Number} scale - The new resolution scale.
 	 * @deprecated Adjust the fixed resolution width or height instead.
 	 */
 
-	setResolutionScale(scale) {
+  setResolutionScale (scale) {
+    this.resolution.scale = scale;
+  }
 
-		this.resolution.scale = scale;
-
-	}
-
-	/**
+  /**
 	 * The number of samples per pixel.
 	 *
 	 * @type {Number}
 	 */
 
-	get samples() {
+  get samples () {
+    return this.godRaysMaterial.samples;
+  }
 
-		return this.godRaysMaterial.samples;
-
-	}
-
-	/**
+  /**
 	 * A higher sample count improves quality at the cost of performance.
 	 *
 	 * @type {Number}
 	 */
 
-	set samples(value) {
+  set samples (value) {
+    this.godRaysMaterial.samples = value;
+  }
 
-		this.godRaysMaterial.samples = value;
-
-	}
-
-	/**
+  /**
 	 * Sets the depth texture.
 	 *
 	 * @param {Texture} depthTexture - A depth texture.
 	 * @param {Number} [depthPacking=0] - The depth packing.
 	 */
 
-	setDepthTexture(depthTexture, depthPacking = 0) {
+  setDepthTexture (depthTexture, depthPacking = 0) {
+    const material = this.depthMaskPass.getFullscreenMaterial();
+    material.uniforms.depthBuffer0.value = depthTexture;
+    material.defines.DEPTH_PACKING_0 = depthPacking.toFixed(0);
+  }
 
-		const material = this.depthMaskPass.getFullscreenMaterial();
-		material.uniforms.depthBuffer0.value = depthTexture;
-		material.defines.DEPTH_PACKING_0 = depthPacking.toFixed(0);
-
-	}
-
-	/**
+  /**
 	 * Updates this effect.
 	 *
 	 * @param {WebGLRenderer} renderer - The renderer.
@@ -480,103 +437,89 @@ export class GodRaysEffect extends Effect {
 	 * @param {Number} [deltaTime] - The time between the last frame and the current one in seconds.
 	 */
 
-	update(renderer, inputBuffer, deltaTime) {
+  update (renderer, inputBuffer, deltaTime) {
+    const lightSource = this.lightSource;
+    const parent = lightSource.parent;
+    const matrixAutoUpdate = lightSource.matrixAutoUpdate;
 
-		const lightSource = this.lightSource;
-		const parent = lightSource.parent;
-		const matrixAutoUpdate = lightSource.matrixAutoUpdate;
+    const renderTargetA = this.renderTargetA;
+    const renderTargetLight = this.renderTargetLight;
 
-		const renderTargetA = this.renderTargetA;
-		const renderTargetLight = this.renderTargetLight;
+    // Enable depth write for the light scene render pass.
+    lightSource.material.depthWrite = true;
 
-		// Enable depth write for the light scene render pass.
-		lightSource.material.depthWrite = true;
+    // Update the world matrix.
+    lightSource.matrixAutoUpdate = false;
+    lightSource.updateWorldMatrix(true, false);
 
-		// Update the world matrix.
-		lightSource.matrixAutoUpdate = false;
-		lightSource.updateWorldMatrix(true, false);
+    if (parent !== null) {
+      if (!matrixAutoUpdate) {
+        // Remember the local transformation to restore it later.
+        m.copy(lightSource.matrix);
+      }
 
-		if(parent !== null) {
+      // Apply parent transformations.
+      lightSource.matrix.copy(lightSource.matrixWorld);
+    }
 
-			if(!matrixAutoUpdate) {
+    // Render the light source and mask it based on depth.
+    this.lightScene.add(lightSource);
+    this.renderPassLight.render(renderer, renderTargetLight);
+    this.clearPass.render(renderer, renderTargetA);
+    this.depthMaskPass.render(renderer, renderTargetLight, renderTargetA);
 
-				// Remember the local transformation to restore it later.
-				m.copy(lightSource.matrix);
+    // Restore the original values.
+    lightSource.material.depthWrite = false;
+    lightSource.matrixAutoUpdate = matrixAutoUpdate;
 
-			}
+    if (parent !== null) {
+      if (!matrixAutoUpdate) {
+        lightSource.matrix.copy(m);
+      }
 
-			// Apply parent transformations.
-			lightSource.matrix.copy(lightSource.matrixWorld);
+      parent.add(lightSource);
+    }
 
-		}
+    // Calculate the screen light position.
+    v.setFromMatrixPosition(lightSource.matrixWorld).project(this.camera);
 
-		// Render the light source and mask it based on depth.
-		this.lightScene.add(lightSource);
-		this.renderPassLight.render(renderer, renderTargetLight);
-		this.clearPass.render(renderer, renderTargetA);
-		this.depthMaskPass.render(renderer, renderTargetLight, renderTargetA);
+    // Translate to [0.0, 1.0] and clamp to screen with a bias of 1.0.
+    this.screenPosition.set(
+      Math.min(Math.max((v.x + 1.0) * 0.5, -1.0), 2.0),
+      Math.min(Math.max((v.y + 1.0) * 0.5, -1.0), 2.0)
+    );
 
-		// Restore the original values.
-		lightSource.material.depthWrite = false;
-		lightSource.matrixAutoUpdate = matrixAutoUpdate;
+    if (this.blur) {
+      // Blur the masked scene to reduce artifacts.
+      this.blurPass.render(renderer, renderTargetA, renderTargetA);
+    }
 
-		if(parent !== null) {
+    // Blur the masked scene along radial lines towards the light source.
+    this.godRaysPass.render(renderer, renderTargetA, this.renderTargetB);
+  }
 
-			if(!matrixAutoUpdate) {
-
-				lightSource.matrix.copy(m);
-
-			}
-
-			parent.add(lightSource);
-
-		}
-
-		// Calculate the screen light position.
-		v.setFromMatrixPosition(lightSource.matrixWorld).project(this.camera);
-
-		// Translate to [0.0, 1.0] and clamp to screen with a bias of 1.0.
-		this.screenPosition.set(
-			Math.min(Math.max((v.x + 1.0) * 0.5, -1.0), 2.0),
-			Math.min(Math.max((v.y + 1.0) * 0.5, -1.0), 2.0)
-		);
-
-		if(this.blur) {
-
-			// Blur the masked scene to reduce artifacts.
-			this.blurPass.render(renderer, renderTargetA, renderTargetA);
-
-		}
-
-		// Blur the masked scene along radial lines towards the light source.
-		this.godRaysPass.render(renderer, renderTargetA, this.renderTargetB);
-
-	}
-
-	/**
+  /**
 	 * Updates the size of internal render targets.
 	 *
 	 * @param {Number} width - The width.
 	 * @param {Number} height - The height.
 	 */
 
-	setSize(width, height) {
+  setSize (width, height) {
+    this.blurPass.setSize(width, height);
+    this.renderPassLight.setSize(width, height);
+    this.depthMaskPass.setSize(width, height);
+    this.godRaysPass.setSize(width, height);
 
-		this.blurPass.setSize(width, height);
-		this.renderPassLight.setSize(width, height);
-		this.depthMaskPass.setSize(width, height);
-		this.godRaysPass.setSize(width, height);
+    const w = this.resolution.width;
+    const h = this.resolution.height;
 
-		const w = this.resolution.width;
-		const h = this.resolution.height;
+    this.renderTargetA.setSize(w, h);
+    this.renderTargetB.setSize(w, h);
+    this.renderTargetLight.setSize(w, h);
+  }
 
-		this.renderTargetA.setSize(w, h);
-		this.renderTargetB.setSize(w, h);
-		this.renderTargetLight.setSize(w, h);
-
-	}
-
-	/**
+  /**
 	 * Performs initialization tasks.
 	 *
 	 * @param {WebGLRenderer} renderer - The renderer.
@@ -584,29 +527,22 @@ export class GodRaysEffect extends Effect {
 	 * @param {Number} frameBufferType - The type of the main frame buffers.
 	 */
 
-	initialize(renderer, alpha, frameBufferType) {
+  initialize (renderer, alpha, frameBufferType) {
+    this.blurPass.initialize(renderer, alpha, frameBufferType);
+    this.renderPassLight.initialize(renderer, alpha, frameBufferType);
+    this.depthMaskPass.initialize(renderer, alpha, frameBufferType);
+    this.godRaysPass.initialize(renderer, alpha, frameBufferType);
 
-		this.blurPass.initialize(renderer, alpha, frameBufferType);
-		this.renderPassLight.initialize(renderer, alpha, frameBufferType);
-		this.depthMaskPass.initialize(renderer, alpha, frameBufferType);
-		this.godRaysPass.initialize(renderer, alpha, frameBufferType);
+    if (!alpha && frameBufferType === UnsignedByteType) {
+      this.renderTargetA.texture.format = RGBFormat;
+      this.renderTargetB.texture.format = RGBFormat;
+      this.renderTargetLight.texture.format = RGBFormat;
+    }
 
-		if(!alpha && frameBufferType === UnsignedByteType) {
-
-			this.renderTargetA.texture.format = RGBFormat;
-			this.renderTargetB.texture.format = RGBFormat;
-			this.renderTargetLight.texture.format = RGBFormat;
-
-		}
-
-		if(frameBufferType !== undefined) {
-
-			this.renderTargetA.texture.type = frameBufferType;
-			this.renderTargetB.texture.type = frameBufferType;
-			this.renderTargetLight.texture.type = frameBufferType;
-
-		}
-
-	}
-
+    if (frameBufferType !== undefined) {
+      this.renderTargetA.texture.type = frameBufferType;
+      this.renderTargetB.texture.type = frameBufferType;
+      this.renderTargetLight.texture.type = frameBufferType;
+    }
+  }
 }

@@ -1,7 +1,7 @@
-import { ShaderMaterial, Uniform, Vector2 } from "three";
+import { ShaderMaterial, Uniform, Vector2 } from 'three';
 
-import fragmentShader from "./glsl/edge-detection/color.frag";
-import vertexShader from "./glsl/edge-detection/shader.vert";
+import fragmentShader from './glsl/edge-detection/color.frag';
+import vertexShader from './glsl/edge-detection/shader.vert';
 
 /**
  * A material that detects edges in a color texture.
@@ -10,43 +10,40 @@ import vertexShader from "./glsl/edge-detection/shader.vert";
  */
 
 export class ColorEdgesMaterial extends ShaderMaterial {
-
-	/**
+  /**
 	 * Constructs a new color edges material.
 	 *
 	 * @param {Vector2} [texelSize] - The absolute screen texel size.
 	 */
 
-	constructor(texelSize = new Vector2()) {
+  constructor (texelSize = new Vector2()) {
+    super({
 
-		super({
+      type: 'ColorEdgesMaterial',
 
-			type: "ColorEdgesMaterial",
+      defines: {
+        LOCAL_CONTRAST_ADAPTATION_FACTOR: '2.0',
+        EDGE_THRESHOLD: '0.1'
+      },
 
-			defines: {
-				LOCAL_CONTRAST_ADAPTATION_FACTOR: "2.0",
-				EDGE_THRESHOLD: "0.1"
-			},
+      uniforms: {
+        inputBuffer: new Uniform(null),
+        texelSize: new Uniform(texelSize)
+      },
 
-			uniforms: {
-				inputBuffer: new Uniform(null),
-				texelSize: new Uniform(texelSize)
-			},
+      fragmentShader,
+      vertexShader,
 
-			fragmentShader,
-			vertexShader,
+      depthWrite: false,
+      depthTest: false
 
-			depthWrite: false,
-			depthTest: false
+    });
 
-		});
+    /** @ignore */
+    this.toneMapped = false;
+  }
 
-		/** @ignore */
-		this.toneMapped = false;
-
-	}
-
-	/**
+  /**
 	 * Sets the local contrast adaptation factor.
 	 *
 	 * If there is a neighbor edge that has _factor_ times bigger contrast than
@@ -59,14 +56,12 @@ export class ColorEdgesMaterial extends ShaderMaterial {
 	 * @param {Number} factor - The local contrast adaptation factor. Default is 2.0.
 	 */
 
-	setLocalContrastAdaptationFactor(factor) {
+  setLocalContrastAdaptationFactor (factor) {
+    this.defines.LOCAL_CONTRAST_ADAPTATION_FACTOR = factor.toFixed('2');
+    this.needsUpdate = true;
+  }
 
-		this.defines.LOCAL_CONTRAST_ADAPTATION_FACTOR = factor.toFixed("2");
-		this.needsUpdate = true;
-
-	}
-
-	/**
+  /**
 	 * Sets the edge detection sensitivity.
 	 *
 	 * A lower value results in more edges being detected at the expense of
@@ -81,12 +76,9 @@ export class ColorEdgesMaterial extends ShaderMaterial {
 	 * @param {Number} threshold - The edge detection sensitivity. Range: [0.05, 0.5].
 	 */
 
-	setEdgeDetectionThreshold(threshold) {
-
-		const t = Math.min(Math.max(threshold, 0.05), 0.5);
-		this.defines.EDGE_THRESHOLD = t.toFixed("2");
-		this.needsUpdate = true;
-
-	}
-
+  setEdgeDetectionThreshold (threshold) {
+    const t = Math.min(Math.max(threshold, 0.05), 0.5);
+    this.defines.EDGE_THRESHOLD = t.toFixed('2');
+    this.needsUpdate = true;
+  }
 }

@@ -1,8 +1,8 @@
-import { ShaderMaterial, Uniform } from "three";
-import { ColorChannel } from "../core/ColorChannel.js";
+import { ShaderMaterial, Uniform } from 'three';
+import { ColorChannel } from '../core/ColorChannel.js';
 
-import fragmentShader from "./glsl/mask/shader.frag";
-import vertexShader from "./glsl/common/shader.vert";
+import fragmentShader from './glsl/mask/shader.frag';
+import vertexShader from './glsl/common/shader.vert';
 
 /**
  * A mask shader material.
@@ -11,54 +11,49 @@ import vertexShader from "./glsl/common/shader.vert";
  */
 
 export class MaskMaterial extends ShaderMaterial {
-
-	/**
+  /**
 	 * Constructs a new mask material.
 	 *
 	 * @param {Texture} [maskTexture] - The mask texture.
 	 */
 
-	constructor(maskTexture = null) {
+  constructor (maskTexture = null) {
+    super({
 
-		super({
+      type: 'MaskMaterial',
 
-			type: "MaskMaterial",
+      uniforms: {
+        maskTexture: new Uniform(maskTexture),
+        inputBuffer: new Uniform(null),
+        strength: new Uniform(1.0)
+      },
 
-			uniforms: {
-				maskTexture: new Uniform(maskTexture),
-				inputBuffer: new Uniform(null),
-				strength: new Uniform(1.0)
-			},
+      fragmentShader,
+      vertexShader,
 
-			fragmentShader,
-			vertexShader,
+      depthWrite: false,
+      depthTest: false
 
-			depthWrite: false,
-			depthTest: false
+    });
 
-		});
+    /** @ignore */
+    this.toneMapped = false;
 
-		/** @ignore */
-		this.toneMapped = false;
+    this.colorChannel = ColorChannel.RED;
+    this.maskFunction = MaskFunction.DISCARD;
+  }
 
-		this.colorChannel = ColorChannel.RED;
-		this.maskFunction = MaskFunction.DISCARD;
-
-	}
-
-	/**
+  /**
 	 * Sets the mask texture.
 	 *
 	 * @type {Texture}
 	 */
 
-	set maskTexture(value) {
+  set maskTexture (value) {
+    this.uniforms.maskTexture.value = value;
+  }
 
-		this.uniforms.maskTexture.value = value;
-
-	}
-
-	/**
+  /**
 	 * Sets the color channel to use for masking.
 	 *
 	 * The default channel is `RED`.
@@ -66,14 +61,12 @@ export class MaskMaterial extends ShaderMaterial {
 	 * @type {ColorChannel}
 	 */
 
-	set colorChannel(value) {
+  set colorChannel (value) {
+    this.defines.COLOR_CHANNEL = value.toFixed(0);
+    this.needsUpdate = true;
+  }
 
-		this.defines.COLOR_CHANNEL = value.toFixed(0);
-		this.needsUpdate = true;
-
-	}
-
-	/**
+  /**
 	 * Sets the masking technique.
 	 *
 	 * The default function is `DISCARD`.
@@ -81,48 +74,38 @@ export class MaskMaterial extends ShaderMaterial {
 	 * @type {MaskFunction}
 	 */
 
-	set maskFunction(value) {
+  set maskFunction (value) {
+    this.defines.MASK_FUNCTION = value.toFixed(0);
+    this.needsUpdate = true;
+  }
 
-		this.defines.MASK_FUNCTION = value.toFixed(0);
-		this.needsUpdate = true;
-
-	}
-
-	/**
+  /**
 	 * Indicates whether the masking is inverted.
 	 *
 	 * @type {Boolean}
 	 */
 
-	get inverted() {
+  get inverted () {
+    return (this.defines.INVERTED !== undefined);
+  }
 
-		return (this.defines.INVERTED !== undefined);
-
-	}
-
-	/**
+  /**
 	 * Determines whether the masking should be inverted.
 	 *
 	 * @type {Boolean}
 	 */
 
-	set inverted(value) {
+  set inverted (value) {
+    if (this.inverted && !value) {
+      delete this.defines.INVERTED;
+    } else if (value) {
+      this.defines.INVERTED = '1';
+    }
 
-		if(this.inverted && !value) {
+    this.needsUpdate = true;
+  }
 
-			delete this.defines.INVERTED;
-
-		} else if(value) {
-
-			this.defines.INVERTED = "1";
-
-		}
-
-		this.needsUpdate = true;
-
-	}
-
-	/**
+  /**
 	 * The current mask strength.
 	 *
 	 * Individual mask values will be clamped to [0.0, 1.0].
@@ -130,13 +113,11 @@ export class MaskMaterial extends ShaderMaterial {
 	 * @type {Number}
 	 */
 
-	get strength() {
+  get strength () {
+    return this.uniforms.strength.value;
+  }
 
-		return this.uniforms.strength.value;
-
-	}
-
-	/**
+  /**
 	 * Sets the strength of the mask.
 	 *
 	 * Has no effect when the mask function is set to `DISCARD`.
@@ -144,12 +125,9 @@ export class MaskMaterial extends ShaderMaterial {
 	 * @type {Number}
 	 */
 
-	set strength(value) {
-
-		this.uniforms.strength.value = value;
-
-	}
-
+  set strength (value) {
+    this.uniforms.strength.value = value;
+  }
 }
 
 /**
@@ -163,8 +141,8 @@ export class MaskMaterial extends ShaderMaterial {
 
 export const MaskFunction = {
 
-	DISCARD: 0,
-	MULTIPLY: 1,
-	MULTIPLY_RGB_SET_ALPHA: 2
+  DISCARD: 0,
+  MULTIPLY: 1,
+  MULTIPLY_RGB_SET_ALPHA: 2
 
 };

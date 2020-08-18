@@ -1,6 +1,6 @@
-import { EventDispatcher } from "three";
-import { BlendFunction } from "./blending/BlendFunction.js";
-import { BlendMode } from "./blending/BlendMode.js";
+import { EventDispatcher } from 'three';
+import { BlendFunction } from './blending/BlendFunction.js';
+import { BlendMode } from './blending/BlendMode.js';
 
 /**
  * An abstract effect.
@@ -13,8 +13,7 @@ import { BlendMode } from "./blending/BlendMode.js";
  */
 
 export class Effect extends EventDispatcher {
-
-	/**
+  /**
 	 * Constructs a new effect.
 	 *
 	 * @param {String} name - The name of this effect. Doesn't have to be unique.
@@ -28,53 +27,52 @@ export class Effect extends EventDispatcher {
 	 * @param {String} [options.vertexShader=null] - The vertex shader. Most effects don't need one.
 	 */
 
-	constructor(name, fragmentShader, {
-		attributes = EffectAttribute.NONE,
-		blendFunction = BlendFunction.SCREEN,
-		defines = new Map(),
-		uniforms = new Map(),
-		extensions = null,
-		vertexShader = null
-	} = {}) {
+  constructor (name, fragmentShader, {
+    attributes = EffectAttribute.NONE,
+    blendFunction = BlendFunction.SCREEN,
+    defines = new Map(),
+    uniforms = new Map(),
+    extensions = null,
+    vertexShader = null
+  } = {}) {
+    super();
 
-		super();
-
-		/**
+    /**
 		 * The name of this effect.
 		 *
 		 * @type {String}
 		 */
 
-		this.name = name;
+    this.name = name;
 
-		/**
+    /**
 		 * The effect attributes.
 		 *
 		 * @type {EffectAttribute}
 		 * @private
 		 */
 
-		this.attributes = attributes;
+    this.attributes = attributes;
 
-		/**
+    /**
 		 * The fragment shader.
 		 *
 		 * @type {String}
 		 * @private
 		 */
 
-		this.fragmentShader = fragmentShader;
+    this.fragmentShader = fragmentShader;
 
-		/**
+    /**
 		 * The vertex shader.
 		 *
 		 * @type {String}
 		 * @private
 		 */
 
-		this.vertexShader = vertexShader;
+    this.vertexShader = vertexShader;
 
-		/**
+    /**
 		 * Preprocessor macro definitions.
 		 *
 		 * Call {@link Effect.setChanged} after changing macro definitions.
@@ -82,9 +80,9 @@ export class Effect extends EventDispatcher {
 		 * @type {Map<String, String>}
 		 */
 
-		this.defines = defines;
+    this.defines = defines;
 
-		/**
+    /**
 		 * Shader uniforms.
 		 *
 		 * You may freely modify the values of these uniforms at runtime. However,
@@ -95,9 +93,9 @@ export class Effect extends EventDispatcher {
 		 * @type {Map<String, Uniform>}
 		 */
 
-		this.uniforms = uniforms;
+    this.uniforms = uniforms;
 
-		/**
+    /**
 		 * WebGL extensions that are required by this effect.
 		 *
 		 * Call {@link Effect.setChanged} after adding or removing extensions.
@@ -105,9 +103,9 @@ export class Effect extends EventDispatcher {
 		 * @type {Set<WebGLExtension>}
 		 */
 
-		this.extensions = extensions;
+    this.extensions = extensions;
 
-		/**
+    /**
 		 * The blend mode of this effect.
 		 *
 		 * The result of this effect will be blended with the result of the previous
@@ -116,12 +114,11 @@ export class Effect extends EventDispatcher {
 		 * @type {BlendMode}
 		 */
 
-		this.blendMode = new BlendMode(blendFunction);
-		this.blendMode.addEventListener("change", (event) => this.setChanged());
+    this.blendMode = new BlendMode(blendFunction);
+    this.blendMode.addEventListener('change', (event) => this.setChanged());
+  }
 
-	}
-
-	/**
+  /**
 	 * Informs the associated {@link EffectPass} that this effect has changed in
 	 * a way that requires a shader recompilation.
 	 *
@@ -131,25 +128,21 @@ export class Effect extends EventDispatcher {
 	 * @protected
 	 */
 
-	setChanged() {
+  setChanged () {
+    this.dispatchEvent({ type: 'change' });
+  }
 
-		this.dispatchEvent({ type: "change" });
-
-	}
-
-	/**
+  /**
 	 * Returns the effect attributes.
 	 *
 	 * @return {EffectAttribute} The attributes.
 	 */
 
-	getAttributes() {
+  getAttributes () {
+    return this.attributes;
+  }
 
-		return this.attributes;
-
-	}
-
-	/**
+  /**
 	 * Sets the effect attributes.
 	 *
 	 * Effects that have the same attributes will be executed in the order in
@@ -159,66 +152,56 @@ export class Effect extends EventDispatcher {
 	 * @param {EffectAttribute} attributes - The attributes.
 	 */
 
-	setAttributes(attributes) {
+  setAttributes (attributes) {
+    this.attributes = attributes;
+    this.setChanged();
+  }
 
-		this.attributes = attributes;
-		this.setChanged();
-
-	}
-
-	/**
+  /**
 	 * Returns the fragment shader.
 	 *
 	 * @return {String} The fragment shader.
 	 */
 
-	getFragmentShader() {
+  getFragmentShader () {
+    return this.fragmentShader;
+  }
 
-		return this.fragmentShader;
-
-	}
-
-	/**
+  /**
 	 * Sets the fragment shader.
 	 *
 	 * @protected
 	 * @param {String} fragmentShader - The fragment shader.
 	 */
 
-	setFragmentShader(fragmentShader) {
+  setFragmentShader (fragmentShader) {
+    this.fragmentShader = fragmentShader;
+    this.setChanged();
+  }
 
-		this.fragmentShader = fragmentShader;
-		this.setChanged();
-
-	}
-
-	/**
+  /**
 	 * Returns the vertex shader.
 	 *
 	 * @return {String} The vertex shader.
 	 */
 
-	getVertexShader() {
+  getVertexShader () {
+    return this.vertexShader;
+  }
 
-		return this.vertexShader;
-
-	}
-
-	/**
+  /**
 	 * Sets the vertex shader.
 	 *
 	 * @protected
 	 * @param {String} vertexShader - The vertex shader.
 	 */
 
-	setVertexShader(vertexShader) {
+  setVertexShader (vertexShader) {
+    this.vertexShader = vertexShader;
+    this.setChanged();
+  }
 
-		this.vertexShader = vertexShader;
-		this.setChanged();
-
-	}
-
-	/**
+  /**
 	 * Sets the depth texture.
 	 *
 	 * You may override this method if your effect requires direct access to the
@@ -228,9 +211,9 @@ export class Effect extends EventDispatcher {
 	 * @param {Number} [depthPacking=0] - The depth packing.
 	 */
 
-	setDepthTexture(depthTexture, depthPacking = 0) {}
+  setDepthTexture (depthTexture, depthPacking = 0) {}
 
-	/**
+  /**
 	 * Updates the effect by performing supporting operations.
 	 *
 	 * This method is called by the {@link EffectPass} right before the main
@@ -244,9 +227,9 @@ export class Effect extends EventDispatcher {
 	 * @param {Number} [deltaTime] - The time between the last frame and the current one in seconds.
 	 */
 
-	update(renderer, inputBuffer, deltaTime) {}
+  update (renderer, inputBuffer, deltaTime) {}
 
-	/**
+  /**
 	 * Updates the size of this effect.
 	 *
 	 * You may override this method in case you want to be informed about the main
@@ -260,9 +243,9 @@ export class Effect extends EventDispatcher {
 	 * @example this.myRenderTarget.setSize(width, height);
 	 */
 
-	setSize(width, height) {}
+  setSize (width, height) {}
 
-	/**
+  /**
 	 * Performs initialization tasks.
 	 *
 	 * By overriding this method you gain access to the renderer. You'll also be
@@ -281,9 +264,9 @@ export class Effect extends EventDispatcher {
 	 * @example if(!alpha && frameBufferType === UnsignedByteType) { this.myRenderTarget.texture.format = RGBFormat; }
 	 */
 
-	initialize(renderer, alpha, frameBufferType) {}
+  initialize (renderer, alpha, frameBufferType) {}
 
-	/**
+  /**
 	 * Performs a shallow search for properties that define a dispose method and
 	 * deletes them. The effect will be inoperative after this method was called!
 	 *
@@ -291,21 +274,14 @@ export class Effect extends EventDispatcher {
 	 * call this method directly.
 	 */
 
-	dispose() {
-
-		for(const key of Object.keys(this)) {
-
-			if(this[key] !== null && typeof this[key].dispose === "function") {
-
-				/** @ignore */
-				this[key].dispose();
-
-			}
-
-		}
-
-	}
-
+  dispose () {
+    for (const key of Object.keys(this)) {
+      if (this[key] !== null && typeof this[key].dispose === 'function') {
+        /** @ignore */
+        this[key].dispose();
+      }
+    }
+  }
 }
 
 /**
@@ -322,9 +298,9 @@ export class Effect extends EventDispatcher {
 
 export const EffectAttribute = {
 
-	NONE: 0,
-	DEPTH: 1,
-	CONVOLUTION: 2
+  NONE: 0,
+  DEPTH: 1,
+  CONVOLUTION: 2
 
 };
 
@@ -340,9 +316,9 @@ export const EffectAttribute = {
 
 export const WebGLExtension = {
 
-	DERIVATIVES: "derivatives",
-	FRAG_DEPTH: "fragDepth",
-	DRAW_BUFFERS: "drawBuffers",
-	SHADER_TEXTURE_LOD: "shaderTextureLOD"
+  DERIVATIVES: 'derivatives',
+  FRAG_DEPTH: 'fragDepth',
+  DRAW_BUFFERS: 'drawBuffers',
+  SHADER_TEXTURE_LOD: 'shaderTextureLOD'
 
 };
