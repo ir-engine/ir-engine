@@ -7,7 +7,7 @@ import { wrapImmutableComponent, registerComponent } from './ComponentFunctions'
 import { ObjectPool } from '../classes/ObjectPool';
 import { SystemStateComponent } from '../classes/SystemStateComponent';
 import { QUERY_COMPONENT_CHANGED } from '../constants/Events';
-import { COMPONENT_ADDED, ENTITY_CREATED, ENTITY_REMOVED, COMPONENT_REMOVE } from '../constants/ENTITY_CREATED';
+import { COMPONENT_ADDED, ENTITY_CREATED, ENTITY_REMOVED, COMPONENT_REMOVE } from '../constants/Events';
 
 export function getMutableComponent<C extends Component<any>> (
   entity: Entity,
@@ -259,7 +259,7 @@ export function getComponent<C extends Component<C>> (
   let _component = entity.components[(component as C)._typeId];
 
   if (!_component && includeRemoved) {
-    _component = entity.componentsToRemove[(component)._typeId];
+    _component = entity.componentsToRemove[(component as C)._typeId];
   }
 
   return process.env.NODE_ENV !== 'production' ? wrapImmutableComponent(_component) : <C>_component;

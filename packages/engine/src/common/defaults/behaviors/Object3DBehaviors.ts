@@ -96,7 +96,7 @@ export function removeObject3DComponent (entity, unparent = true) {
     }
   }
 
-  object3d.entity = null;
+  (object3d as any).entity = null;
 }
 
 export function remove (entity, forceImmediate) {

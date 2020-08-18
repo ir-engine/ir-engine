@@ -60,7 +60,7 @@ export function createType<T, D> (typeDefinition: PropTypeDefinition<T, D>): Pro
     );
   }
 
-  typeDefinition.isType = true;
+  (typeDefinition as any).isType = true;
 
   return typeDefinition as PropType<T, D>;
 }
