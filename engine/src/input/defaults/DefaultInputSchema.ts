@@ -98,7 +98,7 @@ export const DefaultInputSchema: InputSchema = {
     ],
     ["touchmove"]: [
       {
-        behavior: handleTouchMove,
+        behavior: handleTouchMove
       }
     ],
 
