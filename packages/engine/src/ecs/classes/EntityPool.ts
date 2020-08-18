@@ -25,8 +25,8 @@ export class EntityPool extends ObjectPool<Entity> {
    */
   poolSize: number
 
-  constructor () {
-    super(Engine.options.entityPoolSize);
+  constructor (type) {
+    super(type, Engine.options.entityPoolSize);
   }
 
   /**

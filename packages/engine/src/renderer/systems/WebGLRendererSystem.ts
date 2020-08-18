@@ -84,8 +84,8 @@ export const resize: Behavior = entity => {
 
     if (curPixelRatio !== window.devicePixelRatio) Engine.renderer.setPixelRatio(window.devicePixelRatio);
 
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
+    const width = window.innerWidth;
+    const height =  window.innerHeight;
 
     if ((Engine.camera as PerspectiveCamera).isPerspectiveCamera) {
       const cam = Engine.camera as PerspectiveCamera;

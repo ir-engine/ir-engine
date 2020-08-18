@@ -1,4 +1,4 @@
-import { queryKeyFromComponents } from '../functions/Utils';
+import { queryKeyFromComponents } from '../functions/ComponentFunctions';
 import { ComponentConstructor } from '../interfaces/ComponentInterfaces';
 import { EventDispatcher } from './EventDispatcher';
 import { Engine } from './Engine';

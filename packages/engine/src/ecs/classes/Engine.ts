@@ -4,6 +4,7 @@ import { Query } from './Query';
 import { WebGLRenderer, Camera, Scene } from 'three';
 import { EngineOptions } from '../interfaces/EngineOptions';
 import { DefaultOptions } from '../constants/DefaultOptions';
+import { Entity } from './Entity';
 
 export class Engine {
   /**
@@ -87,7 +88,7 @@ export class Engine {
   /**
    * Pool of available entities
    */
-  static entityPool: EntityPool = new EntityPool()
+  static entityPool: EntityPool = new EntityPool(Entity)
 
   /**
    * Map of component classes to their type ID

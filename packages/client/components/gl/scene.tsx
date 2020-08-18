@@ -3,7 +3,10 @@ import { initializeEngine } from "@xr3ngine/engine/src/initialize"
 
 export const EnginePage = (): any => {
   useEffect(() => {
-    console.log(initializeEngine())
+    initializeEngine()
+
+    
+
   },[])
   return (
 <h1> Engine loaded. </h1>
