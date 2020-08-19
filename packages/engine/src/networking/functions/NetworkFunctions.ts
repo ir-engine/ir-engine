@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
-import { RingBuffer } from '../../common/classes/RingBuffer';
+
 import { Network } from '../components/Network';
 import { MessageChannel } from '../enums/MessageChannel';
 import { MessageTypeAlias } from '../types/MessageTypeAlias';
@@ -32,9 +31,12 @@ export const handleMessage = (messageType: MessageTypeAlias, messageData: any): 
   // Process the message!
 };
 
-let queue: RingBuffer<any>;
 export const sendMessage = (messageChannel: MessageChannel, messageType: MessageTypeAlias, messageData: any): void => {
-  instance = Network.instance;
-  queue = messageChannel === MessageChannel.Reliable ? instance.outgoingReliableQueue : instance.outgoingUnreliableQueue;
-  queue.add(messageType, messageData);
-};
+  instance = Network.instance
+  switch (messageChannel) {
+    case MessageChannel.Reliable:
+      instance.transport.sendReliableMessage({ channel: messageType.toString(), data: messageData })
+    case MessageChannel.Unreliable:
+      instance.transport.sendUnreliableMessage({ channel: messageType.toString(), data: messageData })
+  }
+}

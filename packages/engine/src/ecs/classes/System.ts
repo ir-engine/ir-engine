@@ -1,12 +1,11 @@
 
-import { queryKeyFromComponents } from '../functions/ComponentFunctions';
-import { Component } from './Component';
+import { QUERY_COMPONENT_CHANGED, QUERY_ENTITY_ADDED, QUERY_ENTITY_REMOVED } from '../constants/Events';
+import { componentRegistered, hasRegisteredComponent, queryKeyFromComponents, registerComponent } from '../functions/ComponentFunctions';
 import { ComponentConstructor } from '../interfaces/ComponentInterfaces';
+import { Component } from './Component';
+import { Engine } from './Engine';
 import { Entity } from './Entity';
 import { Query } from './Query';
-import { registerComponent, componentRegistered } from '../functions/ComponentFunctions';
-import { Engine } from './Engine';
-import { QUERY_ENTITY_ADDED, QUERY_ENTITY_REMOVED, QUERY_COMPONENT_CHANGED } from '../constants/Events';
 
 export interface SystemAttributes {
   priority?: number
@@ -115,8 +114,7 @@ export abstract class System {
 
         if (unregisteredComponents.length > 0) {
           unregisteredComponents.forEach(component => {
-            registerComponent(component);
-            console.log('Registed component ', component.getName());
+            if(!hasRegisteredComponent(component)) registerComponent(component);
           });
         }
 
@@ -188,6 +186,7 @@ export abstract class System {
             }
           });
         }
+        Engine.queries.push(query)
       }
     }
     const c = (this.constructor as any).prototype;
@@ -217,22 +216,22 @@ export abstract class System {
     this.enabled = true;
   }
 
+
   clearEventQueues (): void {
     for (const queryName in this.queryResults) {
       const query = this.queryResults[queryName];
       if (query.added) {
-        query.added.length = 0;
+        query.added = []
       }
       if (query.removed) {
-        query.removed.length = 0;
+        query.removed = []
       }
       if (query.changed) {
         if (Array.isArray(query.changed)) {
-          query.changed.length = 0;
+          query.changed = []
         } else {
           for (const name in query.changed as any) {
-            const q = query.changed[name] as any;
-            q.length = 0;
+            (query.changed as any)[name] = []
           }
         }
       }
@@ -249,7 +248,7 @@ export abstract class System {
     };
 
     if (this.queryResults) {
-      const queries = this.queryResults;
+      const queries = (this.constructor as any).queries;
       for (const queryName in queries) {
         const query = this.queryResults[queryName];
         const queryDefinition = queries[queryName] as any;
