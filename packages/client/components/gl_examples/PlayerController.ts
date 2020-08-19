@@ -1,5 +1,4 @@
 import { attachCamera } from "@xr3ngine/engine/src/camera/behaviors/attachCamera";
-import { Actor, addObject3DComponent, Prefab, removeObject3DComponent } from "@xr3ngine/engine/src/common";
 import { Input } from "@xr3ngine/engine/src/input/components/Input";
 import { DefaultInputSchema } from "@xr3ngine/engine/src/input/defaults/DefaultInputSchema";
 import { addMeshCollider } from "@xr3ngine/engine/src/physics/behaviors/addMeshCollider";
@@ -9,6 +8,9 @@ import { Subscription } from "@xr3ngine/engine/src/subscription/components/Subsc
 import { DefaultSubscriptionSchema } from "@xr3ngine/engine/src/subscription/defaults/DefaultSubscriptionSchema";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { BoxBufferGeometry, Mesh } from "three";
+import { addObject3DComponent, removeObject3DComponent } from "@xr3ngine/engine/src/common/defaults/behaviors/Object3DBehaviors";
+import { Actor } from "@xr3ngine/engine/src/common/defaults/components/Actor";
+import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 
 const miniGeo = new BoxBufferGeometry(0.2, 0.2, 0.2)
 
