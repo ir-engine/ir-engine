@@ -8,19 +8,17 @@ import { addComponent, getMutableComponent, createEntity } from '../../ecs/funct
 export class MediaStreamSystem extends System {
   public static instance: MediaStreamSystem = null
   init (): void {
+    MediaStreamSystem.instance = this;
+
     const entity = createEntity()
     addComponent(entity, MediaStreamComponent);
     const mediaStreamComponent = getMutableComponent<MediaStreamComponent>(entity, MediaStreamComponent);
     MediaStreamComponent.instance = mediaStreamComponent;
+    this.startCamera()
   }
 
-  constructor (world: Engine) {
-    super(world);
-    MediaStreamSystem.instance = this;
-    // Do this next tickSphe so singleton can init
-    // TODO:
-    // Maybe replace this or expose camera permissreion explicitly so user can handle
-    setTimeout(() => this.startCamera(), 1);
+  constructor () {
+    super();
   }
 
   public execute () {
