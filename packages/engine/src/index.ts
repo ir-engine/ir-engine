@@ -1,7 +1,6 @@
 // created from 'create-ts-index'
 
-export * from './assets';
-export * from './camera';
+export * from '../sandbox/assets';
 export * from './common';
 export * from './ecs';
 export * from './input';

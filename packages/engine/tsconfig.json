@@ -11,6 +11,6 @@
     "resolveJsonModule": true,
     "allowJs": true
   },
-  "include": ["src/**/*", "sandbox/postprocessing"],
+  "include": ["src/**/*", "sandbox/postprocessing", "sandbox/assets", "../client/gameclient/transports/SocketWebRTCClientTransport.ts", "../server/src/transports/SocketWebRTCServerTransport.ts"],
   "exclude": ["node_modules", "dist"]
 }
