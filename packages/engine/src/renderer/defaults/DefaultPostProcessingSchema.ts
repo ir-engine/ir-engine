@@ -1,13 +1,13 @@
-import { SSAOEffect } from "../../postprocessing/effects/SSAOEffect"
-import { DepthOfFieldEffect } from "../../postprocessing/effects/DepthOfFieldEffect"
-import { BloomEffect } from "../../postprocessing/effects/BloomEffect"
-import { ToneMappingEffect } from "../../postprocessing/effects/ToneMappingEffect"
-import { HueSaturationEffect } from "../../postprocessing/effects/HueSaturationEffect"
-import { BrightnessContrastEffect } from "../../postprocessing/effects/BrightnessContrastEffect"
-import { BlendFunction } from "../../postprocessing/effects/blending/BlendFunction"
-import { KernelSize } from "../../postprocessing/materials/ConvolutionMaterial"
+import { SSAOEffect } from '../../postprocessing/effects/SSAOEffect';
+import { DepthOfFieldEffect } from '../../postprocessing/effects/DepthOfFieldEffect';
+import { BloomEffect } from '../../postprocessing/effects/BloomEffect';
+import { ToneMappingEffect } from '../../postprocessing/effects/ToneMappingEffect';
+import { HueSaturationEffect } from '../../postprocessing/effects/HueSaturationEffect';
+import { BrightnessContrastEffect } from '../../postprocessing/effects/BrightnessContrastEffect';
+import { BlendFunction } from '../../postprocessing/effects/blending/BlendFunction';
+import { KernelSize } from '../../postprocessing/materials/ConvolutionMaterial';
 
-import { PostProcessingSchema } from "../interfaces/PostProcessingSchema"
+import { PostProcessingSchema } from '../interfaces/PostProcessingSchema';
 export const DefaultPostProcessingSchema: PostProcessingSchema = {
   effects: [
     {
@@ -89,4 +89,4 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
     //   }
     // }
   ]
-}
+};

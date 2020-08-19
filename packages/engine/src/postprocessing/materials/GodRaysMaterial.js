@@ -1,7 +1,7 @@
-import { ShaderMaterial, Uniform } from "three";
+import { ShaderMaterial, Uniform } from 'three';
 
-import fragmentShader from "./glsl/god-rays/shader.frag";
-import vertexShader from "./glsl/common/shader.vert";
+import fragmentShader from './glsl/god-rays/shader.frag';
+import vertexShader from './glsl/common/shader.vert';
 
 /**
  * A crepuscular rays shader material.
@@ -22,73 +22,65 @@ import vertexShader from "./glsl/common/shader.vert";
  */
 
 export class GodRaysMaterial extends ShaderMaterial {
-
-	/**
+  /**
 	 * Constructs a new god rays material.
 	 *
 	 * @param {Vector2} lightPosition - The light position in screen space.
 	 */
 
-	constructor(lightPosition) {
+  constructor (lightPosition) {
+    super({
 
-		super({
+      type: 'GodRaysMaterial',
 
-			type: "GodRaysMaterial",
+      defines: {
+        SAMPLES_INT: '60',
+        SAMPLES_FLOAT: '60.0'
+      },
 
-			defines: {
-				SAMPLES_INT: "60",
-				SAMPLES_FLOAT: "60.0"
-			},
+      uniforms: {
+        inputBuffer: new Uniform(null),
+        lightPosition: new Uniform(lightPosition),
+        density: new Uniform(1.0),
+        decay: new Uniform(1.0),
+        weight: new Uniform(1.0),
+        exposure: new Uniform(1.0),
+        clampMax: new Uniform(1.0)
+      },
 
-			uniforms: {
-				inputBuffer: new Uniform(null),
-				lightPosition: new Uniform(lightPosition),
-				density: new Uniform(1.0),
-				decay: new Uniform(1.0),
-				weight: new Uniform(1.0),
-				exposure: new Uniform(1.0),
-				clampMax: new Uniform(1.0)
-			},
+      fragmentShader,
+      vertexShader,
 
-			fragmentShader,
-			vertexShader,
+      depthWrite: false,
+      depthTest: false
 
-			depthWrite: false,
-			depthTest: false
+    });
 
-		});
+    /** @ignore */
+    this.toneMapped = false;
+  }
 
-		/** @ignore */
-		this.toneMapped = false;
-
-	}
-
-	/**
+  /**
 	 * The amount of samples per pixel.
 	 *
 	 * @type {Number}
 	 */
 
-	get samples() {
+  get samples () {
+    return Number(this.defines.SAMPLES_INT);
+  }
 
-		return Number(this.defines.SAMPLES_INT);
-
-	}
-
-	/**
+  /**
 	 * Sets the amount of samples per pixel.
 	 *
 	 * @type {Number}
 	 */
 
-	set samples(value) {
+  set samples (value) {
+    const s = Math.floor(value);
 
-		const s = Math.floor(value);
-
-		this.defines.SAMPLES_INT = s.toFixed(0);
-		this.defines.SAMPLES_FLOAT = s.toFixed(1);
-		this.needsUpdate = true;
-
-	}
-
+    this.defines.SAMPLES_INT = s.toFixed(0);
+    this.defines.SAMPLES_FLOAT = s.toFixed(1);
+    this.needsUpdate = true;
+  }
 }

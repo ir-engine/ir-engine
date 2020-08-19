@@ -1,6 +1,6 @@
-import { Behavior } from "../../common/interfaces/Behavior"
-import { StateAlias } from "../types/StateAlias"
-import { StateGroupAlias } from "../types/StateGroupAlias"
+import { Behavior } from '../../common/interfaces/Behavior';
+import { StateAlias } from '../types/StateAlias';
+import { StateGroupAlias } from '../types/StateGroupAlias';
 
 export interface StateSchema {
   groups: {

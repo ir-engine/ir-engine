@@ -1,8 +1,8 @@
-import { Uniform } from "three";
-import { BlendFunction } from "./blending/BlendFunction.js";
-import { Effect, EffectAttribute } from "./Effect.js";
+import { Uniform } from 'three';
+import { BlendFunction } from './blending/BlendFunction.js';
+import { Effect, EffectAttribute } from './Effect.js';
 
-import fragmentShader from "./glsl/bokeh/shader.frag";
+import fragmentShader from './glsl/bokeh/shader.frag';
 
 /**
  * A depth of field (bokeh) effect.
@@ -14,8 +14,7 @@ import fragmentShader from "./glsl/bokeh/shader.frag";
  */
 
 export class BokehEffect extends Effect {
-
-	/**
+  /**
 	 * Constructs a new bokeh effect.
 	 *
 	 * @param {Object} [options] - The options.
@@ -26,22 +25,19 @@ export class BokehEffect extends Effect {
 	 * @param {Number} [options.maxBlur=1.0] - The maximum blur strength.
 	 */
 
-	constructor({ blendFunction = BlendFunction.NORMAL, focus = 0.5, dof = 0.02, aperture = 0.015, maxBlur = 1.0 } = {}) {
+  constructor ({ blendFunction = BlendFunction.NORMAL, focus = 0.5, dof = 0.02, aperture = 0.015, maxBlur = 1.0 } = {}) {
+    super('BokehEffect', fragmentShader, {
 
-		super("BokehEffect", fragmentShader, {
+      blendFunction,
+      attributes: EffectAttribute.CONVOLUTION | EffectAttribute.DEPTH,
 
-			blendFunction,
-			attributes: EffectAttribute.CONVOLUTION | EffectAttribute.DEPTH,
+      uniforms: new Map([
+        ['focus', new Uniform(focus)],
+        ['dof', new Uniform(dof)],
+        ['aperture', new Uniform(aperture)],
+        ['maxBlur', new Uniform(maxBlur)]
+      ])
 
-			uniforms: new Map([
-				["focus", new Uniform(focus)],
-				["dof", new Uniform(dof)],
-				["aperture", new Uniform(aperture)],
-				["maxBlur", new Uniform(maxBlur)]
-			])
-
-		});
-
-	}
-
+    });
+  }
 }

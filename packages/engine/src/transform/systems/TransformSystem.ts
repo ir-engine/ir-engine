@@ -1,36 +1,24 @@
-import { Behavior } from "../../common/interfaces/Behavior"
-import { childTransformBehavior } from "../behaviors/childTransformBehavior"
-import { transformBehavior } from "../behaviors/transformBehavior"
-import { TransformComponent } from "../components/TransformComponent"
-import { TransformParentComponent } from "../components/TransformParentComponent"
-import { System, Attributes } from "../../ecs/classes/System"
+import { Behavior } from '../../common/interfaces/Behavior';
+import { transformBehavior } from '../behaviors/transformBehavior';
+import { TransformComponent } from '../components/TransformComponent';
+import { TransformParentComponent } from '../components/TransformParentComponent';
+import { System, SystemAttributes } from '../../ecs/classes/System';
 
 export class TransformSystem extends System {
   transformBehavior: Behavior
   childTransformBehavior: Behavior
-  init(attributes: Attributes) {
+  init (attributes: SystemAttributes) {
     if (attributes && attributes.transformBehavior) {
-      this.transformBehavior = attributes.transformBehavior
+      this.transformBehavior = attributes.transformBehavior;
     } else {
-      this.transformBehavior = transformBehavior
-    }
-    if (attributes && attributes.childTransformBehavior) {
-      this.childTransformBehavior = attributes.childTransformBehavior
-    } else {
-      this.childTransformBehavior = childTransformBehavior
+      this.transformBehavior = transformBehavior;
     }
   }
 
-  execute(delta, time) {
-    // Hierarchy
-    // this.queryResults.parent.results?.forEach((entity: Entity) => {
-    //   this.childTransformBehavior(entity, {}, delta)
-    //   // Transform children by parent
-    // })
-
+  execute (delta) {
     this.queryResults.transforms.all?.forEach(t => {
-      this.transformBehavior(t, {}, delta)
-    })
+      this.transformBehavior(t, {}, delta);
+    });
   }
 }
 
@@ -48,4 +36,4 @@ TransformSystem.queries = {
       changed: true
     }
   }
-}
+};

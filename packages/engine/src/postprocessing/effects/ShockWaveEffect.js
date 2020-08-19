@@ -1,8 +1,8 @@
-import { Uniform, Vector2, Vector3 } from "three";
-import { Effect } from "./Effect.js";
+import { Uniform, Vector2, Vector3 } from 'three';
+import { Effect } from './Effect.js';
 
-import fragmentShader from "./glsl/shock-wave/shader.frag";
-import vertexShader from "./glsl/shock-wave/shader.vert";
+import fragmentShader from './glsl/shock-wave/shader.frag';
+import vertexShader from './glsl/shock-wave/shader.vert';
 
 /**
  * Half PI.
@@ -41,8 +41,7 @@ const ab = new Vector3();
  */
 
 export class ShockWaveEffect extends Effect {
-
-	/**
+  /**
 	 * Constructs a new shock wave effect.
 	 *
 	 * @param {Camera} camera - The main camera.
@@ -54,97 +53,93 @@ export class ShockWaveEffect extends Effect {
 	 * @param {Number} [options.amplitude=0.05] - The distortion amplitude.
 	 */
 
-	constructor(camera, epicenter = new Vector3(), {
-		speed = 2.0,
-		maxRadius = 1.0,
-		waveSize = 0.2,
-		amplitude = 0.05
-	} = {}) {
+  constructor (camera, epicenter = new Vector3(), {
+    speed = 2.0,
+    maxRadius = 1.0,
+    waveSize = 0.2,
+    amplitude = 0.05
+  } = {}) {
+    super('ShockWaveEffect', fragmentShader, {
 
-		super("ShockWaveEffect", fragmentShader, {
+      vertexShader,
 
-			vertexShader,
+      uniforms: new Map([
+        ['active', new Uniform(false)],
+        ['center', new Uniform(new Vector2(0.5, 0.5))],
+        ['cameraDistance', new Uniform(1.0)],
+        ['size', new Uniform(1.0)],
+        ['radius', new Uniform(-waveSize)],
+        ['maxRadius', new Uniform(maxRadius)],
+        ['waveSize', new Uniform(waveSize)],
+        ['amplitude', new Uniform(amplitude)]
+      ])
 
-			uniforms: new Map([
-				["active", new Uniform(false)],
-				["center", new Uniform(new Vector2(0.5, 0.5))],
-				["cameraDistance", new Uniform(1.0)],
-				["size", new Uniform(1.0)],
-				["radius", new Uniform(-waveSize)],
-				["maxRadius", new Uniform(maxRadius)],
-				["waveSize", new Uniform(waveSize)],
-				["amplitude", new Uniform(amplitude)]
-			])
+    });
 
-		});
-
-		/**
+    /**
 		 * The main camera.
 		 *
 		 * @type {Camera}
 		 */
 
-		this.camera = camera;
+    this.camera = camera;
 
-		/**
+    /**
 		 * The epicenter.
 		 *
 		 * @type {Vector3}
 		 * @example shockWavePass.epicenter = myMesh.position;
 		 */
 
-		this.epicenter = epicenter;
+    this.epicenter = epicenter;
 
-		/**
+    /**
 		 * The object position in screen space.
 		 *
 		 * @type {Vector3}
 		 * @private
 		 */
 
-		this.screenPosition = this.uniforms.get("center").value;
+    this.screenPosition = this.uniforms.get('center').value;
 
-		/**
+    /**
 		 * The speed of the shock wave animation.
 		 *
 		 * @type {Number}
 		 */
 
-		this.speed = speed;
+    this.speed = speed;
 
-		/**
+    /**
 		 * A time accumulator.
 		 *
 		 * @type {Number}
 		 * @private
 		 */
 
-		this.time = 0.0;
+    this.time = 0.0;
 
-		/**
+    /**
 		 * Indicates whether the shock wave animation is active.
 		 *
 		 * @type {Boolean}
 		 * @private
 		 */
 
-		this.active = false;
+    this.active = false;
+  }
 
-	}
-
-	/**
+  /**
 	 * Emits the shock wave.
 	 */
 
-	explode() {
+  explode () {
+    this.time = 0.0;
+    this.active = true;
+    this.uniforms.get('active').value = true;
+  }
 
-		this.time = 0.0;
-		this.active = true;
-		this.uniforms.get("active").value = true;
-
-	}
-
-	/**
+  /**
 	 * Updates this effect.
 	 *
 	 * @param {WebGLRenderer} renderer - The renderer.
@@ -152,49 +147,40 @@ export class ShockWaveEffect extends Effect {
 	 * @param {Number} [delta] - The time between the last frame and the current one in seconds.
 	 */
 
-	update(renderer, inputBuffer, delta) {
+  update (renderer, inputBuffer, delta) {
+    const epicenter = this.epicenter;
+    const camera = this.camera;
+    const uniforms = this.uniforms;
+    const uniformActive = uniforms.get('active');
 
-		const epicenter = this.epicenter;
-		const camera = this.camera;
-		const uniforms = this.uniforms;
-		const uniformActive = uniforms.get("active");
+    if (this.active) {
+      const waveSize = uniforms.get('waveSize').value;
 
-		if(this.active) {
+      // Calculate direction vectors.
+      camera.getWorldDirection(v);
+      ab.copy(camera.position).sub(epicenter);
 
-			const waveSize = uniforms.get("waveSize").value;
+      // Don't render the effect if the object is behind the camera.
+      uniformActive.value = (v.angleTo(ab) > HALF_PI);
 
-			// Calculate direction vectors.
-			camera.getWorldDirection(v);
-			ab.copy(camera.position).sub(epicenter);
+      if (uniformActive.value) {
+        // Scale the effect based on distance to the object.
+        uniforms.get('cameraDistance').value = camera.position.distanceTo(epicenter);
 
-			// Don't render the effect if the object is behind the camera.
-			uniformActive.value = (v.angleTo(ab) > HALF_PI);
+        // Calculate the screen position of the epicenter.
+        v.copy(epicenter).project(camera);
+        this.screenPosition.set((v.x + 1.0) * 0.5, (v.y + 1.0) * 0.5);
+      }
 
-			if(uniformActive.value) {
+      // Update the shock wave radius based on time.
+      this.time += delta * this.speed;
+      const radius = this.time - waveSize;
+      uniforms.get('radius').value = radius;
 
-				// Scale the effect based on distance to the object.
-				uniforms.get("cameraDistance").value = camera.position.distanceTo(epicenter);
-
-				// Calculate the screen position of the epicenter.
-				v.copy(epicenter).project(camera);
-				this.screenPosition.set((v.x + 1.0) * 0.5, (v.y + 1.0) * 0.5);
-
-			}
-
-			// Update the shock wave radius based on time.
-			this.time += delta * this.speed;
-			const radius = this.time - waveSize;
-			uniforms.get("radius").value = radius;
-
-			if(radius >= (uniforms.get("maxRadius").value + waveSize) * 2.0) {
-
-				this.active = false;
-				uniformActive.value = false;
-
-			}
-
-		}
-
-	}
-
+      if (radius >= (uniforms.get('maxRadius').value + waveSize) * 2.0) {
+        this.active = false;
+        uniformActive.value = false;
+      }
+    }
+  }
 }

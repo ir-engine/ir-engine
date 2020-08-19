@@ -1,5 +1,5 @@
-import { Component } from "./Component"
-import { Entity } from "./Entity"
+import { Component } from './Component';
+import { Entity } from './Entity';
 
 /**
  * @private
@@ -7,13 +7,13 @@ import { Entity } from "./Entity"
  */
 export class EventDispatcher {
   _listeners: {}
-  stats: { fired: number; handled: number }
-  constructor() {
-    this._listeners = {}
+  stats: { fired: number, handled: number }
+  constructor () {
+    this._listeners = {};
     this.stats = {
       fired: 0,
       handled: 0
-    }
+    };
   }
 
   /**
@@ -21,14 +21,14 @@ export class EventDispatcher {
    * @param {String} eventName Name of the event to listen
    * @param {Function} listener Callback to trigger when the event is fired
    */
-  addEventListener(eventName: string | number, listener: any): void {
-    const listeners = this._listeners
+  addEventListener (eventName: string | number, listener: any): void {
+    const listeners = this._listeners;
     if (listeners[eventName] === undefined) {
-      listeners[eventName] = []
+      listeners[eventName] = [];
     }
 
     if (listeners[eventName].indexOf(listener) === -1) {
-      listeners[eventName].push(listener)
+      listeners[eventName].push(listener);
     }
   }
 
@@ -37,8 +37,8 @@ export class EventDispatcher {
    * @param {String} eventName Name of the event to check
    * @param {Function} listener Callback for the specified event
    */
-  hasEventListener(eventName: string | number, listener: any): boolean {
-    return this._listeners[eventName] !== undefined && this._listeners[eventName].indexOf(listener) !== -1
+  hasEventListener (eventName: string | number, listener: any): boolean {
+    return this._listeners[eventName] !== undefined && this._listeners[eventName].indexOf(listener) !== -1;
   }
 
   /**
@@ -46,12 +46,12 @@ export class EventDispatcher {
    * @param {String} eventName Name of the event to remove
    * @param {Function} listener Callback for the specified event
    */
-  removeEventListener(eventName: string | number, listener: any): void {
-    const listenerArray = this._listeners[eventName]
+  removeEventListener (eventName: string | number, listener: any): void {
+    const listenerArray = this._listeners[eventName];
     if (listenerArray !== undefined) {
-      const index = listenerArray.indexOf(listener)
+      const index = listenerArray.indexOf(listener);
       if (index !== -1) {
-        listenerArray.splice(index, 1)
+        listenerArray.splice(index, 1);
       }
     }
   }
@@ -62,15 +62,15 @@ export class EventDispatcher {
    * @param {Entity} entity (Optional) Entity to emit
    * @param {Component} component
    */
-  dispatchEvent(eventName: string | number, entity: Entity, component?: Component<any>): void {
-    this.stats.fired++
+  dispatchEvent (eventName: string | number, entity: Entity, component?: Component<any>): void {
+    this.stats.fired++;
 
-    const listenerArray = this._listeners[eventName]
+    const listenerArray = this._listeners[eventName];
     if (listenerArray !== undefined) {
-      const array = listenerArray.slice(0)
+      const array = listenerArray.slice(0);
 
       for (let i = 0; i < array.length; i++) {
-        array[i].call(this, entity, component)
+        array[i].call(this, entity, component);
       }
     }
   }
@@ -78,7 +78,7 @@ export class EventDispatcher {
   /**
    * Reset stats counters
    */
-  resetCounters(): void {
-    this.stats.fired = this.stats.handled = 0
+  resetCounters (): void {
+    this.stats.fired = this.stats.handled = 0;
   }
 }

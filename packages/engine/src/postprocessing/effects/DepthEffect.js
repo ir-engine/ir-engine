@@ -1,7 +1,7 @@
-import { BlendFunction } from "./blending/BlendFunction.js";
-import { Effect, EffectAttribute } from "./Effect.js";
+import { BlendFunction } from './blending/BlendFunction.js';
+import { Effect, EffectAttribute } from './Effect.js';
 
-import fragmentShader from "./glsl/depth/shader.frag";
+import fragmentShader from './glsl/depth/shader.frag';
 
 /**
  * A depth visualization effect.
@@ -10,8 +10,7 @@ import fragmentShader from "./glsl/depth/shader.frag";
  */
 
 export class DepthEffect extends Effect {
-
-	/**
+  /**
 	 * Constructs a new depth effect.
 	 *
 	 * @param {Object} [options] - The options.
@@ -19,55 +18,42 @@ export class DepthEffect extends Effect {
 	 * @param {Boolean} [options.inverted=false] - Whether the depth values should be inverted.
 	 */
 
-	constructor({ blendFunction = BlendFunction.NORMAL, inverted = false } = {}) {
+  constructor ({ blendFunction = BlendFunction.NORMAL, inverted = false } = {}) {
+    super('DepthEffect', fragmentShader, {
 
-		super("DepthEffect", fragmentShader, {
+      blendFunction,
+      attributes: EffectAttribute.DEPTH
 
-			blendFunction,
-			attributes: EffectAttribute.DEPTH
+    });
 
-		});
+    this.inverted = inverted;
+  }
 
-		this.inverted = inverted;
-
-	}
-
-	/**
+  /**
 	 * Indicates whether depth should be inverted.
 	 *
 	 * @type {Boolean}
 	 */
 
-	get inverted() {
+  get inverted () {
+    return this.defines.has('INVERTED');
+  }
 
-		return this.defines.has("INVERTED");
-
-	}
-
-	/**
+  /**
 	 * Enables or disables depth inversion.
 	 *
 	 * @type {Boolean}
 	 */
 
-	set inverted(value) {
+  set inverted (value) {
+    if (this.inverted !== value) {
+      if (value) {
+        this.defines.set('INVERTED', '1');
+      } else {
+        this.defines.delete('INVERTED');
+      }
 
-		if(this.inverted !== value) {
-
-			if(value) {
-
-				this.defines.set("INVERTED", "1");
-
-			} else {
-
-				this.defines.delete("INVERTED");
-
-			}
-
-			this.setChanged();
-
-		}
-
-	}
-
+      this.setChanged();
+    }
+  }
 }

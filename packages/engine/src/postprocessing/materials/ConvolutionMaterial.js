@@ -1,7 +1,7 @@
-import { ShaderMaterial, Uniform, Vector2 } from "three";
+import { ShaderMaterial, Uniform, Vector2 } from 'three';
 
-import fragmentShader from "./glsl/convolution/shader.frag";
-import vertexShader from "./glsl/convolution/shader.vert";
+import fragmentShader from './glsl/convolution/shader.frag';
+import vertexShader from './glsl/convolution/shader.vert';
 
 /**
  * An optimised convolution shader material.
@@ -20,76 +20,68 @@ import vertexShader from "./glsl/convolution/shader.vert";
  */
 
 export class ConvolutionMaterial extends ShaderMaterial {
-
-	/**
+  /**
 	 * Constructs a new convolution material.
 	 *
 	 * @param {Vector2} [texelSize] - The absolute screen texel size.
 	 */
 
-	constructor(texelSize = new Vector2()) {
+  constructor (texelSize = new Vector2()) {
+    super({
 
-		super({
+      type: 'ConvolutionMaterial',
 
-			type: "ConvolutionMaterial",
+      uniforms: {
+        inputBuffer: new Uniform(null),
+        texelSize: new Uniform(new Vector2()),
+        halfTexelSize: new Uniform(new Vector2()),
+        kernel: new Uniform(0.0),
+        scale: new Uniform(1.0)
+      },
 
-			uniforms: {
-				inputBuffer: new Uniform(null),
-				texelSize: new Uniform(new Vector2()),
-				halfTexelSize: new Uniform(new Vector2()),
-				kernel: new Uniform(0.0),
-				scale: new Uniform(1.0)
-			},
+      fragmentShader,
+      vertexShader,
 
-			fragmentShader,
-			vertexShader,
+      depthWrite: false,
+      depthTest: false
 
-			depthWrite: false,
-			depthTest: false
+    });
 
-		});
+    /** @ignore */
+    this.toneMapped = false;
 
-		/** @ignore */
-		this.toneMapped = false;
+    this.setTexelSize(texelSize.x, texelSize.y);
 
-		this.setTexelSize(texelSize.x, texelSize.y);
-
-		/**
+    /**
 		 * The current kernel size.
 		 *
 		 * @type {KernelSize}
 		 */
 
-		this.kernelSize = KernelSize.LARGE;
+    this.kernelSize = KernelSize.LARGE;
+  }
 
-	}
-
-	/**
+  /**
 	 * Returns the kernel.
 	 *
 	 * @return {Float32Array} The kernel.
 	 */
 
-	getKernel() {
+  getKernel () {
+    return kernelPresets[this.kernelSize];
+  }
 
-		return kernelPresets[this.kernelSize];
-
-	}
-
-	/**
+  /**
 	 * Sets the texel size.
 	 *
 	 * @param {Number} x - The texel width.
 	 * @param {Number} y - The texel height.
 	 */
 
-	setTexelSize(x, y) {
-
-		this.uniforms.texelSize.value.set(x, y);
-		this.uniforms.halfTexelSize.value.set(x, y).multiplyScalar(0.5);
-
-	}
-
+  setTexelSize (x, y) {
+    this.uniforms.texelSize.value.set(x, y);
+    this.uniforms.halfTexelSize.value.set(x, y).multiplyScalar(0.5);
+  }
 }
 
 /**
@@ -100,12 +92,12 @@ export class ConvolutionMaterial extends ShaderMaterial {
  */
 
 const kernelPresets = [
-	new Float32Array([0.0, 0.0]),
-	new Float32Array([0.0, 1.0, 1.0]),
-	new Float32Array([0.0, 1.0, 1.0, 2.0]),
-	new Float32Array([0.0, 1.0, 2.0, 2.0, 3.0]),
-	new Float32Array([0.0, 1.0, 2.0, 3.0, 4.0, 4.0, 5.0]),
-	new Float32Array([0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 7.0, 8.0, 9.0, 10.0])
+  new Float32Array([0.0, 0.0]),
+  new Float32Array([0.0, 1.0, 1.0]),
+  new Float32Array([0.0, 1.0, 1.0, 2.0]),
+  new Float32Array([0.0, 1.0, 2.0, 2.0, 3.0]),
+  new Float32Array([0.0, 1.0, 2.0, 3.0, 4.0, 4.0, 5.0]),
+  new Float32Array([0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 7.0, 8.0, 9.0, 10.0])
 ];
 
 /**
@@ -122,11 +114,11 @@ const kernelPresets = [
 
 export const KernelSize = {
 
-	VERY_SMALL: 0,
-	SMALL: 1,
-	MEDIUM: 2,
-	LARGE: 3,
-	VERY_LARGE: 4,
-	HUGE: 5
+  VERY_SMALL: 0,
+  SMALL: 1,
+  MEDIUM: 2,
+  LARGE: 3,
+  VERY_LARGE: 4,
+  HUGE: 5
 
 };

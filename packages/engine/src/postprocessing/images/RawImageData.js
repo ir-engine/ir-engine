@@ -8,21 +8,19 @@
  * @return {Canvas} The canvas.
  */
 
-function createCanvas(width, height, data) {
+function createCanvas (width, height, data) {
+  const canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
+  const context = canvas.getContext('2d');
 
-	const canvas = document.createElementNS("http://www.w3.org/1999/xhtml", "canvas");
-	const context = canvas.getContext("2d");
+  const imageData = context.createImageData(width, height);
+  imageData.data.set(data);
 
-	const imageData = context.createImageData(width, height);
-	imageData.data.set(data);
+  canvas.width = width;
+  canvas.height = height;
 
-	canvas.width = width;
-	canvas.height = height;
+  context.putImageData(imageData, 0, 0);
 
-	context.putImageData(imageData, 0, 0);
-
-	return canvas;
-
+  return canvas;
 }
 
 /**
@@ -30,8 +28,7 @@ function createCanvas(width, height, data) {
  */
 
 export class RawImageData {
-
-	/**
+  /**
 	 * Constructs a new image data container.
 	 *
 	 * @param {Number} [width=0] - The width of the image.
@@ -39,61 +36,54 @@ export class RawImageData {
 	 * @param {Uint8ClampedArray} [data=null] - The image data.
 	 */
 
-	constructor(width = 0, height = 0, data = null) {
-
-		/**
+  constructor (width = 0, height = 0, data = null) {
+    /**
 		 * The width of the image.
 		 *
 		 * @type {Number}
 		 */
 
-		this.width = width;
+    this.width = width;
 
-		/**
+    /**
 		 * The height of the image.
 		 *
 		 * @type {Number}
 		 */
 
-		this.height = height;
+    this.height = height;
 
-		/**
+    /**
 		 * The image data.
 		 *
 		 * @type {Uint8ClampedArray}
 		 */
 
-		this.data = data;
+    this.data = data;
+  }
 
-	}
-
-	/**
+  /**
 	 * Creates a canvas from this image data.
 	 *
 	 * @return {Canvas} The canvas or null if it couldn't be created.
 	 */
 
-	toCanvas() {
+  toCanvas () {
+    return (typeof document === 'undefined') ? null : createCanvas(
+      this.width,
+      this.height,
+      this.data
+    );
+  }
 
-		return (typeof document === "undefined") ? null : createCanvas(
-			this.width,
-			this.height,
-			this.data
-		);
-
-	}
-
-	/**
+  /**
 	 * Creates a new image data container.
 	 *
 	 * @param {Object} data - Raw image data.
 	 * @return {RawImageData} The image data.
 	 */
 
-	static from(data) {
-
-		return new RawImageData(data.width, data.height, data.data);
-
-	}
-
+  static from (data) {
+    return new RawImageData(data.width, data.height, data.data);
+  }
 }

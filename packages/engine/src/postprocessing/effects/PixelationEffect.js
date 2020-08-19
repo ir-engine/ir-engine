@@ -1,7 +1,7 @@
-import { Uniform, Vector2 } from "three";
-import { Effect } from "./Effect.js";
+import { Uniform, Vector2 } from 'three';
+import { Effect } from './Effect.js';
 
-import fragmentShader from "./glsl/pixelation/shader.frag";
+import fragmentShader from './glsl/pixelation/shader.frag';
 
 /**
  * A pixelation effect.
@@ -10,57 +10,52 @@ import fragmentShader from "./glsl/pixelation/shader.frag";
  */
 
 export class PixelationEffect extends Effect {
-
-	/**
+  /**
 	 * Constructs a new pixelation effect.
 	 *
 	 * @param {Object} [granularity=30.0] - The pixel granularity.
 	 */
 
-	constructor(granularity = 30.0) {
+  constructor (granularity = 30.0) {
+    super('PixelationEffect', fragmentShader, {
 
-		super("PixelationEffect", fragmentShader, {
+      uniforms: new Map([
+        ['active', new Uniform(false)],
+        ['d', new Uniform(new Vector2())]
+      ])
 
-			uniforms: new Map([
-				["active", new Uniform(false)],
-				["d", new Uniform(new Vector2())]
-			])
+    });
 
-		});
-
-		/**
+    /**
 		 * The original resolution.
 		 *
 		 * @type {Vector2}
 		 * @private
 		 */
 
-		this.resolution = new Vector2();
+    this.resolution = new Vector2();
 
-		/**
+    /**
 		 * The pixel granularity.
 		 *
 		 * @type {Number}
 		 * @private
 		 */
 
-		this.granularity = granularity;
+    this.granularity = granularity;
+  }
 
-	}
-
-	/**
+  /**
 	 * Returns the pixel granularity.
 	 *
 	 * @return {Number} The granularity.
 	 */
 
-	getGranularity() {
+  getGranularity () {
+    return this.granularity;
+  }
 
-		return this.granularity;
-
-	}
-
-	/**
+  /**
 	 * Sets the pixel granularity.
 	 *
 	 * A higher value yields coarser visuals.
@@ -68,36 +63,29 @@ export class PixelationEffect extends Effect {
 	 * @param {Number} granularity - The new granularity.
 	 */
 
-	setGranularity(granularity) {
+  setGranularity (granularity) {
+    granularity = Math.floor(granularity);
 
-		granularity = Math.floor(granularity);
+    if (granularity % 2 > 0) {
+      granularity += 1;
+    }
 
-		if(granularity % 2 > 0) {
+    const uniforms = this.uniforms;
+    uniforms.get('active').value = (granularity > 0.0);
+    uniforms.get('d').value.set(granularity, granularity).divide(this.resolution);
 
-			granularity += 1;
+    this.granularity = granularity;
+  }
 
-		}
-
-		const uniforms = this.uniforms;
-		uniforms.get("active").value = (granularity > 0.0);
-		uniforms.get("d").value.set(granularity, granularity).divide(this.resolution);
-
-		this.granularity = granularity;
-
-	}
-
-	/**
+  /**
 	 * Updates the granularity.
 	 *
 	 * @param {Number} width - The width.
 	 * @param {Number} height - The height.
 	 */
 
-	setSize(width, height) {
-
-		this.resolution.set(width, height);
-		this.setGranularity(this.granularity);
-
-	}
-
+  setSize (width, height) {
+    this.resolution.set(width, height);
+    this.setGranularity(this.granularity);
+  }
 }
