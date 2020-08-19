@@ -13,7 +13,7 @@
   "jest": "ts-jest",
   "scripts": {
     "start": "yarn run dev",
-    "dev": "cross-env NODE_ENV=dev next dev --port 3000",
+    "dev": "cross-env NODE_ENV=dev NODE_OPTIONS=--max_old_space_size=4096 node index.js",
     "build": "next build",
     "watch": "cross-env NODE_ENV=dev next --port 3000",
     "validate": "yarn run lint && yarn run test",

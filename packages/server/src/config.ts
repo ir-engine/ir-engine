@@ -6,7 +6,7 @@ import { inspect } from 'util'
 import dotenv from 'dotenv-flow'
 import * as chargebeeInst from 'chargebee'
 dotenv.config({
-  path: `${__dirname}/../../`
+  path: `${__dirname}/../../../`
 })
 
 /**
@@ -72,7 +72,7 @@ const client = {
   title: process.env.APP_LOGO ?? 'XR3ngine',
   url: process.env.APP_URL ??
     process.env.APP_HOST ?? // Legacy env var, to deprecate
-    'https://localhost:3030'
+    'https://localhost:3000'
 }
 
 /**
