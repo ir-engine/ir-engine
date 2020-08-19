@@ -1,75 +1,68 @@
-import { SSAOEffect } from '../classes/postprocessing/effects/SSAOEffect';
-import { DepthOfFieldEffect } from '../classes/postprocessing/effects/DepthOfFieldEffect';
-import { BloomEffect } from '../classes/postprocessing/effects/BloomEffect';
-import { ToneMappingEffect } from '../classes/postprocessing/effects/ToneMappingEffect';
-import { HueSaturationEffect } from '../classes/postprocessing/effects/HueSaturationEffect';
-import { BrightnessContrastEffect } from '../classes/postprocessing/effects/BrightnessContrastEffect';
-import { BlendFunction } from '../classes/postprocessing/effects/blending/BlendFunction';
-import { KernelSize } from '../classes/postprocessing/materials/ConvolutionMaterial';
-
+// import * as PostProcessing from '../classes/postprocessing';
 import { PostProcessingSchema } from '../interfaces/PostProcessingSchema';
+
 export const DefaultPostProcessingSchema: PostProcessingSchema = {
   effects: [
-    {
-      effect: SSAOEffect,
-      options: {
-        resolution: 0.5,
-        samples: 8,
-        rings: 5,
-        radius: 0.1,
-        intensity: 2
-      }
-    },
-    // Bloom
-    {
-      effect: BloomEffect,
-      options: {
-        blendFunction: BlendFunction.SCREEN,
-        kernelSize: KernelSize.MEDIUM,
-        luminanceThreshold: 0.8,
-        luminanceSmoothing: 0.075,
-        height: 480
-      }
-    },
-    // Tonemapping
-    {
-      effect: ToneMappingEffect,
-      options: {
-        blendFunction: BlendFunction.NORMAL,
-        adaptive: true,
-        resolution: 256,
-        middleGrey: 0.6,
-        maxLuminance: 16.0,
-        averageLuminance: 1.0,
-        adaptationRate: 2.0
-      }
-    },
-    // Color Grading
-    {
-      effect: BrightnessContrastEffect,
-      options: {
-        brightness: 0.1,
-        contrast: 0.1
-      }
-    },
-    // Color Grading
-    {
-      effect: HueSaturationEffect,
-      options: {
-        hue: 0.0,
-        saturation: 0.1
-      }
-    },
-    // DOF
-    {
-      effect: DepthOfFieldEffect,
-      options: {
-        blendFunction: BlendFunction.NORMAL,
-        focusDistance: 0.0,
-        focalLength: 0.2,
-        bokehScale: 1.0
-      }
-    }
+    // {
+    //   effect: PostProcessing.SSAOEffect,
+    //   options: {
+    //     resolution: 0.5,
+    //     samples: 8,
+    //     rings: 5,
+    //     radius: 0.1,
+    //     intensity: 2
+    //   }
+    // },
+    // // Bloom
+    // {
+    //   effect: PostProcessing.BloomEffect,
+    //   options: {
+    //     blendFunction: PostProcessing.BlendFunction.SCREEN,
+    //     kernelSize: PostProcessing.KernelSize.MEDIUM,
+    //     luminanceThreshold: 0.8,
+    //     luminanceSmoothing: 0.075,
+    //     height: 480
+    //   }
+    // },
+    // // Tonemapping
+    // {
+    //   effect: PostProcessing.ToneMappingEffect,
+    //   options: {
+    //     blendFunction: PostProcessing.BlendFunction.NORMAL,
+    //     adaptive: true,
+    //     resolution: 256,
+    //     middleGrey: 0.6,
+    //     maxLuminance: 16.0,
+    //     averageLuminance: 1.0,
+    //     adaptationRate: 2.0
+    //   }
+    // },
+    // // Color Grading
+    // {
+    //   effect: PostProcessing.BrightnessContrastEffect,
+    //   options: {
+    //     brightness: 0.1,
+    //     contrast: 0.1
+    //   }
+    // },
+    // // Color Grading
+    // {
+    //   effect: PostProcessing.HueSaturationEffect,
+    //   options: {
+    //     hue: 0.0,
+    //     saturation: 0.1
+    //   }
+    // },
+    // // DOF
+    // {
+    //   effect: PostProcessing.DepthOfFieldEffect,
+    //   options: {
+    //     blendFunction: PostProcessing.BlendFunction.NORMAL,
+    //     focusDistance: 0.0,
+    //     focalLength: 0.2,
+    //     bokehScale: 1.0
+    //   }
+    // }
     // // GodRays
     // {
     //   effect: GodRaysEffect,
