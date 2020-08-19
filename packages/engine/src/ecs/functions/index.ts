@@ -3,4 +3,3 @@
 export * from './ComponentFunctions';
 export * from './EntityFunctions';
 export * from './SystemFunctions';
-export * from './Utils';

@@ -1,4 +1,4 @@
-import { Component } from "../../ecs/classes/Component"
+import { Component } from '../../ecs/classes/Component';
 
 export class LoadingBar extends Component<LoadingBar> {
   assetLoadedCallback: Function

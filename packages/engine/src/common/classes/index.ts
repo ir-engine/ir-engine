@@ -2,4 +2,3 @@
 
 export * from './GameObject';
 export * from './RingBuffer';
-export * from './SceneManager';

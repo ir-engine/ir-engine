@@ -40,8 +40,8 @@ const GameserverTest = (props: Props) => {
     await provisionInstanceServer(locationId)
   }
   useEffect(() => {
-    console.log(instanceConnectionState)
-    if (instanceConnectionState.get('instanceProvisioned') === true) {
+    if (instanceConnectionState.get('instanceProvisioned') === true && instanceConnectionState.get('readyToConnect') === true) {
+      console.log('Calling connectToInstanceServer')
       connectToInstanceServer()
     }
   }, [instanceConnectionState])

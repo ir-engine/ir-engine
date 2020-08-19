@@ -53,11 +53,30 @@
   "pre-push": [
     "test"
   ],
+  "peerDependencies": {
+    "chokidar": "3.4.2",
+    "mediasoup-client": "^3.6.12",
+    "@feathersjs/errors": "4.5.8",
+    "@feathersjs/hooks": "^0.5.0",
+    "@feathersjs/cli": "^4.4.0",
+    "@feathersjs/commons": "4.5.8",
+    "@feathersjs/configuration": "^4.5.8",
+    "@feathersjs/express": "^4.5.8",
+    "@feathersjs/feathers": "4.5.8",
+    "graphql": "^15.0.0",
+    "graphql-relay": "~0.6.0",
+    "graphql-sequelize": "~9.4.0",
+    "sequelize": "~5.21.8",
+    "@feathersjs/authentication-local": "^4.5.8",
+    "@feathersjs/authentication-oauth": "^4.5.8",
+    "@feathersjs/authentication": "^4.5.8",
+    "@feathersjs/transport-commons": "^4.5.8",
+    "@feathersjs/primus-client": "4.5.8",
+    "@feathersjs/rest-client": "4.5.8",
+    "@feathersjs/socketio": "4.5.8",
+    "@feathersjs/socketio-client": "^4.5.8"
+  },
   "devDependencies": {
     "lerna": "^3.22.1"
-  },
-  "dependencies": {
-    "@xr3ngine/server": "^0.2.0",
-    "@xr3ngine/client": "^0.2.0"
   }
 }

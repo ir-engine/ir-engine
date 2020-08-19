@@ -14,6 +14,5 @@ export * from './instanceOf';
 export * from './isBrowser';
 export * from './isScalar';
 export * from './preventDefault';
-export * from './registerAssemblage';
 export * from './set';
 export * from './sleep';

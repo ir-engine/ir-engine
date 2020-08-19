@@ -1,4 +1,4 @@
-import { MessageTypeAlias } from "../types/MessageTypeAlias"
+import { MessageTypeAlias } from '../types/MessageTypeAlias';
 export interface Message {
   messageType: MessageTypeAlias
   data: any
