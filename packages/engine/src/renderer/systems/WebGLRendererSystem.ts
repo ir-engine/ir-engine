@@ -12,14 +12,26 @@ import { EffectPass } from '../classes/postprocessing/passes/EffectPass';
 import { RenderPass } from '../classes/postprocessing/passes/RenderPass';
 import { RendererComponent } from '../components/RendererComponent';
 import { DefaultPostProcessingSchema } from '../defaults/DefaultPostProcessingSchema';
-
+/**
+ * WebGL renderer system
+ */
 export class WebGLRendererSystem extends System {
-  constructor (attributes?: SystemAttributes) {
+  /**
+   * Contstructs a new webGl renderer system
+   *
+   * @param {Attributes} [attributes?: SystemAttributes]
+   * @typedef {object} SystemAttributes with
+   * @param {number} priority and has an propName signature.
+   * This is propName states that when a SystemAttributes is propName whith a string, it will return any type
+   */
+  constructor(attributes?: SystemAttributes) {
     super(attributes);
     // Create the Three.js WebGL renderer
   }
-
-  init (): void {
+  /**
+     * Initialization here renderer component
+     */
+  init(): void {
     // Create the Renderer singleton
     addComponent(createEntity(), RendererComponent);
     const renderer = new WebGLRenderer({
@@ -31,19 +43,27 @@ export class WebGLRendererSystem extends System {
     this.onResize()
     console.log("child appended")
   }
-
-  onResize () {
+  /**
+     * Called on resize and sets resize flag
+     */
+  onResize() {
     console.log("On resize called")
     RendererComponent.instance.needsResize = true;
   }
-
-  dispose () {
+  /**
+    * This method removes resize listener
+    */
+  dispose() {
     window.removeEventListener('resize', this.onResize);
   }
 
   isInitialized: boolean
-
-  configurePostProcessing (entity: Entity) {
+  /**
+    * Configure post processing
+    *
+    * @param {Entity} entity - The Entity
+    */
+  configurePostProcessing(entity: Entity) {
     const rendererComponent = getMutableComponent<RendererComponent>(entity, RendererComponent);
     if (rendererComponent.postProcessingSchema == undefined) rendererComponent.postProcessingSchema = DefaultPostProcessingSchema;
     const composer = new EffectComposer(Engine.renderer);
@@ -63,8 +83,12 @@ export class WebGLRendererSystem extends System {
     })
     composer.addPass(new EffectPass(CameraComponent.instance.camera, ...passes))
   }
-
-  execute (delta: number) {
+  /**
+     * This method called each frame by default
+     *
+     * @param {Number} delta
+     */
+  execute(delta: number) {
     this.queryResults.renderers.added.forEach((entity: Entity) => {
       console.log("Renderers added")
       RendererComponent.instance.needsResize = true;
@@ -78,7 +102,9 @@ export class WebGLRendererSystem extends System {
     });
   }
 }
-
+/**
+ * @param entity
+ */
 export const resize: Behavior = entity => {
   const rendererComponent = getComponent<RendererComponent>(entity, RendererComponent);
 
@@ -89,7 +115,7 @@ export const resize: Behavior = entity => {
     if (curPixelRatio !== window.devicePixelRatio) Engine.renderer.setPixelRatio(window.devicePixelRatio);
 
     const width = window.innerWidth;
-    const height =  window.innerHeight;
+    const height = window.innerHeight;
 
     if ((Engine.camera as PerspectiveCamera).isPerspectiveCamera) {
       const cam = Engine.camera as PerspectiveCamera;
