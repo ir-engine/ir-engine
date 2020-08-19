@@ -62,9 +62,11 @@ export function getSystems (): System[] {
 export function executeSystem (system: System, delta: number, time: number): void {
   if (system.initialized) {
     if (system.canExecute()) {
-      const startTime = now();
-      system.execute(delta, time);
-      system.executeTime = now() - startTime;
+      const startTime = now()
+      system.execute(delta, time)
+      system.executeTime = now() - startTime
+      Engine.lastExecutedSystem = system
+      system.clearEventQueues()
     }
   }
 }
