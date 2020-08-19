@@ -18,6 +18,7 @@ import { DefaultInputSchema } from '../../input/defaults/DefaultInputSchema';
 import { Subscription } from '../../subscription/components/Subscription';
 import { DefaultSubscriptionSchema } from '../../subscription/defaults/DefaultSubscriptionSchema';
 import { SocketWebRTCClientTransport } from '../transports/SocketWebRTC/SocketWebRTCClientTransport';
+import { attachCamera } from '../../camera/behaviors/attachCamera';
 
 const box = new BoxBufferGeometry(0.25, 0.25, 0.25);
 const miniGeo = new BoxBufferGeometry(2, 1, 4);
@@ -41,15 +42,13 @@ const NetworkPlayerCharacter: NetworkPrefab = {
       behavior: addObject3DComponent,
       networked: true,
       args: {
-        obj: Mesh,
-        objArgs: miniGeo
+        obj3d: Mesh,
+        obj3dArgs: miniGeo
       }
     },
-    /*
     {
       behavior: attachCamera
     },
-    */
     {
       behavior: addMeshCollider,
       networked: true

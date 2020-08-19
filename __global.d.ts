@@ -24,6 +24,16 @@ declare module '*.glb' {
   export = value
 }
 
+declare module '*.frag' {
+  const value: any
+  export = value
+}
+
+declare module '*.vert' {
+  const value: any
+  export = value
+}
+
 declare interface Element {
   setAttribute(qualifiedName: string, value: Object): void
 }
