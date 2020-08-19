@@ -115,7 +115,6 @@ export abstract class System {
         if (unregisteredComponents.length > 0) {
           unregisteredComponents.forEach(component => {
             if(!hasRegisteredComponent(component)) registerComponent(component);
-            console.log('Registered component ', component.getName());
           });
         }
 
@@ -190,7 +189,7 @@ export abstract class System {
         Engine.queries.push(query)
       }
     }
-    const c = (this.constructor as any);
+    const c = (this.constructor as any).prototype;
     if(c.init !== undefined) c.init(attributes);
     c.order = Engine.systems.length;
   }

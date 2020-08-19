@@ -5,11 +5,11 @@ import { Engine } from '../../ecs';
 import { Entity } from '../../ecs/classes/Entity';
 import { SystemAttributes, System } from '../../ecs/classes/System';
 import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { EffectComposer } from '../../postprocessing/core/EffectComposer';
-import { DepthOfFieldEffect } from '../../postprocessing/effects/DepthOfFieldEffect';
-import { SSAOEffect } from '../../postprocessing/effects/SSAOEffect';
-import { EffectPass } from '../../postprocessing/passes/EffectPass';
-import { RenderPass } from '../../postprocessing/passes/RenderPass';
+import { EffectComposer } from '../classes/postprocessing/core/EffectComposer';
+import { DepthOfFieldEffect } from '../classes/postprocessing/effects/DepthOfFieldEffect';
+import { SSAOEffect } from '../classes/postprocessing/effects/SSAOEffect';
+import { EffectPass } from '../classes/postprocessing/passes/EffectPass';
+import { RenderPass } from '../classes/postprocessing/passes/RenderPass';
 import { RendererComponent } from '../components/RendererComponent';
 import { DefaultPostProcessingSchema } from '../defaults/DefaultPostProcessingSchema';
 
@@ -20,7 +20,6 @@ export class WebGLRendererSystem extends System {
   }
 
   init (): void {
-    console.log("Init caslled on renderer system")
     // Create the Renderer singleton
     addComponent(createEntity(), RendererComponent);
     const renderer = new WebGLRenderer({
@@ -29,9 +28,12 @@ export class WebGLRendererSystem extends System {
     Engine.renderer = renderer;
     // Add the renderer to the body of the HTML document
     document.body.appendChild(Engine.renderer.domElement);
+    this.onResize()
+    console.log("child appended")
   }
 
   onResize () {
+    console.log("On resize called")
     RendererComponent.instance.needsResize = true;
   }
 
@@ -64,16 +66,14 @@ export class WebGLRendererSystem extends System {
 
   execute (delta: number) {
     this.queryResults.renderers.added.forEach((entity: Entity) => {
+      console.log("Renderers added")
       RendererComponent.instance.needsResize = true;
+      this.onResize = this.onResize.bind(this);
       window.addEventListener('resize', this.onResize, false);
       this.configurePostProcessing(entity);
     });
 
     this.queryResults.renderers.all.forEach((entity: Entity) => {
-      if(getComponent<RendererComponent>(entity, RendererComponent).needsResize){
-        resize(entity)
-        console.log("Resizing")
-      }
       getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
     });
   }
@@ -88,8 +88,8 @@ export const resize: Behavior = entity => {
 
     if (curPixelRatio !== window.devicePixelRatio) Engine.renderer.setPixelRatio(window.devicePixelRatio);
 
-    const width = canvas.width;
-    const height =  canvas.height;
+    const width = window.innerWidth;
+    const height =  window.innerHeight;
 
     if ((Engine.camera as PerspectiveCamera).isPerspectiveCamera) {
       const cam = Engine.camera as PerspectiveCamera;
@@ -97,7 +97,12 @@ export const resize: Behavior = entity => {
       cam.updateProjectionMatrix();
     }
 
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+
     Engine.renderer.setSize(width, height);
+    RendererComponent.instance.composer.setSize(width, height);
+
     RendererComponent.instance.needsResize = false;
   }
 };

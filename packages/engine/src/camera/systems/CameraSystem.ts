@@ -5,17 +5,19 @@ import { followTarget } from '../../transform/behaviors/followTarget';
 import { CameraComponent } from '../components/CameraComponent';
 import { createEntity, getMutableComponent, getComponent, addComponent } from '../../ecs/functions/EntityFunctions';
 import { Engine } from '../../ecs/classes/Engine';
+import { addObject3DComponent, CameraTagComponent, Object3DComponent } from '../../common';
 
 export class CameraSystem extends System {
   init (): void {
     const cameraEntity = createEntity();
     addComponent(cameraEntity, CameraComponent, { camera: Engine.camera, followTarget: null });
+    addComponent(cameraEntity, CameraTagComponent)
+    addComponent(cameraEntity, Object3DComponent)
+    getMutableComponent<Object3DComponent>(cameraEntity, Object3DComponent).value = Engine.camera
     addComponent(cameraEntity, TransformComponent);
-    getMutableComponent(cameraEntity, CameraComponent);
   }
 
   execute (delta: number): void {
-    return;
     this.queryResults.entities.all?.forEach(entity => {
       const cam = getComponent(entity, CameraComponent) as CameraComponent;
       if (cam.followTarget !== null && cam.followTarget !== undefined) {

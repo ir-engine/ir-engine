@@ -17,7 +17,7 @@ export const transformBehavior: Behavior = (entity: Entity, args: { event: Mouse
   vec3.set(_velocity, transform.velocity[0], transform.velocity[1], transform.velocity[2]);
 
   const object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
-  if (object3DComponent == undefined) return console.warn('No Object3D located');
+  if (object3DComponent == undefined) return console.warn('No Object3D located ', console.log(entity.componentTypes));
   // Apply velocity to position
   if (Math.abs(vec3.length(_velocity)) > 0) {
     vec3.scale(_deltaV, _velocity, delta);
