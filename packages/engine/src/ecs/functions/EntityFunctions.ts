@@ -24,7 +24,7 @@ export function getMutableComponent<C extends Component<any>>(
   for (let i = 0; i < entity.queries.length; i++) {
     const query = entity.queries[i]
 
-    if (query.reactive && query.Components.indexOf(Component) !== -1) {
+    if (query.reactive && query.components.indexOf(Component) !== -1) {
       query.eventDispatcher.dispatchEvent(Query.prototype.COMPONENT_CHANGED, entity, component)
     }
   }
