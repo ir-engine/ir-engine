@@ -24,6 +24,6 @@
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx", "index.js"
+    "**/*.tsx", "index.js", "../gameserver/WebRTCGameServer.ts"
   ]
 }
