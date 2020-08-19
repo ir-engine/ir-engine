@@ -65,7 +65,6 @@ export function executeSystem (system: System, delta: number, time: number): voi
       const startTime = now()
       system.execute(delta, time)
       system.executeTime = now() - startTime
-      Engine.lastExecutedSystem = system
       system.clearEventQueues()
     }
   }
