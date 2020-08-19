@@ -9,4 +9,4 @@ export const DefaultMessageTypes = {
   Object: 7,
   World: 8,
   Test: 250
-}
+};

@@ -1,3 +1,3 @@
-import { Component } from "../../../ecs/classes/Component"
+import { Component } from '../../../ecs/classes/Component';
 
 export class Crouching extends Component<any> {}

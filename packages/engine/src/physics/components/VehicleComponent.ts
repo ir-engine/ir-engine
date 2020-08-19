@@ -1,6 +1,6 @@
-import { RaycastVehicle } from "cannon-es"
-import { Component } from "../../ecs/classes/Component"
-import { Types } from "../../ecs/types/Types"
+import { RaycastVehicle } from 'cannon-es';
+import { Component } from '../../ecs/classes/Component';
+import { Types } from '../../ecs/types/Types';
 
 export class VehicleComponent extends Component<any> {
   // Move to Vehicle component
@@ -14,4 +14,4 @@ VehicleComponent.schema = {
   maxForce: { type: Types.Number, default: 1000 },
   brakeForce: { type: Types.Number, default: 1000000 },
   vehicle: { type: Types.Ref, default: 0.5 }
-}
+};

@@ -1,22 +1,22 @@
 export interface SubscriptionSchema {
-  onAdded?: {
+  onAdded?: Array<{
     behavior: any
     args?: any
-  }[]
-  onChanged?: {
+  }>
+  onChanged?: Array<{
     behavior: any
     args?: any
-  }[]
-  onRemoved?: {
+  }>
+  onRemoved?: Array<{
     behavior: any
     args?: any
-  }[]
-  onUpdate?: {
+  }>
+  onUpdate?: Array<{
     behavior: any
     args?: any
-  }[]
-  onLateUpdate?: {
+  }>
+  onLateUpdate?: Array<{
     behavior: any
     args?: any
-  }[]
+  }>
 }

@@ -1,6 +1,6 @@
-import { Component } from "../../ecs/classes/Component"
-import { Types } from "../../ecs/types/Types"
-import { AssetId, AssetMap, AssetUrl } from "../types/AssetTypes"
+import { Component } from '../../ecs/classes/Component';
+import { Types } from '../../ecs/types/Types';
+import { AssetId, AssetMap, AssetUrl } from '../types/AssetTypes';
 
 // This component should only be used once per game
 export default class AssetVault extends Component<AssetVault> {
@@ -8,9 +8,9 @@ export default class AssetVault extends Component<AssetVault> {
   assets: AssetMap
   assetsLoaded!: boolean
 
-  constructor() {
-    super()
-    AssetVault.instance = this
+  constructor () {
+    super();
+    AssetVault.instance = this;
   }
 
   static schema = {

@@ -33,7 +33,7 @@ module.exports = {
     "no-unused-vars": "off",
     "no-var": "error",
     "prefer-arrow-callback": "error",
-    "semi": "error",
+    "semi": "off",
     "space-before-function-paren":"off",
     "@typescript-eslint/no-unused-vars": [
       "error"
@@ -45,7 +45,6 @@ module.exports = {
       "@typescript-eslint/promise-function-async": "off",
       "space-before-function-paren": "off",
       "no-var": "error",
-      "semi": "error",
       "prefer-arrow-callback": "error",
     // React linting rules
     "react/boolean-prop-naming": ["error", { "rule": "^(is|has)[A-Z]([A-Za-z0-9]?)+" }],

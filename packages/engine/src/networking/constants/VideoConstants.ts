@@ -4,7 +4,7 @@ export const VIDEO_CONSTRAINTS = {
   qvga: { width: { ideal: 320 }, height: { ideal: 240 } },
   vga: { width: { ideal: 640 }, height: { ideal: 480 } },
   hd: { width: { ideal: 1280 }, height: { ideal: 720 } }
-}
+};
 
 export const localMediaConstraints = {
   audio: true,
@@ -13,7 +13,7 @@ export const localMediaConstraints = {
     height: VIDEO_CONSTRAINTS.qvga.height,
     frameRate: { max: 30 }
   }
-}
+};
 
 // encodings for outgoing video
 // just two resolutions, for now, as chrome 75 seems to ignore more
@@ -22,4 +22,4 @@ export const CAM_VIDEO_SIMULCAST_ENCODINGS = [
   { maxBitrate: 36000, scaleResolutionDownBy: 2 }
   // { maxBitrate: 96000, scaleResolutionDownBy: 2 },
   // { maxBitrate: 680000, scaleResolutionDownBy: 1 },
-]
+];

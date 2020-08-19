@@ -1,6 +1,6 @@
-import { Vector3 } from "../../common/types/NumericalTypes"
-import { Component } from "../../ecs/classes/Component"
-import { Types } from "../../ecs/types/Types"
+import { Vector3 } from '../../common/types/NumericalTypes';
+import { Component } from '../../ecs/classes/Component';
+import { Types } from '../../ecs/types/Types';
 
 interface PropTypes {
   wheelMesh: any
@@ -21,4 +21,4 @@ VehicleBody.schema = {
   scale: { type: Types.Array, default: [0.2, 0.1, 0.1] },
   wheelMesh: { type: Types.Ref },
   convexMesh: { type: Types.Ref }
-}
+};

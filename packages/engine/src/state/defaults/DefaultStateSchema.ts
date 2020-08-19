@@ -1,12 +1,12 @@
-import { decelerate } from "../../common/defaults/behaviors/decelerate"
-import { jumping } from "../../common/defaults/behaviors/jump"
-import { StateSchema } from "../interfaces/StateSchema"
-import { DefaultStateTypes } from "./DefaultStateTypes"
+import { decelerate } from '../../common/defaults/behaviors/decelerate';
+import { jumping } from '../../common/defaults/behaviors/jump';
+import { StateSchema } from '../interfaces/StateSchema';
+import { DefaultStateTypes } from './DefaultStateTypes';
 
 export const DefaultStateGroups = {
   MOVEMENT: 0,
   MOVEMENT_MODIFIERS: 1
-}
+};
 
 export const DefaultStateSchema: StateSchema = {
   groups: {
@@ -32,4 +32,4 @@ export const DefaultStateSchema: StateSchema = {
     },
     [DefaultStateTypes.SPRINTING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS }
   }
-}
+};
