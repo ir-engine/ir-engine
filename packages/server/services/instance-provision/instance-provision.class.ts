@@ -50,26 +50,17 @@ export class InstanceProvision implements ServiceMethods<Data> {
           }
         ]
       })
-      console.log(availableLocationInstances)
       if (availableLocationInstances.length === 0) {
-        console.log('No available instances')
-        console.log((this.app as any).k8Client)
         const serverResult = await (this.app as any).k8Client.get('gameservers')
-        console.log(serverResult)
         const readyServers = _.filter(serverResult.items, (server: any) => server.status.state === 'Ready')
-        console.log(readyServers)
         const server = readyServers[Math.floor(Math.random() * readyServers.length)]
-        console.log(server)
         return {
           ipAddress: server.status.address,
           port: server.status.ports[0].port
         }
       } else {
-        console.log('Available instances, getting an existing one')
         const instanceUserSort = _.sortBy(availableLocationInstances, (instance: typeof instanceModel) => instance.currentUsers)
-        console.log(instanceUserSort)
         const ipAddressSplit = instanceUserSort[0].ipAddress.split(':')
-        console.log(ipAddressSplit)
         return {
           ipAddress: ipAddressSplit[0],
           port: ipAddressSplit[1]
