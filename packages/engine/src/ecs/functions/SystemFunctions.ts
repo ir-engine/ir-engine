@@ -53,6 +53,7 @@ export function executeSystem(system: System, delta: number, time: number): void
       system.execute(delta, time)
       system.executeTime = now() - startTime
       Engine.lastExecutedSystem = system
+      system.clearEventQueues()
     }
   }
 }
