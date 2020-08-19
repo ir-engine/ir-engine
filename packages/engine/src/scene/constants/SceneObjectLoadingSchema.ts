@@ -17,7 +17,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     behaviors: [
       {
         behavior: addObject3DComponent,
-        args: { obj: AmbientLight },
+        args: { obj3d: AmbientLight },
         values: [
           { from: 'color', to: 'color' },
           { from: 'intensity', to: 'intensity' }
@@ -29,7 +29,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     behaviors: [
       {
         behavior: addObject3DComponent,
-        args: { obj: DirectionalLight, objArgs: { castShadow: true } },
+        args: { obj3d: DirectionalLight, objArgs: { castShadow: true } },
         values: [
           { from: 'shadowMapResolution', to: 'shadow.mapSize' },
           { from: 'shadowBias', to: 'shadow.bias' },
@@ -62,7 +62,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       {
         behavior: addComponent,
         args: {
-          obj: GLTFLoader,
+          obj3d: GLTFLoader,
           onLoaded: () => {
             console.log('gltf loaded');
           }
@@ -76,7 +76,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       {
         behavior: addObject3DComponent,
         args: {
-          obj: Mesh,
+          obj3d: Mesh,
           objArgs: [new THREE.PlaneGeometry(40000, 40000), new THREE.MeshBasicMaterial({ side: THREE.DoubleSide })]
         },
         values: ['color', 'material.color']
@@ -87,7 +87,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     behaviors: [
       {
         behavior: addObject3DComponent,
-        args: { obj: HemisphereLight },
+        args: { obj3d: HemisphereLight },
         values: [
           { from: 'skyColor', to: 'skyColor' },
           { from: 'groundColor', to: 'groundColor' },
@@ -100,7 +100,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     behaviors: [
       {
         behavior: addObject3DComponent,
-        args: { obj: PointLight },
+        args: { obj3d: PointLight },
         values: [
           { from: 'color', to: 'color' },
           { from: 'intensity', to: 'intensity' },
@@ -114,7 +114,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     behaviors: [
       {
         behavior: createSkybox,
-        args: { obj: Sky },
+        args: { obj3d: Sky },
         values: [
           { from: 'distance', to: 'distance' },
           { from: 'inclination', to: 'inclination' },
@@ -132,7 +132,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     behaviors: [
       {
         behavior: addObject3DComponent,
-        args: { obj: Image },
+        args: { obj3d: Image },
         values: ['src', 'projection', 'parent']
       }
     ]
@@ -141,7 +141,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     behaviors: [
       {
         behavior: addObject3DComponent,
-        args: { obj: SpotLight },
+        args: { obj3d: SpotLight },
         values: ['color', 'intensity', 'distance', 'angle', 'penumbra', 'decay']
       }
     ]
@@ -151,7 +151,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       {
         // TODO: This is a three.js transform, we might need to handle binding this properly
         behavior: addObject3DComponent,
-        args: { obj: Transform },
+        args: { obj3d: Transform },
         values: ['position', 'rotation', 'scale']
       }
     ]

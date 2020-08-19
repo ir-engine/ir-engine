@@ -32,9 +32,9 @@
   },
   "jest": "ts-jest",
   "scripts": {
-    "start": "shx rm -rf lib/ && tsc && node lib/",
-    "dev": "NODE_ENV=development node -r ts-node/register ./",
-    "build": "shx rm -rf lib/ && tsc",
+    "start": "yarn run build && node lib/",
+    "dev": "NODE_ENV=development node -r ts-node/register ./src",
+    "build": "shx rm -rf lib/ && tsc src/",
     "test": "NODE_ENV=production jest lib/test",
     "lint": "node node_modules/.bin/eslint --ext .js,.ts ./ --fix",
     "validate": "yarn run lint && yarn run build && yarn run test",
