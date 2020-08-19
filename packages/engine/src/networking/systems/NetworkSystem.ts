@@ -38,7 +38,7 @@ export class NetworkSystem extends System {
 
   public execute (): void {
     this.queryResults.network.all?.forEach((entity: Entity) => {
-      console.log(entity)
+      // console.log(entity)
     })
   }
 }

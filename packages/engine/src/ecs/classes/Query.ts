@@ -57,7 +57,6 @@ export class Query {
       } else {
         this.components.push(component);
       }
-      console.log("Added component to query: ", component)
     });
 
     if (this.components.length === 0) {

@@ -1,4 +1,4 @@
-import { EffectComposer } from '../../postprocessing/core/EffectComposer';
+import { EffectComposer } from '../classes/postprocessing/core/EffectComposer';
 import { PostProcessingSchema } from '../interfaces/PostProcessingSchema';
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';

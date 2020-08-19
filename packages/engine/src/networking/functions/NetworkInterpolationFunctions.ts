@@ -20,7 +20,6 @@ export function CreateSnapshot (state: StateEntityGroup | { [key: string]: State
 
     // check if each entity has an id
     const withoutID = state.filter(e => typeof e.id !== 'string' && typeof e.id !== 'number');
-    // console.log(withoutID)
     if (withoutID.length > 0) throw new Error('Each Entity needs to have a id');
   };
 
