@@ -1,12 +1,12 @@
-import { EffectComposer } from '../classes/postprocessing/core/EffectComposer';
-import { PostProcessingSchema } from '../interfaces/PostProcessingSchema';
+// import * as PostProcessing from '../../../sandbox/postprocessing';
+// import { PostProcessingSchema } from '../interfaces/PostProcessingSchema';
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 export class RendererComponent extends Component<any> {
   static instance: RendererComponent
-  composer: EffectComposer
+  // composer: PostProcessing.EffectComposer
   needsResize: boolean
-  postProcessingSchema: PostProcessingSchema
+  // postProcessingSchema: PostProcessingSchema
 
   constructor () {
     super();
@@ -16,7 +16,7 @@ export class RendererComponent extends Component<any> {
   }
 }
 RendererComponent.schema = {
-  composer: { type: Types.Ref },
+  // composer: { type: Types.Ref },
   needsResize: { type: Types.Boolean },
-  postProcessingSchema: { type: Types.Ref }
+  // postProcessingSchema: { type: Types.Ref }
 };

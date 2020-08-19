@@ -11,6 +11,6 @@
     "resolveJsonModule": true,
     "allowJs": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "sandbox/postprocessing"],
   "exclude": ["node_modules", "dist"]
 }
