@@ -7,8 +7,18 @@ export default (app: Application): void => {
     return
   }
 
+  // function pingClients (): any {
+  //   console.log('PingClient')
+  //   app.service('instance-provision').emit('created', {
+  //     type: 'created',
+  //     data: {
+  //       cool: 'pants'
+  //     }
+  //   })
+  //   setTimeout(() => pingClients(), 2000)
+  // }
+
   app.on('connection', async (connection) => {
-    console.log(connection)
     if ((process.env.KUBERNETES === 'true' && process.env.SERVER_MODE === 'realtime') || (process.env.NODE_ENV === 'development')) {
       try {
         const token = (connection as any).socketQuery?.token
@@ -17,6 +27,7 @@ export default (app: Application): void => {
           const identityProvider = authResult['identity-provider']
           if (identityProvider != null) {
             const userId = identityProvider.userId
+            const user = await app.service('user').get(userId)
             const locationId = (connection as any).socketQuery.locationId
             const agonesSDK = (app as any).agonesSDK
             const gsResult = await agonesSDK.getGameServer()
@@ -33,29 +44,31 @@ export default (app: Application): void => {
               // Here's an example of sending data to the channel 'instanceIds/<instanceId>'
               // This .publish is a publish handler that controls which connections to send data to.
               // app.service('instance-provision').publish('created', async (data): Promise<any> => {
-              //   const channelName = `instanceIds/${(app as any).instance.id}`
+              //   const channelName = `instanceIds/${(app as any).instance.id as string}`
               //   return app.channel(channelName).send({
-              //      data: data
+              //     data: data
               //   })
               // })
-              //  This is how you could manually emit data on a service method
-              //  app.service('instance-provision').emit('created', {
+              // This is how you could manually emit data on a service method
+              // pingClients()
+              // app.service('instance-provision').emit('created', {
               //   type: 'created',
               //   data: {
               //     cool: 'pants'
               //   }
               // })
             } else {
-              const instance = await app.service('instance').get((app as any).instance.id)
-              await app.service('instance').patch((app as any).instance.id, {
-                currentUsers: (instance.currentUsers as number) + 1
-              })
+              if (user.instanceId !== (app as any).instance.id) {
+                const instance = await app.service('instance').get((app as any).instance.id)
+                await app.service('instance').patch((app as any).instance.id, {
+                  currentUsers: (instance.currentUsers as number) + 1
+                })
+              }
             }
             await app.service('user').patch(userId, {
               instanceId: (app as any).instance.id
             })
             app.channel(`instanceIds/${(app as any).instance.id as string}`).join(connection)
-            console.log(app.channels)
           }
         }
       } catch (err) {
@@ -66,7 +79,6 @@ export default (app: Application): void => {
   })
 
   app.on('disconnect', async (connection) => {
-    console.log(connection)
     if ((process.env.KUBERNETES === 'true' && process.env.SERVER_MODE === 'realtime') || (process.env.NODE_ENV === 'development')) {
       try {
         const token = (connection as any).socketQuery?.token
@@ -75,13 +87,16 @@ export default (app: Application): void => {
           const identityProvider = authResult['identity-provider']
           if (identityProvider != null) {
             const userId = identityProvider.userId
-            await app.service('user').patch(userId, {
-              instanceId: null
-            })
+            const user = await app.service('user').get(userId)
             const instance = await app.service('instance').get((app as any).instance.id)
-            await app.service('instance').patch((app as any).instance.id, {
-              currentUsers: instance.currentUsers - 1
-            })
+            if (user.instanceId === (app as any).instance.id) {
+              await app.service('user').patch(userId, {
+                instanceId: null
+              })
+              await app.service('instance').patch((app as any).instance.id, {
+                currentUsers: instance.currentUsers - 1
+              })
+            }
 
             app.channel(`instanceIds/${(app as any).instance.id as string}`).leave(connection)
 

@@ -316,9 +316,6 @@ gameserver:
   podSecurityContext: {}
   securityContext: {}
 
-
-
-
 ########### Subcharts - values here will overwrite the subchart
 
 mariadb:
