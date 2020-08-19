@@ -1,8 +1,7 @@
 import "./webxr-input.mock"
 //jest.mock("./webxr-input.mock")
 
-import { InputSystem } from "../../src/input/systems/InputSystem"
-import { registerSystem } from "../../src/ecs"
+import { initializeEngine } from "../../src/initialize"
 
 initializeEngine()
 // new InputSystem()
