@@ -125,13 +125,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
   roomState = defaultRoomState
 
-  // sendAllReliableMessages(): void {
-  //   // TODO: Analyze, we might want to route messages better to only specific clients
-  //   while (!Network.instance.outgoingReliableQueue.empty) {
-  //     const message = Network.instance.outgoingReliableQueue.pop
-  //     this.socketIO.sockets.emit(MessageTypes.ReliableMessage.toString(), message)
-  //   }
-  // }
+  sendReliableMessage(message: any): void {
+      this.socketIO.sockets.emit(MessageTypes.ReliableMessage.toString(), message)
+  }
 
   handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
     data: { consumerOptions: DataConsumerOptions; transportId: string },

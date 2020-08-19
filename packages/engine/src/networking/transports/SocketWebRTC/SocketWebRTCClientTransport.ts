@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { types as MediaSoupServerTypes } from "mediasoup"
-import mediasoupClient from "mediasoup-client"
+import * as mediasoupClient from "mediasoup-client"
 import ioclient from "socket.io-client"
 import { sleep } from "../../../common/functions/sleep"
 import { MediaStreamComponent } from "../../components/MediaStreamComponent"
@@ -32,11 +31,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   request: any
 
-  // sendAllReliableMessages(): void {
-  //   while (!NetworkComponent.instance.outgoingReliableQueue.empty) {
-  //     this.socket.emit(MessageTypes.ReliableMessage.toString(), NetworkComponent.instance.outgoingReliableQueue.pop)
-  //   }
-  // }
+  sendReliableMessage(message): void {
+      this.socket.emit(MessageTypes.ReliableMessage.toString(), message)
+  }
 
   handleConsumerMessage = (dataConsumer: DataConsumer, channel: string, callback: (data: any) => void) => (
     message: any

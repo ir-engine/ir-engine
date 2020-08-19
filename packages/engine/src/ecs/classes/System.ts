@@ -102,7 +102,6 @@ export abstract class System {
     this.initialized = true;
 
     if ((this.constructor as any).queries) {
-      console.log("********** QUERIES")
       for (const queryName in (this.constructor as any).queries) {
         const queryConfig = (this.constructor as any).queries[queryName];
         const Components = queryConfig.components;
@@ -116,14 +115,12 @@ export abstract class System {
         if (unregisteredComponents.length > 0) {
           unregisteredComponents.forEach(component => {
             if(!hasRegisteredComponent(component)) registerComponent(component);
-            console.log('Registed component ', component.getName());
+            console.log('Registered component ', component.getName());
           });
         }
 
         // TODO: Solve this
         const query = this.getQuery(Components);
-
-        console.log(query)
 
         this._queries[queryName] = query;
         if ((queryConfig).mandatory === true) {
@@ -253,10 +250,6 @@ export abstract class System {
 
     if (this.queryResults) {
       const queries = (this.constructor as any).queries;
-      console.log("this._queries")
-      console.log(this._queries)
-      console.log("this.constructor.queries")
-      console.log((this.constructor as any).queries)
       for (const queryName in queries) {
         const query = this.queryResults[queryName];
         const queryDefinition = queries[queryName] as any;
