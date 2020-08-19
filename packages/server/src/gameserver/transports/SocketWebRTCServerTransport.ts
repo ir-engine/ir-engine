@@ -184,7 +184,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     })
   }
 
-  public async initialize(address = "127.0.0.1", port = 3001): Promise<void> {
+  public async initialize(address = "127.0.0.1", port = 3030): Promise<void> {
     config.mediasoup.webRtcTransport.listenIps = [{ ip: address, announcedIp: null }]
     await this.startMediasoup()
 

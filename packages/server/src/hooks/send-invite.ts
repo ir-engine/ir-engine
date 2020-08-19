@@ -121,8 +121,6 @@ async function generateEmail (
   const appPath = path.dirname(require.main ? require.main.filename : '')
   const emailInviteTemplatesPath = path.join(
     appPath,
-    '..',
-    'server',
     'email-templates',
     'invite'
   )
@@ -168,8 +166,6 @@ async function generateSMS (
   const appPath = path.dirname(require.main ? require.main.filename : '')
   const emailInviteTemplatesPath = path.join(
     appPath,
-    '..',
-    'server',
     'email-templates',
     'invite'
   )
