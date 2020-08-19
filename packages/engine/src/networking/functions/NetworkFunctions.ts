@@ -59,7 +59,7 @@ export const handleClientConnected = (clientID: string): void => {
   )
 }
 
-export const handleClientDisconnected = (clientID: String): void => {
+export const handleClientDisconnected = (clientID: string): void => {
   console.log("Client ", clientID, " disconnected.")
   // Remove the network prefab using network schema
   // TODO
