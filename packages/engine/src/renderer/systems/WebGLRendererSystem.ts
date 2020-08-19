@@ -20,6 +20,7 @@ export class WebGLRendererSystem extends System {
   }
 
   init (): void {
+    console.log("Init caslled on renderer system")
     // Create the Renderer singleton
     addComponent(createEntity(), RendererComponent);
     const renderer = new WebGLRenderer({
@@ -64,12 +65,15 @@ export class WebGLRendererSystem extends System {
   execute (delta: number) {
     this.queryResults.renderers.added.forEach((entity: Entity) => {
       RendererComponent.instance.needsResize = true;
-      this.onResize = this.onResize.bind(this);
       window.addEventListener('resize', this.onResize, false);
       this.configurePostProcessing(entity);
     });
 
     this.queryResults.renderers.all.forEach((entity: Entity) => {
+      if(getComponent<RendererComponent>(entity, RendererComponent).needsResize){
+        resize(entity)
+        console.log("Resizing")
+      }
       getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
     });
   }
@@ -84,8 +88,8 @@ export const resize: Behavior = entity => {
 
     if (curPixelRatio !== window.devicePixelRatio) Engine.renderer.setPixelRatio(window.devicePixelRatio);
 
-    const width = window.innerWidth;
-    const height =  window.innerHeight;
+    const width = canvas.width;
+    const height =  canvas.height;
 
     if ((Engine.camera as PerspectiveCamera).isPerspectiveCamera) {
       const cam = Engine.camera as PerspectiveCamera;

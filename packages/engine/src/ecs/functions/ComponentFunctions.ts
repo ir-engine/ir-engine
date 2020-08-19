@@ -109,7 +109,7 @@ export function queryKeyFromComponents (Components) {
   const ids = [];
   for (let n = 0; n < Components.length; n++) {
     const T = Components[n];
-
+    console.log(Components[n])
     if (!componentRegistered(T)) {
       throw new Error('Tried to create a query with an unregistered component');
     }

@@ -11,6 +11,8 @@ export class RendererComponent extends Component<any> {
   constructor () {
     super();
     RendererComponent.instance = this;
+    console.log("Constructor called on renderer component")
+
   }
 }
 RendererComponent.schema = {

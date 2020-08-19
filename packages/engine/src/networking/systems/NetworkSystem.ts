@@ -1,11 +1,12 @@
 import { System } from '../../ecs/classes/System';
-import { Network, Network as NetworkComponent } from '../components/Network';
+import { Network } from '../components/Network';
 import { NetworkClient } from '../components/NetworkClient';
 import { NetworkObject } from '../components/NetworkObject';
 import { DefaultNetworkSchema } from '../defaults/DefaultNetworkSchema';
 import { NetworkSchema } from '../interfaces/NetworkSchema';
 import { NetworkGameState } from '../components/NetworkInterpolation';
 import { createEntity, addComponent } from '../../ecs/functions/EntityFunctions';
+import { Entity } from '../../ecs';
 
 export class NetworkSystem extends System {
   init (schema?: NetworkSchema) {
@@ -14,19 +15,18 @@ export class NetworkSystem extends System {
     addComponent(networkEntity, Network);
 
     // Late initialization of network
-    setTimeout(() => {
       Network.instance.schema = schema ?? DefaultNetworkSchema;
       Network.instance.transport = new (Network.instance.schema.transport)();
       Network.instance.transport.initialize();
       Network.instance.isInitialized = true;
-    }, 1);
+      console.log("Network inited")
   }
 
   public static instance: NetworkSystem = null
 
-  static queryResults: any = {
-    gameState: {
-      components: [NetworkGameState]
+  static queries: any = {
+    network: {
+      components: [Network]
     },
     networkObject: {
       components: [NetworkObject]
@@ -37,6 +37,8 @@ export class NetworkSystem extends System {
   }
 
   public execute (): void {
-    if (!NetworkComponent.instance.isInitialized) return;
+    this.queryResults.network.all?.forEach((entity: Entity) => {
+      console.log(entity)
+    })
   }
 }

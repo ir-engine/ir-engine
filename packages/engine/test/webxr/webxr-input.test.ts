@@ -2,10 +2,9 @@ import "./webxr-input.mock"
 //jest.mock("./webxr-input.mock")
 
 import { InputSystem } from "../../src/input/systems/InputSystem"
-import { initializeEngine, registerSystem } from "../../src/ecs"
+import { registerSystem } from "../../src/ecs"
 
 initializeEngine()
-registerSystem(InputSystem)
 // new InputSystem()
 
 test("check navigator", () => {
