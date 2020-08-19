@@ -145,7 +145,7 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
 export function startTimer () {
   setTimeout(() => {
     Timer({
-      update: (delta, elapsedTime) => execute(delta, elapsedTime)
+      update: (delta, elapsedTime) => { console.log("Executing"); execute(delta, elapsedTime) }
     }).start();
   }, 1);
 }
