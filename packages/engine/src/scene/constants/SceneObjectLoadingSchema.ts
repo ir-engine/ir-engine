@@ -1,7 +1,7 @@
 import { Transform } from 'cannon-es';
 import * as THREE from 'three';
 import { AmbientLight, DirectionalLight, HemisphereLight, Mesh, PointLight, SpotLight } from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import * as GLTFLoader from 'three/examples/js/loaders/GLTFLoader';
 import { Sky } from 'three/examples/jsm/objects/Sky';
 import { VisibleTagComponent } from '../../common/components/Object3DTagComponents';
 import { addObject3DComponent, addTagComponentFromBehavior } from '../../common/defaults/behaviors/Object3DBehaviors';
@@ -62,7 +62,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       {
         behavior: addComponent,
         args: {
-          obj3d: GLTFLoader,
+          obj3d: GLTFLoader.GLTFLoader,
           onLoaded: () => {
             console.log('gltf loaded');
           }

@@ -4,11 +4,10 @@ import * as https from "https"
 import fs from "fs"
 import SocketIO, { Socket } from "socket.io"
 import * as path from "path"
-import { MessageTypes } from "../../enums/MessageTypes"
+import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes"
 import * as dotenv from "dotenv"
-import { NetworkTransport } from "../../interfaces/NetworkTransport"
-import { Network } from "../../components/Network"
-import { Message } from "../../interfaces/Message"
+import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport"
+import { Message } from "@xr3ngine/engine/src/networking/interfaces/Message"
 import {
   DataConsumer,
   DataConsumerOptions,
@@ -20,7 +19,7 @@ import {
   WebRtcTransport
 } from "mediasoup/lib/types"
 import { types as MediaSoupClientTypes } from "mediasoup-client"
-import { UnreliableMessageParams, UnreliableMessageReturn } from "../../types/NetworkingTypes"
+import { UnreliableMessageParams, UnreliableMessageReturn } from "@xr3ngine/engine/src/networking/types/NetworkingTypes"
 
 dotenv.config()
 interface Client {

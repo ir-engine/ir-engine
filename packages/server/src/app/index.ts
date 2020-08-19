@@ -22,7 +22,7 @@ import config from '../config'
 import sync from 'feathers-sync'
 import K8s from 'k8s'
 
-import { WebRTCGameServer } from "./WebRTCGameServer"
+import { WebRTCGameServer } from "../gameserver/WebRTCGameServer"
 
 import winston from 'winston'
 // @ts-ignore

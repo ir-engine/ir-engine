@@ -8,8 +8,6 @@ import { addComponent, createEntity, getComponent } from '../../ecs/functions/En
 import { RendererComponent } from '../components/RendererComponent';
 // import { DefaultPostProcessingSchema } from '../defaults/DefaultPostProcessingSchema';
 
-
-
 export class WebGLRendererSystem extends System {
   constructor (attributes?: SystemAttributes) {
     super(attributes);
@@ -62,6 +60,9 @@ export class WebGLRendererSystem extends System {
   // }
 
   execute (delta: number) {
+    if(this.isInitialized)
+    Engine.renderer.render(Engine.scene, Engine.camera)
+
     this.queryResults.renderers.added.forEach((entity: Entity) => {
       console.log("Renderers added")
       RendererComponent.instance.needsResize = true;
@@ -71,7 +72,6 @@ export class WebGLRendererSystem extends System {
     });
 
     this.queryResults.renderers.all.forEach((entity: Entity) => {
-      Engine.renderer.render(Engine.scene, Engine.camera)
       // getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
     });
   }

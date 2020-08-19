@@ -17,7 +17,7 @@ import { DefaultStateSchema } from '../../state/defaults/DefaultStateSchema';
 import { DefaultInputSchema } from '../../input/defaults/DefaultInputSchema';
 import { Subscription } from '../../subscription/components/Subscription';
 import { DefaultSubscriptionSchema } from '../../subscription/defaults/DefaultSubscriptionSchema';
-import { SocketWebRTCClientTransport } from '../transports/SocketWebRTC/SocketWebRTCClientTransport';
+import { SocketWebRTCClientTransport } from '../../../../client/classes/transports/SocketWebRTCClientTransport';
 import { attachCamera } from '../../camera/behaviors/attachCamera';
 
 const box = new BoxBufferGeometry(0.25, 0.25, 0.25);
