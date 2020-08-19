@@ -1,3 +1,3 @@
-export function preventDefault(e: any): void {
-  event.preventDefault()
+export function preventDefault (e: any): void {
+  event.preventDefault();
 }

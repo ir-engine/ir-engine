@@ -7,8 +7,7 @@
  */
 
 export class Initializable {
-
-	/**
+  /**
 	 * Performs initialization tasks.
 	 *
 	 * @param {WebGLRenderer} renderer - A renderer.
@@ -16,6 +15,5 @@ export class Initializable {
 	 * @param {Number} frameBufferType - The type of the main frame buffers.
 	 */
 
-	initialize(renderer, alpha, frameBufferType) {}
-
+  initialize (renderer, alpha, frameBufferType) {}
 }

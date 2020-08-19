@@ -19,81 +19,74 @@ let workaroundEnabled = false;
  */
 
 export class OverrideMaterialManager {
-
-	/**
+  /**
 	 * Constructs a new override material manager.
 	 *
 	 * @param {Material} [material=null] - An override material.
 	 */
 
-	constructor(material = null) {
-
-		/**
+  constructor (material = null) {
+    /**
 		 * Keeps track of original materials.
 		 *
 		 * @type {Map<Object3D, Material>}
 		 * @private
 		 */
 
-		this.originalMaterials = new Map();
+    this.originalMaterials = new Map();
 
-		/**
+    /**
 		 * The override material.
 		 *
 		 * @type {Material}
 		 * @private
 		 */
 
-		this.material = null;
+    this.material = null;
 
-		/**
+    /**
 		 * A clone of the override material.
 		 *
 		 * @type {Material}
 		 * @private
 		 */
 
-		this.materialInstanced = null;
+    this.materialInstanced = null;
 
-		/**
+    /**
 		 * A clone of the override material.
 		 *
 		 * @type {Material}
 		 * @private
 		 */
 
-		this.materialSkinning = null;
+    this.materialSkinning = null;
 
-		this.setMaterial(material);
+    this.setMaterial(material);
+  }
 
-	}
-
-	/**
+  /**
 	 * Sets the override material.
 	 *
 	 * @param {Material} material - The material.
 	 */
 
-	setMaterial(material) {
+  setMaterial (material) {
+    this.disposeMaterials();
 
-		this.disposeMaterials();
+    if (material !== null) {
+      this.material = material;
 
-		if(material !== null) {
+      this.materialInstanced = material.clone();
+      this.materialInstanced.uniforms = Object.assign({}, material.uniforms);
 
-			this.material = material;
+      this.materialSkinning = material.clone();
+      this.materialSkinning.uniforms = Object.assign({}, material.uniforms);
+      this.materialSkinning.skinning = true;
+    }
+  }
 
-			this.materialInstanced = material.clone();
-			this.materialInstanced.uniforms = Object.assign({}, material.uniforms);
-
-			this.materialSkinning = material.clone();
-			this.materialSkinning.uniforms = Object.assign({}, material.uniforms);
-			this.materialSkinning.skinning = true;
-
-		}
-
-	}
-
-	/**
+  /**
 	 * Renders the scene with the override material.
 	 *
 	 * @private
@@ -102,125 +95,95 @@ export class OverrideMaterialManager {
 	 * @param {Camera} camera - A camera.
 	 */
 
-	render(renderer, scene, camera) {
+  render (renderer, scene, camera) {
+    const material = this.material;
+    const materialSkinning = this.materialSkinning;
+    const materialInstanced = this.materialInstanced;
+    const originalMaterials = this.originalMaterials;
 
-		const material = this.material;
-		const materialSkinning = this.materialSkinning;
-		const materialInstanced = this.materialInstanced;
-		const originalMaterials = this.originalMaterials;
+    const shadowMapEnabled = renderer.shadowMap.enabled;
+    const sortObjects = renderer.sortObjects;
 
-		const shadowMapEnabled = renderer.shadowMap.enabled;
-		const sortObjects = renderer.sortObjects;
+    // Ignore shadows and transparency.
+    renderer.shadowMap.enabled = false;
+    renderer.sortObjects = false;
 
-		// Ignore shadows and transparency.
-		renderer.shadowMap.enabled = false;
-		renderer.sortObjects = false;
+    if (workaroundEnabled) {
+      let meshCount = 0;
 
-		if(workaroundEnabled) {
+      // Replace materials of all meshes with the correct override materials.
+      scene.traverse((node) => {
+        if (node.isMesh) {
+          originalMaterials.set(node, node.material);
 
-			let meshCount = 0;
+          if (node.isInstancedMesh) {
+            node.material = materialInstanced;
+          } else if (node.isSkinnedMesh) {
+            node.material = materialSkinning;
+          } else {
+            node.material = material;
+          }
 
-			// Replace materials of all meshes with the correct override materials.
-			scene.traverse((node) => {
+          ++meshCount;
+        }
+      });
 
-				if(node.isMesh) {
+      renderer.render(scene, camera);
 
-					originalMaterials.set(node, node.material);
+      for (const entry of originalMaterials) {
+        entry[0].material = entry[1];
+      }
 
-					if(node.isInstancedMesh) {
+      if (meshCount !== originalMaterials.size) {
+        originalMaterials.clear();
+      }
+    } else {
+      const overrideMaterial = scene.overrideMaterial;
+      scene.overrideMaterial = material;
+      renderer.render(scene, camera);
+      scene.overrideMaterial = overrideMaterial;
+    }
 
-						node.material = materialInstanced;
+    renderer.shadowMap.enabled = shadowMapEnabled;
+    renderer.sortObjects = sortObjects;
+  }
 
-					} else if(node.isSkinnedMesh) {
-
-						node.material = materialSkinning;
-
-					} else {
-
-						node.material = material;
-
-					}
-
-					++meshCount;
-
-				}
-
-			});
-
-			renderer.render(scene, camera);
-
-			for(const entry of originalMaterials) {
-
-				entry[0].material = entry[1];
-
-			}
-
-			if(meshCount !== originalMaterials.size) {
-
-				originalMaterials.clear();
-
-			}
-
-		} else {
-
-			const overrideMaterial = scene.overrideMaterial;
-			scene.overrideMaterial = material;
-			renderer.render(scene, camera);
-			scene.overrideMaterial = overrideMaterial;
-
-		}
-
-		renderer.shadowMap.enabled = shadowMapEnabled;
-		renderer.sortObjects = sortObjects;
-
-	}
-
-	/**
+  /**
 	 * Deletes cloned override materials.
 	 *
 	 * @private
 	 */
 
-	disposeMaterials() {
+  disposeMaterials () {
+    if (this.materialInstanced !== null) {
+      this.materialInstanced.dispose();
+    }
 
-		if(this.materialInstanced !== null) {
+    if (this.materialSkinning !== null) {
+      this.materialSkinning.dispose();
+    }
+  }
 
-			this.materialInstanced.dispose();
-
-		}
-
-		if(this.materialSkinning !== null) {
-
-			this.materialSkinning.dispose();
-
-		}
-
-	}
-
-	/**
+  /**
 	 * Performs cleanup tasks.
 	 */
 
-	dispose() {
+  dispose () {
+    this.originalMaterials.clear();
+    this.disposeMaterials();
+  }
 
-		this.originalMaterials.clear();
-		this.disposeMaterials();
-
-	}
-
-	/**
+  /**
 	 * Indicates whether the override material workaround is enabled.
 	 *
 	 * @type {Boolean}
 	 */
 
-	static get workaroundEnabled() {
+  static get workaroundEnabled () {
+    return workaroundEnabled;
+  }
 
-		return workaroundEnabled;
-
-	}
-
-	/**
+  /**
 	 * Enables or disables the override material workaround globally.
 	 *
 	 * This only affects post processing passes and effects.
@@ -228,10 +191,7 @@ export class OverrideMaterialManager {
 	 * @type {Boolean}
 	 */
 
-	static set workaroundEnabled(value) {
-
-		workaroundEnabled = value;
-
-	}
-
+  static set workaroundEnabled (value) {
+    workaroundEnabled = value;
+  }
 }

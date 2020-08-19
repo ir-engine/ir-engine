@@ -1,8 +1,8 @@
-import { Uniform } from "three";
-import { BlendFunction } from "./blending/BlendFunction.js";
-import { Effect } from "./Effect.js";
+import { Uniform } from 'three';
+import { BlendFunction } from './blending/BlendFunction.js';
+import { Effect } from './Effect.js';
 
-import fragmentShader from "./glsl/color-depth/shader.frag";
+import fragmentShader from './glsl/color-depth/shader.frag';
 
 /**
  * A color depth effect.
@@ -11,8 +11,7 @@ import fragmentShader from "./glsl/color-depth/shader.frag";
  */
 
 export class ColorDepthEffect extends Effect {
-
-	/**
+  /**
 	 * Constructs a new color depth effect.
 	 *
 	 * @param {Object} [options] - The options.
@@ -20,44 +19,40 @@ export class ColorDepthEffect extends Effect {
 	 * @param {Number} [options.bits=16] - The color bit depth.
 	 */
 
-	constructor({ blendFunction = BlendFunction.NORMAL, bits = 16 } = {}) {
+  constructor ({ blendFunction = BlendFunction.NORMAL, bits = 16 } = {}) {
+    super('ColorDepthEffect', fragmentShader, {
 
-		super("ColorDepthEffect", fragmentShader, {
+      blendFunction,
 
-			blendFunction,
+      uniforms: new Map([
+        ['factor', new Uniform(1.0)]
+      ])
 
-			uniforms: new Map([
-				["factor", new Uniform(1.0)]
-			])
+    });
 
-		});
-
-		/**
+    /**
 		 * The current amount of bits.
 		 *
 		 * @type {Number}
 		 * @private
 		 */
 
-		this.bits = 0;
+    this.bits = 0;
 
-		this.setBitDepth(bits);
+    this.setBitDepth(bits);
+  }
 
-	}
-
-	/**
+  /**
 	 * Returns the current color bit depth.
 	 *
 	 * @return {Number} The color bit depth.
 	 */
 
-	getBitDepth() {
+  getBitDepth () {
+    return this.bits;
+  }
 
-		return this.bits;
-
-	}
-
-	/**
+  /**
 	 * Sets the virtual amount of color bits.
 	 *
 	 * Each color channel will use a third of the available bits. The alpha
@@ -68,11 +63,8 @@ export class ColorDepthEffect extends Effect {
 	 * @param {Number} bits - The new color bit depth.
 	 */
 
-	setBitDepth(bits) {
-
-		this.bits = bits;
-		this.uniforms.get("factor").value = Math.pow(2.0, bits / 3.0);
-
-	}
-
+  setBitDepth (bits) {
+    this.bits = bits;
+    this.uniforms.get('factor').value = Math.pow(2.0, bits / 3.0);
+  }
 }

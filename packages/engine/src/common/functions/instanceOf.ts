@@ -1,3 +1,3 @@
-export function instanceOf<T>(object: any): object is T {
-  return "member" in object
+export function instanceOf<T> (object: any): object is T {
+  return 'member' in object;
 }

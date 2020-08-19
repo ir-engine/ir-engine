@@ -1,21 +1,21 @@
-import { jump } from "../../common/defaults/behaviors/jump"
-import { move } from "../../common/defaults/behaviors/move"
-import { rotateAround } from "../../common/defaults/behaviors/rotate"
-import { rotateStart } from "../../common/defaults/behaviors/updateLookingState"
-import { updateMovementState } from "../../common/defaults/behaviors/updateMovementState"
-import { BinaryValue } from "../../common/enums/BinaryValue"
-import { Thumbsticks } from "../../common/enums/Thumbsticks"
-import { disableScroll, enableScroll } from "../../common/functions/enableDisableScrolling"
-import { preventDefault } from "../../common/functions/preventDefault"
-import { handleKey, handleMouseButton, handleMouseMovement } from "../behaviors/DesktopInputBehaviors"
-import { handleTouch, handleTouchMove } from "../behaviors/TouchBehaviors"
-import { handleGamepadConnected, handleGamepadDisconnected } from "../behaviors/GamepadInputBehaviors"
-import { GamepadButtons } from "../enums/GamepadButtons"
-import { InputType } from "../enums/InputType"
-import { MouseButtons } from "../enums/MouseButtons"
-import { InputRelationship } from "../interfaces/InputRelationship"
-import { InputSchema } from "../interfaces/InputSchema"
-import { DefaultInput } from "./DefaultInput"
+import { jump } from '../../common/defaults/behaviors/jump';
+import { move } from '../../common/defaults/behaviors/move';
+import { rotateAround } from '../../common/defaults/behaviors/rotate';
+import { rotateStart } from '../../common/defaults/behaviors/updateLookingState';
+import { updateMovementState } from '../../common/defaults/behaviors/updateMovementState';
+import { BinaryValue } from '../../common/enums/BinaryValue';
+import { Thumbsticks } from '../../common/enums/Thumbsticks';
+import { disableScroll, enableScroll } from '../../common/functions/enableDisableScrolling';
+import { preventDefault } from '../../common/functions/preventDefault';
+import { handleKey, handleMouseButton, handleMouseMovement } from '../behaviors/DesktopInputBehaviors';
+import { handleTouch, handleTouchMove } from '../behaviors/TouchBehaviors';
+import { handleGamepadConnected, handleGamepadDisconnected } from '../behaviors/GamepadInputBehaviors';
+import { GamepadButtons } from '../enums/GamepadButtons';
+import { InputType } from '../enums/InputType';
+import { MouseButtons } from '../enums/MouseButtons';
+import { InputRelationship } from '../interfaces/InputRelationship';
+import { InputSchema } from '../interfaces/InputSchema';
+import { DefaultInput } from './DefaultInput';
 
 export const DefaultInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -33,12 +33,12 @@ export const DefaultInputSchema: InputSchema = {
   // When the input component is added or removed, the system will bind/unbind these events to the DOM
   eventBindings: {
     // Mouse
-    ["contextmenu"]: [
+    contextmenu: [
       {
         behavior: preventDefault
       }
     ],
-    ["mousemove"]: [
+    mousemove: [
       {
         behavior: handleMouseMovement,
         args: {
@@ -46,7 +46,7 @@ export const DefaultInputSchema: InputSchema = {
         }
       }
     ],
-    ["mouseup"]: [
+    mouseup: [
       {
         behavior: handleMouseButton,
         args: {
@@ -54,7 +54,7 @@ export const DefaultInputSchema: InputSchema = {
         }
       }
     ],
-    ["mousedown"]: [
+    mousedown: [
       {
         behavior: handleMouseButton,
         args: {
@@ -68,7 +68,7 @@ export const DefaultInputSchema: InputSchema = {
     ],
 
     // Touch
-    ["touchstart"]: [
+    touchstart: [
       {
         behavior: handleTouch,
         args: {
@@ -80,7 +80,7 @@ export const DefaultInputSchema: InputSchema = {
         args: {}
       }
     ],
-    ["touchend"]: [
+    touchend: [
       {
         behavior: handleTouch,
         args: {
@@ -88,7 +88,7 @@ export const DefaultInputSchema: InputSchema = {
         }
       }
     ],
-    ["touchcancel"]: [
+    touchcancel: [
       {
         behavior: handleTouch,
         args: {
@@ -96,14 +96,14 @@ export const DefaultInputSchema: InputSchema = {
         }
       }
     ],
-    ["touchmove"]: [
+    touchmove: [
       {
-        behavior: handleTouchMove,
+        behavior: handleTouchMove
       }
     ],
 
     // Keys
-    ["keyup"]: [
+    keyup: [
       {
         behavior: handleKey,
         args: {
@@ -111,7 +111,7 @@ export const DefaultInputSchema: InputSchema = {
         }
       }
     ],
-    ["keydown"]: [
+    keydown: [
       {
         behavior: handleKey,
         args: {
@@ -120,12 +120,12 @@ export const DefaultInputSchema: InputSchema = {
       }
     ],
     // Gamepad
-    ["gamepadconnected"]: [
+    gamepadconnected: [
       {
         behavior: handleGamepadConnected
       }
     ],
-    ["gamepaddisconnected"]: [
+    gamepaddisconnected: [
       {
         behavior: handleGamepadDisconnected
       }
@@ -175,7 +175,7 @@ export const DefaultInputSchema: InputSchema = {
     a: DefaultInput.LEFT,
     s: DefaultInput.BACKWARD,
     d: DefaultInput.RIGHT,
-    [" "]: DefaultInput.JUMP,
+    ' ': DefaultInput.JUMP,
     shift: DefaultInput.CROUCH
   },
   // Map how inputs relate to each other
@@ -394,4 +394,4 @@ export const DefaultInputSchema: InputSchema = {
       ]
     }
   }
-}
+};

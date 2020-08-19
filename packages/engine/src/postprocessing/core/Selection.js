@@ -6,36 +6,31 @@
  */
 
 export class Selection extends Set {
-
-	/**
+  /**
 	 * Constructs a new selection.
 	 *
 	 * @param {Iterable<Object3D>} [iterable] - A collection of objects that should be added to this selection.
 	 * @param {Number} [layer=10] - A dedicated render layer for selected objects.
 	 */
 
-	constructor(iterable, layer = 10) {
+  constructor (iterable, layer = 10) {
+    super();
 
-		super();
-
-		/**
+    /**
 		 * The current render layer for selected objects.
 		 *
 		 * @type {Number}
 		 * @private
 		 */
 
-		this.currentLayer = layer;
+    this.currentLayer = layer;
 
-		if(iterable !== undefined) {
+    if (iterable !== undefined) {
+      this.set(iterable);
+    }
+  }
 
-			this.set(iterable);
-
-		}
-
-	}
-
-	/**
+  /**
 	 * A dedicated render layer for selected objects.
 	 *
 	 * This layer is set to 10 by default. If this collides with your own custom
@@ -44,13 +39,11 @@ export class Selection extends Set {
 	 * @type {Number}
 	 */
 
-	get layer() {
+  get layer () {
+    return this.currentLayer;
+  }
 
-		return this.currentLayer;
-
-	}
-
-	/**
+  /**
 	 * Sets the render layer of selected objects.
 	 *
 	 * The current selection will be updated accordingly.
@@ -58,63 +51,51 @@ export class Selection extends Set {
 	 * @type {Number}
 	 */
 
-	set layer(value) {
+  set layer (value) {
+    const currentLayer = this.currentLayer;
 
-		const currentLayer = this.currentLayer;
+    for (const object of this) {
+      object.layers.disable(currentLayer);
+      object.layers.enable(value);
+    }
 
-		for(const object of this) {
+    this.currentLayer = value;
+  }
 
-			object.layers.disable(currentLayer);
-			object.layers.enable(value);
-
-		}
-
-		this.currentLayer = value;
-
-	}
-
-	/**
+  /**
 	 * Clears this selection.
 	 *
 	 * @return {Selection} This selection.
 	 */
 
-	clear() {
+  clear () {
+    const layer = this.layer;
 
-		const layer = this.layer;
+    for (const object of this) {
+      object.layers.disable(layer);
+    }
 
-		for(const object of this) {
+    return super.clear();
+  }
 
-			object.layers.disable(layer);
-
-		}
-
-		return super.clear();
-
-	}
-
-	/**
+  /**
 	 * Clears this selection and adds the given objects.
 	 *
 	 * @param {Iterable<Object3D>} objects - The objects that should be selected. This array will be copied.
 	 * @return {Selection} This selection.
 	 */
 
-	set(objects) {
+  set (objects) {
+    this.clear();
 
-		this.clear();
+    for (const object of objects) {
+      this.add(object);
+    }
 
-		for(const object of objects) {
+    return this;
+  }
 
-			this.add(object);
-
-		}
-
-		return this;
-
-	}
-
-	/**
+  /**
 	 * An alias for {@link has}.
 	 *
 	 * @param {Object3D} object - An object.
@@ -122,48 +103,40 @@ export class Selection extends Set {
 	 * @deprecated Added for backward compatibility. Use has instead.
 	 */
 
-	indexOf(object) {
+  indexOf (object) {
+    return this.has(object) ? 0 : -1;
+  }
 
-		return this.has(object) ? 0 : -1;
-
-	}
-
-	/**
+  /**
 	 * Adds an object to this selection.
 	 *
 	 * @param {Object3D} object - The object that should be selected.
 	 * @return {Selection} This selection.
 	 */
 
-	add(object) {
+  add (object) {
+    object.layers.enable(this.layer);
+    super.add(object);
 
-		object.layers.enable(this.layer);
-		super.add(object);
+    return this;
+  }
 
-		return this;
-
-	}
-
-	/**
+  /**
 	 * Removes an object from this selection.
 	 *
 	 * @param {Object3D} object - The object that should be deselected.
 	 * @return {Boolean} Returns true if an object has successfully been removed from this selection; otherwise false.
 	 */
 
-	delete(object) {
+  delete (object) {
+    if (this.has(object)) {
+      object.layers.disable(this.layer);
+    }
 
-		if(this.has(object)) {
+    return super.delete(object);
+  }
 
-			object.layers.disable(this.layer);
-
-		}
-
-		return super.delete(object);
-
-	}
-
-	/**
+  /**
 	 * Sets the visibility of all selected objects.
 	 *
 	 * This method enables or disables render layer 0 of all selected objects.
@@ -172,24 +145,15 @@ export class Selection extends Set {
 	 * @return {Selection} This selection.
 	 */
 
-	setVisible(visible) {
+  setVisible (visible) {
+    for (const object of this) {
+      if (visible) {
+        object.layers.enable(0);
+      } else {
+        object.layers.disable(0);
+      }
+    }
 
-		for(const object of this) {
-
-			if(visible) {
-
-				object.layers.enable(0);
-
-			} else {
-
-				object.layers.disable(0);
-
-			}
-
-		}
-
-		return this;
-
-	}
-
+    return this;
+  }
 }

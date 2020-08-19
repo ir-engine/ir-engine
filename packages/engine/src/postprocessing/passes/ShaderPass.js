@@ -1,4 +1,4 @@
-import { Pass } from "./Pass.js";
+import { Pass } from './Pass.js';
 
 /**
  * A shader pass.
@@ -10,33 +10,30 @@ import { Pass } from "./Pass.js";
  */
 
 export class ShaderPass extends Pass {
-
-	/**
+  /**
 	 * Constructs a new shader pass.
 	 *
 	 * @param {ShaderMaterial} material - A shader material.
 	 * @param {String} [input="inputBuffer"] - The name of the input buffer uniform.
 	 */
 
-	constructor(material, input = "inputBuffer") {
+  constructor (material, input = 'inputBuffer') {
+    super('ShaderPass');
 
-		super("ShaderPass");
+    this.setFullscreenMaterial(material);
 
-		this.setFullscreenMaterial(material);
-
-		/**
+    /**
 		 * The input buffer uniform.
 		 *
 		 * @type {String}
 		 * @private
 		 */
 
-		this.uniform = null;
-		this.setInput(input);
+    this.uniform = null;
+    this.setInput(input);
+  }
 
-	}
-
-	/**
+  /**
 	 * Sets the name of the input buffer uniform.
 	 *
 	 * Most fullscreen materials modify texels from an input texture. This pass
@@ -46,27 +43,21 @@ export class ShaderPass extends Pass {
 	 * @param {String} input - The name of the input buffer uniform.
 	 */
 
-	setInput(input) {
+  setInput (input) {
+    const material = this.getFullscreenMaterial();
 
-		const material = this.getFullscreenMaterial();
+    this.uniform = null;
 
-		this.uniform = null;
+    if (material !== null) {
+      const uniforms = material.uniforms;
 
-		if(material !== null) {
+      if (uniforms !== undefined && uniforms[input] !== undefined) {
+        this.uniform = uniforms[input];
+      }
+    }
+  }
 
-			const uniforms = material.uniforms;
-
-			if(uniforms !== undefined && uniforms[input] !== undefined) {
-
-				this.uniform = uniforms[input];
-
-			}
-
-		}
-
-	}
-
-	/**
+  /**
 	 * Renders the effect.
 	 *
 	 * @param {WebGLRenderer} renderer - The renderer.
@@ -76,17 +67,12 @@ export class ShaderPass extends Pass {
 	 * @param {Boolean} [stencilTest] - Indicates whether a stencil mask is active.
 	 */
 
-	render(renderer, inputBuffer, outputBuffer, deltaTime, stencilTest) {
+  render (renderer, inputBuffer, outputBuffer, deltaTime, stencilTest) {
+    if (this.uniform !== null && inputBuffer !== null) {
+      this.uniform.value = inputBuffer.texture;
+    }
 
-		if(this.uniform !== null && inputBuffer !== null) {
-
-			this.uniform.value = inputBuffer.texture;
-
-		}
-
-		renderer.setRenderTarget(this.renderToScreen ? null : outputBuffer);
-		renderer.render(this.scene, this.camera);
-
-	}
-
+    renderer.setRenderTarget(this.renderToScreen ? null : outputBuffer);
+    renderer.render(this.scene, this.camera);
+  }
 }

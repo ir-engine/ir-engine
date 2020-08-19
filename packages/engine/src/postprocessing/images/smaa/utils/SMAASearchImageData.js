@@ -1,4 +1,4 @@
-import { RawImageData } from "../../RawImageData.js";
+import { RawImageData } from '../../RawImageData.js';
 
 /**
  * This dictionary returns which edges are active for a certain bilinear fetch:
@@ -10,25 +10,25 @@ import { RawImageData } from "../../RawImageData.js";
 
 const edges = new Map([
 
-	[bilinear([0, 0, 0, 0]), [0, 0, 0, 0]],
-	[bilinear([0, 0, 0, 1]), [0, 0, 0, 1]],
-	[bilinear([0, 0, 1, 0]), [0, 0, 1, 0]],
-	[bilinear([0, 0, 1, 1]), [0, 0, 1, 1]],
+  [bilinear([0, 0, 0, 0]), [0, 0, 0, 0]],
+  [bilinear([0, 0, 0, 1]), [0, 0, 0, 1]],
+  [bilinear([0, 0, 1, 0]), [0, 0, 1, 0]],
+  [bilinear([0, 0, 1, 1]), [0, 0, 1, 1]],
 
-	[bilinear([0, 1, 0, 0]), [0, 1, 0, 0]],
-	[bilinear([0, 1, 0, 1]), [0, 1, 0, 1]],
-	[bilinear([0, 1, 1, 0]), [0, 1, 1, 0]],
-	[bilinear([0, 1, 1, 1]), [0, 1, 1, 1]],
+  [bilinear([0, 1, 0, 0]), [0, 1, 0, 0]],
+  [bilinear([0, 1, 0, 1]), [0, 1, 0, 1]],
+  [bilinear([0, 1, 1, 0]), [0, 1, 1, 0]],
+  [bilinear([0, 1, 1, 1]), [0, 1, 1, 1]],
 
-	[bilinear([1, 0, 0, 0]), [1, 0, 0, 0]],
-	[bilinear([1, 0, 0, 1]), [1, 0, 0, 1]],
-	[bilinear([1, 0, 1, 0]), [1, 0, 1, 0]],
-	[bilinear([1, 0, 1, 1]), [1, 0, 1, 1]],
+  [bilinear([1, 0, 0, 0]), [1, 0, 0, 0]],
+  [bilinear([1, 0, 0, 1]), [1, 0, 0, 1]],
+  [bilinear([1, 0, 1, 0]), [1, 0, 1, 0]],
+  [bilinear([1, 0, 1, 1]), [1, 0, 1, 1]],
 
-	[bilinear([1, 1, 0, 0]), [1, 1, 0, 0]],
-	[bilinear([1, 1, 0, 1]), [1, 1, 0, 1]],
-	[bilinear([1, 1, 1, 0]), [1, 1, 1, 0]],
-	[bilinear([1, 1, 1, 1]), [1, 1, 1, 1]]
+  [bilinear([1, 1, 0, 0]), [1, 1, 0, 0]],
+  [bilinear([1, 1, 0, 1]), [1, 1, 0, 1]],
+  [bilinear([1, 1, 1, 0]), [1, 1, 1, 0]],
+  [bilinear([1, 1, 1, 1]), [1, 1, 1, 1]]
 
 ]);
 
@@ -42,10 +42,8 @@ const edges = new Map([
  * @return {Number} The interpolated value.
  */
 
-function lerp(a, b, p) {
-
-	return a + (b - a) * p;
-
+function lerp (a, b, p) {
+  return a + (b - a) * p;
 }
 
 /**
@@ -61,13 +59,11 @@ function lerp(a, b, p) {
  * @return {Number} The interpolated value.
  */
 
-function bilinear(e) {
+function bilinear (e) {
+  const a = lerp(e[0], e[1], 1.0 - 0.25);
+  const b = lerp(e[2], e[3], 1.0 - 0.25);
 
-	const a = lerp(e[0], e[1], 1.0 - 0.25);
-	const b = lerp(e[2], e[3], 1.0 - 0.25);
-
-	return lerp(a, b, 1.0 - 0.125);
-
+  return lerp(a, b, 1.0 - 0.125);
 }
 
 /**
@@ -79,27 +75,21 @@ function bilinear(e) {
  * @return {Number} The left delta distance.
  */
 
-function deltaLeft(left, top) {
+function deltaLeft (left, top) {
+  let d = 0;
 
-	let d = 0;
+  // If there is an edge, continue.
+  if (top[3] === 1) {
+    d += 1;
+  }
 
-	// If there is an edge, continue.
-	if(top[3] === 1) {
-
-		d += 1;
-
-	}
-
-	/* If an edge was previously found, there is another edge and there are no
+  /* If an edge was previously found, there is another edge and there are no
 	crossing edges, continue. */
-	if(d === 1 && top[2] === 1 && left[1] !== 1 && left[3] !== 1) {
+  if (d === 1 && top[2] === 1 && left[1] !== 1 && left[3] !== 1) {
+    d += 1;
+  }
 
-		d += 1;
-
-	}
-
-	return d;
-
+  return d;
 }
 
 /**
@@ -111,27 +101,21 @@ function deltaLeft(left, top) {
  * @return {Number} The right delta distance.
  */
 
-function deltaRight(left, top) {
+function deltaRight (left, top) {
+  let d = 0;
 
-	let d = 0;
+  // If there is an edge, and no crossing edges, continue.
+  if (top[3] === 1 && left[1] !== 1 && left[3] !== 1) {
+    d += 1;
+  }
 
-	// If there is an edge, and no crossing edges, continue.
-	if(top[3] === 1 && left[1] !== 1 && left[3] !== 1) {
-
-		d += 1;
-
-	}
-
-	/* If an edge was previously found, there is another edge and there are no
+  /* If an edge was previously found, there is another edge and there are no
 	crossing edges, continue. */
-	if(d === 1 && top[2] === 1 && left[0] !== 1 && left[2] !== 1) {
+  if (d === 1 && top[2] === 1 && left[0] !== 1 && left[2] !== 1) {
+    d += 1;
+  }
 
-		d += 1;
-
-	}
-
-	return d;
-
+  return d;
 }
 
 /**
@@ -145,68 +129,54 @@ function deltaRight(left, top) {
  */
 
 export class SMAASearchImageData {
-
-	/**
+  /**
 	 * Creates a new search image.
 	 *
 	 * @return {RawImageData} The generated image data.
 	 */
 
-	static generate() {
+  static generate () {
+    const width = 66;
+    const height = 33;
+    const halfWidth = width / 2;
 
-		const width = 66;
-		const height = 33;
-		const halfWidth = width / 2;
+    const croppedWidth = 64;
+    const croppedHeight = 16;
 
-		const croppedWidth = 64;
-		const croppedHeight = 16;
+    const data = new Uint8ClampedArray(width * height);
+    const croppedData = new Uint8ClampedArray(croppedWidth * croppedHeight * 4);
 
-		const data = new Uint8ClampedArray(width * height);
-		const croppedData = new Uint8ClampedArray(croppedWidth * croppedHeight * 4);
+    let x, y;
+    let s, t, i;
+    let e1, e2;
 
-		let x, y;
-		let s, t, i;
-		let e1, e2;
+    // Calculate delta distances.
+    for (y = 0; y < height; ++y) {
+      for (x = 0; x < width; ++x) {
+        s = 0.03125 * x;
+        t = 0.03125 * y;
 
-		// Calculate delta distances.
-		for(y = 0; y < height; ++y) {
+        if (edges.has(s) && edges.has(t)) {
+          e1 = edges.get(s);
+          e2 = edges.get(t);
 
-			for(x = 0; x < width; ++x) {
+          i = y * width + x;
 
-				s = 0.03125 * x;
-				t = 0.03125 * y;
+          // Maximize the dynamic range to help the compression.
+          data[i] = (127 * deltaLeft(e1, e2));
+          data[i + halfWidth] = (127 * deltaRight(e1, e2));
+        }
+      }
+    }
 
-				if(edges.has(s) && edges.has(t)) {
+    // Crop the result to powers-of-two to make it BC4-friendly.
+    for (i = 0, y = height - croppedHeight; y < height; ++y) {
+      for (x = 0; x < croppedWidth; ++x, i += 4) {
+        croppedData[i] = data[y * width + x];
+        croppedData[i + 3] = 255;
+      }
+    }
 
-					e1 = edges.get(s);
-					e2 = edges.get(t);
-
-					i = y * width + x;
-
-					// Maximize the dynamic range to help the compression.
-					data[i] = (127 * deltaLeft(e1, e2));
-					data[i + halfWidth] = (127 * deltaRight(e1, e2));
-
-				}
-
-			}
-
-		}
-
-		// Crop the result to powers-of-two to make it BC4-friendly.
-		for(i = 0, y = height - croppedHeight; y < height; ++y) {
-
-			for(x = 0; x < croppedWidth; ++x, i += 4) {
-
-				croppedData[i] = data[y * width + x];
-				croppedData[i + 3] = 255;
-
-			}
-
-		}
-
-		return new RawImageData(croppedWidth, croppedHeight, croppedData);
-
-	}
-
+    return new RawImageData(croppedWidth, croppedHeight, croppedData);
+  }
 }

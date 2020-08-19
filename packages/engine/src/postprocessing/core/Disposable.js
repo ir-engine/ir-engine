@@ -7,11 +7,9 @@
  */
 
 export class Disposable {
-
-	/**
+  /**
 	 * Frees internal resources.
 	 */
 
-	dispose() {}
-
+  dispose () {}
 }

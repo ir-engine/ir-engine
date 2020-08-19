@@ -1,9 +1,9 @@
-import { Prefab } from "../../common/interfaces/Prefab"
+import { Prefab } from '../../common/interfaces/Prefab';
 
 export interface NetworkPrefab extends Prefab {
-  networkComponents: {
+  networkComponents: Array<{
     type: any
     data?: any
     networkedValues?: string[]
-  }[]
+  }>
 }

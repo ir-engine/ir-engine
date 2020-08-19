@@ -1,25 +1,26 @@
 // Components
-import { BoxBufferGeometry, Mesh } from "three"
-import { addObject3DComponent, removeObject3DComponent } from "../../common/defaults/behaviors/Object3DBehaviors"
-import { addMeshCollider } from "../../physics/behaviors/addMeshCollider"
-import { Actor } from "../../common/defaults/components/Actor"
-import { Input } from "../../input/components/Input"
-import { State } from "../../state/components/State"
-import { TransformComponent } from "../../transform/components/TransformComponent"
-import { NetworkObject } from "../components/NetworkObject"
-import { MessageTypes } from "../enums/MessageTypes"
-import { handleClientConnected, handleClientDisconnected, handleMessage } from "../functions/NetworkFunctions"
-import { NetworkPrefab } from "../interfaces/NetworkPrefab"
-import { NetworkSchema } from "../interfaces/NetworkSchema"
-import { DefaultMessageSchema } from "./DefaultMessageSchema"
-import { DefaultMessageTypes } from "./DefaultMessageTypes"
-import { DefaultStateSchema } from "../../state/defaults/DefaultStateSchema"
-import { DefaultInputSchema } from "../../input/defaults/DefaultInputSchema"
-import { Subscription } from "../../subscription/components/Subscription"
-import { DefaultSubscriptionSchema } from "../../subscription/defaults/DefaultSubscriptionSchema"
+import { BoxBufferGeometry, Mesh } from 'three';
+import { addObject3DComponent, removeObject3DComponent } from '../../common/defaults/behaviors/Object3DBehaviors';
+import { addMeshCollider } from '../../physics/behaviors/addMeshCollider';
+import { Actor } from '../../common/defaults/components/Actor';
+import { Input } from '../../input/components/Input';
+import { State } from '../../state/components/State';
+import { TransformComponent } from '../../transform/components/TransformComponent';
+import { NetworkObject } from '../components/NetworkObject';
+import { MessageTypes } from '../enums/MessageTypes';
+import { handleClientConnected, handleClientDisconnected, handleMessage } from '../functions/NetworkFunctions';
+import { NetworkPrefab } from '../interfaces/NetworkPrefab';
+import { NetworkSchema } from '../interfaces/NetworkSchema';
+import { DefaultMessageSchema } from './DefaultMessageSchema';
+import { DefaultMessageTypes } from './DefaultMessageTypes';
+import { DefaultStateSchema } from '../../state/defaults/DefaultStateSchema';
+import { DefaultInputSchema } from '../../input/defaults/DefaultInputSchema';
+import { Subscription } from '../../subscription/components/Subscription';
+import { DefaultSubscriptionSchema } from '../../subscription/defaults/DefaultSubscriptionSchema';
+import { SocketWebRTCClientTransport } from '../transports/SocketWebRTC/SocketWebRTCClientTransport';
 
-const box = new BoxBufferGeometry(0.25, 0.25, 0.25)
-const miniGeo = new BoxBufferGeometry(2, 1, 4)
+const box = new BoxBufferGeometry(0.25, 0.25, 0.25);
+const miniGeo = new BoxBufferGeometry(2, 1, 4);
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 const NetworkPlayerCharacter: NetworkPrefab = {
@@ -27,7 +28,7 @@ const NetworkPlayerCharacter: NetworkPrefab = {
   networkComponents: [
     { type: NetworkObject },
     { type: Actor },
-    { type: TransformComponent, networkedValues: ["position", "rotation"] }
+    { type: TransformComponent, networkedValues: ['position', 'rotation'] }
   ],
   // These are only created for the local player who owns this prefab
   components: [
@@ -59,36 +60,36 @@ const NetworkPlayerCharacter: NetworkPrefab = {
       behavior: removeObject3DComponent
     }
   ]
-}
+};
 
 // initializeActor(cube, inputOptions)
 // Prefab is a pattern for creating an entity and component collection as a prototype
 const NetworkCube: NetworkPrefab = {
   networkComponents: [{ type: NetworkObject }, { type: TransformComponent }]
-}
+};
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 const Car: NetworkPrefab = {
   networkComponents: [{ type: NetworkObject }, { type: TransformComponent }]
-}
+};
 
 export const PrefabType = {
   Player: 0,
   Cube: 1,
   Car: 2
-}
+};
 
-export const DefaultPrefabs: {
+export const DefaultPrefabs: Array<{
   id: any
   prefab: NetworkPrefab
-}[] = [
+}> = [
   { id: PrefabType.Player, prefab: NetworkPlayerCharacter },
   { id: PrefabType.Cube, prefab: NetworkCube },
   { id: PrefabType.Car, prefab: Car }
-]
+];
 
 export const DefaultNetworkSchema: NetworkSchema = {
-  transport: null,
+  transport: SocketWebRTCClientTransport,
   messageHandlers: {
     [MessageTypes.ClientConnected]: {
       behavior: handleClientConnected
@@ -116,4 +117,4 @@ export const DefaultNetworkSchema: NetworkSchema = {
   },
   prefabs: DefaultPrefabs,
   defaultClientPrefab: PrefabType.Player
-}
+};

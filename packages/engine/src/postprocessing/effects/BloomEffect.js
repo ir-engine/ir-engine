@@ -1,11 +1,11 @@
-import { LinearFilter, RGBFormat, Uniform, UnsignedByteType, WebGLRenderTarget } from "three";
-import { Resizer } from "../core";
-import { KernelSize, LuminanceMaterial } from "../materials";
-import { BlurPass, ShaderPass } from "../passes";
-import { BlendFunction } from "./blending/BlendFunction.js";
-import { Effect } from "./Effect.js";
+import { LinearFilter, RGBFormat, Uniform, UnsignedByteType, WebGLRenderTarget } from 'three';
+import { Resizer } from '../core';
+import { KernelSize, LuminanceMaterial } from '../materials';
+import { BlurPass, ShaderPass } from '../passes';
+import { BlendFunction } from './blending/BlendFunction.js';
+import { Effect } from './Effect.js';
 
-import fragmentShader from "./glsl/bloom/shader.frag";
+import fragmentShader from './glsl/bloom/shader.frag';
 
 /**
  * A bloom effect.
@@ -15,8 +15,7 @@ import fragmentShader from "./glsl/bloom/shader.frag";
  */
 
 export class BloomEffect extends Effect {
-
-	/**
+  /**
 	 * Constructs a new bloom effect.
 	 *
 	 * @param {Object} [options] - The options.
@@ -30,57 +29,56 @@ export class BloomEffect extends Effect {
 	 * @param {KernelSize} [options.kernelSize=KernelSize.LARGE] - The blur kernel size.
 	 */
 
-	constructor({
-		blendFunction = BlendFunction.SCREEN,
-		luminanceThreshold = 0.9,
-		luminanceSmoothing = 0.025,
-		resolutionScale = 0.5,
-		intensity = 1.0,
-		width = Resizer.AUTO_SIZE,
-		height = Resizer.AUTO_SIZE,
-		kernelSize = KernelSize.LARGE
-	} = {}) {
+  constructor ({
+    blendFunction = BlendFunction.SCREEN,
+    luminanceThreshold = 0.9,
+    luminanceSmoothing = 0.025,
+    resolutionScale = 0.5,
+    intensity = 1.0,
+    width = Resizer.AUTO_SIZE,
+    height = Resizer.AUTO_SIZE,
+    kernelSize = KernelSize.LARGE
+  } = {}) {
+    super('BloomEffect', fragmentShader, {
 
-		super("BloomEffect", fragmentShader, {
+      blendFunction,
 
-			blendFunction,
+      uniforms: new Map([
+        ['texture', new Uniform(null)],
+        ['intensity', new Uniform(intensity)]
+      ])
 
-			uniforms: new Map([
-				["texture", new Uniform(null)],
-				["intensity", new Uniform(intensity)]
-			])
+    });
 
-		});
-
-		/**
+    /**
 		 * A render target.
 		 *
 		 * @type {WebGLRenderTarget}
 		 * @private
 		 */
 
-		this.renderTarget = new WebGLRenderTarget(1, 1, {
-			minFilter: LinearFilter,
-			magFilter: LinearFilter,
-			stencilBuffer: false,
-			depthBuffer: false
-		});
+    this.renderTarget = new WebGLRenderTarget(1, 1, {
+      minFilter: LinearFilter,
+      magFilter: LinearFilter,
+      stencilBuffer: false,
+      depthBuffer: false
+    });
 
-		this.renderTarget.texture.name = "Bloom.Target";
-		this.renderTarget.texture.generateMipmaps = false;
+    this.renderTarget.texture.name = 'Bloom.Target';
+    this.renderTarget.texture.generateMipmaps = false;
 
-		this.uniforms.get("texture").value = this.renderTarget.texture;
+    this.uniforms.get('texture').value = this.renderTarget.texture;
 
-		/**
+    /**
 		 * A blur pass.
 		 *
 		 * @type {BlurPass}
 		 */
 
-		this.blurPass = new BlurPass({ resolutionScale, width, height, kernelSize });
-		this.blurPass.resolution.resizable = this;
+    this.blurPass = new BlurPass({ resolutionScale, width, height, kernelSize });
+    this.blurPass.resolution.resizable = this;
 
-		/**
+    /**
 		 * A luminance shader pass.
 		 *
 		 * You may disable this pass to deactivate luminance filtering.
@@ -88,14 +86,13 @@ export class BloomEffect extends Effect {
 		 * @type {ShaderPass}
 		 */
 
-		this.luminancePass = new ShaderPass(new LuminanceMaterial(true));
+    this.luminancePass = new ShaderPass(new LuminanceMaterial(true));
 
-		this.luminanceMaterial.threshold = luminanceThreshold;
-		this.luminanceMaterial.smoothing = luminanceSmoothing;
+    this.luminanceMaterial.threshold = luminanceThreshold;
+    this.luminanceMaterial.smoothing = luminanceSmoothing;
+  }
 
-	}
-
-	/**
+  /**
 	 * A texture that contains the intermediate result of this effect.
 	 *
 	 * This texture will be applied to the scene colors unless the blend function
@@ -104,213 +101,179 @@ export class BloomEffect extends Effect {
 	 * @type {Texture}
 	 */
 
-	get texture() {
+  get texture () {
+    return this.renderTarget.texture;
+  }
 
-		return this.renderTarget.texture;
-
-	}
-
-	/**
+  /**
 	 * The luminance material.
 	 *
 	 * @type {LuminanceMaterial}
 	 */
 
-	get luminanceMaterial() {
+  get luminanceMaterial () {
+    return this.luminancePass.getFullscreenMaterial();
+  }
 
-		return this.luminancePass.getFullscreenMaterial();
-
-	}
-
-	/**
+  /**
 	 * The resolution of this effect.
 	 *
 	 * @type {Resizer}
 	 */
 
-	get resolution() {
+  get resolution () {
+    return this.blurPass.resolution;
+  }
 
-		return this.blurPass.resolution;
-
-	}
-
-	/**
+  /**
 	 * The current width of the internal render targets.
 	 *
 	 * @type {Number}
 	 * @deprecated Use resolution.width instead.
 	 */
 
-	get width() {
+  get width () {
+    return this.resolution.width;
+  }
 
-		return this.resolution.width;
-
-	}
-
-	/**
+  /**
 	 * Sets the render width.
 	 *
 	 * @type {Number}
 	 * @deprecated Use resolution.width instead.
 	 */
 
-	set width(value) {
+  set width (value) {
+    this.resolution.width = value;
+  }
 
-		this.resolution.width = value;
-
-	}
-
-	/**
+  /**
 	 * The current height of the internal render targets.
 	 *
 	 * @type {Number}
 	 * @deprecated Use resolution.height instead.
 	 */
 
-	get height() {
+  get height () {
+    return this.resolution.height;
+  }
 
-		return this.resolution.height;
-
-	}
-
-	/**
+  /**
 	 * Sets the render height.
 	 *
 	 * @type {Number}
 	 * @deprecated Use resolution.height instead.
 	 */
 
-	set height(value) {
+  set height (value) {
+    this.resolution.height = value;
+  }
 
-		this.resolution.height = value;
-
-	}
-
-	/**
+  /**
 	 * Indicates whether dithering is enabled.
 	 *
 	 * @type {Boolean}
 	 * @deprecated Set the frameBufferType of the EffectComposer to HalfFloatType instead.
 	 */
 
-	get dithering() {
+  get dithering () {
+    return this.blurPass.dithering;
+  }
 
-		return this.blurPass.dithering;
-
-	}
-
-	/**
+  /**
 	 * Enables or disables dithering.
 	 *
 	 * @type {Boolean}
 	 * @deprecated Set the frameBufferType of the EffectComposer to HalfFloatType instead.
 	 */
 
-	set dithering(value) {
+  set dithering (value) {
+    this.blurPass.dithering = value;
+  }
 
-		this.blurPass.dithering = value;
-
-	}
-
-	/**
+  /**
 	 * The blur kernel size.
 	 *
 	 * @type {KernelSize}
 	 * @deprecated Use blurPass.kernelSize instead.
 	 */
 
-	get kernelSize() {
+  get kernelSize () {
+    return this.blurPass.kernelSize;
+  }
 
-		return this.blurPass.kernelSize;
-
-	}
-
-	/**
+  /**
 	 * @type {KernelSize}
 	 * @deprecated Use blurPass.kernelSize instead.
 	 */
 
-	set kernelSize(value) {
+  set kernelSize (value) {
+    this.blurPass.kernelSize = value;
+  }
 
-		this.blurPass.kernelSize = value;
-
-	}
-
-	/**
+  /**
 	 * @type {Number}
 	 * @deprecated Use luminanceMaterial.threshold and luminanceMaterial.smoothing instead.
 	 */
 
-	get distinction() {
+  get distinction () {
+    console.warn(this.name, 'The distinction field has been removed, use luminanceMaterial.threshold and luminanceMaterial.smoothing instead.');
 
-		console.warn(this.name, "The distinction field has been removed, use luminanceMaterial.threshold and luminanceMaterial.smoothing instead.");
+    return 1.0;
+  }
 
-		return 1.0;
-
-	}
-
-	/**
+  /**
 	 * @type {Number}
 	 * @deprecated Use luminanceMaterial.threshold and luminanceMaterial.smoothing instead.
 	 */
 
-	set distinction(value) {
+  set distinction (value) {
+    console.warn(this.name, 'The distinction field has been removed, use luminanceMaterial.threshold and luminanceMaterial.smoothing instead.');
+  }
 
-		console.warn(this.name, "The distinction field has been removed, use luminanceMaterial.threshold and luminanceMaterial.smoothing instead.");
-
-	}
-
-	/**
+  /**
 	 * The bloom intensity.
 	 *
 	 * @type {Number}
 	 */
 
-	get intensity() {
+  get intensity () {
+    return this.uniforms.get('intensity').value;
+  }
 
-		return this.uniforms.get("intensity").value;
-
-	}
-
-	/**
+  /**
 	 * Sets the bloom intensity.
 	 *
 	 * @type {Number}
 	 */
 
-	set intensity(value) {
+  set intensity (value) {
+    this.uniforms.get('intensity').value = value;
+  }
 
-		this.uniforms.get("intensity").value = value;
-
-	}
-
-	/**
+  /**
 	 * Returns the current resolution scale.
 	 *
 	 * @return {Number} The resolution scale.
 	 * @deprecated Adjust the fixed resolution width or height instead.
 	 */
 
-	getResolutionScale() {
+  getResolutionScale () {
+    return this.resolution.scale;
+  }
 
-		return this.resolution.scale;
-
-	}
-
-	/**
+  /**
 	 * Sets the resolution scale.
 	 *
 	 * @param {Number} scale - The new resolution scale.
 	 * @deprecated Adjust the fixed resolution width or height instead.
 	 */
 
-	setResolutionScale(scale) {
+  setResolutionScale (scale) {
+    this.resolution.scale = scale;
+  }
 
-		this.resolution.scale = scale;
-
-	}
-
-	/**
+  /**
 	 * Updates this effect.
 	 *
 	 * @param {WebGLRenderer} renderer - The renderer.
@@ -318,38 +281,30 @@ export class BloomEffect extends Effect {
 	 * @param {Number} [deltaTime] - The time between the last frame and the current one in seconds.
 	 */
 
-	update(renderer, inputBuffer, deltaTime) {
+  update (renderer, inputBuffer, deltaTime) {
+    const renderTarget = this.renderTarget;
 
-		const renderTarget = this.renderTarget;
+    if (this.luminancePass.enabled) {
+      this.luminancePass.render(renderer, inputBuffer, renderTarget);
+      this.blurPass.render(renderer, renderTarget, renderTarget);
+    } else {
+      this.blurPass.render(renderer, inputBuffer, renderTarget);
+    }
+  }
 
-		if(this.luminancePass.enabled) {
-
-			this.luminancePass.render(renderer, inputBuffer, renderTarget);
-			this.blurPass.render(renderer, renderTarget, renderTarget);
-
-		} else {
-
-			this.blurPass.render(renderer, inputBuffer, renderTarget);
-
-		}
-
-	}
-
-	/**
+  /**
 	 * Updates the size of internal render targets.
 	 *
 	 * @param {Number} width - The width.
 	 * @param {Number} height - The height.
 	 */
 
-	setSize(width, height) {
+  setSize (width, height) {
+    this.blurPass.setSize(width, height);
+    this.renderTarget.setSize(this.resolution.width, this.resolution.height);
+  }
 
-		this.blurPass.setSize(width, height);
-		this.renderTarget.setSize(this.resolution.width, this.resolution.height);
-
-	}
-
-	/**
+  /**
 	 * Performs initialization tasks.
 	 *
 	 * @param {WebGLRenderer} renderer - The renderer.
@@ -357,22 +312,15 @@ export class BloomEffect extends Effect {
 	 * @param {Number} frameBufferType - The type of the main frame buffers.
 	 */
 
-	initialize(renderer, alpha, frameBufferType) {
+  initialize (renderer, alpha, frameBufferType) {
+    this.blurPass.initialize(renderer, alpha, frameBufferType);
 
-		this.blurPass.initialize(renderer, alpha, frameBufferType);
+    if (!alpha && frameBufferType === UnsignedByteType) {
+      this.renderTarget.texture.format = RGBFormat;
+    }
 
-		if(!alpha && frameBufferType === UnsignedByteType) {
-
-			this.renderTarget.texture.format = RGBFormat;
-
-		}
-
-		if(frameBufferType !== undefined) {
-
-			this.renderTarget.texture.type = frameBufferType;
-
-		}
-
-	}
-
+    if (frameBufferType !== undefined) {
+      this.renderTarget.texture.type = frameBufferType;
+    }
+  }
 }

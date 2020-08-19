@@ -1,16 +1,15 @@
-import { Uniform } from "three";
-import { BlendFunction } from "./blending/BlendFunction.js";
-import { Effect } from "./Effect.js";
+import { Uniform } from 'three';
+import { BlendFunction } from './blending/BlendFunction.js';
+import { Effect } from './Effect.js';
 
-import fragmentShader from "./glsl/vignette/shader.frag";
+import fragmentShader from './glsl/vignette/shader.frag';
 
 /**
  * A vignette effect.
  */
 
 export class VignetteEffect extends Effect {
-
-	/**
+  /**
 	 * Constructs a new vignette effect.
 	 *
 	 * @param {Object} [options] - The options.
@@ -20,66 +19,53 @@ export class VignetteEffect extends Effect {
 	 * @param {Number} [options.darkness=0.5] - The vignette darkness.
 	 */
 
-	constructor(options = {}) {
+  constructor (options = {}) {
+    const settings = Object.assign({
+      blendFunction: BlendFunction.NORMAL,
+      eskil: false,
+      offset: 0.5,
+      darkness: 0.5
+    }, options);
 
-		const settings = Object.assign({
-			blendFunction: BlendFunction.NORMAL,
-			eskil: false,
-			offset: 0.5,
-			darkness: 0.5
-		}, options);
+    super('VignetteEffect', fragmentShader, {
 
-		super("VignetteEffect", fragmentShader, {
+      blendFunction: settings.blendFunction,
 
-			blendFunction: settings.blendFunction,
+      uniforms: new Map([
+        ['offset', new Uniform(settings.offset)],
+        ['darkness', new Uniform(settings.darkness)]
+      ])
 
-			uniforms: new Map([
-				["offset", new Uniform(settings.offset)],
-				["darkness", new Uniform(settings.darkness)]
-			])
+    });
 
-		});
+    this.eskil = settings.eskil;
+  }
 
-		this.eskil = settings.eskil;
-
-	}
-
-	/**
+  /**
 	 * Indicates whether Eskil's vignette technique is enabled.
 	 *
 	 * @type {Boolean}
 	 */
 
-	get eskil() {
+  get eskil () {
+    return this.defines.has('ESKIL');
+  }
 
-		return this.defines.has("ESKIL");
-
-	}
-
-	/**
+  /**
 	 * Enables or disables Eskil's vignette technique.
 	 *
 	 * @type {Boolean}
 	 */
 
-	set eskil(value) {
+  set eskil (value) {
+    if (this.eskil !== value) {
+      if (value) {
+        this.defines.set('ESKIL', '1');
+      } else {
+        this.defines.delete('ESKIL');
+      }
 
-		if(this.eskil !== value) {
-
-			if(value) {
-
-				this.defines.set("ESKIL", "1");
-
-			} else {
-
-				this.defines.delete("ESKIL");
-
-			}
-
-			this.setChanged();
-
-		}
-
-	}
-
+      this.setChanged();
+    }
+  }
 }
