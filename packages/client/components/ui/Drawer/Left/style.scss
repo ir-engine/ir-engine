@@ -12,8 +12,8 @@
 }
 
 .background-red {
-    background-color: #ef5350 !important;
-    color: white !important;
+    background-color: #ef5350;
+    color: white;
 }
 
 .flex-center {
@@ -56,38 +56,19 @@
     margin-top: 1em;
 }
 
-.left-container {
-    .list-container {
-        display: flex;
-        flex-direction: column;
+.list-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100px;
+
+    ul {
+        flex-grow: 1;
+        overflow-y: auto;
         min-height: 100px;
-
-        ul {
-            flex-grow: 1;
-            overflow-y: auto;
-            min-height: 100px;
-            justify-content: flex-start;
-
-            li {
-                word-break: break-word;
-
-                @media (max-width: 768px) {
-                    flex-direction: column;
-                    text-align: center;
-                }
-            }
-        }
+        justify-content: end;
     }
 }
 
 .MuiTabs-root {
     min-height: 75px;
-}
-
-.delete-confirm {
-    display: flex;
-
-    @media (max-width: 768px) {
-        flex-direction: column;
-    }
 }

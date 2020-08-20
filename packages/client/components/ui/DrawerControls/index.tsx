@@ -14,7 +14,6 @@ import {
   updateMessageScrollInit
 } from '../../../redux/chat/service'
 import { connect } from 'react-redux'
-import GameserverTest from '../GameserverTest'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -34,39 +33,41 @@ interface Props {
   updateMessageScrollInit?: any
 }
 
-export const DrawerControls = (props: Props) => {
-  const openChat = () => {
+export const DrawerControls = (props: Props): JSX.Element => {
+//   const homeNav = (): void => {
+//     Router.push('/')
+//   }
+  const openChat = (): void => {
     props.setLeftDrawerOpen(false)
     props.setTopDrawerOpen(false)
     props.setRightDrawerOpen(false)
     props.setBottomDrawerOpen(true)
     setTimeout(() => props.updateMessageScrollInit(true), 100)
   }
-  const openPeople = () => {
+  const openPeople = (): void => {
     props.setLeftDrawerOpen(true)
     props.setTopDrawerOpen(false)
     props.setRightDrawerOpen(false)
     props.setBottomDrawerOpen(false)
   }
-  const openInvite = () => {
+  const openInvite = (): void => {
     props.setLeftDrawerOpen(false)
     props.setTopDrawerOpen(false)
     props.setRightDrawerOpen(true)
     props.setBottomDrawerOpen(false)
   }
   return (
-  <AppBar className="bottom-appbar">
-    {/*<GameserverTest/>*/}
-    <Button onClick={openInvite}>
-      <PersonAdd />
-    </Button>
-    <Button onClick={openChat}>
-      <Forum />
-    </Button>
-    <Button onClick={openPeople}>
-      <People/>
-    </Button>
-  </AppBar>
+    <AppBar className="bottom-appbar">
+      <Button onClick={openInvite}>
+        <PersonAdd />
+      </Button>
+      <Button onClick={openChat}>
+        <Forum />
+      </Button>
+      <Button onClick={openPeople}>
+        <People/>
+      </Button>
+    </AppBar>
   )
 }
 

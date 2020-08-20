@@ -1,12 +1,17 @@
 import { PerspectiveCamera, WebGLRenderer } from 'three';
 import { Behavior } from '../../common/interfaces/Behavior';
-import { Engine } from '../../ecs';
+import { Engine } from '../../ecs/classes/Engine';
 import { Entity } from '../../ecs/classes/Entity';
 import { System, SystemAttributes } from '../../ecs/classes/System';
-import { addComponent, createEntity, getComponent } from '../../ecs/functions/EntityFunctions';
-// import * as PostProcessing from '../classes/postprocessing';
+import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { RendererComponent } from '../components/RendererComponent';
-// import { DefaultPostProcessingSchema } from '../defaults/DefaultPostProcessingSchema';
+import { DefaultPostProcessingSchema } from '../defaults/DefaultPostProcessingSchema';
+import { EffectComposer } from '../../postprocessing/core/EffectComposer';
+import { RenderPass } from '../../postprocessing/passes/RenderPass';
+import { CameraComponent } from '../../camera/components/CameraComponent';
+import { SSAOEffect } from '../../postprocessing/effects/SSAOEffect';
+import { DepthOfFieldEffect } from '../../postprocessing/effects/DepthOfFieldEffect';
+import { EffectPass } from '../../postprocessing/passes/EffectPass';
 
 export class WebGLRendererSystem extends System {
   constructor (attributes?: SystemAttributes) {
@@ -38,41 +43,40 @@ export class WebGLRendererSystem extends System {
 
   isInitialized: boolean
 
-  // configurePostProcessing (entity: Entity) {
-  //   const rendererComponent = getMutableComponent<RendererComponent>(entity, RendererComponent);
-  //   if (rendererComponent.postProcessingSchema == undefined) rendererComponent.postProcessingSchema = DefaultPostProcessingSchema;
-  //   const composer = new PostProcessing.EffectComposer(Engine.renderer);
-  //   rendererComponent.composer = composer;
-  //   const renderPass = new PostProcessing.RenderPass(Engine.scene, Engine.camera);
-  //   renderPass.scene = Engine.scene;
-  //   renderPass.camera = CameraComponent.instance.camera;
-  //   composer.addPass(renderPass);
-  //   // This sets up the render
-  //   const passes: any[] = []
-  //   RendererComponent.instance.postProcessingSchema.effects.forEach((pass: any) => {
-  //     if (typeof pass.effect === typeof PostProcessing.SSAOEffect)
-  //       passes.push(new pass.effect(CameraComponent.instance.camera, {}, pass.effect.options))
-  //     else if (typeof pass.effect === typeof PostProcessing.DepthOfFieldEffect)
-  //       passes.push(new pass.effect(CameraComponent.instance.camera, pass.effect.options))
-  //     else passes.push(new pass.effect(pass.effect.options))
-  //   })
-  //   composer.addPass(new PostProcessing.EffectPass(CameraComponent.instance.camera, ...passes))
-  // }
+  configurePostProcessing (entity: Entity) {
+    const rendererComponent = getMutableComponent<RendererComponent>(entity, RendererComponent);
+    if (rendererComponent.postProcessingSchema == undefined) rendererComponent.postProcessingSchema = DefaultPostProcessingSchema;
+    const composer = new EffectComposer(Engine.renderer);
+    rendererComponent.composer = composer;
+    const renderPass = new RenderPass(Engine.scene, Engine.camera);
+    renderPass.scene = Engine.scene;
+    renderPass.camera = CameraComponent.instance.camera;
+    composer.addPass(renderPass);
+    // This sets up the render
+    const passes: any[] = []
+    RendererComponent.instance.postProcessingSchema.effects.forEach((pass: any) => {
+      if (typeof pass.effect === typeof SSAOEffect)
+        passes.push(new pass.effect(CameraComponent.instance.camera, {}, pass.effect.options))
+      else if (typeof pass.effect === typeof DepthOfFieldEffect)
+        passes.push(new pass.effect(CameraComponent.instance.camera, pass.effect.options))
+      else passes.push(new pass.effect(pass.effect.options))
+    })
+    composer.addPass(new EffectPass(CameraComponent.instance.camera, ...passes))
+  }
 
   execute (delta: number) {
-    if(this.isInitialized)
-    Engine.renderer.render(Engine.scene, Engine.camera)
 
     this.queryResults.renderers.added.forEach((entity: Entity) => {
       console.log("Renderers added")
       RendererComponent.instance.needsResize = true;
       this.onResize = this.onResize.bind(this);
       window.addEventListener('resize', this.onResize, false);
-      // this.configurePostProcessing(entity);
+      this.configurePostProcessing(entity);
     });
 
+    if(this.isInitialized)
     this.queryResults.renderers.all.forEach((entity: Entity) => {
-      // getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
+      getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
     });
   }
 }

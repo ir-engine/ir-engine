@@ -3,6 +3,7 @@
     "module": "esnext",
     "declaration": true,
     "noImplicitAny": false,
+    "noImplicitThis": true,
     "target": "es6",
     "moduleResolution": "Node",
     "sourceMap": true,
@@ -11,6 +12,6 @@
     "resolveJsonModule": true,
     "allowJs": true
   },
-  "include": ["src/**/*", "sandbox/postprocessing", "sandbox/assets", "../client/gameclient/transports/SocketWebRTCClientTransport.ts", "../server/src/transports/SocketWebRTCServerTransport.ts"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

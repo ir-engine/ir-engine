@@ -1,4 +1,4 @@
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext, Params } from '@feathersjs/feathers'
 import {
   extractLoggedInUserFromParams,
   getInviteLink,
@@ -6,8 +6,10 @@ import {
   sendSms
 } from '../services/auth-management/auth-management.utils'
 import * as path from 'path'
+import { BadRequest } from '@feathersjs/errors'
 import * as pug from 'pug'
 import config from '../config'
+import Invite from '../../server/models/invite.model'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
@@ -17,17 +19,21 @@ export default () => {
       const { app, result, params } = context
 
       let token = ''
+      let identityProvider
       if (result.identityProviderType === 'email' || result.identityProviderType === 'sms') {
         token = result.token
       } else {
         token = result.inviteeId
       }
       const inviteType = result.inviteType
-      const targetObjectId = result.targetObjectId as string
+      const targetObjectId = result.targetObjectId
+
+      console.log('targetObjectId: ' + targetObjectId)
 
       const authProvider = extractLoggedInUserFromParams(params)
       const authUser = await app.service('user').get(authProvider.userId)
 
+      console.log(result.identityProviderType)
       if (result.identityProviderType === 'email') {
         await generateEmail(
           app,
@@ -71,6 +77,9 @@ export default () => {
           }
         })
 
+        console.log('EMAILIDENTITYPROVIDER')
+        console.log(emailIdentityProviderResult)
+
         if (emailIdentityProviderResult.total > 0) {
           await generateEmail(
             app,
@@ -87,6 +96,9 @@ export default () => {
               type: 'sms'
             }
           })
+
+          console.log('SMSIDENTITYPROVIDER')
+          console.log(SMSIdentityProviderResult)
 
           if (SMSIdentityProviderResult.total > 0) {
             await generateSMS(
@@ -119,14 +131,16 @@ async function generateEmail (
   let groupName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode)
   const appPath = path.dirname(require.main ? require.main.filename : '')
-  const emailInviteTemplatesPath = path.join(
+  const emailAccountTemplatesPath = path.join(
     appPath,
+    '..',
+    'server',
     'email-templates',
     'invite'
   )
 
   const templatePath = path.join(
-    emailInviteTemplatesPath,
+    emailAccountTemplatesPath,
       `magiclink-email-invite-${inviteType}.pug`
   )
 
@@ -164,24 +178,25 @@ async function generateSMS (
   let groupName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode)
   const appPath = path.dirname(require.main ? require.main.filename : '')
-  const emailInviteTemplatesPath = path.join(
+  const emailAccountTemplatesPath = path.join(
     appPath,
+    '..',
+    'server',
     'email-templates',
-    'invite'
+    'account'
   )
   if (inviteType === 'group') {
     const group = await app.service('group').get(targetObjectId)
     groupName = group.name
   }
   const templatePath = path.join(
-    emailInviteTemplatesPath,
+    emailAccountTemplatesPath,
       `magiclink-sms-invite-${inviteType}.pug`
   )
   const compiledHTML = pug.compileFile(templatePath)({
     title: config.client.title,
     inviterUsername: inviterUsername,
     groupName: groupName,
-    smsNameCharacterLimit: config.email.smsNameCharacterLimit,
     hashLink
   }).replace(/&amp;/g, '&') // Text message links can't have HTML escaped ampersands.
 
