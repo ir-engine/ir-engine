@@ -143,3 +143,6 @@ lib/
 bin/
 
 .vscode/
+
+# Hugo publish files
+packages/docs/public/
