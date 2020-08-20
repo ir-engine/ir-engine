@@ -3,13 +3,13 @@ import config from '../../config'
 import { BadRequest } from '@feathersjs/errors'
 
 interface FilterType {
-  count: number
-  max_face_count: number
-  max_filesizes: string
-  type: string
-  downloadable: boolean
-  processing_status: string
-  cursor: string
+  count: number;
+  max_face_count: number;
+  max_filesizes: string;
+  type: string;
+  downloadable: boolean;
+  processing_status: string;
+  cursor: string;
 }
 
 export default class SketchFabMedia {
@@ -82,7 +82,7 @@ export default class SketchFabMedia {
     const preview = item.thumbnails.images.sort((a: any, b: any) => b.size - a.size)[0]
     const uid: string = item.uid
 
-    const url: string = `https://sketchfab.com/models/${uid}`
+    const url = `https://sketchfab.com/models/${uid}`
     const processedResponse = {
       type: 'sketchfab_model',
       id: item.uid,

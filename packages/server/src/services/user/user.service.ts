@@ -7,7 +7,7 @@ import _ from 'lodash'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'user': User & ServiceAddons<any>
+    'user': User & ServiceAddons<any>;
   }
 }
 

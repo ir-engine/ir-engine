@@ -37,6 +37,12 @@ const agonesSDK = new AgonesSDK()
 
 const gameserver = new WebRTCGameServer()
 
+function healthPing (agonesSDK: AgonesSDK): void {
+  agonesSDK.health()
+  setTimeout(() => healthPing(agonesSDK), 1000)
+}
+
+
 app.set('nextReadyEmitter', emitter)
 
 if (config.server.enabled) {
@@ -133,9 +139,5 @@ app.use(express.errorHandler({ logger } as any))
   app.all('/spoke/*', (req, res) => res.sendFile(path.join(spokePath, 'spoke/index.html')))
 
 
-export default app
 
-function healthPing (agonesSDK: AgonesSDK): void {
-  agonesSDK.health()
-  setTimeout(() => healthPing(agonesSDK), 1000)
-}
+export default app

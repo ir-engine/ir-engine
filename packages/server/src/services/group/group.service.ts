@@ -6,7 +6,7 @@ import hooks from './group.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'group': Group & ServiceAddons<any>
+    'group': Group & ServiceAddons<any>;
   }
 }
 

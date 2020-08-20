@@ -6,7 +6,7 @@ import hooks from './instance.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'instance': Instance & ServiceAddons<any>
+    'instance': Instance & ServiceAddons<any>;
   }
 }
 

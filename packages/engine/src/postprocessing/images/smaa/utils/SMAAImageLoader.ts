@@ -50,6 +50,7 @@ function generate (disableCache = false) {
  */
 
 export class SMAAImageLoader extends Loader {
+  disableCache: boolean;
   /**
 	 * Constructs a new SMAA image loader.
 	 *

@@ -5,7 +5,7 @@ import hooks from './sms.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'sms': Sms & ServiceAddons<any>
+    'sms': Sms & ServiceAddons<any>;
   }
 }
 

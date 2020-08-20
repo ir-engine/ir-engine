@@ -6,7 +6,7 @@ import hooks from './group-user-rank.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'group-user-rank': GroupUserRank & ServiceAddons<any>
+    'group-user-rank': GroupUserRank & ServiceAddons<any>;
   }
 }
 

@@ -7,7 +7,7 @@ import hooks from './seat.hooks'
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'seat': Seat & ServiceAddons<any>
+    'seat': Seat & ServiceAddons<any>;
   }
 }
 

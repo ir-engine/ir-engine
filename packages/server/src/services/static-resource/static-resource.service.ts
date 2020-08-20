@@ -6,7 +6,7 @@ import hooks from './static-resource.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'static-resource': StaticResource & ServiceAddons<any>
+    'static-resource': StaticResource & ServiceAddons<any>;
   }
 }
 

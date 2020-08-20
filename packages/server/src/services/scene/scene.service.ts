@@ -6,7 +6,7 @@ import hooks from './scene.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'scene': Scene & ServiceAddons<any>
+    'scene': Scene & ServiceAddons<any>;
   }
 }
 

@@ -7,7 +7,7 @@ import hooks from './channel.hooks'
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'channel': Channel & ServiceAddons<any>
+    'channel': Channel & ServiceAddons<any>;
   }
 }
 

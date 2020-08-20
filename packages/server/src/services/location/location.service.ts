@@ -6,7 +6,7 @@ import hooks from './location.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'location': Location & ServiceAddons<any>
+    'location': Location & ServiceAddons<any>;
   }
 }
 

@@ -23,12 +23,12 @@ import { UnreliableMessageParams, UnreliableMessageReturn } from "@xr3ngine/engi
 
 dotenv.config()
 interface Client {
-  socket: SocketIO.Socket
-  lastSeenTs: number
-  joinTs: number
-  media: any
-  consumerLayers: any
-  stats: any
+  socket: SocketIO.Socket;
+  lastSeenTs: number;
+  joinTs: number;
+  media: any;
+  consumerLayers: any;
+  stats: any;
 }
 
 const config = {

@@ -5,7 +5,7 @@ import hooks from './media-search.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'media-search': MediaSearch & ServiceAddons<any>
+    'media-search': MediaSearch & ServiceAddons<any>;
   }
 }
 

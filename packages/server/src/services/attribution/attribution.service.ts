@@ -6,7 +6,7 @@ import hooks from './attribution.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'attribution': Attribution & ServiceAddons<any>
+    'attribution': Attribution & ServiceAddons<any>;
   }
 }
 
