@@ -7,7 +7,7 @@ import authManagement from 'feathers-authentication-management'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'authManagement': Authmanagement & ServiceAddons<any>
+    'authManagement': Authmanagement & ServiceAddons<any>;
   }
 }
 

@@ -6,7 +6,7 @@ import hooks from './user-settings.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'user-settings': UserSettings & ServiceAddons<any>
+    'user-settings': UserSettings & ServiceAddons<any>;
   }
 }
 

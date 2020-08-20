@@ -8,7 +8,7 @@ import config from '../../config'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'email': Email & ServiceAddons<any>
+    'email': Email & ServiceAddons<any>;
   }
 }
 

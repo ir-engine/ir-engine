@@ -10,6 +10,95 @@ import { BadRequest } from '@feathersjs/errors'
 import * as pug from 'pug'
 import config from '../config'
 
+
+
+async function generateEmail (
+  app: any,
+  result: any,
+  toEmail: string,
+  inviteType: string,
+  inviterUsername: string,
+  targetObjectId?: string
+): Promise<void> {
+  let groupName
+  const hashLink = getInviteLink(inviteType, result.id, result.passcode)
+  const appPath = path.dirname(require.main ? require.main.filename : '')
+  const emailAccountTemplatesPath = path.join(
+    appPath,
+    '..',
+    'server',
+    'email-templates',
+    'invite'
+  )
+
+  const templatePath = path.join(
+    emailAccountTemplatesPath,
+      `magiclink-email-invite-${inviteType}.pug`
+  )
+
+  if (inviteType === 'group') {
+    const group = await app.service('group').get(targetObjectId)
+    groupName = group.name
+  }
+
+  const compiledHTML = pug.compileFile(templatePath)({
+    logo: config.client.logo,
+    title: config.client.title,
+    groupName: groupName,
+    inviterUsername: inviterUsername,
+    hashLink
+  })
+  const mailSender = config.email.from
+  const email = {
+    from: mailSender,
+    to: toEmail,
+    subject: config.email.subject[inviteType],
+    html: compiledHTML
+  }
+
+  return await sendEmail(app, email)
+}
+
+async function generateSMS (
+  app: any,
+  result: any,
+  mobile: string,
+  inviteType: string,
+  inviterUsername: string,
+  targetObjectId?: string
+): Promise<void> {
+  let groupName
+  const hashLink = getInviteLink(inviteType, result.id, result.passcode)
+  const appPath = path.dirname(require.main ? require.main.filename : '')
+  const emailAccountTemplatesPath = path.join(
+    appPath,
+    '..',
+    'server',
+    'email-templates',
+    'account'
+  )
+  if (inviteType === 'group') {
+    const group = await app.service('group').get(targetObjectId)
+    groupName = group.name
+  }
+  const templatePath = path.join(
+    emailAccountTemplatesPath,
+      `magiclink-sms-invite-${inviteType}.pug`
+  )
+  const compiledHTML = pug.compileFile(templatePath)({
+    title: config.client.title,
+    inviterUsername: inviterUsername,
+    groupName: groupName,
+    hashLink
+  }).replace(/&amp;/g, '&') // Text message links can't have HTML escaped ampersands.
+
+  const sms = {
+    mobile,
+    text: compiledHTML
+  }
+  return await sendSms(app, sms)
+}
+
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
   return async (context: HookContext) => {
@@ -117,91 +206,4 @@ export default () => {
       console.log(err)
     }
   }
-}
-
-async function generateEmail (
-  app: any,
-  result: any,
-  toEmail: string,
-  inviteType: string,
-  inviterUsername: string,
-  targetObjectId?: string
-): Promise<void> {
-  let groupName
-  const hashLink = getInviteLink(inviteType, result.id, result.passcode)
-  const appPath = path.dirname(require.main ? require.main.filename : '')
-  const emailAccountTemplatesPath = path.join(
-    appPath,
-    '..',
-    'server',
-    'email-templates',
-    'invite'
-  )
-
-  const templatePath = path.join(
-    emailAccountTemplatesPath,
-      `magiclink-email-invite-${inviteType}.pug`
-  )
-
-  if (inviteType === 'group') {
-    const group = await app.service('group').get(targetObjectId)
-    groupName = group.name
-  }
-
-  const compiledHTML = pug.compileFile(templatePath)({
-    logo: config.client.logo,
-    title: config.client.title,
-    groupName: groupName,
-    inviterUsername: inviterUsername,
-    hashLink
-  })
-  const mailSender = config.email.from
-  const email = {
-    from: mailSender,
-    to: toEmail,
-    subject: config.email.subject[inviteType],
-    html: compiledHTML
-  }
-
-  return await sendEmail(app, email)
-}
-
-async function generateSMS (
-  app: any,
-  result: any,
-  mobile: string,
-  inviteType: string,
-  inviterUsername: string,
-  targetObjectId?: string
-): Promise<void> {
-  let groupName
-  const hashLink = getInviteLink(inviteType, result.id, result.passcode)
-  const appPath = path.dirname(require.main ? require.main.filename : '')
-  const emailAccountTemplatesPath = path.join(
-    appPath,
-    '..',
-    'server',
-    'email-templates',
-    'account'
-  )
-  if (inviteType === 'group') {
-    const group = await app.service('group').get(targetObjectId)
-    groupName = group.name
-  }
-  const templatePath = path.join(
-    emailAccountTemplatesPath,
-      `magiclink-sms-invite-${inviteType}.pug`
-  )
-  const compiledHTML = pug.compileFile(templatePath)({
-    title: config.client.title,
-    inviterUsername: inviterUsername,
-    groupName: groupName,
-    hashLink
-  }).replace(/&amp;/g, '&') // Text message links can't have HTML escaped ampersands.
-
-  const sms = {
-    mobile,
-    text: compiledHTML
-  }
-  return await sendSms(app, sms)
 }

@@ -1,5 +1,18 @@
 import { HookContext } from '@feathersjs/feathers'
 
+function processInclude (includeCollection: any, context: HookContext): any {
+  if (!includeCollection) {
+    return
+  }
+  includeCollection = includeCollection.map((model: any) => {
+    const newModel = { ...model, ...processInclude(model.include, context) }
+    newModel.model = context.app.services[model.model].Model
+    return newModel
+  })
+  return { include: includeCollection }
+}
+
+
 export default (options = {}): any => {
   return (context: any): any => {
     try {
@@ -19,16 +32,4 @@ export default (options = {}): any => {
       console.log(err)
     }
   }
-}
-
-function processInclude (includeCollection: any, context: HookContext): any {
-  if (!includeCollection) {
-    return
-  }
-  includeCollection = includeCollection.map((model: any) => {
-    const newModel = { ...model, ...processInclude(model.include, context) }
-    newModel.model = context.app.services[model.model].Model
-    return newModel
-  })
-  return { include: includeCollection }
 }

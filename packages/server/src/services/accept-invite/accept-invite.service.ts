@@ -8,8 +8,13 @@ import config from '../../config'
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'accept-invite': AcceptInvite & ServiceAddons<any>
+    'accept-invite': AcceptInvite & ServiceAddons<any>;
   }
+}
+
+function redirect (req, res, next) {
+  console.log('REDIRECTING')
+  return res.redirect(config.client.url)
 }
 
 export default function (app: Application) {
@@ -24,9 +29,4 @@ export default function (app: Application) {
   const service = app.service('accept-invite')
 
   service.hooks(hooks)
-}
-
-function redirect (req, res, next) {
-  console.log('REDIRECTING')
-  return res.redirect(config.client.url)
 }

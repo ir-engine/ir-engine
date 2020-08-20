@@ -1,17 +1,5 @@
 import config from '../../config'
 
-export function mapProjectDetailData (project: any): any {
-  const _proj = {
-    name: project.name,
-    parent_scene: mapSceneData(project?.parent_scene_listing || project?.parent_scene, project.sid),
-    project_id: project.sid,
-    project_url: project?.url,
-    scene: mapSceneData(project.scene, project.sid),
-    thumbnailUrl: project?.thumbnail_owned_file?.url
-  }
-  return _proj
-}
-
 export function mapSceneData (scene: any, projectId: string): any {
   if (!scene) {
     return null
@@ -94,4 +82,16 @@ export function defaultProjectImport (models: any): any[] {
         } */
   ]
   return includedEntities
+}
+
+export function mapProjectDetailData (project: any): any {
+  const _proj = {
+    name: project.name,
+    parent_scene: mapSceneData(project?.parent_scene_listing || project?.parent_scene, project.sid),
+    project_id: project.sid,
+    project_url: project?.url,
+    scene: mapSceneData(project.scene, project.sid),
+    thumbnailUrl: project?.thumbnail_owned_file?.url
+  }
+  return _proj
 }

@@ -7,6 +7,8 @@ import { RawImageData } from '../../RawImageData';
  */
 
 class Vector2 {
+  x: number;
+  y: number;
   /**
 	 * Constructs a new vector.
 	 *
@@ -66,6 +68,8 @@ class Vector2 {
  */
 
 class Box2 {
+  min: Vector2;
+  max: Vector2;
   /**
 	 * Constructs a new box.
 	 */

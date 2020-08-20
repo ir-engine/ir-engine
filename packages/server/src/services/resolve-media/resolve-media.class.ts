@@ -6,7 +6,7 @@ import GooglePolyMediaClass from '../media-search/google-poly.class'
 import StorageProvider from '../../storage/storageprovider'
 
 interface Data {}
-interface MediaType { [key: string]: { Handler: any, mediaType: string, modelId: string} }
+interface MediaType { [key: string]: { Handler: any; mediaType: string; modelId: string} }
 
 interface ServiceOptions {}
 

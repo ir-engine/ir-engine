@@ -8,7 +8,7 @@ import hooks from './invite.hooks'
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'invite': Invite & ServiceAddons<any>
+    'invite': Invite & ServiceAddons<any>;
   }
 }
 

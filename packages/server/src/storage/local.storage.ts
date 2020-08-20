@@ -1,10 +1,10 @@
 
 import fs from 'fs-blob-store'
-import IStorageProvider from './storageprovider.interface'
+import StorageProviderInterface from './storageprovider.interface'
 
-export default class LocalStorage implements IStorageProvider {
+export default class LocalStorage implements StorageProviderInterface {
   path = './upload'
 
-  getProvider = (): IStorageProvider => new LocalStorage()
+  getProvider = (): StorageProviderInterface => new LocalStorage()
   getStorage = (): any => fs(this.path)
 }

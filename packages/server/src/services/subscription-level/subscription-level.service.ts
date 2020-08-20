@@ -6,7 +6,7 @@ import hooks from './subscription-level.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'subscription-level': SubscriptionLevel & ServiceAddons<any>
+    'subscription-level': SubscriptionLevel & ServiceAddons<any>;
   }
 }
 

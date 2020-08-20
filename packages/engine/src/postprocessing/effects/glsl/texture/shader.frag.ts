@@ -1,4 +1,4 @@
-uniform sampler2D texture;
+export default `uniform sampler2D texture;
 
 #if defined(ASPECT_CORRECTION) || defined(UV_TRANSFORM)
 
@@ -21,3 +21,4 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor)
 	outputColor = TEXEL;
 
 }
+`

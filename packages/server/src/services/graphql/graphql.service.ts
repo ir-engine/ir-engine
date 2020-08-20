@@ -11,7 +11,7 @@ import { Sequelize } from 'sequelize'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'graphql': Graphql & ServiceAddons<any>
+    'graphql': Graphql & ServiceAddons<any>;
   }
 }
 

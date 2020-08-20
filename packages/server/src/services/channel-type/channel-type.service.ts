@@ -6,7 +6,7 @@ import hooks from './channel-type.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'channel-type': ChannelType & ServiceAddons<any>
+    'channel-type': ChannelType & ServiceAddons<any>;
   }
 }
 

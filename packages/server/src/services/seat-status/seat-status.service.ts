@@ -6,7 +6,7 @@ import hooks from './seat-status.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'seat-status': SeatStatus & ServiceAddons<any>
+    'seat-status': SeatStatus & ServiceAddons<any>;
   }
 }
 

@@ -7,7 +7,7 @@ import { Op } from 'sequelize'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'user-relationship': UserRelationship & ServiceAddons<any>
+    'user-relationship': UserRelationship & ServiceAddons<any>;
   }
 }
 

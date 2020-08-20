@@ -7,7 +7,7 @@ import config from '../../config'
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'subscription-confirm': SubscriptionConfirm & ServiceAddons<any>
+    'subscription-confirm': SubscriptionConfirm & ServiceAddons<any>;
   }
 }
 
