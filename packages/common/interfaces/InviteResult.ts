@@ -1,8 +1,8 @@
 import { Invite } from './Invite'
 
-export interface InviteResult {
-  data: Invite[]
-  total: number
+export type InviteResult = {
+  data: Invite[],
+  total: number,
   limit: number
   skip: number
 }

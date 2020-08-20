@@ -1,7 +1,7 @@
-import React, { Fragment } from 'react'
-import Avatar from '@material-ui/core/Avatar'
-import Typography from '@material-ui/core/Typography'
-import './style.scss'
+import React, { Fragment } from 'react';
+import Avatar from '@material-ui/core/Avatar';
+import Typography from '@material-ui/core/Typography';
+import './style.scss';
 
 const LetterAvatars = (): any => {
   return (
@@ -13,7 +13,7 @@ const LetterAvatars = (): any => {
         <Avatar className="purple">S</Avatar>
       </div>
     </Fragment>
-  )
-}
+  );
+};
 
-export default LetterAvatars
+export default LetterAvatars;

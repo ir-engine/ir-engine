@@ -77,15 +77,16 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
 
   // If we're a browser (we don't need to create or render on the server)
   if (isBrowser) {
+    // Camera system and component setup
+    if (options.camera && options.camera.enabled) {
     // Create a new three.js camera
     const camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
     // Add the camera to the camera manager so it's available anywhere
     Engine.camera = new Camera();
     // Add the camera to the three.js scene
     scene.add(camera);
-
-    // Camera system and component setup
-    if (options.camera && options.camera.enabled) registerSystem(CameraSystem);
+      registerSystem(CameraSystem);
+    } 
   }
 
   // Input
@@ -135,7 +136,7 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
     scene.add(gridHelper);
     const entity = createEntity();
     // Add an ambient light to the scene
-    addObject3DComponent(entity, { obj: AmbientLight });
+    addObject3DComponent(entity, { obj3d: AmbientLight });
   }
 
   // Start our timer!

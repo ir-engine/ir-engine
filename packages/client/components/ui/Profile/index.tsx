@@ -1,8 +1,8 @@
-import React, { Fragment, useState } from 'react'
-import UserProfile from './UserIcon'
-import UserSettings from './UserSettings'
-import Subscription from './Subscription'
-import './style.scss'
+import React, { Fragment, useState } from 'react';
+import UserProfile from './UserIcon';
+import UserSettings from './UserSettings';
+import Subscription from './Subscription';
+import './style.scss';
 import {
     Settings,
     AccountCircle,
@@ -11,41 +11,41 @@ import {
     SupervisedUserCircle,
     Group,
     QuestionAnswer
-} from '@material-ui/icons'
+} from '@material-ui/icons';
 import {
     Backdrop,
     Fade,
     Modal,
     Tab,
     Tabs
-} from '@material-ui/core'
+} from '@material-ui/core';
 
 interface Props {
-  open: boolean
-  handleClose: any
-  avatarUrl: string
-  auth: any
+  open: boolean;
+  handleClose: any;
+  avatarUrl: string;
+  auth: any;
 }
 
-const TabPanel = (props: any): any => <Fragment>{props.value === props.index && props.children}</Fragment>
+const TabPanel = (props: any): any => <Fragment>{props.value === props.index && props.children}</Fragment>;
 
 const ProfileModal = (props: Props): any => {
-  const [tabIndex, setTabIndex] = useState(0)
+  const [tabIndex, setTabIndex] = useState(0);
 
   const handleChange = (event: any, newValue: number): void => {
-    event.preventDefault()
-    setTabIndex(newValue)
-  }
+    event.preventDefault();
+    setTabIndex(newValue);
+  };
   const avatar = (
     <TabPanel value={tabIndex} index={0}>
       <UserProfile avatarUrl={props.avatarUrl} auth={props.auth} />
     </TabPanel>
-  )
+  );
   const settings = (
     <TabPanel value={tabIndex} index={1}>
       <UserSettings />
     </TabPanel>
-  )
+  );
   // const account = (
   //   <TabPanel value={tabIndex} index={2}>
   //     Accounts
@@ -55,7 +55,7 @@ const ProfileModal = (props: Props): any => {
     <TabPanel value={tabIndex} className="subscription-profile" index={2}>
       <Subscription auth={props.auth}/>
     </TabPanel>
-  )
+  );
   return (
     <div>
       <Modal
@@ -105,7 +105,7 @@ const ProfileModal = (props: Props): any => {
         </Fade>
       </Modal>
     </div>
-  )
-}
+  );
+};
 
-export default ProfileModal
+export default ProfileModal;
