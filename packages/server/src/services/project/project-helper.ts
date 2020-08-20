@@ -7,7 +7,7 @@ export function mapProjectDetailData (project: any): any {
     project_id: project.sid,
     project_url: project?.url,
     scene: mapSceneData(project.scene, project.sid),
-    thumbnail_url: project?.thumbnail_owned_file?.url
+    thumbnailUrl: project?.thumbnail_owned_file?.url
   }
   return _proj
 }

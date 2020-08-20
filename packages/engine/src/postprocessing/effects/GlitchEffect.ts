@@ -9,7 +9,6 @@ import {
 import { NoiseTexture } from '../images/textures/NoiseTexture';
 import { BlendFunction } from './blending/BlendFunction';
 import { Effect } from './Effect';
-// @ts-ignore
 import fragmentShader from './glsl/glitch/shader.frag';
 
 /**

@@ -3,7 +3,6 @@ import { Application } from '../../declarations'
 import { Email } from './email.class'
 import hooks from './email.hooks'
 import smtpTransport from 'nodemailer-smtp-transport'
-// @ts-ignore
 import Mailer from 'feathers-mailer'
 import config from '../../config'
 

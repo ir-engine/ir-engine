@@ -1,7 +1,7 @@
-import { BlendFunction } from '../effects/blending';
 import { EffectAttribute } from '../effects/Effect';
 import { EffectMaterial, Section } from '../materials/EffectMaterial';
 import { Pass } from './Pass';
+import { BlendFunction } from '../effects/blending/BlendFunction';
 
 /**
  * Finds and collects substrings that match the given regular expression.

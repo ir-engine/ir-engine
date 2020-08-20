@@ -17,7 +17,6 @@ import { ShaderPass } from '../passes/ShaderPass';
 
 import { BlendFunction } from './blending/BlendFunction';
 import { Effect } from './Effect';
-// @ts-ignore
 import fragmentShader from './glsl/tone-mapping/shader.frag';
 
 /**

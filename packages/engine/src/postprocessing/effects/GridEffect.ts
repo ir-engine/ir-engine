@@ -1,7 +1,6 @@
 import { Uniform, Vector2 } from 'three';
 import { BlendFunction } from './blending/BlendFunction';
 import { Effect } from './Effect';
-// @ts-ignore
 import fragmentShader from './glsl/grid/shader.frag';
 
 /**

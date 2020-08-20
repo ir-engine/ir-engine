@@ -1,6 +1,5 @@
 import { Uniform, Vector2 } from 'three';
 import { Effect } from './Effect';
-// @ts-ignore
 import fragmentShader from './glsl/pixelation/shader.frag';
 
 /**

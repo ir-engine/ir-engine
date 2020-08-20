@@ -1,7 +1,6 @@
 import { Uniform } from 'three';
 import { BlendFunction } from './blending/BlendFunction';
 import { Effect, EffectAttribute } from './Effect';
-// @ts-ignore
 import fragmentShader from './glsl/bokeh/shader.frag';
 
 /**

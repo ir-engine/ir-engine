@@ -25,7 +25,6 @@ import K8s from 'k8s'
 import { WebRTCGameServer } from "../gameserver/WebRTCGameServer"
 
 import winston from 'winston'
-// @ts-ignore
 import feathersLogger from 'feathers-logger'
 import { EventEmitter } from 'events'
 

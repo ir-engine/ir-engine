@@ -1,6 +1,5 @@
 import { BlendFunction } from './blending/BlendFunction';
 import { Effect, EffectAttribute } from './Effect';
-// @ts-ignore
 import fragmentShader from './glsl/depth/shader.frag';
 
 /**
