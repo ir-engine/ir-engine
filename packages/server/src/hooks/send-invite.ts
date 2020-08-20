@@ -9,7 +9,6 @@ import * as path from 'path'
 import { BadRequest } from '@feathersjs/errors'
 import * as pug from 'pug'
 import config from '../config'
-import Invite from '../../server/models/invite.model'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
