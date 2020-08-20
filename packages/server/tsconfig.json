@@ -21,7 +21,7 @@
     "node_modules"
   ],
   "include": [
-    "*/**/*.ts",
-    "*/**/*.tsx", "../client/gameclient/WebRTCGameServer.ts"
+    "src/**/*.ts",
+    "src/**/*.tsx"
   ]
 }

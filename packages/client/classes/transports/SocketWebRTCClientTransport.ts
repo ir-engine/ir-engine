@@ -158,7 +158,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     }
   }
 
-  public async initialize(address = "https://127.0.0.1", port = 3001): Promise<void> {
+  public async initialize(address = "https://127.0.0.1", port = 3030): Promise<void> {
     console.log("Initializing client transport")
     this.mediasoupDevice = new Device()
 
