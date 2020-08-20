@@ -8,10 +8,7 @@ export class RendererComponent extends Component<any> {
   needsResize: boolean
   postProcessingSchema: PostProcessingSchema
   /**
-     * Constructs a new renderer component
-     *
-     * @param  {} {super()}
-     *
+     * Constructs a new renderer
      */
   constructor() {
     super();
@@ -21,7 +18,8 @@ export class RendererComponent extends Component<any> {
   }
 }
 /**
-  * The scheme is used to set the default values of a component
+  * The scheme is used to set the default values of a component. 
+  * The type field must be set for each property.
   */
 RendererComponent.schema = {
   composer: { type: Types.Ref },
