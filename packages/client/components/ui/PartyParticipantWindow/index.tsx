@@ -1,19 +1,19 @@
-import React from 'react'
-import './style.scss'
+import React from 'react';
+import './style.scss';
 
 interface ContainerProportions {
-  width: number | string
-  height: number | string
+  width: number | string;
+  height: number | string;
 }
 
 interface Props {
-  containerProportions?: ContainerProportions
+  containerProportions?: ContainerProportions;
 }
 
 function PartyParticipantWindow (props: Props): JSX.Element {
   // Video and audio elements' ref
-  const videoRef = React.createRef<HTMLVideoElement>()
-  const audioRef = React.createRef<HTMLAudioElement>()
+  const videoRef = React.createRef<HTMLVideoElement>();
+  const audioRef = React.createRef<HTMLAudioElement>();
   // Add mediasoup integration logic here to feed single peer's stream to these video/audio elements
   return (
     <div className="videoContainer" style={props.containerProportions || {}}>
@@ -41,7 +41,7 @@ function PartyParticipantWindow (props: Props): JSX.Element {
         controls={false}
       />
     </div>
-  )
+  );
 }
 
-export default PartyParticipantWindow
+export default PartyParticipantWindow;

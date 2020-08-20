@@ -1,57 +1,57 @@
 
-import React, { useState } from 'react'
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import Avatar from '@material-ui/core/Avatar'
-import Box from '@material-ui/core/Box'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { selectAuthState } from '../../../redux/auth/selector'
-import './style.scss'
+import React, { useState } from 'react';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import Avatar from '@material-ui/core/Avatar';
+import Box from '@material-ui/core/Box';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
+import { selectAuthState } from '../../../redux/auth/selector';
+import './style.scss';
 import {
   cancelInvitation,
   removeSeat
-} from '../../../redux/seats/service'
-import { Button } from '@material-ui/core'
-import { User } from '@xr3ngine/common/interfaces/User'
-import { Seat } from '@xr3ngine/common/interfaces/Seat'
+} from '../../../redux/seats/service';
+import { Button } from '@material-ui/core';
+import { User } from '@xr3ngine/common/interfaces/User';
+import { Seat } from '@xr3ngine/common/interfaces/Seat';
 
 interface Props {
-  auth?: any
-  seat?: Seat
-  cancelInvitation?: typeof cancelInvitation
-  removeSeat?: typeof removeSeat
+  auth?: any;
+  seat?: Seat;
+  cancelInvitation?: typeof cancelInvitation;
+  removeSeat?: typeof removeSeat;
 }
 
 const mapStateToProps = (state: any): any => {
   return {
     auth: selectAuthState(state)
-  }
-}
+  };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   cancelInvitation: bindActionCreators(cancelInvitation, dispatch),
   removeSeat: bindActionCreators(removeSeat, dispatch)
-})
+});
 
 const SeatItem = (props: Props): any => {
-  const { seat, auth } = props
-  const user = auth.get('user') as User
+  const { seat, auth } = props;
+  const user = auth.get('user') as User;
   const initialState = {
     userId: user.id,
     seat: props.seat
-  }
+  };
 
-  const [state] = useState(initialState)
+  const [state] = useState(initialState);
 
   // close a friend
   const cancelInvitation = () => {
-    props.cancelInvitation(state.seat)
-  }
+    props.cancelInvitation(state.seat);
+  };
 
   const revokeSeat = () => {
-    props.removeSeat(props.seat)
-  }
+    props.removeSeat(props.seat);
+  };
 
   return (
     <div className={'root'}>
@@ -88,12 +88,12 @@ const SeatItem = (props: Props): any => {
         </Box>
       </Box>
     </div>
-  )
-}
+  );
+};
 
-const UserItemWrapper = (props: Props): any => <SeatItem {...props} />
+const UserItemWrapper = (props: Props): any => <SeatItem {...props} />;
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(UserItemWrapper)
+)(UserItemWrapper);

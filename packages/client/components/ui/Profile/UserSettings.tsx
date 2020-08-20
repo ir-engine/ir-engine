@@ -1,40 +1,40 @@
-import React, { ChangeEvent, useState } from 'react'
-import Grid from '@material-ui/core/Grid'
-import Radio from '@material-ui/core/Radio'
-import RadioGroup from '@material-ui/core/RadioGroup'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import FormControl from '@material-ui/core/FormControl'
-import FormLabel from '@material-ui/core/FormLabel'
-import Typography from '@material-ui/core/Typography'
-import VolumeDown from '@material-ui/icons/VolumeDown'
-import VolumeUp from '@material-ui/icons/VolumeUp'
-import MicIcon from '@material-ui/icons/Mic'
-import MicOffIcon from '@material-ui/icons/MicOff'
-import Slider from '@material-ui/core/Slider'
-import Switch from '@material-ui/core/Switch'
-import './style.scss'
+import React, { ChangeEvent, useState } from 'react';
+import Grid from '@material-ui/core/Grid';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormControl from '@material-ui/core/FormControl';
+import FormLabel from '@material-ui/core/FormLabel';
+import Typography from '@material-ui/core/Typography';
+import VolumeDown from '@material-ui/icons/VolumeDown';
+import VolumeUp from '@material-ui/icons/VolumeUp';
+import MicIcon from '@material-ui/icons/Mic';
+import MicOffIcon from '@material-ui/icons/MicOff';
+import Slider from '@material-ui/core/Slider';
+import Switch from '@material-ui/core/Switch';
+import './style.scss';
 
 const UserSettings = (): any => {
-  const [volume, setvolume] = useState<number>(30)
-  const [audio, setAudio] = useState<number>(30)
-  const [radiovalue, setradiovalue] = useState('high')
+  const [volume, setvolume] = useState<number>(30);
+  const [audio, setAudio] = useState<number>(30);
+  const [radiovalue, setradiovalue] = useState('high');
   const [state, setState] = useState({
     checkedA: true,
     checkedB: true
-  })
+  });
   const handleVolume = (event: any, newValue: number | number[]): void => {
-    setvolume(newValue as number)
-  }
+    setvolume(newValue as number);
+  };
 
   const handleAudio = (event: any, newValue: number | number[]): void => {
-    setAudio(newValue as number)
-  }
+    setAudio(newValue as number);
+  };
   const handleRadioValue = (event: ChangeEvent<HTMLInputElement>): void => {
-    setradiovalue((event.target as HTMLInputElement).value)
-  }
+    setradiovalue((event.target as HTMLInputElement).value);
+  };
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    setState({ ...state, [event.target.name]: event.target.checked })
-  }
+    setState({ ...state, [event.target.name]: event.target.checked });
+  };
 
   return (
     <div className="root">
@@ -98,7 +98,7 @@ const UserSettings = (): any => {
         label="Enter room muted"
       />
     </div>
-  )
-}
+  );
+};
 
-export default UserSettings
+export default UserSettings;

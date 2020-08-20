@@ -1,5 +1,5 @@
-import React from 'react'
-import './style.scss'
+import React from 'react';
+import './style.scss';
 
 const Loader = (): any => {
   return (
@@ -27,7 +27,7 @@ const Loader = (): any => {
       </div>
     </div>
 
-  )
-}
+  );
+};
 
-export default Loader
+export default Loader;

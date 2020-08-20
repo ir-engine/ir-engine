@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
-import './style.scss'
+import React, { useState, useEffect } from 'react';
+import { bindActionCreators, Dispatch } from 'redux';
+import { connect } from 'react-redux';
+import './style.scss';
 import {
     Avatar,
     Button,
@@ -12,7 +12,7 @@ import {
     ListItemText,
     SwipeableDrawer,
     TextField
-} from '@material-ui/core'
+} from '@material-ui/core';
 import {
     getChannels,
     getChannelMessages,
@@ -21,27 +21,27 @@ import {
     updateChatTarget,
     patchMessage,
     updateMessageScrollInit
-} from '../../../../redux/chat/service'
-import { selectAuthState} from '../../../../redux/auth/selector'
-import { selectChatState } from '../../../../redux/chat/selector'
+} from '../../../../redux/chat/service';
+import { selectAuthState} from '../../../../redux/auth/selector';
+import { selectChatState } from '../../../../redux/chat/selector';
 import {
     Clear,
     Delete,
     Edit,
     Save,
     Send
-} from '@material-ui/icons'
-import moment from 'moment'
+} from '@material-ui/icons';
+import moment from 'moment';
 import {User} from "@xr3ngine/common/interfaces/User";
-import { Message } from '@xr3ngine/common/interfaces/Message'
-import _ from 'lodash'
+import { Message } from '@xr3ngine/common/interfaces/Message';
+import _ from 'lodash';
 
 const mapStateToProps = (state: any): any => {
     return {
         authState: selectAuthState(state),
         chatState: selectChatState(state),
-    }
-}
+    };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     getChannels: bindActionCreators(getChannels, dispatch),
@@ -51,21 +51,21 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     updateChatTarget: bindActionCreators(updateChatTarget, dispatch),
     patchMessage: bindActionCreators(patchMessage, dispatch),
     updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch)
-})
+});
 
 interface Props {
-    authState?: any
-    bottomDrawerOpen: boolean
-    setBottomDrawerOpen: any
-    setLeftDrawerOpen: any
-    chatState?: any
-    getChannels?: any
-    getChannelMessages?: any
-    createMessage?: any
-    removeMessage?: any
-    updateChatTarget?: any
-    patchMessage?: any
-    updateMessageScrollInit?: any
+    authState?: any;
+    bottomDrawerOpen: boolean;
+    setBottomDrawerOpen: any;
+    setLeftDrawerOpen: any;
+    chatState?: any;
+    getChannels?: any;
+    getChannelMessages?: any;
+    createMessage?: any;
+    removeMessage?: any;
+    updateChatTarget?: any;
+    patchMessage?: any;
+    updateMessageScrollInit?: any;
 }
 
 const BottomDrawer = (props: Props): any => {
@@ -82,78 +82,78 @@ const BottomDrawer = (props: Props): any => {
         updateChatTarget,
         patchMessage,
         updateMessageScrollInit
-    } = props
+    } = props;
 
     const messageRef = React.useRef();
-    const messageEl = messageRef.current
-    const user = authState.get('user') as User
-    const channelState = chatState.get('channels')
-    const channels = channelState.get('channels')
-    const targetObject = chatState.get('targetObject')
-    const targetObjectType = chatState.get('targetObjectType')
-    const targetChannelId = chatState.get('targetChannelId')
-    const messageScrollInit = chatState.get('messageScrollInit')
-    const [messageScrollUpdate, setMessageScrollUpdate] = useState(false)
-    const [topMessage, setTopMessage] = useState({})
-    const [messageCrudSelected, setMessageCrudSelected] = useState('')
-    const [messageDeletePending, setMessageDeletePending] = useState('')
-    const [messageUpdatePending, setMessageUpdatePending] = useState('')
-    const [editingMessage, setEditingMessage] = useState('')
-    const [composingMessage, setComposingMessage] = useState('')
-    const activeChannel = channels.get(targetChannelId)
+    const messageEl = messageRef.current;
+    const user = authState.get('user') as User;
+    const channelState = chatState.get('channels');
+    const channels = channelState.get('channels');
+    const targetObject = chatState.get('targetObject');
+    const targetObjectType = chatState.get('targetObjectType');
+    const targetChannelId = chatState.get('targetChannelId');
+    const messageScrollInit = chatState.get('messageScrollInit');
+    const [messageScrollUpdate, setMessageScrollUpdate] = useState(false);
+    const [topMessage, setTopMessage] = useState({});
+    const [messageCrudSelected, setMessageCrudSelected] = useState('');
+    const [messageDeletePending, setMessageDeletePending] = useState('');
+    const [messageUpdatePending, setMessageUpdatePending] = useState('');
+    const [editingMessage, setEditingMessage] = useState('');
+    const [composingMessage, setComposingMessage] = useState('');
+    const activeChannel = channels.get(targetChannelId);
 
     useEffect(() => {
-        console.log(`useEffect messageScrollInit: ${messageScrollInit}`)
+        console.log(`useEffect messageScrollInit: ${messageScrollInit}`);
         if (messageScrollInit === true && messageEl != null && (messageEl as any).scrollTop != null) {
             console.log('Triggering messageScrollInit');
-            (messageEl as any).scrollTop = (messageEl as any).scrollHeight
-            console.log(updateMessageScrollInit)
-            updateMessageScrollInit(false)
-            setMessageScrollUpdate(false)
+            (messageEl as any).scrollTop = (messageEl as any).scrollHeight;
+            console.log(updateMessageScrollInit);
+            updateMessageScrollInit(false);
+            setMessageScrollUpdate(false);
         }
         if (messageScrollUpdate === true) {
-            setMessageScrollUpdate(false)
+            setMessageScrollUpdate(false);
             if (messageEl != null && (messageEl as any).scrollTop != null) {
-                (messageEl as any).scrollTop = (topMessage as any).offsetTop
+                (messageEl as any).scrollTop = (topMessage as any).offsetTop;
             }
         }
-    }, [chatState])
+    }, [chatState]);
 
     useEffect(() =>  {
         if (channelState.get('updateNeeded') === true) {
-            getChannels()
+            getChannels();
         }
     }, [channelState]);
 
     useEffect(() => {
         channels.forEach((channel) => {
             if (chatState.get('updateMessageScroll') === true) {
-                chatState.set('updateMessageScroll', false)
+                chatState.set('updateMessageScroll', false);
                 if (channel.id === targetChannelId && messageEl != null && (((messageEl as any).scrollHeight - (messageEl as any).scrollTop - (messageEl as any).firstElementChild?.offsetHeight) <= (messageEl as any).clientHeight + 20)) {
-                    (messageEl as any).scrollTop = (messageEl as any).scrollHeight
+                    (messageEl as any).scrollTop = (messageEl as any).scrollHeight;
                 }
             }
             if (channel.updateNeeded === true) {
-                getChannelMessages(channel.id)
+                getChannelMessages(channel.id);
             }
-        })
+        });
     }, [channels]);
 
 
     const openLeftDrawer = (e: any): void => {
-        setBottomDrawerOpen(false)
-        setLeftDrawerOpen(true)
-    }
+        setBottomDrawerOpen(false);
+        setLeftDrawerOpen(true);
+    };
 
     const handleComposingMessageChange = (event: any): void => {
-        const message = event.target.value
-        setComposingMessage(message)
-    }
+        const message = event.target.value;
+        setComposingMessage(message);
+    };
 
     const handleEditingMessageChange = (event: any): void => {
-        const message = event.target.value
-        setEditingMessage(message)
-    }
+        const message = event.target.value;
+        setEditingMessage(message);
+    };
 
     const packageMessage = (event: any): void => {
         if (composingMessage.length > 0) {
@@ -161,130 +161,130 @@ const BottomDrawer = (props: Props): any => {
                 targetObjectId: targetObject.id,
                 targetObjectType: targetObjectType,
                 text: composingMessage
-            })
-            setComposingMessage('')
+            });
+            setComposingMessage('');
         }
-    }
+    };
 
     const setActiveChat = (channel): void => {
-        console.log('setActiveChat:')
-        updateMessageScrollInit(true)
-        const channelType = channel.channelType
-        const target = channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2 : channel.user2?.id === user.id ? channel.user1 : {}) : channelType === 'group' ? channel.group : channel.party
-        updateChatTarget(channelType, target, channel.id)
-        setMessageDeletePending('')
-        setMessageUpdatePending('')
-        setEditingMessage('')
-        setComposingMessage('')
-    }
+        console.log('setActiveChat:');
+        updateMessageScrollInit(true);
+        const channelType = channel.channelType;
+        const target = channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2 : channel.user2?.id === user.id ? channel.user1 : {}) : channelType === 'group' ? channel.group : channel.party;
+        updateChatTarget(channelType, target, channel.id);
+        setMessageDeletePending('');
+        setMessageUpdatePending('');
+        setEditingMessage('');
+        setComposingMessage('');
+    };
 
     const onChannelScroll = (e): void => {
         if ((e.target.scrollHeight - e.target.scrollTop) === e.target.clientHeight ) {
-            nextChannelPage()
+            nextChannelPage();
         }
-    }
+    };
 
     const onMessageScroll = (e): void => {
-        console.log(messageScrollInit)
+        console.log(messageScrollInit);
         if (e.target.scrollTop === 0 && (e.target.scrollHeight > e.target.clientHeight) && messageScrollInit !== true && (activeChannel.skip + activeChannel.limit) < activeChannel.total) {
-            setMessageScrollUpdate(true)
-            setTopMessage((messageEl as any).firstElementChild)
-            nextMessagePage()
+            setMessageScrollUpdate(true);
+            setTopMessage((messageEl as any).firstElementChild);
+            nextMessagePage();
         }
-    }
+    };
 
     const nextChannelPage = (): void => {
         if ((channelState.get('skip') + channelState.get('limit')) < channelState.get('total')) {
-            getChannels(channelState.get('skip') + channelState.get('limit'))
+            getChannels(channelState.get('skip') + channelState.get('limit'));
         }
-    }
+    };
 
     const nextMessagePage = (): void => {
         if ((activeChannel.skip + activeChannel.limit) < activeChannel.total) {
-            getChannelMessages(targetChannelId, activeChannel.skip + activeChannel.limit)
+            getChannelMessages(targetChannelId, activeChannel.skip + activeChannel.limit);
         }
         else {
-            setMessageScrollUpdate(false)
+            setMessageScrollUpdate(false);
         }
-    }
+    };
 
     const getMessageUser = (message: Message): User => {
-        let user
-        const channel = channels.get(message.channelId)
+        let user;
+        const channel = channels.get(message.channelId);
         if (channel.channelType === 'user') {
-            user = channel.userId1 === message.senderId ? channel.user1 : channel.user2
+            user = channel.userId1 === message.senderId ? channel.user1 : channel.user2;
         } else if (channel.channelType === 'group') {
             const groupUser = _.find(channel.group.groupUsers, (groupUser) => {
-                return groupUser.userId === message.senderId
-            })
-            user = groupUser != null ? groupUser.user : {}
+                return groupUser.userId === message.senderId;
+            });
+            user = groupUser != null ? groupUser.user : {};
         } else if (channel.channelType === 'party') {
             const partyUser = _.find(channel.party.partyUsers, (partyUser) => {
-                return partyUser.userId === message.senderId
-            })
-            user = partyUser != null ? partyUser.user : {}
+                return partyUser.userId === message.senderId;
+            });
+            user = partyUser != null ? partyUser.user : {};
         }
 
-        return user
-    }
+        return user;
+    };
 
     const generateMessageSecondary = (message: Message): string => {
-        const date = moment(message.createdAt).format('MMM D YYYY, h:mm a')
+        const date = moment(message.createdAt).format('MMM D YYYY, h:mm a');
         if (message.senderId !== user.id) {
-            return `${getMessageUser(message).name? getMessageUser(message).name : 'A former user'} on ${date}`
+            return `${getMessageUser(message).name? getMessageUser(message).name : 'A former user'} on ${date}`;
         }
         else {
-            return date
+            return date;
         }
-    }
+    };
 
     const loadMessageEdit = (e: any, message: Message) => {
-        e.preventDefault()
-        setMessageUpdatePending(message.id)
-        setEditingMessage(message.text)
-        setMessageDeletePending('')
-    }
+        e.preventDefault();
+        setMessageUpdatePending(message.id);
+        setEditingMessage(message.text);
+        setMessageDeletePending('');
+    };
 
     const showMessageDeleteConfirm = (e: any, message: Message) => {
-        e.preventDefault()
-        setMessageDeletePending(message.id)
-        setMessageUpdatePending('')
-    }
+        e.preventDefault();
+        setMessageDeletePending(message.id);
+        setMessageUpdatePending('');
+    };
 
     const cancelMessageDelete = (e: any) => {
-        e.preventDefault()
-        setMessageDeletePending('')
-    }
+        e.preventDefault();
+        setMessageDeletePending('');
+    };
 
     const confirmMessageDelete = (e: any, message: Message) => {
-        e.preventDefault()
-        setMessageDeletePending('')
-        removeMessage(message.id, message.channelId)
-    }
+        e.preventDefault();
+        setMessageDeletePending('');
+        removeMessage(message.id, message.channelId);
+    };
 
     const cancelMessageUpdate = (e: any) => {
-        e.preventDefault()
-        setMessageUpdatePending('')
-        setEditingMessage('')
-    }
+        e.preventDefault();
+        setMessageUpdatePending('');
+        setEditingMessage('');
+    };
 
     const confirmMessageUpdate = (e: any, message: Message) => {
-        e.preventDefault()
-        patchMessage(message.id, editingMessage)
-        setMessageUpdatePending('')
-        setEditingMessage('')
-    }
+        e.preventDefault();
+        patchMessage(message.id, editingMessage);
+        setMessageUpdatePending('');
+        setEditingMessage('');
+    };
 
     const toggleMessageCrudSelect = (e: any, message: Message) => {
-        e.preventDefault()
+        e.preventDefault();
         if (message.senderId === user.id) {
             if (messageCrudSelected === message.id && messageUpdatePending !== message.id) {
-                setMessageCrudSelected('')
+                setMessageCrudSelected('');
             } else {
-                setMessageCrudSelected(message.id)
+                setMessageCrudSelected(message.id);
             }
         }
-    }
+    };
 
     return (
         <div>
@@ -292,7 +292,7 @@ const BottomDrawer = (props: Props): any => {
                 className="flex-column"
                 anchor="bottom"
                 open={props.bottomDrawerOpen === true}
-                onClose={() => {setBottomDrawerOpen(false)}}
+                onClose={() => {setBottomDrawerOpen(false);}}
                 onOpen={() => {}}
             >
                 <div className="bottom-container">
@@ -311,7 +311,7 @@ const BottomDrawer = (props: Props): any => {
                                         </ListItemAvatar>
                                     }
                                     <ListItemText primary={channel.channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2.name : channel.user2?.id === user.id ? channel.user1.name : '') : channel.channelType === 'group' ? channel.group.name : 'Current party'}/>
-                                </ListItem>
+                                </ListItem>;
                         })
                         }
                         { channels == null || channels.size === 0 &&
@@ -400,7 +400,7 @@ const BottomDrawer = (props: Props): any => {
                                             </div>
                                         </div>
                                     }
-                                </ListItem>
+                                </ListItem>;
                             })
                             }
                             { targetChannelId.length === 0 && targetObject.id != null &&
@@ -456,7 +456,7 @@ const BottomDrawer = (props: Props): any => {
                 </div>
             </SwipeableDrawer>
         </div>
-    )
-}
+    );
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(BottomDrawer)
+export default connect(mapStateToProps, mapDispatchToProps)(BottomDrawer);

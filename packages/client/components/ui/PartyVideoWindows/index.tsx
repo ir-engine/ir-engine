@@ -1,10 +1,10 @@
-import React from 'react'
-import './style.scss'
-import { Grid } from '@material-ui/core'
-import PartyParticipantWindow from '../PartyParticipantWindow'
+import React from 'react';
+import './style.scss';
+import { Grid } from '@material-ui/core';
+import PartyParticipantWindow from '../PartyParticipantWindow';
 
 // Artificial Users
-const otherParticipants = [1, 2, 3, 4, 5, 6]
+const otherParticipants = [1, 2, 3, 4, 5, 6];
 
 function PartyVideoWindows (): JSX.Element {
   return (
@@ -13,7 +13,7 @@ function PartyVideoWindows (): JSX.Element {
         <PartyParticipantWindow key={key} />
       ))}
     </Grid>
-  )
+  );
 }
 
-export default PartyVideoWindows
+export default PartyVideoWindows;

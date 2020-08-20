@@ -1,37 +1,37 @@
-import React, { useState } from 'react'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
-import Container from '@material-ui/core/Container'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { forgotPassword } from '../../../redux/auth/service'
-import Grid from '@material-ui/core/Grid'
-import './style.scss'
+import React, { useState } from 'react';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import Container from '@material-ui/core/Container';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
+import { forgotPassword } from '../../../redux/auth/service';
+import Grid from '@material-ui/core/Grid';
+import './style.scss';
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   forgotPassword: bindActionCreators(forgotPassword, dispatch)
-})
+});
 
 interface Props {
-  classes: any
-  forgotPassword: typeof forgotPassword
+  classes: any;
+  forgotPassword: typeof forgotPassword;
 }
 
 const ForgotPassword = (props: Props): any => {
-  const { forgotPassword, classes } = props
-  const [state, setState] = useState({ email: '', isSubmitted: false })
+  const { forgotPassword, classes } = props;
+  const [state, setState] = useState({ email: '', isSubmitted: false });
 
   const handleInput = (e: any): void => {
-    e.preventDefault()
-    setState({ ...state, [e.target.name]: e.target.value })
-  }
+    e.preventDefault();
+    setState({ ...state, [e.target.name]: e.target.value });
+  };
 
   const handleForgot = (e: any): void => {
-    e.preventDefault()
-    forgotPassword(state.email)
-    setState({ ...state, isSubmitted: true })
-  }
+    e.preventDefault();
+    forgotPassword(state.email);
+    setState({ ...state, isSubmitted: true });
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -89,9 +89,9 @@ const ForgotPassword = (props: Props): any => {
         )}
       </div>
     </Container>
-  )
-}
+  );
+};
 
-const ForgotPasswordWrapper = (props: any): any => <ForgotPassword {...props} />
+const ForgotPasswordWrapper = (props: any): any => <ForgotPassword {...props} />;
 
-export default connect(mapDispatchToProps)(ForgotPasswordWrapper)
+export default connect(mapDispatchToProps)(ForgotPasswordWrapper);

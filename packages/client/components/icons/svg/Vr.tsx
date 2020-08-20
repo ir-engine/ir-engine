@@ -1,8 +1,8 @@
-import { connect } from 'react-redux'
-import { selectDeviceDetectState } from '../../../redux/devicedetect/selector'
+import { connect } from 'react-redux';
+import { selectDeviceDetectState } from '../../../redux/devicedetect/selector';
 
-import getConfig from 'next/config'
-const enterVRbuttonSrc = getConfig().publicRuntimeConfig.xr.enterVRbuttonSrc
+import getConfig from 'next/config';
+const enterVRbuttonSrc = getConfig().publicRuntimeConfig.xr.enterVRbuttonSrc;
 
 const SvgVr = (props: any): any => {
   if (enterVRbuttonSrc !== '') {
@@ -17,7 +17,7 @@ const SvgVr = (props: any): any => {
           height: '4em',
         }}
       />
-    )
+    );
   }
   return (
     <svg viewBox="0 0 62.7 52.375" width="1em" height="1em" {...props}>
@@ -28,13 +28,13 @@ const SvgVr = (props: any): any => {
         opacity={0.5}
       />
     </svg>
-  )
-}
+  );
+};
 
 const mapStateToProps = (state) => {
   return {
     detectedDevice: selectDeviceDetectState(state),
-  }
-}
+  };
+};
 
-export default connect(mapStateToProps)(SvgVr)
+export default connect(mapStateToProps)(SvgVr);
