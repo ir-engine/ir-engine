@@ -1,8 +1,6 @@
 import { PerspectiveCamera, ShaderMaterial, Uniform } from 'three';
 
-///@ts-ignore
 import fragmentShader from './glsl/circle-of-confusion/shader.frag';
-///@ts-ignore
 import vertexShader from './glsl/common/shader.vert';
 
 /**

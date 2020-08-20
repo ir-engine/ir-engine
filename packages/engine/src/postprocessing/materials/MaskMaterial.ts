@@ -1,8 +1,6 @@
 import { ShaderMaterial, Uniform } from 'three';
 import { ColorChannel } from '../core/ColorChannel';
-///@ts-ignore
 import fragmentShader from './glsl/mask/shader.frag';
-///@ts-ignore
 import vertexShader from './glsl/common/shader.vert';
 
 /**

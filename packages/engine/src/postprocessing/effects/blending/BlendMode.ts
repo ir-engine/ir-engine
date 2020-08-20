@@ -1,56 +1,20 @@
 import { EventDispatcher, Uniform } from 'three';
-import { BlendFunction } from './BlendFunction';
-//@ts-ignore
-import addBlendFunction from './glsl/add/shader.frag';
-//@ts-ignore
-import alphaBlendFunction from './glsl/alpha/shader.frag';
-
-//@ts-ignore
+import { BlendFunction } from './BlendFunction';import addBlendFunction from './glsl/add/shader.frag';import alphaBlendFunction from './glsl/alpha/shader.frag';
 import averageBlendFunction from './glsl/average/shader.frag';
-//@ts-ignore
-
 import colorBurnBlendFunction from './glsl/color-burn/shader.frag';
-//@ts-ignore
-
 import colorDodgeBlendFunction from './glsl/color-dodge/shader.frag';
-//@ts-ignore
-
 import darkenBlendFunction from './glsl/darken/shader.frag';
-//@ts-ignore
-
 import differenceBlendFunction from './glsl/difference/shader.frag';
-//@ts-ignore
-
 import exclusionBlendFunction from './glsl/exclusion/shader.frag';
-//@ts-ignore
-
 import lightenBlendFunction from './glsl/lighten/shader.frag';
-//@ts-ignore
-
 import multiplyBlendFunction from './glsl/multiply/shader.frag';
-//@ts-ignore
-
 import divideBlendFunction from './glsl/divide/shader.frag';
-//@ts-ignore
-
 import negationBlendFunction from './glsl/negation/shader.frag';
-//@ts-ignore
-
 import normalBlendFunction from './glsl/normal/shader.frag';
-//@ts-ignore
-
 import overlayBlendFunction from './glsl/overlay/shader.frag';
-//@ts-ignore
-
 import reflectBlendFunction from './glsl/reflect/shader.frag';
-//@ts-ignore
-
 import screenBlendFunction from './glsl/screen/shader.frag';
-//@ts-ignore
-
 import softLightBlendFunction from './glsl/soft-light/shader.frag';
-//@ts-ignore
-
 import subtractBlendFunction from './glsl/subtract/shader.frag';
 
 /**

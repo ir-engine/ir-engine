@@ -32,6 +32,12 @@ import fragmentShader from './glsl/tone-mapping/shader.frag';
  */
 
 export class ToneMappingEffect extends Effect {
+  renderTargetLuminance: WebGLRenderTarget;
+  renderTargetAdapted: any;
+  renderTargetPrevious: any;
+  savePass: SavePass;
+  luminancePass: ShaderPass;
+  adaptiveLuminancePass: ShaderPass;
   /**
 	 * Constructs a new tone mapping effect.
 	 *

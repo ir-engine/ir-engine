@@ -1,7 +1,5 @@
 import { ShaderMaterial, Uniform } from 'three';
-///@ts-ignore
 import fragmentShader from './glsl/depth-mask/shader.frag';
-///@ts-ignore
 import vertexShader from './glsl/common/shader.vert';
 
 /**

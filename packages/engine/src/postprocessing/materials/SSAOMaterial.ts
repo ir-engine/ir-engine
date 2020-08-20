@@ -1,7 +1,5 @@
 import { Matrix4, PerspectiveCamera, ShaderMaterial, Uniform, Vector2 } from 'three';
-///@ts-ignore
 import fragmentShader from './glsl/ssao/shader.frag';
-///@ts-ignore
 import vertexShader from './glsl/ssao/shader.vert';
 
 /**

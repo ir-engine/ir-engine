@@ -1,5 +1,6 @@
 import { Loader, LoadingManager } from 'three';
-import { RawImageData } from '../../RawImageData';
+// @ts-ignore
+import { RawImageData } from '../../RawImageData.ts';
 import workerProgram from './worker.tmp';
 
 /**

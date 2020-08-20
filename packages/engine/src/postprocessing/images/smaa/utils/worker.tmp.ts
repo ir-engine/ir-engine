@@ -1,4 +1,4 @@
-(function () {
+export default `(function () {
 	'use strict';
 
 	/**
@@ -578,7 +578,7 @@
 			case 4: {
 
 				/*   |
-				 *   `------
+				 *   \`------
 				 */
 
 				if(left <= right) {
@@ -611,7 +611,7 @@
 			case 6: {
 
 				/*   |
-				 *   `------.
+				 *   \`------.
 				 *          |
 				 *
 				 * A problem of not offseting L patterns (see above) is that for certain
@@ -728,7 +728,7 @@
 			case 12: {
 
 				/*   |      |
-				 *   `------´
+				 *   \`------´
 				 */
 
 				calculateOrthogonalArea(p1.set(0.0, o1), p2.set(d / 2.0, 0.0), left, a1);
@@ -758,7 +758,7 @@
 			case 14: {
 
 				/*   |      |
-				 *   `------+
+				 *   \`------+
 				 *          |
 				 */
 
@@ -1655,3 +1655,4 @@
 	});
 
 }());
+`
