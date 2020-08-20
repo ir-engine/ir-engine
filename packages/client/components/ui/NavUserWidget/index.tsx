@@ -1,28 +1,28 @@
-import React, { useEffect } from 'react'
-import Button from '@material-ui/core/Button'
-import SignIn from '../Auth/Login'
-import { logoutUser } from '../../../redux/auth/service'
-import { selectAuthState } from '../../../redux/auth/selector'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { showDialog } from '../../../redux/dialog/service'
-import Dropdown from '../Profile/ProfileDropdown'
-import { User } from '@xr3ngine/common/interfaces/User'
-import './style.scss'
+import React, { useEffect } from 'react';
+import Button from '@material-ui/core/Button';
+import SignIn from '../Auth/Login';
+import { logoutUser } from '../../../redux/auth/service';
+import { selectAuthState } from '../../../redux/auth/selector';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
+import { showDialog } from '../../../redux/dialog/service';
+import Dropdown from '../Profile/ProfileDropdown';
+import { User } from '@xr3ngine/common/interfaces/User';
+import './style.scss';
 
 const mapStateToProps = (state: any): any => {
-  return { auth: selectAuthState(state) }
-}
+  return { auth: selectAuthState(state) };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   logoutUser: bindActionCreators(logoutUser, dispatch),
   showDialog: bindActionCreators(showDialog, dispatch),
-})
+});
 
 interface Props {
-  auth?: any
-  logoutUser?: typeof logoutUser
-  showDialog?: typeof showDialog
+  auth?: any;
+  logoutUser?: typeof logoutUser;
+  showDialog?: typeof showDialog;
 }
 
 const styles = {
@@ -32,27 +32,27 @@ const styles = {
   logoutButton: {
     color: 'white',
   },
-}
+};
 
 const NavUserBadge = (props: Props): any => {
   useEffect(() => {
-    handleLogin()
-  }, [])
+    handleLogin();
+  }, []);
 
   const handleLogout = () => {
-    props.logoutUser()
-  }
+    props.logoutUser();
+  };
 
   const handleLogin = () => {
-    const params = new URLSearchParams(document.location.search)
-    const showLoginDialog = params.get('login')
+    const params = new URLSearchParams(document.location.search);
+    const showLoginDialog = params.get('login');
     if (showLoginDialog === String(true)) {
-      props.showDialog({ children: <SignIn /> })
+      props.showDialog({ children: <SignIn /> });
     }
-  }
+  };
 
-  const isLoggedIn = props.auth.get('isLoggedIn')
-  const user = props.auth.get('user') as User
+  const isLoggedIn = props.auth.get('isLoggedIn');
+  const user = props.auth.get('user') as User;
   // const userName = user && user.name
 
   return (
@@ -79,7 +79,7 @@ const NavUserBadge = (props: Props): any => {
         </Button>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(NavUserBadge)
+export default connect(mapStateToProps, mapDispatchToProps)(NavUserBadge);

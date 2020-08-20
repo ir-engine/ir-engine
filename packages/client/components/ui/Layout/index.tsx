@@ -1,44 +1,44 @@
-import React, { Fragment, useState } from 'react'
-import { connect } from 'react-redux'
-import getConfig from 'next/config'
-import NavMenu from '../NavMenu'
-import Head from 'next/head'
-import './style.scss'
-import Alerts from '../Common/Alerts'
-import UIDialog from '../Dialog/Dialog'
-import DrawerControls from '../DrawerControls'
-import LeftDrawer from '../Drawer/Left'
-import RightDrawer from '../Drawer/Right'
-import BottomDrawer from '../Drawer/Bottom'
-import { selectAuthState } from '../../../redux/auth/selector'
-import PartyVideoWindows from '../PartyVideoWindows'
-import Me from '../Me'
+import React, { Fragment, useState } from 'react';
+import { connect } from 'react-redux';
+import getConfig from 'next/config';
+import NavMenu from '../NavMenu';
+import Head from 'next/head';
+import './style.scss';
+import Alerts from '../Common/Alerts';
+import UIDialog from '../Dialog/Dialog';
+import DrawerControls from '../DrawerControls';
+import LeftDrawer from '../Drawer/Left';
+import RightDrawer from '../Drawer/Right';
+import BottomDrawer from '../Drawer/Bottom';
+import { selectAuthState } from '../../../redux/auth/selector';
+import PartyVideoWindows from '../PartyVideoWindows';
+import Me from '../Me';
 
-const { publicRuntimeConfig } = getConfig()
-const siteTitle: string = publicRuntimeConfig.siteTitle
+const { publicRuntimeConfig } = getConfig();
+const siteTitle: string = publicRuntimeConfig.siteTitle;
 
 interface Props {
-  authState?: any
-  pageTitle: string
-  children: any
+  authState?: any;
+  pageTitle: string;
+  children: any;
 }
 const mapStateToProps = (state: any): any => {
   return {
     authState: selectAuthState(state)
-  }
-}
+  };
+};
 
-const mapDispatchToProps = (): any => ({})
+const mapDispatchToProps = (): any => ({});
 
 const Layout = (props: Props): any => {
-  const { pageTitle, children, authState } = props
-  const authUser = authState.get('authUser')
-  const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)
-  const [rightDrawerOpen, setRightDrawerOpen] = useState(false)
-  const [topDrawerOpen, setTopDrawerOpen] = useState(false)
-  const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false)
+  const { pageTitle, children, authState } = props;
+  const authUser = authState.get('authUser');
+  const [leftDrawerOpen, setLeftDrawerOpen] = useState(false);
+  const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
+  const [topDrawerOpen, setTopDrawerOpen] = useState(false);
+  const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false);
 
-  console.log(authUser)
+  console.log(authUser);
 
   return (
     <section>
@@ -78,7 +78,7 @@ const Layout = (props: Props): any => {
         { authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
       </footer>
     </section>
-  )
-}
+  );
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(Layout)
+export default connect(mapStateToProps, mapDispatchToProps)(Layout);

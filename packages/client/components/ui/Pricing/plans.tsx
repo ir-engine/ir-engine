@@ -1,11 +1,11 @@
-import React from 'react'
-import SignIn from '../Auth/Login'
-import { client } from '../../../redux/feathers'
-import { Container, Button, Card, CardActions, CardContent, CardHeader, Typography, makeStyles, Grid } from '@material-ui/core'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
-import { selectAuthState } from '../../../redux/auth/selector'
-import { showDialog } from '../../../redux/dialog/service'
+import React from 'react';
+import SignIn from '../Auth/Login';
+import { client } from '../../../redux/feathers';
+import { Container, Button, Card, CardActions, CardContent, CardHeader, Typography, makeStyles, Grid } from '@material-ui/core';
+import { bindActionCreators, Dispatch } from 'redux';
+import { connect } from 'react-redux';
+import { selectAuthState } from '../../../redux/auth/selector';
+import { showDialog } from '../../../redux/dialog/service';
 
 const useStyles = makeStyles((theme) => ({
   '@global': {
@@ -30,22 +30,22 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     alignItems: 'baseline'
   }
-}))
+}));
 
 interface Props {
-  auth?: any
-  tiers: any
-  showDialog?: typeof showDialog
+  auth?: any;
+  tiers: any;
+  showDialog?: typeof showDialog;
 }
 
 const Plans = (props: Props): any => {
-  const classes = useStyles()
+  const classes = useStyles();
   const handleClick = (plan): any => {
     props.auth.get('isLoggedIn') ? client.service('subscription').create({ plan })
-      .then(res => { window.location.href = res.paymentUrl })
+      .then(res => { window.location.href = res.paymentUrl; })
       .catch(err => console.log(err))
-      : props.showDialog({ children: <SignIn/> })
-  }
+      : props.showDialog({ children: <SignIn/> });
+  };
   return (
     <Container maxWidth="lg" component="main">
       <Grid container spacing={5} alignItems="center">
@@ -91,17 +91,17 @@ const Plans = (props: Props): any => {
         ))}
       </Grid>
     </Container>
-  )
-}
+  );
+};
 
 const mapStateToProps = (state: any): any => {
   return {
     auth: selectAuthState(state)
-  }
-}
+  };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   showDialog: bindActionCreators(showDialog, dispatch)
-})
+});
 
-export default connect(mapStateToProps, mapDispatchToProps)(Plans)
+export default connect(mapStateToProps, mapDispatchToProps)(Plans);

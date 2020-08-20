@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from 'react'
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
-import Divider from '@material-ui/core/Divider'
-import Typography from '@material-ui/core/Typography'
-import { connect } from 'react-redux'
-import { selectAuthState } from '../../../redux/auth/selector'
-import { Seat } from '@xr3ngine/common/interfaces/Seat'
-import { TextField, Button } from '@material-ui/core'
-import ArrowBackIcon from '@material-ui/icons/ArrowBack'
-import SeatItem from './SeatItem'
-import { Dispatch, bindActionCreators } from 'redux'
-import { selectSeatState } from '../../../redux/seats/selector'
-import { useRouter } from 'next/router'
-import './style.scss'
+import React, { useEffect, useState } from 'react';
+import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import Grid from '@material-ui/core/Grid';
+import Divider from '@material-ui/core/Divider';
+import Typography from '@material-ui/core/Typography';
+import { connect } from 'react-redux';
+import { selectAuthState } from '../../../redux/auth/selector';
+import { Seat } from '@xr3ngine/common/interfaces/Seat';
+import { TextField, Button } from '@material-ui/core';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import SeatItem from './SeatItem';
+import { Dispatch, bindActionCreators } from 'redux';
+import { selectSeatState } from '../../../redux/seats/selector';
+import { useRouter } from 'next/router';
+import './style.scss';
 import {
   inviteUser,
   getSeats
-} from '../../../redux/seats/service'
+} from '../../../redux/seats/service';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -42,63 +42,63 @@ const useStyles = makeStyles((theme: Theme) =>
       'justify-content': 'space-between'
     }
   })
-)
+);
 
 interface Props {
-  seatState?: any
-  authState?: any
-  classes?: any
-  getSeats?: typeof getSeats
-  inviteUser?: typeof inviteUser
+  seatState?: any;
+  authState?: any;
+  classes?: any;
+  getSeats?: typeof getSeats;
+  inviteUser?: typeof inviteUser;
 }
 
 const mapStateToProps = (state: any): any => {
   return {
     seatState: selectSeatState(state),
     authState: selectAuthState(state)
-  }
-}
+  };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   getSeats: bindActionCreators(getSeats, dispatch),
   inviteUser: bindActionCreators(inviteUser, dispatch)
-})
+});
 
 const SeatList = (props: Props): any => {
-  const { classes, seatState, authState } = props
+  const { classes, seatState, authState } = props;
   const initialState = {
     userId: undefined,
     updateNeeded: false,
     inviteField: ''
-  }
-  const [state, setState] = useState(initialState)
+  };
+  const [state, setState] = useState(initialState);
 
   const inviteUser = (): void => {
-    props.inviteUser(state.inviteField, props.authState.get('user').subscription.id)
+    props.inviteUser(state.inviteField, props.authState.get('user').subscription.id);
     setState({
       ...state,
       inviteField: ''
-    })
-  }
+    });
+  };
 
   const updateField = (e: any): void => {
     setState({
       ...state,
       inviteField: e.target.value
-    })
-  }
+    });
+  };
 
-  const router = useRouter()
-  const pending = seatState.get('seats').filter((seat: Seat) => seat.seatStatus === 'pending')
-  const filled = seatState.get('seats').filter((seat: Seat) => seat.seatStatus === 'filled')
-  const subscription = authState.get('user').subscription
+  const router = useRouter();
+  const pending = seatState.get('seats').filter((seat: Seat) => seat.seatStatus === 'pending');
+  const filled = seatState.get('seats').filter((seat: Seat) => seat.seatStatus === 'filled');
+  const subscription = authState.get('user').subscription;
 
   // eslint-disable-next-line camelcase
   useEffect(() => {
     if (subscription != null && seatState.get('updateNeeded') === true) {
-      props.getSeats()
+      props.getSeats();
     }
-  }, [authState.get('user').subscription, seatState])
+  }, [authState.get('user').subscription, seatState]);
 
   return (
     <div className={classes.root}>
@@ -143,26 +143,26 @@ const SeatList = (props: Props): any => {
 
       { subscription != null && pending && pending.length > 0 &&
       pending.map((seat) => {
-        return <SeatItem key={`pending_${seat.id as string}`} seat={seat}/>
+        return <SeatItem key={`pending_${seat.id as string}`} seat={seat}/>;
       })
       }
       { subscription != null && filled && filled.length > 0 &&
       filled.map((seat) => {
-        return <SeatItem key={`filled_${seat.id as string}`} seat={seat}/>
+        return <SeatItem key={`filled_${seat.id as string}`} seat={seat}/>;
       })
       }
     </div>
-  )
-}
+  );
+};
 
 const SeatListWrapper = (props: Props): any => {
-  const classes = useStyles()
+  const classes = useStyles();
   return (
     <SeatList {...props} classes={classes}/>
-  )
-}
+  );
+};
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(SeatListWrapper)
+)(SeatListWrapper);

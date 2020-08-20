@@ -1,7 +1,7 @@
-import React from 'react'
-import './style.scss'
-import PartyParticipantWindow from '../PartyParticipantWindow'
-import { Grid } from '@material-ui/core'
+import React from 'react';
+import './style.scss';
+import PartyParticipantWindow from '../PartyParticipantWindow';
+import { Grid } from '@material-ui/core';
 
 function Me (): JSX.Element {
   return (
@@ -13,7 +13,7 @@ function Me (): JSX.Element {
         }}
       />
     </Grid>
-  )
+  );
 }
 
-export default Me
+export default Me;

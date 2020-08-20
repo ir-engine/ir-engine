@@ -1,3 +1,3 @@
-import Loader from './SpaceLoader'
+import Loader from './SpaceLoader';
 
-export default Loader
+export default Loader;

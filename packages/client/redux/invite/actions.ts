@@ -8,40 +8,40 @@ import {
   INVITE_TARGET_SET,
   FETCHING_SENT_INVITES,
   FETCHING_RECEIVED_INVITES
-} from '../actions'
+} from '../actions';
 
-import { Invite } from '../../../shared/interfaces/Invite'
-import { InviteResult } from '../../../shared/interfaces/InviteResult'
+import { Invite } from '@xr3ngine/common/interfaces/Invite';
+import { InviteResult } from '@xr3ngine/common/interfaces/InviteResult';
 
 export interface InviteSentAction {
-  type: string,
-  id: string
+  type: string;
+  id: string;
 }
 
 export interface InvitesRetrievedAction {
-  type: string,
-  invites: Invite[],
-  total: number,
-  limit: number
-  skip: number
+  type: string;
+  invites: Invite[];
+  total: number;
+  limit: number;
+  skip: number;
 }
 
 export interface InviteRemovedAction {
-  type: string
+  type: string;
 }
 
 export interface InviteTargetSetAction {
-  type: string,
-  targetObjectType: string | null,
-  targetObjectId: string | null
+  type: string;
+  targetObjectType: string | null;
+  targetObjectId: string | null;
 }
 
 export interface FetchingSentInvitesAction {
-  type: string
+  type: string;
 }
 
 export interface FetchingReceivedInvitesAction {
-  type: string
+  type: string;
 }
 
 export type InviteAction =
@@ -56,7 +56,7 @@ export function sentInvite(id: string): InviteAction {
   return {
     type: INVITE_SENT,
     id
-  }
+  };
 }
 
 export function retrievedSentInvites(inviteResult: InviteResult): InviteAction {
@@ -66,7 +66,7 @@ export function retrievedSentInvites(inviteResult: InviteResult): InviteAction {
     total: inviteResult.total,
     limit: inviteResult.limit,
     skip: inviteResult.skip
-  }
+  };
 }
 
 export function retrievedReceivedInvites(inviteResult: InviteResult): InviteAction {
@@ -76,24 +76,24 @@ export function retrievedReceivedInvites(inviteResult: InviteResult): InviteActi
     total: inviteResult.total,
     limit: inviteResult.limit,
     skip: inviteResult.skip
-  }
+  };
 }
 export function removedInvite(): InviteAction {
   return {
     type: REMOVED_INVITE
-  }
+  };
 }
 
 export function acceptedInvite(): InviteAction {
   return {
     type: ACCEPTED_INVITE
-  }
+  };
 }
 
 export function declinedInvite(): InviteAction {
   return {
     type: DECLINED_INVITE
-  }
+  };
 }
 
 export function setInviteTarget(targetObjectType: string, targetObjectId: string): InviteAction {
@@ -101,17 +101,17 @@ export function setInviteTarget(targetObjectType: string, targetObjectId: string
     type: INVITE_TARGET_SET,
     targetObjectId: targetObjectId,
     targetObjectType: targetObjectType
-  }
+  };
 }
 
 export function fetchingSentInvites(): InviteAction {
   return {
     type: FETCHING_SENT_INVITES
-  }
+  };
 }
 
 export function fetchingReceivedInvites(): InviteAction {
   return {
     type: FETCHING_RECEIVED_INVITES
-  }
+  };
 }

@@ -1,27 +1,25 @@
-import React, { useEffect } from 'react'
-import { useRouter, NextRouter } from 'next/router'
+import React, { useEffect } from 'react';
+import { useRouter, NextRouter } from 'next/router';
 import {
-  verifyEmail,
-  resetPassword,
   loginUserByJwt,
   refreshConnections
-} from '../../../redux/auth/service'
-import { Dispatch, bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import Box from '@material-ui/core/Box'
-import Typography from '@material-ui/core/Typography'
-import Container from '@material-ui/core/Container'
-import ResetPassword from '../Auth/ResetPassword'
-import VerifyEmail from '../Auth/VerifyEmail'
-import { User } from '@xr3ngine/common/interfaces/User'
+} from '../../../redux/auth/service';
+import { Dispatch, bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import Box from '@material-ui/core/Box';
+import Typography from '@material-ui/core/Typography';
+import Container from '@material-ui/core/Container';
+import ResetPassword from '../Auth/ResetPassword';
+import VerifyEmail from '../Auth/VerifyEmail';
+import { User } from '@xr3ngine/common/interfaces/User';
 
 interface Props {
-  router: NextRouter
-  auth: any
-  verifyEmail: typeof verifyEmail
-  resetPassword: typeof resetPassword
-  loginUserByJwt: typeof loginUserByJwt
-  refreshConnections: typeof refreshConnections
+  router: NextRouter;
+  auth: any;
+  verifyEmail: typeof verifyEmail;
+  resetPassword: typeof resetPassword;
+  loginUserByJwt: typeof loginUserByJwt;
+  refreshConnections: typeof refreshConnections;
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -29,26 +27,26 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   resetPassword: bindActionCreators(resetPassword, dispatch),
   loginUserByJwt: bindActionCreators(loginUserByJwt, dispatch),
   refreshConnections: bindActionCreators(refreshConnections, dispatch)
-})
+});
 
 const AuthMagicLink = (props: Props): any => {
-  const { auth, loginUserByJwt, refreshConnections, router } = props
+  const { auth, loginUserByJwt, refreshConnections, router } = props;
 
   useEffect(() => {
-    const type = router.query.type as string
-    const token = router.query.token as string
-    const subscriptionId = router.query.subscriptionId as string
+    const type = router.query.type as string;
+    const token = router.query.token as string;
+    const subscriptionId = router.query.subscriptionId as string;
 
     if (type === 'login') {
-      loginUserByJwt(token, '/', '/', subscriptionId)
+      loginUserByJwt(token, '/', '/', subscriptionId);
     } else if (type === 'connection') {
-      const user = auth.get('user') as User
+      const user = auth.get('user') as User;
       if (user) {
-        refreshConnections(user.id)
+        refreshConnections(user.id);
       }
-      window.location.href = '/profile-connections'
+      window.location.href = '/profile-connections';
     }
-  }, [])
+  }, []);
 
   return (
     <Container component="main" maxWidth="md">
@@ -58,20 +56,20 @@ const AuthMagicLink = (props: Props): any => {
         </Typography>
       </Box>
     </Container>
-  )
-}
+  );
+};
 
 const AuthMagicLinkWrapper = (props: any): any => {
-  const router = useRouter()
-  const type = router.query.type as string
-  const token = router.query.token as string
+  const router = useRouter();
+  const type = router.query.type as string;
+  const token = router.query.token as string;
 
   if (type === 'verify') {
-    return <VerifyEmail {...props} type={type} token={token} />
+    return <VerifyEmail {...props} type={type} token={token} />;
   } else if (type === 'reset') {
-    return <ResetPassword {...props} type={type} token={token} />
+    return <ResetPassword {...props} type={type} token={token} />;
   }
-  return <AuthMagicLink {...props} router={router} />
-}
+  return <AuthMagicLink {...props} router={router} />;
+};
 
-export default connect(null, mapDispatchToProps)(AuthMagicLinkWrapper)
+export default connect(null, mapDispatchToProps)(AuthMagicLinkWrapper);

@@ -1,32 +1,32 @@
-import Immutable from 'immutable'
+import Immutable from 'immutable';
 import {
   VideoPlayingAction
-} from './actions'
+} from './actions';
 
 import {
   SET_VIDEO_PLAYING
-} from '../actions'
+} from '../actions';
 
 type Video360State = {
-  playing: boolean,
+  playing: boolean;
 }
 
 export const initialState: Video360State = {
   playing: false
-}
+};
 
-const immutableState = Immutable.fromJS(initialState)
+const immutableState = Immutable.fromJS(initialState);
 
 const video360Reducer = (state = immutableState, action: VideoPlayingAction): Video360State => {
   switch (action.type) {
     case SET_VIDEO_PLAYING:
       return state
-        .set('playing', action.playing)
+        .set('playing', action.playing);
     default:
-      break
+      break;
   }
 
-  return state
-}
+  return state;
+};
 
-export default video360Reducer
+export default video360Reducer;

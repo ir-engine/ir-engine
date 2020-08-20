@@ -1,28 +1,28 @@
-import getConfig from 'next/config'
+import getConfig from 'next/config';
 
-import { RESTORE } from './actions'
+import { RESTORE } from './actions';
 
-const { publicRuntimeConfig } = getConfig()
-const localStorageKey: string = publicRuntimeConfig.localStorageKey
+const { publicRuntimeConfig } = getConfig();
+const localStorageKey: string = publicRuntimeConfig.localStorageKey;
 
 export function restoreState (): any {
   return {
     type: RESTORE
-  }
+  };
 }
 
 export function getStoredState (key: string) {
   if (!window) {
-    return undefined
+    return undefined;
   }
-  const rawState = localStorage.getItem(localStorageKey)
+  const rawState = localStorage.getItem(localStorageKey);
   if (!rawState) {
-    return undefined
+    return undefined;
   }
-  const state = JSON.parse(rawState)
-  return state[key]
+  const state = JSON.parse(rawState);
+  return state[key];
 }
 
 export function saveState (state: any) {
-  localStorage.setItem(localStorageKey, JSON.stringify(state))
+  localStorage.setItem(localStorageKey, JSON.stringify(state));
 }
