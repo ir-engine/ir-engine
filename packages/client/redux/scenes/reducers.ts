@@ -1,32 +1,32 @@
-import Immutable from 'immutable'
+import Immutable from 'immutable';
 import {
   ScenesFetchedAction,
   PublicScenesState
-} from './actions'
+} from './actions';
 
 import {
   SCENES_FETCHED_SUCCESS,
   SCENES_FETCHED_ERROR
-} from '../actions'
+} from '../actions';
 
 export const initialState: PublicScenesState = {
   scenes: [],
   error: ''
-}
+};
 
-const immutableState = Immutable.fromJS(initialState)
+const immutableState = Immutable.fromJS(initialState);
 
 const sceneReducer = (state = immutableState, action: ScenesFetchedAction): any => {
   switch (action.type) {
     case SCENES_FETCHED_SUCCESS:
       return state
-        .set('scenes', (action as ScenesFetchedAction).scenes)
+        .set('scenes', (action as ScenesFetchedAction).scenes);
     case SCENES_FETCHED_ERROR:
       return state
-        .set('error', (action as ScenesFetchedAction).message)
+        .set('error', (action as ScenesFetchedAction).message);
   }
 
-  return state
-}
+  return state;
+};
 
-export default sceneReducer
+export default sceneReducer;

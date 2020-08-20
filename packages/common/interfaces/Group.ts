@@ -1,6 +1,6 @@
 import { GroupUser } from './GroupUser'
 
-export interface Group {
+export type Group = {
   id: string
   name: string
   description: string

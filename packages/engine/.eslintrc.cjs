@@ -21,12 +21,15 @@ module.exports = {
   rules: {
     "no-unused-expressions":"off",
     "no-unused-vars": "off",
+    "prefer-rest-params": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-empty-functions": "off",
     "no-var": "error",
+    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
     "semi": "off",
+    "@typescript-eslint/ban-types": "off",
     "space-before-function-paren":"off",
-    "@typescript-eslint/no-unused-vars": [
-      "error"
-    ],
     "@typescript-eslint/default-param-last": "off",
       "@typescript-eslint/no-empty-interface": "off",
       "@typescript-eslint/require-await": "off",

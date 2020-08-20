@@ -1,60 +1,60 @@
-import React, { useState } from 'react'
-import AccountCircleIcon from '@material-ui/icons/AccountCircle'
-import Button from '@material-ui/core/Button'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
-import './style.scss'
-import TextField from '@material-ui/core/TextField'
-import { uploadAvatar, updateUsername } from '../../../redux/auth/service'
+import React, { useState } from 'react';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import Button from '@material-ui/core/Button';
+import { bindActionCreators, Dispatch } from 'redux';
+import { connect } from 'react-redux';
+import './style.scss';
+import TextField from '@material-ui/core/TextField';
+import { uploadAvatar, updateUsername } from '../../../redux/auth/service';
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   uploadAvatar: bindActionCreators(uploadAvatar, dispatch),
   updateUsername: bindActionCreators(updateUsername, dispatch)
-})
+});
 
 interface Props {
-  avatarUrl: string
-  uploadAvatar?: typeof uploadAvatar
-  updateUsername?: typeof updateUsername
-  auth: any
+  avatarUrl: string;
+  uploadAvatar?: typeof uploadAvatar;
+  updateUsername?: typeof updateUsername;
+  auth: any;
 }
 
 const UserProfile = (props: Props): any => {
-  const { auth } = props
-  const user = auth.get('user')
+  const { auth } = props;
+  const user = auth.get('user');
 
-  const [file, setFile] = useState({})
-  const [fileUrl, setFileUrl] = useState('')
-  const [username, setUsername] = useState(user.name)
+  const [file, setFile] = useState({});
+  const [fileUrl, setFileUrl] = useState('');
+  const [username, setUsername] = useState(user.name);
   const handleChange = (e: any): void => {
-    const efile = e.target.files[0]
-    const formData = new FormData()
+    const efile = e.target.files[0];
+    const formData = new FormData();
     if (efile != null) {
-      formData.append('file', efile, efile.type)
-      formData.append('name', efile.name)
-      formData.append('type', 'user-thumbnail')
+      formData.append('file', efile, efile.type);
+      formData.append('name', efile.name);
+      formData.append('type', 'user-thumbnail');
 
-      const file = formData
+      const file = formData;
 
-      setFile(file)
-      setFileUrl(efile)
+      setFile(file);
+      setFileUrl(efile);
     } else {
-      setFile({})
-      setFileUrl('')
+      setFile({});
+      setFileUrl('');
     }
-  }
+  };
 
   const handleSubmit = async (): Promise<void> => {
-    await props.uploadAvatar(file)
-  }
+    await props.uploadAvatar(file);
+  };
 
   const handleUsernameChange = (e: any): void => {
-    const name = e.target.value
-    setUsername(name)
-  }
+    const name = e.target.value;
+    setUsername(name);
+  };
   const updateUsername = async (): Promise<void> => {
-    await props.updateUsername(user.id, username)
-  }
+    await props.updateUsername(user.id, username);
+  };
   return (
       <div className="user-container">
         <div className="username">
@@ -102,7 +102,7 @@ const UserProfile = (props: Props): any => {
           </Button>
         </div>
       </div>
-  )
-}
+  );
+};
 
-export default connect(null, mapDispatchToProps)(UserProfile)
+export default connect(null, mapDispatchToProps)(UserProfile);

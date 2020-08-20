@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React, { Fragment } from 'react';
 
 const Error = ({ statusCode }: { statusCode?: number }): any => {
   return (
@@ -10,12 +10,12 @@ const Error = ({ statusCode }: { statusCode?: number }): any => {
       </p>
       <a href="/">Go home</a>
     </Fragment>
-  )
-}
+  );
+};
 
 Error.getInitialProps = ({ res, err }) => {
-  const statusCode = res ? res.statusCode : err ? err.statusCode : 404
-  return { statusCode }
-}
+  const statusCode = res ? res.statusCode : err ? err.statusCode : 404;
+  return { statusCode };
+};
 
-export default Error
+export default Error;

@@ -1,5 +1,5 @@
-import { Dispatch } from 'redux'
-import { client } from '../feathers'
+import { Dispatch } from 'redux';
+import { client } from '../feathers';
 import {
   createdMessage,
   loadedChannels,
@@ -11,27 +11,29 @@ import {
   createdChannel,
   patchedChannel,
   removedChannel
-} from './actions'
+} from './actions';
 
-import { User } from '@xr3ngine/common/interfaces/User'
-import store from '../store'
-import {dispatchAlertError} from '../alert/service'
+import { User } from '@xr3ngine/common/interfaces/User';
+import store from '../store';
+import {dispatchAlertError} from '../alert/service';
 
 export function getChannels(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
+      console.log('FETCHING CHANNELS');
       const channelResult = await client.service('channel').find({
         query: {
           $limit: limit != null ? limit : getState().get('chat').get('channels').get('channels').get('limit'),
           $skip: skip != null ? skip : getState().get('chat').get('channels').get('channels').get('skip')
         }
-      })
-      dispatch(loadedChannels(channelResult))
+      });
+      console.log(channelResult);
+      dispatch(loadedChannels(channelResult));
     } catch(err) {
-      console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
     }
-  }
+  };
 }
 
 // export function getUserChannels(skip?: number, limit?: number) {
@@ -89,11 +91,11 @@ export function createMessage(values: any) {
         targetObjectId: values.targetObjectId,
         targetObjectType: values.targetObjectType,
         text: values.text
-      })
+      });
     } catch(err) {
-      console.log(err)
-      dispatchAlertError(dispatch, err.message)}
-  }
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);}
+  };
 }
 
 export function getChannelMessages(channelId: string, skip?: number, limit?: number) {
@@ -108,28 +110,22 @@ export function getChannelMessages(channelId: string, skip?: number, limit?: num
           $limit: limit != null ? limit : getState().get('chat').get('channels').get('channels').get(channelId).limit,
           $skip: skip != null ? skip : getState().get('chat').get('channels').get('channels').get(channelId).skip
         }
-      }, {
-        sequelize: {
-          include:[
-              'message_status'
-          ]
-        }
-      })
-      dispatch(loadedMessages(channelId, messageResult))
+      });
+      dispatch(loadedMessages(channelId, messageResult));
     } catch(err) {
-      console.log(err)
-      dispatchAlertError(dispatch, err.message)}
-  }
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);}
+  };
 }
 
 export function removeMessage(messageId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      await client.service('message').remove(messageId)
+      await client.service('message').remove(messageId);
     } catch(err) {
-      console.log(err)
-      dispatchAlertError(dispatch, err.message)}
-  }
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);}
+  };
 }
 
 export function patchMessage(messageId: string, text: string) {
@@ -137,11 +133,11 @@ export function patchMessage(messageId: string, text: string) {
     try {
       await client.service('message').patch(messageId, {
         text: text
-      })
+      });
     } catch(err) {
-      console.log(err)
-      dispatchAlertError(dispatch, err.message)}
-  }
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);}
+  };
 }
 
 export function updateChatTarget(targetObjectType: string, targetObject: any) {
@@ -152,38 +148,51 @@ export function updateChatTarget(targetObjectType: string, targetObject: any) {
         targetObjectType: targetObjectType,
         targetObjectId: targetObject.id
       }
-    })
-    dispatch(setChatTarget(targetObjectType, targetObject, targetChannelResult.total > 0 ? targetChannelResult.data[0].id : ''))
-  }
+    });
+    dispatch(setChatTarget(targetObjectType, targetObject, targetChannelResult.total > 0 ? targetChannelResult.data[0].id : ''));
+  };
 }
 
 export function updateMessageScrollInit(value: boolean) {
   return async(dispatch: Dispatch): Promise<any> => {
-    dispatch(setMessageScrollInit(value))
-  }
+    console.log('Dispatching setMessageScrollInit: ' + value);
+    dispatch(setMessageScrollInit(value));
+  };
 }
 
 client.service('message').on('created', (params) => {
-  const selfUser = (store.getState() as any).get('auth').get('user') as User
-  store.dispatch(createdMessage(params.message, selfUser))
-})
+  console.log('MESSAGE CREATED EVENT');
+  console.log(params);
+  const selfUser = (store.getState() as any).get('auth').get('user') as User;
+  store.dispatch(createdMessage(params.message, selfUser));
+});
 
 client.service('message').on('patched', (params) => {
-  store.dispatch(patchedMessage(params.message))
-})
+  console.log('MESSAGE PATCHED EVENT');
+  console.log(params);
+  store.dispatch(patchedMessage(params.message));
+});
 
 client.service('message').on('removed', (params) => {
-  store.dispatch(removedMessage(params.message))
-})
+  console.log('MESSAGE REMOVED EVENT');
+  console.log(params);
+  store.dispatch(removedMessage(params.message));
+});
 
 client.service('channel').on('created', (params) => {
-  store.dispatch(createdChannel(params.channel))
-})
+  console.log('CHANNEL CREATED EVENT');
+  console.log(params);
+  store.dispatch(createdChannel(params.channel));
+});
 
 client.service('channel').on('patched', (params) => {
-  store.dispatch(patchedChannel(params.channel))
-})
+  console.log('CHANNEL PATCHED EVENT');
+  console.log(params);
+  store.dispatch(patchedChannel(params.channel));
+});
 
 client.service('channel').on('removed', (params) => {
-  store.dispatch(removedChannel(params.channel))
-})
+  console.log('CHANNEL REMOVED EVENT');
+  console.log(params);
+  store.dispatch(removedChannel(params.channel));
+});

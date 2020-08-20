@@ -7,7 +7,7 @@ export const ConnectionTexts = {
         'We will never post to Facebook or message your friends without your permission.'
       ]
     },
-    not_connected: {
+    notConnected: {
       header: 'You are not connected to Facebook',
       descr: [
         'If you want to sign in to XREngine using your Facebook account,',
@@ -23,7 +23,7 @@ export const ConnectionTexts = {
         'We will never post to Github or message your friends without your permission.'
       ]
     },
-    not_connected: {
+    notConnected: {
       header: 'You are not connected to Github',
       descr: [
         'If you want to sign in to XREngine using your Github account,',
@@ -39,7 +39,7 @@ export const ConnectionTexts = {
         'We will never post to Google or message your friends without your permission.'
       ]
     },
-    not_connected: {
+    notConnected: {
       header: 'You are not connected to Google',
       descr: [
         'If you want to sign in to XREngine using your Google account,',
@@ -54,7 +54,7 @@ export const ConnectionTexts = {
         'You can now sign in to XREngine using your Email.'
       ]
     },
-    not_connected: {
+    notConnected: {
       header: 'You are not connected to Email Link',
       descr: [
         'If you want to sign in to XREngine using your Email Link,',
@@ -69,7 +69,7 @@ export const ConnectionTexts = {
         'You can now sign in to XREngine using your SMS.'
       ]
     },
-    not_connected: {
+    notConnected: {
       header: 'You are not connected to SMS Link',
       descr: [
         'If you want to sign in to XREngine using your SMS Link,',
@@ -84,7 +84,7 @@ export const ConnectionTexts = {
         'You can now sign in to XREngine using your Email/Password.'
       ]
     },
-    not_connected: {
+    notConnected: {
       header: 'You are not connected to Email/Password account',
       descr: [
         'If you want to sign in to XREngine using your Email/Password,',
@@ -92,4 +92,4 @@ export const ConnectionTexts = {
       ]
     }
   }
-}
+};

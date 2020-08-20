@@ -1,9 +1,9 @@
-import React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import Button from '@material-ui/core/Button'
+import React from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
 // import {updateUserSettings} from '../../../redux/auth/service'
 interface MProps {
-  auth: any
+  auth: any;
 }
 
 const useStyles = makeStyles({
@@ -23,11 +23,11 @@ const useStyles = makeStyles({
     'align-items': 'center',
     'justify-content': 'center'
   }
-})
+});
 
 const UserSettings: React.FC<MProps> = (props: MProps) => {
-  const classes = useStyles()
-  const authUser = props.auth.get('user')
+  const classes = useStyles();
+  const authUser = props.auth.get('user');
 
   // const handleSubmit = () => {
 
@@ -65,7 +65,7 @@ const UserSettings: React.FC<MProps> = (props: MProps) => {
         </Button>
       }
     </div>
-  )
-}
+  );
+};
 
-export default UserSettings
+export default UserSettings;

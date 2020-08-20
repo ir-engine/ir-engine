@@ -128,6 +128,16 @@ module.exports = withImages(
         }
       })
       config.module.rules.push({
+        test: /\.tmp$/,
+        type: "javascript/auto",
+        use: {
+          loader: "file-loader",
+          options: {
+            name: "[name]-[hash].[ext]"
+          }
+        }
+      })
+      config.module.rules.push({
         test: /\.wasm$/,
         type: "javascript/auto",
         use: {
@@ -139,7 +149,7 @@ module.exports = withImages(
         }
       })
       config.plugins.push(new CircularDependencyPlugin({
-        exclude: /a\.js|node_modules/,
+        exclude: /node_modules/,
         // add errors to webpack instead of warnings
         failOnError: false,
         // allow import cycles that include an asyncronous import,

@@ -1,7 +1,7 @@
 /* eslint-disable react/prefer-stateless-function */
 // FIXME ^
-import React from 'react'
-import { Alert, AlertTitle } from '@material-ui/lab'
+import React from 'react';
+import { Alert, AlertTitle } from '@material-ui/lab';
 
 export default class PaymentSuccessPage extends React.Component {
   render() {
@@ -10,6 +10,6 @@ export default class PaymentSuccessPage extends React.Component {
         <AlertTitle>Payment Successful</AlertTitle>
         Subscription — <strong>successful</strong>
       </Alert>
-    )
+    );
   }
 }

@@ -48,7 +48,7 @@ import {
 import { hasRegisteredComponent } from '../../../ecs/functions/ComponentFunctions';
 
 import { SkyboxComponent } from '../../../scene/components/SkyboxComponent';
-import { Engine } from '../../../ecs';
+import { Engine } from '../../../ecs/classes/Engine';
 
 export function addTagComponentFromBehavior<C> (
   entity: Entity,
@@ -59,9 +59,9 @@ export function addTagComponentFromBehavior<C> (
 
 export const addObject3DComponent: Behavior = (
   entity: Entity,
-  args: { obj: any, objArgs: any, parentEntity?: Entity }
+  args: { obj3d: any, obj3dArgs: any, parentEntity?: Entity }
 ) => {
-  const object3d = args.obj ? new args.obj(args.objArgs) : new Object3D();
+  const object3d = args.obj3d ? new args.obj3d(args.obj3dArgs) : new Object3D();
   // object3d = new args.obj(args.objArgs)
   addComponent(entity, Object3DComponent, { value: object3d });
   getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = object3d;

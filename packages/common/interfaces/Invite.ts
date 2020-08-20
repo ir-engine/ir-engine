@@ -1,10 +1,10 @@
 import { User } from './User'
 
-export interface Invite {
+export type Invite = {
   id: string
   invitee: User
   token: string
-  user: User
+  user: User,
   createdAt: any
 }
 

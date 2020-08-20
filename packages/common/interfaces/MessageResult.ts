@@ -1,9 +1,9 @@
 import { Message } from './Message'
 
-export interface MessageResult {
-  data: Message[]
-  total: number
+export type MessageResult = {
+  data: Message[],
+  total: number,
   limit: number
-  skip: number
+  skip: number,
   channelId: string
 }
