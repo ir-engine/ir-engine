@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io'
-import logger from '../logger'
+import logger from '../app/logger'
 import app from '../app'
 // Map of Rooms for each party
 const parties = new Map<string, Set<string>>()
