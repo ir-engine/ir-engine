@@ -6,7 +6,7 @@ import hooks from './message-status.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'message-status': MessageStatus & ServiceAddons<any>
+    'message-status': MessageStatus & ServiceAddons<any>;
   }
 }
 

@@ -8,11 +8,11 @@ import hooks from './invite-type.hooks'
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'invite-type': InviteType & ServiceAddons<any>
+    'invite-type': InviteType & ServiceAddons<any>;
   }
 }
 
-export default function (app: Application): any {
+export default function (app: Application) {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate'),

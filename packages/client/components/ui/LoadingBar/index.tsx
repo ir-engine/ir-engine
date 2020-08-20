@@ -1,8 +1,8 @@
-import React from 'react'
-import './style.scss'
+import React from 'react';
+import './style.scss';
 
 interface Props {
-  loadPercent: number
+  loadPercent: number;
 }
 const LoadingBar = ({ loadPercent }: Props): any => {
   return (
@@ -15,6 +15,6 @@ const LoadingBar = ({ loadPercent }: Props): any => {
         }}
       />
     </div>
-  )
-}
-export default LoadingBar
+  );
+};
+export default LoadingBar;

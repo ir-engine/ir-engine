@@ -6,7 +6,7 @@ import hooks from './component-type.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'component-type': ComponentType & ServiceAddons<any>
+    'component-type': ComponentType & ServiceAddons<any>;
   }
 }
 

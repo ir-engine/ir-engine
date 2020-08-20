@@ -1,7 +1,7 @@
 import { User } from './User'
 
-export interface PartyUser {
+export type PartyUser = {
   id: string
-  isOwner: boolean
+  isOwner: boolean,
   user: User
 }

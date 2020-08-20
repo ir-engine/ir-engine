@@ -32,7 +32,7 @@ export default () => {
         throw new BadRequest('Invalid party ID')
       }
       const partyUser = partyUserResult.data[0]
-      if (params.partyUsersRemoved !== true && partyUser.isOwner !== true && partyUser.isOwner !== 1 && partyUser.userId !== loggedInUser?.userId) {
+      if (params.partyUsersRemoved !== true && partyUser.isOwner !== true && partyUser.isOwner !== 1 && partyUser.userId !== loggedInUser.userId) {
         throw new Forbidden('You must be the owner of this party to perform that action')
       }
     }

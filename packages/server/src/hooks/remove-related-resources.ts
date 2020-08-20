@@ -3,6 +3,29 @@ import { Hook, HookContext } from '@feathersjs/feathers'
 import StorageProvider from '../storage/storageprovider'
 import { StaticResource } from '../services/static-resource/static-resource.class'
 
+
+const getAllChildren = async (service: StaticResource, id: string | number | undefined, $skip: number): Promise<Record<string, any>[]> => {
+  const pageResult = (await service.find({
+    query: {
+      parentResourceId: id,
+      $skip: $skip
+    }
+  })) as any
+
+  const total = pageResult.total
+  let data = pageResult.data
+  const limit = pageResult.limit
+  if ($skip + (data.length as number) < total) {
+    const nextPageData = await getAllChildren(service, id, $skip + (limit as number))
+
+    data = data.concat(nextPageData)
+
+    return data
+  } else {
+    return data
+  }
+}
+
 export default (options = {}): Hook => {
   return async (context: HookContext) => {
     const provider = new StorageProvider()
@@ -80,24 +103,3 @@ export default (options = {}): Hook => {
   }
 }
 
-const getAllChildren = async (service: StaticResource, id: string | number | undefined, $skip: number): Promise<Object[]> => {
-  const pageResult = (await service.find({
-    query: {
-      parentResourceId: id,
-      $skip: $skip
-    }
-  })) as any
-
-  const total = pageResult.total
-  let data = pageResult.data
-  const limit = pageResult.limit
-  if ($skip + (data.length as number) < total) {
-    const nextPageData = await getAllChildren(service, id, $skip + (limit as number))
-
-    data = data.concat(nextPageData)
-
-    return data
-  } else {
-    return data
-  }
-}

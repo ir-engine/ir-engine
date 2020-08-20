@@ -6,7 +6,7 @@ import hooks from './identity-provider.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'identity-provider': IdentityProvider & ServiceAddons<any>
+    'identity-provider': IdentityProvider & ServiceAddons<any>;
   }
 }
 

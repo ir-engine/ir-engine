@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from 'react'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
-import './style.scss'
-import _ from 'lodash'
+import React, {useEffect, useState} from 'react';
+import { bindActionCreators, Dispatch } from 'redux';
+import { connect } from 'react-redux';
+import './style.scss';
+import _ from 'lodash';
 import {
     Avatar,
     Button,
@@ -20,7 +20,7 @@ import {
     Tabs,
     SwipeableDrawer,
     Divider
-} from '@material-ui/core'
+} from '@material-ui/core';
 import {
     Add,
     AccountCircle,
@@ -33,13 +33,13 @@ import {
     Mail,
     PhoneIphone,
     SupervisedUserCircle
-} from '@material-ui/icons'
-import { selectAuthState } from '../../../../redux/auth/selector'
-import { getFriends } from '../../../../redux/friend/service'
-import { selectFriendState } from '../../../../redux/friend/selector'
-import { selectInviteState } from '../../../../redux/invite/selector'
-import { selectGroupState } from '../../../../redux/group/selector'
-import { selectPartyState } from '../../../../redux/party/selector'
+} from '@material-ui/icons';
+import { selectAuthState } from '../../../../redux/auth/selector';
+import { getFriends } from '../../../../redux/friend/service';
+import { selectFriendState } from '../../../../redux/friend/selector';
+import { selectInviteState } from '../../../../redux/invite/selector';
+import { selectGroupState } from '../../../../redux/group/selector';
+import { selectPartyState } from '../../../../redux/party/selector';
 import {
     sendInvite,
     retrieveReceivedInvites,
@@ -48,11 +48,11 @@ import {
     acceptInvite,
     declineInvite,
     updateInviteTarget
-} from '../../../../redux/invite/service'
+} from '../../../../redux/invite/service';
 import {
     getInvitableGroups
-} from '../../../../redux/group/service'
-import { User } from '@xr3ngine/common/interfaces/User'
+} from '../../../../redux/group/service';
+import {User} from '@xr3ngine/common/interfaces/User';
 
 
 const mapStateToProps = (state: any): any => {
@@ -62,8 +62,8 @@ const mapStateToProps = (state: any): any => {
         inviteState: selectInviteState(state),
         groupState: selectGroupState(state),
         partyState: selectPartyState(state)
-    }
-}
+    };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     getFriends: bindActionCreators(getFriends, dispatch),
@@ -75,30 +75,30 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     declineInvite: bindActionCreators(declineInvite, dispatch),
     updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch),
     getInvitableGroups: bindActionCreators(getInvitableGroups, dispatch)
-})
+});
 
 interface Props {
-    authState?: any
-    friendState?: any
-    inviteState?: any
-    retrieveReceivedInvites?: typeof retrieveReceivedInvites
-    retrieveSentInvites?: typeof retrieveSentInvites
-    sendInvite?: typeof sendInvite
-    getFriends?: typeof getFriends,
-    deleteInvite?: typeof deleteInvite,
-    acceptInvite?: typeof acceptInvite,
-    declineInvite?: typeof declineInvite,
-    rightDrawerOpen?: any
-    setRightDrawerOpen?: any
-    groupState?: any
-    updateInviteTarget?: any
-    partyState?: any
-    getInvitableGroups?: any
+    authState?: any;
+    friendState?: any;
+    inviteState?: any;
+    retrieveReceivedInvites?: typeof retrieveReceivedInvites;
+    retrieveSentInvites?: typeof retrieveSentInvites;
+    sendInvite?: typeof sendInvite;
+    getFriends?: typeof getFriends;
+    deleteInvite?: typeof deleteInvite;
+    acceptInvite?: typeof acceptInvite;
+    declineInvite?: typeof declineInvite;
+    rightDrawerOpen?: any;
+    setRightDrawerOpen?: any;
+    groupState?: any;
+    updateInviteTarget?: any;
+    partyState?: any;
+    getInvitableGroups?: any;
 }
 
-const identityProviderTabMap = new Map()
-identityProviderTabMap.set(0, 'email')
-identityProviderTabMap.set(1, 'sms')
+const identityProviderTabMap = new Map();
+identityProviderTabMap.set(0, 'email');
+identityProviderTabMap.set(1, 'sms');
 
 const Invites = (props: Props): any => {
     const {
@@ -116,160 +116,167 @@ const Invites = (props: Props): any => {
         updateInviteTarget,
         partyState,
         getInvitableGroups
-    } = props
-    const user = authState.get('user') as User
-    const friendSubState = friendState.get('friends')
-    const friends = friendSubState.get('friends')
-    const receivedInviteState = inviteState.get('receivedInvites')
-    const receivedInvites = receivedInviteState.get('invites')
-    const sentInviteState = inviteState.get('sentInvites')
-    const sentInvites = sentInviteState.get('invites')
-    const targetObjectType = inviteState.get('targetObjectType')
-    const targetObjectId = inviteState.get('targetObjectId')
-    const invitableGroupState = groupState.get('invitableGroups')
-    const invitableGroups = invitableGroupState.get('groups')
-    const party = partyState.get('party')
-    const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === user.id): {}
-    const [tabIndex, setTabIndex] = useState(0)
-    const [inviteTabIndex, setInviteTabIndex] = useState(0)
-    const [ inviteTypeIndex, setInviteTypeIndex ] = useState(0)
-    const [userToken, setUserToken] = useState('')
-    const [ deletePending, setDeletePending ] = useState('')
+    } = props;
+    const user = authState.get('user') as User;
+    const friendSubState = friendState.get('friends');
+    const friends = friendSubState.get('friends');
+    const receivedInviteState = inviteState.get('receivedInvites');
+    const receivedInvites = receivedInviteState.get('invites');
+    const sentInviteState = inviteState.get('sentInvites');
+    const sentInvites = sentInviteState.get('invites');
+    const targetObjectType = inviteState.get('targetObjectType');
+    const targetObjectId = inviteState.get('targetObjectId');
+    const invitableGroupState = groupState.get('invitableGroups');
+    const invitableGroups = invitableGroupState.get('groups');
+    const party = partyState.get('party');
+    const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === user.id): {};
+    const [tabIndex, setTabIndex] = useState(0);
+    const [inviteTabIndex, setInviteTabIndex] = useState(0);
+    const [ inviteTypeIndex, setInviteTypeIndex ] = useState(0);
+    const [userToken, setUserToken] = useState('');
+    const [ deletePending, setDeletePending ] = useState('');
 
     useEffect(() => {
         if (groupState.get('invitableUpdateNeeded') === true && groupState.get('getInvitableGroupsInProgress') !== true) {
-            getInvitableGroups(0)
+            getInvitableGroups(0);
         }
     }, [groupState]);
 
     const handleChange = (event: any, newValue: number): void => {
-        event.preventDefault()
-        setTabIndex(newValue)
-        setUserToken('')
-    }
+        event.preventDefault();
+        setTabIndex(newValue);
+        setUserToken('');
+    };
 
     const handleInviteTypeChange = (e: any, newValue: number): void => {
-        e.preventDefault()
-        setInviteTypeIndex(newValue)
+        e.preventDefault();
+        setInviteTypeIndex(newValue);
         if (newValue === 0 && tabIndex === 3) {
-            setTabIndex(0)
+            setTabIndex(0);
         }
-    }
+    };
 
     const updateInviteTargetType = (targetObjectType: string, targetObjectId: string) => {
-        updateInviteTarget(targetObjectType, targetObjectId)
-        setUserToken((''))
-    }
+        updateInviteTarget(targetObjectType, targetObjectId);
+        setUserToken((''));
+    };
 
     const handleInviteGroupChange = (event: React.ChangeEvent<{ value: unknown }>): void => {
-        updateInviteTarget('group', event.target.value)
-    }
+        updateInviteTarget('group', event.target.value);
+    };
 
     const handleInviteChange = (event: any, newValue: number): void => {
-        event.preventDefault()
-        setInviteTabIndex(newValue)
-    }
+        event.preventDefault();
+        setInviteTabIndex(newValue);
+    };
 
     const handleUserTokenChange = (event: any): void => {
-        setUserToken(event.target.value)
-    }
+        setUserToken(event.target.value);
+    };
 
     const packageInvite = (event: any): void => {
-        const mappedIDProvider = identityProviderTabMap.get(tabIndex)
+        const mappedIDProvider = identityProviderTabMap.get(tabIndex);
+        console.log('inviteState:');
+        console.log(inviteState);
         const sendData = {
             type: inviteState.get('targetObjectType') === 'user' ? 'friend' : inviteState.get('targetObjectType'),
             token: mappedIDProvider ? userToken : null,
             identityProviderType: mappedIDProvider ? mappedIDProvider : null,
             targetObjectId: inviteState.get('targetObjectId'),
-            inviteeId: (tabIndex === 2 || tabIndex === 3) ? userToken : null
-        }
+            invitee: (tabIndex === 2 || tabIndex === 3) ? userToken : null
+        };
 
-        sendInvite(sendData)
-        setUserToken('')
-    }
+        sendInvite(sendData);
+        setUserToken('');
+    };
 
     const showDeleteConfirm = (inviteId) => {
-        setDeletePending(inviteId)
-    }
+        setDeletePending(inviteId);
+    };
 
     const cancelDelete = () => {
-        setDeletePending('')
-    }
+        setDeletePending('');
+    };
 
     const confirmDelete = (inviteId) => {
-        setDeletePending('')
-        deleteInvite(inviteId)
-    }
+        setDeletePending('');
+        deleteInvite(inviteId);
+    };
+
+    const previousInvitePage = () => {
+        if (inviteTabIndex === 0) {
+            retrieveReceivedInvites(receivedInviteState.get('skip') - receivedInviteState.get('limit'));
+        }
+        else {
+            retrieveSentInvites(sentInviteState.get('skip') - sentInviteState.get('limit'));
+        }
+    };
 
     const nextInvitePage = () => {
         if (inviteTabIndex === 0) {
             if ((receivedInviteState.get('skip') + receivedInviteState.get('limit')) < receivedInviteState.get('total')) {
-                retrieveReceivedInvites(receivedInviteState.get('skip') + receivedInviteState.get('limit'))
+                retrieveReceivedInvites(receivedInviteState.get('skip') + receivedInviteState.get('limit'));
             }
         }
         else {
             if ((sentInviteState.get('skip') + sentInviteState.get('limit')) < sentInviteState.get('total')) {
-                retrieveSentInvites(sentInviteState.get('skip') + sentInviteState.get('limit'))
+                retrieveSentInvites(sentInviteState.get('skip') + sentInviteState.get('limit'));
             }
         }
-    }
+    };
 
     const acceptRequest = (invite) => {
-        acceptInvite(invite.id, invite.passcode)
-    }
+        acceptInvite(invite.id, invite.passcode);
+    };
 
     const declineRequest = (invite) => {
-        declineInvite(invite.id)
-    }
+        declineInvite(invite.id);
+    };
 
     useEffect(() => {
         if (inviteState.get('sentUpdateNeeded') === true && inviteState.get('getSentInvitesInProgress') !== true) {
-            retrieveSentInvites()
+            retrieveSentInvites();
         }
         if (inviteState.get('receivedUpdateNeeded') === true && inviteState.get('getReceivedInvitesInProgress') !== true) {
-            retrieveReceivedInvites()
+            retrieveReceivedInvites();
         }
-        const value = targetObjectType === 'party' ? 2 : targetObjectType === 'group' ? 1 : 0
-        setInviteTypeIndex(value)
-        if (value === 0 && tabIndex === 3) {
-            setTabIndex(0)
-        }
+        setInviteTypeIndex(targetObjectType === 'party' ? 2 : targetObjectType === 'group' ? 1 : 0);
         if (targetObjectType == null || targetObjectType.length === 0) {
-            updateInviteTarget('user', null)
+            updateInviteTarget('user', null);
         }
-    }, [inviteState])
+    }, [inviteState]);
 
-    const capitalize = (word) => word[0].toUpperCase() + word.slice(1)
+    const capitalize = (word) => word[0].toUpperCase() + word.slice(1);
 
     const onListScroll = (e): void => {
         if ((e.target.scrollHeight - e.target.scrollTop) === e.target.clientHeight ) {
-            nextInvitePage()
+            nextInvitePage();
         }
-    }
+    };
 
     const onSelectScroll = (e): void => {
         if ((e.target.scrollHeight - e.target.scrollTop) === e.target.clientHeight ) {
-            nextInvitableGroupsPage()
+            nextInvitableGroupsPage();
         }
-    }
+    };
 
     const onFriendScroll = (e): void => {
         if ((e.target.scrollHeight - e.target.scrollTop) === e.target.clientHeight ) {
-            nextFriendsPage()
+            nextFriendsPage();
         }
-    }
+    };
 
     const nextInvitableGroupsPage = () => {
         if ((invitableGroupState.get('skip') + invitableGroupState.get('limit')) < invitableGroupState.get('total')) {
-            getInvitableGroups(invitableGroupState.get('skip') + invitableGroupState.get('limit'))
+            getInvitableGroups(invitableGroupState.get('skip') + invitableGroupState.get('limit'));
         }
-    }
+    };
 
     const nextFriendsPage = (): void => {
         if ((friendSubState.get('skip') + friendSubState.get('limit')) < friendSubState.get('total')) {
-            getFriends(friendSubState.get('skip') + friendSubState.get('limit'))
+            getFriends(friendSubState.get('skip') + friendSubState.get('limit'));
         }
-    }
+    };
 
     return (
         <div className="invite-container">
@@ -278,7 +285,7 @@ const Invites = (props: Props): any => {
                 BackdropProps={{ invisible: true }}
                 anchor="right"
                 open={props.rightDrawerOpen === true}
-                onClose={() => {props.setRightDrawerOpen(false)}}
+                onClose={() => {props.setRightDrawerOpen(false);}}
                 onOpen={() => {}}
             >
                 <div className="title">Invites</div>
@@ -308,7 +315,7 @@ const Invites = (props: Props): any => {
 					<List
 						onScroll={(e) => onListScroll(e)}
 					>
-                        { inviteTabIndex === 1 && receivedInvites.sort((a, b) => {return a.created - b.created }).map((invite, index) => {
+                        { inviteTabIndex === 1 && receivedInvites.sort((a, b) => {return a.created - b.created; }).map((invite, index) => {
                             return <div key={invite.id}>
                                 <ListItem>
                                     <ListItemAvatar>
@@ -336,14 +343,14 @@ const Invites = (props: Props): any => {
                                     </Button>
                                 </ListItem>
                                 {index < receivedInvites.length - 1 && <Divider/>}
-                            </div>
+                            </div>;
                         })
                         }
-                        { inviteTabIndex === 2 && sentInvites.sort((a, b) => { return a.created - b.created }).map((invite, index) => {
+                        { inviteTabIndex === 2 && sentInvites.sort((a, b) => { return a.created - b.created; }).map((invite, index) => {
                             return <div key={invite.id}>
                                 <ListItem>
                                     <ListItemAvatar>
-                                        <Avatar src={invite.invitee?.avatarUrl}/>
+                                        <Avatar src={invite.user.avatarUrl}/>
                                     </ListItemAvatar>
                                     {invite.inviteType === 'friend' && <ListItemText>{capitalize(invite.inviteType)} request
 										to {invite.invitee ? invite.invitee.name : invite.token}</ListItemText>}
@@ -354,7 +361,7 @@ const Invites = (props: Props): any => {
                                     {deletePending !== invite.id &&
 									<Button onClick={() => showDeleteConfirm(invite.id)}>Uninvite</Button>}
                                     {deletePending === invite.id &&
-									<div className="delete-confirm">
+									<div>
 										<Button variant="contained"
 										        color="primary"
 										        onClick={() => confirmDelete(invite.id)}
@@ -371,7 +378,7 @@ const Invites = (props: Props): any => {
                                     }
                                 </ListItem>
                                 {index < sentInvites.length - 1 && <Divider/>}
-                            </div>
+                            </div>;
                         })
                         }
 					</List>
@@ -404,7 +411,7 @@ const Invites = (props: Props): any => {
                                 label="Party"
                                 onClick={() => {
                                     if (party?.id) {
-                                        updateInviteTargetType('party', party.id)
+                                        updateInviteTargetType('party', party.id);
                                     }
                                 }}
                             />
@@ -428,7 +435,7 @@ const Invites = (props: Props): any => {
                                                 value={group.id}
                                             >
                                                     {group.name}
-                                            </MenuItem>
+                                            </MenuItem>;
                                             })
                                         }
                                         </Select>
@@ -506,7 +513,7 @@ const Invites = (props: Props): any => {
                                                             value={friend.id}
                                                         >
                                                             {friend.name}
-                                                        </MenuItem>
+                                                        </MenuItem>;
                                                     })
                                                     }
                                                 </Select>
@@ -525,7 +532,7 @@ const Invites = (props: Props): any => {
                     }
 					</SwipeableDrawer>
                     </div>
-                        )
-                    }
+                        );
+                    };
 
-					export default connect(mapStateToProps, mapDispatchToProps)(Invites)
+					export default connect(mapStateToProps, mapDispatchToProps)(Invites);

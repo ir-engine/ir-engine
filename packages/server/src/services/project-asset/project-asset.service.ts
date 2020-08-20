@@ -6,7 +6,7 @@ import hooks from './project-asset.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'project-asset': ProjectAsset & ServiceAddons<any>
+    'project-asset': ProjectAsset & ServiceAddons<any>;
   }
 }
 

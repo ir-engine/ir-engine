@@ -33,7 +33,7 @@ export class Location extends Service {
     return 'success'
   }
 
-  async createNewLocation ({ data, params }: { data: any, params: Params }): Promise<any> {
+  async createNewLocation ({ data, params }: { data: any; params: Params }): Promise<any> {
     await new Promise((resolve) =>
       setTimeout(() => resolve(super.create(data, params)), 1000)
     ).then((updatedLocation: any) => {
@@ -43,7 +43,7 @@ export class Location extends Service {
     })
   }
 
-  async createInstances ({ id, instance }: { id: any, instance: any }): Promise<any> {
+  async createInstances ({ id, instance }: { id: any; instance: any }): Promise<any> {
     if (instance) {
       await instance.forEach((element: any) => {
         if (element.id) {

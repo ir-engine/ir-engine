@@ -6,7 +6,7 @@ import { Application } from '../../declarations'
 interface Data {}
 
 interface ServiceOptions {
-  paginate: boolean
+  paginate: boolean;
 }
 
 export class MediaSearch implements ServiceMethods<Data> {

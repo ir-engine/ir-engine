@@ -6,7 +6,7 @@ import staticResourceModel from '../../models/static-resource.model'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'public-video': PublicVideo & ServiceAddons<any>
+    'public-video': PublicVideo & ServiceAddons<any>;
   }
 }
 

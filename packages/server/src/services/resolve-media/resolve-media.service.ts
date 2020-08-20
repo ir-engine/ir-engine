@@ -7,7 +7,7 @@ import hooks from './resolve-media.hooks'
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'resolve-media': ResolveMedia & ServiceAddons<any>
+    'resolve-media': ResolveMedia & ServiceAddons<any>;
   }
 }
 

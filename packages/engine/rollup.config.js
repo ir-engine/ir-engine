@@ -24,7 +24,7 @@ const glslSettings = {
 export default [
   {
 
-    input: "src/postprocessing/images/smaa/utils/worker.js",
+    input: "src/postprocessing/images/smaa/utils/worker.ts",
     plugins: [resolve(), glsl(glslSettings), string(stringSettings)],
     output: {
       file: "src/postprocessing/images/smaa/utils/worker.tmp",

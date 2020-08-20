@@ -6,7 +6,7 @@ import hooks from './user-relationship-type.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'user-relationship-type': UserRelationshipType & ServiceAddons<any>
+    'user-relationship-type': UserRelationshipType & ServiceAddons<any>;
   }
 }
 

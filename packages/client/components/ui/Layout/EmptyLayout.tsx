@@ -1,9 +1,9 @@
-import React, { Fragment } from 'react'
-import Alerts from '../Common/Alerts'
-import UIDialog from '../Dialog/Dialog'
+import React, { Fragment } from 'react';
+import Alerts from '../Common/Alerts';
+import UIDialog from '../Dialog/Dialog';
 
 interface Props {
-  children: any
+  children: any;
 }
 
 const EmptyLayout = ({ children }: Props): any => (
@@ -12,6 +12,6 @@ const EmptyLayout = ({ children }: Props): any => (
     <Alerts />
     {children}
   </Fragment>
-)
+);
 
-export default EmptyLayout
+export default EmptyLayout;

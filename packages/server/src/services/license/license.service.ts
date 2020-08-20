@@ -6,7 +6,7 @@ import hooks from './license.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'license': License & ServiceAddons<any>
+    'license': License & ServiceAddons<any>;
   }
 }
 

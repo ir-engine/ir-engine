@@ -5,7 +5,7 @@ import hooks from './publish-project.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'publish-project': PublishProject & ServiceAddons<any>
+    'publish-project': PublishProject & ServiceAddons<any>;
   }
 }
 

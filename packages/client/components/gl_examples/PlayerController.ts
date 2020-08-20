@@ -12,7 +12,7 @@ import { addObject3DComponent, removeObject3DComponent } from "@xr3ngine/engine/
 import { Actor } from "@xr3ngine/engine/src/common/defaults/components/Actor";
 import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 
-const miniGeo = new BoxBufferGeometry(0.2, 0.2, 0.2)
+const miniGeo = new BoxBufferGeometry(0.2, 0.2, 0.2);
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const PlayerController: Prefab = {

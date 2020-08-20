@@ -2,23 +2,23 @@ import {
   INSTANCE_SERVER_PROVISIONED,
   INSTANCE_SERVER_CONNECTED,
   INSTANCE_SERVER_DISCONNECTED
-} from '../actions'
+} from '../actions';
 
-import { InstanceServerProvisionResult } from '@xr3ngine/common/interfaces/InstanceServerProvisionResult'
+import { InstanceServerProvisionResult } from '@xr3ngine/common/interfaces/InstanceServerProvisionResult';
 
 export interface InstanceServerProvisionedAction {
-  type: string
-  ipAddress: string
-  port: string
-  locationId: string
+  type: string;
+  ipAddress: string;
+  port: string;
+  locationId: string;
 }
 
 export interface InstanceServerConnectedAction {
-  type: string
+  type: string;
 }
 
 export interface InstanceServerDisconnectedAction {
-  type: string
+  type: string;
 }
 
 export type InstanceServerAction =
@@ -32,16 +32,16 @@ export function instanceServerProvisioned (provisionResult: InstanceServerProvis
     ipAddress: provisionResult.ipAddress,
     port: provisionResult.port,
     locationId: locationId
-  }
+  };
 }
 export function instanceServerConnected (): InstanceServerConnectedAction {
   return {
     type: INSTANCE_SERVER_CONNECTED
-  }
+  };
 }
 
 export function instanceServerDisconnected (): InstanceServerDisconnectedAction {
   return {
     type: INSTANCE_SERVER_DISCONNECTED
-  }
+  };
 }

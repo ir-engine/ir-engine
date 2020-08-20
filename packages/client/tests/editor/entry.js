@@ -42,7 +42,7 @@ function warnSkipAsset(mod) {
   require.extensions[extension] = warnSkipAsset;
 });
 
-require.extensions[".worker.js"] = mod => {
+require.extensions[".worker.ts"] = mod => {
   console.warn(`Skip loading WebWorker "${mod.filename}" in file: "${mod.parent.filename}"`);
   mod.exports = function() {};
   return mod;

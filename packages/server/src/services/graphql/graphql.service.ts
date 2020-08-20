@@ -2,7 +2,6 @@ import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import { Graphql } from './graphql.class'
 import { PubSub } from 'graphql-subscriptions'
-// @ts-ignore
 import { generateModelTypes, generateApolloServer } from 'graphql-sequelize-generator'
 import { NotAuthenticated } from '@feathersjs/errors'
 import jwt from 'jsonwebtoken'
@@ -12,7 +11,7 @@ import { Sequelize } from 'sequelize'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'graphql': Graphql & ServiceAddons<any>
+    'graphql': Graphql & ServiceAddons<any>;
   }
 }
 
