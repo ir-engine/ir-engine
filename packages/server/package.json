@@ -34,7 +34,8 @@
   "scripts": {
     "start": "yarn run build && node lib/",
     "dev": "NODE_ENV=development node -r ts-node/register ./src",
-    "build": "shx rm -rf lib/ && tsc src/",
+    "build": "shx rm -rf lib/ && tsc -p tsconfig.json && yarn run copyfiles-server",
+    "copyfiles-server": "copyfiles -u 2 src/email-templates/**/* lib/email-templates",
     "test": "NODE_ENV=production jest lib/test",
     "lint": "node node_modules/.bin/eslint --ext .js,.ts ./ --fix",
     "validate": "yarn run lint && yarn run build && yarn run test",
