@@ -2,7 +2,7 @@ import { Params, Id, NullableId, ServiceMethods } from '@feathersjs/feathers'
 import { Transaction } from 'sequelize/types'
 import fetch from 'node-fetch'
 
-import { mapProjectDetailData, defaultProjectImport } from './project-helper'
+import { mapProjectDetailData, defaultProjectImport } from '../project/project-helper'
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 import { Application } from '../../declarations'
 import StorageProvider from '../../storage/storageprovider'
@@ -133,18 +133,18 @@ export class Project implements ServiceMethods<Data> {
 
       const entites = sceneEntitiesArray.map((entity: any) => {
         entity.name = entity.name.toLowerCase()
-        entity.entityType = 'default'
+        entity.type = 'default'
         entity.userId = loggedInUser.userId
         entity.collectionId = project.id
         return entity
       })
       const savedEntities = await EntityModel.bulkCreate(entites, { transaction })
       const components: any = []
-      const componentTypeSet = new Set()
+      const componetTypeSet = new Set()
       savedEntities.forEach((savedEntity: any, index: number) => {
         const entity = sceneEntitiesArray[index]
         entity.components.forEach((component: any) => {
-          componentTypeSet.add(component.name.toLowerCase())
+          componetTypeSet.add(component.name.toLowerCase())
           components.push(
             {
               data: component.props,
@@ -159,15 +159,15 @@ export class Project implements ServiceMethods<Data> {
       // Now we check if any of component-type is missing, then create that one
       let savedComponentTypes = await ComponentTypeModel.findAll({
         where: {
-          type: Array.from(componentTypeSet)
+          type: Array.from(componetTypeSet)
         },
         raw: true,
         attributes: ['type']
       })
 
       savedComponentTypes = savedComponentTypes.map((item: any) => item.type)
-      if (savedComponentTypes.length <= componentTypeSet.size) {
-        let nonExistedComponentTypes = Array.from(componentTypeSet).filter((item) => savedComponentTypes.indexOf(item) < 0)
+      if (savedComponentTypes.length <= componetTypeSet.size) {
+        let nonExistedComponentTypes = Array.from(componetTypeSet).filter((item) => savedComponentTypes.indexOf(item) < 0)
 
         nonExistedComponentTypes = nonExistedComponentTypes.map((item) => {
           return {
@@ -196,7 +196,17 @@ export class Project implements ServiceMethods<Data> {
   }
 
   async remove (id: NullableId, params?: Params): Promise<Data> {
-    return { id }
+    if (!params.query.projectId) return { id }
+
+    const { collection } = this.models
+    await collection.destroy({
+      where: {
+        sid: params.query.projectId
+      }
+    })
+    return {
+      id: params.query.projectId
+    }
   }
 
   private async reloadProject (projectId: string, loadedProject?: any): Promise<any> {

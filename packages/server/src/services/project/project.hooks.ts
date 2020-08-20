@@ -3,13 +3,16 @@ import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common'
 import { BadRequest } from '@feathersjs/errors'
 
+import { collectionType } from '../../enums/collection'
 import { HookContext } from '@feathersjs/feathers'
-import setResponseStatusCode from '../../hooks/set-response-status-code'
+
 import attachOwnerIdInBody from '../../hooks/set-loggedin-user-in-body'
 import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
-import mapProjectIdToQuery from '../../hooks/set-project-id-in-query'
 import generateSceneCollection from './generate-collection.hook'
-import { collectionType } from '../../enums/collection'
+import mapProjectIdToQuery from '../../hooks/set-project-id-in-query'
+import removeRelatedResources from '../../hooks/remove-related-resources'
+import setResourceIdFromProject from '../../hooks/set-resource-id-from-project'
+import setResponseStatusCode from '../../hooks/set-response-status-code'
 
 const { authenticate } = authentication.hooks
 
@@ -39,9 +42,7 @@ export default {
     create: [attachOwnerIdInBody('userId'), mapProjectSaveData(), validateCollectionData(), generateSceneCollection({ type: collectionType.project })],
     update: [disallow()],
     patch: [attachOwnerIdInBody('userId'), mapProjectIdToQuery(), mapProjectSaveData(), validateCollectionData()],
-    remove: [
-      attachOwnerIdInQuery('userId')
-    ]
+    remove: [attachOwnerIdInQuery('userId'), setResourceIdFromProject(), removeRelatedResources()]
   },
 
   after: {
