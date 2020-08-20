@@ -33,11 +33,24 @@ export function connectToInstanceServer () {
       const instanceConnectionState = getState().get('instanceConnection')
       const instance = instanceConnectionState.get('instance')
       const locationId = instanceConnectionState.get('locationId')
-      console.log('Connecting to gameserver')
-      const socket = io(`${instance.get('ipAddress') as string}:${instance.get('port') as string}`, { query: { locationId: locationId, token: token } })
-      console.log(socket)
+      let socket
+      if (process.env.NODE_ENV === 'development') {
+        socket = io(`${instance.get('ipAddress') as string}/${instance.get('port') as string}`, {
+          query: {
+            locationId: locationId,
+            token: token
+          }
+        })
+      } else {
+        socket = io('https://gameserver.xrengine.io', {
+          path: `/socket.io/${instance.get('ipAddress') as string}/${instance.get('port') as string}`,
+          query: {
+            locationId: locationId,
+            token: token
+          }
+        })
+      }
       const instanceClient = feathers()
-      console.log(instanceClient)
       instanceClient.configure(feathers.socketio(socket, { timeout: 10000 }))
       setClient(instanceClient)
       dispatch(instanceServerConnected())

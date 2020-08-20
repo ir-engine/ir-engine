@@ -56,7 +56,7 @@ export const DrawerControls = (props: Props) => {
   }
   return (
   <AppBar className="bottom-appbar">
-    <GameserverTest/>
+    {/*<GameserverTest/>*/}
     <Button onClick={openInvite}>
       <PersonAdd />
     </Button>
