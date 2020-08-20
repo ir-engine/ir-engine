@@ -1,33 +1,52 @@
-[![Build Status](https://travis-ci.org/xr3ngine/xr3ngine.svg?branch=master)](https://travis-ci.org/xr3ngine/xr3ngine)
-# XR3ngine
+<div align="center">
 
-> XR3ngine, built on Node + Feathers + Express + SQL
+<a href="https://xr3ngine.io">
+<img src="readme/otter.png" alt="logo" width="128">
+</a>
 
-## About
+# xr3ngine
+An end-to-end solution for hosting humans and AI in a virtual space, built on top of react, three.js and express/feathers.
 
-xr3ngine is an end-to-end solution for hosting humans and AI in a virtual space. This project would literally not be possible without the community contributions of Mozilla Hubs, Janus VR, Avaer + Exokit, Mr Doob, Hayden James Lee and many others.
+[![Build Status](https://travis-ci.org/xr3ngine/xr3ngine.svg?branch=dev)](https://travis-ci.org/xr3ngine/xr3ngine)[![Codecov](https://img.shields.io/codecov/c/github/xr3ngine/xr3ngine?logo=codecov&style=flat-square)](https://codecov.io/gh/xr3ngine/xr3ngine)
 
-Our goal is an easy-to-use, well documented, end-to-end Javascript (or Typescript) experience that anyone with a little bit of Javascript and HTML knowledge can dig into, deploy and make meaningful modifications and contributions to. If you fit this category and you are struggling with any aspect of getting started, we want to hear from you.
+This repo includes a fully-feature client, API server, realtime gamerserver, game engine and devops for scalable deployment. Pick and choose what you need or deploy the whole stack and start building your aplication on top.
 
-xr3ngine is a free, open source, MIT-licensed project. You are welcome to do anything you want with it. We hope that you use it to make something beautiful.
+</div>
+
+## Popular features
+Player rigs to support 2D, 3D and XR interaction
+High-performance ECS engine based on Mozilla ECSY
+Full-featured world editor based on Mozilla Spoke
+Fully networked player controller, physics, vehicles and particles
+Highly customizable, template-based design (Unreal-style Blueprints coming soon!)
+Chat, groups, parties and friends
+Voice and video over WebRTC
+Instant login with phone number or email
+OAuth login with Facebook, Google, Steam and Github
+User management, avatars and inventory
+Authorative realtime gameserver
+Reliable messaging and signaling with socket.io
+Fast, unreliable messaging with SCTP data channels
+Built end-to-end in Typescript
+Free, open source, MIT-licensed
 
 ## Getting Started
 
 Getting up and running is as easy as 1, 2, 3.
 
-0. Make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed (and if you are using it, [docker](https://docs.docker.com/)).
-1. Install your dependencies
+First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed (and if you are using it, [docker](https://docs.docker.com/)).
 
+1. Install your dependencies
     ```
     cd path/to/xr3ngine
-    npm install
+    yarn install
     ```
 2. Make sure you have a mysql database installed and running -- our recommendation is Mariadb. We've provided a docker container for easy setup:
 ```
 cd scripts && ./start-db.sh
 ```
-
 This creates a docker image of mariadb named xr3ngine_db.
+
 
 3. Start your app
 
@@ -37,57 +56,68 @@ This creates a docker image of mariadb named xr3ngine_db.
 
 ### Notes
 
+If you are on Windows, you can use docker-compose to start the scripts/docker-compose.yml file, or install mariadb and copy the login/pass and database name from docker-compose or .env.local -- you will need to create the database with the matching name, but you do not need to populate it
+
 ./start-db.sh only needs to be run once. If the docker image has stopped, start it again with:
 
+```
     docker container start xr3ngine_db
-    
+```
 
-You may refresh the database with:
+#### OSX DB Init
 
-    FORCE_DB_REFRESH=true npm run start
+brew install mysql
 
-### troubleshooting
+mysql_secure_installation
+server
+password
+ 
+mysql -uroot -ppassword
+mysql -userver -ppassword
 
-#### AccessDenied connecting to maraidb
+create database xr3ngine;
+create user 'server'@'localhost' identified by 'password';
+grant all on xr3ngine.* to 'server'@'localhost';
+
+show databases;
+
+mysql.server start
+mysql.server stop
+
+
+### Troubleshooting
+
+#### AccessDenied connecting to mariadb
 
 Make sure you don't have another instance of mariadb running on port 3306
-
+```
     lsof -i :3306
-
+```
 #### Error: listen EADDRINUSE :::3030
 
 check which process is using port 3030 and kill
-
+```
+    killall -9 node
+```
+    OR
+```
     lsof -i :3030
-	
-	kill -3 proccessIDfromPreviousCommand
+	kill -3 <proccessIDfromPreviousCommand>
+```
 
-## Weird issues with your database?
+#### Weird issues with your database?
 Try
 ```
-npm run dev-reinit-db
+yarn run dev-reinit-db // in server package
 ```
-
 
 ## Testing
 
-Simply run `npm test` and all your tests in the `test/` directory will be run.
+Simply run `yarn test` and all your tests in the `test/` directory will be run.
 
 ## Linting
 
-`npm run lint`
-
-## Scaffolding
-
-Feathers has a powerful command line interface. Here are a few things it can do:
-
-```
-$ npm install -g @feathersjs/cli          # Install Feathers CLI
-
-$ feathers generate service               # Generate a new Service
-$ feathers generate hook                  # Generate a new Hook
-$ feathers help                           # Show all commands
-```
+`yarn run lint`
 
 ## Docker
 
@@ -109,11 +139,6 @@ Enviroment variables:
 - `NODE_ENV` controls the config/*.js file for feathers.js to load [default: production]
 - `PORT` controls the listening port [default: 3030]
 - `MYSQL_URL` e.g. `mysql://<user>:<pass>@<host>:<port>/<db>` points to MariaDB server with a username and password
-
-## Help
-
-For more information on all the things you can do with Feathers visit [docs.feathersjs.com](http://docs.feathersjs.com).
-
 
 ### Run in Kubernetes locally
 
@@ -151,6 +176,30 @@ connect to it. To reboot xr3ngine, run the following:
 
 ```kubectl rollout restart -n xr3ngine deployments/xr3ngine```
 
+
+### STMP Testing
+
+https://mailtrap.io/inboxes
+
+
+## Scaffolding (Server Only)
+
+Feathers.js has a powerful command line interface. Here are a few things it can do:
+
+```
+$ npm install -g @feathersjs/cli          # Install Feathers CLI
+
+$ feathers generate service               # Generate a new Service
+$ feathers generate hook                  # Generate a new Hook
+$ feathers help                           # Show all commands
+```
+
+
+## Help
+
+For more information on all the things you can do with Feathers visit [docs.feathersjs.com](http://docs.feathersjs.com).
+
+
 ## Migrations
 
 ### Generate Migration file
@@ -168,29 +217,3 @@ To do this, please run as following.
 
 For more information, please visit here
 https://github.com/douglas-treadwell/sequelize-cli-typescript
-
-
-### DB Init
-
-brew install mysql
-
-mysql_secure_installation
-server
-password
- 
-mysql -uroot -ppassword
-mysql -userver -ppassword
-
-create database xr3ngine;
-create user 'server'@'localhost' identified by 'password';
-grant all on xr3ngine.* to 'server'@'localhost';
-
-show databases;
-
-mysql.server start
-mysql.server stop
-
-
-### STMP Testing
-
-https://mailtrap.io/inboxes
