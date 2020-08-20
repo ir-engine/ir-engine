@@ -8,22 +8,27 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false,
     "forceConsistentCasingInFileNames": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "jsx": "preserve",
     "noEmit": false,
-    "isolatedModules": true
+    "module": "esnext",
+    "strict": false,
+    "noImplicitAny": false,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "jsx": "preserve",
+    "isolatedModules": true,
+    "outDir": "./lib"
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "tests/**",
+    "../engine/tests"
   ],
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx", "index.js", "../gameserver/WebRTCGameServer.ts"
+    "./**/*.ts",
+    "./**/*.tsx"
   ]
 }
