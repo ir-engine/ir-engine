@@ -6,7 +6,7 @@ import { DefaultNetworkSchema } from '../defaults/DefaultNetworkSchema';
 import { NetworkSchema } from '../interfaces/NetworkSchema';
 import { NetworkGameState } from '../components/NetworkInterpolation';
 import { createEntity, addComponent } from '../../ecs/functions/EntityFunctions';
-import { Entity } from '../../ecs';
+import { Entity } from '../../ecs/classes/Entity';
 
 export class NetworkSystem extends System {
   init (schema?: NetworkSchema) {

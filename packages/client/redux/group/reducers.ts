@@ -26,7 +26,7 @@ import {
 } from '../actions'
 
 import _ from 'lodash'
-import {GroupUser} from "../../../shared/interfaces/GroupUser";
+import {GroupUser} from "@xr3ngine/common/interfaces/GroupUser";
 
 export const initialState = {
   groups: {
