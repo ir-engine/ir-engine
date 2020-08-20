@@ -1,4 +1,5 @@
-import { RawImageData } from '../../RawImageData';
+// @ts-ignore
+import { RawImageData } from '../../RawImageData.ts';
 
 /**
  * This dictionary returns which edges are active for a certain bilinear fetch:

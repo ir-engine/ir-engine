@@ -2,7 +2,9 @@ import React, { useEffect } from 'react';
 import { useRouter, NextRouter } from 'next/router';
 import {
   loginUserByJwt,
-  refreshConnections
+  refreshConnections,
+  verifyEmail,
+  resetPassword
 } from '../../../redux/auth/service';
 import { Dispatch, bindActionCreators } from 'redux';
 import { connect } from 'react-redux';

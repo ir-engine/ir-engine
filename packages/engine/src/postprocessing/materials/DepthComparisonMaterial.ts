@@ -1,7 +1,5 @@
 import { PerspectiveCamera, ShaderMaterial, Uniform } from 'three';
-///@ts-ignore
 import fragmentShader from './glsl/depth-comparison/shader.frag';
-///@ts-ignore
 import vertexShader from './glsl/depth-comparison/shader.vert';
 
 /**

@@ -1,11 +1,8 @@
 import { ShaderMaterial, Uniform, Vector2 } from 'three';
-///@ts-ignore
 import fragmentShaderDepth from './glsl/edge-detection/depth.frag';
-///@ts-ignore
 import fragmentShaderLuma from './glsl/edge-detection/luma.frag';
-///@ts-ignore
 import fragmentShaderColor from './glsl/edge-detection/color.frag';
-///@ts-ignore
+
 import vertexShader from './glsl/edge-detection/shader.vert';
 
 /**

@@ -1,6 +1,6 @@
 import { LinearFilter, RGBFormat, UnsignedByteType, WebGLRenderTarget } from 'three';
-import { CopyMaterial } from '../materials';
 import { Pass } from './Pass';
+import { CopyMaterial } from '../materials/CopyMaterial';
 
 /**
  * A pass that renders the result from a previous pass to another render target.
@@ -61,7 +61,7 @@ export class SavePass extends Pass {
 	 * @param {Boolean} [stencilTest] - Indicates whether a stencil mask is active.
 	 */
 
-  render (renderer, inputBuffer, outputBuffer, deltaTime, stencilTest) {
+  render (renderer, inputBuffer, outputBuffer?, deltaTime?, stencilTest?) {
     this.getFullscreenMaterial().uniforms.inputBuffer.value = inputBuffer.texture;
 
     renderer.setRenderTarget(this.renderToScreen ? null : this.renderTarget);

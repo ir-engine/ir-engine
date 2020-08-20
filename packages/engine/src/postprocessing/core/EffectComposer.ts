@@ -10,7 +10,8 @@ import {
   Vector2,
   WebGLMultisampleRenderTarget,
   WebGLRenderTarget,
-  WebGLRenderer
+  WebGLRenderer,
+  HalfFloatType
 } from 'three';
 
 import { ClearMaskPass } from '../passes/ClearMaskPass';
@@ -32,6 +33,13 @@ import { CopyMaterial } from '../materials/CopyMaterial';
  * @implements {Disposable}
  */
 
+const DefaultOptions = {
+  depthBuffer: true,
+  stencilBuffer: true,
+  multisampling: true,
+  frameBufferType: HalfFloatType
+}
+
 export class EffectComposer {
   renderer: any;
   inputBuffer: any;
@@ -51,7 +59,8 @@ export class EffectComposer {
 	 * @param {Boolean} [options.frameBufferType] - The type of the internal frame buffers. It's recommended to use HalfFloatType if possible.
 	 */
 
-  constructor (renderer: WebGLRenderer, options?) {
+
+  constructor(renderer: WebGLRenderer, options = DefaultOptions) {
     /**
 		 * The renderer.
 		 *
@@ -62,10 +71,7 @@ export class EffectComposer {
     this.renderer = renderer;
 
     const {
-      depthBuffer,
-      stencilBuffer,
-      multisampling,
-      frameBufferType
+      depthBuffer, stencilBuffer, frameBufferType, multisampling
     } = options
 
     /**
@@ -138,7 +144,7 @@ export class EffectComposer {
 	 * @type {Number}
 	 */
 
-  get multisampling () {
+  get multisampling() {
     return (this.inputBuffer instanceof WebGLMultisampleRenderTarget)
       ? this.inputBuffer.samples : 0;
   }
@@ -151,7 +157,7 @@ export class EffectComposer {
 	 * @type {Number}
 	 */
 
-  set multisampling (value) {
+  set multisampling(value) {
     const buffer = this.inputBuffer;
     const multisampling = this.multisampling;
 
@@ -183,7 +189,7 @@ export class EffectComposer {
 	 * @return {WebGLRenderer} The renderer.
 	 */
 
-  getRenderer () {
+  getRenderer() {
     return this.renderer;
   }
 
@@ -193,7 +199,7 @@ export class EffectComposer {
 	 * @private
 	 */
 
-  enableExtensions () {
+  enableExtensions() {
     const frameBufferType = this.inputBuffer.texture.type;
     const capabilities = this.renderer.capabilities;
     const context = this.renderer.getContext();
@@ -222,7 +228,7 @@ export class EffectComposer {
 	 * @return {WebGLRenderer} The old renderer.
 	 */
 
-  replaceRenderer (renderer, updateDOM = true) {
+  replaceRenderer(renderer, updateDOM = true) {
     const oldRenderer = this.renderer;
 
     if (oldRenderer !== null && oldRenderer !== renderer) {
@@ -259,7 +265,7 @@ export class EffectComposer {
 	 * @return {DepthTexture} The depth texture.
 	 */
 
-  createDepthTexture () {
+  createDepthTexture() {
     // TODO: Arbitrary size right now
     const depthTexture = this.depthTexture = new DepthTexture(512, 512);
 
@@ -290,7 +296,7 @@ export class EffectComposer {
 	 * @return {WebGLRenderTarget} A new render target that equals the renderer's canvas.
 	 */
 
-  createBuffer (depthBuffer, stencilBuffer, type, multisampling) {
+  createBuffer(depthBuffer, stencilBuffer, type, multisampling) {
     const size = this.renderer.getDrawingBufferSize(new Vector2());
     const alpha = this.renderer.getContext().getContextAttributes().alpha;
 
@@ -324,7 +330,7 @@ export class EffectComposer {
 	 * @param {Number} [index] - An index at which the pass should be inserted.
 	 */
 
-  addPass (pass, index?) {
+  addPass(pass, index?) {
     const passes = this.passes;
     const renderer = this.renderer;
     const alpha = renderer.getContext().getContextAttributes().alpha;
@@ -373,7 +379,7 @@ export class EffectComposer {
 	 * @param {Pass} pass - The pass.
 	 */
 
-  removePass (pass) {
+  removePass(pass) {
     const passes = this.passes;
     const index = passes.indexOf(pass);
     const removed = (passes.splice(index, 1).length > 0);
@@ -414,7 +420,7 @@ export class EffectComposer {
 	 * @param {Number} deltaTime - The time between the last frame and the current one in seconds.
 	 */
 
-  render (deltaTime) {
+  render(deltaTime) {
     const renderer = this.renderer;
     const copyPass = this.copyPass;
 
@@ -468,7 +474,7 @@ export class EffectComposer {
 	 * @param {Boolean} [updateStyle] - Determines whether the style of the canvas should be updated.
 	 */
 
-  setSize (width, height, updateStyle?) {
+  setSize(width, height, updateStyle?) {
     const renderer = this.renderer;
 
     if (width === undefined || height === undefined) {
@@ -494,7 +500,7 @@ export class EffectComposer {
 	 * Resets this composer by deleting all passes and creating new buffers.
 	 */
 
-  reset () {
+  reset() {
     const renderTarget = this.inputBuffer.clone();
 
     this.dispose();
@@ -514,7 +520,7 @@ export class EffectComposer {
 	 * also deletes the main frame buffers of this composer.
 	 */
 
-  dispose () {
+  dispose() {
     for (const pass of this.passes) {
       pass.dispose();
     }

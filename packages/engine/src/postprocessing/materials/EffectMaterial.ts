@@ -1,7 +1,5 @@
 import { PerspectiveCamera, ShaderMaterial, Uniform, Vector2 } from 'three';
-///@ts-ignore
 import fragmentTemplate from './glsl/effect/shader.frag';
-///@ts-ignore
 import vertexTemplate from './glsl/effect/shader.vert';
 
 /**

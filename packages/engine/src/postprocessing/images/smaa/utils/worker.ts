@@ -1,5 +1,7 @@
-import { SMAAAreaImageData } from './SMAAAreaImageData';
-import { SMAASearchImageData } from './SMAASearchImageData';
+// @ts-ignore
+import { SMAASearchImageData } from './SMAASearchImageData.ts';
+// @ts-ignore
+import { SMAAAreaImageData } from './SMAAAreaImageData.ts';
 
 /**
  * Handles messages from the main thread.
@@ -12,7 +14,7 @@ self.addEventListener('message', (event) => {
   const areaImageData = SMAAAreaImageData.generate();
   const searchImageData = SMAASearchImageData.generate();
 
-  postMessage({ areaImageData, searchImageData },
+  postMessage({ areaImageData, searchImageData }, "*",
     [areaImageData.data.buffer, searchImageData.data.buffer]);
 
   close();
