@@ -10,10 +10,10 @@ export default (options = {}): Hook => {
     const { app, result, data, params } = context
     const metadata = result?.metadata || data?.metadata
     const id = result?.id || data?.id
-    const extensionMatch = metadata.thumbnail_url.match(fileRegex)
-    if (id && metadata.thumbnail_url && extensionMatch) {
+    const extensionMatch = metadata.thumbnailUrl.match(fileRegex)
+    if (id && metadata.thumbnailUrl && extensionMatch) {
       const extension = extensionMatch[1] as string
-      const url = metadata.thumbnail_url
+      const url = metadata.thumbnailUrl
       const fileBuffer = await getBuffer(url)
       params.file = {
         fieldname: 'file',
@@ -32,14 +32,14 @@ export default (options = {}): Hook => {
       const uploadResult = await app.services.upload.create(context.data, params)
       const parent = await app.services['static-resource'].get(id)
       const parsedMetadata = JSON.parse(parent.metadata)
-      parsedMetadata.thumbnail_url = uploadResult.url
+      parsedMetadata.thumbnailUrl = uploadResult.url
         .replace('s3.amazonaws.com/' + (config.aws.s3.staticResourceBucket),
           config.aws.cloudfront.domain)
       await app.services['static-resource'].patch(id, {
         metadata: parsedMetadata
       })
 
-      params.thumbnailUrl = parsedMetadata.thumbnail_url
+      params.thumbnailUrl = parsedMetadata.thumbnailUrl
 
       return context
     } else {

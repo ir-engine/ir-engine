@@ -2,7 +2,6 @@ import { LinearFilter, RGBFormat, Uniform, UnsignedByteType, WebGLRenderTarget }
 import { BlendFunction } from './blending/BlendFunction';
 import { Effect, EffectAttribute } from './Effect';
 
-// @ts-ignore
 import fragmentShader from './glsl/depth-of-field/shader.frag';
 import { Resizer } from '../core/Resizer';
 import { ShaderPass } from '../passes/ShaderPass';

@@ -13,7 +13,6 @@ import { NoiseTexture } from '../images/textures/NoiseTexture';
 import { SSAOMaterial } from '../materials/SSAOMaterial';
 import { ShaderPass } from '../passes/ShaderPass';
 import { Effect, EffectAttribute } from './Effect';
-// @ts-ignore
 import fragmentShader from './glsl/ssao/shader.frag';
 
 /**

@@ -19,9 +19,7 @@ import { ClearPass } from '../passes/ClearPass';
 import { RenderPass } from '../passes/RenderPass';
 
 
-// @ts-ignore
 import fragmentShader from './glsl/outline/shader.frag';
-// @ts-ignore
 import vertexShader from './glsl/outline/shader.vert';
 import { ShaderPass } from '../passes/ShaderPass';
 import { OutlineMaterial } from '../materials/OutlineMaterial';

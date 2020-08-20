@@ -11,12 +11,12 @@ export default (options = {}): Hook => {
       const currentResource = await app.service('static-resource').get(data.id)
       currentResource.metadata = JSON.parse(currentResource.metadata)
 
-      if (currentResource.metadata.thumbnail_url !== data.metadata.thumbnail_url && data.metadata.thumbnail_url != null && data.metadata.thumbnail_url.length > 0) {
+      if (currentResource.metadata.thumbnailUrl !== data.metadata.thumbnailUrl && data.metadata.thumbnailUrl != null && data.metadata.thumbnailUrl.length > 0) {
         const existingThumbnails = await app.service('static-resource').find({
           query: {
             userId: params['identity-provider'].userId,
             parentResourceId: data.id,
-            url: currentResource.metadata.thumbnail_url || ''
+            url: currentResource.metadata.thumbnailUrl || ''
           }
         })
 
@@ -31,7 +31,7 @@ export default (options = {}): Hook => {
         params.storageProvider = new StorageProvider()
         const contextClone = _.cloneDeep(context)
         const result = await uploadThumbnailLinkHook()(contextClone)
-        data.metadata.thumbnail_url = (result as any).params.thumbnailUrl
+        data.metadata.thumbnailUrl = (result as any).params.thumbnailUrl
           .replace('s3.amazonaws.com/' + bucketName, config.aws.cloudfront.domain)
       }
     }

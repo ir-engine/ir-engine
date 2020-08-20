@@ -15,7 +15,6 @@ import {
 import { BlendFunction } from './blending/BlendFunction';
 import { Effect, EffectAttribute } from './Effect';
 
-// @ts-ignore
 import fragmentShader from './glsl/god-rays/shader.frag';
 import { Resizer } from '../core/Resizer';
 import { KernelSize } from '../materials/ConvolutionMaterial';

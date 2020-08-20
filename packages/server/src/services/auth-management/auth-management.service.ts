@@ -3,7 +3,6 @@ import { Application } from '../../declarations'
 import { Authmanagement } from './auth-management.class'
 import notifier from './auth-management.notifier'
 import hooks from './auth-management.hooks'
-// @ts-ignore
 import authManagement from 'feathers-authentication-management'
 
 declare module '../../declarations' {

@@ -3,10 +3,8 @@ import util from 'util'
 import { exec } from 'child_process'
 import * as path from 'path'
 import config from '../config'
-// @ts-ignore
 import youtubedl from 'youtube-dl'
 import AWS from 'aws-sdk'
-// @ts-ignore
 import S3BlobStore from 's3-blob-store'
 import { Application } from '../declarations'
 import StorageProvider from '../storage/storageprovider'
@@ -14,7 +12,6 @@ import createStaticResource from './create-static-resource'
 
 import fs from 'fs'
 import _ from 'lodash'
-// @ts-ignore
 import appRootPath from 'app-root-path'
 import uploadThumbnailLinkHook from './upload-thumbnail-link'
 import { BadRequest } from '@feathersjs/errors'
@@ -80,11 +77,11 @@ export default async (context: any): Promise<void> => {
     localContext.params.storageProvider = new StorageProvider()
     localContext.params.uploadPath = path.join('public', localContext.params.videoSource, fileId, 'video')
 
-    if (localContext.data.metadata.thumbnail_url != null && localContext.data.metadata.thumbnail_url.length > 0) {
+    if (localContext.data.metadata.thumbnailUrl != null && localContext.data.metadata.thumbnailUrl.length > 0) {
       const localContextClone = _.cloneDeep(localContext)
       localContextClone.params.parentResourceId = result.id
       thumbnailUploadResult = await uploadThumbnailLinkHook()(localContextClone)
-      localContext.params.thumbnailUrl = localContext.data.metadata.thumbnail_url = thumbnailUploadResult.params.thumbnailUrl
+      localContext.params.thumbnailUrl = localContext.data.metadata.thumbnailUrl = thumbnailUploadResult.params.thumbnailUrl
     }
 
     const s3Key = path.join('public', localContext.params.videoSource, fileId, 'video', dashManifestName)
@@ -121,8 +118,8 @@ export default async (context: any): Promise<void> => {
               })
           })
 
-          if (!localContext.data.metadata.thumbnail_url ||
-              localContext.data.metadata.thumbnail_url.length === 0) {
+          if (!localContext.data.metadata.thumbnailUrl ||
+              localContext.data.metadata.thumbnailUrl.length === 0) {
             console.log('Getting thumbnail from youtube-dl')
 
             const thumbnailUrlResult = await new Promise((resolve, reject) => {
@@ -138,14 +135,14 @@ export default async (context: any): Promise<void> => {
                 })
             })
 
-            localContext.data.metadata.thumbnail_url = (thumbnailUrlResult as any)[0]
-            localContext.result.metadata.thumbnail_url = localContext.data.metadata.thumbnail_url
+            localContext.data.metadata.thumbnailUrl = (thumbnailUrlResult as any)[0]
+            localContext.result.metadata.thumbnailUrl = localContext.data.metadata.thumbnailUrl
 
             const localContextClone = _.cloneDeep(localContext)
             localContextClone.params.parentResourceId = result.id
             thumbnailUploadResult = await uploadThumbnailLinkHook()(localContextClone)
 
-            localContext.data.metadata.thumbnail_url = thumbnailUploadResult.params.thumbnailUrl
+            localContext.data.metadata.thumbnailUrl = thumbnailUploadResult.params.thumbnailUrl
           }
 
           console.log('Finished downloading video ' + fileId + ', running through ffmpeg')
@@ -206,8 +203,8 @@ export default async (context: any): Promise<void> => {
           })
         })
 
-        if (!localContext.data.metadata.thumbnail_url ||
-            localContext.data.metadata.thumbnail_url.length === 0) {
+        if (!localContext.data.metadata.thumbnailUrl ||
+            localContext.data.metadata.thumbnailUrl.length === 0) {
           console.log('Getting thumbnail from youtube-dl')
           localContext.params.storageProvider = new StorageProvider()
           localContext.params.uploadPath = s3Path
@@ -227,27 +224,25 @@ export default async (context: any): Promise<void> => {
               })
           })
 
-          localContext.data.metadata.thumbnail_url = (thumbnailUrlResult as any)[0]
-          localContext.result.metadata.thumbnail_url = localContext.data.metadata.thumbnail_url
+          localContext.data.metadata.thumbnailUrl = (thumbnailUrlResult as any)[0]
+          localContext.result.metadata.thumbnailUrl = localContext.data.metadata.thumbnailUrl
 
           const localContextClone = _.cloneDeep(localContext)
           localContextClone.params.parentResourceId = result.id
           thumbnailUploadResult = await uploadThumbnailLinkHook()(localContextClone)
 
-          localContext.data.metadata.thumbnail_url = thumbnailUploadResult.params.thumbnailUrl
+          localContext.data.metadata.thumbnailUrl = thumbnailUploadResult.params.thumbnailUrl
         } else {
-          localContext.data.metadata.thumbnail_url = localContext.params.thumbnailUrl
+          localContext.data.metadata.thumbnailUrl = localContext.params.thumbnailUrl
         }
 
         const creationPromises = (bucketObjects as any).map(async (object: any) => {
           const key = object.Key
 
-          // @ts-ignore
-          const extension = (key.match(extensionRegex)
+                    const extension = (key.match(extensionRegex)
             ? key.match(extensionRegex)[1]
             : 'application') as string
-          // @ts-ignore
-          const mimetype = mimetypeDict[extension]
+                    const mimetype = mimetypeDict[extension]
 
           localContext.data.url = 'https://' +
             path.join(config.aws.cloudfront.domain, key)
@@ -308,8 +303,7 @@ const uploadFile = async (localFilePath: string, fileId: string, context: any,
             const extension = extensionMatch
               ? extensionMatch[1]
               : 'application'
-            // @ts-ignore
-            const mimetype = mimetypeDict[extension]
+                        const mimetype = mimetypeDict[extension]
 
             const localContext = _.cloneDeep(context)
             localContext.params.file = {

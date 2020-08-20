@@ -1,4 +1,3 @@
-// @ts-ignore
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../declarations'
 

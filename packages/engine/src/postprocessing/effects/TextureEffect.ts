@@ -2,9 +2,7 @@ import { LinearEncoding, Matrix3, sRGBEncoding, Uniform } from 'three';
 import { ColorChannel } from '../core/ColorChannel';
 import { BlendFunction } from './blending/BlendFunction';
 import { Effect } from './Effect';
-// @ts-ignore
 import fragmentShader from './glsl/texture/shader.frag';
-// @ts-ignore
 import vertexShader from './glsl/texture/shader.vert';
 
 /**

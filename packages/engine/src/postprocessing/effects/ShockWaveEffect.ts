@@ -1,9 +1,7 @@
 import { Uniform, Vector2, Vector3 } from 'three';
 import { Effect } from './Effect'
 
-// @ts-ignore
 import fragmentShader from './glsl/shock-wave/shader.frag';
-// @ts-ignore
 import vertexShader from './glsl/shock-wave/shader.vert';
 
 /**

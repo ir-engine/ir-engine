@@ -17,9 +17,7 @@ import { ClearPass } from '../passes/ClearPass';
 import { ShaderPass } from '../passes/ShaderPass';
 import { BlendFunction } from './blending/BlendFunction';
 import { Effect, EffectAttribute } from './Effect';
-// @ts-ignore
 import fragmentShader from './glsl/smaa/shader.frag';
-// @ts-ignore
 import vertexShader from './glsl/smaa/shader.vert';
 
 
