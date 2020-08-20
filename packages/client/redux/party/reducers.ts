@@ -16,7 +16,7 @@ import {
   CREATED_PARTY_USER,
   PATCHED_PARTY_USER
 } from '../actions'
-import { PartyUser } from '@xr3ngine/common/interfaces/PartyUser'
+import { PartyUser } from '../../../shared/interfaces/PartyUser'
 import _ from 'lodash'
 
 export const initialState = {
@@ -45,6 +45,7 @@ const partyReducer = (state = immutableState, action: PartyAction): any => {
       return state
           .set('updateNeeded', true)
     case CREATED_PARTY_USER:
+      console.log('CREATED_PARTY_USER REDUCER')
       newValues = (action as CreatedPartyUserAction)
       partyUser = newValues.partyUser
       updateMap = _.cloneDeep(state.get('party'))

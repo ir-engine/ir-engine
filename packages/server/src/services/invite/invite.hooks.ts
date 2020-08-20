@@ -44,18 +44,10 @@ export default {
       async (context: HookContext) => {
         try {
           const { app, result } = context
-          await Promise.all(result.data.map((item) => {
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
-            return new Promise(async (resolve) => {
+          await Promise.all(result.data.map(async (item) => {
+            return await new Promise(async (resolve) => {
               if (item.inviteeId != null) {
-                try {
-                  item.invitee = await app.service('user').get(item.inviteeId)
-                } catch (err) {
-                  item.invitee = {
-                    id: 'abcd1234',
-                    name: 'A former user'
-                  }
-                }
+                item.invitee = await app.service('user').get(item.inviteeId)
               } else if (item.token) {
                 const identityProvider = await app.service('identity-provider').find({
                   query: {
@@ -63,14 +55,7 @@ export default {
                   }
                 })
                 if (identityProvider.data.length > 0) {
-                  try {
-                    item.invitee = await app.service('user').get(identityProvider.data[0].userId)
-                  } catch (err) {
-                    item.invtee = {
-                      id: 'abcd1234',
-                      name: 'A former user'
-                    }
-                  }
+                  item.invitee = await app.service('user').get(identityProvider.data[0].userId)
                 }
               }
               item.user = await app.service('user').get(item.userId)

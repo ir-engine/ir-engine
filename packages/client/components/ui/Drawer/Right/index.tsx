@@ -52,7 +52,7 @@ import {
 import {
     getInvitableGroups
 } from '../../../../redux/group/service'
-import { User } from '@xr3ngine/common/interfaces/User'
+import {User} from '../../../../../shared/interfaces/User'
 
 
 const mapStateToProps = (state: any): any => {
@@ -176,12 +176,14 @@ const Invites = (props: Props): any => {
 
     const packageInvite = (event: any): void => {
         const mappedIDProvider = identityProviderTabMap.get(tabIndex)
+        console.log('inviteState:')
+        console.log(inviteState)
         const sendData = {
             type: inviteState.get('targetObjectType') === 'user' ? 'friend' : inviteState.get('targetObjectType'),
             token: mappedIDProvider ? userToken : null,
             identityProviderType: mappedIDProvider ? mappedIDProvider : null,
             targetObjectId: inviteState.get('targetObjectId'),
-            inviteeId: (tabIndex === 2 || tabIndex === 3) ? userToken : null
+            invitee: (tabIndex === 2 || tabIndex === 3) ? userToken : null
         }
 
         sendInvite(sendData)
@@ -199,6 +201,15 @@ const Invites = (props: Props): any => {
     const confirmDelete = (inviteId) => {
         setDeletePending('')
         deleteInvite(inviteId)
+    }
+
+    const previousInvitePage = () => {
+        if (inviteTabIndex === 0) {
+            retrieveReceivedInvites(receivedInviteState.get('skip') - receivedInviteState.get('limit'))
+        }
+        else {
+            retrieveSentInvites(sentInviteState.get('skip') - sentInviteState.get('limit'))
+        }
     }
 
     const nextInvitePage = () => {
@@ -229,11 +240,7 @@ const Invites = (props: Props): any => {
         if (inviteState.get('receivedUpdateNeeded') === true && inviteState.get('getReceivedInvitesInProgress') !== true) {
             retrieveReceivedInvites()
         }
-        const value = targetObjectType === 'party' ? 2 : targetObjectType === 'group' ? 1 : 0
-        setInviteTypeIndex(value)
-        if (value === 0 && tabIndex === 3) {
-            setTabIndex(0)
-        }
+        setInviteTypeIndex(targetObjectType === 'party' ? 2 : targetObjectType === 'group' ? 1 : 0)
         if (targetObjectType == null || targetObjectType.length === 0) {
             updateInviteTarget('user', null)
         }
@@ -343,7 +350,7 @@ const Invites = (props: Props): any => {
                             return <div key={invite.id}>
                                 <ListItem>
                                     <ListItemAvatar>
-                                        <Avatar src={invite.invitee?.avatarUrl}/>
+                                        <Avatar src={invite.user.avatarUrl}/>
                                     </ListItemAvatar>
                                     {invite.inviteType === 'friend' && <ListItemText>{capitalize(invite.inviteType)} request
 										to {invite.invitee ? invite.invitee.name : invite.token}</ListItemText>}
@@ -354,7 +361,7 @@ const Invites = (props: Props): any => {
                                     {deletePending !== invite.id &&
 									<Button onClick={() => showDeleteConfirm(invite.id)}>Uninvite</Button>}
                                     {deletePending === invite.id &&
-									<div className="delete-confirm">
+									<div>
 										<Button variant="contained"
 										        color="primary"
 										        onClick={() => confirmDelete(invite.id)}

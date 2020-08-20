@@ -2,7 +2,6 @@ import {
   SENT_INVITES_RETRIEVED,
   RECEIVED_INVITES_RETRIEVED,
   INVITE_SENT,
-  CREATED_INVITE,
   REMOVED_INVITE,
   ACCEPTED_INVITE,
   DECLINED_INVITE,
@@ -11,9 +10,8 @@ import {
   FETCHING_RECEIVED_INVITES
 } from '../actions'
 
-import { Invite } from '@xr3ngine/common/interfaces/Invite'
-import { InviteResult } from '@xr3ngine/common/interfaces/InviteResult'
-import { User } from '@xr3ngine/common/interfaces/User'
+import { Invite } from '../../../shared/interfaces/Invite'
+import { InviteResult } from '../../../shared/interfaces/InviteResult'
 
 export interface InviteSentAction {
   type: string,
@@ -26,6 +24,10 @@ export interface InvitesRetrievedAction {
   total: number,
   limit: number
   skip: number
+}
+
+export interface InviteRemovedAction {
+  type: string
 }
 
 export interface InviteTargetSetAction {
@@ -42,23 +44,10 @@ export interface FetchingReceivedInvitesAction {
   type: string
 }
 
-export interface CreatedInviteAction {
-  type: string
-  invite: Invite
-  selfUser: User
-}
-
-export interface RemovedInviteAction {
-  type: string
-  invite: Invite
-  selfUser: User
-}
-
 export type InviteAction =
     InviteSentAction
     | InvitesRetrievedAction
-    | CreatedInviteAction
-    | RemovedInviteAction
+    | InviteRemovedAction
     | InviteTargetSetAction
     | FetchingReceivedInvitesAction
     | FetchingSentInvitesAction
@@ -89,20 +78,9 @@ export function retrievedReceivedInvites(inviteResult: InviteResult): InviteActi
     skip: inviteResult.skip
   }
 }
-
-export function createdInvite(invite: Invite, selfUser: User): InviteAction {
+export function removedInvite(): InviteAction {
   return {
-    type: CREATED_INVITE,
-    invite: invite,
-    selfUser: selfUser
-  }
-}
-
-export function removedInvite(invite: Invite, selfUser: User): InviteAction {
-  return {
-    type: REMOVED_INVITE,
-    invite: invite,
-    selfUser: selfUser
+    type: REMOVED_INVITE
   }
 }
 
