@@ -19,17 +19,16 @@ export class WebGLRendererSystem extends System {
   /**
    * Contstructs a new webGl renderer system
    *
-   * @param {Attributes} [attributes?: SystemAttributes]
+   * @param {SystemAttributes} attributes
    * @typedef {object} SystemAttributes with
    * @param {number} priority and has an propName signature.
-   * This is propName states that when a SystemAttributes is propName whith a string, it will return any type
    */
   constructor(attributes?: SystemAttributes) {
     super(attributes);
     // Create the Three.js WebGL renderer
   }
   /**
-     * Initialization here renderer component
+     * Initialization here renderer
      */
   init(): void {
     // Create the Renderer singleton
