@@ -9,7 +9,7 @@ import {
 } from './actions'
 import {dispatchAlertError} from "../alert/service";
 import store from '../store'
-import { User } from '../../../shared/interfaces/User'
+import { User } from '@xr3ngine/common/interfaces/User'
 
 // export function getUserRelationship(userId: string) {
 //   return (dispatch: Dispatch): any => {

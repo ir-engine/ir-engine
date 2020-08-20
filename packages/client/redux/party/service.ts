@@ -11,7 +11,7 @@ import {
 } from './actions'
 import { dispatchAlertError } from '../alert/service'
 import store from './../store'
-// import { Party } from '../../../shared/interfaces/Party'
+// import { Party } from '@xr3ngine/common/interfaces/Party'
 
 export function getParty () {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {

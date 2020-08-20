@@ -13,8 +13,8 @@ import {
   REMOVED_FRIEND,
   FETCHING_FRIENDS
 } from '../actions'
-import { User } from '../../../shared/interfaces/User'
-import { UserRelationship } from '../../../shared/interfaces/UserRelationship'
+import { User } from '@xr3ngine/common/interfaces/User'
+import { UserRelationship } from '@xr3ngine/common/interfaces/UserRelationship'
 import _ from 'lodash'
 
 export const initialState = {
