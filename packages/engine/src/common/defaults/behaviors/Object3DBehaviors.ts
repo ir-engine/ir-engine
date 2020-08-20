@@ -48,7 +48,7 @@ import {
 import { hasRegisteredComponent } from '../../../ecs/functions/ComponentFunctions';
 
 import { SkyboxComponent } from '../../../scene/components/SkyboxComponent';
-import { Engine } from '../../../ecs';
+import { Engine } from '../../../ecs/classes/Engine';
 
 export function addTagComponentFromBehavior<C> (
   entity: Entity,

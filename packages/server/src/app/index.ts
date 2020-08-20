@@ -25,7 +25,6 @@ import K8s from 'k8s'
 import { WebRTCGameServer } from "../gameserver/WebRTCGameServer"
 
 import winston from 'winston'
-// @ts-ignore
 import feathersLogger from 'feathers-logger'
 import { EventEmitter } from 'events'
 
@@ -37,6 +36,12 @@ const app: Application = express(feathers())
 const agonesSDK = new AgonesSDK()
 
 const gameserver = new WebRTCGameServer()
+
+function healthPing (agonesSDK: AgonesSDK): void {
+  agonesSDK.health()
+  setTimeout(() => healthPing(agonesSDK), 1000)
+}
+
 
 app.set('nextReadyEmitter', emitter)
 
@@ -134,9 +139,5 @@ app.use(express.errorHandler({ logger } as any))
   app.all('/spoke/*', (req, res) => res.sendFile(path.join(spokePath, 'spoke/index.html')))
 
 
-export default app
 
-function healthPing (agonesSDK: AgonesSDK): void {
-  agonesSDK.health()
-  setTimeout(() => healthPing(agonesSDK), 1000)
-}
+export default app

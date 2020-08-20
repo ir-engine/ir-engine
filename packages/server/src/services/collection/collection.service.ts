@@ -6,7 +6,7 @@ import hooks from './collection.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'collection': Collection & ServiceAddons<any>
+    'collection': Collection & ServiceAddons<any>;
   }
 }
 

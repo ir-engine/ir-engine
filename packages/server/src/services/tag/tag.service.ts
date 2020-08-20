@@ -6,7 +6,7 @@ import hooks from './tag.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'tag': Tag & ServiceAddons<any>
+    'tag': Tag & ServiceAddons<any>;
   }
 }
 

@@ -6,7 +6,7 @@ import hooks from './entity-type.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'entity-type': EntityType & ServiceAddons<any>
+    'entity-type': EntityType & ServiceAddons<any>;
   }
 }
 

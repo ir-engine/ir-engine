@@ -1,6 +1,6 @@
-import React from 'react'
-import './style.scss'
-import { connect } from 'react-redux'
+import React from 'react';
+import './style.scss';
+import { connect } from 'react-redux';
 
 const Index = (): any => (
   <div className="container">
@@ -11,6 +11,6 @@ const Index = (): any => (
       XR Space
     </div>
   </div>
-)
+);
 
-export default connect()(Index)
+export default connect()(Index);

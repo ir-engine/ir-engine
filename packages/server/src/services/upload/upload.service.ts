@@ -12,7 +12,7 @@ const multipartMiddleware = multer()
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'upload': Upload & ServiceAddons<any>
+    'upload': Upload & ServiceAddons<any>;
   }
 }
 

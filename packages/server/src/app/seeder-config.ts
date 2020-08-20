@@ -12,8 +12,7 @@ import SubscriptionTypeSeed from '../services/subscription-type/subscription-typ
 import UserRelationshipTypeSeed from '../services/user-relationship-type/user-relationship-type.seed'
 import UserRoleSeed from '../services/user-role/user-role.seed'
 
-module.exports = {
-  services: [
+export const services = [
     ChannelTypeSeed,
     CollectionTypeSeed,
     MessageStatusSeed,
@@ -28,4 +27,5 @@ module.exports = {
     UserRelationshipTypeSeed,
     UserRoleSeed
   ]
-}
+
+export default services

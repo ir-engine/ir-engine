@@ -5,7 +5,7 @@ import hooks from './project.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'project': Project & ServiceAddons<any>
+    'project': Project & ServiceAddons<any>;
   }
 }
 

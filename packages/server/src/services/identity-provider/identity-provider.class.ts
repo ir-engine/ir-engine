@@ -4,7 +4,7 @@ import { Sequelize } from 'sequelize'
 import { v1 as uuidv1 } from 'uuid'
 
 interface Data {
-  userId: string
+  userId: string;
 }
 
 export class IdentityProvider extends Service {

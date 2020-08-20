@@ -5,7 +5,7 @@ import hooks from './video.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'video': Video & ServiceAddons<any>
+    'video': Video & ServiceAddons<any>;
   }
 }
 

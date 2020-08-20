@@ -1,13 +1,13 @@
-import React from 'react'
-import CssBaseline from '@material-ui/core/CssBaseline'
-import Typography from '@material-ui/core/Typography'
-import ArrowBackIcon from '@material-ui/icons/ArrowBack'
-import { makeStyles } from '@material-ui/core/styles'
-import Container from '@material-ui/core/Container'
-import Plans from './plans'
-import { Tabs, Tab, Box, Button } from '@material-ui/core'
-import { client } from '../../../redux/feathers'
-import { useRouter } from 'next/router'
+import React from 'react';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Typography from '@material-ui/core/Typography';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import { makeStyles } from '@material-ui/core/styles';
+import Container from '@material-ui/core/Container';
+import Plans from './plans';
+import { Tabs, Tab, Box, Button } from '@material-ui/core';
+import { client } from '../../../redux/feathers';
+import { useRouter } from 'next/router';
 
 const useStyles = makeStyles((theme) => ({
   '@global': {
@@ -23,17 +23,17 @@ const useStyles = makeStyles((theme) => ({
   tabs: {
     marginBottom: 20
   }
-}))
+}));
 
 interface TabPanelProps {
-  children?: React.ReactNode
-  dir?: string
-  index: string | number
-  value: any
+  children?: React.ReactNode;
+  dir?: string;
+  index: string | number;
+  value: any;
 }
 
 const TabPanel = (props: TabPanelProps): any => {
-  const { children, value, index, ...other } = props
+  const { children, value, index, ...other } = props;
   return (
     <Box
       role="tabpanel"
@@ -47,32 +47,32 @@ const TabPanel = (props: TabPanelProps): any => {
         </Box>
       )}
     </Box>
-  )
-}
+  );
+};
 
 const Pricing = (): any => {
-  const classes = useStyles()
-  const [value, setValue] = React.useState(0)
-  const [monthly, setMonthly] = React.useState([])
-  const [annual, setAnnual] = React.useState([])
+  const classes = useStyles();
+  const [value, setValue] = React.useState(0);
+  const [monthly, setMonthly] = React.useState([]);
+  const [annual, setAnnual] = React.useState([]);
 
   React.useEffect(() => {
     client.service('subscription-type').find()
       .then(response => {
-        filterData(response.data)
+        filterData(response.data);
       })
-      .catch(err => console.log(err))
-  }, [])
+      .catch(err => console.log(err));
+  }, []);
 
-  const router = useRouter()
+  const router = useRouter();
   const filterData = (planData): any => {
-    setMonthly(planData.filter(plan => plan.type === 'monthly').sort((planA, planB) => planA.amount - planB.amount))
-    setAnnual(planData.filter(plan => plan.type === 'annual').sort((planA, planB) => planA.amount - planB.amount))
-  }
+    setMonthly(planData.filter(plan => plan.type === 'monthly').sort((planA, planB) => planA.amount - planB.amount));
+    setAnnual(planData.filter(plan => plan.type === 'annual').sort((planA, planB) => planA.amount - planB.amount));
+  };
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number): any => {
-    setValue(newValue)
-  }
+    setValue(newValue);
+  };
 
   return (
     <React.Fragment>
@@ -110,7 +110,7 @@ const Pricing = (): any => {
         {/*</TabPanel>*/}
       </div>
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default Pricing
+export default Pricing;

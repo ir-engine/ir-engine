@@ -1,81 +1,81 @@
-import React, { KeyboardEvent, MouseEvent, useRef, useState, useEffect } from 'react'
-import Button from '@material-ui/core/Button'
-import ClickAwayListener from '@material-ui/core/ClickAwayListener'
-import Grow from '@material-ui/core/Grow'
-import Paper from '@material-ui/core/Paper'
-import Popper from '@material-ui/core/Popper'
-import MenuItem from '@material-ui/core/MenuItem'
-import MenuList from '@material-ui/core/MenuList'
-import ProfileModal from './index'
-import Router from 'next/router'
+import React, { KeyboardEvent, MouseEvent, useRef, useState, useEffect } from 'react';
+import Button from '@material-ui/core/Button';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import Grow from '@material-ui/core/Grow';
+import Paper from '@material-ui/core/Paper';
+import Popper from '@material-ui/core/Popper';
+import MenuItem from '@material-ui/core/MenuItem';
+import MenuList from '@material-ui/core/MenuList';
+import ProfileModal from './index';
+import Router from 'next/router';
 
-import Avatar from '@material-ui/core/Avatar'
-import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle'
+import Avatar from '@material-ui/core/Avatar';
+import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 
 interface Props {
-  avatarUrl: any
-  logoutUser: any
-  auth: any
+  avatarUrl: any;
+  logoutUser: any;
+  auth: any;
 }
 
 const MenuListComposition = (props: Props): any => {
-  const { avatarUrl, logoutUser, auth } = props
-  const [open, setOpen] = useState(false)
-  const [modalOpen, setModalOpen] = useState(false)
-  const anchorRef = useRef<HTMLButtonElement>(null)
+  const { avatarUrl, logoutUser, auth } = props;
+  const [open, setOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const anchorRef = useRef<HTMLButtonElement>(null);
 
   const handleToggle = (): any => {
-    setOpen((prevOpen) => !prevOpen)
-  }
+    setOpen((prevOpen) => !prevOpen);
+  };
   const handleModal = (): any => {
-    setModalOpen(true)
-    setOpen(false)
-  }
+    setModalOpen(true);
+    setOpen(false);
+  };
   const handleClose = (event: MouseEvent<EventTarget>): any => {
     if (
       anchorRef.current &&
       anchorRef.current.contains(event.target as HTMLElement)
     ) {
-      return
+      return;
     }
 
-    setOpen(false)
-  }
+    setOpen(false);
+  };
   const handleLogout = (): any => {
-    logoutUser()
-    setOpen(false)
-  }
+    logoutUser();
+    setOpen(false);
+  };
 
   const handleListKeyDown = (event: KeyboardEvent): any => {
     if (event.key === 'Tab') {
-      event.preventDefault()
-      setOpen(false)
+      event.preventDefault();
+      setOpen(false);
     }
-  }
+  };
 
   const handleSubscription = (): any => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    Router.push('/subscribe/signup')
-  }
+    Router.push('/subscribe/signup');
+  };
 
   // const handleContacts = () => {
   //   Router.push('/friends/friends')
   // }
   const handleAdminConsole = (): any => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    Router.push('/admin')
-  }
+    Router.push('/admin');
+  };
   const modalClose = (): any => {
-    setModalOpen(false)
-  }
-  const prevOpen = useRef(open)
+    setModalOpen(false);
+  };
+  const prevOpen = useRef(open);
   useEffect(() => {
     if (prevOpen.current && !open) {
-      anchorRef.current.focus()
+      anchorRef.current.focus();
     }
 
-    prevOpen.current = open
-  }, [open])
+    prevOpen.current = open;
+  }, [open]);
 
   return (
     <div>
@@ -133,7 +133,7 @@ const MenuListComposition = (props: Props): any => {
         auth={auth}
       />
     </div>
-  )
-}
+  );
+};
 
-export default MenuListComposition
+export default MenuListComposition;

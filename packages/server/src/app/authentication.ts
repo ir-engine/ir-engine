@@ -10,7 +10,7 @@ import { MyJwtStrategy } from '../strategies/jwt'
 
 declare module '../declarations' {
   interface ServiceTypes {
-    'authentication': AuthenticationService & ServiceAddons<any>
+    'authentication': AuthenticationService & ServiceAddons<any>;
   }
 }
 

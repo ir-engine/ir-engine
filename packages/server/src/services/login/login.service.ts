@@ -8,7 +8,19 @@ import config from '../../config'
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'login': Login & ServiceAddons<any>
+    'login': Login & ServiceAddons<any>;
+  }
+}
+
+function redirect (req, res, next): Promise<any> {
+  try {
+    if (res.data.error) {
+      return res.redirect(`${(config.client.url)}/?error=${(res.data.error as string)}`)
+    }
+    return res.redirect(`${(config.client.url)}/auth/magiclink?type=login&token=${(res.data.token as string)}`)
+  } catch (err) {
+    console.log(err)
+    throw err
   }
 }
 
@@ -24,16 +36,4 @@ export default function (app: Application): any {
   const service = app.service('login')
 
   service.hooks(hooks)
-}
-
-function redirect (req, res, next): Promise<any> {
-  try {
-    if (res.data.error) {
-      return res.redirect(`${(config.client.url)}/?error=${(res.data.error as string)}`)
-    }
-    return res.redirect(`${(config.client.url)}/auth/magiclink?type=login&token=${(res.data.token as string)}`)
-  } catch (err) {
-    console.log(err)
-    throw err
-  }
 }

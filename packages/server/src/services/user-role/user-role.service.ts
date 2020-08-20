@@ -6,7 +6,7 @@ import hooks from './user-role.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'user-role': UserRole & ServiceAddons<any>
+    'user-role': UserRole & ServiceAddons<any>;
   }
 }
 

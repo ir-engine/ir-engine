@@ -6,7 +6,7 @@ import hooks from './party.hooks'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    'party': Party & ServiceAddons<any>
+    'party': Party & ServiceAddons<any>;
   }
 }
 

@@ -1,7 +1,7 @@
 import { User } from './User'
 
-export interface GroupUser {
+export type GroupUser = {
   id: string
-  groupUserRank: string
+  groupUserRank: string,
   user: User
 }
