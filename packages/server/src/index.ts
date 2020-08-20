@@ -1,5 +1,5 @@
 import logger from './app/logger'
-import app from './app'
+import app from './app/index'
 import config from './config'
 import fs from 'fs'
 import https from 'https'
@@ -43,3 +43,4 @@ process.on('unhandledRejection', (reason, p) =>
 server.on('listening', () =>
   logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
 )
+

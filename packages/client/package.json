@@ -69,6 +69,7 @@
     "graphql-tag": "^2.10.3",
     "helmet": "^4.1.0",
     "immutable": "^4.0.0-rc.12",
+    "is-promise": "4.0.0",
     "isomorphic-unfetch": "3.0.0",
     "jest": "^26.0.1",
     "jszip": "^3.5.0",
