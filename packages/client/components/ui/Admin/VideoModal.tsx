@@ -1,45 +1,45 @@
-import React, { useEffect, useState } from 'react'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Backdrop from '@material-ui/core/Backdrop'
-import Checkbox from '@material-ui/core/Checkbox'
-import Grid from '@material-ui/core/Grid'
-import InputLabel from '@material-ui/core/InputLabel'
-import MenuItem from '@material-ui/core/MenuItem'
-import Modal from '@material-ui/core/Modal'
-import Select from '@material-ui/core/Select'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import React, { useEffect, useState } from 'react';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Backdrop from '@material-ui/core/Backdrop';
+import Checkbox from '@material-ui/core/Checkbox';
+import Grid from '@material-ui/core/Grid';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import Modal from '@material-ui/core/Modal';
+import Select from '@material-ui/core/Select';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
 import {
   createVideo,
   updateVideo,
   deleteVideo
-} from '../../../redux/admin/service'
-import './admin.scss'
-import { selectAdminState } from '../../../redux/admin/selector'
+} from '../../../redux/admin/service';
+import './admin.scss';
+import { selectAdminState } from '../../../redux/admin/selector';
 interface Props {
-  open: boolean
-  handleClose: any
-  createVideo?: typeof createVideo
-  updateVideo?: typeof updateVideo
-  deleteVideo?: typeof deleteVideo
-  admin?: any
-  video?: any
-  mode: string
+  open: boolean;
+  handleClose: any;
+  createVideo?: typeof createVideo;
+  updateVideo?: typeof updateVideo;
+  deleteVideo?: typeof deleteVideo;
+  admin?: any;
+  video?: any;
+  mode: string;
 }
 
 const mapStateToProps = (state: any): any => {
   return {
     admin: selectAdminState(state)
-  }
-}
+  };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   createVideo: bindActionCreators(createVideo, dispatch),
   updateVideo: bindActionCreators(updateVideo, dispatch),
   deleteVideo: bindActionCreators(deleteVideo, dispatch)
-})
+});
 const VideoModal = (props: Props): any => {
   const initialState = {
     id: props.video?.id ? props.video.id : '',
@@ -51,13 +51,13 @@ const VideoModal = (props: Props): any => {
     category1: props.video?.metadata?.categories ? props.video.metadata.categories[0] : '',
     category2: props.video?.metadata?.categories ? props.video.metadata.categories[1] : '',
     // eslint-disable-next-line camelcase
-    thumbnail_url: props.video?.metadata?.thumbnail_url ? props.video.metadata.thumbnail_url : '',
+    thumbnailUrl: props.video?.metadata?.thumbnailUrl ? props.video.metadata.thumbnailUrl : '',
     runtime: props.video?.metadata?.runtime ? props.video.metadata.runtime : '',
     stereoscopic: props.video?.metadata?.stereoscopic ? props.video.metadata.stereoscopic : false,
     subscriptionLevel: props.video?.subscriptionLevel ? props.video.subscriptionLevel : 'all'
-  }
+  };
 
-  const [state, setState] = useState(initialState)
+  const [state, setState] = useState(initialState);
 
   useEffect(() => {
     const newState = {
@@ -70,26 +70,26 @@ const VideoModal = (props: Props): any => {
       category1: props.video?.metadata?.categories ? props.video.metadata.categories[0] : '',
       category2: props.video?.metadata?.categories ? props.video.metadata.categories[1] : '',
       // eslint-disable-next-line camelcase
-      thumbnail_url: props.video?.metadata?.thumbnail_url ? props.video.metadata.thumbnail_url : '',
+      thumbnailUrl: props.video?.metadata?.thumbnailUrl ? props.video.metadata.thumbnailUrl : '',
       runtime: props.video?.metadata?.runtime ? props.video.metadata.runtime : '',
       stereoscopic: props.video?.metadata?.stereoscopic ? props.video.metadata.stereoscopic : false,
       subscriptionLevel: props.video?.subscriptionLevel ? props.video.subscriptionLevel : 'all'
-    }
+    };
     if (newState !== state) {
-      setState(newState)
+      setState(newState);
     }
-  }, [props.video])
+  }, [props.video]);
 
   const handleInput = (e: any): void => {
-    state[e.target.name] = e.target.value
-  }
+    state[e.target.name] = e.target.value;
+  };
 
   const handleCheck = (e: any): void => {
-    state[e.target.name] = e.target.checked
-  }
+    state[e.target.name] = e.target.checked;
+  };
 
   const createVideo = (e: any): void => {
-    e.preventDefault()
+    e.preventDefault();
 
     const form = {
       id: state.id,
@@ -99,35 +99,35 @@ const VideoModal = (props: Props): any => {
       creator: state.creator,
       metadata: {
         rating: state.rating,
-        thumbnail_url: state.thumbnail_url,
+        thumbnailUrl: state.thumbnailUrl,
         categories: [],
         runtime: state.runtime,
         stereoscopic: state.stereoscopic
       },
       subscriptionLevel: state.subscriptionLevel
-    }
+    };
 
     if (state.category1.length > 0) {
-      form.metadata.categories.push(state.category1)
+      form.metadata.categories.push(state.category1);
     }
     if (state.category2.length > 0) {
-      form.metadata.categories.push(state.category2)
+      form.metadata.categories.push(state.category2);
     }
 
     if (props.mode === 'create') {
-      delete form.id
-      props.createVideo(form)
-      props.handleClose()
+      delete form.id;
+      props.createVideo(form);
+      props.handleClose();
     } else {
-      props.updateVideo(form)
-      props.handleClose()
+      props.updateVideo(form);
+      props.handleClose();
     }
-  }
+  };
 
   const deleteVideo = (id: string): void => {
-    props.deleteVideo(id)
-    props.handleClose()
-  }
+    props.deleteVideo(id);
+    props.handleClose();
+  };
 
   return (
     <div>
@@ -272,11 +272,11 @@ const VideoModal = (props: Props): any => {
                   margin="normal"
                   required
                   fullWidth
-                  name="thumbnail_url"
+                  name="thumbnailUrl"
                   label="Thumbnail URL"
-                  id="thumbnail_url"
-                  autoComplete="thumbnail_url"
-                  defaultValue={state.thumbnail_url}
+                  id="thumbnailUrl"
+                  autoComplete="thumbnailUrl"
+                  defaultValue={state.thumbnailUrl}
                   onChange={(e) => handleInput(e)}
                 />
               </Grid>
@@ -332,10 +332,10 @@ const VideoModal = (props: Props): any => {
         </div>
       </Modal>
     </div>
-  )
-}
+  );
+};
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(VideoModal)
+)(VideoModal);

@@ -1,41 +1,41 @@
-import Immutable from 'immutable'
+import Immutable from 'immutable';
 import {
   UserAction,
   LoadedUserRelationshipAction,
   LoadedUsersAction
-} from './actions'
+} from './actions';
 
 import {
   LOADED_RELATIONSHIP,
   LOADED_USERS,
   CHANGED_RELATION
-} from '../actions'
-import { RelationshipSeed } from '@xr3ngine/common/interfaces/Relationship'
+} from '../actions';
+import { RelationshipSeed } from '@xr3ngine/common/interfaces/Relationship';
 
 export const initialState = {
   relationship: RelationshipSeed,
   users: [],
   updateNeeded: true
-}
+};
 
-const immutableState = Immutable.fromJS(initialState)
+const immutableState = Immutable.fromJS(initialState);
 
 const userReducer = (state = immutableState, action: UserAction): any => {
   switch (action.type) {
     case LOADED_RELATIONSHIP:
       return state
         .set('relationship', (action as LoadedUserRelationshipAction).relationship)
-        .set('updateNeeded', false)
+        .set('updateNeeded', false);
     case LOADED_USERS:
       return state
         .set('users', (action as LoadedUsersAction).users)
-        .set('updateNeeded', false)
+        .set('updateNeeded', false);
     case CHANGED_RELATION:
       return state
-        .set('updateNeeded', true)
+        .set('updateNeeded', true);
   }
 
-  return state
-}
+  return state;
+};
 
-export default userReducer
+export default userReducer;

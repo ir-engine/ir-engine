@@ -1,6 +1,6 @@
 import { PartyUser } from './PartyUser'
 
-export interface Party {
+export type Party = {
   id: string
   partyUsers: PartyUser[]
 }

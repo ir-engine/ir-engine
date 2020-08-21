@@ -1,8 +1,8 @@
 import { Group } from './Group'
 
-export interface GroupResult {
-  data: Group[]
-  total: number
+export type GroupResult = {
+  data: Group[],
+  total: number,
   limit: number
   skip: number
 }

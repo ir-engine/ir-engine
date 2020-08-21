@@ -1,8 +1,8 @@
 import "./webxr-input.mock"
-//jest.mock("./webxr-input.mock")
 
 import { InputSystem } from "../../src/input/systems/InputSystem"
-import { initializeEngine, registerSystem, getSystem } from "../../src/ecs"
+import { initializeEngine } from "../../src/initialize"
+import { registerSystem, getSystem } from "../../src/ecs/functions/SystemFunctions"
 
 test("check navigator", () => {
   expect("xr" in navigator).toBeTruthy()

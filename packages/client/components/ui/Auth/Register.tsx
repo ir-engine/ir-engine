@@ -1,50 +1,50 @@
-import React, { useState } from 'react'
-import Avatar from '@material-ui/core/Avatar'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import Link from '@material-ui/core/Link'
-import Grid from '@material-ui/core/Grid'
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
-import Typography from '@material-ui/core/Typography'
-import Container from '@material-ui/core/Container'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { registerUserByEmail } from '../../../redux/auth/service'
-import SignIn from './Login'
-import './style.scss'
-import { showDialog } from '../../../redux/dialog/service'
+import React, { useState } from 'react';
+import Avatar from '@material-ui/core/Avatar';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import Link from '@material-ui/core/Link';
+import Grid from '@material-ui/core/Grid';
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import Typography from '@material-ui/core/Typography';
+import Container from '@material-ui/core/Container';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
+import { registerUserByEmail } from '../../../redux/auth/service';
+import SignIn from './Login';
+import './style.scss';
+import { showDialog } from '../../../redux/dialog/service';
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch),
   showDialog: bindActionCreators(showDialog, dispatch)
-})
+});
 
 interface Props {
-  registerUserByEmail: typeof registerUserByEmail
-  showDialog: typeof showDialog
+  registerUserByEmail: typeof registerUserByEmail;
+  showDialog: typeof showDialog;
 }
 
 const SignUp = (props: Props): any => {
-  const { registerUserByEmail, showDialog } = props
+  const { registerUserByEmail, showDialog } = props;
   const initialState = {
     email: '',
     password: '',
     phone: ''
-  }
-  const [state, setState] = useState(initialState)
+  };
+  const [state, setState] = useState(initialState);
 
   const handleInput = (e: any): void => {
-    e.preventDefault()
-    setState({ ...state, [e.target.name]: e.target.value })
-  }
+    e.preventDefault();
+    setState({ ...state, [e.target.name]: e.target.value });
+  };
 
   const handleRegister = (e: any): void => {
-    e.preventDefault()
+    e.preventDefault();
     registerUserByEmail({
       email: state.email,
       password: state.password
-    })
-  }
+    });
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -112,9 +112,9 @@ const SignUp = (props: Props): any => {
         </form>
       </div>
     </Container>
-  )
-}
+  );
+};
 
-const SignUpWrapper = (props: any): any => <SignUp {...props} />
+const SignUpWrapper = (props: any): any => <SignUp {...props} />;
 
-export default connect(mapDispatchToProps)(SignUpWrapper)
+export default connect(mapDispatchToProps)(SignUpWrapper);

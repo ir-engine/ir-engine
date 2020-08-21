@@ -1,33 +1,33 @@
-import React from 'react'
-import Grid from '@material-ui/core/Grid'
-import Divider from '@material-ui/core/Divider'
-import Typography from '@material-ui/core/Typography'
-import { connect } from 'react-redux'
-import { selectAuthState } from '../../../redux/auth/selector'
-import SingleConnection from './SingleConnection'
-import { User } from '@xr3ngine/common/interfaces/User'
-import './style.scss'
+import React from 'react';
+import Grid from '@material-ui/core/Grid';
+import Divider from '@material-ui/core/Divider';
+import Typography from '@material-ui/core/Typography';
+import { connect } from 'react-redux';
+import { selectAuthState } from '../../../redux/auth/selector';
+import SingleConnection from './SingleConnection';
+import { User } from '@xr3ngine/common/interfaces/User';
+import './style.scss';
 
 interface Props {
-  auth: any
-  classes: any
+  auth: any;
+  classes: any;
 }
 
 const mapStateToProps = (state: any): any => {
   return {
     auth: selectAuthState(state)
-  }
-}
+  };
+};
 
-const mapDispatchToProps = (): any => ({})
+const mapDispatchToProps = (): any => ({});
 
 const ProfileConnections = (props: Props): any => {
-  const { classes } = props
-  const user = props.auth.get('user') as User
+  const { classes } = props;
+  const user = props.auth.get('user') as User;
 
   if (!user) {
     // window.location.href = '/'
-    return <div />
+    return <div />;
   }
 
   return (
@@ -53,12 +53,12 @@ const ProfileConnections = (props: Props): any => {
       <Divider variant="middle" />
       <SingleConnection connectionType="google" />
     </div>
-  )
-}
+  );
+};
 
-const ProfileConnectionsWrapper = (props: any): any => <ProfileConnections {...props} />
+const ProfileConnectionsWrapper = (props: any): any => <ProfileConnections {...props} />;
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(ProfileConnectionsWrapper)
+)(ProfileConnectionsWrapper);

@@ -1,0 +1,58 @@
+{
+  "name": "@xr3ngine/devtools",
+  "version": "0.2.0",
+  "description": "DevTools for XR3ngine",
+  "main": "content-script.js",
+  "scripts": {
+    "webpack": "webpack --progress",
+    "development": "webpack --mode development",
+    "production": "webpack --mode production",
+    "watch": "webpack --mode development --watch",
+    "sync": "webpack --mode development watch --sync"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xr3ngine/exr3ngine.git"
+  },
+  "author": "XR3ngine",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xr3ngine/xr3ngine/issues"
+  },
+  "homepage": "https://github.com/xr3ngine/xr3ngine#readme",
+  "devDependencies": {
+    "@babel/core": "^7.6.4",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/preset-env": "^7.6.3",
+    "@babel/preset-react": "^7.6.3",
+    "babel-loader": "^8.0.6",
+    "babel-plugin-styled-components": "^1.10.6",
+    "clean-webpack-plugin": "^2.0.2",
+    "css-loader": "^2.1.1",
+    "file-loader": "^4.2.0",
+    "prop-types": "^15.7.2",
+    "react-svg-loader": "^3.0.3",
+    "style-loader": "^1.0.0",
+    "webextension-polyfill": "^0.4.0",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.9",
+    "why-did-you-update": "^1.0.6"
+  },
+  "dependencies": {
+    "classnames": "^2.2.6",
+    "events": "^3.0.0",
+    "express": "^4.17.1",
+    "incremental-stats-lite": "^0.1.1",
+    "peerjs": "^1.1.0",
+    "react": "^16.10.2",
+    "react-dom": "^16.10.2",
+    "react-fast-compare": "^2.0.4",
+    "react-icons": "^3.8.0",
+    "react-json-tree": "^0.11.2",
+    "react-minimal-pie-chart": "^5.0.2",
+    "smoothie": "^1.35.0",
+    "socket.io": "^2.3.0",
+    "styled-components": "^4.4.0",
+    "ts-loader": "^8.0.2"
+  }
+}

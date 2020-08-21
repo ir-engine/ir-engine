@@ -15,7 +15,7 @@
       import * as ECSY from "ecsy"
       import * as ECSYTHREE from "ecsy-three"
       import * as ECSYTHREEX from "ecsy-three/extras"
-      import * as PARTICLES from "../../dist/armada.js"
+      import * as PARTICLES from "../../dist/engine.js"
       import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 
       const DEG2RAD = THREE.MathUtils.DEG2RAD
@@ -512,8 +512,7 @@
       //     lifeTime: 0.4,
       //     repeatTime: 2,
       //     scales: [2],
-      //     // @ts-ignore
-      //     get offset() {
+      //           //     get offset() {
       //       return PARTICLES.randomBoxOffset(0.3, 0, 0.3)
       //     },
       //     get velocity() {

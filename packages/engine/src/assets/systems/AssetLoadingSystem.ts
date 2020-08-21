@@ -22,6 +22,7 @@ export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
 
   init () {
+    this.loaded = new Map<Entity, any>()
   }
 
   execute () {
@@ -68,7 +69,7 @@ export default class AssetLoadingSystem extends System {
         }
       } else {
         addComponent(entity, Model, { value: asset });
-        addObject3DComponent(entity, { obj: asset, parent: component.parent });
+        addObject3DComponent(entity, { obj3d: asset, parent: component.parent });
       }
 
       if (component.onLoaded) {

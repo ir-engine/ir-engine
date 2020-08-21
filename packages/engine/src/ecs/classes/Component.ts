@@ -145,5 +145,5 @@ export class Component<C> {
 
 Component.schema = {};
 Component.getName = function () {
-  return this.displayName || this.name;
+  return this.name;
 };

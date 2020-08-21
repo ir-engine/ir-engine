@@ -1,12 +1,12 @@
-import { Dispatch } from 'redux'
-import { client } from '../feathers'
+import { Dispatch } from 'redux';
+import { client } from '../feathers';
 import {
   loadedFriends,
   createdFriend,
   patchedFriend,
   removedFriend,
   fetchingFriends
-} from './actions'
+} from './actions';
 import {dispatchAlertError} from "../alert/service";
 import store from '../store'
 import { User } from '@xr3ngine/common/interfaces/User'
@@ -33,7 +33,7 @@ import { User } from '@xr3ngine/common/interfaces/User'
 
 export function getFriends(search: string, skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    dispatch(fetchingFriends())
+    dispatch(fetchingFriends());
     try {
       const friendResult = await client.service('user').find({
         query: {
@@ -42,14 +42,14 @@ export function getFriends(search: string, skip?: number, limit?: number) {
           $skip: skip != null ? skip : getState().get('friends').get('friends').get('skip'),
           search
         }
-      })
-      dispatch(loadedFriends(friendResult))
+      });
+      dispatch(loadedFriends(friendResult));
     } catch(err) {
-      console.log(err)
-      dispatchAlertError(dispatch, err.message)
-      dispatch(loadedFriends({ data: [], limit: 0, skip: 0, total: 0 }))
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+      dispatch(loadedFriends({ data: [], limit: 0, skip: 0, total: 0 }));
     }
-  }
+  };
 }
 
 // function createRelation(userId: string, relatedUserId: string, type: 'friend' | 'blocking') {
@@ -71,12 +71,12 @@ export function getFriends(search: string, skip?: number, limit?: number) {
 function removeFriend(relatedUserId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      await client.service('user-relationship').remove(relatedUserId)
+      await client.service('user-relationship').remove(relatedUserId);
     } catch(err) {
-      console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
     }
-  }
+  };
 }
 //
 // function patchRelation(userId: string, relatedUserId: string, type: 'friend') {
@@ -115,25 +115,39 @@ function removeFriend(relatedUserId: string) {
 // }
 
 export function unfriend(relatedUserId: string) {
-  return removeFriend(relatedUserId)
+  return removeFriend(relatedUserId);
 }
 
+
+
 client.service('user-relationship').on('created', (params) => {
+  console.log('USER-RELATIONSHIP CREATED EVENT');
+  console.log(params);
   if (params.userRelationship.userRelationshipType === 'friend') {
-    store.dispatch(createdFriend(params.userRelationship))
+    store.dispatch(createdFriend(params.userRelationship));
   }
-})
+});
 
 client.service('user-relationship').on('patched', (params) => {
-  const selfUser = (store.getState() as any).get('auth').get('user') as User
+  console.log('USER-RELATIONSHIP PATCHED EVENT');
+  console.log(params);
+  console.log(store);
+  const selfUser = (store.getState() as any).get('auth').get('user') as User;
+  console.log('selfUser:');
+  console.log(selfUser);
   if (params.userRelationship.userRelationshipType === 'friend') {
-    store.dispatch(patchedFriend(params.userRelationship, selfUser))
+    store.dispatch(patchedFriend(params.userRelationship, selfUser));
   }
-})
+});
 
 client.service('user-relationship').on('removed', (params) => {
-  const selfUser = (store.getState() as any).get('auth').get('user') as User
+  console.log('USER-RELATIONSHIP REMOVED EVENT');
+  console.log(params);
+  console.log(store);
+  const selfUser = (store.getState() as any).get('auth').get('user') as User;
+  console.log('selfUser:');
+  console.log(selfUser);
   if (params.userRelationship.userRelationshipType === 'friend') {
-    store.dispatch(removedFriend(params.userRelationship, selfUser))
+    store.dispatch(removedFriend(params.userRelationship, selfUser));
   }
-})
+});

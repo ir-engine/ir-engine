@@ -23,9 +23,9 @@
     "url": "git+https://github.com/xr3ngine/xr3ngine.git"
   },
   "scripts": {
-    "build": "yarn run create-indexes && rollup -c",
+    "build": "rollup -c",
     "lint": "eslint --fix --quiet --ext .ts src/",
-    "test": "jest --watch",
+    "test": "jest",
     "validate": "yarn run lint && yarn run test",
     "create-indexes": "npx create-ts-index src -b"
   },
@@ -35,7 +35,6 @@
   ],
   "version": "0.2.0",
   "peerDependencies": {
-    "socket.io-client": "^2.3.0",
     "three": "^0.119.1"
   },
   "dependencies": {
@@ -54,15 +53,11 @@
     "gl-matrix": "^3.3.0",
     "jest": "^26.4.0",
     "jest-runner-tsc": "^1.6.0",
-    "mediasoup": "^3.6.14",
-    "mediasoup-client": "^3.6.12",
     "pre-commit": "^1.2.2",
     "prettier": "^1.19.1",
     "prettier-eslint": "^11.0.0",
     "rollup-plugin-glsl": "^1.3.0",
     "rollup-plugin-string": "^3.0.0",
-    "socket.io": "^2.3.0",
-    "socket.io-client": "^2.3.0",
     "three": "^0.119.1",
     "three-fbx-loader": "^1.0.3",
     "three-gltf-exporter": "0.0.1",

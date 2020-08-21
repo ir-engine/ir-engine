@@ -369,7 +369,7 @@ You can override the input mappings per device
 Input mappings map device input to abstract, cross-platform input
 
 ```javascript
-      import { initializeInputSystems } from "../dist/armada.module.js"
+      import { initializeInputSystems } from "../dist/engine.module.js"
 
       const Input = {
         SCREENXY: 0

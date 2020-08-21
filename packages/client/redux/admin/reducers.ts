@@ -1,14 +1,14 @@
-import Immutable from 'immutable'
+import Immutable from 'immutable';
 import {
   VideoCreatedAction
-} from './actions'
+} from './actions';
 
 import {
   VIDEO_CREATED
-} from '../actions'
-import { UserSeed } from '@xr3ngine/common/interfaces/User'
-import { IdentityProviderSeed } from '@xr3ngine/common/interfaces/IdentityProvider'
-import { AuthUserSeed } from '@xr3ngine/common/interfaces/AuthUser'
+} from '../actions';
+import { UserSeed } from '@xr3ngine/common/interfaces/User';
+import { IdentityProviderSeed } from '@xr3ngine/common/interfaces/IdentityProvider';
+import { AuthUserSeed } from '@xr3ngine/common/interfaces/AuthUser';
 
 export const initialState = {
   isLoggedIn: false,
@@ -17,18 +17,18 @@ export const initialState = {
   authUser: AuthUserSeed,
   user: UserSeed,
   identityProvider: IdentityProviderSeed
-}
+};
 
-const immutableState = Immutable.fromJS(initialState)
+const immutableState = Immutable.fromJS(initialState);
 
 const authReducer = (state = immutableState, action: any): any => {
   switch (action.type) {
     case VIDEO_CREATED:
       return state
-        .set('data', (action as VideoCreatedAction).data)
+        .set('data', (action as VideoCreatedAction).data);
   }
 
-  return state
-}
+  return state;
+};
 
-export default authReducer
+export default authReducer;

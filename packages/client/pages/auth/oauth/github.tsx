@@ -1,7 +1,7 @@
-import React from 'react'
+import React from 'react';
 
-import GithubCallback from '../../../components/ui/Oauth/GithubCallback'
+import GithubCallback from '../../../components/ui/Oauth/GithubCallback';
 
-export const GithubHomePage = () => <GithubCallback />
+export const GithubHomePage = () => <GithubCallback />;
 
-export default GithubHomePage
+export default GithubHomePage;
