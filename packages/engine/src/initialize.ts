@@ -82,7 +82,7 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
     // Create a new three.js camera
     const camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
     // Add the camera to the camera manager so it's available anywhere
-    Engine.camera = new Camera();
+    Engine.camera = camera
     // Add the camera to the three.js scene
     scene.add(camera);
       registerSystem(CameraSystem);
@@ -140,7 +140,7 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
   }
 
   // Start our timer!
-  if (isBrowser) setInterval(startTimer, 1000);
+  if (isBrowser) setTimeout(startTimer, 1000);
 }
 
 export function startTimer () {

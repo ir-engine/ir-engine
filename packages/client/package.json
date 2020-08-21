@@ -16,7 +16,7 @@
     "copyfiles-client": "copyfiles design/** design/**/* public/** public/**/* **/*.scss lib/client",
     "dev": "cross-env NODE_ENV=dev node ./index.js --port 3000",
     "build": "yarn run copyfiles-client && next build ./",
-    "watch": "cross-env NODE_ENV=dev next --port 3000",
+    "watch": "cross-env NODE_ENV=dev next --port 3000 --hostname localhost",
     "validate": "yarn run lint && yarn run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
     "lint": "stylelint '**/*.scss' && eslint --fix '*.ts' '**/*.ts' '**/*.tsx'",
@@ -125,7 +125,7 @@
     "styled-components": "^5.1.1",
     "styled-icons": "^10.16.0",
     "subscriptions-transport-ws": "^0.9.16",
-    "three": "^0.115.0",
+    "three": "^0.119.1",
     "ts-shader-loader": "^1.0.6",
     "tween": "^0.9.0"
   },
