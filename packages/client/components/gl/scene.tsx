@@ -8,6 +8,7 @@ import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebR
 
 export const EnginePage = (): any => {
   useEffect(() => {
+
     const networkSchema: NetworkSchema = {
       ...DefaultNetworkSchema,
       transport: SocketWebRTCClientTransport
@@ -19,7 +20,8 @@ export const EnginePage = (): any => {
     const InitializationOptions = {
       ...DefaultInitializationOptions,
       networking: {
-        ...DefaultInitializationOptions.networking,
+        enabled: true,
+        supportsMediaStreams: true,
         schema: networkSchema
       },
     };

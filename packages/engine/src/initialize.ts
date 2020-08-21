@@ -31,8 +31,8 @@ export const DefaultInitializationOptions = {
     schema: DefaultInputSchema
   },
   networking: {
-    enabled: true,
-    supportsMediaStreams: true,
+    enabled: false,
+    supportsMediaStreams: false,
     schema: DefaultNetworkSchema
   },
   state: {
