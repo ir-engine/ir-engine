@@ -17,7 +17,7 @@ export const startVR = (onStarted = Function(), onEnded = Function()) => {
       session = vrSession;
       session.addEventListener('end', onEnded);
       isImmersive = true;
-      entity = createEntity('vr-session');
+      entity = createEntity();
       addComponent(entity, WebXRSession, { session, isImmersive });
       spaceType = 'local-floor';
       return session.requestReferenceSpace(spaceType);
@@ -49,7 +49,7 @@ export const initVR = (onVRSupportRequested?: any) => {
     xr.isSessionSupported('immersive-vr').then(() => {
       if (onVRSupportRequested) onVRSupportRequested;
     });
-    xr.requestSession('inline').then(session => addComponent(createEntity('inline-session'), WebXRSession, { session }));
+    xr.requestSession('inline').then(session => addComponent(createEntity(), WebXRSession, { session }));
   } else console.warn("WebXR isn't supported by this browser");
 };
 
