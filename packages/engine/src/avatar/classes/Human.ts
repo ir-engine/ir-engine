@@ -12,7 +12,7 @@ import _ from "lodash"
 import * as qs from "qs"
 import * as THREE from "three"
 import TWEEN from "tween"
-import { deepParseFloat, deepRoundValues, remapKeyValuesDeep } from "../../../common/functions/MakeHumanHelpers"
+import { deepParseFloat, deepRoundValues, remapKeyValuesDeep } from "../../common/functions/MakeHumanHelpers"
 import poses from "../json/poses/poses.json"
 import { EthnicSkinBlender } from "./EthnicSkinBlender"
 import Factors from "./Factors"
@@ -114,7 +114,7 @@ export class HumanIO {
 
       // TODO remove unused vertices without breaking the obj
       const verticesToKeep = _.sortBy(
-        _.uniq(_.concat(...geom.faces.filter(f => f.materialIndex === 0).map(f => [f.a, f.b, f.c])))
+        _.uniq(_.concat(geom.faces.filter(f => f.materialIndex === 0).map(f => [f.a, f.b, f.c])))
       )
       geom.vertices = geom.vertices.filter((v, i) => verticesToKeep.includes(i))
       geom.faces.forEach(f => {
@@ -443,7 +443,7 @@ export class BaseHuman extends THREE.Object3D {
     for (let i = 0; i < skeleton.bones.length; i++) {
       const boneInverse = new THREE.Matrix4()
       const bone = skeleton.bones[i]
-      const parentIndex = _.findIndex(skeleton.bones, b => b.name === bone.parent.name)
+      const parentIndex = _.findIndex(skeleton.bones, b => (b as any).name === bone.parent.name)
       const parent = skeleton.bones[parentIndex]
       const position = positions[i]
 
