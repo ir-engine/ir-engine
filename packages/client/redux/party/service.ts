@@ -8,9 +8,9 @@ import {
   removedPartyUser,
   createdPartyUser,
   patchedPartyUser
-} from './actions';
-import { dispatchAlertError } from '../alert/service';
-import store from './../store';
+} from './actions'
+import { dispatchAlertError } from '../alert/service'
+import store from './../store'
 // import { Party } from '@xr3ngine/common/interfaces/Party'
 
 export function getParty () {

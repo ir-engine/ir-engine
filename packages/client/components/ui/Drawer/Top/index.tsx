@@ -20,9 +20,9 @@ import {
     createParty,
     removeParty,
     removePartyUser
-} from '../../../../redux/party/service';
+} from '../../../../redux/party/service'
 import {User} from "@xr3ngine/common/interfaces/User";
-import { AppBar } from '@material-ui/core';
+import { AppBar } from '@material-ui/core'
 
 
 const mapStateToProps = (state: any): any => {
