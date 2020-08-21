@@ -51,8 +51,8 @@ import {
 } from '../../../../redux/invite/service';
 import {
     getInvitableGroups
-} from '../../../../redux/group/service';
-import {User} from '@xr3ngine/common/interfaces/User';
+} from '../../../../redux/group/service'
+import {User} from '@xr3ngine/common/interfaces/User'
 
 
 const mapStateToProps = (state: any): any => {

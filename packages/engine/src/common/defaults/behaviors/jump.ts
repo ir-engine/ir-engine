@@ -10,6 +10,7 @@ let actor: Actor;
 let transform: TransformComponent;
 
 export const jump: Behavior = (entity: Entity): void => {
+  console.log("jump!")
   actor = getMutableComponent<Actor>(entity, Actor);
   addState(entity, { state: DefaultStateTypes.JUMPING });
   actor.jump.t = 0;

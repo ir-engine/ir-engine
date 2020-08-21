@@ -4,10 +4,10 @@ import {
   PATCHED_FRIEND,
   REMOVED_FRIEND,
   FETCHING_FRIENDS
-} from '../actions';
-import { User } from '@xr3ngine/common/interfaces/User';
-import { UserRelationship } from '@xr3ngine/common/interfaces/UserRelationship';
-import { FriendResult } from '@xr3ngine/common/interfaces/FriendResult';
+} from '../actions'
+import { User } from '@xr3ngine/common/interfaces/User'
+import { UserRelationship } from '@xr3ngine/common/interfaces/UserRelationship'
+import { FriendResult } from '@xr3ngine/common/interfaces/FriendResult'
 
 export interface LoadedFriendsAction {
   type: string;

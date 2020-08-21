@@ -3,24 +3,24 @@ import { Object3DComponent } from "../../common/components/Object3DComponent"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { TransformParentComponent } from "../../transform/components/TransformParentComponent"
 import { ParticleEmitter, ParticleEmitterState } from "../components/ParticleEmitter"
-import { System, Attributes } from "../../ecs/classes/System"
+import { System, SystemAttributes } from "../../ecs/classes/System"
 import { registerComponent } from "../../ecs/functions/ComponentFunctions"
-import { getComponentOnEntity, addComponentToEntity, removeComponentFromEntity } from "../../ecs/functions/EntityFunctions"
 import {
   createParticleEmitter,
   deleteParticleEmitter,
   setEmitterMatrixWorld,
   setEmitterTime
 } from "../classes/ParticleEmitter"
+import { getComponent, addComponent, removeComponent } from "../../ecs/functions/EntityFunctions"
 
 export class ParticleSystem extends System {
-  init(attributes?: Attributes): void {
+  init(attributes?: SystemAttributes): void {
     registerComponent(ParticleEmitter)
     registerComponent(ParticleEmitterState)
   }
   execute(deltaTime, time): void {
     for (const entity of this.queryResults.emitters.added) {
-      const emitter = getComponentOnEntity(entity, ParticleEmitter) as ParticleEmitter
+      const emitter = getComponent(entity, ParticleEmitter) as ParticleEmitter
 
       const matrixWorld = calcMatrixWorld(entity)
       if (!emitter.useEntityRotation) {
@@ -28,7 +28,7 @@ export class ParticleSystem extends System {
       }
 
       const emitter3D = createParticleEmitter(emitter, matrixWorld, time)
-      addComponentToEntity(entity, ParticleEmitterState, {
+      addComponent(entity, ParticleEmitterState, {
         emitter3D,
         useEntityRotation: emitter.useEntityRotation,
         syncTransform: emitter.syncTransform
@@ -36,7 +36,7 @@ export class ParticleSystem extends System {
     }
 
     for (const entity of this.queryResults.emitterStates.all) {
-      const emitterState = getComponentOnEntity<ParticleEmitterState>(entity, ParticleEmitterState)
+      const emitterState = getComponent<ParticleEmitterState>(entity, ParticleEmitterState)
 
       if (emitterState.syncTransform) {
         const matrixWorld = calcMatrixWorld(entity)
@@ -52,11 +52,11 @@ export class ParticleSystem extends System {
 
     for (const entity of this.queryResults.emitters.removed) {
       //const emitterState = getComponent(entity, ParticleEmitterState)
-      removeComponentFromEntity(entity, ParticleEmitterState)
+      removeComponent(entity, ParticleEmitterState)
     }
 
     for (const entity of this.queryResults.emitterStates.removed) {
-      const emitterState = getComponentOnEntity(entity, ParticleEmitterState, true) as ParticleEmitterState
+      const emitterState = getComponent(entity, ParticleEmitterState, true) as ParticleEmitterState
       deleteParticleEmitter(emitterState.emitter3D)
     }
   }
@@ -97,8 +97,8 @@ const calcMatrixWorld = (function() {
   const position = new Vector3()
 
   return function calcMatrixWorld(entity, childMatrix = undefined) {
-    const object3D = getComponentOnEntity(entity, Object3DComponent)
-    const transform = getComponentOnEntity<TransformComponent>(entity, TransformComponent)
+    const object3D = getComponent(entity, Object3DComponent)
+    const transform = getComponent<TransformComponent>(entity, TransformComponent)
 
     if (object3D) {
       return childMatrix ? childMatrix.multiply(object3D["value"].matrixWorld) : object3D["value"].matrixWorld
@@ -115,7 +115,7 @@ const calcMatrixWorld = (function() {
         transformMatrix.premultiply(childMatrix)
       }
 
-      const parent = getComponentOnEntity(entity, TransformParentComponent)
+      const parent = getComponent(entity, TransformParentComponent)
       return parent ? calcMatrixWorld(parent["value"], transformMatrix) : transformMatrix
     } else {
       return new Matrix4()
