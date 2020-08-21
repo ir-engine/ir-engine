@@ -4,4 +4,5 @@ import { CameraComponent } from '../components/CameraComponent';
 
 export const attachCamera: Behavior = (entity: Entity): void => {
   CameraComponent.instance.followTarget = entity;
+  console.log("Attaching camera")
 };
