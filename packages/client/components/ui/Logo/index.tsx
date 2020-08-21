@@ -1,9 +1,9 @@
-import React from 'react'
-import getConfig from 'next/config'
-const LogoImg = getConfig().publicRuntimeConfig.logo
+import React from 'react';
+import getConfig from 'next/config';
+const LogoImg = getConfig().publicRuntimeConfig.logo;
 
 interface Props {
-  onClick: any
+  onClick: any;
 }
 
 const Logo = (props: Props): any => {
@@ -17,7 +17,7 @@ const Logo = (props: Props): any => {
         onClick={props.onClick ?? null}
       />
     </div>
-  )
-}
+  );
+};
 
-export default Logo
+export default Logo;

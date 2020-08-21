@@ -5,7 +5,8 @@ import { followTarget } from '../../transform/behaviors/followTarget';
 import { CameraComponent } from '../components/CameraComponent';
 import { createEntity, getMutableComponent, getComponent, addComponent } from '../../ecs/functions/EntityFunctions';
 import { Engine } from '../../ecs/classes/Engine';
-import { addObject3DComponent, CameraTagComponent, Object3DComponent } from '../../common';
+import { CameraTagComponent } from '../../common/components/Object3DTagComponents';
+import { Object3DComponent } from '../../common/components/Object3DComponent';
 
 export class CameraSystem extends System {
   /**
@@ -28,7 +29,9 @@ export class CameraSystem extends System {
   execute(delta: number): void {
     this.queryResults.entities.all?.forEach(entity => {
       const cam = getComponent(entity, CameraComponent) as CameraComponent;
+      console.log(cam)
       if (cam.followTarget !== null && cam.followTarget !== undefined) {
+        console.log("following")
         followTarget(entity, { distance: 100 }, delta, cam.followTarget);
       }
     });

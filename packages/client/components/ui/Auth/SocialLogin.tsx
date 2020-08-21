@@ -1,38 +1,38 @@
-import React from 'react'
-import Button from '@material-ui/core/Button'
-import Grid from '@material-ui/core/Grid'
-import Container from '@material-ui/core/Container'
-import GitHubIcon from '@material-ui/icons/GitHub'
-import FacebookIcon from '@material-ui/icons/Facebook'
+import React from 'react';
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
+import Container from '@material-ui/core/Container';
+import GitHubIcon from '@material-ui/icons/GitHub';
+import FacebookIcon from '@material-ui/icons/Facebook';
 // import GoogleIcon from '@material-ui/icons/GoogleIcon'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
 import {
   loginUserByGithub,
   loginUserByGoogle,
   loginUserByFacebook
-} from '../../../redux/auth/service'
-import './style.scss'
+} from '../../../redux/auth/service';
+import './style.scss';
 import {selectAdminState} from "../../../redux/admin/selector";
 
 const mapStateToProps = (state: any): any => {
-  return {}
-}
+  return {};
+};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   loginUserByGithub: bindActionCreators(loginUserByGithub, dispatch),
   loginUserByGoogle: bindActionCreators(loginUserByGoogle, dispatch),
   loginUserByFacebook: bindActionCreators(loginUserByFacebook, dispatch)
-})
+});
 
 interface Props {
-  auth?: any
-  enableFacebookSocial?: boolean
-  enableGithubSocial?: boolean
-  enableGoogleSocial?: boolean
-  loginUserByGithub?: typeof loginUserByGithub
-  loginUserByGoogle?: typeof loginUserByGoogle
-  loginUserByFacebook?: typeof loginUserByFacebook
+  auth?: any;
+  enableFacebookSocial?: boolean;
+  enableGithubSocial?: boolean;
+  enableGoogleSocial?: boolean;
+  loginUserByGithub?: typeof loginUserByGithub;
+  loginUserByGoogle?: typeof loginUserByGoogle;
+  loginUserByFacebook?: typeof loginUserByFacebook;
 };
 
 const SocialLogin = (props: Props): any => {
@@ -43,22 +43,22 @@ const SocialLogin = (props: Props): any => {
     loginUserByFacebook,
     loginUserByGoogle,
     loginUserByGithub
-  } = props
+  } = props;
 
   const handleGithubLogin = (e: any): void => {
-    e.preventDefault()
-    loginUserByGithub()
-  }
+    e.preventDefault();
+    loginUserByGithub();
+  };
 
   const handleGoogleLogin = (e: any): void => {
-    e.preventDefault()
-    loginUserByGoogle()
-  }
+    e.preventDefault();
+    loginUserByGoogle();
+  };
 
   const handleFacebookLogin = (e: any): void => {
-    e.preventDefault()
-    loginUserByFacebook()
-  }
+    e.preventDefault();
+    loginUserByFacebook();
+  };
 
   const githubButton = enableGithubSocial ? (
     <Grid item xs={12}>
@@ -74,7 +74,7 @@ const SocialLogin = (props: Props): any => {
     </Grid>
   ) : (
     ''
-  )
+  );
   const googleButton = enableGoogleSocial ? (
     <Grid item xs={12}>
       <Button
@@ -89,7 +89,7 @@ const SocialLogin = (props: Props): any => {
     </Grid>
   ) : (
     ''
-  )
+  );
   const facebookButton = enableFacebookSocial ? (
     <Grid item xs={12}>
       <Button
@@ -104,7 +104,7 @@ const SocialLogin = (props: Props): any => {
     </Grid>
   ) : (
     ''
-  )
+  );
 
   return (
     <Container component="main" maxWidth="xs">
@@ -116,9 +116,9 @@ const SocialLogin = (props: Props): any => {
         </Grid>
       </div>
     </Container>
-  )
-}
+  );
+};
 
-const SocialLoginWrapper = (props: Props): any => <SocialLogin {...props} />
+const SocialLoginWrapper = (props: Props): any => <SocialLogin {...props} />;
 
-export default connect(mapStateToProps, mapDispatchToProps)(SocialLoginWrapper)
+export default connect(mapStateToProps, mapDispatchToProps)(SocialLoginWrapper);

@@ -17,10 +17,11 @@ import { NetworkSystem } from './networking/systems/NetworkSystem';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
 import { StateSystem } from './state/systems/StateSystem';
 import { SubscriptionSystem } from './subscription/systems/SubscriptionSystem';
-// import { ParticleSystem } from "./particles/systems/ParticleSystem"
-// import { KeyframeSystem } from "./particles/systems/KeyframeSystem"
+import { ParticleSystem } from "./particles/systems/ParticleSystem"
+import { KeyframeSystem } from "./particles/systems/KeyframeSystem"
 import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
 import { Timer } from './common/functions/Timer';
+import { enableRemoteDevtools } from './debug/remotedebug';
 
 export const DefaultInitializationOptions = {
   debug: true,
@@ -31,8 +32,8 @@ export const DefaultInitializationOptions = {
     schema: DefaultInputSchema
   },
   networking: {
-    enabled: true,
-    supportsMediaStreams: true,
+    enabled: false,
+    supportsMediaStreams: false,
     schema: DefaultNetworkSchema
   },
   state: {
@@ -61,9 +62,10 @@ export const DefaultInitializationOptions = {
 };
 
 export function initializeEngine (options: any = DefaultInitializationOptions) {
-  console.log('Initializing');
+  console.log(options)
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
+  if(options.debug) enableRemoteDevtools()
   // Create a new three.js scene
   const scene = new Scene();
 
@@ -77,15 +79,16 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
 
   // If we're a browser (we don't need to create or render on the server)
   if (isBrowser) {
+    // Camera system and component setup
+    if (options.camera && options.camera.enabled) {
     // Create a new three.js camera
     const camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
     // Add the camera to the camera manager so it's available anywhere
-    Engine.camera = new Camera();
+    Engine.camera = camera
     // Add the camera to the three.js scene
     scene.add(camera);
-
-    // Camera system and component setup
-    if (options.camera && options.camera.enabled) registerSystem(CameraSystem);
+      registerSystem(CameraSystem);
+    } 
   }
 
   // Input
@@ -95,7 +98,7 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
 
   // Networking
   if (options.networking && options.networking.enabled) {
-    registerSystem(NetworkSystem);
+    registerSystem(NetworkSystem, { schema: options.networking.schema});
 
     // Do we want audio and video streams?
     if (options.networking.supportsMediaStreams == true) {
@@ -119,10 +122,10 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
     registerSystem(PhysicsSystem);
   }
   // Particles
-  // if (options.particles && options.particles.enabled) {
-  //   registerSystem(ParticleSystem)
-  //   registerSystem(KeyframeSystem)
-  // }
+  if (options.particles && options.particles.enabled) {
+    registerSystem(ParticleSystem)
+    registerSystem(KeyframeSystem)
+  }
 
   // Rendering
   if (options.renderer && options.renderer.enabled) {
@@ -135,11 +138,11 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
     scene.add(gridHelper);
     const entity = createEntity();
     // Add an ambient light to the scene
-    addObject3DComponent(entity, { obj: AmbientLight });
+    addObject3DComponent(entity, { obj3d: AmbientLight });
   }
 
   // Start our timer!
-  if (isBrowser) setInterval(startTimer, 1000);
+  if (isBrowser) setTimeout(startTimer, 1000);
 }
 
 export function startTimer () {

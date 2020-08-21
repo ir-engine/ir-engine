@@ -1,5 +1,5 @@
-import React from 'react'
-import './style.scss'
+import React from 'react';
+import './style.scss';
 
 const Loader = (): any => {
   return (
@@ -7,7 +7,7 @@ const Loader = (): any => {
       <div className='loader' />
       <span className='text'>Loading...</span>
     </div>
-  )
-}
+  );
+};
 
-export default Loader
+export default Loader;

@@ -1,22 +1,18 @@
-let client
+let client;
 
 // @feathersjs/client is exposed as the `feathers` global.
 export const getClient = (): any => {
-  return client
-}
+  return client;
+};
 
 export const setClient = (instanceClient: any): any => {
-  console.log('setClient')
-  client = instanceClient
-  console.log(client.connections)
-  console.log(client.service('instance-provision'))
-
-  client.service('instance-provision').on('created', (params) => {
-    console.log('instance-provision created listener')
-    console.log(params.cool)
-  })
-}
+  client = instanceClient;
+  // client.service('instance-provision').on('created', (params) => {
+  //   console.log('instance-provision created event received')
+  //   console.log(params)
+  // })
+};
 
 export const deleteClient = (): any => {
-  client = null
-}
+  client = null;
+};

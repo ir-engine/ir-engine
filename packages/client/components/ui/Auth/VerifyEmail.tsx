@@ -1,24 +1,24 @@
-import React, { useEffect } from 'react'
-import Box from '@material-ui/core/Box'
-import Typography from '@material-ui/core/Typography'
-import Container from '@material-ui/core/Container'
-import EmptyLayout from '../Layout/EmptyLayout'
-import { verifyEmail } from '../../../redux/auth/service'
-import './style.scss'
+import React, { useEffect } from 'react';
+import Box from '@material-ui/core/Box';
+import Typography from '@material-ui/core/Typography';
+import Container from '@material-ui/core/Container';
+import EmptyLayout from '../Layout/EmptyLayout';
+import { verifyEmail } from '../../../redux/auth/service';
+import './style.scss';
 
 interface Props {
-  auth: any
-  type: string
-  token: string
-  verifyEmail: typeof verifyEmail
+  auth: any;
+  type: string;
+  token: string;
+  verifyEmail: typeof verifyEmail;
 }
 
 const VerifyEmail = (props: Props): any => {
-  const { verifyEmail, token } = props
+  const { verifyEmail, token } = props;
 
   useEffect(() => {
-    verifyEmail(token)
-  }, [])
+    verifyEmail(token);
+  }, []);
 
   return (
     <EmptyLayout>
@@ -36,7 +36,7 @@ const VerifyEmail = (props: Props): any => {
         </div>
       </Container>
     </EmptyLayout>
-  )
-}
+  );
+};
 
-export default VerifyEmail
+export default VerifyEmail;

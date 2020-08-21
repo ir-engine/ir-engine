@@ -1,4 +1,4 @@
-import { Dispatch } from 'redux'
+import { Dispatch } from 'redux';
 import {
   EmailLoginForm,
   EmailRegistrationForm,
@@ -17,71 +17,71 @@ import {
   loadedUserData,
   avatarUpdated,
   usernameUpdated
-} from './actions'
-import { client } from '../feathers'
-import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service'
-import { validateEmail, validatePhoneNumber } from '../helper'
-import { axiosRequest, apiUrl } from '../service.common'
+} from './actions';
+import { client } from '../feathers';
+import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service';
+import { validateEmail, validatePhoneNumber } from '../helper';
+import { axiosRequest, apiUrl } from '../service.common';
 
-import { IdentityProvider } from '@xr3ngine/common/interfaces/IdentityProvider'
-import getConfig from 'next/config'
-import { getStoredState } from '../persisted.store'
-import axios from 'axios'
-import { resolveAuthUser } from '@xr3ngine/common/interfaces/AuthUser'
-import { resolveUser } from '@xr3ngine/common/interfaces/User'
+import { IdentityProvider } from '@xr3ngine/common/interfaces/IdentityProvider';
+import getConfig from 'next/config';
+import { getStoredState } from '../persisted.store';
+import axios from 'axios';
+import { resolveAuthUser } from '@xr3ngine/common/interfaces/AuthUser';
+import { resolveUser } from '@xr3ngine/common/interfaces/User';
 
-const { publicRuntimeConfig } = getConfig()
-const apiServer: string = publicRuntimeConfig.apiServer
-const authConfig = publicRuntimeConfig.auth
+const { publicRuntimeConfig } = getConfig();
+const apiServer: string = publicRuntimeConfig.apiServer;
+const authConfig = publicRuntimeConfig.auth;
 
 export async function doLoginAuto (dispatch: Dispatch) {
-  const authData = getStoredState('auth')
-  const accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined
+  const authData = getStoredState('auth');
+  const accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined;
 
   if (!accessToken) {
-    return
+    return;
   }
 
   await (client as any).authentication.setAccessToken(accessToken as string);
   (client as any).reAuthenticate()
     .then((res: any) => {
       if (res) {
-        const authUser = resolveAuthUser(res)
-        dispatch(loginUserSuccess(authUser))
-        loadUserData(dispatch, authUser.identityProvider.userId)
+        const authUser = resolveAuthUser(res);
+        dispatch(loginUserSuccess(authUser));
+        loadUserData(dispatch, authUser.identityProvider.userId);
       } else {
-        console.log('****************')
+        console.log('****************');
       }
     })
     .catch((e) => {
-      dispatch(didLogout())
+      dispatch(didLogout());
 
-      console.log(e)
+      console.log(e);
       if (window.location.pathname !== '/') {
-        window.location.href = '/'
+        window.location.href = '/';
       }
-    })
+    });
 }
 
 export function loadUserData (dispatch: Dispatch, userId: string): any {
   client.service('user').get(userId)
     .then((res: any) => {
-      const user = resolveUser(res)
-      dispatch(loadedUserData(user))
+      const user = resolveUser(res);
+      dispatch(loadedUserData(user));
     })
     .catch((err: any) => {
-      console.log(err)
-      dispatchAlertError(dispatch, 'Failed to load user data')
-    })
+      console.log(err);
+      dispatchAlertError(dispatch, 'Failed to load user data');
+    });
 }
 
 export function loginUserByPassword (form: EmailLoginForm) {
   return (dispatch: Dispatch): any => {
     // check email validation.
     if (!validateEmail(form.email)) {
-      dispatchAlertError(dispatch, 'Please input valid email address')
+      dispatchAlertError(dispatch, 'Please input valid email address');
 
-      return
+      return;
     }
 
     dispatch(actionProcessing(true));
@@ -92,49 +92,49 @@ export function loginUserByPassword (form: EmailLoginForm) {
       password: form.password
     })
       .then((res: any) => {
-        const authUser = resolveAuthUser(res)
+        const authUser = resolveAuthUser(res);
 
         if (!authUser.identityProvider.isVerified) {
-          (client as any).logout()
+          (client as any).logout();
 
-          dispatch(registerUserByEmailSuccess(authUser.identityProvider))
-          window.location.href = '/auth/confirm'
-          return
+          dispatch(registerUserByEmailSuccess(authUser.identityProvider));
+          window.location.href = '/auth/confirm';
+          return;
         }
 
-        dispatch(loginUserSuccess(authUser))
-        loadUserData(dispatch, authUser.identityProvider.userId)
-        window.location.href = '/'
+        dispatch(loginUserSuccess(authUser));
+        loadUserData(dispatch, authUser.identityProvider.userId);
+        window.location.href = '/';
       })
       .catch((err: any) => {
-        console.log(err)
+        console.log(err);
 
-        dispatch(loginUserError('Failed to login'))
-        dispatchAlertError(dispatch, err.message)
+        dispatch(loginUserError('Failed to login'));
+        dispatchAlertError(dispatch, err.message);
       })
-      .finally(() => dispatch(actionProcessing(false)))
-  }
+      .finally(() => dispatch(actionProcessing(false)));
+  };
 }
 
 export function loginUserByGithub () {
   return (dispatch: Dispatch): any => {
-    dispatch(actionProcessing(true))
-    window.location.href = `${apiServer}/oauth/github`
-  }
+    dispatch(actionProcessing(true));
+    window.location.href = `${apiServer}/oauth/github`;
+  };
 }
 
 export function loginUserByGoogle () {
   return (dispatch: Dispatch): any => {
-    dispatch(actionProcessing(true))
-    window.location.href = `${apiServer}/oauth/google`
-  }
+    dispatch(actionProcessing(true));
+    window.location.href = `${apiServer}/oauth/google`;
+  };
 }
 
 export function loginUserByFacebook () {
   return (dispatch: Dispatch): any => {
-    dispatch(actionProcessing(true))
-    window.location.href = `${apiServer}/oauth/facebook`
-  }
+    dispatch(actionProcessing(true));
+    window.location.href = `${apiServer}/oauth/facebook`;
+  };
 }
 
 export function loginUserByJwt (accessToken: string, redirectSuccess: string, redirectError: string, subscriptionId?: string): any {
@@ -146,34 +146,34 @@ export function loginUserByJwt (accessToken: string, redirectSuccess: string, re
       accessToken
     })
       .then((res: any) => {
-        const authUser = resolveAuthUser(res)
+        const authUser = resolveAuthUser(res);
 
         if (subscriptionId != null && subscriptionId.length > 0) {
           client.service('seat').patch(authUser.identityProvider.userId, {
             subscriptionId: subscriptionId
           })
             .catch((err) => {
-              console.log(err)
+              console.log(err);
             })
             .finally(() => {
-              dispatch(loginUserSuccess(authUser))
-              loadUserData(dispatch, authUser.identityProvider.userId)
-              window.location.href = redirectSuccess
-            })
+              dispatch(loginUserSuccess(authUser));
+              loadUserData(dispatch, authUser.identityProvider.userId);
+              window.location.href = redirectSuccess;
+            });
         } else {
-          dispatch(loginUserSuccess(authUser))
-          loadUserData(dispatch, authUser.identityProvider.userId)
-          window.location.href = redirectSuccess
+          dispatch(loginUserSuccess(authUser));
+          loadUserData(dispatch, authUser.identityProvider.userId);
+          window.location.href = redirectSuccess;
         }
       })
       .catch((err: any) => {
-        console.log(err)
-        dispatch(loginUserError('Failed to login'))
-        dispatchAlertError(dispatch, err.message)
-        window.location.href = `${redirectError}?error=${err.message}`
+        console.log(err);
+        dispatch(loginUserError('Failed to login'));
+        dispatchAlertError(dispatch, err.message);
+        window.location.href = `${redirectError}?error=${err.message}`;
       })
-      .finally(() => dispatch(actionProcessing(false)))
-  }
+      .finally(() => dispatch(actionProcessing(false)));
+  };
 }
 
 export function logoutUser () {
@@ -182,13 +182,13 @@ export function logoutUser () {
     (client as any).logout()
       .then(() => dispatch(didLogout()))
       .catch(() => dispatch(didLogout()))
-      .finally(() => dispatch(actionProcessing(false)))
-  }
+      .finally(() => dispatch(actionProcessing(false)));
+  };
 }
 
 export function registerUserByEmail (form: EmailRegistrationForm) {
   return (dispatch: Dispatch): any => {
-    dispatch(actionProcessing(true))
+    dispatch(actionProcessing(true));
 
     client.service('identity-provider').create({
       token: form.email,
@@ -196,42 +196,42 @@ export function registerUserByEmail (form: EmailRegistrationForm) {
       type: 'password'
     })
       .then((identityProvider: any) => {
-        dispatch(registerUserByEmailSuccess(identityProvider))
-        window.location.href = '/auth/confirm'
+        dispatch(registerUserByEmailSuccess(identityProvider));
+        window.location.href = '/auth/confirm';
       })
       .catch((err: any) => {
-        console.log(err)
-        dispatch(registerUserByEmailError(err.message))
-        dispatchAlertError(dispatch, err.message)
+        console.log(err);
+        dispatch(registerUserByEmailError(err.message));
+        dispatchAlertError(dispatch, err.message);
       })
-      .finally(() => dispatch(actionProcessing(false)))
-  }
+      .finally(() => dispatch(actionProcessing(false)));
+  };
 }
 
 export function verifyEmail (token: string) {
   return (dispatch: Dispatch): any => {
-    dispatch(actionProcessing(true))
+    dispatch(actionProcessing(true));
 
     client.service('authManagement').create({
       action: 'verifySignupLong',
       value: token
     })
       .then((res: any) => {
-        dispatch(didVerifyEmail(true))
-        loginUserByJwt(res.accessToken, '/', '/')(dispatch)
+        dispatch(didVerifyEmail(true));
+        loginUserByJwt(res.accessToken, '/', '/')(dispatch);
       })
       .catch((err: any) => {
-        console.log(err)
-        dispatch(didVerifyEmail(false))
-        dispatchAlertError(dispatch, err.message)
+        console.log(err);
+        dispatch(didVerifyEmail(false));
+        dispatchAlertError(dispatch, err.message);
       })
-      .finally(() => dispatch(actionProcessing(false)))
-  }
+      .finally(() => dispatch(actionProcessing(false)));
+  };
 }
 
 export function resendVerificationEmail (email: string) {
   return (dispatch: Dispatch): any => {
-    dispatch(actionProcessing(true))
+    dispatch(actionProcessing(true));
 
     client.service('authManagement').create({
       action: 'resendVerifySignup',
@@ -242,13 +242,13 @@ export function resendVerificationEmail (email: string) {
     })
       .then(() => dispatch(didResendVerificationEmail(true)))
       .catch(() => dispatch(didResendVerificationEmail(false)))
-      .finally(() => dispatch(actionProcessing(false)))
-  }
+      .finally(() => dispatch(actionProcessing(false)));
+  };
 }
 
 export function forgotPassword (email: string) {
   return (dispatch: Dispatch): any => {
-    dispatch(actionProcessing(true))
+    dispatch(actionProcessing(true));
 
     client.service('authManagement').create({
       action: 'sendResetPwd',
@@ -259,69 +259,69 @@ export function forgotPassword (email: string) {
     })
       .then(() => dispatch(didForgotPassword(true)))
       .catch(() => dispatch(didForgotPassword(false)))
-      .finally(() => dispatch(actionProcessing(false)))
-  }
+      .finally(() => dispatch(actionProcessing(false)));
+  };
 }
 
 export function resetPassword (token: string, password: string) {
   return (dispatch: Dispatch): any => {
-    dispatch(actionProcessing(true))
+    dispatch(actionProcessing(true));
 
     client.service('authManagement').create({
       action: 'resetPwdLong',
       value: { token, password }
     })
       .then((res: any) => {
-        console.log(res)
-        dispatch(didResetPassword(true))
-        window.location.href = '/'
+        console.log(res);
+        dispatch(didResetPassword(true));
+        window.location.href = '/';
       })
       .catch((err: any) => {
-        console.log(err)
-        dispatch(didResetPassword(false))
-        window.location.href = '/'
+        console.log(err);
+        dispatch(didResetPassword(false));
+        window.location.href = '/';
       })
-      .finally(() => dispatch(actionProcessing(false)))
-  }
+      .finally(() => dispatch(actionProcessing(false)));
+  };
 }
 
 export function createMagicLink (emailPhone: string, linkType?: 'email' | 'sms') {
   return (dispatch: Dispatch): any => {
-    dispatch(actionProcessing(true))
+    dispatch(actionProcessing(true));
 
-    let type = 'email'
-    let paramName = 'email'
-    const enableEmailMagicLink = (authConfig && authConfig.enableEmailMagicLink) ?? true
-    const enableSmsMagicLink = (authConfig && authConfig.enableSmsMagicLink) ?? false
+    let type = 'email';
+    let paramName = 'email';
+    const enableEmailMagicLink = (authConfig && authConfig.enableEmailMagicLink) ?? true;
+    const enableSmsMagicLink = (authConfig && authConfig.enableSmsMagicLink) ?? false;
 
     if (linkType === 'email') {
-      type = 'email'
-      paramName = 'email'
+      type = 'email';
+      paramName = 'email';
     } else if (linkType === 'sms') {
-      type = 'sms'
-      paramName = 'mobile'
+      type = 'sms';
+      paramName = 'mobile';
     } else {
-      const stripped = emailPhone.replace(/-/g, '')
+      const stripped = emailPhone.replace(/-/g, '');
       if (validatePhoneNumber(stripped)) {
         if (!enableSmsMagicLink) {
-          dispatchAlertError(dispatch, 'Please input valid email address')
+          dispatchAlertError(dispatch, 'Please input valid email address');
 
-          return
+          return;
         }
-        type = 'sms'
-        paramName = 'mobile'
-        emailPhone = '+1' + stripped
+        type = 'sms';
+        paramName = 'mobile';
+        emailPhone = '+1' + stripped;
       } else if (validateEmail(emailPhone)) {
         if (!enableEmailMagicLink) {
-          dispatchAlertError(dispatch, 'Please input valid phone number')
+          dispatchAlertError(dispatch, 'Please input valid phone number');
 
-          return
+          return;
         }
-        type = 'email'
+        type = 'email';
       } else {
-        dispatchAlertError(dispatch, 'Please input valid email or phone number')
+        dispatchAlertError(dispatch, 'Please input valid email or phone number');
 
-        return
+        return;
       }
     }
 
@@ -330,22 +330,22 @@ export function createMagicLink (emailPhone: string, linkType?: 'email' | 'sms')
       [paramName]: emailPhone
     })
       .then((res: any) => {
-        console.log(res)
-        dispatch(didCreateMagicLink(true))
-        dispatchAlertSuccess(dispatch, 'Login Magic Link was sent. Please check your Email or SMS.')
+        console.log(res);
+        dispatch(didCreateMagicLink(true));
+        dispatchAlertSuccess(dispatch, 'Login Magic Link was sent. Please check your Email or SMS.');
       })
       .catch((err: any) => {
-        console.log(err)
-        dispatch(didCreateMagicLink(false))
-        dispatchAlertError(dispatch, err.message)
+        console.log(err);
+        dispatch(didCreateMagicLink(false));
+        dispatchAlertError(dispatch, err.message);
       })
-      .finally(() => dispatch(actionProcessing(false)))
-  }
+      .finally(() => dispatch(actionProcessing(false)));
+  };
 }
 
 export function addConnectionByPassword (form: EmailLoginForm, userId: string) {
   return (dispatch: Dispatch): any => {
-    dispatch(actionProcessing(true))
+    dispatch(actionProcessing(true));
 
     client.service('identity-provider').create({
       token: form.email,
@@ -354,20 +354,20 @@ export function addConnectionByPassword (form: EmailLoginForm, userId: string) {
       userId
     })
       .then((res: any) => {
-        const identityProvider = res as IdentityProvider
-        loadUserData(dispatch, identityProvider.userId)
+        const identityProvider = res as IdentityProvider;
+        loadUserData(dispatch, identityProvider.userId);
       })
       .catch((err: any) => {
-        console.log(err)
-        dispatchAlertError(dispatch, err.message)
+        console.log(err);
+        dispatchAlertError(dispatch, err.message);
       })
-      .finally(() => dispatch(actionProcessing(false)))
-  }
+      .finally(() => dispatch(actionProcessing(false)));
+  };
 }
 
 export function addConnectionByEmail (email: string, userId: string) {
   return (dispatch: Dispatch): any => {
-    dispatch(actionProcessing(true))
+    dispatch(actionProcessing(true));
 
     client.service('magic-link').create({
       email,
@@ -375,20 +375,20 @@ export function addConnectionByEmail (email: string, userId: string) {
       userId
     })
       .then((res: any) => {
-        const identityProvider = res as IdentityProvider
-        loadUserData(dispatch, identityProvider.userId)
+        const identityProvider = res as IdentityProvider;
+        loadUserData(dispatch, identityProvider.userId);
       })
       .catch((err: any) => {
-        console.log(err)
-        dispatchAlertError(dispatch, err.message)
+        console.log(err);
+        dispatchAlertError(dispatch, err.message);
       })
-      .finally(() => dispatch(actionProcessing(false)))
-  }
+      .finally(() => dispatch(actionProcessing(false)));
+  };
 }
 
 export function addConnectionBySms (phone: string, userId: string) {
   return (dispatch: Dispatch): any => {
-    dispatch(actionProcessing(true))
+    dispatch(actionProcessing(true));
 
     client.service('magic-link').create({
       mobile: phone,
@@ -396,63 +396,63 @@ export function addConnectionBySms (phone: string, userId: string) {
       userId
     })
       .then((res: any) => {
-        const identityProvider = res as IdentityProvider
-        loadUserData(dispatch, identityProvider.userId)
+        const identityProvider = res as IdentityProvider;
+        loadUserData(dispatch, identityProvider.userId);
       })
       .catch((err: any) => {
-        console.log(err)
-        dispatchAlertError(dispatch, err.message)
+        console.log(err);
+        dispatchAlertError(dispatch, err.message);
       })
-      .finally(() => dispatch(actionProcessing(false)))
-  }
+      .finally(() => dispatch(actionProcessing(false)));
+  };
 }
 
 export function addConnectionByOauth (oauth: 'facebook' | 'google' | 'github', userId: string) {
   return (/* dispatch: Dispatch */) => {
-    window.open(`${apiServer}/auth/oauth/${oauth}?userId=${userId}`, '_blank')
-  }
+    window.open(`${apiServer}/auth/oauth/${oauth}?userId=${userId}`, '_blank');
+  };
 }
 
 export function removeConnection (identityProviderId: number, userId: string) {
   return (dispatch: Dispatch): any => {
-    dispatch(actionProcessing(true))
+    dispatch(actionProcessing(true));
 
     client.service('identity-provider').remove(identityProviderId)
       .then(() => {
-        loadUserData(dispatch, userId)
+        loadUserData(dispatch, userId);
       })
       .catch((err: any) => {
-        console.log(err)
-        dispatchAlertError(dispatch, err.message)
+        console.log(err);
+        dispatchAlertError(dispatch, err.message);
       })
-      .finally(() => dispatch(actionProcessing(false)))
-  }
+      .finally(() => dispatch(actionProcessing(false)));
+  };
 }
 
-export function refreshConnections (userId: string) { (dispatch: Dispatch): any => loadUserData(dispatch, userId) }
+export function refreshConnections (userId: string) { (dispatch: Dispatch): any => loadUserData(dispatch, userId); }
 
 export const updateUserSettings = (id: any, data: any) => async (dispatch: any) => {
-  const res = await axiosRequest('PATCH', `${apiUrl}/user-settings/${id}`, data)
-  dispatch(updateSettings(res.data))
-}
+  const res = await axiosRequest('PATCH', `${apiUrl}/user-settings/${id}`, data);
+  dispatch(updateSettings(res.data));
+};
 
 export function uploadAvatar (data: any) {
   return async (dispatch: Dispatch, getState: any) => {
-    const token = getState().get('auth').get('authUser').accessToken
-    const selfUser = getState().get('auth').get('user')
+    const token = getState().get('auth').get('authUser').accessToken;
+    const selfUser = getState().get('auth').get('user');
     const res = await axios.post(`${apiUrl}/upload`, data, {
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: 'Bearer ' + token
       }
-    })
+    });
     await client.service('user').patch(selfUser.id, {
       name: selfUser.name
-    })
-    const result = res.data
-    dispatchAlertSuccess(dispatch, 'Avatar updated')
-    dispatch(avatarUpdated(result))
-  }
+    });
+    const result = res.data;
+    dispatchAlertSuccess(dispatch, 'Avatar updated');
+    dispatch(avatarUpdated(result));
+  };
 }
 
 export function updateUsername (userId: string, name: string) {
@@ -461,8 +461,8 @@ export function updateUsername (userId: string, name: string) {
       name: name
     })
       .then((res: any) => {
-        dispatchAlertSuccess(dispatch, 'Username updated')
-        dispatch(usernameUpdated(res))
-      })
-  }
+        dispatchAlertSuccess(dispatch, 'Username updated');
+        dispatch(usernameUpdated(res));
+      });
+  };
 }

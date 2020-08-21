@@ -4,16 +4,6 @@ process.env.NODE_CONFIG_DIR = path.join(appRootPath.path, 'packages/client/confi
 const config = require('config')
 const withSass = require('@zeit/next-sass')
 const withImages = require('next-images')
-const CircularDependencyPlugin = require('circular-dependency-plugin')
-
-const glsl = {
-  include: ["**/*.frag", "**/*.vert"],
-  sourceMap: false
-}
-
-const string = {
-  include: ["**/*.tmp"]
-}
 
 module.exports = withImages(
   withSass({
@@ -26,10 +16,6 @@ module.exports = withImages(
     distDir: './.next',
     webpack(config, options) {
       config.resolve.alias.utils = path.join(__dirname, 'utils')
-      config.module.rules.push({
-        test: /\.tmp$/i,
-        use: 'raw-loader',
-      })
       config.module.rules.push({
         test: /\.(eot|woff|woff2|ttf|svg|png|jpg|gif)$/,
         use: {
@@ -128,6 +114,16 @@ module.exports = withImages(
         }
       })
       config.module.rules.push({
+        test: /\.tmp$/,
+        type: "javascript/auto",
+        use: {
+          loader: "file-loader",
+          options: {
+            name: "[name]-[hash].[ext]"
+          }
+        }
+      })
+      config.module.rules.push({
         test: /\.wasm$/,
         type: "javascript/auto",
         use: {
@@ -138,16 +134,6 @@ module.exports = withImages(
           }
         }
       })
-      config.plugins.push(new CircularDependencyPlugin({
-        exclude: /a\.js|node_modules/,
-        // add errors to webpack instead of warnings
-        failOnError: false,
-        // allow import cycles that include an asyncronous import,
-        // e.g. via import(/* webpackMode: "weak" */ './file.js')
-        allowAsyncCycles: false,
-        // set the current working directory for displaying module paths
-        cwd: process.cwd()
-      }))
       return config
     }
   })

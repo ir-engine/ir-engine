@@ -52,7 +52,7 @@ function processDeferredEntityRemoval () {
   for (let i = 0; i < entitiesToRemove.length; i++) {
     const entity = entitiesToRemove[i];
     const index = Engine.entities.indexOf(entity);
-    this._entities.splice(index, 1);
+    Engine.entities.splice(index, 1);
     entity._pool.release(entity);
   }
   entitiesToRemove.length = 0;

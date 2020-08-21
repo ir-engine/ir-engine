@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React, { Fragment } from 'react';
 
 export const Custom404 = (): any => {
   return (
@@ -6,7 +6,7 @@ export const Custom404 = (): any => {
       <h1>404 - Page Not Found</h1>
       <a href="/">Go home</a>
     </Fragment>
-  )
-}
+  );
+};
 
-export default Custom404
+export default Custom404;

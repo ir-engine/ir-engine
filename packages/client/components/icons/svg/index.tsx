@@ -1,1 +1,1 @@
-export { default as Vr } from './Vr'
+export { default as Vr } from './Vr';

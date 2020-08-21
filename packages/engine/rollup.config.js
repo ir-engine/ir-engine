@@ -12,34 +12,14 @@ import { string } from "rollup-plugin-string";
 
 const pkg = require('./package.json')
 
-const stringSettings = {
-  include: ["**/*.tmp"]
-}
-
-const glslSettings = {
-		include: ["**/*.frag", "**/*.vert"],
-		sourceMap: false
-}
 
 export default [
   {
-
-    input: "src/postprocessing/images/smaa/utils/worker.js",
-    plugins: [resolve(), glsl(glslSettings), string(stringSettings)],
-    output: {
-      file: "src/postprocessing/images/smaa/utils/worker.tmp",
-      format: "iife"
-    }
-  
-  },
-  {
-    input: "src/index.ts",
+    input: "src/initialize.ts",
     external: ["mediasoup", "express", "utf-8-validate", "buffer-es6", "debug", "socket.io", "safer", "depd"],
     plugins: [
-      glsl(glslSettings),
-      string(stringSettings),
-      json(),
       typescript(),
+      json(),
       resolve({ browser: true, preferBuiltins: true }),
       commonjs({
         include: ["node_modules/**/*"] // Default: undefined
