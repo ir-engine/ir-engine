@@ -12,14 +12,19 @@ import { CameraComponent } from '../../camera/components/CameraComponent';
 import { SSAOEffect } from '../../postprocessing/effects/SSAOEffect';
 import { DepthOfFieldEffect } from '../../postprocessing/effects/DepthOfFieldEffect';
 import { EffectPass } from '../../postprocessing/passes/EffectPass';
-
+  /**
+   * Handles rendering and post processing to WebGL canvas
+   */
 export class WebGLRendererSystem extends System {
-  constructor (attributes?: SystemAttributes) {
+    isInitialized: boolean
+  constructor(attributes?: SystemAttributes) {
     super(attributes);
-    // Create the Three.js WebGL renderer
   }
-
-  init (): void {
+  
+  /**
+     * Initialize renderercomponent and three.js renderer, add renderer to scene
+     */
+  init(): void {
     // Create the Renderer singleton
     addComponent(createEntity(), RendererComponent);
     const renderer = new WebGLRenderer({
@@ -31,19 +36,28 @@ export class WebGLRendererSystem extends System {
     this.onResize()
     console.log("child appended")
   }
-
-  onResize () {
+  
+  /**
+     * Called on resize, sets resize flag
+     */
+  onResize() {
     console.log("On resize called")
     RendererComponent.instance.needsResize = true;
   }
-
-  dispose () {
+  
+  /**
+    * Removes resize listener
+    */
+  dispose() {
     window.removeEventListener('resize', this.onResize);
   }
 
-  isInitialized: boolean
-
-  configurePostProcessing (entity: Entity) {
+  /**
+    * Configure post processing
+    * Note: Post processing effects are set in the PostProcessingSchema provided to the system
+    * @param {Entity} entity - The Entity
+    */
+  private configurePostProcessing(entity: Entity) {
     const rendererComponent = getMutableComponent<RendererComponent>(entity, RendererComponent);
     if (rendererComponent.postProcessingSchema == undefined) rendererComponent.postProcessingSchema = DefaultPostProcessingSchema;
     const composer = new EffectComposer(Engine.renderer);
@@ -63,9 +77,13 @@ export class WebGLRendererSystem extends System {
     })
     composer.addPass(new EffectPass(CameraComponent.instance.camera, ...passes))
   }
-
+  
+  /**
+     * Called each frame by default from the Engine
+     *
+     * @param {Number} delta time since last frame
+     */
   execute (delta: number) {
-
     this.queryResults.renderers.added.forEach((entity: Entity) => {
       console.log("Renderers added")
       RendererComponent.instance.needsResize = true;
@@ -81,6 +99,9 @@ export class WebGLRendererSystem extends System {
   }
 }
 
+/**
+ * Resize the canvas
+ */
 export const resize: Behavior = entity => {
   const rendererComponent = getComponent<RendererComponent>(entity, RendererComponent);
 
@@ -91,7 +112,7 @@ export const resize: Behavior = entity => {
     if (curPixelRatio !== window.devicePixelRatio) Engine.renderer.setPixelRatio(window.devicePixelRatio);
 
     const width = window.innerWidth;
-    const height =  window.innerHeight;
+    const height = window.innerHeight;
 
     if ((Engine.camera as PerspectiveCamera).isPerspectiveCamera) {
       const cam = Engine.camera as PerspectiveCamera;
