@@ -9,13 +9,12 @@ import {
   CREATED_CHANNEL,
   PATCHED_CHANNEL,
   REMOVED_CHANNEL
-} from '../actions';
-import { User } from '@xr3ngine/common/interfaces/User';
-import { Message } from '@xr3ngine/common/interfaces/Message';
-import { MessageStatus } from '@xr3ngine/common/interfaces/MessageStatus';
-import { MessageResult } from '@xr3ngine/common/interfaces/MessageResult';
-import { Channel } from '@xr3ngine/common/interfaces/Channel';
-import { ChannelResult } from '@xr3ngine/common/interfaces/ChannelResult';
+} from '../actions'
+import { User } from '@xr3ngine/common/interfaces/User'
+import { Message } from '@xr3ngine/common/interfaces/Message'
+import { MessageResult } from '@xr3ngine/common/interfaces/MessageResult'
+import { Channel } from '@xr3ngine/common/interfaces/Channel'
+import { ChannelResult } from '@xr3ngine/common/interfaces/ChannelResult'
 
 export interface LoadedChannelsAction {
   type: string;

@@ -12,10 +12,10 @@ import {
   PATCHED_FRIEND,
   REMOVED_FRIEND,
   FETCHING_FRIENDS
-} from '../actions';
-import { User } from '@xr3ngine/common/interfaces/User';
-import { UserRelationship } from '@xr3ngine/common/interfaces/UserRelationship';
-import _ from 'lodash';
+} from '../actions'
+import { User } from '@xr3ngine/common/interfaces/User'
+import { UserRelationship } from '@xr3ngine/common/interfaces/UserRelationship'
+import _ from 'lodash'
 
 export const initialState = {
   friends: {
