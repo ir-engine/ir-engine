@@ -7,6 +7,9 @@ console.log("PACKAGE ROOT", packageRoot)
 module.exports = {
     entry: `${root}/src/index.ts`,
     target: 'node',
+    node: {
+        __dirname: true
+    },
     externals: [
         /^[a-z\-0-9]+$/ // Ignore node_modules folder
     ],
