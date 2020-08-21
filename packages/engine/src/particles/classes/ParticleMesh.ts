@@ -1,5 +1,5 @@
 import * as THREE from "three"
-import { ParticleMesh, ParticleMeshMaterial, particleMeshOptions, ParticleGeometry } from "../interfaces"
+import { ParticleMesh, ParticleMeshMaterial, ParticleMeshOptions, ParticleGeometry } from "../interfaces/ParticleInterfaces"
 // import { RGBFormat } from "three"
 // import { DataTexture } from "three"
 // import { TextureLoader } from "three"
@@ -28,8 +28,8 @@ const shaderIDs = {
   SpriteMaterial: "sprite"
 }
 
-export function createParticleMesh(options: particleMeshOptions): ParticleMesh {
-  const config: particleMeshOptions = {
+export function createParticleMesh(options: ParticleMeshOptions): ParticleMesh {
+  const config: ParticleMeshOptions = {
     particleCount: 1000,
     texture: "",
     textureFrame: { cols: 1, rows: 1 },
@@ -107,7 +107,7 @@ export function createParticleMesh(options: particleMeshOptions): ParticleMesh {
   return particleMesh
 }
 
-export function updateGeometry(geometry: ParticleGeometry, config: particleMeshOptions): void {
+export function updateGeometry(geometry: ParticleGeometry, config: ParticleMeshOptions): void {
   const particleCount = config.particleCount
   const NUM_KEYFRAMES = 3
 
@@ -180,7 +180,7 @@ export function updateGeometry(geometry: ParticleGeometry, config: particleMeshO
   }
 }
 
-export function updateMaterial(material: ParticleMeshMaterial, config: particleMeshOptions): void {
+export function updateMaterial(material: ParticleMeshMaterial, config: ParticleMeshOptions): void {
   updateOriginalMaterialUniforms(material)
 
   material.uniforms.textureAtlas.value[0] = 0 // 0,0 unpacked uvs

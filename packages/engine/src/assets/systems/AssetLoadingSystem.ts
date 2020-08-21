@@ -22,6 +22,7 @@ export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
 
   init () {
+    this.loaded = new Map<Entity, any>()
   }
 
   execute () {
