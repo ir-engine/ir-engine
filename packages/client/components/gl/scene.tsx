@@ -27,6 +27,7 @@ export const EnginePage = (): any => {
     };
     initializeEngine(InitializationOptions);
     
+    // Load glb here
 
     createPrefab(PlayerController);
   },[]);

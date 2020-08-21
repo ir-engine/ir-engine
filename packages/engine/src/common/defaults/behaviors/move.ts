@@ -20,6 +20,7 @@ export const move: Behavior = (
   args: { input: InputAlias, inputType: InputType, value: NumericalType },
   time: any
 ): void => {
+  console.log(args)
   input = getComponent(entity, Input);
   actor = getMutableComponent<Actor>(entity, Actor);
   transform = getMutableComponent(entity, TransformComponent);

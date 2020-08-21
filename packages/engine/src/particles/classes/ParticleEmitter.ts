@@ -20,7 +20,7 @@ import {
   setVelocityScaleAt,
   setWorldAccelerationAt
 } from "./ParticleMesh"
-import { ParticleEmitterInterface, ParticleEmitterComponentInterface } from "../interfaces"
+import { ParticleEmitterInterface, ParticleEmitterComponentInterface } from "../interfaces/ParticleInterfaces"
 
 const error = console.error
 const FRAME_STYLES = ["sequence", "randomsequence", "random"]
