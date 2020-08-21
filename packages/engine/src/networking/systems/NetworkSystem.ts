@@ -4,18 +4,22 @@ import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../components/Network';
 import { NetworkClient } from '../components/NetworkClient';
 import { NetworkObject } from '../components/NetworkObject';
-import { DefaultNetworkSchema } from '../defaults/DefaultNetworkSchema';
-import { NetworkSchema } from '../interfaces/NetworkSchema';
 
 export class NetworkSystem extends System {
-  init (schema?: NetworkSchema) {
+  init (attributes) {
+
+console.log("NetworkSystem schema: ")
+
+    const { schema } = attributes
     // Create a Network entity (singleton)
-    const networkEntity = createEntity('network');
+    const networkEntity = createEntity();
     addComponent(networkEntity, Network);
 
     // Late initialization of network
-      Network.instance.schema = schema ?? DefaultNetworkSchema;
-      Network.instance.transport = new (Network.instance.schema.transport)();
+      Network.instance.schema = schema
+      console.log("Transport: " + Network.instance.schema.transport)
+      console.log("Schema transport: ", schema.transport)
+      Network.instance.transport = new (schema.transport)();
       Network.instance.transport.initialize();
       Network.instance.isInitialized = true;
       console.log("Network inited")

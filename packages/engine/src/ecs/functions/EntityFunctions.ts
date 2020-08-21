@@ -235,7 +235,7 @@ export function hasAnyComponents(entity: Entity, Components: Array<ComponentCons
  * Create a new entity
 * @returns the new entity
  */
-export function createEntity(name?: string): Entity {
+export function createEntity(): Entity {
   const entity = Engine.entityPool.acquire();
   Engine.entities.push(entity);
   Engine.eventDispatcher.dispatchEvent(ENTITY_CREATED, entity);

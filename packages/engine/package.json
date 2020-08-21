@@ -23,9 +23,9 @@
     "url": "git+https://github.com/xr3ngine/xr3ngine.git"
   },
   "scripts": {
-    "build": "yarn run create-indexes && rollup -c",
+    "build": "rollup -c",
     "lint": "eslint --fix --quiet --ext .ts src/",
-    "test": "jest --watch",
+    "test": "jest",
     "validate": "yarn run lint && yarn run test",
     "create-indexes": "npx create-ts-index src -b"
   },

@@ -31,8 +31,8 @@ export const DefaultInitializationOptions = {
     schema: DefaultInputSchema
   },
   networking: {
-    enabled: true,
-    supportsMediaStreams: true,
+    enabled: false,
+    supportsMediaStreams: false,
     schema: DefaultNetworkSchema
   },
   state: {
@@ -61,7 +61,7 @@ export const DefaultInitializationOptions = {
 };
 
 export function initializeEngine (options: any = DefaultInitializationOptions) {
-  console.log('Initializing');
+  console.log(options)
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
   // Create a new three.js scene
@@ -96,7 +96,7 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
 
   // Networking
   if (options.networking && options.networking.enabled) {
-    registerSystem(NetworkSystem);
+    registerSystem(NetworkSystem, { schema: options.networking.schema});
 
     // Do we want audio and video streams?
     if (options.networking.supportsMediaStreams == true) {

@@ -72,7 +72,7 @@ export default class GooglePolyMedia {
         author: modelItem.authorName,
         expected_content_type: 'model/gltf',
         license: modelItem.license,
-        name: modelItem.displayName
+        name: modelItem.displayName || modelItem.name
       }
     }
     // First Priority is of GLTF2
@@ -95,7 +95,7 @@ export default class GooglePolyMedia {
     const processedResponse = {
       type: 'poly_model',
       id: item.name,
-      name: item.displayName,
+      name: item.displayName || item.name,
       url: url.replace('assets/', ''),
       attributions: { creator: { name: item.authorName } },
       images: {

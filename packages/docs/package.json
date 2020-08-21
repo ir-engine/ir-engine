@@ -8,8 +8,6 @@
     "start": "yarn run dev",
     "dev": "hugo server --watch=false",
     "watch": "hugo server",
-    "test": "hugo check",
-    "lint": "echo 'No linting for docs'",
     "validate": "yarn run lint && yarn run test",
     "build": "hugo",
     "deploy": "bash deploy.sh"
