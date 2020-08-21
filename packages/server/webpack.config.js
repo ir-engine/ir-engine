@@ -21,7 +21,7 @@ module.exports = {
         modules: [
             `${root}/node_modules`,
             'node_modules',
-            `${packageRoot}/node_modules` 
+            `${packageRoot}/node_modules`
         ]
     },
     resolveLoader: {
@@ -38,5 +38,5 @@ module.exports = {
             ]
         }]
     },
-        plugins: [(process.env.NODE_ENV !== 'production') ? new WebpackShellPlugin({onBuildEnd: ['nodemon dist/server.js --watch build']}) : null]
+        plugins: [(process.env.NODE_ENV !== 'production') ? new WebpackShellPlugin({onBuildEnd: ['nodemon dist/server.js --watch build']}) : () => { }]
 };

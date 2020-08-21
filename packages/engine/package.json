@@ -62,6 +62,7 @@
     "three-fbx-loader": "^1.0.3",
     "three-gltf-exporter": "0.0.1",
     "ts-jest": "^26.1.4",
+    "tween": "^0.9.0",
     "typescript": "^3.9.7",
     "typescript-eslint": "^0.0.1-alpha.0",
     "utf-8-validate": "^5.0.2"
