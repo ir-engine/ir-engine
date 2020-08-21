@@ -1,4 +1,5 @@
-import mediasoup from "mediasoup"
+import { createWorker } from 'mediasoup'
+import serverConfig from '../../config'
 import express from "express"
 import * as https from "https"
 import fs from "fs"
@@ -21,7 +22,6 @@ import {
 import { types as MediaSoupClientTypes } from "mediasoup-client"
 import { UnreliableMessageParams, UnreliableMessageReturn } from "@xr3ngine/engine/src/networking/types/NetworkingTypes"
 
-dotenv.config()
 interface Client {
   socket: SocketIO.Socket;
   lastSeenTs: number;
@@ -102,8 +102,8 @@ const defaultRoomState = {
 }
 
 const tls = {
-  cert: fs.readFileSync(path.resolve(path.dirname("./"), process.env.CERT)),
-  key: fs.readFileSync(path.resolve(path.dirname("./"), process.env.KEY)),
+  cert: fs.readFileSync(serverConfig.server.certPath),
+  key: fs.readFileSync(serverConfig.server.keyPath),
   requestCert: false,
   rejectUnauthorized: false
 }
@@ -576,7 +576,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     this.roomState = defaultRoomState
     console.log("Worker starting")
     try {
-      this.worker = await mediasoup.createWorker({
+      this.worker = await createWorker({
         rtcMinPort: config.mediasoup.worker.rtcMinPort,
         rtcMaxPort: config.mediasoup.worker.rtcMaxPort
       })
