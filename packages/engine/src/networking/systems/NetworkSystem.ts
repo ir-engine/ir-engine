@@ -4,8 +4,6 @@ import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../components/Network';
 import { NetworkClient } from '../components/NetworkClient';
 import { NetworkObject } from '../components/NetworkObject';
-import { DefaultNetworkSchema } from '../defaults/DefaultNetworkSchema';
-import { NetworkSchema } from '../interfaces/NetworkSchema';
 
 export class NetworkSystem extends System {
   init (attributes) {
