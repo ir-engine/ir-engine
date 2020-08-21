@@ -142,7 +142,7 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
   }
 
   // Start our timer!
-  if (isBrowser) setInterval(startTimer, 1000);
+  if (isBrowser) setTimeout(startTimer, 1000);
 }
 
 export function startTimer () {
