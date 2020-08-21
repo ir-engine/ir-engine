@@ -5,7 +5,7 @@ import { SceneObjectLoadingSchema } from '../constants/SceneObjectLoadingSchema'
 export function loadScene (scene) {
   Object.keys(scene.entities).forEach(key => {
     const sceneEntity = scene.entities[key];
-    const entity = createEntity('scene_' + sceneEntity.id);
+    const entity = createEntity();
     addComponent(entity, SceneTagComponent);
     sceneEntity.components.forEach(component => {
       console.log(component.name);

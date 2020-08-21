@@ -7,7 +7,6 @@ import { Network as NetworkComponent } from "@xr3ngine/engine/src/networking/com
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "@xr3ngine/engine/src/networking/constants/VideoConstants";
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
 import { addClient, initializeClient, removeClient } from "@xr3ngine/engine/src/networking/functions/ClientFunctions";
-import { Message } from "@xr3ngine/engine/src/networking/interfaces/Message";
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
 import { DataConsumer, DataConsumerOptions, DataProducer } from "mediasoup-client/lib/types";
