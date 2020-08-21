@@ -1,8 +1,9 @@
 const path = require('path')
+const packageRoot = require('app-root-path').path;
 
 const root = [path.resolve(__dirname)]
 const WebpackShellPlugin = require('webpack-shell-plugin');
-
+console.log("PACKAGE ROOT", packageRoot)
 module.exports = {
     entry: `${root}/src/index.ts`,
     target: 'node',
@@ -19,13 +20,12 @@ module.exports = {
         extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.js', '.json'],
         modules: [
             `${root}/node_modules`,
-            'node_modules'
+            'node_modules',
+            `${packageRoot}/node_modules` 
         ]
     },
     resolveLoader: {
-        //root: [`${root}/node_modules`],
-
-
+        // root: [`${root}/node_modules`, `${packageRoot}/node_modules`, 'node_modules']
     },
     module: {
         rules: [{

@@ -8,6 +8,7 @@ import { PhysicsWorld } from '../../physics/components/PhysicsWorld';
 import { VehicleBody } from '../../physics/components/VehicleBody';
 import { Object3DComponent } from '../../common/components/Object3DComponent';
 import { Entity } from '../../ecs/classes/Entity';
+import { createConvexGeometry } from './PhysicsBehaviors';
 
 const quaternion = new Quaternion();
 
@@ -17,7 +18,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
 
     const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody;
 
-    const [vehicle, wheelBodies] = _createVehicleBody(entity, vehicleComponent.convexMesh);
+    const [vehicle, wheelBodies] = createVehicleBody(entity, vehicleComponent.convexMesh);
     object.userData.vehicle = vehicle;
     vehicle.addToWorld(PhysicsWorld.instance.physicsWorld);
 
@@ -41,11 +42,11 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
   }
 };
 
-export function _createVehicleBody (entity: Entity, mesh: any): [RaycastVehicle, Body[]] {
+export function createVehicleBody (entity: Entity, mesh: any): [RaycastVehicle, Body[]] {
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
   let chassisBody;
   if (mesh) {
-    chassisBody = this._createConvexGeometry(entity, mesh);
+    chassisBody = createConvexGeometry(entity);
   } else {
     const chassisShape = new Box(new Vec3(1, 1.2, 2.8));
     chassisBody = new Body({ mass: 150 });

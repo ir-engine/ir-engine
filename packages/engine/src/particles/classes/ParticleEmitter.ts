@@ -20,7 +20,7 @@ import {
   setVelocityScaleAt,
   setWorldAccelerationAt
 } from "./ParticleMesh"
-import { ParticleEmitterInterface, ParticleEmitter } from "../interfaces"
+import { ParticleEmitterInterface, ParticleEmitterComponentInterface } from "../interfaces"
 
 const error = console.error
 const FRAME_STYLES = ["sequence", "randomsequence", "random"]
@@ -30,7 +30,7 @@ export function createParticleEmitter(
   options: ParticleEmitterInterface,
   matrixWorld: THREE.Matrix4,
   time = 0
-): ParticleEmitter {
+): ParticleEmitterComponentInterface {
   const config = {
     particleMesh: null,
     enabled: true,
@@ -110,7 +110,7 @@ export function createParticleEmitter(
   return { startTime, startIndex, endIndex, mesh }
 }
 
-export function deleteParticleEmitter(emitter: ParticleEmitter): void {
+export function deleteParticleEmitter(emitter: ParticleEmitterComponentInterface): void {
   //emitter.mesh.userData.nextIndex = emitter.startIndex;
   for (let i = emitter.startIndex; i < emitter.endIndex; i++) {
     despawn(emitter.mesh.geometry, i)
@@ -124,12 +124,12 @@ function despawn(geometry, index) {
   setTimingsAt(geometry, index, 0, 0, 0, 0)
 }
 
-export function setEmitterTime(emitter: ParticleEmitter, time: number): void {
+export function setEmitterTime(emitter: ParticleEmitterComponentInterface, time: number): void {
   setMaterialTime(emitter.mesh.material, time)
 }
 
 export function setEmitterMatrixWorld(
-  emitter: ParticleEmitter,
+  emitter: ParticleEmitterComponentInterface,
   matrixWorld: THREE.Matrix4,
   time: number,
   deltaTime: number

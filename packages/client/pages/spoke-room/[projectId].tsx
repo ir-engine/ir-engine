@@ -22,7 +22,7 @@ async function init (projectId: string): Promise<any> { // auth: any,
   const result = await client.service(service).get(serviceId);
   Object.keys(result.entities).forEach((key) => {
     const entity = result.entities[key];
-    const newEntity = createEntity(entity.id);
+    const newEntity = createEntity();
     entity.components.forEach((component) => {
       console.log(component.name);
       console.log(component);

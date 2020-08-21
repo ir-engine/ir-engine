@@ -286,5 +286,5 @@ export abstract class System {
 
 System.isSystem = true;
 System.getName = function () {
-  return this.displayName || this.name;
+  return this.name;
 };
