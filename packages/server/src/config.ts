@@ -55,7 +55,9 @@ const server = {
     default: 10,
     max: 100
   },
-  url: ''
+  url: '',
+  certPath: path.resolve(path.dirname("./"), process.env.CERT ?? 'certs/cert.pem'),
+  keyPath: path.resolve(path.dirname("./"), process.env.KEY ?? 'certs/key.pem')
 }
 server.url = process.env.SERVER_URL ??
   url.format({ protocol: 'http', ...server })
