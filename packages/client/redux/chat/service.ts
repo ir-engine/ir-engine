@@ -13,9 +13,9 @@ import {
   removedChannel
 } from './actions';
 
-import { User } from '@xr3ngine/common/interfaces/User';
-import store from '../store';
-import {dispatchAlertError} from '../alert/service';
+import { User } from '@xr3ngine/common/interfaces/User'
+import store from '../store'
+import {dispatchAlertError} from '../alert/service'
 
 export function getChannels(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {

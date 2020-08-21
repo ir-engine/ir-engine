@@ -15,9 +15,9 @@ import {
   REMOVED_PARTY_USER,
   CREATED_PARTY_USER,
   PATCHED_PARTY_USER
-} from '../actions';
-import { PartyUser } from '@xr3ngine/common/interfaces/PartyUser';
-import _ from 'lodash';
+} from '../actions'
+import { PartyUser } from '@xr3ngine/common/interfaces/PartyUser'
+import _ from 'lodash'
 
 export const initialState = {
   party: {},
