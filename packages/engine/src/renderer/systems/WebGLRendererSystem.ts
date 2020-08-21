@@ -33,8 +33,14 @@ export class WebGLRendererSystem extends System {
     Engine.renderer = renderer;
     // Add the renderer to the body of the HTML document
     document.body.appendChild(Engine.renderer.domElement);
-    this.onResize()
     console.log("child appended")
+
+    this.onResize = this.onResize.bind(this);
+    console.log('resize binded')
+    window.addEventListener('resize', this.onResize, false);
+    this.onResize()
+
+    this.isInitialized = true
   }
   
   /**
@@ -50,6 +56,7 @@ export class WebGLRendererSystem extends System {
     */
   dispose() {
     window.removeEventListener('resize', this.onResize);
+    document.body.removeChild(Engine.renderer.domElement);
   }
 
   /**
@@ -85,15 +92,18 @@ export class WebGLRendererSystem extends System {
      */
   execute (delta: number) {
     this.queryResults.renderers.added.forEach((entity: Entity) => {
-      console.log("Renderers added")
+      console.log("Renderer added")
       RendererComponent.instance.needsResize = true;
-      this.onResize = this.onResize.bind(this);
-      window.addEventListener('resize', this.onResize, false);
       this.configurePostProcessing(entity);
     });
+    this.queryResults.renderers.removed.forEach((entity: Entity) => {
+      // cleanup
+    })
+
 
     if(this.isInitialized)
     this.queryResults.renderers.all.forEach((entity: Entity) => {
+      resize(entity)
       getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
     });
   }
@@ -124,7 +134,7 @@ export const resize: Behavior = entity => {
     canvas.height = window.innerHeight
 
     Engine.renderer.setSize(width, height);
-    // RendererComponent.instance.composer.setSize(width, height);
+    rendererComponent.composer.setSize(width, height);
 
     RendererComponent.instance.needsResize = false;
   }
@@ -134,7 +144,8 @@ WebGLRendererSystem.queries = {
   renderers: {
     components: [RendererComponent],
     listen: {
-      added: true
+      added: true,
+      removed: true
     }
   }
 };
