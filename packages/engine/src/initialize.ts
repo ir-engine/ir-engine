@@ -21,7 +21,6 @@ import { ParticleSystem } from "./particles/systems/ParticleSystem"
 import { KeyframeSystem } from "./particles/systems/KeyframeSystem"
 import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
 import { Timer } from './common/functions/Timer';
-import { enableRemoteDevtools } from './debug/remotedebug';
 
 export const DefaultInitializationOptions = {
   debug: true,
@@ -65,7 +64,6 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
   console.log(options)
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
-  if(options.debug) enableRemoteDevtools()
   // Create a new three.js scene
   const scene = new Scene();
 
