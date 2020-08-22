@@ -45,7 +45,6 @@ export function sendInvite (data: any) {
       send = false;
     }
 
-    console.log(data.type);
     if (send === true) {
       try {
         const inviteResult = await client.service('invite').create({
@@ -69,7 +68,6 @@ export function retrieveReceivedInvites(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     dispatch(fetchingReceivedInvites());
     try {
-      console.log('GETTING RECEIVED INVITES');
       const inviteResult = await client.service('invite').find({
         query: {
           type: 'received',
@@ -77,8 +75,6 @@ export function retrieveReceivedInvites(skip?: number, limit?: number) {
           $skip: skip != null ? skip : getState().get('invite').get('receivedInvites').get('skip')
         }
       });
-      console.log('RECEIVED INVITES:');
-      console.log(inviteResult);
       dispatch(retrievedReceivedInvites(inviteResult));
     } catch(err) {
       console.log(err);
@@ -91,7 +87,6 @@ export function retrieveSentInvites(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     dispatch(fetchingSentInvites());
     try {
-      console.log('GETTING SENT INVITES');
       const inviteResult = await client.service('invite').find({
         query: {
           type: 'sent',
@@ -99,8 +94,6 @@ export function retrieveSentInvites(skip?: number, limit?: number) {
           $skip: skip != null ? skip : getState().get('invite').get('sentInvites').get('skip')
         }
       });
-      console.log('SENT INVITES:');
-      console.log(inviteResult);
       dispatch(retrievedSentInvites(inviteResult));
     } catch(err) {
       console.log(err);
@@ -121,16 +114,11 @@ function removeInvite(inviteId: string) {
 }
 
 export function deleteInvite(inviteId: string) {
-  console.log('deleteInvite:');
-  console.log(inviteId);
   return removeInvite(inviteId);
 }
 
 export function acceptInvite(inviteId: string, passcode: string) {
   return async (dispatch: Dispatch): Promise<any> => {
-    console.log('ACCEPTING INVITE');
-    console.log(inviteId);
-    console.log(passcode);
     try {
       await client.service('accept-invite').get(inviteId, {
         query: {
