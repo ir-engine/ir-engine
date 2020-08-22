@@ -1,7 +1,7 @@
-import { Types } from "../../ecs/types/Types"
+import { Types } from "../../ecs//types/Types"
 import { Component } from "../../ecs/classes/Component"
 import { SystemStateComponent } from "../../ecs/classes/SystemStateComponent"
-import { ParticleEmitterInterface, FrameStyle } from "../interfaces/ParticleInterfaces"
+import { FrameStyle, ParticleEmitterInterface } from "../interfaces"
 interface ParticleEmitterStateInterface {
   emitter3D: any
   useEntityRotation: boolean

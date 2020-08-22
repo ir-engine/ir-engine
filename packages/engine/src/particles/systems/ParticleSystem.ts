@@ -5,13 +5,13 @@ import { TransformParentComponent } from "../../transform/components/TransformPa
 import { ParticleEmitter, ParticleEmitterState } from "../components/ParticleEmitter"
 import { System, SystemAttributes } from "../../ecs/classes/System"
 import { registerComponent } from "../../ecs/functions/ComponentFunctions"
+import { getComponent, addComponent, removeComponent } from "../../ecs/functions/EntityFunctions"
 import {
   createParticleEmitter,
   deleteParticleEmitter,
   setEmitterMatrixWorld,
   setEmitterTime
 } from "../classes/ParticleEmitter"
-import { getComponent, addComponent, removeComponent } from "../../ecs/functions/EntityFunctions"
 
 export class ParticleSystem extends System {
   init(attributes?: SystemAttributes): void {

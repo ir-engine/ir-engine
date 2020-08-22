@@ -56,7 +56,7 @@ export class Engine {
    * List of registered entities
    * Engine can be paused by setting enabled to false
    */
-  static entities: any[] = []
+  static entities: Entity[] = []
 
   /**
    * List of registered queries

@@ -73,6 +73,7 @@
     "jest": "^26.0.1",
     "jszip": "^3.5.0",
     "load-bmfont": "^1.4.0",
+    "lodash.isequal": "^4.5.0",
     "material-ui-dropzone": "^3.0.0",
     "mediasoup": "^3.6.16",
     "mediasoup-client": "^3.6.12",
@@ -101,6 +102,7 @@
     "react-loadable": "^5.5.0",
     "react-modal": "^3.11.2",
     "react-no-ssr": "^1.1.0",
+    "react-object-inspector": "^0.2.1",
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.1.2",
     "react-select": "^3.0.4",
@@ -121,12 +123,14 @@
     "shaka-player": "^2.5.10",
     "shaka-player-react": "^1.0.1",
     "socket.io-client": "^2.3.0",
+    "string-similarity": "^4.0.2",
     "styled-components": "^5.1.1",
     "styled-icons": "^10.16.0",
     "subscriptions-transport-ws": "^0.9.16",
     "three": "^0.119.1",
     "ts-shader-loader": "^1.0.6",
-    "tween": "^0.9.0"
+    "tween": "^0.9.0",
+    "whatkey": "^2.0.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",

@@ -20,17 +20,21 @@ import {
   setVelocityScaleAt,
   setWorldAccelerationAt
 } from "./ParticleMesh"
-import { ParticleEmitterInterface, ParticleEmitterComponentInterface } from "../interfaces/ParticleInterfaces"
+import { ParticleEmitterInterface, ParticleEmitter } from "../interfaces"
+import { Mesh, Geometry } from "three"
 
 const error = console.error
 const FRAME_STYLES = ["sequence", "randomsequence", "random"]
 const DEG2RAD = THREE.MathUtils.DEG2RAD
 
+let emitterRegistry = new Set()
+// let emitterRegistry = []
+
 export function createParticleEmitter(
   options: ParticleEmitterInterface,
   matrixWorld: THREE.Matrix4,
   time = 0
-): ParticleEmitterComponentInterface {
+): ParticleEmitter {
   const config = {
     particleMesh: null,
     enabled: true,
@@ -71,6 +75,7 @@ export function createParticleEmitter(
 
   const mesh = config.particleMesh
   const geometry = mesh.geometry
+  const id = (emitterRegistry.size == 0) ? 0 : Array.from(emitterRegistry)[emitterRegistry.size - 1]["id"] + 1
   const startTime = time
   const startIndex = mesh.userData.nextIndex
   const meshParticleCount = mesh.userData.meshConfig.particleCount
@@ -88,7 +93,10 @@ export function createParticleEmitter(
   if (config.count > 0 && startIndex + config.count > meshParticleCount) {
     error(`run out of particles, increase the particleCount for this ThreeParticleMesh`)
   }
-
+  // clear previous Set()
+  if(mesh.userData.nextIndex == 0){
+    emitterRegistry.clear()
+  }
   const numParticles = count >= 0 ? count : meshParticleCount - mesh.userData.nextIndex
   mesh.userData.nextIndex += numParticles
 
@@ -107,33 +115,204 @@ export function createParticleEmitter(
     loadTexturePackerJSON(mesh, config, startIndex, endIndex)
   }
 
-  return { startTime, startIndex, endIndex, mesh }
+  let emitter = {
+    startTime, 
+    startIndex, 
+    endIndex,
+    mesh
+  }
+  
+  emitterRegistry.add(emitter)
+  return emitter
+  
 }
 
-export function deleteParticleEmitter(emitter: ParticleEmitterComponentInterface): void {
-  //emitter.mesh.userData.nextIndex = emitter.startIndex;
+//needsUpdate
+
+export function deleteParticleEmitter(emitter: ParticleEmitter): void {
+  let shiftAmount = emitter.endIndex - emitter.startIndex
+  emitterRegistry.delete(emitter)
+
+
   for (let i = emitter.startIndex; i < emitter.endIndex; i++) {
     despawn(emitter.mesh.geometry, i)
   }
-
   needsUpdate(emitter.mesh.geometry)
+  
+  
+  let geometry = emitter.mesh.geometry
+
+  for(let i = emitter.startIndex; i <= emitter.mesh.userData.nextIndex; i++){
+    copyEmitterAttrs(geometry, i, shiftAmount)
+  }
+  console.log(geometry.attributes)
+  emitter.mesh.userData.nextIndex -= shiftAmount
+  let arrayEmitter = Array.from(emitterRegistry)
+  for(let i = 0; i < emitterRegistry.size; i++) {
+    if(i == 0 ? arrayEmitter[i]["startIndex"] != 0 : arrayEmitter[i - 1]["endIndex"] != arrayEmitter[i]["startIndex"]){
+      arrayEmitter[i]["startIndex"] -= shiftAmount
+      arrayEmitter[i]["endIndex"] -= shiftAmount
+    }  
+  }
+
+}
+
+// function copyEmitterAttrs(attributes, index, shiftAmount){
+//   if(attributes.array.length == 400){
+//     attributes.setXYZW(index,
+//       attributes.getX(index + shiftAmount), 
+//       attributes.getY(index + shiftAmount), 
+//       attributes.getZ(index + shiftAmount), 
+//       attributes.getW(index + shiftAmount))
+//   }
+//   else if (attributes.array.length == 300){
+//     attributes.setXYZ(index,
+//       attributes.getX(index + shiftAmount),
+//       attributes.getY(index + shiftAmount),
+//       attributes.getZ(index + shiftAmount))
+//   } 
+// }
+
+function copyEmitterAttrs(geometry, index, shiftAmount){
+
+  const shiftIndex =  index + shiftAmount 
+
+  const velocity = geometry.getAttribute("velocity")
+  const row1 = geometry.getAttribute("row1")
+  const row2 = geometry.getAttribute("row2")
+  const row3 = geometry.getAttribute("row3")
+  const offset = geometry.getAttribute("offset")
+  const scales = geometry.getAttribute("scales")
+  const orientations = geometry.getAttribute("orientations")
+  const colors = geometry.getAttribute("colors")
+  const opacities = geometry.getAttribute("opacities")
+  const timings = geometry.getAttribute("timings")
+  const acceleration = geometry.getAttribute("acceleration")
+  const angularvelocity = geometry.getAttribute("angularvelocity")
+  const angularacceleration = geometry.getAttribute("angularacceleration")
+  const worldacceleration = geometry.getAttribute("worldacceleration")
+  const velocityscale = geometry.getAttribute("velocityscale")
+  
+  velocity.setXYZW(index,
+    velocity.getX(shiftIndex), 
+    velocity.getY(shiftIndex), 
+    velocity.getZ(shiftIndex), 
+    velocity.getW(shiftIndex))
+
+  row1.setXYZW(index, 
+    row1.getX(shiftIndex), 
+    row1.getY(shiftIndex), 
+    row1.getZ(shiftIndex), 
+    row1.getW(shiftIndex))
+
+  row2.setXYZW(index, 
+    row2.getX(shiftIndex), 
+    row2.getY(shiftIndex), 
+    row2.getZ(shiftIndex), 
+    row2.getW(shiftIndex))
+
+  row3.setXYZW(index, 
+    row3.getX(shiftIndex), 
+    row3.getY(shiftIndex), 
+    row3.getZ(shiftIndex), 
+    row3.getW(shiftIndex))
+
+  offset.setXYZ(index,
+    offset.getX(shiftIndex),
+    offset.getY(shiftIndex),
+    offset.getZ(shiftIndex))
+
+  // scales.setW(index - 1, scales.getW(shiftIndex))
+  scales.setXYZ(index,
+    scales.getX(shiftIndex),
+    scales.getY(shiftIndex),
+    scales.getZ(shiftIndex))
+
+  // orientations.setX(index, orientations.getX(shiftIndex))
+  orientations.setXYZW(index, 
+    orientations.getX(shiftIndex),
+    orientations.getY(shiftIndex),
+    orientations.getZ(shiftIndex),
+    orientations.getW(shiftIndex))
+
+  colors.setXYZW(index, 
+    colors.getX(shiftIndex),
+    colors.getY(shiftIndex),
+    colors.getZ(shiftIndex),
+    colors.getW(shiftIndex))
+
+  opacities.setXYZW(index, 
+    opacities.getX(shiftIndex),
+    opacities.getY(shiftIndex),
+    opacities.getZ(shiftIndex),
+    opacities.getW(shiftIndex))
+
+  timings.setXYZW(index, 
+    timings.getX(shiftIndex),
+    timings.getY(shiftIndex),
+    timings.getZ(shiftIndex),
+    timings.getW(shiftIndex))
+
+  acceleration.setXYZW(index, 
+    acceleration.getX(shiftIndex),
+    acceleration.getY(shiftIndex),
+    acceleration.getZ(shiftIndex),
+    acceleration.getW(shiftIndex))
+
+  angularvelocity.setXYZW(index, 
+    angularvelocity.getX(shiftIndex),
+    angularvelocity.getY(shiftIndex),
+    angularvelocity.getZ(shiftIndex),
+    angularvelocity.getW(shiftIndex))
+
+  angularacceleration.setXYZW(index, 
+    angularacceleration.getX(shiftIndex),
+    angularacceleration.getY(shiftIndex),
+    angularacceleration.getZ(shiftIndex),
+    angularacceleration.getW(shiftIndex))
+
+  worldacceleration.setXYZ(index,
+    worldacceleration.getX(shiftIndex),
+    worldacceleration.getY(shiftIndex),
+    worldacceleration.getZ(shiftIndex))
+
+  velocityscale.setXYZ(index,
+    velocityscale.getX(shiftIndex),
+    velocityscale.getY(shiftIndex),
+    velocityscale.getZ(shiftIndex))
 }
 
 function despawn(geometry, index) {
   // TODO: cleanup mesh!
+
+  // matrixWorld = null
+  let matrixWorld = {
+    elements: []
+  }
+
+  setMatrixAt(geometry, index, matrixWorld)
+  setOffsetAt(geometry, index, 0)
+  setScalesAt(geometry, index, 0)
+  setColorsAt(geometry, index, [{}])
+  setOrientationsAt(geometry, index, 0, 0)
+  setOpacitiesAt(geometry, index, 0)
+  setFrameAt(geometry, index, 0, 0, 0, 0, 0, 0)
+
   setTimingsAt(geometry, index, 0, 0, 0, 0)
+  setVelocityAt(geometry, index, 0, 0, 0, 0)
+  setAccelerationAt(geometry, index, 0, 0, 0, 0)
+  setAngularVelocityAt(geometry, index, 0, 0, 0, 0)
+  setAngularAccelerationAt(geometry, index, 0, 0, 0, 0)
+  setWorldAccelerationAt(geometry, index, 0, 0, 0)
+  setBrownianAt(geometry, index, 0, 0)
+  setVelocityScaleAt(geometry, index, 0, 0, 0)
 }
 
-export function setEmitterTime(emitter: ParticleEmitterComponentInterface, time: number): void {
+export function setEmitterTime(emitter: ParticleEmitter, time: number): void {
   setMaterialTime(emitter.mesh.material, time)
 }
 
-export function setEmitterMatrixWorld(
-  emitter: ParticleEmitterComponentInterface,
-  matrixWorld: THREE.Matrix4,
-  time: number,
-  deltaTime: number
-): void {
+export function setEmitterMatrixWorld(emitter: ParticleEmitter, matrixWorld: THREE.Matrix4, time: number, deltaTime: number): void {
   const geometry = emitter.mesh.geometry
   const endIndex = emitter.endIndex
   const startIndex = emitter.startIndex
@@ -204,6 +383,7 @@ function spawn(geometry, matrixWorld, config, index, spawnTime, lifeTime, repeat
   setWorldAccelerationAt(geometry, index, worldAcceleration.x, worldAcceleration.y, worldAcceleration.z)
   setBrownianAt(geometry, index, config.brownianSpeed, config.brownianScale)
   setVelocityScaleAt(geometry, index, config.velocityScale, config.velocityScaleMin, config.velocityScaleMax)
+
 }
 
 // function calcSpawnOffsetsFromGeometry(geometry): any {
