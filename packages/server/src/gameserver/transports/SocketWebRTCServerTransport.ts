@@ -1,9 +1,11 @@
-import mediasoup from "mediasoup"
+import { createWorker } from 'mediasoup'
+import serverConfig from '../../config'
 import express from "express"
 import * as https from "https"
 import fs from "fs"
 import SocketIO, { Socket } from "socket.io"
 import * as path from "path"
+import app from '../../app'
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes"
 import * as dotenv from "dotenv"
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport"
@@ -21,7 +23,6 @@ import {
 import { types as MediaSoupClientTypes } from "mediasoup-client"
 import { UnreliableMessageParams, UnreliableMessageReturn } from "@xr3ngine/engine/src/networking/types/NetworkingTypes"
 
-dotenv.config()
 interface Client {
   socket: SocketIO.Socket;
   lastSeenTs: number;
@@ -102,8 +103,8 @@ const defaultRoomState = {
 }
 
 const tls = {
-  cert: fs.readFileSync(path.resolve(path.dirname("./"), process.env.CERT)),
-  key: fs.readFileSync(path.resolve(path.dirname("./"), process.env.KEY)),
+  cert: fs.readFileSync(serverConfig.server.certPath),
+  key: fs.readFileSync(serverConfig.server.keyPath),
   requestCert: false,
   rejectUnauthorized: false
 }
@@ -184,27 +185,27 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     })
   }
 
-  public async initialize(address = "127.0.0.1", port = 3030): Promise<void> {
+  public async initialize(address = "127.0.0.1", port = 3001): Promise<void> {
     config.mediasoup.webRtcTransport.listenIps = [{ ip: address, announcedIp: null }]
     await this.startMediasoup()
 
-    const expressApp = express()
-
-    // start https server
-    console.log("Starting Express")
-    await new Promise(resolve => {
-      this.server = new https.Server(tls, expressApp as any)
-      this.server
-        .on("error", e => console.error("https server error,", e.message))
-        .listen(port, address, () => {
-          console.log(`https server listening on port ${port}`)
-          resolve()
-        })
-    })
+    // const expressApp = express()
+    //
+    // // start https server
+    // console.log("Starting Express")
+    // await new Promise(resolve => {
+    //   this.server = new https.Server(tls, expressApp as any)
+    //   this.server
+    //     .on("error", e => console.error("https server error,", e.message))
+    //     .listen(port, address, () => {
+    //       console.log(`https server listening on port ${port}`)
+    //       resolve()
+    //     })
+    // })
 
     // Start Websockets
     console.log("Starting websockets")
-    this.socketIO = SocketIO(this.server)
+    this.socketIO = (app as any)?.io
 
     // every 10 seconds, check for inactive clients and send them into cyberspace
     setInterval(() => {
@@ -576,7 +577,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     this.roomState = defaultRoomState
     console.log("Worker starting")
     try {
-      this.worker = await mediasoup.createWorker({
+      this.worker = await createWorker({
         rtcMinPort: config.mediasoup.worker.rtcMinPort,
         rtcMaxPort: config.mediasoup.worker.rtcMaxPort
       })

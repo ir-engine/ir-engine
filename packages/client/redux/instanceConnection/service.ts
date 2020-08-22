@@ -35,7 +35,7 @@ export function connectToInstanceServer () {
       const locationId = instanceConnectionState.get('locationId');
       let socket;
       if (process.env.NODE_ENV === 'development') {
-        socket = io(`${instance.get('ipAddress') as string}/${instance.get('port') as string}`, {
+        socket = io(`${instance.get('ipAddress') as string}:${instance.get('port') as string}`, {
           query: {
             locationId: locationId,
             token: token

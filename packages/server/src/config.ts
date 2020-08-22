@@ -5,8 +5,9 @@ import { inspect } from 'util'
 // Load all the ENV variables from `.env`, then `.env.local`, into process.env
 import dotenv from 'dotenv-flow'
 import * as chargebeeInst from 'chargebee'
+import appRootPath from 'app-root-path'
 dotenv.config({
-  path: `${__dirname}/../../../`
+  path: appRootPath.path
 })
 
 /**
@@ -54,7 +55,9 @@ const server = {
     default: 10,
     max: 100
   },
-  url: ''
+  url: '',
+  certPath: path.resolve(path.dirname("./"), process.env.CERT ?? 'certs/cert.pem'),
+  keyPath: path.resolve(path.dirname("./"), process.env.KEY ?? 'certs/key.pem')
 }
 server.url = process.env.SERVER_URL ??
   url.format({ protocol: 'http', ...server })
