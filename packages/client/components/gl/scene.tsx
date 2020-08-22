@@ -6,6 +6,9 @@ import { DefaultNetworkSchema } from '@xr3ngine/engine/src/networking/defaults/D
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 
+import { staticWorldColliders } from '../gl_examples/staticWorldColliders'
+import { car } from '../gl_examples/Car'
+
 export const EnginePage = (): any => {
   useEffect(() => {
 
@@ -14,8 +17,8 @@ export const EnginePage = (): any => {
       transport: SocketWebRTCClientTransport
     }
 
-    console.log("Network Schema: ")
-    console.log(networkSchema)
+  //  console.log("Network Schema: ")
+  //  console.log(networkSchema)
 
     const InitializationOptions = {
       ...DefaultInitializationOptions,
@@ -26,10 +29,12 @@ export const EnginePage = (): any => {
       },
     };
     initializeEngine(InitializationOptions);
-    
+
     // Load glb here
 
-    createPrefab(PlayerController);
+        createPrefab(PlayerController);
+        createPrefab(staticWorldColliders);
+        //createPrefab(car);
   },[]);
   return null
 };

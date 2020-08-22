@@ -11,6 +11,7 @@ import { BoxBufferGeometry, Mesh } from "three";
 import { addObject3DComponent, removeObject3DComponent } from "@xr3ngine/engine/src/common/defaults/behaviors/Object3DBehaviors";
 import { Actor } from "@xr3ngine/engine/src/common/defaults/components/Actor";
 import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
+import { ScaleComponent } from "@xr3ngine/engine/src/transform/components/ScaleComponent";
 
 const miniGeo = new BoxBufferGeometry(0.2, 0.2, 0.2);
 
@@ -23,6 +24,7 @@ export const PlayerController: Prefab = {
         { type: Actor },
         // Transform system applies values from transform component to three.js object (position, rotation, etc)
         { type: TransformComponent },
+        { type: ScaleComponent },
         // Local player input mapped to behaviors in the input map
         { type: Input, data: { schema: DefaultInputSchema } },
         // Current state (isJumping, isidle, etc)
@@ -43,9 +45,11 @@ export const PlayerController: Prefab = {
         {
           behavior: attachCamera
         },
+        /*
         {
             behavior: addMeshCollider,
         }
+        */
     ],
     onDestroy: [
         {
