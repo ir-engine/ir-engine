@@ -12,12 +12,22 @@
 .signup__fileField {
   display: none;
 }
+
+.profile {
+  @media (max-width: 768px) {
+    margin: 5%;
+  }
+}
 .uploadform{
     margin-top: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
 
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 .max-size-200 {
