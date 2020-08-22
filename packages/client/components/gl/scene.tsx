@@ -7,6 +7,7 @@ import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/Networ
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 
 import { staticWorldColliders } from '../gl_examples/staticWorldColliders'
+import { rigidBodyBox } from '../gl_examples/rigidBodyBox'
 import { car } from '../gl_examples/Car'
 
 export const EnginePage = (): any => {
@@ -27,6 +28,9 @@ export const EnginePage = (): any => {
         supportsMediaStreams: true,
         schema: networkSchema
       },
+      physics: {
+        enabled: true
+      }
     };
     initializeEngine(InitializationOptions);
 
@@ -34,6 +38,7 @@ export const EnginePage = (): any => {
 
         createPrefab(PlayerController);
         createPrefab(staticWorldColliders);
+        createPrefab(rigidBodyBox);
         //createPrefab(car);
   },[]);
   return null
