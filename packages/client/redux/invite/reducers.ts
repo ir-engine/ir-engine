@@ -78,8 +78,6 @@ const inviteReducer = (state = immutableState, action: InviteAction): any => {
       return state.set('receivedUpdateNeeded', true);
     case INVITE_TARGET_SET:
       newValues = (action as InviteTargetSetAction);
-        console.log('Setting invite target');
-        console.log(newValues);
       return state
           .set('targetObjectId', newValues.targetObjectId || '')
           .set('targetObjectType', newValues.targetObjectType || '');

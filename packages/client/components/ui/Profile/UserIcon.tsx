@@ -77,28 +77,33 @@ const UserProfile = (props: Props): any => {
           <div>User ID: {user.id}</div>
         </div>
         <div className="uploadform">
-          <label className="hover-icon" htmlFor="fileInput">
-            {fileUrl ? (
-                <img
-                    src={URL.createObjectURL(fileUrl)}
-                    className="rounded mx-auto d-block max-size-200"
-                />
-            ) : props.avatarUrl ? (
-                <img src={props.avatarUrl} className="rounded mx-auto d-block max-size-200" />
-            ) : (
-                <AccountCircleIcon style={{ fontSize: 150 }} />
-            )}
-          </label>
+          {fileUrl ? (
+              <img
+                  src={URL.createObjectURL(fileUrl)}
+                  className="rounded mx-auto d-block max-size-200"
+              />
+          ) : props.avatarUrl ? (
+              <img src={props.avatarUrl} className="rounded mx-auto d-block max-size-200" />
+          ) : (
+              <AccountCircleIcon style={{ fontSize: 150 }} />
+          )}
           <input
               id="fileInput"
+              accept="image/*"
               name="file"
               placeholder="Upload Product Image"
               type="file"
               className="signup__fileField"
               onChange={handleChange}
           />
+
+          <label htmlFor="fileInput">
+            <Button variant="contained" component="span" color="secondary">
+              Select Avatar
+            </Button>
+          </label>
           <Button disabled={fileUrl.length === 0} variant="contained" color="primary" onClick={handleSubmit}>
-            Upload Avatar
+            Submit
           </Button>
         </div>
       </div>
