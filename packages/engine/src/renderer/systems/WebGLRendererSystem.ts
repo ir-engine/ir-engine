@@ -82,7 +82,10 @@ export class WebGLRendererSystem extends System {
         passes.push(new pass.effect(CameraComponent.instance.camera, pass.effect.options))
       else passes.push(new pass.effect(pass.effect.options))
     })
-    composer.addPass(new EffectPass(CameraComponent.instance.camera, ...passes))
+    console.log('PostProcessing passes', passes.length)
+    if (passes.length) {
+      composer.addPass(new EffectPass(CameraComponent.instance.camera, ...passes))
+    }
   }
   
   /**

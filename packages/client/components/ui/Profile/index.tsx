@@ -71,7 +71,7 @@ const ProfileModal = (props: Props): any => {
         }}
       >
         <Fade in={props.open}>
-          <div className="paper">
+          <div className="paper profile">
             <Tabs
               value={tabIndex}
               onChange={handleChange}
