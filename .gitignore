@@ -144,5 +144,8 @@ bin/
 
 .vscode/
 
+# JetBrains WebStorm/PhpStorm
+.idea
+
 # Hugo publish files
 packages/docs/public/
