@@ -57,11 +57,28 @@ export function addTagComponentFromBehavior<C> (
   addComponent(entity, args.component, args);
 }
 
+const getClassOf = Function.prototype.call.bind(Object.prototype.toString);
+const isObj = o => o?.constructor === Object;
+
+
 export const addObject3DComponent: Behavior = (
   entity: Entity,
   args: { obj3d: any, obj3dArgs: any, parentEntity?: Entity }
 ) => {
-  const object3d = args.obj3d ? new args.obj3d(args.obj3dArgs) : new Object3D();
+
+console.log(args)
+  const object3d =
+  (args.obj3d.type !== undefined) ? args.obj3d : new args.obj3d
+
+console.log(args.obj3dArgs)
+if(args.obj3dArgs !== undefined)
+  Object.entries(args.obj3dArgs).forEach(arg => {
+    console.log(arg);
+    const [key, value] = arg;
+    if(key.includes('name')) return
+    args.obj3d[key] = value;
+  })
+
   // object3d = new args.obj(args.objArgs)
   addComponent(entity, Object3DComponent, { value: object3d });
   getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = object3d;
