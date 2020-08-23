@@ -18,7 +18,6 @@ import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
 import { StateSystem } from './state/systems/StateSystem';
 import { SubscriptionSystem } from './subscription/systems/SubscriptionSystem';
 import { ParticleSystem } from "./particles/systems/ParticleSystem"
-import { KeyframeSystem } from "./particles/systems/KeyframeSystem"
 import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
 import { Timer } from './common/functions/Timer';
 import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
@@ -131,7 +130,6 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
   // Particles
   if (options.particles && options.particles.enabled) {
     registerSystem(ParticleSystem)
-    registerSystem(KeyframeSystem)
   }
 
   // Rendering
