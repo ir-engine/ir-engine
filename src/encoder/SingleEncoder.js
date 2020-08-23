@@ -211,6 +211,6 @@ var DracoFileCreator = /** @class */ (function () {
   return DracoFileCreator;
 })();
 
-new DracoFileCreator('obj', 'png', 0, 5, 'sample_v31_5frames.drcs', function () {
+new DracoFileCreator('obj', 'png', 0, 30, 'sample_v32_30frames.drcs', function () {
   console.log('Converted to Dracosis');
 });
