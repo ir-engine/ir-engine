@@ -90,27 +90,19 @@ var DracoFileCreator = /** @class */ (function () {
           // _this.geometry = child.geometry;
           var bufferGeometry = child.geometry;
 
-          // console.log('96 bufferGeometry', bufferGeometry);
-
-          _this.geometry = new THREE.Geometry().fromBufferGeometry(
-            bufferGeometry
-          );
-
-          // console.log("99 geometry", _this.geometry);
-
-          // console.log('102 geometry', _this.geometry);
+          _this.geometry = new THREE.Geometry().fromBufferGeometry(bufferGeometry);
 
           if (_this.geometry.vertices.length > _this._maxVertices)
             _this._maxVertices = _this.geometry.vertices.length;
           if (_this.geometry.faces.length > _this._maxFaces)
             _this._maxFaces = _this.geometry.faces.length;
 
-          // return; // Only get the first mesh in the obj
+          return; // Only get the first mesh in the obj
         }
       });
 
       if (noNormals) {
-        this.geometry.mergeVertices();
+        // this.geometry.mergeVertices();
         this.geometry.computeVertexNormals();
       }
 
@@ -219,6 +211,6 @@ var DracoFileCreator = /** @class */ (function () {
   return DracoFileCreator;
 })();
 
-new DracoFileCreator('obj', 'png', 0, 10, 'sample_v14_10frames.drcs', function () {
+new DracoFileCreator('obj', 'png', 0, 5, 'sample_v31_5frames.drcs', function () {
   console.log('Converted to Dracosis');
 });
