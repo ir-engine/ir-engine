@@ -12,7 +12,7 @@ const draco3d = require('draco3d');
 const decoderModule = draco3d.createDecoderModule({});
 const encoderModule = draco3d.createEncoderModule({});
 // const decoder = new decoderModule.Decoder();
-  
+
 function decodeDracoData(rawBuffer, decoder) {
 
   const buffer = new this.decoderModule.DecoderBuffer();
@@ -50,27 +50,40 @@ async function encodeMeshToDraco(mesh) {
       var dracoMesh = new encoderModule.Mesh();
       var numFaces = mesh.faces.length;
       var numPoints = mesh.vertices.length;
-      var numUvs = mesh.faceVertexUvs.length;
+      var numUvs = mesh.vertices.length * 2;
+      // var numUvs = mesh.faceVertexUvs[0].length * 3;
       var numIndices = numFaces * 3;
       var indices = new Uint32Array(numIndices);
       console.log("Number of faces " + numFaces);
       console.log("Number of vertices " + numPoints);
       var vertices = new Float32Array(mesh.vertices.length * 3);
       var normals = new Float32Array(mesh.vertices.length * 3);
-      var uvs = new Float32Array(mesh.faceVertexUvs[0].length * 2);
+      // var faceVertexUvs = new Float32Array(mesh.vertices.length * 2);
 
-      console.log('60', mesh.faceVertexUvs[0][0])
+      var uvs = new Float32Array(mesh.vertices.length * 2);
 
-      // console.log("60 uv", mesh.uv[0]);
-
-      //  Add Faces to mesh
+      //  Add Faces and UVs to mesh
       for (var i = 0; i < numFaces; i++) {
         var index = i * 3;
         indices[index] = mesh.faces[i].a;
         indices[index + 1] = mesh.faces[i].b;
         indices[index + 2] = mesh.faces[i].c;
+
+        let face = mesh.faces[i];
+        let faceUvs = mesh.faceVertexUvs[0][i];
+
+        uvs[face.a * 2] = faceUvs[0].x;
+        uvs[face.a * 2 + 1] = faceUvs[0].y;
+
+        uvs[face.b * 2] = faceUvs[1].x;
+        uvs[face.b * 2 + 1] = faceUvs[1].y;
+
+        uvs[face.c * 2] = faceUvs[2].x;
+        uvs[face.c * 2 + 1] = faceUvs[2].y;
+
       }
-      // console.log('64 indices', indices);
+      console.log('64 vertices', mesh.vertices);
+      console.log("80 uvs", uvs);
       meshBuilder.AddFacesToMesh(dracoMesh, numFaces, indices);
       // Add POSITION to mesh (Vertices)
       for (var i = 0; i < mesh.vertices.length; i++) {
@@ -79,7 +92,7 @@ async function encodeMeshToDraco(mesh) {
         vertices[index + 1] = mesh.vertices[i].y;
         vertices[index + 2] = mesh.vertices[i].z;
       }
-      // console.log('73 vertices', vertices);
+      console.log('73 vertices', vertices);
       meshBuilder.AddFloatAttributeToMesh(
         dracoMesh,
         encoderModule.POSITION,
@@ -88,21 +101,16 @@ async function encodeMeshToDraco(mesh) {
         vertices
       );
       // Add UVs to mesh
-      // for (var i = 0; i < numUVs; i++) {
-      //   var index = i * 3;
-      //   indices[index] = mesh.faces[i].a;
-      //   indices[index + 1] = mesh.faces[i].b;
-      //   indices[index + 2] = mesh.faces[i].c;
-      // }
-      // console.log('64 indices', indices);
+
+      // console.log('60', mesh.faceVertexUvs[0], mesh.faceVertexUvs[0][0])
+
       meshBuilder.AddFloatAttributeToMesh(
         dracoMesh,
         encoderModule.TEX_COORD,
-        numPoints,
-        3,
-        mesh.faceVertexUvs[0]
+        numUvs,
+        2,
+        uvs
       );
-      // meshBuilder.AddFacesToMesh(dracoMesh, numFaces, mesh.);
 
       // Add NORMAL to mesh
       for (var _i = 0, _a = mesh.faces; _i < _a.length; _i++) {
@@ -132,8 +140,14 @@ async function encodeMeshToDraco(mesh) {
       // Compressing using DRACO
       var encodedData = new encoderModule.DracoInt8Array();
       // encoder.SetSpeedOptions(5, 5);
-      // encoder.SetAttributeQuantization(encoderModule.POSITION, 10);
+      encoder.SetAttributeQuantization(encoderModule.POSITION, 16);
+      encoder.SetAttributeQuantization(encoderModule.NORMAL, 16);
+      encoder.SetAttributeQuantization(encoderModule.TEX_COORD, 16);
+      encoder.SetAttributeQuantization(encoderModule.COLOR, 16);
+      encoder.SetAttributeQuantization(encoderModule.GENERIC, 16);
+      // encoder.SetEncodingMethod(encoderModule.MESH_SEQUENTIAL_ENCODING);
       encoder.SetEncodingMethod(encoderModule.MESH_EDGEBREAKER_ENCODING);
+
       console.log("Encoding...");
       console.log("DracoMesh", dracoMesh, dracoMesh.num_faces(), dracoMesh.num_points());
       var encodedLen = encoder.EncodeMeshToDracoBuffer(dracoMesh, encodedData);
