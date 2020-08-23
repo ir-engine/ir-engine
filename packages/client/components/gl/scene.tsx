@@ -46,13 +46,13 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // createPrefab(staticWorldColliders);
 
     console.log("Creating a scene entity to test")
-    // addComponent(createEntity(), AssetLoader, {
-    //   assetType: AssetType.glTF,
-    //   assetClass: AssetClass.Model,
-    //   url: "models/library.glb",
-    //   receiveShadow: true,
-    //   castShadow: true
-    // }) 
+    addComponent(createEntity(), AssetLoader, {
+      assetType: AssetType.glTF,
+      assetClass: AssetClass.Model,
+      url: "models/library.glb",
+      receiveShadow: true,
+      castShadow: true
+    }) 
   }, [])
 
   useEffect(() => {

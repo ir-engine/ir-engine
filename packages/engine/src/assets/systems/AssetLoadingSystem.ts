@@ -46,19 +46,11 @@ export default class AssetLoadingSystem extends System {
         // This loads the spoke scene
 
         this.loaded.set(entity, asset);
-        console.log("Set asset")
-        console.log(asset)
       });
     })
 
     // Do the actual entity creation inside the system tick not in the loader callback
     this.loaded.forEach( (asset, entity) =>{
-
-
-      console.log("Entity Asset: ")
-      console.log(entity)
-      console.log(asset)
-
       if(!hasComponent(entity, AssetLoader)) {
         return console.log("Error, entity doesn't have asset loader")
       }
@@ -90,7 +82,7 @@ export default class AssetLoadingSystem extends System {
         asset.scene.children.forEach(obj => {
           const e = createEntity()
           console.log(obj)
-          addObject3DComponent(e, { obj3d: obj.constructor, parent: Engine.scene });
+          addObject3DComponent(e, { obj3d: obj, parent: Engine.scene });
         })
 
       }
