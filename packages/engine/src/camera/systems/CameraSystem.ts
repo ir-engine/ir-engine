@@ -9,7 +9,10 @@ import { CameraTagComponent } from '../../common/components/Object3DTagComponent
 import { Object3DComponent } from '../../common/components/Object3DComponent';
 
 export class CameraSystem extends System {
-  init (): void {
+  /**
+   * Initialize camera component
+   */
+  init(): void {
     const cameraEntity = createEntity();
     addComponent(cameraEntity, CameraComponent, { camera: Engine.camera, followTarget: null });
     addComponent(cameraEntity, CameraTagComponent)
@@ -18,7 +21,12 @@ export class CameraSystem extends System {
     addComponent(cameraEntity, TransformComponent);
   }
 
-  execute (delta: number): void {
+  /**
+   * Called each frame by default
+   * 
+   * @param {Number} delta time since last frame
+   */
+  execute(delta: number): void {
     this.queryResults.entities.all?.forEach(entity => {
       const cam = getComponent(entity, CameraComponent) as CameraComponent;
       if (cam.followTarget !== null && cam.followTarget !== undefined) {
@@ -31,7 +39,9 @@ export class CameraSystem extends System {
     });
   }
 }
-
+/**
+ * Queries must have components attribute which defines the list of components
+ */
 CameraSystem.queries = {
   entities: {
     components: [CameraComponent, TransformComponent],
