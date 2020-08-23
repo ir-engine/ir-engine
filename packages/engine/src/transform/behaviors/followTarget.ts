@@ -9,8 +9,7 @@ export const followTarget: Behavior = (entityIn: Entity, args: any, delta: any, 
   follower = getMutableComponent<TransformComponent>(entityIn, TransformComponent);
   target = getComponent<TransformComponent>(entityOut, TransformComponent);
 
-  // follower.position = target.position
-  follower.position = target.position;
-  follower.position[1] = 2;
+  follower.position = target.position
+   follower.position[1] = 2;
   follower.rotation = target.rotation;
 };

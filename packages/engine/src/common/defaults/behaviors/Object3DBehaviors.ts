@@ -80,6 +80,7 @@ export const addObject3DComponent: Behavior = (
 
 export function removeObject3DComponent (entity, unparent = true) {
   const object3d = getComponent<Object3DComponent>(entity, Object3DComponent, true).value;
+  if(object3d == undefined) return;
   Engine.scene.remove(object3d);
 
   if (unparent) {
