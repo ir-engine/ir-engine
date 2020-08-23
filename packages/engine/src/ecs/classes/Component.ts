@@ -31,12 +31,13 @@ export class Component<C> {
   /**
    * The name of the component instance, derived from the class name
    */
-  name: any = Component.name
+  name: any = ""
 
   /**
    * Component class constructor
    */
   constructor (props?: Partial<Omit<C, keyof Component<any>>> | false) {
+    this.name = this.constructor.name
     if (props !== false) {
       const schema = (this.constructor as ComponentConstructor<Component<C>>).schema;
 
@@ -125,7 +126,8 @@ export class Component<C> {
    * Useful for JSON serialization, etc
    */
   static getName () {
-    return (this.constructor as any).prototype.getName();
+    console.log("Component getName called")
+    return (this.constructor as any).getName();
   }
 
   /**

@@ -295,13 +295,13 @@ export function removeAllEntities(): void {
  */
 export function getComponent<C extends Component<C>>(
   entity: Entity,
-  component: ComponentConstructor<C> | unknown,
+  component: ComponentConstructor<C>,
   includeRemoved?: boolean
 ): Readonly<C> {
-  let _component = entity.components[(component as C)._typeId];
+  let _component = entity.components[component._typeId];
 
   if (!_component && includeRemoved) {
-    _component = entity.componentsToRemove[(component as C)._typeId];
+    _component = entity.componentsToRemove[component._typeId];
   }
 
   return process.env.NODE_ENV !== 'production' ? wrapImmutableComponent(_component) : <C>_component;

@@ -18,9 +18,9 @@ import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
 import { StateSystem } from './state/systems/StateSystem';
 import { SubscriptionSystem } from './subscription/systems/SubscriptionSystem';
 import { ParticleSystem } from "./particles/systems/ParticleSystem"
-import { KeyframeSystem } from "./particles/systems/KeyframeSystem"
 import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
 import { Timer } from './common/functions/Timer';
+import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
 
 export const DefaultInitializationOptions = {
   debug: true,
@@ -29,6 +29,9 @@ export const DefaultInitializationOptions = {
   input: {
     enabled: true,
     schema: DefaultInputSchema
+  },
+  assets: {
+    enabled: true
   },
   networking: {
     enabled: false,
@@ -70,13 +73,17 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
   // Add the three.js scene to our manager -- it is now available anywhere
   Engine.scene = scene;
 
+  // Asset Loading system
+  if (options.assets && options.assets.enabled) {
+    registerSystem(AssetLoadingSystem);
+  }
+
   // Transform
   if (options.transform && options.transform.enabled) {
     registerSystem(TransformSystem, { priority: 900 });
   }
 
   // If we're a browser (we don't need to create or render on the server)
-  if (isBrowser) {
     // Camera system and component setup
     if (options.camera && options.camera.enabled) {
     // Create a new three.js camera
@@ -87,7 +94,6 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
     scene.add(camera);
       registerSystem(CameraSystem);
     } 
-  }
 
   // Input
   if (options.input && options.input.enabled && isBrowser) {
@@ -122,7 +128,6 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
   // Particles
   if (options.particles && options.particles.enabled) {
     registerSystem(ParticleSystem)
-    registerSystem(KeyframeSystem)
   }
 
   // Rendering

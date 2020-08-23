@@ -1,6 +1,6 @@
 import { Behavior } from '../../common/interfaces/Behavior';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { ColliderComponent } from '../components/Collider';
+import { ColliderComponent } from '../components/ColliderComponent';
 import {
   createBox,
   createCylinder,
@@ -22,7 +22,7 @@ export const ColliderBehavior: Behavior = (entity: Entity, args): void => {
     else if (collider.type === 'share') body = createSphere(entity);
     else if (collider.type === 'convex') body = createConvexGeometry(entity);
     else if (collider.type === 'ground') body = createGroundGeometry(entity);
-    body.position = transform.position;
+
     collider.collider = body;
     PhysicsWorld.instance.physicsWorld.addBody(body);
   } else if (args.phase == 'onRemoved') {

@@ -6,11 +6,9 @@ import { getMutableComponent, getComponent } from '../../ecs/functions/EntityFun
 let follower, target;
 
 export const followTarget: Behavior = (entityIn: Entity, args: any, delta: any, entityOut: Entity): void => {
-  follower = getMutableComponent<TransformComponent>(entityIn, TransformComponent);
-  target = getComponent<TransformComponent>(entityOut, TransformComponent);
+  follower = getMutableComponent<TransformComponent>(entityIn, TransformComponent); // Camera
+  target = getComponent<TransformComponent>(entityOut, TransformComponent); // Player
 
-  // follower.position = target.position
-  follower.position = target.position;
-  follower.position[1] = 2;
-  follower.rotation = target.rotation;
+  target.position[1] = 2
+  follower.copy(target);
 };

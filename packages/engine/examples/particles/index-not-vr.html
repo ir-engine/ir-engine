@@ -32,7 +32,7 @@
           for (let entity of this.queryResults.rotating.results) {
             const rotating = getComponent(entity, Rotating)
             /** @type {ECSYTHREEX.Transform} */
-            const transform = getMutableComponent(entity, ECSYTHREEX.Transform)
+            const transform = getMutableComponent<TransformComponent>(entity, ECSYTHREEX.Transform)
             transform.rotation.x += rotating.x * dt * DEG2RAD
             transform.rotation.y += rotating.y * dt * DEG2RAD
             transform.rotation.z += rotating.z * dt * DEG2RAD
@@ -58,7 +58,7 @@
           for (let entity of this.queryResults.translating.results) {
             const translating = getComponent(entity, Translating)
             /** @type {ECSYTHREEX.Transform} */
-            const transform = getMutableComponent(entity, ECSYTHREEX.Transform)
+            const transform = getMutableComponent<TransformComponent>(entity, ECSYTHREEX.Transform)
             transform.position.x += translating.x * 0.01
             transform.position.y += translating.y * 0.01
             transform.position.z += translating.z * 0.01

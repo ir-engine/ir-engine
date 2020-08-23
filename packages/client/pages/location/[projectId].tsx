@@ -12,6 +12,10 @@ async function init (projectId: string): Promise<any> { // auth: any,
   createEntity();
 
   let service, serviceId;
+  console.log("list for project service")
+  const r = await client.service('project').find();
+  console.log(r)
+
   const projectResult = await client.service('project').get(projectId);
   const projectUrl = projectResult.project_url;
   const regexResult = projectUrl.match(projectRegex);
@@ -27,6 +31,7 @@ async function init (projectId: string): Promise<any> { // auth: any,
       console.log(component.name);
       console.log(component);
       // SpokeNodeLoader(scene, newEntity, component)
+
     });
     console.log(newEntity);
   });
@@ -45,8 +50,10 @@ const SpokeRoomPage: React.FC = () => {
   }, []);
 
   if (!projectId) {
-    return <Error404 />;
-  }
+    <Layout pageTitle="Home">
+      <div/>
+    </Layout>
+      }
   return (
     <Layout pageTitle="Home">
       <div/>

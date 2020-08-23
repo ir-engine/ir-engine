@@ -1,7 +1,7 @@
 import { attachCamera } from "@xr3ngine/engine/src/camera/behaviors/attachCamera";
 import { Input } from "@xr3ngine/engine/src/input/components/Input";
 import { DefaultInputSchema } from "@xr3ngine/engine/src/input/defaults/DefaultInputSchema";
-import { addMeshCollider } from "@xr3ngine/engine/src/physics/behaviors/addMeshCollider";
+// import { addPlayerCollider } from "@xr3ngine/engine/src/physics/behaviors/addPlayerCollider";
 import { State } from "@xr3ngine/engine/src/state/components/State";
 import { DefaultStateSchema } from "@xr3ngine/engine/src/state/defaults/DefaultStateSchema";
 import { Subscription } from "@xr3ngine/engine/src/subscription/components/Subscription";
@@ -42,10 +42,12 @@ export const PlayerController: Prefab = {
         },
         {
           behavior: attachCamera
-        },
-        {
-            behavior: addMeshCollider,
         }
+
+        // {
+        //     behavior: addPlayerCollider,
+        // }
+
     ],
     onDestroy: [
         {

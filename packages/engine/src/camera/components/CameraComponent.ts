@@ -13,12 +13,18 @@ export class CameraComponent extends Component<CameraComponent> {
   far: number // Geometry farther than this gets removed
   layers: number // Bitmask of layers the camera can see, converted to an int
   handleResize: boolean // Should the camera resize if the window does?
-  constructor () {
+  /**
+   * Constructs a new camera component
+   */
+  constructor() {
     super();
     CameraComponent.instance = this;
   }
 }
-
+/**
+  * Set the default values of a component. 
+  * The type field must be set for each property.
+ */
 CameraComponent.schema = {
   camera: { type: Types.Ref, default: null },
   followTarget: { type: Types.Ref, default: null }

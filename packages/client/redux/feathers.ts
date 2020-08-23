@@ -4,7 +4,7 @@ import getConfig from 'next/config';
 import feathers from '@feathersjs/client';
 
 const { publicRuntimeConfig } = getConfig();
-const apiServer: string = publicRuntimeConfig.apiServer;
+const apiServer: string = "https://localhost:3030" // publicRuntimeConfig.apiServer;
 const featherStoreKey: string = publicRuntimeConfig.featherStoreKey;
 
 // Socket.io is exposed as the `io` global.

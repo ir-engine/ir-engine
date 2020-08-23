@@ -1,7 +1,7 @@
 import { LoadingManager } from 'three';
 import * as GLTFExporter from 'three-gltf-exporter';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { FBXLoader } from 'three-fbx-loader';
+import GLTFLoader from 'three-gltf-loader';
 import { SkeletonUtils } from 'three/examples/jsm/utils/SkeletonUtils';
 
 const getFileType = filename => {
@@ -13,6 +13,7 @@ const getFileType = filename => {
     return null;
   }
 };
+
 const patchModel = model => {
   model.scene.traverse(o => {
     if (o.isMesh) {
@@ -40,15 +41,16 @@ const patchModel = model => {
       );
     });
 };
-const makeManager = () => {
+const managerFactory = () => {
   const manager = new LoadingManager();
-  const managerLoadPromise = makeManagerLoadPromise(manager);
+  const managerLoadPromise = managerFactoryLoadPromise(manager);
   return {
     manager,
     managerLoadPromise
   };
 };
-const makeManagerLoadPromise = manager => {
+
+const managerFactoryLoadPromise = manager => {
   let accept, reject;
   const p = new Promise((a, r) => {
     accept = a;
@@ -59,10 +61,11 @@ const makeManagerLoadPromise = manager => {
   };
   return p;
 };
-const loadModelUrl = async (href, filename = href) => {
+
+export const ModelLoader = async (href, filename = href) => {
   const fileType = getFileType(filename);
   if (fileType === 'gltf') {
-    const { manager, managerLoadPromise } = makeManager();
+    const { manager, managerLoadPromise } = managerFactory();
     const model = await new Promise((accept, reject) => {
       new GLTFLoader(manager).load(
         href,
@@ -77,7 +80,7 @@ const loadModelUrl = async (href, filename = href) => {
     patchModel(model);
     return model;
   } else if (fileType === 'fbx') {
-    const { manager, managerLoadPromise } = makeManager();
+    const { manager, managerLoadPromise } = managerFactory();
     const model = await new Promise((accept, reject) => {
       new FBXLoader(manager).load(
         href,
@@ -97,5 +100,3 @@ const loadModelUrl = async (href, filename = href) => {
     throw new Error(`unknown file type: ${filename} (${fileType})`);
   }
 };
-
-export const ModelLoader = loadModelUrl;

@@ -1,6 +1,6 @@
 import { TextureLoader } from 'three';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { FBXLoader } from 'three-fbx-loader';
+import GLTFLoader from 'three-gltf-loader';
 import AssetVault from '../components/AssetVault';
 import { AssetClass } from '../enums/AssetClass';
 import { AssetType } from '../enums/AssetType';
@@ -20,6 +20,7 @@ export function loadAsset (url: AssetUrl, onAssetLoaded: AssetsLoadedHandler): v
     const loader = getLoaderForAssetType(getAssetType(url));
     new loader().load(url, resource => {
       AssetVault.instance.assets.set(url, resource);
+      console.log("Callback from load")
       onAssetLoaded(resource);
     });
   }
