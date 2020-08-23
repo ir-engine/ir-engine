@@ -18,6 +18,7 @@ import {
   addComponent,
   createEntity
 } from '../../ecs/functions/EntityFunctions';
+import { Engine } from '../../ecs/classes/Engine';
 
 export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
@@ -41,12 +42,13 @@ export default class AssetLoadingSystem extends System {
       // Check if the vault already contains the asset
       // If it does, get it so we don't need to reload it
       // Load the asset with a calback to add it to our processing queue
-      loadAsset(assetLoader.url, (asset: AssetsLoadedHandler) => {
+      loadAsset(assetLoader.url, (asset: any) => {
+        // This loads the spoke scene
+
         this.loaded.set(entity, asset);
         console.log("Set asset")
-        console.log(this.loaded.get(entity))
+        console.log(asset)
       });
-      console.log("Loading asset from assetloadingsystem")
     })
 
     // Do the actual entity creation inside the system tick not in the loader callback
@@ -83,11 +85,18 @@ export default class AssetLoadingSystem extends System {
         }
       } else {
         addComponent(entity, Model, { value: asset });
-        addObject3DComponent(entity, { obj3d: asset, parent: component.parent });
+        console.log("Attempting addObject3d component with: ")
+
+        asset.scene.children.forEach(obj => {
+          const e = createEntity()
+          console.log(obj)
+          addObject3DComponent(e, { obj3d: obj.constructor, parent: Engine.scene });
+        })
+
       }
 
       if (component.onLoaded) {
-        component.onLoaded(asset);
+        component.onLoaded(asset.scene);
       }
       AssetVault.instance.assets.set(hashResourceString(component.url), asset.scene);
     });

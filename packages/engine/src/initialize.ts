@@ -84,7 +84,6 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
   }
 
   // If we're a browser (we don't need to create or render on the server)
-  if (isBrowser) {
     // Camera system and component setup
     if (options.camera && options.camera.enabled) {
     // Create a new three.js camera
@@ -95,7 +94,6 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
     scene.add(camera);
       registerSystem(CameraSystem);
     } 
-  }
 
   // Input
   if (options.input && options.input.enabled && isBrowser) {
