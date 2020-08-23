@@ -4,7 +4,9 @@ import * as basisu from "basisu"
 import * as draco3d from "draco3d"
 import { Geometry } from "three"
 
-export function decodeDracoData(rawBuffer: Buffer, decoder: any) {
+export function decodeDracoData(rawBuffer: Buffer, decoder) {
+  // const decoderModule = draco3d.createDecoderModule({});
+  // const decoder = new decoderModule.Decoder();
   const buffer = new this.decoderModule.DecoderBuffer()
   buffer.Init(new Int8Array(rawBuffer), rawBuffer.byteLength)
   const geometryType = decoder.GetEncodedGeometryType(buffer)
@@ -21,6 +23,7 @@ export function decodeDracoData(rawBuffer: Buffer, decoder: any) {
     const errorMsg = "Error: Unknown geometry type."
     console.error(errorMsg)
   }
+
   this.decoderModule.destroy(buffer)
 
   return dracoGeometry
@@ -98,15 +101,18 @@ export function encodeMeshToDraco(mesh: Geometry): any {
 
   // Copy encoded data to buffer.
   const outputBuffer = new ArrayBuffer(encodedLen)
+  const outputData = new Int8Array(outputBuffer);
+  for (let i = 0; i < encodedLen; ++i) {
+    outputData[i] = encodedData.GetValue(i);
+  }
 
-  encoderModule.destroy(encodedData)
   encoderModule.destroy(encoder)
   encoderModule.destroy(meshBuilder)
 
   console.log("DRACO ENCODED////////////////////////////")
   console.log("Length of buffer: " + outputBuffer.byteLength)
 
-  return outputBuffer
+  return new Buffer(outputBuffer)
 }
 
 export function PNGToBasis(inPath: string): Buffer {
