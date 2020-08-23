@@ -23,7 +23,7 @@ export const move: Behavior = (
   console.log(args)
   input = getComponent(entity, Input);
   actor = getMutableComponent<Actor>(entity, Actor);
-  transform = getMutableComponent(entity, TransformComponent);
+  transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
   const movementModifer = hasComponent(entity, Crouching) ? 0.5 : hasComponent(entity, Sprinting) ? 1.5 : 1.0;
   const inputType = args.inputType;
   outputSpeed = actor.accelerationSpeed * (time.delta) * movementModifer;

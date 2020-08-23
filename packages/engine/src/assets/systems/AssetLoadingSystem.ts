@@ -15,7 +15,8 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
-  addComponent
+  addComponent,
+  createEntity
 } from '../../ecs/functions/EntityFunctions';
 
 export default class AssetLoadingSystem extends System {
@@ -23,6 +24,7 @@ export default class AssetLoadingSystem extends System {
 
   init () {
     this.loaded = new Map<Entity, any>()
+    addComponent(createEntity(), AssetVault)
   }
 
   execute () {
@@ -30,6 +32,7 @@ export default class AssetLoadingSystem extends System {
       // Do things here
     });
     while (this.queryResults.toLoad.all.length) {
+      console.log(this.queryResults.toLoad.all)
       // Create a new entity
       const entity = this.queryResults.toLoad.all[0];
       // Asset the AssetLoaderState so it falls out of this query
@@ -37,6 +40,7 @@ export default class AssetLoadingSystem extends System {
       const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader);
       // Set the filetype
       assetLoader.assetType = getAssetType(assetLoader.url);
+      // Set the class (model, image, etc)
       assetLoader.assetClass = getAssetClass(assetLoader.url);
       // Check if the vault already contains the asset
       // If it does, get it so we don't need to reload it

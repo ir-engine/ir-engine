@@ -7,6 +7,12 @@ import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/Networ
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
+import { staticWorldColliders } from './staticWorldColliders';
+import { createEntity, addComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { AssetLoader } from "@xr3ngine/engine/src/assets/components/AssetLoader"
+import { AssetType } from '@xr3ngine/engine/src/assets/enums/AssetType';
+import { AssetClass } from '@xr3ngine/engine/src/assets/enums/AssetClass';
+
 export const EnginePage: FunctionComponent = (props: any) => {
 
 
@@ -31,6 +37,18 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // Load glb here
 
     createPrefab(PlayerController);
+
+  createPrefab(staticWorldColliders);
+
+console.log("Creating a scene entity to test")
+    addComponent(createEntity(), AssetLoader, {
+      assetType: AssetType.glTF,
+      assetClass: AssetClass.Model,
+      url: "models/library.glb",
+      receiveShadow: true,
+      castShadow: true
+    })
+
   }, [])
 
   useEffect(() => {
