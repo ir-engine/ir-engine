@@ -25,7 +25,7 @@ export const rotateAround: Behavior = (
 ): void => {
   inputComponent = getComponent(entity, Input);
   actor = getComponent(entity, Actor) as Actor;
-  transform = getMutableComponent(entity, TransformComponent);
+  transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
 
   mouseDownPosition = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes.mouseClickDownPosition);
   originalRotation = inputComponent.data.get(

@@ -1,6 +1,6 @@
 import { TextureLoader } from 'three';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { FBXLoader } from 'three-fbx-loader';
+import GLTFLoader from 'three-gltf-loader';
 import AssetVault from '../components/AssetVault';
 import { AssetClass } from '../enums/AssetClass';
 import { AssetType } from '../enums/AssetType';

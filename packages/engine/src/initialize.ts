@@ -21,6 +21,7 @@ import { ParticleSystem } from "./particles/systems/ParticleSystem"
 import { KeyframeSystem } from "./particles/systems/KeyframeSystem"
 import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
 import { Timer } from './common/functions/Timer';
+// import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
 
 export const DefaultInitializationOptions = {
   debug: true,
@@ -29,6 +30,9 @@ export const DefaultInitializationOptions = {
   input: {
     enabled: true,
     schema: DefaultInputSchema
+  },
+  assets: {
+    enabled: true
   },
   networking: {
     enabled: false,
@@ -69,6 +73,11 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
 
   // Add the three.js scene to our manager -- it is now available anywhere
   Engine.scene = scene;
+
+  // Asset Loading system
+  if (options.assets && options.assets.enabled) {
+    // registerSystem(AssetLoadingSystem);
+  }
 
   // Transform
   if (options.transform && options.transform.enabled) {
