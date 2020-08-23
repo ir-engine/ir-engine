@@ -15,19 +15,33 @@ This repo includes a fully-feature client, API server, realtime gamerserver, gam
 
 ## Popular features
 Player rigs to support 2D, 3D and XR interaction
-High-performance ECS engine based on Mozilla ECSY
-Full-featured world editor based on Mozilla Spoke
+
+High-performance ECS engine
+
+Full-featured world editor
+
 Fully networked player controller, physics, vehicles and particles
-Highly customizable, template-based design (Unreal-style Blueprints coming soon!)
+
+Fully data-oriented design
+
 Chat, groups, parties and friends
+
 Voice and video over WebRTC
+
 Instant login with phone number or email
+
 OAuth login with Facebook, Google, Steam and Github
+
 User management, avatars and inventory
+
 Authorative realtime gameserver
+
 Reliable messaging and signaling with socket.io
+
 Fast, unreliable messaging with SCTP data channels
+
 Built end-to-end in Typescript
+
 Free, open source, MIT-licensed
 
 ## Getting Started
