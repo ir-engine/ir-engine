@@ -47,13 +47,13 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
       }
     },
     // Color Grading
-    {
-      effect: BrightnessContrastEffect,
-      options: {
-        brightness: 0.1,
-        contrast: 0.1
-      }
-    },
+    // {
+    //   effect: BrightnessContrastEffect,
+    //   options: {
+    //     brightness: 1,
+    //     contrast:11
+    //   }
+    // },
     // Color Grading
     {
       effect: HueSaturationEffect,
