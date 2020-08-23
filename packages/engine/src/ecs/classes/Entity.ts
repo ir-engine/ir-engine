@@ -10,7 +10,7 @@ export class Entity {
   /**
    * List of component types currently attached to the entity
    */
-  componentTypes: any[] = []
+  componentTypes = []
 
   /**
    * List of components attached to the entity
@@ -64,6 +64,8 @@ export class Entity {
       component.copy(srcComponent);
     }
 
+    console.log("Component types:")
+    console.log(this.componentTypes)
     return this;
   }
 

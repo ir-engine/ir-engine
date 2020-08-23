@@ -90,7 +90,7 @@ export function createConvexGeometry (entity: Entity) {
     attributePosition = object.geometry.attributes.position;
   } else {
     rigidBody = getComponent(entity, RigidBody);
-    transform = getComponent(entity, TransformComponent);
+    transform = getComponent<TransformComponent>(entity, TransformComponent);
     object = transform.getObject3D();
     attributePosition = object.geometry.attributes.position;
   }

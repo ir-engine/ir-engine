@@ -23,22 +23,15 @@ export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
 
   init () {
-    console.log("Init called")
-    this.loaded = new Map<Entity, any>()
     addComponent(createEntity(), AssetVault)
-    console.log("Init ended")
   }
 
   execute () {
-    console.log("Execute called")
     this.queryResults.assetVault.all.forEach(entity => {
       // Do things here
     });
-    while (this.queryResults.toLoad.all.length) {
-      console.log(this.queryResults.toLoad.all)
+    this.queryResults.toLoad.all.forEach((entity: Entity) => {
       // Create a new entity
-      const entity = this.queryResults.toLoad.all[0];
-      // Asset the AssetLoaderState so it falls out of this query
       addComponent(entity, AssetLoaderState);
       const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader);
       // Set the filetype
@@ -50,13 +43,25 @@ export default class AssetLoadingSystem extends System {
       // Load the asset with a calback to add it to our processing queue
       loadAsset(assetLoader.url, (asset: AssetsLoadedHandler) => {
         this.loaded.set(entity, asset);
+        console.log("Set asset")
+        console.log(this.loaded.get(entity))
       });
-    }
+      console.log("Loading asset from assetloadingsystem")
+    })
 
     // Do the actual entity creation inside the system tick not in the loader callback
-    for (let i = 0; i < this.loaded.size; i++) {
-      const [entity, asset] = this.loaded[i];
-      const component = getComponent<AssetLoader>(entity, AssetLoader) as AssetLoader;
+    this.loaded.forEach( (asset, entity) =>{
+
+
+      console.log("Entity Asset: ")
+      console.log(entity)
+      console.log(asset)
+
+      if(!hasComponent(entity, AssetLoader)) {
+        return console.log("Error, entity doesn't have asset loader")
+      }
+
+      const component = getComponent<AssetLoader>(entity, AssetLoader);
       if (component.assetClass === AssetClass.Model) {
         asset.scene.traverse((child) => {
           if (child.isMesh) {
@@ -85,16 +90,15 @@ export default class AssetLoadingSystem extends System {
         component.onLoaded(asset);
       }
       AssetVault.instance.assets.set(hashResourceString(component.url), asset.scene);
-    }
+    });
+
     this.loaded.clear();
 
-    const toUnload = this.queryResults.toUnload.all;
-    while (toUnload.length) {
-      const entity = toUnload[0];
+    this.queryResults.toUnload.all.forEach((entity: Entity) => {
       removeComponent(entity, AssetLoaderState);
       if(hasComponent(entity, Object3DComponent))
       removeObject3DComponent(entity);
-    }
+    })
   }
 }
 
