@@ -39,11 +39,11 @@ export const EnginePage: FunctionComponent = (props: any) => {
     initializeEngine(InitializationOptions);
 
     // Load glb here
-    createPrefab(rigidBodyBox);
+    // createPrefab(rigidBodyBox);
 
     createPrefab(PlayerController);
 
-    createPrefab(staticWorldColliders);
+    // createPrefab(staticWorldColliders);
 
     console.log("Creating a scene entity to test")
     addComponent(createEntity(), AssetLoader, {

@@ -3,33 +3,37 @@ import { Vec3, Box, Cylinder, ConvexPolyhedron, Quaternion, Sphere, Body } from 
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { Entity } from '../../ecs/classes/Entity';
+import { ColliderComponent } from '../components/ColliderComponent';
 import { RigidBody } from '../components/RigidBody';
 import { MeshTagComponent } from '../../common/components/Object3DTagComponents';
 
 export function createBox (entity: Entity) {
+  const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
   const rigidBody = getComponent<RigidBody>(entity, RigidBody);
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
 
-  const shape = new Box(new Vec3(rigidBody.scale[0] / 2, rigidBody.scale[1] / 2, rigidBody.scale[2] / 2));
-  console.log(transform);
+  let mass = rigidBody ? collider.mass : 0;
+
+  const shape = new Box(new Vec3(collider.scale[0] / 2, collider.scale[1] / 2, collider.scale[2] / 2));
 
   const body = new Body({
-    mass: rigidBody.mass,
-    position: new Vec3(transform[0], transform[1], transform[2])
+    mass: mass,
+    position: new Vec3(transform.position[0], transform.position[1], transform.position[2])
   });
+
   const q = new Quaternion();
   q.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2);
   body.addShape(shape);
 
   //  body.quaternion.setFromAxisAngle(new Vec3(1,0,0),-Math.PI/2);
   //  body.angularVelocity.set(0,1,1);
-  body.angularDamping = 0.5;
+  //body.angularDamping = 0.5;
 
   return body;
 }
 
 export function createGroundGeometry (entity: Entity) {
-  const rigidBody = getComponent<RigidBody>(entity, RigidBody);
+  const rigidBody = getComponent<ColliderComponent>(entity, ColliderComponent);
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
 
   const shape = new Box(new Vec3(rigidBody.scale[0] / 2, rigidBody.scale[1] / 2, rigidBody.scale[2] / 2));
@@ -50,7 +54,7 @@ export function createGroundGeometry (entity: Entity) {
 }
 
 export function createCylinder (entity: Entity) {
-  const rigidBody = getComponent<RigidBody>(entity, RigidBody);
+  const rigidBody = getComponent<ColliderComponent>(entity, ColliderComponent);
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
 
   const cylinderShape = new Cylinder(rigidBody.scale[0], rigidBody.scale[1], rigidBody.scale[2], 20);
@@ -68,7 +72,7 @@ export function createCylinder (entity: Entity) {
 }
 
 export function createSphere (entity: Entity) {
-  const rigidBody = getComponent<RigidBody>(entity, RigidBody);
+  const rigidBody = getComponent<ColliderComponent>(entity, ColliderComponent);
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
 
   const shape = new Sphere(rigidBody.scale[0] / 2);
@@ -89,8 +93,8 @@ export function createConvexGeometry (entity: Entity) {
     object = mesh;
     attributePosition = object.geometry.attributes.position;
   } else {
-    rigidBody = getComponent(entity, RigidBody);
-    transform = getComponent<TransformComponent>(entity, TransformComponent);
+    rigidBody = getComponent(entity, ColliderComponent);
+    transform = getComponent(entity, TransformComponent);
     object = transform.getObject3D();
     attributePosition = object.geometry.attributes.position;
   }

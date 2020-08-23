@@ -40,9 +40,9 @@ export const PlayerController: Prefab = {
                 obj3dArgs: miniGeo
             }
         },
-        // {
-        //   behavior: attachCamera
-        // }
+        {
+          behavior: attachCamera
+        }
 
         // {
         //     behavior: addPlayerCollider,

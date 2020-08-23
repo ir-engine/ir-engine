@@ -7,7 +7,7 @@ import { ColliderBehavior } from '../behaviors/ColliderBehavior';
 import { RigidBodyBehavior } from '../behaviors/RigidBodyBehavior';
 import { VehicleBehavior } from '../behaviors/VehicleBehavior';
 import { WheelBehavior } from '../behaviors/WheelBehavior';
-import { ColliderComponent } from '../components/Collider';
+import { ColliderComponent } from '../components/ColliderComponent';
 
 
 
@@ -30,6 +30,7 @@ export class PhysicsSystem extends System {
     });
 
     // RigidBody
+
     this.queryResults.rigidBody.added?.forEach(entity => {
       RigidBodyBehavior(entity, { phase: 'onAdded' });
     });
