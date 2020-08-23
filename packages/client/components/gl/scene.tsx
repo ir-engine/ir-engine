@@ -7,8 +7,15 @@ import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/Networ
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
-export const EnginePage: FunctionComponent = (props: any) => {
+import { createEntity, addComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { AssetLoader } from "@xr3ngine/engine/src/assets/components/AssetLoader"
+import { AssetType } from '@xr3ngine/engine/src/assets/enums/AssetType';
+import { AssetClass } from '@xr3ngine/engine/src/assets/enums/AssetClass';
 
+import { staticWorldColliders } from './staticWorldColliders'
+import { rigidBodyBox } from './rigidBodyBox'
+
+export const EnginePage: FunctionComponent = (props: any) => {
 
   const [enabled, setEnabled] = useState(false)
 
@@ -25,12 +32,27 @@ export const EnginePage: FunctionComponent = (props: any) => {
         supportsMediaStreams: true,
         schema: networkSchema
       },
+      physics: {
+        enabled: true
+      }
     };
     initializeEngine(InitializationOptions);
 
     // Load glb here
+    // createPrefab(rigidBodyBox);
 
     createPrefab(PlayerController);
+
+    // createPrefab(staticWorldColliders);
+
+    console.log("Creating a scene entity to test")
+    addComponent(createEntity(), AssetLoader, {
+      assetType: AssetType.glTF,
+      assetClass: AssetClass.Model,
+      url: "models/library.glb",
+      receiveShadow: true,
+      castShadow: true
+    }) 
   }, [])
 
   useEffect(() => {
@@ -58,9 +80,9 @@ export const EnginePage: FunctionComponent = (props: any) => {
       <Terminal
         color='green'
         backgroundColor='black'
-          allowTabs= { false }
-          startState='maximised'
-          showCommands={true}
+        allowTabs={false}
+        startState='maximised'
+        showCommands={true}
         style={{ fontWeight: "bold", fontSize: "1em", position: "fixed", bottom: "0", width: "100%", height: "30%", zIndex: 4000 }}
         commands={commands}
         description={description}

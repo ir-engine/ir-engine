@@ -16,7 +16,18 @@ module.exports = withImages(
     distDir: './.next',
     webpack(config, options) {
       config.resolve.alias.utils = path.join(__dirname, 'utils')
-      config.module.rules.push({
+      config.module.rules.push(
+        {
+          test: /\.m?js$/,
+          exclude: /(node_modules|bower_components)/,
+          use: {
+            loader: 'babel-loader',
+            options: {
+              presets: ['@babel/preset-env']
+            }
+          }
+        },
+        {
         test: /\.(eot|woff|woff2|ttf|svg|png|jpg|gif)$/,
         use: {
           loader: 'url-loader',

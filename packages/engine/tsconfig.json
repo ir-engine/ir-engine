@@ -5,7 +5,7 @@
     "noImplicitAny": false,
     "noImplicitThis": true,
     "target": "es6",
-    "moduleResolution": "Node",
+    "moduleResolution": "node",
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

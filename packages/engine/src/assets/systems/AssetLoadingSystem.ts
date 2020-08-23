@@ -15,41 +15,47 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
-  addComponent
+  addComponent,
+  createEntity
 } from '../../ecs/functions/EntityFunctions';
+import { Engine } from '../../ecs/classes/Engine';
 
 export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
 
   init () {
-    this.loaded = new Map<Entity, any>()
+    addComponent(createEntity(), AssetVault)
   }
 
   execute () {
     this.queryResults.assetVault.all.forEach(entity => {
       // Do things here
     });
-    while (this.queryResults.toLoad.all.length) {
+    this.queryResults.toLoad.all.forEach((entity: Entity) => {
       // Create a new entity
-      const entity = this.queryResults.toLoad.all[0];
-      // Asset the AssetLoaderState so it falls out of this query
       addComponent(entity, AssetLoaderState);
       const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader);
       // Set the filetype
       assetLoader.assetType = getAssetType(assetLoader.url);
+      // Set the class (model, image, etc)
       assetLoader.assetClass = getAssetClass(assetLoader.url);
       // Check if the vault already contains the asset
       // If it does, get it so we don't need to reload it
       // Load the asset with a calback to add it to our processing queue
-      loadAsset(assetLoader.url, (asset: AssetsLoadedHandler) => {
+      loadAsset(assetLoader.url, (asset: any) => {
+        // This loads the spoke scene
+
         this.loaded.set(entity, asset);
       });
-    }
+    })
 
     // Do the actual entity creation inside the system tick not in the loader callback
-    for (let i = 0; i < this.loaded.size; i++) {
-      const [entity, asset] = this.loaded[i];
-      const component = getComponent<AssetLoader>(entity, AssetLoader) as AssetLoader;
+    this.loaded.forEach( (asset, entity) =>{
+      if(!hasComponent(entity, AssetLoader)) {
+        return console.log("Error, entity doesn't have asset loader")
+      }
+
+      const component = getComponent<AssetLoader>(entity, AssetLoader);
       if (component.assetClass === AssetClass.Model) {
         asset.scene.traverse((child) => {
           if (child.isMesh) {
@@ -65,26 +71,35 @@ export default class AssetLoadingSystem extends System {
 
       if (hasComponent(entity, Object3DComponent)) {
         if (component.append) {
-          getComponent<Object3DComponent>(entity, Object3DComponent).value.add(asset.scene);
+          if(getComponent<Object3DComponent>(entity, Object3DComponent).value !== undefined)
+          getMutableComponent<Object3DComponent>(entity, Object3DComponent).value.add(asset.scene)
+          else getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = (asset.scene)
         }
       } else {
         addComponent(entity, Model, { value: asset });
-        addObject3DComponent(entity, { obj3d: asset, parent: component.parent });
+        console.log("Attempting addObject3d component with: ")
+
+        asset.scene.children.forEach(obj => {
+          const e = createEntity()
+          console.log(obj)
+          addObject3DComponent(e, { obj3d: obj, parent: Engine.scene });
+        })
+
       }
 
       if (component.onLoaded) {
-        component.onLoaded(asset);
+        component.onLoaded(asset.scene);
       }
       AssetVault.instance.assets.set(hashResourceString(component.url), asset.scene);
-    }
+    });
+
     this.loaded.clear();
 
-    const toUnload = this.queryResults.toUnload.all;
-    while (toUnload.length) {
-      const entity = toUnload[0];
+    this.queryResults.toUnload.all.forEach((entity: Entity) => {
       removeComponent(entity, AssetLoaderState);
+      if(hasComponent(entity, Object3DComponent))
       removeObject3DComponent(entity);
-    }
+    })
   }
 }
 
@@ -100,6 +115,9 @@ export function hashResourceString (str) {
 }
 
 AssetLoadingSystem.queries = {
+  mopdels: {
+    components: [Model]
+  },
   assetVault: {
     components: [AssetVault]
   },
