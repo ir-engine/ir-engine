@@ -16,13 +16,13 @@ This repo includes a fully-feature client, API server, realtime gamerserver, gam
 ## Popular features
 Player rigs to support 2D, 3D and XR interaction
 
-High-performance ECS engine based on Mozilla ECSY
+High-performance ECS engine
 
-Full-featured world editor based on Mozilla Spoke
+Full-featured world editor
 
 Fully networked player controller, physics, vehicles and particles
 
-Highly customizable, template-based design (Unreal-style Blueprints coming soon!)
+Fully data-oriented design
 
 Chat, groups, parties and friends
 
