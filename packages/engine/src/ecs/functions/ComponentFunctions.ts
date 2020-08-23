@@ -52,6 +52,7 @@ export function registerComponent<C extends Component<any>> (
   Component: ComponentConstructor<C>,
   objectPool?: ObjectPool<C> | false
 ): void {
+  
   if (Engine.components.includes(Component)) {
     console.warn(`Component type: '${getName(Component)}' already registered.`);
     return;
@@ -59,7 +60,7 @@ export function registerComponent<C extends Component<any>> (
 
   const schema = Component.schema;
 
-  if (!schema) {
+  if (!schema && (Component as any).type !== undefined && (Component as any).type !== 'not') {
     throw new Error(`Component "${getName(Component)}" has no schema property.`);
   }
 
@@ -137,6 +138,8 @@ export function componentRegistered (T) {
  * @private
  */
 export function getName (Component) {
+  console.log("Getname called on compoent")
+  console.log(Component)
   return Component.getName();
 }
 

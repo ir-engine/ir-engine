@@ -15,13 +15,11 @@ export const RigidBodyBehavior: Behavior = (entity: Entity, args): void => {
 
     if (args.isKinematic) {
       collider.position.x = transform.position[0];
-      collider.position.x = transform.position[0];
-      collider.position.x = transform.position[0];
+      collider.position.y = transform.position[1];
+      collider.position.z = transform.position[2];
       //  quaternion.set(collider.quaternion.x, collider.quaternion.y, collider.quaternion.z, collider.quaternion.w)
       //  transform.rotation = quaternion.toArray()
     } else {
-      console.log(collider);
-
       transform.position = [collider.position.x, collider.position.y, collider.position.z];
       // console.log(collider.position );
       quaternion.set(collider.quaternion.x, collider.quaternion.y, collider.quaternion.z, collider.quaternion.w);

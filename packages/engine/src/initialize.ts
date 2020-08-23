@@ -21,7 +21,7 @@ import { ParticleSystem } from "./particles/systems/ParticleSystem"
 import { KeyframeSystem } from "./particles/systems/KeyframeSystem"
 import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
 import { Timer } from './common/functions/Timer';
-// import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
+import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
 
 export const DefaultInitializationOptions = {
   debug: true,
@@ -76,7 +76,7 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
 
   // Asset Loading system
   if (options.assets && options.assets.enabled) {
-    // registerSystem(AssetLoadingSystem);
+    registerSystem(AssetLoadingSystem);
   }
 
   // Transform

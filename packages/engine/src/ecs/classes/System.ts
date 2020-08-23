@@ -134,7 +134,7 @@ export abstract class System {
 
         const eventMapping = {
           added: QUERY_ENTITY_ADDED,
-        removed: QUERY_ENTITY_REMOVED,
+          removed: QUERY_ENTITY_REMOVED,
           changed: QUERY_COMPONENT_CHANGED
         };
         const q = queryConfig;

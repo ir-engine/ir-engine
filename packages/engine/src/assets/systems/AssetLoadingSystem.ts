@@ -23,11 +23,14 @@ export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
 
   init () {
+    console.log("Init called")
     this.loaded = new Map<Entity, any>()
     addComponent(createEntity(), AssetVault)
+    console.log("Init ended")
   }
 
   execute () {
+    console.log("Execute called")
     this.queryResults.assetVault.all.forEach(entity => {
       // Do things here
     });
@@ -69,7 +72,9 @@ export default class AssetLoadingSystem extends System {
 
       if (hasComponent(entity, Object3DComponent)) {
         if (component.append) {
-          getComponent<Object3DComponent>(entity, Object3DComponent).value.add(asset.scene);
+          if(getComponent<Object3DComponent>(entity, Object3DComponent).value !== undefined)
+          getMutableComponent<Object3DComponent>(entity, Object3DComponent).value.add(asset.scene)
+          else getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = (asset.scene)
         }
       } else {
         addComponent(entity, Model, { value: asset });
@@ -87,6 +92,7 @@ export default class AssetLoadingSystem extends System {
     while (toUnload.length) {
       const entity = toUnload[0];
       removeComponent(entity, AssetLoaderState);
+      if(hasComponent(entity, Object3DComponent))
       removeObject3DComponent(entity);
     }
   }
@@ -104,6 +110,9 @@ export function hashResourceString (str) {
 }
 
 AssetLoadingSystem.queries = {
+  mopdels: {
+    components: [Model]
+  },
   assetVault: {
     components: [AssetVault]
   },
