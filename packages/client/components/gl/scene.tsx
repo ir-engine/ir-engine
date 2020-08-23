@@ -46,8 +46,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     createPrefab(staticWorldColliders);
 
     console.log("Creating a scene entity to test")
-    const entity = createEntity()
-    addComponent(entity, AssetLoader, {
+    addComponent(createEntity(), AssetLoader, {
       assetType: AssetType.glTF,
       assetClass: AssetClass.Model,
       url: "models/library.glb",
