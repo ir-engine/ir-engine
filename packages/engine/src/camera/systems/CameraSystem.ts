@@ -31,6 +31,7 @@ export class CameraSystem extends System {
       const cam = getComponent(entity, CameraComponent) as CameraComponent;
       if (cam.followTarget !== null && cam.followTarget !== undefined) {
         followTarget(entity, { distance: 100 }, delta, cam.followTarget);
+        console.log("Following target")
       }
     });
 
