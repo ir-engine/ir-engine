@@ -108,6 +108,7 @@ export class WebGLRendererSystem extends System {
     this.queryResults.renderers.all.forEach((entity: Entity) => {
       resize(entity)
       getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
+      console.log("Rendering")
     });
   }
 }
