@@ -163,6 +163,7 @@
     "pug": "^3.0.0",
     "random-animal-name-generator": "^0.1.1",
     "raw-loader": "^4.0.0",
+    "require-main-filename": "^2.0.0",
     "reselect": "^4.0.0",
     "s3-blob-store": "^4.1.1",
     "sequelize": "^5.21.8",

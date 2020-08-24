@@ -8,6 +8,7 @@ import {
 import * as path from 'path'
 import { BadRequest } from '@feathersjs/errors'
 import * as pug from 'pug'
+import * as requireMainFilename from 'require-main-filename'
 import config from '../config'
 
 
@@ -22,11 +23,11 @@ async function generateEmail (
 ): Promise<void> {
   let groupName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode)
-  const appPath = path.dirname(require.main ? require.main.filename : '')
+  const appPath = path.dirname(requireMainFilename())
   const emailAccountTemplatesPath = path.join(
     appPath,
     '..',
-    'server',
+    'src',
     'email-templates',
     'invite'
   )
@@ -69,11 +70,11 @@ async function generateSMS (
 ): Promise<void> {
   let groupName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode)
-  const appPath = path.dirname(require.main ? require.main.filename : '')
+  const appPath = path.dirname(requireMainFilename())
   const emailAccountTemplatesPath = path.join(
     appPath,
     '..',
-    'server',
+    'src',
     'email-templates',
     'account'
   )
