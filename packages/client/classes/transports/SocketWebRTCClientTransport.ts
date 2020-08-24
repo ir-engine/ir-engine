@@ -25,6 +25,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   pollingTickRate = 1000
   dataProducers = new Map<string, DataProducer>()
   dataConsumers = new Map<string, DataConsumer>()
+  mediaStreamComponent = new MediaStreamComponent();
 
   socket: SocketIOClient.Socket = {} as SocketIOClient.Socket
 
@@ -190,6 +191,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         console.log("About to send camera streams");
         await this.sendCameraStreams();
         console.log("about to init sockets");
+        this.startScreenshare()
       });
 
       this.socket.on(MessageTypes.ClientConnected.toString(), (_id: any) => addClient(_id));
@@ -274,7 +276,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (!this.sendTransport) this.sendTransport = await this.createTransport("send");
 
     // get a screen share track
-    this.localScreen = await (navigator.mediaDevices as any).getDisplayMedia({
+    MediaStreamComponent.instance.localScreen = await (navigator.mediaDevices as any).getDisplayMedia({
       video: true,
       audio: true
     });
@@ -543,6 +545,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
             errback();
             return;
           }
+          console.log(`Producer set up with id ${id}`)
           callback({ id });
         }
       );
@@ -588,11 +591,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   // polling/update logic
   async pollAndUpdate() {
     console.log("Polling server for current peers array!");
-    setTimeout(this.pollAndUpdate, this.pollingTickRate);
+    setTimeout(() => this.pollAndUpdate(), this.pollingTickRate);
     console.log("sending sync request");
     if (this.request === undefined) return;
     const { peers } = await this.request(MessageTypes.Synchronization.toString());
 
+    console.log(`mySocketId: ${NetworkComponent.instance.mySocketID}`)
+    console.log(peers)
     if (peers[NetworkComponent.instance.mySocketID] === undefined) console.log("Server doesn't think you're connected!");
 
     // decide if we need to update tracks list and video/audio
