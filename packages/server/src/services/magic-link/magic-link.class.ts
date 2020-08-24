@@ -17,6 +17,7 @@ import { Service } from 'feathers-sequelize'
 import { IdentityProvider } from '../identity-provider/identity-provider.class'
 import { BadRequest } from '@feathersjs/errors'
 import config from '../../config'
+import * as requireMainFilename from 'require-main-filename'
 
 interface Data {}
 
@@ -62,9 +63,11 @@ export class Magiclink implements ServiceMethods<Data> {
     subscriptionId?: string
   ): Promise<void> {
     const hashLink = getLink(type, token, subscriptionId ?? '')
-    const appPath = path.dirname(require.main ? require.main.filename : '')
+    const appPath = path.dirname(requireMainFilename())
     const emailAccountTemplatesPath = path.join(
       appPath,
+      '..',
+      'src',
       'email-templates',
       'account'
     )
@@ -115,9 +118,11 @@ export class Magiclink implements ServiceMethods<Data> {
     type: 'connection' | 'login'
   ): Promise<void> {
     const hashLink = getLink(type, token, '')
-    const appPath = path.dirname(require.main ? require.main.filename : '')
+    const appPath = path.dirname(requireMainFilename() )
     const emailAccountTemplatesPath = path.join(
       appPath,
+      '..',
+      'src',
       'email-templates',
       'account'
     )
