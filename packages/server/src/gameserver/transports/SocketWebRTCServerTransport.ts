@@ -252,7 +252,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
       // If a reliable message is received, add it to the queue
       socket.on(MessageTypes.ReliableMessage.toString(), (message: Message) => {
-        // TODO: Handle reliable message
+        console.log('Got Reliable Message')
+        console.log(message)
       })
 
       // On heartbeat received from client
@@ -277,7 +278,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         this.roomState.peers[socket.id].lastSeenTs = Date.now()
 
         callback({
-          peers: this.roomState.peers.keys()
+          peers: this.roomState.peers
         })
       })
 
@@ -442,6 +443,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       // object on the client side. always start consumers paused. client
       // will request media to resume when the connection completes
       socket.on(MessageTypes.WebRTCReceiveTrack.toString(), async (data, callback) => {
+        console.log('WebTRCReceiveTrack')
+        console.log(data)
         const { mediaPeerId, mediaTag, rtpCapabilities } = data
         const peerId = socket.id
         const producer = this.roomState.producers.find(

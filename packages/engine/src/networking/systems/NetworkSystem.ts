@@ -15,7 +15,6 @@ export class NetworkSystem extends System {
 
   init (attributes) {
     NetworkSystem.instance = this
-console.log("NetworkSystem schema: ")
 
     const { schema } = attributes
     // Create a Network entity (singleton)
@@ -25,9 +24,12 @@ console.log("NetworkSystem schema: ")
     // Late initialization of network
     Network.instance.schema = schema
     Network.instance.transport = new (schema.transport)();
+    console.log('TRANSPORT INSTANCE:')
+    console.log(Network.instance.transport)
+    Network.instance.transport.initialize()
     console.log("NetowrkSystem ready, run connectToServer to... connect to the server!")
   }
-  
+
   public execute (): void {
     this.queryResults.network.all?.forEach((entity: Entity) => {
       // console.log(entity)
