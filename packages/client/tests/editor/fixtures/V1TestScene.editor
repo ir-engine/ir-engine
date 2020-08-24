@@ -539,7 +539,7 @@
         {
           "name": "image",
           "props": {
-            "src": "https://hubs.local:9090/test-assets/spoke-logo.png",
+            "src": "https://hubs.local:9090/test-assets/editor-logo.png",
             "projection": "flat"
           }
         }
@@ -662,7 +662,7 @@
         {
           "name": "image",
           "props": {
-            "src": "https://hubs.local:9090/test-assets/spoke-logo.png",
+            "src": "https://hubs.local:9090/test-assets/editor-logo.png",
             "projection": "360-equirectangular"
           }
         }
