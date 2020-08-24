@@ -1,6 +1,6 @@
-{{- if and .Values.spoke.enabled .Values.spoke.ingress.enabled -}}
-{{- $fullName := include "xr3ngine.spoke.fullname" . -}}
-{{- $svcPort := .Values.spoke.service.port -}}
+{{- if and .Values.editor.enabled .Values.editor.ingress.enabled -}}
+{{- $fullName := include "xr3ngine.editor.fullname" . -}}
+{{- $svcPort := .Values.editor.service.port -}}
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
@@ -10,15 +10,15 @@ kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
-    {{- include "xr3ngine.spoke.labels" . | nindent 4 }}
-  {{- with .Values.spoke.ingress.annotations }}
+    {{- include "xr3ngine.editor.labels" . | nindent 4 }}
+  {{- with .Values.editor.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-{{- if .Values.spoke.ingress.tls }}
+{{- if .Values.editor.ingress.tls }}
   tls:
-  {{- range .Values.spoke.ingress.tls }}
+  {{- range .Values.editor.ingress.tls }}
     - hosts:
       {{- range .hosts }}
         - {{ . | quote }}
@@ -27,7 +27,7 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-  {{- range .Values.spoke.ingress.hosts }}
+  {{- range .Values.editor.ingress.hosts }}
     - host: {{ .host | quote }}
       http:
         paths:

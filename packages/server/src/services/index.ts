@@ -55,7 +55,7 @@ import Video from './video/video.service'
 import Subscription from './subscription/subscription.service'
 import SubscriptionConfirm from './subscription-confirm/subscription-confirm.service'
 
-// Spoke
+// Editor
 import MediaSearch from './media-search/media-search.service'
 import Meta from './meta/meta.service'
 import PublishProject from './publish-project/publish-project.service'
@@ -121,7 +121,7 @@ export default (app: Application): void => {
   app.configure(Upload)
   app.configure(Video)
 
-  // Spoke
+  // Editor
   app.configure(MediaSearch)
   app.configure(Meta)
   app.configure(UploadMedia)

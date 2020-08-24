@@ -26,8 +26,8 @@ services:
     ports:
       - '3000:3000'
   
-  spoke:
-    image: xr3ngine/spoke
+  editor:
+    image: xr3ngine/editor
     restart: always
     environment: 
       BASE_ASSETS_PATH: http://xr3ngine.local/ 

@@ -30,14 +30,14 @@ async function init (projectId: string): Promise<any> { // auth: any,
     entity.components.forEach((component) => {
       console.log(component.name);
       console.log(component);
-      // SpokeNodeLoader(scene, newEntity, component)
+      // EditorNodeLoader(scene, newEntity, component)
 
     });
     console.log(newEntity);
   });
 }
 
-const SpokeRoomPage: React.FC = () => {
+const EditorRoomPage: React.FC = () => {
   const router = useRouter();
   const { projectId } = router.query;
   const props = {
@@ -61,4 +61,4 @@ const SpokeRoomPage: React.FC = () => {
   );
 };
 
-export default SpokeRoomPage;
+export default EditorRoomPage;

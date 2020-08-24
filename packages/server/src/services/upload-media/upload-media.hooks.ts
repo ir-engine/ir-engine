@@ -45,14 +45,14 @@ const createOwnedFile = (options = {}) => {
     }
     (resourceData as any).type = getBasicMimetype(resourceData.content_type)
 
-    // Remap input from Spoke to fit
+    // Remap input from Editor to fit
     const modifiedResourceData = {
       ...resourceData,
       mimeType: resourceData.content_type
     }
     const savedFile = await context.app.service('static-resource').create(modifiedResourceData)
     context.result = {
-      // This is to fulfill the spoke response, as spoke is expecting the below object
+      // This is to fulfill the editor response, as editor is expecting the below object
       file_id: savedFile.id,
       meta: {
         access_token: uuidv1(), // TODO: authenticate upload with bearer token

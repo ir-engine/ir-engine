@@ -66,7 +66,7 @@ If you want to build the whole compose stack on your machine, and not pull the c
     +-- xrsocial-client
     +-- xrsocial
     +-- xrsocial-ops
-    +-- Spoke
+    +-- Editor
     ```
 
 - `cd xrsocial-ops`

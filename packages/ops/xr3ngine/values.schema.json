@@ -339,7 +339,7 @@
                 }
             }
         },
-        "spoke": {
+        "editor": {
             "type": "object",
             "properties": {
                 "affinity": {

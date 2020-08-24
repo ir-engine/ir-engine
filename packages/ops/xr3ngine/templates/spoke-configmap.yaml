@@ -1,15 +1,15 @@
-{{- if .Values.spoke.enabled -}}
+{{- if .Values.editor.enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "xr3ngine.spoke.fullname" . }}
+  name: {{ template "xr3ngine.editor.fullname" . }}
   labels:
-    {{- include "xr3ngine.spoke.labels" . | nindent 4 }}
+    {{- include "xr3ngine.editor.labels" . | nindent 4 }}
 data:
-{{- if .Values.spoke.extraEnv }}
-{{ toYaml .Values.spoke.extraEnv | indent 2 }}
+{{- if .Values.editor.extraEnv }}
+{{ toYaml .Values.editor.extraEnv | indent 2 }}
 {{- end }}
-{{- if .Values.spoke.config }}
-  NODE_CONFIG: '{{ mustToJson .Values.spoke.config }}'
+{{- if .Values.editor.config }}
+  NODE_CONFIG: '{{ mustToJson .Values.editor.config }}'
 {{- end }}
 {{- end }}

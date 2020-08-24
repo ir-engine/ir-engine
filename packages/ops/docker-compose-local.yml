@@ -38,10 +38,10 @@ services:
     ports:
       - '3000:3000'
   
-  spoke:
+  editor:
     build:
-      context: ../Spoke
-    image: xr3ngine/spoke
+      context: ../Editor
+    image: xr3ngine/editor
     environment: 
       BASE_ASSETS_PATH: http://xr3ngine.local/ 
       HUBS_SERVER: xr3ngine.local:4000
