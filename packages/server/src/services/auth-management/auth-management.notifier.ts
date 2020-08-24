@@ -2,6 +2,7 @@ import { Application } from '../../declarations'
 import { getLink, sendEmail } from './auth-management.utils'
 import * as path from 'path'
 import * as pug from 'pug'
+import * as requireMainFilename from 'require-main-filename'
 import config from '../../config'
 
 export default (app: Application): any => {
@@ -22,9 +23,14 @@ export default (app: Application): any => {
         return
       }
 
-      const appPath = path.dirname(require.main ? require.main.filename : '')
-      const emailAccountTemplatesPath =
-        path.join(appPath, 'email-templates', 'account')
+      const appPath = path.dirname(requireMainFilename())
+      const emailAccountTemplatesPath = path.join(
+          appPath,
+          '..',
+          'src',
+          'email-templates',
+          'account'
+      )
       let hashLink
       let email
       let templatePath
