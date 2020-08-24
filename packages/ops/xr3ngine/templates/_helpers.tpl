@@ -22,8 +22,8 @@ Expand the name of the chart.
 {{- default .Chart.Name .Values.gameserver.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "xr3ngine.spoke.name" -}}
-{{- default .Chart.Name .Values.spoke.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- define "xr3ngine.editor.name" -}}
+{{- default .Chart.Name .Values.editor.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 
@@ -80,11 +80,11 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- end -}}
 
-{{- define "xr3ngine.spoke.fullname" -}}
-{{- if .Values.spoke.fullnameOverride -}}
-{{- .Values.spoke.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- define "xr3ngine.editor.fullname" -}}
+{{- if .Values.editor.fullnameOverride -}}
+{{- .Values.editor.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-{{- printf "%s-%s" .Release.Name .Values.spoke.name | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" .Release.Name .Values.editor.name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
 
@@ -195,9 +195,9 @@ app.kubernetes.io/component: gameserver
 {{/*
 Common labels
 */}}
-{{- define "xr3ngine.spoke.labels" -}}
+{{- define "xr3ngine.editor.labels" -}}
 helm.sh/chart: {{ include "xr3ngine.chart" . }}
-{{ include "xr3ngine.spoke.selectorLabels" . }}
+{{ include "xr3ngine.editor.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -207,10 +207,10 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "xr3ngine.spoke.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "xr3ngine.spoke.name" . }}
+{{- define "xr3ngine.editor.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xr3ngine.editor.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/component: spoke
+app.kubernetes.io/component: editor
 {{- end -}}
 
 
@@ -263,11 +263,11 @@ Create the name of the service account to use
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "xr3ngine.spoke.serviceAccountName" -}}
-{{- if .Values.spoke.serviceAccount.create -}}
-    {{ default (include "xr3ngine.spoke.fullname" .) .Values.spoke.serviceAccount.name }}
+{{- define "xr3ngine.editor.serviceAccountName" -}}
+{{- if .Values.editor.serviceAccount.create -}}
+    {{ default (include "xr3ngine.editor.fullname" .) .Values.editor.serviceAccount.name }}
 {{- else -}}
-    {{ default "default" .Values.spoke.serviceAccount.name }}
+    {{ default "default" .Values.editor.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
 

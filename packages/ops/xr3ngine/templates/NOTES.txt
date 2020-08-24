@@ -66,23 +66,23 @@ Thank you for installing XR3ngine
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:80
 {{- end }}
 
-3. Spoke is running on:
-{{- if .Values.spoke.ingress.enabled }}
-{{- range $host := .Values.spoke.ingress.hosts }}
+3. Editor is running on:
+{{- if .Values.editor.ingress.enabled }}
+{{- range $host := .Values.editor.ingress.hosts }}
   {{- range .paths }}
-  http{{ if $.Values.spoke.ingress.tls }}s{{ end }}://{{ $host.host }}{{ . }}
+  http{{ if $.Values.editor.ingress.tls }}s{{ end }}://{{ $host.host }}{{ . }}
   {{- end }}
 {{- end }}
-{{- else if contains "NodePort" .Values.spoke.service.type }}
+{{- else if contains "NodePort" .Values.editor.service.type }}
   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "xrsocial.fullname" . }})
   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
   echo http://$NODE_IP:$NODE_PORT
-{{- else if contains "LoadBalancer" .Values.spoke.service.type }}
+{{- else if contains "LoadBalancer" .Values.editor.service.type }}
      NOTE: It may take a few minutes for the LoadBalancer IP to be available.
            You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "xrsocial.fullname" . }}'
   export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "xrsocial.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
-  echo http://$SERVICE_IP:{{ .Values.spoke.service.port }}
-{{- else if contains "ClusterIP" .Values.spoke.service.type }}
+  echo http://$SERVICE_IP:{{ .Values.editor.service.port }}
+{{- else if contains "ClusterIP" .Values.editor.service.type }}
   export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "xrsocial.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:80

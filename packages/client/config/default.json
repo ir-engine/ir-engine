@@ -136,9 +136,9 @@
           "name": ""
         }
       },
-      "spoke": {
+      "editor": {
         "enabled": true,
-        "name": "spoke",
+        "name": "editor",
         "src": "",
         "link": "",
         "comingSoon": {

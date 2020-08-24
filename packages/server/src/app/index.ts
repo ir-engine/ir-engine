@@ -134,8 +134,8 @@ if (config.server.enabled) {
 
 app.use(express.errorHandler({ logger } as any))
 
-const spokePath = process.env.NODE_ENV === 'production' ? path.join(config.server.nodeModulesDir, '/xr3-spoke/dist') : path.join(config.server.rootDir, '/node_modules/xr3-spoke/dist')
-app.use(express.static(spokePath))
-app.all('/spoke/*', (req, res) => res.sendFile(path.join(spokePath, 'spoke/index.html')))
+const editorPath = process.env.NODE_ENV === 'production' ? path.join(config.server.nodeModulesDir, '/xr3-editor/dist') : path.join(config.server.rootDir, '/node_modules/xr3-editor/dist')
+app.use(express.static(editorPath))
+app.all('/editor/*', (req, res) => res.sendFile(path.join(editorPath, 'editor/index.html')))
 
 export default app

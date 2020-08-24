@@ -50,7 +50,7 @@ export default {
     find: [],
     get: [],
     create: [
-      // Spoke is expecting 200, while feather is sending 201 for creation
+      // Editor is expecting 200, while feather is sending 201 for creation
       setResponseStatusCode(200)
     ],
     update: [],

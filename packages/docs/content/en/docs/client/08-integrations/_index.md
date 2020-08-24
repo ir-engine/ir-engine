@@ -13,5 +13,5 @@ description: >
 This is asss placeholder page that shows you how to use this template site.
 {{% /pageinfo %}}
 
-Spoke Stuff
+Editor Stuff
 

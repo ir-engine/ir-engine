@@ -248,14 +248,14 @@ media:
     # SERVER_MODE: "media"
 
 
-spoke:
+editor:
   enabled: true
-  name: xr3ngine-spoke
+  name: xr3ngine-editor
 
   replicaCount: 1
   image:
-    # Reminder: Spoke image still on xr3ngine we didn't create image for xr3ngine
-    repository: xr3ngine/spoke
+    # Reminder: Editor image still on xr3ngine we didn't create image for xr3ngine
+    repository: xr3ngine/editor
     tag: latest
     pullPolicy: Always
 
@@ -273,7 +273,7 @@ spoke:
       kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
     hosts:
-      - host: local-spoke.xrsocial.local
+      - host: local-editor.xrsocial.local
         paths: ["/"]
     # tls: []
     #  - secretName: chart-example-tls

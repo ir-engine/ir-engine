@@ -16,7 +16,7 @@ export default (app: Application): any => {
         return this.type
       }
     },
-    // We need to get this for making compatible with spoke
+    // We need to get this for making compatible with editor
     props: {
       type: DataTypes.VIRTUAL,
       get (this: any) {
