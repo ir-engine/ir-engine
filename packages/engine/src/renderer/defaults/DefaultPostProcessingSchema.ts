@@ -12,6 +12,7 @@ import { ColorDepthEffect } from '../../postprocessing/effects/ColorDepthEffect'
 
 export const DefaultPostProcessingSchema: PostProcessingSchema = {
   effects: [
+  ]/* FIXME: CPU overload
     // {
     //   effect: SSAOEffect,
     //   options: {
@@ -91,4 +92,5 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
     //   }
     // }
   ]
+*/
 };
