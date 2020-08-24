@@ -9,7 +9,7 @@ import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes
 import { addClient, initializeClient, removeClient } from "@xr3ngine/engine/src/networking/functions/ClientFunctions";
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
-import { DataConsumer, DataConsumerOptions, DataProducer } from "mediasoup-client/lib/types";
+import { DataConsumer, DataConsumerOptions, DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 import { UnreliableMessageParams, UnreliableMessageReturn } from "@xr3ngine/engine/src/networking/types/NetworkingTypes";
 
 const Device = mediasoupClient.Device;
@@ -17,8 +17,8 @@ const Device = mediasoupClient.Device;
 export class SocketWebRTCClientTransport implements NetworkTransport {
   mediasoupDevice: mediasoupClient.Device
   joined: boolean
-  recvTransport: mediasoupClient.types.Transport
-  sendTransport: mediasoupClient.types.Transport
+  recvTransport: MediaSoupTransport
+  sendTransport: MediaSoupTransport
   lastPollSyncData = {}
   pollingInterval: NodeJS.Timeout
   heartbeatInterval = 2000
@@ -58,7 +58,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   async subscribeToDataChannel(
     channel: string,
     callback: (message: any) => void,
-    params?: { type?: string }
+    params: { type?: string } = {}
   ): Promise<DataConsumer | Error> {
     // Check if data channel/data-producer exists
     if (!this.dataProducers.get(channel)) {
@@ -94,7 +94,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         ...dataConsumerOptions,
         dataProducerId,
         label: channel,
-        protocol: params.type || "json"
+        protocol: params.type || "json" // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
       });
       clientDataConsumer.on("transportclose", () => {
         this.dataConsumers.delete(channel);
@@ -108,7 +108,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       return Promise.resolve(clientDataConsumer);
     } catch (e) {
       console.log("consumer subscription failed! err:", e);
-      return Promise.resolve(e);
+      return Promise.reject(e);
     }
   }
 
@@ -119,6 +119,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     type = "json"
   }: UnreliableMessageParams): Promise<UnreliableMessageReturn> {
     try {
+      await this.initSendTransport()
       console.log("Producing Data on data channel: ", channel);
       if (this.dataProducers.get(channel)) {
         const dataProducer = this.dataProducers.get(channel);
@@ -139,7 +140,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         dataProducer.send(JSON.stringify(data));
       });
       dataProducer.on("transportclose", () => {
-        this.dataProducers.delete(dataProducer.id);
+        this.dataProducers.delete(channel);
       });
       this.dataProducers.set(channel, dataProducer);
       return Promise.resolve(dataProducer);
@@ -188,6 +189,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         console.log("Initialization response received from server");
         initializeClient(_id, _ids);
         await this.joinWorld();
+        // Ping request for testing unreliable messaging may remove if not needed
+        this.unreliableMessageTest()
         console.log("About to send camera streams");
         await this.sendCameraStreams();
         console.log("about to init sockets");
@@ -200,9 +203,31 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // this.socket.on(MessageTypes.ReliableMessage.toString(), (message: Message) => {
       //   NetworkComponent.instance.incomingReliableQueue.add(message)
       // })
-
+      
       this.socket.emit(MessageTypes.Initialization.toString());
     });
+  }
+
+  async unreliableMessageTest() {
+    try {
+      console.log('Testing unreliable messaging');
+      console.log('Init data channel "test"')
+      await this.sendUnreliableMessage({ channel: 'test', data: { info: 'init' } })
+      console.log('Init data channel "test" successful')  
+      await this.subscribeToDataChannel('test', (unreliableMessage) => {
+        console.log('Unreliable Message received from channel "test": ')
+        console.log('Unreliable Message\'s data: ', unreliableMessage)
+      })
+      // Sending message after subscription requires a couple ms delay for some reason
+      setTimeout(() => {
+        this.sendUnreliableMessage({
+          channel: 'test',
+          data: { info: 'test successful' },
+        })
+      }, 100);
+    } catch (e) {
+      console.warn('Unreliable Message test failed! ', e)
+    }
   }
 
   //= =//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//
@@ -227,12 +252,33 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   // Init receive transport, create one if it doesn't exist else just resolve promise
-  async initReceiveTransport(): Promise<void> {
+  async initReceiveTransport(): Promise<MediaSoupTransport | Error> {
     if (!this.recvTransport) {
-      this.recvTransport = await this.createTransport("recv");
-      return Promise.resolve();
+      console.log('Creating receive transport')
+      try {
+          this.recvTransport = await this.createTransport("recv");
+          return Promise.resolve(this.recvTransport);
+        }
+        catch (e) {
+          return Promise.reject(e);
+        }
     } else {
-      return Promise.resolve();
+      return Promise.resolve(this.recvTransport);
+    }
+  }
+
+  // Init send transport, create one if it doesn't exist else just resolve promise
+  async initSendTransport(): Promise<MediaSoupTransport | Error> {
+    if (!this.sendTransport) {
+      console.log('Creating send transport')
+      try {
+        this.sendTransport = await this.createTransport("send");
+        return Promise.resolve(this.sendTransport);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    } else {
+      return Promise.resolve(this.sendTransport);
     }
   }
 
