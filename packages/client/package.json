@@ -14,7 +14,7 @@
   "scripts": {
     "start": "yarn run dev",
     "copyfiles-client": "copyfiles design/** design/**/* public/** public/**/* **/*.scss lib/client",
-    "dev": "cross-env NODE_ENV=dev NODE_OPTIONS=--max_old_space_size=4096 node ./index.js --port 3000",
+    "dev": "cross-env NODE_ENV=dev SERVER_MODE=client NODE_OPTIONS=--max_old_space_size=4096 node ./index.js --port 3000",
     "build": "yarn run copyfiles-client && NODE_OPTIONS=--max_old_space_size=4096 next build ./",
     "watch": "cross-env NODE_ENV=dev next --port 3000 --hostname localhost",
     "validate": "yarn run lint && yarn run test",

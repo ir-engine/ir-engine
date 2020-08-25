@@ -8,7 +8,7 @@ import {
 import * as path from 'path'
 import { BadRequest } from '@feathersjs/errors'
 import * as pug from 'pug'
-import * as requireMainFilename from 'require-main-filename'
+import requireMainFilename from 'require-main-filename'
 import config from '../config'
 
 
