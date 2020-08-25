@@ -1,11 +1,11 @@
-import { Component } from "../../ecs/classes/Component";
+import { Component } from "../../../ecs/classes/Component";
 import { VehicleSeat } from "./VehicleSeat";
-import { Wheel } from "../../physics/components/Wheel";
-import { World } from "cannon-es";
+import { Wheel } from "../../../physics/components/Wheel";
+import { World, RaycastVehicle, Vec3, Material, Body, Box, Sphere } from "cannon-es";
 import THREE from "three";
 import { Utils } from "utils/Utils";
 import _ from "lodash";
-import { CollisionGroups } from "../../physics/enums/CollisionGroups";
+import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
 
 export abstract class Vehicle extends Component<Vehicle>
 {	

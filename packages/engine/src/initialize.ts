@@ -1,14 +1,11 @@
 import { AmbientLight, Camera, GridHelper, PerspectiveCamera, Scene } from 'three';
-import { addObject3DComponent } from './common/defaults/behaviors/Object3DBehaviors';
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { createEntity } from './ecs/functions/EntityFunctions';
 import { Engine } from './ecs/classes/Engine';
 import { execute, initialize } from './ecs/functions/EngineFunctions';
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
-import { DefaultInputSchema } from './templates/character/CharacterInputSchema';
-import { DefaultNetworkSchema } from './networking/defaults/DefaultNetworkSchema';
-import { DefaultStateSchema } from './state/defaults/DefaultStateSchema';
-import { DefaultSubscriptionSchema } from './templates/character/DefaultSubscriptionSchema';
+import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
+import { CharacterSubscriptionSchema } from './templates/character/CharacterSubscriptionSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { isBrowser } from './common/functions/isBrowser';
 import { CameraSystem } from './camera/systems/CameraSystem';
@@ -21,6 +18,9 @@ import { ParticleSystem } from "./particles/systems/ParticleSystem"
 import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
 import { Timer } from './common/functions/Timer';
 import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
+import { DefaultNetworkSchema } from './templates/network/DefaultNetworkSchema';
+import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
+import { addObject3DComponent } from './common/behaviors/Object3DBehaviors';
 
 export const DefaultInitializationOptions = {
   debug: true,
@@ -28,7 +28,7 @@ export const DefaultInitializationOptions = {
   withWebXRInput: true,
   input: {
     enabled: true,
-    schema: DefaultInputSchema
+    schema: CharacterInputSchema
   },
   assets: {
     enabled: true
@@ -40,11 +40,11 @@ export const DefaultInitializationOptions = {
   },
   state: {
     enabled: true,
-    schema: DefaultStateSchema
+    schema: CharacterStateSchema
   },
   subscriptions: {
     enabled: true,
-    schema: DefaultSubscriptionSchema
+    schema: CharacterSubscriptionSchema
   },
   physics: {
     enabled: false

@@ -1,5 +1,5 @@
 import { int16, int32, int64, string8, uint16, uint32 } from '../../common/types/DataTypes';
-import { SchemaMap } from '../interfaces/SchemaMap';
+import { SchemaMap } from '../../networking/interfaces/SchemaMap';
 
 export const DefaultMessageSchema: SchemaMap = {
   Clock: {

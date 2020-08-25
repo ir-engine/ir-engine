@@ -1,4 +1,4 @@
-import { rotateStart } from '../../common/defaults/behaviors/updateLookingState';
+// import { rotateStart } from '../../common/defaults/behaviors/updateLookingState';
 import { disableScroll, enableScroll } from '../../common/functions/enableDisableScrolling';
 import { preventDefault } from '../../common/functions/preventDefault';
 import { DefaultInput } from '../shared/DefaultInput';
@@ -11,7 +11,7 @@ import { Thumbsticks } from '../../common/enums/Thumbsticks';
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { drive } from '../../physics/behaviors/driveBehavior';
 import { InputType } from '../../input/enums/InputType';
-import { rotateAround } from '../../common/defaults/behaviors/rotate';
+// import { rotateAround } from '../../common/defaults/behaviors/rotate';
 
 export const VehicleInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -56,10 +56,10 @@ export const VehicleInputSchema: InputSchema = {
         args: {
           value: BinaryValue.ON
         }
-      },
-      {
-        behavior: rotateStart
       }
+      // {
+      //   behavior: rotateStart
+      // }
     ],
     // Keys
     keyup: [
@@ -243,13 +243,13 @@ export const VehicleInputSchema: InputSchema = {
     },
     [DefaultInput.SCREENXY]: {
       started: [
-        {
-          behavior: rotateAround,
-          args: {
-            input: DefaultInput.SCREENXY,
-            inputType: InputType.TWOD
-          }
-        }
+        // {
+        //   behavior: rotateAround,
+        //   args: {
+        //     input: DefaultInput.SCREENXY,
+        //     inputType: InputType.TWOD
+        //   }
+        // }
       ]
     }
   }

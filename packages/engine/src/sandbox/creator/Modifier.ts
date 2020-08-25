@@ -14,8 +14,8 @@
 
 import _ from "lodash"
 import { randomNormal } from "../../character/functions/randomNormal"
-import measurementModifiers from "../../character/json/modifiers/measurement_modifiers.json"
-import modelingModifiers from "../../character/json/modifiers/modeling_modifiers.json"
+import measurementModifiers from "./json/modifiers/measurement_modifiers.json"
+import modelingModifiers from "./json/modifiers/modeling_modifiers.json"
 import { targetMetaData } from "./Targets"
 
 /**
@@ -616,7 +616,7 @@ export class Modifiers {
     **/
   getModifiersByType(classType) {
     // TODO just build this once on init. Perhaps move to modifiers class
-    return _.filter(this.children, m => m instanceof classType)
+    return _.filter(this.children, (m: any) => m instanceof classType)
   }
 
   /** Get all modifiers for this human belonging to the same modifier group **/
@@ -624,7 +624,7 @@ export class Modifiers {
     // TODO just build this once on init. Perhaps move to modifiers class
     return _(this.children)
       .values()
-      .filter(m => m.groupName === groupName)
+      .filter(m => (m as any).groupName === groupName)
       .value()
   }
 
@@ -882,18 +882,18 @@ export class Modifiers {
         symmDeviation = null,
         symm = null,
         randomValue = null
-      const m = modifiers[j]
+      const m = modifiers[j] as any
 
       if (!(m.fullName in randomValues)) {
         if (m.groupName === "head") {
           // narow distribution
           sigma = 0.1 * sigmaMultiple
         } else if (
-          ["forehead/forehead-nubian-less|more", "forehead/forehead-scale-vert-less|more"].indexOf(m.fullName) > -1
+          ["forehead/forehead-nubian-less|more", "forehead/forehead-scale-vert-less|more"].indexOf((m as any).fullName) > -1
         ) {
           // very narrow distribution
           sigma = 0.02 * sigmaMultiple
-        } else if (m.fullName.search("trans-horiz") > -1 || m.fullName === "hip/hip-trans-in|out") {
+        } else if ((m as any).fullName.search("trans-horiz") > -1 || (m as any).fullName === "hip/hip-trans-in|out") {
           if (symmetry === 1) {
             randomValue = m.defaultValue
           } else {
@@ -997,8 +997,8 @@ export class Modifiers {
   }
 
   exportConfig() {
-    return _.values(this.children).reduce((o, m) => {
-      o[m.fullName] = m.getValue()
+    return _.values(this.children).reduce((o, m: any) => {
+      o[m.fullName] = (m as any).getValue()
       return o
     }, {})
   }

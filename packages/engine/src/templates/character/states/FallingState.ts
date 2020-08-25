@@ -2,25 +2,23 @@ import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { CharacterComponent } from '../../../character/components/CharacterComponent';
 import { setCharacterAnimation, checkFalling } from '../CharacterStateSchema';
 import { initializeCharacterState, updateCharacterState } from '../behaviors/CharacterBaseBehaviors';
-import { DefaultStateGroups } from '../CharacterStateGroups';
+import { CharacterStateGroups } from '../CharacterStateGroups';
 import { onAnimationEnded } from '../behaviors/onAnimationEnded';
 import { IdleState } from './IdleState';
 import { setTargetVelocityIfMoving } from '../behaviors/setTargetVelocityIfMoving';
 import { checkIfDropped } from '../behaviors/checkIfDropped';
 
-// Idle Behavior
 export const FallingState: StateSchemaValue = {
-  group: DefaultStateGroups.MOVEMENT,
+  group: CharacterStateGroups.MOVEMENT,
   componentProperties: {
     component: CharacterComponent,
     properties: {
-      ['velocitySimulator.damping']: 0.3,
       ['velocitySimulator.mass']: 100,
-      ['velocityTarget']: { x: 0.05, y: 0, z: 0.05 },
+      ['rotationSimulator.damping']: 0.3,
+      ['velocityTarget']: { x: 0, y: 0, z: 0.05 },
     }
   },
-  onEntry: {
-    any: [
+  onEntry: [
       {
         behavior: initializeCharacterState
       },
@@ -31,12 +29,12 @@ export const FallingState: StateSchemaValue = {
           transitionDuration: 0.3
         }
       }
-    ]
-  },
+    ],
   onUpdate: [
     {
       behavior: updateCharacterState,
-      args: {
+      args:
+      {
         setCameraRelativeOrientationTarget: true
       }
     },
@@ -63,5 +61,3 @@ export const FallingState: StateSchemaValue = {
     }
   ]
 };
-
-

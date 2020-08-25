@@ -1,34 +1,52 @@
-import { StateSchemaValue } from '../../interfaces/StateSchema';
+import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
+import { CharacterComponent } from '../../../character/components/CharacterComponent';
+import { setCharacterAnimation, checkFalling } from '../CharacterStateSchema';
 import { initializeCharacterState, updateCharacterState } from '../behaviors/CharacterBaseBehaviors';
-import { CharacterComponent } from '../../../actor/components/CharacterComponent';
-import { DefaultStateGroups, setCharacterAnimation, checkFalling } from '../CharacterStateSchema';
-// Idle Behavior
+import { CharacterStateGroups } from '../CharacterStateGroups';
+import { onAnimationEnded } from '../behaviors/onAnimationEnded';
+import { IdleState } from './IdleState';
 
 export const IdleRotateRightState: StateSchemaValue = {
-  group: DefaultStateGroups.MOVEMENT,
+  group: CharacterStateGroups.MOVEMENT,
   componentProperties: {
     component: CharacterComponent,
     properties: {
-      ['timer']: 0,
-      ['velocitySimulator.damping']: 0.6,
       ['velocitySimulator.mass']: 10,
+      ['velocitySimulator.damping']: 0.6,
+      ['rotationSimulator.mass']: 30,
+      ['rotationSimulator.damping']: 0.6,
       ['velocityTarget']: { x: 0, y: 0, z: 0 },
-      ['canFindVehiclesToEnter']: true,
-      ['canEnterVehicles']: true,
-      ['canLeaveVehicles']: false
     }
   },
-  onEntry: [
+  onEntry:  [
+      {
+        behavior: initializeCharacterState
+      },
+      {
+        behavior: setCharacterAnimation,
+        args: {
+          name: 'rotate_right',
+          transitionDuration: 0.1
+        }
+      }
+    ],
+  onUpdate: [
     {
-      behavior: initializeCharacterState
+      behavior: updateCharacterState,
+      args: {
+        setCameraRelativeOrientationTarget: true
+      }
     },
     {
-      behavior: setCharacterAnimation,
+      behavior: onAnimationEnded,
       args: {
-        name: 'idle',
-        transitionDuration: 0.1
+        transitionToState: IdleState
       }
+    },
+    {
+      behavior: checkFalling
     }
-  ],
-  onUpdate: [{ behavior: updateCharacterState }, { behavior: checkFalling }]
+  ]
 };
+
+

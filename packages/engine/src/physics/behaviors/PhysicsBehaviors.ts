@@ -86,8 +86,7 @@ export function createSphere (entity: Entity) {
   return body;
 }
 
-export function createConvexGeometry (entity: Entity) {
-  const mesh = getComponent<MeshTagComponent>(entity, MeshTagComponent);
+export function createConvexGeometry (entity: Entity, mesh: any) {
   let rigidBody, object, transform, attributePosition;
   if (mesh) {
     object = mesh;

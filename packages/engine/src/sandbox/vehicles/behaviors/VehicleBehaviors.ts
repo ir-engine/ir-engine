@@ -1,26 +1,18 @@
-import { Behavior } from "../common/interfaces/Behavior";
-import { CharacterComponent } from "../character/components/CharacterComponent";
-import { getMutableComponent, getComponent } from "../ecs/functions/EntityFunctions";
+import { Behavior } from "../../../common/interfaces/Behavior";
+import { CharacterComponent } from "../../../character/components/CharacterComponent";
+import { getMutableComponent, getComponent } from "../../../ecs/functions/EntityFunctions";
+import { TransformComponent } from "../../../transform/components/TransformComponent";
 import { Vector3, Object3D } from "three";
-import { ClosestObjectFinder } from "../classes/core/ClosestObjectFinder";
-import { Vehicle } from "../physics/classes/vehicles/Vehicle";
-import { VehicleEntryInstance } from "../classes/characters/VehicleEntryInstance";
-import { VehicleSeat } from "../physics/classes/vehicles/VehicleSeat";
-import { SeatType } from "../classes/enums/SeatType";
-import { OpenVehicleDoor } from "../classes/characters/character_states/vehicles/OpenVehicleDoor";
-import { EnteringVehicle } from "../classes/characters/character_states/vehicles/EnteringVehicle";
-import { Driving } from "../classes/characters/character_states/vehicles/Driving";
-import { IControllable } from "../classes/interfaces/IControllable";
-import { EntityType } from "../classes/enums/EntityType";
-import { ExitingAirplane } from "../classes/characters/character_states/vehicles/ExitingAirplane";
-import { ExitingVehicle } from "../classes/characters/character_states/vehicles/ExitingVehicle";
-import { Object3DComponent } from "../common/components/Object3DComponent";
-import { TransformComponent } from "../transform/components/TransformComponent";
-import { Engine } from "../ecs/classes/Engine";
-import { Entity } from "../ecs/classes/Entity";
-import { resetVelocity, setPosition } from "../character/behaviors/CharacterMovementBehaviors";
-import { setState, setPhysicsEnabled, inputReceiverInit } from "../character/behaviors/CharacterBehaviors";
-
+import { ClosestObjectFinder } from "../../../character/components/ClosestObjectFinder";
+import { Vehicle } from "../components/Vehicle";
+import { Engine } from "../../../ecs/classes/Engine";
+import { VehicleEntryInstance } from "../classes/VehicleEntryInstance";
+import { VehicleSeat } from "../components/VehicleSeat";
+import { SeatType } from "../enums/SeatType";
+import { Entity } from "../../../ecs/classes/Entity";
+import { Object3DComponent } from "../../../common/components/Object3DComponent";
+import { resetVelocity, rotateModel, setPosition } from "../../../character/behaviors/CharacterMovementBehaviors";
+import { setPhysicsEnabled, inputReceiverInit } from "../../../character/behaviors/CharacterBehaviors";
 
 export const findVehicleToEnter: Behavior = (entity, args: { wantsToDrive: boolean; }): void => {
     const character: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
@@ -91,12 +83,12 @@ export const findVehicleToEnter: Behavior = (entity, args: { wantsToDrive: boole
 export const enterVehicle: Behavior = (entity, args: { seat: VehicleSeat; entryPoint: Object3D; }): void => {
     const character: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 
-    if (args.seat.door?.rotation < 0.5) {
-        setState(entity, { state: new OpenVehicleDoor(character, args.seat, args.entryPoint) });
-    }
-    else {
-        setState(entity, { state: new EnteringVehicle(character, args.seat, args.entryPoint) });
-    }
+    // if (args.seat.door?.rotation < 0.5) {
+    //     setState(entity, { state: new OpenVehicleDoor(character, args.seat, args.entryPoint) });
+    // }
+    // else {
+    //     setState(entity, { state: new EnteringVehicle(character, args.seat, args.entryPoint) });
+    // }
 };
 
 export const teleportToVehicle: Behavior = (entity: Entity, args: { vehicle: Vehicle; seat: VehicleSeat; }): void => {
@@ -107,18 +99,18 @@ export const teleportToVehicle: Behavior = (entity: Entity, args: { vehicle: Veh
     rotateModel(entity);
     setPhysicsEnabled(entity, false);
     // TODO: Attach is object3d
-    args.vehicle.attach(characterObject3D.value);
+    // args.vehicle.attach(characterObject3D.value);
 
-    setPosition(entity, { x: args.seat.seatPointObject.position.x, y: args.seat.seatPointObject.position.y + 0.6, z: args.seat.seatPointObject.position.z });
-    character.quaternion.copy(args.seat.seatPointObject.quaternion);
+    // setPosition(entity, { x: args.seat.seatPointObject.position.x, y: args.seat.seatPointObject.position.y + 0.6, z: args.seat.seatPointObject.position.z });
+    // character.quaternion.copy(args.seat.seatPointObject.quaternion);
 
-    occupySeat(entity, args.seat);
-    setState(entity, { state: new Driving(character, args.seat) });
+    // occupySeat(entity, args.seat);
+    // setState(entity, { state: new Driving(character, args.seat) });
 
-    startControllingVehicle(entity, { vehicle: args.vehicle, seat: args.seat });
+    // startControllingVehicle(entity, { vehicle: args.vehicle, seat: args.seat });
 };
 
-export const startControllingVehicle: Behavior = (entity, args: { vehicle: IControllable; seat: VehicleSeat; }): void => {
+export const startControllingVehicle: Behavior = (entity, args: { vehicle: any; seat: VehicleSeat; }): void => {
     const character: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 
     // if (character.controlledObject !== vehicle)
@@ -155,16 +147,16 @@ export const stopControllingVehicle: Behavior = (entity: Entity): void => {
 export const exitVehicle: Behavior = (entity: Entity): void => {
     const character: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 
-    if (character.occupyingSeat !== null) {
-        if (character.occupyingSeat.vehicle.entityType === EntityType.Airplane) {
-            setState(entity, { state: new ExitingAirplane(character, character.occupyingSeat) });
-        }
-        else {
-            setState(entity, { state: new ExitingVehicle(character, character.occupyingSeat) });
-        }
+    // if (character.occupyingSeat !== null) {
+    //     if (character.occupyingSeat.vehicle.entityType === EntityType.Airplane) {
+    //         setState(entity, { state: new ExitingAirplane(character, character.occupyingSeat) });
+    //     }
+    //     else {
+    //         setState(entity, { state: new ExitingVehicle(character, character.occupyingSeat) });
+    //     }
 
-        stopControllingVehicle(entity);
-    }
+    //     stopControllingVehicle(entity);
+    // }
 };
 
 export const occupySeat: Behavior = (entity, args: { seat: VehicleSeat; }): void => {

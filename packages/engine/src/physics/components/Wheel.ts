@@ -1,4 +1,4 @@
-import { WheelInfo } from 'cannon-es';
+import { Component } from "../../ecs/classes/Component";
 
 export class Wheel extends Component<Wheel>
 {
@@ -8,21 +8,18 @@ export class Wheel extends Component<Wheel>
 	public drive: string; // Drive type "fwd" or "rwd"
 	public rayCastWheelInfoIndex: number; // Linked to a raycast vehicle WheelInfo structure
 
-	constructor(wheelObject: THREE.Object3D)
-	{
+	constructor(wheelObject: THREE.Object3D) {
+		super();
 		this.wheelObject = wheelObject;
 
 		this.position = wheelObject.position;
 
-		if (wheelObject.hasOwnProperty('userData') && wheelObject.userData.hasOwnProperty('data'))
-		{
-			if (wheelObject.userData.hasOwnProperty('steering')) 
-			{
+		if (wheelObject.hasOwnProperty('userData') && wheelObject.userData.hasOwnProperty('data')) {
+			if (wheelObject.userData.hasOwnProperty('steering')) {
 				this.steering = (wheelObject.userData.steering === 'true');
 			}
 
-			if (wheelObject.userData.hasOwnProperty('drive')) 
-			{
+			if (wheelObject.userData.hasOwnProperty('drive')) {
 				this.drive = wheelObject.userData.drive;
 			}
 		}

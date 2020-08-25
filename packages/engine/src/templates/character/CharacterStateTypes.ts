@@ -1,4 +1,4 @@
-export const DefaultStateTypes = {
+export const CharacterStateTypes = {
   // Main States
   IDLE: 0,
   JUMP_IDLE: 1,

@@ -2,15 +2,14 @@ import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { CharacterComponent } from '../../../character/components/CharacterComponent';
 import { setCharacterAnimation, checkFalling } from '../CharacterStateSchema';
 import { initializeCharacterState, updateCharacterState } from '../behaviors/CharacterBaseBehaviors';
-import { DefaultStateGroups } from '../CharacterStateGroups';
+import { CharacterStateGroups } from '../CharacterStateGroups';
 import { onAnimationEnded } from '../behaviors/onAnimationEnded';
 import { IdleState } from './IdleState';
 import { StartWalkForwardState } from './StartWalkForwardState';
 import { checkMoving } from '../behaviors/checkMoving';
 
-// Idle Behavior
 export const DropIdleState: StateSchemaValue = {
-  group: DefaultStateGroups.MOVEMENT,
+  group: CharacterStateGroups.MOVEMENT,
   componentProperties: {
     component: CharacterComponent,
     properties: {
@@ -19,8 +18,7 @@ export const DropIdleState: StateSchemaValue = {
       ['velocityTarget']: { x: 0, y: 0, z: 0 },
     }
   },
-  onEntry: {
-    any: [
+  onEntry: [
       {
         behavior: initializeCharacterState
       },
@@ -31,8 +29,7 @@ export const DropIdleState: StateSchemaValue = {
           transitionDuration: 0.1
         }
       }
-  ]
-},
+  ],
   onUpdate: [
     { behavior: updateCharacterState,
     args: {
