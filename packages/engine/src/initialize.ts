@@ -63,6 +63,9 @@ export const DefaultInitializationOptions = {
   }
 };
 
+let engineTimer:{ start: Function, stop: Function } = null
+let engineTimerTimeout;
+
 export function initializeEngine (options: any = DefaultInitializationOptions) {
   console.log(options)
   // Create a new world -- this holds all of our simulation state, entities, etc
@@ -145,12 +148,23 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
   }
 
   // Start our timer!
-  if (isBrowser) setTimeout(startTimer, 1000);
+  if (isBrowser) {
+    engineTimerTimeout = setTimeout(startTimer, 1000);
+  }
+}
+
+export function resetEngine() {
+  if (engineTimerTimeout) {
+    clearTimeout(engineTimerTimeout)
+  }
+  engineTimer?.stop()
+
+  Engine.reset()
 }
 
 export function startTimer () {
   setTimeout(() => {
-    Timer({
+    engineTimer = Timer({
       update: (delta, elapsedTime) => execute(delta, elapsedTime)
     }).start();
   }, 1);

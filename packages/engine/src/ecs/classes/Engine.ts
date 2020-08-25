@@ -140,4 +140,33 @@ public static framerateLimit = 60;
   static systemsToExecute: any[] = []
     static vehicles: any;
     static physicsFrameRate: number;
+
+  static reset():void {
+    // delete all entities
+    // TODO: force components deletion and systems processing of their deletion?
+    // TODO: cleanup
+    this.nextEntityId = 0
+
+    // cleanup/unregister components
+    // TODO: cleanup
+    this.nextComponentId = 0
+
+    // cleanup systems
+    this.systems.forEach(system => {
+      if (system.dispose) system.dispose()
+    })
+    this.systems.length = 0
+    this.systemsToExecute.length = 0
+
+    // cleanup events
+    this.eventDispatcher.reset()
+
+    // TODO: delete all what is left from scene
+    this.scene = null
+
+    this.camera = null
+
+    this.renderer.dispose()
+    this.renderer = null
+  }
 }
