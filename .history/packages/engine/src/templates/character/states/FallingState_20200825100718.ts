@@ -1,0 +1,42 @@
+import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
+import { CharacterComponent } from '../../../character/components/CharacterComponent';
+import { setCharacterAnimation, checkFalling } from '../CharacterStateSchema';
+import { initializeCharacterState, updateCharacterState } from '../behaviors/CharacterBaseBehaviors';
+import { DefaultStateGroups } from '../CharacterStateGroups';
+import { onAnimationEnded } from '../behaviors/onAnimationEnded';
+import { IdleState } from './IdleState';
+
+// Idle Behavior
+export const FallingState: StateSchemaValue = {
+  group: DefaultStateGroups.MOVEMENT,
+  componentProperties: {
+    component: CharacterComponent,
+    properties: {
+      ['velocityTarget']: { x: 0, y: 0, z: 0 },
+    }
+  },
+  onEntry: {
+    any: [
+      {
+        behavior: initializeCharacterState
+      },
+      {
+        behavior: setCharacterAnimation,
+        args: {
+          name: 'stop',
+          transitionDuration: 0.1
+        }
+      }
+  ]
+},
+  onUpdate: [
+      { behavior: onAnimationEnded,
+        args: {
+          transitionToState: IdleState
+        }
+    },
+    {
+      behavior: checkFalling
+    }
+  ]
+};
