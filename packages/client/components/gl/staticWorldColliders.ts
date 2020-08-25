@@ -1,6 +1,6 @@
 import { BoxBufferGeometry, Mesh } from "three";
 import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
-import { addObject3DComponent } from "@xr3ngine/engine/src/common/defaults/behaviors/Object3DBehaviors";
+import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
 import { addMeshCollider } from "@xr3ngine/engine/src/physics/behaviors/addMeshCollider";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 

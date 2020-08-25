@@ -119,7 +119,7 @@ export class Proxy extends Object3D {
 
           // change it to use the material specified in the url hash
           if (this.materialName) {
-            const materialIndex = _.findIndex(material, m => m.name === this.materialName)
+            const materialIndex = _.findIndex(material, m => (m as any).name === this.materialName)
             this.changeMaterial(materialIndex)
           }
 

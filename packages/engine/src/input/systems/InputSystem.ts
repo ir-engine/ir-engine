@@ -4,7 +4,7 @@ import { initializeSession, processSession } from '../behaviors/WebXRInputBehavi
 import { Input } from '../components/Input';
 import { WebXRRenderer } from '../components/WebXRRenderer';
 import { WebXRSession } from '../components/WebXRSession';
-import { DefaultInputSchema } from '../../templates/character/CharacterInputSchema';
+import { CharacterInputSchema } from '../../templates/character/CharacterInputSchema';
 import { initVR } from '../functions/WebXRFunctions';
 import { getMutableComponent, getComponent } from '../../ecs/functions/EntityFunctions';
 
@@ -47,7 +47,7 @@ export class InputSystem extends System {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
       // If input doesn't have a map, set the default
-      if (this._inputComponent.schema === undefined) this._inputComponent.schema = DefaultInputSchema;
+      if (this._inputComponent.schema === undefined) this._inputComponent.schema = CharacterInputSchema;
       // Call all behaviors in "onAdded" of input map
       this._inputComponent.schema.onAdded.forEach(behavior => {
         behavior.behavior(entity, { ...behavior.args });

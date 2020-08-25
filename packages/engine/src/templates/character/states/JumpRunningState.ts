@@ -1,34 +1,38 @@
-import { StateSchemaValue } from '../../interfaces/StateSchema';
+import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
+import { CharacterComponent } from '../../../character/components/CharacterComponent';
+import { setCharacterAnimation } from '../CharacterStateSchema';
 import { initializeCharacterState, updateCharacterState } from '../behaviors/CharacterBaseBehaviors';
-import { CharacterComponent } from '../../../actor/components/CharacterComponent';
-import { DefaultStateGroups, setCharacterAnimation, checkFalling } from '../CharacterStateSchema';
-// Idle Behavior
+import { CharacterStateGroups } from '../CharacterStateGroups';
+import { jumpRunning } from '../behaviors/jump';
 
 export const JumpRunningState: StateSchemaValue = {
-  group: DefaultStateGroups.MOVEMENT,
+  group: CharacterStateGroups.MOVEMENT,
   componentProperties: {
     component: CharacterComponent,
     properties: {
-      ['timer']: 0,
-      ['velocitySimulator.damping']: 0.6,
-      ['velocitySimulator.mass']: 10,
+      ['velocitySimulator.mass']: 100,
       ['velocityTarget']: { x: 0, y: 0, z: 0 },
-      ['canFindVehiclesToEnter']: true,
-      ['canEnterVehicles']: true,
-      ['canLeaveVehicles']: false
+      ['alreadyJumped']: false
     }
   },
-  onEntry: [
-    {
-      behavior: initializeCharacterState
-    },
-    {
-      behavior: setCharacterAnimation,
-      args: {
-        name: 'idle',
-        transitionDuration: 0.1
+  onEntry:  [
+      {
+        behavior: initializeCharacterState
+      },
+      {
+        behavior: setCharacterAnimation,
+        args: {
+          name: 'jump_running',
+          transitionDuration: 0.03
+        }
       }
-    }
   ],
-  onUpdate: [{ behavior: updateCharacterState }, { behavior: checkFalling }]
+  onUpdate: [
+    { behavior: updateCharacterState,
+    args: {
+      setCameraRelativeOrientationTarget: true
+    }
+  },
+    { behavior: jumpRunning }
+  ]
 };

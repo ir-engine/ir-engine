@@ -1,14 +1,11 @@
-import { PostProcessingSchema } from '../interfaces/PostProcessingSchema';
+import { PostProcessingSchema } from '../../postprocessing/interfaces/PostProcessingSchema';
 import { SSAOEffect } from '../../postprocessing/effects/SSAOEffect';
 import { BloomEffect } from '../../postprocessing/effects/BloomEffect';
 import { BlendFunction } from '../../postprocessing/effects/blending/BlendFunction';
 import { KernelSize } from '../../postprocessing/materials/ConvolutionMaterial';
 import { ToneMappingEffect } from '../../postprocessing/effects/ToneMappingEffect';
-import { BrightnessContrastEffect } from '../../postprocessing/effects/BrightnessContrastEffect';
 import { HueSaturationEffect } from '../../postprocessing/effects/HueSaturationEffect';
 import { DepthOfFieldEffect } from '../../postprocessing/effects/DepthOfFieldEffect';
-import { GodRaysEffect } from '../../postprocessing/effects/GodRaysEffect';
-import { ColorDepthEffect } from '../../postprocessing/effects/ColorDepthEffect';
 
 export const DefaultPostProcessingSchema: PostProcessingSchema = {
   effects: [

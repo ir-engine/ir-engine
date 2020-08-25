@@ -17,17 +17,11 @@ export interface StateSchemaValue {
         [key: string]: any
       }
     }
-    onEntry?: {
-      any: BehaviorAlias[]
-      [key: string]: BehaviorAlias[]
-    }
+    onEntry?: BehaviorAlias[]
     onChanged?: BehaviorAlias[]
     onUpdate?: BehaviorAlias[]
     onLateUpdate?: BehaviorAlias[]
-    onExit?: {
-      any: BehaviorAlias[]
-      [key: string]: BehaviorAlias[]
-    }
+    onExit?: BehaviorAlias[]
 }
 
 export interface BehaviorAlias {

@@ -1,23 +1,23 @@
 // Components
 import { BoxBufferGeometry, Mesh } from 'three';
-import { addObject3DComponent, removeObject3DComponent } from '../../common/defaults/behaviors/Object3DBehaviors';
 import { addMeshCollider } from '../../physics/behaviors/addMeshCollider';
-import { CharacterComponent } from '../../actor/components/CharacterComponent';
 import { Input } from '../../input/components/Input';
 import { State } from '../../state/components/State';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { NetworkObject } from '../components/NetworkObject';
-import { MessageTypes } from '../enums/MessageTypes';
-import { handleClientConnected, handleClientDisconnected, handleMessage } from '../functions/NetworkFunctions';
-import { NetworkPrefab } from '../interfaces/NetworkPrefab';
-import { NetworkSchema } from '../interfaces/NetworkSchema';
 import { DefaultMessageSchema } from './DefaultMessageSchema';
 import { DefaultMessageTypes } from './DefaultMessageTypes';
-import { DefaultStateSchema } from '../../state/defaults/DefaultStateSchema';
-import { DefaultInputSchema } from '../../templates/character/CharacterInputSchema';
+import { CharacterInputSchema } from '../../templates/character/CharacterInputSchema';
 import { Subscription } from '../../subscription/components/Subscription';
-import { DefaultSubscriptionSchema } from '../character/DefaultSubscriptionSchema';
+import { CharacterSubscriptionSchema } from '../character/CharacterSubscriptionSchema';
 import { attachCamera } from '../../camera/behaviors/attachCamera';
+import { NetworkPrefab } from '../../networking/interfaces/NetworkPrefab';
+import { NetworkObject } from '../../networking/components/NetworkObject';
+import { CharacterComponent } from '../../character/components/CharacterComponent';
+import { CharacterStateSchema } from '../character/CharacterStateSchema';
+import { addObject3DComponent, removeObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
+import { NetworkSchema } from '../../networking/interfaces/NetworkSchema';
+import { MessageTypes } from '../../networking/enums/MessageTypes';
+import { handleClientConnected, handleClientDisconnected, handleMessage } from '../../networking/functions/NetworkFunctions';
 
 const box = new BoxBufferGeometry(0.25, 0.25, 0.25);
 const miniGeo = new BoxBufferGeometry(2, 1, 4);
@@ -32,9 +32,9 @@ const NetworkPlayerCharacter: NetworkPrefab = {
   ],
   // These are only created for the local player who owns this prefab
   components: [
-    { type: Input, data: { schema: DefaultInputSchema } },
-    { type: State, data: { schema: DefaultStateSchema } },
-    { type: Subscription, data: { schema: DefaultSubscriptionSchema } }
+    { type: Input, data: { schema: CharacterInputSchema } },
+    { type: State, data: { schema: CharacterStateSchema } },
+    { type: Subscription, data: { schema: CharacterSubscriptionSchema } }
   ],
   onCreate: [
     {

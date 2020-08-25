@@ -1,22 +1,16 @@
-import { StateSchemaValue } from '../interfaces/StateSchema';
-import { DefaultStateTypes } from './DefaultStateTypes';
-import { initializeCharacterState, updateCharacterState } from '../../actor/classes/characters/character_states/CharacterStateBase';
-import { CharacterComponent } from '../../actor/components/CharacterComponent';
-import { setCameraRelativeOrientationTarget } from '../../actor/behaviors/CharacterMovementBehaviors';
-import { DefaultStateGroups, setCharacterAnimation, checkFalling } from './DefaultStateSchema';
+import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
+import { CharacterComponent } from '../../../character/components/CharacterComponent';
+import { setCharacterAnimation, checkFalling } from '../CharacterStateSchema';
+import { initializeCharacterState, updateCharacterState } from '../behaviors/CharacterBaseBehaviors';
+import { CharacterStateGroups } from '../CharacterStateGroups';
 
 export const WalkState: StateSchemaValue = {
-  group: DefaultStateGroups.MOVEMENT,
+  group: CharacterStateGroups.MOVEMENT,
   componentProperties: {
     component: CharacterComponent,
     properties: {
-      ['timer']: 0,
-      ['velocitySimulator.damping']: 0.6,
-      ['velocitySimulator.mass']: 10,
-      ['velocityTarget']: { x: 0, y: 0, z: 0 },
-      ['canFindVehiclesToEnter']: true,
       ['canEnterVehicles']: true,
-      ['canLeaveVehicles']: false
+      ['arcadeVelocityTarget']: { x: 0.0, y: 0.0, z: 0.8 },
     }
   },
   onEntry: [
@@ -24,7 +18,6 @@ export const WalkState: StateSchemaValue = {
       behavior: initializeCharacterState
     },
     {
-      from: DefaultStateTypes.IDLE,
       behavior: setCharacterAnimation,
       args: {
         name: 'run',
@@ -32,5 +25,15 @@ export const WalkState: StateSchemaValue = {
       }
     }
   ],
-  onUpdate: [{ behavior: updateCharacterState }, { behavior: setCameraRelativeOrientationTarget }, { behavior: checkFalling }],
+  onUpdate: [
+    {
+      behavior: updateCharacterState,
+      args: {
+        setCameraRelativeOrientationTarget: true
+      }
+    },
+    {
+      behavior: checkFalling
+    }
+  ]
 };

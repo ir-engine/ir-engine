@@ -1,8 +1,8 @@
-import { jump } from '../../common/defaults/behaviors/jump';
-import { move } from '../../common/defaults/behaviors/move';
-import { rotateAround } from '../../common/defaults/behaviors/rotate';
-import { rotateStart } from '../../common/defaults/behaviors/updateLookingState';
-import { updateMovementState } from '../../common/defaults/behaviors/updateMovementState';
+import { initJump } from './behaviors/jump';
+import { move } from './behaviors/move';
+import { rotateAround } from './behaviors/rotate';
+import { rotateStart } from './behaviors/updateLookingState';
+import { updateMovementState } from './behaviors/updateMovementState';
 import { BinaryValue } from '../../common/enums/BinaryValue';
 import { Thumbsticks } from '../../common/enums/Thumbsticks';
 import { disableScroll, enableScroll } from '../../common/functions/enableDisableScrolling';
@@ -17,7 +17,7 @@ import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
 import { DefaultInput } from '../shared/DefaultInput';
 
-export const DefaultInputSchema: InputSchema = {
+export const CharacterInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
   onAdded: [
     {
@@ -175,17 +175,15 @@ export const DefaultInputSchema: InputSchema = {
     a: DefaultInput.LEFT,
     s: DefaultInput.BACKWARD,
     d: DefaultInput.RIGHT,
-    ' ': DefaultInput.JUMP,
-    shift: DefaultInput.CROUCH
-  },
+    ' ': DefaultInput.JUMP
+    },
   // Map how inputs relate to each other
   inputRelationships: {
     [DefaultInput.FORWARD]: { opposes: [DefaultInput.BACKWARD] } as InputRelationship,
     [DefaultInput.BACKWARD]: { opposes: [DefaultInput.FORWARD] } as InputRelationship,
     [DefaultInput.LEFT]: { opposes: [DefaultInput.RIGHT] } as InputRelationship,
     [DefaultInput.RIGHT]: { opposes: [DefaultInput.LEFT] } as InputRelationship,
-    [DefaultInput.CROUCH]: { blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT] } as InputRelationship,
-    [DefaultInput.JUMP]: { overrides: [DefaultInput.CROUCH] } as InputRelationship
+    [DefaultInput.JUMP]: { } as InputRelationship
   },
   // onInputButtonBehavior: {
   //     [BinaryValue.ON]: {
@@ -206,7 +204,7 @@ export const DefaultInputSchema: InputSchema = {
       [BinaryValue.ON]: {
         started: [
           {
-            behavior: jump,
+            behavior: initJump,
             args: {}
           }
         ]

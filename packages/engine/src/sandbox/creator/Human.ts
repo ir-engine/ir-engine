@@ -12,7 +12,7 @@ import _ from "lodash"
 import * as qs from "qs"
 import TWEEN from "tween"
 import { deepParseFloat, deepRoundValues, remapKeyValuesDeep } from "../../common/functions/MakeHumanHelpers"
-import poses from "../../character/json/poses/poses.json"
+import poses from "./json/poses/poses.json"
 import { EthnicSkinBlender } from "./EthnicSkinBlender"
 import Factors from "./Factors"
 import Modifiers from "./Modifier"
@@ -633,7 +633,7 @@ export class Human extends BaseHuman {
   }
 
   /** Call before render **/
-  onBeforeRender() {
+  onBeforeRender = () => {
     TWEEN.update()
     this.targets.applyTargets()
     if (this.mesh && this.mesh.geometry.elementsNeedUpdate) {

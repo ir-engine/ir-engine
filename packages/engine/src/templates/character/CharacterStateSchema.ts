@@ -1,31 +1,28 @@
-import { decelerate } from '../../common/defaults/behaviors/decelerate';
-import { jumping } from '../../common/defaults/behaviors/jump';
-import { StateSchema } from '../interfaces/StateSchema';
-import { DefaultStateTypes } from './CharacterStateTypes';
-import { CharacterComponent } from '../../actor/components/CharacterComponent';
+import { StateSchema } from '../../state/interfaces/StateSchema';
+import { CharacterStateTypes } from './CharacterStateTypes';
+import { CharacterComponent } from '../../character/components/CharacterComponent';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { getMutableComponent, getComponent } from '../../ecs/functions/EntityFunctions';
 import { AnimationClip } from 'three';
-import { IdleState } from './CharacterStates/IdleState';
-import { WalkState } from './WalkState';
-import { DropIdleState } from './CharacterStates/DropIdleState';
-import { DropRollingState } from './CharacterStates/DropRollingState';
-import { DropRunningState } from './CharacterStates/DropRunningState';
-import { FallingState } from './CharacterStates/FallingState';
-import { IdleRotateLeftState } from './CharacterStates/IdleRotateLeftState';
-import { IdleRotateRightState } from './CharacterStates/IdleRotateRightState';
-import { JumpIdleState } from './CharacterStates/JumpIdleState';
-import { JumpRunningState } from './CharacterStates/JumpRunningState';
-import { SprintState } from './CharacterStates/SprintState';
-import { StartWalkForwardState } from './CharacterStates/StartWalkForwardState';
-import { StartWalkLeftState } from './CharacterStates/StartWalkLeftState';
-import { StartWalkRightState } from './CharacterStates/StartWalkRightState';
-import { EndWalkState } from './CharacterStates/EndWalkState';
-import { StartWalkBackRightState } from './CharacterStates/StartWalkBackRightState';
-import { StartWalkBackLeftState } from './CharacterStates/StartWalkBackLeftState';
-import { DefaultStateGroups } from './CharacterStateGroups';
+import { IdleState } from './states/IdleState';
+import { WalkState } from './states/WalkState';
+import { DropIdleState } from './states/DropIdleState';
+import { DropRollingState } from './states/DropRollingState';
+import { DropRunningState } from './states/DropRunningState';
+import { FallingState } from './states/FallingState';
+import { IdleRotateLeftState } from './states/IdleRotateLeftState';
+import { IdleRotateRightState } from './states/IdleRotateRightState';
+import { JumpIdleState } from './states/JumpIdleState';
+import { JumpRunningState } from './states/JumpRunningState';
+import { SprintState } from './states/SprintState';
+import { StartWalkForwardState } from './states/StartWalkForwardState';
+import { StartWalkLeftState } from './states/StartWalkLeftState';
+import { StartWalkRightState } from './states/StartWalkRightState';
+import { EndWalkState } from './states/EndWalkState';
+import { StartWalkBackRightState } from './states/StartWalkBackRightState';
+import { StartWalkBackLeftState } from './states/StartWalkBackLeftState';
+import { CharacterStateGroups } from './CharacterStateGroups';
 import { addState } from '../../state/behaviors/StateBehaviors';
-
 
 export const checkFalling: Behavior = (entity) =>
 {
@@ -53,31 +50,31 @@ export const setCharacterAnimation: Behavior = (entity, args: { name: string, tr
     }
 
     export const CharacterStates = {
-      [DefaultStateTypes.DROP_IDLE]: DropIdleState,
-      [DefaultStateTypes.DROP_ROLLING]: DropRollingState,
-      [DefaultStateTypes.DROP_RUNNING]: DropRunningState,
-      [DefaultStateTypes.FALLING]: FallingState,
-      [DefaultStateTypes.IDLE]: IdleState,
-      [DefaultStateTypes.WALK]: WalkState,
-      [DefaultStateTypes.IDLE_ROTATE_LEFT]: IdleRotateLeftState,
-      [DefaultStateTypes.IDLE_ROTATE_RIGHT]: IdleRotateRightState,
-      [DefaultStateTypes.JUMP_IDLE]: JumpIdleState,
-      [DefaultStateTypes.JUMP_RUNNING]: JumpRunningState,
-      [DefaultStateTypes.SPRINT]: SprintState,
-      [DefaultStateTypes.WALK_END]: EndWalkState,
-      [DefaultStateTypes.WALK_START_BACK_LEFT]: StartWalkBackLeftState,
-      [DefaultStateTypes.WALK_START_BACK_RIGHT]: StartWalkBackRightState,
-      [DefaultStateTypes.WALK_START_FORWARD]: StartWalkForwardState,
-      [DefaultStateTypes.WALK_START_LEFT]: StartWalkLeftState,
-      [DefaultStateTypes.WALK_START_RIGHT]: StartWalkRightState
+      [CharacterStateTypes.DROP_IDLE]: DropIdleState,
+      [CharacterStateTypes.DROP_ROLLING]: DropRollingState,
+      [CharacterStateTypes.DROP_RUNNING]: DropRunningState,
+      [CharacterStateTypes.FALLING]: FallingState,
+      [CharacterStateTypes.IDLE]: IdleState,
+      [CharacterStateTypes.WALK]: WalkState,
+      [CharacterStateTypes.IDLE_ROTATE_LEFT]: IdleRotateLeftState,
+      [CharacterStateTypes.IDLE_ROTATE_RIGHT]: IdleRotateRightState,
+      [CharacterStateTypes.JUMP_IDLE]: JumpIdleState,
+      [CharacterStateTypes.JUMP_RUNNING]: JumpRunningState,
+      [CharacterStateTypes.SPRINT]: SprintState,
+      [CharacterStateTypes.WALK_END]: EndWalkState,
+      [CharacterStateTypes.WALK_START_BACK_LEFT]: StartWalkBackLeftState,
+      [CharacterStateTypes.WALK_START_BACK_RIGHT]: StartWalkBackRightState,
+      [CharacterStateTypes.WALK_START_FORWARD]: StartWalkForwardState,
+      [CharacterStateTypes.WALK_START_LEFT]: StartWalkLeftState,
+      [CharacterStateTypes.WALK_START_RIGHT]: StartWalkRightState
     }
 
-export const DefaultStateSchema: StateSchema = {
+export const CharacterStateSchema: StateSchema = {
   groups: {
     // We explicitly list all states in the group so they can override each other
-    [DefaultStateGroups.MOVEMENT]: {
+    [CharacterStateGroups.MOVEMENT]: {
       exclusive: true,
-      default: DefaultStateTypes.IDLE,
+      default: CharacterStateTypes.IDLE,
       states: Object.keys(CharacterStates)
     }
   },

@@ -2,7 +2,6 @@ import React, { Component, useEffect, FunctionComponent, useState } from 'react'
 import { initializeEngine, DefaultInitializationOptions } from "@xr3ngine/engine/src/initialize";
 import { PlayerController } from "../gl/PlayerController";
 import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
-import { DefaultNetworkSchema } from '@xr3ngine/engine/src/networking/defaults/DefaultNetworkSchema';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import Terminal from '../terminal';
@@ -14,8 +13,9 @@ import { AssetClass } from '@xr3ngine/engine/src/assets/enums/AssetClass';
 
 import { staticWorldColliders } from './staticWorldColliders'
 import { rigidBodyBox } from './rigidBodyBox'
-import { addObject3DComponent } from '@xr3ngine/engine/src/common/defaults/behaviors/Object3DBehaviors';
+import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
 import { AmbientLight } from 'three';
+import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/network/DefaultNetworkSchema';
 
 export const EnginePage: FunctionComponent = (props: any) => {
 

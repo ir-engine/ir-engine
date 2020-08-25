@@ -17,11 +17,10 @@ const DefaultJumpData = {
 };
 
 export class CharacterComponent extends Component<CharacterComponent> {
-
 // TODO: Move these... but for now...
 	public currentAnimationLength: number = 0
 	public timer = 0
-	
+
 	public height: number = 0;
 	public tiltContainer: Group;
 	public modelContainer: Group;
@@ -71,6 +70,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	canFindVehiclesToEnter: boolean;
 	canEnterVehicles: boolean;
 	canLeaveVehicles: boolean;
+  	alreadyJumped: boolean;
   
   // TODO: Character Shchema input
   constructor(character, characterSchema: any){

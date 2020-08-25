@@ -3,7 +3,7 @@ import { AmbientLight, DirectionalLight, HemisphereLight, Mesh, PointLight, Spot
 import GLTFLoader from 'three-gltf-loader';
 import { Sky } from 'three/examples/jsm/objects/Sky';
 import { VisibleTagComponent } from '../../common/components/Object3DTagComponents';
-import { addObject3DComponent, addTagComponentFromBehavior } from '../../common/defaults/behaviors/Object3DBehaviors';
+import { addObject3DComponent, addTagComponentFromBehavior } from '../../common/behaviors/Object3DBehaviors';
 import { addComponent } from '../../ecs/functions/EntityFunctions';
 import createSkybox from '../components/createSkybox';
 import CollidableTagComponent from '../components/Collidable';

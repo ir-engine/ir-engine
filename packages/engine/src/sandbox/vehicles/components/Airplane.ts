@@ -5,7 +5,6 @@ import { SpringSimulator } from '../physics/spring_simulation/SpringSimulator';
 
 export class Airplane extends Vehicle
 {
-	public entityType: EntityType = EntityType.Airplane;
 	public rotor: THREE.Object3D;
 	public leftAileron: THREE.Object3D;
 	public rightAileron: THREE.Object3D;
