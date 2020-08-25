@@ -10,9 +10,11 @@ import { addClient, initializeClient, removeClient } from "@xr3ngine/engine/src/
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
 import { DataConsumer, DataConsumerOptions, DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
-import { UnreliableMessageParams, UnreliableMessageReturn } from "@xr3ngine/engine/src/networking/types/NetworkingTypes";
+import { UnreliableMessageParams, UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine/src/networking/types/NetworkingTypes";
 
 const Device = mediasoupClient.Device;
+
+const DEFAULT_DATA_CHANNEl = 'default'
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
   mediasoupDevice: mediasoupClient.Device
@@ -56,79 +58,75 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   // make sure the data producer/data channel exists before subscribing to it
   async subscribeToDataChannel(
-    channel: string,
     callback: (message: any) => void,
-    params: { type?: string } = {}
+    channel: string = DEFAULT_DATA_CHANNEl, // set channel to default for now
+    params: { type?: UnreliableMessageType } = {}
   ): Promise<DataConsumer | Error> {
     // Check if data channel/data-producer exists
     if (!this.dataProducers.get(channel)) {
       return Promise.reject(new Error("Channel producer doesn't exist"));
-    } else if (this.dataConsumers.get(channel)) {
-      return Promise.reject(new Error("Data Channel Consumer already exists!"));
     }
-    await this.initReceiveTransport();
+    // else if (this.dataConsumers.get(channel)) {
+    //   return Promise.reject(new Error("Data Channel Consumer already exists!"));
+    // }
     try {
-      const dataProducerId = this.dataProducers.get(channel).id;
-      console.log("Requesting data consumer from server");
-      const {
-        dataConsumerOptions,
-        error
-      }: {
-        error: any;
-        dataConsumerOptions: DataConsumerOptions;
-      } = await this.request(MessageTypes.WebRTCConsumeData.toString(), {
-        consumerOptions: {
+      let dataConsumer = this.dataConsumers.get(channel)
+      if (!dataConsumer) {
+        // return Promise.reject(new Error("Data Channel Consumer already exists!"));
+        const dataProducerId = this.dataProducers.get(channel).id
+        console.log('Requesting data consumer from server')
+        const {
+          dataConsumerOptions,
+          error,
+        }: {
+          error: any
+          dataConsumerOptions: DataConsumerOptions
+        } = await this.request(MessageTypes.WebRTCConsumeData.toString(), {
+          consumerOptions: {
+            dataProducerId,
+            // appData, Probably Add additional info to send to server
+            maxRetransmits: 3,
+            ordered: false,
+          } as MediaSoupServerTypes.DataConsumerOptions,
+          transportId: this.recvTransport.id,
+        })
+        if (error) {
+          throw error
+        }
+        console.log('Receiving options for data consumer from server')
+        console.log('subscribing to consumer for data channel:', channel)
+        dataConsumer = await this.recvTransport.consumeData({
+          ...dataConsumerOptions,
           dataProducerId,
-          // appData, Probably Add additional info to send to server
-          maxRetransmits: 3,
-          ordered: false
-        } as MediaSoupServerTypes.DataConsumerOptions,
-        transportId: this.recvTransport.id
-      });
-      if (error) {
-        throw error;
+          label: channel,
+          protocol: params.type || 'json', // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
+        })
+        dataConsumer.on('transportclose', () => {
+          this.dataConsumers.delete(channel)
+        })
+        dataConsumer.on('producerclose', () => {
+          this.dataConsumers.delete(channel)
+        })
+        this.dataConsumers.set(channel, dataConsumer)
       }
-      console.log("Receiving options for data consumer from server");
-      console.log("subscribing to consumer for data channel:", channel);
-      const clientDataConsumer = await this.recvTransport.consumeData({
-        ...dataConsumerOptions,
-        dataProducerId,
-        label: channel,
-        protocol: params.type || "json" // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
-      });
-      clientDataConsumer.on("transportclose", () => {
-        this.dataConsumers.delete(channel);
-      });
-      clientDataConsumer.on("producerclose", () => {
-        this.dataConsumers.delete(channel);
-      });
-      clientDataConsumer.on("message", this.handleConsumerMessage(clientDataConsumer, channel, callback));
+      dataConsumer.on("message", this.handleConsumerMessage(dataConsumer, channel, callback));
       console.log("subscribed to consumer for data channel");
-      this.dataConsumers.set(channel, clientDataConsumer);
-      return Promise.resolve(clientDataConsumer);
+      return Promise.resolve(dataConsumer);
     } catch (e) {
       console.log("consumer subscription failed! err:", e);
       return Promise.reject(e);
     }
   }
 
-  // This sends message on a data channel (data channel creation is implicit)
-  async sendUnreliableMessage({
-    channel,
-    data,
-    type = "json"
-  }: UnreliableMessageParams): Promise<UnreliableMessageReturn> {
+  // separating send and init to make it a bit more readable
+  // sendTransport should be available before initializing data channel
+  // Inits default data channel if none is provided
+  async initDataChannel(channel = DEFAULT_DATA_CHANNEl, type: UnreliableMessageType = 'json', customInitInfo: any = {}): Promise<DataProducer | Error> {
     try {
-      await this.initSendTransport()
-      console.log("Producing Data on data channel: ", channel);
-      if (this.dataProducers.get(channel)) {
-        const dataProducer = this.dataProducers.get(channel);
-        console.log("Sending data to channel: ", channel);
-        dataProducer.send(JSON.stringify(data));
-        return Promise.resolve(dataProducer);
-      }
+      if (!this.sendTransport) throw new Error('Send Transport not initialized')
+      else if (this.dataProducers.get(channel)) return Promise.resolve(this.dataProducers.get(channel))
       const dataProducer = await this.sendTransport.produceData({
-        appData: { data }, // Probably Add additional info to send to server
+        appData: { data: customInitInfo }, // Probably Add additional info to send to server
         ordered: false,
         label: channel,
         // maxPacketLifeTime: 3000,
@@ -136,13 +134,27 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         protocol: type // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
       });
       dataProducer.on("open", () => {
-        console.log("Sending data to channel: ", channel);
-        dataProducer.send(JSON.stringify(data));
+        console.log("Data Producer init on channel: ", channel);
+        console.log("Sending init info to channel: ", channel);
+        dataProducer.send(JSON.stringify({ data: customInitInfo }));
       });
       dataProducer.on("transportclose", () => {
         this.dataProducers.delete(channel);
       });
       this.dataProducers.set(channel, dataProducer);
+      return Promise.resolve(dataProducer)
+    } catch (e) {
+      return Promise.reject(e)
+    }
+  }
+
+  // This sends message on a data channel (data channel creation is now handled explicitly/default)
+  async sendUnreliableMessage(data: any, channel: string = DEFAULT_DATA_CHANNEl): Promise<UnreliableMessageReturn> {
+    try {
+      const dataProducer: DataProducer | undefined = this.dataProducers.get(channel)
+      if (!dataProducer) throw new Error('Data Channel not initialized on client, Data Producer doesn\'t exist!')
+      console.log("Sending data on data channel: ", channel);
+      dataProducer.send(JSON.stringify({ data }))
       return Promise.resolve(dataProducer);
     } catch (e) {
       return Promise.reject(e);
@@ -189,7 +201,15 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         initializeClient(_id, _ids);
         await this.joinWorld();
         // Ping request for testing unreliable messaging may remove if not needed
-        // this.unreliableMessageTest()
+        console.log('About to init receive and send transports')
+        
+        await Promise.all([
+          this.initSendTransport(),
+          this.initReceiveTransport(),
+        ])
+        await this.initDataChannel()
+        this.unreliableMessageTest()
+
         console.log("About to send camera streams");
         await this.sendCameraStreams();
         console.log("about to init sockets");
@@ -212,20 +232,14 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   async unreliableMessageTest() {
     try {
       console.log('Testing unreliable messaging');
-      console.log('Init data channel "test"')
-      await this.sendUnreliableMessage({ channel: 'test', data: { info: 'init' } })
-      console.log('Init data channel "test" successful')
-      await this.subscribeToDataChannel('test', (unreliableMessage) => {
-        console.log('Unreliable Message received from channel "test": ')
+      await this.subscribeToDataChannel((unreliableMessage) => {
+        console.warn('Unreliable Messaging works!')
         console.log('Unreliable Message\'s data: ', unreliableMessage)
       })
       // Sending message after subscription requires a couple ms delay for some reason
       setTimeout(() => {
-        this.sendUnreliableMessage({
-          channel: 'test',
-          data: { info: 'test successful' },
-        })
-      }, 100);
+        this.sendUnreliableMessage({ info: 'test successful' })
+      }, 100)
     } catch (e) {
       console.warn('Unreliable Message test failed! ', e)
     }
@@ -617,7 +631,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
             appData
           });
           if (error) {
-            console.error("error setting up server-side producer", error);
+            console.error("error setting up server-side data producer", error);
             errback();
             return;
           }
