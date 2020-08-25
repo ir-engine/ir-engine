@@ -161,7 +161,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   public async initialize(address = "https://127.0.0.1", port = 3030): Promise<void> {
-    console.log("Initializing client transport");
+    console.log(`Initializing client transport to ${address}:${port}`);
     this.mediasoupDevice = new Device();
 
     this.socket = ioclient(`${address}:${port}`);
@@ -186,11 +186,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
 
       this.socket.on(MessageTypes.Initialization.toString(), async (_id: any, _ids: any) => {
-        console.log("Initialization response received from server");
         initializeClient(_id, _ids);
         await this.joinWorld();
         // Ping request for testing unreliable messaging may remove if not needed
-        this.unreliableMessageTest()
+        // this.unreliableMessageTest()
         console.log("About to send camera streams");
         await this.sendCameraStreams();
         console.log("about to init sockets");
@@ -203,7 +202,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // this.socket.on(MessageTypes.ReliableMessage.toString(), (message: Message) => {
       //   NetworkComponent.instance.incomingReliableQueue.add(message)
       // })
-      
+
+      console.log('Emitting initialization message')
+      console.log(MessageTypes.Initialization.toString())
       this.socket.emit(MessageTypes.Initialization.toString());
     });
   }
@@ -213,7 +214,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       console.log('Testing unreliable messaging');
       console.log('Init data channel "test"')
       await this.sendUnreliableMessage({ channel: 'test', data: { info: 'init' } })
-      console.log('Init data channel "test" successful')  
+      console.log('Init data channel "test" successful')
       await this.subscribeToDataChannel('test', (unreliableMessage) => {
         console.log('Unreliable Message received from channel "test": ')
         console.log('Unreliable Message\'s data: ', unreliableMessage)
@@ -450,10 +451,15 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       mediaPeerId: peerId,
       rtpCapabilities: this.mediasoupDevice.rtpCapabilities
     });
+    console.log('consumerParameters:')
+    console.log(consumerParameters)
     consumer = await this.recvTransport.consume({
       ...consumerParameters,
       appData: { peerId, mediaTag }
     });
+    console.log('consumer:')
+    console.log(consumer)
+    console.log(this.recvTransport)
 
     // the server-side consumer will be started in paused state. wait
     // until we're connected, then send a resume request to the server
@@ -467,6 +473,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     MediaStreamComponent.instance.consumers.push(consumer);
 
     // ui
+    console.log('Calling addVideoAudio')
     await MediaStreamSystem.instance.addVideoAudio(consumer, peerId);
   }
 
@@ -592,6 +599,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
             return;
           }
           console.log(`Producer set up with id ${id}`)
+          console.log(MediaStreamComponent.instance)
           callback({ id });
         }
       );
@@ -662,10 +670,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           for (const [mediaTag, _] of Object.entries(peers[id].media)) {
             // for each of the peer's producers...
             console.log(id + " | " + mediaTag);
+            console.log(MediaStreamComponent.instance.consumers)
+            console.log('Find in consumers')
+            console.log(MediaStreamComponent.instance.consumers?.find(c => c?.appData?.peerId === id && c?.appData?.mediaTag === mediaTag) !== null)
             if (
               MediaStreamComponent.instance.consumers?.find(
-                c => c.appData.peerId === id && c.appData.mediaTag === mediaTag
-              ) !== null
+                c => c?.appData?.peerId === id && c?.appData?.mediaTag === mediaTag
+              ) != null
             )
               return;
             // that we don't already have consumers for...

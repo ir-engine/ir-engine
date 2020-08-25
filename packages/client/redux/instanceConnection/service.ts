@@ -7,6 +7,7 @@ import {
 import io from 'socket.io-client';
 import feathers from '@feathersjs/client';
 import { setClient } from '../feathers-instance';
+import { NetworkSystem } from '@xr3ngine/engine/src/networking/systems/NetworkSystem'
 
 export function provisionInstanceServer (locationId: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -50,9 +51,10 @@ export function connectToInstanceServer () {
           }
         });
       }
-      const instanceClient = feathers();
-      instanceClient.configure(feathers.socketio(socket, { timeout: 10000 }));
-      setClient(instanceClient);
+      // const instanceClient = feathers();
+      // instanceClient.configure(feathers.socketio(socket, { timeout: 10000 }));
+      (NetworkSystem.instance as any).connectToServer(instance.get('ipAddress'), instance.get('port'));
+      // setClient(instanceClient);
       dispatch(instanceServerConnected());
     } catch (err) {
       console.log(err);

@@ -26,8 +26,11 @@ export class NetworkSystem extends System {
     Network.instance.transport = new (schema.transport)();
     console.log('TRANSPORT INSTANCE:')
     console.log(Network.instance.transport)
-    Network.instance.transport.initialize()
-    console.log("NetowrkSystem ready, run connectToServer to... connect to the server!")
+    console.log(`SERVER_MODE: ${process.env.SERVER_MODE}`)
+    if (process.env.SERVER_MODE != undefined && process.env.SERVER_MODE !== 'client') {
+      Network.instance.transport.initialize();
+    }
+    console.log("NetworkSystem ready, run connectToServer to... connect to the server!")
   }
 
   public execute (): void {
