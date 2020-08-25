@@ -7,6 +7,7 @@ import { now } from "../../common/functions/now";
 import { CameraOperator } from "../../camera/classes/CameraOperator";
 import { SAPBroadphase, World } from "cannon-es";
 import { default as CSM } from 'three-csm';
+import { Stats } from "stats.js"
 
 /**
  * Initialize options on the engine object and fire a command for devtools
@@ -50,6 +51,7 @@ export function initialize (options?: EngineOptions) {
     Engine.accumulator = 0;
     Engine.justExecuted = false;
 
+    Engine.stats = new Stats()
     Engine.stats.showPanel( 1 ); // 0: fps, 1: ms, 2: mb, 3+: custom
     document.body.appendChild( Engine.stats.dom );
 

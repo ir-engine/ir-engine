@@ -11,7 +11,7 @@ import { CameraOperator } from '../../camera/classes/CameraOperator';
 
 export class Engine {
 
-  public static stats: Stats = new Stats()
+  public static stats: Stats
   // Move for sure
   // public static sky: Sky;
   public static isExecuting: boolean = false;
