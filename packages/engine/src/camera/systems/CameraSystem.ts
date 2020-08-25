@@ -16,6 +16,9 @@ export class CameraSystem extends System {
     addComponent(cameraEntity, Object3DComponent)
     getMutableComponent<Object3DComponent>(cameraEntity, Object3DComponent).value = Engine.camera
     addComponent(cameraEntity, TransformComponent);
+    console.log('test ///////////////////////');
+    console.log(cameraEntity);
+
   }
 
   execute (delta: number): void {
