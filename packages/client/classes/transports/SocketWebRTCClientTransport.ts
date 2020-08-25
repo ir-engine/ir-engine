@@ -213,7 +213,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         console.log("About to send camera streams");
         await this.sendCameraStreams();
         console.log("about to init sockets");
-        this.startScreenshare()
+        // this.startScreenshare()
       });
 
       this.socket.on(MessageTypes.ClientConnected.toString(), (_id: any) => addClient(_id));
@@ -299,6 +299,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   async sendCameraStreams(): Promise<void> {
     console.log("send camera streams");
+    await this.joinWorld();
     // create a transport for outgoing media, if we don't already have one
     if (!this.sendTransport) this.sendTransport = await this.createTransport("send");
     console.log("SEND TRANSPORT: ", this.sendTransport);
@@ -318,6 +319,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     });
 
     if (MediaStreamComponent.instance.videoPaused) await MediaStreamComponent.instance.camVideoProducer.pause();
+
+    // console.log('Calling addVideoAudio')
+    // await MediaStreamSystem.instance.addVideoAudio(MediaStreamComponent.instance.camVideoProducer, 'me');
 
     // same thing for audio, but we can use our already-created
     MediaStreamComponent.instance.camAudioProducer = await this.sendTransport.produce({
@@ -480,6 +484,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // to get our first keyframe and start displaying video
     while (this.recvTransport.connectionState !== "connected") await sleep(100);
 
+    console.log('RESUMING CONSUMER')
     // okay, we're ready. let's ask the peer to send us media
     await this.resumeConsumer(consumer);
 

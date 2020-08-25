@@ -265,7 +265,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       // On heartbeat received from client
       socket.on(MessageTypes.Heartbeat, () => {
         console.log('Heartbeat handler')
-        if (this.roomState.peers[socket.id] !== undefined) {
+        if (this.roomState.peers[socket.id] != null) {
           this.roomState.peers[socket.id].lastSeenTs = Date.now()
           console.log("Heartbeat from client " + socket.id)
         } else console.log("Receiving message from peer who isn't in client list")
@@ -279,12 +279,16 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         // make sure this peer is connected. if we've disconnected the
         // peer because of a network outage we want the peer to know that
         // happened, when/if it returns
-        if (this.roomState.peers[socket.id] === undefined) callback ({
+        if (this.roomState.peers[socket.id] == null) callback ({
           error: 'not connected'
         })
 
-        // update our most-recently-seem timestamp -- we're not stale!
-        this.roomState.peers[socket.id].lastSeenTs = Date.now()
+        try {
+          // update our most-recently-seem timestamp -- we're not stale!
+          this.roomState.peers[socket.id].lastSeenTs = Date.now()
+        } catch(err) {
+          console.log(`peer ${socket.id} no longer exists`)
+        }
 
         let returned = {}
         Object.entries(this.roomState.peers).forEach(([key, value]) => {
@@ -480,8 +484,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           const producer = this.roomState.producers.find(
               p => { console.log(p._appData); return p._appData.mediaTag === mediaTag && p._appData.peerID === mediaPeerId }
           )
-          console.log('producer:')
-          console.log(producer)
           if (producer == null || !this.router.canConsume({producerId: producer.id, rtpCapabilities})) {
             const msg = `client cannot consume ${mediaPeerId}:${mediaTag}`
             console.error(`recv-track: ${peerId} ${msg}`)
@@ -489,8 +491,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             return
           }
 
-          console.log('transports:')
-          console.log(this.roomState.transports)
           const transport = Object.values(this.roomState.transports).find(
               t => (t as any)._appData.peerId === peerId && (t as any)._appData.clientDirection === "recv"
           )
