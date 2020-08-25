@@ -1,6 +1,6 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { CharacterComponent } from '../../../character/components/CharacterComponent';
-import { setCharacterAnimation } from '../CharacterStateSchema';
+import { setCharacterAnimation } from "../setCharacterAnimation";
 import { initializeCharacterState, updateCharacterState } from '../behaviors/CharacterBaseBehaviors';
 import { CharacterStateGroups } from '../CharacterStateGroups';
 import { jumpRunning } from '../behaviors/jump';
