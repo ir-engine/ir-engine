@@ -20,7 +20,7 @@ export class WebGLRendererSystem extends System {
   constructor(attributes?: SystemAttributes) {
     super(attributes);
   }
-  
+
   /**
      * Initialize renderercomponent and three.js renderer, add renderer to scene
      */
@@ -42,7 +42,7 @@ export class WebGLRendererSystem extends System {
 
     this.isInitialized = true
   }
-  
+
   /**
      * Called on resize, sets resize flag
      */
@@ -50,7 +50,7 @@ export class WebGLRendererSystem extends System {
     console.log("On resize called")
     RendererComponent.instance.needsResize = true;
   }
-  
+
   /**
     * Removes resize listener
     */
@@ -87,7 +87,7 @@ export class WebGLRendererSystem extends System {
       composer.addPass(new EffectPass(CameraComponent.instance.camera, ...passes))
     }
   }
-  
+
   /**
      * Called each frame by default from the Engine
      *
@@ -107,7 +107,10 @@ export class WebGLRendererSystem extends System {
     if(this.isInitialized)
     this.queryResults.renderers.all.forEach((entity: Entity) => {
       resize(entity)
-      getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
+      if (getComponent<RendererComponent>(entity, RendererComponent).composer) {
+        getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
+      }
+
     });
   }
 }
@@ -137,7 +140,7 @@ export const resize: Behavior = entity => {
     canvas.height = window.innerHeight
 
     Engine.renderer.setSize(width, height);
-    rendererComponent.composer.setSize(width, height);
+    rendererComponent.composer ? rendererComponent.composer.setSize(width, height):'';
 
     RendererComponent.instance.needsResize = false;
   }
