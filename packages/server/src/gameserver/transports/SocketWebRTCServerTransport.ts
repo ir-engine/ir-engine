@@ -21,7 +21,7 @@ import {
   WebRtcTransport
 } from "mediasoup/lib/types"
 import { types as MediaSoupClientTypes } from "mediasoup-client"
-import { UnreliableMessageParams, UnreliableMessageReturn } from "@xr3ngine/engine/src/networking/types/NetworkingTypes"
+import { UnreliableMessageParams, UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine/src/networking/types/NetworkingTypes"
 
 interface Client {
   socket: SocketIO.Socket;
@@ -97,8 +97,9 @@ const defaultRoomState = {
   transports: {},
   producers: [],
   consumers: [],
-  dataProducers: [] as DataProducer[],
-  dataConsumers: [] as DataConsumer[],
+  // dataProducers: [] as DataProducer[],
+  dataProducers: new Map<string, DataProducer>(), // Data Producer is identified by channel name (key)
+  dataConsumers: new Map<string, DataConsumer>(), // Data Consumer is identified by Data producer's id (key)
   peers: {}
 }
 
@@ -145,15 +146,16 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       }
       data.consumerOptions.appData = { ...(data.consumerOptions.appData || {}), peerId: socket.id }
       console.log("Creating DataConsumer")
-      const dataConsumer = await transport.consumeData(data.consumerOptions)
-      this.roomState.dataConsumers.push(dataConsumer)
-      console.log("Adding DataConsumer to roomstate")
+      let dataConsumer: DataConsumer = this.roomState.dataConsumers.get(data.consumerOptions.dataProducerId)
+      if (!dataConsumer) {
+        dataConsumer = await transport.consumeData(data.consumerOptions)
+        console.log("Setting DataConsumer to roomstate")
+        this.roomState.dataConsumers.set(data.consumerOptions.dataProducerId, dataConsumer)
+      }
       dataConsumer.on("transportclose", () => {
         console.log("closing DataConsumer and removing it from roomstate")
+        this.roomState.dataConsumers.delete(data.consumerOptions.dataProducerId)
         dataConsumer.close()
-        this.roomState.dataConsumers = this.roomState.dataConsumers.filter(
-          (consumer: DataConsumer) => consumer.id !== dataConsumer.id
-        )
       })
       const options: { dataConsumerOptions: MediaSoupClientTypes.DataConsumerOptions } = {
         dataConsumerOptions: {
@@ -171,12 +173,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     }
   }
 
-  // WIP -- Init transport before calling with how it works right now in server?
-  async sendUnreliableMessage({
-    channel,
-    data,
-    type = "json"
-  }: UnreliableMessageParams): Promise<UnreliableMessageReturn> {
+  // WIP -- sort of stub, creates and returns data producer. Remove if not needed.
+  async sendUnreliableMessage(data: any, channel: string = 'default', params: { type?: UnreliableMessageType } = {}): Promise<UnreliableMessageReturn> {
     if (!data.transportId) {
       return Promise.reject(new Error("TransportId not provided!"))
     }
@@ -184,7 +182,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       appData: { data }, // Probably Add additional info to send to server
       sctpStreamParameters: data.sctpStreamParameters,
       label: channel,
-      protocol: type
+      protocol: params.type || 'json'
     })
   }
 
@@ -360,15 +358,15 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         async (params, callback: (arg0: { id?: string; error?: any }) => void) => {
           console.log('Produce Data handler')
           try {
+            if (!params.label) throw ({ error: 'data producer label i.e. channel name is not provided!' })
             const { transportId, sctpStreamParameters, label, protocol, appData } = params
             console.log("Data channel used: ", `'${label}'`, "by client id: ", socket.id)
             console.log("Data channel params", params)
             const transport = this.roomState.transports[transportId] as Transport
             let dataProducer: DataProducer | undefined
-            if (appData.dataProducerId) {
-              dataProducer = this.roomState.dataProducers.find(prod => prod.id === appData.dataProducerId)
-            }
-            if (dataProducer === undefined) {
+            if (this.roomState.dataProducers.get(label)) {
+              dataProducer = this.roomState.dataProducers.get(label)
+            } else {
               const options: DataProducerOptions = {
                 label,
                 protocol,
@@ -378,19 +376,19 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
               console.log("creating transport data producer")
               dataProducer = await transport.produceData(options)
               console.log("adding data producer to room state")
-              this.roomState.dataProducers.push(dataProducer)
+              this.roomState.dataProducers.set(label, dataProducer)
 
               // if our associated transport closes, close ourself, too
               dataProducer.on("transportclose", () => {
                 console.log("data producer's transport closed: ", dataProducer.id)
                 dataProducer.close()
-                this.roomState.dataProducers = this.roomState.dataProducers.filter(
-                  producer => producer.id !== dataProducer.id
-                )
+                this.roomState.dataProducers.delete(label)
               })
-              console.log("Sending dataproducer id to client:", dataProducer.id)
-              return callback({ id: dataProducer.id })
+              // console.log("Sending dataproducer id to client:", dataProducer.id)
+              // return callback({ id: dataProducer.id })
             }
+            
+            // dataProducer.send(JSON.stringify({data: dataProducer.appData}))
 
             // Possibly do stuff with appData here
 
