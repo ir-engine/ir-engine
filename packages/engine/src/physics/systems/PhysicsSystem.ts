@@ -8,15 +8,24 @@ import { RigidBodyBehavior } from '../behaviors/RigidBodyBehavior';
 import { VehicleBehavior } from '../behaviors/VehicleBehavior';
 import { WheelBehavior } from '../behaviors/WheelBehavior';
 import { ColliderComponent } from '../components/ColliderComponent';
-
-
+import { createFixedTimestep } from "../../common/functions/Timer";
 
 export class PhysicsSystem extends System {
-  init () {
+  fixedExecute:(delta:number)=>void = null
+
+  constructor() {
+    super()
+    this.fixedExecute = createFixedTimestep(60, this.onFixedExecute.bind(this))
+  }
+  execute(delta):void {
+    this.fixedExecute(delta)
+  }
+
+  init ():void {
     new PhysicsWorld();
   }
 
-  execute () {
+  onFixedExecute(delta) {
     PhysicsWorld.instance.frame++;
     PhysicsWorld.instance.physicsWorld.step(PhysicsWorld.instance.timeStep);
 
