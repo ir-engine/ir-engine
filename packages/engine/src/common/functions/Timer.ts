@@ -8,17 +8,20 @@ export function Timer (
 
   let last = 0;
   let accumulated = 0;
-  let tick = 0;
+  //let tick = 0;
+  let delta = 0;
   let frameId;
 
   function onFrame (time) {
     if (last !== null) {
-      accumulated = accumulated + (time - last) / 1000;
-      while (accumulated > increment) {
-        if (callbacks.update) callbacks.update(increment, tick);
-        tick = tick + 1;
-        accumulated = accumulated - increment;
-      }
+      delta = (time - last) / 1000
+      accumulated = accumulated + delta;
+      // while (accumulated > increment) {
+      //   if (callbacks.update) callbacks.update(increment, tick);
+      //   tick = tick + 1;
+      //   accumulated = accumulated - increment;
+      // }
+      if (callbacks.update) callbacks.update(accumulated, delta);
     }
     last = time;
     if (callbacks.render) callbacks.render();
