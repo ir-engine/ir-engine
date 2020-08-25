@@ -93,7 +93,7 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
     // Add the camera to the three.js scene
     scene.add(camera);
       registerSystem(CameraSystem);
-    } 
+    }
 
   // Input
   if (options.input && options.input.enabled && isBrowser) {
