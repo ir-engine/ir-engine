@@ -76,9 +76,9 @@ export class WebGLRendererSystem extends System {
     // This sets up the render
     const passes: any[] = []
     RendererComponent.instance.postProcessingSchema.effects.forEach((pass: any) => {
-      if (typeof pass.effect === typeof SSAOEffect)
+      if ( pass.effect === SSAOEffect)
         passes.push(new pass.effect(CameraComponent.instance.camera, {}, pass.effect.options))
-      else if (typeof pass.effect === typeof DepthOfFieldEffect)
+      else if ( pass.effect === DepthOfFieldEffect)
         passes.push(new pass.effect(CameraComponent.instance.camera, pass.effect.options))
       else passes.push(new pass.effect(pass.effect.options))
     })
