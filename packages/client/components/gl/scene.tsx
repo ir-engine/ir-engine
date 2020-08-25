@@ -1,5 +1,5 @@
 import React, { Component, useEffect, FunctionComponent, useState } from 'react';
-import { initializeEngine, DefaultInitializationOptions } from "@xr3ngine/engine/src/initialize";
+import { initializeEngine, resetEngine, DefaultInitializationOptions } from "@xr3ngine/engine/src/initialize";
 import { PlayerController } from "../gl/PlayerController";
 import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/networking/defaults/DefaultNetworkSchema';
@@ -22,6 +22,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const [enabled, setEnabled] = useState(false)
 
   useEffect(() => {
+    console.log('initializeEngine!');
+
     const networkSchema: NetworkSchema = {
       ...DefaultNetworkSchema,
       transport: SocketWebRTCClientTransport
@@ -65,7 +67,13 @@ export const EnginePage: FunctionComponent = (props: any) => {
       url: "models/OldCar.fbx",
       receiveShadow: true,
       castShadow: true
-    }) 
+    })
+
+    return () => {
+      // cleanup
+      console.log('cleanup?!')
+      resetEngine()
+    }
   }, [])
 
   useEffect(() => {
