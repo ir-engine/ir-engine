@@ -1,6 +1,6 @@
 import React, { Component, useEffect, FunctionComponent, useState } from 'react';
 import { initializeEngine, DefaultInitializationOptions } from "@xr3ngine/engine/src/initialize";
-import { PlayerController } from "../gl/PlayerController";
+import { PlayerCharacter } from "@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter";
 import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
@@ -43,7 +43,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // Load glb here
     createPrefab(rigidBodyBox);
 
-    createPrefab(PlayerController);
+    createPrefab(PlayerCharacter);
 
      createPrefab(staticWorldColliders);
 

@@ -15,7 +15,7 @@ import { CharacterSubscriptionSchema } from "@xr3ngine/engine/src/templates/char
 const miniGeo = new BoxBufferGeometry(0.2, 0.2, 0.2);
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
-export const PlayerController: Prefab = {
+export const PlayerCharacter: Prefab = {
     // These will be created for all players on the network
     // These are only created for the local player who owns this prefab
     components: [
