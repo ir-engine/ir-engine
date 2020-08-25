@@ -9,6 +9,7 @@ import { DepthOfFieldEffect } from '../../postprocessing/effects/DepthOfFieldEff
 
 export const DefaultPostProcessingSchema: PostProcessingSchema = {
   effects: [
+  ]/* FIXME: CPU overload
     // {
     //   effect: SSAOEffect,
     //   options: {
@@ -88,4 +89,5 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
     //   }
     // }
   ]
+*/
 };
