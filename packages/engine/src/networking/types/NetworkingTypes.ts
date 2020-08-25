@@ -8,7 +8,6 @@ export type UnreliableMessageType = "json" | "raw"
 export type UnreliableMessageReturn = DataProducer | ClientDataProducer | Error
 
 export interface UnreliableMessageParams {
-  channel: string
+  channel?: string
   data: any
-  type?: UnreliableMessageType
 }
