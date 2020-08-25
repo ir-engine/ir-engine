@@ -8,24 +8,14 @@ import { RigidBodyBehavior } from '../behaviors/RigidBodyBehavior';
 import { VehicleBehavior } from '../behaviors/VehicleBehavior';
 import { WheelBehavior } from '../behaviors/WheelBehavior';
 import { ColliderComponent } from '../components/ColliderComponent';
-
-function createFixedTimestep(timestep, callback):(delta:number)=>void {
-  let accumulator = 0
-  return delta => {
-    accumulator += delta
-    while (accumulator >= timestep) {
-      callback(accumulator)
-      accumulator -= timestep
-    }
-  }
-}
+import { createFixedTimestep } from "../../common/functions/Timer";
 
 export class PhysicsSystem extends System {
   fixedExecute:(delta:number)=>void = null
 
   constructor() {
     super()
-    this.fixedExecute = createFixedTimestep(1 / 60, this.onFixedExecute.bind(this))
+    this.fixedExecute = createFixedTimestep(60, this.onFixedExecute.bind(this))
   }
   execute(delta):void {
     this.fixedExecute(delta)
