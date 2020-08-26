@@ -18,6 +18,8 @@ import { AmbientLight } from 'three';
 import { PositionalAudio, Mesh, SphereBufferGeometry, MeshPhongMaterial  } from 'three';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/network/DefaultNetworkSchema';
 import { resetEngine } from '@xr3ngine/engine/src/ecs/functions/EngineFunctions';
+//import { Engine } from '@xr3ngine3/engine/src/ecs/classes/Engine';
+import { Engine } from '../../../engine/src/ecs/classes/Engine';
 
 export const EnginePage: FunctionComponent = (props: any) => {
 
