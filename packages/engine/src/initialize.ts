@@ -1,4 +1,4 @@
-import { AmbientLight, Camera, GridHelper, PerspectiveCamera, Scene, AudioListener, PositionalAudio, AudioLoader } from 'three';
+import { AmbientLight, Camera, GridHelper, PerspectiveCamera, Scene, AudioListener, Audio, PositionalAudio, AudioLoader } from 'three';
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { createEntity } from './ecs/functions/EntityFunctions';
 import { Engine } from './ecs/classes/Engine';
@@ -28,8 +28,11 @@ export const DefaultInitializationOptions = {
   audio: {
     enabled: true,
     src: '',
-    refDistance: 20,
+    volume: 0.5,
     autoplay: true,
+    loop: true,
+    positional: true,
+    refDistance: 20,
   },
   input: {
     enabled: true,
@@ -101,16 +104,21 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
     }
 
     if( options.audio?.enabled ){
-      const {src, refDistance, autoplay} = options.audio
+      const {src, refDistance, autoplay, positional, loop, volume} = options.audio
       const listener = new AudioListener();
       Engine.camera.add( listener );
       if( src ){
+        const Sound = positional ? PositionalAudio : Audio;
         const sound = 
-              Engine.sound = new PositionalAudio( listener );
+              Engine.sound = new Sound( listener );
         const audioLoader = new AudioLoader();
         audioLoader.load( src, buffer => {
           sound.setBuffer( buffer );
-          sound.setRefDistance( refDistance );
+          if(refDistance && sound.setRefDistance){
+            sound.setRefDistance( refDistance );
+          }
+          sound.setLoop(loop);
+          if(volume) sound.setVolue(volume);
           if(autoplay) sound.play();
         });
       }
