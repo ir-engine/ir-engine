@@ -1,4 +1,4 @@
-import { vec3 } from 'gl-matrix';
+import { vec3, quat } from 'gl-matrix';
 import { Quaternion } from 'three';
 import { Object3DComponent } from '../../common/components/Object3DComponent';
 import { Behavior } from '../../common/interfaces/Behavior';
@@ -15,7 +15,7 @@ export const transformBehavior: Behavior = (entity: Entity, args: { event: Mouse
   transform = getMutableComponent(entity, TransformComponent);
   vec3.set(_position, transform.position[0], transform.position[1], transform.position[2]);
   vec3.set(_velocity, transform.velocity[0], transform.velocity[1], transform.velocity[2]);
-
+  vec3.transformQuat(_velocity, _velocity, quat.fromValues(transform.rotation[0],transform.rotation[1],transform.rotation[2],transform.rotation[3]))
 
   const object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
   if (object3DComponent == undefined) return console.warn('No Object3D located ', console.log(entity.componentTypes));
