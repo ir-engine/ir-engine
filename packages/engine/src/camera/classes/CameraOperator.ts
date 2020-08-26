@@ -22,7 +22,6 @@ export class CameraOperator
 	public rightVelocity: number = 0;
 
 	public followMode: boolean = false;
-
 	constructor(camera: Camera, sensitivityX: number = 1, sensitivityY: number = sensitivityX * 0.8)
 	{
 		this.target = new Vector3();
