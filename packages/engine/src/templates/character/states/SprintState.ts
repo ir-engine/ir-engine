@@ -8,7 +8,7 @@ import { CharacterStateGroups } from '../CharacterStateGroups';
 
 export const SprintState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
-  componentProperties: {
+  componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.mass']: 10,
@@ -17,7 +17,7 @@ export const SprintState: StateSchemaValue = {
 
       ['velocityTarget']: { x: 0, y: 0, z: 1.4 },
     }
-  },
+  }],
   onEntry:  [
       {
         behavior: initializeCharacterState

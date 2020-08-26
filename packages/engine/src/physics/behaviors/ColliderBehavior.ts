@@ -13,7 +13,7 @@ import { PhysicsManager } from '../components/PhysicsManager';
 import { getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { Object3DComponent } from '../../common/components/Object3DComponent';
 
-export const ColliderBehavior: Behavior = (entity: Entity, args): void => {
+export const ColliderBehavior: Behavior = (entity: Entity, args: { phase: string }): void => {
   if (args.phase == 'onAdded') {
     const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
     const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);

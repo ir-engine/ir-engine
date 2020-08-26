@@ -126,7 +126,6 @@ export class Component<C> {
    * Useful for JSON serialization, etc
    */
   static getName () {
-    console.log("Component getName called")
     return (this.constructor as any).getName();
   }
 

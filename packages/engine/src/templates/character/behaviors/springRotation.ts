@@ -4,7 +4,7 @@ import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { Vector3 } from "three";
 import { getSignedAngleBetweenVectors } from "../../../common/functions/getSignedAngleBetweenVectors";
 
-export const springRotation: Behavior = (entity, args: { timeStep: number; }): void => {
+export const springRotation: Behavior = (entity, args = null, deltaTime): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 
 	// Spring rotation
@@ -13,7 +13,7 @@ export const springRotation: Behavior = (entity, args: { timeStep: number; }): v
 
 	// Simulator
 	actor.rotationSimulator.target = angle;
-	actor.rotationSimulator.simulate(args.timeStep);
+	actor.rotationSimulator.simulate(deltaTime);
 	let rot = actor.rotationSimulator.position;
 
 	// Updating values

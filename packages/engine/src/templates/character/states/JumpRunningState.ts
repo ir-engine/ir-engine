@@ -8,14 +8,14 @@ import { jumpRunning } from "../behaviors/jumpRunning";
 
 export const JumpRunningState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
-  componentProperties: {
+  componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.mass']: 100,
       ['velocityTarget']: { x: 0, y: 0, z: 0 },
       ['alreadyJumped']: false
     }
-  },
+  }],
   onEntry:  [
       {
         behavior: initializeCharacterState

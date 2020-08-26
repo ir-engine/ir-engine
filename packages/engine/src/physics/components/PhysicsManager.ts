@@ -6,7 +6,7 @@ import { Types } from '../../ecs/types/Types';
 export class PhysicsManager extends Component<PhysicsManager> {
   static instance: PhysicsManager
   frame: number
-  physicsWorld: any
+  physicsWorld: World
   timeStep: number
   groundMaterial = new Material('groundMaterial')
   wheelMaterial = new Material('wheelMaterial')
@@ -38,7 +38,7 @@ export class PhysicsManager extends Component<PhysicsManager> {
       	// Physics
         this.physicsWorld.gravity.set(0, -9.81, 0);
         this.physicsWorld.broadphase = new SAPBroadphase(this.physicsWorld);
-        this.physicsWorld.solver.iterations = 10;
+        // this.physicsWorld.solver.iterations = 10;
         this.physicsWorld.allowSleep = true;
 
         this.parallelPairs = [];

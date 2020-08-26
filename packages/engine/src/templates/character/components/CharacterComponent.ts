@@ -1,7 +1,7 @@
 // Default component, holds data about what behaviors our actor has.
 
 import { Component } from '../../../ecs/classes/Component';
-import { Vector3, Group, Material, AnimationMixer, Mesh } from 'three';
+import { Vector3, Group, Material, AnimationMixer, Mesh, BoxBufferGeometry } from 'three';
 import { CapsuleCollider } from '../../../physics/components/CapsuleCollider';
 import { VectorSpringSimulator } from '../../../physics/components/VectorSpringSimulator';
 import { RelativeSpringSimulator } from '../../../physics/components/RelativeSpringSimulator';

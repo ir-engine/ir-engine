@@ -27,8 +27,6 @@ export const handleInput: Behavior = (entity: Entity, delta: number): void => {
             value: value.value as Binary,
             lifecycleState: LifecycleValue.CONTINUED
           });
-          console.log("value.value, " + value.value)
-
           input.schema.inputButtonBehaviors[key][value.value as number].started?.forEach(element =>
             element.behavior(entity, element.args, delta)
           );

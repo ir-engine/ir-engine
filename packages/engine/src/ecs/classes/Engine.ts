@@ -20,9 +20,6 @@ export class Engine {
 
 public static framerateLimit = 60;
 
-  // BUG: Our time should produce these, need to populate
-	public static renderDelta: number;
-	public static logicDelta: number;
   public static accumulator: number;
 	public static justExecuted: boolean;
 	public static params: any;

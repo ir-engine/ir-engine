@@ -13,6 +13,6 @@ export const setPhysicsEnabled: Behavior = (entity, args: { value: boolean; }): 
 		PhysicsManager.instance.physicsWorld.addBody(actor.actorCapsule.body);
 	}
 	else {
-		PhysicsManager.instance.physicsWorld.remove(actor.actorCapsule.body);
+		PhysicsManager.instance.physicsWorld.removeBody(actor.actorCapsule.body);
 	}
 };

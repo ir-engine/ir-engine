@@ -9,14 +9,14 @@ import { jumpIdle } from "../behaviors/jumpIdle";
 
 export const JumpIdleState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
-  componentProperties: {
+  componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.mass']: 50,
       ['velocityTarget']: { x: 0, y: 0, z: 0 },
       ['alreadyJumped']: false
     }
-  },
+  }],
   onEntry: [
     {
       behavior: initializeCharacterState

@@ -46,9 +46,9 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // Load glb here
     // createPrefab(rigidBodyBox);
 
-    createPrefab(PlayerCharacter);
+    // createPrefab(PlayerCharacter);
 
-    //  createPrefab(staticWorldColliders);
+     createPrefab(staticWorldColliders);
 
     addObject3DComponent(createEntity(), { obj3d: AmbientLight, ob3dArgs: {
       intensity: 2.0

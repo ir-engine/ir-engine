@@ -9,14 +9,14 @@ import { checkFalling } from "../behaviors/checkFalling";
 // Idle Behavior
 export const IdleState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
-  componentProperties: {
+  componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.damping']: 0.6,
       ['velocitySimulator.mass']: 10,
       ['velocityTarget']: { x: 0, y: 0, z: 0 },
     }
-  },
+  }],
   onEntry:  [
       {
         behavior: initializeCharacterState
@@ -24,7 +24,7 @@ export const IdleState: StateSchemaValue = {
       {
         behavior: setActorAnimation,
         args: {
-          name: 'run',
+          name: 'idle',
           transitionDuration: 0.1
         }
       }

@@ -7,17 +7,18 @@ import { CharacterStateGroups } from '../CharacterStateGroups';
 import { onAnimationEnded } from '../behaviors/onAnimationEnded';
 import { setTargetVelocityIfMoving } from '../behaviors/setTargetVelocityIfMoving';
 import { checkIfDropped } from '../behaviors/checkIfDropped';
+import { IdleState } from './IdleState';
 
 export const FallingState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
-  componentProperties: {
+  componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.mass']: 100,
       ['rotationSimulator.damping']: 0.3,
       ['velocityTarget']: { x: 0, y: 0, z: 0.05 },
     }
-  },
+  }],
   onEntry: [
       {
         behavior: initializeCharacterState
@@ -41,8 +42,7 @@ export const FallingState: StateSchemaValue = {
     {
       behavior: onAnimationEnded,
       args: {
-        // BUG: Commented out due to circular dependency issue
-        //transitionToState: IdleState
+        transitionToState: IdleState
       }
     },
     // Set Velocity Target If Moving

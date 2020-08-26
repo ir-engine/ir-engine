@@ -10,7 +10,7 @@ import { IdleState } from './IdleState';
 
 export const EndWalkState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
-  componentProperties: {
+  componentProperties: [{
     component: CharacterComponent,
     properties: {
       // NOTE: These are copied from DropRolling but aren't set by default (but might need to be)
@@ -18,7 +18,7 @@ export const EndWalkState: StateSchemaValue = {
       // ['velocitySimulator.mass']: 1,
       ['velocityTarget']: { x: 0, y: 0, z: 0 },
     }
-  },
+  }],
   onEntry: [
       {
         behavior: initializeCharacterState
