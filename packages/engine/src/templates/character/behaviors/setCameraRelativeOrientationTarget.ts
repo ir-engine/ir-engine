@@ -1,5 +1,5 @@
 import { Behavior } from "../../../common/interfaces/Behavior";
-import { ActorComponent } from "../components/ActorComponent";
+import { CharacterComponent } from "../components/CharacterComponent";
 import { getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
 import { Entity } from "../../../ecs/classes/Entity";
 import { EnteringVehicle } from "../components/EnteringVehicle";
@@ -7,7 +7,7 @@ import { setOrientation } from "./setOrientation";
 import { getCameraRelativeMovementVector } from "../functions/getCameraRelativeMovementVector";
 
 export const setCameraRelativeOrientationTarget: Behavior = (entity: Entity): void => {
-	const actor: ActorComponent = getMutableComponent<ActorComponent>(entity, ActorComponent as any);
+	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 
 	if (!hasComponent(entity, EnteringVehicle)) {
 		let moveVector = getCameraRelativeMovementVector(entity);

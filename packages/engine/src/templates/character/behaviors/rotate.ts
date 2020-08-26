@@ -1,4 +1,4 @@
-import { ActorComponent } from "../components/ActorComponent";
+import { CharacterComponent } from "../components/CharacterComponent";
 import { TransformComponent } from "../../../transform/components/TransformComponent";
 import { Vector2, Vector3, Vector4 } from "three";
 import { Input } from "../../../input/components/Input";
@@ -9,7 +9,7 @@ import { InputType } from "../../../input/enums/InputType";
 import { NumericalType } from "../../../common/types/NumericalTypes";
 import { getComponent, getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 
-let actor: ActorComponent;
+let actor: CharacterComponent;
 let transform: TransformComponent;
 let inputValue: Vector2 | Vector3;
 let startValue: Vector2;
@@ -22,7 +22,7 @@ export const rotateAround: Behavior = (
   delta: number
 ): void => {
   inputComponent = getComponent(entity, Input);
-  actor = getComponent(entity, ActorComponent as any) as ActorComponent;
+  actor = getComponent(entity, CharacterComponent as any) as CharacterComponent;
   transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
 
   mouseDownPosition = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes.mouseClickDownPosition);

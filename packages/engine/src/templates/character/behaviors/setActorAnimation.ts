@@ -1,10 +1,10 @@
-import { ActorComponent } from '../components/ActorComponent';
+import { CharacterComponent } from '../components/CharacterComponent';
 import { Behavior } from '../../../common/interfaces/Behavior';
 import { getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { AnimationClip } from 'three';
 
 export const setActorAnimation: Behavior = (entity, args: { name: string; transitionDuration: number; }) => {
-  const actor = getMutableComponent<ActorComponent>(entity, ActorComponent as any);
+  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 
   let clip = AnimationClip.findByName(actor.animations, args.name);
 

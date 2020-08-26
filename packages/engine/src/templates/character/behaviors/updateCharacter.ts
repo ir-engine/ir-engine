@@ -1,7 +1,7 @@
 import { Behavior } from '../../../common/interfaces/Behavior';
 import { Entity } from '../../../ecs/classes/Entity';
 import { getMutableComponent } from '../../../ecs/functions/EntityFunctions';
-import { ActorComponent } from '../components/ActorComponent';
+import { CharacterComponent } from '../components/CharacterComponent';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
 import { rotateModel } from "./rotateModel";
 import { springRotation } from "./springRotation";
@@ -11,7 +11,7 @@ import { cannonFromThreeVector } from "../../../common/functions/cannonFromThree
 import { Vector3 } from 'three';
 
 export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime) => {
-  const actor = getMutableComponent<ActorComponent>(entity, ActorComponent as any);
+  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const actorTransform = getMutableComponent<TransformComponent>(entity, TransformComponent as any);
 
   if(!actor.initialized) return

@@ -9,7 +9,7 @@ import { CharacterSubscriptionSchema } from '../CharacterSubscriptionSchema';
 import { attachCamera } from '../../../camera/behaviors/attachCamera';
 import { NetworkPrefab } from '../../../networking/interfaces/NetworkPrefab';
 import { NetworkObject } from '../../../networking/components/NetworkObject';
-import { ActorComponent } from '../components/ActorComponent';
+import { CharacterComponent } from '../components/CharacterComponent';
 import { CharacterStateSchema } from '../CharacterStateSchema';
 import { addObject3DComponent, removeObject3DComponent } from '../../../common/behaviors/Object3DBehaviors';
 const box = new BoxBufferGeometry(0.25, 0.25, 0.25);
@@ -20,7 +20,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
   // These will be created for all players on the network
   networkComponents: [
     { type: NetworkObject },
-    { type: ActorComponent },
+    { type: CharacterComponent },
     { type: TransformComponent, networkedValues: ['position', 'rotation'] }
   ],
   // These are only created for the local player who owns this prefab

@@ -1,5 +1,5 @@
 import { Input } from "../../../input/components/Input";
-import { ActorComponent } from "../components/ActorComponent";
+import { CharacterComponent } from "../components/CharacterComponent";
 import { TransformComponent } from "../../../transform/components/TransformComponent";
 import { NumericalType } from "../../../common/types/NumericalTypes";
 import { Behavior } from "../../../common/interfaces/Behavior";
@@ -11,7 +11,7 @@ import { Sprinting } from "../components/Sprinting";
 import { Vector2, Vector3 } from "three";
 
 let input: Input;
-let actor: ActorComponent;
+let actor: CharacterComponent;
 let transform: TransformComponent;
 let inputValue: NumericalType; // Could be a (small) source of garbage
 let outputSpeed: number;
@@ -23,7 +23,7 @@ export const move: Behavior = (
 ): void => {
 
   console.log(args)
-  actor = getMutableComponent<ActorComponent>(entity, ActorComponent as any);
+  actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
 
   // Whatever the current movement group state is needs to have it's onChanged evaluator called

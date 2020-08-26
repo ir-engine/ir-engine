@@ -1,11 +1,11 @@
 import { Behavior } from "../../../common/interfaces/Behavior";
-import { ActorComponent } from "../components/ActorComponent";
+import { CharacterComponent } from "../components/CharacterComponent";
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { setupMeshProperties } from "../functions/setupMeshProperties";
 // Integrate with asset loader
 
 export const readActorData: Behavior = (entity, args: { model: any; }): void => {
-	const actor: ActorComponent = getMutableComponent<ActorComponent>(entity, ActorComponent as any);
+	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	console.log(args.model);
 	// TODO: actor will only work with glb
 	args.model.traverse((child) => {

@@ -1,5 +1,5 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { ActorComponent } from '../components/ActorComponent';
+import { CharacterComponent } from '../components/CharacterComponent';
 import { setActorAnimation } from "../behaviors/setActorAnimation";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { updateCharacterState } from "../behaviors/updateCharacterState";
@@ -10,7 +10,7 @@ import { checkFalling } from "../behaviors/checkFalling";
 export const IdleState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
   componentProperties: {
-    component: ActorComponent,
+    component: CharacterComponent,
     properties: {
       ['velocitySimulator.damping']: 0.6,
       ['velocitySimulator.mass']: 10,

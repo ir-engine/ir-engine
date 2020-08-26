@@ -12,7 +12,7 @@ import { addComponentFromSchema } from "../../../common/behaviors/addComponentFr
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { setCameraPosition } from "../../../camera/behaviors/setCameraPosition";
 import { initializeCharacter } from "../behaviors/initializeCharacter";
-import { ActorComponent } from "../components/ActorComponent";
+import { CharacterComponent } from "../components/CharacterComponent";
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const PlayerCharacter: Prefab = {
@@ -20,7 +20,7 @@ export const PlayerCharacter: Prefab = {
     // These are only created for the local player who owns this prefab
     components: [
         // ActorComponent has values like movement speed, decelleration, jump height, etc
-        { type: ActorComponent },
+        { type: CharacterComponent },
         // Transform system applies values from transform component to three.js object (position, rotation, etc)
         { type: TransformComponent },
         // Local player input mapped to behaviors in the input map

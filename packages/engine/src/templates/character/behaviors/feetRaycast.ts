@@ -4,10 +4,10 @@ import { Entity } from "../../../ecs/classes/Entity";
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { PhysicsManager } from "../../../physics/components/PhysicsManager";
 import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
-import { ActorComponent } from "../components/ActorComponent";
+import { CharacterComponent } from "../components/CharacterComponent";
 
 export const feetRaycast: Behavior = (entity: Entity): void => {
-	const actor: ActorComponent = getMutableComponent<ActorComponent>(entity, ActorComponent as any);
+	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	let body = actor.actorCapsule.body;
 
 	// Player ray casting
