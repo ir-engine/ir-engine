@@ -17,7 +17,7 @@ import { Service } from 'feathers-sequelize'
 import { IdentityProvider } from '../identity-provider/identity-provider.class'
 import { BadRequest } from '@feathersjs/errors'
 import config from '../../config'
-import * as requireMainFilename from 'require-main-filename'
+import requireMainFilename from 'require-main-filename'
 
 interface Data {}
 
