@@ -3,7 +3,7 @@ import { AnimationMixer, BoxGeometry, Group, Mesh, MeshLambertMaterial, Vector3 
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { Object3DComponent } from "../../../common/components/Object3DComponent";
 import { Behavior } from "../../../common/interfaces/Behavior";
-import { addComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
+import { addComponent, getMutableComponent, hasComponent, getComponent } from "../../../ecs/functions/EntityFunctions";
 import { CapsuleCollider } from "../../../physics/components/CapsuleCollider";
 import { RelativeSpringSimulator } from "../../../physics/components/RelativeSpringSimulator";
 import { VectorSpringSimulator } from "../../../physics/components/VectorSpringSimulator";
@@ -11,6 +11,11 @@ import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
 import { addState } from "../../../state/behaviors/StateBehaviors";
 import { CharacterComponent } from "../components/CharacterComponent";
 import { IdleState } from "../states/IdleState";
+import { physicsPreStep } from "./physicsPreStep";
+import { physicsPostStep } from "./physicsPostStep";
+import { Body } from "cannon-es"
+import { State } from "../../../state/components/State";
+import { CharacterStateTypes } from "../CharacterStateTypes";
 
 export const initializeCharacter: Behavior = (entity): void => {
 	console.log("Initializing actor!");
@@ -48,11 +53,16 @@ export const initializeCharacter: Behavior = (entity): void => {
 			actor_height: 0.5,
 			radius: 0.25,
 			segments: 8,
-			friction: 0.0
+			friction: 0.0,
+			body: {
+				preStep: (body: Body) => { physicsPreStep(entity, { body: body } ) },
+				postStep: (body: Body) => { physicsPostStep(entity, { body: body }) }
+			}
 		});
+		console.log("capsule")
+		console.log(actor.actorCapsule)
 		// capsulePhysics.physical.collisionFilterMask = ~CollisionGroups.Trimesh;
 		actor.actorCapsule.body.shapes.forEach((shape) => {
-			// tslint:disable-next-line: no-bitwise
 			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
 		});
 		actor.actorCapsule.body.allowSleep = false;
@@ -70,11 +80,13 @@ export const initializeCharacter: Behavior = (entity): void => {
 			color: 0xff0000
 		});
 		actor.raycastBox = new Mesh(boxGeo, boxMat);
-		actor.raycastBox.visible = false;
+		actor.raycastBox.visible = true;
 
 		// Physics pre/post step callback bindings
 		// States
-		addState(entity, IdleState);
+		addState(entity, { state: CharacterStateTypes.IDLE });
 		actor.initialized = true;
+		console.log("State values")
+		console.log(getComponent(entity, State).data.values())
 	};
 };

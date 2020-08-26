@@ -12,6 +12,8 @@ import { haveDifferentSigns } from "../../../common/functions/haveDifferentSigns
 
 export const physicsPostStep: Behavior = (entity): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+	if(!actor.initialized) return;
+
 	let body = actor.actorCapsule.body;
 
 	// Get velocities

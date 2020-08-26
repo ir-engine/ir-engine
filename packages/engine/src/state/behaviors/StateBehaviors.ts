@@ -21,7 +21,7 @@ export const toggleState: Behavior = (entity: Entity, args: { value: Binary, sta
 export const addState: Behavior = (entity: Entity, args: { state: StateAlias }): void => {
   stateComponent = getComponent(entity, State);
   if (stateComponent.data.has(args.state)) return;
-  return console.log("Need to fix schema before trying thisd")
+  stateGroup = stateComponent.schema.states[args.state].group;
   stateComponent.data.set(args.state, {
     state: args.state,
     type: StateType.DISCRETE,
@@ -29,7 +29,6 @@ export const addState: Behavior = (entity: Entity, args: { state: StateAlias }):
     group: stateComponent.schema.states[args.state].group
   } as StateValue<Binary>);
 
-  stateGroup = stateComponent.schema.states[args.state].group;
   // If state group is set to exclusive (XOR) then check if other states from state group are on
   if (stateComponent.schema.groups[stateGroup].exclusive) {
     stateComponent.schema.groups[stateGroup].states.forEach(state => {
