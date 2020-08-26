@@ -1,4 +1,3 @@
-
 import { QUERY_COMPONENT_CHANGED, QUERY_ENTITY_ADDED, QUERY_ENTITY_REMOVED } from '../constants/Events';
 import { componentRegistered, hasRegisteredComponent, queryKeyFromComponents, registerComponent } from '../functions/ComponentFunctions';
 import { ComponentConstructor } from '../interfaces/ComponentInterfaces';
@@ -176,10 +175,11 @@ export abstract class System {
                   );
                 }
               } else {
-                const self = this
+                const eventList = (this.queryResults[queryName][eventName] = []);
+
                 query.eventDispatcher.addEventListener(eventMapping[eventName], entity => {
                   // @fixme overhead?
-                  if (!self.queryResults[queryName][eventName].includes(entity)) self.queryResults[queryName][eventName].push(entity);
+                  if (!eventList.includes(entity)) eventList.push(entity);
                 });
               }
             }

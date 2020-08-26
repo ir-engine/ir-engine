@@ -54,17 +54,17 @@ export const EnginePage: FunctionComponent = (props: any) => {
       intensity: 2.0
     }})
 
-    console.log("Creating a scene entity to test")
-    addComponent(createEntity(), AssetLoader, {
-      url: "models/library.glb",
-      receiveShadow: true,
-      castShadow: true
-    }) 
-    addComponent(createEntity(), AssetLoader, {
-      url: "models/OldCar.fbx",
-      receiveShadow: true,
-      castShadow: true
-    })
+    // console.log("Creating a scene entity to test")
+    // addComponent(createEntity(), AssetLoader, {
+    //   url: "models/library.glb",
+    //   receiveShadow: true,
+    //   castShadow: true
+    // }) 
+    // addComponent(createEntity(), AssetLoader, {
+    //   url: "models/OldCar.fbx",
+    //   receiveShadow: true,
+    //   castShadow: true
+    // })
 
     return () => {
       // cleanup

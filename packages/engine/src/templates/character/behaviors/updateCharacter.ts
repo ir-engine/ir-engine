@@ -37,4 +37,7 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
     actor.actorCapsule.body.position.copy(cannonFromThreeVector(newPos));
     actor.actorCapsule.body.interpolatedPosition.copy(cannonFromThreeVector(newPos));
   }
+
+  const actorObject3d = getMutableComponent<Object3DComponent>(entity, Object3DComponent)
+  actorObject3d.value.updateMatrixWorld();
 };

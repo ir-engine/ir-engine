@@ -16,29 +16,35 @@ import { physicsPostStep } from "./physicsPostStep";
 import { Body } from "cannon-es"
 import { State } from "../../../state/components/State";
 import { CharacterStateTypes } from "../CharacterStateTypes";
+import { Engine } from "../../../ecs/classes/Engine";
 
 export const initializeCharacter: Behavior = (entity): void => {
-	console.log("Initializing actor!");
+	console.log("**** Initializing character!");
 	if (!hasComponent(entity, CharacterComponent as any))
 		addComponent(entity, CharacterComponent as any);
 	const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
 
 	assetLoader.onLoaded = asset => {
 		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+		console.log("Setting animations to ")
+		console.log(asset.animations)
+		console.log("Asset")
+		console.log(asset)
 		actor.animations = asset.animations;
 
 		// The visuals group is centered for easy actor tilting
 		actor.tiltContainer = new Group();
 		const actorObject3D = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
-		actorObject3D.value.add(actor.tiltContainer);
+		// actorObject3D.value.add(actor.tiltContainer);
 
-		// Model container is used to reliably ground the actor, as animation can alter the position of the model itself
-		actor.modelContainer = new Group();
-		actor.modelContainer.position.y = -0.57;
-		actor.tiltContainer.add(actor.modelContainer);
-		actor.modelContainer.add(asset.scene);
-
-		actor.mixer = new AnimationMixer(asset.scene);
+		// // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
+		// actor.modelContainer = new Group();
+		// actor.modelContainer.position.y = -0.57;
+		// actor.tiltContainer.add(actor.modelContainer);
+		// actor.modelContainer.add(asset.scene);
+console.log("Set mixer to")
+console.log(actorObject3D.value)
+		actor.mixer = new AnimationMixer(Engine.scene);
 
 		actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 		actor.rotationSimulator = new RelativeSpringSimulator(60, actor.defaultRotationSimulatorMass, actor.defaultRotationSimulatorDamping);

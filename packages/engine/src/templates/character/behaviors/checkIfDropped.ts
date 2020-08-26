@@ -12,6 +12,8 @@ import { CharacterStateTypes } from '../CharacterStateTypes';
 
 export const checkIfDropped: Behavior = (entity, args: { transitionToState: any; }, deltaTime) => {
   const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
+  if(!actor.initialized) return;
+
   if (!actor.rayHasHit) return;
   
   if (actor.groundImpactVelocity.y < -6)

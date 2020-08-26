@@ -6,6 +6,7 @@ import { CharacterStateTypes } from '../CharacterStateTypes';
 
 export const checkFalling: Behavior = (entity) => {
   const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
+  if(!actor.initialized) return;
    if (!actor.rayHasHit)
      addState(entity, { state: CharacterStateTypes.FALLING });
 };

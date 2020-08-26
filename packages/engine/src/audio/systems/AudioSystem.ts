@@ -19,7 +19,7 @@ export class AudioSystem extends System {
         window.addEventListener('click',()=> this.startAudio())
     }
     execute(delta, time) {
-        this.queries.sound_effects.added.forEach(ent => {
+        this.queries.sound_effects.added?.forEach(ent => {
             let effect = ent.getComponent(SoundEffect)
             if(effect.src && !this.audio) {
                 effect.audio = new Audio()
@@ -31,13 +31,13 @@ export class AudioSystem extends System {
                 effect.audio.src = effect.src
             }
         })
-        this.queries.music.added.forEach(ent => {
+        this.queries.music.added?.forEach(ent => {
             this.whenReady(()=>this.startBackgroundMusic(ent))
         })
-        this.queries.music.removed.forEach(ent => {
+        this.queries.music.removed?.forEach(ent => {
             this.stopBackgroundMusic(ent)
         })
-        this.queries.play.added.forEach(ent => {
+        this.queries.play.added?.forEach(ent => {
             this.whenReady(()=>this.playSoundEffect(ent))
         })
     }

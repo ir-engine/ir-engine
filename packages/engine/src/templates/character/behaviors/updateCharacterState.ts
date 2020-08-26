@@ -5,6 +5,7 @@ import { setCameraRelativeOrientationTarget } from "./setCameraRelativeOrientati
 
 export const updateCharacterState: Behavior = (entity, args: { setCameraRelativeOrientationTarget?: boolean; }, deltaTime: number): void => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+	if(!actor.initialized) return;
 	actor.timer += deltaTime;
 	if (args.setCameraRelativeOrientationTarget)
 		setCameraRelativeOrientationTarget(entity);
