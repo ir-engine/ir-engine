@@ -1,8 +1,9 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { CharacterComponent } from '../../../character/components/CharacterComponent';
-import { setCharacterAnimation } from "../setCharacterAnimation";
+import { ActorComponent } from '../components/ActorComponent';
+import { setActorAnimation } from "../behaviors/setActorAnimation";
 import { checkFalling } from "../behaviors/checkFalling";
-import { initializeCharacterState, updateCharacterState } from '../behaviors/CharacterBaseBehaviors';
+import { initializeCharacterState } from "../behaviors/initializeCharacterState";
+import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
 import { onAnimationEnded } from '../behaviors/onAnimationEnded';
 import { IdleState } from './IdleState';
@@ -11,7 +12,7 @@ import { IdleState } from './IdleState';
 export const IdleRotateLeftState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
   componentProperties: {
-    component: CharacterComponent,
+    component: ActorComponent,
     properties: {
       ['velocitySimulator.mass']: 10,
       ['velocitySimulator.damping']: 0.6,
@@ -25,7 +26,7 @@ export const IdleRotateLeftState: StateSchemaValue = {
         behavior: initializeCharacterState
       },
       {
-        behavior: setCharacterAnimation,
+        behavior: setActorAnimation,
         args: {
           name: 'rotate_left',
           transitionDuration: 0.1

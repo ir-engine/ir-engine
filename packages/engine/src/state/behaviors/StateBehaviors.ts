@@ -21,6 +21,7 @@ export const toggleState: Behavior = (entity: Entity, args: { value: Binary, sta
 export const addState: Behavior = (entity: Entity, args: { state: StateAlias }): void => {
   stateComponent = getComponent(entity, State);
   if (stateComponent.data.has(args.state)) return;
+  return console.log("Need to fix schema before trying thisd")
   stateComponent.data.set(args.state, {
     state: args.state,
     type: StateType.DISCRETE,

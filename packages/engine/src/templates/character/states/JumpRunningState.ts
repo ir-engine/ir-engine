@@ -1,14 +1,15 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { CharacterComponent } from '../../../character/components/CharacterComponent';
-import { setCharacterAnimation } from "../setCharacterAnimation";
-import { initializeCharacterState, updateCharacterState } from '../behaviors/CharacterBaseBehaviors';
+import { ActorComponent } from '../components/ActorComponent';
+import { setActorAnimation } from "../behaviors/setActorAnimation";
+import { initializeCharacterState } from "../behaviors/initializeCharacterState";
+import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
-import { jumpRunning } from '../behaviors/jump';
+import { jumpRunning } from "../behaviors/jumpRunning";
 
 export const JumpRunningState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
   componentProperties: {
-    component: CharacterComponent,
+    component: ActorComponent,
     properties: {
       ['velocitySimulator.mass']: 100,
       ['velocityTarget']: { x: 0, y: 0, z: 0 },
@@ -20,7 +21,7 @@ export const JumpRunningState: StateSchemaValue = {
         behavior: initializeCharacterState
       },
       {
-        behavior: setCharacterAnimation,
+        behavior: setActorAnimation,
         args: {
           name: 'jump_running',
           transitionDuration: 0.03

@@ -1,18 +1,17 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { CharacterComponent } from '../../../character/components/CharacterComponent';
-import { setCharacterAnimation } from "../setCharacterAnimation";
-import { checkFalling } from "../behaviors/checkFalling";
-import { initializeCharacterState, updateCharacterState } from '../behaviors/CharacterBaseBehaviors';
+import { ActorComponent } from '../components/ActorComponent';
+import { setActorAnimation } from "../behaviors/setActorAnimation";
+import { initializeCharacterState } from "../behaviors/initializeCharacterState";
+import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
 import { onAnimationEnded } from '../behaviors/onAnimationEnded';
-import { IdleState } from './IdleState';
 import { setTargetVelocityIfMoving } from '../behaviors/setTargetVelocityIfMoving';
 import { checkIfDropped } from '../behaviors/checkIfDropped';
 
 export const FallingState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
   componentProperties: {
-    component: CharacterComponent,
+    component: ActorComponent,
     properties: {
       ['velocitySimulator.mass']: 100,
       ['rotationSimulator.damping']: 0.3,
@@ -24,7 +23,7 @@ export const FallingState: StateSchemaValue = {
         behavior: initializeCharacterState
       },
       {
-        behavior: setCharacterAnimation,
+        behavior: setActorAnimation,
         args: {
           name: 'falling',
           transitionDuration: 0.3
@@ -42,11 +41,9 @@ export const FallingState: StateSchemaValue = {
     {
       behavior: onAnimationEnded,
       args: {
-        transitionToState: IdleState
+        // BUG: Commented out due to circular dependency issue
+        //transitionToState: IdleState
       }
-    },
-    {
-      behavior: checkFalling
     },
     // Set Velocity Target If Moving
     {

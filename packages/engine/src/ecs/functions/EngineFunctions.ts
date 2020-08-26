@@ -3,11 +3,8 @@ import { System } from '../classes/System';
 import { executeSystem } from './SystemFunctions';
 import { Engine } from '../classes/Engine';
 import { EngineOptions } from '../interfaces/EngineOptions';
+import { Timer } from "../../common/functions/Timer";
 import { now } from "../../common/functions/now";
-import { CameraOperator } from "../../camera/classes/CameraOperator";
-import { SAPBroadphase, World } from "cannon-es";
-import { default as CSM } from 'three-csm';
-import { Stats } from "stats.js"
 
 /**
  * Initialize options on the engine object and fire a command for devtools
@@ -21,56 +18,7 @@ export function initialize (options?: EngineOptions) {
     window.dispatchEvent(event);
   }
 
-// TODO: Move to rendering
-  let splitsCallback = (amount, near, far) =>
-  {
-    return [
-      Math.pow(1 / 3, 3),
-      Math.pow(1 / 3, 2),
-      Math.pow(1 / 3, 1),
-      Math.pow(1 / 3, 0)
-    ];
-  };
-
-  Engine.csm = new CSM({
-    fov: 80,
-    far: 300,
-    lightIntensity: 2.5,
-    cascades: 4,
-    shadowMapSize: 2048,
-    camera: Engine.camera,
-    parent: Engine.scene,
-    mode: 'custom',
-    customSplitsCallback: splitsCallback
-  });
-
-
-
-    Engine.renderDelta = 0;
-    Engine.logicDelta = 0;
-    Engine.accumulator = 0;
-    Engine.justExecuted = false;
-
-    Engine.stats = new Stats()
-    Engine.stats.showPanel( 1 ); // 0: fps, 1: ms, 2: mb, 3+: custom
-    document.body.appendChild( Engine.stats.dom );
-
-    // TODO: Clean up and move to right spots
-    // Variables
-		let params = {
-			FPS_Limit: 60,
-			Time_Scale: 1,
-			Draw_Physics: false,
-			RayCast_Debug: false,
-			Phi: 60,
-			Theta: 225,
-    };
-    
-    Engine.params = params;
-    Engine.clock.start()
-
-    // Engine.cameraOperator = new CameraOperator(Engine.camera, Engine.params.Mouse_Sensitivity);
-
+  Engine.lastTime = now() / 1000;
 }
 
 /**
@@ -80,43 +28,16 @@ export function initialize (options?: EngineOptions) {
  * (You probably don't want to use this) 
  */
 export function execute (delta?: number, time?: number): void {
-		// Stats begin
-      Engine.stats.begin();
+  if (!delta) {
+    time = now() / 1000;
+    delta = time - Engine.lastTime;
+    Engine.lastTime = time;
+  }
 
-		// Measuring render time
-		Engine.renderDelta = Engine.clock.getDelta();
-
-		// Getting timeStep
-		let timeStep = Math.min((Engine.renderDelta + Engine.logicDelta), 1 / 10); ;
-
-      		// Frame limiting
-		let fixedTimestep = 1 / Engine.params.FPS_Limit;
-    Engine.accumulator += timeStep
-
-    // Logic
-      Engine.systemsToExecute.forEach(system => {
-        if (system.enabled && system.fixed !== undefined){
-          executeSystem(system, Engine.logicDelta, Engine.clock.elapsedTime);
-          processDeferredEntityRemoval();
-        }
-      })
-
-		// Measuring logic time
-		Engine.logicDelta = Engine.clock.getDelta();
-
-		while (Engine.accumulator > fixedTimestep)
-		{
-			Engine.accumulator -= fixedTimestep;
-
-      Engine.systemsToExecute.forEach(system => {
-        if (system.enabled && system.fixed === true){
-          executeSystem(system, Engine.logicDelta, Engine.clock.elapsedTime);
-          processDeferredEntityRemoval();
-        }
-      })
-		}
-			// Stats end
-			Engine.stats.end();
+  if (Engine.enabled) {
+    Engine.systemsToExecute.forEach(system => system.enabled && executeSystem(system, delta, time));
+    processDeferredEntityRemoval();
+  }
 }
 
 /**
@@ -206,4 +127,21 @@ export function stats (): { entities: any, system: any } {
     entities: entityStatus,
     system: systemStatus
   };
+}
+
+export function resetEngine() {
+  if (Engine.engineTimerTimeout) {
+    clearTimeout(Engine.engineTimerTimeout)
+  }
+  Engine.engineTimer?.stop()
+
+  Engine.reset()
+}
+
+export function startTimer () {
+  setTimeout(() => {
+    Engine.engineTimer = Timer({
+      update: (delta, elapsedTime) => execute(delta, elapsedTime)
+    }).start();
+  }, 1);
 }

@@ -19,6 +19,10 @@ import {
   createEntity
 } from '../../ecs/functions/EntityFunctions';
 import { Engine } from '../../ecs/classes/Engine';
+import { TransformParentComponent } from '../../transform/components/TransformParentComponent';
+import { TransformChildComponent } from '../../transform/components/TransformChildComponent';
+import { Group } from 'three';
+import { GroupTagComponent } from '../../common/components/Object3DTagComponents';
 
 export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
@@ -78,26 +82,28 @@ export default class AssetLoadingSystem extends System {
         }
       } else {
         addComponent(entity, Model, { value: asset });
+        const transformParent = addComponent<TransformParentComponent>(entity, TransformParentComponent) as TransformParentComponent
         console.log("Attempting addObject3d component with: ")
+        addObject3DComponent(entity, { obj3d: Group, parent: Engine.scene });
+        const object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent) as Object3DComponent
 
-        asset.scene?.children.forEach(obj => {
+        const a = asset.scene ?? asset
+        a.children.forEach(obj => {
           const e = createEntity()
           console.log(obj)
-          addObject3DComponent(e, { obj3d: obj, parent: Engine.scene });
+          addObject3DComponent(e, { obj3d: obj, parent: object3DComponent });
+          const transformChild = addComponent<TransformChildComponent>(e, TransformChildComponent) as TransformChildComponent
+          transformChild.parent = entity
+          transformParent.children.push(e)
         })
-
-        asset.children?.forEach(obj => {
-          const e = createEntity()
-          console.log(obj)
-          addObject3DComponent(e, { obj3d: obj, parent: Engine.scene });
-        })
-
       }
-
+      getMutableComponent<AssetLoader>(entity, AssetLoader).loaded = true;
+      
+      AssetVault.instance.assets.set(hashResourceString(component.url), asset.scene);
+      
       if (component.onLoaded) {
         component.onLoaded(asset.scene);
       }
-      AssetVault.instance.assets.set(hashResourceString(component.url), asset.scene);
     });
 
     this.loaded.clear();

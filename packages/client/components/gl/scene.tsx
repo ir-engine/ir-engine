@@ -1,5 +1,5 @@
 import React, { Component, useEffect, FunctionComponent, useState } from 'react';
-import { initializeEngine, resetEngine, DefaultInitializationOptions } from "@xr3ngine/engine/src/initialize";
+import { initializeEngine, DefaultInitializationOptions } from "@xr3ngine/engine/src/initialize";
 import { PlayerCharacter } from "@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter";
 import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
@@ -16,6 +16,7 @@ import { rigidBodyBox } from './rigidBodyBox'
 import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
 import { AmbientLight } from 'three';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/network/DefaultNetworkSchema';
+import { resetEngine } from '@xr3ngine/engine/src/ecs/functions/EngineFunctions';
 
 export const EnginePage: FunctionComponent = (props: any) => {
 
@@ -43,11 +44,11 @@ export const EnginePage: FunctionComponent = (props: any) => {
     initializeEngine(InitializationOptions);
 
     // Load glb here
-    createPrefab(rigidBodyBox);
+    // createPrefab(rigidBodyBox);
 
     createPrefab(PlayerCharacter);
 
-     createPrefab(staticWorldColliders);
+    //  createPrefab(staticWorldColliders);
 
     addObject3DComponent(createEntity(), { obj3d: AmbientLight, ob3dArgs: {
       intensity: 2.0
@@ -55,15 +56,11 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
     console.log("Creating a scene entity to test")
     addComponent(createEntity(), AssetLoader, {
-      assetType: AssetType.glTF,
-      assetClass: AssetClass.Model,
       url: "models/library.glb",
       receiveShadow: true,
       castShadow: true
     }) 
     addComponent(createEntity(), AssetLoader, {
-      assetType: AssetType.FBX,
-      assetClass: AssetClass.Model,
       url: "models/OldCar.fbx",
       receiveShadow: true,
       castShadow: true

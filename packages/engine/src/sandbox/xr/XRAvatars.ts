@@ -15,7 +15,7 @@ import {
   findSpine,
   getTailBones,
   importSkeleton
-} from "../../character/functions/SkeletonFunctions"
+} from "../actor/functions/SkeletonFunctions"
 import skeletonString from "./Skeleton"
 import LegsManager from "./vrarmik/LegsManager"
 import PoseManager from "./vrarmik/PoseManager"

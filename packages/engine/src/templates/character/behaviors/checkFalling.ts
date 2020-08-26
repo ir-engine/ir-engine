@@ -1,11 +1,10 @@
-import { CharacterComponent } from '../../../character/components/CharacterComponent';
+import { ActorComponent } from '../components/ActorComponent';
 import { Behavior } from '../../../common/interfaces/Behavior';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
-import { FallingState } from '../states/FallingState';
 import { addState } from '../../../state/behaviors/StateBehaviors';
 
 export const checkFalling: Behavior = (entity) => {
-  const character = getComponent<CharacterComponent>(entity, CharacterComponent as any);
-  if (!character.rayHasHit)
-    addState(entity, { state: FallingState });
+  const actor = getComponent<ActorComponent>(entity, ActorComponent as any);
+//   if (!actor.rayHasHit)
+    // addState(entity, { state: FallingState });
 };

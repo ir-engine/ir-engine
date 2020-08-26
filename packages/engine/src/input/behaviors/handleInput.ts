@@ -7,6 +7,7 @@ import { InputType } from '../enums/InputType';
 import { InputValue } from '../interfaces/InputValue';
 import { InputAlias } from '../types/InputAlias';
 import { getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { BinaryValue } from '../../common/enums/BinaryValue';
 let input: Input;
 export const handleInput: Behavior = (entity: Entity, delta: number): void => {
   input = getMutableComponent(entity, Input);
@@ -15,14 +16,19 @@ export const handleInput: Behavior = (entity: Entity, delta: number): void => {
     if (value.type === InputType.BUTTON) {
       // If the input exists on the input map (otherwise ignore it)
       if (input.schema.inputButtonBehaviors[key] && input.schema.inputButtonBehaviors[key][value.value as number]) {
+        // If the button is pressed
+        if(value.value === BinaryValue.ON) {
         // If the lifecycle hasn't been set or just started (so we don't keep spamming repeatedly)
-        if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue.STARTED) {
+        if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED
+        if(value.lifecycleState === LifecycleValue.STARTED) {
           // Set the value of the input to continued to debounce
           input.data.set(key, {
             type: value.type,
             value: value.value as Binary,
             lifecycleState: LifecycleValue.CONTINUED
           });
+          console.log("value.value, " + value.value)
+
           input.schema.inputButtonBehaviors[key][value.value as number].started?.forEach(element =>
             element.behavior(entity, element.args, delta)
           );
@@ -31,7 +37,13 @@ export const handleInput: Behavior = (entity: Entity, delta: number): void => {
             element.behavior(entity, element.args, delta)
           );
         }
+      } else {
+        input.schema.inputButtonBehaviors[key][value.value as number].continued?.forEach(element =>
+          element.behavior(entity, element.args, delta)
+        );
+        input.data.delete(key)
       }
+    } 
     } else if (
       value.type === InputType.ONED ||
       value.type === InputType.TWOD ||

@@ -49,6 +49,8 @@ export class StateSystem extends System {
 
   private readonly callBehaviors: Behavior = (entity: Entity, args: { phase: string }, delta: number) => {
     this._state = getComponent(entity, State);
+    return
+    // TODO: Need to reshape our state system to fit new schema
     this._state.data.forEach((stateValue: StateValue<NumericalType>) => {
       if (
         this._state.schema.states[stateValue.state] !== undefined &&

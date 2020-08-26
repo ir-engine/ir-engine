@@ -6,10 +6,12 @@ import { EngineOptions } from '../interfaces/EngineOptions';
 import { DefaultOptions } from '../constants/DefaultOptions';
 import { Entity } from './Entity';
 import Stats from 'stats.js'
-import CSM from "three-csm"
 import { CameraOperator } from '../../camera/classes/CameraOperator';
 
 export class Engine {
+
+  public static engineTimer:{ start: Function, stop: Function } = null
+  public static engineTimerTimeout;
 
   public static stats: Stats
   // Move for sure
@@ -26,7 +28,6 @@ public static framerateLimit = 60;
 	public static params: any;
 	public static cameraOperator: CameraOperator;
 	public static timeScaleTarget: number = 1;
-  public static csm: CSM;
   public static clock = new Clock;
   /**
    * Reference to the three.js renderer object
@@ -140,33 +141,34 @@ public static framerateLimit = 60;
   static systemsToExecute: any[] = []
     static vehicles: any;
     static physicsFrameRate: number;
+  static lastTime: number;
 
   static reset():void {
     // delete all entities
     // TODO: force components deletion and systems processing of their deletion?
     // TODO: cleanup
-    this.nextEntityId = 0
+    Engine.nextEntityId = 0
 
     // cleanup/unregister components
     // TODO: cleanup
-    this.nextComponentId = 0
+    Engine.nextComponentId = 0
 
     // cleanup systems
-    this.systems.forEach(system => {
+    Engine.systems.forEach(system => {
       if (system.dispose) system.dispose()
     })
-    this.systems.length = 0
-    this.systemsToExecute.length = 0
+    Engine.systems.length = 0
+    Engine.systemsToExecute.length = 0
 
     // cleanup events
-    this.eventDispatcher.reset()
+    Engine.eventDispatcher.reset()
 
     // TODO: delete all what is left from scene
-    this.scene = null
+    Engine.scene = null
 
-    this.camera = null
+    Engine.camera = null
 
-    this.renderer.dispose()
-    this.renderer = null
+    Engine.renderer.dispose()
+    Engine.renderer = null
   }
 }
