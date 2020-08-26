@@ -1,4 +1,4 @@
-import { AmbientLight, Camera, GridHelper, PerspectiveCamera, Scene } from 'three';
+import { AmbientLight, Camera, GridHelper, PerspectiveCamera, Scene, AudioListener, PositionalAudio, AudioLoader } from 'three';
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { createEntity } from './ecs/functions/EntityFunctions';
 import { Engine } from './ecs/classes/Engine';
@@ -25,6 +25,12 @@ export const DefaultInitializationOptions = {
   debug: true,
   withTransform: true,
   withWebXRInput: true,
+  audio: {
+    enabled: true,
+    src: '',
+    refDistance: 20,
+    autoplay: true,
+  },
   input: {
     enabled: true,
     schema: CharacterInputSchema
@@ -92,6 +98,22 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
     // Add the camera to the three.js scene
     scene.add(camera);
       registerSystem(CameraSystem);
+    }
+
+    if( options.audio?.enabled ){
+      const {src, refDistance, autoplay} = options.audio
+      const listener = new AudioListener();
+      Engine.camera.add( listener );
+      if( src ){
+        const sound = 
+              Engine.sound = new PositionalAudio( listener );
+        const audioLoader = new AudioLoader();
+        audioLoader.load( src, buffer => {
+          sound.setBuffer( buffer );
+          sound.setRefDistance( refDistance );
+          if(autoplay) sound.play();
+        });
+      }
     }
 
   // Input

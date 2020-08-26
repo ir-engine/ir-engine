@@ -15,6 +15,7 @@ import { staticWorldColliders } from './staticWorldColliders'
 import { rigidBodyBox } from './rigidBodyBox'
 import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
 import { AmbientLight } from 'three';
+import { PositionalAudio, Mesh, SphereBufferGeometry, MeshPhongMaterial  } from 'three';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/network/DefaultNetworkSchema';
 import { resetEngine } from '@xr3ngine/engine/src/ecs/functions/EngineFunctions';
 
@@ -39,7 +40,10 @@ export const EnginePage: FunctionComponent = (props: any) => {
       },
       physics: {
         enabled: true
-      }
+      },
+      audio: {
+        src: '/audio/108.ogg'
+      },
     };
     initializeEngine(InitializationOptions);
 
@@ -53,6 +57,17 @@ export const EnginePage: FunctionComponent = (props: any) => {
     addObject3DComponent(createEntity(), { obj3d: AmbientLight, ob3dArgs: {
       intensity: 2.0
     }})
+
+    if( Engine.sound ){
+      const audioMesh = new Mesh(
+        new SphereBufferGeometry( 20, 32, 16 ),
+        new MeshPhongMaterial({ color: 0xff2200 })
+      );
+      addObject3DComponent(createEntity(), { 
+        obj3d: audioMesh
+      });
+      audioMesh.add( Engine.sound );
+    }
 
     // console.log("Creating a scene entity to test")
     // addComponent(createEntity(), AssetLoader, {
