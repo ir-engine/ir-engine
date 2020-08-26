@@ -108,9 +108,9 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
       const listener = new AudioListener();
       Engine.camera.add( listener );
       if( src ){
-        const Sound = positional ? PositionalAudio : Audio;
+        const Sound:any = positional ? PositionalAudio : Audio;
         const sound = 
-              Engine.sound = new Sound( listener );
+              (Engine as any).sound = new Sound( listener );
         const audioLoader = new AudioLoader();
         audioLoader.load( src, buffer => {
           sound.setBuffer( buffer );
