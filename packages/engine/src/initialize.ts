@@ -92,7 +92,7 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
     // Add the camera to the three.js scene
     scene.add(camera);
       registerSystem(CameraSystem);
-    } 
+    }
 
   // Input
   if (options.input && options.input.enabled && isBrowser) {
@@ -134,14 +134,14 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
     registerSystem(WebGLRendererSystem, { priority: 999 });
   }
 
-  if (options.debug === true) {
-    // If we're in debug, add a gridhelper
-    const gridHelper = new GridHelper(1000, 100, 0xffffff, 0xeeeeee);
-    scene.add(gridHelper);
-    const entity = createEntity();
-    // Add an ambient light to the scene
-    addObject3DComponent(entity, { obj3d: AmbientLight });
-  }
+  // if (options.debug === true) {
+  //   // If we're in debug, add a gridhelper
+  //   const gridHelper = new GridHelper(1000, 100, 0xffffff, 0xeeeeee);
+  //   scene.add(gridHelper);
+  //   const entity = createEntity();
+  //   // Add an ambient light to the scene
+  //   addObject3DComponent(entity, { obj3d: AmbientLight });
+  // }
 
   // Start our timer!
   if (isBrowser) {

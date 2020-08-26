@@ -110,11 +110,16 @@ export class MediaStreamSystem extends System {
   }
 
   addVideoAudio (consumer: { track: { clone: () => MediaStreamTrack }, kind: string }, peerId: any) {
+    console.log('addVideoAudio')
+    console.log(consumer)
+    console.log(peerId)
     if (!(consumer && consumer.track)) {
       return;
     }
     const elementID = `${peerId}_${consumer.kind}`;
+    console.log(`elementId: ${elementID}`)
     let el = document.getElementById(elementID) as any;
+    console.log(el)
 
     // set some attributes on our audio and video elements to make
     // mobile Safari happy. note that for audio to play you need to be

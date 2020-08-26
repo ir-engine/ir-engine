@@ -42,34 +42,54 @@ export class StateSystem extends System {
     });
 
     this.queryResults.state.all?.forEach(entity => {
-      this.callBehaviors(entity, { phase: 'onUpdate' }, delta);
-      this.callBehaviors(entity, { phase: 'onLateUpdate' }, delta);
+      callBehaviors(entity, delta);
     });
   }
+}
 
-  private readonly callBehaviors: Behavior = (entity: Entity, args: { phase: string }, delta: number) => {
-    this._state = getComponent(entity, State);
-    return
-    // TODO: Need to reshape our state system to fit new schema
-    this._state.data.forEach((stateValue: StateValue<NumericalType>) => {
-      if (
-        this._state.schema.states[stateValue.state] !== undefined &&
-        this._state.schema.states[stateValue.state][args.phase] !== undefined
-      ) {
-        if (stateValue.lifecycleState === LifecycleValue.STARTED) {
-          this._state.data.set(stateValue.state, {
-            ...stateValue,
-            lifecycleState: LifecycleValue.CONTINUED
-          });
-        }
-        this._state.schema.states[stateValue.state][args.phase].behavior(
+export const callBehaviors: Behavior = (entity: Entity, args: { phase: string }, delta: number) => {
+  const _state = getComponent(entity, State);
+  _state.data.forEach((stateValue: StateValue<NumericalType>) => {
+    // Call actions on start of start (onEntry)
+    if (stateValue.lifecycleState === LifecycleValue.STARTED &&
+      _state.schema.states[stateValue.state] !== undefined &&
+      _state.schema.states[stateValue.state]['onEntry'] !== undefined) {
+        _state.schema.states[stateValue.state]['onEntry'].forEach(state =>
+          state.behavior(
           entity,
-          this._state.schema.states[stateValue.state][args.phase].args,
+          _state.schema.states[stateValue.state]['onEntry'].args,
           delta
-        );
+        ))
+    }
+    // Call actions on update
+    if (_state.schema.states[stateValue.state] !== undefined &&
+      _state.schema.states[stateValue.state]['onUpdate'] !== undefined ) {
+      if (stateValue.lifecycleState === LifecycleValue.STARTED) {
+        _state.data.set(stateValue.state, {
+          ...stateValue,
+          lifecycleState: LifecycleValue.CONTINUED
+        });
       }
-    });
-  }
+      _state.schema.states[stateValue.state]['onUpdate'].forEach(state =>
+        state.behavior(
+        entity,
+        _state.schema.states[stateValue.state]['onUpdate'].args,
+        delta
+      ))
+    }
+        // Call actions on start of end of state (onEntry)
+        if (stateValue.lifecycleState === LifecycleValue.ENDED &&
+          _state.schema.states[stateValue.state] !== undefined &&
+          _state.schema.states[stateValue.state]['onExit'] !== undefined) {
+            _state.schema.states[stateValue.state]['onExit'].forEach(state =>
+              state.behavior(
+              entity,
+              _state.schema.states[stateValue.state]['onExit'].args,
+              delta
+            ))
+        }
+        _state.data.delete(stateValue.state);
+  });
 }
 
 StateSystem.queries = {
