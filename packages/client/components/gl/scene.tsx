@@ -60,7 +60,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
       intensity: 2.0
     }})
 
-    if( Engine.sound ){
+    const {sound} = Engine as any;
+    if( sound ){
       const audioMesh = new Mesh(
         new SphereBufferGeometry( 20, 32, 16 ),
         new MeshPhongMaterial({ color: 0xff2200 })
@@ -68,7 +69,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
       addObject3DComponent(createEntity(), { 
         obj3d: audioMesh
       });
-      audioMesh.add( Engine.sound );
+      audioMesh.add( sound );
     }
 
     // console.log("Creating a scene entity to test")
