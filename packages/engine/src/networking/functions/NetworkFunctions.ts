@@ -37,6 +37,7 @@ export const sendMessage = (messageChannel: MessageChannel, messageType: Message
     case MessageChannel.Reliable:
       instance.transport.sendReliableMessage({ channel: messageType.toString(), data: messageData })
     case MessageChannel.Unreliable:
-      instance.transport.sendUnreliableMessage({ channel: messageType.toString(), data: messageData })
+      // instance.transport.sendUnreliableMessage(messageData, messageType.toString()) // Use message type as channel?
+      instance.transport.sendUnreliableMessage(messageData) // Use default channel?
   }
 }

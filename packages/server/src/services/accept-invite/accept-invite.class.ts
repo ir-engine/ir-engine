@@ -37,8 +37,6 @@ export class AcceptInvite implements ServiceMethods<Data> {
         return new BadRequest('Invalid passcode')
       }
 
-      console.log('GOT INVITE')
-      console.log(invite)
       if (invite.identityProviderType != null) {
         let inviteeIdentityProvider
         const inviteeIdentityProviderResult = await this.app.service('identity-provider').find({

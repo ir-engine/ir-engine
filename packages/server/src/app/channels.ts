@@ -89,7 +89,7 @@ export default (app: Application): void => {
             const userId = identityProvider.userId
             const user = await app.service('user').get(userId)
             const instance = await app.service('instance').get((app as any).instance.id)
-            if (user.instanceId === (app as any).instance.id) {
+            if (user.instanceId === (app as any).instance?.id) {
               await app.service('user').patch(userId, {
                 instanceId: null
               })
