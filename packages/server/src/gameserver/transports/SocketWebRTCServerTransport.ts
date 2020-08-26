@@ -21,7 +21,7 @@ import {
   WebRtcTransport
 } from "mediasoup/lib/types"
 import { types as MediaSoupClientTypes } from "mediasoup-client"
-import { UnreliableMessageParams, UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine/src/networking/types/NetworkingTypes"
+import { UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine/src/networking/types/NetworkingTypes"
 
 interface Client {
   socket: SocketIO.Socket;
@@ -99,7 +99,7 @@ const defaultRoomState = {
   consumers: [],
   // dataProducers: [] as DataProducer[],
   dataProducers: new Map<string, DataProducer>(), // Data Producer is identified by channel name (key)
-  dataConsumers: new Map<string, DataConsumer>(), // Data Consumer is identified by Data producer's id (key)
+  dataConsumers: new Map<string, DataConsumer[]>(), // Data Consumer is identified by Data producer's id (key)
   peers: {}
 }
 
@@ -144,26 +144,34 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       if (!transport) {
         callback({ error: "Transport is not available for the transport id or it is invalid" })
       }
+      const { consumerOptions: { dataProducerId } } = data
       data.consumerOptions.appData = { ...(data.consumerOptions.appData || {}), peerId: socket.id }
       console.log("Creating DataConsumer")
-      let dataConsumer: DataConsumer = this.roomState.dataConsumers.get(data.consumerOptions.dataProducerId)
-      if (!dataConsumer) {
-        dataConsumer = await transport.consumeData(data.consumerOptions)
+        const dataConsumer = await transport.consumeData(data.consumerOptions)
         console.log("Setting DataConsumer to roomstate")
-        this.roomState.dataConsumers.set(data.consumerOptions.dataProducerId, dataConsumer)
-      }
+        const consumers = this.roomState.dataConsumers.get(dataProducerId) || []
+        this.roomState.dataConsumers.set(
+          dataProducerId,
+          consumers.concat(dataConsumer)
+        )
       dataConsumer.on("transportclose", () => {
-        console.log("closing DataConsumer and removing it from roomstate")
-        this.roomState.dataConsumers.delete(data.consumerOptions.dataProducerId)
+        console.log("Closing DataConsumer and removing it from roomstate")
+        this.roomState.dataConsumers.set(
+          dataProducerId,
+          this.roomState.dataConsumers
+            .get(dataProducerId)
+            .filter((c) => c.id !== dataConsumer.id)
+        )
         dataConsumer.close()
       })
-      const options: { dataConsumerOptions: MediaSoupClientTypes.DataConsumerOptions } = {
+        console.log("Creating DataConsumer options for client")
+        const options: { dataConsumerOptions: MediaSoupClientTypes.DataConsumerOptions } = {
         dataConsumerOptions: {
+          appData: data.consumerOptions.appData,
+          dataProducerId,
           id: dataConsumer.id,
           label: dataConsumer.label,
-          sctpStreamParameters: dataConsumer.sctpStreamParameters,
-          appData: data.consumerOptions.appData,
-          dataProducerId: dataConsumer.dataProducerId
+          sctpStreamParameters: dataConsumer.sctpStreamParameters
         }
       }
       console.log("Sending data consumer options to client: ", options)

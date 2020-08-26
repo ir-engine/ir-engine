@@ -10,7 +10,7 @@ import { addClient, initializeClient, removeClient } from "@xr3ngine/engine/src/
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
 import { DataConsumer, DataConsumerOptions, DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
-import { UnreliableMessageParams, UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine/src/networking/types/NetworkingTypes";
+import { UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine/src/networking/types/NetworkingTypes";
 
 const Device = mediasoupClient.Device;
 
@@ -66,65 +66,66 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (!this.dataProducers.get(channel)) {
       return Promise.reject(new Error("Channel producer doesn't exist"));
     }
-    // else if (this.dataConsumers.get(channel)) {
-    //   return Promise.reject(new Error("Data Channel Consumer already exists!"));
-    // }
+    const dataProducerId = this.dataProducers.get(channel).id
+    if (this.dataConsumers.get(dataProducerId)) {
+      return Promise.reject(new Error("Already subscribed to Data channel i.e. Data consumer already exists!"));
+    }
     try {
-      let dataConsumer = this.dataConsumers.get(channel)
-      if (!dataConsumer) {
-        // return Promise.reject(new Error("Data Channel Consumer already exists!"));
-        const dataProducerId = this.dataProducers.get(channel).id
-        console.log('Requesting data consumer from server')
-        const {
-          dataConsumerOptions,
-          error,
-        }: {
-          error: any
-          dataConsumerOptions: DataConsumerOptions
-        } = await this.request(MessageTypes.WebRTCConsumeData.toString(), {
-          consumerOptions: {
-            dataProducerId,
-            // appData, Probably Add additional info to send to server
-            maxRetransmits: 3,
-            ordered: false,
-          } as MediaSoupServerTypes.DataConsumerOptions,
-          transportId: this.recvTransport.id,
-        })
-        if (error) {
-          throw error
-        }
-        console.log('Receiving options for data consumer from server')
-        console.log('subscribing to consumer for data channel:', channel)
-        dataConsumer = await this.recvTransport.consumeData({
-          ...dataConsumerOptions,
+      console.log('Requesting data consumer from server')
+      const {
+        dataConsumerOptions,
+        error,
+      }: {
+        error: any
+        dataConsumerOptions: DataConsumerOptions
+      } = await this.request(MessageTypes.WebRTCConsumeData.toString(), {
+        consumerOptions: {
           dataProducerId,
-          label: channel,
-          protocol: params.type || 'json', // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
-        })
-        dataConsumer.on('transportclose', () => {
-          this.dataConsumers.delete(channel)
-        })
-        dataConsumer.on('producerclose', () => {
-          this.dataConsumers.delete(channel)
-        })
-        this.dataConsumers.set(channel, dataConsumer)
+          // appData, Probably Add additional info to send to server
+          maxRetransmits: 3,
+          ordered: false,
+        } as MediaSoupServerTypes.DataConsumerOptions,
+        transportId: this.recvTransport.id,
+      })
+      if (error) {
+        throw error
       }
-      dataConsumer.on("message", this.handleConsumerMessage(dataConsumer, channel, callback));
-      console.log("subscribed to consumer for data channel");
-      return Promise.resolve(dataConsumer);
+      console.log('Receiving options for data consumer from server')
+      console.log('subscribing to consumer for data channel:', channel)
+      const dataConsumer = await this.recvTransport.consumeData({
+        ...dataConsumerOptions,
+        dataProducerId,
+        label: channel,
+        protocol: params.type || 'json', // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
+      })
+      dataConsumer.on('transportclose', () => {
+        this.dataConsumers.delete(dataProducerId)
+        dataConsumer.close()
+      })
+      dataConsumer.on('producerclose', () => {
+        this.dataConsumers.delete(dataProducerId)
+        dataConsumer.close()
+      })
+      this.dataConsumers.set(dataProducerId, dataConsumer)
+      dataConsumer.on(
+        'message',
+        this.handleConsumerMessage(dataConsumer, channel, callback)
+      )
+      console.log('subscribed to consumer for data channel')
+      return Promise.resolve(dataConsumer)
     } catch (e) {
-      console.log("consumer subscription failed! err:", e);
-      return Promise.reject(e);
+      console.log('consumer subscription failed! err:', e)
+      return Promise.reject(e)
     }
   }
 
-  // separating send and init to make it a bit more readable
+  // send and init are done separately to make it a bit more readable
   // sendTransport should be available before initializing data channel
-  // Inits default data channel if none is provided
-  async initDataChannel(channel = DEFAULT_DATA_CHANNEl, type: UnreliableMessageType = 'json', customInitInfo: any = {}): Promise<DataProducer | Error> {
+  // creates data producer on client
+  async initDataChannel(channel: string, type: UnreliableMessageType = 'json', customInitInfo: any = {}): Promise<DataProducer | Error> {
     try {
       if (!this.sendTransport) throw new Error('Send Transport not initialized')
-      else if (this.dataProducers.get(channel)) return Promise.resolve(this.dataProducers.get(channel))
+      else if (this.dataProducers.get(channel)) return Promise.reject(new Error('Data channel already exists!'))
       const dataProducer = await this.sendTransport.produceData({
         appData: { data: customInitInfo }, // Probably Add additional info to send to server
         ordered: false,
@@ -140,6 +141,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
       dataProducer.on("transportclose", () => {
         this.dataProducers.delete(channel);
+        dataProducer.close()
       });
       this.dataProducers.set(channel, dataProducer);
       return Promise.resolve(dataProducer)
@@ -207,13 +209,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           this.initSendTransport(),
           this.initReceiveTransport(),
         ])
-        await this.initDataChannel()
-        this.unreliableMessageTest()
+        await this.initDataChannel(DEFAULT_DATA_CHANNEl) // TODO: Init Data channels needed for the app, right now only inits 'default' channel
 
         console.log("About to send camera streams");
         await this.sendCameraStreams();
         console.log("about to init sockets");
-        this.startScreenshare()
+        // this.startScreenshare()
       });
 
       this.socket.on(MessageTypes.ClientConnected.toString(), (_id: any) => addClient(_id));
@@ -226,23 +227,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       console.log('Emitting initialization message')
       console.log(MessageTypes.Initialization.toString())
       this.socket.emit(MessageTypes.Initialization.toString());
+      // ;(window as any)._client = this
     });
-  }
-
-  async unreliableMessageTest() {
-    try {
-      console.log('Testing unreliable messaging');
-      await this.subscribeToDataChannel((unreliableMessage) => {
-        console.warn('Unreliable Messaging works!')
-        console.log('Unreliable Message\'s data: ', unreliableMessage)
-      })
-      // Sending message after subscription requires a couple ms delay for some reason
-      setTimeout(() => {
-        this.sendUnreliableMessage({ info: 'test successful' })
-      }, 100)
-    } catch (e) {
-      console.warn('Unreliable Message test failed! ', e)
-    }
   }
 
   //= =//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//
