@@ -214,7 +214,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         console.log("About to send camera streams");
         await this.sendCameraStreams();
         console.log("about to init sockets");
-        // this.startScreenshare()
+        this.startScreenshare()
       });
 
       this.socket.on(MessageTypes.ClientConnected.toString(), (_id: any) => addClient(_id));
