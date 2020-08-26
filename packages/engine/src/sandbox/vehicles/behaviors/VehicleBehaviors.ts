@@ -1,5 +1,5 @@
 import { Behavior } from "../../../common/interfaces/Behavior";
-import { CharacterComponent } from "../../../templates/character/components/ActorComponent";
+import { CharacterComponent } from "../../../templates/character/components/CharacterComponent";
 import { getMutableComponent, getComponent } from "../../../ecs/functions/EntityFunctions";
 import { TransformComponent } from "../../../transform/components/TransformComponent";
 import { Vector3, Object3D } from "three";

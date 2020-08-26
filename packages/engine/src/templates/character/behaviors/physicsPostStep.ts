@@ -6,12 +6,12 @@ import { threeFromCannonVector } from "../../../common/functions/threeFromCannon
 import { Behavior } from "../../../common/interfaces/Behavior";
 import { Engine } from "../../../ecs/classes/Engine";
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
-import { ActorComponent } from "../components/ActorComponent";
+import { CharacterComponent } from "../components/CharacterComponent";
 import { appplyVectorMatrixXZ } from "../functions/appplyVectorMatrixXZ";
 import { haveDifferentSigns } from "../../../common/functions/haveDifferentSigns";
 
 export const physicsPostStep: Behavior = (entity): void => {
-	const actor: ActorComponent = getMutableComponent<ActorComponent>(entity, ActorComponent as any);
+	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	let body = actor.actorCapsule.body;
 
 	// Get velocities

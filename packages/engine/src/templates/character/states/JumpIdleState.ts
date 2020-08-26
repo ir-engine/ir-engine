@@ -1,5 +1,5 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { ActorComponent } from '../components/ActorComponent';
+import { CharacterComponent } from '../components/CharacterComponent';
 import { setActorAnimation } from "../behaviors/setActorAnimation";
 import { checkFalling } from "../behaviors/checkFalling";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
@@ -10,7 +10,7 @@ import { jumpIdle } from "../behaviors/jumpIdle";
 export const JumpIdleState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
   componentProperties: {
-    component: ActorComponent,
+    component: CharacterComponent,
     properties: {
       ['velocitySimulator.mass']: 50,
       ['velocityTarget']: { x: 0, y: 0, z: 0 },

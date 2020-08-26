@@ -1,5 +1,5 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { ActorComponent } from '../components/ActorComponent';
+import { CharacterComponent } from '../components/CharacterComponent';
 import { setActorAnimation } from "../behaviors/setActorAnimation";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { updateCharacterState } from "../behaviors/updateCharacterState";
@@ -10,7 +10,7 @@ import { onAnimationEnded } from '../behaviors/onAnimationEnded';
 export const DropRunningState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
   componentProperties: {
-    component: ActorComponent,
+    component: CharacterComponent,
     properties: {
       // NOTE: These are copied from DropRolling but aren't set by default (but might need to be)
       // ['velocitySimulator.damping']: 0.6,

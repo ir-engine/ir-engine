@@ -9,17 +9,17 @@ import { RelativeSpringSimulator } from "../../../physics/components/RelativeSpr
 import { VectorSpringSimulator } from "../../../physics/components/VectorSpringSimulator";
 import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
 import { addState } from "../../../state/behaviors/StateBehaviors";
-import { ActorComponent } from "../components/ActorComponent";
+import { CharacterComponent } from "../components/CharacterComponent";
 import { IdleState } from "../states/IdleState";
 
 export const initializeCharacter: Behavior = (entity): void => {
 	console.log("Initializing actor!");
-	if (!hasComponent(entity, ActorComponent as any))
-		addComponent(entity, ActorComponent as any);
+	if (!hasComponent(entity, CharacterComponent as any))
+		addComponent(entity, CharacterComponent as any);
 	const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
 
 	assetLoader.onLoaded = asset => {
-		const actor = getMutableComponent<ActorComponent>(entity, ActorComponent as any);
+		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 		actor.animations = asset.animations;
 
 		// The visuals group is centered for easy actor tilting

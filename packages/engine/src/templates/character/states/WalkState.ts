@@ -1,5 +1,5 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { ActorComponent } from '../components/ActorComponent';
+import { CharacterComponent } from '../components/CharacterComponent';
 import { setActorAnimation } from "../behaviors/setActorAnimation";
 import { checkFalling } from "../behaviors/checkFalling";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
@@ -9,7 +9,7 @@ import { CharacterStateGroups } from '../CharacterStateGroups';
 export const WalkState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
   componentProperties: {
-    component: ActorComponent,
+    component: CharacterComponent,
     properties: {
       ['canEnterVehicles']: true,
       ['arcadeVelocityTarget']: { x: 0.0, y: 0.0, z: 0.8 },

@@ -1,4 +1,4 @@
-import { ActorComponent } from '../components/ActorComponent';
+import { CharacterComponent } from '../components/CharacterComponent';
 import { getComponent, hasComponent } from '../../../ecs/functions/EntityFunctions';
 import { addState } from '../../../state/behaviors/StateBehaviors';
 import { Behavior } from '../../../common/interfaces/Behavior';
@@ -10,7 +10,7 @@ import { WalkState } from '../states/WalkState';
 import { DropIdleState } from '../states/DropIdleState';
 
 export const checkIfDropped: Behavior = (entity, args: { transitionToState: any; }, deltaTime) => {
-  const actor = getComponent<ActorComponent>(entity, ActorComponent as any);
+  const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
   if (!actor.rayHasHit) return;
   
   if (actor.groundImpactVelocity.y < -6)

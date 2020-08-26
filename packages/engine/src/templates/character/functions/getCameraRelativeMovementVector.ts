@@ -1,4 +1,4 @@
-import { ActorComponent } from "../components/ActorComponent";
+import { CharacterComponent } from "../components/CharacterComponent";
 import { getComponent } from "../../../ecs/functions/EntityFunctions";
 import { Vector3 } from "three";
 import { appplyVectorMatrixXZ } from "./appplyVectorMatrixXZ";
@@ -10,7 +10,7 @@ import { getLocalMovementDirection } from "./getLocalMovementDirection";
 
 
 export const getCameraRelativeMovementVector = (entity: Entity): Vector3 => {
-	const actor: ActorComponent = getComponent<ActorComponent>(entity, ActorComponent as any);
+	const actor: CharacterComponent = getComponent<CharacterComponent>(entity, CharacterComponent as any);
 	const actorObject3D: Object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent);
 
 	const localDirection = getLocalMovementDirection(entity);

@@ -1,4 +1,4 @@
-import { ActorComponent } from "../components/ActorComponent";
+import { CharacterComponent } from "../components/CharacterComponent";
 import { TransformComponent } from "../../../transform/components/TransformComponent";
 import { Behavior } from "../../../common/interfaces/Behavior";
 import { Entity } from "../../../ecs/classes/Entity";
@@ -12,7 +12,7 @@ import { jumpStart } from "./jumpStart";
 
 export const jumpRunning: Behavior = (entity: Entity, args: null, delta: any): void => {
 	const transform = getComponent<TransformComponent>(entity, TransformComponent);
-	const actor = getMutableComponent<ActorComponent>(entity, ActorComponent as any);
+	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 
 	setCameraRelativeOrientationTarget(entity);
 
