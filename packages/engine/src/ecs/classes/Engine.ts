@@ -5,7 +5,7 @@ import { WebGLRenderer, Camera, Scene, Clock } from 'three';
 import { EngineOptions } from '../interfaces/EngineOptions';
 import { DefaultOptions } from '../constants/DefaultOptions';
 import { Entity } from './Entity';
-import Stats from 'stats.js'
+//import Stats from 'stats.js'
 import { CameraOperator } from '../../camera/classes/CameraOperator';
 
 export class Engine {
@@ -13,7 +13,7 @@ export class Engine {
   public static engineTimer:{ start: Function, stop: Function } = null
   public static engineTimerTimeout;
 
-  public static stats: Stats
+  //public static stats: Stats
   // Move for sure
   // public static sky: Sky;
   public static isExecuting: boolean = false;
