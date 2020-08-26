@@ -12,14 +12,14 @@ import { checkMoving } from '../behaviors/checkMoving';
 
 export const DropIdleState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
-  componentProperties: {
+  componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.damping']: 0.5,
       ['velocitySimulator.mass']: 7,
       ['velocityTarget']: { x: 0, y: 0, z: 0 },
     }
-  },
+  }],
   onEntry: [
       {
         behavior: initializeCharacterState

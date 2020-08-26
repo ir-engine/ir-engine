@@ -32,10 +32,7 @@ export class WebGLRendererSystem extends System {
     Engine.renderer = renderer;
     // Add the renderer to the body of the HTML document
     document.body.appendChild(Engine.renderer.domElement);
-    console.log("child appended")
-
     this.onResize = this.onResize.bind(this);
-    console.log('resize binded')
     window.addEventListener('resize', this.onResize, false);
     this.onResize()
 
@@ -46,7 +43,6 @@ export class WebGLRendererSystem extends System {
      * Called on resize, sets resize flag
      */
   onResize() {
-    console.log("On resize called")
     RendererComponent.instance.needsResize = true;
   }
   
@@ -80,7 +76,6 @@ export class WebGLRendererSystem extends System {
         passes.push(new pass.effect(CameraComponent.instance.camera, pass.effect.options))
       else passes.push(new pass.effect(pass.effect.options))
     })
-    console.log('PostProcessing passes', passes.length)
     if (passes.length) {
       composer.addPass(new EffectPass(CameraComponent.instance.camera, ...passes))
     }
@@ -93,7 +88,6 @@ export class WebGLRendererSystem extends System {
      */
   execute (delta: number) {
     this.queryResults.renderers.added?.forEach((entity: Entity) => {
-      console.log("Renderer added")
       RendererComponent.instance.needsResize = true;
       this.configurePostProcessing(entity);
     });

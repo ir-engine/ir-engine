@@ -10,7 +10,7 @@ import { WalkState } from './WalkState';
 
 export const StartWalkForwardState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
-  componentProperties: {
+  componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['canEnterVehicles']: true,
@@ -18,7 +18,7 @@ export const StartWalkForwardState: StateSchemaValue = {
       ['rotationSimulator.damping']: 0.7,
       ['arcadeVelocityTarget']: { x: 0.0, y: 0.0, z: 0.8 },
     }
-  },
+  }],
   onEntry: [
     {
       behavior: initializeCharacterState

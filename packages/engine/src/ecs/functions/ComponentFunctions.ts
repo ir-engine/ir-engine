@@ -138,8 +138,6 @@ export function componentRegistered (T) {
  * @private
  */
 export function getName (Component) {
-  console.log("Getname called on compoent")
-  console.log(Component)
   return Component.getName();
 }
 

@@ -7,7 +7,6 @@ import AssetVault from '../components/AssetVault';
 import { Model } from '../components/Model';
 import { AssetClass } from '../enums/AssetClass';
 import { getAssetClass, getAssetType, loadAsset } from '../functions/LoadingFunctions';
-import { AssetsLoadedHandler } from '../types/AssetTypes';
 import { Not } from '../../ecs/functions/ComponentFunctions';
 import { Entity } from '../../ecs/classes/Entity';
 import {
@@ -89,7 +88,6 @@ export default class AssetLoadingSystem extends System {
         const a = asset.scene ?? asset
         a.children.forEach(obj => {
           const e = createEntity()
-          console.log(obj)
           addObject3DComponent(e, { obj3d: obj, parent: object3DComponent });
           const transformChild = addComponent<TransformChildComponent>(e, TransformChildComponent) as TransformChildComponent
           transformChild.parent = entity
@@ -101,7 +99,6 @@ export default class AssetLoadingSystem extends System {
       AssetVault.instance.assets.set(hashResourceString(component.url), asset.scene);
       
       if (component.onLoaded) {
-        console.log("Calling onloaded!")
         component.onLoaded(asset);
       }
     });

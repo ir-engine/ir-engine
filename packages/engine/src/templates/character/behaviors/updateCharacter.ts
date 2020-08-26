@@ -21,8 +21,8 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
   // this.charState?.update(timeStep);
   actor.mixer.update(deltaTime);
   if (actor.physicsEnabled) {
-    springMovement(entity, deltaTime);
-    springRotation(entity, deltaTime);
+    springMovement(entity, null, deltaTime);
+    springRotation(entity, null, deltaTime);
     rotateModel(entity);
     actorTransform.position.set(
       actor.actorCapsule.body.interpolatedPosition.x,
@@ -33,11 +33,7 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
   else {
     let newPos = new Vector3();
     getMutableComponent(entity, Object3DComponent).value.getWorldPosition(newPos);
-
     actor.actorCapsule.body.position.copy(cannonFromThreeVector(newPos));
     actor.actorCapsule.body.interpolatedPosition.copy(cannonFromThreeVector(newPos));
   }
-
-  const actorObject3d = getMutableComponent<Object3DComponent>(entity, Object3DComponent)
-  actorObject3d.value.updateMatrixWorld();
 };

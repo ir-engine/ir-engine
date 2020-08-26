@@ -10,7 +10,7 @@ import { IdleState } from './IdleState';
 
 export const IdleRotateRightState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
-  componentProperties: {
+  componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.mass']: 10,
@@ -19,7 +19,7 @@ export const IdleRotateRightState: StateSchemaValue = {
       ['rotationSimulator.damping']: 0.6,
       ['velocityTarget']: { x: 0, y: 0, z: 0 },
     }
-  },
+  }],
   onEntry:  [
       {
         behavior: initializeCharacterState

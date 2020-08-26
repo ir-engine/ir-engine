@@ -6,7 +6,6 @@ import { setupMeshProperties } from "../functions/setupMeshProperties";
 
 export const readCharacterData: Behavior = (entity, args: { model: any; }): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-	console.log(args.model);
 	// TODO: actor will only work with glb
 	args.model.traverse((child) => {
 

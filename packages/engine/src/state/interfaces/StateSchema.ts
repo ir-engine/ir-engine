@@ -13,10 +13,10 @@ export interface StateSchemaValue {
     canLeaveVehicles?: boolean
     componentProperties?: {
       component: any
-      properties: {
+      properties:{
         [key: string]: any
       }
-    }
+    }[]
     onEntry?: BehaviorAlias[]
     onChanged?: BehaviorAlias[]
     onUpdate?: BehaviorAlias[]

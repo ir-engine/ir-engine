@@ -13,14 +13,12 @@ import { CharacterStateTypes } from '../CharacterStateTypes';
 export const checkIfDropped: Behavior = (entity, args: { transitionToState: any; }, deltaTime) => {
   const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
   if(!actor.initialized) return;
-
-  if (!actor.rayHasHit) return;
-  
   if (actor.groundImpactVelocity.y < -6)
   {
     addState(entity, { state: CharacterStateTypes.DROP_ROLLING })
     return
   }
+
   // TODO: Check if moving -- This won't really work, need to update
   if (actor.velocity.length() > (0.1 * deltaTime))
     {

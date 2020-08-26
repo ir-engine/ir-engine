@@ -18,11 +18,8 @@ export function loadAssets (
 export function loadAsset (url: AssetUrl, onAssetLoaded: AssetsLoadedHandler): void {
   if (!AssetVault.instance.assets.has(url)) {
     const loader = getLoaderForAssetType(getAssetType(url));
-    console.log("**** LOADER")
-    console.log(loader)
     loader.load(url, resource => {
       AssetVault.instance.assets.set(url, resource);
-      console.log("Callback from load")
       onAssetLoaded(resource);
     });
   }

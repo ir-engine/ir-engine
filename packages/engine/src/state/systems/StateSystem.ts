@@ -3,7 +3,7 @@ import { Behavior } from '../../common/interfaces/Behavior';
 import { NumericalType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
-import { getComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { addState } from '../behaviors/StateBehaviors';
 import { State } from '../components/State';
 import { StateValue } from '../interfaces/StateValue';
@@ -52,10 +52,18 @@ export const callBehaviors: Behavior = (entity: Entity, args: { phase: string },
   _state.data.forEach((stateValue: StateValue<NumericalType>) => {
     // Call actions on start of start (onEntry)
     if (stateValue.lifecycleState === LifecycleValue.STARTED &&
-      _state.schema.states[stateValue.state] !== undefined &&
-      _state.schema.states[stateValue.state]['onEntry'] !== undefined) {
+      _state.schema.states[stateValue.state] !== undefined){
+        if(_state.schema.states[stateValue.state]['componentProperties'] !== undefined){
+          _state.schema.states[stateValue.state]['componentProperties'].forEach(componentProp => {
+            const component = getMutableComponent(entity, componentProp.component) as any
+            for (const prop in componentProp.properties){
+              component[prop] = componentProp.properties[prop]
+            }
+        })
+      }
+        
+      if(_state.schema.states[stateValue.state]['onEntry'] !== undefined) {
         _state.schema.states[stateValue.state]['onEntry'].forEach(stateBehavior => {
-          console.log("Calling behavior on state entry")
           stateBehavior.behavior(
           entity,
           stateBehavior.args,
@@ -63,12 +71,11 @@ export const callBehaviors: Behavior = (entity: Entity, args: { phase: string },
         )}
         )
     }
+  }
     // Call actions on update
     if (_state.schema.states[stateValue.state] !== undefined &&
       _state.schema.states[stateValue.state]['onUpdate'] !== undefined ) {
       if (stateValue.lifecycleState === LifecycleValue.STARTED) {
-        console.log("Calling behavior on state update")
-
         _state.data.set(stateValue.state, {
           ...stateValue,
           lifecycleState: LifecycleValue.CONTINUED
@@ -85,8 +92,6 @@ export const callBehaviors: Behavior = (entity: Entity, args: { phase: string },
         if (stateValue.lifecycleState === LifecycleValue.ENDED &&
           _state.schema.states[stateValue.state] !== undefined &&
           _state.schema.states[stateValue.state]['onExit'] !== undefined) {
-            console.log("Calling behavior on state ex")
-
             _state.schema.states[stateValue.state]['onExit'].forEach(stateBehavior =>
               stateBehavior.behavior(
               entity,
@@ -94,7 +99,6 @@ export const callBehaviors: Behavior = (entity: Entity, args: { phase: string },
               delta
             ))
         }
-        console.log("Removed state: ", stateValue.state)
         _state.data.delete(stateValue.state);
   });
 }

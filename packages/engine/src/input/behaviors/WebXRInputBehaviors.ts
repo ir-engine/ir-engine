@@ -25,7 +25,6 @@ let secondControllerId: any;
 export const processSession: Behavior = (entity: Entity) => {
   const { session, isImmersive } = getComponent(entity, WebXRSession) as any;
   if (isImmersive) {
-    console.log('requesting animation frame', session);
     session.requestAnimationFrame((time, frame) => {
       console.log(time, 'XRFrame', frame);
       // TODO:

@@ -4,12 +4,10 @@ import { CharacterComponent } from "../components/CharacterComponent";
 import { feetRaycast } from "./feetRaycast";
 import { Body } from "cannon-es"
 
-export const physicsPreStep: Behavior = (entity, args: { body: Body }): void => {
+export const physicsPreStep: Behavior = (entity): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	if(!actor.initialized) return;
 	let body = actor.actorCapsule.body;
-	console.log("Physics pre step")
-	console.log(body)
 	feetRaycast(entity);
 
 	// Raycast debug

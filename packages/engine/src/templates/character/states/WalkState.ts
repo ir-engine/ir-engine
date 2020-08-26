@@ -8,13 +8,13 @@ import { CharacterStateGroups } from '../CharacterStateGroups';
 
 export const WalkState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
-  componentProperties: {
+  componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['canEnterVehicles']: true,
       ['arcadeVelocityTarget']: { x: 0.0, y: 0.0, z: 0.8 },
     }
-  },
+  }],
   onEntry: [
     {
       behavior: initializeCharacterState

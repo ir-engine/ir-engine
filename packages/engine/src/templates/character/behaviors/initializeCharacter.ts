@@ -17,6 +17,9 @@ import { Body } from "cannon-es"
 import { State } from "../../../state/components/State";
 import { CharacterStateTypes } from "../CharacterStateTypes";
 import { Engine } from "../../../ecs/classes/Engine";
+import { setPhysicsEnabled } from "./setPhysicsEnabled";
+import { PhysicsManager } from "../../../physics/components/PhysicsManager";
+import { setPosition } from "./setPosition";
 
 export const initializeCharacter: Behavior = (entity): void => {
 	console.log("**** Initializing character!");
@@ -26,10 +29,6 @@ export const initializeCharacter: Behavior = (entity): void => {
 
 	assetLoader.onLoaded = asset => {
 		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-		console.log("Setting animations to ")
-		console.log(asset.animations)
-		console.log("Asset")
-		console.log(asset)
 		actor.animations = asset.animations;
 
 		// The visuals group is centered for easy actor tilting
@@ -42,8 +41,6 @@ export const initializeCharacter: Behavior = (entity): void => {
 		// actor.modelContainer.position.y = -0.57;
 		// actor.tiltContainer.add(actor.modelContainer);
 		// actor.modelContainer.add(asset.scene);
-console.log("Set mixer to")
-console.log(actorObject3D.value)
 		actor.mixer = new AnimationMixer(Engine.scene);
 
 		actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
@@ -61,13 +58,10 @@ console.log(actorObject3D.value)
 			segments: 8,
 			friction: 0.0,
 			body: {
-				preStep: (body: Body) => { physicsPreStep(entity, { body: body } ) },
-				postStep: (body: Body) => { physicsPostStep(entity, { body: body }) }
+				preStep: (body: Body) => { console.log("Prestep: ", body); physicsPreStep(entity, { body: body } ) },
+				postStep: (body: Body) => { console.log("Poststep: ", body); physicsPostStep(entity, { body: body }) }
 			}
 		});
-		console.log("capsule")
-		console.log(actor.actorCapsule)
-		// capsulePhysics.physical.collisionFilterMask = ~CollisionGroups.Trimesh;
 		actor.actorCapsule.body.shapes.forEach((shape) => {
 			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
 		});
@@ -87,12 +81,15 @@ console.log(actorObject3D.value)
 		});
 		actor.raycastBox = new Mesh(boxGeo, boxMat);
 		actor.raycastBox.visible = true;
+		Engine.scene.add(actor.raycastBox)
+		PhysicsManager.instance.physicsWorld.addBody(actor.actorCapsule.body);
 
 		// Physics pre/post step callback bindings
 		// States
 		addState(entity, { state: CharacterStateTypes.IDLE });
 		actor.initialized = true;
-		console.log("State values")
-		console.log(getComponent(entity, State).data.values())
+
+		
+		setPosition(entity, {x: 0, y: 0, z: 0})
 	};
 };

@@ -63,7 +63,6 @@ export const DefaultInitializationOptions = {
 };
 
 export function initializeEngine (options: any = DefaultInitializationOptions) {
-  console.log(options)
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
   // Create a new three.js scene

@@ -10,14 +10,14 @@ import { EndWalkState } from './EndWalkState';
 
 export const DropRollingState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
-  componentProperties: {
+  componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.damping']: 0.6,
       ['velocitySimulator.mass']: 1,
       ['velocityTarget']: { x: 0, y: 0, z: 0.8 },
     }
-  },
+  }],
   onEntry: [
       {
         behavior: initializeCharacterState
