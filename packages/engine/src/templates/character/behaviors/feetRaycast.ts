@@ -8,6 +8,8 @@ import { CharacterComponent } from "../components/CharacterComponent";
 
 export const feetRaycast: Behavior = (entity: Entity): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+	if(!actor.initialized) return;
+
 	let body = actor.actorCapsule.body;
 
 	// Player ray casting
@@ -21,4 +23,5 @@ export const feetRaycast: Behavior = (entity: Entity): void => {
 	};
 	// Cast the ray
 	actor.rayHasHit = PhysicsManager.instance.physicsWorld.raycastClosest(start, end, rayCastOptions, actor.rayResult);
+	console.log("Raycast hit: ", actor.rayHasHit)
 };
