@@ -83,8 +83,7 @@ export default class AssetLoadingSystem extends System {
       } else {
         addComponent(entity, Model, { value: asset });
         const transformParent = addComponent<TransformParentComponent>(entity, TransformParentComponent) as TransformParentComponent
-        console.log("Attempting addObject3d component with: ")
-        addObject3DComponent(entity, { obj3d: Group, parent: Engine.scene });
+        addObject3DComponent(entity, { obj3d: asset.scene ?? asset, parent: Engine.scene });
         const object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent) as Object3DComponent
 
         const a = asset.scene ?? asset
@@ -102,7 +101,8 @@ export default class AssetLoadingSystem extends System {
       AssetVault.instance.assets.set(hashResourceString(component.url), asset.scene);
       
       if (component.onLoaded) {
-        component.onLoaded(asset.scene);
+        console.log("Calling onloaded!")
+        component.onLoaded(asset);
       }
     });
 

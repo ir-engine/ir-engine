@@ -92,12 +92,12 @@ export class WebGLRendererSystem extends System {
      * @param {Number} delta time since last frame
      */
   execute (delta: number) {
-    this.queryResults.renderers.added.forEach((entity: Entity) => {
+    this.queryResults.renderers.added?.forEach((entity: Entity) => {
       console.log("Renderer added")
       RendererComponent.instance.needsResize = true;
       this.configurePostProcessing(entity);
     });
-    this.queryResults.renderers.removed.forEach((entity: Entity) => {
+    this.queryResults.renderers.removed?.forEach((entity: Entity) => {
       // cleanup
     })
 

@@ -54,26 +54,30 @@ export const callBehaviors: Behavior = (entity: Entity, args: { phase: string },
     if (stateValue.lifecycleState === LifecycleValue.STARTED &&
       _state.schema.states[stateValue.state] !== undefined &&
       _state.schema.states[stateValue.state]['onEntry'] !== undefined) {
-        _state.schema.states[stateValue.state]['onEntry'].forEach(state =>
-          state.behavior(
+        _state.schema.states[stateValue.state]['onEntry'].forEach(stateBehavior => {
+          console.log("Calling behavior on state entry")
+          stateBehavior.behavior(
           entity,
-          _state.schema.states[stateValue.state]['onEntry'].args,
+          stateBehavior.args,
           delta
-        ))
+        )}
+        )
     }
     // Call actions on update
     if (_state.schema.states[stateValue.state] !== undefined &&
       _state.schema.states[stateValue.state]['onUpdate'] !== undefined ) {
       if (stateValue.lifecycleState === LifecycleValue.STARTED) {
+        console.log("Calling behavior on state update")
+
         _state.data.set(stateValue.state, {
           ...stateValue,
           lifecycleState: LifecycleValue.CONTINUED
         });
       }
-      _state.schema.states[stateValue.state]['onUpdate'].forEach(state =>
-        state.behavior(
+      _state.schema.states[stateValue.state]['onUpdate'].forEach(stateBehavior =>
+        stateBehavior.behavior(
         entity,
-        _state.schema.states[stateValue.state]['onUpdate'].args,
+        stateBehavior.args,
         delta
       ))
     }
@@ -81,13 +85,16 @@ export const callBehaviors: Behavior = (entity: Entity, args: { phase: string },
         if (stateValue.lifecycleState === LifecycleValue.ENDED &&
           _state.schema.states[stateValue.state] !== undefined &&
           _state.schema.states[stateValue.state]['onExit'] !== undefined) {
-            _state.schema.states[stateValue.state]['onExit'].forEach(state =>
-              state.behavior(
+            console.log("Calling behavior on state ex")
+
+            _state.schema.states[stateValue.state]['onExit'].forEach(stateBehavior =>
+              stateBehavior.behavior(
               entity,
-              _state.schema.states[stateValue.state]['onExit'].args,
+              stateBehavior.args,
               delta
             ))
         }
+        console.log("Removed state: ", stateValue.state)
         _state.data.delete(stateValue.state);
   });
 }

@@ -34,7 +34,7 @@ export class InputSystem extends System {
     if (this.queryResults.xrRenderer.all.length > 0) {
       const webXRRenderer = getMutableComponent(this.queryResults.xrRenderer.all[0], WebXRRenderer);
 
-      this.queryResults.xrSession.added.forEach(entity => initializeSession(entity, { webXRRenderer }));
+      this.queryResults.xrSession.added?.forEach(entity => initializeSession(entity, { webXRRenderer }));
 
       this.queryResults.xrSession.all.forEach(entity => processSession(entity));
     }
@@ -43,7 +43,7 @@ export class InputSystem extends System {
     this.queryResults.inputs.all.forEach(entity => handleInput(entity, { delta }));
 
     // Called when input component is added to entity
-    this.queryResults.inputs.added.forEach(entity => {
+    this.queryResults.inputs.added?.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
       // If input doesn't have a map, set the default
@@ -69,7 +69,7 @@ export class InputSystem extends System {
     });
 
     // Called when input component is removed from entity
-    this.queryResults.inputs.removed.forEach(entity => {
+    this.queryResults.inputs.removed?.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
       // Call all behaviors in "onRemoved" of input map

@@ -23,7 +23,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public animations: any[]  = [];
 
   // TODO: Remove integrate this
-  public physicsEnabled = false
+  public physicsEnabled = true
 
 	// Movement
 	public acceleration: Vector3 = new Vector3();
@@ -34,7 +34,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 
 	public defaultVelocitySimulatorDamping: number = 0.8;
 	public defaultVelocitySimulatorMass: number = 50;
-	public velocitySimulator: VectorSpringSimulator;
+	public velocitySimulator: VectorSpringSimulator
 	public moveSpeed: number = 4;
 	public angularVelocity: number = 0;
 	public orientation: Vector3 = new Vector3(0, 0, 1);

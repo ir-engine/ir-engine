@@ -5,7 +5,10 @@ import { CharacterComponent } from "../components/CharacterComponent";
 import { setArcadeVelocityInfluence } from "./setArcadeVelocityInfluence";
 
 export const initializeCharacterState: Behavior = (entity: Entity) => {
+	console.log("**** Initialize character state called")
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+	if(!actor.initialized) return console.log("Returning on init but might want to handle")
+	console.log("Initializing character state")
 	actor.velocitySimulator.damping = actor.defaultVelocitySimulatorDamping;
 	actor.velocitySimulator.mass = actor.defaultVelocitySimulatorMass;
 
