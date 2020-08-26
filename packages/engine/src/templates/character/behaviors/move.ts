@@ -1,5 +1,5 @@
 import { Input } from "../../../input/components/Input";
-import { CharacterComponent } from "../../../character/components/CharacterComponent";
+import { ActorComponent } from "../components/ActorComponent";
 import { TransformComponent } from "../../../transform/components/TransformComponent";
 import { NumericalType } from "../../../common/types/NumericalTypes";
 import { Behavior } from "../../../common/interfaces/Behavior";
@@ -7,11 +7,11 @@ import { Entity } from "../../../ecs/classes/Entity";
 import { InputAlias } from "../../../input/types/InputAlias";
 import { InputType } from "../../../input/enums/InputType";
 import { getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
-import { Sprinting } from "../../../character/components/Sprinting";
+import { Sprinting } from "../components/Sprinting";
 import { Vector2, Vector3 } from "three";
 
 let input: Input;
-let actor: CharacterComponent;
+let actor: ActorComponent;
 let transform: TransformComponent;
 let inputValue: NumericalType; // Could be a (small) source of garbage
 let outputSpeed: number;
@@ -23,13 +23,17 @@ export const move: Behavior = (
 ): void => {
 
   console.log(args)
-  input = getComponent(entity, Input);
-  actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+  actor = getMutableComponent<ActorComponent>(entity, ActorComponent as any);
   transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
 
-  // const movementModifer = hasComponent(entity, Crouching) ? 0.5 : hasComponent(entity, Sprinting) ? 1.5 : 1.0;
-  // const inputType = args.inputType;
-  // outputSpeed = actor.accelerationSpeed * (time.delta) * movementModifer;
+  // Whatever the current movement group state is needs to have it's onChanged evaluator called
+  const input: Input =  getMutableComponent<Input>(entity, Input as any)
+
+  console.log(input.data.values())
+  // Check current inputs
+
+  const inputType = args.inputType;
+  // outputSpeed = actor.acceleration * (time.delta);
   // if (inputType === InputType.TWOD) {
   //   inputValue = args.value as Vector2;
   //   transform.velocity = transform.velocity // + inputValue[0] * outputSpeed;

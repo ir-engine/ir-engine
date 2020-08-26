@@ -1,4 +1,4 @@
 export const BinaryValue = {
-  ON: 1,
-  OFF: 0
+  OFF: 0,
+  ON: 1
 };

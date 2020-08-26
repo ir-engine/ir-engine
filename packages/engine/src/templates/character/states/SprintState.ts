@@ -1,14 +1,15 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { CharacterComponent } from '../../../character/components/CharacterComponent';
-import { setCharacterAnimation } from "../setCharacterAnimation";
+import { ActorComponent } from '../components/ActorComponent';
+import { setActorAnimation } from "../behaviors/setActorAnimation";
 import { checkFalling } from "../behaviors/checkFalling";
-import { initializeCharacterState, updateCharacterState } from '../behaviors/CharacterBaseBehaviors';
+import { initializeCharacterState } from "../behaviors/initializeCharacterState";
+import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
 
 export const SprintState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
   componentProperties: {
-    component: CharacterComponent,
+    component: ActorComponent,
     properties: {
       ['velocitySimulator.mass']: 10,
       [' rotationSimulator.damping']: 0.8,
@@ -22,7 +23,7 @@ export const SprintState: StateSchemaValue = {
         behavior: initializeCharacterState
       },
       {
-        behavior: setCharacterAnimation,
+        behavior: setActorAnimation,
         args: {
           name: 'sprint',
           transitionDuration: 0.1

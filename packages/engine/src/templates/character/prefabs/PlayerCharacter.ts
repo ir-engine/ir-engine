@@ -4,23 +4,23 @@ import { Input } from "@xr3ngine/engine/src/input/components/Input";
 import { State } from "@xr3ngine/engine/src/state/components/State";
 import { Subscription } from "@xr3ngine/engine/src/subscription/components/Subscription";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
-import { BoxBufferGeometry, Mesh } from "three";
 import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
-import { CharacterComponent } from "@xr3ngine/engine/src/character/components/CharacterComponent";
-import { addObject3DComponent, removeObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
 import { CharacterInputSchema } from "@xr3ngine/engine/src/templates/character/CharacterInputSchema";
 import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
 import { CharacterSubscriptionSchema } from "@xr3ngine/engine/src/templates/character/CharacterSubscriptionSchema";
-
-const miniGeo = new BoxBufferGeometry(0.2, 0.2, 0.2);
+import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
+import { AssetLoader } from "../../../assets/components/AssetLoader";
+import { setCameraPosition } from "../../../camera/behaviors/setCameraPosition";
+import { initializeCharacter } from "../behaviors/initializeCharacter";
+import { ActorComponent } from "../components/ActorComponent";
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const PlayerCharacter: Prefab = {
     // These will be created for all players on the network
     // These are only created for the local player who owns this prefab
     components: [
-        // CharacterComponent has values like movement speed, decelleration, jump height, etc
-        { type: CharacterComponent },
+        // ActorComponent has values like movement speed, decelleration, jump height, etc
+        { type: ActorComponent },
         // Transform system applies values from transform component to three.js object (position, rotation, etc)
         { type: TransformComponent },
         // Local player input mapped to behaviors in the input map
@@ -32,17 +32,25 @@ export const PlayerCharacter: Prefab = {
     ],
     onCreate: [
         {
-            behavior: addObject3DComponent,
+            behavior: addComponentFromSchema,
             args: {
                 // addObject3DComponent is going to call new obj(objArgs)
                 // so this will be new Mesh(new BoxBufferGeometry(0.2, 0.2, 0.2))
-                obj3d: Mesh,
-                obj3dArgs: miniGeo
+                component: AssetLoader,
+                componentArgs: {
+                    url: "models/boxman.glb",
+                    receiveShadow: true,
+                    castShadow: true
+                }
             }
         },
         {
-          behavior: attachCamera
+            behavior: initializeCharacter
+        },
+        {
+            behavior: setCameraPosition
         }
+        // TODO: Boxman setup here
 
         // {
         //     behavior: addPlayerCollider,
@@ -50,8 +58,6 @@ export const PlayerCharacter: Prefab = {
 
     ],
     onDestroy: [
-        {
-            behavior: removeObject3DComponent
-        }
+
     ]
 };

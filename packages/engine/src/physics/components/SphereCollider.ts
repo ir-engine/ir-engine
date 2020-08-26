@@ -1,7 +1,7 @@
 import { Mesh } from "three";
 import { Vec3, Material, Sphere, Body } from "cannon-es";
 import { Component } from "../../ecs/classes/Component";
-import { setDefaults } from "../../character/functions/CharacterFunctions";
+import { setDefaults } from "../../templates/character/functions/setDefaults";
 
 export class SphereCollider extends Component<SphereCollider>
 {

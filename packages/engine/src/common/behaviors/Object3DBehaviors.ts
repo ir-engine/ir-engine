@@ -65,6 +65,7 @@ export const addObject3DComponent: Behavior = (
   args: { obj3d: any, obj3dArgs: any, parentEntity?: Entity }
 ) => {
 
+  console.log("Adding object 3d")
 console.log(args)
 const isObject3d =(args.obj3d.type !== undefined)
   const object3d =

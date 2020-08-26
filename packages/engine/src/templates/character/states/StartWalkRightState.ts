@@ -1,8 +1,9 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { CharacterComponent } from '../../../character/components/CharacterComponent';
-import { setCharacterAnimation } from "../setCharacterAnimation";
+import { ActorComponent } from '../components/ActorComponent';
+import { setActorAnimation } from "../behaviors/setActorAnimation";
 import { checkFalling } from "../behaviors/checkFalling";
-import { initializeCharacterState, updateCharacterState } from '../behaviors/CharacterBaseBehaviors';
+import { initializeCharacterState } from "../behaviors/initializeCharacterState";
+import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
 import { onAnimationEnded } from '../behaviors/onAnimationEnded';
 import { WalkState } from './WalkState';
@@ -10,7 +11,7 @@ import { WalkState } from './WalkState';
 export const StartWalkRightState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
   componentProperties: {
-    component: CharacterComponent,
+    component: ActorComponent,
     properties: {
       ['canEnterVehicles']: true,
       ['rotationSimulator.mass']: 20,
@@ -23,7 +24,7 @@ export const StartWalkRightState: StateSchemaValue = {
       behavior: initializeCharacterState
     },
     {
-      behavior: setCharacterAnimation,
+      behavior: setActorAnimation,
       args: {
         name: 'start_right',
         transitionDuration: 0.1

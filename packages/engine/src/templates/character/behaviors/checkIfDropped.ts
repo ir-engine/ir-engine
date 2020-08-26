@@ -1,8 +1,8 @@
-import { CharacterComponent } from '../../../character/components/CharacterComponent';
+import { ActorComponent } from '../components/ActorComponent';
 import { getComponent, hasComponent } from '../../../ecs/functions/EntityFunctions';
 import { addState } from '../../../state/behaviors/StateBehaviors';
 import { Behavior } from '../../../common/interfaces/Behavior';
-import { Sprinting } from '../../../character/components/Sprinting';
+import { Sprinting } from '../components/Sprinting';
 import { DropRollingState } from '../states/DropRollingState';
 import { DropRunningState } from '../states/DropRunningState';
 import { SprintState } from '../states/SprintState';
@@ -10,18 +10,18 @@ import { WalkState } from '../states/WalkState';
 import { DropIdleState } from '../states/DropIdleState';
 
 export const checkIfDropped: Behavior = (entity, args: { transitionToState: any; }, deltaTime) => {
-  const character = getComponent<CharacterComponent>(entity, CharacterComponent as any);
-  if (!character.rayHasHit) return;
+  const actor = getComponent<ActorComponent>(entity, ActorComponent as any);
+  if (!actor.rayHasHit) return;
   
-  if (character.groundImpactVelocity.y < -6)
+  if (actor.groundImpactVelocity.y < -6)
   {
     addState(entity, DropRollingState)
     return
   }
   // TODO: Check if moving -- This won't really work, need to update
-  if (character.velocity.length() > (0.1 * deltaTime))
+  if (actor.velocity.length() > (0.1 * deltaTime))
     {
-    if (character.groundImpactVelocity.y < -2)
+    if (actor.groundImpactVelocity.y < -2)
     {
       addState(entity, DropRunningState)
       return

@@ -1,7 +1,7 @@
 import { Side } from '../enums/Side';
 import { Object3D } from 'three';
 import { Space } from './enums/Space';
-import { getRight } from '../../../character/functions/CharacterFunctions';
+import { getRight } from "../../../templates/character/functions/getRight";
 
 export function detectRelativeSide(from: Object3D, to: Object3D): Side {
 	const right = getRight(from, Space.Local);

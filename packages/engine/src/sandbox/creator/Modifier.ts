@@ -13,7 +13,7 @@
  */
 
 import _ from "lodash"
-import { randomNormal } from "../../character/functions/randomNormal"
+import { randomNormal } from "../actor/functions/randomNormal"
 import measurementModifiers from "./json/modifiers/measurement_modifiers.json"
 import modelingModifiers from "./json/modifiers/modeling_modifiers.json"
 import { targetMetaData } from "./Targets"

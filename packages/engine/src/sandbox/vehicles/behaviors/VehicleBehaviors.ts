@@ -1,9 +1,9 @@
 import { Behavior } from "../../../common/interfaces/Behavior";
-import { CharacterComponent } from "../../../character/components/CharacterComponent";
+import { CharacterComponent } from "../../../templates/character/components/ActorComponent";
 import { getMutableComponent, getComponent } from "../../../ecs/functions/EntityFunctions";
 import { TransformComponent } from "../../../transform/components/TransformComponent";
 import { Vector3, Object3D } from "three";
-import { ClosestObjectFinder } from "../../../character/components/ClosestObjectFinder";
+import { ClosestObjectFinder } from "../../../templates/character/components/ClosestObjectFinder";
 import { Vehicle } from "../components/Vehicle";
 import { Engine } from "../../../ecs/classes/Engine";
 import { VehicleEntryInstance } from "../classes/VehicleEntryInstance";
@@ -11,8 +11,11 @@ import { VehicleSeat } from "../components/VehicleSeat";
 import { SeatType } from "../enums/SeatType";
 import { Entity } from "../../../ecs/classes/Entity";
 import { Object3DComponent } from "../../../common/components/Object3DComponent";
-import { resetVelocity, rotateModel, setPosition } from "../../../character/behaviors/CharacterMovementBehaviors";
-import { setPhysicsEnabled, inputReceiverInit } from "../../../character/behaviors/CharacterBehaviors";
+import { rotateModel } from "../../../templates/character/behaviors/rotateModel";
+import { resetVelocity } from "../../../templates/character/behaviors/resetVelocity";
+import { setPosition } from "../../../templates/character/behaviors/setPosition";
+import { inputReceiverInit } from "../../../templates/character/behaviors/ActorBehaviors";
+import { setPhysicsEnabled } from "../../../templates/character/behaviors/setPhysicsEnabled";
 
 export const findVehicleToEnter: Behavior = (entity, args: { wantsToDrive: boolean; }): void => {
     const character: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);

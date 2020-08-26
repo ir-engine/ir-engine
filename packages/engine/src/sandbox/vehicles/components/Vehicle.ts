@@ -326,11 +326,6 @@ export abstract class Vehicle extends Component<Vehicle>
 			{
 				world.graphicsWorld.attach(wheel.wheelObject);
 			});
-
-			this.materials.forEach((mat) =>
-			{
-				world.csm.setupMaterial(mat);
-			});
 		}
 	}
 

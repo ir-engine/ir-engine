@@ -9,7 +9,7 @@ import { MessageTypes } from '../../networking/enums/MessageTypes';
 import { handleClientConnected, handleClientDisconnected, handleMessage } from '../../networking/functions/NetworkFunctions';
 import { NetworkPlayerCharacter } from '../character/prefabs/NetworkPlayerCharacter';
 
-// initializeCharacterComponent(cube, inputOptions)
+// initializeActorComponent(cube, inputOptions)
 // Prefab is a pattern for creating an entity and component collection as a prototype
 const NetworkCube: NetworkPrefab = {
   networkComponents: [{ type: NetworkObject }, { type: TransformComponent }]

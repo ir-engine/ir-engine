@@ -12,8 +12,8 @@
 import _ from "lodash"
 import * as THREE from "three"
 import { invertByMany } from "../../common/functions/MakeHumanHelpers"
-import targetCategories from "../../character/json/targets/target-category-data.json"
-import targetList from "../../character/json/targets/target-list.json"
+import targetCategories from "../actor/json/targets/target-category-data.json"
+import targetList from "../actor/json/targets/target-list.json"
 
 /**
  * A morphTarget for THREE.Geometry. It represents a target to interpolate the

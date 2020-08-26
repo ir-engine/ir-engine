@@ -2,7 +2,7 @@ import { AmbientLight, Camera, GridHelper, PerspectiveCamera, Scene } from 'thre
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { createEntity } from './ecs/functions/EntityFunctions';
 import { Engine } from './ecs/classes/Engine';
-import { execute, initialize } from './ecs/functions/EngineFunctions';
+import { execute, initialize, startTimer } from './ecs/functions/EngineFunctions';
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
 import { CharacterSubscriptionSchema } from './templates/character/CharacterSubscriptionSchema';
@@ -16,7 +16,6 @@ import { StateSystem } from './state/systems/StateSystem';
 import { SubscriptionSystem } from './subscription/systems/SubscriptionSystem';
 import { ParticleSystem } from "./particles/systems/ParticleSystem"
 import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
-import { Timer } from './common/functions/Timer';
 import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
 import { DefaultNetworkSchema } from './templates/network/DefaultNetworkSchema';
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
@@ -62,9 +61,6 @@ export const DefaultInitializationOptions = {
     enabled: true
   }
 };
-
-let engineTimer:{ start: Function, stop: Function } = null
-let engineTimerTimeout;
 
 export function initializeEngine (options: any = DefaultInitializationOptions) {
   console.log(options)
@@ -149,23 +145,6 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
 
   // Start our timer!
   if (isBrowser) {
-    engineTimerTimeout = setTimeout(startTimer, 1000);
+    Engine.engineTimerTimeout = setTimeout(startTimer, 1000);
   }
-}
-
-export function resetEngine() {
-  if (engineTimerTimeout) {
-    clearTimeout(engineTimerTimeout)
-  }
-  engineTimer?.stop()
-
-  Engine.reset()
-}
-
-export function startTimer () {
-  setTimeout(() => {
-    engineTimer = Timer({
-      update: (delta, elapsedTime) => execute(delta, elapsedTime)
-    }).start();
-  }, 1);
 }

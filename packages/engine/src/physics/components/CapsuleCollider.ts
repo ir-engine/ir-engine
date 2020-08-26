@@ -1,6 +1,6 @@
 import { Vec3, Material, Body, Sphere } from "cannon-es";
 import { Component } from "../../ecs/classes/Component";
-import { setDefaults } from "../../character/functions/CharacterFunctions";
+import { setDefaults } from "../../templates/character/functions/setDefaults";
 
 export class CapsuleCollider extends Component<CapsuleCollider>
 {

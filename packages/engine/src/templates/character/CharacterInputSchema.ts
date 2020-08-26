@@ -1,21 +1,19 @@
-import { initJump } from './behaviors/jump';
-import { move } from './behaviors/move';
-import { rotateAround } from './behaviors/rotate';
-import { rotateStart } from './behaviors/updateLookingState';
-import { updateMovementState } from './behaviors/updateMovementState';
 import { BinaryValue } from '../../common/enums/BinaryValue';
 import { Thumbsticks } from '../../common/enums/Thumbsticks';
 import { disableScroll, enableScroll } from '../../common/functions/enableDisableScrolling';
 import { preventDefault } from '../../common/functions/preventDefault';
 import { handleKey, handleMouseButton, handleMouseMovement } from '../../input/behaviors/DesktopInputBehaviors';
-import { handleTouch, handleTouchMove } from '../../input/behaviors/TouchBehaviors';
 import { handleGamepadConnected, handleGamepadDisconnected } from '../../input/behaviors/GamepadInputBehaviors';
+import { handleTouch, handleTouchMove } from '../../input/behaviors/TouchBehaviors';
 import { GamepadButtons } from '../../input/enums/GamepadButtons';
 import { InputType } from '../../input/enums/InputType';
 import { MouseButtons } from '../../input/enums/MouseButtons';
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
 import { DefaultInput } from '../shared/DefaultInput';
+import { jumpStart } from "./behaviors/jumpStart";
+import { move } from './behaviors/move';
+import { rotateAround } from './behaviors/rotate';
 
 export const CharacterInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -60,11 +58,11 @@ export const CharacterInputSchema: InputSchema = {
         args: {
           value: BinaryValue.ON
         }
-      },
-      {
-        behavior: rotateStart,
-        args: {}
       }
+      // {
+      //   behavior: rotateStart,
+      //   args: {}
+      // }
     ],
 
     // Touch
@@ -74,11 +72,11 @@ export const CharacterInputSchema: InputSchema = {
         args: {
           value: BinaryValue.ON
         }
-      },
-      {
-        behavior: rotateStart,
-        args: {}
       }
+      // {
+      //   behavior: rotateStart,
+      //   args: {}
+      // }
     ],
     touchend: [
       {
@@ -204,7 +202,7 @@ export const CharacterInputSchema: InputSchema = {
       [BinaryValue.ON]: {
         started: [
           {
-            behavior: initJump,
+            behavior: jumpStart,
             args: {}
           }
         ]
@@ -219,10 +217,10 @@ export const CharacterInputSchema: InputSchema = {
               inputType: InputType.TWOD,
               value: [0, -1]
             }
-          },
-          {
-            behavior: updateMovementState
           }
+          // {
+          //   behavior: updateMovementState
+          // }
         ],
         continued: [
           {
@@ -236,23 +234,23 @@ export const CharacterInputSchema: InputSchema = {
       },
       [BinaryValue.OFF]: {
         started: [
-          {
-            behavior: updateMovementState
-          }
+          // {
+          //   behavior: updateMovementState
+          // }
         ],
         continued: [
-          {
-            behavior: updateMovementState
-          }
+          // {
+          //   behavior: updateMovementState
+          // }
         ]
       }
     },
     [DefaultInput.BACKWARD]: {
       [BinaryValue.ON]: {
         started: [
-          {
-            behavior: updateMovementState
-          },
+          // {
+          //   behavior: updateMovementState
+          // },
           {
             behavior: move,
             args: {
@@ -273,23 +271,23 @@ export const CharacterInputSchema: InputSchema = {
       },
       [BinaryValue.OFF]: {
         started: [
-          {
-            behavior: updateMovementState
-          }
+          // {
+          //   behavior: updateMovementState
+          // }
         ],
         continued: [
-          {
-            behavior: updateMovementState
-          }
+          // {
+          //   behavior: updateMovementState
+          // }
         ]
       }
     },
     [DefaultInput.LEFT]: {
       [BinaryValue.ON]: {
         started: [
-          {
-            behavior: updateMovementState
-          },
+          // {
+          //   behavior: updateMovementState
+          // },
           {
             behavior: move,
             args: {
@@ -313,23 +311,23 @@ export const CharacterInputSchema: InputSchema = {
       },
       [BinaryValue.OFF]: {
         started: [
-          {
-            behavior: updateMovementState
-          }
+          // {
+          //   behavior: updateMovementState
+          // }
         ],
         continued: [
-          {
-            behavior: updateMovementState
-          }
+          // {
+          //   behavior: updateMovementState
+          // }
         ]
       }
     },
     [DefaultInput.RIGHT]: {
       [BinaryValue.ON]: {
         started: [
-          {
-            behavior: updateMovementState
-          },
+          // {
+          //   behavior: updateMovementState
+          // },
           {
             behavior: move,
             args: {
@@ -350,14 +348,14 @@ export const CharacterInputSchema: InputSchema = {
       },
       [BinaryValue.OFF]: {
         started: [
-          {
-            behavior: updateMovementState
-          }
+          // {
+          //   behavior: updateMovementState
+          // }
         ],
         continued: [
-          {
-            behavior: updateMovementState
-          }
+          // {
+          //   behavior: updateMovementState
+          // }
         ]
       }
     }
@@ -366,9 +364,9 @@ export const CharacterInputSchema: InputSchema = {
   inputAxisBehaviors: {
     [DefaultInput.MOVEMENT_PLAYERONE]: {
       started: [
-        {
-          behavior: updateMovementState
-        }
+        // {
+        //   behavior: updateMovementState
+        // }
       ],
       continued: [
         {

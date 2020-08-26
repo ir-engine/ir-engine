@@ -16,7 +16,7 @@ export class EventDispatcher {
     };
   }
 
-  reset(): void {
+  public reset(): void {
     Object.keys(this._listeners).forEach(key => {
       delete this._listeners[key]
     })

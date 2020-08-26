@@ -2,7 +2,7 @@ import {Object3D} from 'three';
 import { threeToCannon } from 'three-to-cannon';
 import { Body, Material } from 'cannon-es';
 import { Component } from "../../ecs/classes/Component"
-import { setDefaults } from '../../character/functions/CharacterFunctions';
+import { setDefaults } from "../../templates/character/functions/setDefaults";
 export class TrimeshCollider extends Component<TrimeshCollider>
 {
 	public mesh: any;

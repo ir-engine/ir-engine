@@ -1,8 +1,8 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { CharacterComponent } from '../../../character/components/CharacterComponent';
-import { setCharacterAnimation } from "../setCharacterAnimation";
-import { checkFalling } from "../behaviors/checkFalling";
-import { initializeCharacterState, updateCharacterState } from '../behaviors/CharacterBaseBehaviors';
+import { ActorComponent } from '../components/ActorComponent';
+import { setActorAnimation } from "../behaviors/setActorAnimation";
+import { initializeCharacterState } from "../behaviors/initializeCharacterState";
+import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
 import { checkMovingOnAnimationEnded } from '../behaviors/checkMovingOnAnimationEnded';
 import { WalkState } from './WalkState';
@@ -11,7 +11,7 @@ import { EndWalkState } from './EndWalkState';
 export const DropRollingState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
   componentProperties: {
-    component: CharacterComponent,
+    component: ActorComponent,
     properties: {
       ['velocitySimulator.damping']: 0.6,
       ['velocitySimulator.mass']: 1,
@@ -23,7 +23,7 @@ export const DropRollingState: StateSchemaValue = {
         behavior: initializeCharacterState
       },
       {
-        behavior: setCharacterAnimation,
+        behavior: setActorAnimation,
         args: {
           name: 'drop_running_roll',
           transitionDuration: 0.03
