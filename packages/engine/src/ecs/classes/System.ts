@@ -176,11 +176,10 @@ export abstract class System {
                   );
                 }
               } else {
-                const eventList = (this.queryResults[queryName][eventName] = []);
-
+                const self = this
                 query.eventDispatcher.addEventListener(eventMapping[eventName], entity => {
                   // @fixme overhead?
-                  if (!eventList.includes(entity)) eventList.push(entity);
+                  if (!self.queryResults[queryName][eventName].includes(entity)) self.queryResults[queryName][eventName].push(entity);
                 });
               }
             }
