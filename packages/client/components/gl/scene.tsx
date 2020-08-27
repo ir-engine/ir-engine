@@ -6,7 +6,7 @@ import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/Networ
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
-import { createEntity, addComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { createEntity, addComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { AssetLoader } from "@xr3ngine/engine/src/assets/components/AssetLoader"
 import { AssetType } from '@xr3ngine/engine/src/assets/enums/AssetType';
 import { AssetClass } from '@xr3ngine/engine/src/assets/enums/AssetClass';
@@ -19,6 +19,8 @@ import { PositionalAudio, Mesh, SphereBufferGeometry, MeshPhongMaterial  } from 
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/network/DefaultNetworkSchema';
 import { resetEngine } from '@xr3ngine/engine/src/ecs/functions/EngineFunctions';
 import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
+import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
+import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 
 export const EnginePage: FunctionComponent = (props: any) => {
 
@@ -51,13 +53,18 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // Load glb here
     // createPrefab(rigidBodyBox);
 
-    createPrefab(PlayerCharacter);
+    // createPrefab(PlayerCharacter);
     
     createPrefab(staticWorldColliders);
 
     addObject3DComponent(createEntity(), { obj3d: AmbientLight, ob3dArgs: {
       intensity: 2.0
     }})
+    
+    const cameraTransform = getMutableComponent<TransformComponent>(CameraComponent.instance.entity, TransformComponent)
+
+    cameraTransform.position.set(0, 1.2, 5)
+
 
     const {sound} = Engine as any;
     if( sound ){

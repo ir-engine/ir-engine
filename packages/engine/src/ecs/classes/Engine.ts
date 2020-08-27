@@ -7,6 +7,7 @@ import { DefaultOptions } from '../constants/DefaultOptions';
 import { Entity } from './Entity';
 //import Stats from 'stats.js'
 import { CameraOperator } from '../../camera/classes/CameraOperator';
+import { TransformComponent } from '../../transform/components/TransformComponent';
 
 export class Engine {
 
@@ -43,6 +44,12 @@ public static framerateLimit = 60;
  * This is set in {@link @xr3ngine/engine/src/initialize#initializeEngine}
  */
   static camera: Camera = null
+  
+  /**
+ * Reference to the three.js camera object
+ * This is set in {@link @xr3ngine/engine/src/initialize#initializeEngine}
+ */
+  static cameraTransform: TransformComponent = null
 
   /**
  * Event dispatcher manages sending events which can be interpreted by devtools
