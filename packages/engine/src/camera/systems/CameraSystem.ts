@@ -14,14 +14,11 @@ export class CameraSystem extends System {
    */
   init(): void {
     const cameraEntity = createEntity();
-    addComponent(cameraEntity, CameraComponent, { camera: Engine.camera, followTarget: null });
+    addComponent(cameraEntity, CameraComponent);
     addComponent(cameraEntity, CameraTagComponent)
     addComponent(cameraEntity, Object3DComponent)
     getMutableComponent<Object3DComponent>(cameraEntity, Object3DComponent).value = Engine.camera
     addComponent(cameraEntity, TransformComponent);
-    console.log('test ///////////////////////');
-    console.log(cameraEntity);
-
   }
 
   /**

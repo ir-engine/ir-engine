@@ -95,7 +95,7 @@ export function addComponent<C extends Component<C>>(
   const componentPool = new ObjectPool(Component);
 
   const component = (componentPool ? componentPool.acquire() : new Component(values)) as Component<any>;
-
+  component.entity = entity
   if (componentPool && values) {
     component.copy(values);
   }

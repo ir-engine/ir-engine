@@ -65,19 +65,19 @@ export class WebGLRendererSystem extends System {
     rendererComponent.composer = composer;
     const renderPass = new RenderPass(Engine.scene, Engine.camera);
     renderPass.scene = Engine.scene;
-    renderPass.camera = CameraComponent.instance.camera;
+    renderPass.camera = Engine.camera;
     composer.addPass(renderPass);
     // This sets up the render
     const passes: any[] = []
     RendererComponent.instance.postProcessingSchema.effects.forEach((pass: any) => {
       if ( pass.effect === SSAOEffect)
-        passes.push(new pass.effect(CameraComponent.instance.camera, {}, pass.effect.options))
+        passes.push(new pass.effect(Engine.camera, {}, pass.effect.options))
       else if ( pass.effect === DepthOfFieldEffect)
-        passes.push(new pass.effect(CameraComponent.instance.camera, pass.effect.options))
+        passes.push(new pass.effect(Engine.camera, pass.effect.options))
       else passes.push(new pass.effect(pass.effect.options))
     })
     if (passes.length) {
-      composer.addPass(new EffectPass(CameraComponent.instance.camera, ...passes))
+      composer.addPass(new EffectPass(Engine.camera, ...passes))
     }
   }
 

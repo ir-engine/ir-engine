@@ -33,6 +33,11 @@ export class Component<C> {
    */
   name: any = ""
 
+    /**
+   * The entity this component is attached to
+   */
+  entity: any = ""
+
   /**
    * Component class constructor
    */

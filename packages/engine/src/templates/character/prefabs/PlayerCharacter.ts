@@ -47,9 +47,9 @@ export const PlayerCharacter: Prefab = {
         {
             behavior: initializeCharacter
         },
-        {
-            behavior: setCameraPosition
-        }
+        // {
+        //     behavior: setCameraPosition
+        // }
         // TODO: Boxman setup here
 
         // {

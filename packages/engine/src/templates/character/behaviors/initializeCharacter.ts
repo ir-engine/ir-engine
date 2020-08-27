@@ -34,13 +34,13 @@ export const initializeCharacter: Behavior = (entity): void => {
 		// The visuals group is centered for easy actor tilting
 		actor.tiltContainer = new Group();
 		const actorObject3D = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
-		// actorObject3D.value.add(actor.tiltContainer);
+		actorObject3D.value.add(actor.tiltContainer);
 
 		// // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
-		// actor.modelContainer = new Group();
-		// actor.modelContainer.position.y = -0.57;
-		// actor.tiltContainer.add(actor.modelContainer);
-		// actor.modelContainer.add(asset.scene);
+		actor.modelContainer = new Group();
+		actor.modelContainer.position.y = -0.57;
+		actor.tiltContainer.add(actor.modelContainer);
+		actor.modelContainer.add(asset.scene);
 		actor.mixer = new AnimationMixer(Engine.scene);
 
 		actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
