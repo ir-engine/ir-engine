@@ -13,6 +13,9 @@ const _velocity: vec3 = [0, 0, 0];
 
 export const transformBehavior: Behavior = (entity: Entity, args: { event: MouseEvent }, delta): void => {
   transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
+  // TODO: remove this check? this.queryResults.transforms.all should be replaced with this.queryResults.transforms.changed?
+  if (!transform) return;
+
   vec3.set(_position, transform.position[0], transform.position[1], transform.position[2]);
   vec3.set(_velocity, transform.velocity[0], transform.velocity[1], transform.velocity[2]);
 
