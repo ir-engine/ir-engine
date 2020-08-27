@@ -20,6 +20,7 @@ export class PhysicsManager extends Component<PhysicsManager> {
 	physicsFrameRate: number;
 	physicsFrameTime: number;
   physicsMaxPrediction: number;
+
   
 
   constructor () {
@@ -39,7 +40,7 @@ export class PhysicsManager extends Component<PhysicsManager> {
         this.physicsWorld.gravity.set(0, -9.81, 0);
         this.physicsWorld.broadphase = new SAPBroadphase(this.physicsWorld);
         // this.physicsWorld.solver.iterations = 10;
-        this.physicsWorld.allowSleep = true;
+        this.physicsWorld.allowSleep = false;
 
         this.parallelPairs = [];
         this.physicsFrameRate = 60;

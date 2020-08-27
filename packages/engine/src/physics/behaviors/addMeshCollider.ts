@@ -1,9 +1,7 @@
 import { Behavior } from '../../common/interfaces/Behavior';
-import { ColliderComponent } from '../components/ColliderComponent';
-import { RigidBody } from '../../physics/components/RigidBody';
 import { Entity } from '../../ecs/classes/Entity';
 import { addComponent } from '../../ecs/functions/EntityFunctions';
-import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
+import { ColliderComponent } from '../components/ColliderComponent';
 
 export const addMeshCollider: Behavior = (entity: Entity) => {
 

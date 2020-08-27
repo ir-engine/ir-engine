@@ -9,6 +9,7 @@ import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { CharacterComponent } from "../components/CharacterComponent";
 import { appplyVectorMatrixXZ } from "../functions/appplyVectorMatrixXZ";
 import { haveDifferentSigns } from "../../../common/functions/haveDifferentSigns";
+import { TransformComponent } from "../../../transform/components/TransformComponent";
 
 export const physicsPostStep: Behavior = (entity): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
@@ -46,6 +47,7 @@ export const physicsPostStep: Behavior = (entity): void => {
 
 	// If we're hitting the ground, stick to ground
 	if (actor.rayHasHit) {
+		console.log("We are hitting the ground")
 		// Flatten velocity
 		newVelocity.y = 0;
 
@@ -110,4 +112,6 @@ export const physicsPostStep: Behavior = (entity): void => {
 		// Reset flag
 		actor.wantsToJump = false;
 	}
+	const transform = getMutableComponent<TransformComponent>(entity, TransformComponent)
+	transform.position.set(body.position.x, body.position.y, body.position.z)
 };

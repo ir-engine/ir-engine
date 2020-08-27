@@ -1,5 +1,5 @@
-import { Vec3 } from "cannon-es";
-import { AnimationMixer, BoxGeometry, Group, Mesh, MeshLambertMaterial, Vector3 } from "three";
+import { Vec3, Shape } from "cannon-es";
+import { AnimationMixer, BoxGeometry, Group, Mesh, MeshLambertMaterial, Vector3, Color } from "three";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { Object3DComponent } from "../../../common/components/Object3DComponent";
 import { Behavior } from "../../../common/interfaces/Behavior";
@@ -20,6 +20,9 @@ import { Engine } from "../../../ecs/classes/Engine";
 import { setPhysicsEnabled } from "./setPhysicsEnabled";
 import { PhysicsManager } from "../../../physics/components/PhysicsManager";
 import { setPosition } from "./setPosition";
+import debug from "cannon-es-debugger"
+import { ColliderComponent } from "../../../physics/components/ColliderComponent";
+import { cannonFromThreeVector } from "../../../common/functions/cannonFromThreeVector";
 
 export const initializeCharacter: Behavior = (entity): void => {
 	console.log("**** Initializing character!");
@@ -30,12 +33,13 @@ export const initializeCharacter: Behavior = (entity): void => {
 	assetLoader.onLoaded = asset => {
 		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 		actor.animations = asset.animations;
-
+		console.log("Components on character")
+		console.log(entity.components)
 		// The visuals group is centered for easy actor tilting
 		actor.tiltContainer = new Group();
 		const actorObject3D = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
-		actorObject3D.value.add(actor.tiltContainer);
-
+		actorObject3D.value = actor.tiltContainer;
+		console.log("actorObject3D.value: ", actorObject3D.value)
 		// // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
 		actor.modelContainer = new Group();
 		actor.modelContainer.position.y = -0.57;
@@ -50,7 +54,7 @@ export const initializeCharacter: Behavior = (entity): void => {
 
 		// Physics
 		// Player Capsule
-		actor.actorCapsule = new CapsuleCollider({
+		addComponent(entity, CapsuleCollider as any, {
 			mass: 1,
 			position: new Vec3(),
 			actor_height: 0.5,
@@ -58,17 +62,29 @@ export const initializeCharacter: Behavior = (entity): void => {
 			segments: 8,
 			friction: 0.0
 		});
+		actor.actorCapsule = getMutableComponent<CapsuleCollider>(entity, CapsuleCollider)
 		actor.actorCapsule.body.shapes.forEach((shape) => {
 			// shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
 		});
 		actor.actorCapsule.body.allowSleep = false;
 
 		// Move actor to different collision group for raycasting
-		// actor.actorCapsule.body.collisionFilterGroup = 2;
+		actor.actorCapsule.body.collisionFilterGroup = 2;
 
 		// Disable actor rotation
 		actor.actorCapsule.body.fixedRotation = true;
 		actor.actorCapsule.body.updateMassProperties();
+
+		    // If this entity has an object3d, get the position of that
+			// if(hasComponent(entity, Object3DComponent)){
+			// 	actor.actorCapsule.body.position = cannonFromThreeVector(getComponent<Object3DComponent>(entity, Object3DComponent).value.position)
+			//   } else {
+				actor.actorCapsule.body.position = new Vec3()
+			//   }
+
+		addComponent(entity, ColliderComponent)
+		const colliderComponent = getMutableComponent<ColliderComponent>(entity, ColliderComponent)
+		colliderComponent.collider = actor.actorCapsule.body
 
 		// Ray cast debug
 		const boxGeo = new BoxGeometry(0.1, 0.1, 0.1);
@@ -84,8 +100,13 @@ export const initializeCharacter: Behavior = (entity): void => {
 		// States
 		addState(entity, { state: CharacterStateTypes.IDLE });
 		actor.initialized = true;
+		const DebugOptions = {
+			color: new Color('red'),
+			onInit: (body: Body, mesh: Mesh, shape: Shape) => 	console.log("body: ", body, " | mesh: ", mesh, " | shape: ", shape),
+			onUpdate: (body: Body, mesh: Mesh, shape: Shape) => console.log("body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape)
+		  }
+		debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions)
 
-		
-		setPosition(entity, {x: 0, y: 1, z: 0})
+		setPosition(entity, {x: 0, y: 0, z: 0})
 	};
 };

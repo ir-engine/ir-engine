@@ -8,7 +8,7 @@ import { CharacterComponent } from "../components/CharacterComponent";
 import { TransformComponent } from "../../../transform/components/TransformComponent";
 import { Object3DComponent } from "../../../common/components/Object3DComponent";
 
-export const feetRaycast: Behavior = (entity: Entity): void => {
+export const raycastDown: Behavior = (entity: Entity): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	const transform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent)
 	const object3d: Object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent)
@@ -25,8 +25,10 @@ export const feetRaycast: Behavior = (entity: Entity): void => {
 	// Raycast options
 	const rayCastOptions = {
 		collisionFilterMask: CollisionGroups.Default,
-		skipBackfaces: true /* ignore back faces */
+		// skipBackfaces: true /* ignore back faces */
 	};
 	// Cast the ray
 	actor.rayHasHit = PhysicsManager.instance.physicsWorld.raycastClosest(start, end, rayCastOptions, actor.rayResult);
+
+	console.log("Ray has hit: ", actor.rayResult )
 };

@@ -11,7 +11,7 @@ export const setPosition: Behavior = (entity, args: { x: number; y: number; z: n
 	if(isNaN( actor.actorCapsule.body.position.y))  actor.actorCapsule.body.position.y = 0
 	if (actor.physicsEnabled)
 		{
-	actor.actorCapsule.body.previousPosition = new Vec3(actor.actorCapsule.body.position.x, actor.actorCapsule.body.position.y, actor.actorCapsule.body.position.z);
+	actor.actorCapsule.body.previousPosition = new Vec3(args.x, args.y, args.z);
 	actor.actorCapsule.body.position = new Vec3(args.x, args.y, args.z);
 	actor.actorCapsule.body.interpolatedPosition = new Vec3(args.x, args.y, args.z);
 }

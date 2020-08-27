@@ -44,12 +44,6 @@ export const FallingState: StateSchemaValue = {
         setCameraRelativeOrientationTarget: true
       }
     },
-    {
-      behavior: onAnimationEnded,
-      args: {
-        transitionToState: CharacterStateTypes.IDLE
-      }
-    },
     // Set Velocity Target If Moving
     {
       behavior: setTargetVelocityIfMoving,

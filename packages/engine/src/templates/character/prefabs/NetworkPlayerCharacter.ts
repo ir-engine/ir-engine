@@ -19,36 +19,36 @@ const miniGeo = new BoxBufferGeometry(2, 1, 4);
 export const NetworkPlayerCharacter: NetworkPrefab = {
   // These will be created for all players on the network
   networkComponents: [
-    { type: NetworkObject },
-    { type: CharacterComponent },
-    { type: TransformComponent, networkedValues: ['position', 'rotation'] }
+    // { type: NetworkObject },
+    // { type: CharacterComponent },
+    // { type: TransformComponent, networkedValues: ['position', 'rotation'] }
   ],
   // These are only created for the local player who owns this prefab
   components: [
-    { type: Input, data: { schema: CharacterInputSchema } },
-    { type: State, data: { schema: CharacterStateSchema } },
-    { type: Subscription, data: { schema: CharacterSubscriptionSchema } }
+    // { type: Input, data: { schema: CharacterInputSchema } },
+    // { type: State, data: { schema: CharacterStateSchema } },
+    // { type: Subscription, data: { schema: CharacterSubscriptionSchema } }
   ],
   onCreate: [
-    {
-      behavior: addObject3DComponent,
-      networked: true,
-      args: {
-        obj3d: Mesh,
-        obj3dArgs: miniGeo
-      }
-    },
-    {
-      behavior: attachCamera
-    },
-    {
-      behavior: addMeshCollider,
-      networked: true
-    }
+  //   {
+  //     behavior: addObject3DComponent,
+  //     networked: true,
+  //     args: {
+  //       obj3d: Mesh,
+  //       obj3dArgs: miniGeo
+  //     }
+  //   },
+  //   {
+  //     behavior: attachCamera
+  //   },
+  //   {
+  //     behavior: addMeshCollider,
+  //     networked: true
+  //   }
   ],
   onDestroy: [
-    {
-      behavior: removeObject3DComponent
-    }
+    // {
+    //   behavior: removeObject3DComponent
+    // }
   ]
 };
