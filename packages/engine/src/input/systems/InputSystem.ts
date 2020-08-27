@@ -7,6 +7,14 @@ import { WebXRSession } from '../components/WebXRSession';
 import { DefaultInputSchema } from '../defaults/DefaultInputSchema';
 import { initVR } from '../functions/WebXRFunctions';
 import { getMutableComponent, getComponent } from '../../ecs/functions/EntityFunctions';
+/**
+ * Input System
+ * 
+ * Property with prefix readonly makes a property as read-only in the class
+ * @property {Number} mainControllerId set value 0
+ * @property {Number} secondControllerId set value 1
+ * @property {} boundListeners set of values without keys
+ */
 
 export class InputSystem extends System {
   readonly mainControllerId //= 0
@@ -16,26 +24,35 @@ export class InputSystem extends System {
   private _inputComponent: Input
   private readonly boundListeners //= new Set()
 
-  constructor () {
+  constructor() {
     super();
     this.mainControllerId = 0;
     this.secondControllerId = 1;
     this.boundListeners = new Set();
   }
 
-  init (onVRSupportRequested): void {
+  /**
+   * Initialization Virtual Reality
+   * 
+   * @param onVRSupportRequested 
+   */
+  init(onVRSupportRequested): void {
     if (onVRSupportRequested) {
       initVR(onVRSupportRequested);
     } else initVR();
   }
 
-  public execute (delta: number): void {
+  /**
+   * 
+   * @param {Number} delta Time since last frame
+   */
+  public execute(delta: number): void {
     // Handle XR input
     if (this.queryResults.xrRenderer.all.length > 0) {
       const webXRRenderer = getMutableComponent(this.queryResults.xrRenderer.all[0], WebXRRenderer);
-
+      // Called when WebXRSession component is added to entity
       this.queryResults.xrSession.added.forEach(entity => initializeSession(entity, { webXRRenderer }));
-
+      // Called every frame on all WebXRSession components
       this.queryResults.xrSession.all.forEach(entity => processSession(entity));
     }
 
@@ -97,6 +114,9 @@ export class InputSystem extends System {
   }
 }
 
+/**
+ * Queries must have components attribute which defines the list of components
+ */
 InputSystem.queries = {
   inputs: {
     components: [Input],
