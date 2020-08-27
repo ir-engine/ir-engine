@@ -29,7 +29,7 @@ export class CameraSystem extends System {
   execute(delta: number): void {
     this.queryResults.entities.all?.forEach(entity => {
       const cam = getComponent(entity, CameraComponent) as CameraComponent;
-      if (cam.followTarget !== null && cam.followTarget !== undefined) {
+      if (cam && cam.followTarget !== null && cam.followTarget !== undefined) {
         followTarget(entity, { distance: 100 }, delta, cam.followTarget);
       }
     });
