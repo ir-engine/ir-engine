@@ -3,7 +3,13 @@ import { Behavior } from '../../common/interfaces/Behavior';
 import { Engine } from '../../ecs/classes/Engine';
 import { Entity } from '../../ecs/classes/Entity';
 import { System, SystemAttributes } from '../../ecs/classes/System';
-import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import {
+  addComponent,
+  createEntity,
+  getComponent,
+  getMutableComponent,
+  hasComponent
+} from '../../ecs/functions/EntityFunctions';
 import { RendererComponent } from '../components/RendererComponent';
 import { DefaultPostProcessingSchema } from '../defaults/DefaultPostProcessingSchema';
 import { EffectComposer } from '../../postprocessing/core/EffectComposer';
@@ -109,6 +115,9 @@ export class WebGLRendererSystem extends System {
 
     if(this.isInitialized)
       this.queryResults.renderers.all.forEach((entity: Entity) => {
+        if (!hasComponent(entity, RendererComponent)) {
+          return
+        }
         resize(entity)
         getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
       });

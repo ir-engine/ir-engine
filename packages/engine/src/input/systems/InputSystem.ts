@@ -6,7 +6,7 @@ import { WebXRRenderer } from '../components/WebXRRenderer';
 import { WebXRSession } from '../components/WebXRSession';
 import { DefaultInputSchema } from '../defaults/DefaultInputSchema';
 import { initVR } from '../functions/WebXRFunctions';
-import { getMutableComponent, getComponent } from '../../ecs/functions/EntityFunctions';
+import { getMutableComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 
 export class InputSystem extends System {
   readonly mainControllerId //= 0
@@ -51,7 +51,12 @@ export class InputSystem extends System {
     }
 
     // Called every frame on all input components
-    this.queryResults.inputs.all.forEach(entity => handleInput(entity, { delta }));
+    this.queryResults.inputs.all.forEach(entity => {
+      if (!hasComponent(entity, Input)) {
+        return
+      }
+      handleInput(entity, { delta })
+    });
 
     // Called when input component is added to entity
     this.queryResults.inputs.added.forEach(entity => {
