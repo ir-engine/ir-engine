@@ -7,7 +7,6 @@ export const setTargetVelocityIfMoving: Behavior = (entity, args: { ifTrue: { x:
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   if(!actor.initialized) return
   if(isMoving(entity)) {
-    console.log("Change state to walking forward");
     actor.velocityTarget.set(args.ifTrue.x, args.ifTrue.y, args.ifTrue.z)
   }
   else if (args.ifFalse !== undefined){

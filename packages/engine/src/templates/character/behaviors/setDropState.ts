@@ -9,12 +9,17 @@ import { isMoving } from '../functions/isMoving';
 export const setDropState: Behavior = (entity, args = null, deltaTime) => {
   const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
   if(!actor.initialized) return;
+  if (!actor.rayHasHit) return
+  console.log("Setting drop state")
+  console.log("isMoving: ", isMoving(entity))
+
   if (actor.groundImpactVelocity.y < -6)
   {
     addState(entity, { state: CharacterStateTypes.DROP_ROLLING })
   }
 
-  if(isMoving(entity))    {
+
+  else if(isMoving(entity))    {
     if (actor.groundImpactVelocity.y < -2)
     {
       addState(entity, { state: CharacterStateTypes.DROP_RUNNING })

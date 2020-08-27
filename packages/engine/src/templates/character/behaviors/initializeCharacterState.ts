@@ -8,7 +8,7 @@ import { State } from "../../../state/components/State";
 export const initializeCharacterState: Behavior = (entity: Entity) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	if(!actor.initialized) return console.log("Returning on init but might want to handle")
-
+	console.log("Entering state: ", getComponent(entity, State).data.keys())
 	actor.velocitySimulator.damping = actor.defaultVelocitySimulatorDamping;
 	actor.velocitySimulator.mass = actor.defaultVelocitySimulatorMass;
 
