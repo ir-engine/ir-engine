@@ -33,6 +33,21 @@ export class PhysicsWorld extends Component<any> {
     // We must add the contact materials to the world
     this.physicsWorld.addContactMaterial(PhysicsWorld.instance.wheelGroundContactMaterial);
   }
+
+  dispose():void {
+    super.dispose();
+
+    PhysicsWorld.instance.groundMaterial = null
+    PhysicsWorld.instance.wheelMaterial = null
+    PhysicsWorld.instance.wheelGroundContactMaterial = null
+
+    PhysicsWorld.instance = null;
+    this.frame = 0;
+    this.physicsWorld.broadphase.dispose()
+    this.physicsWorld.broadphase = null
+    this.physicsWorld.dispose()
+    this.physicsWorld = null
+  }
 }
 PhysicsWorld.schema = {
   physicsWorld: { type: Types.Ref, default: null }

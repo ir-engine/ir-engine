@@ -144,7 +144,10 @@ var FBXLoader = ( function () {
 
 			var textureLoader = new TextureLoader( this.manager ).setPath( this.resourcePath || path ).setCrossOrigin( this.crossOrigin );
 
-			return new FBXTreeParser( textureLoader, this.manager ).parse( fbxTree );
+			var ret = new FBXTreeParser( textureLoader, this.manager ).parse( fbxTree )
+			fbxTree = null
+
+			return ret;
 
 		}
 
