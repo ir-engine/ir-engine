@@ -45,7 +45,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
         enabled: true
       },
       audio: {
-        src: '/audio/108.ogg'
+        src: '/audio/djMagda.m4a'
       },
     };
     initializeEngine(InitializationOptions);

@@ -20,6 +20,8 @@ import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
 import { DefaultNetworkSchema } from './templates/network/DefaultNetworkSchema';
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { Timer } from './common/functions/Timer';
+import { addObject3DComponent } from './common/behaviors/Object3DBehaviors';
+import _ from 'lodash'
 
 export const DefaultInitializationOptions = {
   debug: true,
@@ -71,7 +73,13 @@ export const DefaultInitializationOptions = {
   }
 };
 
+<<<<<<< HEAD
 export function initializeEngine (options: any = DefaultInitializationOptions) {
+=======
+export function initializeEngine (initOptions: any = DefaultInitializationOptions) {
+  const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
+  console.log('initializeEngine', options, initOptions)
+>>>>>>> origin/audio
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
   // Create a new three.js scene
@@ -101,8 +109,8 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
     scene.add(camera);
       registerSystem(CameraSystem);
     }
-
     if( options.audio?.enabled ){
+      console.log('Audio enabled')
       const {src, refDistance, autoplay, positional, loop, volume} = options.audio
       const listener = new AudioListener();
       Engine.camera.add( listener );
@@ -112,12 +120,13 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
               (Engine as any).sound = new Sound( listener );
         const audioLoader = new AudioLoader();
         audioLoader.load( src, buffer => {
+          console.log('Audio loaded', sound)
           sound.setBuffer( buffer );
           if(refDistance && sound.setRefDistance){
             sound.setRefDistance( refDistance );
           }
           sound.setLoop(loop);
-          if(volume) sound.setVolue(volume);
+          if(volume) sound.setVolume(volume);
           if(autoplay) sound.play();
         });
       }
