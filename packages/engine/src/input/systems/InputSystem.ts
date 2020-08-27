@@ -8,6 +8,15 @@ import { CharacterInputSchema } from '../../templates/character/CharacterInputSc
 import { initVR } from '../functions/WebXRFunctions';
 import { getMutableComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 
+/**
+ * Input System
+ * 
+ * Property with prefix readonly makes a property as read-only in the class
+ * @property {Number} mainControllerId set value 0
+ * @property {Number} secondControllerId set value 1
+ * @property {} boundListeners set of values without keys
+ */
+
 export class InputSystem extends System {
   readonly mainControllerId //= 0
   readonly secondControllerId //= 1
@@ -26,7 +35,12 @@ export class InputSystem extends System {
     this.secondControllerId = 1;
     this.boundListeners = new Set();
   }
-
+  
+  /**
+   * Initialization Virtual Reality
+   * 
+   * @param onVRSupportRequested 
+   */
   init ({ useWebXR: boolean, onVRSupportRequested:any }): void {
     if (this.useWebXR) {
       if (this.onVRSupportRequested) {
@@ -40,13 +54,17 @@ export class InputSystem extends System {
     this._inputComponent = null
   }
 
-  public execute (delta: number): void {
+  /**
+   * 
+   * @param {Number} delta Time since last frame
+   */
+  public execute(delta: number): void {
     // Handle XR input
     if (this.queryResults.xrRenderer.all.length > 0) {
       const webXRRenderer = getMutableComponent(this.queryResults.xrRenderer.all[0], WebXRRenderer);
-
+      // Called when WebXRSession component is added to entity
       this.queryResults.xrSession.added?.forEach(entity => initializeSession(entity, { webXRRenderer }));
-
+      // Called every frame on all WebXRSession components
       this.queryResults.xrSession.all.forEach(entity => processSession(entity));
     }
 
@@ -116,6 +134,9 @@ export class InputSystem extends System {
   }
 }
 
+/**
+ * Queries must have components attribute which defines the list of components
+ */
 InputSystem.queries = {
   inputs: {
     components: [Input],
