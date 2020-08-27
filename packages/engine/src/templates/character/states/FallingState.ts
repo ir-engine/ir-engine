@@ -6,7 +6,7 @@ import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
 import { onAnimationEnded } from '../behaviors/onAnimationEnded';
 import { setTargetVelocityIfMoving } from '../behaviors/setTargetVelocityIfMoving';
-import { checkIfDropped } from '../behaviors/checkIfDropped';
+import { setDropState } from '../behaviors/setDropState';
 import { IdleState } from './IdleState';
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
@@ -60,7 +60,7 @@ export const FallingState: StateSchemaValue = {
     },
     // Set drop state
     {
-      behavior: checkIfDropped
+      behavior: setDropState
     }
   ]
 };

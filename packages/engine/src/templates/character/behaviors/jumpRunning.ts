@@ -4,7 +4,7 @@ import { getComponent, getMutableComponent } from "../../../ecs/functions/Entity
 import { TransformComponent } from "../../../transform/components/TransformComponent";
 import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from "../components/CharacterComponent";
-import { checkIfDropped } from "./checkIfDropped";
+import { setDropState } from "./setDropState";
 import { jumpStart } from "./jumpStart";
 import { onAnimationEnded } from "./onAnimationEnded";
 import { setCameraRelativeOrientationTarget } from "./setCameraRelativeOrientationTarget";
@@ -31,7 +31,7 @@ export const jumpRunning: Behavior = (entity: Entity, args: null, delta: any): v
 
 	}
 	else if (actor.timer > 0.24) {
-		checkIfDropped(entity, null, delta);
+		setDropState(entity, null, delta);
 	}
 	else
 		onAnimationEnded(entity, { transitionToState: CharacterStateTypes.FALLING }, delta);

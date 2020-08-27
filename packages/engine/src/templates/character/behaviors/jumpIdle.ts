@@ -5,7 +5,7 @@ import { Entity } from "../../../ecs/classes/Entity";
 import { getMutableComponent, getComponent } from "../../../ecs/functions/EntityFunctions";
 import { setCameraRelativeOrientationTarget } from "./setCameraRelativeOrientationTarget";
 import { setTargetVelocityIfMoving } from "./setTargetVelocityIfMoving";
-import { checkIfDropped } from "./checkIfDropped";
+import { setDropState } from "./setDropState";
 import { onAnimationEnded } from "./onAnimationEnded";
 import { FallingState } from "../states/FallingState";
 import { jumpStart } from "./jumpStart";
@@ -37,7 +37,7 @@ export const jumpIdle: Behavior = (entity: Entity, args: null, delta: any): void
 		}
 	}
 	else if (actor.timer > 0.3) {
-		checkIfDropped(entity, null, delta);
+		setDropState(entity, null, delta);
 	}
 	else
 		onAnimationEnded(entity, { transitionToState: CharacterStateTypes.FALLING }, delta);

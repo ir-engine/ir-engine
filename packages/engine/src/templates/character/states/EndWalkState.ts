@@ -1,5 +1,5 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { checkFalling } from "../behaviors/checkFalling";
+import { setFallingState } from "../behaviors/setFallingState";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { onAnimationEnded } from '../behaviors/onAnimationEnded';
 import { setActorAnimation } from "../behaviors/setActorAnimation";
@@ -33,7 +33,7 @@ export const EndWalkState: StateSchemaValue = {
       }
     },
     {
-      behavior: checkFalling
+      behavior: setFallingState
     }
   ]
 };

@@ -4,7 +4,7 @@ import { setActorAnimation } from "../behaviors/setActorAnimation";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
-import { checkFalling } from "../behaviors/checkFalling";
+import { setFallingState } from "../behaviors/setFallingState";
 import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 
 // Idle Behavior
@@ -39,6 +39,6 @@ export const IdleState: StateSchemaValue = {
       setCameraRelativeOrientationTarget: true
     }
   },
-     { behavior: checkFalling }
+     { behavior: setFallingState }
   ]
 };
