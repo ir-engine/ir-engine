@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-export default function (usage, description, init, aliases) {
+export default function command (usage, description, init, aliases) {
   if (Array.isArray(init)) {
     aliases = init;
     init = undefined;

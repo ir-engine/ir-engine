@@ -1,4 +1,4 @@
-export default function () {
+export default function help() {
   const { name } = this.config;
   const firstBig = word => word.charAt(0).toUpperCase() + word.substr(1);
 

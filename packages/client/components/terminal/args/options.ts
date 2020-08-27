@@ -1,4 +1,4 @@
-export default function (list) {
+export default function options (list) {
   if (list.constructor !== Array) {
     throw new Error('Item passed to .options is not an array');
   }
