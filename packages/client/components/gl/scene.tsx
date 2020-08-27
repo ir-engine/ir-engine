@@ -17,6 +17,7 @@ import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Obje
 import { AmbientLight } from 'three';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/network/DefaultNetworkSchema';
 import { resetEngine } from '@xr3ngine/engine/src/ecs/functions/EngineFunctions';
+import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
 
 export const EnginePage: FunctionComponent = (props: any) => {
 
@@ -46,13 +47,15 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // Load glb here
     // createPrefab(rigidBodyBox);
 
-    // createPrefab(PlayerCharacter);
-
-     createPrefab(staticWorldColliders);
+    createPrefab(PlayerCharacter);
+    
+    createPrefab(staticWorldColliders);
 
     addObject3DComponent(createEntity(), { obj3d: AmbientLight, ob3dArgs: {
       intensity: 2.0
     }})
+
+    Engine.camera.position.set(0, 1.2, 5)
 
     // console.log("Creating a scene entity to test")
     // addComponent(createEntity(), AssetLoader, {
