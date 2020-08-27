@@ -8,6 +8,8 @@ import { onAnimationEnded } from '../behaviors/onAnimationEnded';
 import { setTargetVelocityIfMoving } from '../behaviors/setTargetVelocityIfMoving';
 import { checkIfDropped } from '../behaviors/checkIfDropped';
 import { IdleState } from './IdleState';
+import { CharacterStateTypes } from '../CharacterStateTypes';
+import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 
 export const FallingState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
@@ -15,11 +17,14 @@ export const FallingState: StateSchemaValue = {
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.mass']: 100,
-      ['rotationSimulator.damping']: 0.3,
-      ['velocityTarget']: { x: 0, y: 0, z: 0.05 },
+      ['rotationSimulator.damping']: 0.3
     }
   }],
   onEntry: [
+    {
+      behavior: setArcadeVelocityTarget,
+      args: { x: 0, y: 0, z: 0.05 }
+    },
       {
         behavior: initializeCharacterState
       },
@@ -42,7 +47,7 @@ export const FallingState: StateSchemaValue = {
     {
       behavior: onAnimationEnded,
       args: {
-        transitionToState: IdleState
+        transitionToState: CharacterStateTypes.IDLE
       }
     },
     // Set Velocity Target If Moving

@@ -9,6 +9,7 @@ import { checkIfDropped } from "./checkIfDropped";
 import { onAnimationEnded } from "./onAnimationEnded";
 import { FallingState } from "../states/FallingState";
 import { jumpStart } from "./jumpStart";
+import { CharacterStateTypes } from "../CharacterStateTypes";
 
 export const jumpIdle: Behavior = (entity: Entity, args: null, delta: any): void => {
 	const transform = getComponent<TransformComponent>(entity, TransformComponent);
@@ -39,6 +40,6 @@ export const jumpIdle: Behavior = (entity: Entity, args: null, delta: any): void
 		checkIfDropped(entity, null, delta);
 	}
 	else
-		onAnimationEnded(entity, { transitionToState: FallingState }, delta);
+		onAnimationEnded(entity, { transitionToState: CharacterStateTypes.FALLING }, delta);
 
 };

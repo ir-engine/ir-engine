@@ -7,6 +7,7 @@ import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
 import { onAnimationEnded } from '../behaviors/onAnimationEnded';
 import { WalkState } from './WalkState';
+import { CharacterStateTypes } from '../CharacterStateTypes';
 
 export const StartWalkBackRightState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
@@ -44,7 +45,7 @@ export const StartWalkBackRightState: StateSchemaValue = {
     {
       behavior: onAnimationEnded,
       args: {
-        transitionToState: WalkState
+        transitionToState: CharacterStateTypes.WALK
       }
     }
   ]

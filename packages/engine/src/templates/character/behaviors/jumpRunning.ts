@@ -1,14 +1,14 @@
-import { CharacterComponent } from "../components/CharacterComponent";
-import { TransformComponent } from "../../../transform/components/TransformComponent";
 import { Behavior } from "../../../common/interfaces/Behavior";
 import { Entity } from "../../../ecs/classes/Entity";
-import { getMutableComponent, getComponent } from "../../../ecs/functions/EntityFunctions";
+import { getComponent, getMutableComponent } from "../../../ecs/functions/EntityFunctions";
+import { TransformComponent } from "../../../transform/components/TransformComponent";
+import { CharacterStateTypes } from "../CharacterStateTypes";
+import { CharacterComponent } from "../components/CharacterComponent";
+import { checkIfDropped } from "./checkIfDropped";
+import { jumpStart } from "./jumpStart";
+import { onAnimationEnded } from "./onAnimationEnded";
 import { setCameraRelativeOrientationTarget } from "./setCameraRelativeOrientationTarget";
 import { setTargetVelocityIfMoving } from "./setTargetVelocityIfMoving";
-import { checkIfDropped } from "./checkIfDropped";
-import { onAnimationEnded } from "./onAnimationEnded";
-import { FallingState } from "../states/FallingState";
-import { jumpStart } from "./jumpStart";
 
 export const jumpRunning: Behavior = (entity: Entity, args: null, delta: any): void => {
 	const transform = getComponent<TransformComponent>(entity, TransformComponent);
@@ -34,6 +34,6 @@ export const jumpRunning: Behavior = (entity: Entity, args: null, delta: any): v
 		checkIfDropped(entity, null, delta);
 	}
 	else
-		onAnimationEnded(entity, { transitionToState: FallingState }, delta);
+		onAnimationEnded(entity, { transitionToState: CharacterStateTypes.FALLING }, delta);
 
 };

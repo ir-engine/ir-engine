@@ -13,7 +13,6 @@ import { Vector3 } from 'three';
 export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime) => {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const actorTransform = getMutableComponent<TransformComponent>(entity, TransformComponent as any);
-
   if(!actor.initialized) return
   // actor.behaviour?.update(timeStep);
   // actor.vehicleEntryInstance?.update(timeStep);

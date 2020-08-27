@@ -4,7 +4,7 @@ import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { addState } from '../../../state/behaviors/StateBehaviors';
 import { CharacterStateTypes } from '../CharacterStateTypes';
 
-export const checkFalling: Behavior = (entity) => {
+export const setFallingState: Behavior = (entity) => {
   const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
   if(!actor.initialized) return;
    if (!actor.rayHasHit)

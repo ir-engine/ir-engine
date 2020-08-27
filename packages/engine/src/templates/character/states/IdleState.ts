@@ -5,6 +5,7 @@ import { initializeCharacterState } from "../behaviors/initializeCharacterState"
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
 import { checkFalling } from "../behaviors/checkFalling";
+import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 
 // Idle Behavior
 export const IdleState: StateSchemaValue = {
@@ -13,18 +14,21 @@ export const IdleState: StateSchemaValue = {
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.damping']: 0.6,
-      ['velocitySimulator.mass']: 10,
-      ['velocityTarget']: { x: 0, y: 0, z: 0 },
+      ['velocitySimulator.mass']: 10
     }
   }],
   onEntry:  [
+    {
+      behavior: setArcadeVelocityTarget,
+      args: { x: 0, y: 0, z: 0 }
+    },
       {
         behavior: initializeCharacterState
       },
       {
         behavior: setActorAnimation,
         args: {
-          name: 'idle',
+          name: 'run',
           transitionDuration: 0.1
         }
       }
@@ -35,6 +39,6 @@ export const IdleState: StateSchemaValue = {
       setCameraRelativeOrientationTarget: true
     }
   },
-    { behavior: checkFalling }
+     { behavior: checkFalling }
   ]
 };
