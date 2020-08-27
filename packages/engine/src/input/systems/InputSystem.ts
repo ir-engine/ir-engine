@@ -4,9 +4,9 @@ import { initializeSession, processSession } from '../behaviors/WebXRInputBehavi
 import { Input } from '../components/Input';
 import { WebXRRenderer } from '../components/WebXRRenderer';
 import { WebXRSession } from '../components/WebXRSession';
-import { DefaultInputSchema } from '../defaults/DefaultInputSchema';
+import { CharacterInputSchema } from '../../templates/character/CharacterInputSchema';
 import { initVR } from '../functions/WebXRFunctions';
-import { getMutableComponent, getComponent } from '../../ecs/functions/EntityFunctions';
+import { getMutableComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 
 export class InputSystem extends System {
   readonly mainControllerId //= 0
@@ -15,18 +15,29 @@ export class InputSystem extends System {
   // Temp/ref variables
   private _inputComponent: Input
   private readonly boundListeners //= new Set()
+  readonly useWebXR
+  readonly onVRSupportRequested
 
-  constructor () {
-    super();
+  constructor (attributes:any) {
+    super(attributes);
+    this.useWebXR = attributes.useWebXR;
+    this.onVRSupportRequested = attributes.onVRSupportRequested;
     this.mainControllerId = 0;
     this.secondControllerId = 1;
     this.boundListeners = new Set();
   }
 
-  init (onVRSupportRequested): void {
-    if (onVRSupportRequested) {
-      initVR(onVRSupportRequested);
-    } else initVR();
+  init ({ useWebXR: boolean, onVRSupportRequested:any }): void {
+    if (this.useWebXR) {
+      if (this.onVRSupportRequested) {
+        initVR(this.onVRSupportRequested);
+      } else initVR();
+    }
+  }
+
+  dispose(): void {
+    // disposeVR();
+    this._inputComponent = null
   }
 
   public execute (delta: number): void {
@@ -34,20 +45,25 @@ export class InputSystem extends System {
     if (this.queryResults.xrRenderer.all.length > 0) {
       const webXRRenderer = getMutableComponent(this.queryResults.xrRenderer.all[0], WebXRRenderer);
 
-      this.queryResults.xrSession.added.forEach(entity => initializeSession(entity, { webXRRenderer }));
+      this.queryResults.xrSession.added?.forEach(entity => initializeSession(entity, { webXRRenderer }));
 
       this.queryResults.xrSession.all.forEach(entity => processSession(entity));
     }
 
     // Called every frame on all input components
-    this.queryResults.inputs.all.forEach(entity => handleInput(entity, { delta }));
+    this.queryResults.inputs.all.forEach(entity => {
+      if (!hasComponent(entity, Input)) {
+        return
+      }
+      handleInput(entity, { delta })
+    });
 
     // Called when input component is added to entity
-    this.queryResults.inputs.added.forEach(entity => {
+    this.queryResults.inputs.added?.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
       // If input doesn't have a map, set the default
-      if (this._inputComponent.schema === undefined) this._inputComponent.schema = DefaultInputSchema;
+      if (this._inputComponent.schema === undefined) this._inputComponent.schema = CharacterInputSchema;
       // Call all behaviors in "onAdded" of input map
       this._inputComponent.schema.onAdded.forEach(behavior => {
         behavior.behavior(entity, { ...behavior.args });
@@ -69,6 +85,9 @@ export class InputSystem extends System {
     });
 
     // Called when input component is removed from entity
+    if (this.queryResults.inputs.removed.length > 0) {
+      console.warn('removing inputs!')
+    }
     this.queryResults.inputs.removed.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);

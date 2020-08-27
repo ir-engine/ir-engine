@@ -5,19 +5,9 @@ import { TransformParentComponent } from '../components/TransformParentComponent
 import { System, SystemAttributes } from '../../ecs/classes/System';
 
 export class TransformSystem extends System {
-  transformBehavior: Behavior
-  childTransformBehavior: Behavior
-  init (attributes: SystemAttributes) {
-    if (attributes && attributes.transformBehavior) {
-      this.transformBehavior = attributes.transformBehavior;
-    } else {
-      this.transformBehavior = transformBehavior;
-    }
-  }
-
   execute (delta) {
     this.queryResults.transforms.all?.forEach(t => {
-      this.transformBehavior(t, {}, delta);
+      transformBehavior(t, {}, delta);
     });
   }
 }

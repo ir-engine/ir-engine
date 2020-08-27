@@ -1,14 +1,11 @@
-import { AmbientLight, Camera, GridHelper, PerspectiveCamera, Scene } from 'three';
-import { addObject3DComponent } from './common/defaults/behaviors/Object3DBehaviors';
+import { AmbientLight, Camera, GridHelper, PerspectiveCamera, Scene, AudioListener, Audio, PositionalAudio, AudioLoader } from 'three';
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { createEntity } from './ecs/functions/EntityFunctions';
 import { Engine } from './ecs/classes/Engine';
-import { execute, initialize } from './ecs/functions/EngineFunctions';
+import { execute, initialize, reset, startTimer } from './ecs/functions/EngineFunctions';
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
-import { DefaultInputSchema } from './input/defaults/DefaultInputSchema';
-import { DefaultNetworkSchema } from './networking/defaults/DefaultNetworkSchema';
-import { DefaultStateSchema } from './state/defaults/DefaultStateSchema';
-import { DefaultSubscriptionSchema } from './subscription/defaults/DefaultSubscriptionSchema';
+import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
+import { CharacterSubscriptionSchema } from './templates/character/CharacterSubscriptionSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { isBrowser } from './common/functions/isBrowser';
 import { CameraSystem } from './camera/systems/CameraSystem';
@@ -19,16 +16,29 @@ import { StateSystem } from './state/systems/StateSystem';
 import { SubscriptionSystem } from './subscription/systems/SubscriptionSystem';
 import { ParticleSystem } from "./particles/systems/ParticleSystem"
 import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
-import { Timer } from './common/functions/Timer';
 import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
+import { DefaultNetworkSchema } from './templates/network/DefaultNetworkSchema';
+import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
+import { Timer } from './common/functions/Timer';
+import { addObject3DComponent } from './common/behaviors/Object3DBehaviors';
+import _ from 'lodash'
 
 export const DefaultInitializationOptions = {
   debug: true,
   withTransform: true,
   withWebXRInput: true,
+  audio: {
+    enabled: true,
+    src: '',
+    volume: 0.5,
+    autoplay: true,
+    loop: true,
+    positional: true,
+    refDistance: 20,
+  },
   input: {
     enabled: true,
-    schema: DefaultInputSchema
+    schema: CharacterInputSchema
   },
   assets: {
     enabled: true
@@ -40,11 +50,11 @@ export const DefaultInitializationOptions = {
   },
   state: {
     enabled: true,
-    schema: DefaultStateSchema
+    schema: CharacterStateSchema
   },
   subscriptions: {
     enabled: true,
-    schema: DefaultSubscriptionSchema
+    schema: CharacterSubscriptionSchema
   },
   physics: {
     enabled: false
@@ -63,8 +73,9 @@ export const DefaultInitializationOptions = {
   }
 };
 
-export function initializeEngine (options: any = DefaultInitializationOptions) {
-  console.log(options)
+export function initializeEngine (initOptions: any = DefaultInitializationOptions) {
+  const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
+
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
   // Create a new three.js scene
@@ -93,7 +104,29 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
     // Add the camera to the three.js scene
     scene.add(camera);
       registerSystem(CameraSystem);
-    } 
+    }
+    if( options.audio?.enabled ){
+      console.log('Audio enabled')
+      const {src, refDistance, autoplay, positional, loop, volume} = options.audio
+      const listener = new AudioListener();
+      Engine.camera.add( listener );
+      if( src ){
+        const Sound:any = positional ? PositionalAudio : Audio;
+        const sound = 
+              (Engine as any).sound = new Sound( listener );
+        const audioLoader = new AudioLoader();
+        audioLoader.load( src, buffer => {
+          console.log('Audio loaded', sound)
+          sound.setBuffer( buffer );
+          if(refDistance && sound.setRefDistance){
+            sound.setRefDistance( refDistance );
+          }
+          sound.setLoop(loop);
+          if(volume) sound.setVolume(volume);
+          if(autoplay) sound.play();
+        });
+      }
+    }
 
   // Input
   if (options.input && options.input.enabled && isBrowser) {
@@ -135,23 +168,17 @@ export function initializeEngine (options: any = DefaultInitializationOptions) {
     registerSystem(WebGLRendererSystem, { priority: 999 });
   }
 
-  if (options.debug === true) {
-    // If we're in debug, add a gridhelper
-    const gridHelper = new GridHelper(1000, 100, 0xffffff, 0xeeeeee);
-    scene.add(gridHelper);
-    const entity = createEntity();
-    // Add an ambient light to the scene
-    addObject3DComponent(entity, { obj3d: AmbientLight });
-  }
+  // if (options.debug === true) {
+  //   // If we're in debug, add a gridhelper
+  //   const gridHelper = new GridHelper(1000, 100, 0xffffff, 0xeeeeee);
+  //   scene.add(gridHelper);
+  //   const entity = createEntity();
+  //   // Add an ambient light to the scene
+  //   addObject3DComponent(entity, { obj3d: AmbientLight });
+  // }
 
   // Start our timer!
-  if (isBrowser) setTimeout(startTimer, 1000);
-}
-
-export function startTimer () {
-  setTimeout(() => {
-    Timer({
-      update: (delta, elapsedTime) => execute(delta, elapsedTime)
-    }).start();
-  }, 1);
+  if (isBrowser) {
+    Engine.engineTimerTimeout = setTimeout(startTimer, 1000);
+  }
 }

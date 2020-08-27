@@ -18,6 +18,7 @@ const options = {
   },
   networking: {
     enabled: true,
+    supportsMediaStreams: true,
     schema: networkSchema
   },
   state: {

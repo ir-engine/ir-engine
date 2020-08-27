@@ -5,8 +5,7 @@ import { Types } from '../../ecs/types/Types';
 
 export class CameraComponent extends Component<CameraComponent> {
   static instance: CameraComponent = null
-  camera: any // Reference to the actual camera object
-  followTarget: any // Reference to the object that should be followed
+  followTarget: any = null // Reference to the object that should be followed
   fov: number // Field of view
   aspect: number // Width / height
   near: number // Geometry closer than this gets removed
@@ -20,12 +19,17 @@ export class CameraComponent extends Component<CameraComponent> {
     super();
     CameraComponent.instance = this;
   }
+
+  dispose():void {
+    console.warn('DISPOSE CameraComponent')
+    super.dispose();
+    CameraComponent.instance = null;
+  }
 }
 /**
   * Set the default values of a component. 
   * The type field must be set for each property.
  */
 CameraComponent.schema = {
-  camera: { type: Types.Ref, default: null },
   followTarget: { type: Types.Ref, default: null }
 };

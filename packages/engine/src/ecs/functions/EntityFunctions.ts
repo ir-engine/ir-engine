@@ -30,7 +30,7 @@ export function getMutableComponent<C extends Component<C>>(
       query.eventDispatcher.dispatchEvent(QUERY_COMPONENT_CHANGED, entity, component)
     }
   }
-  return component as C;
+  return component;
 }
 
 /**
@@ -95,6 +95,8 @@ export function addComponent<C extends Component<C>>(
   const componentPool = new ObjectPool(Component);
 
   const component = (componentPool ? componentPool.acquire() : new Component(values)) as Component<any>;
+  component.entity = entity
+  component._typeId = Component._typeId
 
   if (componentPool && values) {
     component.copy(values);

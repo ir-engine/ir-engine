@@ -8,6 +8,7 @@ interface ContainerProportions {
 
 interface Props {
   containerProportions?: ContainerProportions;
+  videoTrack?: any
 }
 
 function PartyParticipantWindow (props: Props): JSX.Element {

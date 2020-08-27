@@ -1,5 +1,5 @@
 import { System } from '../../ecs/classes/System';
-import { PhysicsWorld } from '../../physics/components/PhysicsWorld';
+import { PhysicsManager } from '../components/PhysicsManager';
 import { RigidBody } from '../../physics/components/RigidBody';
 import { VehicleBody } from '../../physics/components/VehicleBody';
 import { WheelBody } from '../../physics/components/WheelBody';
@@ -9,6 +9,10 @@ import { VehicleBehavior } from '../behaviors/VehicleBehavior';
 import { WheelBehavior } from '../behaviors/WheelBehavior';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { createFixedTimestep } from "../../common/functions/Timer";
+import { physicsPreStep } from '../../templates/character/behaviors/physicsPreStep';
+import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+import { physicsPostStep } from '../../templates/character/behaviors/physicsPostStep';
+import { updateCharacter } from '../../templates/character/behaviors/updateCharacter';
 
 export class PhysicsSystem extends System {
   fixedExecute:(delta:number)=>void = null
@@ -22,12 +26,16 @@ export class PhysicsSystem extends System {
   }
 
   init ():void {
-    new PhysicsWorld();
+    new PhysicsManager();
   }
 
   onFixedExecute(delta) {
-    PhysicsWorld.instance.frame++;
-    PhysicsWorld.instance.physicsWorld.step(PhysicsWorld.instance.timeStep);
+    this.queryResults.character.all?.forEach(entity => physicsPreStep(entity, null, delta));
+    PhysicsManager.instance.frame++;
+    PhysicsManager.instance.physicsWorld.step(PhysicsManager.instance.timeStep);
+    this.queryResults.character.all?.forEach(entity => updateCharacter(entity, null, delta));
+    
+   this.queryResults.character.all?.forEach(entity => physicsPostStep(entity, null, delta));
 
     // Collider
     this.queryResults.сollider.added?.forEach(entity => {
@@ -81,6 +89,9 @@ export class PhysicsSystem extends System {
 }
 
 PhysicsSystem.queries = {
+  character: {
+    components: [CharacterComponent],
+  },
   сollider: {
     components: [ColliderComponent],
     listen: {
