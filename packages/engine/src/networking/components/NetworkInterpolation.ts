@@ -17,6 +17,11 @@ export class NetworkGameState extends Component<any> {
     NetworkGameState.instance = this;
   }
 
+  dispose():void {
+    super.dispose();
+    NetworkGameState.instance = null;
+  }
+
   public get interpolationBuffer () {
     return {
       /** Get the Interpolation Buffer time in milliseconds. */

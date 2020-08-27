@@ -13,6 +13,11 @@ export default class AssetVault extends Component<AssetVault> {
     AssetVault.instance = this;
   }
 
+  dispose():void {
+    super.dispose();
+    AssetVault.instance = null;
+  }
+
   static schema = {
     assetsLoaded: { type: Types.Boolean, default: false },
     assets: { type: Types.Ref, default: new Map<AssetId, AssetUrl>() }

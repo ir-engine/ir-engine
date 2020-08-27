@@ -21,6 +21,12 @@ export class MediaStreamSystem extends System {
     super();
   }
 
+  dispose():void {
+    super.dispose();
+    // TODO: stop camera? stop/abort MediaStreamComponent.instance.mediaStream ?
+    MediaStreamSystem.instance = null
+  }
+
   public execute () {
     // eh
   }

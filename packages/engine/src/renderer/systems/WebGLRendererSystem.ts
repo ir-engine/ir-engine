@@ -3,7 +3,13 @@ import { Behavior } from '../../common/interfaces/Behavior';
 import { Engine } from '../../ecs/classes/Engine';
 import { Entity } from '../../ecs/classes/Entity';
 import { System, SystemAttributes } from '../../ecs/classes/System';
-import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import {
+  addComponent,
+  createEntity,
+  getComponent,
+  getMutableComponent,
+  hasComponent
+} from '../../ecs/functions/EntityFunctions';
 import { RendererComponent } from '../components/RendererComponent';
 import { EffectComposer } from '../../postprocessing/core/EffectComposer';
 import { RenderPass } from '../../postprocessing/passes/RenderPass';
@@ -18,6 +24,8 @@ export class WebGLRendererSystem extends System {
     isInitialized: boolean
   constructor(attributes?: SystemAttributes) {
     super(attributes);
+
+    this.onResize = this.onResize.bind(this);
   }
 
   /**
@@ -32,7 +40,6 @@ export class WebGLRendererSystem extends System {
     Engine.renderer = renderer;
     // Add the renderer to the body of the HTML document
     document.body.appendChild(Engine.renderer.domElement);
-    this.onResize = this.onResize.bind(this);
     window.addEventListener('resize', this.onResize, false);
     this.onResize()
 
@@ -50,8 +57,14 @@ export class WebGLRendererSystem extends System {
     * Removes resize listener
     */
   dispose() {
+    super.dispose()
+
+    const rendererComponent = RendererComponent.instance
+    rendererComponent?.composer?.dispose()
+
     window.removeEventListener('resize', this.onResize);
     document.body.removeChild(Engine.renderer.domElement);
+    this.isInitialized = false
   }
 
   /**
@@ -91,19 +104,19 @@ export class WebGLRendererSystem extends System {
       RendererComponent.instance.needsResize = true;
       this.configurePostProcessing(entity);
     });
-    this.queryResults.renderers.removed?.forEach((entity: Entity) => {
-      // cleanup
-    })
-
 
     if(this.isInitialized)
-    this.queryResults.renderers.all.forEach((entity: Entity) => {
-      resize(entity)
-      if (getComponent<RendererComponent>(entity, RendererComponent).composer) {
+      this.queryResults.renderers.all.forEach((entity: Entity) => {
+        if (!hasComponent(entity, RendererComponent)) {
+          return
+        }
+        resize(entity)
         getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
-      }
+      });
 
-    });
+    this.queryResults.renderers.removed.forEach((entity: Entity) => {
+      // cleanup
+    })
   }
 }
 

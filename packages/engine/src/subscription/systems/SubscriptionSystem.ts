@@ -3,7 +3,7 @@ import { BehaviorValue } from '../../common/interfaces/BehaviorValue';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { Subscription } from '../components/Subscription';
-import { getComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 
 export class SubscriptionSystem extends System {
   private subscription: Subscription
@@ -17,6 +17,10 @@ export class SubscriptionSystem extends System {
     });
 
     this.queryResults.subscriptions.all?.forEach(entity => {
+      if (!hasComponent(entity, Subscription)) {
+        return
+      }
+
       this.callBehaviorsForHook(entity, { phase: 'onUpdate' }, delta);
       this.callBehaviorsForHook(entity, { phase: 'onLateUpdate' }, delta);
     });

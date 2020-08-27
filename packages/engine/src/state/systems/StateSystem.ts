@@ -3,7 +3,11 @@ import { Behavior } from '../../common/interfaces/Behavior';
 import { NumericalType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
+<<<<<<< HEAD
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+=======
+import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
+>>>>>>> origin/Engine.reset
 import { addState } from '../behaviors/StateBehaviors';
 import { State } from '../components/State';
 import { StateValue } from '../interfaces/StateValue';
@@ -42,7 +46,15 @@ export class StateSystem extends System {
     });
 
     this.queryResults.state.all?.forEach(entity => {
+<<<<<<< HEAD
       callBehaviors(entity, null, delta);
+=======
+      if (!hasComponent(entity, State)) {
+        return
+      }
+      this.callBehaviors(entity, { phase: 'onUpdate' }, delta);
+      this.callBehaviors(entity, { phase: 'onLateUpdate' }, delta);
+>>>>>>> origin/Engine.reset
     });
   }
 }

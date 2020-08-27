@@ -194,6 +194,10 @@ export abstract class System {
     c.order = Engine.systems.length;
   }
 
+  dispose() {
+
+  }
+
   static getName () {
     return (this.constructor as any).getName();
   }

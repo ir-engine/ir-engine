@@ -2,7 +2,7 @@ import { AmbientLight, Camera, GridHelper, PerspectiveCamera, Scene, AudioListen
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { createEntity } from './ecs/functions/EntityFunctions';
 import { Engine } from './ecs/classes/Engine';
-import { execute, initialize, startTimer } from './ecs/functions/EngineFunctions';
+import { execute, initialize, reset, startTimer } from './ecs/functions/EngineFunctions';
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
 import { CharacterSubscriptionSchema } from './templates/character/CharacterSubscriptionSchema';
@@ -19,6 +19,7 @@ import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
 import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
 import { DefaultNetworkSchema } from './templates/network/DefaultNetworkSchema';
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
+import { Timer } from './common/functions/Timer';
 
 export const DefaultInitializationOptions = {
   debug: true,

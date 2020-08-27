@@ -5,14 +5,18 @@ import { AssetType } from '../enums/AssetType';
 import { AssetClassAlias, AssetsLoadedHandler, AssetTypeAlias } from '../types/AssetTypes';
 
 export class AssetLoader extends Component<AssetLoader> {
+<<<<<<< HEAD
   loaded = false
   url: string = ''
+=======
+  url = ''
+>>>>>>> origin/Engine.reset
   assetType: AssetTypeAlias = null
   assetClass: AssetClassAlias = null
-  receiveShadow: boolean = false
-  castShadow: boolean = false
+  receiveShadow = false
+  castShadow = false
   envMapOverride: any = null
-  append: boolean = true
+  append = true
   onLoaded: AssetsLoadedHandler = null
   parent: any = null
 }
