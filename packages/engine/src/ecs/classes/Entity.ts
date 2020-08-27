@@ -63,9 +63,6 @@ export class Entity {
       const component = getComponent(this, srcComponent.constructor);
       component.copy(srcComponent);
     }
-
-    console.log("Component types:")
-    console.log(this.componentTypes)
     return this;
   }
 

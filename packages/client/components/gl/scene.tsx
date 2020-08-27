@@ -1,27 +1,34 @@
 import React, { Component, useEffect, FunctionComponent, useState } from 'react';
 import { initializeEngine, DefaultInitializationOptions } from "@xr3ngine/engine/src/initialize";
-import { PlayerController } from "../gl/PlayerController";
+import { PlayerCharacter } from "@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter";
 import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
-import { DefaultNetworkSchema } from '@xr3ngine/engine/src/networking/defaults/DefaultNetworkSchema';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
-import { createEntity, addComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { createEntity, addComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { AssetLoader } from "@xr3ngine/engine/src/assets/components/AssetLoader"
 import { AssetType } from '@xr3ngine/engine/src/assets/enums/AssetType';
 import { AssetClass } from '@xr3ngine/engine/src/assets/enums/AssetClass';
 
 import { staticWorldColliders } from './staticWorldColliders'
 import { rigidBodyBox } from './rigidBodyBox'
-import { addObject3DComponent } from '@xr3ngine/engine/src/common/defaults/behaviors/Object3DBehaviors';
+import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
 import { AmbientLight } from 'three';
+import { PositionalAudio, Mesh, SphereBufferGeometry, MeshPhongMaterial  } from 'three';
+import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/network/DefaultNetworkSchema';
+import { resetEngine } from '@xr3ngine/engine/src/ecs/functions/EngineFunctions';
+import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
+import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
+import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 
 export const EnginePage: FunctionComponent = (props: any) => {
 
   const [enabled, setEnabled] = useState(false)
 
   useEffect(() => {
+    console.log('initializeEngine!');
+
     const networkSchema: NetworkSchema = {
       ...DefaultNetworkSchema,
       transport: SocketWebRTCClientTransport
@@ -36,36 +43,58 @@ export const EnginePage: FunctionComponent = (props: any) => {
       },
       physics: {
         enabled: true
-      }
+      },
+      audio: {
+        src: '/audio/djMagda.m4a'
+      },
     };
     initializeEngine(InitializationOptions);
 
     // Load glb here
     // createPrefab(rigidBodyBox);
 
-    createPrefab(PlayerController);
-
-    // createPrefab(staticWorldColliders);
+    createPrefab(PlayerCharacter);
+    
+    createPrefab(staticWorldColliders);
 
     addObject3DComponent(createEntity(), { obj3d: AmbientLight, ob3dArgs: {
       intensity: 2.0
     }})
+    
+    const cameraTransform = getMutableComponent<TransformComponent>(CameraComponent.instance.entity, TransformComponent)
+
+    cameraTransform.position.set(0, 1.2, 5)
+
+
+    const {sound} = Engine as any;
+    if( sound ){
+      const audioMesh = new Mesh(
+        new SphereBufferGeometry( 20, 32, 16 ),
+        new MeshPhongMaterial({ color: 0xff2200 })
+      );
+      addObject3DComponent(createEntity(), { 
+        obj3d: audioMesh
+      });
+      audioMesh.add( sound );
+    }
 
     // console.log("Creating a scene entity to test")
     // addComponent(createEntity(), AssetLoader, {
-    //   assetType: AssetType.glTF,
-    //   assetClass: AssetClass.Model,
     //   url: "models/library.glb",
     //   receiveShadow: true,
     //   castShadow: true
     // }) 
-    addComponent(createEntity(), AssetLoader, {
-      assetType: AssetType.FBX,
-      assetClass: AssetClass.Model,
-      url: "models/OldCar.fbx",
-      receiveShadow: true,
-      castShadow: true
-    }) 
+    // addComponent(createEntity(), AssetLoader, {
+    //   url: "models/OldCar.fbx",
+    //   receiveShadow: true,
+    //   castShadow: true
+    // })
+
+    return () => {
+      // cleanup
+      console.log('cleanup?!')
+      resetEngine()
+    }
   }, [])
 
   useEffect(() => {

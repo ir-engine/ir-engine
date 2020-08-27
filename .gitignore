@@ -149,3 +149,6 @@ bin/
 
 # Hugo publish files
 packages/docs/public/
+
+.history
+.history/*

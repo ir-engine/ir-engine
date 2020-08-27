@@ -1,12 +1,32 @@
 import { EntityPool } from './EntityPool';
 import { EventDispatcher } from './EventDispatcher';
 import { Query } from './Query';
-import { WebGLRenderer, Camera, Scene } from 'three';
+import { WebGLRenderer, Camera, Scene, Clock } from 'three';
 import { EngineOptions } from '../interfaces/EngineOptions';
 import { DefaultOptions } from '../constants/DefaultOptions';
 import { Entity } from './Entity';
+//import Stats from 'stats.js'
+import { CameraOperator } from '../../camera/classes/CameraOperator';
+import { TransformComponent } from '../../transform/components/TransformComponent';
 
 export class Engine {
+
+  public static engineTimer:{ start: Function, stop: Function } = null
+  public static engineTimerTimeout;
+
+  //public static stats: Stats
+  // Move for sure
+  // public static sky: Sky;
+  public static isExecuting: boolean = false;
+
+public static framerateLimit = 60;
+
+  public static accumulator: number;
+	public static justExecuted: boolean;
+	public static params: any;
+	public static cameraOperator: CameraOperator;
+	public static timeScaleTarget: number = 1;
+  public static clock = new Clock;
   /**
    * Reference to the three.js renderer object
    * This is set in {@link @xr3ngine/engine/src/initialize#initializeEngine}
@@ -17,13 +37,19 @@ export class Engine {
  * Reference to the three.js scene object
  * This is set in {@link @xr3ngine/engine/src/initialize#initializeEngine}
  */
-  static scene: Scene
+  static scene: Scene = null
 
   /**
  * Reference to the three.js camera object
  * This is set in {@link @xr3ngine/engine/src/initialize#initializeEngine}
  */
   static camera: Camera = null
+  
+  /**
+ * Reference to the three.js camera object
+ * This is set in {@link @xr3ngine/engine/src/initialize#initializeEngine}
+ */
+  static cameraTransform: TransformComponent = null
 
   /**
  * Event dispatcher manages sending events which can be interpreted by devtools
@@ -69,11 +95,6 @@ export class Engine {
    * Engine can be paused by setting enabled to false
    */
   static components: any[] = []
-
-  /**
-   * Timestamp of last time execute() was called
-   */
-  static lastTime: number
 
   /**
    * Next entity created will have this ID
@@ -122,4 +143,36 @@ export class Engine {
    * @todo replace with a ring buffer and set buffer size in default options
    */
   static systemsToExecute: any[] = []
+    static vehicles: any;
+    static physicsFrameRate: number;
+  static lastTime: number;
+
+  static reset():void {
+    // delete all entities
+    // TODO: force components deletion and systems processing of their deletion?
+    // TODO: cleanup
+    Engine.nextEntityId = 0
+
+    // cleanup/unregister components
+    // TODO: cleanup
+    Engine.nextComponentId = 0
+
+    // cleanup systems
+    Engine.systems.forEach(system => {
+      if (system.dispose) system.dispose()
+    })
+    Engine.systems.length = 0
+    Engine.systemsToExecute.length = 0
+
+    // cleanup events
+    Engine.eventDispatcher.reset()
+
+    // TODO: delete all what is left from scene
+    Engine.scene = null
+
+    Engine.camera = null
+
+    Engine.renderer.dispose()
+    Engine.renderer = null
+  }
 }

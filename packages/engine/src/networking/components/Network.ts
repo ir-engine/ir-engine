@@ -15,6 +15,14 @@ export class Network extends Component<any> {
     super();
     Network.instance = this;
   }
+
+  dispose():void {
+    super.dispose();
+    // TODO: needs tests
+    this.clients.length = 0;
+    this.transport = null
+    Network.instance = null;
+  }
 }
 
 Network.schema = {

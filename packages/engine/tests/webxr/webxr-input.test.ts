@@ -9,9 +9,9 @@ test("check navigator", () => {
   expect("requestSession" in (navigator as any).xr).toBeTruthy()
 })
 
-test("check hidden magic from the globalised world", () => {
+test("adding InputSystem", () => {
   expect(() => {
-    initializeEngine()
+    //initializeEngine()
     registerSystem(InputSystem)
   }).not.toThrowError()
 })
@@ -21,8 +21,10 @@ test("start XR sesion", () => {
     const system = getSystem(InputSystem)
     system.init({ onVRSupportRequested })
   }).not.toThrowError()
-
+  //FIXME: doesn't work as expected
   function onVRSupportRequested(isSupported = false) {
     expect(isSupported).toBeTruthy()
   }
 })
+
+//TODO: add more tests

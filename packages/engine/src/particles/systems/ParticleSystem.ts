@@ -106,8 +106,8 @@ const calcMatrixWorld = (function() {
       const transformMatrix = new Matrix4()
 
       transformMatrix.compose(
-        position.fromArray(transform.position),
-        rotation.fromArray(transform.rotation),
+        transform.position,
+        transform.rotation,
         scale.set(1, 1, 1)
       )
 

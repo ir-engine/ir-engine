@@ -14,7 +14,7 @@ export class CameraSystem extends System {
    */
   init(): void {
     const cameraEntity = createEntity();
-    addComponent(cameraEntity, CameraComponent, { camera: Engine.camera, followTarget: null });
+    addComponent(cameraEntity, CameraComponent);
     addComponent(cameraEntity, CameraTagComponent)
     addComponent(cameraEntity, Object3DComponent)
     getMutableComponent<Object3DComponent>(cameraEntity, Object3DComponent).value = Engine.camera
@@ -29,7 +29,7 @@ export class CameraSystem extends System {
   execute(delta: number): void {
     this.queryResults.entities.all?.forEach(entity => {
       const cam = getComponent(entity, CameraComponent) as CameraComponent;
-      if (cam.followTarget !== null && cam.followTarget !== undefined) {
+      if (cam && cam.followTarget !== null && cam.followTarget !== undefined) {
         followTarget(entity, { distance: 100 }, delta, cam.followTarget);
       }
     });

@@ -1,4 +1,4 @@
-import { Quaternion } from 'cannon-es';
+import { Quaternion } from 'three';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { ColliderComponent } from '../components/ColliderComponent';
@@ -33,7 +33,7 @@ export const RigidBodyBehavior: Behavior = (entity: Entity, args): void => {
         transform.position[2] = collider.position.z;
 
         quaternion.set(collider.quaternion.x, collider.quaternion.y, collider.quaternion.z, collider.quaternion.w);
-        transform.rotation = quaternion.toArray()
+        transform.rotation = quaternion
       }
     }
   }

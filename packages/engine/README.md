@@ -222,7 +222,7 @@ States define what something currently is. For example, the character could be j
 const jump: Behavior = (entity: Entity): void => {
   // Add the state to the entity (addState is also a behavior)
   addState(entity, { state: DefaultStateTypes.JUMPING })
-  actor = getMutableComponent(entity, Actor)
+  actor = getMutableComponent(entity, CharacterComponent)
   // Set actor's jump time to 0 -- jump will end when t increments to jump length
   actor.jump.t = 0
 }
@@ -237,7 +237,7 @@ The jumping state is removed by the jumping behavior when the actor's jump time 
 ```typescript
 export const jumping: Behavior = (entity: Entity, args, delta: number): void => {
   transform = getComponent<TransformComponent>(entity, TransformComponent)
-  actor = getMutableComponent(entity, Actor)
+  actor = getMutableComponent(entity, CharacterComponent)
   actor.jump.t += delta
   if (actor.jump.t < actor.jump.duration) {
     transform.velocity[1] = transform.velocity[1] + Math.cos((actor.jump.t / actor.jump.duration) * Math.PI)

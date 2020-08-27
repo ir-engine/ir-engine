@@ -6,9 +6,3 @@ import { DataProducer as ClientDataProducer } from "mediasoup-client/lib/types"
 export type UnreliableMessageType = "json" | "raw"
 
 export type UnreliableMessageReturn = DataProducer | ClientDataProducer | Error
-
-export interface UnreliableMessageParams {
-  channel: string
-  data: any
-  type?: UnreliableMessageType
-}
