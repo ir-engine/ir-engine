@@ -21,7 +21,11 @@ let prevLeftY: number;
 
 let _index: number; // temp var for iterator loops
 
-// System behavior to handle gamepad input
+/**
+ * System behavior to handle gamepad input
+ * 
+ * @param {Entity} entity The entity
+ */
 export const handleGamepads: Behavior = (entity: Entity) => {
   if (!input.gamepadConnected) return;
   // Get an immutable reference to input
@@ -74,6 +78,12 @@ export const handleGamepads: Behavior = (entity: Entity) => {
   }
 };
 
+/**
+ * Gamepad button
+ * 
+ * @param {Entity} entity The entity
+ * @param args is argument object
+ */
 const handleGamepadButton: Behavior = (
   entity: Entity,
   args: { gamepad: Gamepad, index: number, mappedInputValue: InputAlias }
@@ -93,6 +103,12 @@ const handleGamepadButton: Behavior = (
   input.gamepadButtons[args.index] = gamepad.buttons[args.index].touched ? 1 : 0;
 };
 
+/**
+ * Gamepad axios
+ * 
+ * @param {Entity} entity The entity
+ * @param args is argument object 
+ */
 export const handleGamepadAxis: Behavior = (
   entity: Entity,
   args: { gamepad: Gamepad, inputIndex: number, mappedInputValue: InputAlias }
@@ -119,7 +135,12 @@ export const handleGamepadAxis: Behavior = (
   }
 };
 
-// When a gamepad connects
+/**
+ * When a gamepad connects
+ * 
+ * @param {Entity} entity The entity
+ * @param args is argument object 
+ */
 export const handleGamepadConnected: Behavior = (entity: Entity, args: { event: any }): void => {
   input = getMutableComponent(entity, Input);
 
@@ -135,8 +156,14 @@ export const handleGamepadConnected: Behavior = (entity: Entity, args: { event: 
   }
 };
 
-// When a gamepad disconnects
+/**
+ * When a gamepad disconnects
+ * 
+ * @param {Entity} entity The entity
+ * @param args is argument object 
+ */
 export const handleGamepadDisconnected: Behavior = (entity: Entity, args: { event: any }): void => {
+  // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
   input = getMutableComponent(entity, Input);
   console.log('A gamepad disconnected:', args.event.gamepad);
 
