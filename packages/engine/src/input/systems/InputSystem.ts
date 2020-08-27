@@ -15,18 +15,24 @@ export class InputSystem extends System {
   // Temp/ref variables
   private _inputComponent: Input
   private readonly boundListeners //= new Set()
+  readonly useWebXR
+  readonly onVRSupportRequested
 
-  constructor () {
-    super();
+  constructor (attributes:any) {
+    super(attributes);
+    this.useWebXR = attributes.useWebXR;
+    this.onVRSupportRequested = attributes.onVRSupportRequested;
     this.mainControllerId = 0;
     this.secondControllerId = 1;
     this.boundListeners = new Set();
   }
 
-  init (onVRSupportRequested): void {
-    if (onVRSupportRequested) {
-      initVR(onVRSupportRequested);
-    } else initVR();
+  init ({ useWebXR: boolean, onVRSupportRequested:any }): void {
+    if (this.useWebXR) {
+      if (this.onVRSupportRequested) {
+        initVR(this.onVRSupportRequested);
+      } else initVR();
+    }
   }
 
   dispose(): void {
