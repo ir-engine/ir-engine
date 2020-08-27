@@ -50,15 +50,13 @@ export class PhysicsManager extends Component<PhysicsManager> {
   dispose():void {
     super.dispose();
 
-    PhysicsWorld.instance.groundMaterial = null
-    PhysicsWorld.instance.wheelMaterial = null
-    PhysicsWorld.instance.wheelGroundContactMaterial = null
+    PhysicsManager.instance.groundMaterial = null
+    PhysicsManager.instance.wheelMaterial = null
+    PhysicsManager.instance.wheelGroundContactMaterial = null
 
-    PhysicsWorld.instance = null;
+    PhysicsManager.instance = null;
     this.frame = 0;
-    this.physicsWorld.broadphase.dispose()
     this.physicsWorld.broadphase = null
-    this.physicsWorld.dispose()
     this.physicsWorld = null
   }
 }
