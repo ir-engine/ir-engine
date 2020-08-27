@@ -1,24 +1,19 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { CharacterComponent } from '../components/CharacterComponent';
-import { setActorAnimation } from "../behaviors/setActorAnimation";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
+import { onAnimationEnded } from '../behaviors/onAnimationEnded';
+import { setActorAnimation } from "../behaviors/setActorAnimation";
+import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
-import { WalkState } from './WalkState';
-import { onAnimationEnded } from '../behaviors/onAnimationEnded';
+import { CharacterStateTypes } from '../CharacterStateTypes';
 
 export const DropRunningState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
-  componentProperties: [{
-    component: CharacterComponent,
-    properties: {
-      // NOTE: These are copied from DropRolling but aren't set by default (but might need to be)
-      // ['velocitySimulator.damping']: 0.6,
-      // ['velocitySimulator.mass']: 1,
-      ['velocityTarget']: { x: 0, y: 0, z: 0.8 },
-    }
-  }],
   onEntry: [
+    {
+      behavior: setArcadeVelocityTarget,
+      args: { x: 0, y: 0, z: 0.8 }
+    },
       {
         behavior: initializeCharacterState
       },
@@ -40,7 +35,7 @@ export const DropRunningState: StateSchemaValue = {
     {
       behavior: onAnimationEnded,
       args: {
-        transitionToState: WalkState
+        transitionToState: CharacterStateTypes.WALK
       }
     }
   ]

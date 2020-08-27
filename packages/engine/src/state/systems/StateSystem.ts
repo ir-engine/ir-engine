@@ -98,10 +98,10 @@ export const callBehaviors: Behavior = (entity: Entity, args: { phase: string },
               stateBehavior.args,
               delta
             ))
-        }
-        _state.data.delete(stateValue.state);
-  });
-}
+            _state.data.delete(stateValue.state);
+          }
+      })
+  };
 
 StateSystem.queries = {
   state: {

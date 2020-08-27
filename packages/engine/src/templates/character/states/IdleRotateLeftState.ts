@@ -1,12 +1,13 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { CharacterComponent } from '../components/CharacterComponent';
-import { setActorAnimation } from "../behaviors/setActorAnimation";
 import { checkFalling } from "../behaviors/checkFalling";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
+import { onAnimationEnded } from '../behaviors/onAnimationEnded';
+import { setActorAnimation } from "../behaviors/setActorAnimation";
+import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
-import { onAnimationEnded } from '../behaviors/onAnimationEnded';
-import { IdleState } from './IdleState';
+import { CharacterStateTypes } from '../CharacterStateTypes';
+import { CharacterComponent } from '../components/CharacterComponent';
 
 // Idle Behavior
 export const IdleRotateLeftState: StateSchemaValue = {
@@ -17,11 +18,14 @@ export const IdleRotateLeftState: StateSchemaValue = {
       ['velocitySimulator.mass']: 10,
       ['velocitySimulator.damping']: 0.6,
       ['rotationSimulator.mass']: 30,
-      ['rotationSimulator.damping']: 0.6,
-      ['velocityTarget']: { x: 0, y: 0, z: 0 },
+      ['rotationSimulator.damping']: 0.6
     }
   }],
   onEntry:  [
+    {
+      behavior: setArcadeVelocityTarget,
+      args: { x: 0, y: 0, z: 0 }
+    },
       {
         behavior: initializeCharacterState
       },
@@ -43,7 +47,7 @@ export const IdleRotateLeftState: StateSchemaValue = {
     {
       behavior: onAnimationEnded,
       args: {
-        transitionToState: IdleState
+        transitionToState: CharacterStateTypes.IDLE
       }
     },
     {

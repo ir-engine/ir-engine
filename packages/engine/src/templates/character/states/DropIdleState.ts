@@ -1,14 +1,13 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { CharacterComponent } from '../components/CharacterComponent';
-import { setActorAnimation } from "../behaviors/setActorAnimation";
-import { checkFalling } from "../behaviors/checkFalling";
+import { setMovingState } from '../behaviors/setMovingState';
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
+import { onAnimationEnded } from '../behaviors/onAnimationEnded';
+import { setActorAnimation } from "../behaviors/setActorAnimation";
+import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
-import { onAnimationEnded } from '../behaviors/onAnimationEnded';
-import { IdleState } from './IdleState';
-import { StartWalkForwardState } from './StartWalkForwardState';
-import { checkMoving } from '../behaviors/checkMoving';
+import { CharacterStateTypes } from '../CharacterStateTypes';
+import { CharacterComponent } from '../components/CharacterComponent';
 
 export const DropIdleState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
@@ -16,11 +15,14 @@ export const DropIdleState: StateSchemaValue = {
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.damping']: 0.5,
-      ['velocitySimulator.mass']: 7,
-      ['velocityTarget']: { x: 0, y: 0, z: 0 },
+      ['velocitySimulator.mass']: 7
     }
   }],
   onEntry: [
+    {
+      behavior: setArcadeVelocityTarget,
+      args: { x: 0, y: 0, z: 0 }
+    },
       {
         behavior: initializeCharacterState
       },
@@ -38,16 +40,15 @@ export const DropIdleState: StateSchemaValue = {
       setCameraRelativeOrientationTarget: true
     }
   },
-    { behavior: checkFalling },
     // TODO: Might not need this since other actions can affect
-    { behavior: checkMoving,
+    { behavior: setMovingState,
     args: {
-      transitionToState: StartWalkForwardState
+      transitionToState: CharacterStateTypes.WALK_START_FORWARD
     }
   },
     { behavior: onAnimationEnded,
       args: {
-        transitionToState: IdleState
+        transitionToState: CharacterStateTypes.IDLE
       }
   }]
 };

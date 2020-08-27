@@ -12,10 +12,9 @@ export const feetRaycast: Behavior = (entity: Entity): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	const transform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent)
 	const object3d: Object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent)
-
 	if(!actor.initialized) return;
 	let body = actor.actorCapsule.body;
-	if(isNaN( actor.actorCapsule.body.position.y))  actor.actorCapsule.body.position.y = 0
+	//if(isNaN( actor.actorCapsule.body.position.y))  actor.actorCapsule.body.position.y = 0
 
 	// Player ray casting
 	// Create ray
@@ -24,13 +23,8 @@ export const feetRaycast: Behavior = (entity: Entity): void => {
 	// Raycast options
 	const rayCastOptions = {
 		//collisionFilterMask: CollisionGroups.Default,
-		// skipBackfaces: true /* ignore back faces */
+		skipBackfaces: true /* ignore back faces */
 	};
 	// Cast the ray
 	actor.rayHasHit = PhysicsManager.instance.physicsWorld.raycastClosest(start, end, rayCastOptions, actor.rayResult);
-	console.log("body position is " + body.position)
-	console.log("transform position is " + transform.position)
-	console.log("object3d position is " + object3d.value.position)
-	console.log("Ray start: ", start, " | End: ", end, " | Result: ", actor.rayResult)
-	console.log("Raycast hit: ", actor.rayHasHit)
 };

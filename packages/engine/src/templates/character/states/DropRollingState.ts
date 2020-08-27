@@ -1,12 +1,12 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { CharacterComponent } from '../components/CharacterComponent';
-import { setActorAnimation } from "../behaviors/setActorAnimation";
+import { checkMovingOnAnimationEnded } from '../behaviors/checkMovingOnAnimationEnded';
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
+import { setActorAnimation } from "../behaviors/setActorAnimation";
+import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
-import { checkMovingOnAnimationEnded } from '../behaviors/checkMovingOnAnimationEnded';
-import { WalkState } from './WalkState';
-import { EndWalkState } from './EndWalkState';
+import { CharacterStateTypes } from '../CharacterStateTypes';
+import { CharacterComponent } from '../components/CharacterComponent';
 
 export const DropRollingState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
@@ -14,11 +14,14 @@ export const DropRollingState: StateSchemaValue = {
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.damping']: 0.6,
-      ['velocitySimulator.mass']: 1,
-      ['velocityTarget']: { x: 0, y: 0, z: 0.8 },
+      ['velocitySimulator.mass']: 1
     }
   }],
   onEntry: [
+    {
+      behavior: setArcadeVelocityTarget,
+      args: { x: 0, y: 0, z: 0.8 }
+    },
       {
         behavior: initializeCharacterState
       },
@@ -38,8 +41,8 @@ export const DropRollingState: StateSchemaValue = {
     },
     { behavior: checkMovingOnAnimationEnded,
       args: {
-        transitionToStateIfMoving: WalkState,
-        transitionToStateIfNotMoving: EndWalkState
+        transitionToStateIfMoving: CharacterStateTypes.WALK,
+        transitionToStateIfNotMoving: CharacterStateTypes.WALK_END
       }
   }]
 };

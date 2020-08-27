@@ -19,7 +19,6 @@ import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
 import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
 import { DefaultNetworkSchema } from './templates/network/DefaultNetworkSchema';
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
-import { addObject3DComponent } from './common/behaviors/Object3DBehaviors';
 
 export const DefaultInitializationOptions = {
   debug: true,

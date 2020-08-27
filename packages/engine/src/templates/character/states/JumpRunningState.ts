@@ -5,6 +5,7 @@ import { initializeCharacterState } from "../behaviors/initializeCharacterState"
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
 import { jumpRunning } from "../behaviors/jumpRunning";
+import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 
 export const JumpRunningState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
@@ -12,11 +13,14 @@ export const JumpRunningState: StateSchemaValue = {
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.mass']: 100,
-      ['velocityTarget']: { x: 0, y: 0, z: 0 },
       ['alreadyJumped']: false
     }
   }],
   onEntry:  [
+    {
+      behavior: setArcadeVelocityTarget,
+      args: { x: 0, y: 0, z: 0 }
+    },
       {
         behavior: initializeCharacterState
       },
