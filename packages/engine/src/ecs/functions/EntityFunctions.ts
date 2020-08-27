@@ -135,9 +135,9 @@ export function removeComponent<C extends Component<C>>(
   Component: ComponentConstructor<C>,
   forceImmediate?: boolean
 ): Component<C> {
-  const component = entity.components[Component._typeId]
   const index = entity.componentTypes.indexOf(Component);
   if (!~index) return;
+  const component = entity.components[Component._typeId];
 
   Engine.eventDispatcher.dispatchEvent(COMPONENT_REMOVE, entity, component);
 
