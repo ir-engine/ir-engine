@@ -29,6 +29,11 @@ export class InputSystem extends System {
     } else initVR();
   }
 
+  dispose(): void {
+    // disposeVR();
+    this._inputComponent = null
+  }
+
   public execute (delta: number): void {
     // Handle XR input
     if (this.queryResults.xrRenderer.all.length > 0) {
@@ -69,6 +74,9 @@ export class InputSystem extends System {
     });
 
     // Called when input component is removed from entity
+    if (this.queryResults.inputs.removed.length > 0) {
+      console.warn('removing inputs!')
+    }
     this.queryResults.inputs.removed.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);

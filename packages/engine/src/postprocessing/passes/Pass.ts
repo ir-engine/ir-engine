@@ -326,11 +326,17 @@ export class Pass {
       material.dispose();
     }
 
+		this.screen?.geometry?.dispose()
+
     for (const key of Object.keys(this)) {
       if (this[key] !== null && typeof this[key].dispose === 'function') {
         /** @ignore */
         this[key].dispose();
       }
     }
+
+		this.scene = null
+		this.camera = null
+		this.screen = null
   }
 }

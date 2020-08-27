@@ -521,6 +521,7 @@ export class EffectComposer {
 	 */
 
   dispose() {
+    console.warn('DISPOSE EffectComposer')
     for (const pass of this.passes) {
       pass.dispose();
     }

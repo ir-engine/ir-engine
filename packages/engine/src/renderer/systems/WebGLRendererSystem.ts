@@ -19,6 +19,8 @@ export class WebGLRendererSystem extends System {
     isInitialized: boolean
   constructor(attributes?: SystemAttributes) {
     super(attributes);
+
+    this.onResize = this.onResize.bind(this);
   }
   
   /**
@@ -35,7 +37,6 @@ export class WebGLRendererSystem extends System {
     document.body.appendChild(Engine.renderer.domElement);
     console.log("child appended")
 
-    this.onResize = this.onResize.bind(this);
     console.log('resize binded')
     window.addEventListener('resize', this.onResize, false);
     this.onResize()
@@ -55,8 +56,14 @@ export class WebGLRendererSystem extends System {
     * Removes resize listener
     */
   dispose() {
+    super.dispose()
+
+    const rendererComponent = RendererComponent.instance
+    rendererComponent.composer.dispose()
+
     window.removeEventListener('resize', this.onResize);
     document.body.removeChild(Engine.renderer.domElement);
+    this.isInitialized = false
   }
 
   /**
@@ -99,16 +106,16 @@ export class WebGLRendererSystem extends System {
       RendererComponent.instance.needsResize = true;
       this.configurePostProcessing(entity);
     });
+
+    if(this.isInitialized)
+      this.queryResults.renderers.all.forEach((entity: Entity) => {
+        resize(entity)
+        getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
+      });
+
     this.queryResults.renderers.removed.forEach((entity: Entity) => {
       // cleanup
     })
-
-
-    if(this.isInitialized)
-    this.queryResults.renderers.all.forEach((entity: Entity) => {
-      resize(entity)
-      getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
-    });
   }
 }
 

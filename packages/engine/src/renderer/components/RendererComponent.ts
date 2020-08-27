@@ -16,6 +16,13 @@ export class RendererComponent extends Component<any> {
     console.log("Constructor called on renderer component")
 
   }
+
+  dispose() {
+    super.dispose();
+    this.composer.dispose();
+    this.composer = null;
+    RendererComponent.instance = null;
+  }
 }
 /**
   * The scheme is used to set the default values of a component. 

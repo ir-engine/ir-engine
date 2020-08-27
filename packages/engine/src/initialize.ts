@@ -3,7 +3,7 @@ import { addObject3DComponent } from './common/defaults/behaviors/Object3DBehavi
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { createEntity } from './ecs/functions/EntityFunctions';
 import { Engine } from './ecs/classes/Engine';
-import { execute, initialize } from './ecs/functions/EngineFunctions';
+import { execute, initialize, reset } from './ecs/functions/EngineFunctions';
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { DefaultInputSchema } from './input/defaults/DefaultInputSchema';
 import { DefaultNetworkSchema } from './networking/defaults/DefaultNetworkSchema';
@@ -159,7 +159,7 @@ export function resetEngine() {
   }
   engineTimer?.stop()
 
-  Engine.reset()
+  reset()
 }
 
 export function startTimer () {
