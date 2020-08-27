@@ -1,8 +1,8 @@
 import { initializeEngine } from "@xr3ngine/engine/src/initialize"
 import { SocketWebRTCServerTransport } from "./transports/SocketWebRTCServerTransport"
-import { DefaultNetworkSchema } from "@xr3ngine/engine/src/networking/defaults/DefaultNetworkSchema"
-import { DefaultSubscriptionSchema } from "@xr3ngine/engine/src/subscription/defaults/DefaultSubscriptionSchema"
-import { DefaultStateSchema } from "@xr3ngine/engine/src/state/defaults/DefaultStateSchema"
+import { DefaultNetworkSchema } from "@xr3ngine/engine/src/templates/network/DefaultNetworkSchema"
+import { DefaultSubscriptionSchema } from "@xr3ngine/engine/src/templates/character/CharacterSubscriptionSchema"
+import { DefaultStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema"
 
 const networkSchema = {
   ...DefaultNetworkSchema,
