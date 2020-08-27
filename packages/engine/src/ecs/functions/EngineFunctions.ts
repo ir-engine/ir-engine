@@ -23,90 +23,70 @@ export function initialize (options?: EngineOptions) {
 
 export function reset(): void {
   console.log('reset start')
-  // console.log('stats', stats())
-  console.log('Engine.componentPool', Engine.componentPool)
 
   // clear all entities components
   Engine.entities.forEach(entity => {
-    console.log('delete all components from entity', entity)
-    console.log('components count0', entity.componentTypes.length)
     removeAllComponents(entity, false)
-    console.log('components count1', entity.componentTypes.length)
   })
-  // debugger
   execute(0.001) // for systems to handle components deletion
-  // debugger
 
   // delete all entities
   removeAllEntities()
-  console.log('Engine.entitiesToRemove', Engine.entitiesToRemove)
-  console.log('Engine.entitiesWithComponentsToRemove', Engine.entitiesWithComponentsToRemove)
-  // debugger
-  // console.log('reset entities deleted', stats())
-  execute(0.001) // for systems to handle components deletion
-  console.log('Engine.entitiesToRemove', Engine.entitiesToRemove)
-  console.log('Engine.entitiesWithComponentsToRemove', Engine.entitiesWithComponentsToRemove)
-  // debugger
-// console.log('reset execute 1', stats())
-  execute(0.001) // for systems to handle components deletion
-// console.log('reset execute 2', stats())
+
+  // for systems to handle components deletion
+  execute(0.001)
+
+  if (Engine.entities.length) {
+    console.log('Engine.entities.length', Engine.entities.length)
+    throw new Error('Engine.entities cleanup not complete')
+  }
 
   Engine.entities.length = 0
+  Engine.entitiesToRemove.length = 0
+  Engine.entitiesWithComponentsToRemove.length = 0
   Engine.nextEntityId = 0
 
-// cleanup/unregister components
-// TODO: cleanup
-
-//   console.log('Engine.components', Engine.components.length, [...Engine.components])
-//   console.log('Engine.componentPool', Engine.componentPool)
-//   console.log('Engine.numComponents', Engine.numComponents)
-//   Object.values(Engine.componentPool).forEach((pool: { freeList: [], poolSize: number, type: any }) => {
-//     console.log('disposing pool', pool)
-//     pool.freeList.forEach(c => {
-//       console.log('--- c', c)
-//     })
-//     // component.dispose()
-//     //Engine.componentPool[component]
-//   })
+  // cleanup/unregister components
   Engine.components.length = 0
-// Engine.componentsMap = {}
-// Engine.numComponents = {}
-// Engine.componentPool = {}
+  // Engine.componentsMap = {}
+  // Engine.numComponents = {}
+  // Engine.componentPool = {}
   Engine.nextComponentId = 0
 
-// cleanup systems
+  // cleanup systems
   Engine.systems.forEach(system => {
     system.dispose()
   })
   Engine.systems.length = 0
   Engine.systemsToExecute.length = 0
 
-// cleanup queries
-// TODO: cleanup
+  // cleanup queries
   Engine.queries.length = 0
 
-// cleanup events
+  // cleanup events
   Engine.eventDispatcher.reset()
 
-// TODO: delete all what is left from scene
-  Engine.scene.dispose()
-  Engine.scene.traverse((child: any) => {
-    if (typeof child.dispose === 'function') {
-      console.log('child dispose')
-      child.dispose()
-      child.remove()
-    }
-  })
-  Engine.scene = null
+  // delete all what is left on scene
+  if (Engine.scene) {
+    Engine.scene.dispose()
+    Engine.scene.traverse((child: any) => {
+      if (typeof child.dispose === 'function') {
+        // TODO: check if we need to add materials, textures, geometries detections and dispose() call?
+        child.dispose()
+        child.remove()
+      }
+    })
+    Engine.scene = null
+  }
 
   Engine.camera = null
 
-  Engine.renderer.dispose()
-  Engine.renderer = null
+  if (Engine.renderer) {
+    Engine.renderer.dispose()
+    Engine.renderer = null
+  }
 
   console.log('reset finished')
-// console.log('stats', stats())
-// console.log('Engine', this)
 }
 
 /**
