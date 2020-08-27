@@ -1,10 +1,10 @@
 import { instanceOf } from '../../common/functions/instanceOf';
-import { Scalar, Vector2, Vector3 } from '../../common/types/NumericalTypes';
+import { ScalarType, Vector2Type, Vector3Type } from '../../common/types/NumericalTypes';
 import { StateAlias } from '../types/StateAlias';
 
 interface weightedState {
   type: StateAlias
-  value: Scalar | Vector2 | Vector3
+  value: ScalarType | Vector2Type | Vector3Type
 }
 
 interface outputState {
@@ -25,7 +25,7 @@ let b: number;
 let c: number;
 
 export function computeOutputFromWeightedStates (
-  inputValue: Scalar | Vector2 | Vector3,
+  inputValue: ScalarType | Vector2Type | Vector3Type,
   blendStateValues: weightedState[]
 ): outputState[] {
   bufferPosition = 0;
@@ -66,10 +66,10 @@ const normalizedRelu = function (x) {
   return x > 0 ? x : 0;
 };
 
-function computeDistance (p0: Scalar | Vector2 | Vector3, p1: Scalar | Vector2 | Vector3): number {
+function computeDistance (p0: ScalarType | Vector2Type | Vector3Type, p1: ScalarType | Vector2Type | Vector3Type): number {
   // P1 = (x1, y1, z1); P2 = (x2, y2, z2)
-  a = instanceOf<Scalar>(p1) ? p1[0] - p0[0] : 0;
-  b = instanceOf<Vector2>(p1) && instanceOf<Vector2>(p0) ? p1[1] - p0[1] : 0;
-  c = instanceOf<Vector3>(p1) && instanceOf<Vector3>(p0) ? p1[2] - p0[2] : 0;
+  a = instanceOf<ScalarType>(p1) ? p1[0] - p0[0] : 0;
+  b = instanceOf<Vector2Type>(p1) && instanceOf<Vector2Type>(p0) ? p1[1] - p0[1] : 0;
+  c = instanceOf<Vector3Type>(p1) && instanceOf<Vector3Type>(p0) ? p1[2] - p0[2] : 0;
   return Math.sqrt(a * a + b * b + c * c);
 }

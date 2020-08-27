@@ -1,4 +1,4 @@
-import { Vector3 } from '../../common/types/NumericalTypes';
+import { Vector3Type } from '../../common/types/NumericalTypes';
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 
@@ -6,7 +6,7 @@ interface PropTypes {
   wheelMesh: any
   convexMesh: any
   mass: number
-  scale: Vector3
+  scale: Vector3Type
 }
 
 export class VehicleBody extends Component<PropTypes> {

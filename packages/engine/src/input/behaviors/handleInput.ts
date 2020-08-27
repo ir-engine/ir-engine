@@ -1,6 +1,6 @@
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { Behavior } from '../../common/interfaces/Behavior';
-import { Binary, NumericalType } from '../../common/types/NumericalTypes';
+import { BinaryType, NumericalType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 import { Input } from '../components/Input';
 import { InputType } from '../enums/InputType';
@@ -24,7 +24,7 @@ export const handleInput: Behavior = (entity: Entity, delta: number): void => {
           // Set the value of the input to continued to debounce
           input.data.set(key, {
             type: value.type,
-            value: value.value as Binary,
+            value: value.value as BinaryType,
             lifecycleState: LifecycleValue.CONTINUED
           });
           input.schema.inputButtonBehaviors[key][value.value as number].started?.forEach(element =>
@@ -53,7 +53,7 @@ export const handleInput: Behavior = (entity: Entity, delta: number): void => {
           // Set the value to continued to debounce
           input.data.set(key, {
             type: value.type,
-            value: value.value as Binary,
+            value: value.value as BinaryType,
             lifecycleState: LifecycleValue.CONTINUED
           });
           input.schema.inputAxisBehaviors[key].started?.forEach(element =>

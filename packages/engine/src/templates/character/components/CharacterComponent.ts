@@ -65,6 +65,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	canEnterVehicles: boolean;
 	canLeaveVehicles: boolean;
   	alreadyJumped: boolean;
+  rotationSpeed: any;
 
 }
 

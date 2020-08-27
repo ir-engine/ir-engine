@@ -1,5 +1,5 @@
 import { BehaviorComponent } from '../../common/components/BehaviorComponent';
-import { Binary, NumericalType } from '../../common/types/NumericalTypes';
+import { BinaryType, NumericalType } from '../../common/types/NumericalTypes';
 import { Types } from '../../ecs/types/Types';
 import { InputSchema } from '../interfaces/InputSchema';
 import { InputValue } from '../interfaces/InputValue';
@@ -9,7 +9,7 @@ import { InputAlias } from '../types/InputAlias';
 export interface InputProps {
   gamepadConnected: boolean
   gamepadThreshold: number
-  gamepadButtons: Binary[]
+  gamepadButtons: BinaryType[]
   gamepadInput: number[]
 }
 
@@ -17,7 +17,7 @@ export interface InputProps {
 export class Input extends BehaviorComponent<InputAlias, InputSchema, InputValue<NumericalType>> {
   gamepadConnected: boolean
   gamepadThreshold: number
-  gamepadButtons: Binary[]
+  gamepadButtons: BinaryType[]
   gamepadInput: number[]
 }
 
