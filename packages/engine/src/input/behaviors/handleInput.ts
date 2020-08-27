@@ -8,9 +8,18 @@ import { InputValue } from '../interfaces/InputValue';
 import { InputAlias } from '../types/InputAlias';
 import { getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { BinaryValue } from '../../common/enums/BinaryValue';
-let input: Input;
+let input: Input
+
+/**
+ * Handle Input
+ * 
+ * @param {Entity} entity The entity
+ * @param {Number} delta Time since last frame
+ */
 export const handleInput: Behavior = (entity: Entity, delta: number): void => {
+  // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
   input = getMutableComponent(entity, Input);
+
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
     // If the input is a button
     if (value.type === InputType.BUTTON) {
@@ -31,6 +40,7 @@ export const handleInput: Behavior = (entity: Entity, delta: number): void => {
             element.behavior(entity, element.args, delta)
           );
         } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
+          // If the lifecycle equal continued
           input.schema.inputButtonBehaviors[key][value.value as number].continued?.forEach(element =>
             element.behavior(entity, element.args, delta)
           );
@@ -49,6 +59,7 @@ export const handleInput: Behavior = (entity: Entity, delta: number): void => {
       value.type === InputType.FOURD
     ) {
       if (input.schema.inputAxisBehaviors[key]) {
+        // If lifecycle hasn't been set or started 
         if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue.STARTED) {
           // Set the value to continued to debounce
           input.data.set(key, {
@@ -60,6 +71,7 @@ export const handleInput: Behavior = (entity: Entity, delta: number): void => {
             element.behavior(entity, element.args, delta)
           );
         } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
+          // If lifecycle continued
           input.schema.inputAxisBehaviors[key].continued?.forEach(element =>
             element.behavior(entity, element.args, delta)
           );
