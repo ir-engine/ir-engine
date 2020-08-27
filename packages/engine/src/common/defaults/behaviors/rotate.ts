@@ -21,6 +21,7 @@ let valueX = 0, valueY = 0
 const maxAngleX = 35.0472
 const maxAngleY = 35.0472
 
+
 export const rotateAround: Behavior = (
   entity: Entity,
   args: { input: InputAlias, inputType: InputType, value: NumericalType },
@@ -44,22 +45,17 @@ export const rotateAround: Behavior = (
 
   if (args.inputType === InputType.TWOD) {
     if (inputComponent.data.has(args.input)) {
+
       inputValue = inputComponent.data.get(args.input).value as Vector2;
       startValue = mouseDownPosition.value as Vector2;
 
+    if (false) {
       valueX += inputValue[0] - startValue[0]
       valueY += inputValue[1] - startValue[1]
-
       valueY > (maxAngleY / Math.PI) ? valueY = (maxAngleY / Math.PI):'';
       valueY < -(maxAngleY / Math.PI) ? valueY = -(maxAngleY / Math.PI):'';
-
-
-      quat.fromEuler(
-        q,
-        -Math.min(Math.max(valueY* Math.PI, -maxAngleY), maxAngleY),
-        valueX * Math.PI,
-        0
-      );
+      quat.fromEuler( q, -Math.min(Math.max(valueY* Math.PI, -maxAngleY), maxAngleY), valueX * Math.PI, 0);
+    }
 
     }
   } else if (args.inputType === InputType.THREED) {
