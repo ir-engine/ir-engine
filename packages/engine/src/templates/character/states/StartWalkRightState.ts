@@ -1,7 +1,7 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { CharacterComponent } from '../components/CharacterComponent';
 import { setActorAnimation } from "../behaviors/setActorAnimation";
-import { checkFalling } from "../behaviors/checkFalling";
+import { setFallingState } from "../behaviors/setFallingState";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
@@ -40,7 +40,7 @@ export const StartWalkRightState: StateSchemaValue = {
       }
     },
     {
-      behavior: checkFalling
+      behavior: setFallingState
     },
     {
       behavior: onAnimationEnded,

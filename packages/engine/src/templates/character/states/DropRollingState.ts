@@ -1,5 +1,5 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { checkMovingOnAnimationEnded } from '../behaviors/checkMovingOnAnimationEnded';
+import { setMovingStateOnAnimationEnd } from '../behaviors/setMovingStateOnAnimationEnd';
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { setActorAnimation } from "../behaviors/setActorAnimation";
 import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
@@ -39,7 +39,7 @@ export const DropRollingState: StateSchemaValue = {
         setCameraRelativeOrientationTarget: true
       }
     },
-    { behavior: checkMovingOnAnimationEnded,
+    { behavior: setMovingStateOnAnimationEnd,
       args: {
         transitionToStateIfMoving: CharacterStateTypes.WALK,
         transitionToStateIfNotMoving: CharacterStateTypes.WALK_END

@@ -62,9 +62,10 @@ const isObj = o => o?.constructor === Object;
 
 export const addObject3DComponent: Behavior = (
   entity: Entity,
-  args: { obj3d: any, obj3dArgs: any, parentEntity?: Entity }
+  args: { obj3d: any, obj3dArgs?: any, parentEntity?: Entity }
 ) => {
-const isObject3d =(args.obj3d.type !== undefined)
+
+  const isObject3d =(typeof args.obj3d === 'object')
   const object3d =
   isObject3d ? args.obj3d : new args.obj3d(args.obj3dArgs)
 
@@ -77,9 +78,7 @@ const isObject3d =(args.obj3d.type !== undefined)
   });
   if (args.parentEntity && hasComponent(args.parentEntity, Object3DComponent as any)) {
     getComponent<Object3DComponent>(args.parentEntity, Object3DComponent).value.add(object3d);
-  }
-  // Add the obj to our scene graph
-  else Engine.scene.add(object3d);
+  } else Engine.scene.add(object3d);
   object3d.entity = entity;
   return entity;
 };
