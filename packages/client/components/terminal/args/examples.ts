@@ -1,4 +1,4 @@
-export default function (list) {
+export default function examples (list) {
   if (list.constructor !== Array) {
     throw new Error('Item passed to .examples is not an array');
   }

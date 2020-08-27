@@ -1,4 +1,4 @@
-export default function (name, description, defaultValue, init) {
+export default function option (name, description, defaultValue, init) {
   let usage = [];
 
   const assignShort = (n, options, short) => {
