@@ -11,13 +11,28 @@ export class AudioSystem extends System {
     audio: any
     context: AudioContext
     world: any
+
+    constructor() {
+        super();
+        this.startAudio = this.startAudio.bind(this)
+    }
+
     init() {
         this.audioReady = false
         this.callbacks = []
-        window.addEventListener('touchstart',()=> this.startAudio())
-        window.addEventListener('touchend',()=> this.startAudio())
-        window.addEventListener('click',()=> this.startAudio())
+        window.addEventListener('touchstart',this.startAudio)
+        window.addEventListener('touchend',this.startAudio)
+        window.addEventListener('click', this.startAudio)
     }
+
+    dispose():void {
+        this.audioReady = false
+        this.callbacks = []
+        window.removeEventListener('touchstart',this.startAudio)
+        window.removeEventListener('touchend',this.startAudio)
+        window.removeEventListener('click', this.startAudio)
+    }
+
     execute(delta, time) {
         this.queries.sound_effects.added?.forEach(ent => {
             let effect = ent.getComponent(SoundEffect)
@@ -58,8 +73,8 @@ export class AudioSystem extends System {
         if (window.AudioContext) {
             this.context = new window.AudioContext();
             // Create empty buffer
-            var buffer = this.context.createBuffer(1, 1, 22050);
-            var source = this.context.createBufferSource();
+            const buffer = this.context.createBuffer(1, 1, 22050);
+            const source = this.context.createBufferSource();
             source.buffer = buffer;
             // Connect to output (speakers)
             source.connect(this.context.destination);
@@ -82,7 +97,7 @@ export class AudioSystem extends System {
     }
 
     startBackgroundMusic(ent) {
-        let music = ent.getComponent(BackgroundMusic)
+        const music = ent.getComponent(BackgroundMusic)
         if(music.src && !this.audio) {
             music.audio = new Audio()
             console.log("starting the background music")
@@ -97,14 +112,14 @@ export class AudioSystem extends System {
         }
     }
     stopBackgroundMusic(ent) {
-        let music = ent.getComponent(BackgroundMusic)
+        const music = ent.getComponent(BackgroundMusic)
         if(music && music.audio) {
             music.audio.pause()
         }
     }
 
     playSoundEffect(ent) {
-        let sound = ent.getComponent(SoundEffect)
+        const sound = ent.getComponent(SoundEffect)
         sound.audio.play()
         ent.removeComponent(PlaySoundEffect)
     }

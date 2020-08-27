@@ -5,6 +5,7 @@ import { Engine } from '../classes/Engine';
 import { EngineOptions } from '../interfaces/EngineOptions';
 import { Timer } from "../../common/functions/Timer";
 import { now } from "../../common/functions/now";
+import { removeAllComponents, removeAllEntities } from "./EntityFunctions";
 
 /**
  * Initialize options on the engine object and fire a command for devtools
@@ -19,6 +20,74 @@ export function initialize (options?: EngineOptions) {
   }
 
   Engine.lastTime = now() / 1000;
+}
+
+export function reset(): void {
+  console.log('reset start')
+
+  // clear all entities components
+  Engine.entities.forEach(entity => {
+    removeAllComponents(entity, false)
+  })
+  execute(0.001) // for systems to handle components deletion
+
+  // delete all entities
+  removeAllEntities()
+
+  // for systems to handle components deletion
+  execute(0.001)
+
+  if (Engine.entities.length) {
+    console.log('Engine.entities.length', Engine.entities.length)
+    throw new Error('Engine.entities cleanup not complete')
+  }
+
+  Engine.entities.length = 0
+  Engine.entitiesToRemove.length = 0
+  Engine.entitiesWithComponentsToRemove.length = 0
+  Engine.nextEntityId = 0
+
+  // cleanup/unregister components
+  Engine.components.length = 0
+  // Engine.componentsMap = {}
+  // Engine.numComponents = {}
+  // Engine.componentPool = {}
+  Engine.nextComponentId = 0
+
+  // cleanup systems
+  Engine.systems.forEach(system => {
+    system.dispose()
+  })
+  Engine.systems.length = 0
+  Engine.systemsToExecute.length = 0
+
+  // cleanup queries
+  Engine.queries.length = 0
+
+  // cleanup events
+  Engine.eventDispatcher.reset()
+
+  // delete all what is left on scene
+  if (Engine.scene) {
+    Engine.scene.dispose()
+    Engine.scene.traverse((child: any) => {
+      if (typeof child.dispose === 'function') {
+        // TODO: check if we need to add materials, textures, geometries detections and dispose() call?
+        child.dispose()
+        child.remove()
+      }
+    })
+    Engine.scene = null
+  }
+
+  Engine.camera = null
+
+  if (Engine.renderer) {
+    Engine.renderer.dispose()
+    Engine.renderer = null
+  }
+
+  console.log('reset finished')
 }
 
 /**
@@ -48,8 +117,8 @@ function processDeferredEntityRemoval () {
   if (!Engine.deferredRemovalEnabled) {
     return;
   }
-  const entitiesToRemove = [];
-  const entitiesWithComponentsToRemove = [];
+  const entitiesToRemove = Engine.entitiesToRemove;
+  const entitiesWithComponentsToRemove = Engine.entitiesWithComponentsToRemove;
   for (let i = 0; i < entitiesToRemove.length; i++) {
     const entity = entitiesToRemove[i];
     const index = Engine.entities.indexOf(entity);

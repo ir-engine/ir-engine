@@ -96,6 +96,8 @@ export function addComponent<C extends Component<C>>(
 
   const component = (componentPool ? componentPool.acquire() : new Component(values)) as Component<any>;
   component.entity = entity
+  component._typeId = Component._typeId
+
   if (componentPool && values) {
     component.copy(values);
   }
@@ -135,9 +137,9 @@ export function removeComponent<C extends Component<C>>(
   Component: ComponentConstructor<C>,
   forceImmediate?: boolean
 ): Component<C> {
-  const component = entity.components[Component._typeId]
-  const index = entity.componentTypes.indexOf(component);
+  const index = entity.componentTypes.indexOf(Component);
   if (!~index) return;
+  const component = entity.components[Component._typeId];
 
   Engine.eventDispatcher.dispatchEvent(COMPONENT_REMOVE, entity, component);
 
@@ -176,7 +178,7 @@ export function removeComponent<C extends Component<C>>(
     entity.numStateComponents--;
 
     // Check if the entity was a ghost waiting for the last system state component to be removed
-    if (entity.numStateComponents === 0) {
+    if (entity.componentTypes.length === 0) {
       entity.remove();
     }
   } return component;

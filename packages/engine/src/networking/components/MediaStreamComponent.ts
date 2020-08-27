@@ -22,6 +22,13 @@ export class MediaStreamComponent extends Component<any> {
     this.mediaStream = null;
   }
 
+  dispose():void {
+    super.dispose();
+    MediaStreamComponent.instance = null;
+    this.consumers = [];
+    this.mediaStream = null;
+  }
+
   public toggleVideoPaused (): boolean {
     this.videoPaused = !this.videoPaused;
     return this.videoPaused;

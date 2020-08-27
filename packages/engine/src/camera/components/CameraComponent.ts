@@ -19,6 +19,12 @@ export class CameraComponent extends Component<CameraComponent> {
     super();
     CameraComponent.instance = this;
   }
+
+  dispose():void {
+    console.warn('DISPOSE CameraComponent')
+    super.dispose();
+    CameraComponent.instance = null;
+  }
 }
 /**
   * Set the default values of a component. 
