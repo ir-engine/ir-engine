@@ -2,7 +2,7 @@ import { Application } from '../../declarations'
 import { getLink, sendEmail } from './auth-management.utils'
 import * as path from 'path'
 import * as pug from 'pug'
-import * as requireMainFilename from 'require-main-filename'
+import requireMainFilename from 'require-main-filename'
 import config from '../../config'
 
 export default (app: Application): any => {
