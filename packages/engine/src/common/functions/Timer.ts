@@ -13,6 +13,8 @@ export function Timer (
   let frameId;
 
   function onFrame (time) {
+    frameId = (isBrowser ? requestAnimationFrame : requestAnimationFrameOnServer)(onFrame);
+
     if (last !== null) {
       delta = (time - last) / 1000
       accumulated = accumulated + delta;
@@ -21,7 +23,6 @@ export function Timer (
     }
     last = time;
     if (callbacks.render) callbacks.render();
-    frameId = (isBrowser ? requestAnimationFrame : requestAnimationFrameOnServer)(onFrame);
   }
 
   function start () {
