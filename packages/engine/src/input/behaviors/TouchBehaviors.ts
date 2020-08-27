@@ -1,9 +1,9 @@
 import { BinaryValue } from '../../common/enums/BinaryValue';
 import { Behavior } from '../../common/interfaces/Behavior';
-import { Binary } from '../../common/types/NumericalTypes';
+import { BinaryType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 
-export const handleTouch: Behavior = (entity: Entity, args: { event: TouchEvent, value: Binary }): void => {
+export const handleTouch: Behavior = (entity: Entity, args: { event: TouchEvent, value: BinaryType }): void => {
   if (args.value === BinaryValue.ON) {
     let s = 'Touch start.';
     if (args.event.targetTouches.length) {

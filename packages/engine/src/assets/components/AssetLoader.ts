@@ -5,12 +5,8 @@ import { AssetType } from '../enums/AssetType';
 import { AssetClassAlias, AssetsLoadedHandler, AssetTypeAlias } from '../types/AssetTypes';
 
 export class AssetLoader extends Component<AssetLoader> {
-<<<<<<< HEAD
   loaded = false
   url: string = ''
-=======
-  url = ''
->>>>>>> origin/Engine.reset
   assetType: AssetTypeAlias = null
   assetClass: AssetClassAlias = null
   receiveShadow = false

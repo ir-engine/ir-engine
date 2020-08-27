@@ -73,13 +73,9 @@ export const DefaultInitializationOptions = {
   }
 };
 
-<<<<<<< HEAD
-export function initializeEngine (options: any = DefaultInitializationOptions) {
-=======
 export function initializeEngine (initOptions: any = DefaultInitializationOptions) {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
-  console.log('initializeEngine', options, initOptions)
->>>>>>> origin/audio
+
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
   // Create a new three.js scene

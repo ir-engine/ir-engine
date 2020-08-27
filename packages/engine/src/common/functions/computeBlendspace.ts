@@ -1,10 +1,10 @@
 import { StateAlias } from '../../state/types/StateAlias';
-import { Scalar, Vector2, Vector3 } from '../types/NumericalTypes';
+import { ScalarType, Vector2Type, Vector3Type } from '../types/NumericalTypes';
 import { instanceOf } from './instanceOf';
 
 interface blendStatePositionValue {
   stateType: StateAlias
-  position: Scalar | Vector2 | Vector3
+  position: ScalarType | Vector2Type | Vector3Type
 }
 
 interface outputState {
@@ -25,7 +25,7 @@ let b: number;
 let c: number;
 
 export function computeBlendValue (
-  inputValue: Scalar | Vector2 | Vector3,
+  inputValue: ScalarType | Vector2Type | Vector3Type,
   blendStateValues: blendStatePositionValue[]
 ): outputState[] {
   bufferPosition = 0;
@@ -66,10 +66,10 @@ const normalizedRelu = function (x) {
   return x > 0 ? x : 0;
 };
 
-function computeDistance (p0: Scalar | Vector2 | Vector3, p1: Scalar | Vector2 | Vector3): number {
+function computeDistance (p0: ScalarType | Vector2Type | Vector3Type, p1: ScalarType | Vector2Type | Vector3Type): number {
   // P1 = (x1, y1, z1); P2 = (x2, y2, z2)
-  a = instanceOf<Scalar>(p1) ? p1[0] - p0[0] : 0;
-  b = instanceOf<Vector2>(p1) && instanceOf<Vector2>(p0) ? p1[1] - p0[1] : 0;
-  c = instanceOf<Vector3>(p1) && instanceOf<Vector3>(p0) ? p1[1] - p0[1] : 0;
+  a = instanceOf<ScalarType>(p1) ? p1[0] - p0[0] : 0;
+  b = instanceOf<Vector2Type>(p1) && instanceOf<Vector2Type>(p0) ? p1[1] - p0[1] : 0;
+  c = instanceOf<Vector3Type>(p1) && instanceOf<Vector3Type>(p0) ? p1[1] - p0[1] : 0;
   return Math.sqrt(a * a + b * b + c * c);
 }

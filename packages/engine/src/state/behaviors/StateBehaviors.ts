@@ -1,7 +1,7 @@
 import { BinaryValue } from '../../common/enums/BinaryValue';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { Behavior } from '../../common/interfaces/Behavior';
-import { Binary } from '../../common/types/NumericalTypes';
+import { BinaryType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 import { State } from '../components/State';
 import { StateType } from '../enums/StateType';
@@ -10,7 +10,7 @@ import { StateAlias } from '../types/StateAlias';
 import { StateGroupAlias } from '../types/StateGroupAlias';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
 
-export const toggleState: Behavior = (entity: Entity, args: { value: Binary, stateType: StateAlias }): void => {
+export const toggleState: Behavior = (entity: Entity, args: { value: BinaryType, stateType: StateAlias }): void => {
   if (args.value === BinaryValue.ON) addState(entity, args);
   else removeState(entity, args);
 };
@@ -24,7 +24,7 @@ export const addState: Behavior = (entity: Entity, args: { state: StateAlias }):
     type: StateType.DISCRETE,
     lifecycleState: LifecycleValue.STARTED,
     group: stateComponent.schema.states[args.state].group
-  } as StateValue<Binary>);
+  } as StateValue<BinaryType>);
 
   // If state group is set to exclusive (XOR) then check if other states from state group are on
   if (stateComponent.schema.groups[stateGroup].exclusive) {
