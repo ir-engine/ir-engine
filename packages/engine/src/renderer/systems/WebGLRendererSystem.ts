@@ -65,7 +65,7 @@ export class WebGLRendererSystem extends System {
     super.dispose()
 
     const rendererComponent = RendererComponent.instance
-    rendererComponent.composer.dispose()
+    rendererComponent?.composer?.dispose()
 
     window.removeEventListener('resize', this.onResize);
     document.body.removeChild(Engine.renderer.domElement);

@@ -19,7 +19,7 @@ export class RendererComponent extends Component<any> {
 
   dispose() {
     super.dispose();
-    this.composer.dispose();
+    this.composer?.dispose();
     this.composer = null;
     RendererComponent.instance = null;
   }
