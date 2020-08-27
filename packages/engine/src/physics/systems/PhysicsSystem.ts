@@ -30,12 +30,12 @@ export class PhysicsSystem extends System {
   }
 
   onFixedExecute(delta) {
-    this.queryResults.character.all?.forEach(entity => updateCharacter(entity, null, delta));
-    this.queryResults.character.all?.forEach(entity => physicsPreStep(entity));
+    this.queryResults.character.all?.forEach(entity => physicsPreStep(entity, null, delta));
     PhysicsManager.instance.frame++;
     PhysicsManager.instance.physicsWorld.step(PhysicsManager.instance.timeStep);
-
-   this.queryResults.character.all?.forEach(entity => physicsPostStep(entity));
+    this.queryResults.character.all?.forEach(entity => updateCharacter(entity, null, delta));
+    
+   this.queryResults.character.all?.forEach(entity => physicsPostStep(entity, null, delta));
 
     // Collider
     this.queryResults.сollider.added?.forEach(entity => {

@@ -10,18 +10,15 @@ import { StateAlias } from '../types/StateAlias';
 import { StateGroupAlias } from '../types/StateGroupAlias';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
 
-let stateComponent: State;
-let stateGroup: StateGroupAlias;
-
 export const toggleState: Behavior = (entity: Entity, args: { value: Binary, stateType: StateAlias }): void => {
   if (args.value === BinaryValue.ON) addState(entity, args);
   else removeState(entity, args);
 };
 
 export const addState: Behavior = (entity: Entity, args: { state: StateAlias }): void => {
-  stateComponent = getComponent(entity, State);
+  const stateComponent = getComponent(entity, State);
   if (stateComponent.data.has(args.state)) return;
-  stateGroup = stateComponent.schema.states[args.state].group;
+  const stateGroup = stateComponent.schema.states[args.state].group;
   stateComponent.data.set(args.state, {
     state: args.state,
     type: StateType.DISCRETE,
@@ -31,16 +28,18 @@ export const addState: Behavior = (entity: Entity, args: { state: StateAlias }):
 
   // If state group is set to exclusive (XOR) then check if other states from state group are on
   if (stateComponent.schema.groups[stateGroup].exclusive) {
-    stateComponent.schema.groups[stateGroup].states.forEach(state => {
-      if (state === args.state || !stateComponent.data.has(state)) return;
-      stateComponent.data.delete(state);
-    });
+    stateComponent.data.forEach((value, key) => {
+      console.log("key: ", key, " | args.state: ", args.state)
+      if(key !== args.state && value.group === stateComponent.schema.states[args.state].group){
+        stateComponent.data.delete(key);
+      }
+    })
   }
 };
 
 export const removeState: Behavior = (entity: Entity, args: { state: StateAlias }): void => {
   // check state group
-  stateComponent = getComponent(entity, State);
+  const stateComponent = getComponent(entity, State);
   if (stateComponent.data.has(args.state)) {
     stateComponent.data.delete(args.state);
   }
@@ -48,7 +47,7 @@ export const removeState: Behavior = (entity: Entity, args: { state: StateAlias 
 
 export const hasState: Behavior = (entity: Entity, args: { state: StateAlias }): boolean => {
   // check state group
-  stateComponent = getComponent(entity, State);
+  const stateComponent = getComponent(entity, State);
   if (stateComponent.data.has(args.state)) return true;
   return false;
 };

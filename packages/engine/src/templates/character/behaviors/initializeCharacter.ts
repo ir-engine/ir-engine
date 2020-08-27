@@ -56,19 +56,15 @@ export const initializeCharacter: Behavior = (entity): void => {
 			actor_height: 0.5,
 			radius: 0.25,
 			segments: 8,
-			friction: 0.0,
-			body: {
-				preStep: (body: Body) => { console.log("Prestep: ", body); physicsPreStep(entity, { body: body } ) },
-				postStep: (body: Body) => { console.log("Poststep: ", body); physicsPostStep(entity, { body: body }) }
-			}
+			friction: 0.0
 		});
 		actor.actorCapsule.body.shapes.forEach((shape) => {
-			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
+			// shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
 		});
 		actor.actorCapsule.body.allowSleep = false;
 
 		// Move actor to different collision group for raycasting
-		actor.actorCapsule.body.collisionFilterGroup = 2;
+		// actor.actorCapsule.body.collisionFilterGroup = 2;
 
 		// Disable actor rotation
 		actor.actorCapsule.body.fixedRotation = true;
@@ -90,6 +86,6 @@ export const initializeCharacter: Behavior = (entity): void => {
 		actor.initialized = true;
 
 		
-		setPosition(entity, {x: 0, y: 0, z: 0})
+		setPosition(entity, {x: 0, y: 1, z: 0})
 	};
 };

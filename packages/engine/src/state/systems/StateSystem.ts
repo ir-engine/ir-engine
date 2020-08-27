@@ -12,7 +12,7 @@ import { StateGroupAlias } from '../types/StateGroupAlias';
 export class StateSystem extends System {
   private _state: State
   private readonly _args: any
-  public execute (delta: number, time: number): void {
+  public execute (delta: number): void {
     this.queryResults.state.added?.forEach(entity => {
       // If stategroup has a default, add it to our state map
       this._state = getComponent(entity, State);
@@ -42,7 +42,7 @@ export class StateSystem extends System {
     });
 
     this.queryResults.state.all?.forEach(entity => {
-      callBehaviors(entity, delta);
+      callBehaviors(entity, null, delta);
     });
   }
 }

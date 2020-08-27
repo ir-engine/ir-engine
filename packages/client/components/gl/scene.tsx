@@ -53,7 +53,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // Load glb here
     // createPrefab(rigidBodyBox);
 
-    // createPrefab(PlayerCharacter);
+    createPrefab(PlayerCharacter);
     
     createPrefab(staticWorldColliders);
 

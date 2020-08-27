@@ -387,7 +387,7 @@ export abstract class Vehicle extends Component<Vehicle>
 							child.visible = false;
 
 							let phys = new Box(new Vec3(child.scale.x, child.scale.y, child.scale.z));
-							phys.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
+							// phys.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
 							this.collision.addShape(phys, new Vec3(child.position.x, child.position.y, child.position.z));
 						}
 						else if (child.userData.shape === 'sphere')

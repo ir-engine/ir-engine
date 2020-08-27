@@ -2,7 +2,6 @@ import { Behavior } from "../../../common/interfaces/Behavior";
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { CharacterComponent } from "../components/CharacterComponent";
 import { feetRaycast } from "./feetRaycast";
-import { Body } from "cannon-es"
 
 export const physicsPreStep: Behavior = (entity): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
