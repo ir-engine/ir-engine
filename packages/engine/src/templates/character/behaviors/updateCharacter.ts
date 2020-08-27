@@ -35,4 +35,5 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
     actor.actorCapsule.body.position.copy(cannonFromThreeVector(newPos));
     actor.actorCapsule.body.interpolatedPosition.copy(cannonFromThreeVector(newPos));
   }
+  
 };

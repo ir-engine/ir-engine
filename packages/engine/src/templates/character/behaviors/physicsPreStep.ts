@@ -1,13 +1,13 @@
 import { Behavior } from "../../../common/interfaces/Behavior";
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { CharacterComponent } from "../components/CharacterComponent";
-import { feetRaycast } from "./feetRaycast";
+import { raycastDown } from "./raycastDown";
 
 export const physicsPreStep: Behavior = (entity): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	if(!actor.initialized) return;
 	let body = actor.actorCapsule.body;
-	feetRaycast(entity);
+	raycastDown(entity);
 
 	// Raycast debug
 	if (actor.rayHasHit) {
