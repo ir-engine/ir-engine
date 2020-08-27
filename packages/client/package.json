@@ -62,6 +62,7 @@
     "autoprefixer": "^9.7.5",
     "axios": "^0.19.2",
     "babel-loader": "^8.1.0",
+    "cannon-es-debugger": "^0.0.3",
     "eslint-plugin-react-hooks": "^3.0.0",
     "evergreen-ui": "^5.0.4",
     "fs": "^0.0.1-security",
