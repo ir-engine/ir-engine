@@ -1,16 +1,19 @@
 import { Vec3, Box, Cylinder, ConvexPolyhedron, Quaternion, Sphere, Body } from 'cannon-es';
 
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { getComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { RigidBody } from '../components/RigidBody';
 import { MeshTagComponent } from '../../common/components/Object3DTagComponents';
+import { Vector3 } from 'three';
 
 export function createBox (entity: Entity) {
   const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
   const rigidBody = getComponent<RigidBody>(entity, RigidBody);
-  const transform = getComponent<TransformComponent>(entity, TransformComponent);
+  const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
+
+  transform.position = new Vector3()
 
   let mass = rigidBody ? collider.mass : 0;
 

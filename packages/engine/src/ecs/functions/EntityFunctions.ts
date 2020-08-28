@@ -69,7 +69,7 @@ export function getComponentTypes(entity: Entity): Array<Component<any>> {
 
 /**
  * Add a component to an entity
- * Optional values will be passed to the component cwwwwwwwwwwwwwwwwwwwonstructor
+ * Optional values will be passed to the component constructor
 * @returns the component added to the entity
  */
 export function addComponent<C extends Component<C>>(

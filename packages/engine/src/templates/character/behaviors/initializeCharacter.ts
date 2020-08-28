@@ -64,10 +64,10 @@ export const initializeCharacter: Behavior = (entity): void => {
 		});
 		actor.actorCapsule = getMutableComponent<CapsuleCollider>(entity, CapsuleCollider)
 		actor.actorCapsule.body.shapes.forEach((shape) => {
-			// shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
+			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
 		});
 		actor.actorCapsule.body.allowSleep = false;
-
+		actor.actorCapsule.body.position = new Vec3()
 		// Move actor to different collision group for raycasting
 		actor.actorCapsule.body.collisionFilterGroup = 2;
 
@@ -100,13 +100,6 @@ export const initializeCharacter: Behavior = (entity): void => {
 		// States
 		addState(entity, { state: CharacterStateTypes.IDLE });
 		actor.initialized = true;
-		const DebugOptions = {
-			color: new Color('ff0000'),
-			onInit: (body: Body, mesh: Mesh, shape: Shape) => 	console.log("body: ", body, " | mesh: ", mesh, " | shape: ", shape),
-			onUpdate: (body: Body, mesh: Mesh, shape: Shape) => console.log("body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape)
-		  }
-		debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions)
 
-		setPosition(entity, {x: 0, y: 0, z: 0})
 	};
 };
