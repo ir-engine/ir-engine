@@ -22,6 +22,7 @@ import { TransformParentComponent } from '../../transform/components/TransformPa
 import { TransformChildComponent } from '../../transform/components/TransformChildComponent';
 import { Group } from 'three';
 import { GroupTagComponent } from '../../common/components/Object3DTagComponents';
+import { Unload } from '../components/Unload';
 
 export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
@@ -49,7 +50,6 @@ export default class AssetLoadingSystem extends System {
       // Load the asset with a calback to add it to our processing queue
       loadAsset(assetLoader.url, (asset: any) => {
         // This loads the editor scene
-
         this.loaded.set(entity, asset);
       });
     })
@@ -70,36 +70,25 @@ export default class AssetLoadingSystem extends System {
           }
         });
       }
-      console.log("*** Adding object3d component to asset")
+      addComponent(entity, Model, { value: asset });
       if (hasComponent(entity, Object3DComponent)) {
-        if (component.append) {
-          console.log("*** Appending")
           if(getComponent<Object3DComponent>(entity, Object3DComponent).value !== undefined)
           getMutableComponent<Object3DComponent>(entity, Object3DComponent).value.add(asset.scene)
           else getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = (asset.scene)
         }
-      } else {
-        addComponent(entity, Model, { value: asset });
-        console.log("*** Not appending")
+       else {
+         addObject3DComponent(entity, { obj3d: asset.scene ?? asset, parent: Engine.scene });
+        }
         const transformParent = addComponent<TransformParentComponent>(entity, TransformParentComponent) as TransformParentComponent
-        addObject3DComponent(entity, { obj3d: asset.scene ?? asset, parent: Engine.scene });
-        const object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent) as Object3DComponent
-
-        console.log("Object3d component")
-        console.log(object3DComponent)
-        console.log("Scene asset")
-        console.log(asset.scene)
-        const a = asset.scene ?? asset
-        a.children.forEach(obj => {
-          console.log("*** Creating sub entity and adding children")
-
-          const e = createEntity()
-          addObject3DComponent(e, { obj3d: obj, parent: object3DComponent });
-          const transformChild = addComponent<TransformChildComponent>(e, TransformChildComponent) as TransformChildComponent
-          transformChild.parent = entity
-          transformParent.children.push(e)
-        })
-      }
+      const object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent) as Object3DComponent
+      const a = asset.scene ?? asset
+      a.children.forEach(obj => {
+        const e = createEntity()
+        addObject3DComponent(e, { obj3d: obj, parent: object3DComponent });
+        const transformChild = addComponent<TransformChildComponent>(e, TransformChildComponent) as TransformChildComponent
+        transformChild.parent = entity
+        transformParent.children.push(e)
+      })
       getMutableComponent<AssetLoader>(entity, AssetLoader).loaded = true;
       
       AssetVault.instance.assets.set(hashResourceString(component.url), asset.scene);
@@ -113,11 +102,11 @@ export default class AssetLoadingSystem extends System {
 
     this.queryResults.toUnload.all.forEach((entity: Entity) => {
       console.log("Entity should be unloaded", entity)
-      return
       removeComponent(entity, AssetLoaderState);
+      removeComponent(entity, Unload);
+
       if(hasComponent(entity, Object3DComponent)){
-        console.log("TODO: UNLOAD")
-        // removeObject3DComponent(entity);
+        removeObject3DComponent(entity);
       }
     })
   }
@@ -145,6 +134,6 @@ AssetLoadingSystem.queries = {
     components: [AssetLoader, Not(AssetLoaderState)]
   },
   toUnload: {
-    components: [AssetLoaderState, Not(AssetLoader)]
+    components: [AssetLoaderState, Unload, Not(AssetLoader)]
   }
 };

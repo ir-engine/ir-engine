@@ -54,10 +54,10 @@ export const EnginePage: FunctionComponent = (props: any) => {
     initializeEngine(InitializationOptions);
 
     // Load glb here
-    createPrefab(rigidBodyBox);
+    // createPrefab(rigidBodyBox);
     
     createPrefab(staticWorldColliders);
-    createPrefab(PlayerCharacter);
+    // createPrefab(PlayerCharacter);
     
 
     
@@ -73,23 +73,19 @@ export const EnginePage: FunctionComponent = (props: any) => {
     const {sound} = Engine as any;
     if( sound ){
       const audioMesh = new Mesh(
-        new SphereBufferGeometry( 20, 32, 16 ),
+        new SphereBufferGeometry( 1, 1, 1 ),
         new MeshPhongMaterial({ color: 0xff2200 })
       );
-      addObject3DComponent(createEntity(), { 
+      const entity = createEntity()
+      addObject3DComponent(entity, { 
         obj3d: audioMesh
       });
+const transform = addComponent<TransformComponent>(entity, TransformComponent) as any
+transform.position.set(0,0,0)
       audioMesh.add( sound );
     }
-
-    const DebugOptions = {
-      color: new Color('red'),
-      onInit: (body: Body, mesh: Mesh, shape: Shape) => 	console.log("body: ", body, " | mesh: ", mesh, " | shape: ", shape),
-      onUpdate: (body: Body, mesh: Mesh, shape: Shape) => console.log("body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape)
-      }
-    debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions)
-
-    // console.log("Creating a scene entity to test")
+   
+    //    console.log("Creating a scene entity to test")
     // addComponent(createEntity(), AssetLoader, {
     //   url: "models/library.glb",
     //   receiveShadow: true,

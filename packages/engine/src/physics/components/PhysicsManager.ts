@@ -25,6 +25,7 @@ export class PhysicsManager extends Component<PhysicsManager> {
 
   constructor () {
     super();
+    console.log("Consructing physics manager")
     PhysicsManager.instance = this;
     this.frame = 0;
     this.physicsWorld = new World();
@@ -51,6 +52,7 @@ export class PhysicsManager extends Component<PhysicsManager> {
   dispose():void {
     super.dispose();
 
+    console.log("**** Disposing")
     PhysicsManager.instance.groundMaterial = null
     PhysicsManager.instance.wheelMaterial = null
     PhysicsManager.instance.wheelGroundContactMaterial = null

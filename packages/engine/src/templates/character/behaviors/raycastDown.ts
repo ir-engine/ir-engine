@@ -22,7 +22,7 @@ export const raycastDown: Behavior = (entity: Entity): void => {
 	// BUG: Setting position but this should be handled properly
 	if(isNaN( actor.actorCapsule.body.position.x) || isNaN( actor.actorCapsule.body.position.y)) {
 		console.log("body pose is nan")		
-		// actor.actorCapsule.body.position = cannonFromThreeVector(transform.position)
+		actor.actorCapsule.body.position = cannonFromThreeVector(transform.position)
 	}
 	// Player ray casting
 	// Create ray
@@ -30,7 +30,7 @@ export const raycastDown: Behavior = (entity: Entity): void => {
 	const end = new Vec3(body.position.x, body.position.y - actor.rayCastLength - actor.raySafeOffset, body.position.z);
 	// Raycast options
 	const rayCastOptions = {
-		// collisionFilterMask: CollisionGroups.Default,
+		collisionFilterMask: CollisionGroups.Default,
 		skipBackfaces: true /* ignore back faces */
 	};
 	// Cast the ray

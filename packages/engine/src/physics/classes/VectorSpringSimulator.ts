@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { SimulatorBase } from './SimulatorBase';
-import { SimulationFrameVector } from './SimulationFrameVector';
+import { SimulationFrameVector } from '../classes/SimulationFrameVector';
 import { springV } from "../../templates/character/functions/springV";
 
 export class VectorSpringSimulator extends SimulatorBase
