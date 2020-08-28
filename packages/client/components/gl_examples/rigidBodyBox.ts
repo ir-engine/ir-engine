@@ -1,3 +1,4 @@
+import { attachCamera } from "@xr3ngine/engine/src/camera/behaviors/attachCamera";
 import { BoxBufferGeometry, Mesh } from "three";
 import { myCustomBehavior } from "./mycustomBehavior";
 import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
@@ -23,6 +24,11 @@ export const rigidBodyBox: Prefab = {
         },
         {
             behavior: myCustomBehavior
+        },
+        /*
+        {
+            behavior: attachCamera
         }
+        */
     ]
 };

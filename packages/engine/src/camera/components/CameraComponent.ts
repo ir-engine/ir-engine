@@ -13,6 +13,8 @@ export class CameraComponent extends Component<CameraComponent> {
   far: number // Geometry farther than this gets removed
   layers: number // Bitmask of layers the camera can see, converted to an int
   handleResize: boolean // Should the camera resize if the window does?
+  mode: string // "firstPerson" or "thirdPerson"
+  distance: number // third person distance to target object
   constructor () {
     super();
     CameraComponent.instance = this;
@@ -21,5 +23,7 @@ export class CameraComponent extends Component<CameraComponent> {
 
 CameraComponent.schema = {
   camera: { type: Types.Ref, default: null },
-  followTarget: { type: Types.Ref, default: null }
+  followTarget: { type: Types.Ref, default: null },
+  mode: { type: Types.String, default: '' },
+  distance: { type: Types.Number, default: 0 }
 };
