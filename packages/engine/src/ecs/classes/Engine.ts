@@ -5,7 +5,6 @@ import { WebGLRenderer, Camera, Scene, Clock } from 'three';
 import { EngineOptions } from '../interfaces/EngineOptions';
 import { DefaultOptions } from '../constants/DefaultOptions';
 import { Entity } from './Entity';
-//import Stats from 'stats.js'
 import { CameraOperator } from '../../camera/classes/CameraOperator';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 
@@ -146,33 +145,4 @@ public static framerateLimit = 60;
     static vehicles: any;
     static physicsFrameRate: number;
   static lastTime: number;
-
-  static reset():void {
-    // delete all entities
-    // TODO: force components deletion and systems processing of their deletion?
-    // TODO: cleanup
-    Engine.nextEntityId = 0
-
-    // cleanup/unregister components
-    // TODO: cleanup
-    Engine.nextComponentId = 0
-
-    // cleanup systems
-    Engine.systems.forEach(system => {
-      if (system.dispose) system.dispose()
-    })
-    Engine.systems.length = 0
-    Engine.systemsToExecute.length = 0
-
-    // cleanup events
-    Engine.eventDispatcher.reset()
-
-    // TODO: delete all what is left from scene
-    Engine.scene = null
-
-    Engine.camera = null
-
-    Engine.renderer.dispose()
-    Engine.renderer = null
-  }
 }
