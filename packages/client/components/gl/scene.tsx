@@ -8,7 +8,7 @@ import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebR
 
 import { staticWorldColliders } from '../gl_examples/staticWorldColliders'
 import { rigidBodyBox } from '../gl_examples/rigidBodyBox'
-import { car } from '../gl_examples/Car'
+import { CarController } from '../gl_examples/CarController'
 
 export const EnginePage = (): any => {
   useEffect(() => {
@@ -36,10 +36,10 @@ export const EnginePage = (): any => {
 
     // Load glb here
 
-        createPrefab(PlayerController);
+      //  createPrefab(PlayerController);
         createPrefab(staticWorldColliders);
         createPrefab(rigidBodyBox);
-        //createPrefab(car);
+        createPrefab(CarController);
   },[]);
   return null
 };

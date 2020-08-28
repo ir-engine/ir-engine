@@ -11,23 +11,18 @@ import { Object3DComponent } from '../../common/components/Object3DComponent';
 export class CameraSystem extends System {
   init (): void {
     const cameraEntity = createEntity();
-    addComponent(cameraEntity, CameraComponent, { camera: Engine.camera, followTarget: null });
+    addComponent(cameraEntity, CameraComponent, { camera: Engine.camera, followTarget: null, distance: 5, mode: "thirdPerson" });
     addComponent(cameraEntity, CameraTagComponent)
     addComponent(cameraEntity, Object3DComponent)
     getMutableComponent<Object3DComponent>(cameraEntity, Object3DComponent).value = Engine.camera
     addComponent(cameraEntity, TransformComponent);
-    console.log('test ///////////////////////');
-    console.log(cameraEntity);
-
   }
 
   execute (delta: number): void {
     this.queryResults.entities.all?.forEach(entity => {
       const cam = getComponent(entity, CameraComponent) as CameraComponent;
-       //console.log(cam)
       if (cam.followTarget !== null && cam.followTarget !== undefined) {
-        // console.log("following")
-        followTarget(entity, { distance: 100 }, delta, cam.followTarget);
+        followTarget(entity, {}, delta, cam.followTarget);
       }
     });
 
