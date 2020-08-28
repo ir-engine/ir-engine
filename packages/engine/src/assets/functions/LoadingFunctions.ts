@@ -22,6 +22,8 @@ export function loadAsset (url: AssetUrl, onAssetLoaded: AssetsLoadedHandler): v
       AssetVault.instance.assets.set(url, resource);
       onAssetLoaded(resource);
     });
+  } else {
+    onAssetLoaded(AssetVault.instance.assets.get(url))
   }
 }
 
