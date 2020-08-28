@@ -14,13 +14,16 @@ import { AssetClass } from '@xr3ngine/engine/src/assets/enums/AssetClass';
 import { staticWorldColliders } from './staticWorldColliders'
 import { rigidBodyBox } from './rigidBodyBox'
 import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
-import { AmbientLight } from 'three';
+import { AmbientLight, Color } from 'three';
 import { PositionalAudio, Mesh, SphereBufferGeometry, MeshPhongMaterial  } from 'three';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/network/DefaultNetworkSchema';
 import { resetEngine } from '@xr3ngine/engine/src/ecs/functions/EngineFunctions';
 import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
+import { Body, Shape } from "cannon-es"
+import debug from "cannon-es-debugger"
+import { PhysicsManager } from '@xr3ngine/engine/src/physics/components/PhysicsManager';
 
 export const EnginePage: FunctionComponent = (props: any) => {
 
@@ -78,6 +81,13 @@ export const EnginePage: FunctionComponent = (props: any) => {
       });
       audioMesh.add( sound );
     }
+
+    const DebugOptions = {
+      color: new Color('red'),
+      onInit: (body: Body, mesh: Mesh, shape: Shape) => 	console.log("body: ", body, " | mesh: ", mesh, " | shape: ", shape),
+      onUpdate: (body: Body, mesh: Mesh, shape: Shape) => console.log("body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape)
+      }
+    debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions)
 
     // console.log("Creating a scene entity to test")
     // addComponent(createEntity(), AssetLoader, {
