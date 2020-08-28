@@ -30,7 +30,7 @@ export const DefaultInitializationOptions = {
   audio: {
     enabled: true,
     src: '',
-    volume: 0.5,
+    volume: 0.25,
     autoplay: true,
     loop: true,
     positional: true,
