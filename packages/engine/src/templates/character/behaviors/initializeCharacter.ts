@@ -5,8 +5,8 @@ import { Object3DComponent } from "../../../common/components/Object3DComponent"
 import { Behavior } from "../../../common/interfaces/Behavior";
 import { addComponent, getMutableComponent, hasComponent, getComponent } from "../../../ecs/functions/EntityFunctions";
 import { CapsuleCollider } from "../../../physics/components/CapsuleCollider";
-import { RelativeSpringSimulator } from "../../../physics/components/RelativeSpringSimulator";
-import { VectorSpringSimulator } from "../../../physics/components/VectorSpringSimulator";
+import { RelativeSpringSimulator } from "../../../physics/classes/RelativeSpringSimulator";
+import { VectorSpringSimulator } from "../../../physics/classes/VectorSpringSimulator";
 import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
 import { addState } from "../../../state/behaviors/StateBehaviors";
 import { CharacterComponent } from "../components/CharacterComponent";
@@ -101,7 +101,7 @@ export const initializeCharacter: Behavior = (entity): void => {
 		addState(entity, { state: CharacterStateTypes.IDLE });
 		actor.initialized = true;
 		const DebugOptions = {
-			color: new Color('red'),
+			color: new Color('ff0000'),
 			onInit: (body: Body, mesh: Mesh, shape: Shape) => 	console.log("body: ", body, " | mesh: ", mesh, " | shape: ", shape),
 			onUpdate: (body: Body, mesh: Mesh, shape: Shape) => console.log("body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape)
 		  }
