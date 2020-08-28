@@ -204,7 +204,7 @@ export function resetEngine() {
   }
   Engine.engineTimer?.stop()
 
-  Engine.reset()
+  reset()
 }
 
 export function startTimer () {
