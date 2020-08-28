@@ -18,8 +18,7 @@ let inputComponent: Input;
 let mouseDownPosition;
 let originalRotation;
 let valueX = 0, valueY = 0
-const maxAngleX = 35.0472
-const maxAngleY = 35.0472
+
 
 
 export const rotateAround: Behavior = (
@@ -27,7 +26,7 @@ export const rotateAround: Behavior = (
   args: { input: InputAlias, inputType: InputType, value: NumericalType },
   delta: number
 ): void => {
-
+/*
   inputComponent = getComponent(entity, Input);
   actor = getComponent(entity, CharacterComponent) as CharacterComponent;
   transform = getMutableComponent(entity, TransformComponent);
@@ -49,6 +48,7 @@ export const rotateAround: Behavior = (
       inputValue = inputComponent.data.get(args.input).value as Vector2Type;
       startValue = mouseDownPosition.value as Vector2Type;
     }
+
   } else if (args.inputType === InputType.THREED) {
     inputValue = inputComponent.data.get(args.input).value as Vector3Type;
 
@@ -65,6 +65,6 @@ export const rotateAround: Behavior = (
   } else {
     console.error('Rotation is only available for 2D and 3D inputs');
   }
-
-  transform.rotation.set(q[0], q[1], q[2], q[3]);
+*/
+//  transform.rotation = [q[0], q[1], q[2], q[3]];
 };

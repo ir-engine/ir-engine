@@ -26,14 +26,27 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
       PhysicsManager.instance.physicsWorld.addBody(wheelBodies[i]);
     }
   } else if (args.phase == 'onUpdate') {
+
+
+
     const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
     const object = getComponent<Object3DComponent>(entity, Object3DComponent).value;
-    const vehicle = object.userData.vehicle.chassisBody;
 
-    transform.position = vehicle.position;
-    // transform.position.y += 0.6
-    quaternion.set(vehicle.quaternion.x, vehicle.quaternion.y, vehicle.quaternion.z, vehicle.quaternion.w);
-    transform.rotation = vehicle.quaternion.toArray();
+    if(object.userData){
+      const vehicle = object.userData.vehicle.chassisBody;
+
+      transform.position[0] = vehicle.position.x;
+      transform.position[1] = vehicle.position.y;
+      transform.position[2] = vehicle.position.z;
+      // transform.position.y += 0.6
+
+      transform.rotation[0] = vehicle.quaternion.x
+      transform.rotation[1] = vehicle.quaternion.y
+      transform.rotation[2] = vehicle.quaternion.z
+      transform.rotation[3] = vehicle.quaternion.w
+    }
+
+
   } else if (args.phase == 'onRemoved') {
     const object = getComponent<Object3DComponent>(entity, Object3DComponent).value;
     const body = object.userData.vehicle;
@@ -48,12 +61,14 @@ export function createVehicleBody (entity: Entity, mesh: any): [RaycastVehicle, 
   if (mesh) {
     chassisBody = createConvexGeometry(entity, mesh);
   } else {
-    const chassisShape = new Box(new Vec3(1, 1.2, 2.8));
+    const chassisShape = new Box(new Vec3(1, 1.2, 3));
     chassisBody = new Body({ mass: 150 });
     chassisBody.addShape(chassisShape);
   }
   //  let
-  chassisBody.position.copy(transform.position);
+  chassisBody.position.x = transform.position[0]
+  chassisBody.position.y = transform.position[1]
+  chassisBody.position.z = transform.position[2]
   //  chassisBody.angularVelocity.set(0, 0, 0.5);
   const options = {
     radius: 0.5,
