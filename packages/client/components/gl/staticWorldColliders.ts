@@ -5,10 +5,12 @@ import { addMeshCollider } from "@xr3ngine/engine/src/physics/behaviors/addMeshC
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { addCollider } from "@xr3ngine/engine/src/physics/behaviors/ColliderBehavior";
 
-const floor = new BoxBufferGeometry(10,0.1,10);
+const floor = new BoxBufferGeometry(20,0.1,20);
 
 export const staticWorldColliders: Prefab = {
-    components: [],
+    components: [
+      { type: TransformComponent,  data: { position: [0,0,0]} }
+    ],
     onCreate: [
         // add a 3d object
         {
@@ -19,10 +21,10 @@ export const staticWorldColliders: Prefab = {
             }
         },
         {
-            behavior: addMeshCollider
-        },
-        {
-            behavior: addCollider
+            behavior: addMeshCollider,
+            args: {
+               type: 'box', scale: [20, 0.1, 20], mass: 0
+            }
         }
     ]
 };

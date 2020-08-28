@@ -28,6 +28,9 @@ import { PhysicsManager } from '@xr3ngine/engine/src/physics/components/PhysicsM
 export const EnginePage: FunctionComponent = (props: any) => {
 
   const [enabled, setEnabled] = useState(false)
+import { staticWorldColliders } from '../gl_examples/staticWorldColliders'
+import { rigidBodyBox } from '../gl_examples/rigidBodyBox'
+import { CarController } from '../gl_examples/CarController'
 
   useEffect(() => {
     console.log('initializeEngine!');
@@ -56,8 +59,10 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // Load glb here
     // createPrefab(rigidBodyBox);
     
-    createPrefab(staticWorldColliders);
-    // createPrefab(PlayerCharacter);
+      //  createPrefab(PlayerController);
+      createPrefab(staticWorldColliders);
+      createPrefab(rigidBodyBox);
+      createPrefab(CarController);
     
 
     
