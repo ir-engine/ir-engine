@@ -1,21 +1,30 @@
-import { initializeEngine, resetEngine } from "../../src/initialize";
+import { initializeEngine } from "../../src/initialize";
 import { Engine } from "../../src/ecs/classes/Engine";
-import { DefaultInputSchema } from "../../src/input/defaults/DefaultInputSchema";
-import { DefaultNetworkSchema } from "../../src/networking/defaults/DefaultNetworkSchema";
 import { addComponent, createEntity } from "../../src/ecs/functions/EntityFunctions";
 import { Component } from "../../src/ecs/classes/Component";
 import { Entity } from "../../src/ecs/classes/Entity";
-import { execute } from "../../src/ecs/functions/EngineFunctions";
-import { DefaultStateSchema } from "../../src/state/defaults/DefaultStateSchema";
-import { DefaultSubscriptionSchema } from "../../src/subscription/defaults/DefaultSubscriptionSchema";
+import { execute, resetEngine } from "../../src/ecs/functions/EngineFunctions";
+import { CharacterInputSchema } from "../../src/templates/character/CharacterInputSchema";
+import { DefaultNetworkSchema } from "../../src/templates/network/DefaultNetworkSchema";
+import { CharacterStateSchema } from "../../src/templates/character/CharacterStateSchema";
+import { CharacterSubscriptionSchema } from "../../src/templates/character/CharacterSubscriptionSchema";
 
 const options = {
   debug: true,
   withTransform: true,
   withWebXRInput: false,
+  audio: {
+    enabled: false,
+    src: '',
+    volume: 0.5,
+    autoplay: true,
+    loop: true,
+    positional: true,
+    refDistance: 20,
+  },
   input: {
     enabled: true,
-    schema: DefaultInputSchema
+    schema: CharacterInputSchema
   },
   assets: {
     enabled: true
@@ -27,11 +36,11 @@ const options = {
   },
   state: {
     enabled: true,
-    schema: DefaultStateSchema
+    schema: CharacterStateSchema
   },
   subscriptions: {
     enabled: true,
-    schema: DefaultSubscriptionSchema
+    schema: CharacterSubscriptionSchema
   },
   physics: {
     enabled: false
