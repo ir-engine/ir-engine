@@ -69,14 +69,7 @@ export function reset(): void {
 
   // delete all what is left on scene
   if (Engine.scene) {
-    Engine.scene.dispose()
-    Engine.scene.traverse((child: any) => {
-      if (typeof child.dispose === 'function') {
-        // TODO: check if we need to add materials, textures, geometries detections and dispose() call?
-        child.dispose()
-        child.remove()
-      }
-    })
+    // TODO: check if we need to add materials, textures, geometries detections and dispose() call?
     Engine.scene = null
   }
 
