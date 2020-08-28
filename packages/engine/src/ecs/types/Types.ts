@@ -1,3 +1,5 @@
+import { ComponentSchema } from "../interfaces/ComponentInterfaces"
+
 export type TypeCopyFunction<T> = (src: T, dest: T) => T
 export type TypeCloneFunction<T> = (value: T) => T
 
@@ -133,3 +135,22 @@ export const Types = {
     clone: cloneClonable
   })
 };
+
+export const fromEntries = (Object as any).fromEntries || ( iterable =>
+  [...iterable].reduce((obj, [key, val]) => {
+    obj[key] = val
+    return obj
+  }, {})
+)
+
+const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1)
+
+export function types(
+  defaults:object = {value: {type: Types.Ref}}
+): ComponentSchema {
+  return fromEntries(
+      Object.entries(defaults).map( (name, value) => 
+          [name, {type: Types[capitalize(typeof value)] || Types.Ref, default: value}]
+      )
+  )
+}
