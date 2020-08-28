@@ -63,13 +63,17 @@ export const EnginePage: FunctionComponent = (props: any) => {
     const {sound} = Engine as any;
     if( sound ){
       const audioMesh = new Mesh(
-        new SphereBufferGeometry( 20, 32, 16 ),
+        new SphereBufferGeometry( 0.3 ),
         new MeshPhongMaterial({ color: 0xff2200 })
       );
-      addObject3DComponent(createEntity(), { 
+      const audioEntity = createEntity();
+      addObject3DComponent(audioEntity, { 
         obj3d: audioMesh
       });
       audioMesh.add( sound );
+      // const audioComponent = addComponent(audioEntity, 
+      //   class extends Component {static scema = {}}
+      // )
     }
 
     // console.log("Creating a scene entity to test")
@@ -93,8 +97,12 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   useEffect(() => {
     const f = event => {
+      const P_PLAY_PAUSE = 112;
       if (event.keyCode === 27)
         toggleEnabled();
+      else if(event.keyCode == P_PLAY_PAUSE){
+        
+      }
     }
     document.addEventListener("keydown", f);
     return () => {
