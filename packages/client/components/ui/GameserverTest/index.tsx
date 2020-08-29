@@ -11,6 +11,7 @@ import {
   connectToInstanceServer
 } from '../../../redux/instanceConnection/service';
 import { useEffect } from 'react';
+import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
 
 const locationId = 'e3523270-ddb7-11ea-9251-75ab611a30da';
 interface Props {
@@ -37,6 +38,7 @@ const GameserverTest = (props: Props) => {
     provisionInstanceServer
   } = props;
   const gsProvision = async () => {
+    await MediaStreamSystem.instance.startCamera();
     await provisionInstanceServer(locationId);
   };
   useEffect(() => {

@@ -1,20 +1,22 @@
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
+import { observable } from 'mobx'
 
 export class MediaStreamComponent extends Component<any> {
-  static instance: MediaStreamComponent = null
-  public videoPaused = false
-  public audioPaused = false
-  public mediaStream: MediaStream
+  @observable static instance: MediaStreamComponent = null
+  @observable public videoPaused = false
+  @observable public audioPaused = false
+  @observable public mediaStream: MediaStream
 
-  localScreen
-  camVideoProducer
-  camAudioProducer
-  screenVideoProducer
-  screenAudioProducer
-  consumers: any[] = []
-  screenShareVideoPaused = false
-  screenShareAudioPaused = false
+  @observable localScreen
+  @observable camVideoProducer
+  @observable camAudioProducer
+  @observable screenVideoProducer
+  @observable screenAudioProducer
+  @observable consumers = []
+  @observable screenShareVideoPaused = false
+  @observable screenShareAudioPaused = false
+  @observable initialized = false
   constructor () {
     super();
     MediaStreamComponent.instance = this;

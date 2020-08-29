@@ -4,53 +4,42 @@ import PartyParticipantWindow from '../PartyParticipantWindow';
 import { Grid } from '@material-ui/core';
 import { MediaStreamComponent } from '@xr3ngine/engine/src/networking/components/MediaStreamComponent';
 import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
+import { observer } from 'mobx-react';
 
-function Me (): JSX.Element {
-    const [camVideoStream, setCamVideoStream] = useState(null)
-    const [camAudioStream, setCamAudioStream] = useState(null)
-    const [screenVideoStream, setScreenVideoStream] = useState(null)
-    const [screenAudioStream, setScreenAudioStream] = useState(null)
+const Me = observer(() => {
+    // Listening on MediaStreamComponent.instance doesn't appear to register for some reason, but listening
+    // to an observable property of it does.
+
     useEffect(() => {
-        console.log('Me component useeffect')
-        console.log(MediaStreamComponent.instance)
-        if (MediaStreamComponent.instance.camVideoProducer != undefined) {
-            setCamVideoStream(MediaStreamComponent.instance.camVideoProducer)
-        }
-        if (MediaStreamComponent.instance.camAudioProducer != undefined) {
-            setCamAudioStream(MediaStreamComponent.instance.camAudioProducer)
-        }
-        if (MediaStreamComponent.instance.screenVideoProducer != undefined) {
-            setScreenVideoStream(MediaStreamComponent.instance.screenVideoProducer)
-        }
-        if (MediaStreamComponent.instance.screenAudioProducer != undefined) {
-            setScreenAudioStream(MediaStreamComponent.instance.screenAudioProducer)
-        }
-    }, [MediaStreamComponent.instance?.camVideoProducer])
+        console.log('camVideoProducer changed');
+        console.log(MediaStreamComponent.instance);
+    }, [MediaStreamComponent.instance?.camVideoProducer]);
   return (
     <Grid className="windowContainer" container>
-        { (camVideoStream != null || camAudioStream != null) && <PartyParticipantWindow
+        {
+            (MediaStreamComponent.instance?.camVideoProducer || MediaStreamComponent.instance?.camAudioProducer) && <PartyParticipantWindow
             containerProportions={{
-              height: 145,
-              width: 223
+              height: 135,
+              width: 240
             }}
-            videoStream={camVideoStream}
-            audioStream={camAudioStream}
+            videoStream={MediaStreamComponent.instance.camVideoProducer}
+            audioStream={MediaStreamComponent.instance.camAudioProducer}
             peerId={'me_cam'}
             />
         }
         {
-            (screenVideoStream != null || screenAudioStream != null) && <PartyParticipantWindow
+            (MediaStreamComponent.instance?.screenVideoProducer || MediaStreamComponent.instance?.screenAudioProducer) && <PartyParticipantWindow
                 containerProportions={{
                     height: 135,
                     width: 240
                 }}
-                videoStream={screenVideoStream}
-                audioStream={screenAudioStream}
+                videoStream={MediaStreamComponent.instance.screenVideoProducer}
+                audioStream={MediaStreamComponent.instance.screenAudioProducer}
                 peerId={'me_screen'}
             />
         }
     </Grid>
   );
-}
+});
 
 export default Me;

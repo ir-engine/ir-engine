@@ -14,7 +14,6 @@ export class MediaStreamSystem extends System {
     addComponent(entity, MediaStreamComponent);
     const mediaStreamComponent = getMutableComponent<MediaStreamComponent>(entity, MediaStreamComponent);
     MediaStreamComponent.instance = mediaStreamComponent;
-    this.startCamera()
   }
 
   constructor () {
@@ -203,14 +202,22 @@ export class MediaStreamSystem extends System {
   }
 
   public async getMediaStream (): Promise<boolean> {
-    MediaStreamComponent.instance.mediaStream = await navigator.mediaDevices.getUserMedia(localMediaConstraints);
-    if (MediaStreamComponent.instance.mediaStream.active) {
-      MediaStreamComponent.instance.audioPaused = false;
-      MediaStreamComponent.instance.videoPaused = false;
-      return true;
+    try {
+      console.log('Getting media stream')
+      console.log(localMediaConstraints)
+      MediaStreamComponent.instance.mediaStream = await navigator.mediaDevices.getUserMedia(localMediaConstraints);
+      console.log(MediaStreamComponent.instance.mediaStream)
+      if (MediaStreamComponent.instance.mediaStream.active) {
+        MediaStreamComponent.instance.audioPaused = false;
+        MediaStreamComponent.instance.videoPaused = false;
+        return true;
+      }
+      MediaStreamComponent.instance.audioPaused = true;
+      MediaStreamComponent.instance.videoPaused = true;
+      return false;
+    } catch(err) {
+      console.log('failed to get media stream')
+      console.log(err)
     }
-    MediaStreamComponent.instance.audioPaused = true;
-    MediaStreamComponent.instance.videoPaused = true;
-    return false;
   }
 }
