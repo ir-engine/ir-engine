@@ -53,6 +53,7 @@
     "gl-matrix": "^3.3.0",
     "jest": "^26.4.0",
     "jest-runner-tsc": "^1.6.0",
+    "mobx": "^5.15.6",
     "pre-commit": "^1.2.2",
     "prettier": "^1.19.1",
     "prettier-eslint": "^11.0.0",

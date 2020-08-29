@@ -15,7 +15,8 @@
     "typeRoots": ["../packages/common/types", "packages/common/types", "./node_modules/@types"],
     "sourceMap": true,
     "jsx": "preserve",
-    "outDir": "./lib"
+    "outDir": "./lib",
+    "experimentalDecorators": true
   },
   "exclude": [
     "node_modules"

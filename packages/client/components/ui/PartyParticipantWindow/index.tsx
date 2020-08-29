@@ -1,5 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './style.scss';
+import './style.scss';import { observer } from 'mobx-react';
+
 
 interface ContainerProportions {
   width: number | string;
@@ -10,67 +12,78 @@ interface Props {
   containerProportions?: ContainerProportions;
   videoStream?: any;
   audioStream?: any;
-  peerId?: string
+  peerId?: string;
 }
 
-function PartyParticipantWindow (props: Props): JSX.Element {
+const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const {
         audioStream,
         peerId,
         videoStream
     } = props;
+    const [audioState, setAudioState] = useState(null);
+    const [audioCanPlay, setAudioCanPlay] = useState(false);
+    const [audioPaused, setAudioPaused] = useState(true);
+    const [videoState, setVideoState] = useState(null);
+    const [videoCanPlay, setVideoCanPlay] = useState(false);
+    const [videoPaused, setVideoPaused] = useState(true);
   // Video and audio elements' ref
-    let videoEl = React.createRef<HTMLVideoElement>();
-    let audioEl = React.createRef<HTMLAudioElement>();
+  //   const videoEl = React.createRef<HTMLVideoElement>();
+  //   const audioEl = React.createRef<HTMLAudioElement>();
+    const videoEl = document.createElement('video');
+    const audioEl = document.createElement('audio');
 
     useEffect(() => {
-        videoEl.current.id = `${peerId}_video`;
-        videoEl.current.autoplay = true;
-        videoEl.current.setAttribute('playsinline', 'true');
-        videoEl.current.setAttribute('controls', 'false')
+        videoEl.id = `${peerId}_video`;
+        audioEl.id = `${peerId}_audio`;
+
+        console.log('videoState:');
+        console.log(videoState);
+        console.log('audioState:');
+        console.log(audioState);
+
+        videoEl.setAttribute('autoplay', 'true');
+        videoEl.setAttribute('playsinline', 'true');
+        console.log('Checking to see if we should assign and start video stream');
+        console.log(`videoState is null?: ${videoState == null}`);
+        console.log('videoStream:');
+        console.log(videoStream);
         if (videoStream) {
-            videoEl.current.srcObject = new MediaStream([videoStream.track.clone()]);
-            (videoEl as any).current.mediaStream = videoStream;
-            videoEl.current.play().catch((err) => {
-                console.log('Video play error')
-                console.log(err)
-            })
+            videoEl.srcObject = new MediaStream([videoStream.track.clone()]);
+            // videoEl.mediaStream = videoStream;
+            setVideoState(videoEl);
+            console.log('Playing video');
+            // console.log((videoEl as any).current.mediaStream);
+            console.log(videoEl.srcObject);
+            document.getElementById(props.peerId + '_container').appendChild(videoEl);
+            // videoEl.current.play().catch((err) => {
+            //     console.log('Video play error');
+            //     console.log(err);
+            // });
         }
 
-        audioEl.current.id = `${peerId}_audio`;
-        audioEl.current.setAttribute('playsinline', 'true');
-        audioEl.current.setAttribute('autoplay', 'true');
-        audioEl.current.setAttribute('controls', 'false')
-        audioEl.current.setAttribute('muted', 'false')
+        audioEl.setAttribute('playsinline', 'true');
+        audioEl.setAttribute('autoplay', 'true');
+        audioEl.setAttribute('muted', 'false');
         if (audioStream) {
-            audioEl.current.srcObject = new MediaStream([audioStream.track.clone()]);
-            (audioEl as any).current.mediaStream = audioStream;
-            audioEl.current.play().catch((err) => {
-                console.log('Audio play error')
-                console.log(err)
-            })
+            audioEl.srcObject = new MediaStream([audioStream.track.clone()]);
+            // audioEl.mediaStream = audioStream;
+            setAudioState(audioEl);
+            document.getElementById(props.peerId + '_container').appendChild(audioEl);
+            // audioEl.current.play().catch((err) => {
+            //     console.log('Audio play error');
+            //     console.log(err);
+            // });
         }
-        audioEl.current.volume = 0;
-    })
+        audioEl.volume = 0;
+    }, []);
   // Add mediasoup integration logic here to feed single peer's stream to these video/audio elements
   return (
-    <div className="videoContainer" style={props.containerProportions || {}}>
-        <video
-            ref={videoEl}
-            autoPlay
-            playsInline
-            muted
-            controls={false}
-        />
-        <audio
-            ref={audioEl}
-            autoPlay
-            playsInline
-            muted={true}
-            controls={false}
-        />
+    <div className="videoContainer" id={props.peerId + '_container'} style={props.containerProportions || {}}>
+        {/*{ videoStream && videoEl }*/}
+        {/*{ audioStream && audioEl }*/}
     </div>
   );
-}
+});
 
 export default PartyParticipantWindow;
