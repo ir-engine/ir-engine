@@ -7,12 +7,12 @@ import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebR
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
 import { createEntity, addComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { AssetLoader } from "@xr3ngine/engine/src/assets/components/AssetLoader"
+import { AssetLoader } from "@xr3ngine/engine/src/assets/components/AssetLoader";
 import { AssetType } from '@xr3ngine/engine/src/assets/enums/AssetType';
 import { AssetClass } from '@xr3ngine/engine/src/assets/enums/AssetClass';
 
-import { staticWorldColliders } from './staticWorldColliders'
-import { rigidBodyBox } from './rigidBodyBox'
+import { staticWorldColliders } from './staticWorldColliders';
+import { rigidBodyBox } from './rigidBodyBox';
 import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
 import { AmbientLight } from 'three';
 import { PositionalAudio, Mesh, SphereBufferGeometry, MeshPhongMaterial  } from 'three';
@@ -24,7 +24,7 @@ import { TransformComponent } from '@xr3ngine/engine/src/transform/components/Tr
 
 export const EnginePage: FunctionComponent = (props: any) => {
 
-  const [enabled, setEnabled] = useState(false)
+  const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
     console.log('initializeEngine!');
@@ -32,7 +32,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     const networkSchema: NetworkSchema = {
       ...DefaultNetworkSchema,
       transport: SocketWebRTCClientTransport
-    }
+    };
 
     const InitializationOptions = {
       ...DefaultInitializationOptions,
@@ -60,11 +60,11 @@ export const EnginePage: FunctionComponent = (props: any) => {
     
     addObject3DComponent(createEntity(), { obj3d: AmbientLight, ob3dArgs: {
       intensity: 2.0
-    }})
+    }});
     
-    const cameraTransform = getMutableComponent<TransformComponent>(CameraComponent.instance.entity, TransformComponent)
+    const cameraTransform = getMutableComponent<TransformComponent>(CameraComponent.instance.entity, TransformComponent);
 
-    cameraTransform.position.set(0, 1.2, 5)
+    cameraTransform.position.set(0, 1.2, 5);
 
 
     const {sound} = Engine as any;
@@ -93,16 +93,16 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
     return () => {
       // cleanup
-      console.log('cleanup?!')
-      resetEngine()
-    }
-  }, [])
+      console.log('cleanup?!');
+      resetEngine();
+    };
+  }, []);
 
   useEffect(() => {
     const f = event => {
       if (event.keyCode === 27)
         toggleEnabled();
-    }
+    };
     document.addEventListener("keydown", f);
     return () => {
       document.removeEventListener("keydown", f);
@@ -110,13 +110,13 @@ export const EnginePage: FunctionComponent = (props: any) => {
   });
 
   const toggleEnabled = () => {
-    console.log("enabled ", enabled)
+    console.log("enabled ", enabled);
     if (enabled === true) {
-      setEnabled(false)
+      setEnabled(false);
     } else {
-      setEnabled(true)
+      setEnabled(true);
     }
-  }
+  };
 
   return (
     enabled && (
@@ -132,7 +132,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
         msg='Interactive terminal. Please consult the manual for commands.'
       />
     )
-  )
+  );
 };
 
 export default EnginePage;

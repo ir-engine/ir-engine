@@ -12,9 +12,9 @@ async function init (projectId: string): Promise<any> { // auth: any,
   createEntity();
 
   let service, serviceId;
-  console.log("list for project service")
+  console.log("list for project service");
   const r = await client.service('project').find();
-  console.log(r)
+  console.log(r);
 
   const projectResult = await client.service('project').get(projectId);
   const projectUrl = projectResult.project_url;
@@ -52,7 +52,7 @@ const EditorRoomPage: React.FC = () => {
   if (!projectId) {
     <Layout pageTitle="Home">
       <div/>
-    </Layout>
+    </Layout>;
       }
   return (
     <Layout pageTitle="Home">

@@ -4,6 +4,6 @@ import { ColliderComponent } from "@xr3ngine/engine/src/physics/components/Colli
 import { RigidBody } from "@xr3ngine/engine/src/physics/components/RigidBody";
 
 export const myCustomBehavior = (entity: Entity) => {
-  addComponent(entity, ColliderComponent, { type: 'box', scale: [3, 3, 3], mass: 10 })
-  addComponent(entity, RigidBody)
+  addComponent(entity, ColliderComponent, { type: 'box', scale: [3, 3, 3], mass: 10 });
+  addComponent(entity, RigidBody);
 };

@@ -14,7 +14,7 @@ import { UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine
 
 const Device = mediasoupClient.Device;
 
-const DEFAULT_DATA_CHANNEl = 'default'
+const DEFAULT_DATA_CHANNEl = 'default';
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
   mediasoupDevice: mediasoupClient.Device
@@ -66,18 +66,18 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (!this.dataProducers.get(channel)) {
       return Promise.reject(new Error("Channel producer doesn't exist"));
     }
-    const dataProducerId = this.dataProducers.get(channel).id
+    const dataProducerId = this.dataProducers.get(channel).id;
     if (this.dataConsumers.get(dataProducerId)) {
       return Promise.reject(new Error("Already subscribed to Data channel i.e. Data consumer already exists!"));
     }
     try {
-      console.log('Requesting data consumer from server')
+      console.log('Requesting data consumer from server');
       const {
         dataConsumerOptions,
         error,
       }: {
-        error: any
-        dataConsumerOptions: DataConsumerOptions
+        error: any;
+        dataConsumerOptions: DataConsumerOptions;
       } = await this.request(MessageTypes.WebRTCConsumeData.toString(), {
         consumerOptions: {
           dataProducerId,
@@ -86,36 +86,36 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           ordered: false,
         } as MediaSoupServerTypes.DataConsumerOptions,
         transportId: this.recvTransport.id,
-      })
+      });
       if (error) {
-        throw error
+        throw error;
       }
-      console.log('Receiving options for data consumer from server')
-      console.log('subscribing to consumer for data channel:', channel)
+      console.log('Receiving options for data consumer from server');
+      console.log('subscribing to consumer for data channel:', channel);
       const dataConsumer = await this.recvTransport.consumeData({
         ...dataConsumerOptions,
         dataProducerId,
         label: channel,
         protocol: params.type || 'json', // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
-      })
+      });
       dataConsumer.on('transportclose', () => {
-        this.dataConsumers.delete(dataProducerId)
-        dataConsumer.close()
-      })
+        this.dataConsumers.delete(dataProducerId);
+        dataConsumer.close();
+      });
       dataConsumer.on('producerclose', () => {
-        this.dataConsumers.delete(dataProducerId)
-        dataConsumer.close()
-      })
-      this.dataConsumers.set(dataProducerId, dataConsumer)
+        this.dataConsumers.delete(dataProducerId);
+        dataConsumer.close();
+      });
+      this.dataConsumers.set(dataProducerId, dataConsumer);
       dataConsumer.on(
         'message',
         this.handleConsumerMessage(dataConsumer, channel, callback)
-      )
-      console.log('subscribed to consumer for data channel')
-      return Promise.resolve(dataConsumer)
+      );
+      console.log('subscribed to consumer for data channel');
+      return Promise.resolve(dataConsumer);
     } catch (e) {
-      console.log('consumer subscription failed! err:', e)
-      return Promise.reject(e)
+      console.log('consumer subscription failed! err:', e);
+      return Promise.reject(e);
     }
   }
 
@@ -124,8 +124,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   // creates data producer on client
   async initDataChannel(channel: string, type: UnreliableMessageType = 'json', customInitInfo: any = {}): Promise<DataProducer | Error> {
     try {
-      if (!this.sendTransport) throw new Error('Send Transport not initialized')
-      else if (this.dataProducers.get(channel)) return Promise.reject(new Error('Data channel already exists!'))
+      if (!this.sendTransport) throw new Error('Send Transport not initialized');
+      else if (this.dataProducers.get(channel)) return Promise.reject(new Error('Data channel already exists!'));
       const dataProducer = await this.sendTransport.produceData({
         appData: { data: customInitInfo }, // Probably Add additional info to send to server
         ordered: false,
@@ -141,22 +141,22 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
       dataProducer.on("transportclose", () => {
         this.dataProducers.delete(channel);
-        dataProducer.close()
+        dataProducer.close();
       });
       this.dataProducers.set(channel, dataProducer);
-      return Promise.resolve(dataProducer)
+      return Promise.resolve(dataProducer);
     } catch (e) {
-      return Promise.reject(e)
+      return Promise.reject(e);
     }
   }
 
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
   async sendUnreliableMessage(data: any, channel: string = DEFAULT_DATA_CHANNEl): Promise<UnreliableMessageReturn> {
     try {
-      const dataProducer: DataProducer | undefined = this.dataProducers.get(channel)
-      if (!dataProducer) throw new Error('Data Channel not initialized on client, Data Producer doesn\'t exist!')
+      const dataProducer: DataProducer | undefined = this.dataProducers.get(channel);
+      if (!dataProducer) throw new Error('Data Channel not initialized on client, Data Producer doesn\'t exist!');
       console.log("Sending data on data channel: ", channel);
-      dataProducer.send(JSON.stringify({ data }))
+      dataProducer.send(JSON.stringify({ data }));
       return Promise.resolve(dataProducer);
     } catch (e) {
       return Promise.reject(e);
@@ -203,18 +203,18 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         initializeClient(_id, _ids);
         await this.joinWorld();
         // Ping request for testing unreliable messaging may remove if not needed
-        console.log('About to init receive and send transports')
+        console.log('About to init receive and send transports');
         
         await Promise.all([
           this.initSendTransport(),
           this.initReceiveTransport(),
-        ])
-        await this.initDataChannel(DEFAULT_DATA_CHANNEl) // TODO: Init Data channels needed for the app, right now only inits 'default' channel
+        ]);
+        await this.initDataChannel(DEFAULT_DATA_CHANNEl); // TODO: Init Data channels needed for the app, right now only inits 'default' channel
 
         console.log("About to send camera streams");
         await this.sendCameraStreams();
         console.log("about to init sockets");
-        this.startScreenshare()
+        this.startScreenshare();
       });
 
       this.socket.on(MessageTypes.ClientConnected.toString(), (_id: any) => addClient(_id));
@@ -224,8 +224,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       //   NetworkComponent.instance.incomingReliableQueue.add(message)
       // })
 
-      console.log('Emitting initialization message')
-      console.log(MessageTypes.Initialization.toString())
+      console.log('Emitting initialization message');
+      console.log(MessageTypes.Initialization.toString());
       this.socket.emit(MessageTypes.Initialization.toString());
       // ;(window as any)._client = this
     });
@@ -255,7 +255,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   // Init receive transport, create one if it doesn't exist else just resolve promise
   async initReceiveTransport(): Promise<MediaSoupTransport | Error> {
     if (!this.recvTransport) {
-      console.log('Creating receive transport')
+      console.log('Creating receive transport');
       try {
           this.recvTransport = await this.createTransport("recv");
           return Promise.resolve(this.recvTransport);
@@ -271,7 +271,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   // Init send transport, create one if it doesn't exist else just resolve promise
   async initSendTransport(): Promise<MediaSoupTransport | Error> {
     if (!this.sendTransport) {
-      console.log('Creating send transport')
+      console.log('Creating send transport');
       try {
         this.sendTransport = await this.createTransport("send");
         return Promise.resolve(this.sendTransport);
@@ -451,15 +451,15 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       mediaPeerId: peerId,
       rtpCapabilities: this.mediasoupDevice.rtpCapabilities
     });
-    console.log('consumerParameters:')
-    console.log(consumerParameters)
+    console.log('consumerParameters:');
+    console.log(consumerParameters);
     consumer = await this.recvTransport.consume({
       ...consumerParameters,
       appData: { peerId, mediaTag }
     });
-    console.log('consumer:')
-    console.log(consumer)
-    console.log(this.recvTransport)
+    console.log('consumer:');
+    console.log(consumer);
+    console.log(this.recvTransport);
 
     // the server-side consumer will be started in paused state. wait
     // until we're connected, then send a resume request to the server
@@ -473,7 +473,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     MediaStreamComponent.instance.consumers.push(consumer);
 
     // ui
-    console.log('Calling addVideoAudio')
+    console.log('Calling addVideoAudio');
     await MediaStreamSystem.instance.addVideoAudio(consumer, peerId);
   }
 
@@ -598,8 +598,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
             errback();
             return;
           }
-          console.log(`Producer set up with id ${id}`)
-          console.log(MediaStreamComponent.instance)
+          console.log(`Producer set up with id ${id}`);
+          console.log(MediaStreamComponent.instance);
           callback({ id });
         }
       );
@@ -650,8 +650,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (this.request === undefined) return;
     const { peers } = await this.request(MessageTypes.Synchronization.toString());
 
-    console.log(`mySocketId: ${NetworkComponent.instance.mySocketID}`)
-    console.log(peers)
+    console.log(`mySocketId: ${NetworkComponent.instance.mySocketID}`);
+    console.log(peers);
     if (peers[NetworkComponent.instance.mySocketID] === undefined) console.log("Server doesn't think you're connected!");
 
     // decide if we need to update tracks list and video/audio
@@ -670,9 +670,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           for (const [mediaTag, _] of Object.entries(peers[id].media)) {
             // for each of the peer's producers...
             console.log(id + " | " + mediaTag);
-            console.log(MediaStreamComponent.instance.consumers)
-            console.log('Find in consumers')
-            console.log(MediaStreamComponent.instance.consumers?.find(c => c?.appData?.peerId === id && c?.appData?.mediaTag === mediaTag) !== null)
+            console.log(MediaStreamComponent.instance.consumers);
+            console.log('Find in consumers');
+            console.log(MediaStreamComponent.instance.consumers?.find(c => c?.appData?.peerId === id && c?.appData?.mediaTag === mediaTag) !== null);
             if (
               MediaStreamComponent.instance.consumers?.find(
                 c => c?.appData?.peerId === id && c?.appData?.mediaTag === mediaTag

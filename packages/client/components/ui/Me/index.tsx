@@ -6,8 +6,8 @@ import { MediaStreamComponent } from '@xr3ngine/engine/src/networking/components
 import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
 
 function Me (): JSX.Element {
-    let localVideoTrack
-  console.log(MediaStreamComponent.instance)
+    let localVideoTrack;
+  console.log(MediaStreamComponent.instance);
     // useEffect(() => {
     //     console.log('Me component useeffect')
     //     if (MediaStreamComponent.instance.localStream != undefined) {

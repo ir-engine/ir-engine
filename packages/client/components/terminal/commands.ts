@@ -19,7 +19,7 @@ export const commands = {
             };
             print(eval(args._[0].toString().replace("console.log(", "console.logEval(")));
             } catch (error) {
-          print("Failed to evaluate code")
+          print("Failed to evaluate code");
             }
         },
         options: [
@@ -33,73 +33,73 @@ export const commands = {
       // Query the ECS engine for current stats
       ecs: {
         method: (args, print, runCommand) => {
-            console.log(args._[0])
+            console.log(args._[0]);
             // TODO: Add filter flag
-            let val = ""
+            let val = "";
             switch(args._[0]){
                 case 'entities':
                     // User passed a number, which should align with an entity ID -- show breakdown of data on entity
                     if(!isNaN(args._[1])){
-                        let cstring = ""
+                        let cstring = "";
                         Object.values(Engine.entities[args._[1]].components).forEach((c: any) => {
-                            cstring += '\n'
+                            cstring += '\n';
                             Object.keys(c).forEach((p: any) => {
-                                cstring += '\n'
+                                cstring += '\n';
                                 // TODO: If is object or array, drill down into values
-                                cstring += p.toString() + ": " + c[p].toString()
-                            })
-                            cstring += '\n'
-                        })
-                        console.log(cstring)
-                        print(cstring)
+                                cstring += p.toString() + ": " + c[p].toString();
+                            });
+                            cstring += '\n';
+                        });
+                        console.log(cstring);
+                        print(cstring);
                     } else {
                     Engine.entities.forEach((entity: Entity) => {
-                        let componentTypes = ""
+                        let componentTypes = "";
                         entity.componentTypes.forEach(componentType => {
-                            componentTypes +=  " | " + componentType.name || componentType.displayName
-                        })
-                        val += "\n" + entity.id + ' || ' + componentTypes + "\n"
-                    })
-                    console.log(val)
-                    print(val)
+                            componentTypes +=  " | " + componentType.name || componentType.displayName;
+                        });
+                        val += "\n" + entity.id + ' || ' + componentTypes + "\n";
+                    });
+                    console.log(val);
+                    print(val);
                 }
                     break;
                 case 'components': {
                     // User passed a number, which should align with an entity ID -- show breakdown of data on entity
                     if(!isNaN(args._[1])){
-                        let cstring = ""
+                        let cstring = "";
                         Object.values(Engine.components[args._[1]]).forEach((c: any) => {
-                            cstring += '\n'
+                            cstring += '\n';
                             Object.keys(c).forEach((p: any) => {
-                                cstring += '\n'
+                                cstring += '\n';
                                 // TODO: If is object or array, drill down into values
-                                cstring += p.toString() + ": " + c[p].toString()
-                            })
-                            cstring += '\n'
-                        })
-                        console.log(cstring)
-                        print(cstring)
+                                cstring += p.toString() + ": " + c[p].toString();
+                            });
+                            cstring += '\n';
+                        });
+                        console.log(cstring);
+                        print(cstring);
                     } else {
-                        let cstring = "\n"
+                        let cstring = "\n";
                     Engine.components.forEach((component: ComponentConstructor<any>) => {
-                        cstring +=  component.name + "\n"
+                        cstring +=  component.name + "\n";
                         Object.keys(component).forEach(k => {
-                            cstring += k + ": " + component[k].toString() + "\n"
-                        })
-                        cstring += "\n --------------- \n"
-                    })
-                    console.log(cstring)
-                    print(cstring)
+                            cstring += k + ": " + component[k].toString() + "\n";
+                        });
+                        cstring += "\n --------------- \n";
+                    });
+                    console.log(cstring);
+                    print(cstring);
                 }
                 break;
             }
                 case 'systems': {
-                    console.log("TODO: List systems")
-                    print("TODO: List systems")
+                    console.log("TODO: List systems");
+                    print("TODO: List systems");
                 }
                 case 'queries': {
-                    console.log("TODO: List engine queries")
-                    print("TODO: List engine queries")
+                    console.log("TODO: List engine queries");
+                    print("TODO: List engine queries");
                 }
             }
             
@@ -112,7 +112,7 @@ export const commands = {
           },
         ],
       }
-}
+};
 export const description = {
 
-}
+};
