@@ -32,7 +32,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public velocityTarget: Vector3 = new Vector3();
 	public arcadeVelocityIsAdditive: boolean;
 
-	public currentInputHash: number = 0
+	public currentInputHash: any = ""
 
 	public defaultVelocitySimulatorDamping: number = 0.8;
 	public defaultVelocitySimulatorMass: number = 50;

@@ -21,6 +21,7 @@ export const WheelBehavior: Behavior = (entity: Entity, args): void => {
 
     const vehicle = object.userData.vehicle
 
+    if(vehicle){
     //console.log(vehicle);
 
 
@@ -38,7 +39,7 @@ export const WheelBehavior: Behavior = (entity: Entity, args): void => {
     transform.rotation[1] = vehicle.wheelInfos[args.i].worldTransform.quaternion.y,
     transform.rotation[2] = vehicle.wheelInfos[args.i].worldTransform.quaternion.z,
     transform.rotation[3] = vehicle.wheelInfos[args.i].worldTransform.quaternion.w
-
+    } else console.warn("Could not find vehicle")
 
 
   }

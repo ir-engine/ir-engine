@@ -38,7 +38,7 @@ export const PlayerCharacter: Prefab = {
                 // so this will be new Mesh(new BoxBufferGeometry(0.2, 0.2, 0.2))
                 component: AssetLoader,
                 componentArgs: {
-                    url: "models/boxman.glb",
+                    url: "models/ToonFemale.glb",
                     receiveShadow: true,
                     castShadow: true
                 }

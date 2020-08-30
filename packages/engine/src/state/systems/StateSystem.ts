@@ -60,6 +60,8 @@ export const callBehaviors: Behavior = (entity: Entity, args: { phase: string },
         if(_state.schema.states[stateValue.state]['componentProperties'] !== undefined){
           _state.schema.states[stateValue.state]['componentProperties'].forEach(componentProp => {
             const component = getMutableComponent(entity, componentProp.component) as any
+            if(component === undefined) console.warn ("Component is undefined, check your state")
+            else
             for (const prop in componentProp.properties){
               component[prop] = componentProp.properties[prop]
             }

@@ -106,26 +106,26 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
       registerSystem(CameraSystem);
     }
     if( options.audio?.enabled ){
-      console.log('Audio enabled')
-      const {src, refDistance, autoplay, positional, loop, volume} = options.audio
-      const listener = new AudioListener();
-      Engine.camera.add( listener );
-      if( src ){
-        const Sound:any = positional ? PositionalAudio : Audio;
-        const sound = 
-              (Engine as any).sound = new Sound( listener );
-        const audioLoader = new AudioLoader();
-        audioLoader.load( src, buffer => {
-          console.log('Audio loaded', sound)
-          sound.setBuffer( buffer );
-          if(refDistance && sound.setRefDistance){
-            sound.setRefDistance( refDistance );
-          }
-          sound.setLoop(loop);
-          if(volume) sound.setVolume(volume);
-          if(autoplay) sound.play();
-        });
-      }
+      // console.log('Audio enabled')
+      // const {src, refDistance, autoplay, positional, loop, volume} = options.audio
+      // const listener = new AudioListener();
+      // Engine.camera.add( listener );
+      // // if( src ){
+      //   const Sound:any = positional ? PositionalAudio : Audio;
+      //   const sound = 
+      //         (Engine as any).sound = new Sound( listener );
+      //   const audioLoader = new AudioLoader();
+      //   audioLoader.load( src, buffer => {
+      //     console.log('Audio loaded', sound)
+      //     sound.setBuffer( buffer );
+      //     if(refDistance && sound.setRefDistance){
+      //       sound.setRefDistance( refDistance );
+      //     }
+      //     sound.setLoop(loop);
+      //     if(volume) sound.setVolume(volume);
+      //     if(autoplay) sound.play();
+      //   });
+      // }
     }
 
   // Input
