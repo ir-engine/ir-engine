@@ -6,8 +6,18 @@ import { InputValue } from '../interfaces/InputValue';
 import { InputAlias } from '../types/InputAlias';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 
+/**
+ * Local reference to input component
+ */
 let input: Input;
+
+/**
+ * Validate button input
+ * 
+ * @param {Entity} entity The entity
+ */
 export const validateButtonInput: Behavior = (entity: Entity): void => {
+  // Get a component from the entity
   input = getComponent(entity, Input);
   // TODO: This for loop could be simplified probably now that we are using map
   for (let i = 0; i < input.data.size; i++) {
@@ -30,8 +40,14 @@ export const validateButtonInput: Behavior = (entity: Entity): void => {
   }
 };
 
-// If they oppose, cancel them
-function buttonsOpposeEachOther (
+/**
+ * If they oppose, cancel them
+ * 
+ * @param actionQueueArray 
+ * @param {Number} arrayPosOne 
+ * @param {Number} arrayPoseTwo 
+ */
+function buttonsOpposeEachOther(
   actionQueueArray: Map<InputAlias, InputValue<NumericalType>>,
   arrayPosOne: number,
   arrayPoseTwo: number
@@ -47,7 +63,14 @@ function buttonsOpposeEachOther (
   return false;
 }
 
-function buttonIsBlockedByAnother (
+/**
+ * Button is blocked by another
+ * 
+ * @param actionQueueArray 
+ * @param {Number} arrayPosOne 
+ * @param {Number} arrayPoseTwo 
+ */
+function buttonIsBlockedByAnother(
   actionQueueArray: Map<InputAlias, InputValue<NumericalType>>,
   arrayPosOne: number,
   arrayPoseTwo: number
@@ -63,7 +86,14 @@ function buttonIsBlockedByAnother (
   return false;
 }
 
-function buttonOverridesAnother (
+/**
+ * Button overrides another
+ * 
+ * @param actionQueueArray 
+ * @param {Number} arrayPosOne 
+ * @param {Number} arrayPoseTwo 
+ */
+function buttonOverridesAnother(
   actionQueueArray: Map<InputAlias, InputValue<NumericalType>>,
   arrayPosOne: number,
   arrayPoseTwo: number
