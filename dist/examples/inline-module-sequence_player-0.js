@@ -56834,7 +56834,6 @@ BasisTextureLoader.prototype = Object.assign(Object.create(Loader$1.prototype), 
     var texturePending = this._allocateWorker(taskCost).then(_worker => {
       worker = _worker;
       taskID = this.workerNextTaskID++;
-      console.log("166", _worker, taskID);
       return new Promise((resolve, reject) => {
         worker._callbacks[taskID] = {
           resolve,

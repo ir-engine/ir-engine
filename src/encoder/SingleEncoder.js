@@ -106,6 +106,10 @@ var DracoFileCreator = /** @class */ (function () {
         this.geometry.computeVertexNormals();
       }
 
+      rawObjData = null;
+      objData = null;
+      noNormals = null;
+
       const encoder = this;
 
       // If we haven't set the texture width yet, do that here automatically so we can store in the file
@@ -149,6 +153,19 @@ var DracoFileCreator = /** @class */ (function () {
       currentPositionInWriteStream +=
         encodedMesh.byteLength + encodedTexture.byteLength;
 
+      // encodedMesh.clear();
+      // encodedTexture.clear();
+      encodedMesh = null;
+      encodedTexture = null;
+      promiseMesh = null;
+      promiseTexture = null;
+      this.geometry = null;
+      // free(encodedMesh);
+      // free(encodedTexture);
+
+
+      console.log("Memory Usage", process.memoryUsage());
+
       // progress callback
       if (callback) callback(i - this._frameIn / frameOut - this._frameIn);
     }
@@ -181,7 +198,7 @@ var DracoFileCreator = /** @class */ (function () {
       this._outputFileName
     );
 
-    console.log('FileDataBuffer', JSON.stringify(fileData));
+    // console.log('FileDataBuffer', JSON.stringify(fileData));
 
     // // We're going to prepend our data (and the length of that data), so combine buffers in order
     var combinedBuffer = Buffer.concat([
@@ -211,6 +228,6 @@ var DracoFileCreator = /** @class */ (function () {
   return DracoFileCreator;
 })();
 
-new DracoFileCreator('obj', 'png', 0, 30, 'sample_v32_30frames.drcs', function () {
+new DracoFileCreator('obj', 'png', 0, 299, 'sample_v35_300frames.drcs', function () {
   console.log('Converted to Dracosis');
 });

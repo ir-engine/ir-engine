@@ -6489,7 +6489,6 @@ var draco3d = {
   createEncoderModule: draco_encoder_nodejs,
   createDecoderModule: draco_decoder_nodejs
 };
-var draco3d_1 = draco3d.createEncoderModule;
 var draco3d_2 = draco3d.createDecoderModule;
 
 function lerp(v0, v1, t) {
@@ -6707,7 +6706,6 @@ BasisTextureLoader.prototype = Object.assign(Object.create(Loader.prototype), {
     var texturePending = this._allocateWorker(taskCost).then(_worker => {
       worker = _worker;
       taskID = this.workerNextTaskID++;
-      console.log("166", _worker, taskID);
       return new Promise((resolve, reject) => {
         worker._callbacks[taskID] = {
           resolve,
@@ -7052,12 +7050,9 @@ class DracosisPlayer {
         this._loop = true;
         this._playOnStart = true;
         this._isinitialized = false;
-        this._dataBufferSize = 100;
         this._isPlaying = false;
-        this._readStreamOffset = 0;
         this._basisTextureLoader = new BasisTextureLoader();
         this._decoderModule = draco3d_2({});
-        this._encoderModule = draco3d_1({});
         this._nullBufferGeometry = new BufferGeometry();
         this._nullCompressedTexture = new CompressedTexture([new ImageData(200, 200)], 0, 0);
         // Temp variables -- reused in loops, etc (beware of initialized value!)
@@ -7067,7 +7062,6 @@ class DracosisPlayer {
         this._numberOfBuffersRemoved = 0; // TODO: Remove after debug
         this.scene = scene;
         this.renderer = renderer;
-        this._filePath = filePath;
         this._onLoaded = onLoaded;
         this._loop = loop;
         this.speed = speedMultiplier;
@@ -7076,7 +7070,6 @@ class DracosisPlayer {
         this._currentFrame = startFrame;
         this.bufferGeometry = new BoxBufferGeometry(1, 1, 1);
         this.material = new MeshBasicMaterial();
-        this.bufferGeometry.name = 'sphere';
         this.mesh = new Mesh(this.bufferGeometry, this.material);
         this.scene.add(this.mesh);
         this._basisTextureLoader.setTranscoderPath('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/basis/');
@@ -7181,13 +7174,11 @@ class DracosisPlayer {
     getBufferFromDracoGeometry(uncompressedDracoMesh, decoder) {
         let uncompressedNumFaces, uncompressedNumPoints;
         let numVertexCoordinates, numTextureCoordinates;
-        let numAttributes;
         // For output basic geometry information.
         uncompressedNumFaces = uncompressedDracoMesh.num_faces();
         uncompressedNumPoints = uncompressedDracoMesh.num_points();
         numVertexCoordinates = uncompressedNumPoints * 3;
         numTextureCoordinates = uncompressedNumPoints * 2;
-        numAttributes = uncompressedDracoMesh.num_attributes();
         // Get position attribute. Must exists.
         let posAttId = decoder.GetAttributeId(uncompressedDracoMesh, this._decoderModule.POSITION);
         if (posAttId == -1) {
@@ -7281,8 +7272,6 @@ class DracosisPlayer {
                 .then(function (texture, param) {
                 texture.magFilter = NearestFilter;
                 texture.minFilter = NearestFilter;
-                // @ts-ignore
-                // texture.anisotropy = player.renderer.getMaxAnisotropy()
                 texture.encoding = sRGBEncoding;
                 texture.wrapS = RepeatWrapping;
                 texture.wrapT = RepeatWrapping;
@@ -7311,9 +7300,8 @@ class DracosisPlayer {
     handleInitializationResponse(data) {
         if (data.isInitialized) {
             this._isinitialized = true;
-            this.handleBuffers();
-            if (this._playOnStart)
-                this.play();
+            this.handleBuffers(this);
+            // if (this._playOnStart) this.play();
             console.log('Received initialization response from worker');
         }
         else
@@ -7322,35 +7310,30 @@ class DracosisPlayer {
     handleDataResponse(data) {
         // For each object in the array...
         const player = this;
-        console.log('412 Data 1', data[1]);
+        console.log('HandleDataResponse', data);
         data.forEach((geomTex, index) => {
-            console.log('465 inside data loop, frame number:', geomTex.frameNumber);
             player._frameNumber = geomTex.frameNumber;
             // Find the frame in our circular buffer
-            // player._pos = player.getPositionInBuffer(player._frameNumber);
+            player._pos = player.getPositionInBuffer(player._frameNumber);
+            player._ringBuffer.get(player._pos).bufferGeometry = player.decodeDracoData(geomTex.bufferGeometry);
+            // player.decodeTexture(geomTex.compressedTexture, geomTex.frameNumber).then((texture) => {
             //@ts-ignore
-            // const texture = this._basisTextureLoader._createTexture(geomTex.compressedTexture, geomTex.frameNumber.toString());
-            // player._ringBuffer.get(player._frameNumber).compressedTexture = texture;
-            player._ringBuffer.get(index).bufferGeometry = player.decodeDracoData(geomTex.bufferGeometry);
-            // const wait = (geomTex.compressedTexture, geomTex.frameNumber) => {
-            //   new Promise((resolve) => setTimeout(resolve, time));
-            // }
-            player.decodeTexture(geomTex.compressedTexture, geomTex.frameNumber).then((texture) => {
-                //@ts-ignore
-                player._ringBuffer.get(index).compressedTexture = texture;
-            });
+            //   player._ringBuffer.get(player._pos).compressedTexture = texture;
+            // });
             player._framesUpdated++;
         });
         console.log('Updated mesh and texture data on ' + player._framesUpdated + ' frames');
+        this.play();
     }
     getPositionInBuffer(frameNumber) {
         // Search backwards, which should make the for loop shorter on longer buffer
-        for (let i = this._ringBuffer.getPos(); i > 0; i--)
-            if ((frameNumber = this._ringBuffer.get(i).frameNumber))
+        for (let i = this._ringBuffer.getPos(); i >= 0; i--) {
+            if (frameNumber == this._ringBuffer.get(i).frameNumber)
                 return i;
+        }
         return -1;
     }
-    handleBuffers() {
+    handleBuffers(context) {
         // If not initialized, skip.
         if (!this._isinitialized)
             return setTimeout(this.handleBuffers, 100);
@@ -7390,25 +7373,20 @@ class DracosisPlayer {
         };
         if (framesToFetch.length > 0)
             worker.postMessage(fetchFramesMessage);
-        // Every 1/4 second, make sure our workers are working
-        // setTimeout(this.handleBuffers, 100);
+        const player = this;
+        // Every 1/2 second, make sure our workers are working
+        setTimeout(function () {
+            player.handleBuffers(player);
+        }, 500);
     }
     update() {
-        // console.log(
-        //   'Player update called, current frame is + ' + this._currentFrame
-        // );
-        // console.log("Start frame", this._startFrame)
-        // console.log("Current frame", this._currentFrame)
-        // console.log("End frame", this._endFrame)
+        console.log('Player update called, current frame is + ' + this._currentFrame);
         // If playback is paused, stop updating
         if (!this._isPlaying)
             return;
         // If we aren't initialized yet, skip logic but come back next frame
         if (!this._isinitialized)
             return;
-        //   return setTimeout(this.update, (1.0 / this.frameRate) * this.speed);
-        // Advance to next frame
-        this._currentFrame++;
         // Loop logic
         if (this._currentFrame >= this._ringBuffer.getBufferLength()) {
             if (this._loop)
@@ -7418,64 +7396,32 @@ class DracosisPlayer {
                 return;
             }
         }
-        // this._currentFrame = 1;
         // If the frame exists in the ring buffer, use it
-        // if (
-        //   this._ringBuffer && this._ringBuffer.getFirst() &&
-        //   this._ringBuffer.getFirst().frameNumber == this._currentFrame
-        // ) {
-        //   // console.log(
-        //   //   'Buffer Geometry',
-        //   //   this._ringBuffer.getFirst().bufferGeometry
-        //   // );
-        //   // read buffer into current buffer geometry
-        //   console.log("Frame Number", this._ringBuffer.getFirst().frameNumber);
-        console.log(this._currentFrame);
-        this.bufferGeometry = this._ringBuffer.get(this._currentFrame).bufferGeometry;
-        this.mesh.geometry = this.bufferGeometry;
-        this.compressedTexture = this._ringBuffer.get(this._currentFrame).compressedTexture;
-        //@ts-ignore
-        this.mesh.material.map = this.compressedTexture;
-        //@ts-ignore
-        this.mesh.material.needsUpdate = true;
-        //   // read buffer into current texture
-        //   // this.compressedTexture = this._ringBuffer.get(0).compressedTexture;
-        //   // this.compressedTexture.encoding = sRGBEncoding;
-        //   // this.compressedTexture.wrapS = RepeatWrapping;
-        //   // this.compressedTexture.wrapT = RepeatWrapping;
-        //   // // this.compressedTexture.flipY = true;
-        //   // // this.compressedTexture.repeat.x = -1
-        //   // this.compressedTexture.repeat.y = -1
-        //   // this.compressedTexture.needsUpdate = true;
-        //   // // @ts-ignore
-        //   // this.mesh.material.map = this.compressedTexture;
-        //   // // @ts-ignore
-        //   // this.mesh.material.needsUpdate = true;
-        //   // console.log("Compressed Texture", this.compressedTexture)
-        //   console.log("Mesh", this.mesh)
-        //   //@ts-ignore
-        //   // const newTex = this._basisTextureLoader._createTexture(this.compressedTexture, this._ringBuffer.getFirst().frameNumber.toString())
-        //   // const myMaterial = new MeshBasicMaterial()
-        //   // myMaterial.map = newTex
-        //   //@ts-ignore
-        //   // this.mesh.material.map = newTex
-        //   // Remove buffer
-        //   // this._ringBuffer.remove(0);
-        //   // console.log("Popped value", typeof poppedValue, this._ringBuffer.getPos());
-        //   // console.log(
-        //   //   'Recalled the frame ' + this._ringBuffer.getFirst().frameNumber
-        //   // );
-        // } else {
-        //   // Frame doesn't exist in ring buffer, so throw an error
-        //   console.warn(
-        //     'Frame ' +
-        //     this._ringBuffer.getFirst().frameNumber +
-        //     ' did not exist in ring buffer'
-        //   );
-        // }
-        setTimeout(() => {
-            this.update();
-        }, (1000 / this.frameRate) * this.speed);
+        if (this._ringBuffer && this._ringBuffer.getFirst() &&
+            this._ringBuffer.getFirst().frameNumber == this._currentFrame) {
+            this.bufferGeometry = this._ringBuffer.getFirst().bufferGeometry;
+            // this.bufferGeometry = this._ringBuffer.get(this._currentFrame).bufferGeometry
+            this.mesh.geometry = this.bufferGeometry;
+            // this.compressedTexture = this._ringBuffer.getFirst().compressedTexture
+            // this.compressedTexture = this._ringBuffer.get(this._currentFrame).compressedTexture
+            // @ts-ignore
+            // this.mesh.material.map = this.compressedTexture
+            // @ts-ignore
+            // this.mesh.material.needsUpdate = true
+            console.log('Recalled the frame ' + this._ringBuffer.getFirst().frameNumber);
+            this._ringBuffer.remove(0);
+            this._currentFrame++;
+        }
+        else {
+            // Frame doesn't exist in ring buffer, so throw an error
+            console.warn('Frame ' +
+                this._ringBuffer.getFirst().frameNumber +
+                ' did not exist in ring buffer');
+        }
+        const player = this;
+        setTimeout(function () {
+            player.update();
+        }, (3000 / player.frameRate) * player.speed);
     }
     play() {
         this._isPlaying = true;
@@ -7490,7 +7436,7 @@ class DracosisPlayer {
     }
     goToFrame(frame, play) {
         this._currentFrame = frame;
-        this.handleBuffers();
+        // this.handleBuffers();
         if (play)
             this.play();
     }

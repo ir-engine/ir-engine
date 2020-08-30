@@ -21,15 +21,9 @@ export default class DracosisPlayer {
     private _isinitialized;
     private _onLoaded;
     private _ringBuffer;
-    private _dataBufferSize;
-    private _filePath;
     private _isPlaying;
-    private _fileHeader;
-    private _fileReadStream;
-    private _readStreamOffset;
     private _basisTextureLoader;
     private _decoderModule;
-    private _encoderModule;
     private _nullBufferGeometry;
     private _nullCompressedTexture;
     private _pos;
@@ -52,7 +46,7 @@ export default class DracosisPlayer {
     handleInitializationResponse(data: WorkerInitializationResponse): void;
     handleDataResponse(data: any): void;
     getPositionInBuffer(frameNumber: number): number;
-    handleBuffers(): NodeJS.Timeout;
+    handleBuffers(context: any): NodeJS.Timeout;
     update(): void;
     play(): void;
     pause(): void;
