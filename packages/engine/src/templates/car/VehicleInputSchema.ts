@@ -1,19 +1,17 @@
+import { BinaryValue } from '../../common/enums/BinaryValue';
+import { Thumbsticks } from '../../common/enums/Thumbsticks';
 import { disableScroll, enableScroll } from '../../common/functions/enableDisableScrolling';
 import { preventDefault } from '../../common/functions/preventDefault';
-import { DefaultInput } from '../shared/DefaultInput';
-import { InputSchema } from '../../input/interfaces/InputSchema';
-import { BinaryValue } from '../../common/enums/BinaryValue';
-import { handleKey, handleMouseMovement, handleMouseButton } from '../../input/behaviors/DesktopInputBehaviors';
+import { handleKey, handleMouseButton, handleMouseMovement } from '../../input/behaviors/DesktopInputBehaviors';
 import { handleGamepadConnected, handleGamepadDisconnected } from '../../input/behaviors/GamepadInputBehaviors';
+import { handleTouch, handleTouchMove } from '../../input/behaviors/TouchBehaviors';
 import { GamepadButtons } from '../../input/enums/GamepadButtons';
-import { Thumbsticks } from '../../common/enums/Thumbsticks';
-import { InputRelationship } from '../../input/interfaces/InputRelationship';
-import { drive } from '../../physics/behaviors/driveBehavior';
 import { InputType } from '../../input/enums/InputType';
-import { rotateAround } from '../../common/defaults/behaviors/rotate';
-import { handleTouch, handleTouchMove } from '../../input/behaviors/TouchBehaviors'
 import { MouseButtons } from '../../input/enums/MouseButtons';
-import { updateMovementState } from '../../input/behaviors/updateMovementState'
+import { InputRelationship } from '../../input/interfaces/InputRelationship';
+import { InputSchema } from '../../input/interfaces/InputSchema';
+import { drive } from '../../physics/behaviors/driveBehavior';
+import { DefaultInput } from '../shared/DefaultInput';
 
 export const VehicleInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -204,9 +202,6 @@ export const VehicleInputSchema: InputSchema = {
               inputType: InputType.TWOD,
               value: [0, -1]
             }
-          },
-          {
-            behavior: updateMovementState
           }
         ],
         continued: [
@@ -221,23 +216,14 @@ export const VehicleInputSchema: InputSchema = {
       },
       [BinaryValue.OFF]: {
         started: [
-          {
-            behavior: updateMovementState
-          }
         ],
         continued: [
-          {
-            behavior: updateMovementState
-          }
         ]
       }
     },
     [DefaultInput.BACKWARD]: {
       [BinaryValue.ON]: {
         started: [
-          {
-            behavior: updateMovementState
-          },
           {
             behavior: drive,
             args: {
@@ -258,9 +244,6 @@ export const VehicleInputSchema: InputSchema = {
       },
       [BinaryValue.OFF]: {
         started: [
-          {
-            behavior: updateMovementState
-          }
         ],
         continued: [
         ]
@@ -269,9 +252,6 @@ export const VehicleInputSchema: InputSchema = {
     [DefaultInput.LEFT]: {
       [BinaryValue.ON]: {
         started: [
-          {
-            behavior: updateMovementState
-          },
           {
             behavior: drive,
             args: {
@@ -295,9 +275,6 @@ export const VehicleInputSchema: InputSchema = {
       },
       [BinaryValue.OFF]: {
         started: [
-          {
-            behavior: updateMovementState
-          }
         ],
         continued: [
         ]
@@ -306,9 +283,6 @@ export const VehicleInputSchema: InputSchema = {
     [DefaultInput.RIGHT]: {
       [BinaryValue.ON]: {
         started: [
-          {
-            behavior: updateMovementState
-          },
           {
             behavior: drive,
             args: {
@@ -329,9 +303,6 @@ export const VehicleInputSchema: InputSchema = {
       },
       [BinaryValue.OFF]: {
         started: [
-          {
-            behavior: updateMovementState
-          }
         ],
         continued: [
         ]
@@ -342,9 +313,6 @@ export const VehicleInputSchema: InputSchema = {
   inputAxisBehaviors: {
     [DefaultInput.MOVEMENT_PLAYERONE]: {
       started: [
-        {
-          behavior: updateMovementState
-        }
       ],
       continued: [
         {

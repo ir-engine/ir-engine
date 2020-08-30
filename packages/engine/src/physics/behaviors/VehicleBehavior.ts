@@ -26,13 +26,11 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
       PhysicsManager.instance.physicsWorld.addBody(wheelBodies[i]);
     }
   } else if (args.phase == 'onUpdate') {
-
-
-
     const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
     const object = getComponent<Object3DComponent>(entity, Object3DComponent).value;
 
     if(object.userData){
+      if(object.userData.vehicle){
       const vehicle = object.userData.vehicle.chassisBody;
 
       transform.position[0] = vehicle.position.x;
@@ -45,6 +43,9 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
       transform.rotation[2] = vehicle.quaternion.z
       transform.rotation[3] = vehicle.quaternion.w
     }
+  } else {
+    console.warn("User data for vehicle not found")
+  }
 
 
   } else if (args.phase == 'onRemoved') {

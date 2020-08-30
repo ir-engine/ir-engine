@@ -73,8 +73,8 @@ export const followTarget: Behavior = (entityIn: Entity, args: any, delta: any, 
 
           valueY > (maxAngleY / Math.PI) ? valueY = (maxAngleY / Math.PI):'';
           valueY < -(maxAngleY / Math.PI) ? valueY = -(maxAngleY / Math.PI):'';
-
-          quat.fromEuler( q, -Math.min(Math.max(valueY* Math.PI, -maxAngleY), maxAngleY), valueX * Math.PI, 0);
+           
+          q.setFromEuler(-Math.min(Math.max(valueY* Math.PI, -maxAngleY), maxAngleY), valueX * Math.PI, 0);
 
           target.rotation = [q[0], q[1], q[2], q[3]];
           target.position[1] = 2

@@ -4,6 +4,7 @@ import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
 
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
+import { myCustomBehavior } from "./mycustomBehavior";
 
 
 const box = new BoxBufferGeometry(3, 3, 3);

@@ -201,35 +201,35 @@ export const CharacterInputSchema: InputSchema = {
     [DefaultInput.JUMP]: {
       [BinaryValue.ON]: {
         started: [
-          {
-            behavior: jumpStart,
-            args: {}
-          }
+          // {
+          //   behavior: jumpStart,
+          //   args: {}
+          // }
         ]
       }
     },
     [DefaultInput.FORWARD]: {
       [BinaryValue.ON]: {
         started: [
-          {
-            behavior: move,
-            args: {
-              inputType: InputType.TWOD,
-              value: [0, -1]
-            }
-          }
+          // {
+          //   behavior: move,
+          //   args: {
+          //     inputType: InputType.TWOD,
+          //     value: [0, -1]
+          //   }
+          // }
           // {
           //   behavior: updateMovementState
           // }
         ],
         continued: [
-          {
-            behavior: move,
-            args: {
-              inputType: InputType.TWOD,
-              value: [0, -1]
-            }
-          }
+          // {
+          //   behavior: move,
+          //   args: {
+          //     inputType: InputType.TWOD,
+          //     value: [0, -1]
+          //   }
+          // }
         ]
       },
       [BinaryValue.OFF]: {
@@ -251,22 +251,22 @@ export const CharacterInputSchema: InputSchema = {
           // {
           //   behavior: updateMovementState
           // },
-          {
-            behavior: move,
-            args: {
-              inputType: InputType.TWOD,
-              value: [0, 1]
-            }
-          }
+          // {
+          //   behavior: move,
+          //   args: {
+          //     inputType: InputType.TWOD,
+          //     value: [0, 1]
+          //   }
+          // }
         ],
         continued: [
-          {
-            behavior: move,
-            args: {
-              inputType: InputType.TWOD,
-              value: [0, 1]
-            }
-          }
+          // {
+          //   behavior: move,
+          //   args: {
+          //     inputType: InputType.TWOD,
+          //     value: [0, 1]
+          //   }
+          // }
         ]
       },
       [BinaryValue.OFF]: {
@@ -288,25 +288,25 @@ export const CharacterInputSchema: InputSchema = {
           // {
           //   behavior: updateMovementState
           // },
-          {
-            behavior: move,
-            args: {
-              inputType: InputType.TWOD,
-              value: [-1, 0]
-            }
-          }
+          // {
+          //   behavior: move,
+          //   args: {
+          //     inputType: InputType.TWOD,
+          //     value: [-1, 0]
+          //   }
+          // }
         ],
         continued: [
-          {
-            behavior: move,
-            args: {
-              inputType: InputType.TWOD,
-              input: {
-                value: [-1, 0]
-              },
-              value: [-1, 0]
-            }
-          }
+          // {
+          //   behavior: move,
+          //   args: {
+          //     inputType: InputType.TWOD,
+          //     input: {
+          //       value: [-1, 0]
+          //     },
+          //     value: [-1, 0]
+          //   }
+          // }
         ]
       },
       [BinaryValue.OFF]: {
@@ -328,22 +328,22 @@ export const CharacterInputSchema: InputSchema = {
           // {
           //   behavior: updateMovementState
           // },
-          {
-            behavior: move,
-            args: {
-              inputType: InputType.TWOD,
-              value: [1, 0]
-            }
-          }
+          // {
+          //   behavior: move,
+          //   args: {
+          //     inputType: InputType.TWOD,
+          //     value: [1, 0]
+          //   }
+          // }
         ],
         continued: [
-          {
-            behavior: move,
-            args: {
-              inputType: InputType.TWOD,
-              value: [1, 0]
-            }
-          }
+          // {
+          //   behavior: move,
+          //   args: {
+          //     inputType: InputType.TWOD,
+          //     value: [1, 0]
+          //   }
+          // }
         ]
       },
       [BinaryValue.OFF]: {
@@ -369,24 +369,24 @@ export const CharacterInputSchema: InputSchema = {
         // }
       ],
       continued: [
-        {
-          behavior: move,
-          args: {
-            input: DefaultInput.MOVEMENT_PLAYERONE,
-            inputType: InputType.TWOD
-          }
-        }
+        // {
+        //   behavior: move,
+        //   args: {
+        //     input: DefaultInput.MOVEMENT_PLAYERONE,
+        //     inputType: InputType.TWOD
+        //   }
+        // }
       ]
     },
     [DefaultInput.SCREENXY]: {
       started: [
-        {
-          behavior: rotateAround,
-          args: {
-            input: DefaultInput.SCREENXY,
-            inputType: InputType.TWOD
-          }
-        }
+        // {
+        //   behavior: rotateAround,
+        //   args: {
+        //     input: DefaultInput.SCREENXY,
+        //     inputType: InputType.TWOD
+        //   }
+        // }
       ]
     }
   }

@@ -24,13 +24,11 @@ import { TransformComponent } from '@xr3ngine/engine/src/transform/components/Tr
 import { Body, Shape } from "cannon-es"
 import debug from "cannon-es-debugger"
 import { PhysicsManager } from '@xr3ngine/engine/src/physics/components/PhysicsManager';
+import { CarController } from './CarController'
 
 export const EnginePage: FunctionComponent = (props: any) => {
 
   const [enabled, setEnabled] = useState(false)
-import { staticWorldColliders } from '../gl_examples/staticWorldColliders'
-import { rigidBodyBox } from '../gl_examples/rigidBodyBox'
-import { CarController } from '../gl_examples/CarController'
 
   useEffect(() => {
     console.log('initializeEngine!');
@@ -59,20 +57,20 @@ import { CarController } from '../gl_examples/CarController'
     // Load glb here
     // createPrefab(rigidBodyBox);
     
-      //  createPrefab(PlayerController);
+      createPrefab(PlayerCharacter);
       createPrefab(staticWorldColliders);
       createPrefab(rigidBodyBox);
-      createPrefab(CarController);
+      // createPrefab(CarController);
     
 
     
     addObject3DComponent(createEntity(), { obj3d: AmbientLight, ob3dArgs: {
-      intensity: 2.0
+      intensity: 5.0
     }})
     
     const cameraTransform = getMutableComponent<TransformComponent>(CameraComponent.instance.entity, TransformComponent)
 
-    cameraTransform.position.set(0, 1.2, 5)
+    cameraTransform.position.set(0, 1.2, 3)
 
 
     const {sound} = Engine as any;
@@ -93,12 +91,12 @@ transform.position.set(0,1,0)
       // )
     }
    
-    //    console.log("Creating a scene entity to test")
-    // addComponent(createEntity(), AssetLoader, {
-    //   url: "models/library.glb",
-    //   receiveShadow: true,
-    //   castShadow: true
-    // }) 
+       console.log("Creating a scene entity to test")
+    addComponent(createEntity(), AssetLoader, {
+      url: "models/library.glb",
+      receiveShadow: true,
+      castShadow: true
+    }) 
     // addComponent(createEntity(), AssetLoader, {
     //   url: "models/OldCar.fbx",
     //   receiveShadow: true,

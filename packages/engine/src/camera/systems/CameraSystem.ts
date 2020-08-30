@@ -7,6 +7,7 @@ import { createEntity, getMutableComponent, getComponent, addComponent } from '.
 import { Engine } from '../../ecs/classes/Engine';
 import { CameraTagComponent } from '../../common/components/Object3DTagComponents';
 import { Object3DComponent } from '../../common/components/Object3DComponent';
+import { addObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
 
 export class CameraSystem extends System {
   /**
@@ -14,7 +15,10 @@ export class CameraSystem extends System {
    */
   init(): void {
     const cameraEntity = createEntity();
-    getMutableComponent<Object3DComponent>(cameraEntity, Object3DComponent).value = Engine.camera
+    addComponent(cameraEntity, CameraComponent, { followTarget: null, distance: 5, mode: "thirdPerson" });
+    addComponent(cameraEntity, CameraTagComponent)
+    addObject3DComponent(cameraEntity, { obj3d: Engine.camera })
+    addComponent(cameraEntity, TransformComponent);
   }
 
   /**

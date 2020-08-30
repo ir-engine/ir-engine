@@ -35,6 +35,4 @@ export const raycastDown: Behavior = (entity: Entity): void => {
 	};
 	// Cast the ray
 	actor.rayHasHit = PhysicsManager.instance.physicsWorld.raycastClosest(start, end, rayCastOptions, actor.rayResult);
-
-	console.log("Ray has hit: ", actor.rayResult )
 };

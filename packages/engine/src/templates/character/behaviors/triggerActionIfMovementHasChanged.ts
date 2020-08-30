@@ -5,16 +5,16 @@ import { Input } from "../../../input/components/Input";
 import { CharacterComponent } from "../components/CharacterComponent";
 
 export const triggerActionIfMovementHasChanged: Behavior = (entity: Entity, args: { action: any }): void => {
-	const input: Input = getMutableComponent<Input>(entity, Input as any);
 	const character: CharacterComponent = getMutableComponent(entity, CharacterComponent);
 	if (!character.initialized) return;
-	const inputHash = Object.values(input.data.keys()).reduce((accumulator, key) => {
-		return accumulator + (key % 2 == 0) ? key * 100 : key;
-	  }, 0); 
+	const input: Input = getMutableComponent<Input>(entity, Input as any);
+	let hash = Array.from(input.data.keys()).reduce((accumulator, key) => {
+		return accumulator.toString().concat(key.toString())
+	}, 0)
 
-	  if(character.currentInputHash !== inputHash){
+	if (character.currentInputHash !== hash) {
+		console.log("Action state has changed, hash is: ", hash)
 		args.action(entity)
-		character.currentInputHash === inputHash;
-	  }
-
+		character.currentInputHash = hash;
+	}
 };
