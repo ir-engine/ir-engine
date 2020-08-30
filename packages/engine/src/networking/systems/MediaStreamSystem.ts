@@ -14,7 +14,6 @@ export class MediaStreamSystem extends System {
     addComponent(entity, MediaStreamComponent);
     const mediaStreamComponent = getMutableComponent<MediaStreamComponent>(entity, MediaStreamComponent);
     MediaStreamComponent.instance = mediaStreamComponent;
-    this.startCamera()
   }
 
   constructor () {
@@ -115,14 +114,14 @@ export class MediaStreamSystem extends System {
     });
   }
 
-  addVideoAudio (consumer: { track: { clone: () => MediaStreamTrack }, kind: string }, peerId: any) {
+  addVideoAudio (mediaStream: { track: { clone: () => MediaStreamTrack }, kind: string }, peerId: any) {
     console.log('addVideoAudio')
-    console.log(consumer)
+    console.log(mediaStream)
     console.log(peerId)
-    if (!(consumer && consumer.track)) {
+    if (!(mediaStream && mediaStream.track)) {
       return;
     }
-    const elementID = `${peerId}_${consumer.kind}`;
+    const elementID = `${peerId}_${mediaStream.kind}`;
     console.log(`elementId: ${elementID}`)
     let el = document.getElementById(elementID) as any;
     console.log(el)
@@ -130,12 +129,12 @@ export class MediaStreamSystem extends System {
     // set some attributes on our audio and video elements to make
     // mobile Safari happy. note that for audio to play you need to be
     // capturing from the mic/camera
-    if (consumer.kind === 'video') {
+    if (mediaStream.kind === 'video') {
       console.log('Creating video element with ID ' + elementID);
       if (el === null) {
         console.log(`Creating video element for user with ID: ${peerId}`);
         el = document.createElement('video');
-        el.id = `${peerId}_${consumer.kind}`;
+        el.id = `${peerId}_${mediaStream.kind}`;
         el.autoplay = true;
         document.body.appendChild(el);
         el.setAttribute('playsinline', 'true');
@@ -143,31 +142,44 @@ export class MediaStreamSystem extends System {
 
       // TODO: do i need to update video width and height? or is that based on stream...?
       console.log(`Updating video source for user with ID: ${peerId}`);
-      el.srcObject = new MediaStream([consumer.track.clone()]);
-      el.consumer = consumer;
+      console.log('mediaStream track:')
+      console.log(mediaStream.track)
+      console.log('mediaStream track clone:')
+      console.log(mediaStream.track.clone())
+      el.srcObject = new MediaStream([mediaStream.track.clone()]);
+      console.log('srcObject:')
+      console.log(el.srcObject.getTracks())
+      el.mediaStream = mediaStream;
 
+      console.log('video el before play:')
+      console.log(el)
       // let's "yield" and return before playing, rather than awaiting on
       // play() succeeding. play() will not succeed on a producer-paused
       // track until the producer unpauses.
-      el.play().catch((e: any) => {
-        console.log(`Play video error: ${e}`);
-        console.error(e);
-      });
+      try {
+        el.play().then(() => console.log('Playing video')).catch((e: any) => {
+          console.log(`Play video error: ${e}`);
+          console.error(e);
+        });
+      } catch(err) {
+        console.log('video play error')
+        console.log(err)
+      }
     } else {
       // Positional Audio Works in Firefox:
       // Global Audio:
       if (el === null) {
         console.log(`Creating audio element for user with ID: ${peerId}`);
         el = document.createElement('audio');
-        el.id = `${peerId}_${consumer.kind}`;
+        el.id = `${peerId}_${mediaStream.kind}`;
         document.body.appendChild(el);
         el.setAttribute('playsinline', 'true');
         el.setAttribute('autoplay', 'true');
       }
 
       console.log(`Updating <audio> source object for client with ID: ${peerId}`);
-      el.srcObject = new MediaStream([consumer.track.clone()]);
-      el.consumer = consumer;
+      el.srcObject = new MediaStream([mediaStream.track.clone()]);
+      el.mediaStream = mediaStream;
       el.volume = 0; // start at 0 and let the three.js scene take over from here...
       // this.worldScene.createOrUpdatePositionalAudio(peerId)
 
@@ -196,14 +208,22 @@ export class MediaStreamSystem extends System {
   }
 
   public async getMediaStream (): Promise<boolean> {
-    MediaStreamComponent.instance.mediaStream = await navigator.mediaDevices.getUserMedia(localMediaConstraints);
-    if (MediaStreamComponent.instance.mediaStream.active) {
-      MediaStreamComponent.instance.audioPaused = false;
-      MediaStreamComponent.instance.videoPaused = false;
-      return true;
+    try {
+      console.log('Getting media stream')
+      console.log(localMediaConstraints)
+      MediaStreamComponent.instance.mediaStream = await navigator.mediaDevices.getUserMedia(localMediaConstraints);
+      console.log(MediaStreamComponent.instance.mediaStream)
+      if (MediaStreamComponent.instance.mediaStream.active) {
+        MediaStreamComponent.instance.audioPaused = false;
+        MediaStreamComponent.instance.videoPaused = false;
+        return true;
+      }
+      MediaStreamComponent.instance.audioPaused = true;
+      MediaStreamComponent.instance.videoPaused = true;
+      return false;
+    } catch(err) {
+      console.log('failed to get media stream')
+      console.log(err)
     }
-    MediaStreamComponent.instance.audioPaused = true;
-    MediaStreamComponent.instance.videoPaused = true;
-    return false;
   }
 }
