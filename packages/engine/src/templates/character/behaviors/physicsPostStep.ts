@@ -15,10 +15,10 @@ export const physicsPostStep: Behavior = (entity): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	if(!actor.initialized) return;
 
-	let body = actor.actorCapsule.body;
+	const body = actor.actorCapsule.body;
 
 	// Get velocities
-	let simulatedVelocity = new Vector3(body.velocity.x, body.velocity.y, body.velocity.z);
+	const simulatedVelocity = new Vector3(body.velocity.x, body.velocity.y, body.velocity.z);
 
 	// Take local velocity
 	let arcadeVelocity = new Vector3().copy(actor.velocity).multiplyScalar(actor.moveSpeed);
@@ -31,8 +31,8 @@ export const physicsPostStep: Behavior = (entity): void => {
 	if (actor.arcadeVelocityIsAdditive) {
 		newVelocity.copy(simulatedVelocity);
 
-		let globalVelocityTarget = appplyVectorMatrixXZ(actor.orientation, actor.velocityTarget);
-		let add = new Vector3().copy(arcadeVelocity).multiply(actor.arcadeVelocityInfluence);
+		const globalVelocityTarget = appplyVectorMatrixXZ(actor.orientation, actor.velocityTarget);
+		const add = new Vector3().copy(arcadeVelocity).multiply(actor.arcadeVelocityInfluence);
 
 		if (Math.abs(simulatedVelocity.x) < Math.abs(globalVelocityTarget.x * actor.moveSpeed) || haveDifferentSigns(simulatedVelocity.x, arcadeVelocity.x)) { newVelocity.x += add.x; }
 		if (Math.abs(simulatedVelocity.y) < Math.abs(globalVelocityTarget.y * actor.moveSpeed) || haveDifferentSigns(simulatedVelocity.y, arcadeVelocity.y)) { newVelocity.y += add.y; }
@@ -53,17 +53,17 @@ export const physicsPostStep: Behavior = (entity): void => {
 
 		// Move on top of moving objects
 		if (actor.rayResult.body.mass > 0) {
-			let pointVelocity = new Vec3();
+			const pointVelocity = new Vec3();
 			actor.rayResult.body.getVelocityAtWorldPoint(actor.rayResult.hitPointWorld, pointVelocity);
 			newVelocity.add(threeFromCannonVector(pointVelocity));
 		}
 
 		// Measure the normal vector offset from direct "up" vector
 		// and transform it into a matrix
-		let up = new Vector3(0, 1, 0);
-		let normal = new Vector3(actor.rayResult.hitNormalWorld.x, actor.rayResult.hitNormalWorld.y, actor.rayResult.hitNormalWorld.z);
-		let q = new Quaternion().setFromUnitVectors(up, normal);
-		let m = new Matrix4().makeRotationFromQuaternion(q);
+		const up = new Vector3(0, 1, 0);
+		const normal = new Vector3(actor.rayResult.hitNormalWorld.x, actor.rayResult.hitNormalWorld.y, actor.rayResult.hitNormalWorld.z);
+		const q = new Quaternion().setFromUnitVectors(up, normal);
+		const m = new Matrix4().makeRotationFromQuaternion(q);
 
 		// Rotate the velocity vector
 		newVelocity.applyMatrix4(m);
@@ -95,12 +95,12 @@ export const physicsPostStep: Behavior = (entity): void => {
 		if (actor.initJumpSpeed > -1) {
 			// Flatten velocity
 			body.velocity.y = 0;
-			let speed = Math.max(actor.velocitySimulator.position.length() * 4, actor.initJumpSpeed);
+			const speed = Math.max(actor.velocitySimulator.position.length() * 4, actor.initJumpSpeed);
 			body.velocity = cannonFromThreeVector(actor.orientation.clone().multiplyScalar(speed));
 		}
 		else {
 			// Moving objects compensation
-			let add = new Vec3();
+			const add = new Vec3();
 			actor.rayResult.body.getVelocityAtWorldPoint(actor.rayResult.hitPointWorld, add);
 			body.velocity.vsub(add, body.velocity);
 		}

@@ -18,10 +18,10 @@ let actor, camera
 let inputValue, startValue
 const q = new Quaternion();
 const direction = new Vector3();
-let sensitivity = [1,1]
+const sensitivity = [1,1]
 let mx, qw
-let movementSpeed = 0.06;
-let radius = 3;
+const movementSpeed = 0.06;
+const radius = 3;
 let theta = 0;
 let phi = 0;
 

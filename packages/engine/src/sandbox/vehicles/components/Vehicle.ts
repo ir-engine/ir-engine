@@ -23,7 +23,7 @@ export abstract class Vehicle extends Component<Vehicle>
 	public spawnPoint: THREE.Object3D;
 	private modelContainer: THREE.Group;
 
-	private firstPerson: boolean = false;
+	private firstPerson = false;
 
 	constructor(gltf: any, handlingSetup?: any)
 	{
@@ -35,7 +35,7 @@ export abstract class Vehicle extends Component<Vehicle>
 		handlingSetup.directionLocal = new Vec3(0, -1, 0);
 
 		// Physics mat
-		let mat = new Material('Mat');
+		const mat = new Material('Mat');
 		mat.friction = 0.01;
 
 		// Collision body
@@ -95,13 +95,13 @@ export abstract class Vehicle extends Component<Vehicle>
 		for (let i = 0; i < this.rayCastVehicle.wheelInfos.length; i++)
 		{
 			this.rayCastVehicle.updateWheelTransform(i);
-			let transform = this.rayCastVehicle.wheelInfos[i].worldTransform;
+			const transform = this.rayCastVehicle.wheelInfos[i].worldTransform;
 
-			let wheelObject = this.wheels[i].wheelObject;
+			const wheelObject = this.wheels[i].wheelObject;
 			wheelObject.position.copy(Utils.threeVector(transform.position));
 			wheelObject.quaternion.copy(Utils.threeQuat(transform.quaternion));
 
-			let upAxisWorld = new Vec3();
+			const upAxisWorld = new Vec3();
 			this.rayCastVehicle.getVehicleAxisWorld(this.rayCastVehicle.indexUpAxis, upAxisWorld);
 		}
 	}
@@ -198,7 +198,7 @@ export abstract class Vehicle extends Component<Vehicle>
 	public triggerAction(actionName: string, value: boolean): void
 	{
 		// Get action and set it's parameters
-		let action = this.actions[actionName];
+		const action = this.actions[actionName];
 
 		if (action.isPressed !== value)
 		{
@@ -252,7 +252,7 @@ export abstract class Vehicle extends Component<Vehicle>
 			//     this.position.z + this.camera.position.z
 			// );
 
-			let temp = new THREE.Vector3().copy(this.camera.position);
+			const temp = new THREE.Vector3().copy(this.camera.position);
 			temp.applyQuaternion(this.quaternion);
 			this.world.cameraOperator.target.copy(temp.add(this.position));
 		}
@@ -386,7 +386,7 @@ export abstract class Vehicle extends Component<Vehicle>
 						{
 							child.visible = false;
 
-							let phys = new Box(new Vec3(child.scale.x, child.scale.y, child.scale.z));
+							const phys = new Box(new Vec3(child.scale.x, child.scale.y, child.scale.z));
 							// phys.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
 							this.collision.addShape(phys, new Vec3(child.position.x, child.position.y, child.position.z));
 						}
@@ -394,7 +394,7 @@ export abstract class Vehicle extends Component<Vehicle>
 						{
 							child.visible = false;
 
-							let phys = new Sphere(child.scale.x);
+							const phys = new Sphere(child.scale.x);
 							phys.collisionFilterGroup = CollisionGroups.TrimeshColliders;
 							this.collision.addShape(phys, new Vec3(child.position.x, child.position.y, child.position.z));
 						}
@@ -428,7 +428,7 @@ export abstract class Vehicle extends Component<Vehicle>
 			if (firstSeat.connectedSeatsString !== undefined)
 			{
 				// Get list of connected seat names
-				let conn_seat_names = firstSeat.connectedSeatsString.split(';');
+				const conn_seat_names = firstSeat.connectedSeatsString.split(';');
 				for (const conn_seat_name of conn_seat_names)
 				{
 					// If name not empty

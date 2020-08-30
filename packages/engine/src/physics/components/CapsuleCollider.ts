@@ -11,7 +11,7 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 	constructor(options: any)
 	{
 		super()
-		let defaults = {
+		const defaults = {
 			mass: 0,
 			position: new Vec3(),
 			height: 0.5,
@@ -22,16 +22,16 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 		options = setDefaults(options, defaults);
 		this.options = options;
 
-		let mat = new Material('capsuleMat');
+		const mat = new Material('capsuleMat');
 		mat.friction = options.friction;
 
-		let capsuleBody = new Body({
+		const capsuleBody = new Body({
 			mass: options.mass,
 			position: options.position
 		});
 
 		// Compound shape
-		let sphereShape = new Sphere(options.radius);
+		const sphereShape = new Sphere(options.radius);
 
 		// Materials
 		capsuleBody.material = mat;

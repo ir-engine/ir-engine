@@ -30,7 +30,7 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
     );
   }
   else {
-    let newPos = new Vector3();
+    const newPos = new Vector3();
     getMutableComponent(entity, Object3DComponent).value.getWorldPosition(newPos);
     actor.actorCapsule.body.position.copy(cannonFromThreeVector(newPos));
     actor.actorCapsule.body.interpolatedPosition.copy(cannonFromThreeVector(newPos));

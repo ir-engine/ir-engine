@@ -16,8 +16,8 @@ export class Airplane extends Vehicle
 	private elevatorSimulator: SpringSimulator;
 	private rudderSimulator: SpringSimulator;
 
-	private enginePower: number = 0;
-	private lastDrag: number = 0;
+	private enginePower = 0;
+	private lastDrag = 0;
 
 	constructor(gltf: any)
 	{
@@ -59,7 +59,7 @@ export class Airplane extends Vehicle
 
 	public noDirectionPressed(): boolean
 	{
-		let result = 
+		const result = 
 		!this.actions.throttle.isPressed &&
 		!this.actions.brake.isPressed &&
 		!this.actions.yawLeft.isPressed &&
@@ -173,13 +173,13 @@ export class Airplane extends Vehicle
 
 	public physicsPreStep(body: CANNON.Body, plane: Airplane): void
 	{
-		let quat = Utils.threeQuat(body.quaternion);
-		let right = new THREE.Vector3(1, 0, 0).applyQuaternion(quat);
-		let up = new THREE.Vector3(0, 1, 0).applyQuaternion(quat);
-		let forward = new THREE.Vector3(0, 0, 1).applyQuaternion(quat);
+		const quat = Utils.threeQuat(body.quaternion);
+		const right = new THREE.Vector3(1, 0, 0).applyQuaternion(quat);
+		const up = new THREE.Vector3(0, 1, 0).applyQuaternion(quat);
+		const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(quat);
 		
 		const velocity = new CANNON.Vec3().copy(this.collision.velocity);
-		let velLength1 = body.velocity.length();
+		const velLength1 = body.velocity.length();
 		const currentSpeed = velocity.dot(Utils.cannonVector(forward));
 
 		// Rotation controls influence
@@ -191,18 +191,18 @@ export class Airplane extends Vehicle
 		this.collision.mass = 50 * (1 - (lowerMassInfluence * 0.6));
 
 		// Rotation stabilization
-		let lookVelocity = body.velocity.clone();
+		const lookVelocity = body.velocity.clone();
 		lookVelocity.normalize();
-		let rotStabVelocity = new THREE.Quaternion().setFromUnitVectors(forward, Utils.threeVector(lookVelocity));
+		const rotStabVelocity = new THREE.Quaternion().setFromUnitVectors(forward, Utils.threeVector(lookVelocity));
 		rotStabVelocity.x *= 0.3;
 		rotStabVelocity.y *= 0.3;
 		rotStabVelocity.z *= 0.3;
 		rotStabVelocity.w *= 0.3;
-		let rotStabEuler = new THREE.Euler().setFromQuaternion(rotStabVelocity);
+		const rotStabEuler = new THREE.Euler().setFromQuaternion(rotStabVelocity);
 
 		let rotStabInfluence = THREE.MathUtils.clamp(velLength1 - 1, 0, 0.1);  // Only with speed greater than 1 UPS
 		rotStabInfluence *= (this.rayCastVehicle.numWheelsOnGround > 0 && currentSpeed < 0 ? 0 : 1);    // Reverse fix
-		let loopFix = (this.actions.throttle.isPressed && currentSpeed > 0 ? 0 : 1);
+		const loopFix = (this.actions.throttle.isPressed && currentSpeed > 0 ? 0 : 1);
 		
 		body.angularVelocity.x += rotStabEuler.x * rotStabInfluence * loopFix;
 		body.angularVelocity.y += rotStabEuler.y * rotStabInfluence;
@@ -273,7 +273,7 @@ export class Airplane extends Vehicle
 		// document.getElementById('car-debug').innerHTML += '<br>' + 'Power output: ' + Utils.round(velLength1 * this.lastDrag, 2) + '';
 
 		// Drag
-		let velLength2 = body.velocity.length();
+		const velLength2 = body.velocity.length();
 		const drag = Math.pow(velLength2, 1) * 0.003 * this.enginePower;
 		body.velocity.x -= body.velocity.x * drag;
 		body.velocity.y -= body.velocity.y * drag;

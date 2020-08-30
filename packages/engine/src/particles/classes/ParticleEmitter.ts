@@ -26,7 +26,7 @@ const error = console.error
 const FRAME_STYLES = ["sequence", "randomsequence", "random"]
 const DEG2RAD = MathUtils.DEG2RAD
 
-let emitterRegistry = new Set()
+const emitterRegistry = new Set()
 // let emitterRegistry = []
 
 export function createParticleEmitter(
@@ -114,7 +114,7 @@ export function createParticleEmitter(
     loadTexturePackerJSON(mesh, config, startIndex, endIndex)
   }
 
-  let emitter = {
+  const emitter = {
     startTime, 
     startIndex, 
     endIndex,
@@ -129,7 +129,7 @@ export function createParticleEmitter(
 //needsUpdate
 
 export function deleteParticleEmitter(emitter: ParticleEmitter): void {
-  let shiftAmount = emitter.endIndex - emitter.startIndex
+  const shiftAmount = emitter.endIndex - emitter.startIndex
   emitterRegistry.delete(emitter)
 
 
@@ -139,14 +139,14 @@ export function deleteParticleEmitter(emitter: ParticleEmitter): void {
   needsUpdate(emitter.mesh.geometry)
   
   
-  let geometry = emitter.mesh.geometry
+  const geometry = emitter.mesh.geometry
 
   for(let i = emitter.startIndex; i <= emitter.mesh.userData.nextIndex; i++){
     copyEmitterAttrs(geometry, i, shiftAmount)
   }
   console.log(geometry.attributes)
   emitter.mesh.userData.nextIndex -= shiftAmount
-  let arrayEmitter = Array.from(emitterRegistry)
+  const arrayEmitter = Array.from(emitterRegistry)
   for(let i = 0; i < emitterRegistry.size; i++) {
     if(i == 0 ? arrayEmitter[i]["startIndex"] != 0 : arrayEmitter[i - 1]["endIndex"] != arrayEmitter[i]["startIndex"]){
       arrayEmitter[i]["startIndex"] -= shiftAmount
@@ -285,7 +285,7 @@ function despawn(geometry, index) {
   // TODO: cleanup mesh!
 
   // matrixWorld = null
-  let matrixWorld = {
+  const matrixWorld = {
     elements: []
   }
 

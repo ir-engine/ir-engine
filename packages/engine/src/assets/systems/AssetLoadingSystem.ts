@@ -49,7 +49,7 @@ export default class AssetLoadingSystem extends System {
       // Load the asset with a calback to add it to our processing queue
       loadAsset(assetLoader.url, (asset: any) => {
         // This loads the editor scene
-
+        console.log(' --- loadAsset.onAssetLoaded')
         this.loaded.set(entity, asset);
       });
     })
@@ -102,7 +102,7 @@ export default class AssetLoadingSystem extends System {
       }
       getMutableComponent<AssetLoader>(entity, AssetLoader).loaded = true;
       
-      AssetVault.instance.assets.set(hashResourceString(component.url), asset.scene);
+      AssetVault.instance.assets.set(hashResourceString(component.url), asset);
       
       if (component.onLoaded) {
         component.onLoaded(asset);
@@ -112,7 +112,7 @@ export default class AssetLoadingSystem extends System {
     this.loaded?.clear();
 
     this.queryResults.toUnload.all.forEach((entity: Entity) => {
-      console.log("Entity should be unloaded", entity)
+      // console.log("Entity should be unloaded", entity)
       return
       removeComponent(entity, AssetLoaderState);
       if(hasComponent(entity, Object3DComponent)){

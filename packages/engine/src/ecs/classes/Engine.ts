@@ -16,7 +16,7 @@ export class Engine {
   //public static stats: Stats
   // Move for sure
   // public static sky: Sky;
-  public static isExecuting: boolean = false;
+  public static isExecuting = false;
 
 public static framerateLimit = 60;
 
@@ -24,7 +24,7 @@ public static framerateLimit = 60;
 	public static justExecuted: boolean;
 	public static params: any;
 	public static cameraOperator: CameraOperator;
-	public static timeScaleTarget: number = 1;
+	public static timeScaleTarget = 1;
   public static clock = new Clock;
   /**
    * Reference to the three.js renderer object

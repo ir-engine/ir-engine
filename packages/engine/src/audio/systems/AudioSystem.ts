@@ -35,7 +35,7 @@ export class AudioSystem extends System {
 
     execute(delta, time) {
         this.queries.sound_effects.added?.forEach(ent => {
-            let effect = ent.getComponent(SoundEffect)
+            const effect = ent.getComponent(SoundEffect)
             if(effect.src && !this.audio) {
                 effect.audio = new Audio()
                 console.log("loading the audio",effect.src)

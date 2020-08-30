@@ -11,7 +11,7 @@ export class RelativeSpringSimulator extends SimulatorBase
 	public lastLerp: number;
 	public cache: SimulationFrame[];
 
-	constructor(fps: number, mass: number, damping: number, startPosition: number = 0, startVelocity: number = 0)
+	constructor(fps: number, mass: number, damping: number, startPosition = 0, startVelocity = 0)
 	{
 		// Construct base
 		super(fps, mass, damping);
@@ -47,7 +47,7 @@ export class RelativeSpringSimulator extends SimulatorBase
 
 		// SpringR lerping
 		// Lerp from 0 to next frame
-		let lerp = THREE.MathUtils.lerp(0, this.cache[1].position, this.offset / this.frameTime);
+		const lerp = THREE.MathUtils.lerp(0, this.cache[1].position, this.offset / this.frameTime);
 
 		// Substract last lerp from current to make output relative
 		this.position = (lerp - this.lastLerp);
@@ -61,7 +61,7 @@ export class RelativeSpringSimulator extends SimulatorBase
 	 */
 	public getFrame(isLastFrame: boolean): SimulationFrame
 	{
-		let newFrame = Object.assign({}, this.lastFrame());
+		const newFrame = Object.assign({}, this.lastFrame());
 
 		if (isLastFrame)
 		{

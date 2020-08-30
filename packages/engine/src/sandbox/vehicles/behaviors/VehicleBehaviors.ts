@@ -21,21 +21,21 @@ export const findVehicleToEnter: Behavior = (entity, args: { wantsToDrive: boole
     const character: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
     const characterTransform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent as any);
     // reusable world position variable
-    let worldPos = new Vector3();
+    const worldPos = new Vector3();
 
     // Find best vehicle
-    let vehicleFinder = new ClosestObjectFinder<Vehicle>(characterTransform.position, 10);
+    const vehicleFinder = new ClosestObjectFinder<Vehicle>(characterTransform.position, 10);
     Engine.vehicles.forEach((vehicle) => {
         vehicleFinder.consider(vehicle, vehicle.position);
     });
 
     if (vehicleFinder.closestObject !== undefined) {
-        let vehicle = vehicleFinder.closestObject;
-        let vehicleEntryInstance = new VehicleEntryInstance(character);
+        const vehicle = vehicleFinder.closestObject;
+        const vehicleEntryInstance = new VehicleEntryInstance(character);
         vehicleEntryInstance.wantsToDrive = args.wantsToDrive;
 
         // Find best seat
-        let seatFinder = new ClosestObjectFinder<VehicleSeat>(characterTransform.position);
+        const seatFinder = new ClosestObjectFinder<VehicleSeat>(characterTransform.position);
         for (const seat of vehicle.seats) {
             if (args.wantsToDrive) {
                 // Consider driver seats
@@ -64,10 +64,10 @@ export const findVehicleToEnter: Behavior = (entity, args: { wantsToDrive: boole
         }
 
         if (seatFinder.closestObject !== undefined) {
-            let targetSeat = seatFinder.closestObject;
+            const targetSeat = seatFinder.closestObject;
             vehicleEntryInstance.targetSeat = targetSeat;
 
-            let entryPointFinder = new ClosestObjectFinder<Object3D>(characterTransform.position);
+            const entryPointFinder = new ClosestObjectFinder<Object3D>(characterTransform.position);
 
             for (const point of targetSeat.entryPoints) {
                 point.getWorldPosition(worldPos);

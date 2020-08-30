@@ -15,7 +15,7 @@ export class TrimeshCollider extends Component<TrimeshCollider>
 		super()
 		this.mesh = mesh.clone();
 
-		let defaults = {
+		const defaults = {
 			mass: 0,
 			position: mesh.position,
 			rotation: mesh.quaternion,
@@ -24,15 +24,15 @@ export class TrimeshCollider extends Component<TrimeshCollider>
 		options = setDefaults(options, defaults);
 		this.options = options;
 
-		let mat = new Material('triMat');
+		const mat = new Material('triMat');
 		mat.friction = options.friction;
 		// mat.restitution = 0.7;
 
-		let shape = threeToCannon(this.mesh, {type: threeToCannon.Type.MESH});
+		const shape = threeToCannon(this.mesh, {type: threeToCannon.Type.MESH});
 		// shape['material'] = mat;
 
 		// Add phys sphere
-		let physBox = new Body({
+		const physBox = new Body({
 			mass: options.mass,
 			position: options.position,
 			quaternion: options.rotation,

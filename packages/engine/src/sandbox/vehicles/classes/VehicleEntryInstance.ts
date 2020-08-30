@@ -5,7 +5,7 @@ export class VehicleEntryInstance
 {
 	public targetSeat: VehicleSeat;
 	public entryPoint: THREE.Object3D;
-	public wantsToDrive: boolean = false;
+	public wantsToDrive = false;
 
 	constructor(character: any)
 	{
@@ -14,7 +14,7 @@ export class VehicleEntryInstance
 
 	public update(timeStep: number): void
 	{
-		let entryPointWorldPos = new THREE.Vector3();
+		const entryPointWorldPos = new THREE.Vector3();
 		this.entryPoint.getWorldPosition(entryPointWorldPos);
 		// let viewVector = new THREE.Vector3().subVectors(entryPointWorldPos, this.character.position);
 		// this.character.setOrientation(viewVector);

@@ -39,7 +39,9 @@ export const ColliderBehavior: Behavior = (entity: Entity, args: { phase: string
     PhysicsManager.instance.physicsWorld.addBody(body);
     }
   } else if (args.phase == 'onRemoved') {
-    const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent).collider;
-    PhysicsManager.instance.physicsWorld.removeBody(collider);
+    const collider = getComponent<ColliderComponent>(entity, ColliderComponent, true)?.collider;
+    if (collider) {
+      PhysicsManager.instance.physicsWorld.removeBody(collider);
+    }
   }
 };

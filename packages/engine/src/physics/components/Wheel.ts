@@ -4,7 +4,7 @@ export class Wheel extends Component<Wheel>
 {
 	public wheelObject: THREE.Object3D;
 	public position: THREE.Vector3;
-	public steering: boolean = false;
+	public steering = false;
 	public drive: string; // Drive type "fwd" or "rwd"
 	public rayCastWheelInfoIndex: number; // Linked to a raycast vehicle WheelInfo structure
 

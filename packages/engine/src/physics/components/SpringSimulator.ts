@@ -10,7 +10,7 @@ export class SpringSimulator extends SimulatorBase
 	public target: number;
 	public cache: SimulationFrame[];
 	
-	constructor(fps: number, mass: number, damping: number, startPosition: number = 0, startVelocity: number = 0)
+	constructor(fps: number, mass: number, damping: number, startPosition = 0, startVelocity = 0)
 	{
 		// Construct base
 		super(fps, mass, damping);

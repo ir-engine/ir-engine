@@ -54,7 +54,7 @@ export class VectorSpringSimulator extends SimulatorBase
 	public getFrame(isLastFrame: boolean): SimulationFrameVector
 	{
 		// Deep clone data from previous frame
-		let newSpring = new SimulationFrameVector(this.lastFrame().position.clone(), this.lastFrame().velocity.clone());
+		const newSpring = new SimulationFrameVector(this.lastFrame().position.clone(), this.lastFrame().velocity.clone());
 		
 		// Calculate new Spring
 		springV(newSpring.position, this.target, newSpring.velocity, this.mass, this.damping);

@@ -12,7 +12,7 @@ export function createBox (entity: Entity) {
   const rigidBody = getComponent<RigidBody>(entity, RigidBody);
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
 
-  let mass = rigidBody ? collider.mass : 0;
+  const mass = rigidBody ? collider.mass : 0;
 
   const shape = new Box(new Vec3(collider.scale[0] / 2, collider.scale[1] / 2, collider.scale[2] / 2));
 

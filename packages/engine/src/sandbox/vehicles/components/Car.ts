@@ -12,25 +12,25 @@ import { EntityType } from '../enums/EntityType';
 export class Car extends Vehicle implements IControllable
 {
 	public entityType: EntityType = EntityType.Car;
-	public drive: string = 'awd';
+	public drive = 'awd';
 	get speed(): number {
 		return this._speed;
 	}
-	private _speed: number = 0;
+	private _speed = 0;
 
 	// private wheelsDebug: THREE.Mesh[] = [];
 	private steeringWheel: THREE.Object3D;
-	private airSpinTimer: number = 0;
+	private airSpinTimer = 0;
 
 	private steeringSimulator: SpringSimulator;
-	private gear: number = 1;
+	private gear = 1;
 
 	// Transmission
 	private shiftTimer: number;
-	private timeToShift: number = 0.2;
+	private timeToShift = 0.2;
 
-	private canTiltForwards: boolean = false;
-	private characterWantsToExit: boolean = false;
+	private canTiltForwards = false;
+	private characterWantsToExit = false;
 
 	constructor(gltf: any)
 	{
@@ -65,7 +65,7 @@ export class Car extends Vehicle implements IControllable
 
 	public noDirectionPressed(): boolean
 	{
-		let result = 
+		const result = 
 		!this.actions.throttle.isPressed &&
 		!this.actions.reverse.isPressed &&
 		!this.actions.left.isPressed &&
@@ -148,7 +148,7 @@ export class Car extends Vehicle implements IControllable
 		// Getting out
 		if (this.characterWantsToExit && this.controllingCharacter !== undefined && this.controllingCharacter.charState.canLeaveVehicles)
 		{
-			let speed = this.collision.velocity.length();
+			const speed = this.collision.velocity.length();
 
 			if (speed > 0.1 && speed < 4)
 			{
@@ -236,19 +236,19 @@ export class Car extends Vehicle implements IControllable
 		// Steering
 		const velocity = new CANNON.Vec3().copy(this.collision.velocity);
 		velocity.normalize();
-		let driftCorrection = Utils.getSignedAngleBetweenVectors(Utils.threeVector(velocity), forward);
+		const driftCorrection = Utils.getSignedAngleBetweenVectors(Utils.threeVector(velocity), forward);
 
 		const maxSteerVal = 0.8;
-		let speedFactor = THREE.MathUtils.clamp(this.speed * 0.3, 1, Number.MAX_VALUE);
+		const speedFactor = THREE.MathUtils.clamp(this.speed * 0.3, 1, Number.MAX_VALUE);
 
 		if (this.actions.right.isPressed)
 		{
-			let steering = Math.min(-maxSteerVal / speedFactor, -driftCorrection);
+			const steering = Math.min(-maxSteerVal / speedFactor, -driftCorrection);
 			this.steeringSimulator.target = THREE.MathUtils.clamp(steering, -maxSteerVal, maxSteerVal);
 		}
 		else if (this.actions.left.isPressed)
 		{
-			let steering = Math.max(maxSteerVal / speedFactor, -driftCorrection);
+			const steering = Math.max(maxSteerVal / speedFactor, -driftCorrection);
 			this.steeringSimulator.target = THREE.MathUtils.clamp(steering, -maxSteerVal, maxSteerVal);
 		}
 		else this.steeringSimulator.target = 0;
