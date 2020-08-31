@@ -1,17 +1,17 @@
-// import { rotateStart } from '../../common/defaults/behaviors/updateLookingState';
+import { BinaryValue } from '../../common/enums/BinaryValue';
+import { Thumbsticks } from '../../common/enums/Thumbsticks';
 import { disableScroll, enableScroll } from '../../common/functions/enableDisableScrolling';
 import { preventDefault } from '../../common/functions/preventDefault';
-import { DefaultInput } from '../shared/DefaultInput';
-import { InputSchema } from '../../input/interfaces/InputSchema';
-import { BinaryValue } from '../../common/enums/BinaryValue';
-import { handleKey, handleMouseMovement, handleMouseButton } from '../../input/behaviors/DesktopInputBehaviors';
+import { handleKey, handleMouseButton, handleMouseMovement } from '../../input/behaviors/DesktopInputBehaviors';
 import { handleGamepadConnected, handleGamepadDisconnected } from '../../input/behaviors/GamepadInputBehaviors';
+import { handleTouch, handleTouchMove } from '../../input/behaviors/TouchBehaviors';
 import { GamepadButtons } from '../../input/enums/GamepadButtons';
-import { Thumbsticks } from '../../common/enums/Thumbsticks';
-import { InputRelationship } from '../../input/interfaces/InputRelationship';
-import { drive } from '../../physics/behaviors/driveBehavior';
 import { InputType } from '../../input/enums/InputType';
-// import { rotateAround } from '../../common/defaults/behaviors/rotate';
+import { MouseButtons } from '../../input/enums/MouseButtons';
+import { InputRelationship } from '../../input/interfaces/InputRelationship';
+import { InputSchema } from '../../input/interfaces/InputSchema';
+import { drive } from '../../physics/behaviors/driveBehavior';
+import { DefaultInput } from '../shared/DefaultInput';
 
 export const VehicleInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -57,10 +57,42 @@ export const VehicleInputSchema: InputSchema = {
           value: BinaryValue.ON
         }
       }
+    ],
+
+    // Touch
+    touchstart: [
+      {
+        behavior: handleTouch,
+        args: {
+          value: BinaryValue.ON
+        }
+      },
       // {
       //   behavior: rotateStart
       // }
     ],
+    touchend: [
+      {
+        behavior: handleTouch,
+        args: {
+          value: BinaryValue.OFF
+        }
+      }
+    ],
+    touchcancel: [
+      {
+        behavior: handleTouch,
+        args: {
+          value: BinaryValue.OFF
+        }
+      }
+    ],
+    touchmove: [
+      {
+        behavior: handleTouchMove
+      }
+    ],
+
     // Keys
     keyup: [
       {
@@ -92,6 +124,11 @@ export const VehicleInputSchema: InputSchema = {
   },
   // Map mouse buttons to abstract input
   mouseInputMap: {
+    buttons: {
+      [MouseButtons.LeftButton]: DefaultInput.PRIMARY,
+      [MouseButtons.RightButton]: DefaultInput.SECONDARY
+      // [MouseButtons.MiddleButton]: DefaultInput.INTERACT
+    },
     axes: {
       mousePosition: DefaultInput.SCREENXY,
       mouseClickDownPosition: DefaultInput.SCREENXY_START,
@@ -101,6 +138,18 @@ export const VehicleInputSchema: InputSchema = {
   // Map gamepad buttons to abstract input
   gamepadInputMap: {
     buttons: {
+      [GamepadButtons.A]: DefaultInput.JUMP,
+      [GamepadButtons.B]: DefaultInput.CROUCH, // B - back
+      // [GamepadButtons.X]: DefaultInput.SPRINT, // X - secondary input
+      // [GamepadButtons.Y]: DefaultInput.INTERACT, // Y - tertiary input
+      // 4: DefaultInput.DEFAULT, // LB
+      // 5: DefaultInput.DEFAULT, // RB
+      // 6: DefaultInput.DEFAULT, // LT
+      // 7: DefaultInput.DEFAULT, // RT
+      // 8: DefaultInput.DEFAULT, // Back
+      // 9: DefaultInput.DEFAULT, // Start
+      // 10: DefaultInput.DEFAULT, // LStick
+      // 11: DefaultInput.DEFAULT, // RStick
       [GamepadButtons.DPad1]: DefaultInput.FORWARD, // DPAD 1
       [GamepadButtons.DPad2]: DefaultInput.BACKWARD, // DPAD 2
       [GamepadButtons.DPad3]: DefaultInput.LEFT, // DPAD 3
@@ -108,7 +157,7 @@ export const VehicleInputSchema: InputSchema = {
     },
     axes: {
       [Thumbsticks.Left]: DefaultInput.MOVEMENT_PLAYERONE,
-      [Thumbsticks.Right]: DefaultInput.SCREENXY
+      [Thumbsticks.Right]: DefaultInput.LOOKTURN_PLAYERONE
     }
   },
   // Map keyboard buttons to abstract input
@@ -116,15 +165,32 @@ export const VehicleInputSchema: InputSchema = {
     w: DefaultInput.FORWARD,
     a: DefaultInput.LEFT,
     s: DefaultInput.BACKWARD,
-    d: DefaultInput.RIGHT
+    d: DefaultInput.RIGHT,
+    ' ': DefaultInput.JUMP,
+    shift: DefaultInput.CROUCH
   },
   // Map how inputs relate to each other
   inputRelationships: {
     [DefaultInput.FORWARD]: { opposes: [DefaultInput.BACKWARD] } as InputRelationship,
     [DefaultInput.BACKWARD]: { opposes: [DefaultInput.FORWARD] } as InputRelationship,
     [DefaultInput.LEFT]: { opposes: [DefaultInput.RIGHT] } as InputRelationship,
-    [DefaultInput.RIGHT]: { opposes: [DefaultInput.LEFT] } as InputRelationship
+    [DefaultInput.RIGHT]: { opposes: [DefaultInput.LEFT] } as InputRelationship,
+    [DefaultInput.CROUCH]: { blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT] } as InputRelationship,
+    [DefaultInput.JUMP]: { overrides: [DefaultInput.CROUCH] } as InputRelationship
   },
+  // onInputButtonBehavior: {
+  //     [BinaryValue.ON]: {
+  //       started: [
+  //         {
+  //           behavior: sendMessage,
+  //           args: {}
+  //         }
+  //       ]
+  //     },
+  //     [BinaryValue.OFF]: {
+
+  //     }
+  //   }
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
     [DefaultInput.FORWARD]: {
@@ -147,6 +213,12 @@ export const VehicleInputSchema: InputSchema = {
             }
           }
         ]
+      },
+      [BinaryValue.OFF]: {
+        started: [
+        ],
+        continued: [
+        ]
       }
     },
     [DefaultInput.BACKWARD]: {
@@ -168,6 +240,12 @@ export const VehicleInputSchema: InputSchema = {
               value: [0, 1]
             }
           }
+        ]
+      },
+      [BinaryValue.OFF]: {
+        started: [
+        ],
+        continued: [
         ]
       }
     },
@@ -194,6 +272,12 @@ export const VehicleInputSchema: InputSchema = {
             }
           }
         ]
+      },
+      [BinaryValue.OFF]: {
+        started: [
+        ],
+        continued: [
+        ]
       }
     },
     [DefaultInput.RIGHT]: {
@@ -216,6 +300,12 @@ export const VehicleInputSchema: InputSchema = {
             }
           }
         ]
+      },
+      [BinaryValue.OFF]: {
+        started: [
+        ],
+        continued: [
+        ]
       }
     }
   },
@@ -223,13 +313,6 @@ export const VehicleInputSchema: InputSchema = {
   inputAxisBehaviors: {
     [DefaultInput.MOVEMENT_PLAYERONE]: {
       started: [
-        {
-          behavior: drive,
-          args: {
-            input: DefaultInput.MOVEMENT_PLAYERONE,
-            inputType: InputType.TWOD
-          }
-        }
       ],
       continued: [
         {

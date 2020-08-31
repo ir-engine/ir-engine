@@ -12,16 +12,14 @@ export class CameraComponent extends Component<CameraComponent> {
   far: number // Geometry farther than this gets removed
   layers: number // Bitmask of layers the camera can see, converted to an int
   handleResize: boolean // Should the camera resize if the window does?
-  /**
-   * Constructs a new camera component
-   */
-  constructor() {
+  mode: string // "firstPerson" or "thirdPerson"
+  distance: number // third person distance to target object
+  constructor () {
     super();
     CameraComponent.instance = this;
   }
 
   dispose():void {
-    console.warn('DISPOSE CameraComponent')
     super.dispose();
     CameraComponent.instance = null;
   }
@@ -31,5 +29,8 @@ export class CameraComponent extends Component<CameraComponent> {
   * The type field must be set for each property.
  */
 CameraComponent.schema = {
-  followTarget: { type: Types.Ref, default: null }
+  camera: { type: Types.Ref, default: null },
+  followTarget: { type: Types.Ref, default: null },
+  mode: { type: Types.String, default: '' },
+  distance: { type: Types.Number, default: 0 }
 };

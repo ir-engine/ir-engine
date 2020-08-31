@@ -18,6 +18,10 @@ let actor, camera
 let inputValue, startValue
 const q = new Quaternion();
 const direction = new Vector3();
+
+const maxAngleX = 35.0472
+const maxAngleY = 35.0472
+
 let sensitivity = [1,1]
 let mx, qw
 let movementSpeed = 0.06;
@@ -39,7 +43,18 @@ export const followTarget: Behavior = (entityIn: Entity, args: any, delta: any, 
 
   //console.log(inputComponent.schema.mouseInputMap.axes.mouseClickDownPosition);
 
-  mouseDownPosition = inputComponent.data.get(15);
+  if (inputComponent) {
+    mouseDownPosition = inputComponent.data.get(15);
+    if (mouseDownPosition == undefined) return;
+    if (!inputComponent.data.has(args.input)) {
+      inputComponent.data.set(args.input, { type: InputType.TWOD, value: new Vector3() });
+    }
+    inputValue = inputComponent.data.get(args.input).value //as Vector2;
+    startValue = mouseDownPosition.value //as Vector2;
+  } else {
+    inputValue = [0, 0]
+    startValue = [0, 0]
+  }
 
 
 /*
@@ -47,28 +62,42 @@ export const followTarget: Behavior = (entityIn: Entity, args: any, delta: any, 
     inputComponent.schema.mouseInputMap.axes.mouseClickDownTransformRotation
   );
 */
-  if (mouseDownPosition == undefined) return;
 
-  if (!inputComponent.data.has(args.input)) {
-    inputComponent.data.set(args.input, { type: InputType.TWOD, value: new Vector3() });
-  }
 
-  inputValue = inputComponent.data.get(args.input).value //as Vector2;
-  startValue = mouseDownPosition.value //as Vector2;
 
-  valueX = (inputValue[0] - startValue[0])
-  valueY = (inputValue[1] - startValue[1])
+//  if (inputComponent.data.has(args.input)) {
+      if (camera.mode === "firstPerson") {
+        if (inputComponent) {
+          valueX += inputValue[0] - startValue[0]
+          valueY += inputValue[1] - startValue[1]
 
-    if (inputComponent.data.has(args.input)) {
+          valueY > (maxAngleY / Math.PI) ? valueY = (maxAngleY / Math.PI):'';
+          valueY < -(maxAngleY / Math.PI) ? valueY = -(maxAngleY / Math.PI):'';
+           
+          q.setFromEuler(-Math.min(Math.max(valueY* Math.PI, -maxAngleY), maxAngleY), valueX * Math.PI, 0);
+
+          target.rotation = [q[0], q[1], q[2], q[3]];
+          target.position[1] = 2
+        }
+        follower.copy(target);
+      }
+
+      else if (camera.mode === "thirdPerson") {
+
+        valueX = (inputValue[0] - startValue[0])
+        valueY = (inputValue[1] - startValue[1])
+
+        valueY > (maxAngleY / Math.PI) ? valueY = (maxAngleY / Math.PI):'';
+        valueY < -(maxAngleY / Math.PI) ? valueY = -(maxAngleY / Math.PI):'';
 
         theta -= valueY * (1 / 2);
         theta %= 360;
         phi += valueX * (1 / 2);
         phi = Math.min(85, Math.max(-85, phi));
 
-        follower.position[0] = target.position[0] + 5 * Math.cos(theta *  Math.PI / 180) *  Math.cos(phi * Math.PI / 180);
-        follower.position[1] = target.position[1] + 5 * Math.sin(theta *  Math.PI / 180) *  Math.cos(phi * Math.PI / 180);
-        follower.position[2] = target.position[2] + 5 * Math.sin(phi *  Math.PI / 180);
+        follower.position[0] = target.position[0] + camera.distance * Math.cos(theta *  Math.PI / 180) *  Math.cos(phi * Math.PI / 180);
+        follower.position[1] = target.position[1] + camera.distance * Math.sin(theta *  Math.PI / 180) *  Math.cos(phi * Math.PI / 180);
+        follower.position[2] = target.position[2] + camera.distance * Math.sin(phi *  Math.PI / 180);
 
         direction.sub(target.position)
         direction.normalize()
@@ -79,5 +108,5 @@ export const followTarget: Behavior = (entityIn: Entity, args: any, delta: any, 
 
         follower.rotation = [qw.x, qw.y, qw.z, qw.w];
         target.rotation = [qw.x, qw.y, qw.z, qw.w];
-  }
+      }
 };

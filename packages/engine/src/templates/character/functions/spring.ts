@@ -1,4 +1,4 @@
-import { SimulationFrame } from '../../../physics/components/SimulationFrame';
+import { SimulationFrame } from '../../../physics/classes/SimulationFrame';
 
 export function spring(source: number, dest: number, velocity: number, mass: number, damping: number): SimulationFrame {
 	let acceleration = dest - source;

@@ -7,6 +7,8 @@ import { WebXRSession } from '../components/WebXRSession';
 import { CharacterInputSchema } from '../../templates/character/CharacterInputSchema';
 import { initVR } from '../functions/WebXRFunctions';
 import { getMutableComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
+import { Entity } from "../../ecs/classes/Entity";
+import { ListenerBindingData } from "../interfaces/ListenerBindingData";
 
 /**
  * Input System
@@ -26,6 +28,7 @@ export class InputSystem extends System {
   private readonly boundListeners //= new Set()
   readonly useWebXR
   readonly onVRSupportRequested
+  private entityListeners:Map<Entity, Array<ListenerBindingData>>
 
   constructor (attributes:any) {
     super(attributes);
@@ -34,6 +37,7 @@ export class InputSystem extends System {
     this.mainControllerId = 0;
     this.secondControllerId = 1;
     this.boundListeners = new Set();
+    this.entityListeners = new Map();
   }
   
   /**
@@ -87,12 +91,19 @@ export class InputSystem extends System {
         behavior.behavior(entity, { ...behavior.args });
       });
       // Bind DOM events to event behavior
+      const listenersDataArray:ListenerBindingData[] = []
+      this.entityListeners.set(entity, listenersDataArray)
       Object.keys(this._inputComponent.schema.eventBindings)?.forEach((eventName: string) => {
         this._inputComponent.schema.eventBindings[eventName].forEach((behaviorEntry: any) => {
           const domElement = behaviorEntry.selector ? document.querySelector(behaviorEntry.selector) : document;
           if (domElement) {
             const listener = (event: Event) => behaviorEntry.behavior(entity, { event, ...behaviorEntry.args });
             domElement.addEventListener(eventName, listener);
+            listenersDataArray.push({
+              domElement,
+              eventName,
+              listener
+            })
             return [domElement, eventName, listener];
           } else {
             console.warn('DOM Element not found:', domElement);
@@ -103,24 +114,15 @@ export class InputSystem extends System {
     });
 
     // Called when input component is removed from entity
-    if (this.queryResults.inputs.removed.length > 0) {
-      console.warn('removing inputs!')
-    }
     this.queryResults.inputs.removed.forEach(entity => {
       // Get component reference
-      this._inputComponent = getComponent(entity, Input);
+      this._inputComponent = getComponent(entity, Input, true);
       // Call all behaviors in "onRemoved" of input map
       this._inputComponent.schema.onRemoved.forEach(behavior => {
         behavior.behavior(entity, behavior.args);
       });
       // Unbind events from DOM
-      Object.keys(this._inputComponent.schema.eventBindings).forEach((event: string) => {
-        this._inputComponent.schema.eventBindings[event].forEach((behaviorEntry: any) => {
-          document.removeEventListener(event, e => {
-            behaviorEntry.behavior(entity, { event: e, ...behaviorEntry.args });
-          });
-        });
-      });
+      this.entityListeners.get(entity).forEach(listenerData => listenerData.domElement?.removeEventListener(listenerData.eventName, listenerData.listener) )
 
       const bound = this.boundListeners[entity.id];
       if (bound) {
@@ -130,6 +132,8 @@ export class InputSystem extends System {
         }
         delete this.boundListeners[entity.id];
       }
+
+      this.entityListeners.delete(entity)
     });
   }
 }

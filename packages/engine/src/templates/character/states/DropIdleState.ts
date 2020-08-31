@@ -8,6 +8,15 @@ import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { CharacterComponent } from '../components/CharacterComponent';
+import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
+import { findVehicle } from '../functions/findVehicle';
+import { jumpIdle } from '../behaviors/jumpIdle';
+import { DefaultInput } from '../../shared/DefaultInput';
+import { addState } from '../../../state/behaviors/StateBehaviors';
+import { Input } from '../../../input/components/Input';
+import { getComponent } from '../../../ecs/functions/EntityFunctions';
+import { getLocalMovementDirection } from '../functions/getLocalMovementDirection';
+import { setJumpingState } from '../behaviors/setJumpingState';
 
 export const DropIdleState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
@@ -40,10 +49,21 @@ export const DropIdleState: StateSchemaValue = {
       setCameraRelativeOrientationTarget: true
     }
   },
-    // TODO: Might not need this since other actions can affect
-    { behavior: setMovingState,
+  {
+    behavior: triggerActionIfMovementHasChanged,
     args: {
-      transitionToState: CharacterStateTypes.WALK_START_FORWARD
+      action: (entity) => {
+        // Default behavior for all states
+        findVehicle(entity);
+        // Check if we're trying to jump now
+        const input = getComponent(entity, Input)
+        if (input.data.has(DefaultInput.JUMP))
+          return addState(entity, { state: CharacterStateTypes.JUMP_IDLE })
+        // Check if we're trying to move
+        setMovingState(entity, {
+          transitionToState: CharacterStateTypes.WALK_START_FORWARD
+        });
+      }
     }
   },
     { behavior: onAnimationEnded,

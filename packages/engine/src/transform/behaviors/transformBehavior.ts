@@ -13,6 +13,6 @@ export const transformBehavior: Behavior = (entity: Entity, args: { event: Mouse
   if (object3DComponent !== undefined) {
   object3DComponent.value.position.copy(transform.position)
   object3DComponent.value.rotation.setFromQuaternion(transform.rotation)
-  object3DComponent.value.updateMatrixWorld();
+  // object3DComponent.value.updateMatrixWorld();
   }
 };

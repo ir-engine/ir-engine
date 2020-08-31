@@ -5,8 +5,8 @@ import { Object3DComponent } from "../../../common/components/Object3DComponent"
 import { Behavior } from "../../../common/interfaces/Behavior";
 import { addComponent, getMutableComponent, hasComponent, getComponent } from "../../../ecs/functions/EntityFunctions";
 import { CapsuleCollider } from "../../../physics/components/CapsuleCollider";
-import { RelativeSpringSimulator } from "../../../physics/components/RelativeSpringSimulator";
-import { VectorSpringSimulator } from "../../../physics/components/VectorSpringSimulator";
+import { RelativeSpringSimulator } from "../../../physics/classes/RelativeSpringSimulator";
+import { VectorSpringSimulator } from "../../../physics/classes/VectorSpringSimulator";
 import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
 import { addState } from "../../../state/behaviors/StateBehaviors";
 import { CharacterComponent } from "../components/CharacterComponent";
@@ -64,10 +64,10 @@ export const initializeCharacter: Behavior = (entity): void => {
 		});
 		actor.actorCapsule = getMutableComponent<CapsuleCollider>(entity, CapsuleCollider)
 		actor.actorCapsule.body.shapes.forEach((shape) => {
-			// shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
+			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
 		});
 		actor.actorCapsule.body.allowSleep = false;
-
+		actor.actorCapsule.body.position = new Vec3()
 		// Move actor to different collision group for raycasting
 		actor.actorCapsule.body.collisionFilterGroup = 2;
 
@@ -100,13 +100,6 @@ export const initializeCharacter: Behavior = (entity): void => {
 		// States
 		addState(entity, { state: CharacterStateTypes.IDLE });
 		actor.initialized = true;
-		const DebugOptions = {
-			color: new Color('red'),
-			onInit: (body: Body, mesh: Mesh, shape: Shape) => 	console.log("body: ", body, " | mesh: ", mesh, " | shape: ", shape),
-			onUpdate: (body: Body, mesh: Mesh, shape: Shape) => console.log("body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape)
-		  }
-		debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions)
 
-		setPosition(entity, {x: 0, y: 0, z: 0})
 	};
 };

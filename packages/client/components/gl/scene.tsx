@@ -14,13 +14,17 @@ import { AssetClass } from '@xr3ngine/engine/src/assets/enums/AssetClass';
 import { staticWorldColliders } from './staticWorldColliders'
 import { rigidBodyBox } from './rigidBodyBox'
 import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
-import { AmbientLight } from 'three';
+import { AmbientLight, Color } from 'three';
 import { PositionalAudio, Mesh, SphereBufferGeometry, MeshPhongMaterial  } from 'three';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/network/DefaultNetworkSchema';
 import { resetEngine } from '@xr3ngine/engine/src/ecs/functions/EngineFunctions';
 import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
+import { Body, Shape } from "cannon-es"
+import debug from "cannon-es-debugger"
+import { PhysicsManager } from '@xr3ngine/engine/src/physics/components/PhysicsManager';
+import { CarController } from './CarController'
 
 export const EnginePage: FunctionComponent = (props: any) => {
 
@@ -51,40 +55,48 @@ export const EnginePage: FunctionComponent = (props: any) => {
     initializeEngine(InitializationOptions);
 
     // Load glb here
-    createPrefab(rigidBodyBox);
+    // createPrefab(rigidBodyBox);
     
-    createPrefab(staticWorldColliders);
-    createPrefab(PlayerCharacter);
+      createPrefab(PlayerCharacter);
+      createPrefab(staticWorldColliders);
+      createPrefab(rigidBodyBox);
+      // createPrefab(CarController);
     
 
     
     addObject3DComponent(createEntity(), { obj3d: AmbientLight, ob3dArgs: {
-      intensity: 2.0
+      intensity: 5.0
     }})
     
     const cameraTransform = getMutableComponent<TransformComponent>(CameraComponent.instance.entity, TransformComponent)
 
-    cameraTransform.position.set(0, 1.2, 5)
+    cameraTransform.position.set(0, 1.2, 3)
 
 
     const {sound} = Engine as any;
     if( sound ){
       const audioMesh = new Mesh(
-        new SphereBufferGeometry( 20, 32, 16 ),
+        new SphereBufferGeometry( 0.3 ),
         new MeshPhongMaterial({ color: 0xff2200 })
       );
-      addObject3DComponent(createEntity(), { 
+      const audioEntity = createEntity();
+      addObject3DComponent(audioEntity, { 
         obj3d: audioMesh
       });
       audioMesh.add( sound );
+const transform = addComponent<TransformComponent>(audioEntity, TransformComponent) as any
+transform.position.set(0,1,0)
+      // const audioComponent = addComponent(audioEntity, 
+      //   class extends Component {static scema = {}}
+      // )
     }
-
-    // console.log("Creating a scene entity to test")
-    // addComponent(createEntity(), AssetLoader, {
-    //   url: "models/library.glb",
-    //   receiveShadow: true,
-    //   castShadow: true
-    // }) 
+   
+       console.log("Creating a scene entity to test")
+    addComponent(createEntity(), AssetLoader, {
+      url: "models/library.glb",
+      receiveShadow: true,
+      castShadow: true
+    }) 
     // addComponent(createEntity(), AssetLoader, {
     //   url: "models/OldCar.fbx",
     //   receiveShadow: true,
@@ -100,8 +112,12 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   useEffect(() => {
     const f = event => {
+      const P_PLAY_PAUSE = 112;
       if (event.keyCode === 27)
         toggleEnabled();
+      else if(event.keyCode == P_PLAY_PAUSE){
+        
+      }
     }
     document.addEventListener("keydown", f);
     return () => {
