@@ -26,6 +26,7 @@ TestSystem.queries = {
     components: [TestComponent],
     listen: {
       added: true,
+      changed: true,
       removed: true
     }
   }
