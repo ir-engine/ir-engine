@@ -69,7 +69,7 @@ export function getComponentTypes(entity: Entity): Array<Component<any>> {
 
 /**
  * Add a component to an entity
- * Optional values will be passed to the component cwwwwwwwwwwwwwwwwwwwonstructor
+ * Optional values will be passed to the component constructor
 * @returns the component added to the entity
  */
 export function addComponent<C extends Component<C>>(
@@ -163,12 +163,13 @@ export function removeComponent<C extends Component<C>>(
   for (const queryName in Engine.queries) {
     const query = Engine.queries[queryName];
 
-    if (!!~query.notComponents.indexOf(component) && !~query.entities.indexOf(entity) && query.match(entity)) {
+    if (!!~query.notComponents.indexOf(Component) && !~query.entities.indexOf(entity) && query.match(entity)) {
       query.addEntity(entity);
       continue;
     }
 
-    if (!!~query.components.indexOf(component) && !!~query.entities.indexOf(entity) && !query.match(entity)) {
+    // if component is listed in query.components and entity is in query.entities but query do not match entity anymore - remove from query
+    if (!!~query.components.indexOf(Component) && !!~query.entities.indexOf(entity) && !query.match(entity)) {
       query.removeEntity(entity);
       continue;
     }

@@ -4,11 +4,20 @@ import { getMutableComponent, getComponent } from "../../../ecs/functions/Entity
 import { CharacterComponent } from "../components/CharacterComponent";
 import { setArcadeVelocityInfluence } from "./setArcadeVelocityInfluence";
 import { State } from "../../../state/components/State";
+import { sendMessage } from "../../../networking/functions/NetworkFunctions";
+import { MessageChannel } from "../../../networking/enums/MessageChannel";
+import { MessageTypes } from "../../../networking/enums/MessageTypes";
 
 export const initializeCharacterState: Behavior = (entity: Entity) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	if(!actor.initialized) return console.log("Returning on init but might want to handle")
 	console.log("Entering state: ", getComponent(entity, State).data.keys())
+
+	// Pack message
+	
+	// Send it
+
+	sendMessage(MessageChannel.Unreliable, 0)
 	actor.velocitySimulator.damping = actor.defaultVelocitySimulatorDamping;
 	actor.velocitySimulator.mass = actor.defaultVelocitySimulatorMass;
 

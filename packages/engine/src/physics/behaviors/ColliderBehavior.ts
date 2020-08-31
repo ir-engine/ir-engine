@@ -10,16 +10,21 @@ import {
 } from './PhysicsBehaviors';
 import { Entity } from '../../ecs/classes/Entity';
 import { PhysicsManager } from '../components/PhysicsManager';
-import { getMutableComponent, hasComponent, getComponent } from '../../ecs/functions/EntityFunctions';
+import { getMutableComponent, hasComponent, getComponent, addComponent } from '../../ecs/functions/EntityFunctions';
 import { Object3DComponent } from '../../common/components/Object3DComponent';
 import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
-import { Vec3 } from 'cannon-es';
+import { Vec3, Shape, Body } from 'cannon-es';
+import debug from "cannon-es-debugger"
+import { Color, Mesh } from 'three';
+import { Engine } from '../../ecs/classes/Engine';
 
-export const ColliderBehavior: Behavior = (entity: Entity, args: { phase: string }): void => {
-  if (args.phase == 'onAdded') {
-    const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
-    const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
-    if(collider.type !== undefined && collider.collider == undefined){
+export const addCollider: Behavior = (entity: Entity, args: { type: string }): void => {
+  console.log("*** Adding collider")
+  const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
+    const transform = addComponent<TransformComponent>(entity, TransformComponent);
+    if(collider.type === undefined) collider.type === args.type ?? 'box'
+
+    console.log("collider collider")
     let body;
     if (collider.type === 'box') body = createBox(entity);
     else if (collider.type === 'cylinder') body = createCylinder(entity);
@@ -28,18 +33,23 @@ export const ColliderBehavior: Behavior = (entity: Entity, args: { phase: string
     else if (collider.type === 'ground') body = createGroundGeometry(entity);
 
     collider.collider = body;
-      
+    console.log(collider.collider)
+
     // If this entity has an object3d, get the position of that
     // if(hasComponent(entity, Object3DComponent)){
     //   body.position = cannonFromThreeVector(getComponent<Object3DComponent>(entity, Object3DComponent).value.position)
     // } else {
-      body.position = new Vec3()
+    //   body.position = new Vec3()
     // }
 
-    PhysicsManager.instance.physicsWorld.addBody(body);
+  
+  PhysicsManager.instance.physicsWorld.addBody(collider.collider);
+  console.log(PhysicsManager.instance.physicsWorld)
+
+  const DebugOptions = {
+    onInit: (body: Body, mesh: Mesh, shape: Shape) => 	console.log("body: ", body, " | mesh: ", mesh, " | shape: ", shape),
+    onUpdate: (body: Body, mesh: Mesh, shape: Shape) => console.log("body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape)
     }
-  } else if (args.phase == 'onRemoved') {
-    const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent).collider;
-    PhysicsManager.instance.physicsWorld.removeBody(collider);
-  }
+  debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions)
+  
 };

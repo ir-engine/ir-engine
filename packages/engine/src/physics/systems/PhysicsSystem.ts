@@ -3,7 +3,7 @@ import { PhysicsManager } from '../components/PhysicsManager';
 import { RigidBody } from '../../physics/components/RigidBody';
 import { VehicleBody } from '../../physics/components/VehicleBody';
 import { WheelBody } from '../../physics/components/WheelBody';
-import { ColliderBehavior } from '../behaviors/ColliderBehavior';
+import { addCollider } from '../behaviors/ColliderBehavior';
 import { RigidBodyBehavior } from '../behaviors/RigidBodyBehavior';
 import { VehicleBehavior } from '../behaviors/VehicleBehavior';
 import { WheelBehavior } from '../behaviors/WheelBehavior';
@@ -37,14 +37,16 @@ export class PhysicsSystem extends System {
     
    this.queryResults.character.all?.forEach(entity => physicsPostStep(entity, null, delta));
 
-    // Collider
-    this.queryResults.сollider.added?.forEach(entity => {
-      ColliderBehavior(entity, { phase: 'onAdded' });
-    });
+    // // Collider
+    // this.queryResults.сollider.added?.forEach(entity => {
+    //   console.log("onAdded called on collider behavior")
+    //   addCollider(entity, { phase: 'onAdded' });
+    // });
 
-    this.queryResults.сollider.removed?.forEach(entity => {
-      ColliderBehavior(entity, { phase: 'onRemoved' });
-    });
+    // this.queryResults.сollider.removed?.forEach(entity => {
+    //   console.log("onRemoved called on collider behavior")
+    //   addCollider(entity, { phase: 'onRemoved' });
+    // });
 
     // RigidBody
 

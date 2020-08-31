@@ -7,6 +7,7 @@ import { createEntity, getMutableComponent, getComponent, addComponent } from '.
 import { Engine } from '../../ecs/classes/Engine';
 import { CameraTagComponent } from '../../common/components/Object3DTagComponents';
 import { Object3DComponent } from '../../common/components/Object3DComponent';
+import { addObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
 
 export class CameraSystem extends System {
   /**
@@ -14,10 +15,9 @@ export class CameraSystem extends System {
    */
   init(): void {
     const cameraEntity = createEntity();
-    addComponent(cameraEntity, CameraComponent);
+    addComponent(cameraEntity, CameraComponent, { followTarget: null, distance: 5, mode: "thirdPerson" });
     addComponent(cameraEntity, CameraTagComponent)
-    addComponent(cameraEntity, Object3DComponent)
-    getMutableComponent<Object3DComponent>(cameraEntity, Object3DComponent).value = Engine.camera
+    addObject3DComponent(cameraEntity, { obj3d: Engine.camera })
     addComponent(cameraEntity, TransformComponent);
   }
 
@@ -29,8 +29,8 @@ export class CameraSystem extends System {
   execute(delta: number): void {
     this.queryResults.entities.all?.forEach(entity => {
       const cam = getComponent(entity, CameraComponent) as CameraComponent;
-      if (cam && cam.followTarget !== null && cam.followTarget !== undefined) {
-        followTarget(entity, { distance: 100 }, delta, cam.followTarget);
+      if (cam.followTarget !== null && cam.followTarget !== undefined) {
+        followTarget(entity, {}, delta, cam.followTarget);
       }
     });
 

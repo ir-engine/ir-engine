@@ -33,6 +33,9 @@
     "esm",
     "@babel/register"
   ],
+  "peerDependencies": {
+    "three": "^0.120.0"
+  },
   "dependencies": {
     "@apollo/react-hooks": "^3.1.5",
     "@feathersjs/authentication-client": "^4.5.2",
@@ -63,6 +66,7 @@
     "axios": "^0.19.2",
     "babel-loader": "^8.1.0",
     "cannon-es-debugger": "^0.0.3",
+    "babel-preset-mobx": "^2.0.0",
     "eslint-plugin-react-hooks": "^3.0.0",
     "evergreen-ui": "^5.0.4",
     "fs": "^0.0.1-security",
@@ -83,6 +87,7 @@
     "material-ui-dropzone": "^3.0.0",
     "mediasoup": "^3.6.16",
     "mediasoup-client": "^3.6.12",
+    "mobx-react": "^6.2.5",
     "mousetrap": "^1.6.5",
     "next": "9.5.2",
     "next-images": "^1.4.0",

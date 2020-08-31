@@ -146,7 +146,6 @@ export abstract class System {
                 )}) for query '${queryName}' but it does not implement the 'execute' method.`
               );
             }
-            this.queryResults[queryName][eventName] = [];
 
             // Is the event enabled on this system's query?
             if (q.listen[eventName]) {
@@ -156,30 +155,31 @@ export abstract class System {
                 query.reactive = true;
                 if (event === true) {
                   // Any change on the entity from the components in the query
+                  const eventList = (this.queryResults[queryName][eventName] = []);
                   query.eventDispatcher.addEventListener(QUERY_COMPONENT_CHANGED, entity => {
                     // Avoid duplicates
-                    if (!this.queryResults[queryName][eventName].includes(entity)) {
-                      this.queryResults[queryName][eventName].push(entity);
+                    if (!eventList.includes(entity)) {
+                      eventList.push(entity);
                     }
                   });
                 } else if (Array.isArray(event)) {
+                  const eventList = (this.queryResults[queryName][eventName] = []);
                   query.eventDispatcher.addEventListener(
                     QUERY_COMPONENT_CHANGED,
                     (entity, changedComponent) => {
                       // Avoid duplicates
-                      if (event.includes(changedComponent.constructor) &&
-                        !this.queryResults[queryName][eventName].includes(entity)) {
-                          this.queryResults[queryName][eventName].push(entity);
+                      if (event.includes(changedComponent.constructor) && !eventList.includes(entity)) {
+                        eventList.push(entity);
                       }
                     }
                   );
                 }
               } else {
+                const eventList = (this.queryResults[queryName][eventName] = []);
 
                 query.eventDispatcher.addEventListener(eventMapping[eventName], entity => {
                   // @fixme overhead?
-                  if (!this.queryResults[queryName][eventName].includes(entity))
-                  this.queryResults[queryName][eventName].push(entity);
+                  if (!eventList.includes(entity)) eventList.push(entity);
                 });
               }
             }
@@ -191,10 +191,6 @@ export abstract class System {
     const c = (this.constructor as any).prototype;
     if(c.init !== undefined) c.init(attributes);
     c.order = Engine.systems.length;
-  }
-
-  dispose() {
-
   }
 
   static getName () {
@@ -240,7 +236,9 @@ export abstract class System {
       }
     }
   }
-
+dispose(){
+  
+}
   toJSON () {
     const json = {
       name: this.name,

@@ -1,5 +1,6 @@
 import { Component } from '../../ecs/classes/Component';
 import { Vector3, Quaternion } from 'three';
+import { Types } from '../../ecs/types/Types';
 
 export class TransformComponent extends Component<TransformComponent> {
   position: Vector3
@@ -24,4 +25,9 @@ export class TransformComponent extends Component<TransformComponent> {
     this.rotation = new Quaternion();
     this.velocity = new Vector3();
   }
+}
+
+TransformComponent.schema = {
+  position: { default: new Vector3(), type: Types.Ref },
+  rotation: { default: new Quaternion(), type: Types.Ref }
 }
