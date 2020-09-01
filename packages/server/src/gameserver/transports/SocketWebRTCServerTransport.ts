@@ -1,15 +1,11 @@
-import { createWorker } from 'mediasoup'
-import serverConfig from '../../config'
-import express from "express"
-import * as https from "https"
-import fs from "fs"
-import SocketIO, { Socket } from "socket.io"
-import * as path from "path"
-import app from '../../app'
 import { BuiltinMessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes"
-import * as dotenv from "dotenv"
-import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport"
 import { Message } from "@xr3ngine/engine/src/networking/interfaces/Message"
+import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport"
+import { UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine/src/networking/types/NetworkingTypes"
+import fs from "fs"
+import * as https from "https"
+import { createWorker } from 'mediasoup'
+import { types as MediaSoupClientTypes } from "mediasoup-client"
 import {
   DataConsumer,
   DataConsumerOptions,
@@ -20,8 +16,9 @@ import {
   Transport,
   WebRtcTransport
 } from "mediasoup/lib/types"
-import { types as MediaSoupClientTypes } from "mediasoup-client"
-import { UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine/src/networking/types/NetworkingTypes"
+import SocketIO, { Socket } from "socket.io"
+import app from '../../app'
+import serverConfig from '../../config'
 
 interface Client {
   socket: SocketIO.Socket;
@@ -285,7 +282,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       })
 
       // On heartbeat received from client
-      socket.on(BuiltinMessageTypes.Heartbeat, () => {
+      socket.on(BuiltinMessageTypes.Heartbeat.toString(), () => {
         try {
           console.log('Heartbeat handler')
           if (this.roomState.peers[socket.id] != null) {
@@ -405,7 +402,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         }
       })
       socket.on(
-        BuiltinMessageTypes.WebRTCProduceData,
+        BuiltinMessageTypes.WebRTCProduceData.toString(),
         async (params, callback: (arg0: { id?: string; error?: any }) => void) => {
           console.log('Produce Data handler')
           try {
@@ -451,7 +448,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           }
         }
       )
-      socket.on(BuiltinMessageTypes.WebRTCConsumeData, this.handleConsumeDataEvent(socket))
+      socket.on(BuiltinMessageTypes.WebRTCConsumeData.toString(), this.handleConsumeDataEvent(socket))
 
       // --> /signaling/connect-transport
       // called from inside a client's `transport.on('connect')` event

@@ -1,23 +1,21 @@
+import { createFixedTimestep } from '../../common/functions/Timer';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
-import { Network } from '../components/Network';
-import { NetworkClient } from '../components/NetworkClient';
-import { NetworkObject } from '../components/NetworkObject';
-import { createFixedTimestep } from '../../common/functions/Timer';
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { State } from '../../state/components/State';
 import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
+import { State } from '../../state/components/State';
+import { TransformComponent } from '../../transform/components/TransformComponent';
 import { sendClientInput as sendClientInput } from '../behaviors/sendClientInput';
+import { Network } from '../components/Network';
+import { NetworkClient } from '../components/NetworkClient';
 import { NetworkInterpolation } from '../components/NetworkInterpolation';
-import { CreateSnapshot } from '../functions/NetworkInterpolationFunctions';
-import { addComponentDeltasWorldState } from '../behaviors/addComponentDeltasWorldState';
-import { addNetworkTransformToWorldState } from './addNetworkTransformToWorldState';
-import { handleIncomingMessages } from './handleIncomingMessages';
-import { prepareWorldState } from './prepareWorldState';
-import { sendOutgoingMessages } from './sendOutgoingMessages';
-
+import { NetworkObject } from '../components/NetworkObject';
+import { createSnapshot, addSnapshot } from '../functions/NetworkInterpolationFunctions';
+import { handleIncomingMessages } from '../behaviors/handleIncomingMessages';
+import { prepareWorldState } from '../functions/prepareWorldState';
+import { addNetworkTransformToWorldState } from '../behaviors/addNetworkTransformToWorldState';
+import { sendSnapshotToClients } from '../behaviors/sendSnapshotToClients';
 export class NetworkSystem extends System {
   public static instance: NetworkSystem = null
 
@@ -36,7 +34,7 @@ export class NetworkSystem extends System {
 
   init (attributes) {
     NetworkSystem.instance = this
-
+    Network.tick = 0
     const { schema } = attributes
     // Create a Network entity (singleton)
     const networkEntity = createEntity();
@@ -62,19 +60,22 @@ export class NetworkSystem extends System {
   }
 
   onFixedExecute(delta) {
+    // Advance the network tick
+    Network.tick++
+
     // CLIENT only
     if(!Network.instance.transport.isServer)
     {
     this.queryResults.networkInputSender.all?.forEach((entity: Entity) => {
       sendClientInput(entity)
     })
-  }
-
+    
     // Handle incoming messages
     this.queryResults.network.all?.forEach((entity: Entity) => {
       handleIncomingMessages(entity)
     })
- 
+  }
+
     // Server-only
     if(Network.instance.transport.isServer){
       prepareWorldState()
@@ -83,17 +84,16 @@ export class NetworkSystem extends System {
       //   addComponentDeltasWorldState(entity)
       // })
 
-      this.queryResults.networkTransforms.all?.forEach((entity: Entity) => {
+      this.queryResults.networkTransforms.changed?.forEach((entity: Entity) => {
         addNetworkTransformToWorldState(entity)
       })
       
-      const snapshot = CreateSnapshot(Network.instance.worldState)
-      NetworkInterpolation.instance.add(snapshot)
+      addSnapshot(createSnapshot(Network.instance.worldState))
     }
 
       // Send all queued messages
       this.queryResults.network.all?.forEach((entity: Entity) => {
-        sendOutgoingMessages(entity)
+        sendSnapshotToClients(entity)
       })
   }
 
@@ -123,6 +123,5 @@ export class NetworkSystem extends System {
       components: [NetworkClient]
     }
   }
-
 }
 

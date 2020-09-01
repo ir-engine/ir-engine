@@ -25,5 +25,5 @@ export const sendClientInput = (entity: Entity): void => {
   const message = clientInputModel.toBuffer(inputs)
 
   // Add to unreliable message send queue
-  Network.instance.outgoingUnreliableMessageQueue.add(message);
+  Network.instance.transport.sendUnreliableMessage(message);
 };

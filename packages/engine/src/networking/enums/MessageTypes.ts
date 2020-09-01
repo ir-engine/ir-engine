@@ -20,5 +20,10 @@ export enum BuiltinMessageTypes {
   WebRTCUnmuteOtherProducer = 18,
   WebRTCConsumerSetLayers = 19,
   WebRTCConsumeData = 20,
-  WebRTCProduceData = 21
+  WebRTCProduceData = 21,
+  ReliableMessage = 22,
+  InitialState = 100,
+  ClientInput = 101,
+  StateUpdate = 102,
+  Test = 250
 }

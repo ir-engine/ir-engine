@@ -5,6 +5,7 @@ import { Types } from '../../ecs/types/Types';
 import { Message } from '../interfaces/Message';
 import { RingBuffer } from '../../common/classes/RingBuffer';
 import { MessageSchema } from '../classes/MessageSchema';
+import { now } from '../../common/functions/now';
 
 export class Network extends Component<Network> {
   static instance: Network = null
@@ -18,16 +19,23 @@ export class Network extends Component<Network> {
   incomingMessageQueue: RingBuffer<ArrayBuffer>
   outgoingReliableMessageQueue: RingBuffer<ArrayBuffer>
 
-  worldState = {}
+  worldState = {
+    time: now(),
+    tick: Network.tick,
+    states: [
+    ],
+    transforms: [
+    ]
+  }
 
   outgoingUnreliableMessageQueue: RingBuffer<ArrayBuffer>
 
   static Network: any
+  static tick: any;
   constructor () {
     super();
     Network.instance = this;
     console.log("Network instance exists")
-    this.worldState = {}
     // TODO: Replace default message queue sizes
     this.outgoingReliableMessageQueue = new RingBuffer<ArrayBuffer>(100)
     this.incomingMessageQueue = new RingBuffer<ArrayBuffer>(100)

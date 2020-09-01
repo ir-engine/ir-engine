@@ -7,7 +7,7 @@ import { handleGamepadConnected, handleGamepadDisconnected } from '../../input/b
 import { handleTouch, handleTouchMove } from '../../input/behaviors/TouchBehaviors';
 import { GamepadButtons } from '../../input/enums/GamepadButtons';
 import { InputType } from '../../input/enums/InputType';
-import { MouseButtons } from '../../input/enums/MouseButtons';
+import { MouseInput } from '../../input/enums/MouseInput';
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
 import { drive } from '../../physics/behaviors/driveBehavior';
@@ -125,8 +125,8 @@ export const VehicleInputSchema: InputSchema = {
   // Map mouse buttons to abstract input
   mouseInputMap: {
     buttons: {
-      [MouseButtons.LeftButton]: DefaultInput.PRIMARY,
-      [MouseButtons.RightButton]: DefaultInput.SECONDARY
+      [MouseInput.LeftButton]: DefaultInput.PRIMARY,
+      [MouseInput.RightButton]: DefaultInput.SECONDARY
       // [MouseButtons.MiddleButton]: DefaultInput.INTERACT
     },
     axes: {

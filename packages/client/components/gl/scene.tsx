@@ -1,30 +1,23 @@
-import React, { Component, useEffect, FunctionComponent, useState } from 'react';
-import { initializeEngine, DefaultInitializationOptions } from "@xr3ngine/engine/src/initialize";
-import { PlayerCharacter } from "@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter";
+import { AssetLoader } from "@xr3ngine/engine/src/assets/components/AssetLoader";
+import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
+import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
 import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
+import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
+import { resetEngine } from '@xr3ngine/engine/src/ecs/functions/EngineFunctions';
+import { addComponent, createEntity, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { DefaultInitializationOptions, initializeEngine } from "@xr3ngine/engine/src/initialize";
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
+import { PlayerCharacter } from "@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter";
+import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
+import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
+import React, { FunctionComponent, useEffect, useState } from 'react';
+import { AmbientLight, Mesh, MeshPhongMaterial, SphereBufferGeometry } from 'three';
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
-import { createEntity, addComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { AssetLoader } from "@xr3ngine/engine/src/assets/components/AssetLoader"
-import { AssetType } from '@xr3ngine/engine/src/assets/enums/AssetType';
-import { AssetClass } from '@xr3ngine/engine/src/assets/enums/AssetClass';
+import { rigidBodyBox } from './rigidBodyBox';
+import { staticWorldColliders } from './staticWorldColliders';
 
-import { staticWorldColliders } from './staticWorldColliders'
-import { rigidBodyBox } from './rigidBodyBox'
-import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
-import { AmbientLight, Color } from 'three';
-import { PositionalAudio, Mesh, SphereBufferGeometry, MeshPhongMaterial  } from 'three';
-import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/network/DefaultNetworkSchema';
-import { resetEngine } from '@xr3ngine/engine/src/ecs/functions/EngineFunctions';
-import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
-import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
-import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
-import { Body, Shape } from "cannon-es"
-import debug from "cannon-es-debugger"
-import { PhysicsManager } from '@xr3ngine/engine/src/physics/components/PhysicsManager';
-import { CarController } from './CarController'
 
 export const EnginePage: FunctionComponent = (props: any) => {
 

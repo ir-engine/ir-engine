@@ -1,6 +1,6 @@
 import { initializeEngine } from "@xr3ngine/engine/src/initialize"
 import { SocketWebRTCServerTransport } from "./transports/SocketWebRTCServerTransport"
-import { DefaultNetworkSchema } from "@xr3ngine/engine/src/templates/network/DefaultNetworkSchema"
+import { DefaultNetworkSchema } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema"
 import { CharacterSubscriptionSchema } from "@xr3ngine/engine/src/templates/character/CharacterSubscriptionSchema"
 import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema"
 

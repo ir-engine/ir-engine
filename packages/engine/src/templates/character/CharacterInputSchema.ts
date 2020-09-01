@@ -6,7 +6,7 @@ import { handleKey, handleMouseButton, handleMouseMovement } from '../../input/b
 import { handleGamepadConnected, handleGamepadDisconnected } from '../../input/behaviors/GamepadInputBehaviors';
 import { handleTouch, handleTouchMove } from '../../input/behaviors/TouchBehaviors';
 import { GamepadButtons } from '../../input/enums/GamepadButtons';
-import { MouseButtons } from '../../input/enums/MouseButtons';
+import { MouseInput } from '../../input/enums/MouseInput';
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
 import { DefaultInput } from '../shared/DefaultInput';
@@ -128,14 +128,14 @@ export const CharacterInputSchema: InputSchema = {
   // Map mouse buttons to abstract input
   mouseInputMap: {
     buttons: {
-      [MouseButtons.LeftButton]: DefaultInput.PRIMARY,
-      [MouseButtons.RightButton]: DefaultInput.SECONDARY
-      // [MouseButtons.MiddleButton]: DefaultInput.INTERACT
+      [MouseInput.LeftButton]: DefaultInput.PRIMARY,
+      [MouseInput.RightButton]: DefaultInput.SECONDARY,
+      [MouseInput.MiddleButton]: DefaultInput.INTERACT
     },
     axes: {
-      mousePosition: DefaultInput.SCREENXY,
-      mouseClickDownPosition: DefaultInput.SCREENXY_START,
-      mouseClickDownTransformRotation: DefaultInput.ROTATION_START
+      [MouseInput.MousePosition]: DefaultInput.SCREENXY,
+      [MouseInput.MouseClickDownPosition]: DefaultInput.SCREENXY_START,
+      [MouseInput.MouseClickDownTransformRotation]: DefaultInput.ROTATION_START
     }
   },
   // Map gamepad buttons to abstract input

@@ -11,42 +11,33 @@ export interface InputSchema {
   eventBindings?: {
     [key: string]: BehaviorValue[]
   }
+  cameraInputMap?:{
+    [key: number]: InputAlias
+  }
   mouseInputMap?: {
     buttons?: {
-      [key: string]: InputAlias
       [key: number]: InputAlias
     }
     axes?: {
-      [key: string]: InputAlias
       [key: number]: InputAlias
     }
   }
   gamepadInputMap?: {
     buttons?: {
-      [key: string]: InputAlias
       [key: number]: InputAlias
     }
     axes?: {
-      [key: string]: InputAlias
       [key: number]: InputAlias
     }
   }
   keyboardInputMap?: {
     [key: string]: InputAlias
-    [key: number]: InputAlias
   }
   inputRelationships: {
-    [key: string]: InputRelationship
+    [key: number]: InputRelationship
   }
   inputButtonBehaviors: {
     // input name / alias
-    [key: string]: {
-      // binary state (on, off)
-      [key: string]: {
-        started?: BehaviorValue[]
-        continued?: BehaviorValue[]
-      }
-    }
     [key: number]: {
       // binary state (on, off)
       [key: number]: {
@@ -57,7 +48,7 @@ export interface InputSchema {
   }
   inputAxisBehaviors: {
     // input name / alias
-    [key: string]: {
+    [key: number]: {
       started?: BehaviorValue[]
       continued?: BehaviorValue[]
     }

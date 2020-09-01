@@ -3,7 +3,9 @@ import { MediaStreamComponent } from "@xr3ngine/engine/src/networking/components
 import { Network as NetworkComponent } from "@xr3ngine/engine/src/networking/components/Network";
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "@xr3ngine/engine/src/networking/constants/VideoConstants";
 import { BuiltinMessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
-import { addClient, initializeClient, removeClient } from "@xr3ngine/engine/src/networking/functions/ClientFunctions";
+import { addClient } from "@xr3ngine/engine/src/networking/functions/addClient";
+import { initializeClient } from "@xr3ngine/engine/src/networking/functions/initializeClient";
+import { removeClient } from "@xr3ngine/engine/src/networking/functions/removeClient";
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
 import { UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine/src/networking/types/NetworkingTypes";
 import { types as MediaSoupServerTypes } from "mediasoup";
@@ -40,7 +42,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
    * @param message message to send
    */
   sendReliableMessage(message): void {
-      this.socket.emit(BuiltinMessageTypes.ReliableMessage.toString(), message);
+      this.socket.emit(message);
   }
 
   /**
