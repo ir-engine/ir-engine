@@ -98,7 +98,7 @@ export const physicsPostStep: Behavior = (entity): void => {
 			let speed = Math.max(actor.velocitySimulator.position.length() * 4, actor.initJumpSpeed);
 			body.velocity = cannonFromThreeVector(actor.orientation.clone().multiplyScalar(speed));
 		}
-		else {
+		else if (actor.rayHasHit) {
 			// Moving objects compensation
 			let add = new Vec3();
 			actor.rayResult.body.getVelocityAtWorldPoint(actor.rayResult.hitPointWorld, add);
