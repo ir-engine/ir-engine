@@ -1,7 +1,7 @@
-import * as THREE from 'three';
+import { Vector3 } from 'three';
 
-export function springV(source: THREE.Vector3, dest: THREE.Vector3, velocity: THREE.Vector3, mass: number, damping: number): void {
-	let acceleration = new THREE.Vector3().subVectors(dest, source);
+export function springV(source: Vector3, dest: Vector3, velocity: Vector3, mass: number, damping: number): void {
+	const acceleration = new Vector3().subVectors(dest, source);
 	acceleration.divideScalar(mass);
 	velocity.add(acceleration);
 	velocity.multiplyScalar(damping);
