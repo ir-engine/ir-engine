@@ -6,14 +6,14 @@ import { InterpolatedSnapshot, Snapshot, StateEntityGroup, StateEntity, Time, Va
 export function snapshot () {
   return {
     /** Create the snapshot on the server. */
-    create: (state: StateEntityGroup | { [key: string]: StateEntityGroup }): Snapshot => CreateSnapshot(state),
+    create: (state: StateEntityGroup | { [key: string]: StateEntityGroup }): Snapshot => createSnapshot(state),
     /** Add the snapshot you received from the server to automatically calculate the interpolation with calcInterpolation() */
     add: (snapshot: Snapshot): void => addSnapshot(snapshot)
   };
 }
 
 /** Create a new Snapshot */
-export function CreateSnapshot (state: StateEntityGroup | { [key: string]: StateEntityGroup }): Snapshot {
+export function createSnapshot (state: StateEntityGroup | { [key: string]: StateEntityGroup }): Snapshot {
   const check = (state: StateEntityGroup) => {
     // check if state is an array
     if (!Array.isArray(state)) throw new Error('You have to pass an Array to createSnapshot()');

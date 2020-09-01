@@ -41,7 +41,7 @@ export const followTarget: Behavior = (entityIn: Entity, args: any, delta: any, 
   camera = getMutableComponent<CameraComponent>(entityIn, CameraComponent);
 
 
-  //console.log(inputComponent.schema.mouseInputMap.axes.mouseClickDownPosition);
+  //console.log(inputComponent.schema.mouseInputMap.axes.[MouseInput.MouseClickDownPosition]);
 
   if (inputComponent) {
     mouseDownPosition = inputComponent.data.get(15);
@@ -59,7 +59,7 @@ export const followTarget: Behavior = (entityIn: Entity, args: any, delta: any, 
 
 /*
   originalRotation = inputComponent.data.get(
-    inputComponent.schema.mouseInputMap.axes.mouseClickDownTransformRotation
+    inputComponent.schema.mouseInputMap.axes[MouseInput.MouseClickDownTransformRotation]
   );
 */
 

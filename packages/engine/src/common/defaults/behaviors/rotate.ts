@@ -31,9 +31,9 @@ export const rotateAround: Behavior = (
   actor = getComponent(entity, CharacterComponent) as CharacterComponent;
   transform = getMutableComponent(entity, TransformComponent);
 
-  mouseDownPosition = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes.mouseClickDownPosition);
+  mouseDownPosition = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes[MouseInput.MouseClickDownPosition]);
   originalRotation = inputComponent.data.get(
-    inputComponent.schema.mouseInputMap.axes.mouseClickDownTransformRotation
+    inputComponent.schema.mouseInputMap.axes[MouseInput.MouseClickDownTransformRotation]
   );
 
   if (mouseDownPosition == undefined || originalRotation == undefined) return;

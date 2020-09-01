@@ -5,6 +5,7 @@ import { Entity } from '../../ecs/classes/Entity';
 import { InputType } from '../enums/InputType';
 import { Input } from '../components/Input';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { MouseInput } from '../enums/MouseInput';
 
 /**
  * Local reference to input component
@@ -23,7 +24,7 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
   _value[0] = (args.event.clientX / window.innerWidth) * 2 - 1;
   _value[1] = (args.event.clientY / window.innerHeight) * -2 + 1;
   // Set type to TWOD (two-dimensional axis) and value to a normalized -1, 1 on X and Y
-  input.data.set(input.schema.mouseInputMap.axes.mousePosition, {
+  input.data.set(input.schema.mouseInputMap.axes[MouseInput.MousePosition], {
     type: InputType.TWOD,
     value: _value
   });
@@ -50,15 +51,15 @@ export const handleMouseButton: Behavior = (entity: Entity, args: { event: Mouse
     mousePosition[0] = (args.event.clientX / window.innerWidth) * 2 - 1;
     mousePosition[1] = (args.event.clientY / window.innerHeight) * -2 + 1;
     // Set type to TWOD (two dimensional) and value with x: -1, 1 and y: -1, 1
-    input.data.set(input.schema.mouseInputMap.axes.mouseClickDownPosition, {
+    input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseClickDownPosition], {
       type: InputType.TWOD,
       value: mousePosition
     });
   } else {
     // Removed mouse input data
     input.data.delete(input.schema.mouseInputMap.buttons[args.event.button]);
-    input.data.delete(input.schema.mouseInputMap.axes.mouseClickDownPosition);
-    input.data.delete(input.schema.mouseInputMap.axes.mouseClickDownTransformRotation);
+    input.data.delete(input.schema.mouseInputMap.axes[MouseInput.MouseClickDownPosition]);
+    input.data.delete(input.schema.mouseInputMap.axes[MouseInput.MouseClickDownTransformRotation]);
   }
 };
 
