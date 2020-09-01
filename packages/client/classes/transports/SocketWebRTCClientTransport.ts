@@ -210,6 +210,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         console.log("About to send camera streams");
         await this.sendCameraStreams();
         console.log("about to init sockets");
+        console.log(this.recvTransport)
         // this.startScreenshare()
       });
 
@@ -437,7 +438,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log("subscribe to track", peerId, mediaTag);
 
     // create a receive transport if we don't already have one
-    if (!this.recvTransport) this.recvTransport = await this.createTransport("recv");
+    // if (!this.recvTransport) this.recvTransport = await this.createTransport("recv");
 
     // if we do already have a consumer, we shouldn't have called this
     // method
@@ -675,7 +676,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // comparison. compare this list with the cached list from last
     // poll.
 
-    if (this.recvTransport?.connectionState === 'connected') {
       // auto-subscribe to their feeds:
       for (const id in peers) {
         // for each peer...
@@ -698,7 +698,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           }
         }
       }
-    }
 
     // if a peer has gone away, we need to close all consumers we have
     // for that peer and remove video and audio elements

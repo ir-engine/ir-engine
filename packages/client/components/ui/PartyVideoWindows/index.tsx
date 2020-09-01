@@ -33,7 +33,7 @@ const PartyVideoWindows = observer((): JSX.Element => {
   }, []);
 
   return (
-    <Grid className="rootContainer" container direction="row" wrap="nowrap">
+    <Grid className="party-user-container" container direction="row" wrap="nowrap">
       { parsedConsumers.map(([key, tracks]) => (
         <PartyParticipantWindow
             containerProportions={{
