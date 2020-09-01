@@ -1,11 +1,10 @@
-import React, { useEffect } from "react";
-import * as faceapi from "face-api.js";
 import { MediaStreamComponent } from "@xr3ngine/engine/src/networking/components/MediaStreamComponent";
-import { CameraInput } from "../enums/CameraInput";
+import * as faceapi from "face-api.js";
+import { Behavior } from "../../common/interfaces/Behavior";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../components/Input";
+import { CameraInput } from "../enums/CameraInput";
 import { InputType } from "../enums/InputType";
-import { Behavior } from "../../common/interfaces/Behavior";
 
 export const startFaceTracking: Behavior = (entity) => {
     const video = document.createElement('video');
@@ -27,7 +26,7 @@ export const startLipsyncTracking: Behavior = (entity) => {
     const audioContext = new AudioContext();
     const FFT_SIZE = 1024;
     const samplingFrequency = 44100;
-    let stPSD
+    let sensitivityPerPole
     let spectrum
     let spectrumRMS
     let IndicesFrequencyFemale = [];
@@ -64,27 +63,23 @@ export const startLipsyncTracking: Behavior = (entity) => {
         // RMS (root mean square) is a better approximation of current input level than peak (just sampling this frame)
         spectrumRMS = getRMS(spectrum);
 
-        stPSD = getSensitivityMap(spectrum);
+        sensitivityPerPole = getSensitivityMap(spectrum);
 
         // Lower and higher voices have different frequency domains, so we'll separate and max them
         const EnergyBinMasc = new Float32Array(BoundingFrequencyMasc.length);
         const EnergyBinFem = new Float32Array(BoundingFrequencyFem.length);
 
-        // Our three blendshapes to record as inut
-        const expressions = {
-        }
-
         // Masc energy bins (groups of frequency-depending energy)
         for (let m = 0; m < BoundingFrequencyMasc.length - 1; m++) {
             for (let j = IndicesFrequencyMale[m]; j <= IndicesFrequencyMale[m + 1]; j++)
-                if (stPSD[j] > 0) EnergyBinMasc[m] += stPSD[j];
+                if (sensitivityPerPole[j] > 0) EnergyBinMasc[m] += sensitivityPerPole[j];
             EnergyBinMasc[m] /= (IndicesFrequencyMale[m + 1] - IndicesFrequencyMale[m]);
         }
 
-        // Female energy bin
+        // Fem energy bin
         for (let m = 0; m < BoundingFrequencyFem.length - 1; m++) {
             for (let j = IndicesFrequencyMale[m]; j <= IndicesFrequencyMale[m + 1]; j++)
-                if (stPSD[j] > 0) EnergyBinFem[m] += stPSD[j];
+                if (sensitivityPerPole[j] > 0) EnergyBinFem[m] += sensitivityPerPole[j];
             EnergyBinMasc[m] /= (IndicesFrequencyMale[m + 1] - IndicesFrequencyMale[m]);
             EnergyBinFem[m] = EnergyBinFem[m] / (IndicesFrequencyFemale[m + 1] - IndicesFrequencyFemale[m])
         }
@@ -96,34 +91,32 @@ export const startLipsyncTracking: Behavior = (entity) => {
             : (1 - 2 * Math.max(EnergyBinMasc[2], EnergyBinFem[2])) * 5 * Math.max(EnergyBinMasc[1], EnergyBinFem[1])
 
         if (pucker > .2)
-            input.data.set(expressions[nameToInputValue["pucker"]], {
+            input.data.set(nameToInputValue["pucker"], {
                 type: InputType.ONED,
                 value: pucker
             });
-        else if (input.data.has(expressions[nameToInputValue["pucker"]]))
-            input.data.delete(expressions[nameToInputValue["pucker"]])
+        else if (input.data.has(nameToInputValue["pucker"]))
+            input.data.delete(nameToInputValue["pucker"])
 
-
-
+            // Calculate lips widing and apply as input
         const widen = 3 * Math.max(EnergyBinMasc[3], EnergyBinFem[3])
-
         if (widen > .2)
-            input.data.set(expressions[nameToInputValue["widen"]], {
+            input.data.set(nameToInputValue["widen"], {
                 type: InputType.ONED,
                 value: widen
             });
-        else if (input.data.has(expressions[nameToInputValue["widen"]]))
-            input.data.delete(expressions[nameToInputValue["widen"]])
-
-
+        else if (input.data.has(nameToInputValue["widen"]))
+            input.data.delete(nameToInputValue["widen"])
+            
+            // Calculate mouth opening and apply as input
         const open = 0.8 * (Math.max(EnergyBinMasc[1], EnergyBinFem[1]) - Math.max(EnergyBinMasc[3], EnergyBinFem[3]))
         if (open > .2)
-            input.data.set(expressions[nameToInputValue["open"]], {
+            input.data.set(nameToInputValue["open"], {
                 type: InputType.ONED,
                 value: open
             });
-        else if (input.data.has(expressions[nameToInputValue["open"]]))
-            input.data.delete(expressions[nameToInputValue["open"]])
+        else if (input.data.has(nameToInputValue["open"]))
+            input.data.delete(nameToInputValue["open"])
     }
 }
 
