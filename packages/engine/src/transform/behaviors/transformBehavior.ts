@@ -9,6 +9,9 @@ const q: Quaternion = new Quaternion();
 let transform: TransformComponent;
 export const transformBehavior: Behavior = (entity: Entity, args: { event: MouseEvent }, delta): void => {
   transform = getMutableComponent(entity, TransformComponent);
+
+  transform.position.addScaledVector(transform.velocity, delta)
+
   const object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
   if (!object3DComponent) {
     return
