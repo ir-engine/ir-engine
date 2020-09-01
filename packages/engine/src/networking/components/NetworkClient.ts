@@ -3,13 +3,11 @@
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 
-interface PropTypes {
+export class NetworkClient extends Component<NetworkClient> {
   networkId: number
   userId: string
   name: string
 }
-
-export class NetworkClient extends Component<PropTypes> {}
 
 NetworkClient.schema = {
   networkId: { type: Types.Number },

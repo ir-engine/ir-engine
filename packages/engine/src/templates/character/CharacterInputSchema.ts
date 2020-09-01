@@ -6,14 +6,10 @@ import { handleKey, handleMouseButton, handleMouseMovement } from '../../input/b
 import { handleGamepadConnected, handleGamepadDisconnected } from '../../input/behaviors/GamepadInputBehaviors';
 import { handleTouch, handleTouchMove } from '../../input/behaviors/TouchBehaviors';
 import { GamepadButtons } from '../../input/enums/GamepadButtons';
-import { InputType } from '../../input/enums/InputType';
 import { MouseButtons } from '../../input/enums/MouseButtons';
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
 import { DefaultInput } from '../shared/DefaultInput';
-import { jumpStart } from "./behaviors/jumpStart";
-import { move } from './behaviors/move';
-import { rotateAround } from './behaviors/rotate';
 
 export const CharacterInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
