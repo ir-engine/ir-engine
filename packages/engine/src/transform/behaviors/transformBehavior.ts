@@ -10,9 +10,11 @@ let transform: TransformComponent;
 export const transformBehavior: Behavior = (entity: Entity, args: { event: MouseEvent }, delta): void => {
   transform = getMutableComponent(entity, TransformComponent);
   const object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
-  if (object3DComponent !== undefined) {
+  if (!object3DComponent) {
+    return
+  }
+
   object3DComponent.value.position.copy(transform.position)
   object3DComponent.value.rotation.setFromQuaternion(transform.rotation)
   // object3DComponent.value.updateMatrixWorld();
-  }
 };
