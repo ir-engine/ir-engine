@@ -15,7 +15,7 @@ const Me = observer(() => {
         console.log(MediaStreamComponent.instance);
     }, [MediaStreamComponent.instance?.camVideoProducer]);
   return (
-    <Grid className="windowContainer" container>
+    <Grid className="me-party-user-container" container>
         {
             (MediaStreamComponent.instance?.camVideoProducer || MediaStreamComponent.instance?.camAudioProducer) && <PartyParticipantWindow
             containerProportions={{

@@ -640,6 +640,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
               consumer = this.roomState.consumers.find(c => c.id === consumerId)
           console.log("resume-consumer", consumer.appData)
           await consumer.resume()
+          console.log('Resumed consumer:')
+          console.log(consumer)
           callback({resumed: true})
         } catch(err) {
           console.log('WebRTC Resume consumer error')
@@ -711,6 +713,23 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           await producer.resume()
           this.roomState.peers[socket.id].media[producer.appData.mediaTag].paused = false
           callback({resumed: true})
+        } catch(err) {
+          console.log('WebRTC Producer Resume error')
+          console.log(err)
+        }
+      })
+
+      // --> /signaling/resume-producer
+      // called to resume sending a track from a specific client
+      socket.on(MessageTypes.WebRTCPauseProducer.toString(), async (data, callback) => {
+        try {
+          console.log('Pause Producer handler')
+          const {producerId} = data,
+              producer = this.roomState.producers.find(p => p.id === producerId)
+          console.log("pause-producer", producer.appData)
+          await producer.pause()
+          this.roomState.peers[socket.id].media[producer.appData.mediaTag].paused = true
+          callback({paused: true})
         } catch(err) {
           console.log('WebRTC Producer Resume error')
           console.log(err)
