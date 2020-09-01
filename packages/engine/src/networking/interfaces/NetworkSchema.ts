@@ -4,9 +4,8 @@ import { MessageSchema } from '../classes/MessageSchema';
 
 export interface NetworkSchema {
   transport: any
-  messageSchemas: {
-    [key: string]: MessageSchema<any>
-    [key: number]: MessageSchema<any>
+  messageTypes: {
+    [key: string]: any
   }
   messageHandlers: {
     [key: string]: {

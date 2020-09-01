@@ -145,4 +145,5 @@ public static framerateLimit = 60;
     static vehicles: any;
     static physicsFrameRate: number;
   static lastTime: number;
+  static tick: number = 0;
 }
