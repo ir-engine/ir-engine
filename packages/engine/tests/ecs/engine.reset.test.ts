@@ -8,6 +8,17 @@ import { CharacterInputSchema } from "../../src/templates/character/CharacterInp
 import { DefaultNetworkSchema } from "../../src/templates/network/DefaultNetworkSchema";
 import { CharacterStateSchema } from "../../src/templates/character/CharacterStateSchema";
 import { CharacterSubscriptionSchema } from "../../src/templates/character/CharacterSubscriptionSchema";
+import { createPrefab } from "../../src/common/functions/createPrefab";
+import { rigidBodyBox } from "@xr3ngine/client/components/gl/rigidBodyBox";
+import { staticWorldColliders } from "@xr3ngine/client/components/gl/staticWorldColliders";
+import { addObject3DComponent } from "../../src/common/behaviors/Object3DBehaviors";
+import { AmbientLight } from "three";
+import { Prefab } from "../../src/common/interfaces/Prefab";
+import { CharacterComponent } from "../../src/templates/character/components/CharacterComponent";
+import { TransformComponent } from "../../src/transform/components/TransformComponent";
+import { Input } from "../../src/input/components/Input";
+import { State } from "../../src/state/components/State";
+import { Subscription } from "../../src/subscription/components/Subscription";
 
 const options = {
   debug: true,
@@ -43,7 +54,7 @@ const options = {
     schema: CharacterSubscriptionSchema
   },
   physics: {
-    enabled: false
+    enabled: true
   },
   particles: {
     enabled: false
@@ -59,6 +70,26 @@ const options = {
   }
 }
 
+export const PlayerCharacter: Prefab = {
+  // These will be created for all players on the network
+  // These are only created for the local player who owns this prefab
+  components: [
+    // ActorComponent has values like movement speed, decelleration, jump height, etc
+    { type: CharacterComponent },
+    // Transform system applies values from transform component to three.js object (position, rotation, etc)
+    { type: TransformComponent },
+    // Local player input mapped to behaviors in the input map
+    { type: Input, data: { schema: CharacterInputSchema } },
+    // Current state (isJumping, isidle, etc)
+    { type: State, data: { schema: CharacterStateSchema } },
+    // Similar to Unity's Update(), LateUpdate(), and Start()
+    { type: Subscription, data: { schema: CharacterSubscriptionSchema } }
+  ],
+  onCreate: [
+  ],
+  onDestroy: [
+  ]
+};
 
 
 describe("entityPoolIsClean check", () => {
@@ -92,15 +123,34 @@ describe("entityPoolIsClean check", () => {
 })
 
 test("Engine reset should work", () => {
+  // TODO: update to reset audio when it finished and whatever is still left untouched
   const EngineInitialState = {
     enabled: Engine.enabled,
     deferredRemovalEnabled: Engine.deferredRemovalEnabled
   }
 
+  jest.useFakeTimers()
+
   initializeEngine(options)
+
+  jest.advanceTimersByTime(1000)
+
+  createPrefab(rigidBodyBox);
+  createPrefab(staticWorldColliders);
+  createPrefab(PlayerCharacter);
+
+
+
+  addObject3DComponent(createEntity(), { obj3d: AmbientLight, ob3dArgs: {
+      intensity: 2.0
+  }})
 
   // run once to make sure all "added" queries is processed
   execute()
+  jest.advanceTimersByTime(1000)
+
+  execute()
+  jest.advanceTimersByTime(1000)
 
   jest.spyOn(Engine.eventDispatcher, 'reset')
 
