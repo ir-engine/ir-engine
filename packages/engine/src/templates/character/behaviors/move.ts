@@ -34,7 +34,7 @@ export const move: Behavior = (
 
   const inputType = args.inputType;
   // outputSpeed = actor.acceleration * (time.delta);
-  // if (inputType === InputType.TWOD) {
+  // if (inputType === InputType.TWODIM) {
   //   inputValue = args.value as Vector2;
   //   transform.velocity = transform.velocity // + inputValue[0] * outputSpeed;
   // } else if (inputType === InputType.THREED) {

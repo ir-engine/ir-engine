@@ -47,7 +47,7 @@ export const followTarget: Behavior = (entityIn: Entity, args: any, delta: any, 
     mouseDownPosition = inputComponent.data.get(15);
     if (mouseDownPosition == undefined) return;
     if (!inputComponent.data.has(args.input)) {
-      inputComponent.data.set(args.input, { type: InputType.TWOD, value: new Vector3() });
+      inputComponent.data.set(args.input, { type: InputType.TWODIM, value: new Vector3() });
     }
     inputValue = inputComponent.data.get(args.input).value //as Vector2;
     startValue = mouseDownPosition.value //as Vector2;

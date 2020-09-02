@@ -19,6 +19,7 @@ import {
 import SocketIO, { Socket } from "socket.io"
 import app from '../../app'
 import serverConfig from '../../config'
+import { Network } from "@xr3ngine/engine/src/networking/components/Network"
 
 interface Client {
   socket: SocketIO.Socket;
@@ -128,7 +129,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       console.log('Sending Reliable Message')
       console.log(message)
       this.socketIO.sockets.emit(BuiltinMessageTypes.ReliableMessage.toString(), message)
-      console.log('Emitted Reliable Message')
   }
 
   handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
@@ -330,18 +330,25 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         }
       })
 
-      // --> /signaling/join-as-new-peer
-      // adds the peer to the roomState data structure and creates a
-      // transport that the peer will use for receiving media. returns
-      // router rtpCapabilities for mediasoup-client device initialization
+      // TODO:
+      // Join World response
+      // Get list of clients (id + username)
+      // Get list of network objects (id, owner, prefabtype, position, rotation)
       socket.on(BuiltinMessageTypes.JoinWorld.toString(), async (data, callback) => {
-        try {
-          console.log("Join world request", socket.id)
-          callback({routerRtpCapabilities: this.router.rtpCapabilities})
-        } catch(err) {
-          console.log('Join World error')
-          console.log(err)
-        }
+        console.log("Join world request", socket.id)
+        // Receive user ID and set for peer
+        const { userId } = data
+        console.log("Socket ID is ", socket.id)
+        // Add user ID to peer list
+        this.roomState.peers[socket.id]["userId"] = userId
+        // Create a snapshot of world state
+        // 
+        let peers = {}
+        Object.keys(this.roomState.peers).forEach(key=> {
+          peers[key] = { userId: this.roomState.peers[key]["userId"] }
+        })
+          
+          callback({peers, sceneId: Network.sceneId, routerRtpCapabilities: this.router.rtpCapabilities})
       })
 
       // --> /signaling/leave

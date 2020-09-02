@@ -53,10 +53,9 @@ export const handleInput: Behavior = (entity: Entity, delta: number): void => {
       }
     } 
     } else if (
-      value.type === InputType.ONED ||
-      value.type === InputType.TWOD ||
-      value.type === InputType.THREED ||
-      value.type === InputType.FOURD
+      value.type === InputType.ONEDIM ||
+      value.type === InputType.TWODIM ||
+      value.type === InputType.THREEDIM
     ) {
       if (input.schema.inputAxisBehaviors[key]) {
         // If lifecycle hasn't been set or started 

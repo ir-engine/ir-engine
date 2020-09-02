@@ -210,7 +210,7 @@ export const CharacterInputSchema: InputSchema = {
           // {
           //   behavior: move,
           //   args: {
-          //     inputType: InputType.TWOD,
+          //     inputType: InputType.TWODIM,
           //     value: [0, -1]
           //   }
           // }
@@ -222,7 +222,7 @@ export const CharacterInputSchema: InputSchema = {
           // {
           //   behavior: move,
           //   args: {
-          //     inputType: InputType.TWOD,
+          //     inputType: InputType.TWODIM,
           //     value: [0, -1]
           //   }
           // }
@@ -250,7 +250,7 @@ export const CharacterInputSchema: InputSchema = {
           // {
           //   behavior: move,
           //   args: {
-          //     inputType: InputType.TWOD,
+          //     inputType: InputType.TWODIM,
           //     value: [0, 1]
           //   }
           // }
@@ -259,7 +259,7 @@ export const CharacterInputSchema: InputSchema = {
           // {
           //   behavior: move,
           //   args: {
-          //     inputType: InputType.TWOD,
+          //     inputType: InputType.TWODIM,
           //     value: [0, 1]
           //   }
           // }
@@ -287,7 +287,7 @@ export const CharacterInputSchema: InputSchema = {
           // {
           //   behavior: move,
           //   args: {
-          //     inputType: InputType.TWOD,
+          //     inputType: InputType.TWODIM,
           //     value: [-1, 0]
           //   }
           // }
@@ -296,7 +296,7 @@ export const CharacterInputSchema: InputSchema = {
           // {
           //   behavior: move,
           //   args: {
-          //     inputType: InputType.TWOD,
+          //     inputType: InputType.TWODIM,
           //     input: {
           //       value: [-1, 0]
           //     },
@@ -327,7 +327,7 @@ export const CharacterInputSchema: InputSchema = {
           // {
           //   behavior: move,
           //   args: {
-          //     inputType: InputType.TWOD,
+          //     inputType: InputType.TWODIM,
           //     value: [1, 0]
           //   }
           // }
@@ -336,7 +336,7 @@ export const CharacterInputSchema: InputSchema = {
           // {
           //   behavior: move,
           //   args: {
-          //     inputType: InputType.TWOD,
+          //     inputType: InputType.TWODIM,
           //     value: [1, 0]
           //   }
           // }
@@ -369,7 +369,7 @@ export const CharacterInputSchema: InputSchema = {
         //   behavior: move,
         //   args: {
         //     input: DefaultInput.MOVEMENT_PLAYERONE,
-        //     inputType: InputType.TWOD
+        //     inputType: InputType.TWODIM
         //   }
         // }
       ]
@@ -380,7 +380,7 @@ export const CharacterInputSchema: InputSchema = {
         //   behavior: rotateAround,
         //   args: {
         //     input: DefaultInput.SCREENXY,
-        //     inputType: InputType.TWOD
+        //     inputType: InputType.TWODIM
         //   }
         // }
       ]

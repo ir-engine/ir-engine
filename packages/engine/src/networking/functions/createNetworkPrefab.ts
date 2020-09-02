@@ -9,15 +9,15 @@ import { NetworkPrefab } from '../interfaces/NetworkPrefab';
  * @param prefab NetworkPrefab to instantiate
  * @param networkId ID of the network object instantiated
  */
-export function createNetworkPrefab(prefab: NetworkPrefab, networkId: string | number): Entity {
+export function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: number): Entity {
   const entity = createEntity();
 
   // Add a NetworkObject component to the entity, this will store information about changing state
-  addComponent(entity, NetworkObject, { networkId });
+  addComponent(entity, NetworkObject, { ownerId, networkId });
   // Call each create action
   prefab.onCreate?.forEach(action => {
     // If it's a networked behavior, or this is the local player, call it
-    if (action.networked || networkId === (Network.instance).mySocketID)
+    if (action.networked || ownerId === (Network.instance).mySocketID)
     // Call the behavior with the args
     { action.behavior(entity, action.args); }
   });
@@ -54,7 +54,7 @@ export function createNetworkPrefab(prefab: NetworkPrefab, networkId: string | n
   // Instantiate local components
   // If this is the local player, spawn the local components (these will not be spawned for other clients)
   // This is good for input, camera, etc
-  if (networkId === (Network.instance).mySocketID && prefab.components)
+  if (ownerId === (Network.instance).mySocketID && prefab.components)
   // For each local component on the prefab...
   {
     prefab.components?.forEach(component => {

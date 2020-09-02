@@ -44,7 +44,7 @@ export const rotateAround: Behavior = (
   //   originalRotation.value[2],
   //   originalRotation.value[3]
   // );
-  // if (args.inputType === InputType.TWOD) {
+  // if (args.inputType === InputType.TWODIM) {
   //   if (inputComponent.data.has(args.input)) {
   //     inputValue = inputComponent.data.get(args.input).value as Vector2;
   //     startValue = mouseDownPosition.value as Vector2;

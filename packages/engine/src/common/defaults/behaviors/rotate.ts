@@ -42,7 +42,7 @@ export const rotateAround: Behavior = (
     inputComponent.data.set(args.input, { type: args.inputType, value: new Vector3() });
   }
 
-  if (args.inputType === InputType.TWOD) {
+  if (args.inputType === InputType.TWODIM) {
     if (inputComponent.data.has(args.input)) {
 
       inputValue = inputComponent.data.get(args.input).value as Vector2Type;

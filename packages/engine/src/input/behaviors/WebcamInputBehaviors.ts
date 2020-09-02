@@ -92,7 +92,7 @@ export const startLipsyncTracking: Behavior = (entity) => {
 
         if (pucker > .2)
             input.data.set(nameToInputValue["pucker"], {
-                type: InputType.ONED,
+                type: InputType.ONEDIM,
                 value: pucker
             });
         else if (input.data.has(nameToInputValue["pucker"]))
@@ -102,7 +102,7 @@ export const startLipsyncTracking: Behavior = (entity) => {
         const widen = 3 * Math.max(EnergyBinMasc[3], EnergyBinFem[3])
         if (widen > .2)
             input.data.set(nameToInputValue["widen"], {
-                type: InputType.ONED,
+                type: InputType.ONEDIM,
                 value: widen
             });
         else if (input.data.has(nameToInputValue["widen"]))
@@ -112,7 +112,7 @@ export const startLipsyncTracking: Behavior = (entity) => {
         const open = 0.8 * (Math.max(EnergyBinMasc[1], EnergyBinFem[1]) - Math.max(EnergyBinMasc[3], EnergyBinFem[3]))
         if (open > .2)
             input.data.set(nameToInputValue["open"], {
-                type: InputType.ONED,
+                type: InputType.ONEDIM,
                 value: open
             });
         else if (input.data.has(nameToInputValue["open"]))
@@ -142,7 +142,7 @@ async function faceToInput(entity, video) {
             if (detection.expressions[expression] > 0.28)
                 // set it on the map
                 input.data.set(expressions[nameToInputValue[expression]], {
-                    type: InputType.ONED,
+                    type: InputType.ONEDIM,
                     value: detection.expressions[expression]
                 });
             // check if the map has it and delete it

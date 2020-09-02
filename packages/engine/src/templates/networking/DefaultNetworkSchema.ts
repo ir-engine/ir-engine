@@ -1,12 +1,8 @@
-// Components
-import { NetworkObject } from '../../networking/components/NetworkObject';
 import { BuiltinMessageTypes } from '../../networking/enums/MessageTypes';
 import { NetworkPrefab } from '../../networking/interfaces/NetworkPrefab';
 import { NetworkSchema } from '../../networking/interfaces/NetworkSchema';
-import { TransformComponent } from '../../transform/components/TransformComponent';
 import { NetworkPlayerCharacter } from '../character/prefabs/NetworkPlayerCharacter';
 import { DefaultMessageTypes } from './DefaultMessageTypes';
-
 
 export const PrefabType = {
   Player: 0
