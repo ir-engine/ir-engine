@@ -20,7 +20,7 @@ export const PlayerCharacter: Prefab = {
     // These are only created for the local player who owns this prefab
     components: [
         // ActorComponent has values like movement speed, decelleration, jump height, etc
-        { type: CharacterComponent },
+        // { type: CharacterComponent },
         // Transform system applies values from transform component to three.js object (position, rotation, etc)
         { type: TransformComponent },
         // Local player input mapped to behaviors in the input map
