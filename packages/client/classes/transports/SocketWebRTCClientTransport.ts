@@ -214,8 +214,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         // this.startScreenshare()
       });
 
-      this.socket.on(MessageTypes.ClientConnected.toString(), (_id: any) => addClient(_id));
-      this.socket.on(MessageTypes.ClientDisconnected.toString(), (_id: any) => removeClient(_id));
+      this.socket.on(MessageTypes.ClientConnected.toString(), (_id: string) => addClient(_id));
+      this.socket.on(MessageTypes.ClientDisconnected.toString(), (_id: string) => removeClient(_id));
 
       // this.socket.on(MessageTypes.ReliableMessage.toString(), (message: Message) => {
       //   NetworkComponent.instance.incomingReliableQueue.add(message)
@@ -435,8 +435,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   async subscribeToTrack(peerId: string, mediaTag: string) {
-    console.log("subscribe to track", peerId, mediaTag);
-
     // create a receive transport if we don't already have one
     // if (!this.recvTransport) this.recvTransport = await this.createTransport("recv");
 
@@ -455,15 +453,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       mediaPeerId: peerId,
       rtpCapabilities: this.mediasoupDevice.rtpCapabilities
     });
-    console.log('consumerParameters:');
-    console.log(consumerParameters);
     consumer = await this.recvTransport.consume({
       ...consumerParameters,
       appData: { peerId, mediaTag }
     });
-    console.log('consumer:');
-    console.log(consumer);
-    console.log(this.recvTransport);
 
     // the server-side consumer will be started in paused state. wait
     // until we're connected, then send a resume request to the server
@@ -473,12 +466,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // okay, we're ready. let's ask the peer to send us media
     await this.resumeConsumer(consumer);
 
-    console.log('Consumers before push:');
-    console.log(MediaStreamComponent.instance.consumers);
     // keep track of all our consumers
     MediaStreamComponent.instance.consumers.push(consumer);
-    console.log('Consumers after push:');
-    console.log(MediaStreamComponent.instance.consumers);
 
     // ui
     // console.log('Calling addVideoAudio')
@@ -494,14 +483,16 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     await this.closeConsumer(consumer);
   }
 
-  async pauseConsumer(consumer: { appData: { peerId: any; mediaTag: any }; id: any; pause: () => any }) {
+  public async pauseConsumer(consumer: { appData: { peerId: any; mediaTag: any }; id: any; pause: () => any }) {
     if (!consumer) return;
     console.log("pause consumer", consumer.appData.peerId, consumer.appData.mediaTag);
     await this.request(MessageTypes.WebRTCPauseConsumer.toString(), { consumerId: consumer.id });
     await consumer.pause();
+    console.log('Consumer paused:')
+    console.log(consumer)
   }
 
-  async resumeConsumer(consumer: { appData: { peerId: any; mediaTag: any }; id: any; resume: () => any }) {
+  public async resumeConsumer(consumer: { appData: { peerId: any; mediaTag: any }; id: any; resume: () => any }) {
     if (!consumer) return;
     console.log("resume consumer", consumer.appData.peerId, consumer.appData.mediaTag);
     await this.request(MessageTypes.WebRTCResumeConsumer.toString(), { consumerId: consumer.id });
@@ -676,28 +667,28 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // comparison. compare this list with the cached list from last
     // poll.
 
-      // auto-subscribe to their feeds:
-      for (const id in peers) {
-        // for each peer...
-        if (id !== NetworkComponent.instance.mySocketID) {
-          // if it isnt me...
-          if (NetworkComponent.instance.clients !== undefined && NetworkComponent.instance.clients.includes(id)) {
-            // and if it is close enough in the 3d space...
-            for (const [mediaTag, _] of Object.entries(peers[id].media)) {
-              // for each of the peer's producers...
-              if (
-                  MediaStreamComponent.instance.consumers?.find(
-                      c => c?.appData?.peerId === id && c?.appData?.mediaTag === mediaTag
-                  ) != null
-              )
-                return;
-              // that we don't already have consumers for...
-              console.log(`auto subscribing to track that ${id} has added`);
-              await this.subscribeToTrack(id, mediaTag);
-            }
+    // auto-subscribe to their feeds:
+    for (const id in peers) {
+      // for each peer...
+      if (id !== NetworkComponent.instance.mySocketID) {
+        // if it isnt me...
+        if (NetworkComponent.instance.clients !== undefined && NetworkComponent.instance.clients.includes(id)) {
+          // and if it is close enough in the 3d space...
+          for (const [mediaTag, _] of Object.entries(peers[id].media)) {
+            // for each of the peer's producers...
+            if (
+                MediaStreamComponent.instance.consumers?.find(
+                    c => c?.appData?.peerId === id && c?.appData?.mediaTag === mediaTag
+                ) != null
+            )
+              return;
+            // that we don't already have consumers for...
+            console.log(`auto subscribing to track that ${id} has added`);
+            await this.subscribeToTrack(id, mediaTag);
           }
         }
       }
+    }
 
     // if a peer has gone away, we need to close all consumers we have
     // for that peer and remove video and audio elements
@@ -719,6 +710,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       return console.log("Consumers length is 0");
 
     MediaStreamComponent.instance.consumers.forEach(consumer => {
+      console.log(consumer)
       const { peerId, mediaTag } = consumer.appData;
       if (!peers[peerId]) {
         console.log(`Peer ${peerId} has stopped transmitting ${mediaTag}`);

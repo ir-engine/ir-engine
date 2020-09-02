@@ -22,8 +22,6 @@ const Me = observer(() => {
               height: 135,
               width: 240
             }}
-            videoStream={MediaStreamComponent.instance.camVideoProducer}
-            audioStream={MediaStreamComponent.instance.camAudioProducer}
             peerId={'me_cam'}
             />
         }
@@ -33,8 +31,6 @@ const Me = observer(() => {
                     height: 135,
                     width: 240
                 }}
-                videoStream={MediaStreamComponent.instance.screenVideoProducer}
-                audioStream={MediaStreamComponent.instance.screenAudioProducer}
                 peerId={'me_screen'}
             />
         }

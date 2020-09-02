@@ -42,8 +42,6 @@ const PartyVideoWindows = observer((): JSX.Element => {
             }}
             peerId={tracks.video ? tracks.video._appData.peerId : tracks.audio._appData.peerId}
             key={key}
-            videoStream={tracks.video}
-            audioStream={tracks.audio}
         />
       ))}
     </Grid>
