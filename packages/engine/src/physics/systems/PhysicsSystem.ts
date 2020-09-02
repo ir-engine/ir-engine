@@ -34,19 +34,19 @@ export class PhysicsSystem extends System {
     PhysicsManager.instance.frame++;
     PhysicsManager.instance.physicsWorld.step(PhysicsManager.instance.timeStep);
     this.queryResults.character.all?.forEach(entity => updateCharacter(entity, null, delta));
-    
+
    this.queryResults.character.all?.forEach(entity => physicsPostStep(entity, null, delta));
 
     // // Collider
-    // this.queryResults.сollider.added?.forEach(entity => {
-    //   console.log("onAdded called on collider behavior")
-    //   addCollider(entity, { phase: 'onAdded' });
-    // });
+     this.queryResults.сollider.added?.forEach(entity => {
+       console.log("onAdded called on collider behavior")
+       addCollider(entity, { phase: 'onAdded' });
+     });
 
-    // this.queryResults.сollider.removed?.forEach(entity => {
-    //   console.log("onRemoved called on collider behavior")
-    //   addCollider(entity, { phase: 'onRemoved' });
-    // });
+     this.queryResults.сollider.removed?.forEach(entity => {
+       console.log("onRemoved called on collider behavior")
+       addCollider(entity, { phase: 'onRemoved' });
+     });
 
     // RigidBody
 
