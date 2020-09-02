@@ -199,6 +199,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
 
       this.socket.on(BuiltinMessageTypes.Initialization.toString(), async (_id: any, _ids: any) => {
+
         initializeClient(_id, _ids);
         await this.joinWorld();
         // Ping request for testing unreliable messaging may remove if not needed
@@ -241,9 +242,16 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log("Joining world");
     // signal that we're a new peer and initialize our
     // mediasoup-client device, if this is our first time connecting
-    const resp = await this.request(BuiltinMessageTypes.JoinWorld.toString());
+    const resp = await this.request(BuiltinMessageTypes.JoinWorld.toString(),
+    {
+      userId: "changeMe"
+    });
     console.log("Awaiting response to join world");
-    const { routerRtpCapabilities } = resp as any;
+    const { sceneId, peers, networkObjects, routerRtpCapabilities } = resp as any;
+    // TODO:
+    // Create a scene + load entity + component
+    // Set network client list to this
+    // 
     console.log("Loading mediasoup");
     if (!this.mediasoupDevice.loaded) await this.mediasoupDevice.load({ routerRtpCapabilities });
     console.log("Polling");
@@ -678,16 +686,16 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // comparison. compare this list with the cached list from last
     // poll.
 
+    // auto-subscribe to their feeds:
     if (this.recvTransport?.connectionState === 'connected') {
-      // auto-subscribe to their feeds:
+      // for each peer...
       for (const id in peers) {
-        // for each peer...
+        // if it isnt me...
         if (id !== NetworkComponent.instance.mySocketID) {
-          // if it isnt me...
-          if (NetworkComponent.instance.clients !== undefined && NetworkComponent.instance.clients.includes(id)) {
-            // and if it is close enough in the 3d space...
+          // And I already have the peer in my peer list...
+          if (NetworkComponent.instance.clients[id] !== undefined) {
+            // for each of the peer's producers...
             for (const [mediaTag, _] of Object.entries(peers[id].media)) {
-              // for each of the peer's producers...
               if (
                   MediaStreamComponent.instance.consumers?.find(
                       c => c?.appData?.peerId === id && c?.appData?.mediaTag === mediaTag
