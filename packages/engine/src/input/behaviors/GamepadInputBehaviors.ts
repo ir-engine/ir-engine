@@ -126,7 +126,7 @@ export const handleGamepadAxis: Behavior = (
   // Axis has changed, so get mutable reference to Input and set data
   if (x !== prevLeftX || y !== prevLeftY) {
     getMutableComponent<Input>(entity, Input).data.set(args.mappedInputValue, {
-      type: InputType.TWOD,
+      type: InputType.TWODIM,
       value: [x, y]
     });
 

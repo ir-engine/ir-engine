@@ -11,7 +11,7 @@ import { MouseInput } from '../enums/MouseInput';
  * Local reference to input component
  */
 let input: Input;
-const _value: [number, number] = [0, 0];
+const value: [number, number] = [0, 0];
 
 /**
  * System behavior called whenever the mouse pressed
@@ -21,12 +21,12 @@ const _value: [number, number] = [0, 0];
  */
 export const handleMouseMovement: Behavior = (entity: Entity, args: { event: MouseEvent }): void => {
   input = getComponent(entity, Input);
-  _value[0] = (args.event.clientX / window.innerWidth) * 2 - 1;
-  _value[1] = (args.event.clientY / window.innerHeight) * -2 + 1;
+  value[0] = (args.event.clientX / window.innerWidth) * 2 - 1;
+  value[1] = (args.event.clientY / window.innerHeight) * -2 + 1;
   // Set type to TWOD (two-dimensional axis) and value to a normalized -1, 1 on X and Y
   input.data.set(input.schema.mouseInputMap.axes[MouseInput.MousePosition], {
-    type: InputType.TWOD,
-    value: _value
+    type: InputType.TWODIM,
+    value: value
   });
 };
 
@@ -52,7 +52,7 @@ export const handleMouseButton: Behavior = (entity: Entity, args: { event: Mouse
     mousePosition[1] = (args.event.clientY / window.innerHeight) * -2 + 1;
     // Set type to TWOD (two dimensional) and value with x: -1, 1 and y: -1, 1
     input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseClickDownPosition], {
-      type: InputType.TWOD,
+      type: InputType.TWODIM,
       value: mousePosition
     });
   } else {

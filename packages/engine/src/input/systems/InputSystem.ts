@@ -84,8 +84,6 @@ export class InputSystem extends System {
     this.queryResults.inputs.added?.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
-      // If input doesn't have a map, set the default
-      if (this._inputComponent.schema === undefined) this._inputComponent.schema = CharacterInputSchema;
       // Call all behaviors in "onAdded" of input map
       this._inputComponent.schema.onAdded.forEach(behavior => {
         behavior.behavior(entity, { ...behavior.args });

@@ -1,26 +1,35 @@
-import { NetworkSchema } from '../interfaces/NetworkSchema';
-import { NetworkTransport } from '../interfaces/NetworkTransport';
+import { RingBuffer } from '../../common/classes/RingBuffer';
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
-import { Message } from '../interfaces/Message';
-import { RingBuffer } from '../../common/classes/RingBuffer';
 import { MessageSchema } from '../classes/MessageSchema';
-import { now } from '../../common/functions/now';
+import { NetworkSchema } from '../interfaces/NetworkSchema';
+import { NetworkTransport } from '../interfaces/NetworkTransport';
+import { NetworkObjectList } from '../interfaces/NetworkObjectList';
+
+export interface NetworkClientList {
+  // Key is socket ID
+  [key: string]: { userId: string }
+}
 
 export class Network extends Component<Network> {
   static instance: Network = null
   isInitialized: boolean
   transport: NetworkTransport
   schema: NetworkSchema
-  clients: string[] = [] // TODO: Replace with ringbuffer
-  mySocketID
+  clients: NetworkClientList = {}
+  networkObjects: NetworkObjectList = {}
+  mySocketID: string
+  private static availableNetworkId = 0
+  static getNetworkId(){
+    return this.availableNetworkId++
+  }
   static _schemas: Map<string, MessageSchema> = new Map()
 
   incomingMessageQueue: RingBuffer<ArrayBuffer>
   outgoingReliableMessageQueue: RingBuffer<ArrayBuffer>
+  outgoingUnreliableMessageQueue: RingBuffer<ArrayBuffer>
 
   worldState = {
-    time: now(),
     tick: Network.tick,
     states: [
     ],
@@ -28,14 +37,12 @@ export class Network extends Component<Network> {
     ]
   }
 
-  outgoingUnreliableMessageQueue: RingBuffer<ArrayBuffer>
-
+  static sceneId = "default"
   static Network: any
   static tick: any;
   constructor () {
     super();
     Network.instance = this;
-    console.log("Network instance exists")
     // TODO: Replace default message queue sizes
     this.outgoingReliableMessageQueue = new RingBuffer<ArrayBuffer>(100)
     this.incomingMessageQueue = new RingBuffer<ArrayBuffer>(100)
@@ -45,9 +52,12 @@ export class Network extends Component<Network> {
   dispose():void {
     super.dispose();
     // TODO: needs tests
-    this.clients.length = 0;
-    this.transport = null
+    this.clients = {}
+    this.transport = null;
+    Network.availableNetworkId = 0;
     Network.instance = null;
+    Network.tick = 0
+    Network.sceneId = "default" // TODO: Clear scene ID, no need for default
   }
 }
 
