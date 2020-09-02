@@ -30,15 +30,19 @@ export const WheelBehavior: Behavior = (entity: Entity, args): void => {
 
     vehicle.updateWheelTransform(args.i);
 
-    transform.position[0] = vehicle.wheelInfos[args.i].worldTransform.position.x;
-    transform.position[1] = vehicle.wheelInfos[args.i].worldTransform.position.y;
-    transform.position[2] = vehicle.wheelInfos[args.i].worldTransform.position.z;
+    transform.position.set(
+      vehicle.wheelInfos[args.i].worldTransform.position.x,
+      vehicle.wheelInfos[args.i].worldTransform.position.y,
+      vehicle.wheelInfos[args.i].worldTransform.position.z
+    )
 
+    transform.rotation.set(
+      vehicle.wheelInfos[args.i].worldTransform.quaternion.x,
+      vehicle.wheelInfos[args.i].worldTransform.quaternion.y,
+      vehicle.wheelInfos[args.i].worldTransform.quaternion.z,
+      vehicle.wheelInfos[args.i].worldTransform.quaternion.w
+    )
 
-    transform.rotation[0] = vehicle.wheelInfos[args.i].worldTransform.quaternion.x,
-    transform.rotation[1] = vehicle.wheelInfos[args.i].worldTransform.quaternion.y,
-    transform.rotation[2] = vehicle.wheelInfos[args.i].worldTransform.quaternion.z,
-    transform.rotation[3] = vehicle.wheelInfos[args.i].worldTransform.quaternion.w
     } else console.warn("Could not find vehicle")
 
 

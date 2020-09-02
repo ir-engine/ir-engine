@@ -13,6 +13,7 @@ import { AssetClass } from '@xr3ngine/engine/src/assets/enums/AssetClass';
 
 import { staticWorldColliders } from './staticWorldColliders'
 import { rigidBodyBox } from './rigidBodyBox'
+import { rigidBodyBox2 } from './rigidBodyBox2'
 import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
 import { AmbientLight, Color } from 'three';
 import { PositionalAudio, Mesh, SphereBufferGeometry, MeshPhongMaterial  } from 'three';
@@ -56,18 +57,19 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
     // Load glb here
     // createPrefab(rigidBodyBox);
-    
+
       createPrefab(PlayerCharacter);
       createPrefab(staticWorldColliders);
       createPrefab(rigidBodyBox);
-      // createPrefab(CarController);
-    
+      createPrefab(rigidBodyBox2);
+      createPrefab(CarController);
 
-    
+
+
     addObject3DComponent(createEntity(), { obj3d: AmbientLight, ob3dArgs: {
       intensity: 5.0
     }})
-    
+
     const cameraTransform = getMutableComponent<TransformComponent>(CameraComponent.instance.entity, TransformComponent)
 
     cameraTransform.position.set(0, 1.2, 3)
@@ -80,23 +82,25 @@ export const EnginePage: FunctionComponent = (props: any) => {
         new MeshPhongMaterial({ color: 0xff2200 })
       );
       const audioEntity = createEntity();
-      addObject3DComponent(audioEntity, { 
+      addObject3DComponent(audioEntity, {
         obj3d: audioMesh
       });
       audioMesh.add( sound );
 const transform = addComponent<TransformComponent>(audioEntity, TransformComponent) as any
 transform.position.set(0,1,0)
-      // const audioComponent = addComponent(audioEntity, 
+      // const audioComponent = addComponent(audioEntity,
       //   class extends Component {static scema = {}}
       // )
     }
-   
+
        console.log("Creating a scene entity to test")
+       /*
     addComponent(createEntity(), AssetLoader, {
       url: "models/library.glb",
       receiveShadow: true,
       castShadow: true
-    }) 
+    })
+    */
     // addComponent(createEntity(), AssetLoader, {
     //   url: "models/OldCar.fbx",
     //   receiveShadow: true,
@@ -116,7 +120,7 @@ transform.position.set(0,1,0)
       if (event.keyCode === 27)
         toggleEnabled();
       else if(event.keyCode == P_PLAY_PAUSE){
-        
+
       }
     }
     document.addEventListener("keydown", f);

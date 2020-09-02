@@ -10,13 +10,13 @@ import { attachCamera } from "@xr3ngine/engine/src/camera/behaviors/attachCamera
 import { addCarPhysics } from "@xr3ngine/engine/src/physics/behaviors/addCarPhysics";
 import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
 import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
-// import { VehicleInputSchema } from "@xr3ngine/engine/src/templates/car/VehicleInputSchema" 
+// import { VehicleInputSchema } from "@xr3ngine/engine/src/templates/car/VehicleInputSchema"
 
 const myCoolCar = new BoxBufferGeometry(2,1,6);
 
 export const CarController: Prefab = {
     components: [
-      { type: TransformComponent, data: { position: [3,3,3]} },
+      { type: TransformComponent, data: { position: [-3,6,-3]} },
       // Local player input mapped to behaviors in the input map
     //   { type: Input, data: { schema: VehicleInputSchema } },
       // Current state (isJumping, isidle, etc)
@@ -33,13 +33,15 @@ export const CarController: Prefab = {
                 obj3dArgs: myCoolCar
             }
         },
+
         {
             behavior: addCarPhysics
         },
-
+        
+/*
         {
             behavior: attachCamera
         }
-
+*/
     ]
 };

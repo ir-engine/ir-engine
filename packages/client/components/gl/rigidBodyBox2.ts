@@ -9,9 +9,9 @@ import { attachCamera } from "@xr3ngine/engine/src/camera/behaviors/attachCamera
 
 const box = new BoxBufferGeometry(1, 1, 1);
 
-export const rigidBodyBox: Prefab = {
+export const rigidBodyBox2: Prefab = {
     components: [
-      { type: TransformComponent, data: { position: [-3, 2,-3]} }
+      { type: TransformComponent, data: { position: [-2.6, 4,-2.6]} }
     ],
     onCreate: [
         // add a 3d object
