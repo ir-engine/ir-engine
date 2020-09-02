@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import './style.scss';
-import './style.scss';import { observer } from 'mobx-react';
+import './style.scss';
+import { autorun } from 'mobx';
+import { observer } from 'mobx-react';
 import IconButton from '@material-ui/core/IconButton';
 import {
     Mic,
@@ -10,129 +12,203 @@ import {
 } from '@material-ui/icons';
 import { MediaStreamComponent } from '@xr3ngine/engine/src/networking/components/MediaStreamComponent';
 import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
+import { Network } from "@xr3ngine/engine/src/networking/components/Network";
+import {MessageTypes} from "@xr3ngine/engine/src/networking/enums/MessageTypes";
 
 
 interface ContainerProportions {
-  width: number | string;
-  height: number | string;
+    width: number | string;
+    height: number | string;
 }
 
 interface Props {
-  containerProportions?: ContainerProportions;
-  videoStream?: any;
-  audioStream?: any;
-  peerId?: string;
+    containerProportions?: ContainerProportions;
+    peerId?: string;
 }
 
 const PartyParticipantWindow = observer((props: Props): JSX.Element => {
+    const [videoStream, setVideoStream] = useState(null);
+    const [audioStream, setAudioStream] = useState(null);
+    const [videoStreamPaused, setVideoStreamPaused] = useState(false);
+    const [audioStreamPaused, setAudioStreamPaused] = useState(false);
+    const [videoProducerPaused, setVideoProducerPaused] = useState(false);
+    const [audioProducerPaused, setAudioProducerPaused] = useState(false);
     const {
-        audioStream,
         peerId,
-        videoStream
     } = props;
-  // Video and audio elements' ref
-  //   const videoEl = React.createRef<HTMLVideoElement>();
-  //   const audioEl = React.createRef<HTMLAudioElement>();
+    // Video and audio elements' ref
+    //   const videoEl = React.createRef<HTMLVideoElement>();
+    //   const audioEl = React.createRef<HTMLAudioElement>();
     const videoRef = React.createRef<HTMLVideoElement>();
     const audioRef = React.createRef<HTMLAudioElement>();
 
+    (Network.instance.transport as any).socket.on(MessageTypes.WebRTCPauseConsumer.toString(), (consumerId: string) => {
+        console.log(`PartyParticipant listener ${peerId} got consumer pause for ${consumerId}`);
+        if (consumerId === videoStream?.id) {
+            setVideoProducerPaused(true);
+        } else if (consumerId === audioStream?.id) {
+            setAudioProducerPaused(true);
+        }
+    });
+
+    (Network.instance.transport as any).socket.on(MessageTypes.WebRTCResumeConsumer.toString(), (consumerId: string) => {
+        console.log(`PartyParticipant listener ${peerId} got consumer resume for ${consumerId}`);
+        if (consumerId === videoStream?.id) {
+            setVideoProducerPaused(false);
+        } else if (consumerId === audioStream?.id) {
+            setAudioProducerPaused(false);
+        }
+    });
+
     useEffect(() => {
-        videoRef.current.id = `${peerId}_video`;
-        audioRef.current.id = `${peerId}_audio`;
-
-        videoRef.current.autoplay =true;
-        videoRef.current.setAttribute('playsinline', 'true');
-        if (videoStream) {
-            videoRef.current.srcObject = new MediaStream([videoStream.track.clone()]);
-            // videoEl.mediaStream = videoStream;
-            console.log('Playing video');
+        autorun(() => {
             if (peerId === 'me_cam') {
-                MediaStreamComponent.instance.setVideoPaused(false);
+                setVideoStream(MediaStreamComponent.instance.camVideoProducer);
+                setAudioStream(MediaStreamComponent.instance.camAudioProducer);
             } else if (peerId === 'me_screen') {
-                MediaStreamComponent.instance.setScreenShareVideoPaused(false);
+                setVideoStream(MediaStreamComponent.instance.screenVideoProducer);
+                setAudioStream(MediaStreamComponent.instance.screenAudioProducer);
+            } else {
+                setVideoStream(MediaStreamComponent.instance.consumers.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'));
+                setAudioStream(MediaStreamComponent.instance.consumers.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'));
             }
-            // console.log((videoEl as any).current.mediaStream);
-            // videoEl.current.play().catch((err) => {
-            //     console.log('Video play error');
-            //     console.log(err);
-            // });
-        }
-
-        audioRef.current.setAttribute('playsinline', 'true');
-        audioRef.current.autoplay = true;
-        audioRef.current.muted = false;
-        if (audioStream) {
-            audioRef.current.srcObject = new MediaStream([audioStream.track.clone()]);
-            // audioEl.mediaStream = audioStream;
-            if (peerId === 'me_cam') {
-                MediaStreamComponent.instance.setAudioPaused(false);
-            } else if (peerId === 'me_screen') {
-                MediaStreamComponent.instance.setScreenShareAudioPaused(false);
-            }
-            // audioEl.current.play().catch((err) => {
-            //     console.log('Audio play error');
-            //     console.log(err);
-            // });
-        }
-        audioRef.current.volume = 0;
+        });
     }, []);
-  // Add mediasoup integration logic here to feed single peer's stream to these video/audio elements
 
-    const toggleVideo = () => {
-        console.log('Toggling video')
+    useEffect(() => {
+        console.log('audioStream or videoStream useEffect triggered')
+        if (videoRef.current != null) {
+            videoRef.current.id = `${peerId}_video`;
+            videoRef.current.autoplay = true;
+            videoRef.current.setAttribute('playsinline', 'true');
+            if (videoStream) {
+                videoRef.current.srcObject = new MediaStream([videoStream.track.clone()]);
+                // videoEl.mediaStream = videoStream;
+                console.log('Playing video');
+                if (peerId === 'me_cam') {
+                    MediaStreamComponent.instance.setVideoPaused(false);
+                } else if (peerId === 'me_screen') {
+                    MediaStreamComponent.instance.setScreenShareVideoPaused(false);
+                }
+            }
+        }
+
+        if (audioRef.current != null) {
+            audioRef.current.id = `${peerId}_audio`;
+            audioRef.current.setAttribute('playsinline', 'true');
+            audioRef.current.autoplay = true;
+            audioRef.current.muted = false;
+            if (audioStream) {
+                audioRef.current.srcObject = new MediaStream([audioStream.track.clone()]);
+                // audioEl.mediaStream = audioStream;
+                if (peerId === 'me_cam') {
+                    MediaStreamComponent.instance.setAudioPaused(false);
+                } else if (peerId === 'me_screen') {
+                    MediaStreamComponent.instance.setScreenShareAudioPaused(false);
+                }
+            }
+            audioRef.current.volume = 0;
+        }
+    }, [audioStream, videoStream])
+    // Add mediasoup integration logic here to feed single peer's stream to these video/audio elements
+
+    useEffect(() => {
+        console.log('Videostream paused changed')
+        console.log(videoStream?.paused)
+    }, [videoStream?.paused])
+
+    const toggleVideo = async () => {
         if (peerId === 'me_cam') {
-            MediaStreamSystem.instance.toggleWebcamVideoPauseState();
+            await MediaStreamSystem.instance.toggleWebcamVideoPauseState();
+            setVideoStreamPaused(videoStream.paused);
         }
         else if (peerId === 'me_screen') {
-            MediaStreamSystem.instance.toggleScreenshareVideoPauseState();
+            await MediaStreamSystem.instance.toggleScreenshareVideoPauseState();
+            setVideoStreamPaused(videoStream.paused);
         } else {
-            const consumer = MediaStreamComponent.instance.consumers.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'video');
-            console.log(`Need to toggle consumer video for ${peerId}`)
-            console.log(consumer)
+            console.log(`Video consumer is paused: ${videoStream.paused}`);
+            if (videoStream.paused === false) {
+                await (Network.instance.transport as any).pauseConsumer(videoStream);
+                setVideoStreamPaused(videoStream.paused);
+            }
+            else {
+                await (Network.instance.transport as any).resumeConsumer(videoStream);
+                setVideoStreamPaused(videoStream.paused);
+            }
         }
     };
 
-    const toggleAudio = () => {
-        console.log('Toggling audio')
+    const toggleAudio = async () => {
         if (peerId === 'me_cam') {
-            MediaStreamSystem.instance.toggleWebcamAudioPauseState();
+            await MediaStreamSystem.instance.toggleWebcamAudioPauseState();
+            setAudioStreamPaused(audioStream.paused);
         }
         else if (peerId === 'me_screen') {
-            MediaStreamSystem.instance.toggleScreenshareAudioPauseState();
+            await MediaStreamSystem.instance.toggleScreenshareAudioPauseState();
+            setAudioStreamPaused(audioStream.paused);
         } else {
-            const consumer = MediaStreamComponent.instance.consumers.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'audio');
-            console.log(`Need to toggle consumer audio for ${peerId}`)
-            console.log(consumer)
+            if (audioStream.paused === false) {
+                await (Network.instance.transport as any).pauseConsumer(audioStream);
+                setAudioStreamPaused(audioStream.paused);
+            }
+            else {
+                await (Network.instance.transport as any).resumeConsumer(audioStream);
+                setAudioStreamPaused(audioStream.paused);
+            }
         }
     };
-  return (
-    <div className="party-chat-user" id={props.peerId + '_container'} style={props.containerProportions || {}}>
-        <div className="user-controls">
-            { (peerId === 'me_cam' && MediaStreamComponent.instance.videoPaused === false) &&
-                <IconButton size="small" onClick={toggleVideo}>
-                    <Videocam />
-                </IconButton>
-            }
-            { (peerId === 'me_cam' && MediaStreamComponent.instance.videoPaused === true) &&
-                <IconButton size="small" onClick={toggleVideo}>
-                    <VideocamOff />
-                </IconButton>
-            }
-            { (peerId === 'me_cam' && MediaStreamComponent.instance.audioPaused === false) &&
-                <IconButton size="small" onClick={toggleAudio}>
-                    <Mic />
-                </IconButton>
-            }
-            { (peerId === 'me_cam' && MediaStreamComponent.instance.audioPaused === true) &&
-                <IconButton size="small" onClick={toggleAudio}>
-                    <MicOff />
-                </IconButton>
-            }
+    return (
+        <div
+            id={props.peerId + '_container'}
+            className={`party-chat-user ${(videoStream && (videoProducerPaused === true || videoStreamPaused === true)) ? 'video-paused': ''} ${(audioStream && (audioProducerPaused === true || audioStreamPaused === true)) ? 'audio-paused': ''}`}
+            style={props.containerProportions || {}}
+        >
+            <div className="user-controls">
+                {
+                    (videoStream && videoProducerPaused === false && videoStreamPaused === false) &&
+                    <IconButton
+                        size="small"
+                        className="video-control"
+                        onClick={toggleVideo}
+                    >
+                        <Videocam />
+                    </IconButton>
+                }
+                {
+                    (videoStream && videoProducerPaused === false && videoStreamPaused === true) &&
+                    <IconButton
+                        size="small"
+                        className="video-control"
+                        onClick={toggleVideo}
+                    >
+                        <VideocamOff />
+                    </IconButton>
+                }
+                {
+                    (audioStream && audioProducerPaused === false && audioStream.paused === false) &&
+                    <IconButton
+                        size="small"
+                        className="audio-control"
+                        onClick={toggleAudio}
+                    >
+                        <Mic />
+                    </IconButton>
+                }
+                {
+                    (audioStream && audioProducerPaused === false && audioStream.paused === true) &&
+                    <IconButton
+                        size="small"
+                        className="audio-control"
+                        onClick={toggleAudio}
+                    >
+                        <MicOff />
+                    </IconButton>
+                }
+            </div>
+            <video ref={videoRef}/>
+            <audio ref={audioRef}/>
         </div>
-        <video ref={videoRef}/>
-        <audio ref={audioRef}/>
-    </div>
-  );
+    );
 });
 
 export default PartyParticipantWindow;

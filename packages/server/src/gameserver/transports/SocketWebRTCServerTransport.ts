@@ -578,6 +578,16 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             console.log(`consumer's producer closed`, consumer.id)
             this.closeConsumer(consumer)
           })
+          consumer.on('producerpause', () => {
+            console.log(`consumer's producer paused`, consumer.id)
+            consumer.pause()
+            socket.emit(MessageTypes.WebRTCPauseConsumer.toString(), consumer.id)
+          })
+          consumer.on('producerresume', () => {
+            console.log(`consumer's producer resumed`, consumer.id)
+            consumer.resume()
+            socket.emit(MessageTypes.WebRTCResumeConsumer.toString(), consumer.id)
+          })
 
           // stick this consumer in our list of consumers to keep track of,
           // and create a data structure to track the client-relevant state
@@ -725,13 +735,17 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         try {
           console.log('Pause Producer handler')
           const {producerId} = data,
-              producer = this.roomState.producers.find(p => p.id === producerId)
+              producer = this.roomState.producers.find(p => p.id === producerId);
           console.log("pause-producer", producer.appData)
           await producer.pause()
           this.roomState.peers[socket.id].media[producer.appData.mediaTag].paused = true
+          const consumers = this.roomState.consumers.filter(c => c._internal.producerId === producerId)
+          consumers.forEach(async (c) => { console.log(c); await c.pause();})
+          console.log('matching consumers after pause:')
+          console.log(consumers)
           callback({paused: true})
         } catch(err) {
-          console.log('WebRTC Producer Resume error')
+          console.log('WebRTC Producer Pause error')
           console.log(err)
         }
       })
