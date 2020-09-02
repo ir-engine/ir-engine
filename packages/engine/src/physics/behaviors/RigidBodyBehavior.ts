@@ -13,27 +13,32 @@ export const RigidBodyBehavior: Behavior = (entity: Entity, args): void => {
 
   if (args.phase == 'onAdded') {}
   else if (args.phase == 'onUpdate') {
-    const collider = getComponent<ColliderComponent>(entity, ColliderComponent).collider;
-    const isKinematic = getComponent<RigidBody>(entity, RigidBody).isKinematic;
+    const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
+    const rigidBody = getComponent<RigidBody>(entity, RigidBody);
     const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
 
-    if (collider && transform) {
+    if (colliderComponent.collider && transform) {
 
-      if (isKinematic) {
+      if (rigidBody.isKinematic) {
 
-        collider.position.x = transform.position[0];
-        collider.position.y = transform.position[1];
-        collider.position.z = transform.position[2];
+        colliderComponent.collider.position.x = transform.position.x;
+        colliderComponent.collider.position.y = transform.position.y;
+        colliderComponent.collider.position.z = transform.position.z;
         //  quaternion.set(collider.quaternion.x, collider.quaternion.y, collider.quaternion.z, collider.quaternion.w)
         //  transform.rotation = quaternion.toArray()
       } else {
 
-        transform.position[0] = collider.position.x;
-        transform.position[1] = collider.position.y;
-        transform.position[2] = collider.position.z;
-
-        quaternion.set(collider.quaternion.x, collider.quaternion.y, collider.quaternion.z, collider.quaternion.w);
-        transform.rotation = quaternion
+        transform.position.set(
+          colliderComponent.collider.position.x,
+          colliderComponent.collider.position.y,
+          colliderComponent.collider.position.z
+        )
+        transform.rotation.set(
+          colliderComponent.collider.quaternion.x,
+          colliderComponent.collider.quaternion.y,
+          colliderComponent.collider.quaternion.z,
+          colliderComponent.collider.quaternion.w
+        );
       }
     }
   }

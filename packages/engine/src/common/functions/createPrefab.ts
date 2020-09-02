@@ -24,7 +24,10 @@ prefab.components?.forEach(component => {
   Object.keys(component.data).forEach(initValue => {
     // Get the component on the entity, and set it to the initializing value from the prefab
     if (addedComponent[initValue] instanceof Vector3) {
+
       addedComponent[initValue].fromArray(component.data[initValue])
+
+      console.log(addedComponent[initValue]);
     } else if (addedComponent[initValue] instanceof Quaternion) {
       addedComponent[initValue].fromArray(component.data[initValue])
     } else {
@@ -33,5 +36,6 @@ prefab.components?.forEach(component => {
   });
 });
   }
+
   return entity;
 }
