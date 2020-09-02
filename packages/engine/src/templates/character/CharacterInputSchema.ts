@@ -14,6 +14,7 @@ import { DefaultInput } from '../shared/DefaultInput';
 import { jumpStart } from "./behaviors/jumpStart";
 import { move } from './behaviors/move';
 import { rotateAround } from './behaviors/rotate';
+import { setArcadeVelocityTarget } from './behaviors/setArcadeVelocityTarget';
 
 export const CharacterInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -211,13 +212,12 @@ export const CharacterInputSchema: InputSchema = {
     [DefaultInput.FORWARD]: {
       [BinaryValue.ON]: {
         started: [
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWOD,
-          //     value: [0, -1]
-          //   }
-          // }
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              z: 1
+            }
+          }
           // {
           //   behavior: updateMovementState
           // }
