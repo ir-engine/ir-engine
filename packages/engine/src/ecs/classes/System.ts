@@ -67,7 +67,7 @@ export abstract class System {
   init? (attributes?: SystemAttributes): void
   abstract execute (delta: number, time: number): void
 
-  canExecute (): boolean {
+  canExecute (delta:number): boolean {
     if (this._mandatoryQueries.length === 0) return true;
 
     for (let i = 0; i < this._mandatoryQueries.length; i++) {

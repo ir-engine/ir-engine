@@ -8,7 +8,7 @@ import { RigidBodyBehavior } from '../behaviors/RigidBodyBehavior';
 import { VehicleBehavior } from '../behaviors/VehicleBehavior';
 import { WheelBehavior } from '../behaviors/WheelBehavior';
 import { ColliderComponent } from '../components/ColliderComponent';
-import { createFixedTimestep } from "../../common/functions/Timer";
+import { FixedStepsRunner } from "../../common/functions/Timer";
 import { physicsPreStep } from '../../templates/character/behaviors/physicsPreStep';
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
 import { physicsPostStep } from '../../templates/character/behaviors/physicsPostStep';
@@ -16,13 +16,19 @@ import { updateCharacter } from '../../templates/character/behaviors/updateChara
 
 export class PhysicsSystem extends System {
   fixedExecute:(delta:number)=>void = null
+  fixedRunner: FixedStepsRunner
 
   constructor() {
     super()
-    this.fixedExecute = createFixedTimestep(60, this.onFixedExecute.bind(this))
+    this.fixedRunner = new FixedStepsRunner(60, this.onFixedExecute.bind(this))
   }
+
+  canExecute(delta:number): boolean {
+    return super.canExecute(delta) && this.fixedRunner.canRun(delta);
+  }
+
   execute(delta):void {
-    this.fixedExecute(delta)
+    this.fixedRunner.run(delta)
   }
 
   init ():void {
