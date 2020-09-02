@@ -11,9 +11,7 @@ import { Vector3 } from 'three';
 export function createBox (entity: Entity) {
   const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
   const rigidBody = getComponent<RigidBody>(entity, RigidBody);
-  const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
-
-  transform.position = new Vector3()
+  const transform = getComponent<TransformComponent>(entity, TransformComponent);
 
   let mass = rigidBody ? collider.mass : 0;
 
@@ -21,7 +19,7 @@ export function createBox (entity: Entity) {
 
   const body = new Body({
     mass: mass,
-    position: new Vec3(transform.position[0], transform.position[1], transform.position[2])
+    position: new Vec3(transform.position.x, transform.position.y, transform.position.z)
   });
 
   const q = new Quaternion();

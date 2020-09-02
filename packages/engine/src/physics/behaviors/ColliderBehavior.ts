@@ -22,7 +22,7 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string }): v
   console.log("*** Adding collider")
   const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
     const transform = addComponent<TransformComponent>(entity, TransformComponent);
-    if(collider.type === undefined) collider.type === args.type ?? 'box'
+    //if(collider.type === undefined) collider.type === args.type ?? 'box'
 
     console.log("collider collider")
     let body;
@@ -33,6 +33,8 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string }): v
     else if (collider.type === 'ground') body = createGroundGeometry(entity);
 
     collider.collider = body;
+    console.log('EMERCY ////////////////////////');
+
     console.log(collider.collider)
 
     // If this entity has an object3d, get the position of that
@@ -42,7 +44,7 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string }): v
     //   body.position = new Vec3()
     // }
 
-  
+
   PhysicsManager.instance.physicsWorld.addBody(collider.collider);
   console.log(PhysicsManager.instance.physicsWorld)
 
@@ -51,5 +53,5 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string }): v
     onUpdate: (body: Body, mesh: Mesh, shape: Shape) => console.log("body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape)
     }
   debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions)
-  
+
 };
