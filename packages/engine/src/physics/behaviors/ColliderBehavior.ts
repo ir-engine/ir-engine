@@ -49,9 +49,9 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string }): v
   console.log(PhysicsManager.instance.physicsWorld)
 
   const DebugOptions = {
-    onInit: (body: Body, mesh: Mesh, shape: Shape) => 	console.log("body: ", body, " | mesh: ", mesh, " | shape: ", shape),
-    onUpdate: (body: Body, mesh: Mesh, shape: Shape) => console.log("body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape)
-    }
+    // onInit: (body: Body, mesh: Mesh, shape: Shape) => 	console.log("body: ", body, " | mesh: ", mesh, " | shape: ", shape),
+    // onUpdate: (body: Body, mesh: Mesh, shape: Shape) => console.log("body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape)
+  }
   debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions)
 
 };
