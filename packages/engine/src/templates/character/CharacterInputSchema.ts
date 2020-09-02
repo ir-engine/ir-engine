@@ -223,13 +223,12 @@ export const CharacterInputSchema: InputSchema = {
           // }
         ],
         continued: [
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWOD,
-          //     value: [0, -1]
-          //   }
-          // }
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              z: 1
+            }
+          }
         ]
       },
       [BinaryValue.OFF]: {
@@ -251,22 +250,20 @@ export const CharacterInputSchema: InputSchema = {
           // {
           //   behavior: updateMovementState
           // },
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWOD,
-          //     value: [0, 1]
-          //   }
-          // }
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              z: -1
+            }
+          }
         ],
         continued: [
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWOD,
-          //     value: [0, 1]
-          //   }
-          // }
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              z: -1
+            }
+          }
         ]
       },
       [BinaryValue.OFF]: {
@@ -288,25 +285,20 @@ export const CharacterInputSchema: InputSchema = {
           // {
           //   behavior: updateMovementState
           // },
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWOD,
-          //     value: [-1, 0]
-          //   }
-          // }
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              x: 1
+            }
+          }
         ],
         continued: [
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWOD,
-          //     input: {
-          //       value: [-1, 0]
-          //     },
-          //     value: [-1, 0]
-          //   }
-          // }
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              x: 1
+            }
+          }
         ]
       },
       [BinaryValue.OFF]: {
@@ -328,22 +320,20 @@ export const CharacterInputSchema: InputSchema = {
           // {
           //   behavior: updateMovementState
           // },
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWOD,
-          //     value: [1, 0]
-          //   }
-          // }
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              x: -1
+            }
+          }
         ],
         continued: [
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWOD,
-          //     value: [1, 0]
-          //   }
-          // }
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              x: -1
+            }
+          }
         ]
       },
       [BinaryValue.OFF]: {
