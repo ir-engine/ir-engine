@@ -53,6 +53,7 @@ export const handleMessage = (messageType: MessageTypeAlias, messageData: any): 
  */
 export const sendMessage = (messageChannel: MessageChannel, messageData: any, messageType?: MessageTypeAlias): void => {
   instance = instance
+  try{
   switch (messageChannel) {
     case MessageChannel.Reliable:
       instance.transport.sendReliableMessage({ channel: messageType.toString(), data: messageData })
@@ -60,4 +61,5 @@ export const sendMessage = (messageChannel: MessageChannel, messageData: any, me
       // instance.transport.sendUnreliableMessage(messageData, messageType.toString()) // Use message type as channel?
       instance.transport.sendUnreliableMessage(messageData) // Use default channel?
   }
+  }catch(err){console.trace(err)}
 }

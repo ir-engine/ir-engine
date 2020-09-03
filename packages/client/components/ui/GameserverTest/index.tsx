@@ -38,7 +38,7 @@ const GameserverTest = (props: Props) => {
     provisionInstanceServer
   } = props;
   const gsProvision = async () => {
-    await MediaStreamSystem.instance.startCamera();
+    await MediaStreamSystem.instance?.startCamera();
     await provisionInstanceServer(locationId);
   };
   useEffect(() => {
