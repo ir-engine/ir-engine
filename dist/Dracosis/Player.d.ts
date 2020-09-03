@@ -41,7 +41,10 @@ export default class DracosisPlayer {
     constructor(scene: any, renderer: any, filePath: string, onLoaded: any, playOnStart?: boolean, loop?: boolean, startFrame?: number, endFrame?: number, speedMultiplier?: number, bufferSize?: number);
     decodeDracoData(rawBuffer: Buffer): BufferGeometry;
     getBufferFromDracoGeometry(uncompressedDracoMesh: any, decoder: any): BufferGeometry;
-    decodeTexture(compressedTexture: any, frameNumber: any): Promise<any>;
+    decodeTexture(compressedTexture: any, frameNumber: any): Promise<{
+        texture: any;
+        frameNumber: any;
+    }>;
     handleMessage(data: any): void;
     handleInitializationResponse(data: WorkerInitializationResponse): void;
     handleDataResponse(data: any): void;
