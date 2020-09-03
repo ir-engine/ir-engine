@@ -94,8 +94,8 @@ export class MediaStreamSystem extends System {
 
   async toggleWebcamAudioPauseState () {
     const audioPaused = MediaStreamComponent.instance.toggleAudioPaused();
-    if (audioPaused) await (Network.instance.transport as any).resumeProducer(MediaStreamComponent.instance.camAudioProducer);
-    else await (Network.instance.transport as any).pauseProducer(MediaStreamComponent.instance.camAudioProducer);
+    if (audioPaused) await (Network.instance.transport as any).pauseProducer(MediaStreamComponent.instance.camAudioProducer);
+    else await (Network.instance.transport as any).resumeProducer(MediaStreamComponent.instance.camAudioProducer);
   }
 
   async toggleScreenshareVideoPauseState () {

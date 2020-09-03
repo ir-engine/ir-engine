@@ -42,23 +42,35 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const videoRef = React.createRef<HTMLVideoElement>();
     const audioRef = React.createRef<HTMLAudioElement>();
 
-    (Network.instance.transport as any).socket.on(MessageTypes.WebRTCPauseConsumer.toString(), (consumerId: string) => {
-        console.log(`PartyParticipant listener ${peerId} got consumer pause for ${consumerId}`);
-        if (consumerId === videoStream?.id) {
-            setVideoProducerPaused(true);
-        } else if (consumerId === audioStream?.id) {
-            setAudioProducerPaused(true);
-        }
-    });
+    useEffect(() => {
+        (Network.instance.transport as any).socket.on(MessageTypes.WebRTCPauseConsumer.toString(), (consumerId: string) => {
+            console.log(`PartyParticipant listener ${peerId} got consumer pause for ${consumerId}`);
+            console.log('This videostream id: ' + videoStream?.id);
+            if (consumerId === videoStream?.id) {
+                setVideoProducerPaused(true);
+            } else if (consumerId === audioStream?.id) {
+                setAudioProducerPaused(true);
+            }
+        });
 
-    (Network.instance.transport as any).socket.on(MessageTypes.WebRTCResumeConsumer.toString(), (consumerId: string) => {
-        console.log(`PartyParticipant listener ${peerId} got consumer resume for ${consumerId}`);
-        if (consumerId === videoStream?.id) {
-            setVideoProducerPaused(false);
-        } else if (consumerId === audioStream?.id) {
-            setAudioProducerPaused(false);
-        }
-    });
+        (Network.instance.transport as any).socket.on(MessageTypes.WebRTCResumeConsumer.toString(), (consumerId: string) => {
+            console.log(`PartyParticipant listener ${peerId} got consumer resume for ${consumerId}`);
+            console.log('This videostream id: ' + videoStream?.id);
+            if (consumerId === videoStream?.id) {
+                setVideoProducerPaused(false);
+            } else if (consumerId === audioStream?.id) {
+                setAudioProducerPaused(false);
+            }
+        });
+
+        // return () => {
+        //     console.log('Removing socket listeners')
+        //     if (typeof (Network.instance.transport as any).socket.off === 'function') {
+        //         (Network.instance.transport as any).socket.off(MessageTypes.WebRTCPauseConsumer.toString());
+        //         (Network.instance.transport as any).socket.off(MessageTypes.WebRTCResumeConsumer.toString());
+        //     }
+        // };
+    }, [videoStream, audioStream]);
 
     useEffect(() => {
         autorun(() => {
@@ -76,7 +88,6 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     }, []);
 
     useEffect(() => {
-        console.log('audioStream or videoStream useEffect triggered')
         if (videoRef.current != null) {
             videoRef.current.id = `${peerId}_video`;
             videoRef.current.autoplay = true;
@@ -112,11 +123,6 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     }, [audioStream, videoStream])
     // Add mediasoup integration logic here to feed single peer's stream to these video/audio elements
 
-    useEffect(() => {
-        console.log('Videostream paused changed')
-        console.log(videoStream?.paused)
-    }, [videoStream?.paused])
-
     const toggleVideo = async () => {
         if (peerId === 'me_cam') {
             await MediaStreamSystem.instance.toggleWebcamVideoPauseState();
@@ -126,7 +132,6 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             await MediaStreamSystem.instance.toggleScreenshareVideoPauseState();
             setVideoStreamPaused(videoStream.paused);
         } else {
-            console.log(`Video consumer is paused: ${videoStream.paused}`);
             if (videoStream.paused === false) {
                 await (Network.instance.transport as any).pauseConsumer(videoStream);
                 setVideoStreamPaused(videoStream.paused);
