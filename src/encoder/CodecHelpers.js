@@ -41,8 +41,6 @@ async function encodeMeshToDraco(mesh) {
   var encoder = null;
   const _this = this;
 
-  // console.log('44', mesh.faceVertexUvs[0].length);
-
   let encodedPromise = new Promise((resolve, reject) => {
     dracoEncoderType["onModuleLoaded"] = async function (module) {
       encoder = new module.Encoder();
@@ -82,8 +80,6 @@ async function encodeMeshToDraco(mesh) {
         uvs[face.c * 2 + 1] = faceUvs[2].y;
 
       }
-      console.log('64 vertices', mesh.vertices);
-      console.log("80 uvs", uvs);
       meshBuilder.AddFacesToMesh(dracoMesh, numFaces, indices);
       // Add POSITION to mesh (Vertices)
       for (var i = 0; i < mesh.vertices.length; i++) {
@@ -92,7 +88,6 @@ async function encodeMeshToDraco(mesh) {
         vertices[index + 1] = mesh.vertices[i].y;
         vertices[index + 2] = mesh.vertices[i].z;
       }
-      console.log('73 vertices', vertices);
       meshBuilder.AddFloatAttributeToMesh(
         dracoMesh,
         encoderModule.POSITION,
@@ -101,8 +96,6 @@ async function encodeMeshToDraco(mesh) {
         vertices
       );
       // Add UVs to mesh
-
-      // console.log('60', mesh.faceVertexUvs[0], mesh.faceVertexUvs[0][0])
 
       meshBuilder.AddFloatAttributeToMesh(
         dracoMesh,
@@ -125,7 +118,7 @@ async function encodeMeshToDraco(mesh) {
         normals[face["c"] * 3 + 1] = face.vertexNormals[2].y;
         normals[face["c"] * 3 + 2] = face.vertexNormals[2].z;
       }
-      // console.log('94 normals', normals);
+
       meshBuilder.AddFloatAttributeToMesh(
         dracoMesh,
         encoderModule.NORMAL,
@@ -149,14 +142,12 @@ async function encodeMeshToDraco(mesh) {
       encoder.SetEncodingMethod(encoderModule.MESH_EDGEBREAKER_ENCODING);
 
       console.log("Encoding...");
-      console.log("DracoMesh", dracoMesh, dracoMesh.num_faces(), dracoMesh.num_points());
       var encodedLen = encoder.EncodeMeshToDracoBuffer(dracoMesh, encodedData);
       encoderModule.destroy(dracoMesh);
       if (encodedLen > 0) console.log("Encoded size is " + encodedLen);
       else console.log("Error: Encoding failed.");
 
       console.log("Encoded Length", encodedLen);
-      console.log("Encoded Data", encodedData);
       // Copy encoded data to buffer.
       var outputBuffer = new ArrayBuffer(encodedLen);
       const outputData = new Int8Array(outputBuffer);
@@ -164,13 +155,11 @@ async function encodeMeshToDraco(mesh) {
         outputData[i] = encodedData.GetValue(i);
       }
 
-      // console.log(Buffer(outputData));
       // encoderModule.destroy(encodedData);
       encoderModule.destroy(encoder);
       encoderModule.destroy(meshBuilder);
       console.log("DRACO ENCODED////////////////////////////");
       console.log("Length of buffer: " + outputBuffer.byteLength);
-      console.log("outputBuffer", outputBuffer);
 
       resolve(Buffer(outputBuffer));
 
@@ -181,6 +170,7 @@ async function encodeMeshToDraco(mesh) {
   });
 
   var outputBuffer = await encodedPromise;
+  mesh = null;
 
   return outputBuffer;
 }
