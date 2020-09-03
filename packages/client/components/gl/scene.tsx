@@ -22,7 +22,6 @@ import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Body, Shape } from "cannon-es"
-import debug from "cannon-es-debugger"
 import { PhysicsManager } from '@xr3ngine/engine/src/physics/components/PhysicsManager';
 import { CarController } from './CarController'
 

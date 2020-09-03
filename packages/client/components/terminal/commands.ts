@@ -4,6 +4,8 @@ import { System } from "@xr3ngine/engine/src/ecs/classes/System";
 import { Component } from "@xr3ngine/engine/src/ecs/classes/Component";
 import { Query } from "@xr3ngine/engine/src/ecs/classes/Query";
 import { ComponentConstructor } from "@xr3ngine/engine/src/ecs/interfaces/ComponentInterfaces";
+import Left from "../ui/Drawer/Left";
+//import {curryRight} from "lodash";
 
 export const commands = {
     // Hello world to test the terminal
@@ -38,32 +40,66 @@ export const commands = {
             let val = ""
             switch(args._[0]){
                 case 'entities':
-                    // User passed a number, which should align with an entity ID -- show breakdown of data on entity
-                    if(!isNaN(args._[1])){
-                        let cstring = ""
-                        Object.values(Engine.entities[args._[1]].components).forEach((c: any) => {
-                            cstring += '\n'
-                            Object.keys(c).forEach((p: any) => {
-                                cstring += '\n'
-                                // TODO: If is object or array, drill down into values
-                                cstring += p.toString() + ": " + c[p].toString()
-                            })
-                            cstring += '\n'
-                        })
-                        console.log(cstring)
-                        print(cstring)
-                    } else {
-                    Engine.entities.forEach((entity: Entity) => {
-                        let componentTypes = ""
-                        entity.componentTypes.forEach(componentType => {
-                            componentTypes +=  " | " + componentType.name || componentType.displayName
-                        })
-                        val += "\n" + entity.id + ' || ' + componentTypes + "\n"
-                    })
-                    console.log(val)
-                    print(val)
-                }
+                    print(`
+                        ls 
+                        List of entities.
+                        
+                        rm {id1} {id2}
+                        Remove entities and/or components.
+
+                        cat {id}
+                        Query components for data.
+
+                        echo '{"json": 5}' > entityId
+                        Update data.
+                    `);
+
+                    const CMDID = 1;
+                    const command = args._[CMDID];
+                    const options = args._.slice(CMDID+1);
+                    debugger;
+                    print('!!'+ command + typeof( options));
+                    
+                    if(command === 'ls'){
+                        print(`(List entities)`);
+                        print(`{-c | --components} show entity components`);
+                        const {join, map} = Array.prototype;
+                        const mapc = callback => iterable => map.call(iterable, callback);
+                        const opts = options.join().split(/\w*\-{0,2}(\W+)\w*/);
+                        if('components' in opts || 'c' in opts){//replace to Maybee monad
+                             // @ts-ignore above the line
+                            var componentsFields = ({components}) => 
+                                toString(map.call(components, ({constructor:{name}, id}) => `${id} ${name}`) );
+                        }
+                        const entityFields = ({id}) => id;              
+                        const toString = iterable => Array.prototype.join.call(iterable, "\n");
+                        const list = mapc(entityFields);
+                        const {entities} = Engine;
+                        print(toString(list(entities)));
+                        break;
+
+                    }else if(command === 'cp'){
+                        print(`(copy entities and components)`);
+                        break;
+                    
+                    }else if(command === 'rm'){
+                        print(`(removing entities and components)`);
+                        break;
+                    
+                    }else if(command === 'cat'){
+                        print(`(Query entity components for data)`);
+                        break;
+                        
+                    }else if(command === 'echo'){
+                        print(`(Query components for data)`);
+                        break;
+                    }
+                    //break;
+
+
+
                     break;
+
                 case 'components': {
                     // User passed a number, which should align with an entity ID -- show breakdown of data on entity
                     if(!isNaN(args._[1])){
@@ -91,16 +127,30 @@ export const commands = {
                     console.log(cstring)
                     print(cstring)
                 }
-                break;
             }
+                    break;
+
                 case 'systems': {
-                    console.log("TODO: List systems")
-                    print("TODO: List systems")
+                    const result = Engine.systems.map(
+                        ({name, enabled}) => 
+                            `${name} - ${enabled ? 'enabled' : 'disabled'}`
+                    ).join("\n")
+                    print(result)
                 }
-                case 'queries': {
-                    console.log("TODO: List engine queries")
-                    print("TODO: List engine queries")
-                }
+                break;
+
+                case 'stop': {
+
+                    Engine.enabled = false
+                    //Engine.engineTimer.stop()
+                    print( `Engine stopped at ? time`)
+                    
+                }break
+                case 'start': {
+                    Engine.enabled = true
+                    //Engine.engineTimer.start()
+                    print( `Engine started`)
+                }break
             }
             
         },
@@ -114,5 +164,8 @@ export const commands = {
       }
 }
 export const description = {
-
+    // ecs: {
+    //     play: '',
+    //     pause: '',
+    // }
 }

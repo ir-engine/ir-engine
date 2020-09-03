@@ -23,10 +23,12 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
   _value[0] = (args.event.clientX / window.innerWidth) * 2 - 1;
   _value[1] = (args.event.clientY / window.innerHeight) * -2 + 1;
   // Set type to TWOD (two-dimensional axis) and value to a normalized -1, 1 on X and Y
+  try{
   input.data.set(input.schema.mouseInputMap.axes.mousePosition, {
     type: InputType.TWOD,
     value: _value
   });
+  }catch(error){console.trace(error)}
 };
 
 /**
