@@ -9,7 +9,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
 
-const filePath = 'sample_v32_30frames.drcs';
+const filePath = 'sample_v35_300frames.drcs';
 
 function byteArrayToLong(/*byte[]*/ byteArray) {
   let value = 0;
