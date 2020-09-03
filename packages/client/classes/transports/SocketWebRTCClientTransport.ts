@@ -215,7 +215,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
 
       this.socket.on(MessageTypes.ClientConnected.toString(), (_id: string) => addClient(_id));
-      this.socket.on(MessageTypes.ClientDisconnected.toString(), (_id: string) => removeClient(_id));
+      this.socket.on(MessageTypes.ClientDisconnected.toString(), (_id: string) => { console.log('Notified about disconnect of ' + _id); removeClient(_id); });
 
       // this.socket.on(MessageTypes.ReliableMessage.toString(), (message: Message) => {
       //   NetworkComponent.instance.incomingReliableQueue.add(message)
@@ -300,6 +300,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
       appData: { mediaTag: "cam-video" }
     });
+
+    console.log('Created camVideoProducer')
+    console.log(MediaStreamComponent.instance.camVideoProducer)
 
     if (MediaStreamComponent.instance.videoPaused) await MediaStreamComponent.instance.camVideoProducer.pause();
 
@@ -453,21 +456,34 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       mediaPeerId: peerId,
       rtpCapabilities: this.mediasoupDevice.rtpCapabilities
     });
+
+    console.log(`Requesting consumer for peer ${peerId} of type ${mediaTag} at ${new Date()}`)
     consumer = await this.recvTransport.consume({
       ...consumerParameters,
       appData: { peerId, mediaTag }
     });
 
-    // the server-side consumer will be started in paused state. wait
-    // until we're connected, then send a resume request to the server
-    // to get our first keyframe and start displaying video
-    while (this.recvTransport.connectionState !== "connected") await sleep(100);
+    console.log('New Consumer:')
+    console.log(consumer)
 
-    // okay, we're ready. let's ask the peer to send us media
-    await this.resumeConsumer(consumer);
+    if (MediaStreamComponent.instance.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
+      MediaStreamComponent.instance.consumers.push(consumer);
+      console.log(`Pushed consumer for peer ${peerId} of type ${mediaTag} at ${new Date()}`)
+      // the server-side consumer will be started in paused state. wait
+      // until we're connected, then send a resume request to the server
+      // to get our first keyframe and start displaying video
+      while (this.recvTransport.connectionState !== "connected") await sleep(100);
+
+      console.log('Resuming newly-subscribed consumer')
+      // okay, we're ready. let's ask the peer to send us media
+      await this.resumeConsumer(consumer);
+    } else {
+      console.log('Found an extant copy of this consumer, removing this new one');
+      await this.closeConsumer(consumer)
+    }
 
     // keep track of all our consumers
-    MediaStreamComponent.instance.consumers.push(consumer);
+    // MediaStreamComponent.instance.consumers.push(consumer);
 
     // ui
     // console.log('Calling addVideoAudio')
@@ -488,8 +504,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log("pause consumer", consumer.appData.peerId, consumer.appData.mediaTag);
     await this.request(MessageTypes.WebRTCPauseConsumer.toString(), { consumerId: consumer.id });
     await consumer.pause();
-    console.log('Consumer paused:')
-    console.log(consumer)
   }
 
   public async resumeConsumer(consumer: { appData: { peerId: any; mediaTag: any }; id: any; resume: () => any }) {
@@ -659,6 +673,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (this.request === undefined) return;
     const { peers } = await this.request(MessageTypes.Synchronization.toString());
 
+    console.log('Number of consumers: ' + MediaStreamComponent.instance.consumers.length);
     if (peers[NetworkComponent.instance.mySocketID] === undefined) console.log("Server doesn't think you're connected!");
 
     // decide if we need to update tracks list and video/audio
@@ -679,12 +694,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
             if (
                 MediaStreamComponent.instance.consumers?.find(
                     c => c?.appData?.peerId === id && c?.appData?.mediaTag === mediaTag
-                ) != null
-            )
-              return;
-            // that we don't already have consumers for...
-            console.log(`auto subscribing to track that ${id} has added`);
-            await this.subscribeToTrack(id, mediaTag);
+                ) == null
+            ) {
+              // that we don't already have consumers for...
+              console.log(`auto subscribing to ${mediaTag} track that ${id} has added at ${new Date()}`);
+              await this.subscribeToTrack(id, mediaTag);
+            }
           }
         }
       }
@@ -710,7 +725,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       return console.log("Consumers length is 0");
 
     MediaStreamComponent.instance.consumers.forEach(consumer => {
-      console.log(consumer)
       const { peerId, mediaTag } = consumer.appData;
       if (!peers[peerId]) {
         console.log(`Peer ${peerId} has stopped transmitting ${mediaTag}`);
