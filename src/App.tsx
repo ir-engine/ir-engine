@@ -106,7 +106,6 @@ function App(props: any) {
       <Canvas camera={{ position: [0, 0, -5], up: [0, 1, 0] }}>
         <ambientLight intensity={0.6} />
         <pointLight position={[1, 1, 1]} />
-        {/* <Box position={[0, 0, 0]} /> */}
         <LoadPlayer />
         <Controls />
       </Canvas>,
