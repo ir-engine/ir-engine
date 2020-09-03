@@ -47,7 +47,7 @@ export const physicsPostStep: Behavior = (entity): void => {
 
 	// If we're hitting the ground, stick to ground
 	if (actor.rayHasHit) {
-		console.log("We are hitting the ground")
+		// console.log("We are hitting the ground")
 		// Flatten velocity
 		newVelocity.y = 0;
 
