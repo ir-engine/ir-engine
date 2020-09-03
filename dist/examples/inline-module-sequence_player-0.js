@@ -56830,12 +56830,10 @@ BasisTextureLoader.prototype = Object.assign(Object.create(Loader$1.prototype), 
     var worker;
     var taskID;
     var taskCost = buffer.byteLength;
-    console.log("158", taskCost);
 
     var texturePending = this._allocateWorker(taskCost).then(_worker => {
       worker = _worker;
       taskID = this.workerNextTaskID++;
-      console.log("166", _worker, taskID);
       return new Promise((resolve, reject) => {
         worker._callbacks[taskID] = {
           resolve,
@@ -56848,7 +56846,6 @@ BasisTextureLoader.prototype = Object.assign(Object.create(Loader$1.prototype), 
         }, [buffer]);
       });
     }).then(message => {
-      console.log("177 basisTextureLoader", message);
       var config = this.workerConfig;
       var {
         width,
@@ -57165,5 +57162,4 @@ var MessageType;
     MessageType[MessageType["SetEndFrameRequest"] = 6] = "SetEndFrameRequest";
 })(MessageType || (MessageType = {}));
 
-// import fs from 'fs';
 const worker = new Worker('./Worker.js');
