@@ -25,7 +25,7 @@ export function addClient (_id: string): void {
 
 export function removeClient (_id: string): void {
   // args: ID, isLocalPlayer?
-  if (_id in NetworkComponent.instance.clients) {
+  if (NetworkComponent.instance.clients.includes(_id)) {
     NetworkComponent.instance.clients.splice(NetworkComponent.instance.clients.indexOf(_id));
     NetworkComponent.instance.schema.messageHandlers[MessageTypes.ClientDisconnected].behavior(
       _id,

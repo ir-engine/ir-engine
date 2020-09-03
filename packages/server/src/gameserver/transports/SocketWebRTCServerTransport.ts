@@ -231,7 +231,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       })
     }, 10000)
 
-    console.log(this.socketIO.sockets)
     this.socketIO.sockets.on("connect", (socket: Socket) => {
       console.log('Socket Connected')
       //Add a new client indexed by his id
@@ -318,7 +317,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             console.log(`peer ${socket.id} no longer exists`)
           }
 
-          let returned = {}
+          console.log(this.roomState.consumers.length)
+          const returned = {}
           Object.entries(this.roomState.peers).forEach(([key, value]) => {
             const {socket, ...paredPeer} = (value as Client)
             returned[key] = paredPeer
@@ -383,10 +383,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           this.roomState.transports[transport.id] = transport
 
           const {id, iceParameters, iceCandidates, dtlsParameters} = transport
-          console.log('iceParameters:')
-          console.log(iceParameters)
-          console.log('iceCandidates:')
-          console.log(iceCandidates)
           const clientTransportOptions: MediaSoupClientTypes.TransportOptions = {
             id,
             sctpParameters,
@@ -485,7 +481,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           console.log('Close Producer handler')
           const {producerId} = data,
               producer = this.roomState.producers.find(p => p.id === producerId)
-          console.log("WebRTCCloseProducerRequest", socket.id, producer.appData)
           await this.closeProducerAndAllPipeProducers(producer, socket.id)
           callback({closed: true})
         } catch(err) {
@@ -511,7 +506,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
           // if our associated transport closes, close ourself, too
           producer.on("transportclose", () => {
-            console.log("producer's transport closed", producer.id)
             this.closeProducerAndAllPipeProducers(producer, peerId)
           })
 
@@ -521,7 +515,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             encodings: rtpParameters.encodings
           }
 
-          console.log(this.roomState.producers)
           callback({id: producer.id})
         } catch(err) {
           console.log('WebRTC send track error')
@@ -539,12 +532,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           console.log('Receive Track handler')
           console.log(data)
           const {mediaPeerId, mediaTag, rtpCapabilities} = data
-          console.log(`socket.id: ${socket.id}`)
-          console.log(this.roomState.producers)
           const peerId = socket.id
           const producer = this.roomState.producers.find(
-              p => { console.log(p._appData); return p._appData.mediaTag === mediaTag && p._appData.peerID === mediaPeerId }
-          )
+              p => p._appData.mediaTag === mediaTag && p._appData.peerID === mediaPeerId
+          );
           if (producer == null || !this.router.canConsume({producerId: producer.id, rtpCapabilities})) {
             const msg = `client cannot consume ${mediaPeerId}:${mediaTag}`
             console.error(`recv-track: ${peerId} ${msg}`)
@@ -555,8 +546,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           const transport = Object.values(this.roomState.transports).find(
               t => (t as any)._appData.peerId === peerId && (t as any)._appData.clientDirection === "recv"
           )
-          console.log('matched transport:')
-          console.log(transport)
 
           const consumer = await (transport as any).consume({
             producerId: producer.id,
@@ -565,8 +554,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             appData: {peerId, mediaPeerId, mediaTag}
           })
 
-          console.log(`New consumer: ${consumer.id}`);
-          console.log(consumer);
           // need both 'transportclose' and 'producerclose' event handlers,
           // to make sure we close and clean up consumers in all
           // circumstances
@@ -593,18 +580,13 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           // and create a data structure to track the client-relevant state
           // of this consumer
           this.roomState.consumers.push(consumer)
-          console.log('updated roomstate.consumers:')
-          console.log(this.roomState.consumers)
           this.roomState.peers[peerId].consumerLayers[consumer.id] = {
             currentLayer: null,
             clientSelectedLayer: null
           }
-          console.log('Updated peer consumerLayers:')
-          console.log(this.roomState.peers[peerId].consumerLayers)
 
           // update above data structure when layer changes.
           consumer.on("layerschange", layers => {
-            console.log(`consumer layerschange ${mediaPeerId}->${peerId}`, mediaTag, layers)
             if (this.roomState.peers[peerId] && this.roomState.peers[peerId].consumerLayers[consumer.id]) {
               this.roomState.peers[peerId].consumerLayers[consumer.id].currentLayer = layers && layers.spatialLayer
             }
@@ -650,8 +632,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
               consumer = this.roomState.consumers.find(c => c.id === consumerId)
           console.log("resume-consumer", consumer.appData)
           await consumer.resume()
-          console.log('Resumed consumer:')
-          console.log(consumer)
           callback({resumed: true})
         } catch(err) {
           console.log('WebRTC Resume consumer error')
@@ -668,8 +648,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           const {consumerId} = data,
               consumer = this.roomState.consumers.find(c => c.id === consumerId)
           console.log(`consumerId: ${consumerId}`)
-          console.log(this.roomState.consumers)
-          console.log("WebRTCCloseConsumerRequest", data)
           await this.closeConsumer(consumer)
           callback({closed: true})
         } catch(err) {
@@ -697,20 +675,20 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
       // --> /signaling/pause-producer
       // called to stop sending a track from a specific client
-      socket.on(MessageTypes.WebRTCCloseProducer.toString(), async (data, callback) => {
-        try {
-          console.log('Close Producer handler')
-          const {producerId} = data,
-              producer = this.roomState.producers.find(p => p.id === producerId)
-          console.log("pause-producer", producer.appData)
-          await producer.pause()
-          this.roomState.peers[socket.id].media[producer.appData.mediaTag].paused = true
-          callback({paused: true})
-        } catch(err) {
-          console.log('WebRTC Close Producer error')
-          console.log(err)
-        }
-      })
+      // socket.on(MessageTypes.WebRTCCloseProducer.toString(), async (data, callback) => {
+      //   try {
+      //     console.log('Close Producer handler')
+      //     const {producerId} = data,
+      //         producer = this.roomState.producers.find(p => p.id === producerId)
+      //     console.log("pause-producer", producer.appData)
+      //     await producer.pause()
+      //     this.roomState.peers[socket.id].media[producer.appData.mediaTag].paused = true
+      //     callback({paused: true})
+      //   } catch(err) {
+      //     console.log('WebRTC Close Producer error')
+      //     console.log(err)
+      //   }
+      // })
 
       // --> /signaling/resume-producer
       // called to resume sending a track from a specific client
@@ -736,13 +714,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           console.log('Pause Producer handler')
           const {producerId} = data,
               producer = this.roomState.producers.find(p => p.id === producerId);
-          console.log("pause-producer", producer.appData)
-          await producer.pause()
-          this.roomState.peers[socket.id].media[producer.appData.mediaTag].paused = true
-          const consumers = this.roomState.consumers.filter(c => c._internal.producerId === producerId)
-          consumers.forEach(async (c) => { console.log(c); await c.pause();})
-          console.log('matching consumers after pause:')
-          console.log(consumers)
+          console.log("pause-producer", producer.appData);
+          await producer.pause();
+          this.roomState.peers[socket.id].media[producer.appData.mediaTag].paused = true;
           callback({paused: true})
         } catch(err) {
           console.log('WebRTC Producer Pause error')
@@ -781,23 +755,14 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
   async closeTransport(transport): Promise<void> {
     console.log("closing transport", transport.id, transport.appData)
-
-    console.log('Consumers before close:')
-    console.log(this.roomState.consumers)
     // our producer and consumer event handlers will take care of
     // calling closeProducer() and closeConsumer() on all the producers
     // and consumers associated with this transport
     await transport.close()
 
-    console.log('Consumers after transport.close:')
-    console.log(this.roomState.consumers)
-
     // so all we need to do, after we call transport.close(), is update
     // our roomState data structure
     delete this.roomState.transports[transport.id]
-
-    console.log('Consumers after roomstate.transport deleted:')
-    console.log(this.roomState.consumers)
   }
 
   async closeProducer(producer): Promise<void> {
