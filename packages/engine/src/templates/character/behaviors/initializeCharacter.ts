@@ -23,27 +23,34 @@ import { setPosition } from "./setPosition";
 import debug from "cannon-es-debugger"
 import { ColliderComponent } from "../../../physics/components/ColliderComponent";
 import { cannonFromThreeVector } from "../../../common/functions/cannonFromThreeVector";
+import { addObject3DComponent } from "../../../common/behaviors/Object3DBehaviors";
 
 export const initializeCharacter: Behavior = (entity): void => {
 	console.log("**** Initializing character!");
 	if (!hasComponent(entity, CharacterComponent as any))
 		addComponent(entity, CharacterComponent as any);
+
+	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+	actor.tiltContainer = new Group();
+	actor.modelContainer = new Group();
+	actor.modelContainer.position.y = -0.57;
+	actor.tiltContainer.add(actor.modelContainer);
+
+	addObject3DComponent(entity, { obj3d: actor.tiltContainer })
+
 	const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
 
 	assetLoader.onLoaded = asset => {
-		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 		actor.animations = asset.animations;
 		console.log("Components on character")
 		console.log(entity.components)
 		// The visuals group is centered for easy actor tilting
-		actor.tiltContainer = new Group();
-		const actorObject3D = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
-		actorObject3D.value = actor.tiltContainer;
-		console.log("actorObject3D.value: ", actorObject3D.value)
+		//const actorObject3D = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
+		//debugger
+		//actorObject3D.value = actor.tiltContainer;
+		//console.log("actorObject3D.value: ", actorObject3D.value)
 		// // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
-		actor.modelContainer = new Group();
-		actor.modelContainer.position.y = -0.57;
-		actor.tiltContainer.add(actor.modelContainer);
+
 		actor.modelContainer.add(asset.scene);
 		actor.mixer = new AnimationMixer(Engine.scene);
 
@@ -79,7 +86,7 @@ export const initializeCharacter: Behavior = (entity): void => {
 			// if(hasComponent(entity, Object3DComponent)){
 			// 	actor.actorCapsule.body.position = cannonFromThreeVector(getComponent<Object3DComponent>(entity, Object3DComponent).value.position)
 			//   } else {
-				actor.actorCapsule.body.position = new Vec3()
+			//	actor.actorCapsule.body.position = new Vec3()
 			//   }
 
 		addComponent(entity, ColliderComponent)
