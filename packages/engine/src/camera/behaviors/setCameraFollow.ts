@@ -38,32 +38,22 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
 
 
   inputComponent = getComponent(entityOut, Input);
-  console.log('inputComponent');
-
-  console.log(inputComponent);
-
   //actor = getComponent(entityOut, CharacterComponent) as CharacterComponent;
   camera = getMutableComponent<CameraComponent>(entityIn, CameraComponent);
 
 
 
-
-
-
-  console.log(inputComponent.schema.mouseInputMap.axes.mousePosition);
-
-//  if (inputComponent) {
-  //  mouseDownPosition = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes.mouseClickDownPosition);
-  //  if (mouseDownPosition == undefined) return;
-
-  if (inputComponent.data) {
-    //  inputComponent.data.set(args.input, { type: InputType.TWOD, value: new Vector3() });
-    inputValue = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes.mousePosition) //as Vector2;
-    console.log(inputValue);
-
-  } else {
-    inputValue = [0, 0, 0, 0]
+  if (inputComponent.data.get(inputComponent.schema.mouseInputMap.axes.mousePosition) == undefined) return;
+  if (inputComponent.data.get(inputComponent.schema.mouseInputMap.axes.mouseClickDownPosition) == undefined) return;
+  /*
+  if (inputComponent.data.get(inputComponent.schema.mouseInputMap.buttons[0]) != undefined) {
+    if (document.pointerLockElement === null) {
+      document.body.requestPointerLock()
+    }
   }
+*/
+    inputValue = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes.mousePosition).value //as Vector2;
+
   //  startValue = mouseDownPosition.value //as Vector2;
 
 /*
@@ -115,8 +105,5 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
       }
 //    }
 
-if (document.pointerLockElement === null) {
-  document.body.requestPointerLock()
-}
 
 };
