@@ -32,6 +32,7 @@ module.exports = {
     "prefer-arrow-callback": "error",
     "semi": "error",
     "space-before-function-paren": "off",
+    "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unused-vars": [
       "off"
     ],

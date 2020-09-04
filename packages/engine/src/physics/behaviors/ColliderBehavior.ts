@@ -14,9 +14,6 @@ import { getMutableComponent, hasComponent, getComponent, addComponent } from '.
 import { Object3DComponent } from '../../common/components/Object3DComponent';
 import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
 import { Vec3, Shape, Body } from 'cannon-es';
-import debug from "cannon-es-debugger"
-import { Color, Mesh } from 'three';
-import { Engine } from '../../ecs/classes/Engine';
 
 export const addCollider: Behavior = (entity: Entity, args: { type: string }): void => {
   console.log("*** Adding collider")
@@ -46,12 +43,4 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string }): v
 
 
   PhysicsManager.instance.physicsWorld.addBody(collider.collider);
-  console.log(PhysicsManager.instance.physicsWorld)
-
-  const DebugOptions = {
-    // onInit: (body: Body, mesh: Mesh, shape: Shape) => 	console.log("body: ", body, " | mesh: ", mesh, " | shape: ", shape),
-    // onUpdate: (body: Body, mesh: Mesh, shape: Shape) => console.log("body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape)
-  }
-  debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions)
-
 };
