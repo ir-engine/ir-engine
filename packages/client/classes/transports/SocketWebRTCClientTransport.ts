@@ -38,7 +38,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   /**
    * Send a message over TCP with socket.io
-   * You should probably want {@link @xr3ngine/packages/enginge/src/networking/functions/NetworkFunctions.ts}
+   * You should probably want {@link @xr3ngine/packages/enginge/src/networking/functions/NetworkFunctions.ts#sendMessage}
    * @param message message to send
    */
   sendReliableMessage(message): void {

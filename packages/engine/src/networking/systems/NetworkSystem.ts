@@ -18,6 +18,9 @@ import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFu
 import { prepareWorldState as prepareServerWorldState } from '../functions/prepareWorldState';
 import { handleUpdatesFromClients } from '../functions/handleUpdatesFromClients';
 import { addInputToWorldState } from '../behaviors/addInputToWorldState';
+import { MessageChannel } from '../enums/MessageChannel';
+import { sendMessage } from '../functions/sendMessage';
+import { worldStateModel } from '../schema/worldStateSchema';
 
 export class NetworkSystem extends System {
   fixedExecute: (delta: number) => void = null
@@ -94,10 +97,8 @@ export class NetworkSystem extends System {
       // Create the snapshot and add it to the world state on the server
       addSnapshot(createSnapshot(Network.instance.worldState))
 
-      // Send all queued messages
-      this.queryResults.network.all?.forEach((entity: Entity) =>
-        sendSnapshotToClients(entity)
-      )
+      // Send the message to all connected clients
+      sendMessage(MessageChannel.Reliable, worldStateModel.toBuffer(Network.instance.worldState));
     }
   }
 

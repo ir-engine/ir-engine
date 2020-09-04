@@ -9,6 +9,9 @@ import { Input } from "../../input/components/Input";
 import { Network } from "../components/Network";
 import { clientInputModel } from "../schema/clientInputSchema";
 import { InputType } from "../../input/enums/InputType";
+import { sendMessage } from "../functions/sendMessage";
+import { MessageChannel } from "../enums/MessageChannel";
+import { BuiltinMessageTypes } from "../enums/MessageTypes";
 
 export const sendClientInput = (entity: Entity): void => {
 
@@ -41,6 +44,6 @@ export const sendClientInput = (entity: Entity): void => {
   // Convert to a message buffer
   const message = clientInputModel.toBuffer(inputs)
 
-  // Add to unreliable message send queue
-  Network.instance.transport.sendUnreliableMessage(message);
+  // TODO: Send unreliably
+  sendMessage(MessageChannel.Reliable, message, BuiltinMessageTypes.ClientInput)
 };
