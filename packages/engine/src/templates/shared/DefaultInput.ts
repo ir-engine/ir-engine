@@ -23,5 +23,8 @@ export const DefaultInput = {
   LOOKTURN_PLAYERONE: 19,
   MOVEMENT_PLAYERTWO: 20,
   LOOKTURN_PLAYERTWO: 21,
-  ALTERNATE: 22
+  ALTERNATE: 22,
+  MOUSE_MOVEMENT: 23, // mouse event movement
+  SWITCH_CAR: 24,
+  POINTER_LOCK: 25
 };

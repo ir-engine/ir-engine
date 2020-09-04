@@ -11,6 +11,8 @@ import { MouseButtons } from '../../input/enums/MouseButtons';
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
 import { drive } from '@xr3ngine/engine/src/physics/behaviors/driveBehavior';
+import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
+import { getInCar } from '@xr3ngine/engine/src/physics/behaviors/getInCarBehavior';
 import { DefaultInput } from '../shared/DefaultInput';
 
 export const VehicleInputSchema: InputSchema = {
@@ -167,7 +169,9 @@ export const VehicleInputSchema: InputSchema = {
     s: DefaultInput.BACKWARD,
     d: DefaultInput.RIGHT,
     ' ': DefaultInput.JUMP,
-    shift: DefaultInput.CROUCH
+    shift: DefaultInput.CROUCH,
+    p: DefaultInput.POINTER_LOCK,
+    c: DefaultInput.SWITCH_CAR
   },
   // Map how inputs relate to each other
   inputRelationships: {
@@ -193,6 +197,16 @@ export const VehicleInputSchema: InputSchema = {
   //   }
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
+    [DefaultInput.POINTER_LOCK]: {
+      [BinaryValue.ON]: {
+        started: [
+           {
+             behavior: cameraPointerLock,
+             args: {}
+           }
+        ]
+      }
+    },
     [DefaultInput.FORWARD]: {
       [BinaryValue.ON]: {
         started: [

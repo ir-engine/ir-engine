@@ -10,7 +10,8 @@ import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFun
  * Local reference to input component
  */
 let input: Input;
-const _value: [number, number, number, number] = [0, 0, 0, 0];
+const mousePosition: [number, number] = [0, 0];
+const mouseMovement: [number, number] = [0, 0];
 
 /**
  * System behavior called whenever the mouse pressed
@@ -20,15 +21,20 @@ const _value: [number, number, number, number] = [0, 0, 0, 0];
  */
 export const handleMouseMovement: Behavior = (entity: Entity, args: { event: MouseEvent }): void => {
   input = getComponent(entity, Input);
-  _value[0] = (args.event.clientX / window.innerWidth) * 2 - 1;
-  _value[1] = (args.event.clientY / window.innerHeight) * -2 + 1;
-  _value[2] = args.event.movementX;
-  _value[3] = args.event.movementY;
-
+  mousePosition[0] = (args.event.clientX / window.innerWidth) * 2 - 1;
+  mousePosition[1] = (args.event.clientY / window.innerHeight) * -2 + 1;
   // Set type to TWOD (two-dimensional axis) and value to a normalized -1, 1 on X and Y
   input.data.set(input.schema.mouseInputMap.axes.mousePosition, {
     type: InputType.TWOD,
-    value: _value
+    value: mousePosition
+  });
+
+  mouseMovement[0] = args.event.movementX;
+  mouseMovement[1] = args.event.movementY;
+
+  input.data.set(input.schema.mouseInputMap.axes.mouseMovement, {
+    type: InputType.TWOD,
+    value: mouseMovement
   });
 };
 
