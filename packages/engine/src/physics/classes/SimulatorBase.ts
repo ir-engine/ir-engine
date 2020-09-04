@@ -32,8 +32,8 @@ export abstract class SimulatorBase
 	{
 		// Update cache
 		// Find out how many frames needs to be generated
-		let totalTimeStep = this.offset + timeStep;
-		let framesToGenerate = Math.floor(totalTimeStep / this.frameTime);
+		const totalTimeStep = this.offset + timeStep;
+		const framesToGenerate = Math.floor(totalTimeStep / this.frameTime);
 		this.offset = totalTimeStep % this.frameTime;
 
 		// Generate simulation frames

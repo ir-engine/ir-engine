@@ -47,7 +47,7 @@ export const physicsPostStep: Behavior = (entity): void => {
 
 	// If we're hitting the ground, stick to ground
 	if (actor.rayHasHit) {
-		console.log("We are hitting the ground")
+		// console.log("We are hitting the ground")
 		// Flatten velocity
 		newVelocity.y = 0;
 
@@ -98,7 +98,7 @@ export const physicsPostStep: Behavior = (entity): void => {
 			let speed = Math.max(actor.velocitySimulator.position.length() * 4, actor.initJumpSpeed);
 			body.velocity = cannonFromThreeVector(actor.orientation.clone().multiplyScalar(speed));
 		}
-		else {
+		else if (actor.rayHasHit) {
 			// Moving objects compensation
 			let add = new Vec3();
 			actor.rayResult.body.getVelocityAtWorldPoint(actor.rayResult.hitPointWorld, add);

@@ -1,13 +1,21 @@
-import { Behavior } from '../../common/interfaces/Behavior';
 import { transformBehavior } from '../behaviors/transformBehavior';
+import { transformParentBehavior } from '../behaviors/transformParentBehavior';
 import { TransformComponent } from '../components/TransformComponent';
 import { TransformParentComponent } from '../components/TransformParentComponent';
 import { System, SystemAttributes } from '../../ecs/classes/System';
+import { hasComponent } from "../../ecs/functions/EntityFunctions";
 
 export class TransformSystem extends System {
   execute (delta) {
-    this.queryResults.transforms.all?.forEach(t => {
-      transformBehavior(t, {}, delta);
+    this.queryResults.transforms.all?.forEach(entity => {
+      transformBehavior(entity, {}, delta);
+    });
+
+    this.queryResults.parent.all?.forEach(entity => {
+      if (!hasComponent(entity, TransformParentComponent)) {
+        return;
+      }
+      transformParentBehavior(entity, {}, delta);
     });
   }
 }
@@ -15,9 +23,9 @@ export class TransformSystem extends System {
 TransformSystem.queries = {
   parent: {
     components: [TransformParentComponent, TransformComponent],
-    listen: {
-      added: true
-    }
+    // listen: {
+    //   added: true
+    // }
   },
   transforms: {
     components: [TransformComponent],

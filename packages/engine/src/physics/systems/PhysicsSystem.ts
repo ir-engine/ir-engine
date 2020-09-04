@@ -13,6 +13,7 @@ import { physicsPreStep } from '../../templates/character/behaviors/physicsPreSt
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
 import { physicsPostStep } from '../../templates/character/behaviors/physicsPostStep';
 import { updateCharacter } from '../../templates/character/behaviors/updateCharacter';
+import { Engine } from '../../ecs/classes/Engine';
 
 export class PhysicsSystem extends System {
   fixedExecute:(delta:number)=>void = null
@@ -20,7 +21,7 @@ export class PhysicsSystem extends System {
 
   constructor() {
     super()
-    this.fixedRunner = new FixedStepsRunner(60, this.onFixedExecute.bind(this))
+    this.fixedRunner = new FixedStepsRunner(Engine.physicsFrameRate, this.onFixedExecute.bind(this))
   }
 
   canExecute(delta:number): boolean {
@@ -32,13 +33,13 @@ export class PhysicsSystem extends System {
   }
 
   init ():void {
-    new PhysicsManager();
+    new PhysicsManager({ framerate: Engine.physicsFrameRate });
   }
 
   onFixedExecute(delta) {
     this.queryResults.character.all?.forEach(entity => physicsPreStep(entity, null, delta));
     PhysicsManager.instance.frame++;
-    PhysicsManager.instance.physicsWorld.step(PhysicsManager.instance.timeStep);
+    PhysicsManager.instance.physicsWorld.step(PhysicsManager.instance.physicsFrameTime);
     this.queryResults.character.all?.forEach(entity => updateCharacter(entity, null, delta));
 
    this.queryResults.character.all?.forEach(entity => physicsPostStep(entity, null, delta));

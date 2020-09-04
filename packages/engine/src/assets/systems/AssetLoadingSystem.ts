@@ -70,24 +70,24 @@ export default class AssetLoadingSystem extends System {
           }
         });
       }
+
       addComponent(entity, Model, { value: asset });
       if (hasComponent(entity, Object3DComponent)) {
-          if(getComponent<Object3DComponent>(entity, Object3DComponent).value !== undefined)
+        if (getComponent<Object3DComponent>(entity, Object3DComponent).value !== undefined)
           getMutableComponent<Object3DComponent>(entity, Object3DComponent).value.add(asset.scene)
-          else getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = (asset.scene)
-        }
-       else {
-         addObject3DComponent(entity, { obj3d: asset.scene ?? asset, parent: Engine.scene });
-        }
-        const transformParent = addComponent<TransformParentComponent>(entity, TransformParentComponent) as TransformParentComponent
-      const object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent) as Object3DComponent
+        else getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = (asset.scene)
+      } else {
+        addObject3DComponent(entity, {obj3d: asset.scene ?? asset});
+      }
+
+      //const transformParent = addComponent<TransformParentComponent>(entity, TransformParentComponent) as TransformParentComponent
       const a = asset.scene ?? asset
       a.children.forEach(obj => {
         const e = createEntity()
-        addObject3DComponent(e, { obj3d: obj, parent: object3DComponent });
-        const transformChild = addComponent<TransformChildComponent>(e, TransformChildComponent) as TransformChildComponent
-        transformChild.parent = entity
-        transformParent.children.push(e)
+        addObject3DComponent(e, { obj3d: obj, parentEntity: entity });
+        // const transformChild = addComponent<TransformChildComponent>(e, TransformChildComponent) as TransformChildComponent
+        // transformChild.parent = entity
+        //transformParent.children.push(e)
       })
       getMutableComponent<AssetLoader>(entity, AssetLoader).loaded = true;
       
