@@ -7,7 +7,7 @@ import {
 import io from 'socket.io-client';
 import feathers from '@feathersjs/client';
 import { setClient } from '../feathers-instance';
-import { NetworkSystem } from '@xr3ngine/engine/src/networking/systems/NetworkSystem'
+import { NetworkSystem } from '@xr3ngine/engine/src/networking/systems/NetworkSystem';
 
 export function provisionInstanceServer (locationId: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
