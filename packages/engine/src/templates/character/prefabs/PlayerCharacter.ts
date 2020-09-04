@@ -1,9 +1,9 @@
-import { attachCamera } from "@xr3ngine/engine/src/camera/behaviors/attachCamera";
 import { Input } from "@xr3ngine/engine/src/input/components/Input";
 // import { addPlayerCollider } from "@xr3ngine/engine/src/physics/behaviors/addPlayerCollider";
 import { State } from "@xr3ngine/engine/src/state/components/State";
 import { Subscription } from "@xr3ngine/engine/src/subscription/components/Subscription";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
+import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
 import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 import { CharacterInputSchema } from "@xr3ngine/engine/src/templates/character/CharacterInputSchema";
 import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
@@ -11,8 +11,12 @@ import { CharacterSubscriptionSchema } from "@xr3ngine/engine/src/templates/char
 import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { setCameraPosition } from "../../../camera/behaviors/setCameraPosition";
+//import { setCameraFollow } from "../../../camera/behaviors/setCameraFollow";
+
 import { initializeCharacter } from "../behaviors/initializeCharacter";
+import { attachCamera } from "@xr3ngine/engine/src/camera/behaviors/attachCamera";
 import { CharacterComponent } from "../components/CharacterComponent";
+import { LocalInputReceiver } from "@xr3ngine/engine/src/input/components/LocalInputReceiver";
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const PlayerCharacter: Prefab = {
@@ -25,6 +29,10 @@ export const PlayerCharacter: Prefab = {
         { type: TransformComponent },
         // Local player input mapped to behaviors in the input map
         { type: Input, data: { schema: CharacterInputSchema } },
+
+        { type: LocalInputReceiver },
+        // Follow Camera for thet entity
+        { type: FollowCameraComponent },
         // Current state (isJumping, isidle, etc)
         { type: State, data: { schema: CharacterStateSchema } },
         // Similar to Unity's Update(), LateUpdate(), and Start()
@@ -47,9 +55,14 @@ export const PlayerCharacter: Prefab = {
         {
             behavior: initializeCharacter
         },
-        // {
-        //     behavior: setCameraPosition
-        // }
+        /*
+        {
+             behavior: setCameraPosition
+        },
+        {
+             behavior: attachCamera
+        }
+        */
         // TODO: Boxman setup here
 
         // {

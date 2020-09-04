@@ -11,15 +11,13 @@ import { Vector3 } from 'three';
 export function createBox (entity: Entity) {
   const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
   const rigidBody = getComponent<RigidBody>(entity, RigidBody);
-  const transform = getComponent<TransformComponent>(entity, TransformComponent);
 
   let mass = rigidBody ? collider.mass : 0;
 
   const shape = new Box(new Vec3(collider.scale[0] / 2, collider.scale[1] / 2, collider.scale[2] / 2));
 
   const body = new Body({
-    mass: mass,
-    position: new Vec3(transform.position.x, transform.position.y, transform.position.z)
+    mass: mass
   });
 
   const q = new Quaternion();
@@ -35,13 +33,11 @@ export function createBox (entity: Entity) {
 
 export function createGroundGeometry (entity: Entity) {
   const rigidBody = getComponent<ColliderComponent>(entity, ColliderComponent);
-  const transform = getComponent<TransformComponent>(entity, TransformComponent);
 
   const shape = new Box(new Vec3(rigidBody.scale[0] / 2, rigidBody.scale[1] / 2, rigidBody.scale[2] / 2));
 
   const body = new Body({
-    mass: rigidBody.mass,
-    position: new Vec3(transform.position[0], transform.position[0], transform.position[0])
+    mass: rigidBody.mass
   });
   const q = new Quaternion();
   q.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2);

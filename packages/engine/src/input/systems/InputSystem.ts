@@ -9,10 +9,10 @@ import { initVR } from '../functions/WebXRFunctions';
 import { getMutableComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { Entity } from "../../ecs/classes/Entity";
 import { ListenerBindingData } from "../interfaces/ListenerBindingData";
-
+import { LocalInputReceiver } from "../components/LocalInputReceiver";
 /**
  * Input System
- * 
+ *
  * Property with prefix readonly makes a property as read-only in the class
  * @property {Number} mainControllerId set value 0
  * @property {Number} secondControllerId set value 1
@@ -39,11 +39,11 @@ export class InputSystem extends System {
     this.boundListeners = new Set();
     this.entityListeners = new Map();
   }
-  
+
   /**
    * Initialization Virtual Reality
-   * 
-   * @param onVRSupportRequested 
+   *
+   * @param onVRSupportRequested
    */
   init ({ useWebXR: boolean, onVRSupportRequested:any }): void {
     if (this.useWebXR) {
@@ -59,7 +59,7 @@ export class InputSystem extends System {
   }
 
   /**
-   * 
+   *
    * @param {Number} delta Time since last frame
    */
   public execute(delta: number): void {
@@ -143,7 +143,7 @@ export class InputSystem extends System {
  */
 InputSystem.queries = {
   inputs: {
-    components: [Input],
+    components: [Input, LocalInputReceiver],
     listen: {
       added: true,
       removed: true
