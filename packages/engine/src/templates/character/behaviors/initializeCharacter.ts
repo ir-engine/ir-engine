@@ -1,28 +1,17 @@
-import { Vec3, Shape } from "cannon-es";
-import { AnimationMixer, BoxGeometry, Group, Mesh, MeshLambertMaterial, Vector3, Color } from "three";
+import { Vec3 } from "cannon-es";
+import { AnimationMixer, BoxGeometry, Group, Mesh, MeshLambertMaterial, Vector3 } from "three";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
-import { Object3DComponent } from "../../../common/components/Object3DComponent";
 import { Behavior } from "../../../common/interfaces/Behavior";
-import { addComponent, getMutableComponent, hasComponent, getComponent } from "../../../ecs/functions/EntityFunctions";
+import { addComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
 import { CapsuleCollider } from "../../../physics/components/CapsuleCollider";
 import { RelativeSpringSimulator } from "../../../physics/classes/RelativeSpringSimulator";
 import { VectorSpringSimulator } from "../../../physics/classes/VectorSpringSimulator";
 import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
 import { addState } from "../../../state/behaviors/StateBehaviors";
 import { CharacterComponent } from "../components/CharacterComponent";
-import { IdleState } from "../states/IdleState";
-import { physicsPreStep } from "./physicsPreStep";
-import { physicsPostStep } from "./physicsPostStep";
-import { Body } from "cannon-es"
-import { State } from "../../../state/components/State";
 import { CharacterStateTypes } from "../CharacterStateTypes";
 import { Engine } from "../../../ecs/classes/Engine";
-import { setPhysicsEnabled } from "./setPhysicsEnabled";
 import { PhysicsManager } from "../../../physics/components/PhysicsManager";
-import { setPosition } from "./setPosition";
-import debug from "cannon-es-debugger"
-import { ColliderComponent } from "../../../physics/components/ColliderComponent";
-import { cannonFromThreeVector } from "../../../common/functions/cannonFromThreeVector";
 import { addObject3DComponent } from "../../../common/behaviors/Object3DBehaviors";
 
 export const initializeCharacter: Behavior = (entity): void => {
@@ -31,27 +20,36 @@ export const initializeCharacter: Behavior = (entity): void => {
 		addComponent(entity, CharacterComponent as any);
 
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+	// The visuals group is centered for easy actor tilting
 	actor.tiltContainer = new Group();
-	actor.modelContainer = new Group();
-	actor.modelContainer.position.y = -0.57;
-	actor.tiltContainer.add(actor.modelContainer);
-
+	actor.tiltContainer.name = 'Actor (tiltContainer)';
+	// by default all asset childs are moved into entity object3dComponent, which is tiltContainer
+	// we should keep it clean till asset loaded and all it's content moved into modelContainer
 	addObject3DComponent(entity, { obj3d: actor.tiltContainer })
 
-	const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
+	// TODO: remove me!
+	window['Engine'] = Engine
+	window['scene'] = Engine.scene
 
+	const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
 	assetLoader.onLoaded = asset => {
 		actor.animations = asset.animations;
 		console.log("Components on character")
 		console.log(entity.components)
-		// The visuals group is centered for easy actor tilting
-		//const actorObject3D = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
-		//debugger
-		//actorObject3D.value = actor.tiltContainer;
-		//console.log("actorObject3D.value: ", actorObject3D.value)
-		// // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
 
-		actor.modelContainer.add(asset.scene);
+		// // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
+		actor.modelContainer = new Group();
+		actor.modelContainer.name = 'Actor (modelContainer)';
+		actor.modelContainer.position.y = -actor.rayCastLength;
+
+		// by default all asset childs are moved into entity object3dComponent, which is tiltContainer
+		// we should keep it clean till asset loaded and all it's content moved into modelContainer
+		while (actor.tiltContainer.children.length) {
+			actor.modelContainer.add(actor.tiltContainer.children[0])
+		}
+		// now move model container inside empty tilt container
+		actor.tiltContainer.add(actor.modelContainer);
+
 		actor.mixer = new AnimationMixer(Engine.scene);
 
 		actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
@@ -88,10 +86,6 @@ export const initializeCharacter: Behavior = (entity): void => {
 			//   } else {
 			//	actor.actorCapsule.body.position = new Vec3()
 			//   }
-
-		addComponent(entity, ColliderComponent)
-		const colliderComponent = getMutableComponent<ColliderComponent>(entity, ColliderComponent)
-		colliderComponent.collider = actor.actorCapsule.body
 
 		// Ray cast debug
 		const boxGeo = new BoxGeometry(0.1, 0.1, 0.1);

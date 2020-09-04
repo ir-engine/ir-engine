@@ -28,7 +28,7 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
       actor.actorCapsule.body.position.y,
       actor.actorCapsule.body.position.z
     );
-    console.log('actorCapsule.body pos.z, vel.z', actor.actorCapsule.body.position.z, actor.actorCapsule.body.velocity.z)
+
     // actorTransform.position.set(
     //   actor.actorCapsule.body.interpolatedPosition.x,
     //   actor.actorCapsule.body.interpolatedPosition.y,
