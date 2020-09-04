@@ -8,7 +8,7 @@ const floor = new BoxBufferGeometry(20, 0.1, 20);
 
 export const staticWorldColliders: Prefab = {
     components: [
-      { type: TransformComponent }
+      { type: TransformComponent, data: { position: [ 0, -0.05, 0 ]  } }
     ],
     onCreate: [
         // add a 3d object
