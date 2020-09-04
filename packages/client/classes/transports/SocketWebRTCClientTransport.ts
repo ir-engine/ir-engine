@@ -10,6 +10,7 @@ import { types as MediaSoupServerTypes } from "mediasoup";
 import * as mediasoupClient from "mediasoup-client";
 import { DataConsumer, DataConsumerOptions, DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 import ioclient from "socket.io-client";
+import moment from 'moment';
 
 const Device = mediasoupClient.Device;
 
@@ -24,6 +25,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   pollingInterval: NodeJS.Timeout
   heartbeatInterval = 2000
   pollingTickRate = 1000
+  pollingTimeout = 4000
+  connectionWaitTime = 2000
   dataProducers = new Map<string, DataProducer>()
   dataConsumers = new Map<string, DataConsumer>()
   mediaStreamComponent = new MediaStreamComponent();
@@ -32,7 +35,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   request: any
   localScreen: any;
-
+  lastPoll: Date;
+  pollPending = false;
   /**
    * Send a message over TCP with socket.io
    * You should probably want {@link @xr3ngine/packages/enginge/src/networking/functions/NetworkFunctions.ts}
@@ -380,21 +384,27 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   async stopSendingMediaStreams(): Promise<boolean> {
-    if (!(MediaStreamComponent.instance.mediaStream && MediaStreamComponent.instance.localScreen)) return false;
-    if (!this.sendTransport) return false;
+    console.log('Stopping Media Streams');
+    console.log(this.sendTransport)
+    // if (!(MediaStreamComponent.instance.mediaStream && MediaStreamComponent.instance.localScreen)) return false;
+    if (this.sendTransport) {
+      console.log('Closing send transport')
+      const result = await this.request(MessageTypes.WebRTCTransportClose.toString(), {
+        transportId: this.sendTransport.id
+      });
+      console.log('Transport close request response:')
+      console.log(result)
+      if (result.error) console.error(result.error);
 
-    console.log("stop sending media streams");
-
-    const { error } = await this.request(MessageTypes.WebRTCTransportClose.toString(), {
-      transportId: this.sendTransport.id
-    });
-    if (error) console.error(error);
+      await this.sendTransport.close();
+      this.sendTransport = null;
+      console.log('Transport should be fully closed')
+    }
     // closing the sendTransport closes all associated producers. when
     // the camVideoProducer and camAudioProducer are closed,
     // mediasoup-client stops the local cam tracks, so we don't need to
     // do anything except set all our local variables to null.
-    await this.sendTransport.close();
-    this.sendTransport = null;
+    console.log('Setting producers and such to null')
     MediaStreamComponent.instance.camVideoProducer = null;
     MediaStreamComponent.instance.camAudioProducer = null;
     MediaStreamComponent.instance.screenVideoProducer = null;
@@ -463,22 +473,33 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       appData: { peerId, mediaTag }
     });
 
-    console.log('New Consumer:')
-    console.log(consumer)
+    console.log('New Consumer:');
+    console.log(consumer);
 
+    console.log(MediaStreamComponent.instance.consumers.map((c) => c.id + ' ' + c.appData.peerId + ' ' + c.appData.mediaTag));
     if (MediaStreamComponent.instance.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
+      let connected = false;
       MediaStreamComponent.instance.consumers.push(consumer);
       console.log(`Pushed consumer for peer ${peerId} of type ${mediaTag} at ${new Date()}`)
       // the server-side consumer will be started in paused state. wait
       // until we're connected, then send a resume request to the server
       // to get our first keyframe and start displaying video
+      setTimeout(async() => {
+        if (connected !== true) {
+          console.log('ReceiveTransport didn\'t connect, scrapping consumer ' + consumer.id + ' and trying again');
+          await this.closeConsumer(consumer);
+          MediaStreamComponent.instance.consumers = MediaStreamComponent.instance.consumers.filter((c) => c.id !== consumer.id);
+        }
+      }, this.connectionWaitTime);
+
       while (this.recvTransport.connectionState !== "connected") await sleep(100);
+
+      connected = true;
 
       console.log('Resuming newly-subscribed consumer')
       // okay, we're ready. let's ask the peer to send us media
       await this.resumeConsumer(consumer);
     } else {
-      console.log('Found an extant copy of this consumer, removing this new one');
       await this.closeConsumer(consumer)
     }
 
@@ -536,10 +557,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     await consumer.close();
 
     const filteredConsumers = MediaStreamComponent.instance.consumers.filter(
-      (c: any) => !(c.appData.peerId === consumer.appData.peerId && c.appData.mediaTag === consumer.appData.mediaTag)
+      (c: any) => !(c.id === consumer.id)
     ) as any[];
-    console.log('New consumers list after removing closed one:');
-    console.log(filteredConsumers);
     MediaStreamComponent.instance.consumers = filteredConsumers;
     // MediaStreamSystem.instance.removeVideoAudio(consumer);
   }
@@ -547,8 +566,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   // utility function to create a transport and hook up signaling logic
   // appropriate to the transport's direction
   async createTransport(direction: string) {
-    console.log(`create ${direction} transport`);
-
     // ask the server to create a server-side transport object and send
     // us back the info we need to create a client-side transport
     let transport;
@@ -556,17 +573,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log("transport options", transportOptions);
 
     if (direction === "recv") {
-      console.log("receive transport options:");
-      console.log(transportOptions);
       transport = await this.mediasoupDevice.createRecvTransport(transportOptions);
-      console.log('New Receive transport:');
-      console.log(transport);
     } else if (direction === "send") {
-      console.log("send transport options:");
-      console.log(transportOptions);
       transport = await this.mediasoupDevice.createSendTransport(transportOptions);
-      console.log('New Send transport:');
-      console.log(transport);
     } else {
       throw new Error(`bad transport 'direction': ${direction}`);
     }
@@ -575,7 +584,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // start flowing for the first time. send dtlsParameters to the
     // server, then call callback() on success or errback() on failure.
     transport.on("connect", async ({ dtlsParameters }: any, callback: () => void, errback: () => void) => {
-      console.log("transport connect event", direction);
       const { error } = await this.request(MessageTypes.WebRTCTransportConnect.toString(), {
         transportId: transportOptions.id,
         dtlsParameters
@@ -596,6 +604,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         "produce",
         async ({ kind, rtpParameters, appData }: any, callback: (arg0: { id: any }) => void, errback: () => void) => {
           console.log("transport produce event", appData.mediaTag);
+          console.log(rtpParameters)
 
           // we may want to start out paused (if the checkboxes in the ui
           // aren't checked, for each media type. not very clean code, here
@@ -619,9 +628,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
             console.error("error setting up server-side producer", error);
             errback();
             return;
-          }
-          console.log(`Producer set up with id ${id}`)
-          console.log(MediaStreamComponent.instance)
+          };
           callback({ id });
         }
       );
@@ -671,71 +678,77 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   async pollAndUpdate() {
     setTimeout(() => this.pollAndUpdate(), this.pollingTickRate);
     if (this.request === undefined) return;
-    const { peers } = await this.request(MessageTypes.Synchronization.toString());
+    if (this.lastPoll == null || moment().utc().subtract(this.pollingTimeout, 'ms') > moment(this.lastPoll) || this.pollPending === false) {
+      this.pollPending = true;
+      this.lastPoll = moment().utc().toDate();
+      const {peers} = await this.request(MessageTypes.Synchronization.toString());
 
-    console.log('Number of consumers: ' + MediaStreamComponent.instance.consumers.length);
-    if (peers[NetworkComponent.instance.mySocketID] === undefined) console.log("Server doesn't think you're connected!");
+      console.log('Consumers:')
+      console.log(MediaStreamComponent.instance.consumers.map((c) => c.id + ' ' + c.appData.peerId + ' ' + c.appData.mediaTag));
+      if (peers[NetworkComponent.instance.mySocketID] === undefined) console.log("Server doesn't think you're connected!");
 
-    // decide if we need to update tracks list and video/audio
-    // elements. build list of peers, sorted by join time, removing last
-    // seen time and stats, so we can easily do a deep-equals
-    // comparison. compare this list with the cached list from last
-    // poll.
+      // decide if we need to update tracks list and video/audio
+      // elements. build list of peers, sorted by join time, removing last
+      // seen time and stats, so we can easily do a deep-equals
+      // comparison. compare this list with the cached list from last
+      // poll.
 
-    // auto-subscribe to their feeds:
-    for (const id in peers) {
-      // for each peer...
-      if (id !== NetworkComponent.instance.mySocketID) {
-        // if it isnt me...
-        if (NetworkComponent.instance.clients !== undefined && NetworkComponent.instance.clients.includes(id)) {
-          // and if it is close enough in the 3d space...
-          for (const [mediaTag, _] of Object.entries(peers[id].media)) {
-            // for each of the peer's producers...
-            if (
-                MediaStreamComponent.instance.consumers?.find(
-                    c => c?.appData?.peerId === id && c?.appData?.mediaTag === mediaTag
-                ) == null
-            ) {
-              // that we don't already have consumers for...
-              console.log(`auto subscribing to ${mediaTag} track that ${id} has added at ${new Date()}`);
-              await this.subscribeToTrack(id, mediaTag);
+      // auto-subscribe to their feeds:
+      for (const id in peers) {
+        // for each peer...
+        if (id !== NetworkComponent.instance.mySocketID) {
+          // if it isnt me...
+          if (NetworkComponent.instance.clients !== undefined && NetworkComponent.instance.clients.includes(id)) {
+            // and if it is close enough in the 3d space...
+            for (const [mediaTag, _] of Object.entries(peers[id].media)) {
+              // for each of the peer's producers...
+              if (
+                  MediaStreamComponent.instance.consumers?.find(
+                      c => c?.appData?.peerId === id && c?.appData?.mediaTag === mediaTag
+                  ) == null
+              ) {
+                // that we don't already have consumers for...
+                console.log(`auto subscribing to ${mediaTag} track that ${id} has added at ${new Date()}`);
+                await this.subscribeToTrack(id, mediaTag);
+              }
             }
           }
         }
       }
-    }
 
-    // if a peer has gone away, we need to close all consumers we have
-    // for that peer and remove video and audio elements
-    for (const id in this.lastPollSyncData) {
-      if (!peers[id]) {
-        console.log(`Peer ${id} has exited`);
-        if (MediaStreamComponent.instance.consumers.length === 0) return console.log("Consumers length is 0");
-        MediaStreamComponent.instance.consumers.forEach(consumer => {
-          if (consumer.appData.peerId === id) {
-            this.closeConsumer(consumer);
-          }
-        });
+      // if a peer has gone away, we need to close all consumers we have
+      // for that peer and remove video and audio elements
+      for (const id in this.lastPollSyncData) {
+        if (!peers[id]) {
+          console.log(`Peer ${id} has exited`);
+          if (MediaStreamComponent.instance.consumers.length === 0) return console.log("Consumers length is 0");
+          MediaStreamComponent.instance.consumers.forEach(consumer => {
+            if (consumer.appData.peerId === id) {
+              this.closeConsumer(consumer);
+            }
+          });
+        }
       }
+
+      this.pollPending = false;
+      // if a peer has stopped sending media that we are consuming, we
+      // need to close the consumer and remove video and audio elements
+      if (MediaStreamComponent.instance.consumers == undefined || MediaStreamComponent.instance.consumers.length === 0)
+        return console.log("Consumers length is 0");
+
+      MediaStreamComponent.instance.consumers.forEach(consumer => {
+        const {peerId, mediaTag} = consumer.appData;
+        if (!peers[peerId]) {
+          console.log(`Peer ${peerId} has stopped transmitting ${mediaTag}`);
+          this.closeConsumer(consumer);
+        } else if (!peers[peerId].media[mediaTag]) {
+          console.log(`Peer ${peerId} has stopped transmitting ${mediaTag}`);
+          this.closeConsumer(consumer);
+        }
+      });
+
+      // push through the paused state to new sync list
+      this.lastPollSyncData = peers;
     }
-
-    // if a peer has stopped sending media that we are consuming, we
-    // need to close the consumer and remove video and audio elements
-    if (MediaStreamComponent.instance.consumers == undefined || MediaStreamComponent.instance.consumers.length === 0)
-      return console.log("Consumers length is 0");
-
-    MediaStreamComponent.instance.consumers.forEach(consumer => {
-      const { peerId, mediaTag } = consumer.appData;
-      if (!peers[peerId]) {
-        console.log(`Peer ${peerId} has stopped transmitting ${mediaTag}`);
-        this.closeConsumer(consumer);
-      } else if (!peers[peerId].media[mediaTag]) {
-        console.log(`Peer ${peerId} has stopped transmitting ${mediaTag}`);
-        this.closeConsumer(consumer);
-      }
-    });
-
-    // push through the paused state to new sync list
-    this.lastPollSyncData = peers;
   }
 }
