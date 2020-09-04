@@ -6,8 +6,13 @@ import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/Networ
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
-import { createEntity, addComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { AssetLoader } from "@xr3ngine/engine/src/assets/components/AssetLoader"
+import {
+  createEntity,
+  addComponent,
+  getMutableComponent,
+  getComponent
+} from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { AssetLoader } from "@xr3ngine/engine/src/assets/components/AssetLoader";
 import { AssetType } from '@xr3ngine/engine/src/assets/enums/AssetType';
 import { AssetClass } from '@xr3ngine/engine/src/assets/enums/AssetClass';
 
@@ -20,17 +25,16 @@ import { AmbientLight, Color } from 'three';
 import { PositionalAudio, Mesh, SphereBufferGeometry, MeshPhongMaterial  } from 'three';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/network/DefaultNetworkSchema';
 import { resetEngine } from '@xr3ngine/engine/src/ecs/functions/EngineFunctions';
-import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Body, Shape } from "cannon-es"
 import debug from "cannon-es-debugger"
 import { PhysicsManager } from '@xr3ngine/engine/src/physics/components/PhysicsManager';
-
+import { Object3DComponent } from "@xr3ngine/engine/src/common/components/Object3DComponent";
 
 export const EnginePage: FunctionComponent = (props: any) => {
 
-  const [enabled, setEnabled] = useState(false)
+  const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
     console.log('initializeEngine!');
@@ -38,7 +42,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     const networkSchema: NetworkSchema = {
       ...DefaultNetworkSchema,
       transport: SocketWebRTCClientTransport
-    }
+    };
 
     const InitializationOptions = {
       ...DefaultInitializationOptions,
@@ -59,85 +63,94 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // Load glb here
     // createPrefab(rigidBodyBox);
 
-      createPrefab(PlayerCharacter);
-      createPrefab(staticWorldColliders);
-      createPrefab(rigidBodyBox);
-      createPrefab(rigidBodyBox2);
-      createPrefab(CarController);
-
-
-
     addObject3DComponent(createEntity(), { obj3d: AmbientLight, ob3dArgs: {
       intensity: 5.0
-    }})
+    }});
 
-    const cameraTransform = getMutableComponent<TransformComponent>(CameraComponent.instance.entity, TransformComponent)
+    const cameraTransform = getMutableComponent<TransformComponent>(CameraComponent.instance.entity, TransformComponent);
+    cameraTransform.position.set(0, 1.2, 3);
 
-    cameraTransform.position.set(0, 1.2, 3)
 
+    // const { sound } = Engine as any;
+    // if (sound) {
+    //   const audioMesh = new Mesh(
+    //     new SphereBufferGeometry(0.3),
+    //     new MeshPhongMaterial({color: 0xff2200})
+    //   );
+    //   const audioEntity = createEntity();
+    //   addObject3DComponent(audioEntity, {
+    //     obj3d: audioMesh
+    //   });
+    //   audioMesh.add(sound);
+    //   const transform = addComponent(audioEntity, TransformComponent) as TransformComponent;
+    //   transform.position.set(0, 1, 0);
+    //   // const audioComponent = addComponent(audioEntity,
+    //   //   class extends Component {static scema = {}}
+    //   // )
+    // }
 
-    const {sound} = Engine as any;
-    if( sound ){
-      const audioMesh = new Mesh(
-        new SphereBufferGeometry( 0.3 ),
-        new MeshPhongMaterial({ color: 0xff2200 })
-      );
-      const audioEntity = createEntity();
-      addObject3DComponent(audioEntity, {
-        obj3d: audioMesh
-      });
-      audioMesh.add( sound );
-const transform = addComponent<TransformComponent>(audioEntity, TransformComponent) as any
-transform.position.set(0,1,0)
-      // const audioComponent = addComponent(audioEntity,
-      //   class extends Component {static scema = {}}
-      // )
-    }
-
-       console.log("Creating a scene entity to test")
-       /*
-    addComponent(createEntity(), AssetLoader, {
+    console.log("Creating a scene entity to test");
+    const levelEntity = createEntity();
+    addComponent(levelEntity, AssetLoader, {
       url: "models/library.glb",
       receiveShadow: true,
-      castShadow: true
-    })
-    */
+      castShadow: true,
+      onLoaded: () => {
+        console.log('level is loaded');
+        // TODO: parse Floor_plan
+        // TODO: parse Spawn point
+
+        // TODO: this is temporary, to make level floor mach zero
+        const level3d = getComponent<Object3DComponent>(levelEntity, Object3DComponent);
+        //level3d.value.position.y -= 0.17;
+        level3d.value.position.y -= 0.22;
+
+        createPrefab(PlayerCharacter);
+        createPrefab(staticWorldColliders);
+        createPrefab(rigidBodyBox);
+        createPrefab(rigidBodyBox2);
+        createPrefab(CarController);
+      }
+    });
+
     // addComponent(createEntity(), AssetLoader, {
     //   url: "models/OldCar.fbx",
     //   receiveShadow: true,
     //   castShadow: true
     // })
 
-    return () => {
+    return (): void => {
       // cleanup
-      console.log('cleanup?!')
-      resetEngine()
-    }
-  }, [])
+      console.log('cleanup?!');
+      // TODO: use resetEngine when it will be completed. for now just reload
+      document.location.reload();
+      // resetEngine();
+    };
+  }, []);
 
   useEffect(() => {
-    const f = event => {
+    const f = (event: KeyboardEvent): void => {
       const P_PLAY_PAUSE = 112;
       if (event.keyCode === 27)
         toggleEnabled();
       else if(event.keyCode == P_PLAY_PAUSE){
 
       }
-    }
+    };
     document.addEventListener("keydown", f);
-    return () => {
+    return (): void => {
       document.removeEventListener("keydown", f);
     };
   });
 
-  const toggleEnabled = () => {
-    console.log("enabled ", enabled)
+  const toggleEnabled = (): void => {
+    console.log("enabled ", enabled);
     if (enabled === true) {
-      setEnabled(false)
+      setEnabled(false);
     } else {
-      setEnabled(true)
+      setEnabled(true);
     }
-  }
+  };
 
   return (
     enabled && (
@@ -153,7 +166,7 @@ transform.position.set(0,1,0)
         msg='Interactive terminal. Please consult the manual for commands.'
       />
     )
-  )
+  );
 };
 
 export default EnginePage;

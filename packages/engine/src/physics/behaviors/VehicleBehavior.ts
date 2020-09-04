@@ -53,7 +53,10 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
 
 
   } else if (args.phase == 'onRemoved') {
-    const object = getComponent<Object3DComponent>(entity, Object3DComponent).value;
+    const object = getComponent<Object3DComponent>(entity, Object3DComponent, true)?.value;
+    if (!object) {
+      return
+    }
     const body = object.userData.vehicle;
     delete object.userData.vehicle;
     PhysicsManager.instance.physicsWorld.removeBody(body);

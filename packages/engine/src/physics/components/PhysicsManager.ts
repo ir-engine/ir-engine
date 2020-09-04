@@ -1,13 +1,15 @@
 import { SAPBroadphase, ContactMaterial, Material, World } from 'cannon-es';
-
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
+import { Engine } from '../../ecs/classes/Engine';
+import { Shape, Body } from 'cannon-es';
+import { Mesh } from 'three';
+import debug from "cannon-es-debugger";
 
 export class PhysicsManager extends Component<PhysicsManager> {
   static instance: PhysicsManager
   frame: number
   physicsWorld: World
-  timeStep: number
   groundMaterial = new Material('groundMaterial')
   wheelMaterial = new Material('wheelMaterial')
   wheelGroundContactMaterial = new ContactMaterial(this.wheelMaterial, this.groundMaterial, {
@@ -21,32 +23,37 @@ export class PhysicsManager extends Component<PhysicsManager> {
 	physicsFrameTime: number;
   physicsMaxPrediction: number;
 
-  
-
-  constructor () {
+  constructor (options:{ framerate: number }) {
     super();
-    console.log("Consructing physics manager")
+    console.log("Constructing physics manager", options)
     PhysicsManager.instance = this;
     this.frame = 0;
     this.physicsWorld = new World();
-    this.timeStep = 1 / 60;
-    this.physicsWorld.gravity.set(0, -10, 0);
-    //  this.physicsWorld.broadphase = new NaiveBroadphase();
-    this.physicsWorld.broadphase = new SAPBroadphase(this.physicsWorld);
+    this.physicsFrameRate = options.framerate;
+    this.physicsFrameTime = 1 / this.physicsFrameRate;
+    this.physicsMaxPrediction = this.physicsFrameRate;
+    this.physicsWorld.allowSleep = false;
+    // this.physicsWorld.solver.iterations = 10;
 
     // We must add the contact materials to the world
     this.physicsWorld.addContactMaterial(PhysicsManager.instance.wheelGroundContactMaterial);
 
-      	// Physics
-        this.physicsWorld.gravity.set(0, -9.81, 0);
-        this.physicsWorld.broadphase = new SAPBroadphase(this.physicsWorld);
-        // this.physicsWorld.solver.iterations = 10;
-        this.physicsWorld.allowSleep = false;
+    // Physics
+    this.physicsWorld.gravity.set(0, -9.81, 0);
+    this.physicsWorld.broadphase = new SAPBroadphase(this.physicsWorld);
+    //  this.physicsWorld.broadphase = new NaiveBroadphase();
 
-        this.parallelPairs = [];
-        this.physicsFrameRate = 60;
-        this.physicsFrameTime = 1 / this.physicsFrameRate;
-        this.physicsMaxPrediction = this.physicsFrameRate;
+    this.parallelPairs = [];
+
+    console.log("========PhysicsManager.instance.physicsWorld");
+    console.log(PhysicsManager.instance.physicsWorld);
+    const DebugOptions = {
+      onInit: (body: Body, mesh: Mesh, shape: Shape) => 	console.log("PH INIT: body: ", body, " | mesh: ", mesh, " | shape: ", shape),
+      onUpdate: (body: Body, mesh: Mesh, shape: Shape) => {
+        //if (body === Engine.actor
+        //console.log("PH  UPD: body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape) }
+    }};
+    debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
   }
 
   dispose():void {

@@ -19,7 +19,7 @@ test("adding InputSystem", () => {
 test("start XR sesion", () => {
   expect(() => {
     const system = getSystem(InputSystem)
-    system.init({ onVRSupportRequested })
+    system.init({ useWebXR: true, onVRSupportRequested })
   }).not.toThrowError()
   //FIXME: doesn't work as expected
   function onVRSupportRequested(isSupported = false) {
