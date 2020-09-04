@@ -1,7 +1,6 @@
 <div align="center">
 
 <a href="https://xr3ngine.io">
-<img src="readme/otter.png" alt="logo" width="128">
 </a>
 
 # xr3ngine
