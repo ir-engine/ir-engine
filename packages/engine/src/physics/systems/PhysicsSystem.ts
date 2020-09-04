@@ -36,6 +36,12 @@ export class PhysicsSystem extends System {
     new PhysicsManager({ framerate: Engine.physicsFrameRate });
   }
 
+  dispose() {
+    super.dispose();
+
+    PhysicsManager.instance.dispose()
+  }
+
   onFixedExecute(delta) {
     this.queryResults.character.all?.forEach(entity => physicsPreStep(entity, null, delta));
     PhysicsManager.instance.frame++;
