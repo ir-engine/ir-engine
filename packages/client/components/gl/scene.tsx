@@ -107,12 +107,14 @@ transform.position.set(0,1,0)
     //   castShadow: true
     // })
 
-    return () => {
+    return (): void => {
       // cleanup
-      console.log('cleanup?!')
-      resetEngine()
-    }
-  }, [])
+      console.log('cleanup?!');
+      // TODO: use resetEngine when it will be completed. for now just reload
+      document.location.reload();
+      // resetEngine();
+    };
+  }, []);
 
   useEffect(() => {
     const f = event => {
