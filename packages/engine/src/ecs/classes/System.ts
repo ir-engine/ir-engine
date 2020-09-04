@@ -189,7 +189,6 @@ export abstract class System {
       }
     }
     const c = (this.constructor as any).prototype;
-    if(c.init !== undefined) c.init(attributes);
     c.order = Engine.systems.length;
   }
 

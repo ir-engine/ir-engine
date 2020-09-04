@@ -310,9 +310,11 @@ class Terminal extends Component<any, any> {
   setValueWithHistory = (instance, position, inputRef) => {
     const { history } = instance.state;
     if (history[position]) {
+      try {
       instance.setState({ historyCounter: position });
       inputRef.value = history[position];
       putCursorAtEnd(inputRef);
+      } catch(err){console.trace(err)}
     }
   };
 

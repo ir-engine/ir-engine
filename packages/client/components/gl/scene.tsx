@@ -18,7 +18,6 @@ import { commands, description } from '../terminal/commands';
 import { rigidBodyBox } from './rigidBodyBox';
 import { staticWorldColliders } from './staticWorldColliders';
 
-
 export const EnginePage: FunctionComponent = (props: any) => {
 
   const [enabled, setEnabled] = useState(false)
