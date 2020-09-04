@@ -1,23 +1,23 @@
 import { createFixedTimestep } from '../../common/functions/Timer';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
-import { addComponent, createEntity, getMutableComponent, getComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
 import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { State } from '../../state/components/State';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { addNetworkTransformToWorldState } from '../behaviors/addNetworkTransformToWorldState';
 import { handleUpdateFromServer } from '../behaviors/handleUpdateFromServer';
-import { sendClientInput as sendClientInput } from '../behaviors/sendClientInput';
+import { sendClientInput as sendClientInputToServer } from '../behaviors/sendClientInput';
 import { sendSnapshotToClients } from '../behaviors/sendSnapshotToClients';
 import { Network } from '../components/Network';
 import { NetworkClient } from '../components/NetworkClient';
 import { NetworkInterpolation } from '../components/NetworkInterpolation';
 import { NetworkObject } from '../components/NetworkObject';
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
-import { prepareWorldState } from '../functions/prepareWorldState';
-import { initializeNetworkObject } from './initializeNetworkObject';
-import { destroyNetworkObject } from './destroyNetworkObject';
+import { prepareWorldState as prepareServerWorldState } from '../functions/prepareWorldState';
+import { handleUpdatesFromClients } from '../functions/handleUpdatesFromClients';
+import { addInputToWorldState } from '../behaviors/addInputToWorldState';
 
 export class NetworkSystem extends System {
   fixedExecute: (delta: number) => void = null
@@ -47,7 +47,10 @@ export class NetworkSystem extends System {
 
   execute(delta): void {
     if (!Network.instance.isInitialized) return
-
+    
+    // Transforms that are updated are automatically collected
+    // note: onChanged needs to currently be handled outside of fixedExecute
+    if (Network.instance.transport.isServer)
     this.queryResults.networkTransforms.changed?.forEach((entity: Entity) =>
       addNetworkTransformToWorldState(entity)
     )
@@ -61,11 +64,12 @@ export class NetworkSystem extends System {
 
     // Client only
     if (!Network.instance.transport.isServer) {
+      // Client sends input and *only* input to the server (for now)
       this.queryResults.networkInputSender.all?.forEach((entity: Entity) =>
-        sendClientInput(entity)
+        sendClientInputToServer(entity)
       )
 
-      // Handle incoming world state and interpolate transforms
+      // Client handles incoming input from other clients and interpolates transforms
       this.queryResults.network.all?.forEach((entity: Entity) =>
         handleUpdateFromServer(entity)
       )
@@ -73,15 +77,21 @@ export class NetworkSystem extends System {
 
     // Server-only
     if (Network.instance.transport.isServer) {
-      prepareWorldState()
+      // Create a new empty world state frame to be sent to clients
+      prepareServerWorldState()
+      
+      // handle client input, apply to local objects and add to world state snapshot
+      handleUpdatesFromClients()
 
-      // handle client input and apply to network objects
+      // Note: Transforms that are updated get added to world state frame in execute since they use added hook
+      // When that is fixed, we should move from execute to here
 
+      // For each networked object + input receiver, add to the frame to send
+      this.queryResults.networkInput.all?.forEach((entity: Entity) => {
+        addInputToWorldState(entity)
+      })
 
-      // 
-
-
-
+      // Create the snapshot and add it to the world state on the server
       addSnapshot(createSnapshot(Network.instance.worldState))
 
       // Send all queued messages

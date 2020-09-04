@@ -3,7 +3,7 @@ import { getMutableComponent, getComponent } from '../../ecs/functions/EntityFun
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { Network } from '../components/Network';
 import { NetworkObject } from '../components/NetworkObject';
-import { createNetworkPrefab } from '../functions/createNetworkPrefab';
+import { createNetworkPrefab } from './createNetworkPrefab';
 
 export function initializeNetworkObject(ownerId: string, networkId: number, prefabType: number, position?: Vector3, rotation?: Quaternion) {
   // Instantiate into the world

@@ -55,10 +55,6 @@ export const CharacterInputSchema: InputSchema = {
           value: BinaryValue.ON
         }
       }
-      // {
-      //   behavior: rotateStart,
-      //   args: {}
-      // }
     ],
 
     // Touch
@@ -69,10 +65,6 @@ export const CharacterInputSchema: InputSchema = {
           value: BinaryValue.ON
         }
       }
-      // {
-      //   behavior: rotateStart,
-      //   args: {}
-      // }
     ],
     touchend: [
       {
@@ -179,179 +171,67 @@ export const CharacterInputSchema: InputSchema = {
     [DefaultInput.RIGHT]: { opposes: [DefaultInput.LEFT] } as InputRelationship,
     [DefaultInput.JUMP]: { } as InputRelationship
   },
-  // onInputButtonBehavior: {
-  //     [BinaryValue.ON]: {
-  //       started: [
-  //         {
-  //           behavior: sendMessage,
-  //           args: {}
-  //         }
-  //       ]
-  //     },
-  //     [BinaryValue.OFF]: {
-
-  //     }
-  //   }
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
     [DefaultInput.JUMP]: {
       [BinaryValue.ON]: {
         started: [
-          // {
-          //   behavior: jumpStart,
-          //   args: {}
-          // }
         ]
       }
     },
     [DefaultInput.FORWARD]: {
       [BinaryValue.ON]: {
         started: [
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWODIM,
-          //     value: [0, -1]
-          //   }
-          // }
-          // {
-          //   behavior: updateMovementState
-          // }
         ],
         continued: [
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWODIM,
-          //     value: [0, -1]
-          //   }
-          // }
         ]
       },
       [BinaryValue.OFF]: {
         started: [
-          // {
-          //   behavior: updateMovementState
-          // }
         ],
         continued: [
-          // {
-          //   behavior: updateMovementState
-          // }
         ]
       }
     },
     [DefaultInput.BACKWARD]: {
       [BinaryValue.ON]: {
         started: [
-          // {
-          //   behavior: updateMovementState
-          // },
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWODIM,
-          //     value: [0, 1]
-          //   }
-          // }
         ],
         continued: [
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWODIM,
-          //     value: [0, 1]
-          //   }
-          // }
         ]
       },
       [BinaryValue.OFF]: {
         started: [
-          // {
-          //   behavior: updateMovementState
-          // }
         ],
         continued: [
-          // {
-          //   behavior: updateMovementState
-          // }
         ]
       }
     },
     [DefaultInput.LEFT]: {
       [BinaryValue.ON]: {
         started: [
-          // {
-          //   behavior: updateMovementState
-          // },
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWODIM,
-          //     value: [-1, 0]
-          //   }
-          // }
         ],
         continued: [
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWODIM,
-          //     input: {
-          //       value: [-1, 0]
-          //     },
-          //     value: [-1, 0]
-          //   }
-          // }
         ]
       },
       [BinaryValue.OFF]: {
         started: [
-          // {
-          //   behavior: updateMovementState
-          // }
         ],
         continued: [
-          // {
-          //   behavior: updateMovementState
-          // }
         ]
       }
     },
     [DefaultInput.RIGHT]: {
       [BinaryValue.ON]: {
         started: [
-          // {
-          //   behavior: updateMovementState
-          // },
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWODIM,
-          //     value: [1, 0]
-          //   }
-          // }
         ],
         continued: [
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWODIM,
-          //     value: [1, 0]
-          //   }
-          // }
         ]
       },
       [BinaryValue.OFF]: {
         started: [
-          // {
-          //   behavior: updateMovementState
-          // }
         ],
         continued: [
-          // {
-          //   behavior: updateMovementState
-          // }
         ]
       }
     }
@@ -360,29 +240,12 @@ export const CharacterInputSchema: InputSchema = {
   inputAxisBehaviors: {
     [DefaultInput.MOVEMENT_PLAYERONE]: {
       started: [
-        // {
-        //   behavior: updateMovementState
-        // }
       ],
       continued: [
-        // {
-        //   behavior: move,
-        //   args: {
-        //     input: DefaultInput.MOVEMENT_PLAYERONE,
-        //     inputType: InputType.TWODIM
-        //   }
-        // }
       ]
     },
     [DefaultInput.SCREENXY]: {
       started: [
-        // {
-        //   behavior: rotateAround,
-        //   args: {
-        //     input: DefaultInput.SCREENXY,
-        //     inputType: InputType.TWODIM
-        //   }
-        // }
       ]
     }
   }

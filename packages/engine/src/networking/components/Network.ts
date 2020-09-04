@@ -31,9 +31,11 @@ export class Network extends Component<Network> {
 
   worldState = {
     tick: Network.tick,
-    states: [
-    ],
     transforms: [
+      
+    ],
+    inputs: [
+
     ]
   }
 
