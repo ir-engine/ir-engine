@@ -17,9 +17,9 @@ export default function AudioInput({ onChange, ...rest }) {
     accept: [ItemTypes.Audio, ItemTypes.File],
     drop(item) {
       if (item.type === ItemTypes.Audio) {
-        onChange(item.value.url, item.value.initialProps || {});
+        onChange((item as any).value.url, (item as any).value.initialProps || {});
       } else {
-        onUpload(item.files).then(assets => {
+        onUpload((item as any).files).then(assets => {
           if (assets && assets.length > 0) {
             onChange(assets[0].url, {});
           }

@@ -8,6 +8,7 @@ import { WebXRRenderer } from '../components/WebXRRenderer';
 import { WebXRSession } from '../components/WebXRSession';
 import { initVR } from '../functions/WebXRFunctions';
 import { ListenerBindingData } from "../interfaces/ListenerBindingData";
+import { LocalInputReceiver } from "../components/LocalInputReceiver";
 
 /**
  * Input System
@@ -132,7 +133,7 @@ export class InputSystem extends System {
  */
 InputSystem.queries = {
   inputs: {
-    components: [Input],
+    components: [Input, LocalInputReceiver],
     listen: {
       added: true,
       removed: true

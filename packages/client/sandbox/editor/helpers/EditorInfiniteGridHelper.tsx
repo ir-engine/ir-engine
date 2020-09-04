@@ -59,7 +59,10 @@ void main() {
 }
 `;
 export default class EditorInfiniteGridHelper extends Mesh {
-  constructor(size1, size2, color, distance) {
+  plane: Plane;
+  intersectionPointWorld: Vector3;
+  intersection: any;
+  constructor(size1?, size2?, color?, distance?) {
     color = color || new Color("white");
     size1 = size1 || 1;
     size2 = size2 || 10;
@@ -102,8 +105,8 @@ export default class EditorInfiniteGridHelper extends Mesh {
     };
   }
   setSize(size) {
-    this.material.uniforms.uSize1.value = size;
-    this.material.uniforms.uSize2.value = size * 10;
+    (this.material as any).uniforms.uSize1.value = size;
+    (this.material as any).uniforms.uSize2.value = size * 10;
   }
   raycast(raycaster, intersects) {
     const point = new Vector3();

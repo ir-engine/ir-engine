@@ -64,7 +64,6 @@ export abstract class System {
   enabled: boolean
   name: string
   _queries: {} = {}
-  init? (attributes?: SystemAttributes): void
   abstract execute (delta: number, time: number): void
 
   canExecute (): boolean {

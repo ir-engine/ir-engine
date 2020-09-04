@@ -11,7 +11,7 @@ import { clientInputModel } from "../schema/clientInputSchema";
 import { InputType } from "../../input/enums/InputType";
 import { sendMessage } from "../functions/sendMessage";
 import { MessageChannel } from "../enums/MessageChannel";
-import { BuiltinMessageTypes } from "../enums/MessageTypes";
+import { MessageTypes } from "../enums/MessageTypes";
 
 export const sendClientInput = (entity: Entity): void => {
 
@@ -45,5 +45,5 @@ export const sendClientInput = (entity: Entity): void => {
   const message = clientInputModel.toBuffer(inputs)
 
   // TODO: Send unreliably
-  sendMessage(MessageChannel.Reliable, message, BuiltinMessageTypes.ClientInput)
+  sendMessage(MessageChannel.Reliable, message, MessageTypes.ClientInput)
 };

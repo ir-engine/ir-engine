@@ -35,8 +35,8 @@ import { Resizeable } from "./layout/Resizeable";
 import DragLayer from "./dnd/DragLayer";
 import Editor from "../Editor";
 
-import defaultTemplateUrl from "./../assets/templates/crater.world";
-import tutorialTemplateUrl from "./../assets/templates/tutorial.world";
+import defaultTemplateUrl from "../assets/templates/crater.world";
+import tutorialTemplateUrl from "../assets/templates/tutorial.world";
 
 const StyledEditorContainer = (styled as any).div`
   display: flex;

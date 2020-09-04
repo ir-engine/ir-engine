@@ -20,6 +20,7 @@ import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFu
 import { prepareWorldState as prepareServerWorldState } from '../functions/prepareWorldState';
 import { sendMessage } from '../functions/sendMessage';
 import { worldStateModel } from '../schema/worldStateSchema';
+import { Not } from '../../ecs/functions/ComponentFunctions';
 
 export class NetworkSystem extends System {
   fixedExecute: (delta: number) => void = null
@@ -35,13 +36,15 @@ export class NetworkSystem extends System {
     // Late initialization of network
     // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
 
-    const { schema } = attributes
+    const { schema, agonesSDK } = attributes
     Network.instance.schema = schema;
     Network.instance.transport = new (schema.transport)();
 
     // Initialize the server automatically
-    if (process.env.SERVER_MODE != undefined && process.env.SERVER_MODE !== 'client')
-      Network.instance.transport.initialize();
+    if (process.env.SERVER_MODE === 'realtime') {
+        Network.instance.transport.initialize()
+    }
+    console.log("NetworkSystem ready, run connectToServer to... connect to the server!")
 
     // TODO: Move network timestep (30) to config
     this.fixedExecute = createFixedTimestep(30, this.onFixedExecute.bind(this))
@@ -112,7 +115,7 @@ export class NetworkSystem extends System {
       components: [NetworkObject]
     },
     networkInput: {
-      components: [NetworkObject, Input]
+      components: [NetworkObject, Input, Not(LocalInputReceiver)]
     },
     networkInputSender: {
       components: [NetworkObject, Input, LocalInputReceiver]

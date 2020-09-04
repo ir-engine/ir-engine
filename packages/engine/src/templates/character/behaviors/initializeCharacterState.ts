@@ -6,7 +6,7 @@ import { setArcadeVelocityInfluence } from "./setArcadeVelocityInfluence";
 import { State } from "../../../state/components/State";
 import { sendMessage } from "../../../networking/functions/sendMessage";
 import { MessageChannel } from "../../../networking/enums/MessageChannel";
-import { BuiltinMessageTypes } from "../../../networking/enums/MessageTypes";
+import { MessageTypes } from "../../../networking/enums/MessageTypes";
 
 export const initializeCharacterState: Behavior = (entity: Entity) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);

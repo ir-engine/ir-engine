@@ -14,7 +14,7 @@ import BoxColliderNode from "./BoxColliderNode";
 import mergeMeshGeometries from "../utils/mergeMeshGeometries";
 import RecastClient from "../recast/RecastClient";
 import HeightfieldClient from "../heightfield/HeightfieldClient";
-import SpawnPointNode from "../nodes/SpawnPointNode";
+import SpawnPointNode from "./SpawnPointNode";
 import * as recastWasmUrl from "recast-wasm/dist/recast.wasm";
 const recastClient = new RecastClient();
 const heightfieldClient = new HeightfieldClient();
