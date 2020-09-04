@@ -14,7 +14,7 @@ import {
   updateMessageScrollInit
 } from '../../../redux/chat/service';
 import { connect } from 'react-redux';
-import GameserverTest from "../GameserverTest";
+import VideoChat from "../VideoChat";
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -59,7 +59,7 @@ export const DrawerControls = (props: Props): JSX.Element => {
   };
   return (
     <AppBar className="bottom-appbar">
-      <GameserverTest/>
+      <VideoChat/>
       <Button onClick={openInvite}>
         <PersonAdd />
       </Button>
