@@ -16,6 +16,7 @@ import { move } from './behaviors/move';
 import { rotateAround } from './behaviors/rotate';
 import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
 import { getInCar } from '@xr3ngine/engine/src/physics/behaviors/getInCarBehavior';
+import { setArcadeVelocityTarget } from './behaviors/setArcadeVelocityTarget';
 
 
 export const CharacterInputSchema: InputSchema = {
@@ -237,25 +238,23 @@ export const CharacterInputSchema: InputSchema = {
     [DefaultInput.FORWARD]: {
       [BinaryValue.ON]: {
         started: [
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWOD,
-          //     value: [0, -1]
-          //   }
-          // }
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              z: 1
+            }
+          }
           // {
           //   behavior: updateMovementState
           // }
         ],
         continued: [
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWOD,
-          //     value: [0, -1]
-          //   }
-          // }
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              z: 1
+            }
+          }
         ]
       },
       [BinaryValue.OFF]: {
@@ -277,22 +276,20 @@ export const CharacterInputSchema: InputSchema = {
           // {
           //   behavior: updateMovementState
           // },
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWOD,
-          //     value: [0, 1]
-          //   }
-          // }
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              z: -1
+            }
+          }
         ],
         continued: [
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWOD,
-          //     value: [0, 1]
-          //   }
-          // }
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              z: -1
+            }
+          }
         ]
       },
       [BinaryValue.OFF]: {
@@ -314,25 +311,20 @@ export const CharacterInputSchema: InputSchema = {
           // {
           //   behavior: updateMovementState
           // },
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWOD,
-          //     value: [-1, 0]
-          //   }
-          // }
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              x: 1
+            }
+          }
         ],
         continued: [
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWOD,
-          //     input: {
-          //       value: [-1, 0]
-          //     },
-          //     value: [-1, 0]
-          //   }
-          // }
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              x: 1
+            }
+          }
         ]
       },
       [BinaryValue.OFF]: {
@@ -354,22 +346,20 @@ export const CharacterInputSchema: InputSchema = {
           // {
           //   behavior: updateMovementState
           // },
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWOD,
-          //     value: [1, 0]
-          //   }
-          // }
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              x: -1
+            }
+          }
         ],
         continued: [
-          // {
-          //   behavior: move,
-          //   args: {
-          //     inputType: InputType.TWOD,
-          //     value: [1, 0]
-          //   }
-          // }
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              x: -1
+            }
+          }
         ]
       },
       [BinaryValue.OFF]: {
