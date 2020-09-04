@@ -16,7 +16,7 @@ export class NetworkSystem extends System {
   init (attributes) {
     NetworkSystem.instance = this
 
-    const { schema } = attributes
+    const { schema, agonesSDK } = attributes
     // Create a Network entity (singleton)
     const networkEntity = createEntity();
     addComponent(networkEntity, Network);
@@ -27,8 +27,8 @@ export class NetworkSystem extends System {
     console.log('TRANSPORT INSTANCE:')
     console.log(Network.instance.transport)
     console.log(`SERVER_MODE: ${process.env.SERVER_MODE}`)
-    if (process.env.SERVER_MODE != undefined && process.env.SERVER_MODE !== 'client') {
-      Network.instance.transport.initialize();
+    if (process.env.SERVER_MODE === 'realtime') {
+        Network.instance.transport.initialize()
     }
     console.log("NetworkSystem ready, run connectToServer to... connect to the server!")
   }
