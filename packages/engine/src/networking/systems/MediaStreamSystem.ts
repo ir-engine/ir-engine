@@ -7,17 +7,15 @@ import { addComponent, getMutableComponent, createEntity } from '../../ecs/funct
 
 export class MediaStreamSystem extends System {
   public static instance: MediaStreamSystem = null
-  init (): void {
+
+  constructor () {
+    super();
     MediaStreamSystem.instance = this;
 
     const entity = createEntity()
     addComponent(entity, MediaStreamComponent);
     const mediaStreamComponent = getMutableComponent<MediaStreamComponent>(entity, MediaStreamComponent);
     MediaStreamComponent.instance = mediaStreamComponent;
-  }
-
-  constructor () {
-    super();
   }
 
   dispose():void {

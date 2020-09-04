@@ -20,13 +20,11 @@ export class PhysicsSystem extends System {
   constructor() {
     super()
     this.fixedExecute = createFixedTimestep(60, this.onFixedExecute.bind(this))
-  }
-  execute(delta):void {
-    this.fixedExecute(delta)
+    new PhysicsManager();
   }
 
-  init ():void {
-    new PhysicsManager();
+  execute(delta):void {
+    this.fixedExecute(delta)
   }
 
   onFixedExecute(delta) {

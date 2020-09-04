@@ -10,10 +10,8 @@ import { Object3DComponent } from '../../common/components/Object3DComponent';
 import { addObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
 
 export class CameraSystem extends System {
-  /**
-   * Initialize camera component
-   */
-  init(): void {
+  constructor() {
+    super()
     const cameraEntity = createEntity();
     addComponent(cameraEntity, CameraComponent, { followTarget: null, distance: 5, mode: "thirdPerson" });
     addComponent(cameraEntity, CameraTagComponent)
