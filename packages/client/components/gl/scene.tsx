@@ -49,9 +49,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // Load glb here
     // createPrefab(rigidBodyBox);
     
-      createPrefab(PlayerCharacter);
+      // createPrefab(PlayerCharacter);
       createPrefab(staticWorldColliders);
-      createPrefab(rigidBodyBox);
       // createPrefab(CarController);
     
 
@@ -65,30 +64,30 @@ export const EnginePage: FunctionComponent = (props: any) => {
     cameraTransform.position.set(0, 1.2, 3)
 
 
-    const {sound} = Engine as any;
-    if( sound ){
-      const audioMesh = new Mesh(
-        new SphereBufferGeometry( 0.3 ),
-        new MeshPhongMaterial({ color: 0xff2200 })
-      );
-      const audioEntity = createEntity();
-      addObject3DComponent(audioEntity, { 
-        obj3d: audioMesh
-      });
-      audioMesh.add( sound );
-const transform = addComponent<TransformComponent>(audioEntity, TransformComponent) as any
-transform.position.set(0,1,0)
-      // const audioComponent = addComponent(audioEntity, 
-      //   class extends Component {static scema = {}}
-      // )
-    }
+//     const {sound} = Engine as any;
+//     if( sound ){
+//       const audioMesh = new Mesh(
+//         new SphereBufferGeometry( 0.3 ),
+//         new MeshPhongMaterial({ color: 0xff2200 })
+//       );
+//       const audioEntity = createEntity();
+//       addObject3DComponent(audioEntity, { 
+//         obj3d: audioMesh
+//       });
+//       audioMesh.add( sound );
+// const transform = addComponent<TransformComponent>(audioEntity, TransformComponent) as any
+// transform.position.set(0,1,0)
+//       // const audioComponent = addComponent(audioEntity, 
+//       //   class extends Component {static scema = {}}
+//       // )
+//     }
    
-       console.log("Creating a scene entity to test")
-    addComponent(createEntity(), AssetLoader, {
-      url: "models/library.glb",
-      receiveShadow: true,
-      castShadow: true
-    }) 
+      //  console.log("Creating a scene entity to test")
+    // addComponent(createEntity(), AssetLoader, {
+    //   url: "models/library.glb",
+    //   receiveShadow: true,
+    //   castShadow: true
+    // }) 
     // addComponent(createEntity(), AssetLoader, {
     //   url: "models/OldCar.fbx",
     //   receiveShadow: true,

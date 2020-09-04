@@ -1,17 +1,13 @@
-import io from 'socket.io-client';
-import feathers from '@feathersjs/client';
-import { client } from '../../../redux/feathers';
 import { Button } from '@material-ui/core';
-import { Gamepad } from '@material-ui/icons';
+import { CallEnd, VideoCall } from '@material-ui/icons';
+import { MediaStreamComponent } from '@xr3ngine/engine/src/networking/components/MediaStreamComponent';
+import { Network } from '@xr3ngine/engine/src/networking/components/Network';
+import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
+import { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectInstanceConnectionState } from '../../../redux/instanceConnection/selector';
-import {
-  provisionInstanceServer,
-  connectToInstanceServer
-} from '../../../redux/instanceConnection/service';
-import { useEffect } from 'react';
-import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
+import { connectToInstanceServer, provisionInstanceServer } from '../../../redux/instanceConnection/service';
 
 const locationId = 'e3523270-ddb7-11ea-9251-75ab611a30da';
 interface Props {
@@ -31,15 +27,21 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   connectToInstanceServer: bindActionCreators(connectToInstanceServer, dispatch)
 });
 
-const GameserverTest = (props: Props) => {
+const VideoChat = (props: Props) => {
   const {
     instanceConnectionState,
     connectToInstanceServer,
     provisionInstanceServer
   } = props;
   const gsProvision = async () => {
-    await MediaStreamSystem.instance?.startCamera();
-    await provisionInstanceServer(locationId);
+    if (MediaStreamComponent.instance.mediaStream == null) {
+      await MediaStreamSystem.instance.startCamera();
+      await provisionInstanceServer(locationId);
+    } else {
+      console.log('Ending video chat')
+      console.log((Network.instance.transport as any).stopSendingMediaStreams)
+      await (Network.instance.transport as any).stopSendingMediaStreams();
+    }
   };
   useEffect(() => {
     if (instanceConnectionState.get('instanceProvisioned') === true && instanceConnectionState.get('readyToConnect') === true) {
@@ -49,9 +51,10 @@ const GameserverTest = (props: Props) => {
   }, [instanceConnectionState]);
   return (
     <Button onClick={gsProvision}>
-      <Gamepad />
+      {MediaStreamComponent?.instance?.mediaStream == null && <VideoCall /> }
+      {MediaStreamComponent?.instance?.mediaStream != null && <CallEnd /> }
     </Button>
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(GameserverTest);
+export default connect(mapStateToProps, mapDispatchToProps)(VideoChat);

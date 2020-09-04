@@ -89,6 +89,5 @@ export const handleUpdateFromServer: Behavior = (entity: Entity, args: null, del
       // Call behaviors on map
       handleInput(networkComponent.entity, {}, delta)
     })
-
   }
 }

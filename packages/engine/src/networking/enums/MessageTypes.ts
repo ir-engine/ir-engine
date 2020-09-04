@@ -1,4 +1,4 @@
-export enum BuiltinMessageTypes {
+export enum MessageTypes {
   Heartbeat = 0,
   ClientConnected = 1,
   ClientDisconnected = 2,
@@ -22,7 +22,7 @@ export enum BuiltinMessageTypes {
   WebRTCConsumeData = 20,
   WebRTCProduceData = 21,
   ReliableMessage = 22,
-  InitialState = 100,
+  Synchronization = 100,
   ClientInput = 101,
   StateUpdate = 102,
   Test = 250

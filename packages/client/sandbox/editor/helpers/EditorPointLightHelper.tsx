@@ -6,6 +6,8 @@ import {
 } from "three";
 import { addIsHelperFlag } from "./utils";
 export default class EditorPointLightHelper extends Mesh {
+  light: any;
+  lightDistanceHelper: Mesh<IcosahedronBufferGeometry, MeshBasicMaterial>;
   constructor(light, sphereSize) {
     const geometry = new SphereBufferGeometry(sphereSize, 4, 2);
     const material = new MeshBasicMaterial({ wireframe: true, fog: false });
@@ -28,12 +30,12 @@ export default class EditorPointLightHelper extends Mesh {
   }
   dispose() {
     this.geometry.dispose();
-    this.material.dispose();
+    (this.material as any).dispose();
     this.lightDistanceHelper.geometry.dispose();
     this.lightDistanceHelper.material.dispose();
   }
   update() {
-    this.material.color.copy(this.light.color);
+    (this.material as any).color.copy(this.light.color);
     const d = this.light.distance;
     if (d === 0.0) {
       this.lightDistanceHelper.visible = false;

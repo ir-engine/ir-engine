@@ -37,7 +37,8 @@ const DropContainer = (styled as any).div`
   width: 100%;
 `;
 
-export const ControlledStringInput = React.forwardRef(({ onChange, value, ...rest }, ref) => {
+export const ControlledStringInput = React.forwardRef((values, ref) => {
+  const { onChange, value, ...rest } = values as any
   const inputRef = useRef();
 
   const [tempValue, setTempValue] = useState(value);

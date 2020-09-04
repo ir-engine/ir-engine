@@ -19,11 +19,11 @@ function resize(imageWidth, imageHeight, thumbWidth, thumbHeight) {
   return { w: w, h: h, x: x, y: y };
 }
 export async function generateImageFileThumbnail(
-  file,
-  width,
-  height,
-  crop,
-  background
+  file?,
+  width?,
+  height?,
+  crop?,
+  background?
 ) {
   const url = URL.createObjectURL(file);
   const img = new Image();
@@ -33,13 +33,13 @@ export async function generateImageFileThumbnail(
     img.onerror = reject;
   });
   URL.revokeObjectURL(url);
-  return generateMediaThumbnail(img, width, height, crop, background);
+  return generateMediaThumbnail(img, width, height, background);
 }
 export async function generateVideoFileThumbnail(
-  file,
-  width,
-  height,
-  background
+  file?,
+  width?,
+  height?,
+  background?
 ) {
   const url = URL.createObjectURL(file);
   const video = document.createElement("video");
@@ -57,7 +57,7 @@ export async function generateVideoFileThumbnail(
   return generateMediaThumbnail(video, width, height, background);
 }
 export async function generateMediaThumbnail(
-  el,
+  el?,
   width = 256,
   height = 256,
   background = "#000"

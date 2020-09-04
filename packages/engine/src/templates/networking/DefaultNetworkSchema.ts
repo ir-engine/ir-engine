@@ -1,4 +1,4 @@
-import { BuiltinMessageTypes } from '../../networking/enums/MessageTypes';
+import { MessageTypes } from '../../networking/enums/MessageTypes';
 import { NetworkPrefab } from '../../networking/interfaces/NetworkPrefab';
 import { NetworkSchema } from '../../networking/interfaces/NetworkSchema';
 import { NetworkPlayerCharacter } from '../character/prefabs/NetworkPlayerCharacter';
@@ -18,7 +18,7 @@ export const DefaultPrefabs: Array<{
 export const DefaultNetworkSchema: NetworkSchema = {
   transport: null,
   messageTypes: {
-    ...BuiltinMessageTypes,
+    ...MessageTypes,
     ...DefaultMessageTypes
   },
   messageHandlers: {

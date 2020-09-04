@@ -3,7 +3,7 @@ import ErrorDialog from "../dialogs/ErrorDialog";
 import ProgressDialog from "../dialogs/ProgressDialog";
 import { DialogContext } from "../contexts/DialogContext";
 import { EditorContext } from "../contexts/EditorContext";
-import { AllFileTypes } from "../assets/fileTypes";
+import { AllFileTypes } from "./fileTypes";
 export default function useUpload(options = {}) {
   const editor = useContext(EditorContext);
   const { showDialog, hideDialog } = useContext(DialogContext);

@@ -4,6 +4,12 @@
  */
 
 export default class History {
+  undos: any[];
+  redos: any[];
+  lastCmdTime: Date;
+  idCounter: number;
+  commandUpdatesEnabled: boolean;
+  debug: boolean;
   constructor() {
     this.undos = [];
     this.redos = [];

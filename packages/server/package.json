@@ -112,6 +112,7 @@
     "bent": "^7.3.0",
     "body-parser": "^1.19.0",
     "camelcase": "^6.0.0",
+    "cannon-es-debugger": "^0.0.3",
     "chargebee": "^2.5.7",
     "circular-dependency-plugin": "^5.2.0",
     "compression": "^1.7.4",
