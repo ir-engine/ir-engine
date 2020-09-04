@@ -11,9 +11,10 @@ import { AssetLoader } from "@xr3ngine/engine/src/assets/components/AssetLoader"
 import { AssetType } from '@xr3ngine/engine/src/assets/enums/AssetType';
 import { AssetClass } from '@xr3ngine/engine/src/assets/enums/AssetClass';
 
-import { staticWorldColliders } from './staticWorldColliders'
-import { rigidBodyBox } from './rigidBodyBox'
-import { rigidBodyBox2 } from './rigidBodyBox2'
+import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders"
+import { CarController } from "@xr3ngine/engine/src/templates/car/prefabs/CarController"
+import { rigidBodyBox } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox"
+import { rigidBodyBox2 } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox2"
 import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
 import { AmbientLight, Color } from 'three';
 import { PositionalAudio, Mesh, SphereBufferGeometry, MeshPhongMaterial  } from 'three';
@@ -25,7 +26,7 @@ import { TransformComponent } from '@xr3ngine/engine/src/transform/components/Tr
 import { Body, Shape } from "cannon-es"
 import debug from "cannon-es-debugger"
 import { PhysicsManager } from '@xr3ngine/engine/src/physics/components/PhysicsManager';
-import { CarController } from './CarController'
+
 
 export const EnginePage: FunctionComponent = (props: any) => {
 

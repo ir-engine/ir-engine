@@ -14,6 +14,9 @@ import { DefaultInput } from '../shared/DefaultInput';
 import { jumpStart } from "./behaviors/jumpStart";
 import { move } from './behaviors/move';
 import { rotateAround } from './behaviors/rotate';
+import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
+import { getInCar } from '@xr3ngine/engine/src/physics/behaviors/getInCarBehavior';
+
 
 export const CharacterInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -137,6 +140,7 @@ export const CharacterInputSchema: InputSchema = {
       // [MouseButtons.MiddleButton]: DefaultInput.INTERACT
     },
     axes: {
+      mouseMovement: DefaultInput.MOUSE_MOVEMENT,
       mousePosition: DefaultInput.SCREENXY,
       mouseClickDownPosition: DefaultInput.SCREENXY_START,
       mouseClickDownTransformRotation: DefaultInput.ROTATION_START
@@ -173,7 +177,9 @@ export const CharacterInputSchema: InputSchema = {
     a: DefaultInput.LEFT,
     s: DefaultInput.BACKWARD,
     d: DefaultInput.RIGHT,
-    ' ': DefaultInput.JUMP
+    ' ': DefaultInput.JUMP,
+    p: DefaultInput.POINTER_LOCK,
+    c: DefaultInput.SWITCH_CAR
     },
   // Map how inputs relate to each other
   inputRelationships: {
@@ -198,6 +204,26 @@ export const CharacterInputSchema: InputSchema = {
   //   }
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
+    [DefaultInput.SWITCH_CAR]: {
+      [BinaryValue.ON]: {
+        started: [
+           {
+             behavior: getInCar,
+             args: {}
+           }
+        ]
+      }
+    },
+    [DefaultInput.POINTER_LOCK]: {
+      [BinaryValue.ON]: {
+        started: [
+           {
+             behavior: cameraPointerLock,
+             args: {}
+           }
+        ]
+      }
+    },
     [DefaultInput.JUMP]: {
       [BinaryValue.ON]: {
         started: [

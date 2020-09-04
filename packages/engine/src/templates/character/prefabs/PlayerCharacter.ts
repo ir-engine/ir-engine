@@ -3,7 +3,6 @@ import { Input } from "@xr3ngine/engine/src/input/components/Input";
 import { State } from "@xr3ngine/engine/src/state/components/State";
 import { Subscription } from "@xr3ngine/engine/src/subscription/components/Subscription";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
-import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
 import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 import { CharacterInputSchema } from "@xr3ngine/engine/src/templates/character/CharacterInputSchema";
 import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
@@ -16,6 +15,7 @@ import { setCameraPosition } from "../../../camera/behaviors/setCameraPosition";
 import { initializeCharacter } from "../behaviors/initializeCharacter";
 import { attachCamera } from "@xr3ngine/engine/src/camera/behaviors/attachCamera";
 import { CharacterComponent } from "../components/CharacterComponent";
+import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
 import { LocalInputReceiver } from "@xr3ngine/engine/src/input/components/LocalInputReceiver";
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
