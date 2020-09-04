@@ -77,7 +77,7 @@ export class InputSystem extends System {
       if (!hasComponent(entity, Input)) {
         return
       }
-      handleInput(entity, { delta })
+      handleInput(entity, { }, delta)
     });
 
     // Called when input component is added to entity

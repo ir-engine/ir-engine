@@ -4,26 +4,22 @@ import { Model } from "../classes/Model";
 
 const inputKeySchema = createSchema('button', {
   input: uint8,
-  value: uint8
+  value: uint8,
+  lifecycleValue: uint8
 });
 
 const inputAxis1DSchema = createSchema('axis1d', {
   input: uint8,
-  value: float32
+  value: float32,
+  lifecycleValue: uint8
 });
 
 const inputAxis2DSchema = createSchema('axis2d', {
   input: uint8,
   valueX: float32,
-  valueY: float32
+  valueY: float32,
+  lifecycleValue: uint8
 });
-
-// const inputAxis3DSchema = createSchema('axis3d', {
-//   input: uint8,
-//   valueX: float32,
-//   valueY: float32,
-//   valueZ: float32,
-// });
 
 const inputKeyArraySchema = createSchema('main', {
   networkId: uint16,

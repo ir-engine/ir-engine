@@ -43,6 +43,7 @@ export interface InputSchema {
       [key: number]: {
         started?: BehaviorValue[]
         continued?: BehaviorValue[]
+        ended?: BehaviorValue[]
       }
     }
   }
@@ -51,6 +52,7 @@ export interface InputSchema {
     [key: number]: {
       started?: BehaviorValue[]
       continued?: BehaviorValue[]
+      ended?: BehaviorValue[]
     }
   }
 }

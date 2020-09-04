@@ -25,13 +25,13 @@ export const sendClientInput = (entity: Entity): void => {
   for (const key in input.data.keys()) {
     switch (input.data.keys[key].type) {
       case InputType.BUTTON:
-        inputs.buttons[key] = { input: key, value: input.data.keys[key].value }
+        inputs.buttons[key] = { input: key, value: input.data.keys[key].value, lifecycleState: input.data.keys[key].lifecycleState }
         break;
       case InputType.ONEDIM:
-        inputs.axes1d[key] = { input: key, value: input.data.keys[key].value }
+        inputs.axes1d[key] = { input: key, value: input.data.keys[key].value, lifecycleState: input.data.keys[key].lifecycleState }
         break;
       case InputType.TWODIM:
-        inputs.axes2d[key] = { input: key, valueX: input.data.keys[key].value[0], valueY: input.data.keys[key].value[1] }
+        inputs.axes2d[key] = { input: key, valueX: input.data.keys[key].value[0], valueY: input.data.keys[key].value[1], lifecycleState: input.data.keys[key].lifecycleState }
         break;
       default:
         console.error("Input type has no network handler (maybe we should add one?)")
