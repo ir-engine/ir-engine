@@ -24,10 +24,16 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
     springRotation(entity, null, deltaTime);
     rotateModel(entity);
     actorTransform.position.set(
-      actor.actorCapsule.body.interpolatedPosition.x,
-      actor.actorCapsule.body.interpolatedPosition.y,
-      actor.actorCapsule.body.interpolatedPosition.z
+      actor.actorCapsule.body.position.x,
+      actor.actorCapsule.body.position.y,
+      actor.actorCapsule.body.position.z
     );
+
+    // actorTransform.position.set(
+    //   actor.actorCapsule.body.interpolatedPosition.x,
+    //   actor.actorCapsule.body.interpolatedPosition.y,
+    //   actor.actorCapsule.body.interpolatedPosition.z
+    // );
   }
   else {
     let newPos = new Vector3();

@@ -1,6 +1,8 @@
 import { Vec3, Material, Body, Sphere } from "cannon-es";
 import { Component } from "../../ecs/classes/Component";
 import { setDefaults } from "../../templates/character/functions/setDefaults";
+import { Types } from "../../ecs/types/Types";
+import { Vector3 } from "three";
 
 export class CapsuleCollider extends Component<CapsuleCollider>
 {
@@ -10,8 +12,20 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 
 	constructor(options: any)
 	{
-		super()
-		let defaults = {
+		super(options)
+		this.reapplyOptions(options)
+	}
+
+	copy(options) {
+		const newThis = super.copy(options)
+
+		newThis.reapplyOptions(options)
+
+		return newThis
+	}
+
+	reapplyOptions(options:any) {
+		const defaults = {
 			mass: 0,
 			position: new Vec3(),
 			height: 0.5,
@@ -22,16 +36,16 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 		options = setDefaults(options, defaults);
 		this.options = options;
 
-		let mat = new Material('capsuleMat');
+		const mat = new Material('capsuleMat');
 		mat.friction = options.friction;
 
-		let capsuleBody = new Body({
+		const capsuleBody = new Body({
 			mass: options.mass,
-			position: options.position
+			position: new Vec3( options.position.x, options.position.y, options.position.z )
 		});
 
 		// Compound shape
-		let sphereShape = new Sphere(options.radius);
+		const sphereShape = new Sphere(options.radius);
 
 		// Materials
 		capsuleBody.material = mat;
@@ -44,3 +58,12 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 		this.body = capsuleBody;
 	}
 }
+
+CapsuleCollider.schema = {
+	mass: { type: Types.Number, default: 0 },
+	position: { type: Types.Vector3Type, default: new Vector3( 0, 0, 0 ) },
+	height: { type: Types.Number, default: 0.5 },
+	radius: { type: Types.Number, default: 0.3 },
+	segments: { type: Types.Number, default: 8 },
+	friction: { type: Types.Number, default: 0.3 },
+};

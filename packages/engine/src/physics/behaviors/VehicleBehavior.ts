@@ -1,13 +1,14 @@
 import { Quaternion, Box, Cylinder, Vec3, RaycastVehicle, Body } from 'cannon-es';
-
+import { Entity } from '../../ecs/classes/Entity';
 import { Behavior } from '../../common/interfaces/Behavior';
+import { getMutableComponent, getComponent } from '../../ecs/functions/EntityFunctions';
+import { Object3DComponent } from '../../common/components/Object3DComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 
-import { getMutableComponent, getComponent } from '../../ecs/functions/EntityFunctions';
 import { PhysicsManager } from '../components/PhysicsManager';
 import { VehicleBody } from '../../physics/components/VehicleBody';
-import { Object3DComponent } from '../../common/components/Object3DComponent';
-import { Entity } from '../../ecs/classes/Entity';
+
+
 import { createConvexGeometry } from './PhysicsBehaviors';
 
 const quaternion = new Quaternion();
@@ -27,29 +28,35 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
     }
   } else if (args.phase == 'onUpdate') {
     const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
-    const object = getComponent<Object3DComponent>(entity, Object3DComponent).value;
+    let object = getComponent<Object3DComponent>(entity, Object3DComponent);
 
-    if(object.userData){
-      if(object.userData.vehicle){
-      const vehicle = object.userData.vehicle.chassisBody;
+    if(object.value.userData){
+      //if(object.userData.vehicle){
+      const vehicle = object.value.userData.vehicle.chassisBody;
 
-      transform.position[0] = vehicle.position.x;
-      transform.position[1] = vehicle.position.y;
-      transform.position[2] = vehicle.position.z;
-      // transform.position.y += 0.6
+      transform.position.set(
+        vehicle.position.x,
+        vehicle.position.y,
+        vehicle.position.z
+      )
 
-      transform.rotation[0] = vehicle.quaternion.x
-      transform.rotation[1] = vehicle.quaternion.y
-      transform.rotation[2] = vehicle.quaternion.z
-      transform.rotation[3] = vehicle.quaternion.w
-    }
+      transform.rotation.set(
+        vehicle.quaternion.x,
+        vehicle.quaternion.y,
+        vehicle.quaternion.z,
+        vehicle.quaternion.w
+      )
+    //}
   } else {
     console.warn("User data for vehicle not found")
   }
 
 
   } else if (args.phase == 'onRemoved') {
-    const object = getComponent<Object3DComponent>(entity, Object3DComponent).value;
+    const object = getComponent<Object3DComponent>(entity, Object3DComponent, true)?.value;
+    if (!object) {
+      return
+    }
     const body = object.userData.vehicle;
     delete object.userData.vehicle;
     PhysicsManager.instance.physicsWorld.removeBody(body);
@@ -60,16 +67,16 @@ export function createVehicleBody (entity: Entity, mesh: any): [RaycastVehicle, 
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
   let chassisBody;
   if (mesh) {
-    chassisBody = createConvexGeometry(entity, mesh);
+    //chassisBody = createConvexGeometry(entity, mesh);
   } else {
     const chassisShape = new Box(new Vec3(1, 1.2, 3));
     chassisBody = new Body({ mass: 150 });
     chassisBody.addShape(chassisShape);
   }
   //  let
-  chassisBody.position.x = transform.position[0]
-  chassisBody.position.y = transform.position[1]
-  chassisBody.position.z = transform.position[2]
+  chassisBody.position.x = transform.position.x
+  chassisBody.position.y = transform.position.y
+  chassisBody.position.z = transform.position.z
   //  chassisBody.angularVelocity.set(0, 0, 0.5);
   const options = {
     radius: 0.5,

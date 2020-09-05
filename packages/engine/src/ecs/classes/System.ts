@@ -66,7 +66,7 @@ export abstract class System {
   _queries: {} = {}
   abstract execute (delta: number, time: number): void
 
-  canExecute (): boolean {
+  canExecute (delta: number): boolean {
     if (this._mandatoryQueries.length === 0) return true;
 
     for (let i = 0; i < this._mandatoryQueries.length; i++) {
@@ -218,17 +218,17 @@ export abstract class System {
     for (const queryName in this.queryResults) {
       const query = this.queryResults[queryName];
       if (query.added) {
-        query.added = []
+        query.added.length = 0
       }
       if (query.removed) {
-        query.removed = []
+        query.removed.length = 0
       }
       if (query.changed) {
         if (Array.isArray(query.changed)) {
-          query.changed = []
+          query.changed.length = 0
         } else {
           for (const name in query.changed as any) {
-            (query.changed as any)[name] = []
+            (query.changed as any)[name].length = 0
           }
         }
       }

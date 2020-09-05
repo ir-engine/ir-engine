@@ -10,6 +10,7 @@ import { MouseInput } from '../../input/enums/MouseInput';
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
 import { DefaultInput } from '../shared/DefaultInput';
+import { setArcadeVelocityTarget } from './behaviors/setArcadeVelocityTarget';
 
 export const CharacterInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -182,8 +183,23 @@ export const CharacterInputSchema: InputSchema = {
     [DefaultInput.FORWARD]: {
       [BinaryValue.ON]: {
         started: [
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              z: 1
+            }
+          }
+          // {
+          //   behavior: updateMovementState
+          // }
         ],
         continued: [
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              z: 1
+            }
+          }
         ]
       },
       [BinaryValue.OFF]: {
@@ -196,8 +212,23 @@ export const CharacterInputSchema: InputSchema = {
     [DefaultInput.BACKWARD]: {
       [BinaryValue.ON]: {
         started: [
+          // {
+          //   behavior: updateMovementState
+          // },
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              z: -1
+            }
+          }
         ],
         continued: [
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              z: -1
+            }
+          }
         ]
       },
       [BinaryValue.OFF]: {
@@ -210,8 +241,23 @@ export const CharacterInputSchema: InputSchema = {
     [DefaultInput.LEFT]: {
       [BinaryValue.ON]: {
         started: [
+          // {
+          //   behavior: updateMovementState
+          // },
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              x: 1
+            }
+          }
         ],
         continued: [
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              x: 1
+            }
+          }
         ]
       },
       [BinaryValue.OFF]: {
@@ -224,8 +270,23 @@ export const CharacterInputSchema: InputSchema = {
     [DefaultInput.RIGHT]: {
       [BinaryValue.ON]: {
         started: [
+          // {
+          //   behavior: updateMovementState
+          // },
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              x: -1
+            }
+          }
         ],
         continued: [
+          {
+            behavior: setArcadeVelocityTarget,
+            args: {
+              x: -1
+            }
+          }
         ]
       },
       [BinaryValue.OFF]: {
