@@ -1,3 +1,4 @@
+import { connectToServer } from "@xr3ngine/engine/src/networking/functions/connectToServer";
 import { Dispatch } from 'redux';
 import io from 'socket.io-client';
 import { client } from '../feathers';
@@ -5,7 +6,6 @@ import {
   instanceServerConnected,
   instanceServerProvisioned
 } from './actions';
-import { connectToServer } from "@xr3ngine/engine/src/networking/functions/connectToServer"
 
 export function provisionInstanceServer (locationId: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
