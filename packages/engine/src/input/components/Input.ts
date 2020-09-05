@@ -1,27 +1,43 @@
 import { BehaviorComponent } from '../../common/components/BehaviorComponent';
-import { Binary, NumericalType } from '../../common/types/NumericalTypes';
+import { BinaryType, NumericalType } from '../../common/types/NumericalTypes';
 import { Types } from '../../ecs/types/Types';
 import { InputSchema } from '../interfaces/InputSchema';
 import { InputValue } from '../interfaces/InputValue';
 import { InputAlias } from '../types/InputAlias';
 
-// Props that don't get automatically added by the BehaviorComponent generic
+/** 
+ * Interface with props that don't get automatically added by the BehaviorComponent generic
+ * 
+ * @property {Boolean} gamepadConnected Connection a new gamepad
+ * @property {Number} gamepadThreshold Threshold value from 0 to 1
+ * @property {Binary[]} gamepadButtons Map gamepad buttons
+ * @property {Number[]} gamepadInput Map gamepad buttons to abstract input
+*/
 export interface InputProps {
   gamepadConnected: boolean
   gamepadThreshold: number
-  gamepadButtons: Binary[]
+  gamepadButtons: BinaryType[]
   gamepadInput: number[]
 }
 
-// Input inherits from BehaviorComponent, which adds .map and .data
+/**
+ * Input inherits from BehaviorComponent, which adds .map and .data
+ * 
+ * @property {Boolean} gamepadConnected Connection a new gamepad
+ * @property {Number} gamepadThreshold Threshold value from 0 to 1
+ * @property {Binary[]} gamepadButtons Map gamepad buttons
+ * @property {Number[]} gamepadInput Map gamepad buttons to abstract input
+ */
 export class Input extends BehaviorComponent<InputAlias, InputSchema, InputValue<NumericalType>> {
   gamepadConnected: boolean
   gamepadThreshold: number
-  gamepadButtons: Binary[]
+  gamepadButtons: BinaryType[]
   gamepadInput: number[]
 }
 
-// Set schema to itself plus gamepad data
+/**
+ * Set schema to itself plus gamepad data
+ */
 Input.schema = {
   ...Input.schema,
   gamepadConnected: { type: Types.Boolean, default: false },

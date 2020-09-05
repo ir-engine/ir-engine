@@ -1,14 +1,14 @@
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 
-interface PropTypes {
+export class NetworkObject extends Component<NetworkObject> {
   networkId: number
-  ownerId: number
+  ownerId: string
+  componentMap: any
 }
 
-export class NetworkObject extends Component<PropTypes> {}
-
 NetworkObject.schema = {
-  ownerId: { type: Types.Number },
-  networkId: { type: Types.Number }
+  ownerId: { type: Types.String },
+  networkId: { type: Types.Number },
+  componentMap: { type: Types.Ref }
 };

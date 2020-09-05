@@ -1,25 +1,55 @@
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
+import { observable } from 'mobx'
 
 export class MediaStreamComponent extends Component<any> {
-  static instance: MediaStreamComponent = null
-  public videoPaused = false
-  public audioPaused = false
-  public mediaStream: MediaStream
+  @observable static instance: MediaStreamComponent = null
+  @observable public videoPaused = false
+  @observable public audioPaused = false
+  @observable public mediaStream: MediaStream
+  @observable public audioGainNode: GainNode
 
-  localScreen
-  camVideoProducer
-  camAudioProducer
-  screenVideoProducer
-  screenAudioProducer
-  consumers: any[] = []
-  screenShareVideoPaused = false
-  screenShareAudioPaused = false
+  @observable localScreen
+  @observable camVideoProducer
+  @observable camAudioProducer
+  @observable screenVideoProducer
+  @observable screenAudioProducer
+  @observable consumers = []
+  @observable screenShareVideoPaused = false
+  @observable screenShareAudioPaused = false
+  @observable initialized = false
   constructor () {
     super();
     MediaStreamComponent.instance = this;
     this.consumers = [];
     this.mediaStream = null;
+  }
+
+  dispose():void {
+    super.dispose();
+    MediaStreamComponent.instance = null;
+    this.consumers = [];
+    this.mediaStream = null;
+  }
+
+  public setVideoPaused (state: boolean): boolean {
+    this.videoPaused = state
+    return this.videoPaused
+  }
+
+  public setAudioPaused (state: boolean): boolean {
+    this.audioPaused = state
+    return this.audioPaused
+  }
+
+  public setScreenShareVideoPaused (state: boolean): boolean {
+    this.screenShareVideoPaused = state
+    return this.screenShareVideoPaused
+  }
+
+  public setScreenShareAudioPaused (state: boolean): boolean {
+    this.screenShareAudioPaused = state
+    return this.screenShareAudioPaused
   }
 
   public toggleVideoPaused (): boolean {
@@ -30,6 +60,16 @@ export class MediaStreamComponent extends Component<any> {
   public toggleAudioPaused (): boolean {
     this.audioPaused = !this.audioPaused;
     return this.audioPaused;
+  }
+
+  public toggleScreenShareVideoPaused (): boolean {
+    this.screenShareVideoPaused = !this.screenShareVideoPaused;
+    return this.screenShareVideoPaused;
+  }
+
+  public toggleScreenShareAudioPaused (): boolean {
+    this.screenShareAudioPaused = !this.screenShareAudioPaused;
+    return this.screenShareAudioPaused;
   }
 }
 

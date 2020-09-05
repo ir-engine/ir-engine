@@ -1,12 +1,16 @@
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { Vector2 } from '../../common/types/NumericalTypes';
-import { getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { getMutableComponent, getComponent } from '../../ecs/functions/EntityFunctions';
+import { Object3DComponent } from '../../common/components/Object3DComponent';
 import { VehicleComponent } from '../components/VehicleComponent';
+import { VehicleBody } from '../components/VehicleBody';
+import { Vector2Type } from '../../common/types/NumericalTypes';
 
-export const drive: Behavior = (entity: Entity, args: { value: Vector2 }): void => {
+export const drive: Behavior = (entity: Entity, args: { value: Vector2Type }): void => {
   const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent);
-  const vehicle = vehicleComponent.vehicle;
+  const object = getComponent<Object3DComponent>(entity, Object3DComponent).value;
+  const vehicle = object.userData.vehicle
+  //const vehicle = vehicleComponent.vehicle;
 
   vehicle.setBrake(0, 0);
   vehicle.setBrake(0, 1);

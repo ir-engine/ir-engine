@@ -1,7 +1,8 @@
-import { EffectAttribute } from '../effects/Effect';
+import { Effect, EffectAttribute } from '../effects/Effect';
 import { EffectMaterial, Section } from '../materials/EffectMaterial';
 import { Pass } from './Pass';
 import { BlendFunction } from '../effects/blending/BlendFunction';
+import { Camera, WebGLRenderer, WebGLRenderTarget } from 'three';
 
 /**
  * Finds and collects substrings that match the given regular expression.
@@ -176,7 +177,7 @@ function integrateEffect (prefix, effect, shaderParts, blendModes, defines, unif
  */
 
 export class EffectPass extends Pass {
-  effects: any[];
+  effects: Effect[];
   skipRendering: boolean;
   uniforms: number;
   varyings: number;
@@ -195,7 +196,7 @@ export class EffectPass extends Pass {
 	 * @param {...Effect} effects - The effects that will be rendered by this pass.
 	 */
 
-  constructor (camera, ...effects) {
+  constructor (camera:Camera, ...effects) {
     super('EffectPass');
 
     this.setFullscreenMaterial(new EffectMaterial(null, null, null, camera));
@@ -265,7 +266,7 @@ export class EffectPass extends Pass {
 	 * @type {Boolean}
 	 */
 
-  get encodeOutput () {
+  get encodeOutput ():boolean {
     return (this.getFullscreenMaterial().defines.ENCODE_OUTPUT !== undefined);
   }
 
@@ -275,7 +276,7 @@ export class EffectPass extends Pass {
 	 * @type {Boolean}
 	 */
 
-  set encodeOutput (value) {
+  set encodeOutput (value:boolean) {
     if (this.encodeOutput !== value) {
       const material = this.getFullscreenMaterial();
       material.needsUpdate = true;
@@ -322,7 +323,7 @@ export class EffectPass extends Pass {
 	 * @param {WebGLRenderer} renderer - The renderer.
 	 */
 
-  verifyResources (renderer) {
+  verifyResources (renderer:WebGLRenderer):void {
     const capabilities = renderer.capabilities;
     let max = Math.min(capabilities.maxFragmentUniforms, capabilities.maxVertexUniforms);
 
@@ -498,7 +499,7 @@ export class EffectPass extends Pass {
 	 * @param {Boolean} [stencilTest] - Indicates whether a stencil mask is active.
 	 */
 
-  render (renderer, inputBuffer, outputBuffer, deltaTime, stencilTest) {
+  render (renderer:WebGLRenderer, inputBuffer:WebGLRenderTarget, outputBuffer:WebGLRenderTarget, deltaTime:number, stencilTest:boolean):void {
     const material = this.getFullscreenMaterial();
     const time = material.uniforms.time.value + deltaTime;
 
@@ -567,6 +568,8 @@ export class EffectPass extends Pass {
     for (const effect of this.effects) {
       effect.dispose();
     }
+
+    this.effects.length = 0
   }
 
   /**

@@ -16,6 +16,13 @@ export class EventDispatcher {
     };
   }
 
+  public reset(): void {
+    Object.keys(this._listeners).forEach(key => {
+      delete this._listeners[key]
+    })
+    this.resetCounters()
+  }
+
   /**
    * Add an event listener
    * @param {String} eventName Name of the event to listen

@@ -2,6 +2,7 @@ import { Prefab } from '../interfaces/Prefab';
 import { Engine } from '../../ecs/classes/Engine';
 import { Entity } from '../../ecs/classes/Entity';
 import { createEntity, addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { Quaternion, Vector3 } from "three";
 
 export function createPrefab (prefab: Prefab): Entity {
   const entity = createEntity();
@@ -22,9 +23,19 @@ prefab.components?.forEach(component => {
   // Set initialization data for each key
   Object.keys(component.data).forEach(initValue => {
     // Get the component on the entity, and set it to the initializing value from the prefab
-    addedComponent[initValue] = component.data[initValue];
+    if (addedComponent[initValue] instanceof Vector3) {
+
+      addedComponent[initValue].fromArray(component.data[initValue])
+
+      console.log(addedComponent[initValue]);
+    } else if (addedComponent[initValue] instanceof Quaternion) {
+      addedComponent[initValue].fromArray(component.data[initValue])
+    } else {
+      addedComponent[initValue] = component.data[initValue];
+    }
   });
 });
   }
+
   return entity;
 }

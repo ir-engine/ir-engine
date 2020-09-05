@@ -25,7 +25,8 @@
   "exclude": [
     "node_modules",
     "tests/**",
-    "../engine/tests"
+    "../engine/tests",
+    "sandbox/**"
   ],
   "include": [
     "next-env.d.ts",

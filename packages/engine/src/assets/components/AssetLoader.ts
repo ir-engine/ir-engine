@@ -5,13 +5,14 @@ import { AssetType } from '../enums/AssetType';
 import { AssetClassAlias, AssetsLoadedHandler, AssetTypeAlias } from '../types/AssetTypes';
 
 export class AssetLoader extends Component<AssetLoader> {
+  loaded = false
   url: string = ''
   assetType: AssetTypeAlias = null
   assetClass: AssetClassAlias = null
-  receiveShadow: boolean = false
-  castShadow: boolean = false
+  receiveShadow = false
+  castShadow = false
   envMapOverride: any = null
-  append: boolean = true
+  append = true
   onLoaded: AssetsLoadedHandler = null
   parent: any = null
 }
@@ -19,6 +20,7 @@ AssetLoader.schema = {
   assetType: { default: AssetType.glTF, type: Types.Number },
   assetClass: { default: AssetClass, type: Types.Number },
   url: { default: '', type: Types.Number },
+  loaded: { default: false, type: Types.Boolean },
   receiveShadow: { default: false, type: Types.Boolean },
   castShadow: { default: false, type: Types.Boolean },
   envMapOverride: { default: null, type: Types.Ref },

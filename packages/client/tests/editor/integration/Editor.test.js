@@ -49,7 +49,7 @@ test("Editor should load new scene", withPage("/projects/new"), async (t, page) 
   t.snapshot(serializedScene);
 });
 
-const v1TestSceneUrl = getFixtureUrl("V1TestScene.spoke");
+const v1TestSceneUrl = getFixtureUrl("V1TestScene.editor");
 
 test("Editor should load V1TestScene", withPage(`/projects/new?template=${v1TestSceneUrl}`), async (t, page) => {
   const sceneHandle = await waitForProjectLoaded(page);
@@ -191,13 +191,13 @@ test("Editor should load V1TestScene", withPage(`/projects/new?template=${v1Test
   const image1Entity = entities.find(e => e.name === "Image");
   t.is(image1Entity.index, 13);
   const image1Props = image1Entity.components.find(c => c.name === "image").props;
-  t.is(image1Props.src, "https://hubs.local:9090/test-assets/spoke-logo.png");
+  t.is(image1Props.src, "https://hubs.local:9090/test-assets/editor-logo.png");
   t.is(image1Props.projection, "flat");
 
   const image2Entity = entities.find(e => e.name === "Image 1");
   t.is(image2Entity.index, 16);
   const image2Props = image2Entity.components.find(c => c.name === "image").props;
-  t.is(image2Props.src, "https://hubs.local:9090/test-assets/spoke-logo.png");
+  t.is(image2Props.src, "https://hubs.local:9090/test-assets/editor-logo.png");
   t.is(image2Props.projection, "360-equirectangular");
 
   const video1Entity = entities.find(e => e.name === "Video");
@@ -245,7 +245,7 @@ test("Editor should load V1TestScene", withPage(`/projects/new?template=${v1Test
   t.is(floorPlanEntity.index, 18);
 });
 
-const v3TestSceneUrl = getFixtureUrl("V3TestScene.spoke");
+const v3TestSceneUrl = getFixtureUrl("V3TestScene.editor");
 
 test("Editor should load V3TestScene", withPage(`/projects/new?template=${v3TestSceneUrl}`), async (t, page) => {
   const sceneHandle = await waitForProjectLoaded(page);
@@ -253,7 +253,7 @@ test("Editor should load V3TestScene", withPage(`/projects/new?template=${v3Test
   t.snapshot(serializedScene);
 });
 
-const v4TestSceneUrl = getFixtureUrl("V4TestScene.spoke");
+const v4TestSceneUrl = getFixtureUrl("V4TestScene.editor");
 
 test("Editor should load V4TestScene", withPage(`/projects/new?template=${v4TestSceneUrl}`), async (t, page) => {
   const sceneHandle = await waitForProjectLoaded(page);

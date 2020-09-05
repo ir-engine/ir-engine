@@ -13,6 +13,8 @@ export function Timer (
   let frameId;
 
   function onFrame (time) {
+    frameId = (isBrowser ? requestAnimationFrame : requestAnimationFrameOnServer)(onFrame);
+
     if (last !== null) {
       delta = (time - last) / 1000
       accumulated = accumulated + delta;
@@ -21,7 +23,6 @@ export function Timer (
     }
     last = time;
     if (callbacks.render) callbacks.render();
-    frameId = (isBrowser ? requestAnimationFrame : requestAnimationFrameOnServer)(onFrame);
   }
 
   function start () {
@@ -40,6 +41,75 @@ export function Timer (
 }
 function requestAnimationFrameOnServer (f) {
   setImmediate(() => f(Date.now()));
+}
+
+export class FixedStepsRunner {
+  timestep: number
+  limit: number
+  updatesLimit: number
+
+  readonly subsequentErrorsLimit = 10
+  readonly subsequentErrorsResetLimit = 1000
+  private subsequentErrorsShown = 0
+  private shownErrorPreviously = false
+  private accumulator = 0
+  readonly callback:(time:number)=>void
+
+  constructor(updatesPerSecond:number, callback:(time:number)=>void) {
+    this.timestep = 1 / updatesPerSecond
+    this.limit = this.timestep * 1000
+    this.updatesLimit = updatesPerSecond
+    this.callback = callback
+  }
+
+  canRun(delta:number):boolean {
+    return (this.accumulator + delta) > this.timestep
+  }
+
+  run(delta:number):void {
+    const start = now()
+    let timeUsed = 0
+    let updatesCount = 0
+
+    this.accumulator += delta
+
+    let accumulatorDepleted = this.accumulator < this.timestep
+    let timeout = timeUsed > this.limit
+    let updatesLimitReached = updatesCount > this.updatesLimit
+    while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
+      this.callback(this.accumulator)
+
+      this.accumulator -= this.timestep
+      ++updatesCount
+
+      timeUsed = now() - start
+      accumulatorDepleted = this.accumulator < this.timestep
+      timeout = timeUsed > this.limit
+      updatesLimitReached = updatesCount >= this.updatesLimit
+    }
+
+    if (!accumulatorDepleted) {
+      if (this.subsequentErrorsShown <= this.subsequentErrorsLimit) {
+        console.error('Fixed timesteps SKIPPED time used ', timeUsed, 'ms (of ', this.limit, 'ms), made ', updatesCount, 'updates. skipped ', Math.floor(this.accumulator / this.timestep))
+        console.log('accumulatorDepleted', accumulatorDepleted, 'timeout', timeout, 'updatesLimitReached', updatesLimitReached)
+      } else {
+        if (this.subsequentErrorsShown > this.subsequentErrorsResetLimit) {
+          console.error('FixedTimestep', this.subsequentErrorsResetLimit, ' subsequent errors catched')
+          this.subsequentErrorsShown = this.subsequentErrorsLimit - 1
+        }
+      }
+
+      if (this.shownErrorPreviously) {
+        this.subsequentErrorsShown++
+      }
+      this.shownErrorPreviously = true
+
+      this.accumulator = this.accumulator % this.timestep
+    } else {
+      this.subsequentErrorsShown = 0
+      this.shownErrorPreviously = false
+    }
+  }
 }
 
 export function createFixedTimestep(updatesPerSecond:number, callback:(time:number)=>void):(delta:number)=>void {

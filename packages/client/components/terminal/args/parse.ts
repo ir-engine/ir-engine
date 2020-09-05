@@ -1,6 +1,6 @@
 import parser from 'minimist';
 
-export default function (argv, options) {
+export default function parse (argv, options) {
   // Override default option values
   Object.assign(this.config, options);
 

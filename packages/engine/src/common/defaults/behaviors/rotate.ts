@@ -1,68 +1,70 @@
-import { quat, vec3 } from 'gl-matrix';
 import { Entity } from '../../../ecs/classes/Entity';
 import { Input } from '../../../input/components/Input';
 import { InputType } from '../../../input/enums/InputType';
 import { InputAlias } from '../../../input/types/InputAlias';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
 import { Behavior } from '../../interfaces/Behavior';
-import { NumericalType, Vector2, Vector3, Vector4 } from '../../types/NumericalTypes';
-import { Actor } from '../components/Actor';
+import { NumericalType, Vector2Type, Vector3Type } from '../../types/NumericalTypes';
+import { CharacterComponent } from '../../../templates/character/components/CharacterComponent';
 import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
+import { Quaternion, Euler, Vector3 } from 'three';
 
-let actor: Actor;
+let actor: CharacterComponent;
 let transform: TransformComponent;
-let inputValue: Vector2 | Vector3;
-let startValue: Vector2;
-const q: Vector4 = [0, 0, 0, 0];
-const qOut: Vector4 = [0, 0, 0, 0];
+let inputValue: Vector2Type | Vector3Type;
+let startValue: Vector2Type;
+const q: Quaternion = new Quaternion();
 let inputComponent: Input;
 let mouseDownPosition;
 let originalRotation;
+let valueX = 0, valueY = 0
+
+
+
 export const rotateAround: Behavior = (
   entity: Entity,
   args: { input: InputAlias, inputType: InputType, value: NumericalType },
   delta: number
 ): void => {
+/*
   inputComponent = getComponent(entity, Input);
-  actor = getComponent(entity, Actor) as Actor;
-  transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
+  actor = getComponent(entity, CharacterComponent) as CharacterComponent;
+  transform = getMutableComponent(entity, TransformComponent);
 
-  mouseDownPosition = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes.mouseClickDownPosition);
+  mouseDownPosition = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes[MouseInput.MouseClickDownPosition]);
   originalRotation = inputComponent.data.get(
-    inputComponent.schema.mouseInputMap.axes.mouseClickDownTransformRotation
+    inputComponent.schema.mouseInputMap.axes[MouseInput.MouseClickDownTransformRotation]
   );
 
   if (mouseDownPosition == undefined || originalRotation == undefined) return;
 
   if (!inputComponent.data.has(args.input)) {
-    inputComponent.data.set(args.input, { type: args.inputType, value: vec3.create() });
+    inputComponent.data.set(args.input, { type: args.inputType, value: new Vector3() });
   }
 
-  quat.set(
-    qOut,
-    originalRotation.value[0],
-    originalRotation.value[1],
-    originalRotation.value[2],
-    originalRotation.value[3]
-  );
-  if (args.inputType === InputType.TWOD) {
+  if (args.inputType === InputType.TWODIM) {
     if (inputComponent.data.has(args.input)) {
-      inputValue = inputComponent.data.get(args.input).value as Vector2;
-      startValue = mouseDownPosition.value as Vector2;
-      quat.rotateY(qOut, qOut, (inputValue[0] - startValue[0]) * Math.PI);
-      quat.rotateX(qOut, qOut, -(inputValue[1] - startValue[1]) * Math.PI);
+
+      inputValue = inputComponent.data.get(args.input).value as Vector2Type;
+      startValue = mouseDownPosition.value as Vector2Type;
     }
+
   } else if (args.inputType === InputType.THREED) {
-    inputValue = inputComponent.data.get(args.input).value as Vector3;
-    quat.fromEuler(
-      q,
-      inputValue[0] * actor.rotationSpeedY * delta,
-      inputValue[1] * actor.rotationSpeedX * delta,
-      inputValue[2] * actor.rotationSpeedZ * delta
+    inputValue = inputComponent.data.get(args.input).value as Vector3Type;
+
+    const euler = new Euler(
+      inputValue[0] * actor.rotationSpeed * delta,
+      inputValue[1] * actor.rotationSpeed * delta,
+      inputValue[2] * actor.rotationSpeed * delta
+    )
+    
+      q.setFromEuler(
+        euler
     );
+
   } else {
     console.error('Rotation is only available for 2D and 3D inputs');
   }
-
-  transform.rotation = [qOut[0], qOut[1], qOut[2], qOut[3]];
+*/
+//  transform.rotation = [q[0], q[1], q[2], q[3]];
 };

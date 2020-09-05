@@ -1,0 +1,34 @@
+export const CharacterStateTypes = {
+  // Main States
+  IDLE: 0,
+  JUMP_IDLE: 1,
+  JUMP_RUNNING: 2,
+
+  FALLING: 3,
+
+  // Modifier States
+  CROUCHING: 4,
+  WALK: 5,
+  SPRINT: 6,
+  INTERACTING: 7,
+
+  // Moving substates
+  MOVING_FORWARD: 8,
+  MOVING_BACKWARD: 9,
+  MOVING_LEFT: 10,
+  MOVING_RIGHT: 11,
+
+  IDLE_ROTATE_LEFT: 12,
+  IDLE_ROTATE_RIGHT: 13,
+
+  WALK_END: 14,
+  WALK_START_BACK_LEFT:  15,
+  WALK_START_BACK_RIGHT: 16,
+  WALK_START_FORWARD: 17,
+  WALK_START_LEFT: 18,
+  WALK_START_RIGHT: 19,
+
+  DROP_IDLE: 20,
+  DROP_ROLLING: 21,
+  DROP_RUNNING: 22,
+};

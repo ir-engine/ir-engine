@@ -1,6 +1,6 @@
 .pagination {
   display: flex;
-  @include list-un(styled as any)();
+  @include list-unstyled();
   @include border-radius();
 }
 

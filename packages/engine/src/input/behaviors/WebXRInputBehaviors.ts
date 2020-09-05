@@ -16,22 +16,29 @@ import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 
 declare let XRWebGLLayerClass: {
   prototype: XRWebGLLayer
-  new (session: XRSession, context: WebGLRenderingContext | undefined, options?: XRWebGLLayerOptions): XRWebGLLayer
+  new(session: XRSession, context: WebGLRenderingContext | undefined, options?: XRWebGLLayerOptions): XRWebGLLayer
 };
 
 let mainControllerId: any;
 let secondControllerId: any;
 
+/**
+ * Process session
+ * 
+ * @param {Entity} entity The entity
+ */
 export const processSession: Behavior = (entity: Entity) => {
+  // Getting session and is immersive properties from the component
   const { session, isImmersive } = getComponent(entity, WebXRSession) as any;
+  // If true then requesting animation frame
   if (isImmersive) {
-    console.log('requesting animation frame', session);
     session.requestAnimationFrame((time, frame) => {
       console.log(time, 'XRFrame', frame);
       // TODO:
       // let refSpace = session.isImmersive ?
       //     xrImmersiveRefSpace :
       //     inlineViewerHelper.referenceSpace;
+      // Getting session and is immersive properties from the component
       const { space } = getComponent(entity, WebXRSpace) as any;
       if (space) setComponent(entity, WebXRViewPoint, { pose: frame.getViewerPose(space) });
 
@@ -54,14 +61,27 @@ export const processSession: Behavior = (entity: Entity) => {
   }
 };
 
+/**
+ * Tracking
+ * 
+ * @param {Entity} entity The entity
+ */
 export const tracking: Behavior = (entity: Entity) => {
+  // Get a components from the entity
   const viewPoint = getComponent<WebXRViewPoint>(entity, WebXRViewPoint);
   const pointer = getComponent(entity, WebXRPointer);
   const mainController = getComponent(entity, WebXRMainController);
   const secondController = getComponent(entity, WebXRSecondController);
 };
 
+/**
+ * Initialization session
+ * 
+ * @param {Entity} entity The entity
+ * @param args is argument object
+ */
 export const initializeSession: Behavior = (entity: Entity, args: { webXRRenderer: any }) => {
+  // Getting session and is immersive properties from the component
   const { session, isImmersive } = getComponent(entity, WebXRSession) as any;
   session.addEventListener('end', () => {
     entity.remove();
@@ -79,8 +99,15 @@ export const initializeSession: Behavior = (entity: Entity, args: { webXRRendere
   console.log('XR session started', session);
 };
 
-function setComponent (entity: Entity, Class: ComponentConstructor<any>, data: object) {
+/**
+ * 
+ * @param {Entity} entity The entity
+ * @param Class Interface for defining new component
+ * @param {Object} data 
+ */
+function setComponent(entity: Entity, Class: ComponentConstructor<any>, data: object) {
   if (hasComponent(entity, Class)) {
+    // Get immutable reference to Class
     const mutate = getMutableComponent(entity, Class);
     for (const property in data) mutate[property] = data[property];
   } else {
