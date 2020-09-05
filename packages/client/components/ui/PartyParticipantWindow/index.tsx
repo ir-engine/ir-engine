@@ -4,11 +4,17 @@ import './style.scss';
 import { autorun } from 'mobx';
 import { observer } from 'mobx-react';
 import IconButton from '@material-ui/core/IconButton';
+import Slider from '@material-ui/core/Slider';
+
 import {
     Mic,
     MicOff,
     Videocam,
-    VideocamOff
+    VideocamOff,
+    VolumeDown,
+    VolumeOff,
+    VolumeMute,
+    VolumeUp,
 } from '@material-ui/icons';
 import { MediaStreamComponent } from '@xr3ngine/engine/src/networking/components/MediaStreamComponent';
 import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
@@ -33,6 +39,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const [audioStreamPaused, setAudioStreamPaused] = useState(false);
     const [videoProducerPaused, setVideoProducerPaused] = useState(false);
     const [audioProducerPaused, setAudioProducerPaused] = useState(false);
+    const [volume, setVolume] = useState(0);
     const {
         peerId,
     } = props;
@@ -108,7 +115,10 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             audioRef.current.id = `${peerId}_audio`;
             audioRef.current.setAttribute('playsinline', 'true');
             audioRef.current.autoplay = true;
-            audioRef.current.muted = false;
+            if (peerId === 'me_cam' || peerId === 'me_screen') {
+                console.log('Muting self audio')
+                audioRef.current.muted = true;
+            }
             if (audioStream) {
                 audioRef.current.srcObject = new MediaStream([audioStream.track.clone()]);
                 // audioEl.mediaStream = audioStream;
@@ -118,7 +128,8 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                     MediaStreamComponent.instance.setScreenShareAudioPaused(false);
                 }
             }
-            audioRef.current.volume = 0;
+            audioRef.current.volume = 1;
+            setVolume(100);
         }
     }, [audioStream, videoStream])
     // Add mediasoup integration logic here to feed single peer's stream to these video/audio elements
@@ -162,6 +173,23 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             }
         }
     };
+
+    const adjustVolume = (e, newValue) => {
+        console.log(newValue);
+        if (peerId === 'me_cam' || peerId === 'me_screen') {
+            console.log('Setting local gain')
+            console.log(MediaStreamComponent.instance.audioGainNode);
+            console.log(MediaStreamComponent.instance.audioGainNode.gain)
+            MediaStreamComponent.instance.audioGainNode.gain.setValueAtTime(newValue / 100, MediaStreamComponent.instance.audioGainNode.context.currentTime + 1);
+            console.log('AFTER GAIN:')
+            console.log(MediaStreamComponent.instance.audioGainNode.gain);
+        } else {
+            console.log('Setting audio component value')
+            audioRef.current.volume = newValue / 100;
+        }
+        setVolume(newValue);
+    };
+
     return (
         <div
             id={props.peerId + '_container'}
@@ -169,46 +197,35 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             style={props.containerProportions || {}}
         >
             <div className="user-controls">
+                <IconButton
+                    size="small"
+                    className="video-control"
+                    onClick={toggleVideo}
+                    style={{visibility : videoProducerPaused ? 'hidden' : 'visible' }}
+                >
+                    { (videoStream && videoProducerPaused === false && videoStreamPaused === false) && <Videocam /> }
+                    { (videoStream && videoProducerPaused === false && videoStreamPaused === true) && <VideocamOff/> }
+                </IconButton>
                 {
-                    (videoStream && videoProducerPaused === false && videoStreamPaused === false) &&
-                    <IconButton
-                        size="small"
-                        className="video-control"
-                        onClick={toggleVideo}
-                    >
-                        <Videocam />
-                    </IconButton>
+                    audioStream && audioProducerPaused === false &&
+                        <div className="audio-slider">
+                            { volume > 0 && <VolumeDown/> }
+                            { volume === 0 && <VolumeMute/>}
+                            <Slider value={volume} onChange={adjustVolume} aria-labelledby="continuous-slider"/>
+                            <VolumeUp/>
+                        </div>
                 }
-                {
-                    (videoStream && videoProducerPaused === false && videoStreamPaused === true) &&
-                    <IconButton
-                        size="small"
-                        className="video-control"
-                        onClick={toggleVideo}
-                    >
-                        <VideocamOff />
-                    </IconButton>
-                }
-                {
-                    (audioStream && audioProducerPaused === false && audioStream.paused === false) &&
-                    <IconButton
-                        size="small"
-                        className="audio-control"
-                        onClick={toggleAudio}
-                    >
-                        <Mic />
-                    </IconButton>
-                }
-                {
-                    (audioStream && audioProducerPaused === false && audioStream.paused === true) &&
-                    <IconButton
-                        size="small"
-                        className="audio-control"
-                        onClick={toggleAudio}
-                    >
-                        <MicOff />
-                    </IconButton>
-                }
+                <IconButton
+                    size="small"
+                    className="audio-control"
+                    onClick={toggleAudio}
+                    style={{visibility : audioProducerPaused ? 'hidden' : 'visible' }}
+                >
+                    { ((peerId === 'me_cam' || peerId === 'me_screen') && audioStream && audioProducerPaused === false && audioStream.paused === false) && <Mic /> }
+                    { ((peerId === 'me_cam' || peerId === 'me_screen') && audioStream && audioProducerPaused === false && audioStream.paused === true) && <MicOff /> }
+                    { ((peerId !== 'me_cam' && peerId !== 'me_screen') && audioStream && audioProducerPaused === false && audioStream.paused === false) && <VolumeUp /> }
+                    { ((peerId !== 'me_cam' && peerId !== 'me_screen') && audioStream && audioProducerPaused === false && audioStream.paused === true) && <VolumeOff /> }
+                </IconButton>
             </div>
             <video ref={videoRef}/>
             <audio ref={audioRef}/>
