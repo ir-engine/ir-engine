@@ -34,8 +34,16 @@ export default class RingBuffer<T> {
   public add(...items: T[]): void {
     items.forEach(item => {
       this.values[this.pos] = item
+      // if (this.pos + 1 !== this.size) {
       this.pos = (this.pos + 1) % this.size
+      // this.pos = this.pos + 1
+      // }
     })
+  }
+
+  public addSingle(item): void {
+    this.values[this.pos] = item
+    this.pos = (this.pos + 1) % this.size
   }
 
   public get(index: number): T | undefined {

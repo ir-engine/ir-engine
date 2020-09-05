@@ -1,14 +1,17 @@
 /// <reference types="node" />
-import { IBufferGeometryCompressedTexture, WorkerInitializationResponse } from "./Interfaces";
-import { Scene, BufferGeometry, CompressedTexture, MeshBasicMaterial, Mesh } from "three";
+import { WorkerInitializationResponse } from './Interfaces';
+import { Scene, Renderer, BufferGeometry, CompressedTexture, MeshBasicMaterial, Mesh } from 'three';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 export default class DracosisPlayer {
     frameRate: number;
     speed: number;
     scene: Scene;
+    renderer: Renderer;
     mesh: Mesh;
     material: MeshBasicMaterial;
     bufferGeometry: BufferGeometry;
     compressedTexture: CompressedTexture;
+    dracoLoader: DRACOLoader;
     private _startFrame;
     private _endFrame;
     private _numberOfFrames;
@@ -18,15 +21,9 @@ export default class DracosisPlayer {
     private _isinitialized;
     private _onLoaded;
     private _ringBuffer;
-    private _dataBufferSize;
-    private _filePath;
     private _isPlaying;
-    private _fileHeader;
-    private _fileReadStream;
-    private _readStreamOffset;
-    private _decoderModule;
-    private _encoderModule;
     private _basisTextureLoader;
+    private _decoderModule;
     private _nullBufferGeometry;
     private _nullCompressedTexture;
     private _pos;
@@ -41,13 +38,19 @@ export default class DracosisPlayer {
     get loop(): boolean;
     set loop(value: boolean);
     httpGetAsync(theUrl: any, callback: any): void;
-    constructor(scene: any, filePath: string, onLoaded: any, playOnStart?: boolean, loop?: boolean, startFrame?: number, endFrame?: number, speedMultiplier?: number, bufferSize?: number);
+    constructor(scene: any, renderer: any, filePath: string, onLoaded: any, playOnStart?: boolean, loop?: boolean, startFrame?: number, endFrame?: number, speedMultiplier?: number, bufferSize?: number);
+    decodeDracoData(rawBuffer: Buffer): BufferGeometry;
+    getBufferFromDracoGeometry(uncompressedDracoMesh: any, decoder: any): BufferGeometry;
+    decodeTexture(compressedTexture: any, frameNumber: any): Promise<{
+        texture: any;
+        frameNumber: any;
+    }>;
     handleMessage(data: any): void;
     handleInitializationResponse(data: WorkerInitializationResponse): void;
-    handleDataResponse(data: IBufferGeometryCompressedTexture[]): void;
+    handleDataResponse(data: any): void;
     getPositionInBuffer(frameNumber: number): number;
-    handleBuffers(): NodeJS.Timeout;
-    update(): NodeJS.Timeout;
+    handleBuffers(context: any): NodeJS.Timeout;
+    update(): void;
     play(): void;
     pause(): void;
     reset(): void;
