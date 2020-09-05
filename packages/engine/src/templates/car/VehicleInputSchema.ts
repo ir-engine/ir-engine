@@ -130,9 +130,9 @@ export const VehicleInputSchema: InputSchema = {
       // [MouseButtons.MiddleButton]: DefaultInput.INTERACT
     },
     axes: {
-      mousePosition: DefaultInput.SCREENXY,
-      mouseClickDownPosition: DefaultInput.SCREENXY_START,
-      mouseClickDownTransformRotation: DefaultInput.ROTATION_START
+      [MouseInput.MousePosition]: DefaultInput.SCREENXY,
+      [MouseInput.MouseClickDownPosition]: DefaultInput.SCREENXY_START,
+      [MouseInput.MouseClickDownTransformRotation]: DefaultInput.ROTATION_START
     }
   },
   // Map gamepad buttons to abstract input
