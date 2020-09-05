@@ -55,8 +55,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
       intensity: 5.0
     }});
 
-    // const cameraTransform = getMutableComponent<TransformComponent>(CameraComponent.instance.entity, TransformComponent);
-    // cameraTransform.position.set(0, 1.2, 3);
+    const cameraTransform = getMutableComponent<TransformComponent>(CameraComponent.instance.entity, TransformComponent);
+    cameraTransform.position.set(0, 1.2, 3);
 
 
     // const { sound } = Engine as any;
@@ -97,10 +97,10 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // });
 
 
-    // createPrefab(PlayerCharacter);
+    createPrefab(PlayerCharacter);
     createPrefab(staticWorldColliders);
-    // createPrefab(rigidBodyBox);
-    // createPrefab(rigidBodyBox2);
+    createPrefab(rigidBodyBox);
+    createPrefab(rigidBodyBox2);
     createPrefab(CarController);
 
     // addComponent(createEntity(), AssetLoader, {
