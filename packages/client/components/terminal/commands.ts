@@ -5,6 +5,7 @@ import { Component } from "@xr3ngine/engine/src/ecs/classes/Component";
 import { Query } from "@xr3ngine/engine/src/ecs/classes/Query";
 import { ComponentConstructor } from "@xr3ngine/engine/src/ecs/interfaces/ComponentInterfaces";
 import Left from "../ui/Drawer/Left";
+import { createEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 //import {curryRight} from "lodash";
 
 export const commands = {
@@ -35,31 +36,38 @@ export const commands = {
       // Query the ECS engine for current stats
       ecs: {
         method: (args, print, runCommand) => {
-            console.log(args._[0])
-            // TODO: Add filter flag
-            let val = ""
+            if(!args._[0]){
+                print(`
+                    ls 
+                    List of entities.
+                    
+                    rm {id1} {id2}
+                    Remove entities and/or components.
+
+                    cat {id}
+                    Query components for data.
+
+                    echo '{"json": 5}' > entityId
+                    Update data.
+                `);
+            }
+            console.log(args)
+
             switch(args._[0]){
                 case 'entities':
-                    print(`
-                        ls 
-                        List of entities.
-                        
-                        rm {id1} {id2}
-                        Remove entities and/or components.
-
-                        cat {id}
-                        Query components for data.
-
-                        echo '{"json": 5}' > entityId
-                        Update data.
-                    `);
-
                     const CMDID = 1;
                     const command = args._[CMDID];
                     const options = args._.slice(CMDID+1);
-                    debugger;
-                    print('!!'+ command + typeof( options));
-                    
+
+                    print(options.join('|'));
+                        // ecs: "console.log("Eval says: feed me code!")"
+                        // _: Array(4)
+                        // 0: "entities"
+                        // 1: "ls"
+                        // 2: 22
+                        // 3: 33
+                        // ecs entities rm 11 22 33
+
                     if(command === 'ls'){
                         print(`(List entities)`);
                         print(`{-c | --components} show entity components`);
@@ -72,22 +80,56 @@ export const commands = {
                                 toString(map.call(components, ({constructor:{name}, id}) => `${id} ${name}`) );
                         }
                         const entityFields = ({id}) => id;              
-                        const toString = iterable => Array.prototype.join.call(iterable, "\n");
+                        const toString = iterable => join.call(iterable, "\n");
                         const list = mapc(entityFields);
                         const {entities} = Engine;
                         print(toString(list(entities)));
                         break;
 
+                    }else if(command === 'make'){
+                        print(`(create entity)`);
+                        const entity = createEntity();
+                        print(`entity #${entity.id} created.`);
+                        break;
+                    
                     }else if(command === 'cp'){
-                        print(`(copy entities and components)`);
+                        print(`(copy entity)`);
+                        console.log(options);
+                        if(!(options && options[0])){
+                            print('please specify entity id to copy.');
+                        }
+                        const protoEntityId = Number(options[0]);
+                        const protoEntity = Engine.entities[protoEntityId];
+                        if(protoEntity){
+                            const entity = protoEntity.clone();
+                            print(`entity created with id ${entity.id}.`);
+                        }else{
+                            print(`entity ${protoEntityId} not exist.`);
+                        }
                         break;
                     
                     }else if(command === 'rm'){
                         print(`(removing entities and components)`);
+                        // ecs entities rm 1 2 3
+                        const ids = options;
+                        ids.forEach( id => Engine.entities[id].remove() );
                         break;
                     
                     }else if(command === 'cat'){
                         print(`(Query entity components for data)`);
+                        // ecs entities cat 1/ComponentName
+                        const [entityId, componentName] = options[0].split('/');
+                        const entity = Engine.entities[entityId];
+                        //get component
+                        //@ts-ignore
+                        const entry = Object.entries(entity.components).find(([,{name}]) => name === componentName);
+                        const [,component] = entry;
+                        //@ts-ignore
+                        print(component._typeId + Object.getOwnPropertyNames( component ));
+                        
+                        //const component = getComponent(entity, Component);
+                        //get component fields
+                        //list compponent data
                         break;
                         
                     }else if(command === 'echo'){
