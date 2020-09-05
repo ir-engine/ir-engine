@@ -3,12 +3,9 @@ import { MediaStreamComponent } from "@xr3ngine/engine/src/networking/components
 import { Network as NetworkComponent, Network } from "@xr3ngine/engine/src/networking/components/Network";
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "@xr3ngine/engine/src/networking/constants/VideoConstants";
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
-import { addClient } from "@xr3ngine/engine/src/networking/functions/addClient";
-import { initializeClient } from "@xr3ngine/engine/src/networking/functions/initializeClient";
-import { removeClient } from "@xr3ngine/engine/src/networking/functions/removeClient";
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
 import { UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine/src/networking/types/NetworkingTypes";
-import { handleDataChannelConsumerMessage } from "@xr3ngine/engine/src/networking/functions/NetworkFunctions";
+import handleDataChannelConsumerMessage from "@xr3ngine/engine/src/networking/functions/handleDataChannelConsumerMessage";
 import * as mediasoupClient from "mediasoup-client";
 import { DataConsumer, DataConsumerOptions, DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 import ioclient from "socket.io-client";
