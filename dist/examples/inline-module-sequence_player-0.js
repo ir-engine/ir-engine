@@ -56281,6 +56281,7 @@ DRACOLoader.prototype = Object.assign(Object.create(Loader$1.prototype), {
   },
   load: function (url, onLoad, onProgress, onError) {
     var loader = new FileLoader$1(this.manager);
+    console.log("94 DracoLoader", this.path, this.manager);
     loader.setPath(this.path);
     loader.setResponseType('arraybuffer');
 
@@ -56289,6 +56290,7 @@ DRACOLoader.prototype = Object.assign(Object.create(Loader$1.prototype), {
     }
 
     loader.load(url, buffer => {
+      console.log("107 DracoLoader", buffer.byteLength);
       var taskConfig = {
         attributeIDs: this.defaultAttributeIDs,
         attributeTypes: this.defaultAttributeTypes,

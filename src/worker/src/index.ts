@@ -108,7 +108,7 @@ async function fetchData(data: WorkerDataRequest): Promise<void> {
       textureLength: fileHeader.frameData[frame].textureLength,
     };
 
-    fetch('http://localhost:8000/dracosis-stream', {
+    fetch('https://thawing-harbor-02376.herokuapp.com/dracosis-stream', {
       method: 'POST',
       body: JSON.stringify(body),
       headers: { 'Content-Type': 'application/json' },
@@ -118,15 +118,12 @@ async function fetchData(data: WorkerDataRequest): Promise<void> {
         return res.arrayBuffer();
       })
       .then((buffer) => {
-
         const bufferGeom = buffer.slice(
           0,
           fileHeader.frameData[frame].meshLength
         );
 
-        const bufferTex = buffer.slice(
-          fileHeader.frameData[frame].meshLength
-        );
+        const bufferTex = buffer.slice(fileHeader.frameData[frame].meshLength);
 
         tempBufferObject.frameNumber = frame;
         tempBufferObject.bufferGeometry = bufferGeom;
