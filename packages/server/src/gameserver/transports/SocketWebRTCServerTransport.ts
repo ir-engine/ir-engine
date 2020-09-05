@@ -267,12 +267,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         stats: {}
       }
 
-      // Respond to initialization request with a list of clients
-      socket.emit(MessageTypes.Initialization.toString(), socket.id, Object.keys(this.roomState.peers))
-
-      //Update everyone that the number of users has changed
-      socket.broadcast.emit(MessageTypes.ClientConnected.toString(), socket.id)
-
       // Handle the disconnection
       socket.on("disconnect", () => {
         try {
@@ -297,6 +291,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         try {
           console.log('Got Reliable Message')
           console.log(message)
+          Network.instance.incomingMessageQueue.add(message.data)
         } catch (err) {
           console.log('Reliable message error')
           console.log(err)

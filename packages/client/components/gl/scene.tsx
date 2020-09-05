@@ -55,8 +55,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
       intensity: 5.0
     }});
 
-    const cameraTransform = getMutableComponent<TransformComponent>(CameraComponent.instance.entity, TransformComponent);
-    cameraTransform.position.set(0, 1.2, 3);
+    // const cameraTransform = getMutableComponent<TransformComponent>(CameraComponent.instance.entity, TransformComponent);
+    // cameraTransform.position.set(0, 1.2, 3);
 
 
     // const { sound } = Engine as any;
@@ -78,28 +78,30 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // }
 
     console.log("Creating a scene entity to test");
-    const levelEntity = createEntity();
-    addComponent(levelEntity, AssetLoader, {
-      url: "models/library.glb",
-      receiveShadow: true,
-      castShadow: true,
-      onLoaded: () => {
-        console.log('level is loaded');
-        // TODO: parse Floor_plan
-        // TODO: parse Spawn point
+    // const levelEntity = createEntity();
+    // addComponent(levelEntity, AssetLoader, {
+    //   url: "models/library.glb",
+    //   receiveShadow: true,
+    //   castShadow: true,
+    //   onLoaded: () => {
+    //     console.log('level is loaded');
+    //     // TODO: parse Floor_plan
+    //     // TODO: parse Spawn point
 
-        // TODO: this is temporary, to make level floor mach zero
-        const level3d = getComponent<Object3DComponent>(levelEntity, Object3DComponent);
-        //level3d.value.position.y -= 0.17;
-        level3d.value.position.y -= 0.22;
+    //     // TODO: this is temporary, to make level floor mach zero
+    //     const level3d = getComponent<Object3DComponent>(levelEntity, Object3DComponent);
+    //     //level3d.value.position.y -= 0.17;
+    //     level3d.value.position.y -= 0.22;
 
-        createPrefab(PlayerCharacter);
-        createPrefab(staticWorldColliders);
-        createPrefab(rigidBodyBox);
-        createPrefab(rigidBodyBox2);
-        createPrefab(CarController);
-      }
-    });
+    //   }
+    // });
+
+
+    // createPrefab(PlayerCharacter);
+    createPrefab(staticWorldColliders);
+    // createPrefab(rigidBodyBox);
+    // createPrefab(rigidBodyBox2);
+    createPrefab(CarController);
 
     // addComponent(createEntity(), AssetLoader, {
     //   url: "models/OldCar.fbx",
