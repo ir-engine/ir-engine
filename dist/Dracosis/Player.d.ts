@@ -28,7 +28,6 @@ export default class DracosisPlayer {
     private _nullCompressedTexture;
     private _pos;
     private _frameNumber;
-    private _framesUpdated;
     private _numberOfBuffersRemoved;
     get currentFrame(): number;
     get startFrame(): number;
@@ -38,7 +37,7 @@ export default class DracosisPlayer {
     get loop(): boolean;
     set loop(value: boolean);
     httpGetAsync(theUrl: any, callback: any): void;
-    constructor(scene: any, renderer: any, filePath: string, onLoaded: any, playOnStart?: boolean, loop?: boolean, startFrame?: number, endFrame?: number, speedMultiplier?: number, bufferSize?: number);
+    constructor(scene: any, renderer: any, filePath: string, onLoaded: any, playOnStart: boolean, loop: boolean, startFrame: number, endFrame: number, speedMultiplier: number, bufferSize: number, serverUrl: any);
     decodeDracoData(rawBuffer: Buffer): BufferGeometry;
     getBufferFromDracoGeometry(uncompressedDracoMesh: any, decoder: any): BufferGeometry;
     decodeTexture(compressedTexture: any, frameNumber: any): Promise<{
