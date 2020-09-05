@@ -18,7 +18,8 @@ export class Engine {
   // public static sky: Sky;
   public static isExecuting: boolean = false;
 
-public static framerateLimit = 60;
+  public static framerateLimit = 60;
+  public static physicsFrameRate = 60;
 
   public static accumulator: number;
 	public static justExecuted: boolean;
@@ -142,8 +143,7 @@ public static framerateLimit = 60;
    * @todo replace with a ring buffer and set buffer size in default options
    */
   static systemsToExecute: any[] = []
-    static vehicles: any;
-    static physicsFrameRate: number;
+  static vehicles: any;
   static lastTime: number;
   static tick: number = 0;
 }

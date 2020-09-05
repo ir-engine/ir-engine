@@ -14,15 +14,21 @@ import { getMutableComponent, hasComponent, getComponent, addComponent } from '.
 import { Object3DComponent } from '../../common/components/Object3DComponent';
 import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
 import { Vec3, Shape, Body } from 'cannon-es';
-import debug from "cannon-es-debugger"
-import { Color, Mesh } from 'three';
-import { Engine } from '../../ecs/classes/Engine';
 
-export const addCollider: Behavior = (entity: Entity, args: { type: string }): void => {
+export const addCollider: Behavior = (entity: Entity, args: { type: string, phase?: string }): void => {
+  if (args.phase === 'onRemoved') {
+    const collider = getComponent<ColliderComponent>(entity, ColliderComponent, true);
+    if (collider) {
+      PhysicsManager.instance.physicsWorld.removeBody(collider.collider);
+    }
+    return
+  }
+
+  // phase onAdded
   console.log("*** Adding collider")
   const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
     const transform = addComponent<TransformComponent>(entity, TransformComponent);
-    if(collider.type === undefined) collider.type === args.type ?? 'box'
+    //if(collider.type === undefined) collider.type === args.type ?? 'box'
 
     console.log("collider collider")
     let body;
@@ -33,6 +39,8 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string }): v
     else if (collider.type === 'ground') body = createGroundGeometry(entity);
 
     collider.collider = body;
+    console.log('EMERCY ////////////////////////');
+
     console.log(collider.collider)
 
     // If this entity has an object3d, get the position of that
@@ -42,14 +50,6 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string }): v
     //   body.position = new Vec3()
     // }
 
-  
-  PhysicsManager.instance.physicsWorld.addBody(collider.collider);
-  console.log(PhysicsManager.instance.physicsWorld)
 
-  const DebugOptions = {
-    onInit: (body: Body, mesh: Mesh, shape: Shape) => 	console.log("body: ", body, " | mesh: ", mesh, " | shape: ", shape),
-    onUpdate: (body: Body, mesh: Mesh, shape: Shape) => console.log("body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape)
-    }
-  debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions)
-  
+  PhysicsManager.instance.physicsWorld.addBody(collider.collider);
 };
