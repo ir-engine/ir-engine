@@ -31,7 +31,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
     let object = getComponent<Object3DComponent>(entity, Object3DComponent);
 
     if(object.value.userData){
-      //if(object.userData.vehicle){
+      if(object.value.userData.vehicle){
       const vehicle = object.value.userData.vehicle.chassisBody;
 
       transform.position.set(
@@ -46,7 +46,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
         vehicle.quaternion.z,
         vehicle.quaternion.w
       )
-    //}
+    }
   } else {
     console.warn("User data for vehicle not found")
   }

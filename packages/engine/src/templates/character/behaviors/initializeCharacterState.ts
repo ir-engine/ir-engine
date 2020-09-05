@@ -4,7 +4,7 @@ import { getMutableComponent, getComponent } from "../../../ecs/functions/Entity
 import { CharacterComponent } from "../components/CharacterComponent";
 import { setArcadeVelocityInfluence } from "./setArcadeVelocityInfluence";
 import { State } from "../../../state/components/State";
-import { sendMessage } from "../../../networking/functions/NetworkFunctions";
+import { sendMessage } from "../../../networking/functions/sendMessage";
 import { MessageChannel } from "../../../networking/enums/MessageChannel";
 import { MessageTypes } from "../../../networking/enums/MessageTypes";
 
@@ -17,7 +17,7 @@ export const initializeCharacterState: Behavior = (entity: Entity) => {
 	
 	// Send it
 
-	sendMessage(MessageChannel.Unreliable, 0)
+	// sendMessage(MessageChannel.Unreliable, 0)
 	actor.velocitySimulator.damping = actor.defaultVelocitySimulatorDamping;
 	actor.velocitySimulator.mass = actor.defaultVelocitySimulatorMass;
 

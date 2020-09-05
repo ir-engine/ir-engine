@@ -16,7 +16,7 @@ let input: Input
  * @param {Entity} entity The entity
  * @param {Number} delta Time since last frame
  */
-export const handleInput: Behavior = (entity: Entity, delta: number): void => {
+export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): void => {
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
   input = getMutableComponent(entity, Input);
 
@@ -46,17 +46,16 @@ export const handleInput: Behavior = (entity: Entity, delta: number): void => {
           );
         }
       } else {
-        input.schema.inputButtonBehaviors[key][value.value as number].continued?.forEach(element =>
+        input.schema.inputButtonBehaviors[key][value.value as number].ended?.forEach(element =>
           element.behavior(entity, element.args, delta)
         );
         input.data.delete(key)
       }
     } 
     } else if (
-      value.type === InputType.ONED ||
-      value.type === InputType.TWOD ||
-      value.type === InputType.THREED ||
-      value.type === InputType.FOURD
+      value.type === InputType.ONEDIM ||
+      value.type === InputType.TWODIM ||
+      value.type === InputType.THREEDIM
     ) {
       if (input.schema.inputAxisBehaviors[key]) {
         // If lifecycle hasn't been set or started 

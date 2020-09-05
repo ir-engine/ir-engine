@@ -1,18 +1,17 @@
+import { Entity } from "../../ecs/classes/Entity";
 import { System } from '../../ecs/classes/System';
+import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { handleInput } from '../behaviors/handleInput';
 import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
 import { Input } from '../components/Input';
 import { WebXRRenderer } from '../components/WebXRRenderer';
 import { WebXRSession } from '../components/WebXRSession';
-import { CharacterInputSchema } from '../../templates/character/CharacterInputSchema';
 import { initVR } from '../functions/WebXRFunctions';
-import { getMutableComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
-import { Entity } from "../../ecs/classes/Entity";
 import { ListenerBindingData } from "../interfaces/ListenerBindingData";
-
+import { LocalInputReceiver } from "../components/LocalInputReceiver";
 /**
  * Input System
- * 
+ *
  * Property with prefix readonly makes a property as read-only in the class
  * @property {Number} mainControllerId set value 0
  * @property {Number} secondControllerId set value 1
@@ -30,20 +29,20 @@ export class InputSystem extends System {
   readonly onVRSupportRequested
   private entityListeners:Map<Entity, Array<ListenerBindingData>>
 
-  constructor (attributes:any) {
-    super(attributes);
-    this.useWebXR = attributes.useWebXR;
-    this.onVRSupportRequested = attributes.onVRSupportRequested;
+  constructor ({ useWebXR, onVRSupportRequested }) {
+    super();
+    this.useWebXR = useWebXR;
+    this.onVRSupportRequested = onVRSupportRequested;
     this.mainControllerId = 0;
     this.secondControllerId = 1;
     this.boundListeners = new Set();
     this.entityListeners = new Map();
   }
-  
+
   /**
    * Initialization Virtual Reality
-   * 
-   * @param onVRSupportRequested 
+   *
+   * @param onVRSupportRequested
    */
   init ({ useWebXR: boolean, onVRSupportRequested:any }): void {
     if (this.useWebXR) {
@@ -59,7 +58,7 @@ export class InputSystem extends System {
   }
 
   /**
-   * 
+   *
    * @param {Number} delta Time since last frame
    */
   public execute(delta: number): void {
@@ -77,15 +76,13 @@ export class InputSystem extends System {
       if (!hasComponent(entity, Input)) {
         return
       }
-      handleInput(entity, { delta })
+      handleInput(entity, { }, delta)
     });
 
     // Called when input component is added to entity
     this.queryResults.inputs.added?.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
-      // If input doesn't have a map, set the default
-      if (this._inputComponent.schema === undefined) this._inputComponent.schema = CharacterInputSchema;
       // Call all behaviors in "onAdded" of input map
       this._inputComponent.schema.onAdded.forEach(behavior => {
         behavior.behavior(entity, { ...behavior.args });
@@ -143,7 +140,7 @@ export class InputSystem extends System {
  */
 InputSystem.queries = {
   inputs: {
-    components: [Input],
+    components: [Input, LocalInputReceiver],
     listen: {
       added: true,
       removed: true
