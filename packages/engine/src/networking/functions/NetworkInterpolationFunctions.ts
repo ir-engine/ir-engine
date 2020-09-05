@@ -1,19 +1,19 @@
 import { degreeLerp, lerp, quatSlerp, radianLerp } from '../../common/functions/MathLerpFunctions';
 import { randomId } from '../../common/functions/MathRandomFunctions';
-import { NetworkGameState } from '../components/NetworkInterpolation';
+import { NetworkInterpolation } from '../components/NetworkInterpolation';
 import { InterpolatedSnapshot, Snapshot, StateEntityGroup, StateEntity, Time, Value } from '../types/SnapshotDataTypes';
 
 export function snapshot () {
   return {
     /** Create the snapshot on the server. */
-    create: (state: StateEntityGroup | { [key: string]: StateEntityGroup }): Snapshot => CreateSnapshot(state),
+    create: (state: StateEntityGroup | { [key: string]: StateEntityGroup }): Snapshot => createSnapshot(state),
     /** Add the snapshot you received from the server to automatically calculate the interpolation with calcInterpolation() */
     add: (snapshot: Snapshot): void => addSnapshot(snapshot)
   };
 }
 
 /** Create a new Snapshot */
-export function CreateSnapshot (state: StateEntityGroup | { [key: string]: StateEntityGroup }): Snapshot {
+export function createSnapshot (state: StateEntityGroup | { [key: string]: StateEntityGroup }): Snapshot {
   const check = (state: StateEntityGroup) => {
     // check if state is an array
     if (!Array.isArray(state)) throw new Error('You have to pass an Array to createSnapshot()');
@@ -39,14 +39,14 @@ export function CreateSnapshot (state: StateEntityGroup | { [key: string]: State
 }
 
 export function addSnapshot (snapshot: Snapshot): void {
-  if (NetworkGameState.instance.timeOffset === -1) {
+  if (NetworkInterpolation.instance.timeOffset === -1) {
     // the time offset between server and client is calculated,
     // by subtracting the current client date from the server time of the
     // first snapshot
-    NetworkGameState.instance.timeOffset = Date.now() - snapshot.time;
+    NetworkInterpolation.instance.timeOffset = Date.now() - snapshot.time;
   }
 
-  NetworkGameState.instance.add(snapshot);
+  NetworkInterpolation.instance.add(snapshot);
 }
 
 export function interpolate (
@@ -83,7 +83,7 @@ export function interpolate (
   const hundredPercent = t0 - t1;
   const pPercent = timeOrPercentage <= 1 ? timeOrPercentage : zeroPercent / hundredPercent;
 
-  NetworkGameState.instance.serverTime = lerp(t1, t0, pPercent);
+  NetworkInterpolation.instance.serverTime = lerp(t1, t0, pPercent);
 
   const lerpFnc = (method: string, start: Value, end: Value, t: number) => {
     if (typeof start === 'undefined' || typeof end === 'undefined') return;
@@ -142,10 +142,10 @@ export function interpolate (
 }
 
 /** Get the calculated interpolation on the client. */
-export function calcInterpolation (parameters: string, deep = ''): InterpolatedSnapshot | undefined {
+export function calculateInterpolation (parameters: string, deep = ''): InterpolatedSnapshot | undefined {
   // get the snapshots [_interpolationBuffer] ago
-  const serverTime = Date.now() - NetworkGameState.instance.timeOffset - NetworkGameState.instance._interpolationBuffer;
-  const shots = NetworkGameState.instance.get(serverTime);
+  const serverTime = Date.now() - NetworkInterpolation.instance.timeOffset - NetworkInterpolation.instance._interpolationBuffer;
+  const shots = NetworkInterpolation.instance.get(serverTime);
   if (!shots) return;
 
   const { older, newer } = shots;

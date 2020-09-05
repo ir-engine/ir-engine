@@ -33,7 +33,8 @@
   "jest": "ts-jest",
   "scripts": {
     "start": "yarn run build && node dist/server.js",
-    "dev": "cross-env NODE_ENV=development webpack --watch --mode=development",
+    "dev": "cross-env NODE_ENV=development DEBUG='mediasoup:WARN:*' webpack --watch --mode=development",
+    "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true webpack --watch --mode=development",
     "build": "cross-env NODE_ENV=production webpack --mode=production",
     "copyfiles-server": "copyfiles -u 2 src/email-templates/**/* lib/email-templates",
     "test": "echo \"TODO: no test specified\" && exit 0",
@@ -111,6 +112,7 @@
     "bent": "^7.3.0",
     "body-parser": "^1.19.0",
     "camelcase": "^6.0.0",
+    "cannon-es-debugger": "^0.0.3",
     "chargebee": "^2.5.7",
     "circular-dependency-plugin": "^5.2.0",
     "compression": "^1.7.4",

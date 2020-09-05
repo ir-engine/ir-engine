@@ -1,29 +1,31 @@
+import { addObject3DComponent, removeObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
 import { Object3DComponent } from '../../common/components/Object3DComponent';
-import { addObject3DComponent, removeObject3DComponent } from '../../common/defaults/behaviors/Object3DBehaviors';
+import { Engine } from '../../ecs/classes/Engine';
+import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
+import { Not } from '../../ecs/functions/ComponentFunctions';
+import {
+  addComponent,
+  createEntity, getComponent, getMutableComponent,
+
+  hasComponent,
+  removeComponent
+} from '../../ecs/functions/EntityFunctions';
+import { TransformChildComponent } from '../../transform/components/TransformChildComponent';
+import { TransformParentComponent } from '../../transform/components/TransformParentComponent';
 import { AssetLoader } from '../components/AssetLoader';
 import { AssetLoaderState } from '../components/AssetLoaderState';
 import AssetVault from '../components/AssetVault';
 import { Model } from '../components/Model';
+import { Unload } from '../components/Unload';
 import { AssetClass } from '../enums/AssetClass';
 import { getAssetClass, getAssetType, loadAsset } from '../functions/LoadingFunctions';
-import { AssetsLoadedHandler } from '../types/AssetTypes';
-import { Not } from '../../ecs/functions/ComponentFunctions';
-import { Entity } from '../../ecs/classes/Entity';
-import {
-  getMutableComponent,
-  getComponent,
-  hasComponent,
-  removeComponent,
-  addComponent,
-  createEntity
-} from '../../ecs/functions/EntityFunctions';
-import { Engine } from '../../ecs/classes/Engine';
 
 export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
 
-  init () {
+  constructor() {
+    super()
     addComponent(createEntity(), AssetVault)
   }
 
@@ -32,6 +34,8 @@ export default class AssetLoadingSystem extends System {
       // Do things here
     });
     this.queryResults.toLoad.all.forEach((entity: Entity) => {
+      if(hasComponent(entity, AssetLoaderState)) return console.log("Returning because already has assetloader")
+      console.log("To load query has members!")
       // Create a new entity
       addComponent(entity, AssetLoaderState);
       const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader);
@@ -44,17 +48,12 @@ export default class AssetLoadingSystem extends System {
       // Load the asset with a calback to add it to our processing queue
       loadAsset(assetLoader.url, (asset: any) => {
         // This loads the editor scene
-
         this.loaded.set(entity, asset);
       });
     })
 
     // Do the actual entity creation inside the system tick not in the loader callback
     this.loaded.forEach( (asset, entity) =>{
-      if(!hasComponent(entity, AssetLoader)) {
-        return console.log("Error, entity doesn't have asset loader")
-      }
-
       const component = getComponent<AssetLoader>(entity, AssetLoader);
       if (component.assetClass === AssetClass.Model) {
         if(asset.scene !== undefined)
@@ -70,42 +69,43 @@ export default class AssetLoadingSystem extends System {
         });
       }
 
+      addComponent(entity, Model, { value: asset });
       if (hasComponent(entity, Object3DComponent)) {
-        if (component.append) {
-          if(getComponent<Object3DComponent>(entity, Object3DComponent).value !== undefined)
+        if (getComponent<Object3DComponent>(entity, Object3DComponent).value !== undefined)
           getMutableComponent<Object3DComponent>(entity, Object3DComponent).value.add(asset.scene)
-          else getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = (asset.scene)
-        }
+        else getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = (asset.scene)
       } else {
-        addComponent(entity, Model, { value: asset });
-        console.log("Attempting addObject3d component with: ")
-
-        asset.scene?.children.forEach(obj => {
-          const e = createEntity()
-          console.log(obj)
-          addObject3DComponent(e, { obj3d: obj, parent: Engine.scene });
-        })
-
-        asset.children?.forEach(obj => {
-          const e = createEntity()
-          console.log(obj)
-          addObject3DComponent(e, { obj3d: obj, parent: Engine.scene });
-        })
-
+        addObject3DComponent(entity, {obj3d: asset.scene ?? asset});
       }
 
-      if (component.onLoaded) {
-        component.onLoaded(asset.scene);
-      }
+      //const transformParent = addComponent<TransformParentComponent>(entity, TransformParentComponent) as TransformParentComponent
+      const a = asset.scene ?? asset
+      a.children.forEach(obj => {
+        const e = createEntity()
+        addObject3DComponent(e, { obj3d: obj, parentEntity: entity });
+        // const transformChild = addComponent<TransformChildComponent>(e, TransformChildComponent) as TransformChildComponent
+        // transformChild.parent = entity
+        //transformParent.children.push(e)
+      })
+      getMutableComponent<AssetLoader>(entity, AssetLoader).loaded = true;
+      
       AssetVault.instance.assets.set(hashResourceString(component.url), asset.scene);
+      
+      if (component.onLoaded) {
+        component.onLoaded(asset);
+      }
     });
 
-    this.loaded.clear();
+    this.loaded?.clear();
 
     this.queryResults.toUnload.all.forEach((entity: Entity) => {
+      console.log("Entity should be unloaded", entity)
       removeComponent(entity, AssetLoaderState);
-      if(hasComponent(entity, Object3DComponent))
-      removeObject3DComponent(entity);
+      removeComponent(entity, Unload);
+
+      if(hasComponent(entity, Object3DComponent)){
+        removeObject3DComponent(entity);
+      }
     })
   }
 }
@@ -122,7 +122,7 @@ export function hashResourceString (str) {
 }
 
 AssetLoadingSystem.queries = {
-  mopdels: {
+  models: {
     components: [Model]
   },
   assetVault: {
@@ -132,6 +132,6 @@ AssetLoadingSystem.queries = {
     components: [AssetLoader, Not(AssetLoaderState)]
   },
   toUnload: {
-    components: [AssetLoaderState, Not(AssetLoader)]
+    components: [AssetLoaderState, Unload, Not(AssetLoader)]
   }
 };

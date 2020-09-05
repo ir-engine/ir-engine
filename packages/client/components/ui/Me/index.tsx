@@ -1,33 +1,41 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './style.scss';
 import PartyParticipantWindow from '../PartyParticipantWindow';
 import { Grid } from '@material-ui/core';
 import { MediaStreamComponent } from '@xr3ngine/engine/src/networking/components/MediaStreamComponent';
 import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
+import { observer } from 'mobx-react';
 
-function Me (): JSX.Element {
-    let localVideoTrack
-  console.log(MediaStreamComponent.instance)
-    // useEffect(() => {
-    //     console.log('Me component useeffect')
-    //     if (MediaStreamComponent.instance.localStream != undefined) {
-    //         const localVideoTracks = MediaStreamComponent.instance.localStream.getVideoTracks();
-    //         console.log('localVideoTracks:')
-    //         console.log(localVideoTracks)
-    //         localVideoTrack = localVideoTracks[0]
-    //     }
-    // }, MediaStreamComponent.instance)
+const Me = observer(() => {
+    // Listening on MediaStreamComponent.instance doesn't appear to register for some reason, but listening
+    // to an observable property of it does.
+
+    useEffect(() => {
+        console.log('camVideoProducer changed');
+        console.log(MediaStreamComponent.instance);
+    }, [MediaStreamComponent.instance?.camVideoProducer]);
   return (
-    <Grid className="windowContainer" container>
-      <PartyParticipantWindow
-        containerProportions={{
-          height: 145,
-          width: 223
-        }}
-        videoTrack={localVideoTrack}
-      />
+    <Grid className="me-party-user-container" container>
+        {
+            (MediaStreamComponent.instance?.camVideoProducer || MediaStreamComponent.instance?.camAudioProducer) && <PartyParticipantWindow
+            containerProportions={{
+              height: 135,
+              width: 240
+            }}
+            peerId={'me_cam'}
+            />
+        }
+        {
+            (MediaStreamComponent.instance?.screenVideoProducer || MediaStreamComponent.instance?.screenAudioProducer) && <PartyParticipantWindow
+                containerProportions={{
+                    height: 135,
+                    width: 240
+                }}
+                peerId={'me_screen'}
+            />
+        }
     </Grid>
   );
-}
+});
 
 export default Me;

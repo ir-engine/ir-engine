@@ -1,4 +1,4 @@
-export default function (usage, description) {
+export default function example (usage, description) {
   if (typeof usage !== 'string' || typeof description !== 'string') {
     throw new TypeError('Usage for adding an Example: args.example("usage", "description")');
   }

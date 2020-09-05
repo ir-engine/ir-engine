@@ -1,4 +1,3 @@
-
 import { QUERY_COMPONENT_CHANGED, QUERY_ENTITY_ADDED, QUERY_ENTITY_REMOVED } from '../constants/Events';
 import { componentRegistered, hasRegisteredComponent, queryKeyFromComponents, registerComponent } from '../functions/ComponentFunctions';
 import { ComponentConstructor } from '../interfaces/ComponentInterfaces';
@@ -65,10 +64,9 @@ export abstract class System {
   enabled: boolean
   name: string
   _queries: {} = {}
-  init? (attributes?: SystemAttributes): void
   abstract execute (delta: number, time: number): void
 
-  canExecute (): boolean {
+  canExecute (delta: number): boolean {
     if (this._mandatoryQueries.length === 0) return true;
 
     for (let i = 0; i < this._mandatoryQueries.length; i++) {
@@ -190,7 +188,6 @@ export abstract class System {
       }
     }
     const c = (this.constructor as any).prototype;
-    if(c.init !== undefined) c.init(attributes);
     c.order = Engine.systems.length;
   }
 
@@ -221,23 +218,25 @@ export abstract class System {
     for (const queryName in this.queryResults) {
       const query = this.queryResults[queryName];
       if (query.added) {
-        query.added = []
+        query.added.length = 0
       }
       if (query.removed) {
-        query.removed = []
+        query.removed.length = 0
       }
       if (query.changed) {
         if (Array.isArray(query.changed)) {
-          query.changed = []
+          query.changed.length = 0
         } else {
           for (const name in query.changed as any) {
-            (query.changed as any)[name] = []
+            (query.changed as any)[name].length = 0
           }
         }
       }
     }
   }
-
+dispose(){
+  
+}
   toJSON () {
     const json = {
       name: this.name,

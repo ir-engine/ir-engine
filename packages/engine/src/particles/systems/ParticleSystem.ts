@@ -14,7 +14,8 @@ import {
 } from "../classes/ParticleEmitter"
 
 export class ParticleSystem extends System {
-  init(attributes?: SystemAttributes): void {
+  constructor(attributes?: SystemAttributes) {
+    super()
     registerComponent(ParticleEmitter)
     registerComponent(ParticleEmitterState)
   }
@@ -106,8 +107,8 @@ const calcMatrixWorld = (function() {
       const transformMatrix = new Matrix4()
 
       transformMatrix.compose(
-        position.fromArray(transform.position),
-        rotation.fromArray(transform.rotation),
+        transform.position,
+        transform.rotation,
         scale.set(1, 1, 1)
       )
 

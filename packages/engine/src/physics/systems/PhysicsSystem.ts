@@ -1,42 +1,62 @@
 import { System } from '../../ecs/classes/System';
-import { PhysicsWorld } from '../../physics/components/PhysicsWorld';
+import { PhysicsManager } from '../components/PhysicsManager';
 import { RigidBody } from '../../physics/components/RigidBody';
 import { VehicleBody } from '../../physics/components/VehicleBody';
 import { WheelBody } from '../../physics/components/WheelBody';
-import { ColliderBehavior } from '../behaviors/ColliderBehavior';
+import { addCollider } from '../behaviors/ColliderBehavior';
 import { RigidBodyBehavior } from '../behaviors/RigidBodyBehavior';
 import { VehicleBehavior } from '../behaviors/VehicleBehavior';
 import { WheelBehavior } from '../behaviors/WheelBehavior';
 import { ColliderComponent } from '../components/ColliderComponent';
-import { createFixedTimestep } from "../../common/functions/Timer";
+import { FixedStepsRunner } from "../../common/functions/Timer";
+import { physicsPreStep } from '../../templates/character/behaviors/physicsPreStep';
+import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+import { physicsPostStep } from '../../templates/character/behaviors/physicsPostStep';
+import { updateCharacter } from '../../templates/character/behaviors/updateCharacter';
+import { Engine } from '../../ecs/classes/Engine';
 
 export class PhysicsSystem extends System {
   fixedExecute:(delta:number)=>void = null
+  fixedRunner: FixedStepsRunner
 
   constructor() {
     super()
-    this.fixedExecute = createFixedTimestep(60, this.onFixedExecute.bind(this))
-  }
-  execute(delta):void {
-    this.fixedExecute(delta)
+    this.fixedRunner = new FixedStepsRunner(Engine.physicsFrameRate, this.onFixedExecute.bind(this))
+    new PhysicsManager({ framerate: Engine.physicsFrameRate });
   }
 
-  init ():void {
-    new PhysicsWorld();
+  canExecute(delta:number): boolean {
+    return super.canExecute(delta) && this.fixedRunner.canRun(delta);
+  }
+
+  execute(delta):void {
+    this.fixedRunner.run(delta)
+  }
+
+  dispose() {
+    super.dispose();
+
+    PhysicsManager.instance.dispose()
   }
 
   onFixedExecute(delta) {
-    PhysicsWorld.instance.frame++;
-    PhysicsWorld.instance.physicsWorld.step(PhysicsWorld.instance.timeStep);
+    this.queryResults.character.all?.forEach(entity => physicsPreStep(entity, null, delta));
+    PhysicsManager.instance.frame++;
+    PhysicsManager.instance.physicsWorld.step(PhysicsManager.instance.physicsFrameTime);
+    this.queryResults.character.all?.forEach(entity => updateCharacter(entity, null, delta));
 
-    // Collider
-    this.queryResults.сollider.added?.forEach(entity => {
-      ColliderBehavior(entity, { phase: 'onAdded' });
-    });
+   this.queryResults.character.all?.forEach(entity => physicsPostStep(entity, null, delta));
 
-    this.queryResults.сollider.removed?.forEach(entity => {
-      ColliderBehavior(entity, { phase: 'onRemoved' });
-    });
+    // // Collider
+     this.queryResults.сollider.added?.forEach(entity => {
+       console.log("onAdded called on collider behavior")
+       addCollider(entity, { phase: 'onAdded' });
+     });
+
+     this.queryResults.сollider.removed?.forEach(entity => {
+       console.log("onRemoved called on collider behavior")
+       addCollider(entity, { phase: 'onRemoved' });
+     });
 
     // RigidBody
 
@@ -81,6 +101,9 @@ export class PhysicsSystem extends System {
 }
 
 PhysicsSystem.queries = {
+  character: {
+    components: [CharacterComponent],
+  },
   сollider: {
     components: [ColliderComponent],
     listen: {

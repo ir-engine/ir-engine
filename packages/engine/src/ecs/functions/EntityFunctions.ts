@@ -30,7 +30,7 @@ export function getMutableComponent<C extends Component<C>>(
       query.eventDispatcher.dispatchEvent(QUERY_COMPONENT_CHANGED, entity, component)
     }
   }
-  return component as C;
+  return component;
 }
 
 /**
@@ -69,7 +69,7 @@ export function getComponentTypes(entity: Entity): Array<Component<any>> {
 
 /**
  * Add a component to an entity
- * Optional values will be passed to the component cwwwwwwwwwwwwwwwwwwwonstructor
+ * Optional values will be passed to the component constructor
 * @returns the component added to the entity
  */
 export function addComponent<C extends Component<C>>(
@@ -95,6 +95,8 @@ export function addComponent<C extends Component<C>>(
   const componentPool = new ObjectPool(Component);
 
   const component = (componentPool ? componentPool.acquire() : new Component(values)) as Component<any>;
+  component.entity = entity
+  component._typeId = Component._typeId
 
   if (componentPool && values) {
     component.copy(values);
@@ -161,17 +163,19 @@ export function removeComponent<C extends Component<C>>(
   for (const queryName in Engine.queries) {
     const query = Engine.queries[queryName];
 
-    if (!!~query.notComponents.indexOf(component) && !~query.entities.indexOf(entity) && query.match(entity)) {
+    if (!!~query.notComponents.indexOf(Component) && !~query.entities.indexOf(entity) && query.match(entity)) {
       query.addEntity(entity);
       continue;
     }
 
-    if (!!~query.components.indexOf(component) && !!~query.entities.indexOf(entity) && !query.match(entity)) {
+    // if component is listed in query.components and entity is in query.entities but query do not match entity anymore - remove from query
+    if (!!~query.components.indexOf(Component) && !!~query.entities.indexOf(entity) && !query.match(entity)) {
       query.removeEntity(entity);
       continue;
     }
   }
-
+  
+  // Component instanceof SystemStateComponent
   if ((Component as any).__proto__ === SystemStateComponent) {
     entity.numStateComponents--;
 

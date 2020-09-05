@@ -1,8 +1,8 @@
 import { initializeEngine } from "@xr3ngine/engine/src/initialize"
 import { SocketWebRTCServerTransport } from "./transports/SocketWebRTCServerTransport"
-import { DefaultNetworkSchema } from "@xr3ngine/engine/src/networking/defaults/DefaultNetworkSchema"
-import { DefaultSubscriptionSchema } from "@xr3ngine/engine/src/subscription/defaults/DefaultSubscriptionSchema"
-import { DefaultStateSchema } from "@xr3ngine/engine/src/state/defaults/DefaultStateSchema"
+import { DefaultNetworkSchema } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema"
+import { CharacterSubscriptionSchema } from "@xr3ngine/engine/src/templates/character/CharacterSubscriptionSchema"
+import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema"
 
 const networkSchema = {
   ...DefaultNetworkSchema,
@@ -23,11 +23,11 @@ const options = {
   },
   state: {
     enabled: true,
-    schema: DefaultStateSchema
+    schema: CharacterStateSchema
   },
   subscriptions: {
     enabled: true,
-    schema: DefaultSubscriptionSchema
+    schema: CharacterSubscriptionSchema
   },
   physics: {
     enabled: false
@@ -39,6 +39,12 @@ const options = {
     enabled: true
   },
   renderer: {
+    enabled: false
+  },
+  camera: {
+    enabled: false
+  },
+  audio: {
     enabled: false
   }
 }

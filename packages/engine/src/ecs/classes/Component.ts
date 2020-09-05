@@ -33,6 +33,11 @@ export class Component<C> {
    */
   name: any = ""
 
+    /**
+    * The "entity" this component is attached to
+   */
+  entity: any = ""
+
   /**
    * Component class constructor
    */
@@ -115,7 +120,7 @@ export class Component<C> {
    * Put the component back into it's component pool
    * Called when component is removed from an entity
    */
-  dispose () {
+  dispose ():void {
     if (this._pool) {
       this._pool.release(this);
     }
@@ -126,7 +131,6 @@ export class Component<C> {
    * Useful for JSON serialization, etc
    */
   static getName () {
-    console.log("Component getName called")
     return (this.constructor as any).getName();
   }
 

@@ -3,7 +3,9 @@ import { System } from '../classes/System';
 import { executeSystem } from './SystemFunctions';
 import { Engine } from '../classes/Engine';
 import { EngineOptions } from '../interfaces/EngineOptions';
+import { Timer } from "../../common/functions/Timer";
 import { now } from "../../common/functions/now";
+import { removeAllComponents, removeAllEntities } from "./EntityFunctions";
 
 /**
  * Initialize options on the engine object and fire a command for devtools
@@ -20,6 +22,69 @@ export function initialize (options?: EngineOptions) {
   Engine.lastTime = now() / 1000;
 }
 
+export function reset(): void {
+  console.log('reset start')
+
+  // clear all entities components
+  Engine.entities.forEach(entity => {
+    removeAllComponents(entity, false)
+  })
+  execute(0.001) // for systems to handle components deletion
+
+  // delete all entities
+  removeAllEntities()
+
+  // for systems to handle components deletion
+  execute(0.001)
+
+  if (Engine.entities.length) {
+    console.log('Engine.entities.length', Engine.entities.length)
+    throw new Error('Engine.entities cleanup not complete')
+  }
+
+  Engine.tick = 0
+
+  Engine.entities.length = 0
+  Engine.entitiesToRemove.length = 0
+  Engine.entitiesWithComponentsToRemove.length = 0
+  Engine.nextEntityId = 0
+
+  // cleanup/unregister components
+  Engine.components.length = 0
+  // Engine.componentsMap = {}
+  // Engine.numComponents = {}
+  // Engine.componentPool = {}
+  Engine.nextComponentId = 0
+
+  // cleanup systems
+  Engine.systems.forEach(system => {
+    system.dispose()
+  })
+  Engine.systems.length = 0
+  Engine.systemsToExecute.length = 0
+
+  // cleanup queries
+  Engine.queries.length = 0
+
+  // cleanup events
+  Engine.eventDispatcher.reset()
+
+  // delete all what is left on scene
+  if (Engine.scene) {
+    // TODO: check if we need to add materials, textures, geometries detections and dispose() call?
+    Engine.scene = null
+  }
+
+  Engine.camera = null
+
+  if (Engine.renderer) {
+    Engine.renderer.dispose()
+    Engine.renderer = null
+  }
+
+  console.log('reset finished')
+}
+
 /**
  * Execute all systems (a "frame")
  * This is typically called on a loop
@@ -27,6 +92,7 @@ export function initialize (options?: EngineOptions) {
  * (You probably don't want to use this) 
  */
 export function execute (delta?: number, time?: number): void {
+  Engine.tick++
   if (!delta) {
     time = now() / 1000;
     delta = time - Engine.lastTime;
@@ -47,8 +113,8 @@ function processDeferredEntityRemoval () {
   if (!Engine.deferredRemovalEnabled) {
     return;
   }
-  const entitiesToRemove = [];
-  const entitiesWithComponentsToRemove = [];
+  const entitiesToRemove = Engine.entitiesToRemove;
+  const entitiesWithComponentsToRemove = Engine.entitiesWithComponentsToRemove;
   for (let i = 0; i < entitiesToRemove.length; i++) {
     const entity = entitiesToRemove[i];
     const index = Engine.entities.indexOf(entity);
@@ -126,4 +192,21 @@ export function stats (): { entities: any, system: any } {
     entities: entityStatus,
     system: systemStatus
   };
+}
+
+export function resetEngine() {
+  if (Engine.engineTimerTimeout) {
+    clearTimeout(Engine.engineTimerTimeout)
+  }
+  Engine.engineTimer?.stop()
+
+  reset()
+}
+
+export function startTimer () {
+  setTimeout(() => {
+    Engine.engineTimer = Timer({
+      update: (delta, elapsedTime) => execute(delta, elapsedTime)
+    }).start();
+  }, 1);
 }

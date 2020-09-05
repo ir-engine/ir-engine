@@ -1,46 +1,33 @@
 import { Component } from '../../ecs/classes/Component';
-
-const vector3Identity: number[] = [0, 0, 0];
-const quaternionIdentity: number[] = [0, 0, 0, 1];
-
-interface PropTypes {
-  position: number[]
-  rotation: number[]
-  velocity: number[]
-}
+import { Vector3, Quaternion } from 'three';
+import { Types } from '../../ecs/types/Types';
 
 export class TransformComponent extends Component<TransformComponent> {
-  position: number[] = [...vector3Identity]
-  rotation: number[] = [...quaternionIdentity]
-  velocity: number[] = [...vector3Identity]
+  position: Vector3
+  rotation: Quaternion
+  velocity: Vector3
 
   constructor () {
     super();
-    this.position = [...vector3Identity];
-    this.rotation = [...quaternionIdentity];
-    this.velocity = [...vector3Identity];
+    this.reset()
   }
 
   copy (src: this): this {
-    this.position[0] = src.position[0];
-    this.position[1] = src.position[1];
-    this.position[2] = src.position[2];
-
-    this.rotation[0] = src.rotation[0];
-    this.rotation[1] = src.rotation[1];
-    this.rotation[2] = src.rotation[2];
-    this.rotation[3] = src.rotation[3];
-
-    this.velocity[0] = src.velocity[0];
-    this.velocity[1] = src.velocity[1];
-    this.velocity[2] = src.velocity[2];
+   this.position = src.position;
+   this.rotation = src.rotation;
+   this.velocity = src.velocity;
 
     return this;
   }
 
   reset (): void {
-    this.position = [...vector3Identity];
-    this.rotation = [...quaternionIdentity];
-    this.velocity = [...vector3Identity];
+    this.position = new Vector3();
+    this.rotation = new Quaternion();
+    this.velocity = new Vector3();
   }
+}
+
+TransformComponent.schema = {
+  position: { default: new Vector3(), type: Types.Ref },
+  rotation: { default: new Quaternion(), type: Types.Ref }
 }

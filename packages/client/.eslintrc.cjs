@@ -32,6 +32,7 @@ module.exports = {
     "prefer-arrow-callback": "error",
     "semi": "error",
     "space-before-function-paren": "off",
+    "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unused-vars": [
       "off"
     ],
@@ -44,10 +45,6 @@ module.exports = {
     "@typescript-eslint/require-await": "off",
     "@typescript-eslint/strict-boolean-expressions": "off",
     "@typescript-eslint/promise-function-async": "off",
-    "space-before-function-paren": "off",
-    "no-var": "error",
-    "semi": "error",
-    "prefer-arrow-callback": "error",
     // React linting rules
     "react/boolean-prop-naming": ["error", { "rule": "^(is|has)[A-Z]([A-Za-z0-9]?)+" }],
     "react/button-has-type": "error",
@@ -63,8 +60,6 @@ module.exports = {
     "react/no-typos": "error",
     "react/no-empty-function": "off",
     "react/no-unsafe": ["error", { "checkAliases": true }],
-    "react/no-unused-state": "error",
-    "react/prefer-stateless-function": "error",
     "react/self-closing-comp": "error",
     "react/sort-comp": "error",
     "react/void-dom-elements-no-children": "error",

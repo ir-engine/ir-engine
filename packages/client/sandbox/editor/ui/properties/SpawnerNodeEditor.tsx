@@ -1,0 +1,29 @@
+import React, { Component } from "react";
+import NodeEditor from "./NodeEditor";
+import InputGroup from "../inputs/InputGroup";
+import ModelInput from "../inputs/ModelInput";
+import { Magic } from "@styled-icons/fa-solid/Magic";
+import { GLTFInfo } from "../inputs/GLTFInfo";
+type SpawnerNodeEditorProps = {
+  editor?: object,
+  node?: object
+};
+export default class SpawnerNodeEditor extends Component<
+  SpawnerNodeEditorProps,
+  {}
+> {
+  onChangeSrc = (src, initialProps) => {
+    this.props.editor.setPropertiesSelected({ ...initialProps, src });
+  };
+  render() {
+    const node = this.props.node;
+    return (
+      <NodeEditor {...this.props} description={SpawnerNodeEditor.description}>
+        <InputGroup name="Model Url">
+          <ModelInput value={node.src} onChange={this.onChangeSrc} />
+        </InputGroup>
+        {node.model && <GLTFInfo node={node} />}
+      </NodeEditor>
+    );
+  }
+}
