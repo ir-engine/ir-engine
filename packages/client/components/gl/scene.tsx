@@ -108,7 +108,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
         // TODO: this is temporary, to make level floor mach zero
         const level3d = getComponent<Object3DComponent>(levelEntity, Object3DComponent);
-        level3d.value.position.y -= 0.17;
+        //level3d.value.position.y -= 0.17;
+        level3d.value.position.y -= 0.22;
 
         createPrefab(PlayerCharacter);
         createPrefab(staticWorldColliders);

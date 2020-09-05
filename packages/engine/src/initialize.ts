@@ -1,4 +1,5 @@
 import { AmbientLight, Camera, GridHelper, PerspectiveCamera, Scene, AudioListener, Audio, PositionalAudio, AudioLoader } from 'three';
+//import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js'
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { createEntity } from './ecs/functions/EntityFunctions';
 import { Engine } from './ecs/classes/Engine';
@@ -99,6 +100,7 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
     if (options.camera && options.camera.enabled) {
     // Create a new three.js camera
     const camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
+
     // Add the camera to the camera manager so it's available anywhere
     Engine.camera = camera
     // Add the camera to the three.js scene
@@ -112,7 +114,7 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
       // Engine.camera.add( listener );
       // // if( src ){
       //   const Sound:any = positional ? PositionalAudio : Audio;
-      //   const sound = 
+      //   const sound =
       //         (Engine as any).sound = new Sound( listener );
       //   const audioLoader = new AudioLoader();
       //   audioLoader.load( src, buffer => {

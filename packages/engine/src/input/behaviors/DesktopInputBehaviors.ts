@@ -11,11 +11,11 @@ import { MouseInput } from '../enums/MouseInput';
  * Local reference to input component
  */
 let input: Input;
-const value: [number, number] = [0, 0];
+const value: [number, number, number, number] = [0, 0, 0, 0];
 
 /**
  * System behavior called whenever the mouse pressed
- * 
+ *
  * @param {Entity} entity The entity
  * @param args is argument object. Events that occur due to the user interacting with a pointing device (such as a mouse).
  */
@@ -23,6 +23,9 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
   input = getComponent(entity, Input);
   value[0] = (args.event.clientX / window.innerWidth) * 2 - 1;
   value[1] = (args.event.clientY / window.innerHeight) * -2 + 1;
+  value[2] = args.event.movementX;
+  value[3] = args.event.movementY;
+
   // Set type to TWOD (two-dimensional axis) and value to a normalized -1, 1 on X and Y
   input.data.set(input.schema.mouseInputMap.axes[MouseInput.MousePosition], {
     type: InputType.TWODIM,
@@ -32,7 +35,7 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
 
 /**
  * System behavior called when a mouse button is fired
- * 
+ *
  * @param {Entity} entity The entity
  * @param args is argument object with event and value properties. Value set 0 | 1
  */
@@ -65,9 +68,9 @@ export const handleMouseButton: Behavior = (entity: Entity, args: { event: Mouse
 
 /**
  * System behavior called when a keyboard key is pressed
- * 
+ *
  * @param {Entity} entity The entity
- * @param args is argument object 
+ * @param args is argument object
  */
 export function handleKey(entity: Entity, args: { event: KeyboardEvent, value: BinaryType }): any {
   // Get immutable reference to Input and check if the button is defined -- ignore undefined keys
@@ -85,7 +88,7 @@ export function handleKey(entity: Entity, args: { event: KeyboardEvent, value: B
       value: args.value
     });
   } else {
-    // Removed buttons property from mouseInputMap and set 
+    // Removed buttons property from mouseInputMap and set
     input.data.delete(input.schema.mouseInputMap.buttons[args.event.key]);
     input.data.set(input.schema.keyboardInputMap[args.event.key], {
       type: InputType.BUTTON,

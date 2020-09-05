@@ -10,7 +10,7 @@ import { InputType } from '../../input/enums/InputType';
 import { MouseInput } from '../../input/enums/MouseInput';
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
-import { drive } from '../../physics/behaviors/driveBehavior';
+import { drive } from '@xr3ngine/engine/src/physics/behaviors/driveBehavior';
 import { DefaultInput } from '../shared/DefaultInput';
 
 export const VehicleInputSchema: InputSchema = {
