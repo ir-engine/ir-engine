@@ -1,6 +1,6 @@
 import { DataConsumer } from 'mediasoup-client/lib/types'
 
-export const handleDataChannelConsumerMessage = (
+export default (
   dataConsumer: DataConsumer
 ) => (message: any) => {
   // If Data is anything other than string then parse it else just use message directly
