@@ -174,7 +174,8 @@ export function removeComponent<C extends Component<C>>(
       continue;
     }
   }
-
+  
+  // Component instanceof SystemStateComponent
   if ((Component as any).__proto__ === SystemStateComponent) {
     entity.numStateComponents--;
 
