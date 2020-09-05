@@ -11,8 +11,11 @@ export interface NetworkClientList {
   [key: string]: { userId: string }
 }
 
+
 export class Network extends Component<Network> {
   static instance: Network = null
+  // TODO: localuserId should be set somewhere
+  localUserId: string = ""
   isInitialized: boolean
   transport: NetworkTransport
   schema: NetworkSchema
@@ -20,7 +23,7 @@ export class Network extends Component<Network> {
   networkObjects: NetworkObjectList = {}
   mySocketID: string
   private static availableNetworkId = 0
-  static getNetworkId(){
+  static getNetworkId() {
     return this.availableNetworkId++
   }
   static _schemas: Map<string, MessageSchema> = new Map()
@@ -31,18 +34,18 @@ export class Network extends Component<Network> {
 
   worldState = {
     tick: Network.tick,
-    transforms: [
-      
-    ],
-    inputs: [
-
-    ]
+    transforms: [],
+    inputs: [],
+    clientsConnected: [],
+    clientsDisconnected: [],
+    createObjects: [],
+    destroyObjects: []
   }
 
   static sceneId = "default"
   static Network: any
   static tick: any;
-  constructor () {
+  constructor() {
     super();
     Network.instance = this;
     // TODO: Replace default message queue sizes
@@ -51,7 +54,7 @@ export class Network extends Component<Network> {
     this.outgoingUnreliableMessageQueue = new RingBuffer<ArrayBuffer>(100)
   }
 
-  dispose():void {
+  dispose(): void {
     super.dispose();
     // TODO: needs tests
     this.clients = {}

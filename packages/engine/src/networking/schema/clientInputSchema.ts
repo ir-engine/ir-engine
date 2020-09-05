@@ -21,7 +21,7 @@ const inputAxis2DSchema = createSchema('axis2d', {
   lifecycleValue: uint8
 });
 
-const inputKeyArraySchema = createSchema('main', {
+export const inputKeyArraySchema = createSchema('main', {
   networkId: uint16,
   buttons: [inputKeySchema],
   axes1d: [inputAxis1DSchema],
