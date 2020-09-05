@@ -9,10 +9,9 @@ import { WebXRSession } from '../components/WebXRSession';
 import { initVR } from '../functions/WebXRFunctions';
 import { ListenerBindingData } from "../interfaces/ListenerBindingData";
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
-
 /**
  * Input System
- * 
+ *
  * Property with prefix readonly makes a property as read-only in the class
  * @property {Number} mainControllerId set value 0
  * @property {Number} secondControllerId set value 1
@@ -38,6 +37,14 @@ export class InputSystem extends System {
     this.secondControllerId = 1;
     this.boundListeners = new Set();
     this.entityListeners = new Map();
+  }
+
+  /**
+   * Initialization Virtual Reality
+   *
+   * @param onVRSupportRequested
+   */
+  init ({ useWebXR: boolean, onVRSupportRequested:any }): void {
     if (this.useWebXR) {
       if (this.onVRSupportRequested) {
         initVR(this.onVRSupportRequested);
@@ -51,7 +58,7 @@ export class InputSystem extends System {
   }
 
   /**
-   * 
+   *
    * @param {Number} delta Time since last frame
    */
   public execute(delta: number): void {
