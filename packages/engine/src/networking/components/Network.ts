@@ -8,6 +8,12 @@ export class Network extends Component<any> {
   isInitialized: boolean
   transport: NetworkTransport
   schema: NetworkSchema
+  // Add more data channels if needed, probably use sort of an enums just like MessageTypes for them
+  dataChannels: string[] = [
+    // examples
+    // 'physics',
+    // 'location' 
+  ]
   clients: string[] = [] // TODO: Replace with ringbuffer
   mySocketID
   static Network: any

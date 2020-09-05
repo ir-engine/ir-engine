@@ -12,16 +12,17 @@ import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/Net
 import { Message } from "@xr3ngine/engine/src/networking/interfaces/Message"
 import {
   DataConsumer,
-  DataConsumerOptions,
   DataProducer,
   DataProducerOptions,
   Router,
+  RtpCodecCapability,
   SctpParameters,
   Transport,
-  WebRtcTransport
+  WebRtcTransport,
+  Worker
 } from "mediasoup/lib/types"
 import { types as MediaSoupClientTypes } from "mediasoup-client"
-import { UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine/src/networking/types/NetworkingTypes"
+import { UnreliableMessageReturn, UnreliableMessageType, CreateWebRtcTransportParams } from "@xr3ngine/engine/src/networking/types/NetworkingTypes"
 
 interface Client {
   socket: SocketIO.Socket;
@@ -97,10 +98,10 @@ const defaultRoomState = {
   transports: {},
   producers: [],
   consumers: [],
-  // dataProducers: [] as DataProducer[],
-  dataProducers: new Map<string, DataProducer>(), // Data Producer is identified by channel name (key)
-  dataConsumers: new Map<string, DataConsumer[]>(), // Data Consumer is identified by Data producer's id (key)
   peers: {}
+  // These are now kept for each individual client (in peers object)
+  // dataProducers: [] as DataProducer[],
+  // dataConsumers: [] as DataConsumer[]
 }
 
 const tls = {
@@ -111,8 +112,8 @@ const tls = {
 }
 
 const sctpParameters: SctpParameters = {
-  OS: 16,
-  MIS: 10,
+  OS: 1024,
+  MIS: 65535,
   maxMessageSize: 65535,
   port: 5000
 }
@@ -120,7 +121,7 @@ const sctpParameters: SctpParameters = {
 export class SocketWebRTCServerTransport implements NetworkTransport {
   server: https.Server
   socketIO: SocketIO.Server
-  worker
+  worker: Worker
   router: Router
   transport: Transport
 
@@ -131,54 +132,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       console.log(message)
       this.socketIO.sockets.emit(MessageTypes.ReliableMessage.toString(), message)
       console.log('Emitted Reliable Message')
-  }
-
-  handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
-    data: { consumerOptions: DataConsumerOptions; transportId: string },
-    callback: (arg0: { dataConsumerOptions?: MediaSoupClientTypes.DataConsumerOptions; error?: any }) => void
-  ) => {
-    try {
-      console.log("Got Data channel subscription from client with params: ", data)
-      console.log("Getting transport ID")
-      const transport: Transport | undefined = this.roomState.transports[data.transportId]
-      if (!transport) {
-        callback({ error: "Transport is not available for the transport id or it is invalid" })
-      }
-      const { consumerOptions: { dataProducerId } } = data
-      data.consumerOptions.appData = { ...(data.consumerOptions.appData || {}), peerId: socket.id }
-      console.log("Creating DataConsumer")
-        const dataConsumer = await transport.consumeData(data.consumerOptions)
-        console.log("Setting DataConsumer to roomstate")
-        const consumers = this.roomState.dataConsumers.get(dataProducerId) || []
-        this.roomState.dataConsumers.set(
-          dataProducerId,
-          consumers.concat(dataConsumer)
-        )
-      dataConsumer.on("transportclose", () => {
-        console.log("Closing DataConsumer and removing it from roomstate")
-        this.roomState.dataConsumers.set(
-          dataProducerId,
-          this.roomState.dataConsumers
-            .get(dataProducerId)
-            .filter((c) => c.id !== dataConsumer.id)
-        )
-        dataConsumer.close()
-      })
-        console.log("Creating DataConsumer options for client")
-        const options: { dataConsumerOptions: MediaSoupClientTypes.DataConsumerOptions } = {
-        dataConsumerOptions: {
-          appData: data.consumerOptions.appData,
-          dataProducerId,
-          id: dataConsumer.id,
-          label: dataConsumer.label,
-          sctpStreamParameters: dataConsumer.sctpStreamParameters
-        }
-      }
-      console.log("Sending data consumer options to client: ", options)
-      callback(options)
-    } catch (error) {
-      callback({ error })
-    }
   }
 
   // WIP -- sort of stub, creates and returns data producer. Remove if not needed.
@@ -238,11 +191,13 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         joinTs: Date.now(),
         media: {},
         consumerLayers: {},
-        stats: {}
+        stats: {},
+        dataConsumers: new Map<string, DataConsumer>(), // Key => id of data producer
+        dataProducers: new Map<string, DataProducer>() // Key => label of data channel
       }
 
       console.log("Sending peers:")
-      console.log(this.roomState.peers)
+      // console.log(this.roomState.peers)
 
       // Respond to initialization request with a list of clients
       socket.emit(MessageTypes.Initialization.toString(), socket.id, Object.keys(this.roomState.peers))
@@ -260,7 +215,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         Object.entries(this.roomState.peers).forEach(([key, value]) => {
           const otherSocket = value as Client
           otherSocket.socket.emit(MessageTypes.ClientDisconnected.toString(), socket.id)
-          console.log("Telling client ", otherSocket, " about disconnection of " + socket.id)
+          // console.log("Telling client ", otherSocket, " about disconnection of " + socket.id)
         })
       })
 
@@ -334,24 +289,39 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       // --> /signaling/create-transport
       // create a mediasoup transport object and send back info needed
       // to create a transport object on the client side
-      socket.on(MessageTypes.WebRTCTransportCreate.toString(), async (data, callback) => {
+      socket.on(MessageTypes.WebRTCTransportCreate.toString(), async (data: CreateWebRtcTransportParams, callback) => {
         try {
           console.log('Transport Create handler')
-          const peerId = socket.id
-          const {direction} = data
+          const { direction, peerId, sctpCapabilities } = Object.assign(data, { peerId: socket.id })
           console.log("WebRTCTransportCreateRequest", peerId, direction)
 
-          const transport = await this.createWebRtcTransport({peerId, direction})
+          const transport: WebRtcTransport = await this.createWebRtcTransport({
+            peerId,
+            direction,
+            sctpCapabilities,
+          })
           this.roomState.transports[transport.id] = transport
+          // Probably just save transports this way so we can distinguish between send and create transport of each client w.r.t producer and consumer (data or mediastream)
+          if (direction === 'recv') {
+            this.roomState.peers[socket.id].recvTransport = transport
+          } else if (direction === 'send') {
+            this.roomState.peers[socket.id].sendTransport = transport
+          }
 
           const {id, iceParameters, iceCandidates, dtlsParameters} = transport
           const clientTransportOptions: MediaSoupClientTypes.TransportOptions = {
             id,
-            sctpParameters,
+            sctpParameters: {
+              ...sctpParameters,
+              OS: sctpCapabilities.numStreams.OS,
+              MIS: sctpCapabilities.numStreams.MIS
+            },
             iceParameters,
             iceCandidates,
             dtlsParameters
           }
+          // Create data consumers for other clients if the current client transport receives data producer on it
+          transport.observer.on('newdataproducer', this.handleConsumeDataEvent(socket))
           callback({
             transportOptions: clientTransportOptions
           })
@@ -368,47 +338,37 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           try {
             if (!params.label) throw ({ error: 'data producer label i.e. channel name is not provided!' })
             const { transportId, sctpStreamParameters, label, protocol, appData } = params
-            console.log("Data channel used: ", `'${label}'`, "by client id: ", socket.id)
-            console.log("Data channel params", params)
-            const transport = this.roomState.transports[transportId] as Transport
-            let dataProducer: DataProducer | undefined
-            if (this.roomState.dataProducers.get(label)) {
-              dataProducer = this.roomState.dataProducers.get(label)
-            } else {
-              const options: DataProducerOptions = {
-                label,
-                protocol,
-                sctpStreamParameters,
-                appData: { ...appData, peerID: socket.id, transportId }
-              }
-              console.log("creating transport data producer")
-              dataProducer = await transport.produceData(options)
-              console.log("adding data producer to room state")
-              this.roomState.dataProducers.set(label, dataProducer)
-
-              // if our associated transport closes, close ourself, too
-              dataProducer.on("transportclose", () => {
-                console.log("data producer's transport closed: ", dataProducer.id)
-                dataProducer.close()
-                this.roomState.dataProducers.delete(label)
-              })
-              // console.log("Sending dataproducer id to client:", dataProducer.id)
-              // return callback({ id: dataProducer.id })
+            console.log("Data channel label: ", `'${label}'`, " -- client id: ", socket.id)
+            console.log("Data producer params", params)
+            const transport: Transport = this.roomState.transports[transportId]
+            const options: DataProducerOptions = {
+              label,
+              protocol,
+              sctpStreamParameters,
+              appData: { ...(appData || {}), peerID: socket.id, transportId }
             }
-            
-            // dataProducer.send(JSON.stringify({data: dataProducer.appData}))
+            console.log("creating transport data producer")
+            const dataProducer = await transport.produceData(options)
+            console.log("data producer created!", dataProducer.id)
 
+            console.log("adding data producer to room state")
+            this.roomState.peers[socket.id].dataProducers.set(label, dataProducer)
+
+            // if our associated transport closes, close ourself, too
+            dataProducer.on("transportclose", () => {
+              console.log("data producer's transport closed: ", dataProducer.id)
+              dataProducer.close()
+              this.roomState.peers[socket.id].dataProducers.delete(socket.id)
+            })
             // Possibly do stuff with appData here
-
             console.log("Sending dataproducer id to client:", dataProducer.id)
             return callback({ id: dataProducer.id })
           } catch (e) {
-            console.log("ERROR SENDING DATA TO DATA CHANNEL: ", e)
+            console.log("Error in creating data producer: ", e)
             callback({ error: e })
           }
         }
       )
-      socket.on(MessageTypes.WebRTCConsumeData, this.handleConsumeDataEvent(socket))
 
       // --> /signaling/connect-transport
       // called from inside a client's `transport.on('connect')` event
@@ -468,7 +428,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           encodings: rtpParameters.encodings
         }
 
-        console.log(this.roomState.producers)
+        // console.log(this.roomState.producers)
         callback({ id: producer.id })
       })
 
@@ -483,13 +443,13 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           console.log(data)
           const {mediaPeerId, mediaTag, rtpCapabilities} = data
           console.log(`socket.id: ${socket.id}`)
-          console.log(this.roomState.producers)
+          // console.log(this.roomState.producers)
           const peerId = socket.id
           const producer = this.roomState.producers.find(
               p => { console.log(p._appData); return p._appData.mediaTag === mediaTag && p._appData.peerID === mediaPeerId }
           )
           console.log('producer:')
-          console.log(producer)
+          // console.log(producer)
           if (producer == null || !this.router.canConsume({producerId: producer.id, rtpCapabilities})) {
             const msg = `client cannot consume ${mediaPeerId}:${mediaTag}`
             console.error(`recv-track: ${peerId} ${msg}`)
@@ -637,10 +597,14 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     try {
       this.worker = await createWorker({
         rtcMinPort: config.mediasoup.worker.rtcMinPort,
-        rtcMaxPort: config.mediasoup.worker.rtcMaxPort
+        rtcMaxPort: config.mediasoup.worker.rtcMaxPort,
+        // dtlsCertificateFile: serverConfig.server.certPath,
+        // dtlsPrivateKeyFile: serverConfig.server.keyPath,
+        logLevel: 'debug',
+        logTags: ['sctp']
       })
     } catch (e) {
-      console.log("Failed jwith exception:")
+      console.log("Mediasoup worker creation failed with exception:")
       console.log(e)
     }
     this.worker.on("died", () => {
@@ -649,9 +613,52 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     })
     console.log("Worker got created")
 
-    const mediaCodecs = config.mediasoup.router.mediaCodecs
-    this.router = await this.worker.createRouter({ mediaCodecs })
+    const mediaCodecs = config.mediasoup.router.mediaCodecs as RtpCodecCapability[]
     console.log("Worker created router")
+    this.router = await this.worker.createRouter({ mediaCodecs })
+  }
+  
+  // Create consumer for each client!
+  handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
+    dataProducer: DataProducer
+  ) => {
+    console.log('Data Consumer being created on server by client: ', socket.id)
+      Object.keys(this.roomState.peers).filter(id => id !== socket.id).forEach(async (socketId: string) => {
+        const transport: Transport = this.roomState.peers[socketId].recvTransport
+        try {
+          const dataConsumer = await transport.consumeData({
+            dataProducerId: dataProducer.id,
+            appData: { peerId: socket.id, transportId: transport.id },
+            maxPacketLifeTime:
+              dataProducer.sctpStreamParameters.maxPacketLifeTime,
+            maxRetransmits: dataProducer.sctpStreamParameters.maxRetransmits,
+            ordered: false,
+          })
+          console.log('Data Consumer created!')
+          dataConsumer.on('producerclose', () => {
+            dataConsumer.close()
+            this.roomState.peers[socket.id].dataConsumers.delete(
+              dataProducer.id
+            )
+          })
+          console.log('Setting data consumer to room state')
+          this.roomState.peers[socket.id].dataConsumers.set(
+            dataProducer.id,
+            dataConsumer
+          )
+          // Currently Creating a consumer for each client and making it subscribe to the current producer
+          socket.to(socketId).emit(MessageTypes.WebRTCConsumeData, {
+            dataProducerId: dataProducer.id,
+            sctpStreamParameters: dataConsumer.sctpStreamParameters,
+            label: dataConsumer.label,
+            id: dataConsumer.id,
+            appData: dataConsumer.appData,
+            protocol: 'json',
+          } as MediaSoupClientTypes.DataConsumerOptions)
+        } catch (e) {
+           console.log('Error Creating data consumer for client: ', socketId)
+        }
+      })
   }
 
   async closeTransport(transport): Promise<void> {
@@ -711,7 +718,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       delete this.roomState.peers[consumer.appData.peerId].consumerLayers[consumer.id]
   }
 
-  async createWebRtcTransport({ peerId, direction }): Promise<WebRtcTransport> {
+  async createWebRtcTransport({ peerId, direction, sctpCapabilities }: CreateWebRtcTransportParams): Promise<WebRtcTransport> {
     console.log("Creating Mediasoup transport")
     const { listenIps, initialAvailableOutgoingBitrate } = config.mediasoup.webRtcTransport
     const transport = await this.router.createWebRtcTransport({
@@ -720,10 +727,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       enableTcp: true,
       preferUdp: true,
       enableSctp: true, // Enabling it for setting up data channels
-      numSctpStreams: {
-        OS: sctpParameters.OS,
-        MIS: sctpParameters.MIS
-      },
+      numSctpStreams: sctpCapabilities.numStreams,
       initialAvailableOutgoingBitrate: initialAvailableOutgoingBitrate,
       appData: { peerId, clientDirection: direction }
     })
