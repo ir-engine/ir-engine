@@ -10,7 +10,7 @@ export interface NetworkSchema {
     [key: string]: {
       behavior: any
       args?: any
-    }
+    }[]
   }
   defaultClientPrefab: PrefabAlias
   prefabs: Array<{ id: PrefabAlias, prefab: NetworkPrefab }>

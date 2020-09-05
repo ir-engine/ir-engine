@@ -1,6 +1,6 @@
 import { sleep } from "@xr3ngine/engine/src/common/functions/sleep";
 import { MediaStreamComponent } from "@xr3ngine/engine/src/networking/components/MediaStreamComponent";
-import { Network as NetworkComponent } from "@xr3ngine/engine/src/networking/components/Network";
+import { Network as NetworkComponent, Network } from "@xr3ngine/engine/src/networking/components/Network";
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "@xr3ngine/engine/src/networking/constants/VideoConstants";
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
 import { addClient } from "@xr3ngine/engine/src/networking/functions/addClient";
@@ -13,6 +13,8 @@ import * as mediasoupClient from "mediasoup-client";
 import { DataConsumer, DataConsumerOptions, DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 import ioclient from "socket.io-client";
 import moment from 'moment';
+import { worldStateModel } from "@xr3ngine/engine/src/networking/schema/worldStateSchema";
+import { applyWorldState } from "@xr3ngine/engine/src/networking/behaviors/applyWorldState";
 
 const Device = mediasoupClient.Device;
 
@@ -203,30 +205,30 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       window.addEventListener("unload", async () => {
         this.socket.emit(MessageTypes.LeaveWorld.toString());
       });
-
-      this.socket.on(MessageTypes.Initialization.toString(), async (_id: any, _ids: any) => {
-        console.log("Received initialization response")
-        initializeClient(_id, _ids);
-        await this.joinWorld();
-        // Ping request for testing unreliable messaging may remove if not needed
-        console.log('About to init receive and send transports')
-        
-        await Promise.all([
-          this.initSendTransport(),
-          this.initReceiveTransport(),
-        ])
-        await this.initDataChannel(DEFAULT_DATA_CHANNEl) // TODO: Init Data channels needed for the app, right now only inits 'default' channel
-
-        console.log("About to send camera streams");
-        await this.sendCameraStreams();
-        console.log("about to init sockets");
-        console.log(this.recvTransport)
-        // this.startScreenshare()
-      });
-
-      this.socket.on(MessageTypes.ClientConnected.toString(), (_id: string) => addClient(_id));
-      this.socket.on(MessageTypes.ClientDisconnected.toString(), (_id: string) => { console.log('Notified about disconnect of ' + _id); removeClient(_id); });
     });
+
+    this.socket.on(MessageTypes.Initialization.toString(), async (_id: any, _ids: any) => {
+      console.log("Received initialization response")
+      initializeClient(_id, _ids);
+      await this.joinWorld();
+      // Ping request for testing unreliable messaging may remove if not needed
+      console.log('About to init receive and send transports')
+      
+      await Promise.all([
+        this.initSendTransport(),
+        this.initReceiveTransport(),
+      ])
+      await this.initDataChannel(DEFAULT_DATA_CHANNEl) // TODO: Init Data channels needed for the app, right now only inits 'default' channel
+
+      console.log("About to send camera streams");
+      await this.sendCameraStreams();
+      console.log("about to init sockets");
+      console.log(this.recvTransport)
+      // this.startScreenshare()
+    });
+
+    this.socket.on(MessageTypes.ClientConnected.toString(), (_id: string) => addClient(_id));
+    this.socket.on(MessageTypes.ClientDisconnected.toString(), (_id: string) => { console.log('Notified about disconnect of ' + _id); removeClient(_id); });
   }
 
   //= =//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//
@@ -240,16 +242,21 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log("Joining world");
     // signal that we're a new peer and initialize our
     // mediasoup-client device, if this is our first time connecting
+
     const resp = await this.request(MessageTypes.JoinWorld.toString(),
     {
-      userId: "changeMe"
+      // BUG:
+      // TODO: Need to populate localUserId
+      userId: Network.instance.localUserId
     });
+
     console.log("Awaiting response to join world");
-    const { sceneId, peers, networkObjects, routerRtpCapabilities } = resp as any;
-    // TODO:
-    // Create a scene + load entity + component
-    // Set network client list to this
-    // 
+    const { worldState, routerRtpCapabilities } = resp as any;
+   
+    // TODO: This shouldn't be in the transport, should be in our network system somehow
+    // Apply all state to initial frame
+    applyWorldState(worldState)
+
     console.log("Loading mediasoup");
     if (!this.mediasoupDevice.loaded) await this.mediasoupDevice.load({ routerRtpCapabilities });
     console.log("Polling");
