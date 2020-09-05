@@ -14,26 +14,20 @@ const PartyVideoWindows = observer((): JSX.Element => {
   useEffect(() => {
     autorun(() => {
       const newConsumers = {};
-      console.log('Consumer useEffect');
-      console.log(MediaStreamComponent.instance?.consumers);
       MediaStreamComponent.instance?.consumers.forEach((consumer) => {
         const peerId = consumer._appData.peerId;
-        console.log(`PeerId: ${peerId}`);
         const kind = consumer._track.kind;
-        console.log(`kind: ${kind}`);
         if (newConsumers[peerId] == null) {
           newConsumers[peerId] = {};
         }
         newConsumers[peerId][kind] = consumer;
       });
-      console.log(newConsumers);
-      console.log(Object.entries(newConsumers));
       setParsedConsumers(Object.entries(newConsumers));
     });
   }, []);
 
   return (
-    <Grid className="rootContainer" container direction="row" wrap="nowrap">
+    <Grid className="party-user-container" container direction="row" wrap="nowrap">
       { parsedConsumers.map(([key, tracks]) => (
         <PartyParticipantWindow
             containerProportions={{
@@ -42,8 +36,6 @@ const PartyVideoWindows = observer((): JSX.Element => {
             }}
             peerId={tracks.video ? tracks.video._appData.peerId : tracks.audio._appData.peerId}
             key={key}
-            videoStream={tracks.video}
-            audioStream={tracks.audio}
         />
       ))}
     </Grid>

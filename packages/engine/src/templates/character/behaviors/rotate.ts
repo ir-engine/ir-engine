@@ -8,6 +8,7 @@ import { InputAlias } from "../../../input/types/InputAlias";
 import { InputType } from "../../../input/enums/InputType";
 import { NumericalType } from "../../../common/types/NumericalTypes";
 import { getComponent, getMutableComponent } from "../../../ecs/functions/EntityFunctions";
+import { MouseInput } from "../../../input/enums/MouseInput";
 
 let actor: CharacterComponent;
 let transform: TransformComponent;
@@ -25,9 +26,9 @@ export const rotateAround: Behavior = (
   actor = getComponent(entity, CharacterComponent as any) as CharacterComponent;
   transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
 
-  mouseDownPosition = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes.mouseClickDownPosition);
+  mouseDownPosition = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes[MouseInput.MouseClickDownPosition]);
   originalRotation = inputComponent.data.get(
-    inputComponent.schema.mouseInputMap.axes.mouseClickDownTransformRotation
+    inputComponent.schema.mouseInputMap.axes[MouseInput.MouseClickDownTransformRotation]
   );
 
   if (mouseDownPosition == undefined || originalRotation == undefined) return;
@@ -43,7 +44,7 @@ export const rotateAround: Behavior = (
   //   originalRotation.value[2],
   //   originalRotation.value[3]
   // );
-  // if (args.inputType === InputType.TWOD) {
+  // if (args.inputType === InputType.TWODIM) {
   //   if (inputComponent.data.has(args.input)) {
   //     inputValue = inputComponent.data.get(args.input).value as Vector2;
   //     startValue = mouseDownPosition.value as Vector2;

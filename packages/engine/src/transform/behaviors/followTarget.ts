@@ -41,13 +41,13 @@ export const followTarget: Behavior = (entityIn: Entity, args: any, delta: any, 
   camera = getMutableComponent<CameraComponent>(entityIn, CameraComponent);
 
 
-  //console.log(inputComponent.schema.mouseInputMap.axes.mouseClickDownPosition);
+  //console.log(inputComponent.schema.mouseInputMap.axes.[MouseInput.MouseClickDownPosition]);
 
   if (inputComponent) {
     mouseDownPosition = inputComponent.data.get(15);
     if (mouseDownPosition == undefined) return;
     if (!inputComponent.data.has(args.input)) {
-      inputComponent.data.set(args.input, { type: InputType.TWOD, value: new Vector3() });
+      inputComponent.data.set(args.input, { type: InputType.TWODIM, value: new Vector3() });
     }
     inputValue = inputComponent.data.get(args.input).value //as Vector2;
     startValue = mouseDownPosition.value //as Vector2;
@@ -59,7 +59,7 @@ export const followTarget: Behavior = (entityIn: Entity, args: any, delta: any, 
 
 /*
   originalRotation = inputComponent.data.get(
-    inputComponent.schema.mouseInputMap.axes.mouseClickDownTransformRotation
+    inputComponent.schema.mouseInputMap.axes[MouseInput.MouseClickDownTransformRotation]
   );
 */
 

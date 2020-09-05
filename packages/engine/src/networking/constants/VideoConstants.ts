@@ -19,7 +19,7 @@ export const localMediaConstraints = {
 // just two resolutions, for now, as chrome 75 seems to ignore more
 // than two encodings
 export const CAM_VIDEO_SIMULCAST_ENCODINGS = [
-  { maxBitrate: 36000, scaleResolutionDownBy: 2 }
-  // { maxBitrate: 96000, scaleResolutionDownBy: 2 },
-  // { maxBitrate: 680000, scaleResolutionDownBy: 1 },
+  { maxBitrate: 36000, scaleResolutionDownBy: 4 },
+  { maxBitrate: 96000, scaleResolutionDownBy: 2 },
+  { maxBitrate: 680000, scaleResolutionDownBy: 1 },
 ];

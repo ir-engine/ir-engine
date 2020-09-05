@@ -6,14 +6,10 @@ import { handleKey, handleMouseButton, handleMouseMovement } from '../../input/b
 import { handleGamepadConnected, handleGamepadDisconnected } from '../../input/behaviors/GamepadInputBehaviors';
 import { handleTouch, handleTouchMove } from '../../input/behaviors/TouchBehaviors';
 import { GamepadButtons } from '../../input/enums/GamepadButtons';
-import { InputType } from '../../input/enums/InputType';
-import { MouseButtons } from '../../input/enums/MouseButtons';
+import { MouseInput } from '../../input/enums/MouseInput';
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
 import { DefaultInput } from '../shared/DefaultInput';
-import { jumpStart } from "./behaviors/jumpStart";
-import { move } from './behaviors/move';
-import { rotateAround } from './behaviors/rotate';
 import { setArcadeVelocityTarget } from './behaviors/setArcadeVelocityTarget';
 
 export const CharacterInputSchema: InputSchema = {
@@ -60,10 +56,6 @@ export const CharacterInputSchema: InputSchema = {
           value: BinaryValue.ON
         }
       }
-      // {
-      //   behavior: rotateStart,
-      //   args: {}
-      // }
     ],
 
     // Touch
@@ -74,10 +66,6 @@ export const CharacterInputSchema: InputSchema = {
           value: BinaryValue.ON
         }
       }
-      // {
-      //   behavior: rotateStart,
-      //   args: {}
-      // }
     ],
     touchend: [
       {
@@ -133,14 +121,14 @@ export const CharacterInputSchema: InputSchema = {
   // Map mouse buttons to abstract input
   mouseInputMap: {
     buttons: {
-      [MouseButtons.LeftButton]: DefaultInput.PRIMARY,
-      [MouseButtons.RightButton]: DefaultInput.SECONDARY
-      // [MouseButtons.MiddleButton]: DefaultInput.INTERACT
+      [MouseInput.LeftButton]: DefaultInput.PRIMARY,
+      [MouseInput.RightButton]: DefaultInput.SECONDARY,
+      [MouseInput.MiddleButton]: DefaultInput.INTERACT
     },
     axes: {
-      mousePosition: DefaultInput.SCREENXY,
-      mouseClickDownPosition: DefaultInput.SCREENXY_START,
-      mouseClickDownTransformRotation: DefaultInput.ROTATION_START
+      [MouseInput.MousePosition]: DefaultInput.SCREENXY,
+      [MouseInput.MouseClickDownPosition]: DefaultInput.SCREENXY_START,
+      [MouseInput.MouseClickDownTransformRotation]: DefaultInput.ROTATION_START
     }
   },
   // Map gamepad buttons to abstract input
@@ -184,28 +172,11 @@ export const CharacterInputSchema: InputSchema = {
     [DefaultInput.RIGHT]: { opposes: [DefaultInput.LEFT] } as InputRelationship,
     [DefaultInput.JUMP]: { } as InputRelationship
   },
-  // onInputButtonBehavior: {
-  //     [BinaryValue.ON]: {
-  //       started: [
-  //         {
-  //           behavior: sendMessage,
-  //           args: {}
-  //         }
-  //       ]
-  //     },
-  //     [BinaryValue.OFF]: {
-
-  //     }
-  //   }
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
     [DefaultInput.JUMP]: {
       [BinaryValue.ON]: {
         started: [
-          // {
-          //   behavior: jumpStart,
-          //   args: {}
-          // }
         ]
       }
     },
@@ -233,14 +204,8 @@ export const CharacterInputSchema: InputSchema = {
       },
       [BinaryValue.OFF]: {
         started: [
-          // {
-          //   behavior: updateMovementState
-          // }
         ],
         continued: [
-          // {
-          //   behavior: updateMovementState
-          // }
         ]
       }
     },
@@ -268,14 +233,8 @@ export const CharacterInputSchema: InputSchema = {
       },
       [BinaryValue.OFF]: {
         started: [
-          // {
-          //   behavior: updateMovementState
-          // }
         ],
         continued: [
-          // {
-          //   behavior: updateMovementState
-          // }
         ]
       }
     },
@@ -303,14 +262,8 @@ export const CharacterInputSchema: InputSchema = {
       },
       [BinaryValue.OFF]: {
         started: [
-          // {
-          //   behavior: updateMovementState
-          // }
         ],
         continued: [
-          // {
-          //   behavior: updateMovementState
-          // }
         ]
       }
     },
@@ -338,14 +291,8 @@ export const CharacterInputSchema: InputSchema = {
       },
       [BinaryValue.OFF]: {
         started: [
-          // {
-          //   behavior: updateMovementState
-          // }
         ],
         continued: [
-          // {
-          //   behavior: updateMovementState
-          // }
         ]
       }
     }
@@ -354,29 +301,12 @@ export const CharacterInputSchema: InputSchema = {
   inputAxisBehaviors: {
     [DefaultInput.MOVEMENT_PLAYERONE]: {
       started: [
-        // {
-        //   behavior: updateMovementState
-        // }
       ],
       continued: [
-        // {
-        //   behavior: move,
-        //   args: {
-        //     input: DefaultInput.MOVEMENT_PLAYERONE,
-        //     inputType: InputType.TWOD
-        //   }
-        // }
       ]
     },
     [DefaultInput.SCREENXY]: {
       started: [
-        // {
-        //   behavior: rotateAround,
-        //   args: {
-        //     input: DefaultInput.SCREENXY,
-        //     inputType: InputType.TWOD
-        //   }
-        // }
       ]
     }
   }

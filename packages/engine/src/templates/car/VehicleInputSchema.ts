@@ -7,10 +7,10 @@ import { handleGamepadConnected, handleGamepadDisconnected } from '../../input/b
 import { handleTouch, handleTouchMove } from '../../input/behaviors/TouchBehaviors';
 import { GamepadButtons } from '../../input/enums/GamepadButtons';
 import { InputType } from '../../input/enums/InputType';
-import { MouseButtons } from '../../input/enums/MouseButtons';
+import { MouseInput } from '../../input/enums/MouseInput';
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
-import { drive } from '../../physics/behaviors/driveBehavior';
+import { drive } from '@xr3ngine/engine/src/physics/behaviors/driveBehavior';
 import { DefaultInput } from '../shared/DefaultInput';
 
 export const VehicleInputSchema: InputSchema = {
@@ -125,14 +125,14 @@ export const VehicleInputSchema: InputSchema = {
   // Map mouse buttons to abstract input
   mouseInputMap: {
     buttons: {
-      [MouseButtons.LeftButton]: DefaultInput.PRIMARY,
-      [MouseButtons.RightButton]: DefaultInput.SECONDARY
+      [MouseInput.LeftButton]: DefaultInput.PRIMARY,
+      [MouseInput.RightButton]: DefaultInput.SECONDARY
       // [MouseButtons.MiddleButton]: DefaultInput.INTERACT
     },
     axes: {
-      mousePosition: DefaultInput.SCREENXY,
-      mouseClickDownPosition: DefaultInput.SCREENXY_START,
-      mouseClickDownTransformRotation: DefaultInput.ROTATION_START
+      [MouseInput.MousePosition]: DefaultInput.SCREENXY,
+      [MouseInput.MouseClickDownPosition]: DefaultInput.SCREENXY_START,
+      [MouseInput.MouseClickDownTransformRotation]: DefaultInput.ROTATION_START
     }
   },
   // Map gamepad buttons to abstract input
@@ -199,7 +199,7 @@ export const VehicleInputSchema: InputSchema = {
           {
             behavior: drive,
             args: {
-              inputType: InputType.TWOD,
+              inputType: InputType.TWODIM,
               value: [0, -1]
             }
           }
@@ -208,7 +208,7 @@ export const VehicleInputSchema: InputSchema = {
           {
             behavior: drive,
             args: {
-              inputType: InputType.TWOD,
+              inputType: InputType.TWODIM,
               value: [0, -1]
             }
           }
@@ -227,7 +227,7 @@ export const VehicleInputSchema: InputSchema = {
           {
             behavior: drive,
             args: {
-              inputType: InputType.TWOD,
+              inputType: InputType.TWODIM,
               value: [0, 1]
             }
           }
@@ -236,7 +236,7 @@ export const VehicleInputSchema: InputSchema = {
           {
             behavior: drive,
             args: {
-              inputType: InputType.TWOD,
+              inputType: InputType.TWODIM,
               value: [0, 1]
             }
           }
@@ -255,7 +255,7 @@ export const VehicleInputSchema: InputSchema = {
           {
             behavior: drive,
             args: {
-              inputType: InputType.TWOD,
+              inputType: InputType.TWODIM,
               value: [-1, 0]
             }
           }
@@ -264,7 +264,7 @@ export const VehicleInputSchema: InputSchema = {
           {
             behavior: drive,
             args: {
-              inputType: InputType.TWOD,
+              inputType: InputType.TWODIM,
               input: {
                 value: [-1, 0]
               },
@@ -286,7 +286,7 @@ export const VehicleInputSchema: InputSchema = {
           {
             behavior: drive,
             args: {
-              inputType: InputType.TWOD,
+              inputType: InputType.TWODIM,
               value: [1, 0]
             }
           }
@@ -295,7 +295,7 @@ export const VehicleInputSchema: InputSchema = {
           {
             behavior: drive,
             args: {
-              inputType: InputType.TWOD,
+              inputType: InputType.TWODIM,
               value: [1, 0]
             }
           }
@@ -319,7 +319,7 @@ export const VehicleInputSchema: InputSchema = {
           behavior: drive,
           args: {
             input: DefaultInput.MOVEMENT_PLAYERONE,
-            inputType: InputType.TWOD
+            inputType: InputType.TWODIM
           }
         }
       ]
@@ -330,7 +330,7 @@ export const VehicleInputSchema: InputSchema = {
         //   behavior: rotateAround,
         //   args: {
         //     input: DefaultInput.SCREENXY,
-        //     inputType: InputType.TWOD
+        //     inputType: InputType.TWODIM
         //   }
         // }
       ]

@@ -72,7 +72,7 @@ export const initializeCharacter: Behavior = (entity): void => {
 			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
 		});
 		actor.actorCapsule.body.allowSleep = false;
-		actor.actorCapsule.body.position = new Vec3()
+		actor.actorCapsule.body.position = new Vec3(0,1,0);
 		// Move actor to different collision group for raycasting
 		actor.actorCapsule.body.collisionFilterGroup = 2;
 

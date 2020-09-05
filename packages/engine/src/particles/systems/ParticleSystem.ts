@@ -14,7 +14,8 @@ import {
 } from "../classes/ParticleEmitter"
 
 export class ParticleSystem extends System {
-  init(attributes?: SystemAttributes): void {
+  constructor(attributes?: SystemAttributes) {
+    super()
     registerComponent(ParticleEmitter)
     registerComponent(ParticleEmitterState)
   }
