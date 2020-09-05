@@ -7,6 +7,7 @@ export class MediaStreamComponent extends Component<any> {
   @observable public videoPaused = false
   @observable public audioPaused = false
   @observable public mediaStream: MediaStream
+  @observable public audioGainNode: GainNode
 
   @observable localScreen
   @observable camVideoProducer

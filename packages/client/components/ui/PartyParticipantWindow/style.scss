@@ -27,25 +27,41 @@ $avatar-bg: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZ
         position: absolute;
         bottom: 0;
         width: 100%;
+        display: flex;
+        justify-content: space-between;
 
         & > button {
             background-color: white;
             opacity:40%;
             z-index: 200;
-            bottom: 10px;
-            position: absolute;
+            //bottom: 10px;
+            //position: absolute;
 
-            &.video-control {
-                left: 10px;
-            }
-
-            &.audio-control {
-                right: 10px;
-            }
+            //&.video-control {
+            //    left: 10px;
+            //}
+            //
+            //&.audio-control {
+            //    right: 10px;
+            //}
 
             &:hover {
                 //background-color: gray;
                 opacity: 60%
+            }
+        }
+
+        & > .audio-slider {
+            width: 60%;
+            display: flex;
+            align-items: center;
+            z-index: 100;
+            background-color: white;
+            opacity: 40%;
+            border-radius: 15px;
+
+            & > span {
+                margin: 0 10px;
             }
         }
     }
