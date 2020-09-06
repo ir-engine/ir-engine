@@ -15,7 +15,6 @@ module.exports = withImages(
     dir: './',
     distDir: './.next',
     webpack(config, options) {
-      config.target = 'node'
       config.resolve.alias.utils = path.join(__dirname, 'utils')
       config.module.rules.push(
         {
@@ -24,22 +23,21 @@ module.exports = withImages(
             loader: 'babel-loader',
             options: {
               presets: [
-                  '@babel/preset-env'
+                '@babel/preset-env'
               ]
             }
           }
-        })
-        config.module.rules.push(
-          {
-        test: /\.(eot|woff|woff2|ttf|svg|png|jpg|gif)$/,
-        use: {
-          loader: 'url-loader',
-          options: {
-            limit: 100000,
-            name: '[name].[ext]'
+        },
+        {
+          test: /\.(eot|woff|woff2|ttf|svg|png|jpg|gif)$/,
+          use: {
+            loader: 'url-loader',
+            options: {
+              limit: 100000,
+              name: '[name].[ext]'
+            }
           }
-        }
-      })
+        })
       config.module.rules.push({
         test: /\.ts$/,
         use: {
@@ -93,7 +91,7 @@ module.exports = withImages(
       config.module.rules.push({
         test: /\.(glsl|vert|fs|frag)$/,
         loader: 'ts-shader-loader'
-    })
+      })
       config.module.rules.push({
         test: /\.(mp4|webm)(\?.*$|$)/,
         use: {
