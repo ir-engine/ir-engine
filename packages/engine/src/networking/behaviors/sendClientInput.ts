@@ -45,5 +45,7 @@ export const sendClientInput = (entity: Entity): void => {
   const message = clientInputModel.toBuffer(inputs)
 
   // TODO: Send unreliably
-  sendMessage(MessageChannel.Reliable, message, MessageTypes.ClientInput)
+  sendMessage(MessageChannel.Reliable, message, {
+    type: MessageTypes.ClientInput
+  })
 };

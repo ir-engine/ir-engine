@@ -2,10 +2,8 @@ import { Network } from "@xr3ngine/engine/src/networking/components/Network"
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes"
 import { Message } from "@xr3ngine/engine/src/networking/interfaces/Message"
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport"
-import { UnreliableMessageReturn, UnreliableMessageType, CreateWebRtcTransportParams } from "@xr3ngine/engine/src/networking/types/NetworkingTypes"
 import * as https from "https"
 import { createWorker } from 'mediasoup'
-import { types as MediaSoupClientTypes } from "mediasoup-client"
 import {
   DataConsumer,
   DataProducer,
@@ -17,7 +15,9 @@ import {
   WebRtcTransport,
   Worker
 } from "mediasoup/lib/types"
-import {networkInterfaces} from "os";
+import { types as MediaSoupClientTypes } from "mediasoup-client"
+import { UnreliableMessageReturn, UnreliableMessageType, CreateWebRtcTransportParams } from "@xr3ngine/engine/src/networking/types/NetworkingTypes"
+import { networkInterfaces } from 'os'
 import { worldStateModel } from "@xr3ngine/engine/src/networking/schema/worldStateSchema"
 import SocketIO, { Socket } from "socket.io"
 import app from '../../app'
@@ -222,27 +222,23 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         dataProducers: new Map<string, DataProducer>() // Key => label of data channel
       }
 
-      console.log("Sending peers:")
-      // console.log(this.roomState.peers)
-
-      // Respond to initialization request with a list of clients
-      socket.emit(MessageTypes.Initialization.toString(), socket.id, Object.keys(this.roomState.peers))
-
-      //Update everyone that the number of users has changed
-      socket.broadcast.emit(MessageTypes.ClientConnected.toString(), socket.id)
-
       // Handle the disconnection
       socket.on("disconnect", () => {
-        console.log(
-          "User " + socket.id + " diconnected, there are " + this.socketIO.clients.length + " clients connected"
-        )
-        //Delete this client from the object
-        delete this.roomState.peers[socket.id]
-        Object.entries(this.roomState.peers).forEach(([key, value]) => {
-          const otherSocket = value as Client
-          otherSocket.socket.emit(MessageTypes.ClientDisconnected.toString(), socket.id)
-          // console.log("Telling client ", otherSocket, " about disconnection of " + socket.id)
-        })
+        try {
+          console.log(
+            "User " + socket.id + " diconnected, there are " + this.socketIO.clients.length + " clients connected"
+          )
+          //Delete this client from the object
+          delete this.roomState.peers[socket.id]
+          Object.entries(this.roomState.peers).forEach(([key, value]) => {
+            const otherSocket = value as Client
+            otherSocket.socket.emit(MessageTypes.ClientDisconnected.toString(), socket.id)
+            console.log("Telling client ", otherSocket.socket.id, " about disconnection of " + socket.id)
+          })
+        } catch (err) {
+          console.log('Disconnect error')
+          console.log(err)
+        }
       })
 
       // If a reliable message is received, add it to the queue
@@ -391,6 +387,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             direction,
             sctpCapabilities,
           })
+          await transport.setMaxIncomingBitrate(config.mediasoup.webRtcTransport.maxIncomingBitrate)
           this.roomState.transports[transport.id] = transport
           // Probably just save transports this way so we can distinguish between send and create transport of each client w.r.t producer and consumer (data or mediastream)
           if (direction === 'recv') {
@@ -413,6 +410,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           }
           // Create data consumers for other clients if the current client transport receives data producer on it
           transport.observer.on('newdataproducer', this.handleConsumeDataEvent(socket))
+          console.log('New transport:')
+          console.log(transport)
           callback({
             transportOptions: clientTransportOptions
           })
@@ -509,6 +508,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
       // called from inside a client's `transport.on('produce')` event handler.
       socket.on(MessageTypes.WebRTCSendTrack.toString(), async (data, callback) => {
+        try {
           console.log('Send Track handler')
           const peerId = socket.id
           const { transportId, kind, rtpParameters, paused = false, appData } = data,
@@ -529,8 +529,17 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           console.log('New producer')
           console.log(producer._data.rtpParameters)
 
-        // console.log(this.roomState.producers)
-        callback({ id: producer.id })
+          this.roomState.producers.push(producer)
+          this.roomState.peers[peerId].media[appData.mediaTag] = {
+            paused,
+            encodings: rtpParameters.encodings
+          }
+
+          callback({id: producer.id})
+        } catch(err) {
+          console.log('WebRTC send track error')
+          console.log(err)
+        }
       })
 
       // --> /signaling/recv-track
@@ -543,14 +552,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           console.log('Receive Track handler')
           console.log(data)
           const {mediaPeerId, mediaTag, rtpCapabilities} = data
-          console.log(`socket.id: ${socket.id}`)
-          // console.log(this.roomState.producers)
           const peerId = socket.id
           const producer = this.roomState.producers.find(
-              p => { console.log(p._appData); return p._appData.mediaTag === mediaTag && p._appData.peerID === mediaPeerId }
-          )
-          console.log('producer:')
-          // console.log(producer)
+              p => p._appData.mediaTag === mediaTag && p._appData.peerId === mediaPeerId
+          );
           if (producer == null || !this.router.canConsume({producerId: producer.id, rtpCapabilities})) {
             const msg = `client cannot consume ${mediaPeerId}:${mediaTag}`
             console.error(`recv-track: ${peerId} ${msg}`)
@@ -772,7 +777,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         logTags: ['sctp']
       })
     } catch (e) {
-      console.log("Mediasoup worker creation failed with exception:")
+      console.log("Failed with exception:")
       console.log(e)
     }
     this.worker.on("died", () => {
