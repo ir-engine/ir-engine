@@ -1,33 +1,31 @@
 import { Component } from "react";
-import configs from "../../../components/editor/configs";
-// TODO: Bring this back!
-import { withApi } from "../../../components/editor/ui/contexts/ApiContext";
-import styled from "styled-components";
-import { createEditor } from "../../../components/editor/nodes/Nodes";
-import { defaultSettings, SettingsContextProvider } from "../../../components/editor/ui/contexts/SettingsContext";
-import defaultTemplateUrl from "./crater.json";
-import tutorialTemplateUrl from "./tutorial.json";
-import ErrorDialog from "../../../components/editor/ui/dialogs/ErrorDialog";
-import ProgressDialog from "../../../components/editor/ui/dialogs/ProgressDialog";
-import { cmdOrCtrlString } from "../../../components/editor/ui/utils";
-import SaveNewProjectDialog from "../../../components/editor/ui/dialogs/SaveNewProjectDialog";
-import ExportProjectDialog from "../../../components/editor/ui/dialogs/ExportProjectDialog";
-import ConfirmDialog from "../../../components/editor/ui/dialogs/ConfirmDialog";
-import DndProvider from "../../../components/editor/ui/EditorContainer";
-import Onboarding from "../../../components/editor/ui/onboarding/Onboarding";
-import { OnboardingContextProvider } from "../../../components/editor/ui/contexts/OnboardingContext";
+import { HTML5Backend } from "react-dnd-html5-backend";
 import { Modal } from "react-modal";
-import { Resizeable } from "../../../components/editor/ui/layout/Resizeable";
-import ViewportPanelContainer from "../../../components/editor/ui/viewport/ViewportPanelContainer";
-import DragLayer from "../../../components/editor/ui/dnd/DragLayer";
+import styled from "styled-components";
+import configs from "../../../components/editor/configs";
+import Editor from "../../../components/editor/Editor";
+import { createEditor } from "../../../components/editor/nodes/Nodes";
 import { DialogContextProvider } from "../../../components/editor/ui/contexts/DialogContext";
 import { EditorContextProvider } from "../../../components/editor/ui/contexts/EditorContext";
-import ToolBar from "../../../components/editor/ui/toolbar/ToolBar";
+import { OnboardingContextProvider } from "../../../components/editor/ui/contexts/OnboardingContext";
+import { defaultSettings, SettingsContextProvider } from "../../../components/editor/ui/contexts/SettingsContext";
+import ConfirmDialog from "../../../components/editor/ui/dialogs/ConfirmDialog";
+import ErrorDialog from "../../../components/editor/ui/dialogs/ErrorDialog";
+import ExportProjectDialog from "../../../components/editor/ui/dialogs/ExportProjectDialog";
+import ProgressDialog from "../../../components/editor/ui/dialogs/ProgressDialog";
+import SaveNewProjectDialog from "../../../components/editor/ui/dialogs/SaveNewProjectDialog";
+import DragLayer from "../../../components/editor/ui/dnd/DragLayer";
+import DndProvider from "../../../components/editor/ui/EditorContainer";
+import HierarchyPanelContainer from "../../../components/editor/ui/hierarchy/HierarchyPanelContainer";
+import { Resizeable } from "../../../components/editor/ui/layout/Resizeable";
+import Onboarding from "../../../components/editor/ui/onboarding/Onboarding";
 import PropertiesPanelContainer from "../../../components/editor/ui/properties/PropertiesPanelContainer";
 import BrowserPrompt from "../../../components/editor/ui/router/BrowserPrompt";
-import HTML5Backend from "react-dnd-html5-backend";
-import Editor from "../../../components/editor/Editor";
-import HierarchyPanelContainer from "../../../components/editor/ui/hierarchy/HierarchyPanelContainer";
+import ToolBar from "../../../components/editor/ui/toolbar/ToolBar";
+import { cmdOrCtrlString } from "../../../components/editor/ui/utils";
+import ViewportPanelContainer from "../../../components/editor/ui/viewport/ViewportPanelContainer";
+import defaultTemplateUrl from "../crater.json";
+import tutorialTemplateUrl from "../tutorial.json";
 
 //  BrowserPrompt
 const StyledEditorContainer = (styled as any).div`
@@ -97,7 +95,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   componentDidMount() {
     const { match, location } = this.props;
     const projectId = match.params.projectId;
-    const queryParams = new URLSearchParams(location.search);
+    const queryParams = new URLSearchParams(location.search ?? "");
     if (projectId === "new") {
       if (queryParams.has("template")) {
         this.loadProjectTemplate(queryParams.get("template"));
@@ -122,7 +120,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     ) {
       const prevProjectId = prevProps.match.params.projectId;
       const { projectId } = this.props.match.params;
-      const queryParams = new URLSearchParams(location.search);
+      const queryParams = new URLSearchParams(location.search  ?? "");
       let templateUrl = null;
       if (projectId === "new" && !queryParams.has("sceneId")) {
         templateUrl = queryParams.get("template") || defaultTemplateUrl;

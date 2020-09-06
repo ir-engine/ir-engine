@@ -1,92 +1,69 @@
-// @ts-nocheck
-import cliffmeetingTemplateUrl from "../../assets/templates/cliffside-meeting-room.world";
-import cliffmeetingTemplateThumbnail from "../../assets/templates/cliffside-meeting-room.jpg";
-import clubhubTemplateUrl from "../../assets/templates/club-hub.world";
-import clubhubTemplateThumbnail from "../../assets/templates/club-hub.jpg";
-import cudilleroTemplateUrl from "../../assets/templates/cudillero-diorama.world";
-import cudilleroTemplateThumbnail from "../../assets/templates/cudillero-diorama.jpg";
-import hunterslodgeTemplateUrl from "../../assets/templates/hunters-lodge.world";
-import hunterslodgeTemplateThumbnail from "../../assets/templates/hunters-lodge.jpg";
-import mozatriumTemplateUrl from "../../assets/templates/moz-atrium.world";
-import mozatriumTemplateThumbnail from "../../assets/templates/moz-atrium.jpg";
-import outdoormeetupTemplateUrl from "../../assets/templates/outdoor-meetup.world";
-import outdoormeetupTemplateThumbnail from "../../assets/templates/outdoor-meetup.jpg";
-import riverislandTemplateUrl from "../../assets/templates/river-island.world";
-import riverislandTemplateThumbnail from "../../assets/templates/river-island.jpg";
-import trippytunnelTemplateUrl from "../../assets/templates/trippy-tunnel.world";
-import trippytunnelTemplateThumbnail from "../../assets/templates/trippy-tunnel.jpg";
-import wideopenTemplateUrl from "../../assets/templates/templates/wide-open-space.world";
-import wideopenTemplateThumbnail from "../../assets/templates/wide-open-space.jpg";
-import craterTemplateUrl from "../../assets/templates/crater.world";
-import craterTemplateThumbnail from "../../assets/templates/crater.jpg";
-import surroundedLakeTemplateUrl from "../../assets/templates/surrounded-lake.world";
-import surroundedLakeTemplateThumbnail from "../../assets/templates/surrounded-lake.jpg";
 const templates = [
   {
     project_id: "crater",
     name: "Crater",
-    thumbnail_url: craterTemplateThumbnail,
-    project_url: craterTemplateUrl
+    thumbnail_url: "editor/templates/crater.jpg",
+    project_url: "editor/templates/crater.world"
   },
   {
     project_id: "surroundedlake",
     name: "Surrounded Lake",
-    thumbnail_url: surroundedLakeTemplateThumbnail,
-    project_url: surroundedLakeTemplateUrl
+    thumbnail_url: "editor/templates/surrounded-lake.jpg",
+    project_url: "editor/templates/surrounded-lake.world"
   },
   {
     project_id: "mozatrium",
     name: "Moz Atrium",
-    thumbnail_url: mozatriumTemplateThumbnail,
-    project_url: mozatriumTemplateUrl
+    thumbnail_url: "editor/templates/moz-atrium.jpg",
+    project_url: "editor/templates/moz-atrium.world"
   },
   {
     project_id: "outdoormeetup",
     name: "Outdoor Meetup",
-    thumbnail_url: outdoormeetupTemplateThumbnail,
-    project_url: outdoormeetupTemplateUrl
+    thumbnail_url: "editor/templates/outdoor-meetup.jpg",
+    project_url: "editor/templates/outdoor-meetup.world"
   },
   {
     project_id: "riverisland",
     name: "River Island",
-    thumbnail_url: riverislandTemplateThumbnail,
-    project_url: riverislandTemplateUrl
+    thumbnail_url: "editor/templates/river-island.jpg",
+    project_url: "editor/templates/river-island.world"
   },
   {
     project_id: "clubhub",
     name: "Club Hub",
-    thumbnail_url: clubhubTemplateThumbnail,
-    project_url: clubhubTemplateUrl
+    thumbnail_url: "editor/templates/club-hub.jpg",
+    project_url: "editor/templates/club-hub.world"
   },
   {
     project_id: "cliffmeeting",
     name: "Cliffside Meeting Room",
-    thumbnail_url: cliffmeetingTemplateThumbnail,
-    project_url: cliffmeetingTemplateUrl
+    thumbnail_url:  "editor/templates/cliffside-meeting-room.jpg",
+    project_url: "editor/templates/cliffside-meeting-room.world"
   },
   {
     project_id: "cudillero",
     name: "Cudillero Diorama",
-    thumbnail_url: cudilleroTemplateThumbnail,
-    project_url: cudilleroTemplateUrl
+    thumbnail_url: "editor/templates/cudillero-diorama.jpg",
+    project_url: "editor/templates/cudillero-diorama.world"
   },
   {
     project_id: "hunterslodge",
     name: "Hunter's Lodge",
-    thumbnail_url: hunterslodgeTemplateThumbnail,
-    project_url: hunterslodgeTemplateUrl
+    thumbnail_url: "editor/templates/hunters-lodge.jpg",
+    project_url: "editor/templates/hunters-lodge.world"
   },
   {
     project_id: "trippytunnel",
     name: "Trippy Tunnel",
-    thumbnail_url: trippytunnelTemplateThumbnail,
-    project_url: trippytunnelTemplateUrl
+    thumbnail_url: "editor/templates/trippy-tunnel.jpg",
+    project_url: "editor/templates/trippy-tunnel.world"
   },
   {
     project_id: "wideopen",
     name: "Wide Open Space",
-    thumbnail_url: wideopenTemplateThumbnail,
-    project_url: wideopenTemplateUrl
+    thumbnail_url: "editor/templates/wide-open-space.jpg",
+    project_url: "editor/templates/templates/wide-open-space.world"
   }
 ];
 function transformUrls(templates) {

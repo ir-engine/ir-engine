@@ -1,25 +1,22 @@
-import React, { useCallback, useState, useContext } from "react";
 import PropTypes from "prop-types";
-import ScrollToTop from "../../../components/editor/ui/router/ScrollToTop";
+import React, { useCallback, useContext, useState } from "react";
+import { ApiContext } from "../../components/editor/ui/contexts/ApiContext";
+import { Button } from "../../components/editor/ui/inputs/Button";
+import PrimaryLink from "../../components/editor/ui/inputs/PrimaryLink";
 import {
+  ErrorMessage,
+  Filter,
   ProjectGrid,
   ProjectGridContainer,
+  ProjectGridContent,
   ProjectGridHeader,
   ProjectGridHeaderRow,
-  Filter,
-  Separator,
   SearchInput,
-  ProjectGridContent,
-  ErrorMessage
-} from "../../../components/editor/ui/projects/ProjectGrid";
+  Separator
+} from "../../components/editor/ui/projects/ProjectGrid";
+import { ProjectsContainer, ProjectsHeader, ProjectsSection } from "../../components/editor/ui/projects/ProjectsPage";
+import ScrollToTop from "../../components/editor/ui/router/ScrollToTop";
 
-import PrimaryLink from "../../../components/editor/ui/inputs/PrimaryLink";
-import { Button } from "../../../components/editor/ui/inputs/Button";
-import { ProjectsSection, ProjectsContainer, ProjectsHeader } from "../../../components/editor/ui/projects/ProjectsPage";
-import { ApiContext } from "../../../components/editor/ui/contexts/ApiContext";
-import { Link } from "react-router-dom";
-import InfiniteScroll from "react-infinite-scroller";
-import usePaginatedSearch from "../../../components/editor/ui/projects/usePaginatedSearch";
 
 export default function CreateProjectPage({ history, location }) {
   const api = useContext(ApiContext);
@@ -109,7 +106,7 @@ export default function CreateProjectPage({ history, location }) {
                   <SearchInput placeholder="Search scenes..." value={params.q} onChange={onChangeQuery} />
                 </ProjectGridHeaderRow>
                 <ProjectGridHeaderRow>
-                  <Button as={Link} to="/projects/new">
+                  <Button to="/projects/new">
                     New Empty Project
                   </Button>
                 </ProjectGridHeaderRow>
@@ -118,19 +115,19 @@ export default function CreateProjectPage({ history, location }) {
                 <ScrollToTop />
                 {error && <ErrorMessage>{(error as any).message}</ErrorMessage>}
                 {!error && (
-                    <ProjectGrid
-                      projects={filteredEntries}
-                      newProjectPath="/projects/new"
-                      newProjectLabel="New Empty Project"
-                      loading={loading}
-                    />
+                  <ProjectGrid
+                    projects={filteredEntries}
+                    newProjectPath="/projects/new"
+                    newProjectLabel="New Empty Project"
+                    loading={loading}
+                  />
                 )}
               </ProjectGridContent>
             </ProjectGridContainer>
           </ProjectsContainer>
         </ProjectsSection>
       </main>
-      
+
     </>
   );
 }

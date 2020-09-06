@@ -60,7 +60,7 @@ const server = {
   keyPath: path.resolve(path.dirname("./"), process.env.KEY ?? 'certs/key.pem')
 }
 server.url = process.env.SERVER_URL ??
-  url.format({ protocol: 'http', ...server })
+  url.format({ protocol: 'https', ...server })
 
 /**
  * Client / frontend

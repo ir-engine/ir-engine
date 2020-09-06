@@ -1,18 +1,16 @@
 import {
-  Vector2,
   Color,
+  Layers,
   MeshBasicMaterial,
   MeshNormalMaterial,
-  Layers
+  Vector2
 } from "three";
-import { BatchManager } from "@mozillareality/three-batch-manager";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
-import OutlinePass from "./OutlinePass";
+import ScenePreviewCameraNode from "../nodes/ScenePreviewCameraNode";
 import { getCanvasBlob } from "../utils/thumbnails";
 import makeRenderer from "./makeRenderer";
-import EditorBatchRawUniformGroup from "./EditorBatchRawUniformGroup";
-import ScenePreviewCameraNode from "../nodes/ScenePreviewCameraNode";
+import OutlinePass from "./OutlinePass";
 /**
  * @author mrdoob / http://mrdoob.com/
  */
@@ -95,11 +93,6 @@ class UnlitRenderMode extends RenderMode {
         object.layers.disable(2);
       }
     });
-    if (this.editorRenderer.batchManager) {
-      for (const batch of this.editorRenderer.batchManager.batches) {
-        batch.visible = !this.disableBatching;
-      }
-    }
     this.renderPass.scene = this.editor.scene;
     this.renderPass.camera = this.editor.camera;
     this.outlinePass.renderScene = this.editor.scene;
@@ -162,7 +155,6 @@ export default class Renderer {
   renderModes: any[];
   screenshotRenderer: any;
   camera: any;
-  batchManager: any;
   onUpdateStats: any;
   constructor(editor, canvas) {
     this.editor = editor;
@@ -195,9 +187,6 @@ export default class Renderer {
   }
   update(dt, _time) {
     this.renderer.info.reset();
-    if (this.batchManager) {
-      this.batchManager.update();
-    }
     this.renderMode.render(dt);
     if (this.onUpdateStats) {
       this.renderer.info.render.fps = 1 / dt;
@@ -211,47 +200,13 @@ export default class Renderer {
     this.renderMode.onResize();
   }
   onSceneSet = () => {
-    if (this.renderer.capabilities.isWebGL2) {
-      this.batchManager = new BatchManager(this.editor.scene, this.renderer, {
-        // @ts-ignore
-        ubo: new EditorBatchRawUniformGroup(512)
-      });
-    }
     this.renderMode.onSceneSet();
   };
   addBatchedObject(object) {
-    if (!this.batchManager) {
-      return;
-    }
-    const renderMode = this.renderMode;
-    object.traverse(child => {
-      if (child.setShadowsEnabled) {
-        child.setShadowsEnabled(renderMode.enableShadows);
-      }
-      if (child.isMesh) {
-        this.batchManager.addMesh(child);
-      }
-      if (
-        renderMode.disableBatching &&
-        !child.layers.test(renderMode.enabledBatchedObjectLayers)
-      ) {
-        child.layers.enable(0);
-        child.layers.enable(2);
-      }
-    });
-    for (const batch of this.batchManager.batches) {
-      batch.visible = !renderMode.disableBatching;
-    }
+    console.log("Not handling batched object")
   }
   removeBatchedObject(object) {
-    if (!this.batchManager) {
-      return;
-    }
-    object.traverse(child => {
-      if (child.isMesh) {
-        this.batchManager.removeMesh(child);
-      }
-    });
+    console.log("Not handling batched object")
   }
   onResize = () => {
     const camera = this.camera;

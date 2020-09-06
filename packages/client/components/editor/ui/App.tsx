@@ -14,9 +14,6 @@ import theme from "./theme";
 const EditorContainer = lazy(() =>
   import(/* webpackChunkName: "project-page", webpackPrefetch: true */ "./EditorContainer")
 );
-const PackageKitPage = lazy(() =>
-  import(/* webpackChunkName: "package-kit-page", webpackPrefetch: true */ "./assets/PackageKitPage")
-);
 type AppProps = {
   api: object;
 };
@@ -74,7 +71,6 @@ export default class App extends Component<AppProps, AppState> {
                   path="/projects/:projectId"
                   component={EditorContainer}
                 />
-                <Route path="/kits/package" component={PackageKitPage} />
                 <Route render={() => <Error message="Page not found." />} />
               </Switch>
             </Column>

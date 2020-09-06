@@ -5,8 +5,6 @@ import {
   Mesh,
   DoubleSide
 } from "three";
-// @ts-ignore
-import audioIconUrl from "../../assets/audio-icon.png";
 import AudioSource from "../objects/AudioSource";
 import loadTexture from "../utils/loadTexture";
 import { RethrownError } from "../utils/errors";
@@ -16,7 +14,7 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
   static legacyComponentName = "audio";
   static nodeName = "Audio";
   static async load() {
-    audioHelperTexture = await loadTexture(audioIconUrl);
+    audioHelperTexture = await loadTexture("editor/audio-icon.png");
   }
   static async deserialize(editor, json, loadAsync, onError) {
     const node = await super.deserialize(editor, json);
