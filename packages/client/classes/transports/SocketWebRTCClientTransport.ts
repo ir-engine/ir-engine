@@ -161,6 +161,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       console.log(this.recvTransport)
       // this.startScreenshare()
     });
+    this.socket.on(MessageTypes.WebRTCConsumeData.toString(), this.handleDataConsumerCreation)
   }
 
   //= =//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//
@@ -168,7 +169,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   //= =//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//
 
   async joinWorld() {
-    if (this.joined) return;
+    if (this.joined) return Promise.resolve();
     this.joined = true;
     // signal that we're a new peer and initialize our
     // mediasoup-client device, if this is our first time connecting
@@ -193,6 +194,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log("Polling");
     this.pollAndUpdate(); // start this polling loop
     console.log("Joined world");
+
+    return Promise.resolve()
   }
 
   // Init receive transport, create one if it doesn't exist else just resolve promise

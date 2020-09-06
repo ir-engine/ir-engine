@@ -2,10 +2,8 @@ import { Network } from "@xr3ngine/engine/src/networking/components/Network"
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes"
 import { Message } from "@xr3ngine/engine/src/networking/interfaces/Message"
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport"
-import { UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine/src/networking/types/NetworkingTypes"
 import * as https from "https"
 import { createWorker } from 'mediasoup'
-import { types as MediaSoupClientTypes } from "mediasoup-client"
 import {
   DataConsumer,
   DataProducer,
@@ -19,7 +17,7 @@ import {
 } from "mediasoup/lib/types"
 import { types as MediaSoupClientTypes } from "mediasoup-client"
 import { UnreliableMessageReturn, UnreliableMessageType, CreateWebRtcTransportParams } from "@xr3ngine/engine/src/networking/types/NetworkingTypes"
-import {networkInterfaces} from "os";
+import { networkInterfaces } from 'os'
 import { worldStateModel } from "@xr3ngine/engine/src/networking/schema/worldStateSchema"
 import SocketIO, { Socket } from "socket.io"
 import app from '../../app'
@@ -776,7 +774,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         rtcMaxPort: config.mediasoup.worker.rtcMaxPort,
         // dtlsCertificateFile: serverConfig.server.certPath,
         // dtlsPrivateKeyFile: serverConfig.server.keyPath,
-        logLevel: 'debug',
         logTags: ['sctp']
       })
     } catch (e) {
@@ -823,7 +820,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             dataConsumer
           )
           // Currently Creating a consumer for each client and making it subscribe to the current producer
-          socket.to(socketId).emit(MessageTypes.WebRTCConsumeData, {
+          socket.to(socketId).emit(MessageTypes.WebRTCConsumeData.toString(), {
             dataProducerId: dataProducer.id,
             sctpStreamParameters: dataConsumer.sctpStreamParameters,
             label: dataConsumer.label,
