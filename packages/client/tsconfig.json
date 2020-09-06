@@ -31,6 +31,6 @@
   "include": [
     "next-env.d.ts",
     "./**/*.ts",
-    "./**/*.tsx"
+    "./**/*.tsx", "sandbox/editor/recast/recast.worker.js"
   ]
 }

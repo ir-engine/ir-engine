@@ -242,7 +242,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // BUG:
       // TODO: Need to populate localUserId
       userId: Network.instance.localUserId ?? "ERROR"
-    });
+    }).catch(error => console.log(error));
 
     console.log("Awaiting response to join world");
     const { worldState, routerRtpCapabilities } = resp as any;
