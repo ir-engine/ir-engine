@@ -14,6 +14,17 @@ export interface NetworkClientList {
 
 export class Network extends Component<Network> {
   static instance: Network = null
+  // TODO: localuserId should be set somewhere
+  localUserId: string = ""
+  isInitialized: boolean
+  transport: NetworkTransport
+  schema: NetworkSchema
+  // Add more data channels if needed, probably use sort of an enums just like MessageTypes for them
+  dataChannels: string[] = [
+    // examples
+    // 'physics',
+    // 'location' 
+  ]
   clients: NetworkClientList = {}
   networkObjects: NetworkObjectList = {}
   mySocketID: string
@@ -38,19 +49,6 @@ export class Network extends Component<Network> {
   }
 
   static sceneId = "default"
-
-  // TODO: localuserId should be set somewhere
-  localUserId: string = ""
-  isInitialized: boolean
-  transport: NetworkTransport
-  schema: NetworkSchema
-  // Add more data channels if needed, probably use sort of an enums just like MessageTypes for them
-  dataChannels: string[] = [
-    // examples
-    // 'physics',
-    // 'location' 
-  ]
-
   static Network: any
   static tick: any;
   constructor() {
