@@ -17,7 +17,6 @@ import PrimaryLink from "../inputs/PrimaryLink";
 import { Button } from "../inputs/Button";
 import { ProjectsSection, ProjectsContainer, ProjectsHeader } from "./ProjectsPage";
 import { ApiContext } from "../contexts/ApiContext";
-import { Link } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroller";
 import usePaginatedSearch from "./usePaginatedSearch";
 
@@ -118,7 +117,7 @@ export default function CreateProjectPage({ history, location }) {
                   <SearchInput placeholder="Search scenes..." value={params.q} onChange={onChangeQuery} />
                 </ProjectGridHeaderRow>
                 <ProjectGridHeaderRow>
-                  <Button as={Link} to="/projects/new">
+                  <Button to="/projects/new">
                     New Empty Project
                   </Button>
                 </ProjectGridHeaderRow>

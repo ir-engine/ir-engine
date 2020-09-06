@@ -1,12 +1,10 @@
 import React, { Component } from "react";
 import styled from "styled-components";
-import { ContextMenu, connectMenu, MenuItem } from "../../../components/editor/ui/layout/ContextMenu";
-import templates from "../../../components/editor/ui/projects/templates";
-import { Button, MediumButton } from "../../../components/editor/ui/inputs/Button";
-import { ProjectGridContainer, ProjectGridHeader, ProjectGridHeaderRow, ProjectGridContent, ErrorMessage, ProjectGrid } from "../../../components/editor/ui/projects/ProjectGrid";
-import { withApi } from "../../../components/editor/ui/contexts/ApiContext";
-import { Link } from "react-router-dom";
-import configs from "../../../components/editor/configs";
+import { withApi } from "../../components/editor/ui/contexts/ApiContext";
+import { Button, MediumButton } from "../../components/editor/ui/inputs/Button";
+import { connectMenu, ContextMenu, MenuItem } from "../../components/editor/ui/layout/ContextMenu";
+import { ErrorMessage, ProjectGrid, ProjectGridContainer, ProjectGridContent, ProjectGridHeader, ProjectGridHeaderRow } from "../../components/editor/ui/projects/ProjectGrid";
+import templates from "../../components/editor/ui/projects/templates";
 export const ProjectsSection = (styled as any).section`
   padding-bottom: 100px;
   display: flex;
@@ -146,7 +144,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
                   tutorial. Otherwise, jump right in and create a project from
                   scratch or from one of our templates.
                 </h2>
-                <MediumButton as={Link} to="/projects/tutorial">
+                <MediumButton to="/projects/tutorial">
                   Start Tutorial
                 </MediumButton>
               </WelcomeContainer>
@@ -161,7 +159,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
                 <ProjectGridHeader>
                   <ProjectGridHeaderRow />
                   <ProjectGridHeaderRow>
-                    <Button as={Link} to="/projects/create">
+                    <Button to="/projects/create">
                       New Project
                     </Button>
                   </ProjectGridHeaderRow>

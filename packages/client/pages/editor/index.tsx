@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
 
 const Section = (styled as any).section`
   padding: 100px 0;
@@ -86,9 +85,9 @@ export default class LandingPage extends Component {
     return (
         <main>
           <Section>
-                <Link to="/new">
+                <a href="/editor/create">
                   Get Started
-                </Link>
+                </a>
           </Section>
         </main>
     );
