@@ -5,8 +5,8 @@ import InputGroup from "../inputs/InputGroup";
 import Vector3Input from "../inputs/Vector3Input";
 import EulerInput from "../inputs/EulerInput";
 type TransformPropertyGroupProps = {
-  editor?: object,
-  node?: object
+  editor?: object;
+  node?: object;
 };
 export default class TransformPropertyGroup extends Component<
   TransformPropertyGroupProps,

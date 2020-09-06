@@ -5,8 +5,8 @@ import ColorInput from "../inputs/ColorInput";
 import BooleanInput from "../inputs/BooleanInput";
 import { SquareFull } from "@styled-icons/fa-solid/SquareFull";
 type GroundPlaneNodeEditorProps = {
-  editor?: object,
-  node?: object
+  editor?: object;
+  node?: object;
 };
 export default class GroundPlaneNodeEditor extends Component<
   GroundPlaneNodeEditorProps,

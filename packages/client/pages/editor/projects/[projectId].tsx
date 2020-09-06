@@ -2,21 +2,21 @@ import { Component } from "react";
 import configs from "../../../components/editor/configs";
 // TODO: Bring this back!
 import { withApi } from "../../../components/editor/ui/contexts/ApiContext";
-import styled from "styled-components"
-import { createEditor } from "../../../components/editor/nodes/Nodes"
-import { defaultSettings, SettingsContextProvider } from "../../../components/editor/ui/contexts/SettingsContext"
+import styled from "styled-components";
+import { createEditor } from "../../../components/editor/nodes/Nodes";
+import { defaultSettings, SettingsContextProvider } from "../../../components/editor/ui/contexts/SettingsContext";
 import defaultTemplateUrl from "./crater.json";
 import tutorialTemplateUrl from "./tutorial.json";
-import ErrorDialog from "../../../components/editor/ui/dialogs/ErrorDialog"
-import ProgressDialog from "../../../components/editor/ui/dialogs/ProgressDialog"
-import { cmdOrCtrlString } from "../../../components/editor/ui/utils"
-import SaveNewProjectDialog from "../../../components/editor/ui/dialogs/SaveNewProjectDialog"
-import ExportProjectDialog from "../../../components/editor/ui/dialogs/ExportProjectDialog"
-import ConfirmDialog from "../../../components/editor/ui/dialogs/ConfirmDialog"
-import DndProvider from "../../../components/editor/ui/EditorContainer"
-import Onboarding from "../../../components/editor/ui/onboarding/Onboarding"
-import { OnboardingContextProvider } from "../../../components/editor/ui/contexts/OnboardingContext"
-import { Modal } from "react-modal"
+import ErrorDialog from "../../../components/editor/ui/dialogs/ErrorDialog";
+import ProgressDialog from "../../../components/editor/ui/dialogs/ProgressDialog";
+import { cmdOrCtrlString } from "../../../components/editor/ui/utils";
+import SaveNewProjectDialog from "../../../components/editor/ui/dialogs/SaveNewProjectDialog";
+import ExportProjectDialog from "../../../components/editor/ui/dialogs/ExportProjectDialog";
+import ConfirmDialog from "../../../components/editor/ui/dialogs/ConfirmDialog";
+import DndProvider from "../../../components/editor/ui/EditorContainer";
+import Onboarding from "../../../components/editor/ui/onboarding/Onboarding";
+import { OnboardingContextProvider } from "../../../components/editor/ui/contexts/OnboardingContext";
+import { Modal } from "react-modal";
 import { Resizeable } from "../../../components/editor/ui/layout/Resizeable";
 import ViewportPanelContainer from "../../../components/editor/ui/viewport/ViewportPanelContainer";
 import DragLayer from "../../../components/editor/ui/dnd/DragLayer";
@@ -27,7 +27,7 @@ import PropertiesPanelContainer from "../../../components/editor/ui/properties/P
 import BrowserPrompt from "../../../components/editor/ui/router/BrowserPrompt";
 import HTML5Backend from "react-dnd-html5-backend";
 import Editor from "../../../components/editor/Editor";
-import HierarchyPanelContainer from "../../../components/editor/ui/hierarchy/HierarchyPanelContainer"
+import HierarchyPanelContainer from "../../../components/editor/ui/hierarchy/HierarchyPanelContainer";
 
 //  BrowserPrompt
 const StyledEditorContainer = (styled as any).div`
@@ -45,23 +45,23 @@ const WorkspaceContainer = (styled as any).div`
   margin: 6px;
 `;
 type EditorContainerProps = {
-  api: any,
-  history: any,
-  match: any,
-  location: any
+  api: any;
+  history: any;
+  match: any;
+  location: any;
 };
 type EditorContainerState = {
-  onboardingContext: { enabled: boolean },
-  project: null,
-  parentSceneId: null,
-  templateUrl: any,
-  settingsContext: any,
-  error: null,
-  editor: any,
-  creatingProject: any,
-  DialogComponent: null,
-  dialogProps: {},
-  modified: boolean
+  onboardingContext: { enabled: boolean };
+  project: null;
+  parentSceneId: null;
+  templateUrl: any;
+  settingsContext: any;
+  error: null;
+  editor: any;
+  creatingProject: any;
+  DialogComponent: null;
+  dialogProps: {};
+  modified: boolean;
 };
 class EditorContainer extends Component<EditorContainerProps, EditorContainerState> {
   constructor(props) {
@@ -316,7 +316,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
             action: this.onDuplicateProject
           },
           {
-            name: configs.isXR3() ? "Publish to Hubs..." : "Publish Scene...",
+            name: "Publish Scene...",
             action: this.onPublishProject
           },
           {
@@ -449,7 +449,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
    * Scene Event Handlers
    */
   onEditorError = error => {
-    if (error.aborted) {
+    if (error["aborted"]) {
       this.hideDialog();
       return;
     }
@@ -639,7 +639,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       el.click();
       document.body.removeChild(el);
     } catch (error) {
-      if (error.aborted) {
+      if (error["aborted"]) {
         this.hideDialog();
         return;
       }
@@ -666,7 +666,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     if (!confirm) return;
     const el = document.createElement("input");
     el.type = "file";
-    el.accept = ".world;"
+    el.accept = ".world;";
     el.style.display = "none";
     el.onchange = () => {
       if (el.files.length > 0) {
@@ -697,7 +697,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     const fileName = this.state.editor.scene.name
       .toLowerCase()
       .replace(/\s+/g, "-");
-    el.download = fileName + ".world;"
+    el.download = fileName + ".world;";
     el.href = URL.createObjectURL(projectBlob);
     document.body.appendChild(el);
     el.click();
@@ -727,7 +727,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         this.setState({ project });
       });
     } catch (error) {
-      if (error.aborted) {
+      if (error["aborted"]) {
         this.hideDialog();
         return;
       }
@@ -815,7 +815,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                   </Modal>
                     <title>{`${this.state.modified ? "*" : ""}${
                       editor.scene.name
-                    } | ${configs.longName()}`}</title>
+                    } | ${(configs as any).longName()}`}</title>
                     <meta
                       name="viewport"
                       content="width=device-width, initial-scale=1, user-scalable=no"

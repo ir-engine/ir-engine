@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
@@ -38,7 +39,7 @@ const DropContainer = (styled as any).div`
 `;
 
 export const ControlledStringInput = React.forwardRef((values, ref) => {
-  const { onChange, value, ...rest } = values as any
+  const { onChange, value, ...rest } = values as any;
   const inputRef = useRef();
 
   const [tempValue, setTempValue] = useState(value);

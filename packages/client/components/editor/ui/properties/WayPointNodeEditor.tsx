@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { Component } from "react";
 import NodeEditor from "./NodeEditor";
 import { StreetView } from "@styled-icons/fa-solid/StreetView";
@@ -37,8 +38,8 @@ const propertyNames = [
   "willMaintainInitialOrientation"
 ];
 type WayPointNodeEditorProps = {
-  editor?: object,
-  node?: object
+  editor?: object;
+  node?: object;
 };
 export default class WayPointNodeEditor extends Component<
   WayPointNodeEditorProps,

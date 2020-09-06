@@ -35,7 +35,9 @@ import { Resizeable } from "./layout/Resizeable";
 import DragLayer from "./dnd/DragLayer";
 import Editor from "../Editor";
 
+// @ts-ignore
 import defaultTemplateUrl from "../assets/templates/crater.world";
+// @ts-ignore
 import tutorialTemplateUrl from "../assets/templates/tutorial.world";
 
 const StyledEditorContainer = (styled as any).div`
@@ -72,7 +74,7 @@ class EditorContainer extends Component {
     }
 
     const editor = createEditor(props.api, settings);
-    window.editor = editor;
+    (window as any).editor = editor;
     editor.init();
     editor.addListener("initialized", this.onEditorInitialized);
 
@@ -108,7 +110,7 @@ class EditorContainer extends Component {
         this.loadProjectTemplate(defaultTemplateUrl);
       }
     } else if (projectId === "tutorial") {
-      this.loadProjectTemplate(tutorialTemplateUrl, true);
+      this.loadProjectTemplate(tutorialTemplateUrl);
     } else {
       this.loadProject(projectId);
     }
@@ -119,9 +121,9 @@ class EditorContainer extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.match.url !== prevProps.match.url && !this.state.creatingProject) {
+    if ((this.props as any).match.url !== prevProps.match.url && !(this.state as any).creatingProject) {
       const prevProjectId = prevProps.match.params.projectId;
-      const { projectId } = this.props.match.params;
+      const { projectId } = (this.props as any).match.params;
       const queryParams = new URLSearchParams(location.search);
       let templateUrl = null;
 
@@ -155,10 +157,10 @@ class EditorContainer extends Component {
       message: "Loading project..."
     });
 
-    const editor = this.state.editor;
+    const editor = (this.state as any).editor;
 
     try {
-      const templateFile = await this.props.api.fetch(templateUrl).then(response => response.json());
+      const templateFile = await (this.props as any).api.fetch(templateUrl).then(response => response.json());
 
       await editor.init();
 
@@ -197,11 +199,11 @@ class EditorContainer extends Component {
       message: "Loading project..."
     });
 
-    const editor = this.state.editor;
+    const editor = (this.state as any).editor;
 
     try {
-      const scene = await this.props.api.getScene(sceneId);
-      const projectFile = await this.props.api.fetch(scene.scene_project_url).then(response => response.json());
+      const scene = await (this.props as any).api.getScene(sceneId);
+      const projectFile = await (this.props as any).api.fetch(scene.scene_project_url).then(response => response.json());
 
       if (projectFile.metadata) {
         delete projectFile.metadata.sceneUrl;
@@ -228,7 +230,7 @@ class EditorContainer extends Component {
   }
 
   async importProject(projectFile) {
-    const project = this.state.project;
+    const project = (this.state as any).project;
 
     this.setState({
       project: null,
@@ -242,7 +244,7 @@ class EditorContainer extends Component {
       message: "Loading project..."
     });
 
-    const editor = this.state.editor;
+    const editor = (this.state as any).editor;
 
     try {
       await editor.init();
@@ -283,14 +285,14 @@ class EditorContainer extends Component {
       message: "Loading project..."
     });
 
-    const editor = this.state.editor;
+    const editor = (this.state as any).editor;
 
     let project;
 
     try {
-      project = await this.props.api.getProject(projectId);
+      project = await (this.props as any).api.getProject(projectId);
 
-      const projectFile = await this.props.api.fetch(project.project_url).then(response => response.json());
+      const projectFile = await (this.props as any).api.fetch(project.project_url).then(response => response.json());
 
       await editor.init();
 
@@ -314,10 +316,10 @@ class EditorContainer extends Component {
     }
   }
 
-  updateModifiedState = then => {
-    const nextModified = this.state.editor.sceneModified && !this.state.creatingProject;
+  updateModifiedState(then?) {
+    const nextModified = (this.state as any).editor.sceneModified && !(this.state as any).creatingProject;
 
-    if (nextModified !== this.state.modified) {
+    if (nextModified !== (this.state as any).modified) {
       this.setState({ modified: nextModified }, then);
     } else if (then) {
       then();
@@ -347,7 +349,7 @@ class EditorContainer extends Component {
             action: this.onDuplicateProject
           },
           {
-            name: configs.isXR3() ? "Publish to Hubs..." : "Publish Scene...",
+            name: "Publish Scene...",
             action: this.onPublishProject
           },
           {
@@ -370,12 +372,12 @@ class EditorContainer extends Component {
           {
             name: "Tutorial",
             action: () => {
-              const { projectId } = this.props.match.params;
+              const { projectId } = (this.props as any).match.params;
 
               if (projectId === "tutorial") {
                 this.setState({ onboardingContext: { enabled: true } });
               } else {
-                this.props.history.push("/projects/tutorial");
+                (this.props as any).history.push("/projects/tutorial");
               }
             }
           },
@@ -409,13 +411,13 @@ class EditorContainer extends Component {
         name: "Developer",
         items: [
           {
-            name: this.state.settingsContext.settings.enableExperimentalFeatures
+            name: (this.state as any).settingsContext.settings.enableExperimentalFeatures
               ? "Disable Experimental Features"
               : "Enable Experimental Features",
             action: () =>
               this.updateSetting(
                 "enableExperimentalFeatures",
-                !this.state.settingsContext.settings.enableExperimentalFeatures
+                !(this.state as any).settingsContext.settings.enableExperimentalFeatures
               )
           }
         ]
@@ -424,9 +426,9 @@ class EditorContainer extends Component {
   };
 
   onEditorInitialized = () => {
-    const editor = this.state.editor;
+    const editor = (this.state as any).editor;
 
-    const gl = this.state.editor.renderer.renderer.context;
+    const gl = (this.state as any).editor.renderer.renderer.context;
 
     const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
 
@@ -449,7 +451,7 @@ class EditorContainer extends Component {
   componentWillUnmount() {
     window.removeEventListener("resize", this.onResize);
 
-    const editor = this.state.editor;
+    const editor = (this.state as any).editor;
     editor.removeListener("sceneModified", this.onSceneModified);
     editor.removeListener("saveProject", this.onSaveProject);
     editor.removeListener("initialized", this.onEditorInitialized);
@@ -459,7 +461,7 @@ class EditorContainer extends Component {
   }
 
   onResize = () => {
-    this.state.editor.onResize();
+    (this.state as any).editor.onResize();
   };
 
   /**
@@ -490,7 +492,7 @@ class EditorContainer extends Component {
    */
 
   onEditorError = error => {
-    if (error.aborted) {
+    if (error["aborted"]) {
       this.hideDialog();
       return;
     }
@@ -513,14 +515,14 @@ class EditorContainer extends Component {
   };
 
   updateSetting(key, value) {
-    const settings = Object.assign(this.state.settingsContext.settings, { [key]: value });
+    const settings = Object.assign((this.state as any).settingsContext.settings, { [key]: value });
     localStorage.setItem("editor-settings", JSON.stringify(settings));
-    const editor = this.state.editor;
+    const editor = (this.state as any).editor;
     editor.settings = settings;
     editor.emit("settingsChanged");
     this.setState({
       settingsContext: {
-        ...this.state.settingsContext,
+        ...(this.state as any).settingsContext,
         settings
       }
     });
@@ -543,14 +545,14 @@ class EditorContainer extends Component {
 
     const blob = await editor.takeScreenshot(512, 320);
 
-    const result = await new Promise(resolve => {
+    const result: any = await new Promise(resolve => {
       this.showDialog(SaveNewProjectDialog, {
         thumbnailUrl: URL.createObjectURL(blob),
         initialName: editor.scene.name,
         onConfirm: resolve,
         onCancel: resolve
       });
-    });
+    }) as any;
 
     if (!result) {
       this.hideDialog();
@@ -572,7 +574,7 @@ class EditorContainer extends Component {
     editor.setProperty(editor.scene, "name", result.name, false);
     editor.scene.setMetadata({ name: result.name });
 
-    const project = await this.props.api.createProject(
+    const project = await (this.props as any).api.createProject(
       editor.scene,
       parentSceneId,
       blob,
@@ -585,7 +587,7 @@ class EditorContainer extends Component {
 
     this.updateModifiedState(() => {
       this.setState({ creatingProject: true, project }, () => {
-        this.props.history.replace(`/projects/${project.project_id}`);
+        (this.props as any).history.replace(`/projects/${project.project_id}`);
         this.setState({ creatingProject: false });
       });
     });
@@ -594,11 +596,11 @@ class EditorContainer extends Component {
   }
 
   onNewProject = async () => {
-    this.props.history.push("/projects/templates");
+    (this.props as any).history.push("/projects/templates");
   };
 
   onOpenProject = () => {
-    this.props.history.push("/projects");
+    (this.props as any).history.push("/projects");
   };
 
   onSaveProject = async () => {
@@ -622,7 +624,7 @@ class EditorContainer extends Component {
       const { editor, project } = this.state as any;
 
       if (project) {
-        const newProject = await this.props.api.saveProject(
+        const newProject = await (this.props as any).api.saveProject(
           project.project_id,
           editor,
           abortController.signal,
@@ -664,7 +666,7 @@ class EditorContainer extends Component {
     });
     await new Promise(resolve => setTimeout(resolve, 5));
     try {
-      const editor = this.state.editor;
+      const editor = (this.state as any).editor;
       await this.createProject();
       editor.sceneModified = false;
       this.updateModifiedState();
@@ -704,7 +706,7 @@ class EditorContainer extends Component {
     });
 
     try {
-      const editor = this.state.editor;
+      const editor = (this.state as any).editor;
 
       const { glbBlob } = await editor.exportScene(abortController.signal, options);
 
@@ -718,7 +720,7 @@ class EditorContainer extends Component {
       document.body.removeChild(el);
 
     } catch (error) {
-      if (error.aborted) {
+      if (error["aborted"]) {
         this.hideDialog();
         return;
       }
@@ -753,9 +755,9 @@ class EditorContainer extends Component {
     el.style.display = "none";
     el.onchange = () => {
       if (el.files.length > 0) {
-        const fileReader = new FileReader();
+        const fileReader: any = new FileReader();
         fileReader.onload = () => {
-          const json = JSON.parse(fileReader.result);
+          const json = JSON.parse((fileReader as any).result);
 
           if (json.metadata) {
             delete json.metadata.sceneUrl;
@@ -772,7 +774,7 @@ class EditorContainer extends Component {
   };
 
   onExportLegacyProject = async () => {
-    const editor = this.state.editor;
+    const editor = (this.state as any).editor;
     const projectFile = editor.scene.serialize();
 
     if (projectFile.metadata) {
@@ -783,7 +785,7 @@ class EditorContainer extends Component {
     const projectJson = JSON.stringify(projectFile);
     const projectBlob = new Blob([projectJson]);
     const el = document.createElement("a");
-    const fileName = this.state.editor.scene.name.toLowerCase().replace(/\s+/g, "-");
+    const fileName = (this.state as any).editor.scene.name.toLowerCase().replace(/\s+/g, "-");
     el.download = fileName + ".world";
     el.href = URL.createObjectURL(projectBlob);
     document.body.appendChild(el);
@@ -793,8 +795,8 @@ class EditorContainer extends Component {
 
   onPublishProject = async () => {
     try {
-      const editor = this.state.editor;
-      let project = this.state.project;
+      const editor = (this.state as any).editor;
+      let project = (this.state as any).project;
 
       if (!project) {
         project = await this.createProject();
@@ -804,7 +806,7 @@ class EditorContainer extends Component {
         return;
       }
 
-      project = await this.props.api.publishProject(project, editor, this.showDialog, this.hideDialog);
+      project = await (this.props as any).api.publishProject(project, editor, this.showDialog, this.hideDialog);
 
       if (!project) {
         return;
@@ -815,7 +817,7 @@ class EditorContainer extends Component {
 
       this.setState({ project });
     } catch (error) {
-      if (error.aborted) {
+      if (error["aborted"]) {
         this.hideDialog();
         return;
       }
@@ -840,7 +842,7 @@ class EditorContainer extends Component {
     const sceneId = this.getSceneId();
 
     if (sceneId) {
-      const url = this.props.api.getSceneUrl(sceneId);
+      const url = (this.props as any).api.getSceneUrl(sceneId);
       window.open(url);
     }
   };
@@ -865,6 +867,7 @@ class EditorContainer extends Component {
           <EditorContextProvider value={editor}>
             <DialogContextProvider value={this.dialogContext}>
               <OnboardingContextProvider value={onboardingContext}>
+                { /* @ts-ignore */ }
                 <DndProvider backend={HTML5Backend}>
                   <DragLayer />
                   <ToolBar
@@ -895,9 +898,9 @@ class EditorContainer extends Component {
                       <DialogComponent onConfirm={this.hideDialog} onCancel={this.hideDialog} {...dialogProps} />
                     )}
                   </Modal>
-                    <title>{`${this.state.modified ? "*" : ""}${editor.scene.name} | ${configs.longName()}`}</title>
+                    <title>{`${(this.state as any).modified ? "*" : ""}${editor.scene.name} | ${(configs as any).longName()}`}</title>
                     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-                  {this.state.modified && (
+                  {(this.state as any).modified && (
                     <BrowserPrompt
                       message={`${editor.scene.name} has unsaved changes, are you sure you wish to navigate away from the page?`}
                     />

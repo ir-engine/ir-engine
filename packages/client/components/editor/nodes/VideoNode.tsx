@@ -2,14 +2,16 @@ import EditorNodeMixin from "./EditorNodeMixin";
 import Video from "../objects/Video";
 import Hls from "hls.js/dist/hls.light";
 import isHLS from "../utils/isHLS";
+//@ts-ignore
 import editorLandingVideo from "../../assets/video/EditorPromo.mp4";
 import { RethrownError } from "../utils/errors";
 import { getObjectPerfIssues } from "../utils/performance";
+//@ts-ignore
 export default class VideoNode extends EditorNodeMixin(Video) {
   static legacyComponentName = "video";
   static nodeName = "Video";
   static initialElementProps = {
-    src: new URL(editorLandingVideo, location).href
+    src: new URL(editorLandingVideo, location as any).href
   };
   static async deserialize(editor, json, loadAsync, onError) {
     const node = await super.deserialize(editor, json);
@@ -68,7 +70,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
   set src(value) {
     this.load(value).catch(console.error);
   }
-  async load(src, onError) {
+  async load(src, onError?) {
     const nextSrc = src || "";
     if (nextSrc === this._canonicalUrl && nextSrc !== "") {
       return;
@@ -79,7 +81,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     this.hideErrorIcon();
     this.showLoadingCube();
     if (this.editor.playing) {
-      this.el.pause();
+      (this.el as any).pause();
     }
     try {
       const { accessibleUrl, contentType } = await this.editor.api.resolveMedia(
@@ -96,11 +98,11 @@ export default class VideoNode extends EditorNodeMixin(Video) {
       await super.load(accessibleUrl, contentType);
       if (isHls && this.hls) {
         this.hls.stopLoad();
-      } else if (this.el.duration) {
-        this.el.currentTime = 1;
+      } else if ((this.el as any).duration) {
+        (this.el as any).currentTime = 1;
       }
       if (this.editor.playing && this.autoPlay) {
-        this.el.play();
+        (this.el as any).play();
       }
       this.issues = getObjectPerfIssues(this._mesh, false);
     } catch (error) {
@@ -122,18 +124,18 @@ export default class VideoNode extends EditorNodeMixin(Video) {
   }
   onPlay() {
     if (this.autoPlay) {
-      this.el.play();
+      (this.el as any).play();
     }
   }
   onPause() {
-    this.el.pause();
-    this.el.currentTime = 0;
+    (this.el as any).pause();
+    (this.el as any).currentTime = 0;
   }
   onChange() {
     this.onResize();
   }
   clone(recursive) {
-    return new this.constructor(this.editor, this.audioListener).copy(
+    return new (this as any).constructor(this.editor, this.audioListener).copy(
       this,
       recursive
     );

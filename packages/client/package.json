@@ -19,7 +19,7 @@
     "watch": "cross-env NODE_ENV=development next --port 3000 --hostname localhost",
     "validate": "yarn run lint && yarn run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
-    "lint": "stylelint '**/*.scss' && eslint --fix '*.ts' '**/*.ts' '**/*.tsx'",
+    "lint": "eslint --fix --quiet '*.ts' '**/*.ts' '**/*.tsx' && stylelint '**/*.scss'",
     "precommit": "no-master-commits -b master,dev && echo \\* Running pre-commit test  && echo \\*\\* \\`git commit --no-verify\\` to skip && echo \\*\\*\\* PRs THAT DO NOT PASS TESTS WILL NOT BE ACCEPTED && yarn run test"
   },
   "pre-push": [
@@ -54,6 +54,7 @@
     "@material-ui/react-transition-group": "^4.3.0",
     "@mozillareality/easing-functions": "^0.1.1",
     "@mozillareality/three-batch-manager": "^0.1.10",
+    "@mozillareality/three-particle-emitter": "^0.2.2",
     "@robertlong/gltf-validator": "^2.0.0-dev.3.2",
     "@svgr/cli": "^5.3.1",
     "@svgr/webpack": "^5.3.1",
@@ -154,6 +155,7 @@
     "styled-icons": "^10.16.0",
     "subscriptions-transport-ws": "^0.9.16",
     "three": "^0.120.0",
+    "three-mesh-bvh": "^0.2.0",
     "three-to-cannon": "^3.0.1",
     "ts-shader-loader": "^1.0.6",
     "tween": "^0.9.0",

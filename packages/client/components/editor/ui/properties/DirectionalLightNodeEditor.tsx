@@ -6,8 +6,8 @@ import NumericInputGroup from "../inputs/NumericInputGroup";
 import LightShadowProperties from "./LightShadowProperties";
 import { Bolt } from "@styled-icons/fa-solid/Bolt";
 type DirectionalLightNodeEditorProps = {
-  editor?: object,
-  node?: object
+  editor?: object;
+  node?: object;
 };
 export default class DirectionalLightNodeEditor extends Component<
   DirectionalLightNodeEditorProps,

@@ -104,6 +104,9 @@ export default class MeshCombinationGroup {
     MeshStandardMaterial: meshStandardMaterialComparator,
     MeshBasicMaterial: meshBasicMaterialComparator
   };
+  initialObject: any;
+  meshes: any[];
+  imageHashes: any;
 
   static async combineMeshes(rootObject) {
     rootObject.computeAndSetStaticModes();
@@ -116,13 +119,14 @@ export default class MeshCombinationGroup {
     const materials = collectUniqueMaterials(rootObject);
 
     for (const material of materials) {
-      material.map = await dedupeTexture(imageHashes, textureCache, material.map);
-      material.roughnessMap = await dedupeTexture(imageHashes, textureCache, material.roughnessMap);
-      material.metalnessMap = await dedupeTexture(imageHashes, textureCache, material.metalnessMap);
-      material.aoMap = await dedupeTexture(imageHashes, textureCache, material.aoMap);
-      material.normalMap = await dedupeTexture(imageHashes, textureCache, material.normalMap);
-      material.emissiveMap = await dedupeTexture(imageHashes, textureCache, material.emissiveMap);
-      material.lightMap = await dedupeTexture(imageHashes, textureCache, material.lightMap);
+      
+      (material as any).map = await dedupeTexture(imageHashes, textureCache, (material as any).map);
+      (material as any).roughnessMap = await dedupeTexture(imageHashes, textureCache, (material as any).roughnessMap);
+      (material as any).metalnessMap = await dedupeTexture(imageHashes, textureCache, (material as any).metalnessMap);
+      (material as any).aoMap = await dedupeTexture(imageHashes, textureCache, (material as any).aoMap);
+      (material as any).normalMap = await dedupeTexture(imageHashes, textureCache, (material as any).normalMap);
+      (material as any).emissiveMap = await dedupeTexture(imageHashes, textureCache, (material as any).emissiveMap);
+      (material as any).lightMap = await dedupeTexture(imageHashes, textureCache, (material as any).lightMap);
     }
 
     await asyncTraverse(rootObject, async object => {

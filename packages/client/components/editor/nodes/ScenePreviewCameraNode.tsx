@@ -1,4 +1,4 @@
-import { Matrix4, PerspectiveCamera, CameraHelper } from "three";
+import { CameraHelper, Matrix4, PerspectiveCamera } from "three";
 import EditorNodeMixin from "./EditorNodeMixin";
 export default class ScenePreviewCameraNode extends EditorNodeMixin(
   PerspectiveCamera
@@ -10,7 +10,7 @@ export default class ScenePreviewCameraNode extends EditorNodeMixin(
   }
   constructor(editor) {
     super(editor, 80, 16 / 9, 0.2, 8000);
-    const cameraHelper = new CameraHelper(this);
+    const cameraHelper = new CameraHelper(this as any);
     cameraHelper.layers.set(1);
     this.helper = cameraHelper;
   }

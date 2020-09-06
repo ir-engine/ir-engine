@@ -2,6 +2,13 @@ import { Object3D, AnimationMixer } from "three";
 import { GLTFLoader } from "../gltf/GLTFLoader";
 import cloneObject3D from "../utils/cloneObject3D";
 export default class Model extends Object3D {
+  model: any;
+  _src: any;
+  _castShadow: boolean;
+  _receiveShadow: boolean;
+  activeClipIndex: number;
+  animationMixer: any;
+  activeClipAction: any;
   constructor() {
     super();
     this.type = "Model";
@@ -32,7 +39,7 @@ export default class Model extends Object3D {
       this.remove(this.model);
       this.model = null;
     }
-    const model = await this.loadGLTF(src, ...args);
+    const model = await this.loadGLTF(src);
     model.animations = model.animations || [];
     this.model = model;
     this.add(model);

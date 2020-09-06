@@ -1,16 +1,18 @@
 import EditorNodeMixin from "./EditorNodeMixin";
 import Image, { ImageAlphaMode } from "../objects/Image";
+// @ts-ignore
 import editorLogoSrc from "../../assets/editor-icon.png";
 import { RethrownError } from "../utils/errors";
 import {
   getObjectPerfIssues,
   maybeAddLargeFileIssue
 } from "../utils/performance";
+// @ts-ignore
 export default class ImageNode extends EditorNodeMixin(Image) {
   static legacyComponentName = "image";
   static nodeName = "Image";
   static initialElementProps = {
-    src: new URL(editorLogoSrc, location).href
+    src: new URL(editorLogoSrc, location as any).href
   };
   static async deserialize(editor, json, loadAsync, onError) {
     const node = await super.deserialize(editor, json);
@@ -50,7 +52,7 @@ export default class ImageNode extends EditorNodeMixin(Image) {
   loadTexture(src) {
     return this.editor.textureCache.get(src);
   }
-  async load(src, onError) {
+  async load(src, onError?) {
     const nextSrc = src || "";
     if (nextSrc === this._canonicalUrl && nextSrc !== "") {
       return;
@@ -64,7 +66,7 @@ export default class ImageNode extends EditorNodeMixin(Image) {
       const { accessibleUrl } = await this.editor.api.resolveMedia(src);
       await super.load(accessibleUrl);
       this.issues = getObjectPerfIssues(this._mesh, false);
-      const perfEntries = performance.getEntriesByName(accessibleUrl);
+      const perfEntries = performance.getEntriesByName(accessibleUrl) as any;
       if (perfEntries.length > 0) {
         const imageSize = perfEntries[0].encodedBodySize;
         maybeAddLargeFileIssue("image", imageSize, this.issues);
@@ -114,7 +116,7 @@ export default class ImageNode extends EditorNodeMixin(Image) {
       projection: this.projection
     };
     if (this.alphaMode === ImageAlphaMode.Mask) {
-      imageData.alphaCutoff = this.alphaCutoff;
+      imageData["alphaCutoff"] = this.alphaCutoff;
     }
     this.addGLTFComponent("image", imageData);
     this.addGLTFComponent("networked", {

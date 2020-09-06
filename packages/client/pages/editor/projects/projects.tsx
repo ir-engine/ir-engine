@@ -6,7 +6,7 @@ import { Button, MediumButton } from "../../../components/editor/ui/inputs/Butto
 import { ProjectGridContainer, ProjectGridHeader, ProjectGridHeaderRow, ProjectGridContent, ErrorMessage, ProjectGrid } from "../../../components/editor/ui/projects/ProjectGrid";
 import { withApi } from "../../../components/editor/ui/contexts/ApiContext";
 import { Link } from "react-router-dom";
-import configs from "../../../components/editor/configs"
+import configs from "../../../components/editor/configs";
 export const ProjectsSection = (styled as any).section`
   padding-bottom: 100px;
   display: flex;
@@ -55,17 +55,17 @@ export const ProjectsHeader = (styled as any).div`
 `;
 const contextMenuId = "project-menu";
 type ProjectsPageProps = {
-  api: object,
-  history: object
+  api: object;
+  history: object;
 };
-type ProjectsPageState = { projects: any, loading: boolean } & {
-  error: any,
-  loading: boolean
+type ProjectsPageState = { projects: any; loading: boolean } & {
+  error: any;
+  loading: boolean;
 } & ((error: any) => any) & {
-    projects: undefined[],
-    loading: any,
-    isAuthenticated: any,
-    error: null
+    projects: undefined[];
+    loading: any;
+    isAuthenticated: any;
+    error: null;
   };
 class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
   constructor(props: ProjectsPageProps) {
@@ -116,16 +116,19 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
   };
   renderContextMenu = props => {
     return (
-      <ContextMenu id={contextMenuId}>
+      <>
+      { /* ts-ignore */ }
+      <ContextMenu>
         <MenuItem onClick={e => this.onDeleteProject(props.trigger.project)}>
           Delete Project
         </MenuItem>
       </ContextMenu>
+      </>
     );
   };
   ProjectContextMenu = connectMenu(contextMenuId)(this.renderContextMenu);
   render() {
-    const { error, loading, projects, isAuthenticated } = this.state;
+    const { error, loading, projects, isAuthenticated } = this.state as any;
     const ProjectContextMenu = this.ProjectContextMenu;
     const topTemplates = [];
     for (let i = 0; i < templates.length && i < 4; i++) {
@@ -137,7 +140,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
           {!isAuthenticated || (projects.length === 0 && !loading) ? (
             <ProjectsSection flex={0}>
               <WelcomeContainer>
-                <h1>Welcome{configs.isXR3() ? " to Spoke" : ""}</h1>
+                <h1>Welcome</h1>
                 <h2>
                   If you&#39;re new here we recommend going through the
                   tutorial. Otherwise, jump right in and create a project from

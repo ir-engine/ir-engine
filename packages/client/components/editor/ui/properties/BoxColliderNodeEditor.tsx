@@ -4,8 +4,8 @@ import InputGroup from "../inputs/InputGroup";
 import BooleanInput from "../inputs/BooleanInput";
 import { HandPaper } from "@styled-icons/fa-solid/HandPaper";
 type BoxColliderNodeEditorProps = {
-  editor?: object,
-  node?: object
+  editor?: object;
+  node?: object;
 };
 export default class BoxColliderNodeEditor extends Component<
   BoxColliderNodeEditorProps,

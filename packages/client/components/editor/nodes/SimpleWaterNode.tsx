@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import EditorNodeMixin from "./EditorNodeMixin";
 import SimpleWater from "../objects/SimpleWater";
 import waterNormalsUrl from "three/examples/textures/waternormals.jpg";

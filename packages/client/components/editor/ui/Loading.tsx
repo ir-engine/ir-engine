@@ -24,9 +24,9 @@ export default class Loading extends Component {
 
   render() {
     return (
-      <StyledLoading fullScreen={this.props.fullScreen}>
+      <StyledLoading fullScreen={(this.props as any).fullScreen}>
         Return
-        {this.props.message}
+        {(this.props as any).message}
       </StyledLoading>
     );
   }

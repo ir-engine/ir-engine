@@ -5,8 +5,8 @@ import InputGroup from "../inputs/InputGroup";
 import StringInput from "../inputs/StringInput";
 import { Link } from "@styled-icons/fa-solid/Link";
 type LinkNodeEditorProps = {
-  editor?: object,
-  node?: object
+  editor?: object;
+  node?: object;
 };
 export default class LinkNodeEditor extends Component<LinkNodeEditorProps, {}> {
   onChangeHref = href => {

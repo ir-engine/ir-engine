@@ -1,6 +1,7 @@
 import { DirectionalLight, Object3D } from "three";
 import createShadowMapResolutionProxy from "../utils/createShadowMapResolutionProxy";
 export default class PhysicalDirectionalLight extends DirectionalLight {
+  shadowMapResolution: number
   constructor() {
     super();
     this.position.set(0, 0, 0);

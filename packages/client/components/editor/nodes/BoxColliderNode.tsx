@@ -34,7 +34,7 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
           BoxColliderNode._geometry,
           BoxColliderNode._material
         );
-        const box = new BoxHelper(boxMesh, 0x00ff00);
+        const box = new BoxHelper(boxMesh, 0x00ff00) as any;
         box.layers.set(1);
         this.helper = box;
         box.parent = this;
@@ -47,7 +47,7 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
   serialize() {
     const components = {
       "box-collider": {}
-    };
+    } as any;
     if (this.walkable) {
       components.walkable = {};
     }

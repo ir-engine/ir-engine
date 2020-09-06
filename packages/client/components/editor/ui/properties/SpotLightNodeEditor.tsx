@@ -9,9 +9,9 @@ import LightShadowProperties from "./LightShadowProperties";
 import { Bullseye } from "@styled-icons/fa-solid/Bullseye";
 const radToDeg = _Math.radToDeg;
 type SpotLightNodeEditorProps = {
-  editor?: object,
-  node?: object,
-  multiEdit?: boolean
+  editor?: object;
+  node?: object;
+  multiEdit?: boolean;
 };
 export default class SpotLightNodeEditor extends Component<{}, {}> {
   onChangeColor = color => {

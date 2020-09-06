@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import OnboardingOverlay from "./OnboardingOverlay";
 import { Button, SecondaryButton } from "../inputs/Button";
+// @ts-ignore
 import defaultBackgroundImage from "../../assets/onboarding/default.png";
 import styled from "styled-components";
 

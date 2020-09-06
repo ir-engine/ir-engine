@@ -6,6 +6,7 @@ import {
   Mesh,
   DoubleSide
 } from "three";
+//@ts-ignore
 import linkIconUrl from "../../assets/link-icon.png";
 import loadTexture from "../utils/loadTexture";
 let linkHelperTexture = null;

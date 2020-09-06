@@ -1,26 +1,25 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import configs from "../../configs";
-import { showMenu, ContextMenu, MenuItem, SubMenu } from "../layout/ContextMenu";
-import ToolButton from "./ToolButton";
-import { Button } from "../inputs/Button";
-import SelectInput from "../inputs/SelectInput";
-import NumericStepperInput from "../inputs/NumericStepperInput";
-import { TransformMode, SnapMode, TransformPivot } from "../../editor/controls/EditorControls";
-import { TransformSpace } from "../../Editor";
-import { ArrowsAlt } from "@styled-icons/fa-solid/ArrowsAlt";
-import { SyncAlt } from "@styled-icons/fa-solid/SyncAlt";
-import { ArrowsAltV } from "@styled-icons/fa-solid/ArrowsAltV";
-import { Globe } from "@styled-icons/fa-solid/Globe";
-import { Bullseye } from "@styled-icons/fa-solid/Bullseye";
-import { Magnet } from "@styled-icons/fa-solid/Magnet";
-import { Bars } from "@styled-icons/fa-solid/Bars";
 import { Grid } from "@styled-icons/boxicons-regular/Grid";
-import { Play } from "@styled-icons/fa-solid/Play";
-import styled from "styled-components";
-import styledTheme from "../theme";
-import { InfoTooltip } from "../layout/Tooltip";
 import { Pause } from "@styled-icons/fa-solid";
+import { ArrowsAlt } from "@styled-icons/fa-solid/ArrowsAlt";
+import { ArrowsAltV } from "@styled-icons/fa-solid/ArrowsAltV";
+import { Bars } from "@styled-icons/fa-solid/Bars";
+import { Bullseye } from "@styled-icons/fa-solid/Bullseye";
+import { Globe } from "@styled-icons/fa-solid/Globe";
+import { Magnet } from "@styled-icons/fa-solid/Magnet";
+import { Play } from "@styled-icons/fa-solid/Play";
+import { SyncAlt } from "@styled-icons/fa-solid/SyncAlt";
+import PropTypes from "prop-types";
+import React, { Component } from "react";
+import styled from "styled-components";
+import { TransformSpace } from "../../Editor";
+import { SnapMode, TransformMode, TransformPivot } from "../../controls/EditorControls";
+import { Button } from "../inputs/Button";
+import NumericStepperInput from "../inputs/NumericStepperInput";
+import SelectInput from "../inputs/SelectInput";
+import { ContextMenu, MenuItem, showMenu, SubMenu } from "../layout/ContextMenu";
+import { InfoTooltip } from "../layout/Tooltip";
+import styledTheme from "../theme";
+import ToolButton from "./ToolButton";
 
 const StyledToolbar = (styled as any).div`
   display: flex;
@@ -224,14 +223,14 @@ export default class ToolBar extends Component {
   }
 
   componentDidMount() {
-    const editor = this.props.editor;
+    const editor = (this.props as any).editor;
     editor.addListener("initialized", this.onEditorInitialized);
     editor.addListener("playModeChanged", this.onForceUpdate);
     editor.addListener("settingsChanged", this.onForceUpdate);
   }
 
   onEditorInitialized = () => {
-    const editor = this.props.editor;
+    const editor = (this.props as any).editor;
     editor.editorControls.addListener("transformModeChanged", this.onForceUpdate);
     editor.editorControls.addListener("transformSpaceChanged", this.onForceUpdate);
     editor.editorControls.addListener("transformPivotChanged", this.onForceUpdate);
@@ -242,7 +241,7 @@ export default class ToolBar extends Component {
   };
 
   componentWillUnmount() {
-    const editor = this.props.editor;
+    const editor = (this.props as any).editor;
     editor.removeListener("initialized", this.onEditorInitialized);
 
     if (editor.editorControls) {
@@ -262,7 +261,7 @@ export default class ToolBar extends Component {
   };
 
   onMenuSelected = e => {
-    if (!this.state.menuOpen) {
+    if (!(this.state as any).menuOpen) {
       const x = 0;
       const y = e.currentTarget.offsetHeight;
       showMenu({
@@ -301,60 +300,60 @@ export default class ToolBar extends Component {
   };
 
   onSelectTranslate = () => {
-    this.props.editor.editorControls.setTransformMode(TransformMode.Translate);
+    (this.props as any).editor.editorControls.setTransformMode(TransformMode.Translate);
   };
 
   onSelectRotate = () => {
-    this.props.editor.editorControls.setTransformMode(TransformMode.Rotate);
+    (this.props as any).editor.editorControls.setTransformMode(TransformMode.Rotate);
   };
 
   onSelectScale = () => {
-    this.props.editor.editorControls.setTransformMode(TransformMode.Scale);
+    (this.props as any).editor.editorControls.setTransformMode(TransformMode.Scale);
   };
 
   onToggleTransformSpace = () => {
-    this.props.editor.editorControls.toggleTransformSpace();
+    (this.props as any).editor.editorControls.toggleTransformSpace();
   };
 
   onChangeTransformPivot = transformPivot => {
-    this.props.editor.editorControls.setTransformPivot(transformPivot);
+    (this.props as any).editor.editorControls.setTransformPivot(transformPivot);
   };
 
   onToggleTransformPivot = () => {
-    this.props.editor.editorControls.changeTransformPivot();
+    (this.props as any).editor.editorControls.changeTransformPivot();
   };
 
   onToggleSnapMode = () => {
-    this.props.editor.editorControls.toggleSnapMode();
+    (this.props as any).editor.editorControls.toggleSnapMode();
   };
 
   onChangeTranslationSnap = translationSnap => {
-    this.props.editor.editorControls.setTranslationSnap(parseFloat(translationSnap));
-    this.props.editor.editorControls.setSnapMode(SnapMode.Grid);
+    (this.props as any).editor.editorControls.setTranslationSnap(parseFloat(translationSnap));
+    (this.props as any).editor.editorControls.setSnapMode(SnapMode.Grid);
   };
 
   onChangeScaleSnap = scaleSnap => {
-    this.props.editor.editorControls.setScaleSnap(scaleSnap);
+    (this.props as any).editor.editorControls.setScaleSnap(scaleSnap);
   };
 
   onChangeRotationSnap = rotationSnap => {
-    this.props.editor.editorControls.setRotationSnap(parseFloat(rotationSnap));
-    this.props.editor.editorControls.setSnapMode(SnapMode.Grid);
+    (this.props as any).editor.editorControls.setRotationSnap(parseFloat(rotationSnap));
+    (this.props as any).editor.editorControls.setSnapMode(SnapMode.Grid);
   };
 
   onChangeGridHeight = value => {
-    this.props.editor.setGridHeight(value);
+    (this.props as any).editor.setGridHeight(value);
   };
 
   onToggleGridVisible = () => {
-    this.props.editor.toggleGridVisible();
+    (this.props as any).editor.toggleGridVisible();
   };
 
   onTogglePlayMode = () => {
-    if (this.props.editor.playing) {
-      this.props.editor.leavePlayMode();
+    if ((this.props as any).editor.playing) {
+      (this.props as any).editor.leavePlayMode();
     } else {
-      this.props.editor.enterPlayMode();
+      (this.props as any).editor.enterPlayMode();
     }
   };
 
@@ -372,7 +371,7 @@ export default class ToolBar extends Component {
       snapMode,
       translationSnap,
       rotationSnap
-    } = this.props.editor.editorControls;
+    } = (this.props as any).editor.editorControls;
 
     return (
       <StyledToolbar>
@@ -403,13 +402,15 @@ export default class ToolBar extends Component {
         <ToolToggles>
           <ToolbarInputGroup id="transform-space">
             <InfoTooltip info="[Z] Toggle Transform Space" position="bottom">
+              { /* @ts-ignore */ }
               <ToggleButton onClick={this.onToggleTransformSpace}>
                 <Globe size={12} />
               </ToggleButton>
             </InfoTooltip>
+            { /* @ts-ignore */ }
             <SelectInput
               styles={selectInputStyles}
-              onChange={this.onChangeTransformSpace}
+              onChange={(this as any).onChangeTransformSpace}
               options={transformSpaceOptions}
               value={transformSpace}
             />
@@ -418,6 +419,7 @@ export default class ToolBar extends Component {
             <ToggleButton onClick={this.onToggleTransformPivot} tooltip="[X] Toggle Transform Pivot">
               <Bullseye size={12} />
             </ToggleButton>
+            { /* @ts-ignore */ }
             <SelectInput
               styles={selectInputStyles}
               onChange={this.onChangeTransformPivot}
@@ -433,6 +435,7 @@ export default class ToolBar extends Component {
             >
               <Magnet size={12} />
             </ToggleButton>
+            { /* @ts-ignore */ }
             <SelectInput
               styles={snapInputStyles}
               onChange={this.onChangeTranslationSnap}
@@ -443,6 +446,7 @@ export default class ToolBar extends Component {
               isValidNewOption={value => value.trim() !== "" && !isNaN(value)}
               creatable
             />
+            { /* @ts-ignore */ }
             <SelectInput
               styles={rightSnapInputStyles}
               onChange={this.onChangeRotationSnap}
@@ -459,7 +463,7 @@ export default class ToolBar extends Component {
               <Grid size={16} />
             </ToggleButton>
             <ToolbarNumericStepperInput
-              value={this.props.editor.grid.position.y}
+              value={(this.props as any).editor.grid.position.y}
               onChange={this.onChangeGridHeight}
               precision={0.01}
               smallStep={0.25}
@@ -470,28 +474,29 @@ export default class ToolBar extends Component {
               decrementTooltip="[=] Decrement Grid Height"
             />
           </ToolbarInputGroup>
-          {this.props.editor.settings.enableExperimentalFeatures && (
+          {(this.props as any).editor.settings.enableExperimentalFeatures && (
             <ToolbarInputGroup id="preview">
               <ToggleButton
                 onClick={this.onTogglePlayMode}
-                tooltip={this.props.editor.playing ? "Stop Previewing Scene" : "Preview Scene"}
+                tooltip={(this.props as any).editor.playing ? "Stop Previewing Scene" : "Preview Scene"}
               >
-                {this.props.editor.playing ? <Pause size={14} /> : <Play size={14} />}
+                {(this.props as any).editor.playing ? <Pause size={14} /> : <Play size={14} />}
               </ToggleButton>
             </ToolbarInputGroup>
           )}
         </ToolToggles>
         <Spacer />
-        {this.props.isPublishedScene && (
-          <PublishButton onClick={this.props.onOpenScene}>
-            {configs.isXR3() ? "Open in Hubs" : "Open Scene"}
+        {(this.props as any).isPublishedScene && (
+          <PublishButton onClick={(this.props as any).onOpenScene}>
+            "Open Scene"
           </PublishButton>
         )}
-        <PublishButton id="publish-button" onClick={this.props.onPublish}>
-          {configs.isXR3() ? "Publish to Hubs..." : "Publish Scene..."}
+        <PublishButton id="publish-button" onClick={(this.props as any).onPublish}>
+          "Publish Scene..."
         </PublishButton>
+        { /* @ts-ignore */ }
         <ContextMenu id="menu">
-          {this.props.menu.map(menu => {
+          {(this.props as any).menu.map(menu => {
             return this.renderMenu(menu);
           })}
         </ContextMenu>

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import configs from "../../../configs";
+import configs from "../configs";
 import PreviewDialog from "../ui/dialogs/PreviewDialog";
 import StringInput from "../ui/inputs/StringInput";
 import BooleanInput from "../ui/inputs/BooleanInput";
@@ -38,10 +38,10 @@ export default class PublishDialog extends Component {
   onChangeAllowPromotion = allowPromotion => this.setState({ allowPromotion });
 
   onConfirm = () => {
-    const publishState = { ...this.state, contentAttributions: this.props.contentAttributions };
+    const publishState = { ...this.state, contentAttributions: (this.props as any).contentAttributions } as any;
     publishState.name = publishState.name.trim();
     publishState.creatorAttribution = publishState.creatorAttribution.trim();
-    this.props.onPublish(publishState);
+    (this.props as any).onPublish(publishState);
   };
 
   render() {
@@ -51,14 +51,16 @@ export default class PublishDialog extends Component {
     return (
       <PreviewDialog
         imageSrc={screenshotUrl}
-        title={configs.isXR3() ? "Publish to Hubs" : "Publish Scene"}
+        title="Publish Scene"
         onConfirm={this.onConfirm}
         onCancel={onCancel}
         confirmLabel="Save and Publish"
       >
+        { /* @ts-ignore */ }
         <FormField>
           <label htmlFor="sceneName">Scene Name</label>
           <StringInput
+          //@ts-ignore
             id="sceneName"
             required
             pattern={"[A-Za-z0-9-':\"!@#$%^&*(),.?~ ]{4,64}"}
@@ -67,10 +69,14 @@ export default class PublishDialog extends Component {
             onChange={this.onChangeName}
           />
         </FormField>
+        { /* @ts-ignore */ }
         <FormField>
           <label htmlFor="creatorAttribution">Your Attribution (optional):</label>
-          <StringInput id="creatorAttribution" value={creatorAttribution} onChange={this.onChangeCreatorAttribution} />
+          <StringInput
+          // @ts-ignore
+          id="creatorAttribution" value={creatorAttribution} onChange={this.onChangeCreatorAttribution} />
         </FormField>
+        { /* @ts-ignore */ }
         <FormField inline>
           <label htmlFor="allowRemixing">
             Allow other users to remix your scene with
@@ -80,15 +86,18 @@ export default class PublishDialog extends Component {
               CC-BY 3.0
             </a>
           </label>
+          { /* @ts-ignore */ }
           <BooleanInput id="allowRemixing" value={allowRemixing} onChange={this.onChangeAllowRemixing} />
         </FormField>
         <FormField inline>
           <label htmlFor="allowPromotion">
             Allow scene to appear on front page
           </label>
+          { /* @ts-ignore */ }
           <BooleanInput id="allowPromotion" value={allowPromotion} onChange={this.onChangeAllowPromotion} />
         </FormField>
-        {contentAttributions && (
+        { contentAttributions && (
+          /* @ts-ignore */
           <FormField>
             <label>Model Attribution:</label>
             <p>{contentAttributions.map(a => `${a.name} by ${a.author}\n`)}</p>

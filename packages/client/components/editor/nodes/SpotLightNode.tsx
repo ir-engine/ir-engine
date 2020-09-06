@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import EditorNodeMixin from "./EditorNodeMixin";
 import PhysicalSpotLight from "../objects/PhysicalSpotLight";
 import EditorSpotLightHelper from "../helpers/EditorSpotLightHelper";

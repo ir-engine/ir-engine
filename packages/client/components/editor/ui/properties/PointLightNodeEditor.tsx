@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import React, { Component } from "react";
 import NodeEditor from "./NodeEditor";
 import InputGroup from "../inputs/InputGroup";
@@ -6,8 +8,8 @@ import NumericInputGroup from "../inputs/NumericInputGroup";
 import LightShadowProperties from "./LightShadowProperties";
 import { Lightbulb } from "@styled-icons/fa-solid/Lightbulb";
 type PointLightNodeEditorProps = {
-  editor?: object,
-  node?: object
+  editor?: object;
+  node?: object;
 };
 export default class PointLightNodeEditor extends Component<
   PointLightNodeEditorProps,

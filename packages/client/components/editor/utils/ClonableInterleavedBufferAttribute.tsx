@@ -6,7 +6,7 @@ export default class ClonableInterleavedBufferAttribute extends InterleavedBuffe
     );
     const count = this.count;
     const itemSize = this.itemSize;
-    const array = this.array.slice(0, count * itemSize);
+    const array = (this.array as any).slice(0, count * itemSize);
     for (let i = 0, j = 0; i < count; ++i) {
       array[j++] = this.getX(i);
       if (itemSize >= 2) array[j++] = this.getY(i);

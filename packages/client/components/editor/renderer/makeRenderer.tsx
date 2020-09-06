@@ -1,5 +1,6 @@
 import { WebGLRenderer, PCFSoftShadowMap } from "three";
-export default function makeRenderer(width, height, { canvas, ...rest } = {}) {
+export default function makeRenderer(width, height, props?) {
+  let { canvas, ...rest } = props;
   if (!canvas) {
     canvas = document.createElement("canvas");
   }
@@ -16,7 +17,6 @@ export default function makeRenderer(width, height, { canvas, ...rest } = {}) {
     antialias: true,
     preserveDrawingBuffer: true
   });
-  renderer.gammaOutput = true;
   renderer.gammaFactor = 2.2;
   renderer.physicallyCorrectLights = true;
   renderer.shadowMap.enabled = true;

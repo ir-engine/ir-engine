@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Extracted and modified from Three.js
  * https://github.com/mrdoob/three.js/blob/dev/examples/jsm/exporters/GLTFExporter.js
@@ -18,7 +19,7 @@ import {
   LinearFilter,
   LinearMipMapLinearFilter,
   LinearMipMapNearestFilter,
-  Math as _Math,
+  MathUtils as _Math,
   MirroredRepeatWrapping,
   NearestFilter,
   NearestMipMapLinearFilter,
@@ -96,7 +97,7 @@ const DEFAULT_OPTIONS = {
 //------------------------------------------------------------------------------
 class GLTFExporter {
   options: any;
-  outputJSON: { asset: { version: string; generator: string; }; };
+  outputJSON: { asset: { version: string; generator: string } };
   outputBuffers: any[];
   outputImages: any[];
   byteOffset: number;

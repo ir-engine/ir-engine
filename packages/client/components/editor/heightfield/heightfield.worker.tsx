@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
-THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+THREE.BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 function exceedsDensityThreshold(count, subtree, params) {
   const bounds = subtree.boundingData;
   const triangleThreshold = params.triangleThreshold;
@@ -132,5 +132,5 @@ self.onmessage = async event => {
     new THREE.Float32BufferAttribute(message.verts, 3)
   );
   const heightfield = generateHeightfield(geometry, params);
-  self.postMessage({ heightfield });
+  (self as any).postMessage({ heightfield });
 };

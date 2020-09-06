@@ -29,6 +29,7 @@ export default function Stats({ editor }) {
     editor.renderer.onUpdateStats = info => {
       if (info.render.frame % 3 === 0) {
         setInfo({
+          /* @ts-ignore */
           geometries: info.memory.geometries,
           textures: info.memory.textures,
           fps: info.render.fps,
@@ -54,19 +55,19 @@ export default function Stats({ editor }) {
           <li>
             Memory:
             <ul>
-              <li>Geometries: {info.geometries}</li>
-              <li>Textures: {info.textures}</li>
+              <li>Geometries: {(info as any).geometries}</li>
+              <li>Textures: {(info as any).textures}</li>
             </ul>
           </li>
           <li>
             Render:
             <ul>
-              <li>FPS: {Math.round(info.fps)}</li>
-              <li>Frame Time: {Math.round(info.frameTime)}ms</li>
-              <li>Calls: {info.calls}</li>
-              <li>Triangles: {info.triangles}</li>
-              <li>Points: {info.points}</li>
-              <li>Lines: {info.lines}</li>
+              <li>FPS: {Math.round((info as any).fps)}</li>
+              <li>Frame Time: {Math.round((info as any).frameTime)}ms</li>
+              <li>Calls: {(info as any).calls}</li>
+              <li>Triangles: {(info as any).triangles}</li>
+              <li>Points: {(info as any).points}</li>
+              <li>Lines: {(info as any).lines}</li>
             </ul>
           </li>
         </ul>

@@ -1,3 +1,4 @@
+// @ts-ignore
 import styled from "styled-components";
 
 export const Button = (styled as any).button.attrs(props => ({

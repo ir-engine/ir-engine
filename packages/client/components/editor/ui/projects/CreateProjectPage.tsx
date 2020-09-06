@@ -89,7 +89,7 @@ export default function CreateProjectPage({ history, location }) {
 
   // MODIFIED FROM ORIGINAL
   const { loading, error, entries } = { loading: false, error: false, entries: [] };
-  let hasMore, loadMore
+  let hasMore, loadMore;
   const filteredEntries = entries.map(result => ({
     ...result,
     url: `/projects/new?sceneId=${result.id}`,

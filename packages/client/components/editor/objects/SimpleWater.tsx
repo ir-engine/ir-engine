@@ -15,6 +15,10 @@ import { SimplexNoise } from "three/examples/jsm/math/SimplexNoise";
  * Adapted dynamic geometry code from: https://github.com/ditzel/UnityOceanWavesAndShip
  */
 class Octave {
+  speed: Vector2;
+  scale: Vector2;
+  height: number;
+  alternate: boolean;
   constructor(
     speed = new Vector2(1, 1),
     scale = new Vector2(1, 1),
@@ -28,6 +32,11 @@ class Octave {
   }
 }
 export default class SimpleWater extends Mesh {
+  lowQuality: boolean;
+  waterUniforms: { ripplesSpeed: { value: number; }; ripplesScale: { value: number; }; time: { value: number; }; };
+  resolution: number;
+  octaves: Octave[];
+  simplex: SimplexNoise;
   constructor(normalMap, resolution = 24, lowQuality = false) {
     const geometry = new PlaneBufferGeometry(10, 10, resolution, resolution);
     geometry.rotateX(-Math.PI / 2);
@@ -115,11 +124,11 @@ export default class SimpleWater extends Mesh {
     this.lowQuality = lowQuality;
     this.waterUniforms = waterUniforms;
     if (lowQuality) {
-      this.material.specular.set(0xffffff);
+      (this.material as any).specular.set(0xffffff);
     } else {
       this.receiveShadow = true;
     }
-    this.geometry.attributes.position.dynamic = true;
+    (this.geometry as any).attributes.position.dynamic = true;
     this.resolution = resolution;
     this.octaves = [
       new Octave(new Vector2(0.5, 0.5), new Vector2(1, 1), 0.01, true),
@@ -128,16 +137,16 @@ export default class SimpleWater extends Mesh {
     this.simplex = new SimplexNoise();
   }
   get opacity() {
-    return this.material.opacity;
+    return (this.material as any).opacity;
   }
   set opacity(value) {
-    this.material.opacity = value;
+    (this.material as any).opacity = value;
     if (value !== 1) {
-      this.material.transparent = true;
+      (this.material as any).transparent = true;
     }
   }
   get color() {
-    return this.material.color;
+    return (this.material as any).color;
   }
   get tideHeight() {
     return this.octaves[0].height;
@@ -176,7 +185,7 @@ export default class SimpleWater extends Mesh {
     return this.waterUniforms.ripplesScale.value;
   }
   update(time) {
-    const positionAttribute = this.geometry.attributes.position;
+    const positionAttribute = (this.geometry as any).attributes.position;
     for (let x = 0; x <= this.resolution; x++) {
       for (let z = 0; z <= this.resolution; z++) {
         let y = 0;
@@ -204,9 +213,10 @@ export default class SimpleWater extends Mesh {
     positionAttribute.needsUpdate = true;
     this.waterUniforms.time.value = time;
   }
+  // @ts-ignore
   clone(recursive) {
     return new SimpleWater(
-      this.material.normalMap,
+      (this.material as any).normalMap,
       this.resolution,
       this.lowQuality
     ).copy(this, recursive);

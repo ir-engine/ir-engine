@@ -1,15 +1,15 @@
 import React, { Component } from "react";
 import NumericInput from "./NumericInput";
-import { Math as _Math, Euler } from "three";
+import { MathUtils as _Math, Euler } from "three";
 import { Vector3InputContainer, Vector3Scrubber } from "./Vector3Input";
 const { RAD2DEG, DEG2RAD } = _Math;
 type EulerInputProps = {
   value?: {
-    x?: number,
-    y?: number,
-    z?: number
-  },
-  onChange?: (...args: any[]) => any
+    x?: number;
+    y?: number;
+    z?: number;
+  };
+  onChange?: (...args: any[]) => any;
 };
 export default class EulerInput extends Component<EulerInputProps, {}> {
   onChange = (x, y, z) => {

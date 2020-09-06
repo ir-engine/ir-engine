@@ -1,7 +1,9 @@
+// @ts-nocheck
+
 import React from "react";
 import PropTypes from "prop-types";
 import NumericInputGroup from "./NumericInputGroup";
-import { Math as _Math } from "three";
+import { MathUtils as _Math } from "three";
 
 const radToDeg = _Math.radToDeg;
 const degToRad = _Math.degToRad;

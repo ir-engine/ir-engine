@@ -27,8 +27,8 @@ const ShadowMapResolutionOptions = [
   }
 ];
 type LightShadowPropertiesProps = {
-  editor?: object,
-  node?: object
+  editor?: object;
+  node?: object;
 };
 export default class LightShadowProperties extends Component<
   LightShadowPropertiesProps,

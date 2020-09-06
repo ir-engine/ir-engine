@@ -5,8 +5,8 @@ import ColorInput from "../inputs/ColorInput";
 import NumericInputGroup from "../inputs/NumericInputGroup";
 import { Sun } from "@styled-icons/fa-solid/Sun";
 type AmbientLightNodeEditorProps = {
-  editor?: object,
-  node?: object
+  editor?: object;
+  node?: object;
 };
 export default class AmbientLightNodeEditor extends Component<
   AmbientLightNodeEditorProps,

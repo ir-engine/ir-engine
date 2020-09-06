@@ -67,23 +67,23 @@ class PropertiesPanelContainer extends Component {
   }
 
   componentDidMount() {
-    const editor = this.props.editor;
+    const editor = (this.props as any).editor;
     editor.addListener("selectionChanged", this.onSelectionChanged);
     editor.addListener("objectsChanged", this.onObjectsChanged);
   }
 
   componentWillUnmount() {
-    const editor = this.props.editor;
+    const editor = (this.props as any).editor;
     editor.removeListener("selectionChanged", this.onSelectionChanged);
     editor.removeListener("objectsChanged", this.onObjectsChanged);
   }
 
   onSelectionChanged = () => {
-    this.setState({ selected: this.props.editor.selected });
+    this.setState({ selected: (this.props as any).editor.selected });
   };
 
   onObjectsChanged = (objects, property) => {
-    const selected = this.props.editor.selected;
+    const selected = (this.props as any).editor.selected;
 
     if (property === "position" || property === "rotation" || property === "scale" || property === "matrix") {
       return;
@@ -91,19 +91,19 @@ class PropertiesPanelContainer extends Component {
 
     for (let i = 0; i < objects.length; i++) {
       if (selected.indexOf(objects[i]) !== -1) {
-        this.setState({ selected: this.props.editor.selected });
+        this.setState({ selected: (this.props as any).editor.selected });
         return;
       }
     }
   };
 
   onChangeVisible = value => {
-    (this.props.editor as any).setPropertySelected("visible", value);
+    ((this.props as any).editor as any).setPropertySelected("visible", value);
   };
 
   render() {
-    const editor = this.props.editor;
-    const selected = this.state.selected;
+    const editor = (this.props as any).editor;
+    const selected = (this.state as any).selected;
 
     let content;
 
@@ -155,6 +155,7 @@ class PropertiesPanelContainer extends Component {
     // id used in onboarding
 
     return (
+      /* @ts-ignore */
       <Panel id="properties-panel" title="Properties" icon={SlidersH}>
         <PropertiesPanelContent>{content}</PropertiesPanelContent>
       </Panel>

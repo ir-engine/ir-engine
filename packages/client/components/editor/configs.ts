@@ -31,13 +31,13 @@ get(configs, "SENTRY_DSN", process.env.SENTRY_DSN);
 get(configs, "THUMBNAIL_ROUTE", process.env.THUMBNAIL_ROUTE);
 get(configs, "THUMBNAIL_SERVER", process.env.THUMBNAIL_SERVER);
 get(configs, "USE_DIRECT_UPLOAD_API", process.env.USE_DIRECT_UPLOAD_API);
-get(configs, "API_RESOLVE_MEDIA_ROUTE", process.env.API_RESOLVE_MEDIA_ROUTE)
+get(configs, "API_RESOLVE_MEDIA_ROUTE", process.env.API_RESOLVE_MEDIA_ROUTE);
 
 get(configs, "USE_HTTPS", process.env.USE_HTTPS);
 
-if (configs.BASE_ASSETS_PATH) {
+if ((configs as any).BASE_ASSETS_PATH) {
   // eslint-disable-next-line no-undef
-  __webpack_public_path__ = configs.BASE_ASSETS_PATH;
+  __webpack_public_path__ = (configs as any).BASE_ASSETS_PATH;
 }
 
 function fixBaseAssetsPath(path) {
@@ -55,8 +55,7 @@ function fixBaseAssetsPath(path) {
   return path;
 }
 
-configs.isXR3 = () => configs.IS_XR3 === "true";
-configs.name = () => (configs.isXR3() ? "XR3ngine" : "Scene Editor");
-configs.longName = () => (configs.isXR3() ? "XR3ngine" : "Scene Editor");
+(configs as any).name = () => "Scene Editor";
+(configs as any).longName = () => "Scene Editor";
 
 export default configs;

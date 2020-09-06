@@ -1,11 +1,11 @@
 import React, { Component } from "react";
 import PropertyGroup from "./PropertyGroup";
 type NodeEditorProps = {
-  name?: string,
-  description?: string,
-  node?: object,
-  editor?: object,
-  disableTransform?: boolean
+  name?: string;
+  description?: string;
+  node?: object;
+  editor?: object;
+  disableTransform?: boolean;
 };
 export default class NodeEditor extends Component<{}, {}> {
   render() {

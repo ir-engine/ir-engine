@@ -1,6 +1,7 @@
 import { PointLight, Object3D } from "three";
 import createShadowMapResolutionProxy from "../utils/createShadowMapResolutionProxy";
 export default class PhysicalPointLight extends PointLight {
+  shadowMapResolution: any;
   constructor() {
     super();
     this.decay = 2;
@@ -34,17 +35,20 @@ export default class PhysicalPointLight extends PointLight {
     this.decay = source.decay;
     this.shadow.copy(source.shadow);
     if (recursive) {
-      this.remove(this.target);
+      this.remove(this.target as any);
       for (let i = 0; i < source.children.length; i++) {
         const child = source.children[i];
         if (child === source.target) {
           this.target = child.clone();
-          this.add(this.target);
+          this.add(this.target as any);
         } else {
           this.add(child.clone());
         }
       }
     }
     return this;
+  }
+  target(target: any) {
+    throw new Error("Method not implemented.");
   }
 }

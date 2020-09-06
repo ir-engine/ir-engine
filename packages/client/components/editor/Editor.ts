@@ -11,10 +11,8 @@ import {
   Clock,
   Scene
 } from "three";
-
-import GLTFLoader from "three-gltf-loader"
-import { GLTFExporter } from "three-gltf-exporter"
-
+import { GLTFExporter } from "./gltf/GLTFExporter";
+import { GLTFLoader } from "./gltf/GLTFLoader";
 import History from "./History";
 import Renderer from "./renderer/Renderer";
 import ThumbnailRenderer from "./renderer/ThumbnailRenderer";
@@ -240,9 +238,9 @@ export default class Editor extends EventEmitter {
   emit(eventName: string | symbol, ...args: any[]): boolean {
     if (!this.sceneLoading) {
       super.emit(eventName, ...args);
-      return true
+      return true;
     }
-    return false
+    return false;
   }
 
   async init() {
@@ -528,10 +526,7 @@ export default class Editor extends EventEmitter {
     let blob;
 
     if (file.name.toLowerCase().endsWith(".glb")) {
-      let scene
-      new GLTFLoader().load(url, resource => {
-         scene = resource.scene
-      });
+      const { scene } = await new GLTFLoader(url).loadGLTF();
       blob = await this.thumbnailRenderer.generateThumbnail(scene, width, height);
     } else if ([".png", ".jpg", ".jpeg", ".gif", ".webp"].some(ext => file.name.toLowerCase().endsWith(ext))) {
       blob = await generateImageFileThumbnail(file);

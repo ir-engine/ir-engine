@@ -48,6 +48,7 @@ export default function ColorInput({ value, onChange, disabled, ...rest }) {
 
   return (
     <ColorInputContainer>
+    { /* @ts-ignore */ }
       <Popover
         disabled={disabled}
         renderContent={() => (

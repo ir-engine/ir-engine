@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import Dialog from "./Dialog";
 import styled from "styled-components";
 
-const LeftContent = (styled).div`
+const LeftContent = (styled as any).div`
   display: flex;
   width: 360px;
   border-top-left-radius: inherit;
@@ -15,7 +15,7 @@ const LeftContent = (styled).div`
   }
 `;
 
-const RightContent = (styled).div`
+const RightContent = (styled as any).div`
   display: flex;
   flex-direction: column;
   flex: 1;

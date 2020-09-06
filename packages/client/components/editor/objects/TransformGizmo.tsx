@@ -1,10 +1,38 @@
 import { Object3D, Color, Vector3 } from "three";
 import { GLTFLoader } from "../gltf/GLTFLoader";
+// @ts-ignore
 import transformGizmoUrl from "../../assets/TransformGizmo.glb";
 import cloneObject3D from "../utils/cloneObject3D";
 import { TransformMode, TransformAxis } from "../controls/EditorControls";
 let gizmoGltf = null;
 export default class TransformGizmo extends Object3D {
+  model: any;
+  selectionColor: Color;
+  previousColor: Color;
+  raycasterResults: any[];
+  translateControls: any;
+  translateXAxis: any;
+  translateYAxis: any;
+  translateZAxis: any;
+  translateXYPlane: any;
+  translateYZPlane: any;
+  translateXZPlane: any;
+  rotateControls: any;
+  rotateXAxis: any;
+  rotateYAxis: any;
+  rotateZAxis: any;
+  scaleControls: any;
+  scaleXAxis: any;
+  scaleYAxis: any;
+  scaleZAxis: any;
+  scaleXYPlane: any;
+  scaleYZPlane: any;
+  scaleXZPlane: any;
+  scaleUniformHandle: any;
+  transformMode: string;
+  activeControls: any;
+  selectedAxis: any;
+  hoveredAxis: any;
   static async load() {
     if (gizmoGltf) {
       return Promise.resolve(gizmoGltf);

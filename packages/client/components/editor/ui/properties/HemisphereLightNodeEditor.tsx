@@ -5,8 +5,8 @@ import ColorInput from "../inputs/ColorInput";
 import NumericInputGroup from "../inputs/NumericInputGroup";
 import { Certificate } from "@styled-icons/fa-solid/Certificate";
 type HemisphereLightNodeEditorProps = {
-  editor?: object,
-  node?: object
+  editor?: object;
+  node?: object;
 };
 export default class HemisphereLightNodeEditor extends Component<
   HemisphereLightNodeEditorProps,

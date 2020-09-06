@@ -1,4 +1,4 @@
-import configs from "../../configs";
+import configs from "../configs";
 import EditorNodeMixin from "./EditorNodeMixin";
 import {
   Mesh,
@@ -15,6 +15,7 @@ import mergeMeshGeometries from "../utils/mergeMeshGeometries";
 import RecastClient from "../recast/RecastClient";
 import HeightfieldClient from "../heightfield/HeightfieldClient";
 import SpawnPointNode from "./SpawnPointNode";
+// @ts-ignore
 import * as recastWasmUrl from "recast-wasm/dist/recast.wasm";
 const recastClient = new RecastClient();
 const heightfieldClient = new HeightfieldClient();
@@ -88,7 +89,7 @@ export default class FloorPlanNode extends EditorNodeMixin(FloorPlan) {
     }
   }
   async generate(signal) {
-    window.scene = this;
+    (window as any).scene = this;
     const collidableMeshes = [];
     const walkableMeshes = [];
     const groundPlaneNode = this.editor.scene.findNodeByType(GroundPlaneNode);
@@ -121,14 +122,14 @@ export default class FloorPlanNode extends EditorNodeMixin(FloorPlan) {
           helperMesh.geometry,
           new MeshBasicMaterial()
         );
-        boxColliderMesh.applyMatrix(node.matrixWorld);
-        boxColliderMesh.updateMatrixWorld();
+        (boxColliderMesh as any).applyMatrix(node.matrixWorld);
+        (boxColliderMesh as any).updateMatrixWorld();
         walkableMeshes.push(boxColliderMesh);
       }
     }
     const walkableGeometry = mergeMeshGeometries(walkableMeshes);
     const box = new Box3().setFromBufferAttribute(
-      walkableGeometry.attributes.position
+      walkableGeometry.attributes.position as any
     );
     const size = new Vector3();
     box.getSize(size);
@@ -158,7 +159,7 @@ export default class FloorPlanNode extends EditorNodeMixin(FloorPlan) {
         regionMinSize: this.regionMinSize,
         wasmUrl: new URL(
           recastWasmUrl,
-          configs.BASE_ASSETS_PATH || (window as any).location
+          (configs as any).BASE_ASSETS_PATH || (window as any).location
         ).href
       },
       signal
@@ -205,7 +206,7 @@ export default class FloorPlanNode extends EditorNodeMixin(FloorPlan) {
         segments - 1
       );
       heightfieldMeshGeometry.rotateX(-Math.PI / 2);
-      const vertices = heightfieldMeshGeometry.attributes.position.array;
+      const vertices = heightfieldMeshGeometry.attributes.position.array as any;
       for (let i = 0, j = 0, l = vertices.length; i < l / 3; i++, j += 3) {
         vertices[j + 1] =
           heightfield.data[Math.floor(i / segments)][i % segments];

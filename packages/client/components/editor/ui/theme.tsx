@@ -43,7 +43,7 @@ const theme = {
   shadow30: "0px 4px 4px  rgba(0, 0, 0, 0.3)",
   borderStyle: "1px solid #5D646C"
 };
-theme.chartColors = [
+theme["chartColors"] = [
   theme.red,
   theme.pink,
   theme.purple,

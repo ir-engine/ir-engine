@@ -1,6 +1,7 @@
 import { Object3D } from "three";
 import { GLTFLoader } from "../gltf/GLTFLoader";
 import EditorNodeMixin from "./EditorNodeMixin";
+//@ts-ignore
 import spawnPointModelUrl from "../../assets/spawn-point.glb";
 let spawnPointHelperModel = null;
 export default class SpawnPointNode extends EditorNodeMixin(Object3D) {

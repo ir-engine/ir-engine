@@ -7,8 +7,8 @@ import NodeEditor from "./NodeEditor";
 const hoursToRadians = hours => hours / 24;
 const radiansToHours = rads => rads * 24;
 type SkyboxNodeEditorProps = {
-  editor?: object,
-  node?: object
+  editor?: object;
+  node?: object;
 };
 export default class SkyboxNodeEditor extends Component<
   SkyboxNodeEditorProps,

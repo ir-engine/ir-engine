@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { Color, Matrix4, ClampToEdgeWrapping } from "three";
 import { BatchRawUniformGroup } from "@mozillareality/three-batch-manager";
 const DEFAULT_COLOR = new Color(1, 1, 1);

@@ -6,8 +6,8 @@ import ColorInput from "../inputs/ColorInput";
 import InputGroup from "../inputs/InputGroup";
 import Vector2Input from "../inputs/Vector2Input";
 type SimpleWaterNodeEditorProps = {
-  editor?: object,
-  node?: object
+  editor?: object;
+  node?: object;
 };
 export default class SimpleWaterNodeEditor extends Component<
   SimpleWaterNodeEditorProps,

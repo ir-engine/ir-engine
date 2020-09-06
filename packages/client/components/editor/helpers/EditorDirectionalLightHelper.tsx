@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import {
   Line,
   Object3D,
@@ -11,7 +13,7 @@ export default class EditorDirectionalLightHelper extends Object3D {
   color: any;
   lightPlane: Line<BufferGeometry, LineBasicMaterial>;
   targetLine: Line<BufferGeometry, LineBasicMaterial>;
-  constructor(light, size, color) {
+  constructor(light, size?, color?) {
     super();
     this.name = "EditorDirectionalLightHelper";
     this.light = light;

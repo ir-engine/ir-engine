@@ -10,6 +10,8 @@ async function getBlobContentHash(blob) {
   return hashArray.map(b => ("00" + b.toString(16)).slice(-2)).join("");
 }
 export default class KitPackager {
+  thumbnailWidth: number;
+  thumbnailHeight: number;
   constructor() {
     this.thumbnailWidth = 256;
     this.thumbnailHeight = 256;
@@ -96,8 +98,8 @@ export default class KitPackager {
       onlyVisible: false,
       includeCustomExtensions: true
     });
-    const chunks = await exporter.exportChunks(scene);
-    const bufferDefs = chunks.json.buffers;
+    const chunks = await exporter.exportChunks(scene) as any;
+    const bufferDefs = (chunks.json as any).buffers;
     if (chunks.buffers.length === 1) {
       const bufferDef = bufferDefs[0];
       const bufferBlob = chunks.buffers[0];

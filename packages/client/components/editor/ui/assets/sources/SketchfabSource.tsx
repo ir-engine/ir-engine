@@ -1,7 +1,7 @@
 import ModelMediaSource from "../ModelMediaSource";
 import { TransformPivot } from "../../../controls/EditorControls";
 export default class SketchfabSource extends ModelMediaSource {
-  tags: ({ disabled: boolean; label: string; value: string; children: { label: string; value: string; }[]; } | { disabled: boolean; label: string; value: string; children: ({ label: string; value: string; paramsKey: string; initialNodeProps: { ...; }; itemProps: { ...; }; disabled?: undefined; children?: undefined; } | { ...; } | { ...; })[]; })[];
+  tags: any;
   searchLegalCopy: string;
   privacyPolicyUrl: string;
   transformPivot: string;

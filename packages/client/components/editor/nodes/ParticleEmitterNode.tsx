@@ -1,16 +1,19 @@
+//@ts-ignore
 import { ParticleEmitter } from "@mozillareality/three-particle-emitter";
 import EditorNodeMixin from "./EditorNodeMixin";
+// @ts-ignore
 import defaultParticleUrl from "../../assets/dot.png";
 import DirectionalPlaneHelper from "../helpers/DirectionalPlaneHelper";
 import loadTexture from "../utils/loadTexture";
 let defaultParticleSprite = null;
+//@ts-ignore
 export default class ParticleEmitterNode extends EditorNodeMixin(
   ParticleEmitter
 ) {
   static legacyComponentName = "particle-emitter";
   static nodeName = "Particle Emitter";
   static initialElementProps = {
-    src: new URL(defaultParticleUrl, location).href
+    src: new URL(defaultParticleUrl, location as any).href
   };
   static async deserialize(editor, json, loadAsync, onError) {
     const node = await super.deserialize(editor, json);
@@ -81,7 +84,7 @@ export default class ParticleEmitterNode extends EditorNodeMixin(
   set src(value) {
     this.load(value).catch(console.error);
   }
-  async load(src, onError) {
+  async load(src, onError?) {
     const nextSrc = src || "";
     if (nextSrc === this._canonicalUrl) {
       return;

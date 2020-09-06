@@ -51,8 +51,8 @@ import {
     PersonAdd,
     SupervisedUserCircle
 } from "@material-ui/icons";
-import _ from 'lodash'
-import { Group as GroupType } from '@xr3ngine/common/interfaces/Group'
+import _ from 'lodash';
+import { Group as GroupType } from '@xr3ngine/common/interfaces/Group';
 import { User } from '@xr3ngine/common/interfaces/User';
 import { getParty, createParty, removeParty, removePartyUser } from '../../../../redux/party/service';
 

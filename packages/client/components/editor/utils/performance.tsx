@@ -5,7 +5,7 @@ import {
 } from "../gltf/ComponentData";
 import { PointLight, DirectionalLight, SpotLight, Texture } from "three";
 import { forEachMaterial } from "./materials";
-import { bytesToSize } from "../../ui/utils";
+import { bytesToSize } from "../ui/utils";
 function calculateUncompressedMipmapedTextureSize(width, height) {
   if (width === 1 && height === 1) {
     return 4;
@@ -88,44 +88,44 @@ export function getObjectPerfIssues(object, traverse = true) {
     getChildPerfIssues(object);
   }
   for (const material of uniqueMaterials) {
-    if (material.map) {
-      totalVRAM += calculateTextureVRAM(material.map);
-      if (isLargeTexture(material.map)) {
+    if ((material as any).map) {
+      totalVRAM += calculateTextureVRAM((material as any).map);
+      if (isLargeTexture((material as any).map)) {
         largeTextures++;
       }
     }
-    if (material.aoMap) {
-      totalVRAM += calculateTextureVRAM(material.aoMap);
-      if (isLargeTexture(material.aoMap)) {
+    if ((material as any).aoMap) {
+      totalVRAM += calculateTextureVRAM((material as any).aoMap);
+      if (isLargeTexture((material as any).aoMap)) {
         largeTextures++;
       }
     }
-    if (material.roughnessMap && material.roughnessMap !== material.aoMap) {
-      totalVRAM += calculateTextureVRAM(material.roughnessMap);
-      if (isLargeTexture(material.roughnessMap)) {
+    if ((material as any).roughnessMap && (material as any).roughnessMap !== (material as any).aoMap) {
+      totalVRAM += calculateTextureVRAM((material as any).roughnessMap);
+      if (isLargeTexture((material as any).roughnessMap)) {
         largeTextures++;
       }
     }
-    if (material.normalMap) {
-      totalVRAM += calculateTextureVRAM(material.normalMap);
-      if (isLargeTexture(material.normalMap)) {
+    if ((material as any).normalMap) {
+      totalVRAM += calculateTextureVRAM((material as any).normalMap);
+      if (isLargeTexture((material as any).normalMap)) {
         largeTextures++;
       }
     }
-    if (material.emissiveMap) {
-      totalVRAM += calculateTextureVRAM(material.emissiveMap);
-      if (isLargeTexture(material.emissiveMap)) {
+    if ((material as any).emissiveMap) {
+      totalVRAM += calculateTextureVRAM((material as any).emissiveMap);
+      if (isLargeTexture((material as any).emissiveMap)) {
         largeTextures++;
       }
     }
-    if (material.uniforms) {
-      for (const name in material.uniforms) {
-        if (!Object.prototype.hasOwnProperty.call(material.uniforms, name))
+    if ((material as any).uniforms) {
+      for (const name in (material as any).uniforms) {
+        if (!Object.prototype.hasOwnProperty.call((material as any).uniforms, name))
           continue;
-        const { value } = material.uniforms[name];
+        const { value } = (material as any).uniforms[name];
         if (value instanceof Texture) {
           totalVRAM += calculateTextureVRAM(value);
-          if (isLargeTexture(material.value)) {
+          if (isLargeTexture((material as any).value)) {
             largeTextures++;
           }
         }
@@ -138,7 +138,7 @@ export function getObjectPerfIssues(object, traverse = true) {
       message: `This object contains ${polygons.toLocaleString()} polygons.`
     });
   }
-  if (uniqueMaterials > 10) {
+  if (uniqueMaterials.size > 10) {
     issues.push({
       severity: "warning",
       message: `This object contains ${uniqueMaterials.size} unique materials.`

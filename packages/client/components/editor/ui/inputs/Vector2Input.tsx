@@ -56,8 +56,8 @@ export default class Vector2Input extends Component {
   id: number;
   newValue: Vector2;
   state: {
-    uniformEnabled: any,
-    value: any
+    uniformEnabled: any;
+    value: any;
   }
 
   constructor(props) {

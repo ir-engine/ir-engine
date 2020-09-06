@@ -30,7 +30,7 @@ export default function mergeMeshGeometries(meshes) {
       geometry.attributes.position.clone()
     );
     mesh.updateMatrixWorld();
-    cloneGeometry.applyMatrix(mesh.matrixWorld);
+    cloneGeometry.applyMatrix4(mesh.matrixWorld);
     geometry = cloneGeometry;
     geometries.push(geometry);
   }
@@ -39,7 +39,7 @@ export default function mergeMeshGeometries(meshes) {
   }
   const geometry = BufferGeometryUtils.mergeBufferGeometries(geometries);
   const flippedGeometry = geometry.clone();
-  const positions = flippedGeometry.attributes.position.array;
+  const positions = flippedGeometry.attributes.position.array as any;
   for (let i = 0; i < positions.length; i += 9) {
     const x0 = positions[i];
     const y0 = positions[i + 1];

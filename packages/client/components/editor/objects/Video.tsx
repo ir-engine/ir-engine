@@ -56,7 +56,7 @@ export default class Video extends AudioSource {
           this.hls.startLoad(-1);
         });
       } else {
-        this.el.src = src;
+        (this.el as any).src = src;
       }
       let cleanup = null;
       const onLoadedMetadata = () => {
@@ -66,18 +66,18 @@ export default class Video extends AudioSource {
       const onError = error => {
         cleanup();
         reject(
-          new RethrownError(`Error loading video "${this.el.src}"`, error)
+          new RethrownError(`Error loading video "${(this.el as any).src}"`, error)
         );
       };
       cleanup = () => {
-        this.el.removeEventListener("loadeddata", onLoadedMetadata);
-        this.el.removeEventListener("error", onError);
+        (this.el as any).removeEventListener("loadeddata", onLoadedMetadata);
+        (this.el as any).removeEventListener("error", onError);
       };
       if (_isHLS) {
         this.hls.on((Hls as any).Events.ERROR, onError);
       }
-      this.el.addEventListener("loadeddata", onLoadedMetadata);
-      this.el.addEventListener("error", onError);
+      (this.el as any).addEventListener("loadeddata", onLoadedMetadata);
+      (this.el as any).addEventListener("error", onError);
     });
   }
   get projection() {
@@ -129,7 +129,7 @@ export default class Video extends AudioSource {
   }
   onResize() {
     if (this.projection === VideoProjection.Flat) {
-      const ratio = (this.el.videoHeight || 1.0) / (this.el.videoWidth || 1.0);
+      const ratio = ((this.el as any).videoHeight || 1.0) / ((this.el as any).videoWidth || 1.0);
       const width = Math.min(1.0, 1.0 / ratio);
       const height = Math.min(1.0, ratio);
       this._mesh.scale.set(width, height, 1);

@@ -314,7 +314,7 @@ class Terminal extends Component<any, any> {
       instance.setState({ historyCounter: position });
       inputRef.value = history[position];
       putCursorAtEnd(inputRef);
-      } catch(err){console.trace(err)}
+      } catch(err){console.trace(err);}
     }
   };
 

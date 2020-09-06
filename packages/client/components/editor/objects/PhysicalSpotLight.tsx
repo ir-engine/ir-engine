@@ -1,6 +1,8 @@
 import { SpotLight, Object3D } from "three";
 import createShadowMapResolutionProxy from "../utils/createShadowMapResolutionProxy";
 export default class PhysicalSpotLight extends SpotLight {
+  maxOuterConeAngle: number;
+  shadowMapResolution: any;
   constructor() {
     super();
     this.position.set(0, 0, 0);
