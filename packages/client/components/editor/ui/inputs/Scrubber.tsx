@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { Component, createRef } from "react";
 import PropTypes from "prop-types";
 import Portal from "../layout/Portal";

@@ -3,18 +3,18 @@ import PropTypes from "prop-types";
 import Dialog from "./Dialog";
 
 interface Props {
-  title?,
-  message?,
-  tag?,
-  onCancel?,
-  cancelLabel?,
-  onConfirm?,
-  confirmLabel?,
-  bottomNav?
+  title?;
+  message?;
+  tag?;
+  onCancel?;
+  cancelLabel?;
+  onConfirm?;
+  confirmLabel?;
+  bottomNav?;
 }
 
 export default function ConfirmDialog(props: Props) {
-  const { message } = props
+  const { message } = props;
   return <Dialog {...props}>{message}</Dialog>;
 }
 

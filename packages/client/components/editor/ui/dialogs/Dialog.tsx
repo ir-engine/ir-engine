@@ -80,14 +80,14 @@ const DialogBottomNav = (styled as any).div`
 `;
 
 interface Props {
-    tag?,
-    title?,
-    onCancel?,
-    cancelLabel?,
-    onConfirm?,
-    confirmLabel?,
-    bottomNav?,
-    children?
+    tag?;
+    title?;
+    onCancel?;
+    cancelLabel?;
+    onConfirm?;
+    confirmLabel?;
+    bottomNav?;
+    children?;
 }
 
 export default function Dialog(props: Props) {
@@ -101,7 +101,7 @@ export default function Dialog(props: Props) {
     bottomNav,
     children,
     ...rest
-} = props
+} = props;
   const onSubmitForm = useCallback(
     e => {
       e.preventDefault();

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { Component } from "react";
 import NodeEditor from "./NodeEditor";
 import InputGroup from "../inputs/InputGroup";
@@ -36,13 +37,12 @@ const componentOptions = [
   }
 ];
 type TriggerVolumeNodeEditorProps = {
-  editor?: object,
-  node?: object,
-  multiEdit?: boolean
+  editor?: object;
+  node?: object;
+  multiEdit?: boolean;
 };
 type TriggerVolumeNodeEditorState = {
-  options: any[],
-  options: undefined[]
+  options: any[];
 };
 export default class TriggerVolumeNodeEditor extends Component<
   TriggerVolumeNodeEditorProps,
@@ -55,7 +55,7 @@ export default class TriggerVolumeNodeEditor extends Component<
     };
   }
   onChangeTarget = target => {
-    this.props.editor.setPropertiesSelected({
+    (this.props.editor as any).setPropertiesSelected({
       target,
       enterComponent: null,
       enterProperty: null,
@@ -66,14 +66,14 @@ export default class TriggerVolumeNodeEditor extends Component<
     });
   };
   onChangeEnterComponent = value => {
-    this.props.editor.setPropertiesSelected({
+    (this.props.editor as any).setPropertiesSelected({
       enterComponent: value,
       enterProperty: null,
       enterValue: null
     });
   };
   onChangeEnterProperty = (value, option) => {
-    this.props.editor.setPropertiesSelected({
+    (this.props.editor as any).setPropertiesSelected({
       enterProperty: value,
       enterValue: option.default !== undefined ? option.default : null
     });
@@ -82,14 +82,14 @@ export default class TriggerVolumeNodeEditor extends Component<
     (this.props.editor as any).setPropertySelected("enterValue", value);
   };
   onChangeLeaveComponent = value => {
-    this.props.editor.setPropertiesSelected({
+    (this.props.editor as any).setPropertiesSelected({
       leaveComponent: value,
       leaveProperty: null,
       leaveValue: null
     });
   };
   onChangeLeaveProperty = (value, option) => {
-    this.props.editor.setPropertiesSelected({
+    (this.props.editor as any).setPropertiesSelected({
       leaveProperty: value,
       leaveValue: option.default !== undefined ? option.default : null
     });
@@ -99,7 +99,7 @@ export default class TriggerVolumeNodeEditor extends Component<
   };
   componentDidMount() {
     const options = [];
-    const sceneNode = this.props.editor.scene;
+    const sceneNode = (this.props.editor as any).scene;
     sceneNode.traverse(o => {
       if (o.isNode && o !== sceneNode) {
         options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName });

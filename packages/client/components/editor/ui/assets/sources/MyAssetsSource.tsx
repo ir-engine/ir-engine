@@ -21,7 +21,7 @@ const assetTypeToItemType = {
 export default class MyAssetsSource extends BaseSource {
   component: typeof UploadSourcePanel;
   editor: any;
-  tags: { label: string; value: string; }[];
+  tags: { label: string; value: string }[];
   searchLegalCopy: string;
   privacyPolicyUrl: string;
   uploadMultiple: boolean;

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import EventEmitter from "eventemitter3";
 import jwtDecode from "jwt-decode";
 import { buildAbsoluteURL } from "url-toolkit";
@@ -365,16 +367,16 @@ export default class Project extends EventEmitter {
     console.log("Response: " + Object.values(resp));
 
     if (signal.aborted) {
-      const error = new Error("Media search aborted");
-      error.aborted = true;
+      const error = new Error("Media search aborted") as any;
+      error["aborted"] = true;
       throw error;
     }
 
     const json = await resp.json();
 
     if (signal.aborted) {
-      const error = new Error("Media search aborted");
-      error.aborted = true;
+      const error = new Error("Media search aborted") as any;
+      error["aborted"] = true;
       throw error;
     }
 
@@ -625,7 +627,7 @@ export default class Project extends EventEmitter {
 
         if (signal.aborted) {
           const error = new Error("Publish project aborted");
-          error.aborted = true;
+          error["aborted"] = true;
           throw error;
         }
       }
@@ -644,7 +646,7 @@ export default class Project extends EventEmitter {
 
       if (signal.aborted) {
         const error = new Error("Publish project aborted");
-        error.aborted = true;
+        error["aborted"] = true;
         throw error;
       }
 
@@ -686,7 +688,7 @@ export default class Project extends EventEmitter {
         URL.revokeObjectURL(screenshotUrl);
         hideDialog();
         const error = new Error("Publish project aborted");
-        error.aborted = true;
+        error["aborted"] = true;
         throw error;
       }
 
@@ -716,7 +718,7 @@ export default class Project extends EventEmitter {
 
       if (signal.aborted) {
         const error = new Error("Publish project aborted");
-        error.aborted = true;
+        error["aborted"] = true;
         throw error;
       }
 
@@ -730,7 +732,7 @@ export default class Project extends EventEmitter {
 
       if (!performanceCheckResult) {
         const error = new Error("Publish project canceled");
-        error.aborted = true;
+        error["aborted"] = true;
         throw error;
       }
 
@@ -770,7 +772,7 @@ export default class Project extends EventEmitter {
 
       if (signal.aborted) {
         const error = new Error("Publish project aborted");
-        error.aborted = true;
+        error["aborted"] = true;
         throw error;
       }
 
@@ -793,7 +795,7 @@ export default class Project extends EventEmitter {
 
       if (signal.aborted) {
         const error = new Error("Publish project aborted");
-        error.aborted = true;
+        error["aborted"] = true;
         throw error;
       }
 
@@ -804,7 +806,7 @@ export default class Project extends EventEmitter {
 
       if (signal.aborted) {
         const error = new Error("Publish project aborted");
-        error.aborted = true;
+        error["aborted"] = true;
         throw error;
       }
 
@@ -845,7 +847,7 @@ export default class Project extends EventEmitter {
 
       if (signal.aborted) {
         const error = new Error("Publish project aborted");
-        error.aborted = true;
+        error["aborted"] = true;
         throw error;
       }
 
@@ -875,7 +877,7 @@ export default class Project extends EventEmitter {
 
   async upload(blob, onUploadProgress, signal?) {
     let host, port;
-    const token = this.getToken()
+    const token = this.getToken();
 
     if (USE_DIRECT_UPLOAD_API) {
       const { phx_host: uploadHost } = await (
@@ -892,7 +894,7 @@ export default class Project extends EventEmitter {
         request.abort();
         const error = new Error("Upload aborted");
         error.name = "AbortError";
-        error.aborted = true;
+        error["aborted"] = true;
         reject(error);
       };
 
@@ -935,7 +937,7 @@ export default class Project extends EventEmitter {
       const formData = new FormData();
       formData.set("media", blob);
 
-      request.setRequestHeader('Authorization', `Bearer ${token}`)
+      request.setRequestHeader('Authorization', `Bearer ${token}`);
 
       request.send(formData);
     });
@@ -1118,9 +1120,9 @@ export default class Project extends EventEmitter {
     try {
       const token = this.getToken();
       if (options.headers == null) {
-        options.headers = {}
+        options.headers = {};
       }
-      options.headers.authorization = `Bearer ${token}`
+      options.headers.authorization = `Bearer ${token}`;
       const res = await fetch(url, options);
       console.log("Response: " + Object.values(res));
 

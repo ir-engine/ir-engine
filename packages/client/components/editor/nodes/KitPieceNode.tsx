@@ -251,7 +251,7 @@ export default class KitPieceNode extends EditorNodeMixin(Model) {
     await Promise.all(pendingMaterials);
     return clonedPiece;
   }
-  async load(kitId, pieceId, subPiecesConfig, onError) {
+  async load(kitId, pieceId, subPiecesConfig?, onError?) {
     const nextKitId = kitId || null;
     const nextPieceId = pieceId || null;
     this.hideErrorIcon();
@@ -377,10 +377,10 @@ export default class KitPieceNode extends EditorNodeMixin(Model) {
       };
     }
     if (this.collidable) {
-      components.collidable = {};
+      components["collidable"] = {};
     }
     if (this.walkable) {
-      components.walkable = {};
+      components["walkable"] = {};
     }
     return super.serialize(components);
   }
@@ -427,6 +427,7 @@ export default class KitPieceNode extends EditorNodeMixin(Model) {
     }
     return this;
   }
+  //@ts-ignore
   prepareForExport(ctx) {
     super.prepareForExport();
     this.addGLTFComponent("shadow", {

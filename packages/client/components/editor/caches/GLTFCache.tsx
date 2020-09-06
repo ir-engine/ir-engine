@@ -1,4 +1,5 @@
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { GLTFLoader } from "../gltf/GLTFLoader";
+
 export default class GLTFCache {
   cache: Map<any, any>;
   constructor() {
@@ -9,8 +10,7 @@ export default class GLTFCache {
     if (this.cache.has(absoluteURL)) {
       return this.cache.get(absoluteURL);
     } else {
-      const loader = new GLTFLoader();
-      loader.resourcePath = absoluteURL
+      const loader = new GLTFLoader(absoluteURL, undefined, { revokeObjectURLs: false, ...options });
       this.cache.set(absoluteURL, loader);
       return loader;
     }

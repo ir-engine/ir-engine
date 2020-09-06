@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
-import KitPackager from "../../../components/editor/kits/KitPackager"
-import ProgressBar from "../../../components/editor/ui/inputs/ProgressBar"
-import FileInput from "../../../components/editor/ui/inputs/FileInput"
+import KitPackager from "../../../components/editor/kits/KitPackager";
+import ProgressBar from "../../../components/editor/ui/inputs/ProgressBar";
+import FileInput from "../../../components/editor/ui/inputs/FileInput";
 const Container = (styled as any).div`
   display: flex;
   margin: auto;
@@ -59,11 +59,8 @@ export default function PackageKitPage() {
           {isGenerating ? (
             <ProgressBar />
           ) : (
-            <FileInput
-              label="Upload Kit (.glb)"
-              accept=".glb,model/gltf-binary"
-              onChange={onUpload}
-            />
+            /* @ts-ignore */
+            <FileInput label="Upload Kit (.glb)" accept=".glb,model/gltf-binary" onChange={onUpload} />
           )}
         </Container>
       </main>

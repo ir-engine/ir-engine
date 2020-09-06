@@ -8,6 +8,7 @@ export default function NumericInputGroup({ name, className, info, ...rest }) {
   const { displayPrecision, ...scrubberProps } = rest;
   return (
     <InputGroupContainer>
+      { /* @ts-ignore */ }
       <Scrubber {...scrubberProps}>{name}:</Scrubber>
       <InputGroupContent>
         <NumericInput {...rest} />

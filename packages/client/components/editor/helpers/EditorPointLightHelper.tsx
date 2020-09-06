@@ -8,7 +8,7 @@ import { addIsHelperFlag } from "./utils";
 export default class EditorPointLightHelper extends Mesh {
   light: any;
   lightDistanceHelper: Mesh<IcosahedronBufferGeometry, MeshBasicMaterial>;
-  constructor(light, sphereSize) {
+  constructor(light, sphereSize?) {
     const geometry = new SphereBufferGeometry(sphereSize, 4, 2);
     const material = new MeshBasicMaterial({ wireframe: true, fog: false });
     super(geometry, material);

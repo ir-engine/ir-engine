@@ -26,11 +26,10 @@
     "node_modules",
     "tests/**",
     "../engine/tests",
-    "sandbox/**"
   ],
   "include": [
     "next-env.d.ts",
     "./**/*.ts",
-    "./**/*.tsx", "sandbox/editor/recast/recast.worker.js"
+    "./**/*.tsx"
   ]
 }

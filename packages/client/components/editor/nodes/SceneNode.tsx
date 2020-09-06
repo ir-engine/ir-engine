@@ -1,5 +1,5 @@
 import {
-  Math as _Math,
+  MathUtils as _Math,
   Scene,
   Group,
   Object3D,
@@ -32,7 +32,7 @@ function migrateV1ToV2(json) {
     const uuid = nameToUUID[name];
     newEntities[uuid] = Object.assign({}, entity, {
       name,
-      parent: nameToUUID[entity.parent]
+      parent: nameToUUID[(entity as any).parent]
     });
   }
   return {
@@ -356,6 +356,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     this.mediaConeOuterGain = source.mediaConeOuterGain;
     return this;
   }
+  // @ts-ignore
   serialize() {
     const sceneJson = {
       version: 4,
@@ -422,6 +423,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     });
     return sceneJson;
   }
+    // @ts-ignore
   prepareForExport(ctx) {
     this.children = this.children.filter(c => c.isNode);
     const nodeList = [];

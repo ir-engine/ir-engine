@@ -60,6 +60,7 @@ export default function SceneNodeEditor(props) {
       </InputGroup>
       { /* @ts-ignore */ }
       <InputGroup name="Fog Type">
+      { /* @ts-ignore */ }
         <SelectInput options={FogTypeOptions} value={node.fogType} onChange={onChangeFogType} />
       </InputGroup>
       {node.fogType !== FogType.Disabled && (

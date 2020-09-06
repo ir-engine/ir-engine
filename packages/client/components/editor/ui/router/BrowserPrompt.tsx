@@ -1,7 +1,7 @@
 import React from "react";
 import { Prompt } from "react-router-dom";
 type BrowserPromptProps = {
-  message: ((...args: any[]) => any) | string
+  message: ((...args: any[]) => any) | string;
 };
 export default class BrowserPrompt extends React.Component<
   BrowserPromptProps,

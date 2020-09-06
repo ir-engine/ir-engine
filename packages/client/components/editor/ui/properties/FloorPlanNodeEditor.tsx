@@ -10,11 +10,11 @@ import { withDialog } from "../contexts/DialogContext";
 import { withSettings } from "../contexts/SettingsContext";
 import { ShoePrints } from "@styled-icons/fa-solid/ShoePrints";
 type FloorPlanNodeEditorProps = {
-  hideDialog: (...args: any[]) => any,
-  showDialog: (...args: any[]) => any,
-  editor?: object,
-  settings: object,
-  node?: object
+  hideDialog: (...args: any[]) => any;
+  showDialog: (...args: any[]) => any;
+  editor?: object;
+  settings: object;
+  node?: object;
 };
 class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
   onChangeAutoCellSize: (value: any) => any;
@@ -56,7 +56,7 @@ class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
       await (this.props.node as any).generate(abortController.signal);
       this.props.hideDialog();
     } catch (error) {
-      if (error.aborted) {
+      if (error["aborted"]) {
         this.props.hideDialog();
         return;
       }

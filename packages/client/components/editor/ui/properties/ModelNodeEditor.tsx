@@ -7,9 +7,9 @@ import ModelInput from "../inputs/ModelInput";
 import { Cube } from "@styled-icons/fa-solid/Cube";
 import { GLTFInfo } from "../inputs/GLTFInfo";
 type ModelNodeEditorProps = {
-  editor?: object,
-  node?: object,
-  multiEdit?: boolean
+  editor?: object;
+  node?: object;
+  multiEdit?: boolean;
 };
 export default class ModelNodeEditor extends Component<
   ModelNodeEditorProps,

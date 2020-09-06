@@ -10,8 +10,8 @@ import {
   Mesh,
   UniformsLib
 } from "three";
-import { PMREMGenerator } from "three/examples/jsm/pmrem/PMREMGenerator";
-import { PMREMCubeUVPacker } from "three/examples/jsm/pmrem/PMREMCubeUVPacker";
+import { PMREMGenerator } from "three";
+import { PMREMCubeUVPacker } from "./PMREMCubeUVPacker";
 /**
  * @author zz85 / https://github.com/zz85
  *
@@ -226,6 +226,12 @@ export default class Sky extends Object3D {
     fragmentShader
   };
   static _geometry = new BoxBufferGeometry(1, 1, 1);
+  skyScene: Scene;
+  cubeCamera: CubeCamera;
+  sky: Mesh<BoxBufferGeometry, ShaderMaterial>;
+  _inclination: number;
+  _azimuth: number;
+  _distance: number;
   constructor() {
     super();
     const material = new ShaderMaterial({
@@ -236,6 +242,8 @@ export default class Sky extends Object3D {
       fog: true
     });
     this.skyScene = new Scene();
+    // BUG: CubeCamera has changed so this might be broken
+    // @ts-ignore
     this.cubeCamera = new CubeCamera(1, 100000, 512);
     this.skyScene.add(this.cubeCamera);
     this.sky = new Mesh(Sky._geometry, material);
@@ -314,10 +322,10 @@ export default class Sky extends Object3D {
     const vrEnabled = renderer.vr.enabled;
     renderer.vr.enabled = false;
     const pmremGenerator = new PMREMGenerator(
-      this.cubeCamera.renderTarget.texture
+      this.cubeCamera.renderTarget.texture as any
     );
-    pmremGenerator.update(renderer);
-    const pmremCubeUVPacker = new PMREMCubeUVPacker(pmremGenerator.cubeLods);
+    (pmremGenerator as any).update(renderer);
+    const pmremCubeUVPacker = new PMREMCubeUVPacker((pmremGenerator as any).cubeLods);
     pmremCubeUVPacker.update(renderer);
     renderer.vr.enabled = vrEnabled;
     pmremGenerator.dispose();
@@ -332,7 +340,7 @@ export default class Sky extends Object3D {
     if (recursive) {
       const skyIndex = source.children.indexOf(source.sky);
       if (skyIndex !== -1) {
-        this.sky = this.children[skyIndex];
+        (this.sky as any) = this.children[skyIndex];
       }
     }
     this.turbidity = source.turbidity;

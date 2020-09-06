@@ -3,11 +3,11 @@ import { Button } from "./Button";
 import Hidden from "../layout/Hidden";
 let nextId = 0;
 type FileInputProps = {
-  label: string,
-  onChange: (...args: any[]) => any
+  label: string;
+  onChange: (...args: any[]) => any;
 };
 type FileInputState = {
-  id: string
+  id: string;
 };
 export default class FileInput extends Component<
   FileInputProps,

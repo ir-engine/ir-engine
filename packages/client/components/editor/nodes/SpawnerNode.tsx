@@ -20,6 +20,7 @@ const defaultStats = {
   textureInfo: {},
   meshInfo: {}
 };
+//@ts-ignore
 export default class SpawnerNode extends EditorNodeMixin(Model) {
   static legacyComponentName = "spawner";
   static nodeName = "Spawner";
@@ -59,7 +60,7 @@ export default class SpawnerNode extends EditorNodeMixin(Model) {
     return cloneObject3D(scene);
   }
   // Overrides Model's load method and resolves the src url before loading.
-  async load(src, onError) {
+  async load(src, onError?) {
     const nextSrc = src || "";
     if (nextSrc === this._canonicalUrl && nextSrc !== "") {
       return;

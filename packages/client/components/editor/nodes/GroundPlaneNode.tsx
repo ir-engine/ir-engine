@@ -60,7 +60,7 @@ export default class GroundPlaneNode extends EditorNodeMixin(GroundPlane) {
       }
     };
     if (this.walkable) {
-      components.walkable = {};
+      (components as any).walkable = {};
     }
     return super.serialize(components);
   }

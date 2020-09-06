@@ -1,7 +1,7 @@
 import ModelMediaSource from "../ModelMediaSource";
 import { TransformPivot } from "../../../controls/EditorControls";
 export default class PolySource extends ModelMediaSource {
-  tags: { label: string; value: string; }[];
+  tags: { label: string; value: string }[];
   searchLegalCopy: string;
   privacyPolicyUrl: string;
   transformPivot: any;

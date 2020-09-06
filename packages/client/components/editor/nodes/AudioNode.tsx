@@ -5,11 +5,13 @@ import {
   Mesh,
   DoubleSide
 } from "three";
+// @ts-ignore
 import audioIconUrl from "../../assets/audio-icon.png";
 import AudioSource from "../objects/AudioSource";
 import loadTexture from "../utils/loadTexture";
 import { RethrownError } from "../utils/errors";
 let audioHelperTexture = null;
+// @ts-ignore
 export default class AudioNode extends EditorNodeMixin(AudioSource) {
   static legacyComponentName = "audio";
   static nodeName = "Audio";
@@ -79,7 +81,7 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
   set autoPlay(value) {
     this._autoPlay = value;
   }
-  async load(src, onError) {
+  async load(src, onError?) {
     const nextSrc = src || "";
     if (nextSrc === this._canonicalUrl && nextSrc !== "") {
       return;
@@ -89,7 +91,7 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
     this.hideErrorIcon();
     this.showLoadingCube();
     if (this.editor.playing) {
-      this.el.pause();
+      (this.el as any).pause();
     }
     try {
       const { accessibleUrl, contentType } = await this.editor.api.resolveMedia(
@@ -97,7 +99,7 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
       );
       await super.load(accessibleUrl, contentType);
       if (this.editor.playing && this.autoPlay) {
-        this.el.play();
+        (this.el as any).play();
       }
       this.helper.visible = true;
     } catch (error) {
@@ -118,15 +120,15 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
   }
   onPlay() {
     if (this.autoPlay) {
-      this.el.play();
+      (this.el as any).play();
     }
   }
   onPause() {
-    this.el.pause();
-    this.el.currentTime = 0;
+    (this.el as any).pause();
+    (this.el as any).currentTime = 0;
   }
   clone(recursive) {
-    return new this.constructor(this.editor, this.audioListener).copy(
+    return new (this as any).constructor(this.editor, this.audioListener).copy(
       this,
       recursive
     );

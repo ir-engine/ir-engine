@@ -27,11 +27,11 @@ export default class AudioSource extends Object3D {
   audioSource: any;
   constructor(audioListener, elTag = "audio") {
     super();
-    const el = document.createElement(elTag);
+    const el = document.createElement(elTag) as any;
     el.setAttribute("playsinline", "");
     el.setAttribute("webkit-playsinline", "");
-    el.crossOrigin = "anonymous";
-    el.loop = true;
+    el["crossOrigin"] = "anonymous";
+    el["loop"] = true;
     this.el = el;
     this._src = "";
     this.audioListener = audioListener;
@@ -55,10 +55,10 @@ export default class AudioSource extends Object3D {
     (this.el as any).autoplay = value;
   }
   get loop() {
-    return this.el.loop;
+    return (this.el as any).loop;
   }
   set loop(value) {
-    this.el.loop = value;
+    (this.el as any).loop = value;
   }
   get audioType() {
     return this._audioType;
@@ -112,7 +112,7 @@ export default class AudioSource extends Object3D {
   set rolloffFactor(value) {
     if (this.audioType === AudioType.PannerNode) {
       this.audio.setRolloffFactor(value);
-      return
+      return;
     }
   }
   get refDistance() {
@@ -185,11 +185,11 @@ export default class AudioSource extends Object3D {
         );
       };
       cleanup = () => {
-        this.el.removeEventListener("loadeddata", onLoadedData);
-        this.el.removeEventListener("error", onError);
+        (this.el as any).removeEventListener("loadeddata", onLoadedData);
+        (this.el as any).removeEventListener("error", onError);
       };
-      this.el.addEventListener("loadeddata", onLoadedData);
-      this.el.addEventListener("error", onError);
+      (this.el as any).addEventListener("loadeddata", onLoadedData);
+      (this.el as any).addEventListener("error", onError);
     });
   }
   async load(src, contentType?) {

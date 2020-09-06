@@ -5,8 +5,8 @@ import ModelInput from "../inputs/ModelInput";
 import { Magic } from "@styled-icons/fa-solid/Magic";
 import { GLTFInfo } from "../inputs/GLTFInfo";
 type SpawnerNodeEditorProps = {
-  editor?: object,
-  node?: object
+  editor?: object;
+  node?: object;
 };
 export default class SpawnerNodeEditor extends Component<
   SpawnerNodeEditorProps,

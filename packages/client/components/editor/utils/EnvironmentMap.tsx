@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { CubeTextureLoader, RGBFormat } from "three";
 import { RethrownError } from "./errors";
 import negx from "../assets/cubemap/negx.jpg";

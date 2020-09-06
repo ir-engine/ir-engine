@@ -111,7 +111,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     return clonedScene;
   }
   // Overrides Model's load method and resolves the src url before loading.
-  async load(src, onError) {
+  async load(src, onError?) {
     const nextSrc = src || "";
     if (nextSrc === this._canonicalUrl && nextSrc !== "") {
       return;
@@ -278,10 +278,10 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       };
     }
     if (this.collidable) {
-      components.collidable = {};
+      components["collidable"] = {};
     }
     if (this.walkable) {
-      components.walkable = {};
+      components["walkable"] = {};
     }
     return super.serialize(components);
   }
@@ -301,6 +301,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.walkable = source.walkable;
     return this;
   }
+  // @ts-ignore
   prepareForExport(ctx) {
     super.prepareForExport();
     this.addGLTFComponent("shadow", {

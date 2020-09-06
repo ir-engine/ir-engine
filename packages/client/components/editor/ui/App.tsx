@@ -18,10 +18,10 @@ const PackageKitPage = lazy(() =>
   import(/* webpackChunkName: "package-kit-page", webpackPrefetch: true */ "./assets/PackageKitPage")
 );
 type AppProps = {
-  api: object
+  api: object;
 };
 type AppState = {
-  isAuthenticated: any
+  isAuthenticated: any;
 };
 export default class App extends Component<AppProps, AppState> {
   constructor(props) {
@@ -31,7 +31,7 @@ export default class App extends Component<AppProps, AppState> {
     };
   }
   componentDidMount() {
-    this.props.api.addListener(
+    (this.props.api as any).addListener(
       "authentication-changed",
       this.onAuthenticationChanged
     );
@@ -40,7 +40,7 @@ export default class App extends Component<AppProps, AppState> {
     this.setState({ isAuthenticated });
   };
   componentWillUnmount() {
-    this.props.api.removeListener(
+    (this.props.api as any).removeListener(
       "authentication-changed",
       this.onAuthenticationChanged
     );
@@ -57,9 +57,7 @@ export default class App extends Component<AppProps, AppState> {
               fallback={<Loading message="Loading..." fullScreen />}
             >
               <Switch>
-                {!configs.isXR3() && (
                   <RedirectRoute path="/" exact to="/projects" />
-                )}
                 <RedirectRoute path="/new" exact to="/projects" />
                 <Route
                   path="/projects/create"

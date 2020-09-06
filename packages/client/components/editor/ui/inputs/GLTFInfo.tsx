@@ -1,3 +1,4 @@
+// @ts-ignore
 import React, { useCallback, useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 import { PieChart, Pie, Legend, Label, Cell } from "recharts";

@@ -55,13 +55,13 @@ export default function EditorNodeMixin(Object3DClass) {
     constructor(editor, ...args) {
       super(...args);
       this.editor = editor;
-      this.nodeName = this.constructor.nodeName;
-      this.name = this.constructor.nodeName;
+      this.nodeName = (this.constructor as any).nodeName;
+      this.name = (this.constructor as any).nodeName;
       this.isNode = true;
       this.isCollapsed = false;
-      this.disableTransform = this.constructor.disableTransform;
-      this.useMultiplePlacementMode = this.constructor.useMultiplePlacementMode;
-      this.ignoreRaycast = this.constructor.ignoreRaycast;
+      this.disableTransform = (this.constructor as any).disableTransform;
+      this.useMultiplePlacementMode = (this.constructor as any).useMultiplePlacementMode;
+      this.ignoreRaycast = (this.constructor as any).ignoreRaycast;
       this.staticMode = StaticModes.Inherits;
       this.originalStaticMode = null;
       this.saveParent = false;
@@ -70,7 +70,7 @@ export default function EditorNodeMixin(Object3DClass) {
       this.issues = [];
     }
     clone(recursive) {
-      return new this.constructor(this.editor).copy(this, recursive);
+      return new (this as any).constructor(this.editor).copy(this, recursive);
     }
     copy(source, recursive = true) {
       if (recursive) {
@@ -156,7 +156,7 @@ export default function EditorNodeMixin(Object3DClass) {
               serializedProps[propName] = propValue;
             }
           }
-          entityJson.components.push({
+          (entityJson.components as any).push({
             name: componentName,
             props: serializedProps
           });
@@ -172,7 +172,7 @@ export default function EditorNodeMixin(Object3DClass) {
         });
       }
     }
-    addGLTFComponent(name, props) {
+    addGLTFComponent(name, props?) {
       if (!this.userData.gltfExtensions) {
         this.userData.gltfExtensions = {};
       }
@@ -194,8 +194,8 @@ export default function EditorNodeMixin(Object3DClass) {
       }
       this.userData.gltfExtensions.componentData[name] = componentProps;
     }
-    replaceObject(replacementObject) {
-      replacementObject = replacementObject || new Object3D().copy(this, false);
+    replaceObject(replacementObject?) {
+      replacementObject = replacementObject || new Object3D().copy(this as any, false);
       replacementObject.uuid = this.uuid;
       if (
         this.userData.gltfExtensions &&

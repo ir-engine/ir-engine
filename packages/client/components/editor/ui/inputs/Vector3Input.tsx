@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import NumericInput from "./NumericInput";
@@ -50,7 +51,7 @@ export default class Vector3Input extends Component {
   };
 
   state: {
-    uniformEnabled: any
+    uniformEnabled: any;
   }
 
   static defaultProps = {

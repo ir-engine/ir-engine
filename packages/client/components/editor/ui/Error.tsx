@@ -29,7 +29,7 @@ export default class Error extends Component {
         <Link to="/">
           Return
         </Link>
-        {this.props.message}
+        {(this.props as any).message}
       </StyledError>
     );
   }

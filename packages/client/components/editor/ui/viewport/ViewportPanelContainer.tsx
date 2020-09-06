@@ -9,7 +9,7 @@ import AssetsPanel from "../assets/AssetsPanel";
 import { useDrop } from "react-dnd";
 import { ItemTypes, AssetTypes, addAssetAtCursorPositionOnDrop } from "../dnd";
 import SelectInput from "../inputs/SelectInput";
-import { TransformMode } from "../../editor/controls/EditorControls";
+import { TransformMode } from "../../controls/EditorControls";
 import AssetDropZone from "../assets/AssetDropZone";
 import { ChartArea } from "@styled-icons/fa-solid/ChartArea";
 import { InfoTooltip } from "../layout/Tooltip";
@@ -154,6 +154,7 @@ function ViewportToolbar({ onToggleStats, showStats }) {
   return (
     <ViewportToolbarContainer>
       <IconToggle onClick={onToggleStats} value={showStats} tooltip="Toggle Stats" icon={ChartArea} />
+      { /* @ts-ignore */ }
       <SelectInput value={renderMode} options={options} onChange={onChangeRenderMode} styles={selectInputStyles} />
     </ViewportToolbarContainer>
   );
@@ -213,7 +214,7 @@ export default function ViewportPanelContainer() {
 
   const [{ canDrop, isOver }, dropRef] = useDrop({
     accept: [ItemTypes.Node, ...AssetTypes],
-    drop(item, monitor) {
+    drop(item: any, monitor) {
       const mousePos = monitor.getClientOffset();
 
       if (item.type === ItemTypes.Node) {
@@ -270,6 +271,7 @@ export default function ViewportPanelContainer() {
   // id used in onboarding
   return (
     <Panel
+    /* @ts-ignore */
       id="viewport-panel"
       title="Viewport"
       icon={WindowMaximize}
