@@ -19,6 +19,12 @@ export class Network extends Component<Network> {
   isInitialized: boolean
   transport: NetworkTransport
   schema: NetworkSchema
+  // Add more data channels if needed, probably use sort of an enums just like MessageTypes for them
+  dataChannels: string[] = [
+    // examples
+    // 'physics',
+    // 'location' 
+  ]
   clients: NetworkClientList = {}
   networkObjects: NetworkObjectList = {}
   mySocketID: string

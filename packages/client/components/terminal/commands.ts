@@ -22,7 +22,7 @@ export const commands = {
             };
             print(eval(args._[0].toString().replace("console.log(", "console.logEval(")));
             } catch (error) {
-          print("Failed to evaluate code")
+          print("Failed to evaluate code");
             }
         },
         options: [
@@ -51,7 +51,7 @@ export const commands = {
                     Update data.
                 `);
             }
-            console.log(args)
+            console.log(args);
 
             switch(args._[0]){
                 case 'entities':
@@ -76,7 +76,7 @@ export const commands = {
                         const opts = options.join().split(/\w*\-{0,2}(\W+)\w*/);
                         if('components' in opts || 'c' in opts){//replace to Maybee monad
                              // @ts-ignore above the line
-                            var componentsFields = ({components}) => 
+                            const componentsFields = ({components}) => 
                                 toString(map.call(components, ({constructor:{name}, id}) => `${id} ${name}`) );
                         }
                         const entityFields = ({id}) => id;              
@@ -145,29 +145,29 @@ export const commands = {
                 case 'components': {
                     // User passed a number, which should align with an entity ID -- show breakdown of data on entity
                     if(!isNaN(args._[1])){
-                        let cstring = ""
+                        let cstring = "";
                         Object.values(Engine.components[args._[1]]).forEach((c: any) => {
-                            cstring += '\n'
+                            cstring += '\n';
                             Object.keys(c).forEach((p: any) => {
-                                cstring += '\n'
+                                cstring += '\n';
                                 // TODO: If is object or array, drill down into values
-                                cstring += p.toString() + ": " + c[p].toString()
-                            })
-                            cstring += '\n'
-                        })
-                        console.log(cstring)
-                        print(cstring)
+                                cstring += p.toString() + ": " + c[p].toString();
+                            });
+                            cstring += '\n';
+                        });
+                        console.log(cstring);
+                        print(cstring);
                     } else {
-                        let cstring = "\n"
+                        let cstring = "\n";
                     Engine.components.forEach((component: ComponentConstructor<any>) => {
-                        cstring +=  component.name + "\n"
+                        cstring +=  component.name + "\n";
                         Object.keys(component).forEach(k => {
-                            cstring += k + ": " + component[k].toString() + "\n"
-                        })
-                        cstring += "\n --------------- \n"
-                    })
-                    console.log(cstring)
-                    print(cstring)
+                            cstring += k + ": " + component[k].toString() + "\n";
+                        });
+                        cstring += "\n --------------- \n";
+                    });
+                    console.log(cstring);
+                    print(cstring);
                 }
             }
                     break;
@@ -176,23 +176,23 @@ export const commands = {
                     const result = Engine.systems.map(
                         ({name, enabled}) => 
                             `${name} - ${enabled ? 'enabled' : 'disabled'}`
-                    ).join("\n")
-                    print(result)
+                    ).join("\n");
+                    print(result);
                 }
                 break;
 
                 case 'stop': {
 
-                    Engine.enabled = false
+                    Engine.enabled = false;
                     //Engine.engineTimer.stop()
-                    print( `Engine stopped at ? time`)
+                    print( `Engine stopped at ? time`);
                     
-                }break
+                }break;
                 case 'start': {
-                    Engine.enabled = true
+                    Engine.enabled = true;
                     //Engine.engineTimer.start()
-                    print( `Engine started`)
-                }break
+                    print( `Engine started`);
+                }break;
             }
             
         },
@@ -204,10 +204,10 @@ export const commands = {
           },
         ],
       }
-}
+};
 export const description = {
     // ecs: {
     //     play: '',
     //     pause: '',
     // }
-}
+};

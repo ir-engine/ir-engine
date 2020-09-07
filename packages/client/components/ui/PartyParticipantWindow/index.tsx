@@ -116,7 +116,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             audioRef.current.setAttribute('playsinline', 'true');
             audioRef.current.autoplay = true;
             if (peerId === 'me_cam' || peerId === 'me_screen') {
-                console.log('Muting self audio')
+                console.log('Muting self audio');
                 audioRef.current.muted = true;
             }
             if (audioStream) {
@@ -131,7 +131,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             audioRef.current.volume = 1;
             setVolume(100);
         }
-    }, [audioStream, videoStream])
+    }, [audioStream, videoStream]);
     // Add mediasoup integration logic here to feed single peer's stream to these video/audio elements
 
     const toggleVideo = async () => {
@@ -177,14 +177,14 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const adjustVolume = (e, newValue) => {
         console.log(newValue);
         if (peerId === 'me_cam' || peerId === 'me_screen') {
-            console.log('Setting local gain')
+            console.log('Setting local gain');
             console.log(MediaStreamComponent.instance.audioGainNode);
-            console.log(MediaStreamComponent.instance.audioGainNode.gain)
+            console.log(MediaStreamComponent.instance.audioGainNode.gain);
             MediaStreamComponent.instance.audioGainNode.gain.setValueAtTime(newValue / 100, MediaStreamComponent.instance.audioGainNode.context.currentTime + 1);
-            console.log('AFTER GAIN:')
+            console.log('AFTER GAIN:');
             console.log(MediaStreamComponent.instance.audioGainNode.gain);
         } else {
-            console.log('Setting audio component value')
+            console.log('Setting audio component value');
             audioRef.current.volume = newValue / 100;
         }
         setVolume(newValue);
