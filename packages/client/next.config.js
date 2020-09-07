@@ -23,36 +23,37 @@ module.exports = withImages(
             loader: 'babel-loader',
             options: {
               presets: [
-                  '@babel/preset-env'
+                '@babel/preset-env',
+                'next/babel'
               ]
             }
           }
         },
         {
-        test: /\.(eot|woff|woff2|ttf|svg|png|jpg|gif)$/,
-        use: {
-          loader: 'url-loader',
-          options: {
-            limit: 100000,
-            name: '[name].[ext]'
+          test: /\.(eot|woff|woff2|ttf)$/,
+          use: {
+            loader: 'url-loader',
+            options: {
+              limit: 100000,
+              name: '[name].[ext]'
+            }
           }
-        }
-      })
-      config.module.rules.push({
-        test: /\.ts$/,
-        use: {
-          loader: 'ts-loader',
-          options: { allowTsInNodeModules: true },
-        }
-      })
-      config.module.rules.push({
-        test: /\.(png|jpg|jpeg|gif|svg)(\?.*$|$)/,
+        },
+        {
+        test: /\.(world)(\?.*$|$)/,
         use: {
           loader: "file-loader",
           options: {
             name: "[name]-[hash].[ext]",
-            outputPath: "editor/assets/images"
+            outputPath: "editor/assets/templates"
           }
+        }
+      },
+      {
+        test: /\.ts$/,
+        use: {
+          loader: 'ts-loader',
+          options: { allowTsInNodeModules: true },
         }
       })
 
@@ -91,7 +92,7 @@ module.exports = withImages(
       config.module.rules.push({
         test: /\.(glsl|vert|fs|frag)$/,
         loader: 'ts-shader-loader'
-    })
+      })
       config.module.rules.push({
         test: /\.(mp4|webm)(\?.*$|$)/,
         use: {
@@ -99,16 +100,6 @@ module.exports = withImages(
           options: {
             name: "[name]-[hash].[ext]",
             outputPath: "editor/assets/videos"
-          }
-        }
-      })
-      config.module.rules.push({
-        test: /\.(world)(\?.*$|$)/,
-        use: {
-          loader: "file-loader",
-          options: {
-            name: "[name]-[hash].[ext]",
-            outputPath: "editor/assets/templates"
           }
         }
       })

@@ -1,14 +1,11 @@
-//import { Quaternion } from 'cannon-es';
-import { Vector3, Matrix4, Quaternion, Euler } from 'three';
+import { Vector3, Matrix4, Euler } from 'three';
 import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { Input } from '@xr3ngine/engine/src/input/components/Input';
-import { InputType } from '@xr3ngine/engine/src/input/enums/InputType';
-import { InputAlias } from '@xr3ngine/engine/src/input/types/InputAlias';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterComponent';
+import {MouseInput} from "../../input/enums/MouseInput";
 
 
 let follower, target;
@@ -38,10 +35,10 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
   inputComponent = getComponent(entityOut, Input);
   camera = getMutableComponent<CameraComponent>(entityIn, CameraComponent);
 
-  if (inputComponent.data.get(inputComponent.schema.mouseInputMap.axes.mouseMovement) == undefined) {
+  if (inputComponent.data.get(inputComponent.schema.mouseInputMap.axes[MouseInput.MouseMovement]) == undefined) {
     inputValue = [0, 0]
   } else {
-    inputValue = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes.mouseMovement).value
+    inputValue = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes[MouseInput.MouseMovement]).value
     // fix infinity rotation
     Math.abs(inputValue[0] + inputValue[1]) == 1 ? inputValue = [0, 0] : '';
   }

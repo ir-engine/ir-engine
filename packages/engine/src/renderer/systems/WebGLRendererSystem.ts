@@ -26,12 +26,7 @@ export class WebGLRendererSystem extends System {
     super(attributes);
 
     this.onResize = this.onResize.bind(this);
-  }
 
-  /**
-     * Initialize renderercomponent and three.js renderer, add renderer to scene
-     */
-  init(): void {
     // Create the Renderer singleton
     addComponent(createEntity(), RendererComponent);
     const renderer = new WebGLRenderer({

@@ -18,7 +18,7 @@ import { SubscriptionSystem } from './subscription/systems/SubscriptionSystem';
 import { ParticleSystem } from "./particles/systems/ParticleSystem"
 import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
 import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
-import { DefaultNetworkSchema } from './templates/network/DefaultNetworkSchema';
+import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { Timer } from './common/functions/Timer';
 import { addObject3DComponent } from './common/behaviors/Object3DBehaviors';
@@ -137,7 +137,7 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
 
   // Networking
   if (options.networking && options.networking.enabled) {
-    registerSystem(NetworkSystem, { schema: options.networking.schema});
+    registerSystem(NetworkSystem, { schema: options.networking.schema });
 
     // Do we want audio and video streams?
     if (options.networking.supportsMediaStreams == true) {

@@ -1,13 +1,12 @@
+import { Entity } from "../../ecs/classes/Entity";
 import { System } from '../../ecs/classes/System';
+import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { handleInput } from '../behaviors/handleInput';
 import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
 import { Input } from '../components/Input';
 import { WebXRRenderer } from '../components/WebXRRenderer';
 import { WebXRSession } from '../components/WebXRSession';
-import { CharacterInputSchema } from '../../templates/character/CharacterInputSchema';
 import { initVR } from '../functions/WebXRFunctions';
-import { getMutableComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
-import { Entity } from "../../ecs/classes/Entity";
 import { ListenerBindingData } from "../interfaces/ListenerBindingData";
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
 /**
@@ -30,10 +29,10 @@ export class InputSystem extends System {
   readonly onVRSupportRequested
   private entityListeners:Map<Entity, Array<ListenerBindingData>>
 
-  constructor (attributes:any) {
-    super(attributes);
-    this.useWebXR = attributes.useWebXR;
-    this.onVRSupportRequested = attributes.onVRSupportRequested;
+  constructor ({ useWebXR, onVRSupportRequested }) {
+    super();
+    this.useWebXR = useWebXR;
+    this.onVRSupportRequested = onVRSupportRequested;
     this.mainControllerId = 0;
     this.secondControllerId = 1;
     this.boundListeners = new Set();
@@ -77,15 +76,13 @@ export class InputSystem extends System {
       if (!hasComponent(entity, Input)) {
         return
       }
-      handleInput(entity, { delta })
+      handleInput(entity, { }, delta)
     });
 
     // Called when input component is added to entity
     this.queryResults.inputs.added?.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
-      // If input doesn't have a map, set the default
-      if (this._inputComponent.schema === undefined) this._inputComponent.schema = CharacterInputSchema;
       // Call all behaviors in "onAdded" of input map
       this._inputComponent.schema.onAdded.forEach(behavior => {
         behavior.behavior(entity, { ...behavior.args });

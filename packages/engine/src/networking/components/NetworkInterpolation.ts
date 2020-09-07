@@ -2,8 +2,8 @@ import { Component } from '../../ecs/classes/Component';
 import { ID, Snapshot } from '../types/SnapshotDataTypes';
 
 /** A save place to store your snapshots. */
-export class NetworkGameState extends Component<any> {
-  static instance: NetworkGameState
+export class NetworkInterpolation extends Component<any> {
+  static instance: NetworkInterpolation
   public vault: Snapshot[] = []
   vaultSize = 120
   timeOffset = -1
@@ -14,12 +14,12 @@ export class NetworkGameState extends Component<any> {
 
   constructor () {
     super();
-    NetworkGameState.instance = this;
+    NetworkInterpolation.instance = this;
   }
 
   dispose():void {
     super.dispose();
-    NetworkGameState.instance = null;
+    NetworkInterpolation.instance = null;
   }
 
   public get interpolationBuffer () {

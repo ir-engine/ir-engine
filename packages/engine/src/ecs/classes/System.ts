@@ -64,10 +64,9 @@ export abstract class System {
   enabled: boolean
   name: string
   _queries: {} = {}
-  init? (attributes?: SystemAttributes): void
   abstract execute (delta: number, time: number): void
 
-  canExecute (delta:number): boolean {
+  canExecute (delta: number): boolean {
     if (this._mandatoryQueries.length === 0) return true;
 
     for (let i = 0; i < this._mandatoryQueries.length; i++) {
@@ -189,7 +188,6 @@ export abstract class System {
       }
     }
     const c = (this.constructor as any).prototype;
-    if(c.init !== undefined) c.init(attributes);
     c.order = Engine.systems.length;
   }
 

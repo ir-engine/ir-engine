@@ -15,9 +15,6 @@ export class AudioSystem extends System {
     constructor() {
         super();
         this.startAudio = this.startAudio.bind(this)
-    }
-
-    init() {
         this.audioReady = false
         this.callbacks = []
         window.addEventListener('touchstart',this.startAudio)

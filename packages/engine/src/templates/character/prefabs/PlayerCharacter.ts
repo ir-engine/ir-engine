@@ -1,30 +1,26 @@
+import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
+import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 import { Input } from "@xr3ngine/engine/src/input/components/Input";
-// import { addPlayerCollider } from "@xr3ngine/engine/src/physics/behaviors/addPlayerCollider";
+import { LocalInputReceiver } from "@xr3ngine/engine/src/input/components/LocalInputReceiver";
 import { State } from "@xr3ngine/engine/src/state/components/State";
 import { Subscription } from "@xr3ngine/engine/src/subscription/components/Subscription";
-import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
-import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 import { CharacterInputSchema } from "@xr3ngine/engine/src/templates/character/CharacterInputSchema";
 import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
 import { CharacterSubscriptionSchema } from "@xr3ngine/engine/src/templates/character/CharacterSubscriptionSchema";
-import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
+import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
-import { setCameraPosition } from "../../../camera/behaviors/setCameraPosition";
 //import { setCameraFollow } from "../../../camera/behaviors/setCameraFollow";
-
 import { initializeCharacter } from "../behaviors/initializeCharacter";
-import { attachCamera } from "@xr3ngine/engine/src/camera/behaviors/attachCamera";
 import { CharacterComponent } from "../components/CharacterComponent";
-import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
-import { LocalInputReceiver } from "@xr3ngine/engine/src/input/components/LocalInputReceiver";
+import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const PlayerCharacter: Prefab = {
     // These will be created for all players on the network
     // These are only created for the local player who owns this prefab
     components: [
-        // ActorComponent has values like movement speed, decelleration, jump height, etc
-        // { type: CharacterComponent },
+        // ActorComponent has values like movement speed, deceleration, jump height, etc
+        { type: CharacterComponent },
         // Transform system applies values from transform component to three.js object (position, rotation, etc)
         { type: TransformComponent },
         // Local player input mapped to behaviors in the input map
@@ -36,7 +32,8 @@ export const PlayerCharacter: Prefab = {
         // Current state (isJumping, isidle, etc)
         { type: State, data: { schema: CharacterStateSchema } },
         // Similar to Unity's Update(), LateUpdate(), and Start()
-        { type: Subscription, data: { schema: CharacterSubscriptionSchema } }
+        { type: Subscription, data: { schema: CharacterSubscriptionSchema } },
+        { type: LocalInputReceiver }
     ],
     onCreate: [
         {
@@ -54,19 +51,7 @@ export const PlayerCharacter: Prefab = {
         },
         {
             behavior: initializeCharacter
-        },
-        // {
-        //     behavior: attachCamera
-        // },
-        // {
-        //     behavior: setCameraPosition
-        // }
-        // TODO: Boxman setup here
-
-        // {
-        //     behavior: addPlayerCollider,
-        // }
-
+        }
     ],
     onDestroy: [
 

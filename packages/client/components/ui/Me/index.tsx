@@ -15,15 +15,13 @@ const Me = observer(() => {
         console.log(MediaStreamComponent.instance);
     }, [MediaStreamComponent.instance?.camVideoProducer]);
   return (
-    <Grid className="windowContainer" container>
+    <Grid className="me-party-user-container" container>
         {
             (MediaStreamComponent.instance?.camVideoProducer || MediaStreamComponent.instance?.camAudioProducer) && <PartyParticipantWindow
             containerProportions={{
               height: 135,
               width: 240
             }}
-            videoStream={MediaStreamComponent.instance.camVideoProducer}
-            audioStream={MediaStreamComponent.instance.camAudioProducer}
             peerId={'me_cam'}
             />
         }
@@ -33,8 +31,6 @@ const Me = observer(() => {
                     height: 135,
                     width: 240
                 }}
-                videoStream={MediaStreamComponent.instance.screenVideoProducer}
-                audioStream={MediaStreamComponent.instance.screenAudioProducer}
                 peerId={'me_screen'}
             />
         }

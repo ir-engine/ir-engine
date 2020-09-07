@@ -1,33 +1,31 @@
-import { Object3DComponent } from '../../common/components/Object3DComponent';
 import { addObject3DComponent, removeObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
+import { Object3DComponent } from '../../common/components/Object3DComponent';
+import { Engine } from '../../ecs/classes/Engine';
+import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
+import { Not } from '../../ecs/functions/ComponentFunctions';
+import {
+  addComponent,
+  createEntity, getComponent, getMutableComponent,
+
+  hasComponent,
+  removeComponent
+} from '../../ecs/functions/EntityFunctions';
+import { TransformChildComponent } from '../../transform/components/TransformChildComponent';
+import { TransformParentComponent } from '../../transform/components/TransformParentComponent';
 import { AssetLoader } from '../components/AssetLoader';
 import { AssetLoaderState } from '../components/AssetLoaderState';
 import AssetVault from '../components/AssetVault';
 import { Model } from '../components/Model';
+import { Unload } from '../components/Unload';
 import { AssetClass } from '../enums/AssetClass';
 import { getAssetClass, getAssetType, loadAsset } from '../functions/LoadingFunctions';
-import { Not } from '../../ecs/functions/ComponentFunctions';
-import { Entity } from '../../ecs/classes/Entity';
-import {
-  getMutableComponent,
-  getComponent,
-  hasComponent,
-  removeComponent,
-  addComponent,
-  createEntity
-} from '../../ecs/functions/EntityFunctions';
-import { Engine } from '../../ecs/classes/Engine';
-import { TransformParentComponent } from '../../transform/components/TransformParentComponent';
-import { TransformChildComponent } from '../../transform/components/TransformChildComponent';
-import { Group } from 'three';
-import { GroupTagComponent } from '../../common/components/Object3DTagComponents';
-import { Unload } from '../components/Unload';
 
 export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
 
-  init () {
+  constructor() {
+    super()
     addComponent(createEntity(), AssetVault)
   }
 
