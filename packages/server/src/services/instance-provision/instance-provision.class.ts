@@ -21,6 +21,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async find (params?: Params): Promise<any> {
     try {
+      const userId = params.connection.socketQuery.userId;
       if (process.env.KUBERNETES !== 'true') {
         const nets = networkInterfaces();
         const results = Object.create(null); // or just '{}', an empty object

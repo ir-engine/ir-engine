@@ -147,6 +147,9 @@ export default (app: Application): void => {
         return partyUser.userId
       })
       targetIds.push(data.userId)
+      await app.service('user').patch(data.userId, {
+        partyId: null
+      });
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return Promise.all(targetIds.map((userId: string) => {
         return app.channel(`userIds/${userId}`).send({

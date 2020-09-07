@@ -44,7 +44,7 @@ import {
     sendInvite,
     retrieveReceivedInvites,
     retrieveSentInvites,
-    deleteInvite,
+    removeInvite,
     acceptInvite,
     declineInvite,
     updateInviteTarget
@@ -70,7 +70,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     retrieveReceivedInvites: bindActionCreators(retrieveReceivedInvites, dispatch),
     retrieveSentInvites: bindActionCreators(retrieveSentInvites, dispatch),
     sendInvite: bindActionCreators(sendInvite, dispatch),
-    deleteInvite: bindActionCreators(deleteInvite, dispatch),
+    removeInvite: bindActionCreators(removeInvite, dispatch),
     acceptInvite: bindActionCreators(acceptInvite, dispatch),
     declineInvite: bindActionCreators(declineInvite, dispatch),
     updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch),
@@ -85,7 +85,7 @@ interface Props {
     retrieveSentInvites?: typeof retrieveSentInvites;
     sendInvite?: typeof sendInvite;
     getFriends?: typeof getFriends;
-    deleteInvite?: typeof deleteInvite;
+    removeInvite?: typeof removeInvite;
     acceptInvite?: typeof acceptInvite;
     declineInvite?: typeof declineInvite;
     rightDrawerOpen?: any;
@@ -109,7 +109,7 @@ const Invites = (props: Props): any => {
         retrieveReceivedInvites,
         retrieveSentInvites,
         getFriends,
-        deleteInvite,
+        removeInvite,
         acceptInvite,
         declineInvite,
         groupState,
@@ -200,7 +200,7 @@ const Invites = (props: Props): any => {
 
     const confirmDelete = (inviteId) => {
         setDeletePending('');
-        deleteInvite(inviteId);
+        removeInvite(inviteId);
     };
 
     const previousInvitePage = () => {
@@ -230,7 +230,7 @@ const Invites = (props: Props): any => {
     };
 
     const declineRequest = (invite) => {
-        declineInvite(invite.id);
+        declineInvite(invite);
     };
 
     useEffect(() => {
@@ -364,7 +364,7 @@ const Invites = (props: Props): any => {
 									<div>
 										<Button variant="contained"
 										        color="primary"
-										        onClick={() => confirmDelete(invite.id)}
+										        onClick={() => confirmDelete(invite)}
 										>
 											Uninvite
 										</Button>

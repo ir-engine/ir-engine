@@ -111,6 +111,10 @@ export class AcceptInvite implements ServiceMethods<Data> {
             partyId: invite.targetObjectId,
             isOwner: false
           })
+
+          await this.app.service('user').patch(inviteeIdentityProvider.userId, {
+            partyId: invite.targetObjectId
+          })
         }
       } else if (invite.inviteeId != null) {
         const invitee = await this.app.service('user').get(invite.inviteeId)
@@ -161,10 +165,14 @@ export class AcceptInvite implements ServiceMethods<Data> {
             partyId: invite.targetObjectId,
             isOwner: false
           })
+
+          await this.app.service('user').patch(invite.inviteeId, {
+            partyId: invite.targetObjectId
+          })
         }
       }
 
-      // await this.app.service('invite').remove(invite.id)
+      await this.app.service('invite').remove(invite.id);
     } catch (err) {
       console.log(err)
     }
