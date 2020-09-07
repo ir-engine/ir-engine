@@ -14,5 +14,5 @@
     "allowJs": true
   },
   "include": ["src/**/*", "sandbox/vehicles/car", "sandbox/car", "sandbox/AudioStore.ts"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "tsconfig.json"]
 }

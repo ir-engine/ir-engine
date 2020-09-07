@@ -145,4 +145,5 @@ export class Engine {
   static systemsToExecute: any[] = []
   static vehicles: any;
   static lastTime: number;
+  static tick: number = 0;
 }

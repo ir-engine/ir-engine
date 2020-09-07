@@ -4,6 +4,8 @@ export interface NetworkPrefab extends Prefab {
   networkComponents: Array<{
     type: any
     data?: any
-    networkedValues?: string[]
+    networkedAttributes?: {
+      [key: string]: any
+    }
   }>
 }

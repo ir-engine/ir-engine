@@ -14,10 +14,8 @@ import { setCameraFollow } from '../behaviors/setCameraFollow';
 
 
 export class CameraSystem extends System {
-  /**
-   * Initialize camera component
-   */
-  init(): void {
+  constructor() {
+    super()
     const cameraEntity = createEntity();
     addComponent(cameraEntity, CameraComponent, { followTarget: null, distance: 3, mode: "thirdPerson" });
     addComponent(cameraEntity, CameraTagComponent)

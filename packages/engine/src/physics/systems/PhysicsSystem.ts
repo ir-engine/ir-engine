@@ -22,6 +22,7 @@ export class PhysicsSystem extends System {
   constructor() {
     super()
     this.fixedRunner = new FixedStepsRunner(Engine.physicsFrameRate, this.onFixedExecute.bind(this))
+    new PhysicsManager({ framerate: Engine.physicsFrameRate });
   }
 
   canExecute(delta:number): boolean {
@@ -30,10 +31,6 @@ export class PhysicsSystem extends System {
 
   execute(delta):void {
     this.fixedRunner.run(delta)
-  }
-
-  init ():void {
-    new PhysicsManager({ framerate: Engine.physicsFrameRate });
   }
 
   dispose() {

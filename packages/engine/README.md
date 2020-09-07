@@ -33,7 +33,7 @@ const handleMouseMovement: Behavior = (entity: Entity, args: { event: MouseEvent
   _value[1] = (args.event.clientY / window.innerHeight) * -2 + 1
   // Set type to TWOD (two-dimensional axis) and value to a normalized -1, 1 on X and Y
   input.data.set(input.schema.mouseInputMap.axes["mousePosition"], {
-    type: InputType.TWOD,
+    type: InputType.TWODIM,
     value: _value
   })
 }

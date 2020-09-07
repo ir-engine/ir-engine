@@ -49,7 +49,7 @@ const server = {
     authToken: process.env.GOOGLE_POLY_AUTH_TOKEN ?? ''
   },
   hub: {
-    endpoint: process.env.HUB_ENDPOINT ?? 'https://hubs.mozilla.com'
+    endpoint: process.env.HUB_ENDPOINT ?? 'https://xr3ngine.io'
   },
   paginate: {
     default: 10,
@@ -60,7 +60,7 @@ const server = {
   keyPath: path.resolve(path.dirname("./"), process.env.KEY ?? 'certs/key.pem')
 }
 server.url = process.env.SERVER_URL ??
-  url.format({ protocol: 'http', ...server })
+  url.format({ protocol: 'https', ...server })
 
 /**
  * Client / frontend

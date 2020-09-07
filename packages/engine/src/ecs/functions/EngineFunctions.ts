@@ -42,6 +42,8 @@ export function reset(): void {
     throw new Error('Engine.entities cleanup not complete')
   }
 
+  Engine.tick = 0
+
   Engine.entities.length = 0
   Engine.entitiesToRemove.length = 0
   Engine.entitiesWithComponentsToRemove.length = 0
@@ -90,6 +92,7 @@ export function reset(): void {
  * (You probably don't want to use this) 
  */
 export function execute (delta?: number, time?: number): void {
+  Engine.tick++
   if (!delta) {
     time = now() / 1000;
     delta = time - Engine.lastTime;

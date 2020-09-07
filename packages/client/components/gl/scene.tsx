@@ -1,36 +1,24 @@
-import React, { Component, useEffect, FunctionComponent, useState } from 'react';
-import { initializeEngine, DefaultInitializationOptions } from "@xr3ngine/engine/src/initialize";
-import { PlayerCharacter } from "@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter";
+import { AssetLoader } from "@xr3ngine/engine/src/assets/components/AssetLoader";
+import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
+import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
+import { Object3DComponent } from "@xr3ngine/engine/src/common/components/Object3DComponent";
 import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
+import { addComponent, createEntity, getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { DefaultInitializationOptions, initializeEngine } from "@xr3ngine/engine/src/initialize";
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
+import { PlayerCharacter } from "@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter";
+import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
+import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
+import React, { FunctionComponent, useEffect, useState } from 'react';
+import { AmbientLight } from 'three';
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
-import {
-  createEntity,
-  addComponent,
-  getMutableComponent,
-  getComponent
-} from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { AssetLoader } from "@xr3ngine/engine/src/assets/components/AssetLoader";
-import { AssetType } from '@xr3ngine/engine/src/assets/enums/AssetType';
-import { AssetClass } from '@xr3ngine/engine/src/assets/enums/AssetClass';
+import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
+import { CarController } from "@xr3ngine/engine/src/templates/car/prefabs/CarController";
+import { rigidBodyBox2 } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox2";
+import { rigidBodyBox } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox";
 
-import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders"
-import { CarController } from "@xr3ngine/engine/src/templates/car/prefabs/CarController"
-import { rigidBodyBox } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox"
-import { rigidBodyBox2 } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox2"
-import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
-import { AmbientLight, Color } from 'three';
-import { PositionalAudio, Mesh, SphereBufferGeometry, MeshPhongMaterial  } from 'three';
-import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/network/DefaultNetworkSchema';
-import { resetEngine } from '@xr3ngine/engine/src/ecs/functions/EngineFunctions';
-import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
-import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
-import { Body, Shape } from "cannon-es"
-import debug from "cannon-es-debugger"
-import { PhysicsManager } from '@xr3ngine/engine/src/physics/components/PhysicsManager';
-import { Object3DComponent } from "@xr3ngine/engine/src/common/components/Object3DComponent";
 
 export const EnginePage: FunctionComponent = (props: any) => {
 
@@ -90,28 +78,30 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // }
 
     console.log("Creating a scene entity to test");
-    const levelEntity = createEntity();
-    addComponent(levelEntity, AssetLoader, {
-      url: "models/library.glb",
-      receiveShadow: true,
-      castShadow: true,
-      onLoaded: () => {
-        console.log('level is loaded');
-        // TODO: parse Floor_plan
-        // TODO: parse Spawn point
+    // const levelEntity = createEntity();
+    // addComponent(levelEntity, AssetLoader, {
+    //   url: "models/library.glb",
+    //   receiveShadow: true,
+    //   castShadow: true,
+    //   onLoaded: () => {
+    //     console.log('level is loaded');
+    //     // TODO: parse Floor_plan
+    //     // TODO: parse Spawn point
 
-        // TODO: this is temporary, to make level floor mach zero
-        const level3d = getComponent<Object3DComponent>(levelEntity, Object3DComponent);
-        //level3d.value.position.y -= 0.17;
-        level3d.value.position.y -= 0.22;
+    //     // TODO: this is temporary, to make level floor mach zero
+    //     const level3d = getComponent<Object3DComponent>(levelEntity, Object3DComponent);
+    //     //level3d.value.position.y -= 0.17;
+    //     level3d.value.position.y -= 0.22;
 
-        createPrefab(PlayerCharacter);
-        createPrefab(staticWorldColliders);
-        createPrefab(rigidBodyBox);
-        createPrefab(rigidBodyBox2);
-        createPrefab(CarController);
-      }
-    });
+    //   }
+    // });
+
+
+    createPrefab(PlayerCharacter);
+    createPrefab(staticWorldColliders);
+    createPrefab(rigidBodyBox);
+    createPrefab(rigidBodyBox2);
+    createPrefab(CarController);
 
     // addComponent(createEntity(), AssetLoader, {
     //   url: "models/OldCar.fbx",
