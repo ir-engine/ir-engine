@@ -2,7 +2,10 @@ import {
   SENT_INVITES_RETRIEVED,
   RECEIVED_INVITES_RETRIEVED,
   INVITE_SENT,
-  REMOVED_INVITE,
+  CREATED_RECEIVED_INVITE,
+  REMOVED_RECEIVED_INVITE,
+  CREATED_SENT_INVITE,
+  REMOVED_SENT_INVITE,
   ACCEPTED_INVITE,
   DECLINED_INVITE,
   INVITE_TARGET_SET,
@@ -12,6 +15,14 @@ import {
 
 import { Invite } from '@xr3ngine/common/interfaces/Invite';
 import { InviteResult } from '@xr3ngine/common/interfaces/InviteResult';
+
+export interface InviteCreatedAction {
+  type: string;
+}
+
+export interface InviteRemovedAction {
+  type: string;
+}
 
 export interface InviteSentAction {
   type: string;
@@ -47,6 +58,7 @@ export interface FetchingReceivedInvitesAction {
 export type InviteAction =
     InviteSentAction
     | InvitesRetrievedAction
+    | InviteCreatedAction
     | InviteRemovedAction
     | InviteTargetSetAction
     | FetchingReceivedInvitesAction
@@ -78,9 +90,26 @@ export function retrievedReceivedInvites(inviteResult: InviteResult): InviteActi
     skip: inviteResult.skip
   };
 }
-export function removedInvite(): InviteAction {
+
+export function createdReceivedInvite(): InviteCreatedAction {
   return {
-    type: REMOVED_INVITE
+    type: CREATED_RECEIVED_INVITE
+  };
+}
+export function removedReceivedInvite(): InviteRemovedAction {
+  return {
+    type: REMOVED_RECEIVED_INVITE
+  };
+}
+
+export function createdSentInvite(): InviteCreatedAction {
+  return {
+    type: CREATED_SENT_INVITE
+  };
+}
+export function removedSentInvite(): InviteRemovedAction {
+  return {
+    type: REMOVED_SENT_INVITE
   };
 }
 
