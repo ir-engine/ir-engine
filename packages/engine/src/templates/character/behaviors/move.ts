@@ -35,9 +35,9 @@ export const move: Behavior = (
   const inputType = args.inputType;
   outputSpeed.copy( actor.acceleration ).multiplyScalar(time.delta);
 
-  if (inputType === InputType.TWOD) {
+  if (inputType === InputType.TWODIM) {
     inputValue = new Vector3(args.value[0], 0, args.value[1]);
-  } else if (inputType === InputType.THREED) {
+  } else if (inputType === InputType.THREEDIM) {
     inputValue = new Vector3().fromArray(args.value);
   } else {
     console.error('Movement is only available for 2D and 3D inputs');

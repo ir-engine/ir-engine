@@ -16,7 +16,7 @@ const myCoolCar = new BoxBufferGeometry(2,1,6);
 
 export const CarController: Prefab = {
     components: [
-      { type: TransformComponent, data: { position: [-3,6,-3]} },
+      { type: TransformComponent, data: { position: [-3,6,3]} },
       // Local player input mapped to behaviors in the input map
     //   { type: Input, data: { schema: VehicleInputSchema } },
       // Current state (isJumping, isidle, etc)
@@ -37,7 +37,7 @@ export const CarController: Prefab = {
         {
             behavior: addCarPhysics
         },
-        
+
 /*
         {
             behavior: attachCamera
