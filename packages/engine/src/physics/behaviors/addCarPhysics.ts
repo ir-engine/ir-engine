@@ -23,7 +23,7 @@ export const addCarPhysics: Behavior = (entity: Entity, args: any) => {
 
   addComponent(entity, VehicleBody);
   addComponent(entity, VehicleComponent);
-//  addComponent(entity, Input, { schema: VehicleInputSchema } );
+  addComponent(entity, Input, { schema: VehicleInputSchema } );
 //  addComponent(entity, State, { schema: CharacterStateSchema } );
 //  addComponent(entity, LocalInputReceiver);
 //  addComponent(entity, FollowCameraComponent);

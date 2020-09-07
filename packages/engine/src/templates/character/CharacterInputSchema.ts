@@ -10,6 +10,11 @@ import { MouseInput } from '../../input/enums/MouseInput';
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
 import { DefaultInput } from '../shared/DefaultInput';
+import { jumpStart } from "./behaviors/jumpStart";
+import { move } from './behaviors/move';
+import { rotateAround } from './behaviors/rotate';
+import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
+import { getInCar } from '@xr3ngine/engine/src/physics/behaviors/getInCarBehavior';
 import { setArcadeVelocityTarget } from './behaviors/setArcadeVelocityTarget';
 
 export const CharacterInputSchema: InputSchema = {
@@ -126,6 +131,7 @@ export const CharacterInputSchema: InputSchema = {
       [MouseInput.MiddleButton]: DefaultInput.INTERACT
     },
     axes: {
+      [MouseInput.MouseMovement]: DefaultInput.MOUSE_MOVEMENT,
       [MouseInput.MousePosition]: DefaultInput.SCREENXY,
       [MouseInput.MouseClickDownPosition]: DefaultInput.SCREENXY_START,
       [MouseInput.MouseClickDownTransformRotation]: DefaultInput.ROTATION_START
@@ -162,7 +168,9 @@ export const CharacterInputSchema: InputSchema = {
     a: DefaultInput.LEFT,
     s: DefaultInput.BACKWARD,
     d: DefaultInput.RIGHT,
-    ' ': DefaultInput.JUMP
+    ' ': DefaultInput.JUMP,
+    p: DefaultInput.POINTER_LOCK,
+    c: DefaultInput.SWITCH_CAR
     },
   // Map how inputs relate to each other
   inputRelationships: {
@@ -174,6 +182,26 @@ export const CharacterInputSchema: InputSchema = {
   },
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
+    [DefaultInput.SWITCH_CAR]: {
+      [BinaryValue.ON]: {
+        started: [
+           {
+             behavior: getInCar,
+             args: {}
+           }
+        ]
+      }
+    },
+    [DefaultInput.POINTER_LOCK]: {
+      [BinaryValue.ON]: {
+        started: [
+           {
+             behavior: cameraPointerLock,
+             args: {}
+           }
+        ]
+      }
+    },
     [DefaultInput.JUMP]: {
       [BinaryValue.ON]: {
         started: [

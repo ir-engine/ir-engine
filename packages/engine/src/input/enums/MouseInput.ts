@@ -4,5 +4,6 @@ export const MouseInput = {
   RightButton: 2,
   MousePosition: 53,
   MouseClickDownPosition: 54,
-  MouseClickDownTransformRotation: 55
+  MouseClickDownTransformRotation: 55,
+  MouseMovement: 56
 };

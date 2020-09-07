@@ -1,14 +1,11 @@
-//import { Quaternion } from 'cannon-es';
-import { Vector3, Matrix4, Quaternion, Euler } from 'three';
+import { Vector3, Matrix4, Euler } from 'three';
 import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { Input } from '@xr3ngine/engine/src/input/components/Input';
-import { InputType } from '@xr3ngine/engine/src/input/enums/InputType';
-import { InputAlias } from '@xr3ngine/engine/src/input/types/InputAlias';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterComponent';
+import {MouseInput} from "../../input/enums/MouseInput";
 
 
 let follower, target;
@@ -32,78 +29,55 @@ let phi = 0;
 
 
 export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: any, entityOut: Entity): void => {
-
   follower = getMutableComponent<TransformComponent>(entityIn, TransformComponent); // Camera
   target = getMutableComponent<TransformComponent>(entityOut, TransformComponent); // Player
 
-
   inputComponent = getComponent(entityOut, Input);
-  //actor = getComponent(entityOut, CharacterComponent) as CharacterComponent;
   camera = getMutableComponent<CameraComponent>(entityIn, CameraComponent);
 
-
-
-  if (inputComponent.data.get(inputComponent.schema.mouseInputMap.axes.mousePosition) == undefined) return;
-  if (inputComponent.data.get(inputComponent.schema.mouseInputMap.axes.mouseClickDownPosition) == undefined) return;
-  /*
-  if (inputComponent.data.get(inputComponent.schema.mouseInputMap.buttons[0]) != undefined) {
-    if (document.pointerLockElement === null) {
-      document.body.requestPointerLock()
-    }
+  if (inputComponent.data.get(inputComponent.schema.mouseInputMap.axes[MouseInput.MouseMovement]) == undefined) {
+    inputValue = [0, 0]
+  } else {
+    inputValue = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes[MouseInput.MouseMovement]).value
+    // fix infinity rotation
+    Math.abs(inputValue[0] + inputValue[1]) == 1 ? inputValue = [0, 0] : '';
   }
-*/
-    inputValue = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes.mousePosition).value //as Vector2;
 
-  //  startValue = mouseDownPosition.value //as Vector2;
+  if (camera.mode === "firstPerson") {
 
-/*
-  originalRotation = inputComponent.data.get(
-    inputComponent.schema.mouseInputMap.axes.mouseClickDownTransformRotation
-  );
-*/
+      euler.setFromQuaternion( follower.rotation );
 
+  		euler.y -= inputValue[0] * 0.01;
+  		euler.x -= inputValue[1] * 0.01;
 
-  //if (inputComponent.data.has(args.input)) {
+  		euler.x = Math.max( PI_2 - maxPolarAngle, Math.min( PI_2 - minPolarAngle, euler.x ) );
 
-    if (camera.mode === "firstPerson") {
+  		follower.rotation.setFromEuler( euler );
 
-        euler.setFromQuaternion( follower.rotation );
+      follower.position.set(
+        target.position.x,
+        3,
+        target.position.z
+      )
+    }
+    else if (camera.mode === "thirdPerson") {
 
-    		euler.y -= inputValue[2] * 0.01;
-    		euler.x -= inputValue[3] * 0.01;
+      theta -= inputValue[0] * (1 / 2);
+      theta %= 360;
+      phi += inputValue[1] * (1 / 2);
+      phi = Math.min(85, Math.max(0, phi));
 
-    		euler.x = Math.max( PI_2 - maxPolarAngle, Math.min( PI_2 - minPolarAngle, euler.x ) );
+      follower.position.set(
+        target.position.x + camera.distance * Math.sin(theta *  Math.PI / 180) *  Math.cos(phi * Math.PI / 180),
+        target.position.y + camera.distance * Math.sin(phi *  Math.PI / 180),
+        target.position.z + camera.distance * Math.cos(theta *  Math.PI / 180) *  Math.cos(phi * Math.PI / 180)
+      )
 
-    		follower.rotation.setFromEuler( euler );
+      direction.copy(follower.position)
+      direction = direction.sub(target.position).normalize()
 
-        follower.position.set(
-          target.position.x,
-          3,
-          target.position.z
-        )
-      }
-      else if (camera.mode === "thirdPerson") {
+      mx.lookAt(direction, empty, up);
 
-        theta -= inputValue[2] * (1 / 2);
-        theta %= 360;
-        phi += inputValue[3] * (1 / 2);
-        phi = Math.min(85, Math.max(0, phi));
-
-        follower.position.set(
-          target.position.x + camera.distance * Math.sin(theta *  Math.PI / 180) *  Math.cos(phi * Math.PI / 180),
-          target.position.y + camera.distance * Math.sin(phi *  Math.PI / 180),
-          target.position.z + camera.distance * Math.cos(theta *  Math.PI / 180) *  Math.cos(phi * Math.PI / 180)
-        )
-
-        direction.copy(follower.position)
-        direction = direction.sub(target.position).normalize()
-
-        mx.lookAt(direction, empty, up);
-
-        follower.rotation.setFromRotationMatrix(mx);
-
-      }
-//    }
-
-
+      follower.rotation.setFromRotationMatrix(mx);
+    }
 };

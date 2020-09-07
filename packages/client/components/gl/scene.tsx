@@ -14,10 +14,10 @@ import { AmbientLight } from 'three';
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
-import { CarController } from './CarController';
-import { rigidBodyBox } from './rigidBodyBox';
-import { rigidBodyBox2 } from './rigidBodyBox2';
-import { staticWorldColliders } from './staticWorldColliders';
+import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
+import { CarController } from "@xr3ngine/engine/src/templates/car/prefabs/CarController";
+import { rigidBodyBox2 } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox2";
+import { rigidBodyBox } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox";
 
 
 export const EnginePage: FunctionComponent = (props: any) => {
