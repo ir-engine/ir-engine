@@ -16,22 +16,6 @@ const quaternion = new Quaternion();
 export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
   if (args.phase == 'onAdded') {
     const vehicleComponent = getMutableComponent(entity, VehicleBody) as VehicleBody;
-//     const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
-//     assetLoader.onLoaded = asset => {
-//       asset.scene.traverse(mesh => {
-//         if (mesh.name == 'door_3') {
-//
-//           vehicleComponent.vehicleMesh = mesh
-//           //Engine.scene.remove( Engine.scene.getObjectByProperty( 'uuid', mesh.uuid ) );
-//         } else {
-//         //  mesh.visible = false;
-//         }
-// //      vehicleMesh = asset.scene.getObjectByName()
-//         console.log(mesh)
-//       })
-//     }
-
-
 
     const [vehicle, wheelBodies] = createVehicleBody(entity);
     vehicleComponent.vehiclePhysics = vehicle;
@@ -57,14 +41,14 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
         vehicle.position.y,
         vehicle.position.z
       )
-/*
+
       transform.rotation.set(
         vehicle.quaternion.x,
         vehicle.quaternion.y,
         vehicle.quaternion.z,
         vehicle.quaternion.w
       )
-*/
+
 
   } else {
     console.warn("User data for vehicle not found")
