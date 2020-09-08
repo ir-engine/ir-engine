@@ -35,8 +35,7 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
   inputComponent = getComponent(entityOut, Input) as Input;
   camera = getMutableComponent<CameraComponent>(entityIn, CameraComponent);
 
-  const locked = true
-  const inputAxes = locked? inputComponent.schema.mouseInputMap.axes[MouseInput.MouseMovement] : inputComponent.schema.mouseInputMap.axes[MouseInput.MouseClickDownTransformRotation]
+  const inputAxes = inputComponent.schema.mouseInputMap.axes[MouseInput.MouseMovement]
 
   if (!inputComponent.data.has(inputAxes)) {
     inputValue = [0, 0]
