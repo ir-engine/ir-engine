@@ -25,7 +25,8 @@ export class NetworkSystem extends System {
 
   constructor(attributes) {
     super()
-    console.log(attributes)
+
+    console.log("Constructing network system")
 
     // Create a Network entity (singleton)
     const networkEntity = createEntity();
@@ -38,9 +39,11 @@ export class NetworkSystem extends System {
     Network.instance.schema = schema;
     Network.instance.transport = new (schema.transport)();
 
+    console.log("Server mode is: " + process.env.SERVER_MODE )
     // Initialize the server automatically
     if (process.env.SERVER_MODE === 'realtime') {
         Network.instance.transport.initialize()
+        Network.instance.isInitialized = true
     }
     console.log("NetworkSystem ready, run connectToServer to... connect to the server!")
 
@@ -49,8 +52,6 @@ export class NetworkSystem extends System {
   }
 
   execute(delta): void {
-    if (!Network.instance.isInitialized) return
-
     // Transforms that are updated are automatically collected
     // note: onChanged needs to currently be handled outside of fixedExecute
     if (Network.instance.transport.isServer)
@@ -62,11 +63,12 @@ export class NetworkSystem extends System {
   }
 
   onFixedExecute(delta) {
+    console.log(Network.tick)
     // Advance the network tick
-    Network.tick++
 
     // Client only
     if (!Network.instance.transport.isServer) {
+
       // Client sends input and *only* input to the server (for now)
       this.queryResults.networkInputSender.all?.forEach((entity: Entity) =>
         sendClientInputToServer(entity)
@@ -80,6 +82,8 @@ export class NetworkSystem extends System {
 
     // Server-only
     if (Network.instance.transport.isServer) {
+      Network.tick++
+
       // Create a new empty world state frame to be sent to clients
       prepareServerWorldState()
 
@@ -96,6 +100,8 @@ export class NetworkSystem extends System {
 
       // Create the snapshot and add it to the world state on the server
       addSnapshot(createSnapshot(Network.instance.worldState))
+
+      console.log("Sending worldstate")
 
       // Send the message to all connected clients
       Network.instance.transport.sendData(worldStateModel.toBuffer(Network.instance.worldState)); // Use default channel

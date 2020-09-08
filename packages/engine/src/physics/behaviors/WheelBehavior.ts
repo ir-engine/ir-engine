@@ -11,7 +11,7 @@ const quaternion = new Quaternion();
 
 export const WheelBehavior: Behavior = (entity: Entity, args): void => {
   if (args.phase == 'onUpdate') {
-
+/*
 
     const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
     const parentEntity = getComponent<WheelBody>(entity, WheelBody).vehicle;
@@ -45,6 +45,6 @@ export const WheelBehavior: Behavior = (entity: Entity, args): void => {
 
     } else console.warn("Could not find vehicle")
 
-
+*/
   }
 };

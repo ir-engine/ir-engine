@@ -37,7 +37,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       appData: { data },
       sctpStreamParameters: data.sctpStreamParameters,
       label: channel,
-      protocol: params.type || 'json'
+      protocol: params.type || 'raw'
     })
   }
 
@@ -174,7 +174,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         logger.info('Produce Data handler')
         if (!params.label) throw ({ error: 'data producer label i.e. channel name is not provided!' })
         const { transportId, sctpStreamParameters, label, protocol, appData } = params
-        logger.info("Data channel label: ", `'${label}'`, " -- client id: " + socket.id)
+        logger.info("Data channel label: `'${label}'` -- client id: " + socket.id)
         logger.info("Data producer params", params)
         const transport: Transport = MediaStreamComponent.instance.transports[transportId]
         const options: DataProducerOptions = {
@@ -189,13 +189,17 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
         // if our associated transport closes, close ourself, too
         dataProducer.on("transportclose", () => {
-          logger.info("data producer's transport closed: ", dataProducer.id)
+          logger.info("data producer's transport closed: " + dataProducer.id)
           dataProducer.close()
           Network.instance.clients[socket.id].dataProducers.delete(socket.id)
         })
         // Possibly do stuff with appData here
-        logger.info("Sending dataproducer id to client:", dataProducer.id)
+        logger.info("Sending dataproducer id to client:" + dataProducer.id)
+        try {
         return callback({ id: dataProducer.id })
+        } catch (error) {
+          console.log(error)
+        }
       })
 
       // called from inside a client's `transport.on('connect')` event handler.
@@ -411,7 +415,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       socket.on(MessageTypes.WebRTCPauseProducer.toString(), async (data, callback) => {
         const { producerId } = data,
           producer = MediaStreamComponent.instance.producers.find(p => p.id === producerId);
-        logger.info("pause-producer", producer.appData);
+        logger.info("pause-producer: ", producer.appData);
         await producer.pause();
         Network.instance.clients[socket.id].media[producer.appData.mediaTag].paused = true;
         callback({ paused: true })
@@ -448,7 +452,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
     dataProducer: DataProducer
   ) => {
-    logger.info('Data Consumer being created on server by client: ', socket.id)
+    logger.info('Data Consumer being created on server by client: ' + socket.id)
     Object.keys(Network.instance.clients).filter(id => id !== socket.id).forEach(async (socketId: string) => {
       const transport: Transport = Network.instance.clients[socketId].recvTransport
       const dataConsumer = await transport.consumeData({
@@ -484,7 +488,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   }
 
   async closeTransport(transport): Promise<void> {
-    logger.info("closing transport", transport.id, transport.appData)
+    logger.info("closing transport " + transport.id, transport.appData)
     // our producer and consumer event handlers will take care of
     // calling closeProducer() and closeConsumer() on all the producers
     // and consumers associated with this transport
@@ -493,7 +497,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   }
 
   async closeProducer(producer): Promise<void> {
-    logger.info("closing producer", producer.id, producer.appData)
+    logger.info("closing producer " + producer.id, producer.appData)
     await producer.close()
 
     MediaStreamComponent.instance.producers = MediaStreamComponent.instance.producers.filter(p => p.id !== producer.id)
@@ -504,7 +508,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
   async closeProducerAndAllPipeProducers(producer, peerId): Promise<void> {
     if (producer != null) {
-      logger.info("closing producer and all pipe producers", producer.id, producer.appData)
+      logger.info("closing producer and all pipe producer " + producer.id, producer.appData)
 
       // remove this producer from our roomState.producers list
       MediaStreamComponent.instance.producers = MediaStreamComponent.instance.producers.filter(p => p.id !== producer.id)
@@ -521,7 +525,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   }
 
   async closeConsumer(consumer): Promise<void> {
-    logger.info("closing consumer", consumer.id, consumer.appData)
+    logger.info("closing consumer " + consumer.id + " " + consumer.appData)
     await consumer.close()
 
     MediaStreamComponent.instance.consumers = MediaStreamComponent.instance.consumers.filter(c => c.id !== consumer.id)

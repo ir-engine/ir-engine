@@ -41,6 +41,7 @@ export const sendClientInput = (entity: Entity): void => {
   // Convert to a message buffer
   const message = clientInputModel.toBuffer(inputs)
 
+  console.log("Sending client input!")
   // TODO: Send unreliably
   Network.instance.transport.sendData(message); // Use default channel
 };

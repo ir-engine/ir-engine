@@ -61,10 +61,12 @@ export class Network extends Component<Network> {
 
   static sceneId = "default"
   static Network: any
-  static tick: any;
+  static tick: any = 0
   constructor() {
     super();
     Network.instance = this;
+    Network.tick = 0
+
     // TODO: Replace default message queue sizes
     this.outgoingMessageQueue = new RingBuffer<ArrayBuffer>(100)
     this.incomingMessageQueue = new RingBuffer<ArrayBuffer>(100)
