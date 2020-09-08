@@ -10,21 +10,26 @@ import { createNetworkPrefab } from '../functions/createNetworkPrefab';
 import { destroyNetworkObject } from '../functions/destroyNetworkObject';
 import { NetworkInterpolation } from '../components/NetworkInterpolation';
 
-export function applyWorldState(worldStateBuffer, delta = 0.000001) {
+export function applyWorldState(worldStateBuffer, delta = 0.000001, interpolate = true) {
   const worldState = worldStateModel.fromBuffer(worldStateBuffer);
 
-  // TODO: Validate if we've missed important frames
-  console.log("Old tick is",
-    (NetworkInterpolation.instance.vault[NetworkInterpolation.instance.vaultSize].state as any).tick,
-    " | new tick is ", worldState.tick);
+  // // TODO: Validate if we've missed important frames
+  // console.log("Old tick is",
+  //   (NetworkInterpolation.instance.vault[NetworkInterpolation.instance.vaultSize].state as any).tick,
+  //   " | new tick is ", worldState.tick);
 
   // Add world state to our snapshot vault
   addSnapshot(worldState);
-  // Interpolate it
-  const { state } = calculateInterpolation('x y z q(quat)', 'transforms');
+
   console.log("Adding network transforms to Network.instance");
   Network.instance.worldState = worldState;
-  Network.instance.worldState.transforms = state;
+  // Interpolate it
+  if(interpolate) {
+    const snapshot = calculateInterpolation('x y z q(quat)', 'transforms');
+    console.log(snapshot)
+    const { state } = snapshot
+    Network.instance.worldState.transforms = state;
+    }
 
   // Handle all clients that connected this frame
   for (const connectingClient in Network.instance.worldState.clientsConnected) {
@@ -49,14 +54,14 @@ export function applyWorldState(worldStateBuffer, delta = 0.000001) {
       worldState.createObjects[objectToCreate].ownerId,
       worldState.createObjects[objectToCreate].networkId
     );
-    console.log("Created network prefab for ", worldState.createObjects[objectToCreate].ownerId);
+    console.log("Created network prefab for " + worldState.createObjects[objectToCreate].ownerId);
   }
 
   // Handle all network objects destroyed this frame
   for (const objectToDestroy in worldState.destroyObjects)
     destroyNetworkObject(worldState.createObjects[objectToDestroy].networkId);
 
-  worldState.inputs.forEach(stateData => {
+  worldState.inputs?.forEach(stateData => {
 
     // Get network object with networkId
     const networkComponent = Network.instance.networkObjects[stateData.networkId].component;
@@ -98,7 +103,7 @@ export function applyWorldState(worldStateBuffer, delta = 0.000001) {
   });
 
   // Update transforms
-  Network.instance.worldState.transforms.forEach(transformData => {
+  Network.instance.worldState.transforms?.forEach(transformData => {
     // Get network component from data
     const networkComponent = Network.instance.networkObjects[transformData.networkId].component;
     const transform = getMutableComponent(networkComponent.entity, TransformComponent);

@@ -6,7 +6,7 @@ import Loading from '../components/gl/loading';
 import Layout from '../components/ui/Layout';
 export const IndexPage = (): any => {
 
-  const [ sceneIsVisible, setSceneVisible ] = React.useState(false);
+  const [ sceneIsVisible, setSceneVisible ] = React.useState(true);
   const scene = sceneIsVisible? (<Scene />) : null;
 
   const buttonStyle: React.CSSProperties = {

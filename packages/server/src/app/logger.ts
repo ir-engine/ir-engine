@@ -9,7 +9,9 @@ const logger = createLogger({
     format.simple()
   ),
   transports: [
-    new transports.Console()
+    new transports.Console(),
+    new transports.File({ filename: 'combined.log' }),
+
   ]
 })
 

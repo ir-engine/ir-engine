@@ -3,7 +3,7 @@ export enum MessageTypes {
   ClientConnected = 1,
   ClientDisconnected = 2,
   Initialization = 3,
-  JoinWorld = 4,
+  JoinWorld = "JoinWorld",
   LeaveWorld = 5,
   WebRTCTransportCreate = 6,
   WebRTCTransportConnect = 7,
