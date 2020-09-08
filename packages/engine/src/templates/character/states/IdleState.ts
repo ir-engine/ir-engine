@@ -14,6 +14,7 @@ import { isMoving } from '../functions/isMoving';
 import { addState } from '../../../state/behaviors/StateBehaviors';
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { setAppropriateStartWalkState } from '../behaviors/setStartWalkState';
+import { Entity } from '../../../ecs/classes/Entity';
 
 // Idle Behavior
 export const IdleState: StateSchemaValue = {
@@ -51,7 +52,7 @@ export const IdleState: StateSchemaValue = {
     {
       behavior: triggerActionIfMovementHasChanged,
       args: {
-        action: (entity) => {
+        action: (entity:Entity): void => {
           // Default behavior for all states
           findVehicle(entity);
           const input = getComponent(entity, Input)
