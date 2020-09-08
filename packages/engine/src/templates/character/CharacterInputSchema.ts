@@ -16,6 +16,7 @@ import { rotateAround } from './behaviors/rotate';
 import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
 import { getInCar } from '@xr3ngine/engine/src/physics/behaviors/getInCarBehavior';
 import { setArcadeVelocityTarget } from './behaviors/setArcadeVelocityTarget';
+import { updateCharacterState } from "./behaviors/updateCharacterState";
 
 export const CharacterInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -205,6 +206,18 @@ export const CharacterInputSchema: InputSchema = {
     [DefaultInput.JUMP]: {
       [BinaryValue.ON]: {
         started: [
+          {
+            behavior: updateCharacterState,
+            args: {}
+          }
+        ]
+      },
+      [BinaryValue.OFF]: {
+        started: [
+          {
+            behavior: updateCharacterState,
+            args: {}
+          }
         ]
       }
     },
