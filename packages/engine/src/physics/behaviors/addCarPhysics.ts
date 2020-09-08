@@ -19,7 +19,11 @@ const sphereGeo = new CylinderGeometry( 1, 1, 0.1, 12 )
 sphereGeo.applyMatrix4( new Matrix4().makeRotationZ( - Math.PI / 2 ) );
 //const sphereMesh = new THREE.Mesh( sphereGeo, new THREE.MeshStandardMaterial({ color: "pink" }))
 
-export const addCarPhysics: Behavior = (entity: Entity, args: any) => {
+export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
+  const asset = args.asset
+
+  // TODO: finish me
+  debugger
 
   addComponent(entity, VehicleBody);
   addComponent(entity, VehicleComponent);
@@ -30,7 +34,7 @@ export const addCarPhysics: Behavior = (entity: Entity, args: any) => {
 
 
   for (let i = 0; i < 4; i++) {
-    let wheelEntity = createEntity();
+    const wheelEntity = createEntity();
     addComponent(wheelEntity, TransformComponent);
     addObject3DComponent(wheelEntity, {
         // addObject3DComponent is going to call new obj(objArgs)
