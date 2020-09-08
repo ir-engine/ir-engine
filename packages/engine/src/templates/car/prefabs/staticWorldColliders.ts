@@ -12,17 +12,17 @@ export const staticWorldColliders: Prefab = {
     ],
     onCreate: [
         // add a 3d object
-        {
-            behavior: addObject3DComponent,
-            args: {
-                obj3d: Mesh,
-                obj3dArgs: floor
-            }
-        },
+        // {
+        //     behavior: addObject3DComponent,
+        //     args: {
+        //         obj3d: Mesh,
+        //         obj3dArgs: floor
+        //     }
+        // },
         {
             behavior: addMeshCollider,
             args: {
-               type: 'box', scale: [20, 0.1, 20], mass: 0
+               type: 'box', scale: [100, 0.1, 100], mass: 0
             }
         }
     ]

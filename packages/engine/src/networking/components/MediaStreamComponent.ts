@@ -14,10 +14,15 @@ export class MediaStreamComponent extends Component<any> {
   @observable camAudioProducer
   @observable screenVideoProducer
   @observable screenAudioProducer
+  @observable transports = []
+  @observable producers = []
   @observable consumers = []
   @observable screenShareVideoPaused = false
   @observable screenShareAudioPaused = false
   @observable initialized = false
+  @observable dataProducers = new Map<string, any>()
+  @observable dataConsumers = new Map<string, any>()
+  
   constructor () {
     super();
     MediaStreamComponent.instance = this;

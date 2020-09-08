@@ -6,12 +6,9 @@
 import { Entity } from "../../ecs/classes/Entity";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../../input/components/Input";
+import { InputType } from "../../input/enums/InputType";
 import { Network } from "../components/Network";
 import { clientInputModel } from "../schema/clientInputSchema";
-import { InputType } from "../../input/enums/InputType";
-import { sendMessage } from "../functions/sendMessage";
-import { MessageChannel } from "../enums/MessageChannel";
-import { MessageTypes } from "../enums/MessageTypes";
 
 export const sendClientInput = (entity: Entity): void => {
 
@@ -45,7 +42,5 @@ export const sendClientInput = (entity: Entity): void => {
   const message = clientInputModel.toBuffer(inputs)
 
   // TODO: Send unreliably
-  sendMessage(MessageChannel.Reliable, message, {
-    type: MessageTypes.ClientInput
-  })
+  Network.instance.transport.sendData(message); // Use default channel
 };

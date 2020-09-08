@@ -8,7 +8,19 @@ import { NetworkObjectList } from '../interfaces/NetworkObjectList';
 
 export interface NetworkClientList {
   // Key is socket ID
-  [key: string]: { userId: string }
+  [key: string]: {
+    userId?: string,
+    socket?: any,
+    lastSeenTs?: any,
+    joinTs?: any,
+    media?: {},
+    consumerLayers?: {},
+    stats?: {},
+    sendTransport?: any,
+    recvTransport?: any,
+    dataConsumers?: Map<string, any>, // Key => id of data producer
+    dataProducers?: Map<string, any> // Key => label of data channel}
+  }
 }
 
 
@@ -35,8 +47,7 @@ export class Network extends Component<Network> {
   static _schemas: Map<string, MessageSchema> = new Map()
 
   incomingMessageQueue: RingBuffer<ArrayBuffer>
-  outgoingReliableMessageQueue: RingBuffer<ArrayBuffer>
-  outgoingUnreliableMessageQueue: RingBuffer<ArrayBuffer>
+  outgoingMessageQueue: RingBuffer<ArrayBuffer>
 
   worldState = {
     tick: Network.tick,
@@ -55,9 +66,9 @@ export class Network extends Component<Network> {
     super();
     Network.instance = this;
     // TODO: Replace default message queue sizes
-    this.outgoingReliableMessageQueue = new RingBuffer<ArrayBuffer>(100)
+    this.outgoingMessageQueue = new RingBuffer<ArrayBuffer>(100)
     this.incomingMessageQueue = new RingBuffer<ArrayBuffer>(100)
-    this.outgoingUnreliableMessageQueue = new RingBuffer<ArrayBuffer>(100)
+    this.outgoingMessageQueue = new RingBuffer<ArrayBuffer>(100)
   }
 
   dispose(): void {

@@ -1,12 +1,9 @@
 import { Behavior } from "../../../common/interfaces/Behavior";
 import { Entity } from "../../../ecs/classes/Entity";
-import { getMutableComponent, getComponent } from "../../../ecs/functions/EntityFunctions";
+import { getComponent, getMutableComponent } from "../../../ecs/functions/EntityFunctions";
+import { State } from "../../../state/components/State";
 import { CharacterComponent } from "../components/CharacterComponent";
 import { setArcadeVelocityInfluence } from "./setArcadeVelocityInfluence";
-import { State } from "../../../state/components/State";
-import { sendMessage } from "../../../networking/functions/sendMessage";
-import { MessageChannel } from "../../../networking/enums/MessageChannel";
-import { MessageTypes } from "../../../networking/enums/MessageTypes";
 
 export const initializeCharacterState: Behavior = (entity: Entity) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);

@@ -1,6 +1,7 @@
 import { createFixedTimestep } from '../../common/functions/Timer';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
+import { Not } from '../../ecs/functions/ComponentFunctions';
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
 import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
@@ -14,13 +15,10 @@ import { Network } from '../components/Network';
 import { NetworkClient } from '../components/NetworkClient';
 import { NetworkInterpolation } from '../components/NetworkInterpolation';
 import { NetworkObject } from '../components/NetworkObject';
-import { MessageChannel } from '../enums/MessageChannel';
 import { handleUpdatesFromClients } from '../functions/handleUpdatesFromClients';
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
 import { prepareWorldState as prepareServerWorldState } from '../functions/prepareWorldState';
-import { sendMessage } from '../functions/sendMessage';
 import { worldStateModel } from '../schema/worldStateSchema';
-import { Not } from '../../ecs/functions/ComponentFunctions';
 
 export class NetworkSystem extends System {
   fixedExecute: (delta: number) => void = null
@@ -41,7 +39,7 @@ export class NetworkSystem extends System {
     Network.instance.transport = new (schema.transport)();
 
     // Initialize the server automatically
-    if (process.env.SERVER_MODE !== undefined && process.env.SERVER_MODE === 'realtime') {
+    if (process.env.SERVER_MODE === 'realtime') {
         Network.instance.transport.initialize()
     }
     console.log("NetworkSystem ready, run connectToServer to... connect to the server!")
@@ -100,7 +98,7 @@ export class NetworkSystem extends System {
       addSnapshot(createSnapshot(Network.instance.worldState))
 
       // Send the message to all connected clients
-      sendMessage(MessageChannel.Reliable, worldStateModel.toBuffer(Network.instance.worldState));
+      Network.instance.transport.sendData(worldStateModel.toBuffer(Network.instance.worldState)); // Use default channel
     }
   }
 

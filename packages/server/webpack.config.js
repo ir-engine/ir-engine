@@ -7,6 +7,9 @@ console.log("PACKAGE ROOT", packageRoot)
 module.exports = {
     entry: `${root}/src/index.ts`,
     target: 'node',
+    stats: {
+        logging: 'verbose'
+      },
     node: {
         __dirname: true
     },
