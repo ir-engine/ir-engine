@@ -11,7 +11,7 @@ import { Entity } from '../../ecs/classes/Entity';
 import { Input } from "@xr3ngine/engine/src/input/components/Input";
 import { State } from "@xr3ngine/engine/src/state/components/State";
 import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
-import { addComponent, createEntity, removeComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, createEntity, removeComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { VehicleComponent } from '../components/VehicleComponent';
 import { VehicleInputSchema } from "@xr3ngine/engine/src/templates/car/VehicleInputSchema"
 
@@ -20,19 +20,40 @@ sphereGeo.applyMatrix4( new Matrix4().makeRotationZ( - Math.PI / 2 ) );
 //const sphereMesh = new THREE.Mesh( sphereGeo, new THREE.MeshStandardMaterial({ color: "pink" }))
 
 export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
-  const asset = args.asset
-
-  // TODO: finish me
-  debugger
 
   addComponent(entity, VehicleBody);
   addComponent(entity, VehicleComponent);
   addComponent(entity, Input, { schema: VehicleInputSchema } );
-//  addComponent(entity, State, { schema: CharacterStateSchema } );
-//  addComponent(entity, LocalInputReceiver);
-//  addComponent(entity, FollowCameraComponent);
+
+  const vehicleComponent = getMutableComponent(entity, VehicleBody) as VehicleBody;
+
+  const asset = args.asset
+  let deleteArr = []
+
+   asset.scene.traverse( mesh => {
+     console.log(mesh);
+
+     mesh.name == 'body' ? vehicleComponent.vehicleMesh = mesh : '';
 
 
+     if (mesh.userData.data == "collision") {
+       deleteArr.push(mesh)
+     }
+   })
+
+   for (let i = 0; i < deleteArr.length; i++) {
+     deleteArr[i].parent.remove(deleteArr[i])
+   }
+/*
+        vehicleMesh = asset.scene.getObjectByName()
+           console.log(mesh)
+*/
+  // TODO: finish me
+  //debugger
+
+
+
+/*
   for (let i = 0; i < 4; i++) {
     const wheelEntity = createEntity();
     addComponent(wheelEntity, TransformComponent);
@@ -44,7 +65,7 @@ export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
     });
     addComponent(wheelEntity, WheelBody, { vehicle: entity });
   }
-
+*/
   return entity;
 };
 
