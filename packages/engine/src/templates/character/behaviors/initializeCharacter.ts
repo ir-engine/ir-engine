@@ -32,7 +32,7 @@ export const initializeCharacter: Behavior = (entity): void => {
 	window['scene'] = Engine.scene
 
 	const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
-	assetLoader.onLoaded = asset => {
+	assetLoader.onLoaded = (entity, { asset }) => {
 		actor.animations = asset.animations;
 		console.log("Components on character")
 		console.log(entity.components)

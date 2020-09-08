@@ -15,6 +15,7 @@ import { addState } from '../../../state/behaviors/StateBehaviors';
 import { isMoving } from '../functions/isMoving';
 import { setAppropriateStartWalkState } from '../behaviors/setStartWalkState';
 import { CharacterComponent } from '../components/CharacterComponent';
+import { updateCharacterState } from "../behaviors/updateCharacterState";
 
 export const EndWalkState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
@@ -35,6 +36,12 @@ export const EndWalkState: StateSchemaValue = {
       }
     ],
   onUpdate: [
+    {
+      behavior: updateCharacterState,
+      args: {
+        setCameraRelativeOrientationTarget: true
+      }
+    },
     {
       behavior: onAnimationEnded,
       args: {

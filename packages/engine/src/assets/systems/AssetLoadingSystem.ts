@@ -46,7 +46,7 @@ export default class AssetLoadingSystem extends System {
       // Check if the vault already contains the asset
       // If it does, get it so we don't need to reload it
       // Load the asset with a calback to add it to our processing queue
-      loadAsset(assetLoader.url, (asset: any) => {
+      loadAsset(assetLoader.url, entity, (entity, { asset }) => {
         // This loads the editor scene
         this.loaded.set(entity, asset);
       });
@@ -92,7 +92,7 @@ export default class AssetLoadingSystem extends System {
       AssetVault.instance.assets.set(hashResourceString(component.url), asset.scene);
       
       if (component.onLoaded) {
-        component.onLoaded(asset);
+        component.onLoaded(entity, { asset });
       }
     });
 
