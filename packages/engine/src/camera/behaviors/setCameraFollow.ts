@@ -9,7 +9,7 @@ import {MouseInput} from "../../input/enums/MouseInput";
 
 
 let follower, target;
-let inputComponent
+let inputComponent:Input;
 let mouseDownPosition
 let originalRotation
 let actor, camera
@@ -32,15 +32,19 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
   follower = getMutableComponent<TransformComponent>(entityIn, TransformComponent); // Camera
   target = getMutableComponent<TransformComponent>(entityOut, TransformComponent); // Player
 
-  inputComponent = getComponent(entityOut, Input);
+  inputComponent = getComponent(entityOut, Input) as Input;
   camera = getMutableComponent<CameraComponent>(entityIn, CameraComponent);
 
-  if (inputComponent.data.get(inputComponent.schema.mouseInputMap.axes[MouseInput.MouseMovement]) == undefined) {
+  const inputAxes = inputComponent.schema.mouseInputMap.axes[MouseInput.MouseMovement]
+
+  if (!inputComponent.data.has(inputAxes)) {
     inputValue = [0, 0]
   } else {
-    inputValue = inputComponent.data.get(inputComponent.schema.mouseInputMap.axes[MouseInput.MouseMovement]).value
+    inputValue = inputComponent.data.get(inputAxes).value
     // fix infinity rotation
-    Math.abs(inputValue[0] + inputValue[1]) == 1 ? inputValue = [0, 0] : '';
+    // Math.abs(inputValue[0] + inputValue[1]) == 1 ? inputValue = [0, 0] : '';
+    // TODO: is it ok to clear it?
+    inputComponent.data.delete(inputAxes)
   }
 
   if (camera.mode === "firstPerson") {

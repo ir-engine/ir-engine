@@ -6,9 +6,9 @@ import { AnimationClip } from 'three';
 export const setActorAnimation: Behavior = (entity, args: { name: string; transitionDuration: number; }) => {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   if(!actor.initialized) return console.log("Not setting actor animation because not initialized")
-  let clip = AnimationClip.findByName(actor.animations, args.name);
+  const clip = AnimationClip.findByName(actor.animations, args.name);
 
-  let action = actor.mixer.clipAction(clip);
+  const action = actor.mixer.clipAction(clip);
   if (action === null) {
     console.error(`Animation ${args.name} not found!`);
     return 0;
