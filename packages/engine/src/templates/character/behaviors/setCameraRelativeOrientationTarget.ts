@@ -10,7 +10,7 @@ export const setCameraRelativeOrientationTarget: Behavior = (entity: Entity): vo
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 
 	if (!hasComponent(entity, EnteringVehicle)) {
-		let moveVector = getCameraRelativeMovementVector(entity);
+		const moveVector = getCameraRelativeMovementVector(entity);
 
 		if (moveVector.x === 0 && moveVector.y === 0 && moveVector.z === 0) {
 			setOrientation(entity, { vector: actor.orientation });
