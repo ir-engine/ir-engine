@@ -4,21 +4,21 @@ import { Types } from '../../ecs/types/Types';
 
 interface PropTypes {
   wheelMesh: any
-  convexMesh: any
-  mass: number
-  scale: Vector3Type
+  vehicleMesh: any
+  vehiclePhysics: any
+  currentDriver: any
 }
 
-export class VehicleBody extends Component<PropTypes> {
+export class VehicleBody extends Component<VehicleBody> {
   wheelMesh: any
-  convexMesh: any
-  mass: number
-  scale: number[]
+  vehicleMesh: any
+  vehiclePhysics: any
+  currentDriver: any
 }
 
 VehicleBody.schema = {
-  mass: { type: Types.Number, default: 1 },
-  scale: { type: Types.Array, default: [0.2, 0.1, 0.1] },
-  wheelMesh: { type: Types.Ref },
-  convexMesh: { type: Types.Ref }
+  wheelMesh: { type: Types.Ref, default: null },
+  vehicleMesh: { type: Types.Ref, default: null },
+  vehiclePhysics: { type: Types.Ref, default: null },
+  currentDriver: { type: Types.Ref, default: null }
 };
