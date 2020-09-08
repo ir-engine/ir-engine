@@ -36,13 +36,14 @@ export const CarController: Prefab = {
                 componentArgs: {
                     url: "models/car.glb",
                     receiveShadow: true,
-                    castShadow: true
+                    castShadow: true,
+                    onLoaded: addCarPhysics
                 }
             }
         },
-        {
-            behavior: addCarPhysics
-        },
+        // {
+        //     behavior: addCarPhysics
+        // },
 /*
         {
             behavior: attachCamera
