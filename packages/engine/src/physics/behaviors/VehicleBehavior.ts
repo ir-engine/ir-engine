@@ -4,10 +4,10 @@ import { Behavior } from '../../common/interfaces/Behavior';
 import { getMutableComponent, getComponent } from '../../ecs/functions/EntityFunctions';
 import { Object3DComponent } from '../../common/components/Object3DComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-
+import { AssetLoader } from "@xr3ngine/engine/src/assets/components/AssetLoader";
 import { PhysicsManager } from '../components/PhysicsManager';
 import { VehicleBody } from '../../physics/components/VehicleBody';
-
+import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 
 import { createConvexGeometry } from './PhysicsBehaviors';
 
@@ -15,38 +15,57 @@ const quaternion = new Quaternion();
 
 export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
   if (args.phase == 'onAdded') {
-    const object = getComponent<Object3DComponent>(entity, Object3DComponent).value;
+    const vehicleComponent = getMutableComponent(entity, VehicleBody) as VehicleBody;
+    const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
+    assetLoader.onLoaded = asset => {
+      asset.scene.traverse(mesh => {
+        if (mesh.name == 'door_3') {
 
-    const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody;
+          vehicleComponent.vehicleMesh = mesh
+          //Engine.scene.remove( Engine.scene.getObjectByProperty( 'uuid', mesh.uuid ) );
+        } else {
+        //  mesh.visible = false;
+        }
+//      vehicleMesh = asset.scene.getObjectByName()
+        console.log(mesh)
+      })
+    }
 
-    const [vehicle, wheelBodies] = createVehicleBody(entity, vehicleComponent.convexMesh);
-    object.userData.vehicle = vehicle;
+
+
+    const [vehicle, wheelBodies] = createVehicleBody(entity);
+    vehicleComponent.vehiclePhysics = vehicle;
     vehicle.addToWorld(PhysicsManager.instance.physicsWorld);
 
     for (let i = 0; i < wheelBodies.length; i++) {
       PhysicsManager.instance.physicsWorld.addBody(wheelBodies[i]);
     }
-  } else if (args.phase == 'onUpdate') {
-    const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
-    let object = getComponent<Object3DComponent>(entity, Object3DComponent);
 
-    if(object.value.userData){
-      if(object.value.userData.vehicle){
-      const vehicle = object.value.userData.vehicle.chassisBody;
+  } else if (args.phase == 'onUpdate') {
+
+    const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
+    const vehicleComponent = getMutableComponent(entity, VehicleBody) as VehicleBody;
+
+    if( vehicleComponent.vehiclePhysics != null && vehicleComponent.vehicleMesh != null){
+
+      const vehicle = vehicleComponent.vehiclePhysics.chassisBody;
+      //console.log(vehicleComponent);
+
 
       transform.position.set(
         vehicle.position.x,
         vehicle.position.y,
         vehicle.position.z
       )
-
+/*
       transform.rotation.set(
         vehicle.quaternion.x,
         vehicle.quaternion.y,
         vehicle.quaternion.z,
         vehicle.quaternion.w
       )
-    }
+*/
+
   } else {
     console.warn("User data for vehicle not found")
   }
@@ -63,16 +82,14 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
   }
 };
 
-export function createVehicleBody (entity: Entity, mesh: any): [RaycastVehicle, Body[]] {
+export function createVehicleBody (entity: Entity ): [RaycastVehicle, Body[]] {
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
   let chassisBody;
-  if (mesh) {
-    //chassisBody = createConvexGeometry(entity, mesh);
-  } else {
-    const chassisShape = new Box(new Vec3(1, 1.2, 3));
-    chassisBody = new Body({ mass: 150 });
-    chassisBody.addShape(chassisShape);
-  }
+
+  const chassisShape = new Box(new Vec3(1, 1.2, 3));
+  chassisBody = new Body({ mass: 150 });
+  chassisBody.addShape(chassisShape);
+
   //  let
   chassisBody.position.x = transform.position.x
   chassisBody.position.y = transform.position.y
