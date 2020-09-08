@@ -4,6 +4,7 @@ import { Network } from '../components/Network'
 export default (
   dataConsumer: DataConsumer
 ) => (message: any) => {
+  console.log("UNRELIABLE MESSAGE: " + message)
   // switch on channel, probably use sort of an enums just like MessageTypes for the cases
   switch (dataConsumer.label) {
     // example

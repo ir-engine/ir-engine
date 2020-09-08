@@ -434,7 +434,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
             paused,
             appData
           });
-          if (error) return errback();
+          if (error) {
+            errback();
+            console.log(error)
+            return
+          } 
           callback({ id });
         }
       );
@@ -451,7 +455,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
             protocol,
             appData
           });
-          if (error) return errback();
+          if (error) {
+            errback();
+            return 
+          }
           return callback({ id });
         }
       );

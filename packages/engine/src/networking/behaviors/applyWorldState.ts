@@ -18,6 +18,16 @@ export function applyWorldState(worldStateBuffer, delta = 0.000001, interpolate 
   //   (NetworkInterpolation.instance.vault[NetworkInterpolation.instance.vaultSize].state as any).tick,
   //   " | new tick is ", worldState.tick);
 
+  if(Network.tick < worldState.tick - 1){
+    // we dropped packets
+    // Check how many
+    // If our queue empty? Request immediately
+    // Is our queue not empty? Inspect tick numbers
+    // Did they fall in our range?
+    // Send a request for the ones that didn't
+  }
+
+  Network.tick = worldState.tick
   // Add world state to our snapshot vault
   addSnapshot(worldState);
 

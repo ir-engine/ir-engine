@@ -137,6 +137,7 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
 
   // Networking
   if (options.networking && options.networking.enabled) {
+    console.log("Registering network system")
     registerSystem(NetworkSystem, { schema: options.networking.schema });
 
     // Do we want audio and video streams?
@@ -180,7 +181,5 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
   // }
 
   // Start our timer!
-  if (isBrowser) {
     Engine.engineTimerTimeout = setTimeout(startTimer, 1000);
-  }
 }

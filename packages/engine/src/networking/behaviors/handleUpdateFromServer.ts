@@ -8,6 +8,7 @@ export const handleUpdateFromServer: Behavior = (entity: Entity, args: null, del
   const queue = getComponent(entity, Network).incomingMessageQueue
   // For each message, handle and process
   while (!queue.empty) {
+    console.log("Update from server!")
     const message = queue.pop()
     // Buffer to object
     applyWorldState(message, delta)
