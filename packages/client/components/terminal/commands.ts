@@ -57,7 +57,7 @@ export const commands = {
                 case 'entities':
                     const CMDID = 1;
                     const command = args._[CMDID];
-                    const options = args._.slice(CMDID+1);
+                    const options = args._.slice(CMDID + 1);
 
                     print(options.join('|'));
                         // ecs: "console.log("Eval says: feed me code!")"
@@ -107,14 +107,21 @@ export const commands = {
                             print(`entity ${protoEntityId} not exist.`);
                         }
                         break;
-                    
+
                     }else if(command === 'rm'){
                         print(`(removing entities and components)`);
                         // ecs entities rm 1 2 3
                         const ids = options;
-                        ids.forEach( id => Engine.entities[id].remove() );
+
+//                      ids.forEach( id => Engine.entities[id].remove() );
+
+	                    ids.forEach(id => {
+		                      let foundEntity = Engine.entities.find(element => element.id == id);
+                              if (foundEntity != undefined) foundEntity.remove();
+	                    });
+
                         break;
-                    
+
                     }else if(command === 'cat'){
                         print(`(Query entity components for data)`);
                         // ecs entities cat 1/ComponentName
