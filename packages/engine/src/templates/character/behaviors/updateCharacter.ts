@@ -9,6 +9,7 @@ import { springMovement } from "./springMovement";
 import { Object3DComponent } from '../../../common/components/Object3DComponent';
 import { cannonFromThreeVector } from "../../../common/functions/cannonFromThreeVector";
 import { Vector3 } from 'three';
+import { Engine } from '../../../ecs/classes/Engine';
 
 export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime) => {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
@@ -41,5 +42,7 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
     actor.actorCapsule.body.position.copy(cannonFromThreeVector(newPos));
     actor.actorCapsule.body.interpolatedPosition.copy(cannonFromThreeVector(newPos));
   }
+
+  actor.viewVector = new Vector3().subVectors(actorTransform.position, Engine.camera.position);
   
 };

@@ -14,6 +14,9 @@ import { isMoving } from '../functions/isMoving';
 import { addState } from '../../../state/behaviors/StateBehaviors';
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { setAppropriateStartWalkState } from '../behaviors/setStartWalkState';
+import { Entity } from '../../../ecs/classes/Entity';
+import { DefaultInput } from "../../shared/DefaultInput";
+import { BinaryValue } from "../../../common/enums/BinaryValue";
 
 // Idle Behavior
 export const IdleState: StateSchemaValue = {
@@ -51,10 +54,15 @@ export const IdleState: StateSchemaValue = {
     {
       behavior: triggerActionIfMovementHasChanged,
       args: {
-        action: (entity) => {
+        action: (entity:Entity): void => {
           // Default behavior for all states
           findVehicle(entity);
           const input = getComponent(entity, Input)
+
+          // Check if we're trying to jump
+          if (input.data.has(DefaultInput.JUMP) && input.data.get(DefaultInput.JUMP).value === BinaryValue.ON) {
+            return addState(entity, {state: CharacterStateTypes.JUMP_IDLE})
+          }
 
           // If we're not moving, don't worry about the rest of this action
           if (!isMoving(entity)) return
