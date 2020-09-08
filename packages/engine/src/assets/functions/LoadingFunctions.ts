@@ -5,6 +5,7 @@ import { AssetClass } from '../enums/AssetClass';
 import { AssetType } from '../enums/AssetType';
 import { AssetId, AssetMap, AssetsLoadedHandler, AssetTypeAlias, AssetUrl } from '../types/AssetTypes';
 import * as FBXLoader from '../loaders/FBXLoader/FBXLoader';
+import { Entity } from '../../ecs/classes/Entity';
 
 // Kicks off an i{terator to load the list of assets and add them to the vault
 export function loadAssets (
@@ -15,15 +16,15 @@ export function loadAssets (
   iterateLoadAsset(assets.entries(), onAssetLoaded, onAllAssetsLoaded);
 }
 
-export function loadAsset (url: AssetUrl, onAssetLoaded: AssetsLoadedHandler): void {
+export function loadAsset (url: AssetUrl, entity:Entity, onAssetLoaded: AssetsLoadedHandler): void {
   if (!AssetVault.instance.assets.has(url)) {
     const loader = getLoaderForAssetType(getAssetType(url));
     loader.load(url, resource => {
       AssetVault.instance.assets.set(url, resource);
-      onAssetLoaded(resource);
+      onAssetLoaded(entity, { asset: resource });
     });
   } else {
-    onAssetLoaded(AssetVault.instance.assets.get(url))
+    onAssetLoaded(entity, { asset: AssetVault.instance.assets.get(url) })
   }
 }
 
@@ -35,7 +36,7 @@ function iterateLoadAsset (
   const current = iterable.next();
 
   if (current.done) {
-    return onAllAssetsLoaded();
+    return onAllAssetsLoaded(null, {});
   } else {
     const [{ url }] = current.value;
     if (!AssetVault.instance.assets.has(url)) {
@@ -44,6 +45,7 @@ function iterateLoadAsset (
       if (loader == null) {
         console.error('Loader failed on ', url);
         iterateLoadAsset(iterable, onAssetLoaded, onAllAssetsLoaded);
+        return
       }
       loader.load(url, resource => {
         if (resource.scene !== undefined) {
