@@ -13,8 +13,10 @@ export default () => {
       fetchedPartyId = partyUser.partyId
     }
     const partyId = path === 'party-user' && method === 'find' ? params.query.partyId : fetchedPartyId != null ? fetchedPartyId : id
-    params.query.partyId = partyId
-    const userId = path === 'party' ? loggedInUser.userId : params.query.userId || loggedInUser.userId
+    if (method !== 'patch') {
+      params.query.partyId = partyId
+    }
+    const userId = path === 'party' ? loggedInUser?.userId : params.query?.userId || loggedInUser?.userId || partyId
     const partyUserCountResult = await app.service('party-user').find({
       query: {
         partyId: partyId,

@@ -25,4 +25,62 @@ export default function (app: Application) {
   const service = app.service('invite')
 
   service.hooks(hooks)
+
+  service.publish('created', async (data): Promise<any> => {
+    try {
+      const targetIds = [data.userId]
+      if (data.inviteeId) {
+        targetIds.push(data.inviteeId)
+      }
+      else {
+        const inviteeIdentityProviderResult = await app.service('identity-provider').find({
+          query: {
+            type: data.identityProviderType,
+            token: data.token
+          }
+        })
+        if ((inviteeIdentityProviderResult as any).total > 0) {
+          targetIds.push((inviteeIdentityProviderResult as any).data[0].userId)
+        }
+      }
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      return Promise.all(targetIds.map((userId: string) => {
+        return app.channel(`userIds/${userId}`).send({
+          invite: data
+        })
+      }))
+    } catch (err) {
+      console.log(err)
+      throw err
+    }
+  })
+
+  service.publish('removed', async (data): Promise<any> => {
+    try {
+      const targetIds = [data.userId]
+      if (data.inviteeId) {
+        targetIds.push(data.inviteeId)
+      }
+      else {
+        const inviteeIdentityProviderResult = await app.service('identity-provider').find({
+          query: {
+            type: data.identityProviderType,
+            token: data.token
+          }
+        })
+        if ((inviteeIdentityProviderResult as any).total > 0) {
+          targetIds.push((inviteeIdentityProviderResult as any).data[0].userId)
+        }
+      }
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      return Promise.all(targetIds.map((userId: string) => {
+        return app.channel(`userIds/${userId}`).send({
+          invite: data
+        })
+      }))
+    } catch (err) {
+      console.log(err)
+      throw err
+    }
+  })
 }

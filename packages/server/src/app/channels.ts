@@ -26,13 +26,15 @@ export default (app: Application): void => {
           const authResult = await app.service('authentication').strategies.jwt.authenticate({ accessToken: token }, {})
           const identityProvider = authResult['identity-provider']
           if (identityProvider != null) {
+            console.log(`user ${identityProvider.userId} joining ${(connection as any).socketQuery.locationId}`);
             const userId = identityProvider.userId
-            const user = await app.service('user').get(userId)
-            const locationId = (connection as any).socketQuery.locationId
-            const agonesSDK = (app as any).agonesSDK
-            const gsResult = await agonesSDK.getGameServer()
-            const { status } = gsResult
+            const user = await app.service('user').get(userId);
+            const locationId = (connection as any).socketQuery.locationId;
+            const agonesSDK = (app as any).agonesSDK;
+            const gsResult = await agonesSDK.getGameServer();
+            const { status } = gsResult;
             if (status.state === 'Ready' || (process.env.NODE_ENV === 'development' && status.state === 'Shutdown')) {
+              console.log('Starting new instance')
               const selfIpAddress = `${(status.address as string)}:${(status.portsList[0].port as string)}`
               const instanceResult = await app.service('instance').create({
                 currentUsers: 1,
@@ -58,6 +60,9 @@ export default (app: Application): void => {
               //   }
               // })
             } else {
+              console.log('Joining allocated instance')
+              console.log(user.instanceId)
+              console.log((app as any).instance.id)
               if (user.instanceId !== (app as any).instance.id) {
                 const instance = await app.service('instance').get((app as any).instance.id)
                 await app.service('instance').patch((app as any).instance.id, {
@@ -69,6 +74,29 @@ export default (app: Application): void => {
               instanceId: (app as any).instance.id
             })
             app.channel(`instanceIds/${(app as any).instance.id as string}`).join(connection)
+            if (user.partyId != null) {
+              const partyUserResult = await app.service('party-user').find({
+                query: {
+                  partyId: user.partyId
+                }
+              });
+              const partyUsers = (partyUserResult as any).data;
+              const partyOwner = partyUsers.find((partyUser) => partyUser.isOwner === 1);
+              if (partyOwner.userId === userId) {
+                await app.service('party').patch(user.partyId, {
+                  instanceId: (app as any).instance.id
+                })
+                const nonOwners = partyUsers.filter((partyUser) => partyUser.isOwner === 0);
+                await Promise.all(nonOwners.map(async partyUser => {
+                  await app.service('user').patch(partyUser.userId, {
+                    instanceId: (app as any).instance.id
+                  })
+                }))
+                await app.service('instance').patch((app as any).instance.id, {
+                  currentUsers: ((app as any).instance.currentUsers as number) + nonOwners.length
+                })
+              }
+            }
           }
         }
       } catch (err) {
@@ -90,9 +118,6 @@ export default (app: Application): void => {
             const user = await app.service('user').get(userId)
             const instance = (app as any).instance ? await app.service('instance').get((app as any).instance.id) : {}
             if (user.instanceId === (app as any).instance?.id) {
-              await app.service('user').patch(userId, {
-                instanceId: null
-              })
               await app.service('instance').patch((app as any).instance.id, {
                 currentUsers: instance.currentUsers - 1
               })

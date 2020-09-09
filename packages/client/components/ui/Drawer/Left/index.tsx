@@ -47,14 +47,19 @@ import {
     Forum,
     Group,
     GroupWork,
-    Mail,
     PersonAdd,
     SupervisedUserCircle
 } from "@material-ui/icons";
 import _ from 'lodash';
 import { Group as GroupType } from '@xr3ngine/common/interfaces/Group';
 import { User } from '@xr3ngine/common/interfaces/User';
-import { getParty, createParty, removeParty, removePartyUser } from '../../../../redux/party/service';
+import {
+    getParty,
+    createParty,
+    removeParty,
+    removePartyUser,
+    transferPartyOwner
+} from '../../../../redux/party/service';
 
 
 const mapStateToProps = (state: any): any => {
@@ -79,6 +84,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createParty: bindActionCreators(createParty, dispatch),
     removeParty: bindActionCreators(removeParty, dispatch),
     removePartyUser: bindActionCreators(removePartyUser, dispatch),
+    transferPartyOwner: bindActionCreators(transferPartyOwner, dispatch),
     updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch),
     updateChatTarget: bindActionCreators(updateChatTarget, dispatch),
     updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch)
@@ -103,6 +109,7 @@ interface Props {
     createParty?: any;
     removeParty?: any;
     removePartyUser?: any;
+    transferPartyOwner?: any;
     setBottomDrawerOpen: any;
     updateInviteTarget?: any;
     updateChatTarget?: any;
@@ -145,6 +152,7 @@ const LeftDrawer = (props: Props): any => {
         createParty,
         removeParty,
         removePartyUser,
+        transferPartyOwner,
         setLeftDrawerOpen,
         leftDrawerOpen,
         setRightDrawerOpen,
@@ -165,6 +173,7 @@ const LeftDrawer = (props: Props): any => {
     const [groupDeletePending, setGroupDeletePending] = useState('');
     const [groupUserDeletePending, setGroupUserDeletePending] = useState('');
     const [partyDeletePending, setPartyDeletePending] = useState(false);
+    const [partyTransferOwnerPending, setPartyTransferOwnerPending] = useState('');
     const [detailsOpen, setDetailsOpen] = useState(false);
     const [detailsType, setDetailsType] = useState('');
     const [selectedUser, setSelectedUser] = useState(initialSelectedUserState);
@@ -302,6 +311,23 @@ const LeftDrawer = (props: Props): any => {
         e.preventDefault();
         setPartyUserDeletePending('');
         removePartyUser(partyUserId);
+    };
+
+    const showTransferPartyOwnerConfirm = (e, partyUserId) => {
+        e.preventDefault();
+        setPartyTransferOwnerPending(partyUserId);
+    };
+
+    const cancelTransferPartyOwner = (e) => {
+        e.preventDefault();
+        setPartyTransferOwnerPending('');
+    };
+
+    const confirmTransferPartyOwner = (e, partyUserId) => {
+        console.log(`Making ${partyUserId} party owner`);
+        e.preventDefault();
+        setPartyTransferOwnerPending('');
+        transferPartyOwner(partyUserId);
     };
 
     const handleChange = (event: any, newValue: number): void => {
@@ -510,7 +536,7 @@ const LeftDrawer = (props: Props): any => {
                                                 startIcon={<Add />}
                                                 onClick={() => createNewParty()}>
                                                 Create Party
-								</Button>
+								            </Button>
                                         </div>
                                     </div>
                                 }
@@ -528,16 +554,21 @@ const LeftDrawer = (props: Props): any => {
                                                 onClick={() => openChat('party', party)}
                                             >
                                                 Chat
-								</Button>
-                                            <Button
-                                                variant="contained"
-                                                color="secondary"
-                                                startIcon={<PersonAdd />}
-                                                onClick={() => openInvite('party', party.id)}
-                                            >
-                                                Invite
-								</Button>
-                                            {partyDeletePending !== true &&
+								            </Button>
+                                            {
+                                                (selfPartyUser.isOwner === true || selfPartyUser.isOwner === 1) &&
+                                                <Button
+                                                    variant="contained"
+                                                    color="secondary"
+                                                    startIcon={<PersonAdd/>}
+                                                    onClick={() => openInvite('party', party.id)}
+                                                >
+                                                    Invite
+                                                </Button>
+                                            }
+                                            {
+                                                partyDeletePending !== true &&
+                                                (selfPartyUser.isOwner === true || selfPartyUser.isOwner === 1) &&
                                                 <Button
                                                     variant="contained"
                                                     className="background-red"
@@ -545,7 +576,7 @@ const LeftDrawer = (props: Props): any => {
                                                     onClick={(e) => showPartyDeleteConfirm(e)}
                                                 >
                                                     Delete
-								</Button>
+								                </Button>
                                             }
                                             {partyDeletePending === true &&
                                                 <div>
@@ -555,13 +586,13 @@ const LeftDrawer = (props: Props): any => {
                                                         onClick={(e) => confirmPartyDelete(e, party.id)}
                                                     >
                                                         Confirm Delete
-									</Button>
+									                </Button>
                                                     <Button variant="contained"
                                                         color="secondary"
                                                         onClick={(e) => cancelPartyDelete(e)}
                                                     >
                                                         Cancel
-									</Button>
+									                </Button>
                                                 </div>
                                             }
                                         </div>
@@ -576,9 +607,43 @@ const LeftDrawer = (props: Props): any => {
                                                     <ListItemAvatar>
                                                         <Avatar src={partyUser.user.avatarUrl} />
                                                     </ListItemAvatar>
-                                                    {user.id === partyUser.userId && <ListItemText primary={partyUser.user.name + ' (you)'} />}
-                                                    {user.id !== partyUser.userId && <ListItemText primary={partyUser.user.name} />}
+                                                    {user.id === partyUser.userId && (partyUser.isOwner === true || partyUser.isOwner === 1) && <ListItemText primary={partyUser.user.name + ' (you, owner)'} />}
+                                                    {user.id === partyUser.userId && (partyUser.isOwner !== true && partyUser.isOwner !== 1) && <ListItemText primary={partyUser.user.name + ' (you)'} />}
+                                                    {user.id !== partyUser.userId && (partyUser.isOwner === true || partyUser.isOwner === 1) && <ListItemText primary={partyUser.user.name + ' (owner)'} />}
+                                                    {user.id !== partyUser.userId && (partyUser.isOwner !== true && partyUser.isOwner !== 1) && <ListItemText primary={partyUser.user.name} />}
                                                     {
+                                                        partyUserDeletePending !== partyUser.id &&
+                                                        partyTransferOwnerPending !== partyUser.id &&
+                                                        selfPartyUser != null &&
+                                                        (selfPartyUser.isOwner === true || selfPartyUser.isOwner === 1) &&
+                                                        user.id !== partyUser.userId &&
+                                                        <Button variant="contained"
+                                                            color="primary"
+                                                            onClick={(e) => showTransferPartyOwnerConfirm(e, partyUser.id)}
+                                                        >
+                                                            Make Owner
+                                                        </Button>
+                                                    }
+                                                    {
+                                                        partyUserDeletePending !== partyUser.id &&
+                                                        partyTransferOwnerPending === partyUser.id &&
+                                                        <div>
+                                                            <Button variant="contained"
+                                                                    color="primary"
+                                                                    onClick={(e) => confirmTransferPartyOwner(e, partyUser.id)}
+                                                            >
+                                                                Confirm Transfer
+                                                            </Button>
+                                                            <Button variant="contained"
+                                                                    color="secondary"
+                                                                    onClick={(e) => cancelTransferPartyOwner(e)}
+                                                            >
+                                                                Cancel
+                                                            </Button>
+                                                        </div>
+                                                    }
+                                                    {
+                                                        partyTransferOwnerPending !== partyUser.id &&
                                                         partyUserDeletePending !== partyUser.id &&
                                                         selfPartyUser != null &&
                                                         (selfPartyUser.isOwner === true || selfPartyUser.isOwner === 1) &&
@@ -596,7 +661,9 @@ const LeftDrawer = (props: Props): any => {
                                                             </Button>
                                                         </div>
                                                     }
-                                                    {partyUserDeletePending === partyUser.id &&
+                                                    {
+                                                        partyTransferOwnerPending !== partyUser.id &&
+                                                        partyUserDeletePending === partyUser.id &&
                                                         <div>
                                                             {
                                                                 user.id !== partyUser.userId &&
@@ -605,7 +672,7 @@ const LeftDrawer = (props: Props): any => {
                                                                     onClick={(e) => confirmPartyUserDelete(e, partyUser.id)}
                                                                 >
                                                                     Remove User
-													</Button>
+													            </Button>
                                                             }
                                                             {
                                                                 user.id === partyUser.userId &&
@@ -614,14 +681,14 @@ const LeftDrawer = (props: Props): any => {
                                                                     onClick={(e) => confirmPartyUserDelete(e, partyUser.id)}
                                                                 >
                                                                     Leave party
-													</Button>
+													            </Button>
                                                             }
                                                             <Button variant="contained"
                                                                 color="secondary"
                                                                 onClick={(e) => cancelPartyUserDelete(e)}
                                                             >
                                                                 Cancel
-												</Button>
+												            </Button>
                                                         </div>
                                                     }
                                                 </ListItem>;

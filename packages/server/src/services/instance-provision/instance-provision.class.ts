@@ -18,30 +18,73 @@ export class InstanceProvision implements ServiceMethods<Data> {
     this.app = app;
   }
 
+  async getLocalServer() {
+    const nets = networkInterfaces();
+    const results = Object.create(null); // or just '{}', an empty object
+    for (const name of Object.keys(nets)) {
+      for (const net of nets[name]) {
+        // skip over non-ipv4 and internal (i.e. 127.0.0.1) addresses
+        if (net.family === 'IPv4' && !net.internal) {
+          if (!results[name]) {
+            results[name] = [];
+          }
+
+          results[name].push(net.address);
+        }
+      }
+    }
+    console.log('Non-internal local ports:')
+    console.log(results)
+    return {
+      ipAddress: results.en0 ? results.en0[0] : results.eno1 ? results.eno1[0] : '127.0.0.1',
+      port: '3030'
+    }
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async find (params?: Params): Promise<any> {
     try {
-      if (process.env.KUBERNETES !== 'true') {
-        const nets = networkInterfaces();
-        const results = Object.create(null); // or just '{}', an empty object
-        for (const name of Object.keys(nets)) {
-          for (const net of nets[name]) {
-            // skip over non-ipv4 and internal (i.e. 127.0.0.1) addresses
-            if (net.family === 'IPv4' && !net.internal) {
-              if (!results[name]) {
-                results[name] = [];
-              }
-
-              results[name].push(net.address);
-            }
+      let userId
+      const token = params.query.token;
+      if (token != null) {
+        const authResult = await this.app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {})
+        const identityProvider = authResult['identity-provider']
+        if (identityProvider != null) {
+          userId = identityProvider.userId
+        }
+        else {
+          throw new BadRequest('Invalid user credentials')
+        }
+      }
+      const user = await this.app.service('user').get(userId);
+      if (user.partyId) {
+        console.log('Joining party\'s instance')
+        const partyOwnerResult = await this.app.service('party-user').find({
+          query: {
+            partyId: user.partyId,
+            isOwner: true
+          }
+        });
+        const partyOwner = (partyOwnerResult as any).data[0]
+        console.log('PartyOwner:')
+        console.log(partyOwner);
+        console.log(partyOwner.user)
+        if (process.env.KUBERNETES !== 'true') {
+          return this.getLocalServer();
+        }
+        if (partyOwner.userId !== userId && partyOwner.user.instanceId) {
+          const partyInstance = await this.app.service('instance').get(partyOwner.user.instanceId);
+          const addressSplit = partyInstance.ipAddress.split(':');
+          console.log('addressSplit:');
+          console.log(addressSplit);
+          return {
+            ipAddress: addressSplit[0],
+            port: addressSplit[1]
           }
         }
-        console.log('Non-internal local ports:')
-        console.log(results)
-        return {
-          ipAddress: results.en0 ? results.en0[0] : results.eno1 ? results.eno1[0] : '127.0.0.1',
-          port: '3030'
-        }
+      }
+      if (process.env.KUBERNETES !== 'true') {
+        return this.getLocalServer();
       }
       const instanceModel = this.app.service('instance').Model
       const locationId = params.query.locationId
