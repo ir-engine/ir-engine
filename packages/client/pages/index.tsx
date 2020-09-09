@@ -41,7 +41,7 @@ export const IndexPage = (props: any): any => {
       if (selfUser.instanceId != null) {
           setSceneVisible(true);
       }
-  }, [selfUser.instanceId]);
+  }, [selfUser.instanceId, selfUser.partyId]);
 
   return(
     <Layout pageTitle="Home">

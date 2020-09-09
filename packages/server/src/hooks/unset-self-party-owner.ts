@@ -7,19 +7,21 @@ export default () => {
     // Getting logged in user and attaching owner of user
     const { result } = context;
     const loggedInUser = extractLoggedInUserFromParams(context.params);
-    const user = await context.app.service('user').get(loggedInUser.userId);
-    if (user.partyId) {
-      const partyOwnerResult = await context.app.service('party-user').find({
-        query: {
-          partyId: user.partyId,
-          isOwner: 1
+    if (loggedInUser?.userId != null) {
+      const user = await context.app.service('user').get(loggedInUser.userId);
+      if (user.partyId) {
+        const partyOwnerResult = await context.app.service('party-user').find({
+          query: {
+            partyId: user.partyId,
+            isOwner: 1
+          }
+        });
+        if (partyOwnerResult.total > 1) {
+          const selfPartyUser = partyOwnerResult.data.find((partyUser) => partyUser.userId === user.id)
+          await context.app.service('party-user').patch(selfPartyUser.id, {
+            isOwner: 0
+          }, context.params)
         }
-      });
-      if (partyOwnerResult.total > 1) {
-        const selfPartyUser = partyOwnerResult.data.find((partyUser) => partyUser.userId === user.id)
-        await context.app.service('party-user').patch(selfPartyUser.id, {
-          isOwner: 0
-        }, context.params)
       }
     }
     return context;

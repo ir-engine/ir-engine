@@ -11,6 +11,7 @@ import {
 } from './actions';
 import { dispatchAlertError } from '../alert/service';
 import store from './../store';
+import { User } from '@xr3ngine/common/interfaces/User';
 // import { Party } from '@xr3ngine/common/interfaces/Party'
 
 export function getParty () {

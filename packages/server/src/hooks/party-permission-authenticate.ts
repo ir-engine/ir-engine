@@ -5,7 +5,6 @@ import { BadRequest, Forbidden } from '@feathersjs/errors'
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {
-    console.log('Party permission authenticate')
     let fetchedPartyId
     const { id, method, params, app, path } = context
     const loggedInUser = extractLoggedInUserFromParams(params)
@@ -17,7 +16,7 @@ export default () => {
     if (method !== 'patch') {
       params.query.partyId = partyId
     }
-    const userId = path === 'party' ? loggedInUser.userId : params.query.userId || loggedInUser.userId
+    const userId = path === 'party' ? loggedInUser?.userId : params.query?.userId || loggedInUser?.userId || partyId
     const partyUserCountResult = await app.service('party-user').find({
       query: {
         partyId: partyId,
@@ -40,7 +39,6 @@ export default () => {
       }
     }
 
-    console.log('party permission authenticated')
     return context
   }
 }
