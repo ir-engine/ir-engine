@@ -10,7 +10,7 @@ import { PlayerCharacter } from "@xr3ngine/engine/src/templates/character/prefab
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import React, { FunctionComponent, useEffect, useState } from 'react';
-import { AmbientLight } from 'three';
+import { AmbientLight, Mesh, MeshBasicMaterial } from 'three';
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
@@ -18,6 +18,8 @@ import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs
 import { CarController } from "@xr3ngine/engine/src/templates/car/prefabs/CarController";
 import { rigidBodyBox2 } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox2";
 import { rigidBodyBox } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox";
+import { Interactive } from "@xr3ngine/engine/src/interaction/components/Interactive";
+import { Interacts } from "@xr3ngine/engine/src/interaction/components/Interacts";
 
 
 export const EnginePage: FunctionComponent = (props: any) => {
@@ -97,11 +99,21 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // });
 
 
-    createPrefab(PlayerCharacter);
+    const player = createPrefab(PlayerCharacter);
     createPrefab(staticWorldColliders);
-    createPrefab(rigidBodyBox);
-    createPrefab(rigidBodyBox2);
+    //createPrefab(rigidBodyBox);
+    //createPrefab(rigidBodyBox2);
     createPrefab(CarController);
+
+    const iBox = createPrefab(rigidBodyBox);
+    getComponent(iBox, TransformComponent).position.set(2,1,2);
+    const box = getComponent(iBox, Object3DComponent).value as Mesh;
+    box.name = 'green box';
+    (box.material as MeshBasicMaterial).color.setColorName('green');
+    addComponent(iBox, Interactive);
+    addComponent(player, Interacts);
+
+
 
     // addComponent(createEntity(), AssetLoader, {
     //   url: "models/OldCar.fbx",

@@ -24,6 +24,12 @@ import { Timer } from './common/functions/Timer';
 import { addObject3DComponent } from './common/behaviors/Object3DBehaviors';
 import _ from 'lodash'
 
+import { Mesh, BufferGeometry } from "three";
+import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
+import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
+Mesh.prototype.raycast = acceleratedRaycast;
+BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
+
 export const DefaultInitializationOptions = {
   debug: true,
   withTransform: true,
@@ -70,6 +76,9 @@ export const DefaultInitializationOptions = {
     enabled: true
   },
   renderer: {
+    enabled: true
+  },
+  interactive: {
     enabled: true
   }
 };
@@ -168,6 +177,10 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
   // Rendering
   if (options.renderer && options.renderer.enabled) {
     registerSystem(WebGLRendererSystem, { priority: 999 });
+  }
+
+  if (options.interactive && options.interactive.enabled) {
+    registerSystem(InteractiveSystem)
   }
 
   // if (options.debug === true) {
