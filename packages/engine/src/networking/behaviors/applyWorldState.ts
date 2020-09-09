@@ -10,7 +10,7 @@ import { createNetworkPrefab } from '../functions/createNetworkPrefab';
 import { destroyNetworkObject } from '../functions/destroyNetworkObject';
 import { NetworkInterpolation } from '../components/NetworkInterpolation';
 
-export function applyWorldState(worldStateBuffer, delta = 0.000001, interpolate = true) {
+export function applyWorldState(worldStateBuffer, delta = 0.033, interpolate = true) {
   const worldState = worldStateModel.fromBuffer(worldStateBuffer);
 
   // // TODO: Validate if we've missed important frames
@@ -34,7 +34,7 @@ export function applyWorldState(worldStateBuffer, delta = 0.000001, interpolate 
   console.log("Adding network transforms to Network.instance");
   Network.instance.worldState = worldState;
   // Interpolate it
-  if(interpolate) {
+  if(worldState.transforms !== undefined && worldState.transforms.length > 0 && interpolate) {
     const snapshot = calculateInterpolation('x y z q(quat)', 'transforms');
     console.log(snapshot)
     const { state } = snapshot

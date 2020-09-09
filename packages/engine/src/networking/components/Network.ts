@@ -68,7 +68,6 @@ export class Network extends Component<Network> {
     Network.tick = 0
 
     // TODO: Replace default message queue sizes
-    this.outgoingMessageQueue = new RingBuffer<ArrayBuffer>(100)
     this.incomingMessageQueue = new RingBuffer<ArrayBuffer>(100)
     this.outgoingMessageQueue = new RingBuffer<ArrayBuffer>(100)
   }

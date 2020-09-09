@@ -7,7 +7,7 @@ export class WheelBody extends Component<WheelBody> {
   scale: [0.2, 0.2, 0.2]
   wheelMesh: 1
   vehicle: any
-  
+
   constructor () {
     super();
     WheelBody.instance = this;

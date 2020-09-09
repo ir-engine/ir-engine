@@ -26,8 +26,6 @@ export class NetworkSystem extends System {
   constructor(attributes) {
     super()
 
-    console.log("Constructing network system")
-
     // Create a Network entity (singleton)
     const networkEntity = createEntity();
     addComponent(networkEntity, Network);
@@ -39,13 +37,13 @@ export class NetworkSystem extends System {
     Network.instance.schema = schema;
     Network.instance.transport = new (schema.transport)();
 
-    console.log("Server mode is: " + process.env.SERVER_MODE )
     // Initialize the server automatically
     if (process.env.SERVER_MODE === 'realtime') {
         Network.instance.transport.initialize()
         Network.instance.isInitialized = true
     }
-    console.log("NetworkSystem ready, run connectToServer to... connect to the server!")
+
+    prepareServerWorldState()
 
     // TODO: Move network timestep (30) to config
     this.fixedExecute = createFixedTimestep(30, this.onFixedExecute.bind(this))
@@ -63,29 +61,24 @@ export class NetworkSystem extends System {
   }
 
   onFixedExecute(delta) {
-    console.log(Network.tick)
     // Advance the network tick
 
     // Client only
     if (!Network.instance.transport.isServer) {
-
       // Client sends input and *only* input to the server (for now)
       this.queryResults.networkInputSender.all?.forEach((entity: Entity) =>
         sendClientInputToServer(entity)
       )
-
+      
       // Client handles incoming input from other clients and interpolates transforms
-      this.queryResults.network.all?.forEach((entity: Entity) =>
+      this.queryResults.network.all?.forEach((entity: Entity) => {
         handleUpdateFromServer(entity)
-      )
+      })
     }
 
     // Server-only
     if (Network.instance.transport.isServer) {
       Network.tick++
-
-      // Create a new empty world state frame to be sent to clients
-      prepareServerWorldState()
 
       // handle client input, apply to local objects and add to world state snapshot
       handleUpdatesFromClients()
@@ -99,12 +92,14 @@ export class NetworkSystem extends System {
       })
 
       // Create the snapshot and add it to the world state on the server
-      addSnapshot(createSnapshot(Network.instance.worldState))
+      addSnapshot(createSnapshot(Network.instance.worldState.transforms))
 
-      console.log("Sending worldstate")
-
+      const ws = worldStateModel.toBuffer(Network.instance.worldState)
       // Send the message to all connected clients
-      Network.instance.transport.sendData(worldStateModel.toBuffer(Network.instance.worldState)); // Use default channel
+      Network.instance.transport.sendReliableData(ws); // Use default channel
+
+        // Create a new empty world state frame to be sent to clients
+        prepareServerWorldState()
     }
   }
 

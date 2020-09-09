@@ -1,17 +1,14 @@
 import { Network } from '../components/Network';
 import { createNetworkPrefab } from './createNetworkPrefab';
-import { getComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, hasComponent, addComponent } from '../../ecs/functions/EntityFunctions';
 import { NetworkObject } from '../components/NetworkObject';
 import { TransformComponent } from '../../transform/components/TransformComponent';
+import { MessageTypes } from '../enums/MessageTypes';
 // TODO: This should only be called on server, harmless, but yeah
 
 export const handleClientConnected = (args: { id: any; }) => {
-  // Client doesn't need to handle logic beyond this point
-  if (!Network.instance.transport.isServer)
-    return;
 
-  if (Network.instance.clients[args.id] !== undefined)
-    return console.error('Client is already in client list');
+console.log("handle client connected")
   Network.instance.clients[args.id] = {
     // BUG
     // TODO: Need this to be passed in
@@ -28,8 +25,12 @@ export const handleClientConnected = (args: { id: any; }) => {
   // Get a reference to the network object we just created, we need the ID
   const networkObject = getComponent(entity, NetworkObject);
 
+  if(!hasComponent(entity, TransformComponent)) addComponent(entity, TransformComponent)
+
   // Get a reference to the transform on the object so we can send initial values
   const transform = getComponent(entity, TransformComponent);
+
+  console.log(transform)
 
   const createObjectMessage = {
     networkId: networkObject.networkId,

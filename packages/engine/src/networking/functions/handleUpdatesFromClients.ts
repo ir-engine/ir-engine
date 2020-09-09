@@ -9,7 +9,7 @@ export function handleUpdatesFromClients() {
   // Parse incoming message queue
   const queue = Network.instance.incomingMessageQueue
   // For each
-  while (!queue.empty) {
+  while (Network.instance.incomingMessageQueue.getBufferLength() > 0) {
     const message = queue.pop()
     // Parse the message
     const clientInput = clientInputModel.fromBuffer(message)

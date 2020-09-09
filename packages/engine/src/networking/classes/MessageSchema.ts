@@ -16,7 +16,7 @@ export class MessageSchema {
   private calcBytes() {
     const iterate = (obj: any) => {
       for (var property in obj) {
-        const type = obj?._type || obj?.type?._type
+        const type = obj?.type || obj?.type?.type
         const bytes = obj._bytes || obj.type?._bytes
 
         if (!type && obj.hasOwnProperty(property)) {
@@ -24,7 +24,7 @@ export class MessageSchema {
             iterate(obj[property])
           }
         } else {
-          if (property !== '_type' && property !== 'type') return
+          if (property !== 'type') return
           if (!bytes) return
 
           // we multiply the bytes by the String8 / String16 length.

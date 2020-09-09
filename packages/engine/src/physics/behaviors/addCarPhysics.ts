@@ -1,3 +1,4 @@
+import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { VehicleBody } from "@xr3ngine/engine/src/physics/components/VehicleBody";
 import { WheelBody } from "@xr3ngine/engine/src/physics/components/WheelBody";
 import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/FollowCameraComponent';
@@ -10,7 +11,6 @@ import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { Input } from "@xr3ngine/engine/src/input/components/Input";
 import { State } from "@xr3ngine/engine/src/state/components/State";
-import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
 import { addComponent, createEntity, removeComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { VehicleComponent } from '../components/VehicleComponent';
 import { VehicleInputSchema } from "@xr3ngine/engine/src/templates/car/VehicleInputSchema"
@@ -23,49 +23,61 @@ export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
 
   addComponent(entity, VehicleBody);
   addComponent(entity, VehicleComponent);
-  addComponent(entity, Input, { schema: VehicleInputSchema } );
+
+  addComponent(entity, LocalInputReceiver)
+  addComponent(entity, FollowCameraComponent, { distance: 5, mode: "thirdPerson" })
 
   const vehicleComponent = getMutableComponent(entity, VehicleBody) as VehicleBody;
 
   const asset = args.asset
   let deleteArr = []
+  let arrayWheels = []
 
    asset.scene.traverse( mesh => {
-     console.log(mesh);
+     //console.log(mesh);
 
-     mesh.name == 'body' ? vehicleComponent.vehicleMesh = mesh : '';
+     if (mesh.name == 'body') {
+       mesh.scale.set(1.7,1.7,1.7)
+       vehicleComponent.vehicleMesh = mesh
+     }
+
 
 
      if (mesh.userData.data == "collision") {
        deleteArr.push(mesh)
+     }
+
+     if (mesh.userData.data == "wheel") {
+        mesh.scale.set(1.7,1.7,1.7)
+        deleteArr.push(mesh)
+        vehicleComponent.arrayWheelsMesh.push(mesh.clone())
+        //console.log('Engine');
+        //ngine.scene.add(mesh)
+      //  console.log(Engine);
+
      }
    })
 
    for (let i = 0; i < deleteArr.length; i++) {
      deleteArr[i].parent.remove(deleteArr[i])
    }
-/*
-        vehicleMesh = asset.scene.getObjectByName()
-           console.log(mesh)
-*/
-  // TODO: finish me
-  //debugger
+   for (let i = 0; i < vehicleComponent.arrayWheelsMesh.length; i++) {
+     Engine.scene.add(vehicleComponent.arrayWheelsMesh[i])
+   }
 
 
-
-/*
-  for (let i = 0; i < 4; i++) {
-    const wheelEntity = createEntity();
-    addComponent(wheelEntity, TransformComponent);
-    addObject3DComponent(wheelEntity, {
+//  for (let i = 0; i < 4; i++) {
+//    const wheelEntity = createEntity();
+//    addComponent(wheelEntity, TransformComponent);
+//    addObject3DComponent(wheelEntity, {
         // addObject3DComponent is going to call new obj(objArgs)
         // so this will be new Mesh(new BoxBufferGeometry(0.2, 0.2, 0.2))
-        obj3d: Mesh,
-        obj3dArgs: sphereGeo
-    });
-    addComponent(wheelEntity, WheelBody, { vehicle: entity });
-  }
-*/
+//        obj3d: arrayWheels[i],
+//        obj3dArgs: arrayWheels[i]
+//    });
+//    addComponent(wheelEntity, WheelBody, { vehicle: entity });
+//  }
+
   return entity;
 };
 

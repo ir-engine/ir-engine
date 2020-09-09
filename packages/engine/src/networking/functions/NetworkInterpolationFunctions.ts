@@ -3,6 +3,9 @@ import { randomId } from '../../common/functions/MathRandomFunctions';
 import { NetworkInterpolation } from '../components/NetworkInterpolation';
 import { InterpolatedSnapshot, Snapshot, StateEntityGroup, StateEntity, Time, Value } from '../types/SnapshotDataTypes';
 
+/** Snapshot interpolation functions, based on this library by yandeu
+ * https://github.com/geckosio/snapshot-interpolation */
+
 export function snapshot () {
   return {
     /** Create the snapshot on the server. */
