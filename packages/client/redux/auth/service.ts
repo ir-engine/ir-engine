@@ -16,7 +16,8 @@ import {
   updateSettings,
   loadedUserData,
   avatarUpdated,
-  usernameUpdated
+  usernameUpdated,
+  userUpdated
 } from './actions';
 import { client } from '../feathers';
 import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service';
@@ -29,6 +30,8 @@ import { getStoredState } from '../persisted.store';
 import axios from 'axios';
 import { resolveAuthUser } from '@xr3ngine/common/interfaces/AuthUser';
 import { resolveUser } from '@xr3ngine/common/interfaces/User';
+import store from "../store";
+import {patchedParty} from "../party/actions";
 
 const { publicRuntimeConfig } = getConfig();
 const apiServer: string = publicRuntimeConfig.apiServer;
@@ -466,3 +469,14 @@ export function updateUsername (userId: string, name: string) {
       });
   };
 }
+
+client.service('user').on('patched', (params) => {
+  const selfUser = (store.getState() as any).get('auth').get('user');
+  console.log('User patched, is self user?');
+  console.log(selfUser);
+  console.log(params.userRelationship);
+  if (selfUser.id === params.userRelationship.id) {
+    console.log('Patching self user');
+    store.dispatch(userUpdated(params.userRelationship));
+  }
+});

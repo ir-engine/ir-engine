@@ -82,7 +82,8 @@ if (config.server.enabled) {
   app.configure(express.rest())
   app.configure(socketio((io) => {
     io.use((socket, next) => {
-      (socket as any).feathers.socketQuery = socket.handshake.query
+      (socket as any).feathers.socketQuery = socket.handshake.query;
+      (socket as any).socketQuery = socket.handshake.query;
       next()
     })
   }))

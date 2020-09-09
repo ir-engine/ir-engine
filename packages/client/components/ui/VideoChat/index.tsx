@@ -40,19 +40,12 @@ const VideoChat = observer((props: Props) => {
   const gsProvision = async () => {
     if (MediaStreamComponent.instance.mediaStream == null) {
       await MediaStreamSystem.instance.startCamera();
-      await provisionInstanceServer(locationId);
     } else {
       console.log('Ending video chat');
       console.log((Network.instance.transport as any).stopSendingMediaStreams);
       await (Network.instance.transport as any).leave();
     }
   };
-  useEffect(() => {
-    if (instanceConnectionState.get('instanceProvisioned') === true && instanceConnectionState.get('readyToConnect') === true) {
-      console.log('Calling connectToInstanceServer');
-      connectToInstanceServer();
-    }
-  }, [instanceConnectionState]);
   return (
     <Button onClick={gsProvision}>
       {MediaStreamComponent?.instance?.mediaStream == null && <VideoCall /> }
