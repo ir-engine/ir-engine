@@ -4,12 +4,15 @@ import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { Input } from '@xr3ngine/engine/src/input/components/Input';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
+import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/FollowCameraComponent';
+
 import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import {MouseInput} from "../../input/enums/MouseInput";
 
 
 let follower, target;
 let inputComponent:Input;
+let cameraFollow;
 let mouseDownPosition
 let originalRotation
 let actor, camera
@@ -33,6 +36,8 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
   target = getMutableComponent<TransformComponent>(entityOut, TransformComponent); // Player
 
   inputComponent = getComponent(entityOut, Input) as Input;
+  cameraFollow = getComponent<FollowCameraComponent>(entityOut, FollowCameraComponent);
+
   camera = getMutableComponent<CameraComponent>(entityIn, CameraComponent);
 
   const inputAxes = inputComponent.schema.mouseInputMap.axes[MouseInput.MouseMovement]
@@ -47,7 +52,7 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
     inputComponent.data.delete(inputAxes)
   }
 
-  if (camera.mode === "firstPerson") {
+  if (cameraFollow.mode === "firstPerson") {
 
       euler.setFromQuaternion( follower.rotation );
 
@@ -64,7 +69,7 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
         target.position.z
       )
     }
-    else if (camera.mode === "thirdPerson") {
+    else if (cameraFollow.mode === "thirdPerson") {
 
       theta -= inputValue[0] * (1 / 2);
       theta %= 360;
@@ -72,9 +77,9 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
       phi = Math.min(85, Math.max(0, phi));
 
       follower.position.set(
-        target.position.x + camera.distance * Math.sin(theta *  Math.PI / 180) *  Math.cos(phi * Math.PI / 180),
-        target.position.y + camera.distance * Math.sin(phi *  Math.PI / 180),
-        target.position.z + camera.distance * Math.cos(theta *  Math.PI / 180) *  Math.cos(phi * Math.PI / 180)
+        target.position.x + cameraFollow.distance * Math.sin(theta *  Math.PI / 180) *  Math.cos(phi * Math.PI / 180),
+        target.position.y + cameraFollow.distance * Math.sin(phi *  Math.PI / 180),
+        target.position.z + cameraFollow.distance * Math.cos(theta *  Math.PI / 180) *  Math.cos(phi * Math.PI / 180)
       )
 
       direction.copy(follower.position)

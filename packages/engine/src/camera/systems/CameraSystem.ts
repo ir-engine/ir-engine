@@ -17,8 +17,8 @@ export class CameraSystem extends System {
   constructor() {
     super()
     const cameraEntity = createEntity();
-    addComponent(cameraEntity, CameraComponent, { followTarget: null, distance: 3, mode: "thirdPerson" });
-    addComponent(cameraEntity, CameraTagComponent)
+    addComponent(cameraEntity, CameraComponent );
+    addComponent(cameraEntity, CameraTagComponent )
     addObject3DComponent(cameraEntity, { obj3d: Engine.camera })
     addComponent(cameraEntity, TransformComponent);
   }

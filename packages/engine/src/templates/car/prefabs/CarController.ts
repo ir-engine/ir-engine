@@ -11,7 +11,7 @@ import { addCarPhysics } from "@xr3ngine/engine/src/physics/behaviors/addCarPhys
 import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
 import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
 import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
-// import { VehicleInputSchema } from "@xr3ngine/engine/src/templates/car/VehicleInputSchema"
+ import { VehicleInputSchema } from "@xr3ngine/engine/src/templates/car/VehicleInputSchema"
 
 const myCoolCar = new BoxBufferGeometry(2,1,6);
 
@@ -19,7 +19,7 @@ export const CarController: Prefab = {
     components: [
       { type: TransformComponent, data: { position: [-3,6,3]} },
       // Local player input mapped to behaviors in the input map
-    //   { type: Input, data: { schema: VehicleInputSchema } },
+       { type: Input, data: { schema: VehicleInputSchema } },
       // Current state (isJumping, isidle, etc)
     //   { type: State, data: { schema: VehicleStateSchema } },
       // Similar to Unity's Update(), LateUpdate(), and Start()

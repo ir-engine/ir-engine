@@ -10,20 +10,20 @@ import { VehicleBody } from '../../physics/components/VehicleBody';
 
 export const getInCar: Behavior = (entity: Entity, args: { value: Vector2 }): void => {
 
-  const entityCar = WheelBody.instance.vehicle
+  //const entityCar = VehicleBody.instance.vehicleEntity
 
   const transform = getComponent(entity, TransformComponent).position
-  const transformCar = getComponent(entityCar, TransformComponent).position
+//  const transformCar = getComponent(entityCar, TransformComponent).position
 
 
-  if (transform.distanceTo(transformCar) < 3) {
+//  if (transform.distanceTo(transformCar) < 3) {
     removeComponent(entity, LocalInputReceiver)
     removeComponent(entity, FollowCameraComponent)
 
-    addComponent(entityCar, LocalInputReceiver)
-    addComponent(entityCar, FollowCameraComponent)
+  //  addComponent(entityCar, LocalInputReceiver)
+  //  addComponent(entityCar, FollowCameraComponent)
 
-    const vehicle = getMutableComponent(entityCar, VehicleBody)
-    vehicle.currentDriver = entity
-  }
+//    const vehicle = getMutableComponent(entityCar, VehicleBody)
+  //  vehicle.currentDriver = entity
+//  }
 };

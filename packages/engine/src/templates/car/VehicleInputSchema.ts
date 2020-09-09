@@ -215,7 +215,15 @@ export const VehicleInputSchema: InputSchema = {
              args: {}
            }
         ]
-      }
+      },
+      [BinaryValue.OFF]: {
+        started: [
+           {
+             behavior: drive,
+             args: {}
+           }
+        ]
+      },
     },
     [DefaultInput.FORWARD]: {
       [BinaryValue.ON]: {
@@ -224,24 +232,22 @@ export const VehicleInputSchema: InputSchema = {
             behavior: drive,
             args: {
               inputType: InputType.TWODIM,
-              value: [0, -1]
-            }
-          }
-        ],
-        continued: [
-          {
-            behavior: drive,
-            args: {
-              inputType: InputType.TWODIM,
-              value: [0, -1]
+              value: [0, -1],
+              keyup: true
             }
           }
         ]
       },
       [BinaryValue.OFF]: {
         started: [
-        ],
-        continued: [
+          {
+            behavior: drive,
+            args: {
+              inputType: InputType.TWODIM,
+              value: [0, 0],
+              keyup: false
+            }
+          }
         ]
       }
     },
@@ -261,7 +267,7 @@ export const VehicleInputSchema: InputSchema = {
             behavior: drive,
             args: {
               inputType: InputType.TWODIM,
-              value: [0, 1]
+              value: [0, 0]
             }
           }
         ]
@@ -289,10 +295,7 @@ export const VehicleInputSchema: InputSchema = {
             behavior: drive,
             args: {
               inputType: InputType.TWODIM,
-              input: {
-                value: [-1, 0]
-              },
-              value: [-1, 0]
+              value: [0, 0]
             }
           }
         ]
@@ -316,17 +319,17 @@ export const VehicleInputSchema: InputSchema = {
           }
         ],
         continued: [
-          {
-            behavior: drive,
-            args: {
-              inputType: InputType.TWODIM,
-              value: [1, 0]
-            }
-          }
         ]
       },
       [BinaryValue.OFF]: {
         started: [
+          {
+            behavior: drive,
+            args: {
+              inputType: InputType.TWODIM,
+              value: [0, 0]
+            }
+          }
         ],
         continued: [
         ]
