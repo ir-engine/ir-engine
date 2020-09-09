@@ -17,7 +17,7 @@ export const IndexPage = (): any => {
 
   return(
     <Layout pageTitle="Home">
-      <input type="button" value="scene" onClick={() => { setSceneVisible(!sceneIsVisible); }} style={ buttonStyle } />
+      <input type="button" value="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }} style={ buttonStyle } />
       <NoSSR onSSR={<Loading/>}>
         {scene}
       </NoSSR>
