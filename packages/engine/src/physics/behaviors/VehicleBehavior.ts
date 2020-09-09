@@ -19,8 +19,8 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
 
     const [vehicle, wheelBodies] = createVehicleBody(entity);
     vehicleComponent.vehiclePhysics = vehicle;
+    //VehicleBody.instance.vehicleEntity = entity;
     vehicle.addToWorld(PhysicsManager.instance.physicsWorld);
-
     for (let i = 0; i < wheelBodies.length; i++) {
       PhysicsManager.instance.physicsWorld.addBody(wheelBodies[i]);
     }
@@ -32,22 +32,41 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
 
     if( vehicleComponent.vehiclePhysics != null && vehicleComponent.vehicleMesh != null){
 
-      const vehicle = vehicleComponent.vehiclePhysics.chassisBody;
-      //console.log(vehicleComponent);
-
+      const vehicle = vehicleComponent.vehiclePhysics;
+      const chassisBody = vehicle.chassisBody;
+      const wheels = vehicleComponent.arrayWheelsMesh
 
       transform.position.set(
-        vehicle.position.x,
-        vehicle.position.y,
-        vehicle.position.z
+        chassisBody.position.x,
+        chassisBody.position.y,
+        chassisBody.position.z
       )
 
       transform.rotation.set(
-        vehicle.quaternion.x,
-        vehicle.quaternion.y,
-        vehicle.quaternion.z,
-        vehicle.quaternion.w
+        chassisBody.quaternion.x,
+        chassisBody.quaternion.y,
+        chassisBody.quaternion.z,
+        chassisBody.quaternion.w
       )
+      for (let i = 0; i < wheels.length; i++) {
+
+        vehicle.updateWheelTransform(i);
+
+        wheels[i].position.set(
+          vehicle.wheelInfos[i].worldTransform.position.x,
+          vehicle.wheelInfos[i].worldTransform.position.y,
+          vehicle.wheelInfos[i].worldTransform.position.z
+        )
+
+        wheels[i].quaternion.set(
+          vehicle.wheelInfos[i].worldTransform.quaternion.x,
+          vehicle.wheelInfos[i].worldTransform.quaternion.y,
+          vehicle.wheelInfos[i].worldTransform.quaternion.z,
+          vehicle.wheelInfos[i].worldTransform.quaternion.w
+        )
+
+      }
+
 
 
   } else {
@@ -70,7 +89,7 @@ export function createVehicleBody (entity: Entity ): [RaycastVehicle, Body[]] {
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
   let chassisBody;
 
-  const chassisShape = new Box(new Vec3(1, 1.2, 3));
+  const chassisShape = new Box(new Vec3(1, 0.6, 2.2));
   chassisBody = new Body({ mass: 150 });
   chassisBody.addShape(chassisShape);
 
@@ -104,21 +123,21 @@ export function createVehicleBody (entity: Entity ): [RaycastVehicle, Body[]] {
     indexForwardAxis: 2
   });
 
-  options.chassisConnectionPointLocal.set(1.4, -0.6, 2.35);
+  options.chassisConnectionPointLocal.set(1, 0, 1.4);
   vehicle.addWheel(options);
 
-  options.chassisConnectionPointLocal.set(-1.4, -0.6, 2.35);
+  options.chassisConnectionPointLocal.set(-1, 0, 1.4);
   vehicle.addWheel(options);
 
-  options.chassisConnectionPointLocal.set(-1.4, -0.6, -2.2);
+  options.chassisConnectionPointLocal.set(-1, 0, -1.4);
   vehicle.addWheel(options);
 
-  options.chassisConnectionPointLocal.set(1.4, -0.6, -2.2);
+  options.chassisConnectionPointLocal.set(1, 0, -1.4);
   vehicle.addWheel(options);
 
   const wheelBodies = [];
   for (let i = 0; i < vehicle.wheelInfos.length; i++) {
-    const cylinderShape = new Cylinder(1, 1, 0.1, 20);
+    const cylinderShape = new Cylinder(0.7, 0.7, 0.1, 20);
     const wheelBody = new Body({
       mass: 0
     });
@@ -126,8 +145,7 @@ export function createVehicleBody (entity: Entity ): [RaycastVehicle, Body[]] {
     wheelBody.collisionFilterGroup = 0; // turn off collisions
     wheelBody.addShape(cylinderShape);
     wheelBodies.push(wheelBody);
-    // demo.addVisual(wheelBody);
-    // addBody(wheelBody);
+
   }
 
   return [vehicle, wheelBodies];
