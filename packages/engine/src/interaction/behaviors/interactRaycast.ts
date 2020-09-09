@@ -9,7 +9,13 @@ import { Interactive } from "../components/Interactive";
 import { Interacts } from "../components/Interacts";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 
-export const interactHover:Behavior = (entity: Entity, { interactive }:InteractBehaviorArguments, delta: number): void => {
+/**
+ * Checks if entity can interact with any of entities listed in 'interactive' array, checking distance, guards and raycast
+ * @param entity
+ * @param interactive
+ * @param delta
+ */
+export const interactRaycast:Behavior = (entity: Entity, { interactive }:InteractBehaviorArguments, delta: number): void => {
   const clientPosition = getComponent(entity, TransformComponent).position
 
   // TODO: this is only while we don't have InteractionPointers component, or similar data in Input
@@ -44,7 +50,7 @@ export const interactHover:Behavior = (entity: Entity, { interactive }:InteractB
 
   const character = getComponent(entity, CharacterComponent)
   if (!character.viewVector) {
-    console.warn('!character.viewVector')
+    // console.warn('!character.viewVector')
     return
   }
   const raycaster = new Raycaster();
@@ -59,5 +65,4 @@ export const interactHover:Behavior = (entity: Entity, { interactive }:InteractB
   const interacts = getMutableComponent(entity, Interacts)
   interacts.focusedRayHit = newRayHit
   interacts.focusedInteractive = newRayHit? (newRayHit.object as any).entity : null
-  console.log('focused', newRayHit)
 }
