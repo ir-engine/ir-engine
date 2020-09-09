@@ -33,7 +33,7 @@ export default {
       }
     ],
     update: [disallow()],
-    patch: [disallow('external')],
+    patch: [],
     // TODO: Need to ask if we allow user to remove party or not
     remove: [
       partyPermissionAuthenticate(),

@@ -11,6 +11,7 @@ export interface User {
   subscription: any
   subscriptions: any[]
   avatarUrl?: string
+  instanceId?: string
 }
 
 export const UserSeed = {

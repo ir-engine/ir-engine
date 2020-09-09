@@ -15,6 +15,10 @@ export default () => {
     await context.app.service('user').patch(loggedInUser.userId, {
       partyId: result.id
     });
+    const owner = await context.app.service('user').get(loggedInUser.userId);
+    if (owner.instanceId != null) {
+      await context.app.service('party').patch(result.id, { instanceId: owner.instanceId }, context.params);
+    }
     return context;
   }
 }
