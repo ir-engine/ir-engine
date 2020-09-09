@@ -172,34 +172,34 @@ export const CharacterInputSchema: InputSchema = {
     ' ': DefaultInput.JUMP,
     p: DefaultInput.POINTER_LOCK,
     f: DefaultInput.SWITCH_CAR
-    },
+  },
   // Map how inputs relate to each other
   inputRelationships: {
     [DefaultInput.FORWARD]: { opposes: [DefaultInput.BACKWARD] } as InputRelationship,
     [DefaultInput.BACKWARD]: { opposes: [DefaultInput.FORWARD] } as InputRelationship,
     [DefaultInput.LEFT]: { opposes: [DefaultInput.RIGHT] } as InputRelationship,
     [DefaultInput.RIGHT]: { opposes: [DefaultInput.LEFT] } as InputRelationship,
-    [DefaultInput.JUMP]: { } as InputRelationship
+    [DefaultInput.JUMP]: {} as InputRelationship
   },
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
     [DefaultInput.SWITCH_CAR]: {
       [BinaryValue.ON]: {
         started: [
-           {
-             behavior: getInCar,
-             args: {}
-           }
+          {
+            behavior: getInCar,
+            args: {}
+          }
         ]
       }
     },
     [DefaultInput.POINTER_LOCK]: {
       [BinaryValue.ON]: {
         started: [
-           {
-             behavior: cameraPointerLock,
-             args: {}
-           }
+          {
+            behavior: cameraPointerLock,
+            args: {}
+          }
         ]
       }
     },
@@ -212,14 +212,12 @@ export const CharacterInputSchema: InputSchema = {
           }
         ]
       },
-      [BinaryValue.OFF]: {
-        started: [
-          {
-            behavior: updateCharacterState,
-            args: {}
-          }
-        ]
-      }
+      [BinaryValue.OFF]: [
+        {
+          behavior: updateCharacterState,
+          args: {}
+        }
+      ]
     },
     [DefaultInput.FORWARD]: {
       [BinaryValue.ON]: {
@@ -241,12 +239,6 @@ export const CharacterInputSchema: InputSchema = {
               z: 1
             }
           }
-        ]
-      },
-      [BinaryValue.OFF]: {
-        started: [
-        ],
-        continued: [
         ]
       }
     },
@@ -271,12 +263,6 @@ export const CharacterInputSchema: InputSchema = {
             }
           }
         ]
-      },
-      [BinaryValue.OFF]: {
-        started: [
-        ],
-        continued: [
-        ]
       }
     },
     [DefaultInput.LEFT]: {
@@ -300,12 +286,6 @@ export const CharacterInputSchema: InputSchema = {
             }
           }
         ]
-      },
-      [BinaryValue.OFF]: {
-        started: [
-        ],
-        continued: [
-        ]
       }
     },
     [DefaultInput.RIGHT]: {
@@ -328,12 +308,6 @@ export const CharacterInputSchema: InputSchema = {
               x: -1
             }
           }
-        ]
-      },
-      [BinaryValue.OFF]: {
-        started: [
-        ],
-        continued: [
         ]
       }
     }
