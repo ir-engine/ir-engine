@@ -43,5 +43,5 @@ export const sendClientInput = (entity: Entity): void => {
 
   console.log("Sending client input!")
   // TODO: Send unreliably
-  Network.instance.transport.sendData(message); // Use default channel
+  Network.instance.transport.sendReliableData(message); // Use default channel
 };

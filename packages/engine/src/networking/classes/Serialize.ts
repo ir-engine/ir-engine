@@ -39,13 +39,14 @@ export class Serialize {
 
       for (var property in data) {
         if (data.hasOwnProperty(property)) {
+          console.log("PROPERTY: ", property)
           if (typeof data[property] === 'object') {
             // if data is array, but schemas is flat, use index 0 on the next iteration
             if (Array.isArray(data)) flatten(schema, data[parseInt(property)])
             else flatten(schema[property], data[property])
           } else {
             // handle special types e.g.:  "x: { type: int16, digits: 2 }"
-            if (schema[property]?.type?._type) {
+            if (schema[property]?.type?.type) {
               if (schema[property]?.digits) {
                 data[property] *= Math.pow(10, schema[property].digits)
                 data[property] = parseInt(data[property].toFixed(0))
@@ -54,13 +55,17 @@ export class Serialize {
                 const length = schema[property]?.length
                 data[property] = this.cropString(data[property], length)
               }
-              flat.push({ d: data[property], t: schema[property].type._type })
+              flat.push({ d: data[property], t: schema[property].type.type })
             } else {
               // crop strings to default lenght of 12 characters if nothing else is specified
-              if (schema[property]._type === 'String8' || schema[property]._type === 'String16') {
+              if(schema[property] && schema[property].type !== undefined){
+              if (schema[property].type === 'String8' || schema[property].type === 'String16') {
                 data[property] = this.cropString(data[property], 12)
               }
-              flat.push({ d: data[property], t: schema[property]._type })
+              flat.push({ d: data[property], t: schema[property].type })
+            } else {
+              console.warn("Schema property ", schema[property], " on ", property, " not properly handled")
+            }
             }
           }
         } else {
@@ -200,18 +205,18 @@ export class Serialize {
 
             // handle specialTypes e.g.:  "x: { type: int16, digits: 2 }"
             let specialTypes
-            if (prop?.type?._type && prop?.type?._bytes) {
+            if (prop?.type?.type && prop?.type?.bytes) {
               specialTypes = prop
-              prop._type = prop.type._type
-              prop._bytes = prop.type._bytes
+              prop.type = prop.type.type
+              prop.bytes = prop.type.bytes
             }
 
-            if (prop && prop['_type'] && prop['_bytes']) {
-              const _type = prop['_type']
-              const _bytes = prop['_bytes']
+            if (prop && prop['type'] && prop['bytes']) {
+              const type = prop['type']
+              const _bytes = prop['bytes']
               let value
 
-              if (_type === 'String8') {
+              if (type === 'String8') {
                 value = ''
                 const length = prop.length || 12
                 for (let i = 0; i < length; i++) {
@@ -220,7 +225,7 @@ export class Serialize {
                   bytes++
                 }
               }
-              if (_type === 'String16') {
+              if (type === 'String16') {
                 value = ''
                 const length = prop.length || 12
                 for (let i = 0; i < length; i++) {
@@ -229,43 +234,43 @@ export class Serialize {
                   bytes += 2
                 }
               }
-              if (_type === 'Int8Array') {
+              if (type === 'Int8Array') {
                 value = view.getInt8(bytes)
                 bytes += _bytes
               }
-              if (_type === 'Uint8Array') {
+              if (type === 'Uint8Array') {
                 value = view.getUint8(bytes)
                 bytes += _bytes
               }
-              if (_type === 'Int16Array') {
+              if (type === 'Int16Array') {
                 value = view.getInt16(bytes)
                 bytes += _bytes
               }
-              if (_type === 'Uint16Array') {
+              if (type === 'Uint16Array') {
                 value = view.getUint16(bytes)
                 bytes += _bytes
               }
-              if (_type === 'Int32Array') {
+              if (type === 'Int32Array') {
                 value = view.getInt32(bytes)
                 bytes += _bytes
               }
-              if (_type === 'Uint32Array') {
+              if (type === 'Uint32Array') {
                 value = view.getUint32(bytes)
                 bytes += _bytes
               }
-              if (_type === 'BigInt64Array') {
+              if (type === 'BigInt64Array') {
                 value = parseInt(view.getBigInt64(bytes).toString())
                 bytes += _bytes
               }
-              if (_type === 'BigUint64Array') {
+              if (type === 'BigUint64Array') {
                 value = parseInt(view.getBigUint64(bytes).toString())
                 bytes += _bytes
               }
-              if (_type === 'Float32Array') {
+              if (type === 'Float32Array') {
                 value = view.getFloat32(bytes)
                 bytes += _bytes
               }
-              if (_type === 'Float64Array') {
+              if (type === 'Float64Array') {
                 value = view.getFloat64(bytes)
                 bytes += _bytes
               }

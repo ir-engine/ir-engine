@@ -1,7 +1,8 @@
 import { Component } from '../../ecs/classes/Component';
 import { ID, Snapshot } from '../types/SnapshotDataTypes';
 
-/** A save place to store your snapshots. */
+/** Snapshot interpolation, based on this library by yandeu
+ * https://github.com/geckosio/snapshot-interpolation */
 export class NetworkInterpolation extends Component<any> {
   static instance: NetworkInterpolation
   public vault: Snapshot[] = []

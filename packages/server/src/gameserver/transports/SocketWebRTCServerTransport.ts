@@ -32,13 +32,22 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   router: Router
   transport: Transport
 
-  async sendData(data: any, channel: string = 'default', params: { type?: UnreliableMessageType } = {}): Promise<UnreliableMessageReturn> {
-    return this.transport.produceData({
-      appData: { data },
-      sctpStreamParameters: data.sctpStreamParameters,
-      label: channel,
-      protocol: params.type || 'raw'
-    })
+  sendReliableData(message: any): void {
+    this.socketIO.sockets.emit(MessageTypes.ReliableMessage.toString(), message)
+  }
+
+  async sendData(data: any, channel: string = 'default'): Promise<UnreliableMessageReturn> {
+    if (this.transport === undefined) return
+    try {
+      return await this.transport.produceData({
+        appData: { data },
+        sctpStreamParameters: data.sctpStreamParameters,
+        label: channel,
+        protocol: 'raw'
+      })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   public async initialize(address, port = 3030): Promise<void> {
@@ -81,6 +90,22 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         dataConsumers: new Map<string, DataConsumer>(), // Key => id of data producer
         dataProducers: new Map<string, DataProducer>() // Key => label of data channel
       }
+      
+      console.log("Message handlers")
+      console.log(Network.instance.schema.messageHandlers)
+      // Call all message handlers associated with client connection
+  Network.instance.schema.messageHandlers[MessageTypes.ClientConnected].forEach(behavior => {
+    console.log("Calling behavior")
+    behavior.behavior(
+      { id: socket.id },
+    )
+  })
+
+       // If a reliable message is received, add it to the queue
+       socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
+         console.log("Received message", message)
+          Network.instance.incomingMessageQueue.add(message.data)
+        })
 
       // Handle the disconnection
       socket.on("disconnect", () => {
@@ -142,6 +167,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           { peerId, direction, sctpCapabilities }
         )
 
+        this.transport = transport
+
         await transport.setMaxIncomingBitrate(config.mediasoup.webRtcTransport.maxIncomingBitrate)
 
         MediaStreamComponent.instance.transports[transport.id] = transport
@@ -172,31 +199,31 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
       socket.on(MessageTypes.WebRTCProduceData.toString(), async (params, callback) => {
         logger.info('Produce Data handler')
-        if (!params.label) throw ({ error: 'data producer label i.e. channel name is not provided!' })
-        const { transportId, sctpStreamParameters, label, protocol, appData } = params
-        logger.info("Data channel label: `'${label}'` -- client id: " + socket.id)
-        logger.info("Data producer params", params)
-        const transport: Transport = MediaStreamComponent.instance.transports[transportId]
-        const options: DataProducerOptions = {
-          label,
-          protocol,
-          sctpStreamParameters,
-          appData: { ...(appData || {}), peerID: socket.id, transportId }
-        }
-        const dataProducer = await transport.produceData(options)
-
-        Network.instance.clients[socket.id].dataProducers.set(label, dataProducer)
-
-        // if our associated transport closes, close ourself, too
-        dataProducer.on("transportclose", () => {
-          logger.info("data producer's transport closed: " + dataProducer.id)
-          dataProducer.close()
-          Network.instance.clients[socket.id].dataProducers.delete(socket.id)
-        })
-        // Possibly do stuff with appData here
-        logger.info("Sending dataproducer id to client:" + dataProducer.id)
         try {
-        return callback({ id: dataProducer.id })
+          if (!params.label) throw ({ error: 'data producer label i.e. channel name is not provided!' })
+          const { transportId, sctpStreamParameters, label, protocol, appData } = params
+          logger.info("Data channel label: `'${label}'` -- client id: " + socket.id)
+          logger.info("Data producer params", params)
+          const transport: Transport = MediaStreamComponent.instance.transports[transportId]
+          const options: DataProducerOptions = {
+            label,
+            protocol,
+            sctpStreamParameters,
+            appData: { ...(appData || {}), peerID: socket.id, transportId }
+          }
+          const dataProducer = await transport.produceData(options)
+
+          Network.instance.clients[socket.id].dataProducers.set(label, dataProducer)
+
+          // if our associated transport closes, close ourself, too
+          dataProducer.on("transportclose", () => {
+            logger.info("data producer's transport closed: " + dataProducer.id)
+            dataProducer.close()
+            Network.instance.clients[socket.id].dataProducers.delete(socket.id)
+          })
+          // Possibly do stuff with appData here
+          logger.info("Sending dataproducer id to client:" + dataProducer.id)
+          return callback({ id: dataProducer.id })
         } catch (error) {
           console.log(error)
         }

@@ -5,4 +5,5 @@ export interface NetworkTransport {
   isServer: boolean
   initialize(address?: string, port?: number): void | Promise<void>
   sendData(data: any, channel?: string, params?: any): Promise<ClientDataProducer | DataProducer | Error>
+  sendReliableData(data: any): void
 }

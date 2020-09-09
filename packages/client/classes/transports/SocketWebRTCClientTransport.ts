@@ -8,6 +8,8 @@ import { UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine
 import * as mediasoupClient from "mediasoup-client";
 import { DataConsumerOptions, DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 import ioclient from "socket.io-client";
+import { Network } from "@xr3ngine/engine/src/networking/components/Network";
+import { worldStateModel } from "@xr3ngine/engine/src/networking/schema/worldStateSchema";
 
 const Device = mediasoupClient.Device;
 
@@ -30,6 +32,16 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   localScreen: any;
   lastPoll: Date;
   pollPending = false;
+
+    /**
+   * Send a message over TCP with socket.io
+   * You should probably want {@link @xr3ngine/packages/enginge/src/networking/functions/NetworkFunctions.ts#sendMessage}
+   * @param message message to send
+   */
+  sendReliableData(message): void {
+    console.log("Sending reliable message ", message)
+    this.socket.emit(message);
+  }
 
   // send and init are done separately to make it a bit more readable
   // sendTransport should be available before initializing data channel
@@ -59,7 +71,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   // Create data consumer and subscribe to the other client's producer when signalled
   handleDataConsumerCreation = async (options: DataConsumerOptions) => {
+    console.log("Data consumer creation")
     const dataConsumer = await this.recvTransport.consumeData(options)
+    console.log("Data consumer created")
+
     dataConsumer.on('message', handleDataChannelConsumerMessage(dataConsumer)) // Handle message received
     dataConsumer.on('close', () => {
       dataConsumer.close()
@@ -97,6 +112,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.socket.on("connect", async () => {
       console.log("Connected!");
 
+    // If a reliable message is received, add it to the queue
+    this.socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
+      console.log("Adding ", worldStateModel.fromBuffer(message), " to queue")
+      Network.instance.incomingMessageQueue.add(message)
+    })
+
       // use sendBeacon to tell the server we're disconnecting when
       // the page unloads
       window.addEventListener("unload", async () => {
@@ -132,6 +153,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
     const { worldState, routerRtpCapabilities } = resp as any;
 
+    console.log("World state init: ")
+    console.log(worldState)
     // TODO: This shouldn't be in the transport, should be in our network system somehow
     // Apply all state to initial frame
     applyWorldState(worldState, 1, false)
@@ -456,6 +479,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
             appData
           });
           if (error) {
+            console.log(error)
             errback();
             return 
           }

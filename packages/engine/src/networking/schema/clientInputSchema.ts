@@ -4,7 +4,7 @@ import { Model } from "../classes/Model";
 
 const inputKeySchema = createSchema('button', {
   input: uint8,
-  value: uint8,
+  value: float32,
   lifecycleValue: uint8
 });
 

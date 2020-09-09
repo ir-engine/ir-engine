@@ -15,6 +15,7 @@ import {
 } from '../../../redux/chat/service';
 import { connect } from 'react-redux';
 import VideoChat from "../VideoChat";
+import NoSSR from "react-no-ssr"
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -59,6 +60,7 @@ export const DrawerControls = (props: Props): JSX.Element => {
   };
   return (
     <AppBar className="bottom-appbar">
+      <NoSSR>
       <VideoChat/>
       <Button onClick={openInvite}>
         <PersonAdd />
@@ -69,6 +71,7 @@ export const DrawerControls = (props: Props): JSX.Element => {
       <Button onClick={openPeople}>
         <People/>
       </Button>
+      </NoSSR>
     </AppBar>
   );
 };

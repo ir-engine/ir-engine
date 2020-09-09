@@ -1,6 +1,6 @@
-import { createSchema } from "../functions/createSchema";
-import { uint16, uint8, int16, int64, float32, string8 } from "../../common/types/DataTypes";
+import { float32, string8, uint16, uint64, uint8 } from "../../common/types/DataTypes";
 import { Model } from "../classes/Model";
+import { createSchema } from "../functions/createSchema";
 import { inputKeyArraySchema } from "./clientInputSchema";
 
 const rotationSchema = createSchema('rotation', {
@@ -12,17 +12,17 @@ const rotationSchema = createSchema('rotation', {
 
 const clientConnectedSchema = createSchema('clientConnected', {
     clientId: uint8,
-    userId: string8
+    userId: { type: string8, length: 16 }
 })
 
 const clientDisconnectedSchema = createSchema('clientDisconnected', {
     clientId: uint8,
-    userId: string8
+    userId: { type: string8, length: 16 }
 })
 
 const createNetworkObjectSchema = createSchema('createNetworkObject', {
     networkId: uint16,
-    ownerId: string8,
+    ownerId: { type: string8, length: 16 },
     prefabType: uint8,
     x: float32,
     y: float32,
@@ -43,7 +43,7 @@ const transformSchema = createSchema('transform', {
 });
 
 const worldStateSchema = createSchema('worldState', {
-    tick: uint16,
+    tick: uint64,
     transforms: [transformSchema],
     inputs: [inputKeyArraySchema],
     clientsConnected: [clientConnectedSchema],
