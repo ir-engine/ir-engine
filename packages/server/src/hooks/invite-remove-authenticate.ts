@@ -7,8 +7,10 @@ export default () => {
   return async (context: HookContext): Promise<HookContext> => {
     let inviteIdentityProviderUser
     // Getting logged in user and attaching owner of user
-    const { id, params, app, path } = context
+    const { id, params, app } = context
+    console.log(context)
     const loggedInUser = extractLoggedInUserFromParams(params)
+    console.log(loggedInUser);
     const invite = await app.service('invite').get(id)
     if (invite == null) {
       throw new BadRequest('Invalid invite ID')

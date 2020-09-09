@@ -1,11 +1,33 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import NoSSR from 'react-no-ssr';
 
-import Scene from "../components/gl/scene";
+import Scene, {EnginePage} from "../components/gl/scene";
 import Loading from '../components/gl/loading';
 import Layout from '../components/ui/Layout';
-export const IndexPage = (): any => {
+import { selectAuthState } from "../redux/auth/selector";
+import {selectInstanceConnectionState} from "../redux/instanceConnection/selector";
+import {bindActionCreators, Dispatch} from "redux";
+import {connect} from "react-redux";
 
+
+interface Props {
+    authState?: any;
+}
+
+const mapStateToProps = (state: any): any => {
+    return {
+        authState: selectAuthState(state)
+    };
+};
+
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+});
+
+export const IndexPage = (props: any): any => {
+    const {
+        authState
+    } = props;
+    const selfUser = authState.get('user');
   const [ sceneIsVisible, setSceneVisible ] = React.useState(false);
   const scene = sceneIsVisible? (<Scene />) : null;
 
@@ -14,6 +36,12 @@ export const IndexPage = (): any => {
     "bottom": '5px',
     "right": '5px'
   };
+
+  useEffect(() => {
+      if (selfUser.instanceId != null) {
+          setSceneVisible(true);
+      }
+  }, [selfUser.instanceId]);
 
   return(
     <Layout pageTitle="Home">
@@ -25,4 +53,4 @@ export const IndexPage = (): any => {
   );
 };
 
-export default IndexPage;
+export default connect(mapStateToProps, mapDispatchToProps)(IndexPage);

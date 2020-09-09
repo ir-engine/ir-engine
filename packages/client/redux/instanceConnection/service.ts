@@ -10,9 +10,11 @@ import {
 export function provisionInstanceServer (locationId: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
+      const token = getState().get('auth').get('authUser').accessToken;
       const provisionResult = await client.service('instance-provision').find({
         query: {
-          locationId: locationId
+          locationId: locationId,
+          token: token
         }
       });
       console.log(provisionResult);

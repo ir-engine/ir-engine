@@ -1,12 +1,12 @@
-import { AssetLoader } from "@xr3ngine/engine/src/assets/components/AssetLoader";
+import { AssetLoader } from '@xr3ngine/engine/src/assets/components/AssetLoader';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
-import { Object3DComponent } from "@xr3ngine/engine/src/common/components/Object3DComponent";
+import { Object3DComponent } from '@xr3ngine/engine/src/common/components/Object3DComponent';
 import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
 import { addComponent, createEntity, getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { DefaultInitializationOptions, initializeEngine } from "@xr3ngine/engine/src/initialize";
+import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
-import { PlayerCharacter } from "@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter";
+import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import React, { FunctionComponent, useEffect, useState } from 'react';
@@ -14,14 +14,34 @@ import { AmbientLight } from 'three';
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
-import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
-import { CarController } from "@xr3ngine/engine/src/templates/car/prefabs/CarController";
-import { rigidBodyBox2 } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox2";
-import { rigidBodyBox } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox";
+import { staticWorldColliders } from '@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders';
+import { CarController } from '@xr3ngine/engine/src/templates/car/prefabs/CarController';
+import { rigidBodyBox2 } from '@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox2';
+import { rigidBodyBox } from '@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox';
+import {selectInstanceConnectionState} from '../../redux/instanceConnection/selector';
+import {bindActionCreators, Dispatch} from 'redux';
+import {connectToInstanceServer, provisionInstanceServer} from '../../redux/instanceConnection/service';
+import {connect} from 'react-redux';
 
+const locationId = 'e3523270-ddb7-11ea-9251-75ab611a30da';
+const locationId2 = '489ec2b1-f6b2-46b5-af84-92d094927dd7';
+const mapStateToProps = (state: any): any => {
+  return {
+    instanceConnectionState: selectInstanceConnectionState(state)
+  };
+};
+
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+  provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
+  connectToInstanceServer: bindActionCreators(connectToInstanceServer, dispatch)
+});
 
 export const EnginePage: FunctionComponent = (props: any) => {
-
+  const {
+    instanceConnectionState,
+    connectToInstanceServer,
+    provisionInstanceServer
+  } = props;
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
@@ -133,6 +153,17 @@ export const EnginePage: FunctionComponent = (props: any) => {
     };
   });
 
+  useEffect(() => {
+    if (instanceConnectionState.get('instanceProvisioned') === true && instanceConnectionState.get('readyToConnect') === true) {
+      console.log('Calling connectToInstanceServer');
+      connectToInstanceServer();
+    }
+  }, [instanceConnectionState]);
+
+  useEffect(() => {
+    provisionInstanceServer(locationId);
+  }, []);
+
   const toggleEnabled = (): void => {
     console.log("enabled ", enabled);
     if (enabled === true) {
@@ -159,4 +190,4 @@ export const EnginePage: FunctionComponent = (props: any) => {
   );
 };
 
-export default EnginePage;
+export default connect(mapStateToProps, mapDispatchToProps)(EnginePage);

@@ -108,6 +108,19 @@ export function removePartyUser(partyUserId: string) {
   };
 }
 
+export function transferPartyOwner(partyUserId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      await client.service('party-user').patch(partyUserId, {
+        isOwner: 1
+      });
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
 client.service('party-user').on('created', (params) => {
   store.dispatch(createdPartyUser(params.partyUser));
 });

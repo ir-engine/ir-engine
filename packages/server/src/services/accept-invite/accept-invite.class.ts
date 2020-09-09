@@ -172,7 +172,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
         }
       }
 
-      await this.app.service('invite').remove(invite.id);
+      await this.app.service('invite').remove(invite.id, params);
     } catch (err) {
       console.log(err)
     }
