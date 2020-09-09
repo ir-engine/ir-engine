@@ -55,7 +55,6 @@ export class AcceptInvite implements ServiceMethods<Data> {
           inviteeIdentityProvider = (inviteeIdentityProviderResult as any).data[0]
         }
 
-        console.log(inviteeIdentityProvider)
         if (invite.inviteType === 'friend') {
           const existingRelationshipResult = await this.app.service('user-relationship').find({
             query: {
@@ -64,8 +63,6 @@ export class AcceptInvite implements ServiceMethods<Data> {
               relatedUserId: inviteeIdentityProvider.userId
             }
           })
-
-          console.log(existingRelationshipResult)
 
           if ((existingRelationshipResult as any).total === 0) {
             await this.app.service('user-relationship').create({
@@ -80,32 +77,29 @@ export class AcceptInvite implements ServiceMethods<Data> {
             userId: (inviteeIdentityProvider).userId
           }, params)
         } else if (invite.inviteType === 'group') {
-          console.log('Adding group user:')
           const group = await this.app.service('group').get(invite.targetObjectId)
-          console.log(group)
 
           if (group == null) {
             return new BadRequest('Invalid group ID')
           }
 
-          console.log(inviteeIdentityProvider.userId)
-          console.log(invite.targetObjectId)
           await this.app.service('group-user').create({
             userId: inviteeIdentityProvider.userId,
             groupId: invite.targetObjectId,
             groupUserRank: 'user'
           })
         } else if (invite.inviteType === 'party') {
-          console.log('Adding party user:')
           const party = await this.app.service('party').get(invite.targetObjectId, params)
-          console.log(party)
 
           if (party == null) {
             return new BadRequest('Invalid party ID')
           }
 
-          console.log(inviteeIdentityProvider.userId)
-          console.log(invite.targetObjectId)
+          await this.app.service('user').patch(inviteeIdentityProvider.userId, {
+            partyId: invite.targetObjectId,
+            instanceId: party.instanceId
+          })
+
           await this.app.service('party-user').create({
             userId: inviteeIdentityProvider.userId,
             partyId: invite.targetObjectId,
@@ -127,9 +121,6 @@ export class AcceptInvite implements ServiceMethods<Data> {
               relatedUserId: invite.inviteeId
             }
           })
-
-          console.log('existingRelationshipResult:')
-          console.log(existingRelationshipResult)
 
           if ((existingRelationshipResult as any).total > 0) {
             await this.app.service('user-relationship').patch(invite.userId, {
@@ -156,6 +147,11 @@ export class AcceptInvite implements ServiceMethods<Data> {
             return new BadRequest('Invalid party ID')
           }
 
+          await this.app.service('user').patch(invite.inviteeId, {
+            partyId: invite.targetObjectId,
+            instanceId: party.instanceId
+          })
+
           await this.app.service('party-user').create({
             userId: invite.inviteeId,
             partyId: invite.targetObjectId,
@@ -164,7 +160,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
         }
       }
 
-      // await this.app.service('invite').remove(invite.id)
+      await this.app.service('invite').remove(invite.id, params);
     } catch (err) {
       console.log(err)
     }

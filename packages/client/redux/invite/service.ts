@@ -5,14 +5,20 @@ import {
   sentInvite,
   retrievedReceivedInvites,
   retrievedSentInvites,
-  removedInvite,
+  createdReceivedInvite,
+  removedReceivedInvite,
+  createdSentInvite,
+  removedSentInvite,
   acceptedInvite,
   declinedInvite,
   setInviteTarget,
   fetchingReceivedInvites,
-  fetchingSentInvites
+  fetchingSentInvites,
 } from './actions';
+import { Invite } from '@xr3ngine/common/interfaces/Invite';
 import {dispatchAlertError} from '../alert/service';
+import store from "../store";
+import {User} from "../../../common/interfaces/User";
 
 const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 const phoneRegex = /^[0-9]{10}$/;
@@ -102,19 +108,15 @@ export function retrieveSentInvites(skip?: number, limit?: number) {
   };
 }
 
-function removeInvite(inviteId: string) {
+export function removeInvite(invite: Invite) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      await client.service('invite').remove(inviteId);
-      dispatch(removedInvite());
+      await client.service('invite').remove(invite.id);
+      dispatch(removedSentInvite());
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);}
   };
-}
-
-export function deleteInvite(inviteId: string) {
-  return removeInvite(inviteId);
 }
 
 export function acceptInvite(inviteId: string, passcode: string) {
@@ -132,10 +134,10 @@ export function acceptInvite(inviteId: string, passcode: string) {
   };
 }
 
-export function declineInvite(inviteId: string) {
+export function declineInvite(invite: Invite) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      await client.service('invite').remove(inviteId);
+      await client.service('invite').remove(invite.id);
       dispatch(declinedInvite());
     } catch(err) {
       dispatchAlertError(dispatch, err.message);}
@@ -147,3 +149,23 @@ export function updateInviteTarget(targetObjectType?: string, targetObjectId?: s
     dispatch(setInviteTarget(targetObjectType, targetObjectId));
   };
 }
+
+client.service('invite').on('created', (params) => {
+  const invite = params.invite;
+  const selfUser = (store.getState() as any).get('auth').get('user') as User;
+  if (invite.userId === selfUser.id) {
+    store.dispatch(createdSentInvite());
+  } else {
+    store.dispatch(createdReceivedInvite());
+  }
+});
+
+client.service('invite').on('removed', (params) => {
+  const invite = params.invite;
+  const selfUser = (store.getState() as any).get('auth').get('user') as User;
+  if (invite.userId === selfUser.id) {
+    store.dispatch(removedSentInvite());
+  } else {
+    store.dispatch(removedReceivedInvite());
+  }
+});

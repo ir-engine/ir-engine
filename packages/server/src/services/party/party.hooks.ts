@@ -25,12 +25,15 @@ export default {
         })
         if (currentPartyUser.total > 0) {
           await context.app.service('party-user').remove(currentPartyUser.data[0].id)
+          await context.app.service('user').patch(loggedInUser.userId, {
+            partyId: null
+          })
         }
         return context
       }
     ],
     update: [disallow()],
-    patch: [disallow()],
+    patch: [],
     // TODO: Need to ask if we allow user to remove party or not
     remove: [
       partyPermissionAuthenticate(),

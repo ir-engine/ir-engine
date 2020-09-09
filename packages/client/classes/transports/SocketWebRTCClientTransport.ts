@@ -103,7 +103,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log(`Initializing client transport to ${address}:${port}`);
     this.mediasoupDevice = new Device();
 
-    this.socket = ioclient(`${address}:${port}`);
+    this.socket = ioclient(`${address}:${port}`, {
+      query: {
+        cool: 'pants'
+      }
+    });
     this.request = this.promisedRequest(this.socket);
 
     // window.screenshare = await this.startScreensharea

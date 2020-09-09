@@ -1,3 +1,5 @@
+import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
+import { getInCar } from '@xr3ngine/engine/src/physics/behaviors/getInCarBehavior';
 import { BinaryValue } from '../../common/enums/BinaryValue';
 import { Thumbsticks } from '../../common/enums/Thumbsticks';
 import { disableScroll, enableScroll } from '../../common/functions/enableDisableScrolling';
@@ -10,11 +12,6 @@ import { MouseInput } from '../../input/enums/MouseInput';
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
 import { DefaultInput } from '../shared/DefaultInput';
-import { jumpStart } from "./behaviors/jumpStart";
-import { move } from './behaviors/move';
-import { rotateAround } from './behaviors/rotate';
-import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
-import { getInCar } from '@xr3ngine/engine/src/physics/behaviors/getInCarBehavior';
 import { setArcadeVelocityTarget } from './behaviors/setArcadeVelocityTarget';
 import { updateCharacterState } from "./behaviors/updateCharacterState";
 

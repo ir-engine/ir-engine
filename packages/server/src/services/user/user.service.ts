@@ -43,8 +43,8 @@ export default (app: Application): void => {
         }
       })
 
-      let targetIds = []
-      const updatePromises = []
+      let targetIds = [data.id];
+      const updatePromises = [];
 
       groupUsers.forEach((groupUser) => {
         updatePromises.push(app.service('group-user').patch(groupUser.id, {

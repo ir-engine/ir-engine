@@ -1,9 +1,11 @@
-import * as authentication from '@feathersjs/authentication'
-import partyPermissionAuthenticate from '../../hooks/party-permission-authenticate'
-import partyUserPermissionAuthenticate from '../../hooks/party-user-permission-authenticate'
-import { HookContext } from '@feathersjs/feathers'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
-import collectAnalytics from '../../hooks/collect-analytics'
+import * as authentication from '@feathersjs/authentication';
+import partyPermissionAuthenticate from '../../hooks/party-permission-authenticate';
+import partyUserPermissionAuthenticate from '../../hooks/party-user-permission-authenticate';
+import { HookContext } from '@feathersjs/feathers';
+import { disallow, iff, isProvider } from 'feathers-hooks-common';
+import collectAnalytics from '../../hooks/collect-analytics';
+import unsetSelfPartyOwner from '../../hooks/unset-self-party-owner';
+import checkPartyInstanceSize from '../../hooks/check-party-instance-size';
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -21,7 +23,9 @@ export default {
     get: [],
     create: [disallow('external')],
     update: [disallow()],
-    patch: [],
+    patch: [
+        partyPermissionAuthenticate()
+    ],
     remove: [
       partyPermissionAuthenticate()
     ]
@@ -45,9 +49,13 @@ export default {
         return context
       }
     ],
-    create: [],
+    create: [
+        checkPartyInstanceSize()
+    ],
     update: [],
-    patch: [],
+    patch: [
+        unsetSelfPartyOwner()
+    ],
     remove: [
       async (context: HookContext) => {
         const { app, params } = context

@@ -11,6 +11,7 @@ import {
 } from './actions';
 import { dispatchAlertError } from '../alert/service';
 import store from './../store';
+import { User } from '@xr3ngine/common/interfaces/User';
 // import { Party } from '@xr3ngine/common/interfaces/Party'
 
 export function getParty () {
@@ -101,6 +102,19 @@ export function removePartyUser(partyUserId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       await client.service('party-user').remove(partyUserId);
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+export function transferPartyOwner(partyUserId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      await client.service('party-user').patch(partyUserId, {
+        isOwner: 1
+      });
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);

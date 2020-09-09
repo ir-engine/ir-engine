@@ -1,6 +1,7 @@
 import { BehaviorValue } from '../../common/interfaces/BehaviorValue';
 import { InputAlias } from '../types/InputAlias';
 import { InputRelationship } from './InputRelationship';
+import { BinaryValue } from '../../common/enums/BinaryValue';
 
 export interface InputSchema {
   // Called by input system when an Input component is added
@@ -40,19 +41,22 @@ export interface InputSchema {
     // input name / alias
     [key: number]: {
       // binary state (on, off)
-      [key: number]: {
+      [BinaryValue.ON]: {
         started?: BehaviorValue[]
         continued?: BehaviorValue[]
-        ended?: BehaviorValue[]
       }
+      [BinaryValue.OFF]: BehaviorValue[]
     }
   }
   inputAxisBehaviors: {
     // input name / alias
     [key: number]: {
-      started?: BehaviorValue[]
-      continued?: BehaviorValue[]
-      ended?: BehaviorValue[]
+      // binary state (on, off)
+      [BinaryValue.ON]: {
+        started?: BehaviorValue[]
+        continued?: BehaviorValue[]
+      }
+      [BinaryValue.OFF]: BehaviorValue[]
     }
   }
 }

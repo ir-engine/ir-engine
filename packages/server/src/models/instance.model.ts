@@ -28,7 +28,7 @@ export default (app: Application): any => {
 
   (instance as any).associate = (models: any) => {
     (instance as any).belongsTo(models.location);
-    (instance as any).hasMany(models.user)
+    (instance as any).hasMany(models.user, { foreignKey: {allowNull: true }})
   }
   return instance
 }

@@ -10,7 +10,10 @@ import {
   SENT_INVITES_RETRIEVED,
   RECEIVED_INVITES_RETRIEVED,
   INVITE_SENT,
-  REMOVED_INVITE,
+  CREATED_RECEIVED_INVITE,
+  REMOVED_RECEIVED_INVITE,
+  CREATED_SENT_INVITE,
+  REMOVED_SENT_INVITE,
   ACCEPTED_INVITE,
   DECLINED_INVITE,
   INVITE_TARGET_SET,
@@ -70,7 +73,13 @@ const inviteReducer = (state = immutableState, action: InviteAction): any => {
           .set('receivedInvites', updateMap)
           .set('receivedUpdateNeeded', false)
           .set('getReceivedInvitesInProgress', false);
-    case REMOVED_INVITE:
+    case CREATED_RECEIVED_INVITE:
+      return state.set('receivedUpdateNeeded', true);
+    case CREATED_SENT_INVITE:
+      return state.set('sentUpdateNeeded', true);
+    case REMOVED_RECEIVED_INVITE:
+      return state.set('receivedUpdateNeeded', true);
+    case REMOVED_SENT_INVITE:
       return state.set('sentUpdateNeeded', true);
     case ACCEPTED_INVITE:
       return state.set('receivedUpdateNeeded', true);
