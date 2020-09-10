@@ -32,22 +32,20 @@ export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
   const asset = args.asset
   let deleteArr = []
   let arrayWheels = []
+   asset.children.forEach( mesh => { // scene gld
 
-   asset.scene.traverse( mesh => {
-     //console.log(mesh);
-
-     if (mesh.name == 'body') {
+     if (mesh.name == 'Body') {
        mesh.scale.set(1.7,1.7,1.7)
        vehicleComponent.vehicleMesh = mesh
      }
 
 
 
-     if (mesh.userData.data == "collision") {
+     if (mesh.name == "Collider" || mesh.name == "Window") { // mesh.userData.data
        deleteArr.push(mesh)
      }
 
-     if (mesh.userData.data == "wheel") {
+     if (mesh.name.substring(0,5) == "wheel") {
         mesh.scale.set(1.7,1.7,1.7)
         deleteArr.push(mesh)
         vehicleComponent.arrayWheelsMesh.push(mesh.clone())

@@ -34,7 +34,7 @@ export const CarController: Prefab = {
                 // so this will be new Mesh(new BoxBufferGeometry(0.2, 0.2, 0.2))
                 component: AssetLoader,
                 componentArgs: {
-                    url: "models/car.glb",
+                    url: "models/newTestCar.fbx", //  "models/car.glb"
                     receiveShadow: true,
                     castShadow: true,
                     onLoaded: addCarPhysics
