@@ -14,6 +14,8 @@ export const sendClientInput = (entity: Entity): void => {
 
   // Get the input component
   const input = getComponent(entity, Input)
+  if(input.data.size < 1) return
+  console.log(input.data)
   // Create a schema for input to send
   const inputs = {
     buttons: {},
@@ -39,9 +41,8 @@ export const sendClientInput = (entity: Entity): void => {
   }
 
   // Convert to a message buffer
-  const message = clientInputModel.toBuffer(inputs)
+  const message = inputs // clientInputModel.toBuffer(inputs)
 
-  console.log("Sending client input!")
   // TODO: Send unreliably
   Network.instance.transport.sendReliableData(message); // Use default channel
 };

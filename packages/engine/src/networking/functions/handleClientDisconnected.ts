@@ -8,7 +8,7 @@ export const handleClientDisconnected = (args: { id: any; }) => {
     return;
 
   if (!Network.instance.clients[args.id])
-    return console.error('Client is not in client list');
+    console.warn('Client is not in client list');
 
   // Find all network objects that the disconnecting client owns and remove them
   let networkObjectsClientOwns = [];
@@ -23,6 +23,8 @@ export const handleClientDisconnected = (args: { id: any; }) => {
   networkObjectsClientOwns.forEach(obj => {
     // Get the entity attached to the NetworkObjectComponent and remove it
     console.log("Removed entity ", (obj.component.entity as Entity).id, " for user ", args.id);
+    if(Network.instance.worldState.inputs[obj.networkId]) delete Network.instance.worldState.inputs[obj.networkId]
+
     const removeMessage = { networkId: obj.networkId }
     Network.instance.worldState.destroyObjects.push(removeMessage)
     removeEntity(obj.component.entity);
@@ -30,5 +32,6 @@ export const handleClientDisconnected = (args: { id: any; }) => {
 
   // Remove entity and character
   console.log("Removed user ", args.id);
+  if (Network.instance.clients[args.id])
   delete Network.instance.clients[args.id];
 };

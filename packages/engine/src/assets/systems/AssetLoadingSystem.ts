@@ -20,6 +20,7 @@ import { Model } from '../components/Model';
 import { Unload } from '../components/Unload';
 import { AssetClass } from '../enums/AssetClass';
 import { getAssetClass, getAssetType, loadAsset } from '../functions/LoadingFunctions';
+import { isBrowser } from '../../common/functions/isBrowser';
 
 export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
@@ -46,6 +47,7 @@ export default class AssetLoadingSystem extends System {
       // Check if the vault already contains the asset
       // If it does, get it so we don't need to reload it
       // Load the asset with a calback to add it to our processing queue
+      if(isBrowser) // Only load asset on browser, as it uses browser-specific requests
       loadAsset(assetLoader.url, entity, (entity, { asset }) => {
         // This loads the editor scene
         this.loaded.set(entity, asset);

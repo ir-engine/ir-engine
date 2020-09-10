@@ -7,10 +7,10 @@ import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { State } from '../../state/components/State';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { addInputToWorldState } from '../behaviors/addInputToWorldState';
-import { addNetworkTransformToWorldState } from '../behaviors/addNetworkTransformToWorldState';
-import { handleUpdateFromServer } from '../behaviors/handleUpdateFromServer';
-import { sendClientInput as sendClientInputToServer } from '../behaviors/sendClientInput';
+import { addInputToWorldState } from '../functions/addInputToWorldState';
+import { addNetworkTransformToWorldState } from '../functions/addNetworkTransformToWorldState';
+import { handleUpdateFromServer } from '../functions/handleUpdateFromServer';
+import { sendClientInput as sendClientInputToServer } from '../functions/sendClientInput';
 import { Network } from '../components/Network';
 import { NetworkClient } from '../components/NetworkClient';
 import { NetworkInterpolation } from '../components/NetworkInterpolation';
@@ -94,7 +94,7 @@ export class NetworkSystem extends System {
       // Create the snapshot and add it to the world state on the server
       addSnapshot(createSnapshot(Network.instance.worldState.transforms))
 
-      const ws = worldStateModel.toBuffer(Network.instance.worldState)
+      const ws = Network.instance.worldState // worldStateModel.toBuffer(Network.instance.worldState)
       // Send the message to all connected clients
       Network.instance.transport.sendReliableData(ws); // Use default channel
 

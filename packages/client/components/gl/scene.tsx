@@ -124,18 +124,18 @@ export const EnginePage: FunctionComponent = (props: any) => {
     });
 
 
-    const player = createPrefab(PlayerCharacter);
-    addComponent(player, Interacts);
+    // const player = createPrefab(PlayerCharacter);
+    // addComponent(player, Interacts);
 
     createPrefab(staticWorldColliders);
     //createPrefab(rigidBodyBox);
     //createPrefab(rigidBodyBox2);
-    createPrefab(CarController);
+    // createPrefab(CarController);
 
-    const iBox = createPrefab(interactiveBox);
-    getMutableComponent(iBox, TransformComponent).position.set(2,1,2);
-    const box = getComponent(iBox, Object3DComponent).value as Mesh;
-    box.name = 'green box';
+    // const iBox = createPrefab(interactiveBox);
+    // getMutableComponent(iBox, TransformComponent).position.set(2,1,2);
+    // const box = getComponent(iBox, Object3DComponent).value as Mesh;
+    // box.name = 'green box';
 
 
 
