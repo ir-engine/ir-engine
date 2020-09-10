@@ -24,8 +24,8 @@ export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
   addComponent(entity, VehicleBody);
   addComponent(entity, VehicleComponent);
 
-  addComponent(entity, LocalInputReceiver)
-  addComponent(entity, FollowCameraComponent, { distance: 5, mode: "thirdPerson" })
+  // addComponent(entity, LocalInputReceiver)
+  // addComponent(entity, FollowCameraComponent, { distance: 5, mode: "thirdPerson" })
 
   const vehicleComponent = getMutableComponent(entity, VehicleBody) as VehicleBody;
 

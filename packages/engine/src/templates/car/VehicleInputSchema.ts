@@ -12,7 +12,7 @@ import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
 import { drive } from '@xr3ngine/engine/src/physics/behaviors/driveBehavior';
 import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
-import { getOutCar } from '@xr3ngine/engine/src/physics/behaviors/getOutCarBehavior';
+import { getOutCar } from '@xr3ngine/engine/src/templates/car/behaviors/getOutCarBehavior';
 import { DefaultInput } from '../shared/DefaultInput';
 
 export const VehicleInputSchema: InputSchema = {
