@@ -376,6 +376,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   async leave(): Promise<boolean> {
     try {
+      console.log('Attempting to leave client transport')
       if (!this.joined) return false;
       console.log("leave ");
       this.leaving = true;

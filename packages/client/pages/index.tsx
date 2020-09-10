@@ -12,11 +12,13 @@ import {connect} from "react-redux";
 
 interface Props {
     authState?: any;
+    instanceConnectionState?: any;
 }
 
 const mapStateToProps = (state: any): any => {
     return {
-        authState: selectAuthState(state)
+        authState: selectAuthState(state),
+        instanceConnectionState: selectInstanceConnectionState(state)
     };
 };
 
@@ -25,7 +27,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 export const IndexPage = (props: any): any => {
     const {
-        authState
+        authState,
+        instanceConnectionState
     } = props;
     const selfUser = authState.get('user');
   const [ sceneIsVisible, setSceneVisible ] = React.useState(false);
@@ -38,10 +41,10 @@ export const IndexPage = (props: any): any => {
   };
 
   useEffect(() => {
-      if (selfUser.instanceId != null) {
+      if (selfUser?.instanceId != null || instanceConnectionState.get('instanceProvisioned') === true) {
           setSceneVisible(true);
       }
-  }, [selfUser.instanceId, selfUser.partyId]);
+  }, [selfUser?.instanceId, selfUser?.partyId, instanceConnectionState]);
 
   return(
     <Layout pageTitle="Home">

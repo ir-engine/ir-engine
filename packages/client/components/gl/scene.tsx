@@ -154,6 +154,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
   });
 
   useEffect(() => {
+    console.log('instanceConnectionState useEffect')
+    console.log(instanceConnectionState)
     if (instanceConnectionState.get('instanceProvisioned') === true && instanceConnectionState.get('readyToConnect') === true) {
       console.log('Calling connectToInstanceServer');
       connectToInstanceServer();
@@ -161,7 +163,12 @@ export const EnginePage: FunctionComponent = (props: any) => {
   }, [instanceConnectionState]);
 
   useEffect(() => {
-    provisionInstanceServer(locationId);
+    if (instanceConnectionState.get('instanceProvisioned') == false) {
+      provisionInstanceServer(locationId);
+    }
+    else {
+      connectToInstanceServer()
+    }
   }, []);
 
   const toggleEnabled = (): void => {

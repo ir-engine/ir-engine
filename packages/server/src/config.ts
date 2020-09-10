@@ -31,7 +31,7 @@ db.url = process.env.MYSQL_URL ??
  */
 const server = {
   enabled: process.env.SERVER_ENABLED === 'true' ?? true,
-  mode: process.env.SERVER_MODE ?? 'media',
+  mode: process.env.SERVER_MODE ?? 'local',
   hostname: process.env.SERVER_HOSTNAME ?? 'localhost',
   port: process.env.SERVER_PORT ?? 3030,
   // Public directory (used for favicon.ico, logo, etc)

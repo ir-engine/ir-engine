@@ -556,7 +556,7 @@ const LeftDrawer = (props: Props): any => {
                                                 Chat
 								            </Button>
                                             {
-                                                (selfPartyUser.isOwner === true || selfPartyUser.isOwner === 1) &&
+                                                (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
                                                 <Button
                                                     variant="contained"
                                                     color="secondary"
@@ -568,7 +568,7 @@ const LeftDrawer = (props: Props): any => {
                                             }
                                             {
                                                 partyDeletePending !== true &&
-                                                (selfPartyUser.isOwner === true || selfPartyUser.isOwner === 1) &&
+                                                (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
                                                 <Button
                                                     variant="contained"
                                                     className="background-red"
@@ -614,8 +614,7 @@ const LeftDrawer = (props: Props): any => {
                                                     {
                                                         partyUserDeletePending !== partyUser.id &&
                                                         partyTransferOwnerPending !== partyUser.id &&
-                                                        selfPartyUser != null &&
-                                                        (selfPartyUser.isOwner === true || selfPartyUser.isOwner === 1) &&
+                                                        (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
                                                         user.id !== partyUser.userId &&
                                                         <Button variant="contained"
                                                             color="primary"
@@ -645,8 +644,7 @@ const LeftDrawer = (props: Props): any => {
                                                     {
                                                         partyTransferOwnerPending !== partyUser.id &&
                                                         partyUserDeletePending !== partyUser.id &&
-                                                        selfPartyUser != null &&
-                                                        (selfPartyUser.isOwner === true || selfPartyUser.isOwner === 1) &&
+                                                        (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
                                                         user.id !== partyUser.userId &&
                                                         <div>
                                                             <Button onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}>
