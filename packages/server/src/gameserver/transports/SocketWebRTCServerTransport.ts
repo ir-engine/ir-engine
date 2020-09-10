@@ -17,12 +17,99 @@ import {
   WebRtcTransport,
   Worker
 } from "mediasoup/lib/types"
-import { networkInterfaces } from 'os'
 import SocketIO, { Socket } from "socket.io"
 import app from '../../app'
+import getLocalServerIp from '../../util/get-local-server-ip';
 import logger from "../../app/logger"
-import { config } from "./config"
-import { sctpParameters } from "./sctpParameters"
+import { SctpParameters } from "mediasoup-client/lib/SctpParameters"
+
+interface Client {
+  socket: SocketIO.Socket;
+  lastSeenTs: number;
+  joinTs: number;
+  media: any;
+  consumerLayers: any;
+  stats: any;
+}
+
+const config = {
+  httpPeerStale: 15000,
+  mediasoup: {
+    worker: {
+      rtcMinPort: 40000,
+      rtcMaxPort: 49999,
+      logLevel: "info",
+      logTags: ["info", "ice", "dtls", "rtp", "srtp", "rtcp"]
+    },
+    router: {
+      mediaCodecs: [
+        {
+          kind: "audio",
+          mimeType: "audio/opus",
+          clockRate: 48000,
+          channels: 2
+        },
+        {
+          kind: "video",
+          mimeType: "video/VP8",
+          clockRate: 90000,
+          parameters: {
+            //                'x-google-start-bitrate': 1000
+          }
+        },
+        {
+          kind: "video",
+          mimeType: "video/h264",
+          clockRate: 90000,
+          parameters: {
+            "packetization-mode": 1,
+            "profile-level-id": "4d0032",
+            "level-asymmetry-allowed": 1
+          }
+        },
+        {
+          kind: "video",
+          mimeType: "video/h264",
+          clockRate: 90000,
+          parameters: {
+            "packetization-mode": 1,
+            "profile-level-id": "42e01f",
+            "level-asymmetry-allowed": 1
+          }
+        }
+      ]
+    },
+
+    // rtp listenIps are the most important thing, below. you'll need
+    // to set these appropriately for your network for the demo to
+    // run anywhere but on localhost
+    webRtcTransport: {
+      listenIps: [{ ip: "192.168.0.81", announcedIp: null }],
+      initialAvailableOutgoingBitrate: 800000,
+      maxIncomingBitrate: 150000
+    }
+  }
+}
+
+const defaultRoomState = {
+  // external
+  activeSpeaker: { producerId: null, volume: null, peerId: null },
+  // internal
+  transports: {},
+  producers: [],
+  consumers: [],
+  peers: {}
+  // These are now kept for each individual client (in peers object)
+  // dataProducers: [] as DataProducer[],
+  // dataConsumers: [] as DataConsumer[]
+}
+
+const sctpParameters: SctpParameters = {
+  OS: 1024,
+  MIS: 65535,
+  maxMessageSize: 65535,
+  port: 5000
+}
 
 export class SocketWebRTCServerTransport implements NetworkTransport {
   isServer: boolean = true
@@ -56,18 +143,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       (app as any).agonesSDK.getGameServer().then((gsStatus) => {
         config.mediasoup.webRtcTransport.listenIps = [{ ip: gsStatus.status.address, announcedIp: null }]
       })
-
-    else {
-      const nets = networkInterfaces();
-      const results = Object.create(null); // or just '{}', an empty object
-      for (const name of Object.keys(nets))
-        for (const net of nets[name])
-          // skip over non-ipv4 and internal (i.e. 127.0.0.1) addresses
-          if (net.family === 'IPv4' && !net.internal) {
-            if (!results[name]) results[name] = [];
-            results[name].push(net.address);
-          }
-      config.mediasoup.webRtcTransport.listenIps = [{ ip: results.en0 ? results.en0[0] : results.eno1 ? results.eno1[0] : '127.0.0.1', announcedIp: null }]
+      
+      else {
+      const localIp = getLocalServerIp();
+      config.mediasoup.webRtcTransport.listenIps = [{ip: localIp.ipAddress, announcedIp: null}]
     }
 
     logger.info('Starting WebRTC')

@@ -4,6 +4,7 @@ import convertVideo from '../../hooks/convert-video'
 import addAttribution from '../../hooks/add-attribution'
 import restrictUserRole from '../../hooks/restrict-user-role'
 import addUserToBody from '../../hooks/set-loggedin-user-in-body'
+import config from '../../config';
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = hooks
@@ -12,7 +13,7 @@ export default {
   before: {
     all: [
       iff(
-        process.env.SERVER_MODE !== 'media',
+        config.server.mode !== 'media' && config.server.mode !== 'local',
         disallow('external')
       ),
       authenticate('jwt'),

@@ -8,7 +8,6 @@ export default () => {
     let inviteIdentityProviderUser
     // Getting logged in user and attaching owner of user
     const { id, params, app } = context
-    console.log(context)
     const loggedInUser = extractLoggedInUserFromParams(params)
     console.log(loggedInUser);
     const invite = await app.service('invite').get(id)

@@ -23,4 +23,18 @@ export default function (app: Application): void {
   const service = app.service('instance-provision');
 
   service.hooks(hooks);
+
+  service.publish('created', async (data): Promise<any> => {
+    try {
+      console.log('Publishing instance-provision created to ' + data.userId);
+      return app.channel(`userIds/${data.userId}`).send({
+        ipAddress: data.ipAddress,
+        port: data.port,
+        locationId: data.locationId
+      })
+    } catch (err) {
+      console.log(err)
+      throw err
+    }
+  });
 }

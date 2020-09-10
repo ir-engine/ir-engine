@@ -38,7 +38,7 @@ export class NetworkSystem extends System {
     Network.instance.transport = new (schema.transport)();
 
     // Initialize the server automatically
-    if (process.env.SERVER_MODE === 'realtime') {
+    if (process.env.SERVER_MODE !== undefined && (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')) {
         Network.instance.transport.initialize()
         Network.instance.isInitialized = true
     }
