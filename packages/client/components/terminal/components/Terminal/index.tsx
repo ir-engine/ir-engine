@@ -16,6 +16,10 @@ import { Base, ContainerWrapper, Note } from './styled-elements';
 
 import Content from '../Content/index';
 import Tabs from '../Tabs/index';
+import { CSSProperties } from '@material-ui/core/styles/withStyles';
+import { red } from '@material-ui/core/colors';
+
+let isTerminalExpanded = false;
 
 function compLogic(comp) {
   switch (comp) {
@@ -126,6 +130,7 @@ class Terminal extends Component<any, any> {
 
     this.state = {
       tabbed: false,
+      isTerminalExpanded: isTerminalExpanded,
       commands: {},
       descriptions: {},
       show: props.startState !== 'closed',
@@ -136,6 +141,8 @@ class Terminal extends Component<any, any> {
       tabs: [],
       instances: [],
     };
+
+    this.toggleTerminalExpandedState = this.toggleTerminalExpandedState.bind(this); 
   }
 
   getChildContext() {
@@ -204,6 +211,11 @@ class Terminal extends Component<any, any> {
     this.setState({ tabs });
   }
 
+  toggleTerminalExpandedState() {
+    isTerminalExpanded = !isTerminalExpanded;
+    this.setState({ isTerminalExpanded: isTerminalExpanded });
+  }
+
   // Show the content on toggling
   getAppContent = () => {
     const { show, minimise } = this.state;
@@ -220,14 +232,17 @@ class Terminal extends Component<any, any> {
       actionHandlers,
     } = this.props;
     const { activeTab, tabs } = this.state;
+    
     const baseStyle = {
-      height: '100%',
+      // height: '100%',
+      height: this.state.isTerminalExpanded ? '100%' : '30%',
       color: color || 'green',
       animation: 'fadeIn 0.18s ease-in',
       fontFamily: "'Inconsolata', monospace",
       fontSize: '0.9em',
     };
-    // This should be a syled component but breaks if it is...
+
+    // This should be a syled component but breaks if it is.
     return (
       <div style={{ ...baseStyle, ...style }}>
         {allowTabs && (
@@ -238,8 +253,23 @@ class Terminal extends Component<any, any> {
             removeTab={this.removeTab}
           />
         )}
-        {tabs}
+        <div
+            style={{
+              position: 'absolute',
+              textAlign: 'right',
+              width: '100%',
+              zIndex: 50}}>
+          <button
+              style={{
+                marginTop: 5,
+                marginRight: 5}}
+              title={this.state.isTerminalExpanded ? 'Restore terminal' : 'Expand terminal'}
+              onClick={this.toggleTerminalExpandedState}>
+            {this.state.isTerminalExpanded ? 'r' : 'e'}
+          </button>
         </div>
+        {tabs}
+      </div>
     );
   };
 
