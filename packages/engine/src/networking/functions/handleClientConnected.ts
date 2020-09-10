@@ -8,7 +8,7 @@ import { MessageTypes } from '../enums/MessageTypes';
 
 export const handleClientConnected = (args: { id: any; }) => {
 
-console.log("handle client connected")
+  console.log("handle client connected")
   Network.instance.clients[args.id] = {
     // BUG
     // TODO: Need this to be passed in
@@ -25,7 +25,7 @@ console.log("handle client connected")
   // Get a reference to the network object we just created, we need the ID
   const networkObject = getComponent(entity, NetworkObject);
 
-  if(!hasComponent(entity, TransformComponent)) addComponent(entity, TransformComponent)
+  if (!hasComponent(entity, TransformComponent)) addComponent(entity, TransformComponent)
 
   // Get a reference to the transform on the object so we can send initial values
   const transform = getComponent(entity, TransformComponent);
@@ -39,15 +39,15 @@ console.log("handle client connected")
     x: transform.position.x,
     y: transform.position.y,
     z: transform.position.z,
-    q: {
-      x: transform.rotation.x,
-      y: transform.rotation.y,
-      z: transform.rotation.z,
-      w: transform.rotation.w
-    }
+    qX: transform.rotation.x,
+    qY: transform.rotation.y,
+    qZ: transform.rotation.z,
+    qW: transform.rotation.w
   };
 
   // Added created to the worldState with networkId and ownerId
   Network.instance.worldState.createObjects.push(createObjectMessage);
   console.log("Added user ", args.id);
+  console.log("Pushed object: ")
+  console.log(createObjectMessage)
 };

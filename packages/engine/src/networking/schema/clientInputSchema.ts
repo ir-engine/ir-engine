@@ -1,4 +1,4 @@
-import { uint8, float32, uint16 } from "../../common/types/DataTypes";
+import { uint8, float32, uint16, uint32 } from "../../common/types/DataTypes";
 import { createSchema } from "../functions/createSchema";
 import { Model } from "../classes/Model";
 
@@ -22,7 +22,7 @@ const inputAxis2DSchema = createSchema('axis2d', {
 });
 
 export const inputKeyArraySchema = createSchema('main', {
-  networkId: uint16,
+  networkId: uint32,
   buttons: [inputKeySchema],
   axes1d: [inputAxis1DSchema],
   axes2d: [inputAxis2DSchema]

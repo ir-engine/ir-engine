@@ -65,6 +65,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       MediaStreamComponent.instance.dataProducers.delete(channel);
       dataProducer.close()
     });
+    console.log("Setting data producer")
     MediaStreamComponent.instance.dataProducers.set(channel, dataProducer);
     return Promise.resolve(dataProducer)
   }
@@ -76,11 +77,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log("Data consumer created")
 
     dataConsumer.on('message', handleDataChannelConsumerMessage(dataConsumer)) // Handle message received
+    console.log("Setting data consumer")
+    MediaStreamComponent.instance.dataConsumers.set(options.dataProducerId, dataConsumer)
     dataConsumer.on('close', () => {
       dataConsumer.close()
       MediaStreamComponent.instance.dataConsumers.delete(options.dataProducerId)
     }) // Handle message received
-    MediaStreamComponent.instance.dataConsumers.set(options.dataProducerId, dataConsumer)
   }
 
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
@@ -118,7 +120,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
     // If a reliable message is received, add it to the queue
     this.socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
-      console.log("Adding ", worldStateModel.fromBuffer(message), " to queue")
+      console.log("Adding ", message, " to queue")
       Network.instance.incomingMessageQueue.add(message)
     })
 
@@ -158,10 +160,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     const { worldState, routerRtpCapabilities } = resp as any;
 
     console.log("World state init: ")
-    console.log(worldState)
+    console.log(worldStateModel.fromBuffer(worldState))
     // TODO: This shouldn't be in the transport, should be in our network system somehow
     // Apply all state to initial frame
-    applyWorldState(worldState, 1, false)
+    applyWorldState(worldState)
 
     console.log("Loading mediasoup");
     await this.mediasoupDevice.load({ routerRtpCapabilities });

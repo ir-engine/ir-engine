@@ -1,6 +1,6 @@
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { Network } from '../components/Network';
-import { addSnapshot, calculateInterpolation } from '../functions/NetworkInterpolationFunctions';
+import { addSnapshot, calculateInterpolation, createSnapshot } from '../functions/NetworkInterpolationFunctions';
 import { worldStateModel } from '../schema/worldStateSchema';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { Input } from '../../input/components/Input';
@@ -10,15 +10,19 @@ import { createNetworkPrefab } from '../functions/createNetworkPrefab';
 import { destroyNetworkObject } from '../functions/destroyNetworkObject';
 import { NetworkInterpolation } from '../components/NetworkInterpolation';
 
-export function applyWorldState(worldStateBuffer, delta = 0.033, interpolate = true) {
+export function applyWorldState(worldStateBuffer, delta = 0.033) {
+  console.log("Worldstate buffer is: ")
+  console.log(worldStateBuffer)
   const worldState = worldStateModel.fromBuffer(worldStateBuffer);
 
+  console.log("Applying world state: ")
+  console.log(worldState)
   // // TODO: Validate if we've missed important frames
   // console.log("Old tick is",
   //   (NetworkInterpolation.instance.vault[NetworkInterpolation.instance.vaultSize].state as any).tick,
   //   " | new tick is ", worldState.tick);
 
-  if(Network.tick < worldState.tick - 1){
+  if (Network.tick < worldState.tick - 1) {
     // we dropped packets
     // Check how many
     // If our queue empty? Request immediately
@@ -28,21 +32,11 @@ export function applyWorldState(worldStateBuffer, delta = 0.033, interpolate = t
   }
 
   Network.tick = worldState.tick
-  // Add world state to our snapshot vault
-  addSnapshot(worldState);
 
-  console.log("Adding network transforms to Network.instance");
-  Network.instance.worldState = worldState;
-  // Interpolate it
-  if(worldState.transforms !== undefined && worldState.transforms.length > 0 && interpolate) {
-    const snapshot = calculateInterpolation('x y z q(quat)', 'transforms');
-    console.log(snapshot)
-    const { state } = snapshot
-    Network.instance.worldState.transforms = state;
-    }
+  Network.instance.worldState = worldState; // cache latest world state, we might be able to delete this
 
   // Handle all clients that connected this frame
-  for (const connectingClient in Network.instance.worldState.clientsConnected) {
+  for (const connectingClient in worldState.clientsConnected) {
     // Add them to our client list
     Network.instance.clients[worldState.clientsConnected[connectingClient].clientId] = {
       userId: worldState.clientsConnected[connectingClient].userId
@@ -65,6 +59,21 @@ export function applyWorldState(worldStateBuffer, delta = 0.033, interpolate = t
       worldState.createObjects[objectToCreate].networkId
     );
     console.log("Created network prefab for " + worldState.createObjects[objectToCreate].ownerId);
+  }
+
+  console.log("Worldstate transforms: ")
+  console.log(worldState.transforms)
+
+
+  if (worldState.transforms !== undefined && worldState.transforms.length > 0) {
+    // Add world state to our snapshot vault
+    addSnapshot(createSnapshot(worldState.transforms));
+    // Interpolate it
+    const snapshot = calculateInterpolation('x y z q(quat)');
+    console.log("Snapshot")
+    console.log(snapshot)
+    const { state } = snapshot
+    Network.instance.worldState.transforms = state;
   }
 
   // Handle all network objects destroyed this frame
@@ -125,10 +134,10 @@ export function applyWorldState(worldStateBuffer, delta = 0.033, interpolate = t
     );
     // Apply rot to object
     transform.rotation.set(
-      transformData.q.x,
-      transformData.q.y,
-      transformData.q.z,
-      transformData.q.w
+      transformData.qX,
+      transformData.qY,
+      transformData.qZ,
+      transformData.qW
     );
     console.log("Updated transform on ", transformData.networkId);
   });

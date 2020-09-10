@@ -28,7 +28,7 @@ export const IndexPage = (props: any): any => {
         authState
     } = props;
     const selfUser = authState.get('user');
-  const [ sceneIsVisible, setSceneVisible ] = React.useState(false);
+  const [ sceneIsVisible, setSceneVisible ] = React.useState(true);
   const scene = sceneIsVisible? (<Scene />) : null;
 
   const buttonStyle: React.CSSProperties = {
