@@ -5,7 +5,7 @@ import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/Fo
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { LocalInputReceiver } from "@xr3ngine/engine/src/input/components/LocalInputReceiver"
 import { CharacterInputSchema } from "@xr3ngine/engine/src/templates/character/CharacterInputSchema";
-import { CylinderGeometry, Matrix4, Mesh } from "three";
+import { CylinderGeometry, Matrix4, Mesh, Vector3 } from "three";
 import { addObject3DComponent } from "../../common/behaviors/Object3DBehaviors";
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
@@ -13,9 +13,9 @@ import { Input } from "@xr3ngine/engine/src/input/components/Input";
 import { State } from "@xr3ngine/engine/src/state/components/State";
 import { addComponent, createEntity, removeComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { VehicleComponent } from '../components/VehicleComponent';
-import { VehicleInputSchema } from "@xr3ngine/engine/src/templates/car/VehicleInputSchema"
 
-const sphereGeo = new CylinderGeometry( 1, 1, 0.1, 12 )
+
+const sphereGeo = new CylinderGeometry( 0.3, 0.3, 0.1, 12 )
 sphereGeo.applyMatrix4( new Matrix4().makeRotationZ( - Math.PI / 2 ) );
 //const sphereMesh = new THREE.Mesh( sphereGeo, new THREE.MeshStandardMaterial({ color: "pink" }))
 
@@ -28,15 +28,16 @@ export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
   // addComponent(entity, FollowCameraComponent, { distance: 5, mode: "thirdPerson" })
 
   const vehicleComponent = getMutableComponent(entity, VehicleBody) as VehicleBody;
-
+  const scale = 1
   const asset = args.asset
   let deleteArr = []
   let arrayWheels = []
    asset.children.forEach( mesh => { // scene gld
 
      if (mesh.name == 'Body') {
-       mesh.scale.set(1.7,1.7,1.7)
+      // mesh.scale.set(1,1,1)
        vehicleComponent.vehicleMesh = mesh
+       //vehicleComponent.arrayVehiclePosition.push(new Vector3().copy(mesh.position) )
      }
 
 
@@ -46,8 +47,9 @@ export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
      }
 
      if (mesh.name.substring(0,5) == "wheel") {
-        mesh.scale.set(1.7,1.7,1.7)
+      //  mesh.scale.set(1,1,1)
         deleteArr.push(mesh)
+        vehicleComponent.arrayWheelsPosition.push(new Vector3().copy(mesh.position) )
         vehicleComponent.arrayWheelsMesh.push(mesh.clone())
         //console.log('Engine');
         //ngine.scene.add(mesh)

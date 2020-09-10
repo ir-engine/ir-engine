@@ -16,6 +16,9 @@ import { drive } from '@xr3ngine/engine/src/physics/behaviors/driveBehavior';
 import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
 import { getOutCar } from '@xr3ngine/engine/src/templates/car/behaviors/getOutCarBehavior';
 import { DefaultInput } from '../shared/DefaultInput';
+import { driveSteering } from "../../physics/behaviors/driveSteeringBehavior";
+import { honk } from './behaviors/honk';
+import { driveHandBrake } from "../../physics/behaviors/driveHandBrake";
 
 export const VehicleInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -200,25 +203,14 @@ export const VehicleInputSchema: InputSchema = {
             behavior: cameraPointerLock,
             args: {}
           }
-        ],
-      ended: [
-        {
-          behavior: drive,
-          args: {
-            inputType: InputType.TWODIM,
-            value: [0, 0],
-            keyup: true
-          }
-        }
-      ],
+        ]
     },
     [DefaultInput.FORWARD]: {
         started: [
           {
             behavior: drive,
             args: {
-              inputType: InputType.TWODIM,
-              value: [0, -1],
+              direction: 1
             }
           }
         ],
@@ -226,8 +218,7 @@ export const VehicleInputSchema: InputSchema = {
           {
             behavior: drive,
             args: {
-              inputType: InputType.TWODIM,
-              value: [0, -1],
+              direction: 1
             }
           }
         ],
@@ -235,8 +226,7 @@ export const VehicleInputSchema: InputSchema = {
         {
           behavior: drive,
           args: {
-            inputType: InputType.TWODIM,
-            value: [0, 0]
+            direction: 0
           }
         }
       ]
@@ -246,8 +236,7 @@ export const VehicleInputSchema: InputSchema = {
           {
             behavior: drive,
             args: {
-              inputType: InputType.TWODIM,
-              value: [0, 1]
+              direction: -1
             }
           }
         ],
@@ -255,8 +244,7 @@ export const VehicleInputSchema: InputSchema = {
           {
             behavior: drive,
             args: {
-              inputType: InputType.TWODIM,
-              value: [0, 1]
+              direction: -1
             }
           }
         ],
@@ -264,70 +252,89 @@ export const VehicleInputSchema: InputSchema = {
           {
             behavior: drive,
             args: {
-              inputType: InputType.TWODIM,
-              value: [0, 0]
+              direction: 0
             }
           }
         ]
+      }
     },
     [DefaultInput.LEFT]: {
         started: [
           {
-            behavior: drive,
+            behavior: driveSteering,
             args: {
-              inputType: InputType.TWODIM,
-              value: [-1, 0]
+              direction: 1
             }
           }
         ],
         continued: [
           {
-            behavior: drive,
+            behavior: driveSteering,
             args: {
-              inputType: InputType.TWODIM,
-              value: [-1, 0]
-            }
-          }
-        ],
-        ended: [
-          {
-            behavior: drive,
-            args: {
-              inputType: InputType.TWODIM,
-              value: [0, 0]
-            }
-          }
-        ]
-      },
-    [DefaultInput.RIGHT]: {
-        started: [
-          {
-            behavior: drive,
-            args: {
-              inputType: InputType.TWODIM,
-              value: [1, 0]
-            }
-          }
-        ],
-        continued: [
-          {
-            behavior: drive,
-            args: {
-              inputType: InputType.TWODIM,
-              value: [1, 0]
+              direction: 1
             }
           }
         ],
       ended: [
         {
-          behavior: drive,
+          behavior: driveSteering,
           args: {
-            inputType: InputType.TWODIM,
-            value: [0, 0]
+            direction: 0
           }
         }
       ]
-    }
+    },
+    [DefaultInput.RIGHT]: {
+        started: [
+          {
+            behavior: driveSteering,
+            args: {
+              direction: -1
+            }
+          }
+        ],
+        continued: [
+          {
+            behavior: driveSteering,
+            args: {
+              direction: -1
+            }
+          }
+        ],
+      ended: [
+        {
+          behavior: driveSteering,
+          args: {
+            direction: 0
+          }
+        }
+      ]
+    },
+    [DefaultInput.JUMP]: {
+        started: [
+          {
+            behavior: driveHandBrake,
+            args: {
+              on: true
+            }
+          }
+        ],
+        continued: [
+          {
+            behavior: driveHandBrake,
+            args: {
+              on: true
+            }
+          }
+        ],
+      ended: [
+        {
+          behavior: driveHandBrake,
+          args: {
+            on: false
+          }
+        }
+      ],
   },
   // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
   inputAxisBehaviors: {

@@ -16,18 +16,24 @@ import { Interactive } from "../../../interaction/components/Interactive";
 import { getInCar } from "../behaviors/getInCarBehavior";
 import { getInCarPossible } from "../behaviors/getInCarPossible";
 
-const myCoolCar = new BoxBufferGeometry(2,1,6);
-
 export const CarController: Prefab = {
     components: [
       { type: TransformComponent, data: { position: [-3,6,3]} },
       // Local player input mapped to behaviors in the input map
-      // { type: Input, data: { schema: VehicleInputSchema } },
+       { type: Input, data: { schema: VehicleInputSchema } },
+      // { type: SoundEffect, data: { src: 'audio/honk.mp3', volume: 0.6 } },
       // Current state (isJumping, isidle, etc)
     //   { type: State, data: { schema: VehicleStateSchema } },
       // Similar to Unity's Update(), LateUpdate(), and Start()
   //    { type: Subscription, data: { schema: DefaultSubscriptionSchema } }
-        { type: Interactive, data: { onInteraction: getInCar, onInteractionCheck: getInCarPossible } }
+        { type: Interactive, data: {
+            onInteraction: getInCar,
+            onInteractionCheck: getInCarPossible,
+            onInteractionFocused: (e:unknown, a: { focused:boolean }):void => {
+              console.log('focused?', a);
+            }
+          }
+        }
     ],
     onCreate: [
         // add a 3d object
