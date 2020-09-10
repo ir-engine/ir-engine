@@ -19,7 +19,7 @@ export const getInCar: Behavior = (entity: Entity, args: { value: Vector2 }, del
   removeComponent(entity, FollowCameraComponent)
 
   addComponent(entityCar, LocalInputReceiver)
-  addComponent(entityCar, FollowCameraComponent)
+  addComponent(entityCar, FollowCameraComponent, { distance: 5, mode: "thirdPerson" })
 
   const vehicle = getMutableComponent(entityCar, VehicleBody)
   vehicle.currentDriver = entity
