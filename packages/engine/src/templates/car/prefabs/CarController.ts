@@ -16,13 +16,11 @@ import { Interactive } from "../../../interaction/components/Interactive";
 import { getInCar } from "../behaviors/getInCarBehavior";
 import { getInCarPossible } from "../behaviors/getInCarPossible";
 
-const myCoolCar = new BoxBufferGeometry(2,1,6);
-
 export const CarController: Prefab = {
     components: [
       { type: TransformComponent, data: { position: [-3,6,3]} },
       // Local player input mapped to behaviors in the input map
-      // { type: Input, data: { schema: VehicleInputSchema } },
+       { type: Input, data: { schema: VehicleInputSchema } },
       // Current state (isJumping, isidle, etc)
     //   { type: State, data: { schema: VehicleStateSchema } },
       // Similar to Unity's Update(), LateUpdate(), and Start()
