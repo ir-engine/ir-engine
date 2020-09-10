@@ -3,7 +3,7 @@ import { Application } from '../../declarations'
 import {BadRequest} from '@feathersjs/errors'
 import _ from 'lodash'
 import Sequelize, { Op } from 'sequelize'
-import { networkInterfaces } from 'os'
+import getLocalServerIp from '../../util/get-local-server-ip'
 
 interface Data {}
 
@@ -16,29 +16,6 @@ export class InstanceProvision implements ServiceMethods<Data> {
   constructor (options: ServiceOptions = {}, app: Application) {
     this.options = options;
     this.app = app;
-  }
-
-  async getLocalServer() {
-    const nets = networkInterfaces();
-    const results = Object.create(null); // or just '{}', an empty object
-    for (const name of Object.keys(nets)) {
-      for (const net of nets[name]) {
-        // skip over non-ipv4 and internal (i.e. 127.0.0.1) addresses
-        if (net.family === 'IPv4' && !net.internal) {
-          if (!results[name]) {
-            results[name] = [];
-          }
-
-          results[name].push(net.address);
-        }
-      }
-    }
-    console.log('Non-internal local ports:')
-    console.log(results)
-    return {
-      ipAddress: results.en0 ? results.en0[0] : results.eno1 ? results.eno1[0] : '127.0.0.1',
-      port: '3030'
-    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -70,7 +47,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
         console.log(partyOwner);
         console.log(partyOwner.user)
         if (process.env.KUBERNETES !== 'true') {
-          return this.getLocalServer();
+          return getLocalServerIp();
         }
         if (partyOwner.userId !== userId && partyOwner.user.instanceId) {
           const partyInstance = await this.app.service('instance').get(partyOwner.user.instanceId);
@@ -84,7 +61,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
         }
       }
       if (process.env.KUBERNETES !== 'true') {
-        return this.getLocalServer();
+        return getLocalServerIp();
       }
       const instanceModel = this.app.service('instance').Model
       const locationId = params.query.locationId

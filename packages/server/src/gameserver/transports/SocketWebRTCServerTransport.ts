@@ -17,10 +17,10 @@ import {
 } from "mediasoup/lib/types"
 import { types as MediaSoupClientTypes } from "mediasoup-client"
 import { UnreliableMessageReturn, UnreliableMessageType, CreateWebRtcTransportParams } from "@xr3ngine/engine/src/networking/types/NetworkingTypes"
-import { networkInterfaces } from 'os'
 import { worldStateModel } from "@xr3ngine/engine/src/networking/schema/worldStateSchema"
 import SocketIO, { Socket } from "socket.io"
 import app from '../../app'
+import getLocalServerIp from '../../util/get-local-server-ip';
 
 interface Client {
   socket: SocketIO.Socket;
@@ -148,21 +148,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         config.mediasoup.webRtcTransport.listenIps = [{ ip: gsStatus.status.address, announcedIp: null }]
       })
     } else {
-      const nets = networkInterfaces();
-      const results = Object.create(null); // or just '{}', an empty object
-      for (const name of Object.keys(nets)) {
-        for (const net of nets[name]) {
-          // skip over non-ipv4 and internal (i.e. 127.0.0.1) addresses
-          if (net.family === 'IPv4' && !net.internal) {
-            if (!results[name]) {
-              results[name] = [];
-            }
-
-            results[name].push(net.address);
-          }
-        }
-      }
-      config.mediasoup.webRtcTransport.listenIps = [{ip: results.en0 ? results.en0[0] : results.eno1 ? results.eno1[0] : '127.0.0.1', announcedIp: null}]
+      const localIp = getLocalServerIp();
+      config.mediasoup.webRtcTransport.listenIps = [{ip: localIp.ipAddress, announcedIp: null}]
     }
     console.log(config.mediasoup.webRtcTransport)
     await this.startMediasoup()

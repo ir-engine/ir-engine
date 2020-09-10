@@ -1,31 +1,7 @@
 import { HookContext } from '@feathersjs/feathers';
-import { extractLoggedInUserFromParams } from '../services/auth-management/auth-management.utils';
 import Sequelize, {Op} from "sequelize";
 import _ from "lodash";
-import {networkInterfaces} from "os";
-
-const getLocalServer = () => {
-  const nets = networkInterfaces();
-  const results = Object.create(null); // or just '{}', an empty object
-  for (const name of Object.keys(nets)) {
-    for (const net of nets[name]) {
-      // skip over non-ipv4 and internal (i.e. 127.0.0.1) addresses
-      if (net.family === 'IPv4' && !net.internal) {
-        if (!results[name]) {
-          results[name] = [];
-        }
-
-        results[name].push(net.address);
-      }
-    }
-  }
-  console.log('Non-internal local ports:')
-  console.log(results)
-  return {
-    ipAddress: results.en0 ? results.en0[0] : results.eno1 ? results.eno1[0] : '127.0.0.1',
-    port: '3030'
-  }
-}
+import getLocalServerIp from "../util/get-local-server-ip";
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
@@ -40,6 +16,9 @@ export default () => {
           partyId: partyId
         }
       })
+      const partyOwner = partyUserResult.data.find((partyUser) => (partyUser.isOwner === 1 || partyUser.isOwner === true))
+      console.log('partyOwner:');
+      console.log(partyOwner);
       console.log(`instanceId: ${party.instanceId}`);
       if (party.instanceId != null) {
         const instance = await context.app.service('instance').get(party.instanceId);
@@ -53,56 +32,67 @@ export default () => {
           console.log('Putting party onto a new server')
           const availableLocationInstances = await context.app.service('instance').Model.findAll({
             where: {
-              locationId: location.id
+              locationId: location.id,
+              '$location.maxUsersPerInstance$': {
+                [Op.gt]: Sequelize.literal(`\`instance\`\.\`currentUsers\` + ${partyUserResult.total}`)
+              }
             },
             include: [
               {
                 model: context.app.service('location').Model,
                 where: {
-                  maxUsersPerInstance: {
-                    [Op.gt]: Sequelize.col('instance.currentUsers') + partyUserResult.total
-                  }
                 }
               }
             ]
           })
-          console.log('availableLocationInstance:')
-          console.log(availableLocationInstances);
+          console.log('availableLocationInstances count: ' + availableLocationInstances.length);
           if (availableLocationInstances.length === 0) {
             console.log('Spinning up new instance server')
-            const serverResult = await (context.app as any).k8Client.get('gameservers')
-            const readyServers = _.filter(serverResult.items, (server: any) => server.status.state === 'Ready')
-            const server = readyServers[Math.floor(Math.random() * readyServers.length)]
-            const agonesSDK = (context.app as any).agonesSDK;
-            const gsResult = await agonesSDK.getGameServer();
-            const {status} = gsResult;
-            const selfIpAddress = `${(status.address as string)}:${(status.portsList[0].port as string)}`
-            const instanceResult = await context.app.service('instance').create({
+            let selfIpAddress, status
+            if (process.env.KUBERNETES === 'true') {
+              const serverResult = await (context.app as any).k8Client.get('gameservers')
+              const readyServers = _.filter(serverResult.items, (server: any) => server.status.state === 'Ready')
+              const server = readyServers[Math.floor(Math.random() * readyServers.length)]
+              status = server.status
+              selfIpAddress = `${(server.status.address as string)}:${(server.status.portsList[0].port as string)}`
+            }
+            else {
+              const agonesSDK = (context.app as any).agonesSDK;
+              const gsResult = await agonesSDK.getGameServer();
+              status = gsResult.status
+              selfIpAddress = `${(status.address as string)}:${(status.portsList[0].port as string)}`
+            }
+            const instance = await context.app.service('instance').create({
               currentUsers: partyUserResult.total,
               locationId: location.id,
               ipAddress: selfIpAddress
             });
-            await Promise.all(partyUserResult.data.map((partyUser) => {
-              return context.app.service('user').patch(partyUser.userId, {
-                instanceId: instanceResult.id
-              })
-            }));
-            await context.app.service('party').patch(partyId, {
-              instanceId: instanceResult.id
-            });
+            if (process.env.KUBERNETES !== 'true') {
+              (context.app as any).instance.id = instance.id;
+            }
+            const emittedIp = (process.env.KUBERNETES !== 'true') ? getLocalServerIp() : { ipAddress: status.address, port: status.portsList[0].port}
+            await context.app.service('instance-provision').emit('created', {
+              userId: partyOwner.userId,
+              locationId: location.id,
+              ipAddress: emittedIp.ipAddress,
+              port: emittedIp.port
+            })
           } else {
             console.log('Putting party on existing server with space')
             const instanceModel = context.app.service('instance').Model
             const instanceUserSort = _.sortBy(availableLocationInstances, (instance: typeof instanceModel) => instance.currentUsers)
             const selectedInstance = instanceUserSort[0];
+            if (process.env.KUBERNETES !== 'true') {
+              (context.app as any).instance.id = selectedInstance.id;
+            }
             console.log('Putting party users on instance ' + selectedInstance.id)
-            await Promise.all(partyUserResult.data.map((partyUser) => {
-              return context.app.service('user').patch(partyUser.userId, {
-                instanceId: selectedInstance.id
-              })
-            }));
-            await context.app.service('party').patch(partyId, {
-              instanceId: selectedInstance.id
+            const addressSplit = selectedInstance.ipAddress.split(':')
+            const emittedIp = (process.env.KUBERNETES !== 'true') ? getLocalServerIp() : { ipAddress: addressSplit[0], port: addressSplit[1]};
+            await context.app.service('instance-provision').emit('created', {
+              userId: partyOwner.userId,
+              locationId: location.id,
+              ipAddress: emittedIp.ipAddress,
+              port: emittedIp.port
             });
           }
         }

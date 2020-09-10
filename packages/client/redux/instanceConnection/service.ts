@@ -6,6 +6,8 @@ import {
   instanceServerConnected,
   instanceServerProvisioned
 } from './actions';
+import store from "../store";
+import {createdGroupUser} from "../group/actions";
 
 export function provisionInstanceServer (locationId: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -61,3 +63,9 @@ export function connectToInstanceServer () {
     }
   };
 }
+
+client.service('instance-provision').on('created', (params) => {
+  console.log('instance-provision created listener')
+  console.log(params)
+  store.dispatch(instanceServerProvisioned(params, params.locationId));
+});
