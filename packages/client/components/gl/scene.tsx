@@ -150,7 +150,15 @@ export const EnginePage: FunctionComponent = (props: any) => {
         allowTabs={false}
         startState='maximised'
         showCommands={true}
-        style={{ fontWeight: "bold", fontSize: "1em", position: "fixed", bottom: "0", width: "100%", height: "30%", zIndex: 4000 }}
+        style={{
+          fontWeight: "bold",
+          fontSize: "1em",
+          position: "fixed",
+          bottom: "0",
+          width: "100%", 
+          // Height is set in termimal itself depending is it expanded.
+          /* height: "30%", */
+          zIndex: 4000 }}
         commands={commands}
         description={description}
         msg='Interactive terminal. Please consult the manual for commands.'
