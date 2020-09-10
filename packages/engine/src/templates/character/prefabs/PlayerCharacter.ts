@@ -13,6 +13,7 @@ import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { initializeCharacter } from "../behaviors/initializeCharacter";
 import { CharacterComponent } from "../components/CharacterComponent";
 import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
+import { Interacts } from "../../../interaction/components/Interacts";
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const PlayerCharacter: Prefab = {
@@ -26,14 +27,15 @@ export const PlayerCharacter: Prefab = {
         // Local player input mapped to behaviors in the input map
         { type: Input, data: { schema: CharacterInputSchema } },
 
-      //  { type: LocalInputReceiver },
+        { type: LocalInputReceiver },
         // Follow Camera for thet entity
-      //  { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPerson" }},
+        { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPerson" }},
         // Current state (isJumping, isidle, etc)
         { type: State, data: { schema: CharacterStateSchema } },
         // Similar to Unity's Update(), LateUpdate(), and Start()
         { type: Subscription, data: { schema: CharacterSubscriptionSchema } },
       //  { type: LocalInputReceiver }
+        { type: Interacts }
     ],
     onCreate: [
         {

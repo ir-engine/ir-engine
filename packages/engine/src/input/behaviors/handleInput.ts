@@ -46,7 +46,7 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
           );
         }
       } else {
-        input.schema.inputButtonBehaviors[key][value.value as number].ended?.forEach(element =>
+        input.schema.inputButtonBehaviors[key][value.value as number]?.forEach(element =>
           element.behavior(entity, element.args, delta)
         );
         input.data.delete(key)

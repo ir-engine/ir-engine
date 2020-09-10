@@ -1,5 +1,4 @@
 import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
-import { getInCar } from '@xr3ngine/engine/src/physics/behaviors/getInCarBehavior';
 import { BinaryValue } from '../../common/enums/BinaryValue';
 import { Thumbsticks } from '../../common/enums/Thumbsticks';
 import { disableScroll, enableScroll } from '../../common/functions/enableDisableScrolling';
@@ -181,16 +180,6 @@ export const CharacterInputSchema: InputSchema = {
   },
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
-    [DefaultInput.SWITCH_CAR]: {
-      [BinaryValue.ON]: {
-        started: [
-          {
-            behavior: getInCar,
-            args: {}
-          }
-        ]
-      }
-    },
     [DefaultInput.POINTER_LOCK]: {
       [BinaryValue.ON]: {
         started: [
@@ -238,7 +227,13 @@ export const CharacterInputSchema: InputSchema = {
             }
           }
         ]
-      }
+      },
+      [BinaryValue.OFF]: [
+        {
+          behavior: updateCharacterState,
+          args: {}
+        }
+      ]
     },
     [DefaultInput.BACKWARD]: {
       [BinaryValue.ON]: {
@@ -261,7 +256,13 @@ export const CharacterInputSchema: InputSchema = {
             }
           }
         ]
-      }
+      },
+      [BinaryValue.OFF]: [
+        {
+          behavior: updateCharacterState,
+          args: {}
+        }
+      ]
     },
     [DefaultInput.LEFT]: {
       [BinaryValue.ON]: {
@@ -284,7 +285,13 @@ export const CharacterInputSchema: InputSchema = {
             }
           }
         ]
-      }
+      },
+      [BinaryValue.OFF]: [
+        {
+          behavior: updateCharacterState,
+          args: {}
+        }
+      ]
     },
     [DefaultInput.RIGHT]: {
       [BinaryValue.ON]: {
@@ -307,7 +314,13 @@ export const CharacterInputSchema: InputSchema = {
             }
           }
         ]
-      }
+      },
+      [BinaryValue.OFF]: [
+        {
+          behavior: updateCharacterState,
+          args: {}
+        }
+      ]
     }
   },
   // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
