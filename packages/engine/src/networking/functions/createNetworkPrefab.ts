@@ -14,12 +14,16 @@ export function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: n
 
   // Add a NetworkObject component to the entity, this will store information about changing state
   addComponent(entity, NetworkObject, { ownerId, networkId });
+  console.log("Create prefab: ")
+  console.log(prefab)
   // Call each create action
   prefab.onCreate?.forEach(action => {
     // If it's a networked behavior, or this is the local player, call it
     if (action.networked || ownerId === (Network.instance).mySocketID)
     // Call the behavior with the args
     { action.behavior(entity, action.args); }
+    console.log(action)
+
   });
   // Instantiate network components
   // These will be attached to the entity on all clients
@@ -35,20 +39,7 @@ export function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: n
         addedComponent[initValue] = component.data[initValue];
       });
     }
-
-    // SERVER ONLY: 
-    if (component.networkedAttributes !== undefined && Network.instance.transport.isServer) {
-      // Get network object reference
-      const networkObject = getMutableComponent(entity, NetworkObject)
-      // Add typeid of component to componentMap
-      networkObject.componentMap[component.type] = { }
-      // Add property to componentMap[typeid] and init with current value
-      Object.keys(component.networkedAttributes).forEach(attribute => {
-        // Get the component on the entity, and set it to the initializing value from the prefab
-        networkObject.componentMap[component.type][attribute] = component.data[attribute];
-        console.log("Added ", networkObject.componentMap[component.type][attribute], " to attributes")
-      });
-    }
+    console.log(component)
 
   });
   // Instantiate local components
@@ -71,5 +62,6 @@ export function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: n
       });
     });
   }
+
   return entity;
 }

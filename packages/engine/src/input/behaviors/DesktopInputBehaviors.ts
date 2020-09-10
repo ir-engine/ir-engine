@@ -79,6 +79,7 @@ export const handleMouseButton: Behavior = (entity: Entity, args: { event: Mouse
  * @param args is argument object
  */
 export function handleKey(entity: Entity, args: { event: KeyboardEvent, value: BinaryType }): any {
+  console.log("Handle key called")
   // Get immutable reference to Input and check if the button is defined -- ignore undefined keys
   input = getComponent(entity, Input);
   if (input.schema.keyboardInputMap[args.event.key] === undefined) return;
@@ -94,11 +95,7 @@ export function handleKey(entity: Entity, args: { event: KeyboardEvent, value: B
       value: args.value
     });
   } else {
-    // Removed buttons property from mouseInputMap and set
-    input.data.delete(input.schema.mouseInputMap.buttons[args.event.key]);
-    input.data.set(input.schema.keyboardInputMap[args.event.key], {
-      type: InputType.BUTTON,
-      value: args.value
-    });
+    console.log("Removing key")
+    input.data.delete(input.schema.keyboardInputMap[args.event.key])
   }
 }

@@ -218,7 +218,6 @@ export const VehicleInputSchema: InputSchema = {
             args: {
               inputType: InputType.TWODIM,
               value: [0, -1],
-              keyup: true
             }
           }
         ]

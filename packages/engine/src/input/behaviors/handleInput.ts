@@ -19,12 +19,13 @@ let input: Input
 export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): void => {
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
   input = getMutableComponent(entity, Input);
-
+  console.log("Handling input data: ")
+  console.log(input.data)
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
     // If the input is a button
     if (value.type === InputType.BUTTON) {
       // If the input exists on the input map (otherwise ignore it)
-      if (input.schema.inputButtonBehaviors[key] && input.schema.inputButtonBehaviors[key][value.value as number]) {
+      if (input.schema.inputButtonBehaviors[key] && input.schema.inputButtonBehaviors[key][value.value] !== undefined) {
         // If the button is pressed
         if(value.value === BinaryValue.ON) {
         // If the lifecycle hasn't been set or just started (so we don't keep spamming repeatedly)
@@ -46,7 +47,9 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
           );
         }
       } else {
-        input.schema.inputButtonBehaviors[key][value.value as number].ended?.forEach(element =>
+        console.log("Deleting button ", key)
+        console.log(input.schema.inputButtonBehaviors[key])
+        input.schema.inputButtonBehaviors[key][value.value as number].forEach(element =>
           element.behavior(entity, element.args, delta)
         );
         input.data.delete(key)
@@ -58,22 +61,21 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
       value.type === InputType.THREEDIM
     ) {
       if (input.schema.inputAxisBehaviors[key]) {
-        // If lifecycle hasn't been set or started 
-        if (value.lifecycleState === undefined || value.lifecycleState === LifecycleValue.STARTED) {
+        // If lifecycle hasn't been set, init it
+        if (value.lifecycleState === undefined) {
           // Set the value to continued to debounce
           input.data.set(key, {
             type: value.type,
             value: value.value as BinaryType,
             lifecycleState: LifecycleValue.CONTINUED
           });
-          input.schema.inputAxisBehaviors[key].started?.forEach(element =>
+          input.schema.inputAxisBehaviors[key].forEach(element =>
             element.behavior(entity, element.args, delta)
           );
-        } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
-          // If lifecycle continued
-          input.schema.inputAxisBehaviors[key].continued?.forEach(element =>
-            element.behavior(entity, element.args, delta)
-          );
+        }
+        // Evaluate if the number is the same as last time, send the delta 
+        else {
+          
         }
       }
     } else {

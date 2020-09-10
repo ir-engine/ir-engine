@@ -134,8 +134,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           worldState.clientsConnected.push({ clientId, userId: Network.instance.clients[clientId].userId })
 
         // Get all network objects and add to createObjects
-        for (const networkid in Network.instance.networkObjects)
-          worldState.createObjects.push({ networkid, ownerId: Network.instance.networkObjects[networkid].ownerId })
+        for (const networkId in Network.instance.networkObjects)
+          worldState.createObjects.push({ prefabType: Network.instance.networkObjects[networkId].prefabType, networkid: networkId, ownerId: Network.instance.networkObjects[networkId].ownerId })
 
         // TODO: Get all inputs and add to inputs
 
@@ -145,7 +145,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         try 
         {
         // Convert world state to buffer and send along
-        callback({ worldState: worldStateModel.toBuffer(worldState), routerRtpCapabilities: this.router.rtpCapabilities })
+        callback({ worldState /* worldState: worldStateModel.toBuffer(worldState) */, routerRtpCapabilities: this.router.rtpCapabilities })
         } catch (error) {console.log(error)}
       })
 
@@ -219,8 +219,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           }
           const dataProducer = await transport.produceData(options)
 
+          if(Network.instance.clients[socket.id].dataProducers)
           Network.instance.clients[socket.id].dataProducers.set(label, dataProducer)
-
+          else console.log("Network.instance.clients[socket.id].dataProducers is nulled" + Network.instance.clients[socket.id].dataProducers)
           // if our associated transport closes, close ourself, too
           dataProducer.on("transportclose", () => {
             logger.info("data producer's transport closed: " + dataProducer.id)

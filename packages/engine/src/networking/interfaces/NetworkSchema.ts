@@ -13,5 +13,7 @@ export interface NetworkSchema {
     }[]
   }
   defaultClientPrefab: PrefabAlias
-  prefabs: Array<{ id: PrefabAlias, prefab: NetworkPrefab }>
+  prefabs: {
+    [key: string]: NetworkPrefab
+  }
 }

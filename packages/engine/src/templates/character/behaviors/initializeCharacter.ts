@@ -15,6 +15,7 @@ import { PhysicsManager } from "../../../physics/components/PhysicsManager";
 import { addObject3DComponent } from "../../../common/behaviors/Object3DBehaviors";
 
 export const initializeCharacter: Behavior = (entity): void => {
+	console.log("Init character")
 	console.log("**** Initializing character!");
 	if (!hasComponent(entity, CharacterComponent as any))
 		addComponent(entity, CharacterComponent as any);
@@ -26,11 +27,6 @@ export const initializeCharacter: Behavior = (entity): void => {
 	// by default all asset childs are moved into entity object3dComponent, which is tiltContainer
 	// we should keep it clean till asset loaded and all it's content moved into modelContainer
 	addObject3DComponent(entity, { obj3d: actor.tiltContainer })
-
-	// TODO: remove me!
-	window['Engine'] = Engine
-	window['scene'] = Engine.scene
-
 	const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
 	assetLoader.onLoaded = (entity, { asset }) => {
 		actor.animations = asset.animations;

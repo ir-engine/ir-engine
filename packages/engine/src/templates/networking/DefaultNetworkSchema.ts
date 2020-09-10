@@ -10,12 +10,9 @@ export const PrefabType = {
   Player: 0
 };
 
-export const DefaultPrefabs: Array<{
-  id: any
-  prefab: NetworkPrefab
-}> = [
-  { id: PrefabType.Player, prefab: NetworkPlayerCharacter }
-];
+export const DefaultPrefabs = {
+  [PrefabType.Player]: NetworkPlayerCharacter
+};
 
 export const DefaultNetworkSchema: NetworkSchema = {
   transport: null,

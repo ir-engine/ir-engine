@@ -1,4 +1,4 @@
-import { applyWorldState } from "@xr3ngine/engine/src/networking/behaviors/applyWorldState";
+import { applyWorldState } from "@xr3ngine/engine/src/networking/functions/applyWorldState";
 import { MediaStreamComponent } from "@xr3ngine/engine/src/networking/components/MediaStreamComponent";
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "@xr3ngine/engine/src/networking/constants/VideoConstants";
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
@@ -10,6 +10,7 @@ import { DataConsumerOptions, DataProducer, Transport as MediaSoupTransport } fr
 import ioclient from "socket.io-client";
 import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 import { worldStateModel } from "@xr3ngine/engine/src/networking/schema/worldStateSchema";
+import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
 
 const Device = mediasoupClient.Device;
 
@@ -39,7 +40,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
    * @param message message to send
    */
   sendReliableData(message): void {
-    console.log("Sending reliable message ", message)
     this.socket.emit(message);
   }
 
@@ -118,9 +118,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.socket.on("connect", async () => {
       console.log("Connected!");
 
+      Network.instance.mySocketID = this.socket.id
+
     // If a reliable message is received, add it to the queue
     this.socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
-      console.log("Adding ", message, " to queue")
       Network.instance.incomingMessageQueue.add(message)
     })
 
@@ -141,7 +142,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       await this.createDataProducer()
 
       console.log("About to send camera streams");
-      await this.sendCameraStreams();
+      // await this.sendCameraStreams();
     });
     this.socket.on(MessageTypes.WebRTCConsumeData.toString(), this.handleDataConsumerCreation)
   }
@@ -160,7 +161,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     const { worldState, routerRtpCapabilities } = resp as any;
 
     console.log("World state init: ")
-    console.log(worldStateModel.fromBuffer(worldState))
+    console.log(worldState)
     // TODO: This shouldn't be in the transport, should be in our network system somehow
     // Apply all state to initial frame
     applyWorldState(worldState)
@@ -195,6 +196,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // state, if the checkbox in our UI is unchecked. so as soon as we
     // have a client-side camVideoProducer object, we need to set it to
     // paused as appropriate, too.
+    if(MediaStreamComponent.instance.mediaStream === undefined)
+      await MediaStreamSystem.instance.startCamera();
     MediaStreamComponent.instance.camVideoProducer = await this.sendTransport.produce({
       track: MediaStreamComponent.instance.mediaStream.getVideoTracks()[0],
       encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
