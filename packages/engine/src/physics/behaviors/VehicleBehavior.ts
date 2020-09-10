@@ -16,10 +16,11 @@ const quaternion = new Quaternion();
 export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
   if (args.phase == 'onAdded') {
     const vehicleComponent = getMutableComponent(entity, VehicleBody) as VehicleBody;
+    const wheelsPositions = vehicleComponent.arrayWheelsPosition;
 
-    const [vehicle, wheelBodies] = createVehicleBody(entity);
-    vehicleComponent.vehiclePhysics = vehicle;
-    //VehicleBody.instance.vehicleEntity = entity;
+    const [vehicle, wheelBodies] = createVehicleBody(entity, wheelsPositions);
+
+    vehicleComponent.vehiclePhysics = vehicle
     vehicle.addToWorld(PhysicsManager.instance.physicsWorld);
     for (let i = 0; i < wheelBodies.length; i++) {
       PhysicsManager.instance.physicsWorld.addBody(wheelBodies[i]);
@@ -34,7 +35,8 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
 
       const vehicle = vehicleComponent.vehiclePhysics;
       const chassisBody = vehicle.chassisBody;
-      const wheels = vehicleComponent.arrayWheelsMesh
+      const wheels = vehicleComponent.arrayWheelsMesh;
+
 
       transform.position.set(
         chassisBody.position.x,
@@ -85,11 +87,12 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
   }
 };
 
-export function createVehicleBody (entity: Entity ): [RaycastVehicle, Body[]] {
+export function createVehicleBody (entity: Entity, wheelsPositions:any ): [RaycastVehicle, Body[]] {
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
+
   let chassisBody;
 
-  const chassisShape = new Box(new Vec3(1, 0.6, 2.2));
+  const chassisShape = new Box(new Vec3(1, 0.5, 2.4));
   chassisBody = new Body({ mass: 150 });
   chassisBody.addShape(chassisShape);
 
@@ -122,22 +125,22 @@ export function createVehicleBody (entity: Entity ): [RaycastVehicle, Body[]] {
     indexRightAxis: 0,
     indexForwardAxis: 2
   });
-
-  options.chassisConnectionPointLocal.set(1, 0, 1.4);
+//
+  options.chassisConnectionPointLocal.set(wheelsPositions[0].x, wheelsPositions[0].y, wheelsPositions[0].z);
   vehicle.addWheel(options);
 
-  options.chassisConnectionPointLocal.set(-1, 0, 1.4);
+  options.chassisConnectionPointLocal.set(wheelsPositions[1].x, wheelsPositions[1].y, wheelsPositions[1].z);
   vehicle.addWheel(options);
 
-  options.chassisConnectionPointLocal.set(-1, 0, -1.4);
+  options.chassisConnectionPointLocal.set(wheelsPositions[2].x, wheelsPositions[2].y, wheelsPositions[2].z);
   vehicle.addWheel(options);
 
-  options.chassisConnectionPointLocal.set(1, 0, -1.4);
+  options.chassisConnectionPointLocal.set(wheelsPositions[3].x, wheelsPositions[3].y, wheelsPositions[3].z);
   vehicle.addWheel(options);
 
   const wheelBodies = [];
   for (let i = 0; i < vehicle.wheelInfos.length; i++) {
-    const cylinderShape = new Cylinder(0.7, 0.7, 0.1, 20);
+    const cylinderShape = new Cylinder(0.3, 0.3, 0.1, 20);
     const wheelBody = new Body({
       mass: 0
     });
