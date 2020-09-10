@@ -59,10 +59,21 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
   const rayDirection = character.viewVector.clone().normalize().setY(0)
 
   raycaster.set(rayOrigin, rayDirection);
-  const intersections = raycaster.intersectObjects( raycastList );
+  const intersections = raycaster.intersectObjects( raycastList, true );
+  let object = null
+  if (intersections.length) {
+    object = intersections[0].object
+    while (raycastList.indexOf(object)===-1 && object.parent) {
+      object = object.parent
+    }
+    if (raycastList.indexOf(object)===-1) {
+      console.error('Raycasted sub-object not in raycast list')
+      object = null
+    }
+  }
 
-  const newRayHit = intersections.length? intersections[0] : null
+  const newRayHit = object && intersections.length? intersections[0] : null
   const interacts = getMutableComponent(entity, Interacts)
   interacts.focusedRayHit = newRayHit
-  interacts.focusedInteractive = newRayHit? (newRayHit.object as any).entity : null
+  interacts.focusedInteractive = newRayHit? (object as any).entity : null
 }

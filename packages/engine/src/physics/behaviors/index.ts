@@ -8,4 +8,3 @@ export * from './RigidBodyBehavior';
 export * from './VehicleBehavior';
 export * from './WheelBehavior';
 export * from './driveBehavior';
-export * from './getInCarBehavior';
