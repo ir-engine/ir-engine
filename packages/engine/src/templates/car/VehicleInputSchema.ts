@@ -2,7 +2,9 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
 import { Thumbsticks } from '../../common/enums/Thumbsticks';
 import { disableScroll, enableScroll } from '../../common/functions/enableDisableScrolling';
 import { preventDefault } from '../../common/functions/preventDefault';
-import { handleKey, handleMouseButton, handleMouseMovement } from '../../input/behaviors/DesktopInputBehaviors';
+import { handleMouseMovement } from '../../input/behaviors/DesktopInputBehaviors';
+import { handleMouseButton } from "../../input/behaviors/handleMouseButton";
+import { handleKey } from "../../input/behaviors/handleKey";
 import { handleGamepadConnected, handleGamepadDisconnected } from '../../input/behaviors/GamepadInputBehaviors';
 import { handleTouch, handleTouchMove } from '../../input/behaviors/TouchBehaviors';
 import { GamepadButtons } from '../../input/enums/GamepadButtons';
@@ -185,37 +187,32 @@ export const VehicleInputSchema: InputSchema = {
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
     [DefaultInput.SWITCH_CAR]: {
-      [BinaryValue.ON]: {
         started: [
           {
             behavior: getOutCar,
             args: {}
           }
         ]
-      }
     },
     [DefaultInput.POINTER_LOCK]: {
-      [BinaryValue.ON]: {
         started: [
           {
             behavior: cameraPointerLock,
             args: {}
           }
-        ]
-      },
-      [BinaryValue.OFF]: [
+        ],
+      ended: [
         {
           behavior: drive,
           args: {
             inputType: InputType.TWODIM,
-            value: [0, -1],
+            value: [0, 0],
             keyup: true
           }
         }
       ],
     },
     [DefaultInput.FORWARD]: {
-      [BinaryValue.ON]: {
         started: [
           {
             behavior: drive,
@@ -224,20 +221,27 @@ export const VehicleInputSchema: InputSchema = {
               value: [0, -1],
             }
           }
-        ]
-      },
-      [BinaryValue.OFF]: [
+        ],
+        continued: [
+          {
+            behavior: drive,
+            args: {
+              inputType: InputType.TWODIM,
+              value: [0, -1],
+            }
+          }
+        ],
+      ended: [
         {
           behavior: drive,
           args: {
             inputType: InputType.TWODIM,
-            value: [0, -1]
+            value: [0, 0]
           }
         }
       ]
     },
     [DefaultInput.BACKWARD]: {
-      [BinaryValue.ON]: {
         started: [
           {
             behavior: drive,
@@ -255,11 +259,18 @@ export const VehicleInputSchema: InputSchema = {
               value: [0, 1]
             }
           }
+        ],
+        ended: [
+          {
+            behavior: drive,
+            args: {
+              inputType: InputType.TWODIM,
+              value: [0, 0]
+            }
+          }
         ]
-      }
     },
     [DefaultInput.LEFT]: {
-      [BinaryValue.ON]: {
         started: [
           {
             behavior: drive,
@@ -277,11 +288,18 @@ export const VehicleInputSchema: InputSchema = {
               value: [-1, 0]
             }
           }
+        ],
+        ended: [
+          {
+            behavior: drive,
+            args: {
+              inputType: InputType.TWODIM,
+              value: [0, 0]
+            }
+          }
         ]
-      }
-    },
+      },
     [DefaultInput.RIGHT]: {
-      [BinaryValue.ON]: {
         started: [
           {
             behavior: drive,
@@ -292,14 +310,20 @@ export const VehicleInputSchema: InputSchema = {
           }
         ],
         continued: [
-        ]
-      },
-      [BinaryValue.OFF]: [
+          {
+            behavior: drive,
+            args: {
+              inputType: InputType.TWODIM,
+              value: [1, 0]
+            }
+          }
+        ],
+      ended: [
         {
           behavior: drive,
           args: {
             inputType: InputType.TWODIM,
-            value: [1, 0]
+            value: [0, 0]
           }
         }
       ]
@@ -307,7 +331,17 @@ export const VehicleInputSchema: InputSchema = {
   },
   // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
   inputAxisBehaviors: {
-    [DefaultInput.MOVEMENT_PLAYERONE]: [
+    [DefaultInput.MOVEMENT_PLAYERONE]: {
+      started: [
+        {
+          behavior: drive,
+          args: {
+            input: DefaultInput.MOVEMENT_PLAYERONE,
+            inputType: InputType.TWODIM
+          }
+        }
+      ],
+      changed: [
         {
           behavior: drive,
           args: {
@@ -316,5 +350,6 @@ export const VehicleInputSchema: InputSchema = {
           }
         }
       ]
+    }
   }
 };

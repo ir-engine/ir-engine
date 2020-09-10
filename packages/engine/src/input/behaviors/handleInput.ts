@@ -8,10 +8,11 @@ import { InputValue } from '../interfaces/InputValue';
 import { InputAlias } from '../types/InputAlias';
 import { getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { BinaryValue } from '../../common/enums/BinaryValue';
-let input: Input
 
 /**
- * Handle Input
+ * Call all behaviors associated with current input in it's current lifecycle phase
+ * i.e. if the player has pressed some buttons that have added the value to the input queue,
+ * call behaviors (move, jump, drive, etc) associated with that input
  * 
  * @param {Entity} entity The entity
  * @param args
@@ -19,9 +20,9 @@ let input: Input
  */
 export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): void => {
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
-  input = getMutableComponent(entity, Input);
-  console.log("Handling input data: ")
-  console.log(input.data)
+  const input = getMutableComponent(entity, Input);
+  
+  // For each input currently on the input object:
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
     // If the input is a button
     if (value.type === InputType.BUTTON) {
@@ -33,11 +34,6 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
         if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED
         if(value.lifecycleState === LifecycleValue.STARTED) {
           // Set the value of the input to continued to debounce
-          input.data.set(key, {
-            type: value.type,
-            value: value.value as BinaryType,
-            lifecycleState: LifecycleValue.CONTINUED
-          });
           input.schema.inputButtonBehaviors[key][value.value as number].started?.forEach(element =>
             element.behavior(entity, element.args, delta)
           );
@@ -48,44 +44,39 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
           );
         }
       } else {
-        input.schema.inputButtonBehaviors[key][value.value as number].forEach(element =>
+        input.schema.inputButtonBehaviors[key][value.value as number].ended?.forEach(element =>
           element.behavior(entity, element.args, delta)
         );
       }
-      } else {
-        if (value.lifecycleState === LifecycleValue.CONTINUED) {
-          // delete button state if it's not used in schema and continues
-          input.data.delete(key)
-        } else {
-          // mark button state as happened once
-          input.data.set(key, {
-            type: value.type,
-            value: value.value as BinaryType,
-            lifecycleState: LifecycleValue.CONTINUED
-          });
-        }
       }
-    } else if (
+    }
+    else if (
       value.type === InputType.ONEDIM ||
       value.type === InputType.TWODIM ||
       value.type === InputType.THREEDIM
     ) {
       if (input.schema.inputAxisBehaviors[key]) {
         // If lifecycle hasn't been set, init it
-        if (value.lifecycleState === undefined) {
+        if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED
+        if(value.lifecycleState === LifecycleValue.STARTED) {
           // Set the value to continued to debounce
-          input.data.set(key, {
-            type: value.type,
-            value: value.value as BinaryType,
-            lifecycleState: LifecycleValue.CHANGED
-          });
-          input.schema.inputAxisBehaviors[key].forEach(element =>
+          input.schema.inputAxisBehaviors[key].started?.forEach(element =>
             element.behavior(entity, element.args, delta)
           );
-        }
-        // Evaluate if the number is the same as last time, send the delta 
-        else {
-            
+          // Evaluate if the number is the same as last time, send the delta 
+        } else if(value.lifecycleState === LifecycleValue.CHANGED) {
+          // If the value is different from last frame, update it
+            if(input.data.has(key) && JSON.stringify(value.value) !== JSON.stringify(input.data.get(key).value)) {
+              input.schema.inputAxisBehaviors[key].changed?.forEach(element =>
+                element.behavior(entity, element.args, delta)
+              );
+            }
+            // Otherwise, remove it from the frame
+            else {
+                input.schema.inputAxisBehaviors[key].unchanged?.forEach(element =>
+                  element.behavior(entity, element.args, delta)
+                );
+            }
         }
       }
     } else {

@@ -1,16 +1,14 @@
-import { BinaryValue } from '../../common/enums/BinaryValue';
 import { Behavior } from '../../common/interfaces/Behavior';
-import { BinaryType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 import { InputType } from '../enums/InputType';
 import { Input } from '../components/Input';
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { MouseInput } from '../enums/MouseInput';
 
 /**
  * Local reference to input component
  */
-let input: Input;
+export let input: Input;
 const mousePosition: [number, number] = [0, 0];
 const mouseMovement: [number, number] = [0, 0];
 
@@ -24,6 +22,14 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
   input = getComponent(entity, Input);
   mousePosition[0] = (args.event.clientX / window.innerWidth) * 2 - 1;
   mousePosition[1] = (args.event.clientY / window.innerHeight) * -2 + 1;
+
+  const axis = input.schema.mouseInputMap.axes[MouseInput.MousePosition]
+  
+  // If input data doesn't have this call behaviors with lifecycle value started
+  // Otherwise, if input data has this...
+  // If it has changed, call changed
+  // If hasn't changed, call unchanged
+
   // Set type to TWODIM (two-dimensional axis) and value to a normalized -1, 1 on X and Y
   input.data.set(input.schema.mouseInputMap.axes[MouseInput.MousePosition], {
     type: InputType.TWODIM,
@@ -37,65 +43,56 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
     type: InputType.TWODIM,
     value: mouseMovement
   });
-};
 
-/**
- * System behavior called when a mouse button is fired
- *
- * @param {Entity} entity The entity
- * @param args is argument object with event and value properties. Value set 0 | 1
- */
-export const handleMouseButton: Behavior = (entity: Entity, args: { event: MouseEvent, value: BinaryType }): void => {
-  // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
-  input = getMutableComponent(entity, Input);
-  if (input.schema.mouseInputMap.buttons[args.event.button] === undefined) return;
-  // Set type to BUTTON (up/down discrete state) and value to up or down, as called by the DOM mouse events
-  if (args.value === BinaryValue.ON) {
-    // Set type to BUTTON and value to up or down
-    input.data.set(input.schema.mouseInputMap.buttons[args.event.button], {
-      type: InputType.BUTTON,
-      value: args.value
-    });
-    const mousePosition: [number, number] = [0, 0];
-    mousePosition[0] = (args.event.clientX / window.innerWidth) * 2 - 1;
-    mousePosition[1] = (args.event.clientY / window.innerHeight) * -2 + 1;
-    // Set type to TWOD (two dimensional) and value with x: -1, 1 and y: -1, 1
-    input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseClickDownPosition], {
-      type: InputType.TWODIM,
-      value: mousePosition
-    });
-  } else {
-    // Removed mouse input data
-    input.data.delete(input.schema.mouseInputMap.buttons[args.event.button]);
-    input.data.delete(input.schema.mouseInputMap.axes[MouseInput.MouseClickDownPosition]);
-    input.data.delete(input.schema.mouseInputMap.axes[MouseInput.MouseClickDownTransformRotation]);
-  }
-};
 
-/**
- * System behavior called when a keyboard key is pressed
- *
- * @param {Entity} entity The entity
- * @param args is argument object
- */
-export function handleKey(entity: Entity, args: { event: KeyboardEvent, value: BinaryType }): any {
-  console.log("Handle key called")
-  // Get immutable reference to Input and check if the button is defined -- ignore undefined keys
-  input = getComponent(entity, Input);
-  if (input.schema.keyboardInputMap[args.event.key] === undefined) return;
-  // If the key is in the map but it's in the same state as now, let's skip it (debounce)
-  if (
-    input.data.has(input.schema.keyboardInputMap[args.event.key]) &&
-    input.data.get(input.schema.keyboardInputMap[args.event.key]).value === args.value
-  ) { return; }
-  // Set type to BUTTON (up/down discrete state) and value to up or down, depending on what the value is set to
-  if (args.value === BinaryValue.ON) {
-    input.data.set(input.schema.keyboardInputMap[args.event.key], {
-      type: InputType.BUTTON,
-      value: args.value
-    });
-  } else {
-    console.log("Removing key")
-    input.data.delete(input.schema.keyboardInputMap[args.event.key])
-  }
+
+
+
+
+
+// If lifecycle hasn't been set, init it
+if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED
+if(value.lifecycleState === LifecycleValue.STARTED) {
+  // Set the value to continued to debounce
+  input.schema.inputAxisBehaviors[key].started?.forEach(element =>
+    element.behavior(entity, element.args, delta)
+  );
+  input.data.set(key, {
+    type: value.type,
+    value: value.value as BinaryType,
+    lifecycleState: LifecycleValue.CHANGED
+  });
 }
+// Evaluate if the number is the same as last time, send the delta 
+else {
+  // If the value is different from last frame, update it
+    if(input.data.has(key) && JSON.stringify(value.value) !== JSON.stringify(input.data.get(key).value)) {
+      input.data.set(key, {
+        type: value.type,
+        value: value.value as BinaryType,
+        lifecycleState: LifecycleValue.CHANGED
+      });
+      input.schema.inputAxisBehaviors[key].changed?.forEach(element =>
+        element.behavior(entity, element.args, delta)
+      );
+    }
+    // Otherwise, remove it from the frame
+    else {
+        input.data.set(key, {
+          type: value.type,
+          value: value.value as BinaryType,
+          lifecycleState: LifecycleValue.UNCHANGED
+        });
+        input.schema.inputAxisBehaviors[key].unchanged?.forEach(element =>
+          element.behavior(entity, element.args, delta)
+        );
+    }
+}
+}
+
+
+
+
+};
+
+
