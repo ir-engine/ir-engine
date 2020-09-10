@@ -206,7 +206,11 @@ export const VehicleInputSchema: InputSchema = {
       [BinaryValue.OFF]: [
         {
           behavior: drive,
-          args: {}
+          args: {
+            inputType: InputType.TWODIM,
+            value: [0, -1],
+            keyup: true
+          }
         }
       ],
     },
