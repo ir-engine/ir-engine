@@ -9,6 +9,6 @@ export class FollowCameraComponent extends Component<FollowCameraComponent> {
 }
 
 FollowCameraComponent.schema = {
-  mode: { type: Types.String, default: '' },
-  distance: { type: Types.Number, default: 0 }
+  mode: { type: Types.String, default: 'thirdPerson' },
+  distance: { type: Types.Number, default: 3 }
 };
