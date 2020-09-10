@@ -94,8 +94,6 @@ export function handleKey(entity: Entity, args: { event: KeyboardEvent, value: B
       value: args.value
     });
   } else {
-    // Removed buttons property from mouseInputMap and set
-    input.data.delete(input.schema.mouseInputMap.buttons[args.event.key]);
     input.data.set(input.schema.keyboardInputMap[args.event.key], {
       type: InputType.BUTTON,
       value: args.value
