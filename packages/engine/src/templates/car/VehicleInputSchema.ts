@@ -227,8 +227,7 @@ export const VehicleInputSchema: InputSchema = {
           behavior: drive,
           args: {
             inputType: InputType.TWODIM,
-            value: [0, 0],
-            keyup: false
+            value: [0, -1]
           }
         }
       ]
@@ -249,7 +248,7 @@ export const VehicleInputSchema: InputSchema = {
             behavior: drive,
             args: {
               inputType: InputType.TWODIM,
-              value: [0, 0]
+              value: [0, 1]
             }
           }
         ]
@@ -271,7 +270,7 @@ export const VehicleInputSchema: InputSchema = {
             behavior: drive,
             args: {
               inputType: InputType.TWODIM,
-              value: [0, 0]
+              value: [-1, 0]
             }
           }
         ]
@@ -296,7 +295,7 @@ export const VehicleInputSchema: InputSchema = {
           behavior: drive,
           args: {
             inputType: InputType.TWODIM,
-            value: [0, 0]
+            value: [1, 0]
           }
         }
       ]
