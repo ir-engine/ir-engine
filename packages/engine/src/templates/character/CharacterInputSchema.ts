@@ -311,15 +311,5 @@ export const CharacterInputSchema: InputSchema = {
   },
   // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
   inputAxisBehaviors: {
-    [DefaultInput.MOVEMENT_PLAYERONE]: {
-      started: [
-      ],
-      continued: [
-      ]
-    },
-    [DefaultInput.SCREENXY]: {
-      started: [
-      ]
-    }
   }
 };

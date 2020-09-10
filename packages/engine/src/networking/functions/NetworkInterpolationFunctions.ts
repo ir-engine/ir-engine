@@ -126,11 +126,25 @@ export function interpolate (
       const lerpMethod = match ? match?.[1] : 'linear';
       if (match) p = match?.[0].replace(/\([\S]+$/gm, '');
 
-      const p0 = e?.[p];
-      const p1 = other?.[p];
+      if(lerpMethod === 'quat'){
+        const p0 = e?.[params['qX'], params['qY'], params['qZ'], params['qw']];
 
-      const pn = lerpFnc(lerpMethod, p1, p0, pPercent);
-      if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i][p] = pn;
+        const p1 = other?.[params['qX'], params['qY'], params['qZ'], params['qw']];
+
+        const pn = lerpFnc(lerpMethod, p1, p0, pPercent);
+        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i]['qX'] = pn['qX'];
+        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i]['qY'] = pn['qY'];
+        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i]['qZ'] = pn['qZ'];
+        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i]['qW'] = pn['qW'];
+
+      }
+      else {
+        const p0 = e?.[p];
+        const p1 = other?.[p];
+  
+        const pn = lerpFnc(lerpMethod, p1, p0, pPercent);
+        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i][p] = pn;
+      }
     });
   });
 
@@ -145,7 +159,7 @@ export function interpolate (
 }
 
 /** Get the calculated interpolation on the client. */
-export function calculateInterpolation (parameters: string, deep = ''): InterpolatedSnapshot | undefined {
+export function calculateInterpolation (parameters: string, arrayName = ''): InterpolatedSnapshot | undefined {
   // get the snapshots [_interpolationBuffer] ago
   const serverTime = Date.now() - NetworkInterpolation.instance.timeOffset - NetworkInterpolation.instance._interpolationBuffer;
   const shots = NetworkInterpolation.instance.get(serverTime);
@@ -154,5 +168,5 @@ export function calculateInterpolation (parameters: string, deep = ''): Interpol
   const { older, newer } = shots;
   if (!older || !newer) return;
 
-  return interpolate(newer, older, serverTime, parameters, deep);
+  return interpolate(newer, older, serverTime, parameters, arrayName);
 }

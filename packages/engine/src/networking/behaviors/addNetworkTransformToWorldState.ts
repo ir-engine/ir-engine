@@ -3,6 +3,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { Network } from '../components/Network';
 import { NetworkObject } from '../components/NetworkObject';
+import { Quat } from '../types/SnapshotDataTypes';
 
 export const addNetworkTransformToWorldState: Behavior = (entity) => {
     const transformComponent = getComponent(entity, TransformComponent)
@@ -13,11 +14,9 @@ export const addNetworkTransformToWorldState: Behavior = (entity) => {
         x: transformComponent.position.x,
         y: transformComponent.position.y,
         z: transformComponent.position.z,
-        q: {
-            x: transformComponent.rotation.x,
-            y: transformComponent.rotation.y,
-            z: transformComponent.rotation.z,
-            w: transformComponent.rotation.w
-        }
+        qX: transformComponent.rotation.x,
+        qY: transformComponent.rotation.y,
+        qZ: transformComponent.rotation.z,
+        qW: transformComponent.rotation.w
     })
 };

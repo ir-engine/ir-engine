@@ -182,19 +182,6 @@ export const VehicleInputSchema: InputSchema = {
     [DefaultInput.CROUCH]: { blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT] } as InputRelationship,
     [DefaultInput.JUMP]: { overrides: [DefaultInput.CROUCH] } as InputRelationship
   },
-  // onInputButtonBehavior: {
-  //     [BinaryValue.ON]: {
-  //       started: [
-  //         {
-  //           behavior: sendMessage,
-  //           args: {}
-  //         }
-  //       ]
-  //     },
-  //     [BinaryValue.OFF]: {
-
-  //     }
-  //   }
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
     [DefaultInput.SWITCH_CAR]: {
@@ -318,10 +305,7 @@ export const VehicleInputSchema: InputSchema = {
   },
   // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
   inputAxisBehaviors: {
-    [DefaultInput.MOVEMENT_PLAYERONE]: {
-      started: [
-      ],
-      continued: [
+    [DefaultInput.MOVEMENT_PLAYERONE]: [
         {
           behavior: drive,
           args: {
@@ -330,17 +314,5 @@ export const VehicleInputSchema: InputSchema = {
           }
         }
       ]
-    },
-    [DefaultInput.SCREENXY]: {
-      started: [
-        // {
-        //   behavior: rotateAround,
-        //   args: {
-        //     input: DefaultInput.SCREENXY,
-        //     inputType: InputType.TWODIM
-        //   }
-        // }
-      ]
-    }
   }
 };

@@ -139,8 +139,14 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
         // TODO: Get all inputs and add to inputs
 
+        console.log("Sending world state")
+        console.log(worldState)
+
+        try 
+        {
         // Convert world state to buffer and send along
         callback({ worldState: worldStateModel.toBuffer(worldState), routerRtpCapabilities: this.router.rtpCapabilities })
+        } catch (error) {console.log(error)}
       })
 
       // --> /signaling/leave
@@ -481,6 +487,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   ) => {
     logger.info('Data Consumer being created on server by client: ' + socket.id)
     Object.keys(Network.instance.clients).filter(id => id !== socket.id).forEach(async (socketId: string) => {
+      try {
+        console.log("Client info: ")
+        console.log(Network.instance.clients[socketId])
       const transport: Transport = Network.instance.clients[socketId].recvTransport
       const dataConsumer = await transport.consumeData({
         dataProducerId: dataProducer.id,
@@ -511,6 +520,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         appData: dataConsumer.appData,
         protocol: 'json',
       } as MediaSoupClientTypes.DataConsumerOptions)
+    } catch(error) { console.log(error) }
     })
   }
 

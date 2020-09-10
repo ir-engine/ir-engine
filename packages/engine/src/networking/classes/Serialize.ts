@@ -39,7 +39,6 @@ export class Serialize {
 
       for (var property in data) {
         if (data.hasOwnProperty(property)) {
-          console.log("PROPERTY: ", property)
           if (typeof data[property] === 'object') {
             // if data is array, but schemas is flat, use index 0 on the next iteration
             if (Array.isArray(data)) flatten(schema, data[parseInt(property)])
@@ -202,7 +201,6 @@ export class Serialize {
         for (var property in struct) {
           if (struct.hasOwnProperty(property)) {
             const prop = struct[property]
-
             // handle specialTypes e.g.:  "x: { type: int16, digits: 2 }"
             let specialTypes
             if (prop?.type?.type && prop?.type?.bytes) {
@@ -212,13 +210,14 @@ export class Serialize {
             }
 
             if (prop && prop['type'] && prop['bytes']) {
+
               const type = prop['type']
               const _bytes = prop['bytes']
               let value
 
               if (type === 'String8') {
                 value = ''
-                const length = prop.length || 12
+                const length = prop.length
                 for (let i = 0; i < length; i++) {
                   const char = String.fromCharCode(view.getUint8(bytes))
                   value += char
@@ -227,7 +226,7 @@ export class Serialize {
               }
               if (type === 'String16') {
                 value = ''
-                const length = prop.length || 12
+                const length = prop.length
                 for (let i = 0; i < length; i++) {
                   const char = String.fromCharCode(view.getUint16(bytes))
                   value += char
@@ -267,6 +266,8 @@ export class Serialize {
                 bytes += _bytes
               }
               if (type === 'Float32Array') {
+                console.log("Property: ", property)
+
                 value = view.getFloat32(bytes)
                 bytes += _bytes
               }
