@@ -14,6 +14,7 @@ let input: Input
  * Handle Input
  * 
  * @param {Entity} entity The entity
+ * @param args
  * @param {Number} delta Time since last frame
  */
 export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): void => {
@@ -51,7 +52,19 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
         );
         input.data.delete(key)
       }
-    } 
+      } else {
+        if (value.lifecycleState === LifecycleValue.CONTINUED) {
+          // delete button state if it's not used in schema and continues
+          input.data.delete(key)
+        } else {
+          // mark button state as happened once
+          input.data.set(key, {
+            type: value.type,
+            value: value.value as BinaryType,
+            lifecycleState: LifecycleValue.CONTINUED
+          });
+        }
+      }
     } else if (
       value.type === InputType.ONEDIM ||
       value.type === InputType.TWODIM ||
