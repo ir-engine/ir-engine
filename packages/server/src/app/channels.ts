@@ -1,5 +1,7 @@
 import '@feathersjs/transport-commons'
 import { Application } from '../declarations'
+import getLocalServerIp from '../util/get-local-server-ip';
+import config from '../config';
 
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
@@ -19,7 +21,7 @@ export default (app: Application): void => {
   // }
 
   app.on('connection', async (connection) => {
-    if ((process.env.KUBERNETES === 'true' && process.env.SERVER_MODE === 'realtime') || (process.env.NODE_ENV === 'development')) {
+    if ((process.env.KUBERNETES === 'true' && config.server.mode === 'realtime') || (process.env.NODE_ENV === 'development') || config.server.mode === 'local') {
       try {
         const token = (connection as any).socketQuery?.token
         if (token != null) {
@@ -70,6 +72,7 @@ export default (app: Application): void => {
                 })
               }
             }
+            console.log('Patching user instanceId to ' + (app as any).instance.id)
             await app.service('user').patch(userId, {
               instanceId: (app as any).instance.id
             })
@@ -87,14 +90,17 @@ export default (app: Application): void => {
                   instanceId: (app as any).instance.id
                 })
                 const nonOwners = partyUsers.filter((partyUser) => partyUser.isOwner === 0);
+                const emittedIp = (process.env.KUBERNETES !== 'true') ? getLocalServerIp() : { ipAddress: status.address, port: status.portsList[0].port}
+                console.log('Emitting instance-provision to other party users:');
+                console.log(emittedIp);
                 await Promise.all(nonOwners.map(async partyUser => {
-                  await app.service('user').patch(partyUser.userId, {
-                    instanceId: (app as any).instance.id
+                  await app.service('instance-provision').emit('created', {
+                    userId: partyUser.userId,
+                    ipAddress: emittedIp.ipAddress,
+                    port: emittedIp.port,
+                    locationId: locationId
                   })
                 }))
-                await app.service('instance').patch((app as any).instance.id, {
-                  currentUsers: ((app as any).instance.currentUsers as number) + nonOwners.length
-                })
               }
             }
           }
@@ -107,7 +113,7 @@ export default (app: Application): void => {
   })
 
   app.on('disconnect', async (connection) => {
-    if ((process.env.KUBERNETES === 'true' && process.env.SERVER_MODE === 'realtime') || (process.env.NODE_ENV === 'development')) {
+    if ((process.env.KUBERNETES === 'true' && config.server.mode === 'realtime') || process.env.NODE_ENV === 'development' || config.server.mode === 'local') {
       try {
         const token = (connection as any).socketQuery?.token
         if (token != null) {

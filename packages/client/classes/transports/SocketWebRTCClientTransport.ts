@@ -307,27 +307,48 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   async leave(): Promise<boolean> {
-    this.leaving = true;
+    try {
+      console.log('Attempting to leave client transport')
+      this.leaving = true;
 
-    // close everything on the server-side (transports, producers, consumers)
-    await this.request(MessageTypes.LeaveWorld.toString());
+      // stop polling
+      clearInterval(this.pollingInterval);
+      console.log('Cleared interval')
 
-    // closing the transports closes all producers and consumers. we
-    // don't need to do anything beyond closing the transports, except
-    // to set all our local variables to their initial states
-    await this.recvTransport.close();
-    await this.sendTransport.close();
+      // close everything on the server-side (transports, producers, consumers)
+      const result = await this.request(MessageTypes.LeaveWorld.toString());
+      console.log('LeaveWorld result:')
+      console.log(result)
+      if (result.error) {
+        console.error(result.error);
+      }
+      console.log('Left World')
 
-    clearInterval(this.pollingInterval);
-    this.recvTransport = null;
-    this.sendTransport = null;
-    this.resetProducer();
-    this.lastPollSyncData = {};
-    MediaStreamComponent.instance.consumers = [];
-    this.leaving = false;
+      // closing the transports closes all producers and consumers. we
+      // don't need to do anything beyond closing the transports, except
+      // to set all our local variables to their initial states
+      if (this.recvTransport) await this.recvTransport.close();
+      console.log('Closed receive transport')
+      if (this.sendTransport) await this.sendTransport.close();
+      console.log('Removed send transport')
 
-    console.log('Left World')
-    return true;
+      this.recvTransport = null;
+      this.sendTransport = null;
+      MediaStreamComponent.instance.camVideoProducer = null;
+      MediaStreamComponent.instance.camAudioProducer = null;
+      MediaStreamComponent.instance.screenVideoProducer = null;
+      MediaStreamComponent.instance.screenAudioProducer = null;
+      MediaStreamComponent.instance.mediaStream = null;
+      MediaStreamComponent.instance.localScreen = null;
+      this.lastPollSyncData = {};
+      MediaStreamComponent.instance.consumers = [];
+      this.leaving = false;
+      console.log('Nulled everything')
+      return true;
+    } catch (err) {
+      console.log('Error with leave()')
+      console.log(err)
+    }
   }
 
   async subscribeToTrack(peerId: string, mediaTag: string) {

@@ -96,8 +96,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
           }
 
           await this.app.service('user').patch(inviteeIdentityProvider.userId, {
-            partyId: invite.targetObjectId,
-            instanceId: party.instanceId
+            partyId: invite.targetObjectId
           })
 
           await this.app.service('party-user').create({
@@ -148,8 +147,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
           }
 
           await this.app.service('user').patch(invite.inviteeId, {
-            partyId: invite.targetObjectId,
-            instanceId: party.instanceId
+            partyId: invite.targetObjectId
           })
 
           await this.app.service('party-user').create({

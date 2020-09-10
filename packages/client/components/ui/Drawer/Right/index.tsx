@@ -447,13 +447,13 @@ const Invites = (props: Props): any => {
                         { inviteTypeIndex === 2 && party == null &&
                             <div className="flex-justify-center">You are not currently in a party</div>
                         }
-                        { inviteTypeIndex === 2 && party != null && selfPartyUser?.isOwner !== true &&
+                        { inviteTypeIndex === 2 && party != null && selfPartyUser?.isOwner !== true && selfPartyUser?.isOwner !== 1 &&
                             <div className="flex-justify-center">You are not the owner of your current party</div>
                         }
                         {!((inviteTypeIndex === 1 && invitableGroupState.get('total') === 0) ||
                             (inviteTypeIndex === 1 && _.find(invitableGroupState.get('groups'), (invitableGroup) => invitableGroup.id === inviteState.get('targetObjectId')) == null) ||
                             (inviteTypeIndex === 2 && party == null) ||
-                            (inviteTypeIndex === 2 && party != null && selfPartyUser?.isOwner !== true)) &&
+                            (inviteTypeIndex === 2 && party != null && selfPartyUser?.isOwner !== true && selfPartyUser?.isOwner !== 1)) &&
                                 <div>
                                     <Tabs
                                         value={tabIndex}
