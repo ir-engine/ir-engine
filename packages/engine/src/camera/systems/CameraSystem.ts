@@ -1,7 +1,13 @@
 import { Engine } from '../../ecs/classes/Engine';
 import { System } from '../../ecs/classes/System';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { createEntity, getMutableComponent, getComponent, addComponent } from '../../ecs/functions/EntityFunctions';
+import {
+  createEntity,
+  getMutableComponent,
+  getComponent,
+  addComponent,
+  hasComponent
+} from '../../ecs/functions/EntityFunctions';
 import { addObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
 
 import { CameraComponent } from '../components/CameraComponent';
@@ -35,8 +41,9 @@ export class CameraSystem extends System {
 
     this.queryResults.cameraComponent.all?.forEach(entity => {
       const cam = getComponent(entity, CameraComponent) as CameraComponent;
-      if (cam.followTarget !== null && cam.followTarget !== undefined) {
+      if (!!cam.followTarget && hasComponent(cam.followTarget, FollowCameraComponent)) {
         setCameraFollow(entity, null, delta, cam.followTarget);
+
       }
     });
 
