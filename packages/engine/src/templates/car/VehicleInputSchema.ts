@@ -14,6 +14,9 @@ import { drive } from '@xr3ngine/engine/src/physics/behaviors/driveBehavior';
 import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
 import { getOutCar } from '@xr3ngine/engine/src/templates/car/behaviors/getOutCarBehavior';
 import { DefaultInput } from '../shared/DefaultInput';
+import { driveSteering } from "../../physics/behaviors/driveSteeringBehavior";
+import { honk } from './behaviors/honk';
+import { driveHandBrake } from "../../physics/behaviors/driveHandBrake";
 
 export const VehicleInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -202,17 +205,7 @@ export const VehicleInputSchema: InputSchema = {
             args: {}
           }
         ]
-      },
-      [BinaryValue.OFF]: [
-        {
-          behavior: drive,
-          args: {
-            inputType: InputType.TWODIM,
-            value: [0, -1],
-            keyup: true
-          }
-        }
-      ],
+      }
     },
     [DefaultInput.FORWARD]: {
       [BinaryValue.ON]: {
@@ -220,9 +213,7 @@ export const VehicleInputSchema: InputSchema = {
           {
             behavior: drive,
             args: {
-              inputType: InputType.TWODIM,
-              value: [0, -1],
-              keyup: true
+              direction: 1
             }
           }
         ]
@@ -231,9 +222,7 @@ export const VehicleInputSchema: InputSchema = {
         {
           behavior: drive,
           args: {
-            inputType: InputType.TWODIM,
-            value: [0, 0],
-            keyup: false
+            direction: 0
           }
         }
       ]
@@ -244,68 +233,113 @@ export const VehicleInputSchema: InputSchema = {
           {
             behavior: drive,
             args: {
-              inputType: InputType.TWODIM,
-              value: [0, 1]
+              direction: -1
             }
           }
-        ],
-        continued: [
-          {
-            behavior: drive,
-            args: {
-              inputType: InputType.TWODIM,
-              value: [0, 0]
-            }
-          }
-        ]
-      }
-    },
-    [DefaultInput.LEFT]: {
-      [BinaryValue.ON]: {
-        started: [
-          {
-            behavior: drive,
-            args: {
-              inputType: InputType.TWODIM,
-              value: [-1, 0]
-            }
-          }
-        ],
-        continued: [
-          {
-            behavior: drive,
-            args: {
-              inputType: InputType.TWODIM,
-              value: [0, 0]
-            }
-          }
-        ]
-      }
-    },
-    [DefaultInput.RIGHT]: {
-      [BinaryValue.ON]: {
-        started: [
-          {
-            behavior: drive,
-            args: {
-              inputType: InputType.TWODIM,
-              value: [1, 0]
-            }
-          }
-        ],
-        continued: [
         ]
       },
       [BinaryValue.OFF]: [
         {
           behavior: drive,
           args: {
-            inputType: InputType.TWODIM,
-            value: [0, 0]
+            direction: 0
           }
         }
       ]
-    }
+    },
+    [DefaultInput.LEFT]: {
+      [BinaryValue.ON]: {
+        started: [
+          {
+            behavior: driveSteering,
+            args: {
+              direction: 1
+            }
+          }
+        ],
+        continued: [
+          {
+            behavior: driveSteering,
+            args: {
+              direction: 1
+            }
+          }
+        ]
+      },
+      [BinaryValue.OFF]: [
+        {
+          behavior: driveSteering,
+          args: {
+            direction: 0
+          }
+        }
+      ]
+    },
+    [DefaultInput.RIGHT]: {
+      [BinaryValue.ON]: {
+        started: [
+          {
+            behavior: driveSteering,
+            args: {
+              direction: -1
+            }
+          }
+        ],
+        continued: [
+          {
+            behavior: driveSteering,
+            args: {
+              direction: -1
+            }
+          }
+        ]
+      },
+      [BinaryValue.OFF]: [
+        {
+          behavior: driveSteering,
+          args: {
+            direction: 0
+          }
+        }
+      ]
+    },
+    // [DefaultInput.JUMP]: {
+    //   [BinaryValue.ON]: {
+    //     started: [
+    //       {
+    //         behavior: honk
+    //       }
+    //     ]
+    //   }
+    // }
+    [DefaultInput.JUMP]: {
+      [BinaryValue.ON]: {
+        started: [
+          {
+            behavior: driveHandBrake,
+            args: {
+              on: true
+            }
+          }
+        ],
+        continued: [
+          {
+            behavior: driveHandBrake,
+            args: {
+              on: true
+            }
+          }
+        ]
+      },
+      [BinaryValue.OFF]: [
+        {
+          behavior: driveHandBrake,
+          args: {
+            on: false
+          }
+        }
+      ]
+    },
   },
   // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
   inputAxisBehaviors: {
