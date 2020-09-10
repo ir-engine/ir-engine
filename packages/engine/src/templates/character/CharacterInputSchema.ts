@@ -166,6 +166,7 @@ export const CharacterInputSchema: InputSchema = {
     a: DefaultInput.LEFT,
     s: DefaultInput.BACKWARD,
     d: DefaultInput.RIGHT,
+    e: DefaultInput.INTERACT,
     ' ': DefaultInput.JUMP,
     p: DefaultInput.POINTER_LOCK,
     f: DefaultInput.SWITCH_CAR
