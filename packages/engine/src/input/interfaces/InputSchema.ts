@@ -41,15 +41,17 @@ export interface InputSchema {
     // input name / alias
     [key: number]: {
       // binary state (on, off)
-      [BinaryValue.ON]?: {
         started?: BehaviorValue[]
         continued?: BehaviorValue[]
-      }
-      [BinaryValue.OFF]?: BehaviorValue[]
+        ended?: BehaviorValue[]
     }
   }
   inputAxisBehaviors: {
     // input name / alias
-    [key: number]: BehaviorValue[]
+    [key: number]: {
+      started?: BehaviorValue[]
+      changed?: BehaviorValue[]
+      unchanged?: BehaviorValue[]
+    }
   }
 }

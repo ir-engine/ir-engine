@@ -3,7 +3,9 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
 import { Thumbsticks } from '../../common/enums/Thumbsticks';
 import { disableScroll, enableScroll } from '../../common/functions/enableDisableScrolling';
 import { preventDefault } from '../../common/functions/preventDefault';
-import { handleKey, handleMouseButton, handleMouseMovement } from '../../input/behaviors/DesktopInputBehaviors';
+import { handleMouseMovement } from '../../input/behaviors/DesktopInputBehaviors';
+import { handleMouseButton } from "../../input/behaviors/handleMouseButton";
+import { handleKey } from "../../input/behaviors/handleKey";
 import { handleGamepadConnected, handleGamepadDisconnected } from '../../input/behaviors/GamepadInputBehaviors';
 import { handleTouch, handleTouchMove } from '../../input/behaviors/TouchBehaviors';
 import { GamepadButtons } from '../../input/enums/GamepadButtons';
@@ -90,7 +92,6 @@ export const CharacterInputSchema: InputSchema = {
         behavior: handleTouchMove
       }
     ],
-
     // Keys
     keyup: [
       {
@@ -181,25 +182,21 @@ export const CharacterInputSchema: InputSchema = {
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
     [DefaultInput.POINTER_LOCK]: {
-      [BinaryValue.ON]: {
         started: [
           {
             behavior: cameraPointerLock,
             args: {}
           }
         ]
-      }
     },
     [DefaultInput.JUMP]: {
-      [BinaryValue.ON]: {
         started: [
           {
             behavior: updateCharacterState,
             args: {}
           }
-        ]
-      },
-      [BinaryValue.OFF]: [
+        ],
+      ended: [
         {
           behavior: updateCharacterState,
           args: {}
@@ -207,7 +204,6 @@ export const CharacterInputSchema: InputSchema = {
       ]
     },
     [DefaultInput.FORWARD]: {
-      [BinaryValue.ON]: {
         started: [
           {
             behavior: setArcadeVelocityTarget,
@@ -215,9 +211,6 @@ export const CharacterInputSchema: InputSchema = {
               z: 1
             }
           }
-          // {
-          //   behavior: updateMovementState
-          // }
         ],
         continued: [
           {
@@ -226,9 +219,8 @@ export const CharacterInputSchema: InputSchema = {
               z: 1
             }
           }
-        ]
-      },
-      [BinaryValue.OFF]: [
+        ],
+      ended: [
         {
           behavior: updateCharacterState,
           args: {}
@@ -236,11 +228,7 @@ export const CharacterInputSchema: InputSchema = {
       ]
     },
     [DefaultInput.BACKWARD]: {
-      [BinaryValue.ON]: {
         started: [
-          // {
-          //   behavior: updateMovementState
-          // },
           {
             behavior: setArcadeVelocityTarget,
             args: {
@@ -255,9 +243,8 @@ export const CharacterInputSchema: InputSchema = {
               z: -1
             }
           }
-        ]
-      },
-      [BinaryValue.OFF]: [
+        ],
+      ended: [
         {
           behavior: updateCharacterState,
           args: {}
@@ -265,11 +252,7 @@ export const CharacterInputSchema: InputSchema = {
       ]
     },
     [DefaultInput.LEFT]: {
-      [BinaryValue.ON]: {
         started: [
-          // {
-          //   behavior: updateMovementState
-          // },
           {
             behavior: setArcadeVelocityTarget,
             args: {
@@ -284,9 +267,8 @@ export const CharacterInputSchema: InputSchema = {
               x: 1
             }
           }
-        ]
-      },
-      [BinaryValue.OFF]: [
+        ],
+      ended: [
         {
           behavior: updateCharacterState,
           args: {}
@@ -294,11 +276,7 @@ export const CharacterInputSchema: InputSchema = {
       ]
     },
     [DefaultInput.RIGHT]: {
-      [BinaryValue.ON]: {
         started: [
-          // {
-          //   behavior: updateMovementState
-          // },
           {
             behavior: setArcadeVelocityTarget,
             args: {
@@ -313,9 +291,8 @@ export const CharacterInputSchema: InputSchema = {
               x: -1
             }
           }
-        ]
-      },
-      [BinaryValue.OFF]: [
+        ],
+      ended: [
         {
           behavior: updateCharacterState,
           args: {}
