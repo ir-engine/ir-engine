@@ -51,7 +51,6 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
         input.schema.inputButtonBehaviors[key][value.value as number].forEach(element =>
           element.behavior(entity, element.args, delta)
         );
-        input.data.delete(key)
       }
       } else {
         if (value.lifecycleState === LifecycleValue.CONTINUED) {
@@ -78,7 +77,7 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
           input.data.set(key, {
             type: value.type,
             value: value.value as BinaryType,
-            lifecycleState: LifecycleValue.CONTINUED
+            lifecycleState: LifecycleValue.CHANGED
           });
           input.schema.inputAxisBehaviors[key].forEach(element =>
             element.behavior(entity, element.args, delta)
@@ -86,7 +85,7 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
         }
         // Evaluate if the number is the same as last time, send the delta 
         else {
-          
+            
         }
       }
     } else {
