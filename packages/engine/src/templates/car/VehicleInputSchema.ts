@@ -2,7 +2,7 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
 import { Thumbsticks } from '../../common/enums/Thumbsticks';
 import { disableScroll, enableScroll } from '../../common/functions/enableDisableScrolling';
 import { preventDefault } from '../../common/functions/preventDefault';
-import { handleMouseMovement } from '../../input/behaviors/DesktopInputBehaviors';
+import { handleMouseMovement } from "../../input/behaviors/handleMouseMovement";
 import { handleMouseButton } from "../../input/behaviors/handleMouseButton";
 import { handleKey } from "../../input/behaviors/handleKey";
 import { handleGamepadConnected, handleGamepadDisconnected } from '../../input/behaviors/GamepadInputBehaviors';

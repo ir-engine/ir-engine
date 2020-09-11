@@ -8,7 +8,7 @@ import { WheelBody } from '../../../physics/components/WheelBody';
 import { VehicleBody } from '../../../physics/components/VehicleBody';
 
 export const getOutCar: Behavior = (entity: Entity, args: { value: Vector2 }): void => {
-
+  console.log("Getting out of car")
   let vehicleBodyComponent = getMutableComponent(entity, VehicleBody)
 
   let entityDriver = vehicleBodyComponent.currentDriver

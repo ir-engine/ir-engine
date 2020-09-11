@@ -118,8 +118,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   worker: Worker
   router: Router
   transport: Transport
+  isInitialized: boolean = false
 
   sendReliableData(message: any): void {
+    if(!this.isInitialized) return
     this.socketIO.sockets.emit(MessageTypes.ReliableMessage.toString(), message)
   }
 
@@ -138,6 +140,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   }
 
   public async initialize(address, port = 3030): Promise<void> {
+    if(this.isInitialized) console.error("Already initialized transport")
     logger.info('Initializing server transport')
     if (process.env.KUBERNETES === 'true')
       (app as any).agonesSDK.getGameServer().then((gsStatus) => {
@@ -534,6 +537,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         callback({ paused: true })
       })
     })
+    this.isInitialized = true
   }
 
   // start mediasoup with a single worker and router
