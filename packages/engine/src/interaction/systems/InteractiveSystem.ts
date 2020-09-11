@@ -48,11 +48,6 @@ export class InteractiveSystem extends System {
           if (!hasComponent(interacts.focusedInteractive, InteractiveFocused)) {
             addComponent(interacts.focusedInteractive, InteractiveFocused, {interacts: entity})
           }
-
-          const input = getComponent(entity, Input)
-          if (input.data.has(DefaultInput.INTERACT) && input.data.get(DefaultInput.INTERACT).value === BinaryValue.ON) {
-            interact(entity, null, delta, interacts.focusedInteractive)
-          }
         }
 
         // unmark all unfocused

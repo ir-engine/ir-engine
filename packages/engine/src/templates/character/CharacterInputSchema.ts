@@ -15,6 +15,7 @@ import { InputSchema } from '../../input/interfaces/InputSchema';
 import { DefaultInput } from '../shared/DefaultInput';
 import { setArcadeVelocityTarget } from './behaviors/setArcadeVelocityTarget';
 import { updateCharacterState } from "./behaviors/updateCharacterState";
+import { interact } from "../../interaction/behaviors/interact";
 
 export const CharacterInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -187,6 +188,15 @@ export const CharacterInputSchema: InputSchema = {
             args: {}
           }
         ]
+    },
+    [DefaultInput.INTERACT]: {
+      // Important to place behaviors that will change input onto 'ended' lifecycle, otherwise 'ended' will not happen in switched off input
+      ended: [
+        {
+          behavior: interact,
+          args: {}
+        }
+      ]
     },
     [DefaultInput.JUMP]: {
         started: [
