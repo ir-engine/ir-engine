@@ -28,29 +28,28 @@ export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
   // addComponent(entity, FollowCameraComponent, { distance: 5, mode: "thirdPerson" })
 
   const vehicleComponent = getMutableComponent(entity, VehicleBody) as VehicleBody;
+  const scale = 1
   const asset = args.asset
-  
   let deleteArr = []
   let arrayWheels = []
+   asset.scene.traverse( mesh => { // scene gld
 
-   asset.children.forEach( mesh => { // scene gld
-
-     if (mesh.name == 'Body') {
-      // mesh.scale.set(1,1,1)
-
+     if (mesh.name == 'body') {
+      //mesh.scale.set(0.1,0.1,0.1)
        vehicleComponent.vehicleMesh = mesh
        //vehicleComponent.arrayVehiclePosition.push(new Vector3().copy(mesh.position) )
      }
 
 
 
-     if (mesh.name == "Collider" || mesh.name == "Window") { // mesh.userData.data
+     if (mesh.name == "collider" || mesh.name == "Window") { // mesh.userData.data
        deleteArr.push(mesh)
      }
 
      if (mesh.name.substring(0,5) == "wheel") {
-      //  mesh.scale.set(1,1,1)
+        //mesh.scale.set(0.1,0.1,0.1)
         deleteArr.push(mesh)
+
         vehicleComponent.arrayWheelsPosition.push(new Vector3().copy(mesh.position) )
         vehicleComponent.arrayWheelsMesh.push(mesh.clone())
         //console.log('Engine');

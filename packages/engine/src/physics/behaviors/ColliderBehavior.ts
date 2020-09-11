@@ -27,21 +27,21 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string, phas
   // phase onAdded
   console.log("*** Adding collider")
   const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
-    const transform = addComponent<TransformComponent>(entity, TransformComponent);
-    //if(collider.type === undefined) collider.type === args.type ?? 'box'
+    const transform = getComponent<TransformComponent>(entity, TransformComponent);
 
-    console.log("collider collider")
+    console.log("collider type "+collider.type)
     let body;
     if (collider.type === 'box') body = createBox(entity);
     else if (collider.type === 'cylinder') body = createCylinder(entity);
     else if (collider.type === 'sphere') body = createSphere(entity);
     else if (collider.type === 'convex') body = createConvexGeometry(entity, getMutableComponent<Object3DComponent>(entity, Object3DComponent as any).value);
     else if (collider.type === 'ground') body = createGroundGeometry(entity);
-
+    body.position.set(
+      transform.position.x,
+      transform.position.y,
+      transform.position.z
+    )
     collider.collider = body;
-    console.log('EMERCY ////////////////////////');
-
-    console.log(collider.collider)
 
     // If this entity has an object3d, get the position of that
     // if(hasComponent(entity, Object3DComponent)){
