@@ -31,34 +31,29 @@ export class PhysicsSystem extends System {
     return super.canExecute(delta) && this.fixedRunner.canRun(delta);
   }
 
-  execute(delta):void {
+  execute(delta:number): void {
     this.fixedRunner.run(delta)
+
+    this.onExecute(delta);
   }
 
-  dispose() {
+  dispose(): void {
     super.dispose();
 
     PhysicsManager.instance.dispose()
   }
 
-  onFixedExecute(delta) {
-    this.queryResults.character.all?.forEach(entity => physicsPreStep(entity, null, delta));
-    PhysicsManager.instance.frame++;
-    PhysicsManager.instance.physicsWorld.step(PhysicsManager.instance.physicsFrameTime);
-    this.queryResults.character.all?.forEach(entity => updateCharacter(entity, null, delta));
-
-   this.queryResults.character.all?.forEach(entity => physicsPostStep(entity, null, delta));
-
+  onExecute(delta:number): void {
     // // Collider
-     this.queryResults.сollider.added?.forEach(entity => {
-       console.log("onAdded called on collider behavior")
-       addCollider(entity, { phase: 'onAdded' });
-     });
+    this.queryResults.collider.added?.forEach(entity => {
+      console.log("onAdded called on collider behavior")
+      addCollider(entity, { phase: 'onAdded' });
+    });
 
-     this.queryResults.сollider.removed?.forEach(entity => {
-       console.log("onRemoved called on collider behavior")
-       addCollider(entity, { phase: 'onRemoved' });
-     });
+    this.queryResults.collider.removed?.forEach(entity => {
+      console.log("onRemoved called on collider behavior")
+      addCollider(entity, { phase: 'onRemoved' });
+    });
 
     // RigidBody
 /*
@@ -102,13 +97,22 @@ export class PhysicsSystem extends System {
     });
     */
   }
+
+  onFixedExecute(delta:number): void {
+    this.queryResults.character.all?.forEach(entity => physicsPreStep(entity, null, delta));
+    PhysicsManager.instance.frame++;
+    PhysicsManager.instance.physicsWorld.step(PhysicsManager.instance.physicsFrameTime);
+    this.queryResults.character.all?.forEach(entity => updateCharacter(entity, null, delta));
+
+   this.queryResults.character.all?.forEach(entity => physicsPostStep(entity, null, delta));
+  }
 }
 
 PhysicsSystem.queries = {
   character: {
     components: [CharacterComponent],
   },
-  сollider: {
+  collider: {
     components: [ColliderComponent, TransformComponent],
     listen: {
       added: true,

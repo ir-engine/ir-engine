@@ -11,7 +11,7 @@ import { attachCamera } from "@xr3ngine/engine/src/camera/behaviors/attachCamera
 
 const boxGeometry = new BoxBufferGeometry(1, 1, 1);
 const boxMaterial = new MeshPhongMaterial({ color: 'green' })
-//const boxMesh = new Mesh(boxGeometry, boxMaterial);
+// const boxMesh = new Mesh(boxGeometry, boxMaterial);
 
 export const rigidBodyBox2: Prefab = {
     components: [
@@ -23,7 +23,7 @@ export const rigidBodyBox2: Prefab = {
             behavior: addObject3DComponent,
             args: {
               obj3d: Mesh,
-              obj3dArgs: boxGeometry.clone()
+              obj3dArgs: [ boxGeometry.clone(), boxMaterial ]
             }
         }
     ]

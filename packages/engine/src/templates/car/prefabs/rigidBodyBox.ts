@@ -25,7 +25,7 @@ export const rigidBodyBox: Prefab = {
             behavior: addObject3DComponent,
             args: {
                 obj3d: Mesh,
-                obj3dArgs: boxGeometry.clone()
+                obj3dArgs: [ boxGeometry.clone(), boxMaterial ]
             }
         }
     ]
