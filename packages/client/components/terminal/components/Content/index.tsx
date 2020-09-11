@@ -96,6 +96,9 @@ class Content extends Component<any> {
 
   handleKeyPress = (e) => {
     this.props.handlerKeyPress(this, e, this.com);
+    const { key } = whatkey(e);
+    if (key == 'enter')
+      this.setScrollPosition(this.contentWrapper.scrollHeight);
   }
 
   handleOuterKeypress = (e) => {
@@ -155,7 +158,8 @@ class Content extends Component<any> {
         }}
         tabIndex="0"
         onKeyUp={this.handleOuterKeypress}
-        innerRef={(ctw) => { this.contentWrapper = ctw; }}
+//      innerRef={(ctw) => { this.contentWrapper = ctw; }}
+        ref={(ctw) => { this.contentWrapper = ctw; }}
       >
         <Holder>
           <ContainerContent>
@@ -168,9 +172,12 @@ class Content extends Component<any> {
                   {this.state.promptPrefix + this.state.prompt}
                 </Prompt>
                 <MainInput
+                  autoFocus={true}
+                  onBlur={({ target }) => target.focus()}
                   type="text"
                   tabIndex="-1"
-                  innerRef={(com) => { console.log(com); this.com = com; }}
+//                innerRef={(com) => { console.log(com); this.com = com; }}
+                  ref={(com) => { console.log(com); this.com = com; }}
                   onKeyPress={this.handleChange}
                   onKeyDown={this.handleKeyPress}
                 />
