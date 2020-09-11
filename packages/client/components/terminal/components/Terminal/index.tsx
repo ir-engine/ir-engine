@@ -76,6 +76,7 @@ class Terminal extends Component<any, any> {
   defaultDesciptions: any = {}
   defaultShortcuts: any = {}
   defaultCommands: any = {}
+  tabsRefs = [];
 
   constructor(props) {
     super(props);
@@ -128,7 +129,7 @@ class Terminal extends Component<any, any> {
       },
     };
 
-    this.state = {
+   this.state = {
       tabbed: false,
       isTerminalExpanded: isTerminalExpanded,
       commands: {},
@@ -141,8 +142,6 @@ class Terminal extends Component<any, any> {
       tabs: [],
       instances: [],
     };
-
-    this.toggleTerminalExpandedState = this.toggleTerminalExpandedState.bind(this); 
   }
 
   getChildContext() {
@@ -171,7 +170,6 @@ class Terminal extends Component<any, any> {
     this.assembleCommands();
     this.setDescriptions();
     this.setShortcuts();
-
     this.createTab(true);
   };
 
@@ -193,6 +191,7 @@ class Terminal extends Component<any, any> {
         <Content
           key={id}
           id={id}
+          ref={e => { this.tabsRefs.push(e); }}
           prompt={promptSymbol}
           handleChange={this.handleChange}
           handlerKeyPress={this.handlerKeyPress}
@@ -211,10 +210,18 @@ class Terminal extends Component<any, any> {
     this.setState({ tabs });
   }
 
-  toggleTerminalExpandedState() {
+  toggleTerminalExpandedState = () => {
     isTerminalExpanded = !isTerminalExpanded;
     this.setState({ isTerminalExpanded: isTerminalExpanded });
-  }
+
+  };
+  
+  setFocusToCommandInput = () => {
+    let tab = this.tabsRefs.find(e => e.props.id === this.state.activeTab);
+    if (tab ==undefined) return;
+    //0console.log(tab.com);
+    tab.com.focus();
+  };
 
   // Show the content on toggling
   getAppContent = () => {
@@ -244,7 +251,7 @@ class Terminal extends Component<any, any> {
 
     // This should be a syled component but breaks if it is.
     return (
-      <div style={{ ...baseStyle, ...style }}>
+      <div style={{ ...baseStyle, ...style }} onMouseUp={this.setFocusToCommandInput}>
         {allowTabs && (
           <Tabs
             active={activeTab}
