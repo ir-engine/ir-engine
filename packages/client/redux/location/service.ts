@@ -1,13 +1,7 @@
-import { connectToServer } from "@xr3ngine/engine/src/networking/functions/connectToServer";
 import { Dispatch } from 'redux';
-import io from 'socket.io-client';
+import { dispatchAlertError } from "../alert/service";
 import { client } from '../feathers';
-import {
-  locationsRetrieved
-} from './actions';
-import store from "../store";
-import {createdGroupUser, fetchingGroups, loadedGroups} from "../group/actions";
-import {dispatchAlertError} from "../alert/service";
+import { locationsRetrieved } from './actions';
 
 export function getLocations(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
