@@ -192,7 +192,7 @@ export const VehicleInputSchema: InputSchema = {
   inputButtonBehaviors: {
     [DefaultInput.INTERACT]: {
       // Important to place behaviors that will change input onto 'ended' lifecycle, otherwise 'ended' will not happen in switched off input
-      ended: [
+      started: [
         {
           behavior: getOutCar,
           args: {}
