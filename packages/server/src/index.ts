@@ -1,10 +1,10 @@
-import logger from './app/logger'
-import app from './app/index'
-import config from './config'
+import appRootPath from 'app-root-path'
 import fs from 'fs'
 import https from 'https'
 import path from 'path'
-import appRootPath from 'app-root-path'
+import app from './app/index'
+import logger from './app/logger'
+import config from './config'
 
 // SSL setup
 const useSSL = process.env.NODE_ENV !== 'production' && fs.existsSync(path.join(appRootPath.path, 'certs', 'key.pem'))

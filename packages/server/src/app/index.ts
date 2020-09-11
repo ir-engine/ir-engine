@@ -35,13 +35,12 @@ const emitter = new EventEmitter()
 const app: Application = express(feathers())
 const agonesSDK = new AgonesSDK()
 
-const gameserver = new WebRTCGameServer()
+new WebRTCGameServer()
 
 function healthPing (agonesSDK: AgonesSDK): void {
   agonesSDK.health()
   setTimeout(() => healthPing(agonesSDK), 1000)
 }
-
 
 app.set('nextReadyEmitter', emitter)
 

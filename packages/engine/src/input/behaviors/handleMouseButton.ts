@@ -2,11 +2,10 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { BinaryType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
-import { InputType } from '../enums/InputType';
-import { Input } from '../components/Input';
 import { getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { Input } from '../components/Input';
+import { InputType } from '../enums/InputType';
 import { MouseInput } from '../enums/MouseInput';
-import { input } from './DesktopInputBehaviors';
 /**
  * System behavior called when a mouse button is fired
  *
