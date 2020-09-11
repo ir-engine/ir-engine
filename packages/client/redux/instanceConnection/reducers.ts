@@ -1,13 +1,15 @@
 import Immutable from 'immutable';
 import {
   InstanceServerAction,
-  InstanceServerProvisionedAction
+  InstanceServerProvisionedAction,
+  SocketCreatedAction
 } from './actions';
 
 import {
   INSTANCE_SERVER_CONNECTED,
   INSTANCE_SERVER_DISCONNECTED,
-  INSTANCE_SERVER_PROVISIONED
+  INSTANCE_SERVER_PROVISIONED,
+  SOCKET_CREATED
 } from '../actions';
 
 export const initialState = {
@@ -15,11 +17,15 @@ export const initialState = {
     ipAddress: '',
     port: ''
   },
+  socket: {},
   locationId: '',
   instanceProvisioned: false,
   connected: false,
-  readyToConnect: false
+  readyToConnect: false,
+  updateNeeded: false
 };
+
+let connectionSocket = null;
 
 const immutableState = Immutable.fromJS(initialState);
 
@@ -38,7 +44,8 @@ const instanceConnectionReducer = (state = immutableState, action: InstanceServe
         .set('instance', newInstance)
         .set('locationId', newValues.locationId)
         .set('instanceProvisioned', true)
-        .set('readyToConnect', true);
+        .set('readyToConnect', true)
+        .set('updateNeeded', true);
     case INSTANCE_SERVER_CONNECTED:
       return state
         .set('connected', true)
@@ -50,6 +57,14 @@ const instanceConnectionReducer = (state = immutableState, action: InstanceServe
         .set('locationId', initialState.locationId)
         .set('connected', false)
         .set('instanceProvisioned', false);
+    case SOCKET_CREATED:
+      console.log(connectionSocket);
+      console.log(action);
+      if (connectionSocket != null) {
+        (connectionSocket as any).close();
+      }
+      connectionSocket = (action as SocketCreatedAction).socket;
+      return state;
   }
 
   return state;
