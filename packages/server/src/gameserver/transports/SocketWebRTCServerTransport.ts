@@ -147,7 +147,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       })
       
       else {
-      const localIp = getLocalServerIp();
+      const localIp = await getLocalServerIp();
       config.mediasoup.webRtcTransport.listenIps = [{ip: localIp.ipAddress, announcedIp: null}]
     }
 

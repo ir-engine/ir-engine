@@ -92,7 +92,7 @@ export default (app: Application): void => {
                   instanceId: (app as any).instance.id
                 })
                 const nonOwners = partyUsers.filter((partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true);
-                const emittedIp = (process.env.KUBERNETES !== 'true') ? getLocalServerIp() : { ipAddress: status.address, port: status.portsList[0].port}
+                const emittedIp = (process.env.KUBERNETES !== 'true') ? await getLocalServerIp() : { ipAddress: status.address, port: status.portsList[0].port}
                 console.log('Emitting instance-provision to other party users:');
                 console.log(emittedIp);
                 await Promise.all(nonOwners.map(async partyUser => {

@@ -145,6 +145,7 @@
     "graphql-tag": "^2.10.3",
     "helmet": "^3.23.3",
     "immutable": "^4.0.0-rc.12",
+    "internal-ip": "^6.1.0",
     "is-promise": "4.0.0",
     "isomorphic-unfetch": "3.0.0",
     "k8s": "^0.4.15",
