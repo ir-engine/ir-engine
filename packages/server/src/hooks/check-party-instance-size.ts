@@ -70,7 +70,7 @@ export default () => {
             if (process.env.KUBERNETES !== 'true') {
               (context.app as any).instance.id = instance.id;
             }
-            const emittedIp = (process.env.KUBERNETES !== 'true') ? getLocalServerIp() : { ipAddress: status.address, port: status.portsList[0].port}
+            const emittedIp = (process.env.KUBERNETES !== 'true') ? await getLocalServerIp() : { ipAddress: status.address, port: status.portsList[0].port}
             await context.app.service('instance-provision').emit('created', {
               userId: partyOwner.userId,
               locationId: location.id,
@@ -87,7 +87,7 @@ export default () => {
             }
             console.log('Putting party users on instance ' + selectedInstance.id)
             const addressSplit = selectedInstance.ipAddress.split(':')
-            const emittedIp = (process.env.KUBERNETES !== 'true') ? getLocalServerIp() : { ipAddress: addressSplit[0], port: addressSplit[1]};
+            const emittedIp = (process.env.KUBERNETES !== 'true') ? await getLocalServerIp() : { ipAddress: addressSplit[0], port: addressSplit[1]};
             await context.app.service('instance-provision').emit('created', {
               userId: partyOwner.userId,
               locationId: location.id,
