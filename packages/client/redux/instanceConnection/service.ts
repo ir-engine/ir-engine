@@ -4,18 +4,21 @@ import io from 'socket.io-client';
 import { client } from '../feathers';
 import {
   instanceServerConnected,
-  instanceServerProvisioned
+  instanceServerProvisioned,
+  socketCreated
 } from './actions';
 import store from "../store";
 import {createdGroupUser} from "../group/actions";
 
-export function provisionInstanceServer (locationId: string) {
+export function provisionInstanceServer (locationId: string, instanceId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       const token = getState().get('auth').get('authUser').accessToken;
+      console.log(`Provisioning instance server for location ${locationId} and instance ${instanceId}`);
       const provisionResult = await client.service('instance-provision').find({
         query: {
           locationId: locationId,
+          instanceId: instanceId,
           token: token
         }
       });
@@ -37,6 +40,8 @@ export function connectToInstanceServer () {
       const instance = instanceConnectionState.get('instance');
       const locationId = instanceConnectionState.get('locationId');
       let socket;
+      console.log('Connect to instance server');
+      console.log(instance);
       if (process.env.NODE_ENV === 'development') {
         socket = io(`${instance.get('ipAddress') as string}:${instance.get('port') as string}`, {
           query: {
@@ -58,6 +63,7 @@ export function connectToInstanceServer () {
       connectToServer(instance.get('ipAddress'), instance.get('port'));
       // setClient(instanceClient);
       dispatch(instanceServerConnected());
+      dispatch(socketCreated(socket));
     } catch (err) {
       console.log(err);
     }

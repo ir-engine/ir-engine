@@ -1,6 +1,8 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../declarations'
 import { Params } from '@feathersjs/feathers'
+import {extractLoggedInUserFromParams} from "../auth-management/auth-management.utils";
+import Sequelize, { Op } from 'sequelize'
 
 export class Location extends Service {
   app: Application
@@ -77,6 +79,36 @@ export class Location extends Service {
           })
         }
       })
+    }
+  }
+
+  async find (params: Params): Promise<any> {
+    const loggedInUser = extractLoggedInUserFromParams(params)
+    const skip = params.query?.$skip ? params.query.$skip : 0
+    const limit = params.query?.$limit ? params.query.$limit : 10
+    const locationResult = await this.app.service('location').Model.findAndCountAll({
+      offset: skip,
+      limit: limit,
+      order: [
+        ['name', 'ASC']
+      ],
+      include: [
+        {
+          model: this.app.service('instance').Model,
+          required: false,
+          where: {
+            currentUsers: {
+              [Op.lt]: Sequelize.col('location.maxUsersPerInstance')
+            }
+          }
+        }
+      ]
+    })
+    return {
+      skip: skip,
+      limit: limit,
+      total: locationResult.count,
+      data: locationResult.rows
     }
   }
 }

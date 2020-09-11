@@ -38,8 +38,6 @@ const Layout = (props: Props): any => {
   const [topDrawerOpen, setTopDrawerOpen] = useState(false);
   const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false);
 
-  console.log(authUser);
-
   return (
     <section>
       <Head>
