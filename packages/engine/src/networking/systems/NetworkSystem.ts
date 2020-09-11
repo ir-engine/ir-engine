@@ -7,18 +7,17 @@ import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { State } from '../../state/components/State';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { addInputToWorldState } from '../functions/addInputToWorldState';
-import { addNetworkTransformToWorldState } from '../functions/addNetworkTransformToWorldState';
-import { handleUpdateFromServer } from '../functions/handleUpdateFromServer';
-import { sendClientInput as sendClientInputToServer } from '../functions/sendClientInput';
 import { Network } from '../components/Network';
 import { NetworkClient } from '../components/NetworkClient';
 import { NetworkInterpolation } from '../components/NetworkInterpolation';
 import { NetworkObject } from '../components/NetworkObject';
+import { addInputToWorldState } from '../functions/addInputToWorldState';
+import { addNetworkTransformToWorldState } from '../functions/addNetworkTransformToWorldState';
+import { handleUpdateFromServer } from '../functions/handleUpdateFromServer';
 import { handleUpdatesFromClients } from '../functions/handleUpdatesFromClients';
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
 import { prepareWorldState as prepareServerWorldState } from '../functions/prepareWorldState';
-import { worldStateModel } from '../schema/worldStateSchema';
+import { sendClientInput as sendClientInputToServer } from '../functions/sendClientInput';
 
 export class NetworkSystem extends System {
   fixedExecute: (delta: number) => void = null
