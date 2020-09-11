@@ -180,48 +180,48 @@ export const VehicleInputSchema: InputSchema = {
   },
   // Map how inputs relate to each other
   inputRelationships: {
-    [DefaultInput.FORWARD]: { opposes: [DefaultInput.BACKWARD] } as InputRelationship,
-    [DefaultInput.BACKWARD]: { opposes: [DefaultInput.FORWARD] } as InputRelationship,
-    [DefaultInput.LEFT]: { opposes: [DefaultInput.RIGHT] } as InputRelationship,
-    [DefaultInput.RIGHT]: { opposes: [DefaultInput.LEFT] } as InputRelationship,
-    [DefaultInput.CROUCH]: { blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT] } as InputRelationship,
-    [DefaultInput.JUMP]: { overrides: [DefaultInput.CROUCH] } as InputRelationship
+    [DefaultInput.FORWARD]: {opposes: [DefaultInput.BACKWARD]} as InputRelationship,
+    [DefaultInput.BACKWARD]: {opposes: [DefaultInput.FORWARD]} as InputRelationship,
+    [DefaultInput.LEFT]: {opposes: [DefaultInput.RIGHT]} as InputRelationship,
+    [DefaultInput.RIGHT]: {opposes: [DefaultInput.LEFT]} as InputRelationship,
+    [DefaultInput.CROUCH]: {blockedBy: [DefaultInput.JUMP, DefaultInput.SPRINT]} as InputRelationship,
+    [DefaultInput.JUMP]: {overrides: [DefaultInput.CROUCH]} as InputRelationship
   },
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
     [DefaultInput.SWITCH_CAR]: {
-        started: [
-          {
-            behavior: getOutCar,
-            args: {}
-          }
-        ]
+      started: [
+        {
+          behavior: getOutCar,
+          args: {}
+        }
+      ]
     },
     [DefaultInput.POINTER_LOCK]: {
-        started: [
-          {
-            behavior: cameraPointerLock,
-            args: {}
-          }
-        ]
+      started: [
+        {
+          behavior: cameraPointerLock,
+          args: {}
+        }
+      ]
     },
     [DefaultInput.FORWARD]: {
-        started: [
-          {
-            behavior: drive,
-            args: {
-              direction: 1
-            }
+      started: [
+        {
+          behavior: drive,
+          args: {
+            direction: 1
           }
-        ],
-        continued: [
-          {
-            behavior: drive,
-            args: {
-              direction: 1
-            }
+        }
+      ],
+      continued: [
+        {
+          behavior: drive,
+          args: {
+            direction: 1
           }
-        ],
+        }
+      ],
       ended: [
         {
           behavior: drive,
@@ -232,49 +232,48 @@ export const VehicleInputSchema: InputSchema = {
       ]
     },
     [DefaultInput.BACKWARD]: {
-        started: [
-          {
-            behavior: drive,
-            args: {
-              direction: -1
-            }
+      started: [
+        {
+          behavior: drive,
+          args: {
+            direction: -1
           }
-        ],
-        continued: [
-          {
-            behavior: drive,
-            args: {
-              direction: -1
-            }
+        }
+      ],
+      continued: [
+        {
+          behavior: drive,
+          args: {
+            direction: -1
           }
-        ],
-        ended: [
-          {
-            behavior: drive,
-            args: {
-              direction: 0
-            }
+        }
+      ],
+      ended: [
+        {
+          behavior: drive,
+          args: {
+            direction: 0
           }
-        ]
-      }
+        }
+      ]
     },
     [DefaultInput.LEFT]: {
-        started: [
-          {
-            behavior: driveSteering,
-            args: {
-              direction: 1
-            }
+      started: [
+        {
+          behavior: driveSteering,
+          args: {
+            direction: 1
           }
-        ],
-        continued: [
-          {
-            behavior: driveSteering,
-            args: {
-              direction: 1
-            }
+        }
+      ],
+      continued: [
+        {
+          behavior: driveSteering,
+          args: {
+            direction: 1
           }
-        ],
+        }
+      ],
       ended: [
         {
           behavior: driveSteering,
@@ -285,22 +284,22 @@ export const VehicleInputSchema: InputSchema = {
       ]
     },
     [DefaultInput.RIGHT]: {
-        started: [
-          {
-            behavior: driveSteering,
-            args: {
-              direction: -1
-            }
+      started: [
+        {
+          behavior: driveSteering,
+          args: {
+            direction: -1
           }
-        ],
-        continued: [
-          {
-            behavior: driveSteering,
-            args: {
-              direction: -1
-            }
+        }
+      ],
+      continued: [
+        {
+          behavior: driveSteering,
+          args: {
+            direction: -1
           }
-        ],
+        }
+      ],
       ended: [
         {
           behavior: driveSteering,
@@ -311,22 +310,22 @@ export const VehicleInputSchema: InputSchema = {
       ]
     },
     [DefaultInput.JUMP]: {
-        started: [
-          {
-            behavior: driveHandBrake,
-            args: {
-              on: true
-            }
+      started: [
+        {
+          behavior: driveHandBrake,
+          args: {
+            on: true
           }
-        ],
-        continued: [
-          {
-            behavior: driveHandBrake,
-            args: {
-              on: true
-            }
+        }
+      ],
+      continued: [
+        {
+          behavior: driveHandBrake,
+          args: {
+            on: true
           }
-        ],
+        }
+      ],
       ended: [
         {
           behavior: driveHandBrake,
@@ -335,6 +334,7 @@ export const VehicleInputSchema: InputSchema = {
           }
         }
       ],
+    },
   },
   // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
   inputAxisBehaviors: {
