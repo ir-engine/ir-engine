@@ -11,8 +11,7 @@ const quaternion = new Quaternion();
 
 export const RigidBodyBehavior: Behavior = (entity: Entity, args): void => {
 
-  if (args.phase == 'onAdded') {}
-  else if (args.phase == 'onUpdate') {
+  if (args.phase == 'onUpdate') {
     const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
     const rigidBody = getComponent<RigidBody>(entity, RigidBody);
     const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);

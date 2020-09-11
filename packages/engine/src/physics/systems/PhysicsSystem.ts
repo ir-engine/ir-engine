@@ -11,6 +11,8 @@ import { ColliderComponent } from '../components/ColliderComponent';
 import { FixedStepsRunner } from "../../common/functions/Timer";
 import { physicsPreStep } from '../../templates/character/behaviors/physicsPreStep';
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+import { TransformComponent } from '../../transform/components/TransformComponent';
+
 import { physicsPostStep } from '../../templates/character/behaviors/physicsPostStep';
 import { updateCharacter } from '../../templates/character/behaviors/updateCharacter';
 import { Engine } from '../../ecs/classes/Engine';
@@ -54,11 +56,11 @@ export class PhysicsSystem extends System {
     });
 
     // RigidBody
-
+/*
     this.queryResults.rigidBody.added?.forEach(entity => {
       RigidBodyBehavior(entity, { phase: 'onAdded' });
     });
-
+*/
     this.queryResults.rigidBody.all?.forEach(entity => {
       RigidBodyBehavior(entity, { phase: 'onUpdate' });
     });
@@ -81,6 +83,7 @@ export class PhysicsSystem extends System {
     });
 
     // Wheel
+    /*
     this.queryResults.wheelBody.added?.forEach(entity => {
       WheelBehavior(entity, { phase: 'onAdded' });
     });
@@ -92,6 +95,7 @@ export class PhysicsSystem extends System {
     this.queryResults.wheelBody.removed?.forEach(entity => {
       WheelBehavior(entity, { phase: 'onRemoved' });
     });
+    */
   }
 
   onFixedExecute(delta:number): void {
@@ -109,28 +113,21 @@ PhysicsSystem.queries = {
     components: [CharacterComponent],
   },
   collider: {
-    components: [ColliderComponent],
+    components: [ColliderComponent, TransformComponent],
     listen: {
       added: true,
       removed: true
     }
   },
   rigidBody: {
-    components: [RigidBody],
+    components: [RigidBody, TransformComponent],
     listen: {
       added: true,
       removed: true
     }
   },
   vehicleBody: {
-    components: [VehicleBody],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  wheelBody: {
-    components: [WheelBody],
+    components: [VehicleBody, TransformComponent],
     listen: {
       added: true,
       removed: true
