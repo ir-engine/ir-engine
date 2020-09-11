@@ -35,7 +35,7 @@ export default (app: Application): void => {
             const agonesSDK = (app as any).agonesSDK;
             const gsResult = await agonesSDK.getGameServer();
             const { status } = gsResult;
-            if (status.state === 'Ready' || (process.env.NODE_ENV === 'development' && status.state === 'Shutdown')) {
+            if (status.state === 'Ready' || ((process.env.NODE_ENV === 'development' && status.state === 'Shutdown') || (app as any).instance == null)) {
               console.log('Starting new instance')
               const selfIpAddress = `${(status.address as string)}:${(status.portsList[0].port as string)}`
               const instanceResult = await app.service('instance').create({
@@ -76,6 +76,7 @@ export default (app: Application): void => {
             await app.service('user').patch(userId, {
               instanceId: (app as any).instance.id
             })
+            console.log('Patched user instanceId')
             app.channel(`instanceIds/${(app as any).instance.id as string}`).join(connection)
             if (user.partyId != null) {
               const partyUserResult = await app.service('party-user').find({
@@ -86,10 +87,11 @@ export default (app: Application): void => {
               const partyUsers = (partyUserResult as any).data;
               const partyOwner = partyUsers.find((partyUser) => partyUser.isOwner === 1);
               if (partyOwner.userId === userId) {
+                console.log('Patching party instanceId')
                 await app.service('party').patch(user.partyId, {
                   instanceId: (app as any).instance.id
                 })
-                const nonOwners = partyUsers.filter((partyUser) => partyUser.isOwner === 0);
+                const nonOwners = partyUsers.filter((partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true);
                 const emittedIp = (process.env.KUBERNETES !== 'true') ? getLocalServerIp() : { ipAddress: status.address, port: status.portsList[0].port}
                 console.log('Emitting instance-provision to other party users:');
                 console.log(emittedIp);
@@ -120,20 +122,25 @@ export default (app: Application): void => {
           const authResult = await app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {})
           const identityProvider = authResult['identity-provider']
           if (identityProvider != null) {
-            const userId = identityProvider.userId
-            const user = await app.service('user').get(userId)
-            const instance = (app as any).instance ? await app.service('instance').get((app as any).instance.id) : {}
-            if (user.instanceId === (app as any).instance?.id) {
-              await app.service('instance').patch((app as any).instance.id, {
+            const userId = identityProvider.userId;
+            const user = await app.service('user').get(userId);
+            console.log('Socket disconnect from ' + userId);
+            const instanceId = process.env.KUBERNETES !== 'true' ? user.instanceId : (app as any).instance?.id
+            const instance = (app as any).instance ? await app.service('instance').get(instanceId) : {}
+            if (user.instanceId === instanceId) {
+              await app.service('instance').patch(instanceId, {
                 currentUsers: instance.currentUsers - 1
               })
             }
 
-            app.channel(`instanceIds/${(app as any).instance?.id as string}`).leave(connection)
+            app.channel(`instanceIds/${instanceId as string}`).leave(connection)
 
             if (instance.currentUsers === 1) {
-              await app.service('instance').remove((app as any).instance.id)
-              delete (app as any).instance
+              console.log('Deleting instance ' + instanceId)
+              await app.service('instance').remove(instanceId)
+              if (process.env.KUBERNETES === 'true') {
+                delete (app as any).instance
+              }
               await (app as any).agonesSDK.shutdown()
             }
           }

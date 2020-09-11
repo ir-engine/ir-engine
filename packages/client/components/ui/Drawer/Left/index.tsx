@@ -27,7 +27,13 @@ import {
     removeGroupUser
 } from '../../../../redux/group/service';
 import {
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
+    Avatar,
+    Button,
     Divider,
+    List,
     ListItem,
     ListItemAvatar,
     ListItemText,
@@ -35,15 +41,14 @@ import {
     Tab,
     Tabs,
     TextField,
-    List,
-    Avatar,
-    Button
+    Typography
 } from '@material-ui/core';
 import {
     Add,
     ArrowLeft,
     Delete,
     Edit,
+    ExpandMore,
     Forum,
     Group,
     GroupWork,
@@ -182,6 +187,7 @@ const LeftDrawer = (props: Props): any => {
     const [groupFormMode, setGroupFormMode] = useState('');
     const [groupFormOpen, setGroupFormOpen] = useState(false);
     const [partyUserDeletePending, setPartyUserDeletePending] = useState('');
+    const [selectedAccordion, setSelectedAccordion] = useState('');
     const selfGroupUser = selectedGroup.id && selectedGroup.id.length > 0 ? selectedGroup.groupUsers.find((groupUser) => groupUser.userId === user.id) : {};
     const partyUsers = party && party.partyUsers ? party.partyUsers : [];
     const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === user.id) : {};
@@ -432,6 +438,15 @@ const LeftDrawer = (props: Props): any => {
         }, 100);
     };
 
+    const handleAccordionSelect = (accordionType: string) =>  (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
+        if (accordionType === selectedAccordion) {
+            setSelectedAccordion('');
+        }
+        else {
+            setSelectedAccordion(accordionType);
+        }
+    };
+
     return (
         <div>
             <SwipeableDrawer
@@ -443,166 +458,174 @@ const LeftDrawer = (props: Props): any => {
             >
                 {detailsOpen === false && groupFormOpen === false &&
                     <div className="list-container">
-                        <Tabs
-                            value={tabIndex}
-                            onChange={handleChange}
-                            variant="fullWidth"
-                            indicatorColor="primary"
-                            textColor="secondary"
-                            aria-label="People Type"
-                        >
-                            <Tab
-                                icon={<SupervisedUserCircle style={{ fontSize: 30 }} />}
-                                label="Friends"
-                            />
-                            <Tab
-                                icon={<Group style={{ fontSize: 30 }} />}
-                                label="Groups"
-                            />
-                            <Tab
-                                icon={<GroupWork style={{ fontSize: 30 }} />}
-                                label="Party"
-                            />
-                        </Tabs>
-                        <Divider />
-                        {tabIndex === 0 &&
-                            <div className="flex-center">
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    startIcon={<Add />}
-                                    onClick={() => openInvite('user')}>
-                                    Invite Friend
-						</Button>
-                            </div>
-                        }
-                        {tabIndex === 1 &&
-                            <div className="flex-center">
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    startIcon={<Add />}
-                                    onClick={() => openGroupForm('create')}>
-                                    Create Group
-						</Button>
-                            </div>
-                        }
-                        {(tabIndex === 0 || tabIndex === 1) &&
-                            <List
-                                onScroll={(e) => onListScroll(e)}
+                        <Accordion expanded={selectedAccordion === 'user'} onChange={handleAccordionSelect('user')}>
+                            <AccordionSummary
+                                id="friends-header"
+                                expandIcon={<ExpandMore/>}
+                                aria-controls="friends-content"
                             >
-                                {tabIndex === 0 && friends && friends.length > 0 && friends.sort((a, b) => a.name - b.name).map((friend, index) => {
-                                    return <div key={friend.id}>
-                                        <ListItem
-                                            className="selectable"
-                                            onClick={() => {
-                                                openDetails('user', friend);
-                                            }}
-                                        >
-                                            <ListItemAvatar>
-                                                <Avatar src={friend.avatarUrl} />
-                                            </ListItemAvatar>
-                                            <ListItemText primary={friend.name} />
-                                        </ListItem>
-                                        {index < friends.length - 1 && <Divider />}
-                                    </div>;
-                                })
-                                }
-                                {tabIndex === 1 && groups && groups.length > 0 && groups.sort((a, b) => a.name - b.name).map((group, index) => {
-                                    return <div key={group.id}>
-                                        <ListItem
-                                            className="selectable"
-                                            onClick={() => {
-                                                openDetails('group', group);
-                                            }}
-                                        >
-                                            <ListItemText primary={group.name} />
-                                        </ListItem>
-                                        {index < groups.length - 1 && <Divider />}
-                                    </div>;
-                                })
-                                }
-                            </List>
-                        }
-                        {tabIndex === 2 &&
-                            <div className="list-container">
+                                <SupervisedUserCircle/>
+                                <Typography>Friends</Typography>
+                            </AccordionSummary>
+                            <AccordionDetails className='list-container'>
+                                <div className="flex-center">
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        startIcon={<Add />}
+                                        onClick={() => openInvite('user')}>
+                                        Invite Friend
+                                    </Button>
+                                </div>
+                                <List
+                                    onScroll={(e) => onListScroll(e)}
+                                >
+                                    {friends && friends.length > 0 && friends.sort((a, b) => a.name - b.name).map((friend, index) => {
+                                        return <div key={friend.id}>
+                                            <ListItem
+                                                className="selectable"
+                                                onClick={() => {
+                                                    openDetails('user', friend);
+                                                }}
+                                            >
+                                                <ListItemAvatar>
+                                                    <Avatar src={friend.avatarUrl} />
+                                                </ListItemAvatar>
+                                                <ListItemText primary={friend.name} />
+                                            </ListItem>
+                                            {index < friends.length - 1 && <Divider />}
+                                        </div>;
+                                    })
+                                    }
+                                </List>
+                            </AccordionDetails>
+                        </Accordion>
+                        <Accordion expanded={selectedAccordion === 'group'} onChange={handleAccordionSelect('group')}>
+                            <AccordionSummary
+                                id="groups-header"
+                                expandIcon={<ExpandMore/>}
+                                aria-controls="groups-content"
+                            >
+                                <Group/>
+                                <Typography>Groups</Typography>
+                            </AccordionSummary>
+                            <AccordionDetails className='list-container'>
+                                <div className="flex-center">
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        startIcon={<Add />}
+                                        onClick={() => openGroupForm('create')}>
+                                        Create Group
+                                    </Button>
+                                </div>
+                                <List
+                                    onScroll={(e) => onListScroll(e)}
+                                >
+                                    {groups && groups.length > 0 && groups.sort((a, b) => a.name - b.name).map((group, index) => {
+                                        return <div key={group.id}>
+                                            <ListItem
+                                                className="selectable"
+                                                onClick={() => {
+                                                    openDetails('group', group);
+                                                }}
+                                            >
+                                                <ListItemText primary={group.name} />
+                                            </ListItem>
+                                            {index < groups.length - 1 && <Divider />}
+                                        </div>;
+                                    })
+                                    }
+                                </List>
+                            </AccordionDetails>
+                        </Accordion>
+                        <Accordion expanded={selectedAccordion === 'party'} onChange={handleAccordionSelect('party')}>
+                            <AccordionSummary
+                                id="party-header"
+                                expandIcon={<ExpandMore/>}
+                                aria-controls="party-content"
+                            >
+                                <GroupWork/>
+                                <Typography>Party</Typography>
+                            </AccordionSummary>
+                            <AccordionDetails className={'flexbox flex-column flex-center'}>
                                 {party == null &&
-                                    <div>
-                                        <div className="title">You are not currently in a party</div>
-                                        <div className="flex-center">
-                                            <Button
-                                                variant="contained"
-                                                color="primary"
-                                                startIcon={<Add />}
-                                                onClick={() => createNewParty()}>
-                                                Create Party
-								            </Button>
-                                        </div>
+                                <div>
+                                    <div className="title">You are not currently in a party</div>
+                                    <div className="flex-center">
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            startIcon={<Add />}
+                                            onClick={() => createNewParty()}>
+                                            Create Party
+                                        </Button>
                                     </div>
+                                </div>
                                 }
                                 {party != null &&
-                                    <div className="list-container">
-                                        <div className="title">Current Party</div>
-                                        <div className="party-id flex-center">
-                                            <div>ID: {party.id}</div>
-                                        </div>
-                                        <div className="actionButtons flex-center flex-column">
+                                <div className="list-container">
+                                    <div className="title">Current Party</div>
+                                    <div className="party-id flex-center">
+                                        <div>ID: {party.id}</div>
+                                    </div>
+                                    <div className="actionButtons flex-center flex-column">
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            startIcon={<Forum />}
+                                            onClick={() => openChat('party', party)}
+                                        >
+                                            Chat
+                                        </Button>
+                                        {
+                                            (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
                                             <Button
                                                 variant="contained"
-                                                color="primary"
-                                                startIcon={<Forum />}
-                                                onClick={() => openChat('party', party)}
+                                                color="secondary"
+                                                startIcon={<PersonAdd/>}
+                                                onClick={() => openInvite('party', party.id)}
                                             >
-                                                Chat
-								            </Button>
-                                            {
-                                                (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
-                                                <Button
-                                                    variant="contained"
-                                                    color="secondary"
-                                                    startIcon={<PersonAdd/>}
-                                                    onClick={() => openInvite('party', party.id)}
-                                                >
-                                                    Invite
-                                                </Button>
-                                            }
-                                            {
-                                                partyDeletePending !== true &&
-                                                (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
-                                                <Button
-                                                    variant="contained"
-                                                    className="background-red"
+                                                Invite
+                                            </Button>
+                                        }
+                                        {
+                                            partyDeletePending !== true &&
+                                            (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
+                                            <Button
+                                                variant="contained"
+                                                className="background-red"
+                                                startIcon={<Delete />}
+                                                onClick={(e) => showPartyDeleteConfirm(e)}
+                                            >
+                                                Delete
+                                            </Button>
+                                        }
+                                        {partyDeletePending === true &&
+                                        <div>
+                                            <Button variant="contained"
                                                     startIcon={<Delete />}
-                                                    onClick={(e) => showPartyDeleteConfirm(e)}
-                                                >
-                                                    Delete
-								                </Button>
-                                            }
-                                            {partyDeletePending === true &&
-                                                <div>
-                                                    <Button variant="contained"
-                                                        startIcon={<Delete />}
-                                                        className="background-red"
-                                                        onClick={(e) => confirmPartyDelete(e, party.id)}
-                                                    >
-                                                        Confirm Delete
-									                </Button>
-                                                    <Button variant="contained"
-                                                        color="secondary"
-                                                        onClick={(e) => cancelPartyDelete(e)}
-                                                    >
-                                                        Cancel
-									                </Button>
-                                                </div>
-                                            }
+                                                    className="background-red"
+                                                    onClick={(e) => confirmPartyDelete(e, party.id)}
+                                            >
+                                                Confirm Delete
+                                            </Button>
+                                            <Button variant="contained"
+                                                    color="secondary"
+                                                    onClick={(e) => cancelPartyDelete(e)}
+                                            >
+                                                Cancel
+                                            </Button>
                                         </div>
-                                        <Divider />
-                                        <div className="title margin-top">Members</div>
-                                        <List
-                                            className="flex-center flex-column"
-                                            onScroll={(e) => onListScroll(e)}
-                                        >
-                                            {partyUsers && partyUsers.length > 0 && partyUsers.sort((a, b) => a.name - b.name).map((partyUser) => {
+                                        }
+                                    </div>
+                                    <Divider />
+                                    <div className="title margin-top">Members</div>
+                                    <List
+                                        className="flex-center flex-column"
+                                        onScroll={(e) => onListScroll(e)}
+                                    >
+                                        {partyUsers && partyUsers.length > 0 && partyUsers.sort((a, b) => a.name - b.name).map((partyUser) => {
                                                 return <ListItem key={partyUser.id}>
                                                     <ListItemAvatar>
                                                         <Avatar src={partyUser.user.avatarUrl} />
@@ -617,8 +640,8 @@ const LeftDrawer = (props: Props): any => {
                                                         (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
                                                         user.id !== partyUser.userId &&
                                                         <Button variant="contained"
-                                                            color="primary"
-                                                            onClick={(e) => showTransferPartyOwnerConfirm(e, partyUser.id)}
+                                                                color="primary"
+                                                                onClick={(e) => showTransferPartyOwnerConfirm(e, partyUser.id)}
                                                         >
                                                             Make Owner
                                                         </Button>
@@ -653,11 +676,11 @@ const LeftDrawer = (props: Props): any => {
                                                         </div>
                                                     }
                                                     {partyUserDeletePending !== partyUser.id && user.id === partyUser.userId &&
-                                                        <div>
-                                                            <Button onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}>
-                                                                <Delete />
-                                                            </Button>
-                                                        </div>
+                                                    <div>
+                                                        <Button onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}>
+                                                            <Delete />
+                                                        </Button>
+                                                    </div>
                                                     }
                                                     {
                                                         partyTransferOwnerPending !== partyUser.id &&
@@ -666,38 +689,38 @@ const LeftDrawer = (props: Props): any => {
                                                             {
                                                                 user.id !== partyUser.userId &&
                                                                 <Button variant="contained"
-                                                                    color="primary"
-                                                                    onClick={(e) => confirmPartyUserDelete(e, partyUser.id)}
+                                                                        color="primary"
+                                                                        onClick={(e) => confirmPartyUserDelete(e, partyUser.id)}
                                                                 >
                                                                     Remove User
-													            </Button>
+                                                                </Button>
                                                             }
                                                             {
                                                                 user.id === partyUser.userId &&
                                                                 <Button variant="contained"
-                                                                    color="primary"
-                                                                    onClick={(e) => confirmPartyUserDelete(e, partyUser.id)}
+                                                                        color="primary"
+                                                                        onClick={(e) => confirmPartyUserDelete(e, partyUser.id)}
                                                                 >
                                                                     Leave party
-													            </Button>
+                                                                </Button>
                                                             }
                                                             <Button variant="contained"
-                                                                color="secondary"
-                                                                onClick={(e) => cancelPartyUserDelete(e)}
+                                                                    color="secondary"
+                                                                    onClick={(e) => cancelPartyUserDelete(e)}
                                                             >
                                                                 Cancel
-												            </Button>
+                                                            </Button>
                                                         </div>
                                                     }
                                                 </ListItem>;
                                             }
-                                            )
-                                            }
-                                        </List>
-                                    </div>
+                                        )
+                                        }
+                                    </List>
+                                </div>
                                 }
-                            </div>
-                        }
+                            </AccordionDetails>
+                        </Accordion>
                     </div>
                 }
                 {detailsOpen === true && groupFormOpen === false && detailsType === 'user' &&
@@ -766,7 +789,7 @@ const LeftDrawer = (props: Props): any => {
                     </div>
                 }
                 {detailsOpen === true && groupFormOpen === false && detailsType === 'group' &&
-                    <div className="list-container flex-center flex-column">
+                    <div className="details-container">
                         <div className="header">
                             <Button onClick={closeDetails}>
                                 <ArrowLeft />
