@@ -28,14 +28,16 @@ export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
   // addComponent(entity, FollowCameraComponent, { distance: 5, mode: "thirdPerson" })
 
   const vehicleComponent = getMutableComponent(entity, VehicleBody) as VehicleBody;
-  const scale = 1
   const asset = args.asset
+  
   let deleteArr = []
   let arrayWheels = []
+
    asset.children.forEach( mesh => { // scene gld
 
      if (mesh.name == 'Body') {
       // mesh.scale.set(1,1,1)
+
        vehicleComponent.vehicleMesh = mesh
        //vehicleComponent.arrayVehiclePosition.push(new Vector3().copy(mesh.position) )
      }
