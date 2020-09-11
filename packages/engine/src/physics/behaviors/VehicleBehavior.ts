@@ -40,7 +40,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
 
       transform.position.set(
         chassisBody.position.x,
-        chassisBody.position.y,
+        chassisBody.position.y - 0.8,
         chassisBody.position.z
       )
 
@@ -92,7 +92,7 @@ export function createVehicleBody (entity: Entity, wheelsPositions:any ): [Rayca
 
   let chassisBody;
 
-  const chassisShape = new Box(new Vec3(1, 0.5, 2.4));
+  const chassisShape = new Box(new Vec3(1, 0.2, 2.3));
   chassisBody = new Body({ mass: 150 });
   chassisBody.addShape(chassisShape);
 
@@ -102,7 +102,7 @@ export function createVehicleBody (entity: Entity, wheelsPositions:any ): [Rayca
   chassisBody.position.z = transform.position.z
   //  chassisBody.angularVelocity.set(0, 0, 0.5);
   const options = {
-    radius: 0.5,
+    radius: 0.2,
     directionLocal: new Vec3(0, -1, 0),
     suspensionStiffness: 30,
     suspensionRestLength: 0.3,
@@ -125,22 +125,23 @@ export function createVehicleBody (entity: Entity, wheelsPositions:any ): [Rayca
     indexRightAxis: 0,
     indexForwardAxis: 2
   });
+
 //
-  options.chassisConnectionPointLocal.set(wheelsPositions[0].x, wheelsPositions[0].y, wheelsPositions[0].z);
+  options.chassisConnectionPointLocal.set(wheelsPositions[0].x, wheelsPositions[0].z, wheelsPositions[0].y);
   vehicle.addWheel(options);
 
-  options.chassisConnectionPointLocal.set(wheelsPositions[1].x, wheelsPositions[1].y, wheelsPositions[1].z);
+  options.chassisConnectionPointLocal.set(wheelsPositions[1].x, wheelsPositions[1].z, wheelsPositions[1].y);
   vehicle.addWheel(options);
 
-  options.chassisConnectionPointLocal.set(wheelsPositions[2].x, wheelsPositions[2].y, wheelsPositions[2].z);
+  options.chassisConnectionPointLocal.set(wheelsPositions[2].x, wheelsPositions[2].z, wheelsPositions[2].y);
   vehicle.addWheel(options);
 
-  options.chassisConnectionPointLocal.set(wheelsPositions[3].x, wheelsPositions[3].y, wheelsPositions[3].z);
+  options.chassisConnectionPointLocal.set(wheelsPositions[3].x, wheelsPositions[3].z, wheelsPositions[3].y);
   vehicle.addWheel(options);
 
   const wheelBodies = [];
   for (let i = 0; i < vehicle.wheelInfos.length; i++) {
-    const cylinderShape = new Cylinder(0.3, 0.3, 0.1, 20);
+    const cylinderShape = new Cylinder(0.2, 0.2, 0.1, 20);
     const wheelBody = new Body({
       mass: 0
     });

@@ -127,8 +127,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
     createPrefab(PlayerCharacter);
 
     createPrefab(staticWorldColliders);
-    //createPrefab(rigidBodyBox);
-    //createPrefab(rigidBodyBox2);
+    createPrefab(rigidBodyBox);
+    createPrefab(rigidBodyBox2);
     createPrefab(CarController);
     createPrefab(interactiveBox);
 

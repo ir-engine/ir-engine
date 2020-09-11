@@ -200,7 +200,7 @@ export const VehicleInputSchema: InputSchema = {
       ]
     },
     [DefaultInput.POINTER_LOCK]: {
-      started: [
+      ended: [
         {
           behavior: cameraPointerLock,
           args: {}
