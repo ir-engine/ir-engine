@@ -22,7 +22,7 @@ export default [
       json(),
       resolve({ browser: true, preferBuiltins: true }),
       commonjs({
-        include: ["node_modules/**/*"] // Default: undefined
+        include: [/node_modules/] // Default: undefined
       }),
       injectProcessEnv({
         NODE_ENV: "production"

@@ -2,7 +2,7 @@ import { Object3D } from "three";
 import { GLTFLoader } from "../gltf/GLTFLoader";
 import EditorNodeMixin from "./EditorNodeMixin";
 //@ts-ignore
-import wayPointModelUrl from "../../assets/spawn-point.glb";
+import wayPointModelUrl from "../../../public/editor/spawn-point.glb";
 let wayPointHelperModel = null;
 export default class WayPointNode extends EditorNodeMixin(Object3D) {
   static legacyComponentName = "waypoint";

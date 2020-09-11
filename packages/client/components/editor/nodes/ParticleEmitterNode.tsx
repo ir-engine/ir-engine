@@ -2,7 +2,7 @@
 import { ParticleEmitter } from "@mozillareality/three-particle-emitter";
 import EditorNodeMixin from "./EditorNodeMixin";
 // @ts-ignore
-import defaultParticleUrl from "../../assets/dot.png";
+import defaultParticleUrl from "../../../public/editor/dot.png";
 import DirectionalPlaneHelper from "../helpers/DirectionalPlaneHelper";
 import loadTexture from "../utils/loadTexture";
 let defaultParticleSprite = null;

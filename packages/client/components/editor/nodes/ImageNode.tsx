@@ -1,7 +1,7 @@
 import EditorNodeMixin from "./EditorNodeMixin";
 import Image, { ImageAlphaMode } from "../objects/Image";
 // @ts-ignore
-import editorLogoSrc from "../../assets/editor-icon.png";
+import editorLogoSrc from "../../../public/editor/favicon-editor.ico";
 import { RethrownError } from "../utils/errors";
 import {
   getObjectPerfIssues,
