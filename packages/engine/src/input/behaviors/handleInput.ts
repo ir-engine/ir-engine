@@ -27,26 +27,27 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
     // If the input is a button
     if (value.type === InputType.BUTTON) {
       // If the input exists on the input map (otherwise ignore it)
-      if (input.schema.inputButtonBehaviors[key] && input.schema.inputButtonBehaviors[key][value.value] !== undefined) {
+      if (input.schema.inputButtonBehaviors[key]) {
         // If the button is pressed
         if(value.value === BinaryValue.ON) {
         // If the lifecycle hasn't been set or just started (so we don't keep spamming repeatedly)
         if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED
         if(value.lifecycleState === LifecycleValue.STARTED) {
           // Set the value of the input to continued to debounce
-          input.schema.inputButtonBehaviors[key][value.value as number].started?.forEach(element =>
+          input.schema.inputButtonBehaviors[key].started?.forEach(element =>
             element.behavior(entity, element.args, delta)
           );
         } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
           // If the lifecycle equal continued
-          input.schema.inputButtonBehaviors[key][value.value as number].continued?.forEach(element =>
+          input.schema.inputButtonBehaviors[key].continued?.forEach(element =>
             element.behavior(entity, element.args, delta)
           );
         }
       } else {
-        input.schema.inputButtonBehaviors[key][value.value as number].ended?.forEach(element =>
+        input.schema.inputButtonBehaviors[key].ended?.forEach(element =>
           element.behavior(entity, element.args, delta)
         );
+        input.data.delete(key);
       }
       }
     }
