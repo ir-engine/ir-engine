@@ -70,7 +70,7 @@ export class UserRelationship extends Service {
     let result: any
 
     await this.app.get('sequelizeClient').transaction(async (trans: Transaction) => {
-      result = await UserRelationshipModel.create({
+      await UserRelationshipModel.create({
         userId: userId,
         relatedUserId: relatedUserId,
         userRelationshipType: userRelationshipType
@@ -78,7 +78,7 @@ export class UserRelationship extends Service {
         transaction: trans
       })
 
-      await UserRelationshipModel.create({
+      result = await UserRelationshipModel.create({
         userId: relatedUserId,
         relatedUserId: userId,
         userRelationshipType: userRelationshipType === 'blocking' ? 'blocked' : 'requested'

@@ -97,8 +97,61 @@ export class InstanceProvision implements ServiceMethods<Data> {
                 partyId: user.partyId
               }
             })
-            await this.app.service('party-user').remove((partyUser as any).data[0].id);
+            const { query, ...paramsCopy } = params;
+            paramsCopy.query = {};
+            await this.app.service('party-user').remove((partyUser as any).data[0].id, paramsCopy);
           }
+        }
+      }
+      const friendsAtLocationResult = await this.app.service('user').Model.findAndCountAll({
+        include: [
+          {
+            model: this.app.service('user-relationship').Model,
+            where: {
+              relatedUserId: userId,
+              userRelationshipType: 'friend'
+            }
+          },
+          {
+            model: this.app.service('instance').Model,
+            where: {
+              locationId: locationId
+            }
+          }
+        ],
+        logging: console.log
+      })
+      if (friendsAtLocationResult.count > 0) {
+        const instances = {}
+        friendsAtLocationResult.rows.forEach((friend) => {
+          if (instances[friend.instanceId] == null) {
+            instances[friend.instanceId] = 1
+          } else {
+            instances[friend.instanceId]++;
+          }
+        })
+        let maxFriends, maxInstanceId;
+        Object.keys(instances).forEach((key) => {
+          if (maxFriends == null) {
+            maxFriends = instances[key];
+            maxInstanceId = key;
+          } else {
+            if (instances[key] > maxFriends) {
+              maxFriends = instances[key];
+              maxInstanceId = key;
+            }
+          }
+        })
+        const maxInstance = await this.app.service('instance').get(maxInstanceId);
+        if (process.env.KUBERNETES !== 'true') {
+          console.log('Resetting local instance to ' + maxInstanceId);
+          (this.app as any).instance = maxInstance;
+          return getLocalServerIp();
+        }
+        const ipAddressSplit = maxInstance.ipAddress.split(':')
+        return {
+          ipAddress: ipAddressSplit[0],
+          port: ipAddressSplit[1]
         }
       }
       const availableLocationInstances = await this.app.service('instance').Model.findAll({

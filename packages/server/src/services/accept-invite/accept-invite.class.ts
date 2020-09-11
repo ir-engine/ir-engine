@@ -56,6 +56,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
         }
 
         if (invite.inviteType === 'friend') {
+          let relationshipToPatch
           const existingRelationshipResult = await this.app.service('user-relationship').find({
             query: {
               userRelationshipType: invite.inviteType,
@@ -65,16 +66,17 @@ export class AcceptInvite implements ServiceMethods<Data> {
           })
 
           if ((existingRelationshipResult as any).total === 0) {
-            await this.app.service('user-relationship').create({
+            relationshipToPatch = await this.app.service('user-relationship').create({
               userRelationshipType: invite.inviteType,
               userId: invite.userId,
               relatedUserId: (inviteeIdentityProvider).userId
             }, params)
+          } else {
+            relationshipToPatch = (existingRelationshipResult as any).data[0];
           }
 
-          await this.app.service('user-relationship').patch(invite.userId, {
-            userRelationshipType: invite.inviteType,
-            userId: (inviteeIdentityProvider).userId
+          await this.app.service('user-relationship').patch(relationshipToPatch.id, {
+            userRelationshipType: invite.inviteType
           }, params)
         } else if (invite.inviteType === 'group') {
           const group = await this.app.service('group').get(invite.targetObjectId)
@@ -122,9 +124,8 @@ export class AcceptInvite implements ServiceMethods<Data> {
           })
 
           if ((existingRelationshipResult as any).total > 0) {
-            await this.app.service('user-relationship').patch(invite.userId, {
-              userRelationshipType: invite.inviteType,
-              userId: invite.inviteeId
+            await this.app.service('user-relationship').patch((existingRelationshipResult as any).data[0].id, {
+              userRelationshipType: invite.inviteType
             }, params)
           }
         } else if (invite.inviteType === 'group') {
