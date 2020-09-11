@@ -2,11 +2,6 @@ import { Button } from '@material-ui/core';
 import { VideoCall, CallEnd } from '@material-ui/icons';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectInstanceConnectionState } from '../../../redux/instanceConnection/selector';
-import {
-  provisionInstanceServer,
-  connectToInstanceServer
-} from '../../../redux/instanceConnection/service';
 import { useEffect } from 'react';
 import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
 import { MediaStreamComponent } from '@xr3ngine/engine/src/networking/components/MediaStreamComponent';
@@ -14,28 +9,17 @@ import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 import { observer } from 'mobx-react';
 
 const locationId = 'e3523270-ddb7-11ea-9251-75ab611a30da';
-interface Props {
-  provisionInstanceServer?: any;
-  connectToInstanceServer?: any;
-  instanceConnectionState?: any;
-}
+interface Props {}
 
 const mapStateToProps = (state: any): any => {
-  return {
-    instanceConnectionState: selectInstanceConnectionState(state)
-  };
+  return {};
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
-  connectToInstanceServer: bindActionCreators(connectToInstanceServer, dispatch)
 });
 
 const VideoChat = observer((props: Props) => {
   const {
-    instanceConnectionState,
-    connectToInstanceServer,
-    provisionInstanceServer
   } = props;
   const gsProvision = async () => {
     if (MediaStreamComponent.instance.mediaStream == null) {
