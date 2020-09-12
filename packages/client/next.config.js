@@ -16,6 +16,7 @@ module.exports = withImages(
     distDir: './.next',
     webpack(config, options) {
       config.resolve.alias.utils = path.join(__dirname, 'utils')
+      config.node = { fs: 'empty'}
       config.module.rules.push(
         {
           test: /\.m?js$/,
