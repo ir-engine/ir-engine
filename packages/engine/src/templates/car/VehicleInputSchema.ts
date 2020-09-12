@@ -191,7 +191,6 @@ export const VehicleInputSchema: InputSchema = {
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
     [DefaultInput.INTERACT]: {
-      // Important to place behaviors that will change input onto 'ended' lifecycle, otherwise 'ended' will not happen in switched off input
       ended: [
         {
           behavior: getOutCar,
