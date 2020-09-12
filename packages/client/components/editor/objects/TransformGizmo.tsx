@@ -1,7 +1,7 @@
 import { Object3D, Color, Vector3 } from "three";
 import { GLTFLoader } from "../gltf/GLTFLoader";
 // @ts-ignore
-import transformGizmoUrl from "../../assets/TransformGizmo.glb";
+import transformGizmoUrl from "../../../public/editor/TransformGizmo.glb";
 import cloneObject3D from "../utils/cloneObject3D";
 import { TransformMode, TransformAxis } from "../controls/EditorControls";
 let gizmoGltf = null;

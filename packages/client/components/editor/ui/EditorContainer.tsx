@@ -5,7 +5,7 @@ import Modal from "react-modal";
 import { Helmet } from "react-helmet";
 import styled from "styled-components";
 import { DndProvider } from "react-dnd";
-import HTML5Backend from "react-dnd-html5-backend";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 import ToolBar from "./toolbar/ToolBar";
 
@@ -36,9 +36,11 @@ import DragLayer from "./dnd/DragLayer";
 import Editor from "../Editor";
 
 // @ts-ignore
-import defaultTemplateUrl from "../assets/templates/crater.world";
+// import defaultTemplateUrl from "../assets/templates/crater.world";
 // @ts-ignore
-import tutorialTemplateUrl from "../assets/templates/tutorial.world";
+// import tutorialTemplateUrl from "../assets/templates/tutorial.world";
+import defaultTemplateUrl from "../../../pages/editor/crater.json";
+import tutorialTemplateUrl from "../../../pages/editor/tutorial.json";
 
 const StyledEditorContainer = (styled as any).div`
   display: flex;

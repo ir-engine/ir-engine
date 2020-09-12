@@ -7,11 +7,11 @@ import OnboardingPopover from "./OnboardingPopover";
 import { withEditor } from "../contexts/EditorContext";
 import Icon from "../inputs/Icon";
 // @ts-ignore
-import lmbIcon from "../../assets/onboarding/lmb.svg";
+import lmbIcon from "../../../../public/onboarding/lmb.svg";
 // @ts-ignore
-import rmbIcon from "../../assets/onboarding/rmb.svg";
+import rmbIcon from "../../../../public/onboarding/rmb.svg";
 // @ts-ignore
-import wasdIcon from "../../assets/onboarding/wasd.svg";
+import wasdIcon from "../../../../public/onboarding/wasd.svg";
 import HotkeyDescription from "./HotkeyDescription";
 import { withApi } from "../contexts/ApiContext";
 import { Button } from "../inputs/Button";
