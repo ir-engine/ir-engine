@@ -6,7 +6,7 @@ import {
 } from "three";
 import { RGBAFormat, NearestFilter } from "three";
 // @ts-ignore
-import mediaErrorImageUrl from "../../../public/editor/media-error.png";
+import mediaErrorImageUrl from "../../../../public/editor/media-error.png";
 import loadTexture from "../utils/loadTexture";
 let errorTexturePromise = null;
 let errorTexture = null;

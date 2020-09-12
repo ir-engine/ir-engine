@@ -25,6 +25,7 @@
   "exclude": [
     "node_modules",
     "tests/**",
+    "sandbox/**/*",
     "../engine/tests",
   ],
   "include": [
