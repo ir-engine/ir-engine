@@ -1,7 +1,7 @@
 import React from "react";
 import { useDragLayer } from "react-dnd";
 import styled from "styled-components";
-import { ItemTypes } from ".";
+import { ItemTypes } from "./index";
 
 const DragLayerContainer = (styled as any).div`
   position: fixed;
