@@ -35,7 +35,7 @@ export const StartWalkBackLeftState: StateSchemaValue = {
     {
       behavior: setActorAnimation,
       args: {
-        name: 'start_back_left',
+        name: 'sb_start_back_left',
         transitionDuration: 0.1
       }
     }
