@@ -36,7 +36,7 @@ export const SprintState: StateSchemaValue = {
       {
         behavior: setActorAnimation,
         args: {
-          name: 'sprint',
+          name: 'sb_sprint',
           transitionDuration: 0.1
         }
       }

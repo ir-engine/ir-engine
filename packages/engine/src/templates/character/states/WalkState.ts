@@ -30,7 +30,7 @@ export const WalkState: StateSchemaValue = {
     {
       behavior: setActorAnimation,
       args: {
-        name: 'run',
+        name: 'sb_run',
         transitionDuration: 0.1
       }
     }
