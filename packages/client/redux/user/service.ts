@@ -1,7 +1,12 @@
 import { Dispatch } from 'redux';
 import { client } from '../feathers';
 import { Relationship } from '@xr3ngine/common/interfaces/Relationship';
-import { loadedUserRelationship, loadedUsers, changedRelation } from './actions';
+import {
+  changedRelation,
+  loadedUsers,
+  loadedLayerUsers,
+  loadedUserRelationship
+} from './actions';
 import { User } from '@xr3ngine/common/interfaces/User';
 
 export function getUserRelationship(userId: string) {
@@ -41,6 +46,17 @@ export function getUsers(userId: string, search: string) {
         console.log(err);
       });
       // .finally(() => dispatch(actionProcessing(false)))
+  };
+}
+
+export function getLayerUsers() {
+  return async (dispatch: Dispatch): Promise<any> => {
+    const layerUsers = await client.service('user').find({
+      query: {
+        action: 'layer-users'
+      }
+    });
+    dispatch(loadedLayerUsers(layerUsers.data));
   };
 }
 

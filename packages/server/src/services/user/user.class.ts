@@ -4,6 +4,7 @@ import {
   Params
 } from '@feathersjs/feathers'
 import { QueryTypes } from 'sequelize'
+import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 
 export class User extends Service {
   app: Application
@@ -110,6 +111,7 @@ export class User extends Service {
 
       return foundUsers
     } else if (action === 'friends') {
+      const loggedInUser = extractLoggedInUserFromParams(params);
       const userResult = await this.app.service('user').Model.findAndCountAll({
         offset: skip,
         limit: limit,
@@ -120,14 +122,14 @@ export class User extends Service {
           {
             model: this.app.service('user-relationship').Model,
             where: {
-              relatedUserId: params.query.userId,
+              relatedUserId: loggedInUser.userId,
               userRelationshipType: 'friend'
             }
           },
           {
             model: this.app.service('user-relationship').Model,
             where: {
-              userId: params.query.userId,
+              userId: loggedInUser.userId,
               userRelationshipType: 'friend'
             }
           }
@@ -158,6 +160,14 @@ export class User extends Service {
         total: userResult.count,
         data: userResult.rows
       }
+    } else if (action === 'layer-users') {
+      const loggedInUser = extractLoggedInUserFromParams(params);
+      const user = await super.get(loggedInUser.userId);
+      return super.find({
+        query: {
+          instanceId: user.instanceId
+        }
+      });
     } else {
       return await super.find(params)
     }
