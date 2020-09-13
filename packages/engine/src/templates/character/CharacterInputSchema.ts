@@ -190,7 +190,6 @@ export const CharacterInputSchema: InputSchema = {
         ]
     },
     [DefaultInput.INTERACT]: {
-      // Important to place behaviors that will change input onto 'ended' lifecycle, otherwise 'ended' will not happen in switched off input
       ended: [
         {
           behavior: interact,
