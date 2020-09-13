@@ -7,7 +7,7 @@ import {
   DoubleSide
 } from "three";
 //@ts-ignore
-import linkIconUrl from "../../../public/editor/link-icon.png";
+import linkIconUrl from "../../../../public/editor/link-icon.png";
 import loadTexture from "../utils/loadTexture";
 let linkHelperTexture = null;
 export default class LinkNode extends EditorNodeMixin(Object3D) {

@@ -1,13 +1,13 @@
-import { BaseSource } from "./sources/index";
+import { BaseSource } from "./sources";
 import { ItemTypes } from "../dnd";
-import VideoSourcePanel from "./VideoSourcePanel";
-import VideoNode from "../../nodes/VideoNode";
-export default class VideoMediaSource extends BaseSource {
-  component: typeof VideoSourcePanel;
+import ImageSourcePanel from "./ImageSourcePanel";
+import ImageNode from "../../nodes/ImageNode";
+export default class ImageMediaSource extends BaseSource {
+  component: typeof ImageSourcePanel;
   api: any;
   constructor(api) {
     super();
-    this.component = VideoSourcePanel;
+    this.component = ImageSourcePanel;
     this.api = api;
   }
   async search(params, cursor, abortSignal) {
@@ -30,9 +30,9 @@ export default class VideoMediaSource extends BaseSource {
           result.images.preview.url,
         attributions: result.attributions,
         label: result.name,
-        type: ItemTypes.Video,
+        type: ItemTypes.Image,
         url: result.url,
-        nodeClass: VideoNode,
+        nodeClass: ImageNode,
         initialProps: {
           name: result.name,
           src: result.url
