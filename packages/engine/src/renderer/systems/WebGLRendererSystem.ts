@@ -1,4 +1,4 @@
-import { PerspectiveCamera, WebGLRenderer } from 'three';
+import { NearestFilter, PerspectiveCamera, RGBFormat, WebGLRenderer, WebGLRenderTarget } from 'three';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Engine } from '../../ecs/classes/Engine';
 import { Entity } from '../../ecs/classes/Entity';
@@ -17,6 +17,10 @@ import { CameraComponent } from '../../camera/components/CameraComponent';
 import { SSAOEffect } from '../../postprocessing/effects/SSAOEffect';
 import { DepthOfFieldEffect } from '../../postprocessing/effects/DepthOfFieldEffect';
 import { EffectPass } from '../../postprocessing/passes/EffectPass';
+import { DepthDownsamplingPass } from '../../postprocessing/passes/DepthDownsamplingPass';
+import { NormalPass } from '../../postprocessing/passes/NormalPass';
+import { BlendFunction } from '../../postprocessing/effects/blending/BlendFunction';
+import { TextureEffect } from '../../postprocessing/effects/TextureEffect';
   /**
    * Handles rendering and post processing to WebGL canvas
    */
@@ -77,15 +81,33 @@ export class WebGLRendererSystem extends System {
     composer.addPass(renderPass);
     // This sets up the render
     const passes: any[] = []
+    const normalPass = new NormalPass(renderPass.scene, renderPass.camera, { renderTarget: new WebGLRenderTarget(1, 1, {
+      minFilter: NearestFilter,
+      magFilter: NearestFilter,
+      format: RGBFormat,
+      stencilBuffer: false
+    }) });
+    const depthDownsamplingPass = new DepthDownsamplingPass({
+      normalBuffer: normalPass.texture,
+      resolutionScale: 0.5
+    });
+    const normalDepthBuffer =	depthDownsamplingPass.texture;
+
     RendererComponent.instance.postProcessingSchema.effects.forEach((pass: any) => {
-      if ( pass.effect === SSAOEffect)
-        passes.push(new pass.effect(Engine.camera, {}, pass.effect.options))
+      if ( pass.effect === SSAOEffect){
+        passes.push(new pass.effect(Engine.camera, normalPass.texture, {...pass.options, normalDepthBuffer }))
+      }
       else if ( pass.effect === DepthOfFieldEffect)
-        passes.push(new pass.effect(Engine.camera, pass.effect.options))
-      else passes.push(new pass.effect(pass.effect.options))
+        passes.push(new pass.effect(Engine.camera, pass.options))
+      else passes.push(new pass.effect(pass.options))
     })
+    const textureEffect = new TextureEffect({
+			blendFunction: BlendFunction.SKIP,
+			texture: depthDownsamplingPass.texture
+		});
     if (passes.length) {
-      composer.addPass(new EffectPass(Engine.camera, ...passes))
+      composer.addPass(depthDownsamplingPass);
+      composer.addPass(new EffectPass(Engine.camera, ...passes, textureEffect))
     }
   }
 
