@@ -20,7 +20,7 @@ client:
 
   service:
     type: ClusterIP
-    port: 3030
+    port: 3000
 
   ingress:
     enabled: true
