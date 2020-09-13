@@ -41,18 +41,18 @@ spec:
               value: "true"
           ports:
             - name: http
-              containerPort: 3030
+              containerPort: 3000
               protocol: TCP
           livenessProbe:
             httpGet:
               path: /
               port: http
-            initialDelaySeconds: 90
+            initialDelaySeconds: 60
           readinessProbe:
             httpGet:
               path: /
               port: http
-            initialDelaySeconds: 90
+            initialDelaySeconds: 60
           resources:
             {{- toYaml .Values.client.resources | nindent 12 }}
       {{- with .Values.client.nodeSelector }}
