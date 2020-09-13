@@ -1,7 +1,7 @@
 import { Object3D, AnimationMixer, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 // @ts-ignore
-import loadingCubeUrl from "../../../public/editor/loading-cube.glb";
+import loadingCubeUrl from "../../../../public/editor/loading-cube.glb";
 import cloneObject3D from "../utils/cloneObject3D";
 let cubeGltf = null;
 export default class LoadingCube extends Object3D {

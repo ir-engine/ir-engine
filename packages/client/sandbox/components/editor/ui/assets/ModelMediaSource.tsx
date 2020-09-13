@@ -1,4 +1,4 @@
-import { BaseSource } from "./sources/index";
+import { BaseSource } from "./sources";
 import { ItemTypes } from "../dnd";
 import ModelSourcePanel from "./ModelSourcePanel";
 import ModelNode from "../../nodes/ModelNode";

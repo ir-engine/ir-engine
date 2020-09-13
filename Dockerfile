@@ -6,18 +6,20 @@ RUN apt update && apt install -y ffmpeg=*:4.**
 # Create app directory
 WORKDIR /app
 
+RUN yarn global add lerna --loglevel notice
+
 # to make use of caching, copy only package files and install dependencies
-COPY package*.json /app/
+#COPY package*.json /app
+COPY . .
 #RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds
-RUN yarn install --no-progress --verbose
+RUN yarn install --production=false
 
 # copy then compile the code
-COPY . .
 
-RUN /bin/bash -c 'source ./scripts/write_env_stub.sh'
-ENV NEXT_PUBLIC_API_SERVER=http://localhost:3333
+#RUN /bin/bash -c 'source ./scripts/write_env_stub.sh'
+#ENV NEXT_PUBLIC_API_SERVER=http://localhost:3333
 
-RUN yarn run build
+RUN yarn run build-docker
 
 ENV NODE_ENV=production
 ENV PORT=3030
