@@ -6,6 +6,7 @@ import { selectChatState } from '../../../../redux/chat/selector';
 import { selectFriendState } from '../../../../redux/friend/selector';
 import { selectGroupState } from '../../../../redux/group/selector';
 import { selectPartyState } from '../../../../redux/party/selector';
+import { selectUserState } from '../../../../redux/user/selector';
 import './style.scss';
 
 import {
@@ -27,6 +28,9 @@ import {
     removeGroupUser
 } from '../../../../redux/group/service';
 import {
+    getLayerUsers
+} from "../../../../redux/user/service";
+import {
     Accordion,
     AccordionSummary,
     AccordionDetails,
@@ -38,8 +42,6 @@ import {
     ListItemAvatar,
     ListItemText,
     SwipeableDrawer,
-    Tab,
-    Tabs,
     TextField,
     Typography
 } from '@material-ui/core';
@@ -53,6 +55,7 @@ import {
     Group,
     GroupWork,
     PersonAdd,
+    Public,
     SupervisedUserCircle
 } from "@material-ui/icons";
 import _ from 'lodash';
@@ -73,7 +76,8 @@ const mapStateToProps = (state: any): any => {
         chatState: selectChatState(state),
         friendState: selectFriendState(state),
         groupState: selectGroupState(state),
-        partyState: selectPartyState(state)
+        partyState: selectPartyState(state),
+        userState: selectUserState(state)
     };
 };
 
@@ -92,7 +96,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     transferPartyOwner: bindActionCreators(transferPartyOwner, dispatch),
     updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch),
     updateChatTarget: bindActionCreators(updateChatTarget, dispatch),
-    updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch)
+    updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch),
+    getLayerUsers: bindActionCreators(getLayerUsers, dispatch)
 });
 
 interface Props {
@@ -101,6 +106,7 @@ interface Props {
     setRightDrawerOpen: any;
     authState?: any;
     friendState?: any;
+    userState?: any;
     getFriends?: any;
     unfriend?: any;
     groupState?: any;
@@ -119,6 +125,7 @@ interface Props {
     updateInviteTarget?: any;
     updateChatTarget?: any;
     updateMessageScrollInit?: any;
+    getLayerUsers?: any;
 }
 
 const initialSelectedUserState = {
@@ -164,7 +171,9 @@ const LeftDrawer = (props: Props): any => {
         setBottomDrawerOpen,
         updateInviteTarget,
         updateChatTarget,
-        updateMessageScrollInit
+        updateMessageScrollInit,
+        userState,
+        getLayerUsers
     } = props;
 
     const user = authState.get('user') as User;
@@ -191,6 +200,8 @@ const LeftDrawer = (props: Props): any => {
     const selfGroupUser = selectedGroup.id && selectedGroup.id.length > 0 ? selectedGroup.groupUsers.find((groupUser) => groupUser.userId === user.id) : {};
     const partyUsers = party && party.partyUsers ? party.partyUsers : [];
     const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === user.id) : {};
+    const layerUsers = userState.get('layerUsers') ?? [];
+
     useEffect(() => {
         if (friendState.get('updateNeeded') === true && friendState.get('getFriendsInProgress') !== true) {
             getFriends(0);
@@ -216,6 +227,12 @@ const LeftDrawer = (props: Props): any => {
             getParty();
         }
     }, [partyState]);
+
+    useEffect(() => {
+        if (user.instanceId != null && userState.get('layerUsersUpdateNeeded') === true) {
+            getLayerUsers();
+        }
+    }, [user, userState]);
 
     const showFriendDeleteConfirm = (e, friendId) => {
         e.preventDefault();
@@ -721,6 +738,40 @@ const LeftDrawer = (props: Props): any => {
                                 }
                             </AccordionDetails>
                         </Accordion>
+                        {
+                            user && user.instanceId &&
+                            <Accordion expanded={selectedAccordion === 'layerUsers'} onChange={handleAccordionSelect('layerUsers')}>
+                            <AccordionSummary
+                                id="layer-user-header"
+                                expandIcon={<ExpandMore/>}
+                                aria-controls="layer-user-content"
+                            >
+                                <Public/>
+                                <Typography>Layer Users</Typography>
+                            </AccordionSummary>
+                            <AccordionDetails className={'flexbox flex-column flex-center'}>
+                                <div className="list-container">
+                                    <div className="title">Users on this Layer</div>
+                                    <List
+                                        className="flex-center flex-column"
+                                        onScroll={(e) => onListScroll(e)}
+                                    >
+                                        {layerUsers && layerUsers.length > 0 && layerUsers.sort((a, b) => a.name - b.name).map((layerUser) => {
+                                                return <ListItem key={layerUser.id}>
+                                                    <ListItemAvatar>
+                                                        <Avatar src={layerUser.avatarUrl} />
+                                                    </ListItemAvatar>
+                                                    {user.id === layerUser.id && <ListItemText primary={layerUser.name + ' (you)'} />}
+                                                    {user.id !== layerUser.id && <ListItemText primary={layerUser.name} />}
+                                                </ListItem>;
+                                            }
+                                        )
+                                        }
+                                    </List>
+                                </div>
+                            </AccordionDetails>
+                            </Accordion>
+                        }
                     </div>
                 }
                 {detailsOpen === true && groupFormOpen === false && detailsType === 'user' &&
