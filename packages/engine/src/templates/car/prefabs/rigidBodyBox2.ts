@@ -16,7 +16,8 @@ const boxMesh = new Mesh(boxGeometry, boxMaterial);
 export const rigidBodyBox2: Prefab = {
     components: [
       { type: TransformComponent, data: { position: [-2.6, 2,-2.6]} },
-      { type: ColliderComponent, data: { type: 'box', scale: [1, 1, 1], mass: 0 }},
+      { type: ColliderComponent, data: { type: 'box', scale: [1, 1, 1], mass: 10 }},
+      { type: RigidBody }
     ],
     onCreate: [
         {
