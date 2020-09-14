@@ -17,8 +17,11 @@ app.prepare().then(() => {
   if (dev === true) {
     createServer(httpsOptions, (req, res) => {
       const parsedUrl = parse(req.url, true);
-      handle(req, res, parsedUrl);
-
+      if (parsedUrl.pathname === '/healthcheck') {
+        res.sendStatus(200);
+      } else {
+        handle(req, res, parsedUrl);
+      }
     }).listen(3000, err => {
       if (err) throw err;
       console.log('Client ready on https://localhost:3000');
@@ -26,7 +29,11 @@ app.prepare().then(() => {
   } else {
     http.createServer((req, res) => {
       const parsedUrl = parse(req.url, true);
-      handle(res, res, parsedUrl)
+      if (parsedUrl.pathname === '/healthcheck') {
+        res.sendStatus(200);
+      } else {
+        handle(req, res, parsedUrl);
+      }
     }).listen(3000, err => {
       if (err) throw err;
       console.log('Client ready on http://localhost:3000')
