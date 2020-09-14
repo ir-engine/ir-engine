@@ -8,6 +8,7 @@ export const onAnimationEnded: Behavior = (entity: Entity, args: { transitionToS
   const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
   if(!actor.initialized) return;
   if (actor.timer > actor.currentAnimationLength - deltaTime) {
+    console.log('animation ended! (', actor.currentAnimationLength, ')', performance.now(),', switch to ', args.transitionToState)
     addState(entity, { state: args.transitionToState });
   }
 };
