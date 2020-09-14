@@ -4,7 +4,7 @@ import getConfig from 'next/config';
 import feathers from '@feathersjs/client';
 
 const { publicRuntimeConfig } = getConfig();
-const apiServer = "https://localhost:3030"; // publicRuntimeConfig.apiServer;
+const apiServer = process.env.NODE_ENV === 'production' ? process.env.API_SERVER : 'https://localhost:3030'; // publicRuntimeConfig.apiServer;
 const featherStoreKey: string = publicRuntimeConfig.featherStoreKey;
 
 // Socket.io is exposed as the `io` global.
