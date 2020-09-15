@@ -21,6 +21,10 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
   // this.charState?.update(timeStep);
   actor.mixer.update(deltaTime);
   if (actor.physicsEnabled) {
+
+    // transfer localMovementDirection into velocityTarget
+    actor.velocityTarget.copy(actor.localMovementDirection)
+
     springMovement(entity, null, deltaTime);
     springRotation(entity, null, deltaTime);
     rotateModel(entity);
