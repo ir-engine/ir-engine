@@ -4,6 +4,8 @@ import { Behavior } from '../../../common/interfaces/Behavior';
 import { Input } from '../../../input/components/Input';
 import { DefaultInput } from '../../shared/DefaultInput';
 
+// TODO: outdated!? getInCar
+
 export const findVehicle: Behavior = (entity) => {
   const character = getComponent(entity, CharacterComponent);
   const input = getComponent(entity, Input);
