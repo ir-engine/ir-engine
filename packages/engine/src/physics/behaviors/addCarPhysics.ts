@@ -32,6 +32,7 @@ export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
   const asset = args.asset
   let deleteArr = []
   let arrayWheels = []
+
    asset.scene.traverse( mesh => { // scene gld
 
      if (mesh.name == 'body') {
