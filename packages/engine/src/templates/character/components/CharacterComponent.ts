@@ -26,6 +26,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
   public physicsEnabled = true
 
 	// Movement
+	public localMovementDirection = new Vector3();
 	public acceleration: Vector3 = new Vector3();
 	public velocity: Vector3 = new Vector3();
 	public arcadeVelocityInfluence: Vector3 = new Vector3();
