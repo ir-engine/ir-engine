@@ -6,9 +6,11 @@ import { inspect } from 'util'
 import dotenv from 'dotenv-flow'
 import * as chargebeeInst from 'chargebee'
 import appRootPath from 'app-root-path'
-dotenv.config({
-  path: appRootPath.path
-})
+if (process.env.KUBERNETES !== 'true') {
+  dotenv.config({
+    path: appRootPath.path
+  })
+}
 
 /**
  * Database
@@ -59,8 +61,8 @@ const server = {
   certPath: path.resolve(path.dirname("./"), process.env.CERT ?? 'certs/cert.pem'),
   keyPath: path.resolve(path.dirname("./"), process.env.KEY ?? 'certs/key.pem')
 }
-server.url = process.env.SERVER_URL ??
-  url.format({ protocol: 'https', ...server })
+const obj = process.env.KUBERNETES === 'true' ? { protocol: 'https', hostname: server.hostname }: { protocol: 'https', ...server }
+server.url = process.env.SERVER_URL ?? url.format(obj)
 
 /**
  * Client / frontend

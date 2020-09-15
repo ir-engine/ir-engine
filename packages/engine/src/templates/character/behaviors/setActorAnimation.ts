@@ -2,9 +2,10 @@ import { CharacterComponent } from '../components/CharacterComponent';
 import { Behavior } from '../../../common/interfaces/Behavior';
 import { getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { AnimationClip } from 'three';
+import { now } from '../../../common/functions/now';
 
 export const setActorAnimation: Behavior = (entity, args: { name: string; transitionDuration: number; }) => {
-  console.log('set anim: ', args.name, args.transitionDuration, 'now', performance.now());
+  console.log('set anim: ', args.name, args.transitionDuration, 'now', now());
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   if(!actor.initialized) return console.log("Not setting actor animation because not initialized")
   const clip = AnimationClip.findByName(actor.animations, args.name);
