@@ -72,7 +72,7 @@ export const MobileGamepad: FunctionComponent = (props: any) => {
     });
 
     stickRight.on("move", (e, data) => {
-      const event = new CustomEvent("stickmove", { "detail": { stick: Thumbsticks.Right, value: { x: data.vector.x * 10, y: data.vector.y * 10 } } });
+      const event = new CustomEvent("stickmove", { "detail": { stick: Thumbsticks.Right, value: { x: data.vector.x * 10, y: -data.vector.y * 10 } } });
       document.dispatchEvent(event);
     });
     stickRight.on("end", ( e, data) => {
