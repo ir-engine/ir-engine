@@ -5,11 +5,14 @@ import { Types } from '../../ecs/types/Types';
 
 export class VehicleBody extends Component<VehicleBody> {
   //static instance: vehicleEntity = null
-  arrayWheelsMesh: any
-  arrayWheelsPosition: any
+  currentDriver: any
+
   vehicleMesh: any
   vehiclePhysics: any
-  currentDriver: any
+
+  arrayWheelsMesh: any
+  arrayWheelsPosition: any
+  wheelRadius: number
 
 
   maxSteerVal = 0.5
@@ -33,11 +36,14 @@ export class VehicleBody extends Component<VehicleBody> {
 
 
 VehicleBody.schema = {
-  arrayWheelsMesh: { type: Types.Ref, default: [] },
-  arrayWheelsPosition: { type: Types.Ref, default: [] },
+  currentDriver: { type: Types.Ref, default: null },
+
   vehicleMesh: { type: Types.Ref, default: null },
   vehiclePhysics: { type: Types.Ref, default: null },
-  currentDriver: { type: Types.Ref, default: null },
+
+  arrayWheelsMesh: { type: Types.Ref, default: [] },
+  arrayWheelsPosition: { type: Types.Ref, default: [] },
+  wheelRadius: { type: Types.Number, default: 0.35 },
 
   maxSteerVal: { type: Types.Number, default: 0.5 },
   maxForce: { type: Types.Number, default: 500 },
