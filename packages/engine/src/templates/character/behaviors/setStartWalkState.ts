@@ -10,8 +10,10 @@ import { getCameraRelativeMovementVector } from '../functions/getCameraRelativeM
 export const setAppropriateStartWalkState = (entity: Entity): void => {
   const character = getComponent<CharacterComponent>(entity, CharacterComponent as any);
 
-  let range = Math.PI;
-  let angle = getSignedAngleBetweenVectors(character.orientation, getCameraRelativeMovementVector(entity));
+  const range = Math.PI;
+  const angle = getSignedAngleBetweenVectors(character.orientation, getCameraRelativeMovementVector(entity));
+
+  // TODO: handle strafe states
 
   if (angle > range * 0.8) {
     addState(entity, { state: CharacterStateTypes.WALK_START_BACK_LEFT });
@@ -26,6 +28,7 @@ export const setAppropriateStartWalkState = (entity: Entity): void => {
     addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT });
   }
   else {
+    console.log('setAppropriateStartWalkState.angle', angle)
     addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD });
   }
 };

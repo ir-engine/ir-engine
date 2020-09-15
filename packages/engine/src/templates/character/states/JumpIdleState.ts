@@ -28,7 +28,7 @@ export const JumpIdleState: StateSchemaValue = {
     {
       behavior: setActorAnimation,
       args: {
-        name: 'sb_jump_idle',
+        name: 'walk_jump_start',
         transitionDuration: 0.1
       }
     }
