@@ -22,7 +22,7 @@ metadata:
       }
 spec:
   rules:
-  {{- range .Value.gameserver.ingress.hosts }}
+  {{- range .Values.gameserver.ingress.hosts }}
     - host: {{ .host | quote }}
       http:
         paths:
