@@ -24,8 +24,12 @@ import { selectInstanceConnectionState } from '../../redux/instanceConnection/se
 import { connectToInstanceServer, provisionInstanceServer } from '../../redux/instanceConnection/service';
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
+import { interactiveBox } from "@xr3ngine/engine/src/templates/interactive/prefabs/interactiveBox";
+import { Interactive } from "@xr3ngine/engine/src/interaction/components/Interactive";
+import { Interacts } from "@xr3ngine/engine/src/interaction/components/Interacts";
 
-
+import dynamic from 'next/dynamic';
+const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad));
 
 const locationId = 'e3523270-ddb7-11ea-9251-75ab611a30da';
 const locationId2 = '489ec2b1-f6b2-46b5-af84-92d094927dd7';
@@ -70,6 +74,9 @@ export const EnginePage: FunctionComponent = (props: any) => {
       audio: {
         src: '/audio/djMagda.m4a'
       },
+      input: {
+        mobile: true
+      }
     };
     initializeEngine(InitializationOptions);
 
@@ -176,8 +183,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     }
   };
 
-  return (
-    enabled && (
+  const terminal = enabled? (
       <Terminal
         color='green'
         backgroundColor='black'
@@ -197,7 +203,15 @@ export const EnginePage: FunctionComponent = (props: any) => {
         description={description}
         msg='Interactive terminal. Please consult the manual for commands.'
       />
-    )
+    ) : null;
+
+  const mobileGamepad = <MobileGamepad />;
+
+  return (
+    <>
+    {terminal}
+    {mobileGamepad}
+    </>
   );
 };
 
