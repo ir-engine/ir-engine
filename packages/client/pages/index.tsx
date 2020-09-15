@@ -30,7 +30,6 @@ export const IndexPage = (props: any): any => {
     } = props;
     const selfUser = authState.get('user');
   const [ sceneIsVisible, setSceneVisible ] = React.useState(true);
-  const scene = sceneIsVisible? (<Scene />) : null;
 
   const buttonStyle: React.CSSProperties = {
     "position": "absolute",
@@ -48,7 +47,7 @@ export const IndexPage = (props: any): any => {
     <Layout pageTitle="Home">
       <input type="button" value="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }} style={ buttonStyle } />
       <NoSSR onSSR={<Loading/>}>
-        {scene}
+        {sceneIsVisible? (<Scene />) : null}
       </NoSSR>
     </Layout>
   );

@@ -6,9 +6,8 @@ import { Behavior } from "../../../common/interfaces/Behavior";
 import { Entity } from "../../../ecs/classes/Entity";
 import { InputAlias } from "../../../input/types/InputAlias";
 import { InputType } from "../../../input/enums/InputType";
-import { getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
-import { Sprinting } from "../components/Sprinting";
-import { Vector2, Vector3 } from "three";
+import { getComponent, getMutableComponent } from "../../../ecs/functions/EntityFunctions";
+import { Vector3 } from "three";
 
 let input: Input;
 let actor: CharacterComponent;
@@ -46,3 +45,23 @@ export const move: Behavior = (
 
   transform.velocity.add( inputValue.multiply(outputSpeed) );
 };
+
+export const moveByInputAxis: Behavior = (
+  entity: Entity,
+  args: { input: InputAlias, inputType: InputType },
+  time: any
+): void => {
+  actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+  input =  getComponent<Input>(entity, Input as any);
+
+  const data = input.data.get(args.input);
+
+  if (data.type === InputType.TWODIM) {
+    actor.velocityTarget.z = data.value[0];
+    actor.velocityTarget.x = data.value[1];
+  } else if (data.type === InputType.THREEDIM) {
+    // TODO: check if this mapping correct
+    actor.velocityTarget.z = data.value[2];
+    actor.velocityTarget.x = data.value[0];
+  }
+}

@@ -16,6 +16,12 @@ import { DefaultInput } from '../shared/DefaultInput';
 import { setArcadeVelocityTarget } from './behaviors/setArcadeVelocityTarget';
 import { updateCharacterState } from "./behaviors/updateCharacterState";
 import { interact } from "../../interaction/behaviors/interact";
+import {
+  handleOnScreenGamepadButton,
+  handleOnScreenGamepadMovement
+} from "../../input/behaviors/handleOnScreenJoystick";
+import { moveByInputAxis } from "./behaviors/move";
+import { InputType } from "../../input/enums/InputType";
 
 export const CharacterInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -119,6 +125,28 @@ export const CharacterInputSchema: InputSchema = {
     gamepaddisconnected: [
       {
         behavior: handleGamepadDisconnected
+      }
+    ],
+    // mobile onscreen gamepad
+    stickmove: [
+      {
+        behavior: handleOnScreenGamepadMovement
+      }
+    ],
+    mobilegamepadbuttondown: [
+      {
+        behavior: handleOnScreenGamepadButton,
+        args: {
+          value: BinaryValue.ON
+        }
+      }
+    ],
+    mobilegamepadbuttonup: [
+      {
+        behavior: handleOnScreenGamepadButton,
+        args: {
+          value: BinaryValue.OFF
+        }
       }
     ]
   },
@@ -310,5 +338,25 @@ export const CharacterInputSchema: InputSchema = {
   },
   // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
   inputAxisBehaviors: {
+    [DefaultInput.MOVEMENT_PLAYERONE]: {
+      started: [
+        {
+          behavior: moveByInputAxis,
+          args: {
+            input: DefaultInput.MOVEMENT_PLAYERONE,
+            inputType: InputType.TWODIM
+          }
+        }
+      ],
+      changed: [
+        {
+          behavior: moveByInputAxis,
+          args: {
+            input: DefaultInput.MOVEMENT_PLAYERONE,
+            inputType: InputType.TWODIM
+          }
+        }
+      ]
+    }
   }
 };
