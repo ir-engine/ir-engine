@@ -13,7 +13,6 @@ import { MouseInput } from '../../input/enums/MouseInput';
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
 import { DefaultInput } from '../shared/DefaultInput';
-import { setArcadeVelocityTarget } from './behaviors/setArcadeVelocityTarget';
 import { updateCharacterState } from "./behaviors/updateCharacterState";
 import { interact } from "../../interaction/behaviors/interact";
 import {
@@ -22,6 +21,7 @@ import {
 } from "../../input/behaviors/handleOnScreenJoystick";
 import { moveByInputAxis } from "./behaviors/move";
 import { InputType } from "../../input/enums/InputType";
+import { setLocalMovementDirection } from "./behaviors/setLocalMovementDirection";
 
 export const CharacterInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -169,8 +169,8 @@ export const CharacterInputSchema: InputSchema = {
     buttons: {
       [GamepadButtons.A]: DefaultInput.JUMP,
       [GamepadButtons.B]: DefaultInput.CROUCH, // B - back
-      // [GamepadButtons.X]: DefaultInput.SPRINT, // X - secondary input
-      // [GamepadButtons.Y]: DefaultInput.INTERACT, // Y - tertiary input
+      [GamepadButtons.X]: DefaultInput.SPRINT, // X - secondary input
+      [GamepadButtons.Y]: DefaultInput.INTERACT, // Y - tertiary input
       // 4: DefaultInput.DEFAULT, // LB
       // 5: DefaultInput.DEFAULT, // RB
       // 6: DefaultInput.DEFAULT, // LT
@@ -242,7 +242,7 @@ export const CharacterInputSchema: InputSchema = {
     [DefaultInput.FORWARD]: {
         started: [
           {
-            behavior: setArcadeVelocityTarget,
+            behavior: setLocalMovementDirection,
             args: {
               z: 1
             }
@@ -250,13 +250,19 @@ export const CharacterInputSchema: InputSchema = {
         ],
         continued: [
           {
-            behavior: setArcadeVelocityTarget,
+            behavior: setLocalMovementDirection,
             args: {
               z: 1
             }
           }
         ],
       ended: [
+        {
+          behavior: setLocalMovementDirection,
+          args: {
+            z: 0
+          }
+        },
         {
           behavior: updateCharacterState,
           args: {}
@@ -266,7 +272,7 @@ export const CharacterInputSchema: InputSchema = {
     [DefaultInput.BACKWARD]: {
         started: [
           {
-            behavior: setArcadeVelocityTarget,
+            behavior: setLocalMovementDirection,
             args: {
               z: -1
             }
@@ -274,13 +280,19 @@ export const CharacterInputSchema: InputSchema = {
         ],
         continued: [
           {
-            behavior: setArcadeVelocityTarget,
+            behavior: setLocalMovementDirection,
             args: {
               z: -1
             }
           }
         ],
       ended: [
+        {
+          behavior: setLocalMovementDirection,
+          args: {
+            z: 0
+          }
+        },
         {
           behavior: updateCharacterState,
           args: {}
@@ -290,7 +302,7 @@ export const CharacterInputSchema: InputSchema = {
     [DefaultInput.LEFT]: {
         started: [
           {
-            behavior: setArcadeVelocityTarget,
+            behavior: setLocalMovementDirection,
             args: {
               x: 1
             }
@@ -298,13 +310,19 @@ export const CharacterInputSchema: InputSchema = {
         ],
         continued: [
           {
-            behavior: setArcadeVelocityTarget,
+            behavior: setLocalMovementDirection,
             args: {
               x: 1
             }
           }
         ],
       ended: [
+        {
+          behavior: setLocalMovementDirection,
+          args: {
+            x: 0
+          }
+        },
         {
           behavior: updateCharacterState,
           args: {}
@@ -314,7 +332,7 @@ export const CharacterInputSchema: InputSchema = {
     [DefaultInput.RIGHT]: {
         started: [
           {
-            behavior: setArcadeVelocityTarget,
+            behavior: setLocalMovementDirection,
             args: {
               x: -1
             }
@@ -322,13 +340,19 @@ export const CharacterInputSchema: InputSchema = {
         ],
         continued: [
           {
-            behavior: setArcadeVelocityTarget,
+            behavior: setLocalMovementDirection,
             args: {
               x: -1
             }
           }
         ],
       ended: [
+        {
+          behavior: setLocalMovementDirection,
+          args: {
+            x: 0
+          }
+        },
         {
           behavior: updateCharacterState,
           args: {}
@@ -354,6 +378,12 @@ export const CharacterInputSchema: InputSchema = {
           args: {
             input: DefaultInput.MOVEMENT_PLAYERONE,
             inputType: InputType.TWODIM
+          }
+        },
+        {
+          behavior: updateCharacterState,
+          args: {
+            setCameraRelativeOrientationTarget: true
           }
         }
       ]
