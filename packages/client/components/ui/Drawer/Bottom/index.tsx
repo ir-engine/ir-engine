@@ -103,11 +103,9 @@ const BottomDrawer = (props: Props): any => {
     const activeChannel = channels.get(targetChannelId);
 
     useEffect(() => {
-        console.log(`useEffect messageScrollInit: ${messageScrollInit}`);
         if (messageScrollInit === true && messageEl != null && (messageEl as any).scrollTop != null) {
             console.log('Triggering messageScrollInit');
             (messageEl as any).scrollTop = (messageEl as any).scrollHeight;
-            console.log(updateMessageScrollInit);
             updateMessageScrollInit(false);
             setMessageScrollUpdate(false);
         }

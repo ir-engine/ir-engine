@@ -26,8 +26,7 @@ const VideoChat = observer((props: Props) => {
       await (Network.instance.transport as any).sendCameraStreams();
     } else {
       console.log('Ending video chat');
-      console.log((Network.instance.transport as any).stopSendingMediaStreams);
-      await (Network.instance.transport as any).stopSendingMediaStreams();
+      await (Network.instance.transport as any).endVideoChat();
     }
   };
   return (
