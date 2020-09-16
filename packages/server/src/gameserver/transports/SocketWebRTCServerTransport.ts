@@ -14,6 +14,7 @@ import {
     DataConsumer,
     DataProducer,
     DataProducerOptions,
+    Producer,
     Router,
     RtpCodecCapability,
     Transport,
@@ -180,10 +181,14 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             console.log("Message handlers")
             console.log(Network.instance.schema.messageHandlers)
             // Call all message handlers associated with client connection
-            Network.instance.schema.messageHandlers[MessageTypes.ClientConnected].forEach(behavior => {
+            Network.instance.schema.messageHandlers[MessageTypes.ClientConnected.toString()].forEach(behavior => {
                 console.log("Calling behavior")
+                const client = Network.instance.clients[socket.id];
                 behavior.behavior(
-                    {id: socket.id},
+                    {
+                        id: socket.id,
+                        media: client.media
+                    },
                 )
             })
 
@@ -281,20 +286,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
                 // Distinguish between send and create transport of each client w.r.t producer and consumer (data or mediastream)
                 if (direction === 'recv') {
-                    console.log('Socket client before setting recvTransport')
-                    console.log(Network.instance.clients[socket.id])
                     Network.instance.clients[socket.id].recvTransport = transport
-
-                    console.log('Socket client after setting recvTransport')
-                    console.log(Network.instance.clients[socket.id])
                 }
                 else if (direction === 'send') {
-                    console.log('Socket client before setting sendTransport')
-                    console.log(Network.instance.clients[socket.id])
                     Network.instance.clients[socket.id].sendTransport = transport
-
-                    console.log('Socket client after setting sendTransport')
-                    console.log(Network.instance.clients[socket.id])
                 }
 
                 const {id, iceParameters, iceCandidates, dtlsParameters} = transport
@@ -312,6 +307,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
                 // Create data consumers for other clients if the current client transport receives data producer on it
                 transport.observer.on('newdataproducer', this.handleConsumeDataEvent(socket))
+                transport.observer.on('newproducer', this.sendCurrentProducers(socket) as any)
                 callback({transportOptions: clientTransportOptions})
             })
 
@@ -344,8 +340,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     })
                     // Possibly do stuff with appData here
                     logger.info("Sending dataproducer id to client:" + dataProducer.id)
-                    console.log('socket client on produceData return:')
-                    console.log(Network.instance.clients[socket.id])
                     return callback({id: dataProducer.id})
                 } catch (error) {
                     console.log(error)
@@ -414,6 +408,12 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         paused,
                         encodings: rtpParameters.encodings
                     }
+
+                    Object.keys(Network.instance.clients).forEach((key) => {
+                        const client = Network.instance.clients[key]
+                        if (client.socket.id === socket.id) return
+                        client.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), socket.id, appData.mediaTag)
+                    })
 
                     callback({id: producer.id})
                 } catch (err) {
@@ -606,6 +606,33 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         logger.info("Worker created router")
     }
 
+    sendCurrentProducers = async (socket: SocketIO.Socket) => async (
+        producer: Producer
+    ) => {
+        console.log('Creating consumers for existing client media')
+        const selfClient = Network.instance.clients[socket.id]
+        if (selfClient.socket != null) {
+            console.log('selfClient:')
+            console.log(selfClient);
+            console.log(socket.id)
+            Object.entries(Network.instance.clients).forEach(([name, value]) => {
+                console.log(`Are there channels to send for ${name}?`)
+                console.log(`name: ${name}`)
+                console.log(`args.id: ${socket.id}`)
+                console.log(`value.userId: ${value.userId}`)
+                console.log(`value.media: `)
+                console.log(value.media)
+                console.log('value.socket is null:')
+                console.log(value.socket == null)
+                if (name === socket.id || value.media == null || value.socket == null) return
+                console.log(`Sending media for ${name}`)
+                Object.entries(value.media).map(([subName]) => {
+                    console.log(`Emitting createProducer for socket ${socket.id} of type ${subName}`)
+                    selfClient.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), value.userId, subName)
+                })
+            })
+        }
+    }
     // Create consumer for each client!
     handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
         dataProducer: DataProducer
@@ -689,10 +716,15 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     }
 
     async closeConsumer(consumer): Promise<void> {
-        logger.info("closing consumer " + consumer.id + " " + consumer.appData)
+        logger.info("closing consumer " + consumer.id)
+        console.log(consumer)
+        console.log(MediaStreamComponent.instance.consumers)
         await consumer.close()
 
         MediaStreamComponent.instance.consumers = MediaStreamComponent.instance.consumers.filter(c => c.id !== consumer.id)
+        Object.entries(Network.instance.clients).forEach(([, value]) => {
+            value.socket.emit(MessageTypes.WebRTCCloseConsumer, consumer.id);
+        })
 
         delete Network.instance.clients[consumer.appData.peerId].consumerLayers[consumer.id]
     }
