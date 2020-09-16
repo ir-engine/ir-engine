@@ -24,9 +24,7 @@ import { selectInstanceConnectionState } from '../../redux/instanceConnection/se
 import { connectToInstanceServer, provisionInstanceServer } from '../../redux/instanceConnection/service';
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
-import { interactiveBox } from "@xr3ngine/engine/src/templates/interactive/prefabs/interactiveBox";
-import { Interactive } from "@xr3ngine/engine/src/interaction/components/Interactive";
-import { Interacts } from "@xr3ngine/engine/src/interaction/components/Interacts";
+import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
 
 import dynamic from 'next/dynamic';
 const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
@@ -75,7 +73,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
         src: '/audio/djMagda.m4a'
       },
       input: {
-        mobile: true
+        mobile: isMobileOrTablet()
       }
     };
     initializeEngine(InitializationOptions);
@@ -205,7 +203,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
       />
     ) : null;
 
-  const mobileGamepad = <MobileGamepad />;
+  const mobileGamepad = isMobileOrTablet()? <MobileGamepad /> : null;
 
   return (
     <>
