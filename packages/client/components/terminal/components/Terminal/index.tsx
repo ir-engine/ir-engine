@@ -213,13 +213,12 @@ class Terminal extends Component<any, any> {
   toggleTerminalExpandedState = () => {
     isTerminalExpanded = !isTerminalExpanded;
     this.setState({ isTerminalExpanded: isTerminalExpanded });
-
   };
   
   setFocusToCommandInput = () => {
     let tab = this.tabsRefs.find(e => e.props.id === this.state.activeTab);
-    if (tab ==undefined) return;
-    //0console.log(tab.com);
+    if (tab == undefined) return;
+    //console.log(tab.com);
     tab.com.focus();
   };
 
@@ -269,7 +268,7 @@ class Terminal extends Component<any, any> {
           <button
               style={{
                 marginTop: 5,
-                marginRight: 5}}
+                marginRight: 13}}
               title={this.state.isTerminalExpanded ? 'Restore terminal' : 'Expand terminal'}
               onClick={this.toggleTerminalExpandedState}>
             {this.state.isTerminalExpanded ? 'r' : 'e'}
@@ -602,6 +601,16 @@ class Terminal extends Component<any, any> {
         this.printLine.bind(this, instance)(res);
       }
 
+      // Scroll terminal to end.
+      let tab = this.tabsRefs.find(e => e.props.id === this.state.activeTab);
+      if (tab != undefined) {
+        setTimeout(
+          () => {
+            tab.contentWrapper.scrollTop = tab.contentWrapper.scrollHeight;
+          },
+          50);
+      }
+   
       const newHistory = [...history, e.target.value];
       const historyProps = saveToHistory ? {
         history: newHistory,
