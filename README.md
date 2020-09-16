@@ -190,9 +190,17 @@ connect to it. To reboot xr3ngine, run the following:
 ```kubectl rollout restart -n xr3ngine deployments/xr3ngine```
 
 
-### STMP Testing
+### SMTP Testing
 
 https://mailtrap.io/inboxes
+
+add credentials in ```packages/server/.env```
+```dotenv
+SMTP_HOST=smtp.mailtrap.io
+SMTP_PORT=2525
+SMTP_USER=<mailtrap-user>
+SMTP_PASS=<mailtrap-password>
+```
 
 
 ## Scaffolding (Server Only)
