@@ -22,6 +22,7 @@ export enum MessageTypes {
   WebRTCConsumeData = 20,
   WebRTCProduceData = 21,
   ReliableMessage = 22,
+  WebRTCCreateProducer = 23,
   Synchronization = 100,
   ClientInput = 101,
   StateUpdate = 102,
