@@ -55,16 +55,19 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
     yarn install
     ```
 2. Make sure you have a mysql database installed and running -- our recommendation is Mariadb. We've provided a docker container for easy setup:
-```
-cd scripts && ./start-db.sh
-```
-This creates a docker image of mariadb named xr3ngine_db.
-
+    ```
+    cd scripts && ./start-db.sh
+    ```
+    This creates a docker image of mariadb named xr3ngine_db.
 
 3. Start your app
 
     ```
-    npm start
+    yarn start
+    ```
+    for development mode
+    ```
+    yarn dev
     ```
 
 ### Notes
