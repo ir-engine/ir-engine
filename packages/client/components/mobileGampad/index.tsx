@@ -19,20 +19,28 @@ export const MobileGamepad: FunctionComponent = (props: any) => {
     right: 0
   };
 
-  const buttonStyle: CSSProperties = {
+  const buttonSize = '2.5em';
+  const buttonCommonStyle: CSSProperties = {
+    position: 'absolute',
+    borderRadius: '50%',
+    backgroundColor: 'white',
+    opacity: 0.75,
+    bottom: '0px',
+    fontSize: '20px',
+    height: buttonSize,
+    width: buttonSize,
+    textAlign: 'center',
+    lineHeight: buttonSize
+  };
+
+  const buttonsContainerStyle: CSSProperties = {
     position: 'fixed',
     borderRadius: '50%',
-    backgroundColor: 'gray',
-    opacity: 0.75,
-    bottom: '220px',
-    height: '30px',
-    width: '30px',
-  };
-  const buttonAStyle: CSSProperties = {
-    right: '100px'
-  };
-  const buttonBStyle: CSSProperties = {
-    right: '50px'
+    right: '100px',
+    bottom: '300px',
+    // backgroundColor: 'white',
+    // width: '10px',
+    // height: '10px'
   };
 
   const triggerButton = (button: GamepadButtons, pressed: boolean): void => {
@@ -40,6 +48,56 @@ export const MobileGamepad: FunctionComponent = (props: any) => {
     const event = new CustomEvent(eventType, { "detail": { button } });
     document.dispatchEvent(event);
   };
+
+  const buttonsConfig: Array<{ button: GamepadButtons; label: string; style: CSSProperties }> = [
+    {
+      button: GamepadButtons.A,
+      label: "A",
+      style: {
+        backgroundColor: '#00bb00',
+        right: 0,
+        top: 0
+      }
+    },
+    {
+      button: GamepadButtons.B,
+      label: "B",
+      style: {
+        backgroundColor: '#bb0000',
+        right: '-' + buttonSize,
+        bottom: 0
+      }
+    },
+    {
+      button: GamepadButtons.X,
+      label: "X",
+      style: {
+        backgroundColor: '#0000ff',
+        right: buttonSize,
+        bottom: 0
+      }
+    },
+    {
+      button: GamepadButtons.Y,
+      label: "Y",
+      style: {
+        backgroundColor: '#ffbb00',
+        right: 0,
+        bottom: buttonSize
+      }
+    },
+  ];
+
+
+
+  const buttons = buttonsConfig.map(((value, index) => {
+    return (<div
+      key={index}
+      style={{ ...buttonCommonStyle, ...value.style }}
+      onPointerDown={ (): void => triggerButton(value.button, true) }
+      onPointerUp={ (): void => triggerButton(value.button, false) }
+    >{ value.label }</div>);
+  }));
 
   useEffect(() => {
     // mount
@@ -72,15 +130,13 @@ export const MobileGamepad: FunctionComponent = (props: any) => {
     });
 
     stickRight.on("move", (e, data) => {
-      const event = new CustomEvent("stickmove", { "detail": { stick: Thumbsticks.Right, value: { x: data.vector.x * 10, y: data.vector.y * 10 } } });
+      const event = new CustomEvent("stickmove", { "detail": { stick: Thumbsticks.Right, value: { x: data.vector.x * 10, y: -data.vector.y * 10 } } });
       document.dispatchEvent(event);
     });
     stickRight.on("end", ( e, data) => {
       const event = new CustomEvent("stickmove", { "detail": { stick: Thumbsticks.Right, value: { x:0, y:0 } } });
       document.dispatchEvent(event);
     });
-
-    // TODO: buttons
 
     return (): void => {
       // unmount
@@ -99,16 +155,9 @@ export const MobileGamepad: FunctionComponent = (props: any) => {
         style={{ ...containerStyle, ...rightContainerStyle }}
         ref={rightContainer}
       />
-      <div
-        style={{ ...buttonStyle, ...buttonAStyle }}
-        onPointerDown={ () => triggerButton(GamepadButtons.A, true) }
-        onPointerUp={ () => triggerButton(GamepadButtons.A, false) }
-      >A</div>
-      <div
-        style={{ ...buttonStyle, ...buttonBStyle }}
-        onPointerDown={ () => triggerButton(GamepadButtons.B, true) }
-        onPointerUp={ () => triggerButton(GamepadButtons.B, false) }
-      >B</div>
+      <div style={buttonsContainerStyle}>
+        { buttons }
+      </div>
     </>);
 };
 
