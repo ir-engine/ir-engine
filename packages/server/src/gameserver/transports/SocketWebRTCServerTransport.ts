@@ -202,6 +202,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             socket.on("disconnect", () => {
                 console.log(socket.id + " disconnected")
                 Network.instance.worldState.clientsDisconnected.push(socket.id)
+                const disconnectedClient = Network.instance.clients[socket.id];
+                if (disconnectedClient?.recvTransport) disconnectedClient.recvTransport.close();
+                if (disconnectedClient?.sendTransport) disconnectedClient.sendTransport.close();
                 delete Network.instance.clients[socket.id]
             })
 
@@ -307,7 +310,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
                 // Create data consumers for other clients if the current client transport receives data producer on it
                 transport.observer.on('newdataproducer', this.handleConsumeDataEvent(socket))
-                transport.observer.on('newproducer', this.sendCurrentProducers(socket) as any)
+                transport.observer.on('newproducer', this.sendCurrentProducers(socket))
                 callback({transportOptions: clientTransportOptions})
             })
 
@@ -606,24 +609,13 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         logger.info("Worker created router")
     }
 
-    sendCurrentProducers = async (socket: SocketIO.Socket) => async (
+    sendCurrentProducers = (socket: SocketIO.Socket) => async (
         producer: Producer
     ) => {
         console.log('Creating consumers for existing client media')
         const selfClient = Network.instance.clients[socket.id]
         if (selfClient.socket != null) {
-            console.log('selfClient:')
-            console.log(selfClient);
-            console.log(socket.id)
             Object.entries(Network.instance.clients).forEach(([name, value]) => {
-                console.log(`Are there channels to send for ${name}?`)
-                console.log(`name: ${name}`)
-                console.log(`args.id: ${socket.id}`)
-                console.log(`value.userId: ${value.userId}`)
-                console.log(`value.media: `)
-                console.log(value.media)
-                console.log('value.socket is null:')
-                console.log(value.socket == null)
                 if (name === socket.id || value.media == null || value.socket == null) return
                 console.log(`Sending media for ${name}`)
                 Object.entries(value.media).map(([subName]) => {
@@ -709,6 +701,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
             // remove this producer from our roomState.producers list
             MediaStreamComponent.instance.producers = MediaStreamComponent.instance.producers.filter(p => p.id !== producer.id)
+            MediaStreamComponent.instance.consumers = MediaStreamComponent.instance.consumers.filter(c => !(c.appData.mediaTag === producer.appData.mediaTag && c._internal.producerId === producer.id ))
 
             // remove this track's info from our roomState...mediaTag bookkeeping
             delete Network.instance.clients[producer.appData.peerId].media[producer.appData.mediaTag]
