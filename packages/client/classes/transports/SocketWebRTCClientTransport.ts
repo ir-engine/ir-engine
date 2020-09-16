@@ -195,7 +195,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // state, if the checkbox in our UI is unchecked. so as soon as we
     // have a client-side camVideoProducer object, we need to set it to
     // paused as appropriate, too.
-    if(MediaStreamComponent.instance.mediaStream === undefined)
+    if(MediaStreamComponent.instance.mediaStream == null)
       await MediaStreamSystem.instance.startCamera();
     MediaStreamComponent.instance.camVideoProducer = await this.sendTransport.produce({
       track: MediaStreamComponent.instance.mediaStream.getVideoTracks()[0],
@@ -510,7 +510,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           if (error) {
             console.log(error)
             errback();
-            return 
+            return;
           }
           return callback({ id });
         }
