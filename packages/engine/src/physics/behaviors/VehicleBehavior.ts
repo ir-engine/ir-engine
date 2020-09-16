@@ -40,7 +40,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
 
       transform.position.set(
         chassisBody.position.x,
-        chassisBody.position.y - 0.8,
+        chassisBody.position.y,
         chassisBody.position.z
       )
 
