@@ -17,8 +17,8 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
   if (args.phase == 'onAdded') {
     const vehicleComponent = getMutableComponent(entity, VehicleBody) as VehicleBody;
     const wheelsPositions = vehicleComponent.arrayWheelsPosition;
-
-    const [vehicle, wheelBodies] = createVehicleBody(entity, wheelsPositions);
+    const wheelRadius = vehicleComponent.wheelRadius;
+    const [vehicle, wheelBodies] = createVehicleBody(entity, wheelsPositions, wheelRadius);
 
     vehicleComponent.vehiclePhysics = vehicle
     vehicle.addToWorld(PhysicsManager.instance.physicsWorld);
@@ -87,7 +87,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
   }
 };
 
-export function createVehicleBody (entity: Entity, wheelsPositions:any ): [RaycastVehicle, Body[]] {
+export function createVehicleBody (entity: Entity, wheelsPositions:any, wheelRadius:number ): [RaycastVehicle, Body[]] {
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
 
   let chassisBody;
@@ -102,7 +102,7 @@ export function createVehicleBody (entity: Entity, wheelsPositions:any ): [Rayca
   chassisBody.position.z = transform.position.z
   //  chassisBody.angularVelocity.set(0, 0, 0.5);
   const options = {
-    radius: 0.2,
+    radius: wheelRadius,
     directionLocal: new Vec3(0, -1, 0),
     suspensionStiffness: 30,
     suspensionRestLength: 0.3,
@@ -141,7 +141,7 @@ export function createVehicleBody (entity: Entity, wheelsPositions:any ): [Rayca
 
   const wheelBodies = [];
   for (let i = 0; i < vehicle.wheelInfos.length; i++) {
-    const cylinderShape = new Cylinder(0.2, 0.2, 0.1, 20);
+    const cylinderShape = new Cylinder(wheelRadius, wheelRadius, 0.1, 20);
     const wheelBody = new Body({
       mass: 0
     });

@@ -1,16 +1,15 @@
-import { applyWorldState } from "@xr3ngine/engine/src/networking/functions/applyWorldState";
 import { MediaStreamComponent } from "@xr3ngine/engine/src/networking/components/MediaStreamComponent";
+import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "@xr3ngine/engine/src/networking/constants/VideoConstants";
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
+import { applyWorldState } from "@xr3ngine/engine/src/networking/functions/applyWorldState";
 import handleDataChannelConsumerMessage from "@xr3ngine/engine/src/networking/functions/handleDataChannelConsumerMessage";
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
+import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
 import { UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine/src/networking/types/NetworkingTypes";
 import * as mediasoupClient from "mediasoup-client";
 import { DataConsumerOptions, DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 import ioclient from "socket.io-client";
-import { Network } from "@xr3ngine/engine/src/networking/components/Network";
-import { worldStateModel } from "@xr3ngine/engine/src/networking/schema/worldStateSchema";
-import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
 
 const Device = mediasoupClient.Device;
 

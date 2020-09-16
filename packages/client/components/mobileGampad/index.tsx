@@ -160,3 +160,5 @@ export const MobileGamepad: FunctionComponent = (props: any) => {
       </div>
     </>);
 };
+
+export default MobileGamepad

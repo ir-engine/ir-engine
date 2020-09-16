@@ -45,15 +45,15 @@ export class PhysicsManager extends Component<PhysicsManager> {
 
     this.parallelPairs = [];
 
-    console.log("========PhysicsManager.instance.physicsWorld");
-    console.log(PhysicsManager.instance.physicsWorld);
-    const DebugOptions = {
-      onInit: (body: Body, mesh: Mesh, shape: Shape) => 	console.log("PH INIT: body: ", body, " | mesh: ", mesh, " | shape: ", shape),
-      onUpdate: (body: Body, mesh: Mesh, shape: Shape) => {
-        //if (body === Engine.actor
-        //console.log("PH  UPD: body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape) }
-    }};
-    debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
+     console.log("========PhysicsManager.instance.physicsWorld");
+     console.log(PhysicsManager.instance.physicsWorld);
+     const DebugOptions = {
+       onInit: (body: Body, mesh: Mesh, shape: Shape) => 	console.log("PH INIT: body: ", body, " | mesh: ", mesh, " | shape: ", shape),
+       onUpdate: (body: Body, mesh: Mesh, shape: Shape) => {
+         //if (body === Engine.actor
+         //console.log("PH  UPD: body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape) }
+     }};
+     debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
   }
 
   dispose():void {

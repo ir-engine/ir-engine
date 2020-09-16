@@ -36,7 +36,7 @@ export class NormalPass extends Pass {
     resolutionScale = 1.0,
     width = Resizer.AUTO_SIZE,
     height = Resizer.AUTO_SIZE,
-    renderTarget
+    renderTarget = undefined
   }) {
     super('NormalPass');
 

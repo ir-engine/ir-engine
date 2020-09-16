@@ -12,10 +12,10 @@
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
-    "start": "yarn run dev",
     "copyfiles-client": "copyfiles design/** design/**/* public/** public/**/* **/*.scss lib/client",
     "dev": "cross-env NODE_ENV=development NODE_OPTIONS=--max_old_space_size=4096 node ./index.js --port 3000",
-    "build": "yarn run copyfiles-client && NODE_OPTIONS=--max_old_space_size=4096 next build ./",
+    "build": "NODE_OPTIONS=--max_old_space_size=4096 next build ./",
+    "start": "next start",
     "watch": "cross-env NODE_ENV=development next --port 3001 --hostname localhost",
     "validate": "yarn run lint && yarn run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
@@ -33,9 +33,7 @@
     "esm",
     "@babel/register"
   ],
-  "peerDependencies": {
-    "three": "^0.120.0"
-  },
+  "peerDependencies": {},
   "dependencies": {
     "@apollo/react-hooks": "^3.1.5",
     "@feathersjs/authentication-client": "^4.5.2",
@@ -155,7 +153,7 @@
     "styled-components": "^5.1.1",
     "styled-icons": "^10.16.0",
     "subscriptions-transport-ws": "^0.9.16",
-    "three": "^0.120.0",
+    "three": "^0.120.1",
     "three-mesh-bvh": "^0.2.0",
     "three-to-cannon": "^3.0.1",
     "ts-shader-loader": "^1.0.6",

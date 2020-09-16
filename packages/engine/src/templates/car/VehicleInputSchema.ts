@@ -17,7 +17,7 @@ import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraP
 import { getOutCar } from '@xr3ngine/engine/src/templates/car/behaviors/getOutCarBehavior';
 import { DefaultInput } from '../shared/DefaultInput';
 import { driveSteering } from "../../physics/behaviors/driveSteeringBehavior";
-import { honk } from './behaviors/honk';
+// import { honk } from './behaviors/honk';
 import { driveHandBrake } from "../../physics/behaviors/driveHandBrake";
 import { interact } from "../../interaction/behaviors/interact";
 
@@ -191,7 +191,6 @@ export const VehicleInputSchema: InputSchema = {
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
     [DefaultInput.INTERACT]: {
-      // Important to place behaviors that will change input onto 'ended' lifecycle, otherwise 'ended' will not happen in switched off input
       ended: [
         {
           behavior: getOutCar,
