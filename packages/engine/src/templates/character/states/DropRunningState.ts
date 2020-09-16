@@ -28,7 +28,7 @@ export const DropRunningState: StateSchemaValue = {
       {
         behavior: setActorAnimation,
         args: {
-          name: 'drop_running',
+          name: 'sb_drop_running',
           transitionDuration: 0.1
         }
       }

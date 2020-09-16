@@ -2,11 +2,11 @@ import { MediaStreamComponent } from "@xr3ngine/engine/src/networking/components
 import { Network } from "@xr3ngine/engine/src/networking/components/Network"
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes"
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport"
-import { worldStateModel } from "@xr3ngine/engine/src/networking/schema/worldStateSchema"
-import { CreateWebRtcTransportParams, UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine/src/networking/types/NetworkingTypes"
+import { CreateWebRtcTransportParams, UnreliableMessageReturn } from "@xr3ngine/engine/src/networking/types/NetworkingTypes"
 import * as https from "https"
 import { createWorker } from 'mediasoup'
 import { types as MediaSoupClientTypes } from "mediasoup-client"
+import { SctpParameters } from "mediasoup-client/lib/SctpParameters"
 import {
   DataConsumer,
   DataProducer,
@@ -19,9 +19,8 @@ import {
 } from "mediasoup/lib/types"
 import SocketIO, { Socket } from "socket.io"
 import app from '../../app'
-import getLocalServerIp from '../../util/get-local-server-ip';
 import logger from "../../app/logger"
-import { SctpParameters } from "mediasoup-client/lib/SctpParameters"
+import getLocalServerIp from '../../util/get-local-server-ip'
 
 interface Client {
   socket: SocketIO.Socket;
@@ -148,7 +147,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       })
       
       else {
-      const localIp = getLocalServerIp();
+      const localIp = await getLocalServerIp();
       config.mediasoup.webRtcTransport.listenIps = [{ip: localIp.ipAddress, announcedIp: null}]
     }
 

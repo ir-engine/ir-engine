@@ -40,7 +40,7 @@ export const IdleRotateRightState: StateSchemaValue = {
       {
         behavior: setActorAnimation,
         args: {
-          name: 'rotate_right',
+          name: 'sb_rotate_right',
           transitionDuration: 0.1
         }
       }

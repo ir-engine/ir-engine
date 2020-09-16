@@ -124,6 +124,8 @@ if (config.server.enabled) {
     const gameServer = new WebRTCGameServer()
     console.log("Created new gameserver instance")
     console.log(gameServer)
+  } else {
+    console.log("Could not create new game server instance!!")
   }
 
   if (config.server.mode === 'api') {

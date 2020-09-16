@@ -35,7 +35,7 @@ export const StartWalkForwardState: StateSchemaValue = {
     {
       behavior: setActorAnimation,
       args: {
-        name: 'start_forward',
+        name: 'walk_forward',
         transitionDuration: 0.1
       }
     }

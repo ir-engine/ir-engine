@@ -1,3 +1,3 @@
 #!/bin/bash
-[ "$SERVER_MODE" = "client" ] && node packages/client/dist/index.js
-[ "$SERVER_MODE" != "client" ] && node packages/server/dist/server.js
+[ "$SERVER_MODE" = "client" ] && (cd packages/client && npm run start)
+[ "$SERVER_MODE" != "client" ] && (cd packages/server && node dist/server.js)
