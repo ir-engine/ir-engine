@@ -1,16 +1,16 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2019",
     "lib": [
+      "es2019",
       "dom",
-      "dom.iterable",
-      "esnext"
+      "dom.iterable"
     ],
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": false,
-    "module": "esnext",
+    "module": "commonjs",
     "strict": false,
     "noImplicitAny": false,
     "resolveJsonModule": true,
@@ -25,7 +25,7 @@
   "exclude": [
     "node_modules",
     "tests/**",
-    "../engine/tests",
+    "../engine/tests"
   ],
   "include": [
     "next-env.d.ts",

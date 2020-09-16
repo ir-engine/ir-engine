@@ -20,7 +20,7 @@ export default [
     plugins: [
       typescript(),
       json(),
-      resolve({ browser: true, preferBuiltins: true }),
+      resolve({ browser: true, preferBuiltins: true, extensions: ['.js', '.jsx', '.ts', '.tsx'] }),
       commonjs({
         include: [/node_modules/] // Default: undefined
       }),

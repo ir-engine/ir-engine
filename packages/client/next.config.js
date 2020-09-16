@@ -14,9 +14,13 @@ module.exports = withImages(
     },
     dir: './',
     distDir: './.next',
-    webpack(config, options) {
+    webpack(config, { isServer }) {
       config.resolve.alias.utils = path.join(__dirname, 'utils')
-      config.node = { fs: 'empty'}
+      if (!isServer) { // Fixes dot env fs error
+        config.node = {
+          fs: 'empty'
+        }
+      }
       config.module.rules.push(
         {
           test: /\.m?js$/,

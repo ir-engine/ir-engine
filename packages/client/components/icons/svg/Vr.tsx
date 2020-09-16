@@ -1,3 +1,4 @@
+import React from "react"
 import { connect } from 'react-redux';
 import { selectDeviceDetectState } from '../../../redux/devicedetect/selector';
 

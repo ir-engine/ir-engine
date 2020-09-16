@@ -1,7 +1,7 @@
 import EditorNodeMixin from "./EditorNodeMixin";
 import Image, { ImageAlphaMode } from "../objects/Image";
 // @ts-ignore
-import editorLogoSrc from "../../../public/editor/favicon-editor.ico";
+// import editorLogoSrc from "../../assets/editor-icon.png";
 import { RethrownError } from "../utils/errors";
 import {
   getObjectPerfIssues,
@@ -11,9 +11,10 @@ import {
 export default class ImageNode extends EditorNodeMixin(Image) {
   static legacyComponentName = "image";
   static nodeName = "Image";
-  static initialElementProps = {
-    src: new URL(editorLogoSrc, location as any).href
-  };
+  // static initialElementProps = {
+  //   src: new URL(editorLogoSrc, location as any).href
+  // };
+  static initialElementProps = {}
   static async deserialize(editor, json, loadAsync, onError) {
     const node = await super.deserialize(editor, json);
     const {
