@@ -14,6 +14,7 @@ export const setAppropriateStartWalkState = (entity: Entity): void => {
   const angle = getSignedAngleBetweenVectors(character.orientation, getCameraRelativeMovementVector(entity));
 
   // TODO: handle strafe states
+  // TODO: move character by setting localMovementVector or by cameraRelativeMovementVector(vector) that will convert it into local
 
   if (angle > range * 0.8) {
     addState(entity, { state: CharacterStateTypes.WALK_START_BACK_LEFT });
