@@ -90,8 +90,8 @@ export class FixedStepsRunner {
 
     if (!accumulatorDepleted) {
       if (this.subsequentErrorsShown <= this.subsequentErrorsLimit) {
-        console.error('Fixed timesteps SKIPPED time used ', timeUsed, 'ms (of ', this.limit, 'ms), made ', updatesCount, 'updates. skipped ', Math.floor(this.accumulator / this.timestep))
-        console.log('accumulatorDepleted', accumulatorDepleted, 'timeout', timeout, 'updatesLimitReached', updatesLimitReached)
+        // console.error('Fixed timesteps SKIPPED time used ', timeUsed, 'ms (of ', this.limit, 'ms), made ', updatesCount, 'updates. skipped ', Math.floor(this.accumulator / this.timestep))
+        // console.log('accumulatorDepleted', accumulatorDepleted, 'timeout', timeout, 'updatesLimitReached', updatesLimitReached)
       } else {
         if (this.subsequentErrorsShown > this.subsequentErrorsResetLimit) {
           console.error('FixedTimestep', this.subsequentErrorsResetLimit, ' subsequent errors catched')
