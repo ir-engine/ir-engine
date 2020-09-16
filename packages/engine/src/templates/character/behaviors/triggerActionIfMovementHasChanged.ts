@@ -8,9 +8,9 @@ export const triggerActionIfMovementHasChanged: Behavior = (entity: Entity, args
 	const character: CharacterComponent = getMutableComponent(entity, CharacterComponent);
 	if (!character.initialized) return;
 	const input: Input = getMutableComponent<Input>(entity, Input as any);
-	let hash = Array.from(input.data.keys()).reduce((accumulator, key) => {
+	const hash = Array.from(input.data.keys()).reduce((accumulator, key) => {
 		return accumulator.toString().concat(key.toString())
-	}, 0)
+	}, 0) + 'LDM' + character.localMovementDirection.toArray().map(n => n.toFixed(7)).join(':')
 
 	if (character.currentInputHash !== hash) {
 		console.log("Action state has changed, hash is: ", hash)

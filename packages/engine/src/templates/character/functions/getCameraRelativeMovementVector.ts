@@ -12,7 +12,7 @@ const emptyVector = new Vector3();
 export const getCameraRelativeMovementVector = (entity: Entity): Vector3 => {
 	const actor: CharacterComponent = getComponent<CharacterComponent>(entity, CharacterComponent as any);
 
-	const localMovementDirection = getLocalMovementDirection(entity);
+	const localMovementDirection = actor.localMovementDirection; //getLocalMovementDirection(entity);
 	const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();
 
 	return localMovementDirection.length()? appplyVectorMatrixXZ(flatViewVector, localDirection) : emptyVector.setScalar(0);

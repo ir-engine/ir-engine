@@ -57,11 +57,11 @@ export const moveByInputAxis: Behavior = (
   const data = input.data.get(args.input);
 
   if (data.type === InputType.TWODIM) {
-    actor.velocityTarget.z = data.value[0];
-    actor.velocityTarget.x = data.value[1];
+    actor.localMovementDirection.z = data.value[0];
+    actor.localMovementDirection.x = data.value[1];
   } else if (data.type === InputType.THREEDIM) {
     // TODO: check if this mapping correct
-    actor.velocityTarget.z = data.value[2];
-    actor.velocityTarget.x = data.value[0];
+    actor.localMovementDirection.z = data.value[2];
+    actor.localMovementDirection.x = data.value[0];
   }
 }
