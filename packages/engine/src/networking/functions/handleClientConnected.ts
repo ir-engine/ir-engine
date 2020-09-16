@@ -7,13 +7,14 @@ import { MessageTypes } from '../enums/MessageTypes';
 // TODO: This should only be called on server, harmless, but yeah
 
 export const handleClientConnected = (args: { id: any; }) => {
-
   console.log("handle client connected")
-  Network.instance.clients[args.id] = {
-    // BUG
-    // TODO: Need this to be passed in
-    userId: "uninitialized"
-  };
+  if (Network.instance.clients[args.id] == null) {
+    Network.instance.clients[args.id] = {
+      // BUG
+      // TODO: Need this to be passed in
+      userId: "uninitialized"
+    };
+  }
 
   // Create the default client prefab
   const entity = createNetworkPrefab(

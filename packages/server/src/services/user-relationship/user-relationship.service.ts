@@ -90,8 +90,13 @@ export default (app: Application): any => {
             }
           })
         }
-        data.user = await app.service('user').get(data.userId)
-        data.relatedUser = await app.service('user').get(data.relatedUserId)
+        if (data.dataValues != null) {
+          data.dataValues.user = await app.service('user').get(data.userId)
+          data.dataValues.relatedUser = await app.service('user').get(data.relatedUserId)
+        } else {
+          data.user = await app.service('user').get(data.userId)
+          data.relatedUser = await app.service('user').get(data.relatedUserId)
+        }
         const avatarResult = await app.service('static-resource').find({
           query: {
             staticResourceType: 'user-thumbnail',
@@ -100,7 +105,11 @@ export default (app: Application): any => {
         }) as any
 
         if (avatarResult.total > 0) {
-          data.user.avatarUrl = avatarResult.data[0].url
+          if (data.dataValues != null) {
+            data.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url
+          } else {
+            data.user.avatarUrl = avatarResult.data[0].url
+          }
         }
 
         const relatedAvatarResult = await app.service('static-resource').find({
@@ -111,7 +120,11 @@ export default (app: Application): any => {
         }) as any
 
         if (relatedAvatarResult.total > 0) {
-          data.relatedUser.avatarUrl = relatedAvatarResult.data[0].url
+          if (data.dataValues != null) {
+            data.dataValues.relatedUser.dataValues.avatarUrl = relatedAvatarResult.data[0].url
+          } else {
+            data.relatedUser.avatarUrl = relatedAvatarResult.data[0].url
+          }
         }
 
         const targetIds = [data.userId, data.relatedUserId]

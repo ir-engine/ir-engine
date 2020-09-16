@@ -118,8 +118,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
               locationId: locationId
             }
           }
-        ],
-        logging: console.log
+        ]
       })
       if (friendsAtLocationResult.count > 0) {
         const instances = {}
