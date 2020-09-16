@@ -4,37 +4,39 @@ import { PhysicsManager } from '../components/PhysicsManager';
 import { getMutableComponent, hasComponent, getComponent, addComponent } from '../../ecs/functions/EntityFunctions';
 import { Object3DComponent } from '../../common/components/Object3DComponent';
 import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
-import { Vec3, Box, Cylinder, Quaternion, Sphere, Body } from 'cannon-es';
+import { Vec3, Box, Cylinder, Material, ContactMaterial, Quaternion, Sphere, Body } from 'cannon-es';
+import { threeToCannon } from '@xr3ngine/engine/src/templates/world/three-to-cannon';
 
 
-/*
+function createTrimesh (position, rotation, scale, mesh) {
+    mesh = mesh.clone();
+
+		let shape = threeToCannon(mesh, {type: threeToCannon.Type.MESH});
+		//shape['material'] = mat;
+		// Add phys sphere
+		let body = new Body({
+			mass: 0
+		});
+    body.addShape(shape);
+	//	body.material = PhysicsManager.instance.trimMeshMaterial;
+
+		return body;
+}
 
 
 
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { Entity } from '../../ecs/classes/Entity';
-import { ColliderComponent } from '../components/ColliderComponent';
-import { RigidBody } from '../components/RigidBody';
-import { MeshTagComponent } from '../../common/components/Object3DTagComponents';
-import { Vector3 } from 'three';
-*/
+
 function createBox (position, scale) {
-
-  let mass = 0;
-
   const shape = new Box(new Vec3(scale.x, scale.y, scale.z));
-
   const body = new Body({
-    mass: mass
+    mass: 0
   });
-
+/*
   const q = new Quaternion();
   q.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2);
-
-  body.addShape(shape);
-
   //body.quaternion.setFromAxisAngle(new Vec3(1,0,0),-Math.PI/2);
+*/
+  body.addShape(shape);
   return body
 }
 
@@ -43,21 +45,23 @@ function createBox (position, scale) {
 
 
 
-export function addColliderWithoutEntity( type, position, rotation, scale ) {
-    console.log(type+' '+position.x+' '+rotation.w+' '+scale.x);
-
-
+export function addColliderWithoutEntity( type, position, rotation, scale, mesh ) {
 
     let body;
-    if (type === 'box') body = createBox(position, scale);
-  //  else if (args.type === 'cylinder') body = createCylinder();
+    if (type === 'box') {
+      body = createBox(position, scale)
+    //  body.computeAABB();
+  	//	body.shapes.forEach((shape) => {
+  	//		shape.collisionFilterMask = 4;
+  	//	})
+    } else
+    if (type === 'trimesh') body = createTrimesh(position, rotation, scale, mesh);
 
     body.position.set(
       position.x,
       position.y -14.8,
       position.z
     )
-    console.log(body);
 
     body.quaternion.set(
       rotation.x,
