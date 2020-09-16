@@ -15,7 +15,7 @@ export const sendClientInput = (entity: Entity): void => {
   // Get the input component
   const input = getComponent(entity, Input)
   if (input.data.size < 1) return
-  console.log(input.data)
+  // console.log(input.data)
   // Create a schema for input to send
   const inputs = {
     buttons: {},
