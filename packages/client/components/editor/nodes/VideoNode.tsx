@@ -3,12 +3,17 @@ import Video from "../objects/Video";
 import Hls from "hls.js/dist/hls.light";
 import isHLS from "../utils/isHLS";
 //@ts-ignore
+// import editorLandingVideo from "../../assets/video/EditorPromo.mp4";
 import { RethrownError } from "../utils/errors";
 import { getObjectPerfIssues } from "../utils/performance";
 //@ts-ignore
 export default class VideoNode extends EditorNodeMixin(Video) {
   static legacyComponentName = "video";
   static nodeName = "Video";
+  // static initialElementProps = {
+  //   src: new URL(editorLandingVideo, location as any).href
+  // };
+  static initialElementProps = {}
   static async deserialize(editor, json, loadAsync, onError) {
     const node = await super.deserialize(editor, json);
     const {
