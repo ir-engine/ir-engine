@@ -8,31 +8,22 @@ import { addColliderWithoutEntity } from '@xr3ngine/engine/src/physics/behaviors
 export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
 
   const asset = args.asset
-  let deleteArr = []
-  let collisionBoxArr = []
-  let collisionTrimeshArr = []
+  const deleteArr = []
+
    asset.scene.traverse( mesh => {
 
-
-
      if (mesh.userData.data == "physics") {
-       if (mesh.userData.type == "box") {
-         collisionBoxArr.push(mesh)
-         addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.quaternion, mesh.scale)
-       } else
-       if (mesh.userData.type == "trimesh") {
-         console.log(collisionTrimeshArr);
-         collisionTrimeshArr.push(mesh)
+       if (mesh.userData.type == "box" || mesh.userData.type == "trimesh") {
+         deleteArr.push(mesh)
+         addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.quaternion, mesh.scale, mesh)
        }
      }
 
    })
 
-   for (let i = 0; i < collisionBoxArr.length; i++) {
-     collisionBoxArr[i].parent.remove(collisionBoxArr[i])
+   for (let i = 0; i < deleteArr.length; i++) {
+     deleteArr[i].parent.remove(deleteArr[i])
    }
-
-   //mesh.position    mesh.scale
 
   return entity;
 };
