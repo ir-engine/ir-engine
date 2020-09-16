@@ -18,6 +18,7 @@ module.exports = withImages(
       config.resolve.alias.utils = path.join(__dirname, 'utils')
       config.node = { fs: 'empty'}
       config.module.rules.push(
+        /*
         {
           test: /\.m?js$/,
           use: {
@@ -30,6 +31,7 @@ module.exports = withImages(
             }
           }
         },
+        */
         {
           test: /\.(eot|woff|woff2|ttf)$/,
           use: {
