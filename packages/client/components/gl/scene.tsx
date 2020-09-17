@@ -128,7 +128,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   setTimeout(() => {
     createPrefab(rigidBodyBox);
     createPrefab(rigidBodyBox2);
-    // createPrefab(CarController);
+    createPrefab(CarController);
     //createPrefab(interactiveBox);
   }, 5000);
 
