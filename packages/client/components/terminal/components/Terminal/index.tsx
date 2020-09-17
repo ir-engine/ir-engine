@@ -76,7 +76,6 @@ class Terminal extends Component<any, any> {
   defaultDesciptions: any = {}
   defaultShortcuts: any = {}
   defaultCommands: any = {}
-  tabsRefs = [];
 
   constructor(props) {
     super(props);
@@ -186,16 +185,15 @@ class Terminal extends Component<any, any> {
     if (force || allowTabs) {
       const { tabs } = this.state;
       const id = uuidv4();
-
       tabs.push((
         <Content
           key={id}
           id={id}
-          ref={e => { this.tabsRefs.push(e); }}
           prompt={promptSymbol}
           handleChange={this.handleChange}
           handlerKeyPress={this.handlerKeyPress}
-          register={(...args) => this.registerInstance(id, args)}
+          // register={(...args) => this.registerInstance(id, args)}
+          register={(instance) => this.registerInstance(id, instance)}
         />
       ));
 
@@ -203,11 +201,29 @@ class Terminal extends Component<any, any> {
     }
   };
 
-  // Tab removal
-  removeTab = (index) => {
+  // Tab removal.
+  removeTab = (id) => {
+    /*
     const { tabs } = this.state;
     tabs.splice(index, 1);
     this.setState({ tabs });
+    */
+    let { activeTab, instances, tabs } = this.state;
+
+    let index = instances.findIndex(e => e.index === id);
+    if (index === -1) return;
+    instances.splice(index, 1);
+
+    index = tabs.findIndex(e => e.props.id === id);
+    if (index === -1) return;
+    tabs.splice(index, 1);
+    
+    if (activeTab === id) {
+      if (index >= tabs.length) index--;
+      activeTab = tabs[index].props.id;
+    }
+
+    this.setState({ instances, tabs, activeTab });
   }
 
   toggleTerminalExpandedState = () => {
@@ -216,10 +232,11 @@ class Terminal extends Component<any, any> {
   };
   
   setFocusToCommandInput = () => {
-    let tab = this.tabsRefs.find(e => e.props.id === this.state.activeTab);
-    if (tab == undefined) return;
-    //console.log(tab.com);
-    tab.com.focus();
+    let instance = this.state.instances.find(e => e.index === this.state.activeTab);
+    if (instance !== undefined) {
+      instance = instance.instance;
+      instance.com.focus();
+    }
   };
 
   // Show the content on toggling
@@ -376,7 +393,7 @@ class Terminal extends Component<any, any> {
     }
   };
 
-  // Used to keep track of all instances
+  // Used to keep track of all instances.
   registerInstance = (index, instance) => {
     const { instances } = this.state;
     const pluginInstances = {};
@@ -602,15 +619,23 @@ class Terminal extends Component<any, any> {
       }
 
       // Scroll terminal to end.
-      let tab = this.tabsRefs.find(e => e.props.id === this.state.activeTab);
-      if (tab != undefined) {
+      /*
+      let ins = this.state.instances.find(e => e.index === this.state.activeTab);
+      if (ins !== undefined) {
+        ins = ins.instance;
         setTimeout(
           () => {
-            tab.contentWrapper.scrollTop = tab.contentWrapper.scrollHeight;
+            instance.contentWrapper.scrollTop = instance.contentWrapper.scrollHeight;
           },
           50);
       }
-   
+      */
+      setTimeout(
+        () => {
+          instance.contentWrapper.scrollTop = instance.contentWrapper.scrollHeight;
+        },
+        50);
+
       const newHistory = [...history, e.target.value];
       const historyProps = saveToHistory ? {
         history: newHistory,
