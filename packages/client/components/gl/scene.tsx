@@ -29,7 +29,7 @@ import { Interactive } from "@xr3ngine/engine/src/interaction/components/Interac
 import { Interacts } from "@xr3ngine/engine/src/interaction/components/Interacts";
 
 import dynamic from 'next/dynamic';
-const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad), { ssr: false });
+const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
 const locationId = 'e3523270-ddb7-11ea-9251-75ab611a30da';
 const locationId2 = '489ec2b1-f6b2-46b5-af84-92d094927dd7';
