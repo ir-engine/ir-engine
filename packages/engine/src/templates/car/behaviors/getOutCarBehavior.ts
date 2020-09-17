@@ -12,25 +12,26 @@ import { setPosition } from '../../../templates/character/behaviors/setPosition'
 
 export const getOutCar: Behavior = (entity: Entity): void => {
   console.log("Getting out of car")
-  const vehicleBodyComponent = getMutableComponent(entity, VehicleBody)
-  const entityDriver = vehicleBodyComponent.currentDriver
+  const vehicleComponent = getMutableComponent(entity, VehicleBody)
+  const entityDriver = vehicleComponent.currentDriver
 
   const transformCar = getComponent<TransformComponent>(entity, TransformComponent);
   const transform = getMutableComponent<TransformComponent>(entityDriver, TransformComponent);
 
   removeComponent(entity, LocalInputReceiver)
   removeComponent(entity, FollowCameraComponent)
-  vehicleBodyComponent.currentDriver = null
+  removeComponent(entityDriver, PlayerInCar)
+  vehicleComponent.currentDriver = null
 
   addComponent(entityDriver, LocalInputReceiver)
   addComponent(entityDriver, FollowCameraComponent)
-  removeComponent(entityDriver, PlayerInCar)
+
 
   // set position character when get out car
   let entrance = new Vector3(
-    vehicleBodyComponent.entrancesArray[0][0],
-    vehicleBodyComponent.entrancesArray[0][1],
-    vehicleBodyComponent.entrancesArray[0][2]
+    vehicleComponent.entrancesArray[0][0],
+    vehicleComponent.entrancesArray[0][1],
+    vehicleComponent.entrancesArray[0][2]
   ).applyQuaternion(transformCar.rotation)
   entrance = entrance.add(transformCar.position)
   setPosition(entityDriver, entrance)

@@ -6,22 +6,8 @@ import { Object3DComponent } from '../../common/components/Object3DComponent';
 import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
 import { Vec3, Box, Cylinder, Material, ContactMaterial, Quaternion, Sphere, Body } from 'cannon-es';
 import { threeToCannon } from '@xr3ngine/engine/src/templates/world/three-to-cannon';
-
-
-function createTrimesh (position, rotation, scale, mesh) {
-    mesh = mesh.clone();
-
-		let shape = threeToCannon(mesh, {type: threeToCannon.Type.MESH});
-		//shape['material'] = mat;
-		// Add phys sphere
-		let body = new Body({
-			mass: 0
-		});
-    body.addShape(shape);
-	//	body.material = PhysicsManager.instance.trimMeshMaterial;
-
-		return body;
-}
+import { createTrimesh } from './physicalPrimitives';
+import { CollisionGroups } from "../enums/CollisionGroups";
 
 
 
@@ -40,6 +26,17 @@ function createBox (position, scale) {
   return body
 }
 
+function createSphere (radius) {
+  const shape = new Sphere(radius);
+
+  const body = new Body({
+    mass: 0,
+    });
+
+  body.addShape(shape);
+  return body;
+}
+
 
 
 
@@ -51,11 +48,14 @@ export function addColliderWithoutEntity( type, position, rotation, scale, mesh 
     if (type === 'box') {
       body = createBox(position, scale)
     //  body.computeAABB();
-  	//	body.shapes.forEach((shape) => {
-  	//		shape.collisionFilterMask = 4;
-  	//	})
+  		body.shapes.forEach((shape) => {
+  			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
+  		})
     } else
-    if (type === 'trimesh') body = createTrimesh(position, rotation, scale, mesh);
+    if (type === 'sphere') {
+      body = createSphere(scale);
+    } else
+    if (type === 'trimesh') body = createTrimesh(mesh, new Vec3(), 0);
 
     body.position.set(
       position.x,
