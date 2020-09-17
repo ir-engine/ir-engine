@@ -25,6 +25,7 @@ import {
   handleOnScreenGamepadMovement
 } from "../../input/behaviors/handleOnScreenJoystick";
 import { moveByInputAxis } from "../character/behaviors/move";
+import { changeColor } from "./behaviors/changeColor";
 
 export const VehicleInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -204,7 +205,8 @@ export const VehicleInputSchema: InputSchema = {
     ' ': DefaultInput.JUMP,
     shift: DefaultInput.CROUCH,
     p: DefaultInput.POINTER_LOCK,
-    e: DefaultInput.INTERACT
+    e: DefaultInput.INTERACT,
+    c: DefaultInput.SECONDARY
   },
   // Map how inputs relate to each other
   inputRelationships: {
@@ -217,6 +219,14 @@ export const VehicleInputSchema: InputSchema = {
   },
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
+    [DefaultInput.SECONDARY]: {
+      ended: [
+        {
+          behavior: changeColor,
+          args: { materialName: "Main" }
+        }
+      ]
+    },
     [DefaultInput.INTERACT]: {
       ended: [
         {
