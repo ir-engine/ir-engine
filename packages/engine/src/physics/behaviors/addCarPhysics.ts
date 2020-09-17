@@ -1,6 +1,6 @@
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { VehicleBody } from "@xr3ngine/engine/src/physics/components/VehicleBody";
-import { WheelBody } from "@xr3ngine/engine/src/physics/components/WheelBody";
+
 import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/FollowCameraComponent';
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { LocalInputReceiver } from "@xr3ngine/engine/src/input/components/LocalInputReceiver"
@@ -12,7 +12,6 @@ import { Entity } from '../../ecs/classes/Entity';
 import { Input } from "@xr3ngine/engine/src/input/components/Input";
 import { State } from "@xr3ngine/engine/src/state/components/State";
 import { addComponent, createEntity, removeComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { VehicleComponent } from '../components/VehicleComponent';
 
 /*
 const sphereGeo = new CylinderGeometry( 0.3, 0.3, 0.1, 12 )
@@ -32,7 +31,9 @@ export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
   let arrayWheels = []
 
    asset.scene.traverse( mesh => {
-     //console.log(mesh.type+' '+mesh.name);
+  //   console.log(mesh.name);
+    // console.log(mesh);
+
 
      if (mesh.type == 'Mesh') {
        mesh.applyMatrix4( new Matrix4().makeTranslation( 0, 0, offsetPositionY) );
@@ -48,8 +49,16 @@ export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
 
 
      if (mesh.name == "collider" ) {
-       // TO DO: trim mesh
+       mesh.geometry.applyMatrix4( new Matrix4().makeRotationX(  Math.PI / 2 ) );
+       mesh.geometry.applyMatrix4( new Matrix4().makeTranslation( 0, - offsetPositionY, 0) );
+       vehicleComponent.vehicleCollider = mesh
        deleteArr.push(mesh)
+     }
+
+     if (mesh.name.substring(0,6) == "Sphere") {
+        deleteArr.push(mesh)
+        mesh.applyMatrix4( new Matrix4().makeTranslation( 0, - offsetPositionY, - offsetPositionY) );
+        vehicleComponent.vehicleSphereColliders.push(mesh)
      }
 
      if (mesh.name == 'seat_front_left' || mesh.name == 'seat_front_right') {

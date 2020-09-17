@@ -10,7 +10,6 @@ import {
 import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
 import { TransformComponent } from '../../../transform/components/TransformComponent';
 import { LocalInputReceiver } from "@xr3ngine/engine/src/input/components/LocalInputReceiver";
-import { WheelBody } from '../../../physics/components/WheelBody';
 import { VehicleBody } from '../../../physics/components/VehicleBody';
 import { PlayerInCar } from '../../../physics/components/PlayerInCar';
 

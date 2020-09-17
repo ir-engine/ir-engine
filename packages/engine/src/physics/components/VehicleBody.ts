@@ -8,7 +8,9 @@ export class VehicleBody extends Component<VehicleBody> {
   currentDriver: any
 
   vehicleMesh: any
-  vehiclePhysics: any
+  vehiclePhysics: RaycastVehicle
+  vehicleCollider: any
+  vehicleSphereColliders: any
 
   arrayWheelsMesh: any
   arrayWheelsPosition: any
@@ -20,6 +22,7 @@ export class VehicleBody extends Component<VehicleBody> {
   maxSteerVal = 0.5
   maxForce = 500
   brakeForce = 1000000
+  mass = 300
   vehicle: RaycastVehicle
 
 }
@@ -32,6 +35,8 @@ VehicleBody.schema = {
 
   vehicleMesh: { type: Types.Ref, default: null },
   vehiclePhysics: { type: Types.Ref, default: null },
+  vehicleCollider: { type: Types.Ref, default: null },
+  vehicleSphereColliders: { type: Types.Ref, default: [] },
 
   arrayWheelsMesh: { type: Types.Ref, default: [] },
   arrayWheelsPosition: { type: Types.Ref, default: [] },
@@ -40,8 +45,9 @@ VehicleBody.schema = {
   entrancesArray: { type: Types.Ref, default: [] },
   seatsArray: { type: Types.Ref, default: [] },
 
+  mass: { type: Types.Number, default: 150 },
   maxSteerVal: { type: Types.Number, default: 0.5 },
   maxForce: { type: Types.Number, default: 500 },
   brakeForce: { type: Types.Number, default: 1000000 },
-  vehicle: { type: Types.Ref, default: 0.5 }
+  vehicle: { type: Types.Ref, default: null }
 };
