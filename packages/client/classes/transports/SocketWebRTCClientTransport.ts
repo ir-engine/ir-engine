@@ -145,12 +145,15 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     });
     this.socket.on(MessageTypes.WebRTCConsumeData.toString(), this.handleDataConsumerCreation);
     this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag) => {
+<<<<<<< HEAD
       console.log(`Received createProducer from socket ${socketId} of type ${mediaTag}`)
       console.log(MediaStreamComponent.instance.mediaStream);
       console.log(MediaStreamComponent.instance.mediaStream !== null)
       console.log((MediaStreamComponent.instance.consumers?.find(
           c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
       ) == null));
+=======
+>>>>>>> origin/video-fixes
       if (
           (MediaStreamComponent.instance.mediaStream !== null) &&
           (MediaStreamComponent.instance.consumers?.find(
@@ -193,7 +196,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     applyWorldState(worldState)
 
     console.log("Loading mediasoup");
-    await this.mediasoupDevice.load({ routerRtpCapabilities });
+    if (this.mediasoupDevice.loaded !== true) await this.mediasoupDevice.load({ routerRtpCapabilities });
 
     console.log("Joined world");
     return Promise.resolve()
@@ -303,7 +306,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     return true;
   }
 
-  async stopSendingMediaStreams(): Promise<boolean> {
+  async endVideoChat(): Promise<boolean> {
     console.log('Closing send transport')
     if (MediaStreamComponent.instance.camVideoProducer) {
       console.log('closing camVideoProducer:')
@@ -338,17 +341,28 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       await MediaStreamComponent.instance.screenAudioProducer.close()
     }
 
+<<<<<<< HEAD
     this.resetProducer()
+=======
+    MediaStreamComponent.instance.consumers.map(async (c) => {
+      await this.request(MessageTypes.WebRTCCloseConsumer.toString(), {
+        consumerId: c.id
+      });
+      await c.close();
+    });
+    this.resetProducer();
+>>>>>>> origin/video-fixes
     return true;
   }
 
-  resetProducer() {
+  resetProducer(): void {
     MediaStreamComponent.instance.camVideoProducer = null;
     MediaStreamComponent.instance.camAudioProducer = null;
     MediaStreamComponent.instance.screenVideoProducer = null;
     MediaStreamComponent.instance.screenAudioProducer = null;
     MediaStreamComponent.instance.mediaStream = null;
     MediaStreamComponent.instance.localScreen = null;
+    MediaStreamComponent.instance.consumers = [];
   }
 
   async leave(): Promise<boolean> {
@@ -572,7 +586,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // we leave the )
       if (this.leaving !== true && (state === "closed" || state === "failed" || state === "disconnected")) {
         console.log("transport closed ... leaving the and resetting");
+<<<<<<< HEAD
         this.stopSendingMediaStreams()
+=======
+        this.endVideoChat()
+>>>>>>> origin/video-fixes
       }
     });
 
