@@ -1,12 +1,25 @@
 import { Vec3, Box, Cylinder, ConvexPolyhedron, Quaternion, Sphere, Body } from 'cannon-es';
-
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { TransformComponent } from '../../transform/components/TransformComponent';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { RigidBody } from '../components/RigidBody';
 import { MeshTagComponent } from '../../common/components/Object3DTagComponents';
-import { Vector3 } from 'three';
+import { threeToCannon } from '@xr3ngine/engine/src/templates/world/three-to-cannon';
+import { CollisionGroups } from "../enums/CollisionGroups";
+
+export function createTrimesh (mesh, mass) {
+    mesh = mesh.clone();
+
+		let shape = threeToCannon(mesh, {type: threeToCannon.Type.MESH});
+		// Add phys sphere
+    shape.collisionFilterGroup = CollisionGroups.TrimeshColliders;
+		let body = new Body({ mass });
+    body.addShape(shape);
+	//	body.material = PhysicsManager.instance.trimMeshMaterial;
+		return body;
+}
 
 export function createBox (entity: Entity) {
   const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
@@ -69,15 +82,16 @@ export function createCylinder (entity: Entity) {
 }
 
 export function createSphere (entity: Entity) {
-  const rigidBody = getComponent<ColliderComponent>(entity, ColliderComponent);
-  const transform = getComponent<TransformComponent>(entity, TransformComponent);
+  const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
+  const rigidBody = getComponent<RigidBody>(entity, RigidBody);
 
-  const shape = new Sphere(rigidBody.scale[0] / 2);
+  let mass = rigidBody ? collider.mass : 0;
+
+  const shape = new Sphere(collider.scale[0] / 2);
 
   const body = new Body({
-    mass: rigidBody.mass,
-    position: new Vec3(transform.position[0], transform.position[1], transform.position[2])
-  });
+    mass: mass,
+    });
 
   body.addShape(shape);
   return body;

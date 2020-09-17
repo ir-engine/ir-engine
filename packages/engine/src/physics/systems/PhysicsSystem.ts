@@ -2,12 +2,12 @@ import { System } from '../../ecs/classes/System';
 import { PhysicsManager } from '../components/PhysicsManager';
 import { RigidBody } from '../../physics/components/RigidBody';
 import { VehicleBody } from '../../physics/components/VehicleBody';
-import { WheelBody } from '../../physics/components/WheelBody';
+
 import { addCollider } from '../behaviors/ColliderBehavior';
 import { RigidBodyBehavior } from '../behaviors/RigidBodyBehavior';
 import { VehicleBehavior } from '../behaviors/VehicleBehavior';
 import { playerModelInCar } from '../behaviors/playerModelInCar';
-import { WheelBehavior } from '../behaviors/WheelBehavior';
+
 import { ColliderComponent } from '../components/ColliderComponent';
 import { PlayerInCar } from '../components/PlayerInCar';
 import { FixedStepsRunner } from "../../common/functions/Timer";
