@@ -82,6 +82,7 @@
   },
   "dependencies": {
     "@babel/plugin-transform-typescript": "^7.11.0",
+    "nipplejs": "^0.8.7",
     "three-to-cannon": "^3.0.1"
   }
 }

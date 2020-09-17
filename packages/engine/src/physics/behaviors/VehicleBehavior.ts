@@ -1,4 +1,4 @@
-import { Quaternion, Box, Cylinder, Vec3, RaycastVehicle, Body } from 'cannon-es';
+import { Quaternion, Box, Cylinder, Sphere, Vec3, RaycastVehicle, Body } from 'cannon-es';
 import { Entity } from '../../ecs/classes/Entity';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { getMutableComponent, getComponent } from '../../ecs/functions/EntityFunctions';
@@ -8,23 +8,18 @@ import { AssetLoader } from "@xr3ngine/engine/src/assets/components/AssetLoader"
 import { PhysicsManager } from '../components/PhysicsManager';
 import { VehicleBody } from '../../physics/components/VehicleBody';
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-
-import { createConvexGeometry } from './PhysicsBehaviors';
+import { createTrimesh } from './physicalPrimitives';
+import { CollisionGroups } from "../enums/CollisionGroups";
+import { cannonFromThreeVector } from "@xr3ngine/engine/src/common/functions/cannonFromThreeVector";
 
 const quaternion = new Quaternion();
 
 export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
   if (args.phase == 'onAdded') {
-    const vehicleComponent = getMutableComponent(entity, VehicleBody) as VehicleBody;
-    const wheelsPositions = vehicleComponent.arrayWheelsPosition;
-    const wheelRadius = vehicleComponent.wheelRadius;
-    const [vehicle, wheelBodies] = createVehicleBody(entity, wheelsPositions, wheelRadius);
-
+    const vehicleComponent = getMutableComponent(entity, VehicleBody);
+    const vehicle = createVehicleBody(entity);
     vehicleComponent.vehiclePhysics = vehicle
-    vehicle.addToWorld(PhysicsManager.instance.physicsWorld);
-    for (let i = 0; i < wheelBodies.length; i++) {
-      PhysicsManager.instance.physicsWorld.addBody(wheelBodies[i]);
-    }
+
 
   } else if (args.phase == 'onUpdate') {
 
@@ -77,6 +72,8 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
 
 
   } else if (args.phase == 'onRemoved') {
+    // TO DO
+    /*
     const object = getComponent<Object3DComponent>(entity, Object3DComponent, true)?.value;
     if (!object) {
       return
@@ -84,17 +81,43 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
     const body = object.userData.vehicle;
     delete object.userData.vehicle;
     PhysicsManager.instance.physicsWorld.removeBody(body);
+    */
   }
 };
 
-export function createVehicleBody (entity: Entity, wheelsPositions:any, wheelRadius:number ): [RaycastVehicle, Body[]] {
+
+
+
+export function createVehicleBody (entity: Entity ) {
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
+  const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
+  const wheelsPositions = vehicleComponent.arrayWheelsPosition;
+  const wheelRadius = vehicleComponent.wheelRadius;
+  const vehicleCollider = vehicleComponent.vehicleCollider;
+  const vehicleSphereColliders = vehicleComponent.vehicleSphereColliders;
+  const mass = vehicleComponent.mass
 
-  let chassisBody;
+  let chassisBody, chassisShape;
 
-  const chassisShape = new Box(new Vec3(1, 0.2, 2.3));
-  chassisBody = new Body({ mass: 150 });
-  chassisBody.addShape(chassisShape);
+  if (vehicleCollider) {
+    let offset = new Vec3(0, -0.8, 0)
+    chassisBody = createTrimesh(vehicleCollider, offset, mass)
+    chassisBody.shapes.forEach((shape) => {
+      shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
+    })
+  } else {
+    //chassisShape = new Box(new Vec3(1, 0.2, 2.0));
+    chassisBody = new Body({ mass });
+  //  chassisBody.addShape(chassisShape);
+  }
+
+
+  for (let i = 0; i < vehicleSphereColliders.length; i++) {
+    const shape = new Sphere(vehicleSphereColliders[i].scale.x);
+    shape.collisionFilterMask = ~CollisionGroups.Characters;
+    chassisBody.addShape(shape, cannonFromThreeVector(vehicleSphereColliders[i].position));
+  }
+
 
   //  let
   chassisBody.position.x = transform.position.x
@@ -152,5 +175,11 @@ export function createVehicleBody (entity: Entity, wheelsPositions:any, wheelRad
 
   }
 
-  return [vehicle, wheelBodies];
+  vehicle.addToWorld(PhysicsManager.instance.physicsWorld);
+
+
+  for (let i = 0; i < wheelBodies.length; i++) {
+    PhysicsManager.instance.physicsWorld.addBody(wheelBodies[i]);
+  }
+  return vehicle;
 }
