@@ -50,9 +50,23 @@ export const EnginePage: FunctionComponent = (props: any) => {
     provisionInstanceServer
   } = props;
   const [enabled, setEnabled] = useState(false);
+  const [hoveredLabel, setHoveredLabel] = useState('');
 
   useEffect(() => {
     console.log('initializeEngine!');
+
+    const onObjectHover = (event: CustomEvent): void => {
+      if (event.detail.focused) {
+        setHoveredLabel(String(event.detail.label));
+      } else {
+        setHoveredLabel('');
+      }
+    };
+    const onObjectActivation = (event: CustomEvent): void => {
+      window.open(event.detail.url, "_blank");
+    };
+    document.addEventListener('object-hover', onObjectHover);
+    document.addEventListener('object-activation', onObjectActivation);
 
     const networkSchema: NetworkSchema = {
       ...DefaultNetworkSchema,
@@ -134,6 +148,9 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
 
     return (): void => {
+      document.removeEventListener('object-hover', onObjectHover);
+      document.removeEventListener('object-activation', onObjectActivation);
+
       // cleanup
       console.log('cleanup?!');
       // TODO: use resetEngine when it will be completed. for now just reload
@@ -206,8 +223,11 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   const mobileGamepad = isMobileOrTablet()? <MobileGamepad /> : null;
 
+  const hoveredLabelElement = hoveredLabel.length? <div style={{ position: "fixed", top:"50%", left:"50%", backgroundColor:"white" }}>{hoveredLabel}</div> : null;
+
   return (
     <>
+    {hoveredLabelElement}
     {terminal}
     {mobileGamepad}
     </>
