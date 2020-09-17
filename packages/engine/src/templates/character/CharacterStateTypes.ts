@@ -31,4 +31,9 @@ export const CharacterStateTypes = {
   DROP_IDLE: 20,
   DROP_ROLLING: 21,
   DROP_RUNNING: 22,
+
+  // Driving substates
+  DRIVING_IDLE: 23,
+  ENTER_VEHICLE: 24,
+  EXIT_VEHICLE: 25
 };
