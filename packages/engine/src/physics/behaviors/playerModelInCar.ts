@@ -1,5 +1,6 @@
 import { Behavior } from '../../common/interfaces/Behavior';
 import { TransformComponent } from '../../transform/components/TransformComponent';
+import { CharacterComponent } from "@xr3ngine/engine/src/templates/character/components/CharacterComponent";
 import { ColliderComponent } from '../components/ColliderComponent';
 import { VehicleBody } from '../components/VehicleBody';
 import { PlayerInCar } from '../components/PlayerInCar';
@@ -19,12 +20,19 @@ import { setPosition } from "@xr3ngine/engine/src/templates/character/behaviors/
 
 export const playerModelInCar: Behavior = (entity: Entity, args: { type: string, phase?: string }, delta): void => {
 
+  if (args.phase === 'onAdded') {
+    addState(entity, {state: CharacterStateTypes.ENTER_VEHICLE})
+    return
+  }
+
   if (args.phase === 'onRemoved') {
-    addState(entity, {state: CharacterStateTypes.WALK_END})
+    addState(entity, {state: CharacterStateTypes.EXIT_VEHICLE})
     return
   }
 
 
+
+  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const stateComponent = getComponent<State>(entity, State);
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
   const playerInCarComponent = getComponent<PlayerInCar>(entity, PlayerInCar);
@@ -32,10 +40,13 @@ export const playerModelInCar: Behavior = (entity: Entity, args: { type: string,
   const transformCar = getComponent<TransformComponent>(entityCar, TransformComponent);
   const vehicleComponent = getMutableComponent<VehicleBody>(entityCar, VehicleBody);
 
-  if (!stateComponent.data.has(CharacterStateTypes.JUMP_IDLE)) {
+  if (actor.timer > 2.1) {
+    addState(entity, {state: CharacterStateTypes.DRIVING_IDLE})
+  }
+
+  if (!stateComponent.data.has(CharacterStateTypes.ENTER_VEHICLE)) {
 
     if (!hasComponent(entityCar, LocalInputReceiver)) {
-      addState(entity, {state: CharacterStateTypes.WALK})
       addComponent(entityCar, LocalInputReceiver)
       addComponent(entityCar, FollowCameraComponent, { distance: 3, mode: "thirdPerson" })
       vehicleComponent.currentDriver = entity
@@ -43,8 +54,8 @@ export const playerModelInCar: Behavior = (entity: Entity, args: { type: string,
 
     let entrance = new Vector3(
       vehicleComponent.seatsArray[0][0],
-      vehicleComponent.seatsArray[0][1],
-      vehicleComponent.seatsArray[0][2]
+      vehicleComponent.seatsArray[0][1]+0.2,
+      vehicleComponent.seatsArray[0][2]+0.51
     ).applyQuaternion(transformCar.rotation)
 
     transform.position.copy( entrance.add(transformCar.position) )
