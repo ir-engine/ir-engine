@@ -6,9 +6,13 @@ import { Types } from '../../ecs/types/Types';
 export class FollowCameraComponent extends Component<FollowCameraComponent> {
   mode: string
   distance: number
+  minDistance: number
+  maxDistance: number
 }
 
 FollowCameraComponent.schema = {
   mode: { type: Types.String, default: 'thirdPerson' },
-  distance: { type: Types.Number, default: 3 }
+  distance: { type: Types.Number, default: 3 },
+  minDistance: { type: Types.Number, default: 2 },
+  maxDistance: { type: Types.Number, default: 7 }
 };

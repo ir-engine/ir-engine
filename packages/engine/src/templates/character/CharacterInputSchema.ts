@@ -22,6 +22,8 @@ import {
 import { moveByInputAxis } from "./behaviors/move";
 import { InputType } from "../../input/enums/InputType";
 import { setLocalMovementDirection } from "./behaviors/setLocalMovementDirection";
+import { handleMouseWheel } from "../../input/behaviors/handleMouseWheel";
+import { changeCameraDistanceByDelta } from "../../camera/behaviors/changeCameraDistanceByDelta";
 
 export const CharacterInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -65,6 +67,14 @@ export const CharacterInputSchema: InputSchema = {
         behavior: handleMouseButton,
         args: {
           value: BinaryValue.ON
+        }
+      }
+    ],
+    wheel: [
+      {
+        behavior: handleMouseWheel,
+        args: {
+          value: DefaultInput.CAMERA_SCROLL
         }
       }
     ],
@@ -161,7 +171,8 @@ export const CharacterInputSchema: InputSchema = {
       [MouseInput.MouseMovement]: DefaultInput.MOUSE_MOVEMENT,
       [MouseInput.MousePosition]: DefaultInput.SCREENXY,
       [MouseInput.MouseClickDownPosition]: DefaultInput.SCREENXY_START,
-      [MouseInput.MouseClickDownTransformRotation]: DefaultInput.ROTATION_START
+      [MouseInput.MouseClickDownTransformRotation]: DefaultInput.ROTATION_START,
+      [MouseInput.MouseScroll]: DefaultInput.CAMERA_SCROLL
     }
   },
   // Map gamepad buttons to abstract input
@@ -362,6 +373,26 @@ export const CharacterInputSchema: InputSchema = {
   },
   // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
   inputAxisBehaviors: {
+    [DefaultInput.CAMERA_SCROLL]: {
+      started: [
+        {
+          behavior: changeCameraDistanceByDelta,
+          args: {
+            input: DefaultInput.CAMERA_SCROLL,
+            inputType: InputType.ONEDIM
+          }
+        }
+      ],
+      changed: [
+        {
+          behavior: changeCameraDistanceByDelta,
+          args: {
+            input: DefaultInput.CAMERA_SCROLL,
+            inputType: InputType.ONEDIM
+          }
+        }
+      ]
+    },
     [DefaultInput.MOVEMENT_PLAYERONE]: {
       started: [
         {
