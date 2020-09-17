@@ -1,4 +1,4 @@
-import { BoxBufferGeometry, Mesh } from "three";
+import { Color } from "three";
 
 import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 
@@ -15,6 +15,8 @@ import { addComponentFromSchema } from "../../../common/behaviors/addComponentFr
 import { Interactive } from "../../../interaction/components/Interactive";
 import { getInCar } from "../behaviors/getInCarBehavior";
 import { getInCarPossible } from "../behaviors/getInCarPossible";
+import { Entity } from "../../../ecs/classes/Entity";
+import { changeColor } from "../behaviors/changeColor";
 
 export const CarController: Prefab = {
     components: [
@@ -47,7 +49,13 @@ export const CarController: Prefab = {
                     url: "models/Sportscar.glb", //  "models/car.glb"
                     receiveShadow: true,
                     castShadow: true,
-                    onLoaded: addCarPhysics
+                    onLoaded: (entityIn:Entity, args:unknown, delta:number, entityOut:Entity): void => {
+                      addCarPhysics(entityIn, args, delta, entityOut);
+                      changeColor(entityIn, {
+                        materialName: "Main",
+                        color: new Color(0.5,0,0)
+                      })
+                    }
                 }
             }
         },

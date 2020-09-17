@@ -8,6 +8,7 @@ import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/Fo
 
 import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import {MouseInput} from "../../input/enums/MouseInput";
+import { DefaultInput } from "../../templates/shared/DefaultInput";
 
 
 let follower, target;
@@ -40,7 +41,7 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
 
   camera = getMutableComponent<CameraComponent>(entityIn, CameraComponent);
 
-  const inputAxes = inputComponent.schema.mouseInputMap.axes[MouseInput.MouseMovement]
+  const inputAxes = inputComponent.data.has(DefaultInput.LOOKTURN_PLAYERONE)? DefaultInput.LOOKTURN_PLAYERONE : inputComponent.schema.mouseInputMap.axes[MouseInput.MouseMovement]
 
   if (!inputComponent.data.has(inputAxes)) {
     inputValue = [0, 0]
@@ -48,8 +49,10 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
     inputValue = inputComponent.data.get(inputAxes).value
     // fix infinity rotation
     // Math.abs(inputValue[0] + inputValue[1]) == 1 ? inputValue = [0, 0] : '';
-    // TODO: is it ok to clear it?
-    inputComponent.data.delete(inputAxes)
+    if (inputAxes === DefaultInput.MOUSE_MOVEMENT) {
+      // TODO: is it ok to clear it?
+      inputComponent.data.delete(inputAxes)
+    }
   }
 
   if (cameraFollow.mode === "firstPerson") {

@@ -118,8 +118,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
               locationId: locationId
             }
           }
-        ],
-        logging: console.log
+        ]
       })
       if (friendsAtLocationResult.count > 0) {
         const instances = {}
@@ -178,6 +177,12 @@ export class InstanceProvision implements ServiceMethods<Data> {
         const serverResult = await (this.app as any).k8Client.get('gameservers')
         const readyServers = _.filter(serverResult.items, (server: any) => server.status.state === 'Ready')
         const server = readyServers[Math.floor(Math.random() * readyServers.length)]
+        if (server == null) {
+          return {
+            ipAddress: null,
+            port: null
+          }
+        }
         return {
           ipAddress: server.status.address,
           port: server.status.ports[0].port

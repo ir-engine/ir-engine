@@ -1,6 +1,6 @@
 import Fuse from "fuse.js";
 import { proxiedUrlFor } from "../../api/Api";
-import { BaseSource } from "./sources/index";
+import { BaseSource } from "./sources";
 import { ItemTypes } from "../dnd";
 import KitSourcePanel from "./KitSourcePanel";
 import KitPieceNode from "../../nodes/KitPieceNode";

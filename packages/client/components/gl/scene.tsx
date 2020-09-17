@@ -24,8 +24,10 @@ import { selectInstanceConnectionState } from '../../redux/instanceConnection/se
 import { connectToInstanceServer, provisionInstanceServer } from '../../redux/instanceConnection/service';
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
+import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
 
-
+import dynamic from 'next/dynamic';
+const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
 const locationId = 'e3523270-ddb7-11ea-9251-75ab611a30da';
 const locationId2 = '489ec2b1-f6b2-46b5-af84-92d094927dd7';
@@ -70,6 +72,9 @@ export const EnginePage: FunctionComponent = (props: any) => {
       audio: {
         src: '/audio/djMagda.m4a'
       },
+      input: {
+        mobile: isMobileOrTablet()
+      }
     };
     initializeEngine(InitializationOptions);
 
@@ -123,7 +128,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   setTimeout(() => {
     createPrefab(rigidBodyBox);
     createPrefab(rigidBodyBox2);
-    createPrefab(CarController);
+    // createPrefab(CarController);
     //createPrefab(interactiveBox);
   }, 5000);
 
@@ -153,22 +158,20 @@ export const EnginePage: FunctionComponent = (props: any) => {
   });
 
   useEffect(() => {
-    console.log('instanceConnectionState useEffect')
-    console.log(instanceConnectionState)
     if (instanceConnectionState.get('instanceProvisioned') === true && instanceConnectionState.get('updateNeeded') === true) {
       console.log('Calling connectToInstanceServer');
       connectToInstanceServer();
     }
   }, [instanceConnectionState]);
 
-  // useEffect(() => {
-  //   if (instanceConnectionState.get('instanceProvisioned') == false) {
-  //     provisionInstanceServer(locationId);
-  //   }
-  //   else {
-  //     connectToInstanceServer();
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (instanceConnectionState.get('instanceProvisioned') == false) {
+      provisionInstanceServer(locationId);
+    }
+    else {
+      connectToInstanceServer();
+    }
+  }, []);
 
   const toggleEnabled = (): void => {
     console.log("enabled ", enabled);
@@ -179,8 +182,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     }
   };
 
-  return (
-    enabled && (
+  const terminal = enabled? (
       <Terminal
         color='green'
         backgroundColor='black'
@@ -200,7 +202,15 @@ export const EnginePage: FunctionComponent = (props: any) => {
         description={description}
         msg='Interactive terminal. Please consult the manual for commands.'
       />
-    )
+    ) : null;
+
+  const mobileGamepad = isMobileOrTablet()? <MobileGamepad /> : null;
+
+  return (
+    <>
+    {terminal}
+    {mobileGamepad}
+    </>
   );
 };
 

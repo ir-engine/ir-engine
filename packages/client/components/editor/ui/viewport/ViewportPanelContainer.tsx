@@ -4,7 +4,7 @@ import { EditorContext } from "../contexts/EditorContext";
 import styled from "styled-components";
 import Panel from "../layout/Panel";
 import { WindowMaximize } from "@styled-icons/fa-solid/WindowMaximize";
-import { Resizeable } from "../layout/Resizeable";
+import Resizeable from "../layout/Resizeable";
 import AssetsPanel from "../assets/AssetsPanel";
 import { useDrop } from "react-dnd";
 import { ItemTypes, AssetTypes, addAssetAtCursorPositionOnDrop } from "../dnd";

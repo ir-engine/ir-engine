@@ -12,14 +12,20 @@ import { InputType } from '../../input/enums/InputType';
 import { MouseInput } from '../../input/enums/MouseInput';
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
-import { drive } from '@xr3ngine/engine/src/physics/behaviors/driveBehavior';
+import { drive, driveByInputAxis } from '@xr3ngine/engine/src/physics/behaviors/driveBehavior';
 import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
 import { getOutCar } from '@xr3ngine/engine/src/templates/car/behaviors/getOutCarBehavior';
 import { DefaultInput } from '../shared/DefaultInput';
 import { driveSteering } from "../../physics/behaviors/driveSteeringBehavior";
-import { honk } from './behaviors/honk';
+// import { honk } from './behaviors/honk';
 import { driveHandBrake } from "../../physics/behaviors/driveHandBrake";
 import { interact } from "../../interaction/behaviors/interact";
+import {
+  handleOnScreenGamepadButton,
+  handleOnScreenGamepadMovement
+} from "../../input/behaviors/handleOnScreenJoystick";
+import { moveByInputAxis } from "../character/behaviors/move";
+import { changeColor } from "./behaviors/changeColor";
 
 export const VehicleInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -128,6 +134,28 @@ export const VehicleInputSchema: InputSchema = {
       {
         behavior: handleGamepadDisconnected
       }
+    ],
+    // mobile onscreen gamepad
+    stickmove: [
+      {
+        behavior: handleOnScreenGamepadMovement
+      }
+    ],
+    mobilegamepadbuttondown: [
+      {
+        behavior: handleOnScreenGamepadButton,
+        args: {
+          value: BinaryValue.ON
+        }
+      }
+    ],
+    mobilegamepadbuttonup: [
+      {
+        behavior: handleOnScreenGamepadButton,
+        args: {
+          value: BinaryValue.OFF
+        }
+      }
     ]
   },
   // Map mouse buttons to abstract input
@@ -148,8 +176,8 @@ export const VehicleInputSchema: InputSchema = {
     buttons: {
       [GamepadButtons.A]: DefaultInput.JUMP,
       [GamepadButtons.B]: DefaultInput.CROUCH, // B - back
-      // [GamepadButtons.X]: DefaultInput.SPRINT, // X - secondary input
-      // [GamepadButtons.Y]: DefaultInput.INTERACT, // Y - tertiary input
+      [GamepadButtons.X]: DefaultInput.SPRINT, // X - secondary input
+      [GamepadButtons.Y]: DefaultInput.INTERACT, // Y - tertiary input
       // 4: DefaultInput.DEFAULT, // LB
       // 5: DefaultInput.DEFAULT, // RB
       // 6: DefaultInput.DEFAULT, // LT
@@ -177,7 +205,8 @@ export const VehicleInputSchema: InputSchema = {
     ' ': DefaultInput.JUMP,
     shift: DefaultInput.CROUCH,
     p: DefaultInput.POINTER_LOCK,
-    e: DefaultInput.INTERACT
+    e: DefaultInput.INTERACT,
+    c: DefaultInput.SECONDARY
   },
   // Map how inputs relate to each other
   inputRelationships: {
@@ -190,8 +219,15 @@ export const VehicleInputSchema: InputSchema = {
   },
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
+    [DefaultInput.SECONDARY]: {
+      ended: [
+        {
+          behavior: changeColor,
+          args: { materialName: "Main" }
+        }
+      ]
+    },
     [DefaultInput.INTERACT]: {
-      // Important to place behaviors that will change input onto 'ended' lifecycle, otherwise 'ended' will not happen in switched off input
       ended: [
         {
           behavior: getOutCar,
@@ -343,7 +379,7 @@ export const VehicleInputSchema: InputSchema = {
     [DefaultInput.MOVEMENT_PLAYERONE]: {
       started: [
         {
-          behavior: drive,
+          behavior: driveByInputAxis,
           args: {
             input: DefaultInput.MOVEMENT_PLAYERONE,
             inputType: InputType.TWODIM
@@ -352,7 +388,7 @@ export const VehicleInputSchema: InputSchema = {
       ],
       changed: [
         {
-          behavior: drive,
+          behavior: driveByInputAxis,
           args: {
             input: DefaultInput.MOVEMENT_PLAYERONE,
             inputType: InputType.TWODIM

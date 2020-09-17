@@ -119,10 +119,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       Network.instance.mySocketID = this.socket.id
 
-    // If a reliable message is received, add it to the queue
-    this.socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
-      Network.instance.incomingMessageQueue.add(message)
-    })
+      // If a reliable message is received, add it to the queue
+      this.socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
+        Network.instance.incomingMessageQueue.add(message)
+      })
 
       // use sendBeacon to tell the server we're disconnecting when
       // the page unloads
@@ -143,7 +143,28 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       console.log("About to send camera streams");
       // await this.sendCameraStreams();
     });
-    this.socket.on(MessageTypes.WebRTCConsumeData.toString(), this.handleDataConsumerCreation)
+    this.socket.on(MessageTypes.WebRTCConsumeData.toString(), this.handleDataConsumerCreation);
+    this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag) => {
+      if (
+          (MediaStreamComponent.instance.mediaStream !== null) &&
+          (MediaStreamComponent.instance.consumers?.find(
+              c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
+          ) == null)
+      ) {
+        // that we don't already have consumers for...
+        console.log(`auto subscribing to ${mediaTag} track that ${socketId} has added at ${new Date()}`);
+        await this.subscribeToTrack(socketId, mediaTag);
+      }
+    });
+
+    this.socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async(consumerId) => {
+      console.log('Close consumer ' + consumerId)
+      console.log('Old consumers:')
+      console.log(MediaStreamComponent.instance.consumers)
+      MediaStreamComponent.instance.consumers = MediaStreamComponent.instance.consumers.filter((c) => c.id !== consumerId)
+      console.log('New consumers:')
+      console.log(MediaStreamComponent.instance.consumers)
+    })
   }
 
   //= =//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//
@@ -166,7 +187,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     applyWorldState(worldState)
 
     console.log("Loading mediasoup");
-    await this.mediasoupDevice.load({ routerRtpCapabilities });
+    if (this.mediasoupDevice.loaded !== true) await this.mediasoupDevice.load({ routerRtpCapabilities });
 
     console.log("Joined world");
     return Promise.resolve()
@@ -195,9 +216,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // state, if the checkbox in our UI is unchecked. so as soon as we
     // have a client-side camVideoProducer object, we need to set it to
     // paused as appropriate, too.
-    if(MediaStreamComponent.instance.mediaStream === undefined)
+    if(MediaStreamComponent.instance.mediaStream == null)
       await MediaStreamSystem.instance.startCamera();
-    MediaStreamComponent.instance.camVideoProducer = await this.sendTransport.produce({
+      MediaStreamComponent.instance.camVideoProducer = await this.sendTransport.produce({
       track: MediaStreamComponent.instance.mediaStream.getVideoTracks()[0],
       encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
       appData: { mediaTag: "cam-video" }
@@ -276,33 +297,59 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     return true;
   }
 
-  async stopSendingMediaStreams(): Promise<boolean> {
+  async endVideoChat(): Promise<boolean> {
     console.log('Closing send transport')
-    const result = await this.request(MessageTypes.WebRTCTransportClose.toString(), {
-      transportId: this.sendTransport.id
-    });
-    console.log('Transport close request response:')
-    console.log(result)
-    if (result.error) console.error(result.error);
+    if (MediaStreamComponent.instance.camVideoProducer) {
+      console.log('closing camVideoProducer:')
+      console.log(MediaStreamComponent.instance.camVideoProducer)
+      await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
+        producerId: MediaStreamComponent.instance.camVideoProducer.id
+      });
+      await MediaStreamComponent.instance.camVideoProducer.close()
+    }
+    if (MediaStreamComponent.instance.camAudioProducer) {
+      console.log('closing camAudioProducer:')
+      console.log(MediaStreamComponent.instance.camAudioProducer)
+      await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
+        producerId: MediaStreamComponent.instance.camAudioProducer.id
+      });
+      await MediaStreamComponent.instance.camAudioProducer.close()
+    }
+    if (MediaStreamComponent.instance.screenVideoProducer) {
+      console.log('closing screenVideoProducer:')
+      console.log(MediaStreamComponent.instance.screenVideoProducer)
+      await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
+        producerId: MediaStreamComponent.instance.screenVideoProducer.id
+      });
+      await MediaStreamComponent.instance.screenVideoProducer.close()
+    }
+    if (MediaStreamComponent.instance.screenAudioProducer) {
+      console.log('closing screenAudioProducer:')
+      console.log(MediaStreamComponent.instance.screenAudioProducer)
+      await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
+        producerId: MediaStreamComponent.instance.screenAudioProducer.id
+      });
+      await MediaStreamComponent.instance.screenAudioProducer.close()
+    }
 
-    await this.sendTransport.close();
-    this.sendTransport = null;
-    console.log('Transport should be fully closed')
-    // closing the sendTransport closes all associated producers. when
-    // the camVideoProducer and camAudioProducer are closed,
-    // mediasoup-client stops the local cam tracks, so we don't need to
-    // do anything except set all our local variables to null.
-    this.resetProducer()
+    MediaStreamComponent.instance.consumers.map(async (c) => {
+      await this.request(MessageTypes.WebRTCCloseConsumer.toString(), {
+        consumerId: c.id
+      });
+      await c.close();
+    });
+    this.resetProducer();
     return true;
   }
 
-  resetProducer() {
+  resetProducer(): void {
     MediaStreamComponent.instance.camVideoProducer = null;
     MediaStreamComponent.instance.camAudioProducer = null;
     MediaStreamComponent.instance.screenVideoProducer = null;
     MediaStreamComponent.instance.screenAudioProducer = null;
     MediaStreamComponent.instance.mediaStream = null;
     MediaStreamComponent.instance.localScreen = null;
+    MediaStreamComponent.instance.consumers = [];
   }
 
   async leave(): Promise<boolean> {
@@ -510,7 +557,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           if (error) {
             console.log(error)
             errback();
-            return 
+            return;
           }
           return callback({ id });
         }
@@ -526,7 +573,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // we leave the )
       if (this.leaving !== true && (state === "closed" || state === "failed" || state === "disconnected")) {
         console.log("transport closed ... leaving the and resetting");
-        alert("Your connection failed.  Please restart the page");
+        this.endVideoChat()
       }
     });
 
