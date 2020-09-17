@@ -55,7 +55,7 @@ export function addColliderWithoutEntity( type, position, rotation, scale, mesh 
     if (type === 'sphere') {
       body = createSphere(scale);
     } else
-    if (type === 'trimesh') body = createTrimesh(mesh, 0);
+    if (type === 'trimesh') body = createTrimesh(mesh, new Vec3(), 0);
 
     body.position.set(
       position.x,

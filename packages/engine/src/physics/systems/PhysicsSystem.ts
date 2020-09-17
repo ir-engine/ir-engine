@@ -87,15 +87,15 @@ export class PhysicsSystem extends System {
     // Player 3d model in car
 
     this.queryResults.playerInCar.added?.forEach(entity => {
-      playerModelInCar(entity, { phase: 'onAdded' });
+      playerModelInCar(entity, { phase: 'onAdded' }, delta);
     });
 
     this.queryResults.playerInCar.all?.forEach(entity => {
-      playerModelInCar(entity, { phase: 'onUpdate' });
+      playerModelInCar(entity, { phase: 'onUpdate' }, delta);
     });
 
     this.queryResults.playerInCar.removed?.forEach(entity => {
-      playerModelInCar(entity, { phase: 'onRemoved' });
+      playerModelInCar(entity, { phase: 'onRemoved' }, delta);
     });
 
   }

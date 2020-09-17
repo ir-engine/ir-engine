@@ -9,14 +9,14 @@ import { MeshTagComponent } from '../../common/components/Object3DTagComponents'
 import { threeToCannon } from '@xr3ngine/engine/src/templates/world/three-to-cannon';
 import { CollisionGroups } from "../enums/CollisionGroups";
 
-export function createTrimesh (mesh, mass) {
+export function createTrimesh (mesh, position, mass) {
     mesh = mesh.clone();
 
 		let shape = threeToCannon(mesh, {type: threeToCannon.Type.MESH});
 		// Add phys sphere
     shape.collisionFilterGroup = CollisionGroups.TrimeshColliders;
 		let body = new Body({ mass });
-    body.addShape(shape);
+    body.addShape(shape, position);
 	//	body.material = PhysicsManager.instance.trimMeshMaterial;
 		return body;
 }
