@@ -147,7 +147,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
       <Terminal
         color='green'
         backgroundColor='black'
-        allowTabs={false}
+        // allowTabs={false}
+        allowTabs={true}
         startState='maximised'
         showCommands={true}
         style={{
@@ -157,7 +158,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
           bottom: "0",
           width: "100%", 
           // Height is set in termimal itself depending is it expanded.
-          /* height: "30%", */
+          // height: "30%",
           zIndex: 4000 }}
         commands={commands}
         description={description}
