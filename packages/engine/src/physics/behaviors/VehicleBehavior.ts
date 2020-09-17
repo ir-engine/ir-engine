@@ -100,7 +100,11 @@ export function createVehicleBody (entity: Entity ) {
   let chassisBody, chassisShape;
 
   if (vehicleCollider) {
-    chassisBody = createTrimesh(vehicleCollider, mass)
+    let offset = new Vec3(0, -0.8, 0)
+    chassisBody = createTrimesh(vehicleCollider, offset, mass)
+    chassisBody.shapes.forEach((shape) => {
+      shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
+    })
   } else {
     //chassisShape = new Box(new Vec3(1, 0.2, 2.0));
     chassisBody = new Body({ mass });
@@ -110,6 +114,7 @@ export function createVehicleBody (entity: Entity ) {
 
   for (let i = 0; i < vehicleSphereColliders.length; i++) {
     const shape = new Sphere(vehicleSphereColliders[i].scale.x);
+    shape.collisionFilterMask = ~CollisionGroups.Characters;
     chassisBody.addShape(shape, cannonFromThreeVector(vehicleSphereColliders[i].position));
   }
 

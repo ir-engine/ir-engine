@@ -50,14 +50,13 @@ export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
 
      if (mesh.name == "collider" ) {
        mesh.geometry.applyMatrix4( new Matrix4().makeRotationX(  Math.PI / 2 ) );
-       mesh.geometry.applyMatrix4( new Matrix4().makeTranslation( 0, - offsetPositionY, 0) );
        vehicleComponent.vehicleCollider = mesh
        deleteArr.push(mesh)
      }
 
      if (mesh.name.substring(0,6) == "Sphere") {
         deleteArr.push(mesh)
-        mesh.applyMatrix4( new Matrix4().makeTranslation( 0, - offsetPositionY, - offsetPositionY) );
+        mesh.applyMatrix4( new Matrix4().makeRotationX(  Math.PI / 2 ) );
         vehicleComponent.vehicleSphereColliders.push(mesh)
      }
 

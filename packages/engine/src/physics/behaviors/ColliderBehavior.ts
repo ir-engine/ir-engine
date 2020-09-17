@@ -34,7 +34,7 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string, phas
   if (collider.type === 'box') body = createBox(entity);
   else if (collider.type === 'cylinder') body = createCylinder(entity);
   else if (collider.type === 'sphere') body = createSphere(entity);
-  else if (collider.type === 'trimesh') body = createTrimesh( getMutableComponent<Object3DComponent>(entity, Object3DComponent as any).value, collider.mass );
+  else if (collider.type === 'trimesh') body = createTrimesh( getMutableComponent<Object3DComponent>(entity, Object3DComponent as any).value, new Vec3() , collider.mass );
 
   body.position.set(
     transform.position.x,
