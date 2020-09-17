@@ -17,14 +17,14 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
         blendFunction: BlendFunction.MULTIPLY,
 			distanceScaling: true,
 			depthAwareUpsampling: true,
-			samples: 8,
+			samples: 16,
 			rings: 7,
 			distanceThreshold: .125,	// Render up to a distance of ~20 world units
 			distanceFalloff: 0.02,	// with an additional ~2.5 units of falloff.
-      minRadiusScale: 0.001,
-      bias: .2,
-			radius: .04,
-      intensity: 5,
+      minRadiusScale: 1,
+      bias: .25,
+			radius: .01,
+      intensity: 2,
       fade: 0.05
       }
     },
