@@ -67,17 +67,20 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
           // Evaluate if the number is the same as last time, send the delta 
         } else if(value.lifecycleState === LifecycleValue.CHANGED) {
           // If the value is different from last frame, update it
-            if(input.data.has(key) && JSON.stringify(value.value) !== JSON.stringify(input.data.get(key).value)) {
-              input.schema.inputAxisBehaviors[key].changed?.forEach(element =>
-                element.behavior(entity, element.args, delta)
-              );
-            }
-            // Otherwise, remove it from the frame
-            else {
-                input.schema.inputAxisBehaviors[key].unchanged?.forEach(element =>
-                  element.behavior(entity, element.args, delta)
-                );
-            }
+
+            // // TODO: this check is useless, since we iterating input.data and comparing it's value with it's value
+
+            //if(input.data.has(key) && JSON.stringify(value.value) !== JSON.stringify(input.data.get(key).value)) {
+            input.schema.inputAxisBehaviors[key].changed?.forEach(element =>
+              element.behavior(entity, element.args, delta)
+            );
+            // }
+            // // Otherwise, remove it from the frame
+            // else {
+            //     input.schema.inputAxisBehaviors[key].unchanged?.forEach(element =>
+            //       element.behavior(entity, element.args, delta)
+            //     );
+            // }
         }
       }
     } else {

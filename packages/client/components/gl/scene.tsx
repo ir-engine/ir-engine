@@ -8,6 +8,9 @@ import { addComponent, createEntity, getComponent, getMutableComponent } from '@
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { CarController } from "@xr3ngine/engine/src/templates/car/prefabs/CarController";
+import { WorldPrefab } from "@xr3ngine/engine/src/templates/world/prefabs/WorldPrefab";
+import { rigidBodyBox } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox";
+import { rigidBodyBox2 } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox2";
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
 import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
@@ -21,8 +24,10 @@ import { selectInstanceConnectionState } from '../../redux/instanceConnection/se
 import { connectToInstanceServer, provisionInstanceServer } from '../../redux/instanceConnection/service';
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
+import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
 
-
+import dynamic from 'next/dynamic';
+const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
 const locationId = 'e3523270-ddb7-11ea-9251-75ab611a30da';
 const locationId2 = '489ec2b1-f6b2-46b5-af84-92d094927dd7';
@@ -67,6 +72,9 @@ export const EnginePage: FunctionComponent = (props: any) => {
       audio: {
         src: '/audio/djMagda.m4a'
       },
+      input: {
+        mobile: isMobileOrTablet()
+      }
     };
     initializeEngine(InitializationOptions);
 
@@ -111,41 +119,16 @@ export const EnginePage: FunctionComponent = (props: any) => {
       // )
     }
 
-    console.log("Creating a scene entity to test");
-    const levelEntity = createEntity();
-    addComponent(levelEntity, AssetLoader, {
-      url: "models/City_nocolliders.glb",
-      receiveShadow: true,
-      castShadow: true,
-      onLoaded: () => {
-        console.log('level is loaded');
-        // TODO: parse Floor_plan
-        // TODO: parse Spawn point
-
-        // TODO: this is temporary, to make level floor mach zero
-        const level3d = getComponent<Object3DComponent>(levelEntity, Object3DComponent);
-        //level3d.value.position.y -= 0.17;
-        level3d.value.position.y -= 0;
-
-      }
-    });
 
 
+
+    createPrefab(WorldPrefab);
     createPrefab(PlayerCharacter);
-
-    createPrefab(staticWorldColliders);
-    // createPrefab(rigidBodyBox);
-    // createPrefab(rigidBodyBox2);
+  //  createPrefab(staticWorldColliders);
+    createPrefab(rigidBodyBox);
+    createPrefab(rigidBodyBox2);
     createPrefab(CarController);
-    // createPrefab(interactiveBox);
-
-
-
-    // addComponent(createEntity(), AssetLoader, {
-    //   url: "models/OldCar.fbx",
-    //   receiveShadow: true,
-    //   castShadow: true
-    // })
+    //createPrefab(interactiveBox);
 
     return (): void => {
       // cleanup
@@ -198,8 +181,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     }
   };
 
-  return (
-    enabled && (
+  const terminal = enabled? (
       <Terminal
         color='green'
         backgroundColor='black'
@@ -211,7 +193,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
           fontSize: "1em",
           position: "fixed",
           bottom: "0",
-          width: "100%", 
+          width: "100%",
           // Height is set in termimal itself depending is it expanded.
           /* height: "30%", */
           zIndex: 4000 }}
@@ -219,7 +201,15 @@ export const EnginePage: FunctionComponent = (props: any) => {
         description={description}
         msg='Interactive terminal. Please consult the manual for commands.'
       />
-    )
+    ) : null;
+
+  const mobileGamepad = isMobileOrTablet()? <MobileGamepad /> : null;
+
+  return (
+    <>
+    {terminal}
+    {mobileGamepad}
+    </>
   );
 };
 

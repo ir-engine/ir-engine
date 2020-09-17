@@ -9,6 +9,10 @@ import { WebXRSession } from '../components/WebXRSession';
 import { initVR } from '../functions/WebXRFunctions';
 import { ListenerBindingData } from "../interfaces/ListenerBindingData";
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
+import { InputValue } from "../interfaces/InputValue";
+import { NumericalType } from "../../common/types/NumericalTypes";
+import { InputAlias } from "../types/InputAlias";
+import { handleInputPurge } from "../behaviors/handleInputPurge";
 /**
  * Input System
  *
@@ -114,6 +118,13 @@ export class InputSystem extends System {
     this.queryResults.inputs.removed.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input, true);
+
+      if (this._inputComponent.data.size) {
+        this._inputComponent.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+          handleInputPurge(entity);
+        })
+      }
+
       // Call all behaviors in "onRemoved" of input map
       this._inputComponent.schema.onRemoved.forEach(behavior => {
         behavior.behavior(entity, behavior.args);

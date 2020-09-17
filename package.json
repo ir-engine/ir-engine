@@ -42,6 +42,7 @@
     "version-increment": "lerna version --comventional-commits --yes",
     "validate": "lerna run validate",
     "build": "lerna run build --parallel",
+    "build-docker": "lerna run --ignore @xr3ngine/docs build --parallel",
     "diff": "lerna diff"
   },
   "resolutions": {
