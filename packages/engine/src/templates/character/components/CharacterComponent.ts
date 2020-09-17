@@ -1,7 +1,7 @@
 // Default component, holds data about what behaviors our actor has.
 
 import { Component } from '../../../ecs/classes/Component';
-import { Vector3, Group, Material, AnimationMixer, Mesh, BoxBufferGeometry } from 'three';
+import { Vector3, Group, Material, AnimationMixer, Mesh, BoxBufferGeometry, AnimationAction } from 'three';
 import { CapsuleCollider } from '../../../physics/components/CapsuleCollider';
 import { VectorSpringSimulator } from '../../../physics/classes/VectorSpringSimulator';
 import { RelativeSpringSimulator } from '../../../physics/classes/RelativeSpringSimulator';
@@ -12,7 +12,8 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public initialized = false
 
 // TODO: Move these... but for now...
-	public currentAnimationLength: number = 0
+	public currentAnimationAction:AnimationAction = null
+	public currentAnimationLength = 0
 	public timer = 0
 
 	public height: number = 0;
@@ -26,6 +27,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
   public physicsEnabled = true
 
 	// Movement
+	public localMovementDirection = new Vector3();
 	public acceleration: Vector3 = new Vector3();
 	public velocity: Vector3 = new Vector3();
 	public arcadeVelocityInfluence: Vector3 = new Vector3();

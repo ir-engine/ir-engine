@@ -8,7 +8,10 @@ import {
   socketCreated
 } from './actions';
 import store from "../store";
-import {createdGroupUser} from "../group/actions";
+import getConfig from "next/config";
+
+const { publicRuntimeConfig } = getConfig();
+const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://localhost:3030';
 
 export function provisionInstanceServer (locationId: string, instanceId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -50,7 +53,7 @@ export function connectToInstanceServer () {
           }
         });
       } else {
-        socket = io('https://gameserver.xrengine.io', {
+        socket = io(gameserver, {
           path: `/socket.io/${instance.get('ipAddress') as string}/${instance.get('port') as string}`,
           query: {
             locationId: locationId,

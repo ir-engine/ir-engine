@@ -23,11 +23,10 @@ const VideoChat = observer((props: Props) => {
   } = props;
   const gsProvision = async () => {
     if (MediaStreamComponent.instance.mediaStream == null) {
-      await MediaStreamSystem.instance.startCamera();
+      await (Network.instance.transport as any).sendCameraStreams();
     } else {
       console.log('Ending video chat');
-      console.log((Network.instance.transport as any).stopSendingMediaStreams);
-      await (Network.instance.transport as any).leave();
+      await (Network.instance.transport as any).endVideoChat();
     }
   };
   return (

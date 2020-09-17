@@ -39,7 +39,7 @@ export const IdleState: StateSchemaValue = {
     {
       behavior: setActorAnimation,
       args: {
-        name: 'idle',
+        name: 'idle6',
         transitionDuration: 0.1
       }
     }

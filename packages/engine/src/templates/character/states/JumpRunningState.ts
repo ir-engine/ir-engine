@@ -27,7 +27,7 @@ export const JumpRunningState: StateSchemaValue = {
       {
         behavior: setActorAnimation,
         args: {
-          name: 'sb_jump_running',
+          name: 'walk_jump_start',
           transitionDuration: 0.03
         }
       }

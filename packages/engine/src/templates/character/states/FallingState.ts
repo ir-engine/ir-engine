@@ -31,7 +31,7 @@ export const FallingState: StateSchemaValue = {
       {
         behavior: setActorAnimation,
         args: {
-          name: 'sb_falling',
+          name: 'falling_idle',
           transitionDuration: 0.3
         }
       }

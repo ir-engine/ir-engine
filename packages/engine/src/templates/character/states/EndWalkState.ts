@@ -30,7 +30,7 @@ export const EndWalkState: StateSchemaValue = {
       {
         behavior: setActorAnimation,
         args: {
-          name: 'sb_stop',
+          name: 'idle6',
           transitionDuration: 0.1
         }
       }

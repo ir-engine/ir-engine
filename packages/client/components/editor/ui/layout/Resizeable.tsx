@@ -58,7 +58,7 @@ const ResizeContainer = (styled as any).div.attrs(props => ({
   overflow: hidden;
 `;
 
-export class Resizeable extends Component {
+export default class Resizeable extends Component {
   static propTypes = {
     children: PropTypes.node,
     initialSizes: PropTypes.arrayOf(PropTypes.number),
