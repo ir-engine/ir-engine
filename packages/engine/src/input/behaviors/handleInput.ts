@@ -8,6 +8,7 @@ import { InputValue } from '../interfaces/InputValue';
 import { InputAlias } from '../types/InputAlias';
 import { getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { BinaryValue } from '../../common/enums/BinaryValue';
+import { DefaultInput } from "../../templates/shared/DefaultInput";
 
 /**
  * Call all behaviors associated with current input in it's current lifecycle phase
@@ -64,23 +65,22 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
           input.schema.inputAxisBehaviors[key].started?.forEach(element =>
             element.behavior(entity, element.args, delta)
           );
+          input.prevData.set(key, value);
           // Evaluate if the number is the same as last time, send the delta 
         } else if(value.lifecycleState === LifecycleValue.CHANGED) {
           // If the value is different from last frame, update it
-
-            // // TODO: this check is useless, since we iterating input.data and comparing it's value with it's value
-
-            //if(input.data.has(key) && JSON.stringify(value.value) !== JSON.stringify(input.data.get(key).value)) {
-            input.schema.inputAxisBehaviors[key].changed?.forEach(element =>
+          if(input.prevData.has(key) && JSON.stringify(value.value) !== JSON.stringify(input.prevData.get(key).value)) {
+            input.schema.inputAxisBehaviors[key].changed?.forEach(element => {
+              element.behavior(entity, element.args, delta)
+            });
+            input.prevData.set(key, value);
+          }
+          // Otherwise, remove it from the frame
+          else {
+            input.schema.inputAxisBehaviors[key].unchanged?.forEach(element =>
               element.behavior(entity, element.args, delta)
             );
-            // }
-            // // Otherwise, remove it from the frame
-            // else {
-            //     input.schema.inputAxisBehaviors[key].unchanged?.forEach(element =>
-            //       element.behavior(entity, element.args, delta)
-            //     );
-            // }
+          }
         }
       }
     } else {
