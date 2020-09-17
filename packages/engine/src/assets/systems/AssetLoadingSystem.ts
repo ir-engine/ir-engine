@@ -21,6 +21,7 @@ import { Unload } from '../components/Unload';
 import { AssetClass } from '../enums/AssetClass';
 import { getAssetClass, getAssetType, loadAsset } from '../functions/LoadingFunctions';
 import { isBrowser } from '../../common/functions/isBrowser';
+import { MeshPhysicalMaterial } from "three";
 
 export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
@@ -58,6 +59,7 @@ export default class AssetLoadingSystem extends System {
     this.loaded.forEach( (asset, entity) =>{
       const component = getComponent<AssetLoader>(entity, AssetLoader);
       if (component.assetClass === AssetClass.Model) {
+        const replacedMaterials = new Map()
         if(asset.scene !== undefined)
         asset.scene.traverse((child) => {
           if (child.isMesh) {
@@ -67,8 +69,24 @@ export default class AssetLoadingSystem extends System {
             if (component.envMapOverride) {
               child.material.envMap = component.envMapOverride;
             }
+
+            if (replacedMaterials.has(child.material)) {
+              child.material = replacedMaterials.get(child.material)
+            } else {
+              if (child?.material?.userData?.gltfExtensions?.KHR_materials_clearcoat) {
+                const newMaterial = new MeshPhysicalMaterial({});
+                newMaterial.setValues(child.material); // to copy properties of original material
+                newMaterial.clearcoat = child.material.userData.gltfExtensions.KHR_materials_clearcoat.clearcoatFactor;
+                newMaterial.clearcoatRoughness = child.material.userData.gltfExtensions.KHR_materials_clearcoat.clearcoatRoughnessFactor;
+                newMaterial.defines = { STANDARD: '', PHYSICAL: '' }; // override if it's replaced by non PHYSICAL defines of child.material
+
+                replacedMaterials.set(child.material, newMaterial);
+                child.material = newMaterial;
+              }
+            }
           }
         });
+        replacedMaterials.clear()
       }
 
       addComponent(entity, Model, { value: asset });
