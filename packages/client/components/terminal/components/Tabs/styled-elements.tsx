@@ -40,9 +40,8 @@ export const Tab = (styled as any).div`
   display: inline-block;
   vertical-align: top;
   height: 30px;
-  background-color: #333;
+  background-color: ${props => (props.active ? '#444' : '#111')};
   border-bottom: 2px solid #333;
-  border-bottom-color: ${props => (props.active ? '#777' : '#333')}
   text-align: center;
   line-height: 30px;
   width: 100px;

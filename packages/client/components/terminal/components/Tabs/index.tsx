@@ -47,10 +47,10 @@ class Tabs extends Component<any, any> {
   };
 
   // handle remove clicked
-  handleRemoveClick = (e, index, instance) => {
+  handleRemoveClick = (e, id, instance) => {
     e.preventDefault();
     e.stopPropagation();
-    this.props.removeTab(index, instance.props.id);
+    this.props.removeTab(id);
     return false;
   };
 
@@ -82,7 +82,7 @@ class Tabs extends Component<any, any> {
         >
           {this.context.instances.length > 1 && (
             <TabClose
-              title="Close Tab"
+              title="Close tab"
               onMouseDown={e => this.handleRemoveClick(e, index, instance)}
             >
               x
