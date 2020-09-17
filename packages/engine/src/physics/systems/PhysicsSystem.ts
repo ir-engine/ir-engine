@@ -6,8 +6,10 @@ import { WheelBody } from '../../physics/components/WheelBody';
 import { addCollider } from '../behaviors/ColliderBehavior';
 import { RigidBodyBehavior } from '../behaviors/RigidBodyBehavior';
 import { VehicleBehavior } from '../behaviors/VehicleBehavior';
+import { playerModelInCar } from '../behaviors/playerModelInCar';
 import { WheelBehavior } from '../behaviors/WheelBehavior';
 import { ColliderComponent } from '../components/ColliderComponent';
+import { PlayerInCar } from '../components/PlayerInCar';
 import { FixedStepsRunner } from "../../common/functions/Timer";
 import { physicsPreStep } from '../../templates/character/behaviors/physicsPreStep';
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
@@ -82,20 +84,20 @@ export class PhysicsSystem extends System {
       VehicleBehavior(entity, { phase: 'onRemoved' });
     });
 
-    // Wheel
-    /*
-    this.queryResults.wheelBody.added?.forEach(entity => {
-      WheelBehavior(entity, { phase: 'onAdded' });
+    // Player 3d model in car
+
+    this.queryResults.playerInCar.added?.forEach(entity => {
+      playerModelInCar(entity, { phase: 'onAdded' });
     });
 
-    this.queryResults.wheelBody.all?.forEach((entity, i) => {
-      WheelBehavior(entity, { phase: 'onUpdate', i });
+    this.queryResults.playerInCar.all?.forEach(entity => {
+      playerModelInCar(entity, { phase: 'onUpdate' });
     });
 
-    this.queryResults.wheelBody.removed?.forEach(entity => {
-      WheelBehavior(entity, { phase: 'onRemoved' });
+    this.queryResults.playerInCar.removed?.forEach(entity => {
+      playerModelInCar(entity, { phase: 'onRemoved' });
     });
-    */
+
   }
 
   onFixedExecute(delta:number): void {
@@ -128,6 +130,13 @@ PhysicsSystem.queries = {
   },
   vehicleBody: {
     components: [VehicleBody, TransformComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  playerInCar: {
+    components: [PlayerInCar],
     listen: {
       added: true,
       removed: true
