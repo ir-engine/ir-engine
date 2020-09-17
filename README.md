@@ -55,16 +55,19 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
     yarn install
     ```
 2. Make sure you have a mysql database installed and running -- our recommendation is Mariadb. We've provided a docker container for easy setup:
-```
-cd scripts && ./start-db.sh
-```
-This creates a docker image of mariadb named xr3ngine_db.
-
+    ```
+    cd scripts && ./start-db.sh
+    ```
+    This creates a docker image of mariadb named xr3ngine_db.
 
 3. Start your app
 
     ```
-    npm start
+    yarn start
+    ```
+    for development mode
+    ```
+    yarn dev
     ```
 
 ### Notes
@@ -190,9 +193,17 @@ connect to it. To reboot xr3ngine, run the following:
 ```kubectl rollout restart -n xr3ngine deployments/xr3ngine```
 
 
-### STMP Testing
+### SMTP Testing
 
 https://mailtrap.io/inboxes
+
+add credentials in ```packages/server/.env```
+```dotenv
+SMTP_HOST=smtp.mailtrap.io
+SMTP_PORT=2525
+SMTP_USER=<mailtrap-user>
+SMTP_PASS=<mailtrap-password>
+```
 
 
 ## Scaffolding (Server Only)

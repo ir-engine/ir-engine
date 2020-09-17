@@ -36,7 +36,7 @@ import DragLayer from "./dnd/DragLayer";
 import Editor from "../Editor";
 import defaultTemplateUrl from "../../../pages/editor/crater.json";
 import tutorialTemplateUrl from "../../../pages/editor/tutorial.json";
-
+'../../../pages/editor/crater.json'
 const StyledEditorContainer = (styled as any).div`
   display: flex;
   flex: 1;

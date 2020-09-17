@@ -6,9 +6,11 @@ import { inspect } from 'util'
 import dotenv from 'dotenv-flow'
 import * as chargebeeInst from 'chargebee'
 import appRootPath from 'app-root-path'
-dotenv.config({
-  path: appRootPath.path
-})
+if (process.env.KUBERNETES !== 'true') {
+  dotenv.config({
+    path: appRootPath.path
+  })
+}
 
 /**
  * Database
@@ -35,8 +37,8 @@ const server = {
   hostname: process.env.SERVER_HOSTNAME ?? 'localhost',
   port: process.env.SERVER_PORT ?? 3030,
   // Public directory (used for favicon.ico, logo, etc)
-  rootDir: path.resolve(__dirname, '..'),
-  publicDir: process.env.SERVER_PUBLIC_DIR ?? path.resolve(__dirname, '..', 'public'),
+  rootDir: path.resolve(appRootPath.path, 'packages', 'server'),
+  publicDir: process.env.SERVER_PUBLIC_DIR ?? path.resolve(appRootPath.path, 'packages', 'server', 'public'),
   nodeModulesDir: path.resolve(__dirname, '../..', 'node_modules'),
   // Used for CI/tests to force Sequelize init an empty database
   performDryRun: process.env.PERFORM_DRY_RUN === 'true',
@@ -59,8 +61,8 @@ const server = {
   certPath: path.resolve(path.dirname("./"), process.env.CERT ?? 'certs/cert.pem'),
   keyPath: path.resolve(path.dirname("./"), process.env.KEY ?? 'certs/key.pem')
 }
-server.url = process.env.SERVER_URL ??
-  url.format({ protocol: 'https', ...server })
+const obj = process.env.KUBERNETES === 'true' ? { protocol: 'https', hostname: server.hostname }: { protocol: 'https', ...server }
+server.url = process.env.SERVER_URL ?? url.format(obj)
 
 /**
  * Client / frontend

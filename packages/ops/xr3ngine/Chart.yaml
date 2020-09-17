@@ -22,10 +22,10 @@ dependencies:
     # install MariaDB if user does not have external DB
     condition: mariadb.enabled
 
-  - name: agones
-    version: "1.7.0"
-    repository: "https://agones.dev/chart/stable"
-    condition: agones.enabled
+#  - name: agones
+#    version: "1.7.0"
+#    repository: "https://agones.dev/chart/stable"
+#    condition: agones.enabled
 
   - name: redis
     version: "10.7.13"
