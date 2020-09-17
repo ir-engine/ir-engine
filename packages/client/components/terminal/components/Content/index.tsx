@@ -96,9 +96,11 @@ class Content extends Component<any> {
 
   handleKeyPress = (e) => {
     this.props.handlerKeyPress(this, e, this.com);
+    /*
     const { key } = whatkey(e);
     if (key == 'enter')
       this.setScrollPosition(this.contentWrapper.scrollHeight);
+    */
   }
 
   handleOuterKeypress = (e) => {
