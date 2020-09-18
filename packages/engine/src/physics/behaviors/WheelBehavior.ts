@@ -1,10 +1,5 @@
 import { Quaternion } from 'cannon-es';
 import { Behavior } from '../../common/interfaces/Behavior';
-import { Object3DComponent } from '../../common/components/Object3DComponent';
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { VehicleBody } from '../../physics/components/VehicleBody';
-import { WheelBody } from '../../physics/components/WheelBody';
 import { Entity } from '../../ecs/classes/Entity';
 
 const quaternion = new Quaternion();
