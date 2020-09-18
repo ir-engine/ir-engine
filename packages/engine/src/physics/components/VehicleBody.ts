@@ -40,7 +40,7 @@ VehicleBody.schema = {
 
   arrayWheelsMesh: { type: Types.Ref, default: [] },
   arrayWheelsPosition: { type: Types.Ref, default: [] },
-  wheelRadius: { type: Types.Number, default: 0.35 },
+  wheelRadius: { type: Types.Number, default: 0.40 },
 
   entrancesArray: { type: Types.Ref, default: [] },
   seatsArray: { type: Types.Ref, default: [] },
