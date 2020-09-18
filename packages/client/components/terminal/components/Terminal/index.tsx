@@ -137,7 +137,7 @@ class Terminal extends Component<any, any> {
       minimise: props.startState === 'minimised',
       maximise: props.startState === 'maximised',
       shortcuts: {},
-      activeTab: '',
+      activeTabId: '',
       tabs: [],
       instances: [],
     };
@@ -149,7 +149,7 @@ class Terminal extends Component<any, any> {
       show: this.state.show,
       minimise: this.state.minimise,
       maximise: this.state.maximise,
-      activeTab: this.state.activeTab,
+      activeTabId: this.state.activeTabId,
       tabsShowing: this.props.allowTabs,
       openWindow: this.setTrue('show'),
       closeWindow: this.setFalse('show'),
@@ -197,20 +197,15 @@ class Terminal extends Component<any, any> {
         />
       ));
 
-      this.setState({ activeTab: id, tabs });
+      this.setState({ activeTabId: id, tabs });
     }
   };
 
   // Tab removal.
   removeTab = (id) => {
-    /*
-    const { tabs } = this.state;
-    tabs.splice(index, 1);
-    this.setState({ tabs });
-    */
-    let { activeTab, instances, tabs } = this.state;
+    let { activeTabId, instances, tabs } = this.state;
 
-    let index = instances.findIndex(e => e.index === id);
+    let index = instances.findIndex(e => e.id === id);
     if (index === -1) return;
     instances.splice(index, 1);
 
@@ -218,13 +213,13 @@ class Terminal extends Component<any, any> {
     if (index === -1) return;
     tabs.splice(index, 1);
     
-    if (activeTab === id) {
+    if (activeTabId === id) {
       if (index >= tabs.length) index--;
-      activeTab = tabs[index].props.id;
+      activeTabId = tabs[index].props.id;
     }
 
-    this.setState({ instances, tabs, activeTab });
-  }
+    this.setState({ instances, tabs, activeTabId });
+  };
 
   toggleTerminalExpandedState = () => {
     isTerminalExpanded = !isTerminalExpanded;
@@ -232,7 +227,7 @@ class Terminal extends Component<any, any> {
   };
   
   setFocusToCommandInput = () => {
-    let instance = this.state.instances.find(e => e.index === this.state.activeTab);
+    let instance = this.state.instances.find(e => e.id === this.state.activeTabId);
     if (instance !== undefined) {
       instance = instance.instance;
       instance.com.focus();
@@ -254,7 +249,7 @@ class Terminal extends Component<any, any> {
       allowTabs,
       actionHandlers,
     } = this.props;
-    const { activeTab, tabs } = this.state;
+    const { activeTabId, tabs } = this.state;
     
     const baseStyle = {
       // height: '100%',
@@ -270,7 +265,7 @@ class Terminal extends Component<any, any> {
       <div style={{ ...baseStyle, ...style }} onMouseUp={this.setFocusToCommandInput}>
         {allowTabs && (
           <Tabs
-            active={activeTab}
+            active={activeTabId}
             setActiveTab={this.setActiveTab}
             createTab={this.createTab}
             removeTab={this.removeTab}
@@ -296,13 +291,13 @@ class Terminal extends Component<any, any> {
     );
   };
 
-  // Plugin data getter
+  // Plugin data getter.
   getPluginData = name => this.pluginData[name];
 
-  // Plugin data setter
+  // Plugin data setter.
   setPluginData = (name, data) => { this.pluginData[name] = data; };
 
-  // Set descriptions of the commands
+  // Set descriptions of the commands.
   setDescriptions = () => {
     let descriptions = {
       ...this.defaultDesciptions,
@@ -319,7 +314,7 @@ class Terminal extends Component<any, any> {
     this.setState({ descriptions });
   };
 
-  // Set command shortcuts
+  // Set command shortcuts.
   setShortcuts = () => {
     let shortcuts = getShortcuts({}, this.defaultShortcuts);
     shortcuts = getShortcuts(shortcuts, this.props.shortcuts);
@@ -331,47 +326,47 @@ class Terminal extends Component<any, any> {
     this.setState({ shortcuts });
   };
 
-  // Setter to change the prefix of the input prompt
+  // Setter to change the prefix of the input prompt.
   setPromptPrefix = (instance, promptPrefix) => {
     if (instance.state.controller === null) {
       instance.setState({ promptPrefix });
     }
   };
 
-  // Setter to change the symbol of the input prompt
+  // Setter to change the symbol of the input prompt.
   setPromptSymbol = (instance, prompt) => {
     if (instance.state.controller === null) {
       instance.setState({ prompt });
     }
   };
 
-  // Set the currently active tab
-  setActiveTab = (activeTab) => {
-    this.setState({ activeTab });
+  // Set the currently active tab.
+  setActiveTab = (activeTabId) => {
+    this.setState({ activeTabId });
   };
 
-  // Hide window
+  // Hide window.
   setFalse = name => () => this.setState({ [name]: false });
 
-  // Show window
+  // Show window.
   setTrue = name => () => this.setState({ [name]: true });
 
   /**
-   * set the input value with the possible history value
-   * @param {number} next position on the history
+   * Set the input value with the possible history value
+   * @param {number} next position on the history.
    */
   setValueWithHistory = (instance, position, inputRef) => {
     const { history } = instance.state;
     if (history[position]) {
       try {
-      instance.setState({ historyCounter: position });
-      inputRef.value = history[position];
-      putCursorAtEnd(inputRef);
-      } catch(err){console.trace(err);}
+        instance.setState({ historyCounter: position });
+        inputRef.value = history[position];
+        putCursorAtEnd(inputRef);
+      } catch(err){ console.trace(err); }
     }
   };
 
-  // Method to check if version meets criteria
+  // Method to check if version meets criteria.
   checkVersion = (comp, ver) => {
     if (ver === '*') {
       return true;
@@ -394,12 +389,12 @@ class Terminal extends Component<any, any> {
   };
 
   // Used to keep track of all instances.
-  registerInstance = (index, instance) => {
+  registerInstance = (id, instance) => {
     const { instances } = this.state;
     const pluginInstances = {};
     const pluginMethods = {};
 
-    const old = instances.find(i => i.index === index);
+    const old = instances.find(i => i.id === id);
 
     pluginMap(this.props.plugins, (PluginClass, config) => {
       try {
@@ -441,7 +436,8 @@ class Terminal extends Component<any, any> {
     });
 
     const data = {
-      index,
+      // index,
+      id,
       instance,
       pluginMethods: old ? old.pluginMethods : pluginMethods,
       pluginInstances: old ? old.pluginInstances : pluginInstances,
@@ -462,7 +458,7 @@ class Terminal extends Component<any, any> {
         instances: insts.filter(i => !isEqual(i.instance, instance)),
       });
     };
-  }
+  };
 
   // allows a plugin to take full control over instance
   pluginTakeControl = (instance, controller, newPrompt, newPromptPrefix) => {
@@ -485,7 +481,7 @@ class Terminal extends Component<any, any> {
   // Toggle a state boolean
   toggleState = name => () => this.setState({ [name]: !this.state[name] });
 
-  // Prepare the built-in commands
+  // Prepare the built-in commands.
   assembleCommands = () => {
     let commands = {
       ...this.defaultCommands,
@@ -528,12 +524,12 @@ class Terminal extends Component<any, any> {
     return ratings.filter(item => item.rating > 0);
   };
 
-  // Refresh or clear the screen
+  // Refresh or clear the screen.
   clearScreen = (args, printLine, runCommand, instance) => {
     instance.setState({ summary: [] });
   };
 
-  // Method to check for shortcut and invoking commands
+  // Method to check for shortcut and invoking commands.
   checkShortcuts = (instance, key, e) => {
     const { controller } = instance.state;
     let cuts = {};
@@ -586,7 +582,7 @@ class Terminal extends Component<any, any> {
     }
   };
 
-  // edit-line command
+  // edit-line command.
   editLine = (args, printLine, runCommand, instance) => {
     const { summary } = instance.state;
     let index = args.line;
@@ -597,7 +593,7 @@ class Terminal extends Component<any, any> {
     instance.setState({ summary });
   };
 
-  // Listen for user input
+  // Listen for user input.
   handleChange = (instance, e) => {
     const {
       input, promptPrefix, prompt, history, controller,
@@ -619,17 +615,6 @@ class Terminal extends Component<any, any> {
       }
 
       // Scroll terminal to end.
-      /*
-      let ins = this.state.instances.find(e => e.index === this.state.activeTab);
-      if (ins !== undefined) {
-        ins = ins.instance;
-        setTimeout(
-          () => {
-            instance.contentWrapper.scrollTop = instance.contentWrapper.scrollHeight;
-          },
-          50);
-      }
-      */
       setTimeout(
         () => {
           instance.contentWrapper.scrollTop = instance.contentWrapper.scrollHeight;
@@ -670,7 +655,7 @@ class Terminal extends Component<any, any> {
   /**
    * Base of key code set the value of the input
    * with the history
-   * @param {event} event of input
+   * @param {event} event of input.
    */
   handlerKeyPress = (instance, e, inputRef) => {
     const { key } = whatkey(e);
@@ -739,9 +724,9 @@ class Terminal extends Component<any, any> {
       }
     }
     this.checkShortcuts(instance, key, e);
-  }
+  };
 
-  // Plugins
+  // Plugins.
   loadPlugins = () => {
     const pluginData = {};
     pluginMap(this.props.plugins, (plugin) => {
@@ -754,7 +739,7 @@ class Terminal extends Component<any, any> {
     this.pluginData = pluginData;
   };
 
-  // Plugin api method to get a public plugin method
+  // Plugin api method to get a public plugin method.
   getPluginMethod = (instance, name, method) => {
     const instanceData = this.state.instances.find(i => isEqual(i.instance, instance));
     if (instanceData) {
@@ -770,28 +755,28 @@ class Terminal extends Component<any, any> {
     return null;
   };
 
-  // Set if the current tab can scroll
+  // Set if the current tab can scroll.
   setCanScroll = (instance, force) => {
     if (typeof force !== 'undefined') {
       instance.setState({ canScroll: force });
     }
-  }
+  };
 
-  // Set the scroll position of the contents
+  // Set the scroll position of the contents.
   setScrollPosition = (instance, pos) => {
     if (typeof pos === 'number') {
       instance.setScrollPosition(pos);
     }
-  }
+  };
 
-  // Set focus to the input
+  // Set focus to the input.
   focusInput = (instance, pos) => {
     if (typeof pos === 'number') {
       instance.focusInput();
     }
-  }
+  };
 
-  // Print the summary (input -> output)
+  // Print the summary (input -> output).
   printLine = (instance, inp, std = true) => {
     let print = true;
     if (std) {
@@ -815,18 +800,18 @@ class Terminal extends Component<any, any> {
     }
   };
 
-  // Remove a line from the summary
+  // Remove a line from the summary.
   removeLine = (instance, lineNumber = -1) => {
     const { summary } = instance.state;
     summary.splice(lineNumber, 1);
     instance.setState({ summary });
-  }
+  };
 
-  // Execute the commands
+  // Execute the commands.
   runCommand = (instance, inputText, force = false) => {
     const inputArray = inputText.split(' ');
     const input = inputArray[0];
-    const args = inputArray; // Undefined for function call
+    const args = inputArray; // Undefined for function call.
     const { controller } = instance.state;
     let commands = {};
     if (!force && controller !== null) {
@@ -852,7 +837,7 @@ class Terminal extends Component<any, any> {
     let res;
 
     if (input === '') {
-      // do nothing
+      // Do nothing.
     } else if (command === undefined) {
       if (typeof this.props.commandPassThrough === 'function') {
         res = this.props.commandPassThrough(
@@ -861,7 +846,8 @@ class Terminal extends Component<any, any> {
           this.runCommand.bind(this, instance),
         );
       } else {
-        this.printLine.bind(this, instance)(`-bash:${input}: command not found`);
+        // this.printLine.bind(this, instance)(`-bash:${input}: command not found`);
+        this.printLine.bind(this, instance)(`${input}: command not found.`);
       }
     } else {
       const parsedArgs = command.parse(args);
@@ -885,29 +871,27 @@ class Terminal extends Component<any, any> {
     return res;
   };
 
-  // Run a command on the active instance
+  // Run a command on the active instance.
   runCommandOnActive = (inputText, force = false) => {
-    const data = this.state.instances.find(i => i.index === this.state.activeTab);
-    if (data && data.instance !== null) {
+    const data = this.state.instances.find(i => i.id === this.state.activeTabId);
+    if (data !== undefined && data.instance !== null)
       this.runCommand(data.instance, inputText, force);
-    }
-  }
+  };
 
-  // Print to active instance
+  // Print to active instance.
   printToActive = (...args) => {
-    const data = this.state.instances.find(i => i.index === this.state.activeTab);
-    if (data && data.instance !== null && data.instance.state.controller === null) {
+    const data = this.state.instances.find(i => i.id === this.state.activeTabId);
+    if (data !== undefined && data.instance !== null && data.instance.state.controller === null)
       this.printLine(data.instance, args);
-    }
-  }
+  };
 
-  // Listen for console logging and pass the input to handler (handleLogging)
+  // Listen for console logging and pass the input to handler (handleLogging).
   watchConsoleLogging = () => {
     handleLogging('log', this.printToActive);
     handleLogging('info', this.printToActive);
   };
 
-  // List all the commands (state + user defined)
+  // List all the commands (state + user defined).
   showHelp = (args, printLine, runCommand, instance) => {
     let commands = { ...this.state.commands };
     let descriptions = { ...this.state.descriptions };
@@ -934,11 +918,10 @@ class Terminal extends Component<any, any> {
     }
   };
 
-  // Show the msg (prop msg)
+  // Show the msg (prop msg).
   showMsg = (args, printLine) => {
-    if (this.props.msg && this.props.msg.length > 0) {
+    if (this.props.msg && this.props.msg.length > 0)
       printLine(this.props.msg);
-    }
   };
 
   render() {
