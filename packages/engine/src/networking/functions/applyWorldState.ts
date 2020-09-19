@@ -15,15 +15,15 @@ export function applyWorldState(worldStateBuffer, delta = 0.033) {
   const worldState = worldStateBuffer // worldStateModel.fromBuffer(worldStateBuffer);
 
 
-if(worldState.clientsConnected.length > 0) {
-  console.log("worldState.clientsConnected")
-  console.log(worldState.clientsConnected)
-}
+  if(worldState.clientsConnected.length > 0) {
+    console.log("worldState.clientsConnected")
+    console.log(worldState.clientsConnected)
+  }
 
-if(worldState.createObjects.length > 0) {
-  console.log("worldState.networkObjects")
-  console.log(worldState.createObjects)
-}
+  if(worldState.createObjects.length > 0) {
+    console.log("worldState.networkObjects")
+    console.log(worldState.createObjects)
+  }
   // // TODO: Validate if we've missed important frames
   // console.log("Old tick is",
   //   (NetworkInterpolation.instance.vault[NetworkInterpolation.instance.vaultSize].state as any).tick,
@@ -64,11 +64,11 @@ if(worldState.createObjects.length > 0) {
 
   // Handle all network objects created this frame
   for (const objectToCreate in worldState.createObjects) {
-     initializeNetworkObject(
-       worldState.createObjects[objectToCreate].ownerId,
-       worldState.createObjects[objectToCreate].networkId,
-       worldState.createObjects[objectToCreate].prefabType
-       )
+    initializeNetworkObject(
+        worldState.createObjects[objectToCreate].ownerId,
+        worldState.createObjects[objectToCreate].networkId,
+        worldState.createObjects[objectToCreate].prefabType
+    )
 
     console.log("Created network prefab for " + worldState.createObjects[objectToCreate].ownerId);
   }
@@ -86,10 +86,10 @@ if(worldState.createObjects.length > 0) {
   for (const objectToDestroy in worldState.destroyObjects)
     destroyNetworkObject(worldState.createObjects[objectToDestroy].networkId);
 
-    if(worldState.inputs !== undefined && worldState.inputs.length > 0){
+  if(worldState.inputs !== undefined && worldState.inputs.length > 0){
     console.log("World state inputs: ")
     console.log(worldState.inputs)
-    }
+  }
 
   worldState.inputs?.forEach(stateData => {
 
@@ -105,29 +105,29 @@ if(worldState.createObjects.length > 0) {
     // Apply new input
     for (const button in stateData.buttons)
       input.data.set(stateData.buttons[button].input,
-        {
-          type: InputType.BUTTON,
-          value: stateData.buttons[button].value,
-          lifecycleState: stateData.buttons[button].lifeCycleState
-        });
+          {
+            type: InputType.BUTTON,
+            value: stateData.buttons[button].value,
+            lifecycleState: stateData.buttons[button].lifeCycleState
+          });
 
     // Axis 1D input
     for (const axis in stateData.axes1d)
       input.data.set(stateData.axes1d[axis].input,
-        {
-          type: InputType.BUTTON,
-          value: stateData.axes1d[axis].value,
-          lifecycleState: stateData.axes1d[axis].lifeCycleState
-        });
+          {
+            type: InputType.BUTTON,
+            value: stateData.axes1d[axis].value,
+            lifecycleState: stateData.axes1d[axis].lifeCycleState
+          });
 
     // Axis 2D input
     for (const axis in stateData.axes2d)
       input.data.set(stateData.axes2d[axis].input,
-        {
-          type: InputType.BUTTON,
-          value: stateData.axes2d[axis].value,
-          lifecycleState: stateData.axes2d[axis].lifeCycleState
-        });
+          {
+            type: InputType.BUTTON,
+            value: stateData.axes2d[axis].value,
+            lifecycleState: stateData.axes2d[axis].lifeCycleState
+          });
 
     // Call behaviors on map
     handleInput(networkComponent.entity, {}, delta);
@@ -140,16 +140,16 @@ if(worldState.createObjects.length > 0) {
     const transform = getMutableComponent(networkComponent.entity, TransformComponent);
     // Apply pos to object
     transform.position.set(
-      transformData.x,
-      transformData.y,
-      transformData.z
+        transformData.x,
+        transformData.y,
+        transformData.z
     );
     // Apply rot to object
     transform.rotation.set(
-      transformData.qX,
-      transformData.qY,
-      transformData.qZ,
-      transformData.qW
+        transformData.qX,
+        transformData.qY,
+        transformData.qZ,
+        transformData.qW
     );
     console.log("Updated transform on ", transformData.networkId);
   });

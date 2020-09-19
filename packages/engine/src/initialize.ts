@@ -108,7 +108,7 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
     // Camera system and component setup
     if (options.camera && options.camera.enabled) {
     // Create a new three.js camera
-    const camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 100);
+    const camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.3, 500);
 
     // Add the camera to the camera manager so it's available anywhere
     Engine.camera = camera

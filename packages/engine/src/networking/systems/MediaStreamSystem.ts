@@ -29,8 +29,8 @@ export class MediaStreamSystem extends System {
   }
 
   async startCamera (): Promise<boolean> {
-    if (MediaStreamComponent.instance.mediaStream) return false;
     console.log('start camera');
+    if (MediaStreamComponent.instance.mediaStream) return false;
     return await this.getMediaStream();
   }
 

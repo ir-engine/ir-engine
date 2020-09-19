@@ -33,6 +33,18 @@ export class Input extends BehaviorComponent<InputAlias, InputSchema, InputValue
   gamepadThreshold: number
   gamepadButtons: BinaryType[]
   gamepadInput: number[]
+  prevData: Map<InputAlias, InputValue<NumericalType>>
+
+  constructor() {
+    super();
+
+    this.prevData = new Map();
+  }
+
+  reset(): void {
+    super.reset();
+    this.prevData.clear();
+  }
 }
 
 /**

@@ -22,6 +22,7 @@ module.exports = withImages(
         }
       }
       config.module.rules.push(
+        /*
         {
           test: /\.m?js$/,
           use: {
@@ -34,6 +35,7 @@ module.exports = withImages(
             }
           }
         },
+        */
         {
           test: /\.(eot|woff|woff2|ttf)$/,
           use: {

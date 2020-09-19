@@ -41,14 +41,7 @@ export class InputSystem extends System {
     this.secondControllerId = 1;
     this.boundListeners = new Set();
     this.entityListeners = new Map();
-  }
 
-  /**
-   * Initialization Virtual Reality
-   *
-   * @param onVRSupportRequested
-   */
-  init ({ useWebXR: boolean, onVRSupportRequested:any }): void {
     if (this.useWebXR) {
       if (this.onVRSupportRequested) {
         initVR(this.onVRSupportRequested);
@@ -68,6 +61,7 @@ export class InputSystem extends System {
   public execute(delta: number): void {
     // Handle XR input
     if (this.queryResults.xrRenderer.all.length > 0) {
+      console.log("XR RENDERING")
       const webXRRenderer = getMutableComponent(this.queryResults.xrRenderer.all[0], WebXRRenderer);
       // Called when WebXRSession component is added to entity
       this.queryResults.xrSession.added?.forEach(entity => initializeSession(entity, { webXRRenderer }));
