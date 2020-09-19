@@ -145,21 +145,26 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     public async initialize(address, port = 3030): Promise<void> {
         if (this.isInitialized) console.error("Already initialized transport")
         logger.info('Initializing server transport')
-        if (process.env.KUBERNETES === 'true')
-            (app as any).agonesSDK.getGameServer().then((gsStatus) => {
-                config.mediasoup.webRtcTransport.listenIps = [{ip: gsStatus.status.address, announcedIp: null}]
-            })
 
-        else {
-            const localIp = await getLocalServerIp();
-            config.mediasoup.webRtcTransport.listenIps = [{ip: localIp.ipAddress, announcedIp: null}]
-        }
 
         logger.info('Starting WebRTC')
         await this.startMediasoup()
 
         // Start Websockets
         logger.info("Starting websockets")
+        if (process.env.KUBERNETES === 'true') {
+            try {
+                (app as any).agonesSDK.getGameServer().then((gsStatus) => {
+                    config.mediasoup.webRtcTransport.listenIps = [{ip: '127.0.0.1', announcedIp: gsStatus.status.address}]
+                })
+            } catch(err) {
+                console.log('Agones GS get error')
+                console.log(err);
+            }
+        } else {
+            const localIp = await getLocalServerIp();
+            config.mediasoup.webRtcTransport.listenIps = [{ip: localIp.ipAddress, announcedIp: null}]
+        }
         this.socketIO = (app as any)?.io
 
         this.socketIO.sockets.on("connect", (socket: Socket) => {
@@ -246,6 +251,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 console.log("Sending world state")
                 console.log(worldState)
 
+                console.log('Router\'s rtpCapabilities:')
+                console.log(this.router.rtpCapabilities)
                 try {
                     // Convert world state to buffer and send along
                     callback({
@@ -396,17 +403,17 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         appData: {...appData, peerId: socket.id, transportId}
                     })
 
+                    console.log(`rtpParameters for new producer ${producer.id}`);
+                    console.log(rtpParameters);
                     // if our associated transport closes, close ourself, too
                     producer.on("transportclose", () => {
                         this.closeProducerAndAllPipeProducers(producer, socket.id)
                     })
 
                     logger.info('New producer')
-                    logger.info(producer._data.rtpParameters)
+                    console.log(producer._data.rtpParameters)
 
                     MediaStreamComponent.instance.producers.push(producer)
-                    console.log(socket.id)
-                    console.log(Network.instance.clients)
                     Network.instance.clients[socket.id].media[appData.mediaTag] = {
                         paused,
                         encodings: rtpParameters.encodings
@@ -447,17 +454,20 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     t => (t as any)._appData.peerId === socket.id && (t as any)._appData.clientDirection === "recv"
                 )
 
+
                 const consumer = await (transport as any).consume({
                     producerId: producer.id,
                     rtpCapabilities,
                     paused: true, // see note above about always starting paused
                     appData: {peerId: socket.id, mediaPeerId, mediaTag}
                 })
+                console.log(`rtpCapabilities for conusmer ${consumer.id}`);
+                console.log(rtpCapabilities);
 
-                logger.info('New consumer: ')
-                logger.info(consumer)
-                logger.info('Transport used:')
-                logger.info(transport)
+                // logger.info('New consumer: ')
+                // logger.info(consumer)
+                // logger.info('Transport used:')
+                // logger.info(transport)
 
                 // need both 'transportclose' and 'producerclose' event handlers,
                 // to make sure we close and clean up consumers in all
@@ -724,18 +734,23 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
     async createWebRtcTransport({peerId, direction, sctpCapabilities}: CreateWebRtcTransportParams): Promise<WebRtcTransport> {
         logger.info("Creating Mediasoup transport")
-        const {listenIps, initialAvailableOutgoingBitrate} = config.mediasoup.webRtcTransport
-        const transport = await this.router.createWebRtcTransport({
-            listenIps: listenIps,
-            enableUdp: true,
-            enableTcp: true,
-            preferUdp: true,
-            enableSctp: true, // Enabling it for setting up data channels
-            numSctpStreams: sctpCapabilities.numStreams,
-            initialAvailableOutgoingBitrate: initialAvailableOutgoingBitrate,
-            appData: {peerId, clientDirection: direction}
-        })
+        try {
+            const {listenIps, initialAvailableOutgoingBitrate} = config.mediasoup.webRtcTransport
+            const transport = await this.router.createWebRtcTransport({
+                listenIps: listenIps,
+                enableUdp: true,
+                enableTcp: true,
+                preferUdp: true,
+                enableSctp: true, // Enabling it for setting up data channels
+                numSctpStreams: sctpCapabilities.numStreams,
+                initialAvailableOutgoingBitrate: initialAvailableOutgoingBitrate,
+                appData: {peerId, clientDirection: direction}
+            })
 
-        return transport
+            return transport
+        } catch(err) {
+            console.log('WebRTC create transport error')
+            console.log(err)
+        }
     }
 }
