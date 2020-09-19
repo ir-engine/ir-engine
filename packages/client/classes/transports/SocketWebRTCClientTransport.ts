@@ -10,6 +10,10 @@ import { UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine
 import * as mediasoupClient from "mediasoup-client";
 import { DataConsumerOptions, DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 import ioclient from "socket.io-client";
+import getConfig from "next/config";
+
+const { publicRuntimeConfig } = getConfig();
+const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://localhost:3030';
 
 const Device = mediasoupClient.Device;
 
@@ -100,15 +104,25 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     };
   }
 
-  public async initialize(address = "https://127.0.0.1", port = 3030): Promise<void> {
+  public async initialize(address = "https://127.0.0.1", port = 3030, opts?: {}): Promise<void> {
     console.log(`Initializing client transport to ${address}:${port}`);
     this.mediasoupDevice = new Device();
 
-    this.socket = ioclient(`${address}:${port}`, {
-      query: {
-        cool: 'pants'
-      }
-    });
+    if (process.env.NODE_ENV === 'development') {
+      this.socket = io(`${address as string}:${port.toString()}`, {
+        query: opts
+      });
+    } else {
+      this.socket = io(gameserver, {
+        path: `/socket.io/${address as string}/${port.toString()}`,
+        query: opts
+      });
+    }
+    // this.socket = ioclient(`${address}:${port}`, {
+    //   query: {
+    //     cool: 'pants'
+    //   }
+    // });
     this.request = this.promisedRequest(this.socket);
 
     // window.screenshare = await this.startScreensharea
@@ -179,6 +193,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     const resp = await this.request(MessageTypes.JoinWorld.toString());
 
     const { worldState, routerRtpCapabilities } = resp as any;
+    console.log('router rtpCapabilities:');
+    console.log(routerRtpCapabilities);
 
     console.log("World state init: ")
     console.log(worldState)
@@ -218,6 +234,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // paused as appropriate, too.
     if(MediaStreamComponent.instance.mediaStream == null)
       await MediaStreamSystem.instance.startCamera();
+      console.log('Video track to send:')
+      console.log(MediaStreamComponent.instance.mediaStream.getVideoTracks()[0]);
       MediaStreamComponent.instance.camVideoProducer = await this.sendTransport.produce({
       track: MediaStreamComponent.instance.mediaStream.getVideoTracks()[0],
       encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
@@ -403,6 +421,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag
     );
 
+    console.log('Creating consumer using rtpCapabilities:')
+    console.log(this.mediasoupDevice.rtpCapabilities);
     // ask the server to create a server-side consumer object and send us back the info we need to create a client-side consumer
     const consumerParameters = await this.request(MessageTypes.WebRTCReceiveTrack.toString(),
       { mediaTag, mediaPeerId: peerId, rtpCapabilities: this.mediasoupDevice.rtpCapabilities }
