@@ -16,6 +16,9 @@ import { StartWalkRightState } from './states/StartWalkRightState';
 import { EndWalkState } from './states/EndWalkState';
 import { StartWalkBackRightState } from './states/StartWalkBackRightState';
 import { StartWalkBackLeftState } from './states/StartWalkBackLeftState';
+import { DrivingIdleState } from './states/DrivingIdleState';
+import { EnterVehicleState } from './states/EnterVehicleState';
+import { ExitVehicleState } from './states/ExitVehicleState';
 
 export const CharacterStates = {
   [CharacterStateTypes.DROP_IDLE]: DropIdleState,
@@ -34,5 +37,8 @@ export const CharacterStates = {
   [CharacterStateTypes.WALK_START_BACK_RIGHT]: StartWalkBackRightState,
   [CharacterStateTypes.WALK_START_FORWARD]: StartWalkForwardState,
   [CharacterStateTypes.WALK_START_LEFT]: StartWalkLeftState,
-  [CharacterStateTypes.WALK_START_RIGHT]: StartWalkRightState
+  [CharacterStateTypes.WALK_START_RIGHT]: StartWalkRightState,
+  [CharacterStateTypes.DRIVING_IDLE]: DrivingIdleState,
+  [CharacterStateTypes.ENTER_VEHICLE]: EnterVehicleState,
+  [CharacterStateTypes.EXIT_VEHICLE]: ExitVehicleState
 };

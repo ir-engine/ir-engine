@@ -1,30 +1,31 @@
 // Abstract inputs that all input devices get mapped to
 
-export const DefaultInput = {
-  PRIMARY: 0,
-  SECONDARY: 1,
-  FORWARD: 2,
-  BACKWARD: 3,
-  UP: 4,
-  DOWN: 5,
-  LEFT: 6,
-  RIGHT: 7,
-  INTERACT: 8,
-  CROUCH: 9,
-  JUMP: 10,
-  WALK: 11,
-  RUN: 12,
-  SPRINT: 13,
-  SNEAK: 14,
-  SCREENXY: 15, // Is this too specific, or useful?
-  SCREENXY_START: 16,
-  ROTATION_START: 17,
-  MOVEMENT_PLAYERONE: 18,
-  LOOKTURN_PLAYERONE: 19,
-  MOVEMENT_PLAYERTWO: 20,
-  LOOKTURN_PLAYERTWO: 21,
-  ALTERNATE: 22,
-  MOUSE_MOVEMENT: 23, // mouse event movement
-  SWITCH_CAR: 24,
-  POINTER_LOCK: 25
-};
+export enum DefaultInput {
+  PRIMARY,
+  SECONDARY,
+  FORWARD,
+  BACKWARD,
+  UP,
+  DOWN,
+  LEFT,
+  RIGHT,
+  INTERACT,
+  CROUCH,
+  JUMP,
+  WALK,
+  RUN,
+  SPRINT,
+  SNEAK,
+  SCREENXY, // Is this too specific, or useful?
+  SCREENXY_START,
+  ROTATION_START,
+  MOVEMENT_PLAYERONE,
+  LOOKTURN_PLAYERONE,
+  MOVEMENT_PLAYERTWO,
+  LOOKTURN_PLAYERTWO,
+  ALTERNATE,
+  MOUSE_MOVEMENT, // mouse event movement
+  SWITCH_CAR,
+  POINTER_LOCK,
+  CAMERA_SCROLL
+}

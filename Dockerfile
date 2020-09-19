@@ -9,10 +9,16 @@ WORKDIR /app
 RUN yarn global add lerna --loglevel notice
 
 # to make use of caching, copy only package files and install dependencies
-#COPY package*.json /app
-COPY . .
+COPY package.json .
+COPY packages/client/package.json ./packages/client/
+COPY packages/common/package.json ./packages/common/
+COPY packages/engine/package.json ./packages/engine/
+COPY packages/server/package.json ./packages/server/
+
 #RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds
 RUN yarn install --production=false
+
+COPY . .
 
 # copy then compile the code
 

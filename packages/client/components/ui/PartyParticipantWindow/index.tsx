@@ -107,6 +107,9 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                     MediaStreamComponent.instance.setVideoPaused(false);
                 } else if (peerId === 'me_screen') {
                     MediaStreamComponent.instance.setScreenShareVideoPaused(false);
+                } else if (videoStream.track.muted === true) {
+                    console.log('Starting video in paused state');
+                    // toggleVideo();
                 }
             }
         }
@@ -126,6 +129,9 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                     MediaStreamComponent.instance.setAudioPaused(false);
                 } else if (peerId === 'me_screen') {
                     MediaStreamComponent.instance.setScreenShareAudioPaused(false);
+                } else if (audioStream.track.muted === true) {
+                    console.log('Starting audio in paused state');
+                    // toggleAudio();
                 }
             }
             audioRef.current.volume = 1;
