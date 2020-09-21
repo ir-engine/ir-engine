@@ -36,8 +36,8 @@ export const MobileGamepad: FunctionComponent = (props: any) => {
   const buttonsContainerStyle: CSSProperties = {
     position: 'fixed',
     borderRadius: '50%',
-    right: '100px',
-    bottom: '300px',
+    right: '10%',
+    bottom: '60%',
     // backgroundColor: 'white',
     // width: '10px',
     // height: '10px'
@@ -96,27 +96,31 @@ export const MobileGamepad: FunctionComponent = (props: any) => {
       style={{ ...buttonCommonStyle, ...value.style }}
       onPointerDown={ (): void => triggerButton(value.button, true) }
       onPointerUp={ (): void => triggerButton(value.button, false) }
+      onTouchStart={ (): void => triggerButton(value.button, true) }
+      onTouchEnd={ (): void => triggerButton(value.button, false) }
     >{ value.label }</div>);
   }));
 
   useEffect(() => {
     // mount
+    const size = window.innerHeight * 0.4;
+    const bottom = window.innerHeight * 0.25;
 
     const stickLeft = nipplejs.create({
       zone: leftContainer.current,
       mode: 'static',
-      position: { left: '20%', bottom: '110px' },
+      position: { left: '40%', bottom: bottom + 'px' },
       color: 'green',
-      size: 200,
+      size: size,
       dynamicPage: true
     });
 
     const stickRight = nipplejs.create({
       zone: rightContainer.current,
       mode: 'static',
-      position: { right: '20%', bottom: '110px' },
+      position: { right: '20%', bottom: bottom + 'px' },
       color: 'red',
-      size: 200,
+      size: size,
       dynamicPage: true
     });
 
