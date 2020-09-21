@@ -36,7 +36,7 @@ export const commands = {
       // Query the ECS engine for current stats
       ecs: {
         method: (args, print, runCommand) => {
-            if(!args._[0]){
+            if (!args._[0]){
                 print(`
                     ls 
                     List of entities.
@@ -51,15 +51,15 @@ export const commands = {
                     Update data.
                 `);
             }
-            console.log(args);
+//          console.log(args);
 
-            switch(args._[0]){
+            switch (args._[0]){
                 case 'entities':
                     const CMDID = 1;
                     const command = args._[CMDID];
                     const options = args._.slice(CMDID + 1);
 
-                    print(options.join('|'));
+//                  print(options.join('|'));
                         // ecs: "console.log("Eval says: feed me code!")"
                         // _: Array(4)
                         // 0: "entities"
@@ -68,29 +68,47 @@ export const commands = {
                         // 3: 33
                         // ecs entities rm 11 22 33
 
-                    if(command === 'ls'){
-                        print(`(List entities)`);
-                        print(`{-c | --components} show entity components`);
-                        const {join, map} = Array.prototype;
-                        const mapc = callback => iterable => map.call(iterable, callback);
-                        const opts = options.join().split(/\w*\-{0,2}(\W+)\w*/);
+                    if (command === 'ls') {
+                        // print(`(List entities)`);
+                        // print(`{-c | --components} show entity components`);
+                        // const {join, map} = Array.prototype;
+                        // const mapc = callback => iterable => map.call(iterable, callback);
+                        // const opts = options.join().split(/\w*\-{0,2}(\W+)\w*/);
+                        /*
                         if('components' in opts || 'c' in opts){//replace to Maybee monad
                              // @ts-ignore above the line
                             const componentsFields = ({components}) => 
-                                toString(map.call(components, ({constructor:{name}, id}) => `${id} ${name}`) );
+                                toString(map.call(components, ({constructor:{name}, id}) =>
+                                    `${id} ${name}`) );
                         }
                         const entityFields = ({id}) => id;              
                         const toString = iterable => join.call(iterable, "\n");
                         const list = mapc(entityFields);
                         const {entities} = Engine;
                         print(toString(list(entities)));
-                        break;
+                        */
 
-                    }else if(command === 'make'){
+                      console.log('check', options);
+                      console.log('check', args._);
+                      
+                      let s = '';
+                      Engine.entities.forEach(e => {
+                        s += e.id;
+//                        console.log('check', Object.getOwnPropertyNames(e.components));
+//                        console.log('check', e.components);
+                        s += '\n';  
+                        for (let componentId in e.components)
+                           s += ('\t' + componentId + ': ' +
+                               e.components[componentId].name + '\n');
+
+                        s += '\n';  
+                      });
+                      print(s);
+
+                    } else if (command === 'make') {
                         print(`(create entity)`);
                         const entity = createEntity();
                         print(`entity #${entity.id} created.`);
-                        break;
                     
                     }else if(command === 'cp'){
                         print(`(copy entity)`);
@@ -106,7 +124,6 @@ export const commands = {
                         }else{
                             print(`entity ${protoEntityId} not exist.`);
                         }
-                        break;
 
                     }else if(command === 'rm'){
                         print(`(removing entities and components)`);
@@ -120,7 +137,6 @@ export const commands = {
                               if (foundEntity != undefined) foundEntity.remove();
 	                    });
 
-                        break;
 
                     }else if(command === 'cat'){
                         print(`(Query entity components for data)`);
@@ -137,13 +153,10 @@ export const commands = {
                         //const component = getComponent(entity, Component);
                         //get component fields
                         //list compponent data
-                        break;
                         
                     }else if(command === 'echo'){
                         print(`(Query components for data)`);
-                        break;
                     }
-                    //break;
 
 
 
