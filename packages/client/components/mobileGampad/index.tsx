@@ -125,6 +125,7 @@ export const MobileGamepad: FunctionComponent = (props: any) => {
     });
 
     stickLeft.on("move", ( e, data) => {
+      console.log('move left', data.vector);
       const event = new CustomEvent("stickmove", { "detail": { stick: Thumbsticks.Left, value: { x: data.vector.y, y: -data.vector.x } } });
       document.dispatchEvent(event);
     });
