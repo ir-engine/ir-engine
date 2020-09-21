@@ -1,4 +1,4 @@
-import { Vector3 } from 'three';
+import { Vector3, Matrix4 } from 'three';
 import { Behavior } from '../../../common/interfaces/Behavior';
 import { Entity } from '../../../ecs/classes/Entity';
 import { removeComponent, addComponent, getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
@@ -8,6 +8,8 @@ import { VehicleBody } from '../../../physics/components/VehicleBody';
 import { PlayerInCar } from '../../../physics/components/PlayerInCar';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
 import { setPosition } from '../../../templates/character/behaviors/setPosition';
+import { addState } from '../../../state/behaviors/StateBehaviors';
+import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
 
 
 export const getOutCar: Behavior = (entity: Entity): void => {
@@ -15,25 +17,6 @@ export const getOutCar: Behavior = (entity: Entity): void => {
   const vehicleComponent = getMutableComponent(entity, VehicleBody)
   const entityDriver = vehicleComponent.currentDriver
 
-  const transformCar = getComponent<TransformComponent>(entity, TransformComponent);
-  const transform = getMutableComponent<TransformComponent>(entityDriver, TransformComponent);
-
-  removeComponent(entity, LocalInputReceiver)
-  removeComponent(entity, FollowCameraComponent)
-  removeComponent(entityDriver, PlayerInCar)
-  vehicleComponent.currentDriver = null
-
-  addComponent(entityDriver, LocalInputReceiver)
-  addComponent(entityDriver, FollowCameraComponent)
-
-
-  // set position character when get out car
-  let entrance = new Vector3(
-    vehicleComponent.entrancesArray[0][0],
-    vehicleComponent.entrancesArray[0][1],
-    vehicleComponent.entrancesArray[0][2]
-  ).applyQuaternion(transformCar.rotation)
-  entrance = entrance.add(transformCar.position)
-  setPosition(entityDriver, entrance)
+  addState(entityDriver, {state: CharacterStateTypes.EXIT_VEHICLE})
 
 };

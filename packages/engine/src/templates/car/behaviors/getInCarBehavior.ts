@@ -19,7 +19,6 @@ export const getInCar: Behavior = (entity: Entity, args: { value: Vector2 }, del
 
   removeComponent(entity, LocalInputReceiver)
   removeComponent(entity, FollowCameraComponent)
-  addState(entity, {state: CharacterStateTypes.ENTER_VEHICLE})
   addComponent(entity, PlayerInCar, { entityCar: entityCar })
 
 };

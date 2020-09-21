@@ -4,7 +4,6 @@ import { setActorAnimation } from "../behaviors/setActorAnimation";
 import { setFallingState } from "../behaviors/setFallingState";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { updateCharacterState } from "../behaviors/updateCharacterState";
-import { exitCar } from "../behaviors/exitCar";
 import { CharacterStateGroups } from '../CharacterStateGroups';
 import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 
@@ -38,10 +37,6 @@ export const ExitVehicleState: StateSchemaValue = {
       args: {
         setCameraRelativeOrientationTarget: true
       }
-    },
-    {
-      behavior: exitCar,
-      args: {}
     }
   ]
 };
