@@ -39,18 +39,19 @@ function LoadPlayer() {
 
   // var renderer = new THREE.WebGLRenderer();
   // var scene = new THREE.Scene();
-  new DracosisPlayer(
+  new DracosisPlayer({
     scene,
-    gl,
-    '../server/sample_v7_10frames.drcs',
-    callback,
-    true,
-    true,
-    0,
-    -1,
-    1,
-    100
-  );
+    renderer: gl,
+    filePath: '../server/sample_v7_10frames.drcs',
+    onLoaded: callback,
+    playOnStart: true,
+    loop: true,
+    startFrame: 0,
+    endFrame: -1,
+    speedMultiplier: 1,
+    bufferSize: 6,
+    serverUrl: 'http://localhost:8000'
+  });
 
   const mesh: any = useRef();
   return <mesh></mesh>;
