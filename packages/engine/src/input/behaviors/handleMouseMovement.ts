@@ -5,6 +5,7 @@ import { Input } from '../components/Input';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { MouseInput } from '../enums/MouseInput';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
+import { normalizeMouseCoordinates } from "../../common/functions/normalizeMouseCoordinates";
 
 /**
  * Local reference to input component
@@ -21,10 +22,9 @@ const mouseMovement: [number, number] = [0, 0];
 
 export const handleMouseMovement: Behavior = (entity: Entity, args: { event: MouseEvent; }): void => {
   const input = getComponent(entity, Input);
-  mousePosition[0] = (args.event.clientX / window.innerWidth) * 2 - 1;
-  mousePosition[1] = (args.event.clientY / window.innerHeight) * -2 + 1;
-  mouseMovement[0] = args.event.movementX;
-  mouseMovement[1] = args.event.movementY;
+  const normalizedPosition = normalizeMouseCoordinates(args.event.clientX, args.event.clientY, window.innerWidth, window.innerHeight);
+  const mousePosition: [number, number] = [ normalizedPosition.x, normalizedPosition.y ];
+  const mouseMovement: [number, number] = [ args.event.movementX, args.event.movementY ];
 
   // If mouse position not set, set it with lifecycle started
   if (!input.data.has(input.schema.mouseInputMap.axes[MouseInput.MousePosition])) {
@@ -36,7 +36,8 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
     // Set movement delta
     input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseMovement], {
       type: InputType.TWODIM,
-      value: mouseMovement
+      value: mouseMovement,
+      lifecycleState: LifecycleValue.STARTED
     });
   } else {
     // If mouse position set, check it's value
@@ -47,13 +48,13 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
       input.data.set(input.schema.mouseInputMap.axes[MouseInput.MousePosition], {
         type: InputType.TWODIM,
         value: mousePosition,
-        lifecycleState: LifecycleValue.CONTINUED
+        lifecycleState: LifecycleValue.CHANGED
       });
       // Set movement delta
       input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseMovement], {
         type: InputType.TWODIM,
         value: mouseMovement,
-        lifecycleState: LifecycleValue.CONTINUED
+        lifecycleState: LifecycleValue.CHANGED
       });
     } else {
       // Otherwise, remove it
