@@ -126,6 +126,7 @@ beforeAll(() => {
 })
 
 beforeEach(() => {
+  // in each test we should have new clean entity with new clean input component (unpolluted by previous tests)
   entity = createEntity()
   input = addComponent<Input>(entity, Input, { schema: testInputSchema }) as Input
   addComponent(entity, LocalInputReceiver)
@@ -141,7 +142,6 @@ afterEach(() => {
 })
 
 // buttons
-// TODO: check mouse button sets MouseInput.MouseClickDownPosition - DefaultInput.SCREENXY_START
 describe("buttons", () => {
   const clickPoint1 = { x: 100, y:20 };
   const normalPoint1 = normalizeMouseCoordinates(clickPoint1.x, clickPoint1.y, window.innerWidth, window.innerHeight);
