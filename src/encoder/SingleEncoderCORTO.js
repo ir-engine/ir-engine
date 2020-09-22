@@ -12,6 +12,12 @@ const { create } = require('domain');
 
 global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 
+function getFilesizeInBytes(filename) {
+    var stats = fs.statSync(filename)
+    var fileSizeInBytes = stats["size"]
+    return fileSizeInBytes
+}
+
 var DracoFileCreator = /** @class */ (function () {
   function DracoFileCreator(
     // renderer,
@@ -80,7 +86,21 @@ var DracoFileCreator = /** @class */ (function () {
         i
       );
       // load obj
-      var rawObjData = fs.readFileSync(this._meshFiles[i], 'utf8');
+      let objPath = this._meshFiles[i].replace('.crt','.obj');
+
+      var rawObjData = fs.readFileSync(objPath, 'utf8');
+
+
+
+
+      var rawObjDataCRT = fs.readFileSync(this._meshFiles[i]);
+      let rawCRTFrame = Buffer.from(rawObjDataCRT)
+      console.log(rawCRTFrame.byteLength,this._meshFiles[i],'rawCRTFrame');
+
+
+
+
+      // console.log(this._meshFiles[i],rawCRTFrame.byteLength,'===================');
       var objData = this._loader.parse(rawObjData);
       var noNormals = rawObjData.indexOf('vn ') === -1;
       //   var children = objData.children;
@@ -126,12 +146,14 @@ var DracoFileCreator = /** @class */ (function () {
 
       var encodedTexture = await promiseTexture;
 
-      let promiseMesh = new Promise((resolve, reject) => {
-        var encodedMesh = CodecHelpers_1.encodeMeshToDraco(encoder.geometry);
-        resolve(encodedMesh);
-      });
+      // let promiseMesh = new Promise((resolve, reject) => {
+      //   var encodedMesh = CodecHelpers_1.encodeMeshToDraco(encoder.geometry);
+      //   resolve(encodedMesh);
+      // });
 
-      var encodedMesh = await promiseMesh;
+      // var encodedMesh = await promiseMesh;
+      var encodedMesh = rawCRTFrame;
+      // console.log(rawObjData,'rawObjData')
 
       var frame = {
         frameNumber: i,
@@ -228,6 +250,6 @@ var DracoFileCreator = /** @class */ (function () {
   return DracoFileCreator;
 })();
 
-new DracoFileCreator('obj', 'png', 0, 99, 'sample_v35_100frames.drcs', function () {
+new DracoFileCreator('crt', 'png', 0, 99, 'CRT_sample_v35_99frames.drcs', function () {
   console.log('Converted to Dracosis');
 });
