@@ -18,6 +18,7 @@ import {
   CompressedTexture,
   BoxBufferGeometry,
   MeshBasicMaterial,
+  ShaderMaterial,
   MeshStandardMaterial,
   MeshPhongMaterial,
   Mesh,
@@ -38,11 +39,12 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import ReadStream from 'fs-readstream-seek';
 import { MessageType } from './Enums';
 const worker = new Worker('./Worker.js');
+import CortoDecoder from './corto/cortodecoder.js'
 
 // Class draco / basis player
 export default class DracosisPlayer {
   // Public Fields
-  public frameRate = 30;
+  public frameRate = 5;
   public speed = 1.0; // Multiplied by framerate for final playback output rate
 
   // Three objects
@@ -58,6 +60,7 @@ export default class DracosisPlayer {
   private _startFrame = 1;
   private _endFrame = 0;
   private _numberOfFrames = 0;
+  private _bufferSize = 100;
   private _currentFrame = 1;
   private _loop = true;
   private _playOnStart = true;
@@ -129,11 +132,11 @@ export default class DracosisPlayer {
     xmlHttp.send(null);
   }
 
-  constructor(
-    scene: any,
-    renderer: any,
+  constructor({
+    scene,
+    renderer,
     filePath: string,
-    onLoaded: any,
+    onLoaded,
     playOnStart = true,
     loop = true,
     startFrame = 1,
@@ -141,7 +144,7 @@ export default class DracosisPlayer {
     speedMultiplier = 1,
     bufferSize = 100,
     serverUrl
-  ) {
+  }) {
     this.scene = scene;
     this.renderer = renderer;
     this._onLoaded = onLoaded;
@@ -150,9 +153,28 @@ export default class DracosisPlayer {
     this._startFrame = startFrame;
     this._playOnStart = playOnStart;
     this._currentFrame = startFrame;
+    this._bufferSize = bufferSize;
 
     this.bufferGeometry = new BoxBufferGeometry(1, 1, 1);
     this.material = new MeshBasicMaterial();
+    // this is to debug UVs
+    // this.material = new ShaderMaterial({
+    //   uniforms: {
+    //   },
+    //   // wireframe: true,
+    //   // transparent: true,
+    //   vertexShader: `
+    //   varying vec2 vUv;
+    //   void main() {
+    //     vUv = uv;
+    //     gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+    //   }`,
+    //   fragmentShader: `
+    //   varying vec2 vUv;
+    //   void main()  {
+    //     gl_FragColor = vec4(vUv,0.0,1.);
+    //   }`
+    // });
     this.mesh = new Mesh(this.bufferGeometry, this.material);
     this.scene.add(this.mesh);
 
@@ -230,6 +252,29 @@ export default class DracosisPlayer {
     bufferGeometry.computeVertexNormals();
 
     return bufferGeometry;
+  }
+
+  decodeCORTOData(rawBuffer: Buffer) {
+    let decoder = new CortoDecoder(rawBuffer,null,null);
+    let meshData = decoder.decode();
+    // Import data to Three JS geometry.
+    let geometry = new BufferGeometry();
+    geometry.setIndex(
+      new (meshData.index.length > 65535
+        ? Uint32BufferAttribute
+        : Uint16BufferAttribute)(meshData.index, 1)
+    );
+    geometry.setAttribute(
+      'position',
+      new Float32BufferAttribute(meshData.position, 3)
+    );
+    geometry.setAttribute(
+      'uv',
+      new Float32BufferAttribute(meshData.uv, 2)
+    );
+    let bufferGeometry = new SphereBufferGeometry(1,10,10);
+    geometry.computeVertexNormals();
+    return geometry;
   }
 
   getBufferFromDracoGeometry(uncompressedDracoMesh, decoder) {
@@ -439,16 +484,15 @@ export default class DracosisPlayer {
 
       player._ringBuffer.get(
         player._pos
-      ).bufferGeometry = player.decodeDracoData(geomTex.bufferGeometry);
+      ).bufferGeometry = player.decodeCORTOData(geomTex.bufferGeometry);
 
       player
         .decodeTexture(geomTex.compressedTexture, geomTex.frameNumber)
         .then(({ texture, frameNumber }) => {
           var pos = player.getPositionInBuffer(frameNumber);
-
           player._ringBuffer.get(pos).compressedTexture = texture;
-          if (!player._isPlaying && count < 100) count++;
-          if (count == 100) this.play();
+          if (!player._isPlaying && count < this._bufferSize) count++;
+          if (count == this._bufferSize) this.play();
         });
 
       // player._framesUpdated++;
@@ -486,7 +530,7 @@ export default class DracosisPlayer {
         break;
 
       // if it's equal to or greater than current frame, break the loop
-      // this._ringBuffer.remove(0);
+      this._ringBuffer.remove(0);
       this._numberOfBuffersRemoved++;
     }
 
@@ -498,24 +542,25 @@ export default class DracosisPlayer {
       );
 
     const framesToFetch: number[] = [];
-
-    if (this._ringBuffer.empty()) {
+    if (this._ringBuffer.empty() && this._currentFrame==0) {
       const frameData: IBufferGeometryCompressedTexture = {
         frameNumber: this.startFrame,
         bufferGeometry: this._nullBufferGeometry,
         compressedTexture: this._nullCompressedTexture,
       };
-      framesToFetch.push(this.startFrame);
-      this._ringBuffer.add(frameData);
+        framesToFetch.push(this.startFrame);
+        this._ringBuffer.add(frameData);
     }
 
     // Fill buffers with new data
     while (!this._ringBuffer.full()) {
       // Increment onto the last frame
-      const lastFrame =
+      let lastFrame =
         (this._ringBuffer.getLast() &&
           this._ringBuffer.getLast().frameNumber) ||
-        0;
+        Math.max(this._currentFrame-1,0);
+      if(this._ringBuffer.getLast()) lastFrame = this._ringBuffer.getLast().frameNumber;
+        console.log('lastframe'+lastFrame,this._ringBuffer.getLast(), this._currentFrame,this._numberOfFrames);
       const nextFrame = (lastFrame + 1) % this._numberOfFrames;
 
       const frameData: IBufferGeometryCompressedTexture = {
@@ -536,10 +581,10 @@ export default class DracosisPlayer {
 
     const player = this;
 
-    // Every 1/2 second, make sure our workers are working
+    // Every 2 second, make sure our workers are working
     setTimeout(function () {
       player.handleBuffers(player);
-    }, 500);
+    }, 2000);
   }
 
   update() {
@@ -565,13 +610,12 @@ export default class DracosisPlayer {
 
     // console.log("First frame", this._ringBuffer.getFirst().frameNumber)
 
-    // console.log("Ringbuffer", this._ringBuffer, this._ringBuffer.getFirst() &&
     //   this._ringBuffer.getFirst().frameNumber, this._currentFrame)
     // If the frame exists in the ring buffer, use it
     if (
       this._ringBuffer &&
       this._ringBuffer.getFirst() &&
-      this._ringBuffer.getFirst().frameNumber == this._currentFrame
+      (this._ringBuffer.getFirst().frameNumber == this._currentFrame || this._ringBuffer.getFirst().frameNumber == 1+this._currentFrame)
     ) {
       this.bufferGeometry = this._ringBuffer.getFirst().bufferGeometry;
       // this.bufferGeometry = this._ringBuffer.get(this._currentFrame).bufferGeometry
@@ -592,11 +636,12 @@ export default class DracosisPlayer {
       this._currentFrame++;
     } else {
       // Frame doesn't exist in ring buffer, so throw an error
-      console.warn(
-        'Frame ' +
-          this._ringBuffer.getFirst().frameNumber +
-          ' did not exist in ring buffer'
-      );
+      // console.warn(
+      //   'Frame ' +
+      //     this._ringBuffer.getFirst().frameNumber +
+      //     ' did not exist in ring buffer'
+      // );
+      console.log('frame did not exist yet');
     }
 
     const player = this;
