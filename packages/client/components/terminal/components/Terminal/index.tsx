@@ -18,8 +18,9 @@ import Content from '../Content/index';
 import Tabs from '../Tabs/index';
 import { CSSProperties } from '@material-ui/core/styles/withStyles';
 import { red } from '@material-ui/core/colors';
+import { ContentBackspace } from 'material-ui/svg-icons';
 
-let isTerminalExpanded = false;
+let isTerminalExpanded = true;
 
 function compLogic(comp) {
   switch (comp) {
@@ -853,6 +854,7 @@ class Terminal extends Component<any, any> {
       const parsedArgs = command.parse(args);
       const type = typeof parsedArgs;
       if (type !== 'object' || (type === 'object' && !parsedArgs.help)) {
+        parsedArgs.originalArgs = args;
         res = command.method(
           parsedArgs,
           this.printLine.bind(this, instance),
