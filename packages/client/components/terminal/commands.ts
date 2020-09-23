@@ -8,6 +8,10 @@ import Left from "../ui/Drawer/Left";
 import { createEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 //import {curryRight} from "lodash";
 
+function round(number) {
+    return Math.trunc(number * 1000) / 1000;
+}
+
 export const commands = {
     // Hello world to test the terminal
     helloworld: () => alert('Hello From Terminal!'),
@@ -36,7 +40,7 @@ export const commands = {
       // Query the ECS engine for current stats
       ecs: {
         method: (args, print, runCommand) => {
-            if (!args._[0]){
+            if (!args._[0]) {
                 print(`
                     ls 
                     List of entities.
@@ -69,48 +73,36 @@ export const commands = {
                         // ecs entities rm 11 22 33
 
                     if (command === 'ls') {
-                        // print(`(List entities)`);
-                        // print(`{-c | --components} show entity components`);
-                        // const {join, map} = Array.prototype;
-                        // const mapc = callback => iterable => map.call(iterable, callback);
-                        // const opts = options.join().split(/\w*\-{0,2}(\W+)\w*/);
-                        /*
-                        if('components' in opts || 'c' in opts){//replace to Maybee monad
-                             // @ts-ignore above the line
-                            const componentsFields = ({components}) => 
-                                toString(map.call(components, ({constructor:{name}, id}) =>
-                                    `${id} ${name}`) );
-                        }
-                        const entityFields = ({id}) => id;              
-                        const toString = iterable => join.call(iterable, "\n");
-                        const list = mapc(entityFields);
-                        const {entities} = Engine;
-                        print(toString(list(entities)));
-                        */
-
-                      console.log('check', options);
-                      console.log('check', args._);
-                      
-                      let s = '';
-                      Engine.entities.forEach(e => {
-                        s += e.id;
-//                        console.log('check', Object.getOwnPropertyNames(e.components));
-//                        console.log('check', e.components);
-                        s += '\n';  
-                        for (let componentId in e.components)
-                           s += ('\t' + componentId + ': ' +
-                               e.components[componentId].name + '\n');
-
-                        s += '\n';  
-                      });
-                      print(s);
+                        const { originalArgs } = args;
+                        let s = '';
+                        Engine.entities.forEach(e => {
+                            s += (e.id + '\n');
+                            if (originalArgs.includes('-a') || originalArgs.includes('-p')) {
+                                for (let componentId in e.components) {
+                                    const component = e.components[componentId];
+                                    // console.log('check', component);
+                                    s += ('\t' + componentId + ': ' + component.name);
+                                    if (component.name === 'TransformComponent' &&
+                                            originalArgs.includes('-p'))
+                                        s += (' (position: x: ' + round(component.position.x) +
+                                            ', y: ' + round(component.position.y) +
+                                            ', z: ' + round(component.position.z) +
+                                            '; rotation: x: ' + round(component.rotation._x) +
+                                            ', y: ' + round(component.rotation._y) +
+                                            ', z: ' + round(component.rotation._z) +
+                                            ', w: ' + round(component.rotation._w) + ')');
+                                    s += '\n';
+                                }
+                            }
+                        });
+                        print(s);
 
                     } else if (command === 'make') {
                         print(`(create entity)`);
                         const entity = createEntity();
                         print(`entity #${entity.id} created.`);
                     
-                    }else if(command === 'cp'){
+                    } else if (command === 'cp') {
                         print(`(copy entity)`);
                         console.log(options);
                         if(!(options && options[0])){
@@ -125,7 +117,7 @@ export const commands = {
                             print(`entity ${protoEntityId} not exist.`);
                         }
 
-                    }else if(command === 'rm'){
+                    } else if (command === 'rm') {
                         print(`(removing entities and components)`);
                         // ecs entities rm 1 2 3
                         const ids = options;
@@ -137,8 +129,7 @@ export const commands = {
                               if (foundEntity != undefined) foundEntity.remove();
 	                    });
 
-
-                    }else if(command === 'cat'){
+                    } else if (command === 'cat') {
                         print(`(Query entity components for data)`);
                         // ecs entities cat 1/ComponentName
                         const [entityId, componentName] = options[0].split('/');
@@ -154,17 +145,16 @@ export const commands = {
                         //get component fields
                         //list compponent data
                         
-                    }else if(command === 'echo'){
+                    } else if (command === 'echo') {
                         print(`(Query components for data)`);
                     }
-
-
-
                     break;
 
-                case 'components': {
-                    // User passed a number, which should align with an entity ID -- show breakdown of data on entity
-                    if(!isNaN(args._[1])){
+                case 'components':
+                    // User passed a number, which should align with an entity ID
+                    // - show breakdown of data on entity.
+                    /*
+                    if (!isNaN(args._[1])) {
                         let cstring = "";
                         Object.values(Engine.components[args._[1]]).forEach((c: any) => {
                             cstring += '\n';
@@ -179,17 +169,27 @@ export const commands = {
                         print(cstring);
                     } else {
                         let cstring = "\n";
-                    Engine.components.forEach((component: ComponentConstructor<any>) => {
-                        cstring +=  component.name + "\n";
-                        Object.keys(component).forEach(k => {
-                            cstring += k + ": " + component[k].toString() + "\n";
+                        Engine.components.forEach((component: ComponentConstructor<any>) => {
+                            cstring +=  component.name + "\n";
+                            Object.keys(component).forEach(k => {
+                                cstring += k + ": " + component[k].toString() + "\n";
+                            });
+                            cstring += "\n --------------- \n";
                         });
-                        cstring += "\n --------------- \n";
+                        console.log(cstring);
+                        print(cstring);
+                    }
+                    */
+                    let s = '';
+                    Engine.components.forEach((component: ComponentConstructor<any>) => {
+                        s += component.name + "\n";
+                        if (args.originalArgs.includes('-a')) {
+                            Object.keys(component).forEach(k => {
+                                s += ('\t' + k + ": " + component[k].toString() + '\n');
+                            });
+                        }
                     });
-                    console.log(cstring);
-                    print(cstring);
-                }
-            }
+                    print(s);
                     break;
 
                 case 'systems': {
@@ -202,29 +202,36 @@ export const commands = {
                 break;
 
                 case 'stop': {
-
                     Engine.enabled = false;
                     //Engine.engineTimer.stop()
                     print( `Engine stopped at ? time`);
                     
-                }break;
+                }
+                break;
                 case 'start': {
                     Engine.enabled = true;
                     //Engine.engineTimer.start()
                     print( `Engine started`);
-                }break;
+                
+                }
+                break;
             }
-            
         },
         options: [
           {
             name: 'ecs',
             description: 'query the ecs engine for information on the current scene',
-            defaultValue: 'console.log("Eval says: feed me code!")',
+            defaultValue: 'console.log("Eval says: feed me code!")'
+          },
+          {
+            name: 'a',
+            description: '',
+            defaultValue: ''
           },
         ],
       }
 };
+
 export const description = {
     // ecs: {
     //     play: '',
