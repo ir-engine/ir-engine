@@ -13,8 +13,6 @@ export function getLocations(skip?: number, limit?: number) {
           $skip: skip != null ? skip : getState().get('locations').get('skip'),
         }
       });
-      console.log('PANTS')
-      console.log(locationResults)
       dispatch(locationsRetrieved(locationResults));
     } catch(err) {
       console.log(err);

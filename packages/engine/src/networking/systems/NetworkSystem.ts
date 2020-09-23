@@ -32,9 +32,9 @@ export class NetworkSystem extends System {
     // Late initialization of network
     // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
 
-    const { schema, agonesSDK } = attributes
+    const { schema, app } = attributes
     Network.instance.schema = schema;
-    Network.instance.transport = new (schema.transport)();
+    Network.instance.transport = new schema.transport(app);
 
     // Initialize the server automatically
     if (process.env.SERVER_MODE !== undefined && (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')) {

@@ -142,6 +142,22 @@ export default (app: Application): void => {
                 delete (app as any).instance
               }
               await (app as any).agonesSDK.shutdown()
+              const portRange = (app as any).portRange;
+              console.log('Shutting-down app\'s port range:')
+              console.log(portRange);
+              if (portRange != null) {
+                const portResult = await app.service('rtc-ports').find({
+                  query: {
+                    start_port: portRange.startPort,
+                    end_port: portRange.endPort
+                  }
+                })
+                if ((portResult as any).total > 0 && process.env.NODE_ENV !== 'development') {
+                  await app.service('rtc-ports').patch((portResult as any).data[0].id, {
+                    allocated: false
+                  })
+                }
+              }
             }
           }
         }
