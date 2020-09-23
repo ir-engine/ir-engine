@@ -10,19 +10,19 @@ import express from '@feathersjs/express'
 import socketio from '@feathersjs/socketio'
 import AgonesSDK from '@google-cloud/agones-sdk'
 
-import { Application } from '../declarations'
-import logger from './logger'
-import middleware from '../middleware'
-import services from '../services'
-import appHooks from './app.hooks'
-import channels from './channels'
-import authentication from './authentication'
-import sequelize from './sequelize'
-import config from '../config'
+import { Application } from './declarations'
+import logger from './app/logger'
+import middleware from './middleware'
+import services from './services'
+import appHooks from './app/app.hooks'
+import channels from './app/channels'
+import authentication from './app/authentication'
+import sequelize from './app/sequelize'
+import config from './config'
 import sync from 'feathers-sync'
 import K8s from 'k8s'
 
-import { WebRTCGameServer } from "../gameserver/WebRTCGameServer"
+import { WebRTCGameServer } from "./gameserver/WebRTCGameServer"
 
 import winston from 'winston'
 import feathersLogger from 'feathers-logger'
@@ -121,7 +121,7 @@ if (config.server.enabled) {
     healthPing(agonesSDK)
 
     // Create new gameserver instance
-    const gameServer = new WebRTCGameServer()
+    const gameServer = new WebRTCGameServer(app)
     console.log("Created new gameserver instance")
     console.log(gameServer)
   } else {

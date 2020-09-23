@@ -146,8 +146,7 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
 
   // Networking
   if (options.networking && options.networking.enabled) {
-    console.log("Registering network system")
-    registerSystem(NetworkSystem, { schema: options.networking.schema });
+    registerSystem(NetworkSystem, { schema: options.networking.schema, app: options.networking.app });
 
     // Do we want audio and video streams?
     if (options.networking.supportsMediaStreams == true) {

@@ -53,7 +53,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // else if (MediaStreamComponent.instance.dataProducers.get(channel)) return Promise.reject(new Error('Data channel already exists!'))
     const dataProducer = await this.sendTransport.produceData({
       appData: { data: customInitInfo }, // Probably Add additional info to send to server
-      ordered: false,
+      ordered: true,
       label: channel,
       maxPacketLifeTime: 3000,
       // maxRetransmits: 3,
@@ -234,9 +234,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // paused as appropriate, too.
     if(MediaStreamComponent.instance.mediaStream == null)
       await MediaStreamSystem.instance.startCamera();
-      console.log('Video track to send:')
-      console.log(MediaStreamComponent.instance.mediaStream.getVideoTracks()[0]);
-      MediaStreamComponent.instance.camVideoProducer = await this.sendTransport.produce({
+    console.log('Video track to send:')
+    console.log(MediaStreamComponent.instance.mediaStream.getVideoTracks()[0]);
+    MediaStreamComponent.instance.camVideoProducer = await this.sendTransport.produce({
       track: MediaStreamComponent.instance.mediaStream.getVideoTracks()[0],
       encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
       appData: { mediaTag: "cam-video" }
@@ -518,10 +518,17 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // start flowing for the first time. send dtlsParameters to the
     // server, then call callback() on success or errback() on failure.
     transport.on("connect", async ({ dtlsParameters }: any, callback: () => void, errback: () => void) => {
-      const { error } = await this.request(MessageTypes.WebRTCTransportConnect.toString(),
+      console.log('Transport connected')
+      const connectResult = await this.request(MessageTypes.WebRTCTransportConnect.toString(),
       { transportId: transportOptions.id, dtlsParameters }
       );
-      if (error) return errback();
+      console.log('Transport connect result:')
+      console.log(connectResult)
+      if (connectResult.error) {
+        console.log('Transport connect error')
+        console.log(connectResult.error)
+        return errback();
+      }
       callback();
     });
 
@@ -586,8 +593,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
     // any time a transport transitions to closed,
     // failed, or disconnected, leave the  and reset
-    transport.on("connectionstatechange", async (state: string) => {
+    transport.on("connectionstatechange", async (state: string, a: any, b: any) => {
       console.log(`transport ${transport.id} connectionstatechange ${state}`);
+      console.log('A stuff:')
+      console.log(a)
+      console.log('B stuff:')
+      console.log(b)
       // for this simple sample code, assume that transports being
       // closed is an error (we never close these transports except when
       // we leave the )

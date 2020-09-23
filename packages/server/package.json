@@ -25,6 +25,7 @@
   "contributors": [],
   "bugs": {},
   "directories": {
+    "lib": "src/",
     "config": "config/"
   },
   "engines": {

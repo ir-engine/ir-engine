@@ -6,7 +6,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": false,
-    "module": "commonjs",
+    "module": "esnext",
     "strict": false,
     "noImplicitAny": false,
     "resolveJsonModule": true,
