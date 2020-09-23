@@ -18,7 +18,16 @@ import { TransformComponent } from '@xr3ngine/engine/src/transform/components/Tr
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { AmbientLight, EquirectangularReflectionMapping, Mesh, MeshPhongMaterial, SphereBufferGeometry, sRGBEncoding, TextureLoader } from 'three';
+import {
+  AmbientLight,
+  EquirectangularReflectionMapping,
+  Mesh,
+  MeshPhongMaterial,
+  SphereBufferGeometry,
+  sRGBEncoding,
+  TextureLoader,
+  CineonToneMapping
+} from 'three';
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';
 import { connectToInstanceServer, provisionInstanceServer } from '../../redux/instanceConnection/service';
@@ -27,6 +36,8 @@ import { commands, description } from '../terminal/commands';
 import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
 
 import dynamic from 'next/dynamic';
+import { RazerLaptop } from "@xr3ngine/engine/src/templates/interactive/prefabs/RazerLaptop";
+import { InfoBox } from "../infoBox";
 const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
 const locationId = 'e3523270-ddb7-11ea-9251-75ab611a30da';
@@ -51,19 +62,29 @@ export const EnginePage: FunctionComponent = (props: any) => {
   } = props;
   const [enabled, setEnabled] = useState(false);
   const [hoveredLabel, setHoveredLabel] = useState('');
+  const [infoBoxData, setInfoBoxData] = useState(null);
 
   useEffect(() => {
     console.log('initializeEngine!');
 
     const onObjectHover = (event: CustomEvent): void => {
-      if (event.detail.focused) {
-        setHoveredLabel(String(event.detail.label));
+      if (event.detail.focused && event.detail.payload?.name) {
+        setHoveredLabel(String(event.detail.payload.name));
       } else {
         setHoveredLabel('');
       }
     };
     const onObjectActivation = (event: CustomEvent): void => {
-      window.open(event.detail.url, "_blank");
+      console.log('OBJECT ACTIVATION!', event.detail?.action, event.detail);
+      switch (event.detail.action) {
+        case "link":
+          window.open(event.detail.url, "_blank");
+          break;
+        case "infoBox":
+          // TODO: show info box
+          setInfoBoxData(event.detail.payload);
+          break;
+      }
     };
     document.addEventListener('object-hover', onObjectHover);
     document.addEventListener('object-activation', onObjectActivation);
@@ -135,6 +156,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
 
 
+    Engine.renderer.toneMapping = CineonToneMapping;
+    Engine.renderer.toneMappingExposure = 0.1;
 
     createPrefab(WorldPrefab);
     createPrefab(PlayerCharacter);
@@ -144,7 +167,13 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // createPrefab(rigidBodyBox2);
      createPrefab(CarController);
     //createPrefab(interactiveBox);
+    createPrefab(RazerLaptop);
+
+
+//    Engine.scene.traverse((c: unknown) => { if (c instanceof Mesh && c.isMesh && c.material) { c.material.needsUpdate=true; }  });
   }, 5000);
+
+  console.log('scene---', Engine.scene);
 
 
     return (): void => {
@@ -224,10 +253,14 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   const mobileGamepad = isMobileOrTablet()? <MobileGamepad /> : null;
 
+
+  const infoBox = infoBoxData? <InfoBox onClose={() => { setInfoBoxData(null) }} data={infoBoxData} /> : null;
+
   const hoveredLabelElement = hoveredLabel.length? <div style={{ position: "fixed", top:"50%", left:"50%", backgroundColor:"white" }}>{hoveredLabel}</div> : null;
 
   return (
     <>
+    {infoBox}
     {hoveredLabelElement}
     {terminal}
     {mobileGamepad}
