@@ -31,8 +31,8 @@ export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
   let arrayWheels = []
 
    asset.scene.traverse( mesh => {
-  //   console.log(mesh.name);
-    // console.log(mesh);
+     console.log(mesh.name);
+     console.log(mesh);
 
 
      if (mesh.type == 'Mesh') {
@@ -43,8 +43,8 @@ export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
        vehicleComponent.vehicleMesh = mesh
      }
 
-     if (mesh.name == 'steering_wheel' || mesh.name == 'door_front_left' ||  mesh.name == 'door_front_right') {
-
+     if ( mesh.name == 'door_front_left' ||  mesh.name == 'door_front_right') { //mesh.name == 'steering_wheel'
+       vehicleComponent.vehicleDoorsArray.push(mesh)
      }
 
 
