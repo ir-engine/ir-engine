@@ -10,7 +10,7 @@ import { BrightnessContrastEffect } from '../../postprocessing/effects/Brightnes
 
 export const DefaultPostProcessingSchema: PostProcessingSchema = {
   effects: [
-
+/*
     {
       effect: SSAOEffect,
       options: {
@@ -28,6 +28,7 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
       fade: 0.05
       }
     },
+
     {
       effect: DepthOfFieldEffect,
       options: {
@@ -37,7 +38,9 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
         bokehScale: 1
       }
     },
+    */
     // Bloom
+    /*
     {
       effect: BloomEffect,
       options: {
@@ -48,6 +51,7 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
         intensity: 1
       }
     },
+    */
     // Tonemapping
     {
       effect: ToneMappingEffect,
@@ -63,6 +67,7 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
     },
     // DOF
         // // Color Grading
+        /*
         {
           effect: BrightnessContrastEffect,
           options: {
@@ -78,6 +83,7 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
             saturation: -.15
           }
         },
+        */
     // // GodRays
     // {
     //   effect: GodRaysEffect,
