@@ -11,11 +11,21 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
   const deleteArr = []
 
    asset.scene.traverse( mesh => {
+     console.log(mesh.userData.data);
 
      if (mesh.userData.data == "physics") {
        if (mesh.userData.type == "box" || mesh.userData.type == "trimesh") {
+         console.log('ADD COLLIDER');
          deleteArr.push(mesh)
-         addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.quaternion, mesh.scale, mesh)
+         console.log(mesh);
+         if(mesh.type == 'Group') {
+           for (let i = 0; i < mesh.children.length; i++) {
+             addColliderWithoutEntity(mesh.userData.type, mesh.children[i].position, mesh.children[i].quaternion, mesh.children[i].scale, mesh.children[i])
+           }
+         } else if (mesh.type == 'Mesh') {
+           addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.quaternion, mesh.scale, mesh)
+         }
+
        }
      }
 

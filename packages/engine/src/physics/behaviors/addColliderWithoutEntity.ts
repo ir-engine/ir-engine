@@ -59,7 +59,7 @@ export function addColliderWithoutEntity( type, position, rotation, scale, mesh 
 
     body.position.set(
       position.x,
-      position.y -14.8,
+      position.y,
       position.z
     )
 
