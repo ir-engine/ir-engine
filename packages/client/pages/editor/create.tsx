@@ -18,15 +18,15 @@ import { ProjectsContainer, ProjectsHeader, ProjectsSection } from "../../compon
 import ScrollToTop from "../../components/editor/ui/router/ScrollToTop";
 
 
-export default function CreateProjectPage({ history, location }) {
-  const api = useContext(ApiContext);
+export default function CreateProjectPage(props) {
+  // const api = useContext(ApiContext);  
 
-  const queryParams = new URLSearchParams(location.search);
+  // const queryParams = new URLSearchParams(location.search);
 
   const [params, setParams] = useState({
     source: "scene_listings",
-    filter: queryParams.get("filter") || "featured-remixable",
-    q: queryParams.get("q") || ""
+    // filter: queryParams.get("filter") || "featured-remixable",
+    // q: queryParams.get("q") || ""
   });
 
   const updateParams = useCallback(
@@ -41,11 +41,12 @@ export default function CreateProjectPage({ history, location }) {
         search.set(name, nextParams[name]);
       }
 
-      history.push(`/projects/create?${search}`);
+      // history.push(`/projects/create?${search}`);
 
       setParams(nextParams);
     },
-    [history]
+    []
+    // [history]
   );
 
   const onChangeQuery = useCallback(
@@ -91,11 +92,11 @@ export default function CreateProjectPage({ history, location }) {
           <ProjectsContainer>
             <ProjectsHeader>
               <h1>New Project</h1>
-              <PrimaryLink to="/projects">Back to projects</PrimaryLink>
+              <PrimaryLink as="a" href="/editor/projects">Back to projects</PrimaryLink>
             </ProjectsHeader>
             <ProjectGridContainer>
               <ProjectGridHeader>
-                <ProjectGridHeaderRow>
+                {/* <ProjectGridHeaderRow>
                   <Filter onClick={onSetFeaturedRemixable} active={params.filter === "featured-remixable"}>
                     Featured
                   </Filter>
@@ -104,7 +105,7 @@ export default function CreateProjectPage({ history, location }) {
                   </Filter>
                   <Separator />
                   <SearchInput placeholder="Search scenes..." value={params.q} onChange={onChangeQuery} />
-                </ProjectGridHeaderRow>
+                </ProjectGridHeaderRow> */}
                 <ProjectGridHeaderRow>
                   <Button to="/projects/new">
                     New Empty Project
@@ -132,7 +133,7 @@ export default function CreateProjectPage({ history, location }) {
   );
 }
 
-CreateProjectPage.propTypes = {
-  history: PropTypes.object.isRequired,
-  location: PropTypes.object.isRequired
-};
+// CreateProjectPage.propTypes = {
+//   history: PropTypes.object.isRequired,
+//   location: PropTypes.object.isRequired
+// };

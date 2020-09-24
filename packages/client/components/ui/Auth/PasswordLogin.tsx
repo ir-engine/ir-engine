@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-import Link from '@material-ui/core/Link';
+// import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
@@ -146,9 +146,9 @@ export const PasswordLogin = (props: Props): any => {
 
             <Grid item xs>
               {!isAddConnection && (
-                <Link
+                <a
                   href="#"
-                  variant="body2"
+                  // variant="body2"
                   onClick={() =>
                     showDialog({
                       children: <ForgotPassword />
@@ -156,14 +156,14 @@ export const PasswordLogin = (props: Props): any => {
                   }
                 >
                   Forgot password?
-                </Link>
+                </a>
               )}
             </Grid>
             <Grid item>
               {!isAddConnection && (
-                <Link
+                <a
                   href="#"
-                  variant="body2"
+                  // variant="body2"
                   onClick={() =>
                     showDialog({
                       children: <SignUp />
@@ -171,7 +171,7 @@ export const PasswordLogin = (props: Props): any => {
                   }
                 >
                   Don&apos;t have an account? Sign Up
-                </Link>
+                </a>
               )}
             </Grid>
           </Grid>

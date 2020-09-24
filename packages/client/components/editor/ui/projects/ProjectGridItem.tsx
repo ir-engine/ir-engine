@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+// import Link from "next/link";
 import styled from "styled-components";
 import { showMenu } from "../layout/ContextMenu";
 import { MenuButton } from "../inputs/Button";
@@ -11,7 +11,7 @@ function collectMenuProps({ project }) {
   return { project };
 }
 
-const StyledProjectGridItem = (styled as any)(Link)`
+const StyledProjectGridItem = (styled as any).div`
   display: flex;
   flex-direction: column;
   height: 220px;

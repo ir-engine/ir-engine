@@ -140,12 +140,12 @@ const SingleConnection = (props: Props): any => {
     actionBlock = (
       <Box display="flex">
         <Box p={1}>
-          <Link href="#" onClick={disconnect} className={classes.button}>
+          <a href="#" onClick={disconnect} className={classes.button}>
             <Typography variant="h6">{identityProvider.token}</Typography>
             <Typography color="textSecondary" variant="body2">
               (disconnect)
             </Typography>
-          </Link>
+          </a>
         </Box>
         <Box p={1}>
           <Avatar variant="rounded" src="" alt="avatar" />
@@ -158,9 +158,9 @@ const SingleConnection = (props: Props): any => {
     actionBlock = (
       <Box display="flex">
         <Box p={1}>
-          <Link href="#" onClick={connect} className={classes.button}>
+          <a href="#" onClick={connect} className={classes.button}>
             Connect
-          </Link>
+          </a>
         </Box>
       </Box>
     );

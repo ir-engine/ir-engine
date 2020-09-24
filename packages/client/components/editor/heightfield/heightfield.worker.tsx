@@ -20,9 +20,10 @@ function exceedsDensityThreshold(count, subtree, params) {
   return count / volume > triangleThreshold;
 }
 function isHighDensity(subtree, params) {
+  if (!subtree) return false
   if (subtree.count) {
     const result = exceedsDensityThreshold(subtree.count, subtree, params);
-    return result === true ? true : subtree.count;
+    return result === true || subtree.count;
   } else {
     const leftResult = isHighDensity(subtree.left, params);
     if (leftResult === true) return true;
@@ -30,7 +31,7 @@ function isHighDensity(subtree, params) {
     if (rightResult === true) return true;
     const count = leftResult + rightResult;
     const result = exceedsDensityThreshold(count, subtree, params);
-    return result === true ? true : count;
+    return result === true || count;
   }
 }
 function isGeometryHighDensity(geo, params) {
