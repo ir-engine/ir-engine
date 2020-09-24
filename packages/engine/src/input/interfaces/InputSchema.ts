@@ -2,6 +2,7 @@ import { BehaviorValue } from '../../common/interfaces/BehaviorValue';
 import { InputAlias } from '../types/InputAlias';
 import { InputRelationship } from './InputRelationship';
 import { BinaryValue } from '../../common/enums/BinaryValue';
+import { TouchInputs } from '../enums/TouchInputs';
 
 export interface InputSchema {
   // Called by input system when an Input component is added
@@ -19,6 +20,11 @@ export interface InputSchema {
     buttons?: {
       [key: number]: InputAlias
     }
+    axes?: {
+      [key: number]: InputAlias
+    }
+  }
+  touchInputMap?: {
     axes?: {
       [key: number]: InputAlias
     }

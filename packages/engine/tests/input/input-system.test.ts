@@ -4,6 +4,7 @@ import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { addComponent, createEntity, removeComponent } from "../../src/ecs/functions/EntityFunctions";
 import { Input } from "../../src/input/components/Input";
 import { CharacterInputSchema } from "../../src/templates/character/CharacterInputSchema";
+import { LocalInputReceiver } from "../../src/input/components/LocalInputReceiver";
 
 test("cleanup event listeners", () => {
   const addListener = jest.spyOn(document, 'addEventListener')
@@ -12,9 +13,11 @@ test("cleanup event listeners", () => {
   registerSystem(InputSystem, { useWebXR: false });
   const entity = createEntity()
   addComponent(entity, Input, { schema: CharacterInputSchema })
+  addComponent(entity, LocalInputReceiver)
   execute();
 
   expect(removeListener.mock.calls.length).toBe(0)
+  expect(addListener.mock.calls.length).toBeGreaterThan(0)
 
   removeComponent(entity, Input)
   execute();
