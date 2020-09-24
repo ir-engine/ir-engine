@@ -80,6 +80,13 @@ const client = {
     'https://localhost:3000'
 }
 
+const gameserver = {
+  rtc_start_port: process.env.RTC_START_PORT ? parseInt(process.env.RTC_START_PORT) : 40000,
+  rtc_end_port: process.env.RTC_END_PORT ? parseInt(process.env.RTC_END_PORT) : 49999,
+  rtc_port_block_size: process.env.RTC_PORT_BLOCK_SIZE ? parseInt(process.env.RTC_PORT_BLOCK_SIZE) : 100,
+  domain: process.env.GAMESERVER_DOMAIN ?? 'gameserver.xrengine.io'
+}
+
 /**
  * Email / SMTP
  */
@@ -204,6 +211,7 @@ const config = {
   client,
   db,
   email,
+  gameserver,
   server,
   redis
 }

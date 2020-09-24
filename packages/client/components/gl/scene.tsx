@@ -34,17 +34,20 @@ import { connectToInstanceServer, provisionInstanceServer } from '../../redux/in
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
 import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
+import { selectAuthState } from '../../redux/auth/selector';
+import { selectPartyState } from '../../redux/party/selector';
+import { client } from '../../redux/feathers';
 
 import dynamic from 'next/dynamic';
 import { RazerLaptop } from "@xr3ngine/engine/src/templates/interactive/prefabs/RazerLaptop";
 import { InfoBox } from "../infoBox";
 const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
-const locationId = 'e3523270-ddb7-11ea-9251-75ab611a30da';
-const locationId2 = '489ec2b1-f6b2-46b5-af84-92d094927dd7';
 const mapStateToProps = (state: any): any => {
   return {
-    instanceConnectionState: selectInstanceConnectionState(state)
+    instanceConnectionState: selectInstanceConnectionState(state),
+    authState: selectAuthState(state),
+    partyState: selectPartyState(state)
   };
 };
 
@@ -56,7 +59,9 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 export const EnginePage: FunctionComponent = (props: any) => {
   const {
+    authState,
     instanceConnectionState,
+    partyState,
     connectToInstanceServer,
     provisionInstanceServer
   } = props;
@@ -212,7 +217,21 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   useEffect(() => {
     if (instanceConnectionState.get('instanceProvisioned') == false) {
-      provisionInstanceServer(locationId);
+      console.log('authState:')
+      console.log(authState)
+      console.log('partyState:')
+      console.log(partyState)
+      const user = authState.get('user');
+      const party = partyState.get('party');
+      const instanceId = user.instanceId != null ? user.instanceId : party.instanceId != null ? party.instanceId: null;
+      console.log(`INSTANCE ID TO GO TO: ${instanceId}`);
+      if (instanceId != null) {
+        client.service('instance').get(instanceId)
+            .then((instance) => {
+              console.log(`Connecting to location ${instance.locationId}`)
+              provisionInstanceServer(instance.locationId);
+            });
+      }
     }
     else {
       connectToInstanceServer();

@@ -65,6 +65,8 @@ import ResolveMedia from './resolve-media/resolve-media.service'
 // GraphQL
 import GraphQL from './graphql/graphql.service'
 
+import rtcPorts from './rtc-ports/rtc-ports.service';
+
 export default (app: Application): void => {
   // Dynamic types
   app.configure(ChannelType)
@@ -130,4 +132,5 @@ export default (app: Application): void => {
 
   // GraphQL
   app.configure(GraphQL)
+  app.configure(rtcPorts);
 }

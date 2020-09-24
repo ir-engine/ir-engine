@@ -10,6 +10,10 @@ import { UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine
 import * as mediasoupClient from "mediasoup-client";
 import { DataConsumerOptions, DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 import ioclient from "socket.io-client";
+import getConfig from "next/config";
+
+const { publicRuntimeConfig } = getConfig();
+const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://localhost:3030';
 
 const Device = mediasoupClient.Device;
 
@@ -49,7 +53,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // else if (MediaStreamComponent.instance.dataProducers.get(channel)) return Promise.reject(new Error('Data channel already exists!'))
     const dataProducer = await this.sendTransport.produceData({
       appData: { data: customInitInfo }, // Probably Add additional info to send to server
-      ordered: false,
+      ordered: true,
       label: channel,
       maxPacketLifeTime: 3000,
       // maxRetransmits: 3,
@@ -100,15 +104,25 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     };
   }
 
-  public async initialize(address = "https://127.0.0.1", port = 3030): Promise<void> {
+  public async initialize(address = "https://127.0.0.1", port = 3030, opts?: {}): Promise<void> {
     console.log(`Initializing client transport to ${address}:${port}`);
     this.mediasoupDevice = new Device();
 
-    this.socket = ioclient(`${address}:${port}`, {
-      query: {
-        cool: 'pants'
-      }
-    });
+    if (process.env.NODE_ENV === 'development') {
+      this.socket = io(`${address as string}:${port.toString()}`, {
+        query: opts
+      });
+    } else {
+      this.socket = io(gameserver, {
+        path: `/socket.io/${address as string}/${port.toString()}`,
+        query: opts
+      });
+    }
+    // this.socket = ioclient(`${address}:${port}`, {
+    //   query: {
+    //     cool: 'pants'
+    //   }
+    // });
     this.request = this.promisedRequest(this.socket);
 
     // window.screenshare = await this.startScreensharea
@@ -179,6 +193,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     const resp = await this.request(MessageTypes.JoinWorld.toString());
 
     const { worldState, routerRtpCapabilities } = resp as any;
+    console.log('router rtpCapabilities:');
+    console.log(routerRtpCapabilities);
 
     console.log("World state init: ")
     console.log(worldState)
@@ -218,7 +234,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // paused as appropriate, too.
     if(MediaStreamComponent.instance.mediaStream == null)
       await MediaStreamSystem.instance.startCamera();
-      MediaStreamComponent.instance.camVideoProducer = await this.sendTransport.produce({
+    console.log('Video track to send:')
+    console.log(MediaStreamComponent.instance.mediaStream.getVideoTracks()[0]);
+    MediaStreamComponent.instance.camVideoProducer = await this.sendTransport.produce({
       track: MediaStreamComponent.instance.mediaStream.getVideoTracks()[0],
       encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
       appData: { mediaTag: "cam-video" }
@@ -403,6 +421,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag
     );
 
+    console.log('Creating consumer using rtpCapabilities:')
+    console.log(this.mediasoupDevice.rtpCapabilities);
     // ask the server to create a server-side consumer object and send us back the info we need to create a client-side consumer
     const consumerParameters = await this.request(MessageTypes.WebRTCReceiveTrack.toString(),
       { mediaTag, mediaPeerId: peerId, rtpCapabilities: this.mediasoupDevice.rtpCapabilities }
@@ -498,10 +518,17 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // start flowing for the first time. send dtlsParameters to the
     // server, then call callback() on success or errback() on failure.
     transport.on("connect", async ({ dtlsParameters }: any, callback: () => void, errback: () => void) => {
-      const { error } = await this.request(MessageTypes.WebRTCTransportConnect.toString(),
+      console.log('Transport connected')
+      const connectResult = await this.request(MessageTypes.WebRTCTransportConnect.toString(),
       { transportId: transportOptions.id, dtlsParameters }
       );
-      if (error) return errback();
+      console.log('Transport connect result:')
+      console.log(connectResult)
+      if (connectResult.error) {
+        console.log('Transport connect error')
+        console.log(connectResult.error)
+        return errback();
+      }
       callback();
     });
 
@@ -566,8 +593,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
     // any time a transport transitions to closed,
     // failed, or disconnected, leave the  and reset
-    transport.on("connectionstatechange", async (state: string) => {
+    transport.on("connectionstatechange", async (state: string, a: any, b: any) => {
       console.log(`transport ${transport.id} connectionstatechange ${state}`);
+      console.log('A stuff:')
+      console.log(a)
+      console.log('B stuff:')
+      console.log(b)
       // for this simple sample code, assume that transports being
       // closed is an error (we never close these transports except when
       // we leave the )
