@@ -4,9 +4,8 @@ import { Tab, TabBar, TabBarEmpty, TabClose, TabPlus } from './styled-elements';
 
 function last(arr, pre = '') {
   let base = arr.length > 2 ? `${arr[arr.length - 2]}` : '';
-  if (base.indexOf(`${pre}> `) !== 0) {
+  if (base.indexOf(`${pre}> `) !== 0)
     base = 'bash';
-  }
   return base.replace(`${pre}> `, '').split(' ')[0];
 }
 
@@ -39,15 +38,15 @@ class Tabs extends Component<any, any> {
     this.props.createTab();
   };
 
-  // handle clicking a tab
-  handleTabClick = (e, index) => {
+  // Handle clicking a tab.
+  handleTabClick = (e, id) => {
     e.preventDefault();
     e.stopPropagation();
-    this.props.setActiveTab(index);
+    this.props.setActiveTab(id);
   };
 
-  // handle remove clicked
-  handleRemoveClick = (e, id, instance) => {
+  // Handle remove clicked,
+  handleRemoveClick = (e, id) => {
     e.preventDefault();
     e.stopPropagation();
     this.props.removeTab(id);
@@ -55,35 +54,35 @@ class Tabs extends Component<any, any> {
   };
 
   removePlus = () => {
-    if (this.state.showingPlus) {
+    if (this.state.showingPlus)
       this.setState({ showingPlus: false });
-    }
-  }
+  };
 
   showPlus = () => {
-    if (!this.state.showingPlus) {
+    if (!this.state.showingPlus)
       this.setState({ showingPlus: true });
-    }
-  }
+  };
 
   render() {
     const { showingPlus } = this.state;
     const { style, active } = this.props;
-    const tabs = this.context.instances.map(({ index, instance }) => {
-      const title = (instance && instance.state) ? last(instance.state.summary, instance.state.promptPrefix) : 'bash';
+    const tabs = this.context.instances.map(({ id, instance }, index) => {
+      // const title = (instance && instance.state) ?
+      //    last(instance.state.summary, instance.state.promptPrefix) : 'bash';
+      const title = 'Tab' + (index + 1);
       return (
         <Tab
-          key={index}
-          active={active === index}
-          onClick={e => this.handleTabClick(e, index)}
-          onFocus={e => this.handleTabClick(e, index)}
-          title={title}
+          key={id}
+          active={active === id}
+          onClick={e => this.handleTabClick(e, id)}
+          onFocus={e => this.handleTabClick(e, id)}
+          // title={title}
           tabIndex={0}
         >
           {this.context.instances.length > 1 && (
             <TabClose
               title="Close tab"
-              onMouseDown={e => this.handleRemoveClick(e, index, instance)}
+              onMouseDown={e => this.handleRemoveClick(e, id)}
             >
               x
             </TabClose>
