@@ -50,7 +50,8 @@ const options = {
 }
 
 export class WebRTCGameServer {
-  constructor() {
+  constructor(app: any) {
+    (options.networking as any).app = app
     initializeEngine(options)
   }
 }

@@ -316,6 +316,10 @@ gameserver:
   podSecurityContext: {}
   securityContext: {}
 
+  service:
+    type: ClusterIP
+    port: 3030
+
 ########### Subcharts - values here will overwrite the subchart
 
 mariadb:

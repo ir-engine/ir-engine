@@ -2,7 +2,7 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import https from 'https'
 import path from 'path'
-import app from './app/index'
+import app from './app'
 import logger from './app/logger'
 import config from './config'
 

@@ -1,6 +1,5 @@
 import { connectToServer } from "@xr3ngine/engine/src/networking/functions/connectToServer";
 import { Dispatch } from 'redux';
-import io from 'socket.io-client';
 import { client } from '../feathers';
 import {
   instanceServerConnected,
@@ -8,10 +7,6 @@ import {
   socketCreated
 } from './actions';
 import store from "../store";
-import getConfig from "next/config";
-
-const { publicRuntimeConfig } = getConfig();
-const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://localhost:3030';
 
 export function provisionInstanceServer (locationId: string, instanceId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -45,28 +40,31 @@ export function connectToInstanceServer () {
       let socket;
       console.log('Connect to instance server');
       console.log(instance);
-      if (process.env.NODE_ENV === 'development') {
-        socket = io(`${instance.get('ipAddress') as string}:${instance.get('port') as string}`, {
-          query: {
-            locationId: locationId,
-            token: token
-          }
-        });
-      } else {
-        socket = io(gameserver, {
-          path: `/socket.io/${instance.get('ipAddress') as string}/${instance.get('port') as string}`,
-          query: {
-            locationId: locationId,
-            token: token
-          }
-        });
-      }
+      // if (process.env.NODE_ENV === 'development') {
+      //   socket = io(`${instance.get('ipAddress') as string}:${instance.get('port') as string}`, {
+      //     query: {
+      //       locationId: locationId,
+      //       token: token
+      //     }
+      //   });
+      // } else {
+      //   socket = io(gameserver, {
+      //     path: `/socket.io/${instance.get('ipAddress') as string}/${instance.get('port') as string}`,
+      //     query: {
+      //       locationId: locationId,
+      //       token: token
+      //     }
+      //   });
+      // }
       // const instanceClient = feathers();
       // instanceClient.configure(feathers.socketio(socket, { timeout: 10000 }));
-      connectToServer(instance.get('ipAddress'), instance.get('port'));
+      await connectToServer(instance.get('ipAddress'), instance.get('port'), {
+        locationId: locationId,
+        token: token
+      });
       // setClient(instanceClient);
       dispatch(instanceServerConnected());
-      dispatch(socketCreated(socket));
+      // dispatch(socketCreated(socket));
     } catch (err) {
       console.log(err);
     }
