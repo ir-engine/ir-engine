@@ -1,6 +1,6 @@
 // import NavItem from '../NavItem'
 import React, { useEffect } from 'react';
-import Link from 'next/link';
+// import Link from 'next/link';
 
 // import { siteTitle } from '../../../config/server'
 
@@ -41,13 +41,13 @@ export const VideoList = (props: Props): any => {
         {videos.get('videos').map((video: PublicVideo, i: number) => {
           return (
             <div className="box" key={i}>
-              <Link
+              {/* <Link
                 href={
                   '/video?manifest=' + video.url + '&title=' + video.name
                 }
               >
+              </Link> */}
                 {video.name}
-              </Link>
             </div>
           );
         })}

@@ -3,6 +3,8 @@ import dynamic from "next/dynamic";
 
 const EditorContainer = dynamic(() => import("./../../../components/editor/ui/EditorContainer"))
 
-export default (props: any) => {
-  <EditorContainer {...props} />
+const ProjectId = (props: any) => {
+  return <EditorContainer {...props} />
 }
+
+export default ProjectId

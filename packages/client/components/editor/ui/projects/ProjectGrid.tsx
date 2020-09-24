@@ -4,7 +4,7 @@ import styled from "styled-components";
 import ProjectGridItem from "./ProjectGridItem";
 import { Row } from "../layout/Flex";
 import StringInput from "../inputs/StringInput";
-import { Link } from "react-router-dom";
+// import Link from "next/link"
 import { Plus } from "@styled-icons/fa-solid/Plus";
 
 const ProjectGridItemContainer = (styled as any).div`
@@ -32,7 +32,7 @@ const ProjectGridItemContainer = (styled as any).div`
 
 export function NewProjectGridItem({ path, label }) {
   return (
-    <ProjectGridItemContainer as={Link} to={path}>
+    <ProjectGridItemContainer as="a" href={path}>
       <Plus />
       <h3>{label}</h3>
     </ProjectGridItemContainer>
@@ -62,7 +62,7 @@ const StyledProjectGrid = (styled as any).div`
   width: 100%;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 `;
-
+ 
 export function ProjectGrid({ projects, newProjectPath, newProjectLabel, contextMenuId, loading }) {
   return (
     <StyledProjectGrid>

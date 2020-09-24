@@ -5,6 +5,7 @@ import { Button, MediumButton } from "../../components/editor/ui/inputs/Button";
 import { connectMenu, ContextMenu, MenuItem } from "../../components/editor/ui/layout/ContextMenu";
 import { ErrorMessage, ProjectGrid, ProjectGridContainer, ProjectGridContent, ProjectGridHeader, ProjectGridHeaderRow } from "../../components/editor/ui/projects/ProjectGrid";
 import templates from "../../components/editor/ui/projects/templates";
+import Api from "../../components/editor/api/Api"
 export const ProjectsSection = (styled as any).section`
   padding-bottom: 100px;
   display: flex;
@@ -53,14 +54,14 @@ export const ProjectsHeader = (styled as any).div`
 `;
 const contextMenuId = "project-menu";
 type ProjectsPageProps = {
-  api: object;
+  api: Api;
   history: object;
 };
-type ProjectsPageState = { projects: any; loading: boolean } & {
+type ProjectsPageState = { projects: any; } & {
   error: any;
   loading: boolean;
 } & ((error: any) => any) & {
-    projects: undefined[];
+    projects: any[];
     loading: any;
     isAuthenticated: any;
     error: null;
@@ -68,37 +69,40 @@ type ProjectsPageState = { projects: any; loading: boolean } & {
 class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
   constructor(props: ProjectsPageProps) {
     super(props);
-    const isAuthenticated = (this.props as any).api.isAuthenticated();
+    console.warn("PROPS: ", props)
+    // const isAuthenticated = (this.props as any).api.isAuthenticated();
+    const isAuthenticated = true
     this.state = {
       projects: [],
-      loading: isAuthenticated,
+      loading: false,
       isAuthenticated,
       error: null
     };
   }
-  componentDidMount() {
+  componentDidMount() { // TODO: Fix React Context
     // We dont need to load projects if the user isn't logged in
-    if (this.state.isAuthenticated) {
-      (this.props as any).api
-        .getProjects()
-        .then(projects => {
-          this.setState({
-            projects: projects.map(project => ({
-              ...project,
-              url: `/projects/${project.project_id}`
-            })),
-            loading: false
-          });
-        })
-        .catch(error => {
-          console.error(error);
-          if (error.response && error.response.status === 401) {
-            // User has an invalid auth token. Prompt them to login again.
-            return (this.props as any).history.push("/", { from: "/projects" });
-          }
-          this.setState({ error, loading: false });
-        });
-    }
+    // if (this.state.isAuthenticated) {
+    //   (this.props as any).api
+    //     .getProjects()
+    //     .then(projects => {
+    //       this.setState({
+    //         projects: projects.map(project => ({
+    //           ...project,
+    //           url: `/projects/${project.project_id}`
+    //         })),
+    //         loading: false
+    //       });
+    //     })
+    //     .catch(error => {
+    //       console.error(error);
+    //       if (error.response && error.response.status === 401) {
+    //         // User has an invalid auth token. Prompt them to login again.
+    //         return (this.props as any).history.push("/", { from: "/projects" });
+    //       }
+    //       this.setState({ error, loading: false });
+    //     });
+    // }
+    console.warn("PROJECTS PAGE PROPS: ", this.props)
   }
   onDeleteProject = project => {
     (this.props as any).api
@@ -126,7 +130,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
   };
   ProjectContextMenu = connectMenu(contextMenuId)(this.renderContextMenu);
   render() {
-    const { error, loading, projects, isAuthenticated } = this.state as any;
+    const { error, loading, projects } = this.state as any;
     const ProjectContextMenu = this.ProjectContextMenu;
     const topTemplates = [];
     for (let i = 0; i < templates.length && i < 4; i++) {
@@ -135,7 +139,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
     return (
       <>
         <main>
-          {!isAuthenticated || (projects.length === 0 && !loading) ? (
+          {(projects.length === 0 && !loading) ? (
             <ProjectsSection flex={0}>
               <WelcomeContainer>
                 <h1>Welcome</h1>
@@ -144,7 +148,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
                   tutorial. Otherwise, jump right in and create a project from
                   scratch or from one of our templates.
                 </h2>
-                <MediumButton to="/projects/tutorial">
+                <MediumButton as="a" href="projects/tutorial">
                   Start Tutorial
                 </MediumButton>
               </WelcomeContainer>
@@ -159,7 +163,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
                 <ProjectGridHeader>
                   <ProjectGridHeaderRow />
                   <ProjectGridHeaderRow>
-                    <Button to="/projects/create">
+                    <Button as="a" href="projects/create">
                       New Project
                     </Button>
                   </ProjectGridHeaderRow>

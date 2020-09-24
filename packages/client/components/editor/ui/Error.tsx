@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+// import Link from "next/link";
 import styled from "styled-components";
 
 const StyledError = (styled as any).div`
@@ -26,9 +26,9 @@ export default class Error extends Component {
   render() {
     return (
       <StyledError>
-        <Link to="/">
+        <a href="/">
           Return
-        </Link>
+        </a>
         {(this.props as any).message}
       </StyledError>
     );
