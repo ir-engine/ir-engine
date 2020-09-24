@@ -11,6 +11,7 @@ export class VehicleBody extends Component<VehicleBody> {
   vehiclePhysics: RaycastVehicle
   vehicleCollider: any
   vehicleSphereColliders: any
+  vehicleDoorsArray: any
 
   arrayWheelsMesh: any
   arrayWheelsPosition: any
@@ -37,6 +38,7 @@ VehicleBody.schema = {
   vehiclePhysics: { type: Types.Ref, default: null },
   vehicleCollider: { type: Types.Ref, default: null },
   vehicleSphereColliders: { type: Types.Ref, default: [] },
+  vehicleDoorsArray: { type: Types.Ref, default: [] },
 
   arrayWheelsMesh: { type: Types.Ref, default: [] },
   arrayWheelsPosition: { type: Types.Ref, default: [] },

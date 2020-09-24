@@ -53,7 +53,7 @@ export const CarController: Prefab = {
                       addCarPhysics(entityIn, args, delta, entityOut);
                       changeColor(entityIn, {
                         materialName: "Main",
-                        color: new Color(0.5,0,0)
+                        color: new Color(1,1,1)
                       })
                     }
                 }
