@@ -22,4 +22,7 @@ export const getInCar: Behavior = (entity: Entity, args: { value: Vector2 }, del
   addState(entity, {state: CharacterStateTypes.ENTER_VEHICLE})
   addComponent(entity, PlayerInCar, { entityCar: entityCar })
 
+  const event = new CustomEvent('player-in-car', { detail:{inCar:true} });
+  document.dispatchEvent(event);
+
 };
