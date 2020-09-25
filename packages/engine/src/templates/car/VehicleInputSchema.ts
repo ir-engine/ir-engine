@@ -166,6 +166,7 @@ export const VehicleInputSchema: InputSchema = {
       // [MouseButtons.MiddleButton]: DefaultInput.INTERACT
     },
     axes: {
+      [MouseInput.MouseMovement]: DefaultInput.MOUSE_MOVEMENT,
       [MouseInput.MousePosition]: DefaultInput.SCREENXY,
       [MouseInput.MouseClickDownPosition]: DefaultInput.SCREENXY_START,
       [MouseInput.MouseClickDownTransformRotation]: DefaultInput.ROTATION_START
