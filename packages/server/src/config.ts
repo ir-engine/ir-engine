@@ -82,8 +82,9 @@ const client = {
 
 const gameserver = {
   rtc_start_port: process.env.RTC_START_PORT ? parseInt(process.env.RTC_START_PORT) : 40000,
-  rtc_end_port: process.env.RTC_END_PORT ? parseInt(process.env.RTC_END_PORT) : 49999,
+  rtc_end_port: process.env.RTC_END_PORT ? parseInt(process.env.RTC_END_PORT) : 40499,
   rtc_port_block_size: process.env.RTC_PORT_BLOCK_SIZE ? parseInt(process.env.RTC_PORT_BLOCK_SIZE) : 100,
+  identifierDigits: 5,
   domain: process.env.GAMESERVER_DOMAIN ?? 'gameserver.xrengine.io'
 }
 
@@ -170,6 +171,13 @@ const aws = {
   keys: {
     accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID ?? '',
     secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET ?? ''
+  },
+  route53: {
+    hostedZoneId: process.env.ROUTE53_HOSTED_ZONE_ID ?? '',
+    keys: {
+      accessKeyId: process.env.ROUTE53_ACCESS_KEY_ID ?? '',
+      secretAccessKey: process.env.ROUTE53_ACCESS_KEY_SECRET ?? ''
+    }
   },
   s3: {
     baseUrl: 'https://s3.amazonaws.com',
