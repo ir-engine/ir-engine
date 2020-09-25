@@ -1,15 +1,6 @@
-.gap {
-    flex-grow: 1;
-}
-.flex {
-    display: flex;
-    align-items: center;
-}
-
 .bottom-appbar {
     box-shadow: none!important;
     background-color: rgba(0, 0, 0, 0)!important;
-    color: rgba(0, 0, 0, 0)!important;
     padding: 1em;
     flex-direction: column;
     align-items: flex-start;
@@ -17,14 +8,7 @@
     max-width: 8em;
     left: 0 !important;
     top: auto !important;
-
-    button {
-        background-color: #3886a8;
+    button{
+        margin: 5px 0px;
     }
-}
-
-.logo {
-    height: 3em;
-    width: auto;
-    cursor: pointer;
 }
