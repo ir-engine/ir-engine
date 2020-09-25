@@ -46,7 +46,7 @@ const ConfirmEmail = ({ auth, resendVerificationEmail }: Props): any => {
             <Typography variant="body2" color="textSecondary" align="center">
                 Please check your email to verify your account.
                 If you didn&apos;t get an email, please click
-              <Button onClick={(e) => handleResendEmail(e)}>here</Button> to resend the verification email.
+              <Button variant="contained" color="primary" onClick={(e) => handleResendEmail(e)}>here</Button> to resend the verification email.
             </Typography>
           </Box>
         </div>
