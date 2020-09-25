@@ -59,7 +59,8 @@ export const RazerLaptop: Prefab = {
             buyUrl: 'https://www.razer.com/product-added/RZ09-03102E52-R3U1',
             learnMoreUrl: 'https://www.razer.com/gaming-laptops/razer-blade',
             modelUrl: 'assets/models/razer_laptop.glb'
-          }
+          },
+          interactionText: 'View product info'
         }
       }
     }
