@@ -68,10 +68,10 @@ export const EnginePage: FunctionComponent = (props: any) => {
     console.log('initializeEngine!');
 
     const onObjectHover = (event: CustomEvent): void => {
-      if (event.detail.focused && event.detail.payload?.name) {
-        setHoveredLabel(String(event.detail.payload.name));
+      if (event.detail.focused && event.detail.interactionText) {
+        setHoveredLabel(String(event.detail.interactionText));
       } else {
-        setHoveredLabel('');
+        setHoveredLabel('Activate');
       }
     };
     const onObjectActivation = (event: CustomEvent): void => {
@@ -256,7 +256,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   const infoBox = infoBoxData? <InfoBox onClose={() => { setInfoBoxData(null) }} data={infoBoxData} /> : null;
 
-  const hoveredLabelElement = hoveredLabel.length? <div style={{ position: "fixed", top:"50%", left:"50%", backgroundColor:"white" }}>{hoveredLabel}</div> : null;
+  const hoveredLabelElement = hoveredLabel.length > 0 ? <div style={{ position: "fixed", top:"60%", left:"48%", color:"#FFFFFF", fontWeight:'bold' }}>Press <span className="keyItem" style={{ color:"yellow"}}>E</span> to {hoveredLabel}</div> : null;
 
   return (
     <>

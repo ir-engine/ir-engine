@@ -12,6 +12,7 @@ export const onInteraction:Behavior = (entityInitiator, args, delta, entityInter
     if (typeof interactiveComponent.data.action !== 'undefined') {
       detail.action = interactiveComponent.data.action
       detail.payload = interactiveComponent.data.payload
+      detail.interactionText = interactiveComponent.data.interactionText
     }
   }
 
@@ -28,6 +29,7 @@ export const onInteractionHover:Behavior = (entityInitiator, { focused }:{ focus
     if (typeof interactiveComponent.data.action !== 'undefined') {
       detail.action = interactiveComponent.data.action
       detail.payload = interactiveComponent.data.payload
+      detail.interactionText = interactiveComponent.data.interactionText
     }
   }
 
