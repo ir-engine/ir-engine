@@ -174,7 +174,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
           (this.app as any).instance = null;
           return getLocalServerIp();
         }
-        const serverResult = await (this.app as any).k8Client.get('gameservers')
+        const serverResult = await (this.app as any).k8DefaultClient.get('gameservers')
         const readyServers = _.filter(serverResult.items, (server: any) => server.status.state === 'Ready')
         const server = readyServers[Math.floor(Math.random() * readyServers.length)]
         if (server == null) {

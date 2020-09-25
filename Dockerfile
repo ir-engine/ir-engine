@@ -1,8 +1,11 @@
 # not slim because we need github depedencies
 FROM node:12.16-buster
 
+RUN echo "deb [arch=amd64] http://nginx.org/packages/mainline/ubuntu/ eoan nginx\ndeb-src http://nginx.org/packages/mainline/ubuntu/ eoan nginx" >> /etc/apt/sources.list.d/nginx.list
+RUN wget http://nginx.org/keys/nginx_signing.key
+RUN apt-key add nginx_signing.key
 # ffmpeg 4+ is required
-RUN apt update && apt install -y ffmpeg=*:4.**
+RUN apt update && apt install -y ffmpeg=*:4.** nginx
 # Create app directory
 WORKDIR /app
 

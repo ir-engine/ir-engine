@@ -85,6 +85,20 @@ spec:
             initialDelaySeconds: 60
           resources:
             {{- toYaml .Values.api.resources | nindent 12 }}
+      initContainers:
+        - name: init-redis
+          image: busybox:1.28
+          command: [ 'sh', '-c', 'until (printf "AUTH $REDIS_PASSWORD\r\nPING\r\n";) | nc $REDIS_ADDRESS $REDIS_PORT ; do echo waiting for redis-master; sleep 2; done' ]
+          env:
+            - name: REDIS_ADDRESS
+              value: "$({{ .Release.Name | upper }}_REDIS_MASTER_SERVICE_HOST)"
+            - name: REDIS_PORT
+              value: "$({{ .Release.Name | upper }}_REDIS_MASTER_SERVICE_PORT)"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-redis
+                  key: redis-password
       {{- with .Values.api.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

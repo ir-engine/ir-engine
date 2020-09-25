@@ -212,7 +212,7 @@
     "@types/serve-favicon": "^2.5.0",
     "@types/universal-analytics": "^0.4.4",
     "@types/uuid": "^7.0.3",
-    "@types/validator": "^13.0.0",
+    "@types/validator": "^10.0.0",
     "@types/youtube-dl": "^1.12.2",
     "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.34.0",
