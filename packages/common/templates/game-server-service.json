@@ -5,7 +5,7 @@
     "name": ""
   },
   "spec": {
-    "type": "LoadBalancer",
+    "type": "NodePort",
     "ports": [],
     "selector": {}
   }

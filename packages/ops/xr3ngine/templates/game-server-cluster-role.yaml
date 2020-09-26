@@ -18,7 +18,7 @@ rules:
       - list
       - watch
       - create
-      - patch
+      - update
       - delete
   - apiGroups:
     - "networking.k8s.io"
@@ -40,11 +40,10 @@ rules:
       - configmap
       - gameservers
       - gameserver
-      - gameservers.agones.dev
       - gameserversets
     verbs:
       - get
-      - patch
+      - update
       - list
       - watch
 {{- end }}

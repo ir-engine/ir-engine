@@ -29,6 +29,7 @@ import LoginToken from './login-token/login-token.service'
 import Location from './location/location.service'
 import Party from './party/party.service'
 import Project from './project/project.service'
+import RtcPorts from './rtc-ports/rtc-ports.service'
 import Seat from './seat/seat.service'
 import StaticResource from './static-resource/static-resource.service'
 import User from './user/user.service'
@@ -96,6 +97,7 @@ export default (app: Application): void => {
   app.configure(LoginToken)
   app.configure(Party)
   app.configure(Project)
+  app.configure(RtcPorts)
   app.configure(Seat)
   app.configure(StaticResource)
   app.configure(Subscription)
