@@ -4,7 +4,7 @@ import configs from "../configs";
 import GlobalStyle from "./GlobalStyle";
 import Loading from "./Loading";
 import Error from "./Error";
-import { ApiContextProvider } from "./contexts/ApiContext";
+// import { ApiContextProvider } from "./contexts/ApiContext";
 import dynamic from "next/dynamic"
 // import RedirectRoute from "./router/RedirectRoute";
 import ProjectsPage from "./projects/ProjectsPage";
@@ -47,8 +47,8 @@ export default class App extends Component<AppProps, AppState> {
   render() {
     const api = this.props.api;
     return (
-      <ApiContextProvider value={api}>
-        <ThemeProvider theme={theme}>
+      // <ApiContextProvider value={api}>
+        // <ThemeProvider theme={theme}>
           {/* <Router basename={process.env.ROUTER_BASE_PATH}>
             <GlobalStyle />
             <Column
@@ -75,8 +75,8 @@ export default class App extends Component<AppProps, AppState> {
               </Switch>
             </Column>
           </Router> */}
-        </ThemeProvider>
-      </ApiContextProvider>
+        // </ThemeProvider>
+      // </ApiContextProvider>
     );
   }
 }

@@ -5,6 +5,7 @@ import ProjectGridItem from "./ProjectGridItem";
 import { Row } from "../layout/Flex";
 import StringInput from "../inputs/StringInput";
 // import Link from "next/link"
+import { useRouter } from "next/router"
 import { Plus } from "@styled-icons/fa-solid/Plus";
 
 const ProjectGridItemContainer = (styled as any).div`
@@ -30,9 +31,14 @@ const ProjectGridItemContainer = (styled as any).div`
   }
 `;
 
-export function NewProjectGridItem({ path, label }) {
+export function NewProjectGridItem({ path, label }: { path: string, label: string }) {
+  const router = useRouter()
+  
+  const routeTo = (route: string) => () => {
+    router.push(route)
+  }
   return (
-    <ProjectGridItemContainer as="a" href={path}>
+    <ProjectGridItemContainer as="button" onClick={routeTo(path)}>
       <Plus />
       <h3>{label}</h3>
     </ProjectGridItemContainer>

@@ -16,17 +16,19 @@ import {
 } from "../../components/editor/ui/projects/ProjectGrid";
 import { ProjectsContainer, ProjectsHeader, ProjectsSection } from "../../components/editor/ui/projects/ProjectsPage";
 import ScrollToTop from "../../components/editor/ui/router/ScrollToTop";
+import { useRouter } from "next/router"
 
 
 export default function CreateProjectPage(props) {
-  // const api = useContext(ApiContext);  
+  const api = useContext(ApiContext);
+  const router = useRouter()
 
-  // const queryParams = new URLSearchParams(location.search);
+  const queryParams = new Map(Object.entries(router.query))
 
   const [params, setParams] = useState({
     source: "scene_listings",
-    // filter: queryParams.get("filter") || "featured-remixable",
-    // q: queryParams.get("q") || ""
+    filter: queryParams.get("filter") || "featured-remixable",
+    q: queryParams.get("q") || ""
   });
 
   const updateParams = useCallback(
@@ -42,6 +44,7 @@ export default function CreateProjectPage(props) {
       }
 
       // history.push(`/projects/create?${search}`);
+      router.push(`/projects/create?${search}`);
 
       setParams(nextParams);
     },
@@ -96,16 +99,16 @@ export default function CreateProjectPage(props) {
             </ProjectsHeader>
             <ProjectGridContainer>
               <ProjectGridHeader>
-                {/* <ProjectGridHeaderRow>
-                  <Filter onClick={onSetFeaturedRemixable} active={params.filter === "featured-remixable"}>
+                <ProjectGridHeaderRow>
+                  <Filter onClick={onSetFeaturedRemixable}>
                     Featured
                   </Filter>
-                  <Filter onClick={onSetAll} active={params.filter === "remixable"}>
+                  <Filter onClick={onSetAll}>
                     All
                   </Filter>
                   <Separator />
-                  <SearchInput placeholder="Search scenes..." value={params.q} onChange={onChangeQuery} />
-                </ProjectGridHeaderRow> */}
+                  <SearchInput placeholder="Search scenes..." onChange={onChangeQuery} />
+                </ProjectGridHeaderRow>
                 <ProjectGridHeaderRow>
                   <Button to="/projects/new">
                     New Empty Project

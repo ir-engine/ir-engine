@@ -6,9 +6,8 @@ import { Provider } from 'react-redux';
 import { fromJS } from 'immutable';
 import { configureStore } from '../redux/store';
 import { Store } from 'redux';
-import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import theme from '../theme';
+import theme, { ThemeContext } from "./../components/editor/ui/theme";
 import { restoreState } from '../redux/persisted.store';
 import { doLoginAuto } from '../redux/auth/service';
 import DeviceDetector from 'device-detector-js';
@@ -20,7 +19,7 @@ import querystring from 'querystring';
 import { dispatchAlertError } from '../redux/alert/service';
 
 import getConfig from 'next/config';
-import { ApiContextProvider } from '../components/editor/ui/contexts/ApiContext';
+import { ApiContext } from '../components/editor/ui/contexts/ApiContext';
 import Api from "../components/editor/api/Api"
 
 const config = getConfig().publicRuntimeConfig;
@@ -84,14 +83,14 @@ const MyApp = (props: Props): any => {
           content="minimum-scale=1, initial-scale=1, width=device-width"
         />
       </Head>
-      <ApiContextProvider value={api || {}}>
-        <ThemeProvider theme={theme}>
+      <ThemeContext.Provider value={theme}>
+        <ApiContext.Provider value={api}>
           <CssBaseline />
           <Provider store={store}>
-            <Component />
+            <Component {...pageProps} />
           </Provider>
-        </ThemeProvider>
-      </ApiContextProvider>
+        </ApiContext.Provider>
+      </ThemeContext.Provider>
     </Fragment>
   )
 };

@@ -11,7 +11,7 @@ function collectMenuProps({ project }) {
   return { project };
 }
 
-const StyledProjectGridItem = (styled as any).div`
+const StyledProjectGridItem = styled.div`
   display: flex;
   flex-direction: column;
   height: 220px;
@@ -26,7 +26,7 @@ const StyledProjectGridItem = (styled as any).div`
   }
 `;
 
-const StyledContextMenuTrigger = (styled as any)(StylableContextMenuTrigger)`
+const StyledContextMenuTrigger = styled(StylableContextMenuTrigger)`
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -34,7 +34,7 @@ const StyledContextMenuTrigger = (styled as any)(StylableContextMenuTrigger)`
   border-top-right-radius: inherit;
 `;
 
-const TitleContainer = (styled as any).div`
+const TitleContainer = styled.div`
   display: flex;
   height: 50px;
   align-items: center;
@@ -128,14 +128,14 @@ export default class ProjectGridItem extends Component {
 
     if (contextMenuId) {
       return (
-        <StyledProjectGridItem to={project.url}>
+        <StyledProjectGridItem as="a" href={project.url}>
           <StyledContextMenuTrigger id={contextMenuId} project={project} collect={collectMenuProps} holdToDisplay={-1}>
             {content}
           </StyledContextMenuTrigger>
         </StyledProjectGridItem>
       );
     } else {
-      return <StyledProjectGridItem to={project.url}>{content}</StyledProjectGridItem>;
+      return <StyledProjectGridItem as="a" href={project.url}>{content}</StyledProjectGridItem>;
     }
   }
 }

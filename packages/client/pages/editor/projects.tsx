@@ -6,7 +6,8 @@ import { connectMenu, ContextMenu, MenuItem } from "../../components/editor/ui/l
 import { ErrorMessage, ProjectGrid, ProjectGridContainer, ProjectGridContent, ProjectGridHeader, ProjectGridHeaderRow } from "../../components/editor/ui/projects/ProjectGrid";
 import templates from "../../components/editor/ui/projects/templates";
 import Api from "../../components/editor/api/Api"
-export const ProjectsSection = (styled as any).section`
+import { Router, withRouter } from "next/router"
+export const ProjectsSection = styled.section<{ flex?: number }>`
   padding-bottom: 100px;
   display: flex;
   flex: ${props => (props.flex === undefined ? 1 : props.flex)};
@@ -23,7 +24,7 @@ export const ProjectsSection = (styled as any).section`
     font-size: 16px;
   }
 `;
-export const ProjectsContainer = (styled as any).div`
+export const ProjectsContainer = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -31,7 +32,7 @@ export const ProjectsContainer = (styled as any).div`
   max-width: 1200px;
   padding: 0 20px;
 `;
-const WelcomeContainer = (styled as any)(ProjectsContainer)`
+const WelcomeContainer = styled(ProjectsContainer)`
   align-items: center;
 
   & > * {
@@ -46,7 +47,7 @@ const WelcomeContainer = (styled as any)(ProjectsContainer)`
     max-width: 480px;
   }
 `;
-export const ProjectsHeader = (styled as any).div`
+export const ProjectsHeader = styled.div`
   margin-bottom: 36px;
   display: flex;
   justify-content: space-between;
@@ -56,6 +57,7 @@ const contextMenuId = "project-menu";
 type ProjectsPageProps = {
   api: Api;
   history: object;
+  router: Router;
 };
 type ProjectsPageState = { projects: any; } & {
   error: any;
@@ -69,9 +71,7 @@ type ProjectsPageState = { projects: any; } & {
 class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
   constructor(props: ProjectsPageProps) {
     super(props);
-    console.warn("PROPS: ", props)
-    // const isAuthenticated = (this.props as any).api.isAuthenticated();
-    const isAuthenticated = true
+    const isAuthenticated = (this.props as any).api.isAuthenticated();
     this.state = {
       projects: [],
       loading: false,
@@ -79,43 +79,46 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
       error: null
     };
   }
-  componentDidMount() { // TODO: Fix React Context
-    // We dont need to load projects if the user isn't logged in
-    // if (this.state.isAuthenticated) {
-    //   (this.props as any).api
-    //     .getProjects()
-    //     .then(projects => {
-    //       this.setState({
-    //         projects: projects.map(project => ({
-    //           ...project,
-    //           url: `/projects/${project.project_id}`
-    //         })),
-    //         loading: false
-    //       });
-    //     })
-    //     .catch(error => {
-    //       console.error(error);
-    //       if (error.response && error.response.status === 401) {
-    //         // User has an invalid auth token. Prompt them to login again.
-    //         return (this.props as any).history.push("/", { from: "/projects" });
-    //       }
-    //       this.setState({ error, loading: false });
-    //     });
-    // }
+  componentDidMount() {
     console.warn("PROJECTS PAGE PROPS: ", this.props)
+    // We dont need to load projects if the user isn't logged in
+    if (this.state.isAuthenticated) {
+      this.props.api.getProjects()
+        .then(projects => {
+          this.setState({
+            projects: projects.map(project => ({
+              ...project,
+              url: `/projects/${project.project_id}`
+            })),
+            loading: false
+          });
+        })
+        .catch(error => {
+          console.error(error);
+          if (error.response && error.response.status === 401) {
+            // User has an invalid auth token. Prompt them to login again.
+            // return (this.props as any).history.push("/", { from: "/projects" });
+            return
+          }
+          this.setState({ error, loading: false });
+        });
+    }
   }
   onDeleteProject = project => {
-    (this.props as any).api
+    this.props.api
       .deleteProject(project.project_id)
       .then(() =>
         this.setState({
           projects: this.state.projects.filter(
-            p => p.project_id !== project.project_id
-          )
+            (p) => p.project_id !== project.project_id
+          ),
         })
       )
-      .catch(error => this.setState({ error }));
+      .catch((error) => this.setState({ error }))
   };
+  routeTo = (route: string) => () => {
+    this.props.router.push(route)
+  }
   renderContextMenu = props => {
     return (
       <>
@@ -130,7 +133,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
   };
   ProjectContextMenu = connectMenu(contextMenuId)(this.renderContextMenu);
   render() {
-    const { error, loading, projects } = this.state as any;
+    const { error, loading, projects } = this.state;
     const ProjectContextMenu = this.ProjectContextMenu;
     const topTemplates = [];
     for (let i = 0; i < templates.length && i < 4; i++) {
@@ -148,7 +151,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
                   tutorial. Otherwise, jump right in and create a project from
                   scratch or from one of our templates.
                 </h2>
-                <MediumButton as="a" href="projects/tutorial">
+                <MediumButton onClick={this.routeTo("projects/tutorial")}>
                   Start Tutorial
                 </MediumButton>
               </WelcomeContainer>
@@ -163,7 +166,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
                 <ProjectGridHeader>
                   <ProjectGridHeaderRow />
                   <ProjectGridHeaderRow>
-                    <Button as="a" href="projects/create">
+                    <Button onClick={this.routeTo("projects/create")}>
                       New Project
                     </Button>
                   </ProjectGridHeaderRow>
@@ -188,4 +191,5 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
     );
   }
 }
-export default withApi(ProjectsPage);
+
+export default withRouter(withApi(ProjectsPage));
