@@ -160,6 +160,47 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         }
     }
 
+    async getRtcPortRange(startPort: number, blockSize: number): Promise<RtcPortRange> {
+        try {
+            console.log('getRtcPortRange')
+            const portBlockResult = await this.app.service('rtc-ports').find({
+                query: {
+                    start_port: startPort,
+                    end_port: startPort + blockSize - 1
+                }
+            })
+            console.log(portBlockResult)
+            if ((portBlockResult as any).total === 0) {
+                await this.app.service('rtc-ports').create({
+                    allocated: true,
+                    start_port: startPort,
+                    end_port: startPort + blockSize - 1
+                });
+
+                return (this.app as any).portRange = {
+                    startPort: startPort,
+                    endPort: startPort + blockSize - 1
+                };
+            } else {
+                const block = (portBlockResult as any).data[0]
+                if (block.allocated === true || block.allocated === 1) {
+                    return this.getRtcPortRange(startPort + blockSize, blockSize);
+                }
+                await this.app.service('rtc-ports').patch(block.id, {
+                    allocated: true
+                });
+
+                return (this.app as any).portRange = {
+                    startPort: startPort,
+                    endPort: startPort + blockSize - 1
+                };
+            }
+        } catch(err) {
+            console.log('get RTC port range error')
+            console.log(err)
+        }
+    }
+
     async getFreeSubdomain(gsIdentifier: string, subdomainNumber: number): Promise<string> {
         try {
             console.log('getFreeSubdomain')
@@ -203,19 +244,23 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
             let stringSubdomainNumber;
             if (process.env.KUBERNETES === 'true') {
-                const nginxMainConf = await fs.promises.readFile('/app/packages/common/templates/nginx.conf.template');
-                const nginxHttpConf = await fs.promises.readFile('/app/packages/common/templates/nginx-http.conf.template');
-                const nginxStreamConf = await fs.promises.readFile('/app/packages/common/templates/nginx-stream.conf.template');
-                await fs.promises.writeFile('/etc/nginx/nginx.conf', nginxMainConf);
-                await fs.promises.writeFile('/etc/nginx/conf.d/http.conf', nginxHttpConf);
-                await fs.promises.writeFile('/etc/nginx/conf.d/stream.conf', nginxStreamConf);
-                await new Promise((resolve, reject) => {
-                    exec('service nginx restart', (err, stdout, stderr) => {
-                        if (err) reject(err);
-                        resolve(stdout ? stdout : stderr);
-                    })
-                });
-
+                // const nginxMainConf = await fs.promises.readFile('/app/packages/common/templates/nginx.conf.template');
+                // const nginxHttpConf = await fs.promises.readFile('/app/packages/common/templates/nginx-http.conf.template');
+                // const nginxStreamConf = await fs.promises.readFile('/app/packages/common/templates/nginx-stream.conf.template');
+                // await fs.promises.writeFile('/etc/nginx/nginx.conf', nginxMainConf);
+                // await fs.promises.writeFile('/etc/nginx/conf.d/http.conf', nginxHttpConf);
+                // await fs.promises.writeFile('/etc/nginx/conf.d/stream.conf', nginxStreamConf);
+                // await new Promise((resolve, reject) => {
+                //     exec('service nginx restart', (err, stdout, stderr) => {
+                //         if (err) reject(err);
+                //         resolve(stdout ? stdout : stderr);
+                //     })
+                // });
+                const {startPort, endPort} = await this.getRtcPortRange(config.gameserver.rtc_start_port, config.gameserver.rtc_port_block_size);
+                console.log(`startPort: ${startPort}`)
+                console.log(`endPort: ${endPort}`)
+                localConfig.mediasoup.worker.rtcMinPort = startPort;
+                localConfig.mediasoup.worker.rtcMaxPort = endPort;
                 const service = gameserverServiceTemplate;
                 const gs = await (this.app as any).agonesSDK.getGameServer();
                 const name = gs.objectMeta.name;
@@ -258,7 +303,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                                     Name: `${stringSubdomainNumber}.${config.gameserver.domain}`,
                                     ResourceRecords: [
                                         {
-                                            Value: servicePostResult.externalIp
+                                            Value: servicePostResult?.status?.loadBalancer?.externalIp ?? '192.168.99.101'
                                         }
                                     ],
                                     TTL: 15,
