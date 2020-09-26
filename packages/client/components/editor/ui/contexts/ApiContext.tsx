@@ -1,11 +1,11 @@
 import React from "react";
-export const ApiContext = React.createContext({});
-export const ApiContextProvider = ApiContext.Provider;
+import Api from "../../api/Api";
+export const ApiContext = React.createContext<Api | undefined>(undefined);
 export function withApi(Component) {
   return function ApiContextComponent(props) {
     return (
       <ApiContext.Consumer>
-        {api => <Component {...props} api={api} />}
+        {api => api ? <Component {...props} api={api} /> : <React.Fragment />}
       </ApiContext.Consumer>
     );
   };

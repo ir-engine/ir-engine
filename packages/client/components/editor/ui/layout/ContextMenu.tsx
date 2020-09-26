@@ -7,21 +7,16 @@ import {
   SubMenu as _SubMenu,
   ContextMenuTrigger as _ContextMenuTrigger
 } from "react-contextmenu";
+import { Theme, ThemeContext } from "./../theme"
 import { createGlobalStyle } from "styled-components";
 export const connectMenu = _connectMenu;
 export const MenuItem = _MenuItem;
 export const showMenu = _showMenu;
 export const SubMenu = _SubMenu;
 export const ContextMenuTrigger = _ContextMenuTrigger;
-// background-color: ${props => (props.theme as any).dropdown};
-// box-shadow: ${props => (props.theme as any).shadow30};
-// color: ${props => (props.theme as any).text};
-// background-color: ${props => (props.theme as any).selected};
-// color: ${props => (props.theme as any).text};
-// border-bottom: 1px solid ${props => (props.theme as any).theme.border};
-
-export const ContextMenuStyles = createGlobalStyle`
+export const ContextMenuStyles = createGlobalStyle<{ theme: Theme}>`
   .react-contextmenu {
+    background-color: ${props => props.theme.dropdown};
     background-clip: padding-box;
     border-radius: 4px;
     margin: 2px 0 0;
@@ -31,6 +26,7 @@ export const ContextMenuStyles = createGlobalStyle`
     padding: 4px 0;
     pointer-events: none;
     text-align: left;
+    box-shadow: ${props => props.theme.shadow30};
   }
 
   .react-contextmenu.react-contextmenu--visible {
@@ -50,10 +46,13 @@ export const ContextMenuStyles = createGlobalStyle`
     display: flex;
     flex: 1;
     justify-content: space-between;
+    color: ${props => props.theme.text};
   }
 
   .react-contextmenu-item.react-contextmenu-item--active,
   .react-contextmenu-item.react-contextmenu-item--selected {
+    color: ${props => props.theme.text};
+    background-color: ${props => props.theme.selected};
     border-color: transparent;
     text-decoration: none;
   }
@@ -62,9 +61,11 @@ export const ContextMenuStyles = createGlobalStyle`
   .react-contextmenu-item.react-contextmenu-item--disabled:hover {
     background-color: transparent;
     border-color: rgba(0,0,0,.15);
+    color: ${props => props.theme.text};
   }
 
   .react-contextmenu-item--divider {
+    border-bottom: 1px solid ${props => props.theme.border};
     cursor: inherit;
     margin: 4px 0;
     height: 1px;
@@ -82,11 +83,12 @@ export const ContextMenuStyles = createGlobalStyle`
     vertical-align: middle;
   }
 `;
-export const ContextMenu: React.SFC<{}> = ({ children, ...rest }) => {
+export const ContextMenu: React.FC<{}> = ({ children, ...rest }) => {
+  const theme = React.useContext(ThemeContext)
   return (
     <>
       <ReactContextMenu id="ContextMenu" {...rest}>{children}</ReactContextMenu>
-      <ContextMenuStyles />
+      <ContextMenuStyles theme={theme} />
     </>
   );
 };
