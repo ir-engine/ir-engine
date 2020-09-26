@@ -107,6 +107,7 @@ export const playerModelInCar: Behavior = (entity: Entity, args: { type: string,
     setPlayerToSeats(transform, transformCar, vehicleComponent.seatsArray[0])
   }
 
+
   if (stateComponent.data.has(CharacterStateTypes.EXIT_VEHICLE)){
     if (actor.timer > 2.1) {
 

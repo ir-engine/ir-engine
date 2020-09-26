@@ -35,8 +35,8 @@ export const StartWalkRightState: StateSchemaValue = {
     {
       behavior: setActorAnimation,
       args: {
-        name: 'sb_start_right',
-        transitionDuration: 0.1
+        name: 'walk_right',
+        transitionDuration: 1
       }
     }
   ],
@@ -54,6 +54,15 @@ export const StartWalkRightState: StateSchemaValue = {
           // Default behavior for all states
           findVehicle(entity);
           const input = getComponent(entity, Input)
+
+          if (input.data.has(DefaultInput.BACKWARD)) {
+            addState(entity, { state: CharacterStateTypes.WALK_START_BACK_RIGHT })
+          } else if (input.data.has(DefaultInput.LEFT)) {
+            addState(entity, { state: CharacterStateTypes.WALK_START_LEFT })
+          } else if (input.data.has(DefaultInput.FORWARD)) {
+            addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD})
+          }
+
           // Check if we're trying to jump
           if (input.data.has(DefaultInput.JUMP))
             return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING })
@@ -69,11 +78,13 @@ export const StartWalkRightState: StateSchemaValue = {
     {
       behavior: setFallingState
     },
+    /*
     {
       behavior: onAnimationEnded,
       args: {
         transitionToState: CharacterStateTypes.WALK
       }
     }
+    */
   ]
 };
