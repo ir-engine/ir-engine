@@ -1,24 +1,62 @@
 import { CharacterComponent } from '../components/CharacterComponent';
 import { Behavior } from '../../../common/interfaces/Behavior';
-import { getMutableComponent } from '../../../ecs/functions/EntityFunctions';
-import { AnimationClip } from 'three';
+import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
+import { Object3DComponent } from "../../../common/components/Object3DComponent";
+import { AnimationClip, AnimationAction, LoopOnce } from 'three';
 import { now } from '../../../common/functions/now';
+import { State } from "@xr3ngine/engine/src/state/components/State";
+import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
+
+
 
 export const setActorAnimation: Behavior = (entity, args: { name: string; transitionDuration: number; }) => {
-  console.log('set anim: ', args.name, args.transitionDuration, 'now', now());
+  //console.log('set anim: ', args.name, args.transitionDuration, 'now', now());
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+  const actorObject3D: Object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
+  const stateComponent = getComponent<State>(entity, State);
+
   if(!actor.initialized) return console.log("Not setting actor animation because not initialized")
-  const clip = AnimationClip.findByName(actor.animations, args.name);
 
-  const action = actor.mixer.clipAction(clip);
-  if (action === null) {
-    console.error(`Animation ${args.name} not found!`);
-    return 0;
+  let clip = AnimationClip.findByName(actor.animations, args.name )
+  const newAction = actor.mixer.clipAction(clip);
+
+  if (newAction === null) {
+    return;
   }
-  actor.mixer.stopAllAction();
-  action.fadeIn(args.transitionDuration);
-  action.play();
 
+  if (actor.currentAnimationAction === null) {
+    actor.currentAnimationAction = newAction;
+    newAction.play();
+    return
+  }
+
+
+  if (args.name == actor.currentAnimationAction.getClip().name) {
+    return;
+  }
+/*
+  console.warn('///////////////////////////////');
+  console.warn(args.name);
+  console.warn(actor.currentAnimationAction.getClip().name);
+  console.warn('//////////////////////////////');
+*/
+
+  actor.mixer.stopAllAction();
+
+	actor.currentAnimationAction.setEffectiveTimeScale( 1 );
+  actor.currentAnimationAction.setEffectiveWeight( 1 );
+
+	newAction.setEffectiveTimeScale( 1 );
+	newAction.setEffectiveWeight( 1 );
+
+	//action.time = 0;
+
+// Crossfade with warping - you can also try without warping by setting the third parameter to false
+
+  actor.currentAnimationAction.crossFadeTo(newAction, args.transitionDuration, true);
+  newAction.play();
+  actor.currentAnimationAction.play();
+  actor.currentAnimationAction = newAction;
   /*
     if (actor.currentAnimationAction) {
     if (actor.currentAnimationAction === action) {
@@ -45,5 +83,5 @@ export const setActorAnimation: Behavior = (entity, args: { name: string; transi
   }
    */
 
-  actor.currentAnimationLength = action.getClip().duration;
+  actor.currentAnimationLength = newAction.getClip().duration;
 };

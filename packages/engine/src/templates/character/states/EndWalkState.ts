@@ -31,7 +31,7 @@ export const EndWalkState: StateSchemaValue = {
         behavior: setActorAnimation,
         args: {
           name: 'idle6',
-          transitionDuration: 0.1
+          transitionDuration: 1
         }
       }
     ],
@@ -62,13 +62,13 @@ export const EndWalkState: StateSchemaValue = {
 
           // If we're not moving, don't worry about the rest of this action
           if (!isMoving(entity)) return
-          
+
           if (input.data.has(DefaultInput.SPRINT))
             return addState(entity, { state: CharacterStateTypes.SPRINT })
-            
+
           if (getComponent(entity, CharacterComponent).velocity.length() > 0.5)
             return addState(entity, { state: CharacterStateTypes.WALK })
-            
+
           setAppropriateStartWalkState(entity);
 
         }

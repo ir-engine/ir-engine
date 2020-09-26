@@ -39,7 +39,7 @@ export const DropIdleState: StateSchemaValue = {
         behavior: setActorAnimation,
         args: {
           name: 'idle6',
-          transitionDuration: 0.1
+          transitionDuration: 0.5
         }
       }
   ],

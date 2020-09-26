@@ -10,6 +10,7 @@ import { onAnimationEnded } from "./onAnimationEnded";
 import { FallingState } from "../states/FallingState";
 import { jumpStart } from "./jumpStart";
 import { CharacterStateTypes } from "../CharacterStateTypes";
+import { addState } from '../../../state/behaviors/StateBehaviors';
 
 export const jumpIdle: Behavior = (entity: Entity, args: null, delta: any): void => {
 	const transform = getComponent<TransformComponent>(entity, TransformComponent);
@@ -20,9 +21,10 @@ export const jumpIdle: Behavior = (entity: Entity, args: null, delta: any): void
 		setCameraRelativeOrientationTarget(entity);
 		setTargetVelocityIfMoving(entity, { ifTrue: { x: 0.8, y: 0.8, z: 0.8 }, ifFalse: { x: 0, y: 0, z: 0 } });
 	}
+	console.warn(actor.timer);
 
 	// Physically jump
-	if (actor.timer > 0.2 && !actor.alreadyJumped) {
+	if (actor.timer > 0.6 && !actor.alreadyJumped) {
 		jumpStart(entity, { initJumpSpeed: -1 });
 		actor.alreadyJumped = true;
 
@@ -31,15 +33,18 @@ export const jumpIdle: Behavior = (entity: Entity, args: null, delta: any): void
 
 		if (actor.rayResult.body.velocity.length() > 0) {
 			actor.arcadeVelocityInfluence.set(0, 0, 0);
-		}
-		else {
+		} else {
 			actor.arcadeVelocityInfluence.set(0.3, 0, 0.3);
 		}
+
 	}
+
 	else if (actor.timer > 0.3) {
-		setDropState(entity, null, delta);
+			//setDropState(entity, null, delta);
 	}
-	else
-		onAnimationEnded(entity, { transitionToState: CharacterStateTypes.FALLING }, delta);
+	if (actor.timer > 0.7) {
+		addState(entity, { state: CharacterStateTypes.FALLING });
+	}
+//		onAnimationEnded(entity, { transitionToState: CharacterStateTypes.FALLING }, delta);
 
 };

@@ -31,7 +31,7 @@ export const WalkState: StateSchemaValue = {
       behavior: setActorAnimation,
       args: {
         name: 'walk_forward',
-        transitionDuration: 0.1
+        transitionDuration: 1
       }
     }
   ],
@@ -49,6 +49,14 @@ export const WalkState: StateSchemaValue = {
           // Default behavior for all states
           findVehicle(entity);
           const input = getComponent(entity, Input)
+
+          if (input.data.has(DefaultInput.BACKWARD)) {
+            addState(entity, { state: CharacterStateTypes.WALK_START_BACK_RIGHT })
+          } else if (input.data.has(DefaultInput.LEFT)) {
+            addState(entity, { state: CharacterStateTypes.WALK_START_LEFT })
+          } else if (input.data.has(DefaultInput.RIGHT)) {
+            addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT})
+          }
 
           // Check if we stopped moving
           if (!isMoving(entity)) {

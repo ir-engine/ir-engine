@@ -136,15 +136,15 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
 
 
-    createPrefab(WorldPrefab);
+  //  createPrefab(WorldPrefab);
     createPrefab(PlayerCharacter);
     createPrefab(staticWorldColliders);
-  setTimeout(() => {
+//  setTimeout(() => {
     // createPrefab(rigidBodyBox);
     // createPrefab(rigidBodyBox2);
      createPrefab(CarController);
     //createPrefab(interactiveBox);
-  }, 5000);
+  //}, 5000);
 
 
     return (): void => {
