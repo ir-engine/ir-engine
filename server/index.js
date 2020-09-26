@@ -13,7 +13,9 @@ app.use(cors());
 // const filePath = 'OBJNEW_sample_v35_9frames.drcs';
 // const filePath = 'CORTONEW_sample_v35_9frames.drcs';
 // const filePath = 'CORTONEW_sample_v35_99frames.drcs';
-const filePath = 'CRT_sample_v35_99frames.drcs';
+// const filePath = 'CRT_sample_v35_99frames.drcs';
+// const filePath = 'CRT_fromPLY_sample_v35_99frames.drcs';
+const filePath = 'sample_v35_100frames.drcs';
 
 function byteArrayToLong(/*byte[]*/ byteArray) {
   let value = 0;
