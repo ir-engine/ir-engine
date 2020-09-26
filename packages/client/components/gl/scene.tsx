@@ -173,8 +173,6 @@ export const EnginePage: FunctionComponent = (props: any) => {
 //    Engine.scene.traverse((c: unknown) => { if (c instanceof Mesh && c.isMesh && c.material) { c.material.needsUpdate=true; }  });
   }, 5000);
 
-  console.log('scene---', Engine.scene);
-
 
     return (): void => {
       document.removeEventListener('object-hover', onObjectHover);
@@ -254,7 +252,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const mobileGamepad = isMobileOrTablet()? <MobileGamepad /> : null;
 
 
-  const infoBox = infoBoxData? <InfoBox onClose={() => { setInfoBoxData(null) }} data={infoBoxData} /> : null;
+  const infoBox = infoBoxData? <InfoBox onClose={(): void => { setInfoBoxData(null); }} data={infoBoxData} /> : null;
 
   const hoveredLabelElement = hoveredLabel.length? <div style={{ position: "fixed", top:"50%", left:"50%", backgroundColor:"white" }}>{hoveredLabel}</div> : null;
 
