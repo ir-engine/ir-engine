@@ -8,12 +8,13 @@ export class Interactive extends Component<Interactive> {
     interactiveDistance: { type: Types.Number, default: Infinity },
     onInteractionCheck: { type: Types.Ref },
     onInteractionFocused: { type: Types.Ref },
-    onInteraction: { type: Types.Ref }
+    onInteraction: { type: Types.Ref },
+    data: { type: Types.Ref }
   }
 
   public onInteractionCheck:InteractionCheckHandler
   public onInteraction:Behavior
   public onInteractionFocused:Behavior
   public interactiveDistance:number
-
+  public data:any
 }
