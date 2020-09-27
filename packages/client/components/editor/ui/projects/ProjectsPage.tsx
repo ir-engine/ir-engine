@@ -173,7 +173,7 @@ class ProjectsPage extends Component {
                 <ProjectGridHeader>
                   <ProjectGridHeaderRow />
                   <ProjectGridHeaderRow>
-                    <Button as="a" href="/projects/create">
+                    <Button as="a" href="/editor/create">
                       New Project
                     </Button>
                   </ProjectGridHeaderRow>

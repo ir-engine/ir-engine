@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { withTheme } from "../theme";
 
 function borderColor(props, defaultColor) {
   if (props.canDrop) {
@@ -10,7 +11,7 @@ function borderColor(props, defaultColor) {
   }
 }
 
-const Input = (styled as any).input`
+const Input = withTheme((styled as any).input`
   background-color: ${props => (props.disabled ? props.theme.disabled : props.theme.inputBackground)};
   border-radius: 4px;
   border: 1px solid ${props => borderColor(props, props.theme.border)};
@@ -30,6 +31,6 @@ const Input = (styled as any).input`
     background-color: ${props => props.theme.disabled};
     color: ${props => props.theme.disabledText};
   }
-`;
+`);
 
 export default Input;
