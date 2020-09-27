@@ -7,6 +7,7 @@ import { ErrorMessage, ProjectGrid, ProjectGridContainer, ProjectGridContent, Pr
 import templates from "../../components/editor/ui/projects/templates";
 import Api from "../../components/editor/api/Api"
 import { Router, withRouter } from "next/router"
+import { ThemeContext } from "../../components/editor/ui/theme";
 export const ProjectsSection = styled.section<{ flex?: number }>`
   padding-bottom: 100px;
   display: flex;
@@ -69,6 +70,7 @@ type ProjectsPageState = { projects: any; } & {
     error: null;
   };
 class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
+  static contextType = ThemeContext
   constructor(props: ProjectsPageProps) {
     super(props);
     const isAuthenticated = (this.props as any).api.isAuthenticated();
@@ -133,6 +135,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
   };
   ProjectContextMenu = connectMenu(contextMenuId)(this.renderContextMenu);
   render() {
+    const theme = this.context
     const { error, loading, projects } = this.state;
     const ProjectContextMenu = this.ProjectContextMenu;
     const topTemplates = [];
@@ -151,7 +154,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
                   tutorial. Otherwise, jump right in and create a project from
                   scratch or from one of our templates.
                 </h2>
-                <MediumButton onClick={this.routeTo("projects/tutorial")}>
+                <MediumButton onClick={this.routeTo("/editor/tutorial")}>
                   Start Tutorial
                 </MediumButton>
               </WelcomeContainer>
@@ -166,7 +169,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
                 <ProjectGridHeader>
                   <ProjectGridHeaderRow />
                   <ProjectGridHeaderRow>
-                    <Button onClick={this.routeTo("projects/create")}>
+                    <Button onClick={this.routeTo("/editor/create")}>
                       New Project
                     </Button>
                   </ProjectGridHeaderRow>
@@ -177,7 +180,9 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
                     <ProjectGrid
                       loading={loading}
                       projects={projects}
-                      newProjectPath="/projects/templates"
+                      // newProjectPath="/editor/templates"
+                      newProjectPath="/editor/create"
+                      newProjectLabel="New Project"
                       contextMenuId={contextMenuId}
                     />
                   )}

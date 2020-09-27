@@ -69,4 +69,9 @@ export const ThemeContext = React.createContext(theme)
 
 export type Theme = typeof theme
 
+export const withTheme = (Component: any) => (props: any) => {
+  const theme = React.useContext(ThemeContext)
+  return <Component theme={theme} {...props} />
+}
+
 export default theme;
