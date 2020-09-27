@@ -72,7 +72,6 @@ Stream.prototype = {
 	},	
 	readShort: function() {
 		this.pos += 2;
-		console.log(this.view.buffer,this.pos);
 		return this.view.getInt16(this.pos-2, true);
 	},
 	readFloat: function() {

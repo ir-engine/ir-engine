@@ -95,7 +95,7 @@ var DracoFileCreator = /** @class */ (function () {
 
       var rawObjDataCRT = fs.readFileSync(this._meshFiles[i]);
       let rawCRTFrame = Buffer.from(rawObjDataCRT)
-      console.log(rawCRTFrame.byteLength,this._meshFiles[i],'rawCRTFrame');
+      // console.log(rawCRTFrame.byteLength,this._meshFiles[i],'rawCRTFrame');
 
 
 
@@ -250,6 +250,14 @@ var DracoFileCreator = /** @class */ (function () {
   return DracoFileCreator;
 })();
 
-new DracoFileCreator('crt', 'png', 0, 99, 'CRT_sample_v35_99frames.drcs', function () {
+// obj->ply
+// for file in /path/to/*.obj
+//     ./meshlabserver  -i "$file" -o "$file.ply" -m wt # -om vc
+// end
+// ply->crt
+// for file in *.ply
+// ../corto $file
+// end
+new DracoFileCreator('crt', 'png', 0, 299, 'CRT_fromPLY-meshlab2_sample_v35_299frames.drcs', function () {
   console.log('Converted to Dracosis');
 });

@@ -384,7 +384,6 @@ decode: function(stream) {
 },
 
 decodeGroups: function(stream) {
-	console.log('-=======decodehtooups', stream);
 	var t = this;
 	var n = stream.readInt();
 	t.groups = new Array(n);
