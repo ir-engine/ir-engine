@@ -282,12 +282,13 @@ export const EnginePage: FunctionComponent = (props: any) => {
       />
     ) : null;
 
-  const mobileGamepad = isMobileOrTablet()? <MobileGamepad /> : null;
+  const mobileGamepadProps = {hovered:hoveredLabel.length > 0 ? true : false, layout: hintBoxData }
+  const mobileGamepad = isMobileOrTablet()? <MobileGamepad {...mobileGamepadProps} /> : null;
 
-  const infoBox = infoBoxData? <InfoBox onClose={() => { setInfoBoxData(null) }} data={infoBoxData} /> : null;
-  const hintBox = hintBoxData? <HintBox layout={hintBoxData} /> : null;
+  const infoBox = !!!isMobileOrTablet() && infoBoxData ? <InfoBox onClose={() => { setInfoBoxData(null) }} data={infoBoxData} /> : null;
+  const hintBox = !!!isMobileOrTablet() && hintBoxData ? <HintBox layout={hintBoxData} /> : null;
 
-  const hoveredLabelElement = hoveredLabel.length > 0 ? 
+  const hoveredLabelElement = !!!isMobileOrTablet() && hoveredLabel.length > 0 ? 
   <div style={{ position: "fixed", top:"60%", left:"48%", color:"#FFFFFF", fontWeight:'bold' }}>Press 
   <span className="keyItem" style={{backgroundColor: "rgba(0,0,0,0.6)", borderRadius: '4px', boxShadow: '0 0 10px rgba(102,185,51,0.5)', boxSizing: 'border-box',
     display: 'inline-block',
