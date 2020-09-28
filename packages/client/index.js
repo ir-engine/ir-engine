@@ -22,7 +22,7 @@ app.prepare().then(() => {
       } else {
         handle(req, res, parsedUrl);
       }
-    }).listen(3000, err => {
+    }).listen(5000, err => {
       if (err) throw err;
       console.log('Client ready on https://localhost:3000');
     });
@@ -34,7 +34,7 @@ app.prepare().then(() => {
       } else {
         handle(req, res, parsedUrl);
       }
-    }).listen(3000, err => {
+    }).listen(5000, err => {
       if (err) throw err;
       console.log('Client ready on http://localhost:3000')
     })
