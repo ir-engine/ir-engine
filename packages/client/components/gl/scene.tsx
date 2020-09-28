@@ -41,6 +41,7 @@ import { client } from '../../redux/feathers';
 import dynamic from 'next/dynamic';
 import { RazerLaptop } from "@xr3ngine/engine/src/templates/interactive/prefabs/RazerLaptop";
 import { InfoBox } from "../infoBox";
+import { HintBox } from "../hintBox";
 const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
 const mapStateToProps = (state: any): any => {
@@ -68,17 +69,19 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const [enabled, setEnabled] = useState(false);
   const [hoveredLabel, setHoveredLabel] = useState('');
   const [infoBoxData, setInfoBoxData] = useState(null);
+  const [hintBoxData, setHintBoxData] = useState('default');
 
   useEffect(() => {
     console.log('initializeEngine!');
 
     const onObjectHover = (event: CustomEvent): void => {
-      if (event.detail.focused && event.detail.payload?.name) {
-        setHoveredLabel(String(event.detail.payload.name));
+      if (event.detail.focused) {
+        setHoveredLabel(String(event.detail.interactionText ? event.detail.interactionText :'Activate' ));
       } else {
         setHoveredLabel('');
-      }
+      }       
     };
+
     const onObjectActivation = (event: CustomEvent): void => {
       console.log('OBJECT ACTIVATION!', event.detail?.action, event.detail);
       switch (event.detail.action) {
@@ -91,8 +94,20 @@ export const EnginePage: FunctionComponent = (props: any) => {
           break;
       }
     };
+
+    const onCarActivation = (event: CustomEvent): void => {
+      console.log('event.detail',event.detail)
+      if (event.detail.inCar) {
+        setHintBoxData('car');
+      } else {
+        setHintBoxData('default');
+      }  
+    };
+
     document.addEventListener('object-hover', onObjectHover);
     document.addEventListener('object-activation', onObjectActivation);
+    document.addEventListener('player-in-car', onCarActivation);
+
 
     const networkSchema: NetworkSchema = {
       ...DefaultNetworkSchema,
@@ -185,6 +200,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     return (): void => {
       document.removeEventListener('object-hover', onObjectHover);
       document.removeEventListener('object-activation', onObjectActivation);
+      document.addEventListener('player-in-car', onCarActivation);
 
       // cleanup
       console.log('cleanup?!');
@@ -273,14 +289,26 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   const mobileGamepad = isMobileOrTablet()? <MobileGamepad /> : null;
 
-
   const infoBox = infoBoxData? <InfoBox onClose={() => { setInfoBoxData(null) }} data={infoBoxData} /> : null;
+  const hintBox = hintBoxData? <HintBox layout={hintBoxData} /> : null;
 
-  const hoveredLabelElement = hoveredLabel.length? <div style={{ position: "fixed", top:"50%", left:"50%", backgroundColor:"white" }}>{hoveredLabel}</div> : null;
+  const hoveredLabelElement = hoveredLabel.length > 0 ? 
+  <div style={{ position: "fixed", top:"60%", left:"48%", color:"#FFFFFF", fontWeight:'bold' }}>Press 
+  <span className="keyItem" style={{backgroundColor: "rgba(0,0,0,0.6)", borderRadius: '4px', boxShadow: '0 0 10px rgba(102,185,51,0.5)', boxSizing: 'border-box',
+    display: 'inline-block',
+    height: '2em', 
+    lineHeight: '2em',
+    margin: '3px',
+    minWidth: '2em',
+    padding: '0px 5px',
+    textAlign: 'center',
+    textTransform: 'capitalize'
+  }}>E</span> to {hoveredLabel}</div> : null;
 
   return (
     <>
     {infoBox}
+    {hintBox}
     {hoveredLabelElement}
     {terminal}
     {mobileGamepad}

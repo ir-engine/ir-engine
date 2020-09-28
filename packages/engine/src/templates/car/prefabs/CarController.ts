@@ -17,6 +17,7 @@ import { getInCar } from "../behaviors/getInCarBehavior";
 import { getInCarPossible } from "../behaviors/getInCarPossible";
 import { Entity } from "../../../ecs/classes/Entity";
 import { changeColor } from "../behaviors/changeColor";
+import { onInteractionHover } from "../../interactive/functions/commonInteractive";
 
 export const CarController: Prefab = {
     components: [
@@ -31,9 +32,7 @@ export const CarController: Prefab = {
         { type: Interactive, data: {
             onInteraction: getInCar,
             onInteractionCheck: getInCarPossible,
-            onInteractionFocused: (e:unknown, a: { focused:boolean }):void => {
-              console.log('focused?', a);
-            }
+            onInteractionFocused: onInteractionHover
           }
         }
     ],
