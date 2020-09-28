@@ -206,12 +206,13 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   useEffect(() => {
     const f = (event: KeyboardEvent): void => {
-      const P_PLAY_PAUSE = 112;
-      if (event.keyCode === 27)
+      // const P_PLAY_PAUSE = 112;
+      // if (event.keyCode === 27)
+      if (event.keyCode === 192) {
+        event.preventDefault();
         toggleEnabled();
-      else if(event.keyCode == P_PLAY_PAUSE){
-
       }
+      // else if(event.keyCode == P_PLAY_PAUSE)
     };
     document.addEventListener("keydown", f);
     return (): void => {
@@ -250,7 +251,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   }, []);
 
   const toggleEnabled = (): void => {
-    console.log("enabled ", enabled);
+    // console.log("enabled", enabled);
     if (enabled === true) {
       setEnabled(false);
     } else {
