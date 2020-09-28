@@ -35,8 +35,8 @@ export const StartWalkLeftState: StateSchemaValue = {
     {
       behavior: setActorAnimation,
       args: {
-        name: 'sb_start_left',
-        transitionDuration: 0.1
+        name: 'walk_left',
+        transitionDuration: 1
       }
     }
   ],
@@ -54,26 +54,45 @@ export const StartWalkLeftState: StateSchemaValue = {
           // Default behavior for all states
           findVehicle(entity);
           const input = getComponent(entity, Input)
+
+          console.warn(input.data.has(DefaultInput.RIGHT));
+
+          if (input.data.has(DefaultInput.FORWARD)) {
+            addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD})
+          } else if (input.data.has(DefaultInput.BACKWARD)) {
+            addState(entity, { state: CharacterStateTypes.WALK_START_BACK_RIGHT })
+          } else if (input.data.has(DefaultInput.RIGHT)) {
+            addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT})
+          }
+
+
+
+
           // Check if we're trying to jump
           if (input.data.has(DefaultInput.JUMP))
             return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING })
           // Check if we stopped moving
+
+
+          if (input.data.has(DefaultInput.SPRINT))
+            return addState(entity, { state: CharacterStateTypes.SPRINT })
+
           if (!isMoving(entity)) {
             setIdleState(entity)
           }
-          if (input.data.has(DefaultInput.SPRINT))
-            return addState(entity, { state: CharacterStateTypes.SPRINT })
         }
       }
     },
     {
       behavior: setFallingState
     },
+    /*
     {
       behavior: onAnimationEnded,
       args: {
         transitionToState: CharacterStateTypes.WALK
       }
     }
+    */
   ]
 };

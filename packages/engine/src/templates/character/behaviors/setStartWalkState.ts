@@ -8,28 +8,28 @@ import { getCameraRelativeMovementVector } from '../functions/getCameraRelativeM
 
 
 export const setAppropriateStartWalkState = (entity: Entity): void => {
-  const character = getComponent<CharacterComponent>(entity, CharacterComponent as any);
+  const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
 
-  const range = Math.PI;
-  const angle = getSignedAngleBetweenVectors(character.orientation, getCameraRelativeMovementVector(entity));
+  //const range = Math.PI;
+  //const angle = getSignedAngleBetweenVectors(actor.orientation, actor.localMovementDirection ); // getCameraRelativeMovementVector(entity)
+
 
   // TODO: handle strafe states
   // TODO: move character by setting localMovementVector or by cameraRelativeMovementVector(vector) that will convert it into local
+  //console.warn(angle+' > '+range * 0.8);
 
-  if (angle > range * 0.8) {
-    addState(entity, { state: CharacterStateTypes.WALK_START_BACK_LEFT });
-  }
-  else if (angle < -range * 0.8) {
-    addState(entity, { state: CharacterStateTypes.WALK_START_BACK_RIGHT });
-  }
-  else if (angle > range * 0.3) {
-    addState(entity, { state: CharacterStateTypes.WALK_START_LEFT });
-  }
-  else if (angle < -range * 0.3) {
-    addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT });
-  }
-  else {
-    console.log('setAppropriateStartWalkState.angle', angle)
+  if (actor.localMovementDirection.z === 1) {
     addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD });
   }
+  else if (actor.localMovementDirection.z === -1) {
+    addState(entity, { state: CharacterStateTypes.WALK_START_BACK_RIGHT });
+  }
+  else if (actor.localMovementDirection.x === 1) {
+    addState(entity, { state: CharacterStateTypes.WALK_START_LEFT });
+  }
+  else if (actor.localMovementDirection.x === -1) {
+    addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT });
+  }
+  
+
 };
