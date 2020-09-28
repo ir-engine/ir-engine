@@ -2,8 +2,11 @@ import React, { CSSProperties, FunctionComponent, useEffect, useRef, useState } 
 import nipplejs from 'nipplejs';
 import { Thumbsticks } from '@xr3ngine/engine/src/common/enums/Thumbsticks';
 import { GamepadButtons } from "@xr3ngine/engine/src/input/enums/GamepadButtons";
-
-export const MobileGamepad: FunctionComponent = (props: any) => {
+export type  mobileGamepadProps = {
+  hovered?: boolean | false;
+  layout?:string;
+}
+export const MobileGamepad: FunctionComponent<mobileGamepadProps> = ({hovered, layout = 'default'} : mobileGamepadProps) => {
   const leftContainer = useRef<HTMLDivElement>();
   const rightContainer = useRef<HTMLDivElement>();
 
@@ -50,7 +53,7 @@ export const MobileGamepad: FunctionComponent = (props: any) => {
   };
 
   const buttonsConfig: Array<{ button: GamepadButtons; label: string; style: CSSProperties }> = [
-    {
+    layout === 'default' && {
       button: GamepadButtons.A,
       label: "A",
       style: {
@@ -83,12 +86,15 @@ export const MobileGamepad: FunctionComponent = (props: any) => {
       style: {
         backgroundColor: '#ffbb00',
         right: 0,
-        bottom: buttonSize
+        bottom: buttonSize,
+        fontWeight: hovered ? 'bold' : 'normal',
+        color: hovered ? 'white' : 'black',
+        border: hovered ? '2px solid rgba(102,185,51,1)' : '',
+        boxShadow: hovered ? '0 0 10px rgba(102,185,51,1)' : '',
+        opacity: hovered ? '1' : '0.75'
       }
     },
   ];
-
-
 
   const buttons = buttonsConfig.map(((value, index) => {
     return (<div
