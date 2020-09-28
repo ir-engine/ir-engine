@@ -180,7 +180,6 @@ export const EnginePage: FunctionComponent = (props: any) => {
     Engine.renderer.toneMappingExposure = 0.1;
 
     createPrefab(WorldPrefab);
-    createPrefab(PlayerCharacter);
     createPrefab(staticWorldColliders);
 //  setTimeout(() => {
     // createPrefab(rigidBodyBox);
