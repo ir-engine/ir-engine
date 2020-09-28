@@ -19,7 +19,7 @@ import { CSSProperties } from '@material-ui/core/styles/withStyles';
 import { red } from '@material-ui/core/colors';
 import { ContentBackspace } from 'material-ui/svg-icons';
 
-let isTerminalExpanded = true;
+let isTerminalExpanded = false;
 
 function compLogic(comp) {
   switch (comp) {
@@ -253,7 +253,7 @@ class Terminal extends Component<any, any> {
     
     const baseStyle = {
       // height: '100%',
-      height: this.state.isTerminalExpanded ? '100%' : '30%',
+      height: this.state.isTerminalExpanded ? '100%' : '50%',
       color: color || 'green',
       animation: 'fadeIn 0.18s ease-in',
       fontFamily: "'Inconsolata', monospace",
@@ -853,7 +853,6 @@ class Terminal extends Component<any, any> {
       const parsedArgs = command.parse(args);
       const type = typeof parsedArgs;
       if (type !== 'object' || (type === 'object' && !parsedArgs.help)) {
-        parsedArgs.originalArgs = args;
         res = command.method(
           parsedArgs,
           this.printLine.bind(this, instance),

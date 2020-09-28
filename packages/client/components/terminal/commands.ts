@@ -57,7 +57,7 @@ export const commands = {
             }
 //          console.log(args);
 
-            switch (args._[0]){
+            switch (args._[0]) {
                 case 'entities':
                     const CMDID = 1;
                     const command = args._[CMDID];
@@ -73,17 +73,14 @@ export const commands = {
                         // ecs entities rm 11 22 33
 
                     if (command === 'ls') {
-                        const { originalArgs } = args;
                         let s = '';
                         Engine.entities.forEach(e => {
                             s += (e.id + '\n');
-                            if (originalArgs.includes('-a') || originalArgs.includes('-p')) {
+                            if ('a' in args || 'p' in args) {
                                 for (let componentId in e.components) {
                                     const component = e.components[componentId];
-                                    // console.log('check', component);
                                     s += ('\t' + componentId + ': ' + component.name);
-                                    if (component.name === 'TransformComponent' &&
-                                            originalArgs.includes('-p'))
+                                    if (component.name === 'TransformComponent' && ('p' in args))
                                         s += (' (position: x: ' + round(component.position.x) +
                                             ', y: ' + round(component.position.y) +
                                             ', z: ' + round(component.position.z) +
@@ -121,12 +118,9 @@ export const commands = {
                         print(`(removing entities and components)`);
                         // ecs entities rm 1 2 3
                         const ids = options;
-
-//                      ids.forEach( id => Engine.entities[id].remove() );
-
 	                    ids.forEach(id => {
-		                      let foundEntity = Engine.entities.find(element => element.id == id);
-                              if (foundEntity != undefined) foundEntity.remove();
+		                      let entity = Engine.entities.find(element => element.id === id);
+                              if (entity !== undefined) entity.remove();
 	                    });
 
                     } else if (command === 'cat') {
@@ -137,7 +131,7 @@ export const commands = {
                         //get component
                         //@ts-ignore
                         const entry = Object.entries(entity.components).find(([,{name}]) => name === componentName);
-                        const [,component] = entry;
+                        const [, component] = entry;
                         //@ts-ignore
                         print(component._typeId + Object.getOwnPropertyNames( component ));
                         
@@ -150,7 +144,49 @@ export const commands = {
                     }
                     break;
 
-                case 'components':
+                    case 'entity': {
+                        if (args._.length < 2) {
+                            print('An entity id was not speciffied.');
+                            return;
+                        }
+                        
+                        const entityId = args._[1];
+                        // console.log('check', args);
+
+                        let entity = Engine.entities.find(element => element.id === entityId);
+                        if (entity === undefined) {
+                            print(`An entity ${entityId} was not found.`);
+                            return;
+                        }
+
+                        let s = '';
+
+                        for (let componentId in entity.components) {
+                            const component = entity.components[componentId];
+                            s += (componentId + ': ' + component.name);
+                            if (component.name === 'TransformComponent' && ('p' in args))
+                                s += (' (position: x: ' + round(component.position.x) +
+                                    ', y: ' + round(component.position.y) +
+                                    ', z: ' + round(component.position.z) +
+                                    '; rotation: x: ' + round(component.rotation._x) +
+                                    ', y: ' + round(component.rotation._y) +
+                                    ', z: ' + round(component.rotation._z) +
+                                    ', w: ' + round(component.rotation._w) + ')');
+                            s += '\n';
+
+                            // console.log('check', component);
+                            if ('a' in args)
+                                Object.keys(component).sort().forEach(k => {
+                                    s += ('\t' + k + '\n');
+                                    // if (component[k] === null)
+                                    // component[k].toString() + '\n');
+                                });
+                        }
+                        print(s);
+                        break;
+                    }
+
+                    case 'components':
                     // User passed a number, which should align with an entity ID
                     // - show breakdown of data on entity.
                     /*
@@ -191,7 +227,51 @@ export const commands = {
                     });
                     print(s);
                     break;
+                
+                case 'component': {
+                    if (args._.length < 2) {
+                        print('An component id was not speciffied.');
+                        return;
+                    }
+                    
+                    const componentId = args._[1];
+                    let s = '';
 
+                    Engine.entities.forEach(e => {
+                        if (componentId in e.components) {
+                            s +=  `Entity ${e.id }:\n`;
+                            const component = e.components[componentId];
+
+                            Object.keys(component).sort().forEach(k => {
+                                s += ('\t' + k + ': ');
+                                const v = component[k];
+                                if (v === null) {
+                                    s += 'null';
+                                } else if (typeof v === 'object') {
+                                    s += '{\n';
+                                    Object.keys(v).sort().forEach(p => {
+                                        s += ('\t\t' + p + ': ');
+                                        if (v[p] === null)
+                                            s += 'null';
+                                        else if (typeof v[p] === 'function')
+                                            s += 'function';
+                                        else
+                                            s += v[p].toString();
+                                        s += '\n';
+                                    });
+                                    s += '\t}';
+                                } else {
+                                    s += v.toString();
+                                }
+                                s += '\n';
+                            });
+
+                        }
+                    });
+
+                    print(s);
+                    break;
+                }
                 case 'systems': {
                     const result = Engine.systems.map(
                         ({name, enabled}) => 
@@ -201,20 +281,16 @@ export const commands = {
                 }
                 break;
 
-                case 'stop': {
+                case 'stop':
                     Engine.enabled = false;
                     //Engine.engineTimer.stop()
-                    print( `Engine stopped at ? time`);
-                    
-                }
-                break;
-                case 'start': {
+                    print(`Engine stopped at ? time`);
+                    break;
+                case 'start':
                     Engine.enabled = true;
                     //Engine.engineTimer.start()
                     print( `Engine started`);
-                
-                }
-                break;
+                    break;
             }
         },
         options: [
@@ -225,8 +301,11 @@ export const commands = {
           },
           {
             name: 'a',
-            description: '',
-            defaultValue: ''
+            description: ''
+          },
+          {
+            name: 'p',
+            description: ''
           },
         ],
       }
