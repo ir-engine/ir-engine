@@ -24,7 +24,6 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
   const mouseScreenPosition = getComponent(entity, Input).data.get(DefaultInput.SCREENXY);
   let mouseScreen = new Vector2();
   if (mouseScreenPosition) {
-    console.log("mouseScreenPosition",mouseScreenPosition.value[0]);
     mouseScreen.x = mouseScreenPosition.value[0];
 	  mouseScreen.y = mouseScreenPosition.value[1];
     }
@@ -73,8 +72,6 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
   raycaster.setFromCamera(rayMouse,rayCamera);
   let intersections = raycaster.intersectObjects(raycastList, true );
 
-  console.log(intersections.length);
-
   if (!intersections.length){
   // TODO: rayOrigin, rayDirection
   rayOrigin = clientPosition
@@ -99,7 +96,5 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
   const interacts = getMutableComponent(entity, Interacts)
   interacts.focusedRayHit = newRayHit
   interacts.focusedInteractive = newRayHit? (object as any).entity : null
-  if (object){
-    console.log (object);
-  }
+  
 }
