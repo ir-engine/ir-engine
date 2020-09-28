@@ -36,4 +36,7 @@ export const getOutCar: Behavior = (entity: Entity): void => {
   entrance = entrance.add(transformCar.position)
   setPosition(entityDriver, entrance)
 
+  const event = new CustomEvent('player-in-car', { detail:{inCar:false} });
+  document.dispatchEvent(event);
+
 };
