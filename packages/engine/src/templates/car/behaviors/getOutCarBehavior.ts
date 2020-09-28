@@ -19,4 +19,7 @@ export const getOutCar: Behavior = (entity: Entity): void => {
 
   addState(entityDriver, {state: CharacterStateTypes.EXIT_VEHICLE})
 
+  const event = new CustomEvent('player-in-car', { detail:{inCar:false} });
+  document.dispatchEvent(event);
+
 };
