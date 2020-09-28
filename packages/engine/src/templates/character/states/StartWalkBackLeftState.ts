@@ -32,13 +32,13 @@ export const StartWalkBackLeftState: StateSchemaValue = {
     {
       behavior: initializeCharacterState
     },
-    // {
-    //   behavior: setActorAnimation,
-    //   args: {
-    //     name: 'sb_start_back_left',
-    //     transitionDuration: 0.1
-    //   }
-    // }
+     {
+       behavior: setActorAnimation,
+       args: {
+         name: 'sb_start_back_left',
+         transitionDuration: 1
+       }
+     }
   ],
   onUpdate: [
     {
@@ -68,13 +68,15 @@ export const StartWalkBackLeftState: StateSchemaValue = {
     },
     {
       behavior: setFallingState
-    },
-    {
+    }
+    /*
+    ,{
       behavior: addState,
       args: {
-        state: CharacterStateTypes.WALK
+        state: CharacterStateTypes.WALK_START_BACK_LEFT
       }
     }
+    */
     // {
     //   behavior: onAnimationEnded,
     //   args: {
@@ -83,4 +85,3 @@ export const StartWalkBackLeftState: StateSchemaValue = {
     // }
   ]
 };
-

@@ -179,22 +179,16 @@ export const EnginePage: FunctionComponent = (props: any) => {
     Engine.renderer.toneMapping = CineonToneMapping;
     Engine.renderer.toneMappingExposure = 0.1;
 
-    createPrefab(WorldPrefab);
-
-  //  createPrefab(staticWorldColliders);
-  setTimeout(() => {
+  //  createPrefab(WorldPrefab);
+    createPrefab(PlayerCharacter);
+    createPrefab(staticWorldColliders);
+//  setTimeout(() => {
     // createPrefab(rigidBodyBox);
     // createPrefab(rigidBodyBox2);
     createPrefab(PlayerCharacter);
      createPrefab(CarController);
     //createPrefab(interactiveBox);
-    createPrefab(RazerLaptop);
-
-
-//    Engine.scene.traverse((c: unknown) => { if (c instanceof Mesh && c.isMesh && c.material) { c.material.needsUpdate=true; }  });
-  }, 7000);
-
-  console.log('scene---', Engine.scene);
+  //}, 5000);
 
 
     return (): void => {

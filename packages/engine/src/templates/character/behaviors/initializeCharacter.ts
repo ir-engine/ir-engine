@@ -30,6 +30,8 @@ export const initializeCharacter: Behavior = (entity): void => {
 	const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
 	assetLoader.onLoaded = (entity, { asset }) => {
 		actor.animations = asset.animations;
+		console.warn(actor.animations);
+
 		console.log("Components on character")
 		console.log(entity.components)
 
@@ -58,7 +60,7 @@ export const initializeCharacter: Behavior = (entity): void => {
 		addComponent(entity, CapsuleCollider as any, {
 			mass: 1,
 			position: new Vec3(),
-			actor_height: 0.5,
+			actor_height: 1,
 			radius: 0.25,
 			segments: 8,
 			friction: 0.0
