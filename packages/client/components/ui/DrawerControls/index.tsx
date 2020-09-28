@@ -4,10 +4,8 @@ import {
   People,
   PersonAdd
 } from '@material-ui/icons';
-import {
-  AppBar,
-  Button
-} from '@material-ui/core';
+import { AppBar} from '@material-ui/core';
+import Fab from '@material-ui/core/Fab';
 import { selectChatState } from '../../../redux/chat/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -39,9 +37,6 @@ interface Props {
 }
 
 export const DrawerControls = (props: Props): JSX.Element => {
-//   const homeNav = (): void => {
-//     Router.push('/')
-//   }
   const {
     authState,
     setLeftDrawerOpen,
@@ -73,15 +68,15 @@ export const DrawerControls = (props: Props): JSX.Element => {
   return (
     <AppBar className="bottom-appbar">
       { (selfUser && selfUser.instanceId != null && selfUser.partyId != null) && <NoSSR><VideoChat/></NoSSR> }
-      <Button onClick={openInvite}>
+      <Fab color="primary" aria-label="PersonAdd" onClick={openInvite}>
         <PersonAdd />
-      </Button>
-      <Button onClick={openChat}>
+      </Fab>
+      <Fab color="primary" aria-label="Forum" onClick={openChat}>
         <Forum />
-      </Button>
-      <Button onClick={openPeople}>
+      </Fab>
+      <Fab color="primary" aria-label="People" onClick={openPeople}>
         <People/>
-      </Button>
+      </Fab>
     </AppBar>
   );
 };
