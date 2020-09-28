@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import Button from '@material-ui/core/Button';
+import {Button} from '@material-ui/core';
 import SignIn from '../Auth/Login';
 import { logoutUser } from '../../../redux/auth/service';
 import { selectAuthState } from '../../../redux/auth/selector';
@@ -67,7 +67,7 @@ const NavUserBadge = (props: Props): any => {
         </div>
       )}
       {!isLoggedIn && (
-        <Button
+        <Button variant="contained" color="primary"
           style={styles.loginButton}
           onClick={() =>
             props.showDialog({

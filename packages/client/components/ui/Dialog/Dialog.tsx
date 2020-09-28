@@ -44,7 +44,7 @@ const UIDialog = (props: Props): any => {
   };
 
   return (
-    <Dialog open={isOpened} onClose={handleClose} aria-labelledby="xr-dialog">
+    <Dialog open={isOpened} onClose={handleClose} aria-labelledby="xr-dialog" color="background">
       <DialogTitle disableTypography className="dialogTitle">
         <Typography variant="h6">{(content && content.title) ?? ''}</Typography>
         <IconButton
