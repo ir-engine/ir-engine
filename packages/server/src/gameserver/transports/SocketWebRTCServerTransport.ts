@@ -26,6 +26,13 @@ import logger from "../../app/logger"
 import getLocalServerIp from '../../util/get-local-server-ip'
 import config from '../../config'
 import gameserverServiceTemplate from '@xr3ngine/common/templates/game-server-service.json';
+import jsYaml from 'js-yaml';
+import AWS from 'aws-sdk';
+import fs from 'fs';
+import { exec } from 'child_process';
+
+const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
+const Route53 = new AWS.Route53({ ...config.aws.route53.keys });
 
 interface Client {
     socket: SocketIO.Socket;
@@ -194,82 +201,136 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         }
     }
 
+    async getFreeSubdomain(gsIdentifier: string, subdomainNumber: number): Promise<string> {
+        try {
+            console.log('getFreeSubdomain')
+            const stringSubdomainNumber = subdomainNumber.toString().padStart(config.gameserver.identifierDigits, '0');
+            const subdomainResult = await this.app.service('gameserver-subdomain-provision').find({
+                query: {
+                    gs_number: stringSubdomainNumber
+                }
+            })
+            console.log('subdomainResult:')
+            if ((subdomainResult as any).total === 0) {
+                await this.app.service('gameserver-subdomain-provision').create({
+                    allocated: true,
+                    gs_number: stringSubdomainNumber,
+                    gs_id: gsIdentifier
+                });
+
+                return stringSubdomainNumber;
+            } else {
+                const subdomain = (subdomainResult as any).data[0]
+                if (subdomain.allocated === true || subdomain.allocated === 1) {
+                    return this.getFreeSubdomain(gsIdentifier, subdomainNumber + 1);
+                }
+                await this.app.service('gameserver-subdomain-provision').patch(subdomain.id, {
+                    allocated: true,
+                    gs_id: gsIdentifier
+                });
+
+                return stringSubdomainNumber
+            }
+        } catch(err) {
+            console.log('get RTC port range error')
+            console.log(err)
+        }
+    }
+
     public async initialize(address, port = 3030): Promise<void> {
         try {
             if (this.isInitialized) console.error("Already initialized transport")
             logger.info('Initializing server transport')
 
-            // if (process.env.KUBERNETES === 'true') {
-            const {startPort, endPort} = await this.getRtcPortRange(config.gameserver.rtc_start_port, config.gameserver.rtc_port_block_size);
-            console.log(`startPort: ${startPort}`)
-            console.log(`endPort: ${endPort}`)
-            localConfig.mediasoup.worker.rtcMinPort = startPort;
-            localConfig.mediasoup.worker.rtcMaxPort = endPort;
-
-            const service = gameserverServiceTemplate;
-            let name;
+            let stringSubdomainNumber;
             if (process.env.KUBERNETES === 'true') {
+                // const nginxMainConf = await fs.promises.readFile('/app/packages/common/templates/nginx.conf.template');
+                // const nginxHttpConf = await fs.promises.readFile('/app/packages/common/templates/nginx-http.conf.template');
+                // const nginxStreamConf = await fs.promises.readFile('/app/packages/common/templates/nginx-stream.conf.template');
+                // await fs.promises.writeFile('/etc/nginx/nginx.conf', nginxMainConf);
+                // await fs.promises.writeFile('/etc/nginx/conf.d/http.conf', nginxHttpConf);
+                // await fs.promises.writeFile('/etc/nginx/conf.d/stream.conf', nginxStreamConf);
+                // await new Promise((resolve, reject) => {
+                //     exec('service nginx restart', (err, stdout, stderr) => {
+                //         if (err) reject(err);
+                //         resolve(stdout ? stdout : stderr);
+                //     })
+                // });
+                const {startPort, endPort} = await this.getRtcPortRange(config.gameserver.rtc_start_port, config.gameserver.rtc_port_block_size);
+                console.log(`startPort: ${startPort}`)
+                console.log(`endPort: ${endPort}`)
+                localConfig.mediasoup.worker.rtcMinPort = startPort;
+                localConfig.mediasoup.worker.rtcMaxPort = endPort;
+                const service = gameserverServiceTemplate;
                 const gs = await (this.app as any).agonesSDK.getGameServer();
-                name = gs.objectMeta.name;
-            } else {
-                name = 'local-gameserver-abcde-12345';
-            }
+                const name = gs.objectMeta.name;
 
-            service.metadata.name = name;
-            service.spec.selector = `agones.dev/gameserver=${name}`;
-            let udpServices;
-            if (process.env.KUBERNETES === 'true') {
-                udpServices = await (this.app as any).k8Client.get('namespaces/kube-system/configmap/udp-services');
-            }
-            for (let i = startPort; i <= endPort; i++) {
-                service.spec.ports.push({
-                    port: i,
-                    targetPort: i,
-                    protocol: 'UDP',
-                    name: `UDP-${i}`
-                })
+                const gsIdentifier = gsNameRegex.exec(name)
+                stringSubdomainNumber = await this.getFreeSubdomain(gsIdentifier[1], 0);
+                console.log('Next free subdomain number: ' + stringSubdomainNumber)
 
-                if (process.env.KUBERNETES === 'true') {
-                    udpServices.data.i = `default/${service.metadata.name}:${i}`
+                service.metadata.name = name;
+                service.spec.selector['agones.dev/gameserver'] = name;
+
+                for (let i = localConfig.mediasoup.worker.rtcMinPort; i <= localConfig.mediasoup.worker.rtcMaxPort; i++) {
+                    service.spec.ports.push({
+                        port: i,
+                        targetPort: i,
+                        protocol: 'UDP',
+                        name: `udp-${i}`
+                    })
                 }
-            }
 
-            if (process.env.KUBERNETES === 'true') {
-                console.log('Patching udp-services:')
-                console.log(udpServices)
-                await (this.app as any).k8client.patch('namespaces/kube-system/configmap/udp-services', udpServices)
+                console.log('Service template to write in JSON:');
+                console.log(service);
+                (this.app as any).serviceName = service.metadata.name;
+
+                let servicePostResult
+                try {
+                    servicePostResult = await (this.app as any).k8DefaultClient.post('namespaces/default/services', service);
+                    console.log('New loadbalancer result');
+                    console.log(servicePostResult)
+                } catch(err) {
+                    if (err.code !== 409) throw err
+                }
+
+                const params = {
+                    ChangeBatch: {
+                        Changes: [
+                            {
+                                Action: 'UPSERT',
+                                ResourceRecordSet: {
+                                    Name: `${stringSubdomainNumber}.${config.gameserver.domain}`,
+                                    ResourceRecords: [
+                                        {
+                                            Value: servicePostResult?.status?.loadBalancer?.externalIp ?? '192.168.99.101'
+                                        }
+                                    ],
+                                    TTL: 15,
+                                    Type: 'A'
+                                }
+                            }
+                        ]
+                    },
+                    HostedZoneId: config.aws.route53.hostedZoneId
+                }
+                console.log('Record set params:')
+                console.log(params)
+                const result = await Route53.changeResourceRecordSets(params)
+                console.log('Route53 Record set patch result:')
+                console.log(result);
             }
-            console.log('Service template to write in JSON:');
-            console.log(service);
-            (this.app as any).serviceName = service.metadata.name;
-            if (process.env.KUBERNETES === 'true') {
-                await (this.app as any).k8Client.post('namespaces/default/service', service)
-            }
-            // }
 
             logger.info('Starting WebRTC')
             await this.startMediasoup()
 
             // Start Websockets
-            logger.info("Starting websockets")
-            console.log('this.app\'s port range after starting mediasoup:')
-            console.log((this.app as any).portRange)
-            if (process.env.KUBERNETES === 'true') {
-                try {
-                    (this.app as any).agonesSDK.getGameServer().then((gsStatus) => {
-                        localConfig.mediasoup.webRtcTransport.listenIps = [{
-                            ip: '0.0.0.0',
-                            announcedIp: `${config.gameserver.domain}/${gsStatus.status.address}`
-                        }]
-                    })
-                } catch (err) {
-                    console.log('Agones GS get error')
-                    console.log(err);
-                }
-            } else {
-                const localIp = await getLocalServerIp();
-                localConfig.mediasoup.webRtcTransport.listenIps = [{ip: '0.0.0.0', announcedIp: localIp.ipAddress}]
-            }
+            logger.info("Starting websockets");
+            const localIp = await getLocalServerIp();
+            localConfig.mediasoup.webRtcTransport.listenIps = [{
+                ip: '0.0.0.0',
+                announcedIp: process.env.KUBERNETES === 'true' ? `${stringSubdomainNumber}.${config.gameserver.domain}` : localIp.ipAddress
+            }]
             this.socketIO = (this.app as any)?.io
 
             this.socketIO.sockets.on("connect", (socket: Socket) => {
@@ -730,6 +791,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             // dtlsPrivateKeyFile: serverConfig.server.keyPath,
             logTags: ['sctp']
         })
+
+        console.log('New worker:')
+        console.log(localConfig.mediasoup.worker.rtcMinPort)
+        console.log(localConfig.mediasoup.worker.rtcMaxPort)
 
         this.worker.on("died", () => {
             console.error("mediasoup worker died (this should never happen)")

@@ -50,7 +50,7 @@ export default () => {
             console.log('Spinning up new instance server')
             let selfIpAddress, status
             if (process.env.KUBERNETES === 'true') {
-              const serverResult = await (context.app as any).k8Client.get('gameservers')
+              const serverResult = await (context.app as any).k8AgonesClient.get('gameservers')
               const readyServers = _.filter(serverResult.items, (server: any) => server.status.state === 'Ready')
               const server = readyServers[Math.floor(Math.random() * readyServers.length)]
               status = server.status
