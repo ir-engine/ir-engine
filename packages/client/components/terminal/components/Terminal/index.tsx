@@ -12,7 +12,6 @@ import {
 } from '../types';
 
 import { os, pluginMap, uuidv4, getShortcuts, modCommands } from './terminal-utils';
-import { Base, ContainerWrapper, Note } from './styled-elements';
 
 import Content from '../Content/index';
 import Tabs from '../Tabs/index';

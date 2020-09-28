@@ -4,12 +4,15 @@ import styled from "styled-components";
 import ProjectGridItem from "./ProjectGridItem";
 import { Row } from "../layout/Flex";
 import StringInput from "../inputs/StringInput";
-import { Link } from "react-router-dom";
+// import Link from "next/link"
+import { useRouter } from "next/router"
 import { Plus } from "@styled-icons/fa-solid/Plus";
+import { ThemeContext, withTheme } from "../theme";
 
-const ProjectGridItemContainer = (styled as any).div`
+const ProjectGridItemContainer = styled.div`
   display: flex;
   flex-direction: column;
+  color: ${props => props.theme.text};
   height: 220px;
   border-radius: 6px;
   text-decoration: none;
@@ -19,7 +22,8 @@ const ProjectGridItemContainer = (styled as any).div`
   border: 1px solid transparent;
 
   &:hover {
-    color: inherit;
+    color: ${props => props.theme.text};
+    cursor: pointer;
     border-color: ${props => props.theme.selected};
   }
 
@@ -30,9 +34,15 @@ const ProjectGridItemContainer = (styled as any).div`
   }
 `;
 
-export function NewProjectGridItem({ path, label }) {
+export function NewProjectGridItem({ path, label }: { path: string, label: string }) {
+  const router = useRouter()
+  const theme = React.useContext(ThemeContext)
+  
+  const routeTo = (route: string) => () => {
+    router.push(route)
+  }
   return (
-    <ProjectGridItemContainer as={Link} to={path}>
+    <ProjectGridItemContainer theme={theme} as="button" onClick={routeTo(path)}>
       <Plus />
       <h3>{label}</h3>
     </ProjectGridItemContainer>
@@ -49,23 +59,25 @@ NewProjectGridItem.defaultProps = {
 };
 
 export function LoadingProjectGridItem() {
+  const theme = React.useContext(ThemeContext)
   return (
-    <ProjectGridItemContainer>
+    <ProjectGridItemContainer theme={theme}>
       <h3>Loading...</h3>
     </ProjectGridItemContainer>
   );
 }
 
-const StyledProjectGrid = (styled as any).div`
+const StyledProjectGrid = styled.div`
   display: grid;
   grid-gap: 20px;
   width: 100%;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 `;
-
+ 
 export function ProjectGrid({ projects, newProjectPath, newProjectLabel, contextMenuId, loading }) {
+  const theme = React.useContext(ThemeContext)
   return (
-    <StyledProjectGrid>
+    <StyledProjectGrid theme={theme}>
       {newProjectPath && !loading && <NewProjectGridItem path={newProjectPath} label={newProjectLabel} />}
       {projects.map(project => (
         <ProjectGridItem key={project.project_id || project.id} project={project} contextMenuId={contextMenuId} />
@@ -83,22 +95,22 @@ ProjectGrid.propTypes = {
   loading: PropTypes.bool
 };
 
-export const ProjectGridContainer = (styled as any).div`
+export const ProjectGridContainer = withTheme(styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
   background-color: ${props => props.theme.panel2};
   border-radius: 3px;
-`;
+`);
 
-export const ProjectGridContent = (styled as any).div`
+export const ProjectGridContent = withTheme(styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
   padding: 20px;
-`;
+`);
 
-export const ProjectGridHeader = (styled as any).div`
+export const ProjectGridHeader = withTheme(styled.div`
   display: flex;
   background-color: ${props => props.theme.toolbar2};
   border-radius: 3px 3px 0px 0px;
@@ -106,21 +118,21 @@ export const ProjectGridHeader = (styled as any).div`
   justify-content: space-between;
   align-items: center;
   padding: 0 10px;
-`;
+`);
 
-export const Filter = (styled as any).a`
+export const Filter = withTheme(styled.a<{ active?: boolean }>`
   font-size: 1.25em;
   cursor: pointer;
   color: ${props => (props.active ? props.theme.blue : props.theme.text)};
-`;
+`);
 
-export const Separator = (styled as any).div`
+export const Separator = withTheme(styled.div`
   height: 48px;
   width: 1px;
   background-color: ${props => props.theme.border};
-`;
+`);
 
-export const ProjectGridHeaderRow = (styled as any)(Row)`
+export const ProjectGridHeaderRow = styled(Row)`
   align-items: center;
 
   & > * {
@@ -128,19 +140,19 @@ export const ProjectGridHeaderRow = (styled as any)(Row)`
   }
 `;
 
-export const SearchInput = (styled as any)(StringInput)`
+export const SearchInput = styled<any>(StringInput)`
   width: auto;
   min-width: 200px;
   height: 28px;
 `;
 
-export const CenteredMessage = (styled as any).div`
+export const CenteredMessage = styled.div`
   display: flex;
   flex: 1;
   justify-content: center;
   align-items: center;
 `;
 
-export const ErrorMessage = (styled as any)(CenteredMessage)`
+export const ErrorMessage = withTheme(styled(CenteredMessage)`
   color: ${props => props.theme.red};
-`;
+`);

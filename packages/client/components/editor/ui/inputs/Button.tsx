@@ -1,7 +1,8 @@
 // @ts-ignore
 import styled from "styled-components";
+import { withTheme } from "../theme";
 
-export const Button = (styled as any).button.attrs(props => ({
+export const Button = withTheme((styled as any).button.attrs(props => ({
   type: props.type || "button"
 }))`
   display: flex;
@@ -38,7 +39,7 @@ export const Button = (styled as any).button.attrs(props => ({
       background-color: ${props => props.theme.disabled};
     }
   }
-`;
+`);
 
 export const MediumButton = (styled as any)(Button)`
   line-height: 1em;
@@ -52,7 +53,7 @@ export const LargeButton = (styled as any)(Button)`
   font-size: 1.5em;
 `;
 
-export const SecondaryButton = (styled as any)(Button)`
+export const SecondaryButton = withTheme((styled as any)(Button)`
   background-color: ${props => props.theme.hover};
   color: ${props => props.theme.text};
 
@@ -72,9 +73,9 @@ export const SecondaryButton = (styled as any)(Button)`
       background-color: transparent;
     }
   }
-`;
+`);
 
-export const MenuButton = (styled as any)(Button)`
+export const MenuButton = withTheme((styled as any)(Button)`
   background-color: transparent;
   color: ${props => props.theme.text2};
   padding: 1px 8px;
@@ -95,7 +96,7 @@ export const MenuButton = (styled as any)(Button)`
       background-color: transparent;
     }
   }
-`;
+`);
 
 export const PropertiesPanelButton = (styled as any)(Button)`
   align-self: center;

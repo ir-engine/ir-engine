@@ -6,20 +6,21 @@ import { Provider } from 'react-redux';
 import { fromJS } from 'immutable';
 import { configureStore } from '../redux/store';
 import { Store } from 'redux';
-import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import theme from '../theme';
+import theme, { ThemeContext } from "./../components/editor/ui/theme";
 import { restoreState } from '../redux/persisted.store';
 import { doLoginAuto } from '../redux/auth/service';
 import DeviceDetector from 'device-detector-js';
 import { getDeviceType } from '../redux/devicedetect/actions';
-import React, { useEffect, Fragment } from 'react';
+import React, { useEffect, Fragment, useState } from 'react';
 import { initGA, logPageView } from '../components/analytics';
 import url from 'url';
 import querystring from 'querystring';
 import { dispatchAlertError } from '../redux/alert/service';
 
 import getConfig from 'next/config';
+import { ApiContext } from '../components/editor/ui/contexts/ApiContext';
+import Api from "../components/editor/api/Api"
 
 const config = getConfig().publicRuntimeConfig;
 
@@ -29,6 +30,8 @@ interface Props extends AppProps {
 
 const MyApp = (props: Props): any => {
   const { Component, pageProps, store } = props;
+
+  const [api, setApi] = useState<Api>()
 
   const getDeviceInfo = async (): Promise<any> => {
     const deviceInfo = { device: {}, WebXRSupported: false };
@@ -64,7 +67,12 @@ const MyApp = (props: Props): any => {
       const stringifiedQuery = querystring.stringify(query);
       window.history.replaceState({}, document.title, urlParts.pathname + stringifiedQuery);
     }
+    setApi(new Api())
   }, []);
+  
+  useEffect(() => {
+    console.warn("API: ", api)
+  }, [api])
 
   return (
     <Fragment>
@@ -75,14 +83,16 @@ const MyApp = (props: Props): any => {
           content="minimum-scale=1, initial-scale=1, width=device-width"
         />
       </Head>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Provider store={store}>
-          <Component />
-        </Provider>
-      </ThemeProvider>
+      <ThemeContext.Provider value={theme}>
+        <ApiContext.Provider value={api}>
+          <CssBaseline />
+          <Provider store={store}>
+            <Component {...pageProps} />
+          </Provider>
+        </ApiContext.Provider>
+      </ThemeContext.Provider>
     </Fragment>
-  );
+  )
 };
 export default withRedux(configureStore, {
   serializeState: (state) => state.toJS(),
