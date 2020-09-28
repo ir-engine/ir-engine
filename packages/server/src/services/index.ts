@@ -24,10 +24,12 @@ import IdentityProvider from './identity-provider/identity-provider.service'
 import Instance from './instance/instance.service'
 import Invite from './invite/invite.service'
 import License from './license/license.service'
+import GameserverSubdomainProvision from './gameserver-subdomain-provision/gameserver-subdomain-provision.service';
 import LoginToken from './login-token/login-token.service'
 import Location from './location/location.service'
 import Party from './party/party.service'
 import Project from './project/project.service'
+import RtcPorts from './rtc-ports/rtc-ports.service'
 import Seat from './seat/seat.service'
 import StaticResource from './static-resource/static-resource.service'
 import User from './user/user.service'
@@ -65,7 +67,6 @@ import ResolveMedia from './resolve-media/resolve-media.service'
 // GraphQL
 import GraphQL from './graphql/graphql.service'
 
-import rtcPorts from './rtc-ports/rtc-ports.service';
 
 export default (app: Application): void => {
   // Dynamic types
@@ -90,11 +91,13 @@ export default (app: Application): void => {
   app.configure(IdentityProvider)
   app.configure(Instance)
   app.configure(Invite)
-  app.configure(Location)
   app.configure(License)
+  app.configure(GameserverSubdomainProvision);
+  app.configure(Location)
   app.configure(LoginToken)
   app.configure(Party)
   app.configure(Project)
+  app.configure(RtcPorts)
   app.configure(Seat)
   app.configure(StaticResource)
   app.configure(Subscription)
@@ -132,5 +135,4 @@ export default (app: Application): void => {
 
   // GraphQL
   app.configure(GraphQL)
-  app.configure(rtcPorts);
 }

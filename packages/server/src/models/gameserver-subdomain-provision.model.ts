@@ -6,19 +6,18 @@ import { HookReturn } from 'sequelize/types/lib/hooks';
 
 export default function (app: Application): typeof Model {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
-  const rtcPorts = sequelizeClient.define('rtc_ports', {
+  const gameserverSubdomainProvision = sequelizeClient.define('gameserver_subdomain_provision', {
     id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV1,
-      allowNull: false,
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true
     },
-    start_port: {
-      type: DataTypes.INTEGER,
-      allowNull: false
+    gs_id: {
+      type: DataTypes.STRING,
+      allowNull: true
     },
-    end_port: {
-      type: DataTypes.INTEGER,
+    gs_number: {
+      type: DataTypes.STRING,
       allowNull: false
     },
     allocated: {
@@ -33,10 +32,11 @@ export default function (app: Application): typeof Model {
   });
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  (rtcPorts as any).associate = function (models: any): void {
+  (gameserverSubdomainProvision as any).associate = function (models: any): void {
+    (gameserverSubdomainProvision as any).belongsTo(models.instance);
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
   };
 
-  return rtcPorts;
+  return gameserverSubdomainProvision;
 }

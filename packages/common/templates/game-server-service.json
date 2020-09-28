@@ -7,6 +7,6 @@
   "spec": {
     "type": "NodePort",
     "ports": [],
-    "selector": ""
+    "selector": {}
   }
 }
