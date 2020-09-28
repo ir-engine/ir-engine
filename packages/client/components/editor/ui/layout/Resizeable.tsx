@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 
 const ResizeCursorState = createGlobalStyle`
   body {
-    cursor: ${props => (props.resizing ? (props.axis === "y" ? "ns-resize" : "ew-resize") : "inherit")};
+    cursor: ${props => ((props as any).resizing ? ((props as any).axis === "y" ? "ns-resize" : "ew-resize") : "inherit")};
   }
 `;
 
@@ -169,7 +169,13 @@ export default class Resizeable extends Component {
     return (
       <Fragment>
         <Container ref={this.containerRef}>{newChildren}</Container>
-        <ResizeCursorState resizing={(this.state as any).resizing} axis={(this.props as any).axis} />
+        {/* <ResizeCursorState resizing={(this.state as any).resizing} axis={(this.props as any).axis} /> */}
+        {
+          React.cloneElement(<ResizeCursorState />, {
+            resizing: (this.state as any).resizing,
+            axis: (this.props as any).axis
+          })
+        }
       </Fragment>
     );
   }

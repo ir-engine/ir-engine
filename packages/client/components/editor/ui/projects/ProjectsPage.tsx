@@ -13,7 +13,7 @@ import {
 import { Button } from "../inputs/Button";
 
 import { MediumButton } from "../inputs/Button";
-import { Link } from "react-router-dom";
+// import Link from "next/link";
 import { connectMenu, ContextMenu, MenuItem } from "../layout/ContextMenu";
 import templates from "./templates";
 import styled from "styled-components";
@@ -157,7 +157,7 @@ class ProjectsPage extends Component {
                   If you&#39;re new here we recommend going through the tutorial. Otherwise, jump right in and create a
                   project from scratch or from one of our templates.
                 </h2>
-                <MediumButton as={Link} to="/projects/tutorial">
+                <MediumButton as="a" href="/projects/tutorial">
                   Start Tutorial
                 </MediumButton>
               </WelcomeContainer>
@@ -173,7 +173,7 @@ class ProjectsPage extends Component {
                 <ProjectGridHeader>
                   <ProjectGridHeaderRow />
                   <ProjectGridHeaderRow>
-                    <Button as={Link} to="/projects/create">
+                    <Button as="a" href="/editor/create">
                       New Project
                     </Button>
                   </ProjectGridHeaderRow>

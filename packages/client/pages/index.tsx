@@ -22,8 +22,7 @@ const mapStateToProps = (state: any): any => {
     };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-});
+const mapDispatchToProps = (dispatch: Dispatch): any => ({});
 
 export const IndexPage = (props: any): any => {
     const {

@@ -17,7 +17,7 @@ import { withApi } from "../contexts/ApiContext";
 import { Button } from "../inputs/Button";
 import Well from "../layout/Well";
 import { cmdOrCtrlString } from "../utils";
-import { Link } from "react-router-dom";
+// import Link from "next/link";
 
 /* eslint-disable react/prop-types */
 
@@ -407,7 +407,7 @@ const steps = [
           <p>
             Great job! You&#39;ve touched all the basics and published a scene! To get started on your own scene check out your projects page. Or click finish to continue working on this scene.
           </p>
-          <Button as={Link} onClick={() => props.onFinish("Navigate to Projects Page")} to="/projects">
+          <Button as="a" onClick={() => props.onFinish("Navigate to Projects Page")} to="/projects">
             My Projects
           </Button>
         </OnboardingDialog>

@@ -18,12 +18,14 @@ import { Button } from "../inputs/Button";
 import { ProjectsSection, ProjectsContainer, ProjectsHeader } from "./ProjectsPage";
 import { ApiContext } from "../contexts/ApiContext";
 import InfiniteScroll from "react-infinite-scroller";
-import usePaginatedSearch from "./usePaginatedSearch";
+// import usePaginatedSearch from "./usePaginatedSearch";
+import { useRouter } from "next/router";
 
-export default function CreateProjectPage({ history, location }) {
+export default function CreateProjectPage() {
   const api = useContext(ApiContext);
+  const router = useRouter()
 
-  const queryParams = new URLSearchParams(location.search);
+  const queryParams = new Map(Object.entries(router.query))
 
   const [params, setParams] = useState({
     source: "scene_listings",
@@ -43,13 +45,18 @@ export default function CreateProjectPage({ history, location }) {
         search.set(name, nextParams[name]);
       }
 
-      history.push(`/projects/create?${search}`);
+      // history.push(`/projects/create?${search}`);
+      router.push(`/editor/create?${search}`);
 
       setParams(nextParams);
     },
-    [history]
+    [router]
   );
 
+  const routeTo = (route: string) => () => {
+    router.push(route)
+  }
+  
   const onChangeQuery = useCallback(
     value => {
       updateParams({
@@ -81,9 +88,9 @@ export default function CreateProjectPage({ history, location }) {
     scene => {
       const search = new URLSearchParams();
       search.set("sceneId", scene.id);
-      history.push(`/projects/new?${search}`);
+      router.push(`/projects/new?${search}`);
     },
-    [history]
+    [router]
   );
 
   // MODIFIED FROM ORIGINAL
@@ -102,22 +109,24 @@ export default function CreateProjectPage({ history, location }) {
           <ProjectsContainer>
             <ProjectsHeader>
               <h1>New Project</h1>
-              <PrimaryLink to="/projects">Back to projects</PrimaryLink>
+              <PrimaryLink href="/editor/projects">
+                Back to projects
+              </PrimaryLink>
             </ProjectsHeader>
             <ProjectGridContainer>
               <ProjectGridHeader>
-                <ProjectGridHeaderRow>
-                  <Filter onClick={onSetFeaturedRemixable} active={params.filter === "featured-remixable"}>
+              <ProjectGridHeaderRow>
+                  <Filter active={params.filter === "featured-remixable"} onClick={onSetFeaturedRemixable}>
                     Featured
                   </Filter>
-                  <Filter onClick={onSetAll} active={params.filter === "remixable"}>
+                  <Filter active={params.filter === "remixable"} onClick={onSetAll}>
                     All
                   </Filter>
                   <Separator />
-                  <SearchInput placeholder="Search scenes..." value={params.q} onChange={onChangeQuery} />
+                  <SearchInput placeholder="Search scenes..." onChange={onChangeQuery} />
                 </ProjectGridHeaderRow>
                 <ProjectGridHeaderRow>
-                  <Button to="/projects/new">
+                  <Button onClick={routeTo('/projects/new')}>
                     New Empty Project
                   </Button>
                 </ProjectGridHeaderRow>
@@ -149,12 +158,11 @@ export default function CreateProjectPage({ history, location }) {
           </ProjectsContainer>
         </ProjectsSection>
       </main>
-      
     </>
-  );
+  )
 }
 
-CreateProjectPage.propTypes = {
-  history: PropTypes.object.isRequired,
-  location: PropTypes.object.isRequired
-};
+// CreateProjectPage.propTypes = {
+//   history: PropTypes.object.isRequired,
+//   location: PropTypes.object.isRequired
+// };

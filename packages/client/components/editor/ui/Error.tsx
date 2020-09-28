@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+// import Link from "next/link";
 import styled from "styled-components";
+import { ThemeContext } from "./theme";
 
 const StyledError = (styled as any).div`
   display: flex;
@@ -22,13 +23,16 @@ export default class Error extends Component {
   static propTypes = {
     message: PropTypes.node
   };
+  
+  static contextType = ThemeContext
 
   render() {
+    let theme = this.context
     return (
-      <StyledError>
-        <Link to="/">
+      <StyledError theme={theme}>
+        <a href="/">
           Return
-        </Link>
+        </a>
         {(this.props as any).message}
       </StyledError>
     );

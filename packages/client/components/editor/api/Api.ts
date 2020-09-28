@@ -14,7 +14,7 @@ import PublishedSceneDialog from "./PublishedSceneDialog";
 const resolveUrlCache = new Map();
 const resolveMediaCache = new Map();
 
-const API_SERVER_ADDRESS = (configs as any).API_SERVER_ADDRESS || document.location.hostname;
+const API_SERVER_ADDRESS = (configs as any).API_SERVER_ADDRESS || process.browser ? document.location.hostname: "3000";
 
 const {
   API_ASSETS_ROUTE,
@@ -108,7 +108,7 @@ function guessContentType(url) {
 
 const LOCAL_STORE_KEY = "___hubs_store";
 
-export default class Project extends EventEmitter {
+export default class Api extends EventEmitter {
   serverURL: string;
   apiURL: string;
   projectDirectoryPath: string;
@@ -116,10 +116,11 @@ export default class Project extends EventEmitter {
   props: any;
   constructor() {
     super();
-
-    const { protocol, host } = new URL((window as any).location.href);
-
-    this.serverURL = protocol + "//" + host;
+    if (process.browser) {
+      const { protocol, host } = new URL((window as any).location.href);
+      this.serverURL = protocol + "//" + host;
+    }
+    
     this.apiURL = `${prefix}${API_SERVER_ADDRESS}`;
 
     this.projectDirectoryPath = "/api/files/";
@@ -1144,13 +1145,15 @@ export default class Project extends EventEmitter {
   }
 
   handleAuthorization() {
-    const accessToken = localStorage.getItem('XREngine-Auth-Store');
-    const email = 'test@test.com';
-    if((accessToken && email) || this.isAuthenticated()){
-      this.saveCredentials(email, accessToken);
-    }
-    else {
-      (window as any).location = `${(window as any).location.origin}?redirectTo=editor&login=true`;
+    if (process.browser) {
+      const accessToken = localStorage.getItem('XREngine-Auth-Store');
+      const email = 'test@test.com';
+      if((accessToken && email) || this.isAuthenticated()){
+        this.saveCredentials(email, accessToken);
+      }
+      // else {
+      //   (window as any).location = `${(window as any).location.origin}?redirectTo=editor&login=true`;
+      // }
     }
   }
 }
