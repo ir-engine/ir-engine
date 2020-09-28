@@ -73,7 +73,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
   static contextType = ThemeContext
   constructor(props: ProjectsPageProps) {
     super(props);
-    const isAuthenticated = (this.props as any).api.isAuthenticated();
+    const isAuthenticated = this.props.api.isAuthenticated();
     this.state = {
       projects: [],
       loading: false,
@@ -100,7 +100,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
           if (error.response && error.response.status === 401) {
             // User has an invalid auth token. Prompt them to login again.
             // return (this.props as any).history.push("/", { from: "/projects" });
-            return
+            return this.props.router.push("/editor/projects")
           }
           this.setState({ error, loading: false });
         });

@@ -7,7 +7,6 @@ import StringInput from "../inputs/StringInput";
 // import Link from "next/link"
 import { useRouter } from "next/router"
 import { Plus } from "@styled-icons/fa-solid/Plus";
-import { ThemeContext, withTheme } from "../theme";
 
 const ProjectGridItemContainer = styled.div`
   display: flex;
@@ -36,13 +35,12 @@ const ProjectGridItemContainer = styled.div`
 
 export function NewProjectGridItem({ path, label }: { path: string, label: string }) {
   const router = useRouter()
-  const theme = React.useContext(ThemeContext)
   
   const routeTo = (route: string) => () => {
     router.push(route)
   }
   return (
-    <ProjectGridItemContainer theme={theme} as="button" onClick={routeTo(path)}>
+    <ProjectGridItemContainer as="button" onClick={routeTo(path)}>
       <Plus />
       <h3>{label}</h3>
     </ProjectGridItemContainer>
@@ -59,9 +57,8 @@ NewProjectGridItem.defaultProps = {
 };
 
 export function LoadingProjectGridItem() {
-  const theme = React.useContext(ThemeContext)
   return (
-    <ProjectGridItemContainer theme={theme}>
+    <ProjectGridItemContainer>
       <h3>Loading...</h3>
     </ProjectGridItemContainer>
   );
@@ -75,9 +72,8 @@ const StyledProjectGrid = styled.div`
 `;
  
 export function ProjectGrid({ projects, newProjectPath, newProjectLabel, contextMenuId, loading }) {
-  const theme = React.useContext(ThemeContext)
   return (
-    <StyledProjectGrid theme={theme}>
+    <StyledProjectGrid>
       {newProjectPath && !loading && <NewProjectGridItem path={newProjectPath} label={newProjectLabel} />}
       {projects.map(project => (
         <ProjectGridItem key={project.project_id || project.id} project={project} contextMenuId={contextMenuId} />
@@ -95,22 +91,22 @@ ProjectGrid.propTypes = {
   loading: PropTypes.bool
 };
 
-export const ProjectGridContainer = withTheme(styled.div`
+export const ProjectGridContainer = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
   background-color: ${props => props.theme.panel2};
   border-radius: 3px;
-`);
+`;
 
-export const ProjectGridContent = withTheme(styled.div`
+export const ProjectGridContent = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
   padding: 20px;
-`);
+`;
 
-export const ProjectGridHeader = withTheme(styled.div`
+export const ProjectGridHeader = styled.div`
   display: flex;
   background-color: ${props => props.theme.toolbar2};
   border-radius: 3px 3px 0px 0px;
@@ -118,19 +114,19 @@ export const ProjectGridHeader = withTheme(styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0 10px;
-`);
+`;
 
-export const Filter = withTheme(styled.a<{ active?: boolean }>`
+export const Filter = styled.a<{ active?: boolean }>`
   font-size: 1.25em;
   cursor: pointer;
   color: ${props => (props.active ? props.theme.blue : props.theme.text)};
-`);
+`;
 
-export const Separator = withTheme(styled.div`
+export const Separator = styled.div`
   height: 48px;
   width: 1px;
   background-color: ${props => props.theme.border};
-`);
+`;
 
 export const ProjectGridHeaderRow = styled(Row)`
   align-items: center;
@@ -153,6 +149,6 @@ export const CenteredMessage = styled.div`
   align-items: center;
 `;
 
-export const ErrorMessage = withTheme(styled(CenteredMessage)`
+export const ErrorMessage = styled(CenteredMessage)`
   color: ${props => props.theme.red};
-`);
+`;
