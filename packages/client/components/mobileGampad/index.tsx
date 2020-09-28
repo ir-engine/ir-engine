@@ -2,6 +2,7 @@ import React, { CSSProperties, FunctionComponent, useEffect, useRef, useState } 
 import nipplejs from 'nipplejs';
 import { Thumbsticks } from '@xr3ngine/engine/src/common/enums/Thumbsticks';
 import { GamepadButtons } from "@xr3ngine/engine/src/input/enums/GamepadButtons";
+import './style.scss';
 
 export const MobileGamepad: FunctionComponent = (props: any) => {
   const leftContainer = useRef<HTMLDivElement>();
@@ -49,51 +50,29 @@ export const MobileGamepad: FunctionComponent = (props: any) => {
     document.dispatchEvent(event);
   };
 
-  const buttonsConfig: Array<{ button: GamepadButtons; label: string; style: CSSProperties }> = [
+  const buttonsConfig: Array<{ button: GamepadButtons; label: string; }> = [
     {
       button: GamepadButtons.A,
       label: "A",
-      style: {
-        backgroundColor: '#00bb00',
-        right: 0,
-        top: 0
-      }
     },
     {
       button: GamepadButtons.B,
       label: "B",
-      style: {
-        backgroundColor: '#bb0000',
-        right: '-' + buttonSize,
-        bottom: 0
-      }
     },
     {
       button: GamepadButtons.X,
       label: "X",
-      style: {
-        backgroundColor: '#0000ff',
-        right: buttonSize,
-        bottom: 0
-      }
     },
     {
       button: GamepadButtons.Y,
       label: "Y",
-      style: {
-        backgroundColor: '#ffbb00',
-        right: 0,
-        bottom: buttonSize
-      }
     },
   ];
-
-
 
   const buttons = buttonsConfig.map(((value, index) => {
     return (<div
       key={index}
-      style={{ ...buttonCommonStyle, ...value.style }}
+      className={"controllButton gamepadButton_"+value.label}
       onPointerDown={ (): void => triggerButton(value.button, true) }
       onPointerUp={ (): void => triggerButton(value.button, false) }
       onTouchStart={ (): void => triggerButton(value.button, true) }
@@ -134,33 +113,19 @@ export const MobileGamepad: FunctionComponent = (props: any) => {
       document.dispatchEvent(event);
     });
 
-    stickRight.on("move", (e, data) => {
-      const event = new CustomEvent("stickmove", { "detail": { stick: Thumbsticks.Right, value: { x: data.vector.x * 10, y: -data.vector.y * 10 } } });
-      document.dispatchEvent(event);
-    });
-    stickRight.on("end", ( e, data) => {
-      const event = new CustomEvent("stickmove", { "detail": { stick: Thumbsticks.Right, value: { x:0, y:0 } } });
-      document.dispatchEvent(event);
-    });
-
     return (): void => {
       // unmount
       stickLeft.destroy();
-      stickRight.destroy();
     };
   }, []);
 
   return (
     <>
       <div
-        style={{ ...containerStyle, ...leftContainerStyle }}
+        className='stickLeft'
         ref={leftContainer}
        />
-      <div
-        style={{ ...containerStyle, ...rightContainerStyle }}
-        ref={rightContainer}
-      />
-      <div style={buttonsContainerStyle}>
+      <div className="controlButtonContainer">
         { buttons }
       </div>
     </>);
