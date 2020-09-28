@@ -1,5 +1,7 @@
 import React, { CSSProperties, FunctionComponent } from "react";
 import { CommonInteractiveDataPayload } from "@xr3ngine/engine/src/templates/interactive/interfaces/CommonInteractiveData";
+import dynamic from "next/dynamic";
+const ModelView = dynamic(() => import("./modelView").then((mod) => mod.ModelView),  { ssr: false });
 
 export type InfoBoxProps = {
   onClose: unknown;
@@ -32,8 +34,15 @@ const iframeStyle: CSSProperties = {
 };
 
 export const InfoBox: FunctionComponent<InfoBoxProps> = ({ onClose, data }: InfoBoxProps) => {
+
+  let modelView = null;
+  if (data.modelUrl) {
+    modelView = (<ModelView modelUrl={data.modelUrl} />);
+  }
+
   return <div style={styles}>
     <h3>{ data.name }</h3>
+    {modelView}
     <span style={linkStyle} onClick={(): void => { if (typeof onClose === 'function') { onClose(); } }}>Back</span>
     { data.buyUrl? <a style={linkStyle} target="_blank" href={data.buyUrl}>Buy</a> : null }
     { data.learnMoreUrl? <a style={linkStyle} target="_blank" href={data.learnMoreUrl}>Learn more</a> : null }
