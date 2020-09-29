@@ -4,45 +4,13 @@ import { Thumbsticks } from '@xr3ngine/engine/src/common/enums/Thumbsticks';
 import { GamepadButtons } from "@xr3ngine/engine/src/input/enums/GamepadButtons";
 import './style.scss';
 
-export const MobileGamepad: FunctionComponent = (props: any) => {
+export type MobileGamepadProps = {
+  hovered ?:boolean | false;
+  layout ?: string ;
+};
+
+export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,layout}:MobileGamepadProps) => {
   const leftContainer = useRef<HTMLDivElement>();
-  const rightContainer = useRef<HTMLDivElement>();
-
-  const containerStyle: CSSProperties = {
-    position: 'fixed',
-    bottom: 0,
-    width: '50%'
-  };
-  const leftContainerStyle: CSSProperties = {
-    left: 0
-  };
-  const rightContainerStyle: CSSProperties = {
-    right: 0
-  };
-
-  const buttonSize = '2.5em';
-  const buttonCommonStyle: CSSProperties = {
-    position: 'absolute',
-    borderRadius: '50%',
-    backgroundColor: 'white',
-    opacity: 0.75,
-    bottom: '0px',
-    fontSize: '20px',
-    height: buttonSize,
-    width: buttonSize,
-    textAlign: 'center',
-    lineHeight: buttonSize
-  };
-
-  const buttonsContainerStyle: CSSProperties = {
-    position: 'fixed',
-    borderRadius: '50%',
-    right: '10%',
-    bottom: '60%',
-    // backgroundColor: 'white',
-    // width: '10px',
-    // height: '10px'
-  };
 
   const triggerButton = (button: GamepadButtons, pressed: boolean): void => {
     const eventType = pressed? "mobilegamepadbuttondown" : "mobilegamepadbuttonup";
@@ -70,9 +38,11 @@ export const MobileGamepad: FunctionComponent = (props: any) => {
   ];
 
   const buttons = buttonsConfig.map(((value, index) => {
+    let buttonClassName = "controllButton gamepadButton_"+value.label;
+    buttonClassName += value.label === 'Y' && hovered ? ' _available' : value.label === 'A' && layout !== 'default' ? '_not_available' :'';
     return (<div
       key={index}
-      className={"controllButton gamepadButton_"+value.label}
+      className={ buttonClassName }
       onPointerDown={ (): void => triggerButton(value.button, true) }
       onPointerUp={ (): void => triggerButton(value.button, false) }
       onTouchStart={ (): void => triggerButton(value.button, true) }
@@ -90,15 +60,6 @@ export const MobileGamepad: FunctionComponent = (props: any) => {
       mode: 'static',
       position: { left: '40%', bottom: bottom + 'px' },
       color: 'green',
-      size: size,
-      dynamicPage: true
-    });
-
-    const stickRight = nipplejs.create({
-      zone: rightContainer.current,
-      mode: 'static',
-      position: { right: '20%', bottom: bottom + 'px' },
-      color: 'red',
       size: size,
       dynamicPage: true
     });
