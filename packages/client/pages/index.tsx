@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import './style.scss';
+//import './style.scss';
 import {Button} from '@material-ui/core';
 import NoSSR from 'react-no-ssr';
 import { connect } from "react-redux";
@@ -38,9 +38,10 @@ export const IndexPage = (props: any): any => {
       }
   }, [selfUser?.instanceId, selfUser?.partyId, instanceConnectionState]);
 
+  // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
+
   return(
     <Layout pageTitle="Home">
-      <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
       <NoSSR onSSR={<Loading/>}>
         {sceneIsVisible? (<Scene />) : null}
       </NoSSR>
