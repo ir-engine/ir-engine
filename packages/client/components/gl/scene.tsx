@@ -18,16 +18,7 @@ import { TransformComponent } from '@xr3ngine/engine/src/transform/components/Tr
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import {
-  AmbientLight,
-  EquirectangularReflectionMapping,
-  Mesh,
-  MeshPhongMaterial,
-  SphereBufferGeometry,
-  sRGBEncoding,
-  TextureLoader,
-  CineonToneMapping
-} from 'three';
+import { AmbientLight, EquirectangularReflectionMapping, Mesh, MeshPhongMaterial, SphereBufferGeometry, sRGBEncoding, TextureLoader,CineonToneMapping } from 'three';
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';
 import { connectToInstanceServer, provisionInstanceServer } from '../../redux/instanceConnection/service';
@@ -173,7 +164,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
       //   class extends Component {static scema = {}}
       // )
     }
-
+    Engine.renderer.toneMapping = CineonToneMapping;
+    Engine.renderer.toneMappingExposure = 0.1;
 
 
     Engine.renderer.toneMapping = CineonToneMapping;
@@ -282,6 +274,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
     ) : null;
 
   const mobileGamepadProps = {hovered:hoveredLabel.length > 0 ? true : false, layout: hintBoxData }
+  
+  // @ts-ignore TODO: ** ??? Why is mobilegamepad throwing errors? 
   const mobileGamepad = isMobileOrTablet()? <MobileGamepad {...mobileGamepadProps} /> : null;
 
   const infoBox = !!!isMobileOrTablet() && infoBoxData ? <InfoBox onClose={() => { setInfoBoxData(null) }} data={infoBoxData} /> : null;
