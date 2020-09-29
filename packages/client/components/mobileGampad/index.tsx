@@ -4,12 +4,7 @@ import { Thumbsticks } from '@xr3ngine/engine/src/common/enums/Thumbsticks';
 import { GamepadButtons } from "@xr3ngine/engine/src/input/enums/GamepadButtons";
 import './style.scss';
 
-export type  mobileGamepadProps = {
-  hovered?: boolean | false;
-  layout?: string;
-}
-
-export const MobileGamepad: FunctionComponent<mobileGamepadProps> = ({hovered, layout = 'default'} : mobileGamepadProps) => {
+export const MobileGamepad: FunctionComponent = (props: any) => {
   const leftContainer = useRef<HTMLDivElement>();
   const rightContainer = useRef<HTMLDivElement>();
 
@@ -56,7 +51,7 @@ export const MobileGamepad: FunctionComponent<mobileGamepadProps> = ({hovered, l
   };
 
   const buttonsConfig: Array<{ button: GamepadButtons; label: string; }> = [
-    layout === 'default' && {
+    {
       button: GamepadButtons.A,
       label: "A",
     },
@@ -70,17 +65,7 @@ export const MobileGamepad: FunctionComponent<mobileGamepadProps> = ({hovered, l
     },
     {
       button: GamepadButtons.Y,
-      label: "Y"
-      // style: {
-      //   backgroundColor: '#ffbb00',
-      //   right: 0,
-      //   bottom: buttonSize,
-      //   fontWeight: hovered ? 'bold' : 'normal',
-      //   color: hovered ? 'white' : 'black',
-      //   border: hovered ? '2px solid rgba(102,185,51,1)' : '',
-      //   boxShadow: hovered ? '0 0 10px rgba(102,185,51,1)' : '',
-      //   opacity: hovered ? '1' : '0.75'
-      // }
+      label: "Y",
     },
   ];
 
@@ -146,4 +131,4 @@ export const MobileGamepad: FunctionComponent<mobileGamepadProps> = ({hovered, l
     </>);
 };
 
-export default MobileGamepad;
+export default MobileGamepad
