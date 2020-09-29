@@ -8,8 +8,39 @@ import Left from "../ui/Drawer/Left";
 import { createEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 //import {curryRight} from "lodash";
 
-function round(number) {
+function round(number: number): number {
     return Math.trunc(number * 1000) / 1000;
+}
+
+function objectToString(object: object, tabLevel: number, maxTabLevel: number): string {
+    let s = '';
+   
+    Object.keys(object).sort().forEach(k => {
+        s += '\t'.repeat(tabLevel);
+        s += (k + ': ');
+        const v = object[k];
+        if (v === null) {
+            s += 'null';
+        } else if (typeof v === 'function') {
+            s += 'function';
+        } else if (typeof v === 'object') {
+
+            if (tabLevel >= maxTabLevel) {
+                s += '{ ... }';
+            } else {
+                s += '{\n';
+                s += objectToString(v, tabLevel + 1, maxTabLevel);
+                s += '\t'.repeat(tabLevel);
+                s += '}';
+            }
+
+        } else {
+            s += v.toString();
+        }
+        s += '\n';
+    });
+
+    return s;
 }
 
 export const commands = {
@@ -174,13 +205,8 @@ export const commands = {
                                     ', w: ' + round(component.rotation._w) + ')');
                             s += '\n';
 
-                            // console.log('check', component);
                             if ('a' in args)
-                                Object.keys(component).sort().forEach(k => {
-                                    s += ('\t' + k + '\n');
-                                    // if (component[k] === null)
-                                    // component[k].toString() + '\n');
-                                });
+                                s += objectToString(component, 1, 2);
                         }
                         print(s);
                         break;
@@ -239,33 +265,8 @@ export const commands = {
 
                     Engine.entities.forEach(e => {
                         if (componentId in e.components) {
-                            s +=  `Entity ${e.id }:\n`;
-                            const component = e.components[componentId];
-
-                            Object.keys(component).sort().forEach(k => {
-                                s += ('\t' + k + ': ');
-                                const v = component[k];
-                                if (v === null) {
-                                    s += 'null';
-                                } else if (typeof v === 'object') {
-                                    s += '{\n';
-                                    Object.keys(v).sort().forEach(p => {
-                                        s += ('\t\t' + p + ': ');
-                                        if (v[p] === null)
-                                            s += 'null';
-                                        else if (typeof v[p] === 'function')
-                                            s += 'function';
-                                        else
-                                            s += v[p].toString();
-                                        s += '\n';
-                                    });
-                                    s += '\t}';
-                                } else {
-                                    s += v.toString();
-                                }
-                                s += '\n';
-                            });
-
+                            s += `Entity ${e.id }:\n`;
+                            s += objectToString(e.components[componentId], 1, 2);
                         }
                     });
 
@@ -312,8 +313,10 @@ export const commands = {
 };
 
 export const description = {
-    // ecs: {
-    //     play: '',
-    //     pause: '',
-    // }
+    /*
+    ecs: {
+         play: '',
+         pause: '',
+    }
+    */
 };

@@ -20,6 +20,7 @@ import { red } from '@material-ui/core/colors';
 import { ContentBackspace } from 'material-ui/svg-icons';
 
 let isTerminalExpanded = false;
+// isTerminalExpanded = true;
 
 function compLogic(comp) {
   switch (comp) {
