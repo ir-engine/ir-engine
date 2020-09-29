@@ -1,6 +1,6 @@
 import { createGlobalStyle } from "styled-components";
 import { Theme } from "./theme";
-const GlobalStyle = createGlobalStyle<{ theme: Theme }>`
+const GlobalStyle = createGlobalStyle`
   /*! minireset.css v0.0.4 | MIT License | github.com/jgthms/minireset.css */
   html,
   body,
@@ -92,19 +92,19 @@ const GlobalStyle = createGlobalStyle<{ theme: Theme }>`
   }
 
   ::selection {
-    color: ${props => props.theme.text};
-    background-color: ${props => props.theme.selected};
+    color: ${props => (props.theme as any).text};
+    background-color: ${props => (props.theme as any).selected};
   }
 
   a {
-    color: ${props => props.theme.text};
+    color: ${props => (props.theme as any).text};
 
     &:hover {
-      color: ${props => props.theme.blueHover};
+      color: ${props => (props.theme as any).blueHover};
     }
 
     &:active {
-      color: ${props => props.theme.bluePressed};
+      color: ${props => (props.theme as any).bluePressed};
     }
   }
 
@@ -126,10 +126,10 @@ const GlobalStyle = createGlobalStyle<{ theme: Theme }>`
   }
 
   body {
-    font-family: ${props => props.theme.lato};
+    font-family: ${props => (props.theme as any).lato};
     font-size: 12px;
-    color: ${props => props.theme.text};
-    background-color: ${props => props.theme.background};
+    color: ${props => (props.theme as any).text};
+    background-color: ${props => (props.theme as any).background};
     scrollbar-color: #282c31 #5d646c;
   }
 
@@ -139,7 +139,7 @@ const GlobalStyle = createGlobalStyle<{ theme: Theme }>`
     flex: 1;
     outline: none;
     max-height: 100%;
-    box-shadow: ${props => props.theme.shadow30};
+    box-shadow: ${props => (props.theme as any).shadow30};
     margin-bottom: 10vh;
   }
 

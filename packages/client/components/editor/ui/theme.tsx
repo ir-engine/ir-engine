@@ -1,6 +1,7 @@
 import React from "react"
 
 const theme = {
+  a: "",
   lato: "'Lato', sans-serif",
   zilla: "'Zilla Slab', sans-serif",
   background: "#15171B",

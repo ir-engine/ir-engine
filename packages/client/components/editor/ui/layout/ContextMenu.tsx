@@ -14,6 +14,7 @@ export const MenuItem = _MenuItem;
 export const showMenu = _showMenu;
 export const SubMenu = _SubMenu;
 export const ContextMenuTrigger = _ContextMenuTrigger;
+// @ts-ignore
 export const ContextMenuStyles = createGlobalStyle<{ theme: Theme}>`
   .react-contextmenu {
     background-color: ${props => props.theme.dropdown};
