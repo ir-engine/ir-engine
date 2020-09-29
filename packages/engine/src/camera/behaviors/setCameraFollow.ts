@@ -9,7 +9,7 @@ import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/Fo
 import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import {MouseInput} from "../../input/enums/MouseInput";
 import { DefaultInput } from "../../templates/shared/DefaultInput";
-
+import { LifecycleValue } from '../../common/enums/LifecycleValue';
 
 let follower, target;
 let inputComponent:Input;
@@ -41,18 +41,49 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
 
   camera = getMutableComponent<CameraComponent>(entityIn, CameraComponent);
 
-  const inputAxes = inputComponent.data.has(DefaultInput.LOOKTURN_PLAYERONE)? DefaultInput.LOOKTURN_PLAYERONE : inputComponent.schema.mouseInputMap.axes[MouseInput.MouseMovement]
+  let inputAxes;
+  if (inputComponent.data.has(DefaultInput.LOOKTURN_PLAYERONE)) {
+    inputAxes = DefaultInput.LOOKTURN_PLAYERONE
+  } else {
+    if (document.pointerLockElement) {
+      inputAxes = inputComponent.schema.mouseInputMap.axes[MouseInput.MouseMovement]
+    } else {
+      inputAxes = DefaultInput.LOOKTURN_PLAYERONE
+    }
+  }
 
   if (!inputComponent.data.has(inputAxes)) {
     inputValue = [0, 0]
   } else {
-    inputValue = inputComponent.data.get(inputAxes).value
+    const inputData = inputComponent.data.get(inputAxes)
+    inputValue = inputData.value
+    if (inputData.lifecycleState === LifecycleValue.ENDED) {
+      // skip
+      return
+    }
+    console.log('inputData.lifecycleState', inputData.lifecycleState.toString())
+    if (inputData.lifecycleState !== LifecycleValue.CHANGED) {
+      console.log('! LifecycleValue.CHANGED')
+      debugger
+    }
+    const preInputData = inputComponent.prevData.get(inputAxes)
+
+    if (inputData.lifecycleState === LifecycleValue.CHANGED) {
+      console.log(inputValue, '->', preInputData?.value)
+    }
+
+    if (inputValue[0] === preInputData?.value[0] && inputValue[1] === preInputData?.value[1]) {
+      debugger
+    }
+
+
+
     // fix infinity rotation
     // Math.abs(inputValue[0] + inputValue[1]) == 1 ? inputValue = [0, 0] : '';
-    if (inputAxes === DefaultInput.MOUSE_MOVEMENT) {
-      // TODO: is it ok to clear it?
-      inputComponent.data.delete(inputAxes)
-    }
+    // if (inputAxes === DefaultInput.MOUSE_MOVEMENT) {
+    //   // TODO: is it ok to clear it?
+    //   inputComponent.data.delete(inputAxes)
+    // }
   }
 
   if (cameraFollow.mode === "firstPerson") {
