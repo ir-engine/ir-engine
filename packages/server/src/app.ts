@@ -144,4 +144,20 @@ const editorPath = process.env.NODE_ENV === 'production' ? path.join(config.serv
 app.use(express.static(editorPath))
 app.all('/editor/*', (req, res) => res.sendFile(path.join(editorPath, 'editor/index.html')))
 
+process.on('exit', async () => {
+  console.log('Server exiting')
+  const gsName = (app as any).gsName;
+  console.log('App\'s gameserver name:')
+  console.log(gsName)
+  if (gsName != null && process.env.NODE_ENV !== 'development' && (app as any).k8DefaultClient != null) {
+    try {
+      const serviceShutdownResult = await (app as any).k8DefaultClient.delete(`/namespaces/default/service/${gsName}`)
+      console.log('Service shutdown result:')
+      console.log(serviceShutdownResult)
+    } catch(err) {
+      console.log('Service shutdown error:')
+      console.log(err)
+    }
+  }
+})
 export default app

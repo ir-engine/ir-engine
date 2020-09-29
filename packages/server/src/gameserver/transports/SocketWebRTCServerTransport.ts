@@ -201,10 +201,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         }
     }
 
-    async getFreeSubdomain(gsIdentifier: string, subdomainNumber: number): Promise<string> {
+    async getFreeSubdomain(gsIdentifier: string, subdomainNumber: number): Promise<number> {
         try {
             console.log('getFreeSubdomain')
-            const stringSubdomainNumber = subdomainNumber.toString().padStart(config.gameserver.identifierDigits, '0');
+            const stringSubdomainNumber = subdomainNumber;
             const subdomainResult = await this.app.service('gameserver-subdomain-provision').find({
                 query: {
                     gs_number: stringSubdomainNumber
@@ -239,6 +239,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
     public async initialize(address, port = 3030): Promise<void> {
         try {
+            let gs;
             if (this.isInitialized) console.error("Already initialized transport")
             logger.info('Initializing server transport')
 
@@ -256,18 +257,19 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 //         resolve(stdout ? stdout : stderr);
                 //     })
                 // });
-                const {startPort, endPort} = await this.getRtcPortRange(config.gameserver.rtc_start_port, config.gameserver.rtc_port_block_size);
-                console.log(`startPort: ${startPort}`)
-                console.log(`endPort: ${endPort}`)
-                localConfig.mediasoup.worker.rtcMinPort = startPort;
-                localConfig.mediasoup.worker.rtcMaxPort = endPort;
+                // const {startPort, endPort} = await this.getRtcPortRange(config.gameserver.rtc_start_port, config.gameserver.rtc_port_block_size);
+                // console.log(`startPort: ${startPort}`)
+                // console.log(`endPort: ${endPort}`)
+                // localConfig.mediasoup.worker.rtcMinPort = startPort;
+                // localConfig.mediasoup.worker.rtcMaxPort = endPort;
                 const service = gameserverServiceTemplate;
-                const gs = await (this.app as any).agonesSDK.getGameServer();
+                gs = await (this.app as any).agonesSDK.getGameServer();
                 const name = gs.objectMeta.name;
+                (this.app as any).gsName = name;
 
                 const gsIdentifier = gsNameRegex.exec(name)
-                stringSubdomainNumber = await this.getFreeSubdomain(gsIdentifier[1], 0);
-                console.log('Next free subdomain number: ' + stringSubdomainNumber)
+                // stringSubdomainNumber = await this.getFreeSubdomain(gsIdentifier[1], 0);
+                // console.log('Next free subdomain number: ' + stringSubdomainNumber)
 
                 service.metadata.name = name;
                 service.spec.selector['agones.dev/gameserver'] = name;
@@ -280,6 +282,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         name: `udp-${i}`
                     })
                 }
+
+                // service.spec.externalIPs.push(`192.168.99.101`);
 
                 console.log('Service template to write in JSON:');
                 console.log(service);
@@ -294,31 +298,31 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     if (err.code !== 409) throw err
                 }
 
-                const params = {
-                    ChangeBatch: {
-                        Changes: [
-                            {
-                                Action: 'UPSERT',
-                                ResourceRecordSet: {
-                                    Name: `${stringSubdomainNumber}.${config.gameserver.domain}`,
-                                    ResourceRecords: [
-                                        {
-                                            Value: servicePostResult?.status?.loadBalancer?.externalIp ?? '192.168.99.101'
-                                        }
-                                    ],
-                                    TTL: 15,
-                                    Type: 'A'
-                                }
-                            }
-                        ]
-                    },
-                    HostedZoneId: config.aws.route53.hostedZoneId
-                }
-                console.log('Record set params:')
-                console.log(params)
-                const result = await Route53.changeResourceRecordSets(params)
-                console.log('Route53 Record set patch result:')
-                console.log(result);
+                // const params = {
+                //     ChangeBatch: {
+                //         Changes: [
+                //             {
+                //                 Action: 'UPSERT',
+                //                 ResourceRecordSet: {
+                //                     Name: `${stringSubdomainNumber}.${config.gameserver.domain}`,
+                //                     ResourceRecords: [
+                //                         {
+                //                             Value: servicePostResult?.status?.loadBalancer?.externalIp ?? '192.168.99.101'
+                //                         }
+                //                     ],
+                //                     TTL: 15,
+                //                     Type: 'A'
+                //                 }
+                //             }
+                //         ]
+                //     },
+                //     HostedZoneId: config.aws.route53.hostedZoneId
+                // }
+                // console.log('Record set params:')
+                // console.log(params)
+                // const result = await Route53.changeResourceRecordSets(params)
+                // console.log('Route53 Record set patch result:')
+                // console.log(result);
             }
 
             logger.info('Starting WebRTC')
@@ -329,7 +333,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             const localIp = await getLocalServerIp();
             localConfig.mediasoup.webRtcTransport.listenIps = [{
                 ip: '0.0.0.0',
-                announcedIp: process.env.KUBERNETES === 'true' ? `${stringSubdomainNumber}.${config.gameserver.domain}` : localIp.ipAddress
+                announcedIp: process.env.KUBERNETES === 'true' ? gs.status.address : localIp.ipAddress
             }]
             this.socketIO = (this.app as any)?.io
 
@@ -468,6 +472,19 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     }
 
                     const {id, iceParameters, iceCandidates, dtlsParameters} = transport
+                    console.log('ICE Candidates:')
+                    console.log(iceCandidates)
+                    const gs = await (this.app as any).agonesSDK.getGameServer();
+                    const name = gs.objectMeta.name;
+                    console.log('This gameserver name: ' + name);
+                    const service = await (this.app as any).k8DefaultClient.get(`namespaces/default/services/${name}`)
+                    console.log('This gameserver\s service:');
+                    console.log(service.spec?.ports);
+                    iceCandidates.forEach((candidate) => {
+                        candidate.port = service?.spec?.ports?.find((portMapping) => portMapping.port === candidate.port).nodePort
+                    })
+                    console.log('remapped ICE candidates:')
+                    console.log(iceCandidates)
                     const clientTransportOptions: MediaSoupClientTypes.TransportOptions = {
                         id,
                         sctpParameters: {
@@ -930,7 +947,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             const transport = await this.router.createWebRtcTransport({
                 listenIps: listenIps,
                 enableUdp: true,
-                enableTcp: true,
+                enableTcp: false,
                 preferUdp: true,
                 enableSctp: true, // Enabling it for setting up data channels
                 numSctpStreams: sctpCapabilities.numStreams,
