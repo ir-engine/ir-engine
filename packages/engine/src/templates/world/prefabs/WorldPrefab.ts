@@ -13,11 +13,7 @@ export const WorldPrefab: Prefab = {
             args: {
                 component: AssetLoader,
                 componentArgs: {
-<<<<<<< HEAD
                     url: "models/worlds/Showroom.glb",
-=======
-                    url: "models/worlds/Showroom2.glb",
->>>>>>> fda0469bc328f1e15b1ab3d0a6cce9abc4ca29fd
                     receiveShadow: true,
                     castShadow: false,
                     onLoaded: addWorldColliders
