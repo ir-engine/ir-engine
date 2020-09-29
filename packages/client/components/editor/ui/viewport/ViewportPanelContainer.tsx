@@ -167,7 +167,7 @@ ViewportToolbar.propTypes = {
 
 export default function ViewportPanelContainer() {
   const editor = useContext(EditorContext);
-  const canvasRef = useRef();
+  const canvasRef = React.createRef();
   const [flyModeEnabled, setFlyModeEnabled] = useState(false);
   const [objectSelected, setObjectSelected] = useState(false);
   const [transformMode, setTransformMode] = useState(null);

@@ -845,7 +845,7 @@ class GLTFExporter {
       console.warn(
         "THREE.GLTFExporter: Creating normalized normal attribute from the non-normalized one."
       );
-      geometry.addAttribute(
+      geometry.setAttribute(
         "normal",
         this.createNormalizedNormalAttribute(originalNormal)
       );
@@ -898,7 +898,7 @@ class GLTFExporter {
       }
     }
     if (originalNormal !== undefined)
-      geometry.addAttribute("normal", originalNormal);
+      geometry.setAttribute("normal", originalNormal);
     // Skip if no exportable attributes found
     if (Object.keys(attributes).length === 0) {
       return null;

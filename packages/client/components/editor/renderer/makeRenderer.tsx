@@ -1,6 +1,6 @@
 import { WebGLRenderer, PCFSoftShadowMap } from "three";
-export default function makeRenderer(width, height, props?) {
-  let { canvas, ...rest } = props;
+export default function makeRenderer(width, height, props = {}) {
+  let { canvas, ...rest } = props as any;
   if (!canvas) {
     canvas = document.createElement("canvas");
   }
