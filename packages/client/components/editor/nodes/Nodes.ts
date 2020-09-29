@@ -76,7 +76,7 @@ export function createEditor(api, settings) {
   editor.registerNode(SpawnPointNode, SpawnPointNodeEditor);
   editor.registerNode(WayPointNode, WayPointNodeEditor);
   editor.registerNode(SkyboxNode, SkyboxNodeEditor);
-  editor.registerNode(FloorPlanNode, FloorPlanNodeEditor);
+  // editor.registerNode(FloorPlanNode, FloorPlanNodeEditor);
   editor.registerNode(ImageNode, ImageNodeEditor);
   editor.registerNode(VideoNode, VideoNodeEditor);
   editor.registerNode(AudioNode, AudioNodeEditor);

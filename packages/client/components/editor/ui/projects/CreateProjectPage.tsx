@@ -145,7 +145,7 @@ export default function CreateProjectPage() {
                   >
                     <ProjectGrid
                       projects={filteredEntries}
-                      newProjectPath="/projects/new"
+                      newProjectPath="/editor/projects/new"
                       newProjectLabel="New Empty Project"
                       /* @ts-ignore */
                       onSelectProject={onSelectScene}

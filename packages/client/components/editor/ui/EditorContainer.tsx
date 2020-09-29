@@ -29,13 +29,15 @@ import ExportProjectDialog from "./dialogs/ExportProjectDialog";
 
 import Onboarding from "./onboarding/Onboarding";
 import SupportDialog from "./dialogs/SupportDialog";
-import { cmdOrCtrlString } from "./utils";
+import { cmdOrCtrlString, objectToMap } from "./utils";
 import BrowserPrompt from "./router/BrowserPrompt";
 import Resizeable from "./layout/Resizeable";
 import DragLayer from "./dnd/DragLayer";
 import Editor from "../Editor";
 import defaultTemplateUrl from "../../../pages/editor/crater.json";
 import tutorialTemplateUrl from "../../../pages/editor/tutorial.json";
+import { withRouter, Router } from "next/router";
+import Api from "../api/Api";
 '../../../pages/editor/crater.json'
 const StyledEditorContainer = (styled as any).div`
   display: flex;
@@ -54,10 +56,9 @@ const WorkspaceContainer = (styled as any).div`
 `;
 
 type EditorContainerProps = {
-  api: any;
+  api: Api;
   history: any;
-  match: any;
-  location: any;
+  router: Router;
 };
 type EditorContainerState = {
   onboardingContext: { enabled: boolean };
@@ -69,6 +70,7 @@ type EditorContainerState = {
   editor: Editor;
   creatingProject: any;
   DialogComponent: null;
+  queryParams: Map<string, string>;
   dialogProps: {};
   modified: boolean;
 };
@@ -100,6 +102,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       project: null,
       parentSceneId: null,
       editor,
+      queryParams: new Map(Object.entries(props.router.query)),
       settingsContext: {
         settings,
         updateSetting: this.updateSetting
@@ -116,9 +119,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentDidMount() {
-    const { match, location } = this.props as any;
-    const projectId = match.params.projectId;
-    const queryParams = new URLSearchParams(location.search);
+    const queryParams = this.state.queryParams;
+    const projectId = queryParams.get("projectId");
 
     if (projectId === "new") {
       if (queryParams.has("template")) {
@@ -139,11 +141,15 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     }
   }
 
-  componentDidUpdate(prevProps) {
-    if (this.props.match.url !== prevProps.match.url && !this.state.creatingProject) {
-      const prevProjectId = prevProps.match.params.projectId;
-      const { projectId } = this.props.match.params;
-      const queryParams = new URLSearchParams(location.search);
+  componentDidUpdate(prevProps: EditorContainerProps) {
+    if (this.props.router.route !== prevProps.router.route && !this.state.creatingProject) {
+      // const { projectId } = this.props.match.params;
+      const prevProjectId = prevProps.router.query.projectId;
+      const queryParams = objectToMap(this.props.router.query);
+      this.setState({
+        queryParams
+      })
+      const projectId = queryParams.get("projectId");
       let templateUrl = null;
 
       if (projectId === "new" && !queryParams.has("sceneId")) {
@@ -391,7 +397,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
           {
             name: "Tutorial",
             action: () => {
-              const { projectId } = this.props.match.params;
+              // const { projectId } = this.props.match.params;
+              const projectId = null
 
               if (projectId === "tutorial") {
                 this.setState({ onboardingContext: { enabled: true } });
@@ -937,4 +944,4 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 }
 
-export default withApi(EditorContainer);
+export default withRouter(withApi(EditorContainer));
