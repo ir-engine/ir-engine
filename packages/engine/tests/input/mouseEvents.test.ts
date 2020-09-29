@@ -36,9 +36,6 @@ const testInputSchema: InputSchema = {
     mousemove: [
       {
         behavior: handleMouseMovement,
-        args: {
-          value: DefaultInput.SCREENXY
-        }
       }
     ],
     mouseup: [
@@ -77,7 +74,8 @@ const testInputSchema: InputSchema = {
       [MouseInput.MouseMovement]: DefaultInput.MOUSE_MOVEMENT,
       [MouseInput.MousePosition]: DefaultInput.SCREENXY,
       [MouseInput.MouseClickDownPosition]: DefaultInput.SCREENXY_START,
-      [MouseInput.MouseClickDownTransformRotation]: DefaultInput.ROTATION_START,
+      // [MouseInput.MouseClickDownTransformRotation]: DefaultInput.LOOKTURN_PLAYERONE,
+      [MouseInput.MouseClickDownMovement]: DefaultInput.LOOKTURN_PLAYERONE,
       [MouseInput.MouseScroll]: DefaultInput.CAMERA_SCROLL
     }
   },
@@ -131,6 +129,8 @@ beforeEach(() => {
   input = addComponent<Input>(entity, Input, { schema: testInputSchema }) as Input
   addComponent(entity, LocalInputReceiver)
   execute();
+
+  resetMouse()
 
   mockedBehaviorOnStarted.mockClear()
   mockedBehaviorOnEnded.mockClear()
@@ -240,10 +240,35 @@ describe("movement", () => {
 // test("move does not set DefaultInput.ROTATION_START", () => {
 //
 // })
+describe("button + movement", () => {
+  const windowPoint1 = { x: 100, y:20 };
+  const normalPoint1 = normalizeMouseCoordinates(windowPoint1.x, windowPoint1.y, window.innerWidth, window.innerHeight);
+  const windowPoint2 = { x: 120, y:25 };
+  const normalPoint2 = normalizeMouseCoordinates(windowPoint2.x, windowPoint2.y, window.innerWidth, window.innerHeight);
+
+  it ("triggers associated input STARTED", () => {
+    triggerMouse({ ...windowPoint1, button: MouseInput.LeftButton,  type: 'mousedown' })
+    execute();
+    triggerMouse({ ...windowPoint2, type: 'mousemove' })
+    execute();
+
+    expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
+    const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+    expect(data2.value).toMatchObject([ 20, 5 ]);
+    expect(data2.lifecycleState).toBe(LifecycleValue.STARTED);
+  })
+
+})
 
 // scroll
 // TODO: check MouseScroll
 
+const mouseLastPosition = [0,0]
+
+function resetMouse() {
+  mouseLastPosition[0] = 0
+  mouseLastPosition[1] = 0
+}
 
 function triggerMouse({ x, y, button, type}: { x:number, y:number, button?:number, type?:string }):void {
   const typeListenerCall = addListenerMock.mock.calls.find(call => call[0] === type)
@@ -253,8 +278,13 @@ function triggerMouse({ x, y, button, type}: { x:number, y:number, button?:numbe
     button,
     clientX: x,
     clientY: y,
+    movementX: x - mouseLastPosition[0],
+    movementY: y - mouseLastPosition[1],
     view: window,
     cancelable: true,
     bubbles: true,
   })
+
+  mouseLastPosition[0] = x
+  mouseLastPosition[1] = y
 }
