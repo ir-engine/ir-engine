@@ -7,7 +7,7 @@
  */
 
 import _ from "lodash"
-import { MeshStandardMaterial, Object3D, LoadingManager, FileLoader, LoaderUtils, ObjectLoader, Material, SkinnedMesh, MultiMaterial, Matrix3, Vector3, Mesh } from "three"
+import { MeshStandardMaterial, Object3D, LoadingManager, FileLoader, LoaderUtils, ObjectLoader, Material, SkinnedMesh, Matrix3, Vector3, Mesh } from "three"
 
 /**
  * parseProxyUrl
@@ -96,10 +96,10 @@ export class Proxy extends Object3D {
         // use unpacking here to turn one args into two, as promises only return one
         .then((m: any) => {
           const { geometry, material } = m
-          geometry.name = this.url
-          ;(material as Material[]).map(m => ((m as MeshStandardMaterial).skinning = true))
+          geometry.name = this.url;
+          (material as Material[]).map(m => ((m as MeshStandardMaterial).skinning = true))
 
-          const mesh = new SkinnedMesh(geometry, new MultiMaterial(material as Material[]))
+          const mesh = new SkinnedMesh(geometry, material as Material[])
 
           // TODO check they are the same skeletons
           mesh.children.pop() // pop existing skeleton
