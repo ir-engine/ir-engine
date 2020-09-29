@@ -13,7 +13,7 @@ import React, { FunctionComponent, useEffect, useState } from 'react';
 import { AmbientLight } from 'three';
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import Terminal from '../terminal';
-import { commands, description } from '../terminal/commands';
+import { commands, descriptions } from '../terminal/commands';
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
 import { CarController } from "@xr3ngine/engine/src/templates/car/prefabs/CarController";
 import { rigidBodyBox2 } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox2";
@@ -162,8 +162,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
           // height: "30%",
           zIndex: 4000 }}
         commands={commands}
-        description={description}
-        msg='Interactive terminal. Please consult the manual for commands.'
+        descriptions={descriptions}
+        msg='Interactive terminal. For commands list execute help.'
       />
     )
   );
