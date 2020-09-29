@@ -33,6 +33,7 @@ import dynamic from 'next/dynamic';
 import { RazerLaptop } from "@xr3ngine/engine/src/templates/interactive/prefabs/RazerLaptop";
 import { InfoBox } from "../infoBox";
 import { HintBox } from "../hintBox";
+import { BeginnerBox } from '../beginnerBox';
 const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
 const mapStateToProps = (state: any): any => {
@@ -281,6 +282,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const infoBox = !!!isMobileOrTablet() && infoBoxData ? <InfoBox onClose={() => { setInfoBoxData(null) }} data={infoBoxData} /> : null;
   const hintBox = !!!isMobileOrTablet() && hintBoxData ? <HintBox layout={hintBoxData} /> : null;
 
+
   const hoveredLabelElement = !!!isMobileOrTablet() && hoveredLabel.length > 0 ? 
   <div style={{ position: "fixed", top:"60%", left:"48%", color:"#FFFFFF", fontWeight:'bold' }}>Press 
   <span className="keyItem" style={{backgroundColor: "rgba(0,0,0,0.6)", borderRadius: '4px', boxShadow: '0 0 10px rgba(102,185,51,0.5)', boxSizing: 'border-box',
@@ -294,13 +296,16 @@ export const EnginePage: FunctionComponent = (props: any) => {
     textTransform: 'capitalize'
   }}>E</span> to {hoveredLabel}</div> : null;
 
+  
   return (
     <>
+    {/* <Dialog {...{props:{isOpened:true, content:beginnerHintMessage}}}>{beginnerHintMessage}</Dialog> */}
     {infoBox}
     {hintBox}
     {hoveredLabelElement}
     {terminal}
     {mobileGamepad}
+    <BeginnerBox />
     </>
   );
 };
