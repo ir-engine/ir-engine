@@ -8,7 +8,7 @@ import templates from "../../components/editor/ui/projects/templates";
 import Api from "../../components/editor/api/Api"
 import { Router, withRouter } from "next/router"
 import { ThemeContext } from "../../components/editor/ui/theme";
-export const ProjectsSection = styled.section<{ flex?: number }>`
+export const ProjectsSection = (styled as any).section<{ flex?: number }>`
   padding-bottom: 100px;
   display: flex;
   flex: ${props => (props.flex === undefined ? 1 : props.flex)};
@@ -25,7 +25,7 @@ export const ProjectsSection = styled.section<{ flex?: number }>`
     font-size: 16px;
   }
 `;
-export const ProjectsContainer = styled.div`
+export const ProjectsContainer = (styled as any).div`
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -33,22 +33,24 @@ export const ProjectsContainer = styled.div`
   max-width: 1200px;
   padding: 0 20px;
 `;
-const WelcomeContainer = styled(ProjectsContainer)`
-  align-items: center;
+const WelcomeContainer = ProjectsContainer
 
-  & > * {
-    text-align: center;
-  }
+// styled(ProjectsContainer)`
+//   align-items: center;
 
-  & > *:not(:first-child) {
-    margin-top: 20px;
-  }
+//   & > * {
+//     text-align: center;
+//   }
 
-  h2 {
-    max-width: 480px;
-  }
-`;
-export const ProjectsHeader = styled.div`
+//   & > *:not(:first-child) {
+//     margin-top: 20px;
+//   }
+
+//   h2 {
+//     max-width: 480px;
+//   }
+// `;
+export const ProjectsHeader = (styled as any).div`
   margin-bottom: 36px;
   display: flex;
   justify-content: space-between;

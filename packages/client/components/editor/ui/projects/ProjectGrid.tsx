@@ -9,7 +9,7 @@ import { useRouter } from "next/router"
 import { Plus } from "@styled-icons/fa-solid/Plus";
 import { ThemeContext, withTheme } from "../theme";
 
-const ProjectGridItemContainer = styled.div`
+const ProjectGridItemContainer = (styled as any).div`
   display: flex;
   flex-direction: column;
   color: ${props => props.theme.text};
@@ -67,7 +67,7 @@ export function LoadingProjectGridItem() {
   );
 }
 
-const StyledProjectGrid = styled.div`
+const StyledProjectGrid = (styled as any).div`
   display: grid;
   grid-gap: 20px;
   width: 100%;
@@ -95,7 +95,7 @@ ProjectGrid.propTypes = {
   loading: PropTypes.bool
 };
 
-export const ProjectGridContainer = withTheme(styled.div`
+export const ProjectGridContainer = withTheme((styled as any).div`
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -103,14 +103,14 @@ export const ProjectGridContainer = withTheme(styled.div`
   border-radius: 3px;
 `);
 
-export const ProjectGridContent = withTheme(styled.div`
+export const ProjectGridContent = withTheme((styled as any).div`
   display: flex;
   flex: 1;
   flex-direction: column;
   padding: 20px;
 `);
 
-export const ProjectGridHeader = withTheme(styled.div`
+export const ProjectGridHeader = withTheme((styled as any).div`
   display: flex;
   background-color: ${props => props.theme.toolbar2};
   border-radius: 3px 3px 0px 0px;
@@ -120,39 +120,42 @@ export const ProjectGridHeader = withTheme(styled.div`
   padding: 0 10px;
 `);
 
-export const Filter = withTheme(styled.a<{ active?: boolean }>`
+export const Filter = withTheme((styled as any).a<{ active?: boolean }>`
   font-size: 1.25em;
   cursor: pointer;
   color: ${props => (props.active ? props.theme.blue : props.theme.text)};
 `);
 
-export const Separator = withTheme(styled.div`
+export const Separator = withTheme((styled as any).div`
   height: 48px;
   width: 1px;
   background-color: ${props => props.theme.border};
 `);
 
-export const ProjectGridHeaderRow = styled(Row)`
-  align-items: center;
+export const ProjectGridHeaderRow = Row // styled(Row)`
+//   align-items: center;
 
-  & > * {
-    margin: 0 10px;
-  }
-`;
+//   & > * {
+//     margin: 0 10px;
+//   }
+// `;
 
-export const SearchInput = styled<any>(StringInput)`
-  width: auto;
-  min-width: 200px;
-  height: 28px;
-`;
+export const SearchInput = StringInput;
 
-export const CenteredMessage = styled.div`
+// export const SearchInput = styled<any>(StringInput)`
+//   width: auto;
+//   min-width: 200px;
+//   height: 28px;
+// `;
+
+export const CenteredMessage = (styled as any).div`
   display: flex;
   flex: 1;
   justify-content: center;
   align-items: center;
 `;
 
-export const ErrorMessage = withTheme(styled(CenteredMessage)`
-  color: ${props => props.theme.red};
-`);
+export const ErrorMessage = withTheme(CenteredMessage)
+// styled(CenteredMessage)`
+//   color: ${props => props.theme.red};
+// `);

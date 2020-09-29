@@ -123,6 +123,7 @@ export default function CreateProjectPage() {
                     All
                   </Filter>
                   <Separator />
+                  {/* @ts-ignore */}
                   <SearchInput placeholder="Search scenes..." onChange={onChangeQuery} />
                 </ProjectGridHeaderRow>
                 <ProjectGridHeaderRow>
