@@ -33,8 +33,6 @@ export const handleMouseButton: Behavior = (entity: Entity, args: { event: Mouse
       value: args.value,
       lifecycleState: LifecycleValue.STARTED
     });
-
-    // TODO: this would not be set if none of buttons assigned
     // Set type to TWOD (two dimensional) and value with x: -1, 1 and y: -1, 1
     input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseClickDownPosition], {
       type: InputType.TWODIM,

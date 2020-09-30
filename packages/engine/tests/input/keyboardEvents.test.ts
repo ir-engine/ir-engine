@@ -52,15 +52,12 @@ describe('full lifecycle', () => {
   beforeAll(() => {
     addListenerMock = jest.spyOn(document, 'addEventListener')
     registerSystem(InputSystem, { useWebXR: false });
-  })
-  beforeEach(() => {
-    addListenerMock.mockClear()
     entity = createEntity()
     input = addComponent<Input>(entity, Input, { schema: testInputSchema }) as Input
     addComponent(entity, LocalInputReceiver)
     execute();
   })
-  afterEach(() => {
+  afterAll(() => {
     // cleanup
     removeEntity(entity, true);
   })
@@ -78,16 +75,12 @@ describe('full lifecycle', () => {
   it("subsequent triggers CONTINUED", () => {
     triggerKey({ key:'w', type: 'keydown' })
     execute();
-    triggerKey({ key:'w', type: 'keydown' })
-    execute();
 
     const data1 = input.data.get(DefaultInput.FORWARD);
     expect(data1.lifecycleState).toBe(LifecycleValue.CONTINUED);
   })
 
   it ("sets associated input to OFF, ENDED", () => {
-    triggerKey({ key:'w', type: 'keydown' })
-    execute();
     triggerKey({ key:'w', type: 'keyup' })
     execute();
 
