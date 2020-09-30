@@ -6,7 +6,6 @@ import { TransformComponent } from '@xr3ngine/engine/src/transform/components/Tr
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/FollowCameraComponent';
 import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import {MouseInput} from "../../input/enums/MouseInput";
 import { DefaultInput } from "../../templates/shared/DefaultInput";
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { NumericalType } from "../../common/types/NumericalTypes";
@@ -14,8 +13,6 @@ import { NumericalType } from "../../common/types/NumericalTypes";
 let follower, target;
 let inputComponent:Input;
 let cameraFollow;
-let mouseDownPosition
-let originalRotation
 let actor, camera
 let inputValue, startValue
 const euler = new Euler( 0, 0, 0, 'YXZ' );
@@ -26,7 +23,7 @@ const PI_2 = Math.PI / 2;
 const maxPolarAngle = 45
 const minPolarAngle = 0
 
-let mx = new Matrix4();
+const mx = new Matrix4();
 let theta = 0;
 let phi = 0;
 
@@ -39,7 +36,12 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
 
   camera = getMutableComponent<CameraComponent>(entityIn, CameraComponent);
 
-  const inputAxes = inputComponent.data.has(DefaultInput.LOOKTURN_PLAYERONE)? DefaultInput.LOOKTURN_PLAYERONE : inputComponent.schema.mouseInputMap.axes[MouseInput.MouseMovement]
+  let inputAxes;
+  if (document.pointerLockElement) {
+    inputAxes = DefaultInput.MOUSE_MOVEMENT
+  } else {
+    inputAxes = DefaultInput.LOOKTURN_PLAYERONE
+  }
 
   inputValue = getInputData(inputComponent, inputAxes)
 
