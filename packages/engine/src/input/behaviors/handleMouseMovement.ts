@@ -66,7 +66,8 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
   }
 
   // TODO: it looks like hack... MouseInput.MousePosition doesn't know that it is SCREENXY, and it could be anything ... same should be here
-  if (input.data.has(DefaultInput.SCREENXY_START)) {
+  const SCREENXY_START = input.data.get(DefaultInput.SCREENXY_START)
+  if (SCREENXY_START && SCREENXY_START.lifecycleState !== LifecycleValue.ENDED) {
     // Set dragging movement delta
     if (mappedDragMovementInput) {
       if (!input.data.has(mappedDragMovementInput)) {
@@ -84,28 +85,4 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
       }
     }
   }
-
-  // } else {
-  //   // If mouse position set, check it's value
-  //   const oldMousePosition = input.data.get(mappedPositionInput)
-  //   // If it's not the same, set it and update the lifecycle value to changed
-  //   if (JSON.stringify(oldMousePosition) !== JSON.stringify(mousePosition)) {
-  //     // Set type to TWODIM (two-dimensional axis) and value to a normalized -1, 1 on X and Y
-  //     input.data.set(mappedPositionInput, {
-  //       type: InputType.TWODIM,
-  //       value: mousePosition,
-  //       lifecycleState: LifecycleValue.CHANGED
-  //     });
-  //     // Set movement delta
-  //     input.data.set(mappedMovementInput, {
-  //       type: InputType.TWODIM,
-  //       value: mouseMovement,
-  //       lifecycleState: LifecycleValue.CHANGED
-  //     });
-  //   } else {
-  //     // Otherwise, remove it
-  //     input.data.delete(mappedPositionInput)
-  //     input.data.delete(mappedMovementInput)
-  //   }
-  // }
 }
