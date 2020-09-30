@@ -8,6 +8,7 @@ import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/Fo
 import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInput } from "../../templates/shared/DefaultInput";
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
+import { NumericalType } from "../../common/types/NumericalTypes";
 
 let follower, target;
 let inputComponent:Input;
@@ -26,8 +27,6 @@ const mx = new Matrix4();
 let theta = 0;
 let phi = 0;
 
-
-
 export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: any, entityOut: Entity): void => {
   follower = getMutableComponent<TransformComponent>(entityIn, TransformComponent); // Camera
   target = getMutableComponent<TransformComponent>(entityOut, TransformComponent); // Player
@@ -44,27 +43,7 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
     inputAxes = DefaultInput.LOOKTURN_PLAYERONE
   }
 
-  if (!inputComponent.data.has(inputAxes)) {
-    inputValue = [0, 0]
-  } else {
-    const inputData = inputComponent.data.get(inputAxes)
-    inputValue = inputData.value
-    if (inputData.lifecycleState === LifecycleValue.ENDED || inputData.lifecycleState === LifecycleValue.UNCHANGED) {
-      // skip
-      return
-    }
-
-    if (inputData.lifecycleState !== LifecycleValue.CHANGED) {
-      // console.log('! LifecycleValue.CHANGED', LifecycleValue[inputData.lifecycleState])
-      return
-    }
-
-    const preInputData = inputComponent.prevData.get(inputAxes)
-    if (inputValue[0] === preInputData?.value[0] && inputValue[1] === preInputData?.value[1]) {
-      // debugger
-      // return
-    }
-  }
+  inputValue = getInputData(inputComponent, inputAxes)
 
   if (cameraFollow.mode === "firstPerson") {
 
@@ -104,3 +83,30 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
       follower.rotation.setFromRotationMatrix(mx);
     }
 };
+
+function getInputData(inputComponent: Input, inputAxes: number): NumericalType {
+  const emptyInputValue = [0, 0] as NumericalType
+
+  if (inputComponent.data.has(inputAxes)) {
+    const inputData = inputComponent.data.get(inputAxes)
+    const inputValue = inputData.value
+    if (inputData.lifecycleState === LifecycleValue.ENDED || inputData.lifecycleState === LifecycleValue.UNCHANGED) {
+      // skip
+      return emptyInputValue
+    }
+
+    if (inputData.lifecycleState !== LifecycleValue.CHANGED) {
+      // console.log('! LifecycleValue.CHANGED', LifecycleValue[inputData.lifecycleState])
+      return emptyInputValue
+    }
+
+    const preInputData = inputComponent.prevData.get(inputAxes)
+    if (inputValue[0] === preInputData?.value[0] && inputValue[1] === preInputData?.value[1]) {
+      // debugger
+      // return
+    }
+    return inputValue
+  }
+
+  return emptyInputValue
+}
