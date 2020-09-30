@@ -67,7 +67,11 @@ describe('full lifecycle', () => {
 
   it("triggers associated input, ON, STARTED", () => {
     triggerKey({ key:'w', type: 'keydown' })
-    execute();
+    execute(); // started
+    triggerKey({ key:'w', type: 'keyup' })
+    execute(); // ended
+    triggerKey({ key:'w', type: 'keydown' })
+    execute(); // stared
 
     expect(input.data.has(DefaultInput.FORWARD)).toBeTruthy();
     const data1 = input.data.get(DefaultInput.FORWARD);
@@ -91,10 +95,10 @@ describe('full lifecycle', () => {
     triggerKey({ key:'w', type: 'keyup' })
     execute();
 
-    expect(input.data.has(DefaultInput.FORWARD)).toBeTruthy();
-    const data2 = input.data.get(DefaultInput.FORWARD);
-    expect(data2.value).toBe(BinaryValue.OFF);
-    expect(data2.lifecycleState).toBe(LifecycleValue.ENDED);
+    expect(input.data.has(DefaultInput.FORWARD)).toBeFalsy()
+    // const data2 = input.data.get(DefaultInput.FORWARD);
+    // expect(data2.value).toBe(BinaryValue.OFF);
+    // expect(data2.lifecycleState).toBe(LifecycleValue.ENDED);
   })
 
   // it("on next execution it's deleted", () => {

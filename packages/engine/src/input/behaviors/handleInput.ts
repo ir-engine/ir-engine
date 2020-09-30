@@ -123,21 +123,21 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
     input.prevData.set(key, value);
   })
 
-  // // clean processed LifecycleValue.ENDED inputs
-  // input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-  //   if (value.type === InputType.BUTTON) {
-  //     if (value.lifecycleState === LifecycleValue.ENDED) {
-  //       input.data.delete(key)
-  //     }
-  //   }
-  //   // else if (
-  //   //   value.type === InputType.ONEDIM ||
-  //   //   value.type === InputType.TWODIM ||
-  //   //   value.type === InputType.THREEDIM
-  //   // ) {
-  //   //   // if (value.lifecycleState === LifecycleValue.UNCHANGED) {
-  //   //   //   input.data.delete(key)
-  //   //   // }
-  //   // }
-  // })
+  // clean processed LifecycleValue.ENDED inputs
+  input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+    if (value.type === InputType.BUTTON) {
+      if (value.lifecycleState === LifecycleValue.ENDED) {
+        input.data.delete(key)
+      }
+    }
+    // else if (
+    //   value.type === InputType.ONEDIM ||
+    //   value.type === InputType.TWODIM ||
+    //   value.type === InputType.THREEDIM
+    // ) {
+    //   // if (value.lifecycleState === LifecycleValue.UNCHANGED) {
+    //   //   input.data.delete(key)
+    //   // }
+    // }
+  })
 };
