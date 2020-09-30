@@ -20,6 +20,7 @@ let addListenerMock:jest.SpyInstance;
 const mockedBehaviorOnStarted = jest.fn(() => { console.log('behavior call on started') });
 const mockedBehaviorOnEnded = jest.fn(() => { console.log('behavior call on ended') });
 const mockedBehaviorOnChanged = jest.fn(() => { console.log('behavior call on changed') });
+const mockedBehaviorOnUnchanged = jest.fn(() => { console.log('behavior call on unchanged') });
 
 const testInputSchema: InputSchema = {
   inputRelationships: {},
@@ -107,11 +108,11 @@ const testInputSchema: InputSchema = {
           behavior: mockedBehaviorOnChanged
         }
       ],
-      // unchanged: [
-      //   {
-      //     behavior: mockedBehaviorOnStarted
-      //   }
-      // ]
+      unchanged: [
+        {
+          behavior: mockedBehaviorOnUnchanged
+        }
+      ]
     }
   },
 }
@@ -135,6 +136,7 @@ beforeEach(() => {
   mockedBehaviorOnStarted.mockClear()
   mockedBehaviorOnEnded.mockClear()
   mockedBehaviorOnChanged.mockClear()
+  mockedBehaviorOnUnchanged.mockClear()
 })
 afterEach(() => {
   // cleanup
@@ -162,22 +164,16 @@ describe("buttons", () => {
     expect(mockedBehaviorOnStarted.mock.calls.length).toBe(1)
   })
 
-  it ("sets input MouseClickDownPosition, DefaultInput.SCREENXY_START", () => {
-    triggerMouse({ ...clickPoint1, button: MouseInput.LeftButton,  type: 'mousedown' })
-    execute();
-    expect(input.data.has(DefaultInput.SCREENXY_START)).toBeTruthy();
-    const data1 = input.data.get(DefaultInput.SCREENXY_START);
-    expect(data1.value).toMatchObject([ normalPoint1.x, normalPoint1.y ]);
-    expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
-  })
-
   it ("sets input OFF, ENDED", () => {
     triggerMouse({ ...clickPoint1, button: MouseInput.LeftButton,  type: 'mousedown' })
     execute();
     triggerMouse({ ...clickPoint1, button: MouseInput.LeftButton,  type: 'mouseup' })
     execute();
 
-    expect(input.data.has(DefaultInput.PRIMARY)).toBeFalsy();
+    expect(input.data.has(DefaultInput.PRIMARY)).toBeTruthy();
+    const data = input.data.get(DefaultInput.PRIMARY);
+    expect(data.value).toBe(BinaryValue.OFF);
+    expect(data.lifecycleState).toBe(LifecycleValue.ENDED);
   })
 
   it ("triggered ended behavior", () => {
@@ -187,10 +183,39 @@ describe("buttons", () => {
     execute();
     expect(mockedBehaviorOnEnded.mock.calls.length).toBe(1)
   })
+
+  it ("MouseClickDownPosition: sets SCREENXY_START STARTED", () => {
+    triggerMouse({ ...clickPoint1, button: MouseInput.LeftButton,  type: 'mousedown' })
+    execute();
+    expect(input.data.has(DefaultInput.SCREENXY_START)).toBeTruthy();
+    const data1 = input.data.get(DefaultInput.SCREENXY_START);
+    expect(data1.value).toMatchObject([ normalPoint1.x, normalPoint1.y ]);
+    expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
+  })
+
+  it ("MouseClickDownPosition: SCREENXY_START UNCHANGED", () => {
+    triggerMouse({ ...clickPoint1, button: MouseInput.LeftButton,  type: 'mousedown' })
+    execute(); // started
+    execute(); // should UNCHANGED
+    execute(); // should not switch to CHANGED/ENDED/CONTINUED
+    expect(input.data.has(DefaultInput.SCREENXY_START)).toBeTruthy();
+    const data1 = input.data.get(DefaultInput.SCREENXY_START);
+    expect(data1.lifecycleState).toBe(LifecycleValue.UNCHANGED);
+  })
+
+  it ("MouseClickDownPosition: sets SCREENXY_START to ENDED on release", () => {
+    triggerMouse({ ...clickPoint1, button: MouseInput.LeftButton,  type: 'mousedown' })
+    execute();
+    triggerMouse({ ...clickPoint1, button: MouseInput.LeftButton,  type: 'mouseup' })
+    execute();
+
+    expect(input.data.has(DefaultInput.SCREENXY_START)).toBeTruthy();
+    const data1 = input.data.get(DefaultInput.SCREENXY_START);
+    expect(data1.lifecycleState).toBe(LifecycleValue.ENDED);
+  })
 })
 
-// move
-// TODO: check MouseMovement
+// check MouseMovement
 describe("movement", () => {
   const windowPoint1 = { x: 100, y:20 };
   const normalPoint1 = normalizeMouseCoordinates(windowPoint1.x, windowPoint1.y, window.innerWidth, window.innerHeight);
@@ -232,6 +257,39 @@ describe("movement", () => {
     execute();
     expect(mockedBehaviorOnChanged.mock.calls.length).toBe(1)
   })
+
+  it ("triggers input UNCHANGED from STARTED", () => {
+    triggerMouse({ ...windowPoint1, type: 'mousemove' })
+    execute(); // started
+    execute(); // unchanged
+
+    expect(input.data.has(DefaultInput.SCREENXY)).toBeTruthy();
+    const data2 = input.data.get(DefaultInput.SCREENXY);
+    expect(data2.value).toMatchObject([ normalPoint1.x, normalPoint1.y ]);
+    expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
+  })
+
+  it ("triggers input UNCHANGED from CHANGED", () => {
+    triggerMouse({ ...windowPoint1, type: 'mousemove' })
+    execute();
+    triggerMouse({...windowPoint2, type: 'mousemove'})
+    execute(); // changed
+    execute(); // unchanged
+
+    expect(input.data.has(DefaultInput.SCREENXY)).toBeTruthy();
+    const data2 = input.data.get(DefaultInput.SCREENXY);
+    expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
+    expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
+  })
+
+  it ("triggered UNCHANGED behavior", () => {
+    triggerMouse({ ...windowPoint1, type: 'mousemove' })
+    execute();
+    triggerMouse({...windowPoint2, type: 'mousemove'})
+    execute(); // changed
+    execute(); // unchanged
+    expect(mockedBehaviorOnUnchanged.mock.calls.length).toBe(1)
+  })
 })
 
 // buttons + move
@@ -256,6 +314,51 @@ describe("button + movement", () => {
     const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
     expect(data2.value).toMatchObject([ 20, 5 ]);
     expect(data2.lifecycleState).toBe(LifecycleValue.STARTED);
+  })
+
+  it ("triggers associated input CHANGED", () => {
+    triggerMouse({ ...windowPoint1, button: MouseInput.LeftButton,  type: 'mousedown' })
+    execute();
+    triggerMouse({ ...windowPoint2, type: 'mousemove' })
+    execute(); // started
+    triggerMouse({ ...windowPoint1, type: 'mousemove' })
+    execute(); // changed
+
+    expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
+    const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+    expect(data2.value).toMatchObject([ -20, -5 ]);
+    expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
+  })
+
+  it ("triggers associated input UNCHANGED", () => {
+    triggerMouse({ ...windowPoint1, button: MouseInput.LeftButton,  type: 'mousedown' })
+    execute();
+    triggerMouse({ ...windowPoint2, type: 'mousemove' })
+    execute(); // started
+    triggerMouse({ ...windowPoint1, type: 'mousemove' })
+    execute(); // changed
+    execute(); // unchanged
+
+    expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
+    const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+    expect(data2.value).toMatchObject([ -20, -5 ]);
+    expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
+  })
+
+  it ("not trigger CHANGED if button is released", () => {
+    triggerMouse({ ...windowPoint1, button: MouseInput.LeftButton,  type: 'mousedown' })
+    execute();
+    triggerMouse({ ...windowPoint2, type: 'mousemove' })
+    execute(); // started
+    triggerMouse({ ...windowPoint2, button: MouseInput.LeftButton,  type: 'mouseup' })
+    execute(); // mouse released
+    triggerMouse({ ...windowPoint1, type: 'mousemove' })
+    execute(); // should not be changed
+
+    expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
+    const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+    expect(data2.value).toMatchObject([ 20, 5 ]);
+    expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
   })
 
 })
