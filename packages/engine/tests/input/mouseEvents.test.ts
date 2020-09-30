@@ -170,10 +170,10 @@ describe("buttons", () => {
     triggerMouse({ ...clickPoint1, button: MouseInput.LeftButton,  type: 'mouseup' })
     execute();
 
-    expect(input.data.has(DefaultInput.PRIMARY)).toBeTruthy();
-    const data = input.data.get(DefaultInput.PRIMARY);
-    expect(data.value).toBe(BinaryValue.OFF);
-    expect(data.lifecycleState).toBe(LifecycleValue.ENDED);
+    expect(input.data.has(DefaultInput.PRIMARY)).toBeFalsy();
+    // const data = input.data.get(DefaultInput.PRIMARY);
+    // expect(data.value).toBe(BinaryValue.OFF);
+    // expect(data.lifecycleState).toBe(LifecycleValue.ENDED);
   })
 
   it ("triggered ended behavior", () => {
