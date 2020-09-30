@@ -64,6 +64,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const [hoveredLabel, setHoveredLabel] = useState('');
   const [infoBoxData, setInfoBoxData] = useState(null);
   const [hintBoxData, setHintBoxData] = useState('default');
+  const [showControllHint, setShowControllHint] = useState(true);
 
   useEffect(() => {
     console.log('initializeEngine!');
@@ -90,12 +91,13 @@ export const EnginePage: FunctionComponent = (props: any) => {
     };
 
     const onCarActivation = (event: CustomEvent): void => {
-      console.log('event.detail',event.detail)
       if (event.detail.inCar) {
         setHintBoxData('car');
+        setHoveredLabel('');
       } else {
         setHintBoxData('default');
       }  
+      setShowControllHint(true);
     };
 
     document.addEventListener('object-hover', onObjectHover);
@@ -188,7 +190,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     return (): void => {
       document.removeEventListener('object-hover', onObjectHover);
       document.removeEventListener('object-activation', onObjectActivation);
-      document.addEventListener('player-in-car', onCarActivation);
+      document.removeEventListener('player-in-car', onCarActivation);
 
       // cleanup
       console.log('cleanup?!');
@@ -200,6 +202,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   useEffect(() => {
     const f = (event: KeyboardEvent): void => {
+      //hide controlls hint when move/do smth
+      setShowControllHint(false);
       // const P_PLAY_PAUSE = 112;
       // if (event.keyCode === 27)
       if (event.keyCode === 192) {
@@ -281,7 +285,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const mobileGamepad = isMobileOrTablet()? <MobileGamepad {...mobileGamepadProps} /> : null;
 
   const infoBox = !isMobileOrTablet() && infoBoxData ? <InfoBox onClose={() => { setInfoBoxData(null) }} data={infoBoxData} /> : null;
-  const hintBox = !isMobileOrTablet() && hintBoxData ? <HintBox layout={hintBoxData} /> : null;
+  const hintBox = !isMobileOrTablet() && showControllHint && hintBoxData ? <HintBox layout={hintBoxData} /> : null;
 
 
   const hoveredLabelElement = !!!isMobileOrTablet() && hoveredLabel.length > 0 ? 

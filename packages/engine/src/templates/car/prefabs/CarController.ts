@@ -32,7 +32,10 @@ export const CarController: Prefab = {
         { type: Interactive, data: {
             onInteraction: getInCar,
             onInteractionCheck: getInCarPossible,
-            onInteractionFocused: onInteractionHover
+            onInteractionFocused: onInteractionHover,
+            data:{
+              interactionText: 'get in car'              
+            },
           }
         }
     ],
