@@ -6,6 +6,5 @@ export enum MouseInput {
   MouseClickDownPosition,
   MouseClickDownTransformRotation,
   MouseMovement,
-  MouseScroll,
-  MouseClickDownMovement
+  MouseScroll
 }
