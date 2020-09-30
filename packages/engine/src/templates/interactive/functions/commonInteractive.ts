@@ -25,14 +25,14 @@ export const onInteractionHover:Behavior = (entityInitiator, { focused }:{ focus
 
   // TODO: make interface for universal interactive data, and event data
   const detail:any = { focused }
+
   if (interactiveComponent.data) {
     if (typeof interactiveComponent.data.action !== 'undefined') {
       detail.action = interactiveComponent.data.action
       detail.payload = interactiveComponent.data.payload
-      detail.interactionText = interactiveComponent.data.interactionText
     }
+    detail.interactionText = interactiveComponent.data.interactionText
   }
-
   const event = new CustomEvent('object-hover', { detail });
   document.dispatchEvent(event);
 
