@@ -35,6 +35,7 @@ import { InfoBox } from "../infoBox";
 import { HintBox } from "../hintBox";
 import { BeginnerBox } from '../beginnerBox';
 import './style.scss';
+import { resetEngine } from "../../../engine/src/ecs/functions/EngineFunctions";
 
 const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -193,8 +194,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
       // cleanup
       console.log('cleanup?!');
       // TODO: use resetEngine when it will be completed. for now just reload
-      document.location.reload();
-      // resetEngine();
+      //document.location.reload();
+      resetEngine();
     };
   }, []);
 
