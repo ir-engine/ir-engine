@@ -20,7 +20,7 @@ export const handleTouch: Behavior = (entity: Entity, { event, value }: { event:
   const input = getComponent(entity, Input);
   // If the touch is ON
   if (value === BinaryValue.ON) {
-    console.log('Touch start.', event);
+    //console.log('Touch start.', event);
     // A list of contact points on a touch surface.
     if (event.targetTouches.length) {
       // s +=
@@ -61,7 +61,7 @@ export const handleTouch: Behavior = (entity: Entity, { event, value }: { event:
     }
     //console.log(s);
   } else {
-    console.log('Touch end.');
+    // console.log('Touch end.');
     // TODO: set ENDED lifecycleState to all mapped inputs?
   }
 
