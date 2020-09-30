@@ -33,9 +33,8 @@ import dynamic from 'next/dynamic';
 import { RazerLaptop } from "@xr3ngine/engine/src/templates/interactive/prefabs/RazerLaptop";
 import { InfoBox } from "../infoBox";
 import { HintBox } from "../hintBox";
-
+import { BeginnerBox } from '../beginnerBox';
 import './style.scss';
-
 
 const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -284,16 +283,20 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const infoBox = !isMobileOrTablet() && infoBoxData ? <InfoBox onClose={() => { setInfoBoxData(null) }} data={infoBoxData} /> : null;
   const hintBox = !isMobileOrTablet() && hintBoxData ? <HintBox layout={hintBoxData} /> : null;
 
+
   const hoveredLabelElement = !!!isMobileOrTablet() && hoveredLabel.length > 0 ? 
   <div className="hintContainer">Press <span className="keyItem" >E</span> to {hoveredLabel}</div> : null;
 
+  
   return (
     <>
+    {/* <Dialog {...{props:{isOpened:true, content:beginnerHintMessage}}}>{beginnerHintMessage}</Dialog> */}
     {infoBox}
     {hintBox}
     {hoveredLabelElement}
     {terminal}
     {mobileGamepad}
+    <BeginnerBox />
     </>
   );
 };
