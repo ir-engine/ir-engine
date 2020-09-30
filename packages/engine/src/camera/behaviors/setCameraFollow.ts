@@ -5,17 +5,13 @@ import { Input } from '@xr3ngine/engine/src/input/components/Input';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/FollowCameraComponent';
-
 import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import {MouseInput} from "../../input/enums/MouseInput";
 import { DefaultInput } from "../../templates/shared/DefaultInput";
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 
 let follower, target;
 let inputComponent:Input;
 let cameraFollow;
-let mouseDownPosition
-let originalRotation
 let actor, camera
 let inputValue, startValue
 const euler = new Euler( 0, 0, 0, 'YXZ' );
@@ -26,7 +22,7 @@ const PI_2 = Math.PI / 2;
 const maxPolarAngle = 45
 const minPolarAngle = 0
 
-let mx = new Matrix4();
+const mx = new Matrix4();
 let theta = 0;
 let phi = 0;
 
@@ -62,25 +58,12 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
       // console.log('! LifecycleValue.CHANGED', LifecycleValue[inputData.lifecycleState])
       return
     }
+
     const preInputData = inputComponent.prevData.get(inputAxes)
-
-    if (inputData.lifecycleState === LifecycleValue.CHANGED) {
-      // console.log(LifecycleValue[inputData.lifecycleState], inputValue, '->', preInputData?.value)
-    }
-
     if (inputValue[0] === preInputData?.value[0] && inputValue[1] === preInputData?.value[1]) {
       // debugger
       // return
     }
-
-
-
-    // fix infinity rotation
-    // Math.abs(inputValue[0] + inputValue[1]) == 1 ? inputValue = [0, 0] : '';
-    // if (inputAxes === DefaultInput.MOUSE_MOVEMENT) {
-    //   // TODO: is it ok to clear it?
-    //   inputComponent.data.delete(inputAxes)
-    // }
   }
 
   if (cameraFollow.mode === "firstPerson") {
