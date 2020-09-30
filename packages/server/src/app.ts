@@ -114,11 +114,16 @@ if (config.server.enabled) {
 
   app.hooks(appHooks)
 
-  if ((process.env.KUBERNETES === 'true' && config.server.mode === 'realtime') || process.env.NODE_ENV === 'development' || config.server.mode === 'local') {
+  if ((process.env.KUBERNETES === 'true' && (config.server.mode === 'realtime' || config.server.mode === 'api')) || process.env.NODE_ENV === 'development' || config.server.mode === 'local') {
     agonesSDK.connect()
     agonesSDK.ready();
     (app as any).agonesSDK = agonesSDK
     healthPing(agonesSDK)
+
+    if (config.server.mode === 'api' || config.server.mode === 'realtime') {
+      (app as any).k8AgonesClient = K8s.api({ endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`, version: '/apis/agones.dev/v1', auth: { caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'), token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token') } });
+      (app as any).k8DefaultClient = K8s.api({ endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`, version: '/api/v1', auth: { caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'), token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token') } });
+    }
 
     // Create new gameserver instance
     const gameServer = new WebRTCGameServer(app)
@@ -126,11 +131,6 @@ if (config.server.enabled) {
     console.log(gameServer)
   } else {
     console.log("Could not create new game server instance!!")
-  }
-
-  if (config.server.mode === 'api' || config.server.mode === 'realtime') {
-    (app as any).k8AgonesClient = K8s.api({ endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`, version: '/apis/agones.dev/v1', auth: { caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'), token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token') } });
-    (app as any).k8DefaultClient = K8s.api({ endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`, version: '/api/v1', auth: { caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'), token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token') } });
   }
 
   app.use('/healthcheck', (req, res) => {
@@ -149,9 +149,44 @@ process.on('exit', async () => {
   const gsName = (app as any).gsName;
   console.log('App\'s gameserver name:')
   console.log(gsName)
+  console.log(gsName != null)
+  console.log(process.env.NODE_ENV !== 'development')
+  console.log((app as any).k8DefaultClient != null)
+  if ((app as any).gsSubdomainNumber != null) {
+    await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
+      allocated: false
+    })
+  }
   if (gsName != null && process.env.NODE_ENV !== 'development' && (app as any).k8DefaultClient != null) {
     try {
-      const serviceShutdownResult = await (app as any).k8DefaultClient.delete(`/namespaces/default/service/${gsName}`)
+      console.log('Shutting down service')
+      const serviceShutdownResult = await (app as any).k8DefaultClient.delete(`namespaces/default/services/${gsName}`)
+      console.log('Service shutdown result:')
+      console.log(serviceShutdownResult)
+    } catch(err) {
+      console.log('Service shutdown error:')
+      console.log(err)
+    }
+  }
+})
+
+process.on('SIGTERM', async () => {
+  console.log('Server exiting')
+  const gsName = (app as any).gsName;
+  console.log('App\'s gameserver name:')
+  console.log(gsName)
+  console.log(gsName)
+  console.log(gsName != null)
+  console.log(process.env.NODE_ENV !== 'development')
+  console.log((app as any).k8DefaultClient != null)
+  if ((app as any).gsSubdomainNumber != null) {
+    await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
+      allocated: false
+    })
+  }
+  if (gsName != null && process.env.NODE_ENV !== 'development' && (app as any).k8DefaultClient != null) {
+    try {
+      const serviceShutdownResult = await (app as any).k8DefaultClient.delete(`namespaces/default/services/${gsName}`)
       console.log('Service shutdown result:')
       console.log(serviceShutdownResult)
     } catch(err) {

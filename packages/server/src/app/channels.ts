@@ -138,16 +138,20 @@ export default (app: Application): void => {
             if (instance.currentUsers === 1) {
               console.log('Deleting instance ' + instanceId)
               await app.service('instance').remove(instanceId)
+              if ((app as any).gsSubdomainNumber != null) {
+                await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
+                  allocated: false
+                })
+              }
               if (process.env.KUBERNETES === 'true') {
                 delete (app as any).instance
               }
-              await (app as any).agonesSDK.shutdown()
               const gsName = (app as any).gsName;
               console.log('App\'s gameserver name:')
               console.log(gsName)
               if (gsName != null && process.env.NODE_ENV !== 'development') {
                 try {
-                  const serviceShutdownResult = await (app as any).k8DefaultClient.delete(`/namespaces/default/service/${gsName}`)
+                  const serviceShutdownResult = await (app as any).k8DefaultClient.delete(`namespaces/default/services/${gsName}`)
                   console.log('Service shutdown result:')
                   console.log(serviceShutdownResult)
                 } catch (err) {
@@ -155,6 +159,7 @@ export default (app: Application): void => {
                   console.log(err)
                 }
               }
+              await (app as any).agonesSDK.shutdown()
             }
           }
         }

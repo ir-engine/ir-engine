@@ -262,14 +262,33 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 // console.log(`endPort: ${endPort}`)
                 // localConfig.mediasoup.worker.rtcMinPort = startPort;
                 // localConfig.mediasoup.worker.rtcMaxPort = endPort;
+
+                console.log('Initializing')
+                console.log((this.app as any).k8DefaultClient);
+                const services = await (this.app as any).k8DefaultClient.get('namespaces/default/services');
+                console.log('Services:')
+                console.log(services)
+                const gsServices = services.items.filter(service => /gameserver/.test(service.metadata.name) === true);
+                console.log('gsServices:')
+                console.log(gsServices)
+                gsServices.forEach(async (service) => {
+                    try {
+                        const matchingGS = await (this.app as any).k8DefaultClient.get(`namespaces/default/pods/${service.metadata.name}`);
+                        console.log('GS exists, doing nothing');
+                    } catch(err) {
+                        console.log('GS did not exist, deleting service');
+                        await (this.app as any).k8DefaultClient.delete(`namespaces/default/services/${service.metadata.name}`);
+                    }
+                })
                 const service = gameserverServiceTemplate;
                 gs = await (this.app as any).agonesSDK.getGameServer();
                 const name = gs.objectMeta.name;
                 (this.app as any).gsName = name;
 
                 const gsIdentifier = gsNameRegex.exec(name)
-                // stringSubdomainNumber = await this.getFreeSubdomain(gsIdentifier[1], 0);
-                // console.log('Next free subdomain number: ' + stringSubdomainNumber)
+                stringSubdomainNumber = await this.getFreeSubdomain(gsIdentifier[1], 0);
+                console.log('Next free subdomain number: ' + stringSubdomainNumber);
+                (this.app as any).gsSubdomainNumber = stringSubdomainNumber;
 
                 service.metadata.name = name;
                 service.spec.selector['agones.dev/gameserver'] = name;
@@ -298,31 +317,35 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     if (err.code !== 409) throw err
                 }
 
-                // const params = {
-                //     ChangeBatch: {
-                //         Changes: [
-                //             {
-                //                 Action: 'UPSERT',
-                //                 ResourceRecordSet: {
-                //                     Name: `${stringSubdomainNumber}.${config.gameserver.domain}`,
-                //                     ResourceRecords: [
-                //                         {
-                //                             Value: servicePostResult?.status?.loadBalancer?.externalIp ?? '192.168.99.101'
-                //                         }
-                //                     ],
-                //                     TTL: 15,
-                //                     Type: 'A'
-                //                 }
-                //             }
-                //         ]
-                //     },
-                //     HostedZoneId: config.aws.route53.hostedZoneId
-                // }
-                // console.log('Record set params:')
-                // console.log(params)
-                // const result = await Route53.changeResourceRecordSets(params)
-                // console.log('Route53 Record set patch result:')
-                // console.log(result);
+                const gsResult = await (this.app as any).agonesSDK.getGameServer();
+                const { status } = gsResult;
+
+                const params = {
+                    ChangeBatch: {
+                        Changes: [
+                            {
+                                Action: 'UPSERT',
+                                ResourceRecordSet: {
+                                    Name: `${stringSubdomainNumber}.${config.gameserver.domain}`,
+                                    ResourceRecords: [
+                                        {
+                                            Value: gsResult.status.address ?? '192.168.99.101'
+                                        }
+                                    ],
+                                    TTL: 0,
+                                    Type: 'A'
+                                }
+                            }
+                        ]
+                    },
+                    HostedZoneId: config.aws.route53.hostedZoneId
+                }
+                console.log('Record set params:')
+                console.log(params)
+                console.log(params.ChangeBatch.Changes[0])
+                const result = await Route53.changeResourceRecordSets(params).promise();
+                console.log('Route53 Record set patch result:')
+                console.log(result);
             }
 
             logger.info('Starting WebRTC')
@@ -333,7 +356,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             const localIp = await getLocalServerIp();
             localConfig.mediasoup.webRtcTransport.listenIps = [{
                 ip: '0.0.0.0',
-                announcedIp: process.env.KUBERNETES === 'true' ? gs.status.address : localIp.ipAddress
+                announcedIp: process.env.KUBERNETES === 'true' ? `${stringSubdomainNumber}.${config.gameserver.domain}` : localIp.ipAddress
             }]
             this.socketIO = (this.app as any)?.io
 
@@ -472,19 +495,12 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     }
 
                     const {id, iceParameters, iceCandidates, dtlsParameters} = transport
-                    console.log('ICE Candidates:')
-                    console.log(iceCandidates)
                     const gs = await (this.app as any).agonesSDK.getGameServer();
                     const name = gs.objectMeta.name;
-                    console.log('This gameserver name: ' + name);
                     const service = await (this.app as any).k8DefaultClient.get(`namespaces/default/services/${name}`)
-                    console.log('This gameserver\s service:');
-                    console.log(service.spec?.ports);
                     iceCandidates.forEach((candidate) => {
                         candidate.port = service?.spec?.ports?.find((portMapping) => portMapping.port === candidate.port).nodePort
                     })
-                    console.log('remapped ICE candidates:')
-                    console.log(iceCandidates)
                     const clientTransportOptions: MediaSoupClientTypes.TransportOptions = {
                         id,
                         sctpParameters: {
