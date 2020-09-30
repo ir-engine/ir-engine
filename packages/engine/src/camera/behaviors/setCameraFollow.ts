@@ -42,14 +42,10 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
   camera = getMutableComponent<CameraComponent>(entityIn, CameraComponent);
 
   let inputAxes;
-  if (inputComponent.data.has(DefaultInput.LOOKTURN_PLAYERONE)) {
-    inputAxes = DefaultInput.LOOKTURN_PLAYERONE
+  if (document.pointerLockElement) {
+    inputAxes = DefaultInput.MOUSE_MOVEMENT
   } else {
-    if (document.pointerLockElement) {
-      inputAxes = inputComponent.schema.mouseInputMap.axes[MouseInput.MouseMovement]
-    } else {
-      inputAxes = DefaultInput.LOOKTURN_PLAYERONE
-    }
+    inputAxes = DefaultInput.LOOKTURN_PLAYERONE
   }
 
   if (!inputComponent.data.has(inputAxes)) {
@@ -57,23 +53,24 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
   } else {
     const inputData = inputComponent.data.get(inputAxes)
     inputValue = inputData.value
-    if (inputData.lifecycleState === LifecycleValue.ENDED) {
+    if (inputData.lifecycleState === LifecycleValue.ENDED || inputData.lifecycleState === LifecycleValue.UNCHANGED) {
       // skip
       return
     }
-    console.log('inputData.lifecycleState', inputData.lifecycleState.toString())
+
     if (inputData.lifecycleState !== LifecycleValue.CHANGED) {
-      console.log('! LifecycleValue.CHANGED')
-      debugger
+      // console.log('! LifecycleValue.CHANGED', LifecycleValue[inputData.lifecycleState])
+      return
     }
     const preInputData = inputComponent.prevData.get(inputAxes)
 
     if (inputData.lifecycleState === LifecycleValue.CHANGED) {
-      console.log(inputValue, '->', preInputData?.value)
+      // console.log(LifecycleValue[inputData.lifecycleState], inputValue, '->', preInputData?.value)
     }
 
     if (inputValue[0] === preInputData?.value[0] && inputValue[1] === preInputData?.value[1]) {
-      debugger
+      // debugger
+      // return
     }
 
 
