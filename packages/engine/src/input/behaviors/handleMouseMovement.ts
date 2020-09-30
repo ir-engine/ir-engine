@@ -6,7 +6,6 @@ import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { MouseInput } from '../enums/MouseInput';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { normalizeMouseCoordinates } from "../../common/functions/normalizeMouseCoordinates";
-import { DefaultInput } from '../../templates/shared/DefaultInput';
 
 /**
  * Local reference to input component
@@ -25,64 +24,42 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
   const input = getComponent(entity, Input);
   const normalizedPosition = normalizeMouseCoordinates(args.event.clientX, args.event.clientY, window.innerWidth, window.innerHeight);
   const mousePosition: [number, number] = [ normalizedPosition.x, normalizedPosition.y ];
-  // TODO: should movement be also normalized?
   const mouseMovement: [number, number] = [ args.event.movementX, args.event.movementY ];
 
-  const mappedPositionInput = input.schema.mouseInputMap.axes[MouseInput.MousePosition]
-  const mappedMovementInput = input.schema.mouseInputMap.axes[MouseInput.MouseMovement]
-  const mappedDragMovementInput = input.schema.mouseInputMap.axes[MouseInput.MouseClickDownMovement]
-
   // If mouse position not set, set it with lifecycle started
-  if (mappedPositionInput) {
-    if (!input.data.has(mappedPositionInput)) {
-      input.data.set(mappedPositionInput, {
-        type: InputType.TWODIM,
-        value: mousePosition,
-        lifecycleState: LifecycleValue.STARTED
-      });
-    } else {
-      input.data.set(mappedPositionInput, {
+  if (!input.data.has(input.schema.mouseInputMap.axes[MouseInput.MousePosition])) {
+    input.data.set(input.schema.mouseInputMap.axes[MouseInput.MousePosition], {
+      type: InputType.TWODIM,
+      value: mousePosition,
+      lifecycleState: LifecycleValue.STARTED
+    });
+    // Set movement delta
+    input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseMovement], {
+      type: InputType.TWODIM,
+      value: mouseMovement,
+      lifecycleState: LifecycleValue.STARTED
+    });
+  } else {
+    // If mouse position set, check it's value
+    const oldMousePosition = input.data.get(input.schema.mouseInputMap.axes[MouseInput.MousePosition])
+    // If it's not the same, set it and update the lifecycle value to changed
+    if (JSON.stringify(oldMousePosition) !== JSON.stringify(mousePosition)) {
+      // Set type to TWODIM (two-dimensional axis) and value to a normalized -1, 1 on X and Y
+      input.data.set(input.schema.mouseInputMap.axes[MouseInput.MousePosition], {
         type: InputType.TWODIM,
         value: mousePosition,
         lifecycleState: LifecycleValue.CHANGED
       });
-    }
-  }
-
-  if (mappedMovementInput) {
-    if (!input.data.has(mappedMovementInput)) {
-      input.data.set(mappedMovementInput, {
-        type: InputType.TWODIM,
-        value: mouseMovement,
-        lifecycleState: LifecycleValue.STARTED
-      });
-    } else {
-      input.data.set(mappedMovementInput, {
+      // Set movement delta
+      input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseMovement], {
         type: InputType.TWODIM,
         value: mouseMovement,
         lifecycleState: LifecycleValue.CHANGED
       });
-    }
-  }
-
-  // TODO: it looks like hack... MouseInput.MousePosition doesn't know that it is SCREENXY, and it could be anything ... same should be here
-  const SCREENXY_START = input.data.get(DefaultInput.SCREENXY_START)
-  if (SCREENXY_START && SCREENXY_START.lifecycleState !== LifecycleValue.ENDED) {
-    // Set dragging movement delta
-    if (mappedDragMovementInput) {
-      if (!input.data.has(mappedDragMovementInput)) {
-        input.data.set(mappedDragMovementInput, {
-          type: InputType.TWODIM,
-          value: mouseMovement,
-          lifecycleState: LifecycleValue.STARTED
-        });
-      } else {
-        input.data.set(mappedDragMovementInput, {
-          type: InputType.TWODIM,
-          value: mouseMovement,
-          lifecycleState: LifecycleValue.CHANGED
-        });
-      }
+    } else {
+      // Otherwise, remove it
+      input.data.delete(input.schema.mouseInputMap.axes[MouseInput.MousePosition])
+      input.data.delete(input.schema.mouseInputMap.axes[MouseInput.MouseMovement])
     }
   }
 }

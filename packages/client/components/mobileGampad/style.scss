@@ -43,7 +43,18 @@ $mobileControllButtonsSize:2.5em;
                 background-color: #ffbb00;
                 right: 0;
                 bottom: $mobileControllButtonsSize;
-            }
+            }            
+        }
+
+        &._available{
+            opacity: 1;
+            font-weight: bold;
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(102,185,51,1);
+        }
+
+        &._not_available{
+            opacity: 0;
         }
     }
 }
