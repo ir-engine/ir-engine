@@ -88,6 +88,12 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
 
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
+
+  // Input
+  if (options.input && options.input.enabled && isBrowser) {
+    registerSystem(InputSystem, { useWebXR: options.withWebXRInput });
+  }
+
   // Create a new three.js scene
   const scene = new Scene();
 
@@ -139,10 +145,6 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
       // }
     }
 
-  // Input
-  if (options.input && options.input.enabled && isBrowser) {
-    registerSystem(InputSystem, { useWebXR: options.withWebXRInput });
-  }
 
   // Networking
   if (options.networking && options.networking.enabled) {
