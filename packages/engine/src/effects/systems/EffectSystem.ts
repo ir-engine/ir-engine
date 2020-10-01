@@ -27,7 +27,7 @@ export class HighlightSystem extends System {
     }
   }
 }
-
+}
 HighlightSystem.queries = {
   hightlights: {
     components: [HighlightComponent],

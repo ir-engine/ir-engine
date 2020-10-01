@@ -103,7 +103,7 @@ export class WebGLRendererSystem extends System {
       else if ( pass.effect === DepthOfFieldEffect)
         passes.push(new pass.effect(Engine.camera, pass.options))
       else if ( pass.effect === OutlineEffect){
-      const effect = new pass.effect(pass.options);
+      const effect = new pass.effect(pass.options)
         passes.push(effect)
         composer.outlineEffect = effect
       }
