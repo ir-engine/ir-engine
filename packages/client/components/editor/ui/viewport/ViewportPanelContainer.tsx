@@ -191,8 +191,8 @@ export default function ViewportPanelContainer() {
 
   const onEditorInitialized = useCallback(() => {
     editor.addListener("selectionChanged", onSelectionChanged);
-    editor.editorControls.addListener("flyModeChanged", onFlyModeChanged);
-    editor.editorControls.addListener("transformModeChanged", onTransformModeChanged);
+    // editor.editorControls.addListener("flyModeChanged", onFlyModeChanged);
+    // editor.editorControls.addListener("transformModeChanged", onTransformModeChanged);
   }, [editor, onSelectionChanged, onFlyModeChanged, onTransformModeChanged]);
 
   useEffect(() => {

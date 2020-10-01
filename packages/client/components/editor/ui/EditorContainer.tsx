@@ -185,19 +185,19 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     const editor = this.state.editor;
 
     try {
-      const templateFile = await this.props.api.fetch(templateUrl).then(response => response.json());
+      // const templateFile = await this.props.api.fetch(templateUrl).then(response => response.json());
 
       await editor.init();
 
-      if (templateFile.metadata) {
-        delete templateFile.metadata.sceneUrl;
-        delete templateFile.metadata.sceneId;
-        delete templateFile.metadata.creatorAttribution;
-        delete templateFile.metadata.allowRemixing;
-        delete templateFile.metadata.allowPromotion;
-      }
+      // if (templateFile.metadata) {
+      //   delete templateFile.metadata.sceneUrl;
+      //   delete templateFile.metadata.sceneId;
+      //   delete templateFile.metadata.creatorAttribution;
+      //   delete templateFile.metadata.allowRemixing;
+      //   delete templateFile.metadata.allowPromotion;
+      // }
 
-      await editor.loadProject(templateFile);
+      // await editor.loadProject(templateFile);
 
       this.hideDialog();
     } catch (error) {
@@ -894,13 +894,13 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
               <OnboardingContextProvider value={onboardingContext}>
                 <DndProvider backend={HTML5Backend}>
                   <DragLayer />
-                  {toolbarMenu && <ToolBar
+                  {/* {toolbarMenu && <ToolBar
                     menu={toolbarMenu}
                     editor={editor}
                     onPublish={this.onPublishProject}
                     isPublishedScene={isPublishedScene}
                     onOpenScene={this.onOpenScene}
-                  />}
+                  />} */}
                   <WorkspaceContainer>
                     <Resizeable axis="x" initialSizes={[0.7, 0.3]} onChange={this.onResize}>
                       <ViewportPanelContainer />

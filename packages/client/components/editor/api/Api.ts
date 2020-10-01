@@ -14,7 +14,7 @@ import PublishedSceneDialog from "./PublishedSceneDialog";
 const resolveUrlCache = new Map();
 const resolveMediaCache = new Map();
 
-const API_SERVER_ADDRESS = (configs as any).API_SERVER_ADDRESS || process.browser ? document.location.hostname: "3000";
+const API_SERVER_ADDRESS = (configs as any).API_SERVER_ADDRESS || process.browser ? `${document.location.hostname}:3030` : "localhost:3030";
 
 const {
   API_ASSETS_ROUTE,
@@ -73,13 +73,14 @@ function shouldCorsProxy(url) {
 }
 
 export const proxiedUrlFor = url => {
-  if (!(url.startsWith("http:") || url.startsWith("https:"))) return url;
+  // if (!(url.startsWith("http:") || url.startsWith("https:"))) return url;
 
-  if (!shouldCorsProxy(url)) {
-    return url;
-  }
+  // if (!shouldCorsProxy(url)) {
+  //   return url;
+  // }
 
-  return `${prefix}${CORS_PROXY_SERVER}/${url}`;
+  // return `${prefix}${CORS_PROXY_SERVER}/${url}`;
+  return url
 };
 
 export const scaledThumbnailUrlFor = (url, width, height) => {
@@ -106,7 +107,7 @@ function guessContentType(url) {
   return CommonKnownContentTypes[extension];
 }
 
-const LOCAL_STORE_KEY = "___hubs_store";
+const LOCAL_STORE_KEY = " ";
 
 export default class Api extends EventEmitter {
   serverURL: string;
@@ -148,7 +149,7 @@ export default class Api extends EventEmitter {
     }
 
     const store = JSON.parse(value);
-
+    
     if (!store || !store.credentials || !store.credentials.token) {
       throw new Error("Not authenticated");
     }
@@ -1119,11 +1120,13 @@ export default class Api extends EventEmitter {
 
   async fetch(url, options: any = {}) {
     try {
+      debugger
       const token = this.getToken();
       if (options.headers == null) {
         options.headers = {};
       }
       options.headers.authorization = `Bearer ${token}`;
+      debugger
       const res = await fetch(url, options);
       console.log("Response: " + Object.values(res));
 
@@ -1151,6 +1154,7 @@ export default class Api extends EventEmitter {
       if((accessToken && email) || this.isAuthenticated()){
         this.saveCredentials(email, accessToken);
       }
+      // TODO: Disabled unauthorized redirection temporarily
       // else {
       //   (window as any).location = `${(window as any).location.origin}?redirectTo=editor&login=true`;
       // }
