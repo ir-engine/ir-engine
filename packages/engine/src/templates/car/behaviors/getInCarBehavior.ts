@@ -21,7 +21,7 @@ export const getInCar: Behavior = (entity: Entity, args: { value: Vector2 }, del
   removeComponent(entity, FollowCameraComponent)
   addComponent(entity, PlayerInCar, { entityCar: entityCar })
 
-  const event = new CustomEvent('player-in-car', { detail:{inCar:true} });
+  const event = new CustomEvent('player-in-car', { detail:{inCar:true, interactionText: 'get out of the car',} });
   document.dispatchEvent(event);
 
 };
