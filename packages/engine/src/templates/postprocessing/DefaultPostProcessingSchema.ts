@@ -9,8 +9,11 @@ import { DepthOfFieldEffect } from '../../postprocessing/effects/DepthOfFieldEff
 import { BrightnessContrastEffect } from '../../postprocessing/effects/BrightnessContrastEffect';
 import { Resizer } from '../../postprocessing/core/Resizer';
 import { OutlineEffect } from '../../postprocessing/effects/OutlineEffect';
+import { Engine } from '../../ecs/classes/Engine';
+
 
 export const DefaultPostProcessingSchema: PostProcessingSchema = {
+  
   effects: [
 
     {

@@ -8,29 +8,36 @@ import { RendererComponent } from "../../renderer/components/RendererComponent"
 
 export class HighlightSystem extends System {
   constructor(attributes?: SystemAttributes) {
-    super()
+    super(attributes)
     registerComponent(HighlightComponent)    
   }
-  
+  canExecute(delta: number): boolean {
+    return super.canExecute(delta) && !!RendererComponent?.instance?.composer;
+    }
+
   execute(deltaTime, time): void {
    
     for (let entity of this.queryResults.hightlights.added) {
       const hightlightedObject = getComponent(entity, Object3DComponent).value;
-      if (hightlightedObject){
-      RendererComponent.instance.composer.outlineEffect?.selection.add(hightlightedObject);
-    }
+      hightlightedObject.traverse((obj)=>{
+        if (obj !== undefined){
+        RendererComponent.instance.composer.outlineEffect?.selection.add(obj);
+      }
+      });
   }
   for (let entity of this.queryResults.hightlights.removed) {
     const hightlightedObject = getComponent(entity, Object3DComponent).value;
-    if (hightlightedObject){
-      RendererComponent.instance.composer.outlineEffect?.selection.delete(hightlightedObject);
-    }
+      hightlightedObject.traverse((obj)=>{
+        if (obj !== undefined){
+        RendererComponent.instance.composer.outlineEffect?.selection.delete(obj);
+      }
+      });
   }
 }
 }
 HighlightSystem.queries = {
   hightlights: {
-    components: [HighlightComponent],
+    components: [ Object3DComponent, HighlightComponent ],
     listen: {
       removed: true,
       added: true
