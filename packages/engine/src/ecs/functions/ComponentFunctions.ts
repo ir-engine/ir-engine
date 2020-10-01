@@ -23,7 +23,7 @@ export function Not<C extends Component<any>>(Component: ComponentConstructor<C>
   return {
     type: 'not' as const,
     Component: Component
-  } as NotComponent<C>
+  } as NotComponent<C>;
 }
 
 /**

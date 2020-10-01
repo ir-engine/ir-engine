@@ -5,7 +5,7 @@ export function setupMeshProperties(child: any): void {
 	child.receiveShadow = true;
 
 	if (child.material.map !== null) {
-		let mat = new THREE.MeshPhongMaterial();
+		const mat = new THREE.MeshPhongMaterial();
 		mat.shininess = 0;
 		mat.name = child.material.name;
 		mat.map = child.material.map;

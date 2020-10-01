@@ -19,7 +19,7 @@ export function handleKey(entity: Entity, args: { event: KeyboardEvent; value: B
   const input = getComponent(entity, Input);
   if (input.schema.keyboardInputMap[args.event.key] === undefined)
     return;
-  const mappedKey = input.schema.keyboardInputMap[args.event.key]
+  const mappedKey = input.schema.keyboardInputMap[args.event.key];
 
   if (args.value === BinaryValue.ON) {
     // If the key is in the map but it's in the same state as now, let's skip it (debounce)

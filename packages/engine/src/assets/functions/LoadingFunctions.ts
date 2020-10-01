@@ -24,7 +24,7 @@ export function loadAsset (url: AssetUrl, entity:Entity, onAssetLoaded: AssetsLo
       onAssetLoaded(entity, { asset: resource });
     });
   } else {
-    onAssetLoaded(entity, { asset: AssetVault.instance.assets.get(url) })
+    onAssetLoaded(entity, { asset: AssetVault.instance.assets.get(url) });
   }
 }
 
@@ -45,7 +45,7 @@ function iterateLoadAsset (
       if (loader == null) {
         console.error('Loader failed on ', url);
         iterateLoadAsset(iterable, onAssetLoaded, onAllAssetsLoaded);
-        return
+        return;
       }
       loader.load(url, resource => {
         if (resource.scene !== undefined) {

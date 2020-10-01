@@ -8,7 +8,7 @@ import { Interactive } from "../../../interaction/components/Interactive";
 import { onInteraction, onInteractionHover } from "../functions/interactiveBox";
 
 const boxGeometry = new BoxBufferGeometry(1, 1, 1);
-const boxMaterial = new MeshPhongMaterial({ color: 'blue' })
+const boxMaterial = new MeshPhongMaterial({ color: 'blue' });
 const boxMesh = new Mesh(boxGeometry, boxMaterial);
 
 export const interactiveBox: Prefab = {

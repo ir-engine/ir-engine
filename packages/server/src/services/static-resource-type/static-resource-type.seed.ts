@@ -1,4 +1,4 @@
-import config from '../../config'
+import config from '../../config';
 
 export const seed = {
   disabled: !config.db.forceRefresh,
@@ -16,6 +16,6 @@ export const seed = {
     { type: 'user-thumbnail' }, // User avatar profile thumbnail
     { type: 'data' } // arbitrary data of any other type
   ]
-}
+};
 
-export default seed
+export default seed;

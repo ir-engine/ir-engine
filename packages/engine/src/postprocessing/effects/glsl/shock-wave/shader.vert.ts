@@ -8,4 +8,4 @@ void mainSupport() {
 	vSize = (0.1 * cameraDistance) / size;
 
 }
-`
+`;

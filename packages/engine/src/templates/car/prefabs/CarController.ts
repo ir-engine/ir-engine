@@ -11,7 +11,7 @@ import { addCarPhysics } from "@xr3ngine/engine/src/physics/behaviors/addCarPhys
 import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
 import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
 import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
- import { VehicleInputSchema } from "@xr3ngine/engine/src/templates/car/VehicleInputSchema"
+ import { VehicleInputSchema } from "@xr3ngine/engine/src/templates/car/VehicleInputSchema";
 import { Interactive } from "../../../interaction/components/Interactive";
 import { getInCar } from "../behaviors/getInCarBehavior";
 import { getInCarPossible } from "../behaviors/getInCarPossible";
@@ -56,7 +56,7 @@ export const CarController: Prefab = {
                       changeColor(entityIn, {
                         materialName: "Main",
                         color: new Color(1,1,1)
-                      })
+                      });
                     }
                 }
             }

@@ -1,6 +1,6 @@
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
-import { observable } from 'mobx'
+import { observable } from 'mobx';
 
 export class MediaStreamComponent extends Component<any> {
   @observable static instance: MediaStreamComponent = null
@@ -38,23 +38,23 @@ export class MediaStreamComponent extends Component<any> {
   }
 
   public setVideoPaused (state: boolean): boolean {
-    this.videoPaused = state
-    return this.videoPaused
+    this.videoPaused = state;
+    return this.videoPaused;
   }
 
   public setAudioPaused (state: boolean): boolean {
-    this.audioPaused = state
-    return this.audioPaused
+    this.audioPaused = state;
+    return this.audioPaused;
   }
 
   public setScreenShareVideoPaused (state: boolean): boolean {
-    this.screenShareVideoPaused = state
-    return this.screenShareVideoPaused
+    this.screenShareVideoPaused = state;
+    return this.screenShareVideoPaused;
   }
 
   public setScreenShareAudioPaused (state: boolean): boolean {
-    this.screenShareAudioPaused = state
-    return this.screenShareAudioPaused
+    this.screenShareAudioPaused = state;
+    return this.screenShareAudioPaused;
   }
 
   public toggleVideoPaused (): boolean {

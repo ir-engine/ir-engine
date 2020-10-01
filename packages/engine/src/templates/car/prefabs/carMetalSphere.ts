@@ -25,12 +25,12 @@ const materialStandard = new MeshStandardMaterial({
   metalness: 0.8323529362678528,
   refractionRatio: 0.98,
   roughness: 0.5527864098548889,
-})
+});
 
 const materialPhysical = new MeshPhysicalMaterial({
   clearcoat: 1,
   clearcoatRoughness: 0.029999999329447746
-})
+});
 
 materialPhysical.setValues(materialStandard);
 materialPhysical.defines = { STANDARD: '', PHYSICAL: '' };

@@ -1,4 +1,4 @@
-import config from '../../config'
+import config from '../../config';
 
 export const seed = {
   disabled: !config.db.forceRefresh,
@@ -12,6 +12,6 @@ export const seed = {
       { type: 'blocking' }, // Blocking another user
       { type: 'blocked' } // Blocked by other user
     ]
-}
+};
 
-export default seed
+export default seed;

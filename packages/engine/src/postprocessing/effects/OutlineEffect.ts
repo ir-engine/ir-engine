@@ -23,7 +23,7 @@ import fragmentShader from './glsl/outline/shader.frag';
 import vertexShader from './glsl/outline/shader.vert';
 import { ShaderPass } from '../passes/ShaderPass';
 import { OutlineMaterial } from '../materials/OutlineMaterial';
-import { Selection } from '../core/Selection'
+import { Selection } from '../core/Selection';
 
 /**
  * An outline effect.

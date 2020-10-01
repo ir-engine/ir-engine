@@ -7,7 +7,7 @@ export const db: any = {
   port: process.env.MYSQL_PORT ?? 3306,
   dialect: 'mysql',
   forceRefresh: process.env.FORCE_DB_REFRESH === 'true'
-}
+};
 
 db.url = process.env.MYSQL_URL ??
-  `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
+  `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`;

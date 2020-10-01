@@ -56,9 +56,9 @@ export const DropIdleState: StateSchemaValue = {
         // Default behavior for all states
         findVehicle(entity);
         // Check if we're trying to jump now
-        const input = getComponent(entity, Input)
+        const input = getComponent(entity, Input);
         if (input.data.has(DefaultInput.JUMP))
-          return addState(entity, { state: CharacterStateTypes.JUMP_IDLE })
+          return addState(entity, { state: CharacterStateTypes.JUMP_IDLE });
         // Check if we're trying to move
         setMovingState(entity, {
           transitionToState: CharacterStateTypes.WALK_START_FORWARD

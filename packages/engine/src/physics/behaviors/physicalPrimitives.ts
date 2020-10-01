@@ -1,5 +1,5 @@
 import { Vec3, Box, Cylinder, ConvexPolyhedron, Quaternion, Sphere, Body } from 'cannon-es';
-import { Vector3 } from 'three'
+import { Vector3 } from 'three';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { TransformComponent } from '../../transform/components/TransformComponent';
@@ -12,10 +12,10 @@ import { CollisionGroups } from "../enums/CollisionGroups";
 export function createTrimesh (mesh, position, mass) {
     mesh = mesh.clone();
 
-		let shape = threeToCannon(mesh, {type: threeToCannon.Type.MESH});
+		const shape = threeToCannon(mesh, {type: threeToCannon.Type.MESH});
 		// Add phys sphere
     shape.collisionFilterGroup = CollisionGroups.TrimeshColliders;
-		let body = new Body({ mass });
+		const body = new Body({ mass });
     body.addShape(shape, position);
 	//	body.material = PhysicsManager.instance.trimMeshMaterial;
 		return body;
@@ -25,7 +25,7 @@ export function createBox (entity: Entity) {
   const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
   const rigidBody = getComponent<RigidBody>(entity, RigidBody);
 
-  let mass = rigidBody ? collider.mass : 0;
+  const mass = rigidBody ? collider.mass : 0;
 
   const shape = new Box(new Vec3(collider.scale[0] / 2, collider.scale[1] / 2, collider.scale[2] / 2));
 
@@ -85,7 +85,7 @@ export function createSphere (entity: Entity) {
   const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
   const rigidBody = getComponent<RigidBody>(entity, RigidBody);
 
-  let mass = rigidBody ? collider.mass : 0;
+  const mass = rigidBody ? collider.mass : 0;
 
   const shape = new Sphere(collider.scale[0] / 2);
 

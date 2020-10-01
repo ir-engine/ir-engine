@@ -1,56 +1,56 @@
-import _ from "lodash"
-import { Geometry, Face3, BufferGeometry, Vector3, Mesh, Line } from "three"
+import _ from "lodash";
+import { Geometry, Face3, BufferGeometry, Vector3, Mesh, Line } from "three";
 
 export function ExportOBJ(object) {
-  let output = ""
-  const precision = 6
+  let output = "";
+  const precision = 6;
 
-  let indexVertex = 0
-  let indexVertexUvs = 0
-  let indexNormals = 0
+  let indexVertex = 0;
+  let indexVertexUvs = 0;
+  let indexNormals = 0;
 
-  let i, j, k, l, m, group, face
+  let i, j, k, l, m, group, face;
 
   const parseMesh = function(mesh) {
-    const nbVertex = 0
-    const nbNormals = 0
-    const nbVertexUvs = 0
+    const nbVertex = 0;
+    const nbNormals = 0;
+    const nbVertexUvs = 0;
 
-    const geometry = mesh.geometry
-    let faceGroups, groupNames
+    const geometry = mesh.geometry;
+    let faceGroups, groupNames;
 
     if (geometry instanceof Geometry) {
-      faceGroups = geometry.faces.map(f => f.materialIndex)
-      groupNames = mesh.material.materials.map(m => m.name)
+      faceGroups = geometry.faces.map(f => f.materialIndex);
+      groupNames = mesh.material.materials.map(m => m.name);
 
       // shortcuts
-      const vertices = mesh.geometry.vertices
+      const vertices = mesh.geometry.vertices;
       // const normals = geometry.getAttribute('normal')
-      const uvs = mesh.geometry.faceVertexUvs[0]
-      const faces = mesh.geometry.faces
+      const uvs = mesh.geometry.faceVertexUvs[0];
+      const faces = mesh.geometry.faces;
 
       // name of the mesh object
-      output += `o ${mesh.name}\n`
+      output += `o ${mesh.name}\n`;
 
       // name of the mesh material
       if (mesh.material && mesh.material.name) {
-        output += `usemtl ${mesh.material.name}\n`
+        output += `usemtl ${mesh.material.name}\n`;
       }
 
       // vertices
 
       if (vertices !== undefined) {
         for (let ii = 0; ii < vertices.length; ii++) {
-          const vertex = vertices[ii]
+          const vertex = vertices[ii];
 
           // transfrom the vertex to world space
-          vertex.applyMatrix4(mesh.matrixWorld)
+          vertex.applyMatrix4(mesh.matrixWorld);
 
           // transform the vertex to export format
           output += `v ${_.round(vertex.x, precision)} ${_.round(vertex.y, precision)} ${_.round(
             vertex.z,
             precision
-          )}\n`
+          )}\n`;
         }
       }
 
@@ -59,9 +59,9 @@ export function ExportOBJ(object) {
       if (uvs !== undefined) {
         for (let ii = 0; ii < uvs.length; ii++) {
           for (let jj = 0; jj < uvs[ii].length; jj++) {
-            const uv = uvs[ii][jj]
+            const uv = uvs[ii][jj];
             // transform the uv to export format
-            output += `vt ${_.round(uv.x, precision)} ${_.round(uv.y, precision)}\n`
+            output += `vt ${_.round(uv.x, precision)} ${_.round(uv.y, precision)}\n`;
           }
         }
       }
@@ -89,91 +89,91 @@ export function ExportOBJ(object) {
       // }
 
       for (let ii = 0; ii < faces.length; ii++) {
-        face = faces[ii] as Face3
+        face = faces[ii] as Face3;
 
         // convert from materialIndex to facegroup
         if (faceGroups && faceGroups[ii] !== group) {
-          group = faceGroups[ii]
-          output += `g ${groupNames[group]}\n`
+          group = faceGroups[ii];
+          output += `g ${groupNames[group]}\n`;
         }
 
         // transform the face to export format
-        output += `f ${face.a + 1}/${ii * 3 + 1} ${face.b + 1}/${ii * 3 + 2} ${face.c + 1}/${ii * 3 + 3}\n`
+        output += `f ${face.a + 1}/${ii * 3 + 1} ${face.b + 1}/${ii * 3 + 2} ${face.c + 1}/${ii * 3 + 3}\n`;
       }
     } else {
-      console.warn("OBJExporter.parseMesh(): geometry type unsupported", geometry)
+      console.warn("OBJExporter.parseMesh(): geometry type unsupported", geometry);
     }
 
     // update index
-    indexVertex += nbVertex
-    indexVertexUvs += nbVertexUvs
-    indexNormals += nbNormals
-  }
+    indexVertex += nbVertex;
+    indexVertexUvs += nbVertexUvs;
+    indexNormals += nbNormals;
+  };
 
   const parseLine = function(line) {
-    let nbVertex = 0
+    let nbVertex = 0;
 
-    let geometry = line.geometry
-    const type = line.type
+    let geometry = line.geometry;
+    const type = line.type;
 
     if (geometry instanceof Geometry) {
-      geometry = new BufferGeometry().setFromObject(line)
+      geometry = new BufferGeometry().setFromObject(line);
     }
 
     if (geometry instanceof BufferGeometry) {
       // shortcuts
-      const vertices = geometry.getAttribute("position")
+      const vertices = geometry.getAttribute("position");
 
       // name of the line object
-      output += `o ${line.name}\n`
+      output += `o ${line.name}\n`;
 
       if (vertices !== undefined) {
-        const vertex = new Vector3()
+        const vertex = new Vector3();
         for (i = 0, l = vertices.count; i < l; i++, nbVertex++) {
-          vertex.x = vertices.getX(i)
-          vertex.y = vertices.getY(i)
-          vertex.z = vertices.getZ(i)
+          vertex.x = vertices.getX(i);
+          vertex.y = vertices.getY(i);
+          vertex.z = vertices.getZ(i);
 
           // transfrom the vertex to world space
-          vertex.applyMatrix4(line.matrixWorld)
+          vertex.applyMatrix4(line.matrixWorld);
 
           // transform the vertex to export format
-          output += `v ${vertex.x} ${vertex.y} ${vertex.z}\n`
+          output += `v ${vertex.x} ${vertex.y} ${vertex.z}\n`;
         }
       }
 
       if (type === "Line") {
-        output += "l "
+        output += "l ";
 
         for (j = 1, l = vertices.count; j <= l; j++) {
-          output += `${indexVertex + j} `
+          output += `${indexVertex + j} `;
         }
 
-        output += "\n"
+        output += "\n";
       }
 
       if (type === "LineSegments") {
         for (j = 1, k = j + 1, l = vertices.count; j < l; j += 2, k = j + 1) {
-          output += `l ${indexVertex + j} ${indexVertex + k}\n`
+          output += `l ${indexVertex + j} ${indexVertex + k}\n`;
         }
       }
     } else {
-      console.warn("OBJExporter.parseLine(): geometry type unsupported", geometry)
+      console.warn("OBJExporter.parseLine(): geometry type unsupported", geometry);
     }
 
     // update index
-    indexVertex += nbVertex
-  }
+    indexVertex += nbVertex;
+  };
 
   object.traverse(child => {
     if (child instanceof Mesh) {
-      parseMesh(child)
+      parseMesh(child);
     }
 
     if (child instanceof Line) {
-      parseLine(child)
+      parseLine(child);
     }
-  })
+  });
 
-  return output
+  return output;
 }

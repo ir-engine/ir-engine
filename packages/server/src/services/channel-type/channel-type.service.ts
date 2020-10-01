@@ -1,8 +1,8 @@
-import { ServiceAddons } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
-import { ChannelType } from './channel-type.class'
-import createModel from '../../models/channel-type.model'
-import hooks from './channel-type.hooks'
+import { ServiceAddons } from '@feathersjs/feathers';
+import { Application } from '../../declarations';
+import { ChannelType } from './channel-type.class';
+import createModel from '../../models/channel-type.model';
+import hooks from './channel-type.hooks';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -15,11 +15,11 @@ export default (app: Application): any => {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
-  }
+  };
 
-  app.use('/channel-type', new ChannelType(options, app))
+  app.use('/channel-type', new ChannelType(options, app));
 
-  const service = app.service('channel-type')
+  const service = app.service('channel-type');
 
-  service.hooks(hooks)
-}
+  service.hooks(hooks);
+};

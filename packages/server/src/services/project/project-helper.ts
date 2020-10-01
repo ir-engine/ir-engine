@@ -1,8 +1,8 @@
-import config from '../../config'
+import config from '../../config';
 
 export function mapSceneData (scene: any, projectId: string): any {
   if (!scene) {
-    return null
+    return null;
   }
   const selectedSceneData = {
     ...scene,
@@ -11,11 +11,11 @@ export function mapSceneData (scene: any, projectId: string): any {
     url: `${(config.server.hub.endpoint)}/scene/${(scene.slug as string)}`,
     model_url: scene?.model_owned_file?.url,
     screenshot_url: scene?.screenshot_owned_file?.url
-  }
-  delete selectedSceneData.model_owned_file
-  delete selectedSceneData.screenshot_owned_file
-  delete selectedSceneData.scene_owned_file
-  return selectedSceneData
+  };
+  delete selectedSceneData.model_owned_file;
+  delete selectedSceneData.screenshot_owned_file;
+  delete selectedSceneData.scene_owned_file;
+  return selectedSceneData;
 }
 export function defaultProjectImport (models: any): any[] {
   const includedEntities = [
@@ -80,8 +80,8 @@ export function defaultProjectImport (models: any): any[] {
             // scene: ^Scene.scene_preloads()
           ]
         } */
-  ]
-  return includedEntities
+  ];
+  return includedEntities;
 }
 
 export function mapProjectDetailData (project: any): any {
@@ -92,6 +92,6 @@ export function mapProjectDetailData (project: any): any {
     project_url: project?.url,
     scene: mapSceneData(project.scene, project.sid),
     thumbnailUrl: project?.thumbnail_owned_file?.url
-  }
-  return _proj
+  };
+  return _proj;
 }

@@ -30,7 +30,7 @@ module.exports = {
     "no-unused-expressions": "off",
     "no-var": "error",
     "prefer-arrow-callback": "error",
-    "semi": "error",
+    "semi": "warn",
     "space-before-function-paren": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unused-vars": [

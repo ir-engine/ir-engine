@@ -1,8 +1,8 @@
-import { ServiceAddons } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
-import { SubscriptionType } from './subscription-type.class'
-import createModel from '../../models/subscription-type.model'
-import hooks from './subscription-type.hooks'
+import { ServiceAddons } from '@feathersjs/feathers';
+import { Application } from '../../declarations';
+import { SubscriptionType } from './subscription-type.class';
+import createModel from '../../models/subscription-type.model';
+import hooks from './subscription-type.hooks';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -15,11 +15,11 @@ export default (app: Application): any => {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
-  }
+  };
 
-  app.use('/subscription-type', new SubscriptionType(options, app))
+  app.use('/subscription-type', new SubscriptionType(options, app));
 
-  const service = app.service('subscription-type')
+  const service = app.service('subscription-type');
 
-  service.hooks(hooks)
-}
+  service.hooks(hooks);
+};

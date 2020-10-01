@@ -1,7 +1,7 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../declarations'
-import { Sequelize } from 'sequelize'
-import { v1 as uuidv1 } from 'uuid'
+import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
+import { Application } from '../../declarations';
+import { Sequelize } from 'sequelize';
+import { v1 as uuidv1 } from 'uuid';
 
 interface Data {
   userId: string;
@@ -11,8 +11,8 @@ export class IdentityProvider extends Service {
   public app: Application
 
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
+    super(options);
+    this.app = app;
   }
 
   async create (data: any, params: any): Promise<any> {
@@ -20,70 +20,70 @@ export class IdentityProvider extends Service {
       token,
       type,
       password
-    } = data
+    } = data;
 
     // if userId is in data, the we add this identity provider to the user with userId
     // if not, we create a new user
-    let userId = data.userId
-    let identityProvider: any
+    let userId = data.userId;
+    let identityProvider: any;
 
     switch (type) {
       case 'email':
         identityProvider = {
           token,
           type
-        }
-        break
+        };
+        break;
       case 'sms':
         identityProvider = {
           token,
           type
-        }
-        break
+        };
+        break;
       case 'password':
         identityProvider = {
           token,
           password,
           type
-        }
-        break
+        };
+        break;
       case 'github':
         identityProvider = {
           token: token,
           type
-        }
-        break
+        };
+        break;
       case 'facebook':
         identityProvider = {
           token: token,
           type
-        }
-        break
+        };
+        break;
       case 'google':
         identityProvider = {
           token: token,
           type
-        }
-        break
+        };
+        break;
       case 'auth0':
-        break
+        break;
     }
 
     // if userId is not defined, then generate userId
     if (!userId) {
-      userId = uuidv1()
+      userId = uuidv1();
     }
 
-    const sequelizeClient: Sequelize = this.app.get('sequelizeClient')
-    const userService = this.app.service('user')
-    const User = sequelizeClient.model('user')
+    const sequelizeClient: Sequelize = this.app.get('sequelizeClient');
+    const userService = this.app.service('user');
+    const User = sequelizeClient.model('user');
 
     // check if there is a user with userId
     const foundUser = ((await userService.find({
       query: {
         id: userId
       }
-    }))).data
+    }))).data;
 
     if (foundUser.length > 0) {
       // if there is the user with userId, then we add the identity provider to the user
@@ -91,13 +91,13 @@ export class IdentityProvider extends Service {
         ...data,
         ...identityProvider,
         userId
-      }, params)
+      }, params);
     }
 
     // create with user association
     params.sequelize = {
       include: [User]
-    }
+    };
 
     // if there is no user with userId, then we create a user and a identity provider.
     const result = await super.create({
@@ -106,8 +106,8 @@ export class IdentityProvider extends Service {
       user: {
         id: userId
       }
-    }, params)
+    }, params);
 
-    return result
+    return result;
   }
 }

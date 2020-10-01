@@ -1,10 +1,10 @@
-import collectAnalytics from '../../hooks/collect-analytics'
-import groupPermissionAuthenticate from '../../hooks/group-permission-authenticate'
-import createGroupOwner from '../../hooks/create-group-owner'
-import removeGroupUsers from '../../hooks/remove-group-users'
-import * as authentication from '@feathersjs/authentication'
+import collectAnalytics from '../../hooks/collect-analytics';
+import groupPermissionAuthenticate from '../../hooks/group-permission-authenticate';
+import createGroupOwner from '../../hooks/create-group-owner';
+import removeGroupUsers from '../../hooks/remove-group-users';
+import * as authentication from '@feathersjs/authentication';
 
-const { authenticate } = authentication.hooks
+const { authenticate } = authentication.hooks;
 
 export default {
   before: {
@@ -45,4 +45,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+};

@@ -11,4 +11,4 @@ void main() {
 	#include <encodings_fragment>
 
 }
-`
+`;

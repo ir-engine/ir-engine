@@ -17,11 +17,11 @@ let actor, camera
 let inputValue, startValue
 const euler = new Euler( 0, 0, 0, 'YXZ' );
 let direction = new Vector3();
-const up = new Vector3( 0, 1, 0)
-const empty = new Vector3()
+const up = new Vector3( 0, 1, 0);
+const empty = new Vector3();
 const PI_2 = Math.PI / 2;
-const maxPolarAngle = 45
-const minPolarAngle = 0
+const maxPolarAngle = 45;
+const minPolarAngle = 0;
 
 const mx = new Matrix4();
 let theta = 0;
@@ -60,7 +60,7 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
         target.position.x,
         3,
         target.position.z
-      )
+      );
     }
     else if (cameraFollow.mode === "thirdPerson") {
 
@@ -73,10 +73,10 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
         target.position.x + cameraFollow.distance * Math.sin(theta *  Math.PI / 180) *  Math.cos(phi * Math.PI / 180),
         target.position.y + cameraFollow.distance * Math.sin(phi *  Math.PI / 180),
         target.position.z + cameraFollow.distance * Math.cos(theta *  Math.PI / 180) *  Math.cos(phi * Math.PI / 180)
-      )
+      );
 
-      direction.copy(follower.position)
-      direction = direction.sub(target.position).normalize()
+      direction.copy(follower.position);
+      direction = direction.sub(target.position).normalize();
 
       mx.lookAt(direction, empty, up);
 

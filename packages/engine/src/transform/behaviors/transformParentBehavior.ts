@@ -9,13 +9,13 @@ export const transformParentBehavior: Behavior = (entity: Entity, args: { event:
   const parentTransform = getMutableComponent(entity, TransformComponent);
 
   if (!hasComponent(entity, TransformParentComponent)) {
-    return
+    return;
   }
   const parentingComponent = getComponent<TransformParentComponent>(entity, TransformParentComponent);
 
   parentingComponent.children.forEach(child => {
     if (!hasComponent(child, Object3DComponent)) {
-      return
+      return;
     }
 
     const { value: { position: childPosition, quaternion: childQuaternion } } = getMutableComponent<Object3DComponent>(child, Object3DComponent);
@@ -33,5 +33,5 @@ export const transformParentBehavior: Behavior = (entity: Entity, args: { event:
     // add parent
     childPosition.add(parentTransform.position);
     childQuaternion.multiply(parentTransform.rotation);
-  })
+  });
 };

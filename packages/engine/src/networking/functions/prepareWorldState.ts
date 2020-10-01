@@ -10,5 +10,5 @@ export const prepareWorldState = () => {
       clientsDisconnected: [],
       createObjects: [],
       destroyObjects: []
-      }
+      };
 };

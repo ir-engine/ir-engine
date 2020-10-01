@@ -10,10 +10,10 @@ const defaultForwardVector = new Vector3(0,0,1);
 
 export const rotateModel: Behavior = (entity: Entity): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-	if(!actor.initialized) return
+	if(!actor.initialized) return;
 	const actorTransform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent as any);
 	const actorObject3D: Object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
-	if(actorObject3D === undefined) console.warn("Object3D is undefined")
+	if(actorObject3D === undefined) console.warn("Object3D is undefined");
 	else {
 		actorTransform.rotation.setFromUnitVectors( defaultForwardVector, actor.orientation.clone().setY(0) );
 

@@ -65,9 +65,9 @@ export const addObject3DComponent: Behavior = (
   args: { obj3d: any, obj3dArgs?: any, parentEntity?: Entity }
 ) => {
 
-  const isObject3d =(typeof args.obj3d === 'object')
+  const isObject3d =(typeof args.obj3d === 'object');
   const object3d =
-  isObject3d ? args.obj3d : new args.obj3d(args.obj3dArgs)
+  isObject3d ? args.obj3d : new args.obj3d(args.obj3dArgs);
 
   // object3d = new args.obj(args.objArgs)
   addComponent(entity, Object3DComponent, { value: object3d });

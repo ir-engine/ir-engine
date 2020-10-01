@@ -1,8 +1,8 @@
-import { ServiceAddons } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
-import { EntityType } from './entity-type.class'
-import createModel from '../../models/entity-type.model'
-import hooks from './entity-type.hooks'
+import { ServiceAddons } from '@feathersjs/feathers';
+import { Application } from '../../declarations';
+import { EntityType } from './entity-type.class';
+import createModel from '../../models/entity-type.model';
+import hooks from './entity-type.hooks';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -15,11 +15,11 @@ export default (app: Application): any => {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
-  }
+  };
 
-  app.use('/entity-type', new EntityType(options, app))
+  app.use('/entity-type', new EntityType(options, app));
 
-  const service = app.service('entity-type')
+  const service = app.service('entity-type');
 
-  service.hooks(hooks)
-}
+  service.hooks(hooks);
+};

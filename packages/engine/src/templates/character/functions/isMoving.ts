@@ -6,5 +6,5 @@ import { CharacterComponent } from "../components/CharacterComponent";
 
 export const isMoving = (entity: Entity): boolean => {
   const { localMovementDirection } = getComponent(entity, CharacterComponent);
-  return localMovementDirection.length() > 0
+  return localMovementDirection.length() > 0;
 };

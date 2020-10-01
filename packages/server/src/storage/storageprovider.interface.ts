@@ -1,4 +1,4 @@
-export default interface StorageProviderInterface {
+export interface StorageProviderInterface {
   getProvider (): StorageProviderInterface; // arrow function
   getStorage (): any;
 }

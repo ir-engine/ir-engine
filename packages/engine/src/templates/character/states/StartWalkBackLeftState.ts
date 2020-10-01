@@ -53,16 +53,16 @@ export const StartWalkBackLeftState: StateSchemaValue = {
         action: (entity) => {
           // Default behavior for all states
           findVehicle(entity);
-          const input = getComponent(entity, Input)
+          const input = getComponent(entity, Input);
           // Check if we're trying to jump
           if (input.data.has(DefaultInput.JUMP))
-            return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING })
+            return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING });
           // Check if we stopped moving
           if (!isMoving(entity)) {
-            setIdleState(entity)
+            setIdleState(entity);
           }
           if (input.data.has(DefaultInput.SPRINT))
-            return addState(entity, { state: CharacterStateTypes.SPRINT })
+            return addState(entity, { state: CharacterStateTypes.SPRINT });
         }
       }
     },

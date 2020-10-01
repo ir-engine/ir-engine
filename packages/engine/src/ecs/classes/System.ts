@@ -184,7 +184,7 @@ export abstract class System {
             }
           });
         }
-        Engine.queries.push(query)
+        Engine.queries.push(query);
       }
     }
     const c = (this.constructor as any).prototype;
@@ -218,17 +218,17 @@ export abstract class System {
     for (const queryName in this.queryResults) {
       const query = this.queryResults[queryName];
       if (query.added) {
-        query.added.length = 0
+        query.added.length = 0;
       }
       if (query.removed) {
-        query.removed.length = 0
+        query.removed.length = 0;
       }
       if (query.changed) {
         if (Array.isArray(query.changed)) {
-          query.changed.length = 0
+          query.changed.length = 0;
         } else {
           for (const name in query.changed as any) {
-            (query.changed as any)[name].length = 0
+            (query.changed as any)[name].length = 0;
           }
         }
       }

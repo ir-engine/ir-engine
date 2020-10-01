@@ -7,6 +7,6 @@ import { CameraComponent } from '../components/CameraComponent';
  * @param {Entity} entity - The Entity
  */
 export const cameraPointerLock: Behavior = (entity: Entity): void => {
-  document.body.requestPointerLock()
-  console.log("Camera PointerLock")
+  document.body.requestPointerLock();
+  console.log("Camera PointerLock");
 };

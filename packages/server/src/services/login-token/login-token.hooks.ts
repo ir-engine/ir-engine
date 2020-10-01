@@ -1,4 +1,4 @@
-import { disallow } from 'feathers-hooks-common'
+import { disallow } from 'feathers-hooks-common';
 
 export default {
   before: {
@@ -30,4 +30,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+};

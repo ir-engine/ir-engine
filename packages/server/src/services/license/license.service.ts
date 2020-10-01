@@ -1,8 +1,8 @@
-import { ServiceAddons } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
-import { License } from './license.class'
-import createModel from '../../models/license.model'
-import hooks from './license.hooks'
+import { ServiceAddons } from '@feathersjs/feathers';
+import { Application } from '../../declarations';
+import { License } from './license.class';
+import createModel from '../../models/license.model';
+import hooks from './license.hooks';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -15,11 +15,11 @@ export default (app: Application): any => {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
-  }
+  };
 
-  app.use('/license', new License(options, app))
+  app.use('/license', new License(options, app));
 
-  const service = app.service('license')
+  const service = app.service('license');
 
-  service.hooks(hooks)
-}
+  service.hooks(hooks);
+};

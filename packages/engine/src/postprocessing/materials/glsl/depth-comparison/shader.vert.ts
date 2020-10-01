@@ -21,4 +21,4 @@ void main() {
 	#include <clipping_planes_vertex>
 
 }
-`
+`;

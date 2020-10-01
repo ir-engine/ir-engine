@@ -13,4 +13,4 @@ export default `void mainImage(const in vec4 inputColor, const in vec2 uv, const
 	outputColor = vec4(color, inputColor.a);
 
 }
-`
+`;

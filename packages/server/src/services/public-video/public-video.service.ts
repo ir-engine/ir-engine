@@ -1,8 +1,8 @@
-import { ServiceAddons } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
-import { PublicVideo } from './public-video.class'
-import hooks from './public-video.hooks'
-import staticResourceModel from '../../models/static-resource.model'
+import { ServiceAddons } from '@feathersjs/feathers';
+import { Application } from '../../declarations';
+import { PublicVideo } from './public-video.class';
+import hooks from './public-video.hooks';
+import staticResourceModel from '../../models/static-resource.model';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -16,11 +16,11 @@ export default (app: Application): void => {
     Model: staticResourceModel(app),
     paginate: app.get('paginate'),
     multi: true
-  }
+  };
 
-  app.use('/public-video', new PublicVideo(options, app))
+  app.use('/public-video', new PublicVideo(options, app));
 
-  const service = app.service('public-video')
+  const service = app.service('public-video');
 
-  service.hooks(hooks)
-}
+  service.hooks(hooks);
+};

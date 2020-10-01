@@ -1,4 +1,4 @@
-import * as THREE from "three"
+import * as THREE from "three";
 
 export type BinaryType = 0 | 1
 export type ScalarType = number

@@ -6,12 +6,12 @@ import { inputKeyArraySchema } from "./clientInputSchema";
 const clientConnectedSchema = createSchema('clientConnected', {
     clientId: { type: string8, length: 20 },
     userId: { type: string8, length: 36 }
-})
+});
 
 const clientDisconnectedSchema = createSchema('clientDisconnected', {
     clientId: { type: string8, length: 20 },
     userId: { type: string8, length: 36 }
-})
+});
 
 const createNetworkObjectSchema = createSchema('createNetworkObject', {
     networkId: uint32,
@@ -24,11 +24,11 @@ const createNetworkObjectSchema = createSchema('createNetworkObject', {
     qY: float32,
     qZ: float32,
     qW: float32
-})
+});
 
 const destroyNetworkObjectSchema = createSchema('destroyNetworkObject', {
     networkId: uint32
-})
+});
 
 const transformSchema = createSchema('transform', {
     networkId: uint32,

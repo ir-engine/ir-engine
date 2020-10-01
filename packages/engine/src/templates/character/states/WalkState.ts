@@ -48,30 +48,30 @@ export const WalkState: StateSchemaValue = {
         action: (entity) => {
           // Default behavior for all states
           findVehicle(entity);
-          const input = getComponent(entity, Input)
+          const input = getComponent(entity, Input);
 
           if (input.data.has(DefaultInput.BACKWARD)) {
-            addState(entity, { state: CharacterStateTypes.WALK_START_BACK_RIGHT })
+            addState(entity, { state: CharacterStateTypes.WALK_START_BACK_RIGHT });
           } else if (input.data.has(DefaultInput.LEFT)) {
-            addState(entity, { state: CharacterStateTypes.WALK_START_LEFT })
+            addState(entity, { state: CharacterStateTypes.WALK_START_LEFT });
           } else if (input.data.has(DefaultInput.RIGHT)) {
-            addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT})
+            addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT});
           }
 
           // Check if we stopped moving
           if (!isMoving(entity)) {
             // If we still have some velocity, go to walk end state
             if (getComponent(entity, CharacterComponent).velocity.length() > 0.5)
-              return addState(entity, { state: CharacterStateTypes.WALK_END })
+              return addState(entity, { state: CharacterStateTypes.WALK_END });
             // Otherwise go directly to idle state
-            else return addState(entity, { state: CharacterStateTypes.IDLE })
+            else return addState(entity, { state: CharacterStateTypes.IDLE });
           }
           // Check if we're sprinting
           if (input.data.has(DefaultInput.SPRINT))
-            return addState(entity, { state: CharacterStateTypes.SPRINT })
+            return addState(entity, { state: CharacterStateTypes.SPRINT });
           // Check if we're trying to jump
           if (input.data.has(DefaultInput.JUMP))
-            return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING })
+            return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING });
         }
       }
     },
