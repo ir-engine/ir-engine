@@ -59,7 +59,9 @@ const server = {
   },
   url: '',
   certPath: path.resolve(path.dirname("./"), process.env.CERT ?? 'certs/cert.pem'),
-  keyPath: path.resolve(path.dirname("./"), process.env.KEY ?? 'certs/key.pem')
+  keyPath: path.resolve(path.dirname("./"), process.env.KEY ?? 'certs/key.pem'),
+  local: process.env.LOCAL === 'true',
+  gameserverContainerPort: process.env.GAMESERVER_CONTAINER_PORT ?? 3030
 }
 const obj = process.env.KUBERNETES === 'true' ? { protocol: 'https', hostname: server.hostname }: { protocol: 'https', ...server }
 server.url = process.env.SERVER_URL ?? url.format(obj)
@@ -85,6 +87,7 @@ const gameserver = {
   rtc_end_port: process.env.RTC_END_PORT ? parseInt(process.env.RTC_END_PORT) : 40099,
   rtc_port_block_size: process.env.RTC_PORT_BLOCK_SIZE ? parseInt(process.env.RTC_PORT_BLOCK_SIZE) : 100,
   identifierDigits: 5,
+  local: process.env.LOCAL === 'true',
   domain: process.env.GAMESERVER_DOMAIN ?? 'gameserver.xrengine.io'
 }
 

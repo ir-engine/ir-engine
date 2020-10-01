@@ -25,11 +25,7 @@ import SocketIO, {Socket} from "socket.io"
 import logger from "../../app/logger"
 import getLocalServerIp from '../../util/get-local-server-ip'
 import config from '../../config'
-import gameserverServiceTemplate from '@xr3ngine/common/templates/game-server-service.json';
-import jsYaml from 'js-yaml';
 import AWS from 'aws-sdk';
-import fs from 'fs';
-import { exec } from 'child_process';
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 const Route53 = new AWS.Route53({ ...config.aws.route53.keys });
@@ -201,10 +197,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         }
     }
 
-    async getFreeSubdomain(gsIdentifier: string, subdomainNumber: number): Promise<number> {
+    async getFreeSubdomain(gsIdentifier: string, subdomainNumber: number): Promise<string> {
         try {
             console.log('getFreeSubdomain')
-            const stringSubdomainNumber = subdomainNumber;
+            const stringSubdomainNumber = subdomainNumber.toString().padStart(config.gameserver.identifierDigits, '0');
             const subdomainResult = await this.app.service('gameserver-subdomain-provision').find({
                 query: {
                     gs_number: stringSubdomainNumber
@@ -243,44 +239,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             if (this.isInitialized) console.error("Already initialized transport")
             logger.info('Initializing server transport')
 
-            let stringSubdomainNumber;
+            let stringSubdomainNumber, gsResult;
             if (process.env.KUBERNETES === 'true') {
-                // const nginxMainConf = await fs.promises.readFile('/app/packages/common/templates/nginx.conf.template');
-                // const nginxHttpConf = await fs.promises.readFile('/app/packages/common/templates/nginx-http.conf.template');
-                // const nginxStreamConf = await fs.promises.readFile('/app/packages/common/templates/nginx-stream.conf.template');
-                // await fs.promises.writeFile('/etc/nginx/nginx.conf', nginxMainConf);
-                // await fs.promises.writeFile('/etc/nginx/conf.d/http.conf', nginxHttpConf);
-                // await fs.promises.writeFile('/etc/nginx/conf.d/stream.conf', nginxStreamConf);
-                // await new Promise((resolve, reject) => {
-                //     exec('service nginx restart', (err, stdout, stderr) => {
-                //         if (err) reject(err);
-                //         resolve(stdout ? stdout : stderr);
-                //     })
-                // });
-                // const {startPort, endPort} = await this.getRtcPortRange(config.gameserver.rtc_start_port, config.gameserver.rtc_port_block_size);
-                // console.log(`startPort: ${startPort}`)
-                // console.log(`endPort: ${endPort}`)
-                // localConfig.mediasoup.worker.rtcMinPort = startPort;
-                // localConfig.mediasoup.worker.rtcMaxPort = endPort;
-
-                console.log('Initializing')
-                console.log((this.app as any).k8DefaultClient);
-                const services = await (this.app as any).k8DefaultClient.get('namespaces/default/services');
-                console.log('Services:')
-                console.log(services)
-                const gsServices = services.items.filter(service => /gameserver/.test(service.metadata.name) === true);
-                console.log('gsServices:')
-                console.log(gsServices)
-                gsServices.forEach(async (service) => {
-                    try {
-                        const matchingGS = await (this.app as any).k8DefaultClient.get(`namespaces/default/pods/${service.metadata.name}`);
-                        console.log('GS exists, doing nothing');
-                    } catch(err) {
-                        console.log('GS did not exist, deleting service');
-                        await (this.app as any).k8DefaultClient.delete(`namespaces/default/services/${service.metadata.name}`);
-                    }
-                })
-                const service = gameserverServiceTemplate;
                 gs = await (this.app as any).agonesSDK.getGameServer();
                 const name = gs.objectMeta.name;
                 (this.app as any).gsName = name;
@@ -290,36 +250,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 console.log('Next free subdomain number: ' + stringSubdomainNumber);
                 (this.app as any).gsSubdomainNumber = stringSubdomainNumber;
 
-                service.metadata.name = name;
-                service.spec.selector['agones.dev/gameserver'] = name;
-
-                for (let i = localConfig.mediasoup.worker.rtcMinPort; i <= localConfig.mediasoup.worker.rtcMaxPort; i++) {
-                    service.spec.ports.push({
-                        port: i,
-                        targetPort: i,
-                        protocol: 'UDP',
-                        name: `udp-${i}`
-                    })
-                }
-
-                // service.spec.externalIPs.push(`192.168.99.101`);
-
-                console.log('Service template to write in JSON:');
-                console.log(service);
-                (this.app as any).serviceName = service.metadata.name;
-
-                let servicePostResult
-                try {
-                    servicePostResult = await (this.app as any).k8DefaultClient.post('namespaces/default/services', service);
-                    console.log('New loadbalancer result');
-                    console.log(servicePostResult)
-                } catch(err) {
-                    if (err.code !== 409) throw err
-                }
-
-                const gsResult = await (this.app as any).agonesSDK.getGameServer();
-                const { status } = gsResult;
-
+                gsResult = await (this.app as any).agonesSDK.getGameServer();
                 const params = {
                     ChangeBatch: {
                         Changes: [
@@ -329,7 +260,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                                     Name: `${stringSubdomainNumber}.${config.gameserver.domain}`,
                                     ResourceRecords: [
                                         {
-                                            Value: gsResult.status.address ?? '192.168.99.101'
+                                            Value: gsResult.status.address
                                         }
                                     ],
                                     TTL: 0,
@@ -340,12 +271,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     },
                     HostedZoneId: config.aws.route53.hostedZoneId
                 }
-                console.log('Record set params:')
-                console.log(params)
-                console.log(params.ChangeBatch.Changes[0])
-                const result = await Route53.changeResourceRecordSets(params).promise();
-                console.log('Route53 Record set patch result:')
-                console.log(result);
+                if (config.gameserver.local !== true) await Route53.changeResourceRecordSets(params).promise();
             }
 
             logger.info('Starting WebRTC')
@@ -356,7 +282,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             const localIp = await getLocalServerIp();
             localConfig.mediasoup.webRtcTransport.listenIps = [{
                 ip: '0.0.0.0',
-                announcedIp: process.env.KUBERNETES === 'true' ? `${stringSubdomainNumber}.${config.gameserver.domain}` : localIp.ipAddress
+                announcedIp: process.env.KUBERNETES === 'true' ? (config.gameserver.local === true ? gsResult.status.address : `${stringSubdomainNumber}.${config.gameserver.domain}` ) : localIp.ipAddress
             }]
             this.socketIO = (this.app as any)?.io
 
@@ -408,13 +334,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
                 socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) => {
                     // Add user ID to peer list
-                    console.log('Joining world')
-                    console.log('Socket client before setting userId')
-                    console.log(Network.instance.clients[socket.id])
                     Network.instance.clients[socket.id].userId = socket.id
-
-                    console.log('Socket client after setting userId')
-                    console.log(Network.instance.clients[socket.id])
 
                     // Prepare a worldstate frame
                     const worldState = {
@@ -444,8 +364,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     console.log("Sending world state")
                     console.log(worldState)
 
-                    console.log('Router\'s rtpCapabilities:')
-                    console.log(this.router.rtpCapabilities)
                     try {
                         // Convert world state to buffer and send along
                         callback({
@@ -495,12 +413,16 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     }
 
                     const {id, iceParameters, iceCandidates, dtlsParameters} = transport
-                    const gs = await (this.app as any).agonesSDK.getGameServer();
-                    const name = gs.objectMeta.name;
-                    const service = await (this.app as any).k8DefaultClient.get(`namespaces/default/services/${name}`)
-                    iceCandidates.forEach((candidate) => {
-                        candidate.port = service?.spec?.ports?.find((portMapping) => portMapping.port === candidate.port).nodePort
-                    })
+                    const serverResult = await (this.app as any).k8AgonesClient.get('gameservers');
+                    const thisGs = serverResult.items.find(server => server.metadata.name === gs.objectMeta.name)
+                    console.log('This GS:')
+                    console.log(thisGs)
+                    console.log(thisGs.spec.ports)
+                    if (process.env.KUBERNETES === 'true') {
+                        iceCandidates.forEach((candidate) => {
+                            candidate.port = thisGs.spec?.ports?.find((portMapping) => portMapping.containerPort === candidate.port).hostPort
+                        })
+                    }
                     const clientTransportOptions: MediaSoupClientTypes.TransportOptions = {
                         id,
                         sctpParameters: {
@@ -559,10 +481,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     const {transportId, dtlsParameters} = data,
                         transport = MediaStreamComponent.instance.transports[transportId]
                     logger.info("WebRTCTransportConnectRequest: " + socket.id)
-                    console.log('transport.appData:')
-                    console.log(transport.appData)
-                    console.log('dtlsParameters:')
-                    console.log(dtlsParameters)
                     await transport.connect({dtlsParameters})
                     logger.info(`transport ${socket.id} connected successfully`);
                     callback({connected: true})
