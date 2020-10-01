@@ -1,6 +1,5 @@
 import { Vec3 } from "cannon-es";
-import { AnimationMixer, Bone, BoxGeometry, Group, Mesh, MeshLambertMaterial, Object3D, Vector3, BufferGeometry } from "three";
-import { ConvexHull } from "three/examples/jsm/math/ConvexHull";
+import { AnimationMixer, BoxGeometry, Group, Mesh, MeshLambertMaterial, Vector3, AnimationClip } from "three";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { Behavior } from "../../../common/interfaces/Behavior";
 import { addComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
@@ -14,6 +13,7 @@ import { CharacterStateTypes } from "../CharacterStateTypes";
 import { Engine } from "../../../ecs/classes/Engine";
 import { PhysicsManager } from "../../../physics/components/PhysicsManager";
 import { addObject3DComponent } from "../../../common/behaviors/Object3DBehaviors";
+import GLTFLoader from "three-gltf-loader";
 
 export const initializeCreatorCharacter: Behavior = (entity): void => {
     console.log("Init creator character")
@@ -74,118 +74,6 @@ export const initializeCreatorCharacter: Behavior = (entity): void => {
             }
         }
 
-        // TODO: make this work with new characters
-        /*const LOD = 0;
-        const bodyParts: { [key: string]: Object3D[] } = {};
-        const childrenToAdd: Object3D[] = []; // Make sure not to change array length while looping
-        actor.tiltContainer.traverse((child: Object3D) => {
-            if (child instanceof Object3D) {
-                const meshName = child.name;
-                const anyLOD = meshName.includes("LOD");
-                const specifiedLOD = meshName.includes("LOD" + LOD.toString());
-                const isBody = meshName.includes("Body") && !meshName.includes("CC");
-                if (anyLOD || specifiedLOD || isBody) {
-                    if (specifiedLOD || isBody) {
-                        const meshType = meshName.split("_")[0];
-                        if (bodyParts[meshType]) {
-                            bodyParts[meshType].push(child);
-                        } else {
-                            bodyParts[meshType] = [child];
-                        }
-                    } else if (!anyLOD) {
-                        childrenToAdd.push(child);
-                    }
-                }
-            }
-        });*/
-
-        // Choose a random part from each category to add
-        /*let pickedBody: Object3D | null = null;
-        const pickedClothes: Object3D[] = [];
-        for (const bodyPartKey of Object.keys(bodyParts)) {
-            const bodyPartList = bodyParts[bodyPartKey];
-            const pickedPart = bodyPartList[Math.floor(Math.random() * bodyPartList.length)];
-            childrenToAdd.push(pickedPart);
-            if (bodyPartKey == "Body") {
-                pickedBody = pickedPart;
-            } else {
-                pickedClothes.push(pickedPart);
-            }
-        }
-
-        // Remove parts that weren't randomly chosen
-        for (let i = 0, len = actor.tiltContainer.children.length; i < len; i++) {
-            const child = actor.tiltContainer.children[i];
-            if (child.name == "Armature") {
-                const childrenToRemove = []; // Make sure not to change array length while looping
-                for (let j = 0, len2 = child.children.length; j < len2; j++) {
-                    const subChild = child.children[j];
-                    if (subChild.name.includes("LOD")) {
-                        if (!childrenToAdd.includes(subChild)) {
-                            childrenToRemove.push(subChild);
-                        }
-                    } else if (!(subChild instanceof Bone)) {
-                        if (!childrenToAdd.includes(subChild) || subChild.name.includes("CC")) {
-                            childrenToRemove.push(subChild);
-                        }
-                    }
-                }
-                child.remove(...childrenToRemove);
-                break;
-            }
-        }*/
-
-        // TODO: Fit clothes on character
-        /*if (pickedBody) {
-            const numClothes = pickedClothes.length;
-            if (numClothes > 0) {
-                const cachedVector = new Vector3();
-                const bodyHull = new ConvexHull();
-                bodyHull.setFromObject(pickedBody);
-                const bodyVertices = bodyHull.vertices;
-                const numBodyVertices = bodyVertices.length;
-
-                for (let i = 0; i < numClothes; i++) {
-                    const pickedClothing: Object3D = pickedClothes[i];
-                    let clothingMesh: Mesh | null = null;
-                    pickedClothing.traverse(function (obj: Object3D) {
-                        if (obj instanceof Mesh) {
-                            clothingMesh = obj;
-                        }
-                    });
-
-                    if (clothingMesh) {
-                        const newPoints: Vector3[] = [];
-                        const clothingGeometry = clothingMesh.geometry as BufferGeometry;
-                        const positions = clothingGeometry.getAttribute("position").array;
-                        const normals = clothingGeometry.getAttribute("normal").array;
-                        for (let j = 0, t = 0, numPositions = positions.length; j < numPositions; j++) {
-                            cachedVector.set(positions[t], positions[t + 1], positions[t + 2]);
-                            if (bodyHull.containsPoint(cachedVector)) {
-                                const normal = normals[Math.floor(j / 3)];
-                                let nearestPoint: Vector3 | null = null;
-                                for (let k = 0; k < numBodyVertices; k++) {
-                                    const bodyPoint = bodyVertices[k].point;
-                                    const distanceToBody = cachedVector.distanceTo(bodyPoint);
-                                    if (!nearestPoint || cachedVector.distanceTo(nearestPoint) > distanceToBody) {
-                                        nearestPoint = bodyPoint;
-                                    }
-                                }
-                                newPoints.push(nearestPoint.clone().addScalar(normal * 0.02));
-                            } else {
-                                newPoints.push(cachedVector.clone());
-                            }
-                            t += 3;
-                        }
-
-                        clothingMesh.geometry.setFromPoints(newPoints);
-                    } else {
-                        console.error("Failed to fit character's clothing - clothing mesh not found!");
-                    }
-                }
-            }
-        }*/
-
         // by default all asset childs are moved into entity object3dComponent, which is tiltContainer
         // we should keep it clean till asset loaded and all it's content moved into modelContainer
         while (actor.tiltContainer.children.length) {
@@ -196,6 +84,12 @@ export const initializeCreatorCharacter: Behavior = (entity): void => {
         actor.tiltContainer.add(actor.modelContainer);
 
         actor.mixer = new AnimationMixer(Engine.scene);
+
+        new GLTFLoader().load("models/characters/Animation.glb", function (gltf: any) {
+            const defaultAnimation = AnimationClip.findByName(gltf.animations, 'idle');
+            const action = actor.mixer.clipAction(defaultAnimation);
+            action.play();
+        });
 
         actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
         actor.rotationSimulator = new RelativeSpringSimulator(60, actor.defaultRotationSimulatorMass, actor.defaultRotationSimulatorDamping);
