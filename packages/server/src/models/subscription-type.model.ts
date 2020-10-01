@@ -1,8 +1,8 @@
-import { Sequelize, DataTypes } from 'sequelize'
-import { Application } from '../declarations'
+import { Sequelize, DataTypes } from 'sequelize';
+import { Application } from '../declarations';
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const subscriptionType = sequelizeClient.define('subscription_type', {
     plan: {
       type: DataTypes.STRING,
@@ -32,15 +32,15 @@ export default (app: Application): any => {
     }
   }, {
     hooks: {
-      beforeCount (options: any) {
-        options.raw = true
+      beforeCount (options: any): void {
+        options.raw = true;
       }
     }
   });
 
-  (subscriptionType as any).associate = function (models: any) {
-    (subscriptionType as any).hasMany(models.subscription, { foreignKey: 'plan' })
-  }
+  (subscriptionType as any).associate = (models: any): void => {
+    (subscriptionType as any).hasMany(models.subscription, { foreignKey: 'plan' });
+  };
 
-  return subscriptionType
-}
+  return subscriptionType;
+};

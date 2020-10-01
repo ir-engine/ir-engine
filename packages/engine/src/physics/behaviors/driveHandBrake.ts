@@ -5,7 +5,7 @@ import { VehicleBody } from '../components/VehicleBody';
 
 export const driveHandBrake: Behavior = (entity: Entity, args: { on:boolean }): void => {
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
-  const vehicle = vehicleComponent.vehiclePhysics
+  const vehicle = vehicleComponent.vehiclePhysics;
 
   vehicle.setBrake(args.on? 1 : 0, 0);
   vehicle.setBrake(args.on? 1 : 0, 1);

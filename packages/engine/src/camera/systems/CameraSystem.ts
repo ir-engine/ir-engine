@@ -21,11 +21,11 @@ import { setCameraFollow } from '../behaviors/setCameraFollow';
 
 export class CameraSystem extends System {
   constructor() {
-    super()
+    super();
     const cameraEntity = createEntity();
     addComponent(cameraEntity, CameraComponent );
-    addComponent(cameraEntity, CameraTagComponent )
-    addObject3DComponent(cameraEntity, { obj3d: Engine.camera })
+    addComponent(cameraEntity, CameraTagComponent );
+    addObject3DComponent(cameraEntity, { obj3d: Engine.camera });
     addComponent(cameraEntity, TransformComponent);
   }
   /**
@@ -36,7 +36,7 @@ export class CameraSystem extends System {
   execute(delta: number): void {
 
     this.queryResults.followCameraComponent.added?.forEach(entity => {
-      attachCamera(entity)
+      attachCamera(entity);
     });
 
     this.queryResults.cameraComponent.all?.forEach(entity => {

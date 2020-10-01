@@ -1,8 +1,8 @@
-import { ServiceAddons } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
-import { StaticResource } from './static-resource.class'
-import createModel from '../../models/static-resource.model'
-import hooks from './static-resource.hooks'
+import { ServiceAddons } from '@feathersjs/feathers';
+import { Application } from '../../declarations';
+import { StaticResource } from './static-resource.class';
+import createModel from '../../models/static-resource.model';
+import hooks from './static-resource.hooks';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -15,11 +15,11 @@ export default (app: Application): any => {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
-  }
+  };
 
-  app.use('/static-resource', new StaticResource(options, app))
+  app.use('/static-resource', new StaticResource(options, app));
 
-  const service = app.service('static-resource')
+  const service = app.service('static-resource');
 
-  service.hooks(hooks)
-}
+  service.hooks(hooks);
+};

@@ -9,5 +9,5 @@ export function normalizeMouseCoordinates(x: number, y: number, elementWidth: nu
   return {
     x: (x / elementWidth) * 2 - 1,
     y: (y / elementHeight) * -2 + 1
-  }
+  };
 }

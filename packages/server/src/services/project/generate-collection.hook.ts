@@ -1,20 +1,20 @@
-import { HookContext } from '@feathersjs/feathers'
-import { BadRequest } from '@feathersjs/errors'
-import fetch from 'node-fetch'
+import { HookContext } from '@feathersjs/feathers';
+import { BadRequest } from '@feathersjs/errors';
+import fetch from 'node-fetch';
 
-import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
-import { collectionType } from '../../enums/collection'
+import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils';
+import { collectionType } from '../../enums/collection';
 
 export default (options: any) => {
-  return async (context: HookContext) => {
-    const seqeulizeClient = context.app.get('sequelizeClient')
-    const models = seqeulizeClient.models
-    const CollectionModel = models.collection
-    const EntityModel = models.entity
-    const StaticResourceModel = models.static_resource
-    const ComponentModel = models.component
-    const ComponentTypeModel = models.component_type
-    const loggedInUser = extractLoggedInUserFromParams(context.params)
+  return async (context: HookContext): Promise<HookContext> => {
+    const seqeulizeClient = context.app.get('sequelizeClient');
+    const models = seqeulizeClient.models;
+    const CollectionModel = models.collection;
+    const EntityModel = models.entity;
+    const StaticResourceModel = models.static_resource;
+    const ComponentModel = models.component;
+    const ComponentTypeModel = models.component_type;
+    const loggedInUser = extractLoggedInUserFromParams(context.params);
 
     // TODO: Get other scene data too if there is any parent too
     // Get the project JSON from s3
@@ -26,12 +26,12 @@ export default (options: any) => {
         id: context.data.ownedFileId
       },
       raw: true
-    })
+    });
 
     if (!ownedFile) {
-      return await Promise.reject(new BadRequest('Project File not found!'))
+      return await Promise.reject(new BadRequest('Project File not found!'));
     }
-    const sceneData = await fetch(ownedFile.url).then(res => res.json())
+    const sceneData = await fetch(ownedFile.url).then(res => res.json());
 
     const savedCollection = await CollectionModel.create({
       thumbnailOwnedFileId: context.data.thumbnailOwnedFileId,
@@ -40,30 +40,30 @@ export default (options: any) => {
       metadata: sceneData.metadata,
       version: sceneData.version,
       userId: loggedInUser.userId
-    })
+    });
 
-    const sceneEntitiesArray: any = []
+    const sceneEntitiesArray: any = [];
 
     for (const prop in sceneData.entities) {
-      sceneEntitiesArray.push({ entityId: prop, ...sceneData.entities[prop] })
+      sceneEntitiesArray.push({ entityId: prop, ...sceneData.entities[prop] });
     }
 
     const entites = sceneEntitiesArray.map((entity: any) => {
-      entity.name = entity.name.toLowerCase()
-      entity.entityType = 'default'
-      entity.userId = loggedInUser.userId
-      entity.collectionId = savedCollection.id
-      return entity
-    })
+      entity.name = entity.name.toLowerCase();
+      entity.entityType = 'default';
+      entity.userId = loggedInUser.userId;
+      entity.collectionId = savedCollection.id;
+      return entity;
+    });
 
-    const savedEntities = await EntityModel.bulkCreate(entites)
+    const savedEntities = await EntityModel.bulkCreate(entites);
 
-    const components: any = []
-    const componentTypeSet = new Set()
+    const components: any = [];
+    const componentTypeSet = new Set();
     savedEntities.forEach((savedEntity: any, index: number) => {
-      const entity = sceneEntitiesArray[index]
+      const entity = sceneEntitiesArray[index];
       entity.components.forEach((component: any) => {
-        componentTypeSet.add(component.name.toLowerCase())
+        componentTypeSet.add(component.name.toLowerCase());
         components.push(
           {
             data: component.props,
@@ -73,9 +73,9 @@ export default (options: any) => {
             collection: savedCollection.id
             // TODO: Manage Static_RESOURCE
           }
-        )
-      })
-    })
+        );
+      });
+    });
 
     // Now we check if any of component-type is missing, then create that one
     let savedComponentTypes = await ComponentTypeModel.findAll({
@@ -84,23 +84,23 @@ export default (options: any) => {
       },
       raw: true,
       attributes: ['type']
-    })
+    });
 
-    savedComponentTypes = savedComponentTypes.map((item: any) => item.type)
+    savedComponentTypes = savedComponentTypes.map((item: any) => item.type);
     if (savedComponentTypes.length <= componentTypeSet.size) {
-      let nonExistedComponentTypes = Array.from(componentTypeSet).filter((item) => savedComponentTypes.indexOf(item) < 0)
+      let nonExistedComponentTypes = Array.from(componentTypeSet).filter((item) => savedComponentTypes.indexOf(item) < 0);
 
       nonExistedComponentTypes = nonExistedComponentTypes.map((item) => {
         return {
           type: item
-        }
-      })
-      await ComponentTypeModel.bulkCreate(nonExistedComponentTypes)
+        };
+      });
+      await ComponentTypeModel.bulkCreate(nonExistedComponentTypes);
     }
-    await ComponentModel.bulkCreate(components)
+    await ComponentModel.bulkCreate(components);
 
-    context.params.collection = savedCollection
-    context.params.ownedFile = ownedFile
-    return context
-  }
-}
+    context.params.collection = savedCollection;
+    context.params.ownedFile = ownedFile;
+    return context;
+  };
+};

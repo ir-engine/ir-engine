@@ -6,7 +6,7 @@ import { raycastDown } from "./raycastDown";
 export const physicsPreStep: Behavior = (entity): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	if(!actor.initialized) return;
-	let body = actor.actorCapsule.body;
+	const body = actor.actorCapsule.body;
 	raycastDown(entity);
 
 	// Raycast debug

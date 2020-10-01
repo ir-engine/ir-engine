@@ -14,8 +14,8 @@ export class RendererComponent extends Component<any> {
   constructor(postProcessingSchema?: PostProcessingSchema) {
     super();
     RendererComponent.instance = this;
-    console.log("Constructor called on renderer component")
-    this.postProcessingSchema = postProcessingSchema ?? DefaultPostProcessingSchema
+    console.log("Constructor called on renderer component");
+    this.postProcessingSchema = postProcessingSchema ?? DefaultPostProcessingSchema;
   }
 
   dispose() {

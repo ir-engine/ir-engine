@@ -52,22 +52,22 @@ export const EndWalkState: StateSchemaValue = {
       behavior: triggerActionIfMovementHasChanged,
       args: {
         action: (entity) => {
-          const input = getComponent(entity, Input)
+          const input = getComponent(entity, Input);
           // Default behavior for all states
           findVehicle(entity);
 
           // Check if we're trying to jump
           if (input.data.has(DefaultInput.JUMP))
-            return addState(entity, { state: CharacterStateTypes.JUMP_IDLE })
+            return addState(entity, { state: CharacterStateTypes.JUMP_IDLE });
 
           // If we're not moving, don't worry about the rest of this action
-          if (!isMoving(entity)) return
+          if (!isMoving(entity)) return;
 
           if (input.data.has(DefaultInput.SPRINT))
-            return addState(entity, { state: CharacterStateTypes.SPRINT })
+            return addState(entity, { state: CharacterStateTypes.SPRINT });
 
           if (getComponent(entity, CharacterComponent).velocity.length() > 0.5)
-            return addState(entity, { state: CharacterStateTypes.WALK })
+            return addState(entity, { state: CharacterStateTypes.WALK });
 
           setAppropriateStartWalkState(entity);
 

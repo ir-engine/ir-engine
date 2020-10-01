@@ -1,30 +1,30 @@
-import * as feathersAuthentication from '@feathersjs/authentication'
-import { hooks } from '@feathersjs/authentication-local'
-import { iff, isProvider, preventChanges } from 'feathers-hooks-common'
-import accountService from '../auth-management/auth-management.notifier'
-import { HookContext } from '@feathersjs/feathers'
+import * as feathersAuthentication from '@feathersjs/authentication';
+import { hooks } from '@feathersjs/authentication-local';
+import { iff, isProvider, preventChanges } from 'feathers-hooks-common';
+import accountService from '../auth-management/auth-management.notifier';
+import { HookContext } from '@feathersjs/feathers';
 
-const verifyHooks = require('feathers-authentication-management').hooks
-const { authenticate } = feathersAuthentication.hooks
-const hashPassword = hooks.hashPassword
+const verifyHooks = require('feathers-authentication-management').hooks;
+const { authenticate } = feathersAuthentication.hooks;
+const hashPassword = hooks.hashPassword;
 
-const { protect } = hooks
+const { protect } = hooks;
 
 const isPasswordAccountType = () => {
   return (context: HookContext): boolean => {
     if (context.data.type === 'password') {
-      return true
+      return true;
     }
-    return false
-  }
-}
+    return false;
+  };
+};
 
 const sendVerifyEmail = () => {
-  return (context: any) => {
-    accountService(context.app).notifier('resendVerifySignup', context.result)
-    return context
-  }
-}
+  return (context: any): Promise<HookContext> => {
+    accountService(context.app).notifier('resendVerifySignup', context.result);
+    return context;
+  };
+};
 
 export default {
   before: {
@@ -86,4 +86,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+};

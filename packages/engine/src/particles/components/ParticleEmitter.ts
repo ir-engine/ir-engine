@@ -1,7 +1,7 @@
-import { Types } from "../../ecs//types/Types"
-import { Component } from "../../ecs/classes/Component"
-import { SystemStateComponent } from "../../ecs/classes/SystemStateComponent"
-import { FrameStyle, ParticleEmitterInterface } from "../interfaces"
+import { Types } from "../../ecs//types/Types";
+import { Component } from "../../ecs/classes/Component";
+import { SystemStateComponent } from "../../ecs/classes/SystemStateComponent";
+import { FrameStyle, ParticleEmitterInterface } from "../interfaces";
 interface ParticleEmitterStateInterface {
   emitter3D: any
   useEntityRotation: boolean
@@ -19,7 +19,7 @@ ParticleEmitterState.schema = {
   emitter3D: { type: Types.Ref },
   useEntityRotation: { type: Types.Boolean, default: true },
   syncTransform: { type: Types.Boolean, default: false }
-}
+};
 
 export class ParticleEmitter extends Component<ParticleEmitterInterface> {
   particleMesh: any
@@ -91,4 +91,4 @@ ParticleEmitter.schema = {
   worldAcceleration: { type: Types.Ref, default: { x: 0, y: 0, z: 0 } },
   brownianSpeed: { type: Types.Number, default: 0 },
   brownianScale: { type: Types.Number, default: 0 }
-}
+};

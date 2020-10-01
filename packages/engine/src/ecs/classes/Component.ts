@@ -42,7 +42,7 @@ export class Component<C> {
    * Component class constructor
    */
   constructor (props?: Partial<Omit<C, keyof Component<any>>> | false) {
-    this.name = this.constructor.name
+    this.name = this.constructor.name;
     if (props !== false) {
       const schema = (this.constructor as ComponentConstructor<Component<C>>).schema;
 

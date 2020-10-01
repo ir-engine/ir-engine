@@ -1,7 +1,7 @@
-import * as authentication from '@feathersjs/authentication'
-import * as commonHooks from 'feathers-hooks-common'
+import * as authentication from '@feathersjs/authentication';
+import * as commonHooks from 'feathers-hooks-common';
 
-const { authenticate } = authentication.hooks
+const { authenticate } = authentication.hooks;
 
 export default {
   before: {
@@ -36,4 +36,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+};

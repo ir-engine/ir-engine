@@ -1,7 +1,7 @@
-import { ServiceAddons } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
-import { PublishProject } from './publish-project.class'
-import hooks from './publish-project.hooks'
+import { ServiceAddons } from '@feathersjs/feathers';
+import { Application } from '../../declarations';
+import { PublishProject } from './publish-project.class';
+import hooks from './publish-project.hooks';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -10,10 +10,10 @@ declare module '../../declarations' {
 }
 
 export default (app: Application): void => {
-  const options = {}
+  const options = {};
 
-  app.use('/publish-project', new PublishProject(options, app))
+  app.use('/publish-project', new PublishProject(options, app));
 
-  const service = app.service('publish-project')
-  service.hooks(hooks)
-}
+  const service = app.service('publish-project');
+  service.hooks(hooks);
+};

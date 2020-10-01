@@ -1,8 +1,8 @@
-import { Sequelize, DataTypes } from 'sequelize'
-import { Application } from '../declarations'
+import { Sequelize, DataTypes } from 'sequelize';
+import { Application } from '../declarations';
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const messageStatus = sequelizeClient.define('message_status', {
     status: {
       type: DataTypes.STRING,
@@ -11,16 +11,16 @@ export default (app: Application): any => {
     }
   }, {
     hooks: {
-      beforeCount (options: any) {
-        options.raw = true
+      beforeCount (options: any): void {
+        options.raw = true;
       }
     }
   });
 
-  (messageStatus as any).associate = (models: any) => {
+  (messageStatus as any).associate = (models: any): void => {
     (messageStatus as any).belongsTo(models.message);
-    (messageStatus as any).belongsTo(models.user)
-  }
+    (messageStatus as any).belongsTo(models.user);
+  };
 
-  return messageStatus
-}
+  return messageStatus;
+};

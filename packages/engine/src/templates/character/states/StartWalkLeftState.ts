@@ -53,16 +53,16 @@ export const StartWalkLeftState: StateSchemaValue = {
         action: (entity) => {
           // Default behavior for all states
           findVehicle(entity);
-          const input = getComponent(entity, Input)
+          const input = getComponent(entity, Input);
 
           console.warn(input.data.has(DefaultInput.RIGHT));
 
           if (input.data.has(DefaultInput.FORWARD)) {
-            addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD})
+            addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD});
           } else if (input.data.has(DefaultInput.BACKWARD)) {
-            addState(entity, { state: CharacterStateTypes.WALK_START_BACK_RIGHT })
+            addState(entity, { state: CharacterStateTypes.WALK_START_BACK_RIGHT });
           } else if (input.data.has(DefaultInput.RIGHT)) {
-            addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT})
+            addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT});
           }
 
 
@@ -70,15 +70,15 @@ export const StartWalkLeftState: StateSchemaValue = {
 
           // Check if we're trying to jump
           if (input.data.has(DefaultInput.JUMP))
-            return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING })
+            return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING });
           // Check if we stopped moving
 
 
           if (input.data.has(DefaultInput.SPRINT))
-            return addState(entity, { state: CharacterStateTypes.SPRINT })
+            return addState(entity, { state: CharacterStateTypes.SPRINT });
 
           if (!isMoving(entity)) {
-            setIdleState(entity)
+            setIdleState(entity);
           }
         }
       }

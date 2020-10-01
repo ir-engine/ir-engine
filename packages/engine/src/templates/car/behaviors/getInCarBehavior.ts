@@ -17,9 +17,9 @@ import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/Ch
 
 export const getInCar: Behavior = (entity: Entity, args: { value: Vector2 }, delta, entityCar): void => {
 
-  removeComponent(entity, LocalInputReceiver)
-  removeComponent(entity, FollowCameraComponent)
-  addComponent(entity, PlayerInCar, { entityCar: entityCar })
+  removeComponent(entity, LocalInputReceiver);
+  removeComponent(entity, FollowCameraComponent);
+  addComponent(entity, PlayerInCar, { entityCar: entityCar });
 
   const event = new CustomEvent('player-in-car', { detail:{inCar:true, interactionText: 'get out of the car',} });
   document.dispatchEvent(event);

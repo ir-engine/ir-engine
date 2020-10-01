@@ -21,14 +21,14 @@ export const move: Behavior = (
   time: any
 ): void => {
 
-  console.log(args)
+  console.log(args);
   actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
 
   // Whatever the current movement group state is needs to have it's onChanged evaluator called
-  const input: Input =  getMutableComponent<Input>(entity, Input as any)
+  const input: Input =  getMutableComponent<Input>(entity, Input as any);
 
-  console.log(input.data.values())
+  console.log(input.data.values());
   // Check current inputs
 
   const inputType = args.inputType;
@@ -40,7 +40,7 @@ export const move: Behavior = (
     inputValue = new Vector3().fromArray(args.value);
   } else {
     console.error('Movement is only available for 2D and 3D inputs');
-    return
+    return;
   }
 
   transform.velocity.add( inputValue.multiply(outputSpeed) );
@@ -64,4 +64,4 @@ export const moveByInputAxis: Behavior = (
     actor.localMovementDirection.z = data.value[2];
     actor.localMovementDirection.x = data.value[0];
   }
-}
+};

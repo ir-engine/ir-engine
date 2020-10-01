@@ -59,27 +59,27 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
       if (input.schema.inputButtonBehaviors[key]) {
         // If the button is pressed
         if(value.value === BinaryValue.ON) {
-          // If the lifecycle hasn't been set or just started (so we don't keep spamming repeatedly)
-          if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED
+        // If the lifecycle hasn't been set or just started (so we don't keep spamming repeatedly)
+        if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
 
-          if(value.lifecycleState === LifecycleValue.STARTED) {
-            // Set the value of the input to continued to debounce
-            input.schema.inputButtonBehaviors[key]?.started?.forEach(element =>
-              element.behavior(entity, element.args, delta)
-            );
-          } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
-            // If the lifecycle equal continued
-            input.schema.inputButtonBehaviors[key]?.continued?.forEach(element =>
-              element.behavior(entity, element.args, delta)
-            );
-          } else {
-            console.error('Unexpected lifecycleState', value.lifecycleState, LifecycleValue[value.lifecycleState]);
-          }
-        } else {
-          input.schema.inputButtonBehaviors[key].ended?.forEach(element =>
+        if(value.lifecycleState === LifecycleValue.STARTED) {
+          // Set the value of the input to continued to debounce
+          input.schema.inputButtonBehaviors[key].started?.forEach(element =>
             element.behavior(entity, element.args, delta)
           );
+        } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
+          // If the lifecycle equal continued
+          input.schema.inputButtonBehaviors[key].continued?.forEach(element =>
+            element.behavior(entity, element.args, delta)
+          );
+        } else {
+          console.error('Unexpected lifecycleState', value.lifecycleState, LifecycleValue[value.lifecycleState]);
         }
+      } else {
+        input.schema.inputButtonBehaviors[key].ended?.forEach(element =>
+          element.behavior(entity, element.args, delta)
+        );
+      }
       }
     }
     else if (
@@ -89,7 +89,7 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
     ) {
       if (input.schema.inputAxisBehaviors[key]) {
         // If lifecycle hasn't been set, init it
-        if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED
+        if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
         switch (value.lifecycleState) {
           case LifecycleValue.STARTED:
             // Set the value to continued to debounce
@@ -100,7 +100,7 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
           case LifecycleValue.CHANGED:
             // If the value is different from last frame, update it
             input.schema.inputAxisBehaviors[key].changed?.forEach(element => {
-              element.behavior(entity, element.args, delta)
+              element.behavior(entity, element.args, delta);
             });
             break;
           case LifecycleValue.UNCHANGED:

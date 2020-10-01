@@ -1,8 +1,8 @@
-import { Sequelize, DataTypes } from 'sequelize'
-import { Application } from '../declarations'
+import { Sequelize, DataTypes } from 'sequelize';
+import { Application } from '../declarations';
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const channelType = sequelizeClient.define('channel_type', {
     type: {
       type: DataTypes.STRING,
@@ -12,16 +12,16 @@ export default (app: Application): any => {
     }
   }, {
     hooks: {
-      beforeCount (options: any) {
-        options.raw = true
+      beforeCount (options: any): void {
+        options.raw = true;
       }
     },
     timestamps: false
   });
 
-  (channelType as any).associate = (models: any) => {
-    (channelType as any).hasMany(models.channel, { foreignKey: 'channelType' })
-  }
+  (channelType as any).associate = (models: any): void => {
+    (channelType as any).hasMany(models.channel, { foreignKey: 'channelType' });
+  };
 
-  return channelType
-}
+  return channelType;
+};

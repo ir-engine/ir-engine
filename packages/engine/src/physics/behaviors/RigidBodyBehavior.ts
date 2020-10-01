@@ -31,7 +31,7 @@ export const RigidBodyBehavior: Behavior = (entity: Entity, args): void => {
           colliderComponent.collider.position.x,
           colliderComponent.collider.position.y,
           colliderComponent.collider.position.z
-        )
+        );
         transform.rotation.set(
           colliderComponent.collider.quaternion.x,
           colliderComponent.collider.quaternion.y,

@@ -1,8 +1,8 @@
-import { Sequelize, DataTypes } from 'sequelize'
-import { Application } from '../declarations'
+import { Sequelize, DataTypes } from 'sequelize';
+import { Application } from '../declarations';
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const component = sequelizeClient.define('component', {
     id: {
       type: DataTypes.UUID,
@@ -12,45 +12,45 @@ export default (app: Application): any => {
     },
     name: {
       type: DataTypes.VIRTUAL,
-      get (this: any) {
-        return this.type
+      get (this: any): any {
+        return this.type;
       }
     },
     // We need to get this for making compatible with editor
     props: {
       type: DataTypes.VIRTUAL,
-      get (this: any) {
+      get (this: any): any {
         if (!this.data) {
-          return {}
+          return {};
         } else {
-          return this.data
+          return this.data;
         }
       }
     },
     data: {
       type: DataTypes.JSON,
       allowNull: true,
-      get (this: any) {
-        const data = this.getDataValue('data')
+      get (this: any): string | JSON {
+        const data = this.getDataValue('data');
         if (!data) {
-          return ''
+          return '';
         } else {
-          return JSON.parse(data)
+          return JSON.parse(data);
         }
       }
     }
   }, {
     hooks: {
-      beforeCount (options: any) {
-        options.raw = true
+      beforeCount (options: any): void {
+        options.raw = true;
       }
     }
   });
-  (component as any).associate = (models: any) => {
+  (component as any).associate = (models: any): void => {
     (component as any).belongsTo(models.component_type, { foreignKey: 'type', required: true, primaryKey: true });
     (component as any).belongsTo(models.entity, { as: 'entity', foreignKey: 'entityId', required: true, primaryKey: true, onDelete: 'cascade', hooks: true });
-    (component as any).hasMany(models.static_resource, { constraints: false })
-  }
+    (component as any).hasMany(models.static_resource, { constraints: false });
+  };
 
-  return component
-}
+  return component;
+};

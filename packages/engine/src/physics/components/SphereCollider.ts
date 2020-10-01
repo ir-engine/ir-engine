@@ -11,8 +11,8 @@ export class SphereCollider extends Component<SphereCollider>
 
 	constructor(options: any)
 	{
-		super()
-		let defaults = {
+		super();
+		const defaults = {
 			mass: 0,
 			position: new Vec3(),
 			radius: 0.3,
@@ -21,14 +21,14 @@ export class SphereCollider extends Component<SphereCollider>
 		options = setDefaults(options, defaults);
 		this.options = options;
 
-		let mat = new Material('sphereMat');
+		const mat = new Material('sphereMat');
 		mat.friction = options.friction;
 
-		let shape = new Sphere(options.radius);
+		const shape = new Sphere(options.radius);
 		// shape.material = mat;
 
 		// Add phys sphere
-		let physSphere = new Body({
+		const physSphere = new Body({
 			mass: options.mass,
 			position: options.position,
 			shape

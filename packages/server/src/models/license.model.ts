@@ -1,8 +1,8 @@
-import { Sequelize, DataTypes } from 'sequelize'
-import { Application } from '../declarations'
+import { Sequelize, DataTypes } from 'sequelize';
+import { Application } from '../declarations';
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const license = sequelizeClient.define('license', {
     name: {
       type: DataTypes.STRING,
@@ -15,15 +15,15 @@ export default (app: Application): any => {
     }
   }, {
     hooks: {
-      beforeCount (options: any) {
-        options.raw = true
+      beforeCount (options: any): void {
+        options.raw = true;
       }
     }
   });
 
-  (license as any).associate = (models: any) => {
-    (license as any).hasMany(models.attribution)
-  }
+  (license as any).associate = (models: any): void => {
+    (license as any).hasMany(models.attribution);
+  };
 
-  return license
-}
+  return license;
+};

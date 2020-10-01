@@ -1,8 +1,8 @@
-import { Sequelize, DataTypes } from 'sequelize'
-import { Application } from '../declarations'
+import { Sequelize, DataTypes } from 'sequelize';
+import { Application } from '../declarations';
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const ownedFile = sequelizeClient.define('owned_file', {
     id: {
       type: DataTypes.UUID,
@@ -33,15 +33,15 @@ export default (app: Application): any => {
     }
   }, {
     hooks: {
-      beforeCount (options: any) {
-        options.raw = true
+      beforeCount (options: any): void {
+        options.raw = true;
       }
     }
   });
 
-  (ownedFile as any).associate = (models: any) => {
-    (ownedFile as any).belongsTo(models.user, { foreignKey: 'ownerUserId', allowNull: false })
-  }
+  (ownedFile as any).associate = (models: any): void => {
+    (ownedFile as any).belongsTo(models.user, { foreignKey: 'ownerUserId', allowNull: false });
+  };
 
-  return ownedFile
-}
+  return ownedFile;
+};

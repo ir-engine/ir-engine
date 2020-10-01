@@ -11,7 +11,7 @@ declare module '../../declarations' {
   }
 }
 
-export default function (app: Application): void {
+export default (app: Application): any => {
   const options = {
     paginate: app.get('paginate')
   };
@@ -31,10 +31,10 @@ export default function (app: Application): void {
         ipAddress: data.ipAddress,
         port: data.port,
         locationId: data.locationId
-      })
+      });
     } catch (err) {
-      console.log(err)
-      throw err
+      console.log(err);
+      throw err;
     }
   });
-}
+};

@@ -1,13 +1,13 @@
-import { ServiceAddons } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
-import { Graphql } from './graphql.class'
-import { PubSub } from 'graphql-subscriptions'
-import { generateModelTypes, generateApolloServer } from 'graphql-sequelize-generator'
-import { NotAuthenticated } from '@feathersjs/errors'
-import jwt from 'jsonwebtoken'
-import config from '../../config'
+import { ServiceAddons } from '@feathersjs/feathers';
+import { Application } from '../../declarations';
+import { Graphql } from './graphql.class';
+import { PubSub } from 'graphql-subscriptions';
+import { generateModelTypes, generateApolloServer } from 'graphql-sequelize-generator';
+import { NotAuthenticated } from '@feathersjs/errors';
+import jwt from 'jsonwebtoken';
+import config from '../../config';
 
-import { Sequelize } from 'sequelize'
+import { Sequelize } from 'sequelize';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -16,38 +16,38 @@ declare module '../../declarations' {
 }
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const models = sequelizeClient.models
-  const types = generateModelTypes(models)
+  const sequelizeClient: Sequelize = app.get('sequelizeClient');
+  const models = sequelizeClient.models;
+  const types = generateModelTypes(models);
 
-  const pubSubInstance = new PubSub()
+  const pubSubInstance = new PubSub();
 
-  const actions = ['list', 'create', 'read', 'update', 'delete']
+  const actions = ['list', 'create', 'read', 'update', 'delete'];
 
   const graphqlSchemaDeclaration = (): any => {
-    const declarations: any[] = []
+    const declarations: any[] = [];
     Object.keys(models).forEach((model: any) => {
-      declarations.push({ model: model, actions })
-      console.log(sequelizeClient.modelManager.getModel(model))
-    })
+      declarations.push({ model: model, actions });
+      console.log(sequelizeClient.modelManager.getModel(model));
+    });
 
     // TO-DO: Move Seqeuelize key assocation somewhere else -- for now it's working here
     Object.keys(models).forEach((name) => {
       if ('associate' in models[name]) {
-        (models[name] as any).associate(models)
+        (models[name] as any).associate(models);
       }
-    })
+    });
 
-    const initialValue = {}
+    const initialValue = {};
 
     const values = declarations.reduce((obj, item) => {
       return {
         ...obj,
         [sequelizeClient.model(item.model).name]: { model: sequelizeClient.model(item.model), actions }
-      }
-    }, initialValue)
-    return values
-  }
+      };
+    }, initialValue);
+    return values;
+  };
 
   const server = generateApolloServer({
     graphqlSchemaDeclaration: graphqlSchemaDeclaration(),
@@ -60,64 +60,64 @@ export default (app: Application): any => {
           'editor.theme': 'dark'
         }
       },
-      context: async (context: any) => {
-        const req = context.req
+      context: async (context: any): any => {
+        const req = context.req;
         if (context.req && context.req.body && context.req.body.operationName === 'IntrospectionQuery') {
-          return
+          return;
         }
         if (context.connection && context.connection.context && context.connection.context.user) {
           return {
             user: context.connection.context.user
-          }
+          };
         }
-        const authHeader = req.headers.authorization
+        const authHeader = req.headers.authorization;
         if (authHeader == null) {
-          throw new NotAuthenticated('Missing authorization header')
+          throw new NotAuthenticated('Missing authorization header');
         }
-        const token = authHeader.replace('Bearer ', '')
+        const token = authHeader.replace('Bearer ', '');
         try {
-          const verify = await jwt.verify(token, config.authentication.secret)
-          const identityProvider = await app.service('identity-provider').get((verify as any).sub)
-          const user = await app.service('user').get((identityProvider).userId)
+          const verify = await jwt.verify(token, config.authentication.secret);
+          const identityProvider = await app.service('identity-provider').get((verify as any).sub);
+          const user = await app.service('user').get((identityProvider).userId);
           return {
             user: user.dataValues
-          }
+          };
         } catch (err) {
-          console.log(err)
-          throw err
+          console.log(err);
+          throw err;
         }
       },
       subscriptions: {
         path: '/subscriptions',
-        onConnect: async (connectionParams: any, webSocket: any) => {
-          const authHeader = connectionParams.Authorization || connectionParams.authorization
+        onConnect: async (connectionParams: any, webSocket: any): Promise<any> => {
+          const authHeader = connectionParams.Authorization || connectionParams.authorization;
           if (authHeader == null) {
-            throw new NotAuthenticated('Missing authorization header')
+            throw new NotAuthenticated('Missing authorization header');
           }
-          const token = authHeader.replace('Bearer ', '')
+          const token = authHeader.replace('Bearer ', '');
           try {
-            const verify = await jwt.verify(token, config.authentication.secret)
-            const identityProvider = await app.service('identity-provider').get((verify as any).sub)
-            const user = await app.service('user').get((identityProvider).userId)
+            const verify = await jwt.verify(token, config.authentication.secret);
+            const identityProvider = await app.service('identity-provider').get((verify as any).sub);
+            const user = await app.service('user').get((identityProvider).userId);
 
             return {
               user: user.dataValues
-            }
+            };
           } catch (err) {
-            console.log(err)
-            throw err
+            console.log(err);
+            throw err;
           }
         }
       },
       introspection: true
     },
     pubSubInstance
-  })
+  });
 
   server.applyMiddleware({
     app,
     path: '/graphql'
-  })
+  });
 
-  app.service('graphql')
-}
+  app.service('graphql');
+};
