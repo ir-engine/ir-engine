@@ -60,9 +60,409 @@ spec:
           portPolicy: Dynamic
           containerPort: 3030
           protocol: TCP
+        - name: udp-40000
+          portPolicy: Dynamic
+          containerPort: 40000
+          protcol: UDP
+        - name: udp-40001
+          portPolicy: Dynamic
+          containerPort: 40001
+          protcol: UDP
+        - name: udp-40002
+          portPolicy: Dynamic
+          containerPort: 40002
+          protcol: UDP
+        - name: udp-40003
+          portPolicy: Dynamic
+          containerPort: 40003
+          protcol: UDP
+        - name: udp-40004
+          portPolicy: Dynamic
+          containerPort: 40004
+          protcol: UDP
+        - name: udp-40005
+          portPolicy: Dynamic
+          containerPort: 40005
+          protcol: UDP
+        - name: udp-40006
+          portPolicy: Dynamic
+          containerPort: 40006
+          protcol: UDP
+        - name: udp-40007
+          portPolicy: Dynamic
+          containerPort: 40007
+          protcol: UDP
+        - name: udp-40008
+          portPolicy: Dynamic
+          containerPort: 40008
+          protcol: UDP
+        - name: udp-40009
+          portPolicy: Dynamic
+          containerPort: 40009
+          protcol: UDP
+        - name: udp-40010
+          portPolicy: Dynamic
+          containerPort: 40010
+          protcol: UDP
+        - name: udp-40011
+          portPolicy: Dynamic
+          containerPort: 40011
+          protcol: UDP
+        - name: udp-40012
+          portPolicy: Dynamic
+          containerPort: 40012
+          protcol: UDP
+        - name: udp-40013
+          portPolicy: Dynamic
+          containerPort: 40013
+          protcol: UDP
+        - name: udp-40014
+          portPolicy: Dynamic
+          containerPort: 40014
+          protcol: UDP
+        - name: udp-40015
+          portPolicy: Dynamic
+          containerPort: 40015
+          protcol: UDP
+        - name: udp-40016
+          portPolicy: Dynamic
+          containerPort: 40016
+          protcol: UDP
+        - name: udp-40017
+          portPolicy: Dynamic
+          containerPort: 40017
+          protcol: UDP
+        - name: udp-40018
+          portPolicy: Dynamic
+          containerPort: 40018
+          protcol: UDP
+        - name: udp-40019
+          portPolicy: Dynamic
+          containerPort: 40019
+          protcol: UDP
+        - name: udp-40020
+          portPolicy: Dynamic
+          containerPort: 40020
+          protcol: UDP
+        - name: udp-40021
+          portPolicy: Dynamic
+          containerPort: 40021
+          protcol: UDP
+        - name: udp-40022
+          portPolicy: Dynamic
+          containerPort: 40022
+          protcol: UDP
+        - name: udp-40023
+          portPolicy: Dynamic
+          containerPort: 40023
+          protcol: UDP
+        - name: udp-40024
+          portPolicy: Dynamic
+          containerPort: 40024
+          protcol: UDP
+        - name: udp-40025
+          portPolicy: Dynamic
+          containerPort: 40025
+          protcol: UDP
+        - name: udp-40026
+          portPolicy: Dynamic
+          containerPort: 40026
+          protcol: UDP
+        - name: udp-40027
+          portPolicy: Dynamic
+          containerPort: 40027
+          protcol: UDP
+        - name: udp-40028
+          portPolicy: Dynamic
+          containerPort: 40028
+          protcol: UDP
+        - name: udp-40029
+          portPolicy: Dynamic
+          containerPort: 40029
+          protcol: UDP
+        - name: udp-40030
+          portPolicy: Dynamic
+          containerPort: 40030
+          protcol: UDP
+        - name: udp-40031
+          portPolicy: Dynamic
+          containerPort: 40031
+          protcol: UDP
+        - name: udp-40032
+          portPolicy: Dynamic
+          containerPort: 40032
+          protcol: UDP
+        - name: udp-40033
+          portPolicy: Dynamic
+          containerPort: 40033
+          protcol: UDP
+        - name: udp-40034
+          portPolicy: Dynamic
+          containerPort: 40034
+          protcol: UDP
+        - name: udp-40035
+          portPolicy: Dynamic
+          containerPort: 40035
+          protcol: UDP
+        - name: udp-40036
+          portPolicy: Dynamic
+          containerPort: 40036
+          protcol: UDP
+        - name: udp-40037
+          portPolicy: Dynamic
+          containerPort: 40037
+          protcol: UDP
+        - name: udp-40038
+          portPolicy: Dynamic
+          containerPort: 40038
+          protcol: UDP
+        - name: udp-40039
+          portPolicy: Dynamic
+          containerPort: 40039
+          protcol: UDP
+        - name: udp-40040
+          portPolicy: Dynamic
+          containerPort: 40040
+          protcol: UDP
+        - name: udp-40041
+          portPolicy: Dynamic
+          containerPort: 40041
+          protcol: UDP
+        - name: udp-40042
+          portPolicy: Dynamic
+          containerPort: 40042
+          protcol: UDP
+        - name: udp-40043
+          portPolicy: Dynamic
+          containerPort: 40043
+          protcol: UDP
+        - name: udp-40044
+          portPolicy: Dynamic
+          containerPort: 40044
+          protcol: UDP
+        - name: udp-40045
+          portPolicy: Dynamic
+          containerPort: 40045
+          protcol: UDP
+        - name: udp-40046
+          portPolicy: Dynamic
+          containerPort: 40046
+          protcol: UDP
+        - name: udp-40047
+          portPolicy: Dynamic
+          containerPort: 40047
+          protcol: UDP
+        - name: udp-40048
+          portPolicy: Dynamic
+          containerPort: 40048
+          protcol: UDP
+        - name: udp-40049
+          portPolicy: Dynamic
+          containerPort: 40049
+          protcol: UDP
+        - name: udp-40050
+          portPolicy: Dynamic
+          containerPort: 40050
+          protcol: UDP
+        - name: udp-40051
+          portPolicy: Dynamic
+          containerPort: 40051
+          protcol: UDP
+        - name: udp-40052
+          portPolicy: Dynamic
+          containerPort: 40052
+          protcol: UDP
+        - name: udp-40053
+          portPolicy: Dynamic
+          containerPort: 40053
+          protcol: UDP
+        - name: udp-40054
+          portPolicy: Dynamic
+          containerPort: 40054
+          protcol: UDP
+        - name: udp-40055
+          portPolicy: Dynamic
+          containerPort: 40055
+          protcol: UDP
+        - name: udp-40056
+          portPolicy: Dynamic
+          containerPort: 40056
+          protcol: UDP
+        - name: udp-40057
+          portPolicy: Dynamic
+          containerPort: 40057
+          protcol: UDP
+        - name: udp-40058
+          portPolicy: Dynamic
+          containerPort: 40058
+          protcol: UDP
+        - name: udp-40059
+          portPolicy: Dynamic
+          containerPort: 40059
+          protcol: UDP
+        - name: udp-40060
+          portPolicy: Dynamic
+          containerPort: 40060
+          protcol: UDP
+        - name: udp-40061
+          portPolicy: Dynamic
+          containerPort: 40061
+          protcol: UDP
+        - name: udp-40062
+          portPolicy: Dynamic
+          containerPort: 40062
+          protcol: UDP
+        - name: udp-40063
+          portPolicy: Dynamic
+          containerPort: 40063
+          protcol: UDP
+        - name: udp-40064
+          portPolicy: Dynamic
+          containerPort: 40064
+          protcol: UDP
+        - name: udp-40065
+          portPolicy: Dynamic
+          containerPort: 40065
+          protcol: UDP
+        - name: udp-40066
+          portPolicy: Dynamic
+          containerPort: 40066
+          protcol: UDP
+        - name: udp-40067
+          portPolicy: Dynamic
+          containerPort: 40067
+          protcol: UDP
+        - name: udp-40068
+          portPolicy: Dynamic
+          containerPort: 40068
+          protcol: UDP
+        - name: udp-40069
+          portPolicy: Dynamic
+          containerPort: 40069
+          protcol: UDP
+        - name: udp-40070
+          portPolicy: Dynamic
+          containerPort: 40070
+          protcol: UDP
+        - name: udp-40071
+          portPolicy: Dynamic
+          containerPort: 40071
+          protcol: UDP
+        - name: udp-40072
+          portPolicy: Dynamic
+          containerPort: 40072
+          protcol: UDP
+        - name: udp-40073
+          portPolicy: Dynamic
+          containerPort: 40073
+          protcol: UDP
+        - name: udp-40074
+          portPolicy: Dynamic
+          containerPort: 40074
+          protcol: UDP
+        - name: udp-40075
+          portPolicy: Dynamic
+          containerPort: 40075
+          protcol: UDP
+        - name: udp-40076
+          portPolicy: Dynamic
+          containerPort: 40076
+          protcol: UDP
+        - name: udp-40077
+          portPolicy: Dynamic
+          containerPort: 40077
+          protcol: UDP
+        - name: udp-40078
+          portPolicy: Dynamic
+          containerPort: 40078
+          protcol: UDP
+        - name: udp-40079
+          portPolicy: Dynamic
+          containerPort: 40079
+          protcol: UDP
+        - name: udp-40080
+          portPolicy: Dynamic
+          containerPort: 40080
+          protcol: UDP
+        - name: udp-40081
+          portPolicy: Dynamic
+          containerPort: 40081
+          protcol: UDP
+        - name: udp-40082
+          portPolicy: Dynamic
+          containerPort: 40082
+          protcol: UDP
+        - name: udp-40083
+          portPolicy: Dynamic
+          containerPort: 40083
+          protcol: UDP
+        - name: udp-40084
+          portPolicy: Dynamic
+          containerPort: 40084
+          protcol: UDP
+        - name: udp-40085
+          portPolicy: Dynamic
+          containerPort: 40085
+          protcol: UDP
+        - name: udp-40086
+          portPolicy: Dynamic
+          containerPort: 40086
+          protcol: UDP
+        - name: udp-40087
+          portPolicy: Dynamic
+          containerPort: 40087
+          protcol: UDP
+        - name: udp-40088
+          portPolicy: Dynamic
+          containerPort: 40088
+          protcol: UDP
+        - name: udp-40089
+          portPolicy: Dynamic
+          containerPort: 40089
+          protcol: UDP
+        - name: udp-40090
+          portPolicy: Dynamic
+          containerPort: 40090
+          protcol: UDP
+        - name: udp-40091
+          portPolicy: Dynamic
+          containerPort: 40091
+          protcol: UDP
+        - name: udp-40092
+          portPolicy: Dynamic
+          containerPort: 40092
+          protcol: UDP
+        - name: udp-40093
+          portPolicy: Dynamic
+          containerPort: 40093
+          protcol: UDP
+        - name: udp-40094
+          portPolicy: Dynamic
+          containerPort: 40094
+          protcol: UDP
+        - name: udp-40095
+          portPolicy: Dynamic
+          containerPort: 40095
+          protcol: UDP
+        - name: udp-40096
+          portPolicy: Dynamic
+          containerPort: 40096
+          protcol: UDP
+        - name: udp-40097
+          portPolicy: Dynamic
+          containerPort: 40097
+          protcol: UDP
+        - name: udp-40098
+          portPolicy: Dynamic
+          containerPort: 40098
+          protcol: UDP
+        - name: udp-40099
+          portPolicy: Dynamic
+          containerPort: 40099
+          protcol: UDP
       health:
-        initialDelaySeconds: 30
-        periodSeconds: 60
+        initialDelaySeconds: 15
+        periodSeconds: 30
         # Parameters for game server sidecar
         # sdkServer:
         # sdkServer log level parameter has three options:

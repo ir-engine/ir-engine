@@ -157,17 +157,6 @@ process.on('exit', async () => {
       allocated: false
     })
   }
-  if (gsName != null && process.env.NODE_ENV !== 'development' && (app as any).k8DefaultClient != null) {
-    try {
-      console.log('Shutting down service')
-      const serviceShutdownResult = await (app as any).k8DefaultClient.delete(`namespaces/default/services/${gsName}`)
-      console.log('Service shutdown result:')
-      console.log(serviceShutdownResult)
-    } catch(err) {
-      console.log('Service shutdown error:')
-      console.log(err)
-    }
-  }
 })
 
 process.on('SIGTERM', async () => {
@@ -183,16 +172,6 @@ process.on('SIGTERM', async () => {
     await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
       allocated: false
     })
-  }
-  if (gsName != null && process.env.NODE_ENV !== 'development' && (app as any).k8DefaultClient != null) {
-    try {
-      const serviceShutdownResult = await (app as any).k8DefaultClient.delete(`namespaces/default/services/${gsName}`)
-      console.log('Service shutdown result:')
-      console.log(serviceShutdownResult)
-    } catch(err) {
-      console.log('Service shutdown error:')
-      console.log(err)
-    }
   }
 })
 export default app

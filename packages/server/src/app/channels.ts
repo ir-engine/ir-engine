@@ -2,6 +2,7 @@ import '@feathersjs/transport-commons'
 import { Application } from '../declarations'
 import getLocalServerIp from '../util/get-local-server-ip';
 import config from '../config';
+import app from "../app";
 
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
@@ -149,15 +150,10 @@ export default (app: Application): void => {
               const gsName = (app as any).gsName;
               console.log('App\'s gameserver name:')
               console.log(gsName)
-              if (gsName != null && process.env.NODE_ENV !== 'development') {
-                try {
-                  const serviceShutdownResult = await (app as any).k8DefaultClient.delete(`namespaces/default/services/${gsName}`)
-                  console.log('Service shutdown result:')
-                  console.log(serviceShutdownResult)
-                } catch (err) {
-                  console.log('Service shutdown error:')
-                  console.log(err)
-                }
+              if ((app as any).gsSubdomainNumber != null) {
+                await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
+                  allocated: false
+                })
               }
               await (app as any).agonesSDK.shutdown()
             }
