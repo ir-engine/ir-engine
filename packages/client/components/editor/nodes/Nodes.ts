@@ -79,7 +79,7 @@ export function createEditor(api, settings) {
   // editor.registerNode(FloorPlanNode, FloorPlanNodeEditor);
   editor.registerNode(ImageNode, ImageNodeEditor);
   editor.registerNode(VideoNode, VideoNodeEditor);
-  // editor.registerNode(AudioNode, AudioNodeEditor);
+  editor.registerNode(AudioNode, AudioNodeEditor);
   // editor.registerNode(SpawnerNode, SpawnerNodeEditor);
   editor.registerNode(TriggerVolumeNode, TriggerVolumeNodeEditor);
   editor.registerNode(LinkNode, LinkNodeEditor);
