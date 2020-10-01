@@ -38,7 +38,7 @@ export const CreatorCharacter: Prefab = {
             args: {
                 component: AssetLoader,
                 componentArgs: {
-                    url: "models/ToonFemale.glb",
+                    url: "models/characters/Rose.glb",
                     receiveShadow: true,
                     castShadow: true
                 }
