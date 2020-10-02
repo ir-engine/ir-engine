@@ -116,7 +116,6 @@ export class WebGLRendererSystem extends System {
     if (passes.length) {
       composer.addPass(depthDownsamplingPass);
       composer.addPass(new EffectPass(Engine.camera, ...passes, textureEffect))
-
     }
   }
 

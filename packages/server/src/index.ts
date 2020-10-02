@@ -6,7 +6,6 @@ import app from './app'
 import logger from './app/logger'
 import config from './config'
 
-
 // SSL setup
 const useSSL = process.env.NODE_ENV !== 'production' && fs.existsSync(path.join(appRootPath.path, 'certs', 'key.pem'))
 
