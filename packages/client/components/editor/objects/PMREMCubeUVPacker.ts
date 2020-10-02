@@ -16,21 +16,21 @@ import {
 	WebGLRenderTarget
 } from "three";
 
-var PMREMCubeUVPacker = ( function () {
-	const width = (window as any).width
-	const height = (window as any).height
+const PMREMCubeUVPacker = ( function () {
+	const width = (window as any).width;
+	const height = (window as any).height;
 
-	var camera = new OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, 1, 1000);
-	var scene = new Scene();
-	var shader = getShader();
+	const camera = new OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, 1, 1000);
+	const scene = new Scene();
+	const shader = getShader();
 
-	var PMREMCubeUVPacker = function ( cubeTextureLods ) {
+	const PMREMCubeUVPacker = function ( cubeTextureLods ) {
 
 		this.cubeLods = cubeTextureLods;
-		var size = cubeTextureLods[ 0 ].width * 4;
+		let size = cubeTextureLods[ 0 ].width * 4;
 
-		var sourceTexture = cubeTextureLods[ 0 ].texture;
-		var params = {
+		const sourceTexture = cubeTextureLods[ 0 ].texture;
+		const params = {
 			format: sourceTexture.format,
 			magFilter: sourceTexture.magFilter,
 			minFilter: sourceTexture.minFilter,
@@ -53,9 +53,9 @@ var PMREMCubeUVPacker = ( function () {
 
 		this.objects = [];
 
-		var geometry = new PlaneBufferGeometry( 1, 1 );
+		const geometry = new PlaneBufferGeometry( 1, 1 );
 
-		var faceOffsets = [];
+		const faceOffsets = [];
 		faceOffsets.push( new Vector2( 0, 0 ) );
 		faceOffsets.push( new Vector2( 1, 0 ) );
 		faceOffsets.push( new Vector2( 2, 0 ) );
@@ -63,34 +63,34 @@ var PMREMCubeUVPacker = ( function () {
 		faceOffsets.push( new Vector2( 1, 1 ) );
 		faceOffsets.push( new Vector2( 2, 1 ) );
 
-		var textureResolution = size;
+		const textureResolution = size;
 		size = cubeTextureLods[ 0 ].width;
 
-		var offset2 = 0;
-		var c = 4.0;
+		let offset2 = 0;
+		let c = 4.0;
 		this.numLods = Math.log( cubeTextureLods[ 0 ].width ) / Math.log( 2 ) - 2; // IE11 doesn't support Math.log2
-		for ( var i = 0; i < this.numLods; i ++ ) {
+		for ( let i = 0; i < this.numLods; i ++ ) {
 
-			var offset1 = ( textureResolution - textureResolution / c ) * 0.5;
+			const offset1 = ( textureResolution - textureResolution / c ) * 0.5;
 			if ( size > 16 ) c *= 2;
-			var nMips = size > 16 ? 6 : 1;
-			var mipOffsetX = 0;
-			var mipOffsetY = 0;
-			var mipSize = size;
+			const nMips = size > 16 ? 6 : 1;
+			let mipOffsetX = 0;
+			let mipOffsetY = 0;
+			let mipSize = size;
 
-			for ( var j = 0; j < nMips; j ++ ) {
+			for ( let j = 0; j < nMips; j ++ ) {
 
 				// Mip Maps
-				for ( var k = 0; k < 6; k ++ ) {
+				for ( let k = 0; k < 6; k ++ ) {
 
 					// 6 Cube Faces
-					var material = shader.clone();
+					const material = shader.clone();
 					material.uniforms[ 'envMap' ].value = this.cubeLods[ i ].texture;
 					(material as any).envMap = this.cubeLods[ i ].texture;
 					material.uniforms[ 'faceIndex' ].value = k;
 					material.uniforms[ 'mapSize' ].value = mipSize;
 
-					var planeMesh = new Mesh( geometry, material );
+					const planeMesh = new Mesh( geometry, material );
 					planeMesh.position.x = faceOffsets[ k ].x * mipSize - offset1 + mipOffsetX;
 					planeMesh.position.y = faceOffsets[ k ].y * mipSize - offset1 + offset2 + mipOffsetY;
 					planeMesh.material.side = BackSide;
@@ -116,7 +116,7 @@ var PMREMCubeUVPacker = ( function () {
 
 		update: function ( renderer ) {
 
-			var size = this.cubeLods[ 0 ].width * 4;
+			const size = this.cubeLods[ 0 ].width * 4;
 			// top and bottom are swapped for some reason?
 			camera.left = - size * 0.5;
 			camera.right = size * 0.5;
@@ -126,17 +126,17 @@ var PMREMCubeUVPacker = ( function () {
 			camera.far = 1;
 			camera.updateProjectionMatrix();
 
-			for ( var i = 0; i < this.objects.length; i ++ ) {
+			for ( let i = 0; i < this.objects.length; i ++ ) {
 
 				scene.add( this.objects[ i ] );
 
 			}
 
-			var gammaInput = renderer.gammaInput;
-			var gammaOutput = renderer.gammaOutput;
-			var toneMapping = renderer.toneMapping;
-			var toneMappingExposure = renderer.toneMappingExposure;
-			var currentRenderTarget = renderer.getRenderTarget();
+			const gammaInput = renderer.gammaInput;
+			const gammaOutput = renderer.gammaOutput;
+			const toneMapping = renderer.toneMapping;
+			const toneMappingExposure = renderer.toneMappingExposure;
+			const currentRenderTarget = renderer.getRenderTarget();
 
 			renderer.gammaInput = false;
 			renderer.gammaOutput = false;
@@ -151,7 +151,7 @@ var PMREMCubeUVPacker = ( function () {
 			renderer.gammaInput = gammaInput;
 			renderer.gammaOutput = gammaOutput;
 
-			for ( var i = 0; i < this.objects.length; i ++ ) {
+			for ( let i = 0; i < this.objects.length; i ++ ) {
 
 				scene.remove( this.objects[ i ] );
 
@@ -161,7 +161,7 @@ var PMREMCubeUVPacker = ( function () {
 
 		dispose: function () {
 
-			for ( var i = 0, l = this.objects.length; i < l; i ++ ) {
+			for ( let i = 0, l = this.objects.length; i < l; i ++ ) {
 
 				this.objects[ i ].material.dispose();
 
@@ -175,7 +175,7 @@ var PMREMCubeUVPacker = ( function () {
 
 	function getShader() {
 
-		var shaderMaterial = new ShaderMaterial( {
+		const shaderMaterial = new ShaderMaterial( {
 
 			uniforms: {
 				"faceIndex": { value: 0 },

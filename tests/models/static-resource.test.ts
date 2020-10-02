@@ -1,4 +1,4 @@
-import app from '../../packages/server/app'
+import app from '../../packages/server/src/app'
 
 describe('CRUD operation on \'Static Resource\' model', () => {
   const model = app.service('static-resource').Model

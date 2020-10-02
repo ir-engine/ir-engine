@@ -18,7 +18,7 @@ import {
 // https://github.com/mrdoob/three.js/issues/5552
 // http://en.wikipedia.org/wiki/RGBE_image_format
 
-var RGBELoader = function ( manager?: any ) {
+const RGBELoader = function ( manager?: any ) {
 
 	DataTextureLoader.call( this, manager );
 
@@ -34,28 +34,28 @@ RGBELoader.prototype = Object.assign( Object.create( DataTextureLoader.prototype
 
 	parse: function ( buffer ) {
 
-		var
+		const
 			/* return codes for rgbe routines */
 			//RGBE_RETURN_SUCCESS = 0,
 			RGBE_RETURN_FAILURE = - 1,
 
 			/* default error routine.  change this to change error handling */
-			rgbe_read_error = 1,
-			rgbe_write_error = 2,
-			rgbe_format_error = 3,
-			rgbe_memory_error = 4,
-			rgbe_error = function ( rgbe_error_code, msg? ) {
+			rgbeReadError = 1,
+			rgbeWriteError = 2,
+			rgbeFormatError = 3,
+			rgbeMemoryError = 4,
+			rgbeError = function ( rgbeErrorCode, msg? ): number {
 
-				switch ( rgbe_error_code ) {
+				switch ( rgbeErrorCode ) {
 
-					case rgbe_read_error: console.error( "RGBELoader Read Error: " + ( msg || '' ) );
+					case rgbeReadError: console.error( "RGBELoader Read Error: " + ( msg || '' ) );
 						break;
-					case rgbe_write_error: console.error( "RGBELoader Write Error: " + ( msg || '' ) );
+					case rgbeWriteError: console.error( "RGBELoader Write Error: " + ( msg || '' ) );
 						break;
-					case rgbe_format_error: console.error( "RGBELoader Bad File Format: " + ( msg || '' ) );
+					case rgbeFormatError: console.error( "RGBELoader Bad File Format: " + ( msg || '' ) );
 						break;
 					default:
-					case rgbe_memory_error: console.error( "RGBELoader: Error: " + ( msg || '' ) );
+					case rgbeMemoryError: console.error( "RGBELoader: Error: " + ( msg || '' ) );
 
 				}
 				return RGBE_RETURN_FAILURE;
@@ -70,7 +70,7 @@ RGBELoader.prototype = Object.assign( Object.create( DataTextureLoader.prototype
 			/* number of floats per pixel, use 4 since stored in rgba image format */
 			//RGBE_DATA_SIZE = 4,
 
-			/* flags indicating which fields in an rgbe_header_info are valid */
+			/* flags indicating which fields in an rgbeHeaderInfo are valid */
 			RGBE_VALID_PROGRAMTYPE = 1,
 			RGBE_VALID_FORMAT = 2,
 			RGBE_VALID_DIMENSIONS = 4,
@@ -80,8 +80,9 @@ RGBELoader.prototype = Object.assign( Object.create( DataTextureLoader.prototype
 			fgets = function ( buffer, lineLimit?, consume? ) {
 
 				lineLimit = ! lineLimit ? 1024 : lineLimit;
-				var p = buffer.pos,
-					i = - 1, len = 0, s = '', chunkSize = 128,
+				const chunkSize = 128;
+				let p = buffer.pos,
+					i = - 1, len = 0, s = '',
 					chunk = String.fromCharCode.apply( null, new Uint16Array( buffer.subarray( p, p + chunkSize ) ) )
 				;
 				while ( ( 0 > ( i = chunk.indexOf( NEWLINE ) ) ) && ( len < lineLimit ) && ( p < buffer.byteLength ) ) {
@@ -109,47 +110,47 @@ RGBELoader.prototype = Object.assign( Object.create( DataTextureLoader.prototype
 			},
 
 			/* minimal header reading.  modify if you want to parse more information */
+			// eslint-disable-next-line @typescript-eslint/camelcase
 			RGBE_ReadHeader = function ( buffer ) {
+				let line, match;
 
-				var line, match,
+				// regexes to parse header info fields
+				const magicTokenRe = /^#\?(\S+)$/;
+				const gammaRe = /^\s*GAMMA\s*=\s*(\d+(\.\d+)?)\s*$/;
+				const exposureRe = /^\s*EXPOSURE\s*=\s*(\d+(\.\d+)?)\s*$/;
+				const formaRe = /^\s*FORMAT=(\S+)\s*$/;
+				const dimensionsRe = /^\s*\-Y\s+(\d+)\s+\+X\s+(\d+)\s*$/;
 
-					// regexes to parse header info fields
-					magic_token_re = /^#\?(\S+)$/,
-					gamma_re = /^\s*GAMMA\s*=\s*(\d+(\.\d+)?)\s*$/,
-					exposure_re = /^\s*EXPOSURE\s*=\s*(\d+(\.\d+)?)\s*$/,
-					format_re = /^\s*FORMAT=(\S+)\s*$/,
-					dimensions_re = /^\s*\-Y\s+(\d+)\s+\+X\s+(\d+)\s*$/,
+				// RGBE format header struct
+				const header = {
 
-					// RGBE format header struct
-					header = {
+					valid: 0, /* indicate which fields are valid */
 
-						valid: 0, /* indicate which fields are valid */
+					string: '', /* the actual header string */
 
-						string: '', /* the actual header string */
+					comments: '', /* comments found in header */
 
-						comments: '', /* comments found in header */
+					programtype: 'RGBE', /* listed at beginning of file to identify it after "#?". defaults to "RGBE" */
 
-						programtype: 'RGBE', /* listed at beginning of file to identify it after "#?". defaults to "RGBE" */
+					format: '', /* RGBE format, default 32-bit_rle_rgbe */
 
-						format: '', /* RGBE format, default 32-bit_rle_rgbe */
+					gamma: 1.0, /* image has already been gamma corrected with given gamma. defaults to 1.0 (no correction) */
 
-						gamma: 1.0, /* image has already been gamma corrected with given gamma. defaults to 1.0 (no correction) */
+					exposure: 1.0, /* a value of 1.0 in an image corresponds to <exposure> watts/steradian/m^2. defaults to 1.0 */
 
-						exposure: 1.0, /* a value of 1.0 in an image corresponds to <exposure> watts/steradian/m^2. defaults to 1.0 */
+					width: 0, height: 0 /* image dimensions, width/height */
 
-						width: 0, height: 0 /* image dimensions, width/height */
-
-					};
+				};
 
 				if ( buffer.pos >= buffer.byteLength || ! ( line = fgets( buffer ) ) ) {
 
-					return rgbe_error( rgbe_read_error, "no header found" );
+					return rgbeError( rgbeReadError, "no header found" );
 
 				}
 				/* if you want to require the magic token then uncomment the next line */
-				if ( ! ( match = line.match( magic_token_re ) ) ) {
+				if ( ! ( match = line.match( magicTokenRe ) ) ) {
 
-					return rgbe_error( rgbe_format_error, "bad initial token" );
+					return rgbeError( rgbeFormatError, "bad initial token" );
 
 				}
 				header.valid |= RGBE_VALID_PROGRAMTYPE;
@@ -169,23 +170,23 @@ RGBELoader.prototype = Object.assign( Object.create( DataTextureLoader.prototype
 
 					}
 
-					if ( match = line.match( gamma_re ) ) {
+					if ( match = line.match( gammaRe ) ) {
 
 						header.gamma = parseFloat( match[ 1 ] );
 
 					}
-					if ( match = line.match( exposure_re ) ) {
+					if ( match = line.match( exposureRe ) ) {
 
 						header.exposure = parseFloat( match[ 1 ] );
 
 					}
-					if ( match = line.match( format_re ) ) {
+					if ( match = line.match( formaRe ) ) {
 
 						header.valid |= RGBE_VALID_FORMAT;
 						header.format = match[ 1 ];//'32-bit_rle_rgbe';
 
 					}
-					if ( match = line.match( dimensions_re ) ) {
+					if ( match = line.match( dimensionsRe ) ) {
 
 						header.valid |= RGBE_VALID_DIMENSIONS;
 						header.height = parseInt( match[ 1 ], 10 );
@@ -199,12 +200,12 @@ RGBELoader.prototype = Object.assign( Object.create( DataTextureLoader.prototype
 
 				if ( ! ( header.valid & RGBE_VALID_FORMAT ) ) {
 
-					return rgbe_error( rgbe_format_error, "missing format specifier" );
+					return rgbeError( rgbeFormatError, "missing format specifier" );
 
 				}
 				if ( ! ( header.valid & RGBE_VALID_DIMENSIONS ) ) {
 
-					return rgbe_error( rgbe_format_error, "missing image size specifier" );
+					return rgbeError( rgbeFormatError, "missing image size specifier" );
 
 				}
 
@@ -212,16 +213,17 @@ RGBELoader.prototype = Object.assign( Object.create( DataTextureLoader.prototype
 
 			},
 
-			RGBE_ReadPixels_RLE = function ( buffer, w, h ) {
-
-				var data_rgba, offset, pos, count, byteValue,
-					scanline_buffer, ptr, ptr_end, i, l, off, isEncodedRun,
-					scanline_width = w, num_scanlines = h, rgbeStart
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			RGBE_ReadPixels_RLE = function ( buffer, w, h ): any {
+				const scanlineWidth = w;
+				let offset, pos, count, byteValue,
+					ptr, i, l, off, isEncodedRun,
+					numScanlines = h
 				;
 
 				if (
 					// run length encoding is not allowed so read flat
-					( ( scanline_width < 8 ) || ( scanline_width > 0x7fff ) ) ||
+					( ( scanlineWidth < 8 ) || ( scanlineWidth > 0x7fff ) ) ||
 					// this file is not run length encoded
 					( ( 2 !== buffer[ 0 ] ) || ( 2 !== buffer[ 1 ] ) || ( buffer[ 2 ] & 0x80 ) )
 				) {
@@ -231,30 +233,31 @@ RGBELoader.prototype = Object.assign( Object.create( DataTextureLoader.prototype
 
 				}
 
-				if ( scanline_width !== ( ( buffer[ 2 ] << 8 ) | buffer[ 3 ] ) ) {
+				if ( scanlineWidth !== ( ( buffer[ 2 ] << 8 ) | buffer[ 3 ] ) ) {
 
-					return rgbe_error( rgbe_format_error, "wrong scanline width" );
-
-				}
-
-				data_rgba = new Uint8Array( 4 * w * h );
-
-				if ( ! data_rgba || ! data_rgba.length ) {
-
-					return rgbe_error( rgbe_memory_error, "unable to allocate buffer space" );
+					return rgbeError( rgbeFormatError, "wrong scanline width" );
 
 				}
 
-				offset = 0; pos = 0; ptr_end = 4 * scanline_width;
-				rgbeStart = new Uint8Array( 4 );
-				scanline_buffer = new Uint8Array( ptr_end );
+				const dataRgba = new Uint8Array( 4 * w * h );
+
+				if ( ! dataRgba || ! dataRgba.length ) {
+
+					return rgbeError( rgbeMemoryError, "unable to allocate buffer space" );
+
+				}
+
+				offset = 0; pos = 0;
+				const ptrEnd = 4 * scanlineWidth;
+				const rgbeStart = new Uint8Array( 4 );
+				const scanlineBuffer = new Uint8Array( ptrEnd );
 
 				// read in each successive scanline
-				while ( ( num_scanlines > 0 ) && ( pos < buffer.byteLength ) ) {
+				while ( ( numScanlines > 0 ) && ( pos < buffer.byteLength ) ) {
 
 					if ( pos + 4 > buffer.byteLength ) {
 
-						return rgbe_error( rgbe_read_error );
+						return rgbeError( rgbeReadError );
 
 					}
 
@@ -263,24 +266,24 @@ RGBELoader.prototype = Object.assign( Object.create( DataTextureLoader.prototype
 					rgbeStart[ 2 ] = buffer[ pos ++ ];
 					rgbeStart[ 3 ] = buffer[ pos ++ ];
 
-					if ( ( 2 != rgbeStart[ 0 ] ) || ( 2 != rgbeStart[ 1 ] ) || ( ( ( rgbeStart[ 2 ] << 8 ) | rgbeStart[ 3 ] ) != scanline_width ) ) {
+					if ( ( 2 != rgbeStart[ 0 ] ) || ( 2 != rgbeStart[ 1 ] ) || ( ( ( rgbeStart[ 2 ] << 8 ) | rgbeStart[ 3 ] ) != scanlineWidth ) ) {
 
-						return rgbe_error( rgbe_format_error, "bad rgbe scanline format" );
+						return rgbeError( rgbeFormatError, "bad rgbe scanline format" );
 
 					}
 
 					// read each of the four channels for the scanline into the buffer
 					// first red, then green, then blue, then exponent
 					ptr = 0;
-					while ( ( ptr < ptr_end ) && ( pos < buffer.byteLength ) ) {
+					while ( ( ptr < ptrEnd ) && ( pos < buffer.byteLength ) ) {
 
 						count = buffer[ pos ++ ];
 						isEncodedRun = count > 128;
 						if ( isEncodedRun ) count -= 128;
 
-						if ( ( 0 === count ) || ( ptr + count > ptr_end ) ) {
+						if ( ( 0 === count ) || ( ptr + count > ptrEnd ) ) {
 
-							return rgbe_error( rgbe_format_error, "bad scanline data" );
+							return rgbeError( rgbeFormatError, "bad scanline data" );
 
 						}
 
@@ -290,7 +293,7 @@ RGBELoader.prototype = Object.assign( Object.create( DataTextureLoader.prototype
 							byteValue = buffer[ pos ++ ];
 							for ( i = 0; i < count; i ++ ) {
 
-								scanline_buffer[ ptr ++ ] = byteValue;
+								scanlineBuffer[ ptr ++ ] = byteValue;
 
 							}
 							//ptr += count;
@@ -298,7 +301,7 @@ RGBELoader.prototype = Object.assign( Object.create( DataTextureLoader.prototype
 						} else {
 
 							// a literal-run
-							scanline_buffer.set( buffer.subarray( pos, pos + count ), ptr );
+							scanlineBuffer.set( buffer.subarray( pos, pos + count ), ptr );
 							ptr += count; pos += count;
 
 						}
@@ -308,33 +311,33 @@ RGBELoader.prototype = Object.assign( Object.create( DataTextureLoader.prototype
 
 					// now convert data from buffer into rgba
 					// first red, then green, then blue, then exponent (alpha)
-					l = scanline_width; //scanline_buffer.byteLength;
+					l = scanlineWidth; //scanlineBuffer.byteLength;
 					for ( i = 0; i < l; i ++ ) {
 
 						off = 0;
-						data_rgba[ offset ] = scanline_buffer[ i + off ];
-						off += scanline_width; //1;
-						data_rgba[ offset + 1 ] = scanline_buffer[ i + off ];
-						off += scanline_width; //1;
-						data_rgba[ offset + 2 ] = scanline_buffer[ i + off ];
-						off += scanline_width; //1;
-						data_rgba[ offset + 3 ] = scanline_buffer[ i + off ];
+						dataRgba[ offset ] = scanlineBuffer[ i + off ];
+						off += scanlineWidth; //1;
+						dataRgba[ offset + 1 ] = scanlineBuffer[ i + off ];
+						off += scanlineWidth; //1;
+						dataRgba[ offset + 2 ] = scanlineBuffer[ i + off ];
+						off += scanlineWidth; //1;
+						dataRgba[ offset + 3 ] = scanlineBuffer[ i + off ];
 						offset += 4;
 
 					}
 
-					num_scanlines --;
+					numScanlines --;
 
 				}
 
-				return data_rgba;
+				return dataRgba;
 
 			};
 
-		var RGBEByteToRGBFloat = function ( sourceArray, sourceOffset, destArray, destOffset ) {
+		const RGBEByteToRGBFloat = function ( sourceArray, sourceOffset, destArray, destOffset ) {
 
-			var e = sourceArray[ sourceOffset + 3 ];
-			var scale = Math.pow( 2.0, e - 128.0 ) / 255.0;
+			const e = sourceArray[ sourceOffset + 3 ];
+			const scale = Math.pow( 2.0, e - 128.0 ) / 255.0;
 
 			destArray[ destOffset + 0 ] = sourceArray[ sourceOffset + 0 ] * scale;
 			destArray[ destOffset + 1 ] = sourceArray[ sourceOffset + 1 ] * scale;
@@ -342,12 +345,12 @@ RGBELoader.prototype = Object.assign( Object.create( DataTextureLoader.prototype
 
 		};
 
-		var RGBEByteToRGBHalf = ( function () {
+		const RGBEByteToRGBHalf = ( function () {
 
 			// Source: http://gamedev.stackexchange.com/questions/17326/conversion-of-a-number-from-single-precision-floating-point-representation-to-a/17410#17410
 
-			var floatView = new Float32Array( 1 );
-			var int32View = new Int32Array( floatView.buffer );
+			const floatView = new Float32Array( 1 );
+			const int32View = new Int32Array( floatView.buffer );
 
 			/* This method is faster than the OpenEXR implementation (very often
 			 * used, eg. in Ogre), with the additional benefit of rounding, inspired
@@ -355,11 +358,11 @@ RGBELoader.prototype = Object.assign( Object.create( DataTextureLoader.prototype
 			function toHalf( val ) {
 
 				floatView[ 0 ] = val;
-				var x = int32View[ 0 ];
+				const x = int32View[ 0 ];
 
-				var bits = ( x >> 16 ) & 0x8000; /* Get the sign */
-				var m = ( x >> 12 ) & 0x07ff; /* Keep one extra bit for rounding */
-				var e = ( x >> 23 ) & 0xff; /* Using int is faster here */
+				let bits = ( x >> 16 ) & 0x8000; /* Get the sign */
+				let m = ( x >> 12 ) & 0x07ff; /* Keep one extra bit for rounding */
+				const e = ( x >> 23 ) & 0xff; /* Using int is faster here */
 
 				/* If zero, or denormal, or exponent underflows too much for a denormal
 				 * half, return signed zero. */
@@ -397,8 +400,8 @@ RGBELoader.prototype = Object.assign( Object.create( DataTextureLoader.prototype
 
 			return function ( sourceArray, sourceOffset, destArray, destOffset ) {
 
-				var e = sourceArray[ sourceOffset + 3 ];
-				var scale = Math.pow( 2.0, e - 128.0 ) / 255.0;
+				const e = sourceArray[ sourceOffset + 3 ];
+				const scale = Math.pow( 2.0, e - 128.0 ) / 255.0;
 
 				destArray[ destOffset + 0 ] = toHalf( sourceArray[ sourceOffset + 0 ] * scale );
 				destArray[ destOffset + 1 ] = toHalf( sourceArray[ sourceOffset + 1 ] * scale );
@@ -408,57 +411,57 @@ RGBELoader.prototype = Object.assign( Object.create( DataTextureLoader.prototype
 
 		} )();
 
-		var byteArray = new Uint8Array( buffer ) as any;
+		const byteArray = new Uint8Array( buffer ) as any;
 		byteArray.pos = 0;
-		var rgbe_header_info = RGBE_ReadHeader( byteArray ) as any;
+		const rgbeHeaderInfo = RGBE_ReadHeader( byteArray ) as any;
 
-		if ( RGBE_RETURN_FAILURE !== rgbe_header_info ) {
+		if ( RGBE_RETURN_FAILURE !== rgbeHeaderInfo ) {
 
-			var w = rgbe_header_info.width,
-				h = rgbe_header_info.height,
-				image_rgba_data = RGBE_ReadPixels_RLE( byteArray.subarray( byteArray.pos ), w, h );
+			const w = rgbeHeaderInfo.width,
+				h = rgbeHeaderInfo.height,
+				imageRgbaData = RGBE_ReadPixels_RLE( byteArray.subarray( byteArray.pos ), w, h );
 
-			if ( RGBE_RETURN_FAILURE !== image_rgba_data ) {
-
+			if ( RGBE_RETURN_FAILURE !== imageRgbaData ) {
+				let data, format, type, numElements, floatArray, halfArray;
 				switch ( this.type ) {
 
 					case UnsignedByteType:
 
-						var data = image_rgba_data;
-						var format = RGBEFormat; // handled as THREE.RGBAFormat in shaders
-						var type = UnsignedByteType;
+						data = imageRgbaData;
+						format = RGBEFormat; // handled as THREE.RGBAFormat in shaders
+						type = UnsignedByteType;
 						break;
 
 					case FloatType:
 
-						var numElements = ( image_rgba_data.length / 4 ) * 3;
-						var floatArray = new Float32Array( numElements );
+						numElements = ( imageRgbaData.length / 4 ) * 3;
+						floatArray = new Float32Array( numElements );
 
-						for ( var j = 0; j < numElements; j ++ ) {
+						for ( let j = 0; j < numElements; j ++ ) {
 
-							RGBEByteToRGBFloat( image_rgba_data, j * 4, floatArray, j * 3 );
+							RGBEByteToRGBFloat( imageRgbaData, j * 4, floatArray, j * 3 );
 
 						}
 
-						var data = floatArray as any;
-						var format = RGBFormat;
-						var type = FloatType;
+						data = floatArray as any;
+						format = RGBFormat;
+						type = FloatType;
 						break;
 
 					case HalfFloatType:
 
-						var numElements = ( image_rgba_data.length / 4 ) * 3;
-						var halfArray = new Uint16Array( numElements );
+						numElements = ( imageRgbaData.length / 4 ) * 3;
+						halfArray = new Uint16Array( numElements );
 
-						for ( var j = 0; j < numElements; j ++ ) {
+						for ( let j = 0; j < numElements; j ++ ) {
 
-							RGBEByteToRGBHalf( image_rgba_data, j * 4, halfArray, j * 3 );
+							RGBEByteToRGBHalf( imageRgbaData, j * 4, halfArray, j * 3 );
 
 						}
 
-						var data = halfArray as any;
-						var format = RGBFormat;
-						var type = HalfFloatType;
+						data = halfArray as any;
+						format = RGBFormat;
+						type = HalfFloatType;
 						break;
 
 					default:
@@ -471,9 +474,9 @@ RGBELoader.prototype = Object.assign( Object.create( DataTextureLoader.prototype
 				return {
 					width: w, height: h,
 					data: data,
-					header: rgbe_header_info.string,
-					gamma: rgbe_header_info.gamma,
-					exposure: rgbe_header_info.exposure,
+					header: rgbeHeaderInfo.string,
+					gamma: rgbeHeaderInfo.gamma,
+					exposure: rgbeHeaderInfo.exposure,
 					format: format,
 					type: type
 				};
@@ -495,7 +498,7 @@ RGBELoader.prototype = Object.assign( Object.create( DataTextureLoader.prototype
 
 	load: function ( url, onLoad, onProgress, onError ) {
 
-		function onLoadCallback( texture, texData ) {
+		function onLoadCallback( texture, texData ): void {
 
 			switch ( texture.type ) {
 

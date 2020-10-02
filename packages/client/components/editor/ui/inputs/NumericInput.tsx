@@ -70,7 +70,6 @@ const NumericInputUnit = (styled as any).div`
 `;
 
 export default class NumericInput extends Component {
-  inputEl: any
 
   constructor(props) {
     super(props);
@@ -78,6 +77,8 @@ export default class NumericInput extends Component {
     this.state = { tempValue: null, focused: false };
     this.inputEl = createRef();
   }
+
+  inputEl: any
 
   increment() {
     this.handleStep(1, false);

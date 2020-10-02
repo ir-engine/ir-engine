@@ -72,7 +72,7 @@ export function connectToInstanceServer () {
 }
 
 client.service('instance-provision').on('created', (params) => {
-  console.log('instance-provision created listener')
-  console.log(params)
+  console.log('instance-provision created listener');
+  console.log(params);
   store.dispatch(instanceServerProvisioned(params, params.locationId));
 });

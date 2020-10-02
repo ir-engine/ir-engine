@@ -108,7 +108,7 @@ interface Props {
     getInvitableGroups?: any;
     locationState?: any;
     getLocations?: any;
-    provisionInstanceServer?: any
+    provisionInstanceServer?: any;
 }
 
 const identityProviderTabMap = new Map();

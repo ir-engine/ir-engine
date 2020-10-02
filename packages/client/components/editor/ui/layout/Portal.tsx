@@ -1,7 +1,6 @@
 import { Component } from "react";
 import { createPortal } from "react-dom";
 export default class Portal extends Component<{}, {}> {
-  el: HTMLDivElement;
   constructor(props) {
     super(props);
     this.el = document.createElement("div");
@@ -18,6 +17,7 @@ export default class Portal extends Component<{}, {}> {
       console.warn(`Error removing Portal element: ${err}`);
     }
   }
+  el: HTMLDivElement;
   render() {
     return createPortal(this.props.children, this.el);
   }

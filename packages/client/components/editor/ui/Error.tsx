@@ -27,7 +27,7 @@ export default class Error extends Component {
   static contextType = ThemeContext
 
   render() {
-    let theme = this.context
+    const theme = this.context;
     return (
       <StyledError theme={theme}>
         <a href="/">

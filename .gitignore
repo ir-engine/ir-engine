@@ -18,7 +18,7 @@ yarn.lock
 yarn-error.log
 
 #local files
-.env
+.env*
 
 #macos
 .DS_Store

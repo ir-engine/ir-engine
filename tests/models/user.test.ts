@@ -1,4 +1,4 @@
-import app from '../../packages/server/app'
+import app from '../../packages/server/src/app'
 import GenerateRandomAnimalName from 'random-animal-name-generator'
 
 describe('CRUD operation on \'User\' model', () => {

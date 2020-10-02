@@ -124,9 +124,9 @@ export function transferPartyOwner(partyUserId: string) {
 }
 
 client.service('party-user').on('created', (params) => {
-  console.log('party user created')
-  console.log((store.getState() as any).get('party').party)
-  console.log((store.getState() as any).get('party').get('party'))
+  console.log('party user created');
+  console.log((store.getState() as any).get('party').party);
+  console.log((store.getState() as any).get('party').get('party'));
   if ((store.getState() as any).get('party').get('party') == null) {
     store.dispatch(createdParty(params));
   }

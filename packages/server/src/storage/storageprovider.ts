@@ -1,6 +1,6 @@
 import S3Storage from './s3.storage';
 import LocalStorage from './local.storage';
-import StorageProviderInterface from './storageprovider.interface';
+import { StorageProviderInterface } from './storageprovider.interface';
 import config from '../config';
 
 export default class StorageProvider implements StorageProviderInterface {

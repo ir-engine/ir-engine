@@ -18,7 +18,7 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,l
     document.dispatchEvent(event);
   };
 
-  const buttonsConfig: Array<{ button: GamepadButtons; label: string; }> = [
+  const buttonsConfig: Array<{ button: GamepadButtons; label: string }> = [
     {
       button: GamepadButtons.A,
       label: "A",
@@ -92,4 +92,4 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,l
     </>);
 };
 
-export default MobileGamepad
+export default MobileGamepad;

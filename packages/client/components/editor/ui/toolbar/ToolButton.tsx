@@ -11,10 +11,10 @@ const StyledToolButton = (styled as any).button`
   cursor: pointer;
   position: relative;
 
-  background-color: ${props => (props.selected ? props.theme.blue : props.theme.toolbar)};
+  background-color: ${props => (props.isSelected ? props.theme.blue : props.theme.toolbar)};
 
   &:hover {
-    background-color: ${props => (props.selected ? props.theme.blueHover : props.theme.panel2)};
+    background-color: ${props => (props.isSelected ? props.theme.blueHover : props.theme.panel2)};
   }
 `;
 
@@ -24,10 +24,10 @@ const Icon = (styled as any).div`
   font-size: 14px;
 `;
 
-export default function ToolButton({ id, icon, onClick, selected, tooltip }) {
+export default function ToolButton({ id, icon, onClick, isSelected, tooltip }) {
   return (
     <InfoTooltip id={id} info={tooltip} position="bottom">
-      <StyledToolButton selected={selected} onClick={onClick}>
+      <StyledToolButton isSelected={isSelected} onClick={onClick}>
         <Icon as={icon} />
       </StyledToolButton>
     </InfoTooltip>
@@ -38,6 +38,6 @@ ToolButton.propTypes = {
   id: PropTypes.string,
   icon: PropTypes.object,
   onClick: PropTypes.func,
-  selected: PropTypes.bool,
+  isSelected: PropTypes.bool,
   tooltip: PropTypes.string
 };

@@ -1,7 +1,15 @@
-import app from '../../packages/server/app'
+import app from '../../packages/server/src/app'
 
 describe('CRUD operation on \'CollectionType\' model', () => {
   const model = app.service('collection-type').Model
+
+  beforeAll(async () => {
+    await model.destroy({
+      where: {
+        type: 'test'
+      }
+    })
+  })
 
   it('Create', async () => {
     await model.create({
