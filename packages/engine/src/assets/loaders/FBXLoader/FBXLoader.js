@@ -1,4 +1,5 @@
-import {
+/* eslint-disable @typescript-eslint/no-var-requires */
+const {
 	AmbientLight,
 	AnimationClip,
 	Bone,
@@ -41,9 +42,9 @@ import {
 	Vector4,
 	VectorKeyframeTrack,
 	sRGBEncoding
-} from "three";
-import { Inflate } from "./inflate.module.min.js";
-import { NURBSCurve } from "./NURBSCurve";
+} = require("three");
+const { Inflate } = require("./inflate.module.min.js");
+const { NURBSCurve } = require("./NURBSCurve");
 /**
  * Loader loads FBX file and generates Group representing FBX scene.
  * Requires FBX file to be >= 7.0 and in ASCII or >= 6400 in Binary format
@@ -4182,4 +4183,4 @@ var FBXLoader = ( function () {
 
 } )();
 
-export { FBXLoader };
+module.exports = { FBXLoader };

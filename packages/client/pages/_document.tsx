@@ -33,17 +33,17 @@ export default class MyDocument extends Document {
     // 4. page.render
 
     // Render app and page and get the context of the page with collected side effects.
-    const sheet = new ServerStyleSheet()
-    const originalRenderPage = ctx.renderPage
+    const sheet = new ServerStyleSheet();
+    const originalRenderPage = ctx.renderPage;
 
     try {
       ctx.renderPage = () =>
         originalRenderPage({
           // @ts-ignore
           enhanceApp: (App) => (props) => sheet.collectStyles(<App {...props} />),
-        })
+        });
 
-      const initialProps = await Document.getInitialProps(ctx)
+      const initialProps = await Document.getInitialProps(ctx);
       return {
         ...initialProps,
         // Styles fragment is rendered after the app and page rendering finish.
@@ -53,9 +53,9 @@ export default class MyDocument extends Document {
             {sheet.getStyleElement()}
           </>
         ),
-      }
+      };
     } finally {
-      sheet.seal()
+      sheet.seal();
     }
   }
   render () {

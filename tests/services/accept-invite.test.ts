@@ -1,8 +1,8 @@
-import app from '../../packages/server/app';
+import app from '../../packages/server/src/app';
 
-describe('\'a-i\' service', () => {
+describe('\'accept-invite\' service', () => {
   it('registered the service', () => {
-    const service = app.service('a-i');
+    const service = app.service('accept-invite');
     expect(service).toBeTruthy();
   });
 });

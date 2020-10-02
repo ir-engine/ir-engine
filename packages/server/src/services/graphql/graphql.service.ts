@@ -60,7 +60,7 @@ export default (app: Application): any => {
           'editor.theme': 'dark'
         }
       },
-      context: async (context: any): any => {
+      context: async (context: any): Promise<any> => {
         const req = context.req;
         if (context.req && context.req.body && context.req.body.operationName === 'IntrospectionQuery') {
           return;

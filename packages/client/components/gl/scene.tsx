@@ -229,10 +229,10 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   useEffect(() => {
     if (instanceConnectionState.get('instanceProvisioned') == false) {
-      console.log('authState:')
-      console.log(authState)
-      console.log('partyState:')
-      console.log(partyState)
+      console.log('authState:');
+      console.log(authState);
+      console.log('partyState:');
+      console.log(partyState);
       const user = authState.get('user');
       const party = partyState.get('party');
       const instanceId = user.instanceId != null ? user.instanceId : party.instanceId != null ? party.instanceId: null;
@@ -240,7 +240,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
       if (instanceId != null) {
         client.service('instance').get(instanceId)
             .then((instance) => {
-              console.log(`Connecting to location ${instance.locationId}`)
+              console.log(`Connecting to location ${instance.locationId}`);
               provisionInstanceServer(instance.locationId);
             });
       }
@@ -283,7 +283,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     ) : null;
 
   const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: hintBoxData }
-  
+
   const mobileGamepad = isMobileOrTablet()? <MobileGamepad {...mobileGamepadProps} /> : null;
 
   const infoBox = !isMobileOrTablet() && infoBoxData ? <InfoBox onClose={() => { setInfoBoxData(null) }} data={infoBoxData} /> : null;
@@ -293,7 +293,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const hoveredLabelElement = !!!isMobileOrTablet() && hoveredLabel.length > 0 ? 
   <div className="hintContainer">Press <span className="keyItem" >E</span> to {hoveredLabel}</div> : null;
 
-  
+
   return (
     <>
     {/* <Dialog {...{props:{isOpened:true, content:beginnerHintMessage}}}>{beginnerHintMessage}</Dialog> */}

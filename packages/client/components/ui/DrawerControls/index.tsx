@@ -14,7 +14,7 @@ import {
 } from '../../../redux/chat/service';
 import { connect } from 'react-redux';
 import VideoChat from "../VideoChat";
-import NoSSR from "react-no-ssr"
+import NoSSR from "react-no-ssr";
 
 const mapStateToProps = (state: any): any => {
   return {

@@ -1,4 +1,4 @@
-import app from '../../packages/server/app'
+import app from '../../packages/server/src/app'
 import bcrypt from 'bcrypt'
 import request from 'supertest'
 

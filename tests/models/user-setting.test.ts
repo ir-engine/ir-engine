@@ -1,4 +1,4 @@
-import app from '../../packages/server/app'
+import app from '../../packages/server/src/app'
 
 describe('CRUD operation on \'UserSetting\' model', () => {
   const model = app.service('user-settings').Model

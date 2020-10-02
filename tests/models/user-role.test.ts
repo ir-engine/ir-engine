@@ -1,12 +1,20 @@
-import app from '../../packages/server/app'
+import app from '../../packages/server/src/app'
 
 describe('CRUD operation on \'UserRole\' model', () => {
   const model = app.service('user-role').Model
   const role: string = 'testrole'
 
+  beforeAll(async () => {
+    await model.destroy({
+      where: {
+        role: role
+      }
+    })
+  })
+
   it('Create', async () => {
     await model.create({
-      role
+      role: role
     })
   })
 

@@ -69,13 +69,6 @@
     }
 }
 
-.details-container {
-    @include flex-collapse;
-
-    & > .list-container {
-        overflow-y: auto;
-    }
-}
 .list-container {
     display: flex;
     flex-direction: column;
@@ -115,6 +108,14 @@
                 }
             }
         }
+    }
+}
+
+.details-container {
+    @include flex-collapse;
+
+    & > .list-container {
+        overflow-y: auto;
     }
 }
 

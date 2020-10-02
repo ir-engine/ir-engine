@@ -204,7 +204,8 @@ class Terminal extends Component<any, any> {
 
   // Tab removal.
   removeTab = (id) => {
-    let { activeTabId, instances, tabs } = this.state;
+    let { activeTabId } = this.state;
+    const { instances, tabs } = this.state;
 
     let index = instances.findIndex(e => e.id === id);
     if (index === -1) return;
@@ -279,6 +280,7 @@ class Terminal extends Component<any, any> {
               width: '100%',
               zIndex: 50}}>
           <button
+              type="button"
               style={{
                 marginTop: 5,
                 marginRight: 13}}

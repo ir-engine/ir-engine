@@ -114,7 +114,7 @@ describe("movement", () => {
   const windowPoint2 = { x: 120, y:25 };
   const normalPoint2 = normalizeMouseCoordinates(windowPoint2.x, windowPoint2.y, window.innerWidth, window.innerHeight);
 
-  it ("triggers associated input STARTED", () => {
+  it.skip ("triggers associated input STARTED", () => {
     triggerTouch({ ...windowPoint1, type: 'touchstart' })
     execute();
 
@@ -124,7 +124,7 @@ describe("movement", () => {
     expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
   })
 
-  it ("triggered started behavior", () => {
+  it.skip ("triggered started behavior", () => {
     triggerTouch({ ...windowPoint1, type: 'touchmove' })
     execute();
     expect(mockedBehaviorOnStarted.mock.calls.length).toBe(1)
@@ -132,7 +132,7 @@ describe("movement", () => {
 
   // TODO: check that move of touches with different id does not interfere,
   //  another Input type should be triggered by two touches, but SCREENXY doesn't
-  it ("triggers associated input CHANGED", () => {
+  it.skip ("triggers associated input CHANGED", () => {
     triggerTouch({ ...windowPoint1, type: 'touchstart' })
     execute();
     triggerTouch({...windowPoint2, type: 'touchmove'})
@@ -144,7 +144,7 @@ describe("movement", () => {
     expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
   })
 
-  it ("triggered changed behavior", () => {
+  it.skip ("triggered changed behavior", () => {
     triggerTouch({ ...windowPoint1, type: 'touchstart' })
     execute();
     triggerTouch({...windowPoint2, type: 'touchmove'})

@@ -71,8 +71,6 @@ export default class Resizeable extends Component {
     min: 0.2,
     axis: "y"
   };
-  containerRef: React.RefObject<unknown>;
-  itemRefs: any[];
 
   constructor(props) {
     super(props);
@@ -99,6 +97,14 @@ export default class Resizeable extends Component {
     this.containerRef = createRef();
     this.itemRefs = [];
   }
+
+  componentWillUnmount() {
+    window.removeEventListener("mousemove", this.onMouseMove);
+    window.removeEventListener("mouseup", this.onMouseUp);
+    window.removeEventListener("blur", this.onMouseUp);
+  }
+  containerRef: React.RefObject<unknown>;
+  itemRefs: any[];
 
   onMouseDown = (_e, index) => {
     this.setState({ index, resizing: true });
@@ -140,12 +146,6 @@ export default class Resizeable extends Component {
     window.removeEventListener("blur", this.onMouseUp);
     this.setState({ resizing: false });
   };
-
-  componentWillUnmount() {
-    window.removeEventListener("mousemove", this.onMouseMove);
-    window.removeEventListener("mouseup", this.onMouseUp);
-    window.removeEventListener("blur", this.onMouseUp);
-  }
 
   render() {
     const children = Children.toArray(this.props.children);

@@ -1,4 +1,4 @@
-import StorageProviderInterface from './storageprovider.interface';
+import { StorageProviderInterface } from './storageprovider.interface';
 import AWS from 'aws-sdk';
 import config from '../config';
 import S3BlobStore from 's3-blob-store';

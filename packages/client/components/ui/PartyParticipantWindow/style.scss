@@ -11,16 +11,17 @@ $avatar-bg: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZ
     width: 200px;
     position: relative;
 
+    & > video {
+        height: 100%;
+        width: 100%;
+    }
+
     &.video-paused {
         background-color: #243b55bf;
 
         & > video {
             display: none;
         }
-    }
-    & > video {
-        height: 100%;
-        width: 100%;
     }
 
     .user-controls {
