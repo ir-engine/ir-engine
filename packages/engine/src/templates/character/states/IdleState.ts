@@ -64,6 +64,10 @@ export const IdleState: StateSchemaValue = {
             return addState(entity, {state: CharacterStateTypes.JUMP_IDLE})
           }
 
+          if (input.data.has(DefaultInput.SPRINT)) {
+            return addState(entity, { state: CharacterStateTypes.SPRINT })
+          }
+
           // If we're not moving, don't worry about the rest of this action
           if (!isMoving(entity)) return
 

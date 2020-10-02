@@ -208,6 +208,7 @@ export const CharacterInputSchema: InputSchema = {
     d: DefaultInput.RIGHT,
     e: DefaultInput.INTERACT,
     ' ': DefaultInput.JUMP,
+    f: DefaultInput.SPRINT,
     p: DefaultInput.POINTER_LOCK
   },
   // Map how inputs relate to each other
@@ -237,6 +238,20 @@ export const CharacterInputSchema: InputSchema = {
       ]
     },
     [DefaultInput.JUMP]: {
+        started: [
+          {
+            behavior: updateCharacterState,
+            args: {}
+          }
+        ],
+      ended: [
+        {
+          behavior: updateCharacterState,
+          args: {}
+        }
+      ]
+    },
+    [DefaultInput.SPRINT]: {
         started: [
           {
             behavior: updateCharacterState,

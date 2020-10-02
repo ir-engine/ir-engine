@@ -35,12 +35,18 @@ export const physicsPostStep: Behavior = (entity): void => {
 
 		const globalVelocityTarget = appplyVectorMatrixXZ(actor.orientation, actor.velocityTarget);
 		const add = new Vector3().copy(arcadeVelocity).multiply(actor.arcadeVelocityInfluence);
-
+/*
 		if (Math.abs(simulatedVelocity.x) < Math.abs(globalVelocityTarget.x * actor.moveSpeed) || haveDifferentSigns(simulatedVelocity.x, arcadeVelocity.x)) { newVelocity.x += add.x; }
 		if (Math.abs(simulatedVelocity.y) < Math.abs(globalVelocityTarget.y * actor.moveSpeed) || haveDifferentSigns(simulatedVelocity.y, arcadeVelocity.y)) { newVelocity.y += add.y; }
 		if (Math.abs(simulatedVelocity.z) < Math.abs(globalVelocityTarget.z * actor.moveSpeed) || haveDifferentSigns(simulatedVelocity.z, arcadeVelocity.z)) { newVelocity.z += add.z; }
+*/
+		//console.warn(actor.moveSpeed);
+		if ( haveDifferentSigns(simulatedVelocity.x, arcadeVelocity.x)) { newVelocity.x += add.x; }
+		if ( haveDifferentSigns(simulatedVelocity.y, arcadeVelocity.y)) { newVelocity.y += add.y; }
+		if ( haveDifferentSigns(simulatedVelocity.z, arcadeVelocity.z)) { newVelocity.z += add.z; }
 	}
 	else {
+
 		newVelocity = new Vector3(
 			lerp(simulatedVelocity.x, arcadeVelocity.x, actor.arcadeVelocityInfluence.x),
 			lerp(simulatedVelocity.y, arcadeVelocity.y, actor.arcadeVelocityInfluence.y),
@@ -94,10 +100,13 @@ export const physicsPostStep: Behavior = (entity): void => {
 	if (actor.wantsToJump) {
 		// If initJumpSpeed is set
 		if (actor.initJumpSpeed > -1) {
+
+
 			// Flatten velocity
-			body.velocity.y = 0;
-			const speed = Math.max(actor.velocitySimulator.position.length() * 4, actor.initJumpSpeed);
-			body.velocity = cannonFromThreeVector(actor.orientation.clone().multiplyScalar(speed));
+		//	body.velocity.y = 0;
+		//	const speed = 0.1
+	//		body.velocity = cannonFromThreeVector(actor.orientation.clone().multiplyScalar(speed));
+	//		console.warn(body.velocity);
 		}
 		else if (actor.rayHasHit) {
 			// Moving objects compensation
@@ -106,7 +115,7 @@ export const physicsPostStep: Behavior = (entity): void => {
 			body.velocity.vsub(add, body.velocity);
 		}
 
-		// Add positive vertical velocity 
+		// Add positive vertical velocity
 		body.velocity.y += 4;
 		// Move above ground by 2x safe offset value
 		body.position.y += actor.raySafeOffset * 2;

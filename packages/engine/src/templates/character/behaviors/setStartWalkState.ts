@@ -22,7 +22,7 @@ export const setAppropriateStartWalkState = (entity: Entity): void => {
     addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD });
   }
   else if (actor.localMovementDirection.z === -1) {
-    addState(entity, { state: CharacterStateTypes.WALK_START_BACK_RIGHT });
+    addState(entity, { state: CharacterStateTypes.WALK_START_BACKWARD });
   }
   else if (actor.localMovementDirection.x === 1) {
     addState(entity, { state: CharacterStateTypes.WALK_START_LEFT });
@@ -30,6 +30,6 @@ export const setAppropriateStartWalkState = (entity: Entity): void => {
   else if (actor.localMovementDirection.x === -1) {
     addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT });
   }
-  
+
 
 };
