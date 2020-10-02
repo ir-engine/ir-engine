@@ -73,7 +73,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
         setHoveredLabel(String(event.detail.interactionText ? event.detail.interactionText :'Activate' ));
       } else {
         setHoveredLabel('');
-      }       
+      }
     };
 
     const onObjectActivation = (event: CustomEvent): void => {
@@ -95,7 +95,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
         setHintBoxData('car');
       } else {
         setHintBoxData('default');
-      }  
+      }
     };
 
     document.addEventListener('object-hover', onObjectHover);
@@ -131,12 +131,12 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // createPrefab(rigidBodyBox);
 
     addObject3DComponent(createEntity(), { obj3d: AmbientLight, ob3dArgs: {
-      intensity: 0.3
+      intensity: 1
     }});
 
     const cameraTransform = getMutableComponent<TransformComponent>(CameraComponent.instance.entity, TransformComponent);
     cameraTransform.position.set(0, 1.2, 3);
-
+/*
     const envMapURL =
       "./hdr/city.jpg";
 
@@ -149,7 +149,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
         Engine.scene.environment = map;
         Engine.scene.background = map;
         }, null);
-
+*/
     const { sound } = Engine as any;
     if (sound) {
       const audioMesh = new Mesh(
@@ -174,7 +174,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     Engine.renderer.toneMapping = CineonToneMapping;
     Engine.renderer.toneMappingExposure = 0.1;
 
-    createPrefab(WorldPrefab);
+  //  createPrefab(WorldPrefab);
     createPrefab(staticWorldColliders);
 //  setTimeout(() => {
     // createPrefab(rigidBodyBox);
@@ -277,17 +277,17 @@ export const EnginePage: FunctionComponent = (props: any) => {
     ) : null;
 
   const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: hintBoxData }
-  
+
   const mobileGamepad = isMobileOrTablet()? <MobileGamepad {...mobileGamepadProps} /> : null;
 
   const infoBox = !isMobileOrTablet() && infoBoxData ? <InfoBox onClose={() => { setInfoBoxData(null) }} data={infoBoxData} /> : null;
   const hintBox = !isMobileOrTablet() && hintBoxData ? <HintBox layout={hintBoxData} /> : null;
 
 
-  const hoveredLabelElement = !!!isMobileOrTablet() && hoveredLabel.length > 0 ? 
+  const hoveredLabelElement = !!!isMobileOrTablet() && hoveredLabel.length > 0 ?
   <div className="hintContainer">Press <span className="keyItem" >E</span> to {hoveredLabel}</div> : null;
 
-  
+
   return (
     <>
     {/* <Dialog {...{props:{isOpened:true, content:beginnerHintMessage}}}>{beginnerHintMessage}</Dialog> */}

@@ -17,7 +17,7 @@ import { addState } from '../../../state/behaviors/StateBehaviors';
 import { isMoving } from '../functions/isMoving';
 import { setIdleState } from '../behaviors/setIdleState';
 
-export const StartWalkBackRightState: StateSchemaValue = {
+export const StartWalkBackwardState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
   componentProperties: [{
     component: CharacterComponent,
@@ -25,7 +25,7 @@ export const StartWalkBackRightState: StateSchemaValue = {
       ['canEnterVehicles']: true,
       ['rotationSimulator.mass']: 20,
       ['rotationSimulator.damping']: 0.7,
-      ['arcadeVelocityTarget']: { x: 0.0, y: 0.0, z: 0.8 },
+      ['moveSpeed']: 4
     }
   }],
   onEntry: [
@@ -70,7 +70,11 @@ export const StartWalkBackRightState: StateSchemaValue = {
             setIdleState(entity)
           }
           if (input.data.has(DefaultInput.SPRINT))
-            return addState(entity, { state: CharacterStateTypes.SPRINT })
+            return addState(entity, { state: CharacterStateTypes.SPRINT_BACKWARD })
+            
+          if (!isMoving(entity)) {
+            setIdleState(entity)
+          }
         }
       }
     },

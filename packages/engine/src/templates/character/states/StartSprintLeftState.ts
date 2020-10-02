@@ -17,7 +17,7 @@ import { addState } from '../../../state/behaviors/StateBehaviors';
 import { isMoving } from '../functions/isMoving';
 import { setIdleState } from '../behaviors/setIdleState';
 
-export const StartWalkBackLeftState: StateSchemaValue = {
+export const StartSprintLeftState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
   componentProperties: [{
     component: CharacterComponent,
@@ -25,7 +25,7 @@ export const StartWalkBackLeftState: StateSchemaValue = {
       ['canEnterVehicles']: true,
       ['rotationSimulator.mass']: 20,
       ['rotationSimulator.damping']: 0.7,
-      ['arcadeVelocityTarget']: { x: 0.0, y: 0.0, z: 0.8 },
+      ['moveSpeed']: 6
     }
   }],
   onEntry: [
@@ -35,7 +35,7 @@ export const StartWalkBackLeftState: StateSchemaValue = {
      {
        behavior: setActorAnimation,
        args: {
-         name: 'sb_start_back_left',
+         name: 'sprint_left',
          transitionDuration: 1
        }
      }
@@ -54,15 +54,39 @@ export const StartWalkBackLeftState: StateSchemaValue = {
           // Default behavior for all states
           findVehicle(entity);
           const input = getComponent(entity, Input)
+
+
+          if (input.data.has(DefaultInput.SPRINT)) {
+
+            if (input.data.has(DefaultInput.FORWARD)) {
+              addState(entity, { state: CharacterStateTypes.SPRINT })
+            } else if (input.data.has(DefaultInput.RIGHT)) {
+              addState(entity, { state: CharacterStateTypes.SPRINT_RIGHT })
+            } else if (input.data.has(DefaultInput.BACKWARD)) {
+              addState(entity, { state: CharacterStateTypes.SPRINT_BACKWARD })
+            }
+
+          } else {
+
+            if (input.data.has(DefaultInput.FORWARD)) {
+              addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD})
+            } else if (input.data.has(DefaultInput.LEFT)) {
+              addState(entity, { state: CharacterStateTypes.WALK_START_LEFT })
+            } else if (input.data.has(DefaultInput.RIGHT)) {
+              addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT})
+            } else if (input.data.has(DefaultInput.BACKWARD)) {
+              addState(entity, { state: CharacterStateTypes.WALK_START_BACKWARD })
+            }
+
+          }
+
           // Check if we're trying to jump
           if (input.data.has(DefaultInput.JUMP))
             return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING })
-          // Check if we stopped moving
-          if (!isMoving(entity)) {
-            setIdleState(entity)
-          }
-          if (input.data.has(DefaultInput.SPRINT))
-            return addState(entity, { state: CharacterStateTypes.SPRINT })
+
+          // If we're not moving, don't worry about the rest of this action
+          if (!isMoving(entity))
+            return addState(entity, { state: CharacterStateTypes.WALK_END })
         }
       }
     },

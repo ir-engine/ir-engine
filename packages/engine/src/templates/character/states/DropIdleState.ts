@@ -17,6 +17,7 @@ import { Input } from '../../../input/components/Input';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { getLocalMovementDirection } from '../functions/getLocalMovementDirection';
 import { setJumpingState } from '../behaviors/setJumpingState';
+import { setAppropriateStartWalkState } from '../behaviors/setStartWalkState';
 
 export const DropIdleState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
@@ -60,9 +61,8 @@ export const DropIdleState: StateSchemaValue = {
         if (input.data.has(DefaultInput.JUMP))
           return addState(entity, { state: CharacterStateTypes.JUMP_IDLE })
         // Check if we're trying to move
-        setMovingState(entity, {
-          transitionToState: CharacterStateTypes.WALK_START_FORWARD
-        });
+        //setMovingState(entity, { transitionToState: CharacterStateTypes.WALK_START_FORWARD });
+        setAppropriateStartWalkState(entity);
       }
     }
   },
