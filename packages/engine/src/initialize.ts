@@ -27,6 +27,7 @@ import _ from 'lodash'
 import { Mesh, BufferGeometry } from "three";
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
+import { HighlightSystem } from './effects/systems/EffectSystem';
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 
@@ -175,6 +176,9 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
   if (options.particles && options.particles.enabled) {
     registerSystem(ParticleSystem)
   }
+
+  //Object HighlightSystem
+    registerSystem(HighlightSystem);
 
   // Rendering
   if (options.renderer && options.renderer.enabled) {
