@@ -21,6 +21,7 @@ import { DepthDownsamplingPass } from '../../postprocessing/passes/DepthDownsamp
 import { NormalPass } from '../../postprocessing/passes/NormalPass';
 import { BlendFunction } from '../../postprocessing/effects/blending/BlendFunction';
 import { TextureEffect } from '../../postprocessing/effects/TextureEffect';
+import { OutlineEffect } from '../../postprocessing/effects/OutlineEffect';
   /**
    * Handles rendering and post processing to WebGL canvas
    */
@@ -99,6 +100,11 @@ export class WebGLRendererSystem extends System {
       }
       else if ( pass.effect === DepthOfFieldEffect)
         passes.push(new pass.effect(Engine.camera, pass.options))
+      else if ( pass.effect === OutlineEffect){
+      const effect = new pass.effect(Engine.scene, Engine.camera, pass.options)
+        passes.push(effect)
+        composer.outlineEffect = effect
+      }
       else passes.push(new pass.effect(pass.options))
     })
     const textureEffect = new TextureEffect({

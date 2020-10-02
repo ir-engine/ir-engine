@@ -19,6 +19,7 @@ import { MaskPass } from '../passes/MaskPass';
 import { ShaderPass } from '../passes/ShaderPass';
 
 import { CopyMaterial } from '../materials/CopyMaterial';
+import { OutlineEffect } from '../effects/OutlineEffect';
 
 /**
  * The EffectComposer may be used in place of a normal WebGLRenderer.
@@ -45,6 +46,7 @@ export class EffectComposer {
   inputBuffer: any;
   outputBuffer: any;
   copyPass: ShaderPass;
+  outlineEffect: OutlineEffect;
   depthTexture: any;
   passes: any[];
   autoRenderToScreen: boolean;
