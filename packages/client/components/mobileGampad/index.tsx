@@ -5,11 +5,11 @@ import { GamepadButtons } from "@xr3ngine/engine/src/input/enums/GamepadButtons"
 import './style.scss';
 
 export type MobileGamepadProps = {
-  hovered ?:boolean | false;
-  layout ?: string ;
+  hovered?: boolean | false;
+  layout?: string ;
 };
 
-export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,layout}:MobileGamepadProps) => {
+export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,layout}: MobileGamepadProps) => {
   const leftContainer = useRef<HTMLDivElement>();
 
   const triggerButton = (button: GamepadButtons, pressed: boolean): void => {
