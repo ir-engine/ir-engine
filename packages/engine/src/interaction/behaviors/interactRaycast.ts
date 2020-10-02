@@ -72,7 +72,7 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
   rayMouse = mouseScreen.normalize();  
   raycaster.setFromCamera(rayMouse,rayCamera);
   let intersections = raycaster.intersectObjects(raycastList, true );
-
+  
   if (!intersections.length){
   // TODO: rayOrigin, rayDirection
   rayOrigin = clientPosition
