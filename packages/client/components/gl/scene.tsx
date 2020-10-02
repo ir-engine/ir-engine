@@ -175,13 +175,14 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
 
     Engine.renderer.toneMapping = CineonToneMapping;
-    Engine.renderer.toneMappingExposure = 0.1;
+    Engine.renderer.toneMappingExposure = 1;
 
     createPrefab(WorldPrefab);
     createPrefab(staticWorldColliders);
 //  setTimeout(() => {
     // createPrefab(rigidBodyBox);
     // createPrefab(rigidBodyBox2);
+    createPrefab(RazerLaptop);
     createPrefab(PlayerCharacter);
      createPrefab(CarController);
     //createPrefab(interactiveBox);
