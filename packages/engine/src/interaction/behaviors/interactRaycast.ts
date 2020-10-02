@@ -64,6 +64,7 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
     // console.warn('!character.viewVector')
     return
   }
+  
   const raycaster = new Raycaster();
   let object, rayOrigin, rayDirection,rayCamera,rayMouse;
   // - added mouse raycaster
