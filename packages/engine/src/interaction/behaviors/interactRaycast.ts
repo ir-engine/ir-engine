@@ -64,7 +64,6 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
     // console.warn('!character.viewVector')
     return
   }
-  
   const raycaster = new Raycaster();
   let object, rayOrigin, rayDirection,rayCamera,rayMouse;
   // - added mouse raycaster
@@ -72,7 +71,7 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
   rayMouse = mouseScreen.normalize();  
   raycaster.setFromCamera(rayMouse,rayCamera);
   let intersections = raycaster.intersectObjects(raycastList, true );
-  
+
   if (!intersections.length){
   // TODO: rayOrigin, rayDirection
   rayOrigin = clientPosition

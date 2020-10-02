@@ -93,8 +93,6 @@ export class WebGLRendererSystem extends System {
       resolutionScale: 0.5
     });
     const normalDepthBuffer =	depthDownsamplingPass.texture;
-    
-
 
     RendererComponent.instance.postProcessingSchema.effects.forEach((pass: any) => {
       if ( pass.effect === SSAOEffect){
