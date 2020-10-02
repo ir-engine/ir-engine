@@ -282,11 +282,11 @@ export const EnginePage: FunctionComponent = (props: any) => {
       />
     ) : null;
 
-  const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: hintBoxData }
+  const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: hintBoxData };
 
   const mobileGamepad = isMobileOrTablet()? <MobileGamepad {...mobileGamepadProps} /> : null;
 
-  const infoBox = !isMobileOrTablet() && infoBoxData ? <InfoBox onClose={() => { setInfoBoxData(null) }} data={infoBoxData} /> : null;
+  const infoBox = !isMobileOrTablet() && infoBoxData ? <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} /> : null;
   const hintBox = !isMobileOrTablet() && showControllHint && hintBoxData ? <HintBox layout={hintBoxData} /> : null;
 
 
