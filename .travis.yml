@@ -16,6 +16,7 @@ before_script:
   - mysql -e 'CREATE DATABASE xr3ngine;'
 
 script:
+  - yarn install
   - yarn lint
   - yarn build-docker
 
