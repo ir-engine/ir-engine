@@ -56,7 +56,7 @@ export const TerminalPropTypes = {
 
 export const TerminalContextTypes = {
   tabsShowing: PropTypes.bool,
-  activeTab: PropTypes.string,
+  activeTabId: PropTypes.string,
   instances: PropTypes.array,
   show: PropTypes.bool,
   minimise: PropTypes.bool,

@@ -54,19 +54,19 @@ export const SprintState: StateSchemaValue = {
       action: (entity) => {
         // Default behavior for all states
         findVehicle(entity);
-        const input = getComponent(entity, Input)
+        const input = getComponent(entity, Input);
 
         // Check if we're trying to sprint
         if (input.data.has(DefaultInput.SPRINT))
-          return addState(entity, { state: CharacterStateTypes.SPRINT })
+          return addState(entity, { state: CharacterStateTypes.SPRINT });
 
         // Check if we're trying to jump
         if (input.data.has(DefaultInput.JUMP))
-          return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING })
+          return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING });
           
         // If we're not moving, don't worry about the rest of this action
         if (!isMoving(entity))
-          return addState(entity, { state: CharacterStateTypes.WALK_END })
+          return addState(entity, { state: CharacterStateTypes.WALK_END });
       }
     }
   },

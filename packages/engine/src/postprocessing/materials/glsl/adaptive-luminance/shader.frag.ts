@@ -20,4 +20,4 @@ void main() {
 	gl_FragColor.r = adaptedLum;
 
 }
-`
+`;

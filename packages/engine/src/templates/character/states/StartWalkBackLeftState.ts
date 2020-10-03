@@ -32,13 +32,13 @@ export const StartWalkBackLeftState: StateSchemaValue = {
     {
       behavior: initializeCharacterState
     },
-    // {
-    //   behavior: setActorAnimation,
-    //   args: {
-    //     name: 'sb_start_back_left',
-    //     transitionDuration: 0.1
-    //   }
-    // }
+     {
+       behavior: setActorAnimation,
+       args: {
+         name: 'sb_start_back_left',
+         transitionDuration: 1
+       }
+     }
   ],
   onUpdate: [
     {
@@ -53,28 +53,30 @@ export const StartWalkBackLeftState: StateSchemaValue = {
         action: (entity) => {
           // Default behavior for all states
           findVehicle(entity);
-          const input = getComponent(entity, Input)
+          const input = getComponent(entity, Input);
           // Check if we're trying to jump
           if (input.data.has(DefaultInput.JUMP))
-            return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING })
+            return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING });
           // Check if we stopped moving
           if (!isMoving(entity)) {
-            setIdleState(entity)
+            setIdleState(entity);
           }
           if (input.data.has(DefaultInput.SPRINT))
-            return addState(entity, { state: CharacterStateTypes.SPRINT })
+            return addState(entity, { state: CharacterStateTypes.SPRINT });
         }
       }
     },
     {
       behavior: setFallingState
-    },
-    {
+    }
+    /*
+    ,{
       behavior: addState,
       args: {
-        state: CharacterStateTypes.WALK
+        state: CharacterStateTypes.WALK_START_BACK_LEFT
       }
     }
+    */
     // {
     //   behavior: onAnimationEnded,
     //   args: {
@@ -83,4 +85,3 @@ export const StartWalkBackLeftState: StateSchemaValue = {
     // }
   ]
 };
-

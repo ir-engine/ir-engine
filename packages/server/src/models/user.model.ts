@@ -1,9 +1,9 @@
-import { Sequelize, DataTypes } from 'sequelize'
-import { Application } from '../declarations'
-import GenerateRandomAnimalName from 'random-animal-name-generator'
+import { Sequelize, DataTypes } from 'sequelize';
+import { Application } from '../declarations';
+import GenerateRandomAnimalName from 'random-animal-name-generator';
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const User = sequelizeClient.define(
     'user',
     {
@@ -21,14 +21,14 @@ export default (app: Application): any => {
     },
     {
       hooks: {
-        beforeCount (options: any) {
-          options.raw = true
+        beforeCount (options: any): void {
+          options.raw = true;
         }
       }
     }
   );
 
-  (User as any).associate = (models: any) => {
+  (User as any).associate = (models: any): void => {
     (User as any).belongsTo(models.user_role, { foreignKey: 'userRole' });
     (User as any).belongsTo(models.instance, { foreignKey: {allowNull: true }}); // user can only be in one room at a time
     (User as any).hasOne(models.user_settings);
@@ -47,8 +47,8 @@ export default (app: Application): any => {
     (User as any).hasMany(models.subscription);
     (User as any).hasMany(models.channel, { foreignKey: 'userId1' });
     (User as any).hasMany(models.channel, { foreignKey: 'userId2' });
-    (User as any).hasOne(models.seat, { foreignKey: 'userId' })
-  }
+    (User as any).hasOne(models.seat, { foreignKey: 'userId' });
+  };
 
-  return User
-}
+  return User;
+};

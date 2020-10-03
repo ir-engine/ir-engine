@@ -1,8 +1,8 @@
-import { Sequelize, DataTypes } from 'sequelize'
-import { Application } from '../declarations'
+import { Sequelize, DataTypes } from 'sequelize';
+import { Application } from '../declarations';
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const entityType = sequelizeClient.define('entity_type', {
     type: {
       type: DataTypes.STRING,
@@ -12,18 +12,18 @@ export default (app: Application): any => {
     }
   }, {
     hooks: {
-      beforeCount (options: any) {
-        options.raw = true
+      beforeCount (options: any): void {
+        options.raw = true;
       },
-      beforeUpdate (instance: any, options: any) {
-        throw new Error("Can't update a type!")
+      beforeUpdate (instance: any, options: any): void {
+        throw new Error("Can't update a type!");
       }
     },
     timestamps: false
   });
 
-  (entityType as any).assocate = (models: any) => {
-    (entityType as any).hasMany(models.entity, { foreignKey: 'entityType' })
-  }
-  return entityType
-}
+  (entityType as any).assocate = (models: any): void => {
+    (entityType as any).hasMany(models.entity, { foreignKey: 'entityType' });
+  };
+  return entityType;
+};

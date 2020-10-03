@@ -1,0 +1,21 @@
+.controlsHintBox{
+    position: fixed;
+    bottom: 1em;
+    left: 10em;
+    color: #FFFFFF;
+}
+.keyButton{
+    background-color: rgba(0,0,0,0.6);
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(102,185,51,0.5);
+    box-sizing: border-box;
+    display: inline-block;
+    height: 2em;
+    line-height: 2em;
+    margin: 3px 10px 3px 0;
+    min-width: 2em;
+    padding: 0px 5px;
+    text-align: center;
+    text-transform: capitalize;
+    opacity: 1
+}

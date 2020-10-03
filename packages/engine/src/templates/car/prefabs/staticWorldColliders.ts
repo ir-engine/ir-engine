@@ -5,7 +5,7 @@ import { addMeshCollider } from "@xr3ngine/engine/src/physics/behaviors/addMeshC
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { ColliderComponent } from "@xr3ngine/engine/src/physics/components/ColliderComponent";
 
-const scale = [100, 0.1, 100]
+const scale = [100, 0.1, 100];
 const floor = new BoxBufferGeometry(scale[0], scale[1], scale[2]);
 const mat = new MeshPhongMaterial({ color: "#ffffff" });
 const floorMesh = new Mesh( floor, mat );

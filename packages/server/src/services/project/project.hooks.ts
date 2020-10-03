@@ -1,38 +1,38 @@
-import collectAnalytics from '../../hooks/collect-analytics'
-import * as authentication from '@feathersjs/authentication'
-import { disallow } from 'feathers-hooks-common'
-import { BadRequest } from '@feathersjs/errors'
+import collectAnalytics from '../../hooks/collect-analytics';
+import * as authentication from '@feathersjs/authentication';
+import { disallow } from 'feathers-hooks-common';
+import { BadRequest } from '@feathersjs/errors';
 
-import { collectionType } from '../../enums/collection'
-import { HookContext } from '@feathersjs/feathers'
+import { collectionType } from '../../enums/collection';
+import { HookContext } from '@feathersjs/feathers';
 
-import attachOwnerIdInBody from '../../hooks/set-loggedin-user-in-body'
-import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
-import generateSceneCollection from './generate-collection.hook'
-import mapProjectIdToQuery from '../../hooks/set-project-id-in-query'
-import removeRelatedResources from '../../hooks/remove-related-resources'
-import setResourceIdFromProject from '../../hooks/set-resource-id-from-project'
-import setResponseStatusCode from '../../hooks/set-response-status-code'
+import attachOwnerIdInBody from '../../hooks/set-loggedin-user-in-body';
+import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query';
+import generateSceneCollection from './generate-collection.hook';
+import mapProjectIdToQuery from '../../hooks/set-project-id-in-query';
+import removeRelatedResources from '../../hooks/remove-related-resources';
+import setResourceIdFromProject from '../../hooks/set-resource-id-from-project';
+import setResponseStatusCode from '../../hooks/set-response-status-code';
 
-const { authenticate } = authentication.hooks
+const { authenticate } = authentication.hooks;
 
 const mapProjectSaveData = () => {
-  return (context: HookContext) => {
-    context.data.ownedFileId = context.data.project.project_file_id
-    context.data.name = context.data.project.name
-    context.data.thumbnailOwnedFileId = context.data.project.thumbnail_file_id
-    return context
-  }
-}
+  return (context: HookContext): HookContext => {
+    context.data.ownedFileId = context.data.project.project_file_id;
+    context.data.name = context.data.project.name;
+    context.data.thumbnailOwnedFileId = context.data.project.thumbnail_file_id;
+    return context;
+  };
+};
 
 const validateCollectionData = () => {
-  return async (context: HookContext) => {
+  return async (context: HookContext): Promise<HookContext> => {
     if (!context?.data?.ownedFileId || !context?.data?.name || !context?.data?.thumbnailOwnedFileId) {
-      return await Promise.reject(new BadRequest('Project Data is required!'))
+      return await Promise.reject(new BadRequest('Project Data is required!'));
     }
-    return context
-  }
-}
+    return context;
+  };
+};
 
 export default {
   before: {
@@ -67,4 +67,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+};

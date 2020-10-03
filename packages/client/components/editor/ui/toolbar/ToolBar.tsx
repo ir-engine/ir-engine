@@ -229,17 +229,6 @@ export default class ToolBar extends Component {
     editor.addListener("settingsChanged", this.onForceUpdate);
   }
 
-  onEditorInitialized = () => {
-    const editor = (this.props as any).editor;
-    editor.editorControls.addListener("transformModeChanged", this.onForceUpdate);
-    editor.editorControls.addListener("transformSpaceChanged", this.onForceUpdate);
-    editor.editorControls.addListener("transformPivotChanged", this.onForceUpdate);
-    editor.editorControls.addListener("snapSettingsChanged", this.onForceUpdate);
-    editor.addListener("gridHeightChanged", this.onForceUpdate);
-    editor.addListener("gridVisibilityChanged", this.onForceUpdate);
-    this.setState({ editorInitialized: true });
-  };
-
   componentWillUnmount() {
     const editor = (this.props as any).editor;
     editor.removeListener("initialized", this.onEditorInitialized);
@@ -255,6 +244,17 @@ export default class ToolBar extends Component {
       editor.removeListener("settingsChanged", this.onForceUpdate);
     }
   }
+
+  onEditorInitialized = () => {
+    const editor = (this.props as any).editor;
+    editor.editorControls.addListener("transformModeChanged", this.onForceUpdate);
+    editor.editorControls.addListener("transformSpaceChanged", this.onForceUpdate);
+    editor.editorControls.addListener("transformPivotChanged", this.onForceUpdate);
+    editor.editorControls.addListener("snapSettingsChanged", this.onForceUpdate);
+    editor.addListener("gridHeightChanged", this.onForceUpdate);
+    editor.addListener("gridVisibilityChanged", this.onForceUpdate);
+    this.setState({ editorInitialized: true });
+  };
 
   onForceUpdate = () => {
     this.forceUpdate();
@@ -376,27 +376,27 @@ export default class ToolBar extends Component {
     return (
       <StyledToolbar>
         <ToolButtons>
-          <ToolButton icon={Bars} onClick={this.onMenuSelected} selected={menuOpen} id="menu" />
+          <ToolButton icon={Bars} onClick={this.onMenuSelected} isSelected={menuOpen} id="menu" />
           <ToolButton
             id="translate-button"
             tooltip="[T] Translate"
             icon={ArrowsAlt}
             onClick={this.onSelectTranslate}
-            selected={transformMode === TransformMode.Translate}
+            isSelected={transformMode === TransformMode.Translate}
           />
           <ToolButton
             id="rotate-button"
             tooltip="[R] Rotate"
             icon={SyncAlt}
             onClick={this.onSelectRotate}
-            selected={transformMode === TransformMode.Rotate}
+            isSelected={transformMode === TransformMode.Rotate}
           />
           <ToolButton
             id="scale-button"
             tooltip="[Y] Scale"
             icon={ArrowsAltV}
             onClick={this.onSelectScale}
-            selected={transformMode === TransformMode.Scale}
+            isSelected={transformMode === TransformMode.Scale}
           />
         </ToolButtons>
         <ToolToggles>

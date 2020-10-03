@@ -23,7 +23,7 @@ export class NetworkSystem extends System {
   fixedExecute: (delta: number) => void = null
 
   constructor(attributes) {
-    super()
+    super();
 
     // Create a Network entity (singleton)
     const networkEntity = createEntity();
@@ -32,20 +32,20 @@ export class NetworkSystem extends System {
     // Late initialization of network
     // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
 
-    const { schema, agonesSDK } = attributes
+    const { schema, app } = attributes;
     Network.instance.schema = schema;
-    Network.instance.transport = new (schema.transport)();
+    Network.instance.transport = new schema.transport(app);
 
     // Initialize the server automatically
     if (process.env.SERVER_MODE !== undefined && (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')) {
-        Network.instance.transport.initialize()
-        Network.instance.isInitialized = true
+        Network.instance.transport.initialize();
+        Network.instance.isInitialized = true;
     }
 
-    prepareServerWorldState()
+    prepareServerWorldState();
 
     // TODO: Move network timestep (30) to config
-    this.fixedExecute = createFixedTimestep(30, this.onFixedExecute.bind(this))
+    this.fixedExecute = createFixedTimestep(30, this.onFixedExecute.bind(this));
   }
 
   execute(delta): void {
@@ -54,9 +54,9 @@ export class NetworkSystem extends System {
     if (Network.instance.transport.isServer)
       this.queryResults.networkTransforms.changed?.forEach((entity: Entity) =>
         addNetworkTransformToWorldState(entity)
-      )
+      );
 
-    this.fixedExecute(delta)
+    this.fixedExecute(delta);
   }
 
   onFixedExecute(delta) {
@@ -67,38 +67,38 @@ export class NetworkSystem extends System {
       // Client sends input and *only* input to the server (for now)
       this.queryResults.networkInputSender.all?.forEach((entity: Entity) =>
         sendClientInputToServer(entity)
-      )
+      );
       
       // Client handles incoming input from other clients and interpolates transforms
       this.queryResults.network.all?.forEach((entity: Entity) => {
-        handleUpdateFromServer(entity)
-      })
+        handleUpdateFromServer(entity);
+      });
     }
 
     // Server-only
     if (Network.instance.transport.isServer) {
-      Network.tick++
+      Network.tick++;
 
       // handle client input, apply to local objects and add to world state snapshot
-      handleUpdatesFromClients()
+      handleUpdatesFromClients();
 
       // Note: Transforms that are updated get added to world state frame in execute since they use added hook
       // When that is fixed, we should move from execute to here
 
       // For each networked object + input receiver, add to the frame to send
       this.queryResults.networkInput.all?.forEach((entity: Entity) => {
-        addInputToWorldState(entity)
-      })
+        addInputToWorldState(entity);
+      });
 
       // Create the snapshot and add it to the world state on the server
-      addSnapshot(createSnapshot(Network.instance.worldState.transforms))
+      addSnapshot(createSnapshot(Network.instance.worldState.transforms));
 
-      const ws = Network.instance.worldState // worldStateModel.toBuffer(Network.instance.worldState)
+      const ws = Network.instance.worldState; // worldStateModel.toBuffer(Network.instance.worldState)
       // Send the message to all connected clients
       Network.instance.transport.sendReliableData(ws); // Use default channel
 
         // Create a new empty world state frame to be sent to clients
-        prepareServerWorldState()
+        prepareServerWorldState();
     }
   }
 

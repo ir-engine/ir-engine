@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unused-state */
 import React, { Component } from "react";
 // import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import configs from "../configs";
@@ -5,14 +6,14 @@ import GlobalStyle from "./GlobalStyle";
 import Loading from "./Loading";
 import Error from "./Error";
 // import { ApiContextProvider } from "./contexts/ApiContext";
-import dynamic from "next/dynamic"
+import dynamic from "next/dynamic";
 // import RedirectRoute from "./router/RedirectRoute";
 import ProjectsPage from "./projects/ProjectsPage";
 import CreateProjectPage from "./projects/CreateProjectPage";
 import { ThemeProvider } from "styled-components";
 import { Column } from "./layout/Flex";
 import theme from "./theme";
-import Api from "../api/Api"
+import Api from "../api/Api";
 const EditorContainer = dynamic(() =>
   import(/* webpackChunkName: "project-page", webpackPrefetch: true */ "./EditorContainer")
 );
@@ -29,22 +30,22 @@ export default class App extends Component<AppProps, AppState> {
       isAuthenticated: props.api.isAuthenticated()
     };
   }
-  componentDidMount() {
+  componentDidMount(): void {
     this.props.api.addListener(
       "authentication-changed",
       this.onAuthenticationChanged
     );
   }
-  onAuthenticationChanged = isAuthenticated => {
-    this.setState({ isAuthenticated });
-  };
-  componentWillUnmount() {
+  componentWillUnmount(): void {
     this.props.api.removeListener(
       "authentication-changed",
       this.onAuthenticationChanged
     );
   }
-  render() {
+  onAuthenticationChanged = (isAuthenticated): void => {
+    this.setState({ isAuthenticated });
+  };
+  render(): any {
     const api = this.props.api;
     return (
       // <ApiContextProvider value={api}>

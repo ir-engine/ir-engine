@@ -1,10 +1,10 @@
-import { DataConsumer } from 'mediasoup-client/lib/types'
-import { Network } from '../components/Network'
+import { DataConsumer } from 'mediasoup-client/lib/types';
+import { Network } from '../components/Network';
 
 export default (
   dataConsumer: DataConsumer
 ) => (message: any) => {
-  console.log("UNRELIABLE MESSAGE: " + message)
+  console.log("UNRELIABLE MESSAGE: " + message);
   // switch on channel, probably use sort of an enums just like MessageTypes for the cases
   switch (dataConsumer.label) {
     // example
@@ -17,6 +17,6 @@ export default (
     //   console.warn('Default Channel got unreliable message on it!', message)
     //   break
     default:
-      Network.instance.incomingMessageQueue.add(message)
+      Network.instance.incomingMessageQueue.add(message);
   }
-}
+};

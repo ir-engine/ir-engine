@@ -9,7 +9,7 @@ export class TransformComponent extends Component<TransformComponent> {
 
   constructor () {
     super();
-    this.reset()
+    this.reset();
   }
 
   copy (src: this): this {
@@ -30,4 +30,4 @@ export class TransformComponent extends Component<TransformComponent> {
 TransformComponent.schema = {
   position: { default: new Vector3(), type: Types.Ref },
   rotation: { default: new Quaternion(), type: Types.Ref }
-}
+};

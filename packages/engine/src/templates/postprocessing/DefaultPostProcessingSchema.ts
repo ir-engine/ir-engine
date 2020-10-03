@@ -7,11 +7,30 @@ import { ToneMappingEffect } from '../../postprocessing/effects/ToneMappingEffec
 import { HueSaturationEffect } from '../../postprocessing/effects/HueSaturationEffect';
 import { DepthOfFieldEffect } from '../../postprocessing/effects/DepthOfFieldEffect';
 import { BrightnessContrastEffect } from '../../postprocessing/effects/BrightnessContrastEffect';
+import { Resizer } from '../../postprocessing/core/Resizer';
+import { OutlineEffect } from '../../postprocessing/effects/OutlineEffect';
 
 export const DefaultPostProcessingSchema: PostProcessingSchema = {
   effects: [
-
     {
+      effect: OutlineEffect,
+      options: {
+        blendFunction: BlendFunction.SCREEN,
+        patternTexture: null,
+        edgeStrength: 1.0,
+        pulseSpeed: 0.0,
+        visibleEdgeColor: 0xffffff,
+        hiddenEdgeColor: 0x22090a,
+        resolutionScale: 0.5,
+        width: Resizer.AUTO_SIZE,
+        height: Resizer.AUTO_SIZE,
+        kernelSize: KernelSize.VERY_SMALL,
+        blur: false,
+        xRay: true
+      }
+    },
+/*
+   {
       effect: SSAOEffect,
       options: {
         blendFunction: BlendFunction.MULTIPLY,
@@ -37,7 +56,9 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
         bokehScale: 1
       }
     },
+    */
     // Bloom
+    /*
     {
       effect: BloomEffect,
       options: {
@@ -48,6 +69,7 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
         intensity: 1
       }
     },
+    */
     // Tonemapping
     {
       effect: ToneMappingEffect,
@@ -63,6 +85,7 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
     },
     // DOF
         // // Color Grading
+        /*
         {
           effect: BrightnessContrastEffect,
           options: {
@@ -78,6 +101,7 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
             saturation: -.15
           }
         },
+        */
     // // GodRays
     // {
     //   effect: GodRaysEffect,

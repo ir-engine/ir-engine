@@ -23,66 +23,66 @@ export function initialize (options?: EngineOptions) {
 }
 
 export function reset(): void {
-  console.log('reset start')
+  console.log('reset start');
 
   // clear all entities components
   Engine.entities.forEach(entity => {
-    removeAllComponents(entity, false)
-  })
-  execute(0.001) // for systems to handle components deletion
+    removeAllComponents(entity, false);
+  });
+  execute(0.001); // for systems to handle components deletion
 
   // delete all entities
-  removeAllEntities()
+  removeAllEntities();
 
   // for systems to handle components deletion
-  execute(0.001)
+  execute(0.001);
 
   if (Engine.entities.length) {
-    console.log('Engine.entities.length', Engine.entities.length)
-    throw new Error('Engine.entities cleanup not complete')
+    console.log('Engine.entities.length', Engine.entities.length);
+    throw new Error('Engine.entities cleanup not complete');
   }
 
-  Engine.tick = 0
+  Engine.tick = 0;
 
-  Engine.entities.length = 0
-  Engine.entitiesToRemove.length = 0
-  Engine.entitiesWithComponentsToRemove.length = 0
-  Engine.nextEntityId = 0
+  Engine.entities.length = 0;
+  Engine.entitiesToRemove.length = 0;
+  Engine.entitiesWithComponentsToRemove.length = 0;
+  Engine.nextEntityId = 0;
 
   // cleanup/unregister components
-  Engine.components.length = 0
+  Engine.components.length = 0;
   // Engine.componentsMap = {}
   // Engine.numComponents = {}
   // Engine.componentPool = {}
-  Engine.nextComponentId = 0
+  Engine.nextComponentId = 0;
 
   // cleanup systems
   Engine.systems.forEach(system => {
-    system.dispose()
-  })
-  Engine.systems.length = 0
-  Engine.systemsToExecute.length = 0
+    system.dispose();
+  });
+  Engine.systems.length = 0;
+  Engine.systemsToExecute.length = 0;
 
   // cleanup queries
-  Engine.queries.length = 0
+  Engine.queries.length = 0;
 
   // cleanup events
-  Engine.eventDispatcher.reset()
+  Engine.eventDispatcher.reset();
 
   // delete all what is left on scene
   if (Engine.scene) {
     // TODO: check if we need to add materials, textures, geometries detections and dispose() call?
-    Engine.scene = null
+    Engine.scene = null;
   }
 
-  Engine.camera = null
+  Engine.camera = null;
 
   if (Engine.renderer) {
-    Engine.renderer.dispose()
-    Engine.renderer = null
+    Engine.renderer.dispose();
+    Engine.renderer = null;
   }
 
-  console.log('reset finished')
+  console.log('reset finished');
 }
 
 /**
@@ -92,7 +92,7 @@ export function reset(): void {
  * (You probably don't want to use this) 
  */
 export function execute (delta?: number, time?: number): void {
-  Engine.tick++
+  Engine.tick++;
   if (!delta) {
     time = now() / 1000;
     delta = time - Engine.lastTime;
@@ -196,11 +196,11 @@ export function stats (): { entities: any, system: any } {
 
 export function resetEngine() {
   if (Engine.engineTimerTimeout) {
-    clearTimeout(Engine.engineTimerTimeout)
+    clearTimeout(Engine.engineTimerTimeout);
   }
-  Engine.engineTimer?.stop()
+  Engine.engineTimer?.stop();
 
-  reset()
+  reset();
 }
 
 export function startTimer () {

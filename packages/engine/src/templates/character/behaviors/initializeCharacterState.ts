@@ -7,8 +7,8 @@ import { setArcadeVelocityInfluence } from "./setArcadeVelocityInfluence";
 
 export const initializeCharacterState: Behavior = (entity: Entity) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-	if(!actor.initialized) return console.log("Returning on init but might want to handle")
-	console.log("Entering state: ", getComponent(entity, State).data.keys())
+	if(!actor.initialized) return console.log("Returning on init but might want to handle");
+	console.log("Entering state: ", getComponent(entity, State).data.keys());
 
 	// Pack message
 	

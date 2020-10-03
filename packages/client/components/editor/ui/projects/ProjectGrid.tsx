@@ -5,10 +5,10 @@ import ProjectGridItem from "./ProjectGridItem";
 import { Row } from "../layout/Flex";
 import StringInput from "../inputs/StringInput";
 // import Link from "next/link"
-import { useRouter } from "next/router"
+import { useRouter } from "next/router";
 import { Plus } from "@styled-icons/fa-solid/Plus";
 
-const ProjectGridItemContainer = styled.div`
+const ProjectGridItemContainer = (styled as any).div`
   display: flex;
   flex-direction: column;
   color: ${props => props.theme.text};
@@ -33,12 +33,12 @@ const ProjectGridItemContainer = styled.div`
   }
 `;
 
-export function NewProjectGridItem({ path, label }: { path: string, label: string }) {
-  const router = useRouter()
+export function NewProjectGridItem({ path, label }: { path: string; label: string }) {
+  const router = useRouter();
   
   const routeTo = (route: string) => () => {
-    router.push(route)
-  }
+    router.push(route);
+  };
   return (
     <ProjectGridItemContainer as="button" onClick={routeTo(path)}>
       <Plus />
@@ -64,7 +64,7 @@ export function LoadingProjectGridItem() {
   );
 }
 
-const StyledProjectGrid = styled.div`
+const StyledProjectGrid = (styled as any).div`
   display: grid;
   grid-gap: 20px;
   width: 100%;

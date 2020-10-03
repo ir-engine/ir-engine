@@ -25,6 +25,7 @@
   "contributors": [],
   "bugs": {},
   "directories": {
+    "lib": "src/",
     "config": "config/"
   },
   "engines": {
@@ -38,7 +39,7 @@
     "build": "cross-env NODE_ENV=production webpack --mode=production",
     "copyfiles-server": "copyfiles -u 2 src/email-templates/**/* lib/email-templates",
     "test": "echo \"TODO: no test specified\" && exit 0",
-    "lint": "eslint --ext .js,.ts ./ --fix",
+    "lint": "node node_modules/.bin/eslint --ext .js,.ts ./ --fix",
     "validate": "yarn run lint && yarn run build && yarn run test",
     "precommit": "no-master-commits -b master,dev"
   },
@@ -211,7 +212,7 @@
     "@types/serve-favicon": "^2.5.0",
     "@types/universal-analytics": "^0.4.4",
     "@types/uuid": "^7.0.3",
-    "@types/validator": "^13.0.0",
+    "@types/validator": "^10.0.0",
     "@types/youtube-dl": "^1.12.2",
     "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.34.0",

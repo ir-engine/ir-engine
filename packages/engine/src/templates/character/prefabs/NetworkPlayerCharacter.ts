@@ -49,7 +49,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
         // so this will be new Mesh(new BoxBufferGeometry(0.2, 0.2, 0.2))
         component: AssetLoader,
         componentArgs: {
-          url: "models/ToonFemale.glb",
+          url: "models/avatars/ToonFemale.glb",
           receiveShadow: true,
           castShadow: true
         }

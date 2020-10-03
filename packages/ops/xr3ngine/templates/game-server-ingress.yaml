@@ -22,12 +22,10 @@ metadata:
       }
 spec:
   rules:
-  {{- range .Values.gameserver.ingress.hosts }}
-    - host: {{ .host | quote }}
+    - host: {{ .Values.gameserver.ingress.host }}
       http:
         paths:
           - path: /
             backend:
               serviceName: {{ $fullName }}
-              servicePort: 3000
-  {{- end }}
+              servicePort: 3030

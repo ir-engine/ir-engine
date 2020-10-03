@@ -42,13 +42,13 @@ export default class BooleanInput extends Component {
     value: false,
     onChange: () => {}
   };
-  checkboxId: string;
 
   constructor(props) {
     super(props);
     this.checkboxId = `boolean-input-${uniqueId++}`;
   }
 
+  checkboxId: string;
   onChange = e => {
     (this.props as any).onChange(e.target.checked);
   };

@@ -12,23 +12,23 @@ import { Interacts } from "../components/Interacts";
  */
 export const interact:Behavior = (entity: Entity, args:any, delta): void => {
   if (!hasComponent(entity, Interacts)) {
-    console.error('Attempted to call interact behavior, but actor does not have Interacts component')
-    return
+    console.error('Attempted to call interact behavior, but actor does not have Interacts component');
+    return;
   }
-  const { focusedInteractive:focusedEntity } = getComponent(entity, Interacts)
+  const { focusedInteractive:focusedEntity } = getComponent(entity, Interacts);
 
   if (!focusedEntity) {
     // no available interactive object is focused right now
-    return
+    return;
   }
 
   if (!hasComponent(focusedEntity, Interactive)) {
-    console.error('Attempted to call interact behavior, but target does not have Interactive component')
-    return
+    console.error('Attempted to call interact behavior, but target does not have Interactive component');
+    return;
   }
 
-  const interactive = getComponent(focusedEntity, Interactive)
+  const interactive = getComponent(focusedEntity, Interactive);
   if (interactive && typeof interactive.onInteraction === 'function') {
-    interactive.onInteraction(entity, args, delta, focusedEntity)
+    interactive.onInteraction(entity, args, delta, focusedEntity);
   }
-}
+};

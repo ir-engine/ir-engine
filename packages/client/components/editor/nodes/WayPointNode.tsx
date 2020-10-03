@@ -5,7 +5,7 @@ import EditorNodeMixin from "./EditorNodeMixin";
 //@ts-ignore
 // import wayPointModelUrl from "../../../public/editor/spawn-point.glb";
 let wayPointHelperModel = null;
-const GLTF_PATH = "/editor/spawn-point.glb" // Static
+const GLTF_PATH = "/editor/spawn-point.glb"; // Static
 export default class WayPointNode extends EditorNodeMixin(THREE.Object3D) {
   static legacyComponentName = "waypoint";
   static nodeName = "Way Point";
@@ -15,12 +15,12 @@ export default class WayPointNode extends EditorNodeMixin(THREE.Object3D) {
       ({ scene }) => {
         scene.traverse((child) => {
           if ((child as THREE.Mesh).isMesh) {
-            child.layers.set(1)
+            child.layers.set(1);
           }
-        })
-        wayPointHelperModel = scene
+        });
+        wayPointHelperModel = scene;
       }
-    )
+    );
   }
   constructor(editor) {
     super(editor);

@@ -11,4 +11,6 @@ export interface CommonInteractiveDataPayload {
   buyUrl?: string;
   learnMoreUrl?: string;
   modelUrl?: string;
+  iosModelUrl?: string;
+  htmlContent?: string;
 }

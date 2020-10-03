@@ -5,7 +5,7 @@ import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 // import loadingCubeUrl from "../../../public/editor/loading-cube.glb";
 import cloneObject3D from "../utils/cloneObject3D";
 let cubeGltf: GLTF | null = null;
-const GLTF_PATH = "/editor/loading-cube.glb" // Static
+const GLTF_PATH = "/editor/loading-cube.glb"; // Static
 export default class LoadingCube extends Object3D {
   model: any;
   mixer: AnimationMixer;
@@ -17,11 +17,11 @@ export default class LoadingCube extends Object3D {
     return new Promise((resolve, reject) => {
       new GLTFLoader().load(GLTF_PATH, (gltf) => {
         cubeGltf = gltf;
-        resolve(cubeGltf)
+        resolve(cubeGltf);
       }, undefined, (err) => {
-        reject(err)
-      })
-    })
+        reject(err);
+      });
+    });
   }
   constructor() {
     super();

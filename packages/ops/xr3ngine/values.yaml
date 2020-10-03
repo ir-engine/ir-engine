@@ -35,8 +35,6 @@ client:
     #    hosts:
     #      - chart-example.local
 
-
-
   serviceAccount:
     create: true
     annotations: {}
@@ -315,6 +313,15 @@ gameserver:
   affinity: {}
   podSecurityContext: {}
   securityContext: {}
+
+  service:
+    type: ClusterIP
+    port: 3030
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name:
 
 ########### Subcharts - values here will overwrite the subchart
 

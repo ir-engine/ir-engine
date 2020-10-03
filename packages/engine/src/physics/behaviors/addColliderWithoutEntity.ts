@@ -23,7 +23,7 @@ function createBox (position, scale) {
   //body.quaternion.setFromAxisAngle(new Vec3(1,0,0),-Math.PI/2);
 */
   body.addShape(shape);
-  return body
+  return body;
 }
 
 function createSphere (radius) {
@@ -46,11 +46,11 @@ export function addColliderWithoutEntity( type, position, rotation, scale, mesh 
 
     let body;
     if (type === 'box') {
-      body = createBox(position, scale)
+      body = createBox(position, scale);
     //  body.computeAABB();
   		body.shapes.forEach((shape) => {
   			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
-  		})
+  		});
     } else
     if (type === 'sphere') {
       body = createSphere(scale);
@@ -59,16 +59,16 @@ export function addColliderWithoutEntity( type, position, rotation, scale, mesh 
 
     body.position.set(
       position.x,
-      position.y -14.8,
+      position.y,
       position.z
-    )
+    );
 
     body.quaternion.set(
       rotation.x,
       rotation.y,
       rotation.z,
       rotation.w
-    )
+    );
 
   PhysicsManager.instance.physicsWorld.addBody(body);
-};
+}

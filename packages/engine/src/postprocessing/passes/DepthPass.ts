@@ -43,7 +43,7 @@ export class DepthPass extends Pass {
       width: Resizer.AUTO_SIZE,
       height: Resizer.AUTO_SIZE,
       ...options
-    }
+    };
 
     this.needsSwap = false;
 

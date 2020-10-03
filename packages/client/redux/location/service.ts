@@ -6,15 +6,13 @@ import { locationsRetrieved } from './actions';
 export function getLocations(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      console.log('Getting locations')
+      console.log('Getting locations');
       const locationResults = await client.service('location').find({
         query: {
           $limit: limit != null ? limit : getState().get('locations').get('limit'),
           $skip: skip != null ? skip : getState().get('locations').get('skip'),
         }
       });
-      console.log('PANTS')
-      console.log(locationResults)
       dispatch(locationsRetrieved(locationResults));
     } catch(err) {
       console.log(err);

@@ -8,7 +8,7 @@ export const setPosition: Behavior = (entity, args: { x: number; y: number; z: n
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	const actorTransform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent);
 
-	if(isNaN( actor.actorCapsule.body.position.y))  actor.actorCapsule.body.position.y = 0
+	if(isNaN( actor.actorCapsule.body.position.y))  actor.actorCapsule.body.position.y = 0;
 	if (actor.physicsEnabled)
 		{
 	actor.actorCapsule.body.previousPosition = new Vec3(args.x, args.y, args.z);

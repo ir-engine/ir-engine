@@ -1,5 +1,5 @@
 // import { Params } from '@feathersjs/feathers'
-import { JWTStrategy } from '@feathersjs/authentication'
+import { JWTStrategy } from '@feathersjs/authentication';
 // import { NotAuthenticated } from '@feathersjs/errors'
 // import { Service } from 'feathers-sequelize'
 

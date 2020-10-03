@@ -24,8 +24,8 @@ export class PhysicsSystem extends System {
   fixedRunner: FixedStepsRunner
 
   constructor() {
-    super()
-    this.fixedRunner = new FixedStepsRunner(Engine.physicsFrameRate, this.onFixedExecute.bind(this))
+    super();
+    this.fixedRunner = new FixedStepsRunner(Engine.physicsFrameRate, this.onFixedExecute.bind(this));
     new PhysicsManager({ framerate: Engine.physicsFrameRate });
   }
 
@@ -34,7 +34,7 @@ export class PhysicsSystem extends System {
   }
 
   execute(delta:number): void {
-    this.fixedRunner.run(delta)
+    this.fixedRunner.run(delta);
 
     this.onExecute(delta);
   }
@@ -42,18 +42,18 @@ export class PhysicsSystem extends System {
   dispose(): void {
     super.dispose();
 
-    PhysicsManager.instance.dispose()
+    PhysicsManager.instance.dispose();
   }
 
   onExecute(delta:number): void {
     // // Collider
     this.queryResults.collider.added?.forEach(entity => {
-      console.log("onAdded called on collider behavior")
+      console.log("onAdded called on collider behavior");
       addCollider(entity, { phase: 'onAdded' });
     });
 
     this.queryResults.collider.removed?.forEach(entity => {
-      console.log("onRemoved called on collider behavior")
+      console.log("onRemoved called on collider behavior");
       addCollider(entity, { phase: 'onRemoved' });
     });
 

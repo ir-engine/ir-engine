@@ -1,4 +1,4 @@
-import config from '../../config'
+import config from '../../config';
 
 export const seed = {
   disabled: !config.db.forceRefresh,
@@ -11,6 +11,6 @@ export const seed = {
           { type: 'group' },
           { type: 'party' }
         ]
-}
+};
 
-export default seed
+export default seed;

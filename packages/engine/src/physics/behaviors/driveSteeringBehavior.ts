@@ -6,7 +6,7 @@ import { VehicleBody } from '../components/VehicleBody';
 export const driveSteering: Behavior = (entity: Entity, args: { direction:number }): void => {
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
   //const object = getComponent<Object3DComponent>(entity, Object3DComponent).value;
-  const vehicle = vehicleComponent.vehiclePhysics
+  const vehicle = vehicleComponent.vehiclePhysics;
   //const vehicle = vehicleComponent.vehicle;
 
   vehicle.setSteeringValue( vehicleComponent.maxSteerVal * args.direction, 0);

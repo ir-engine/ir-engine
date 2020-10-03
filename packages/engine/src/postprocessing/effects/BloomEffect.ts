@@ -3,7 +3,7 @@ import { Resizer } from '../core/Resizer';
 import { LuminanceMaterial } from '../materials/LuminanceMaterial';
 import { BlendFunction } from './blending/BlendFunction';
 import { Effect } from './Effect';
-import { KernelSize } from '../materials/ConvolutionMaterial'
+import { KernelSize } from '../materials/ConvolutionMaterial';
 import fragmentShader from './glsl/bloom/shader.frag';
 import { BlurPass } from '../passes/BlurPass';
 import { ShaderPass } from '../passes/ShaderPass';

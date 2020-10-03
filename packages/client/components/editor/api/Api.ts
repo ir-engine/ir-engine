@@ -39,14 +39,14 @@ const {
 
 const prefix = USE_HTTPS === "true" ? "https://" : "http://";
 
-function b64EncodeUnicode(str) {
+function b64EncodeUnicode(str): string {
   // first we use encodeURIComponent to get percent-encoded UTF-8, then we convert the percent-encodings
   // into raw bytes which can be fed into btoa.
   const CHAR_RE = /%([0-9A-F]{2})/g;
   return btoa(encodeURIComponent(str).replace(CHAR_RE, (_, p1) => String.fromCharCode(("0x" + p1) as any)));
 }
 
-const farsparkEncodeUrl = url => {
+const farsparkEncodeUrl = (url): string => {
   // farspark doesn't know how to read '=' base64 padding characters
   // translate base64 + to - and / to _ for URL safety
   return b64EncodeUnicode(url)
@@ -60,7 +60,7 @@ if (CORS_PROXY_SERVER) {
   nonCorsProxyDomains.push(CORS_PROXY_SERVER);
 }
 
-function shouldCorsProxy(url) {
+function shouldCorsProxy(url): boolean {
   // Skip known domains that do not require CORS proxying.
   try {
     const parsedUrl = new URL(url);
@@ -80,7 +80,7 @@ export const proxiedUrlFor = url => {
   // }
 
   // return `${prefix}${CORS_PROXY_SERVER}/${url}`;
-  return url
+  return url;
 };
 
 export const scaledThumbnailUrlFor = (url, width, height) => {
@@ -102,7 +102,7 @@ const CommonKnownContentTypes = {
   mp3: "audio/mpeg"
 };
 
-function guessContentType(url) {
+function guessContentType(url): string {
   const extension = new URL(url).pathname.split(".").pop();
   return CommonKnownContentTypes[extension];
 }
@@ -133,7 +133,7 @@ export default class Api extends EventEmitter {
     this.handleAuthorization();
   }
 
-  isAuthenticated() {
+  isAuthenticated(): boolean {
     const value = localStorage.getItem(LOCAL_STORE_KEY);
 
     const store = JSON.parse(value);
@@ -141,7 +141,7 @@ export default class Api extends EventEmitter {
     return !!(store && store.credentials && store.credentials.token);
   }
 
-  getToken() {
+  getToken(): string {
     const value = localStorage.getItem(LOCAL_STORE_KEY);
 
     if (!value) {
@@ -157,12 +157,12 @@ export default class Api extends EventEmitter {
     return store.credentials.token;
   }
 
-  getAccountId() {
+  getAccountId(): string {
     const token = this.getToken();
     return jwtDecode(token).sub;
   }
 
-  async getProjects() {
+  async getProjects(): any {
     const token = this.getToken();
 
     const headers = {
@@ -183,7 +183,7 @@ export default class Api extends EventEmitter {
     return json.projects;
   }
 
-  async getProject(projectId) {
+  async getProject(projectId): JSON {
     const token = this.getToken();
 
     const headers = {
@@ -201,7 +201,7 @@ export default class Api extends EventEmitter {
     return json;
   }
 
-  async resolveUrl(url, index?) {
+  async resolveUrl(url, index?): string {
     if (!shouldCorsProxy(url)) {
       return { origin: url };
     }
@@ -233,14 +233,14 @@ export default class Api extends EventEmitter {
     return request;
   }
 
-  fetchContentType(accessibleUrl) {
+  fetchContentType(accessibleUrl): string {
     const f = this.fetch(accessibleUrl, { method: "HEAD" }).then(r => r.headers.get("content-type"));
     console.log("Response: " + Object.values(f));
 
     return f;
   }
 
-  async getContentType(url) {
+  async getContentType(url): string {
     const result = await this.resolveUrl(url);
     const canonicalUrl = result.origin;
     const accessibleUrl = proxiedUrlFor(canonicalUrl);
@@ -252,7 +252,7 @@ export default class Api extends EventEmitter {
     );
   }
 
-  async resolveMedia(url, index) {
+  async resolveMedia(url, index): any {
     const absoluteUrl = new URL(url, (window as any).location).href;
 
     if (absoluteUrl.startsWith(this.serverURL)) {
@@ -300,11 +300,11 @@ export default class Api extends EventEmitter {
     return request;
   }
 
-  proxyUrl(url) {
+  proxyUrl(url): any {
     return proxiedUrlFor(url);
   }
 
-  unproxyUrl(baseUrl, url) {
+  unproxyUrl(baseUrl, url): any {
     if (CORS_PROXY_SERVER) {
       const corsProxyPrefix = `${prefix}${CORS_PROXY_SERVER}/`;
 
@@ -326,10 +326,10 @@ export default class Api extends EventEmitter {
     return proxiedUrlFor(url);
   }
   
-  async searchMedia(source, params, cursor, signal) {
+  async searchMedia(source, params, cursor, signal): any {
     const url = new URL(`${prefix}${API_SERVER_ADDRESS}${API_MEDIA_ROUTE}${API_MEDIA_SEARCH_ROUTE}`);
 
-    const headers = {
+    const headers: any = {
       "content-type": "application/json"
     };
 
@@ -340,7 +340,6 @@ export default class Api extends EventEmitter {
     if (source === "assets") {
       searchParams.set("user", this.getAccountId());
       const token = this.getToken();
-      // @ts-ignore
       headers.authorization = `Bearer ${token}`;
     }
 
@@ -399,11 +398,11 @@ export default class Api extends EventEmitter {
       nextCursor: json.meta.next_cursor
     };
   }
-  searchTermFilteringBlacklist(query: any) {
+  searchTermFilteringBlacklist(query: any): any {
     throw new Error("Method not implemented.");
   }
 
-  async createProject(scene, parentSceneId, thumbnailBlob, signal, showDialog, hideDialog) {
+  async createProject(scene, parentSceneId, thumbnailBlob, signal, showDialog, hideDialog): Promise<any> {
     this.emit("project-saving");
 
     if (signal.aborted) {
@@ -411,8 +410,8 @@ export default class Api extends EventEmitter {
     }
 
     const {
-      file_id: thumbnail_file_id,
-      meta: { access_token: thumbnail_file_token }
+      file_id: thumbnailFileId,
+      meta: { access_token: thumbnailFileToken }
     } = await this.upload(thumbnailBlob, undefined, signal) as any;
 
     if (signal.aborted) {
@@ -422,8 +421,8 @@ export default class Api extends EventEmitter {
     const serializedScene = scene.serialize();
     const projectBlob = new Blob([JSON.stringify(serializedScene)], { type: "application/json" });
     const {
-      file_id: project_file_id,
-      meta: { access_token: project_file_token }
+      file_id: projectFileId,
+      meta: { access_token: projectFileToken }
     } = await this.upload(projectBlob, undefined, signal) as any;
 
     if (signal.aborted) {
@@ -437,13 +436,15 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
+    /* eslint-disable @typescript-eslint/camelcase */
     const project = {
       name: scene.name,
-      thumbnail_file_id,
-      thumbnail_file_token,
-      project_file_id,
-      project_file_token
+      thumbnail_file_id: thumbnailFileId,
+      thumbnail_file_token: thumbnailFileToken,
+      project_file_id: projectFileId,
+      project_file_token: projectFileToken
     };
+    /* eslint-enable */
 
     if (parentSceneId) {
       project["parent_scene_id"] = parentSceneId;
@@ -471,7 +472,7 @@ export default class Api extends EventEmitter {
     return json;
   }
 
-  async deleteProject(projectId) {
+  async deleteProject(projectId): any {
     const token = this.getToken();
 
     const headers = {
@@ -495,7 +496,7 @@ export default class Api extends EventEmitter {
     return true;
   }
 
-  async saveProject(projectId, editor, signal, showDialog, hideDialog) {
+  async saveProject(projectId, editor, signal, showDialog, hideDialog): any {
     this.emit("project-saving");
 
     if (signal.aborted) {
@@ -509,8 +510,8 @@ export default class Api extends EventEmitter {
     }
 
     const {
-      file_id: thumbnail_file_id,
-      meta: { access_token: thumbnail_file_token }
+      file_id: thumbnailFileId,
+      meta: { access_token: thumbnailFileToken }
     } = await this.upload(thumbnailBlob, undefined, signal) as any;
 
     if (signal.aborted) {
@@ -520,8 +521,8 @@ export default class Api extends EventEmitter {
     const serializedScene = editor.scene.serialize();
     const projectBlob = new Blob([JSON.stringify(serializedScene)], { type: "application/json" });
     const {
-      file_id: project_file_id,
-      meta: { access_token: project_file_token }
+      file_id: projectFileId,
+      meta: { access_token: projectFileToken }
     } = await this.upload(projectBlob, undefined, signal) as any;
 
     if (signal.aborted) {
@@ -535,13 +536,15 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
+    /* eslint-disable @typescript-eslint/camelcase */
     const project = {
       name: editor.scene.name,
-      thumbnail_file_id,
-      thumbnail_file_token,
-      project_file_id,
-      project_file_token
+      thumbnail_file_id: thumbnailFileId,
+      thumbnail_file_token: thumbnailFileToken,
+      project_file_id: projectFileId,
+      project_file_token: projectFileToken
     };
+    /* eslint-enable */
 
     const sceneId = editor.scene.metadata && editor.scene.metadata.sceneId ? editor.scene.metadata.sceneId : null;
 
@@ -573,14 +576,14 @@ export default class Api extends EventEmitter {
     return json;
   }
 
-  async getProjectFile(sceneId) {
+  async getProjectFile(sceneId): any {
     return await this.props.api.getScene(sceneId);
     // TODO: Make this a main branch thing
     // const scene = await this.props.api.getScene(sceneId);
     // return await this.props.api.fetch(scene.scene_project_url).then(response => response.json());
   }
 
-  async getScene(sceneId) {
+  async getScene(sceneId): JSON {
     const headers = {
       "content-type": "application/json"
     };
@@ -596,7 +599,7 @@ export default class Api extends EventEmitter {
     return json.scenes[0];
   }
 
-  getSceneUrl(sceneId) {
+  getSceneUrl(sceneId): string {
     // If we recognize a local address relative to this Editor instance
     if (CLIENT_ADDRESS === "localhost:8080") {
       return `${prefix}${CLIENT_ADDRESS}${CLIENT_LOCAL_SCENE_ROUTE}${sceneId}`;
@@ -605,7 +608,7 @@ export default class Api extends EventEmitter {
     }
   }
 
-  async publishProject(project, editor, showDialog, hideDialog?) {
+  async publishProject(project, editor, showDialog, hideDialog?): any {
     let screenshotUrl;
 
     try {
@@ -812,6 +815,7 @@ export default class Api extends EventEmitter {
         throw error;
       }
 
+      /* eslint-disable @typescript-eslint/camelcase */
       const sceneParams = {
         screenshot_file_id: screenshotId,
         screenshot_file_token: screenshotToken,
@@ -827,6 +831,7 @@ export default class Api extends EventEmitter {
           content: publishParams.contentAttributions
         }
       };
+      /* eslint-enable */
     
       const token = this.getToken();
 
@@ -877,7 +882,7 @@ export default class Api extends EventEmitter {
     return project;
   }
 
-  async upload(blob, onUploadProgress, signal?) {
+  async upload(blob, onUploadProgress, signal?): Proimse<void> {
     let host, port;
     const token = this.getToken();
 
@@ -945,11 +950,11 @@ export default class Api extends EventEmitter {
     });
   }
 
-  uploadAssets(editor, files, onProgress, signal) {
+  uploadAssets(editor, files, onProgress, signal): any {
     return this._uploadAssets(`${prefix}${API_SERVER_ADDRESS}${API_ASSETS_ROUTE}`, editor, files, onProgress, signal);
   }
 
-  async _uploadAssets(endpoint, editor, files, onProgress, signal) {
+  async _uploadAssets(endpoint, editor, files, onProgress, signal): any {
     const assets = [];
 
     for (const file of Array.from(files)) {
@@ -980,11 +985,11 @@ export default class Api extends EventEmitter {
     return assets;
   }
 
-  uploadAsset(editor, file, onProgress, signal) {
+  uploadAsset(editor, file, onProgress, signal): any {
     return this._uploadAsset(`${prefix}${API_SERVER_ADDRESS}${API_ASSETS_ROUTE}`, editor, file, onProgress, signal);
   }
 
-  uploadProjectAsset(editor, projectId, file, onProgress, signal) {
+  uploadProjectAsset(editor, projectId, file, onProgress, signal): any {
     return this._uploadAsset(
       `${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}/${projectId}${API_ASSETS_ACTION}`,
       editor,
@@ -996,22 +1001,22 @@ export default class Api extends EventEmitter {
 
   lastUploadAssetRequest = 0;
 
-  async _uploadAsset(endpoint, editor, file, onProgress, signal) {
-    let thumbnail_file_id = null;
-    let thumbnail_access_token = null;
+  async _uploadAsset(endpoint, editor, file, onProgress, signal): any {
+    let thumbnailFileId = null;
+    let thumbnailAccessToken = null;
 
     if (!matchesFileTypes(file, AudioFileTypes)) {
       const thumbnailBlob = await editor.generateFileThumbnail(file);
 
       const response = await this.upload(thumbnailBlob, undefined, signal) as any;
 
-      thumbnail_file_id = response.file_id;
-      thumbnail_access_token = response.meta.access_token;
+      thumbnailFileId = response.file_id;
+      thumbnailAccessToken = response.meta.access_token;
     }
 
     const {
-      file_id: asset_file_id,
-      meta: { access_token: asset_access_token }
+      file_id: assetFileId,
+      meta: { access_token: assetAccessToken }
     } = await this.upload(file, onProgress, signal) as any;
 
     const delta = Date.now() - this.lastUploadAssetRequest;
@@ -1027,15 +1032,17 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
+    /* eslint-disable @typescript-eslint/camelcase */
     const body = JSON.stringify({
       asset: {
         name: file.name,
-        file_id: asset_file_id,
-        access_token: asset_access_token,
-        thumbnail_file_id,
-        thumbnail_access_token
+        file_id: assetFileId,
+        access_token: assetAccessToken,
+        thumbnail_file_id: thumbnailFileId,
+        thumbnail_access_token: thumbnailAccessToken
       }
     });
+    /* eslint-enable */
 
     const resp = await this.fetch(endpoint, { method: "POST", headers, body, signal });
     console.log("Response: " + Object.values(resp));
@@ -1058,7 +1065,7 @@ export default class Api extends EventEmitter {
     };
   }
 
-  async deleteAsset(assetId) {
+  async deleteAsset(assetId): boolean {
     const token = this.getToken();
 
     const headers = {
@@ -1082,7 +1089,7 @@ export default class Api extends EventEmitter {
     return true;
   }
 
-  async deleteProjectAsset(projectId, assetId) {
+  async deleteProjectAsset(projectId, assetId): boolean {
     const token = this.getToken();
 
     const headers = {
@@ -1106,19 +1113,19 @@ export default class Api extends EventEmitter {
     return true;
   }
 
-  setUserInfo(userInfo) {
+  setUserInfo(userInfo): void {
     localStorage.setItem("editor-user-info", JSON.stringify(userInfo));
   }
 
-  getUserInfo() {
+  getUserInfo(): JSON {
     return JSON.parse(localStorage.getItem("editor-user-info"));
   }
 
-  saveCredentials(email, token) {
+  saveCredentials(email, token): void {
     localStorage.setItem(LOCAL_STORE_KEY, JSON.stringify({ credentials: { email, token } }));
   }
 
-  async fetch(url, options: any = {}) {
+  async fetch(url, options: any = {}): Promise<any> {
     try {
       const token = this.getToken();
       if (options.headers == null) {
@@ -1145,7 +1152,7 @@ export default class Api extends EventEmitter {
     }
   }
 
-  handleAuthorization() {
+  handleAuthorization(): void {
     if (process.browser) {
       const accessToken = localStorage.getItem('XREngine-Auth-Store');
       const email = 'test@test.com';

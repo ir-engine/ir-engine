@@ -18,33 +18,32 @@ import { TransformComponent } from '@xr3ngine/engine/src/transform/components/Tr
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import {
-  AmbientLight,
-  EquirectangularReflectionMapping,
-  Mesh,
-  MeshPhongMaterial,
-  SphereBufferGeometry,
-  sRGBEncoding,
-  TextureLoader,
-  CineonToneMapping
-} from 'three';
+import { AmbientLight, EquirectangularReflectionMapping, Mesh, MeshPhongMaterial, SphereBufferGeometry, sRGBEncoding, TextureLoader,CineonToneMapping } from 'three';
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';
 import { connectToInstanceServer, provisionInstanceServer } from '../../redux/instanceConnection/service';
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
 import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
+import { selectAuthState } from '../../redux/auth/selector';
+import { selectPartyState } from '../../redux/party/selector';
+import { client } from '../../redux/feathers';
 
 import dynamic from 'next/dynamic';
 import { RazerLaptop } from "@xr3ngine/engine/src/templates/interactive/prefabs/RazerLaptop";
 import { InfoBox } from "../infoBox";
+import { HintBox } from "../hintBox";
+import { BeginnerBox } from '../beginnerBox';
+import './style.scss';
+import { resetEngine } from "../../../engine/src/ecs/functions/EngineFunctions";
+
 const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
-const locationId = 'e3523270-ddb7-11ea-9251-75ab611a30da';
-const locationId2 = '489ec2b1-f6b2-46b5-af84-92d094927dd7';
 const mapStateToProps = (state: any): any => {
   return {
-    instanceConnectionState: selectInstanceConnectionState(state)
+    instanceConnectionState: selectInstanceConnectionState(state),
+    authState: selectAuthState(state),
+    partyState: selectPartyState(state)
   };
 };
 
@@ -56,24 +55,29 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 export const EnginePage: FunctionComponent = (props: any) => {
   const {
+    authState,
     instanceConnectionState,
+    partyState,
     connectToInstanceServer,
     provisionInstanceServer
   } = props;
   const [enabled, setEnabled] = useState(false);
   const [hoveredLabel, setHoveredLabel] = useState('');
   const [infoBoxData, setInfoBoxData] = useState(null);
+  const [hintBoxData, setHintBoxData] = useState('default');
+  const [showControllHint, setShowControllHint] = useState(true);
 
   useEffect(() => {
     console.log('initializeEngine!');
 
     const onObjectHover = (event: CustomEvent): void => {
-      if (event.detail.focused && event.detail.payload?.name) {
-        setHoveredLabel(String(event.detail.payload.name));
+      if (event.detail.focused) {
+        setHoveredLabel(String(event.detail.interactionText ? event.detail.interactionText :'Activate' ));
       } else {
         setHoveredLabel('');
-      }
+      }       
     };
+
     const onObjectActivation = (event: CustomEvent): void => {
       console.log('OBJECT ACTIVATION!', event.detail?.action, event.detail);
       switch (event.detail.action) {
@@ -86,8 +90,21 @@ export const EnginePage: FunctionComponent = (props: any) => {
           break;
       }
     };
+
+    const onCarActivation = (event: CustomEvent): void => {
+      if (event.detail.inCar) {
+        setHintBoxData('car');
+        setHoveredLabel('');
+      } else {
+        setHintBoxData('default');
+      }  
+      setShowControllHint(true);
+    };
+
     document.addEventListener('object-hover', onObjectHover);
     document.addEventListener('object-activation', onObjectActivation);
+    document.addEventListener('player-in-car', onCarActivation);
+
 
     const networkSchema: NetworkSchema = {
       ...DefaultNetworkSchema,
@@ -153,49 +170,49 @@ export const EnginePage: FunctionComponent = (props: any) => {
       //   class extends Component {static scema = {}}
       // )
     }
-
-
-
     Engine.renderer.toneMapping = CineonToneMapping;
     Engine.renderer.toneMappingExposure = 0.1;
 
+
+    Engine.renderer.toneMapping = CineonToneMapping;
+    Engine.renderer.toneMappingExposure = 1;
+
     createPrefab(WorldPrefab);
-    createPrefab(PlayerCharacter);
     createPrefab(staticWorldColliders);
-  setTimeout(() => {
+//  setTimeout(() => {
     // createPrefab(rigidBodyBox);
     // createPrefab(rigidBodyBox2);
+    createPrefab(RazerLaptop);
+    createPrefab(PlayerCharacter);
      createPrefab(CarController);
     //createPrefab(interactiveBox);
-    createPrefab(RazerLaptop);
-
-
-//    Engine.scene.traverse((c: unknown) => { if (c instanceof Mesh && c.isMesh && c.material) { c.material.needsUpdate=true; }  });
-  }, 5000);
-
-  console.log('scene---', Engine.scene);
+  //}, 5000);
 
 
     return (): void => {
       document.removeEventListener('object-hover', onObjectHover);
       document.removeEventListener('object-activation', onObjectActivation);
+      document.removeEventListener('player-in-car', onCarActivation);
 
       // cleanup
       console.log('cleanup?!');
       // TODO: use resetEngine when it will be completed. for now just reload
-      document.location.reload();
-      // resetEngine();
+      //document.location.reload();
+      resetEngine();
     };
   }, []);
 
   useEffect(() => {
     const f = (event: KeyboardEvent): void => {
-      const P_PLAY_PAUSE = 112;
-      if (event.keyCode === 27)
+      //hide controlls hint when move/do smth
+      setShowControllHint(false);
+      // const P_PLAY_PAUSE = 112;
+      // if (event.keyCode === 27)
+      if (event.keyCode === 192) {
+        event.preventDefault();
         toggleEnabled();
-      else if(event.keyCode == P_PLAY_PAUSE){
-
       }
+      // else if(event.keyCode == P_PLAY_PAUSE)
     };
     document.addEventListener("keydown", f);
     return (): void => {
@@ -212,7 +229,21 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   useEffect(() => {
     if (instanceConnectionState.get('instanceProvisioned') == false) {
-      provisionInstanceServer(locationId);
+      console.log('authState:');
+      console.log(authState);
+      console.log('partyState:');
+      console.log(partyState);
+      const user = authState.get('user');
+      const party = partyState.get('party');
+      const instanceId = user.instanceId != null ? user.instanceId : party.instanceId != null ? party.instanceId: null;
+      console.log(`INSTANCE ID TO GO TO: ${instanceId}`);
+      if (instanceId != null) {
+        client.service('instance').get(instanceId)
+            .then((instance) => {
+              console.log(`Connecting to location ${instance.locationId}`);
+              provisionInstanceServer(instance.locationId);
+            });
+      }
     }
     else {
       connectToInstanceServer();
@@ -220,7 +251,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   }, []);
 
   const toggleEnabled = (): void => {
-    console.log("enabled ", enabled);
+    // console.log("enabled", enabled);
     if (enabled === true) {
       setEnabled(false);
     } else {
@@ -251,19 +282,27 @@ export const EnginePage: FunctionComponent = (props: any) => {
       />
     ) : null;
 
-  const mobileGamepad = isMobileOrTablet()? <MobileGamepad /> : null;
+  const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: hintBoxData };
+
+  const mobileGamepad = isMobileOrTablet()? <MobileGamepad {...mobileGamepadProps} /> : null;
+
+  const infoBox = !isMobileOrTablet() && infoBoxData ? <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} /> : null;
+  const hintBox = !isMobileOrTablet() && showControllHint && hintBoxData ? <HintBox layout={hintBoxData} /> : null;
 
 
-  const infoBox = infoBoxData? <InfoBox onClose={() => { setInfoBoxData(null) }} data={infoBoxData} /> : null;
+  const hoveredLabelElement = !!!isMobileOrTablet() && hoveredLabel.length > 0 ? 
+  <div className="hintContainer">Press <span className="keyItem" >E</span> to {hoveredLabel}</div> : null;
 
-  const hoveredLabelElement = hoveredLabel.length? <div style={{ position: "fixed", top:"50%", left:"50%", backgroundColor:"white" }}>{hoveredLabel}</div> : null;
 
   return (
     <>
+    {/* <Dialog {...{props:{isOpened:true, content:beginnerHintMessage}}}>{beginnerHintMessage}</Dialog> */}
     {infoBox}
+    {hintBox}
     {hoveredLabelElement}
     {terminal}
     {mobileGamepad}
+    <BeginnerBox />
     </>
   );
 };

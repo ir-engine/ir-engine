@@ -5,11 +5,11 @@ import { Network } from '../components/Network';
 import { applyWorldState } from './applyWorldState';
 
 export const handleUpdateFromServer: Behavior = (entity: Entity, args: null, delta) => {
-  const queue = Network.instance.incomingMessageQueue
+  const queue = Network.instance.incomingMessageQueue;
   // For each message, handle and process
   while (queue.getBufferLength() > 0) {
-    const message = queue.pop()
+    const message = queue.pop();
     // Buffer to object
-    applyWorldState(message, delta)
+    applyWorldState(message, delta);
   }
-}
+};

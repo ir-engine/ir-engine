@@ -6,7 +6,7 @@ import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import cloneObject3D from "../utils/cloneObject3D";
 import { TransformMode, TransformAxis } from "../controls/EditorControls";
 let gizmoGltf: GLTF | null = null;
-const GLTF_PATH = "/editor/TransformGizmo.glb" // STATIC
+const GLTF_PATH = "/editor/TransformGizmo.glb"; // STATIC
 export default class TransformGizmo extends Object3D {
   model: any;
   selectionColor: Color;
@@ -42,11 +42,11 @@ export default class TransformGizmo extends Object3D {
     return new Promise((resolve, reject) => {
       new GLTFLoader().load(GLTF_PATH, (gltf) => {
         gizmoGltf = gltf;
-        resolve(gizmoGltf)
+        resolve(gizmoGltf);
       }, undefined, (err) => {
-        reject(err)
-      })
-    })
+        reject(err);
+      });
+    });
   }
   constructor() {
     super();
