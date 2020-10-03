@@ -180,4 +180,4 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, const in float depth,
 	outputColor = vec4(color, inputColor.a);
 
 }
-`
+`;

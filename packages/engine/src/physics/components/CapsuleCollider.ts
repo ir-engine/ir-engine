@@ -12,16 +12,16 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 
 	constructor(options: any)
 	{
-		super(options)
-		this.reapplyOptions(options)
+		super(options);
+		this.reapplyOptions(options);
 	}
 
 	copy(options) {
-		const newThis = super.copy(options)
+		const newThis = super.copy(options);
 
-		newThis.reapplyOptions(options)
+		newThis.reapplyOptions(options);
 
-		return newThis
+		return newThis;
 	}
 
 	reapplyOptions(options:any) {

@@ -2,9 +2,9 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { quickhull } from './THREE.quickhull';
 /* tslint:disable */
-var PI_2 = Math.PI / 2;
+const PI_2 = Math.PI / 2;
 
-var Type = {
+const Type = {
   BOX: 'Box',
   CYLINDER: 'Cylinder',
   SPHERE: 'Sphere',
@@ -20,7 +20,7 @@ var Type = {
 export const threeToCannon = function (object, options) {
   options = options || {};
 
-  var geometry;
+  let geometry;
 
   if (options.type === Type.BOX) {
     return createBoundingBoxShape(object);
@@ -40,7 +40,7 @@ export const threeToCannon = function (object, options) {
   geometry = getGeometry(object);
   if (!geometry) return null;
 
-  var type = geometry.metadata
+  const type = geometry.metadata
     ? geometry.metadata.type
     : geometry.type;
 
@@ -78,12 +78,12 @@ threeToCannon.Type = Type;
   * @return {CANNON.Shape}
   */
  function createBoxShape (geometry) {
-   var vertices = getVertices(geometry);
+   const vertices = getVertices(geometry);
 
    if (!vertices.length) return null;
 
    geometry.computeBoundingBox();
-   var box = geometry.boundingBox;
+   const box = geometry.boundingBox;
    return new CANNON.Box(new CANNON.Vec3(
      (box.max.x - box.min.x) / 2,
      (box.max.y - box.min.y) / 2,
@@ -97,10 +97,9 @@ threeToCannon.Type = Type;
  * @return {CANNON.Shape}
  */
 function createBoundingBoxShape (object) {
-  var shape, localPosition,
-      box = new THREE.Box3();
+  const box = new THREE.Box3();
 
-  var clone = object.clone();
+  const clone = object.clone();
   clone.quaternion.set(0, 0, 0, 1);
   clone.updateMatrixWorld();
 
@@ -108,15 +107,15 @@ function createBoundingBoxShape (object) {
 
   if (!isFinite(box.min.lengthSq())) return null;
 
-  shape = new CANNON.Box(new CANNON.Vec3(
+  const shape = new CANNON.Box(new CANNON.Vec3(
     (box.max.x - box.min.x) / 2,
     (box.max.y - box.min.y) / 2,
     (box.max.z - box.min.z) / 2
   ));
 
-  localPosition = box.translate(clone.position.negate()).getCenter(new THREE.Vector3());
+  const localPosition = box.translate(clone.position.negate()).getCenter(new THREE.Vector3());
   if (localPosition.lengthSq()) {
-    shape.offset = localPosition;
+    (shape as any).offset = localPosition;
   }
 
   return shape;
@@ -128,9 +127,9 @@ function createBoundingBoxShape (object) {
  * @return {CANNON.Shape}
  */
 function createConvexPolyhedron (object) {
-  var i, vertices, faces, hull,
-      eps = 1e-4,
-      geometry = getGeometry(object);
+  let i;
+  const eps = 1e-4;
+  const geometry = getGeometry(object);
 
   if (!geometry || !geometry.vertices.length) return null;
 
@@ -142,16 +141,16 @@ function createConvexPolyhedron (object) {
   }
 
   // Compute the 3D convex hull.
-  hull = quickhull(geometry);
+  const hull = quickhull(geometry);
 
   // Convert from THREE.Vector3 to CANNON.Vec3.
-  vertices = new Array(hull.vertices.length);
+  const vertices = new Array(hull.vertices.length);
   for (i = 0; i < hull.vertices.length; i++) {
     vertices[i] = new CANNON.Vec3(hull.vertices[i].x, hull.vertices[i].y, hull.vertices[i].z);
   }
 
   // Convert from THREE.Face to Array<number>.
-  faces = new Array(hull.faces.length);
+  const faces = new Array(hull.faces.length);
   for (i = 0; i < hull.faces.length; i++) {
     faces[i] = [hull.faces[i].a, hull.faces[i].b, hull.faces[i].c];
   }
@@ -164,11 +163,8 @@ function createConvexPolyhedron (object) {
  * @return {CANNON.Shape}
  */
 function createCylinderShape (geometry) {
-  var shape,
-      params = geometry.metadata
-        ? geometry.metadata.parameters
-        : geometry.parameters;
-  shape = new CANNON.Cylinder(
+  const params = geometry.metadata ? geometry.metadata.parameters : geometry.parameters;
+  const shape: any = new CANNON.Cylinder(
     params.radiusTop,
     params.radiusBottom,
     params.height,
@@ -192,25 +188,24 @@ function createCylinderShape (geometry) {
  * @return {CANNON.Shape}
  */
 function createBoundingCylinderShape (object, options) {
-  var shape, height, radius,
-      box = new THREE.Box3(),
-      axes = ['x', 'y', 'z'],
-      majorAxis = options.cylinderAxis || 'y',
-      minorAxes = axes.splice(axes.indexOf(majorAxis), 1) && axes;
+  const box = new THREE.Box3();
+  const axes = ['x', 'y', 'z'];
+  const majorAxis = options.cylinderAxis || 'y';
+  const minorAxes = axes.splice(axes.indexOf(majorAxis), 1) && axes;
 
   box.setFromObject(object);
 
   if (!isFinite(box.min.lengthSq())) return null;
 
   // Compute cylinder dimensions.
-  height = box.max[majorAxis] - box.min[majorAxis];
-  radius = 0.5 * Math.max(
+  const height = box.max[majorAxis] - box.min[majorAxis];
+  const radius = 0.5 * Math.max(
     box.max[minorAxes[0]] - box.min[minorAxes[0]],
     box.max[minorAxes[1]] - box.min[minorAxes[1]]
   );
 
   // Create shape.
-  shape = new CANNON.Cylinder(radius, radius, height, 12);
+  const shape: any = new CANNON.Cylinder(radius, radius, height, 12);
 
   // Include metadata for serialization.
   shape._type = CANNON.Shape.types.CYLINDER; // Patch schteppe/cannon.js#329.
@@ -235,7 +230,7 @@ function createBoundingCylinderShape (object, options) {
  */
 function createPlaneShape (geometry) {
   geometry.computeBoundingBox();
-  var box = geometry.boundingBox;
+  const box = geometry.boundingBox;
   return new CANNON.Box(new CANNON.Vec3(
     (box.max.x - box.min.x) / 2 || 0.1,
     (box.max.y - box.min.y) / 2 || 0.1,
@@ -248,7 +243,7 @@ function createPlaneShape (geometry) {
  * @return {CANNON.Shape}
  */
 function createSphereShape (geometry) {
-  var params = geometry.metadata
+  const params = geometry.metadata
     ? geometry.metadata.parameters
     : geometry.parameters;
   return new CANNON.Sphere(params.radius);
@@ -262,7 +257,7 @@ function createBoundingSphereShape (object, options) {
   if (options.sphereRadius) {
     return new CANNON.Sphere(options.sphereRadius);
   }
-  var geometry = getGeometry(object);
+  const geometry = getGeometry(object);
   if (!geometry) return null;
   geometry.computeBoundingSphere();
   return new CANNON.Sphere(geometry.boundingSphere.radius);
@@ -273,12 +268,11 @@ function createBoundingSphereShape (object, options) {
  * @return {CANNON.Shape}
  */
 function createTrimeshShape (geometry) {
-  var indices,
-      vertices = getVertices(geometry);
+  const vertices = getVertices(geometry);
 
   if (!vertices.length) return null;
 
-  indices = Object.keys(vertices).map(Number);
+  const indices = Object.keys(vertices).map(Number);
   return new CANNON.Trimesh(vertices, indices);
 }
 
@@ -293,16 +287,17 @@ function createTrimeshShape (geometry) {
  * @return {THREE.Geometry}
  */
 function getGeometry (object) {
-  var matrix, mesh,
-      meshes = getMeshes(object),
-      tmp = new THREE.Geometry(),
-      combined = new THREE.Geometry();
+  let mesh,
+      tmp = new THREE.Geometry();
+  const meshes = getMeshes(object);
+
+  const combined = new THREE.Geometry();
 
   if (meshes.length === 0) return null;
 
   // Apply scale  – it can't easily be applied to a CANNON.Shape later.
   if (meshes.length === 1) {
-    var position = new THREE.Vector3(),
+    const position = new THREE.Vector3(),
         quaternion = new THREE.Quaternion(),
         scale = new THREE.Vector3();
     if (meshes[0].geometry.isBufferGeometry) {
@@ -325,7 +320,7 @@ function getGeometry (object) {
     if (mesh.geometry.isBufferGeometry) {
       if (mesh.geometry.attributes.position
           && mesh.geometry.attributes.position.itemSize > 2) {
-        var tmpGeom = new THREE.Geometry();
+        const tmpGeom = new THREE.Geometry();
         tmpGeom.fromBufferGeometry(mesh.geometry);
         combined.merge(tmpGeom, mesh.matrixWorld);
         tmpGeom.dispose();
@@ -335,7 +330,7 @@ function getGeometry (object) {
     }
   }
 
-  matrix = new THREE.Matrix4();
+  const matrix = new THREE.Matrix4();
   matrix.scale(object.scale);
   combined.applyMatrix4(matrix);
   return combined;
@@ -361,8 +356,8 @@ function getVertices (geometry) {
  * @return {Array<THREE.Mesh>}
  */
 function getMeshes (object) {
-  var meshes = [];
-  object.traverse(function (o) {
+  const meshes = [];
+  object.traverse((o) => {
     if (o.type === 'Mesh') {
       meshes.push(o);
     }

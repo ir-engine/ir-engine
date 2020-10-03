@@ -20,6 +20,6 @@ const accessControls = {
     updateScope: 'none',
     deleteScope: 'none'
   }
-}
+};
 
-export default accessControls
+export default accessControls;

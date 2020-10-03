@@ -11,7 +11,7 @@ export class BoxCollider extends Component<BoxCollider>
 
 	constructor(options: any) {
 		super();
-		let defaults = {
+		const defaults = {
 			mass: 0,
 			position: new Vector3(),
 			size: new Vector3(0.3, 0.3, 0.3),
@@ -23,15 +23,15 @@ export class BoxCollider extends Component<BoxCollider>
 		options.position = new Vec3(options.position.x, options.position.y, options.position.z);
 		options.size = new Vec3(options.size.x, options.size.y, options.size.z);
 
-		let mat = new Material('boxMat');
+		const mat = new Material('boxMat');
 		mat.friction = options.friction;
 		// mat.restitution = 0.7;
 
-		let shape = new Box(options.size);
+		const shape = new Box(options.size);
 		// shape.material = mat;
 
 		// Add phys sphere
-		let physBox = new Body({
+		const physBox = new Body({
 			mass: options.mass,
 			position: options.position,
 			shape

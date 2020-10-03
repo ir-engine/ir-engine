@@ -23,11 +23,11 @@ function openCarDoorAnimation(mesh, timer, timeAnimation) {
   if (timer > (timeAnimation/2)) {
     mesh.quaternion.setFromRotationMatrix(new Matrix4().makeRotationZ(
        timeAnimation/1.3 - timer/1.3
-    ))
+    ));
   } else {
     mesh.quaternion.setFromRotationMatrix(new Matrix4().makeRotationZ(
        timer/1.3
-    ))
+    ));
   }
 }
 
@@ -36,20 +36,20 @@ function setPlayerToPositionEnter(entity, transformCar, entrances) {
     entrances[0] + 0.9,
     entrances[1],
     entrances[2]
-  ).applyQuaternion(transformCar.rotation)
-  entrance = entrance.add(transformCar.position)
-  setPosition(entity, entrance)
+  ).applyQuaternion(transformCar.rotation);
+  entrance = entrance.add(transformCar.position);
+  setPosition(entity, entrance);
 }
 
 function setPlayerToSeats(transform, transformCar, seat) {
-  let entrance = new Vector3(
+  const entrance = new Vector3(
     seat[0],
     seat[1]+0.2,
     seat[2]+0.51
-  ).applyQuaternion(transformCar.rotation)
+  ).applyQuaternion(transformCar.rotation);
 
-  transform.position.copy( entrance.add(transformCar.position) )
-  transform.rotation.copy( transformCar.rotation )
+  transform.position.copy( entrance.add(transformCar.position) );
+  transform.rotation.copy( transformCar.rotation );
 }
 
 
@@ -58,16 +58,16 @@ export const playerModelInCar: Behavior = (entity: Entity, args: { type: string,
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
 
   if (args.phase === 'onAdded') {
-    addState(entity, {state: CharacterStateTypes.ENTER_VEHICLE})
-    return
+    addState(entity, {state: CharacterStateTypes.ENTER_VEHICLE});
+    return;
   }
 
   if (args.phase === 'onRemoved') {
-    return
+    return;
   }
 
   const playerInCarComponent = getComponent<PlayerInCar>(entity, PlayerInCar);
-  const entityCar = playerInCarComponent.entityCar
+  const entityCar = playerInCarComponent.entityCar;
   const transformCar = getComponent<TransformComponent>(entityCar, TransformComponent);
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const stateComponent = getComponent<State>(entity, State);
@@ -77,25 +77,25 @@ export const playerModelInCar: Behavior = (entity: Entity, args: { type: string,
 
   if (stateComponent.data.has(CharacterStateTypes.ENTER_VEHICLE)) {
     if (!hasComponent(entityCar, LocalInputReceiver)) {
-      addComponent(entityCar, LocalInputReceiver)
-      addComponent(entityCar, FollowCameraComponent, { distance: 3, mode: "thirdPerson" })
-      vehicleComponent.currentDriver = entity
+      addComponent(entityCar, LocalInputReceiver);
+      addComponent(entityCar, FollowCameraComponent, { distance: 3, mode: "thirdPerson" });
+      vehicleComponent.currentDriver = entity;
     }
 
-    openCarDoorAnimation(vehicleComponent.vehicleDoorsArray[0], actor.timer, 2.1)
+    openCarDoorAnimation(vehicleComponent.vehicleDoorsArray[0], actor.timer, 2.1);
     if (actor.timer > 2.1) {
-      addState(entity, {state: CharacterStateTypes.DRIVING_IDLE})
-      return
+      addState(entity, {state: CharacterStateTypes.DRIVING_IDLE});
+      return;
     }
 
     // when ENTER VEHICLE
-    setPlayerToPositionEnter(entity, transformCar, vehicleComponent.entrancesArray[0])
+    setPlayerToPositionEnter(entity, transformCar, vehicleComponent.entrancesArray[0]);
 
-    let hhh = new Matrix4().multiplyMatrices(
+    const hhh = new Matrix4().multiplyMatrices(
       new Matrix4().makeRotationFromQuaternion(transformCar.rotation),
       new Matrix4().makeRotationY(-Math.PI / 2)
-    )
-    transform.rotation.setFromRotationMatrix(hhh)
+    );
+    transform.rotation.setFromRotationMatrix(hhh);
   }
 
 
@@ -104,7 +104,7 @@ export const playerModelInCar: Behavior = (entity: Entity, args: { type: string,
   if (stateComponent.data.has(CharacterStateTypes.DRIVING_IDLE)) {
 
     //<-----setPlayerToSeats(
-    setPlayerToSeats(transform, transformCar, vehicleComponent.seatsArray[0])
+    setPlayerToSeats(transform, transformCar, vehicleComponent.seatsArray[0]);
   }
 
 
@@ -112,28 +112,28 @@ export const playerModelInCar: Behavior = (entity: Entity, args: { type: string,
     if (actor.timer > 2.1) {
 
       if (hasComponent(entity, PlayerInCar)) {
-        removeComponent(entityCar, LocalInputReceiver)
-        removeComponent(entityCar, FollowCameraComponent)
-        vehicleComponent.currentDriver = null
+        removeComponent(entityCar, LocalInputReceiver);
+        removeComponent(entityCar, FollowCameraComponent);
+        vehicleComponent.currentDriver = null;
 
-        addComponent(entity, LocalInputReceiver)
-        addComponent(entity, FollowCameraComponent)
+        addComponent(entity, LocalInputReceiver);
+        addComponent(entity, FollowCameraComponent);
         setDropState(entity, null, delta);
-        removeComponent(entity, PlayerInCar)
-        setPlayerToPositionEnter(entity, transformCar, vehicleComponent.entrancesArray[0])
+        removeComponent(entity, PlayerInCar);
+        setPlayerToPositionEnter(entity, transformCar, vehicleComponent.entrancesArray[0]);
       }
     } else {
-      openCarDoorAnimation(vehicleComponent.vehicleDoorsArray[0], actor.timer, 2.1)
+      openCarDoorAnimation(vehicleComponent.vehicleDoorsArray[0], actor.timer, 2.1);
 
       // set position character when get out car
-      setPlayerToSeats(transform, transformCar, vehicleComponent.seatsArray[0])
+      setPlayerToSeats(transform, transformCar, vehicleComponent.seatsArray[0]);
 
-      let hhh = new Matrix4().multiplyMatrices(
+      const hhh = new Matrix4().multiplyMatrices(
         new Matrix4().makeRotationFromQuaternion(transformCar.rotation),
         new Matrix4().makeRotationY(-0.18539)
-      )
+      );
       transform.rotation.setFromRotationMatrix(hhh);
     }
   }
 
-}
+};

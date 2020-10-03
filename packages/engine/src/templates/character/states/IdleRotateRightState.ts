@@ -58,17 +58,17 @@ export const IdleRotateRightState: StateSchemaValue = {
         action: (entity) => {
           // Default behavior for all states
           findVehicle(entity);
-          const input = getComponent(entity, Input)
+          const input = getComponent(entity, Input);
           // Check if we're trying to jump
           if (input.data.has(DefaultInput.JUMP))
-            return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING })
+            return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING });
             
           // If we're not moving, don't worry about the rest of this action
-          if (!isMoving(entity)) return
+          if (!isMoving(entity)) return;
 
           // If our character is moving or being moved, go to walk state
           if (getComponent(entity, CharacterComponent).velocity.length() > 0.5)
-            return addState(entity, { state: CharacterStateTypes.WALK })
+            return addState(entity, { state: CharacterStateTypes.WALK });
 
           // Otherwise set the appropriate walk state
           setAppropriateStartWalkState(entity);

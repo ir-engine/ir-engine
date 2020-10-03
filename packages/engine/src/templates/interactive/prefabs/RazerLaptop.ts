@@ -57,7 +57,9 @@ Single-zone RGB powered by Razer Chroma™`
     {
       behavior: addMeshCollider,
       args: {
-        type: 'box', scale: [0.434122, 0.55483, 0.367724], mass: 1
+        type: 'box',
+        scale: [0.434122, 0.367724, 0.55483],
+        mass: 1
       }
     },
   ]

@@ -52,30 +52,30 @@ export const EndWalkState: StateSchemaValue = {
       behavior: triggerActionIfMovementHasChanged,
       args: {
         action: (entity) => {
-          const input = getComponent(entity, Input)
+          const input = getComponent(entity, Input);
           // Default behavior for all states
           findVehicle(entity);
 
           // Check if we're trying to jump
           if (input.data.has(DefaultInput.JUMP))
-            return addState(entity, { state: CharacterStateTypes.JUMP_IDLE })
+            return addState(entity, { state: CharacterStateTypes.JUMP_IDLE });
 
 
           if (input.data.has(DefaultInput.SPRINT)) {
 
             if (input.data.has(DefaultInput.FORWARD)) {
-              return addState(entity, { state: CharacterStateTypes.SPRINT })
+              return addState(entity, { state: CharacterStateTypes.SPRINT });
             } else if (input.data.has(DefaultInput.LEFT)) {
-              return addState(entity, { state: CharacterStateTypes.SPRINT_LEFT })
+              return addState(entity, { state: CharacterStateTypes.SPRINT_LEFT });
             } else if (input.data.has(DefaultInput.RIGHT)) {
-              return addState(entity, { state: CharacterStateTypes.SPRINT_RIGHT })
+              return addState(entity, { state: CharacterStateTypes.SPRINT_RIGHT });
             } else if (input.data.has(DefaultInput.BACKWARD)) {
-              return addState(entity, { state: CharacterStateTypes.SPRINT_BACKWARD })
+              return addState(entity, { state: CharacterStateTypes.SPRINT_BACKWARD });
             }
           }
 
           // If we're not moving, don't worry about the rest of this action
-        //  if (!isMoving(entity)) return
+        //  if (!isMoving(entity)) return;
 
           setAppropriateStartWalkState(entity);
 

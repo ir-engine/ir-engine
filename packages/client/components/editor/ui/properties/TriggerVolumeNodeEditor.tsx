@@ -54,6 +54,16 @@ export default class TriggerVolumeNodeEditor extends Component<
       options: []
     };
   }
+  componentDidMount() {
+    const options = [];
+    const sceneNode = (this.props.editor as any).scene;
+    sceneNode.traverse(o => {
+      if (o.isNode && o !== sceneNode) {
+        options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName });
+      }
+    });
+    this.setState({ options });
+  }
   onChangeTarget = target => {
     (this.props.editor as any).setPropertiesSelected({
       target,
@@ -97,16 +107,6 @@ export default class TriggerVolumeNodeEditor extends Component<
   onChangeLeaveValue = value => {
     (this.props.editor as any).setPropertySelected("leaveValue", value);
   };
-  componentDidMount() {
-    const options = [];
-    const sceneNode = (this.props.editor as any).scene;
-    sceneNode.traverse(o => {
-      if (o.isNode && o !== sceneNode) {
-        options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName });
-      }
-    });
-    this.setState({ options });
-  }
   render() {
     const { node, multiEdit } = this.props as any;
     const targetOption = this.state.options.find(o => o.value === node.target);

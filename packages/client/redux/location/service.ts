@@ -6,7 +6,7 @@ import { locationsRetrieved } from './actions';
 export function getLocations(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      console.log('Getting locations')
+      console.log('Getting locations');
       const locationResults = await client.service('location').find({
         query: {
           $limit: limit != null ? limit : getState().get('locations').get('limit'),

@@ -1,7 +1,7 @@
-import StorageProviderInterface from './storageprovider.interface'
-import AWS from 'aws-sdk'
-import config from '../config'
-import S3BlobStore from 's3-blob-store'
+import { StorageProviderInterface } from './storageprovider.interface';
+import AWS from 'aws-sdk';
+import config from '../config';
+import S3BlobStore from 's3-blob-store';
 
 export default class S3Provider implements StorageProviderInterface {
   provider: AWS.S3 = new AWS.S3({

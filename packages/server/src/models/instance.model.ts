@@ -1,9 +1,9 @@
-import { Sequelize, DataTypes } from 'sequelize'
-import { Application } from '../declarations'
+import { Sequelize, DataTypes } from 'sequelize';
+import { Application } from '../declarations';
 // import Location from './location.model'
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const instance = sequelizeClient.define('instance', {
     id: {
       type: DataTypes.UUID,
@@ -20,15 +20,15 @@ export default (app: Application): any => {
     }
   }, {
     hooks: {
-      beforeCount (options: any) {
-        options.raw = true
+      beforeCount (options: any): void {
+        options.raw = true;
       }
     }
   });
 
-  (instance as any).associate = (models: any) => {
+  (instance as any).associate = (models: any): void => {
     (instance as any).belongsTo(models.location);
-    (instance as any).hasMany(models.user, { foreignKey: {allowNull: true }})
-  }
-  return instance
-}
+    (instance as any).hasMany(models.user, { foreignKey: {allowNull: true }});
+  };
+  return instance;
+};

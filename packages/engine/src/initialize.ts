@@ -15,18 +15,19 @@ import { NetworkSystem } from './networking/systems/NetworkSystem';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
 import { StateSystem } from './state/systems/StateSystem';
 import { SubscriptionSystem } from './subscription/systems/SubscriptionSystem';
-import { ParticleSystem } from "./particles/systems/ParticleSystem"
+import { ParticleSystem } from "./particles/systems/ParticleSystem";
 import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
 import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { Timer } from './common/functions/Timer';
 import { addObject3DComponent } from './common/behaviors/Object3DBehaviors';
-import _ from 'lodash'
+import _ from 'lodash';
 
 import { Mesh, BufferGeometry } from "three";
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
+import { HighlightSystem } from './effects/systems/EffectSystem';
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 
@@ -84,10 +85,16 @@ export const DefaultInitializationOptions = {
 };
 
 export function initializeEngine (initOptions: any = DefaultInitializationOptions) {
-  const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
+  const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
+
+  // Input
+  if (options.input && options.input.enabled && isBrowser) {
+    registerSystem(InputSystem, { useWebXR: options.withWebXRInput });
+  }
+
   // Create a new three.js scene
   const scene = new Scene();
 
@@ -111,7 +118,7 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
     const camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.3, 500);
 
     // Add the camera to the camera manager so it's available anywhere
-    Engine.camera = camera
+    Engine.camera = camera;
     // Add the camera to the three.js scene
     scene.add(camera);
       registerSystem(CameraSystem);
@@ -139,10 +146,6 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
       // }
     }
 
-  // Input
-  if (options.input && options.input.enabled && isBrowser) {
-    registerSystem(InputSystem, { useWebXR: options.withWebXRInput });
-  }
 
   // Networking
   if (options.networking && options.networking.enabled) {
@@ -171,8 +174,11 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
   }
   // Particles
   if (options.particles && options.particles.enabled) {
-    registerSystem(ParticleSystem)
+    registerSystem(ParticleSystem);
   }
+
+  //Object HighlightSystem
+    registerSystem(HighlightSystem);
 
   // Rendering
   if (options.renderer && options.renderer.enabled) {
@@ -180,7 +186,7 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
   }
 
   if (options.interactive && options.interactive.enabled) {
-    registerSystem(InteractiveSystem)
+    registerSystem(InteractiveSystem);
   }
 
   // if (options.debug === true) {

@@ -1,6 +1,6 @@
-import fetch from 'node-fetch'
-import config from '../../config'
-import { BadRequest } from '@feathersjs/errors'
+import fetch from 'node-fetch';
+import config from '../../config';
+import { BadRequest } from '@feathersjs/errors';
 
 interface FilterType {
   count: number;
@@ -22,7 +22,7 @@ export default class SketchFabMedia {
   private readonly maxCollectionFileSizeBytes = `gltf:${100 * 1024 * 1024}`
 
   public async searchSketchFabMedia (filterOptions: any): Promise<any> {
-    const { source, filter, cursor, q, collection, pageSize } = filterOptions
+    const { source, filter, cursor, q, collection, pageSize } = filterOptions;
 
     const defaultFilters: FilterType = {
       count: pageSize,
@@ -32,21 +32,21 @@ export default class SketchFabMedia {
       downloadable: true,
       processing_status: 'succeeded',
       cursor
-    }
+    };
 
     // Collection filter
     if (collection) {
-      Object.assign(defaultFilters, this.sketchFabCollectionQueryHandler(collection, q))
+      Object.assign(defaultFilters, this.sketchFabCollectionQueryHandler(collection, q));
     }
 
     // Category Filter
     if (filter) {
-      Object.assign(defaultFilters, this.sketchFabCategoryQueryHandler(filter, q))
+      Object.assign(defaultFilters, this.sketchFabCategoryQueryHandler(filter, q));
     }
 
-    const url = new URL(this.SKETCH_FAB_SEARCH_URL)
+    const url = new URL(this.SKETCH_FAB_SEARCH_URL);
 
-    Object.keys(defaultFilters).forEach((key) => url.searchParams.append(key, String(defaultFilters[key as keyof FilterType])))
+    Object.keys(defaultFilters).forEach((key) => url.searchParams.append(key, String(defaultFilters[key as keyof FilterType])));
 
     return await fetch(url, { headers: { Authorization: this.SKETCH_FAB_AUTH_TOKEN } })
       .then(res => res.json())
@@ -58,8 +58,8 @@ export default class SketchFabMedia {
           },
           entries: response.results.map(this.getAndProcessSketchFabResponse),
           suggestions: null
-        }
-      })
+        };
+      });
   }
 
   public async getModel (modelId: string): Promise<any> {
@@ -67,22 +67,22 @@ export default class SketchFabMedia {
       return await fetch(`${this.SKETCH_FAB_BASE_URL}/models/${modelId}/download`, { headers: { Authorization: 'Bearer ' + this.SKETCH_FAB_AUTH_TOKEN } })
         .then(async (response) => {
           if (response.status >= 400) {
-            return await Promise.reject(new BadRequest(response.statusText, { status: response.status }))
+            return await Promise.reject(new BadRequest(response.statusText, { status: response.status }));
           }
 
-          const jsonResp: any = await response.json()
-          return { uri: jsonResp?.gltf?.url, expected_content_type: 'model/gltf+zip' }
-        })
+          const jsonResp: any = await response.json();
+          return { uri: jsonResp?.gltf?.url, expected_content_type: 'model/gltf+zip' };
+        });
     } catch (err) {
-      console.log('-->>>>', err)
+      console.log('-->>>>', err);
     }
   }
 
   private getAndProcessSketchFabResponse (item: any): any {
-    const preview = item.thumbnails.images.sort((a: any, b: any) => b.size - a.size)[0]
-    const uid: string = item.uid
+    const preview = item.thumbnails.images.sort((a: any, b: any) => b.size - a.size)[0];
+    const uid: string = item.uid;
 
-    const url = `https://sketchfab.com/models/${uid}`
+    const url = `https://sketchfab.com/models/${uid}`;
     const processedResponse = {
       type: 'sketchfab_model',
       id: item.uid,
@@ -94,16 +94,16 @@ export default class SketchFabMedia {
           url: item.thumbnails.images.sort((a: any, b: any) => b.size - a.size)[0]
         }
       }
-    }
+    };
 
     if (preview?.url) {
       processedResponse.images = {
         preview: {
           url: preview.url
         }
-      }
+      };
     }
-    return processedResponse
+    return processedResponse;
   }
 
   // Collection filter
@@ -113,23 +113,23 @@ export default class SketchFabMedia {
       max_filesizes: this.maxCollectionFileSizeBytes,
       collection: collectionId,
       sort_by: !q || q === '' ? '-publishedAt' : ''
-    }
+    };
   }
 
   // Category filter
   private sketchFabCategoryQueryHandler (category: string, q: string): any {
     const _categoryFilter: any = {
       categories: category
-    }
+    };
     if (!q || q === '') {
-      _categoryFilter.staffpicked = true
-      _categoryFilter.sort_by = '-publishedAt'
+      _categoryFilter.staffpicked = true;
+      _categoryFilter.sort_by = '-publishedAt';
     }
 
     // In case of featured filter, enable the staffpicked flag
     if (category === 'featured') {
-      _categoryFilter.staffpicked = true
+      _categoryFilter.staffpicked = true;
     }
-    return _categoryFilter
+    return _categoryFilter;
   }
 }

@@ -1,6 +1,6 @@
-import collectAnalytics from '../../hooks/collect-analytics'
+import collectAnalytics from '../../hooks/collect-analytics';
 
-import { disallow } from 'feathers-hooks-common'
+import { disallow } from 'feathers-hooks-common';
 
 export default {
   before: {
@@ -32,4 +32,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+};

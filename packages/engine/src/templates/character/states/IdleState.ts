@@ -57,11 +57,11 @@ export const IdleState: StateSchemaValue = {
         action: (entity:Entity): void => {
           // Default behavior for all states
           findVehicle(entity);
-          const input = getComponent(entity, Input)
+          const input = getComponent(entity, Input);
 
           // Check if we're trying to jump
           if (input.data.has(DefaultInput.JUMP) && input.data.get(DefaultInput.JUMP).value === BinaryValue.ON) {
-            return addState(entity, {state: CharacterStateTypes.JUMP_IDLE})
+            return addState(entity, {state: CharacterStateTypes.JUMP_IDLE});
           }
 
           if (input.data.has(DefaultInput.SPRINT)) {
@@ -78,11 +78,11 @@ export const IdleState: StateSchemaValue = {
           }
 
           // If we're not moving, don't worry about the rest of this action
-          if (!isMoving(entity)) return
+          if (!isMoving(entity)) return;
 
           // If our character is moving or being moved, go to walk state
     //      if (getComponent(entity, CharacterComponent).velocity.length() > 0.5)
-  //          return addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD })
+  //          return addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD });
 
           // Otherwise set the appropriate walk state
           setAppropriateStartWalkState(entity);

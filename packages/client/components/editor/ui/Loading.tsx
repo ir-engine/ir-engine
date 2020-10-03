@@ -7,8 +7,8 @@ const StyledLoading = (styled as any).div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: ${props => (props.fullScreen ? "100vh" : "100%")};
-  width: ${props => (props.fullScreen ? "100vw" : "100%")};
+  height: ${props => (props.isFullscreen ? "100vh" : "100%")};
+  width: ${props => (props.isFullScreen ? "100vw" : "100%")};
   min-height: 300px;
 
   svg {
@@ -19,7 +19,7 @@ const StyledLoading = (styled as any).div`
 export default class Loading extends Component {
   static propTypes = {
     message: PropTypes.string,
-    fullScreen: PropTypes.bool
+    isFullscreen: PropTypes.bool
   };
 
   render() {

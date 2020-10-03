@@ -1,8 +1,8 @@
-import { Sequelize, DataTypes } from 'sequelize'
-import { Application } from '../declarations'
+import { Sequelize, DataTypes } from 'sequelize';
+import { Application } from '../declarations';
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const entity = sequelizeClient.define('entity', {
     id: {
       type: DataTypes.UUID,
@@ -25,18 +25,18 @@ export default (app: Application): any => {
     index: DataTypes.INTEGER
   }, {
     hooks: {
-      beforeCount (options: any) {
-        options.raw = true
+      beforeCount (options: any): void {
+        options.raw = true;
       }
     }
   });
 
-  (entity as any).associate = (models: any) => {
+  (entity as any).associate = (models: any): void => {
     (entity as any).hasMany(models.component, { foreignKey: 'entityId', onDelete: 'cascade', hooks: true });
     (entity as any).belongsTo(models.entity_type, { foreignKey: 'entityType', required: true });
     (entity as any).belongsTo(models.collection, { onDelete: 'cascade', hooks: true });
-    (entity as any).belongsTo(models.user)
-  }
+    (entity as any).belongsTo(models.user);
+  };
 
-  return entity
-}
+  return entity;
+};

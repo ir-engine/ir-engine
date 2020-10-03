@@ -326,7 +326,7 @@ export class Pass {
       material.dispose();
     }
 
-		this.screen?.geometry?.dispose()
+		this.screen?.geometry?.dispose();
 
     for (const key of Object.keys(this)) {
       if (this[key] !== null && typeof this[key].dispose === 'function') {
@@ -335,8 +335,8 @@ export class Pass {
       }
     }
 
-		this.scene = null
-		this.camera = null
-		this.screen = null
+		this.scene = null;
+		this.camera = null;
+		this.screen = null;
   }
 }

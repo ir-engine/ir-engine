@@ -12,7 +12,7 @@ export default class PublishDialog extends Component {
     screenshotUrl: PropTypes.string,
     contentAttributions: PropTypes.array,
     onPublish: PropTypes.func,
-    published: PropTypes.bool,
+    isPublished: PropTypes.bool,
     sceneUrl: PropTypes.string,
     initialSceneParams: PropTypes.object
   };

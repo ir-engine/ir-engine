@@ -18,7 +18,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
   if (args.phase == 'onAdded') {
     const vehicleComponent = getMutableComponent(entity, VehicleBody);
     const vehicle = createVehicleBody(entity);
-    vehicleComponent.vehiclePhysics = vehicle
+    vehicleComponent.vehiclePhysics = vehicle;
 
 
   } else if (args.phase == 'onUpdate') {
@@ -37,14 +37,14 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
         chassisBody.position.x,
         chassisBody.position.y,
         chassisBody.position.z
-      )
+      );
 
       transform.rotation.set(
         chassisBody.quaternion.x,
         chassisBody.quaternion.y,
         chassisBody.quaternion.z,
         chassisBody.quaternion.w
-      )
+      );
       for (let i = 0; i < wheels.length; i++) {
 
         vehicle.updateWheelTransform(i);
@@ -53,21 +53,21 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
           vehicle.wheelInfos[i].worldTransform.position.x,
           vehicle.wheelInfos[i].worldTransform.position.y,
           vehicle.wheelInfos[i].worldTransform.position.z
-        )
+        );
 
         wheels[i].quaternion.set(
           vehicle.wheelInfos[i].worldTransform.quaternion.x,
           vehicle.wheelInfos[i].worldTransform.quaternion.y,
           vehicle.wheelInfos[i].worldTransform.quaternion.z,
           vehicle.wheelInfos[i].worldTransform.quaternion.w
-        )
+        );
 
       }
 
 
 
   } else {
-    console.warn("User data for vehicle not found")
+    console.warn("User data for vehicle not found");
   }
 
 
@@ -95,16 +95,16 @@ export function createVehicleBody (entity: Entity ) {
   const wheelRadius = vehicleComponent.wheelRadius;
   const vehicleCollider = vehicleComponent.vehicleCollider;
   const vehicleSphereColliders = vehicleComponent.vehicleSphereColliders;
-  const mass = vehicleComponent.mass
+  const mass = vehicleComponent.mass;
 
   let chassisBody, chassisShape;
 
   if (vehicleCollider) {
-    let offset = new Vec3(0, -0.8, 0)
-    chassisBody = createTrimesh(vehicleCollider, offset, mass)
+    const offset = new Vec3(0, -0.8, 0);
+    chassisBody = createTrimesh(vehicleCollider, offset, mass);
     chassisBody.shapes.forEach((shape) => {
       shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
-    })
+    });
   } else {
     //chassisShape = new Box(new Vec3(1, 0.2, 2.0));
     chassisBody = new Body({ mass });
@@ -120,9 +120,9 @@ export function createVehicleBody (entity: Entity ) {
 
 
   //  let
-  chassisBody.position.x = transform.position.x
-  chassisBody.position.y = transform.position.y
-  chassisBody.position.z = transform.position.z
+  chassisBody.position.x = transform.position.x;
+  chassisBody.position.y = transform.position.y;
+  chassisBody.position.z = transform.position.z;
   //  chassisBody.angularVelocity.set(0, 0, 0.5);
   const options = {
     radius: wheelRadius,

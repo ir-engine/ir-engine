@@ -51,7 +51,7 @@ export class InputSystem extends System {
 
   dispose(): void {
     // disposeVR();
-    this._inputComponent = null
+    this._inputComponent = null;
   }
 
   /**
@@ -61,7 +61,7 @@ export class InputSystem extends System {
   public execute(delta: number): void {
     // Handle XR input
     if (this.queryResults.xrRenderer.all.length > 0) {
-      console.log("XR RENDERING")
+      console.log("XR RENDERING");
       const webXRRenderer = getMutableComponent(this.queryResults.xrRenderer.all[0], WebXRRenderer);
       // Called when WebXRSession component is added to entity
       this.queryResults.xrSession.added?.forEach(entity => initializeSession(entity, { webXRRenderer }));
@@ -72,9 +72,9 @@ export class InputSystem extends System {
     // Called every frame on all input components
     this.queryResults.inputs.all.forEach(entity => {
       if (!hasComponent(entity, Input)) {
-        return
+        return;
       }
-      handleInput(entity, { }, delta)
+      handleInput(entity, { }, delta);
     });
 
     // Called when input component is added to entity
@@ -86,8 +86,8 @@ export class InputSystem extends System {
         behavior.behavior(entity, { ...behavior.args });
       });
       // Bind DOM events to event behavior
-      const listenersDataArray:ListenerBindingData[] = []
-      this.entityListeners.set(entity, listenersDataArray)
+      const listenersDataArray:ListenerBindingData[] = [];
+      this.entityListeners.set(entity, listenersDataArray);
       Object.keys(this._inputComponent.schema.eventBindings)?.forEach((eventName: string) => {
         this._inputComponent.schema.eventBindings[eventName].forEach((behaviorEntry: any) => {
           const domElement = behaviorEntry.selector ? document.querySelector(behaviorEntry.selector) : document;
@@ -98,7 +98,7 @@ export class InputSystem extends System {
               domElement,
               eventName,
               listener
-            })
+            });
             return [domElement, eventName, listener];
           } else {
             console.warn('DOM Element not found:', domElement);
@@ -116,7 +116,7 @@ export class InputSystem extends System {
       if (this._inputComponent.data.size) {
         this._inputComponent.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
           handleInputPurge(entity);
-        })
+        });
       }
 
       // Call all behaviors in "onRemoved" of input map
@@ -124,7 +124,7 @@ export class InputSystem extends System {
         behavior.behavior(entity, behavior.args);
       });
       // Unbind events from DOM
-      this.entityListeners.get(entity).forEach(listenerData => listenerData.domElement?.removeEventListener(listenerData.eventName, listenerData.listener) )
+      this.entityListeners.get(entity).forEach(listenerData => listenerData.domElement?.removeEventListener(listenerData.eventName, listenerData.listener) );
 
       const bound = this.boundListeners[entity.id];
       if (bound) {
@@ -135,7 +135,7 @@ export class InputSystem extends System {
         delete this.boundListeners[entity.id];
       }
 
-      this.entityListeners.delete(entity)
+      this.entityListeners.delete(entity);
     });
   }
 }

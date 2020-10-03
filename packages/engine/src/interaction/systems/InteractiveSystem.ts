@@ -24,8 +24,8 @@ export class InteractiveSystem extends System {
   constructor(attributes?: SystemAttributes) {
     super(attributes);
 
-    this.focused = new Set()
-    this.newFocused = new Set()
+    this.focused = new Set();
+    this.newFocused = new Set();
   }
 
   dispose(): void {
@@ -35,39 +35,39 @@ export class InteractiveSystem extends System {
   }
 
   execute(delta: number, time: number): void {
-    this.newFocused.clear()
+    this.newFocused.clear();
 
     this.queryResults.interactors?.all.forEach(entity => {
       if (this.queryResults.interactive?.all.length) {
-        interactRaycast(entity, { interactive: this.queryResults.interactive.all })
+        interactRaycast(entity, { interactive: this.queryResults.interactive.all });
 
-        const interacts = getComponent(entity, Interacts)
+        const interacts = getComponent(entity, Interacts);
         if (interacts.focusedInteractive) {
-          this.newFocused.add(interacts.focusedInteractive)
+          this.newFocused.add(interacts.focusedInteractive);
           // TODO: can someone else focus object? should we update 'interacts' entity
           if (!hasComponent(interacts.focusedInteractive, InteractiveFocused)) {
-            addComponent(interacts.focusedInteractive, InteractiveFocused, {interacts: entity})
+            addComponent(interacts.focusedInteractive, InteractiveFocused, {interacts: entity});
           }
         }
 
         // unmark all unfocused
         this.queryResults.interactive?.all.forEach(entity => {
           if (entity !== interacts.focusedInteractive) {
-            removeComponent(entity, InteractiveFocused)
+            removeComponent(entity, InteractiveFocused);
           }
-        })
+        });
       }
-    })
+    });
 
     this.queryResults.focus.added?.forEach(entity => {
-      interactFocused(entity, null, delta)
-    })
+      interactFocused(entity, null, delta);
+    });
     this.queryResults.focus.removed?.forEach(entity => {
-      interactFocused(entity, null, delta)
-    })
+      interactFocused(entity, null, delta);
+    });
 
-    this.focused.clear()
-    this.newFocused.forEach(e => this.focused.add(e) )
+    this.focused.clear();
+    this.newFocused.forEach(e => this.focused.add(e) );
   }
 
   static queries: any = {

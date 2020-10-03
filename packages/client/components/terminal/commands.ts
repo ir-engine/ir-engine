@@ -108,7 +108,7 @@ export const commands = {
                         Engine.entities.forEach(e => {
                             s += (e.id + '\n');
                             if ('a' in args || 'p' in args) {
-                                for (let componentId in e.components) {
+                                for (const componentId in e.components) {
                                     const component = e.components[componentId];
                                     s += ('\t' + componentId + ': ' + component.name);
                                     if (component.name === 'TransformComponent' && ('p' in args))
@@ -150,7 +150,7 @@ export const commands = {
                         // ecs entities rm 1 2 3
                         const ids = options;
 	                    ids.forEach(id => {
-		                      let entity = Engine.entities.find(element => element.id === id);
+		                      const entity = Engine.entities.find(element => element.id === id);
                               if (entity !== undefined) entity.remove();
 	                    });
 
@@ -184,7 +184,7 @@ export const commands = {
                         const entityId = args._[1];
                         // console.log('check', args);
 
-                        let entity = Engine.entities.find(element => element.id === entityId);
+                        const entity = Engine.entities.find(element => element.id === entityId);
                         if (entity === undefined) {
                             print(`An entity ${entityId} was not found.`);
                             return;
@@ -192,7 +192,7 @@ export const commands = {
 
                         let s = '';
 
-                        for (let componentId in entity.components) {
+                        for (const componentId in entity.components) {
                             const component = entity.components[componentId];
                             s += (componentId + ': ' + component.name);
                             if (component.name === 'TransformComponent' && ('p' in args))

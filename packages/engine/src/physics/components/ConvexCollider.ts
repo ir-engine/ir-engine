@@ -12,10 +12,10 @@ export class ConvexCollider extends Component<ConvexCollider>
 
 	constructor(mesh: Object3D, options: any)
 	{
-		super()
+		super();
 		this.mesh = mesh.clone();
 
-		let defaults = {
+		const defaults = {
 			mass: 0,
 			position: mesh.position,
 			friction: 0.3
@@ -23,7 +23,7 @@ export class ConvexCollider extends Component<ConvexCollider>
 		options = setDefaults(options, defaults);
 		this.options = options;
 
-		let mat = new Material('convMat');
+		const mat = new Material('convMat');
 		mat.friction = options.friction;
 		// mat.restitution = 0.7;
 
@@ -32,19 +32,19 @@ export class ConvexCollider extends Component<ConvexCollider>
 			this.mesh.geometry = new Geometry().fromBufferGeometry(this.mesh.geometry);
 		}
 
-		let cannonPoints = this.mesh.geometry.vertices.map((v: Vector3) => {
+		const cannonPoints = this.mesh.geometry.vertices.map((v: Vector3) => {
 			return new Vec3( v.x, v.y, v.z );
 		});
 		
-		let cannonFaces = this.mesh.geometry.faces.map((f: any) => {
+		const cannonFaces = this.mesh.geometry.faces.map((f: any) => {
 			return [f.a, f.b, f.c];
 		});
 
-		let shape = new ConvexPolyhedron({ vertices: cannonPoints, faces: cannonFaces });
+		const shape = new ConvexPolyhedron({ vertices: cannonPoints, faces: cannonFaces });
 		// shape.material = mat;
 
 		// Add phys sphere
-		let physBox = new Body({
+		const physBox = new Body({
 			mass: options.mass,
 			position: options.position,
 			shape

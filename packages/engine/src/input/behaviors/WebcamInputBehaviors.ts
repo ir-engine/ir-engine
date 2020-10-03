@@ -15,10 +15,10 @@ export const startFaceTracking: Behavior = (entity) => {
     ]).then(() => {
         video.addEventListener('play', () => {
             // Record input at 30 FPS for now
-            setInterval(async () => faceToInput(entity, video), 33)
-        })
-    })
-}
+            setInterval(async () => faceToInput(entity, video), 33);
+        });
+    });
+};
 
 export const startLipsyncTracking: Behavior = (entity) => {
     const BoundingFrequencyMasc = [0, 400, 560, 2400, 4800];
@@ -26,11 +26,11 @@ export const startLipsyncTracking: Behavior = (entity) => {
     const audioContext = new AudioContext();
     const FFT_SIZE = 1024;
     const samplingFrequency = 44100;
-    let sensitivityPerPole
-    let spectrum
-    let spectrumRMS
-    let IndicesFrequencyFemale = [];
-    let IndicesFrequencyMale = [];
+    let sensitivityPerPole;
+    let spectrum;
+    let spectrumRMS;
+    const IndicesFrequencyFemale = [];
+    const IndicesFrequencyMale = [];
 
     for (let m = 0; m < BoundingFrequencyMasc.length; m++) {
         IndicesFrequencyMale[m] = Math.round(((2 * FFT_SIZE) / samplingFrequency) * BoundingFrequencyMasc[m]);
@@ -81,14 +81,14 @@ export const startLipsyncTracking: Behavior = (entity) => {
             for (let j = IndicesFrequencyMale[m]; j <= IndicesFrequencyMale[m + 1]; j++)
                 if (sensitivityPerPole[j] > 0) EnergyBinFem[m] += sensitivityPerPole[j];
             EnergyBinMasc[m] /= (IndicesFrequencyMale[m + 1] - IndicesFrequencyMale[m]);
-            EnergyBinFem[m] = EnergyBinFem[m] / (IndicesFrequencyFemale[m + 1] - IndicesFrequencyFemale[m])
+            EnergyBinFem[m] = EnergyBinFem[m] / (IndicesFrequencyFemale[m + 1] - IndicesFrequencyFemale[m]);
         }
 
-        const input = getMutableComponent(entity, Input)
+        const input = getMutableComponent(entity, Input);
 
         const pucker = Math.max(EnergyBinFem[1], EnergyBinMasc[1]) > 0.2 ?
             1 - 2 * Math.max(EnergyBinMasc[2], EnergyBinFem[2])
-            : (1 - 2 * Math.max(EnergyBinMasc[2], EnergyBinFem[2])) * 5 * Math.max(EnergyBinMasc[1], EnergyBinFem[1])
+            : (1 - 2 * Math.max(EnergyBinMasc[2], EnergyBinFem[2])) * 5 * Math.max(EnergyBinMasc[1], EnergyBinFem[1]);
 
         if (pucker > .2)
             input.data.set(nameToInputValue["pucker"], {
@@ -96,31 +96,31 @@ export const startLipsyncTracking: Behavior = (entity) => {
                 value: pucker
             });
         else if (input.data.has(nameToInputValue["pucker"]))
-            input.data.delete(nameToInputValue["pucker"])
+            input.data.delete(nameToInputValue["pucker"]);
 
             // Calculate lips widing and apply as input
-        const widen = 3 * Math.max(EnergyBinMasc[3], EnergyBinFem[3])
+        const widen = 3 * Math.max(EnergyBinMasc[3], EnergyBinFem[3]);
         if (widen > .2)
             input.data.set(nameToInputValue["widen"], {
                 type: InputType.ONEDIM,
                 value: widen
             });
         else if (input.data.has(nameToInputValue["widen"]))
-            input.data.delete(nameToInputValue["widen"])
+            input.data.delete(nameToInputValue["widen"]);
             
             // Calculate mouth opening and apply as input
-        const open = 0.8 * (Math.max(EnergyBinMasc[1], EnergyBinFem[1]) - Math.max(EnergyBinMasc[3], EnergyBinFem[3]))
+        const open = 0.8 * (Math.max(EnergyBinMasc[1], EnergyBinFem[1]) - Math.max(EnergyBinMasc[3], EnergyBinFem[3]));
         if (open > .2)
             input.data.set(nameToInputValue["open"], {
                 type: InputType.ONEDIM,
                 value: open
             });
         else if (input.data.has(nameToInputValue["open"]))
-            input.data.delete(nameToInputValue["open"])
-    }
-}
+            input.data.delete(nameToInputValue["open"]);
+    };
+};
 
-var nameToInputValue = {
+const nameToInputValue = {
     angry: CameraInput.Angry,
     disgusted: CameraInput.Disgusted,
     fearful: CameraInput.Fearful,
@@ -128,13 +128,13 @@ var nameToInputValue = {
     neutral: CameraInput.Neutral,
     sad: CameraInput.Sad,
     surprised: CameraInput.Surprised
-}
+};
 
 async function faceToInput(entity, video) {
-    const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions()
+    const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
     if (detection !== undefined && detection.expressions !== undefined) {
-        console.log(detection.expressions)
-        const expressions = {}
+        console.log(detection.expressions);
+        const expressions = {};
         const input = getMutableComponent(entity, Input);
         for (const expression in detection.expressions) {
             // If the detected value of the expression is more than 1/3rd-ish of total, record it
@@ -147,13 +147,13 @@ async function faceToInput(entity, video) {
                 });
             // check if the map has it and delete it
             else if (input.data.has(expressions[nameToInputValue[expression]]))
-                input.data.delete(expressions[nameToInputValue[expression]])
+                input.data.delete(expressions[nameToInputValue[expression]]);
         }
     }
 }
 
 function getRMS(spectrum) {
-    var rms = 0;
+    let rms = 0;
     for (let i = 0; i < spectrum.length; i++) {
         rms += spectrum[i] * spectrum[i];
     }
@@ -163,8 +163,8 @@ function getRMS(spectrum) {
 }
 
 function getSensitivityMap(spectrum) {
-    var sensitivity_threshold = 0.5;
-    var stPSD = new Float32Array(spectrum.length);
+    const sensitivity_threshold = 0.5;
+    const stPSD = new Float32Array(spectrum.length);
     for (let i = 0; i < spectrum.length; i++) {
         stPSD[i] = sensitivity_threshold + ((spectrum[i] + 20) / 140);
     }

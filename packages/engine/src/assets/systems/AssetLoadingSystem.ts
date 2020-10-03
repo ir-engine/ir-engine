@@ -27,8 +27,8 @@ export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
 
   constructor() {
-    super()
-    addComponent(createEntity(), AssetVault)
+    super();
+    addComponent(createEntity(), AssetVault);
   }
 
   execute () {
@@ -36,8 +36,8 @@ export default class AssetLoadingSystem extends System {
       // Do things here
     });
     this.queryResults.toLoad.all.forEach((entity: Entity) => {
-      if(hasComponent(entity, AssetLoaderState)) return console.log("Returning because already has assetloader")
-      console.log("To load query has members!")
+      if(hasComponent(entity, AssetLoaderState)) return console.log("Returning because already has assetloader");
+      console.log("To load query has members!");
       // Create a new entity
       addComponent(entity, AssetLoaderState);
       const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader);
@@ -53,13 +53,13 @@ export default class AssetLoadingSystem extends System {
         // This loads the editor scene
         this.loaded.set(entity, asset);
       });
-    })
+    });
 
     // Do the actual entity creation inside the system tick not in the loader callback
     this.loaded.forEach( (asset, entity) =>{
       const component = getComponent<AssetLoader>(entity, AssetLoader);
       if (component.assetClass === AssetClass.Model) {
-        const replacedMaterials = new Map()
+        const replacedMaterials = new Map();
         if(asset.scene !== undefined)
         asset.scene.traverse((child) => {
           if (child.isMesh) {
@@ -71,7 +71,7 @@ export default class AssetLoadingSystem extends System {
             }
 
             if (replacedMaterials.has(child.material)) {
-              child.material = replacedMaterials.get(child.material)
+              child.material = replacedMaterials.get(child.material);
             } else {
               if (child?.material?.userData?.gltfExtensions?.KHR_materials_clearcoat) {
                 const newMaterial = new MeshPhysicalMaterial({});
@@ -86,27 +86,27 @@ export default class AssetLoadingSystem extends System {
             }
           }
         });
-        replacedMaterials.clear()
+        replacedMaterials.clear();
       }
 
       addComponent(entity, Model, { value: asset });
       if (hasComponent(entity, Object3DComponent)) {
         if (getComponent<Object3DComponent>(entity, Object3DComponent).value !== undefined)
-          getMutableComponent<Object3DComponent>(entity, Object3DComponent).value.add(asset.scene)
-        else getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = (asset.scene)
+          getMutableComponent<Object3DComponent>(entity, Object3DComponent).value.add(asset.scene);
+        else getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = (asset.scene);
       } else {
         addObject3DComponent(entity, {obj3d: asset.scene ?? asset});
       }
 
       //const transformParent = addComponent<TransformParentComponent>(entity, TransformParentComponent) as TransformParentComponent
-      const a = asset.scene ?? asset
+      const a = asset.scene ?? asset;
       a.children.forEach(obj => {
-        const e = createEntity()
+        const e = createEntity();
         addObject3DComponent(e, { obj3d: obj, parentEntity: entity });
         // const transformChild = addComponent<TransformChildComponent>(e, TransformChildComponent) as TransformChildComponent
         // transformChild.parent = entity
         //transformParent.children.push(e)
-      })
+      });
       getMutableComponent<AssetLoader>(entity, AssetLoader).loaded = true;
       
       AssetVault.instance.assets.set(hashResourceString(component.url), asset.scene);
@@ -119,14 +119,14 @@ export default class AssetLoadingSystem extends System {
     this.loaded?.clear();
 
     this.queryResults.toUnload.all.forEach((entity: Entity) => {
-      console.log("Entity should be unloaded", entity)
+      console.log("Entity should be unloaded", entity);
       removeComponent(entity, AssetLoaderState);
       removeComponent(entity, Unload);
 
       if(hasComponent(entity, Object3DComponent)){
         removeObject3DComponent(entity);
       }
-    })
+    });
   }
 }
 

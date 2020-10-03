@@ -9,7 +9,6 @@ import platform from 'platform';
 }());
 
 // Handle console logging
-// eslint-disable-next-line import/prefer-default-export
 export function handleLogging(method, addToOutput) {
   // eslint-disable-next-line no-console
   console[method] = (...args) => {

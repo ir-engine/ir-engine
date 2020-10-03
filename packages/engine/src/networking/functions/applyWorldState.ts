@@ -12,17 +12,17 @@ import { NetworkInterpolation } from '../components/NetworkInterpolation';
 import { initializeNetworkObject } from './initializeNetworkObject';
 
 export function applyWorldState(worldStateBuffer, delta = 0.033) {
-  const worldState = worldStateBuffer // worldStateModel.fromBuffer(worldStateBuffer);
+  const worldState = worldStateBuffer; // worldStateModel.fromBuffer(worldStateBuffer);
 
 
   if(worldState.clientsConnected.length > 0) {
-    console.log("worldState.clientsConnected")
-    console.log(worldState.clientsConnected)
+    console.log("worldState.clientsConnected");
+    console.log(worldState.clientsConnected);
   }
 
   if(worldState.createObjects.length > 0) {
-    console.log("worldState.networkObjects")
-    console.log(worldState.createObjects)
+    console.log("worldState.networkObjects");
+    console.log(worldState.createObjects);
   }
   // // TODO: Validate if we've missed important frames
   // console.log("Old tick is",
@@ -38,7 +38,7 @@ export function applyWorldState(worldStateBuffer, delta = 0.033) {
     // Send a request for the ones that didn't
   }
 
-  Network.tick = worldState.tick
+  Network.tick = worldState.tick;
 
   Network.instance.worldState = worldState; // cache latest world state, we might be able to delete this
 
@@ -58,7 +58,7 @@ export function applyWorldState(worldStateBuffer, delta = 0.033) {
     console.log(worldState.clientsConnected[disconnectingClient].userId, " disconnected");
     delete Network.instance.clients[worldState.clientsConnected[disconnectingClient].clientId];
     } else {
-      console.warn("Client disconnected but was not found in our client list")
+      console.warn("Client disconnected but was not found in our client list");
     }
   }
 
@@ -68,7 +68,7 @@ export function applyWorldState(worldStateBuffer, delta = 0.033) {
         worldState.createObjects[objectToCreate].ownerId,
         worldState.createObjects[objectToCreate].networkId,
         worldState.createObjects[objectToCreate].prefabType
-    )
+    );
 
     console.log("Created network prefab for " + worldState.createObjects[objectToCreate].ownerId);
   }
@@ -78,7 +78,7 @@ export function applyWorldState(worldStateBuffer, delta = 0.033) {
     addSnapshot(createSnapshot(worldState.transforms));
     // Interpolate it
     const snapshot = calculateInterpolation('x y z q(quat)');
-    const { state } = snapshot
+    const { state } = snapshot;
     Network.instance.worldState.transforms = state;
   }
 
@@ -87,13 +87,13 @@ export function applyWorldState(worldStateBuffer, delta = 0.033) {
     destroyNetworkObject(worldState.createObjects[objectToDestroy].networkId);
 
   if(worldState.inputs !== undefined && worldState.inputs.length > 0){
-    console.log("World state inputs: ")
-    console.log(worldState.inputs)
+    console.log("World state inputs: ");
+    console.log(worldState.inputs);
   }
 
   worldState.inputs?.forEach(stateData => {
 
-    if(Network.instance.networkObjects[stateData.networkId] === undefined) return console.warn("network object undefined, but inputs not")
+    if(Network.instance.networkObjects[stateData.networkId] === undefined) return console.warn("network object undefined, but inputs not");
     // Get network object with networkId
     const networkComponent = Network.instance.networkObjects[stateData.networkId].component;
     // Get input object attached

@@ -28,7 +28,7 @@ module.exports = {
     "no-var": "error",
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/ban-ts-comment": "off",
-    "semi": "off",
+    "semi": ['warn', 'always'],
     "@typescript-eslint/ban-types": "off",
     "space-before-function-paren":"off",
     "@typescript-eslint/default-param-last": "off",

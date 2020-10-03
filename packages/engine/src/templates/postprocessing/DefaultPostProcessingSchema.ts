@@ -7,11 +7,30 @@ import { ToneMappingEffect } from '../../postprocessing/effects/ToneMappingEffec
 import { HueSaturationEffect } from '../../postprocessing/effects/HueSaturationEffect';
 import { DepthOfFieldEffect } from '../../postprocessing/effects/DepthOfFieldEffect';
 import { BrightnessContrastEffect } from '../../postprocessing/effects/BrightnessContrastEffect';
+import { Resizer } from '../../postprocessing/core/Resizer';
+import { OutlineEffect } from '../../postprocessing/effects/OutlineEffect';
 
 export const DefaultPostProcessingSchema: PostProcessingSchema = {
   effects: [
-/*
     {
+      effect: OutlineEffect,
+      options: {
+        blendFunction: BlendFunction.SCREEN,
+        patternTexture: null,
+        edgeStrength: 1.0,
+        pulseSpeed: 0.0,
+        visibleEdgeColor: 0xffffff,
+        hiddenEdgeColor: 0x22090a,
+        resolutionScale: 0.5,
+        width: Resizer.AUTO_SIZE,
+        height: Resizer.AUTO_SIZE,
+        kernelSize: KernelSize.VERY_SMALL,
+        blur: false,
+        xRay: true
+      }
+    },
+/*
+   {
       effect: SSAOEffect,
       options: {
         blendFunction: BlendFunction.MULTIPLY,
@@ -28,7 +47,6 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
       fade: 0.05
       }
     },
-
     {
       effect: DepthOfFieldEffect,
       options: {

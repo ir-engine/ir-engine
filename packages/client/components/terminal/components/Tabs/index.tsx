@@ -20,13 +20,13 @@ class Tabs extends Component<any, any> {
     createTab: PropTypes.func,
   };
 
-  static defaultProps = {
-    style: {},
-  };
-
   static contextTypes = {
     instances: PropTypes.array,
     maximise: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    style: {},
   };
 
   state = {

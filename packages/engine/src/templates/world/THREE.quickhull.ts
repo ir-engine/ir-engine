@@ -41,22 +41,18 @@
  import * as THREE from 'three';
 /* tslint:disable */
 export const quickhull = (function(){
-
-
-  var faces     = [],
-    faceStack   = [],
-    i, NUM_POINTS, extremes,
-    max     = 0,
-    dcur, current, j, v0, v1, v2, v3,
+  let faces = [];
+  let faceStack  = [];
+  let NUM_POINTS,
+    dcur, j, v0, v1, v2, v3,
     N, D;
 
-  var ab, ac, ax,
+  let ab, ac, ax,
     suba, subb, normal,
     diff, subaA, subaB, subC,
     cEdgeIndex;
 
   function reset(){
-
     ab    = new THREE.Vector3(),
     ac    = new THREE.Vector3(),
     ax    = new THREE.Vector3(),
@@ -67,7 +63,6 @@ export const quickhull = (function(){
     subaA = new THREE.Vector3(),
     subaB = new THREE.Vector3(),
     subC  = new THREE.Vector3();
-
   }
 
   //temporary vectors
@@ -81,9 +76,9 @@ export const quickhull = (function(){
   }
 
 
-  var norm = function(){
+  const norm = function(){
 
-    var ca = new THREE.Vector3(),
+    const ca = new THREE.Vector3(),
       ba = new THREE.Vector3(),
       N = new THREE.Vector3();
 
@@ -95,7 +90,7 @@ export const quickhull = (function(){
       N.crossVectors( ca, ba );
 
       return N.normalize();
-    }
+    };
 
   }();
 
@@ -104,7 +99,7 @@ export const quickhull = (function(){
 
     if( face.normal !== undefined ) return face.normal;
 
-    var p0 = points[face[0]],
+    const p0 = points[face[0]],
       p1 = points[face[1]],
       p2 = points[face[2]];
 
@@ -121,13 +116,13 @@ export const quickhull = (function(){
   function assignPoints( face, pointset, points ){
 
     // ASSIGNING POINTS TO FACE
-    var p0 = points[face[0]],
-      dots = [], apex,
-      norm = getNormal( face, points );
+    const p0 = points[face[0]];
+    const dots = [];
+    const norm = getNormal( face, points );
 
 
     // Sory all the points by there distance from the plane
-    pointset.sort( function( aItem, bItem ){
+    pointset.sort( ( aItem, bItem )=> {
 
 
       dots[aItem.x/3] = dots[aItem.x/3] !== undefined ? dots[aItem.x/3] : norm.dot( suba.subVectors( aItem, p0 ));
@@ -137,12 +132,11 @@ export const quickhull = (function(){
     });
 
     //TODO :: Must be a faster way of finding and index in this array
-    var index = pointset.length;
+    let index = pointset.length;
 
     if( index === 1 ) dots[pointset[0].x/3] = norm.dot( suba.subVectors( pointset[0], p0 ));
     while( index-- > 0 && dots[pointset[index].x/3] > 0 )
 
-    var point;
     if( index + 1 < pointset.length && dots[pointset[index+1].x/3] > 0 ){
 
       face.visiblePoints  = pointset.splice( index + 1 );
@@ -154,11 +148,11 @@ export const quickhull = (function(){
 
   function cull( face, points ){
 
-    var i = faces.length,
-      dot, visibleFace, currentFace,
-      visibleFaces = [face];
+    let i = faces.length,
+      dot, currentFace;
+    const visibleFaces = [face];
 
-    var apex = points.indexOf( face.visiblePoints.pop() );
+    const apex = points.indexOf( face.visiblePoints.pop() );
 
     // Iterate through all other faces...
     while( i-- > 0 ){
@@ -172,8 +166,6 @@ export const quickhull = (function(){
       }
     }
 
-    var index, neighbouringIndex, vertex;
-
     // Determine Perimeter - Creates a bounded horizon
 
     // 1. Pick an edge A out of all possible edges
@@ -186,17 +178,14 @@ export const quickhull = (function(){
     // 5. If candidate geometry is a degenrate triangle (ie. the tangent space normal cannot be computed) then remove that triangle from all further processing
 
 
-    var j = i = visibleFaces.length;
-    var isDistinct = false,
-      hasOneVisibleFace = i === 1,
-      cull = [],
-      perimeter = [],
+    let j = i = visibleFaces.length;
+    const hasOneVisibleFace = i === 1;
+      let perimeter = [],
       edgeIndex = 0, compareFace, nextIndex,
       a, b;
 
-    var allPoints = [];
-    var originFace = [visibleFaces[0][0], visibleFaces[0][1], visibleFaces[0][1], visibleFaces[0][2], visibleFaces[0][2], visibleFaces[0][0]];
-
+    let allPoints = [];
+    const originFace = [visibleFaces[0][0], visibleFaces[0][1], visibleFaces[0][1], visibleFaces[0][2], visibleFaces[0][2], visibleFaces[0][0]];
 
     if( visibleFaces.length === 1 ){
       currentFace = visibleFaces[0];
@@ -226,14 +215,14 @@ export const quickhull = (function(){
         faces.splice( faces.indexOf( currentFace ), 1 );
 
 
-        var isSharedEdge;
+        let isSharedEdge;
         cEdgeIndex = 0;
 
         while( cEdgeIndex < 3 ){ // Iterate through it's edges
 
           isSharedEdge = false;
           j = visibleFaces.length;
-          a = currentFace[cEdgeIndex]
+          a = currentFace[cEdgeIndex];
           b = currentFace[(cEdgeIndex+1)%3];
 
 
@@ -268,22 +257,21 @@ export const quickhull = (function(){
 
     // create new face for all pairs around edge
     i = 0;
-    var l = perimeter.length/2;
-    var f;
+    const l = perimeter.length/2;
+    let f;
 
     while( i < l ){
       f = [ perimeter[i*2+1], apex, perimeter[i*2] ];
       assignPoints( f, allPoints, points );
-      faces.push( f )
+      faces.push( f );
       if( f.visiblePoints !== undefined  )faceStack.push( f );
       i++;
     }
 
   }
 
-  var distSqPointSegment = function(){
-
-    var ab = new THREE.Vector3(),
+  const distSqPointSegment = function(){
+    const ab = new THREE.Vector3(),
       ac = new THREE.Vector3(),
       bc = new THREE.Vector3();
 
@@ -293,31 +281,25 @@ export const quickhull = (function(){
         ac.subVectors( c, a );
         bc.subVectors( c, b );
 
-        var e = ac.dot(ab);
+        const e = ac.dot(ab);
         if (e < 0.0) return ac.dot( ac );
-        var f = ab.dot( ab );
+        const f = ab.dot( ab );
         if (e >= f) return bc.dot(  bc );
         return ac.dot( ac ) - e * e / f;
 
-      }
+      };
 
   }();
 
-
-
-
-
   return function( geometry ){
-
     reset();
 
-
-    let points    = geometry.vertices;
-    faces     = [],
-    faceStack   = [],
-    i       = NUM_POINTS = points.length,
-    extremes  = points.slice( 0, 6 ),
-    max     = 0;
+    const points    = geometry.vertices;
+    faces = [];
+    faceStack = [];
+    let i = NUM_POINTS = points.length;
+    const extremes = points.slice( 0, 6 );
+    let max = 0;
 
 
 
@@ -384,7 +366,7 @@ export const quickhull = (function(){
 
 
 
-      var v0Index = points.indexOf( v0 ),
+      const v0Index = points.indexOf( v0 ),
       v1Index = points.indexOf( v1 ),
       v2Index = points.indexOf( v2 ),
       v3Index = points.indexOf( v3 );
@@ -392,8 +374,7 @@ export const quickhull = (function(){
 
     //  We now have a tetrahedron as the base geometry.
     //  Now we must subdivide the
-    var tetrahedron: Array<any>;
-       tetrahedron = [
+    const tetrahedron: Array<any> = [
         [ v2Index, v1Index, v0Index ],
         [ v1Index, v3Index, v0Index ],
         [ v2Index, v3Index, v1Index ],
@@ -405,7 +386,7 @@ export const quickhull = (function(){
     subaA.subVectors( v1, v0 ).normalize();
     subaB.subVectors( v2, v0 ).normalize();
     subC.subVectors ( v3, v0 ).normalize();
-    var sign  = subC.dot( new THREE.Vector3().crossVectors( subaB, subaA ));
+    const sign  = subC.dot( new THREE.Vector3().crossVectors( subaB, subaA ));
 
 
     // Reverse the winding if negative sign
@@ -418,20 +399,20 @@ export const quickhull = (function(){
 
 
     //One for each face of the pyramid
-    var pointsCloned = points.slice();
+    const pointsCloned = points.slice();
     pointsCloned.splice( pointsCloned.indexOf( v0 ), 1 );
     pointsCloned.splice( pointsCloned.indexOf( v1 ), 1 );
     pointsCloned.splice( pointsCloned.indexOf( v2 ), 1 );
     pointsCloned.splice( pointsCloned.indexOf( v3 ), 1 );
 
 
-    var i = tetrahedron.length;
-    while( i-- > 0 ){
-      assignPoints( tetrahedron[i], pointsCloned, points );
-      if( tetrahedron[i].visiblePoints !== undefined ){
-        faceStack.push( tetrahedron[i] );
+    let k = tetrahedron.length;
+    while( k-- > 0 ){
+      assignPoints( tetrahedron[k], pointsCloned, points );
+      if( tetrahedron[k].visiblePoints !== undefined ){
+        faceStack.push( tetrahedron[k] );
       }
-      faces.push( tetrahedron[i] );
+      faces.push( tetrahedron[k] );
     }
 
     process( points );
@@ -439,15 +420,15 @@ export const quickhull = (function(){
 
     //  Assign to our geometry object
 
-    var ll = faces.length;
+    let ll = faces.length;
     while( ll-- > 0 ){
-      geometry.faces[ll] = new THREE.Face3( faces[ll][2], faces[ll][1], faces[ll][0], faces[ll].normal )
+      geometry.faces[ll] = new THREE.Face3( faces[ll][2], faces[ll][1], faces[ll][0], faces[ll].normal );
     }
 
     geometry.normalsNeedUpdate = true;
 
     return geometry;
 
-  }
+  };
 
-}())
+}());

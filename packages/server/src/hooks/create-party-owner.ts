@@ -20,5 +20,5 @@ export default () => {
       await context.app.service('party').patch(result.id, { instanceId: owner.instanceId }, context.params);
     }
     return context;
-  }
-}
+  };
+};

@@ -15,9 +15,9 @@ export const setActorAnimation: Behavior = (entity, args: { name: string; transi
   const actorObject3D: Object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
   const stateComponent = getComponent<State>(entity, State);
 
-  if(!actor.initialized) return console.log("Not setting actor animation because not initialized")
+  if(!actor.initialized) return console.log("Not setting actor animation because not initialized");
 
-  let clip = AnimationClip.findByName(actor.animations, args.name )
+  const clip = AnimationClip.findByName(actor.animations, args.name );
   const newAction = actor.mixer.clipAction(clip);
 
   if (newAction === null) {
@@ -27,7 +27,7 @@ export const setActorAnimation: Behavior = (entity, args: { name: string; transi
   if (actor.currentAnimationAction === null) {
     actor.currentAnimationAction = newAction;
     newAction.play();
-    return
+    return;
   }
 
 
