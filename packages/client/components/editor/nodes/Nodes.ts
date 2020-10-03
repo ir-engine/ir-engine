@@ -73,14 +73,14 @@ export function createEditor(api, settings) {
   editor.registerNode(HemisphereLightNode, HemisphereLightNodeEditor);
   editor.registerNode(SpotLightNode, SpotLightNodeEditor);
   editor.registerNode(PointLightNode, PointLightNodeEditor);
-  // editor.registerNode(SpawnPointNode, SpawnPointNodeEditor);
-  // editor.registerNode(WayPointNode, WayPointNodeEditor);
+  editor.registerNode(SpawnPointNode, SpawnPointNodeEditor);
+  editor.registerNode(WayPointNode, WayPointNodeEditor);
   editor.registerNode(SkyboxNode, SkyboxNodeEditor);
-  // editor.registerNode(FloorPlanNode, FloorPlanNodeEditor);
+  editor.registerNode(FloorPlanNode, FloorPlanNodeEditor);
   editor.registerNode(ImageNode, ImageNodeEditor);
   editor.registerNode(VideoNode, VideoNodeEditor);
   editor.registerNode(AudioNode, AudioNodeEditor);
-  // editor.registerNode(SpawnerNode, SpawnerNodeEditor);
+  editor.registerNode(SpawnerNode, SpawnerNodeEditor);
   editor.registerNode(TriggerVolumeNode, TriggerVolumeNodeEditor);
   editor.registerNode(LinkNode, LinkNodeEditor);
   editor.registerNode(ParticleEmitterNode, ParticleEmitterNodeEditor);

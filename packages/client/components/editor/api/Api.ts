@@ -1120,13 +1120,11 @@ export default class Api extends EventEmitter {
 
   async fetch(url, options: any = {}) {
     try {
-      debugger
       const token = this.getToken();
       if (options.headers == null) {
         options.headers = {};
       }
       options.headers.authorization = `Bearer ${token}`;
-      debugger
       const res = await fetch(url, options);
       console.log("Response: " + Object.values(res));
 

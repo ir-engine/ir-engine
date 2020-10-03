@@ -57,7 +57,6 @@ const WorkspaceContainer = (styled as any).div`
 
 type EditorContainerProps = {
   api: Api;
-  history: any;
   router: Router;
 };
 type EditorContainerState = {
@@ -78,9 +77,10 @@ type EditorContainerState = {
 class EditorContainer extends Component<EditorContainerProps, EditorContainerState> {
   static propTypes = {
     api: PropTypes.object.isRequired,
-    history: PropTypes.object.isRequired,
-    match: PropTypes.object.isRequired,
-    location: PropTypes.object.isRequired
+    // These aren't needed since we are using nextjs route now
+    // history: PropTypes.object.isRequired,
+    // match: PropTypes.object.isRequired,
+    // location: PropTypes.object.isRequired
   };
 
   constructor(props) {
@@ -403,7 +403,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
               if (projectId === "tutorial") {
                 this.setState({ onboardingContext: { enabled: true } });
               } else {
-                this.props.history.push("/projects/tutorial");
+                this.props.router.push("/projects/tutorial");
               }
             }
           },
@@ -613,7 +613,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
     this.updateModifiedState(() => {
       this.setState({ creatingProject: true, project }, () => {
-        this.props.history.replace(`/projects/${project.project_id}`);
+        this.props.router.replace(`/projects/${project.project_id}`);
         this.setState({ creatingProject: false });
       });
     });
@@ -622,11 +622,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   onNewProject = async () => {
-    this.props.history.push("/projects/templates");
+    this.props.router.push("/projects/templates");
   };
 
   onOpenProject = () => {
-    this.props.history.push("/projects");
+    this.props.router.push("/projects");
   };
 
   onSaveProject = async () => {
