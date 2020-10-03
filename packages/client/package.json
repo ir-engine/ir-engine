@@ -19,7 +19,7 @@
     "watch": "cross-env NODE_ENV=development next --port 3001 --hostname localhost",
     "validate": "yarn run lint && yarn run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
-    "lint": "eslint --fix --quiet '*.ts' '**/*.ts' '**/*.tsx' && stylelint '**/*.scss'",
+    "lint": "node node_modules/.bin/eslint --fix --quiet '*.ts' '**/*.ts' '**/*.tsx' && node node_modules/.bin/stylelint '**/*.scss'",
     "precommit": "no-master-commits -b master,dev && echo \\* Running pre-commit test  && echo \\*\\* \\`git commit --no-verify\\` to skip && echo \\*\\*\\* PRs THAT DO NOT PASS TESTS WILL NOT BE ACCEPTED && yarn run test"
   },
   "pre-push": [
