@@ -19,16 +19,16 @@ class Content extends Component<any> {
     handlerKeyPress: PropTypes.func.isRequired,
   };
 
-  static defaultProps = {
-    prompt: '>',
-    oldData: {},
-  };
-
   static contextTypes = {
     maximise: PropTypes.bool,
     instances: PropTypes.array,
     activeTabId: PropTypes.string,
     tabsShowing: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    prompt: '>',
+    oldData: {},
   };
 
   state = {
@@ -67,14 +67,14 @@ class Content extends Component<any> {
       this.inputWrapper.scrollIntoView(false);
   };
 
+  componentWillUnmount() {
+    this.unregister(this.state);
+  }
+
   unregister: any = null;
   inputWrapper: any = null;
   contentWrapper: any = null;
   com: any = null
-
-  componentWillUnmount() {
-    this.unregister(this.state);
-  }
 
   setScrollPosition = (pos) => {
     setTimeout(() => {

@@ -28,15 +28,15 @@ export const handleTouch: Behavior = (entity: Entity, { event, value }: { event:
       //   Math.trunc(args.event.targetTouches[0].clientX) +
       //   ', y: ' +
       //   Math.trunc(args.event.targetTouches[0].clientY);
-      const inputKeys = [ TouchInputs.Touch1, TouchInputs.Touch2 ]
+      const inputKeys = [ TouchInputs.Touch1, TouchInputs.Touch2 ];
       inputKeys.forEach((inputKey, touchIndex) => {
         if (!event.targetTouches[touchIndex]) {
-          return
+          return;
         }
-        const mappedInputKey = input.schema.touchInputMap?.axes[inputKey]
+        const mappedInputKey = input.schema.touchInputMap?.axes[inputKey];
 
         if (!mappedInputKey) {
-          return
+          return;
         }
 
         const inputValue = new Vector2(event.targetTouches[touchIndex].clientX, event.targetTouches[touchIndex].clientY);
@@ -57,7 +57,7 @@ export const handleTouch: Behavior = (entity: Entity, { event, value }: { event:
             lifecycleState: LifecycleValue.CHANGED
           });
         }
-      })
+      });
     }
     //console.log(s);
   } else {
@@ -88,11 +88,11 @@ export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEv
 
     if (args.event.targetTouches.length == 2) {
       if ((args.event as any).scale) {
-        debugger
+        debugger;
       }
 
 
-      const scaleMappedInputKey = input.schema.touchInputMap?.axes[TouchInputs.Scale]
+      const scaleMappedInputKey = input.schema.touchInputMap?.axes[TouchInputs.Scale];
       if (scaleMappedInputKey) {
 
         if ((args.event as any).scale) {

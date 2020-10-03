@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 const templates = [
   {
     project_id: "crater",
@@ -75,3 +76,4 @@ function transformUrls(templates) {
   return templates;
 }
 export default transformUrls(templates);
+/* eslint-enable */

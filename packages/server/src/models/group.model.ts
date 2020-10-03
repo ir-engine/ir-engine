@@ -1,8 +1,8 @@
-import { Sequelize, DataTypes } from 'sequelize'
-import { Application } from '../declarations'
+import { Sequelize, DataTypes } from 'sequelize';
+import { Application } from '../declarations';
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const group = sequelizeClient.define('group', {
     id: {
       type: DataTypes.UUID,
@@ -20,17 +20,17 @@ export default (app: Application): any => {
     }
   }, {
     hooks: {
-      beforeCount (options: any) {
-        options.raw = true
+      beforeCount (options: any): void {
+        options.raw = true;
       }
     }
   });
 
-  (group as any).associate = (models: any) => {
+  (group as any).associate = (models: any): void => {
     (group as any).belongsToMany(models.user, { through: 'group_user' }); // user can join multiple orgs
     (group as any).hasMany(models.group_user, { unique: false, onDelete: 'cascade', hooks: true });
-    (group as any).hasOne(models.channel, { onDelete: 'cascade', hooks: true })
-  }
+    (group as any).hasOne(models.channel, { onDelete: 'cascade', hooks: true });
+  };
 
-  return group
-}
+  return group;
+};

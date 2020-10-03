@@ -165,6 +165,7 @@ export default function EditorNodeMixin(Object3DClass) {
       return entityJson;
     }
     prepareForExport() {
+      //eslint-disable-next-line @typescript-eslint/camelcase
       this.userData.XR3_editor_uuid = this.uuid;
       if (!this.visible) {
         this.addGLTFComponent("visible", {

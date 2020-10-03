@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
-import path from 'path'
-import url from 'url'
-import { inspect } from 'util'
+import path from 'path';
+import url from 'url';
+import { inspect } from 'util';
 // Load all the ENV variables from `.env`, then `.env.local`, into process.env
-import dotenv from 'dotenv-flow'
-import * as chargebeeInst from 'chargebee'
-import appRootPath from 'app-root-path'
+import dotenv from 'dotenv-flow';
+import * as chargebeeInst from 'chargebee';
+import appRootPath from 'app-root-path';
 if (process.env.KUBERNETES !== 'true') {
   dotenv.config({
     path: appRootPath.path
-  })
+  });
 }
 
 /**
@@ -24,9 +24,9 @@ const db: any = {
   dialect: 'mysql',
   forceRefresh: process.env.FORCE_DB_REFRESH === 'true',
   url: ''
-}
+};
 db.url = process.env.MYSQL_URL ??
-  `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
+  `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`;
 
 /**
  * Server / backend
@@ -59,10 +59,12 @@ const server = {
   },
   url: '',
   certPath: path.resolve(path.dirname("./"), process.env.CERT ?? 'certs/cert.pem'),
-  keyPath: path.resolve(path.dirname("./"), process.env.KEY ?? 'certs/key.pem')
-}
-const obj = process.env.KUBERNETES === 'true' ? { protocol: 'https', hostname: server.hostname }: { protocol: 'https', ...server }
-server.url = process.env.SERVER_URL ?? url.format(obj)
+  keyPath: path.resolve(path.dirname("./"), process.env.KEY ?? 'certs/key.pem'),
+  local: process.env.LOCAL === 'true',
+  gameserverContainerPort: process.env.GAMESERVER_CONTAINER_PORT ?? 3030
+};
+const obj = process.env.KUBERNETES === 'true' ? { protocol: 'https', hostname: server.hostname }: { protocol: 'https', ...server };
+server.url = process.env.SERVER_URL ?? url.format(obj);
 
 /**
  * Client / frontend
@@ -78,15 +80,16 @@ const client = {
   url: process.env.APP_URL ??
     process.env.APP_HOST ?? // Legacy env var, to deprecate
     'https://localhost:3000'
-}
+};
 
 const gameserver = {
   rtc_start_port: process.env.RTC_START_PORT ? parseInt(process.env.RTC_START_PORT) : 40000,
-  rtc_end_port: process.env.RTC_END_PORT ? parseInt(process.env.RTC_END_PORT) : 40499,
+  rtc_end_port: process.env.RTC_END_PORT ? parseInt(process.env.RTC_END_PORT) : 40099,
   rtc_port_block_size: process.env.RTC_PORT_BLOCK_SIZE ? parseInt(process.env.RTC_PORT_BLOCK_SIZE) : 100,
   identifierDigits: 5,
+  local: process.env.LOCAL === 'true',
   domain: process.env.GAMESERVER_DOMAIN ?? 'gameserver.xrengine.io'
-}
+};
 
 /**
  * Email / SMTP
@@ -112,7 +115,7 @@ const email = {
     party: 'XR3ngine party invitation'
   },
   smsNameCharacterLimit: 20
-}
+};
 
 /**
  * Authentication
@@ -162,7 +165,7 @@ const authentication = {
       scope: ['profile', 'email']
     }
   }
-}
+};
 
 /**
  * AWS
@@ -194,19 +197,19 @@ const aws = {
     senderId: process.env.AWS_SMS_SENDER_ID ?? '',
     secretAccessKey: process.env.AWS_SMS_SECRET_ACCESS_KEY ?? ''
   }
-}
+};
 
 const chargebee = {
   url: process.env.CHARGEBEE_SITE + '.chargebee.com' ?? 'dummy.not-chargebee.com',
   apiKey: process.env.CHARGEBEE_API_KEY ?? ''
-}
+};
 
 const redis = {
   enabled: process.env.REDIS_ENABLED === 'true' ?? false,
   address: process.env.REDIS_ADDRESS ?? 'localhost',
   port: process.env.REDIS_PORT ?? '6379',
   password: process.env.REDIS_PASSWORD ?? null
-}
+};
 
 /**
  * Full config
@@ -222,13 +225,13 @@ const config = {
   gameserver,
   server,
   redis
-}
+};
 
 chargebeeInst.configure({
   site: process.env.CHARGEBEE_SITE ?? '',
   api_key: config.chargebee.apiKey
-})
+});
 
-console.log(inspect(config))
+console.log(inspect(config));
 
-export default config
+export default config;

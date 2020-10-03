@@ -113,6 +113,6 @@ export const physicsPostStep: Behavior = (entity): void => {
 		// Reset flag
 		actor.wantsToJump = false;
 	}
-	const transform = getMutableComponent<TransformComponent>(entity, TransformComponent)
-	transform.position.set(body.position.x, body.position.y, body.position.z)
+	const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
+	transform.position.set(body.position.x, body.position.y, body.position.z);
 };

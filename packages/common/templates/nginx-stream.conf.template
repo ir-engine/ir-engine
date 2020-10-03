@@ -1,5 +1,0 @@
-server {
-    listen 40000-40499 udp;
-
-    proxy_pass http://127.0.0.1:$server_port;
-}

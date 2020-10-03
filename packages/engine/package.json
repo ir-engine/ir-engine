@@ -24,7 +24,7 @@
   },
   "scripts": {
     "build": "rollup -c",
-    "lint": "eslint --fix --quiet --ext .ts src/",
+    "lint": "node node_modules/.bin/eslint --fix --quiet --ext .ts src/",
     "test": "jest",
     "validate": "yarn run lint && yarn run test",
     "create-indexes": "npx create-ts-index src -b"

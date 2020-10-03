@@ -25,8 +25,8 @@ const locationReducer = (state = immutableState, action: LocationsAction): any =
   switch (action.type) {
     case LOCATIONS_RETRIEVED:
       newValues = (action as LocationsRetrievedAction).locations;
-      console.log('newValues:')
-      console.log(newValues)
+      console.log('newValues:');
+      console.log(newValues);
       updateMap = new Map();
       existingLocations = state.get('locations').get('locations');
       updateMap.set('locations', (existingLocations.size != null || state.get('updateNeeded') === true) ? newValues.data : existingLocations.concat(newValues.data));

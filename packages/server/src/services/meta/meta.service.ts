@@ -1,7 +1,7 @@
-import { ServiceAddons } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
-import { Meta } from './meta.class'
-import hooks from './meta.hooks'
+import { ServiceAddons } from '@feathersjs/feathers';
+import { Application } from '../../declarations';
+import { Meta } from './meta.class';
+import hooks from './meta.hooks';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -11,11 +11,11 @@ declare module '../../declarations' {
 }
 
 export default (app: Application): void => {
-  const options = {}
+  const options = {};
 
-  app.use('/meta', new Meta(options, app))
+  app.use('/meta', new Meta(options, app));
 
-  const service = app.service('meta')
+  const service = app.service('meta');
 
-  service.hooks(hooks)
-}
+  service.hooks(hooks);
+};

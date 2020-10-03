@@ -1,8 +1,8 @@
-import { Sequelize, DataTypes } from 'sequelize'
-import { Application } from '../declarations'
+import { Sequelize, DataTypes } from 'sequelize';
+import { Application } from '../declarations';
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const identityProvider = sequelizeClient.define('identity_provider', {
     id: {
       type: DataTypes.UUID,
@@ -26,8 +26,8 @@ export default (app: Application): any => {
     }
   }, {
     hooks: {
-      beforeCount (options: any) {
-        options.raw = true
+      beforeCount (options: any): void {
+        options.raw = true;
       }
     },
     indexes: [
@@ -45,10 +45,10 @@ export default (app: Application): any => {
     ]
   });
 
-  (identityProvider as any).associate = (models: any) => {
+  (identityProvider as any).associate = (models: any): void => {
     (identityProvider as any).belongsTo(models.user, { required: true });
-    (identityProvider as any).hasMany(models.login_token)
-  }
+    (identityProvider as any).hasMany(models.login_token);
+  };
 
-  return identityProvider
-}
+  return identityProvider;
+};

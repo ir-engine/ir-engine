@@ -1038,8 +1038,8 @@ const LeftDrawer = (props: Props): any => {
             </div>
         );
     } catch(err) {
-        console.log('LeftDrawer error:')
-        console.log(err)
+        console.log('LeftDrawer error:');
+        console.log(err);
     }
 };
 

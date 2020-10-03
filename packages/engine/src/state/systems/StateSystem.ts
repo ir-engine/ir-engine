@@ -43,7 +43,7 @@ export class StateSystem extends System {
 
     this.queryResults.state.all?.forEach(entity => {
       if (!hasComponent(entity, State)) {
-        return
+        return;
       }
       callBehaviors(entity, { phase: 'onUpdate' }, delta);
       // callBehaviors(entity, { phase: 'onLateUpdate' }, delta);
@@ -59,13 +59,13 @@ export const callBehaviors: Behavior = (entity: Entity, args: { phase: string },
       _state.schema.states[stateValue.state] !== undefined){
         if(_state.schema.states[stateValue.state]['componentProperties'] !== undefined){
           _state.schema.states[stateValue.state]['componentProperties'].forEach(componentProp => {
-            const component = getMutableComponent(entity, componentProp.component) as any
-            if(component === undefined) console.warn ("Component is undefined, check your state")
+            const component = getMutableComponent(entity, componentProp.component) as any;
+            if(component === undefined) console.warn ("Component is undefined, check your state");
             else
             for (const prop in componentProp.properties){
-              component[prop] = componentProp.properties[prop]
+              component[prop] = componentProp.properties[prop];
             }
-        })
+        });
       }
         
       if(_state.schema.states[stateValue.state]['onEntry'] !== undefined) {
@@ -74,8 +74,8 @@ export const callBehaviors: Behavior = (entity: Entity, args: { phase: string },
           entity,
           stateBehavior.args,
           delta
-        )}
-        )
+        );}
+        );
     }
   }
     // Call actions on update
@@ -92,7 +92,7 @@ export const callBehaviors: Behavior = (entity: Entity, args: { phase: string },
         entity,
         stateBehavior.args,
         delta
-      ))
+      ));
     }
         // Call actions on start of end of state (onEntry)
         if (stateValue.lifecycleState === LifecycleValue.ENDED &&
@@ -103,10 +103,10 @@ export const callBehaviors: Behavior = (entity: Entity, args: { phase: string },
               entity,
               stateBehavior.args,
               delta
-            ))
+            ));
             _state.data.delete(stateValue.state);
           }
-      })
+      });
   };
 
 StateSystem.queries = {

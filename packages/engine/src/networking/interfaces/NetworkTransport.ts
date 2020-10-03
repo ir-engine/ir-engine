@@ -1,5 +1,5 @@
-import { DataProducer } from "mediasoup/lib/types"
-import { DataProducer as ClientDataProducer } from "mediasoup-client/lib/types"
+import { DataProducer } from "mediasoup/lib/types";
+import { DataProducer as ClientDataProducer } from "mediasoup-client/lib/types";
 
 export interface NetworkTransport {
   isServer: boolean

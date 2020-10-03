@@ -1,8 +1,8 @@
-import { ServiceAddons } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
-import { GroupUserRank } from './group-user-rank.class'
-import createModel from '../../models/group-user-rank.model'
-import hooks from './group-user-rank.hooks'
+import { ServiceAddons } from '@feathersjs/feathers';
+import { Application } from '../../declarations';
+import { GroupUserRank } from './group-user-rank.class';
+import createModel from '../../models/group-user-rank.model';
+import hooks from './group-user-rank.hooks';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -15,11 +15,11 @@ export default (app: Application): any => {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
-  }
+  };
 
-  app.use('/group-user-rank', new GroupUserRank(options, app))
+  app.use('/group-user-rank', new GroupUserRank(options, app));
 
-  const service = app.service('group-user-rank')
+  const service = app.service('group-user-rank');
 
-  service.hooks(hooks)
-}
+  service.hooks(hooks);
+};

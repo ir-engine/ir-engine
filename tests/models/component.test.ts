@@ -1,4 +1,4 @@
-import app from '../../packages/server/app'
+import app from '../../packages/server/src/app'
 import { v1 } from 'uuid'
 
 describe('CRUD operation on \'Component\' model', () => {

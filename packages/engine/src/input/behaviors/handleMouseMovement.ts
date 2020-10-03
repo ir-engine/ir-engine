@@ -85,4 +85,4 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
       }
     }
   }
-}
+};
