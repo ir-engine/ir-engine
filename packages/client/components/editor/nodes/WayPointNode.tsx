@@ -1,20 +1,26 @@
-import { Object3D } from "three";
-import { GLTFLoader } from "../gltf/GLTFLoader";
+import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+// import { GLTFLoader } from "../gltf/GLTFLoader";
 import EditorNodeMixin from "./EditorNodeMixin";
 //@ts-ignore
-import wayPointModelUrl from "../../../public/editor/spawn-point.glb";
+// import wayPointModelUrl from "../../../public/editor/spawn-point.glb";
 let wayPointHelperModel = null;
-export default class WayPointNode extends EditorNodeMixin(Object3D) {
+const GLTF_PATH = "/editor/spawn-point.glb" // Static
+export default class WayPointNode extends EditorNodeMixin(THREE.Object3D) {
   static legacyComponentName = "waypoint";
   static nodeName = "Way Point";
   static async load() {
-    const { scene } = await new GLTFLoader(wayPointModelUrl).loadGLTF();
-    scene.traverse(child => {
-      if (child.isMesh) {
-        child.layers.set(1);
+    new GLTFLoader().load(
+      GLTF_PATH,
+      ({ scene }) => {
+        scene.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            child.layers.set(1)
+          }
+        })
+        wayPointHelperModel = scene
       }
-    });
-    wayPointHelperModel = scene;
+    )
   }
   constructor(editor) {
     super(editor);

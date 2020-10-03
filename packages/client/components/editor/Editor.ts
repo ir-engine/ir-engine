@@ -273,8 +273,7 @@ export default class Editor extends EventEmitter {
 
     this.initializing = true;
 
-    // const tasks = [rendererPromise, loadEnvironmentMap(), LoadingCube.load(), ErrorIcon.load(), TransformGizmo.load()];
-    const tasks = [rendererPromise, loadEnvironmentMap(), LoadingCube.load(), ErrorIcon.load()];
+    const tasks = [rendererPromise, loadEnvironmentMap(), LoadingCube.load(), ErrorIcon.load(), TransformGizmo.load()];
 
     for (const NodeConstructor of this.nodeTypes) {
       tasks.push(NodeConstructor.load());
@@ -284,9 +283,9 @@ export default class Editor extends EventEmitter {
 
     this.inputManager = new InputManager(this.renderer.canvas);
     this.flyControls = new FlyControls(this.camera, this.inputManager);
-    // this.editorControls = new EditorControls(this.camera, this, this.inputManager, this.flyControls);
-    // this.playModeControls = new PlayModeControls(this.inputManager, this.editorControls, this.flyControls);
-    // this.editorControls.enable();
+    this.editorControls = new EditorControls(this.camera, this, this.inputManager, this.flyControls);
+    this.playModeControls = new PlayModeControls(this.inputManager, this.editorControls, this.flyControls);
+    this.editorControls.enable();
 
     window.addEventListener("copy", this.onCopy);
     window.addEventListener("paste", this.onPaste);
@@ -339,8 +338,8 @@ export default class Editor extends EventEmitter {
     this.camera.lookAt(new Vector3());
     this.scene.add(this.camera);
 
-    // this.editorControls.center.set(0, 0, 0);
-    // this.editorControls.onSceneSet(scene);
+    this.editorControls.center.set(0, 0, 0);
+    this.editorControls.onSceneSet(scene);
 
     this.renderer.onSceneSet();
 
@@ -500,15 +499,15 @@ export default class Editor extends EventEmitter {
       this.raycaster.ray.at(20, target);
     }
 
-    // if (this.editorControls.shouldSnap()) {
-    //   const translationSnap = this.editorControls.translationSnap;
+    if (this.editorControls.shouldSnap()) {
+      const translationSnap = this.editorControls.translationSnap;
 
-    //   target.set(
-    //     Math.round(target.x / translationSnap) * translationSnap,
-    //     Math.round(target.y / translationSnap) * translationSnap,
-    //     Math.round(target.z / translationSnap) * translationSnap
-    //   );
-    // }
+      target.set(
+        Math.round(target.x / translationSnap) * translationSnap,
+        Math.round(target.y / translationSnap) * translationSnap,
+        Math.round(target.z / translationSnap) * translationSnap
+      );
+    }
   }
 
   reparentToSceneAtCursorPosition(objects, mousePos) {
@@ -588,7 +587,7 @@ export default class Editor extends EventEmitter {
         }
       });
       this.flyControls.update(delta);
-      // this.editorControls.update(delta);
+      this.editorControls.update(delta);
 
       this.renderer.update(delta, time);
       this.inputManager.reset();
@@ -1961,9 +1960,9 @@ export default class Editor extends EventEmitter {
   }
 
   spawnGrabbedObject(object) {
-    // if (this.editorControls.transformMode === TransformMode.Placement) {
-    //   this.removeSelectedObjects();
-    // }
+    if (this.editorControls.transformMode === TransformMode.Placement) {
+      this.removeSelectedObjects();
+    }
 
     if (!object.disableTransform) {
       this.getSpawnPosition(object.position);
@@ -1972,7 +1971,7 @@ export default class Editor extends EventEmitter {
     this.addObject(object, null, null);
 
     if (!object.disableTransform) {
-      // this.editorControls.setTransformMode(TransformMode.Placement, object.useMultiplePlacementMode);
+      this.editorControls.setTransformMode(TransformMode.Placement, object.useMultiplePlacementMode);
     }
   }
 

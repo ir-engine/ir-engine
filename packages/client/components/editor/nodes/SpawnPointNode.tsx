@@ -1,20 +1,25 @@
-import { Object3D } from "three";
-import { GLTFLoader } from "../gltf/GLTFLoader";
+import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import EditorNodeMixin from "./EditorNodeMixin";
 //@ts-ignore
-import spawnPointModelUrl from "../../../public/editor/spawn-point.glb";
+// import spawnPointModelUrl from "../../../public/editor/spawn-point.glb";
 let spawnPointHelperModel = null;
-export default class SpawnPointNode extends EditorNodeMixin(Object3D) {
+const GLTF_PATH = "/editor/spawn-point.glb" // Static
+export default class SpawnPointNode extends EditorNodeMixin(THREE.Object3D) {
   static legacyComponentName = "spawn-point";
   static nodeName = "Spawn Point";
   static async load() {
-    const { scene } = await new GLTFLoader(spawnPointModelUrl).loadGLTF();
-    scene.traverse(child => {
-      if (child.isMesh) {
-        child.layers.set(1);
+    new GLTFLoader().load(
+      GLTF_PATH,
+      ({ scene }) => {
+        scene.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            child.layers.set(1)
+          }
+        })
+        spawnPointHelperModel = scene
       }
-    });
-    spawnPointHelperModel = scene;
+    )
   }
   constructor(editor) {
     super(editor);

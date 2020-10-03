@@ -608,7 +608,6 @@ class GLTFLoader {
 
   async loadGLTF() {
     try {
-      debugger
       const { json } = await this.getDependency("root");
       const sceneIndex = json.scene || 0;
       const scene = await this.getDependency("scene", sceneIndex);
