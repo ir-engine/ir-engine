@@ -8,16 +8,16 @@ import { CharacterStateGroups } from '../CharacterStateGroups';
 import { onAnimationEnded } from '../behaviors/onAnimationEnded';
 import { WalkState } from './WalkState';
 import { CharacterStateTypes } from '../CharacterStateTypes';
+import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
 import { findVehicle } from '../functions/findVehicle';
-import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { Input } from '../../../input/components/Input';
 import { DefaultInput } from '../../shared/DefaultInput';
 import { addState } from '../../../state/behaviors/StateBehaviors';
 import { isMoving } from '../functions/isMoving';
 import { setIdleState } from '../behaviors/setIdleState';
 
-export const StartWalkLeftState: StateSchemaValue = {
+export const StartSprintBackwardState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
   componentProperties: [{
     component: CharacterComponent,
@@ -25,20 +25,20 @@ export const StartWalkLeftState: StateSchemaValue = {
       ['canEnterVehicles']: true,
       ['rotationSimulator.mass']: 20,
       ['rotationSimulator.damping']: 0.7,
-      ['moveSpeed']: 4
+      ['moveSpeed']: 6
     }
   }],
   onEntry: [
     {
       behavior: initializeCharacterState
     },
-    {
-      behavior: setActorAnimation,
-      args: {
-        name: 'walk_left',
-        transitionDuration: 1
-      }
-    }
+     {
+       behavior: setActorAnimation,
+       args: {
+         name: 'run_backward',
+         transitionDuration: 1
+       }
+     }
   ],
   onUpdate: [
     {
@@ -55,41 +55,55 @@ export const StartWalkLeftState: StateSchemaValue = {
           findVehicle(entity);
           const input = getComponent(entity, Input);
 
+          if (input.data.has(DefaultInput.SPRINT)) {
 
-          if (input.data.has(DefaultInput.FORWARD)) {
-            addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD});
-          } else if (input.data.has(DefaultInput.BACKWARD)) {
-            addState(entity, { state: CharacterStateTypes.WALK_START_BACKWARD });
-          } else if (input.data.has(DefaultInput.RIGHT)) {
-            addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT});
+            if (input.data.has(DefaultInput.FORWARD)) {
+              addState(entity, { state: CharacterStateTypes.SPRINT });
+            } else if (input.data.has(DefaultInput.LEFT)) {
+              addState(entity, { state: CharacterStateTypes.SPRINT_LEFT });
+            } else if (input.data.has(DefaultInput.RIGHT)) {
+              addState(entity, { state: CharacterStateTypes.SPRINT_RIGHT });
+            }
+
+          } else {
+
+            if (input.data.has(DefaultInput.FORWARD)) {
+              addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD});
+            } else if (input.data.has(DefaultInput.LEFT)) {
+              addState(entity, { state: CharacterStateTypes.WALK_START_LEFT });
+            } else if (input.data.has(DefaultInput.RIGHT)) {
+              addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT});
+            } else if (input.data.has(DefaultInput.BACKWARD)) {
+              addState(entity, { state: CharacterStateTypes.WALK_START_BACKWARD });
+            }
+
           }
-
 
           // Check if we're trying to jump
           if (input.data.has(DefaultInput.JUMP))
             return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING });
-          // Check if we stopped moving
-
-
-          if (input.data.has(DefaultInput.SPRINT))
-            return addState(entity, { state: CharacterStateTypes.SPRINT_LEFT });
-
-          if (!isMoving(entity)) {
-            setIdleState(entity);
-          }
+          // If we're not moving, don't worry about the rest of this action
+          if (!isMoving(entity))
+            return addState(entity, { state: CharacterStateTypes.WALK_END });
         }
       }
     },
     {
       behavior: setFallingState
-    },
+    }
     /*
-    {
-      behavior: onAnimationEnded,
+    ,{
+      behavior: addState,
       args: {
-        transitionToState: CharacterStateTypes.WALK
+        state: CharacterStateTypes.WALK_START_BACK_LEFT
       }
     }
     */
+    // {
+    //   behavior: onAnimationEnded,
+    //   args: {
+    //     transitionToState: CharacterStateTypes.WALK
+    //   }
+    // }
   ]
 };

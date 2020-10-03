@@ -78,7 +78,7 @@ export const playerModelInCar: Behavior = (entity: Entity, args: { type: string,
   if (stateComponent.data.has(CharacterStateTypes.ENTER_VEHICLE)) {
     if (!hasComponent(entityCar, LocalInputReceiver)) {
       addComponent(entityCar, LocalInputReceiver);
-      addComponent(entityCar, FollowCameraComponent, { distance: 5, mode: "thirdPerson" });
+      addComponent(entityCar, FollowCameraComponent, { distance: 3, mode: "thirdPerson" });
       vehicleComponent.currentDriver = entity;
     }
 

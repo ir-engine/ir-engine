@@ -75,7 +75,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
         setHoveredLabel(String(event.detail.interactionText ? event.detail.interactionText :'Activate' ));
       } else {
         setHoveredLabel('');
-      }       
+      }
     };
 
     const onObjectActivation = (event: CustomEvent): void => {
@@ -97,7 +97,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
         setHoveredLabel('');
       } else {
         setHintBoxData('default');
-      }  
+      }
       setShowControllHint(true);
     };
 
@@ -290,7 +290,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const hintBox = !isMobileOrTablet() && showControllHint && hintBoxData ? <HintBox layout={hintBoxData} /> : null;
 
 
-  const hoveredLabelElement = !!!isMobileOrTablet() && hoveredLabel.length > 0 ? 
+  const hoveredLabelElement = !!!isMobileOrTablet() && hoveredLabel.length > 0 ?
   <div className="hintContainer">Press <span className="keyItem" >E</span> to {hoveredLabel}</div> : null;
 
 
