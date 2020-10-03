@@ -2,7 +2,6 @@ set -e
 set -x
 
 sudo apt-get -y update
-sudo apt-get -y upgrade
 sudo apt-cache madison snapd
 sudo apt-get install -y snapd
 
