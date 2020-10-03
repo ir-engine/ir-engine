@@ -47,15 +47,12 @@ export const setDropState: Behavior = (entity, args = null, deltaTime) => {
       }
       else
       {
-        console.warn('CharacterStateTypes.WALK');
-
         addState(entity, { state: CharacterStateTypes.WALK  })
       }
     }
   }
   else
   {
-    console.warn('CharacterStateTypes.DROP_IDLE');
     addState(entity, { state: CharacterStateTypes.DROP_IDLE })
   }
 }

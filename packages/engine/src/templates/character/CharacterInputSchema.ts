@@ -208,7 +208,7 @@ export const CharacterInputSchema: InputSchema = {
     d: DefaultInput.RIGHT,
     e: DefaultInput.INTERACT,
     ' ': DefaultInput.JUMP,
-    f: DefaultInput.SPRINT,
+    shift: DefaultInput.SPRINT,
     p: DefaultInput.POINTER_LOCK
   },
   // Map how inputs relate to each other

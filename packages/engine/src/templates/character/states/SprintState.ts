@@ -57,7 +57,9 @@ export const SprintState: StateSchemaValue = {
 
         if (input.data.has(DefaultInput.SPRINT)) {
 
-          if (input.data.has(DefaultInput.LEFT)) {
+          if (input.data.has(DefaultInput.FORWARD)) {
+            addState(entity, { state: CharacterStateTypes.SPRINT })
+          } else if (input.data.has(DefaultInput.LEFT)) {
             addState(entity, { state: CharacterStateTypes.SPRINT_LEFT })
           } else if (input.data.has(DefaultInput.RIGHT)) {
             addState(entity, { state: CharacterStateTypes.SPRINT_RIGHT })
