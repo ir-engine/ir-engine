@@ -2,6 +2,10 @@ language: node_js
 node_js:
   - "14"
 
+cache:
+  npm: false
+  yarn: true
+
 env:
   global:
     - MYSQL_DATABASE=xr3ngine
