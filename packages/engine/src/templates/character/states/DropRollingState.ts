@@ -29,7 +29,7 @@ export const DropRollingState: StateSchemaValue = {
         behavior: setActorAnimation,
         args: {
           name: 'sb_drop_running_roll',
-          transitionDuration: 0.03
+          transitionDuration: 0.5
         }
       }
     ],
@@ -46,5 +46,3 @@ export const DropRollingState: StateSchemaValue = {
       }
   }]
 };
-
-

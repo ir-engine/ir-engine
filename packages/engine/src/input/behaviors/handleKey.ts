@@ -17,9 +17,9 @@ export function handleKey(entity: Entity, args: { event: KeyboardEvent; value: B
   console.log("Handle key called");
   // Get immutable reference to Input and check if the button is defined -- ignore undefined keys
   const input = getComponent(entity, Input);
-  if (input.schema.keyboardInputMap[args.event.key] === undefined)
+  if (input.schema.keyboardInputMap[args.event.key.toLowerCase()] === undefined)
     return;
-  const mappedKey = input.schema.keyboardInputMap[args.event.key];
+  const mappedKey = input.schema.keyboardInputMap[args.event.key.toLowerCase()];
 
   if (args.value === BinaryValue.ON) {
     // If the key is in the map but it's in the same state as now, let's skip it (debounce)
@@ -35,14 +35,14 @@ export function handleKey(entity: Entity, args: { event: KeyboardEvent; value: B
       return;
     }
     // Set type to BUTTON (up/down discrete state) and value to up or down, depending on what the value is set to
-    input.data.set(input.schema.keyboardInputMap[args.event.key], {
+    input.data.set(input.schema.keyboardInputMap[args.event.key.toLowerCase()], {
       type: InputType.BUTTON,
       value: args.value,
       lifecycleState: LifecycleValue.STARTED
     });
   }
   else {
-    input.data.set(input.schema.keyboardInputMap[args.event.key], {
+    input.data.set(input.schema.keyboardInputMap[args.event.key.toLowerCase()], {
       type: InputType.BUTTON,
       value: args.value,
       lifecycleState: LifecycleValue.ENDED

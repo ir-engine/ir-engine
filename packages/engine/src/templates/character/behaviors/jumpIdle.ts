@@ -21,7 +21,6 @@ export const jumpIdle: Behavior = (entity: Entity, args: null, delta: any): void
 		setCameraRelativeOrientationTarget(entity);
 		setTargetVelocityIfMoving(entity, { ifTrue: { x: 0.8, y: 0.8, z: 0.8 }, ifFalse: { x: 0, y: 0, z: 0 } });
 	}
-	console.warn(actor.timer);
 
 	// Physically jump
 	if (actor.timer > 0.6 && !actor.alreadyJumped) {
