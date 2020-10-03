@@ -1,6 +1,8 @@
 set -e
 set -x
 
+sudo apt-get install snapd
+
 sudo snap install kubectl --classic
 
 sudo snap install helm --classic
