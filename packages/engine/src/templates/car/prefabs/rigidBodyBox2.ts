@@ -10,7 +10,7 @@ import { addMeshRigidBody } from "@xr3ngine/engine/src/physics/behaviors/addMesh
 import { attachCamera } from "@xr3ngine/engine/src/camera/behaviors/attachCamera";
 
 const boxGeometry = new BoxBufferGeometry(1, 1, 1);
-const boxMaterial = new MeshPhongMaterial({ color: 'green' })
+const boxMaterial = new MeshPhongMaterial({ color: 'green' });
 const boxMesh = new Mesh(boxGeometry, boxMaterial);
 
 export const rigidBodyBox2: Prefab = {

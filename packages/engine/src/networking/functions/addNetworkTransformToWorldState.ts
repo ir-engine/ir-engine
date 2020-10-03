@@ -5,8 +5,8 @@ import { Network } from '../components/Network';
 import { NetworkObject } from '../components/NetworkObject';
 
 export const addNetworkTransformToWorldState: Behavior = (entity) => {
-    const transformComponent = getComponent(entity, TransformComponent)
-    const networkObject = getComponent(entity, NetworkObject)
+    const transformComponent = getComponent(entity, TransformComponent);
+    const networkObject = getComponent(entity, NetworkObject);
 
     Network.instance.worldState.transforms.push({
         networkId: networkObject.networkId,
@@ -17,5 +17,5 @@ export const addNetworkTransformToWorldState: Behavior = (entity) => {
         qY: transformComponent.rotation.y,
         qZ: transformComponent.rotation.z,
         qW: transformComponent.rotation.w
-    })
+    });
 };

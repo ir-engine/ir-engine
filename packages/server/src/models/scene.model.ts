@@ -1,9 +1,9 @@
-import { Sequelize, DataTypes } from 'sequelize'
-import { Application } from '../declarations'
-import generateShortId from '../util/generate-short-id'
+import { Sequelize, DataTypes } from 'sequelize';
+import { Application } from '../declarations';
+import generateShortId from '../util/generate-short-id';
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const scene = sequelizeClient.define('scene', {
     id: {
       primaryKey: true,
@@ -15,7 +15,7 @@ export default (app: Application): any => {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
-      defaultValue: () => generateShortId(8)
+      defaultValue: (): string => generateShortId(8)
     },
     slug: {
       type: DataTypes.STRING,
@@ -69,26 +69,26 @@ export default (app: Application): any => {
     }
   }, {
     hooks: {
-      beforeValidate (scene: any) {
+      beforeValidate (scene: any): void {
         if (scene.name) {
-          scene.slug = (scene.name as string).split(' ').filter(character => character.length).join('-').toLowerCase()
+          scene.slug = (scene.name as string).split(' ').filter(character => character.length).join('-').toLowerCase();
         }
       },
-      beforeCount (options: any) {
-        options.raw = true
+      beforeCount (options: any): void {
+        options.raw = true;
       }
     }
   });
 
-  (scene as any).associate = (models: any) => {
+  (scene as any).associate = (models: any): void => {
     (scene as any).belongsTo(models.user, { foreignKey: 'ownerUserId' });
     (scene as any).hasOne(models.project, { foreignKey: 'sceneId' });
     (scene as any).belongsTo(models.scene, { foreignKey: 'parentSceneId' });
     (scene as any).belongsTo(models.scene_listing, { foreignKey: 'parentSceneListingId' });
     (scene as any).belongsTo(models.owned_file, { foreignKey: 'modelOwnedFileId', allowNull: false });
     (scene as any).belongsTo(models.owned_file, { foreignKey: 'screenshotOwnedFileId', allowNull: false });
-    (scene as any).belongsTo(models.collection, { foreignKey: 'collectionId' })
-  }
+    (scene as any).belongsTo(models.collection, { foreignKey: 'collectionId' });
+  };
 
-  return scene
-}
+  return scene;
+};

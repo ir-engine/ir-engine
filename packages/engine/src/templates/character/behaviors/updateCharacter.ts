@@ -14,7 +14,7 @@ import { Engine } from '../../../ecs/classes/Engine';
 export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime) => {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const actorTransform = getMutableComponent<TransformComponent>(entity, TransformComponent as any);
-  if(!actor.initialized) return
+  if(!actor.initialized) return;
   // actor.behaviour?.update(timeStep);
   // actor.vehicleEntryInstance?.update(timeStep);
   // console.log(this.occupyingSeat);
@@ -23,7 +23,7 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
   if (actor.physicsEnabled) {
 
     // transfer localMovementDirection into velocityTarget
-    actor.velocityTarget.copy(actor.localMovementDirection)
+    actor.velocityTarget.copy(actor.localMovementDirection);
 
     springMovement(entity, null, deltaTime);
     springRotation(entity, null, deltaTime);
@@ -41,7 +41,7 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
     // );
   }
   else {
-    let newPos = new Vector3();
+    const newPos = new Vector3();
     getMutableComponent(entity, Object3DComponent).value.getWorldPosition(newPos);
     actor.actorCapsule.body.position.copy(cannonFromThreeVector(newPos));
     actor.actorCapsule.body.interpolatedPosition.copy(cannonFromThreeVector(newPos));

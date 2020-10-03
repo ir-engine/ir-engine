@@ -67,7 +67,6 @@ function AssetGridItem({ contextMenuId, tooltipComponent, disableTooltip, item, 
         <TooltipComponent item={item} />
       </AssetGridTooltipContainer>
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item, tooltipComponent]);
 
   useEffect(() => {

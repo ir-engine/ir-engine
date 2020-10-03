@@ -10,4 +10,4 @@ vec4 blend(const in vec4 x, const in vec4 y, const in float opacity) {
 
 	return vec4(blend(x.rgb, y.rgb, a), max(x.a, a));
 
-}`
+}`;

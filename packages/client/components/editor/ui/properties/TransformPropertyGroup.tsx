@@ -12,20 +12,20 @@ export default class TransformPropertyGroup extends Component<
   TransformPropertyGroupProps,
   {}
 > {
-  translation: Vector3;
   constructor(props: any) {
     super(props);
     this.translation = new Vector3();
   }
-  shouldComponentUpdate(nextProps) {
-    return nextProps.node !== this.props.node;
-  }
   componentDidMount() {
     (this.props.editor as any).addListener("objectsChanged", this.onObjectsChanged);
+  }
+  shouldComponentUpdate(nextProps) {
+    return nextProps.node !== this.props.node;
   }
   componentWillUnmount() {
     (this.props.editor as any).removeListener("objectsChanged", this.onObjectsChanged);
   }
+  translation: Vector3;
   onObjectsChanged = (objects, property) => {
     for (let i = 0; i < objects.length; i++) {
       if (

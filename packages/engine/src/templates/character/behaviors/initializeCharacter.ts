@@ -15,7 +15,7 @@ import { PhysicsManager } from "../../../physics/components/PhysicsManager";
 import { addObject3DComponent } from "../../../common/behaviors/Object3DBehaviors";
 
 export const initializeCharacter: Behavior = (entity): void => {
-	console.log("Init character")
+	console.log("Init character");
 	console.log("**** Initializing character!");
 	if (!hasComponent(entity, CharacterComponent as any))
 		addComponent(entity, CharacterComponent as any);
@@ -26,14 +26,14 @@ export const initializeCharacter: Behavior = (entity): void => {
 	actor.tiltContainer.name = 'Actor (tiltContainer)';
 	// by default all asset childs are moved into entity object3dComponent, which is tiltContainer
 	// we should keep it clean till asset loaded and all it's content moved into modelContainer
-	addObject3DComponent(entity, { obj3d: actor.tiltContainer })
+	addObject3DComponent(entity, { obj3d: actor.tiltContainer });
 	const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
 	assetLoader.onLoaded = (entity, { asset }) => {
 		actor.animations = asset.animations;
 		console.warn(actor.animations);
 
-		console.log("Components on character")
-		console.log(entity.components)
+		console.log("Components on character");
+		console.log(entity.components);
 
 		// // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
 		actor.modelContainer = new Group();
@@ -43,7 +43,7 @@ export const initializeCharacter: Behavior = (entity): void => {
 		// by default all asset childs are moved into entity object3dComponent, which is tiltContainer
 		// we should keep it clean till asset loaded and all it's content moved into modelContainer
 		while (actor.tiltContainer.children.length) {
-			actor.modelContainer.add(actor.tiltContainer.children[0])
+			actor.modelContainer.add(actor.tiltContainer.children[0]);
 		}
 		// now move model container inside empty tilt container
 		actor.tiltContainer.add(actor.modelContainer);
@@ -65,7 +65,7 @@ export const initializeCharacter: Behavior = (entity): void => {
 			segments: 8,
 			friction: 0.0
 		});
-		actor.actorCapsule = getMutableComponent<CapsuleCollider>(entity, CapsuleCollider)
+		actor.actorCapsule = getMutableComponent<CapsuleCollider>(entity, CapsuleCollider);
 		actor.actorCapsule.body.shapes.forEach((shape) => {
 			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
 		});
@@ -92,7 +92,7 @@ export const initializeCharacter: Behavior = (entity): void => {
 		});
 		actor.raycastBox = new Mesh(boxGeo, boxMat);
 		actor.raycastBox.visible = true;
-		Engine.scene.add(actor.raycastBox)
+		Engine.scene.add(actor.raycastBox);
 		PhysicsManager.instance.physicsWorld.addBody(actor.actorCapsule.body);
 
 		// Physics pre/post step callback bindings

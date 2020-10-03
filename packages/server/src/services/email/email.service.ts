@@ -1,10 +1,10 @@
-import { ServiceAddons } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
-import { Email } from './email.class'
-import hooks from './email.hooks'
-import smtpTransport from 'nodemailer-smtp-transport'
-import Mailer from 'feathers-mailer'
-import config from '../../config'
+import { ServiceAddons } from '@feathersjs/feathers';
+import { Application } from '../../declarations';
+import { Email } from './email.class';
+import hooks from './email.hooks';
+import smtpTransport from 'nodemailer-smtp-transport';
+import Mailer from 'feathers-mailer';
+import config from '../../config';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -13,9 +13,9 @@ declare module '../../declarations' {
 }
 
 export default (app: Application): void => {
-  app.use('/email', Mailer(smtpTransport({ ...config.email.smtp })))
+  app.use('/email', Mailer(smtpTransport({ ...config.email.smtp })));
 
-  const service = app.service('email')
+  const service = app.service('email');
 
-  service.hooks(hooks)
-}
+  service.hooks(hooks);
+};

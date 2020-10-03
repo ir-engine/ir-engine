@@ -20,10 +20,10 @@ class Octave {
   height: number;
   alternate: boolean;
   constructor(
-    speed = new Vector2(1, 1),
-    scale = new Vector2(1, 1),
-    height = 0.0025,
-    alternate = true
+      speed = new Vector2(1, 1),
+      scale = new Vector2(1, 1),
+      height = 0.0025,
+      alternate = true
   ) {
     this.speed = speed;
     this.scale = scale;
@@ -33,7 +33,7 @@ class Octave {
 }
 export default class SimpleWater extends Mesh {
   lowQuality: boolean;
-  waterUniforms: { ripplesSpeed: { value: number; }; ripplesScale: { value: number; }; time: { value: number; }; };
+  waterUniforms: { ripplesSpeed: { value: number }; ripplesScale: { value: number }; time: { value: number } };
   resolution: number;
   octaves: Octave[];
   simplex: SimplexNoise;
@@ -52,23 +52,23 @@ export default class SimpleWater extends Mesh {
     material.onBeforeCompile = shader => {
       Object.assign(shader.uniforms, waterUniforms);
       shader.vertexShader = shader.vertexShader.replace(
-        "#include <fog_pars_vertex>",
-        `
+          "#include <fog_pars_vertex>",
+          `
         #include <fog_pars_vertex>
         varying vec3 vWPosition;
       `
       );
       shader.vertexShader = shader.vertexShader.replace(
-        "#include <fog_vertex>",
-        `
+          "#include <fog_vertex>",
+          `
         #include <fog_vertex>
         vWPosition = ( modelMatrix * vec4( transformed, 1.0 ) ).xyz;
       `
       );
       // getNoise function from https://github.com/mrdoob/three.js/blob/dev/examples/jsm/objects/Water.js
       shader.fragmentShader = shader.fragmentShader.replace(
-        "#include <normalmap_pars_fragment>",
-        `
+          "#include <normalmap_pars_fragment>",
+          `
         #include <normalmap_pars_fragment>
 
         uniform float time;
@@ -94,8 +94,8 @@ export default class SimpleWater extends Mesh {
       );
       // https://github.com/mrdoob/three.js/blob/dev/src/renderers/shaders/ShaderChunk/normalmap_pars_fragment.glsl.js#L20
       shader.fragmentShader = shader.fragmentShader.replace(
-        "#include <normal_fragment_maps>",
-        `
+          "#include <normal_fragment_maps>",
+          `
           // Workaround for Adreno 3XX dFd*( vec3 ) bug. See #9988
 
           vec3 eye_pos = -vViewPosition;
@@ -136,7 +136,7 @@ export default class SimpleWater extends Mesh {
     ];
     this.simplex = new SimplexNoise();
   }
-  get opacity() {
+  get opacity(): number {
     return (this.material as any).opacity;
   }
   set opacity(value) {
@@ -145,46 +145,49 @@ export default class SimpleWater extends Mesh {
       (this.material as any).transparent = true;
     }
   }
-  get color() {
+  get color(): string {
     return (this.material as any).color;
   }
-  get tideHeight() {
+  set color(value: string) {
+    this.color = value;
+  }
+  get tideHeight(): number {
     return this.octaves[0].height;
-  }
-  get tideScale() {
-    return this.octaves[0].scale;
-  }
-  get tideSpeed() {
-    return this.octaves[0].speed;
   }
   set tideHeight(value) {
     this.octaves[0].height = value;
   }
-  get waveHeight() {
+  get tideScale(): Vector2 {
+    return this.octaves[0].scale;
+  }
+  get tideSpeed(): Vector2 {
+    return this.octaves[0].speed;
+  }
+  get waveHeight(): number {
     return this.octaves[1].height;
   }
   set waveHeight(value) {
     this.octaves[1].height = value;
   }
-  get waveScale() {
+  get waveScale(): Vector2 {
     return this.octaves[1].scale;
   }
-  get waveSpeed() {
+  get waveSpeed(): Vector2 {
     return this.octaves[1].speed;
   }
   set ripplesSpeed(value) {
     this.waterUniforms.ripplesSpeed.value = value;
   }
-  get ripplesSpeed() {
+  get ripplesSpeed(): number {
     return this.waterUniforms.ripplesSpeed.value;
   }
   set ripplesScale(value) {
     this.waterUniforms.ripplesScale.value = value;
   }
-  get ripplesScale() {
+  get ripplesScale(): number {
     return this.waterUniforms.ripplesScale.value;
   }
-  update(time) {
+  update(time): void {
     const positionAttribute = (this.geometry as any).attributes.position;
     for (let x = 0; x <= this.resolution; x++) {
       for (let z = 0; z <= this.resolution; z++) {
@@ -193,16 +196,16 @@ export default class SimpleWater extends Mesh {
           const octave = this.octaves[o];
           if (octave.alternate) {
             const noise = this.simplex.noise(
-              x * octave.scale.x / this.resolution,
-              z * octave.scale.y / this.resolution
+                x * octave.scale.x / this.resolution,
+                z * octave.scale.y / this.resolution
             );
             y += Math.cos(noise + octave.speed.length() * time) * octave.height;
           } else {
             const noise =
-              this.simplex.noise(
-                (x * octave.scale.x + time * octave.speed.x) / this.resolution,
-                (z * octave.scale.y + time * octave.speed.y) / this.resolution
-              ) - 0.5;
+                this.simplex.noise(
+                    (x * octave.scale.x + time * octave.speed.x) / this.resolution,
+                    (z * octave.scale.y + time * octave.speed.y) / this.resolution
+                ) - 0.5;
             y += noise * octave.height;
           }
         }
@@ -214,17 +217,17 @@ export default class SimpleWater extends Mesh {
     this.waterUniforms.time.value = time;
   }
   // @ts-ignore
-  clone(recursive) {
+  clone(recursive): SimpleWater {
     return new SimpleWater(
-      (this.material as any).normalMap,
-      this.resolution,
-      this.lowQuality
+        (this.material as any).normalMap,
+        this.resolution,
+        this.lowQuality
     ).copy(this, recursive);
   }
-  copy(source, recursive = true) {
+  copy(source, recursive = true): any {
     super.copy(source, recursive);
     this.opacity = source.opacity;
-    this.color.copy(source.color);
+    this.color = source.color;
     this.tideHeight = source.tideHeight;
     this.tideScale.copy(source.tideScale);
     this.tideSpeed.copy(source.tideSpeed);

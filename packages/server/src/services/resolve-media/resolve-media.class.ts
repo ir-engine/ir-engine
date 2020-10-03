@@ -1,9 +1,9 @@
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
-import { BadRequest } from '@feathersjs/errors'
-import SketchFabMediaClass from '../media-search/sketch-fab.class'
-import GooglePolyMediaClass from '../media-search/google-poly.class'
-import StorageProvider from '../../storage/storageprovider'
+import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
+import { Application } from '../../declarations';
+import { BadRequest } from '@feathersjs/errors';
+import SketchFabMediaClass from '../media-search/sketch-fab.class';
+import GooglePolyMediaClass from '../media-search/google-poly.class';
+import StorageProvider from '../../storage/storageprovider';
 
 interface Data {}
 interface MediaType { [key: string]: { Handler: any; mediaType: string; modelId: string} }
@@ -17,31 +17,31 @@ export class ResolveMedia implements ServiceMethods<Data> {
   storage: any
 
   constructor (options: ServiceOptions = {}, app: Application) {
-    this.options = options
-    this.app = app
-    this.models = this.app.get('sequelizeClient').models
-    this.storage = new StorageProvider().getStorage()
+    this.options = options;
+    this.app = app;
+    this.models = this.app.get('sequelizeClient').models;
+    this.storage = new StorageProvider().getStorage();
   }
 
   async find (params?: Params): Promise<Data[] | Paginated<Data>> {
-    return []
+    return [];
   }
 
   async get (id: Id, params?: Params): Promise<Data> {
     return {
       id, text: `A new message with ID: ${id}!`
-    }
+    };
   }
 
   async create (data: any, params?: Params): Promise<Data> {
     // const StaticResourceModel = this.models.static_resource
     if (!data?.media?.url) {
-      return await Promise.reject(new BadRequest('URL is required!'))
+      return await Promise.reject(new BadRequest('URL is required!'));
     }
 
-    const selectedMediaType = this.processAndGetMediaTypeHandler(data.media.url)
+    const selectedMediaType = this.processAndGetMediaTypeHandler(data.media.url);
 
-    const modelId = selectedMediaType.modelId
+    const modelId = selectedMediaType.modelId;
 
     // const asset = await StaticResourceModel.findOne({
     //   where: {
@@ -59,28 +59,28 @@ export class ResolveMedia implements ServiceMethods<Data> {
     //   return asset
     // }
 
-    const selectedMediaInstance = new selectedMediaType.Handler()
-    const model = await selectedMediaInstance.getModel(modelId)
+    const selectedMediaInstance = new selectedMediaType.Handler();
+    const model = await selectedMediaInstance.getModel(modelId);
     // TODO: Save sketch fab in static resource
     // Now stream that model to s3 and send the url to front end
 
-    return model
+    return model;
   }
 
   async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data
+    return data;
   }
 
   async patch (id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data
+    return data;
   }
 
   async remove (id: NullableId, params?: Params): Promise<Data> {
-    return { id }
+    return { id };
   }
 
   private processAndGetMediaTypeHandler (mediaUrl: string): any {
-    const url = new URL(mediaUrl)
+    const url = new URL(mediaUrl);
 
     const mediaTypeMap: MediaType = {
       '/models/': {
@@ -94,18 +94,18 @@ export class ResolveMedia implements ServiceMethods<Data> {
         modelId: url.pathname.replace('/view/', '')
       }
       // TODO: Add more media types
-    }
+    };
 
-    let selectedMediaType: any = {}
+    let selectedMediaType: any = {};
     for (const key in mediaTypeMap) {
       if (mediaTypeMap[key]) {
         if (url.pathname.includes(key)) {
-          selectedMediaType = mediaTypeMap[key]
-          break
+          selectedMediaType = mediaTypeMap[key];
+          break;
         }
       }
     }
 
-    return selectedMediaType
+    return selectedMediaType;
   }
 }

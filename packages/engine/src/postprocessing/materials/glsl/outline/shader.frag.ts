@@ -23,4 +23,4 @@ void main() {
 	gl_FragColor.rg = (1.0 - visibilityFactor > 0.001) ? vec2(d, 0.0) : vec2(0.0, d);
 
 }
-`
+`;

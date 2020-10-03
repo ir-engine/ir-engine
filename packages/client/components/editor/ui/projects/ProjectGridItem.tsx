@@ -26,7 +26,7 @@ const StyledProjectGridItem = (styled as any).div`
   }
 `;
 
-const StyledContextMenuTrigger = StylableContextMenuTrigger
+const StyledContextMenuTrigger = StylableContextMenuTrigger;
 // styled(StylableContextMenuTrigger)`
 //   display: flex;
 //   flex-direction: column;

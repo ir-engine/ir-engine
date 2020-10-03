@@ -1,5 +1,6 @@
 import { WebGLRenderer, PCFSoftShadowMap } from "three";
 export default function makeRenderer(width, height, props?) {
+  // eslint-disable-next-line prefer-const
   let { canvas, ...rest } = props;
   if (!canvas) {
     canvas = document.createElement("canvas");

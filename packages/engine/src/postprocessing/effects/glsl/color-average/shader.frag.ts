@@ -5,4 +5,4 @@ export default `void mainImage(const in vec4 inputColor, const in vec2 uv, out v
 	outputColor = vec4(vec3(sum / 3.0), inputColor.a);
 
 }
-`
+`;

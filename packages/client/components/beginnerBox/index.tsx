@@ -2,7 +2,7 @@ import { Dialog, Fab, Snackbar, Tooltip, DialogTitle, DialogContent,DialogConten
 import React, { FunctionComponent } from "react";
 import './style.scss';
 
-export const BeginnerBox: FunctionComponent = (props:any) => {
+export const BeginnerBox: FunctionComponent = (props: any) => {
   const [snackBarOpened, setSnackBarOpened] = React.useState(localStorage.getItem('skipHelpHighlight') === 'true' ? false : true);
   const [dialogOpened, setDialogOpened] = React.useState(false);
   
@@ -24,7 +24,7 @@ export const BeginnerBox: FunctionComponent = (props:any) => {
   const handleProDialogClose = () =>{
     localStorage.setItem('skipHelpHighlight','true');
     handleDialogClose();
-  }
+  };
 
   const beginnerHintButton = 
     <>
@@ -64,7 +64,7 @@ export const BeginnerBox: FunctionComponent = (props:any) => {
           </Button>
         </DialogActions>
       </Dialog>
-    </>
+    </>;
   
   return beginnerHintButton;
 };

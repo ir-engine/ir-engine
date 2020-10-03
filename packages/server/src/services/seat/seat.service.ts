@@ -1,8 +1,8 @@
-import { ServiceAddons } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
-import { Seat } from './seat.class'
-import createModel from '../../models/seat.model'
-import hooks from './seat.hooks'
+import { ServiceAddons } from '@feathersjs/feathers';
+import { Application } from '../../declarations';
+import { Seat } from './seat.class';
+import createModel from '../../models/seat.model';
+import hooks from './seat.hooks';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -16,11 +16,11 @@ export default (app: Application): any => {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
-  }
+  };
 
-  app.use('/seat', new Seat(options, app))
+  app.use('/seat', new Seat(options, app));
 
-  const service = app.service('seat')
+  const service = app.service('seat');
 
-  service.hooks(hooks)
-}
+  service.hooks(hooks);
+};

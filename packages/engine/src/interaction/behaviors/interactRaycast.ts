@@ -19,10 +19,10 @@ import { Engine } from "../../ecs/classes/Engine";
  * @param delta
  */
 export const interactRaycast:Behavior = (entity: Entity, { interactive }:InteractBehaviorArguments, delta: number): void => {
-  const clientPosition = getComponent(entity, TransformComponent).position
+  const clientPosition = getComponent(entity, TransformComponent).position;
   // - added mouse position tracking
   const mouseScreenPosition = getComponent(entity, Input).data.get(DefaultInput.SCREENXY);
-  let mouseScreen = new Vector2();
+  const mouseScreen = new Vector2();
   if (mouseScreenPosition) {
     mouseScreen.x = mouseScreenPosition.value[0];
 	  mouseScreen.y = mouseScreenPosition.value[1];
@@ -30,7 +30,7 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
 
   // TODO: this is only while we don't have InteractionPointers component, or similar data in Input
   if (!hasComponent(entity, CharacterComponent)) {
-    return
+    return;
   }
 
 
@@ -38,63 +38,63 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
     .filter(interactiveEntity => {
       // - have object 3d to raycast
       if (!hasComponent(interactiveEntity, Object3DComponent)) {
-        return false
+        return false;
       }
 
       // - distance check
       // TODO: handle parent transform!!!
-      const distance = getComponent(interactiveEntity, TransformComponent).position.distanceTo(clientPosition)
+      const distance = getComponent(interactiveEntity, TransformComponent).position.distanceTo(clientPosition);
       const interactive = getComponent(interactiveEntity, Interactive);
 
       if (distance > interactive.interactiveDistance) {
-        return false
+        return false;
       }
 
       // - onInteractionCheck is not set or passed
-      return (typeof interactive.onInteractionCheck !== 'function' || interactive.onInteractionCheck(entity, interactiveEntity))
+      return (typeof interactive.onInteractionCheck !== 'function' || interactive.onInteractionCheck(entity, interactiveEntity));
     })
-    .map(entity => getComponent(entity, Object3DComponent).value )
+    .map(entity => getComponent(entity, Object3DComponent).value );
 
   if (!raycastList.length) {
-    return
+    return;
   }
 
-  const character = getComponent(entity, CharacterComponent)
+  const character = getComponent(entity, CharacterComponent);
   if (!character.viewVector) {
     // console.warn('!character.viewVector')
-    return
+    return;
   }
   const raycaster = new Raycaster();
-  let object, rayOrigin, rayDirection,rayCamera,rayMouse;
+  let object, rayOrigin, rayDirection;
   // - added mouse raycaster
-  rayCamera = Engine.camera.clone();
-  rayMouse = mouseScreen.normalize();  
+  const rayCamera = Engine.camera.clone();
+  const rayMouse = mouseScreen.normalize();
   raycaster.setFromCamera(rayMouse,rayCamera);
   let intersections = raycaster.intersectObjects(raycastList, true );
 
   if (!intersections.length){
   // TODO: rayOrigin, rayDirection
-  rayOrigin = clientPosition
-  rayDirection = character.viewVector.clone().normalize().setY(0)
+  rayOrigin = clientPosition;
+  rayDirection = character.viewVector.clone().normalize().setY(0);
 
   raycaster.set(rayOrigin, rayDirection);
   intersections = raycaster.intersectObjects( raycastList, true );
 }
   
   if (intersections.length) {
-    object = intersections[0].object
+    object = intersections[0].object;
     while (raycastList.indexOf(object)===-1 && object.parent) {
-      object = object.parent
+      object = object.parent;
     }
     if (raycastList.indexOf(object)===-1) {
-      console.error('Raycasted sub-object not in raycast list')
-      object = null
+      console.error('Raycasted sub-object not in raycast list');
+      object = null;
     }
   }
 
-  const newRayHit = object && intersections.length? intersections[0] : null
-  const interacts = getMutableComponent(entity, Interacts)
-  interacts.focusedRayHit = newRayHit
-  interacts.focusedInteractive = newRayHit? (object as any).entity : null
+  const newRayHit = object && intersections.length? intersections[0] : null;
+  const interacts = getMutableComponent(entity, Interacts);
+  interacts.focusedRayHit = newRayHit;
+  interacts.focusedInteractive = newRayHit? (object as any).entity : null;
   
-}
+};

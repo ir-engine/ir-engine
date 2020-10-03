@@ -1,10 +1,10 @@
 // See http://docs.sequelizejs.com/en/latest/docs/models-definition/
 // for more of what you can do here.
-import { Sequelize, DataTypes } from 'sequelize'
-import { Application } from '../declarations'
+import { Sequelize, DataTypes } from 'sequelize';
+import { Application } from '../declarations';
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const loginToken = sequelizeClient.define('login_token', {
     id: {
       type: DataTypes.UUID,
@@ -20,18 +20,18 @@ export default (app: Application): any => {
     }
   }, {
     hooks: {
-      beforeCount (options: any) {
-        options.raw = true
+      beforeCount (options: any): void {
+        options.raw = true;
       }
     }
   });
 
   // eslint-disable-next-line no-unused-vars
-  (loginToken as any).associate = function (models: any) {
+  (loginToken as any).associate = (models: any): void => {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
-    (loginToken as any).belongsTo(models.identity_provider)
-  }
+    (loginToken as any).belongsTo(models.identity_provider);
+  };
 
-  return loginToken
-}
+  return loginToken;
+};

@@ -39,7 +39,7 @@ const DefaultOptions = {
   stencilBuffer: true,
   multisampling: true,
   frameBufferType: HalfFloatType
-}
+};
 
 export class EffectComposer {
   renderer: any;
@@ -74,7 +74,7 @@ export class EffectComposer {
 
     const {
       depthBuffer, stencilBuffer, frameBufferType, multisampling
-    } = options
+    } = options;
 
     /**
 		 * The input buffer.
@@ -242,7 +242,7 @@ export class EffectComposer {
       this.renderer.autoClear = false;
 
       if (!oldSize.equals(newSize)) {
-        this.setSize(newSize.x, newSize.y)
+        this.setSize(newSize.x, newSize.y);
       }
 
       if (updateDOM && parent !== null) {
@@ -523,7 +523,7 @@ export class EffectComposer {
 	 */
 
   dispose() {
-    console.warn('DISPOSE EffectComposer')
+    console.warn('DISPOSE EffectComposer');
     for (const pass of this.passes) {
       pass.dispose();
     }

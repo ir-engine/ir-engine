@@ -24,13 +24,14 @@ module.exports = {
   },
   plugins: [
     "react",
+    "react-hooks",
     "@typescript-eslint"
   ],
   rules: {
     "no-unused-expressions": "off",
     "no-var": "error",
     "prefer-arrow-callback": "error",
-    "semi": "error",
+    "semi": [2, 'always'],
     "space-before-function-paren": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unused-vars": [
@@ -45,29 +46,32 @@ module.exports = {
     "@typescript-eslint/require-await": "off",
     "@typescript-eslint/strict-boolean-expressions": "off",
     "@typescript-eslint/promise-function-async": "off",
+    "@typescript-eslint/ban-ts-ignore": "off",
+    "@typescript-eslint/no-this-alias": "off",
     // React linting rules
-    "react/boolean-prop-naming": ["error", { "rule": "^(is|has)[A-Z]([A-Za-z0-9]?)+" }],
+    "react/boolean-prop-naming": "off",
     "react/button-has-type": "error",
-    "react/default-props-match-prop-types": "error",
+    "react/default-props-match-prop-types": "warn",
     "react/no-danger": "error",
     "react/no-unused-state": "error",
     "react/no-will-update-set-state": "error",
-    "react/prefer-stateless-function": "error",
+    "react/prefer-stateless-function": "warn",
     "react/react-in-jsx-scope": "off",
     "react/no-redundant-should-component-update": "error",
     "react/no-string-refs": ["error", { "noTemplateLiterals": true }],
     "react/no-this-in-sfc": "error",
     "react/no-typos": "error",
     "react/no-empty-function": "off",
-    "react/no-unsafe": ["error", { "checkAliases": true }],
+    "react/no-unsafe": ["warn", { "checkAliases": true }],
     "react/self-closing-comp": "error",
     "react/sort-comp": "error",
     "react/void-dom-elements-no-children": "error",
     "react/style-prop-object": "error",
     "react/static-property-placement": ["error", "static public field"],
-    "react/state-in-constructor": "error",
-    "react/no-access-state-in-setstate": "error",
-    "react/no-adjacent-inline-elements": "error"
+    "react/state-in-constructor": "warn",
+    "react/no-access-state-in-setstate": "warn",
+    "react/no-adjacent-inline-elements": "error",
+    "react-hooks/exhaustive-deps": "warn"
   },
   overrides: [
     {

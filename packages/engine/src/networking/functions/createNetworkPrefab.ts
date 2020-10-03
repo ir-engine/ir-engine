@@ -14,15 +14,15 @@ export function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: n
 
   // Add a NetworkObject component to the entity, this will store information about changing state
   addComponent(entity, NetworkObject, { ownerId, networkId });
-  console.log("Create prefab: ")
-  console.log(prefab)
+  console.log("Create prefab: ");
+  console.log(prefab);
   // Call each create action
   prefab.onCreate?.forEach(action => {
     // If it's a networked behavior, or this is the local player, call it
     if (action.networked || ownerId === (Network.instance).mySocketID)
     // Call the behavior with the args
     { action.behavior(entity, action.args); }
-    console.log(action)
+    console.log(action);
 
   });
   // Instantiate network components
@@ -39,7 +39,7 @@ export function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: n
         addedComponent[initValue] = component.data[initValue];
       });
     }
-    console.log(component)
+    console.log(component);
 
   });
   // Instantiate local components

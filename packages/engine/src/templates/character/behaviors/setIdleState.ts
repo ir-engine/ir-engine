@@ -9,7 +9,7 @@ export const setIdleState: Behavior = (entity) => {
   const character = getComponent(entity, CharacterComponent);
   if (character.timer < 0.1) {
     // TODO: Make sure our character orientation is reflected or moved to transform
-    let angle = getSignedAngleBetweenVectors(character.orientation, character.orientationTarget);
+    const angle = getSignedAngleBetweenVectors(character.orientation, character.orientationTarget);
 
     if (angle > Math.PI * 0.4) {
       return addState(entity, { state: CharacterStateTypes.IDLE_ROTATE_LEFT });

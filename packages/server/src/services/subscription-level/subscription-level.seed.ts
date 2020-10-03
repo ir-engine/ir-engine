@@ -1,4 +1,4 @@
-import config from '../../config'
+import config from '../../config';
 
 export const seed = {
   disabled: !config.db.forceRefresh,
@@ -9,6 +9,6 @@ export const seed = {
     { level: 'all' },
     { level: 'paid' }
   ]
-}
+};
 
-export default seed
+export default seed;

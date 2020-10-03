@@ -7,15 +7,15 @@ import { HighlightComponent } from "../../effects/components/HighlightComponent"
 
 export const interactFocused:Behavior = (entity: Entity, args, delta: number): void => {
   if (!hasComponent(entity, Interactive)) {
-    console.error('Attempted to call interact behavior, but target does not have Interactive component')
-    return
+    console.error('Attempted to call interact behavior, but target does not have Interactive component');
+    return;
   }
 
-  const focused = hasComponent(entity, InteractiveFocused)
-  const interactive = getComponent(entity, Interactive)
+  const focused = hasComponent(entity, InteractiveFocused);
+  const interactive = getComponent(entity, Interactive);
   if (interactive && typeof interactive.onInteractionFocused === 'function') {
-    const entityFocuser = focused? getComponent(entity, InteractiveFocused).interacts : null
-    interactive.onInteractionFocused(entityFocuser, { focused }, delta, entity)
+    const entityFocuser = focused? getComponent(entity, InteractiveFocused).interacts : null;
+    interactive.onInteractionFocused(entityFocuser, { focused }, delta, entity);
   }
 
   if (focused){
@@ -24,4 +24,4 @@ export const interactFocused:Behavior = (entity: Entity, args, delta: number): v
   else  {
     removeComponent(entity,HighlightComponent)
   }
-}
+};

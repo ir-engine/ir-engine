@@ -18,7 +18,7 @@ export class SubscriptionSystem extends System {
 
     this.queryResults.subscriptions.all?.forEach(entity => {
       if (!hasComponent(entity, Subscription)) {
-        return
+        return;
       }
 
       this.callBehaviorsForHook(entity, { phase: 'onUpdate' }, delta);

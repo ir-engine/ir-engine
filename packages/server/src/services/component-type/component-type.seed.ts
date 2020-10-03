@@ -1,4 +1,4 @@
-import config from '../../config'
+import config from '../../config';
 
 export const seed = {
   disabled: !config.db.forceRefresh,
@@ -50,6 +50,6 @@ export const seed = {
         // Custom Components
         { type: 'grid' }
       ]
-}
+};
 
-export default seed
+export default seed;

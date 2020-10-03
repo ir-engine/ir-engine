@@ -182,8 +182,6 @@ export default class OnboardingPopover extends Component {
     position: "top",
     padding: 16
   };
-  el: HTMLDivElement;
-  popoverRef: React.RefObject<unknown>;
 
   constructor(props) {
     super(props);
@@ -193,7 +191,7 @@ export default class OnboardingPopover extends Component {
 
     this.state = {
       targetEl: null,
-      finalPosition: props.position,
+      finalPosition: props.position, //eslint-disable-line react/no-unused-state
       transform: "translate(0px,0px)",
       transformOrigin: "initial"
     };
@@ -215,6 +213,9 @@ export default class OnboardingPopover extends Component {
   componentWillUnmount() {
     window.removeEventListener("resize", this.onResize);
   }
+
+  el: HTMLDivElement;
+  popoverRef: React.RefObject<unknown>;
 
   onResize = () => {
     this.updatePosition((this.state as any).targetEl);
@@ -239,7 +240,7 @@ export default class OnboardingPopover extends Component {
     });
 
     this.setState({
-      finalPosition,
+      finalPosition, //eslint-disable-line react/no-unused-state
       transformOrigin,
       transform: `translate(${rect.left}px, ${rect.top}px)`
     });
