@@ -203,10 +203,10 @@ export default class Renderer {
     this.renderMode.onSceneSet();
   };
   addBatchedObject(object) {
-    console.log("Not handling batched object")
+    console.log("Not handling batched object");
   }
   removeBatchedObject(object) {
-    console.log("Not handling batched object")
+    console.log("Not handling batched object");
   }
   onResize = () => {
     const camera = this.camera;

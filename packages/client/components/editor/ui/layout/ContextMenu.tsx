@@ -7,7 +7,7 @@ import {
   SubMenu as _SubMenu,
   ContextMenuTrigger as _ContextMenuTrigger
 } from "react-contextmenu";
-import { Theme, ThemeContext } from "./../theme"
+import { Theme, ThemeContext } from "./../theme";
 import { createGlobalStyle } from "styled-components";
 export const connectMenu = _connectMenu;
 export const MenuItem = _MenuItem;
@@ -85,7 +85,7 @@ export const ContextMenuStyles = createGlobalStyle<{ theme: Theme}>`
   }
 `;
 export const ContextMenu: React.FC<{}> = ({ children, ...rest }) => {
-  const theme = React.useContext(ThemeContext)
+  const theme = React.useContext(ThemeContext);
   return (
     <>
       <ReactContextMenu id="ContextMenu" {...rest}>{children}</ReactContextMenu>

@@ -13,11 +13,11 @@ import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/Ch
 
 
 export const getOutCar: Behavior = (entity: Entity): void => {
-  console.log("Getting out of car")
-  const vehicleComponent = getMutableComponent(entity, VehicleBody)
-  const entityDriver = vehicleComponent.currentDriver
+  console.log("Getting out of car");
+  const vehicleComponent = getMutableComponent(entity, VehicleBody);
+  const entityDriver = vehicleComponent.currentDriver;
 
-  addState(entityDriver, {state: CharacterStateTypes.EXIT_VEHICLE})
+  addState(entityDriver, {state: CharacterStateTypes.EXIT_VEHICLE});
 
   const event = new CustomEvent('player-in-car', { detail:{inCar:false} });
   document.dispatchEvent(event);

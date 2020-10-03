@@ -27,7 +27,7 @@ export interface NetworkClientList {
 export class Network extends Component<Network> {
   static instance: Network = null
   // TODO: localuserId should be set somewhere
-  localUserId: string = ""
+  localUserId = ""
   isInitialized: boolean
   transport: NetworkTransport
   schema: NetworkSchema
@@ -42,7 +42,7 @@ export class Network extends Component<Network> {
   mySocketID: string
   private static availableNetworkId = 0
   static getNetworkId() {
-    return this.availableNetworkId++
+    return this.availableNetworkId++;
   }
   static _schemas: Map<string, MessageSchema> = new Map()
 
@@ -65,22 +65,22 @@ export class Network extends Component<Network> {
   constructor() {
     super();
     Network.instance = this;
-    Network.tick = 0
+    Network.tick = 0;
 
     // TODO: Replace default message queue sizes
-    this.incomingMessageQueue = new RingBuffer<ArrayBuffer>(100)
-    this.outgoingMessageQueue = new RingBuffer<ArrayBuffer>(100)
+    this.incomingMessageQueue = new RingBuffer<ArrayBuffer>(100);
+    this.outgoingMessageQueue = new RingBuffer<ArrayBuffer>(100);
   }
 
   dispose(): void {
     super.dispose();
     // TODO: needs tests
-    this.clients = {}
+    this.clients = {};
     this.transport = null;
     Network.availableNetworkId = 0;
     Network.instance = null;
-    Network.tick = 0
-    Network.sceneId = "default" // TODO: Clear scene ID, no need for default
+    Network.tick = 0;
+    Network.sceneId = "default"; // TODO: Clear scene ID, no need for default
   }
 }
 

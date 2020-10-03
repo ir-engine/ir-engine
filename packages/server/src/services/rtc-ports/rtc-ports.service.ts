@@ -12,7 +12,7 @@ declare module '../../declarations' {
   }
 }
 
-export default function (app: Application): void {
+export default (app: Application): any => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate')
@@ -25,4 +25,4 @@ export default function (app: Application): void {
   const service = app.service('rtc-ports');
 
   service.hooks(hooks);
-}
+};

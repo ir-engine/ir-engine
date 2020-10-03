@@ -28,6 +28,34 @@ const Cursor = (styled as any)(ArrowsAltH).attrs(({ x, y }) => ({
 `;
 
 class Scrubber extends Component {
+  propTypes = {
+    tag: PropTypes.string,
+    children: PropTypes.node,
+    className: PropTypes.string,
+    smallStep: PropTypes.number.isRequired,
+    mediumStep: PropTypes.number.isRequired,
+    largeStep: PropTypes.number.isRequired,
+    sensitivity: PropTypes.number.isRequired,
+    min: PropTypes.number.isRequired,
+    max: PropTypes.number.isRequired,
+    precision: PropTypes.number,
+    value: PropTypes.number.isRequired,
+    onChange: PropTypes.func.isRequired,
+    onCommit: PropTypes.func,
+    convertFrom: PropTypes.func.isRequired,
+    convertTo: PropTypes.func.isRequired
+  };
+  defaultProps = {
+    tag: "label",
+    smallStep: 0.025,
+    mediumStep: 0.1,
+    largeStep: 0.25,
+    sensitivity: 5,
+    min: -Infinity,
+    max: Infinity,
+    convertFrom: value => value,
+    convertTo: value => value
+  };
   constructor(props) {
     super(props);
     this.scrubberEl = createRef();
@@ -129,35 +157,5 @@ class Scrubber extends Component {
     );
   }
 }
-
-Scrubber.propTypes = {
-  tag: PropTypes.string,
-  children: PropTypes.node,
-  className: PropTypes.string,
-  smallStep: PropTypes.number.isRequired,
-  mediumStep: PropTypes.number.isRequired,
-  largeStep: PropTypes.number.isRequired,
-  sensitivity: PropTypes.number.isRequired,
-  min: PropTypes.number.isRequired,
-  max: PropTypes.number.isRequired,
-  precision: PropTypes.number,
-  value: PropTypes.number.isRequired,
-  onChange: PropTypes.func.isRequired,
-  onCommit: PropTypes.func,
-  convertFrom: PropTypes.func.isRequired,
-  convertTo: PropTypes.func.isRequired
-};
-
-Scrubber.defaultProps = {
-  tag: "label",
-  smallStep: 0.025,
-  mediumStep: 0.1,
-  largeStep: 0.25,
-  sensitivity: 5,
-  min: -Infinity,
-  max: Infinity,
-  convertFrom: value => value,
-  convertTo: value => value
-};
 
 export default React.memo(Scrubber);

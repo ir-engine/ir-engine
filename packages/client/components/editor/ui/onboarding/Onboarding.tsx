@@ -28,13 +28,13 @@ class CreateModelPopover extends Component {
     (this.props as any).editor.addListener("sceneGraphChanged", this.onObjectAdded);
   }
 
-  onObjectAdded = () => {
-    (this.props as any).nextStep();
-  };
-
   componentWillUnmount() {
     (this.props as any).editor.removeListener("sceneGraphChanged", this.onObjectAdded);
   }
+
+  onObjectAdded = () => {
+    (this.props as any).nextStep();
+  };
 
   render() {
     return (
@@ -52,13 +52,13 @@ class SaveProjectDialog extends Component {
     (this.props as any).api.addListener("project-saving", this.onProjectSaving);
   }
 
-  onProjectSaving = () => {
-    (this.props as any).nextStep();
-  };
-
   componentWillUnmount() {
     (this.props as any).api.removeListener("project-saving", this.onProjectSaving);
   }
+
+  onProjectSaving = () => {
+    (this.props as any).nextStep();
+  };
 
   render() {
     return (
@@ -87,13 +87,13 @@ class SaveProjectPopover extends Component {
     (this.props as any).api.addListener("project-saved", this.onProjectSaved);
   }
 
-  onProjectSaved = () => {
-    (this.props as any).nextStep();
-  };
-
   componentWillUnmount() {
     (this.props as any).api.removeListener("project-saved", this.onProjectSaved);
   }
+
+  onProjectSaved = () => {
+    (this.props as any).nextStep();
+  };
 
   render() {
     return (
@@ -117,13 +117,13 @@ class PublishScenePopover extends Component {
     (this.props as any).api.addListener("project-published", this.onScenePublished);
   }
 
-  onScenePublished = () => {
-    (this.props as any).nextStep();
-  };
-
   componentWillUnmount() {
     (this.props as any).api.removeListener("project-published", this.onScenePublished);
   }
+
+  onScenePublished = () => {
+    (this.props as any).nextStep();
+  };
 
   render() {
     return (

@@ -27,12 +27,12 @@ module.exports = {
     "no-unused-vars": "off",
     "no-var": "error",
     "prefer-arrow-callback": "error",
-    "semi": "off",
+    "semi": ['warn', 'always'],
     "space-before-function-paren": "off",
     "@typescript-eslint/no-unused-vars": [
       "off"
     ],
-    " @typescript-eslint/ban-ts-ignore": "off",
+    "@typescript-eslint/ban-ts-ignore": "off",
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/camelcase": "off",
     "@typescript-eslint/default-param-last": "off",
@@ -40,9 +40,7 @@ module.exports = {
     "@typescript-eslint/require-await": "off",
     "@typescript-eslint/strict-boolean-expressions": "off",
     "@typescript-eslint/promise-function-async": "off",
-    "space-before-function-paren": "off",
-    "no-var": "error",
-    "prefer-arrow-callback": "error",
+    "@typescript-eslint/no-explicit-any": "off"
   },
   overrides: [
     {
@@ -68,4 +66,4 @@ module.exports = {
       { "name": "Link", "linkAttribute": "to" }
     ]
   }
-}
+};

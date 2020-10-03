@@ -1,4 +1,4 @@
-import config from '../../config'
+import config from '../../config';
 
 const localTemplates = [
   {
@@ -22,7 +22,7 @@ const localTemplates = [
     amount: 100,
     seats: 1
   }
-]
+];
 
 const devTemplates = [
   {
@@ -46,7 +46,7 @@ const devTemplates = [
     amount: 100,
     seats: 1
   }
-]
+];
 
 const stagingTemplates = [
   {
@@ -70,7 +70,7 @@ const stagingTemplates = [
     amount: 100,
     seats: 1
   }
-]
+];
 
 const prodTemplates = [
   {
@@ -94,16 +94,16 @@ const prodTemplates = [
     amount: 100,
     seats: 1
   }
-]
+];
 
 const templatesMap = {
   local: localTemplates,
   dev: devTemplates,
   staging: stagingTemplates,
   prod: prodTemplates
-}
+};
 
-const templateMap = config.deployStage ? templatesMap[config.deployStage] : templatesMap.local
+const templateMap = config.deployStage ? templatesMap[config.deployStage] : templatesMap.local;
 
 export const seed = {
   disabled: !config.db.forceRefresh,
@@ -111,6 +111,6 @@ export const seed = {
   path: 'subscription-type',
   randomize: false,
   templates: templateMap
-}
+};
 
-export default seed
+export default seed;

@@ -9,7 +9,7 @@ import checkPartyInstanceSize from '../../hooks/check-party-instance-size';
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
-const { authenticate } = authentication.hooks
+const { authenticate } = authentication.hooks;
 
 export default {
   before: {
@@ -34,19 +34,19 @@ export default {
   after: {
     all: [],
     find: [
-      async (context: HookContext) => {
-        const { app, result } = context
+      async (context: HookContext): Promise<HookContext> => {
+        const { app, result } = context;
         await Promise.all(result.data.map(async (partyUser) => {
-          partyUser.user = await app.service('user').get(partyUser.userId)
-        }))
-        return context
+          partyUser.user = await app.service('user').get(partyUser.userId);
+        }));
+        return context;
       }
     ],
     get: [
-      async (context: HookContext) => {
-        const { app, result } = context
-        result.user = await app.service('user').get(result.userId)
-        return context
+      async (context: HookContext): Promise<HookContext> => {
+        const { app, result } = context;
+        result.user = await app.service('user').get(result.userId);
+        return context;
       }
     ],
     create: [
@@ -57,20 +57,20 @@ export default {
         unsetSelfPartyOwner()
     ],
     remove: [
-      async (context: HookContext) => {
-        const { app, params } = context
+      async (context: HookContext): Promise<HookContext> => {
+        const { app, params } = context;
         if (params.partyUsersRemoved !== true) {
           const partyUserCount = await app.service('party-user').find({
             query: {
               partyId: params.query.partyId,
               $limit: 0
             }
-          })
+          });
           if (partyUserCount.total < 1) {
-            await app.service('party').remove(params.query.partyId, params)
+            await app.service('party').remove(params.query.partyId, params);
           }
         }
-        return context
+        return context;
       }
     ]
   },
@@ -84,4 +84,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+};

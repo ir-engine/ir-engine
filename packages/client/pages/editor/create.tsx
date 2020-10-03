@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 
-export default dynamic(() => import("../../components/editor/ui/projects/CreateProjectPage"))
+export default dynamic(() => import("../../components/editor/ui/projects/CreateProjectPage"));
 // import PropTypes from "prop-types";
 // import React, { useCallback, useContext, useState } from "react";
 // import { ApiContext } from "../../components/editor/ui/contexts/ApiContext";

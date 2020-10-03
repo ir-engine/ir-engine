@@ -17,7 +17,7 @@ const q: Quaternion = new Quaternion();
 let inputComponent: Input;
 let mouseDownPosition;
 let originalRotation;
-let valueX = 0, valueY = 0
+const valueX = 0, valueY = 0;
 
 
 

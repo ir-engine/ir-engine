@@ -7,22 +7,22 @@ export class CameraOperator
 {
 	public target: Vector3;
 	public sensitivity: Vector2;
-	public radius: number = 1;
+	public radius = 1;
 	public theta: number;
 	public phi: number;
 	public onMouseDownPosition: Vector2;
 	public onMouseDownTheta: any;
 	public onMouseDownPhi: any;
-	public targetRadius: number = 1;
+	public targetRadius = 1;
 
 	public movementSpeed: number;
 
-	public upVelocity: number = 0;
-	public forwardVelocity: number = 0;
-	public rightVelocity: number = 0;
+	public upVelocity = 0;
+	public forwardVelocity = 0;
+	public rightVelocity = 0;
 
-	public followMode: boolean = false;
-	constructor(camera: Camera, sensitivityX: number = 1, sensitivityY: number = sensitivityX * 0.8)
+	public followMode = false;
+	constructor(camera: Camera, sensitivityX = 1, sensitivityY: number = sensitivityX * 0.8)
 	{
 		this.target = new Vector3();
 		this.sensitivity = new Vector2(sensitivityX, sensitivityY);
@@ -42,7 +42,7 @@ export class CameraOperator
 		this.sensitivity = new Vector2(sensitivityX, sensitivityY);
 	}
 
-	public setRadius(value: number, instantly: boolean = false): void
+	public setRadius(value: number, instantly = false): void
 	{
 		this.targetRadius = Math.max(0.001, value);
 		if (instantly === true)
@@ -65,7 +65,7 @@ export class CameraOperator
 		{
 			Engine.camera.position.y = MathUtils.clamp(Engine.camera.position.y, this.target.y, Number.POSITIVE_INFINITY);
 			Engine.camera.lookAt(this.target);
-			let newPos = this.target.clone().add(new Vector3().subVectors(Engine.camera.position, this.target).normalize().multiplyScalar(this.targetRadius));
+			const newPos = this.target.clone().add(new Vector3().subVectors(Engine.camera.position, this.target).normalize().multiplyScalar(this.targetRadius));
 			Engine.camera.position.x = newPos.x;
 			Engine.camera.position.y = newPos.y;
 			Engine.camera.position.z = newPos.z;

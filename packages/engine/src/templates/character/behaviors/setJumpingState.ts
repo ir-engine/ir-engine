@@ -8,8 +8,8 @@ import { CharacterComponent } from '../components/CharacterComponent';
 export const setJumpingState: Behavior = (entity, args: { transitionToState: any; }, deltaTime) => {
   const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
   if (!actor.initialized) return;
-  const input = getComponent(entity, Input)
+  const input = getComponent(entity, Input);
   if (input.data.has(DefaultInput.JUMP)) {
-    addState(entity, { state: args.transitionToState })
+    addState(entity, { state: args.transitionToState });
   }
 };

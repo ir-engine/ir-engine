@@ -1,6 +1,6 @@
-import * as authentication from '@feathersjs/authentication'
+import * as authentication from '@feathersjs/authentication';
 
-const { authenticate } = authentication.hooks
+const { authenticate } = authentication.hooks;
 
 export default {
   before: {

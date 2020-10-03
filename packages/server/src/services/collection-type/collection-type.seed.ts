@@ -1,5 +1,5 @@
-import config from '../../config'
-import { collectionType } from '../../enums/collection'
+import config from '../../config';
+import { collectionType } from '../../enums/collection';
 
 export const seed = {
   disabled: !config.db.forceRefresh,
@@ -12,6 +12,6 @@ export const seed = {
       { type: collectionType.inventory },
       { type: collectionType.project }
     ]
-}
+};
 
-export default seed
+export default seed;

@@ -48,10 +48,7 @@ export const CharacterInputSchema: InputSchema = {
     ],
     mousemove: [
       {
-        behavior: handleMouseMovement,
-        args: {
-          value: DefaultInput.SCREENXY
-        }
+        behavior: handleMouseMovement
       }
     ],
     mouseup: [
@@ -172,6 +169,7 @@ export const CharacterInputSchema: InputSchema = {
       [MouseInput.MousePosition]: DefaultInput.SCREENXY,
       [MouseInput.MouseClickDownPosition]: DefaultInput.SCREENXY_START,
       [MouseInput.MouseClickDownTransformRotation]: DefaultInput.ROTATION_START,
+      [MouseInput.MouseClickDownMovement]: DefaultInput.LOOKTURN_PLAYERONE,
       [MouseInput.MouseScroll]: DefaultInput.CAMERA_SCROLL
     }
   },

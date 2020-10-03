@@ -44,4 +44,4 @@ void main() {
 	#include <dithering_fragment>
 
 }
-`
+`;

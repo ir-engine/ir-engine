@@ -3,7 +3,7 @@
  * @author          wassname
  */
 
-import _ from "lodash"
+import _ from "lodash";
 /**
  * inverts a object by many values
  * e.g. invertByMany({ 'a': [1,2,3], 'b': [1], c:[2]})
@@ -14,7 +14,7 @@ export function invertByMany(dataObj) {
     dataObj,
     (result: any, values: any, ke: any) => _.map(values, subvalue => (result[subvalue] || (result[subvalue] = [])).push(key)),
     {}
-  )
+  );
 }
 
 /**
@@ -23,7 +23,7 @@ export function invertByMany(dataObj) {
  * // {1: "a", 2: "a", 3: "b", 4:"c"}
  */
 export function invertByUniqueValues(dataObj) {
-  return _.transform(dataObj, (a: any, v: any, k: any) => _.map(v, sv => (a[sv] = k)), {})
+  return _.transform(dataObj, (a: any, v: any, k: any) => _.map(v, sv => (a[sv] = k)), {});
 }
 
 /**
@@ -37,12 +37,12 @@ export function invertByUniqueValues(dataObj) {
 export function remapKeyValues(currentObject, keyMapping, valueMapping) {
   return _(currentObject)
     .mapKeys((v, k) => {
-      return keyMapping[k] === undefined ? k : keyMapping[k]
+      return keyMapping[k] === undefined ? k : keyMapping[k];
     })
     .mapValues(v => {
-      return valueMapping[v] === undefined ? v : valueMapping[v]
+      return valueMapping[v] === undefined ? v : valueMapping[v];
     })
-    .value()
+    .value();
 }
 
 /**
@@ -53,33 +53,33 @@ export function remapKeyValues(currentObject, keyMapping, valueMapping) {
  * @return {Object}              - {newKey:{newKey:'newValue'}}
  */
 export function remapKeyValuesDeep(currentObject, keyMapping, valueMapping) {
-  currentObject = remapKeyValues(currentObject, keyMapping, valueMapping)
+  currentObject = remapKeyValues(currentObject, keyMapping, valueMapping);
   if (_.isPlainObject(currentObject)) {
     return _.mapValues(currentObject, v => {
       if (_.isPlainObject(v)) {
-        return remapKeyValuesDeep(v, keyMapping, valueMapping)
+        return remapKeyValuesDeep(v, keyMapping, valueMapping);
       } else {
-        return v
+        return v;
       }
-    })
+    });
   } else {
-    return currentObject
+    return currentObject;
   }
 }
 
 export function deepRoundValues(currentObject, roundFunc = v => _.round(v, 2)) {
   return _.mapValues(currentObject, v => {
-    if (Number.isFinite(v)) v = roundFunc(v)
-    if (_.isPlainObject(v)) v = deepRoundValues(v, roundFunc)
-    return v
-  })
+    if (Number.isFinite(v)) v = roundFunc(v);
+    if (_.isPlainObject(v)) v = deepRoundValues(v, roundFunc);
+    return v;
+  });
 }
 
 export function deepParseFloat(currentObject) {
   return _.mapValues(currentObject, v => {
-    const n = Number(v)
-    if (_.isPlainObject(v)) return deepParseFloat(v)
-    else if (_.isFinite(n)) return n
-    else return v
-  })
+    const n = Number(v);
+    if (_.isPlainObject(v)) return deepParseFloat(v);
+    else if (_.isFinite(n)) return n;
+    else return v;
+  });
 }

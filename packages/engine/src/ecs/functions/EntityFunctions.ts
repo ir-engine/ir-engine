@@ -27,7 +27,7 @@ export function getMutableComponent<C extends Component<C>>(
     const query = entity.queries[i];
 
     if (query.reactive && query.components.indexOf(Component) !== -1) {
-      query.eventDispatcher.dispatchEvent(QUERY_COMPONENT_CHANGED, entity, component)
+      query.eventDispatcher.dispatchEvent(QUERY_COMPONENT_CHANGED, entity, component);
     }
   }
   return component;
@@ -95,8 +95,8 @@ export function addComponent<C extends Component<C>>(
   const componentPool = new ObjectPool(Component);
 
   const component = (componentPool ? componentPool.acquire() : new Component(values)) as Component<any>;
-  component.entity = entity
-  component._typeId = Component._typeId
+  component.entity = entity;
+  component._typeId = Component._typeId;
 
   if (componentPool && values) {
     component.copy(values);

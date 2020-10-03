@@ -21,6 +21,7 @@ import { DepthDownsamplingPass } from '../../postprocessing/passes/DepthDownsamp
 import { NormalPass } from '../../postprocessing/passes/NormalPass';
 import { BlendFunction } from '../../postprocessing/effects/blending/BlendFunction';
 import { TextureEffect } from '../../postprocessing/effects/TextureEffect';
+import { OutlineEffect } from '../../postprocessing/effects/OutlineEffect';
   /**
    * Handles rendering and post processing to WebGL canvas
    */
@@ -40,9 +41,9 @@ export class WebGLRendererSystem extends System {
     // Add the renderer to the body of the HTML document
     document.body.appendChild(Engine.renderer.domElement);
     window.addEventListener('resize', this.onResize, false);
-    this.onResize()
+    this.onResize();
 
-    this.isInitialized = true
+    this.isInitialized = true;
   }
 
   /**
@@ -56,14 +57,14 @@ export class WebGLRendererSystem extends System {
     * Removes resize listener
     */
   dispose() {
-    super.dispose()
+    super.dispose();
 
-    const rendererComponent = RendererComponent.instance
-    rendererComponent?.composer?.dispose()
+    const rendererComponent = RendererComponent.instance;
+    rendererComponent?.composer?.dispose();
 
     window.removeEventListener('resize', this.onResize);
     document.body.removeChild(Engine.renderer.domElement);
-    this.isInitialized = false
+    this.isInitialized = false;
   }
 
   /**
@@ -80,7 +81,7 @@ export class WebGLRendererSystem extends System {
     renderPass.camera = Engine.camera;
     composer.addPass(renderPass);
     // This sets up the render
-    const passes: any[] = []
+    const passes: any[] = [];
     const normalPass = new NormalPass(renderPass.scene, renderPass.camera, { renderTarget: new WebGLRenderTarget(1, 1, {
       minFilter: NearestFilter,
       magFilter: NearestFilter,
@@ -95,10 +96,15 @@ export class WebGLRendererSystem extends System {
 
     RendererComponent.instance.postProcessingSchema.effects.forEach((pass: any) => {
       if ( pass.effect === SSAOEffect){
-        passes.push(new pass.effect(Engine.camera, normalPass.texture, {...pass.options, normalDepthBuffer }))
+        passes.push(new pass.effect(Engine.camera, normalPass.texture, {...pass.options, normalDepthBuffer }));
       }
       else if ( pass.effect === DepthOfFieldEffect)
         passes.push(new pass.effect(Engine.camera, pass.options))
+      else if ( pass.effect === OutlineEffect){
+      const effect = new pass.effect(Engine.scene, Engine.camera, pass.options)
+        passes.push(effect)
+        composer.outlineEffect = effect
+      }
       else passes.push(new pass.effect(pass.options))
     })
     const textureEffect = new TextureEffect({
@@ -107,7 +113,7 @@ export class WebGLRendererSystem extends System {
 		});
     if (passes.length) {
       composer.addPass(depthDownsamplingPass);
-      composer.addPass(new EffectPass(Engine.camera, ...passes, textureEffect))
+      composer.addPass(new EffectPass(Engine.camera, ...passes, textureEffect));
     }
   }
 
@@ -125,15 +131,15 @@ export class WebGLRendererSystem extends System {
     if(this.isInitialized)
       this.queryResults.renderers.all.forEach((entity: Entity) => {
         if (!hasComponent(entity, RendererComponent)) {
-          return
+          return;
         }
-        resize(entity)
+        resize(entity);
         getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
       });
 
     this.queryResults.renderers.removed.forEach((entity: Entity) => {
       // cleanup
-    })
+    });
   }
 }
 
@@ -158,8 +164,8 @@ export const resize: Behavior = entity => {
       cam.updateProjectionMatrix();
     }
 
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     Engine.renderer.setSize(width, height);
     rendererComponent.composer ? rendererComponent.composer.setSize(width, height):'';

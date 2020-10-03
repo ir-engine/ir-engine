@@ -1,4 +1,4 @@
-import app from '../../packages/server/app'
+import app from '../../packages/server/src/app'
 
 describe('CRUD operation on \'Entity Type\' model', () => {
   const model = app.service('entity-type').Model

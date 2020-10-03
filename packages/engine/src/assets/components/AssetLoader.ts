@@ -6,7 +6,7 @@ import { AssetClassAlias, AssetsLoadedHandler, AssetTypeAlias } from '../types/A
 
 export class AssetLoader extends Component<AssetLoader> {
   loaded = false
-  url: string = ''
+  url = ''
   assetType: AssetTypeAlias = null
   assetClass: AssetClassAlias = null
   receiveShadow = false

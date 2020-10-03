@@ -5,7 +5,7 @@ import ProjectGridItem from "./ProjectGridItem";
 import { Row } from "../layout/Flex";
 import StringInput from "../inputs/StringInput";
 // import Link from "next/link"
-import { useRouter } from "next/router"
+import { useRouter } from "next/router";
 import { Plus } from "@styled-icons/fa-solid/Plus";
 import { ThemeContext, withTheme } from "../theme";
 
@@ -34,13 +34,13 @@ const ProjectGridItemContainer = (styled as any).div`
   }
 `;
 
-export function NewProjectGridItem({ path, label }: { path: string, label: string }) {
-  const router = useRouter()
-  const theme = React.useContext(ThemeContext)
+export function NewProjectGridItem({ path, label }: { path: string; label: string }) {
+  const router = useRouter();
+  const theme = React.useContext(ThemeContext);
   
   const routeTo = (route: string) => () => {
-    router.push(route)
-  }
+    router.push(route);
+  };
   return (
     <ProjectGridItemContainer theme={theme} as="button" onClick={routeTo(path)}>
       <Plus />
@@ -59,7 +59,7 @@ NewProjectGridItem.defaultProps = {
 };
 
 export function LoadingProjectGridItem() {
-  const theme = React.useContext(ThemeContext)
+  const theme = React.useContext(ThemeContext);
   return (
     <ProjectGridItemContainer theme={theme}>
       <h3>Loading...</h3>
@@ -75,7 +75,7 @@ const StyledProjectGrid = (styled as any).div`
 `;
  
 export function ProjectGrid({ projects, newProjectPath, newProjectLabel, contextMenuId, loading }) {
-  const theme = React.useContext(ThemeContext)
+  const theme = React.useContext(ThemeContext);
   return (
     <StyledProjectGrid theme={theme}>
       {newProjectPath && !loading && <NewProjectGridItem path={newProjectPath} label={newProjectLabel} />}
@@ -132,7 +132,7 @@ export const Separator = withTheme((styled as any).div`
   background-color: ${props => props.theme.border};
 `);
 
-export const ProjectGridHeaderRow = Row // styled(Row)`
+export const ProjectGridHeaderRow = Row; // styled(Row)`
 //   align-items: center;
 
 //   & > * {
@@ -155,7 +155,7 @@ export const CenteredMessage = (styled as any).div`
   align-items: center;
 `;
 
-export const ErrorMessage = withTheme(CenteredMessage)
+export const ErrorMessage = withTheme(CenteredMessage);
 // styled(CenteredMessage)`
 //   color: ${props => props.theme.red};
 // `);

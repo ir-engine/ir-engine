@@ -20,7 +20,7 @@ import { dispatchAlertError } from '../redux/alert/service';
 
 import getConfig from 'next/config';
 import { ApiContext } from '../components/editor/ui/contexts/ApiContext';
-import Api from "../components/editor/api/Api"
+import Api from "../components/editor/api/Api";
 
 const config = getConfig().publicRuntimeConfig;
 
@@ -31,7 +31,7 @@ interface Props extends AppProps {
 const MyApp = (props: Props): any => {
   const { Component, pageProps, store } = props;
 
-  const [api, setApi] = useState<Api>()
+  const [api, setApi] = useState<Api>();
 
   const getDeviceInfo = async (): Promise<any> => {
     const deviceInfo = { device: {}, WebXRSupported: false };
@@ -67,12 +67,12 @@ const MyApp = (props: Props): any => {
       const stringifiedQuery = querystring.stringify(query);
       window.history.replaceState({}, document.title, urlParts.pathname + stringifiedQuery);
     }
-    setApi(new Api())
+    setApi(new Api());
   }, []);
   
   useEffect(() => {
-    console.warn("API: ", api)
-  }, [api])
+    console.warn("API: ", api);
+  }, [api]);
 
   return (
     <Fragment>
@@ -92,7 +92,7 @@ const MyApp = (props: Props): any => {
         </ApiContext.Provider>
       </ThemeContext.Provider>
     </Fragment>
-  )
+  );
 };
 export default withRedux(configureStore, {
   serializeState: (state) => state.toJS(),

@@ -1,27 +1,27 @@
-import * as authentication from '@feathersjs/authentication'
-import { disallow } from 'feathers-hooks-common'
-import { HookContext } from '@feathersjs/feathers'
-import { v1 as uuidv1 } from 'uuid'
-import config from '../../config'
+import * as authentication from '@feathersjs/authentication';
+import { disallow } from 'feathers-hooks-common';
+import { HookContext } from '@feathersjs/feathers';
+import { v1 as uuidv1 } from 'uuid';
+import config from '../../config';
 
-import getBasicMimetype from '../../util/get-basic-mimetype'
-import setResponseStatus from '../../hooks/set-response-status-code'
-import attachOwnerIdInSavingContact from '../../hooks/set-loggedin-user-in-body'
+import getBasicMimetype from '../../util/get-basic-mimetype';
+import setResponseStatus from '../../hooks/set-response-status-code';
+import attachOwnerIdInSavingContact from '../../hooks/set-loggedin-user-in-body';
 
-import addUriToFile from '../../hooks/add-uri-to-file'
-import reformatUploadResult from '../../hooks/reformat-upload-result'
-import makeS3FilesPublic from '../../hooks/make-s3-files-public'
+import addUriToFile from '../../hooks/add-uri-to-file';
+import reformatUploadResult from '../../hooks/reformat-upload-result';
+import makeS3FilesPublic from '../../hooks/make-s3-files-public';
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
-const { authenticate } = authentication.hooks
+const { authenticate } = authentication.hooks;
 
 const createOwnedFile = (options = {}) => {
-  return async (context: HookContext) => {
-    const { data, params } = context
-    const body = params.body || {}
+  return async (context: HookContext): Promise<HookContext> => {
+    const { data, params } = context;
+    const body = params.body || {};
 
-    const domain: string = config.aws.cloudfront.domain
+    const domain: string = config.aws.cloudfront.domain;
     const resourceData = {
       id: body.fileId,
       name: data.name || body.name,
@@ -32,7 +32,7 @@ const createOwnedFile = (options = {}) => {
       content_type: data.mimeType || params.mimeType,
       userId: body.userId,
       metadata: data.metadata || body.metadata
-    }
+    };
 
     /* if (context.params.skipResourceCreation === true) {
       context.result = await context.app.service('owned-file').patch(context.params.patchId, {
@@ -41,16 +41,16 @@ const createOwnedFile = (options = {}) => {
       })
     } else { */
     if (context.params.parentResourceId) {
-      (resourceData as any).parentResourceId = context.params.parentResourceId
+      (resourceData as any).parentResourceId = context.params.parentResourceId;
     }
-    (resourceData as any).type = getBasicMimetype(resourceData.content_type)
+    (resourceData as any).type = getBasicMimetype(resourceData.content_type);
 
     // Remap input from Editor to fit
     const modifiedResourceData = {
       ...resourceData,
       mimeType: resourceData.content_type
-    }
-    const savedFile = await context.app.service('static-resource').create(modifiedResourceData)
+    };
+    const savedFile = await context.app.service('static-resource').create(modifiedResourceData);
     context.result = {
       // This is to fulfill the editor response, as editor is expecting the below object
       file_id: savedFile.id,
@@ -60,11 +60,11 @@ const createOwnedFile = (options = {}) => {
         promotion_token: null
       },
       origin: savedFile.url
-    }
+    };
     // }
-    return context
-  }
-}
+    return context;
+  };
+};
 
 export default {
   before: {
@@ -96,4 +96,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+};

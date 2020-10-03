@@ -1,12 +1,12 @@
-import { HookContext } from '@feathersjs/feathers'
-import { hooks } from '@feathersjs/authentication'
-import dauria from 'dauria'
-import removeRelatedResources from '../../hooks/remove-related-resources'
-import collectAnalytics from '../../hooks/collect-analytics'
-import addAssociations from '../../hooks/add-associations'
-import replaceThumbnailLink from '../../hooks/replace-thumbnail-link'
+import { HookContext } from '@feathersjs/feathers';
+import { hooks } from '@feathersjs/authentication';
+import dauria from 'dauria';
+import removeRelatedResources from '../../hooks/remove-related-resources';
+import collectAnalytics from '../../hooks/collect-analytics';
+import addAssociations from '../../hooks/add-associations';
+import replaceThumbnailLink from '../../hooks/replace-thumbnail-link';
 
-const { authenticate } = hooks
+const { authenticate } = hooks;
 
 export default {
   before: {
@@ -25,15 +25,15 @@ export default {
     get: [],
     create: [
       authenticate('jwt'),
-      (context: HookContext) => {
+      (context: HookContext): HookContext => {
         if (!context.data.uri && context.params.file) {
-          const file = context.params.file
-          const uri = dauria.getBase64DataURI(file.buffer, file.mimetype)
-          const mimeType = context.data.mimeType ?? file.mimetype
-          const name = context.data.name ?? file.name
-          context.data = { uri: uri, mimeType: mimeType, name: name }
+          const file = context.params.file;
+          const uri = dauria.getBase64DataURI(file.buffer, file.mimetype);
+          const mimeType = context.data.mimeType ?? file.mimetype;
+          const name = context.data.name ?? file.name;
+          context.data = { uri: uri, mimeType: mimeType, name: name };
         }
-        return context
+        return context;
       }
     ],
     update: [authenticate('jwt')],
@@ -66,4 +66,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+};

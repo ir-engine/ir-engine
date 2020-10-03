@@ -50,16 +50,10 @@ export default class Vector3Input extends Component {
     onChange: PropTypes.func
   };
 
-  state: {
-    uniformEnabled: any;
-  }
-
   static defaultProps = {
     value: new Vector3(),
     onChange: () => {}
   };
-  id: number;
-  newValue: Vector3;
 
   constructor(props) {
     super(props);
@@ -72,6 +66,12 @@ export default class Vector3Input extends Component {
       uniformEnabled: props.uniformScaling
     };
   }
+
+  state: {
+    uniformEnabled: any;
+  }
+  id: number;
+  newValue: Vector3;
 
   onToggleUniform = () => {
     this.setState({ uniformEnabled: !this.state.uniformEnabled });

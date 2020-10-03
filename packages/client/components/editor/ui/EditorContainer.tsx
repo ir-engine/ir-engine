@@ -1,8 +1,9 @@
+/* eslint-disable react/no-unused-state */
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import configs from "../configs";
 import Modal from "react-modal";
-import Helmet from "next/head"
+import Helmet from "next/head";
 import styled from "styled-components";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -36,7 +37,7 @@ import DragLayer from "./dnd/DragLayer";
 import Editor from "../Editor";
 import defaultTemplateUrl from "../../../pages/editor/crater.json";
 import tutorialTemplateUrl from "../../../pages/editor/tutorial.json";
-'../../../pages/editor/crater.json'
+'../../../pages/editor/crater.json';
 const StyledEditorContainer = (styled as any).div`
   display: flex;
   flex: 1;
@@ -162,6 +163,18 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         this.setState({ onboardingContext: { enabled: true } });
       }
     }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.onResize);
+
+    const editor = this.state.editor;
+    editor.removeListener("sceneModified", this.onSceneModified);
+    editor.removeListener("saveProject", this.onSaveProject);
+    editor.removeListener("initialized", this.onEditorInitialized);
+    editor.removeListener("error", this.onEditorError);
+    editor.removeListener("projectLoaded", this.onProjectLoaded);
+    editor.dispose();
   }
 
   async loadProjectTemplate(templateUrl) {
@@ -466,18 +479,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     editor.addListener("sceneModified", this.onSceneModified);
     editor.addListener("saveProject", this.onSaveProject);
   };
-
-  componentWillUnmount() {
-    window.removeEventListener("resize", this.onResize);
-
-    const editor = this.state.editor;
-    editor.removeListener("sceneModified", this.onSceneModified);
-    editor.removeListener("saveProject", this.onSaveProject);
-    editor.removeListener("initialized", this.onEditorInitialized);
-    editor.removeListener("error", this.onEditorError);
-    editor.removeListener("projectLoaded", this.onProjectLoaded);
-    editor.dispose();
-  }
 
   onResize = () => {
     this.state.editor.onResize();
@@ -812,7 +813,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     document.body.removeChild(el);
   };
 
-  onPublishProject = async () => {
+  onPublishProject = async (): Promise<void> => {
     try {
       const editor = this.state.editor;
       let project = this.state.project;

@@ -1,49 +1,49 @@
-import bent from 'bent'
-import { Hook, HookContext } from '@feathersjs/feathers'
-import config from '../config'
+import bent from 'bent';
+import { Hook, HookContext } from '@feathersjs/feathers';
+import config from '../config';
 
-const fileRegex = /\.([a-zA-Z0-9]+)(?=\?|$)/
-const getBuffer = bent('buffer')
+const fileRegex = /\.([a-zA-Z0-9]+)(?=\?|$)/;
+const getBuffer = bent('buffer');
 
 export default (options = {}): Hook => {
-  return async (context: HookContext) => {
-    const { app, result, data, params } = context
-    const metadata = result?.metadata || data?.metadata
-    const id = result?.id || data?.id
-    const extensionMatch = metadata.thumbnailUrl.match(fileRegex)
+  return async (context: HookContext): Promise<HookContext> => {
+    const { app, result, data, params } = context;
+    const metadata = result?.metadata || data?.metadata;
+    const id = result?.id || data?.id;
+    const extensionMatch = metadata.thumbnailUrl.match(fileRegex);
     if (id && metadata.thumbnailUrl && extensionMatch) {
-      const extension = extensionMatch[1] as string
-      const url = metadata.thumbnailUrl
-      const fileBuffer = await getBuffer(url)
+      const extension = extensionMatch[1] as string;
+      const url = metadata.thumbnailUrl;
+      const fileBuffer = await getBuffer(url);
       params.file = {
         fieldname: 'file',
         originalname: 'thumbnail.' + extension,
         encoding: '7bit',
         buffer: fileBuffer,
         size: fileBuffer.byteLength
-      }
+      };
 
-      params.mimeType = params.file.mimetype = 'image/' + extension
-      params.subscriptionLevel = context.data.subscriptionLevel
-      context.data.name = params.file.originalname
-      context.data.metadata = context.data.metadata ? context.data.metadata : {}
-      context.data.parentResourceId = params.parentResourceId
-      params.uploadPath = params.uploadPath.replace('video', 'image')
-      const uploadResult = await app.services.upload.create(context.data, params)
-      const parent = await app.services['static-resource'].get(id)
-      const parsedMetadata = JSON.parse(parent.metadata)
+      params.mimeType = params.file.mimetype = 'image/' + extension;
+      params.subscriptionLevel = context.data.subscriptionLevel;
+      context.data.name = params.file.originalname;
+      context.data.metadata = context.data.metadata ? context.data.metadata : {};
+      context.data.parentResourceId = params.parentResourceId;
+      params.uploadPath = params.uploadPath.replace('video', 'image');
+      const uploadResult = await app.services.upload.create(context.data, params);
+      const parent = await app.services['static-resource'].get(id);
+      const parsedMetadata = JSON.parse(parent.metadata);
       parsedMetadata.thumbnailUrl = uploadResult.url
         .replace('s3.amazonaws.com/' + (config.aws.s3.staticResourceBucket),
-          config.aws.cloudfront.domain)
+          config.aws.cloudfront.domain);
       await app.services['static-resource'].patch(id, {
         metadata: parsedMetadata
-      })
+      });
 
-      params.thumbnailUrl = parsedMetadata.thumbnailUrl
+      params.thumbnailUrl = parsedMetadata.thumbnailUrl;
 
-      return context
+      return context;
     } else {
-      return context
+      return context;
     }
-  }
-}
+  };
+};

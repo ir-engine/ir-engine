@@ -1,4 +1,4 @@
-import app from '../../packages/server/app'
+import app from '../../packages/server/src/app'
 
 describe('authentication', () => {
   it('registered the authentication service', () => {

@@ -1,8 +1,8 @@
-import { ServiceAddons } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
-import { Scene } from './scene.class'
-import createModel from '../../models/scene.model'
-import hooks from './scene.hooks'
+import { ServiceAddons } from '@feathersjs/feathers';
+import { Application } from '../../declarations';
+import { Scene } from './scene.class';
+import createModel from '../../models/scene.model';
+import hooks from './scene.hooks';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -15,11 +15,11 @@ export default (app: Application): void => {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
-  }
+  };
 
-  app.use('/scene', new Scene(options, app))
+  app.use('/scene', new Scene(options, app));
 
-  const service = app.service('scene')
+  const service = app.service('scene');
 
-  service.hooks(hooks)
-}
+  service.hooks(hooks);
+};

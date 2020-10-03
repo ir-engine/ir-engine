@@ -569,7 +569,7 @@ export class EffectPass extends Pass {
       effect.dispose();
     }
 
-    this.effects.length = 0
+    this.effects.length = 0;
   }
 
   /**

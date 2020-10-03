@@ -1,8 +1,8 @@
-import { Sequelize, DataTypes } from 'sequelize'
-import { Application } from '../declarations'
+import { Sequelize, DataTypes } from 'sequelize';
+import { Application } from '../declarations';
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const staticResourceType = sequelizeClient.define('static_resource_type', {
     type: {
       type: DataTypes.STRING,
@@ -12,19 +12,19 @@ export default (app: Application): any => {
     }
   }, {
     hooks: {
-      beforeCount (options: any) {
-        options.raw = true
+      beforeCount (options: any): void {
+        options.raw = true;
       },
-      beforeUpdate (instance: any, options: any) {
-        throw new Error("Can't update a type!")
+      beforeUpdate (instance: any, options: any): void {
+        throw new Error("Can't update a type!");
       }
     },
     timestamps: false
   });
 
-  (staticResourceType as any).associate = (models: any) => {
-    (staticResourceType as any).hasMany(models.static_resource, { foreignKey: 'staticResourceType' })
-  }
+  (staticResourceType as any).associate = (models: any): void => {
+    (staticResourceType as any).hasMany(models.static_resource, { foreignKey: 'staticResourceType' });
+  };
 
-  return staticResourceType
-}
+  return staticResourceType;
+};
