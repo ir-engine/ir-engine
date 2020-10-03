@@ -1,7 +1,7 @@
 set -e
 set -x
 
-sudo apt-get install -y snapd
+sudo apt-get install -y snapd=2.46.1+20.04
 
 sudo snap install kubectl --classic
 
