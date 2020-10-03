@@ -16,9 +16,9 @@ before_script:
   - mysql -e 'CREATE DATABASE xr3ngine;'
 
 script:
-  - npm run install
-  - npm run lint
-  - npm run build-docker
+  - yarn install
+  - yarn lint
+  - yarn build-docker
 
 before_deploy:
   - scripts/setup_helm.sh
