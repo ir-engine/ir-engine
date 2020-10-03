@@ -12,7 +12,7 @@ import { Input } from "../../input/components/Input";
 export const drive: Behavior = (entity: Entity, args: { direction: number }): void => {
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
   const object = getComponent<Object3DComponent>(entity, Object3DComponent).value;
-  const vehicle = vehicleComponent.vehiclePhysics
+  const vehicle = vehicleComponent.vehiclePhysics;
   //const vehicle = vehicleComponent.vehicle;
 
   vehicle.setBrake(0, 0);
@@ -30,7 +30,7 @@ export const driveByInputAxis: Behavior = (entity: Entity, args: { input: InputA
   const data = input.data.get(args.input);
 
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
-  const vehicle = vehicleComponent.vehiclePhysics
+  const vehicle = vehicleComponent.vehiclePhysics;
 
   vehicle.setBrake(0, 0);
   vehicle.setBrake(0, 1);

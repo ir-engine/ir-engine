@@ -11,14 +11,14 @@ export default class BrowserPrompt extends React.Component<
     super(props);
     window.addEventListener("beforeunload", this.onBeforeUnload);
   }
+  componentWillUnmount() {
+    window.removeEventListener("beforeunload", this.onBeforeUnload);
+  }
   onBeforeUnload = e => {
     const dialogText = this.props.message;
     e.returnValue = dialogText;
     return dialogText;
   };
-  componentWillUnmount() {
-    window.removeEventListener("beforeunload", this.onBeforeUnload);
-  }
   render() {
     return <Prompt {...this.props} />;
   }

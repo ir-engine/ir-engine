@@ -1,8 +1,8 @@
-import { Sequelize, DataTypes } from 'sequelize'
-import { Application } from '../declarations'
+import { Sequelize, DataTypes } from 'sequelize';
+import { Application } from '../declarations';
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const subscription = sequelizeClient.define(
     'subscription',
     {
@@ -48,18 +48,18 @@ export default (app: Application): any => {
     },
     {
       hooks: {
-        beforeCount (options: any) {
-          options.raw = true
+        beforeCount (options: any): void {
+          options.raw = true;
         }
       }
     }
   );
 
-  (subscription as any).associate = (models: any) => {
+  (subscription as any).associate = (models: any): void => {
     (subscription as any).belongsTo(models.user);
     (subscription as any).belongsTo(models.subscription_type, { foreignKey: 'plan', required: true });
-    (subscription as any).hasMany(models.seat, { foreignKey: 'subscriptionId' })
-  }
+    (subscription as any).hasMany(models.seat, { foreignKey: 'subscriptionId' });
+  };
 
-  return subscription
-}
+  return subscription;
+};

@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-  - "12"
+  - "14"
 
 env:
   global:
@@ -16,9 +16,9 @@ before_script:
   - mysql -e 'CREATE DATABASE xr3ngine;'
 
 script:
+  - npm run install
   - npm run lint
-  - npm run compile
-  - npm run sync
+  - npm run build-docker
 
 before_deploy:
   - scripts/setup_helm.sh

@@ -11,12 +11,13 @@ import { addCarPhysics } from "@xr3ngine/engine/src/physics/behaviors/addCarPhys
 import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
 import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
 import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
- import { VehicleInputSchema } from "@xr3ngine/engine/src/templates/car/VehicleInputSchema"
+ import { VehicleInputSchema } from "@xr3ngine/engine/src/templates/car/VehicleInputSchema";
 import { Interactive } from "../../../interaction/components/Interactive";
 import { getInCar } from "../behaviors/getInCarBehavior";
 import { getInCarPossible } from "../behaviors/getInCarPossible";
 import { Entity } from "../../../ecs/classes/Entity";
 import { changeColor } from "../behaviors/changeColor";
+import { onInteractionHover } from "../../interactive/functions/commonInteractive";
 
 export const CarController: Prefab = {
     components: [
@@ -31,9 +32,10 @@ export const CarController: Prefab = {
         { type: Interactive, data: {
             onInteraction: getInCar,
             onInteractionCheck: getInCarPossible,
-            onInteractionFocused: (e:unknown, a: { focused:boolean }):void => {
-              console.log('focused?', a);
-            }
+            onInteractionFocused: onInteractionHover,
+            data:{
+              interactionText: 'get in car'              
+            },
           }
         }
     ],
@@ -46,15 +48,15 @@ export const CarController: Prefab = {
                 // so this will be new Mesh(new BoxBufferGeometry(0.2, 0.2, 0.2))
                 component: AssetLoader,
                 componentArgs: {
-                    url: "models/Sportscar.glb", //  "models/car.glb"
+                    url: "models/vehicles/Sportscar.glb", //  "models/car.glb"
                     receiveShadow: true,
                     castShadow: true,
                     onLoaded: (entityIn:Entity, args:unknown, delta:number, entityOut:Entity): void => {
                       addCarPhysics(entityIn, args, delta, entityOut);
                       changeColor(entityIn, {
                         materialName: "Main",
-                        color: new Color(0.5,0,0)
-                      })
+                        color: new Color(1,1,1)
+                      });
                     }
                 }
             }

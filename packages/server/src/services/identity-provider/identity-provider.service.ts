@@ -1,8 +1,8 @@
-import { ServiceAddons } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
-import { IdentityProvider } from './identity-provider.class'
-import createModel from '../../models/identity-provider.model'
-import hooks from './identity-provider.hooks'
+import { ServiceAddons } from '@feathersjs/feathers';
+import { Application } from '../../declarations';
+import { IdentityProvider } from './identity-provider.class';
+import createModel from '../../models/identity-provider.model';
+import hooks from './identity-provider.hooks';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -15,11 +15,11 @@ export default (app: Application): void => {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
-  }
+  };
 
-  app.use('/identity-provider', new IdentityProvider(options, app))
+  app.use('/identity-provider', new IdentityProvider(options, app));
 
-  const service = app.service('identity-provider')
+  const service = app.service('identity-provider');
 
-  service.hooks(hooks)
-}
+  service.hooks(hooks);
+};

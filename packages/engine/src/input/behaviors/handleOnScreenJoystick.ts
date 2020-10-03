@@ -20,7 +20,14 @@ export const handleOnScreenGamepadMovement: Behavior = (entity: Entity, args: { 
   const { stick, value }:{ stick:Thumbsticks, value:{x:number,y:number} } = args.event.detail;
 
   const input = getComponent(entity, Input);
-  const mappedKey = input.schema.gamepadInputMap.axes[stick]
+  const mappedAxes = input.schema.gamepadInputMap?.axes;
+  const mappedKey = mappedAxes? mappedAxes[stick] : null;
+
+  console.log('stick', stick, mappedKey, mappedAxes);
+
+  if (!mappedKey) {
+    return;
+  }
 
   const stickPosition: [number, number] = [
     value.x,
@@ -36,9 +43,10 @@ export const handleOnScreenGamepadMovement: Behavior = (entity: Entity, args: { 
     });
   } else {
     // If position set, check it's value
-    const oldStickPosition = input.data.get(mappedKey)
+    const oldStickPosition = input.data.get(mappedKey);
     // If it's not the same, set it and update the lifecycle value to changed
     if (JSON.stringify(oldStickPosition) !== JSON.stringify(stickPosition)) {
+      console.log('---changed');
       // Set type to TWODIM (two-dimensional axis) and value to a normalized -1, 1 on X and Y
       input.data.set(mappedKey, {
         type: InputType.TWODIM,
@@ -46,11 +54,12 @@ export const handleOnScreenGamepadMovement: Behavior = (entity: Entity, args: { 
         lifecycleState: LifecycleValue.CHANGED
       });
     } else {
+      console.log('---not changed');
       // Otherwise, remove it
-      input.data.delete(mappedKey)
+      //input.data.delete(mappedKey)
     }
   }
-}
+};
 
 /**
  * System behavior called when a keyboard key is pressed
@@ -68,7 +77,7 @@ export function handleOnScreenGamepadButton(entity: Entity, args: { event: Custo
   const input = getComponent(entity, Input);
   if (input.schema.gamepadInputMap.buttons[args.event.detail.button] === undefined)
     return;
-  const mappedKey = input.schema.gamepadInputMap.buttons[args.event.detail.button]
+  const mappedKey = input.schema.gamepadInputMap.buttons[args.event.detail.button];
 
   if (args.value === BinaryValue.ON) {
     // If the key is in the map but it's in the same state as now, let's skip it (debounce)

@@ -1,4 +1,4 @@
-import { ComponentSchema } from "../interfaces/ComponentInterfaces"
+import { ComponentSchema } from "../interfaces/ComponentInterfaces";
 
 export type TypeCopyFunction<T> = (src: T, dest: T) => T
 export type TypeCloneFunction<T> = (value: T) => T
@@ -21,7 +21,7 @@ export type ArrayPropType<T> = PropType<T[], []>
 export type RefPropType<T> = PropType<T, undefined>
 export type JSONPropType = PropType<any, null>
 
-export const copyValue = <T>(src: T, dest: T): T => { dest = src; return src };
+export const copyValue = <T>(src: T, dest: T): T => { dest = src; return src; };
 
 export const cloneValue = <T>(value: T): T => value;
 
@@ -138,12 +138,12 @@ export const Types = {
 
 export const fromEntries = (Object as any).fromEntries || ( iterable =>
   [...iterable].reduce((obj, [key, val]) => {
-    obj[key] = val
-    return obj
+    obj[key] = val;
+    return obj;
   }, {})
-)
+);
 
-const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1)
+const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1);
 
 export function types(
   defaults:object = {value: {type: Types.Ref}}
@@ -152,5 +152,5 @@ export function types(
       Object.entries(defaults).map( (name, value) => 
           [name, {type: Types[capitalize(typeof value)] || Types.Ref, default: value}]
       )
-  )
+  );
 }

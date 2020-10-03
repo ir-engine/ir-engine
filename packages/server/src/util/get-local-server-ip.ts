@@ -6,11 +6,11 @@ interface ServerAddress {
 }
 
 export default async (): Promise<ServerAddress> => {
-    const ip = await internalIp.v4()
+    const ip = await internalIp.v4();
     console.log('internal ip:');
     console.log(ip);
     return {
         ipAddress: ip,
         port: '3030'
-    }
-}
+    };
+};

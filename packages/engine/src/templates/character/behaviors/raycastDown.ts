@@ -14,15 +14,15 @@ import { Engine } from "../../../ecs/classes/Engine";
 
 export const raycastDown: Behavior = (entity: Entity): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-	const transform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent)
-	const object3d: Object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent)
+	const transform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent);
+	const object3d: Object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
 	if(!actor.initialized) return;
-	let body = actor.actorCapsule.body;
+	const body = actor.actorCapsule.body;
 
 	// BUG: Setting position but this should be handled properly
 	if(isNaN( actor.actorCapsule.body.position.x) || isNaN( actor.actorCapsule.body.position.y)) {
-		console.log("body pose is nan")		
-		actor.actorCapsule.body.position = cannonFromThreeVector(transform.position)
+		console.log("body pose is nan");		
+		actor.actorCapsule.body.position = cannonFromThreeVector(transform.position);
 	}
 	// Player ray casting
 	// Create ray

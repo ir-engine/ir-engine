@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 
-import PropTypes from "prop-types";
 import Dialog, { DialogContent } from "./Dialog";
 import styled from "styled-components";
 
@@ -22,7 +21,7 @@ const ErrorMessage = (styled as any).code`
 `;
 
 export default class ErrorDialog extends Component {
-  state = { eventId: null };
+  state = { eventId: null }; //eslint-disable-line react/no-unused-state
 
   componentDidMount() {
     if ((this.props as any).error) {

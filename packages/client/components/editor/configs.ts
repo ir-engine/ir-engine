@@ -4,7 +4,7 @@ import "dotenv";
 const configs = {};
 const get = (configs, key, defaultValue) => {
   if (!process.browser) {
-    return
+    return;
   }
   const el = document.querySelector(`meta[name='env:${key.toLowerCase()}']`);
   if (el) {
@@ -39,7 +39,7 @@ get(configs, "API_RESOLVE_MEDIA_ROUTE", process.env.API_RESOLVE_MEDIA_ROUTE);
 get(configs, "USE_HTTPS", process.env.USE_HTTPS);
 
 if ((configs as any).BASE_ASSETS_PATH) {
-  // eslint-disable-next-line no-undef
+  // eslint-disable-next-line no-undef, @typescript-eslint/camelcase
   __webpack_public_path__ = (configs as any).BASE_ASSETS_PATH;
 }
 
@@ -50,7 +50,7 @@ function fixBaseAssetsPath(path) {
     const matches = path.match(/^([^\/]+\/).+$/);
 
     if (matches.length > 1) {
-      // eslint-disable-next-line no-undef
+      // eslint-disable-next-line no-undef, @typescript-eslint/camelcase
       return __webpack_public_path__ + path.replace(matches[1], "");
     }
   }
@@ -58,7 +58,7 @@ function fixBaseAssetsPath(path) {
   return path;
 }
 
-(configs as any).name = () => "Scene Editor";
-(configs as any).longName = () => "Scene Editor";
+(configs as any).name = (): string => "Scene Editor";
+(configs as any).longName = (): string => "Scene Editor";
 
 export default configs;

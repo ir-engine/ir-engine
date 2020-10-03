@@ -1,8 +1,8 @@
-import { ServiceAddons } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
-import { PartyUser } from './party-user.class'
-import createModel from '../../models/party-user.model'
-import hooks from './party-user.hooks'
+import { ServiceAddons } from '@feathersjs/feathers';
+import { Application } from '../../declarations';
+import { PartyUser } from './party-user.class';
+import createModel from '../../models/party-user.model';
+import hooks from './party-user.hooks';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -15,13 +15,13 @@ export default (app: Application): void => {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
-  }
+  };
 
-  app.use('/party-user', new PartyUser(options, app))
+  app.use('/party-user', new PartyUser(options, app));
 
-  const service = app.service('party-user')
+  const service = app.service('party-user');
 
-  service.hooks(hooks)
+  service.hooks(hooks);
 
   service.publish('created', async (data): Promise<any> => {
     try {
@@ -29,7 +29,7 @@ export default (app: Application): void => {
         where: {
           partyId: data.partyId
         }
-      })
+      });
       if (channel != null) {
         await app.service('channel').patch(channel.id, {
           channelType: channel.channelType
@@ -37,39 +37,39 @@ export default (app: Application): void => {
           sequelize: {
             silent: true
           }
-        })
+        });
       }
       const partyUsers = await app.service('party-user').find({
         query: {
           $limit: 1000,
           partyId: data.partyId
         }
-      })
-      data.user = await app.service('user').get(data.userId)
+      });
+      data.user = await app.service('user').get(data.userId);
       const avatarResult = await app.service('static-resource').find({
         query: {
           staticResourceType: 'user-thumbnail',
           userId: data.userId
         }
-      }) as any
+      }) as any;
 
       if (avatarResult.total > 0) {
-        data.user.dataValues.avatarUrl = avatarResult.data[0].url
+        data.user.dataValues.avatarUrl = avatarResult.data[0].url;
       }
       const targetIds = (partyUsers as any).data.map((partyUser) => {
-        return partyUser.userId
-      })
+        return partyUser.userId;
+      });
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return Promise.all(targetIds.map((userId: string) => {
         return app.channel(`userIds/${userId}`).send({
           partyUser: data
-        })
-      }))
+        });
+      }));
     } catch (err) {
-      console.log(err)
-      throw err
+      console.log(err);
+      throw err;
     }
-  })
+  });
 
   service.publish('patched', async (data): Promise<any> => {
     try {
@@ -77,7 +77,7 @@ export default (app: Application): void => {
         where: {
           partyId: data.partyId
         }
-      })
+      });
       if (channel != null) {
         await app.service('channel').patch(channel.id, {
           channelType: channel.channelType,
@@ -86,40 +86,40 @@ export default (app: Application): void => {
           sequelize: {
             silent: true
           }
-        })
+        });
       }
       const partyUsers = await app.service('party-user').find({
         query: {
           $limit: 1000,
           partyId: data.partyId
         }
-      })
-      data.user = await app.service('user').get(data.userId)
+      });
+      data.user = await app.service('user').get(data.userId);
       const avatarResult = await app.service('static-resource').find({
         query: {
           staticResourceType: 'user-thumbnail',
           userId: data.userId
         }
-      }) as any
+      }) as any;
 
       if (avatarResult.total > 0) {
-        data.user.dataValues.avatarUrl = avatarResult.data[0].url
+        data.user.dataValues.avatarUrl = avatarResult.data[0].url;
       }
 
       const targetIds = (partyUsers as any).data.map((partyUser) => {
-        return partyUser.userId
-      })
+        return partyUser.userId;
+      });
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return Promise.all(targetIds.map((userId: string) => {
         return app.channel(`userIds/${userId}`).send({
           partyUser: data
-        })
-      }))
+        });
+      }));
     } catch (err) {
-      console.log(err)
-      throw err
+      console.log(err);
+      throw err;
     }
-  })
+  });
 
   service.publish('removed', async (data): Promise<any> => {
     try {
@@ -127,7 +127,7 @@ export default (app: Application): void => {
         where: {
           partyId: data.partyId
         }
-      })
+      });
       if (channel != null) {
         await app.service('channel').patch(channel.id, {
           channelType: channel.channelType
@@ -135,18 +135,18 @@ export default (app: Application): void => {
           sequelize: {
             silent: true
           }
-        })
+        });
       }
       const partyUsers = await app.service('party-user').find({
         query: {
           $limit: 1000,
           partyId: data.partyId
         }
-      })
+      });
       const targetIds = (partyUsers as any).data.map((partyUser) => {
-        return partyUser.userId
-      })
-      targetIds.push(data.userId)
+        return partyUser.userId;
+      });
+      targetIds.push(data.userId);
       await app.service('user').patch(data.userId, {
         partyId: null
       });
@@ -154,11 +154,11 @@ export default (app: Application): void => {
       return Promise.all(targetIds.map((userId: string) => {
         return app.channel(`userIds/${userId}`).send({
           partyUser: data
-        })
-      }))
+        });
+      }));
     } catch (err) {
-      console.log(err)
-      throw err
+      console.log(err);
+      throw err;
     }
-  })
-}
+  });
+};

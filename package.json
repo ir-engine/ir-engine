@@ -26,7 +26,7 @@
   "contributors": [],
   "bugs": {},
   "directories": {
-    "lib": "server",
+    "lib": "packages/server/src",
     "config": "config/"
   },
   "engines": {
@@ -37,7 +37,7 @@
   "scripts": {
     "start": "yarn run dev",
     "dev": "lerna run dev --parallel",
-    "test": "lerna run test",
+    "test": "jest",
     "lint": "lerna run lint",
     "version-increment": "lerna version --comventional-commits --yes",
     "validate": "lerna run validate",
@@ -78,6 +78,9 @@
     "sequelize": "~5.21.8"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.11.5",
+    "babel-jest": "^26.3.0",
+    "jest": "^26.4.2",
     "lerna": "^3.22.1"
   },
   "dependencies": {

@@ -45,8 +45,6 @@ export default class WayPointNodeEditor extends Component<
   WayPointNodeEditorProps,
   {}
 > {
-  setters: Map<string, (value: any) => any>;
-  static description: any;
   constructor(props) {
     super(props);
     const createPropSetter = propName => value => {
@@ -56,6 +54,8 @@ export default class WayPointNodeEditor extends Component<
       propertyNames.map(name => [name, createPropSetter(name)])
     );
   }
+  static description: any;
+  setters: Map<string, (value: any) => any>;
   render() {
     const { node } = this.props as any;
     return (

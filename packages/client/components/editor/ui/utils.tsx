@@ -15,7 +15,7 @@ export function insertSeparator(children, separatorFn) {
   }, []);
 }
 export function objectToMap(object: object) {
-  return new Map(Object.entries(object))
+  return new Map(Object.entries(object));
 }
 export function unique(arr, maybeComp) {
   const set = new Set();

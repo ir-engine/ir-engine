@@ -4,7 +4,7 @@ import EditorNodeMixin from "./EditorNodeMixin";
 //@ts-ignore
 // import spawnPointModelUrl from "../../../public/editor/spawn-point.glb";
 let spawnPointHelperModel = null;
-const GLTF_PATH = "/editor/spawn-point.glb" // Static
+const GLTF_PATH = "/editor/spawn-point.glb"; // Static
 export default class SpawnPointNode extends EditorNodeMixin(THREE.Object3D) {
   static legacyComponentName = "spawn-point";
   static nodeName = "Spawn Point";
@@ -14,12 +14,12 @@ export default class SpawnPointNode extends EditorNodeMixin(THREE.Object3D) {
       ({ scene }) => {
         scene.traverse((child) => {
           if ((child as THREE.Mesh).isMesh) {
-            child.layers.set(1)
+            child.layers.set(1);
           }
-        })
-        spawnPointHelperModel = scene
+        });
+        spawnPointHelperModel = scene;
       }
-    )
+    );
   }
   constructor(editor) {
     super(editor);

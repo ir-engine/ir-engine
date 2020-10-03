@@ -1,8 +1,8 @@
-import { ServiceAddons } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
-import { SeatStatus } from './seat-status.class'
-import createModel from '../../models/seat-status.model'
-import hooks from './seat-status.hooks'
+import { ServiceAddons } from '@feathersjs/feathers';
+import { Application } from '../../declarations';
+import { SeatStatus } from './seat-status.class';
+import createModel from '../../models/seat-status.model';
+import hooks from './seat-status.hooks';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -15,11 +15,11 @@ export default (app: Application): any => {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
-  }
+  };
 
-  app.use('/seat-status', new SeatStatus(options, app))
+  app.use('/seat-status', new SeatStatus(options, app));
 
-  const service = app.service('seat-status')
+  const service = app.service('seat-status');
 
-  service.hooks(hooks)
-}
+  service.hooks(hooks);
+};

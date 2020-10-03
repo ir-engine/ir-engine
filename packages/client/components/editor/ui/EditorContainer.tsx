@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import configs from "../configs";
 import Modal from "react-modal";
-import Helmet from "next/head"
+import Helmet from "next/head";
 import styled from "styled-components";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -38,7 +38,6 @@ import defaultTemplateUrl from "../../../pages/editor/crater.json";
 import tutorialTemplateUrl from "../../../pages/editor/tutorial.json";
 import { withRouter, Router } from "next/router";
 import Api from "../api/Api";
-'../../../pages/editor/crater.json'
 const StyledEditorContainer = (styled as any).div`
   display: flex;
   flex: 1;
@@ -63,9 +62,9 @@ type EditorContainerState = {
   onboardingContext: { enabled: boolean };
   project: null;
   parentSceneId: null;
-  templateUrl: any;
+  // templateUrl: any;
   settingsContext: any;
-  error: null;
+  // error: null;
   editor: Editor;
   creatingProject: any;
   DialogComponent: null;
@@ -98,7 +97,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     editor.addListener("initialized", this.onEditorInitialized);
 
     this.state = {
-      error: null,
+      // error: null,
       project: null,
       parentSceneId: null,
       editor,
@@ -111,7 +110,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         enabled: false
       },
       creatingProject: null,
-      templateUrl: defaultTemplateUrl,
+      // templateUrl: defaultTemplateUrl,
       DialogComponent: null,
       dialogProps: {},
       modified: false
@@ -148,7 +147,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       const queryParams = objectToMap(this.props.router.query);
       this.setState({
         queryParams
-      })
+      });
       const projectId = queryParams.get("projectId");
       let templateUrl = null;
 
@@ -170,11 +169,23 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     }
   }
 
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.onResize);
+
+    const editor = this.state.editor;
+    editor.removeListener("sceneModified", this.onSceneModified);
+    editor.removeListener("saveProject", this.onSaveProject);
+    editor.removeListener("initialized", this.onEditorInitialized);
+    editor.removeListener("error", this.onEditorError);
+    editor.removeListener("projectLoaded", this.onProjectLoaded);
+    editor.dispose();
+  }
+
   async loadProjectTemplate(templateUrl) {
     this.setState({
       project: null,
       parentSceneId: null,
-      templateUrl
+      // templateUrl
     });
 
     this.showDialog(ProgressDialog, {
@@ -215,7 +226,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     this.setState({
       project: null,
       parentSceneId: sceneId,
-      templateUrl: null,
+      // templateUrl: null,
       onboardingContext: { enabled: false }
     });
 
@@ -227,7 +238,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     const editor = this.state.editor;
 
     try {
-      const scene = await this.props.api.getScene(sceneId);
+      const scene: any = await this.props.api.getScene(sceneId);
       const projectFile = await this.props.api.fetch(scene.scene_project_url).then(response => response.json());
 
       if (projectFile.metadata) {
@@ -260,7 +271,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     this.setState({
       project: null,
       parentSceneId: null,
-      templateUrl: null,
+      // templateUrl: null,
       onboardingContext: { enabled: false }
     });
 
@@ -301,7 +312,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     this.setState({
       project: null,
       parentSceneId: null,
-      templateUrl: null,
+      // templateUrl: null,
       onboardingContext: { enabled: false }
     });
 
@@ -398,7 +409,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
             name: "Tutorial",
             action: () => {
               // const { projectId } = this.props.match.params;
-              const projectId = null
+              const projectId = null;
 
               if (projectId === "tutorial") {
                 this.setState({ onboardingContext: { enabled: true } });
@@ -473,18 +484,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     editor.addListener("sceneModified", this.onSceneModified);
     editor.addListener("saveProject", this.onSaveProject);
   };
-
-  componentWillUnmount() {
-    window.removeEventListener("resize", this.onResize);
-
-    const editor = this.state.editor;
-    editor.removeListener("sceneModified", this.onSceneModified);
-    editor.removeListener("saveProject", this.onSaveProject);
-    editor.removeListener("initialized", this.onEditorInitialized);
-    editor.removeListener("error", this.onEditorError);
-    editor.removeListener("projectLoaded", this.onProjectLoaded);
-    editor.dispose();
-  }
 
   onResize = () => {
     this.state.editor.onResize();
@@ -819,7 +818,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     document.body.removeChild(el);
   };
 
-  onPublishProject = async () => {
+  onPublishProject = async (): Promise<void> => {
     try {
       const editor = this.state.editor;
       let project = this.state.project;

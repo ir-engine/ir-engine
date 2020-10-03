@@ -16,7 +16,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public currentAnimationLength = 0
 	public timer = 0
 
-	public height: number = 0;
+	public height = 0;
 	public tiltContainer: Group;
 	public modelContainer: Group;
 	public materials: Material[] = [];
@@ -36,15 +36,15 @@ export class CharacterComponent extends Component<CharacterComponent> {
 
 	public currentInputHash: any = ""
 
-	public defaultVelocitySimulatorDamping: number = 0.8;
-	public defaultVelocitySimulatorMass: number = 50;
+	public defaultVelocitySimulatorDamping = 0.8;
+	public defaultVelocitySimulatorMass = 50;
 	public velocitySimulator: VectorSpringSimulator
-	public moveSpeed: number = 4;
-	public angularVelocity: number = 0;
+	public moveSpeed = 4;
+	public angularVelocity = 0;
 	public orientation: Vector3 = new Vector3(0, 0, 1);
 	public orientationTarget: Vector3 = new Vector3(0, 0, 1);
-	public defaultRotationSimulatorDamping: number = 0.5;
-	public defaultRotationSimulatorMass: number = 10;
+	public defaultRotationSimulatorDamping = 0.5;
+	public defaultRotationSimulatorMass = 10;
 	public rotationSimulator: RelativeSpringSimulator;
 	public viewVector: Vector3;
 	public actions: any;
@@ -52,11 +52,11 @@ export class CharacterComponent extends Component<CharacterComponent> {
 
 	// Ray casting
 	public rayResult: RaycastResult = new RaycastResult();
-	public rayHasHit: boolean = false;
-	public rayCastLength: number = 0.57;
-	public raySafeOffset: number = 0.03;
-	public wantsToJump: boolean = false;
-	public initJumpSpeed: number = -1;
+	public rayHasHit = false;
+	public rayCastLength = 0.57;
+	public raySafeOffset = 0.03;
+	public wantsToJump = false;
+	public initJumpSpeed = -1;
 	public groundImpactVelocity: Vector3 = new Vector3();
 
 	public controlledObject: any;

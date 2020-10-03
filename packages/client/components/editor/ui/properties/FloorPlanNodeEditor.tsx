@@ -17,6 +17,21 @@ type FloorPlanNodeEditorProps = {
   node?: object;
 };
 class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
+    constructor(props) {
+        super(props);
+        const createPropSetter = propName => value =>
+            (this.props.editor as any).setPropertySelected(propName, value);
+        this.onChangeAutoCellSize = createPropSetter("autoCellSize");
+        this.onChangeCellSize = createPropSetter("cellSize");
+        this.onChangeCellHeight = createPropSetter("cellHeight");
+        this.onChangeAgentHeight = createPropSetter("agentHeight");
+        this.onChangeAgentRadius = createPropSetter("agentRadius");
+        this.onChangeAgentMaxClimb = createPropSetter("agentMaxClimb");
+        this.onChangeAgentMaxSlope = createPropSetter("agentMaxSlope");
+        this.onChangeRegionMinSize = createPropSetter("regionMinSize");
+        this.onChangeMaxTriangles = createPropSetter("maxTriangles");
+        this.onChangeForceTrimesh = createPropSetter("forceTrimesh");
+    }
   onChangeAutoCellSize: (value: any) => any;
   onChangeCellSize: (value: any) => any;
   onChangeCellHeight: (value: any) => any;
@@ -29,21 +44,6 @@ class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
   onChangeForceTrimesh: (value: any) => any;
   static description: any;
   static iconComponent: any;
-  constructor(props) {
-    super(props);
-    const createPropSetter = propName => value =>
-      (this.props.editor as any).setPropertySelected(propName, value);
-    this.onChangeAutoCellSize = createPropSetter("autoCellSize");
-    this.onChangeCellSize = createPropSetter("cellSize");
-    this.onChangeCellHeight = createPropSetter("cellHeight");
-    this.onChangeAgentHeight = createPropSetter("agentHeight");
-    this.onChangeAgentRadius = createPropSetter("agentRadius");
-    this.onChangeAgentMaxClimb = createPropSetter("agentMaxClimb");
-    this.onChangeAgentMaxSlope = createPropSetter("agentMaxSlope");
-    this.onChangeRegionMinSize = createPropSetter("regionMinSize");
-    this.onChangeMaxTriangles = createPropSetter("maxTriangles");
-    this.onChangeForceTrimesh = createPropSetter("forceTrimesh");
-  }
   onRegenerate = async () => {
     const abortController = new AbortController();
     this.props.showDialog(ProgressDialog, {

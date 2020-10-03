@@ -21,15 +21,15 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string, phas
     if (collider) {
       PhysicsManager.instance.physicsWorld.removeBody(collider.collider);
     }
-    return
+    return;
   }
 
   // phase onAdded
-  console.log("*** Adding collider")
+  console.log("*** Adding collider");
   const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
 
-  console.log("collider type "+collider.type)
+  console.log("collider type "+collider.type);
   let body;
   if (collider.type === 'box') body = createBox(entity);
   else if (collider.type === 'cylinder') body = createCylinder(entity);
@@ -40,7 +40,7 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string, phas
     transform.position.x,
     transform.position.y,
     transform.position.z
-  )
+  );
 
 /*
     body.shapes.forEach((shape) => {

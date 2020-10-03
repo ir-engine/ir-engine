@@ -1,9 +1,9 @@
-import { ServiceAddons } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
-import { UserRelationship } from './user-relationship.class'
-import createModel from '../../models/user-relationship.model'
-import hooks from './user-relationship.hooks'
-import { Op } from 'sequelize'
+import { ServiceAddons } from '@feathersjs/feathers';
+import { Application } from '../../declarations';
+import { UserRelationship } from './user-relationship.class';
+import createModel from '../../models/user-relationship.model';
+import hooks from './user-relationship.hooks';
+import { Op } from 'sequelize';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -16,13 +16,13 @@ export default (app: Application): any => {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
-  }
+  };
 
-  app.use('/user-relationship', new UserRelationship(options, app))
+  app.use('/user-relationship', new UserRelationship(options, app));
 
-  const service = app.service('user-relationship')
+  const service = app.service('user-relationship');
 
-  service.hooks(hooks)
+  service.hooks(hooks);
 
   // service.publish('created', async (data): Promise<any> => {
   //   data.user1 = await app.service('user').get(data.userId1)
@@ -65,7 +65,7 @@ export default (app: Application): any => {
           relatedUserId: data.userId,
           userId: data.relatedUserId
         }
-      })
+      });
       if (data.userRelationshipType === 'friend' && inverseRelationship != null) {
         const channel = await app.service('channel').Model.findOne({
           where: {
@@ -80,7 +80,7 @@ export default (app: Application): any => {
               }
             ]
           }
-        })
+        });
         if (channel != null) {
           await app.service('channel').patch(channel.id, {
             channelType: channel.channelType
@@ -88,27 +88,27 @@ export default (app: Application): any => {
             sequelize: {
               silent: true
             }
-          })
+          });
         }
         if (data.dataValues != null) {
-          data.dataValues.user = await app.service('user').get(data.userId)
-          data.dataValues.relatedUser = await app.service('user').get(data.relatedUserId)
+          data.dataValues.user = await app.service('user').get(data.userId);
+          data.dataValues.relatedUser = await app.service('user').get(data.relatedUserId);
         } else {
-          data.user = await app.service('user').get(data.userId)
-          data.relatedUser = await app.service('user').get(data.relatedUserId)
+          data.user = await app.service('user').get(data.userId);
+          data.relatedUser = await app.service('user').get(data.relatedUserId);
         }
         const avatarResult = await app.service('static-resource').find({
           query: {
             staticResourceType: 'user-thumbnail',
             userId: data.userId
           }
-        }) as any
+        }) as any;
 
         if (avatarResult.total > 0) {
           if (data.dataValues != null) {
-            data.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url
+            data.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
           } else {
-            data.user.avatarUrl = avatarResult.data[0].url
+            data.user.avatarUrl = avatarResult.data[0].url;
           }
         }
 
@@ -117,29 +117,29 @@ export default (app: Application): any => {
             staticResourceType: 'user-thumbnail',
             userId: data.relatedUserId
           }
-        }) as any
+        }) as any;
 
         if (relatedAvatarResult.total > 0) {
           if (data.dataValues != null) {
-            data.dataValues.relatedUser.dataValues.avatarUrl = relatedAvatarResult.data[0].url
+            data.dataValues.relatedUser.dataValues.avatarUrl = relatedAvatarResult.data[0].url;
           } else {
-            data.relatedUser.avatarUrl = relatedAvatarResult.data[0].url
+            data.relatedUser.avatarUrl = relatedAvatarResult.data[0].url;
           }
         }
 
-        const targetIds = [data.userId, data.relatedUserId]
+        const targetIds = [data.userId, data.relatedUserId];
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         return await Promise.all(targetIds.map((userId: string) => {
           return app.channel(`userIds/${userId}`).send({
             userRelationship: data
-          })
-        }))
+          });
+        }));
       }
     } catch (err) {
-      console.log(err)
-      throw err
+      console.log(err);
+      throw err;
     }
-  })
+  });
 
   service.publish('removed', async (data): Promise<any> => {
     try {
@@ -156,20 +156,20 @@ export default (app: Application): any => {
             }
           ]
         }
-      })
+      });
       if (channel != null) {
-        await app.service('channel').remove(channel.id)
+        await app.service('channel').remove(channel.id);
       }
-      const targetIds = [data.userId, data.relatedUserId]
+      const targetIds = [data.userId, data.relatedUserId];
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return await Promise.all(targetIds.map((userId: string) => {
         return app.channel(`userIds/${userId}`).send({
           userRelationship: data
-        })
-      }))
+        });
+      }));
     } catch (err) {
-      console.log(err)
-      throw err
+      console.log(err);
+      throw err;
     }
-  })
-}
+  });
+};

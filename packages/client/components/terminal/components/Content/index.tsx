@@ -19,16 +19,16 @@ class Content extends Component<any> {
     handlerKeyPress: PropTypes.func.isRequired,
   };
 
-  static defaultProps = {
-    prompt: '>',
-    oldData: {},
-  };
-
   static contextTypes = {
     maximise: PropTypes.bool,
     instances: PropTypes.array,
-    activeTab: PropTypes.string,
+    activeTabId: PropTypes.string,
     tabsShowing: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    prompt: '>',
+    oldData: {},
   };
 
   state = {
@@ -44,7 +44,7 @@ class Content extends Component<any> {
   };
 
   componentWillMount = () => {
-    const data = this.context.instances.find(i => i.index === this.props.id);
+    const data = this.context.instances.find(i => i.id === this.props.id);
     let state = { prompt: this.props.prompt };
     if (data) {
       state = { ...state, ...data.oldData };
@@ -54,33 +54,32 @@ class Content extends Component<any> {
 
   componentDidMount = () => {
     this.focusInput();
-    const data = this.context.instances.find(i => i.index === this.props.id);
+    const data = this.context.instances.find(i => i.id === this.props.id);
     this.unregister = this.props.register(this);
     if (!data || Object.keys(data.oldData).length === 0) {
       this.handleChange({ target: { value: 'show' }, key: 'Enter', dontShowCommand: true });
     }
   };
 
-  // Adjust scrolling
+  // Adjust scrolling.
   componentDidUpdate = () => {
-    if (this.inputWrapper !== null) {
+    if (this.inputWrapper !== null)
       this.inputWrapper.scrollIntoView(false);
-    }
   };
-  unregister: any = null;
-  inputWrapper: any = null;
-  contentWrapper: any = null;
-  com: any = null
 
   componentWillUnmount() {
     this.unregister(this.state);
   }
 
+  unregister: any = null;
+  inputWrapper: any = null;
+  contentWrapper: any = null;
+  com: any = null
+
   setScrollPosition = (pos) => {
     setTimeout(() => {
-      if (this.contentWrapper !== null) {
+      if (this.contentWrapper !== null)
         this.contentWrapper.scrollTop = pos;
-      }
     }, 50);
   };
 
@@ -92,16 +91,11 @@ class Content extends Component<any> {
 
   handleChange = (e) => {
     this.props.handleChange(this, e);
-  }
+  };
 
   handleKeyPress = (e) => {
     this.props.handlerKeyPress(this, e, this.com);
-    /*
-    const { key } = whatkey(e);
-    if (key == 'enter')
-      this.setScrollPosition(this.contentWrapper.scrollHeight);
-    */
-  }
+  };
 
   handleOuterKeypress = (e) => {
     const { key } = whatkey(e);
@@ -114,17 +108,13 @@ class Content extends Component<any> {
     } else if (actionKeys.indexOf(key) > -1) {
       this.com?.focus();
     }
-  }
+  };
 
   render() {
     const { id } = this.props;
-    const {
-      maximise, activeTab, tabsShowing,
-    } = this.context;
+    const { maximise, activeTabId, tabsShowing } = this.context;
 
-    if (id !== activeTab) {
-      return null;
-    }
+    if (id !== activeTabId) return null;
 
     const output = this.state.summary.map((content, i) => {
       if (typeof content === 'string' && content.length === 0) {
@@ -179,7 +169,7 @@ class Content extends Component<any> {
                   type="text"
                   tabIndex="-1"
 //                innerRef={(com) => { console.log(com); this.com = com; }}
-                  ref={(com) => { console.log(com); this.com = com; }}
+                  ref={(com) => { this.com = com; }}
                   onKeyPress={this.handleChange}
                   onKeyDown={this.handleKeyPress}
                 />

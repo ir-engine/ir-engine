@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "lib": ["es2019", "DOM", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false,
+    "module": "esnext",
+    "strict": false,
+    "noImplicitAny": false,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "moduleResolution":"node",
+    "typeRoots": ["../packages/common/types", "packages/common/types", "./node_modules/@types"],
+    "sourceMap": true,
+    "jsx": "preserve",
+    "outDir": "./lib",
+    "experimentalDecorators": true
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ]
+}

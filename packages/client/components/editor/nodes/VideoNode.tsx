@@ -59,17 +59,17 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     this.volume = 0.5;
     this.controls = true;
   }
-  get src() {
+  get src(): string {
     return this._canonicalUrl;
   }
-  get autoPlay() {
+  set src(value) {
+    this.load(value).catch(console.error);
+  }
+  get autoPlay(): any {
     return this._autoPlay;
   }
   set autoPlay(value) {
     this._autoPlay = value;
-  }
-  set src(value) {
-    this.load(value).catch(console.error);
   }
   async load(src, onError?) {
     const nextSrc = src || "";
@@ -123,31 +123,31 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     this.hideLoadingCube();
     return this;
   }
-  onPlay() {
+  onPlay(): void {
     if (this.autoPlay) {
       (this.el as any).play();
     }
   }
-  onPause() {
+  onPause(): void {
     (this.el as any).pause();
     (this.el as any).currentTime = 0;
   }
-  onChange() {
+  onChange(): void {
     this.onResize();
   }
-  clone(recursive) {
+  clone(recursive): VideoNode {
     return new (this as any).constructor(this.editor, this.audioListener).copy(
       this,
       recursive
     );
   }
-  copy(source, recursive = true) {
+  copy(source, recursive = true): any {
     super.copy(source, recursive);
     this.controls = source.controls;
     this._canonicalUrl = source._canonicalUrl;
     return this;
   }
-  serialize() {
+  serialize(): any {
     return super.serialize({
       video: {
         src: this._canonicalUrl,
@@ -167,7 +167,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
       }
     });
   }
-  prepareForExport() {
+  prepareForExport(): void {
     super.prepareForExport();
     this.addGLTFComponent("video", {
       src: this._canonicalUrl,
@@ -190,7 +190,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     });
     this.replaceObject();
   }
-  getRuntimeResourcesForStats() {
+  getRuntimeResourcesForStats(): any {
     if (this._texture) {
       return {
         textures: [this._texture],

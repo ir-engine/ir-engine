@@ -23,9 +23,9 @@ import { useRouter } from "next/router";
 
 export default function CreateProjectPage() {
   // const api = useContext(ApiContext);
-  const router = useRouter()
+  const router = useRouter();
 
-  const queryParams = new Map(Object.entries(router.query))
+  const queryParams = new Map(Object.entries(router.query));
 
   const [params, setParams] = useState({
     source: "scene_listings",
@@ -54,8 +54,8 @@ export default function CreateProjectPage() {
   );
 
   const routeTo = (route: string) => () => {
-    router.push(route)
-  }
+    router.push(route);
+  };
   
   const onChangeQuery = useCallback(
     value => {
@@ -95,10 +95,11 @@ export default function CreateProjectPage() {
 
   // MODIFIED FROM ORIGINAL
   const { loading, error, entries } = { loading: false, error: false, entries: [] };
-  let hasMore = false
+  const hasMore = false;
   const filteredEntries = entries.map(result => ({
     ...result,
     url: `/projects/new?sceneId=${result.id}`,
+    // eslint-disable-next-line @typescript-eslint/camelcase
     thumbnail_url: result && result.images && result.images.preview && result.images.preview.url
   }));
 
@@ -123,6 +124,7 @@ export default function CreateProjectPage() {
                     All
                   </Filter>
                   <Separator />
+                  {/* @ts-ignore */}
                   <SearchInput placeholder="Search scenes..." onChange={onChangeQuery} />
                 </ProjectGridHeaderRow>
                 <ProjectGridHeaderRow>
@@ -159,7 +161,7 @@ export default function CreateProjectPage() {
         </ProjectsSection>
       </main>
     </>
-  )
+  );
 }
 
 // CreateProjectPage.propTypes = {

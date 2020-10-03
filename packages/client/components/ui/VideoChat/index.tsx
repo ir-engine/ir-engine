@@ -1,5 +1,5 @@
-import { Button } from '@material-ui/core';
-import { VideoCall, CallEnd } from '@material-ui/icons';
+import {AppBar, Button} from '@material-ui/core';
+import {VideoCall, CallEnd, PersonAdd} from '@material-ui/icons';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { useEffect } from 'react';
@@ -7,6 +7,7 @@ import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/Media
 import { MediaStreamComponent } from '@xr3ngine/engine/src/networking/components/MediaStreamComponent';
 import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 import { observer } from 'mobx-react';
+import Fab from "@material-ui/core/Fab";
 
 const locationId = 'e3523270-ddb7-11ea-9251-75ab611a30da';
 interface Props {}
@@ -30,10 +31,10 @@ const VideoChat = observer((props: Props) => {
     }
   };
   return (
-    <Button onClick={gsProvision}>
+    <Fab color="primary" aria-label="VideoChat" onClick={gsProvision}>
       {MediaStreamComponent?.instance?.mediaStream == null && <VideoCall /> }
       {MediaStreamComponent?.instance?.mediaStream != null && <CallEnd /> }
-    </Button>
+    </Fab>
   );
 });
 

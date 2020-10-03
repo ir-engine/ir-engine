@@ -32,13 +32,13 @@ export const StartWalkBackRightState: StateSchemaValue = {
     {
       behavior: initializeCharacterState
     },
-    // {
-    //   behavior: setActorAnimation,
-    //   args: {
-    //     name: 'sb_start_back_right',
-    //     transitionDuration: 0.1
-    //   }
-    // }
+     {
+       behavior: setActorAnimation,
+       args: {
+         name: 'walk_backward',
+         transitionDuration: 1
+       }
+     }
   ],
   onUpdate: [
     {
@@ -53,16 +53,24 @@ export const StartWalkBackRightState: StateSchemaValue = {
         action: (entity) => {
           // Default behavior for all states
           findVehicle(entity);
-          const input = getComponent(entity, Input)
+          const input = getComponent(entity, Input);
+
+          if (input.data.has(DefaultInput.RIGHT)) {
+            addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT });
+          } else if (input.data.has(DefaultInput.LEFT)) {
+            addState(entity, { state: CharacterStateTypes.WALK_START_LEFT });
+          } else if (input.data.has(DefaultInput.FORWARD)) {
+            addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD});
+          }
           // Check if we're trying to jump
           if (input.data.has(DefaultInput.JUMP))
-            return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING })
+            return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING });
           // Check if we stopped moving
           if (!isMoving(entity)) {
-            setIdleState(entity)
+            setIdleState(entity);
           }
           if (input.data.has(DefaultInput.SPRINT))
-            return addState(entity, { state: CharacterStateTypes.SPRINT })
+            return addState(entity, { state: CharacterStateTypes.SPRINT });
         }
       }
     },
@@ -75,11 +83,13 @@ export const StartWalkBackRightState: StateSchemaValue = {
     //     transitionToState: CharacterStateTypes.WALK
     //   }
     // },
+    /*
     {
       behavior: addState,
       args: {
         state: CharacterStateTypes.WALK
       }
     }
+    */
   ]
 };

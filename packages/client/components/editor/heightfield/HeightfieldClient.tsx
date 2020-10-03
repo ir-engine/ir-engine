@@ -1,5 +1,5 @@
 // @ts-ignore
-const HeightfieldWorker = require("./heightfield.worker")
+// import HeightfieldWorker  from "./heightfield.worker";
 // import HeightfieldWorker from "./heightfield.worker";
 export default class HeightfieldClient {
   worker: any;

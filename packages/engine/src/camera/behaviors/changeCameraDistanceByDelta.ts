@@ -10,7 +10,7 @@ export const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:in
   const inputComponent = getComponent(entity, Input) as Input;
 
   if (!inputComponent.data.has(inputAxes)) {
-    return
+    return;
   }
 
   const inputPrevValue = inputComponent.prevData.get(inputAxes)?.value as number ?? 0;

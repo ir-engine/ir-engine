@@ -19,6 +19,7 @@ import { MaskPass } from '../passes/MaskPass';
 import { ShaderPass } from '../passes/ShaderPass';
 
 import { CopyMaterial } from '../materials/CopyMaterial';
+import { OutlineEffect } from '../effects/OutlineEffect';
 
 /**
  * The EffectComposer may be used in place of a normal WebGLRenderer.
@@ -38,13 +39,14 @@ const DefaultOptions = {
   stencilBuffer: true,
   multisampling: true,
   frameBufferType: HalfFloatType
-}
+};
 
 export class EffectComposer {
   renderer: any;
   inputBuffer: any;
   outputBuffer: any;
   copyPass: ShaderPass;
+  outlineEffect: OutlineEffect;
   depthTexture: any;
   passes: any[];
   autoRenderToScreen: boolean;
@@ -72,7 +74,7 @@ export class EffectComposer {
 
     const {
       depthBuffer, stencilBuffer, frameBufferType, multisampling
-    } = options
+    } = options;
 
     /**
 		 * The input buffer.
@@ -240,7 +242,7 @@ export class EffectComposer {
       this.renderer.autoClear = false;
 
       if (!oldSize.equals(newSize)) {
-        this.setSize(newSize.x, newSize.y)
+        this.setSize(newSize.x, newSize.y);
       }
 
       if (updateDOM && parent !== null) {
@@ -521,7 +523,7 @@ export class EffectComposer {
 	 */
 
   dispose() {
-    console.warn('DISPOSE EffectComposer')
+    console.warn('DISPOSE EffectComposer');
     for (const pass of this.passes) {
       pass.dispose();
     }

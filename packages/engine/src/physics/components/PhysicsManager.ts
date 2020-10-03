@@ -32,7 +32,7 @@ export class PhysicsManager extends Component<PhysicsManager> {
 
   constructor (options:{ framerate: number }) {
     super();
-    console.log("Constructing physics manager", options)
+    console.log("Constructing physics manager", options);
     PhysicsManager.instance = this;
     this.frame = 0;
     this.physicsWorld = new World();
@@ -63,23 +63,23 @@ export class PhysicsManager extends Component<PhysicsManager> {
          //if (body === Engine.actor
          //console.log("PH  UPD: body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape) }
      }};
-    // debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
+     debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
   }
 
   dispose():void {
     super.dispose();
 
-    console.log("**** Disposing")
-    PhysicsManager.instance.groundMaterial = null
-    PhysicsManager.instance.wheelMaterial = null
-    PhysicsManager.instance.trimMeshMaterial = null
-    PhysicsManager.instance.wheelGroundContactMaterial = null
+    console.log("**** Disposing");
+    PhysicsManager.instance.groundMaterial = null;
+    PhysicsManager.instance.wheelMaterial = null;
+    PhysicsManager.instance.trimMeshMaterial = null;
+    PhysicsManager.instance.wheelGroundContactMaterial = null;
   //  PhysicsManager.instance.trimMeshContactMaterial = null
 
     PhysicsManager.instance = null;
     this.frame = 0;
-    this.physicsWorld.broadphase = null
-    this.physicsWorld = null
+    this.physicsWorld.broadphase = null;
+    this.physicsWorld = null;
   }
 }
 PhysicsManager.schema = {

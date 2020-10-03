@@ -1,13 +1,21 @@
-import app from '../../packages/server/app'
+import app from '../../packages/server/src/app'
 
 describe('CRUD operation on \'User Relationship Type\' model', () => {
   const model = app.service('user-relationship-type').Model
 
   const type = 'testType'
 
+  beforeAll(async () => {
+    await model.destroy({
+      where: {
+        type: type
+      }
+    })
+  })
+
   it('Create', async () => {
     await model.create({
-      type
+      type: type
     })
   })
 

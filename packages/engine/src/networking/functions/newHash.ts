@@ -11,7 +11,7 @@ export const newHash = (name: string, _struct: any) => {
         return Math.abs(hash).toString(32).slice(2, 6);
     };
 
-    let hash = strToHash(JSON.stringify(_struct) + name);
+    const hash = strToHash(JSON.stringify(_struct) + name);
     if (hash.length !== 4)
         throw new Error('Hash has not length of 4');
     return `#${hash}`;

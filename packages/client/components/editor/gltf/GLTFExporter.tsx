@@ -662,6 +662,7 @@ class GLTFExporter {
       pbrMetallicRoughness: {}
     };
     if (material.isMeshBasicMaterial) {
+      // eslint-disable-next-line @typescript-eslint/camelcase
       gltfMaterial.extensions = { KHR_materials_unlit: {} };
       this.extensionsUsed["KHR_materials_unlit"] = true;
     } else if (!material.isMeshStandardMaterial) {

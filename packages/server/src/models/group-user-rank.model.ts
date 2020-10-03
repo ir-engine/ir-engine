@@ -1,8 +1,8 @@
-import { Sequelize, DataTypes } from 'sequelize'
-import { Application } from '../declarations'
+import { Sequelize, DataTypes } from 'sequelize';
+import { Application } from '../declarations';
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const groupUserRank = sequelizeClient.define('group_user_rank', {
     rank: {
       type: DataTypes.STRING,
@@ -12,15 +12,15 @@ export default (app: Application): any => {
     }
   }, {
     hooks: {
-      beforeCount (options: any) {
-        options.raw = true
+      beforeCount (options: any): void {
+        options.raw = true;
       }
     },
     timestamps: false
   });
 
   (groupUserRank as any).associate = (models: any): any => {
-  }
+  };
 
-  return groupUserRank
-}
+  return groupUserRank;
+};

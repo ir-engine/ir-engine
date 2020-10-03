@@ -1,12 +1,12 @@
-import { Sequelize, DataTypes } from 'sequelize'
-import { Application } from '../declarations'
-import generateShortId from '../util/generate-short-id'
-import config from '../config'
+import { Sequelize, DataTypes } from 'sequelize';
+import { Application } from '../declarations';
+import generateShortId from '../util/generate-short-id';
+import config from '../config';
 
-const COLLECTION_API_ENDPOINT = `https://${config.server.hostname}:${config.server.port}/collection`
+const COLLECTION_API_ENDPOINT = `https://${config.server.hostname}:${config.server.port}/collection`;
 
 export default (app: Application): any => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const collection = sequelizeClient.define('collection', {
     id: {
       type: DataTypes.UUID,
@@ -16,7 +16,7 @@ export default (app: Application): any => {
     },
     sid: {
       type: DataTypes.STRING,
-      defaultValue: () => generateShortId(8),
+      defaultValue: (): string => generateShortId(8),
       allowNull: false
     },
     name: {
@@ -32,12 +32,12 @@ export default (app: Application): any => {
       type: DataTypes.JSON,
       defaultValue: {},
       allowNull: true,
-      get (this: any) {
-        const metaData = this.getDataValue('metadata')
+      get (this: any): string | JSON {
+        const metaData = this.getDataValue('metadata');
         if (!metaData) {
-          return ''
+          return '';
         } else {
-          return JSON.parse(metaData)
+          return JSON.parse(metaData);
         }
       }
     },
@@ -48,27 +48,27 @@ export default (app: Application): any => {
     },
     url: {
       type: DataTypes.VIRTUAL,
-      get (this: any) {
-        return `${COLLECTION_API_ENDPOINT}/${(this.id as string)}`
+      get (this: any): string {
+        return `${COLLECTION_API_ENDPOINT}/${(this.id as string)}`;
         // if (!this.collectionId) {
         //   return ''
         // } else {
         //   return `${COLLECTION_API_ENDPOINT}/${(this.id as string)}`
         // }
       },
-      set () {
-        throw new Error('Do not try to set the `url` value!')
+      set (): void {
+        throw new Error('Do not try to set the `url` value!');
       }
     }
   }, {
     hooks: {
-      beforeCount (options: any) {
-        options.raw = true
+      beforeCount (options: any): void {
+        options.raw = true;
       }
     }
   });
 
-  (collection as any).associate = (models: any) => {
+  (collection as any).associate = (models: any): void => {
     (collection as any).belongsTo(models.collection_type, { foreignKey: 'type', required: true });
     (collection as any).hasOne(models.attribution);
     (collection as any).belongsTo(models.static_resource, { as: 'thumbnail_owned_file' });
@@ -76,7 +76,7 @@ export default (app: Application): any => {
     (collection as any).hasMany(models.tag);
     (collection as any).belongsTo(models.user); // Reticulum foreignKey: 'creatorUserId'
     (collection as any).belongsTo(models.location);
-    (collection as any).belongsToMany(models.tag, { through: 'collection_tag' })
+    (collection as any).belongsToMany(models.tag, { through: 'collection_tag' });
     // (collection as any).belongsTo(models.collection)
 
     // thumbnail   (project as any).belongsTo(models.owned_file, { foreignKey: 'thumbnailOwnedFileId' })
@@ -87,7 +87,7 @@ export default (app: Application): any => {
     // scene and project can be same   (project as any).belongsTo(models.scene, { foreignKey: 'sceneId' });
     // associated model? remove? (scene as any).belongsTo(models.owned_file, { foreignKey: 'modelOwnedFileId', allowNull: false });
     // screenshot (scene as any).belongsTo(models.owned_file, { foreignKey: 'screenshotOwnedFileId', allowNull: false });
-  }
+  };
 
-  return collection
-}
+  return collection;
+};

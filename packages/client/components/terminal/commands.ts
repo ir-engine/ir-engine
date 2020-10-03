@@ -8,6 +8,41 @@ import Left from "../ui/Drawer/Left";
 import { createEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 //import {curryRight} from "lodash";
 
+function round(number: number): number {
+    return Math.trunc(number * 1000) / 1000;
+}
+
+function objectToString(object: object, tabLevel: number, maxTabLevel: number): string {
+    let s = '';
+   
+    Object.keys(object).sort().forEach(k => {
+        s += '\t'.repeat(tabLevel);
+        s += (k + ': ');
+        const v = object[k];
+        if (v === null) {
+            s += 'null';
+        } else if (typeof v === 'function') {
+            s += 'function';
+        } else if (typeof v === 'object') {
+
+            if (tabLevel >= maxTabLevel) {
+                s += '{ ... }';
+            } else {
+                s += '{\n';
+                s += objectToString(v, tabLevel + 1, maxTabLevel);
+                s += '\t'.repeat(tabLevel);
+                s += '}';
+            }
+
+        } else {
+            s += v.toString();
+        }
+        s += '\n';
+    });
+
+    return s;
+}
+
 export const commands = {
     // Hello world to test the terminal
     helloworld: () => alert('Hello From Terminal!'),
@@ -36,7 +71,7 @@ export const commands = {
       // Query the ECS engine for current stats
       ecs: {
         method: (args, print, runCommand) => {
-            if(!args._[0]){
+            if (!args._[0]) {
                 print(`
                     ls 
                     List of entities.
@@ -51,15 +86,15 @@ export const commands = {
                     Update data.
                 `);
             }
-            console.log(args);
+//          console.log(args);
 
-            switch(args._[0]){
+            switch (args._[0]) {
                 case 'entities':
                     const CMDID = 1;
                     const command = args._[CMDID];
                     const options = args._.slice(CMDID + 1);
 
-                    print(options.join('|'));
+//                  print(options.join('|'));
                         // ecs: "console.log("Eval says: feed me code!")"
                         // _: Array(4)
                         // 0: "entities"
@@ -68,31 +103,34 @@ export const commands = {
                         // 3: 33
                         // ecs entities rm 11 22 33
 
-                    if(command === 'ls'){
-                        print(`(List entities)`);
-                        print(`{-c | --components} show entity components`);
-                        const {join, map} = Array.prototype;
-                        const mapc = callback => iterable => map.call(iterable, callback);
-                        const opts = options.join().split(/\w*\-{0,2}(\W+)\w*/);
-                        if('components' in opts || 'c' in opts){//replace to Maybee monad
-                             // @ts-ignore above the line
-                            const componentsFields = ({components}) => 
-                                toString(map.call(components, ({constructor:{name}, id}) => `${id} ${name}`) );
-                        }
-                        const entityFields = ({id}) => id;              
-                        const toString = iterable => join.call(iterable, "\n");
-                        const list = mapc(entityFields);
-                        const {entities} = Engine;
-                        print(toString(list(entities)));
-                        break;
+                    if (command === 'ls') {
+                        let s = '';
+                        Engine.entities.forEach(e => {
+                            s += (e.id + '\n');
+                            if ('a' in args || 'p' in args) {
+                                for (const componentId in e.components) {
+                                    const component = e.components[componentId];
+                                    s += ('\t' + componentId + ': ' + component.name);
+                                    if (component.name === 'TransformComponent' && ('p' in args))
+                                        s += (' (position: x: ' + round(component.position.x) +
+                                            ', y: ' + round(component.position.y) +
+                                            ', z: ' + round(component.position.z) +
+                                            '; rotation: x: ' + round(component.rotation._x) +
+                                            ', y: ' + round(component.rotation._y) +
+                                            ', z: ' + round(component.rotation._z) +
+                                            ', w: ' + round(component.rotation._w) + ')');
+                                    s += '\n';
+                                }
+                            }
+                        });
+                        print(s);
 
-                    }else if(command === 'make'){
+                    } else if (command === 'make') {
                         print(`(create entity)`);
                         const entity = createEntity();
                         print(`entity #${entity.id} created.`);
-                        break;
                     
-                    }else if(command === 'cp'){
+                    } else if (command === 'cp') {
                         print(`(copy entity)`);
                         console.log(options);
                         if(!(options && options[0])){
@@ -106,23 +144,17 @@ export const commands = {
                         }else{
                             print(`entity ${protoEntityId} not exist.`);
                         }
-                        break;
 
-                    }else if(command === 'rm'){
+                    } else if (command === 'rm') {
                         print(`(removing entities and components)`);
                         // ecs entities rm 1 2 3
                         const ids = options;
-
-//                      ids.forEach( id => Engine.entities[id].remove() );
-
 	                    ids.forEach(id => {
-		                      let foundEntity = Engine.entities.find(element => element.id == id);
-                              if (foundEntity != undefined) foundEntity.remove();
+		                      const entity = Engine.entities.find(element => element.id === id);
+                              if (entity !== undefined) entity.remove();
 	                    });
 
-                        break;
-
-                    }else if(command === 'cat'){
+                    } else if (command === 'cat') {
                         print(`(Query entity components for data)`);
                         // ecs entities cat 1/ComponentName
                         const [entityId, componentName] = options[0].split('/');
@@ -130,28 +162,61 @@ export const commands = {
                         //get component
                         //@ts-ignore
                         const entry = Object.entries(entity.components).find(([,{name}]) => name === componentName);
-                        const [,component] = entry;
+                        const [, component] = entry;
                         //@ts-ignore
                         print(component._typeId + Object.getOwnPropertyNames( component ));
                         
                         //const component = getComponent(entity, Component);
                         //get component fields
                         //list compponent data
-                        break;
                         
-                    }else if(command === 'echo'){
+                    } else if (command === 'echo') {
                         print(`(Query components for data)`);
-                        break;
                     }
-                    //break;
-
-
-
                     break;
 
-                case 'components': {
-                    // User passed a number, which should align with an entity ID -- show breakdown of data on entity
-                    if(!isNaN(args._[1])){
+                    case 'entity': {
+                        if (args._.length < 2) {
+                            print('An entity id was not speciffied.');
+                            return;
+                        }
+                        
+                        const entityId = args._[1];
+                        // console.log('check', args);
+
+                        const entity = Engine.entities.find(element => element.id === entityId);
+                        if (entity === undefined) {
+                            print(`An entity ${entityId} was not found.`);
+                            return;
+                        }
+
+                        let s = '';
+
+                        for (const componentId in entity.components) {
+                            const component = entity.components[componentId];
+                            s += (componentId + ': ' + component.name);
+                            if (component.name === 'TransformComponent' && ('p' in args))
+                                s += (' (position: x: ' + round(component.position.x) +
+                                    ', y: ' + round(component.position.y) +
+                                    ', z: ' + round(component.position.z) +
+                                    '; rotation: x: ' + round(component.rotation._x) +
+                                    ', y: ' + round(component.rotation._y) +
+                                    ', z: ' + round(component.rotation._z) +
+                                    ', w: ' + round(component.rotation._w) + ')');
+                            s += '\n';
+
+                            if ('a' in args)
+                                s += objectToString(component, 1, 2);
+                        }
+                        print(s);
+                        break;
+                    }
+
+                    case 'components':
+                    // User passed a number, which should align with an entity ID
+                    // - show breakdown of data on entity.
+                    /*
+                    if (!isNaN(args._[1])) {
                         let cstring = "";
                         Object.values(Engine.components[args._[1]]).forEach((c: any) => {
                             cstring += '\n';
@@ -166,19 +231,48 @@ export const commands = {
                         print(cstring);
                     } else {
                         let cstring = "\n";
-                    Engine.components.forEach((component: ComponentConstructor<any>) => {
-                        cstring +=  component.name + "\n";
-                        Object.keys(component).forEach(k => {
-                            cstring += k + ": " + component[k].toString() + "\n";
+                        Engine.components.forEach((component: ComponentConstructor<any>) => {
+                            cstring +=  component.name + "\n";
+                            Object.keys(component).forEach(k => {
+                                cstring += k + ": " + component[k].toString() + "\n";
+                            });
+                            cstring += "\n --------------- \n";
                         });
-                        cstring += "\n --------------- \n";
+                        console.log(cstring);
+                        print(cstring);
+                    }
+                    */
+                    let s = '';
+                    Engine.components.forEach((component: ComponentConstructor<any>) => {
+                        s += component.name + "\n";
+                        if (args.originalArgs.includes('-a')) {
+                            Object.keys(component).forEach(k => {
+                                s += ('\t' + k + ": " + component[k].toString() + '\n');
+                            });
+                        }
                     });
-                    console.log(cstring);
-                    print(cstring);
-                }
-            }
+                    print(s);
                     break;
+                
+                case 'component': {
+                    if (args._.length < 2) {
+                        print('An component id was not speciffied.');
+                        return;
+                    }
+                    
+                    const componentId = args._[1];
+                    let s = '';
 
+                    Engine.entities.forEach(e => {
+                        if (componentId in e.components) {
+                            s += `Entity ${e.id }:\n`;
+                            s += objectToString(e.components[componentId], 1, 2);
+                        }
+                    });
+
+                    print(s);
+                    break;
+                }
                 case 'systems': {
                     const result = Engine.systems.map(
                         ({name, enabled}) => 
@@ -188,33 +282,41 @@ export const commands = {
                 }
                 break;
 
-                case 'stop': {
-
+                case 'stop':
                     Engine.enabled = false;
                     //Engine.engineTimer.stop()
-                    print( `Engine stopped at ? time`);
-                    
-                }break;
-                case 'start': {
+                    print(`Engine stopped at ? time`);
+                    break;
+                case 'start':
                     Engine.enabled = true;
                     //Engine.engineTimer.start()
                     print( `Engine started`);
-                }break;
+                    break;
             }
-            
         },
         options: [
           {
             name: 'ecs',
             description: 'query the ecs engine for information on the current scene',
-            defaultValue: 'console.log("Eval says: feed me code!")',
+            defaultValue: 'console.log("Eval says: feed me code!")'
+          },
+          {
+            name: 'a',
+            description: ''
+          },
+          {
+            name: 'p',
+            description: ''
           },
         ],
       }
 };
+
 export const description = {
-    // ecs: {
-    //     play: '',
-    //     pause: '',
-    // }
+    /*
+    ecs: {
+         play: '',
+         pause: '',
+    }
+    */
 };

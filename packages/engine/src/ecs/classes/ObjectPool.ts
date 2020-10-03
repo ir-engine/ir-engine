@@ -54,7 +54,7 @@ export class ObjectPool<T> {
 */
   expand (count: number): void {
     for (let n = 0; n < count; n++) {
-      const clone = new this.type() as any
+      const clone = new this.type() as any;
       clone._pool = this;
       this.freeList.push(clone);
     }

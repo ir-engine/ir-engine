@@ -1,35 +1,35 @@
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext } from '@feathersjs/feathers';
 
 function processInclude (includeCollection: any, context: HookContext): any {
   if (!includeCollection) {
-    return
+    return;
   }
   includeCollection = includeCollection.map((model: any) => {
-    const newModel = { ...model, ...processInclude(model.include, context) }
-    newModel.model = context.app.services[model.model].Model
-    return newModel
-  })
-  return { include: includeCollection }
+    const newModel = { ...model, ...processInclude(model.include, context) };
+    newModel.model = context.app.services[model.model].Model;
+    return newModel;
+  });
+  return { include: includeCollection };
 }
 
 
 export default (options = {}): any => {
   return (context: any): any => {
     try {
-      const sequelize = context.params.sequelize || {}
-      const include = sequelize.include || []
+      const sequelize = context.params.sequelize || {};
+      const include = sequelize.include || [];
       sequelize.include = include.concat((options as any).models.map((model: any) => {
-        const newModel = { ...model, ...processInclude(model.include, context) }
-        newModel.model = context.app.services[model.model].Model
-        return newModel
-      }))
+        const newModel = { ...model, ...processInclude(model.include, context) };
+        newModel.model = context.app.services[model.model].Model;
+        return newModel;
+      }));
 
-      sequelize.raw = false
-      context.params.sequelize = sequelize
-      return context
+      sequelize.raw = false;
+      context.params.sequelize = sequelize;
+      return context;
     } catch (err) {
-      console.log('Add association error')
-      console.log(err)
+      console.log('Add association error');
+      console.log(err);
     }
-  }
-}
+  };
+};
