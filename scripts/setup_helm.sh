@@ -1,7 +1,7 @@
 set -e
 set -x
 
-sudo apt-get install snapd
+sudo apt-get install -y snapd
 
 sudo snap install kubectl --classic
 
