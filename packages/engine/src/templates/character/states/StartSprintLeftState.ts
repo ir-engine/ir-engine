@@ -55,34 +55,35 @@ export const StartSprintLeftState: StateSchemaValue = {
           findVehicle(entity);
           const input = getComponent(entity, Input)
 
+          // Check if we're trying to jump
+          if (input.data.has(DefaultInput.JUMP))
+            return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING })
 
           if (input.data.has(DefaultInput.SPRINT)) {
 
             if (input.data.has(DefaultInput.FORWARD)) {
-              addState(entity, { state: CharacterStateTypes.SPRINT })
+              return addState(entity, { state: CharacterStateTypes.SPRINT })
             } else if (input.data.has(DefaultInput.RIGHT)) {
-              addState(entity, { state: CharacterStateTypes.SPRINT_RIGHT })
+              return addState(entity, { state: CharacterStateTypes.SPRINT_RIGHT })
             } else if (input.data.has(DefaultInput.BACKWARD)) {
-              addState(entity, { state: CharacterStateTypes.SPRINT_BACKWARD })
+              return addState(entity, { state: CharacterStateTypes.SPRINT_BACKWARD })
             }
 
           } else {
 
             if (input.data.has(DefaultInput.FORWARD)) {
-              addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD})
+              return addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD})
             } else if (input.data.has(DefaultInput.LEFT)) {
-              addState(entity, { state: CharacterStateTypes.WALK_START_LEFT })
+              return addState(entity, { state: CharacterStateTypes.WALK_START_LEFT })
             } else if (input.data.has(DefaultInput.RIGHT)) {
-              addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT})
+              return addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT})
             } else if (input.data.has(DefaultInput.BACKWARD)) {
-              addState(entity, { state: CharacterStateTypes.WALK_START_BACKWARD })
+              return addState(entity, { state: CharacterStateTypes.WALK_START_BACKWARD })
             }
 
           }
 
-          // Check if we're trying to jump
-          if (input.data.has(DefaultInput.JUMP))
-            return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING })
+
 
           // If we're not moving, don't worry about the rest of this action
           if (!isMoving(entity))
