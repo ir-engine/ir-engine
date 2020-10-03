@@ -35,6 +35,7 @@ import { InfoBox } from "../infoBox";
 import { HintBox } from "../hintBox";
 import { BeginnerBox } from '../beginnerBox';
 import './style.scss';
+import { resetEngine } from "../../../engine/src/ecs/functions/EngineFunctions";
 
 const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -64,6 +65,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const [hoveredLabel, setHoveredLabel] = useState('');
   const [infoBoxData, setInfoBoxData] = useState(null);
   const [hintBoxData, setHintBoxData] = useState('default');
+  const [showControllHint, setShowControllHint] = useState(true);
 
   useEffect(() => {
     console.log('initializeEngine!');
@@ -90,12 +92,13 @@ export const EnginePage: FunctionComponent = (props: any) => {
     };
 
     const onCarActivation = (event: CustomEvent): void => {
-      console.log('event.detail',event.detail)
       if (event.detail.inCar) {
         setHintBoxData('car');
+        setHoveredLabel('');
       } else {
         setHintBoxData('default');
       }
+      setShowControllHint(true);
     };
 
     document.addEventListener('object-hover', onObjectHover);
@@ -131,12 +134,12 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // createPrefab(rigidBodyBox);
 
     addObject3DComponent(createEntity(), { obj3d: AmbientLight, ob3dArgs: {
-      intensity: 1
+      intensity: 0.3
     }});
 
     const cameraTransform = getMutableComponent<TransformComponent>(CameraComponent.instance.entity, TransformComponent);
     cameraTransform.position.set(0, 1.2, 3);
-/*
+
     const envMapURL =
       "./hdr/city.jpg";
 
@@ -149,7 +152,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
         Engine.scene.environment = map;
         Engine.scene.background = map;
         }, null);
-*/
+
     const { sound } = Engine as any;
     if (sound) {
       const audioMesh = new Mesh(
@@ -172,13 +175,14 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
 
     Engine.renderer.toneMapping = CineonToneMapping;
-    Engine.renderer.toneMappingExposure = 0.1;
+    Engine.renderer.toneMappingExposure = 1;
 
-  //  createPrefab(WorldPrefab);
+    createPrefab(WorldPrefab);
     createPrefab(staticWorldColliders);
 //  setTimeout(() => {
     // createPrefab(rigidBodyBox);
     // createPrefab(rigidBodyBox2);
+    createPrefab(RazerLaptop);
     createPrefab(PlayerCharacter);
      createPrefab(CarController);
     //createPrefab(interactiveBox);
@@ -188,18 +192,20 @@ export const EnginePage: FunctionComponent = (props: any) => {
     return (): void => {
       document.removeEventListener('object-hover', onObjectHover);
       document.removeEventListener('object-activation', onObjectActivation);
-      document.addEventListener('player-in-car', onCarActivation);
+      document.removeEventListener('player-in-car', onCarActivation);
 
       // cleanup
       console.log('cleanup?!');
       // TODO: use resetEngine when it will be completed. for now just reload
-      document.location.reload();
-      // resetEngine();
+      //document.location.reload();
+      resetEngine();
     };
   }, []);
 
   useEffect(() => {
     const f = (event: KeyboardEvent): void => {
+      //hide controlls hint when move/do smth
+      setShowControllHint(false);
       // const P_PLAY_PAUSE = 112;
       // if (event.keyCode === 27)
       if (event.keyCode === 192) {
@@ -223,10 +229,10 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   useEffect(() => {
     if (instanceConnectionState.get('instanceProvisioned') == false) {
-      console.log('authState:')
-      console.log(authState)
-      console.log('partyState:')
-      console.log(partyState)
+      console.log('authState:');
+      console.log(authState);
+      console.log('partyState:');
+      console.log(partyState);
       const user = authState.get('user');
       const party = partyState.get('party');
       const instanceId = user.instanceId != null ? user.instanceId : party.instanceId != null ? party.instanceId: null;
@@ -234,7 +240,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
       if (instanceId != null) {
         client.service('instance').get(instanceId)
             .then((instance) => {
-              console.log(`Connecting to location ${instance.locationId}`)
+              console.log(`Connecting to location ${instance.locationId}`);
               provisionInstanceServer(instance.locationId);
             });
       }
@@ -276,12 +282,12 @@ export const EnginePage: FunctionComponent = (props: any) => {
       />
     ) : null;
 
-  const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: hintBoxData }
+  const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: hintBoxData };
 
   const mobileGamepad = isMobileOrTablet()? <MobileGamepad {...mobileGamepadProps} /> : null;
 
-  const infoBox = !isMobileOrTablet() && infoBoxData ? <InfoBox onClose={() => { setInfoBoxData(null) }} data={infoBoxData} /> : null;
-  const hintBox = !isMobileOrTablet() && hintBoxData ? <HintBox layout={hintBoxData} /> : null;
+  const infoBox = !isMobileOrTablet() && infoBoxData ? <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} /> : null;
+  const hintBox = !isMobileOrTablet() && showControllHint && hintBoxData ? <HintBox layout={hintBoxData} /> : null;
 
 
   const hoveredLabelElement = !!!isMobileOrTablet() && hoveredLabel.length > 0 ?
