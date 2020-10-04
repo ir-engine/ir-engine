@@ -30,7 +30,7 @@ import ExportProjectDialog from "./dialogs/ExportProjectDialog";
 import Onboarding from "./onboarding/Onboarding";
 import SupportDialog from "./dialogs/SupportDialog";
 import { cmdOrCtrlString, objectToMap } from "./utils";
-import BrowserPrompt from "./router/BrowserPrompt";
+// import BrowserPrompt from "./router/BrowserPrompt";
 import Resizeable from "./layout/Resizeable";
 import DragLayer from "./dnd/DragLayer";
 import Editor from "../Editor";
@@ -181,7 +181,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     editor.dispose();
   }
 
-  async loadProjectTemplate(templateUrl) {
+  async loadProjectTemplate(templateFile) {
     this.setState({
       project: null,
       parentSceneId: null,
@@ -194,21 +194,21 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     });
 
     const editor = this.state.editor;
-
+    
     try {
       // const templateFile = await this.props.api.fetch(templateUrl).then(response => response.json());
-
+      
       await editor.init();
-
-      // if (templateFile.metadata) {
-      //   delete templateFile.metadata.sceneUrl;
-      //   delete templateFile.metadata.sceneId;
-      //   delete templateFile.metadata.creatorAttribution;
-      //   delete templateFile.metadata.allowRemixing;
-      //   delete templateFile.metadata.allowPromotion;
-      // }
-
-      // await editor.loadProject(templateFile);
+      
+      if (templateFile.metadata) {
+        delete templateFile.metadata.sceneUrl;
+        delete templateFile.metadata.sceneId;
+        delete templateFile.metadata.creatorAttribution;
+        delete templateFile.metadata.allowRemixing;
+        delete templateFile.metadata.allowPromotion;
+      }
+      
+      await editor.loadProject(templateFile);
 
       this.hideDialog();
     } catch (error) {
@@ -465,7 +465,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   onEditorInitialized = () => {
     const editor = this.state.editor;
 
-    const gl = this.state.editor.renderer.renderer.context;
+    const gl = this.state.editor.renderer.renderer.getContext();
 
     const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
 
@@ -625,7 +625,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   };
 
   onOpenProject = () => {
-    this.props.router.push("/projects");
+    this.props.router.push("/editor/projects");
   };
 
   onSaveProject = async () => {
@@ -893,13 +893,13 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
               <OnboardingContextProvider value={onboardingContext}>
                 <DndProvider backend={HTML5Backend}>
                   <DragLayer />
-                  {/* {toolbarMenu && <ToolBar
+                  {toolbarMenu && <ToolBar
                     menu={toolbarMenu}
                     editor={editor}
                     onPublish={this.onPublishProject}
                     isPublishedScene={isPublishedScene}
                     onOpenScene={this.onOpenScene}
-                  />} */}
+                  />}
                   <WorkspaceContainer>
                     <Resizeable axis="x" initialSizes={[0.7, 0.3]} onChange={this.onResize}>
                       <ViewportPanelContainer />
@@ -925,11 +925,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                     <title>{`${modified ? "*" : ""}${editor.scene.name} | ${(configs as any).longName()}`}</title>
                     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
                   </Helmet>
-                  {modified && (
+                  {/* {modified && (
                     <BrowserPrompt
                       message={`${editor.scene.name} has unsaved changes, are you sure you wish to navigate away from the page?`}
                     />
-                  )}
+                  )} */}
                   {onboardingContext.enabled && (
                     <Onboarding onFinish={this.onFinishTutorial} onSkip={this.onSkipTutorial} />
                   )}

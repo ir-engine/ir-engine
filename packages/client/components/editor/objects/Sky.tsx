@@ -1,14 +1,17 @@
 import {
-  Scene,
-  CubeCamera,
-  Object3D,
-  Vector3,
-  BoxBufferGeometry,
-  ShaderMaterial,
-  UniformsUtils,
   BackSide,
+  BoxBufferGeometry,
+  CubeCamera,
+  CubeTexture,
   Mesh,
-  UniformsLib
+  Object3D,
+  Scene,
+  ShaderMaterial,
+  UniformsLib,
+  UniformsUtils,
+  Vector3,
+  WebGLCubeRenderTarget,
+  WebGLRenderer
 } from "three";
 import { PMREMGenerator } from "three";
 import { PMREMCubeUVPacker } from "./PMREMCubeUVPacker";
@@ -244,7 +247,7 @@ export default class Sky extends Object3D {
     this.skyScene = new Scene();
     // BUG: CubeCamera has changed so this might be broken
     // @ts-ignore
-    this.cubeCamera = new CubeCamera(1, 100000, 512);
+    this.cubeCamera = new CubeCamera(1, 100000, new WebGLCubeRenderTarget(512));
     this.skyScene.add(this.cubeCamera);
     this.sky = new Mesh(Sky._geometry, material);
     this.sky.name = "Sky";
@@ -315,22 +318,27 @@ export default class Sky extends Object3D {
     this.sky.material.uniforms.sunPosition.value.set(x, y, z).normalize();
     this.sky.scale.set(distance, distance, distance);
   }
-  generateEnvironmentMap(renderer) {
+  generateEnvironmentMap(renderer: WebGLRenderer) {
     this.skyScene.add(this.sky);
     this.cubeCamera.update(renderer, this.skyScene);
     this.add(this.sky);
-    const vrEnabled = renderer.vr.enabled;
-    renderer.vr.enabled = false;
-    const pmremGenerator = new PMREMGenerator(
-      this.cubeCamera.renderTarget.texture as any
-    );
-    (pmremGenerator as any).update(renderer);
-    const pmremCubeUVPacker = new PMREMCubeUVPacker((pmremGenerator as any).cubeLods);
-    pmremCubeUVPacker.update(renderer);
-    renderer.vr.enabled = vrEnabled;
+    const vrEnabled = renderer.xr.enabled;
+    renderer.xr.enabled = false;
+    // const pmremGenerator = new PMREMGenerator(
+    //   this.cubeCamera.renderTarget.texture as any
+    // );
+    const pmremGenerator = new PMREMGenerator(renderer);
+    // pmremGenerator.update(renderer);
+    const texture = pmremGenerator.fromCubemap(this.cubeCamera.renderTarget.texture as CubeTexture)
+    // const pmremCubeUVPacker = new PMREMCubeUVPacker((pmremGenerator as any).cubeLods);
+    // debugger
+    // const pmremCubeUVPacker = new PMREMCubeUVPacker(this.cubeCamera.renderTarget.texture.mipmaps);
+    // pmremCubeUVPacker.update(renderer);
+    renderer.xr.enabled = vrEnabled;
     pmremGenerator.dispose();
-    pmremCubeUVPacker.dispose();
-    return pmremCubeUVPacker.CubeUVRenderTarget.texture;
+    // pmremCubeUVPacker.dispose();
+    // return pmremCubeUVPacker.CubeUVRenderTarget.texture;
+    return texture
   }
   copy(source, recursive = true) {
     if (recursive) {

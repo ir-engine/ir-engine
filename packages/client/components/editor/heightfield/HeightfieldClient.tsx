@@ -36,7 +36,7 @@ export default class HeightfieldClient {
       onAbort = () => {
         this.worker.terminate();
         if (process.browser) {
-          this.worker = new HeightfieldWorker();
+          // this.worker = new HeightfieldWorker();
         }
         const error = new Error("Canceled heightfield generation.");
         error["aborted"] = true;

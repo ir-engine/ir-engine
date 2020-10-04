@@ -194,7 +194,7 @@ export default class AudioSource extends Object3D {
   }
   async load(src, contentType?) {
     await this.loadMedia(src);
-    this.audioSource = this.audioListener.context.createMediaElementSource(
+    this.audioSource = this.audioListener.getContext().createMediaElementSource(
       this.el
     );
     this.audio.setNodeSource(this.audioSource);
