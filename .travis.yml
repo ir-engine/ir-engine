@@ -18,18 +18,21 @@ services:
 
 jobs:
   include:
-    - script: yarn install
-    - script: yarn lint
-    - script: yarn build-docker
-    - before_deploy:
-        - scripts/setup_helm.sh
-        - scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
+    - stage: yarn install
+      script: yarn install
+    - stage: yarn lint
+      script: yarn lint
+    - stage: build-docker
+      script: yarn build-docker
 #    - stage: staging-deploy
 #      script: bash scripts/publish_dockerhub.sh staging $TRAVIS_COMMIT xr3ngine/xr3ngine && scripts/deploy.sh staging $TRAVIS_COMMIT
 #      on:
 #        branch: master
     - stage: dev-deploy
-      script: bash scripts/publish_dockerhub.sh dev $TRAVIS_COMMIT xr3ngine/xr3ngine && scripts/deploy.sh dev $TRAVIS_COMMIT
+      script:
+        - scripts/setup_helm.sh
+        - scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
+        - bash scripts/publish_dockerhub.sh dev $TRAVIS_COMMIT xr3ngine/xr3ngine && scripts/deploy.sh dev $TRAVIS_COMMIT
       on:
         branch: dev
 #    - stage: tag-deploy
