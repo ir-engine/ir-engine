@@ -35,7 +35,7 @@ export default class LoadingCube extends Object3D {
     this.model = cloneObject3D(cubeGltf.scene);
     this.add(this.model);
     this.mixer = new AnimationMixer(this);
-    this.mixer.clipAction(this.model.animations[0]).play();
+    this.mixer.clipAction(cubeGltf.animations[0]).play();
     this.worldScale = new Vector3();
   }
   copy(source, recursive = true) {

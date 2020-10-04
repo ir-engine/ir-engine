@@ -195,7 +195,7 @@ export default function ViewportPanelContainer() {
     editor.editorControls.addListener("transformModeChanged", onTransformModeChanged);
   }, [editor, onSelectionChanged, onFlyModeChanged, onTransformModeChanged]);
 
-  useEffect(() => {
+  const initEditor = () => {
     editor.addListener("initialized", onEditorInitialized);
     editor.initializeRenderer(canvasRef.current);
 
@@ -210,7 +210,8 @@ export default function ViewportPanelContainer() {
         editor.renderer.dispose();
       }
     };
-  }, [editor, canvasRef, onEditorInitialized, onSelectionChanged, onFlyModeChanged]);
+  }
+  useEffect(initEditor, []);
 
   const [{ canDrop, isOver }, dropRef] = useDrop({
     accept: [ItemTypes.Node, ...AssetTypes],

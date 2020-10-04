@@ -33,23 +33,18 @@ export const ProjectsContainer = (styled as any).div`
   max-width: 1200px;
   padding: 0 20px;
 `;
-const WelcomeContainer = ProjectsContainer;
-
-// styled(ProjectsContainer)`
-//   align-items: center;
-
-//   & > * {
-//     text-align: center;
-//   }
-
-//   & > *:not(:first-child) {
-//     margin-top: 20px;
-//   }
-
-//   h2 {
-//     max-width: 480px;
-//   }
-// `;
+const WelcomeContainer = styled(ProjectsContainer)`
+  align-items: center;
+  & > * {
+    text-align: center;
+  }
+  & > *:not(:first-child) {
+    margin-top: 20px;
+  }
+  h2 {
+    max-width: 480px;
+  }
+`;
 export const ProjectsHeader = (styled as any).div`
   margin-bottom: 36px;
   display: flex;

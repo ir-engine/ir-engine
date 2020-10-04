@@ -28,7 +28,7 @@ const Cursor = (styled as any)(ArrowsAltH).attrs(({ x, y }) => ({
 `;
 
 class Scrubber extends Component {
-  propTypes = {
+  static propTypes = {
     tag: PropTypes.string,
     children: PropTypes.node,
     className: PropTypes.string,
@@ -45,7 +45,7 @@ class Scrubber extends Component {
     convertFrom: PropTypes.func.isRequired,
     convertTo: PropTypes.func.isRequired
   };
-  defaultProps = {
+  static defaultProps = {
     tag: "label",
     smallStep: 0.025,
     mediumStep: 0.1,
