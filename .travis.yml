@@ -32,8 +32,7 @@ jobs:
         - scripts/setup_helm.sh
         - scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
         - bash scripts/publish_dockerhub.sh dev $TRAVIS_COMMIT xr3ngine/xr3ngine && scripts/deploy.sh dev $TRAVIS_COMMIT
-      on:
-        branch: dev
+      if: branch = dev
 #    - stage: tag-deploy
 #      script: bash scripts/publish_dockerhub.sh latest $TRAVIS_TAG xr3ngine/xr3ngine
 #      on:
