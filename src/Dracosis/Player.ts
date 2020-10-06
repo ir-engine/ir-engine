@@ -1,5 +1,6 @@
 // import fs from 'fs';
 import * as draco3d from 'draco3d';
+import {Howl, Howler} from 'howler';  
 import { byteArrayToLong, lerp } from '../Shared/Utilities';
 import {
   Action,
@@ -17,6 +18,7 @@ import {
   SphereBufferGeometry,
   CompressedTexture,
   BoxBufferGeometry,
+  PlaneBufferGeometry,
   MeshBasicMaterial,
   ShaderMaterial,
   MeshStandardMaterial,
@@ -59,8 +61,10 @@ export default class DracosisPlayer {
   // Private Fields
   private _startFrame = 1;
   private _endFrame = 0;
+  private _renderFrame = 0;
   private _numberOfFrames = 0;
   private _bufferSize = 99;
+  private _audio = Howl;
   private _currentFrame = 1;
   private _loop = true;
   private _playOnStart = true;
@@ -143,7 +147,8 @@ export default class DracosisPlayer {
     endFrame = -1,
     speedMultiplier = 1,
     bufferSize = 99,
-    serverUrl
+    serverUrl,
+    audioUrl
   }) {
     this.scene = scene;
     this.renderer = renderer;
@@ -154,8 +159,13 @@ export default class DracosisPlayer {
     this._playOnStart = playOnStart;
     this._currentFrame = startFrame;
     this._bufferSize = bufferSize;
+    this._audio = new Howl({
+        src: audioUrl,
+        format: ['mp3']
+    });
+    
 
-    this.bufferGeometry = new BoxBufferGeometry(1, 1, 1);
+    this.bufferGeometry = new PlaneBufferGeometry(1, 1);
     this.material = new MeshBasicMaterial();
     // this is to debug UVs
     //@ts-ignore
@@ -191,7 +201,7 @@ export default class DracosisPlayer {
     this.dracoLoader.setDecoderPath(
       'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/draco/'
     );
-
+    
     let player = this;
     let dracoUrl = serverUrl + '/dracosis';
 
@@ -277,7 +287,6 @@ export default class DracosisPlayer {
       'uv',
       new Float32BufferAttribute(meshData.uv, 2)
     );
-    let bufferGeometry = new SphereBufferGeometry(1,10,10);
     geometry.computeVertexNormals();
     return geometry;
   }
@@ -510,15 +519,12 @@ export default class DracosisPlayer {
           var pos = player.getPositionInBuffer(frameNumber);
           player._ringBuffer.get(pos).compressedTexture = texture;
           if (!player._isPlaying && count < this._bufferSize) count++;
-          if (count == this._bufferSize) this.play();
+          // @todo create some bufferReady flag, to know when buffer is filled
+          // if (count == this._bufferSize) this.play();
         });
 
-      // player._framesUpdated++;
     });
-    // console.log(
-    //   'Updated mesh and texture data on ' + player._framesUpdated + ' frames'
-    // );
-    // this.play();
+
   }
 
   getPositionInBuffer(frameNumber: number): number {
@@ -604,10 +610,50 @@ export default class DracosisPlayer {
     }, 16.6*4);
   }
 
+  showFrame(frame: number){
+    if (!this._isinitialized) return;
+
+    if(!this._ringBuffer || !this._ringBuffer.getFirst()) return;
+
+    
+    console.log('playing frame---------',frame);
+    let frameToPlay = frame%this._endFrame ;
+
+    this.cleanBeforeNeeded(frameToPlay);
+    
+    if (
+      this._ringBuffer.getFirst().frameNumber == frameToPlay
+    ) {
+      console.log('+++we have frame',this._ringBuffer.getFirst().frameNumber);
+
+      this.bufferGeometry = this._ringBuffer.getFirst().bufferGeometry;
+      this.mesh.geometry = this.bufferGeometry;
+
+      this.compressedTexture = this._ringBuffer.getFirst().compressedTexture;
+      // @ts-ignore
+      this.mesh.material.map = this.compressedTexture;
+      // @ts-ignore
+      this.mesh.material.needsUpdate = true;
+
+      
+    } else{
+      console.log('---we dont have needed frame', this._ringBuffer.getFirst().frameNumber);
+    }
+  }
+
+  cleanBeforeNeeded(frameToPlay:number) {
+    const maxDeleteConstant = 50;
+    let index = 0;
+    while(this._ringBuffer.getFirst().frameNumber !== frameToPlay && index<maxDeleteConstant){
+      index++;
+      console.log('deleting frame no ',this._ringBuffer.getFirst().frameNumber );
+      this._ringBuffer.remove(0);
+    }
+  }
+
   update() {
-    // console.log(
-    //   'Player update called, current frame is + ' + this._currentFrame, this._endFrame, this._startFrame
-    // );
+    
+
 
     // Loop logic
     if (this._currentFrame > this._endFrame) {
@@ -625,9 +671,6 @@ export default class DracosisPlayer {
     // If we aren't initialized yet, skip logic but come back next frame
     if (!this._isinitialized) return;
 
-    // console.log("First frame", this._ringBuffer.getFirst().frameNumber)
-
-    //   this._ringBuffer.getFirst().frameNumber, this._currentFrame)
     // If the frame exists in the ring buffer, use it
     if (
       this._ringBuffer &&
@@ -639,17 +682,12 @@ export default class DracosisPlayer {
       this.mesh.geometry = this.bufferGeometry;
 
       this.compressedTexture = this._ringBuffer.getFirst().compressedTexture;
-      // this.compressedTexture = this._ringBuffer.get(this._currentFrame).compressedTexture
       // @ts-ignore
       this.mesh.material.map = this.compressedTexture;
       // this.mesh.material.uniforms.map.value = this.compressedTexture;
       // @ts-ignore
       this.mesh.material.needsUpdate = true;
-      // (this.mesh.material as any).uniforms.map.needsUpdate = true;
 
-      // console.log(
-      //   'Recalled the frame ' + this._ringBuffer.getFirst().frameNumber
-      // );
 
       this._ringBuffer.remove(0);
       this._currentFrame++;
@@ -664,15 +702,14 @@ export default class DracosisPlayer {
     }
 
     const player = this;
-    setTimeout(function () {
-      player.update();
-    }, (1000 / player.frameRate) * player.speed);
   }
 
   play() {
     this._isPlaying = true;
     this.show();
-    this.update();
+    // this.update();
+    this.render();
+    this._audio.play()
   }
 
   pause() {
@@ -688,6 +725,7 @@ export default class DracosisPlayer {
     // this.handleBuffers();
     if (play) this.play();
   }
+  
 
   setSpeed(multiplyScalar: number) {
     this.speed = multiplyScalar;
@@ -729,4 +767,15 @@ export default class DracosisPlayer {
       this.fadeOut(fadeTime, currentTime);
     }, stepLength * fadeTime);
   }
+
+  render(){
+    this._renderFrame++;
+    let frameToPlay = 40 + Math.round(this._audio.seek()*30) || 0;
+    if(this._renderFrame%2===0 || !this._isPlaying){
+      console.log(frameToPlay,'frametoplay');
+      this.showFrame(frameToPlay)
+    }
+    window.requestAnimationFrame(this.render.bind(this))
+  }
+
 }
