@@ -37,9 +37,9 @@ function LoadPlayer() {
   };
   const { scene, gl } = useThree();
 
-  // var renderer = new THREE.WebGLRenderer();
-  // var scene = new THREE.Scene();
-  new DracosisPlayer({
+  const mesh: any = useRef();
+
+  const DracosisSequence = new DracosisPlayer({
     scene,
     renderer: gl,
     filePath: '../server/sample_v7_10frames.drcs',
@@ -49,12 +49,21 @@ function LoadPlayer() {
     startFrame: 0,
     endFrame: -1,
     speedMultiplier: 1,
-    bufferSize: 6,
-    serverUrl: 'http://localhost:8000'
+    bufferSize: 80,
+    serverUrl: 'http://localhost:8000',
+    audioUrl:"https://cssing.org.ua/captainmorgan_audio09.mp3"
   });
-
-  const mesh: any = useRef();
-  return <mesh></mesh>;
+  // this is play button
+  return <mesh
+         onClick={(e) => DracosisSequence.play()}
+        >
+          <boxBufferGeometry attach="geometry" args={[0.2, 0.2, 0.2]} />
+          <meshStandardMaterial
+            attach="material"
+            side={THREE.DoubleSide}
+            color={'orange'}
+          />
+        </mesh>;
 }
 
 function Box(props: any) {
@@ -62,25 +71,26 @@ function Box(props: any) {
   const mesh: any = useRef();
 
   // Set up state for the hovered and active state
-  const [hovered, setHover] = useState(false);
-  const [active, setActive] = useState(false);
+  // const [hovered, setHover] = useState(false);
+  // const [active, setActive] = useState(false);
 
   // Rotate mesh every frame, this is outside of React without overhead
-  useFrame(() => (mesh.current.rotation.x = mesh.current.rotation.y += 0.01));
+  // useFrame(() => (mesh.current.rotation.x = mesh.current.rotation.y += 0.01));
 
   return (
     <mesh
       {...props}
       ref={mesh}
-      scale={active ? [1.5, 1.5, 1.5] : [1, 1, 1]}
-      onClick={(e) => setActive(!active)}
-      onPointerOver={(e) => setHover(true)}
-      onPointerOut={(e) => setHover(false)}
+      scale={[10, 10, 10]}
+      // onClick={(e) => setActive(!active)}
+      // onPointerOver={(e) => setHover(true)}
+      // onPointerOut={(e) => setHover(false)}
     >
       <boxBufferGeometry attach="geometry" args={[1, 1, 1]} />
       <meshStandardMaterial
         attach="material"
-        color={hovered ? 'hotpink' : 'orange'}
+        side={THREE.DoubleSide}
+        color={'hotpink'}
       />
     </mesh>
   );
@@ -101,6 +111,7 @@ export function Controls() {
   );
 }
 
+
 function App(props: any) {
   useEffect(() => {
     ReactDOM.render(
@@ -108,6 +119,7 @@ function App(props: any) {
         <ambientLight intensity={0.6} />
         <pointLight position={[1, 1, 1]} />
         <LoadPlayer />
+        <Box />
         <Controls />
       </Canvas>,
       document.getElementById('root')

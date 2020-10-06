@@ -10,7 +10,9 @@ app.use(bodyParser.json());
 app.use(cors());
 
 // const filePath = 'sample_v35_300frames.drcs';
-const filePath = 'CRT_fromPLY-meshlab2_sample_v35_299frames.drcs';
+// const filePath = 'CRT_fromPLY-meshlab2_sample_v35_299frames.drcs';
+const filePath = 'CRT_fromPLY-meshlab_sample_v35_1009frames.drcs';
+// const filePath = 'CRT_Morgan_100frames.drcs';
 
 function byteArrayToLong(/*byte[]*/ byteArray) {
   let value = 0;
