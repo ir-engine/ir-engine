@@ -69,6 +69,7 @@
     "axios": "^0.19.2",
     "file-type": "^14.7.0",
     "hexdump-nodejs": "^0.1.0",
+    "howler": "^2.2.0",
     "node-fetch": "^2.6.0",
     "prepend": "^1.0.2"
   }
