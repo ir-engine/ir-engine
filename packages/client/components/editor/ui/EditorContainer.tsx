@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unused-state */
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import configs from "../configs";
@@ -30,14 +29,15 @@ import ExportProjectDialog from "./dialogs/ExportProjectDialog";
 
 import Onboarding from "./onboarding/Onboarding";
 import SupportDialog from "./dialogs/SupportDialog";
-import { cmdOrCtrlString } from "./utils";
-import BrowserPrompt from "./router/BrowserPrompt";
+import { cmdOrCtrlString, objectToMap } from "./utils";
+// import BrowserPrompt from "./router/BrowserPrompt";
 import Resizeable from "./layout/Resizeable";
 import DragLayer from "./dnd/DragLayer";
 import Editor from "../Editor";
 import defaultTemplateUrl from "../../../pages/editor/crater.json";
 import tutorialTemplateUrl from "../../../pages/editor/tutorial.json";
-'../../../pages/editor/crater.json';
+import { withRouter, Router } from "next/router";
+import Api from "../api/Api";
 const StyledEditorContainer = (styled as any).div`
   display: flex;
   flex: 1;
@@ -55,21 +55,20 @@ const WorkspaceContainer = (styled as any).div`
 `;
 
 type EditorContainerProps = {
-  api: any;
-  history: any;
-  match: any;
-  location: any;
+  api: Api;
+  router: Router;
 };
 type EditorContainerState = {
   onboardingContext: { enabled: boolean };
   project: null;
   parentSceneId: null;
-  templateUrl: any;
+  // templateUrl: any;
   settingsContext: any;
-  error: null;
+  // error: null;
   editor: Editor;
   creatingProject: any;
   DialogComponent: null;
+  queryParams: Map<string, string>;
   dialogProps: {};
   modified: boolean;
 };
@@ -77,9 +76,10 @@ type EditorContainerState = {
 class EditorContainer extends Component<EditorContainerProps, EditorContainerState> {
   static propTypes = {
     api: PropTypes.object.isRequired,
-    history: PropTypes.object.isRequired,
-    match: PropTypes.object.isRequired,
-    location: PropTypes.object.isRequired
+    // These aren't needed since we are using nextjs route now
+    // history: PropTypes.object.isRequired,
+    // match: PropTypes.object.isRequired,
+    // location: PropTypes.object.isRequired
   };
 
   constructor(props) {
@@ -97,10 +97,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     editor.addListener("initialized", this.onEditorInitialized);
 
     this.state = {
-      error: null,
+      // error: null,
       project: null,
       parentSceneId: null,
       editor,
+      queryParams: new Map(Object.entries(props.router.query)),
       settingsContext: {
         settings,
         updateSetting: this.updateSetting
@@ -109,7 +110,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         enabled: false
       },
       creatingProject: null,
-      templateUrl: defaultTemplateUrl,
+      // templateUrl: defaultTemplateUrl,
       DialogComponent: null,
       dialogProps: {},
       modified: false
@@ -117,9 +118,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentDidMount() {
-    const { match, location } = this.props as any;
-    const projectId = match.params.projectId;
-    const queryParams = new URLSearchParams(location.search);
+    const queryParams = this.state.queryParams;
+    const projectId = queryParams.get("projectId");
 
     if (projectId === "new") {
       if (queryParams.has("template")) {
@@ -140,11 +140,15 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     }
   }
 
-  componentDidUpdate(prevProps) {
-    if (this.props.match.url !== prevProps.match.url && !this.state.creatingProject) {
-      const prevProjectId = prevProps.match.params.projectId;
-      const { projectId } = this.props.match.params;
-      const queryParams = new URLSearchParams(location.search);
+  componentDidUpdate(prevProps: EditorContainerProps) {
+    if (this.props.router.route !== prevProps.router.route && !this.state.creatingProject) {
+      // const { projectId } = this.props.match.params;
+      const prevProjectId = prevProps.router.query.projectId;
+      const queryParams = objectToMap(this.props.router.query);
+      this.setState({
+        queryParams
+      });
+      const projectId = queryParams.get("projectId");
       let templateUrl = null;
 
       if (projectId === "new" && !queryParams.has("sceneId")) {
@@ -177,11 +181,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     editor.dispose();
   }
 
-  async loadProjectTemplate(templateUrl) {
+  async loadProjectTemplate(templateFile) {
     this.setState({
       project: null,
       parentSceneId: null,
-      templateUrl
+      // templateUrl
     });
 
     this.showDialog(ProgressDialog, {
@@ -190,12 +194,12 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     });
 
     const editor = this.state.editor;
-
+    
     try {
-      const templateFile = await this.props.api.fetch(templateUrl).then(response => response.json());
-
+      // const templateFile = await this.props.api.fetch(templateUrl).then(response => response.json());
+      
       await editor.init();
-
+      
       if (templateFile.metadata) {
         delete templateFile.metadata.sceneUrl;
         delete templateFile.metadata.sceneId;
@@ -203,7 +207,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         delete templateFile.metadata.allowRemixing;
         delete templateFile.metadata.allowPromotion;
       }
-
+      
       await editor.loadProject(templateFile);
 
       this.hideDialog();
@@ -222,7 +226,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     this.setState({
       project: null,
       parentSceneId: sceneId,
-      templateUrl: null,
+      // templateUrl: null,
       onboardingContext: { enabled: false }
     });
 
@@ -234,7 +238,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     const editor = this.state.editor;
 
     try {
-      const scene = await this.props.api.getScene(sceneId);
+      const scene: any = await this.props.api.getScene(sceneId);
       const projectFile = await this.props.api.fetch(scene.scene_project_url).then(response => response.json());
 
       if (projectFile.metadata) {
@@ -267,7 +271,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     this.setState({
       project: null,
       parentSceneId: null,
-      templateUrl: null,
+      // templateUrl: null,
       onboardingContext: { enabled: false }
     });
 
@@ -308,7 +312,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     this.setState({
       project: null,
       parentSceneId: null,
-      templateUrl: null,
+      // templateUrl: null,
       onboardingContext: { enabled: false }
     });
 
@@ -404,12 +408,13 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
           {
             name: "Tutorial",
             action: () => {
-              const { projectId } = this.props.match.params;
+              // const { projectId } = this.props.match.params;
+              const projectId = null;
 
               if (projectId === "tutorial") {
                 this.setState({ onboardingContext: { enabled: true } });
               } else {
-                this.props.history.push("/projects/tutorial");
+                this.props.router.push("/projects/tutorial");
               }
             }
           },
@@ -460,7 +465,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   onEditorInitialized = () => {
     const editor = this.state.editor;
 
-    const gl = this.state.editor.renderer.renderer.context;
+    const gl = this.state.editor.renderer.renderer.getContext();
 
     const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
 
@@ -607,7 +612,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
     this.updateModifiedState(() => {
       this.setState({ creatingProject: true, project }, () => {
-        this.props.history.replace(`/projects/${project.project_id}`);
+        this.props.router.replace(`/projects/${project.project_id}`);
         this.setState({ creatingProject: false });
       });
     });
@@ -616,11 +621,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   onNewProject = async () => {
-    this.props.history.push("/projects/templates");
+    this.props.router.push("/projects/templates");
   };
 
   onOpenProject = () => {
-    this.props.history.push("/projects");
+    this.props.router.push("/editor/projects");
   };
 
   onSaveProject = async () => {
@@ -920,11 +925,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                     <title>{`${modified ? "*" : ""}${editor.scene.name} | ${(configs as any).longName()}`}</title>
                     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
                   </Helmet>
-                  {modified && (
+                  {/* {modified && (
                     <BrowserPrompt
                       message={`${editor.scene.name} has unsaved changes, are you sure you wish to navigate away from the page?`}
                     />
-                  )}
+                  )} */}
                   {onboardingContext.enabled && (
                     <Onboarding onFinish={this.onFinishTutorial} onSkip={this.onSkipTutorial} />
                   )}
@@ -938,4 +943,4 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 }
 
-export default withApi(EditorContainer);
+export default withRouter(withApi(EditorContainer));

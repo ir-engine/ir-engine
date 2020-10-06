@@ -128,7 +128,7 @@ self.onmessage = async event => {
   const message = event.data;
   const params = Object.assign({}, defaultParams, message.params || {});
   const geometry = new THREE.BufferGeometry();
-  geometry.addAttribute(
+  geometry.setAttribute(
     "position",
     new THREE.Float32BufferAttribute(message.verts, 3)
   );

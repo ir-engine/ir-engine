@@ -5,7 +5,9 @@ export default class HeightfieldClient {
   worker: any;
   working: boolean;
   constructor() {
-    // this.worker = new HeightfieldWorker();
+    if (process.browser) {
+      // this.worker = new HeightfieldWorker();
+    }
     this.working = false;
   }
   async buildHeightfield(geometry, params, signal) {
@@ -33,7 +35,9 @@ export default class HeightfieldClient {
       };
       onAbort = () => {
         this.worker.terminate();
-        // this.worker = new HeightfieldWorker();
+        if (process.browser) {
+          // this.worker = new HeightfieldWorker();
+        }
         const error = new Error("Canceled heightfield generation.");
         error["aborted"] = true;
         reject(error);

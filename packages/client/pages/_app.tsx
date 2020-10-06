@@ -7,7 +7,8 @@ import { fromJS } from 'immutable';
 import { configureStore } from '../redux/store';
 import { Store } from 'redux';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import theme, { ThemeContext } from "./../components/editor/ui/theme";
+import theme from "./../components/editor/ui/theme";
+import { ThemeProvider } from "styled-components";
 import { restoreState } from '../redux/persisted.store';
 import { doLoginAuto } from '../redux/auth/service';
 import DeviceDetector from 'device-detector-js';
@@ -69,10 +70,6 @@ const MyApp = (props: Props): any => {
     }
     setApi(new Api());
   }, []);
-  
-  useEffect(() => {
-    console.warn("API: ", api);
-  }, [api]);
 
   return (
     <Fragment>
@@ -83,14 +80,14 @@ const MyApp = (props: Props): any => {
           content="minimum-scale=1, initial-scale=1, width=device-width"
         />
       </Head>
-      <ThemeContext.Provider value={theme}>
+      <ThemeProvider theme={theme}>
         <ApiContext.Provider value={api}>
           <CssBaseline />
           <Provider store={store}>
             <Component {...pageProps} />
           </Provider>
         </ApiContext.Provider>
-      </ThemeContext.Provider>
+      </ThemeProvider>
     </Fragment>
   );
 };

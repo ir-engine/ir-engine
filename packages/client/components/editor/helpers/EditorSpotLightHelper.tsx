@@ -61,7 +61,7 @@ export default class EditorSpotLightHelper extends Object3D {
         1
       );
     }
-    geometry.addAttribute("position", new Float32BufferAttribute(positions, 3));
+    geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
     const material = new LineBasicMaterial({ fog: false });
     this.outerCone = new LineSegments(geometry, material);
     this.outerCone.layers.set(1);

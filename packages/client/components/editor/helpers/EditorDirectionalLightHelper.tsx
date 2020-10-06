@@ -20,7 +20,7 @@ export default class EditorDirectionalLightHelper extends Object3D {
     this.color = color;
     if (size === undefined) size = 1;
     let geometry = new BufferGeometry();
-    geometry.addAttribute(
+    geometry.setAttribute(
       "position",
       new Float32BufferAttribute(
         [
@@ -48,7 +48,7 @@ export default class EditorDirectionalLightHelper extends Object3D {
     this.lightPlane.layers.set(1);
     this.add(this.lightPlane);
     geometry = new BufferGeometry();
-    geometry.addAttribute(
+    geometry.setAttribute(
       "position",
       new Float32BufferAttribute([0, 0, 0, 0, 0, 1], 3)
     );

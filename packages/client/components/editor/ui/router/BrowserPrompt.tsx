@@ -1,5 +1,5 @@
-import React from "react";
 import { Prompt } from "react-router-dom";
+import React from "react";
 type BrowserPromptProps = {
   message: ((...args: any[]) => any) | string;
 };
