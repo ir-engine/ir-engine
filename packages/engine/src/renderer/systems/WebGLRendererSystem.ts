@@ -1,4 +1,4 @@
-import { NearestFilter, PerspectiveCamera, RGBFormat, WebGLRenderer, WebGLRenderTarget } from 'three';
+import { NearestFilter, PCFSoftShadowMap, PerspectiveCamera, RGBFormat, WebGLRenderer, WebGLRenderTarget } from 'three';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Engine } from '../../ecs/classes/Engine';
 import { Entity } from '../../ecs/classes/Entity';
@@ -32,14 +32,31 @@ export class WebGLRendererSystem extends System {
 
     this.onResize = this.onResize.bind(this);
 
+
     // Create the Renderer singleton
     addComponent(createEntity(), RendererComponent);
+
+    let context;
+    const canvas = document.createElement("canvas");
+
+    try {
+      context = canvas.getContext("webgl2", { antialias: true });
+    } catch (error) {
+      context = canvas.getContext("webgl", { antialias: true });
+    }
     const renderer = new WebGLRenderer({
-      antialias: true
+      canvas,
+      context,
+      antialias: true,
+      preserveDrawingBuffer: true
     });
+    renderer.physicallyCorrectLights = true;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = PCFSoftShadowMap;
+
     Engine.renderer = renderer;
     // Add the renderer to the body of the HTML document
-    document.body.appendChild(Engine.renderer.domElement);
+    document.body.appendChild(canvas);
     window.addEventListener('resize', this.onResize, false);
     this.onResize();
 
